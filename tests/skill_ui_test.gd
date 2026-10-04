@@ -117,7 +117,7 @@ func _test_character_skill_tree(instance: Node) -> void:
 	var level_resource := scrim.find_child("ProgressionLevelLabel", true, false) as Label
 	var point_resource := scrim.find_child("ProgressionSkillPointsLabel", true, false) as Label
 	var moltshard_resource := scrim.find_child("ProgressionMoltshardsLabel", true, false) as Label
-	_expect(level_resource != null and level_resource.get_theme_font_size("font_size") >= UiTypography.SIZE_SECTION, "Character resources should give Level prominent typography")
+	_expect(level_resource != null and level_resource.text == "THE REAVER · LEVEL %d" % int((instance.get("_progression") as Dictionary).get("level", 1)) and level_resource.get_theme_font_size("font_size") == UiTypography.scaled_size(level_resource, 15), "Character level should use the readable Reaver eyebrow above its display title")
 	_expect(point_resource != null and point_resource.get_theme_color("font_color") != level_resource.get_theme_color("font_color"), "Skill Points should have a distinct resource color")
 	_expect(moltshard_resource != null and moltshard_resource.text.contains("2") and moltshard_resource.get_theme_color("font_color") != point_resource.get_theme_color("font_color"), "Moltshards should be large, color-coded, and show the saved count")
 	_expect(scrim.find_child("SkillResetHint", true, false) == null, "Reset explanation should appear only in its confirmation, not as permanent footer copy")

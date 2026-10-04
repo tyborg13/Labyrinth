@@ -246,6 +246,14 @@ class IconIdentityPolicyTests(unittest.TestCase):
             )
             concepts[f"objective:{objective_id}"] = path
 
+        # Progression resources shown as stat chips in the character menu
+        # (Ember and Defiance are already registered as keywords above).
+        for resource, path in {
+            "skill_point": "res://assets/art/icons/skill_point.png",
+            "moltshard": "res://assets/art/icons/moltshard.png",
+        }.items():
+            concepts[f"resource:{resource}"] = path
+
         paths: dict[str, str] = {}
         hashes: dict[str, str] = {}
         for concept, resource_path in concepts.items():

@@ -1,8 +1,6 @@
 extends "res://tests/pre_battle_preview_probe.gd"
 
-const Settings = preload("res://scripts/settings_store.gd")
 const MATERIAL_OUTPUT: String = "user://probes/pre_battle_material_polish"
-var _viewport: SubViewport
 var _before: bool = false
 
 func _initialize() -> void:
@@ -40,9 +38,11 @@ func _run_material_proof(settings: Dictionary) -> void:
 	instance.call("_close_dialogue")
 	await _settle()
 	var preview: Dictionary = (instance.get("_pre_battle_preview_run_state") as Dictionary).duplicate(true)
-	for count: int in range(1, 6):
+	for count: int in range(1, 7):
 		var sized: Dictionary = preview.duplicate(true)
 		var enemies: Array = sized["combat_state"]["enemies"]
+		while enemies.size() < count:
+			enemies.append((enemies[0] as Dictionary).duplicate(true))
 		enemies.resize(count)
 		instance.set("_pre_battle_preview_run_state", sized)
 		instance.call("_rebuild_pre_battle_overlay")
@@ -54,10 +54,12 @@ func _run_material_proof(settings: Dictionary) -> void:
 			var deck_scroll := panel.find_child("PreBattleDeckScroll", true, false) as ScrollContainer
 			var deck_bar := deck_scroll.get_v_scroll_bar()
 			_expect(not deck_bar.visible and deck_bar.max_value <= deck_bar.page + 1.0, "Default deck fits without scrolling with %d foes and full room header" % count)
+		_assert_foe_fit(panel, count)
+		_assert_cards(panel, state["deck_cards"], "deck")
 		var flow := panel.find_child("PreBattleEnemyFlow", true, false) as Control
 		_expect(flow.get_child_count() == count, "Count should remain exact")
 		var scroll := panel.find_child("PreBattleEnemyScroll", true, false) as ScrollContainer
-		_expect(scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, "Five or fewer foes should not scroll")
+		_expect(scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, "Six or fewer foes should not scroll")
 		for card: Node in flow.get_children():
 			_expect((card as Control).get_theme_stylebox("panel") is StyleBoxEmpty, "Portraits should retain authored brush, without new card faces")
 			if not _before:
@@ -75,9 +77,10 @@ func _run_material_proof(settings: Dictionary) -> void:
 	await _settle()
 	var boss_preview: Dictionary = instance.get("_pre_battle_preview_run_state")
 	var objective: Dictionary = boss_preview["combat_state"]["objective"]
-	var exact_objective: String = load("res://scripts/combat_objective_rules.gd").title_for_objective(objective).to_upper()
-	_expect(_labels_text(instance.get("_pre_battle_panel")).contains(exact_objective), "Boss objective must match the precise live leader title")
-	await _snap("06_boss")
+	var exact_objective: String = load("res://scripts/combat_objective_rules.gd").title_for_objective(objective)
+	var objective_chip := (instance.get("_pre_battle_panel") as Control).find_child("PreBattleObjectiveChip", true, false) as Control
+	_expect(str(objective_chip.get_meta("objective_title", "")) == exact_objective, "Boss objective must match the precise live leader title")
+	await _snap("07_boss")
 
 	state = _run_with_available_combat(engine)
 	var progression: Dictionary = (state.get("progression", {}) as Dictionary).duplicate(true)
@@ -163,13 +166,13 @@ func _motion_lifecycle(instance: Node, settings: Dictionary) -> void:
 	var frame := instance.get("_pre_battle_frame") as Control
 	_expect(panel.scale.is_equal_approx(frame.scale), "Raster frame and dossier must settle together")
 	var positions: Dictionary = {}
-	for badge: Node in panel.find_children("PreBattleDeckBadge", "PanelContainer", true, false):
+	for badge: Node in panel.find_children("PreBattleDeckBadge", "Button", true, false):
 		positions[badge.get_instance_id()] = (badge as Control).position
 	if tween != null:
 		tween.custom_step(0.08)
 	_expect(scrim.modulate.a > 0.8 and scrim.modulate.a < 1.0, "Mid capture should advance the same entrance")
 	await _snap("13_entry_mid")
-	for badge: Node in panel.find_children("PreBattleDeckBadge", "PanelContainer", true, false):
+	for badge: Node in panel.find_children("PreBattleDeckBadge", "Button", true, false):
 		_expect(positions[badge.get_instance_id()] == (badge as Control).position, "Entrance must not animate Flow child positions")
 	settings["reduced_motion"] = true
 	instance.call("_on_settings_changed", settings)

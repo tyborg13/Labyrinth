@@ -8177,19 +8177,27 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 		var deck_bar: VScrollBar = deck_scroll.get_v_scroll_bar()
 		_assert(not deck_bar.visible and deck_bar.max_value <= deck_bar.page + 1.0, "Standard pre-battle Active Deck should not need or expose vertical scrolling")
 	_assert(displayed_deck_entries == (paused_state.get("deck_cards", []) as Array).size(), "Counted pre-battle deck tiles should represent every card Start will use")
-	var deck_badge: Control = null
 	if preview_panel != null:
-		deck_badge = preview_panel.find_child("PreBattleDeckBadge", true, false) as Control
-	var deck_badge_name: Label = null
-	if deck_badge != null:
-		deck_badge_name = deck_badge.find_child("CardBadgeName", true, false) as Label
-	var deck_art: TextureRect = deck_badge.find_child("CardBadgeArt", true, false) as TextureRect if deck_badge != null else null
-	var deck_content: Control = deck_badge.find_child("PreBattleCardObjectContent", true, false) as Control if deck_badge != null else null
-	_assert(deck_art != null and deck_content != null and deck_art.get_global_rect().is_equal_approx(deck_content.get_global_rect()), "Pre-battle artwork should fill the complete widget face")
-	_assert(deck_badge != null and deck_badge.find_child("PreBattleCardNameFace", true, false) == null, "Pre-battle names should overlay artwork without a separate backing panel")
-	_assert(deck_badge_name != null and not deck_badge_name.text.is_empty() and deck_badge_name.text == str(deck_badge.get_meta("display_name", "")), "Pre-battle card objects should show the exact name and duplicate quantity")
-	_assert(deck_badge_name != null and deck_badge_name.get_theme_font_size("font_size") >= UiTypography.SIZE_CAPTION, "Pre-battle card identities should retain the shared caption floor")
-	_assert(deck_content != null and deck_badge_name != null and deck_content.get_global_rect().grow(0.5).encloses(deck_badge_name.get_global_rect()) and deck_badge_name.get_visible_line_count() >= deck_badge_name.get_line_count(), "Pre-battle card names should remain fully inside the artwork face")
+		for node_name: String in ["PreBattleDeckBadge", "PreBattleAttunedBadge"]:
+			for strip_node: Node in preview_panel.find_children(node_name, "Control", true, false):
+				var strip: Control = strip_node as Control
+				var card_id: String = str(strip.get_meta("card_id", ""))
+				var card_count: int = int(strip.get_meta("card_count", 1))
+				var card_def: Dictionary = GameData.card_def(card_id)
+				var art: TextureRect = strip.get_node_or_null("Art") as TextureRect
+				var name_label: Label = strip.get_node_or_null("Name") as Label
+				var count_label: Label = strip.get_node_or_null("Count") as Label
+				_assert(art != null and art.texture != null and str(art.texture.get_meta("asset_source_path", "")) == str(card_def.get("art_path", "")), "Pre-battle strip thumbnails should show their card's art texture")
+				_assert(name_label != null and not name_label.text.is_empty() and name_label.text == str(card_def.get("name", "")) and name_label.text == str(strip.get_meta("display_name", "")), "Pre-battle strips should show the exact card display name")
+				_assert(count_label != null and count_label.visible == (card_count > 1) and count_label.text == ("×%d" % card_count if card_count > 1 else ""), "Pre-battle strips should show the exact duplicate quantity as ×N and omit single-copy counts")
+				_assert(name_label != null and count_label != null and name_label.get_theme_font_size("font_size") >= 14 and count_label.get_theme_font_size("font_size") >= 14, "Pre-battle strip text should retain the 14px floor")
+				if name_label != null and art != null and count_label != null:
+					var strip_rect: Rect2 = strip.get_global_rect().grow(0.5)
+					var name_rect: Rect2 = name_label.get_global_rect()
+					var name_end: float = count_label.get_global_rect().position.x if count_label.visible else strip_rect.end.x
+					_assert(name_rect.position.x >= art.get_global_rect().end.x, "Pre-battle strip names should sit beside their art thumbnails")
+					_assert(strip_rect.encloses(name_rect) and name_rect.end.x <= name_end + 0.5 and name_label.get_visible_line_count() >= name_label.get_line_count(), "Pre-battle strip name labels should fit without clipping or overlapping the count")
+					_assert(not count_label.visible or strip_rect.encloses(count_label.get_global_rect()), "Pre-battle duplicate counts should remain fully inside their strips")
 	var exit_destinations: Dictionary = instance.get("_exit_destinations_by_tile")
 	_assert(exit_destinations.is_empty(), "Committed pre-battle preview should not expose alternate exits")
 	var inspection_sources: Array[Control] = []
@@ -8348,7 +8356,7 @@ func _test_run_scene_pre_battle_five_enemy_layout_compacts() -> void:
 	await process_frame
 	instance.call("_close_dialogue")
 	var enemies: Array = []
-	for enemy_type: String in ["warden", "acolyte", "harrier", "crawler", "grave_surgeon"]:
+	for enemy_type: String in ["warden", "acolyte", "harrier", "crawler", "grave_surgeon", "chainbound_gaoler"]:
 		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
 		var max_hp: int = int(enemy_def.get("max_hp", 1))
 		enemies.append({
@@ -8356,35 +8364,50 @@ func _test_run_scene_pre_battle_five_enemy_layout_compacts() -> void:
 			"hp": max_hp,
 			"max_hp": max_hp
 		})
-	for enemy_count: int in [1, 2, 3, 4, 5]:
+	for enemy_count: int in [1, 2, 3, 4, 5, 6]:
 		var layout_enemies: Array = enemies.slice(0, enemy_count)
 		var enemy_section: Control = instance.call("_build_pre_battle_enemy_section", {"enemies": layout_enemies}, Color("d8b06d")) as Control
+		enemy_section.size = Vector2(660.0, 560.0) * UiTypography.ui_scale(instance)
 		root.add_child(enemy_section)
 		await process_frame
+		await process_frame
 		var enemy_flow: Control = enemy_section.find_child("PreBattleEnemyFlow", true, false) as Control
+		var enemy_scroll: ScrollContainer = enemy_section.find_child("PreBattleEnemyScroll", true, false) as ScrollContainer
 		_assert(enemy_flow != null and enemy_flow.get_child_count() == enemy_count, "%d-enemy pre-battle sections should render every enemy card" % enemy_count)
+		_assert(enemy_scroll != null and enemy_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, "One through six pre-battle foes should fit without vertical scrolling")
 		if enemy_flow != null:
-			var top_row_count: int = 1 if enemy_count == 1 else (2 if enemy_count <= 4 else 3)
+			var top_row_count: int = mini(3, enemy_count)
 			var top_row_y: float = (enemy_flow.get_child(0) as Control).position.y
 			for top_index: int in range(top_row_count):
 				var top_card: Control = enemy_flow.get_child(top_index) as Control
 				_assert(top_card != null and absf(top_card.position.y - top_row_y) <= 1.0, "%d-enemy pre-battle layouts should align the top row" % enemy_count)
-			if enemy_count >= 3:
-				var bottom_start: int = 2 if enemy_count <= 4 else 3
-				var bottom_card: Control = enemy_flow.get_child(bottom_start) as Control
-				_assert(bottom_card != null and bottom_card.position.y > top_row_y, "%d-enemy pre-battle layouts should place the lower row below the top row" % enemy_count)
-				if enemy_count == 4:
-					var first_top: Control = enemy_flow.get_child(0) as Control
-					_assert(first_top != null and absf(bottom_card.position.x - first_top.position.x) >= 1.0, "Four-enemy pre-battle layouts should preserve the slight lower-row offset")
-				if enemy_count == 5:
-					var bottom_second: Control = enemy_flow.get_child(4) as Control
-					_assert(bottom_second != null and absf(bottom_second.position.y - bottom_card.position.y) <= 1.0, "Five-enemy pre-battle layouts should center two foes below three")
+			if enemy_count <= 3:
+				var header: Control = enemy_section.find_child("PreBattleFoesDivider", true, false) as Control
+				var actions: Control = enemy_section.find_child("PreBattleActions", true, false) as Control
+				var first_card: Control = enemy_flow.get_child(0) as Control
+				_assert(header != null and actions != null and first_card != null, "Single-row pre-battle sections should retain their header and actions")
+				if header != null and actions != null and first_card != null:
+					var midpoint: float = (header.get_global_rect().end.y + actions.global_position.y) * 0.5
+					_assert(absf(first_card.get_global_rect().get_center().y - midpoint) <= 1.0, "One through three pre-battle foes should center between the FOES header and actions")
+			else:
+				var first_top: Control = enemy_flow.get_child(0) as Control
+				var bottom_card: Control = enemy_flow.get_child(3) as Control
+				_assert(bottom_card != null and bottom_card.position.y >= top_row_y + first_top.size.y, "%d-enemy pre-battle layouts should put the second row below three top-row foes without overlap" % enemy_count)
+				for bottom_index: int in range(3, enemy_count):
+					var bottom_foe: Control = enemy_flow.get_child(bottom_index) as Control
+					_assert(bottom_foe != null and absf(bottom_foe.position.y - bottom_card.position.y) <= 1.0, "%d-enemy pre-battle layouts should align their second row" % enemy_count)
+				var last_bottom: Control = enemy_flow.get_child(enemy_count - 1) as Control
+				var row_center: float = (bottom_card.get_global_rect().position.x + last_bottom.get_global_rect().end.x) * 0.5
+				_assert(absf(row_center - enemy_flow.get_global_rect().get_center().x) <= 1.0, "%d-enemy pre-battle layouts should center their second row" % enemy_count)
 			for index: int in range(enemy_flow.get_child_count()):
 				var card: Control = enemy_flow.get_child(index) as Control
 				var threat: Label = card.find_child("PreBattleThreatSummary", true, false) as Label if card != null else null
 				_assert(threat != null and not threat.text.is_empty(), "%d-enemy pre-battle cards should retain readable threat summaries" % enemy_count)
+				_assert(card != null and enemy_section.get_global_rect().grow(1.0).encloses(card.get_global_rect()) and enemy_scroll != null and enemy_scroll.get_global_rect().grow(1.0).encloses(card.get_global_rect()), "%d-enemy pre-battle foe columns should remain fully inside the foes stage" % enemy_count)
 				if enemy_count == 5:
-					_assert(card != null and card.custom_minimum_size.x <= 200.0 and card.custom_minimum_size.y <= 190.0, "Five-enemy pre-battle cards should switch to the compact fixed size")
+					var art: TextureRect = card.find_child("PreBattleEnemyArt", true, false) as TextureRect if card != null else null
+					var layout_scale: float = UiTypography.ui_scale(instance)
+					_assert(card != null and absf(card.size.x / layout_scale - 206.0) <= 1.0 and art != null and art.texture != null and absf(art.size.y / layout_scale - 150.0) <= 15.0 and art.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "Five-enemy pre-battle columns should retain their 206px width and approximately 150px compact sprites with nearest filtering")
 		enemy_section.queue_free()
 		await process_frame
 	var inspection: Control = instance.call("_build_pre_battle_enemy_inspection_panel", enemies[0]) as Control
@@ -11350,7 +11373,7 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	var loadout_button: Button = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/LoadoutButton") as Button
 	var loadout_badge: PanelContainer = instance.get("_loadout_badge") as PanelContainer
 	var loadout_badge_label: Label = instance.get("_loadout_badge_label") as Label
-	_assert(loadout_button != null and loadout_button.icon != null, "The top-right HUD should expose an icon-only character loadout button")
+	_assert(loadout_button != null and (loadout_button.get_node_or_null("Icon") as TextureRect).texture != null, "The top-right HUD should expose an icon-only character loadout socket")
 	_assert(loadout_button.tooltip_text == "Character Loadout", "The loadout header button should identify its destination")
 	run_state["equipment_inventory"] = ["ward_kite"]
 	var notification_collected_equipment: Array = (run_state.get("collected_equipment", []) as Array).duplicate()
@@ -11407,9 +11430,10 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	var level_resource: Label = upgrade_scrim.find_child("ProgressionLevelLabel", true, false) as Label
 	var point_resource: Label = upgrade_scrim.find_child("ProgressionSkillPointsLabel", true, false) as Label
 	var moltshard_resource: Label = upgrade_scrim.find_child("ProgressionMoltshardsLabel", true, false) as Label
-	_assert(level_resource != null and level_resource.text == "LEVEL  1", "The character overlay should prominently show progression level")
-	_assert(point_resource != null and point_resource.text == "POINTS  0", "The character overlay should prominently show banked skill points")
-	_assert(moltshard_resource != null and moltshard_resource.text == "MOLTSHARDS  0", "The character overlay should prominently show reset resources")
+	var character_title: Label = upgrade_scrim.find_child("CharacterTitle", true, false) as Label
+	_assert(level_resource != null and level_resource.text == "THE REAVER · LEVEL 1" and level_resource.get_theme_font_size("font_size") == UiTypography.scaled_size(level_resource, 15) and character_title != null and character_title.get_theme_font_size("font_size") == UiTypography.scaled_size(character_title, 46), "The character overlay should show progression level in the Reaver eyebrow above its prominent display title")
+	_assert(point_resource != null and point_resource.text == "0" and point_resource.get_parent().name == "ProgressionSkillPointsChip" and _label_with_text(point_resource.get_parent(), "SKILL POINTS") != null, "The character overlay should show banked skill points as the value and caption in their stat chip")
+	_assert(moltshard_resource != null and moltshard_resource.text == "0" and moltshard_resource.get_parent().name == "ProgressionMoltshardsChip" and _label_with_text(moltshard_resource.get_parent(), "MOLTSHARDS") != null, "The character overlay should show reset resources as the value and caption in their stat chip")
 	_assert(upgrade_scrim.find_child("CharacterSkillTree", true, false) != null, "The character overlay should render the data-driven skill tree")
 	_assert(_label_with_text(upgrade_scrim, "Quick Wits") != null, "The skill tree should show its root abilities")
 	_assert(_label_with_text(upgrade_scrim, "Might") == null and _label_with_text(upgrade_scrim, "Fire Magick") == null, "The Skills overlay should not expose retired stat allocation rows")
@@ -11427,9 +11451,26 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(_button_with_text(upgrade_scrim, "Magic") != null, "The character menu should expose a Magic tab")
 	_assert(_button_with_text(upgrade_scrim, "Skills") != null, "The character menu should expose a Skills tab")
 	_assert(_button_with_text(upgrade_scrim, "Stats") == null, "The character menu should not expose the retired Stats tab")
-	_assert(_label_with_text(upgrade_scrim, "Loadout") != null, "The gear overlay should show equipped slots")
-	_assert(_label_with_text(upgrade_scrim, "Inventory") != null, "The gear overlay should show inventory")
-	_assert(_label_with_text(upgrade_scrim, "Deck") != null, "The gear overlay should show deck cards")
+	var equipped_panel: Control = character_body_frame.find_child("EquipmentLoadoutPanel", true, false) as Control
+	var equipped_sockets: Dictionary = instance.get("_equipment_slot_panels") as Dictionary
+	_assert(equipped_panel != null and _label_with_text(equipped_panel, "EQUIPPED") != null and equipped_sockets.size() == GameData.equipment_slots().size(), "The gear overlay should show every equipped slot in the Equipped paper doll")
+	for slot_id: String in GameData.equipment_slots():
+		var slot_wrapper: Control = equipped_sockets.get(slot_id, null) as Control
+		var socket: Button = slot_wrapper.find_child("EquipmentIconChip", true, false) as Button if slot_wrapper != null else null
+		_assert(socket != null and is_equal_approx(float(socket.get("socket_size")), 62.0) and slot_wrapper.get_theme_stylebox("focus") is StyleBoxEmpty, "The %s slot should use a 62px socket with native wrapper focus paint suppressed" % slot_id)
+	var pack_panel: Control = character_body_frame.find_child("EquipmentInventoryPanel", true, false) as Control
+	var pack_rows: Control = pack_panel.find_child("EquipmentInventoryRows", true, false) as Control if pack_panel != null else null
+	_assert(pack_panel != null and _label_with_text(pack_panel, "PACK") != null and pack_rows != null and pack_rows.get_child_count() > 0, "The gear overlay should show carried inventory in Pack rows")
+	for pack_tile: Control in (instance.get("_equipment_inventory_tiles") as Dictionary).values():
+		_assert(pack_tile.find_child("EquipmentIconChip", true, false) is Button and _label_with_text(pack_tile, str(GameData.equipment_def(str(pack_tile.get("equipment_id"))).get("name", ""))) != null, "Pack gear should expose its socket and full equipment name")
+	var gear_deck: Control = character_body_frame.find_child("CurrentDeckPanel", true, false) as Control
+	var gear_magic_grid: GridContainer = gear_deck.find_child("CharacterDeckGrid", true, false) as GridContainer if gear_deck != null else null
+	_assert(gear_deck != null and _label_with_text(gear_deck, "DECK") != null and gear_magic_grid != null and gear_magic_grid.get_child_count() == 3, "The gear overlay should show deck cards as three grouped starter magic strips")
+	if gear_magic_grid != null:
+		for card_name: String in ["Pale Spark", "Dull Bolt", "Waning Pulse"]:
+			var strip_name: Label = _label_with_text(gear_magic_grid, card_name)
+			var count: Label = strip_name.get_parent().get_node_or_null("Count") as Label if strip_name != null else null
+			_assert(count != null and count.text == "×2" and count.visible, "The deck should preserve both copies of %s in one named strip with a visible ×2 count" % card_name)
 	_assert(_label_with_text(upgrade_scrim, "Attuned Magic 6/6") != null, "The gear overlay should include active attuned magic in the current deck")
 	_assert(_label_with_text(upgrade_scrim, "Rewards") == null, "The gear overlay should not use the old Rewards deck heading")
 	_assert(_label_with_text(upgrade_scrim, "Pale Spark") != null, "The gear overlay should show default attuned magic cards")
@@ -11519,9 +11560,18 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	await process_frame
 	_assert(character_dialog != null and character_dialog.custom_minimum_size == stats_dialog_size, "Switching from Gear to Magic should keep the character dialog size stable")
 	_assert(character_dialog != null and character_dialog.size == stats_dialog_actual_size, "Switching from Gear to Magic should keep the visible character dialog size stable")
-	_assert(_label_with_text(upgrade_scrim, "Attuned Magic") != null, "The magic overlay should show attuned spell slots")
-	_assert(_label_with_text(upgrade_scrim, "Learned Magic") != null, "The magic overlay should show learned reserve spells")
-	_assert(_label_with_text(upgrade_scrim, "Deck") != null, "The magic overlay should show the current deck")
+	character_body_frame = character_dialog.find_child("CharacterBodyFrame", true, false) as Control
+	var attuned_panel: Control = character_body_frame.find_child("MagicAttunedPanel", true, false) as Control
+	_assert(attuned_panel != null and _label_with_text(attuned_panel, "ATTUNED MAGIC") != null and (instance.get("_magic_attuned_tiles") as Dictionary).size() == GameData.magic_loadout_limit(), "The magic overlay should show all six native attuned spell slots under their section heading")
+	for attuned_slot: Control in (instance.get("_magic_attuned_tiles") as Dictionary).values():
+		var attuned_strip: Button = attuned_slot.get_node_or_null("CharacterCardStrip") as Button
+		_assert(attuned_strip != null and _label_with_text(attuned_strip, str(GameData.card_def(str(attuned_slot.get("card_id"))).get("name", ""))) != null and is_equal_approx(attuned_strip.size.y, UiTypography.scaled_value(attuned_strip, 34.0)), "Each attuned slot should retain its named 34px card strip")
+	var learned_panel: Control = character_body_frame.find_child("MagicInventoryPanel", true, false) as Control
+	_assert(learned_panel != null and _label_with_text(learned_panel, "LEARNED MAGIC") != null and _label_with_text(learned_panel, "Static Lash") != null and (instance.get("_magic_inventory_tiles") as Dictionary).size() == 1, "The magic overlay should show the learned reserve spell as a named strip in Learned Magic")
+	var magic_deck: Control = character_body_frame.find_child("CurrentDeckPanel", true, false) as Control
+	var pale_spark_name: Label = _label_with_text(magic_deck, "Pale Spark") if magic_deck != null else null
+	var pale_spark_count: Label = pale_spark_name.get_parent().get_node_or_null("Count") as Label if pale_spark_name != null else null
+	_assert(magic_deck != null and _label_with_text(magic_deck, "DECK") != null and _label_with_text(magic_deck, "Attuned Magic 6/6") != null and pale_spark_count != null and pale_spark_count.text == "×2" and _label_with_text(magic_deck, "Static Lash") == null, "The magic overlay's current deck should retain grouped active spells and exclude the learned reserve")
 	_assert(_label_with_text(upgrade_scrim, "Static Lash") != null, "The magic overlay should render reserve magic cards")
 	var magic_inventory_tiles: Dictionary = instance.get("_magic_inventory_tiles")
 	var magic_attuned_tiles: Dictionary = instance.get("_magic_attuned_tiles")

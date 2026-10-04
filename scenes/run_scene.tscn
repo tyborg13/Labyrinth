@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://scripts/run_scene.gd" id="1_run"]
 [ext_resource type="Script" path="res://scripts/labyrinth_map_view.gd" id="2_map"]
@@ -7,6 +7,8 @@
 [ext_resource type="Script" path="res://scripts/ui_tooltip_button.gd" id="5_tooltip_button"]
 [ext_resource type="Script" path="res://scripts/ui_tooltip_label.gd" id="6_tooltip_label"]
 [ext_resource type="Script" path="res://scripts/ui_tooltip_panel_container.gd" id="7_tooltip_panel"]
+[ext_resource type="Script" path="res://scripts/combat_hud_socket.gd" id="8_hud_socket"]
+[ext_resource type="Script" path="res://scripts/combat_hud_stats.gd" id="9_hud_stats"]
 
 [node name="RunScene" type="Control"]
 layout_mode = 3
@@ -125,24 +127,25 @@ size_flags_horizontal = 3
 [node name="StatsLabel" type="Label" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar"]
 layout_mode = 2
 text = "LV 1  EMBERS 0"
+script = ExtResource("9_hud_stats")
 
 [node name="LoadoutButton" type="Button" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar"]
-custom_minimum_size = Vector2(68, 56)
+custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
 tooltip_text = "Character Loadout"
-script = ExtResource("5_tooltip_button")
+script = ExtResource("8_hud_socket")
 
 [node name="GrimoireButton" type="Button" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar"]
-custom_minimum_size = Vector2(68, 56)
+custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
 tooltip_text = "Grimoire"
-script = ExtResource("5_tooltip_button")
+script = ExtResource("8_hud_socket")
 
 [node name="MenuButton" type="Button" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar"]
-custom_minimum_size = Vector2(68, 56)
+custom_minimum_size = Vector2(58, 58)
 layout_mode = 2
 tooltip_text = "Menu"
-script = ExtResource("5_tooltip_button")
+script = ExtResource("8_hud_socket")
 
 [node name="StageRoot" type="Control" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox"]
 layout_mode = 2

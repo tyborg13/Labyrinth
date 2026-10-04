@@ -96,6 +96,8 @@ const CardDragTargetingArrow = preload("res://scripts/card_drag_targeting_arrow.
 const UiTooltipButton = preload("res://scripts/ui_tooltip_button.gd")
 const UiTooltipControl = preload("res://scripts/ui_tooltip_control.gd")
 const CardActionContextArt = preload("res://scripts/card_action_context_art.gd")
+const PreBattleView = preload("res://scripts/pre_battle_view.gd")
+const PreBattleInspectionView = preload("res://scripts/pre_battle_inspection_view.gd")
 const PreBattlePortraitEdgeMaterial = preload("res://scripts/pre_battle_portrait_edge_material.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const GuidedCombatScenario = preload("res://scripts/guided_combat_scenario.gd")
@@ -104,6 +106,9 @@ const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const CombatObjectiveHudScript = preload("res://scripts/combat_objective_hud.gd")
+const CombatHudSocket = preload("res://scripts/combat_hud_socket.gd")
+const CombatHudIntents = preload("res://scripts/combat_hud_intents.gd")
+const CombatHudRelics = preload("res://scripts/combat_hud_relics.gd")
 const PostCombatRewardSequence = preload("res://scripts/post_combat_reward_sequence.gd")
 const ControllerNavigationScript = preload("res://scripts/controller_navigation.gd")
 const ControllerPromptBarScript = preload("res://scripts/controller_prompt_bar.gd")
@@ -206,146 +211,8 @@ class EquipmentCardBadge:
 			return super._make_custom_tooltip(for_text)
 		return host.call("_build_card_tooltip_panel", card_id)
 
-class PreBattleEnemyCard:
-	extends TooltipPanelContainer
 
-	var enemy: Dictionary = {}
-	var host: Node = null
 
-	func _make_custom_tooltip(for_text: String) -> Object:
-		if host == null or enemy.is_empty():
-			return super._make_custom_tooltip(for_text)
-		if host.has_method("_pre_battle_hover_inspections_enabled") and not bool(host.call("_pre_battle_hover_inspections_enabled")):
-			return host.call("_suppressed_pre_battle_tooltip")
-		return host.call("_build_pre_battle_enemy_inspection_panel", enemy)
-
-	func _gui_input(event: InputEvent) -> void:
-		if host == null or enemy.is_empty() or not (event is InputEventMouseButton):
-			return
-		var mouse_event: InputEventMouseButton = event
-		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
-			if host.has_method("_pre_battle_click_inspections_enabled") and not bool(host.call("_pre_battle_click_inspections_enabled")):
-				accept_event()
-				return
-			host.call("_open_pinned_pre_battle_inspection", "enemy", str(enemy.get("type", "")), self, enemy)
-			accept_event()
-
-class PreBattleDivider:
-	extends Control
-
-	var accent: Color = Color("a98c5f")
-
-	func _ready() -> void:
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		queue_redraw()
-
-	func _draw() -> void:
-		if size.x < 24.0 or size.y < 4.0:
-			return
-		var y: float = size.y * 0.5
-		var line_color := Color(accent.r, accent.g, accent.b, 0.68)
-		draw_line(Vector2(8.0, y), Vector2(size.x - 8.0, y), line_color, 1.0, true)
-		for x: float in [8.0, size.x - 8.0]:
-			var diamond := PackedVector2Array([
-				Vector2(x, y - 4.0),
-				Vector2(x + 4.0, y),
-				Vector2(x, y + 4.0),
-				Vector2(x - 4.0, y),
-			])
-			draw_colored_polygon(diamond, line_color)
-			draw_polyline(PackedVector2Array([
-				Vector2(x, y - 4.0),
-				Vector2(x + 4.0, y),
-				Vector2(x, y + 4.0),
-				Vector2(x - 4.0, y),
-				Vector2(x, y - 4.0),
-			]), Color(0.96, 0.82, 0.54, 0.68), 0.7, true)
-
-class PreBattleEnemyFlow:
-	extends Container
-
-	var _card_size: Vector2 = Vector2.ZERO
-	var _card_gap: float = 12.0
-
-	func configure(card_size: Vector2, card_gap: float) -> void:
-		_card_size = card_size
-		_card_gap = card_gap
-		custom_minimum_size = Vector2(0.0, _content_height(get_child_count()))
-		queue_sort()
-
-	func _notification(what: int) -> void:
-		if what != NOTIFICATION_SORT_CHILDREN:
-			return
-		_layout_children()
-
-	func _get_minimum_size() -> Vector2:
-		return Vector2(0.0, _content_height(get_child_count()))
-
-	func _layout_children() -> void:
-		if _card_size.x <= 0.0 or _card_size.y <= 0.0:
-			return
-		var rects: Array[Rect2] = _card_rects(get_child_count())
-		for index: int in range(mini(rects.size(), get_child_count())):
-			var child := get_child(index) as Control
-			if child != null:
-				fit_child_in_rect(child, rects[index])
-				# Portrait brushes may bleed beyond the viewport; health must not.
-				var health := child.find_child("PreBattleEnemyHealth", true, false) as Control
-				if health != null:
-					health.position.x = maxf(8.0, 4.0 - rects[index].position.x)
-		custom_minimum_size = Vector2(0.0, _content_height(get_child_count()))
-
-	func _card_rects(total: int) -> Array[Rect2]:
-		var rects: Array[Rect2] = []
-		if total <= 0:
-			return rects
-		var center_x: float = size.x * 0.5
-		var stride: float = _card_size.x + _card_gap
-		var row_height: float = _card_size.y + _card_gap
-		var vertical_offset: float = maxf(0.0, (size.y - _content_height(total)) * 0.5)
-		match total:
-			1:
-				rects.append(Rect2(Vector2(maxf(0.0, center_x - _card_size.x * 0.5), vertical_offset), _card_size))
-			2:
-				var two_start: float = center_x - (_card_size.x * 2.0 + _card_gap) * 0.5
-				rects.append(Rect2(Vector2(two_start, vertical_offset), _card_size))
-				rects.append(Rect2(Vector2(two_start + stride, vertical_offset), _card_size))
-			3:
-				var three_start: float = center_x - (_card_size.x * 2.0 + _card_gap) * 0.5
-				rects.append(Rect2(Vector2(three_start, vertical_offset), _card_size))
-				rects.append(Rect2(Vector2(three_start + stride, vertical_offset), _card_size))
-				rects.append(Rect2(Vector2(center_x - _card_size.x * 0.5, vertical_offset + row_height), _card_size))
-			4:
-				var four_start: float = center_x - (_card_size.x * 2.0 + _card_gap) * 0.5
-				var four_offset: float = minf(24.0, _card_gap + 10.0)
-				rects.append(Rect2(Vector2(four_start, vertical_offset), _card_size))
-				rects.append(Rect2(Vector2(four_start + stride, vertical_offset), _card_size))
-				rects.append(Rect2(Vector2(four_start + four_offset, vertical_offset + row_height), _card_size))
-				rects.append(Rect2(Vector2(four_start + stride + four_offset, vertical_offset + row_height), _card_size))
-			5:
-				var five_start: float = center_x - (_card_size.x * 3.0 + _card_gap * 2.0) * 0.5
-				for column: int in range(3):
-					rects.append(Rect2(Vector2(five_start + stride * column, vertical_offset), _card_size))
-				var bottom_start: float = center_x - (_card_size.x * 2.0 + _card_gap) * 0.5
-				for column: int in range(2):
-					rects.append(Rect2(Vector2(bottom_start + stride * column, vertical_offset + row_height + 8.0), _card_size))
-			_:
-				var columns: int = mini(3, total)
-				var rows: int = int(ceil(float(total) / float(columns)))
-				for row: int in range(rows):
-					var row_count: int = mini(columns, total - row * columns)
-					var row_start: float = center_x - (float(row_count) * _card_size.x + float(row_count - 1) * _card_gap) * 0.5
-					for column: int in range(row_count):
-						rects.append(Rect2(Vector2(row_start + stride * column, vertical_offset + row_height * row), _card_size))
-		return rects
-
-	func _content_height(total: int) -> float:
-		if total <= 0 or _card_size.y <= 0.0:
-			return 0.0
-		var rows: int = 1 if total <= 2 else 2
-		if total > 5:
-			rows = int(ceil(float(total) / 3.0))
-		return _card_size.y * float(rows) + _card_gap * float(maxi(0, rows - 1)) + (8.0 if total == 5 else 0.0)
 
 class PreBattleFrame:
 	extends Control
@@ -365,45 +232,7 @@ class PreBattleFrame:
 		var fitted_position := (size - fitted_size) * 0.5
 		draw_texture_rect(texture, Rect2(fitted_position, fitted_size), false, Color(0.82, 0.67, 0.43, 0.90))
 
-class PreBattleEquipmentChip:
-	extends EquipmentTooltipPanelContainer
 
-	func _make_custom_tooltip(for_text: String) -> Object:
-		if host != null and host.has_method("_pre_battle_hover_inspections_enabled") and not bool(host.call("_pre_battle_hover_inspections_enabled")):
-			return host.call("_suppressed_pre_battle_tooltip")
-		return super._make_custom_tooltip(for_text)
-
-	func _gui_input(event: InputEvent) -> void:
-		if host == null or equipment_id.is_empty() or not (event is InputEventMouseButton):
-			return
-		var mouse_event: InputEventMouseButton = event
-		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
-			if host.has_method("_pre_battle_click_inspections_enabled") and not bool(host.call("_pre_battle_click_inspections_enabled")):
-				accept_event()
-				return
-			host.call("_open_pinned_pre_battle_inspection", "equipment", equipment_id, self)
-			accept_event()
-
-class PreBattleCardBadge:
-	extends EquipmentCardBadge
-
-	var source_kind: String = "deck"
-
-	func _make_custom_tooltip(for_text: String) -> Object:
-		if host != null and host.has_method("_pre_battle_hover_inspections_enabled") and not bool(host.call("_pre_battle_hover_inspections_enabled")):
-			return host.call("_suppressed_pre_battle_tooltip")
-		return super._make_custom_tooltip(for_text)
-
-	func _gui_input(event: InputEvent) -> void:
-		if host == null or card_id.is_empty() or not (event is InputEventMouseButton):
-			return
-		var mouse_event: InputEventMouseButton = event
-		if mouse_event.button_index == MOUSE_BUTTON_LEFT and mouse_event.pressed:
-			if host.has_method("_pre_battle_click_inspections_enabled") and not bool(host.call("_pre_battle_click_inspections_enabled")):
-				accept_event()
-				return
-			host.call("_open_pinned_pre_battle_inspection", "card", card_id, self)
-			accept_event()
 
 class MagicCardTile:
 	extends EquipmentCardBadge
@@ -1234,7 +1063,7 @@ const CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP: float = 8.0
 const CONTEXTUAL_COMBAT_PROMPT_VIEWPORT_MARGIN: float = 4.0
 const PLAYER_UNIT_TEXTURE_PATH: String = ProtagonistCutout.REST_PATH
 const HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
-const RELIC_BADGE_SIZE: Vector2 = Vector2(52.0, 52.0)
+const RELIC_BADGE_SIZE: Vector2 = Vector2(48.0, 48.0)
 const RELIC_BAR_HORIZONTAL_GAP: float = 8.0
 const RELIC_GRID_HORIZONTAL_GAP: float = 2.0
 const RELIC_GRID_VERTICAL_GAP: float = 6.0
@@ -1316,7 +1145,7 @@ const DIALOGUE_OPTION_BUTTON_MIN_WIDTH: float = 292.0
 const MENU_DIALOG_BUTTON_MIN_WIDTH: float = 234.0
 const MENU_OVERLAY_Z_INDEX: int = 2000
 const UPGRADE_LIST_BUTTON_MIN_WIDTH: float = 216.0
-const HEADER_ICON_BUTTON_SIZE: Vector2 = Vector2(68.0, 56.0)
+const HEADER_ICON_BUTTON_SIZE: Vector2 = Vector2(58.0, 58.0)
 const HEADER_ICON_TEXTURE_SIZE: int = 48
 const GRIMOIRE_DIALOG_SIZE: Vector2 = Vector2(1120.0, 640.0)
 const GRIMOIRE_MIN_DIALOG_SIZE: Vector2 = Vector2(820.0, 520.0)
@@ -3946,8 +3775,7 @@ func _apply_style() -> void:
 	UiTypography.apply_stone_text(room_title, 0.13, 3.5)
 	UiTypography.apply_eyebrow(room_subtitle, UiTypography.SIZE_SMALL + 1, UiPalette.TEXT_2)
 	UiTypography.set_label_size(umbra_subtitle, UiTypography.SIZE_BODY_LARGE)
-	stats_label.add_theme_font_override("font", UiTypography.ui_font())
-	UiTypography.set_label_size(stats_label, UiTypography.SIZE_SECTION - 1)
+	top_bar.add_theme_constant_override("separation", roundi(UiTypography.scaled_value(top_bar, 12.0)))
 	UiTypography.set_label_size(action_banner, UiTypography.SIZE_SMALL)
 	room_title.add_theme_color_override("font_color", Color("f0e6d2"))
 	room_title.add_theme_color_override("font_outline_color", Color("2c1f16"))
@@ -3959,9 +3787,6 @@ func _apply_style() -> void:
 	umbra_subtitle.add_theme_constant_override("outline_size", 2)
 	umbra_subtitle.mouse_filter = Control.MOUSE_FILTER_STOP
 	umbra_subtitle.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
-	stats_label.add_theme_color_override("font_color", UiPalette.GOLD_BRIGHT)
-	stats_label.add_theme_color_override("font_outline_color", UiPalette.TEXT_OUTLINE)
-	stats_label.add_theme_constant_override("outline_size", 3)
 	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_box.size_flags_stretch_ratio = 2.0
 	header_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -4022,18 +3847,8 @@ func _apply_tooltip_wrapper_style() -> void:
 func _setup_header_icon_button(button: Button, icon_kind: String, tooltip: String) -> void:
 	if button == null:
 		return
-	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_ICON)
-	button.add_theme_color_override("icon_normal_color", Color("f7dfad"))
-	button.add_theme_color_override("icon_hover_color", Color("fff0c8"))
-	button.add_theme_color_override("icon_pressed_color", Color("e8b968"))
-	button.add_theme_color_override("icon_disabled_color", Color("8f7a5a"))
-	button.text = ""
-	button.icon = _header_icon_texture(icon_kind)
-	button.expand_icon = true
-	button.tooltip_text = tooltip
-	button.custom_minimum_size = HEADER_ICON_BUTTON_SIZE
-	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var key_hint: String = "M" if icon_kind == "map_rooms" else "Esc" if icon_kind == "gear" else ""
+	(button as CombatHudSocket).configure_header(_header_icon_texture(icon_kind), tooltip, key_hint)
 	button.disabled = false
 	button.focus_mode = Control.FOCUS_ALL
 	button.modulate = Color.WHITE
@@ -4052,10 +3867,10 @@ func _ensure_grimoire_badge() -> void:
 	_grimoire_badge.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	_grimoire_badge.anchor_left = 1.0
 	_grimoire_badge.anchor_right = 1.0
-	_grimoire_badge.offset_left = -18.0
-	_grimoire_badge.offset_top = -3.0
-	_grimoire_badge.offset_right = 0.0
-	_grimoire_badge.offset_bottom = 15.0
+	_grimoire_badge.offset_left = -UiTypography.scaled_value(grimoire_button, 19.0)
+	_grimoire_badge.offset_top = UiTypography.scaled_value(grimoire_button, 1.0)
+	_grimoire_badge.offset_right = -UiTypography.scaled_value(grimoire_button, 1.0)
+	_grimoire_badge.offset_bottom = UiTypography.scaled_value(grimoire_button, 19.0)
 	var badge_style := StyleBoxFlat.new()
 	badge_style.bg_color = Color("d64a3a")
 	badge_style.border_color = Color("ffe0a2")
@@ -4090,10 +3905,10 @@ func _ensure_loadout_badge() -> void:
 	_loadout_badge.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	_loadout_badge.anchor_left = 1.0
 	_loadout_badge.anchor_right = 1.0
-	_loadout_badge.offset_left = -18.0
-	_loadout_badge.offset_top = -3.0
-	_loadout_badge.offset_right = 0.0
-	_loadout_badge.offset_bottom = 15.0
+	_loadout_badge.offset_left = -UiTypography.scaled_value(loadout_button, 19.0)
+	_loadout_badge.offset_top = UiTypography.scaled_value(loadout_button, 1.0)
+	_loadout_badge.offset_right = -UiTypography.scaled_value(loadout_button, 1.0)
+	_loadout_badge.offset_bottom = UiTypography.scaled_value(loadout_button, 19.0)
 	var badge_style := StyleBoxFlat.new()
 	badge_style.bg_color = Color("d64a3a")
 	badge_style.border_color = Color("ffe0a2")
@@ -5060,7 +4875,7 @@ func _build_large_map_overlay() -> void:
 	_large_map_view.connect("interaction_changed", _refresh_controller_prompts)
 	_large_map_dialog.add_child(_large_map_view)
 	_ui_skin.apply_outer_panel_frame(_large_map_dialog, UiSkin.SURFACE_DIALOG)
-	_section_map_hud_button = UiTooltipButton.new()
+	_section_map_hud_button = CombatHudSocket.new()
 	_section_map_hud_button.name = "SectionMapButton"
 	_setup_header_icon_button(_section_map_hud_button, "map_rooms", "Map [M]")
 	# Modal and animation blockers are transient. Check them at activation;
@@ -5211,7 +5026,6 @@ func _rebuild_pre_battle_overlay() -> void:
 	if _pre_battle_panel == null:
 		return
 	var total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var phase_started: int = total_started
 	_cancel_pre_battle_entry()
 	_clear_children_now(_pre_battle_panel)
 	_apply_pre_battle_outer_frame()
@@ -5224,129 +5038,12 @@ func _rebuild_pre_battle_overlay() -> void:
 	var accent: Color = ElementData.accent(room_element) if ElementData.is_elemental(room_element) else Color("d8b06d")
 
 	_ui_skin.apply_menu_finish(_pre_battle_panel, "outer")
-	phase_started = _record_runtime_performance_phase("pre_battle_clear_and_context", phase_started)
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", int(PRE_BATTLE_CONTENT_SIDE_INSET))
-	margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING))
-	margin.add_theme_constant_override("margin_right", int(PRE_BATTLE_CONTENT_SIDE_INSET))
-	margin.add_theme_constant_override("margin_bottom", int(UiTypography.PANEL_PADDING))
-	_pre_battle_panel.add_child(margin)
-
-	var vbox := VBoxContainer.new()
-	vbox.name = "PreBattleContent"
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", UiTypography.PANEL_GAP)
-	margin.add_child(vbox)
-	vbox.add_child(_build_pre_battle_header(room, combat_state, accent))
-	phase_started = _record_runtime_performance_phase("pre_battle_header", phase_started)
-
-	var body_margin := MarginContainer.new()
-	body_margin.name = "PreBattleBodyMargin"
-	body_margin.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body_margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body_margin.add_theme_constant_override("margin_left", int(PRE_BATTLE_BODY_SIDE_INSET))
-	body_margin.add_theme_constant_override("margin_right", int(PRE_BATTLE_BODY_SIDE_INSET))
-	vbox.add_child(body_margin)
-
-	var body := HBoxContainer.new()
-	body.name = "PreBattleBody"
-	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", UiTypography.PANEL_GAP)
-	body_margin.add_child(body)
-	body.add_child(_build_pre_battle_enemy_section(combat_state, accent))
-	phase_started = _record_runtime_performance_phase("pre_battle_enemy_section", phase_started)
-	body.add_child(_build_pre_battle_deck_section(accent))
-	_record_runtime_performance_phase("pre_battle_deck_section", phase_started)
+	_record_runtime_performance_phase("pre_battle_clear_and_context", total_started)
+	PreBattleView.build(self, _pre_battle_panel, room, combat_state, accent)
 	_record_runtime_performance_phase("pre_battle_overlay_total", total_started)
 
 func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent: Color) -> Control:
-	var row := HBoxContainer.new()
-	row.name = "PreBattleHeader"
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var header_height: float = 174.0 if _pre_battle_has_active_umbra(combat_state) else 148.0
-	row.custom_minimum_size.y = header_height
-	row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
-
-	var start_tiles: Array[Vector2i] = _run_engine.pre_battle_start_tiles(_run_state)
-	var room_chip_width: float = _pre_battle_header_room_chip_width(not start_tiles.is_empty())
-	var room_chip := _build_pre_battle_room_chip(room, combat_state, accent, room_chip_width)
-	room_chip.custom_minimum_size = Vector2(room_chip_width, header_height)
-	room_chip.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	room_chip.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	row.add_child(room_chip)
-
-	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(spacer)
-
-	if not start_tiles.is_empty():
-		var position_button := UiTooltipButton.new()
-		position_button.name = "TrueBearingButton"
-		var selected_tile: Vector2i = _run_state.get("pre_battle_start", start_tiles[0])
-		var selected_index: int = maxi(0, start_tiles.find(selected_tile))
-		position_button.text = "Position %d/%d" % [selected_index + 1, start_tiles.size()]
-		position_button.tooltip_text = "%s\nSelected tile: %d, %d" % [SkillTreeLibrary.description("true_bearing"), selected_tile.x, selected_tile.y]
-		_ui_skin.apply_button_stylebox_overrides(position_button, UiSkin.VARIANT_STANDARD)
-		_ui_skin.apply_button_text_overrides(position_button)
-		UiTypography.apply_button_role(position_button, UiTypography.ROLE_BODY)
-		_ui_skin.apply_button_native_size(position_button, UiSkin.BUTTON_HEIGHT_STANDARD)
-		position_button.custom_minimum_size.x = 148.0
-		position_button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		position_button.pressed.connect(_on_true_bearing_pressed)
-		row.add_child(position_button)
-
-	var gear_button := UiTooltipButton.new()
-	gear_button.name = "PreBattleEquipButton"
-	gear_button.text = "Equip"
-	gear_button.tooltip_text = "Character"
-	gear_button.icon = AssetLoader.load_texture("res://assets/art/equipment/training_sword.png")
-	gear_button.expand_icon = true
-	_ui_skin.apply_button_stylebox_overrides(gear_button, UiSkin.VARIANT_STANDARD)
-	_ui_skin.apply_button_text_overrides(gear_button)
-	UiTypography.apply_button_role(gear_button, UiTypography.ROLE_BODY)
-	_ui_skin.apply_button_native_size(gear_button, UiSkin.BUTTON_HEIGHT_STANDARD)
-	gear_button.custom_minimum_size.x = 132.0
-	gear_button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	gear_button.pressed.connect(_on_pre_battle_equip_pressed)
-	row.add_child(gear_button)
-
-	var start_button := UiTooltipButton.new()
-	start_button.name = "PreBattleStartButton"
-	start_button.text = "Start"
-	start_button.tooltip_text = "Start combat"
-	start_button.icon = ActionIcons.icon_texture("melee")
-	start_button.expand_icon = true
-	_ui_skin.apply_button_stylebox_overrides(start_button, UiSkin.VARIANT_SELECTED)
-	_ui_skin.apply_button_text_overrides(start_button)
-	UiTypography.apply_button_role(start_button, UiTypography.ROLE_SECTION)
-	_ui_skin.apply_button_native_size(start_button, UiSkin.BUTTON_HEIGHT_ACTION, 0.0, true, UiSkin.VARIANT_SELECTED)
-	_apply_pre_battle_start_button_glow(start_button)
-	start_button.custom_minimum_size.x = 158.0
-	start_button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-	start_button.pressed.connect(_on_pre_battle_start_pressed)
-	row.add_child(start_button)
-	var end_buffer := Control.new()
-	end_buffer.name = "PreBattleHeaderEndBuffer"
-	end_buffer.custom_minimum_size = Vector2(UiTypography.PANEL_PADDING, 0.0)
-	row.add_child(end_buffer)
-	return row
-
-func _pre_battle_header_room_chip_width(has_position_button: bool) -> float:
-	var dialog_width: float = _pre_battle_panel.size.x if _pre_battle_panel != null else PRE_BATTLE_DIALOG_SIZE.x
-	var header_width: float = maxf(
-		1.0,
-		dialog_width - PRE_BATTLE_PANEL_CONTENT_INSET * 2.0 - PRE_BATTLE_CONTENT_SIDE_INSET * 2.0
-	)
-	var fixed_action_width: float = 132.0 + 158.0 + UiTypography.PANEL_PADDING
-	var child_count: int = 5
-	if has_position_button:
-		fixed_action_width += 148.0
-		child_count += 1
-	var total_gap: float = UiTypography.SPACE_MEDIUM * float(maxi(0, child_count - 1))
-	var available_room_width: float = maxf(PRE_BATTLE_ROOM_CHIP_MIN_WIDTH, header_width - fixed_action_width - total_gap)
-	return minf(_pre_battle_enemy_column_width(), available_room_width)
+	return PreBattleView.build_header(self, room, combat_state, accent)
 
 func _apply_pre_battle_start_button_glow(button: BaseButton) -> void:
 	if button == null:
@@ -5395,367 +5092,19 @@ func _on_true_bearing_pressed() -> void:
 	_refresh_pre_battle_preview_if_visible()
 
 func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, accent: Color, requested_width: float = 510.0) -> Control:
-	var chip_width: float = maxf(PRE_BATTLE_ROOM_CHIP_MIN_WIDTH, requested_width)
-	var chip := VBoxContainer.new()
-	chip.name = "PreBattleRoomChip"
-	chip.custom_minimum_size = Vector2(chip_width, 62.0)
-	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	chip.alignment = BoxContainer.ALIGNMENT_BEGIN
-	chip.add_theme_constant_override("separation", 0)
-	var title := Label.new()
-	var header_room: Dictionary = room.duplicate(true)
-	header_room["name"] = str(combat_state.get("room_name", room.get("name", "Combat")))
-	header_room["type"] = str(combat_state.get("room_type", room.get("type", "combat")))
-	header_room["element"] = str(combat_state.get("room_element", room.get("element", ElementData.NONE)))
-	title.text = _room_title_text(header_room)
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.clip_text = true
-	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
-	UiTypography.apply_stone_text(title, 0.11, 3.5)
-	title.add_theme_font_size_override("font_size", 46)
-	title.add_theme_color_override("font_color", Color("80c8b6"))
-	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
-	title.add_theme_constant_override("outline_size", 2)
-	chip.add_child(title)
-	var meta_row := Control.new()
-	meta_row.name = "PreBattleRoomMeta"
-	var has_active_umbra: bool = _pre_battle_has_active_umbra(combat_state)
-	meta_row.custom_minimum_size = Vector2(chip_width, 60.0 if has_active_umbra else 36.0)
-	meta_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	meta_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	chip.add_child(meta_row)
-	var depth_group := Control.new()
-	depth_group.name = "PreBattleDepthOrnamentRow"
-	var depth_group_width: float = clampf(chip_width - 80.0, 250.0, 430.0)
-	depth_group.custom_minimum_size = Vector2(depth_group_width, 34.0)
-	depth_group.anchor_left = 0.5
-	depth_group.anchor_top = 0.0
-	depth_group.anchor_right = 0.5
-	depth_group.anchor_bottom = 0.0
-	depth_group.offset_left = -depth_group_width * 0.5
-	depth_group.offset_top = 0.0
-	depth_group.offset_right = depth_group_width * 0.5
-	depth_group.offset_bottom = 34.0
-	depth_group.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var depth_ornament := TextureRect.new()
-	depth_ornament.name = "PreBattleDepthOrnament"
-	depth_ornament.texture = AssetLoader.load_texture(PRE_BATTLE_DEPTH_ORNAMENT_PATH)
-	depth_ornament.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	depth_ornament.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	depth_ornament.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	depth_ornament.modulate = Color(0.92, 0.72, 0.40, 0.94)
-	depth_ornament.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	depth_ornament.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	depth_group.add_child(depth_ornament)
-	var depth_label := Label.new()
-	depth_label.name = "PreBattleDepthLabel"
-	depth_label.text = "DEPTH %d" % int(combat_state.get("room_depth", room.get("depth", 0)))
-	depth_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	depth_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	depth_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	UiTypography.apply_label_role(depth_label, UiTypography.ROLE_BODY_LARGE)
-	depth_label.add_theme_font_size_override("font_size", 17)
-	depth_label.add_theme_color_override("font_color", Color("b7d8bd"))
-	depth_label.add_theme_color_override("font_outline_color", Color("17100d"))
-	depth_label.add_theme_constant_override("outline_size", 2)
-	depth_group.add_child(depth_label)
-	meta_row.add_child(depth_group)
-	if has_active_umbra:
-		var umbra_stage: String = _combat_engine.effective_umbra_stage(combat_state)
-		if umbra_stage != "clear":
-			var umbra_label := Label.new()
-			umbra_label.name = "PreBattleUmbraLabel"
-			umbra_label.text = "%s Umbra" % CombatEngineScript.umbra_stage_display_name(umbra_stage)
-			var umbra_label_width: float = clampf(chip_width - 40.0, 180.0, 300.0)
-			umbra_label.anchor_left = 0.5
-			umbra_label.anchor_top = 0.0
-			umbra_label.anchor_right = 0.5
-			umbra_label.anchor_bottom = 0.0
-			umbra_label.offset_left = -umbra_label_width * 0.5
-			umbra_label.offset_top = 36.0
-			umbra_label.offset_right = umbra_label_width * 0.5
-			umbra_label.offset_bottom = 58.0
-			umbra_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			umbra_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-			umbra_label.clip_text = true
-			umbra_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-			UiTypography.apply_label_role(umbra_label, UiTypography.ROLE_BODY_LARGE)
-			umbra_label.add_theme_font_size_override("font_size", 18)
-			umbra_label.add_theme_color_override("font_color", PRE_BATTLE_UMBRA_COLOR)
-			umbra_label.add_theme_color_override("font_outline_color", Color("17100d"))
-			umbra_label.add_theme_constant_override("outline_size", 2)
-			meta_row.add_child(umbra_label)
-	chip.add_child(_build_pre_battle_objective_chip(combat_state, accent, chip_width))
-	return chip
+	return PreBattleView.build_room_chip(self, room, combat_state, accent)
 
 func _build_pre_battle_objective_chip(combat_state: Dictionary, accent: Color, requested_width: float = 510.0) -> Control:
-	var objective: Dictionary = combat_state.get("objective", {}) as Dictionary
-	var objective_type: String = str(objective.get("type", CombatObjectiveRules.KILL_ALL))
-	var panel := PanelContainer.new()
-	panel.name = "PreBattleObjectiveChip"
-	panel.custom_minimum_size = Vector2(maxf(PRE_BATTLE_ROOM_CHIP_MIN_WIDTH, requested_width), 54.0)
-	panel.tooltip_text = CombatObjectiveRules.description_for_objective(objective)
-	panel.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.045, 0.031, 0.05, 0.96)
-	style.border_color = Color(accent.r, accent.g, accent.b, 0.76)
-	style.border_width_left = 3
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.set_corner_radius_all(6)
-	style.content_margin_left = 9.0
-	style.content_margin_top = 6.0
-	style.content_margin_right = 12.0
-	style.content_margin_bottom = 6.0
-	style.shadow_size = 4
-	style.shadow_offset = Vector2(0.0, 2.0)
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.35)
-	panel.add_theme_stylebox_override("panel", style)
-	_ui_skin.apply_menu_finish(panel, "chip", accent)
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 10)
-	panel.add_child(row)
-	var icon := TextureRect.new()
-	icon.name = "PreBattleObjectiveIcon"
-	icon.custom_minimum_size = Vector2(42.0, 42.0)
-	icon.texture = AssetLoader.load_texture(CombatObjectiveRules.icon_path(objective_type))
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(icon)
-	var stack := VBoxContainer.new()
-	stack.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	stack.alignment = BoxContainer.ALIGNMENT_CENTER
-	stack.add_theme_constant_override("separation", 0)
-	row.add_child(stack)
-	var title := Label.new()
-	title.text = "OBJECTIVE · %s" % CombatObjectiveRules.title_for_objective(objective).to_upper()
-	title.clip_text = true
-	title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	UiTypography.apply_label_role(title, UiTypography.ROLE_SECTION)
-	title.add_theme_font_size_override("font_size", 17)
-	title.add_theme_color_override("font_color", Color("f0cf92"))
-	title.add_theme_color_override("font_outline_color", Color("160e0c"))
-	title.add_theme_constant_override("outline_size", 1)
-	stack.add_child(title)
-	var description_label := Label.new()
-	description_label.text = CombatObjectiveRules.description_for_objective(objective)
-	description_label.visible = not description_label.text.is_empty()
-	description_label.clip_text = true
-	description_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	UiTypography.apply_label_role(description_label, UiTypography.ROLE_BODY)
-	description_label.add_theme_font_size_override("font_size", 13)
-	description_label.add_theme_color_override("font_color", Color("c7c1ae"))
-	stack.add_child(description_label)
-	return panel
+	return PreBattleView.build_objective(combat_state)
 
 func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) -> Control:
-	var panel := PanelContainer.new()
-	panel.name = "PreBattleEnemySection"
-	panel.custom_minimum_size = Vector2(_pre_battle_enemy_column_width(), 0.0)
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var section_style := _pre_battle_style(Color(0.025, 0.022, 0.024, 0.96), Color(0.62, 0.45, 0.27, 0.72), 0.0, 8)
-	section_style.shadow_size = 7
-	section_style.shadow_offset = Vector2(0.0, 3.0)
-	section_style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
-	panel.add_theme_stylebox_override("panel", section_style)
-	_ui_skin.apply_menu_finish(panel, "section")
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 14)
-	margin.add_theme_constant_override("margin_top", 12)
-	margin.add_theme_constant_override("margin_right", 14)
-	margin.add_theme_constant_override("margin_bottom", 14)
-	panel.add_child(margin)
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
-	margin.add_child(vbox)
-	vbox.add_child(_pre_battle_section_label("Foes", ActionIcons.icon_texture("melee"), accent))
-
-	var scroll := ScrollContainer.new()
-	scroll.name = "PreBattleEnemyScroll"
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-	vbox.add_child(scroll)
-	var flow := PreBattleEnemyFlow.new()
-	flow.name = "PreBattleEnemyFlow"
-	flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	flow.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.add_child(flow)
-
-	var enemies: Array = []
-	for enemy_var: Variant in combat_state.get("enemies", []):
-		if typeof(enemy_var) != TYPE_DICTIONARY:
-			continue
-		var enemy: Dictionary = enemy_var as Dictionary
-		if int(enemy.get("hp", 0)) <= 0:
-			continue
-		enemies.append(enemy)
-	if enemies.size() > 5:
-		scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	var card_size: Vector2 = _pre_battle_enemy_card_size(enemies.size())
-	var card_gap: float = 14.0 if enemies.size() == 4 else 10.0 if enemies.size() >= 5 else 12.0
-	for enemy_var: Variant in enemies:
-		flow.add_child(_build_pre_battle_enemy_card(enemy_var as Dictionary, accent, card_size))
-	flow.configure(card_size, card_gap)
-	return panel
-
-func _pre_battle_enemy_card_size(enemy_count: int) -> Vector2:
-	if enemy_count == 1:
-		return PRE_BATTLE_ENEMY_CARD_SOLO_SIZE
-	if enemy_count >= 5:
-		return PRE_BATTLE_ENEMY_CARD_COMPACT_SIZE
-	return PRE_BATTLE_ENEMY_CARD_SIZE
-
-func _pre_battle_body_width() -> float:
-	var dialog_width: float = _pre_battle_panel.size.x if _pre_battle_panel != null else get_viewport_rect().size.x - UiTypography.SPACE_LARGE * 2.0
-	return maxf(
-		0.0,
-		dialog_width
-		- PRE_BATTLE_PANEL_CONTENT_INSET * 2.0
-		- PRE_BATTLE_CONTENT_SIDE_INSET * 2.0
-		- PRE_BATTLE_BODY_SIDE_INSET * 2.0
-	)
-
-func _pre_battle_deck_column_width() -> float:
-	return clampf(_pre_battle_body_width() * 0.40, 360.0, 700.0)
-
-func _pre_battle_enemy_column_width() -> float:
-	return maxf(0.0, _pre_battle_body_width() - _pre_battle_deck_column_width() - UiTypography.PANEL_GAP)
+	return PreBattleView.build_foes(self, combat_state)
 
 func _build_pre_battle_deck_section(accent: Color) -> Control:
-	var panel := PanelContainer.new()
-	panel.name = "PreBattleDeckSection"
-	panel.custom_minimum_size = Vector2(_pre_battle_deck_column_width(), 0.0)
-	panel.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	var section_style := _pre_battle_style(Color(0.025, 0.022, 0.024, 0.96), Color(0.62, 0.45, 0.27, 0.72), 0.0, 8)
-	section_style.shadow_size = 7
-	section_style.shadow_offset = Vector2(0.0, 3.0)
-	section_style.shadow_color = Color(0.0, 0.0, 0.0, 0.42)
-	panel.add_theme_stylebox_override("panel", section_style)
-	_ui_skin.apply_menu_finish(panel, "section")
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 14)
-	margin.add_theme_constant_override("margin_top", 8)
-	margin.add_theme_constant_override("margin_right", 14)
-	margin.add_theme_constant_override("margin_bottom", 8)
-	panel.add_child(margin)
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 4)
-	margin.add_child(vbox)
-	vbox.add_child(_build_pre_battle_player_strip(accent))
-	var active_deck: Array = (_run_state.get("deck_cards", []) as Array).duplicate()
-	var deck_groups: Array = _pre_battle_card_groups(active_deck)
-	var badge_layout: Dictionary = _pre_battle_card_badge_layout("deck", deck_groups.size())
-	vbox.add_child(_pre_battle_section_label("Active Deck  %d" % active_deck.size(), ActionIcons.icon_texture("card_play"), accent))
-
-	var scroll := ScrollContainer.new()
-	scroll.name = "PreBattleDeckScroll"
-	scroll.set_meta("deck_entry_count", active_deck.size())
-	scroll.set_meta("deck_group_count", deck_groups.size())
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
-	scroll.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-	vbox.add_child(scroll)
-	var flow := HFlowContainer.new()
-	flow.name = "PreBattleDeckFlow"
-	flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	flow.add_theme_constant_override("h_separation", int(badge_layout.get("h_gap", 5)))
-	flow.add_theme_constant_override("v_separation", int(badge_layout.get("v_gap", 5)))
-	scroll.add_child(flow)
-	for group_var: Variant in deck_groups:
-		var group: Dictionary = group_var as Dictionary
-		flow.add_child(_build_pre_battle_card_badge(
-			str(group.get("card_id", "")),
-			"PreBattleDeckBadge",
-			"deck",
-			int(group.get("count", 1)),
-			badge_layout.get("badge_size", EQUIPMENT_DECK_BADGE_SIZE) as Vector2,
-			int(badge_layout.get("font_size", UiTypography.SIZE_CAPTION))
-		))
-	return panel
+	return PreBattleView.build_kit(self)
 
 func _build_pre_battle_player_strip(accent: Color) -> Control:
-	var vbox := VBoxContainer.new()
-	vbox.name = "PreBattlePlayerStrip"
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 3)
-
-	var top_row := HBoxContainer.new()
-	top_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	top_row.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
-	vbox.add_child(top_row)
-	var identity := VBoxContainer.new()
-	identity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	identity.add_theme_constant_override("separation", 0)
-	top_row.add_child(identity)
-	var heading := Label.new()
-	heading.text = "Equipment"
-	UiTypography.apply_label_role(heading, UiTypography.ROLE_BODY)
-	heading.add_theme_color_override("font_color", Color("f0c978"))
-	identity.add_child(heading)
-	var hint := Label.new()
-	hint.text = "Hover or click to inspect"
-	UiTypography.apply_label_role(hint, UiTypography.ROLE_CAPTION)
-	hint.add_theme_color_override("font_color", Color("a99a83"))
-	identity.add_child(hint)
-	var health := _build_pre_battle_hp_chip(accent)
-	health.size_flags_horizontal = Control.SIZE_SHRINK_END
-	health.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	health.custom_minimum_size = Vector2(112.0, 32.0)
-	var health_style: StyleBoxFlat = (health.get_theme_stylebox("panel") as StyleBoxFlat).duplicate() as StyleBoxFlat
-	health_style.content_margin_top = 2.0
-	health_style.content_margin_bottom = 2.0
-	health.add_theme_stylebox_override("panel", health_style)
-	top_row.add_child(health)
-
-	var equipment_row := HFlowContainer.new()
-	equipment_row.name = "PreBattleEquipmentRow"
-	equipment_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	equipment_row.add_theme_constant_override("h_separation", 6)
-	equipment_row.add_theme_constant_override("v_separation", 4)
-	vbox.add_child(equipment_row)
-	var equipped: Dictionary = (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true)
-	for slot: String in GameData.equipment_slots():
-		var equipment_id: String = str(equipped.get(slot, ""))
-		if equipment_id.is_empty():
-			continue
-		equipment_row.add_child(_build_pre_battle_equipment_chip(equipment_id))
-
-	var attuned: Array = (_run_state.get("attuned_magic_cards", []) as Array).duplicate()
-	var attuned_groups: Array = _pre_battle_card_groups(attuned)
-	var badge_layout: Dictionary = _pre_battle_card_badge_layout("attuned", attuned_groups.size())
-	vbox.add_child(_pre_battle_loadout_label("Attuned Magic  %d/%d" % [attuned.size(), GameData.magic_loadout_limit()], "Active spells"))
-	var attuned_row := HFlowContainer.new()
-	attuned_row.name = "PreBattleAttunedRow"
-	attuned_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	attuned_row.add_theme_constant_override("h_separation", int(badge_layout.get("h_gap", 5)))
-	attuned_row.add_theme_constant_override("v_separation", int(badge_layout.get("v_gap", 5)))
-	vbox.add_child(attuned_row)
-	for group_var: Variant in attuned_groups:
-		var group: Dictionary = group_var as Dictionary
-		attuned_row.add_child(_build_pre_battle_card_badge(
-			str(group.get("card_id", "")),
-			"PreBattleAttunedBadge",
-			"attuned",
-			int(group.get("count", 1)),
-			badge_layout.get("badge_size", EQUIPMENT_DECK_BADGE_SIZE) as Vector2,
-			int(badge_layout.get("font_size", UiTypography.SIZE_CAPTION))
-		))
-	return vbox
+	return PreBattleView.build_health(self)
 
 func _pre_battle_card_groups(card_ids: Array) -> Array:
 	var groups: Array = []
@@ -5774,340 +5123,11 @@ func _pre_battle_card_groups(card_ids: Array) -> Array:
 		groups.append({"card_id": card_id, "count": 1})
 	return groups
 
-func _pre_battle_card_badge_layout(source_kind: String, group_count: int) -> Dictionary:
-	# Keep caption-floor words intact and the complete standard deck visible.
-	# The additional Umbra header is presentation chrome, not a reason to hide cards.
-	var content_width: float = _pre_battle_deck_column_width() - 30.0
-	var columns: int = 4 if source_kind == "deck" and group_count > 15 else 3
-	var gap: int = 4 if columns == 4 else 6
-	var width: float = floorf((content_width - float(columns - 1) * gap) / float(columns))
-	var height: float = 50.0 if group_count <= 15 else 42.0
-	var combat: Dictionary = _pre_battle_preview_run_state.get("combat_state", {}) as Dictionary
-	if source_kind == "attuned":
-		height = 54.0
-	elif _pre_battle_has_active_umbra(combat):
-		height -= 4.0
-	return {
-		"badge_size": Vector2(width, height),
-		"font_size": UiTypography.SIZE_CAPTION,
-		"h_gap": gap,
-		"v_gap": 4 if group_count <= 16 else 2,
-	}
-
-func _pre_battle_loadout_label(text: String, detail: String) -> Control:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
-	var label := Label.new()
-	label.text = text
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
-	label.add_theme_color_override("font_color", Color("f0c978"))
-	label.add_theme_color_override("font_outline_color", Color("120b08"))
-	label.add_theme_constant_override("outline_size", 1)
-	row.add_child(label)
-	var detail_label := Label.new()
-	detail_label.text = detail
-	UiTypography.apply_label_role(detail_label, UiTypography.ROLE_CAPTION)
-	detail_label.add_theme_color_override("font_color", Color("a99a83"))
-	row.add_child(detail_label)
-	return row
-
 func _build_pre_battle_hp_chip(accent: Color) -> Control:
-	var chip := PanelContainer.new()
-	chip.name = "PreBattleHealthChip"
-	chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	chip.custom_minimum_size = Vector2(0.0, 40.0)
-	chip.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.023, 0.033, 0.032, 0.92), Color("72c5b3"), 6.0, 7))
-	_ui_skin.apply_menu_finish(chip, "chip", Color("72c5b3"))
-	var row := HBoxContainer.new()
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 8)
-	chip.add_child(row)
-	var icon := TextureRect.new()
-	icon.texture = ActionIcons.icon_texture("health")
-	icon.custom_minimum_size = Vector2(28.0, 28.0)
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(icon)
-	var label := Label.new()
-	label.text = "%d/%d" % [int(_run_state.get("player_hp", 0)), int(_run_state.get("player_max_hp", 0))]
-	UiTypography.apply_label_role(label, UiTypography.ROLE_BODY)
-	label.add_theme_color_override("font_color", Color("fff0ce"))
-	label.add_theme_color_override("font_outline_color", Color("120b08"))
-	label.add_theme_constant_override("outline_size", 1)
-	row.add_child(label)
-	var defiance_capacity: int = _run_engine.defiance_capacity(_run_state)
-	if defiance_capacity > 0:
-		var separator := ColorRect.new()
-		separator.custom_minimum_size = Vector2(1.0, 22.0)
-		separator.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-		separator.color = Color("725f76")
-		separator.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		row.add_child(separator)
-		var defiance_icon := TextureRect.new()
-		defiance_icon.texture = ActionIcons.icon_texture("defiance")
-		defiance_icon.custom_minimum_size = Vector2(24.0, 24.0)
-		defiance_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		defiance_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		defiance_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		defiance_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		row.add_child(defiance_icon)
-		var defiance_label := Label.new()
-		defiance_label.name = "PreBattleDefianceCount"
-		defiance_label.text = "%d/%d" % [
-			_run_engine.defiance_remaining(_run_state),
-			defiance_capacity
-		]
-		UiTypography.apply_label_role(defiance_label, UiTypography.ROLE_BODY)
-		defiance_label.add_theme_color_override("font_color", Color("f6d77d"))
-		defiance_label.add_theme_color_override("font_outline_color", Color("120b08"))
-		defiance_label.add_theme_constant_override("outline_size", 1)
-		row.add_child(defiance_label)
-	return chip
-
-func _pre_battle_section_label(text: String, icon_texture: Texture2D, accent: Color) -> Control:
-	var row := HBoxContainer.new()
-	row.name = "PreBattle%sLabel" % text
-	row.custom_minimum_size.y = 28.0
-	row.add_theme_constant_override("separation", 8)
-	if text == "Foes":
-		var foes_label := Label.new()
-		foes_label.text = text.to_upper()
-		foes_label.custom_minimum_size.x = 70.0
-		UiTypography.apply_label_role(foes_label, UiTypography.ROLE_SECTION)
-		foes_label.add_theme_color_override("font_color", Color("f0e6d2"))
-		foes_label.add_theme_color_override("font_outline_color", Color("120b08"))
-		foes_label.add_theme_constant_override("outline_size", 1)
-		row.add_child(foes_label)
-		var divider := PreBattleDivider.new()
-		divider.name = "PreBattleFoesDivider"
-		divider.accent = Color("b69660")
-		divider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		divider.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		row.add_child(divider)
-		return row
-	var icon := TextureRect.new()
-	icon.texture = icon_texture
-	icon.custom_minimum_size = Vector2(28.0, 28.0)
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(icon)
-	var label := Label.new()
-	label.text = text
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiTypography.apply_label_role(label, UiTypography.ROLE_SECTION)
-	label.add_theme_color_override("font_color", Color("fff0ce"))
-	label.add_theme_color_override("font_outline_color", Color("120b08"))
-	label.add_theme_constant_override("outline_size", 1)
-	row.add_child(label)
-	var line := ColorRect.new()
-	line.custom_minimum_size = Vector2(0.0, 2.0)
-	line.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	line.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	line.color = Color(accent.r, accent.g, accent.b, 0.38)
-	row.add_child(line)
-	return row
+	return PreBattleView.build_health(self)
 
 func _build_pre_battle_enemy_card(enemy: Dictionary, room_accent: Color, card_size: Vector2) -> Control:
-	var enemy_type: String = str(enemy.get("type", ""))
-	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
-	var accent: Color = room_accent
-	var card := PreBattleEnemyCard.new()
-	card.name = "PreBattleEnemyCard"
-	card.enemy = enemy.duplicate(true)
-	card.host = self
-	card.custom_minimum_size = card_size
-	card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	card.clip_contents = false
-	card.tooltip_text = "enemy:%s" % enemy_type
-	card.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	card.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
-
-	var stack := Control.new()
-	stack.clip_contents = false
-	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	stack.set_anchors_preset(Control.PRESET_FULL_RECT)
-	card.add_child(stack)
-
-	var brush := TextureRect.new()
-	brush.name = "PreBattleEnemyBrush"
-	brush.texture = AssetLoader.load_texture(PRE_BATTLE_BRUSH_PATH)
-	brush.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	brush.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	brush.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	brush.modulate = Color(0.96, 0.96, 0.96, 0.94)
-	brush.clip_contents = false
-	brush.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	brush.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	stack.add_child(brush)
-
-	var art := _pre_battle_enemy_portrait(enemy_type, enemy_def)
-	art.name = "PreBattleEnemyArt"
-	art.set_anchors_preset(Control.PRESET_FULL_RECT)
-	art.offset_left = PRE_BATTLE_PORTRAIT_INSET
-	art.offset_top = 40.0
-	art.offset_right = -PRE_BATTLE_PORTRAIT_INSET
-	art.offset_bottom = -50.0
-	art.modulate = Color(1.0, 0.96, 0.88, 1.0)
-	stack.add_child(art)
-
-	var tint := ColorRect.new()
-	tint.name = "PreBattleEnemyTint"
-	tint.color = Color(1.0, 1.0, 1.0, 0.0)
-	tint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tint.set_anchors_preset(Control.PRESET_FULL_RECT)
-	stack.add_child(tint)
-
-	var name_label := Label.new()
-	name_label.name = "PreBattleEnemyName"
-	name_label.text = str(enemy_def.get("name", enemy_type))
-	name_label.clip_text = true
-	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	name_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	name_label.offset_top = card_size.y - 48.0
-	name_label.offset_bottom = -21.0
-	name_label.offset_left = 8.0
-	name_label.offset_right = -8.0
-	UiTypography.set_label_size(name_label, UiTypography.SIZE_CAPTION)
-	name_label.add_theme_color_override("font_color", Color("fff4d6"))
-	name_label.add_theme_color_override("font_outline_color", Color("100907"))
-	name_label.add_theme_constant_override("outline_size", 2)
-	stack.add_child(name_label)
-
-	var threat_label := Label.new()
-	threat_label.name = "PreBattleThreatSummary"
-	threat_label.text = _pre_battle_enemy_threat_summary(enemy_type)
-	threat_label.clip_text = true
-	threat_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	threat_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	threat_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	threat_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	threat_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	threat_label.offset_top = card_size.y - 24.0
-	threat_label.offset_left = 8.0
-	threat_label.offset_right = -8.0
-	UiTypography.set_label_size(threat_label, 10)
-	threat_label.add_theme_color_override("font_color", accent.lightened(0.34))
-	threat_label.add_theme_color_override("font_outline_color", Color("100907"))
-	threat_label.add_theme_constant_override("outline_size", 1)
-	stack.add_child(threat_label)
-
-	var hp := _build_pre_battle_enemy_hp_badge(enemy, accent)
-	hp.position = Vector2(8.0, 8.0)
-	stack.add_child(hp)
-	return card
-
-func _build_pre_battle_enemy_hp_badge(enemy: Dictionary, accent: Color) -> Control:
-	var chip := PanelContainer.new()
-	chip.name = "PreBattleEnemyHealth"
-	chip.custom_minimum_size = Vector2(88.0, 32.0)
-	chip.size = chip.custom_minimum_size
-	chip.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.035, 0.027, 0.024, 0.92), PRE_BATTLE_HP_BADGE_BORDER, 5.0, 7))
-	_ui_skin.apply_menu_finish(chip, "chip", PRE_BATTLE_HP_BADGE_BORDER)
-	var row := HBoxContainer.new()
-	row.alignment = BoxContainer.ALIGNMENT_CENTER
-	row.add_theme_constant_override("separation", 5)
-	chip.add_child(row)
-	var icon := TextureRect.new()
-	icon.texture = ActionIcons.icon_texture("health")
-	icon.custom_minimum_size = Vector2(22.0, 22.0)
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	row.add_child(icon)
-	var label := Label.new()
-	var hp: int = int(enemy.get("hp", 0))
-	var max_hp: int = int(enemy.get("max_hp", hp))
-	label.text = str(hp) if hp == max_hp else "%d/%d" % [hp, max_hp]
-	UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
-	label.add_theme_color_override("font_color", Color("fff0ce"))
-	label.add_theme_color_override("font_outline_color", Color("100907"))
-	label.add_theme_constant_override("outline_size", 1)
-	row.add_child(label)
-	return chip
-
-func _build_pre_battle_card_badge(card_id: String, badge_name: String, source_kind: String, card_count: int = 1, badge_size: Vector2 = EQUIPMENT_DECK_BADGE_SIZE, font_size: int = UiTypography.SIZE_CAPTION) -> Control:
-	var card: Dictionary = GameData.card_def(card_id)
-	var accent: Color = ElementData.accent(GameData.card_element(card_id))
-	var badge := PreBattleCardBadge.new()
-	badge.name = badge_name
-	badge.card_id = card_id
-	badge.host = self
-	badge.source_kind = source_kind
-	badge.set_meta("card_id", card_id)
-	badge.set_meta("source_kind", source_kind)
-	badge.set_meta("card_count", maxi(1, card_count))
-	badge.custom_minimum_size = badge_size
-	badge.tooltip_text = "card:%s" % card_id
-	badge.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	badge.clip_contents = true
-	var style: StyleBoxFlat = _equipment_panel_style(accent, false)
-	style.set_corner_radius_all(3)
-	style.set_content_margin_all(2.0)
-	style.border_color = accent.darkened(0.25) if source_kind == "attuned" else Color("786449")
-	badge.add_theme_stylebox_override("panel", style)
-	var display_name: String = str(card.get("name", card_id))
-	if card_count > 1:
-		display_name += " x%d" % card_count
-	badge.set_meta("display_name", display_name)
-	badge.set_meta("label_font_size", maxi(UiTypography.SIZE_CAPTION, font_size))
-	badge.add_child(_build_pre_battle_card_object_content(card, display_name, font_size))
-	return badge
-
-func _build_pre_battle_card_object_content(card: Dictionary, display_name: String, font_size: int) -> Control:
-	var content := Control.new()
-	content.name = "PreBattleCardObjectContent"
-	content.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	content.clip_contents = true
-	var art := TextureRect.new()
-	art.name = "CardBadgeArt"
-	art.texture = _pre_battle_card_full_bleed_texture(str(card.get("art_path", "")))
-	if art.texture != null and art.texture.has_meta("pre_battle_opaque_underpaint"):
-		var underpaint := TextureRect.new()
-		underpaint.name = "CardBadgeArtFill"
-		underpaint.texture = art.texture.get_meta("pre_battle_opaque_underpaint") as Texture2D
-		underpaint.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		underpaint.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-		underpaint.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-		underpaint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		underpaint.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		content.add_child(underpaint)
-	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	content.add_child(art)
-	var label := Label.new()
-	label.name = "CardBadgeName"
-	label.text = display_name
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.max_lines_visible = 2
-	label.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
-	label.add_theme_constant_override("line_spacing", -2)
-	label.add_theme_color_override("font_color", Color("fff2d9"))
-	label.add_theme_color_override("font_outline_color", Color("100a07"))
-	label.add_theme_constant_override("outline_size", 2)
-	label.add_theme_color_override("font_shadow_color", Color(0.015, 0.010, 0.008, 0.9))
-	label.add_theme_constant_override("shadow_offset_x", 0)
-	label.add_theme_constant_override("shadow_offset_y", 1)
-	UiTypography.apply_label_role(label, UiTypography.ROLE_CAPTION)
-	UiTypography.set_label_size(label, maxi(UiTypography.SIZE_CAPTION, font_size))
-	label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	label.offset_left = 0.0
-	label.offset_right = 0.0
-	content.add_child(label)
-	return content
+	return PreBattleView.build_foe(self, enemy, card_size, bool(enemy.get("is_leader", false)), card_size.y < 300.0)
 
 func _pre_battle_card_full_bleed_texture(path: String) -> Texture2D:
 	if _pre_battle_card_art_texture_cache.has(path):
@@ -6172,34 +5192,6 @@ func _pre_battle_card_full_bleed_texture(path: String) -> Texture2D:
 			result = foreground
 	_pre_battle_card_art_texture_cache[path] = result
 	return result
-
-func _build_pre_battle_equipment_chip(equipment_id: String) -> Control:
-	var item: Dictionary = GameData.equipment_def(equipment_id)
-	var chip := PreBattleEquipmentChip.new()
-	chip.name = "PreBattleEquipmentChip"
-	chip.equipment_id = equipment_id
-	chip.host = self
-	chip.set_meta("equipment_id", equipment_id)
-	chip.tooltip_text = "equipment:%s" % equipment_id
-	chip.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	chip.custom_minimum_size = Vector2(54.0, 54.0)
-	chip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	var accent := Color(GameData.equipment_accent(equipment_id))
-	var style: StyleBoxFlat = _equipment_icon_style(accent)
-	style.set_content_margin_all(4.0)
-	chip.add_theme_stylebox_override("panel", style)
-	_ui_skin.apply_menu_finish(chip, "chip", accent)
-	var icon := TextureRect.new()
-	icon.texture = AssetLoader.load_texture(str(item.get("icon_path", "")))
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	icon.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	chip.add_child(icon)
-	return chip
 
 func _pre_battle_enemy_threat_summary(enemy_type: String) -> String:
 	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
@@ -6273,196 +5265,10 @@ func _pre_battle_known_enemy_intents(enemy_type: String) -> Array:
 	return base_intents.duplicate(true)
 
 func _build_pre_battle_enemy_inspection_panel(enemy: Dictionary, interactive: bool = false) -> Control:
-	var enemy_type: String = str(enemy.get("type", ""))
-	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
-	var accent := Color(str(enemy_def.get("accent", "#d8b06d")))
-	var panel := PanelContainer.new()
-	panel.name = "PreBattleEnemyInspection"
-	panel.custom_minimum_size = Vector2(620.0, 0.0)
-	panel.mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
-	panel.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.054, 0.038, 0.031, 0.99), accent.lightened(0.22), 14.0, 10))
-	var margin := MarginContainer.new()
-	margin.mouse_filter = Control.MOUSE_FILTER_PASS if interactive else Control.MOUSE_FILTER_IGNORE
-	margin.add_theme_constant_override("margin_left", 14)
-	margin.add_theme_constant_override("margin_top", 14)
-	margin.add_theme_constant_override("margin_right", 14)
-	margin.add_theme_constant_override("margin_bottom", 14)
-	panel.add_child(margin)
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 12)
-	margin.add_child(vbox)
-
-	var header := HBoxContainer.new()
-	header.add_theme_constant_override("separation", 16)
-	vbox.add_child(header)
-	var portrait_frame := PanelContainer.new()
-	portrait_frame.custom_minimum_size = Vector2(138.0, 138.0)
-	portrait_frame.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.025, 0.021, 0.020, 0.98), accent, 6.0, 8))
-	header.add_child(portrait_frame)
-	var portrait_inset := MarginContainer.new()
-	portrait_inset.name = "PreBattleEnemyPortraitInset"
-	portrait_inset.add_theme_constant_override("margin_left", int(PRE_BATTLE_PORTRAIT_INSET * 0.5))
-	portrait_inset.add_theme_constant_override("margin_top", int(PRE_BATTLE_PORTRAIT_INSET * 0.5))
-	portrait_inset.add_theme_constant_override("margin_right", int(PRE_BATTLE_PORTRAIT_INSET * 0.5))
-	portrait_inset.add_theme_constant_override("margin_bottom", int(PRE_BATTLE_PORTRAIT_INSET * 0.5))
-	portrait_frame.add_child(portrait_inset)
-	var portrait := _pre_battle_enemy_portrait(enemy_type, enemy_def)
-	portrait.name = "PreBattleEnemyPortrait"
-	portrait_inset.add_child(portrait)
-	var identity := VBoxContainer.new()
-	identity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	identity.alignment = BoxContainer.ALIGNMENT_CENTER
-	identity.add_theme_constant_override("separation", 5)
-	header.add_child(identity)
-	var name_label := Label.new()
-	name_label.text = str(enemy_def.get("name", enemy_type))
-	UiTypography.set_label_size(name_label, UiTypography.SIZE_TITLE)
-	name_label.add_theme_color_override("font_color", Color("fff0ce"))
-	name_label.add_theme_color_override("font_outline_color", Color("120b08"))
-	name_label.add_theme_constant_override("outline_size", 2)
-	identity.add_child(name_label)
-	var hp: int = int(enemy.get("hp", enemy_def.get("max_hp", 0)))
-	var max_hp: int = int(enemy.get("max_hp", hp))
-	var stat_row := HBoxContainer.new()
-	stat_row.name = "PreBattleEnemyStatRow"
-	stat_row.add_theme_constant_override("separation", 10)
-	identity.add_child(stat_row)
-	var hp_label := Label.new()
-	hp_label.name = "PreBattleEnemyHpLine"
-	hp_label.text = "HP %d/%d" % [hp, max_hp]
-	UiTypography.set_label_size(hp_label, UiTypography.SIZE_SMALL)
-	hp_label.add_theme_color_override("font_color", PRE_BATTLE_HP_COLOR)
-	stat_row.add_child(hp_label)
-	var stat_separator := Label.new()
-	stat_separator.text = "/"
-	UiTypography.set_label_size(stat_separator, UiTypography.SIZE_SMALL)
-	stat_separator.add_theme_color_override("font_color", Color("a99a83"))
-	stat_row.add_child(stat_separator)
-	var initiative_label := Label.new()
-	initiative_label.name = "PreBattleEnemyInitiativeLine"
-	initiative_label.text = "Base initiative %d" % int(enemy_def.get("base_initiative", 0))
-	UiTypography.set_label_size(initiative_label, UiTypography.SIZE_SMALL)
-	initiative_label.add_theme_color_override("font_color", PRE_BATTLE_INITIATIVE_COLOR)
-	stat_row.add_child(initiative_label)
-	var threat_label := Label.new()
-	threat_label.text = _pre_battle_enemy_threat_summary(enemy_type)
-	UiTypography.set_label_size(threat_label, UiTypography.SIZE_SMALL)
-	threat_label.add_theme_color_override("font_color", accent.lightened(0.36))
-	identity.add_child(threat_label)
-	if interactive:
-		var close_button := UiTooltipButton.new()
-		close_button.name = "PreBattleInspectionCloseButton"
-		close_button.text = "X"
-		close_button.tooltip_text = "Close"
-		_ui_skin.apply_button_stylebox_overrides(close_button, UiSkin.VARIANT_ICON)
-		_ui_skin.apply_button_text_overrides(close_button)
-		UiTypography.apply_button_role(close_button, UiTypography.ROLE_BODY)
-		close_button.custom_minimum_size = Vector2(40.0, 40.0)
-		close_button.size_flags_horizontal = Control.SIZE_SHRINK_END
-		close_button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		close_button.pressed.connect(_close_pinned_tooltip)
-		header.add_child(close_button)
-
-	var guardian_summary: String = preload("res://scripts/guardian_library.gd").inspection_summary(enemy)
-	if not guardian_summary.is_empty():
-		var rules := Label.new()
-		rules.name = "GuardianEncounterRules"
-		# Seed wrapping at the panel's content width before measuring the popup.
-		rules.custom_minimum_size.x = 560.0
-		rules.size.x = 560.0
-		rules.text = guardian_summary
-		rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		rules.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		UiTypography.set_label_size(rules, UiTypography.SIZE_SMALL)
-		rules.add_theme_color_override("font_color", Color("e5d5ba"))
-		vbox.add_child(rules)
-
-	vbox.add_child(_pre_battle_section_label("Known Moves", ActionIcons.icon_texture("time"), accent))
-	var moves := VBoxContainer.new()
-	moves.name = "PreBattleKnownMoves"
-	moves.add_theme_constant_override("separation", 7)
-	vbox.add_child(moves)
-	var intents: Array = _pre_battle_known_enemy_intents(enemy_type)
-	for intent_var: Variant in intents:
-		if typeof(intent_var) != TYPE_DICTIONARY:
-			continue
-		moves.add_child(_build_pre_battle_known_move_row(intent_var as Dictionary, accent))
-	if moves.get_child_count() == 0:
-		var empty_label := Label.new()
-		empty_label.text = "No recorded moves."
-		UiTypography.set_label_size(empty_label, UiTypography.SIZE_SMALL)
-		empty_label.add_theme_color_override("font_color", Color("b8a891"))
-		moves.add_child(empty_label)
-	return panel
+	return PreBattleInspectionView.build(self, enemy, interactive)
 
 func _build_pre_battle_known_move_row(intent: Dictionary, accent: Color) -> Control:
-	var row_panel := PanelContainer.new()
-	row_panel.name = "PreBattleKnownMoveRow"
-	row_panel.custom_minimum_size = Vector2(0.0, 58.0)
-	row_panel.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.032, 0.026, 0.024, 0.94), Color(accent.r, accent.g, accent.b, 0.48), 8.0, 7))
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 10)
-	row_panel.add_child(row)
-	var actions: Array = intent.get("actions", []) as Array
-	var icon_key: String = _pre_battle_known_move_icon_key(intent)
-	var icon := TextureRect.new()
-	icon.name = "PreBattleKnownMoveIcon"
-	icon.set_meta("icon_key", icon_key)
-	icon.texture = ActionIcons.icon_texture(icon_key)
-	icon.custom_minimum_size = Vector2(34.0, 34.0)
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(icon)
-	var text_box := VBoxContainer.new()
-	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text_box.add_theme_constant_override("separation", 2)
-	row.add_child(text_box)
-	var title := Label.new()
-	title.text = str(intent.get("name", "Move"))
-	UiTypography.set_label_size(title, UiTypography.SIZE_SMALL)
-	title.add_theme_color_override("font_color", Color("fff0ce"))
-	text_box.add_child(title)
-	var summary := Label.new()
-	var summary_text: String = ActionIcons.plain_text_for_rows(ActionIcons.rows_for_actions(actions)).replace("\n", "  /  ")
-	summary.text = summary_text if not summary_text.is_empty() else "Recovers." if actions.is_empty() else "Special action"
-	summary.clip_text = true
-	summary.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	UiTypography.set_label_size(summary, UiTypography.SIZE_CAPTION)
-	summary.add_theme_color_override("font_color", Color("cdbda5"))
-	text_box.add_child(summary)
-	var guardian_notes: String = preload("res://scripts/guardian_library.gd").intent_notes(intent)
-	# Status amounts must remain visible even when a move needs no extra prose.
-	summary.clip_text = false
-	summary.text_overrun_behavior = TextServer.OVERRUN_NO_TRIMMING
-	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	summary.custom_minimum_size.x = 410.0
-	summary.size.x = 410.0
-	if not guardian_notes.is_empty():
-		var rules := Label.new()
-		rules.name = "GuardianMoveRules"
-		rules.custom_minimum_size.x = 410.0
-		rules.size.x = 410.0
-		rules.text = guardian_notes
-		rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		rules.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		UiTypography.set_label_size(rules, UiTypography.SIZE_CAPTION)
-		rules.add_theme_color_override("font_color", Color("e5d5ba"))
-		text_box.add_child(rules)
-	var time_chip := PanelContainer.new()
-	time_chip.custom_minimum_size = Vector2(76.0, 34.0)
-	time_chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	time_chip.add_theme_stylebox_override("panel", _pre_battle_style(Color(0.08, 0.055, 0.03, 0.96), accent, 5.0, 6))
-	row.add_child(time_chip)
-	var time_label := Label.new()
-	time_label.text = "TIME %d" % int(intent.get("time", 0))
-	time_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	time_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(time_label, UiTypography.SIZE_CAPTION)
-	time_label.add_theme_color_override("font_color", Color("f4d895"))
-	time_chip.add_child(time_label)
-	return row_panel
+	return PreBattleInspectionView.build_move(self, intent)
 
 func _pre_battle_known_move_icon_key(intent: Dictionary) -> String:
 	if (intent.get("actions", []) as Array).is_empty(): return "time"
@@ -11935,69 +10741,14 @@ func _refresh_relic_bar() -> void:
 			var relic: Dictionary = GameData.relic_def(relic_id)
 			if relic.is_empty():
 				continue
-			var frame := TooltipPanelContainer.new()
-			frame.custom_minimum_size = RELIC_BADGE_SIZE
-			frame.set_meta("relic_id", relic_id)
-			frame.focus_mode = Control.FOCUS_ALL
-			frame.tooltip_text = "%s\n%s" % [
-					str(relic.get("name", relic_id)),
-					str(relic.get("description", ""))
-			]
-			frame.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
-			frame.add_theme_stylebox_override("panel", _pile_card_style(
-					Color("261b14"),
-					Color(GameData.relic_accent(relic_id)),
-					4.0
-			))
-			var margin := MarginContainer.new()
-			margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-			margin.anchor_right = 1.0
-			margin.anchor_bottom = 1.0
-			margin.add_theme_constant_override("margin_left", 5)
-			margin.add_theme_constant_override("margin_top", 5)
-			margin.add_theme_constant_override("margin_right", 5)
-			margin.add_theme_constant_override("margin_bottom", 5)
-			frame.add_child(margin)
-			var icon := TextureRect.new()
-			icon.set_anchors_preset(Control.PRESET_FULL_RECT)
-			icon.anchor_right = 1.0
-			icon.anchor_bottom = 1.0
-			icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-			icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-			icon.texture = AssetLoader.load_texture(str(relic.get("icon_path", "")))
-			icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			margin.add_child(icon)
-			if icon.texture == null:
-				var fallback := Label.new()
-				fallback.set_anchors_preset(Control.PRESET_FULL_RECT)
-				fallback.anchor_right = 1.0
-				fallback.anchor_bottom = 1.0
-				fallback.text = str(relic.get("name", "?")).substr(0, 1).to_upper()
-				fallback.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-				fallback.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-				UiTypography.set_label_size(fallback, UiTypography.SIZE_CAPTION)
-				fallback.add_theme_color_override("font_color", Color("f0e6d2"))
-				fallback.add_theme_color_override("font_outline_color", Color("2c1f16"))
-				fallback.add_theme_constant_override("outline_size", 1)
-				margin.add_child(fallback)
+			var held: int = -1
+			var capacity: int = 0
 			for effect: Dictionary in relic.get("effects", []):
-				if str(effect.get("type", "")) != "element_time_reserve": continue
-				var capacity: int = int(effect.get("capacity",3))
-				var held: int = preload("res://scripts/dragon_trophy_rules.gd").reserve(_combat_state,relic_id,capacity)
-				frame.tooltip_text += "\nStored Time: %d / %d" % [held,capacity]
-				var counter := Label.new()
-				counter.name = "RelicTimeReserve"
-				counter.text = str(held)
-				counter.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-				counter.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-				counter.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
-				counter.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				UiTypography.set_label_size(counter,UiTypography.SIZE_BODY)
-				counter.add_theme_color_override("font_color",Color("c3f5ff"))
-				counter.add_theme_color_override("font_outline_color",Color("14101b"))
-				counter.add_theme_constant_override("outline_size",7)
-				frame.add_child(counter)
-			_relic_icon_grid.add_child(frame)
+				if str(effect.get("type", "")) != "element_time_reserve":
+					continue
+				capacity = int(effect.get("capacity", 3))
+				held = preload("res://scripts/dragon_trophy_rules.gd").reserve(_combat_state, relic_id, capacity)
+			_relic_icon_grid.add_child(CombatHudRelics.relic(relic_id, relic, held, capacity))
 		for rite_index: int in range(rite_entries.size()):
 			_relic_icon_grid.add_child(_build_active_rite_badge(rite_entries[rite_index], rite_index))
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_relic_icons", performance_phase_started)
@@ -12018,68 +10769,10 @@ func _refresh_relic_bar() -> void:
 	_record_runtime_performance_phase("relic_bar_total", performance_total_started)
 
 func _build_active_rite_badge(entry: Dictionary, rite_index: int) -> Control:
-	var frame := TooltipPanelContainer.new()
-	frame.name = "ActiveRite_%d" % rite_index
-	frame.custom_minimum_size = RELIC_BADGE_SIZE
-	frame.set_meta("rite_card_id", str(entry.get("card_id", "")))
-	frame.focus_mode = Control.FOCUS_ALL
-	frame.tooltip_text = str(entry.get("tooltip", ""))
-	frame.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
 	var card: Dictionary = GameData.card_def(str(entry.get("card_id", "")))
-	var accent: Color = Color(str(card.get("accent", "#d9862f")))
-	frame.add_theme_stylebox_override("panel", _pile_card_style(Color("1d1420"), accent, 4.0))
-	# Each Rite shows its own card painting, with the shared Rite mark in the
-	# corner, so two active Rites are told apart without hovering.
-	var layers := Control.new()
-	layers.name = "RiteBadgeLayers"
-	layers.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	layers.clip_contents = true
-	frame.add_child(layers)
 	var art_path: String = str(card.get("art_path", ""))
 	var art_texture: Texture2D = _pre_battle_card_full_bleed_texture(art_path) if not art_path.is_empty() else null
-	if art_texture != null:
-		var art := TextureRect.new()
-		art.name = "RiteArt"
-		art.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-		art.texture = art_texture
-		art.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		layers.add_child(art)
-	var mark_backing := Panel.new()
-	mark_backing.name = "RiteMarkBacking"
-	mark_backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var backing_style := StyleBoxFlat.new()
-	backing_style.bg_color = Color(0.07, 0.05, 0.08, 0.86)
-	backing_style.border_color = accent
-	backing_style.set_border_width_all(1)
-	backing_style.set_corner_radius_all(10)
-	mark_backing.add_theme_stylebox_override("panel", backing_style)
-	var mark_size: float = 20.0 if art_texture != null else 0.0
-	if art_texture != null:
-		mark_backing.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-		mark_backing.offset_left = -mark_size
-		mark_backing.offset_top = -mark_size
-		mark_backing.offset_right = 0.0
-		mark_backing.offset_bottom = 0.0
-		layers.add_child(mark_backing)
-	var icon := TextureRect.new()
-	icon.name = "RiteMark"
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture = ActionIcons.icon_texture(str(entry.get("icon", "rite")))
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	if art_texture != null:
-		icon.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		icon.offset_left = 2.0
-		icon.offset_top = 2.0
-		icon.offset_right = -2.0
-		icon.offset_bottom = -2.0
-		mark_backing.add_child(icon)
-	else:
-		icon.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-		layers.add_child(icon)
-	return frame
+	return CombatHudRelics.active_rite(entry, rite_index, art_texture)
 
 func _build_header_utility_divider(node_name: String) -> ColorRect:
 	var divider := ColorRect.new()
@@ -12092,55 +10785,7 @@ func _build_header_utility_divider(node_name: String) -> ColorRect:
 	return divider
 
 func _build_defiance_badge(remaining: int, capacity: int) -> Control:
-	var frame := TooltipPanelContainer.new()
-	frame.name = "DefianceBadge"
-	frame.custom_minimum_size = RELIC_BADGE_SIZE
-	frame.tooltip_text = (
-		"DEFIANCE %d / %d\nLethal health loss spends 1 to restore 25%% max health.\n"
-		+ "Every fourth permanent level grants 1. Defiance does not refill during a run."
-	) % [remaining, capacity]
-	frame.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
-	frame.mouse_filter = Control.MOUSE_FILTER_PASS
-	frame.set_meta("header_utility", true)
-	frame.set_meta("defiance_remaining", remaining)
-	frame.set_meta("defiance_capacity", capacity)
-	var accent: Color = Color("d6aa5e") if remaining > 0 else Color("62556e")
-	frame.add_theme_stylebox_override("panel", _pile_card_style(
-		Color("211326") if remaining > 0 else Color("19151c"),
-		accent,
-		4.0
-	))
-	var icon := TextureRect.new()
-	icon.set_anchors_preset(Control.PRESET_FULL_RECT)
-	icon.anchor_right = 1.0
-	icon.anchor_bottom = 1.0
-	icon.offset_left = 7.0
-	icon.offset_top = 4.0
-	icon.offset_right = -7.0
-	icon.offset_bottom = -12.0
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture = AssetLoader.load_texture("res://assets/art/icons/defiance.png")
-	icon.modulate = Color.WHITE if remaining > 0 else Color(0.55, 0.50, 0.60, 0.86)
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	frame.add_child(icon)
-	var count := Label.new()
-	count.name = "DefianceCount"
-	count.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
-	count.anchor_top = 1.0
-	count.anchor_bottom = 1.0
-	count.offset_top = -17.0
-	count.offset_bottom = -2.0
-	count.text = "%d/%d" % [remaining, capacity]
-	count.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	count.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	count.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	UiTypography.set_label_size(count, UiTypography.SIZE_CAPTION)
-	count.add_theme_color_override("font_color", Color("ffe7a3") if remaining > 0 else Color("8d8296"))
-	count.add_theme_color_override("font_outline_color", Color("160d19"))
-	count.add_theme_constant_override("outline_size", 2)
-	frame.add_child(count)
-	return frame
+	return CombatHudRelics.defiance(remaining, capacity)
 
 func _selected_skill_ids_for_hud() -> Array[String]:
 	if str(_run_state.get("mode", "room")) == "combat" and not _combat_state.is_empty():
@@ -12204,13 +10849,8 @@ func _build_skill_sigil(skill_ids: Array[String], presentation: Dictionary = {})
 	button.set_meta("ready_count", ready_count)
 	button.set_meta("owned_count", skill_ids.size())
 	button.set_meta("preview_skill_ids", preview_ids)
-	for state_name: String in ["normal", "hover", "pressed", "focus"]:
-		var accent := Color("9b72cb")
-		if state_name == "hover":
-			accent = accent.lightened(0.18)
-		elif state_name == "pressed":
-			accent = accent.darkened(0.12)
-		button.add_theme_stylebox_override(state_name, _skill_sigil_style(accent, state_name == "hover"))
+	for state_name: String in ["normal", "hover", "pressed", "hover_pressed", "focus", "disabled"]:
+		button.add_theme_stylebox_override(state_name, StyleBoxEmpty.new())
 
 	var margin := MarginContainer.new()
 	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -12257,19 +10897,15 @@ func _build_skill_sigil(skill_ids: Array[String], presentation: Dictionary = {})
 	content.add_child(previews)
 	for skill_id: String in preview_ids:
 		var accent: Color = _skill_status_accent(str(skill_statuses.get(skill_id, "PASSIVE")))
-		var frame := PanelContainer.new()
-		frame.name = "SkillSigilPreview_%s" % skill_id
-		frame.custom_minimum_size = SKILL_SIGIL_PREVIEW_ICON_SIZE
-		frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		frame.add_theme_stylebox_override("panel", _skill_sigil_preview_style(accent))
-		var icon := TextureRect.new()
-		icon.texture = ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id))
-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		frame.add_child(icon)
-		previews.add_child(frame)
+		var socket := CombatHudSocket.new()
+		socket.name = "SkillSigilPreview_%s" % skill_id
+		socket.socket_size = SKILL_SIGIL_PREVIEW_ICON_SIZE.x
+		socket.interactive = false
+		socket.ring_tint = socket.ring_tint.lerp(accent, 0.18)
+		socket.setup(ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id)))
+		socket.follow_button_states(button)
+		previews.add_child(socket)
+
 	var expansion := Label.new()
 	expansion.name = "SkillSigilExpansionIndicator"
 	expansion.text = "›"
@@ -12933,14 +11569,11 @@ func _setup_turn_order_bar() -> void:
 	intent_toggle_margin.add_theme_constant_override("margin_top", int(ENEMY_INTENT_TOGGLE_TOP_GAP))
 	intent_toggle_margin.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	rail.add_child(intent_toggle_margin)
-	_enemy_intent_toggle_button = Button.new()
+	_enemy_intent_toggle_button = CombatHudIntents.new()
 	_enemy_intent_toggle_button.name = "EnemyIntentToggle"
 	_enemy_intent_toggle_button.toggle_mode = true
 	_enemy_intent_toggle_button.focus_mode = Control.FOCUS_ALL
 	_enemy_intent_toggle_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	UiTypography.set_button_size(_enemy_intent_toggle_button, UiTypography.SIZE_CAPTION)
-	_ui_skin.apply_button_stylebox_overrides(_enemy_intent_toggle_button, UiSkin.VARIANT_COMPACT)
-	_ui_skin.apply_button_text_overrides(_enemy_intent_toggle_button)
 	_ui_skin.apply_button_native_size(
 		_enemy_intent_toggle_button,
 		ENEMY_INTENT_TOGGLE_HEIGHT,
@@ -15329,7 +13962,7 @@ func _displayed_ember_count() -> int:
 
 func _set_stats_label_text(ember_count: int) -> void:
 	var level: int = int((_run_state.get("progression", _progression) as Dictionary).get("level", _progression.get("level", 1)))
-	stats_label.text = "LV %d  EMBERS %d" % [level, ember_count]
+	stats_label.call("set_values", level, ember_count)
 
 func _deck_piles() -> Dictionary:
 	if _combat_state.is_empty():
@@ -22542,6 +21175,7 @@ func _refresh_enemy_intent_toggle() -> void:
 	_enemy_intent_toggle_button.disabled = not in_combat or _animation_lock
 	_enemy_intent_toggle_button.set_pressed_no_signal(_show_all_enemy_intents)
 	_enemy_intent_toggle_button.text = "INTENTS ON [I]" if _show_all_enemy_intents else "INTENTS [I]"
+	_enemy_intent_toggle_button.call("refresh_state")
 	_enemy_intent_toggle_button.tooltip_text = (
 		"Hide all enemy intents and threat previews [I]"
 		if _show_all_enemy_intents
@@ -29732,25 +28366,12 @@ func _rebuild_progression_overlay() -> void:
 	top_row.add_theme_constant_override("separation", UiTypography.SPACE_MEDIUM)
 	vbox.add_child(top_row)
 
-	var title := Label.new()
-	title.text = "Character"
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiTypography.apply_label_role(title, UiTypography.ROLE_TITLE)
-	title.add_theme_color_override("font_color", Color("f0e6d2"))
-	title.add_theme_color_override("font_outline_color", Color("2c1f16"))
-	title.add_theme_constant_override("outline_size", 2)
-	top_row.add_child(title)
-
+	const Menu = preload("res://scripts/character_menu_view.gd")
+	var title_block := Menu.title_block()
+	top_row.add_child(title_block)
+	_progression_level_label = title_block.get_node("ProgressionLevelLabel") as Label
 	top_row.add_child(_build_progression_resource_summary())
-
-	var close_button := Button.new()
-	close_button.name = "CloseCharacterOverlay"
-	close_button.text = "X"
-	_apply_progression_icon_button_style(close_button)
-	UiTypography.apply_button_role(close_button, UiTypography.ROLE_BODY)
-	close_button.custom_minimum_size = Vector2(48.0, 48.0)
-	close_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	close_button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var close_button := Menu.close_socket()
 	close_button.pressed.connect(_on_progression_overlay_close_pressed)
 	top_row.add_child(close_button)
 
@@ -29777,8 +28398,7 @@ func _rebuild_progression_overlay() -> void:
 	else:
 		vbox.add_child(_build_skill_tree_overlay_body())
 	performance_phase_started = _record_runtime_performance_phase("character_body", performance_phase_started)
-	_ui_skin.apply_outer_panel_frame(_upgrade_dialog, UiSkin.SURFACE_DIALOG)
-	_ui_skin.apply_menu_finish(_upgrade_dialog, "outer")
+	Menu.finish_dialog(_upgrade_dialog)
 	# A freshly built auto-wrapping detail panel can briefly report its minimum
 	# height before receiving its final width. CenterContainer preserves that
 	# transient growth in its offsets, so refit once layout has settled.
@@ -29823,40 +28443,14 @@ func _on_progression_overlay_close_pressed() -> void:
 	_resume_emaciated_services()
 
 func _build_progression_resource_summary() -> Control:
+	const Menu = preload("res://scripts/character_menu_view.gd")
 	var row := HBoxContainer.new()
 	row.name = "ProgressionOverlaySummary"
-	_progression_summary_compact = (
-		_upgrade_dialog != null
-		and _upgrade_dialog.get_viewport_rect().size.x < PROGRESSION_SUMMARY_COMPACT_VIEWPORT_WIDTH
-	)
-	row.add_theme_constant_override(
-		"separation",
-		UiTypography.SPACE_TIGHT if _progression_summary_compact else UiTypography.SPACE_SMALL
-	)
-	_progression_level_label = _add_progression_resource_chip(
-		row,
-		"ProgressionLevel",
-		Color("e5b95f"),
-		68.0 if _progression_summary_compact else 124.0
-	)
-	_progression_skill_points_label = _add_progression_resource_chip(
-		row,
-		"ProgressionSkillPoints",
-		Color("72d4c6"),
-		68.0 if _progression_summary_compact else 124.0
-	)
-	_progression_moltshards_label = _add_progression_resource_chip(
-		row,
-		"ProgressionMoltshards",
-		Color("b58ae0"),
-		76.0 if _progression_summary_compact else 124.0
-	)
-	_progression_defiance_label = _add_progression_resource_chip(
-		row,
-		"ProgressionDefiance",
-		Color("d6aa5e"),
-		160.0 if _progression_summary_compact else 220.0
-	)
+	row.add_theme_constant_override("separation", roundi(UiTypography.scaled_value(self, 12.0)))
+	_progression_summary_compact = false
+	_progression_skill_points_label = Menu.stat(row, "ProgressionSkillPoints", Menu.resource_icon(Menu.SKILL_POINT_ICON_PATH), "SKILL POINTS", UiPalette.GOLD_BRIGHT)
+	_progression_moltshards_label = Menu.stat(row, "ProgressionMoltshards", Menu.resource_icon(Menu.MOLTSHARD_ICON_PATH), "MOLTSHARDS", UiPalette.UMBRA.lightened(0.25))
+	_progression_defiance_label = Menu.stat(row, "ProgressionDefiance", ActionIcons.icon_texture("defiance"), "DEFIANCE", UiPalette.GOLD_BRIGHT)
 	_refresh_progression_resource_summary()
 	return row
 
@@ -29894,54 +28488,26 @@ func _add_progression_resource_chip(row: HBoxContainer, chip_name: String, accen
 	return label
 
 func _refresh_progression_resource_summary() -> void:
-	if _progression_level_label != null:
-		_progression_level_label.text = (
-			"LV %d" % int(_progression.get("level", 1))
-			if _progression_summary_compact
-			else "LEVEL  %d" % int(_progression.get("level", 1))
-		)
-	if _progression_skill_points_label != null:
-		_progression_skill_points_label.text = (
-			"PTS %d" % ProgressionStore.unspent_skill_points(_progression)
-			if _progression_summary_compact
-			else "POINTS  %d" % ProgressionStore.unspent_skill_points(_progression)
-		)
-	if _progression_moltshards_label != null:
-		_progression_moltshards_label.text = (
-			"MOLT %d" % ProgressionStore.moltshard_count(_progression)
-			if _progression_summary_compact
-			else "MOLTSHARDS  %d" % ProgressionStore.moltshard_count(_progression)
-		)
-	if _progression_defiance_label != null:
+	const Menu = preload("res://scripts/character_menu_view.gd")
+	if is_instance_valid(_progression_level_label):
+		_progression_level_label.text = "THE REAVER · LEVEL %d" % int(_progression.get("level", 1))
+	if is_instance_valid(_progression_skill_points_label):
+		Menu.refresh_stat(_progression_skill_points_label, str(ProgressionStore.unspent_skill_points(_progression)), "SKILL POINTS")
+	if is_instance_valid(_progression_moltshards_label):
+		Menu.refresh_stat(_progression_moltshards_label, str(ProgressionStore.moltshard_count(_progression)), "MOLTSHARDS")
+	if is_instance_valid(_progression_defiance_label):
 		var level: int = int(_progression.get("level", 1))
 		var permanent_capacity: int = ProgressionStore.defiance_capacity_for_level(level)
-		var capacity: int = (
-			_run_engine.defiance_capacity(_run_state)
-			if not _run_state.is_empty()
-			else permanent_capacity
-		)
+		var capacity: int = _run_engine.defiance_capacity(_run_state) if not _run_state.is_empty() else permanent_capacity
 		var remaining: int = _run_engine.defiance_remaining(_run_state) if not _run_state.is_empty() else capacity
-		var next_level: int = mini(
-			GameData.max_progression_level(),
-			(permanent_capacity + 1) * ProgressionStore.DEFIANCE_LEVEL_INTERVAL
-		)
-		_progression_defiance_label.text = (
-			(
-				"DEFIANCE %d/%d · MAX" % [remaining, capacity]
-				if level >= GameData.max_progression_level()
-				else "DEFIANCE %d/%d · L%d" % [remaining, capacity, next_level]
-			)
-			if _progression_summary_compact
-			else (
-				"DEFIANCE  %d/%d  ·  MAX" % [remaining, capacity]
-				if level >= GameData.max_progression_level()
-				else "DEFIANCE  %d/%d  ·  NEXT %d" % [remaining, capacity, next_level]
-			)
-		)
+		var next_level: int = mini(GameData.max_progression_level(), (permanent_capacity + 1) * ProgressionStore.DEFIANCE_LEVEL_INTERVAL)
+		var value_text: String = "%d/%d · MAX" % [remaining, capacity] if level >= GameData.max_progression_level() else "%d/%d · next %d" % [remaining, capacity, next_level]
+		var caption: String = "DEFIANCE · MAX" if level >= GameData.max_progression_level() else "DEFIANCE · NEXT %d" % next_level
+		_progression_defiance_label.set_meta("resource_summary_text", value_text)
+		Menu.refresh_stat(_progression_defiance_label, "%d/%d" % [remaining, capacity], caption)
 
 func _build_character_overlay_tabs() -> Control:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
+	var row := preload("res://scripts/character_menu_view.gd").tabs_row()
 	for entry: Dictionary in [
 		{"mode": "equipment", "text": "Gear"},
 		{"mode": "magic", "text": "Magic"},
@@ -29956,13 +28522,12 @@ func _build_character_overlay_tabs() -> Control:
 		button.custom_minimum_size = Vector2(132.0, 42.0)
 		button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 		_apply_character_tab_style(button, button.button_pressed)
-		UiTypography.apply_button_role(button, UiTypography.ROLE_BODY)
 		var unread_count: int = _run_engine.loadout_unread_ids(_run_state, mode).size()
 		if unread_count > 0:
 			_add_loadout_tab_badge(button, mode, unread_count)
 		if _progression_overlay_mode != mode:
 			button.pressed.connect(_switch_character_overlay_mode.bind(mode))
-		row.add_child(button)
+		row.get_node("Buttons").add_child(button)
 	return row
 
 func _add_loadout_tab_badge(button: Button, mode: String, unread_count: int) -> void:
@@ -30079,8 +28644,7 @@ func _on_loadout_asset_hovered(mode: String, asset_id: String) -> void:
 	_persist_committed_boundary("loadout_asset_seen")
 
 func _apply_character_tab_style(button: Button, active: bool) -> void:
-	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_SELECTED if active else UiSkin.VARIANT_STANDARD)
-	_apply_progression_button_text(button, UiTypography.SIZE_SMALL)
+	preload("res://scripts/character_menu_view.gd").style_tab(button, active)
 
 func _build_equipment_overlay_body() -> Control:
 	_equipment_slot_panels.clear()
@@ -30433,112 +28997,28 @@ func _fixed_character_body_frame(content: Control) -> Control:
 	return frame
 
 func _build_equipment_character_column() -> Control:
-	var panel := PanelContainer.new()
-	panel.name = "EquipmentLoadoutPanel"
-	panel.custom_minimum_size = Vector2(338.0, 0.0)
-	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
-	_ui_skin.apply_menu_finish(panel, "section")
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 14)
-	margin.add_theme_constant_override("margin_top", 12)
-	margin.add_theme_constant_override("margin_right", 14)
-	margin.add_theme_constant_override("margin_bottom", 12)
-	panel.add_child(margin)
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
-	margin.add_child(vbox)
-
-	var title := Label.new()
-	title.text = "Loadout"
-	UiTypography.apply_label_role(title, UiTypography.ROLE_SECTION)
-	title.add_theme_color_override("font_color", Color("f5ead4"))
-	title.add_theme_color_override("font_outline_color", Color("241912"))
-	title.add_theme_constant_override("outline_size", 1)
-	vbox.add_child(title)
-	vbox.add_child(_build_equipment_portrait_panel())
-
-	var loadout_scroll := ScrollContainer.new()
-	loadout_scroll.name = "EquipmentLoadoutScroll"
-	loadout_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	loadout_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	loadout_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	vbox.add_child(loadout_scroll)
-
-	var loadout := VBoxContainer.new()
-	loadout.name = "EquipmentLoadoutList"
-	loadout.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	loadout.add_theme_constant_override("separation", 6)
-	loadout_scroll.add_child(loadout)
-
-	var gear_label := Label.new()
-	gear_label.text = "Gear"
-	UiTypography.set_label_size(gear_label, UiTypography.SIZE_CAPTION)
-	gear_label.add_theme_color_override("font_color", Color("f0c978"))
-	gear_label.add_theme_color_override("font_outline_color", Color("1d1510"))
-	gear_label.add_theme_constant_override("outline_size", 1)
-	loadout.add_child(gear_label)
-
-	var slots := VBoxContainer.new()
-	slots.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	slots.add_theme_constant_override("separation", 6)
-	loadout.add_child(slots)
-	var equipped: Dictionary = _run_state.get("equipped_equipment", {}) as Dictionary
-	for slot: String in GameData.equipment_slots():
-		slots.add_child(_build_equipment_slot_panel(slot, str(equipped.get(slot, ""))))
-	loadout.add_child(_build_equipped_items_section())
+	const Menu = preload("res://scripts/character_menu_view.gd")
+	var panel := Menu.column("EquipmentLoadoutPanel", 420.0, "EQUIPPED")
+	var list := Menu.scroll_list(panel, "EquipmentLoadoutScroll", "EquipmentLoadoutList")
+	list.add_child(_build_equipment_portrait_panel())
+	list.add_child(_build_equipped_items_section())
 	return panel
 
 func _build_equipped_items_section() -> Control:
+	const Menu = preload("res://scripts/character_menu_view.gd")
 	var section := VBoxContainer.new()
+	section.name = "CharacterEquippedItems"
 	section.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	section.add_theme_constant_override("separation", 5)
-	var title_row := HBoxContainer.new()
-	title_row.add_theme_constant_override("separation", 8)
-	section.add_child(title_row)
-	var title := Label.new()
-	title.text = "Items"
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiTypography.set_label_size(title, UiTypography.SIZE_CAPTION)
-	title.add_theme_color_override("font_color", Color("f0c978"))
-	title.add_theme_color_override("font_outline_color", Color("1d1510"))
-	title.add_theme_constant_override("outline_size", 1)
-	title_row.add_child(title)
+	section.add_theme_constant_override("separation", roundi(UiTypography.scaled_value(self, 8.0)))
 	var equipped_items: Array = (_run_state.get("equipped_items", []) as Array).duplicate()
-	var count := Label.new()
-	count.text = "%d/%d" % [mini(equipped_items.size(), GameData.item_loadout_limit()), GameData.item_loadout_limit()]
-	UiTypography.set_label_size(count, UiTypography.SIZE_CAPTION)
-	count.add_theme_color_override("font_color", Color("f0c978"))
-	title_row.add_child(count)
-	var slots := VBoxContainer.new()
-	slots.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	slots.add_theme_constant_override("separation", 5)
-	section.add_child(slots)
+	section.add_child(Menu.section("ITEMS", "%d / %d" % [mini(equipped_items.size(), GameData.item_loadout_limit()), GameData.item_loadout_limit()]))
 	for index: int in range(GameData.item_loadout_limit()):
 		var card_id: String = str(equipped_items[index]) if index < equipped_items.size() else ""
-		slots.add_child(_build_item_card_tile(card_id, "equipped", index, ITEM_EQUIPPED_TILE_SIZE))
+		section.add_child(_build_item_card_tile(card_id, "equipped", index, ITEM_EQUIPPED_TILE_SIZE))
 	return section
 
 func _build_equipment_portrait_panel() -> Control:
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(0.0, 124.0)
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _equipment_panel_style(_equipped_equipment_accent(), true))
-	_ui_skin.apply_menu_finish(panel, "portrait", _equipped_equipment_accent())
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 8)
-	margin.add_theme_constant_override("margin_top", 8)
-	margin.add_theme_constant_override("margin_right", 8)
-	margin.add_theme_constant_override("margin_bottom", 8)
-	panel.add_child(margin)
-	var row := HBoxContainer.new()
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("separation", 8)
-	margin.add_child(row)
-
+	const Menu = preload("res://scripts/character_menu_view.gd")
 	var art := TextureRect.new()
 	art.name = "EquipmentCharacterArt"
 	var cutout := ProtagonistCutout.new()
@@ -30556,610 +29036,205 @@ func _build_equipment_portrait_panel() -> Control:
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	art.custom_minimum_size = Vector2(150.0, 104.0)
-	art.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	art.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	art.modulate = _equipment_player_art_tint()
-	row.add_child(art)
-
-	var icons := HFlowContainer.new()
-	icons.custom_minimum_size = Vector2(92.0, 0.0)
-	icons.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	icons.alignment = FlowContainer.ALIGNMENT_CENTER
-	icons.add_theme_constant_override("h_separation", 6)
-	icons.add_theme_constant_override("v_separation", 6)
-	row.add_child(icons)
 	var equipped: Dictionary = _run_state.get("equipped_equipment", {}) as Dictionary
+	var slots: Dictionary = {}
 	for slot: String in GameData.equipment_slots():
-		var equipment_id: String = str(equipped.get(slot, ""))
-		if equipment_id.is_empty():
-			continue
-		icons.add_child(_build_equipment_icon_chip(equipment_id, Vector2(38.0, 38.0)))
-	return panel
+		slots[slot] = _build_equipment_slot_panel(slot, str(equipped.get(slot, "")))
+	return Menu.paper_doll(art, slots)
 
 func _build_equipment_slot_panel(slot: String, equipment_id: String) -> Control:
-	var item: Dictionary = GameData.equipment_def(equipment_id)
-	var accent: Color = Color(GameData.equipment_accent(equipment_id)) if not equipment_id.is_empty() else Color("6d5a46")
+	const Menu = preload("res://scripts/character_menu_view.gd")
 	var panel := EquipmentSlotDrop.new()
+	panel.name = "Character%sSocket" % slot.capitalize()
 	panel.slot_id = slot
 	panel.host = self
 	panel.equipment_id = equipment_id
-	panel.custom_minimum_size = EQUIPMENT_SLOT_SIZE
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	panel.set_meta("character_socket", true)
+	panel.custom_minimum_size = Vector2.ONE * UiTypography.scaled_value(self, 62.0)
 	panel.tooltip_text = "equipment:%s" % equipment_id if not equipment_id.is_empty() else _equipment_slot_label(slot)
 	panel.focus_mode = Control.FOCUS_ALL if not equipment_id.is_empty() else Control.FOCUS_NONE
-	var is_drag_target: bool = not _equipment_drag_id.is_empty() and _equipment_slot_accepts_drag(slot, _equipment_drag_id)
-	panel.add_theme_stylebox_override("panel", _equipment_panel_style(accent, is_drag_target))
+	panel.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	Menu.clear_native_states(panel)
+	var icon := Menu.socket(AssetLoader.load_texture(str(GameData.equipment_def(equipment_id).get("icon_path", ""))), 62.0)
+	icon.disabled = not _equipment_overlay_can_change()
+	panel.add_child(icon)
 	if not equipment_id.is_empty():
-		_configure_controller_loadout_focus(panel, accent)
-	if not _equipment_drag_id.is_empty() and not is_drag_target:
-		panel.modulate = Color(0.68, 0.68, 0.68, 1.0)
+		_configure_controller_loadout_focus(panel, UiPalette.GOLD)
 	_equipment_slot_panels[slot] = panel
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 10)
-	margin.add_theme_constant_override("margin_top", 6)
-	margin.add_theme_constant_override("margin_right", 10)
-	margin.add_theme_constant_override("margin_bottom", 6)
-	panel.add_child(margin)
-	var row := HBoxContainer.new()
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("separation", 8)
-	margin.add_child(row)
-	if not equipment_id.is_empty():
-		row.add_child(_build_equipment_icon_chip(equipment_id, EQUIPMENT_ICON_SIZE))
-	else:
-		var empty_icon := Control.new()
-		empty_icon.custom_minimum_size = EQUIPMENT_ICON_SIZE
-		row.add_child(empty_icon)
-	var text_box := VBoxContainer.new()
-	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	text_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	text_box.add_theme_constant_override("separation", 0)
-	row.add_child(text_box)
-	var slot_label := Label.new()
-	slot_label.text = _equipment_slot_label(slot)
-	slot_label.clip_text = true
-	UiTypography.set_label_size(slot_label, UiTypography.SIZE_SMALL)
-	slot_label.add_theme_color_override("font_color", Color("dcc9a9"))
-	slot_label.add_theme_color_override("font_outline_color", Color("1d1510"))
-	slot_label.add_theme_constant_override("outline_size", 1)
-	text_box.add_child(slot_label)
-	var name_label := Label.new()
-	name_label.text = str(item.get("name", "Empty")) if not item.is_empty() else "Empty"
-	name_label.clip_text = true
-	UiTypography.set_label_size(name_label, UiTypography.SIZE_BODY)
-	name_label.add_theme_color_override("font_color", Color("fff0ce"))
-	name_label.add_theme_color_override("font_outline_color", Color("1d1510"))
-	name_label.add_theme_constant_override("outline_size", 1)
-	text_box.add_child(name_label)
-	if not _equipment_overlay_can_change():
-		panel.modulate = Color(0.78, 0.78, 0.78, 1.0)
 	return panel
 
 func _build_equipment_inventory_column() -> Control:
-	var panel := PanelContainer.new()
-	panel.name = "EquipmentInventoryPanel"
-	panel.custom_minimum_size = Vector2(374.0, 0.0)
-	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
-	_ui_skin.apply_menu_finish(panel, "section")
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 14)
-	margin.add_theme_constant_override("margin_top", 12)
-	margin.add_theme_constant_override("margin_right", 14)
-	margin.add_theme_constant_override("margin_bottom", 12)
-	panel.add_child(margin)
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 10)
-	margin.add_child(vbox)
-	var title_row := HBoxContainer.new()
-	title_row.add_theme_constant_override("separation", 8)
-	vbox.add_child(title_row)
-	var title := Label.new()
-	title.text = "Inventory"
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiTypography.set_label_size(title, UiTypography.SIZE_SMALL)
-	title.add_theme_color_override("font_color", Color("f5ead4"))
-	title.add_theme_color_override("font_outline_color", Color("241912"))
-	title.add_theme_constant_override("outline_size", 1)
-	title_row.add_child(title)
-	var count := Label.new()
-	count.text = "%d gear  %d items" % [
-		int((_run_state.get("equipment_inventory", []) as Array).size()),
-		int((_run_state.get("item_inventory", []) as Array).size())
-	]
-	UiTypography.set_label_size(count, UiTypography.SIZE_SMALL)
-	count.add_theme_color_override("font_color", Color("f0c978"))
-	title_row.add_child(count)
-
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	vbox.add_child(scroll)
-	var sections := VBoxContainer.new()
-	sections.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	sections.add_theme_constant_override("separation", 12)
-	scroll.add_child(sections)
-
+	const Menu = preload("res://scripts/character_menu_view.gd")
 	var inventory_ids: Array = _equipment_inventory_ids()
-	var gear_label := Label.new()
-	gear_label.text = "Gear"
-	UiTypography.set_label_size(gear_label, UiTypography.SIZE_CAPTION)
-	gear_label.add_theme_color_override("font_color", Color("f0c978"))
-	gear_label.add_theme_color_override("font_outline_color", Color("1d1510"))
-	gear_label.add_theme_constant_override("outline_size", 1)
-	sections.add_child(gear_label)
-	var gear_grid := VBoxContainer.new()
-	gear_grid.name = "EquipmentInventoryRows"
-	gear_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	gear_grid.add_theme_constant_override("separation", 8)
-	sections.add_child(gear_grid)
-	if inventory_ids.is_empty():
-		var empty := Label.new()
-		empty.text = "No spare gear"
-		empty.custom_minimum_size = Vector2(0.0, 80.0)
-		empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		empty.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		UiTypography.set_label_size(empty, UiTypography.SIZE_SMALL)
-		empty.add_theme_color_override("font_color", Color("cdbca2"))
-		gear_grid.add_child(empty)
-	else:
-		for equipment_id_var: Variant in inventory_ids:
-			gear_grid.add_child(_build_equipment_inventory_tile(str(equipment_id_var)))
-
-	var item_title_row := HBoxContainer.new()
-	item_title_row.add_theme_constant_override("separation", 8)
-	sections.add_child(item_title_row)
-	var item_title := Label.new()
-	item_title.text = "Items"
-	item_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiTypography.set_label_size(item_title, UiTypography.SIZE_CAPTION)
-	item_title.add_theme_color_override("font_color", Color("f0c978"))
-	item_title.add_theme_color_override("font_outline_color", Color("1d1510"))
-	item_title.add_theme_constant_override("outline_size", 1)
-	item_title_row.add_child(item_title)
-	var equipped_items: Array = (_run_state.get("equipped_items", []) as Array).duplicate()
-	var item_count := Label.new()
-	item_count.text = "Equipped %d/%d" % [mini(equipped_items.size(), GameData.item_loadout_limit()), GameData.item_loadout_limit()]
-	UiTypography.set_label_size(item_count, UiTypography.SIZE_CAPTION)
-	item_count.add_theme_color_override("font_color", Color("f0c978"))
-	item_title_row.add_child(item_count)
-	var item_grid := VBoxContainer.new()
-	item_grid.name = "ItemInventoryRows"
-	item_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	item_grid.add_theme_constant_override("separation", 8)
-	sections.add_child(item_grid)
-	_item_inventory_drop_panel = item_grid
 	var item_ids: Array = _item_inventory_ids()
+	var panel := Menu.column("EquipmentInventoryPanel", 400.0, "PACK", "%d gear · %d items" % [inventory_ids.size(), item_ids.size()])
+	var list := Menu.scroll_list(panel)
+	var gear_rows := VBoxContainer.new()
+	gear_rows.name = "EquipmentInventoryRows"
+	gear_rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	gear_rows.add_theme_constant_override("separation", 8)
+	list.add_child(gear_rows)
+	if inventory_ids.is_empty():
+		gear_rows.add_child(Menu.empty_copy("No spare gear"))
+	else:
+		for equipment_id: Variant in inventory_ids:
+			gear_rows.add_child(_build_equipment_inventory_tile(str(equipment_id)))
+	var item_rows := VBoxContainer.new()
+	item_rows.name = "ItemInventoryRows"
+	item_rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	item_rows.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	item_rows.add_theme_constant_override("separation", 8)
+	list.add_child(item_rows)
+	_item_inventory_drop_panel = item_rows
 	if item_ids.is_empty():
-		var item_empty := Label.new()
-		item_empty.text = "No consumables"
-		item_empty.custom_minimum_size = Vector2(0.0, 72.0)
-		item_empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		item_empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		item_empty.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		UiTypography.set_label_size(item_empty, UiTypography.SIZE_SMALL)
-		item_empty.add_theme_color_override("font_color", Color("cdbca2"))
-		item_grid.add_child(item_empty)
+		item_rows.add_child(Menu.empty_copy("No consumables"))
 	else:
 		for index: int in range(item_ids.size()):
-			item_grid.add_child(_build_item_card_tile(str(item_ids[index]), "inventory", index, ITEM_INVENTORY_TILE_SIZE))
+			item_rows.add_child(_build_item_card_tile(str(item_ids[index]), "inventory", index, ITEM_INVENTORY_TILE_SIZE))
 	return panel
 
 func _build_magic_attuned_column() -> Control:
-	var panel := PanelContainer.new()
-	panel.name = "MagicAttunedPanel"
-	_magic_attuned_drop_panel = panel
-	panel.custom_minimum_size = Vector2(326.0, 0.0)
-	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
-	_ui_skin.apply_menu_finish(panel, "section")
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 14)
-	margin.add_theme_constant_override("margin_top", 12)
-	margin.add_theme_constant_override("margin_right", 14)
-	margin.add_theme_constant_override("margin_bottom", 12)
-	panel.add_child(margin)
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 10)
-	margin.add_child(vbox)
-
-	var title_row := HBoxContainer.new()
-	title_row.add_theme_constant_override("separation", 8)
-	vbox.add_child(title_row)
-	var title := Label.new()
-	title.text = "Attuned Magic"
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiTypography.set_label_size(title, UiTypography.SIZE_SMALL)
-	title.add_theme_color_override("font_color", Color("f5ead4"))
-	title.add_theme_color_override("font_outline_color", Color("241912"))
-	title.add_theme_constant_override("outline_size", 1)
-	title_row.add_child(title)
+	const Menu = preload("res://scripts/character_menu_view.gd")
 	var attuned: Array = (_run_state.get("attuned_magic_cards", []) as Array).duplicate()
-	var count := Label.new()
-	count.text = "%d/%d" % [mini(attuned.size(), GameData.magic_loadout_limit()), GameData.magic_loadout_limit()]
-	UiTypography.set_label_size(count, UiTypography.SIZE_SMALL)
-	count.add_theme_color_override("font_color", Color("f0c978"))
-	title_row.add_child(count)
-
-	var slots := VBoxContainer.new()
-	slots.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	slots.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	slots.add_theme_constant_override("separation", 8)
-	vbox.add_child(slots)
+	var panel := Menu.column("MagicAttunedPanel", 420.0, "ATTUNED MAGIC", "%d / %d" % [mini(attuned.size(), GameData.magic_loadout_limit()), GameData.magic_loadout_limit()])
+	_magic_attuned_drop_panel = panel
+	var slots := Menu.scroll_list(panel)
 	for index: int in range(GameData.magic_loadout_limit()):
 		var card_id: String = str(attuned[index]) if index < attuned.size() else ""
 		slots.add_child(_build_magic_card_tile(card_id, "attuned", index, MAGIC_ATTUNED_TILE_SIZE))
 	if not _magic_overlay_can_change():
-		var locked := Label.new()
-		locked.text = "Locked in combat"
-		UiTypography.set_label_size(locked, UiTypography.SIZE_CAPTION)
-		locked.add_theme_color_override("font_color", Color("d8a06a"))
-		vbox.add_child(locked)
+		slots.add_child(Menu.label("Locked in combat", 14, UiPalette.TEXT_2))
 	return panel
 
 func _build_magic_inventory_column() -> Control:
-	var panel := PanelContainer.new()
-	panel.name = "MagicInventoryPanel"
-	_magic_inventory_drop_panel = panel
-	panel.custom_minimum_size = Vector2(374.0, 0.0)
-	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
-	_ui_skin.apply_menu_finish(panel, "section")
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 14)
-	margin.add_theme_constant_override("margin_top", 12)
-	margin.add_theme_constant_override("margin_right", 14)
-	margin.add_theme_constant_override("margin_bottom", 12)
-	panel.add_child(margin)
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 10)
-	margin.add_child(vbox)
-	var title_row := HBoxContainer.new()
-	title_row.add_theme_constant_override("separation", 8)
-	vbox.add_child(title_row)
-	var title := Label.new()
-	title.text = "Learned Magic"
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	UiTypography.set_label_size(title, UiTypography.SIZE_SMALL)
-	title.add_theme_color_override("font_color", Color("f5ead4"))
-	title.add_theme_color_override("font_outline_color", Color("241912"))
-	title.add_theme_constant_override("outline_size", 1)
-	title_row.add_child(title)
+	const Menu = preload("res://scripts/character_menu_view.gd")
 	var reserve: Array = (_run_state.get("magic_inventory", []) as Array).duplicate()
-	var count := Label.new()
-	count.text = str(reserve.size())
-	UiTypography.set_label_size(count, UiTypography.SIZE_SMALL)
-	count.add_theme_color_override("font_color", Color("f0c978"))
-	title_row.add_child(count)
-
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	vbox.add_child(scroll)
-	var grid := HFlowContainer.new()
-	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	grid.alignment = FlowContainer.ALIGNMENT_BEGIN
-	grid.add_theme_constant_override("h_separation", 8)
-	grid.add_theme_constant_override("v_separation", 8)
-	scroll.add_child(grid)
+	var panel := Menu.column("MagicInventoryPanel", 400.0, "LEARNED MAGIC", str(reserve.size()))
+	_magic_inventory_drop_panel = panel
+	var slots := Menu.scroll_list(panel)
 	if reserve.is_empty():
-		var empty := Label.new()
-		empty.text = "No learned magic"
-		empty.custom_minimum_size = Vector2(0.0, 80.0)
-		empty.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		empty.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		empty.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		UiTypography.set_label_size(empty, UiTypography.SIZE_SMALL)
-		empty.add_theme_color_override("font_color", Color("cdbca2"))
-		grid.add_child(empty)
+		slots.add_child(Menu.empty_copy("No learned magic"))
 	else:
 		for index: int in range(reserve.size()):
-			var card_id: String = str(reserve[index])
-			grid.add_child(_build_magic_card_tile(card_id, "inventory", index, MAGIC_INVENTORY_TILE_SIZE))
+			slots.add_child(_build_magic_card_tile(str(reserve[index]), "inventory", index, MAGIC_INVENTORY_TILE_SIZE))
 	return panel
 
 func _build_current_deck_column() -> Control:
-	var panel := PanelContainer.new()
-	panel.name = "CurrentDeckPanel"
-	panel.custom_minimum_size = Vector2(344.0, 0.0)
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _equipment_panel_style(Color("8f6f46")))
-	_ui_skin.apply_menu_finish(panel, "section")
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 14)
-	margin.add_theme_constant_override("margin_top", 12)
-	margin.add_theme_constant_override("margin_right", 14)
-	margin.add_theme_constant_override("margin_bottom", 12)
-	panel.add_child(margin)
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 10)
-	margin.add_child(vbox)
-	var title := Label.new()
-	title.text = "Deck"
-	UiTypography.set_label_size(title, UiTypography.SIZE_SMALL)
-	title.add_theme_color_override("font_color", Color("f5ead4"))
-	title.add_theme_color_override("font_outline_color", Color("241912"))
-	title.add_theme_constant_override("outline_size", 1)
-	vbox.add_child(title)
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
-	vbox.add_child(scroll)
-	var list := VBoxContainer.new()
-	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	list.add_theme_constant_override("separation", 8)
-	scroll.add_child(list)
-	var attuned_magic: Array = (_run_state.get("attuned_magic_cards", []) as Array).duplicate()
-	list.add_child(_build_attuned_magic_deck_group(attuned_magic))
-	var equipped_items: Array = (_run_state.get("equipped_items", []) as Array).duplicate()
-	list.add_child(_build_equipped_items_deck_group(equipped_items))
+	const Menu = preload("res://scripts/character_menu_view.gd")
+	var attuned: Array = (_run_state.get("attuned_magic_cards", []) as Array).duplicate()
+	var items: Array = (_run_state.get("equipped_items", []) as Array).duplicate()
 	var equipped: Dictionary = _run_state.get("equipped_equipment", {}) as Dictionary
+	var card_count: int = attuned.size() + items.size()
+	for slot: String in GameData.equipment_slots():
+		card_count += GameData.equipment_cards(str(equipped.get(slot, "")), _run_state).size()
+	var panel := Menu.column("CurrentDeckPanel", 0.0, "DECK", "%d cards" % card_count)
+	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	var list := Menu.scroll_list(panel)
+	list.add_child(_build_attuned_magic_deck_group(attuned))
+	list.add_child(_build_equipped_items_deck_group(items))
 	for slot: String in GameData.equipment_slots():
 		var equipment_id: String = str(equipped.get(slot, ""))
-		if equipment_id.is_empty():
-			continue
-		list.add_child(_build_equipment_deck_group(equipment_id, _equipment_slot_label(slot)))
+		if not equipment_id.is_empty():
+			list.add_child(_build_equipment_deck_group(equipment_id, _equipment_slot_label(slot)))
 	return panel
 
 func _build_equipment_inventory_tile(equipment_id: String) -> Control:
+	const Menu = preload("res://scripts/character_menu_view.gd")
 	var item: Dictionary = GameData.equipment_def(equipment_id)
-	var accent := Color(GameData.equipment_accent(equipment_id))
 	var tile := EquipmentInventoryTile.new()
 	tile.equipment_id = equipment_id
 	tile.host = self
-	tile.custom_minimum_size = EQUIPMENT_TILE_SIZE
 	tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	tile.mouse_filter = Control.MOUSE_FILTER_STOP
 	tile.focus_mode = Control.FOCUS_ALL
 	tile.tooltip_text = "equipment:%s" % equipment_id
 	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if _equipment_overlay_can_change() else Control.CURSOR_ARROW
-	tile.add_theme_stylebox_override("panel", _equipment_panel_style(accent, false))
-	_configure_controller_loadout_focus(tile, accent)
-	if _equipment_drag_id == equipment_id:
-		tile.modulate = Color(1.0, 1.0, 1.0, 0.34)
+	tile.add_theme_stylebox_override("panel", Menu.row_style())
+	_configure_controller_loadout_focus(tile, UiPalette.GOLD)
+	tile.add_child(Menu.row_body(AssetLoader.load_texture(str(item.get("icon_path", ""))), "%s · %s" % [_equipment_slot_label(GameData.equipment_slot(equipment_id)), _equipment_rarity_label(GameData.equipment_rarity(equipment_id))], str(item.get("name", equipment_id)), _equipment_card_summary(equipment_id)))
+	Menu.pack_actions(tile, self, _equip_equipment_from_overlay.bind(equipment_id), _equipment_overlay_can_change())
 	_equipment_inventory_tiles[equipment_id] = tile
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 8)
-	margin.add_theme_constant_override("margin_top", 8)
-	margin.add_theme_constant_override("margin_right", 8)
-	margin.add_theme_constant_override("margin_bottom", 8)
-	tile.add_child(margin)
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
-	margin.add_child(row)
-	row.add_child(_build_equipment_icon_chip(equipment_id, EQUIPMENT_ICON_SIZE, false))
-	var text_box := VBoxContainer.new()
-	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	text_box.add_theme_constant_override("separation", 2)
-	row.add_child(text_box)
-	var name_label := Label.new()
-	name_label.text = str(item.get("name", equipment_id))
-	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiTypography.set_label_size(name_label, UiTypography.SIZE_BODY)
-	name_label.add_theme_color_override("font_color", Color("fff0ce"))
-	name_label.add_theme_color_override("font_outline_color", Color("1d1510"))
-	name_label.add_theme_constant_override("outline_size", 1)
-	text_box.add_child(name_label)
-	var meta_label := Label.new()
-	meta_label.text = "%s | %s" % [_equipment_slot_label(GameData.equipment_slot(equipment_id)), _equipment_rarity_label(GameData.equipment_rarity(equipment_id))]
-	meta_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiTypography.set_label_size(meta_label, UiTypography.SIZE_CAPTION)
-	meta_label.add_theme_color_override("font_color", Color("cdbca2"))
-	text_box.add_child(meta_label)
-	var card_label := Label.new()
-	card_label.text = _equipment_card_summary(equipment_id)
-	card_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiTypography.set_label_size(card_label, UiTypography.SIZE_CAPTION)
-	card_label.add_theme_color_override("font_color", Color("d7c6aa"))
-	text_box.add_child(card_label)
-	_make_equipment_tile_content_passive(margin)
 	_add_loadout_new_tag(tile, "equipment", equipment_id)
 	if not _equipment_overlay_can_change():
 		tile.modulate = Color(0.72, 0.72, 0.72, 1.0)
 	return tile
 
 func _build_equipment_deck_group(equipment_id: String, heading: String) -> Control:
-	var item: Dictionary = GameData.equipment_def(equipment_id)
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 4)
-	var label := Label.new()
-	label.text = "%s - %s" % [heading, str(item.get("name", equipment_id))]
-	label.clip_text = true
-	UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
-	label.add_theme_color_override("font_color", Color("f0c978"))
-	label.add_theme_color_override("font_outline_color", Color("1d1510"))
-	label.add_theme_constant_override("outline_size", 1)
-	vbox.add_child(label)
-	var row := HFlowContainer.new()
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("h_separation", 6)
-	row.add_theme_constant_override("v_separation", 6)
-	vbox.add_child(row)
-	var accent := Color(GameData.equipment_accent(equipment_id))
-	for card_id_var: Variant in GameData.equipment_cards(equipment_id, _run_state):
-		row.add_child(_build_equipment_card_badge(str(card_id_var), accent))
-	return vbox
+	return preload("res://scripts/character_menu_view.gd").deck_group(heading.to_upper(), str(GameData.equipment_def(equipment_id).get("name", equipment_id)), GameData.equipment_cards(equipment_id, _run_state), self)
 
 func _build_attuned_magic_deck_group(attuned_card_ids: Array) -> Control:
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 6)
-	var label := Label.new()
-	label.text = "Attuned Magic %d/%d" % [mini(attuned_card_ids.size(), GameData.magic_loadout_limit()), GameData.magic_loadout_limit()]
-	UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
-	label.add_theme_color_override("font_color", Color("f0c978"))
-	label.add_theme_color_override("font_outline_color", Color("1d1510"))
-	label.add_theme_constant_override("outline_size", 1)
-	vbox.add_child(label)
-	var attuned_row := HFlowContainer.new()
-	attuned_row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	attuned_row.add_theme_constant_override("h_separation", 6)
-	attuned_row.add_theme_constant_override("v_separation", 6)
-	vbox.add_child(attuned_row)
-	for index: int in range(GameData.magic_loadout_limit()):
-		var card_id: String = str(attuned_card_ids[index]) if index < attuned_card_ids.size() else ""
-		if card_id.is_empty():
-			continue
-		attuned_row.add_child(_build_equipment_card_badge(card_id, ElementData.accent(GameData.card_element(card_id))))
-	return vbox
+	return preload("res://scripts/character_menu_view.gd").deck_group("Attuned Magic %d/%d" % [mini(attuned_card_ids.size(), GameData.magic_loadout_limit()), GameData.magic_loadout_limit()], "", attuned_card_ids, self)
 
 func _build_equipped_items_deck_group(item_card_ids: Array) -> Control:
-	var vbox := VBoxContainer.new()
-	vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	vbox.add_theme_constant_override("separation", 6)
-	var label := Label.new()
-	label.text = "Items %d/%d" % [mini(item_card_ids.size(), GameData.item_loadout_limit()), GameData.item_loadout_limit()]
-	UiTypography.set_label_size(label, UiTypography.SIZE_CAPTION)
-	label.add_theme_color_override("font_color", Color("f0c978"))
-	label.add_theme_color_override("font_outline_color", Color("1d1510"))
-	label.add_theme_constant_override("outline_size", 1)
-	vbox.add_child(label)
-	var row := HFlowContainer.new()
-	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_theme_constant_override("h_separation", 6)
-	row.add_theme_constant_override("v_separation", 6)
-	vbox.add_child(row)
-	for index: int in range(GameData.item_loadout_limit()):
-		var card_id: String = str(item_card_ids[index]) if index < item_card_ids.size() else ""
-		if card_id.is_empty():
-			continue
-		row.add_child(_build_equipment_card_badge(card_id, _item_card_accent(card_id)))
-	return vbox
+	return preload("res://scripts/character_menu_view.gd").deck_group("Items %d/%d" % [mini(item_card_ids.size(), GameData.item_loadout_limit()), GameData.item_loadout_limit()], "", item_card_ids, self)
 
-func _build_magic_card_tile(card_id: String, source_kind: String, index: int, tile_size: Vector2 = EQUIPMENT_DECK_BADGE_SIZE) -> Control:
-	if card_id.is_empty():
-		var empty := MagicCardTile.new()
-		empty.host = self
-		empty.source_kind = source_kind
-		empty.magic_index = index
-		empty.custom_minimum_size = tile_size
-		empty.mouse_filter = Control.MOUSE_FILTER_STOP
-		empty.add_theme_stylebox_override("panel", _equipment_panel_style(Color("4f453b"), false))
-		return empty
-	var card: Dictionary = GameData.card_def(card_id)
-	var accent: Color = ElementData.accent(GameData.card_element(card_id))
+func _build_magic_card_tile(card_id: String, source_kind: String, index: int, _tile_size: Vector2 = EQUIPMENT_DECK_BADGE_SIZE) -> Control:
+	const Menu = preload("res://scripts/character_menu_view.gd")
 	var tile := MagicCardTile.new()
 	tile.card_id = card_id
 	tile.host = self
 	tile.source_kind = source_kind
 	tile.magic_index = index
-	tile.custom_minimum_size = tile_size
-	if tile_size.x > EQUIPMENT_DECK_BADGE_SIZE.x:
-		tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	tile.mouse_filter = Control.MOUSE_FILTER_STOP
+	tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	tile.custom_minimum_size.y = UiTypography.scaled_value(self, 34.0)
+	tile.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	if card_id.is_empty():
+		Menu.empty_strip(tile)
+		return tile
 	tile.focus_mode = Control.FOCUS_ALL
-	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if _magic_overlay_can_change() else Control.CURSOR_ARROW
 	tile.tooltip_text = "card:%s" % card_id
-	tile.clip_contents = true
-	var is_drag_source: bool = _magic_drag_source_kind == source_kind and _magic_drag_index == index
-	tile.add_theme_stylebox_override("panel", _equipment_panel_style(accent, is_drag_source))
-	_configure_controller_loadout_focus(tile, accent)
-	if is_drag_source:
-		tile.modulate = Color(1.0, 1.0, 1.0, 0.34)
+	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if _magic_overlay_can_change() else Control.CURSOR_ARROW
+	var strip := Menu.strip_content(card_id, 1, 34.0)
+	strip.locked = not _magic_overlay_can_change()
+	tile.add_child(strip)
+	_configure_controller_loadout_focus(tile, UiPalette.GOLD)
 	if source_kind == "attuned":
 		_magic_attuned_tiles[index] = tile
-	elif source_kind == "inventory":
+	else:
 		_magic_inventory_tiles[index] = tile
-	tile.add_child(_build_card_art_badge_content(card, accent, str(card.get("name", card_id))))
 	_add_loadout_new_tag(tile, "magic", card_id)
 	return tile
 
-func _build_item_card_tile(card_id: String, source_kind: String, index: int, tile_size: Vector2) -> Control:
+func _build_item_card_tile(card_id: String, source_kind: String, index: int, _tile_size: Vector2) -> Control:
+	const Menu = preload("res://scripts/character_menu_view.gd")
 	if card_id.is_empty():
 		var empty := PanelContainer.new()
-		empty.custom_minimum_size = tile_size
 		empty.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		empty.add_theme_stylebox_override("panel", _equipment_panel_style(Color("4f453b"), _item_drag_can_drop_on({"source_kind": source_kind, "index": index})))
+		Menu.empty_row(empty, "Empty item slot")
 		if source_kind == "equipped":
 			_item_equipped_tiles[index] = empty
-		var empty_label := Label.new()
-		empty_label.text = "Empty item slot"
-		empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		empty_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		UiTypography.set_label_size(empty_label, UiTypography.SIZE_CAPTION)
-		empty_label.add_theme_color_override("font_color", Color("b9aa91"))
-		empty.add_child(empty_label)
 		return empty
-	var accent: Color = _item_card_accent(card_id)
 	var tile := ItemCardTile.new()
 	tile.card_id = card_id
 	tile.host = self
 	tile.source_kind = source_kind
 	tile.item_index = index
-	tile.custom_minimum_size = tile_size
 	tile.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	tile.mouse_filter = Control.MOUSE_FILTER_STOP
 	tile.focus_mode = Control.FOCUS_ALL
-	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if _item_overlay_can_change() else Control.CURSOR_ARROW
 	tile.tooltip_text = "card:%s" % card_id
-	tile.clip_contents = true
-	var can_receive: bool = _item_drag_can_drop_on({"source_kind": source_kind, "index": index})
-	tile.add_theme_stylebox_override("panel", _equipment_panel_style(accent, can_receive))
-	_configure_controller_loadout_focus(tile, accent)
-	if _item_drag_source_kind == source_kind and _item_drag_index == index:
-		tile.modulate = Color(1.0, 1.0, 1.0, 0.34)
-	elif not _item_drag_card_id.is_empty() and not can_receive:
-		tile.modulate = Color(0.72, 0.72, 0.72, 1.0)
+	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if _item_overlay_can_change() else Control.CURSOR_ARROW
+	tile.add_theme_stylebox_override("panel", Menu.row_style())
+	tile.add_child(_build_item_card_tile_body(card_id))
+	_configure_controller_loadout_focus(tile, UiPalette.GOLD)
 	if source_kind == "equipped":
 		_item_equipped_tiles[index] = tile
-	elif source_kind == "inventory":
+	else:
 		_item_inventory_tiles[index] = tile
-	tile.add_child(_build_item_card_tile_body(card_id))
+		Menu.pack_actions(tile, self, _equip_item_from_overlay.bind(index), _item_overlay_can_change())
 	_add_loadout_new_tag(tile, "equipment", card_id)
 	return tile
 
 func _build_item_card_tile_body(card_id: String) -> Control:
+	const Menu = preload("res://scripts/character_menu_view.gd")
 	var card: Dictionary = GameData.card_def(card_id)
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 5)
-	margin.add_theme_constant_override("margin_top", 5)
-	margin.add_theme_constant_override("margin_right", 5)
-	margin.add_theme_constant_override("margin_bottom", 5)
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 7)
-	margin.add_child(row)
-	var art_chip: Control = _build_item_card_art_chip(card_id, ITEM_ART_CHIP_SIZE)
-	row.add_child(art_chip)
-	var text_box := VBoxContainer.new()
-	text_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text_box.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	text_box.alignment = BoxContainer.ALIGNMENT_CENTER
-	text_box.add_theme_constant_override("separation", 0)
-	row.add_child(text_box)
-	var name_label := Label.new()
-	name_label.text = str(card.get("name", card_id))
-	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiTypography.set_label_size(name_label, UiTypography.SIZE_SMALL)
-	name_label.add_theme_color_override("font_color", Color("fff0ce"))
-	name_label.add_theme_color_override("font_outline_color", Color("1d1510"))
-	name_label.add_theme_constant_override("outline_size", 1)
-	text_box.add_child(name_label)
-	var meta_label := Label.new()
-	meta_label.text = "%s item" % _equipment_rarity_label(str(card.get("rarity", "common")))
-	meta_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiTypography.set_label_size(meta_label, UiTypography.SIZE_CAPTION)
-	meta_label.add_theme_color_override("font_color", Color("cdbca2"))
-	text_box.add_child(meta_label)
-	_make_equipment_tile_content_passive(margin)
-	return margin
+	var body := Menu.row_body(AssetLoader.load_texture(GameData.item_icon_path(card_id)), "%s item" % _equipment_rarity_label(str(card.get("rarity", "common"))), str(card.get("name", card_id)), "", "ItemCardArtChip")
+	var icon: Node = body.find_child("Icon", true, false)
+	if icon != null:
+		icon.name = "ItemCardArtIcon"
+	return body
 
 func _build_item_card_art_chip(card_id: String, chip_size: Vector2) -> Control:
 	var accent: Color = _item_card_accent(card_id)
@@ -31205,16 +29280,19 @@ func _build_loadout_card_proxy_panel(proxy_size: Vector2, accent: Color, content
 	content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	return panel
 
-func _build_equipment_card_badge(card_id: String, accent: Color) -> Control:
-	var card: Dictionary = GameData.card_def(card_id)
+func _build_equipment_card_badge(card_id: String, _accent: Color) -> Control:
+	const Menu = preload("res://scripts/character_menu_view.gd")
 	var badge := EquipmentCardBadge.new()
 	badge.card_id = card_id
 	badge.host = self
-	badge.custom_minimum_size = EQUIPMENT_DECK_BADGE_SIZE
 	badge.tooltip_text = "card:%s" % card_id
-	badge.clip_contents = true
-	badge.add_theme_stylebox_override("panel", _equipment_panel_style(accent, false))
-	badge.add_child(_build_card_art_badge_content(card, accent, str(card.get("name", card_id))))
+	badge.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	Menu.clear_native_states(badge)
+	badge.add_child(Menu.strip_content(card_id))
+	badge.gui_input.connect(func(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			preload("res://scripts/character_menu_view.gd").show_inspection(self, badge)
+	)
 	return badge
 
 func _build_card_art_badge_content(card: Dictionary, accent: Color, label_text: String) -> Control:
@@ -31442,10 +29520,8 @@ func _apply_equipment_drag_highlights() -> void:
 		if typeof(panel_var) != TYPE_OBJECT or not is_instance_valid(panel_var) or not (panel_var is PanelContainer):
 			continue
 		var panel: PanelContainer = panel_var as PanelContainer
-		var equipment_id: String = str(panel.get("equipment_id"))
-		var accent: Color = Color(GameData.equipment_accent(equipment_id)) if not equipment_id.is_empty() else Color("6d5a46")
 		var is_drag_target: bool = not _equipment_drag_id.is_empty() and _equipment_slot_accepts_drag(slot, _equipment_drag_id)
-		panel.add_theme_stylebox_override("panel", _equipment_panel_style(accent, is_drag_target))
+		preload("res://scripts/character_menu_view.gd").sync_tile(panel, panel.has_focus(), is_drag_target)
 		panel.modulate = Color.WHITE
 		if not _equipment_drag_id.is_empty() and not is_drag_target:
 			panel.modulate = Color(0.68, 0.68, 0.68, 1.0)
@@ -31786,10 +29862,9 @@ func _apply_magic_drag_highlights() -> void:
 			var tile: Control = _magic_tile_control(source_kind, index)
 			if tile == null:
 				continue
-			var card_id: String = str(tile.get("card_id"))
-			var accent: Color = ElementData.accent(GameData.card_element(card_id))
 			var can_receive: bool = not _magic_drag_card_id.is_empty() and _magic_drag_source_kind != source_kind
-			tile.add_theme_stylebox_override("panel", _equipment_panel_style(accent, can_receive))
+			tile.set_meta("character_swap_target", can_receive)
+			preload("res://scripts/character_menu_view.gd").sync_tile(tile, tile.has_focus(), _controller_magic_tile_is_selected(tile))
 			if _magic_drag_source_kind == source_kind and _magic_drag_index == index:
 				tile.modulate = Color(1.0, 1.0, 1.0, 0.34)
 			else:
@@ -31963,11 +30038,9 @@ func _apply_item_drag_highlights() -> void:
 			var tile: Control = _item_tile_control(source_kind, index)
 			if tile == null:
 				continue
-			var card_id: String = str((tile as EquipmentCardBadge).card_id) if tile is EquipmentCardBadge else ""
-			var accent: Color = _item_card_accent(card_id) if not card_id.is_empty() else Color("4f453b")
 			var can_receive: bool = _item_drag_can_drop_on({"source_kind": source_kind, "index": index})
 			if tile is PanelContainer:
-				(tile as PanelContainer).add_theme_stylebox_override("panel", _equipment_panel_style(accent, can_receive))
+				preload("res://scripts/character_menu_view.gd").sync_tile(tile as PanelContainer, tile.has_focus(), can_receive)
 			if _item_drag_source_kind == source_kind and _item_drag_index == index:
 				tile.modulate = Color(1.0, 1.0, 1.0, 0.34)
 			elif not _item_drag_card_id.is_empty() and not can_receive:
@@ -31977,6 +30050,7 @@ func _apply_item_drag_highlights() -> void:
 
 func _configure_controller_loadout_focus(tile: PanelContainer, accent: Color) -> void:
 	tile.set_meta("controller_focus_accent", accent)
+	preload("res://scripts/character_menu_view.gd").tile_feedback(tile, self)
 	tile.focus_entered.connect(_on_controller_loadout_focus_changed.bind(tile, true))
 	tile.focus_exited.connect(_on_controller_loadout_focus_changed.bind(tile, false))
 
@@ -32089,29 +30163,7 @@ func _refresh_controller_loadout_focus_styles() -> void:
 			_apply_controller_loadout_focus_style(tile, tile.has_focus())
 
 func _apply_controller_loadout_focus_style(tile: PanelContainer, focused: bool) -> void:
-	var accent: Color = tile.get_meta("controller_focus_accent", Color("8f6f46"))
-	var selected: bool = _controller_magic_tile_is_selected(tile)
-	var style: StyleBoxFlat = _equipment_panel_style(accent, focused or selected)
-	if selected:
-		style.bg_color = style.bg_color.lightened(0.08)
-		style.border_color = Color("79e0d3")
-		style.set_border_width_all(3)
-	if focused:
-		style.bg_color = style.bg_color.lightened(0.08)
-		style.border_color = Color("ffe08a")
-		style.set_border_width_all(4)
-		style.shadow_color = Color(0.98, 0.66, 0.22, 0.34)
-		style.shadow_size = 7
-		style.shadow_offset = Vector2.ZERO
-	tile.add_theme_stylebox_override("panel", style)
-	if tile is MagicCardTile:
-		var magic_tile := tile as MagicCardTile
-		var name_label: Label = tile.find_child("CardBadgeName", true, false) as Label
-		if name_label != null:
-			var card: Dictionary = GameData.card_def(magic_tile.card_id)
-			var card_name: String = str(card.get("name", magic_tile.card_id))
-			name_label.text = "◆ %s" % card_name if selected else card_name
-			name_label.add_theme_color_override("font_color", Color("a9fff1") if selected else Color("fff6d8"))
+	preload("res://scripts/character_menu_view.gd").sync_tile(tile, focused, _controller_magic_tile_is_selected(tile))
 
 func _controller_activate_magic_tile(source_kind: String, index: int, card_id: String) -> void:
 	if card_id.is_empty() or not _magic_overlay_can_change():

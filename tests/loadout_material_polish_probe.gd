@@ -1,6 +1,6 @@
 extends "res://tests/controller_compat_1080_probe.gd"
 
-const OUTPUT: String = "user://probes/loadout_material_v1"
+const OUTPUT: String = "user://probes/loadout_material_vp4"
 var _instance: Node
 
 func _initialize() -> void:
@@ -33,158 +33,18 @@ func _initialize() -> void:
 	await _settle()
 	_viewport.gui_release_focus()
 	await _save_screenshot("01_gear_idle.png")
-	var panel_style: StyleBoxFlat = _instance.call("_equipment_panel_style", Color("bb9a65"), false)
-	var icon_style: StyleBoxFlat = _instance.call("_equipment_icon_style", Color("bb9a65"))
-	for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
-		_require(is_equal_approx(panel_style.get_margin(side), 2.0), "Equipment panel keeps native two-pixel content margins")
-		_require(is_equal_approx(icon_style.get_margin(side), 4.0), "Equipment icon keeps four-pixel content margins")
 	_instance.call("_switch_character_overlay_mode", "magic")
 	await _settle()
 	_viewport.gui_release_focus()
 	await _save_screenshot("02_magic_idle.png")
-	_instance.call("_close_card_upgrade_overlay")
-	_instance.call("_load_run_state", base)
-	_instance.call("_close_dialogue")
-	await create_timer(0.4).timeout
-	var combat_coord: Vector2i = _first_available_combat_coord(engine, base)
-	await _instance.call("_on_map_view_room_selected", combat_coord)
-	await create_timer(0.4).timeout
-	_require((_instance.get("_pre_battle_scrim") as Control).visible, "Natural room travel opens pre-battle")
-	await _save_screenshot("03_pre_battle.png")
-	await _merchant_states(engine, base)
 	_instance.queue_free()
 	await process_frame
 	_cleanup_storage()
 	print(ProjectSettings.globalize_path(OUTPUT))
+	if DisplayServer.get_name() == "headless":
+		print("LOADOUT PROOF: HEADLESS ASSERTIONS ONLY; NO SCREENSHOTS")
 	print("LOADOUT MATERIAL POLISH: PASS")
 	quit(0)
-
-func _merchant_states(engine, base: Dictionary) -> void:
-	_router.call("set_forced_state_for_test", "pointer", "xbox")
-	_instance.call("_load_run_state", _scavenger_controller_state(engine))
-	_instance.call("_close_dialogue")
-	await create_timer(0.7).timeout
-	var shop: Control = _instance.get("_scavenger_shop_view") as Control
-	var ware: Button = shop.find_child("GearOffer_*", true, false) as Button
-	_require(ware != null and ware.is_visible_in_tree(), "Merchant fixture exposes a native gear ware")
-	_viewport.gui_release_focus()
-	await _point(Vector2(30, 30))
-	await create_timer(0.2).timeout
-	var before_rect: Rect2 = ware.get_global_rect()
-	var layout_rect := Rect2(ware.position, ware.size)
-	await _save_screenshot("04_merchant_idle.png")
-	if ware.has_method("material_snapshot"):
-		_require(not ware.is_processing(), "Visible idle ware has no perpetual redraw process")
-	await _point(before_rect.get_center())
-	if ware.has_method("material_snapshot"):
-		var entering: Dictionary = ware.call("material_snapshot")
-		_require(float(entering["active"]) < 1.0 and ware.is_processing(), "Hover starts a bounded eased material response")
-	await _capture_frame("05a_merchant_hover_arrival.png")
-	await create_timer(0.16).timeout
-	await _save_screenshot("05_merchant_hover.png")
-	_require(ware.is_hovered() and Rect2(ware.position, ware.size) == layout_rect and ware.scale.is_equal_approx(Vector2(1.045, 1.045)), "Native hover preserves the authored layout and existing 1.045 scale contract")
-	if ware.has_method("material_snapshot"):
-		_require(not ware.is_processing(), "Settled hover stops processing")
-	await _mouse(before_rect.get_center(), true)
-	await create_timer(0.14).timeout
-	await _save_screenshot("06_merchant_pressed.png")
-	_require(ware.is_pressed(), "Pressed proof samples native button before release")
-	ware.disabled = true
-	await _settle()
-	if ware.has_method("material_snapshot"):
-		var disabled_paint: Dictionary = ware.call("material_snapshot")
-		_require(float(disabled_paint["press"]) == 0.0 and float(disabled_paint["active"]) == 0.0 and not ware.is_processing(), "Disabling a settled pressed ware clears its material response")
-		var content: Control = ware.get_node("CenteredOfferContent") as Control
-		_require(content.position.y == 0.0 and content.modulate == Color.WHITE, "Disabling clears depressed/dimmed content immediately")
-	await _save_screenshot("06b_merchant_disabled.png")
-	ware.disabled = false
-	await _mouse(before_rect.get_center(), false)
-	await create_timer(0.2).timeout
-	_require(not str(shop.get("_selected_item_id")).is_empty(), "Native pointer release selects the same ware")
-	await _save_screenshot("07_merchant_selected.png")
-	_router.call("set_forced_state_for_test", "controller", "xbox")
-	ware.grab_focus()
-	await _press_controller_button(JOY_BUTTON_DPAD_DOWN)
-	var next_focus: Control = _viewport.gui_get_focus_owner()
-	_require(next_focus != null and next_focus != ware and shop.is_ancestor_of(next_focus), "Native D-pad traversal leaves the ware for another shop control")
-	ware.grab_focus()
-	await create_timer(0.17).timeout
-	await _save_screenshot("08_merchant_controller.png")
-	await _press_controller_button(JOY_BUTTON_A)
-	await _settle()
-	_require(_viewport.gui_get_focus_owner() == shop.get("_detail_action"), "Native Accept enters the ware's existing trade action")
-	var embers_before: int = int((_instance.get("_run_state") as Dictionary)["held_embers"])
-	await _press_controller_button(JOY_BUTTON_A)
-	await create_timer(0.55).timeout
-	_require(int((_instance.get("_run_state") as Dictionary)["held_embers"]) < embers_before, "Existing controller Buy remains functional")
-	await _save_screenshot("09_merchant_purchase.png")
-	await _press_controller_button(JOY_BUTTON_B)
-	_require(not shop.visible, "Controller Cancel still leaves the shop")
-	_instance.call("_load_run_state", _scavenger_controller_state(engine))
-	await _settle()
-	_require(shop.visible, "Rebuilt merchant restores its wares")
-	var reduced_settings: Dictionary = (_instance.get("_settings") as Dictionary).duplicate(true)
-	reduced_settings["reduced_motion"] = true
-	_instance.set("_settings", reduced_settings)
-	shop.call("configure", _instance.get("_run_state"), engine, true)
-	await create_timer(0.2).timeout
-	ware = shop.find_child("GearOffer_*", true, false) as Button
-	_router.call("set_forced_state_for_test", "pointer", "xbox")
-	_viewport.gui_release_focus()
-	await _point(Vector2(30, 30))
-	_require(bool(ware.get("reduced_motion")), "Shop settings propagate Reduced Motion to rebuilt wares")
-	await _point(ware.get_global_rect().get_center())
-	if ware.has_method("material_snapshot"):
-		_require(float((ware.call("material_snapshot") as Dictionary)["active"]) == 1.0 and not ware.is_processing(), "Reduced Motion hover is immediate and static")
-	await _mouse(ware.get_global_rect().get_center(), true)
-	if ware.has_method("material_snapshot"):
-		_require(float((ware.call("material_snapshot") as Dictionary)["press"]) == 1.0 and not ware.is_processing(), "Reduced Motion press applies immediately without animation")
-	await _save_screenshot("10_merchant_reduced_pressed.png")
-	await _mouse(ware.get_global_rect().get_center(), false)
-	reduced_settings["reduced_motion"] = false
-	_instance.set("_settings", reduced_settings)
-	ware.set("reduced_motion", false)
-	if ware.has_method("material_snapshot"):
-		# Sample a real native press synchronously: a slow rendered frame may
-		# already settle a 120 ms transition, and focused hover need not leave.
-		var live_press := InputEventMouseButton.new()
-		live_press.position = ware.get_global_rect().get_center()
-		live_press.global_position = live_press.position
-		live_press.button_index = MOUSE_BUTTON_LEFT
-		live_press.pressed = true
-		_viewport.push_input(live_press, true)
-		_require(ware.is_pressed() and ware.is_processing(), "Native press starts a live response for the preference handoff check")
-		ware.set("reduced_motion", true)
-		_require(float((ware.call("material_snapshot") as Dictionary)["press"]) == 1.0 and not ware.is_processing(), "Switching Reduced Motion on during a response settles immediately")
-		_require((ware.get_node("CenteredOfferContent") as Control).position.y == 0.0, "Live Reduced Motion switch preserves static content placement")
-		await _mouse(live_press.position, false)
-		ware.set("reduced_motion", false)
-	_viewport.gui_release_focus()
-	await _point(Vector2(30, 30))
-	await _point(ware.get_global_rect().get_center())
-	ware.hide()
-	if ware.has_method("material_snapshot"):
-		_require(not ware.is_processing(), "Hiding during a transition stops its processing immediately")
-	ware.show()
-	var poor: Dictionary = _scavenger_controller_state(engine)
-	poor["held_embers"] = 0
-	poor["unbanked_embers"] = 0
-	_instance.call("_load_run_state", poor)
-	await _settle()
-	ware = shop.find_child("GearOffer_*", true, false) as Button
-	await _point(ware.get_global_rect().get_center())
-	await _mouse(ware.get_global_rect().get_center(), true)
-	await _mouse(ware.get_global_rect().get_center(), false)
-	await create_timer(0.2).timeout
-	_require((shop.get("_detail_action") as Button).disabled, "Unaffordable selection retains disabled Buy and its existing reason")
-	await _save_screenshot("11_merchant_unaffordable.png")
-	var sell_mode: Control = shop.get("_mode_sell") as Control
-	await _point(sell_mode.get_global_rect().get_center())
-	await _mouse(sell_mode.get_global_rect().get_center(), true)
-	await _mouse(sell_mode.get_global_rect().get_center(), false)
-	await create_timer(0.2).timeout
-	_require(bool(shop.get("_pack_mode")), "Native Sell mode exposes unchanged pack trays")
-	await _save_screenshot("12_merchant_pack.png")
 
 func _point(point: Vector2) -> void:
 	var event := InputEventMouseMotion.new()

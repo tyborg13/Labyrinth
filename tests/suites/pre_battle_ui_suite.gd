@@ -3,9 +3,9 @@ extends RefCounted
 const GameData = preload("res://scripts/game_data.gd")
 const RunSceneScript = preload("res://scripts/run_scene.gd")
 
-const UMBRA_COLOR: Color = Color("c78bea")
-const HP_COLOR: Color = Color("f08a7a")
-const INITIATIVE_COLOR: Color = Color("8ec5ff")
+const UMBRA_COLOR: Color = preload("res://scripts/ui_palette.gd").UMBRA
+const HP_COLOR: Color = preload("res://scripts/ui_palette.gd").DANGER_BRIGHT
+const INITIATIVE_COLOR: Color = preload("res://scripts/ui_palette.gd").STEEL
 
 static func run(expect: Callable) -> void:
 	var host: Node = RunSceneScript.new()
@@ -14,6 +14,7 @@ static func run(expect: Callable) -> void:
 	_test_enemy_detail_cursor_feedback(host, expect)
 	_test_known_move_icon_precedence(host, expect)
 	_test_portrait_fitting_for_full_roster(host, expect)
+	_test_stage_tag_icons(host, expect)
 	host.free()
 
 static func _test_room_umbra_summary(host: Node, expect: Callable) -> void:
@@ -50,7 +51,7 @@ static func _test_enemy_detail_semantics(host: Node, expect: Callable) -> void:
 	expect.call(hp_label != null and hp_label.text.begins_with("HP ") and hp_label.get_theme_color("font_color").is_equal_approx(HP_COLOR), "Detailed enemy HP should be isolated on a red line")
 	expect.call(initiative_label != null and initiative_label.text.begins_with("Base initiative ") and initiative_label.get_theme_color("font_color").is_equal_approx(INITIATIVE_COLOR), "Detailed enemy initiative should be isolated on a blue line")
 	expect.call(not _labels_text(inspection).contains("Known repertoire") and not _labels_text(inspection).contains("next move concealed"), "Detailed enemy inspection should remove the redundant repertoire/concealment line")
-	expect.call(close_button != null and close_button.text == "X" and close_button.visible, "Interactive enemy inspection should expose a dedicated visible X close button")
+	expect.call(close_button != null and close_button.text == "✕" and close_button.visible, "Interactive enemy inspection should expose a dedicated visible close socket")
 	inspection.free()
 
 static func _test_enemy_detail_cursor_feedback(host: Node, expect: Callable) -> void:
@@ -124,7 +125,7 @@ static func _test_portrait_fitting_for_full_roster(host: Node, expect: Callable)
 		"type": "warden",
 		"hp": int(warden_def.get("max_hp", 1)),
 		"max_hp": int(warden_def.get("max_hp", 1))
-	}, Color("d8b06d"), Vector2(198.0, 152.0)) as Control
+	}, Color("d8b06d"), Vector2(206.0, 365.0)) as Control
 	var summary_art: TextureRect = summary_card.find_child("PreBattleEnemyArt", true, false) as TextureRect
 	expect.call(summary_art != null and summary_art.offset_left >= 12.0 and summary_art.offset_top >= 12.0 and summary_art.offset_right <= -12.0, "Summary portraits should keep a safe inset inside the frameless brush composition")
 	summary_card.free()
@@ -148,3 +149,12 @@ static func _labels_text(node: Node) -> String:
 	for child: Node in node.find_children("*", "Label", true, false):
 		text_parts.append((child as Label).text)
 	return "\n".join(text_parts)
+
+static func _test_stage_tag_icons(host: Node, expect: Callable) -> void:
+	for identity: String in GameData.enemies().keys():
+		var definition: Dictionary = GameData.enemy_def(identity)
+		var card: Control = host.call("_build_pre_battle_enemy_card", {"type": identity, "hp": int(definition.get("max_hp", 1))}, Color.WHITE, Vector2(206, 365)) as Control
+		var tags: Control = card.find_child("PreBattleMoveTags", true, false) as Control
+		for icon_node: Node in tags.find_children("*", "TextureRect", true, false):
+			expect.call((icon_node as TextureRect).texture != null, "%s move tags must resolve an existing intent icon" % identity)
+		card.free()

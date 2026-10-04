@@ -94,6 +94,26 @@ floor shadows); the former navy button bodies clashed with it.
   watch whose code-drawn hands sweep on hover
   (`tests/card_rarity_polish_probe.gd`, `spec/assets/card_time_watch/`).
 
+- **Visual pass 4 vocabulary** (`spec/design/visual_pass_4/`), shared by the
+  pre-battle report, character menu and combat HUD:
+  - *Socket* (`ui_socket.gd`): a painted antique-bronze medallion ring
+    (`assets/art/ui/visual_pass_4/medallion_ring.png`; geometry read from its
+    JSON) holding an icon cropped to its opaque bounds. Hover/focus brighten the
+    ring with an ember glow; selected adds a gold inner ring; wrappers never
+    draw their own focus box.
+  - *Card strip* (`ui_card_strip.gd`): a one-line deck row with a cropped art
+    thumbnail, the exact card name and an optional ×N.
+  - *Stat chip* (`ui_stat_chip.gd`): a pill with a socketed icon, a value and a
+    letter-spaced caption. Resources use purpose-built icons (`ember`,
+    `defiance`, `skill_point`, `moltshard`).
+  - *Ink pool stage* (`ui_ink_pool_stage.gd`): a painted ink pool and faint warm
+    spotlight under a standing figure (pre-battle foes, the paper doll).
+  - *Section header* (`ui_section_header.gd`): gold eyebrow, count, fading rule.
+- **NPC scenes** keep their painted rooms as the stage. The Scavenger's title,
+  embers, category brush labels and hanging parchment price tags sit directly on
+  the stall; the Graftwright's atelier header, translucent workmat panels and a
+  stitched thread linking the carried and replaced cards sit over the atelier.
+
 ## Combat composition
 
 - `scripts/combat_atmosphere.gd` sits between the hall art and the board: a warm

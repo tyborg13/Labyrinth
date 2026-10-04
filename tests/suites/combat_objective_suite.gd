@@ -279,7 +279,8 @@ static func _test_objective_persistence_and_ui_surfaces(expect: Callable) -> voi
 	expect.call((restored_layout.get("objective", {}) as Dictionary) == objective, "Combat objective state should survive room-layout persistence")
 	var pre_battle_host: Node = RunScene.new()
 	var preview_chip: Control = pre_battle_host.call("_build_pre_battle_objective_chip", state, Color("d7a85d")) as Control
-	expect.call(_labels_text(preview_chip).contains("SURVIVE") and _labels_text(preview_chip).contains("Hold out"), "The room preview should name and explain its combat objective")
+	var objective_plate: Control = preview_chip.find_child("PreBattleObjectiveChip", true, false) as Control
+	expect.call(objective_plate != null and str(objective_plate.get_meta("objective_title", "")).to_upper().contains("SURVIVE") and _labels_text(preview_chip).contains("Hold out"), "The room preview should name and explain its combat objective")
 	expect.call(preview_chip.find_child("PreBattleObjectiveIcon", true, false) != null, "The room preview should display the objective's purpose-built icon")
 	preview_chip.free()
 	pre_battle_host.free()

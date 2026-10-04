@@ -95,7 +95,7 @@ func _test_skill_tree_view() -> void:
 	)
 	_expect(view.unbridged_connection_pairs().is_empty(), "No route crossing should resemble an unexplained junction")
 	_expect(view.minimum_bridge_half_gap() >= 10.0, "Bridge gaps should visibly clear the upper route")
-	_expect(view.minimum_connection_width() >= 3.0, "Unfocused connectors should remain legible")
+	_expect(is_equal_approx(view.minimum_connection_width(), 2.0), "Skill connectors should use the visual system's 2px stroke")
 	_expect(view.minimum_connection_alpha() >= 0.9, "Focusing should not fade the remaining topology")
 	_expect(view.minimum_understroke_margin() >= 3.0, "Connectors should retain a separating understroke")
 	_expect(view.minimum_target_segment_length() >= 10.0, "Arrowheads should remain exposed outside node shadows")

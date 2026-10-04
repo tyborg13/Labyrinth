@@ -12,6 +12,8 @@ const Surface = preload("res://scripts/ui_component_surface.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const GameData = preload("res://scripts/game_data.gd")
 
+static var _art_crops: Dictionary = {}
+
 var selected: bool = false:
 	set(value):
 		selected = value
@@ -37,6 +39,7 @@ func _init() -> void:
 	_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_art.material = _art_material
+	_art.modulate = Color(1.15, 1.15, 1.15, 1.0)
 	_name.name = "Name"
 	_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_name.clip_text = true
@@ -62,7 +65,7 @@ func setup(id: String, display_name: String, count: int = 1, card_override: Dict
 		unhovered.emit(card_id)
 	card_id = id
 	var card: Dictionary = card_override.duplicate(true) if not card_override.is_empty() else GameData.card_def(id)
-	_art.texture = AssetLoader.load_texture(str(card.get("art_path", "")))
+	_art.texture = _center_band(AssetLoader.load_texture(str(card.get("art_path", ""))))
 	_name.text = display_name
 	_count.text = "×%d" % count if count > 1 else ""
 	_count.visible = count > 1
@@ -72,10 +75,24 @@ func setup(id: String, display_name: String, count: int = 1, card_override: Dict
 		hovered.emit(card_id)
 	queue_redraw()
 
+static func _center_band(source: Texture2D) -> Texture2D:
+	if source == null:
+		return null
+	if not _art_crops.has(source):
+		var height: float = minf(source.get_height() * 0.6, source.get_width() * 0.5)
+		var crop_size := Vector2(height * 2.0, height)
+		var atlas := AtlasTexture.new()
+		atlas.atlas = source
+		atlas.region = Rect2((source.get_size() - crop_size) * 0.5, crop_size)
+		atlas.filter_clip = true
+		atlas.set_meta("asset_source_path", source.get_meta("asset_source_path", ""))
+		_art_crops[source] = atlas
+	return _art_crops[source] as Texture2D
+
 func _layout() -> void:
 	Surface.label_style(_name, 15, Palette.TEXT_3 if disabled or locked else Palette.TEXT)
 	Surface.label_style(_count, 14, Palette.GOLD_BRIGHT)
-	var count_width: float = _count.get_minimum_size().x + Typography.scaled_value(self, 8.0) if _count.visible else 0.0
+	var count_width: float = _count.get_minimum_size().x + Typography.scaled_value(self, 6.0) if _count.visible else 0.0
 	custom_minimum_size = Vector2(Typography.scaled_value(self, 86.0) + count_width, Typography.scaled_value(self, 30.0))
 	var layout_scale: float = Typography.ui_scale(self)
 	_art.position = Vector2.ZERO
@@ -83,9 +100,9 @@ func _layout() -> void:
 	_art_material.set_shader_parameter("content_width", _art.size.x)
 	_finish.size = size
 	_count.size = Vector2(_count.get_minimum_size().x, size.y)
-	_count.position = Vector2(size.x - _count.size.x - 8.0 * layout_scale, 0.0)
-	_name.position = Vector2(62.0 * layout_scale, 0.0)
-	var name_end: float = _count.position.x - 8.0 * layout_scale if _count.visible else size.x - 8.0 * layout_scale
+	_count.position = Vector2(size.x - _count.size.x - 6.0 * layout_scale, 0.0)
+	_name.position = Vector2(60.0 * layout_scale, 0.0)
+	var name_end: float = _count.position.x if _count.visible else size.x - 6.0 * layout_scale
 	_name.size = Vector2(maxf(0.0, name_end - _name.position.x), size.y)
 	queue_redraw()
 

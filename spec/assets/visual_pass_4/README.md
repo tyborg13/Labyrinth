@@ -15,6 +15,8 @@ the objective plate is drawn in code instead.
 | `ink_pool_a.png` | `82d008c549302b59c5da0dddfe6a4ecd38a03cd4fde7a6dc60b71bf89439fb3b` |
 | `ink_pool_b.png` | `a536b0a2f85814a4c28bc0d0a4fe2e2c6be3d9382b21a23036f110feabf5b61d` |
 | `medallion_ring.png` | `b38f568977ae6c178fe31277b7cff14ad7eef5d2141acd91a30c9c7aeb7f463e` |
+| `skill_point_source.png` | `5cc420fbe386dbbbd6d22e5fef1d17dbbfb7ec19f954738046a32fc432ba59a8` |
+| `moltshard_source.png` | `8864a4032388d5668700d14af84621f98b7675e948b2836bf7e83e6a91a969ae` |
 | `price_tag.png` | `7a002e2b4a87bf16cb9b08dc3422cec05016e678b5c5e85281a867780776263b` |
 
 The prompts below are the image tool's own record (the reference images it was
@@ -116,4 +118,26 @@ One small upright hanging tag made from old stained parchment/vellum, centered. 
 Reference style from ref_card_frame.png: softly hand-painted ochre cream parchment, delicate irregular fiber and crease marks, dark worn edge shading, amber-brown stains; ref_pocket_watch.png: warm aged golden brass punch-hole eyelet with dark recessed shading, worn restrained ochre highlight. Integrate those painted materials as a game sprite, not a photo, not a plastic 3D render. Warm upper-left material highlight and lower-right shading contained entirely within the tag and twine.
 Composition: tag upright seen mostly face-on, lightly curled. Small object surrounded by generous green empty margin on every side, including above the twine. Tag body approximately centered and 512 px tall in requested canvas. String is SHORT, roughly 90 px rising above the top hole, loose dark twist, not long dangling loop.
 No cast shadow outside the silhouette. No green reflected light on tag. Background must be perfectly flat solid #00FF00. One tag only. Nothing touches any image edge.
+```
+
+
+## Resource icons: skill_point.png and moltshard.png (64 × 64)
+
+The character menu's Skill Points and Moltshards chips had no icons; the icon
+identity policy requires purpose-built ones. The image run generated large
+chroma-key sources (`skill_point_source.png`, `moltshard_source.png`) and
+nearest-neighbour 64 × 64 finals, which ship unchanged as
+`assets/art/icons/skill_point.png` and `assets/art/icons/moltshard.png`
+(registered as `resource:*` concepts in `tests/test_icon_identity_policy.py`).
+They were shown the existing ember, defiance, empower, time and health icons
+as style references.
+
+```text
+Use your built-in image generation tool (real image generation, not code drawing). First look at ref_icon_sheet.png and the ref_icon_*.png files in this directory: they are the game's existing 64x64 pixel-art resource icons (ember, defiance, empower, time, health) for a dark-fantasy dungeon deckbuilder. Match that exact style: chunky readable pixel art, dark outline, warm torch-lit shading, a strong single silhouette that reads at 20 px, no text.
+
+Create two NEW, purpose-built icons with silhouettes clearly different from each other and from every reference icon:
+1. skill_point.png: the "Skill Point" resource (spent to learn skills on a skill tree). A small upright four-pointed star-sigil / compass-rose of pale burnished gold set inside a thin open circle of engraved gold, with a tiny warm glow at its centre. NOT a flame, NOT a shield, NOT a crown.
+2. moltshard.png: the "Moltshard" resource (a shed fragment of a dragon's scale, violet Umbra-touched). A single jagged, curved, iridescent dragon-scale shard, deep violet to lilac with a pale lavender edge highlight and a faint violet inner glow. NOT a gem with facets like a diamond, NOT a feather.
+
+For each: generate at a large size on a perfectly flat chroma green #00FF00 background with the subject centred and filling about 70% of the canvas and nothing touching the edges, then ALSO produce the final 64x64 RGBA PNG yourself by downscaling with nearest-neighbour onto transparency (key out the green, no green fringe). Save the large sources as skill_point_source.png and moltshard_source.png and the 64x64 finals as skill_point.png and moltshard.png in this directory. Report all sizes.
 ```

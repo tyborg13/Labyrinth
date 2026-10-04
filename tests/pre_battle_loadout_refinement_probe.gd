@@ -101,62 +101,17 @@ func _check_objects(panel: Control, state: Dictionary, variant: String) -> void:
 	for chip: Control in equipment.get_children():
 		_expect(equipment.get_global_rect().grow(1).encloses(chip.get_global_rect()), "Equipment stays fully visible")
 	for source_kind: String in ["attuned", "deck"]:
-		var source: Control = panel.find_child("PreBattleAttunedRow" if source_kind == "attuned" else "PreBattleDeckFlow", true, false) as Control
 		var expected: Array = state.get("attuned_magic_cards" if source_kind == "attuned" else "deck_cards", []) as Array
-		var represented: Dictionary = {}
-		print("OBJECT GEOMETRY %s %s panel=%s source=%s" % [variant, source_kind, panel.size, source.size])
-		var viewport_rect: Rect2 = source.get_global_rect()
-		if source_kind == "deck":
-			var scroll := panel.find_child("PreBattleDeckScroll", true, false) as ScrollContainer
-			viewport_rect = scroll.get_global_rect()
-			var bar := scroll.get_v_scroll_bar()
-			_expect(_before or (not bar.visible and bar.max_value <= bar.page + 1.0), "%s deck remains visible without scrolling" % variant)
-		for badge: Control in source.get_children():
-			var card_id: String = str(badge.get_meta("card_id", ""))
-			represented[card_id] = int(badge.get_meta("card_count", 1))
-			_expect(_before or viewport_rect.grow(1).encloses(badge.get_global_rect()), "%s %s object remains fully visible" % [variant, source_kind])
-			var label := badge.find_child("CardBadgeName", true, false) as Label
-			_expect(label != null and label.text == str(badge.get_meta("display_name", "")), "Card identity and quantity remain precise")
-			if not _before:
-				var content := badge.find_child("PreBattleCardObjectContent", true, false) as Control
-				var art := badge.find_child("CardBadgeArt", true, false) as TextureRect
-				_expect(badge.find_child("PreBattleCardNameFace", true, false) == null, "Card identity overlays artwork without a separate text backing")
-				_expect(art != null and art.get_global_rect().is_equal_approx(content.get_global_rect()), "Artwork covers the complete inside-border face")
-				_expect(art.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_COVERED, "Full-bleed artwork preserves aspect ratio")
-				_expect(art.texture is AtlasTexture and (art.texture as AtlasTexture).filter_clip, "Artwork crops transparent brush margins without sampling their gutters")
-				_check_opaque_art_fill(art)
-				_expect(label.get_theme_constant("outline_size") >= 2, "Names retain local contrast directly over artwork")
-				_expect(content.get_global_rect().encloses(label.get_global_rect()), "Overlay names remain inside the full artwork face")
-				_expect(label.get_theme_font_size("font_size") >= 14, "Card identity uses shared caption floor")
-				_expect(label.get_line_count() <= 2 and label.get_visible_line_count() >= label.get_line_count(), "Card names remain fully legible in two lines")
-				var font := label.get_theme_font("font")
-				for word: String in label.text.split(" "):
-					_expect(font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size")).x <= label.size.x, "Card words should not break into orphan letters: %s word %.1f > %.1f" % [label.text, font.get_string_size(word, HORIZONTAL_ALIGNMENT_LEFT, -1, label.get_theme_font_size("font_size")).x, label.size.x])
-		var expected_counts: Dictionary = {}
-		for card_id_var: Variant in expected:
-			var card_id: String = str(card_id_var)
-			expected_counts[card_id] = int(expected_counts.get(card_id, 0)) + 1
-		_expect(represented == expected_counts, "All %s identities and multiplicities remain exact" % source_kind)
-
-func _check_opaque_art_fill(art: TextureRect) -> void:
-	var texture: Texture2D = art.texture
-	if texture.has_meta("pre_battle_opaque_underpaint"):
-		texture = texture.get_meta("pre_battle_opaque_underpaint") as Texture2D
-		var fill := art.get_parent().find_child("CardBadgeArtFill", false, false) as TextureRect
-		_expect(fill != null and fill.get_global_rect().is_equal_approx(art.get_global_rect()), "Painting with central cutouts retains opaque artwork behind its complete composition")
-	if _checked_art_textures.has(texture.get_instance_id()):
-		return
-	_checked_art_textures[texture.get_instance_id()] = true
-	var image: Image = texture.get_image()
-	var opaque: bool = true
-	for y: int in range(image.get_height()):
-		for x: int in range(image.get_width()):
-			if image.get_pixel(x, y).a < 0.98:
-				opaque = false
-				break
-		if not opaque:
-			break
-	_expect(opaque, "Whole artwork face has opaque painted coverage without gray alpha gutters")
+		_assert_cards(panel, expected, source_kind)
+		var source := panel.find_child("PreBattleAttunedRow" if source_kind == "attuned" else "PreBattleDeckFlow", true, false) as Control
+		var bounds: Rect2 = (panel.find_child("PreBattleDeckSection", true, false) as Control).get_global_rect()
+		for strip: Control in source.get_children():
+			var art := strip.get_node("Art") as TextureRect
+			_expect(art != null and art.texture != null and art.size == Vector2(54, 30), "Every strip keeps its authored thumbnail at 54x30")
+			_expect(strip.get_global_rect().position.x >= bounds.position.x and strip.get_global_rect().end.x <= bounds.end.x, "Card strips remain within their column")
+			var name_label := strip.get_node("Name") as Label
+			_expect(name_label.text == str(strip.get_meta("display_name", "")), "Card identity stays precise")
+	print("STRIP GEOMETRY %s panel=%s" % [variant, panel.size])
 
 func _extra_cases(instance: Node, state: Dictionary, engine: RunEngine) -> void:
 	for duplicates: bool in [true, false]:
@@ -224,7 +179,7 @@ func _extra_cases(instance: Node, state: Dictionary, engine: RunEngine) -> void:
 	var health := panel.find_child("PreBattleHealthChip", true, false) as Control
 	var defiance_count := health.find_child("PreBattleDefianceCount", true, false) as Label
 	_expect(defiance_count != null and defiance_count.text == "2/3", "Compact health header preserves exact Defiance count")
-	_expect(_labels_text(health).contains("92/108"), "Compact health header preserves exact three-digit HP")
+	_expect(_labels_text(health).contains("92 / 108"), "Compact health header preserves exact three-digit HP")
 	var equipment_header := health.get_parent() as Control
 	_expect((panel.find_child("PreBattleDeckSection", true, false) as Control).get_global_rect().encloses(equipment_header.get_global_rect()), "Health and Defiance must not expand the right column")
 	await _snap("health_defiance")

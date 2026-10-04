@@ -52,7 +52,7 @@ class VisualPass4Assets(unittest.TestCase):
     def test_approved_sources_match_readme(self):
         readme = (ROOT / "spec/assets/visual_pass_4/README.md").read_text()
         hashes = re.findall(r"\| `([^`]+\.png)` \| `([a-f0-9]{64})` \|", readme)
-        self.assertEqual(len(hashes), 4)
+        self.assertEqual({name for name, _ in hashes}, {path.name for path in (ROOT / "spec/assets/visual_pass_4/sources").glob("*.png")})
         for name, expected in hashes:
             with self.subTest(source=name):
                 source = ROOT / "spec/assets/visual_pass_4/sources" / name

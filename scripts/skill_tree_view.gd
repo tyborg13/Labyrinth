@@ -6,6 +6,8 @@ const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const InlineIconText = preload("res://scripts/inline_icon_text.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
+const UiPalette = preload("res://scripts/ui_palette.gd")
+const CharacterMenuView = preload("res://scripts/character_menu_view.gd")
 const MotionSettings = preload("res://scripts/settings_store.gd")
 
 signal skill_focused(skill_id: String)
@@ -99,6 +101,9 @@ class SkillLinkLayer:
 		color: Color,
 		width: float
 	) -> void:
+		for point_index: int in range(1, points.size() - 1):
+			draw_circle(points[point_index], width * 0.5, color)
+
 		for segment_index: int in range(points.size() - 1):
 			var start: Vector2 = points[segment_index]
 			var finish: Vector2 = points[segment_index + 1]
@@ -679,7 +684,7 @@ func legend_state_count() -> int:
 		return 0
 	var count: int = 0
 	for state: String in [STATE_OWNED, STATE_AVAILABLE, STATE_LOCKED, STATE_EXCLUDED]:
-		var label: Label = _legend.get_node_or_null("SkillLegendLabel_%s" % state) as Label
+		var label: Label = _legend.find_child("SkillLegendLabel_%s" % state, true, false) as Label
 		if label != null and label.visible:
 			count += 1
 	return count
@@ -977,6 +982,16 @@ func _build_state_legend() -> void:
 	if _legend == null:
 		return
 	for state: String in [STATE_OWNED, STATE_AVAILABLE, STATE_LOCKED, STATE_EXCLUDED]:
+		var chip := PanelContainer.new()
+		chip.name = "SkillLegendChip_%s" % state
+		var style := CharacterMenuView.row_style()
+		style.set_corner_radius_all(12)
+		style.set_content_margin_all(5.0)
+		chip.add_theme_stylebox_override("panel", style)
+		_legend.add_child(chip)
+		var row := HBoxContainer.new()
+		row.add_theme_constant_override("separation", 5)
+		chip.add_child(row)
 		var marker := SkillLegendMarker.new()
 		marker.name = "SkillLegendMarker_%s" % state
 		marker.custom_minimum_size = Vector2(18.0, 18.0)
@@ -984,14 +999,10 @@ func _build_state_legend() -> void:
 		marker.set_meta("skill_state", state)
 		marker.set_meta("symbol_kind", _legend_symbol_kind(state))
 		marker.configure(state, _state_color(state))
-		_legend.add_child(marker)
-		var label := Label.new()
+		row.add_child(marker)
+		var label := CharacterMenuView.eyebrow(_legend_state_text(state), 14, UiPalette.TEXT_2)
 		label.name = "SkillLegendLabel_%s" % state
-		label.text = _legend_state_text(state)
-		label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		UiTypography.apply_label_role(label, UiTypography.ROLE_CAPTION)
-		label.add_theme_color_override("font_color", Color("cfc4b2") if state != STATE_LOCKED else Color("8f8991"))
-		_legend.add_child(label)
+		row.add_child(label)
 
 func _legend_symbol_kind(state: String) -> String:
 	match state:
@@ -1044,7 +1055,7 @@ func _build_detail_panel() -> Control:
 	_detail_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_detail_panel.clip_contents = true
 	_detail_panel.add_theme_stylebox_override("panel", _panel_style(Color("8c6f49")))
-	_ui_skin.apply_menu_finish(_detail_panel, "section", Color("8c6f49"))
+	_ui_skin.apply_panel_surface(_detail_panel, UiSkin.SURFACE_DIALOG)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_COMPACT))
@@ -1065,6 +1076,7 @@ func _build_detail_panel() -> Control:
 	_detail_content.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_detail_content.add_theme_constant_override("separation", UiTypography.SPACE_SMALL)
 	column.add_child(_detail_content)
+	_detail_content.add_child(CharacterMenuView.section("SKILL DETAILS"))
 
 	_detail_status = Label.new()
 	_detail_status.name = "SkillDetailStatus"
@@ -1144,8 +1156,8 @@ func _refresh_legend() -> void:
 	if _legend == null:
 		return
 	for state: String in [STATE_OWNED, STATE_AVAILABLE, STATE_LOCKED, STATE_EXCLUDED]:
-		var marker: Control = _legend.get_node_or_null("SkillLegendMarker_%s" % state) as Control
-		var label: Label = _legend.get_node_or_null("SkillLegendLabel_%s" % state) as Label
+		var marker: Control = _legend.find_child("SkillLegendMarker_%s" % state, true, false) as Control
+		var label: Label = _legend.find_child("SkillLegendLabel_%s" % state, true, false) as Label
 		if marker != null:
 			marker.visible = true
 		if label != null:
@@ -1583,25 +1595,13 @@ func _link_state(source_id: String, target_id: String) -> String:
 		return STATE_EXCLUDED
 	return STATE_LOCKED
 
-func _link_visual(link_state: String, relationship: String) -> Dictionary:
-	match relationship:
-		"prerequisite":
-			return {"color": Color("ffd47a"), "width": 5.0}
-		"dependent":
-			return {"color": Color("8ce1d5"), "width": 5.0}
-		"ancestor":
-			var ancestor_color := Color("bfa36d")
-			ancestor_color.a = 0.90
-			return {"color": ancestor_color, "width": 3.8}
-	match link_state:
-		STATE_OWNED:
-			return {"color": Color("d6a84f"), "width": 4.0}
-		STATE_AVAILABLE:
-			return {"color": Color("69c5b8"), "width": 3.6}
-		STATE_EXCLUDED:
-			return {"color": Color("b96073"), "width": 3.2}
-		_:
-			return {"color": Color("746d79"), "width": 3.0}
+func _link_visual(link_state: String, _relationship: String) -> Dictionary:
+	var color: Color = UiPalette.GOLD_DIM
+	if link_state == STATE_OWNED:
+		color = UiPalette.GOLD
+	elif link_state == STATE_AVAILABLE:
+		color = UiPalette.ALLY
+	return {"color": color, "width": 2.0}
 
 func _link_draw_priority(link_state: String, relationship: String) -> int:
 	var state_priority: int = 0
