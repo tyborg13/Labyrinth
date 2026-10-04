@@ -8,6 +8,7 @@ const PriceTag = preload("res://scripts/scavenger_price_tag.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const Signage = preload("res://scripts/scavenger_signage.gd")
+const Banner = preload("res://scripts/scavenger_banner.gd")
 const GlowupProof = preload("res://tests/scavenger_glowup_probe.gd")
 const AcquisitionProof = preload("res://tests/merchant_acquisition_probe.gd")
 
@@ -48,7 +49,7 @@ func _initialize() -> void:
 	var body_rect: Rect2 = Signage.parchment_rect(title_panel.size)
 	_expect(title.get_rect().is_equal_approx(body_rect) and title.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "Title centers in the parchment body below the dowel")
 	_expect(shop.find_child("ScavengerStallEyebrow", true, false) == null, "One title replaces the floating eyebrow")
-	var banner: TextureRect = shop.find_child("ScavengerShopBanner", true, false) as TextureRect
+	var banner: Banner = shop.find_child("ScavengerShopBanner", true, false) as Banner
 	_expect(banner.texture.get_width() == 1100 and banner.texture.get_image().has_mipmaps(), "Banner loads the approved mipmapped texture")
 	var title_ink: ShaderMaterial = title.material as ShaderMaterial
 	_expect(title_ink != null and is_equal_approx(float(title_ink.get_shader_parameter("highlight_width")), 1.0), "Ink title has a one-pixel inner highlight")

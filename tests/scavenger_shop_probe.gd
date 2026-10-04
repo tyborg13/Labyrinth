@@ -562,6 +562,7 @@ func _assert_banner_clearance(shop: Control, state_name: String) -> void:
 	if banner == null:
 		_fail("Parchment banner must exist: " + state_name)
 		return
+	_assert_banner_patch_scales(banner, state_name)
 	var parchment: Rect2 = banner.get_global_transform() * ShopSignage.parchment_rect(banner.size)
 	var canvas: Control = shop.get("_canvas") as Control
 	var gap: float = 10.0 * canvas.get_global_transform().get_scale().y
@@ -574,6 +575,27 @@ func _assert_banner_clearance(shop: Control, state_name: String) -> void:
 		if is_instance_valid(proxy) and proxy.is_visible_in_tree():
 			var ware: Rect2 = ShopSignage.ware_rect(proxy)
 			_assert_banner_ware_rect(parchment, ware, gap, str(effect.name), state_name)
+
+func _assert_banner_patch_scales(banner: Control, state_name: String) -> void:
+	if not banner.has_method("patch_regions"):
+		_fail("Banner must preserve its hardware with texture slices: " + state_name)
+		return
+	var regions: Array = banner.call("patch_regions")
+	if regions.size() != 3:
+		_fail("Banner needs two protected ends and one stretchable middle: " + state_name)
+		return
+	var texture: Texture2D = banner.get("texture") as Texture2D
+	var height_scale: float = banner.size.y / float(texture.get_height())
+	for index: int in [0, 2]:
+		var source: Rect2 = regions[index]["source"]
+		var destination: Rect2 = regions[index]["destination"]
+		var scale: Vector2 = destination.size / source.size
+		if not is_equal_approx(scale.x, scale.y) or not is_equal_approx(scale.y, height_scale):
+			_fail("Banner end %d must scale uniformly by height in %s: %s" % [index, state_name, scale])
+	var left_source: Rect2 = regions[0]["source"]
+	var right_source: Rect2 = regions[2]["source"]
+	if left_source.position.x != 0.0 or left_source.end.x < 200.0 or right_source.position.x > 900.0 or right_source.end.x != 1100.0:
+		_fail("Banner protected ends must contain the measured rings, twine and dowel ends: " + state_name)
 
 func _assert_banner_ware_rect(parchment: Rect2, ware: Rect2, gap: float, ware_name: String, state_name: String) -> void:
 	if parchment.intersects(ware):

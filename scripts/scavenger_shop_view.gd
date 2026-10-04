@@ -22,6 +22,7 @@ const ShopAction = preload("res://scripts/scavenger_action.gd")
 const UiPalette = preload("res://scripts/ui_palette.gd")
 const UiSurface = preload("res://scripts/ui_component_surface.gd")
 const Signage = preload("res://scripts/scavenger_signage.gd")
+const Banner = preload("res://scripts/scavenger_banner.gd")
 const EmberChip = preload("res://scripts/scavenger_ember_chip.gd")
 const PriceTag = preload("res://scripts/scavenger_price_tag.gd")
 const Atmosphere = preload("res://scripts/scavenger_atmosphere.gd")
@@ -356,14 +357,9 @@ func _build_static_scene() -> void:
 	_place(_title_panel, Rect2(1035.0 - Signage.BANNER_SIZE.x * 0.5, 0.0, Signage.BANNER_SIZE.x, Signage.BANNER_SIZE.y))
 	_title_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_canvas.add_child(_title_panel)
-	var banner := TextureRect.new()
+	var banner := Banner.new()
 	banner.name = "ScavengerShopBanner"
 	_place(banner, Rect2(Vector2.ZERO, _title_panel.size))
-	banner.texture = UiSurface.mipmapped_texture(Signage.BANNER_PATH)
-	banner.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	banner.stretch_mode = TextureRect.STRETCH_SCALE
-	banner.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
-	banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_title_panel.add_child(banner)
 	var title := _label_at(_title_panel, "The Scavenger's Wares", Signage.parchment_rect(_title_panel.size), 46, Signage.INK)
 	title.name = "ScavengerWaresTitle"
