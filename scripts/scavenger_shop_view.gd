@@ -19,6 +19,11 @@ const Ware = preload("res://scripts/scavenger_ware.gd")
 const Materials = preload("res://scripts/scavenger_materials.gd")
 const ShopPanel = preload("res://scripts/scavenger_panel.gd")
 const ShopAction = preload("res://scripts/scavenger_action.gd")
+const UiPalette = preload("res://scripts/ui_palette.gd")
+const UiSurface = preload("res://scripts/ui_component_surface.gd")
+const EmberChip = preload("res://scripts/scavenger_ember_chip.gd")
+const PriceTag = preload("res://scripts/scavenger_price_tag.gd")
+const Atmosphere = preload("res://scripts/scavenger_atmosphere.gd")
 const MerchantAcquisitionEffect = preload("res://scripts/merchant_acquisition_effect.gd")
 
 const REFERENCE_SIZE := Vector2(1920.0, 1080.0)
@@ -29,9 +34,9 @@ const GEAR := "gear"
 const ITEM := "item"
 const MERCHANT_KIND := "scavenger"
 const NATIVE_CARD_SIZE := Vector2(250.0, 352.0)
-const OFFER_CARD_SIZE := Vector2(154.0, 216.0)
-const OFFER_TILE_SIZE := Vector2(196.0, 170.0)
-const SELL_TILE_SIZE := Vector2(244.0, 194.0)
+const OFFER_CARD_SIZE := Vector2(177.0, 248.0)
+const OFFER_TILE_SIZE := Vector2(196.0, 208.0)
+const SELL_TILE_SIZE := Vector2(244.0, 202.0)
 const SELL_PAGE_SIZE: int = 9
 const SHELF_LEFT: float = 655.0
 const SHELF_WIDTH: float = 840.0
@@ -55,8 +60,8 @@ var _backdrop: TextureRect
 var _portrait_clip: Control
 var _portrait: Node2D
 var _counter_occluder: Control
-var _title_panel: PanelContainer
-var _currency_panel: PanelContainer
+var _title_panel: Control
+var _currency_panel: Control
 var _currency_label: Label
 var _magic_group: Control
 var _gear_group: Control
@@ -80,10 +85,10 @@ var _offer_sources: Dictionary = {}
 var _shelf_signatures: Dictionary = {}
 var _sell_page_signature: String = ""
 var _rendered_detail_card_id: String = ""
-var _animated_groups: Array[Control] = []
+var _animated_groups: Array[Control]
 var _sellable_ids: Array = []
 var _sell_page: int = 0
-var _detail_card_ids: Array[String] = []
+var _detail_card_ids: Array[String]
 var _detail_card_index: int = 0
 var _slot_tweens: Dictionary = {}
 var _purchase_effects: Control
@@ -92,7 +97,7 @@ var _pack_filter: String = "all"
 var _all_sellable_ids: Array = []
 var _mode_buy: Button
 var _mode_sell: Button
-var _filter_buttons: Array[Button] = []
+var _filter_buttons: Array[Button]
 var _dialogue_panel: PanelContainer
 var _dialogue_words: Label
 var _dialogue_title: Label
@@ -199,7 +204,7 @@ func _present_trade(item_id: String, origin: Rect2, selling: bool) -> void:
 	effect.reduced_motion = _reduced_motion
 	effect.selling = selling
 	effect.origin = origin
-	effect.destination = Vector2(300, 430) if selling else _dialogue_panel.position + Vector2(92, 164)
+	effect.destination = Vector2(300, 430) if selling else _dialogue_panel.position + Vector2(12, 12) + _receipt_visual.position + _receipt_visual.size * 0.5
 	effect.currency_destination = _currency_panel.position + _currency_panel.size * 0.5
 	_purchase_effects.add_child(effect)
 	_build_purchase_proxy(effect.proxy, item_id, origin.size)
@@ -222,7 +227,7 @@ func _show_receipt(item_id: String, amount: int, selling: bool) -> void:
 	_receipt_amount.add_theme_color_override("font_color", Color("bfe1ae") if selling else Color("ef9290"))
 	_clear_children(_receipt_visual)
 	var kind: String = str(_run_engine.call("merchant_item_kind", item_id))
-	var visual_size := Vector2(104, 146) if kind == MAGIC else Vector2(112, 112)
+	var visual_size := Vector2(69, 97) if kind == MAGIC else Vector2(82, 82)
 	var visual := Control.new()
 	visual.position = (_receipt_visual.size - visual_size) * 0.5
 	visual.size = visual_size
@@ -270,7 +275,7 @@ func semantic_snapshot() -> Dictionary:
 			categories[kind] = int(categories.get(kind, 0)) + 1
 	return {
 		"visible": visible,
-		"title": "Scavenger's Wares",
+		"title": "Wares & Oddments",
 		"currency": int(_run_state.get("held_embers", 0)),
 		"categories": categories,
 		"sell_count": _run_engine.call("merchant_sellable_ids", _run_state, MERCHANT_KIND).size() if _run_engine != null else 0,
@@ -308,12 +313,10 @@ func _build_static_scene() -> void:
 	_backdrop.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_canvas.add_child(_backdrop)
 
-	var vignette := ColorRect.new()
-	vignette.name = "ShopVignette"
-	_place(vignette, Rect2(Vector2.ZERO, REFERENCE_SIZE))
-	vignette.color = Color(0.018, 0.012, 0.010, 0.18)
-	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_canvas.add_child(vignette)
+	var atmosphere := Atmosphere.new()
+	atmosphere.name = "ShopVignette"
+	_place(atmosphere, Rect2(Vector2.ZERO, REFERENCE_SIZE))
+	_canvas.add_child(atmosphere)
 
 	_portrait_clip = Control.new()
 	_portrait_clip.name = "MerchantAlcovePortraitClip"
@@ -343,42 +346,45 @@ func _build_static_scene() -> void:
 	counter_raster.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	counter_raster.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_counter_occluder.add_child(counter_raster)
+	_canvas.move_child(atmosphere, _canvas.get_child_count() - 1)
 
-	_title_panel = _panel()
-	_set_panel_material(_title_panel, "dialogue")
+	_title_panel = Control.new()
 	_title_panel.name = "ScavengerWaresTitlePanel"
 	_place(_title_panel, Rect2(600.0, 28.0, 870.0, 92.0))
+	_title_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_canvas.add_child(_title_panel)
-	var title := Label.new()
-	title.text = "SCAVENGER'S WARES"
+	var halo := TextureRect.new()
+	_place(halo, Rect2(100, -22, 670, 140))
+	halo.texture = UiSurface.radial_texture(Color(0, 0, 0, 0.74), 0.95)
+	halo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	halo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_title_panel.add_child(halo)
+	var eyebrow := _label_at(_title_panel, "THE SCAVENGER'S STALL", Rect2(0, 0, 870, 24), 15, UiPalette.TEXT_2)
+	eyebrow.name = "ScavengerStallEyebrow"
+	UiTypography.apply_eyebrow(eyebrow, 15, UiPalette.TEXT_2)
+	eyebrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_scene_label(eyebrow, 2)
+	var title := _label_at(_title_panel, "Wares & Oddments", Rect2(0, 20, 870, 72), 50, UiPalette.GOLD_BRIGHT)
+	title.name = "ScavengerWaresTitle"
+	title.add_theme_font_override("font", UiTypography.display_font())
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.apply_label_role(title, UiTypography.ROLE_BANNER)
-	UiTypography.set_label_size(title, 48)
-	title.add_theme_color_override("font_color", Color("f1d39a"))
-	title.add_theme_color_override("font_outline_color", Color("1a0f09"))
-	title.add_theme_constant_override("outline_size", 5)
-	_title_panel.add_child(title)
+	_scene_label(title, 3)
 
-	_currency_panel = _panel()
+	_currency_panel = EmberChip.new()
 	_currency_panel.name = "ScavengerCurrencyPanel"
-	_place(_currency_panel, Rect2(1495.0, 38.0, 385.0, 72.0))
+	_currency_panel.call("setup", AssetLoader.load_texture("res://assets/art/icons/ember.png"), "0", "EMBERS")
+	_place(_currency_panel, Rect2(1650.0, 44.0, 194.0, 48.0))
 	_canvas.add_child(_currency_panel)
-	var currency_row := HBoxContainer.new()
-	currency_row.alignment = BoxContainer.ALIGNMENT_CENTER
-	currency_row.add_theme_constant_override("separation", 12)
-	_currency_panel.add_child(currency_row)
-	_currency_label = Label.new()
+	_currency_label = _currency_panel.get_node("Value") as Label
 	_currency_label.name = "ScavengerEmberCount"
-	_currency_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(_currency_label, 28)
-	_currency_label.add_theme_color_override("font_color", Color("f3c56f"))
-	currency_row.add_child(_currency_label)
 
 	_magic_group = _build_category_group("MAGIC", Rect2(SHELF_LEFT, 132.0, SHELF_WIDTH, 306.0))
 	_gear_group = _build_category_group("GEAR", Rect2(SHELF_LEFT, 404.0, SHELF_WIDTH, 252.0))
 	_item_group = _build_category_group("ITEMS", Rect2(SHELF_LEFT, 630.0, SHELF_WIDTH, 260.0))
-	_animated_groups = [_magic_group, _gear_group, _item_group]
+	_animated_groups.clear()
+	_animated_groups.append(_magic_group)
+	_animated_groups.append(_gear_group)
+	_animated_groups.append(_item_group)
 
 	_detail_panel = Control.new()
 	_detail_panel.name = "ScavengerDetailPanel"
@@ -407,8 +413,9 @@ func _build_static_scene() -> void:
 
 	_leave_button = _action("Leave")
 	_leave_button.name = "ScavengerLeaveButton"
-	_place(_leave_button, Rect2(1540.0, 950.0, 310.0, 70.0))
-	UiTypography.set_button_size(_leave_button, 30)
+	_leave_button.set("surface", "quiet")
+	_place(_leave_button, Rect2(1660.0, 966.0, 200.0, 52.0))
+	UiTypography.set_button_size(_leave_button, 22)
 	_leave_button.tooltip_text = "Close the shop and return to the room's doors."
 	_leave_button.pressed.connect(func() -> void: leave_requested.emit())
 	_canvas.add_child(_leave_button)
@@ -426,25 +433,30 @@ func _build_category_group(label_text: String, rect: Rect2) -> Control:
 	group.name = "%sShelf" % label_text.capitalize()
 	_place(group, rect)
 	_canvas.add_child(group)
-	var plaque := ShopPanel.new()
-	plaque.name = "%sPlaque" % label_text.capitalize()
-	_place(plaque, Rect2(-120.0, 0.0, 150.0, 44.0))
-	plaque.add_theme_stylebox_override("panel", _panel_insets())
-	group.add_child(plaque)
-	var label := Label.new()
-	label.text = label_text
+	var brush := TextureRect.new()
+	brush.name = "%sPlaque" % label_text.capitalize()
+	_place(brush, Rect2(-107.0, 47.0 if label_text == "MAGIC" else 61.0, 176.0, 46.0))
+	brush.texture = AssetLoader.load_texture("res://assets/art/ui/turn_order_ink/brush_b.png")
+	brush.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	brush.stretch_mode = TextureRect.STRETCH_SCALE
+	brush.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	brush.self_modulate = Color(0.47, 0.34, 0.20, 0.95)
+	brush.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	group.add_child(brush)
+	var label := _label_at(brush, label_text, Rect2(0, 0, 176, 46), 16, UiPalette.GOLD_BRIGHT)
+	UiTypography.apply_eyebrow(label, 16, UiPalette.GOLD_BRIGHT)
+	var tracked := FontVariation.new()
+	tracked.base_font = UiTypography.ui_font()
+	tracked.spacing_glyph = 3
+	label.add_theme_font_override("font", tracked)
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(label, 22)
-	label.add_theme_color_override("font_color", Color("efd39d"))
-	label.add_theme_color_override("font_outline_color", Color("180e08"))
-	label.add_theme_constant_override("outline_size", 3)
-	plaque.add_child(label)
+	_scene_label(label, 2)
 	var row := HBoxContainer.new()
 	row.name = "OfferRow"
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 0)
-	_place(row, Rect2(0.0, 38.0, rect.size.x, rect.size.y - 38.0))
+	var row_top: float = 14.0 if label_text == "MAGIC" else 62.0 if label_text == "GEAR" else 38.0
+	_place(row, Rect2(0.0, row_top, rect.size.x, rect.size.y - row_top))
 	group.add_child(row)
 	return group
 
@@ -547,55 +559,74 @@ func _build_dialogue_and_modes() -> void:
 	_dialogue_panel = _panel()
 	_set_panel_material(_dialogue_panel, "dialogue")
 	_dialogue_panel.name = "ScavengerDialogue"
-	_place(_dialogue_panel, Rect2(32, 744, 568, 278))
+	_place(_dialogue_panel, Rect2(44, 770, 520, 170))
 	_canvas.add_child(_dialogue_panel)
 	var content := Control.new()
 	_dialogue_panel.add_child(content)
-	_dialogue_title = _label_at(content, "THE SCAVENGER", Rect2(20, 4, 504, 46), 30)
-	_dialogue_words = _label_at(content, "", Rect2(20, 61, 504, 134), 25, Color("e4d8c0"))
+	_dialogue_title = _label_at(content, "THE SCAVENGER", Rect2(12, 0, 472, 24), 15, UiPalette.GOLD)
+	UiTypography.apply_eyebrow(_dialogue_title, 15, UiPalette.GOLD)
+	_scene_label(_dialogue_title, 2)
+	_dialogue_words = _label_at(content, "", Rect2(12, 28, 472, 110), 23, UiPalette.TEXT)
+	_scene_label(_dialogue_words, 2)
 	_dialogue_words.name = "ScavengerDialogueBody"
 	_dialogue_words.add_theme_font_override("font", UiTypography.text_font())
 	_dialogue_words.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_receipt_heading = _label_at(content, "", Rect2(20, 9, 260, 44), 27)
+	_receipt_heading = _label_at(content, "", Rect2(12, 0, 280, 32), 21)
 	_receipt_heading.name = "ScavengerReceiptHeading"
-	_receipt_amount = _label_at(content, "", Rect2(308, 9, 144, 44), 29)
+	_receipt_amount = _label_at(content, "", Rect2(310, 0, 120, 32), 26)
 	_receipt_amount.name = "ScavengerReceiptAmount"
 	_receipt_amount.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	_receipt_ember = TextureRect.new()
 	_receipt_ember.name = "ScavengerReceiptEmbers"
-	_place(_receipt_ember, Rect2(462, 13, 36, 36))
+	_place(_receipt_ember, Rect2(440, 0, 28, 28))
 	_receipt_ember.texture = ActionIcons.icon_texture("ember")
 	_receipt_ember.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_receipt_ember.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_receipt_ember.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(_receipt_ember)
 	_receipt_rule = HSeparator.new()
-	_place(_receipt_rule, Rect2(20, 62, 484, 1))
+	_place(_receipt_rule, Rect2(12, 34, 472, 1))
 	_receipt_rule.modulate = Color(0.8, 0.63, 0.37, 0.5)
 	content.add_child(_receipt_rule)
 	_receipt_visual = Control.new()
 	_receipt_visual.name = "ScavengerReceiptItem"
-	_place(_receipt_visual, Rect2(24, 78, 112, 152))
+	_place(_receipt_visual, Rect2(12, 40, 82, 100))
 	_receipt_visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(_receipt_visual)
-	_receipt_detail = _label_at(content, "", Rect2(162, 94, 336, 118), 28, Color("eee1c7"))
+	_receipt_detail = _label_at(content, "", Rect2(112, 44, 372, 92), 23, UiPalette.TEXT)
 	_receipt_detail.name = "ScavengerReceiptName"
 	_receipt_detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	for control: Control in [_receipt_heading, _receipt_detail, _receipt_amount, _receipt_visual, _receipt_ember, _receipt_rule]: control.hide()
+	var mode_plate := ShopPanel.new()
+	mode_plate.name = "ScavengerModeToggle"
+	mode_plate.surface = "action"
+	mode_plate.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
+	var mode_font_size: int = UiTypography.scaled_size(self, 22)
+	var mode_font: Font = UiTypography.ui_font()
+	var caption_width: float = maxf(mode_font.get_string_size("Browse wares", HORIZONTAL_ALIGNMENT_LEFT, -1, mode_font_size).x, mode_font.get_string_size("Sell from pack", HORIZONTAL_ALIGNMENT_LEFT, -1, mode_font_size).x)
+	# Both segments reserve the joined plate's 48px painted end caps.
+	var segment_width: float = maxf(UiTypography.scaled_value(self, 220.0), ceilf(caption_width) + UiTypography.scaled_value(self, ShopAction.SEGMENT_LABEL_INSET * 2.0))
+	_place(mode_plate, Rect2(676, 966, segment_width * 2.0, 52))
+	_canvas.add_child(mode_plate)
+	var segments := HBoxContainer.new()
+	segments.add_theme_constant_override("separation", 0)
+	mode_plate.add_child(segments)
 	_mode_buy = _action("Browse wares")
 	_mode_buy.name = "ScavengerBrowseMode"
-	_place(_mode_buy, Rect2(670, 950, 378, 70))
+	_mode_buy.set("surface", "segment")
+	_mode_buy.custom_minimum_size = Vector2(segment_width, 52)
 	_mode_buy.toggle_mode = true
-	UiTypography.set_button_size(_mode_buy, 25)
+	UiTypography.set_button_size(_mode_buy, 22)
 	_mode_buy.pressed.connect(_set_pack_mode.bind(false))
-	_canvas.add_child(_mode_buy)
+	segments.add_child(_mode_buy)
 	_mode_sell = _action("Sell from pack")
 	_mode_sell.name = "ScavengerSellMode"
-	_place(_mode_sell, Rect2(1065, 950, 378, 70))
+	_mode_sell.set("surface", "segment")
+	_mode_sell.custom_minimum_size = Vector2(segment_width, 52)
 	_mode_sell.toggle_mode = true
-	UiTypography.set_button_size(_mode_sell, 25)
+	UiTypography.set_button_size(_mode_sell, 22)
 	_mode_sell.pressed.connect(_set_pack_mode.bind(true))
-	_canvas.add_child(_mode_sell)
+	segments.add_child(_mode_sell)
 	_sync_dialogue()
 
 func show_dialogue(_dialogue: Dictionary) -> void:
@@ -604,7 +635,7 @@ func show_dialogue(_dialogue: Dictionary) -> void:
 
 func _sync_dialogue() -> void:
 	if _dialogue_words == null: return
-	_dialogue_words.text = "Cards, steel, little miracles in bottles. Spend your embers, or show me what you've brought to sell."
+	_dialogue_words.text = "“Cards, steel, little miracles in bottles. Spend your embers, or show me what you've brought to sell.”"
 
 
 func _set_pack_mode(selling: bool) -> void:
@@ -759,7 +790,7 @@ func _build_offer(item_id: String, kind: String) -> Control:
 func _build_magic_offer(item_id: String) -> Control:
 	var button := _shelf_offer_button()
 	button.name = "MagicOffer_%s" % item_id
-	button.custom_minimum_size = Vector2(196.0, 264.0)
+	button.custom_minimum_size = Vector2(196.0, 318.0)
 	_wire_offer_button(button, item_id, false)
 	var stack := VBoxContainer.new()
 	stack.name = "MagicOfferContent_%s" % item_id
@@ -768,11 +799,12 @@ func _build_magic_offer(item_id: String) -> Control:
 	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_add_centered_button_content(button, stack)
 	var center := CenterContainer.new()
+	center.name = "WareArt"
 	center.custom_minimum_size = OFFER_CARD_SIZE + Vector2(12.0, 8.0)
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_child(center)
 	_build_native_scaled_card(center, item_id, OFFER_CARD_SIZE, "MagicCard", false)
-	stack.add_child(_price_plaque(item_id, false))
+	stack.add_child(_price_tag(item_id, false))
 	_make_mouse_passive(stack)
 	_offer_sources["buy:%s" % item_id] = button
 	_selection_effects["buy:%s" % item_id] = button
@@ -790,6 +822,7 @@ func _build_icon_offer(item_id: String, kind: String, selling: bool) -> Control:
 	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_add_centered_button_content(button, stack)
 	var icon_center := CenterContainer.new()
+	icon_center.name = "WareArt"
 	icon_center.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	stack.add_child(icon_center)
 	var icon := TextureRect.new()
@@ -799,31 +832,18 @@ func _build_icon_offer(item_id: String, kind: String, selling: bool) -> Control:
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	icon_center.add_child(icon)
-	var caption_parent: Container = stack
-	if not selling:
-		var caption := _panel()
-		caption.custom_minimum_size = Vector2(178.0, 50.0)
-		stack.add_child(caption)
-		var caption_stack := VBoxContainer.new()
-		caption_stack.alignment = BoxContainer.ALIGNMENT_CENTER
-		caption_stack.add_theme_constant_override("separation", 0)
-		caption.add_child(caption_stack)
-		caption_parent = caption_stack
 	var name_label := Label.new()
+	name_label.name = "WareName"
 	name_label.text = _item_name(item_id)
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	name_label.custom_minimum_size = Vector2((SELL_TILE_SIZE.x if selling else 178.0) - 18.0, 22.0)
-	UiTypography.set_label_size(name_label, 16)
-	name_label.add_theme_color_override("font_color", Color("f0d8ad"))
-	caption_parent.add_child(name_label)
-	var amount: int = int(_run_engine.call("merchant_sell_value", MERCHANT_KIND, item_id) if selling else _run_engine.call("merchant_buy_cost", MERCHANT_KIND, item_id))
-	var price := Label.new()
-	price.text = "+%d EMBERS" % amount if selling else "%d EMBERS" % amount
-	price.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(price, 15)
-	price.add_theme_color_override("font_color", Color("9cdb96") if selling else Color("f2bd65"))
-	caption_parent.add_child(price)
+	name_label.custom_minimum_size = Vector2((SELL_TILE_SIZE.x if selling else OFFER_TILE_SIZE.x) - 18.0, 24.0)
+	name_label.add_theme_font_override("font", UiTypography.ui_font())
+	UiTypography.set_label_size(name_label, 17)
+	name_label.add_theme_color_override("font_color", UiPalette.TEXT)
+	_scene_label(name_label, 2)
+	stack.add_child(name_label)
+	stack.add_child(_price_tag(item_id, selling))
 	_make_mouse_passive(stack)
 	var key: String = "%s:%s" % ["sell" if selling else "buy", item_id]
 	_offer_sources[key] = button
@@ -849,18 +869,12 @@ func _build_sell_magic_offer(item_id: String) -> Control:
 	stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_add_centered_button_content(button, stack)
 	var center := CenterContainer.new()
-	center.custom_minimum_size = Vector2(122.0, 150.0)
+	center.name = "WareArt"
+	center.custom_minimum_size = Vector2(122.0, 140.0)
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	stack.add_child(center)
 	_build_native_scaled_card(center, item_id, Vector2(100.0, 140.0), "SellMagicCard", false)
-	var value := Label.new()
-	value.text = "+%d EMBERS" % int(_run_engine.call("merchant_sell_value", MERCHANT_KIND, item_id))
-	value.custom_minimum_size = Vector2(SELL_TILE_SIZE.x, 24.0)
-	value.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(value, 15)
-	value.add_theme_color_override("font_color", Color("9cdb96"))
-	stack.add_child(value)
+	stack.add_child(_price_tag(item_id, true))
 	_make_mouse_passive(stack)
 	_offer_sources["sell:%s" % item_id] = button
 	_selection_effects["sell:%s" % item_id] = button
@@ -922,20 +936,15 @@ func _add_centered_button_content(button: Button, content: Control) -> void:
 	button.add_child(center)
 	center.add_child(content)
 
-func _price_plaque(item_id: String, selling: bool) -> Control:
-	var plaque := ShopPanel.new()
-	plaque.custom_minimum_size = Vector2(126.0, 34.0)
-	var cost: int = int(_run_engine.call("merchant_sell_value", MERCHANT_KIND, item_id) if selling else _run_engine.call("merchant_buy_cost", MERCHANT_KIND, item_id))
-	var affordable: bool = _offer_is_affordable(item_id, selling)
-	plaque.add_theme_stylebox_override("panel", _panel_insets())
-	var label := Label.new()
-	label.text = "%d EMBERS" % cost
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.set_label_size(label, 15)
-	label.add_theme_color_override("font_color", Color("f0bd65") if affordable else Color("9d9488"))
-	plaque.add_child(label)
-	return plaque
+func _price_tag(item_id: String, selling: bool) -> Control:
+	var tag := PriceTag.new()
+	tag.name = "ScavengerPriceTag"
+	tag.custom_minimum_size = Vector2(118.0, 60.0)
+	tag.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	tag.amount = int(_run_engine.call("merchant_sell_value" if selling else "merchant_buy_cost", MERCHANT_KIND, item_id))
+	tag.selling = selling
+	tag.affordable = _offer_is_affordable(item_id, selling)
+	return tag
 
 func _offer_is_affordable(item_id: String, selling: bool) -> bool:
 	if selling or _run_engine == null:
@@ -1020,13 +1029,17 @@ func _update_selection_effects() -> void:
 		var base_tint := Color.WHITE if affordable else Color(0.48, 0.48, 0.48, 0.86)
 		var selected_tint := Color("fff1c2") if affordable else Color(0.60, 0.56, 0.48, 0.92)
 		if control is Ware: control.set("chosen", key == selected_key)
-		control.modulate = selected_tint if key == selected_key else base_tint
+		control.modulate = selected_tint if affordable and key == selected_key else Color.WHITE
+		control.self_modulate = Color.WHITE if affordable else selected_tint if key == selected_key else base_tint
+		var art: Control = control.find_child("WareArt", true, false) as Control
+		if art != null:
+			art.modulate = Color.WHITE if affordable else selected_tint if key == selected_key else base_tint
 		if source != null and source != control:
-			source.modulate = selected_tint if key == selected_key else base_tint
+			source.modulate = control.modulate
 
 func _sync_currency() -> void:
 	if _currency_label != null:
-		_currency_label.text = "EMBERS  %d" % int(_run_state.get("held_embers", 0))
+		_currency_panel.call("setup", AssetLoader.load_texture("res://assets/art/icons/ember.png"), str(int(_run_state.get("held_embers", 0))), "EMBERS")
 
 func _sync_detail() -> void:
 	if _detail_title == null:
@@ -1320,8 +1333,8 @@ func _set_panel_material(panel: PanelContainer, surface: String) -> void:
 	panel.set("surface", surface)
 
 func _shade_ui_labels(node: Node) -> void:
-	if node is CardWidget or node is ShopAction: return
-	if node is Label:
+	if node is CardWidget or node is ShopAction or node is PriceTag or node is EmberChip: return
+	if node is Label and not node.has_meta("scene_label"):
 		var label: Label = node as Label
 		var original_color: Color = label.get_theme_color("font_color")
 		Materials.shade(label, label.get_theme_font_size("font_size"), maxf(label.size.y, label.custom_minimum_size.y))
@@ -1330,3 +1343,12 @@ func _shade_ui_labels(node: Node) -> void:
 			label.add_theme_font_override("font", UiTypography.text_font())
 			label.material = null
 	for child: Node in node.get_children(): _shade_ui_labels(child)
+
+func _scene_label(label: Label, shadow_size: int) -> void:
+	label.set_meta("scene_label", true)
+	label.material = null
+	label.add_theme_color_override("font_outline_color", Color.TRANSPARENT)
+	label.add_theme_constant_override("outline_size", 0)
+	label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.95))
+	label.add_theme_constant_override("shadow_offset_y", UiTypography.scaled_size(label, shadow_size))
+	label.add_theme_constant_override("shadow_outline_size", UiTypography.scaled_size(label, shadow_size))

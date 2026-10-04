@@ -4,6 +4,8 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const ProbeSettings = preload("res://scripts/settings_store.gd")
+const StatChip = preload("res://scripts/ui_stat_chip.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 
 const OUTPUT_DIR := "user://scavenger_shop_probe"
@@ -11,22 +13,33 @@ const VIEWPORT_SIZE := Vector2i(1920, 1080)
 const SHELF_CENTER_X: Array[float] = [815.0, 1075.0, 1335.0]
 
 var _failed: bool = false
+var _probe_viewport: SubViewport
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	root.mode = Window.MODE_WINDOWED
 	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
 	root.content_scale_size = VIEWPORT_SIZE
 	root.size = VIEWPORT_SIZE
+	ProbeSettings.set_storage_path("user://scavenger_shop_probe_settings.json")
+	var settings: Dictionary = ProbeSettings.default_settings()
+	settings["display_mode"] = ProbeSettings.DISPLAY_WINDOWED
+	settings["ui_scale"] = 1.0
+	ProbeSettings.save_settings(settings)
+	_probe_viewport = SubViewport.new()
+	_probe_viewport.size = VIEWPORT_SIZE
+	_probe_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(_probe_viewport)
 	await process_frame
 	await process_frame
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	_clear_output()
 	ProgressionStore.set_storage_path("user://labyrinth_progression_scavenger_shop_probe.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_scavenger_shop_probe.save")
 	ProgressionStore.clear_saved_run()
 	await _capture_states()
 	print(ProjectSettings.globalize_path(OUTPUT_DIR))
+	print("SCAVENGER SHOP PROBE: %s" % ("FAIL" if _failed else "PASS"))
 	quit(1 if _failed else 0)
 
 func _capture_states() -> void:
@@ -35,7 +48,7 @@ func _capture_states() -> void:
 		_fail("Run scene should load for the Scavenger shop probe")
 		return
 	var instance: Node = packed.instantiate()
-	root.add_child(instance)
+	_probe_viewport.add_child(instance)
 	await _settle()
 	var run_engine := RunEngine.new()
 	var state: Dictionary = _scavenger_state(run_engine)
@@ -48,8 +61,8 @@ func _capture_states() -> void:
 		_fail("Scavenger shop should be the live merchant surface")
 		return
 	var snapshot: Dictionary = shop.call("semantic_snapshot")
-	if str(snapshot.get("title", "")) != "Scavenger's Wares":
-		_fail("Shop title should be Scavenger's Wares")
+	if str(snapshot.get("title", "")) != "Wares & Oddments":
+		_fail("Shop title should be Wares & Oddments")
 	var categories: Dictionary = snapshot.get("categories", {}) as Dictionary
 	for category: String in ["magic", "gear", "item"]:
 		if int(categories.get(category, 0)) != RunEngine.MERCHANT_OFFERS_PER_CATEGORY:
@@ -60,10 +73,10 @@ func _capture_states() -> void:
 		_fail("Hold For Next Visit should be absent from the Scavenger interface and signal flow")
 	var currency_panel: Control = shop.find_child("ScavengerCurrencyPanel", true, false) as Control
 	var currency_label: Label = shop.find_child("ScavengerEmberCount", true, false) as Label
-	if currency_panel == null or currency_label == null or currency_label.text != "EMBERS  720":
-		_fail("The header should show the held-ember total as text only")
-	elif not currency_panel.find_children("*", "TextureRect", true, false).is_empty():
-		_fail("The held-ember header should not use an unrelated resource icon")
+	if not currency_panel is StatChip or currency_label == null or currency_label.text != "720":
+		_fail("The ember stat chip should show the held total")
+	elif (currency_panel.get_node("Caption") as Label).text != "EMBERS" or currency_label.get_theme_font_size("font_size") != 26:
+		_fail("The ember stat chip should keep its caption and 26px value")
 	var sell_next: Button = shop.find_child("SellNextPage", true, false) as Button
 	if sell_next == null:
 		_fail("A full probe pack should expose an enabled next-page affordance")
@@ -98,7 +111,7 @@ func _capture_states() -> void:
 		_assert_unified_offer(controller_offer, controller_offer_id, run_engine, true)
 		controller_offer.grab_focus()
 		await _settle()
-		if root.gui_get_focus_owner() != controller_offer:
+		if _probe_viewport.gui_get_focus_owner() != controller_offer:
 			_fail("Controller focus should remain on the selected shelf offer")
 		var controller_snapshot: Dictionary = shop.call("semantic_snapshot")
 		if str(controller_snapshot.get("selected_item_id", "")) != controller_offer_id:
@@ -184,7 +197,7 @@ func _capture_states() -> void:
 		var post_purchase_snapshot: Dictionary = shop.call("semantic_snapshot")
 		if str(post_purchase_snapshot.get("selected_item_id", "")) == purchase_offer_id:
 			_fail("Purchased wares should clear from the detail panel after the shelf restocks")
-		var recovered_focus: Control = root.gui_get_focus_owner()
+		var recovered_focus: Control = _probe_viewport.gui_get_focus_owner()
 		if recovered_focus == null or not shop.is_ancestor_of(recovered_focus) or not recovered_focus.is_visible_in_tree():
 			_fail("A completed purchase should recover controller focus inside the rebuilt shop")
 		await _save("post_purchase.png")
@@ -201,7 +214,7 @@ func _capture_states() -> void:
 	shop.call("configure", state, run_engine, false)
 	await _settle()
 	var expensive_source: Control = _offer_source(shop, expensive_id, false)
-	if expensive_source == null or bool(expensive_source.get_meta("shop_affordable", true)) or expensive_source.modulate.is_equal_approx(Color.WHITE):
+	if expensive_source == null or bool(expensive_source.get_meta("shop_affordable", true)) or (expensive_source.find_child("WareArt", true, false) as Control).modulate.is_equal_approx(Color.WHITE):
 		_fail("Unaffordable shelf offers should be visibly dim before selection")
 	shop.call("_select_item", expensive_id, false, expensive_source)
 	await _settle()
@@ -264,7 +277,7 @@ func _capture_states() -> void:
 	state = instance.get("_run_state") as Dictionary
 	if run_engine.held_embers(state) <= before_embers:
 		_fail("Selling should increase held embers")
-	var sale_focus: Control = root.gui_get_focus_owner()
+	var sale_focus: Control = _probe_viewport.gui_get_focus_owner()
 	if sale_focus == null or not shop.is_ancestor_of(sale_focus) or not sale_focus.is_visible_in_tree():
 		_fail("A completed sale should recover controller focus inside the rebuilt shop")
 	await _save("post_sale.png")
@@ -420,7 +433,7 @@ func _navigate_controller_to(scope: Control, target: Control, context: String) -
 	if scope == null or target == null:
 		_fail("%s should have a valid focus scope and target" % context)
 		return
-	var start: Control = root.gui_get_focus_owner()
+	var start: Control = _probe_viewport.gui_get_focus_owner()
 	if start == target:
 		return
 	if start == null or not (start == scope or scope.is_ancestor_of(start)):
@@ -455,7 +468,7 @@ func _navigate_controller_to(scope: Control, target: Control, context: String) -
 		return
 	for button_index_var: Variant in target_route:
 		await _press_controller_button(int(button_index_var))
-	if root.gui_get_focus_owner() != target:
+	if _probe_viewport.gui_get_focus_owner() != target:
 		_fail("%s should land on %s through real D-pad input" % [context, target.name])
 
 func _controller_focus_edges() -> Array[Dictionary]:
@@ -471,21 +484,21 @@ func _press_controller_button(button_index: int) -> void:
 	press.button_index = button_index
 	press.pressed = true
 	press.device = 0
-	root.push_input(press, true)
+	_probe_viewport.push_input(press, true)
 	await process_frame
 	await process_frame
 	var release := InputEventJoypadButton.new()
 	release.button_index = button_index
 	release.pressed = false
 	release.device = 0
-	root.push_input(release, true)
+	_probe_viewport.push_input(release, true)
 	await process_frame
 
 func _assert_unified_offer(source: Control, item_id: String, run_engine: RunEngine, expect_card: bool) -> void:
 	if not (source is Button) or source.focus_mode != Control.FOCUS_ALL:
 		_fail("%s should use one controller-focusable outer offer button" % item_id)
 		return
-	var expected_price: String = "%d EMBERS" % run_engine.merchant_buy_cost(RunEngine.MERCHANT_SCAVENGER, item_id)
+	var expected_price: String = "%d" % run_engine.merchant_buy_cost(RunEngine.MERCHANT_SCAVENGER, item_id)
 	var price_label: Label = _descendant_label_with_text(source, expected_price)
 	if price_label == null:
 		_fail("%s should keep its ember price inside the same offer wrapper" % item_id)
@@ -532,10 +545,13 @@ func _settle() -> void:
 	await process_frame
 
 func _save(filename: String) -> void:
-	var image: Image = root.get_viewport().get_texture().get_image()
-	if image.get_size() != VIEWPORT_SIZE:
-		image.resize(VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, Image.INTERPOLATE_LANCZOS)
-	image.save_png("%s/%s" % [OUTPUT_DIR, filename])
+	await RenderingServer.frame_post_draw
+	var image: Image = _probe_viewport.get_texture().get_image()
+	if image == null or image.get_size() != VIEWPORT_SIZE:
+		_fail("Proof must render natively into a 1920x1080 SubViewport")
+		return
+	if image.save_png("%s/%s" % [OUTPUT_DIR, filename]) != OK:
+		_fail("Screenshot should save: " + filename)
 
 func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]

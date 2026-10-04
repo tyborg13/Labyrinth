@@ -64,6 +64,12 @@ func _capture_states() -> void:
 	await _mouse_button(sell_mode, false)
 	_check(bool((_shop.call("semantic_snapshot") as Dictionary)["pack_mode"]), "Mode click opens pack grid")
 	await _save("04_pack.png")
+	for filter_name: String in ["magic", "item", "all"]:
+		await _click(_shop.find_child("PackFilter_" + filter_name, true, false) as Control)
+		_check(str((_shop.call("semantic_snapshot") as Dictionary)["pack_filter"]) == filter_name, "Pack filter follows native input: " + filter_name)
+		for id: Variant in _shop.get("_sellable_ids") as Array:
+			_check(filter_name == "all" or engine.merchant_item_kind(str(id)) == filter_name, "Pack filter contains only matching wares: " + filter_name)
+		await _save("04_pack_" + filter_name + ".png")
 	await _click(_shop.find_child("PackFilter_gear", true, false) as Control)
 	_check(str((_shop.call("semantic_snapshot") as Dictionary)["pack_filter"]) == "gear", "Gear filter selected through pointer input")
 	for id: Variant in _shop.get("_sellable_ids") as Array:
@@ -198,7 +204,7 @@ func _save(filename: String) -> void:
 		_check(Rect2(46, 588, 328, 78).encloses(Rect2(action.position, action.size)), "Trade action stays above the lower frame ornament")
 		_check(_shop.find_child("ScavengerDetailKind", true, false) == null and _shop.find_child("ScavengerDetailPrice", true, false) == null, "Inspection omits redundant category, rarity and ownership copy")
 	_check(_viewport.get_texture().get_image().get_size() == VIEWPORT_SIZE, "Proof is exactly 1920x1080")
-	_viewport.get_texture().get_image().save_png(ProjectSettings.globalize_path(GLOW_OUTPUT.path_join(filename)))
+	_check(_viewport.get_texture().get_image().save_png(ProjectSettings.globalize_path(GLOW_OUTPUT.path_join(filename))) == OK, "Screenshot saves: " + filename)
 
 func _check_bounds(node: Node) -> void:
 	if node == null or (node is Control and not (node as Control).is_visible_in_tree()): return

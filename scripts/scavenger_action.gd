@@ -3,6 +3,9 @@ extends Button
 ## Native actions with the Scavenger's own leather strap and brass, shaded type.
 const ButtonFeedback = preload("res://scripts/ui_button_feedback.gd")
 const Materials = preload("res://scripts/scavenger_materials.gd")
+const Palette = preload("res://scripts/ui_palette.gd")
+const Typography = preload("res://scripts/ui_typography.gd")
+const SEGMENT_LABEL_INSET: float = 48.0
 var surface: String = "action"
 var reduced_motion: bool = false
 var _label: Label
@@ -41,13 +44,14 @@ func _active() -> bool:
 func _process(delta: float) -> void:
 	if not is_visible_in_tree(): return
 	var active: bool = _active()
-	_lift = 0.0 if reduced_motion else lerpf(_lift, -2.0 if _held else 4.0 if active else 0.0, minf(delta * 24, 1))
+	var raised: bool = surface == "segment" and button_pressed
+	_lift = (2.0 if raised else 0.0) if reduced_motion else lerpf(_lift, -2.0 if _held else 4.0 if active else 2.0 if raised else 0.0, minf(delta * 24, 1))
 	var font_size: int = get_theme_font_size("font_size")
 	if _last_text != text or _last_size != size or _last_font != font_size:
 		_last_text = text
 		_last_size = size
 		_last_font = font_size
-		var inset: float = 9.0 if size.x < 100 else 38.0 if surface == "action" else 15.0
+		var inset: float = 9.0 if size.x < 100 else 38.0 if surface == "action" else Typography.scaled_value(self, SEGMENT_LABEL_INSET) if surface == "segment" else 15.0
 		_label.position = Vector2(inset, 7)
 		_label.size = Vector2(size.x - inset * 2, size.y - 14)
 		Materials.shade(_label, font_size, _label.size.y)
@@ -68,6 +72,12 @@ func _draw() -> void:
 		glow.shadow_size = 12
 		glow.set_corner_radius_all(10)
 		draw_style_box(glow, rect.grow(-9))
-	Materials.paint(self, "tray" if size.x < 100 else surface, rect, Color(0.70, 0.62, 0.5) if _held else Color(1.25, 1.12, 0.93) if active else Color(1, 1, 1, 0.42 if disabled else 1.0))
+	if surface == "segment":
+		if selected or active or _held:
+			Materials.paint(self, "dialogue", rect, Color(0.70, 0.62, 0.5) if _held else Color(1.25, 1.04, 0.74) if selected else Color(1.1, 1.03, 0.9))
+	elif surface == "quiet":
+		Materials.paint(self, "dialogue", rect, Color(1.05, 1.0, 0.9) if active else Color(0.75, 0.72, 0.65))
+	else:
+		Materials.paint(self, "tray" if size.x < 100 else surface, rect, Color(0.70, 0.62, 0.5) if _held else Color(1.25, 1.12, 0.93) if active else Color(1, 1, 1, 0.42 if disabled else 1.0))
 	if selected:
-		draw_line(Vector2(size.x * 0.28, size.y - 8), Vector2(size.x * 0.72, size.y - 8), Color("f0c774"), 2.0, true)
+		draw_line(Vector2(size.x * 0.12, size.y - 5), Vector2(size.x * 0.88, size.y - 5), Palette.EMBER, 2.0, true)

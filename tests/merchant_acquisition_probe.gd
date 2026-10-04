@@ -8,6 +8,7 @@ var _purchase_viewport: SubViewport
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(PURCHASE_OUTPUT))
 	ProgressionStore.set_storage_path("user://merchant_acquisition_probe/progression.json")
 	ProgressionStore.set_run_storage_path("user://merchant_acquisition_probe/run.save")
 	SettingsStore.set_storage_path("user://merchant_acquisition_probe/settings.json")
@@ -20,7 +21,6 @@ func _initialize() -> void:
 	root.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
 	root.content_scale_size = VIEWPORT_SIZE
 	root.size = VIEWPORT_SIZE
-	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(PURCHASE_OUTPUT))
 	await _capture_states()
 	print(ProjectSettings.globalize_path(PURCHASE_OUTPUT))
 	print("TEST RESULT: %s" % ("FAIL" if _failed else "PASS"))
@@ -58,7 +58,7 @@ func _capture_states() -> void:
 	_assert(_sound_generations(instance) == sound_before + 1, "Successful purchase plays one reward cue")
 	_assert(_last_sound_is_reward(instance), "Purchase uses the production reward accepted cue")
 	var currency: Label = shop.get("_currency_label") as Label
-	_assert(currency.text == "EMBERS  %d" % int(after["held_embers"]), "Currency reflects ownership before fanfare ends")
+	_assert(currency.text == "%d" % int(after["held_embers"]), "Currency reflects ownership before fanfare ends")
 	await create_timer(0.16).timeout
 	await _save("02_magic_lift.png")
 	# Rebuild the entire UI during lift. The owned receipt must survive.
