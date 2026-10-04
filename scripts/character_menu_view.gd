@@ -319,6 +319,8 @@ static func deck_card_id(card_id: String) -> String:
 	return card_id
 
 static func sync_tile(tile: PanelContainer, focused: bool, selected: bool = false) -> void:
+	# A pointer click gives a socket hidden focus; only keyboard/controller focus lights it.
+	focused = focused and (tile.has_focus(true) or not tile.has_meta("character_socket"))
 	var active: bool = focused or bool(tile.get_meta("character_hovered", false)) or bool(tile.get_meta("character_swap_target", false))
 	var feedback: Control = tile.get_node_or_null("CharacterTileFeedback") as Control
 	if feedback != null:
