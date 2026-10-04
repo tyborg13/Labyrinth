@@ -10,8 +10,7 @@ const TempoRelicRules = preload("res://scripts/tempo_relic_rules.gd")
 
 static func apply_badge_state(socket: Button, relic_id: String, definition: Dictionary, combat_state: Dictionary) -> void:
 	var icon: CanvasItem = socket.get_node_or_null("Icon") as CanvasItem
-	var relic_ids: Array[String] = [relic_id]
-	for effect: Dictionary in GameData.relic_effects_for_ids(relic_ids):
+	for effect: Dictionary in GameData.relic_effects_for_ids([relic_id]):
 		if str(effect.get("type", "")) == "unused_play_extra_turn" and TempoRelicRules.used(combat_state, effect):
 			if icon != null:
 				icon.modulate.a = 0.45

@@ -36,7 +36,6 @@ var inspect_only: bool = false:
 		button_mask = 0 if value else MOUSE_BUTTON_MASK_LEFT
 		set_meta("cursor_feedback_context", "help" if value else "action" if interactive else "inert")
 		set_meta("hud_inspect_only", value)
-		set_process_input(value)
 		queue_redraw()
 var dimmed: bool = false:
 	set(value):
@@ -70,7 +69,6 @@ var _source_icon: Texture2D
 
 func _init() -> void:
 	Surface.clear_button_style(self)
-	set_process_input(false)
 	focus_mode = Control.FOCUS_ALL
 	size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -101,11 +99,10 @@ func _init() -> void:
 func _ready() -> void:
 	_layout()
 	update_minimum_size()
-	set_process_input(inspect_only)
 
-func _input(event: InputEvent) -> void:
-	if inspect_only and has_focus() and event.is_action("ui_accept"):
-		get_viewport().set_input_as_handled()
+func _gui_input(event: InputEvent) -> void:
+	if inspect_only and event.is_action("ui_accept"):
+		accept_event()
 
 func _socket_active() -> bool:
 	return interactive and not disabled and (is_hovered() or has_focus())

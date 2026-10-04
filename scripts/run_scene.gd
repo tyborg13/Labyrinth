@@ -10656,9 +10656,6 @@ func _relic_knots_tooltip(effect: Dictionary, tied: Array) -> String:
 func _apply_relic_badge_state(badge: Button, relic_id: String, relic: Dictionary) -> void:
 	CombatHudRelics.apply_badge_state(badge, relic_id, relic, _combat_state)
 
-func _relic_element_names(elements: Array, surfaces: bool = false) -> String:
-	return CombatHudRelics.element_names(elements, surfaces)
-
 func _build_active_rite_badge(entry: Dictionary, rite_index: int) -> Control:
 	var card: Dictionary = GameData.card_def(str(entry.get("card_id", "")))
 	var art_path: String = str(card.get("art_path", ""))
