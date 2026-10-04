@@ -1,0 +1,14 @@
+{
+  "source": "spec/assets/visual_pass_4/sources/medallion_ring.png",
+  "size": [
+    256,
+    256
+  ],
+  "center": [
+    128.0,
+    128.0
+  ],
+  "outer_radius": 125.75,
+  "inner_radius": 98.5,
+  "alpha_threshold": 127
+}

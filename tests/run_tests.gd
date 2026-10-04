@@ -390,6 +390,7 @@ func _initialize() -> void:
 	_test_default_theme_uses_readable_text_font()
 	_test_ui_typography_system()
 	await _test_main_scenes_instantiate()
+	await preload("res://tests/suites/ui_components_suite.gd").run(self, Callable(self, "_assert"))
 	_suppress_guided_tutorial_for_legacy_live_scene_tests()
 	await EmberRewardFeedbackSuite.run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/dragon_exchange_presentation_suite.gd").run_live(self, Callable(self, "_assert"))

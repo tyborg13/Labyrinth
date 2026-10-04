@@ -43,15 +43,19 @@ tokens. Fonts are `UiTypography.ui_font()` / `apply_eyebrow()`.
    - **Ring:** draws the approved medallion ring texture scaled to the control.
    - **Inside the ring:**
      - A radial fill from `INK_3` (centre, offset up-left) to `INK_0`.
-     - The icon centred, filling 68 % of the ring opening. Pixel-art icons use
-       nearest filtering; the ring uses linear-with-mipmaps.
+     - The icon centred, filling 92 % of the measured ring opening using the
+       JSON's inner/outer radius ratio. Cache runtime ring geometry and crop
+       pixel-art icons to their opaque bounds once per texture. Pixel-art icons
+       use nearest filtering; the ring uses linear-with-mipmaps.
    - **States:**
-     - *hover/focus:* the ring is modulated 1.25× brighter, with a soft `EMBER`
-       glow behind it (alpha 0.35).
+     - *normal:* `ring_tint` defaults to `Color(1.14, 1.06, 0.96, 1)` (the v2 ring art is already dark antique bronze).
+     - *hover/focus:* the ring tint is `Color(1.5, 1.36, 1.12, 1)`, with a
+       soft `EMBER` glow behind it (alpha 0.55).
      - *selected:* adds a 2 px `GOLD_BRIGHT` inner ring.
      - *empty:* no icon; the ring is drawn at 45 % alpha with a faint dashed
        inner circle.
-     - *disabled:* the icon is desaturated to 35 %.
+     - *disabled:* the ring tint is `Color(0.72, 0.68, 0.62, 1)` and the icon
+       is desaturated to 35 %.
    - **Badge:** an optional bottom-right badge (a small rounded pill: `INK_2`
      fill, 1 px `GOLD` border, UI 13 px `GOLD_BRIGHT` text) for charges/counts.
    - **API:** `setup(icon: Texture2D, tooltip := "", badge := "")`, a `pressed`
@@ -65,7 +69,7 @@ tokens. Fonts are `UiTypography.ui_font()` / `apply_eyebrow()`.
    - A 30 px socket at the left (reuse `ui_socket.gd`, non-interactive) holding
      an icon.
    - A value label (UI 22, colour param, default `GOLD_BRIGHT`), then the
-     letter-spaced caption (13, `TEXT_2`).
+     letter-spaced caption (13, `TEXT_2`) on the same baseline.
    - API: `setup(icon, value_text, caption, value_color := GOLD_BRIGHT)`.
 
 4. **`ui_card_strip.gd`** (Button-based, height 30, width from container):
@@ -96,8 +100,9 @@ tokens. Fonts are `UiTypography.ui_font()` / `apply_eyebrow()`.
 
 ## Proof
 
-- `tests/ui_components_gallery_probe.gd`: a real-renderer 1920×1080 gallery
-  screenshot on the warm `INK_0` backdrop showing:
+- `tests/ui_components_gallery_probe.gd`: six real-renderer captures from a
+  fixed 1920×1080 SubViewport (never the root window texture), showing a gallery
+  on the warm `INK_0` backdrop with:
   - every component and every state (normal, hover, focus, selected, empty,
     disabled);
   - sockets at 30, 50 and 62 px;
