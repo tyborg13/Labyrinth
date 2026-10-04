@@ -3,7 +3,6 @@ extends Button
 # setup(icon, tooltip = "", badge = ""); native pressed/focus/activation.
 # socket_size is in layout pixels. Set interactive=false for display-only use,
 # selected for the inner gilt ring, and icon_filter for non-pixel-art icons.
-# inspect_only keeps help focus without activation; dimmed changes appearance only.
 const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const Surface = preload("res://scripts/ui_component_surface.gd")
@@ -23,24 +22,9 @@ var socket_size: float = 50.0:
 var interactive: bool = true:
 	set(value):
 		interactive = value
-		focus_mode = Control.FOCUS_ALL if value or inspect_only else Control.FOCUS_NONE
-		mouse_filter = Control.MOUSE_FILTER_STOP if value or inspect_only else Control.MOUSE_FILTER_IGNORE
-		set_meta("cursor_feedback_context", "help" if inspect_only else "action" if value else "inert")
-		queue_redraw()
-var inspect_only: bool = false:
-	set(value):
-		inspect_only = value
-		focus_mode = Control.FOCUS_ALL if value or interactive else Control.FOCUS_NONE
-		mouse_filter = Control.MOUSE_FILTER_STOP if value or interactive else Control.MOUSE_FILTER_IGNORE
-		mouse_default_cursor_shape = Control.CURSOR_HELP if value else Control.CURSOR_POINTING_HAND
-		button_mask = 0 if value else MOUSE_BUTTON_MASK_LEFT
-		set_meta("cursor_feedback_context", "help" if value else "action" if interactive else "inert")
-		set_meta("hud_inspect_only", value)
-		queue_redraw()
-var dimmed: bool = false:
-	set(value):
-		dimmed = value
-		_update_icon_material()
+		focus_mode = Control.FOCUS_ALL if value else Control.FOCUS_NONE
+		mouse_filter = Control.MOUSE_FILTER_STOP if value else Control.MOUSE_FILTER_IGNORE
+		set_meta("cursor_feedback_context", "action" if value else "inert")
 		queue_redraw()
 var selected: bool = false:
 	set(value):
@@ -96,19 +80,12 @@ func _ready() -> void:
 	_layout()
 	update_minimum_size()
 
-func _gui_input(event: InputEvent) -> void:
-	if inspect_only and event.is_action("ui_accept"):
-		accept_event()
-
 func _socket_active() -> bool:
 	return interactive and not disabled and (is_hovered() or has_focus())
 
-func _socket_dimmed() -> bool:
-	return dimmed or disabled
-
 func _update_icon_material() -> void:
 	if _icon != null:
-		_icon.material = Surface.socket_material(0.35 if _socket_dimmed() else 1.0)
+		_icon.material = Surface.socket_material(0.35 if disabled else 1.0)
 
 func setup(icon: Texture2D, tooltip: String = "", badge: String = "") -> void:
 	_source_icon = icon
@@ -181,7 +158,7 @@ func _draw() -> void:
 		var glow_radius: float = _ring_radius(rect, "outer_radius") + Typography.scaled_value(self, 7.0)
 		draw_texture_rect(_glow, Rect2(center - Vector2.ONE * glow_radius, Vector2.ONE * glow_radius * 2.0), false)
 	draw_texture_rect(Surface.socket_fill(), Rect2(center - Vector2.ONE * radius, Vector2.ONE * radius * 2.0), false)
-	_ring.modulate = DISABLED_RING_TINT if _socket_dimmed() else (ACTIVE_RING_TINT if active else ring_tint)
+	_ring.modulate = DISABLED_RING_TINT if disabled else (ACTIVE_RING_TINT if active else ring_tint)
 	if _icon.texture == null:
 		_ring.modulate.a *= 0.45
 		for index: int in range(16):

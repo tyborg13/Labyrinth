@@ -222,7 +222,8 @@ func _assert_relics(instance: Node, expected_count: int = 7) -> void:
 	var rarities: Dictionary = {}
 	for index: int in range(grid.get_child_count()):
 		var frame := grid.get_child(index) as PanelContainer
-		_expect(frame != null and frame.size == Vector2(48, 48), "Every badge uses master's 48px tooltip frame")
+		_expect(frame != null and frame.size == Vector2(52, 52), "Every badge uses master's 52px tooltip frame")
+		_expect((frame.get_meta(Background.TEXTURE_META) as Texture2D).get_size() == frame.size, "Cached velvet backgrounds must match each 52px badge's dimensions")
 		var style := frame.get_theme_stylebox("panel") as StyleBoxFlat
 		_expect(style.border_width_left == 2 and style.corner_radius_top_left == 10 and style.shadow_size == 4, "Badge borders, corners and shadows retain master's exact geometry")
 		_expect(not frame.tooltip_text.is_empty() and frame.focus_mode == Control.FOCUS_ALL and frame.mouse_default_cursor_shape == Control.CURSOR_HELP, "Badge inspection retains its tooltip, focus and help cursor")
@@ -244,6 +245,11 @@ func _assert_relics(instance: Node, expected_count: int = 7) -> void:
 	var first: Control = grid.get_child(0) as Control
 	var second: Control = grid.get_child(1) as Control
 	_expect(first.get_meta(Background.TEXTURE_META) == second.get_meta(Background.TEXTURE_META), "Badge background textures must be shared per accent and scale")
+	var defiance := instance.get("_defiance_badge") as Control
+	_expect(defiance.custom_minimum_size == Vector2(52, 52), "Defiance retains master's 52px minimum alongside the ability chip")
+	_expect((defiance.get_meta(Background.TEXTURE_META) as Texture2D).get_size() == defiance.size, "Defiance's cached velvet background must follow its container height")
+	var divider := instance.find_child("DefianceUtilityDivider", true, false) as Control
+	_expect(divider != null and divider.custom_minimum_size == Vector2(2, 40), "The header utility divider retains master's badge-relative height")
 	var sigil := instance.get("_skill_sigil") as Button
 	_expect(sigil != null and (sigil.find_child("SkillSigilTitle", true, false) as Label).text == "ABILITIES", "Ability chip retains its content")
 	if sigil != null:

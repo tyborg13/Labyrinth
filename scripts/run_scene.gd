@@ -1065,7 +1065,7 @@ const CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP: float = 8.0
 const CONTEXTUAL_COMBAT_PROMPT_VIEWPORT_MARGIN: float = 4.0
 const PLAYER_UNIT_TEXTURE_PATH: String = ProtagonistCutout.REST_PATH
 const HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
-const RELIC_BADGE_SIZE: Vector2 = Vector2(48.0, 48.0)
+const RELIC_BADGE_SIZE: Vector2 = Vector2(52.0, 52.0)
 const RELIC_BAR_HORIZONTAL_GAP: float = 8.0
 const RELIC_GRID_HORIZONTAL_GAP: float = 2.0
 const RELIC_GRID_VERTICAL_GAP: float = 6.0
@@ -3083,7 +3083,7 @@ func _controller_activate_current() -> void:
 	var candidate_kind: String = str(_controller_focus_candidate.get("kind", ""))
 	if candidate_kind in ["control", "relic"]:
 		var focused_control: Control = _controller_focus_candidate.get("control", null) as Control
-		if focused_control is BaseButton and not (focused_control as BaseButton).disabled and not bool(focused_control.get_meta("hud_inspect_only", false)):
+		if focused_control is BaseButton and not (focused_control as BaseButton).disabled:
 			_clear_focused_enemy_intent()
 			(focused_control as BaseButton).pressed.emit()
 		return
@@ -3500,14 +3500,10 @@ func _refresh_controller_prompts() -> void:
 		if focused_control != null and _controller_header_focus_controls().has(focused_control):
 			prompts[0]["label"] = "Inspect" if str(_controller_focus_candidate.get("kind", "")) == "relic" else "Open"
 			prompts[1]["label"] = "Navigate"
-			if bool(focused_control.get_meta("hud_inspect_only", false)):
-				prompts.remove_at(0)
 	elif _controller_region == "board":
 		var candidate_kind: String = str(_controller_focus_candidate.get("kind", ""))
 		var candidate_control: Control = _controller_focus_candidate.get("control", null) as Control
-		if candidate_control != null and bool(candidate_control.get_meta("hud_inspect_only", false)):
-			pass
-		elif _player_movement_selected:
+		if _player_movement_selected:
 			prompts.append({"action": InputRouterScript.ACTION_ACCEPT, "label": "Target"})
 		elif candidate_kind == "control" and candidate_control is BaseButton and not (candidate_control as BaseButton).disabled:
 			prompts.append({"action": InputRouterScript.ACTION_ACCEPT, "label": "Open"})
