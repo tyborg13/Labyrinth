@@ -7,6 +7,8 @@ const Run = preload("res://scripts/run_engine.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
 const Socket = preload("res://scripts/combat_hud_socket.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
+const CursorFeedback = preload("res://scripts/cursor_feedback.gd")
+const InputRouter = preload("res://scripts/input_router.gd")
 const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const BossFactory = preload("res://tools/dragon_boss_inspection.gd")
 const EmberFeedbackSuite = preload("res://tests/suites/ember_reward_feedback_suite.gd")
@@ -120,7 +122,7 @@ func _run() -> void:
 	var options := {"dragon_id": "zekarion", "dragon_depth": 20, "relics": "iron_lung,ember_lens,pilgrim_boots,mirror_shard,phoenix_ember,winters_hour,stormroad_coil"}
 	var boss_profile: Dictionary = profile.duplicate(true)
 	boss_profile["level"] = 5
-	boss_profile["skill_ids"] = ["ghost_stride", "sure_footed", "discerning_eye", "true_bearing"]
+	boss_profile["skill_ids"] = ["ghost_stride", "quick_wits", "discerning_eye", "true_bearing"]
 	var boss: Dictionary = BossFactory.build(engine, Combat.new(), engine.create_new_run(BossFactory.seed_for_options(options), boss_profile), options)
 	boss["relics"] = ["iron_lung", "ember_lens", "pilgrim_boots", "mirror_shard", "phoenix_ember", "winters_hour", "stormroad_coil"]
 	boss["combat_state"]["relics"] = boss["relics"].duplicate()
@@ -134,6 +136,7 @@ func _run() -> void:
 	_expect(charged.tooltip_text.contains("Stored Time: 2 / 3"), "Charge tooltip retains exact reserve rules")
 	charged.grab_focus()
 	await _capture("09_charged_relic_focus")
+	await _assert_inspection(instance, charged, router)
 	var unchanged: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 	await _key(KEY_ENTER)
 	_expect(instance.get("_run_state") == unchanged, "Relic inspection focus cannot spend charges or alter run state")
@@ -144,6 +147,23 @@ func _run() -> void:
 	_assert_relics(instance)
 	_expect(charged.scale == Vector2.ONE, "Reduced motion keeps the socket stable")
 	await _capture("10_reduced_motion")
+	boss["defiance_capacity"] = 2
+	boss["defiance_remaining"] = 0
+	boss["combat_state"]["defiance_capacity"] = 2
+	boss["combat_state"]["defiance_remaining"] = 0
+	boss["combat_state"]["skill_flags"]["used:ghost_stride"] = true
+	await _load(instance, boss)
+	var defiance := instance.get("_defiance_badge") as Button
+	_expect(defiance.get_node("DefianceCount").text == "0/2" and not defiance.disabled and bool(defiance.get("dimmed")), "0/2 Defiance must be visually spent without disabling inspection")
+	_expect(not (instance.call("_controller_candidate_for_control", defiance) as Dictionary).is_empty(), "0/2 Defiance must remain a controller candidate")
+	await _assert_inspection(instance, defiance, router)
+	await _capture("11_spent_defiance_controller_inspection")
+	await _assert_skill_statuses(instance)
+	var rite := instance.call("_build_active_rite_badge", {"card_id": "pale_spark", "icon": "rite", "tooltip": "Active rite inspection"}, 0) as Button
+	(instance.get("_relic_icon_grid") as Control).add_child(rite)
+	await _settle()
+	await _assert_inspection(instance, rite, router)
+	await _capture("13_rite_controller_inspection")
 	router.call("clear_forced_state_for_test")
 	instance.queue_free()
 	await process_frame
@@ -152,6 +172,48 @@ func _run() -> void:
 	await EmberFeedbackSuite.run(self, _expect)
 	TooltipSuite.run(_expect)
 	_finish()
+
+func _assert_inspection(instance: Node, socket: Button, router: Node) -> void:
+	_expect(socket.focus_mode == Control.FOCUS_ALL and socket.mouse_default_cursor_shape == Control.CURSOR_HELP, "Tooltip sockets must preserve focus and the help cursor")
+	_expect(not bool(CursorFeedback.context_for_control(socket).get("actionable", true)), "Relic, rite and Defiance sockets must have non-actionable help feedback")
+	var presses: Array = [0]
+	socket.pressed.connect(func() -> void: presses[0] += 1)
+	router.call("set_forced_state_for_test", "pointer", "xbox")
+	await _click(socket)
+	socket.grab_focus()
+	await _key(KEY_ENTER)
+	await _key(KEY_SPACE)
+	router.call("set_forced_state_for_test", "controller", "xbox")
+	instance.set("_controller_region", "board")
+	instance.call("_controller_set_focus_candidate", instance.call("_controller_candidate_for_control", socket), true)
+	await _settle()
+	var prompts: Array = (instance.get("_controller_prompt_bar") as Node).call("prompts_snapshot")
+	for prompt: Dictionary in prompts:
+		_expect(str(prompt.get("action", "")) != str(InputRouter.ACTION_ACCEPT), "Focused tooltip sockets must not advertise an A prompt")
+	var cursor: Dictionary = (instance.get("_controller_analog_cursor") as Node).call("cursor_snapshot")
+	_expect(socket.has_focus() and str(cursor.get("detail_text", "")) == socket.tooltip_text.strip_edges(), "Controller focus must expose the complete inspection tooltip")
+	instance.call("_controller_activate_current")
+	await _joy(JOY_BUTTON_A)
+	_expect(presses[0] == 0, "Tooltip sockets must not emit pressed for pointer, Enter, Space or controller A")
+
+func _assert_skill_statuses(instance: Node) -> void:
+	root.get_node("InputRouter").call("set_forced_state_for_test", "pointer", "xbox")
+	instance.call("_controller_clear_board_focus")
+	instance.call("_controller_hide_analog_cursor")
+	(instance.get("_defiance_badge") as Button).release_focus()
+	await _pointer(Vector2(960, 500))
+	await _settle()
+	var sigil := instance.get("_skill_sigil") as Button
+	var spent: Socket = sigil.find_child("SkillSigilPreview_ghost_stride", true, false) as Socket
+	var ready: Socket = sigil.find_child("SkillSigilPreview_quick_wits", true, false) as Socket
+	_expect(spent != null and ready != null, "The live ability sigil must preview spent Ghost Stride and ready Quick Wits")
+	if spent == null or ready == null:
+		return
+	_expect(str(instance.call("_skill_hud_status", "ghost_stride")) == "SPENT" and str(instance.call("_skill_hud_status", "quick_wits")) == "READY", "Status proof must use the real combat ability states")
+	_expect(spent.status_color == Palette.TEXT_3 and spent.dimmed, "Spent ability previews must retain a grey status ring and desaturated icon")
+	_expect(ready.status_color == Palette.ALLY and not ready.dimmed, "Ready ability previews must retain a teal status ring and saturated icon")
+	_expect(spent.get_node("Icon").material != ready.get_node("Icon").material, "Ready and spent previews must use independent cached saturation states")
+	await _capture("12_ready_spent_skill_status_rings")
 
 func _assert_toolbar(instance: Node) -> void:
 	var previous: Control = instance.get("stats_label") as Control

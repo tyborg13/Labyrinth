@@ -16,6 +16,8 @@ const TooltipButton = preload("res://scripts/ui_tooltip_button.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const TurnOrderInk = preload("res://scripts/turn_order_ink.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const ThreatTags = preload("res://scripts/pre_battle_threat_tags.gd")
+const FoeCaption = preload("res://scripts/pre_battle_foe_caption.gd")
 
 static func build(host: Node, panel: PanelContainer, room: Dictionary, combat: Dictionary, accent: Color) -> void:
 	var margin := MarginContainer.new()
@@ -206,6 +208,10 @@ static func build_foes(host: Node, combat: Dictionary) -> Control:
 		foes.add_child(spacer)
 	var actions := build_actions(host)
 	foes.add_child(actions)
+	if flow.get_child_count() > 0:
+		var focus_foe := flow.get_child(mini(1, flow.get_child_count() - 1)) as Control
+		for action_button: Control in actions.get_children():
+			action_button.focus_neighbor_top = action_button.get_path_to(focus_foe)
 	flow.center_header = header
 	flow.center_actions = actions
 	header.item_rect_changed.connect(flow.queue_sort)
@@ -268,44 +274,58 @@ static func build_foe(host: Node, enemy: Dictionary, card_size: Vector2, leader:
 		badge.offset_top = 0.0
 		badge.offset_bottom = 20.0
 		card.add_child(badge)
+	# Only the caption reflows; sprite and HP positions stay independent of name length.
+	var caption := FoeCaption.new()
+	caption.name = "PreBattleFoeCaption"
+	caption.compact = compact
+	caption.compact_font_size = Typography.scaled_size(host, 17)
+	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	caption.add_theme_constant_override("separation", roundi(Typography.scaled_value(host, 8.0)))
+	caption.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	caption.offset_top = sprite_height + Typography.scaled_value(host, 4.0 if compact else 20.0)
+	caption.offset_bottom = caption.offset_top
+	caption.height_budget = card_size.y - caption.offset_top
+	card.add_child(caption)
 	var name_label := label(str(definition.get("name", enemy.get("type", ""))), 19)
 	name_label.name = "PreBattleEnemyName"
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	name_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	name_label.offset_top = sprite_height + (4.0 if compact else 20.0)
-	name_label.offset_bottom = sprite_height + (44.0 if compact else 64.0)
-	card.add_child(name_label)
-	var summary: String = str(host.call("_pre_battle_enemy_threat_summary", str(enemy.get("type", ""))))
-	var tags := Controls.MoveTags.new()
-	tags.name = "PreBattleMoveTags"
-	tags.gap = Typography.scaled_value(host, 6.0)
-	tags.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	tags.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	tags.offset_top = sprite_height + (44.0 if compact else 64.0)
-	tags.offset_bottom = card_size.y
-	card.add_child(tags)
-	var words: PackedStringArray = summary.replace("  +", " / +").split(" / ")
-	for word: String in words:
-		if word.begins_with("+"):
-			tags.base_overflow = int(word.trim_prefix("+"))
-			continue
-		var tag := HBoxContainer.new()
-		tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		tag.add_theme_constant_override("separation", 2)
-		tags.add_child(tag)
-		if not word.begins_with("+"):
-			var keys: Dictionary = {"Guard": "block", "Heal": "heal_ally", "Area": "aoe", "Retreat": "retreat", "Summon": "summon_minions", "Pierce": "pierce", "Bleed": "bleed", "Outcrops": "raise_terrain", "Worldspines": "raise_terrain", "Cinder Marks": "cinder_marks", "Arena Gale": "gale_force", "Crystal Mantle": "frost_armor", "Eclipse": "umbra_eclipse", "Split": "summon_minions", "Inspect known moves": "time"}
-			var intent_icon := icon("", 18.0)
-			intent_icon.texture = ActionIcons.icon_texture(str(keys.get(word, word.to_snake_case())))
-			tag.add_child(intent_icon)
-		tag.add_child(label(word, 14, Palette.TEXT_2))
+	caption.enemy_name = name_label
+	caption.add_child(name_label)
+	var threat_tags: Array = ThreatTags.build(str(enemy.get("type", "")))
+	var summary: String = ThreatTags.summary(threat_tags)
+	var tags: Control = build_move_tags(host, threat_tags)
+	caption.add_child(tags)
 	# Keep the exact established summary queryable without duplicating visible copy.
 	var threat := label(summary, 14, Palette.TEXT_2)
 	threat.name = "PreBattleThreatSummary"
 	threat.hide()
 	card.add_child(threat)
 	return card
+
+static func build_move_tags(host: Node, threat_tags: Array) -> Control:
+	var tags := Controls.MoveTags.new()
+	tags.name = "PreBattleMoveTags"
+	tags.gap = Typography.scaled_value(host, 6.0)
+	tags.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	tags.base_overflow = maxi(0, threat_tags.size() - 3)
+	for index: int in range(mini(3, threat_tags.size())):
+		var definition: Dictionary = threat_tags[index] as Dictionary
+		var word: String = str(definition.get("text", ""))
+		var icon_key: String = str(definition.get("icon_key", ""))
+		var tag := HBoxContainer.new()
+		tag.set_meta("tag_word", word)
+		tag.set_meta("icon_key", icon_key)
+		tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		tag.add_theme_constant_override("separation", 2)
+		tags.add_child(tag)
+		if not icon_key.is_empty():
+			var intent_icon := icon("", 18.0)
+			intent_icon.texture = ActionIcons.icon_texture(icon_key)
+			intent_icon.set_meta("icon_key", icon_key)
+			tag.add_child(intent_icon)
+		tag.add_child(label(word, 14, Palette.TEXT_2))
+	return tags
 
 static func build_actions(host: Node) -> Control:
 	var row := HBoxContainer.new()

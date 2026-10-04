@@ -23,6 +23,8 @@ void fragment() {
 static var _icon_shader: Shader
 static var _socket_fill: Texture2D
 static var _mipmapped_textures: Dictionary = {}
+static var _radial_textures: Dictionary = {}
+static var _socket_materials: Dictionary = {}
 
 static func texture_material(fade_start: float = 1.0) -> ShaderMaterial:
 	if _icon_shader == null:
@@ -32,6 +34,14 @@ static func texture_material(fade_start: float = 1.0) -> ShaderMaterial:
 	material.shader = _icon_shader
 	material.set_shader_parameter("fade_start", fade_start)
 	return material
+
+# Socket materials are immutable; state changes select a cached saturation.
+static func socket_material(saturation: float = 1.0) -> ShaderMaterial:
+	if not _socket_materials.has(saturation):
+		var material: ShaderMaterial = texture_material()
+		material.set_shader_parameter("saturation", saturation)
+		_socket_materials[saturation] = material
+	return _socket_materials[saturation] as ShaderMaterial
 
 static func clear_button_style(button: Button) -> void:
 	for state: String in ["normal", "hover", "pressed", "disabled", "focus", "hover_pressed"]:
@@ -46,6 +56,9 @@ static func label_style(label: Label, font_size: int, color: Color) -> void:
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 
 static func radial_texture(color: Color, end_offset: float = 1.0) -> Texture2D:
+	var key: Array = [color, end_offset]
+	if _radial_textures.has(key):
+		return _radial_textures[key] as Texture2D
 	var gradient := Gradient.new()
 	gradient.set_color(0, color)
 	gradient.set_color(1, Color(color, 0.0))
@@ -57,6 +70,7 @@ static func radial_texture(color: Color, end_offset: float = 1.0) -> Texture2D:
 	texture.fill = GradientTexture2D.FILL_RADIAL
 	texture.fill_from = Vector2(0.5, 0.5)
 	texture.fill_to = Vector2(1.0, 0.5)
+	_radial_textures[key] = texture
 	return texture
 
 static func socket_fill() -> Texture2D:

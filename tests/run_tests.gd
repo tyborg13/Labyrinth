@@ -17,6 +17,7 @@ const EnemyIntentPreviewSuite = preload("res://tests/suites/enemy_intent_preview
 const EmberRewardFeedbackSuite = preload("res://tests/suites/ember_reward_feedback_suite.gd")
 const CombatMotionTimingSuite = preload("res://tests/suites/combat_motion_timing_suite.gd")
 const PreBattleUiSuite = preload("res://tests/suites/pre_battle_ui_suite.gd")
+const PreBattleView = preload("res://scripts/pre_battle_view.gd")
 const CursorFeedbackSuite = preload("res://tests/suites/cursor_feedback_suite.gd")
 const AudioRoutingSuite = preload("res://tests/suites/audio_routing_suite.gd")
 const DragonBossSuite = preload("res://tests/suites/dragon_boss_suite.gd")
@@ -116,7 +117,7 @@ func _initialize() -> void:
 	preload("res://tests/suites/ground_targeting_suite.gd").run(Callable(self, "_assert"))
 	preload("res://tests/suites/card_pool_overhaul_suite.gd").run(Callable(self, "_assert"))
 	preload("res://tests/suites/combat_outcome_feedback_suite.gd").run(Callable(self, "_assert"))
-	PreBattleUiSuite.run(Callable(self, "_assert"))
+	await PreBattleUiSuite.run(Callable(self, "_assert"))
 	CursorFeedbackSuite.run(Callable(self, "_assert"))
 	AudioRoutingSuite.run(Callable(self, "_assert"))
 	TooltipConsistencySuite.run(Callable(self, "_assert"))
@@ -5661,8 +5662,11 @@ func _test_turn_order_portraits_cover_enemy_roster() -> void:
 		used_hashes[portrait_hash] = enemy_type
 		var portrait_image: Image = Image.load_from_file(ProjectSettings.globalize_path(portrait_path))
 		_assert(portrait_image != null and portrait_image.get_size() == Vector2i(128, 128), "%s portrait should be a native 128x128 raster" % enemy_type)
-		var pre_battle_texture: Texture2D = instance.call("_pre_battle_enemy_texture", enemy_type, GameData.enemy_def(enemy_type)) as Texture2D
-		_assert(pre_battle_texture != null and pre_battle_texture.get_size() == Vector2(128.0, 128.0), "%s pre-battle preview should use the same 128px portrait mapping as turn order" % enemy_type)
+		var staged_foe: Control = PreBattleView.build_foe(instance, {"type": enemy_type, "hp": 1}, Vector2(206.0, 365.0))
+		staged_foe.size = staged_foe.custom_minimum_size
+		var pre_battle_art := staged_foe.find_child("PreBattleEnemyArt", true, false) as TextureRect
+		_assert(pre_battle_art != null and pre_battle_art.texture != null and staged_foe.get_rect().encloses(pre_battle_art.get_rect()), "%s pre-battle preview should stage its complete sprite inside its foe column" % enemy_type)
+		staged_foe.free()
 	instance.free()
 
 func _test_chainbound_gaoler_board_art_is_taller_and_centered() -> void:
@@ -8381,7 +8385,7 @@ func _test_run_scene_pre_battle_five_enemy_layout_compacts() -> void:
 		})
 	for enemy_count: int in [1, 2, 3, 4, 5, 6]:
 		var layout_enemies: Array = enemies.slice(0, enemy_count)
-		var enemy_section: Control = instance.call("_build_pre_battle_enemy_section", {"enemies": layout_enemies}, Color("d8b06d")) as Control
+		var enemy_section: Control = PreBattleView.build_foes(instance, {"enemies": layout_enemies})
 		enemy_section.size = Vector2(660.0, 560.0) * UiTypography.ui_scale(instance)
 		root.add_child(enemy_section)
 		await process_frame
@@ -11522,7 +11526,8 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	var item_art_chip: Control = item_tile.find_child("ItemCardArtChip", true, false) as Control if item_tile != null else null
 	_assert(item_art_chip != null and item_art_chip.find_child("ItemCardArtIcon", true, false) is TextureRect, "Item inventory tiles should use cropped card art as an icon")
 	_assert(item_art_chip != null and item_art_chip.find_child("CardBadgeName", true, false) == null, "Item art chips should not overlay two-letter text labels")
-	_assert(item_tile != null and _button_with_text(item_tile, "Equip") == null and _button_with_text(item_tile, "Stow") == null, "Item tiles should use drag/drop instead of equip or stow buttons")
+	var item_actions: Control = item_tile.find_child("CharacterPackActions", true, false) as Control if item_tile != null else null
+	_assert(item_actions != null and not item_actions.visible and _button_with_text(item_actions, "Equip") != null and _button_with_text(item_actions, "Inspect") != null, "Idle item rows should reserve hidden Equip/Inspect actions while retaining drag/drop")
 	var item_tile_tooltip: Control = item_tile.call("_make_custom_tooltip", item_tile.tooltip_text) as Control if item_tile != null else null
 	if item_tile_tooltip != null:
 		root.add_child(item_tile_tooltip)
@@ -11709,7 +11714,13 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	var source_rect: Rect2 = instance.call("_equipment_inventory_icon_rect", "iron_cleaver")
 	var tile_map: Dictionary = instance.get("_equipment_inventory_tiles")
 	var source_tile: Control = tile_map.get("iron_cleaver", null) as Control
-	_assert(source_tile != null and _control_descendants_ignore_mouse(source_tile), "Equipment inventory tile children should be passive so icon and text share one hover/drag target")
+	var source_actions: Control = source_tile.find_child("CharacterPackActions", true, false) as Control if source_tile != null else null
+	var source_content_passive: bool = source_tile != null and source_actions != null
+	if source_tile != null:
+		for child: Control in source_tile.find_children("*", "Control", true, false):
+			if child != source_actions and not source_actions.is_ancestor_of(child):
+				source_content_passive = source_content_passive and child.mouse_filter == Control.MOUSE_FILTER_IGNORE
+	_assert(source_content_passive, "Equipment row art and text should share one hover/drag target around the reserved native action buttons")
 	var source_icon_chip: Control = source_tile.find_child("EquipmentIconChip", true, false) as Control if source_tile != null else null
 	_assert(source_icon_chip != null and source_icon_chip.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Equipment inventory icon should be a passive part of the parent tile")
 	_assert(source_icon_chip != null and source_icon_chip.tooltip_text.is_empty(), "Equipment inventory icon should not own a separate hover tooltip from its parent tile")
@@ -11812,12 +11823,34 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	for widget: CardWidget in _card_widgets_under(card_tooltip):
 		_assert(widget.size.x > 0.0 and absf((widget.size.y / widget.size.x) - (352.0 / 250.0)) < 0.01, "Card tooltip previews should preserve the real card aspect ratio")
 	card_tooltip.queue_free()
-	var deck_badge: Control = instance.call("_build_equipment_card_badge", "cleaver_hook", ElementData.accent(GameData.card_element("cleaver_hook"))) as Control
+	var deck_badge: Control = instance.call("_build_equipment_card_badge", "cleaver_hook") as Control
 	root.add_child(deck_badge)
 	await process_frame
 	var deck_badge_art: TextureRect = deck_badge.find_child("CardBadgeArt", true, false) as TextureRect
 	_assert(deck_badge_art != null and deck_badge_art.texture != null, "Deck card badges should use the card art as their visual background")
 	deck_badge.queue_free()
+	var live_deck: Control = character_dialog.find_child("CurrentDeckPanel", true, false) as Control
+	var live_strip: Control = live_deck.find_child("CharacterCardStrip", true, false) as Control if live_deck != null else null
+	_assert(live_strip != null, "Character deck should expose a clickable card strip")
+	if live_strip != null:
+		for down: bool in [true, false]:
+			var deck_click := InputEventMouseButton.new()
+			deck_click.button_index = MOUSE_BUTTON_LEFT
+			deck_click.pressed = down
+			deck_click.position = live_strip.get_global_rect().get_center()
+			deck_click.global_position = deck_click.position
+			instance.get_viewport().push_input(deck_click, true)
+		await process_frame
+		_assert(instance.get("_controller_loadout_tooltip") != null, "Clicking a deck card strip should pin its inspection")
+		for down: bool in [true, false]:
+			var empty_click := InputEventMouseButton.new()
+			empty_click.button_index = MOUSE_BUTTON_LEFT
+			empty_click.pressed = down
+			empty_click.position = character_dialog.global_position + Vector2(500.0, 35.0)
+			empty_click.global_position = empty_click.position
+			instance.get_viewport().push_input(empty_click, true)
+		await process_frame
+		_assert(instance.get("_controller_loadout_tooltip") == null and upgrade_scrim.visible, "Clicking empty Character dialog space should dismiss the deck inspection and preserve Character")
 	instance.call("_equip_equipment_from_overlay", "iron_cleaver")
 	await process_frame
 	var equipped_state: Dictionary = instance.get("_run_state")

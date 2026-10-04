@@ -80,8 +80,7 @@ func _capture_compact_badges() -> void:
 	var run_scene: Node = RunSceneScript.new()
 	for index: int in range(CARD_IDS.size()):
 		var card_id: String = str(CARD_IDS[index])
-		var accent: Color = run_scene.call("_item_card_accent", card_id) as Color
-		var badge: Control = run_scene.call("_build_equipment_card_badge", card_id, accent) as Control
+		var badge: Control = run_scene.call("_build_equipment_card_badge", card_id) as Control
 		_expect(badge != null, "%s should build a compact character-sheet badge" % card_id)
 		if badge == null:
 			continue

@@ -174,24 +174,6 @@ class MoveTags:
 		if _overflow.visible:
 			fit_child_in_rect(_overflow, Rect2(left, 0.0, marker_width, height))
 
-class CloseGlyph:
-	extends Label
-	var socket: BaseButton
-
-	func _init() -> void:
-		name = "PreBattleCloseGlyph"
-		text = "✕"
-		horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		Surface.label_style(self, 18, Palette.TEXT_2)
-
-	func _ready() -> void:
-		for event: Signal in [socket.mouse_entered, socket.mouse_exited, socket.focus_entered, socket.focus_exited]:
-			event.connect(_refresh)
-		_refresh()
-
-	func _refresh() -> void:
-		add_theme_color_override("font_color", Palette.GOLD_BRIGHT if socket.is_hovered() or socket.has_focus() else Palette.TEXT_2)
-
 class Rule:
 	extends Control
 	var vertical: bool = false

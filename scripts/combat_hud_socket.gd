@@ -12,18 +12,13 @@ func follow_button_states(button: BaseButton) -> void:
 	for event: Signal in [button.mouse_entered, button.mouse_exited, button.focus_entered, button.focus_exited]:
 		event.connect(queue_redraw)
 
-func _draw() -> void:
-	var owner_active: bool = _state_owner != null and not _state_owner.disabled and (_state_owner.is_hovered() or _state_owner.has_focus())
-	if owner_active:
-		var diameter: float = minf(size.x, size.y)
-		var rect := Rect2((size - Vector2.ONE * diameter) * 0.5, Vector2.ONE * diameter)
-		var center: Vector2 = _ring_center(rect)
-		var radius: float = _ring_radius(rect, "outer_radius") + Typography.scaled_value(self, 7.0)
-		draw_texture_rect(_glow, Rect2(center - Vector2.ONE * radius, Vector2.ONE * radius * 2.0), false)
-	super._draw()
+func _socket_active() -> bool:
 	if _state_owner != null:
-		_ring.modulate = DISABLED_RING_TINT if _state_owner.disabled else ACTIVE_RING_TINT if owner_active else ring_tint
-		_icon_material.set_shader_parameter("saturation", 0.35 if _state_owner.disabled else 1.0)
+		return not _state_owner.disabled and (_state_owner.is_hovered() or _state_owner.has_focus())
+	return super._socket_active()
+
+func _socket_dimmed() -> bool:
+	return super._socket_dimmed() or (_state_owner != null and _state_owner.disabled)
 
 func configure_header(texture: Texture2D, tooltip: String, key_hint: String = "") -> void:
 	ButtonFeedback.bind_button(self)

@@ -9,7 +9,7 @@ const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RoomGenerator = preload("res://scripts/room_generator.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
-const RunScene = preload("res://scripts/run_scene.gd")
+const PreBattleView = preload("res://scripts/pre_battle_view.gd")
 
 static func run(expect: Callable) -> void:
 	_test_objective_registry_and_deterministic_mix(expect)
@@ -277,13 +277,11 @@ static func _test_objective_persistence_and_ui_surfaces(expect: Callable) -> voi
 	var engine := RunEngine.new()
 	var restored_layout: Dictionary = engine.call("_room_layout_from_combat_state", state)
 	expect.call((restored_layout.get("objective", {}) as Dictionary) == objective, "Combat objective state should survive room-layout persistence")
-	var pre_battle_host: Node = RunScene.new()
-	var preview_chip: Control = pre_battle_host.call("_build_pre_battle_objective_chip", state, Color("d7a85d")) as Control
+	var preview_chip: Control = PreBattleView.build_objective(state)
 	var objective_plate: Control = preview_chip.find_child("PreBattleObjectiveChip", true, false) as Control
 	expect.call(objective_plate != null and str(objective_plate.get_meta("objective_title", "")).to_upper().contains("SURVIVE") and _labels_text(preview_chip).contains("Hold out"), "The room preview should name and explain its combat objective")
 	expect.call(preview_chip.find_child("PreBattleObjectiveIcon", true, false) != null, "The room preview should display the objective's purpose-built icon")
 	preview_chip.free()
-	pre_battle_host.free()
 	var hud := CombatObjectiveHud.new()
 	hud.set_combat_state(state)
 	var detail: Label = hud.find_child("ObjectiveLiveDetail", true, false) as Label

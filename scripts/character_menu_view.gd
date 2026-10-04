@@ -10,30 +10,11 @@ const StatChip = preload("res://scripts/ui_stat_chip.gd")
 const SectionHeader = preload("res://scripts/ui_section_header.gd")
 const InkStage = preload("res://scripts/ui_ink_pool_stage.gd")
 const Surface = preload("res://scripts/character_menu_surface.gd")
-const UiSkin = preload("res://scripts/ui_skin.gd")
+const CloseSocket = preload("res://scripts/ui_close_socket.gd")
+const PackActions = preload("res://scripts/character_menu_pack_actions.gd")
+const InspectionDismissal = preload("res://scripts/character_menu_inspection_dismissal.gd")
 const SKILL_POINT_ICON_PATH: String = "res://assets/art/icons/skill_point.png"
 const MOLTSHARD_ICON_PATH: String = "res://assets/art/icons/moltshard.png"
-
-class CloseGlyph:
-	extends Label
-	var socket: BaseButton
-
-	func _init() -> void:
-		name = "CharacterCloseGlyph"
-		text = "✕"
-		horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-		mouse_filter = Control.MOUSE_FILTER_IGNORE
-		Typography.set_label_size(self, 18)
-		add_theme_font_override("font", Typography.ui_font())
-
-	func _ready() -> void:
-		for event: Signal in [socket.mouse_entered, socket.mouse_exited, socket.focus_entered, socket.focus_exited]:
-			event.connect(_refresh)
-		_refresh()
-
-	func _refresh() -> void:
-		add_theme_color_override("font_color", Palette.GOLD_BRIGHT if socket.is_hovered() or socket.has_focus() else Palette.TEXT_2)
 
 static func label(text: String, size: int = 18, color: Color = Palette.TEXT) -> Label:
 	var result := Label.new()
@@ -126,14 +107,10 @@ static func resource_icon(path: String) -> Texture2D:
 	return AssetLoader.load_texture(path)
 
 static func close_socket() -> Button:
-	var button := Socket.new()
-	button.socket_size = 40.0
+	var button := CloseSocket.new()
 	button.name = "CloseCharacterOverlay"
 	button.setup(null, "Close Character")
-	var glyph := CloseGlyph.new()
-	glyph.socket = button
-	button.add_child(glyph)
-	glyph.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	button.set_glyph_name("CharacterCloseGlyph")
 	return button
 
 static func tabs_row() -> Control:
@@ -325,7 +302,7 @@ static func deck_group(heading: String, source: String, cards: Array, host: Node
 		if not card_id.is_empty():
 			counts[card_id] = int(counts.get(card_id, 0)) + 1
 	for id: String in counts:
-		var badge: Control = host.call("_build_equipment_card_badge", id, Palette.GOLD_DIM)
+		var badge: Control = host.call("_build_equipment_card_badge", id)
 		var strip: Control = badge.get_node("CharacterCardStrip") as Control
 		strip.setup(id, str(GameData.card_def(id).get("name", id)), int(counts[id]))
 		badge.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -380,52 +357,10 @@ static func tile_feedback(tile: PanelContainer, host: Node) -> void:
 		)
 
 static func pack_actions(tile: PanelContainer, host: Node, equip: Callable, can_equip: bool) -> void:
-	tile.gui_input.connect(func(event: InputEvent) -> void:
-		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			tile.grab_focus()
-	)
-	var refresh: Callable = refresh_pack_actions.bind(tile, host, equip, can_equip)
-	tile.focus_entered.connect(refresh.call_deferred)
-	tile.focus_exited.connect(refresh.call_deferred)
-
-static func refresh_pack_actions(tile_value: Variant, host_value: Variant, equip: Callable, can_equip: bool) -> void:
-	if typeof(tile_value) != TYPE_OBJECT or not is_instance_valid(tile_value) or not is_instance_valid(host_value):
-		return
-	var tile: PanelContainer = tile_value as PanelContainer
-	var host: Node = host_value as Node
-	if tile == null or not tile.is_inside_tree():
-		return
-	var owner: Control = tile.get_viewport().gui_get_focus_owner()
-	var active: bool = owner == tile or (owner != null and tile.is_ancestor_of(owner))
-	var content: VBoxContainer = tile.find_child("RowText", true, false) as VBoxContainer
-	var previous: Node = content.get_node_or_null("CharacterPackActions")
-	sync_tile(tile, active)
-	if previous != null:
-		if not active:
-			content.remove_child(previous)
-			previous.queue_free()
-		return
-	if not active:
-		return
-	var actions := HBoxContainer.new()
-	actions.name = "CharacterPackActions"
-	actions.add_theme_constant_override("separation", 8)
-	content.add_child(actions)
-	for action: String in ["Equip", "Inspect"]:
-		var button := Button.new()
-		button.text = action
-		button.custom_minimum_size = Vector2(100.0, 32.0) * Typography.ui_scale(tile)
-		UiSkin.new().apply_button_stylebox_overrides(button, UiSkin.VARIANT_STANDARD)
-		Typography.set_button_size(button, 16)
-		if action == "Equip":
-			button.disabled = not can_equip
-			button.pressed.connect(equip)
-		else:
-			button.pressed.connect(show_inspection.bind(host, tile))
-		var refresh: Callable = refresh_pack_actions.bind(tile, host, equip, can_equip)
-		button.focus_entered.connect(refresh.call_deferred)
-		button.focus_exited.connect(refresh.call_deferred)
-		actions.add_child(button)
+	var actions := PackActions.new()
+	actions.name = "CharacterPackActionController"
+	actions.configure(tile, equip, show_inspection.bind(host, tile), can_equip, sync_tile)
+	tile.add_child(actions)
 
 static func show_inspection(host: Node, tile: Control) -> void:
 	if tile.focus_mode != Control.FOCUS_NONE:
@@ -439,5 +374,8 @@ static func show_inspection(host: Node, tile: Control) -> void:
 	tooltip.name = "ControllerLoadoutTooltip"
 	tooltip.z_index = 80
 	passive(tooltip)
+	var dismissal := InspectionDismissal.new()
+	dismissal.host = host
+	tooltip.add_child(dismissal)
 	host.get("_upgrade_scrim").add_child(tooltip)
 	host.call_deferred("_position_controller_loadout_tooltip")

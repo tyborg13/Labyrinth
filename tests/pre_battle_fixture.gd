@@ -64,6 +64,12 @@ func _labels_text(node: Node) -> String:
 	return "\n".join(parts)
 
 func _assert_pre_battle_body_inside_panel(panel: Control, context: String) -> void:
+	var scrim := panel.get_parent().get_parent() as Control
+	var frame := scrim.find_child("PreBattleFrame", true, false) as Control
+	_expect(frame != null and frame.get("texture") != null, "%s should render its authored outer frame" % context)
+	if frame != null:
+		_expect(frame.z_index > scrim.z_index, "%s ornate frame must render above the panel" % context)
+		_expect(frame.size.x > panel.size.x and frame.size.y > panel.size.y and frame.get_global_rect().encloses(panel.get_global_rect()), "%s ornate frame must surround the panel" % context)
 	var safe := panel.get_global_rect().grow(-8.0)
 	for node_name: String in ["PreBattleRoomChip", "PreBattleObjectiveChip", "PreBattleEnemySection", "PreBattleDeckSection", "PreBattleEquipButton", "PreBattleStartButton", "TrueBearingButton"]:
 		var control := panel.find_child(node_name, true, false) as Control
@@ -100,6 +106,10 @@ func _assert_foe_fit(panel: Control, count: int) -> void:
 				_expect(text.get_theme_font_size("font_size") >= 14, "Foe text must retain the 14px floor")
 				_expect(card.get_global_rect().grow(1.0).encloses(text.get_global_rect()), "%d foes %s text must fit inside its column: %s in %s" % [count, text.text, text.get_global_rect(), card.get_global_rect()])
 		var tags := card.find_child("PreBattleMoveTags", true, false) as Control
+		var name_label := card.find_child("PreBattleEnemyName", true, false) as Label
+		_expect(not tags.get_global_rect().intersects(name_label.get_global_rect()), "%d foes %s name and tag row must not overlap" % [count, name_label.text])
+		var name_gap: float = tags.global_position.y - name_label.get_global_rect().end.y
+		_expect(absf(name_gap - 8.0) <= 0.5, "%d foes %s tags must flow 8px below the rendered name (got %.1f)" % [count, name_label.text, name_gap])
 		var line_center: float = -1.0
 		for child: Control in tags.get_children():
 			if not child.is_visible_in_tree():

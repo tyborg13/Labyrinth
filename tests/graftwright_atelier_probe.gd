@@ -66,6 +66,21 @@ func check_rendered_thread() -> void:
 	var thread: Control = view.find_child("GraftPreviewThread", true, false) as Control
 	check(thread != null, "Selected cards have a rendered preview thread")
 	if thread == null: return
+	var elapsed: float = thread.get("elapsed")
+	var processing: bool = thread.is_processing()
+	var phases := PackedFloat32Array([0.0])
+	if not bool(thread.get("reduced_motion")): phases = PackedFloat32Array([-PI / 2.0, 0.0, PI / 2.0])
+	for phase: float in phases:
+		thread.set("elapsed", (phase + TAU) / 0.9)
+		thread.call("_update_preview")
+		thread.set_process(false)
+		await process_frame
+		await check_rendered_thread_phase(thread)
+	thread.set("elapsed", elapsed)
+	thread.call("_update_preview")
+	thread.set_process(processing)
+
+func check_rendered_thread_phase(thread: Control) -> void:
 	await RenderingServer.frame_post_draw
 	var painted: Image = viewport.get_texture().get_image()
 	thread.hide()

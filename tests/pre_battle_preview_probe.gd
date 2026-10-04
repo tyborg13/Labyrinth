@@ -16,8 +16,9 @@ func _layout_capture(_instance: Node, name: String) -> void:
 
 func _visual_states() -> void:
 	var engine := RunEngine.new()
-	var state: Dictionary = _run_with_available_combat(engine)
-	var coord: Vector2i = _first_available_combat_coord(engine, state)
+	var state: Dictionary = engine.create_new_run(7262026, ProgressionStore.default_data())
+	var coord: Vector2i = _first_room_coord_with_min_enemies(engine, state, 5)
+	_expect(coord != INVALID_COORD, "Known-move identity proof needs its deterministic five-foe room")
 	var progression: Dictionary = state["progression"].duplicate(true)
 	progression["level"] = 5
 	progression["skill_ids"] = ["ghost_stride", "sure_footed", "discerning_eye", "true_bearing"]
@@ -41,8 +42,15 @@ func _visual_states() -> void:
 	await _capture("%s/start_focus.png" % OUTPUT_DIR)
 	router.call("set_forced_state_for_test", "pointer", "xbox")
 	start.release_focus()
-	var foe := panel.find_child("PreBattleEnemyCard", true, false) as Control
-	await _click(foe)
+	var warden: Control = null
+	var flow := panel.find_child("PreBattleEnemyFlow", true, false) as Control
+	for foe_node: Node in flow.get_children():
+		if str((foe_node.get("enemy") as Dictionary).get("type", "")) == "warden":
+			warden = foe_node as Control
+			break
+	_expect(warden != null, "Compound Warden proof must inspect Stone Warden specifically")
+	if warden != null:
+		await _click(warden)
 	await _settle()
 	var pinned := instance.get("_pinned_tooltip_panel") as Control
 	_expect(pinned != null and pinned.find_child("PreBattleKnownMoves", true, false) != null, "Known moves should expand")

@@ -3,7 +3,6 @@ extends SceneTree
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const GameData = preload("res://scripts/game_data.gd")
-const ElementData = preload("res://scripts/element_data.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 
@@ -93,14 +92,11 @@ func _capture_character_badges() -> void:
 	for index: int in range(CARD_IDS.size()):
 		var card_id: String = CARD_IDS[index]
 		var card: Dictionary = GameData.card_def(card_id)
-		var accent: Color = ElementData.accent(GameData.card_element(card_id))
-		if GameData.card_element(card_id) == ElementData.NONE:
-			accent = Color(str(card.get("accent", "#8f9499")))
 		var badge: Control
 		if bool(card.get("reward_pool", true)):
 			badge = _run_scene.call("_build_magic_card_tile", card_id, "attuned", index) as Control
 		else:
-			badge = _run_scene.call("_build_equipment_card_badge", card_id, accent) as Control
+			badge = _run_scene.call("_build_equipment_card_badge", card_id) as Control
 		if badge == null:
 			continue
 		var column: int = index % 2

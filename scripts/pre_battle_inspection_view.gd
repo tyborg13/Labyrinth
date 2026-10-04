@@ -5,6 +5,7 @@ const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const Controls = preload("res://scripts/pre_battle_controls.gd")
 const Socket = preload("res://scripts/ui_socket.gd")
+const CloseSocket = preload("res://scripts/ui_close_socket.gd")
 const InkPool = preload("res://scripts/ui_ink_pool_stage.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const GameData = preload("res://scripts/game_data.gd")
@@ -59,22 +60,12 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 	identity.add_child(initiative)
 	identity.add_child(View.label(str(host.call("_pre_battle_enemy_threat_summary", str(enemy.get("type", "")))), 14, Palette.TEXT_2))
 	if interactive:
-		var close_button := Socket.new()
+		var close_button := CloseSocket.new()
 		close_button.name = "PreBattleInspectionCloseButton"
 		close_button.socket_size = 40.0
 		close_button.setup(null, "Close")
 		close_button.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
-		close_button.text = "✕"
-		close_button.add_theme_font_override("font", Typography.ui_font())
-		close_button.add_theme_font_size_override("font_size", Typography.scaled_size(close_button, 18))
-		close_button.add_theme_color_override("font_color", Color.TRANSPARENT)
-		close_button.add_theme_color_override("font_hover_color", Color.TRANSPARENT)
-		close_button.add_theme_color_override("font_focus_color", Color.TRANSPARENT)
-		close_button.add_theme_color_override("font_pressed_color", Color.TRANSPARENT)
-		var glyph := Controls.CloseGlyph.new()
-		glyph.socket = close_button
-		close_button.add_child(glyph)
-		glyph.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		close_button.set_glyph_name("PreBattleCloseGlyph")
 		close_button.pressed.connect(Callable(host, "_close_pinned_tooltip"))
 		header.add_child(close_button)
 	var guardian_summary: String = GuardianLibrary.inspection_summary(enemy)

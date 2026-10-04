@@ -1243,7 +1243,7 @@ func _refresh_links() -> void:
 		elif ancestor_ids.has(prerequisite_id) and ancestor_ids.has(skill_id):
 			relationship = "ancestor"
 		var link_state: String = _link_state(prerequisite_id, skill_id)
-		var visual: Dictionary = _link_visual(link_state, relationship)
+		var visual: Dictionary = _link_visual(link_state)
 		var link: Dictionary = geometry.duplicate(false)
 		link["relationship"] = relationship
 		link["highlighted"] = relationship in ["prerequisite", "dependent", "ancestor"]
@@ -1595,7 +1595,7 @@ func _link_state(source_id: String, target_id: String) -> String:
 		return STATE_EXCLUDED
 	return STATE_LOCKED
 
-func _link_visual(link_state: String, _relationship: String) -> Dictionary:
+func _link_visual(link_state: String) -> Dictionary:
 	var color: Color = UiPalette.GOLD_DIM
 	if link_state == STATE_OWNED:
 		color = UiPalette.GOLD

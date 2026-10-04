@@ -95,6 +95,7 @@ func _layout_capture(_instance: Node, _name: String) -> void:
 	pass
 
 func _run_input_proof() -> void:
+	await _run_entry_focus_proof()
 	var engine := RunEngine.new()
 	var state: Dictionary = _run_with_available_combat(engine)
 	var coord: Vector2i = _first_available_combat_coord(engine, state)
@@ -124,6 +125,7 @@ func _run_input_proof() -> void:
 		await _click(close)
 		await _settle()
 		_expect(not (instance.get("_pinned_tooltip_scrim") as Control).visible, "Close socket dismisses known moves")
+	await _run_native_hover_dismissal_proof(instance, foe)
 	for node_name: String in ["PreBattleEquipmentChip", "PreBattleAttunedBadge", "PreBattleDeckBadge"]:
 		var source := panel.find_child(node_name, true, false) as Control
 		var tooltip := source.call("_make_custom_tooltip", source.tooltip_text) as Control
@@ -170,4 +172,66 @@ func _run_input_proof() -> void:
 	_expect(str(instance.get("_run_state")["mode"]) == "combat", "Keyboard Enter starts the same combat state")
 	router.call("clear_forced_state_for_test")
 	instance.queue_free()
+	await process_frame
+
+func _run_entry_focus_proof() -> void:
+	var router: Node = root.get_node("InputRouter")
+	router.call("set_forced_state_for_test", "controller", "xbox")
+	var engine := RunEngine.new()
+	for with_position: bool in [false, true]:
+		var state: Dictionary = _run_with_available_combat(engine)
+		var coord: Vector2i = _first_available_combat_coord(engine, state)
+		var progression: Dictionary = state["progression"].duplicate(true)
+		progression["level"] = 5
+		var skills: Array = ["ghost_stride", "sure_footed", "discerning_eye"]
+		if with_position:
+			skills.append("true_bearing")
+		progression["skill_ids"] = skills
+		state["progression"] = progression
+		state = _pre_battle_state_for_room(engine, state, coord)
+		var instance: Node = await _instance(state)
+		var panel := instance.get("_pre_battle_panel") as Control
+		var target_name: String = "TrueBearingButton" if with_position else "PreBattleEquipButton"
+		_expect(_viewport.gui_get_focus_owner() == panel.find_child(target_name, true, false), "Controller entry must focus %s" % target_name)
+		await _joy(JOY_BUTTON_DPAD_UP)
+		var foe: Control = _viewport.gui_get_focus_owner()
+		var flow := panel.find_child("PreBattleEnemyFlow", true, false) as Control
+		var foe_reached: bool = foe != null and flow.is_ancestor_of(foe) and foe.get("enemy") is Dictionary
+		_expect(foe_reached, "Foes must remain reachable from the entry action with controller Up (got %s)" % (str(foe.name) if foe != null else "no focus"))
+		if foe_reached:
+			await _joy(JOY_BUTTON_A)
+			await _settle()
+			var pinned := instance.get("_pinned_tooltip_panel") as Control
+			_expect(pinned != null and str(pinned.get_meta("inspection_kind", "")) == "enemy", "Controller A must inspect the reachable foe")
+			await _joy(JOY_BUTTON_B)
+			await _settle()
+		instance.queue_free()
+		await process_frame
+	router.call("clear_forced_state_for_test")
+
+func _run_native_hover_dismissal_proof(instance: Node, foe: Control) -> void:
+	var popup := PopupPanel.new()
+	popup.name = "SimulatedNativeEnemyTooltip"
+	popup.theme_type_variation = &"TooltipPanel"
+	foe.add_child(popup)
+	var hover_inspection := foe.call("_make_custom_tooltip", foe.tooltip_text) as Control
+	_expect(hover_inspection != null, "Native popup proof needs the foe's hover inspection")
+	if hover_inspection == null:
+		popup.queue_free()
+		return
+	popup.add_child(hover_inspection)
+	popup.popup(Rect2i(Vector2i(960, 520), Vector2i(620, 430)))
+	await process_frame
+	_expect(popup.visible, "Hover dismissal proof must begin with an already-visible native popup")
+	var press := InputEventMouseButton.new()
+	press.button_index = MOUSE_BUTTON_LEFT
+	press.pressed = true
+	press.position = foe.size * 0.5
+	press.global_position = foe.get_global_rect().get_center()
+	foe.call("_gui_input", press)
+	await _settle()
+	var pinned := instance.get("_pinned_tooltip_panel") as Control
+	_expect(pinned != null and str(pinned.get_meta("inspection_kind", "")) == "enemy", "Foe click with a native popup must pin known moves")
+	_expect(not is_instance_valid(popup), "Foe click must dismiss an already-visible native hover popup")
+	instance.call("_close_pinned_tooltip")
 	await process_frame

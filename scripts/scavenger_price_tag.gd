@@ -17,10 +17,10 @@ func _ready() -> void:
 	tag.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	tag.offset_top = Typography.scaled_value(self, 4.0)
 	tag.offset_bottom = Typography.scaled_value(self, 4.0)
-	tag.texture = AssetLoader.load_texture(TAG_PATH)
+	tag.texture = Surface.mipmapped_texture(TAG_PATH)
 	tag.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	tag.stretch_mode = TextureRect.STRETCH_SCALE
-	tag.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	tag.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
 	tag.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	if not affordable:
 		var faded: ShaderMaterial = Surface.texture_material()

@@ -3,6 +3,7 @@ extends Button
 # setup(icon, tooltip = "", badge = ""); native pressed/focus/activation.
 # socket_size is in layout pixels. Set interactive=false for display-only use,
 # selected for the inner gilt ring, and icon_filter for non-pixel-art icons.
+# inspect_only keeps help focus without activation; dimmed changes appearance only.
 const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const Surface = preload("res://scripts/ui_component_surface.gd")
@@ -22,9 +23,29 @@ var socket_size: float = 50.0:
 var interactive: bool = true:
 	set(value):
 		interactive = value
-		focus_mode = Control.FOCUS_ALL if value else Control.FOCUS_NONE
-		mouse_filter = Control.MOUSE_FILTER_STOP if value else Control.MOUSE_FILTER_IGNORE
-		set_meta("cursor_feedback_context", "action" if value else "inert")
+		focus_mode = Control.FOCUS_ALL if value or inspect_only else Control.FOCUS_NONE
+		mouse_filter = Control.MOUSE_FILTER_STOP if value or inspect_only else Control.MOUSE_FILTER_IGNORE
+		set_meta("cursor_feedback_context", "help" if inspect_only else "action" if value else "inert")
+		queue_redraw()
+var inspect_only: bool = false:
+	set(value):
+		inspect_only = value
+		focus_mode = Control.FOCUS_ALL if value or interactive else Control.FOCUS_NONE
+		mouse_filter = Control.MOUSE_FILTER_STOP if value or interactive else Control.MOUSE_FILTER_IGNORE
+		mouse_default_cursor_shape = Control.CURSOR_HELP if value else Control.CURSOR_POINTING_HAND
+		button_mask = 0 if value else MOUSE_BUTTON_MASK_LEFT
+		set_meta("cursor_feedback_context", "help" if value else "action" if interactive else "inert")
+		set_meta("hud_inspect_only", value)
+		set_process_input(value)
+		queue_redraw()
+var dimmed: bool = false:
+	set(value):
+		dimmed = value
+		_update_icon_material()
+		queue_redraw()
+var status_color := Color.TRANSPARENT:
+	set(value):
+		status_color = value
 		queue_redraw()
 var selected: bool = false:
 	set(value):
@@ -43,13 +64,13 @@ var icon_filter: CanvasItem.TextureFilter = CanvasItem.TEXTURE_FILTER_NEAREST:
 var _ring := TextureRect.new()
 var _icon := TextureRect.new()
 var _badge := Label.new()
-var _icon_material: ShaderMaterial = Surface.texture_material()
 var _glow: Texture2D = Surface.radial_texture(Color(Palette.EMBER, 0.55))
 var _geometry: Dictionary = {}
 var _source_icon: Texture2D
 
 func _init() -> void:
 	Surface.clear_button_style(self)
+	set_process_input(false)
 	focus_mode = Control.FOCUS_ALL
 	size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -67,7 +88,7 @@ func _init() -> void:
 	_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_icon.texture_filter = icon_filter
 	_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_icon.material = _icon_material
+	_update_icon_material()
 	add_child(_icon)
 	_badge.name = "Badge"
 	_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -80,6 +101,21 @@ func _init() -> void:
 func _ready() -> void:
 	_layout()
 	update_minimum_size()
+	set_process_input(inspect_only)
+
+func _input(event: InputEvent) -> void:
+	if inspect_only and has_focus() and event.is_action("ui_accept"):
+		get_viewport().set_input_as_handled()
+
+func _socket_active() -> bool:
+	return interactive and not disabled and (is_hovered() or has_focus())
+
+func _socket_dimmed() -> bool:
+	return dimmed or disabled
+
+func _update_icon_material() -> void:
+	if _icon != null:
+		_icon.material = Surface.socket_material(0.35 if _socket_dimmed() else 1.0)
 
 func setup(icon: Texture2D, tooltip: String = "", badge: String = "") -> void:
 	_source_icon = icon
@@ -147,17 +183,18 @@ func _draw() -> void:
 	var rect := Rect2((size - Vector2.ONE * diameter) * 0.5, Vector2.ONE * diameter)
 	var center: Vector2 = _ring_center(rect)
 	var radius: float = _ring_radius(rect, "inner_radius")
-	var active: bool = interactive and not disabled and (is_hovered() or has_focus())
+	var active: bool = _socket_active()
 	if active:
 		var glow_radius: float = _ring_radius(rect, "outer_radius") + Typography.scaled_value(self, 7.0)
 		draw_texture_rect(_glow, Rect2(center - Vector2.ONE * glow_radius, Vector2.ONE * glow_radius * 2.0), false)
 	draw_texture_rect(Surface.socket_fill(), Rect2(center - Vector2.ONE * radius, Vector2.ONE * radius * 2.0), false)
-	_ring.modulate = DISABLED_RING_TINT if disabled else (ACTIVE_RING_TINT if active else ring_tint)
+	_ring.modulate = DISABLED_RING_TINT if _socket_dimmed() else (ACTIVE_RING_TINT if active else ring_tint)
 	if _icon.texture == null:
 		_ring.modulate.a *= 0.45
 		for index: int in range(16):
 			var start: float = TAU * float(index) / 16.0
 			draw_arc(center, radius * 0.88, start, start + TAU / 32.0, 5, Color(Palette.GOLD_DIM, 0.35), Typography.scaled_value(self, 1.0), true)
-	_icon_material.set_shader_parameter("saturation", 0.35 if disabled else 1.0)
-	if selected:
-		draw_arc(center, maxf(1.0, radius - Typography.scaled_value(self, 1.0)), 0.0, TAU, 64, Palette.GOLD_BRIGHT, Typography.scaled_value(self, 2.0), true)
+	_update_icon_material()
+	var inner_color: Color = status_color if status_color.a > 0.0 else Palette.GOLD_BRIGHT if selected else Color.TRANSPARENT
+	if inner_color.a > 0.0:
+		draw_arc(center, maxf(1.0, radius - Typography.scaled_value(self, 1.0)), 0.0, TAU, 64, inner_color, Typography.scaled_value(self, 2.0), true)

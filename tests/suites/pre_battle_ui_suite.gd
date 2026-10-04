@@ -2,6 +2,9 @@ extends RefCounted
 
 const GameData = preload("res://scripts/game_data.gd")
 const RunSceneScript = preload("res://scripts/run_scene.gd")
+const PreBattleView = preload("res://scripts/pre_battle_view.gd")
+const ThreatTags = preload("res://scripts/pre_battle_threat_tags.gd")
+const ActionIcons = preload("res://scripts/action_icon_library.gd")
 
 const UMBRA_COLOR: Color = preload("res://scripts/ui_palette.gd").UMBRA
 const HP_COLOR: Color = preload("res://scripts/ui_palette.gd").DANGER_BRIGHT
@@ -13,12 +16,13 @@ static func run(expect: Callable) -> void:
 	_test_enemy_detail_semantics(host, expect)
 	_test_enemy_detail_cursor_feedback(host, expect)
 	_test_known_move_icon_precedence(host, expect)
-	_test_portrait_fitting_for_full_roster(host, expect)
+	await _test_staged_sprite_fitting_for_full_roster(host, expect)
+	await _test_foe_caption_layout(host, expect)
 	_test_stage_tag_icons(host, expect)
 	host.free()
 
 static func _test_room_umbra_summary(host: Node, expect: Callable) -> void:
-	var room_chip: Control = host.call("_build_pre_battle_room_chip", {
+	var room_chip: Control = PreBattleView.build_room_chip(host, {
 		"name": "Cindered Hall",
 		"type": "combat",
 		"depth": 3,
@@ -51,7 +55,8 @@ static func _test_enemy_detail_semantics(host: Node, expect: Callable) -> void:
 	expect.call(hp_label != null and hp_label.text.begins_with("HP ") and hp_label.get_theme_color("font_color").is_equal_approx(HP_COLOR), "Detailed enemy HP should be isolated on a red line")
 	expect.call(initiative_label != null and initiative_label.text.begins_with("Base initiative ") and initiative_label.get_theme_color("font_color").is_equal_approx(INITIATIVE_COLOR), "Detailed enemy initiative should be isolated on a blue line")
 	expect.call(not _labels_text(inspection).contains("Known repertoire") and not _labels_text(inspection).contains("next move concealed"), "Detailed enemy inspection should remove the redundant repertoire/concealment line")
-	expect.call(close_button != null and close_button.text == "✕" and close_button.visible, "Interactive enemy inspection should expose a dedicated visible close socket")
+	var close_glyph: Label = close_button.find_child("*Glyph", true, false) as Label if close_button != null else null
+	expect.call(close_button != null and close_button.visible and close_button.focus_mode == Control.FOCUS_ALL and close_glyph != null and close_glyph.text == "✕" and close_glyph.visible, "Interactive enemy inspection should expose a dedicated visible, focusable close socket with a drawn ✕")
 	inspection.free()
 
 static func _test_enemy_detail_cursor_feedback(host: Node, expect: Callable) -> void:
@@ -104,45 +109,75 @@ static func _test_known_move_icon_precedence(host: Node, expect: Callable) -> vo
 		var actual: String = str(host.call("_pre_battle_known_move_icon_key", expectation[0] as Dictionary))
 		expect.call(actual == str(expectation[1]), "Known enemy move icon should prioritize %s semantics over incidental movement (got %s)" % [str(expectation[1]), actual])
 
-static func _test_portrait_fitting_for_full_roster(host: Node, expect: Callable) -> void:
-	var enemy_types: Array = GameData.enemies().keys()
-	for enemy_type_var: Variant in enemy_types:
-		var enemy_type: String = str(enemy_type_var)
-		var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
-		var portrait: TextureRect = host.call("_pre_battle_enemy_portrait", enemy_type, enemy_def) as TextureRect
-		expect.call(portrait != null and portrait.texture != null, "%s should resolve a pre-battle portrait texture" % enemy_type)
-		expect.call(portrait != null and portrait.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_CENTERED, "%s portrait should preserve the complete face-focused composition" % enemy_type)
-		expect.call(portrait != null and portrait.texture != null and portrait.texture.get_size() == Vector2(128.0, 128.0), "%s pre-battle portrait should use the shared native 128px combat portrait" % enemy_type)
-		expect.call(portrait != null and portrait.material is ShaderMaterial and bool(portrait.get_meta("pre_battle_worn_edges", false)), "%s pre-battle portrait should use the worn edge material" % enemy_type)
-		var profile: Dictionary = (portrait.get_meta("pre_battle_portrait_edge_profile", {}) as Dictionary) if portrait != null else {}
-		expect.call(profile.has("focus_center") and profile.has("focus_radius") and profile.has("edge_widths") and profile.has("edge_strengths"), "%s worn edge profile should include focal protection and per-side wear controls" % enemy_type)
-		var portrait_path: String = str(host.call("_combat_portrait_path", enemy_type))
-		expect.call(portrait_path.begins_with("res://assets/art/portraits/"), "%s pre-battle portrait should resolve through the shared portrait registry" % enemy_type)
-		if portrait != null:
-			portrait.free()
-	var warden_def: Dictionary = GameData.enemy_def("warden")
-	var summary_card: Control = host.call("_build_pre_battle_enemy_card", {
-		"type": "warden",
-		"hp": int(warden_def.get("max_hp", 1)),
-		"max_hp": int(warden_def.get("max_hp", 1))
-	}, Color("d8b06d"), Vector2(206.0, 365.0)) as Control
-	var summary_art: TextureRect = summary_card.find_child("PreBattleEnemyArt", true, false) as TextureRect
-	expect.call(summary_art != null and summary_art.offset_left >= 12.0 and summary_art.offset_top >= 12.0 and summary_art.offset_right <= -12.0, "Summary portraits should keep a safe inset inside the frameless brush composition")
-	summary_card.free()
-	var crawler_portrait: TextureRect = host.call("_pre_battle_enemy_portrait", "crawler", GameData.enemy_def("crawler")) as TextureRect
-	var crawler_profile: Dictionary = crawler_portrait.get_meta("pre_battle_portrait_edge_profile", {}) as Dictionary
-	var crawler_center: Vector2 = crawler_profile.get("focus_center", Vector2.ONE)
-	var crawler_widths: Vector4 = crawler_profile.get("edge_widths", Vector4.ZERO)
-	var crawler_strengths: Vector4 = crawler_profile.get("edge_strengths", Vector4.ZERO)
-	expect.call(crawler_center.x < 0.40, "Tunnel Crawler focal protection should follow its left-side head")
-	expect.call(crawler_widths.y >= 0.25, "Tunnel Crawler should wear its non-focal upper back before it escapes above the brush silhouette")
-	expect.call(crawler_widths.z >= 0.35, "Tunnel Crawler should clean up its upper-right back before it escapes the brush silhouette")
-	expect.call(crawler_strengths.z > crawler_strengths.x and crawler_strengths.w > crawler_strengths.y, "Tunnel Crawler should wear its right/bottom body edges more strongly than the head-side edges")
-	var crawler_material: ShaderMaterial = crawler_portrait.material as ShaderMaterial
-	var crawler_shader_code: String = crawler_material.shader.code if crawler_material != null and crawler_material.shader != null else ""
-	expect.call(crawler_shader_code.contains("COLOR.a *= edge_mask;"), "Worn portrait edges should alter only alpha and leave the portrait RGB on its existing color path")
-	expect.call(not crawler_shader_code.contains("texture(TEXTURE, UV)"), "Worn portrait edges should not square portrait color with a duplicate default-texture sample")
-	crawler_portrait.free()
+static func _test_staged_sprite_fitting_for_full_roster(host: Node, expect: Callable) -> void:
+	var stage_host := Control.new()
+	(Engine.get_main_loop() as SceneTree).root.add_child(stage_host)
+	for enemy_type: String in GameData.enemies().keys():
+		var definition: Dictionary = GameData.enemy_def(enemy_type)
+		for compact: bool in [false, true]:
+			var column_size := Vector2(206.0, 220.0 if compact else 365.0)
+			var card: Control = PreBattleView.build_foe(host, {"type": enemy_type, "hp": int(definition.get("max_hp", 1))}, column_size, false, compact)
+			stage_host.add_child(card)
+			card.size = column_size
+			await (Engine.get_main_loop() as SceneTree).process_frame
+			await (Engine.get_main_loop() as SceneTree).process_frame
+			var art := card.find_child("PreBattleEnemyArt", true, false) as TextureRect
+			var stage := card.find_child("PreBattleEnemyBrush", true, false) as Control
+			expect.call(stage != null, "%s should stand on an ink-pool stage" % enemy_type)
+			expect.call(art != null and art.texture != null, "%s should resolve its staged full-body sprite" % enemy_type)
+			if art != null and art.texture != null:
+				expect.call(_texture_path(art.texture) == str(definition.get("art_path", "")), "%s stage should use its registered full-body art" % enemy_type)
+				expect.call(art.stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_CENTERED and art.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "%s staged sprite should preserve its composition and pixel sampling" % enemy_type)
+				expect.call(card.get_rect().encloses(art.get_rect()), "%s sprite control should fit its %s column" % [enemy_type, "compact" if compact else "normal"])
+				var texture_size: Vector2 = art.texture.get_size()
+				var fit_scale: float = minf(art.size.x / texture_size.x, art.size.y / texture_size.y)
+				var drawn_size: Vector2 = texture_size * fit_scale
+				var drawn_rect := Rect2(art.position + (art.size - drawn_size) * 0.5, drawn_size)
+				expect.call(fit_scale > 0.0 and card.get_rect().grow(0.01).encloses(drawn_rect), "%s complete staged sprite should fit inside its column: %s in %s" % [enemy_type, drawn_rect, card.get_rect()])
+			card.free()
+	stage_host.free()
+
+static func _test_foe_caption_layout(host: Node, expect: Callable) -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	var viewport := SubViewport.new()
+	viewport.size = Vector2i(1920, 1080)
+	tree.root.add_child(viewport)
+	var roster: Array = []
+	for enemy_type: String in ["zekarion", "warden", "crawler", "zekarion", "vyraketh", "tharokh"]:
+		var hp: int = int(GameData.enemy_def(enemy_type).get("max_hp", 1))
+		roster.append({"type": enemy_type, "hp": hp, "max_hp": hp})
+	for count: int in range(1, 7):
+		var section: Control = PreBattleView.build_foes(host, {"enemies": roster.slice(0, count)})
+		viewport.add_child(section)
+		section.size = Vector2(660.0, 560.0)
+		for frame: int in range(4):
+			await tree.process_frame
+		var flow := section.find_child("PreBattleEnemyFlow", true, false) as Control
+		for index: int in range(flow.get_child_count()):
+			var card := flow.get_child(index) as Control
+			var enemy_name := card.find_child("PreBattleEnemyName", true, false) as Label
+			var tags := card.find_child("PreBattleMoveTags", true, false) as Control
+			var name_rect: Rect2 = enemy_name.get_global_rect()
+			var tag_rect: Rect2 = tags.get_global_rect()
+			expect.call(not name_rect.intersects(tag_rect), "%d foes: %s tag row must not intersect its rendered name" % [count, enemy_name.text])
+			expect.call(absf(tag_rect.position.y - name_rect.end.y - 8.0) <= 0.5, "%d foes: %s tags should flow exactly 8px below the rendered name" % [count, enemy_name.text])
+			expect.call(card.get_global_rect().grow(0.5).encloses(name_rect) and card.get_global_rect().grow(0.5).encloses(tag_rect), "%d foes: %s name and tags must fit the column height budget" % [count, enemy_name.text])
+			var row_first := flow.get_child((index / 3) * 3) as Control
+			var sprite := card.find_child("PreBattleEnemyArt", true, false) as Control
+			var first_sprite := row_first.find_child("PreBattleEnemyArt", true, false) as Control
+			var hp_badge := card.find_child("PreBattleEnemyHealth", true, false) as Control
+			var first_hp := row_first.find_child("PreBattleEnemyHealth", true, false) as Control
+			expect.call(is_equal_approx(sprite.get_global_rect().end.y, first_sprite.get_global_rect().end.y) and is_equal_approx(hp_badge.global_position.y, first_hp.global_position.y), "%d foes: name wrapping must preserve sprite baselines and HP badge alignment within the row" % count)
+			if str((card.get("enemy") as Dictionary).get("type", "")) == "zekarion":
+				expect.call(enemy_name.get_line_count() == 2, "%d foes: Zekarion regression coverage should include its two-line name" % count)
+				expect.call(enemy_name.get_theme_font_size("font_size") >= 17, "%d foes: compact names must keep the UI17 floor" % count)
+		section.free()
+	viewport.free()
+
+static func _texture_path(texture: Texture2D) -> String:
+	while texture is AtlasTexture:
+		texture = (texture as AtlasTexture).atlas
+	return str(texture.get_meta("asset_source_path", texture.resource_path)) if texture != null else ""
 
 static func _labels_text(node: Node) -> String:
 	var text_parts: PackedStringArray = []
@@ -151,10 +186,56 @@ static func _labels_text(node: Node) -> String:
 	return "\n".join(text_parts)
 
 static func _test_stage_tag_icons(host: Node, expect: Callable) -> void:
-	for identity: String in GameData.enemies().keys():
-		var definition: Dictionary = GameData.enemy_def(identity)
-		var card: Control = host.call("_build_pre_battle_enemy_card", {"type": identity, "hp": int(definition.get("max_hp", 1))}, Color.WHITE, Vector2(206, 365)) as Control
-		var tags: Control = card.find_child("PreBattleMoveTags", true, false) as Control
-		for icon_node: Node in tags.find_children("*", "TextureRect", true, false):
-			expect.call((icon_node as TextureRect).texture != null, "%s move tags must resolve an existing intent icon" % identity)
+	var roster_expectations: Array = [
+		["acolyte", "Heal", "heal"],
+		["warden", "Guard", "guard_ally"],
+		["zekarion", "Area", "lightning_strikes"]
+	]
+	for expectation_var: Variant in roster_expectations:
+		var expectation: Array = expectation_var as Array
+		var enemy_type: String = str(expectation[0])
+		var card: Control = PreBattleView.build_foe(host, {"type": enemy_type, "hp": 1}, Vector2(206, 365))
+		_assert_tag_identity(card.find_child("PreBattleMoveTags", true, false) as Control, str(expectation[1]), str(expectation[2]), expect, enemy_type)
 		card.free()
+	var action_expectations: Array = [
+		[{"type": "heal_self"}, "Heal", "heal"],
+		[{"type": "heal_ally"}, "Heal", "heal_ally"],
+		[{"type": "guard_ally"}, "Guard", "guard_ally"],
+		[{"type": "block"}, "Guard", "block"],
+		[{"type": "lightning_strikes"}, "Area", "lightning_strikes"],
+		[{"type": "terrain_burst"}, "Worldspines", "terrain_burst"],
+		[{"type": "terrain_burst", "guardian_kind": "crag_outcrop"}, "Outcrops", "terrain_burst"],
+		[{"type": "raise_terrain"}, "Worldspines", "raise_terrain"],
+		[{"type": "detonate_cinders"}, "Cinder Marks", "detonate_cinders"],
+		[{"type": "cinder_marks"}, "Cinder Marks", "cinder_marks"],
+		[{"type": "melee", "pierce": true, "bleed": 2}, "Pierce", "pierce"],
+		[{"type": "melee", "pierce": true, "bleed": 2}, "Bleed", "bleed"],
+		[{"type": "split"}, "Split", ""],
+		[{"type": "move_toward"}, "Inspect known moves", ""]
+	]
+	for expectation_var: Variant in action_expectations:
+		var expectation: Array = expectation_var as Array
+		var tags: Array = ThreatTags.from_intents([{"actions": [expectation[0]]}])
+		var row: Control = PreBattleView.build_move_tags(host, tags)
+		_assert_tag_identity(row, str(expectation[1]), str(expectation[2]), expect, str((expectation[0] as Dictionary).get("type", "")))
+		row.free()
+	expect.call(ThreatTags.summary(ThreatTags.build("acolyte")) == "Ranged / Guard / Heal  +1", "Threat summaries should preserve established words, order, deduplication and overflow")
+
+static func _assert_tag_identity(row: Control, word: String, icon_key: String, expect: Callable, context: String) -> void:
+	var tag: Control = null
+	for child: Control in row.get_children():
+		if str(child.get_meta("tag_word", "")) == word:
+			tag = child
+			break
+	expect.call(tag != null, "%s should retain its %s threat word" % [context, word])
+	if tag == null:
+		return
+	expect.call(str(tag.get_meta("icon_key", "")) == icon_key, "%s %s should use registry key %s" % [context, word, icon_key])
+	var icons: Array[Node] = tag.find_children("*", "TextureRect", true, false)
+	if icon_key.is_empty():
+		expect.call(icons.is_empty(), "%s %s must retain its word without borrowing an unrelated icon" % [context, word])
+	else:
+		expect.call(icons.size() == 1, "%s %s should show exactly one identity icon" % [context, word])
+		if icons.size() == 1:
+			var texture: Texture2D = (icons[0] as TextureRect).texture
+			expect.call(texture != null and _texture_path(texture) == ActionIcons.icon_path(icon_key), "%s %s must show the registered %s icon path" % [context, word, icon_key])

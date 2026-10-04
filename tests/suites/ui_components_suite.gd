@@ -8,6 +8,8 @@ const Stage = preload("res://scripts/ui_ink_pool_stage.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
+const Surface = preload("res://scripts/ui_component_surface.gd")
+const CursorFeedback = preload("res://scripts/cursor_feedback.gd")
 
 static func run(tree: SceneTree, expect: Callable) -> void:
 	var host := Control.new()
@@ -41,6 +43,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	await tree.process_frame
 	await tree.process_frame
 	await _check_socket_geometry(tree, host, expect)
+	await _check_socket_resources_and_inspection(tree, host, socket, stage, expect)
 	expect.call(socket.focus_mode == Control.FOCUS_ALL, "Interactive sockets must support native focus")
 	expect.call(socket.tooltip_text == "Inspect equipment", "Socket setup must preserve tooltip copy")
 	expect.call(socket.get_node("Badge").visible and socket.get_node("Badge").text == "3", "Socket badge must show its setup count")
@@ -106,6 +109,44 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	expect.call(chip.get_node("Socket").ring_tint == socket.ring_tint, "Stat chips must reuse the shared muted socket tint")
 	expect.call(stage.mouse_filter == Control.MOUSE_FILTER_IGNORE and stage.variant == "b", "Ink pool stage must ignore input and retain variant")
 	host.queue_free()
+	await tree.process_frame
+
+static func _check_socket_resources_and_inspection(tree: SceneTree, host: Control, socket: Button, stage: Control, expect: Callable) -> void:
+	var sample := Socket.new()
+	sample.position = Vector2(60.0, 330.0)
+	sample.setup(socket.get_node("Icon").texture, "Inspect without activation")
+	host.add_child(sample)
+	var second_stage := Stage.new()
+	host.add_child(second_stage)
+	expect.call(sample.get("_glow") == socket.get("_glow"), "Sockets must share their radial glow texture")
+	expect.call(stage.get("_spotlight") == second_stage.get("_spotlight"), "Ink pool stages must share their radial spotlight texture")
+	var color := Color(0.21, 0.34, 0.55, 0.6)
+	expect.call(Surface.radial_texture(color) == Surface.radial_texture(color), "Matching radial colors must reuse one texture")
+	expect.call(Surface.radial_texture(color) != Surface.radial_texture(Color(color, 0.3)), "Distinct radial colors must retain distinct textures")
+	expect.call(Surface.radial_texture(color) != Surface.radial_texture(color, 0.7), "Distinct radial falloffs must retain distinct textures")
+	var normal_material: ShaderMaterial = socket.get_node("Icon").material as ShaderMaterial
+	expect.call(sample.get_node("Icon").material == normal_material, "Normal socket icons must share one immutable material")
+	sample.dimmed = true
+	var dimmed_material: ShaderMaterial = sample.get_node("Icon").material as ShaderMaterial
+	expect.call(dimmed_material != normal_material and is_equal_approx(float(dimmed_material.get_shader_parameter("saturation")), 0.35), "Spent socket icons must select the cached desaturated material")
+	expect.call(is_equal_approx(float(normal_material.get_shader_parameter("saturation")), 1.0), "Dimming one socket must preserve other icons' saturation")
+	sample.disabled = true
+	sample.call("_update_icon_material")
+	expect.call(sample.get_node("Icon").material == dimmed_material, "Disabled and spent sockets must reuse the same desaturated material")
+	sample.disabled = false
+	sample.inspect_only = true
+	await tree.process_frame
+	expect.call(not sample.disabled and sample.focus_mode == Control.FOCUS_ALL and sample.mouse_default_cursor_shape == Control.CURSOR_HELP, "Spent inspect-only sockets must retain native help focus")
+	expect.call(not bool(CursorFeedback.context_for_control(sample).get("actionable", true)), "Inspect-only sockets must never produce actionable cursor feedback")
+	var presses: Array = [0]
+	sample.pressed.connect(func() -> void: presses[0] += 1)
+	await _mouse_click(tree, sample)
+	sample.grab_focus()
+	await _key_activate(tree)
+	await _controller_activate(tree)
+	expect.call(sample.has_focus() and presses[0] == 0, "Inspect-only sockets must keep focus and reject pointer, keyboard and controller activation")
+	sample.queue_free()
+	second_stage.queue_free()
 	await tree.process_frame
 
 static func _check_socket_geometry(tree: SceneTree, host: Control, expect: Callable) -> void:

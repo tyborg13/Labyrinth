@@ -101,7 +101,7 @@ const UiTooltipControl = preload("res://scripts/ui_tooltip_control.gd")
 const CardActionContextArt = preload("res://scripts/card_action_context_art.gd")
 const PreBattleView = preload("res://scripts/pre_battle_view.gd")
 const PreBattleInspectionView = preload("res://scripts/pre_battle_inspection_view.gd")
-const PreBattlePortraitEdgeMaterial = preload("res://scripts/pre_battle_portrait_edge_material.gd")
+const PreBattleThreatTags = preload("res://scripts/pre_battle_threat_tags.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const GuidedCombatScenario = preload("res://scripts/guided_combat_scenario.gd")
 const ContextualCombatPromptScene = preload("res://scripts/contextual_combat_prompt.gd")
@@ -1162,22 +1162,15 @@ const CHARACTER_DIALOG_SIZE: Vector2 = Vector2(1500.0, 900.0)
 const CHARACTER_DIALOG_MIN_SIZE: Vector2 = Vector2(1120.0, 620.0)
 const SKILL_TREE_DIALOG_SIZE: Vector2 = Vector2(1500.0, 900.0)
 const SKILL_TREE_DIALOG_MIN_SIZE: Vector2 = Vector2(1120.0, 620.0)
-const PROGRESSION_SUMMARY_COMPACT_VIEWPORT_WIDTH: float = 1200.0
 const CHARACTER_BODY_MIN_HEIGHT: float = 360.0
-const EQUIPMENT_TILE_SIZE: Vector2 = Vector2(0.0, 92.0)
-const EQUIPMENT_SLOT_SIZE: Vector2 = Vector2(300.0, 66.0)
 const EQUIPMENT_ICON_SIZE: Vector2 = Vector2(50.0, 50.0)
 const EQUIPMENT_DRAG_GHOST_SIZE: Vector2 = Vector2(78.0, 78.0)
 const EQUIPMENT_DRAG_CURSOR_OFFSET: Vector2 = Vector2(18.0, 20.0)
 const EQUIPMENT_SWAP_SNAP_SECONDS: float = 0.22
 const EQUIPMENT_SWAP_RETURN_SECONDS: float = 0.24
 const EQUIPMENT_DECK_BADGE_SIZE: Vector2 = Vector2(164.0, 42.0)
-const ITEM_EQUIPPED_TILE_SIZE: Vector2 = Vector2(300.0, 64.0)
 const ITEM_INVENTORY_TILE_SIZE: Vector2 = Vector2(336.0, 68.0)
-const ITEM_ART_CHIP_SIZE: Vector2 = Vector2(50.0, 50.0)
 const ITEM_DRAG_CURSOR_OFFSET: Vector2 = Vector2(14.0, 18.0)
-const MAGIC_ATTUNED_TILE_SIZE: Vector2 = Vector2(292.0, 58.0)
-const MAGIC_INVENTORY_TILE_SIZE: Vector2 = Vector2(168.0, 52.0)
 const MAGIC_DRAG_CURSOR_OFFSET: Vector2 = Vector2(14.0, 18.0)
 const EQUIPMENT_TOOLTIP_CARD_SIZE: Vector2 = Vector2(180.0, 180.0 * CARD_ASPECT_RATIO)
 const CARD_TOOLTIP_SIZE: Vector2 = Vector2(224.0, 224.0 * CARD_ASPECT_RATIO)
@@ -1235,22 +1228,7 @@ const PASS_PREVIEW_DEFIANCE_ICON_PATH: String = "res://assets/art/icons/defiance
 const PRE_BATTLE_DIALOG_SIZE: Vector2 = Vector2(1210.0, 750.0)
 const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_FRAME_OUTSET: Vector2 = Vector2(48.0, 32.0)
-const PRE_BATTLE_PANEL_CONTENT_INSET: float = 18.0
-const PRE_BATTLE_CONTENT_SIDE_INSET: float = 52.0
-const PRE_BATTLE_BODY_SIDE_INSET: float = 12.0
-const PRE_BATTLE_ROOM_CHIP_MIN_WIDTH: float = 320.0
-const PRE_BATTLE_ENEMY_CARD_SOLO_SIZE: Vector2 = Vector2(420.0, 270.0)
-const PRE_BATTLE_ENEMY_CARD_SIZE: Vector2 = Vector2(300.0, 210.0)
-const PRE_BATTLE_ENEMY_CARD_COMPACT_SIZE: Vector2 = Vector2(198.0, 188.0)
-const PRE_BATTLE_CARD_LIMIT: int = 18
-const PRE_BATTLE_PORTRAIT_INSET: float = 12.0
-const PRE_BATTLE_BRUSH_PATH: String = "res://assets/art/ui/pre_battle_enemy_brush_v15.png"
 const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v8.png"
-const PRE_BATTLE_DEPTH_ORNAMENT_PATH: String = "res://assets/art/ui/pre_battle_depth_ornament_v2.png"
-const PRE_BATTLE_UMBRA_COLOR: Color = Color("c78bea")
-const PRE_BATTLE_HP_COLOR: Color = Color("f08a7a")
-const PRE_BATTLE_INITIATIVE_COLOR: Color = Color("8ec5ff")
-const PRE_BATTLE_HP_BADGE_BORDER: Color = Color("765332")
 const TURN_ORDER_PORTRAITS := {
 	"ash_hound": "res://assets/art/portraits/guardians/ash_hound_portrait.png",
 	"ashen_reaver": "res://assets/art/portraits/guardians/ashen_reaver_portrait.png",
@@ -1772,7 +1750,6 @@ var _progression_level_label: Label
 var _progression_skill_points_label: Label
 var _progression_moltshards_label: Label
 var _progression_defiance_label: Label
-var _progression_summary_compact: bool = false
 var _progression_overlay_notice: String = ""
 var _progression_overlay_notice_is_error: bool = false
 var _progression_overlay_cached_mode: String = ""
@@ -3107,7 +3084,7 @@ func _controller_activate_current() -> void:
 	var candidate_kind: String = str(_controller_focus_candidate.get("kind", ""))
 	if candidate_kind in ["control", "relic"]:
 		var focused_control: Control = _controller_focus_candidate.get("control", null) as Control
-		if focused_control is BaseButton and not (focused_control as BaseButton).disabled:
+		if focused_control is BaseButton and not (focused_control as BaseButton).disabled and not bool(focused_control.get_meta("hud_inspect_only", false)):
 			_clear_focused_enemy_intent()
 			(focused_control as BaseButton).pressed.emit()
 		return
@@ -3524,10 +3501,14 @@ func _refresh_controller_prompts() -> void:
 		if focused_control != null and _controller_header_focus_controls().has(focused_control):
 			prompts[0]["label"] = "Inspect" if str(_controller_focus_candidate.get("kind", "")) == "relic" else "Open"
 			prompts[1]["label"] = "Navigate"
+			if bool(focused_control.get_meta("hud_inspect_only", false)):
+				prompts.remove_at(0)
 	elif _controller_region == "board":
 		var candidate_kind: String = str(_controller_focus_candidate.get("kind", ""))
 		var candidate_control: Control = _controller_focus_candidate.get("control", null) as Control
-		if _player_movement_selected:
+		if candidate_control != null and bool(candidate_control.get_meta("hud_inspect_only", false)):
+			pass
+		elif _player_movement_selected:
 			prompts.append({"action": InputRouterScript.ACTION_ACCEPT, "label": "Target"})
 		elif candidate_kind == "control" and candidate_control is BaseButton and not (candidate_control as BaseButton).disabled:
 			prompts.append({"action": InputRouterScript.ACTION_ACCEPT, "label": "Open"})
@@ -4987,7 +4968,7 @@ func _layout_pre_battle_chrome() -> void:
 	if _pre_battle_frame.get_parent() is Container:
 		(_pre_battle_frame.get_parent() as Container).queue_sort()
 
-func _pre_battle_style(fill: Color, border: Color, content_margin: float = 10.0, radius: int = 8) -> StyleBoxFlat:
+func _pre_battle_style(fill: Color, border: Color, content_margin: float, radius: int) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = fill
 	style.border_color = border
@@ -5045,9 +5026,6 @@ func _rebuild_pre_battle_overlay() -> void:
 	PreBattleView.build(self, _pre_battle_panel, room, combat_state, accent)
 	_record_runtime_performance_phase("pre_battle_overlay_total", total_started)
 
-func _build_pre_battle_header(room: Dictionary, combat_state: Dictionary, accent: Color) -> Control:
-	return PreBattleView.build_header(self, room, combat_state, accent)
-
 func _apply_pre_battle_start_button_glow(button: BaseButton) -> void:
 	if button == null:
 		return
@@ -5094,21 +5072,6 @@ func _on_true_bearing_pressed() -> void:
 	_persist_committed_boundary("pre_battle_position_chosen")
 	_refresh_pre_battle_preview_if_visible()
 
-func _build_pre_battle_room_chip(room: Dictionary, combat_state: Dictionary, accent: Color, requested_width: float = 510.0) -> Control:
-	return PreBattleView.build_room_chip(self, room, combat_state, accent)
-
-func _build_pre_battle_objective_chip(combat_state: Dictionary, accent: Color, requested_width: float = 510.0) -> Control:
-	return PreBattleView.build_objective(combat_state)
-
-func _build_pre_battle_enemy_section(combat_state: Dictionary, accent: Color) -> Control:
-	return PreBattleView.build_foes(self, combat_state)
-
-func _build_pre_battle_deck_section(accent: Color) -> Control:
-	return PreBattleView.build_kit(self)
-
-func _build_pre_battle_player_strip(accent: Color) -> Control:
-	return PreBattleView.build_health(self)
-
 func _pre_battle_card_groups(card_ids: Array) -> Array:
 	var groups: Array = []
 	var group_index_by_card: Dictionary = {}
@@ -5125,12 +5088,6 @@ func _pre_battle_card_groups(card_ids: Array) -> Array:
 		group_index_by_card[card_id] = groups.size()
 		groups.append({"card_id": card_id, "count": 1})
 	return groups
-
-func _build_pre_battle_hp_chip(accent: Color) -> Control:
-	return PreBattleView.build_health(self)
-
-func _build_pre_battle_enemy_card(enemy: Dictionary, room_accent: Color, card_size: Vector2) -> Control:
-	return PreBattleView.build_foe(self, enemy, card_size, bool(enemy.get("is_leader", false)), card_size.y < 300.0)
 
 func _pre_battle_card_full_bleed_texture(path: String) -> Texture2D:
 	if _pre_battle_card_art_texture_cache.has(path):
@@ -5197,65 +5154,7 @@ func _pre_battle_card_full_bleed_texture(path: String) -> Texture2D:
 	return result
 
 func _pre_battle_enemy_threat_summary(enemy_type: String) -> String:
-	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
-	var tags: Array[String] = []
-	for intent_var: Variant in enemy_def.get("intents", []):
-		if typeof(intent_var) != TYPE_DICTIONARY:
-			continue
-		for action_var: Variant in (intent_var as Dictionary).get("actions", []):
-			if typeof(action_var) != TYPE_DICTIONARY:
-				continue
-			var action: Dictionary = action_var as Dictionary
-			var action_type: String = str(action.get("type", ""))
-			var tag: String = ""
-			match action_type:
-				"melee":
-					tag = "Melee"
-				"ranged":
-					tag = "Ranged"
-				"aoe", "lightning_strikes":
-					tag = "Area"
-				"block", "guard_ally":
-					tag = "Guard"
-				"stoneskin":
-					tag = "Stoneskin"
-				"heal", "heal_self", "heal_ally":
-					tag = "Heal"
-				"move_away":
-					tag = "Retreat"
-				"pull":
-					tag = "Pull"
-				"push":
-					tag = "Push"
-				"summon_minions":
-					tag = "Summon"
-				"raise_terrain", "terrain_burst":
-					tag = "Outcrops" if str(action.get("guardian_kind", "")) == "crag_outcrop" else "Worldspines"
-				"cinder_marks", "detonate_cinders":
-					tag = "Cinder Marks"
-				"gale_force":
-					tag = "Arena Gale"
-				"frost_armor":
-					tag = "Crystal Mantle"
-				"umbra_eclipse":
-					tag = "Eclipse"
-				"split":
-					tag = "Split"
-			if not tag.is_empty() and not tags.has(tag):
-				tags.append(tag)
-			if bool(action.get("pierce", false)) and not tags.has("Pierce"):
-				tags.append("Pierce")
-			if int(action.get("bleed", 0)) > 0 and not tags.has("Bleed"):
-				tags.append("Bleed")
-	if tags.is_empty():
-		return "Inspect known moves"
-	var visible_tags: Array[String] = []
-	for index: int in range(mini(3, tags.size())):
-		visible_tags.append(tags[index])
-	var summary: String = " / ".join(visible_tags)
-	if tags.size() > visible_tags.size():
-		summary += "  +%d" % (tags.size() - visible_tags.size())
-	return summary
+	return PreBattleThreatTags.summary(PreBattleThreatTags.build(enemy_type))
 
 func _pre_battle_known_enemy_intents(enemy_type: String) -> Array:
 	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
@@ -5269,9 +5168,6 @@ func _pre_battle_known_enemy_intents(enemy_type: String) -> Array:
 
 func _build_pre_battle_enemy_inspection_panel(enemy: Dictionary, interactive: bool = false) -> Control:
 	return PreBattleInspectionView.build(self, enemy, interactive)
-
-func _build_pre_battle_known_move_row(intent: Dictionary, accent: Color) -> Control:
-	return PreBattleInspectionView.build_move(self, intent)
 
 func _pre_battle_known_move_icon_key(intent: Dictionary) -> String:
 	if (intent.get("actions", []) as Array).is_empty(): return "time"
@@ -5323,28 +5219,6 @@ func _pre_battle_known_move_icon_key(intent: Dictionary) -> String:
 			best_key = candidate
 			best_priority = priority
 	return best_key
-
-func _pre_battle_enemy_portrait(enemy_type: String, enemy_def: Dictionary) -> TextureRect:
-	var portrait := TextureRect.new()
-	portrait.texture = _pre_battle_enemy_texture(enemy_type, enemy_def)
-	portrait.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	portrait.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	portrait.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var edge_profile: Dictionary = PreBattlePortraitEdgeMaterial.profile_for(enemy_type)
-	portrait.material = PreBattlePortraitEdgeMaterial.material_for(enemy_type)
-	portrait.set_meta("pre_battle_worn_edges", true)
-	portrait.set_meta("pre_battle_portrait_edge_profile", edge_profile)
-	return portrait
-
-func _pre_battle_enemy_texture(enemy_type: String, enemy_def: Dictionary) -> Texture2D:
-	var portrait_path: String = _combat_portrait_path(enemy_type)
-	if not portrait_path.is_empty():
-		return AssetLoader.load_texture(portrait_path)
-	var art_path: String = str(enemy_def.get("art_path", ""))
-	if not art_path.is_empty():
-		return AssetLoader.load_texture(art_path)
-	return null
 
 func _cancel_pre_battle_entry() -> void:
 	# Invalidates an entry still waiting for its first layout frame as well.
@@ -10777,69 +10651,13 @@ func _refresh_relic_bar() -> void:
 	_record_runtime_performance_phase("relic_bar_total", performance_total_started)
 
 func _relic_knots_tooltip(effect: Dictionary, tied: Array) -> String:
-	var detail: String = "\nKnots: %s (%d of %d)" % [_relic_element_names(tied), tied.size(), int(effect["max_knots"])]
-	if tied.size() >= int(effect["pierce_threshold"]): detail += ": attacks Pierce"
-	if tied.size() >= int(effect["chain_threshold"]): detail += " and Chain %d" % int(effect["chain"])
-	if tied.size() >= int(effect["block_threshold"]): detail += "; every card grants %d Block" % int(effect["block"])
-	return detail + "."
+	return CombatHudRelics.knots_tooltip(effect, tied)
 
-# Relic-specific state layered onto the socket badge: a spent relic fades, the
-# Black Sun Dial shows its stored surfaces as pips along the bottom, and the
-# Fivefold Knot counts its knots on the socket's own badge.
 func _apply_relic_badge_state(badge: Button, relic_id: String, relic: Dictionary) -> void:
-	var icon: CanvasItem = badge.get_node_or_null("Icon") as CanvasItem
-	for effect: Dictionary in GameData.relic_effects_for_ids([relic_id]):
-		if str(effect.get("type", "")) == "unused_play_extra_turn" and TempoRelicRules.used(_combat_state, effect):
-			if icon != null:
-				icon.modulate.a = 0.45
-			badge.tooltip_text += "\nUsed this combat."
-	for effect: Dictionary in relic.get("effects", []):
-		if str(effect.get("type", "")) == "store_consumed_surface_release":
-			var stored: Array = _combat_state.get("relic_stored_surfaces", []) as Array
-			badge.tooltip_text += "\nStored: " + _relic_element_names(stored, true)
-			var pip_layer := Control.new()
-			pip_layer.name = "RelicStoredSurfaces"
-			pip_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			pip_layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-			badge.add_child(pip_layer)
-			for pip_index: int in range(stored.size()):
-				var backing := Panel.new()
-				backing.name = "RelicStoredSurface_%d" % pip_index
-				backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				backing.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
-				backing.offset_left = 2.0 + pip_index * 16.0
-				backing.offset_right = backing.offset_left + 16.0
-				backing.offset_top = -18.0
-				backing.offset_bottom = -2.0
-				var style := StyleBoxFlat.new()
-				style.bg_color = Color(0.07, 0.05, 0.08, 0.86)
-				style.border_color = UiPalette.GOLD_DIM
-				style.set_border_width_all(1)
-				style.set_corner_radius_all(8)
-				backing.add_theme_stylebox_override("panel", style)
-				pip_layer.add_child(backing)
-				var pip := TextureRect.new()
-				pip.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-				pip.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-				pip.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-				pip.texture = ActionIcons.icon_texture("surface_" + str(stored[pip_index]))
-				pip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				backing.add_child(pip)
-		if str(effect.get("type", "")) == "combat_element_knots":
-			var tied: Array = _combat_state.get("relic_element_knots", []) as Array
-			var count_badge: Label = badge.get_node_or_null("Badge") as Label
-			if count_badge != null:
-				count_badge.name = "RelicKnots"
-				count_badge.text = str(tied.size())
-				count_badge.visible = true
-				badge.call_deferred("_layout")
-			badge.tooltip_text += _relic_knots_tooltip(effect, tied)
+	CombatHudRelics.apply_badge_state(badge, relic_id, relic, _combat_state)
 
 func _relic_element_names(elements: Array, surfaces: bool = false) -> String:
-	var names := PackedStringArray()
-	for element: String in elements:
-		names.append("Electrified" if surfaces and element == "electrified" else element.capitalize())
-	return ", ".join(names) if not names.is_empty() else "nothing"
+	return CombatHudRelics.element_names(elements, surfaces)
 
 func _build_active_rite_badge(entry: Dictionary, rite_index: int) -> Control:
 	var card: Dictionary = GameData.card_def(str(entry.get("card_id", "")))
@@ -10969,12 +10787,14 @@ func _build_skill_sigil(skill_ids: Array[String], presentation: Dictionary = {})
 	previews.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	content.add_child(previews)
 	for skill_id: String in preview_ids:
-		var accent: Color = _skill_status_accent(str(skill_statuses.get(skill_id, "PASSIVE")))
+		var status: String = str(skill_statuses.get(skill_id, "PASSIVE"))
+		var accent: Color = UiPalette.ALLY if status == "READY" else UiPalette.TEXT_3 if status == "SPENT" else _skill_status_accent(status)
 		var socket := CombatHudSocket.new()
 		socket.name = "SkillSigilPreview_%s" % skill_id
 		socket.socket_size = SKILL_SIGIL_PREVIEW_ICON_SIZE.x
 		socket.interactive = false
-		socket.ring_tint = socket.ring_tint.lerp(accent, 0.18)
+		socket.status_color = accent
+		socket.dimmed = status == "SPENT"
 		socket.setup(ActionIcons.icon_texture(SkillTreeLibrary.icon_key(skill_id)))
 		socket.follow_button_states(button)
 		previews.add_child(socket)
@@ -11012,28 +10832,6 @@ func _skill_sigil_preview_ids(skill_ids: Array[String], preview_count: int = SKI
 		if result.size() >= preview_count:
 			break
 	return result
-
-func _skill_sigil_preview_style(accent: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("150d1c")
-	style.border_color = accent
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(5)
-	style.content_margin_left = 2.0
-	style.content_margin_top = 2.0
-	style.content_margin_right = 2.0
-	style.content_margin_bottom = 2.0
-	return style
-
-func _skill_sigil_style(accent: Color, hovered: bool) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color("24172f") if not hovered else Color("342044")
-	style.border_color = accent
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(9)
-	style.shadow_color = Color(accent.r, accent.g, accent.b, 0.25 if hovered else 0.13)
-	style.shadow_size = 7 if hovered else 3
-	return style
 
 func _toggle_skill_status_popover() -> void:
 	if _skill_status_scrim == null or _skill_status_popover == null:
@@ -26396,8 +26194,18 @@ func _show_pre_battle_preview() -> bool:
 	_pre_battle_scrim.visible = true
 	_sync_pre_battle_overlay_layering()
 	_animate_pre_battle_entry()
+	call_deferred("_focus_pre_battle_entry")
 	_schedule_controller_modal_refresh()
 	return true
+
+func _focus_pre_battle_entry() -> void:
+	if not _controller_is_active() or _pre_battle_panel == null or _controller_focus_scope() != _pre_battle_scrim:
+		return
+	var target: Control = _pre_battle_panel.find_child("TrueBearingButton", true, false) as Control
+	if target == null:
+		target = _pre_battle_panel.find_child("PreBattleEquipButton", true, false) as Control
+	if target != null and target.is_visible_in_tree():
+		target.grab_focus()
 
 func _refresh_pre_battle_preview_if_visible() -> void:
 	if _pre_battle_scrim == null or not _pre_battle_scrim.visible or _pre_battle_start_pending:
@@ -28678,45 +28486,11 @@ func _build_progression_resource_summary() -> Control:
 	var row := HBoxContainer.new()
 	row.name = "ProgressionOverlaySummary"
 	row.add_theme_constant_override("separation", roundi(UiTypography.scaled_value(self, 12.0)))
-	_progression_summary_compact = false
 	_progression_skill_points_label = Menu.stat(row, "ProgressionSkillPoints", Menu.resource_icon(Menu.SKILL_POINT_ICON_PATH), "SKILL POINTS", UiPalette.GOLD_BRIGHT)
 	_progression_moltshards_label = Menu.stat(row, "ProgressionMoltshards", Menu.resource_icon(Menu.MOLTSHARD_ICON_PATH), "MOLTSHARDS", UiPalette.UMBRA.lightened(0.25))
 	_progression_defiance_label = Menu.stat(row, "ProgressionDefiance", ActionIcons.icon_texture("defiance"), "DEFIANCE", UiPalette.GOLD_BRIGHT)
 	_refresh_progression_resource_summary()
 	return row
-
-func _add_progression_resource_chip(row: HBoxContainer, chip_name: String, accent: Color, minimum_width: float = 124.0) -> Label:
-	var panel := PanelContainer.new()
-	panel.name = "%sChip" % chip_name
-	panel.custom_minimum_size = Vector2(minimum_width, 36.0 if _progression_summary_compact else 44.0)
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(UiPalette.INK_1, 0.96)
-	style.border_color = UiPalette.GOLD_DIM
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(3)
-	style.shadow_color = Color(0.005, 0.004, 0.008, 0.42)
-	style.shadow_size = 3
-	style.shadow_offset = Vector2(0.0, 2.0)
-	panel.add_theme_stylebox_override("panel", style)
-	_ui_skin.apply_menu_finish(panel, "chip", UiPalette.GOLD)
-	row.add_child(panel)
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 10)
-	margin.add_theme_constant_override("margin_right", 10)
-	panel.add_child(margin)
-	var label := Label.new()
-	label.name = "%sLabel" % chip_name
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	UiTypography.apply_label_role(
-		label,
-		UiTypography.ROLE_CAPTION if _progression_summary_compact else UiTypography.ROLE_SECTION
-	)
-	label.add_theme_color_override("font_color", accent.lightened(0.10))
-	label.add_theme_color_override("font_outline_color", Color("21151b"))
-	label.add_theme_constant_override("outline_size", 2)
-	margin.add_child(label)
-	return label
 
 func _refresh_progression_resource_summary() -> void:
 	const Menu = preload("res://scripts/character_menu_view.gd")
@@ -29245,7 +29019,7 @@ func _build_equipped_items_section() -> Control:
 	section.add_child(Menu.section("ITEMS", "%d / %d" % [mini(equipped_items.size(), GameData.item_loadout_limit()), GameData.item_loadout_limit()]))
 	for index: int in range(GameData.item_loadout_limit()):
 		var card_id: String = str(equipped_items[index]) if index < equipped_items.size() else ""
-		section.add_child(_build_item_card_tile(card_id, "equipped", index, ITEM_EQUIPPED_TILE_SIZE))
+		section.add_child(_build_item_card_tile(card_id, "equipped", index))
 	return section
 
 func _build_equipment_portrait_panel() -> Control:
@@ -29323,7 +29097,7 @@ func _build_equipment_inventory_column() -> Control:
 		item_rows.add_child(Menu.empty_copy("No consumables"))
 	else:
 		for index: int in range(item_ids.size()):
-			item_rows.add_child(_build_item_card_tile(str(item_ids[index]), "inventory", index, ITEM_INVENTORY_TILE_SIZE))
+			item_rows.add_child(_build_item_card_tile(str(item_ids[index]), "inventory", index))
 	return panel
 
 func _build_magic_attuned_column() -> Control:
@@ -29334,7 +29108,7 @@ func _build_magic_attuned_column() -> Control:
 	var slots := Menu.scroll_list(panel)
 	for index: int in range(GameData.magic_loadout_limit()):
 		var card_id: String = str(attuned[index]) if index < attuned.size() else ""
-		slots.add_child(_build_magic_card_tile(card_id, "attuned", index, MAGIC_ATTUNED_TILE_SIZE))
+		slots.add_child(_build_magic_card_tile(card_id, "attuned", index))
 	if not _magic_overlay_can_change():
 		slots.add_child(Menu.label("Locked in combat", 14, UiPalette.TEXT_2))
 	return panel
@@ -29349,7 +29123,7 @@ func _build_magic_inventory_column() -> Control:
 		slots.add_child(Menu.empty_copy("No learned magic"))
 	else:
 		for index: int in range(reserve.size()):
-			slots.add_child(_build_magic_card_tile(str(reserve[index]), "inventory", index, MAGIC_INVENTORY_TILE_SIZE))
+			slots.add_child(_build_magic_card_tile(str(reserve[index]), "inventory", index))
 	return panel
 
 func _build_current_deck_column() -> Control:
@@ -29401,7 +29175,7 @@ func _build_attuned_magic_deck_group(attuned_card_ids: Array) -> Control:
 func _build_equipped_items_deck_group(item_card_ids: Array) -> Control:
 	return preload("res://scripts/character_menu_view.gd").deck_group("Items %d/%d" % [mini(item_card_ids.size(), GameData.item_loadout_limit()), GameData.item_loadout_limit()], "", item_card_ids, self)
 
-func _build_magic_card_tile(card_id: String, source_kind: String, index: int, _tile_size: Vector2 = EQUIPMENT_DECK_BADGE_SIZE) -> Control:
+func _build_magic_card_tile(card_id: String, source_kind: String, index: int) -> Control:
 	const Menu = preload("res://scripts/character_menu_view.gd")
 	var tile := MagicCardTile.new()
 	tile.card_id = card_id
@@ -29428,7 +29202,7 @@ func _build_magic_card_tile(card_id: String, source_kind: String, index: int, _t
 	_add_loadout_new_tag(tile, "magic", card_id)
 	return tile
 
-func _build_item_card_tile(card_id: String, source_kind: String, index: int, _tile_size: Vector2) -> Control:
+func _build_item_card_tile(card_id: String, source_kind: String, index: int) -> Control:
 	const Menu = preload("res://scripts/character_menu_view.gd")
 	if card_id.is_empty():
 		var empty := PanelContainer.new()
@@ -29467,30 +29241,6 @@ func _build_item_card_tile_body(card_id: String) -> Control:
 		icon.name = "ItemCardArtIcon"
 	return body
 
-func _build_item_card_art_chip(card_id: String, chip_size: Vector2) -> Control:
-	var accent: Color = _item_card_accent(card_id)
-	var chip := PanelContainer.new()
-	chip.name = "ItemCardArtChip"
-	chip.custom_minimum_size = chip_size
-	chip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	chip.clip_contents = true
-	chip.add_theme_stylebox_override("panel", _equipment_icon_style(accent))
-	var icon := TextureRect.new()
-	icon.name = "ItemCardArtIcon"
-	icon.texture = AssetLoader.load_texture(GameData.item_icon_path(card_id))
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon.set_anchors_preset(Control.PRESET_FULL_RECT)
-	icon.offset_left = 2.0
-	icon.offset_top = 2.0
-	icon.offset_right = -2.0
-	icon.offset_bottom = -2.0
-	chip.add_child(icon)
-	return chip
-
 func _build_item_card_proxy_panel(card_id: String, proxy_size: Vector2) -> PanelContainer:
 	return _build_loadout_card_proxy_panel(proxy_size, _item_card_accent(card_id), _build_item_card_tile_body(card_id))
 
@@ -29511,7 +29261,7 @@ func _build_loadout_card_proxy_panel(proxy_size: Vector2, accent: Color, content
 	content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	return panel
 
-func _build_equipment_card_badge(card_id: String, _accent: Color) -> Control:
+func _build_equipment_card_badge(card_id: String) -> Control:
 	const Menu = preload("res://scripts/character_menu_view.gd")
 	var badge := EquipmentCardBadge.new()
 	badge.card_id = card_id
@@ -29606,34 +29356,6 @@ func _build_card_art_badge_content(card: Dictionary, accent: Color, label_text: 
 	stack.add_child(label)
 	return margin
 
-func _build_equipment_icon_chip(equipment_id: String, chip_size: Vector2, owns_tooltip: bool = true) -> Control:
-	var item: Dictionary = GameData.equipment_def(equipment_id)
-	var chip: PanelContainer
-	if owns_tooltip:
-		var tooltip_chip := EquipmentTooltipPanelContainer.new()
-		tooltip_chip.equipment_id = equipment_id
-		tooltip_chip.host = self
-		tooltip_chip.tooltip_text = "equipment:%s" % equipment_id
-		chip = tooltip_chip
-	else:
-		chip = PanelContainer.new()
-		chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	chip.name = "EquipmentIconChip"
-	chip.custom_minimum_size = chip_size
-	chip.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	chip.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	chip.add_theme_stylebox_override("panel", _equipment_icon_style(Color(GameData.equipment_accent(equipment_id))))
-	var icon := TextureRect.new()
-	icon.texture = AssetLoader.load_texture(str(item.get("icon_path", "")))
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	icon.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	icon.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	chip.add_child(icon)
-	return chip
-
 func _build_equipment_icon_proxy_panel(equipment_id: String, icon_size: Vector2) -> PanelContainer:
 	var item: Dictionary = GameData.equipment_def(equipment_id)
 	var panel := PanelContainer.new()
@@ -29657,12 +29379,6 @@ func _build_equipment_icon_proxy_panel(equipment_id: String, icon_size: Vector2)
 	texture.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	margin.add_child(texture)
 	return panel
-
-func _make_equipment_tile_content_passive(node: Node) -> void:
-	if node is Control:
-		(node as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
-	for child: Node in node.get_children():
-		_make_equipment_tile_content_passive(child)
 
 func _begin_equipment_overlay_drag(equipment_id: String, source_rect: Rect2, source_control: Control = null, mouse_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
 	if equipment_id.is_empty():
@@ -30833,28 +30549,6 @@ func _equipment_panel_style(accent: Color, active: bool = false) -> StyleBoxFlat
 	style.shadow_offset = Vector2(0.0, 2.0)
 	return style
 
-func _equipment_icon_style(accent: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.045, 0.036, 0.032, 0.92)
-	style.border_color = accent.lightened(0.18)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_right = 6
-	style.corner_radius_bottom_left = 6
-	style.content_margin_left = 4
-	style.content_margin_top = 4
-	style.content_margin_right = 4
-	style.content_margin_bottom = 4
-	style.border_blend = true
-	style.shadow_color = Color(0.008, 0.006, 0.009, 0.42)
-	style.shadow_size = 4
-	style.shadow_offset = Vector2(0.0, 2.0)
-	return style
-
 func _equipment_drag_ghost_style(accent: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.055, 0.044, 0.038, 0.72)
@@ -30874,12 +30568,6 @@ func _equipment_drag_ghost_style(accent: Color) -> StyleBoxFlat:
 	style.content_margin_right = 0
 	style.content_margin_bottom = 0
 	return style
-
-func _apply_progression_icon_button_style(button: Button) -> void:
-	if button == null:
-		return
-	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_ICON)
-	_apply_progression_button_text(button, UiTypography.SIZE_BODY)
 
 func _apply_progression_command_button_style(button: Button) -> void:
 	if button == null:
