@@ -1,17 +1,16 @@
 extends VBoxContainer
 
 var enemy_name: Label
-var compact: bool = false
-var height_budget: float = 0.0
+var name_font_size: int = 19
 var compact_font_size: int = 17
+var _measured_width: float = -1.0
 
-func _ready() -> void:
-	sort_children.connect(_fit_height)
-
-func _fit_height() -> void:
-	if enemy_name == null or size.x <= 0.0:
-		return
-	if compact and get_minimum_size().y > height_budget and enemy_name.get_theme_font_size("font_size") > compact_font_size:
-		enemy_name.add_theme_font_size_override("font_size", compact_font_size)
-		return
-	offset_bottom = offset_top + get_minimum_size().y
+func measure(width: float) -> float:
+	if not is_equal_approx(width, _measured_width):
+		_measured_width = width
+		size.x = width
+		enemy_name.size.x = width
+		enemy_name.add_theme_font_size_override("font_size", name_font_size)
+		if enemy_name.get_line_count() > 2:
+			enemy_name.add_theme_font_size_override("font_size", compact_font_size)
+	return get_combined_minimum_size().y

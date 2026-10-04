@@ -34,7 +34,7 @@ func _test_strips() -> void:
 			_expect(is_equal_approx(atlas.region.size.x / atlas.region.size.y, 2.0), "Strip art crop must be 2:1")
 			_expect(is_equal_approx(atlas.region.size.y, height) and atlas.region.get_center().is_equal_approx(source.get_size() * 0.5), "Strip art crop must lie within the middle 60% and remain centered")
 			_expect(str(atlas.get_meta("asset_source_path", "")) == str(GameData.card_def(id)["art_path"]), "Cropped strip art must preserve its source identity")
-		_expect(art.modulate == Color(1.15, 1.15, 1.15, 1.0), "Strip art brightness must be 1.15")
+		_expect(art.modulate == Color.WHITE, "Strip art should retain authored brightness after the shared icon-shader correction")
 		var name_label := strip.get_node("Name") as Label
 		var font: Font = name_label.get_theme_font("font")
 		var text_width: float = font.get_string_size(name_label.text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, name_label.get_theme_font_size("font_size")).x

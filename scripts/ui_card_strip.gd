@@ -39,7 +39,7 @@ func _init() -> void:
 	_art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_art.material = _art_material
-	_art.modulate = Color(1.15, 1.15, 1.15, 1.0)
+	_art.modulate = Color.WHITE
 	_name.name = "Name"
 	_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_name.clip_text = true

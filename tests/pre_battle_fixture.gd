@@ -6,6 +6,7 @@ const RunEngine = preload("res://scripts/run_engine.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
+const FoeSuite = preload("res://tests/suites/pre_battle_ui_suite.gd")
 const PROBE_VIEWPORT := Vector2i(1920, 1080)
 const INVALID_COORD := Vector2i(999, 999)
 var _viewport: SubViewport
@@ -86,18 +87,12 @@ func _assert_foe_fit(panel: Control, count: int) -> void:
 	_expect(flow != null and flow.get_child_count() == count, "Every foe should be listed")
 	_expect(scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, "Up to six foes must fit without scrolling")
 	var rect: Rect2 = scroll.get_global_rect().grow(1.0)
-	if count >= 1 and count <= 3:
-		var header := panel.find_child("PreBattleFoesDivider", true, false) as Control
-		var actions := panel.find_child("PreBattleActions", true, false) as Control
-		var midpoint: float = (header.get_global_rect().end.y + actions.global_position.y) * 0.5
-		var first := flow.get_child(0) as Control
-		_expect(absf(first.get_global_rect().get_center().y - midpoint) <= 1.0, "One to three foes must center between the FOES header and actions")
+	FoeSuite.assert_true_scale(flow, _expect, "%d foes" % count)
 	for index: int in range(flow.get_child_count()):
 		var card := flow.get_child(index) as Control
 		_expect(rect.encloses(card.get_global_rect()), "%d foes card %d must fit: %s in %s" % [count, index, card.get_global_rect(), rect])
-		var first := flow.get_child(0) as Control
-		_expect(is_equal_approx(card.position.y, first.position.y) if count <= 3 or index < 3 else card.position.y > first.position.y, "Foes use one row through three, then two rows")
-		for node_name: String in ["PreBattleEnemyArt", "PreBattleEnemyHealth", "PreBattleEnemyName", "PreBattleMoveTags"]:
+		_expect(card.position.y == 0.0 and is_equal_approx(card.size.y, flow.size.y) if count <= 3 else int(card.get_meta("lineup_row")) in [0, 1], "Foes use one row through three, then two rows with large foes spanning both")
+		for node_name: String in ["PreBattleEnemyHealth", "PreBattleEnemyName", "PreBattleMoveTags"]:
 			var child := card.find_child(node_name, true, false) as Control
 			_expect(child != null and rect.encloses(child.get_global_rect()), "%d foes %s must remain visible" % [count, node_name])
 		for child: Node in card.find_children("*", "Label", true, false):

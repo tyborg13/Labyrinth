@@ -85,36 +85,6 @@ class Gear:
 			_inspect()
 			accept_event()
 
-class FoeFlow:
-	extends Container
-	var card_size := Vector2(206.0, 310.0)
-	var gap: float = 8.0
-	var center_header: Control
-	var center_actions: Control
-
-	func _get_minimum_size() -> Vector2:
-		var rows: int = ceili(float(get_child_count()) / 3.0)
-		return Vector2.ZERO if rows == 0 else Vector2(0.0, rows * card_size.y + maxi(0, rows - 1) * gap)
-
-	func _notification(what: int) -> void:
-		if what != NOTIFICATION_SORT_CHILDREN:
-			return
-		var columns: int = mini(3, get_child_count())
-		if columns == 0:
-			return
-		var width: float = minf(card_size.x, (size.x - (columns - 1) * gap) / columns)
-		var top: float = 0.0
-		if get_child_count() <= 3 and center_header != null and center_actions != null:
-			var midpoint: float = (center_header.get_global_rect().end.y + center_actions.global_position.y) * 0.5
-			top = clampf(midpoint - global_position.y - card_size.y * 0.5, 0.0, maxf(0.0, size.y - card_size.y))
-		for index: int in range(get_child_count()):
-			var row: int = index / 3
-			var row_count: int = mini(3, get_child_count() - row * 3)
-			var start: float = (size.x - row_count * width - (row_count - 1) * gap) * 0.5
-			if get_child_count() == 2 and bool(get_child(1).get_meta("is_leader", false)):
-				start = size.x * 0.5 - width * 0.5 - width - gap
-			fit_child_in_rect(get_child(index), Rect2(Vector2(start + (index % 3) * (width + gap), top + row * (card_size.y + gap)), Vector2(width, card_size.y)))
-
 class MoveTags:
 	extends Container
 	var base_overflow: int = 0

@@ -1148,7 +1148,7 @@ const DIALOGUE_OPTION_BUTTON_MIN_WIDTH: float = 292.0
 const MENU_DIALOG_BUTTON_MIN_WIDTH: float = 234.0
 const MENU_OVERLAY_Z_INDEX: int = 2000
 const UPGRADE_LIST_BUTTON_MIN_WIDTH: float = 216.0
-const HEADER_ICON_BUTTON_SIZE: Vector2 = Vector2(58.0, 58.0)
+const HEADER_ICON_BUTTON_SIZE: Vector2 = Vector2(68.0, 56.0)
 const HEADER_ICON_TEXTURE_SIZE: int = 48
 const GRIMOIRE_DIALOG_SIZE: Vector2 = Vector2(1120.0, 640.0)
 const GRIMOIRE_MIN_DIALOG_SIZE: Vector2 = Vector2(820.0, 520.0)
@@ -3759,7 +3759,8 @@ func _apply_style() -> void:
 	UiTypography.apply_stone_text(room_title, 0.13, 3.5)
 	UiTypography.apply_eyebrow(room_subtitle, UiTypography.SIZE_SMALL + 1, UiPalette.TEXT_2)
 	UiTypography.set_label_size(umbra_subtitle, UiTypography.SIZE_BODY_LARGE)
-	top_bar.add_theme_constant_override("separation", roundi(UiTypography.scaled_value(top_bar, 12.0)))
+	stats_label.add_theme_font_override("font", UiTypography.ui_font())
+	UiTypography.set_label_size(stats_label, UiTypography.SIZE_SECTION - 1)
 	UiTypography.set_label_size(action_banner, UiTypography.SIZE_SMALL)
 	room_title.add_theme_color_override("font_color", Color("f0e6d2"))
 	room_title.add_theme_color_override("font_outline_color", Color("2c1f16"))
@@ -3771,6 +3772,9 @@ func _apply_style() -> void:
 	umbra_subtitle.add_theme_constant_override("outline_size", 2)
 	umbra_subtitle.mouse_filter = Control.MOUSE_FILTER_STOP
 	umbra_subtitle.mouse_default_cursor_shape = TOOLTIP_ONLY_CURSOR_SHAPE
+	stats_label.add_theme_color_override("font_color", UiPalette.GOLD_BRIGHT)
+	stats_label.add_theme_color_override("font_outline_color", UiPalette.TEXT_OUTLINE)
+	stats_label.add_theme_constant_override("outline_size", 3)
 	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_box.size_flags_stretch_ratio = 2.0
 	header_spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -3831,8 +3835,18 @@ func _apply_tooltip_wrapper_style() -> void:
 func _setup_header_icon_button(button: Button, icon_kind: String, tooltip: String) -> void:
 	if button == null:
 		return
-	var key_hint: String = "M" if icon_kind == "map_rooms" else "Esc" if icon_kind == "gear" else ""
-	(button as CombatHudSocket).configure_header(_header_icon_texture(icon_kind), tooltip, key_hint)
+	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_ICON)
+	button.add_theme_color_override("icon_normal_color", Color("f7dfad"))
+	button.add_theme_color_override("icon_hover_color", Color("fff0c8"))
+	button.add_theme_color_override("icon_pressed_color", Color("e8b968"))
+	button.add_theme_color_override("icon_disabled_color", Color("8f7a5a"))
+	button.text = ""
+	button.icon = _header_icon_texture(icon_kind)
+	button.expand_icon = true
+	button.tooltip_text = tooltip
+	button.custom_minimum_size = HEADER_ICON_BUTTON_SIZE
+	button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	button.disabled = false
 	button.focus_mode = Control.FOCUS_ALL
 	button.modulate = Color.WHITE
@@ -3851,10 +3865,10 @@ func _ensure_grimoire_badge() -> void:
 	_grimoire_badge.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	_grimoire_badge.anchor_left = 1.0
 	_grimoire_badge.anchor_right = 1.0
-	_grimoire_badge.offset_left = -UiTypography.scaled_value(grimoire_button, 19.0)
-	_grimoire_badge.offset_top = UiTypography.scaled_value(grimoire_button, 1.0)
-	_grimoire_badge.offset_right = -UiTypography.scaled_value(grimoire_button, 1.0)
-	_grimoire_badge.offset_bottom = UiTypography.scaled_value(grimoire_button, 19.0)
+	_grimoire_badge.offset_left = -18.0
+	_grimoire_badge.offset_top = -3.0
+	_grimoire_badge.offset_right = 0.0
+	_grimoire_badge.offset_bottom = 15.0
 	var badge_style := StyleBoxFlat.new()
 	badge_style.bg_color = Color("d64a3a")
 	badge_style.border_color = Color("ffe0a2")
@@ -3889,10 +3903,10 @@ func _ensure_loadout_badge() -> void:
 	_loadout_badge.set_anchors_preset(Control.PRESET_TOP_RIGHT)
 	_loadout_badge.anchor_left = 1.0
 	_loadout_badge.anchor_right = 1.0
-	_loadout_badge.offset_left = -UiTypography.scaled_value(loadout_button, 19.0)
-	_loadout_badge.offset_top = UiTypography.scaled_value(loadout_button, 1.0)
-	_loadout_badge.offset_right = -UiTypography.scaled_value(loadout_button, 1.0)
-	_loadout_badge.offset_bottom = UiTypography.scaled_value(loadout_button, 19.0)
+	_loadout_badge.offset_left = -18.0
+	_loadout_badge.offset_top = -3.0
+	_loadout_badge.offset_right = 0.0
+	_loadout_badge.offset_bottom = 15.0
 	var badge_style := StyleBoxFlat.new()
 	badge_style.bg_color = Color("d64a3a")
 	badge_style.border_color = Color("ffe0a2")
@@ -4859,7 +4873,7 @@ func _build_large_map_overlay() -> void:
 	_large_map_view.connect("interaction_changed", _refresh_controller_prompts)
 	_large_map_dialog.add_child(_large_map_view)
 	_ui_skin.apply_outer_panel_frame(_large_map_dialog, UiSkin.SURFACE_DIALOG)
-	_section_map_hud_button = CombatHudSocket.new()
+	_section_map_hud_button = UiTooltipButton.new()
 	_section_map_hud_button.name = "SectionMapButton"
 	_setup_header_icon_button(_section_map_hud_button, "map_rooms", "Map [M]")
 	# Modal and animation blockers are transient. Check them at activation;
@@ -13853,7 +13867,7 @@ func _displayed_ember_count() -> int:
 
 func _set_stats_label_text(ember_count: int) -> void:
 	var level: int = int((_run_state.get("progression", _progression) as Dictionary).get("level", _progression.get("level", 1)))
-	stats_label.call("set_values", level, ember_count)
+	stats_label.text = "LV %d  EMBERS %d" % [level, ember_count]
 
 func _deck_piles() -> Dictionary:
 	if _combat_state.is_empty():

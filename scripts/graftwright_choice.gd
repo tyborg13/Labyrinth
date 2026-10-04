@@ -2,8 +2,6 @@ extends Button
 
 ## Native input/focus with object-specific art, never a stretched action skin.
 const ButtonFeedback = preload("res://scripts/ui_button_feedback.gd")
-const Palette = preload("res://scripts/ui_palette.gd")
-const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
 
 signal inspect_requested
 
@@ -11,7 +9,6 @@ var card_face: Control
 var kind: String = "quiet"
 var accent := Color("cfa2f7")
 var chosen: bool = false
-var primary: bool = false
 var muted: bool = false
 var reduced_motion: bool = false
 var face_size := Vector2.ZERO
@@ -53,16 +50,6 @@ func _draw() -> void:
 	var extent: Vector2 = face_size if face_size != Vector2.ZERO else size
 	var rect := Rect2(Vector2(0, -_lift), extent)
 	var active: bool = interaction_active()
-	if kind == "action" and primary and not disabled:
-		var inset := Vector2(size.x * 0.15, size.y * 0.29)
-		GildedFrame.draw_glow(self, Rect2(rect.position + inset, rect.size - inset * 2), Color(0.67, 0.43, 1.0, 0.55), 18.0)
-	if kind == "quiet_plate":
-		GildedFrame.draw_panel(self, rect, {
-			"top": Color(Palette.INK_3, 0.95), "bottom": Color(Palette.INK_1, 0.95),
-			"corner_studs": false, "strength": 1.2 if active else 0.75,
-		})
-	if kind == "text":
-		draw_line(rect.position + Vector2(0, 27), rect.position + Vector2(116, 27), accent, 1.0, true)
 	if kind == "card":
 		var shadow := StyleBoxFlat.new()
 		shadow.bg_color = Color(0.025, 0.015, 0.028, 0.8)
@@ -88,7 +75,7 @@ func _draw() -> void:
 			var sx: float = 1.0 if corner.x == r.position.x else -1.0
 			var sy: float = 1.0 if corner.y == r.position.y else -1.0
 			draw_polyline(PackedVector2Array([corner + Vector2(0, sy * length), corner, corner + Vector2(sx * length, 0)]), color, 2.0, true)
-	if kind in ["quiet", "tab", "quiet_plate", "text"]:
+	if kind in ["quiet", "tab"]:
 		if active or chosen:
 			draw_rect(rect, Color(accent, 0.23 if _pressed_visual else 0.15 if active else 0.08))
 			draw_line(Vector2(0, rect.end.y), rect.end, accent, 2.0, true)

@@ -41,8 +41,11 @@ materials, and use the brief for exact rules.
 | 1 | [Pre-battle scouting report](unit_1_pre_battle.md) | Codex (implement) |
 | 2 | [Character menu](unit_2_character_menu.md) | Codex (implement) |
 | 3 | [Scavenger stall](unit_3_scavenger.md) | Codex (implement) |
-| 4 | [Graftwright atelier](unit_4_graftwright.md) | Codex (implement) |
+| 4 | [Graftwright atelier](unit_4_graftwright.md) | Reverted after owner review |
 | 5 | [Combat HUD](unit_5_combat_hud.md) | Codex (implement) |
+| 1b | [True-scale foes](unit_1b_true_scale_foes.md) | Codex, after owner review |
+| 3b | [Scavenger signage](unit_3b_scavenger_signage.md) | Codex, after owner review |
+| 5b | [Restore HUD buttons](unit_5b_restore_hud_buttons.md) | Codex, after owner review |
 
 Painted assets for this pass are generated separately, approved by Claude, and
 recorded with their prompts and hashes under `spec/assets/visual_pass_4/`.

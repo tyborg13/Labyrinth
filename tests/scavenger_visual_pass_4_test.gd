@@ -7,6 +7,7 @@ const ShopView = preload("res://scripts/scavenger_shop_view.gd")
 const PriceTag = preload("res://scripts/scavenger_price_tag.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
+const Signage = preload("res://scripts/scavenger_signage.gd")
 const GlowupProof = preload("res://tests/scavenger_glowup_probe.gd")
 const AcquisitionProof = preload("res://tests/merchant_acquisition_probe.gd")
 
@@ -39,9 +40,19 @@ func _initialize() -> void:
 		quit(1)
 		return
 	var title: Label = shop.find_child("ScavengerWaresTitle", true, false) as Label
-	_expect(title.text == "Wares & Oddments" and title.get_theme_font_size("font_size") == 50, "Scene title uses the new string and 50px display type")
-	_expect(title.get_theme_font("font") == Typography.display_font() and title.get_theme_color("font_color") == Palette.GOLD_BRIGHT, "Scene title retains display font and gold token")
-	_expect(not shop.get("_title_panel") is PanelContainer, "Scene title has no material plaque")
+	_expect(title.text == "The Scavenger's Wares" and title.get_theme_font_size("font_size") == 46, "Parchment title uses the exact string and 46px display type")
+	_expect(title.get_theme_font("font") == Typography.display_font() and title.get_theme_color("font_color") == Signage.INK, "Parchment title uses the shared dark ink and display font")
+	var title_panel: Control = shop.get("_title_panel") as Control
+	_expect(title_panel.size == Vector2(600, 122) and title_panel.position.y == 0.0, "Smaller banner hangs with fully visible rings at the top edge")
+	_expect(is_equal_approx(title_panel.get_rect().get_center().x, 1035.0), "Banner stays centered above the shelf")
+	var body_rect: Rect2 = Signage.parchment_rect(title_panel.size)
+	_expect(title.get_rect().is_equal_approx(body_rect) and title.vertical_alignment == VERTICAL_ALIGNMENT_CENTER, "Title centers in the parchment body below the dowel")
+	_expect(shop.find_child("ScavengerStallEyebrow", true, false) == null, "One title replaces the floating eyebrow")
+	var banner: TextureRect = shop.find_child("ScavengerShopBanner", true, false) as TextureRect
+	_expect(banner.texture.get_width() == 1100 and banner.texture.get_image().has_mipmaps(), "Banner loads the approved mipmapped texture")
+	var title_ink: ShaderMaterial = title.material as ShaderMaterial
+	_expect(title_ink != null and is_equal_approx(float(title_ink.get_shader_parameter("highlight_width")), 1.0), "Ink title has a one-pixel inner highlight")
+	_expect(title.get_theme_constant("outline_size") == 0 and title.get_theme_color("font_shadow_color").a == 0.0, "Ink title has no outer glow or shadow")
 	var currency: Control = shop.get("_currency_panel") as Control
 	_expect(currency is StatChip and (shop.get("_currency_label") as Label).text == "720", "Shared chip shows the held ember total")
 	_expect((shop.get("_dialogue_panel") as Control).size == Vector2(520, 170), "Leather dialogue fits the authored compact tray")
@@ -49,10 +60,17 @@ func _initialize() -> void:
 	_expect(body.text == "“Cards, steel, little miracles in bottles. Spend your embers, or show me what you've brought to sell.”", "Welcome preserves its exact words in quotes")
 	_expect(body.get_theme_font_size("font_size") == 23 and body.get_theme_color("font_color") == Palette.TEXT, "Welcome uses 23px body type")
 	for category: String in ["Magic", "Gear", "Items"]:
-		var brush: TextureRect = shop.find_child(category + "Plaque", true, false) as TextureRect
-		_expect(brush != null and brush.self_modulate == Color(0.47, 0.34, 0.20, 0.95), "Category sits on its brighter bronze brush: " + category)
-		_expect(brush.size == Vector2(176, 46) and is_equal_approx(brush.position.x + brush.size.x * 0.5, 636.0 - ShopView.SHELF_LEFT), "Category brush is enlarged and centered on the shelf post: " + category)
+		var plaque: TextureRect = shop.find_child(category + "Plaque", true, false) as TextureRect
+		_expect(plaque != null and plaque.self_modulate == Color.WHITE, "Category uses the parchment's authored color: " + category)
+		_expect(plaque.size == Vector2(150, 50) and plaque.position.x == -87.0, "Category pins to the shelf post: " + category)
+		_expect(plaque.texture.get_width() == 360 and plaque.texture.get_image().has_mipmaps(), "Shelf label loads the approved mipmapped texture")
+		var label: Label = plaque.get_node("ScavengerShelfLabel") as Label
+		_expect(label.text == category.to_upper() and label.get_theme_font_size("font_size") == 17 and label.get_theme_color("font_color") == Signage.INK, "Shelf captions share the price-tag ink and UI font")
+		var font: FontVariation = label.get_theme_font("font") as FontVariation
+		_expect(font != null and font.base_font == Typography.ui_font() and font.spacing_glyph == 3, "Shelf caption uses 0.16em tracking rounded to layout pixels")
+		_expect(label.position.x == 22.0 and label.size.x == 122.0, "Caption centers on the parchment to the right of the tack")
 	_assert_shelf_alignment(shop, _state, engine)
+	_assert_banner_clearance(shop, "browse")
 	for id: String in ["grave_mortar", "boiled_leather", "crimson_draught"]:
 		var source: Control = _offer_source(shop, id, false)
 		_assert_unified_offer(source, id, engine, id == "grave_mortar")
@@ -70,6 +88,7 @@ func _initialize() -> void:
 	_assert_mode_caps(sell)
 	_expect((shop.get("_leave_button") as Control).position.x == 1660.0, "Leave uses the far-right quiet plate")
 	await _click(sell)
+	_assert_banner_clearance(shop, "sell pack")
 	_expect(bool(shop.get("_pack_mode")) and sell.button_pressed and not browse.button_pressed, "Pointer changes the joined mode selection")
 	_assert_mode_caps(browse)
 	_assert_mode_caps(sell)
@@ -92,6 +111,7 @@ func _initialize() -> void:
 	magic = _offer_source(shop, "grave_mortar", false)
 	magic.grab_focus()
 	await _settle()
+	_assert_banner_clearance(shop, "raised keyboard ware")
 	_assert_detail_card(shop, "grave_mortar", "Keyboard inspection")
 	await _key(KEY_ENTER)
 	_expect(str(shop.get("_selected_item_id")) == "grave_mortar", "Keyboard activation preserves the inspected ware")
@@ -102,6 +122,8 @@ func _initialize() -> void:
 	await _press_controller_button(JOY_BUTTON_A)
 	await _settle()
 	_expect(((_state as Dictionary)["magic_inventory"] as Array).has("grave_mortar"), "Controller trade buys the inspected card")
+	_assert_banner_clearance(shop, "purchase")
+	_assert_trade_clearance(shop)
 	router.call("set_forced_state_for_test", "pointer", "xbox")
 	_assert_labels(shop)
 	var state: Dictionary = _scavenger_state(engine)
@@ -147,6 +169,20 @@ func _initialize() -> void:
 	await process_frame
 	print("SCAVENGER VISUAL PASS 4: %s" % ("FAIL" if _failed else "PASS"))
 	quit(1 if _failed else 0)
+
+func _assert_trade_clearance(shop: Control) -> void:
+	var effects: Control = shop.get("_purchase_effects") as Control
+	_expect(effects.get_child_count() > 0, "Purchase keeps its trade animation")
+	if effects.get_child_count() == 0:
+		return
+	var effect: Node = effects.get_child(effects.get_child_count() - 1)
+	var elapsed: float = float(effect.get("_elapsed"))
+	for frame: int in range(57):
+		effect.set("_elapsed", float(frame) / 60.0)
+		effect.call("_update_pose")
+		_assert_banner_clearance(shop, "purchase frame %d" % frame)
+	effect.set("_elapsed", elapsed)
+	effect.call("_update_pose")
 
 func _assert_tag(source: Control, amount: int, selling: bool, affordable: bool) -> void:
 	var tag: Control = source.find_child("ScavengerPriceTag", true, false) as Control

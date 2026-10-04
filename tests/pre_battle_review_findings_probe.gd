@@ -39,7 +39,15 @@ func _identity_stage(instance: Node, enemy_types: Array, identities: Array, file
 	var flow := panel.find_child("PreBattleEnemyFlow", true, false) as Control
 	for index: int in range(identities.size()):
 		var identity: Array = identities[index] as Array
-		var tags := flow.get_child(index).find_child("PreBattleMoveTags", true, false) as Control
+		var foe: Control = null
+		for candidate: Control in flow.get_children():
+			if str((candidate.get("enemy") as Dictionary).get("type", "")) == str(enemy_types[index]):
+				foe = candidate
+				break
+		_expect(foe != null, "%s identity proof must find its foe after centre-slot ordering" % enemy_types[index])
+		if foe == null:
+			continue
+		var tags := foe.find_child("PreBattleMoveTags", true, false) as Control
 		UiSuite._assert_tag_identity(tags, str(identity[0]), str(identity[1]), _expect, str(enemy_types[index]))
 		for tag: Control in tags.get_children():
 			if str(tag.get_meta("tag_word", "")) == str(identity[0]) and not tag.is_visible_in_tree():

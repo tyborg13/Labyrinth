@@ -18,6 +18,8 @@ const TurnOrderInk = preload("res://scripts/turn_order_ink.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const ThreatTags = preload("res://scripts/pre_battle_threat_tags.gd")
 const FoeCaption = preload("res://scripts/pre_battle_foe_caption.gd")
+const FoeLayout = preload("res://scripts/pre_battle_foe_layout.gd")
+const Lineup = preload("res://scripts/pre_battle_lineup.gd")
 
 static func build(host: Node, panel: PanelContainer, room: Dictionary, combat: Dictionary, accent: Color) -> void:
 	var margin := MarginContainer.new()
@@ -164,19 +166,25 @@ static func build_foes(host: Node, combat: Dictionary) -> Control:
 	foes.name = "PreBattleEnemySection"
 	foes.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	foes.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	foes.add_theme_constant_override("separation", 4)
+	var separation: int = roundi(Typography.scaled_value(host, 4.0))
+	foes.add_theme_constant_override("separation", separation)
 	var enemies: Array = []
 	for entry: Variant in combat.get("enemies", []):
 		if entry is Dictionary and int(entry.get("hp", 0)) > 0:
 			enemies.append(entry)
-	# Put the marked leader in the middle of the first row, preserving roster data.
 	var objective: Dictionary = combat.get("objective", {}) as Dictionary
-	for index: int in range(enemies.size()):
-		var enemy: Dictionary = enemies[index]
-		if bool(enemy.get("is_leader", false)) or (objective.has("leader_id") and enemy.get("id", -1) == objective["leader_id"]):
-			enemies.remove_at(index)
-			enemies.insert(mini(1, enemies.size()), enemy)
-			break
+	if enemies.size() == 3:
+		var center_index: int = -1
+		for index: int in range(enemies.size()):
+			var enemy: Dictionary = enemies[index]
+			if bool(enemy.get("is_leader", false)) or (objective.has("leader_id") and enemy.get("id", -1) == objective["leader_id"]):
+				center_index = index
+				break
+			if center_index < 0 and bool(FoeLayout.metrics(str(enemy.get("type", "")))["large"]):
+				center_index = index
+		if center_index >= 0:
+			var center_enemy: Dictionary = enemies.pop_at(center_index)
+			enemies.insert(1, center_enemy)
 	var header := section("FOES", str(enemies.size()), "PreBattleFoesDivider")
 	foes.add_child(header)
 	var scroll := ScrollContainer.new()
@@ -185,40 +193,48 @@ static func build_foes(host: Node, combat: Dictionary) -> Control:
 	scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	foes.add_child(scroll)
-	var flow := Controls.FoeFlow.new()
+	var flow := Lineup.new()
 	flow.name = "PreBattleEnemyFlow"
 	flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	flow.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	flow.card_size = Vector2(206.0, 220.0 if enemies.size() > 3 else 365.0) * Typography.ui_scale(host)
-	flow.gap = Typography.scaled_value(host, 4.0)
 	scroll.add_child(flow)
-	var has_leader: bool = enemies.any(func(enemy: Dictionary) -> bool: return bool(enemy.get("is_leader", false)) or (objective.has("leader_id") and enemy.get("id", -1) == objective["leader_id"]))
 	for enemy: Dictionary in enemies:
 		var leader: bool = bool(enemy.get("is_leader", false)) or (objective.has("leader_id") and enemy.get("id", -1) == objective["leader_id"])
-		flow.add_child(build_foe(host, enemy, flow.card_size, leader, enemies.size() > 3, has_leader))
+		var card := build_foe(host, enemy, Vector2.ZERO, leader)
+		flow.add_child(card)
+		var caption := card.get_node("PreBattleFoeCaption") as Control
+		caption.minimum_size_changed.connect(flow.queue_sort)
 	var hint := Controls.PointerHint.new()
 	hint.text = "Hover or select a foe to read its moves"
 	Typography.apply_eyebrow(hint, 13, Palette.TEXT_3)
 	hint.name = "PreBattleFoeHint"
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	foes.add_child(hint)
-	if enemies.size() > 3:
-		var spacer := Control.new()
-		spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		foes.add_child(spacer)
+	var hint_slot := Control.new()
+	hint_slot.name = "PreBattleFoeHintSlot"
+	var hint_height: float = hint.get_combined_minimum_size().y
+	# Keep the same reserve when controller input hides the pointer hint.
+	hint_slot.custom_minimum_size.y = hint_height + Typography.scaled_value(host, 14.0) - separation
+	hint_slot.add_child(hint)
+	hint.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
+	hint.offset_top = -hint_height
+	foes.add_child(hint_slot)
 	var actions := build_actions(host)
 	foes.add_child(actions)
 	if flow.get_child_count() > 0:
 		var focus_foe := flow.get_child(mini(1, flow.get_child_count() - 1)) as Control
 		for action_button: Control in actions.get_children():
 			action_button.focus_neighbor_top = action_button.get_path_to(focus_foe)
-	flow.center_header = header
-	flow.center_actions = actions
+	for index: int in range(actions.get_child_count()):
+		var action_button := actions.get_child(index) as Control
+		if index > 0:
+			action_button.focus_neighbor_left = action_button.get_path_to(actions.get_child(index - 1))
+		if index + 1 < actions.get_child_count():
+			action_button.focus_neighbor_right = action_button.get_path_to(actions.get_child(index + 1))
 	header.item_rect_changed.connect(flow.queue_sort)
 	actions.item_rect_changed.connect(flow.queue_sort)
 	return foes
 
-static func build_foe(host: Node, enemy: Dictionary, card_size: Vector2, leader: bool = false, compact: bool = false, compact_leader_roster: bool = false) -> Control:
+static func build_foe(host: Node, enemy: Dictionary, card_size: Vector2, leader: bool = false) -> Control:
 	var card := Controls.Foe.new()
 	card.name = "PreBattleEnemyCard"
 	card.host = host
@@ -227,22 +243,14 @@ static func build_foe(host: Node, enemy: Dictionary, card_size: Vector2, leader:
 	card.custom_minimum_size = card_size
 	card.tooltip_text = "enemy:%s" % str(enemy.get("type", ""))
 	var definition: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
-	var sprite_height: float = ((122.0 if compact_leader_roster else 140.0) if compact else 220.0) * (1.15 if leader else 1.0) * Typography.ui_scale(host)
 	var stage := InkPool.new()
 	stage.name = "PreBattleEnemyBrush"
-	stage.figure_width = 175.0 if compact else 206.0
 	stage.variant = "b" if posmod(int(enemy.get("id", 0)), 2) else "a"
-	stage.feet_anchor = Vector2(0.5, 0.99)
-	stage.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	stage.offset_bottom = sprite_height + (4.0 if compact else 16.0)
 	card.add_child(stage)
 	var art := icon(str(definition.get("art_path", "")), 0.0, "PreBattleEnemyArt")
-	art.texture = Socket._cropped_icon(art.texture)
-	art.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	art.offset_left = 12.0
-	art.offset_top = 4.0 if compact else 16.0
-	art.offset_right = -12.0
-	art.offset_bottom = sprite_height + (4.0 if compact else 16.0)
+	# The combat board inherits linear filtering and uses the original full canvas.
+	art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+	art.stretch_mode = TextureRect.STRETCH_SCALE
 	card.add_child(art)
 	var health := Controls.Plate.new()
 	health.name = "PreBattleEnemyHealth"
@@ -252,11 +260,6 @@ static func build_foe(host: Node, enemy: Dictionary, card_size: Vector2, leader:
 	health_style.content_margin_left = 6.0
 	health_style.content_margin_right = 6.0
 	health.add_theme_stylebox_override("panel", health_style)
-	health.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-	health.offset_left = -62.0
-	health.offset_right = -8.0
-	health.offset_top = 22.0 if leader else 6.0
-	health.offset_bottom = health.offset_top + 24.0
 	card.add_child(health)
 	var hp_row := HBoxContainer.new()
 	hp_row.add_theme_constant_override("separation", 3)
@@ -268,28 +271,20 @@ static func build_foe(host: Node, enemy: Dictionary, card_size: Vector2, leader:
 	if leader:
 		var badge := label("LEADER", 14, Palette.GOLD, true)
 		badge.name = "PreBattleLeaderLabel"
-		badge.set_anchors_preset(Control.PRESET_TOP_RIGHT)
-		badge.offset_left = -90.0
-		badge.offset_right = -8.0
-		badge.offset_top = 0.0
-		badge.offset_bottom = 20.0
 		card.add_child(badge)
-	# Only the caption reflows; sprite and HP positions stay independent of name length.
 	var caption := FoeCaption.new()
 	caption.name = "PreBattleFoeCaption"
-	caption.compact = compact
+	caption.name_font_size = Typography.scaled_size(host, 19)
 	caption.compact_font_size = Typography.scaled_size(host, 17)
 	caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	caption.add_theme_constant_override("separation", roundi(Typography.scaled_value(host, 8.0)))
-	caption.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	caption.offset_top = sprite_height + Typography.scaled_value(host, 4.0 if compact else 20.0)
-	caption.offset_bottom = caption.offset_top
-	caption.height_budget = card_size.y - caption.offset_top
 	card.add_child(caption)
 	var name_label := label(str(definition.get("name", enemy.get("type", ""))), 19)
 	name_label.name = "PreBattleEnemyName"
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	name_label.max_lines_visible = 2
+	name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_WORD_ELLIPSIS
 	caption.enemy_name = name_label
 	caption.add_child(name_label)
 	var threat_tags: Array = ThreatTags.build(str(enemy.get("type", "")))
@@ -301,6 +296,8 @@ static func build_foe(host: Node, enemy: Dictionary, card_size: Vector2, leader:
 	threat.name = "PreBattleThreatSummary"
 	threat.hide()
 	card.add_child(threat)
+	card.resized.connect(FoeLayout.fit_single.bind(card))
+	caption.minimum_size_changed.connect(FoeLayout.fit_single.bind(card))
 	return card
 
 static func build_move_tags(host: Node, threat_tags: Array) -> Control:

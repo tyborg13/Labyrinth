@@ -98,9 +98,12 @@ floor shadows); the former navy button bodies clashed with it.
   pre-battle report, character menu and combat HUD:
   - *Socket* (`ui_socket.gd`): a painted antique-bronze medallion ring
     (`assets/art/ui/visual_pass_4/medallion_ring.png`; geometry read from its
-    JSON) holding an icon cropped to its opaque bounds. Hover/focus brighten the
-    ring with an ember glow; selected adds a gold inner ring; wrappers never
-    draw their own focus box.
+    JSON) holding an icon cropped to its opaque bounds and shown at full colour.
+    Hover/focus brighten the ring with an ember glow; selected adds a gold inner
+    ring; relics add a thin ring in their rarity/accent colour (status rings sit
+    inside it); wrappers never draw their own focus box. Relic, rite and
+    Defiance sockets are inspect-only. The top-right HUD buttons keep their
+    original square plates.
   - *Card strip* (`ui_card_strip.gd`): a one-line deck row with a cropped art
     thumbnail, the exact card name and an optional ×N.
   - *Stat chip* (`ui_stat_chip.gd`): a pill with a socketed icon, a value and a
@@ -109,10 +112,17 @@ floor shadows); the former navy button bodies clashed with it.
   - *Ink pool stage* (`ui_ink_pool_stage.gd`): a painted ink pool and faint warm
     spotlight under a standing figure (pre-battle foes, the paper doll).
   - *Section header* (`ui_section_header.gd`): gold eyebrow, count, fading rule.
-- **NPC scenes** keep their painted rooms as the stage. The Scavenger's title,
-  embers, category brush labels and hanging parchment price tags sit directly on
-  the stall; the Graftwright's atelier header, translucent workmat panels and a
-  stitched thread linking the carried and replaced cards sit over the atelier.
+- **NPC scenes** keep their painted rooms as the stage. The Scavenger's signage
+  is one family of hanging parchment cut from the same vellum: a banner bearing
+  "The Scavenger's Wares", shelf labels pinned to the posts (MAGIC, GEAR, ITEMS)
+  and price tags, all lettered in the same dark ink. The Graftwright atelier
+  keeps its own violet-velvet language (a redesign was tried and reverted).
+- **Pre-battle foes are shown at true relative scale**: every foe's full canvas
+  is drawn at one shared lineup scale times its `art_scale`, with its feet
+  (`ActorPresentation.floor_anchor`) on the row's ground line and its ink pool
+  at the feet, so a crawler stays small and a dragon dominates exactly as on the
+  board. One row for 1–3 foes (centred vertically), two rows for 4–6 with 2×2
+  foes spanning both rows in the centre.
 
 ## Combat composition
 

@@ -54,6 +54,8 @@ func _capture_states() -> void:
 	var pack_shift: Vector2 = (bones["pack"] as Bone2D).global_position - rest_pack
 	_check(bones.size() == 11 and head_shift.distance_to(hand_shift) > 3.0 and head_shift.distance_to(pack_shift) > 3.0, "Head, gripping hand and carried pack articulate separately at scene scale")
 	_check((bones["root"] as Bone2D).transform == rest_root, "Idle keeps the lower body planted")
+	_check(str((_shop.call("semantic_snapshot") as Dictionary)["title"]) == "The Scavenger's Wares", "Merchant title matches the single parchment banner")
+	_check(_shop.find_child("ScavengerStallEyebrow", true, false) == null, "Parchment banner replaces the old eyebrow")
 	await _save("01_entry.png")
 	var sell_mode: Control = _shop.get("_mode_sell") as Control
 	await _hover(sell_mode)
@@ -196,6 +198,7 @@ func _click(control: Control, settle: bool = true) -> void:
 
 func _save(filename: String) -> void:
 	await RenderingServer.frame_post_draw
+	_assert_banner_clearance(_shop, filename)
 	_check_bounds(_shop)
 	if (_shop.get("_detail_panel") as Control).visible:
 		var title: Label = _shop.get("_detail_title") as Label

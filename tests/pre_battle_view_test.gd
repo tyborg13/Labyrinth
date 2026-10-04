@@ -69,8 +69,8 @@ func _run_layout_proof() -> void:
 	_assert_pre_battle_body_inside_panel(leader_panel, "six foes with leader")
 	_assert_foe_fit(leader_panel, 6)
 	var leader_flow := leader_panel.find_child("PreBattleEnemyFlow", true, false) as Control
-	var center_foe := leader_flow.get_child(1) as Control
-	_expect(bool(center_foe.get_meta("is_leader", false)) and absf(center_foe.get_global_rect().get_center().x - leader_flow.get_global_rect().get_center().x) < 1.0, "Leader belongs in the center slot")
+	var leader_foe := leader_flow.get_child(0) as Control
+	_expect(bool(leader_foe.get_meta("is_leader", false)) and leader_foe.find_child("PreBattleLeaderLabel", true, false) != null, "A six-foe roster retains its order and marked leader badge")
 	await _layout_capture(instance, "six_foes_leader")
 	var boss: Dictionary = engine.create_debug_boss_run(ProgressionStore.default_data())
 	boss["mode"] = RunEngine.MODE_PRE_BATTLE

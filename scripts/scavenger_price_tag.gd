@@ -2,6 +2,7 @@ extends Control
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
+const Signage = preload("res://scripts/scavenger_signage.gd")
 const Surface = preload("res://scripts/ui_component_surface.gd")
 const TAG_PATH := "res://assets/art/ui/visual_pass_4/price_tag.png"
 const EMBER_PATH := "res://assets/art/icons/ember.png"
@@ -51,6 +52,6 @@ func _ready() -> void:
 	value.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	value.add_theme_font_override("font", Typography.ui_font())
 	Typography.set_label_size(value, 19)
-	value.add_theme_color_override("font_color", Color("2f5a24") if selling else Color("3a2616") if affordable else Color("8e1f17"))
+	value.add_theme_color_override("font_color", Color("2f5a24") if selling else Signage.INK if affordable else Color("8e1f17"))
 	value.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	row.add_child(value)

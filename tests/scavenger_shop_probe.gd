@@ -7,6 +7,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const ProbeSettings = preload("res://scripts/settings_store.gd")
 const StatChip = preload("res://scripts/ui_stat_chip.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
+const ShopSignage = preload("res://scripts/scavenger_signage.gd")
 
 const OUTPUT_DIR := "user://scavenger_shop_probe"
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
@@ -61,8 +62,8 @@ func _capture_states() -> void:
 		_fail("Scavenger shop should be the live merchant surface")
 		return
 	var snapshot: Dictionary = shop.call("semantic_snapshot")
-	if str(snapshot.get("title", "")) != "Wares & Oddments":
-		_fail("Shop title should be Wares & Oddments")
+	if str(snapshot.get("title", "")) != "The Scavenger's Wares":
+		_fail("Shop title should be The Scavenger's Wares")
 	var categories: Dictionary = snapshot.get("categories", {}) as Dictionary
 	for category: String in ["magic", "gear", "item"]:
 		if int(categories.get(category, 0)) != RunEngine.MERCHANT_OFFERS_PER_CATEGORY:
@@ -546,12 +547,39 @@ func _settle() -> void:
 
 func _save(filename: String) -> void:
 	await RenderingServer.frame_post_draw
+	var shop: Control = _probe_viewport.find_child("ScavengerShopView", true, false) as Control
+	if shop != null and shop.is_visible_in_tree():
+		_assert_banner_clearance(shop, filename)
 	var image: Image = _probe_viewport.get_texture().get_image()
 	if image == null or image.get_size() != VIEWPORT_SIZE:
 		_fail("Proof must render natively into a 1920x1080 SubViewport")
 		return
 	if image.save_png("%s/%s" % [OUTPUT_DIR, filename]) != OK:
 		_fail("Screenshot should save: " + filename)
+
+func _assert_banner_clearance(shop: Control, state_name: String) -> void:
+	var banner: Control = shop.find_child("ScavengerShopBanner", true, false) as Control
+	if banner == null:
+		_fail("Parchment banner must exist: " + state_name)
+		return
+	var parchment: Rect2 = banner.get_global_transform() * ShopSignage.parchment_rect(banner.size)
+	var canvas: Control = shop.get("_canvas") as Control
+	var gap: float = 10.0 * canvas.get_global_transform().get_scale().y
+	for source: Control in (shop.get("_offer_sources") as Dictionary).values():
+		if not is_instance_valid(source) or not source.is_visible_in_tree():
+			continue
+		_assert_banner_ware_rect(parchment, ShopSignage.ware_rect(source), gap, str(source.name), state_name)
+	for effect: Node in (shop.get("_purchase_effects") as Control).get_children():
+		var proxy: Control = effect.get("proxy") as Control
+		if is_instance_valid(proxy) and proxy.is_visible_in_tree():
+			var ware: Rect2 = ShopSignage.ware_rect(proxy)
+			_assert_banner_ware_rect(parchment, ware, gap, str(effect.name), state_name)
+
+func _assert_banner_ware_rect(parchment: Rect2, ware: Rect2, gap: float, ware_name: String, state_name: String) -> void:
+	if parchment.intersects(ware):
+		_fail("Banner parchment intersects ware %s in %s" % [ware_name, state_name])
+	if parchment.position.x < ware.end.x and parchment.end.x > ware.position.x and ware.position.y - parchment.end.y < gap - 0.01:
+		_fail("Banner needs a 10px gap above ware %s in %s: %.2f" % [ware_name, state_name, ware.position.y - parchment.end.y])
 
 func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]

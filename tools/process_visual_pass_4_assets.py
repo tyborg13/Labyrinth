@@ -7,6 +7,7 @@ Ring geometry is measured on the final alpha mask (0.5 threshold, pixel centres)
 """
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 
@@ -57,7 +58,7 @@ def ring_geometry(alpha: np.ndarray) -> dict:
     }
 
 
-def process_keyed(name: str, target: int, square: bool = False) -> Image.Image:
+def process_keyed(name: str, target: int, square: bool = False, *, target_width: bool = False) -> Image.Image:
     rgb = np.asarray(Image.open(SOURCES / name).convert("RGB"), dtype=np.float64)
     colour, alpha = key(rgb)
     ys, xs = np.where(alpha > 0.02)
@@ -72,7 +73,8 @@ def process_keyed(name: str, target: int, square: bool = False) -> Image.Image:
                    (int((side - alpha.shape[1]) // 2), int((side - alpha.shape[1] + 1) // 2)))
         colour = np.pad(colour, (*padding, (0, 0)))
         alpha = np.pad(alpha, padding)
-    size = (round(alpha.shape[1] * target / alpha.shape[0]), target)
+    size = ((target, max(1, round(alpha.shape[0] * target / alpha.shape[1]))) if target_width
+            else (max(1, round(alpha.shape[1] * target / alpha.shape[0])), target))
     output = resize_keyed(colour, alpha, size)
     output.save(OUT / name, optimize=True)
     return output
@@ -95,7 +97,15 @@ def process_pool(name: str) -> None:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--signage-only", action="store_true", help="Process only the Scavenger banner and shelf label")
+    args = parser.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
+    for name, width in (("shop_banner.png", 1100), ("shelf_label.png", 360)):
+        process_keyed(name, width, target_width=True)
+    if args.signage_only:
+        print("VP4 SIGNAGE: processed shop_banner (1100px wide), shelf_label (360px wide)")
+        return
     ring = process_keyed("medallion_ring.png", 256, square=True)
     metadata = {"source": "spec/assets/visual_pass_4/sources/medallion_ring.png",
                 "size": list(ring.size), **ring_geometry(np.asarray(ring)[..., 3])}
@@ -103,7 +113,7 @@ def main() -> None:
     process_keyed("price_tag.png", 256)
     for name in ("ink_pool_a.png", "ink_pool_b.png"):
         process_pool(name)
-    print("VP4 ASSETS: processed medallion_ring, ink_pool_a, ink_pool_b, price_tag")
+    print("VP4 ASSETS: processed medallion_ring, ink_pool_a, ink_pool_b, price_tag, shop_banner, shelf_label")
     print(json.dumps(metadata))
 
 

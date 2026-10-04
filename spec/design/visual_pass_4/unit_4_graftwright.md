@@ -1,5 +1,10 @@
 # Unit 4: Graftwright atelier
 
+> **Status (2026-10-04): reverted.** After in-game review the owner judged this
+> unit no better than the original atelier ("a little bit worse even"), so the
+> Graftwright screen was restored to master. The brief is kept as a record.
+
+
 Target: `mockups/graftwright.jpg`. Today's screens: `baseline/graftwright_entry.jpg`,
 `baseline/graftwright_workbench.jpg`, `baseline/graftwright_preview.jpg`.
 

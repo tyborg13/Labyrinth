@@ -13,7 +13,8 @@ uniform float content_width = 54.0;
 varying vec2 local_point;
 void vertex() { local_point = VERTEX; }
 void fragment() {
-	vec4 pixel = texture(TEXTURE, UV) * COLOR;
+	// In a canvas_item fragment, COLOR already holds texture * modulate.
+	vec4 pixel = COLOR;
 	float grey = dot(pixel.rgb, vec3(0.299, 0.587, 0.114));
 	pixel.rgb = mix(vec3(grey), pixel.rgb, saturation);
 	if (fade_start < 1.0) { pixel.a *= 1.0 - smoothstep(fade_start, 1.0, local_point.x / content_width); }

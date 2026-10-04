@@ -11,7 +11,6 @@ const Rules = preload("res://scripts/graftwright_rules.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
-const Palette = preload("res://scripts/ui_palette.gd")
 const Tooltip = preload("res://scripts/ui_tooltip_panel.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const Choice = preload("res://scripts/graftwright_choice.gd")
@@ -23,21 +22,18 @@ const UnravelShader = preload("res://scripts/graftwright_unravel.gdshader")
 const PortraitRig = preload("res://scripts/graftwright_cutout/rig.gd")
 const MatMaterial = preload("res://scripts/graftwright_workmat.gdshader")
 const TypeMaterial = preload("res://scripts/graftwright_type.gdshader")
-const SummaryPlate = preload("res://scripts/graftwright_summary_plate.gd")
+const UiSkinScript = preload("res://scripts/ui_skin.gd")
 const ART: String = "res://assets/art/ui/graftwright/"
 const SIZE := Vector2(1920, 1080)
+const CARD_SCALE: float = 0.8
 const CARD_SIZE := Vector2(200, 281.6)
 const VIOLET := Color("d8a7ff")
 const IVORY := Color("f0e0c6")
 const RED := Color("f28a91")
 const GREEN := Color("9fe0ba")
 const MUTED := Color("b9aaaf")
-const PALE_VIOLET := Color("c8b2d8")
-const LEFT: float = 860.0
-const RIGHT: float = 1620.0
-const PANEL_WIDTH: float = 500.0
-const CARDS_Y: float = 480.0
-const STATE_Y: float = 772.0
+const LEFT: float = 815.0
+const RIGHT: float = 1520.0
 
 var state: Dictionary = {}
 var recipient: String = ""
@@ -50,7 +46,6 @@ var _room_identity: String = ""
 var _intro_open: bool = false
 var _title: Label
 var _intro_browse: Button
-var _preview_thread: ThreadEffect
 var _props: Node2D
 var _picker_role: String = ""
 var _picker_slot: String = "armor"
@@ -121,21 +116,8 @@ func _ensure_built() -> void:
 	_canvas.add_child(_bench)
 	_picture(_bench, ART + "atelier.png", Rect2(0, -794, 1920, 1080), false)
 	_build_foreground_props()
-	var header := Control.new()
-	header.name = "AtelierHeader"
-	header.position = Vector2(610, 38)
-	header.size = Vector2(1260, 100)
-	header.z_index = 45
-	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_canvas.add_child(header)
-	_eyebrow(header, "THE GRAFTWRIGHT'S ATELIER", Rect2(0, 0, 1260, 26), 15, PALE_VIOLET).name = "AtelierEyebrow"
-	_title = _label(header, "Graftwright", Rect2(0, 26, 1260, 74), 52, Palette.GOLD_BRIGHT, true)
+	_title = _label(_canvas, "Graftwright", Rect2(28, 54, 420, 76), 48, IVORY, true)
 	_title.name = "AtelierTitle"
-	_title.add_theme_font_override("font", Typography.display_font())
-	_title.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
-	_title.add_theme_constant_override("outline_size", 6)
-	_title.add_theme_color_override("font_shadow_color", Color.BLACK)
-	_title.add_theme_constant_override("shadow_offset_y", 3)
 	_content = Control.new()
 	_content.size = SIZE
 	_content.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -303,7 +285,7 @@ func _rebuild() -> void:
 	_commit = null
 	_consequence = null
 	_intro_browse = null
-	_preview_thread = null
+	_title.visible = not _intro_open
 	if _intro_open: _build_intro()
 	elif _used(): _build_result()
 	elif not _has_pair(): _build_empty()
@@ -316,66 +298,50 @@ func _build_workbench() -> void:
 	_sacrifice_content.name = "SacrificePanel"
 	_sacrifice_content.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_content.add_child(_sacrifice_content)
-	_mat(_sacrifice_content, Rect2(610, 190, PANEL_WIDTH, 650), true, 0.8)
-	_mat(_content, Rect2(1370, 190, PANEL_WIDTH, 650), true, 0.8)
-	_label(_sacrifice_content, "Sacrifice", Rect2(650, 235, 420, 52), 38, RED.lerp(IVORY, 0.45), true).z_index = 2
-	_label(_content, "Improve", Rect2(1410, 235, 420, 52), 38, GREEN.lerp(IVORY, 0.45), true).z_index = 2
+	_mat(_sacrifice_content, Rect2(470, 120, 690, 390 if donor.is_empty() else 765), true)
+	_mat(_content, Rect2(1175, 120, 690, 390 if recipient.is_empty() else 765), true)
+	_label(_sacrifice_content, "Sacrifice", Rect2(530, 165, 570, 52), 38, RED.lerp(IVORY, 0.45), true)
+	_label(_content, "Improve", Rect2(1235, 165, 570, 52), 38, GREEN.lerp(IVORY, 0.45), true)
 	_source_icon = _equipment_well(_sacrifice_content, donor, LEFT, RED, "donor")
 	_recipient_icon = _equipment_well(_content, recipient, RIGHT, GREEN, "recipient")
-	if not donor.is_empty(): _eyebrow(_sacrifice_content, "CARRY ONE CARD", Rect2(650, 438, 420, 30), 15, MUTED).z_index = 2
-	if not recipient.is_empty(): _eyebrow(_content, "REPLACE ONE CARD" if Rules.inherited_index(state, recipient) < 0 else "REPLACE INHERITED CARD", Rect2(1410, 438, 420, 30), 15, MUTED).z_index = 2
+	if not donor.is_empty(): _label(_sacrifice_content, "WILL BE DESTROYED", Rect2(LEFT - 47, 342, 306, 45), 17, RED, true)
+	var equip_text: String = "EQUIPMENT RETAINED"
+	if not Rules.equipped_slot(state, recipient).is_empty(): equip_text = "STAYS EQUIPPED"
+	elif not Rules.equipped_slot(state, donor).is_empty(): equip_text = "WILL BE EQUIPPED"
+	if not recipient.is_empty(): _label(_content, equip_text, Rect2(RIGHT - 47, 342, 306, 45), 17, GREEN, true)
+	if not donor.is_empty(): _label(_sacrifice_content, "CARRY ONE CARD", Rect2(555, 437, 520, 30), 18, MUTED, true)
+	if not recipient.is_empty(): _label(_content, "REPLACE ONE CARD" if Rules.inherited_index(state, recipient) < 0 else "REPLACE INHERITED CARD", Rect2(1260, 437, 520, 30), 18, MUTED, true)
 	var source: Array = Data.equipment_cards(donor, state)
 	var target: Array = Data.equipment_cards(recipient, state)
 	var source_gap: float = 6.0 if source.size() >= 3 else 22.0
 	var target_gap: float = 6.0 if target.size() >= 3 else 22.0
-	var source_size: Vector2 = _bench_card_size(source.size(), source_gap)
-	var target_size: Vector2 = _bench_card_size(target.size(), target_gap)
-	var source_start: float = LEFT - (source.size() * source_size.x + (source.size() - 1) * source_gap) * 0.5
-	var target_start: float = RIGHT - (target.size() * target_size.x + (target.size() - 1) * target_gap) * 0.5
+	var source_start: float = LEFT - (source.size() * CARD_SIZE.x + (source.size() - 1) * source_gap) * 0.5
+	var target_start: float = RIGHT - (target.size() * CARD_SIZE.x + (target.size() - 1) * target_gap) * 0.5
 	for i: int in range(source.size()):
 		var index: int = i
 		var selected: bool = i == donor_index
-		var button: Button = _card(_sacrifice_content, str(source[i]), Vector2(source_start + i * (source_size.x + source_gap), CARDS_Y), selected, VIOLET, func() -> void: select_source(index), source_size)
+		var button: Button = _card(_sacrifice_content, str(source[i]), Vector2(source_start + i * (CARD_SIZE.x + source_gap), 474), selected, VIOLET, func() -> void: select_source(index))
 		button.name = "SourceCard_%d" % i
-		button.z_index = 2
-		if selected: _ribbon(_sacrifice_content, "CARRIED", Rect2(button.position.x, STATE_Y, source_size.x, 28), VIOLET)
+		if selected: _ribbon(_sacrifice_content, "CARRY FORWARD", Rect2(button.position.x - 3, 766, 206, 28), VIOLET)
 		elif donor_index >= 0:
 			button.set("muted", true)
-			_ribbon(_sacrifice_content, "LOST", Rect2(button.position.x, STATE_Y, source_size.x, 28), RED)
+			_ribbon(_sacrifice_content, "LOST", Rect2(button.position.x, 766, 200, 28), RED)
 		_source_cards.append(button)
 	for i: int in range(target.size()):
 		var index: int = i
 		var selected: bool = i == target_index
-		var button: Button = _card(_content, str(target[i]), Vector2(target_start + i * (target_size.x + target_gap), CARDS_Y), selected, RED, func() -> void: select_target(index), target_size)
+		var button: Button = _card(_content, str(target[i]), Vector2(target_start + i * (CARD_SIZE.x + target_gap), 474), selected, RED, func() -> void: select_target(index))
 		button.name = "TargetCard_%d" % i
-		button.z_index = 2
 		var inherited: int = Rules.inherited_index(state, recipient)
 		button.disabled = inherited >= 0 and i != inherited
-		if selected: _ribbon(_content, "REPLACED", Rect2(button.position.x, STATE_Y, target_size.x, 28), RED)
-		else: _ribbon(_content, "KEPT", Rect2(button.position.x, STATE_Y, target_size.x, 28), MUTED)
+		if selected: _ribbon(_content, "REPLACED", Rect2(button.position.x - 3, 766, 206, 28), RED)
 		_target_cards.append(button)
 	if donor_index >= 0 and target_index >= 0:
 		_compare_strip(_card_name(str(target[target_index])), _card_name(str(source[donor_index])))
-		_preview_thread = ThreadEffect.new()
-		_preview_thread.name = "GraftPreviewThread"
-		_preview_thread.z_index = 1
-		_preview_thread.size = SIZE
-		_preview_thread.preview = true
-		_preview_thread.reduced_motion = reduced_motion
-		_preview_thread.origin = _source_cards[donor_index].position + Vector2(source_size.x * 0.5, 0)
-		_preview_thread.destination = _target_cards[target_index].position + Vector2(target_size.x * 0.5, 0)
-		for node: Node in _content.find_children("*", "Label", true, false):
-			if node.get_parent() == _content or node.get_parent() == _sacrifice_content:
-				_preview_thread.occlusion_rects.append((node as Control).get_rect().grow(3.0))
-		for node_name: String in ["ChangeSacrifice", "ChangeRecipient"]:
-			var change: Control = _content.find_child(node_name, true, false) as Control
-			if change != null: _preview_thread.occlusion_rects.append(change.get_rect().grow(3.0))
-		_content.add_child(_preview_thread)
 	var reason: String = Rules.error(state, recipient, donor, donor_index, target_index)
-	_commit = _action(_content, "Graft", Rect2(1505, 930, 365, 120), _request_graft)
+	_commit = _action(_content, "Graft", Rect2(1340, 930, 365, 120), _request_graft)
 	_commit.name = "GraftCommit"
 	_commit.disabled = not reason.is_empty()
-	_commit.set("primary", true)
 	_leave = _action(_content, "Skip", Rect2(65, 942, 260, 96), request_leave)
 	_leave.name = "GraftLeave"
 	var status: String = _inline_error
@@ -387,60 +353,37 @@ func _build_workbench() -> void:
 		_content.move_child(backing, _consequence.get_index())
 
 func _equipment_well(parent: Control, id: String, center: float, color: Color, role: String) -> TextureRect:
-	var button := _choice(parent, Rect2(center - (76 if id.is_empty() else 216), 294, 152, 152), func() -> void: open_picker(role), "equipment", color)
+	var button := _choice(parent, Rect2(center - (84 if id.is_empty() else 245), 240, 168, 192), func() -> void: open_picker(role), "equipment", color)
 	button.name = "ChooseSacrifice" if role == "donor" else "ChooseRecipient"
-	button.z_index = 2
 	button.set_meta("graft_action_label", "Choose" if id.is_empty() else "Change")
-	button.face_size = Vector2(152, 152)
-	_glow(button.art(), Rect2(4, 8, 144, 144), Color(color, 0.25))
+	button.face_size = Vector2(168, 168)
+	_glow(button.art(), Rect2(4, 8, 160, 160), Color(color, 0.25))
 	if not id.is_empty():
-		var framed: TextureRect = _framed_equipment(button.art(), id, Rect2(0, 0, 152, 152))
-		var name_label: Label = _label(parent, _item_name(id), Rect2(center - 64, 294, 264, 68), 26, IVORY)
+		var framed: TextureRect = _framed_equipment(button.art(), id, Rect2(0, 0, 168, 168))
+		_ribbon(button.art(), "CHANGE", Rect2(32, 169, 104, 25), MUTED)
+		var name_label: Label = _label(parent, _item_name(id), Rect2(center - 47, 265, 306, 74), 28, IVORY, true)
 		name_label.name = "SacrificeName" if role == "donor" else "ImproveName"
-		name_label.z_index = 2
-		var name_size: int = 26
-		while name_label.get_line_count() * name_label.get_line_height() > name_label.size.y and name_size > Typography.SIZE_SECTION:
-			name_size -= 1
-			Typography.set_label_size(name_label, name_size)
-		name_label.size.y = name_label.get_line_count() * name_label.get_line_height()
-		var fate_text: String = "WILL BE DESTROYED"
-		if role == "recipient":
-			fate_text = "EQUIPMENT RETAINED"
-			if not Rules.equipped_slot(state, recipient).is_empty(): fate_text = "STAYS EQUIPPED"
-			elif not Rules.equipped_slot(state, donor).is_empty(): fate_text = "WILL BE EQUIPPED"
-		var fate: Label = _eyebrow(parent, fate_text, Rect2(center - 64, name_label.get_rect().end.y + 8, 264, 28), 14, color, false)
-		fate.name = "SacrificeFate" if role == "donor" else "ImproveFate"
-		fate.z_index = 2
-		var change: Choice = _choice(parent, Rect2(center - 64, fate.get_rect().end.y + 8, 138, 30), func() -> void: open_picker(role), "text", MUTED)
-		change.name = "ChangeSacrifice" if role == "donor" else "ChangeRecipient"
-		change.z_index = 2
-		change.set_meta("graft_action_label", "Change piece")
-		_label(change.art(), "Change piece", Rect2(0, 0, 138, 30), 17, MUTED)
-		# The well retains its original place in keyboard/controller focus order.
-		change.focus_mode = Control.FOCUS_NONE
 		return framed
-	_picture(button.art(), ART + "item_cradle.png", Rect2(0, 0, 152, 152))
+	_picture(button.art(), ART + "item_cradle.png", Rect2(0, 0, 168, 168))
 	if id.is_empty():
-		_label(button.art(), "Choose", Rect2(16, 54, 120, 44), 24, IVORY, true)
+		_label(button.art(), "Choose", Rect2(24, 61, 120, 44), 24, IVORY, true)
 		return null
 	return null
 
 func _compare_strip(old_name: String, new_name: String) -> void:
-	var row := Label.new()
+	# The original art's lower leather rail is centered 61 px above the bottom.
+	# Use one HBox so the two names and arrow share an actual vertical center.
+	var row := HBoxContainer.new()
 	row.name = "ReplacementStrip"
-	row.text = old_name + " → " + new_name
-	row.hide()
+	row.position = Vector2(1235, 809)
+	row.size = Vector2(570, 30)
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 12)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_content.add_child(row)
-	var summary := SummaryPlate.new()
-	summary.name = "GraftSummary"
-	summary.position = Vector2(1128, 600)
-	summary.size = Vector2(224, 108)
-	_content.add_child(summary)
-	summary.setup(new_name, old_name, PALE_VIOLET, RED)
-
-func _bench_card_size(count: int, gap: float) -> Vector2:
-	var width: float = minf(CARD_SIZE.x, (432.0 - maxf(count - 1, 0) * gap) / maxf(count, 1))
-	return CARD_SIZE * (width / CARD_SIZE.x)
+	_label(row, old_name, Rect2(), 18, RED.lerp(IVORY, 0.25), true)
+	_label(row, "→", Rect2(), 18, IVORY, true)
+	_label(row, new_name, Rect2(), 18, GREEN.lerp(IVORY, 0.25), true)
 
 func _build_empty() -> void:
 	_mat(_content, Rect2(650, 340, 1060, 430))
@@ -587,7 +530,6 @@ func reject(message: String) -> void:
 
 func present_result(next_state: Dictionary) -> void:
 	busy = true
-	if _preview_thread != null: _preview_thread.hide()
 	for child: Node in _content.find_children("*", "Button", true, false): (child as Button).disabled = true
 	_ritual_stage = "prepare"
 	if reduced_motion:
@@ -601,12 +543,12 @@ func present_result(next_state: Dictionary) -> void:
 		var effect := ThreadEffect.new()
 		effect.name = "GraftRitual"
 		effect.size = SIZE
-		effect.origin = _source_cards[donor_index].position + _source_cards[donor_index].size * 0.5
-		effect.destination = _target_cards[target_index].position + _target_cards[target_index].size * 0.5
+		effect.origin = _source_cards[donor_index].position + CARD_SIZE * 0.5
+		effect.destination = _target_cards[target_index].position + CARD_SIZE * 0.5
 		_canvas.add_child(effect)
 		_effect = effect
 		sound_requested.emit("unpick")
-		var ghost: Button = _card(_canvas, str(Data.equipment_cards(donor, state)[donor_index]), _source_cards[donor_index].position, true, VIOLET, func() -> void: pass, _source_cards[donor_index].size)
+		var ghost: Button = _card(_canvas, str(Data.equipment_cards(donor, state)[donor_index]), _source_cards[donor_index].position, true, VIOLET, func() -> void: pass)
 		ghost.z_index = 50 # Above the target CardWidget's raised cost badge.
 		ghost.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		ghost.focus_mode = Control.FOCUS_NONE
@@ -616,8 +558,8 @@ func present_result(next_state: Dictionary) -> void:
 		tween.tween_property(_target_cards[target_index], "modulate:a", 0.06, 0.5).set_delay(0.5)
 		tween.tween_property(ghost, "modulate:a", 0.94, 0.25).set_delay(0.22)
 		tween.tween_method(func(progress: float) -> void:
-			ghost.position = effect.point(progress) - ghost.size * 0.5
-			ghost.pivot_offset = ghost.size * 0.5
+			ghost.position = effect.point(progress) - CARD_SIZE * 0.5
+			ghost.pivot_offset = CARD_SIZE * 0.5
 			ghost.rotation = sin(progress * PI) * -0.09
 		, 0.0, 1.0, 1.45).set_delay(0.35).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 		tween.tween_callback(func() -> void: sound_requested.emit("bind")).set_delay(1.35)
@@ -625,11 +567,9 @@ func present_result(next_state: Dictionary) -> void:
 		if not is_inside_tree(): return
 		# Leave the inherited card visibly in its destination while the donor goes.
 		ghost.rotation = 0.0
-		ghost.pivot_offset = Vector2.ZERO
-		ghost.scale = _target_cards[target_index].size / ghost.size
 		ghost.position = _target_cards[target_index].position
 		_ritual_stage = "unravel"
-		_ribbon(_content, "INHERITED", Rect2(_target_cards[target_index].position.x, STATE_Y, _target_cards[target_index].size.x, 28), GREEN)
+		_ribbon(_content, "INHERITED", Rect2(_target_cards[target_index].position.x - 3, 766, 206, 28), GREEN)
 		var group := CanvasGroup.new()
 		group.name = "SacrificeUnravel"
 		group.fit_margin = 40.0
@@ -709,8 +649,8 @@ func _choice(parent: Node, rect: Rect2, action: Callable, kind: String = "quiet"
 	button.art().name = "Artwork"
 	return button
 
-func _quiet(parent: Node, title: String, rect: Rect2, action: Callable, plate: bool = false) -> Button:
-	var button: Choice = _choice(parent, rect, action, "quiet_plate" if plate else "quiet")
+func _quiet(parent: Node, title: String, rect: Rect2, action: Callable) -> Button:
+	var button: Choice = _choice(parent, rect, action)
 	_label(button.art(), title, Rect2(Vector2.ZERO, rect.size), 23, IVORY, true)
 	button.set_meta("graft_action_label", title)
 	return button
@@ -722,13 +662,13 @@ func _action(parent: Node, title: String, rect: Rect2, action: Callable, font_si
 	button.set_meta("graft_action_label", title)
 	return button
 
-func _card(parent: Node, id: String, position_value: Vector2, selected: bool, color: Color, action: Callable, footprint: Vector2 = CARD_SIZE) -> Button:
-	var button: Choice = _choice(parent, Rect2(position_value, footprint), action, "card", color)
+func _card(parent: Node, id: String, position_value: Vector2, selected: bool, color: Color, action: Callable) -> Button:
+	var button: Choice = _choice(parent, Rect2(position_value, CARD_SIZE), action, "card", color)
 	button.chosen = selected
-	button.face_size = footprint
+	button.face_size = CARD_SIZE
 	var composition := Control.new()
 	composition.size = Vector2(250, 352)
-	composition.scale = footprint / Vector2(250, 352)
+	composition.scale = Vector2.ONE * CARD_SCALE
 	composition.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.art().add_child(composition)
 	var card: Control = CardScene.instantiate()
@@ -797,17 +737,17 @@ func close_inspection() -> void:
 	_wire_focus()
 	interaction_changed.emit()
 
-func _mat(parent: Node, rect: Rect2, large_header: bool = false, body_opacity: float = 0.52) -> void:
+func _mat(parent: Node, rect: Rect2, large_header: bool = false) -> void:
 	if large_header:
 		# Expand only the painted header's leather inset. The metal border and
 		# lower rail retain their native thickness and the title gets real room.
-		_mat_slice(parent, Rect2(rect.position, Vector2(rect.size.x, 43)), Rect2(0, 0, 1122, 86), 0, 0, body_opacity)
-		_mat_slice(parent, Rect2(rect.position + Vector2(0, 43), Vector2(rect.size.x, 56)), Rect2(0, 86, 1122, 40), 0, 0, body_opacity)
-		_mat_slice(parent, Rect2(rect.position + Vector2(0, 99), Vector2(rect.size.x, rect.size.y - 99)), Rect2(0, 126, 1122, 1276), 34, 160, body_opacity)
+		_mat_slice(parent, Rect2(rect.position, Vector2(rect.size.x, 43)), Rect2(0, 0, 1122, 86), 0, 0)
+		_mat_slice(parent, Rect2(rect.position + Vector2(0, 43), Vector2(rect.size.x, 56)), Rect2(0, 86, 1122, 40), 0, 0)
+		_mat_slice(parent, Rect2(rect.position + Vector2(0, 99), Vector2(rect.size.x, rect.size.y - 99)), Rect2(0, 126, 1122, 1276), 34, 160)
 	else:
-		_mat_slice(parent, rect, Rect2(), 160, 160, body_opacity)
+		_mat_slice(parent, rect, Rect2(), 160, 160)
 
-func _mat_slice(parent: Node, rect: Rect2, region: Rect2, top: int, bottom: int, body_opacity: float = 0.52) -> void:
+func _mat_slice(parent: Node, rect: Rect2, region: Rect2, top: int, bottom: int) -> void:
 	var mat := NinePatchRect.new()
 	mat.texture = Assets.load_texture(ART + "workmat.png")
 	mat.region_rect = region
@@ -821,7 +761,6 @@ func _mat_slice(parent: Node, rect: Rect2, region: Rect2, top: int, bottom: int,
 	mat.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var material := ShaderMaterial.new()
 	material.shader = MatMaterial
-	material.set_shader_parameter("body_opacity", body_opacity)
 	mat.material = material
 	parent.add_child(mat)
 
@@ -841,12 +780,6 @@ func _ribbon(parent: Node, title: String, rect: Rect2, color: Color) -> void:
 	_solid(parent, rect, Color(0.06, 0.035, 0.065, 0.96))
 	_solid(parent, Rect2(rect.position, Vector2(rect.size.x, 2)), color)
 	_label(parent, title, rect, 16, color, true)
-
-func _eyebrow(parent: Node, title: String, rect: Rect2, font_size: int, color: Color, centered: bool = true) -> Label:
-	var label: Label = _label(parent, title, rect, font_size, color, centered)
-	Typography.apply_eyebrow(label, font_size, color)
-	label.material = null
-	return label
 
 func _solid(parent: Node, rect: Rect2, color: Color) -> ColorRect:
 	var surface := ColorRect.new()
@@ -933,27 +866,32 @@ func _input(event: InputEvent) -> void:
 		if button is Choice: button.set("keyboard_navigation", _keyboard_navigation)
 
 func _build_intro() -> void:
-	var panel := Control.new()
+	# Reuse the game's dialogue material; the workshop and speaker remain visible.
+	var panel := Panel.new()
 	panel.name = "GraftwrightDialogue"
 	panel.position = Vector2(620, 555)
-	panel.size = Vector2(1160, 300)
+	panel.size = Vector2(1160, 365)
 	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var skin := UiSkinScript.new()
+	var style: StyleBoxFlat = skin.make_plain_card_style(Color(0.10, 0.065, 0.08, 0.94), Color("9c8463"), 24.0)
+	style.set_corner_radius_all(10)
+	style.shadow_size = 20
+	panel.add_theme_stylebox_override("panel", style)
 	_content.add_child(panel)
-	_mat_slice(panel, Rect2(Vector2.ZERO, panel.size), Rect2(), 86, 86, 0.8)
-	_eyebrow(panel, "GRAFTWRIGHT", Rect2(60, 46, 1040, 28), 15, PALE_VIOLET, false).name = "GraftwrightDialogueSpeaker"
+	_label(panel, "Graftwright", Rect2(44, 20, 1072, 58), 40, IVORY)
 	var words: String = "Lay down two pieces of the same kind. I'll unpick one to stitch a card into the other, replacing a card you choose. The offering won't survive my needle."
 	if not _has_pair():
 		words = "My needle needs two pieces of the same kind. Bring me something to spare, and I'll unpick it to stitch one of its cards into another piece, replacing a card you choose."
-	var text: Label = _label(panel, words, Rect2(60, 76, 1040, 100), 25, IVORY)
+	var text: Label = _label(panel, words, Rect2(44, 92, 1072, 116), 26, IVORY)
 	text.name = "GraftwrightDialogueBody"
 	text.add_theme_font_override("font", Typography.text_font())
 	text.material = null
 	if _has_pair():
-		_intro_browse = _action(panel, "Browse equipment", Rect2(735, 178, 380, 100), begin_work, 24)
+		_intro_browse = _action(panel, "Browse equipment", Rect2(735, 224, 380, 120), begin_work, 24)
 		_intro_browse.name = "GraftBrowse"
-		_leave = _quiet(panel, "Skip", Rect2(545, 202, 155, 52), request_leave, true)
+		_leave = _quiet(panel, "Skip", Rect2(545, 256, 155, 56), request_leave)
 	else:
-		_leave = _quiet(panel, "Skip", Rect2(960, 202, 155, 52), request_leave, true)
+		_leave = _action(panel, "Skip", Rect2(750, 224, 365, 120), request_leave)
 	_leave.name = "GraftSkip"
 
 func begin_work() -> void:

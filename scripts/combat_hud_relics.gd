@@ -76,6 +76,7 @@ static func knots_tooltip(effect: Dictionary, tied: Array) -> String:
 static func relic(relic_id: String, definition: Dictionary, stored_time: int = -1, capacity: int = 0) -> Button:
 	var socket := Socket.new()
 	socket.socket_size = 48.0
+	socket.accent_color = Color(GameData.relic_accent(relic_id))
 	socket.set_meta("relic_id", relic_id)
 	var tooltip: String = "%s\n%s" % [str(definition.get("name", relic_id)), str(definition.get("description", ""))]
 	if stored_time >= 0:
@@ -90,6 +91,8 @@ static func active_rite(entry: Dictionary, rite_index: int, art: Texture2D) -> B
 	var socket := Socket.new()
 	socket.name = "ActiveRite_%d" % rite_index
 	socket.socket_size = 48.0
+	var card: Dictionary = GameData.card_def(str(entry.get("card_id", "")))
+	socket.accent_color = Color(str(card.get("accent", "#d9862f")))
 	socket.set_meta("rite_card_id", str(entry.get("card_id", "")))
 	var mark: Texture2D = ActionIcons.icon_texture(str(entry.get("icon", "rite")))
 	socket.setup(art if art != null else mark, str(entry.get("tooltip", "")))
@@ -101,7 +104,7 @@ static func active_rite(entry: Dictionary, rite_index: int, art: Texture2D) -> B
 		backing.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		var style := StyleBoxFlat.new()
 		style.bg_color = Palette.INK_2
-		style.border_color = Palette.GOLD_DIM
+		style.border_color = socket.accent_color
 		style.set_border_width_all(1)
 		style.set_corner_radius_all(8)
 		backing.add_theme_stylebox_override("panel", style)
@@ -129,6 +132,7 @@ static func defiance(remaining: int, capacity: int) -> Button:
 	var socket := Socket.new()
 	socket.name = "DefianceBadge"
 	socket.socket_size = 48.0
+	socket.accent_color = Color("d6aa5e") if remaining > 0 else Color("62556e")
 	socket.inspect_only = true
 	socket.set_meta("header_utility", true)
 	socket.set_meta("defiance_remaining", remaining)

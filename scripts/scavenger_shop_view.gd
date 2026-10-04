@@ -21,10 +21,11 @@ const ShopPanel = preload("res://scripts/scavenger_panel.gd")
 const ShopAction = preload("res://scripts/scavenger_action.gd")
 const UiPalette = preload("res://scripts/ui_palette.gd")
 const UiSurface = preload("res://scripts/ui_component_surface.gd")
+const Signage = preload("res://scripts/scavenger_signage.gd")
 const EmberChip = preload("res://scripts/scavenger_ember_chip.gd")
 const PriceTag = preload("res://scripts/scavenger_price_tag.gd")
 const Atmosphere = preload("res://scripts/scavenger_atmosphere.gd")
-const MerchantAcquisitionEffect = preload("res://scripts/merchant_acquisition_effect.gd")
+const ScavengerTradeEffect = preload("res://scripts/scavenger_trade_effect.gd")
 
 const REFERENCE_SIZE := Vector2(1920.0, 1080.0)
 const BACKDROP_PATH := "res://assets/art/ui/scavenger_shop/stall_backdrop_v2.png"
@@ -197,13 +198,15 @@ func _present_trade(item_id: String, origin: Rect2, selling: bool) -> void:
 	if not visible or _purchase_effects == null or origin.size.x <= 0.0 or origin.size.y <= 0.0: return
 	var amount: int = int(_run_engine.call("merchant_sell_value" if selling else "merchant_buy_cost", MERCHANT_KIND, item_id))
 	_show_receipt(item_id, amount, selling)
-	var effect := MerchantAcquisitionEffect.new()
+	var effect := ScavengerTradeEffect.new()
 	effect.name = ("MerchantSale_" if selling else "MerchantAcquisition_") + item_id
 	effect.size = REFERENCE_SIZE
 	effect.item_id = item_id
 	effect.reduced_motion = _reduced_motion
 	effect.selling = selling
 	effect.origin = origin
+	var parchment: Rect2 = Signage.parchment_rect(_title_panel.size)
+	effect.banner_parchment = Rect2(_title_panel.position + parchment.position, parchment.size)
 	effect.destination = Vector2(300, 430) if selling else _dialogue_panel.position + Vector2(12, 12) + _receipt_visual.position + _receipt_visual.size * 0.5
 	effect.currency_destination = _currency_panel.position + _currency_panel.size * 0.5
 	_purchase_effects.add_child(effect)
@@ -275,7 +278,7 @@ func semantic_snapshot() -> Dictionary:
 			categories[kind] = int(categories.get(kind, 0)) + 1
 	return {
 		"visible": visible,
-		"title": "Wares & Oddments",
+		"title": "The Scavenger's Wares",
 		"currency": int(_run_state.get("held_embers", 0)),
 		"categories": categories,
 		"sell_count": _run_engine.call("merchant_sellable_ids", _run_state, MERCHANT_KIND).size() if _run_engine != null else 0,
@@ -350,25 +353,22 @@ func _build_static_scene() -> void:
 
 	_title_panel = Control.new()
 	_title_panel.name = "ScavengerWaresTitlePanel"
-	_place(_title_panel, Rect2(600.0, 28.0, 870.0, 92.0))
+	_place(_title_panel, Rect2(1035.0 - Signage.BANNER_SIZE.x * 0.5, 0.0, Signage.BANNER_SIZE.x, Signage.BANNER_SIZE.y))
 	_title_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_canvas.add_child(_title_panel)
-	var halo := TextureRect.new()
-	_place(halo, Rect2(100, -22, 670, 140))
-	halo.texture = UiSurface.radial_texture(Color(0, 0, 0, 0.74), 0.95)
-	halo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	halo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_title_panel.add_child(halo)
-	var eyebrow := _label_at(_title_panel, "THE SCAVENGER'S STALL", Rect2(0, 0, 870, 24), 15, UiPalette.TEXT_2)
-	eyebrow.name = "ScavengerStallEyebrow"
-	UiTypography.apply_eyebrow(eyebrow, 15, UiPalette.TEXT_2)
-	eyebrow.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_scene_label(eyebrow, 2)
-	var title := _label_at(_title_panel, "Wares & Oddments", Rect2(0, 20, 870, 72), 50, UiPalette.GOLD_BRIGHT)
+	var banner := TextureRect.new()
+	banner.name = "ScavengerShopBanner"
+	_place(banner, Rect2(Vector2.ZERO, _title_panel.size))
+	banner.texture = UiSurface.mipmapped_texture(Signage.BANNER_PATH)
+	banner.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	banner.stretch_mode = TextureRect.STRETCH_SCALE
+	banner.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_title_panel.add_child(banner)
+	var title := _label_at(_title_panel, "The Scavenger's Wares", Signage.parchment_rect(_title_panel.size), 46, Signage.INK)
 	title.name = "ScavengerWaresTitle"
-	title.add_theme_font_override("font", UiTypography.display_font())
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_scene_label(title, 3)
+	Signage.apply_ink(title, 46, true)
 
 	_currency_panel = EmberChip.new()
 	_currency_panel.name = "ScavengerCurrencyPanel"
@@ -433,24 +433,19 @@ func _build_category_group(label_text: String, rect: Rect2) -> Control:
 	group.name = "%sShelf" % label_text.capitalize()
 	_place(group, rect)
 	_canvas.add_child(group)
-	var brush := TextureRect.new()
-	brush.name = "%sPlaque" % label_text.capitalize()
-	_place(brush, Rect2(-107.0, 47.0 if label_text == "MAGIC" else 61.0, 176.0, 46.0))
-	brush.texture = AssetLoader.load_texture("res://assets/art/ui/turn_order_ink/brush_b.png")
-	brush.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	brush.stretch_mode = TextureRect.STRETCH_SCALE
-	brush.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
-	brush.self_modulate = Color(0.47, 0.34, 0.20, 0.95)
-	brush.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	group.add_child(brush)
-	var label := _label_at(brush, label_text, Rect2(0, 0, 176, 46), 16, UiPalette.GOLD_BRIGHT)
-	UiTypography.apply_eyebrow(label, 16, UiPalette.GOLD_BRIGHT)
-	var tracked := FontVariation.new()
-	tracked.base_font = UiTypography.ui_font()
-	tracked.spacing_glyph = 3
-	label.add_theme_font_override("font", tracked)
+	var plaque := TextureRect.new()
+	plaque.name = "%sPlaque" % label_text.capitalize()
+	_place(plaque, Rect2(-87.0, 45.0 if label_text == "MAGIC" else 59.0, 150.0, 50.0))
+	plaque.texture = UiSurface.mipmapped_texture(Signage.SHELF_LABEL_PATH)
+	plaque.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	plaque.stretch_mode = TextureRect.STRETCH_SCALE
+	plaque.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS_ANISOTROPIC
+	plaque.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	group.add_child(plaque)
+	var label := _label_at(plaque, label_text, Rect2(22, 2, 122, 46), 17, Signage.INK)
+	label.name = "ScavengerShelfLabel"
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_scene_label(label, 2)
+	Signage.apply_ink(label, 17, false, 0.16)
 	var row := HBoxContainer.new()
 	row.name = "OfferRow"
 	row.alignment = BoxContainer.ALIGNMENT_CENTER

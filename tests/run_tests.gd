@@ -8395,29 +8395,13 @@ func _test_run_scene_pre_battle_five_enemy_layout_compacts() -> void:
 		_assert(enemy_flow != null and enemy_flow.get_child_count() == enemy_count, "%d-enemy pre-battle sections should render every enemy card" % enemy_count)
 		_assert(enemy_scroll != null and enemy_scroll.vertical_scroll_mode == ScrollContainer.SCROLL_MODE_DISABLED, "One through six pre-battle foes should fit without vertical scrolling")
 		if enemy_flow != null:
-			var top_row_count: int = mini(3, enemy_count)
-			var top_row_y: float = (enemy_flow.get_child(0) as Control).position.y
-			for top_index: int in range(top_row_count):
-				var top_card: Control = enemy_flow.get_child(top_index) as Control
-				_assert(top_card != null and absf(top_card.position.y - top_row_y) <= 1.0, "%d-enemy pre-battle layouts should align the top row" % enemy_count)
-			if enemy_count <= 3:
-				var header: Control = enemy_section.find_child("PreBattleFoesDivider", true, false) as Control
-				var actions: Control = enemy_section.find_child("PreBattleActions", true, false) as Control
-				var first_card: Control = enemy_flow.get_child(0) as Control
-				_assert(header != null and actions != null and first_card != null, "Single-row pre-battle sections should retain their header and actions")
-				if header != null and actions != null and first_card != null:
-					var midpoint: float = (header.get_global_rect().end.y + actions.global_position.y) * 0.5
-					_assert(absf(first_card.get_global_rect().get_center().y - midpoint) <= 1.0, "One through three pre-battle foes should center between the FOES header and actions")
-			else:
-				var first_top: Control = enemy_flow.get_child(0) as Control
-				var bottom_card: Control = enemy_flow.get_child(3) as Control
-				_assert(bottom_card != null and bottom_card.position.y >= top_row_y + first_top.size.y, "%d-enemy pre-battle layouts should put the second row below three top-row foes without overlap" % enemy_count)
-				for bottom_index: int in range(3, enemy_count):
-					var bottom_foe: Control = enemy_flow.get_child(bottom_index) as Control
-					_assert(bottom_foe != null and absf(bottom_foe.position.y - bottom_card.position.y) <= 1.0, "%d-enemy pre-battle layouts should align their second row" % enemy_count)
-				var last_bottom: Control = enemy_flow.get_child(enemy_count - 1) as Control
-				var row_center: float = (bottom_card.get_global_rect().position.x + last_bottom.get_global_rect().end.x) * 0.5
-				_assert(absf(row_center - enemy_flow.get_global_rect().get_center().x) <= 1.0, "%d-enemy pre-battle layouts should center their second row" % enemy_count)
+			var expected_columns: int = enemy_count if enemy_count <= 3 else ceili(enemy_count / 2.0)
+			for index: int in range(enemy_flow.get_child_count()):
+				var card := enemy_flow.get_child(index) as Control
+				var expected_row: int = 0 if enemy_count <= 3 else index % 2
+				var expected_column: int = index if enemy_count <= 3 else index / 2
+				_assert(is_equal_approx(card.position.x, expected_column * enemy_flow.size.x / expected_columns) and is_equal_approx(card.size.x, enemy_flow.size.x / expected_columns), "%d-enemy pre-battle layouts should share equal columns for 1x1 foes" % enemy_count)
+				_assert(is_equal_approx(card.position.y, expected_row * enemy_flow.size.y * 0.5) and is_equal_approx(card.size.y, enemy_flow.size.y / (1.0 if enemy_count <= 3 else 2.0)), "%d-enemy pre-battle layouts should fill one row or two-high columns, top first" % enemy_count)
 			for index: int in range(enemy_flow.get_child_count()):
 				var card: Control = enemy_flow.get_child(index) as Control
 				var threat: Label = card.find_child("PreBattleThreatSummary", true, false) as Label if card != null else null
@@ -8425,8 +8409,9 @@ func _test_run_scene_pre_battle_five_enemy_layout_compacts() -> void:
 				_assert(card != null and enemy_section.get_global_rect().grow(1.0).encloses(card.get_global_rect()) and enemy_scroll != null and enemy_scroll.get_global_rect().grow(1.0).encloses(card.get_global_rect()), "%d-enemy pre-battle foe columns should remain fully inside the foes stage" % enemy_count)
 				if enemy_count == 5:
 					var art: TextureRect = card.find_child("PreBattleEnemyArt", true, false) as TextureRect if card != null else null
-					var layout_scale: float = UiTypography.ui_scale(instance)
-					_assert(card != null and absf(card.size.x / layout_scale - 206.0) <= 1.0 and art != null and art.texture != null and absf(art.size.y / layout_scale - 150.0) <= 15.0 and art.texture_filter == CanvasItem.TEXTURE_FILTER_NEAREST, "Five-enemy pre-battle columns should retain their 206px width and approximately 150px compact sprites with nearest filtering")
+					var definition: Dictionary = GameData.enemy_def(str((card.get("enemy") as Dictionary).get("type", "")))
+					var common_k: float = art.size.x / 255.0 / float(definition.get("art_scale", 1.0)) if art != null else 0.0
+					_assert(art != null and art.texture != null and not art.texture is AtlasTexture and art.texture.get_size() == Vector2(255.0, 255.0) and common_k > 0.0 and common_k <= 0.8 and art.texture_filter == CanvasItem.TEXTURE_FILTER_LINEAR, "Five-enemy pre-battle sprites should retain their full canvases, true art scales and combat-board filtering")
 		enemy_section.queue_free()
 		await process_frame
 	var inspection: Control = instance.call("_build_pre_battle_enemy_inspection_panel", enemies[0]) as Control
@@ -11393,7 +11378,7 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	var loadout_button: Button = instance.get_node("UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar/LoadoutButton") as Button
 	var loadout_badge: PanelContainer = instance.get("_loadout_badge") as PanelContainer
 	var loadout_badge_label: Label = instance.get("_loadout_badge_label") as Label
-	_assert(loadout_button != null and (loadout_button.get_node_or_null("Icon") as TextureRect).texture != null, "The top-right HUD should expose an icon-only character loadout socket")
+	_assert(loadout_button != null and loadout_button.icon != null, "The top-right HUD should expose an icon-only character loadout button")
 	_assert(loadout_button.tooltip_text == "Character Loadout", "The loadout header button should identify its destination")
 	run_state["equipment_inventory"] = ["ward_kite"]
 	var notification_collected_equipment: Array = (run_state.get("collected_equipment", []) as Array).duplicate()

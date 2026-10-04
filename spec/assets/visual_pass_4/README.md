@@ -19,6 +19,8 @@ the objective plate is drawn in code instead.
 | `medallion_ring.png` | `b38f568977ae6c178fe31277b7cff14ad7eef5d2141acd91a30c9c7aeb7f463e` |
 | `skill_point_source.png` | `5cc420fbe386dbbbd6d22e5fef1d17dbbfb7ec19f954738046a32fc432ba59a8` |
 | `moltshard_source.png` | `8864a4032388d5668700d14af84621f98b7675e948b2836bf7e83e6a91a969ae` |
+| `shop_banner.png` | `e444e0d9503e734bd4085ddd2ba481316e7941912b12918ffff3b2094394aeab` |
+| `shelf_label.png` | `1182ef17bcd5f328d20c07bb0a8f94c0257b8d76a7cfd1c926864209085712bf` |
 | `price_tag.png` | `7a002e2b4a87bf16cb9b08dc3422cec05016e678b5c5e85281a867780776263b` |
 
 The prompts below are the image tool's own record (the reference images it was
@@ -142,4 +144,22 @@ Create two NEW, purpose-built icons with silhouettes clearly different from each
 2. moltshard.png: the "Moltshard" resource (a shed fragment of a dragon's scale, violet Umbra-touched). A single jagged, curved, iridescent dragon-scale shard, deep violet to lilac with a pale lavender edge highlight and a faint violet inner glow. NOT a gem with facets like a diamond, NOT a feather.
 
 For each: generate at a large size on a perfectly flat chroma green #00FF00 background with the subject centred and filling about 70% of the canvas and nothing touching the edges, then ALSO produce the final 64x64 RGBA PNG yourself by downscaling with nearest-neighbour onto transparency (key out the green, no green fringe). Save the large sources as skill_point_source.png and moltshard_source.png and the 64x64 finals as skill_point.png and moltshard.png in this directory. Report all sizes.
+```
+
+
+## Scavenger signage: shop_banner.png and shelf_label.png (2026-10-04)
+
+After in-game review the owner found the Scavenger stall "not more cohesive":
+the bronze brush-stroke category labels borrowed the initiative rail's style,
+and a tiny eyebrow over a large title read oddly. These two pieces were painted
+from the same vellum as the approved price tag (supplied as the reference), so
+the title, the category labels and the prices are one family of hanging
+parchment.
+
+```text
+Use your built-in image generation tool (real image generation, not code drawing). First look at ref_price_tag.png (an approved hanging parchment price tag), ref_scavenger_stall.png (the shop screen it hangs in) and ref_stall_backdrop.png (the painted stall). The new pieces must look like they come from the SAME hand and the SAME sheet of old stained vellum as ref_price_tag.png: identical parchment colour, stains, worn torn edges, painterly brushwork, brass fittings and dark twine. Blank: no writing, no numbers, no symbols. Perfectly flat chroma green #00FF00 background, no shadow, no green light on the subject, nothing touching the image edges. Generate each separately and save in this directory:
+
+1. shop_banner.png (1792x768): a wide hanging shop sign for the Scavenger's stall: a long horizontal strip of the same old stained vellum, about 5:1 width to height, slightly curled at the ends, its top edge stitched over a thin dark wooden dowel, hung from two short lengths of the same dark twine rising from the dowel ends to brass rings at the top of the image. A blank central area large enough for a two-word title. Torn, uneven bottom edge with one or two small nicks.
+2. shelf_label.png (1024x512): a small horizontal parchment label of the same vellum, about 3:1 width to height, pinned to a wooden post by a single round brass tack at its left end, slightly wavy and dog-eared at the right corner, blank.
+Then report the files and their sizes.
 ```
