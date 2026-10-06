@@ -12,7 +12,7 @@ func _ready() -> void:
 		var rig: Node = renderer.get("rigs")[facing]
 		passed = passed and (rig.get("load_errors") as PackedStringArray).is_empty() and (rig.get("bones") as Dictionary).size() == 22
 		passed = passed and (rig.get("bones") as Dictionary).has("crossbow_r") and rig.bones["crossbow_r"].get_parent() == rig.bones["hand_r"]
-		for clip: String in ["idle", "walk", "attack", "attack_heavy", "attack_stab", "block_shield", "cast", "shoot"]:
+		for clip: String in ["idle", "walk", "attack", "attack_heavy", "attack_stab", "attack_thrust", "attack_lash", "block_shield", "cast", "shoot", "shoot_bow", "shoot_repeater"]:
 			rig.call("apply_pose", clip, 0.42)
 	var gear: Script = load("res://scripts/protagonist_cutout/gear_visuals.gd")
 	var registry: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://assets/units/protagonist_cutout/gear_visuals.json"))
@@ -49,9 +49,15 @@ func _check_main_hand_shot(renderer: Node, facing: String) -> bool:
 	renderer.call("present", {"clip": "shoot", "phase": 0.42, "direction": direction}, false)
 	var snapshot: Dictionary = renderer.call("snapshot")
 	var rig: Node = renderer.get("rigs")[facing]
-	var passed: bool = bool(snapshot["crossbow_visible"]) and not rig.bones["weapon_r"].visible and bool(snapshot["offhand_visible"])
-	var offset: Array = rig.layout["ranged_attachment"]["muzzle_offset"]
-	var muzzle: Vector2 = rig.to_local(rig.bones["crossbow_r"].to_global(Vector2(offset[0], offset[1])))
+	var mode: String = renderer.call("ranged_motion")
+	var generic: bool = mode.is_empty()
+	var passed: bool = bool(snapshot["crossbow_visible"]) == generic and rig.bones["weapon_r"].visible == not generic and bool(snapshot["offhand_visible"])
+	var motion: Script = load("res://scripts/protagonist_cutout/motion.gd")
+	var bone: String = "crossbow_r" if generic else "weapon_r"
+	var offset: Vector2 = motion._gear_vector(rig.layout["ranged_attachment"]["muzzle_offset"]) if generic else motion._gear_vector(rig.layout["weapon_grip"]["assembled" if mode == "bow" else "tip"]) - motion._joint_position(rig.layout, bone)
+	var muzzle: Vector2 = rig.to_local(rig.bones[bone].to_global(offset))
+	if mode == "bow":
+		muzzle += (Vector2(1, -0.3) if facing == "rear" else Vector2(-1, -0.2)).normalized() * 6.0
 	passed = passed and (renderer.call("source_socket", true) as Vector2).distance_to(muzzle) < 0.001
 	passed = passed and (renderer.call("source_socket", true, true, direction) as Vector2).distance_to(muzzle) < 0.001
 	renderer.call("present", {"clip": "cast", "phase": 0.42, "direction": direction}, false)

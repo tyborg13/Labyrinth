@@ -32,6 +32,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		rig.free()
 	await _check_renderer(tree, expect)
 	_check_timing(expect)
+	await preload("res://tests/suites/protagonist_full_gear_motion_suite.gd").run(tree, expect)
 	print("PROTAGONIST GEAR MOTION CONTRACTS: checked")
 
 static func _check_layout(rig: Node, expect: Callable) -> void:

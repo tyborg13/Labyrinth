@@ -12,6 +12,7 @@ extends RefCounted
 ## 3D anatomy; the perpendicular paint width and whole boot remain unchanged.
 
 const WALK_STANCE_FRACTION: float = 0.60
+const FullGearMotion = preload("res://scripts/protagonist_cutout/full_gear_motion.gd")
 static var _boot_geometry: Dictionary = {}
 
 
@@ -24,14 +25,20 @@ static func clip_specs() -> Dictionary:
 		"block_shield": {"frames": 25, "duration": 0.30, "loop": false},
 		"attack_heavy": {"frames": 43, "duration": 0.72, "loop": false},
 		"attack_stab": {"frames": 24, "duration": 0.40, "loop": false},
+		"attack_thrust": {"frames": 34, "duration": 0.56, "loop": false},
+		"attack_lash": {"frames": 29, "duration": 0.48, "loop": false},
 		"death": {"frames": 41, "duration": 0.64232, "loop": false},
 		"cast": {"frames": 48, "duration": 0.92, "loop": false},
 		"shoot": {"frames": 36, "duration": 0.44, "loop": false},
+		"shoot_bow": {"frames": 36, "duration": 0.44, "loop": false},
+		"shoot_repeater": {"frames": 36, "duration": 0.44, "loop": false},
 		"attack": {"frames": 32, "fps": 24, "loop": false, "duration": 32.0 / 24.0},
 	}
 
 
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
+	if clip in ["attack_thrust", "attack_lash", "shoot_bow", "shoot_repeater"]:
+		return FullGearMotion.sample_pose(clip, phase, layout, facing, load("res://scripts/protagonist_cutout/motion.gd"))
 	if clip == "attack_heavy":
 		return _attack_heavy_pose(phase, layout, facing)
 	if clip == "attack_stab":

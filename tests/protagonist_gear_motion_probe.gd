@@ -10,8 +10,8 @@ const OUTPUT: String = "user://probes/protagonist_gear_motion"
 
 var _surface: SubViewport
 var _errors: Array[String]
-var _manifest: Dictionary = {"round": 2, "size": [1920, 1080], "ui_scale": 1.0,
-	"scope": "Round 2: one-handed kite/maul slams, shield/dagger main-hand shots, mirrored shot and front/rear casting; retained sword/stab, guard and reduced-motion checks.",
+var _manifest: Dictionary = {"round": 4, "size": [1920, 1080], "ui_scale": 1.0,
+	"scope": "Full pass: three polearm thrusts, galewhip lash, bow/repeater preparation and shots including reflection, Worldbreaker and Duelist Rapier; retained Round 2 sword/stab/slam, cast, guard and reduced-motion checks.",
 	"clock": "Deterministic production-frame stepping; exact effect/pose checkpoints use a frame on the same side of contact for result display. Resolver and card input paths are unchanged.",
 	"captures": []}
 

@@ -1,6 +1,6 @@
 # Protagonist casting and main-hand crossbow
 
-Combat attacks prepare the left casting hand or the right main-hand crossbow before their existing projectile feedback. The player sees the actor face the selected target, raise a straight arm, briefly charge magic or aim a clearly visible crossbow, release, then return to the front idle. During the existing shooting visibility window (phase > 0.01 and < 0.94), the main weapon yields to the crossbow and returns afterward. Equipped offhands stay visible in every action; casting retains the main weapon. This extends the shared board presentation and preserves targeting, rules text, input routes, and outcomes.
+Combat attacks prepare the left casting hand or the right main-hand physical weapon before their existing projectile feedback. The player sees the actor face the selected target, raise the action arm, briefly charge magic or aim, release, then return to the front idle. Generic shots use the temporary crossbow: during its existing visibility window (phase > 0.01 and < 0.94), the main weapon yields and returns afterward. Equipped bows and repeaters stay visible for their own shooting variants, with the generic crossbow hidden. Equipped offhands stay visible in every action; casting retains the main weapon. This extends the shared board presentation and preserves targeting, rules text, input routes, and outcomes.
 
 ## Routing and timing
 
@@ -43,3 +43,28 @@ southeast, front/rear casting and the kite/maul slam checkpoints. Round 2 native
 proof (`tests/protagonist_gear_motion_probe.gd`, 116 images at 1920×1080, PASS)
 was inspected by the design owner; the historical proof above predates the
 main-hand crossbow. The production-only PCK still includes no rules/data layer.
+
+## Full-pass bow and repeater
+
+Visual registry motions `bow` and `repeater` select `shoot_bow` and
+`shoot_repeater`; every other weapon keeps the generic `shoot`. Both variants
+retain the shooting preparation, raise, recoil, release at pose .42, recovery
+and reduced-motion .40 still. Magic remains `cast`; their melee cards use the
+existing sword cut as a bash. The offhand stays on the left forearm or fist.
+
+The repeater retains the exact right-arm shooting pose and points its own
+grip-to-tip axis along (-1,-0.2) front / (1,-0.3) rear. Its tip is the muzzle.
+The bow's upper limb is perpendicular to that aim and points upward, with its
+string toward the hero. Its left wrist reaches 4px behind the grip by .24,
+draws another 10px toward the chest by .38, and releases at .42 before returning
+to rest. The bow's projectile origin is the registered grip plus 6px along aim.
+Live origins follow the visible weapon; released origins sample .42 and stay
+fixed through recoil, recovery and the idle reset, with reflection applied last.
+
+The crossbow's fully extended front wrist is about 98px from the left shoulder,
+outside the left arm's 37px painted reach. To meet the string-hand requirement
+without stretching either sleeve, the bow's raised right-wrist target is 45%
+between the shoulders plus (0,8): (127.45,109.5) front and (125.35,104.15) rear.
+The right arm bends across the chest; the weapon retains its specified aim and
+the original shooting envelopes. No polearm, lash or repeater target correction
+is needed. Native full-pass inspection remains with the design owner.

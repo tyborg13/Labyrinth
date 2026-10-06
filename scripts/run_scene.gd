@@ -23321,6 +23321,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"action_type": action_type,
 				"protagonist_melee": not bool(action.get("_illusion_echo", false)) and AttackFxLibrary.protagonist_uses_melee_motion(action),
 				"protagonist_weapon_motion": preload("res://scripts/protagonist_cutout/gear_visuals.gd").weapon_motion(_equipped_equipment_for_board()),
+				"protagonist_ranged_motion": preload("res://scripts/protagonist_cutout/gear_visuals.gd").ranged_motion(_equipped_equipment_for_board()),
 				"protagonist_ranged": "" if bool(action.get("_illusion_echo", false)) else preload("res://scripts/protagonist_cutout/ranged_action.gd").clip_for_action(action),
 				"protagonist_origin": player_before_tile,
 				"from": action.get("_origin_tile", player_before_tile),

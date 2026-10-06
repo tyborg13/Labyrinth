@@ -58,6 +58,7 @@ static func run(scene: Node, expect: Callable, capture: Callable = Callable()) -
 	scene.proof_label = "L1_crushing_blow"
 	checks.append(await _play_card(scene, "crushing_blow", Vector2i(0, 1), expect))
 	expect.call(scene.proof_captures.has("L1_crushing_blow_reduced_motion"), "Reduced-motion heavy action is captured")
+	checks.append_array(await preload("res://tests/helpers/protagonist_full_gear_motion_scenarios.gd").run(scene, expect))
 	scene.proof_mode = ""
 	return checks
 
@@ -94,6 +95,8 @@ static func _fixture(scene: Node, equipped: Dictionary, card: String, direction:
 	scene.proof_mode = ""
 	scene.proof_hits.clear()
 	scene.proof_captures.clear()
+	scene.proof_checkpoints = Playback.CHECKPOINTS.duplicate()
+	scene.proof_ranged_pose_checkpoints = [0.42]
 	scene.call("_cancel_drag_play")
 	scene.call("_reset_card_resolution")
 	var grid: Array = []

@@ -20,11 +20,15 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	await preload("res://tests/suites/protagonist_gear_motion_suite.gd").run(tree, expect)
 	expect.call(Gear.resolve({}) == {"weapon": "training_sword", "offhand": "", "armor": "patched_cloak", "boots": "skirmisher_boots", "trinket": ""}, "Missing optional slots are bare; the body uses defaults")
 	expect.call(Gear.resolve({"weapon": "", "offhand": "", "armor": "", "boots": "", "trinket": ""}) == Gear.resolve({}), "Empty slots follow the same fallback rules")
-	expect.call(Gear.resolve(L4) == Gear.DEFAULTS and Gear.signature(L4) == Gear.signature(Gear.DEFAULTS), "Out-of-slice loadout resolves exactly to default visuals")
+	var full_pass: Dictionary = Gear.DEFAULTS.duplicate()
+	full_pass["weapon"] = "grave_greatsword"
+	full_pass["offhand"] = "tower_shield"
+	expect.call(Gear.resolve(L4) == full_pass and Gear.signature(L4) == Gear.signature(full_pass), "Registered full-pass weapon/offhand draw their art while unregistered body slots use defaults")
 	expect.call(Gear.resolve({"weapon": "ward_kite"})["weapon"] == "training_sword", "An item in the wrong slot also falls back")
 	var arsenal: Dictionary = preload("res://scripts/visual_equipment.gd").native_slot_loadout({"weapon": "war_maul", "offhand": "tower_shield", "trinket": "grave_greatsword"})
 	expect.call(arsenal == {"weapon": "war_maul", "offhand": "tower_shield"} and Gear.resolve(arsenal)["trinket"] == "", "An Open Arsenal trinket from another slot draws nothing")
-	expect.call(Gear.resolve(arsenal)["offhand"] == "splintered_shield", "An out-of-slice offhand still shows the slot default")
+	expect.call(Gear.resolve(arsenal)["offhand"] == "tower_shield", "A registered full-pass offhand retains its art through Open Arsenal filtering")
+	expect.call(Gear.resolve({"weapon": "unregistered_weapon", "offhand": "unregistered_offhand"})["weapon"] == "training_sword" and Gear.resolve({"offhand": "unregistered_offhand"})["offhand"] == "splintered_shield", "Unregistered items still fall back to their slot defaults")
 	expect.call(Gear.weapon_motion(L1) == "heavy" and Gear.weapon_motion(L2) == "stab" and Gear.weapon_motion({}) == "sword", "Weapon motion contract is data driven")
 	expect.call(not Gear.is_two_handed(L1) and Gear.offhand_kind(L1) == "shield" and Gear.offhand_kind(L2) == "hand" and Gear.offhand_kind(Gear.DEFAULTS) == "shield", "One-handed and held-kind contracts")
 	for facing: String in ["front", "rear"]:

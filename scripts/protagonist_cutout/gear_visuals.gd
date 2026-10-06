@@ -48,7 +48,7 @@ static func _valid_entry(entry: Variant, layouts: Dictionary) -> bool:
 	if not entry is Dictionary or not SLOTS.has(str(entry.get("slot", ""))) or not entry.get("facings") is Dictionary:
 		return false
 	var slot: String = entry["slot"]
-	if slot == "weapon" and (not (entry.get("hands") is float or entry.get("hands") is int) or int(entry["hands"]) not in [1, 2] or entry.get("motion") not in ["sword", "heavy", "stab"]):
+	if slot == "weapon" and (not (entry.get("hands") is float or entry.get("hands") is int) or int(entry["hands"]) not in [1, 2] or entry.get("motion") not in ["sword", "heavy", "stab", "thrust", "lash", "bow", "repeater"]):
 		return false
 	if slot == "weapon" and float(entry["hands"]) != float(int(entry["hands"])):
 		return false
@@ -112,6 +112,10 @@ static func signature(equipped: Dictionary) -> String:
 
 static func weapon_motion(equipped: Dictionary) -> String:
 	return str(_items.get(resolve(equipped)["weapon"], {}).get("motion", "sword"))
+
+static func ranged_motion(equipped: Dictionary) -> String:
+	var motion: String = weapon_motion(equipped)
+	return motion if motion in ["bow", "repeater"] else ""
 
 static func is_two_handed(equipped: Dictionary) -> bool:
 	return int(_items.get(resolve(equipped)["weapon"], {}).get("hands", 1)) == 2

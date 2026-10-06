@@ -31,14 +31,15 @@ crop size. Cloak, mantle, scarf, head, hands and trousers keep their base paint.
 The loader validates and caches the JSON once, reports broken entries, and falls
 back to the slot default for absent or invalid item IDs. Missing/empty weapon,
 armor and boots use defaults; missing/empty offhand and trinket draw nothing.
-All slice weapons are one-handed. Shields and held offhands stay visible in
+All registered weapons are one-handed. Shields and held offhands stay visible in
 every clip, reaction and reduced-motion still; there is no clip-hiding or
 two-handed offhand-hiding path. `is_two_handed` remains a metadata API for later.
 The temporary `crossbow_r` bone is under `hand_r`, registered at the main weapon
-joint. Only `shoot` hides `weapon_r`, exactly while the crossbow is visible
-(phase > 0.01 and < 0.94); casting still uses the left hand.
+joint. Generic `shoot` hides `weapon_r`, exactly while the crossbow is visible
+(phase > 0.01 and < 0.94). Equipped bow/repeater shooting variants keep
+`weapon_r` visible and the generic crossbow hidden; casting still uses the left hand.
 
-`gear_visuals.gd` exposes static `resolve`, `signature`, `weapon_motion`,
+`gear_visuals.gd` exposes static `resolve`, `signature`, `weapon_motion`, `ranged_motion`,
 `is_two_handed`, `offhand_kind` and `ops_for_facing` (replace/attach/weapon_grip).
 `rig.gd.apply_gear({})` restores original textures and rigid positions and removes
 all gear attachments. This layer is opt-in for the protagonist; enemy callers
@@ -75,7 +76,7 @@ the hammer head stays visible beside the hair, a four-frame slam over the top an
 step-in lunge (leading foot 8 source px and root 10 px along the board diagonal)
 with the trailing foot planted. Heavy/stab frame counts come from `clip_specs()`
 (the sword keeps the renderer's `MELEE_FRAMES`);
-contact stays at effect progress 0.42 for all three and self-centred sweeps keep
+contact stays at effect progress 0.42 for every melee archetype and self-centred sweeps keep
 their 0.24 s / 0.38 boundary by retiming the archetype pose. Resolver results,
 sounds and analytics do not change. Only the right arm holds the maul; the left
 forearm braces at -0.12 rad (front, mirrored rear) at contact and recovers by
@@ -101,6 +102,30 @@ keep the weapon-guard `block`.
 Gear attachments follow their bone's position and rotation but never its scale
 or skew, so foreshortened rear casting/shooting cannot stretch a shield; the
 rig's mirroring still applies. Reduced motion keeps the neutral still with gear.
+
+The full-pass poses live in `full_gear_motion.gd`, reusing the existing sampler's
+painted-length IK. `thrust` selects `attack_thrust` (34 frames, 0.56 s): lower an
+upright pole by .20, cock its hip-height wrist 8 source px back by .30, drive
+26 px forward by .42, hold through .56, then recover through the lowered pose
+to the landmark-defined upright rest. Its pole stays along the front/rear stab
+line from .20 through .62. It shares the stab's leading-foot step, 10px root
+lunge, planted trailing foot and minimum pelvis fit, with a -0.10 rad front
+offhand brace at contact (mirrored rear). Its contact effect is the stab streak.
+
+`lash` selects `attack_lash` (29 frames, 0.48 s): gather the wrist 20px above
+and 6px behind the shoulder, point the whip up over the weapon-side shoulder,
+snap along the attack line at shoulder height at .42, follow through low and
+recover by .90. `melee_lash_fx.gd` draws a hand-to-target quadratic crack bowed
+18 screen px upward, a 3px warm-white core under a 6px teal glow from .36 to
+.62 and a small fading burst at .42. Reduced motion omits both new trails.
+
+`bow` and `repeater` keep the sword cut/remap for melee bashes and keep `cast`
+for magic. Physical shots select `shoot_bow` / `shoot_repeater`, retaining the
+existing shooting clock. Their registered live/released sockets, including
+reflection, come from the bow grip plus 6px along aim or the repeater tip.
+The new clips preserve the offhand, rigid paint and planted feet; existing
+clips remain unchanged. The gameplay effect carries both visual motion values
+without changing resolver, sound, analytics or save ownership.
 
 Proof: `tests/suites/protagonist_gear_suite.gd`, `protagonist_gear_motion_suite.gd`,
 `tests/protagonist_ranged_test.gd`, `tests/cutout_rig_data_test.gd`,

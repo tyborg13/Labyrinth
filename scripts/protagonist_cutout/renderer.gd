@@ -37,6 +37,7 @@ var _equipped: Dictionary = {}
 var _gear_signature: String = ""
 var _gear_revision: int = 0
 var _weapon_motion: String = "sword"
+var _ranged_motion: String = ""
 var _offhand_kind: String = ""
 var _rest_texture: Texture2D
 var _rest_fallback: Texture2D = AssetLoader.load_texture_source_first(REST_PATH)
@@ -72,6 +73,7 @@ func set_gear(equipped: Dictionary) -> void:
 	_equipped = GearVisuals.resolve(equipped)
 	_gear_signature = next_signature
 	_weapon_motion = GearVisuals.weapon_motion(_equipped)
+	_ranged_motion = GearVisuals.ranged_motion(_equipped)
 	_offhand_kind = GearVisuals.offhand_kind(_equipped)
 	_gear_revision += 1
 	_rest_texture = RestBaker.cached(_gear_signature)
@@ -105,6 +107,9 @@ func rest_texture() -> Texture2D:
 
 func weapon_motion() -> String:
 	return _weapon_motion
+
+func ranged_motion() -> String:
+	return _ranged_motion
 
 func offhand_kind() -> String:
 	return _offhand_kind
@@ -163,9 +168,13 @@ func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 			match weapon_motion():
 				"heavy": clip = "attack_heavy"
 				"stab": clip = "attack_stab"
+				"thrust": clip = "attack_thrust"
+				"lash": clip = "attack_lash"
 				_: phase = attack_pose_phase(phase)
 	if clip in ["cast", "shoot"] and phase >= 1.0 and not reduced_motion:
 		clip = "idle"
+	if clip == "shoot" and not ranged_motion().is_empty():
+		clip = "shoot_" + ranged_motion()
 	if clip == "idle":
 		facing = "front"
 		mirrored = false
@@ -190,7 +199,7 @@ func _process(delta: float) -> void:
 func _apply_pose() -> void:
 	if rigs.is_empty():
 		return
-	var ranged_still: bool = reduced_motion and clip in ["cast", "shoot"]
+	var ranged_still: bool = reduced_motion and clip in ["cast", "shoot", "shoot_bow", "shoot_repeater"]
 	var shown_clip: String = "death" if clip == "death" else clip if ranged_still else "rest" if reduced_motion else clip
 	var shown_phase: float = 1.0 if clip == "death" and reduced_motion else 0.4 if ranged_still else 0.0 if reduced_motion else (_idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase)
 	var signature: Array = [facing, mirrored, shown_clip, shown_phase]
@@ -223,26 +232,41 @@ func source_socket(shot: bool = false, released: bool = false, direction_delta: 
 	var bone_name: String = "crossbow_r" if shot else "hand_l"
 	var point: Vector2
 	var offset: Vector2 = Vector2.ZERO
-	if shot:
+	if shot and not ranged_motion().is_empty():
+		bone_name = "weapon_r"
+		var landmark: String = "assembled" if ranged_motion() == "bow" else "tip"
+		offset = Motion._gear_vector(rig.layout["weapon_grip"][landmark]) - Motion._joint_position(rig.layout, bone_name)
+	elif shot:
 		var raw: Array = rig.layout.get("ranged_attachment", {}).get("muzzle_offset", [0, 0])
 		offset = Vector2(float(raw[0]), float(raw[1]))
 	else:
 		offset = Vector2(-2, 5)
 	if released:
-		var pose: Dictionary = Motion.sample_pose("shoot" if shot else "cast", 0.42, rig.layout, socket_facing)
+		var socket_clip: String = "shoot_" + ranged_motion() if shot and not ranged_motion().is_empty() else "shoot" if shot else "cast"
+		var pose: Dictionary = Motion.sample_pose(socket_clip, 0.42, rig.layout, socket_facing)
 		point = Motion._world_transform(pose, rig.layout, bone_name) * offset
 	else:
 		point = rig.to_local((rig.bones[bone_name] as Bone2D).to_global(offset))
+	if shot and ranged_motion() == "bow":
+		point += preload("res://scripts/protagonist_cutout/full_gear_motion.gd").aim_for_facing(socket_facing) * 6.0
 	return Vector2(SOURCE_SIZE.x - point.x, point.y) if socket_mirrored else point
 
+func weapon_grip_source() -> Vector2:
+	if rigs.is_empty():
+		return SOURCE_SIZE * 0.5
+	var rig: Node2D = rigs[facing]
+	var offset: Vector2 = Motion._gear_vector(rig.layout["weapon_grip"]["assembled"]) - Motion._joint_position(rig.layout, "weapon_r")
+	var point: Vector2 = rig.to_local(rig.bones["weapon_r"].to_global(offset))
+	return Vector2(SOURCE_SIZE.x - point.x, point.y) if mirrored else point
+
 func snapshot() -> Dictionary:
-	var ranged_still: bool = reduced_motion and clip in ["cast", "shoot"]
+	var ranged_still: bool = reduced_motion and clip in ["cast", "shoot", "shoot_bow", "shoot_repeater"]
 	return {"art": "protagonist_cutout_pass9", "facing": facing, "mirrored": mirrored,
 		"clip": "death" if clip == "death" else clip if ranged_still else "rest" if reduced_motion else clip,
 		"phase": 1.0 if clip == "death" and reduced_motion else 0.4 if ranged_still else 0.0 if reduced_motion else (_idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase),
 		"hand_source": source_socket(), "muzzle_source": source_socket(true),
 		"crossbow_visible": (rigs[facing].bones["crossbow_r"] as Bone2D).visible if rigs[facing].bones.has("crossbow_r") else false,
-		"gear": _gear_signature, "offhand_visible": _offhand_visible(),
+		"gear": _gear_signature, "ranged_motion": ranged_motion(), "offhand_visible": _offhand_visible(),
 		"rig_count": rigs.size(), "texture_id": texture().get_instance_id() if texture() != null else 0}
 
 func _offhand_visible() -> bool:

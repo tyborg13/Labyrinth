@@ -10502,7 +10502,11 @@ func _draw_effect_overlay() -> void:
 				VeilboundAcolyteFx.melee(self,progress,strike_start,to_point+Vector2(0,-24),_tile_width()/150.0,bool(presentation.get("reduced_motion",false)))
 				return
 			var slash_progress: float = progress
-			if bool(effect.get("protagonist_melee", false)) and str(effect.get("protagonist_weapon_motion", "sword")) == "stab":
+			if bool(effect.get("protagonist_melee", false)) and str(effect.get("protagonist_weapon_motion", "sword")) == "lash":
+				if not bool(presentation.get("reduced_motion", false)):
+					preload("res://scripts/melee_lash_fx.gd").draw(self, _protagonist_socket_world(false, false, Vector2i.ZERO, true), to_point, progress)
+				return
+			if bool(effect.get("protagonist_melee", false)) and str(effect.get("protagonist_weapon_motion", "sword")) in ["stab", "thrust"]:
 				var thrust: float = ProtagonistCutout.attack_trail_phase(progress)
 				if thrust >= 0.0 and not bool(presentation.get("reduced_motion", false)):
 					preload("res://scripts/melee_thrust_fx.gd").draw_protagonist_stab(self, from_point, to_point, thrust, progress)
@@ -10685,11 +10689,11 @@ func _defense_heal_cast_frame(frame_index: int) -> Texture2D:
 		return null
 	return frames[frame_index] as Texture2D
 
-func _protagonist_socket_world(shot: bool, released: bool = false, direction_delta: Vector2i = Vector2i.ZERO) -> Vector2:
+func _protagonist_socket_world(shot: bool, released: bool = false, direction_delta: Vector2i = Vector2i.ZERO, weapon_grip: bool = false) -> Vector2:
 	var player: Dictionary = combat_state.get("player", {})
 	var unit: Dictionary = {"type": "player", "key": "player", "role": "player", "pos": player.get("pos", Vector2i.ZERO)}
 	var body: Rect2 = _unit_draw_rect(unit)
-	var socket: Vector2 = _protagonist_renderer.call("source_socket", shot, released, direction_delta)
+	var socket: Vector2 = _protagonist_renderer.call("weapon_grip_source") if weapon_grip else _protagonist_renderer.call("source_socket", shot, released, direction_delta)
 	return body.position + body.size * socket / ProtagonistCutout.SOURCE_SIZE
 
 func _acolyte_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2:
