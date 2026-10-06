@@ -67,6 +67,7 @@ north.
 | U0 | [Gear visual runtime](unit_0_gear_runtime.md) | rig/renderer gear layer, board/illusion/character-screen wiring, rest bake, fixture, probes | registry + stand-in art (done) |
 | U1 | [Weapon and shield motion study](unit_1_weapon_motion_case.md) | `experiments/cutouts/protagonist_gear/` cases only | stand-in art (done) |
 | U2 | [Weapon and shield motion in combat](unit_2_motion_integration.md) | `motion.gd` clips, renderer clip choice, melee timing, thrust trail | U0, U1 |
+| U3 | [Round 2: one-handed weapons, main-hand crossbow, full boots](unit_3_round2_motion.md) | `motion.gd`, rig/renderer ranged socket, layouts' crossbow bone, gear slots | owner review 2026-10-06 |
 | Art | Final paint replaces stand-ins at the same paths | `assets/units/protagonist_cutout/gear/**` | image review |
 
 U0 and U1 run in parallel: U1 touches only its experiment cases.
@@ -77,3 +78,15 @@ U0 and U1 run in parallel: U1 touches only its experiment cases.
 - `mockups/placement_front.png`, `mockups/placement_rear.png`: placement studies.
 - `mockups/front_joints.png`, `mockups/rear_joints.png`: joint positions on the rest pose (4x, 10-px grid).
 - `baseline/`: current master captures of the combat board and the Character screen.
+
+## Round 2 (owner review 2026-10-06)
+
+Kept: Undertaker Plate, Cinderweave Mail and the accessories ("slots in perfectly"), the War Maul art and slam.
+
+Fixed:
+- **Shields:** flat and face-on, too small and blurry. They are re-painted strapped side-on to the forearm, about 30% larger, with crisper reduction.
+- **Parrying dagger:** looked like a hidden blade. It is re-painted with the grip through the fist, the pommel above it and the guard below.
+- **Maul and knife grips:** the haft ended inside the fist. They slide 9 px and 4 px along their axes so the pommel shows above the fist, as the sword's does.
+- **Boots:** only the feet were replaced, which made half-boots. The boots slot now also owns the shins.
+- **Weapons:** all are one-handed for now and the offhand is always visible.
+- **Crossbow:** moves to the main hand for shots.

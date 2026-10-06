@@ -18,7 +18,7 @@
     "war_maul": {
       "slot": "weapon",
       "motion": "heavy",
-      "hands": 2,
+      "hands": 1,
       "facings": {
         "front": {
           "replace": [
@@ -26,8 +26,8 @@
               "part": "weapon_r",
               "file": "gear/war_maul/front_weapon_r.png",
               "offset": [
-                2,
-                126
+                9,
+                121
               ]
             }
           ],
@@ -37,12 +37,12 @@
               135
             ],
             "tip": [
-              24,
-              179
+              31,
+              174
             ],
             "pommel": [
-              95,
-              129
+              102,
+              124
             ]
           }
         },
@@ -52,8 +52,8 @@
               "part": "weapon_r",
               "file": "gear/war_maul/rear_weapon_r.png",
               "offset": [
-                159,
-                138
+                152,
+                133
               ]
             }
           ],
@@ -63,17 +63,16 @@
               147
             ],
             "tip": [
-              232,
-              191
+              225,
+              186
             ],
             "pommel": [
-              161,
-              141
+              154,
+              136
             ]
           }
         }
-      },
-      "notes": "weapon_grip.tip is the centre of the hammer head; the off hand grips the haft 9 source px from the right fist toward the pommel."
+      }
     },
     "sawtooth_knife": {
       "slot": "weapon",
@@ -86,8 +85,8 @@
               "part": "weapon_r",
               "file": "gear/sawtooth_knife/front_weapon_r.png",
               "offset": [
-                52,
-                126
+                55,
+                124
               ]
             }
           ],
@@ -97,12 +96,12 @@
               135
             ],
             "tip": [
-              53,
-              158
+              56,
+              156
             ],
             "pommel": [
-              95,
-              129
+              98,
+              127
             ]
           }
         },
@@ -112,8 +111,8 @@
               "part": "weapon_r",
               "file": "gear/sawtooth_knife/rear_weapon_r.png",
               "offset": [
-                159,
-                138
+                156,
+                136
               ]
             }
           ],
@@ -123,12 +122,12 @@
               147
             ],
             "tip": [
-              203,
-              170
+              200,
+              168
             ],
             "pommel": [
-              161,
-              141
+              158,
+              139
             ]
           }
         }
@@ -234,10 +233,7 @@
             }
           ]
         }
-      },
-      "hide_in_clips": [
-        "shoot"
-      ]
+      }
     },
     "patched_cloak": {
       "slot": "armor",
