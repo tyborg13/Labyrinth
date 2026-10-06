@@ -1,4 +1,52 @@
 {
+  "assets/units/protagonist_cutout/gear/basalt_pavise/front_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/basalt_pavise_front.png",
+    "source_sha256": "88bab8f23614b50a66e138cb15144fb208f7f2ff60364c88a29f1dd766f298e9",
+    "size": [
+      57,
+      106
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/basalt_pavise/rear_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/basalt_pavise_rear.png",
+    "source_sha256": "4525ee1424335f05716a1a5349306aae427f11711a4502f9164854744d9d0e96",
+    "size": [
+      51,
+      100
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/buckler_of_nails/front_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/buckler_of_nails_front.png",
+    "source_sha256": "f240f02e4bf0d0c52f5822ebd01c15e0462f855afdb387b6845e3824a1faf415",
+    "size": [
+      49,
+      64
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/buckler_of_nails/rear_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/buckler_of_nails_rear.png",
+    "source_sha256": "85a835ead8e37d63854628a889ca6ece4eeb4557e517eeb9fec98984ca74390c",
+    "size": [
+      45,
+      60
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/chain_guard/front_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/chain_guard_front.png",
+    "source_sha256": "a4711f9dcd273f8c595b9da01c9e0107552655668dce1c6733f9a3dfd757c79a",
+    "size": [
+      51,
+      70
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/chain_guard/rear_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/chain_guard_rear.png",
+    "source_sha256": "f29ffd7560aba6dd401457ebfbc76f46047226b906332f641cca95d1bc338816",
+    "size": [
+      47,
+      66
+    ]
+  },
   "assets/units/protagonist_cutout/gear/cinderweave_mail/front_arm_l.png": {
     "source": "spec/assets/visible_gear_slice/sources/cinderweave_mail_front_arm_l.png",
     "source_sha256": "4c63224b92d99a2a4c5d60dbaa74f7a3306003a63b333d0bce05c99afb4b78f1",
@@ -95,6 +143,38 @@
       16
     ]
   },
+  "assets/units/protagonist_cutout/gear/dawnlight_censer/front_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dawnlight_censer_front.png",
+    "source_sha256": "0189856a0553bf9edb54ddd70ce079f27fb428fafbad659aeaf28e1caac259ba",
+    "size": [
+      22,
+      74
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/dawnlight_censer/rear_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dawnlight_censer_rear.png",
+    "source_sha256": "2e5675357ec0e293cc19365dd9bd3f3950ca795f0ce070f112a1bb15c531f82e",
+    "size": [
+      22,
+      74
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/duelist_rapier/front_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/duelist_rapier_front.png",
+    "source_sha256": "47a596444706096a5ce887460bced9ee1f4cc3c344b910aab9babbfab559b194",
+    "size": [
+      99,
+      71
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/duelist_rapier/rear_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/duelist_rapier_rear.png",
+    "source_sha256": "3d55210fbf473c282ae22aa2876c16333ebb3a4673fd182f2baa73bb6eb803e9",
+    "size": [
+      99,
+      71
+    ]
+  },
   "assets/units/protagonist_cutout/gear/emberstriders/front_foot_l.png": {
     "source": "spec/assets/visible_gear_slice/sources/emberstriders_front_foot_l.png",
     "source_sha256": "771a8f727e8190ad9c6c751e69884478ee84d0a9578e0d07eae8815611d65b1d",
@@ -157,6 +237,118 @@
     "size": [
       27,
       40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/galewhip/front_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/galewhip_front.png",
+    "source_sha256": "2696d5efca0df43bfc81088fc14d36714a5493bf229141c8b6ddf79d77f42087",
+    "size": [
+      6,
+      84
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/galewhip/rear_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/galewhip_rear.png",
+    "source_sha256": "62f30f9b5901dfdf7b74be07d6bf2ca3a9b02e0618fa679fd1c1f51bcc975975",
+    "size": [
+      6,
+      84
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/glacial_bulwark/front_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/glacial_bulwark_front.png",
+    "source_sha256": "64cda3ee2fda6dabe7b2c93adae9c4f39228937ac303066701a96a774bfc97bb",
+    "size": [
+      53,
+      96
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/glacial_bulwark/rear_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/glacial_bulwark_rear.png",
+    "source_sha256": "c322fb094478b10d752fb30de9920e8bc4a7d5088175a308cfcb8d81837736b1",
+    "size": [
+      47,
+      92
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/grapple_hook/front_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/grapple_hook_front.png",
+    "source_sha256": "8d02124e6801d1bde54bb777a079adcaa6c0cadd3d45ff73360a8f73ec3f96c7",
+    "size": [
+      30,
+      50
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/grapple_hook/rear_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/grapple_hook_rear.png",
+    "source_sha256": "920add385b4e96e9f686b81e8a80dcc83a8be1fe0610ad0c3860ce9920dda065",
+    "size": [
+      30,
+      50
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/grave_greatsword/front_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/grave_greatsword_front.png",
+    "source_sha256": "b28afeac73431e94d9d1903fefcbb0dc58bf4403d7e1bfa1b20375488998526b",
+    "size": [
+      112,
+      85
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/grave_greatsword/rear_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/grave_greatsword_rear.png",
+    "source_sha256": "f996c10491227775f5cf2fe7dd9f4509a38967e33b0e596047aca2669f5461f0",
+    "size": [
+      112,
+      85
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/hookspine_halberd/front_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/hookspine_halberd_front.png",
+    "source_sha256": "71f1e0f18d07192e1b9abda17c1445c83aad62181e5dfd5dbc2c5e6e474865d8",
+    "size": [
+      33,
+      184
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/hookspine_halberd/rear_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/hookspine_halberd_rear.png",
+    "source_sha256": "4601d7d1c24e38c67f3f212718b7f1082fd9cd447d22f1f30bed33967276f403",
+    "size": [
+      33,
+      184
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/hunting_spear/front_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/hunting_spear_front.png",
+    "source_sha256": "006b0e4a647e2bab965ece5291cf97b81e65466f1891325b680459d985d0a838",
+    "size": [
+      20,
+      190
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/hunting_spear/rear_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/hunting_spear_rear.png",
+    "source_sha256": "34fa161b1e86fad92f0bf18ea584fd96fb7bedf84bebb85a1c5e2bd3e5f36e50",
+    "size": [
+      20,
+      190
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/iron_cleaver/front_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/iron_cleaver_front.png",
+    "source_sha256": "1256dbd1f7459c2be56bb8b5e1cea0fd46913abe34cc374bdc1b87878547420e",
+    "size": [
+      69,
+      59
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/iron_cleaver/rear_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/iron_cleaver_rear.png",
+    "source_sha256": "9775f1122c4f6cd6aa0b8a9d674fed7f8e6c3465b5dd61c0884ecd2d8a825037",
+    "size": [
+      69,
+      59
     ]
   },
   "assets/units/protagonist_cutout/gear/ironshod_sabatons/front_foot_l.png": {
@@ -223,6 +415,38 @@
       40
     ]
   },
+  "assets/units/protagonist_cutout/gear/lodestone_buckler/front_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/lodestone_buckler_front.png",
+    "source_sha256": "c80e9c7d133a3077090acb6c2e75932675494891e65c02fc9b1d8077afc25304",
+    "size": [
+      49,
+      66
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/lodestone_buckler/rear_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/lodestone_buckler_rear.png",
+    "source_sha256": "0441faf02c045c87c885491efe19244455a733b6076f5079f10665b17e5a6fb7",
+    "size": [
+      45,
+      62
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/mirror_guard/front_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/mirror_guard_front.png",
+    "source_sha256": "010e4dedc960591feba7c09801f6d7f3c3bb37598a12cfe42aa12bb93819b613",
+    "size": [
+      51,
+      92
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/mirror_guard/rear_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/mirror_guard_rear.png",
+    "source_sha256": "89bf8f82ba2748c831fbb8285623baf4c1911880acaf1b476b26786850383319",
+    "size": [
+      47,
+      88
+    ]
+  },
   "assets/units/protagonist_cutout/gear/parrying_dagger/front_offhand.png": {
     "source": "spec/assets/visible_gear_slice/sources/parrying_dagger_front.png",
     "source_sha256": "12356f19a38def7019d0f6d03ff2c7b35308a10c8e5671aee8f3e126143bbad2",
@@ -237,6 +461,38 @@
     "size": [
       20,
       48
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/phoenix_brand/front_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/phoenix_brand_front.png",
+    "source_sha256": "9078602e5c69ffe8183f50222dedd91ac2fc1cefa12d1da52545cb214e1efe54",
+    "size": [
+      99,
+      74
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/phoenix_brand/rear_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/phoenix_brand_rear.png",
+    "source_sha256": "78fe495e6cfdefec34362aac2007b7d75f448e48ccf6517706bf15ca6f055ccd",
+    "size": [
+      99,
+      74
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/rimebite_hatchet/front_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/rimebite_hatchet_front.png",
+    "source_sha256": "8156ff14a534b7819a2b43de663037eb2ed4e6108445979bb24c0c40a3c794ff",
+    "size": [
+      74,
+      60
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/rimebite_hatchet/rear_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/rimebite_hatchet_rear.png",
+    "source_sha256": "870aeefe530966d45f81301476bc26c96cf0d6293e52dd44173fa22bb225cb4e",
+    "size": [
+      74,
+      60
     ]
   },
   "assets/units/protagonist_cutout/gear/sawtooth_knife/front_weapon_r.png": {
@@ -269,6 +525,102 @@
     "size": [
       44,
       72
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stormstring_bow/front_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stormstring_bow_front.png",
+    "source_sha256": "340bab80c7fdc42594d8d53df91f87edb43a6675a7ff2dc700b969e21fa18948",
+    "size": [
+      21,
+      110
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stormstring_bow/rear_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stormstring_bow_rear.png",
+    "source_sha256": "99e83bc38a21048467702d1feaf42b668dc302af4a0159cfa7730ad95e2677d9",
+    "size": [
+      21,
+      110
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/sunken_anchor/front_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/sunken_anchor_front.png",
+    "source_sha256": "c4c8d897186871795a24d2baaa58796a4e231350a83828facf98d0cd59bce1d6",
+    "size": [
+      50,
+      80
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/sunken_anchor/rear_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/sunken_anchor_rear.png",
+    "source_sha256": "56c4ca7cf34350699cd424f820cbe95f03c790629847944a0188cc105e5b9aed",
+    "size": [
+      50,
+      80
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/sunward_targe/front_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/sunward_targe_front.png",
+    "source_sha256": "82895c16b28c0c646166d60ed0cf59d379ed81aa952581db78b4cf0c74f9b981",
+    "size": [
+      53,
+      74
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/sunward_targe/rear_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/sunward_targe_rear.png",
+    "source_sha256": "a4ac765941917fe20d52bd814938dc286bbaa0623f3754599d275eb258bc80a8",
+    "size": [
+      49,
+      70
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/tinkers_knives/front_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/tinkers_knives_front.png",
+    "source_sha256": "093c6d41753add0a487d642f0ee44b79d9b37b54463ab5cebff9eb7f617c8719",
+    "size": [
+      45,
+      37
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/tinkers_knives/rear_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/tinkers_knives_rear.png",
+    "source_sha256": "2dea1f25ab6daee8cb187c084ee9e46b3b1f4e2fe1b9cce362caa3fb171afac9",
+    "size": [
+      45,
+      37
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/tourney_lance/front_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/tourney_lance_front.png",
+    "source_sha256": "90d01063900c648ab4238d08cecddba5117369d818f437080472c69108600f73",
+    "size": [
+      22,
+      160
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/tourney_lance/rear_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/tourney_lance_rear.png",
+    "source_sha256": "98911d4271d58b16f92cc9a53a491a0dbf534090200f2eccff9fb495db780b12",
+    "size": [
+      22,
+      160
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/tower_shield/front_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/tower_shield_front.png",
+    "source_sha256": "2e1789ca17c93a358f0a4a304d29222841d179e7fcc85ab2849be93b38a835d9",
+    "size": [
+      55,
+      112
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/tower_shield/rear_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/tower_shield_rear.png",
+    "source_sha256": "393cf2d132963a18e88a5694b2f9684ebefcc5af18fb9c1ae93395728cccce85",
+    "size": [
+      49,
+      106
     ]
   },
   "assets/units/protagonist_cutout/gear/undertaker_plate/front_arm_l.png": {
@@ -381,6 +733,54 @@
     "size": [
       40,
       90
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/windlass_repeater/front_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/windlass_repeater_front.png",
+    "source_sha256": "3a8b9555ae2b0b96c5359fea55e5cfd65e3d0bdfefea375cce3b9d1bbe747a79",
+    "size": [
+      73,
+      62
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/windlass_repeater/rear_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/windlass_repeater_rear.png",
+    "source_sha256": "8cf2cf80e799a00487bbafa743ff99accb0b96aa20efad6e23b62ce1d31bb084",
+    "size": [
+      73,
+      62
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/witchglass_aegis/front_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/witchglass_aegis_front.png",
+    "source_sha256": "a8ac6e33a29353bc3345e0b9416de9e56db230ef9bb012f83ce6e017f637a5f8",
+    "size": [
+      53,
+      78
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/witchglass_aegis/rear_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/witchglass_aegis_rear.png",
+    "source_sha256": "f6d11ad44e9f684af63379f8224a857da5ff6e62bdff6df0b39e48c83d1b5714",
+    "size": [
+      49,
+      74
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/worldbreaker/front_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/worldbreaker_front.png",
+    "source_sha256": "192fc253c6a6fad9a1429f3423f02b0f413c58263779de50746a8ba834a5e879",
+    "size": [
+      104,
+      84
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/worldbreaker/rear_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/worldbreaker_rear.png",
+    "source_sha256": "a54b81915bcb7daba17d78eb8a589f0a7d04f41ef6184fd7c882b0c97052a676",
+    "size": [
+      104,
+      84
     ]
   }
 }

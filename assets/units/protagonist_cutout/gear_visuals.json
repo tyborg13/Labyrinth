@@ -585,6 +585,1206 @@
           ]
         }
       }
+    },
+    "iron_cleaver": {
+      "slot": "weapon",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/iron_cleaver/front_weapon_r.png",
+              "offset": [
+                29,
+                119
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              86,
+              135
+            ],
+            "tip": [
+              35,
+              170
+            ],
+            "pommel": [
+              96,
+              128
+            ]
+          }
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/iron_cleaver/rear_weapon_r.png",
+              "offset": [
+                158,
+                131
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              170,
+              147
+            ],
+            "tip": [
+              221,
+              182
+            ],
+            "pommel": [
+              160,
+              140
+            ]
+          }
+        }
+      },
+      "motion": "sword",
+      "hands": 1
+    },
+    "phoenix_brand": {
+      "slot": "weapon",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/phoenix_brand/front_weapon_r.png",
+              "offset": [
+                0,
+                124
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              86,
+              135
+            ],
+            "tip": [
+              4,
+              192
+            ],
+            "pommel": [
+              97,
+              128
+            ]
+          }
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/phoenix_brand/rear_weapon_r.png",
+              "offset": [
+                157,
+                136
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              170,
+              147
+            ],
+            "tip": [
+              252,
+              204
+            ],
+            "pommel": [
+              159,
+              140
+            ]
+          }
+        }
+      },
+      "motion": "sword",
+      "hands": 1
+    },
+    "rimebite_hatchet": {
+      "slot": "weapon",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/rimebite_hatchet/front_weapon_r.png",
+              "offset": [
+                26,
+                123
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              86,
+              135
+            ],
+            "tip": [
+              42,
+              165
+            ],
+            "pommel": [
+              98,
+              126
+            ]
+          }
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/rimebite_hatchet/rear_weapon_r.png",
+              "offset": [
+                156,
+                135
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              170,
+              147
+            ],
+            "tip": [
+              214,
+              177
+            ],
+            "pommel": [
+              158,
+              138
+            ]
+          }
+        }
+      },
+      "motion": "sword",
+      "hands": 1
+    },
+    "worldbreaker": {
+      "slot": "weapon",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/worldbreaker/front_weapon_r.png",
+              "offset": [
+                -1,
+                122
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              86,
+              135
+            ],
+            "tip": [
+              25,
+              178
+            ],
+            "pommel": [
+              101,
+              125
+            ]
+          }
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/worldbreaker/rear_weapon_r.png",
+              "offset": [
+                153,
+                134
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              170,
+              147
+            ],
+            "tip": [
+              231,
+              190
+            ],
+            "pommel": [
+              155,
+              137
+            ]
+          }
+        }
+      },
+      "motion": "heavy",
+      "hands": 1
+    },
+    "grave_greatsword": {
+      "slot": "weapon",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/grave_greatsword/front_weapon_r.png",
+              "offset": [
+                -11,
+                121
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              86,
+              135
+            ],
+            "tip": [
+              -6,
+              199
+            ],
+            "pommel": [
+              99,
+              126
+            ]
+          }
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/grave_greatsword/rear_weapon_r.png",
+              "offset": [
+                155,
+                133
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              170,
+              147
+            ],
+            "tip": [
+              262,
+              211
+            ],
+            "pommel": [
+              157,
+              138
+            ]
+          }
+        }
+      },
+      "motion": "heavy",
+      "hands": 1
+    },
+    "dawnlight_censer": {
+      "slot": "weapon",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/dawnlight_censer/front_weapon_r.png",
+              "offset": [
+                75,
+                123
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              86,
+              135
+            ],
+            "tip": [
+              86,
+              197
+            ],
+            "pommel": [
+              86,
+              123
+            ]
+          }
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/dawnlight_censer/rear_weapon_r.png",
+              "offset": [
+                159,
+                135
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              170,
+              147
+            ],
+            "tip": [
+              170,
+              209
+            ],
+            "pommel": [
+              170,
+              135
+            ]
+          }
+        }
+      },
+      "motion": "heavy",
+      "hands": 1
+    },
+    "duelist_rapier": {
+      "slot": "weapon",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/duelist_rapier/front_weapon_r.png",
+              "offset": [
+                -1,
+                126
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              86,
+              135
+            ],
+            "tip": [
+              1,
+              194
+            ],
+            "pommel": [
+              96,
+              128
+            ]
+          }
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/duelist_rapier/rear_weapon_r.png",
+              "offset": [
+                158,
+                138
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              170,
+              147
+            ],
+            "tip": [
+              255,
+              206
+            ],
+            "pommel": [
+              160,
+              140
+            ]
+          }
+        }
+      },
+      "motion": "stab",
+      "hands": 1
+    },
+    "tinkers_knives": {
+      "slot": "weapon",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/tinkers_knives/front_weapon_r.png",
+              "offset": [
+                51,
+                125
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              86,
+              135
+            ],
+            "tip": [
+              55,
+              157
+            ],
+            "pommel": [
+              94,
+              129
+            ]
+          }
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/tinkers_knives/rear_weapon_r.png",
+              "offset": [
+                160,
+                137
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              170,
+              147
+            ],
+            "tip": [
+              201,
+              169
+            ],
+            "pommel": [
+              162,
+              141
+            ]
+          }
+        }
+      },
+      "motion": "stab",
+      "hands": 1
+    },
+    "galewhip": {
+      "slot": "weapon",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/galewhip/front_weapon_r.png",
+              "offset": [
+                83,
+                121
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              86,
+              135
+            ],
+            "tip": [
+              86,
+              205
+            ],
+            "pommel": [
+              86,
+              121
+            ]
+          }
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/galewhip/rear_weapon_r.png",
+              "offset": [
+                167,
+                133
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              170,
+              147
+            ],
+            "tip": [
+              170,
+              217
+            ],
+            "pommel": [
+              170,
+              133
+            ]
+          }
+        }
+      },
+      "motion": "lash",
+      "hands": 1
+    },
+    "windlass_repeater": {
+      "slot": "weapon",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/windlass_repeater/front_weapon_r.png",
+              "offset": [
+                33,
+                119
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              86,
+              135
+            ],
+            "tip": [
+              40,
+              167
+            ],
+            "pommel": [
+              102,
+              124
+            ]
+          }
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/windlass_repeater/rear_weapon_r.png",
+              "offset": [
+                150,
+                131
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              170,
+              147
+            ],
+            "tip": [
+              216,
+              179
+            ],
+            "pommel": [
+              154,
+              136
+            ]
+          }
+        }
+      },
+      "motion": "repeater",
+      "hands": 1
+    },
+    "hunting_spear": {
+      "slot": "weapon",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/hunting_spear/front_weapon_r.png",
+              "offset": [
+                79,
+                16
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              86,
+              135
+            ],
+            "tip": [
+              93,
+              17
+            ],
+            "pommel": [
+              82,
+              205
+            ]
+          }
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/hunting_spear/rear_weapon_r.png",
+              "offset": [
+                157,
+                28
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              170,
+              147
+            ],
+            "tip": [
+              163,
+              29
+            ],
+            "pommel": [
+              174,
+              217
+            ]
+          }
+        }
+      },
+      "motion": "thrust",
+      "hands": 1
+    },
+    "tourney_lance": {
+      "slot": "weapon",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/tourney_lance/front_weapon_r.png",
+              "offset": [
+                79,
+                2
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              86,
+              135
+            ],
+            "tip": [
+              94,
+              3
+            ],
+            "pommel": [
+              84,
+              161
+            ]
+          }
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/tourney_lance/rear_weapon_r.png",
+              "offset": [
+                155,
+                14
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              170,
+              147
+            ],
+            "tip": [
+              162,
+              15
+            ],
+            "pommel": [
+              172,
+              173
+            ]
+          }
+        }
+      },
+      "motion": "thrust",
+      "hands": 1
+    },
+    "hookspine_halberd": {
+      "slot": "weapon",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/hookspine_halberd/front_weapon_r.png",
+              "offset": [
+                75,
+                22
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              86,
+              135
+            ],
+            "tip": [
+              93,
+              23
+            ],
+            "pommel": [
+              82,
+              205
+            ]
+          }
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/hookspine_halberd/rear_weapon_r.png",
+              "offset": [
+                148,
+                34
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              170,
+              147
+            ],
+            "tip": [
+              163,
+              35
+            ],
+            "pommel": [
+              174,
+              217
+            ]
+          }
+        }
+      },
+      "motion": "thrust",
+      "hands": 1
+    },
+    "stormstring_bow": {
+      "slot": "weapon",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/stormstring_bow/front_weapon_r.png",
+              "offset": [
+                71,
+                80
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              86,
+              135
+            ],
+            "tip": [
+              89,
+              81
+            ],
+            "pommel": [
+              83,
+              189
+            ]
+          }
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "weapon_r",
+              "file": "gear/stormstring_bow/rear_weapon_r.png",
+              "offset": [
+                164,
+                92
+              ]
+            }
+          ],
+          "weapon_grip": {
+            "assembled": [
+              170,
+              147
+            ],
+            "tip": [
+              167,
+              93
+            ],
+            "pommel": [
+              173,
+              201
+            ]
+          }
+        }
+      },
+      "motion": "bow",
+      "hands": 1
+    },
+    "buckler_of_nails": {
+      "slot": "offhand",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/buckler_of_nails/front_offhand.png",
+              "bone": "forearm_l",
+              "offset": [
+                145,
+                98
+              ],
+              "z_index": 72
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/buckler_of_nails/rear_offhand.png",
+              "bone": "forearm_l",
+              "offset": [
+                53,
+                106
+              ],
+              "z_index": 6
+            }
+          ]
+        }
+      },
+      "held": "shield"
+    },
+    "lodestone_buckler": {
+      "slot": "offhand",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/lodestone_buckler/front_offhand.png",
+              "bone": "forearm_l",
+              "offset": [
+                145,
+                98
+              ],
+              "z_index": 72
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/lodestone_buckler/rear_offhand.png",
+              "bone": "forearm_l",
+              "offset": [
+                53,
+                106
+              ],
+              "z_index": 6
+            }
+          ]
+        }
+      },
+      "held": "shield"
+    },
+    "chain_guard": {
+      "slot": "offhand",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/chain_guard/front_offhand.png",
+              "bone": "forearm_l",
+              "offset": [
+                144,
+                99
+              ],
+              "z_index": 72
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/chain_guard/rear_offhand.png",
+              "bone": "forearm_l",
+              "offset": [
+                52,
+                107
+              ],
+              "z_index": 6
+            }
+          ]
+        }
+      },
+      "held": "shield"
+    },
+    "sunward_targe": {
+      "slot": "offhand",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/sunward_targe/front_offhand.png",
+              "bone": "forearm_l",
+              "offset": [
+                143,
+                97
+              ],
+              "z_index": 72
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/sunward_targe/rear_offhand.png",
+              "bone": "forearm_l",
+              "offset": [
+                51,
+                105
+              ],
+              "z_index": 6
+            }
+          ]
+        }
+      },
+      "held": "shield"
+    },
+    "mirror_guard": {
+      "slot": "offhand",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/mirror_guard/front_offhand.png",
+              "bone": "forearm_l",
+              "offset": [
+                144,
+                92
+              ],
+              "z_index": 72
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/mirror_guard/rear_offhand.png",
+              "bone": "forearm_l",
+              "offset": [
+                52,
+                100
+              ],
+              "z_index": 6
+            }
+          ]
+        }
+      },
+      "held": "shield"
+    },
+    "witchglass_aegis": {
+      "slot": "offhand",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/witchglass_aegis/front_offhand.png",
+              "bone": "forearm_l",
+              "offset": [
+                143,
+                95
+              ],
+              "z_index": 72
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/witchglass_aegis/rear_offhand.png",
+              "bone": "forearm_l",
+              "offset": [
+                51,
+                103
+              ],
+              "z_index": 6
+            }
+          ]
+        }
+      },
+      "held": "shield"
+    },
+    "glacial_bulwark": {
+      "slot": "offhand",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/glacial_bulwark/front_offhand.png",
+              "bone": "forearm_l",
+              "offset": [
+                143,
+                92
+              ],
+              "z_index": 72
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/glacial_bulwark/rear_offhand.png",
+              "bone": "forearm_l",
+              "offset": [
+                52,
+                100
+              ],
+              "z_index": 6
+            }
+          ]
+        }
+      },
+      "held": "shield"
+    },
+    "tower_shield": {
+      "slot": "offhand",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/tower_shield/front_offhand.png",
+              "bone": "forearm_l",
+              "offset": [
+                142,
+                90
+              ],
+              "z_index": 72
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/tower_shield/rear_offhand.png",
+              "bone": "forearm_l",
+              "offset": [
+                51,
+                99
+              ],
+              "z_index": 6
+            }
+          ]
+        }
+      },
+      "held": "shield"
+    },
+    "basalt_pavise": {
+      "slot": "offhand",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/basalt_pavise/front_offhand.png",
+              "bone": "forearm_l",
+              "offset": [
+                141,
+                91
+              ],
+              "z_index": 72
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/basalt_pavise/rear_offhand.png",
+              "bone": "forearm_l",
+              "offset": [
+                50,
+                100
+              ],
+              "z_index": 6
+            }
+          ]
+        }
+      },
+      "held": "shield"
+    },
+    "grapple_hook": {
+      "slot": "offhand",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/grapple_hook/front_offhand.png",
+              "bone": "hand_l",
+              "offset": [
+                148,
+                139
+              ],
+              "z_index": 48
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/grapple_hook/rear_offhand.png",
+              "bone": "hand_l",
+              "offset": [
+                75,
+                128
+              ],
+              "z_index": 6
+            }
+          ]
+        }
+      },
+      "held": "hand"
+    },
+    "sunken_anchor": {
+      "slot": "offhand",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/sunken_anchor/front_offhand.png",
+              "bone": "hand_l",
+              "offset": [
+                138,
+                139
+              ],
+              "z_index": 48
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearOffhand",
+              "file": "gear/sunken_anchor/rear_offhand.png",
+              "bone": "hand_l",
+              "offset": [
+                65,
+                128
+              ],
+              "z_index": 6
+            }
+          ]
+        }
+      },
+      "held": "hand"
     }
   }
 }

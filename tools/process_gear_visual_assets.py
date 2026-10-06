@@ -26,23 +26,14 @@ SOURCES = ROOT / "spec/assets/visible_gear_slice/sources"
 RIG = ROOT / "assets/units/protagonist_cutout"
 MANIFEST = ROOT / "spec/assets/visible_gear_slice/outputs.json"
 
-# Attachment and weapon sizes are design decisions (spec/design/visible_gear_slice).
-FIXED_SIZES = {
-    ("war_maul", "front"): (95, 76), ("war_maul", "rear"): (95, 76),
-    ("sawtooth_knife", "front"): (45, 32), ("sawtooth_knife", "rear"): (44, 33),
-    ("splintered_shield", "front"): (50, 75), ("splintered_shield", "rear"): (44, 72),
-    ("ward_kite", "front"): (46, 96), ("ward_kite", "rear"): (40, 90),
-    ("parrying_dagger", "front"): (28, 46), ("parrying_dagger", "rear"): (20, 48),
-    ("cracked_lantern", "front"): (15, 27), ("cracked_lantern", "rear"): (15, 27),
-    ("crown_of_thorns", "front"): (56, 16), ("crown_of_thorns", "rear"): (58, 16),
-    ("war_dancer_sash", "front"): (59, 36), ("war_dancer_sash", "rear"): (61, 38),
-}
-WHOLE = {"war_maul": "weapon_r", "sawtooth_knife": "weapon_r", "splintered_shield": "offhand",
-         "ward_kite": "offhand", "parrying_dagger": "offhand", "cracked_lantern": "trinket",
-         "crown_of_thorns": "trinket", "war_dancer_sash": "trinket"}
-PIECES = {"undertaker_plate": ("torso", "arm_r", "arm_l", "hips"), "cinderweave_mail": ("torso", "arm_r", "arm_l", "hips"),
-          "ironshod_sabatons": ("foot_r", "foot_l", "shin_r", "shin_l"),
-         "emberstriders": ("foot_r", "foot_l", "shin_r", "shin_l")}
+# Native sizes are design decisions (spec/design/visible_gear_slice): whole items
+# (weapons, offhands, trinkets) by "item|facing", and any piece that differs from
+# the bare rig part (a robe's longer hips) by "item|facing|part". Every other
+# piece takes the bare rig part's own size, so sleeves always match their mesh.
+SIZES = ROOT / "spec/assets/visible_gear_slice/native_sizes.json"
+REGISTRY = RIG / "gear_visuals.json"
+
+
 # Image generation paints far finer than the chunky hero; its texture a pixel or
 # two wide reads as noise beside him (owner review 2026-10-06). The hero has
 # ~2-pixel colour runs and only 4-9% orphan pixels (pixels unlike all four
@@ -159,13 +150,19 @@ def outline(im: Image.Image, strength: float = 0.55) -> Image.Image:
 
 
 def jobs():
-    for item, part in WHOLE.items():
-        for facing in ("front", "rear"):
-            yield SOURCES / f"{item}_{facing}.png", RIG / f"gear/{item}/{facing}_{part}.png", FIXED_SIZES[(item, facing)]
-    for item, parts in PIECES.items():
-        for facing in ("front", "rear"):
-            for part in parts:
-                yield SOURCES / f"{item}_{facing}_{part}.png", RIG / f"gear/{item}/{facing}_{part}.png", base_part_size(facing, part)
+    sizes = json.loads(SIZES.read_text())
+    registry = json.loads(REGISTRY.read_text())
+    for item, entry in registry["items"].items():
+        for facing, ops in entry.get("facings", {}).items():
+            for op in ops.get("replace", []) + ops.get("attach", []):
+                part = op.get("part", "")
+                whole = "attach" in ops and op in ops["attach"] or part == "weapon_r"
+                source = SOURCES / (f"{item}_{facing}.png" if whole else f"{item}_{facing}_{part}.png")
+                if whole:
+                    size = tuple(sizes[f"{item}|{facing}"])
+                else:
+                    size = tuple(sizes.get(f"{item}|{facing}|{part}", base_part_size(facing, part)))
+                yield source, RIG / op["file"], size
 
 
 def digest(path: Path) -> str:

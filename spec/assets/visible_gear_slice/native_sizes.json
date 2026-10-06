@@ -1,0 +1,266 @@
+{
+ "basalt_pavise|front": [
+  57,
+  106
+ ],
+ "basalt_pavise|rear": [
+  51,
+  100
+ ],
+ "buckler_of_nails|front": [
+  49,
+  64
+ ],
+ "buckler_of_nails|rear": [
+  45,
+  60
+ ],
+ "chain_guard|front": [
+  51,
+  70
+ ],
+ "chain_guard|rear": [
+  47,
+  66
+ ],
+ "cracked_lantern|front": [
+  15,
+  27
+ ],
+ "cracked_lantern|rear": [
+  15,
+  27
+ ],
+ "crown_of_thorns|front": [
+  56,
+  16
+ ],
+ "crown_of_thorns|rear": [
+  58,
+  16
+ ],
+ "dawnlight_censer|front": [
+  22,
+  74
+ ],
+ "dawnlight_censer|rear": [
+  22,
+  74
+ ],
+ "duelist_rapier|front": [
+  99,
+  71
+ ],
+ "duelist_rapier|rear": [
+  99,
+  71
+ ],
+ "galewhip|front": [
+  6,
+  84
+ ],
+ "galewhip|rear": [
+  6,
+  84
+ ],
+ "glacial_bulwark|front": [
+  53,
+  96
+ ],
+ "glacial_bulwark|rear": [
+  47,
+  92
+ ],
+ "grapple_hook|front": [
+  30,
+  50
+ ],
+ "grapple_hook|rear": [
+  30,
+  50
+ ],
+ "grave_greatsword|front": [
+  112,
+  85
+ ],
+ "grave_greatsword|rear": [
+  112,
+  85
+ ],
+ "hookspine_halberd|front": [
+  33,
+  184
+ ],
+ "hookspine_halberd|rear": [
+  33,
+  184
+ ],
+ "hunting_spear|front": [
+  20,
+  190
+ ],
+ "hunting_spear|rear": [
+  20,
+  190
+ ],
+ "iron_cleaver|front": [
+  69,
+  59
+ ],
+ "iron_cleaver|rear": [
+  69,
+  59
+ ],
+ "lodestone_buckler|front": [
+  49,
+  66
+ ],
+ "lodestone_buckler|rear": [
+  45,
+  62
+ ],
+ "mirror_guard|front": [
+  51,
+  92
+ ],
+ "mirror_guard|rear": [
+  47,
+  88
+ ],
+ "parrying_dagger|front": [
+  28,
+  46
+ ],
+ "parrying_dagger|rear": [
+  20,
+  48
+ ],
+ "phoenix_brand|front": [
+  99,
+  74
+ ],
+ "phoenix_brand|rear": [
+  99,
+  74
+ ],
+ "rimebite_hatchet|front": [
+  74,
+  60
+ ],
+ "rimebite_hatchet|rear": [
+  74,
+  60
+ ],
+ "sawtooth_knife|front": [
+  45,
+  32
+ ],
+ "sawtooth_knife|rear": [
+  44,
+  33
+ ],
+ "splintered_shield|front": [
+  50,
+  75
+ ],
+ "splintered_shield|rear": [
+  44,
+  72
+ ],
+ "stormstring_bow|front": [
+  21,
+  110
+ ],
+ "stormstring_bow|rear": [
+  21,
+  110
+ ],
+ "sunken_anchor|front": [
+  50,
+  80
+ ],
+ "sunken_anchor|rear": [
+  50,
+  80
+ ],
+ "sunward_targe|front": [
+  53,
+  74
+ ],
+ "sunward_targe|rear": [
+  49,
+  70
+ ],
+ "tinkers_knives|front": [
+  45,
+  37
+ ],
+ "tinkers_knives|rear": [
+  45,
+  37
+ ],
+ "tourney_lance|front": [
+  22,
+  160
+ ],
+ "tourney_lance|rear": [
+  22,
+  160
+ ],
+ "tower_shield|front": [
+  55,
+  112
+ ],
+ "tower_shield|rear": [
+  49,
+  106
+ ],
+ "war_dancer_sash|front": [
+  59,
+  36
+ ],
+ "war_dancer_sash|rear": [
+  61,
+  38
+ ],
+ "war_maul|front": [
+  95,
+  76
+ ],
+ "war_maul|rear": [
+  95,
+  76
+ ],
+ "ward_kite|front": [
+  46,
+  96
+ ],
+ "ward_kite|rear": [
+  40,
+  90
+ ],
+ "windlass_repeater|front": [
+  73,
+  62
+ ],
+ "windlass_repeater|rear": [
+  73,
+  62
+ ],
+ "witchglass_aegis|front": [
+  53,
+  78
+ ],
+ "witchglass_aegis|rear": [
+  49,
+  74
+ ],
+ "worldbreaker|front": [
+  104,
+  84
+ ],
+ "worldbreaker|rear": [
+  104,
+  84
+ ]
+}
