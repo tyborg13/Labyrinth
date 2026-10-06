@@ -59,6 +59,7 @@ static func run(scene: Node, expect: Callable, capture: Callable = Callable()) -
 	checks.append(await _play_card(scene, "crushing_blow", Vector2i(0, 1), expect))
 	expect.call(scene.proof_captures.has("L1_crushing_blow_reduced_motion"), "Reduced-motion heavy action is captured")
 	checks.append_array(await preload("res://tests/helpers/protagonist_full_gear_motion_scenarios.gd").run(scene, expect))
+	checks.append_array(await preload("res://tests/helpers/protagonist_gear_carry_scenarios.gd").run(scene, expect, capture))
 	scene.proof_mode = ""
 	return checks
 

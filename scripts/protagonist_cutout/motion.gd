@@ -13,6 +13,7 @@ extends RefCounted
 
 const WALK_STANCE_FRACTION: float = 0.60
 const FullGearMotion = preload("res://scripts/protagonist_cutout/full_gear_motion.gd")
+const GearCarry = preload("res://scripts/protagonist_cutout/gear_carry.gd")
 static var _boot_geometry: Dictionary = {}
 
 
@@ -39,6 +40,16 @@ static func clip_specs() -> Dictionary:
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
 	if clip in ["attack_thrust", "attack_lash", "shoot_bow", "shoot_repeater"]:
 		return FullGearMotion.sample_pose(clip, phase, layout, facing, load("res://scripts/protagonist_cutout/motion.gd"))
+	return _carry_pose(_sample_pose(clip, phase, layout, facing), clip, phase, layout)
+
+
+static func _carry_pose(pose: Dictionary, clip: String, phase: float, layout: Dictionary) -> Dictionary:
+	if not layout.has("weapon_carry"):
+		return pose
+	return GearCarry.apply(pose, clip, phase, layout, load("res://scripts/protagonist_cutout/motion.gd"))
+
+
+static func _sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
 	if clip == "attack_heavy":
 		return _attack_heavy_pose(phase, layout, facing)
 	if clip == "attack_stab":

@@ -10,8 +10,8 @@ const OUTPUT: String = "user://probes/protagonist_gear_motion"
 
 var _surface: SubViewport
 var _errors: Array[String]
-var _manifest: Dictionary = {"round": 4, "size": [1920, 1080], "ui_scale": 1.0,
-	"scope": "Full pass: three polearm thrusts, galewhip lash, bow/repeater preparation and shots including reflection, Worldbreaker and Duelist Rapier; retained Round 2 sword/stab/slam, cast, guard and reduced-motion checks.",
+var _manifest: Dictionary = {"round": 5, "size": [1920, 1080], "ui_scale": 1.0,
+	"scope": "Carry/draw order: rear idle/walk sword, maul, spear and bow; front idle spear, lance, halberd and bow. Retained full-pass thrust/lash/bow/repeater and Round 2 sword/stab/slam, cast, guard and reduced-motion checks. Carry uses the registry landmarks present at capture time.",
 	"clock": "Deterministic production-frame stepping; exact effect/pose checkpoints use a frame on the same side of contact for result display. Resolver and card input paths are unchanged.",
 	"captures": []}
 

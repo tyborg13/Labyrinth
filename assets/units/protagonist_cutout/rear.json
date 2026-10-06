@@ -359,7 +359,7 @@
         136
       ],
       "bone": "weapon_r",
-      "z_index": 66
+      "z_index": 5
     },
     {
       "name": "knee_cover_r",
@@ -391,7 +391,7 @@
         162,
         95
       ],
-      "z_index": 66,
+      "z_index": 5,
       "equipment_slot": "weapon"
     }
   ],

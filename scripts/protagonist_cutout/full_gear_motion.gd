@@ -14,7 +14,7 @@ static func _thrust(phase: float, layout: Dictionary, facing: String, base: Scri
 	pose["crossbow_r"]["visible"] = false
 	var t: float = clampf(phase, 0.0, 1.0)
 	if is_zero_approx(t) or is_equal_approx(t, 1.0):
-		return pose
+		return base._carry_pose(pose, "attack_thrust", t, layout)
 	var rear: bool = facing == "rear"
 	var direction: float = -1.0 if rear else 1.0
 	var line: Vector2 = (Vector2(0.894, -0.447) if rear else Vector2(-0.894, 0.447)).normalized()
@@ -43,7 +43,7 @@ static func _thrust(phase: float, layout: Dictionary, facing: String, base: Scri
 	base._solve_leg(pose, layout, "arm_r", "forearm_r", "hand_r", key["wrist"], 0.0, direction)
 	base._rotate(pose, "forearm_l", -direction * 0.10 * base._hold(t, 0.30, 0.42, 0.56, 0.80))
 	base._gear_place_weapon(pose, layout, float(key["angle"]) - rest_angle)
-	return pose
+	return base._carry_pose(pose, "attack_thrust", t, layout)
 
 static func _lash(phase: float, layout: Dictionary, facing: String, base: Script) -> Dictionary:
 	var pose: Dictionary = base._rest_pose(layout)
@@ -84,7 +84,7 @@ static func _shoot(clip: String, phase: float, layout: Dictionary, facing: Strin
 	pose["weapon_r"]["visible"] = true
 	var t: float = clampf(phase, 0.0, 1.0)
 	if is_zero_approx(t) or is_equal_approx(t, 1.0):
-		return pose
+		return base._carry_pose(pose, clip, t, layout)
 	var rear: bool = facing == "rear"
 	var direction: float = -1.0 if rear else 1.0
 	var aim: Vector2 = aim_for_facing(facing)
@@ -107,6 +107,7 @@ static func _shoot(clip: String, phase: float, layout: Dictionary, facing: Strin
 	# aims its muzzle forward; the bow's upper limb is perpendicular to aim.
 	var angle: float = lerp_angle(rest_angle, weapon_angle, raised) - rest_angle
 	base._gear_place_weapon(pose, layout, angle)
+	base._carry_pose(pose, clip, t, layout)
 	if clip == "shoot_bow":
 		var weapon: Transform2D = base._world_transform(pose, layout, "weapon_r")
 		var grip: Vector2 = weapon * (base._gear_vector(layout["weapon_grip"]["assembled"]) - base._joint_position(layout, "weapon_r"))

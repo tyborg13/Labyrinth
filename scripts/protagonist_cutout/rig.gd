@@ -164,20 +164,25 @@ func _build_mesh(data: Dictionary, mesh_name: String, source_key: String) -> voi
 
 func _remember_gear_part(part_name: String, node: Node2D) -> void:
 	if not part_name.is_empty():
-		_gear_base_parts[part_name] = {"node": node, "texture": node.get("texture"), "position": node.position}
+		_gear_base_parts[part_name] = {"node": node, "texture": node.get("texture"), "position": node.position, "z_index": node.z_index}
 
 func apply_gear(ops: Dictionary) -> void:
 	# RigData caches this dictionary across instances. Only this rig receives
 	# weapon landmarks; clearing gear restores the exact shared base layout.
 	layout = _source_data.layout
 	var grip: Dictionary = ops.get("weapon_grip", {})
-	if not grip.is_empty():
+	var motion: String = str(ops.get("weapon_motion", "sword"))
+	if not grip.is_empty() or motion in ["thrust", "bow"]:
 		layout = layout.duplicate()
-		layout["weapon_grip"] = grip.duplicate(true)
+		if not grip.is_empty():
+			layout["weapon_grip"] = grip.duplicate(true)
+		if motion in ["thrust", "bow"]:
+			layout["weapon_carry"] = {"motion": motion, "sword_axis": Motion._gear_axis(_source_data.layout)}
 	for base: Dictionary in _gear_base_parts.values():
 		var node: Node2D = base["node"]
 		node.set("texture", base["texture"])
 		node.position = base["position"]
+		node.z_index = int(base["z_index"])
 	for attachment: Sprite2D in _gear_attachments:
 		attachment.free()
 	_gear_attachments.clear()
@@ -197,6 +202,8 @@ func apply_gear(ops: Dictionary) -> void:
 			push_error("Protagonist gear mesh crop size differs from base: " + part)
 			continue
 		node.set("texture", texture)
+		if op.has("z_index"):
+			node.z_index = int(op["z_index"])
 		if node is Sprite2D and op.has("offset"):
 			var bone_name: String = str(node.get_parent().name)
 			node.position = _vector(op["offset"]) - _vector(layout["joints"][bone_name]["position"])

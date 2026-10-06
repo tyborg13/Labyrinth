@@ -44,6 +44,10 @@ static func _load() -> void:
 static func _valid_point(value: Variant) -> bool:
 	return value is Array and value.size() == 2 and (value[0] is float or value[0] is int) and (value[1] is float or value[1] is int)
 
+static func _valid_z(value: Variant) -> bool:
+	return (value is float or value is int) and float(value) == float(int(value)) \
+		and int(value) >= RenderingServer.CANVAS_ITEM_Z_MIN and int(value) <= RenderingServer.CANVAS_ITEM_Z_MAX
+
 static func _valid_entry(entry: Variant, layouts: Dictionary) -> bool:
 	if not entry is Dictionary or not SLOTS.has(str(entry.get("slot", ""))) or not entry.get("facings") is Dictionary:
 		return false
@@ -71,7 +75,7 @@ static func _valid_entry(entry: Variant, layouts: Dictionary) -> bool:
 				if texture == null or (op.has("offset") and not _valid_point(op["offset"])):
 					return false
 				if kind == "replace":
-					if not REPLACE_PARTS[slot].has(op.get("part", "")):
+					if not REPLACE_PARTS[slot].has(op.get("part", "")) or (op.has("z_index") and not _valid_z(op["z_index"])):
 						return false
 					var found: bool = false
 					for part: Dictionary in layouts[facing].get("parts", []):
@@ -86,9 +90,7 @@ static func _valid_entry(entry: Variant, layouts: Dictionary) -> bool:
 				else:
 					if slot not in ["offhand", "trinket"] or not op.get("name") is String or not _valid_point(op.get("offset")):
 						return false
-					if not layouts[facing].get("joints", {}).has(op.get("bone", "")) or not (op.get("z_index") is float or op.get("z_index") is int):
-						return false
-					if float(op["z_index"]) != float(int(op["z_index"])) or int(op["z_index"]) < RenderingServer.CANVAS_ITEM_Z_MIN or int(op["z_index"]) > RenderingServer.CANVAS_ITEM_Z_MAX:
+					if not layouts[facing].get("joints", {}).has(op.get("bone", "")) or not _valid_z(op.get("z_index")):
 						return false
 	return true
 
@@ -142,4 +144,5 @@ static func ops_for_facing(equipped: Dictionary, facing: String) -> Dictionary:
 					replacements.append(prepared)
 		if slot == "weapon":
 			grip = ops.get("weapon_grip", {}).duplicate(true)
-	return {"replace": replacements, "attach": attachments, "weapon_grip": grip}
+	return {"replace": replacements, "attach": attachments, "weapon_grip": grip,
+		"weapon_motion": str(_items.get(resolved["weapon"], {}).get("motion", "sword"))}

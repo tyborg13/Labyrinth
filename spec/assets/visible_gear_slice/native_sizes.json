@@ -7,6 +7,14 @@
   51,
   100
  ],
+ "bone_dice|front": [
+  18,
+  22
+ ],
+ "bone_dice|rear": [
+  18,
+  22
+ ],
  "buckler_of_nails|front": [
   49,
   64
@@ -22,6 +30,14 @@
  "chain_guard|rear": [
   47,
   66
+ ],
+ "clockwork_arrowhead|front": [
+  16,
+  28
+ ],
+ "clockwork_arrowhead|rear": [
+  16,
+  28
  ],
  "cracked_lantern|front": [
   15,
@@ -47,6 +63,14 @@
   22,
   74
  ],
+ "doppel_doll|front": [
+  18,
+  30
+ ],
+ "doppel_doll|rear": [
+  18,
+  30
+ ],
  "duelist_rapier|front": [
   99,
   71
@@ -55,13 +79,49 @@
   99,
   71
  ],
+ "ember_hourglass|front": [
+  14,
+  28
+ ],
+ "ember_hourglass|rear": [
+  14,
+  28
+ ],
+ "ember_pendant|front": [
+  16,
+  24
+ ],
+ "gale_cloak|front|hips": [
+  57,
+  48
+ ],
+ "gale_cloak|rear|hips": [
+  60,
+  49
+ ],
  "galewhip|front": [
-  6,
-  84
+  12,
+  88
  ],
  "galewhip|rear": [
-  6,
-  84
+  12,
+  88
+ ],
+ "gamblers_watch|front": [
+  18,
+  26
+ ],
+ "gamblers_watch|rear": [
+  18,
+  26
+ ],
+ "geode_charm|front": [
+  14,
+  24
+ ],
+ "geode_charm|rear": [
+  14,
+  24
  ],
  "glacial_bulwark|front": [
   53,
@@ -72,12 +132,12 @@
   92
  ],
  "grapple_hook|front": [
-  30,
-  50
+  40,
+  60
  ],
  "grapple_hook|rear": [
-  30,
-  50
+  40,
+  60
  ],
  "grave_greatsword|front": [
   112,
@@ -87,21 +147,29 @@
   112,
   85
  ],
+ "headsmans_coin|front": [
+  18,
+  26
+ ],
+ "headsmans_coin|rear": [
+  18,
+  26
+ ],
  "hookspine_halberd|front": [
-  33,
-  184
+  70,
+  172
  ],
  "hookspine_halberd|rear": [
-  33,
-  184
+  70,
+  172
  ],
  "hunting_spear|front": [
-  20,
-  190
+  61,
+  172
  ],
  "hunting_spear|rear": [
-  20,
-  190
+  61,
+  172
  ],
  "iron_cleaver|front": [
   69,
@@ -127,13 +195,21 @@
   47,
   88
  ],
+ "oathstone|front": [
+  16,
+  26
+ ],
+ "oathstone|rear": [
+  16,
+  26
+ ],
  "parrying_dagger|front": [
-  28,
-  46
+  29,
+  42
  ],
  "parrying_dagger|rear": [
-  20,
-  48
+  29,
+  42
  ],
  "phoenix_brand|front": [
   99,
@@ -142,6 +218,18 @@
  "phoenix_brand|rear": [
   99,
   74
+ ],
+ "pilgrim_vestments|front|hips": [
+  57,
+  47
+ ],
+ "pilgrim_vestments|rear|hips": [
+  60,
+  48
+ ],
+ "rime_locket|front": [
+  16,
+  24
  ],
  "rimebite_hatchet|front": [
   74,
@@ -159,6 +247,10 @@
   44,
   33
  ],
+ "sealed_cyclone|front": [
+  20,
+  26
+ ],
  "splintered_shield|front": [
   50,
   75
@@ -167,13 +259,37 @@
   44,
   72
  ],
+ "stitcher_apron|front|hips": [
+  57,
+  47
+ ],
+ "stitcher_apron|rear|hips": [
+  60,
+  47
+ ],
+ "stormglass_orb|front": [
+  20,
+  26
+ ],
+ "stormglass_orb|rear": [
+  20,
+  26
+ ],
  "stormstring_bow|front": [
-  21,
-  110
+  38,
+  105
  ],
  "stormstring_bow|rear": [
-  21,
-  110
+  38,
+  105
+ ],
+ "stormweave_robe|front|hips": [
+  57,
+  48
+ ],
+ "stormweave_robe|rear|hips": [
+  60,
+  49
  ],
  "sunken_anchor|front": [
   50,
@@ -200,12 +316,12 @@
   37
  ],
  "tourney_lance|front": [
-  22,
-  160
+  63,
+  168
  ],
  "tourney_lance|rear": [
-  22,
-  160
+  63,
+  168
  ],
  "tower_shield|front": [
   55,

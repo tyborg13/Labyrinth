@@ -1,7 +1,7 @@
 {
   "assets/units/protagonist_cutout/gear/basalt_pavise/front_offhand.png": {
     "source": "spec/assets/visible_gear_slice/sources/basalt_pavise_front.png",
-    "source_sha256": "88bab8f23614b50a66e138cb15144fb208f7f2ff60364c88a29f1dd766f298e9",
+    "source_sha256": "c3368229668757a848e5b74033ea4c1e6ed2cc538c72d37337e1d32d2434eb09",
     "size": [
       57,
       106
@@ -9,10 +9,90 @@
   },
   "assets/units/protagonist_cutout/gear/basalt_pavise/rear_offhand.png": {
     "source": "spec/assets/visible_gear_slice/sources/basalt_pavise_rear.png",
-    "source_sha256": "4525ee1424335f05716a1a5349306aae427f11711a4502f9164854744d9d0e96",
+    "source_sha256": "156311fd421b4825d8d8d693b0cbfe7adb3183baa4f015bdf8748db656e4725b",
     "size": [
       51,
       100
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/boiled_leather/front_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/boiled_leather_front_arm_l.png",
+    "source_sha256": "aa888a7d5fbbd53e5318947025fe82f2ee73b18422327bc1519fd64190238679",
+    "size": [
+      30,
+      48
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/boiled_leather/front_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/boiled_leather_front_arm_r.png",
+    "source_sha256": "3e4b0eeea7a810a88bd622ca4f46ffd0b7ed80d1400119c07e4c6a7359ee45cb",
+    "size": [
+      37,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/boiled_leather/front_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/boiled_leather_front_hips.png",
+    "source_sha256": "6685373cf4de2cf8212fd08c675fcb51f27f0b475f910b90dd6d954c0e89c02d",
+    "size": [
+      57,
+      35
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/boiled_leather/front_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/boiled_leather_front_torso.png",
+    "source_sha256": "6b547bfd916570d1c3a2da8f3ca87ebea2b24d6d9ca1744d477c4677c8f1b876",
+    "size": [
+      64,
+      44
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/boiled_leather/rear_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/boiled_leather_rear_arm_l.png",
+    "source_sha256": "9351eb584ea5fd8e265646caaf16944f483765ad66a8530cb158d436074d80af",
+    "size": [
+      30,
+      38
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/boiled_leather/rear_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/boiled_leather_rear_arm_r.png",
+    "source_sha256": "25884323ae695ccc8e94f8712bec7c62c0a78fef35aaf2f81e35f2e6b8a5fb08",
+    "size": [
+      40,
+      59
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/boiled_leather/rear_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/boiled_leather_rear_hips.png",
+    "source_sha256": "60f4eb4a34d39a3a0623f3886782041d190c4d3e45e76b8bfe6f58e142d0578f",
+    "size": [
+      60,
+      36
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/boiled_leather/rear_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/boiled_leather_rear_torso.png",
+    "source_sha256": "e22da47fc3d413b78560e9c8590528fa6cfe5b76c33865b96cf41504beb02a3d",
+    "size": [
+      57,
+      43
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/bone_dice/front_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/bone_dice_front.png",
+    "source_sha256": "8713af63818cccec3af6a97d88b8010d082ef94ace28d4ed8affc59cdbd3139a",
+    "size": [
+      18,
+      22
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/bone_dice/rear_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/bone_dice_rear.png",
+    "source_sha256": "821274f7a3c915abeb045cfbaea3b823602d8e12b4b06a268aa88b191645d1bd",
+    "size": [
+      18,
+      22
     ]
   },
   "assets/units/protagonist_cutout/gear/buckler_of_nails/front_offhand.png": {
@@ -111,6 +191,22 @@
       43
     ]
   },
+  "assets/units/protagonist_cutout/gear/clockwork_arrowhead/front_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/clockwork_arrowhead_front.png",
+    "source_sha256": "fdab21ab4ba42247917b74bf7e30dc7990e095a22ac25a354163efbb41436507",
+    "size": [
+      16,
+      28
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/clockwork_arrowhead/rear_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/clockwork_arrowhead_rear.png",
+    "source_sha256": "9c15755553d35f072ae50d760a5484376e8a63c0044664989d3311df9e7ba222",
+    "size": [
+      16,
+      28
+    ]
+  },
   "assets/units/protagonist_cutout/gear/cracked_lantern/front_trinket.png": {
     "source": "spec/assets/visible_gear_slice/sources/cracked_lantern_front.png",
     "source_sha256": "e596d07b6cff273e1e1ac16a1f027e9f17e15ca3e51cf587d92a2a180d6c90d5",
@@ -159,6 +255,86 @@
       74
     ]
   },
+  "assets/units/protagonist_cutout/gear/dawnwalkers/front_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dawnwalkers_front_foot_l.png",
+    "source_sha256": "bc04c9a272c465c2afa0580477a711ea089e00a6a2d075020bfc3f31ab4e47c0",
+    "size": [
+      40,
+      30
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/dawnwalkers/front_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dawnwalkers_front_foot_r.png",
+    "source_sha256": "4fdb091911d3b1602d5d2e4595fb6b75664f4ca8297356741d468a4a6dca9fa0",
+    "size": [
+      40,
+      20
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/dawnwalkers/front_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dawnwalkers_front_shin_l.png",
+    "source_sha256": "916b28705f6489713a9b71fd7426ab18c7540e756063427066d68b6886a104de",
+    "size": [
+      36,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/dawnwalkers/front_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dawnwalkers_front_shin_r.png",
+    "source_sha256": "3b1490897e99f4bd009c8d2a05cc0d618b3ba85d102b8aa06e2c1454243dcae8",
+    "size": [
+      27,
+      27
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/dawnwalkers/rear_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dawnwalkers_rear_foot_l.png",
+    "source_sha256": "e838d09a05643c542510805a0868b7c5f326621708be8d22b333752009d5502a",
+    "size": [
+      33,
+      22
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/dawnwalkers/rear_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dawnwalkers_rear_foot_r.png",
+    "source_sha256": "39d2f1de13e67d724d6b1102c02ad3f59d66aa4328b8606a26c8ef7a2cb97840",
+    "size": [
+      39,
+      24
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/dawnwalkers/rear_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dawnwalkers_rear_shin_l.png",
+    "source_sha256": "e32e2d6966dd3eda04559989ec9f3b0b752bb3a7dad3fc826d70f3bfc223308b",
+    "size": [
+      30,
+      34
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/dawnwalkers/rear_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dawnwalkers_rear_shin_r.png",
+    "source_sha256": "30474460c53a0330b6741ad5e498686b72fe3b2310ce71eafa7498373d320697",
+    "size": [
+      27,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/doppel_doll/front_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/doppel_doll_front.png",
+    "source_sha256": "6f2041fdc25e04d9d8630f7a4f34817b7313e91645bc5b03a4bb4421e647a837",
+    "size": [
+      18,
+      30
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/doppel_doll/rear_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/doppel_doll_rear.png",
+    "source_sha256": "9606bc8a0ea44881592c5d418f2a1d072aaa61ae7b0fb21a5ac0882a233ac320",
+    "size": [
+      18,
+      30
+    ]
+  },
   "assets/units/protagonist_cutout/gear/duelist_rapier/front_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/duelist_rapier_front.png",
     "source_sha256": "47a596444706096a5ce887460bced9ee1f4cc3c344b910aab9babbfab559b194",
@@ -173,6 +349,94 @@
     "size": [
       99,
       71
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/dust_tabi/front_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dust_tabi_front_foot_l.png",
+    "source_sha256": "ffc67c0695cb8d21280ad8d4dded41c10473e9b58fce3ad8178623affa497c50",
+    "size": [
+      40,
+      30
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/dust_tabi/front_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dust_tabi_front_foot_r.png",
+    "source_sha256": "02bbb9329b294086fac0381b64b015a8b1e97b3982339fd7d93eb9a7e8afb715",
+    "size": [
+      40,
+      20
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/dust_tabi/front_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dust_tabi_front_shin_l.png",
+    "source_sha256": "fa1b149cdbfee71e99b8061a43abf7899ca27e35703f7563b898f63c6441e87b",
+    "size": [
+      36,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/dust_tabi/front_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dust_tabi_front_shin_r.png",
+    "source_sha256": "a0ccd5d849731059a7fcec24221430fb207bbbc91b03ed2226c9404f311e6356",
+    "size": [
+      27,
+      27
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/dust_tabi/rear_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dust_tabi_rear_foot_l.png",
+    "source_sha256": "b1b4c81e8a4bfc8bddc42c66f8644e51f844b125e4b4f15f5a6e4ad61f19ad21",
+    "size": [
+      33,
+      22
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/dust_tabi/rear_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dust_tabi_rear_foot_r.png",
+    "source_sha256": "95be790181e4a8ff4b889b43b4d63c035eed3944b6352e46d29175ecdc99c7b1",
+    "size": [
+      39,
+      24
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/dust_tabi/rear_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dust_tabi_rear_shin_l.png",
+    "source_sha256": "5bcc868541f1a1ff1386fadc192449fc67fdc138ff9e776bfec625f92206aea6",
+    "size": [
+      30,
+      34
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/dust_tabi/rear_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dust_tabi_rear_shin_r.png",
+    "source_sha256": "5ede69436c674957f8292553a3f5bda1461c4a2c7387eefd9ce087ae8ff4620c",
+    "size": [
+      27,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/ember_hourglass/front_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/ember_hourglass_front.png",
+    "source_sha256": "a126a361f0e82a4d8337a05eb9629d59343e22102332e08d2c441ccbbb908b90",
+    "size": [
+      14,
+      28
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/ember_hourglass/rear_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/ember_hourglass_rear.png",
+    "source_sha256": "64203bd3a5addc36870910d0f3e694af824ec1cec783d977f7702509ed846376",
+    "size": [
+      14,
+      28
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/ember_pendant/front_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/ember_pendant_front.png",
+    "source_sha256": "615d8857f8ccf2bf40cf484a1ac579b8bfbca87a31b2478ac4ff086cd57cefce",
+    "size": [
+      16,
+      24
     ]
   },
   "assets/units/protagonist_cutout/gear/emberstriders/front_foot_l.png": {
@@ -239,20 +503,180 @@
       40
     ]
   },
+  "assets/units/protagonist_cutout/gear/frostwalkers/front_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/frostwalkers_front_foot_l.png",
+    "source_sha256": "55378041530198da29816547e122200c2b5b6c19875a24be756821d90f1b265e",
+    "size": [
+      40,
+      30
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/frostwalkers/front_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/frostwalkers_front_foot_r.png",
+    "source_sha256": "3657cd3428be18c5b3072999d673fa1bc0c3f671f56a928b94557b72801184cf",
+    "size": [
+      40,
+      20
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/frostwalkers/front_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/frostwalkers_front_shin_l.png",
+    "source_sha256": "639422defdb5bbc71eec96925fd6c65139c0c34249116aa5125602991671cec5",
+    "size": [
+      36,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/frostwalkers/front_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/frostwalkers_front_shin_r.png",
+    "source_sha256": "7cf2ba48571b968b449e57581e28e5bd59d3e91d9a747f8515ea8349c6141724",
+    "size": [
+      27,
+      27
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/frostwalkers/rear_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/frostwalkers_rear_foot_l.png",
+    "source_sha256": "10dd90bd3f7a954e2771ac9ae5c11fd33b4169286cbc5aa7e4ca9f87630c93b0",
+    "size": [
+      33,
+      22
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/frostwalkers/rear_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/frostwalkers_rear_foot_r.png",
+    "source_sha256": "337a7abb7077c4201f88eedfc11a7074cc60b152e0a213000e8cd3b20f81707b",
+    "size": [
+      39,
+      24
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/frostwalkers/rear_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/frostwalkers_rear_shin_l.png",
+    "source_sha256": "e44df2db2ae88eb29ac1ff64c35224fbde78408228f5d7b6117f3b44ea3d5a0e",
+    "size": [
+      30,
+      34
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/frostwalkers/rear_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/frostwalkers_rear_shin_r.png",
+    "source_sha256": "b0bfd36cd98597998695fbd2933ffacddea5bf8409a1ddeb613760a0697ef4fa",
+    "size": [
+      27,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/gale_cloak/front_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/gale_cloak_front_arm_l.png",
+    "source_sha256": "dd63f0f948fb2f85e3df888ab14086c1f0d74b3793692610f11b40b7babd1d49",
+    "size": [
+      30,
+      48
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/gale_cloak/front_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/gale_cloak_front_arm_r.png",
+    "source_sha256": "7a5e540041260dd432e7f9d4e368af64b764cd23771fb4a70bd555517ce82db9",
+    "size": [
+      37,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/gale_cloak/front_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/gale_cloak_front_hips.png",
+    "source_sha256": "3fd7290efb2332d12d7dd826cac428e2d8a0659ea788f6d8c41d89b63947cce4",
+    "size": [
+      57,
+      48
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/gale_cloak/front_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/gale_cloak_front_torso.png",
+    "source_sha256": "e1adf53f72349670925f91be086a261202f5bb291262ba5ab41113507f712095",
+    "size": [
+      64,
+      44
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/gale_cloak/rear_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/gale_cloak_rear_arm_l.png",
+    "source_sha256": "cbc7ecec3bd78df5149f6bac40ad87912ed72d9b20d653c8aafc62d73035cbdf",
+    "size": [
+      30,
+      38
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/gale_cloak/rear_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/gale_cloak_rear_arm_r.png",
+    "source_sha256": "9713c3d209f313c0db9295d97852b6ce84eade640fbf612299ccf80f57f28ef4",
+    "size": [
+      40,
+      59
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/gale_cloak/rear_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/gale_cloak_rear_hips.png",
+    "source_sha256": "e0d09805454216483dea34cf080f95956d5d0bca8f19387ac44f98eeda5b166d",
+    "size": [
+      60,
+      49
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/gale_cloak/rear_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/gale_cloak_rear_torso.png",
+    "source_sha256": "2e741ed30eb1d528c9f9842316c2e23aed7cbab4d4f6af61c288017d2f129031",
+    "size": [
+      57,
+      43
+    ]
+  },
   "assets/units/protagonist_cutout/gear/galewhip/front_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/galewhip_front.png",
-    "source_sha256": "2696d5efca0df43bfc81088fc14d36714a5493bf229141c8b6ddf79d77f42087",
+    "source_sha256": "a8f86cc935f5e8839dbc0931b7d5a526e30a38dd15264731768ed76e10cdce41",
     "size": [
-      6,
-      84
+      12,
+      88
     ]
   },
   "assets/units/protagonist_cutout/gear/galewhip/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/galewhip_rear.png",
-    "source_sha256": "62f30f9b5901dfdf7b74be07d6bf2ca3a9b02e0618fa679fd1c1f51bcc975975",
+    "source_sha256": "b6204ee36e671108715439fa186a1010e971fdca3983f1efeb1d8c0a56ce7a35",
     "size": [
-      6,
-      84
+      12,
+      88
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/gamblers_watch/front_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/gamblers_watch_front.png",
+    "source_sha256": "ba8cb80090b047d38bb343e2a4c53c2fa0aa3f3ed0e26facbf2348859615464f",
+    "size": [
+      18,
+      26
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/gamblers_watch/rear_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/gamblers_watch_rear.png",
+    "source_sha256": "571f8dff24cdb9f576b3d25a7883cba59650204a5998527a41e3a64eb8127df4",
+    "size": [
+      18,
+      26
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/geode_charm/front_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/geode_charm_front.png",
+    "source_sha256": "74f3958ae6019fa8a3add805dd33352dd7dfec6a459709ca7e6ef3183af5b0c6",
+    "size": [
+      14,
+      24
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/geode_charm/rear_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/geode_charm_rear.png",
+    "source_sha256": "8c0a9afe8af8e300d1f69897b1b23e866f2c465435f1209545912e3f9ac7827d",
+    "size": [
+      14,
+      24
     ]
   },
   "assets/units/protagonist_cutout/gear/glacial_bulwark/front_offhand.png": {
@@ -271,20 +695,84 @@
       92
     ]
   },
-  "assets/units/protagonist_cutout/gear/grapple_hook/front_offhand.png": {
-    "source": "spec/assets/visible_gear_slice/sources/grapple_hook_front.png",
-    "source_sha256": "8d02124e6801d1bde54bb777a079adcaa6c0cadd3d45ff73360a8f73ec3f96c7",
+  "assets/units/protagonist_cutout/gear/glassbone_cuirass/front_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/glassbone_cuirass_front_arm_l.png",
+    "source_sha256": "39e6fc358e2aa51ea158f42a23456b20d815722135b27b9fd4fcdb76df2d47a3",
     "size": [
       30,
-      50
+      48
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/glassbone_cuirass/front_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/glassbone_cuirass_front_arm_r.png",
+    "source_sha256": "b4b7470f005b5d445adf3ec47e87c655626f54e943504bc45d4c8688d0c24686",
+    "size": [
+      37,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/glassbone_cuirass/front_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/glassbone_cuirass_front_hips.png",
+    "source_sha256": "51084588ad306b247ba7a0b29b0a0869cf5474821379ade6406f7bdf8e29fd65",
+    "size": [
+      57,
+      35
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/glassbone_cuirass/front_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/glassbone_cuirass_front_torso.png",
+    "source_sha256": "2d33a934914e403c8e417b9eb01e25fc74683594deb1dd49a1ec3603c4f4e9f0",
+    "size": [
+      64,
+      44
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/glassbone_cuirass/rear_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/glassbone_cuirass_rear_arm_l.png",
+    "source_sha256": "a99776df958d77d8a6113fd85c6e2711be5b5dc21010eccfd447a543ad2325e3",
+    "size": [
+      30,
+      38
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/glassbone_cuirass/rear_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/glassbone_cuirass_rear_arm_r.png",
+    "source_sha256": "744c06da57c1634f8f7091e7f9f7b12bf93a0854df77a964f7fc2db366684759",
+    "size": [
+      40,
+      59
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/glassbone_cuirass/rear_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/glassbone_cuirass_rear_hips.png",
+    "source_sha256": "74a35031cc2156a4f0eb7f248332d194ec72ed7058ef8946211dce0c623df295",
+    "size": [
+      60,
+      36
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/glassbone_cuirass/rear_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/glassbone_cuirass_rear_torso.png",
+    "source_sha256": "7118c5718ba41171fe77ad0b2374836ddb8dd8aa6b50e8adbac092b91268755e",
+    "size": [
+      57,
+      43
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/grapple_hook/front_offhand.png": {
+    "source": "spec/assets/visible_gear_slice/sources/grapple_hook_front.png",
+    "source_sha256": "bcbe952980285880f4475e2421867d413af67660e9e7d75afeb4cb0b2b11d802",
+    "size": [
+      40,
+      60
     ]
   },
   "assets/units/protagonist_cutout/gear/grapple_hook/rear_offhand.png": {
     "source": "spec/assets/visible_gear_slice/sources/grapple_hook_rear.png",
-    "source_sha256": "920add385b4e96e9f686b81e8a80dcc83a8be1fe0610ad0c3860ce9920dda065",
+    "source_sha256": "8cacd171cbd63683a817f554c56b6a2717321aa4d226bf33ae4af7962b013186",
     "size": [
-      30,
-      50
+      40,
+      60
     ]
   },
   "assets/units/protagonist_cutout/gear/grave_greatsword/front_weapon_r.png": {
@@ -303,36 +791,180 @@
       85
     ]
   },
-  "assets/units/protagonist_cutout/gear/hookspine_halberd/front_weapon_r.png": {
-    "source": "spec/assets/visible_gear_slice/sources/hookspine_halberd_front.png",
-    "source_sha256": "71f1e0f18d07192e1b9abda17c1445c83aad62181e5dfd5dbc2c5e6e474865d8",
+  "assets/units/protagonist_cutout/gear/gravewind_soles/front_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/gravewind_soles_front_foot_l.png",
+    "source_sha256": "529415fdce31daa134cf8ba172d6d7126640e1d67930887eee92eaa4f3c66cfb",
+    "size": [
+      40,
+      30
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/gravewind_soles/front_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/gravewind_soles_front_foot_r.png",
+    "source_sha256": "2886163b071d9a9267e942bf3f3fdab0f26e6bae0e14129c1f282b7d3d387950",
+    "size": [
+      40,
+      20
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/gravewind_soles/front_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/gravewind_soles_front_shin_l.png",
+    "source_sha256": "ce6cc17114e5bce4ecaaf66ce23afa4b4a41c6205bee3484b5a0becf580dafc5",
+    "size": [
+      36,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/gravewind_soles/front_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/gravewind_soles_front_shin_r.png",
+    "source_sha256": "b59e19a57a8767af82834236cdeebafeb1405cd2ad2b17930b6f75e75e7da347",
+    "size": [
+      27,
+      27
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/gravewind_soles/rear_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/gravewind_soles_rear_foot_l.png",
+    "source_sha256": "a4f303ca15eef8f137cba08087a18444c691b049e4d3b469a0fab6180c1c3d78",
     "size": [
       33,
-      184
+      22
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/gravewind_soles/rear_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/gravewind_soles_rear_foot_r.png",
+    "source_sha256": "0d7893e4eaef9a83e9d21a6e928fb7b9b0ce36c9dcafb21603c9791aaf23ead8",
+    "size": [
+      39,
+      24
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/gravewind_soles/rear_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/gravewind_soles_rear_shin_l.png",
+    "source_sha256": "1b1631f2b28501770628ea95f881b0524bee35f87a9633d73e560923feac1cde",
+    "size": [
+      30,
+      34
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/gravewind_soles/rear_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/gravewind_soles_rear_shin_r.png",
+    "source_sha256": "5c33d1ad825c92b5fc4d069b750b84cf5fd6d964bdc886e4af14bb0169fe4744",
+    "size": [
+      27,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/headsmans_coin/front_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/headsmans_coin_front.png",
+    "source_sha256": "36170cf3e38a0d54db81c3ae35b3a20d71999d3da3702f16e56c572b9e8c29cc",
+    "size": [
+      18,
+      26
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/headsmans_coin/rear_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/headsmans_coin_rear.png",
+    "source_sha256": "bc3e00203e0727cfa21d74279bb18362e57c91b74a801f7175bd2308772cdcd2",
+    "size": [
+      18,
+      26
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/hobnail_grips/front_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/hobnail_grips_front_foot_l.png",
+    "source_sha256": "9acff8259d11964e94588c5dc494143be3b5b19a0cba8fa24b2bb3cf7c53890c",
+    "size": [
+      40,
+      30
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/hobnail_grips/front_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/hobnail_grips_front_foot_r.png",
+    "source_sha256": "bf93d8c4660f4be15abd5fda1bd7661dd9486720a7a016a2e8dc0bd6832baf2f",
+    "size": [
+      40,
+      20
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/hobnail_grips/front_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/hobnail_grips_front_shin_l.png",
+    "source_sha256": "4428914984a2fcf450d66d310bc56cfb4ec66572ea323f4bb2ab2e398988f3fc",
+    "size": [
+      36,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/hobnail_grips/front_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/hobnail_grips_front_shin_r.png",
+    "source_sha256": "b9f291054f28fba4f5b83ce4c09f43b18de789a90edc078328cf074c21815fae",
+    "size": [
+      27,
+      27
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/hobnail_grips/rear_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/hobnail_grips_rear_foot_l.png",
+    "source_sha256": "33fa7de6d72f2e55087d16db2b5dc388dc8247870c31917f974c5973c5c89cdb",
+    "size": [
+      33,
+      22
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/hobnail_grips/rear_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/hobnail_grips_rear_foot_r.png",
+    "source_sha256": "7afc7ee24488cd120703d8c5fc676a7419a084ef0d5cd32a85afc04fc438f566",
+    "size": [
+      39,
+      24
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/hobnail_grips/rear_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/hobnail_grips_rear_shin_l.png",
+    "source_sha256": "85af34feecf10c01d7fde50c575fb54decfcd25fb5be38517a4f3f45596da586",
+    "size": [
+      30,
+      34
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/hobnail_grips/rear_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/hobnail_grips_rear_shin_r.png",
+    "source_sha256": "85d72d862f229bb8cc20e61c6af13c632d026e13c95b2abb835be319bbe98581",
+    "size": [
+      27,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/hookspine_halberd/front_weapon_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/hookspine_halberd_front.png",
+    "source_sha256": "ceadd1f47d547aca2af83b099debd56089121ba11c5da006d2db85b2a864f915",
+    "size": [
+      70,
+      172
     ]
   },
   "assets/units/protagonist_cutout/gear/hookspine_halberd/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/hookspine_halberd_rear.png",
-    "source_sha256": "4601d7d1c24e38c67f3f212718b7f1082fd9cd447d22f1f30bed33967276f403",
+    "source_sha256": "9f86a03577f0286a3521865c9096da8c51276fc8400a811e2f506b5ec3d7cb46",
     "size": [
-      33,
-      184
+      70,
+      172
     ]
   },
   "assets/units/protagonist_cutout/gear/hunting_spear/front_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/hunting_spear_front.png",
-    "source_sha256": "006b0e4a647e2bab965ece5291cf97b81e65466f1891325b680459d985d0a838",
+    "source_sha256": "321ba6be3f95cddbb4b8914b9eb3bf53ab77e82e9fd9af9dc3cb70dcf89098d0",
     "size": [
-      20,
-      190
+      61,
+      172
     ]
   },
   "assets/units/protagonist_cutout/gear/hunting_spear/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/hunting_spear_rear.png",
-    "source_sha256": "34fa161b1e86fad92f0bf18ea584fd96fb7bedf84bebb85a1c5e2bd3e5f36e50",
+    "source_sha256": "86303be65949f70913a180970741536cd1f768d96e42f46f5584f9fe7c4bc29e",
     "size": [
-      20,
-      190
+      61,
+      172
     ]
   },
   "assets/units/protagonist_cutout/gear/iron_cleaver/front_weapon_r.png": {
@@ -447,20 +1079,100 @@
       88
     ]
   },
+  "assets/units/protagonist_cutout/gear/monks_wraps/front_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/monks_wraps_front_foot_l.png",
+    "source_sha256": "28611610e8ff713bf446a0f165e22b49b4deed84b4860d7d42874ff624ac217b",
+    "size": [
+      40,
+      30
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/monks_wraps/front_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/monks_wraps_front_foot_r.png",
+    "source_sha256": "aab2ad067e06acce4373001a525fac43805dca559a0a2717486fe14162d1a922",
+    "size": [
+      40,
+      20
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/monks_wraps/front_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/monks_wraps_front_shin_l.png",
+    "source_sha256": "39abeb253ee7e59438f3d2acfbc56f6d668a41d02ec9489163a11e5a04d7cd7e",
+    "size": [
+      36,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/monks_wraps/front_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/monks_wraps_front_shin_r.png",
+    "source_sha256": "77776f5edf6d2a2519d58e197105b6a1dbd226cc1a9363506115264bef007ee8",
+    "size": [
+      27,
+      27
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/monks_wraps/rear_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/monks_wraps_rear_foot_l.png",
+    "source_sha256": "d218ad973e4d15f46e1bbcce3329a4373ee4fa6e21e056b477f9e4207c3d4a0f",
+    "size": [
+      33,
+      22
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/monks_wraps/rear_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/monks_wraps_rear_foot_r.png",
+    "source_sha256": "0c5fe3770e5b037d0e88ebf7850655e11e0f4bddb7bcbb88dea407e5244b60b9",
+    "size": [
+      39,
+      24
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/monks_wraps/rear_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/monks_wraps_rear_shin_l.png",
+    "source_sha256": "9fbe4137a819b1f9813a55e5532483c79514403a6e621ab4b68f41b8311cfd74",
+    "size": [
+      30,
+      34
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/monks_wraps/rear_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/monks_wraps_rear_shin_r.png",
+    "source_sha256": "7f8a58ad8a5ead092de511a804693f501e3047578a4b1fab28113de4007c69f1",
+    "size": [
+      27,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/oathstone/front_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/oathstone_front.png",
+    "source_sha256": "f8796109326abfbc108beaa18433adab33073518bb72f6b0ac5be2bcb0c55a15",
+    "size": [
+      16,
+      26
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/oathstone/rear_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/oathstone_rear.png",
+    "source_sha256": "3a3f0e024e64e17076bdee10af7658cc25313c292a2df116642d8cf731bfe1de",
+    "size": [
+      16,
+      26
+    ]
+  },
   "assets/units/protagonist_cutout/gear/parrying_dagger/front_offhand.png": {
     "source": "spec/assets/visible_gear_slice/sources/parrying_dagger_front.png",
-    "source_sha256": "12356f19a38def7019d0f6d03ff2c7b35308a10c8e5671aee8f3e126143bbad2",
+    "source_sha256": "b70bc74f98f57384cf1b73d43ac8aec5bb802208f18f09e28a190c9ca624b2c8",
     "size": [
-      28,
-      46
+      29,
+      42
     ]
   },
   "assets/units/protagonist_cutout/gear/parrying_dagger/rear_offhand.png": {
     "source": "spec/assets/visible_gear_slice/sources/parrying_dagger_rear.png",
-    "source_sha256": "a72623333576d921a68f35c2fa4f97075fa8dd65202a3bdf5bb8af71675946d7",
+    "source_sha256": "a42e3c494a1a3d572bfebec9d3dfad34113289c023c1f7a7fbd4e59d5fffa7cc",
     "size": [
-      20,
-      48
+      29,
+      42
     ]
   },
   "assets/units/protagonist_cutout/gear/phoenix_brand/front_weapon_r.png": {
@@ -479,6 +1191,142 @@
       74
     ]
   },
+  "assets/units/protagonist_cutout/gear/pilgrim_vestments/front_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/pilgrim_vestments_front_arm_l.png",
+    "source_sha256": "6ff31005053a0a84835b39797941754833b1414998a263d664d93f8b3a2d1269",
+    "size": [
+      30,
+      48
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/pilgrim_vestments/front_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/pilgrim_vestments_front_arm_r.png",
+    "source_sha256": "d8336f394bfa7b98993210812998cc0848dcb689d78491b2fe069826d82ea555",
+    "size": [
+      37,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/pilgrim_vestments/front_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/pilgrim_vestments_front_hips.png",
+    "source_sha256": "7c21c6e0f6453705553195edb21d3373134a0c44a4c4c04398d22a626356448a",
+    "size": [
+      57,
+      47
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/pilgrim_vestments/front_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/pilgrim_vestments_front_torso.png",
+    "source_sha256": "cd9f24632666fc4638121c4e526693f17db46f1bcf9d654c46ac304ed68de95b",
+    "size": [
+      64,
+      44
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/pilgrim_vestments/rear_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/pilgrim_vestments_rear_arm_l.png",
+    "source_sha256": "19dd334feff27f27aa063a8d11c81178a18e3aeeea03ff3a082f0dc27ad0a7d5",
+    "size": [
+      30,
+      38
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/pilgrim_vestments/rear_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/pilgrim_vestments_rear_arm_r.png",
+    "source_sha256": "a04ebb05b02a634861b86317641968441f752816047b71f0884f2ed2871ce0f5",
+    "size": [
+      40,
+      59
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/pilgrim_vestments/rear_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/pilgrim_vestments_rear_hips.png",
+    "source_sha256": "f173156c57382f248892e01924f75edaffd19e2167ef45da7fbf2471422573d0",
+    "size": [
+      60,
+      48
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/pilgrim_vestments/rear_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/pilgrim_vestments_rear_torso.png",
+    "source_sha256": "faf0de78e8ce0da047c7173b58aa4d549c3f97c0afad2c9529fd6ea103c659ef",
+    "size": [
+      57,
+      43
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/quarrymail/front_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/quarrymail_front_arm_l.png",
+    "source_sha256": "665cf65e58c6ee61e7d78a205f2c97623f738fb78177e8ecd06b2cb698016dcb",
+    "size": [
+      30,
+      48
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/quarrymail/front_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/quarrymail_front_arm_r.png",
+    "source_sha256": "19a847e5b5902093774b5a933240933c0d9a45e230d5bc5d79e202838eb9a741",
+    "size": [
+      37,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/quarrymail/front_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/quarrymail_front_hips.png",
+    "source_sha256": "642cf41d05e64b4ccfe2f2b9b0f9703b0c761a6a636e5c856b16f452cc6fe1d5",
+    "size": [
+      57,
+      35
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/quarrymail/front_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/quarrymail_front_torso.png",
+    "source_sha256": "8f417dd8baaf2ff82d85d8d29796d1285e1c350faa3db5d1252b832de5e929f7",
+    "size": [
+      64,
+      44
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/quarrymail/rear_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/quarrymail_rear_arm_l.png",
+    "source_sha256": "11bde2c5619b29a38dc7634eda368c9ab696d1216a15b6c4d97847f7f87111d9",
+    "size": [
+      30,
+      38
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/quarrymail/rear_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/quarrymail_rear_arm_r.png",
+    "source_sha256": "52deb814d587fd546cb286fc641f06de6798420e7e86af76d45ed7ab240553ae",
+    "size": [
+      40,
+      59
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/quarrymail/rear_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/quarrymail_rear_hips.png",
+    "source_sha256": "806a9f93ae74aa347d3a60cdf5befa4f1ac681f26a857ca2d568ab9ad4460375",
+    "size": [
+      60,
+      36
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/quarrymail/rear_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/quarrymail_rear_torso.png",
+    "source_sha256": "50a301dd405dd5c87a59a0a3759f4f1351b9bb580a4496e2507851c432cdc342",
+    "size": [
+      57,
+      43
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/rime_locket/front_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/rime_locket_front.png",
+    "source_sha256": "00abe05305e1dd374f9d97537ce3c7e043255dae7444fb7c777d143d6262e019",
+    "size": [
+      16,
+      24
+    ]
+  },
   "assets/units/protagonist_cutout/gear/rimebite_hatchet/front_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/rimebite_hatchet_front.png",
     "source_sha256": "8156ff14a534b7819a2b43de663037eb2ed4e6108445979bb24c0c40a3c794ff",
@@ -493,6 +1341,70 @@
     "size": [
       74,
       60
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/rimeplate_harness/front_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/rimeplate_harness_front_arm_l.png",
+    "source_sha256": "11c134c8b9e3019530d805abb70d8335575cac70a3ed9065268a87fa26c2031b",
+    "size": [
+      30,
+      48
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/rimeplate_harness/front_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/rimeplate_harness_front_arm_r.png",
+    "source_sha256": "a5858234f2fb98dddd065d98a782122a357f137f2400e2ba8562d97b3f9f2d6a",
+    "size": [
+      37,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/rimeplate_harness/front_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/rimeplate_harness_front_hips.png",
+    "source_sha256": "a56b70e07598a7661350d88b44c6d0991194f8990e5d0159fb53343e099e3ea6",
+    "size": [
+      57,
+      35
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/rimeplate_harness/front_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/rimeplate_harness_front_torso.png",
+    "source_sha256": "f643f93412d71a99c4c375dfddc5fda1f1459952d86645dfa71c1814aa567650",
+    "size": [
+      64,
+      44
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/rimeplate_harness/rear_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/rimeplate_harness_rear_arm_l.png",
+    "source_sha256": "debc7b84cedbad4f74aba8dfa7dbdd9ad45efc66af797a6b41e8de608744fab1",
+    "size": [
+      30,
+      38
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/rimeplate_harness/rear_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/rimeplate_harness_rear_arm_r.png",
+    "source_sha256": "6ea4171f30ccfb1067693c5654f12e9ebfa79a13470f113a1a4380a259e98bcf",
+    "size": [
+      40,
+      59
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/rimeplate_harness/rear_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/rimeplate_harness_rear_hips.png",
+    "source_sha256": "1090b2924d01d72841d08d2e014246398c3ebd83570f6a2a609075ae77c22389",
+    "size": [
+      60,
+      36
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/rimeplate_harness/rear_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/rimeplate_harness_rear_torso.png",
+    "source_sha256": "3ff0eb1376d8096db90595c3fc86ff5d5c10c261c7108fc56b5283f0dce63595",
+    "size": [
+      57,
+      43
     ]
   },
   "assets/units/protagonist_cutout/gear/sawtooth_knife/front_weapon_r.png": {
@@ -511,6 +1423,14 @@
       33
     ]
   },
+  "assets/units/protagonist_cutout/gear/sealed_cyclone/front_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/sealed_cyclone_front.png",
+    "source_sha256": "5c61be338c1b2b8586dd100026698b2d1d8d46a49af48ea58cbe82aeb75c4330",
+    "size": [
+      20,
+      26
+    ]
+  },
   "assets/units/protagonist_cutout/gear/splintered_shield/front_offhand.png": {
     "source": "spec/assets/visible_gear_slice/sources/splintered_shield_front.png",
     "source_sha256": "764c85250cdd826e25cce85bc6b7886b1f1131ce90fe5e2ec0c9c2ac9f533c77",
@@ -527,20 +1447,228 @@
       72
     ]
   },
+  "assets/units/protagonist_cutout/gear/static_spurs/front_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/static_spurs_front_foot_l.png",
+    "source_sha256": "87816458c2cc0b038af554e1e340a028d1e352eaa101dc56a315de6c3ecac585",
+    "size": [
+      40,
+      30
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/static_spurs/front_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/static_spurs_front_foot_r.png",
+    "source_sha256": "381bc1edb4b3e3de27c40727b20c737c99b7b943458fa4893a318e33037254b0",
+    "size": [
+      40,
+      20
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/static_spurs/front_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/static_spurs_front_shin_l.png",
+    "source_sha256": "fcbaa20f5255a51512c5e948460a971e7d0dc6ccd608f0d46b84224ae6afd6ed",
+    "size": [
+      36,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/static_spurs/front_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/static_spurs_front_shin_r.png",
+    "source_sha256": "66f0aea281e9267c0592ca1faeafe3e0b97ff85bc613e88a880e0ae7b7efcecc",
+    "size": [
+      27,
+      27
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/static_spurs/rear_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/static_spurs_rear_foot_l.png",
+    "source_sha256": "361472cd4451491260340a5ba52a0a5c21e47f4518e505455f7c566a161be288",
+    "size": [
+      33,
+      22
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/static_spurs/rear_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/static_spurs_rear_foot_r.png",
+    "source_sha256": "55ff37608af502a1b595275ac4d033450d20df7eaf9fe890f8a083862683f4fb",
+    "size": [
+      39,
+      24
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/static_spurs/rear_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/static_spurs_rear_shin_l.png",
+    "source_sha256": "ac550188e68c01f15948cc330310c1b777e815fb040c02f6c69234d7b2f75855",
+    "size": [
+      30,
+      34
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/static_spurs/rear_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/static_spurs_rear_shin_r.png",
+    "source_sha256": "9e179ee17b781bb11ec64a1118395fc554aab03527e2823ad4127a587d184d87",
+    "size": [
+      27,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stitcher_apron/front_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stitcher_apron_front_arm_l.png",
+    "source_sha256": "90f33abd80bf344074f2b9ea693b232f7eae5ba7287968b1334ff5d7f80631cb",
+    "size": [
+      30,
+      48
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stitcher_apron/front_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stitcher_apron_front_arm_r.png",
+    "source_sha256": "c1a75a2e98d029d54c61ecd65c3fabd093225b451c6739ca62a2df34d9c9770e",
+    "size": [
+      37,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stitcher_apron/front_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stitcher_apron_front_hips.png",
+    "source_sha256": "2142e37e0103c4959601eedd02d45780a2dbfec46766ceae3cfd0fc32dc3505c",
+    "size": [
+      57,
+      47
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stitcher_apron/front_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stitcher_apron_front_torso.png",
+    "source_sha256": "130e00214b8a182e98552d97023f6c63897749de9b879b4db89ecd7d7bdc0832",
+    "size": [
+      64,
+      44
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stitcher_apron/rear_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stitcher_apron_rear_arm_l.png",
+    "source_sha256": "9ce9ac4ca6539d0e598512ae44de5695882b2d3ebe51ebf3ca25d14151dd24b1",
+    "size": [
+      30,
+      38
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stitcher_apron/rear_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stitcher_apron_rear_arm_r.png",
+    "source_sha256": "7bbd7b9538433f2187e8d11fc219020fceb6fd8ed631db9c03faa859bfd0169b",
+    "size": [
+      40,
+      59
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stitcher_apron/rear_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stitcher_apron_rear_hips.png",
+    "source_sha256": "3e18a0a103b1e7268b8d753b86957cb8d8db58a92a583edf5094cf9f725b9de9",
+    "size": [
+      60,
+      47
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stitcher_apron/rear_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stitcher_apron_rear_torso.png",
+    "source_sha256": "798506c654b4129ca1d93ac846a7e42aee9b93360bfc08796d7f8252ac5bbbf3",
+    "size": [
+      57,
+      43
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stormglass_orb/front_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stormglass_orb_front.png",
+    "source_sha256": "f1345659cc4bd7c28a92029ff1c605d320b6b643cfdc0f835990c5a11148e3ad",
+    "size": [
+      20,
+      26
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stormglass_orb/rear_trinket.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stormglass_orb_rear.png",
+    "source_sha256": "0e307414201df73b71cdc607a57a98c755912859f4959f1e7ad3918300264a60",
+    "size": [
+      20,
+      26
+    ]
+  },
   "assets/units/protagonist_cutout/gear/stormstring_bow/front_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/stormstring_bow_front.png",
-    "source_sha256": "340bab80c7fdc42594d8d53df91f87edb43a6675a7ff2dc700b969e21fa18948",
+    "source_sha256": "89a7c074616003b803839187dd1e4aeabefb7e9fb00597050c5e93d8c3452733",
     "size": [
-      21,
-      110
+      38,
+      105
     ]
   },
   "assets/units/protagonist_cutout/gear/stormstring_bow/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/stormstring_bow_rear.png",
-    "source_sha256": "99e83bc38a21048467702d1feaf42b668dc302af4a0159cfa7730ad95e2677d9",
+    "source_sha256": "f728b17991244c3b34f5c6d8fd94902858e23b6ef944ce486c991bb8a7904cde",
     "size": [
-      21,
-      110
+      38,
+      105
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stormweave_robe/front_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stormweave_robe_front_arm_l.png",
+    "source_sha256": "acb3435032ad83b03795312226767435b009950175f1fbae5e5d40ef621392a4",
+    "size": [
+      30,
+      48
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stormweave_robe/front_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stormweave_robe_front_arm_r.png",
+    "source_sha256": "b44b3ae2dde8c33fe0c9c0143c248c3db076fe9d9de38b58cce864db9278000a",
+    "size": [
+      37,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stormweave_robe/front_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stormweave_robe_front_hips.png",
+    "source_sha256": "d2c922fee39b6344058a1d037230578ed342f77468c7a1ad6ac3ec99db0d340f",
+    "size": [
+      57,
+      48
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stormweave_robe/front_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stormweave_robe_front_torso.png",
+    "source_sha256": "f3297410b27abbc87bee35be687dcb69a266a2808bd312fefb85c9fa03709d21",
+    "size": [
+      64,
+      44
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stormweave_robe/rear_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stormweave_robe_rear_arm_l.png",
+    "source_sha256": "696bcf658c611755cb84927917b6540445e49d2db14a1b5d888a85e44fad4dd4",
+    "size": [
+      30,
+      38
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stormweave_robe/rear_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stormweave_robe_rear_arm_r.png",
+    "source_sha256": "da9ee628f22aacec765d9ff245d746a547464bea0a616228fdf5120687a66fcb",
+    "size": [
+      40,
+      59
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stormweave_robe/rear_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stormweave_robe_rear_hips.png",
+    "source_sha256": "5cc34684264ceb598221128de59c70b2f2f96e99ab29a3dc684e99edd4821431",
+    "size": [
+      60,
+      49
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/stormweave_robe/rear_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stormweave_robe_rear_torso.png",
+    "source_sha256": "ea9d34c82a4f18ca06e423987eda6da75cf55101937933fb823c9ffc69813dae",
+    "size": [
+      57,
+      43
     ]
   },
   "assets/units/protagonist_cutout/gear/sunken_anchor/front_offhand.png": {
@@ -575,6 +1703,70 @@
       70
     ]
   },
+  "assets/units/protagonist_cutout/gear/thornmail/front_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/thornmail_front_arm_l.png",
+    "source_sha256": "ec7884bd5ce3804a11070c1eb58776b284e038a477a041196e4646cb33d6ba0b",
+    "size": [
+      30,
+      48
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/thornmail/front_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/thornmail_front_arm_r.png",
+    "source_sha256": "b0e00a4f896dc29952987a37136f72435863c6b8a70830e89977119c86321093",
+    "size": [
+      37,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/thornmail/front_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/thornmail_front_hips.png",
+    "source_sha256": "9058652b638d56ee355aa42b7cf97f3c533a98540a273438a8b969955dc994bf",
+    "size": [
+      57,
+      35
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/thornmail/front_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/thornmail_front_torso.png",
+    "source_sha256": "ff8d37bdc1352e0e90543768f92e3058e718dcdb8b661a68e9416704773d5099",
+    "size": [
+      64,
+      44
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/thornmail/rear_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/thornmail_rear_arm_l.png",
+    "source_sha256": "5b8a3a31b1c122b4f25409af2fcd3fdd4030487d5c298b7da8794ba54e210124",
+    "size": [
+      30,
+      38
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/thornmail/rear_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/thornmail_rear_arm_r.png",
+    "source_sha256": "85f2c7fb040bb1103eb8e2efb838f8a47d753f266686458751f3813392427f4d",
+    "size": [
+      40,
+      59
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/thornmail/rear_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/thornmail_rear_hips.png",
+    "source_sha256": "499a49ef8101b20a11769a3bb061af487869d684a866f25b1e82a884ae135a0d",
+    "size": [
+      60,
+      36
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/thornmail/rear_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/thornmail_rear_torso.png",
+    "source_sha256": "d0f538e714b478c2135f4d5696478f5f847efd70c1e8c705031c0821e81aa942",
+    "size": [
+      57,
+      43
+    ]
+  },
   "assets/units/protagonist_cutout/gear/tinkers_knives/front_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/tinkers_knives_front.png",
     "source_sha256": "093c6d41753add0a487d642f0ee44b79d9b37b54463ab5cebff9eb7f617c8719",
@@ -593,18 +1785,18 @@
   },
   "assets/units/protagonist_cutout/gear/tourney_lance/front_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/tourney_lance_front.png",
-    "source_sha256": "90d01063900c648ab4238d08cecddba5117369d818f437080472c69108600f73",
+    "source_sha256": "f14d89bea87cf555efc280448817ae82c2715b8fa23d897807743aef5535004c",
     "size": [
-      22,
-      160
+      63,
+      168
     ]
   },
   "assets/units/protagonist_cutout/gear/tourney_lance/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/tourney_lance_rear.png",
-    "source_sha256": "98911d4271d58b16f92cc9a53a491a0dbf534090200f2eccff9fb495db780b12",
+    "source_sha256": "f35403fbb7f9e2ef81074907cbd5e18583c3e5ec3d7f781daf68055758b8b051",
     "size": [
-      22,
-      160
+      63,
+      168
     ]
   },
   "assets/units/protagonist_cutout/gear/tower_shield/front_offhand.png": {
@@ -682,6 +1874,70 @@
   "assets/units/protagonist_cutout/gear/undertaker_plate/rear_torso.png": {
     "source": "spec/assets/visible_gear_slice/sources/undertaker_plate_rear_torso.png",
     "source_sha256": "e1ffbdbafb407a04565cfd80ebbc41b6acf54ca1b7f478a0f73abc8ecaa4e114",
+    "size": [
+      57,
+      43
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/voidsilk_carapace/front_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/voidsilk_carapace_front_arm_l.png",
+    "source_sha256": "cc73ecf43a730c0eaaf7672504fd74031ca69aa4190ee7194eb3d6da7a3b61d2",
+    "size": [
+      30,
+      48
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/voidsilk_carapace/front_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/voidsilk_carapace_front_arm_r.png",
+    "source_sha256": "3e91bbfcd78ca505ae7c96ac3374add830cea9a7a0405b4d2e030ed6702644ab",
+    "size": [
+      37,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/voidsilk_carapace/front_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/voidsilk_carapace_front_hips.png",
+    "source_sha256": "9a2e2a0fd99fac72192a7e19af587517981d058bfe8bdd808738ed7cd41216c4",
+    "size": [
+      57,
+      35
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/voidsilk_carapace/front_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/voidsilk_carapace_front_torso.png",
+    "source_sha256": "c00231af8621054f2f1fd6dee89cf14971f395552b76a6e4daced5afc2102b9c",
+    "size": [
+      64,
+      44
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/voidsilk_carapace/rear_arm_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/voidsilk_carapace_rear_arm_l.png",
+    "source_sha256": "e493f6cda6f2e1b531333c805dc5d2ad2744eba4cfc20eb723f2d364566de483",
+    "size": [
+      30,
+      38
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/voidsilk_carapace/rear_arm_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/voidsilk_carapace_rear_arm_r.png",
+    "source_sha256": "a9dbc22fd44f76bbb7efdc4dfbfd9668e94a3f84a0cab5b2604897741bd19da1",
+    "size": [
+      40,
+      59
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/voidsilk_carapace/rear_hips.png": {
+    "source": "spec/assets/visible_gear_slice/sources/voidsilk_carapace_rear_hips.png",
+    "source_sha256": "1e0b60b1e89203078c414feff11f6f7d70905c96f485fca0cc8b20562f225c9b",
+    "size": [
+      60,
+      36
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/voidsilk_carapace/rear_torso.png": {
+    "source": "spec/assets/visible_gear_slice/sources/voidsilk_carapace_rear_torso.png",
+    "source_sha256": "56b7ed7a39bbf60373fb116850eb7fc4b9dd4e5953b858ea998f05ea5eaee9a1",
     "size": [
       57,
       43
@@ -781,6 +2037,70 @@
     "size": [
       104,
       84
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/worldroot_greaves/front_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/worldroot_greaves_front_foot_l.png",
+    "source_sha256": "dba4b0c9e2fd8760a373d4b9fcee6f98769af1da26775d507fde1ed675f9cf31",
+    "size": [
+      40,
+      30
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/worldroot_greaves/front_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/worldroot_greaves_front_foot_r.png",
+    "source_sha256": "2d0c5ecc74b4c92a641ae7c89931fa865e2a9c4a735fc1a75b7584c36e485c64",
+    "size": [
+      40,
+      20
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/worldroot_greaves/front_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/worldroot_greaves_front_shin_l.png",
+    "source_sha256": "70ad33fdf6dffd7fc6ea5539744c7cfc01c3f13048d4bd6dab96077f5b3bf15a",
+    "size": [
+      36,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/worldroot_greaves/front_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/worldroot_greaves_front_shin_r.png",
+    "source_sha256": "f2e93636106078f73ef25f979eab8aac6c97f486954841677ca53d45e737997a",
+    "size": [
+      27,
+      27
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/worldroot_greaves/rear_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/worldroot_greaves_rear_foot_l.png",
+    "source_sha256": "b03d49a0b15c75b7892bf0a1e4f70c149ab1ff181aa1e8bd7a327d3a40777573",
+    "size": [
+      33,
+      22
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/worldroot_greaves/rear_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/worldroot_greaves_rear_foot_r.png",
+    "source_sha256": "9eef62d6ff1790e9d72e6597c579863bbe4f6028e696859ca79a46eb9b5ff171",
+    "size": [
+      39,
+      24
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/worldroot_greaves/rear_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/worldroot_greaves_rear_shin_l.png",
+    "source_sha256": "0a029f04bee31ce70eb3105f1e6dc078df83aa4579ec5ac05bbb000690349202",
+    "size": [
+      30,
+      34
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/worldroot_greaves/rear_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/worldroot_greaves_rear_shin_r.png",
+    "source_sha256": "99692344af195e60743c24a193fcea52f34f5f6c180e1bf8d50f090e1eee351f",
+    "size": [
+      27,
+      40
     ]
   }
 }

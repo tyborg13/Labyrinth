@@ -54,7 +54,8 @@
               "offset": [
                 152,
                 133
-              ]
+              ],
+              "z_index": 5
             }
           ],
           "weapon_grip": {
@@ -113,7 +114,8 @@
               "offset": [
                 156,
                 136
-              ]
+              ],
+              "z_index": 5
             }
           ],
           "weapon_grip": {
@@ -203,7 +205,6 @@
     },
     "parrying_dagger": {
       "slot": "offhand",
-      "held": "hand",
       "facings": {
         "front": {
           "attach": [
@@ -212,10 +213,11 @@
               "file": "gear/parrying_dagger/front_offhand.png",
               "bone": "hand_l",
               "offset": [
-                148,
+                157,
                 134
               ],
-              "z_index": 48
+              "z_index": 50,
+              "occluded_by": "hand_l"
             }
           ]
         },
@@ -226,14 +228,16 @@
               "file": "gear/parrying_dagger/rear_offhand.png",
               "bone": "hand_l",
               "offset": [
-                64,
-                128
+                67,
+                123
               ],
-              "z_index": 6
+              "z_index": 6,
+              "occluded_by": "hand_l"
             }
           ]
         }
-      }
+      },
+      "held": "hand"
     },
     "patched_cloak": {
       "slot": "armor",
@@ -623,7 +627,8 @@
               "offset": [
                 158,
                 131
-              ]
+              ],
+              "z_index": 5
             }
           ],
           "weapon_grip": {
@@ -682,7 +687,8 @@
               "offset": [
                 157,
                 136
-              ]
+              ],
+              "z_index": 5
             }
           ],
           "weapon_grip": {
@@ -741,7 +747,8 @@
               "offset": [
                 156,
                 135
-              ]
+              ],
+              "z_index": 5
             }
           ],
           "weapon_grip": {
@@ -800,7 +807,8 @@
               "offset": [
                 153,
                 134
-              ]
+              ],
+              "z_index": 5
             }
           ],
           "weapon_grip": {
@@ -859,7 +867,8 @@
               "offset": [
                 155,
                 133
-              ]
+              ],
+              "z_index": 5
             }
           ],
           "weapon_grip": {
@@ -918,7 +927,8 @@
               "offset": [
                 159,
                 135
-              ]
+              ],
+              "z_index": 5
             }
           ],
           "weapon_grip": {
@@ -977,7 +987,8 @@
               "offset": [
                 158,
                 138
-              ]
+              ],
+              "z_index": 5
             }
           ],
           "weapon_grip": {
@@ -1036,7 +1047,8 @@
               "offset": [
                 160,
                 137
-              ]
+              ],
+              "z_index": 5
             }
           ],
           "weapon_grip": {
@@ -1067,7 +1079,7 @@
               "part": "weapon_r",
               "file": "gear/galewhip/front_weapon_r.png",
               "offset": [
-                83,
+                80,
                 121
               ]
             }
@@ -1079,7 +1091,7 @@
             ],
             "tip": [
               86,
-              205
+              209
             ],
             "pommel": [
               86,
@@ -1093,9 +1105,10 @@
               "part": "weapon_r",
               "file": "gear/galewhip/rear_weapon_r.png",
               "offset": [
-                167,
+                164,
                 133
-              ]
+              ],
+              "z_index": 5
             }
           ],
           "weapon_grip": {
@@ -1105,7 +1118,7 @@
             ],
             "tip": [
               170,
-              217
+              221
             ],
             "pommel": [
               170,
@@ -1154,7 +1167,8 @@
               "offset": [
                 150,
                 131
-              ]
+              ],
+              "z_index": 5
             }
           ],
           "weapon_grip": {
@@ -1185,8 +1199,8 @@
               "part": "weapon_r",
               "file": "gear/hunting_spear/front_weapon_r.png",
               "offset": [
-                79,
-                16
+                45,
+                20
               ]
             }
           ],
@@ -1196,12 +1210,12 @@
               135
             ],
             "tip": [
-              93,
-              17
+              50,
+              22
             ],
             "pommel": [
-              82,
-              205
+              103,
+              190
             ]
           }
         },
@@ -1211,9 +1225,10 @@
               "part": "weapon_r",
               "file": "gear/hunting_spear/rear_weapon_r.png",
               "offset": [
-                157,
-                28
-              ]
+                150,
+                32
+              ],
+              "z_index": 5
             }
           ],
           "weapon_grip": {
@@ -1222,12 +1237,12 @@
               147
             ],
             "tip": [
-              163,
-              29
+              206,
+              34
             ],
             "pommel": [
-              174,
-              217
+              153,
+              202
             ]
           }
         }
@@ -1244,8 +1259,8 @@
               "part": "weapon_r",
               "file": "gear/tourney_lance/front_weapon_r.png",
               "offset": [
-                79,
-                2
+                39,
+                10
               ]
             }
           ],
@@ -1255,12 +1270,12 @@
               135
             ],
             "tip": [
-              94,
-              3
+              47,
+              13
             ],
             "pommel": [
-              84,
-              161
+              99,
+              177
             ]
           }
         },
@@ -1270,9 +1285,10 @@
               "part": "weapon_r",
               "file": "gear/tourney_lance/rear_weapon_r.png",
               "offset": [
-                155,
-                14
-              ]
+                154,
+                22
+              ],
+              "z_index": 5
             }
           ],
           "weapon_grip": {
@@ -1281,12 +1297,12 @@
               147
             ],
             "tip": [
-              162,
-              15
+              209,
+              25
             ],
             "pommel": [
-              172,
-              173
+              157,
+              189
             ]
           }
         }
@@ -1303,8 +1319,8 @@
               "part": "weapon_r",
               "file": "gear/hookspine_halberd/front_weapon_r.png",
               "offset": [
-                75,
-                22
+                37,
+                21
               ]
             }
           ],
@@ -1314,12 +1330,12 @@
               135
             ],
             "tip": [
-              93,
-              23
+              52,
+              26
             ],
             "pommel": [
-              82,
-              205
+              104,
+              192
             ]
           }
         },
@@ -1329,9 +1345,10 @@
               "part": "weapon_r",
               "file": "gear/hookspine_halberd/rear_weapon_r.png",
               "offset": [
-                148,
-                34
-              ]
+                149,
+                33
+              ],
+              "z_index": 5
             }
           ],
           "weapon_grip": {
@@ -1340,12 +1357,12 @@
               147
             ],
             "tip": [
-              163,
-              35
+              204,
+              38
             ],
             "pommel": [
-              174,
-              217
+              152,
+              204
             ]
           }
         }
@@ -1362,8 +1379,8 @@
               "part": "weapon_r",
               "file": "gear/stormstring_bow/front_weapon_r.png",
               "offset": [
-                71,
-                80
+                67,
+                82
               ]
             }
           ],
@@ -1373,12 +1390,12 @@
               135
             ],
             "tip": [
-              89,
-              81
+              70,
+              84
             ],
             "pommel": [
-              83,
-              189
+              102,
+              186
             ]
           }
         },
@@ -1388,9 +1405,10 @@
               "part": "weapon_r",
               "file": "gear/stormstring_bow/rear_weapon_r.png",
               "offset": [
-                164,
-                92
-              ]
+                151,
+                94
+              ],
+              "z_index": 5
             }
           ],
           "weapon_grip": {
@@ -1399,12 +1417,12 @@
               147
             ],
             "tip": [
-              167,
-              93
+              186,
+              96
             ],
             "pommel": [
-              173,
-              201
+              154,
+              198
             ]
           }
         }
@@ -1728,7 +1746,7 @@
               "file": "gear/grapple_hook/front_offhand.png",
               "bone": "hand_l",
               "offset": [
-                148,
+                143,
                 139
               ],
               "z_index": 48
@@ -1742,7 +1760,7 @@
               "file": "gear/grapple_hook/rear_offhand.png",
               "bone": "hand_l",
               "offset": [
-                75,
+                70,
                 128
               ],
               "z_index": 6
@@ -1785,6 +1803,1531 @@
         }
       },
       "held": "hand"
+    },
+    "clockwork_arrowhead": {
+      "slot": "trinket",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/clockwork_arrowhead/front_trinket.png",
+              "bone": "hips",
+              "offset": [
+                106,
+                123
+              ],
+              "z_index": 43
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/clockwork_arrowhead/rear_trinket.png",
+              "bone": "hips",
+              "offset": [
+                143,
+                123
+              ],
+              "z_index": 43
+            }
+          ]
+        }
+      }
+    },
+    "bone_dice": {
+      "slot": "trinket",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/bone_dice/front_trinket.png",
+              "bone": "hips",
+              "offset": [
+                105,
+                123
+              ],
+              "z_index": 43
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/bone_dice/rear_trinket.png",
+              "bone": "hips",
+              "offset": [
+                142,
+                123
+              ],
+              "z_index": 43
+            }
+          ]
+        }
+      }
+    },
+    "ember_hourglass": {
+      "slot": "trinket",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/ember_hourglass/front_trinket.png",
+              "bone": "hips",
+              "offset": [
+                107,
+                123
+              ],
+              "z_index": 43
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/ember_hourglass/rear_trinket.png",
+              "bone": "hips",
+              "offset": [
+                144,
+                123
+              ],
+              "z_index": 43
+            }
+          ]
+        }
+      }
+    },
+    "gamblers_watch": {
+      "slot": "trinket",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/gamblers_watch/front_trinket.png",
+              "bone": "hips",
+              "offset": [
+                105,
+                123
+              ],
+              "z_index": 43
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/gamblers_watch/rear_trinket.png",
+              "bone": "hips",
+              "offset": [
+                142,
+                123
+              ],
+              "z_index": 43
+            }
+          ]
+        }
+      }
+    },
+    "geode_charm": {
+      "slot": "trinket",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/geode_charm/front_trinket.png",
+              "bone": "hips",
+              "offset": [
+                107,
+                123
+              ],
+              "z_index": 43
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/geode_charm/rear_trinket.png",
+              "bone": "hips",
+              "offset": [
+                144,
+                123
+              ],
+              "z_index": 43
+            }
+          ]
+        }
+      }
+    },
+    "doppel_doll": {
+      "slot": "trinket",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/doppel_doll/front_trinket.png",
+              "bone": "hips",
+              "offset": [
+                105,
+                123
+              ],
+              "z_index": 43
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/doppel_doll/rear_trinket.png",
+              "bone": "hips",
+              "offset": [
+                142,
+                123
+              ],
+              "z_index": 43
+            }
+          ]
+        }
+      }
+    },
+    "headsmans_coin": {
+      "slot": "trinket",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/headsmans_coin/front_trinket.png",
+              "bone": "hips",
+              "offset": [
+                105,
+                123
+              ],
+              "z_index": 43
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/headsmans_coin/rear_trinket.png",
+              "bone": "hips",
+              "offset": [
+                142,
+                123
+              ],
+              "z_index": 43
+            }
+          ]
+        }
+      }
+    },
+    "oathstone": {
+      "slot": "trinket",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/oathstone/front_trinket.png",
+              "bone": "hips",
+              "offset": [
+                106,
+                123
+              ],
+              "z_index": 43
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/oathstone/rear_trinket.png",
+              "bone": "hips",
+              "offset": [
+                143,
+                123
+              ],
+              "z_index": 43
+            }
+          ]
+        }
+      }
+    },
+    "stormglass_orb": {
+      "slot": "trinket",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/stormglass_orb/front_trinket.png",
+              "bone": "hips",
+              "offset": [
+                104,
+                123
+              ],
+              "z_index": 43
+            }
+          ]
+        },
+        "rear": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/stormglass_orb/rear_trinket.png",
+              "bone": "hips",
+              "offset": [
+                141,
+                123
+              ],
+              "z_index": 43
+            }
+          ]
+        }
+      }
+    },
+    "ember_pendant": {
+      "slot": "trinket",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/ember_pendant/front_trinket.png",
+              "bone": "torso",
+              "offset": [
+                120,
+                86
+              ],
+              "z_index": 77
+            }
+          ]
+        },
+        "rear": {
+          "attach": []
+        }
+      }
+    },
+    "rime_locket": {
+      "slot": "trinket",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/rime_locket/front_trinket.png",
+              "bone": "torso",
+              "offset": [
+                120,
+                86
+              ],
+              "z_index": 77
+            }
+          ]
+        },
+        "rear": {
+          "attach": []
+        }
+      }
+    },
+    "sealed_cyclone": {
+      "slot": "trinket",
+      "facings": {
+        "front": {
+          "attach": [
+            {
+              "name": "GearTrinket",
+              "file": "gear/sealed_cyclone/front_trinket.png",
+              "bone": "torso",
+              "offset": [
+                118,
+                86
+              ],
+              "z_index": 77
+            }
+          ]
+        },
+        "rear": {
+          "attach": []
+        }
+      }
+    },
+    "boiled_leather": {
+      "slot": "armor",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/boiled_leather/front_torso.png",
+              "offset": [
+                99,
+                83
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/boiled_leather/front_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/boiled_leather/front_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/boiled_leather/front_hips.png",
+              "offset": [
+                100,
+                115
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/boiled_leather/rear_torso.png",
+              "offset": [
+                98,
+                74
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/boiled_leather/rear_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/boiled_leather/rear_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/boiled_leather/rear_hips.png",
+              "offset": [
+                96,
+                112
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "gale_cloak": {
+      "slot": "armor",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/gale_cloak/front_torso.png",
+              "offset": [
+                99,
+                83
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/gale_cloak/front_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/gale_cloak/front_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/gale_cloak/front_hips.png",
+              "offset": [
+                100,
+                115
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/gale_cloak/rear_torso.png",
+              "offset": [
+                98,
+                74
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/gale_cloak/rear_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/gale_cloak/rear_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/gale_cloak/rear_hips.png",
+              "offset": [
+                96,
+                112
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "glassbone_cuirass": {
+      "slot": "armor",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/glassbone_cuirass/front_torso.png",
+              "offset": [
+                99,
+                83
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/glassbone_cuirass/front_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/glassbone_cuirass/front_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/glassbone_cuirass/front_hips.png",
+              "offset": [
+                100,
+                115
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/glassbone_cuirass/rear_torso.png",
+              "offset": [
+                98,
+                74
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/glassbone_cuirass/rear_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/glassbone_cuirass/rear_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/glassbone_cuirass/rear_hips.png",
+              "offset": [
+                96,
+                112
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "pilgrim_vestments": {
+      "slot": "armor",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/pilgrim_vestments/front_torso.png",
+              "offset": [
+                99,
+                83
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/pilgrim_vestments/front_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/pilgrim_vestments/front_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/pilgrim_vestments/front_hips.png",
+              "offset": [
+                100,
+                115
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/pilgrim_vestments/rear_torso.png",
+              "offset": [
+                98,
+                74
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/pilgrim_vestments/rear_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/pilgrim_vestments/rear_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/pilgrim_vestments/rear_hips.png",
+              "offset": [
+                96,
+                112
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "quarrymail": {
+      "slot": "armor",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/quarrymail/front_torso.png",
+              "offset": [
+                99,
+                83
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/quarrymail/front_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/quarrymail/front_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/quarrymail/front_hips.png",
+              "offset": [
+                100,
+                115
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/quarrymail/rear_torso.png",
+              "offset": [
+                98,
+                74
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/quarrymail/rear_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/quarrymail/rear_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/quarrymail/rear_hips.png",
+              "offset": [
+                96,
+                112
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "rimeplate_harness": {
+      "slot": "armor",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/rimeplate_harness/front_torso.png",
+              "offset": [
+                99,
+                83
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/rimeplate_harness/front_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/rimeplate_harness/front_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/rimeplate_harness/front_hips.png",
+              "offset": [
+                100,
+                115
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/rimeplate_harness/rear_torso.png",
+              "offset": [
+                98,
+                74
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/rimeplate_harness/rear_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/rimeplate_harness/rear_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/rimeplate_harness/rear_hips.png",
+              "offset": [
+                96,
+                112
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "stitcher_apron": {
+      "slot": "armor",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/stitcher_apron/front_torso.png",
+              "offset": [
+                99,
+                83
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/stitcher_apron/front_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/stitcher_apron/front_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/stitcher_apron/front_hips.png",
+              "offset": [
+                100,
+                115
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/stitcher_apron/rear_torso.png",
+              "offset": [
+                98,
+                74
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/stitcher_apron/rear_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/stitcher_apron/rear_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/stitcher_apron/rear_hips.png",
+              "offset": [
+                96,
+                112
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "stormweave_robe": {
+      "slot": "armor",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/stormweave_robe/front_torso.png",
+              "offset": [
+                99,
+                83
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/stormweave_robe/front_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/stormweave_robe/front_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/stormweave_robe/front_hips.png",
+              "offset": [
+                100,
+                115
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/stormweave_robe/rear_torso.png",
+              "offset": [
+                98,
+                74
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/stormweave_robe/rear_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/stormweave_robe/rear_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/stormweave_robe/rear_hips.png",
+              "offset": [
+                96,
+                112
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "thornmail": {
+      "slot": "armor",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/thornmail/front_torso.png",
+              "offset": [
+                99,
+                83
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/thornmail/front_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/thornmail/front_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/thornmail/front_hips.png",
+              "offset": [
+                100,
+                115
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/thornmail/rear_torso.png",
+              "offset": [
+                98,
+                74
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/thornmail/rear_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/thornmail/rear_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/thornmail/rear_hips.png",
+              "offset": [
+                96,
+                112
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "voidsilk_carapace": {
+      "slot": "armor",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/voidsilk_carapace/front_torso.png",
+              "offset": [
+                99,
+                83
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/voidsilk_carapace/front_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/voidsilk_carapace/front_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/voidsilk_carapace/front_hips.png",
+              "offset": [
+                100,
+                115
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "torso",
+              "file": "gear/voidsilk_carapace/rear_torso.png",
+              "offset": [
+                98,
+                74
+              ]
+            },
+            {
+              "part": "arm_r",
+              "file": "gear/voidsilk_carapace/rear_arm_r.png"
+            },
+            {
+              "part": "arm_l",
+              "file": "gear/voidsilk_carapace/rear_arm_l.png"
+            },
+            {
+              "part": "hips",
+              "file": "gear/voidsilk_carapace/rear_hips.png",
+              "offset": [
+                96,
+                112
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "dawnwalkers": {
+      "slot": "boots",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/dawnwalkers/front_foot_r.png",
+              "offset": [
+                86,
+                178
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/dawnwalkers/front_foot_l.png",
+              "offset": [
+                133,
+                195
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/dawnwalkers/front_shin_r.png",
+              "offset": [
+                101,
+                160
+              ]
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/dawnwalkers/front_shin_l.png",
+              "offset": [
+                136,
+                167
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/dawnwalkers/rear_foot_r.png",
+              "offset": [
+                132,
+                199
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/dawnwalkers/rear_foot_l.png",
+              "offset": [
+                87,
+                181
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/dawnwalkers/rear_shin_r.png"
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/dawnwalkers/rear_shin_l.png"
+            }
+          ]
+        }
+      }
+    },
+    "dust_tabi": {
+      "slot": "boots",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/dust_tabi/front_foot_r.png",
+              "offset": [
+                86,
+                178
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/dust_tabi/front_foot_l.png",
+              "offset": [
+                133,
+                195
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/dust_tabi/front_shin_r.png",
+              "offset": [
+                101,
+                160
+              ]
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/dust_tabi/front_shin_l.png",
+              "offset": [
+                136,
+                167
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/dust_tabi/rear_foot_r.png",
+              "offset": [
+                132,
+                199
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/dust_tabi/rear_foot_l.png",
+              "offset": [
+                87,
+                181
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/dust_tabi/rear_shin_r.png"
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/dust_tabi/rear_shin_l.png"
+            }
+          ]
+        }
+      }
+    },
+    "frostwalkers": {
+      "slot": "boots",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/frostwalkers/front_foot_r.png",
+              "offset": [
+                86,
+                178
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/frostwalkers/front_foot_l.png",
+              "offset": [
+                133,
+                195
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/frostwalkers/front_shin_r.png",
+              "offset": [
+                101,
+                160
+              ]
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/frostwalkers/front_shin_l.png",
+              "offset": [
+                136,
+                167
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/frostwalkers/rear_foot_r.png",
+              "offset": [
+                132,
+                199
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/frostwalkers/rear_foot_l.png",
+              "offset": [
+                87,
+                181
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/frostwalkers/rear_shin_r.png"
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/frostwalkers/rear_shin_l.png"
+            }
+          ]
+        }
+      }
+    },
+    "gravewind_soles": {
+      "slot": "boots",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/gravewind_soles/front_foot_r.png",
+              "offset": [
+                86,
+                178
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/gravewind_soles/front_foot_l.png",
+              "offset": [
+                133,
+                195
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/gravewind_soles/front_shin_r.png",
+              "offset": [
+                101,
+                160
+              ]
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/gravewind_soles/front_shin_l.png",
+              "offset": [
+                136,
+                167
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/gravewind_soles/rear_foot_r.png",
+              "offset": [
+                132,
+                199
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/gravewind_soles/rear_foot_l.png",
+              "offset": [
+                87,
+                181
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/gravewind_soles/rear_shin_r.png"
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/gravewind_soles/rear_shin_l.png"
+            }
+          ]
+        }
+      }
+    },
+    "hobnail_grips": {
+      "slot": "boots",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/hobnail_grips/front_foot_r.png",
+              "offset": [
+                86,
+                178
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/hobnail_grips/front_foot_l.png",
+              "offset": [
+                133,
+                195
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/hobnail_grips/front_shin_r.png",
+              "offset": [
+                101,
+                160
+              ]
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/hobnail_grips/front_shin_l.png",
+              "offset": [
+                136,
+                167
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/hobnail_grips/rear_foot_r.png",
+              "offset": [
+                132,
+                199
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/hobnail_grips/rear_foot_l.png",
+              "offset": [
+                87,
+                181
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/hobnail_grips/rear_shin_r.png"
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/hobnail_grips/rear_shin_l.png"
+            }
+          ]
+        }
+      }
+    },
+    "monks_wraps": {
+      "slot": "boots",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/monks_wraps/front_foot_r.png",
+              "offset": [
+                86,
+                178
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/monks_wraps/front_foot_l.png",
+              "offset": [
+                133,
+                195
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/monks_wraps/front_shin_r.png",
+              "offset": [
+                101,
+                160
+              ]
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/monks_wraps/front_shin_l.png",
+              "offset": [
+                136,
+                167
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/monks_wraps/rear_foot_r.png",
+              "offset": [
+                132,
+                199
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/monks_wraps/rear_foot_l.png",
+              "offset": [
+                87,
+                181
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/monks_wraps/rear_shin_r.png"
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/monks_wraps/rear_shin_l.png"
+            }
+          ]
+        }
+      }
+    },
+    "static_spurs": {
+      "slot": "boots",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/static_spurs/front_foot_r.png",
+              "offset": [
+                86,
+                178
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/static_spurs/front_foot_l.png",
+              "offset": [
+                133,
+                195
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/static_spurs/front_shin_r.png",
+              "offset": [
+                101,
+                160
+              ]
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/static_spurs/front_shin_l.png",
+              "offset": [
+                136,
+                167
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/static_spurs/rear_foot_r.png",
+              "offset": [
+                132,
+                199
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/static_spurs/rear_foot_l.png",
+              "offset": [
+                87,
+                181
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/static_spurs/rear_shin_r.png"
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/static_spurs/rear_shin_l.png"
+            }
+          ]
+        }
+      }
+    },
+    "worldroot_greaves": {
+      "slot": "boots",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/worldroot_greaves/front_foot_r.png",
+              "offset": [
+                86,
+                178
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/worldroot_greaves/front_foot_l.png",
+              "offset": [
+                133,
+                195
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/worldroot_greaves/front_shin_r.png",
+              "offset": [
+                101,
+                160
+              ]
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/worldroot_greaves/front_shin_l.png",
+              "offset": [
+                136,
+                167
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/worldroot_greaves/rear_foot_r.png",
+              "offset": [
+                132,
+                199
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/worldroot_greaves/rear_foot_l.png",
+              "offset": [
+                87,
+                181
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/worldroot_greaves/rear_shin_r.png"
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/worldroot_greaves/rear_shin_l.png"
+            }
+          ]
+        }
+      }
     }
   }
 }

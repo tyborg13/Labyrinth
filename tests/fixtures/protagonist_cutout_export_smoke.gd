@@ -5,6 +5,7 @@ func _ready() -> void:
 	var renderer: Node = renderer_script.new()
 	add_child(renderer)
 	var passed: bool = not OS.has_feature("editor")
+	var carry_passed: bool = true
 	var rules_free: bool = not FileAccess.file_exists("res://scripts/game_data.gd") and not FileAccess.file_exists("res://scripts/visual_equipment.gd")
 	passed = passed and rules_free
 	print("PROTAGONIST CUTOUT RULES-FREE PACKAGE: " + ("PASS" if rules_free else "FAIL"))
@@ -12,6 +13,7 @@ func _ready() -> void:
 		var rig: Node = renderer.get("rigs")[facing]
 		passed = passed and (rig.get("load_errors") as PackedStringArray).is_empty() and (rig.get("bones") as Dictionary).size() == 22
 		passed = passed and (rig.get("bones") as Dictionary).has("crossbow_r") and rig.bones["crossbow_r"].get_parent() == rig.bones["hand_r"]
+		carry_passed = _check_depth(rig) and carry_passed
 		for clip: String in ["idle", "walk", "attack", "attack_heavy", "attack_stab", "attack_thrust", "attack_lash", "block_shield", "cast", "shoot", "shoot_bow", "shoot_repeater"]:
 			rig.call("apply_pose", clip, 0.42)
 	var gear: Script = load("res://scripts/protagonist_cutout/gear_visuals.gd")
@@ -27,12 +29,23 @@ func _ready() -> void:
 			for facing: String in ["front", "rear"]:
 				var rig: Node = renderer.get("rigs")[facing]
 				passed = passed and (rig.get("load_errors") as PackedStringArray).is_empty()
+				carry_passed = _check_depth(rig) and _check_carry(rig) and carry_passed
 				for kind: String in ["replace", "attach"]:
 					for op: Dictionary in gear.ops_for_facing(equipped, facing)[kind]:
 						passed = passed and FileAccess.file_exists("res://assets/units/protagonist_cutout/" + str(op["file"]))
 				passed = _check_main_hand_shot(renderer, facing) and passed
 		passed = passed and gear._items.size() == registry["items"].size()
 		print("PROTAGONIST GEAR EXPORT ASSETS: " + ("PASS" if passed else "FAIL") + " (editor=" + str(OS.has_feature("editor")) + ")")
+		for facing: String in ["front", "rear"]:
+			var rig: Node = renderer.get("rigs")[facing]
+			var ops: Dictionary = gear.ops_for_facing({"weapon": "war_maul"}, facing)
+			ops["replace"][0]["z_index"] = 12
+			rig.call("apply_gear", ops)
+			carry_passed = rig._gear_base_parts["weapon_r"]["node"].z_index == 12 and carry_passed
+			rig.call("apply_gear", {})
+			carry_passed = _check_depth(rig) and not rig.layout.has("weapon_carry") and carry_passed
+		print("PROTAGONIST GEAR CARRY EXPORT: " + ("PASS" if carry_passed else "FAIL"))
+		passed = passed and carry_passed
 		renderer.call("set_gear", gear.DEFAULTS)
 		var rest: Texture2D = renderer.call("rest_texture")
 		var default_rest_passed: bool = rest != null and rest.get_size() == Vector2(255, 255) and str(rest.get_meta("asset_source_path", "")) == renderer_script.DEFAULT_GEAR_REST_PATH
@@ -43,6 +56,28 @@ func _ready() -> void:
 	await get_tree().process_frame
 	print("PROTAGONIST CUTOUT EXPORT RUNTIME: " + ("PASS" if passed else "FAIL") + " (editor=" + str(OS.has_feature("editor")) + ")")
 	get_tree().quit(0 if passed else 1)
+
+func _check_depth(rig: Node) -> bool:
+	var z: int = 5 if rig.facing == "rear" else 66
+	return rig._gear_base_parts["weapon_r"]["node"].z_index == z and rig._gear_base_parts["crossbow"]["node"].z_index == z
+
+func _check_carry(rig: Node) -> bool:
+	if not rig.layout.has("weapon_carry"):
+		return true
+	var motion: Script = load("res://scripts/protagonist_cutout/motion.gd")
+	for clip: String in ["rest", "idle", "walk", "attack_thrust" if rig.layout["weapon_carry"]["motion"] == "thrust" else "shoot_bow"]:
+		for phase: float in [0.0, 0.20, 0.42, 0.75, 1.0]:
+			var pose: Dictionary = motion.sample_pose(clip, phase, rig.layout, rig.facing)
+			var grip: Vector2 = motion._gear_vector(rig.layout["weapon_grip"]["assembled"])
+			var palm: Vector2 = motion._world_transform(pose, rig.layout, "hand_r") * (grip - motion._joint_position(rig.layout, "hand_r"))
+			var weapon: Vector2 = motion._world_transform(pose, rig.layout, "weapon_r") * (grip - motion._joint_position(rig.layout, "weapon_r"))
+			if palm.distance_to(weapon) >= 0.001:
+				return false
+			if clip in ["rest", "idle"]:
+				var axis: Vector2 = motion._world_transform(pose, rig.layout, "weapon_r").basis_xform(motion._gear_axis(rig.layout)).normalized()
+				if axis.distance_to(motion._gear_axis(rig.layout)) >= 0.001:
+					return false
+	return true
 
 func _check_main_hand_shot(renderer: Node, facing: String) -> bool:
 	var direction := Vector2i(0, -1) if facing == "rear" else Vector2i(0, 1)

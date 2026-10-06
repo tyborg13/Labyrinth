@@ -162,7 +162,28 @@ def jobs():
                     size = tuple(sizes[f"{item}|{facing}"])
                 else:
                     size = tuple(sizes.get(f"{item}|{facing}|{part}", base_part_size(facing, part)))
-                yield source, RIG / op["file"], size
+                yield source, RIG / op["file"], size, (facing, op) if op.get("occluded_by") else None
+
+
+def occlude(im: Image.Image, facing: str, op: dict) -> Image.Image:
+    """Clear pixels a rig part covers at rest (a fist over a held grip).
+
+    The attachment rides the same bone as the part, so the hole stays aligned
+    in every pose; the part then reads as gripping the item."""
+    layout = json.loads((RIG / f"{facing}.json").read_text())
+    part = next(p for p in layout["parts"] if p["name"] == op["occluded_by"])
+    with Image.open(RIG / str(part["file"]).replace("res://assets/units/protagonist_cutout/", "")) as raw:
+        cover = raw.convert("RGBA")
+    out = im.copy()
+    px, cp = out.load(), cover.load()
+    dx = int(part["offset"][0]) - int(op["offset"][0])
+    dy = int(part["offset"][1]) - int(op["offset"][1])
+    for y in range(cover.height):
+        for x in range(cover.width):
+            tx, ty = x + dx, y + dy
+            if cp[x, y][3] and 0 <= tx < out.width and 0 <= ty < out.height:
+                px[tx, ty] = (0, 0, 0, 0)
+    return out
 
 
 def digest(path: Path) -> str:
@@ -177,7 +198,7 @@ def main() -> int:
     only = {s for s in args.only.split(",") if s}
     manifest = {}
     stale = []
-    for src, dst, size in jobs():
+    for src, dst, size, occlusion in jobs():
         item = dst.parent.name
         if only and item not in only:
             continue
@@ -185,6 +206,8 @@ def main() -> int:
             print(f"missing source (stand-in kept): {src.relative_to(ROOT)}")
             continue
         out = reduce(key_green(Image.open(src)), size, True)
+        if occlusion:
+            out = occlude(out, *occlusion)
         rel = str(dst.relative_to(ROOT))
         if args.check:
             if not dst.exists() or Image.open(dst).convert("RGBA").tobytes() != out.tobytes():
