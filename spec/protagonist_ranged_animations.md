@@ -39,6 +39,7 @@ mirrored sockets, released origins through recovery, visibility and reduced
 shooting stills. The gear suites additionally cover shield and dagger visibility
 in every clip and the one-handed maul. The updated fixed-1920×1080 motion probe
 uses actual card/board handlers for L0/L2 shots southwest/northeast, L0 reflected
-southeast, front/rear casting and the kite/maul slam checkpoints. Native Round 2
-proof is pending with the design owner; historical proof above does not certify
-the revised poses. The production-only PCK still includes no rules/data layer.
+southeast, front/rear casting and the kite/maul slam checkpoints. Round 2 native
+proof (`tests/protagonist_gear_motion_probe.gd`, 116 images at 1920×1080, PASS)
+was inspected by the design owner; the historical proof above predates the
+main-hand crossbow. The production-only PCK still includes no rules/data layer.

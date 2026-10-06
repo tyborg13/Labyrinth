@@ -61,3 +61,7 @@ Owner review of round 1 (2026-10-06): the slice is a good first pass but not yet
   - L0 `cast` front.
 - Native capture is pending with the design owner; check that the probe parses and give the runner command.
 - Update `spec/protagonist_ranged_animations.md` (the crossbow is now main-hand) and the "Visible equipment" / "Weapon and shield motion" sections of `spec/protagonist_cutout_runtime.md`.
+
+## Revision after native review
+
+The apex in item 1 was revised after native capture showed the maul hidden behind the hair. Front apex: wrist (104, 78), direction (−0.35, −0.94), over the weapon-side shoulder. Rear apex: wrist (150, 80), direction (0.60, −0.80), lowered so the hammer head stays under the board HP bar. Tests require at least 8 source px of hair clearance.

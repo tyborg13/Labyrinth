@@ -10,6 +10,8 @@ approved by Claude, provenance in `spec/assets/visible_gear_slice/`.
 
 ## Owner decisions
 
+> **Superseded in part by round 2 (see the end of this file).** All weapons are now one-handed with the offhand always on; the crossbow is main-hand; front shields draw at z 72 and rear offhands at z 6. Round-1 statements below about two-handed weapons hiding the offhand and rear offhands at z 73 are historical.
+
 - **The cloak, mantle and face scarf are the hero's identity** and stay on for every
   armor. Armor replaces only the torso, both sleeves and the belt/hip piece.
   Hands, trousers, knees and head are never replaced by armor.

@@ -69,8 +69,8 @@ requires.
 
 The resolved weapon's `motion` picks the melee clip: `sword` keeps the accepted
 `attack` cut and its phase remap; `heavy` plays `attack_heavy` (43 frames,
-0.72 s), a one-handed gather, an apex angled back over the shoulder so the
-raised head stays visible, a four-frame slam over the top and an impact hold;
+0.72 s), a one-handed gather, an apex raised over the weapon-side shoulder so
+the hammer head stays visible beside the hair, a four-frame slam over the top and an impact hold;
 `stab` plays `attack_stab` (24 frames, 0.40 s), a cock at the hip, then a
 step-in lunge (leading foot 8 source px and root 10 px along the board diagonal)
 with the trailing foot planted. Heavy/stab frame counts come from `clip_specs()`
@@ -80,9 +80,15 @@ their 0.24 s / 0.38 boundary by retiming the archetype pose. Resolver results,
 sounds and analytics do not change. Only the right arm holds the maul; the left
 forearm braces at -0.12 rad (front, mirrored rear) at contact and recovers by
 0.80. The approved body/direction keys stay intact. Front wrist targets are
-(106,118) at gather, (118,76) at apex, (96,134) at contact/hold and (94,130) at
-lift. Rear targets mirror these offsets about the rear shoulder: (145,114),
-(133,72), (155,130), (157,126). No reach corrections are needed. The updated
+(106,118) at gather, (104,78) at apex with the maul pointing (-0.35,-0.94),
+(96,134) at contact/hold and (94,130) at lift. Rear targets are (145,114) at
+gather, (150,80) at apex pointing (0.60,-0.80), (155,130) at contact/hold and
+(157,126) at lift. The rear apex is deliberately lower than a mirror of the
+front so the hammer head stays under the board HP bar. Owner rule: a
+right-handed overhead raise goes over the weapon-side shoulder (screen-left in
+front, screen-right in rear) and the downstroke passes through that side; tests
+require the hammer head to clear the posed hair by at least 8 source px at the
+apex. No reach corrections are needed. The updated
 registry `weapon_grip` preserves the painted palm/pommel registration through
 a per-rig layout copy, without mutating the shared `RigData` dictionary.
 
@@ -100,9 +106,23 @@ Proof: `tests/suites/protagonist_gear_suite.gd`, `protagonist_gear_motion_suite.
 `tests/protagonist_ranged_test.gd`, `tests/cutout_rig_data_test.gd`,
 `tests/protagonist_gear_motion_gameplay_test.gd` and the real-renderer probes
 `tests/protagonist_gear_probe.gd` and `tests/protagonist_gear_motion_probe.gd`.
-Design and review captures: `spec/design/visible_gear_slice/`. Round 2 native
-capture remains owner-run; the motion probe retains the fixed 1920×1080
-SubViewport and adds main-hand shots for shield/dagger loadouts and reflection.
+Design and review captures: `spec/design/visible_gear_slice/` (`review/round2_*.png`).
+Round 2 native proof: `tests/protagonist_gear_probe.gd` (49 images, Metal, with
+`--write-default-rest`) and `tests/protagonist_gear_motion_probe.gd` (116 images,
+including main-hand shots for shield/dagger loadouts and reflection), both PASS
+at 1920×1080 and inspected by the design owner.
+
+Offhand layering: front shields draw at z 72 (over the mantle at 70, under the
+scarf at 75 and head at 80), so the shield's top sits in front of the cloak.
+Rear offhands draw at z 6, below the far arm (7), so the whole body occludes
+them and only the rim shows past the silhouette. Held offhands (the parrying
+dagger) sit at z 48 in front, under the fist. `hands: 2` currently has no
+runtime effect: every slice weapon is one-handed and the offhand is always on.
+
+Pixel density: every gear texture is consolidated to the hero's density by
+`tools/process_gear_visual_assets.py` (`consolidate`: posterise to 24 colours,
+3×3 mode filter, orphan cleanup). The output depends on the Pillow/numpy
+versions; `--check` and `tests/test_gear_visual_assets.py` catch drift.
 
 ## Verification and UI handoff — pass eight
 
