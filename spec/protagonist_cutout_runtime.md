@@ -140,6 +140,12 @@ Proof:
 - Design and review captures: `spec/design/visible_gear_slice/` (`review/round2_*.png`, `review/full_*.png`).
 - Full-pass native proof (r15): the gear probe (49 images, Metal, with `--write-default-rest`, which produced no file change) and the motion probe (236 images: all archetypes, the carry front and rear, and the one-arm bow and repeater front, rear and mirrored). Both PASS at 1920×1080 and were inspected by the design owner.
 
+Grip and side carry (unit 6, owner-approved):
+- **Glove and grip:** the glove (`hand_r`) draws at z 65, a grip piece of the weapon at 66 and the glove's lit knuckles (`hand_r_fingers.png`) at 67, so the shaft crosses the palm under the fingers. Both overlays derive from committed art through `tools/process_gear_visual_assets.py`.
+- **Front:** a carried weapon (rest, idle, walk, hit, death, cast, block_shield) draws at z 8, behind the near leg and foot, so a pole's butt tucks behind the boot; the grip piece keeps the handle in the fist. Use clips (every attack, the weapon guard `block`, every shot) draw it at 66.
+- **Rear:** unchanged (z 5; z 66 during a bow or repeater shot).
+- **Code and proof:** `gear_layers.gd` owns the policy. Native proof r16: gear probe 49 images, motion probe 256.
+
 Offhand layering:
 - **Front shields** draw at z 72 (over the mantle at 70, under the scarf at 75 and head at 80), so the shield's top sits in front of the cloak.
 - **Rear offhands** draw at z 6, below the far arm (7), so the whole body occludes them and only the rim shows past the silhouette.
