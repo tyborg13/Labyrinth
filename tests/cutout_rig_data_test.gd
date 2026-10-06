@@ -2,6 +2,7 @@ extends SceneTree
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const RigData = preload("res://scripts/protagonist_cutout/rig_data.gd")
 const DropletRig = preload("res://scripts/cinder_droplet_cutout/rig.gd")
+const ProtagonistRig = preload("res://scripts/protagonist_cutout/rig.gd")
 var _errors: Array[String] = []
 
 func _initialize() -> void:
@@ -37,6 +38,16 @@ func _initialize() -> void:
 	root.add_child(again)
 	_check(again.load_rig(), "An expired weak entry reloads successfully")
 	again.free()
+	for facing: String in ["front", "rear"]:
+		var hero := ProtagonistRig.new()
+		hero.facing = facing
+		root.add_child(hero)
+		_check(hero.load_rig(), "Protagonist rig data loads the main-hand crossbow: " + facing)
+		_check(hero.bones.has("crossbow_r") and not hero.bones.has("weapon_l"), "Only the ranged bone moves to the main hand")
+		_check(hero.bones["crossbow_r"].get_parent() == hero.bones["hand_r"], "Right-hand crossbow bone retains its parent registration")
+		_check(hero.layout["ranged_attachment"]["grip"] == hero.layout["joints"]["weapon_r"]["position"], "Crossbow grip shares the main weapon landmark")
+		_check(hero._gear_base_parts.has("shin_r") and hero._gear_base_parts.has("shin_l"), "Both shin parts are available to the boots layer")
+		hero.free()
 	# These noncombat actors inherit the same mesh loader, but retain their own
 	# pose/draw-order behavior. Loading two copies must keep that path valid too.
 	for actor: String in ["scavenger", "graftwright", "lightning_wisp"]:

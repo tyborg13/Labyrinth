@@ -41,8 +41,11 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 	if clip in ["hit", "death", "block"]:
 		return _reaction_pose(clip, phase, layout, facing)
 	var pose := _rest_pose(layout)
-	if pose.has("weapon_l"):
-		pose["weapon_l"]["visible"] = clip == "shoot" and phase > 0.01 and phase < 0.94
+	if pose.has("crossbow_r"):
+		var crossbow_visible: bool = clip == "shoot" and phase > 0.01 and phase < 0.94
+		pose["crossbow_r"]["visible"] = crossbow_visible
+		if clip == "shoot":
+			pose["weapon_r"]["visible"] = not crossbow_visible
 	var specs := clip_specs()
 	if not specs.has(clip):
 		return _separate_grip(pose)
@@ -115,12 +118,13 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 			_rotate(pose, "cape_mid", -direction * 0.043 * sin(TAU * t - 0.55))
 			_rotate(pose, "cape_tip", -direction * 0.060 * sin(TAU * t - 0.92))
 			_fit_walk_pelvis(pose, layout, right_target, left_target, right_projection, left_projection)
-		"cast", "shoot":
+		"shoot":
+			return _shoot_pose(pose, t, layout, direction)
+		"cast":
 			# Explicit wrist targets preserve both sleeve lengths and glove size.
 			# The near arm reaches across the chest; the rear arm clears the cloak
 			# on its exposed shoulder side. The sword arm and planted body stay still.
 			var raised: float = _hold(t, 0.0, 0.24, 0.62, 1.0)
-			var recoil: float = _pulse(t, 0.42, 0.49, 0.62) if clip == "shoot" else 0.0
 			var shoulder: Vector2 = _joint_position(layout, "arm_l")
 			var reach: float = shoulder.distance_to(_joint_position(layout, "forearm_l")) + _joint_position(layout, "forearm_l").distance_to(_joint_position(layout, "hand_l"))
 			# Lift the arm straight out, retaining the painted segment lengths.
@@ -132,10 +136,9 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 				var full_reach: float = _joint_position(layout, "arm_r").distance_to(_joint_position(layout, "forearm_r")) + _joint_position(layout, "forearm_r").distance_to(_joint_position(layout, "hand_r"))
 				projected_scale = lerpf(1.0, full_reach / reach, raised)
 				reach = full_reach
-			var aim := Vector2(-1, -0.25) if direction > 0.0 or clip == "cast" else Vector2(1, -0.3)
+			var aim := Vector2(-1, -0.25)
 			var target: Vector2 = shoulder + aim.normalized() * (reach - 0.04)
 			var wrist: Vector2 = _joint_position(layout, "hand_l").lerp(target, raised)
-			wrist += Vector2(direction * 2.0, -1.0) * recoil
 			_solve_leg(pose, layout, "arm_l", "forearm_l", "hand_l", wrist, 0.0, -1.0, -1.0, projected_scale)
 			return _separate_grip(pose)
 		"attack":
@@ -185,6 +188,22 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 	_solve_leg(pose, layout, "thigh_r", "shin_r", "foot_r", right_target, right_foot_angle, -direction, walking_pole, right_projection)
 	_solve_leg(pose, layout, "thigh_l", "shin_l", "foot_l", left_target, left_foot_angle, direction, walking_pole, left_projection)
 	return _separate_grip(pose)
+
+
+static func _shoot_pose(pose: Dictionary, phase: float, layout: Dictionary, direction: float) -> Dictionary:
+	var raised: float = _hold(phase, 0.0, 0.24, 0.62, 1.0)
+	var recoil: float = _pulse(phase, 0.42, 0.49, 0.62)
+	var shoulder := _joint_position(layout, "arm_r")
+	var reach: float = shoulder.distance_to(_joint_position(layout, "forearm_r")) \
+		+ _joint_position(layout, "forearm_r").distance_to(_joint_position(layout, "hand_r"))
+	var aim := Vector2(-1, -0.2) if direction > 0.0 else Vector2(1, -0.3)
+	var target: Vector2 = shoulder + aim.normalized() * (reach - 0.04)
+	var wrist: Vector2 = _joint_position(layout, "hand_r").lerp(target, raised)
+	wrist += Vector2(direction * 2.0, -1.0) * recoil
+	_solve_leg(pose, layout, "arm_r", "forearm_r", "hand_r", wrist, 0.0, -1.0, -1.0)
+	# The straight-arm solve already keeps the glove and crossbow rigid. Sword
+	# wrist separation would rotate the visible muzzle away from its registration.
+	return pose
 
 
 static func _separate_grip(pose: Dictionary) -> Dictionary:
@@ -432,7 +451,7 @@ static func _hold(t: float, start: float, full: float, release: float, finish: f
 ## anchors. Hold the final pose so the existing shadow dissolve can finish it.
 static func _reaction_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
 	var pose: Dictionary = _rest_pose(layout)
-	if pose.has("weapon_l"): pose["weapon_l"]["visible"] = false
+	if pose.has("crossbow_r"): pose["crossbow_r"]["visible"] = false
 	var t: float = clampf(phase, 0.0, 1.0)
 	if is_zero_approx(t) or (clip != "death" and is_equal_approx(t,1.0)): return pose
 	var direction: float = -1.0 if facing == "rear" else 1.0
@@ -487,29 +506,6 @@ static func _gear_keys(t: float, keys: Array) -> Dictionary:
 	return keys[-1]
 
 
-static func _gear_arm_length(layout: Dictionary, side: String) -> float:
-	return _joint_position(layout, "arm_" + side).distance_to(_joint_position(layout, "forearm_" + side)) \
-		+ _joint_position(layout, "forearm_" + side).distance_to(_joint_position(layout, "hand_" + side))
-
-
-static func _gear_fit_shoulders(pose: Dictionary, layout: Dictionary, right: Vector2, left: Vector2) -> float:
-	# Minimum shared torso translation bringing both wrists inside painted
-	# reach. This moves shoulder anchors together, never stretches a sleeve.
-	var minimum := -INF
-	var maximum := INF
-	for side: String in ["r", "l"]:
-		var target: Vector2 = right if side == "r" else left
-		var start := _world_transform(pose, layout, "arm_" + side).origin
-		var reach: float = _gear_arm_length(layout, side) - 0.02
-		var vertical: float = target.y - start.y
-		var horizontal: float = sqrt(maxf(0.0, reach * reach - vertical * vertical))
-		minimum = maxf(minimum, target.x - start.x - horizontal)
-		maximum = minf(maximum, target.x - start.x + horizontal)
-	var shift: float = clampf(0.0, minimum, maximum)
-	_offset(pose, "torso", Vector2(shift, 0.0))
-	return shift
-
-
 static func _gear_planted_feet(pose: Dictionary, layout: Dictionary, direction: float) -> void:
 	var right := _joint_position(layout, "foot_r")
 	var left := _joint_position(layout, "foot_l")
@@ -532,7 +528,7 @@ static func _gear_place_weapon(pose: Dictionary, layout: Dictionary, angle: floa
 
 static func _attack_heavy_pose(phase: float, layout: Dictionary, facing: String) -> Dictionary:
 	var pose := _rest_pose(layout)
-	pose["weapon_l"]["visible"] = false
+	pose["crossbow_r"]["visible"] = false
 	var t: float = clampf(phase, 0.0, 1.0)
 	if is_zero_approx(t) or is_equal_approx(t, 1.0):
 		return pose
@@ -542,32 +538,33 @@ static func _attack_heavy_pose(phase: float, layout: Dictionary, facing: String)
 	var rest_angle: float = _gear_axis(layout).angle()
 	var keys: Array
 	if not rear:
-		# +6px wrist / -5px root at gather permit both painted arms to grip.
-		# Meet at .08, hold the designed gather at .12. Unwrapped angles lift
+		# One-handed gather retains the approved body keys. Unwrapped angles lift
 		# on screen-left, then cut back through screen-left in four frames.
 		keys = [
 			_gear_key(0.00, rest, rest_angle, 0.0, 0.0, 0.0),
-			_gear_key(0.08, Vector2(118, 122), Vector2(-0.70, -0.71).angle() + TAU, 0.03, 1.0, -5.0),
-			_gear_key(0.12, Vector2(118, 122), Vector2(-0.70, -0.71).angle() + TAU, 0.03, 1.0, -5.0),
-			_gear_key(0.30, Vector2(132, 84), Vector2(0.55, -0.83).angle() + TAU, 0.10, -1.0, 1.0),
-			_gear_key(0.36, Vector2(132, 83), Vector2(0.55, -0.83).angle() + TAU, 0.11, -1.0, 1.0),
-			_gear_key(0.42, Vector2(122, 132), Vector2(-0.60, 0.80).angle(), -0.16, 5.0, -4.0),
-			_gear_key(0.48, Vector2(122, 133), Vector2(-0.60, 0.80).angle(), -0.17, 6.0, -4.0),
-			_gear_key(0.58, Vector2(122, 132), Vector2(-0.60, 0.80).angle(), -0.15, 5.0, -4.0),
-			_gear_key(0.72, Vector2(110, 128), Vector2(-0.75, 0.66).angle(), -0.06, 2.0, -2.0),
+			_gear_key(0.08, Vector2(106, 118), Vector2(-0.70, -0.71).angle() + TAU, 0.03, 1.0, -5.0),
+			_gear_key(0.12, Vector2(106, 118), Vector2(-0.70, -0.71).angle() + TAU, 0.03, 1.0, -5.0),
+			_gear_key(0.30, Vector2(104, 78), Vector2(-0.35, -0.94).angle() + TAU, 0.10, -1.0, 1.0),
+			_gear_key(0.36, Vector2(104, 78), Vector2(-0.35, -0.94).angle() + TAU, 0.11, -1.0, 1.0),
+			_gear_key(0.42, Vector2(96, 134), Vector2(-0.60, 0.80).angle(), -0.16, 5.0, -4.0),
+			_gear_key(0.48, Vector2(96, 134), Vector2(-0.60, 0.80).angle(), -0.17, 6.0, -4.0),
+			_gear_key(0.58, Vector2(96, 134), Vector2(-0.60, 0.80).angle(), -0.15, 5.0, -4.0),
+			_gear_key(0.72, Vector2(94, 130), Vector2(-0.75, 0.66).angle(), -0.06, 2.0, -2.0),
 			_gear_key(1.00, rest, rest_angle, 0.0, 0.0, 0.0)]
 	else:
+		# Mirror the front wrist offsets about the rear shoulder (151, 93),
+		# retaining this view's longer painted arm and approved body/direction keys.
 		keys = [
 			_gear_key(0.00, rest, rest_angle, 0.0, 0.0, 0.0),
-			_gear_key(0.04, Vector2(132, 122), Vector2(0.70, -0.71).angle(), -0.03, 1.0, 0.0),
-			_gear_key(0.08, Vector2(127, 118), Vector2(0.70, -0.71).angle(), -0.03, 1.0, 0.0),
-			_gear_key(0.12, Vector2(127, 118), Vector2(0.70, -0.71).angle(), -0.03, 1.0, 0.0),
-			_gear_key(0.30, Vector2(128, 84), Vector2(-0.55, -0.83).angle(), -0.10, -1.0, 1.0),
-			_gear_key(0.36, Vector2(128, 83), Vector2(-0.55, -0.83).angle(), -0.11, -1.0, 1.0),
-			_gear_key(0.42, Vector2(136, 126), Vector2(0.60, 0.80).angle(), 0.16, 5.0, 4.0),
-			_gear_key(0.48, Vector2(136, 127), Vector2(0.60, 0.80).angle(), 0.17, 6.0, 4.0),
-			_gear_key(0.58, Vector2(136, 126), Vector2(0.60, 0.80).angle(), 0.15, 5.0, 4.0),
-			_gear_key(0.72, Vector2(132, 125), Vector2(0.75, 0.66).angle(), 0.06, 2.0, 2.0),
+			_gear_key(0.04, Vector2(145, 114), Vector2(0.70, -0.71).angle(), -0.03, 1.0, 0.0),
+			_gear_key(0.08, Vector2(145, 114), Vector2(0.70, -0.71).angle(), -0.03, 1.0, 0.0),
+			_gear_key(0.12, Vector2(145, 114), Vector2(0.70, -0.71).angle(), -0.03, 1.0, 0.0),
+			_gear_key(0.30, Vector2(150, 80), Vector2(0.60, -0.80).angle(), -0.10, -1.0, 1.0),
+			_gear_key(0.36, Vector2(150, 80), Vector2(0.60, -0.80).angle(), -0.11, -1.0, 1.0),
+			_gear_key(0.42, Vector2(155, 130), Vector2(0.60, 0.80).angle(), 0.16, 5.0, 4.0),
+			_gear_key(0.48, Vector2(155, 130), Vector2(0.60, 0.80).angle(), 0.17, 6.0, 4.0),
+			_gear_key(0.58, Vector2(155, 130), Vector2(0.60, 0.80).angle(), 0.15, 5.0, 4.0),
+			_gear_key(0.72, Vector2(157, 126), Vector2(0.75, 0.66).angle(), 0.06, 2.0, 2.0),
 			_gear_key(1.00, rest, rest_angle, 0.0, 0.0, 0.0)]
 	var key := _gear_keys(t, keys)
 	_offset(pose, "root", Vector2(float(key["root_x"]), 0.0))
@@ -576,17 +573,8 @@ static func _attack_heavy_pose(phase: float, layout: Dictionary, facing: String)
 	_gear_planted_feet(pose, layout, direction)
 	var wrist: Vector2 = key["wrist"]
 	var angle: float = float(key["angle"]) - rest_angle
-	var haft: Vector2 = Vector2.from_angle(float(key["angle"]))
-	var grip: Dictionary = layout["weapon_grip"]
-	# Legacy sword layouts lack a pommel; explicitly previewing this clip on a
-	# bare rig still uses the 9px grip. Two-handed gear supplies all landmarks.
-	var grip_spacing: float = minf(9.0, _gear_vector(grip["assembled"]).distance_to(_gear_vector(grip["pommel"]))) if grip.has("pommel") else 9.0
-	var joined: float = _hold(t, 0.0, 0.08, 0.68, 0.80)
-	var left_rest := _world_transform(pose, layout, "hand_l").origin
-	var left: Vector2 = left_rest.lerp(wrist - haft * grip_spacing, joined)
-	_gear_fit_shoulders(pose, layout, wrist, left)
 	_solve_leg(pose, layout, "arm_r", "forearm_r", "hand_r", wrist, angle * 0.15, direction)
-	_solve_leg(pose, layout, "arm_l", "forearm_l", "hand_l", left, angle * 0.15, -direction)
+	_rotate(pose, "forearm_l", -direction * 0.12 * _hold(t, 0.30, 0.42, 0.58, 0.80))
 	_gear_place_weapon(pose, layout, angle)
 	# Exact existing sword cloth amplitudes/envelopes; no added ripple.
 	var prepare: float = _hold(t, 0.0, 0.22, 0.27, 0.40)
@@ -601,7 +589,7 @@ static func _attack_heavy_pose(phase: float, layout: Dictionary, facing: String)
 
 static func _attack_stab_pose(phase: float, layout: Dictionary, facing: String) -> Dictionary:
 	var pose := _rest_pose(layout)
-	pose["weapon_l"]["visible"] = false
+	pose["crossbow_r"]["visible"] = false
 	var t: float = clampf(phase, 0.0, 1.0)
 	if is_zero_approx(t) or t >= 0.90:
 		return pose
@@ -654,7 +642,7 @@ static func _stab_step_feet(pose: Dictionary, layout: Dictionary, line: Vector2,
 
 static func _block_shield_pose(phase: float, layout: Dictionary, facing: String) -> Dictionary:
 	var pose := _rest_pose(layout)
-	pose["weapon_l"]["visible"] = false
+	pose["crossbow_r"]["visible"] = false
 	var t: float = clampf(phase, 0.0, 1.0)
 	if is_zero_approx(t) or is_equal_approx(t, 1.0):
 		return pose

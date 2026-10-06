@@ -5,10 +5,14 @@ func _ready() -> void:
 	var renderer: Node = renderer_script.new()
 	add_child(renderer)
 	var passed: bool = not OS.has_feature("editor")
+	var rules_free: bool = not FileAccess.file_exists("res://scripts/game_data.gd") and not FileAccess.file_exists("res://scripts/visual_equipment.gd")
+	passed = passed and rules_free
+	print("PROTAGONIST CUTOUT RULES-FREE PACKAGE: " + ("PASS" if rules_free else "FAIL"))
 	for facing: String in ["front", "rear"]:
 		var rig: Node = renderer.get("rigs")[facing]
 		passed = passed and (rig.get("load_errors") as PackedStringArray).is_empty() and (rig.get("bones") as Dictionary).size() == 22
-		for clip: String in ["idle", "walk", "attack", "cast", "shoot"]:
+		passed = passed and (rig.get("bones") as Dictionary).has("crossbow_r") and rig.bones["crossbow_r"].get_parent() == rig.bones["hand_r"]
+		for clip: String in ["idle", "walk", "attack", "attack_heavy", "attack_stab", "block_shield", "cast", "shoot"]:
 			rig.call("apply_pose", clip, 0.42)
 	var gear: Script = load("res://scripts/protagonist_cutout/gear_visuals.gd")
 	var registry: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://assets/units/protagonist_cutout/gear_visuals.json"))
@@ -26,6 +30,7 @@ func _ready() -> void:
 				for kind: String in ["replace", "attach"]:
 					for op: Dictionary in gear.ops_for_facing(equipped, facing)[kind]:
 						passed = passed and FileAccess.file_exists("res://assets/units/protagonist_cutout/" + str(op["file"]))
+				passed = _check_main_hand_shot(renderer, facing) and passed
 		passed = passed and gear._items.size() == registry["items"].size()
 		print("PROTAGONIST GEAR EXPORT ASSETS: " + ("PASS" if passed else "FAIL") + " (editor=" + str(OS.has_feature("editor")) + ")")
 		renderer.call("set_gear", gear.DEFAULTS)
@@ -38,3 +43,17 @@ func _ready() -> void:
 	await get_tree().process_frame
 	print("PROTAGONIST CUTOUT EXPORT RUNTIME: " + ("PASS" if passed else "FAIL") + " (editor=" + str(OS.has_feature("editor")) + ")")
 	get_tree().quit(0 if passed else 1)
+
+func _check_main_hand_shot(renderer: Node, facing: String) -> bool:
+	var direction := Vector2i(0, -1) if facing == "rear" else Vector2i(0, 1)
+	renderer.call("present", {"clip": "shoot", "phase": 0.42, "direction": direction}, false)
+	var snapshot: Dictionary = renderer.call("snapshot")
+	var rig: Node = renderer.get("rigs")[facing]
+	var passed: bool = bool(snapshot["crossbow_visible"]) and not rig.bones["weapon_r"].visible and bool(snapshot["offhand_visible"])
+	var offset: Array = rig.layout["ranged_attachment"]["muzzle_offset"]
+	var muzzle: Vector2 = rig.to_local(rig.bones["crossbow_r"].to_global(Vector2(offset[0], offset[1])))
+	passed = passed and (renderer.call("source_socket", true) as Vector2).distance_to(muzzle) < 0.001
+	passed = passed and (renderer.call("source_socket", true, true, direction) as Vector2).distance_to(muzzle) < 0.001
+	renderer.call("present", {"clip": "cast", "phase": 0.42, "direction": direction}, false)
+	passed = passed and not rig.bones["crossbow_r"].visible and rig.bones["weapon_r"].visible and bool(renderer.call("snapshot")["offhand_visible"])
+	return passed

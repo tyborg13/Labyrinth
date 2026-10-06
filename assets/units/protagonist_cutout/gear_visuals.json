@@ -144,10 +144,10 @@
               "file": "gear/splintered_shield/front_offhand.png",
               "bone": "forearm_l",
               "offset": [
-                158,
-                127
+                146,
+                96
               ],
-              "z_index": 50
+              "z_index": 72
             }
           ]
         },
@@ -158,10 +158,10 @@
               "file": "gear/splintered_shield/rear_offhand.png",
               "bone": "forearm_l",
               "offset": [
-                67,
-                124
+                52,
+                104
               ],
-              "z_index": 73
+              "z_index": 6
             }
           ]
         }
@@ -178,10 +178,10 @@
               "file": "gear/ward_kite/front_offhand.png",
               "bone": "forearm_l",
               "offset": [
-                159,
-                125
+                148,
+                88
               ],
-              "z_index": 50
+              "z_index": 72
             }
           ]
         },
@@ -192,10 +192,10 @@
               "file": "gear/ward_kite/rear_offhand.png",
               "bone": "forearm_l",
               "offset": [
-                68,
-                122
+                54,
+                97
               ],
-              "z_index": 73
+              "z_index": 6
             }
           ]
         }
@@ -212,8 +212,8 @@
               "file": "gear/parrying_dagger/front_offhand.png",
               "bone": "hand_l",
               "offset": [
-                155,
-                138
+                148,
+                134
               ],
               "z_index": 48
             }
@@ -226,10 +226,10 @@
               "file": "gear/parrying_dagger/rear_offhand.png",
               "bone": "hand_l",
               "offset": [
-                76,
-                127
+                64,
+                128
               ],
-              "z_index": 73
+              "z_index": 6
             }
           ]
         }
@@ -385,6 +385,14 @@
                 133,
                 195
               ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/ironshod_sabatons/front_shin_r.png"
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/ironshod_sabatons/front_shin_l.png"
             }
           ]
         },
@@ -405,6 +413,14 @@
                 87,
                 181
               ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/ironshod_sabatons/rear_shin_r.png"
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/ironshod_sabatons/rear_shin_l.png"
             }
           ]
         }
@@ -430,6 +446,14 @@
                 133,
                 195
               ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/emberstriders/front_shin_r.png"
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/emberstriders/front_shin_l.png"
             }
           ]
         },
@@ -450,6 +474,14 @@
                 87,
                 181
               ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/emberstriders/rear_shin_r.png"
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/emberstriders/rear_shin_l.png"
             }
           ]
         }

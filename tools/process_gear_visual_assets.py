@@ -18,7 +18,8 @@ import json
 import sys
 from pathlib import Path
 
-from PIL import Image
+import numpy as np
+from PIL import Image, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = ROOT / "spec/assets/visible_gear_slice/sources"
@@ -29,9 +30,9 @@ MANIFEST = ROOT / "spec/assets/visible_gear_slice/outputs.json"
 FIXED_SIZES = {
     ("war_maul", "front"): (95, 76), ("war_maul", "rear"): (95, 76),
     ("sawtooth_knife", "front"): (45, 32), ("sawtooth_knife", "rear"): (44, 33),
-    ("splintered_shield", "front"): (30, 38), ("splintered_shield", "rear"): (28, 36),
-    ("ward_kite", "front"): (28, 50), ("ward_kite", "rear"): (26, 46),
-    ("parrying_dagger", "front"): (21, 48), ("parrying_dagger", "rear"): (21, 48),
+    ("splintered_shield", "front"): (50, 75), ("splintered_shield", "rear"): (44, 72),
+    ("ward_kite", "front"): (46, 96), ("ward_kite", "rear"): (40, 90),
+    ("parrying_dagger", "front"): (28, 46), ("parrying_dagger", "rear"): (20, 48),
     ("cracked_lantern", "front"): (15, 27), ("cracked_lantern", "rear"): (15, 27),
     ("crown_of_thorns", "front"): (56, 16), ("crown_of_thorns", "rear"): (58, 16),
     ("war_dancer_sash", "front"): (59, 36), ("war_dancer_sash", "rear"): (61, 38),
@@ -40,7 +41,17 @@ WHOLE = {"war_maul": "weapon_r", "sawtooth_knife": "weapon_r", "splintered_shiel
          "ward_kite": "offhand", "parrying_dagger": "offhand", "cracked_lantern": "trinket",
          "crown_of_thorns": "trinket", "war_dancer_sash": "trinket"}
 PIECES = {"undertaker_plate": ("torso", "arm_r", "arm_l", "hips"), "cinderweave_mail": ("torso", "arm_r", "arm_l", "hips"),
-          "ironshod_sabatons": ("foot_r", "foot_l"), "emberstriders": ("foot_r", "foot_l")}
+          "ironshod_sabatons": ("foot_r", "foot_l", "shin_r", "shin_l"),
+         "emberstriders": ("foot_r", "foot_l", "shin_r", "shin_l")}
+# Image generation paints far finer than the chunky hero; its texture a pixel or
+# two wide reads as noise beside him (owner review 2026-10-06). The hero has
+# ~2-pixel colour runs and only 4-9% orphan pixels (pixels unlike all four
+# neighbours); raw reductions had 22-71%. Every gear texture is therefore
+# consolidated at native size: posterised to 24 colours, a 3x3 mode filter, and
+# orphan cleanup. The owner compared this with a Kuwahara filter and chose it for
+# the closest match to the hero's colour blocking, accepting the loss of
+# Cinderweave Mail's fine ring texture.
+POSTERISE_COLOURS = 24
 
 
 def base_part_size(facing: str, part: str) -> tuple[int, int]:
@@ -68,7 +79,7 @@ def key_green(im: Image.Image) -> Image.Image:
     return im
 
 
-def reduce(im: Image.Image, size: tuple[int, int]) -> Image.Image:
+def reduce(im: Image.Image, size: tuple[int, int], chunky: bool = False) -> Image.Image:
     box = im.getbbox()
     if box is None:
         raise ValueError("source is empty after keying")
@@ -89,7 +100,40 @@ def reduce(im: Image.Image, size: tuple[int, int]) -> Image.Image:
             if aa >= 110:
                 k = 255.0 / aa
                 op[x, y] = (min(255, round(rr * k)), min(255, round(gg * k)), min(255, round(bb * k)), 255)
-    return outline(out)
+    out = outline(out)
+    if chunky:
+        out = outline(consolidate(out))
+    return out
+
+
+def clean_orphans(im: Image.Image, threshold: int = 24, passes: int = 2) -> Image.Image:
+    """Give each pixel unlike all four neighbours the colour of its closest neighbour."""
+    a = np.asarray(im, dtype=np.float32).copy()
+    for _ in range(passes):
+        rgb, opaque = a[..., :3], a[..., 3] > 0
+        shifted, valid = [], []
+        for dy, dx in ((0, 1), (0, -1), (1, 0), (-1, 0)):
+            colour = np.roll(rgb, (dy, dx), (0, 1))
+            mask = np.roll(opaque, (dy, dx), (0, 1))
+            if dy: mask[0 if dy > 0 else -1, :] = False
+            if dx: mask[:, 0 if dx > 0 else -1] = False
+            shifted.append(colour)
+            valid.append(mask)
+        diff = np.stack([np.where(m, np.abs(c - rgb).sum(-1), np.inf) for c, m in zip(shifted, valid)])
+        nearest = diff.min(0)
+        orphan = opaque & np.isfinite(nearest) & (nearest >= threshold)
+        choice = np.take_along_axis(np.stack(shifted), diff.argmin(0)[None, ..., None].repeat(3, -1), 0)[0]
+        a[..., :3] = np.where(orphan[..., None], choice, rgb)
+    return Image.fromarray(a.clip(0, 255).astype(np.uint8)).copy()
+
+
+def consolidate(im: Image.Image) -> Image.Image:
+    alpha = im.getchannel("A")
+    flat = im.convert("RGB").quantize(colors=POSTERISE_COLOURS, method=Image.Quantize.MEDIANCUT,
+                                      dither=Image.Dither.NONE)
+    flat = flat.convert("RGB").filter(ImageFilter.ModeFilter(3)).convert("RGBA")
+    flat.putalpha(alpha)
+    return clean_orphans(flat)
 
 
 def outline(im: Image.Image, strength: float = 0.55) -> Image.Image:
@@ -143,7 +187,7 @@ def main() -> int:
         if not src.exists():
             print(f"missing source (stand-in kept): {src.relative_to(ROOT)}")
             continue
-        out = reduce(key_green(Image.open(src)), size)
+        out = reduce(key_green(Image.open(src)), size, True)
         rel = str(dst.relative_to(ROOT))
         if args.check:
             if not dst.exists() or Image.open(dst).convert("RGBA").tobytes() != out.tobytes():

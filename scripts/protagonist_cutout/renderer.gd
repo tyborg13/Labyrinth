@@ -220,11 +220,11 @@ func source_socket(shot: bool = false, released: bool = false, direction_delta: 
 		socket_facing = direction["facing"]
 		socket_mirrored = bool(direction["mirrored"])
 	var rig: Node2D = rigs[socket_facing]
-	var bone_name: String = "weapon_l" if shot else "hand_l"
+	var bone_name: String = "crossbow_r" if shot else "hand_l"
 	var point: Vector2
 	var offset: Vector2 = Vector2.ZERO
 	if shot:
-		var raw: Array = rig.layout.get("offhand_attachment", {}).get("muzzle_offset", [0, 0])
+		var raw: Array = rig.layout.get("ranged_attachment", {}).get("muzzle_offset", [0, 0])
 		offset = Vector2(float(raw[0]), float(raw[1]))
 	else:
 		offset = Vector2(-2, 5)
@@ -241,7 +241,7 @@ func snapshot() -> Dictionary:
 		"clip": "death" if clip == "death" else clip if ranged_still else "rest" if reduced_motion else clip,
 		"phase": 1.0 if clip == "death" and reduced_motion else 0.4 if ranged_still else 0.0 if reduced_motion else (_idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase),
 		"hand_source": source_socket(), "muzzle_source": source_socket(true),
-		"crossbow_visible": (rigs[facing].bones["weapon_l"] as Bone2D).visible if rigs[facing].bones.has("weapon_l") else false,
+		"crossbow_visible": (rigs[facing].bones["crossbow_r"] as Bone2D).visible if rigs[facing].bones.has("crossbow_r") else false,
 		"gear": _gear_signature, "offhand_visible": _offhand_visible(),
 		"rig_count": rigs.size(), "texture_id": texture().get_instance_id() if texture() != null else 0}
 

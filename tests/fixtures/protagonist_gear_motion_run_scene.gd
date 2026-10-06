@@ -72,9 +72,9 @@ func _play_timed_animation_frames(frame_count: int, frame_seconds: float, render
 			if str(snapshot.get("clip", "")) in ["block", "block_shield"] and float(snapshot.get("phase", 0.0)) >= 0.14:
 				await _proof_save(proof_label)
 	_proof_checkpoint = -1.0
-	if primary and proof_mode == "attack":
+	if primary and proof_mode in ["attack", "ranged"]:
 		# Reduced motion submits just the already-resolved contact still.
-		proof_expect.call(hp_changes == 1 if frame_seconds > 0.0 else hp_changes == 0, "One presentation HP transition per melee attack: " + proof_label)
+		proof_expect.call(hp_changes == 1 if frame_seconds > 0.0 else hp_changes == 0, "One presentation HP transition per attack: " + proof_label)
 		proof_hits.append({"initial_hp": initial_hp, "final_hp": previous_hp, "hp_changes": hp_changes,
 			"frames": frame_count, "frame_seconds": frame_seconds})
 
@@ -94,16 +94,23 @@ func _proof_save(label: String) -> void:
 		var direction: Vector2i = _proof_effect.get("to", Vector2i.ZERO) - _proof_effect.get("from", Vector2i.ZERO)
 		proof_expect.call(snapshot["facing"] == ("rear" if direction.y < 0 else "front") and not snapshot["mirrored"], "Actual attack faces its adjacent southwest/northeast target")
 		if renderer.weapon_motion() == "heavy":
-			proof_expect.call(not bool(snapshot["offhand_visible"]), "A two-hander keeps the equipped offhand hidden")
+			proof_expect.call(bool(snapshot["offhand_visible"]), "The one-handed maul retains its equipped kite")
 	if proof_mode == "block":
 		var expected_guard: String = "block_shield" if renderer.offhand_kind() == "shield" else "block"
 		proof_expect.call(snapshot["clip"] == expected_guard, "An absorbed enemy hit selects the correct guard")
-		proof_expect.call(bool(snapshot["offhand_visible"]) == (expected_guard == "block_shield"), "Shield guard is visible; two-handed guard has no offhand")
+		proof_expect.call(bool(snapshot["offhand_visible"]), "The equipped offhand remains visible during a guard")
 	if proof_mode == "ranged":
-		proof_expect.call(is_equal_approx(float(snapshot["phase"]), 0.42) and snapshot["facing"] == "rear", "Rear ranged checkpoint is exactly phase .42")
-		var rig: Node2D = board_view.get("_protagonist_renderer").rigs["rear"]
+		var delta: Vector2i = _proof_effect["to"] - _proof_effect["from"]
+		var direction: Dictionary = renderer.direction_for_delta(delta)
+		proof_expect.call(is_equal_approx(float(snapshot["phase"]), 0.42) and snapshot["facing"] == direction["facing"] and snapshot["mirrored"] == direction["mirrored"], "Ranged checkpoint is exactly phase .42 with the actual target facing")
+		proof_expect.call(bool(snapshot["offhand_visible"]), "Every ranged action retains its equipped offhand")
+		var rig: Node2D = renderer.rigs[snapshot["facing"]]
+		var shot: bool = _proof_effect["protagonist_ranged"] == "shoot"
+		proof_expect.call(bool(snapshot["crossbow_visible"]) == shot and rig.bones["weapon_r"].visible == not shot, "Only main-hand shots substitute the crossbow for the weapon")
+		if shot:
+			proof_expect.call(renderer.source_socket(true, true, delta).distance_to(snapshot["muzzle_source"]) < 0.001, "The released projectile starts at the visible right-hand muzzle")
 		for attachment: Sprite2D in rig.get("_gear_attachments"):
 			var basis: Transform2D = rig.global_transform.affine_inverse() * attachment.global_transform
-			proof_expect.call(absf(basis.x.length() - 1.0) < 0.0001 and absf(basis.y.length() - 1.0) < 0.0001, "Rear ranged gear stays at native pixel size")
+			proof_expect.call(absf(basis.x.length() - 1.0) < 0.0001 and absf(basis.y.length() - 1.0) < 0.0001, "Ranged gear stays at native pixel size")
 	if proof_capture.is_valid():
 		await proof_capture.call(self, label, {"effect": _proof_effect, "effect_progress": board_view.presentation.get("effect_progress", 1.0), "hero": snapshot})

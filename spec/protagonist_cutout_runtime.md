@@ -25,14 +25,18 @@ The old whole-sprite melee lunge is removed: the articulated torso drive and pla
 `assets/units/protagonist_cutout/gear_visuals.json` owns the five slots' visual
 defaults, weapon motion/hand count, per-facing part replacements and bone
 attachments in the unchanged 255-pixel source registration. Armor owns only the
-torso, sleeves and hips; boots own the feet. Mesh textures must retain their base
+torso, sleeves and hips; boots own the feet and shins (including same-size
+skinned rear shin replacements). Mesh textures must retain their base
 crop size. Cloak, mantle, scarf, head, hands and trousers keep their base paint.
 The loader validates and caches the JSON once, reports broken entries, and falls
 back to the slot default for absent or invalid item IDs. Missing/empty weapon,
 armor and boots use defaults; missing/empty offhand and trinket draw nothing.
-Two-handed weapons omit offhands. Shields stay visible during every action; held
-offhands yield only in their declared `hide_in_clips`, exactly while the crossbow
-bone is visible. Reactions and reduced-motion stills use the same visibility rule.
+All slice weapons are one-handed. Shields and held offhands stay visible in
+every clip, reaction and reduced-motion still; there is no clip-hiding or
+two-handed offhand-hiding path. `is_two_handed` remains a metadata API for later.
+The temporary `crossbow_r` bone is under `hand_r`, registered at the main weapon
+joint. Only `shoot` hides `weapon_r`, exactly while the crossbow is visible
+(phase > 0.01 and < 0.94); casting still uses the left hand.
 
 `gear_visuals.gd` exposes static `resolve`, `signature`, `weapon_motion`,
 `is_two_handed`, `offhand_kind` and `ops_for_facing` (replace/attach/weapon_grip).
@@ -65,7 +69,7 @@ requires.
 
 The resolved weapon's `motion` picks the melee clip: `sword` keeps the accepted
 `attack` cut and its phase remap; `heavy` plays `attack_heavy` (43 frames,
-0.72 s), a two-handed gather, an apex angled back over the shoulder so the
+0.72 s), a one-handed gather, an apex angled back over the shoulder so the
 raised head stays visible, a four-frame slam over the top and an impact hold;
 `stab` plays `attack_stab` (24 frames, 0.40 s), a cock at the hip, then a
 step-in lunge (leading foot 8 source px and root 10 px along the board diagonal)
@@ -73,24 +77,32 @@ with the trailing foot planted. Heavy/stab frame counts come from `clip_specs()`
 (the sword keeps the renderer's `MELEE_FRAMES`);
 contact stays at effect progress 0.42 for all three and self-centred sweeps keep
 their 0.24 s / 0.38 boundary by retiming the archetype pose. Resolver results,
-sounds and analytics do not change. The two-handed grip keeps the off hand on
-the haft 9 px toward the pommel, using the weapon's `weapon_grip` landmarks;
-those reach the sampler through a per-rig copy of the layout and never mutate
-the shared `RigData` dictionary.
+sounds and analytics do not change. Only the right arm holds the maul; the left
+forearm braces at -0.12 rad (front, mirrored rear) at contact and recovers by
+0.80. The approved body/direction keys stay intact. Front wrist targets are
+(106,118) at gather, (118,76) at apex, (96,134) at contact/hold and (94,130) at
+lift. Rear targets mirror these offsets about the rear shoulder: (145,114),
+(133,72), (155,130), (157,126). No reach corrections are needed. The updated
+registry `weapon_grip` preserves the painted palm/pommel registration through
+a per-rig layout copy, without mutating the shared `RigData` dictionary.
 
 `stab` replaces the slash arc with a thrust streak at the target (52 px behind
 to 16 px past contact, a 7-px warm glow under a 3-px core, plus a short contact
 spark); the harrier keeps its original thin streak. A `block` reaction plays
 `block_shield` (the shield rises in front of the chest, the sword stays down)
-only when a shield is drawn; a two-hander keeps the weapon-guard `block`.
+only when a shield is drawn, including the maul loadout; held or empty offhands
+keep the weapon-guard `block`.
 Gear attachments follow their bone's position and rotation but never its scale
 or skew, so foreshortened rear casting/shooting cannot stretch a shield; the
 rig's mirroring still applies. Reduced motion keeps the neutral still with gear.
 
 Proof: `tests/suites/protagonist_gear_suite.gd`, `protagonist_gear_motion_suite.gd`,
+`tests/protagonist_ranged_test.gd`, `tests/cutout_rig_data_test.gd`,
 `tests/protagonist_gear_motion_gameplay_test.gd` and the real-renderer probes
 `tests/protagonist_gear_probe.gd` and `tests/protagonist_gear_motion_probe.gd`.
-Design and review captures: `spec/design/visible_gear_slice/`.
+Design and review captures: `spec/design/visible_gear_slice/`. Round 2 native
+capture remains owner-run; the motion probe retains the fixed 1920×1080
+SubViewport and adds main-hand shots for shield/dagger loadouts and reflection.
 
 ## Verification and UI handoff — pass eight
 

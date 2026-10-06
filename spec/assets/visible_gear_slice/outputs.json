@@ -111,6 +111,22 @@
       20
     ]
   },
+  "assets/units/protagonist_cutout/gear/emberstriders/front_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/emberstriders_front_shin_l.png",
+    "source_sha256": "9d34faba4da60c3f17d38cf937892edd97754035a81dba8845fb77cbca27f302",
+    "size": [
+      36,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/emberstriders/front_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/emberstriders_front_shin_r.png",
+    "source_sha256": "1c6be271717ed58810d6ab9408437dc925aec96289161f58ece40b522f3b1f53",
+    "size": [
+      27,
+      27
+    ]
+  },
   "assets/units/protagonist_cutout/gear/emberstriders/rear_foot_l.png": {
     "source": "spec/assets/visible_gear_slice/sources/emberstriders_rear_foot_l.png",
     "source_sha256": "0d6279b352e18d7fd031e5f7556ae8e4383ed11cba19839ebb96805128dddd5d",
@@ -125,6 +141,22 @@
     "size": [
       39,
       24
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/emberstriders/rear_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/emberstriders_rear_shin_l.png",
+    "source_sha256": "6e15b1d843fc831d081c8770ef604addd3527dea9722fcd8e89c69547421b252",
+    "size": [
+      30,
+      34
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/emberstriders/rear_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/emberstriders_rear_shin_r.png",
+    "source_sha256": "c602efd786fe9a668377323b51fd6a93f03155d36e08c978b1db952d35431b8d",
+    "size": [
+      27,
+      40
     ]
   },
   "assets/units/protagonist_cutout/gear/ironshod_sabatons/front_foot_l.png": {
@@ -143,6 +175,22 @@
       20
     ]
   },
+  "assets/units/protagonist_cutout/gear/ironshod_sabatons/front_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/ironshod_sabatons_front_shin_l.png",
+    "source_sha256": "9dbe9d15662876da2925bdb661594f57116acadb53d8ac2cd2615793a1b11a43",
+    "size": [
+      36,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/ironshod_sabatons/front_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/ironshod_sabatons_front_shin_r.png",
+    "source_sha256": "38b9a1897841b7018242e3580fafd0334e3ba1bdca37b3455b19b3c359f891c5",
+    "size": [
+      27,
+      27
+    ]
+  },
   "assets/units/protagonist_cutout/gear/ironshod_sabatons/rear_foot_l.png": {
     "source": "spec/assets/visible_gear_slice/sources/ironshod_sabatons_rear_foot_l.png",
     "source_sha256": "8dbcbb6948e61d285d9e71d62d9ac9a7cbb841a52ff1cceef019eee388d3e891",
@@ -159,19 +207,35 @@
       24
     ]
   },
+  "assets/units/protagonist_cutout/gear/ironshod_sabatons/rear_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/ironshod_sabatons_rear_shin_l.png",
+    "source_sha256": "a633b6ddf794939cb1253e16f8092474ed63217071e750c028b4e5c3b0013469",
+    "size": [
+      30,
+      34
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/ironshod_sabatons/rear_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/ironshod_sabatons_rear_shin_r.png",
+    "source_sha256": "bb0a0d2205053de6cc7a19d6105608882e7c43bd0f614c246da931bfc5faf3dd",
+    "size": [
+      27,
+      40
+    ]
+  },
   "assets/units/protagonist_cutout/gear/parrying_dagger/front_offhand.png": {
     "source": "spec/assets/visible_gear_slice/sources/parrying_dagger_front.png",
-    "source_sha256": "1eaa77675e48a7eb0d81e715ad2f8ebafcbc93a8dbe9a48294faec409a21fb3a",
+    "source_sha256": "12356f19a38def7019d0f6d03ff2c7b35308a10c8e5671aee8f3e126143bbad2",
     "size": [
-      21,
-      48
+      28,
+      46
     ]
   },
   "assets/units/protagonist_cutout/gear/parrying_dagger/rear_offhand.png": {
     "source": "spec/assets/visible_gear_slice/sources/parrying_dagger_rear.png",
-    "source_sha256": "5ea4523bc82c4334785748c60cd5242a268700502ff0dfdb4c7769777a9b9b95",
+    "source_sha256": "a72623333576d921a68f35c2fa4f97075fa8dd65202a3bdf5bb8af71675946d7",
     "size": [
-      21,
+      20,
       48
     ]
   },
@@ -193,18 +257,18 @@
   },
   "assets/units/protagonist_cutout/gear/splintered_shield/front_offhand.png": {
     "source": "spec/assets/visible_gear_slice/sources/splintered_shield_front.png",
-    "source_sha256": "7e0b51afe922d95ec7768c043a4673c693a8936ed3e0667578e05dcfb503fac6",
+    "source_sha256": "764c85250cdd826e25cce85bc6b7886b1f1131ce90fe5e2ec0c9c2ac9f533c77",
     "size": [
-      30,
-      38
+      50,
+      75
     ]
   },
   "assets/units/protagonist_cutout/gear/splintered_shield/rear_offhand.png": {
     "source": "spec/assets/visible_gear_slice/sources/splintered_shield_rear.png",
-    "source_sha256": "68a9f88bd6df71308ecde22f3f73727c566151de35381f450359c89557d960cf",
+    "source_sha256": "6e600fb8fff98a0437966632ef8be869a3775f6934eae4e2b30fc324804754f7",
     "size": [
-      28,
-      36
+      44,
+      72
     ]
   },
   "assets/units/protagonist_cutout/gear/undertaker_plate/front_arm_l.png": {
@@ -305,18 +369,18 @@
   },
   "assets/units/protagonist_cutout/gear/ward_kite/front_offhand.png": {
     "source": "spec/assets/visible_gear_slice/sources/ward_kite_front.png",
-    "source_sha256": "f3ac2aedfacb2d0707a543e1a88584cab3139e15d147214571555458266ac1fd",
+    "source_sha256": "19656a370ea54ecd7b3a7d6fcf27e21b6ba8972d5ba77fa581d0a8560307424b",
     "size": [
-      28,
-      50
+      46,
+      96
     ]
   },
   "assets/units/protagonist_cutout/gear/ward_kite/rear_offhand.png": {
     "source": "spec/assets/visible_gear_slice/sources/ward_kite_rear.png",
-    "source_sha256": "338455106f6b5b35e778c356d8258a0789bd38cb8679a5d0928d1a85b30eac86",
+    "source_sha256": "ecf211e715608338d47a493052d9c6cc0569528e90ad26f631e588f84c84d2f3",
     "size": [
-      26,
-      46
+      40,
+      90
     ]
   }
 }

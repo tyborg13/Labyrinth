@@ -90,3 +90,10 @@ Fixed:
 - **Boots:** only the feet were replaced, which made half-boots. The boots slot now also owns the shins.
 - **Weapons:** all are one-handed for now and the offhand is always visible.
 - **Crossbow:** moves to the main hand for shots.
+
+Round 2 follow-ups (owner, 2026-10-06):
+- **Shield size:** 1.5× the round-2 size. Round shield 50×75 front, kite 46×96 front.
+- **Front shields:** drawn over the cloak and mantle (z 72), under the scarf and head.
+- **Rear offhands:** behind the whole body (z 6, below the far arm's z 7), so only the rim shows past the silhouette.
+- **One-handed maul apex:** goes over the weapon-side shoulder. The rear apex sits lower so the head stays under the HP bar.
+- **Pixel density:** every gear texture passes through `consolidate` in `tools/process_gear_visual_assets.py` (posterise to 24 colours, 3×3 mode filter, orphan cleanup), so it clusters like the hero's own paint. The owner compared Kuwahara and mode-filter variants on the hero and chose this one for consistency with the original sprite, accepting the loss of Cinderweave Mail's fine ring texture.

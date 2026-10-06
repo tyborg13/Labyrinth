@@ -218,7 +218,6 @@ func apply_gear(ops: Dictionary) -> void:
 		sprite.z_as_relative = false
 		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 		sprite.set_meta("gear_attachment", str(op.get("item_id", "")))
-		sprite.set_meta("hide_in_clips", PackedStringArray(op.get("hide_in_clips", [])))
 		# Skeleton descendants precede the later joint meshes at equal global z.
 		# Thus the front dagger (48) sits below Skin_arm_l (48) and hand_l (49).
 		(bones[bone_name] as Bone2D).add_child(sprite)
@@ -229,8 +228,8 @@ func apply_gear(ops: Dictionary) -> void:
 	_update_gear_pose(_gear_clip, _gear_phase)
 
 func _update_gear_pose(clip_name: String, phase: float) -> void:
+	_gear_clip = clip_name
 	_gear_phase = phase
-	_update_gear_visibility(clip_name)
 	if _gear_mounts.is_empty():
 		return
 	var to_source: Transform2D = global_transform.affine_inverse()
@@ -251,12 +250,6 @@ func _update_gear_pose(clip_name: String, phase: float) -> void:
 		# Cancel the inherited affine basis in source space, retaining the rig's
 		# reflection. No bone writes or allocations in this per-pose gear path.
 		sprite.transform = bone_pose.affine_inverse() * next
-
-func _update_gear_visibility(clip_name: String) -> void:
-	_gear_clip = clip_name
-	var crossbow_visible: bool = bones.has("weapon_l") and (bones["weapon_l"] as Bone2D).visible
-	for attachment: Sprite2D in _gear_attachments:
-		attachment.visible = not (crossbow_visible and (attachment.get_meta("hide_in_clips") as PackedStringArray).has(clip_name))
 
 func apply_pose(clip_name: String, phase: float) -> void:
 	var pose: Dictionary = Motion.sample_pose(clip_name, phase, layout, facing)

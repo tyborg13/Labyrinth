@@ -88,7 +88,7 @@ func _initialize() -> void:
 			await _pose(clip, 0.42)
 			var snap: Dictionary = _board.protagonist_animation_snapshot()
 			_expect(snap["crossbow_visible"] == (clip == "shoot"), "Crossbow only shows for shooting")
-			_expect(snap["offhand_visible"] == (index == 0 or clip == "cast"), "Shield stays; held dagger yields while shooting")
+			_expect(bool(snap["offhand_visible"]), "The offhand stays equipped while casting and shooting")
 			await _capture("L%d_board_%s_phase_042" % [index, clip])
 	await _fixture(Gear.DEFAULTS)
 	await _pose("block", 0.25)

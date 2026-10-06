@@ -1,6 +1,7 @@
 extends RefCounted
 
 const Motion = preload("res://scripts/protagonist_cutout/motion.gd")
+const AssetLoader = preload("res://scripts/asset_loader.gd")
 const Rig = preload("res://scripts/protagonist_cutout/rig.gd")
 const Gear = preload("res://scripts/protagonist_cutout/gear_visuals.gd")
 const Renderer = preload("res://scripts/protagonist_cutout/renderer.gd")
@@ -78,7 +79,7 @@ static func _check_support_and_lengths(layout: Dictionary, facing: String, clip:
 			for terminal: String in ["hand_", "foot_"]:
 				var world: Transform2D = Motion._world_transform(pose, layout, terminal + side)
 				max_basis_error = maxf(max_basis_error, maxf(absf(world.x.length() - 1.0), absf(world.y.length() - 1.0)))
-		expect.call(not bool(pose["weapon_l"]["visible"]), "Gear melee/guard does not reveal the crossbow")
+		expect.call(not bool(pose["crossbow_r"]["visible"]), "Gear melee/guard does not reveal the crossbow")
 	expect.call(max_foot_error < 0.15, "%s/%s feet follow their support targets (max %.6f px)" % [facing, clip, max_foot_error])
 	expect.call(max_length_error < 0.15 and max_basis_error < 0.001, "%s/%s preserves painted lengths and rigid terminals (length %.6f, basis %.6f)" % [facing, clip, max_length_error, max_basis_error])
 	if clip == "attack_stab":
@@ -98,25 +99,68 @@ static func _weapon_direction(pose: Dictionary, layout: Dictionary) -> Vector2:
 
 static func _check_heavy(layout: Dictionary, facing: String, expect: Callable) -> void:
 	var max_grip_error: float = 0.0
-	for sample: int in range(121):
-		var phase: float = 0.08 + 0.60 * float(sample) / 120.0
+	for sample: int in range(201):
+		var phase: float = float(sample) / 200.0
 		var pose: Dictionary = Motion.sample_pose("attack_heavy", phase, layout, facing)
-		var right: Vector2 = Motion._world_transform(pose, layout, "hand_r").origin
-		var left: Vector2 = Motion._world_transform(pose, layout, "hand_l").origin
-		max_grip_error = maxf(max_grip_error, left.distance_to(right - _weapon_direction(pose, layout) * 9.0))
-	expect.call(max_grip_error < 1.5, "Both heavy wrists grip the haft through .08-.68: %s (%.6f px)" % [facing, max_grip_error])
+		var wrist: Transform2D = Motion._world_transform(pose, layout, "hand_r")
+		var weapon: Transform2D = Motion._world_transform(pose, layout, "weapon_r")
+		var grip: Vector2 = Motion._gear_vector(layout["weapon_grip"]["assembled"])
+		var palm: Vector2 = wrist * (grip - Motion._joint_position(layout, "hand_r"))
+		var registered: Vector2 = weapon * (grip - Motion._joint_position(layout, "weapon_r"))
+		max_grip_error = maxf(max_grip_error, registered.distance_to(palm))
+	expect.call(max_grip_error < 0.001, "The right fist alone registers on the maul grip throughout the slam: " + facing)
+	var front_keys: Array = [[0.12, Vector2(106, 118)], [0.30, Vector2(104, 78)], [0.36, Vector2(104, 78)],
+		[0.42, Vector2(96, 134)], [0.48, Vector2(96, 134)], [0.58, Vector2(96, 134)], [0.72, Vector2(94, 130)]]
+	var rear_keys: Array = [[0.12, Vector2(145, 114)], [0.30, Vector2(150, 80)], [0.36, Vector2(150, 80)],
+		[0.42, Vector2(155, 130)], [0.48, Vector2(155, 130)], [0.58, Vector2(155, 130)], [0.72, Vector2(157, 126)]]
+	var keys: Array = rear_keys if facing == "rear" else front_keys
+	for key: Array in keys:
+		var pose: Dictionary = Motion.sample_pose("attack_heavy", key[0], layout, facing)
+		var actual: Vector2 = Motion._world_transform(pose, layout, "hand_r").origin
+		var shift: float = actual.distance_to(key[1])
+		expect.call(shift < 0.15, "One-handed heavy retains its requested wrist at %.2f: %s" % [key[0], facing])
+		print("GEAR HEAVY REACH %s %.2f: wrist=%s shift=%.6f grip_error=%.6f" % [facing, key[0], actual, shift, max_grip_error])
 	var contact: Dictionary = Motion.sample_pose("attack_heavy", 0.42, layout, facing)
-	var target := Vector2(136, 126) if facing == "rear" else Vector2(122, 132)
-	expect.call(Motion._world_transform(contact, layout, "hand_r").origin.distance_to(target) < 0.15, "Heavy contact retains its authored wrist at .42: " + facing)
 	var contact_dir := Vector2(0.60, 0.80) if facing == "rear" else Vector2(-0.60, 0.80)
 	expect.call(_weapon_direction(contact, layout).distance_to(contact_dir) < 0.001, "Heavy lands its slam at .42: " + facing)
+	expect.call(is_equal_approx(float(contact["forearm_l"]["rotation"]), 0.12 if facing == "rear" else -0.12), "The free left forearm braces its shield at contact: " + facing)
+	var recovered: Dictionary = Motion.sample_pose("attack_heavy", 0.80, layout, facing)
+	expect.call(is_zero_approx(float(recovered["forearm_l"]["rotation"])), "The shield brace recovers by .80: " + facing)
 	for phase: float in [0.30, 0.36]:
 		var pose: Dictionary = Motion.sample_pose("attack_heavy", phase, layout, facing)
-		var apex := Vector2(-0.55, -0.83) if facing == "rear" else Vector2(0.55, -0.83)
-		expect.call(_weapon_direction(pose, layout).distance_to(apex.normalized()) < 0.001, "Heavy apex aims beside the head: " + facing)
-		var wrist := Vector2(128, 84 if phase == 0.30 else 83) if facing == "rear" else Vector2(132, 84 if phase == 0.30 else 83)
-		expect.call(Motion._world_transform(pose, layout, "hand_r").origin.distance_to(wrist) <= 6.0, "Heavy apex wrist remains within the 6px adjustment limit")
-		print("GEAR HEAVY APEX %s %.2f: wrist=%s shift=%.6f grip_error=%.6f" % [facing, phase, Motion._world_transform(pose, layout, "hand_r").origin, Motion._world_transform(pose, layout, "hand_r").origin.distance_to(wrist), max_grip_error])
+		# The rear apex sits lower so the hammer head stays below the board HP bar.
+		var apex := Vector2(0.60, -0.80) if facing == "rear" else Vector2(-0.35, -0.94)
+		expect.call(_weapon_direction(pose, layout).distance_to(apex.normalized()) < 0.001, "Heavy apex still aims beside the head: " + facing)
+		var weapon: Transform2D = Motion._world_transform(pose, layout, "weapon_r")
+		var tip: Vector2 = weapon * (Motion._gear_vector(layout["weapon_grip"]["tip"]) - Motion._joint_position(layout, "weapon_r"))
+		var head_bounds: Rect2 = _head_alpha_bounds(pose, layout)
+		var clearance: float = tip.x - head_bounds.end.x if facing == "rear" else head_bounds.position.x - tip.x
+		expect.call(head_bounds.has_area() and clearance >= 8.0, "Heavy hammer head clears the posed hair bounds by at least 8px at %.2f: %s (%.6fpx)" % [phase, facing, clearance])
+		print("GEAR HEAVY APEX %s %.2f: tip=%s hair_clearance=%.6f" % [facing, phase, tip, clearance])
+	var downstroke: Dictionary = Motion.sample_pose("attack_heavy", 0.39, layout, facing)
+	var chop_direction: Vector2 = _weapon_direction(downstroke, layout)
+	expect.call(chop_direction.x > 0.98 if facing == "rear" else chop_direction.x < -0.98, "Heavy downstroke passes through horizontal on the weapon side: " + facing)
+
+static func _head_alpha_bounds(pose: Dictionary, layout: Dictionary) -> Rect2:
+	for part: Dictionary in layout["parts"]:
+		if str(part["name"]) != "head":
+			continue
+		var texture: Texture2D = AssetLoader.load_texture_source_first(str(part["file"]))
+		var image: Image = AssetLoader.texture_source_image(texture)
+		if image == null:
+			return Rect2()
+		var alpha: Rect2 = Rect2(image.get_used_rect())
+		if not alpha.has_area():
+			return Rect2()
+		# Source pixels are offset from the head joint, then inherit its posed
+		# transform. The enclosing rectangle conservatively includes all hair.
+		var offset: Vector2 = Motion._gear_vector(part["offset"]) - Motion._joint_position(layout, str(part["bone"]))
+		var head: Transform2D = Motion._world_transform(pose, layout, str(part["bone"]))
+		var bounds := Rect2(head * (alpha.position + offset), Vector2.ZERO)
+		for corner: Vector2 in [alpha.position + Vector2(alpha.size.x, 0), alpha.end, alpha.position + Vector2(0, alpha.size.y)]:
+			bounds = bounds.expand(head * (corner + offset))
+		return bounds
+	return Rect2()
 
 static func _check_stab(layout: Dictionary, facing: String, expect: Callable) -> void:
 	var direction: float = -1.0 if facing == "rear" else 1.0
@@ -184,7 +228,7 @@ static func _check_renderer(tree: SceneTree, expect: Callable) -> void:
 			var phase: float = Renderer.attack_pose_phase(0.30) if expected == "attack" else 0.30
 			expect.call(is_equal_approx(float(renderer.snapshot()["phase"]), phase), "Only sword retains its historical phase remap")
 			renderer.present({"clip": "block", "phase": 0.25}, false)
-			expect.call(renderer.snapshot()["clip"] == ("block" if weapon == "war_maul" else "block_shield"), "Shield guard uses the reaction path; a two-hander never raises an offhand")
+			expect.call(renderer.snapshot()["clip"] == "block_shield", "Every one-handed loadout with a shield uses the shield reaction path")
 			expect.call(renderer.snapshot()["facing"] == ("rear" if delta.y < 0 else "front"), "Guard retains interrupted action facing")
 			renderer.present({"clip": "attack", "phase": 1.0, "direction": delta}, false)
 			expect.call(renderer.snapshot()["clip"] == "idle" and renderer.snapshot()["facing"] == "front" and not renderer.snapshot()["mirrored"], "Every completed archetype returns to front idle")

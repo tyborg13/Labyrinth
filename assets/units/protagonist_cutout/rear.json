@@ -154,11 +154,11 @@
         147
       ]
     },
-    "weapon_l": {
-      "parent": "hand_l",
+    "crossbow_r": {
+      "parent": "hand_r",
       "position": [
-        86,
-        136
+        170,
+        147
       ]
     }
   },
@@ -386,13 +386,13 @@
     {
       "name": "crossbow",
       "file": "res://assets/units/protagonist_cutout/rear/crossbow.png",
-      "bone": "weapon_l",
+      "bone": "crossbow_r",
       "offset": [
-        78,
-        84
+        162,
+        95
       ],
-      "z_index": 9,
-      "equipment_slot": "offhand"
+      "z_index": 66,
+      "equipment_slot": "weapon"
     }
   ],
   "joint_meshes": [
@@ -206872,10 +206872,10 @@
     "rear_leg": "one-source-pixel mesh rows with shared knee and ankle weights; rigid boot retained",
     "rear_cloak": "independent drape widened 70 percent toward the far shoulder and 20 percent toward the near shoulder and raised three pixels; tapers to unchanged hanging tail by y118; underlying shoulder coverage retained"
   },
-  "offhand_attachment": {
+  "ranged_attachment": {
     "grip": [
-      86,
-      136
+      170,
+      147
     ],
     "muzzle_offset": [
       60,

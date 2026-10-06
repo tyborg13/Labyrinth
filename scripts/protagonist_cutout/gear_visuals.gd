@@ -6,7 +6,7 @@ const BASE: String = "res://assets/units/protagonist_cutout"
 const PATH: String = BASE + "/gear_visuals.json"
 const SLOTS: PackedStringArray = ["weapon", "offhand", "armor", "boots", "trinket"]
 const DEFAULTS: Dictionary = {"weapon": "training_sword", "offhand": "splintered_shield", "armor": "patched_cloak", "boots": "skirmisher_boots", "trinket": "cracked_lantern"}
-const REPLACE_PARTS: Dictionary = {"weapon": ["weapon_r"], "armor": ["torso", "arm_r", "arm_l", "hips"], "boots": ["foot_r", "foot_l"], "offhand": [], "trinket": []}
+const REPLACE_PARTS: Dictionary = {"weapon": ["weapon_r"], "armor": ["torso", "arm_r", "arm_l", "hips"], "boots": ["foot_r", "foot_l", "shin_r", "shin_l"], "offhand": [], "trinket": []}
 
 static var _loaded: bool = false
 static var _defaults: Dictionary = DEFAULTS.duplicate()
@@ -44,14 +44,6 @@ static func _load() -> void:
 static func _valid_point(value: Variant) -> bool:
 	return value is Array and value.size() == 2 and (value[0] is float or value[0] is int) and (value[1] is float or value[1] is int)
 
-static func _valid_hide(value: Variant) -> bool:
-	if not value is Array:
-		return false
-	for clip: Variant in value:
-		if not clip is String:
-			return false
-	return true
-
 static func _valid_entry(entry: Variant, layouts: Dictionary) -> bool:
 	if not entry is Dictionary or not SLOTS.has(str(entry.get("slot", ""))) or not entry.get("facings") is Dictionary:
 		return false
@@ -61,8 +53,6 @@ static func _valid_entry(entry: Variant, layouts: Dictionary) -> bool:
 	if slot == "weapon" and float(entry["hands"]) != float(int(entry["hands"])):
 		return false
 	if slot == "offhand" and entry.get("held") not in ["shield", "hand"]:
-		return false
-	if not _valid_hide(entry.get("hide_in_clips", [])):
 		return false
 	var facings: Dictionary = entry["facings"]
 	if not facings.is_empty() and (not facings.has("front") or not facings.has("rear")):
@@ -100,8 +90,6 @@ static func _valid_entry(entry: Variant, layouts: Dictionary) -> bool:
 						return false
 					if float(op["z_index"]) != float(int(op["z_index"])) or int(op["z_index"]) < RenderingServer.CANVAS_ITEM_Z_MIN or int(op["z_index"]) > RenderingServer.CANVAS_ITEM_Z_MAX:
 						return false
-					if not _valid_hide(op.get("hide_in_clips", [])):
-						return false
 	return true
 
 static func resolve(equipped: Dictionary) -> Dictionary:
@@ -129,8 +117,6 @@ static func is_two_handed(equipped: Dictionary) -> bool:
 	return int(_items.get(resolve(equipped)["weapon"], {}).get("hands", 1)) == 2
 
 static func offhand_kind(equipped: Dictionary) -> String:
-	if is_two_handed(equipped):
-		return ""
 	return str(_items.get(resolve(equipped)["offhand"], {}).get("held", ""))
 
 static func ops_for_facing(equipped: Dictionary, facing: String) -> Dictionary:
@@ -139,8 +125,6 @@ static func ops_for_facing(equipped: Dictionary, facing: String) -> Dictionary:
 	var attachments: Array = []
 	var grip: Dictionary = {}
 	for slot: String in SLOTS:
-		if slot == "offhand" and is_two_handed(resolved):
-			continue
 		var id: String = resolved[slot]
 		var entry: Dictionary = _items.get(id, {})
 		var ops: Dictionary = entry.get("facings", {}).get(facing, {})
@@ -149,7 +133,6 @@ static func ops_for_facing(equipped: Dictionary, facing: String) -> Dictionary:
 				var prepared: Dictionary = op.duplicate(true)
 				prepared["item_id"] = id
 				if kind == "attach":
-					prepared["hide_in_clips"] = op.get("hide_in_clips", entry.get("hide_in_clips", [])).duplicate()
 					attachments.append(prepared)
 				else:
 					replacements.append(prepared)

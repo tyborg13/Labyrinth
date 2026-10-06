@@ -34,17 +34,25 @@ static func run(scene: Node, expect: Callable, capture: Callable = Callable()) -
 		var result: Dictionary = Combat.new().resolve_enemy_turn_with_steps(state, 0)
 		expect.call(int(result["state"]["player"]["hp"]) == 24 and int(result["state"]["player"]["block"]) < 20, "Real enemy resolver absorbs the hit with block")
 		scene.proof_mode = "block"
-		scene.proof_label = "L%d_absorbed_enemy_hit_%s" % [index, "sword_block" if index == 1 else "shield_block"]
+		scene.proof_label = "L%d_absorbed_enemy_hit_%s" % [index, "shield_block"]
 		await scene.call("_animate_enemy_phase_steps", state, result["steps"])
 		expect.call(scene.proof_captures.has(scene.proof_label), "Absorbed enemy hit renders its actual guard reaction")
 		checks.append({"label": scene.proof_label, "player_hp": result["state"]["player"]["hp"], "remaining_block": result["state"]["player"]["block"]})
-	for card: String in ["guiding_flare", "bone_dart"]:
-		await _fixture(scene, Gear.DEFAULTS, card, Vector2i(0, -1))
+	var ranged_cases: Array = [
+		{"loadout": 0, "card": "guiding_flare", "direction": Vector2i(0, -1), "label": "L0_rear_cast"},
+		{"loadout": 0, "card": "guiding_flare", "direction": Vector2i(0, 1), "label": "L0_front_cast"},
+		{"loadout": 0, "card": "bone_dart", "direction": Vector2i(0, 1), "label": "L0_front_southwest_shoot"},
+		{"loadout": 0, "card": "bone_dart", "direction": Vector2i(0, -1), "label": "L0_rear_northeast_shoot"},
+		{"loadout": 0, "card": "bone_dart", "direction": Vector2i(1, 0), "label": "L0_mirrored_southeast_shoot"},
+		{"loadout": 2, "card": "bone_dart", "direction": Vector2i(0, 1), "label": "L2_front_southwest_shoot"},
+		{"loadout": 2, "card": "bone_dart", "direction": Vector2i(0, -1), "label": "L2_rear_northeast_shoot"}]
+	for case: Dictionary in ranged_cases:
+		await _fixture(scene, loadouts[case["loadout"]], case["card"], case["direction"])
 		scene.proof_mode = "ranged"
-		scene.proof_label = "L0_rear_%s" % ("cast" if card == "guiding_flare" else "shoot")
-		scene.proof_ranged_release = Fx.anticipation_end_progress(Fx.STYLE_FIREBALL) if card == "guiding_flare" else 0.18
-		checks.append(await _play_card(scene, card, Vector2i(0, -1), expect))
-		expect.call(scene.proof_captures.has(scene.proof_label + "_phase_042"), "Rear ranged action captures its .42 release")
+		scene.proof_label = case["label"]
+		scene.proof_ranged_release = Fx.anticipation_end_progress(Fx.STYLE_FIREBALL) if case["card"] == "guiding_flare" else 0.18
+		checks.append(await _play_card(scene, case["card"], case["direction"], expect))
+		expect.call(scene.proof_captures.has(scene.proof_label + "_phase_042"), "Ranged action captures its .42 release: " + scene.proof_label)
 	await _fixture(scene, L1, "crushing_blow", Vector2i(0, 1), true)
 	scene.proof_mode = "attack"
 	scene.proof_label = "L1_crushing_blow"

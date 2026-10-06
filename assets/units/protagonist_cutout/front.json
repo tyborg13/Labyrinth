@@ -154,11 +154,11 @@
         135
       ]
     },
-    "weapon_l": {
-      "parent": "hand_l",
+    "crossbow_r": {
+      "parent": "hand_r",
       "position": [
-        165,
-        147
+        86,
+        135
       ]
     }
   },
@@ -386,13 +386,13 @@
     {
       "name": "crossbow",
       "file": "res://assets/units/protagonist_cutout/front/crossbow.png",
-      "bone": "weapon_l",
+      "bone": "crossbow_r",
       "offset": [
-        89,
-        123
+        10,
+        111
       ],
-      "z_index": 48,
-      "equipment_slot": "offhand"
+      "z_index": 66,
+      "equipment_slot": "weapon"
     }
   ],
   "joint_meshes": [
@@ -100277,10 +100277,10 @@
     "baseline_commit": "66e36c0f51116171edf6611f9a0f346426ec0b0d",
     "front_boot": "Built-in image generation style edit; original toe direction and occupied cuff; wider sole, heavier outline and darker undersides. Alpha crop fitted at 40x30, registered to the existing sole floor."
   },
-  "offhand_attachment": {
+  "ranged_attachment": {
     "grip": [
-      165,
-      147
+      86,
+      135
     ],
     "muzzle_offset": [
       -64,
