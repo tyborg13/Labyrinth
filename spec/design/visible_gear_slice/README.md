@@ -99,3 +99,14 @@ Round 2 follow-ups (owner, 2026-10-06):
 - **Rear offhands:** behind the whole body (z 6, below the far arm's z 7), so only the rim shows past the silhouette.
 - **One-handed maul apex:** goes over the weapon-side shoulder. The rear apex sits lower so the head stays under the HP bar.
 - **Pixel density:** every gear texture passes through `consolidate` in `tools/process_gear_visual_assets.py` (posterise to 24 colours, 3×3 mode filter, orphan cleanup), so it clusters like the hero's own paint. The owner compared Kuwahara and mode-filter variants on the hero and chose this one for consistency with the original sprite, accepting the loss of Cinderweave Mail's fine ring texture.
+
+## Full pass (owner request 2026-10-06: all 72 items before done)
+
+Every item in `data/equipment.json` now draws its own art. New weapon motions (unit 4): `thrust` (spear, lance, halberd), `lash` (galewhip), `bow`, and `repeater` (the weapon is the crossbow). Unit 5 and its follow-up:
+- **Rear weapons:** draw behind the whole body (z 5); a bow or repeater shot draws in front (z 66) while aiming.
+- **Long weapons:** poles and the bow use the owner's steep outward carry, through the fist with the head up past the near shoulder and the butt by the foot, never crossing the body; the fist turns to hold them.
+- **Bow shot:** a one-arm aim like the crossbow, because the hero's arms are too short for a two-hand draw.
+- **Parrying dagger:** the fist is cut out of the texture so it reads as gripped.
+- **Robe-style armor:** hips pieces keep their natural mid-thigh length.
+
+Redone after design-owner review: Galewhip, Parrying Dagger, Basalt Pavise, Grapple Hook, Trapdoor Spurs, Cloudstep Sandals, and the four long weapons (the lance redesigned as grim, per the owner). Review sheets: `review/full_*.png`.
