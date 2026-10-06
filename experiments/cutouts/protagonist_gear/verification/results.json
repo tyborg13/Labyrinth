@@ -1,0 +1,28 @@
+{
+  "motion": "GEAR_MOTION_CONTRACTS: PASS",
+  "accepted": "GEAR_ACCEPTED_POSES: PASS (8 clips \u00d7 2 facings \u00d7 201 phases \u00d7 3 cases)",
+  "workflow": "Ran 16 tests in 0.595s\n\nOK",
+  "full_suite": "TEST RESULT: FAIL (5 failure(s))",
+  "full_suite_log": "verification/full_suite.log",
+  "full_suite_failures": [
+    "The player has cutout source art for detached layout inspection",
+    "Chainbound Gaoler board art should read nearly as tall as the player",
+    "Detached board layout should use promoted cutout rest art",
+    "Illusions should resolve the player texture for drawing",
+    "Illusion previews should resolve the player texture for drawing"
+  ],
+  "key_probe": "FAIL before Godot initialization; no captures",
+  "render": {
+    "heavy_v01": "FAIL: Native preview failed; Godot did not initialize within 8.0 seconds; godot.log was never created",
+    "stab_v01": "FAIL: Native preview failed; Godot did not initialize within 8.0 seconds; godot.log was never created",
+    "shield_v01": "FAIL: Native preview failed; Godot did not initialize within 8.0 seconds; godot.log was never created"
+  },
+  "verify_render": {
+    "heavy_v01": "FAIL: capture_input_sha256.json does not exist because native render never started",
+    "stab_v01": "FAIL: capture_input_sha256.json does not exist because native render never started",
+    "shield_v01": "FAIL: capture_input_sha256.json does not exist because native render never started"
+  },
+  "capture_paths": [],
+  "blocked_reason": "macOS LaunchServices / com.apple.hiservices-xpcservice connection invalid before Godot native GUI initialization",
+  "parser": "key_pose_probe.gd --check-only: exit 0 (not an editor scan)"
+}

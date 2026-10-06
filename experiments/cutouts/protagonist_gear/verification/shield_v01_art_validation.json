@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "character_id": "protagonist_gear_shield",
+  "layouts": {
+    "front": {
+      "joints": 23,
+      "parts": 22,
+      "meshes": 5,
+      "vertices": 4954
+    },
+    "rear": {
+      "joints": 23,
+      "parts": 22,
+      "meshes": 11,
+      "vertices": 10191
+    }
+  },
+  "errors": []
+}

@@ -1,0 +1,27 @@
+{
+  "attempts": [
+    {
+      "accepted": false,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "Godot did not initialize within 8.0 seconds: /private/tmp/labyrinth-godot-home/visible-equipment-on-the-protagonist-1791243910048600000-17769-key_pose_probe-1/godot.log was never created. This usually means the GUI process could not start; fix the launch/permission issue or override --startup-timeout for a known slow host.",
+      "images": [],
+      "namespace": "visible-equipment-on-the-protagonist-1791243910048600000-17769-key_pose_probe-1"
+    }
+  ],
+  "error": "Godot did not initialize within 8.0 seconds: /private/tmp/labyrinth-godot-home/visible-equipment-on-the-protagonist-1791243910048600000-17769-key_pose_probe-1/godot.log was never created. This usually means the GUI process could not start; fix the launch/permission issue or override --startup-timeout for a known slow host.",
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ],
+    [
+      512,
+      512
+    ]
+  ],
+  "images": [],
+  "ok": false,
+  "proof_contract": "",
+  "script": "experiments/cutouts/protagonist_gear/key_pose_probe.gd"
+}

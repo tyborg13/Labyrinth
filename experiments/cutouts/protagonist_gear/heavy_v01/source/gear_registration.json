@@ -1,0 +1,58 @@
+{
+  "item": "war_maul",
+  "registry": "assets/units/protagonist_cutout/gear_visuals.json",
+  "facings": {
+    "front": {
+      "replace": [
+        {
+          "part": "weapon_r",
+          "file": "gear/war_maul/front_weapon_r.png",
+          "offset": [
+            2,
+            126
+          ]
+        }
+      ],
+      "weapon_grip": {
+        "assembled": [
+          86,
+          135
+        ],
+        "tip": [
+          24,
+          179
+        ],
+        "pommel": [
+          95,
+          129
+        ]
+      }
+    },
+    "rear": {
+      "replace": [
+        {
+          "part": "weapon_r",
+          "file": "gear/war_maul/rear_weapon_r.png",
+          "offset": [
+            159,
+            138
+          ]
+        }
+      ],
+      "weapon_grip": {
+        "assembled": [
+          170,
+          147
+        ],
+        "tip": [
+          232,
+          191
+        ],
+        "pommel": [
+          161,
+          141
+        ]
+      }
+    }
+  }
+}

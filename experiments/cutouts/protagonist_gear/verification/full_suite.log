@@ -1,0 +1,63 @@
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ENEMY TACTICAL AI RESOURCE PROOF: plans=14 future_searches=11 total_ms=9.47
+Guardian relic contracts exercised
+Guardian exercised: Ashen Reaver
+Guardian exercised: Rimejaw
+Guardian exercised: Storm Cantor
+Guardian exercised: Gallows Roc
+Guardian exercised: Craghide
+Guardian exercised: Last Lamplighter
+SPIRE ROUTE ENTRY: player=(1, 4) boss=(4, 3) held=[(2, 3), (1, 2), (1, 6), (2, 5)]
+SPIRE ROUTE RESOLVED: player=(3, 4) spires=[(2, 3), (1, 2), (1, 6), (2, 5)] clock=18
+R1 dense-Light navigation best of 3: 2.274 ms
+WARNING: Conflicting legacy combat-unit evidence; preserving serialized values rather than risking destructive conversion.
+   at: push_warning (core/variant/variant_utility.cpp:1034)
+   GDScript backtrace (most recent call first):
+       [0] migrate_combat_units (res://scripts/run_engine.gd:446)
+       [1] _test_natural_and_ambiguous_saves_are_not_rescaled (res://tests/suites/balance_pacing_suite.gd:100)
+       [2] run (res://tests/suites/balance_pacing_suite.gd:14)
+       [3] _initialize (res://tests/run_tests.gd:161)
+       [4] run (res://tests/suites/pre_battle_ui_suite.gd:27)
+       [5] test_true_scale_lineups (res://tests/suites/pre_battle_ui_suite.gd:244)
+ITEM DROP SAMPLE (600 rooms): [107, 369, 124]
+ERROR: Failed to acknowledge progression analytics event batch.
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _reconcile_progression_analytics_outbox (res://scripts/run_scene.gd:31319)
+       [1] _reconcile_progression_analytics_outbox (res://tests/fixtures/dragon_exchange_run_scene.gd:16)
+       [2] _exchange_moltshard_at_entrance (res://scripts/run_scene.gd:28511)
+       [3] run (res://tests/suites/dragon_exchange_presentation_suite.gd:118)
+       [4] setup (res://tests/suites/dragon_exchange_presentation_suite.gd:62)
+PROTAGONIST GEAR GPU BAKE: deferred to real-renderer probe
+CARD TARGETING AUDIT: 309 cards, 699 upgrades; /private/tmp/labyrinth-godot-home/visible-equipment-on-the-protagonist-cut-1791244046443329000-18021/Library/Application Support/Escape the Umbra Parallel visible-equipment-on-the-protagonist-cut-1791244046443329000-18021/card_targeting_audit.json
+ERROR: The player has cutout source art for detached layout inspection
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/run_tests.gd:508)
+       [1] _test_main_menu_shows_continue_for_saved_run (res://tests/run_tests.gd:12265)
+ERROR: Chainbound Gaoler board art should read nearly as tall as the player
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/run_tests.gd:508)
+       [1] _test_main_menu_shows_continue_for_saved_run (res://tests/run_tests.gd:12265)
+ERROR: Detached board layout should use promoted cutout rest art
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/run_tests.gd:508)
+       [1] _test_main_menu_shows_continue_for_saved_run (res://tests/run_tests.gd:12265)
+ERROR: Illusions should resolve the player texture for drawing
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/run_tests.gd:508)
+       [1] _test_main_menu_shows_continue_for_saved_run (res://tests/run_tests.gd:12265)
+ERROR: Illusion previews should resolve the player texture for drawing
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/run_tests.gd:508)
+       [1] _test_main_menu_shows_continue_for_saved_run (res://tests/run_tests.gd:12265)
+TEST RESULT: FAIL (5 failure(s))
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+   at: cleanup (core/object/object.cpp:2641)
