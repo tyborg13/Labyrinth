@@ -71,7 +71,8 @@ static func _check_depth(rig: Node2D, expect: Callable) -> void:
 			for reduced: bool in [false, true]:
 				for phase: float in [0.0, 0.14, 0.42, 0.94, 1.0]:
 					Reaction.apply_pose(rig, clip, phase, reduced)
-					expect.call(weapon.z_index == wanted and crossbow.z_index == wanted, "Clips/reduced motion never change weapon z: " + clip)
+					var shot: bool = rig.facing == "rear" and Gear._items[id]["motion"] in ["bow", "repeater"] and clip in ["shoot", "shoot_bow", "shoot_repeater"]
+					expect.call(weapon.z_index == (66 if shot else wanted) and crossbow.z_index == wanted, "Only rear bow/repeater shot clips override weapon depth: " + clip)
 		count += 1
 	# Exercise an actual override and both reset paths, independent of whether
 	# the owner has already supplied explicit rear z entries in the registry.
@@ -164,7 +165,11 @@ static func _check_action(rig: Node2D, weapon: String, steep: bool, expect: Call
 	for phase: float in [0.0, 1.0]:
 		var pose: Dictionary = Motion.sample_pose(clip, phase, rig.layout, rig.facing)
 		expect.call(_axis(pose, rig.layout).distance_to(Motion._gear_axis(rig.layout)) < 0.001, "Thrust/bow returns to the authored steep rest axis by 1.0")
-		expect.call(pose["hand_r"] == rest["hand_r"] and pose["weapon_r"] == rest["weapon_r"], "Action endpoints return to the complete carry grip without a wrist snap")
+		if bow:
+			var shoot: Dictionary = Motion.sample_pose("shoot", phase, rig.layout, rig.facing)
+			expect.call(pose["hand_r"] == shoot["hand_r"], "Bow endpoints retain the exact shoot wrist; idle resumes the separate carry grip")
+		else:
+			expect.call(pose["hand_r"] == rest["hand_r"] and pose["weapon_r"] == rest["weapon_r"], "Thrust endpoints return to the complete carry grip without a wrist snap")
 	expect.call(max_grip < 0.001, "Carry/action transition keeps the grip within .001px")
 	print("PROTAGONIST GEAR CARRY ACTION %s/%s/%s: grip_error=%.6f rest/recovery checked" % [rig.facing, clip, "steep" if steep else "authored", max_grip])
 

@@ -127,6 +127,14 @@ func _proof_save(label: String) -> void:
 		var shot: bool = _proof_motion.get("clip", "") == "shoot" if _proof_effect.is_empty() else _proof_effect["protagonist_ranged"] == "shoot"
 		var generic: bool = shot and renderer.ranged_motion().is_empty()
 		proof_expect.call(bool(snapshot["crossbow_visible"]) == generic and rig.bones["weapon_r"].visible == not generic, "Only generic main-hand shots substitute the crossbow for the weapon")
+		if shot and not generic:
+			var motion: Script = load("res://scripts/protagonist_cutout/motion.gd")
+			var reference: Dictionary = motion.sample_pose("shoot", snapshot["phase"], rig.layout, snapshot["facing"])
+			for bone: String in ["arm_r", "forearm_r", "hand_r", "arm_l", "forearm_l", "hand_l"]:
+				var value: Dictionary = reference[bone]
+				var transform := Transform2D(float(value["rotation"]), value["scale"], float(value["skew"]), value["position"])
+				proof_expect.call(rig.bones[bone].transform == transform, "Actual one-arm shot uses crossbow aim with the offhand at rest: " + bone)
+			proof_expect.call(rig._gear_base_parts["weapon_r"]["node"].z_index == 66, "Extended equipped ranged weapon draws at z66 in both facings")
 		if not _proof_effect.is_empty():
 			proof_expect.call(str(_proof_effect.get("protagonist_ranged_motion", "")) == renderer.ranged_motion(), "Actual physical/magic action carries its equipped ranged motion")
 		if shot and is_equal_approx(_proof_ranged_phase, 0.42):
@@ -135,4 +143,5 @@ func _proof_save(label: String) -> void:
 			var basis: Transform2D = rig.global_transform.affine_inverse() * attachment.global_transform
 			proof_expect.call(absf(basis.x.length() - 1.0) < 0.0001 and absf(basis.y.length() - 1.0) < 0.0001, "Ranged gear stays at native pixel size")
 	if proof_capture.is_valid():
-		await proof_capture.call(self, label, {"effect": _proof_effect, "effect_progress": board_view.presentation.get("effect_progress", 1.0), "hero": snapshot})
+		await proof_capture.call(self, label, {"effect": _proof_effect, "effect_progress": board_view.presentation.get("effect_progress", 1.0), "hero": snapshot,
+			"weapon_z": renderer.rigs[snapshot["facing"]]._gear_base_parts["weapon_r"]["node"].z_index})

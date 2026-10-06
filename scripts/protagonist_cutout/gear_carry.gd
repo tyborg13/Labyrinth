@@ -9,8 +9,6 @@ static func apply(pose: Dictionary, clip: String, phase: float, layout: Dictiona
 	var weight: float = 1.0
 	if clip == "attack_thrust" and carry["motion"] == "thrust":
 		weight -= base._hold(clampf(phase, 0.0, 1.0), 0.0, 0.20, 0.78, 1.0)
-	elif clip == "shoot_bow" and carry["motion"] == "bow":
-		weight -= base._hold(clampf(phase, 0.0, 1.0), 0.0, 0.24, 0.62, 1.0)
 	elif clip not in ["rest", "idle", "walk", "block", "block_shield", "hit", "death"]:
 		return pose
 	if is_zero_approx(weight):

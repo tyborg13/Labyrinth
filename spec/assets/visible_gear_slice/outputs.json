@@ -207,6 +207,70 @@
       28
     ]
   },
+  "assets/units/protagonist_cutout/gear/cloudstep_sandals/front_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/cloudstep_sandals_front_foot_l.png",
+    "source_sha256": "e84d61f3ae3a7060e4241d102990f0ab3235ba49c0f77d72adaa79f0d0c57555",
+    "size": [
+      40,
+      30
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/cloudstep_sandals/front_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/cloudstep_sandals_front_foot_r.png",
+    "source_sha256": "6638477af4be165bea9138343f4f5cf5be7d0882e2069e9e3fb797a121298d40",
+    "size": [
+      40,
+      20
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/cloudstep_sandals/front_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/cloudstep_sandals_front_shin_l.png",
+    "source_sha256": "559654a839b9aebada52e0372ff887cb13be42b319dde6b112f368bb6f618bba",
+    "size": [
+      36,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/cloudstep_sandals/front_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/cloudstep_sandals_front_shin_r.png",
+    "source_sha256": "973b3c06f8963e8a1157532fc13c58a4a163cf4853d07a586570f3b1cded9dc4",
+    "size": [
+      27,
+      27
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/cloudstep_sandals/rear_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/cloudstep_sandals_rear_foot_l.png",
+    "source_sha256": "c90d4a83161095ca6abc0f885285f8518a861ea247b3d397ba18f8f1f76b25f6",
+    "size": [
+      33,
+      22
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/cloudstep_sandals/rear_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/cloudstep_sandals_rear_foot_r.png",
+    "source_sha256": "0755cbb462fde77e42fcf5651938ec6ab6c6469e640421bb90c35b1165bb86f4",
+    "size": [
+      39,
+      24
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/cloudstep_sandals/rear_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/cloudstep_sandals_rear_shin_l.png",
+    "source_sha256": "c1815b92b55e4481feacd6414963c21f806994b4a843b3c28dc8e18d58077320",
+    "size": [
+      30,
+      34
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/cloudstep_sandals/rear_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/cloudstep_sandals_rear_shin_r.png",
+    "source_sha256": "fa428adb69fad96db076e4ef76fcb1440fd85e22acb90fbcdfc93a855ac4134e",
+    "size": [
+      27,
+      40
+    ]
+  },
   "assets/units/protagonist_cutout/gear/cracked_lantern/front_trinket.png": {
     "source": "spec/assets/visible_gear_slice/sources/cracked_lantern_front.png",
     "source_sha256": "e596d07b6cff273e1e1ac16a1f027e9f17e15ca3e51cf587d92a2a180d6c90d5",
@@ -1813,6 +1877,70 @@
     "size": [
       49,
       106
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/trapdoor_spurs/front_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/trapdoor_spurs_front_foot_l.png",
+    "source_sha256": "391c9990976b8cc5a869b9f99e2bf069c9f4ba1fc006fb525ffe8f945c9c7837",
+    "size": [
+      40,
+      30
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/trapdoor_spurs/front_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/trapdoor_spurs_front_foot_r.png",
+    "source_sha256": "c274ccd52af7fbccd1a12279e7d988d5dcaf38fa5a1ccff050d7df2b356c7246",
+    "size": [
+      40,
+      20
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/trapdoor_spurs/front_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/trapdoor_spurs_front_shin_l.png",
+    "source_sha256": "993977b77f38975c58df0e5e628727b7e3ae04b69a549776700d9b101a56ca76",
+    "size": [
+      36,
+      40
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/trapdoor_spurs/front_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/trapdoor_spurs_front_shin_r.png",
+    "source_sha256": "4749a594c1e6c4162b8828161920dc993a44b1589ba0b59e451a1f823eb7655b",
+    "size": [
+      27,
+      27
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/trapdoor_spurs/rear_foot_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/trapdoor_spurs_rear_foot_l.png",
+    "source_sha256": "c4897c5fe7f37651e5566b5b4f67c2472dd22ac14fb3fff7eeb67ad4f0915689",
+    "size": [
+      33,
+      22
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/trapdoor_spurs/rear_foot_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/trapdoor_spurs_rear_foot_r.png",
+    "source_sha256": "530983cce343a5fe2c00711715619fd28126825714b6cf16ae290225eeff7a93",
+    "size": [
+      39,
+      24
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/trapdoor_spurs/rear_shin_l.png": {
+    "source": "spec/assets/visible_gear_slice/sources/trapdoor_spurs_rear_shin_l.png",
+    "source_sha256": "5b8e6e74fb2fd7830584b8b8789631808e0c7c8cffa905dc9d1d10d1827429b8",
+    "size": [
+      30,
+      34
+    ]
+  },
+  "assets/units/protagonist_cutout/gear/trapdoor_spurs/rear_shin_r.png": {
+    "source": "spec/assets/visible_gear_slice/sources/trapdoor_spurs_rear_shin_r.png",
+    "source_sha256": "3e0d8ae3541e5a8c142c525c7b8977d310e08e229deba568ea52c41ad63f4474",
+    "size": [
+      27,
+      40
     ]
   },
   "assets/units/protagonist_cutout/gear/undertaker_plate/front_arm_l.png": {

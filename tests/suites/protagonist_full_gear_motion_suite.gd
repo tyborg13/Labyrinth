@@ -28,6 +28,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	expect.call(curve[0] == Vector2(10, 20) and curve[-1] == Vector2(110, 40) and curve[12] == Vector2(60, 12), "Lash crack joins the hand/target and bows 18 screen px upward")
 	expect.call(LashFx.trail_phase(0.359) < 0 and LashFx.trail_phase(0.36) == 0 and LashFx.trail_phase(0.42) == 0.45 and LashFx.trail_phase(0.62) < 0, "Lash crack uses the .36-.62 trail envelope with the .42 contact")
 	print("PROTAGONIST FULL GEAR MOTION CONTRACTS: checked")
+	print("PROTAGONIST ONE-ARM SHOT CONTRACTS: checked")
 
 static func _check_rigid_motion(rig: Node2D, clip: String, expect: Callable) -> void:
 	var max_grip: float = 0.0
@@ -37,6 +38,10 @@ static func _check_rigid_motion(rig: Node2D, clip: String, expect: Callable) -> 
 	for sample: int in range(201):
 		var phase: float = float(sample) / 200.0
 		var pose: Dictionary = Motion.sample_pose(clip, phase, rig.layout, rig.facing)
+		if clip in ["shoot_bow", "shoot_repeater"]:
+			var shoot: Dictionary = Motion.sample_pose("shoot", phase, rig.layout, rig.facing)
+			for bone: String in ["arm_r", "forearm_r", "hand_r", "arm_l", "forearm_l", "hand_l"]:
+				expect.call(pose[bone] == shoot[bone], "One-arm shot retains the exact crossbow aim/recoil and resting offhand through every phase: " + bone)
 		var grip: Vector2 = Motion._gear_vector(rig.layout["weapon_grip"]["assembled"])
 		var palm: Vector2 = Motion._world_transform(pose, rig.layout, "hand_r") * (grip - Motion._joint_position(rig.layout, "hand_r"))
 		var weapon_grip: Vector2 = Motion._world_transform(pose, rig.layout, "weapon_r") * (grip - Motion._joint_position(rig.layout, "weapon_r"))
@@ -114,15 +119,15 @@ static func _check_keys(layout: Dictionary, facing: String, clip: String, expect
 			var axis: Vector2 = _axis(pose, layout)
 			if clip == "shoot_repeater":
 				expect.call(axis.distance_to(aim) < 0.001, "Repeater muzzle follows its authored aim")
-				var old: Dictionary = Motion.sample_pose("shoot", phase, layout, facing)
-				for bone: String in ["arm_r", "forearm_r", "hand_r"]:
-					expect.call(pose[bone] == old[bone], "Repeater retains the existing right-arm aim and recoil")
 			else:
 				expect.call(absf(axis.dot(aim)) < 0.001 and axis.y < 0, "Bow limbs are perpendicular to aim with the upper limb upward")
-				var grip: Vector2 = Motion._world_transform(pose, layout, "weapon_r") * (Motion._gear_vector(layout["weapon_grip"]["assembled"]) - Motion._joint_position(layout, "weapon_r"))
-				var hand: Vector2 = Motion._world_transform(pose, layout, "hand_l").origin
-				expect.call(hand.distance_to(grip - aim * (4.0 if phase == 0.24 else 14.0)) < 0.001, "Bow string hand reaches at .24 and draws 10px by .38 through release")
-				print("FULL GEAR BOW REACH %s %.2f: wrist=%s string_hand=%s" % [facing, phase, Motion._world_transform(pose, layout, "hand_r").origin, hand])
+				var string_side := Vector2(axis.y, -axis.x) if rear else Vector2(-axis.y, axis.x)
+				expect.call(string_side.distance_to(-aim) < 0.001, "Bow string side faces the hero")
+				var shoulder: Vector2 = Motion._joint_position(layout, "arm_r")
+				var reach: float = shoulder.distance_to(Motion._joint_position(layout, "forearm_r")) + Motion._joint_position(layout, "forearm_r").distance_to(Motion._joint_position(layout, "hand_r"))
+				var wrist: Vector2 = Motion._world_transform(pose, layout, "hand_r").origin
+				expect.call(wrist.distance_to(shoulder + aim * (reach - 0.04)) < 0.001, "Bow aims at painted arm's length by .24 through release")
+				print("FULL GEAR BOW AIM %s %.2f: wrist=%s reach=%.6f" % [facing, phase, wrist, reach])
 	for phase: float in [0.0, 1.0]:
 		var pose: Dictionary = Motion.sample_pose(clip, phase, layout, facing)
 		expect.call(_axis(pose, layout).distance_to(Motion._gear_axis(layout)) < 0.001, "Every full-pass clip returns to its landmark-defined rest axis")
@@ -133,9 +138,9 @@ static func _check_renderer(tree: SceneTree, expect: Callable) -> void:
 	await tree.process_frame
 	renderer.set_process(false)
 	for weapon: String in ["hunting_spear", "galewhip", "stormstring_bow", "windlass_repeater"]:
+		var motion: String = Gear.weapon_motion({"weapon": weapon})
 		for offhand: String in ["ward_kite", "parrying_dagger"]:
 			renderer.set_gear({"weapon": weapon, "offhand": offhand})
-			var motion: String = Gear.weapon_motion({"weapon": weapon})
 			for delta: Vector2i in [Vector2i(0, 1), Vector2i(0, -1), Vector2i(1, 0), Vector2i(-1, 0)]:
 				renderer.present({"clip": "attack", "phase": 0.42, "direction": delta}, false)
 				expect.call(renderer.snapshot()["clip"] == ("attack_" + motion if motion in ["thrust", "lash"] else "attack"), "Full-pass melee routing selects the equipped archetype or ranged-weapon bash")
@@ -149,9 +154,24 @@ static func _check_renderer(tree: SceneTree, expect: Callable) -> void:
 					expect.call(renderer.snapshot()["clip"] == "idle" and renderer.facing == "front" and not renderer.mirrored, "Full-pass ranged action returns to front idle")
 					renderer.present({"clip": clip, "phase": 0.42, "direction": delta}, true)
 					expect.call(renderer.snapshot()["clip"] == expected_clip and renderer.snapshot()["phase"] == 0.4 and bool(renderer.snapshot()["offhand_visible"]), "Full-pass ranged reduced-motion still retains its weapon and offhand")
+					_check_depth(renderer, expect)
 				renderer.present({"clip": "attack", "phase": 0.42, "direction": delta}, true)
 				expect.call(renderer.snapshot()["clip"] == "rest" and bool(renderer.snapshot()["offhand_visible"]), "Full-pass melee reduced motion keeps neutral equipped art")
+				_check_depth(renderer, expect)
+		if motion in ["bow", "repeater"]:
+			renderer.set_gear({"weapon": weapon})
+			for exit_clip: String in ["idle", "walk", "cast", "hit", "block", "death"]:
+				renderer.present({"clip": "shoot", "phase": 0.42, "direction": Vector2i(0, -1)}, false)
+				_check_depth(renderer, expect)
+				renderer.present({"clip": exit_clip, "phase": 0.0, "direction": Vector2i(0, -1)}, false)
+				_check_depth(renderer, expect)
 	renderer.free()
+
+static func _check_depth(renderer: Node, expect: Callable) -> void:
+	var snapshot: Dictionary = renderer.snapshot()
+	var shot: bool = snapshot["facing"] == "rear" and snapshot["clip"] in ["shoot_bow", "shoot_repeater"]
+	expect.call(renderer.rigs["rear"]._gear_base_parts["weapon_r"]["node"].z_index == (66 if shot else 5), "Rear equipped shot depth restores on every exit, including hidden rear rig and bare offhand")
+	expect.call(renderer.rigs["front"]._gear_base_parts["weapon_r"]["node"].z_index == 66, "Front ranged depth is unchanged")
 
 static func _check_socket(renderer: Node, motion: String, delta: Vector2i, expect: Callable) -> void:
 	var snapshot: Dictionary = renderer.snapshot()
@@ -166,9 +186,11 @@ static func _check_socket(renderer: Node, motion: String, delta: Vector2i, expec
 		muzzle.x = 255.0 - muzzle.x
 	expect.call(renderer.source_socket(true).distance_to(muzzle) < 0.001 and renderer.source_socket(true, true, delta).distance_to(muzzle) < 0.001, "Equipped bow/repeater live and released projectile origins match the registered grip/muzzle, including reflection")
 	expect.call(not rig.bones["crossbow_r"].visible and rig.bones["weapon_r"].visible, "Generic crossbow never replaces the equipped bow/repeater")
+	_check_depth(renderer, expect)
 	var released: Vector2 = renderer.source_socket(true, true, delta)
 	for phase: float in [0.24, 0.49, 0.85, 1.0]:
 		renderer.present({"clip": "shoot", "phase": phase, "direction": delta}, false)
+		_check_depth(renderer, expect)
 		expect.call(renderer.source_socket(true, true, delta).distance_to(released) < 0.001, "Equipped released origin stays fixed through recoil, recovery and idle reset")
 
 static func _check_clocks(expect: Callable) -> void:

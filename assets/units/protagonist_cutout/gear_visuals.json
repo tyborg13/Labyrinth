@@ -3328,6 +3328,144 @@
           ]
         }
       }
+    },
+    "trapdoor_spurs": {
+      "slot": "boots",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/trapdoor_spurs/front_foot_r.png",
+              "offset": [
+                86,
+                178
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/trapdoor_spurs/front_foot_l.png",
+              "offset": [
+                133,
+                195
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/trapdoor_spurs/front_shin_r.png",
+              "offset": [
+                101,
+                160
+              ]
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/trapdoor_spurs/front_shin_l.png",
+              "offset": [
+                136,
+                167
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/trapdoor_spurs/rear_foot_r.png",
+              "offset": [
+                132,
+                199
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/trapdoor_spurs/rear_foot_l.png",
+              "offset": [
+                87,
+                181
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/trapdoor_spurs/rear_shin_r.png"
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/trapdoor_spurs/rear_shin_l.png"
+            }
+          ]
+        }
+      }
+    },
+    "cloudstep_sandals": {
+      "slot": "boots",
+      "facings": {
+        "front": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/cloudstep_sandals/front_foot_r.png",
+              "offset": [
+                86,
+                178
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/cloudstep_sandals/front_foot_l.png",
+              "offset": [
+                133,
+                195
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/cloudstep_sandals/front_shin_r.png",
+              "offset": [
+                101,
+                160
+              ]
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/cloudstep_sandals/front_shin_l.png",
+              "offset": [
+                136,
+                167
+              ]
+            }
+          ]
+        },
+        "rear": {
+          "replace": [
+            {
+              "part": "foot_r",
+              "file": "gear/cloudstep_sandals/rear_foot_r.png",
+              "offset": [
+                132,
+                199
+              ]
+            },
+            {
+              "part": "foot_l",
+              "file": "gear/cloudstep_sandals/rear_foot_l.png",
+              "offset": [
+                87,
+                181
+              ]
+            },
+            {
+              "part": "shin_r",
+              "file": "gear/cloudstep_sandals/rear_shin_r.png"
+            },
+            {
+              "part": "shin_l",
+              "file": "gear/cloudstep_sandals/rear_shin_l.png"
+            }
+          ]
+        }
+      }
     }
   }
 }

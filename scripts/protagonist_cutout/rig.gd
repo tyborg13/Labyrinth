@@ -21,6 +21,8 @@ var _gear_attachments: Array[Sprite2D] = []
 var _gear_mounts: Array[Dictionary]
 var _gear_clip: String = "idle"
 var _gear_phase: float = 0.0
+var _gear_weapon_motion: String = "sword"
+var _gear_weapon_z: int = 0
 
 func _layout_path(which: String) -> String:
 	return BASE.path_join(which + ".json")
@@ -63,6 +65,7 @@ func load_rig() -> bool:
 	_gear_base_parts.clear()
 	_gear_attachments.clear()
 	_gear_mounts.clear()
+	_gear_weapon_motion = "sword"
 	_source_data = prepared
 	layout = prepared.layout
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -165,6 +168,8 @@ func _build_mesh(data: Dictionary, mesh_name: String, source_key: String) -> voi
 func _remember_gear_part(part_name: String, node: Node2D) -> void:
 	if not part_name.is_empty():
 		_gear_base_parts[part_name] = {"node": node, "texture": node.get("texture"), "position": node.position, "z_index": node.z_index}
+		if part_name == "weapon_r":
+			_gear_weapon_z = node.z_index
 
 func apply_gear(ops: Dictionary) -> void:
 	# RigData caches this dictionary across instances. Only this rig receives
@@ -172,6 +177,7 @@ func apply_gear(ops: Dictionary) -> void:
 	layout = _source_data.layout
 	var grip: Dictionary = ops.get("weapon_grip", {})
 	var motion: String = str(ops.get("weapon_motion", "sword"))
+	_gear_weapon_motion = motion
 	if not grip.is_empty() or motion in ["thrust", "bow"]:
 		layout = layout.duplicate()
 		if not grip.is_empty():
@@ -232,11 +238,23 @@ func apply_gear(ops: Dictionary) -> void:
 		_gear_mounts.append({"sprite": sprite, "bone": bones[bone_name],
 			"offset": sprite.position, "centre": sprite.position + texture.get_size() * 0.5,
 			"shield": bone_name == "forearm_l" and str(sprite.name) == "GearOffhand"})
+	_gear_weapon_z = (_gear_base_parts["weapon_r"]["node"] as Node2D).z_index
 	_update_gear_pose(_gear_clip, _gear_phase)
+
+func _update_weapon_depth(clip_name: String) -> void:
+	if not _gear_base_parts.has("weapon_r"):
+		return
+	# Extended rear ranged weapons clear the body during the whole shot clip.
+	# Every other clip restores the effective registry/base depth, including
+	# bare offhands and interrupted shots. The generic crossbow is unchanged.
+	var shot: bool = facing == "rear" and _gear_weapon_motion in ["bow", "repeater"] \
+		and clip_name in ["shoot", "shoot_bow", "shoot_repeater"]
+	(_gear_base_parts["weapon_r"]["node"] as Node2D).z_index = 66 if shot else _gear_weapon_z
 
 func _update_gear_pose(clip_name: String, phase: float) -> void:
 	_gear_clip = clip_name
 	_gear_phase = phase
+	_update_weapon_depth(clip_name)
 	if _gear_mounts.is_empty():
 		return
 	var to_source: Transform2D = global_transform.affine_inverse()

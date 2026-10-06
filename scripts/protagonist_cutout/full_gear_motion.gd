@@ -84,39 +84,20 @@ static func _shoot(clip: String, phase: float, layout: Dictionary, facing: Strin
 	pose["weapon_r"]["visible"] = true
 	var t: float = clampf(phase, 0.0, 1.0)
 	if is_zero_approx(t) or is_equal_approx(t, 1.0):
-		return base._carry_pose(pose, clip, t, layout)
+		return pose
 	var rear: bool = facing == "rear"
-	var direction: float = -1.0 if rear else 1.0
 	var aim: Vector2 = aim_for_facing(facing)
 	var raised: float = base._hold(t, 0.0, 0.24, 0.62, 1.0)
 	var rest_angle: float = base._gear_axis(layout).angle()
 	var weapon_angle: float = aim.angle()
 	if clip == "shoot_bow":
-		# The fully extended crossbow wrist is outside the other arm's reach.
-		# Bring the bow between the shoulders, retaining both painted chains,
-		# the existing raise/recoil envelopes and the weapon's original aim.
-		var shoulder: Vector2 = base._joint_position(layout, "arm_r")
-		var other_shoulder: Vector2 = base._joint_position(layout, "arm_l")
-		var target: Vector2 = shoulder.lerp(other_shoulder, 0.45) + Vector2(0, 8)
-		var wrist: Vector2 = (base._joint_position(layout, "hand_r") as Vector2).lerp(target, raised)
-		wrist += Vector2(direction * 2.0, -1.0) * base._pulse(t, 0.42, 0.49, 0.62)
-		base._solve_leg(pose, layout, "arm_r", "forearm_r", "hand_r", wrist, 0.0, -1.0)
+		# Owner review: one-arm aim uses the crossbow solve unchanged. The
+		# short painted arms cannot support a two-hand draw at arm's length.
+		# Only the bow's attitude changes; the offhand stays at rest.
 		var upright := Vector2(aim.y, -aim.x) if rear else Vector2(-aim.y, aim.x)
 		weapon_angle = upright.angle()
 	# Keep the upright rest axis from each weapon's own landmarks. Repeater
 	# aims its muzzle forward; the bow's upper limb is perpendicular to aim.
 	var angle: float = lerp_angle(rest_angle, weapon_angle, raised) - rest_angle
 	base._gear_place_weapon(pose, layout, angle)
-	base._carry_pose(pose, clip, t, layout)
-	if clip == "shoot_bow":
-		var weapon: Transform2D = base._world_transform(pose, layout, "weapon_r")
-		var grip: Vector2 = weapon * (base._gear_vector(layout["weapon_grip"]["assembled"]) - base._joint_position(layout, "weapon_r"))
-		var draw: float = 10.0 * base._hold(t, 0.24, 0.38, 0.42, 0.49)
-		var string_hand: Vector2 = grip - aim * (4.0 + draw)
-		var reach: float = base._hold(t, 0.0, 0.24, 0.49, 0.90)
-		# Recover from the released grip, rather than following the bow back
-		# into an unreachable wrist beside the resting right hip.
-		var rest_left: Vector2 = base._joint_position(layout, "hand_l")
-		var target: Vector2 = rest_left.lerp(string_hand, reach)
-		base._solve_leg(pose, layout, "arm_l", "forearm_l", "hand_l", target, 0.0, direction)
 	return pose
