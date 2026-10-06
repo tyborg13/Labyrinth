@@ -18,8 +18,9 @@ import json
 import sys
 from pathlib import Path
 
-import numpy as np
-from PIL import Image, ImageFilter
+from PIL import Image
+
+from pixel_density import clean_orphans, consolidate, outline
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCES = ROOT / "spec/assets/visible_gear_slice/sources"
@@ -42,7 +43,6 @@ REGISTRY = RIG / "gear_visuals.json"
 # orphan cleanup. The owner compared this with a Kuwahara filter and chose it for
 # the closest match to the hero's colour blocking, accepting the loss of
 # Cinderweave Mail's fine ring texture.
-POSTERISE_COLOURS = 24
 
 
 def base_part_size(facing: str, part: str) -> tuple[int, int]:
@@ -96,57 +96,6 @@ def reduce(im: Image.Image, size: tuple[int, int], chunky: bool = False) -> Imag
         out = outline(consolidate(out))
     return out
 
-
-def clean_orphans(im: Image.Image, threshold: int = 24, passes: int = 2) -> Image.Image:
-    """Give each pixel unlike all four neighbours the colour of its closest neighbour."""
-    a = np.asarray(im, dtype=np.float32).copy()
-    for _ in range(passes):
-        rgb, opaque = a[..., :3], a[..., 3] > 0
-        shifted, valid = [], []
-        for dy, dx in ((0, 1), (0, -1), (1, 0), (-1, 0)):
-            colour = np.roll(rgb, (dy, dx), (0, 1))
-            mask = np.roll(opaque, (dy, dx), (0, 1))
-            if dy: mask[0 if dy > 0 else -1, :] = False
-            if dx: mask[:, 0 if dx > 0 else -1] = False
-            shifted.append(colour)
-            valid.append(mask)
-        diff = np.stack([np.where(m, np.abs(c - rgb).sum(-1), np.inf) for c, m in zip(shifted, valid)])
-        nearest = diff.min(0)
-        orphan = opaque & np.isfinite(nearest) & (nearest >= threshold)
-        choice = np.take_along_axis(np.stack(shifted), diff.argmin(0)[None, ..., None].repeat(3, -1), 0)[0]
-        a[..., :3] = np.where(orphan[..., None], choice, rgb)
-    return Image.fromarray(a.clip(0, 255).astype(np.uint8)).copy()
-
-
-def consolidate(im: Image.Image) -> Image.Image:
-    alpha = im.getchannel("A")
-    flat = im.convert("RGB").quantize(colors=POSTERISE_COLOURS, method=Image.Quantize.MEDIANCUT,
-                                      dither=Image.Dither.NONE)
-    flat = flat.convert("RGB").filter(ImageFilter.ModeFilter(3)).convert("RGBA")
-    flat.putalpha(alpha)
-    return clean_orphans(flat)
-
-
-def outline(im: Image.Image, strength: float = 0.55) -> Image.Image:
-    """Darken silhouette-edge pixels toward the rig's near-black outline."""
-    px = im.load()
-    w, h = im.size
-    edge = []
-    for y in range(h):
-        for x in range(w):
-            if px[x, y][3] == 0:
-                continue
-            for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
-                nx, ny = x + dx, y + dy
-                if nx < 0 or ny < 0 or nx >= w or ny >= h or px[nx, ny][3] == 0:
-                    edge.append((x, y))
-                    break
-    for x, y in edge:
-        r, g, b, a = px[x, y]
-        dark = (24, 17, 14)
-        px[x, y] = (round(r + (dark[0] - r) * strength), round(g + (dark[1] - g) * strength),
-                    round(b + (dark[2] - b) * strength), a)
-    return im
 
 
 def jobs():
@@ -309,6 +258,8 @@ def main() -> int:
     if args.check:
         for rel in stale:
             print(f"stale: {rel}")
+        if not stale:
+            print("CHECK-OK")
         return 1 if stale else 0
     if manifest:
         existing = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}

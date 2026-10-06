@@ -20,6 +20,8 @@ The walking gait runs at a 0.30-second cycle with 48 source-pixel strides and 80
 
 The old whole-sprite melee lunge is removed: the articulated torso drive and planted feet supply the action on the protagonist’s real tile. Slash artwork is withheld during anticipation and peaks with the cut; idle resumes as soon as the recovery ends even while damage text is still finishing. Cached equipment views follow later reduced-motion changes. Existing death squash and Blink echo scaling transform the logical body rectangle before padding is added, preserving their floor registration.
 
+The [board pixel-density pipeline](board_pixel_density.md) cleans only the rear body paint; the untouched front remains the reference, and rear weapon, crossbow and hand layers stay protected.
+
 ## Visible equipment
 
 `assets/units/protagonist_cutout/gear_visuals.json` owns the five slots' visual

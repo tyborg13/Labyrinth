@@ -4,6 +4,7 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProductionRig = preload("res://scripts/stone_warden_cutout/rig.gd")
 const AcceptedMotion = preload("res://experiments/cutouts/stone_warden/v03/motion.gd")
 const CaseRig = preload("res://tools/cutout_pipeline/rig.gd")
+const Silhouette = preload("res://tests/helpers/silhouette_match.gd")
 const OUTPUT: String = "user://probes/stone_warden_cutout_assets"
 var _errors: Array[String]
 
@@ -37,7 +38,7 @@ func _run() -> void:
 				reference.apply_pose(clip, phase)
 				await _draw()
 				var image: Image = actual.get_texture().get_image()
-				_check(image.get_data() == accepted.get_texture().get_image().get_data(), "%s %s %d remains pixel-identical" % [facing, clip, index])
+				_check(Silhouette.same_silhouette(image, accepted.get_texture().get_image()), "%s %s %d keeps the case silhouette (paint is density-treated)" % [facing, clip, index])
 				compared += 1
 				if clip == "attack" and index in [10, 13, 17, 21]:
 					image.save_png(OUTPUT.path_join("%s_attack_%02d.png" % [facing, index]))

@@ -18,6 +18,8 @@ Art judgment remains visual: exact reconstruction, connected components, normali
 
 ## Commands
 
+New or repainted production board art follows the [board pixel-density pipeline](board_pixel_density.md): register by the scale/orphan rule, adopt untouched paint, process, and native rest-rebake before landing. Verify `process_board_density.py --check` and regenerate the shadow cache after the rebake. The hero front, visible gear, portraits and UI-only rigs retain their separate policies.
+
 Run from the task worktree. Python 3.9+, Pillow, Godot and ffmpeg (including ffprobe) are required; `doctor` reports availability. New output directories must not already exist. No command publishes or changes production assets.
 
 ```sh

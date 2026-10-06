@@ -4,6 +4,8 @@ This is the shared visual language for Escape the Umbra's interface. It exists s
 every screen reads as one game: the board and cards are the stage, and the
 interface frames them quietly and consistently.
 
+Board raster paint follows the [board pixel-density rule](board_pixel_density.md); the hero front is its chunky-density reference, while UI and portraits retain their painterly policy.
+
 ## Principles
 
 1. **The board is the stage.** HUD elements hug the screen edges on a 24 px safe

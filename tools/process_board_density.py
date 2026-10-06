@@ -1,0 +1,219 @@
+#!/usr/bin/env python3
+"""Adopt, derive, verify and report the board's source-preserving density treatment."""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import io
+import json
+import shutil
+import sys
+from pathlib import Path
+
+from PIL import Image
+
+from pixel_density import frame_rects, metrics, process
+
+ROOT = Path(__file__).resolve().parents[1]
+ASSETS = ROOT / "spec/assets/board_pixel_density"
+REGISTRY = ASSETS / "registry.json"
+SOURCES = ASSETS / "sources"
+MANIFEST = ASSETS / "outputs.json"
+REPORT = ASSETS / "report.md"
+
+
+def repo_path(path: str) -> Path:
+    candidate = ROOT / path
+    if Path(path).is_absolute() or ".." in Path(path).parts or not candidate.resolve().is_relative_to(ROOT):
+        raise ValueError(f"expected a repo-relative path: {path}")
+    return candidate
+
+
+def load_registry() -> dict:
+    registry = json.loads(REGISTRY.read_text())
+    ids, paths = set(), set()
+    for entry in registry["entries"]:
+        if entry["id"] in ids:
+            raise ValueError(f"duplicate id: {entry['id']}")
+        ids.add(entry["id"])
+        for path in entry["paths"]:
+            repo_path(path)
+            if path in paths:
+                raise ValueError(f"duplicate registered path: {path}")
+            paths.add(path)
+    return registry
+
+
+def source_paths(registry: dict, entries: list[dict]) -> list[str]:
+    # Native rest references must survive the later GPU rebake so reports and
+    # grid calibration always refer to the untouched assembly.
+    paths = {registry["hero_reference"]}
+    for entry in entries:
+        paths.update(entry["paths"])
+        paths.add(entry["measurement_path"])
+        for rests in entry.get("rest_paths", {}).values():
+            paths.update(rests)
+    return sorted(paths)
+
+
+def adopt(paths: list[str], force: bool) -> None:
+    # Validate the whole adoption before copying anything. Accidentally adopting
+    # treated production files must never replace an existing painted baseline.
+    for path in paths:
+        if not repo_path(path).is_file():
+            raise ValueError(f"missing production file: {path}")
+        if (SOURCES / path).exists() and not force:
+            raise ValueError(f"source already exists: {path}; use --force-adopt for a deliberate repaint")
+    for path in paths:
+        target = SOURCES / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(repo_path(path), target)
+    print(f"ADOPTED {len(paths)} source file(s)")
+
+
+def png_bytes(image: Image.Image) -> bytes:
+    buffer = io.BytesIO()
+    image.save(buffer, format="PNG")
+    return buffer.getvalue()
+
+
+def digest(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest()
+
+
+def derive(entry: dict, path: str) -> tuple[bytes, dict]:
+    source = SOURCES / path
+    with Image.open(source) as original:
+        output = process(original, entry["mode"], entry["grid"], entry["frames"])
+    data = png_bytes(output)
+    return data, {"sha256": digest(data), "source_sha256": digest(source.read_bytes()),
+                  "id": entry["id"], "mode": entry["mode"], "grid": entry["grid"]}
+
+
+def sample(path: Path, frames: dict | None) -> Image.Image:
+    with Image.open(path) as original:
+        im = original.convert("RGBA")
+    x, y, w, h = frame_rects(im.size, frames)[0]
+    return im.crop((x, y, x + w, y + h))
+
+
+def report(registry: dict) -> None:
+    lines = ["# Board pixel-density report", "",
+             "All measurements are at native resolution; orphan share uses alpha > 0 and threshold 24.",
+             "Native is the untouched front rest (rig) or first frame of the first path (prop).",
+             "Before/after are arithmetic means over the first frame of each registered painted part/path.",
+             "After is derived from sources in memory; it does not claim a GPU rest rebake or visual approval.",
+             "Horizontal runs are multiplied by r for the relative on-screen block size.", "",
+             "| Entry | r | t | grid | mode | Native orphan / run | Before orphan / run | After orphan / run | Screen run before → after |",
+             "| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |"]
+    hero = metrics(sample(SOURCES / registry["hero_reference"], None))
+    label = lambda m: f"{100*m['orphan_share']:.2f}% / {m['run_length']:.3f}"
+    lines.append(f"| Hero front (reference, untouched) | 1 | — | — | reference | {label(hero)} | {label(hero)} | {label(hero)} | {hero['run_length']:.3f} → {hero['run_length']:.3f} |")
+    for entry in registry["entries"]:
+        native = metrics(sample(SOURCES / entry["measurement_path"], entry["frames"]))
+        before, after = [], []
+        for path in entry["paths"]:
+            im = sample(SOURCES / path, entry["frames"])
+            before.append(metrics(im))
+            after.append(metrics(process(im, entry["mode"], entry["grid"], None)))
+        mean = lambda values: {key: sum(m[key] for m in values) / len(values) for key in hero}
+        b, a = mean(before), mean(after)
+        lines.append(f"| {entry['id']} | {entry['r']:.6f} | {entry['t']} | {entry['grid']:.2f} | {entry['mode']} | {label(native)} | {label(b)} | {label(a)} | {b['run_length']*entry['r']:.3f} → {a['run_length']*entry['r']:.3f} |")
+    lines += ["", "## Scale mismatches for owner decision", "",
+              "Entries with r > 1.25 already draw larger pixels than the hero. They receive native cleanup;",
+              "only a higher-resolution repaint could match the hero exactly. No draw-code change is made.", ""]
+    for entry in registry["entries"]:
+        if entry["r"] > 1.25:
+            lines.append(f"- `{entry['id']}`: r = {entry['r']:.6f}, {entry['mode']}.")
+    lines += ["", "## Production files per entry", "",
+              "Listed paths are regenerated. A † marks an image whose decoded pixels change from its source.", ""]
+    for entry in registry["entries"]:
+        lines += [f"### {entry['id']}", ""]
+        for path in entry["paths"]:
+            with Image.open(SOURCES / path) as original:
+                im = original.convert("RGBA")
+            changed = im.tobytes() != process(im, entry["mode"], entry["grid"], entry["frames"]).tobytes()
+            lines.append(f"- `{path}`" + (" †" if changed else " (pixels unchanged)"))
+        lines.append("")
+    REPORT.write_text("\n".join(lines) + "\n")
+    print(f"REPORT {REPORT.relative_to(ROOT)}")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    action = parser.add_mutually_exclusive_group()
+    action.add_argument("--adopt-all", action="store_true")
+    action.add_argument("--adopt", nargs="+", metavar="PATH")
+    action.add_argument("--check", action="store_true")
+    action.add_argument("--write-originals", action="store_true")
+    parser.add_argument("--force-adopt", action="store_true")
+    parser.add_argument("--only", default="", metavar="ID")
+    parser.add_argument("--report", action="store_true", help="write the full registry report without processing production")
+    args = parser.parse_args()
+    registry = load_registry()
+    entries = [e for e in registry["entries"] if not args.only or e["id"] == args.only]
+    if not entries:
+        raise ValueError(f"unknown id: {args.only}")
+    if args.force_adopt and not (args.adopt or args.adopt_all):
+        raise ValueError("--force-adopt requires --adopt or --adopt-all")
+    if args.adopt_all or args.adopt:
+        paths = source_paths(registry, entries) if args.adopt_all else args.adopt
+        allowed = set(source_paths(registry, registry["entries"]))
+        for path in paths:
+            repo_path(path)
+            if path not in allowed:
+                raise ValueError(f"register new board art before --adopt {path}")
+        adopt(paths, args.force_adopt)
+        return 0
+    needed = source_paths(registry, registry["entries"] if args.report else entries)
+    missing = [path for path in needed if not (SOURCES / path).is_file()]
+    if missing:
+        raise ValueError("missing sources; use --adopt <path> (or --adopt-all initially):\n" + "\n".join(missing))
+    if args.write_originals:
+        # Restore rest baselines too, after a native rebake, for truthful A/B
+        # captures. Default processing + native rebake restores the treated view.
+        paths = needed if not args.only else source_paths(registry, entries)
+        for path in paths:
+            if path == registry["hero_reference"]:
+                continue
+            shutil.copyfile(SOURCES / path, repo_path(path))
+        print(f"WROTE-ORIGINALS {len(paths)-1} file(s)")
+        return 0
+    if args.report and not args.check:
+        report(registry)
+        return 0
+    manifest = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
+    outputs = dict(manifest) if args.only else {}
+    stale = []
+    expected_paths = {path for entry in registry["entries"] for path in entry["paths"]}
+    if args.check and not args.only:
+        stale.extend(f"outputs.json: unregistered {path}" for path in sorted(set(manifest) - expected_paths))
+    for entry in entries:
+        for path in entry["paths"]:
+            data, record = derive(entry, path)
+            if args.check:
+                current = repo_path(path)
+                if not current.is_file() or current.read_bytes() != data or manifest.get(path) != record:
+                    stale.append(path)
+            else:
+                repo_path(path).write_bytes(data)
+                outputs[path] = record
+    if args.check:
+        for path in stale:
+            print(f"stale: {path}")
+        if not stale:
+            print("CHECK-OK")
+        if args.report:
+            report(registry)
+        return 1 if stale else 0
+    MANIFEST.write_text(json.dumps(dict(sorted(outputs.items())), indent=2) + "\n")
+    print(f"PROCESSED {sum(len(e['paths']) for e in entries)} file(s)")
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except (ValueError, OSError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        sys.exit(1)

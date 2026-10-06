@@ -4,6 +4,7 @@ extends SceneTree
 ## Fractional phases include the former Breath/Walk seams; mirrors also exercise
 ## the production transform path without changing the authored articulation.
 const CaseRig = preload("res://tools/cutout_pipeline/rig.gd")
+const Silhouette = preload("res://tests/helpers/silhouette_match.gd")
 const PROFILES = [
 	{"id": "vyraketh", "rig": preload("res://scripts/vyraketh_cutout/rig.gd"), "clips": ["idle", "walk", "maw", "kindle", "crownfire", "cinderfall"]},
 	{"id": "tharokh", "rig": preload("res://scripts/tharokh_cutout/rig.gd"), "clips": ["idle", "walk", "claw", "brace", "breath", "faultline"]},
@@ -52,7 +53,7 @@ func _run() -> void:
 						await RenderingServer.frame_post_draw
 						var painted: Image = actual.get_texture().get_image()
 						var label: String = "%s_%s_%s_%s_%02d" % [character, facing, "mirror" if mirrored else "direct", clip, index]
-						_check(painted.get_data() == expected.get_texture().get_image().get_data(), label + " pixel-identical production/case")
+						_check(Silhouette.same_silhouette(painted, expected.get_texture().get_image()), label + " production keeps the case silhouette (paint is density-treated)")
 						var bounds: Rect2i = painted.get_used_rect()
 						_check(bounds.position.x >= 3 and bounds.position.y >= 3 and bounds.end.x <= 509 and bounds.end.y <= 509, label + " canvas bounds")
 						painted.save_png(OUTPUT.path_join(label + ".png"))

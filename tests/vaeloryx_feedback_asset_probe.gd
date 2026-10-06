@@ -4,6 +4,7 @@ extends SceneTree
 ## translations and mirrored views. The legacy v01 probe remains historical.
 const ProductionRig = preload("res://scripts/vaeloryx_cutout/rig.gd")
 const CaseRig = preload("res://tools/cutout_pipeline/rig.gd")
+const Silhouette = preload("res://tests/helpers/silhouette_match.gd")
 const OUTPUT: String = "user://probes/vaeloryx_feedback_assets"
 var _errors: Array[String]
 
@@ -44,7 +45,7 @@ func _run() -> void:
 					await RenderingServer.frame_post_draw
 					var painted: Image = actual.get_texture().get_image()
 					var label: String = "%s_%s_%s_%02d" % [facing, "mirror" if mirrored else "direct", clip, index]
-					_check(painted.get_data() == expected.get_texture().get_image().get_data(), label + " pixel-identical production/case")
+					_check(Silhouette.same_silhouette(painted, expected.get_texture().get_image()), label + " production keeps the case silhouette (paint is density-treated)")
 					var bounds: Rect2i = painted.get_used_rect()
 					_check(bounds.position.x >= 3 and bounds.position.y >= 3 and bounds.end.x <= 509 and bounds.end.y <= 509, label + " canvas bounds")
 					painted.save_png(OUTPUT.path_join(label + ".png"))

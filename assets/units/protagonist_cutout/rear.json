@@ -206827,7 +206827,7 @@
     "Separately generated shoulder caps, hidden pants, cloak, sword and alternate rear knee/boot views are fitted to recorded landmarks.",
     "The source ownership reconstruction proves segmentation, not the quality of the modified assembled character."
   ],
-  "rest_source_sha256": "bdad21c1e45ea771e347f1b8f8c9cf224c17e38a85d0ee0e5f7b86aa208f1544",
+  "rest_source_sha256": "137001a47dde8d98bd17bd314c61a4ab43d64055871478f2eeb5d89a5b94c6c5",
   "seam_refinement": {
     "baseline_commit": "a01366412c8dd9263044751ac63bce6c556b9544",
     "changes": [

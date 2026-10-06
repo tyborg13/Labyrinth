@@ -58,6 +58,8 @@ description: Create, balance, animate, or review Escape the Umbra enemies and en
 
 ## Visual Production
 
+New or repainted board art must be registered by the [board pixel-density rule](../../../spec/board_pixel_density.md), adopted as untouched sources, processed, and native rest-rebaked before landing. Refresh the shadow cache after rebaking; portraits stay in their independent UI pipeline.
+
 - Final enemy sprites should be runtime-visible raster art, not SVG placeholders. Use the `imagegen` skill for final enemy art unless the user explicitly asks for a placeholder.
 - Prefer new final sprites under `assets/art/enemies/<enemy_id>.png`. Existing legacy sprites live under `assets/placeholders/units`; do not add new placeholder-era art there unless intentionally staging.
 - Directional enemy cutouts idle toward the player and update facing after movement completes; actions face their own direction. Apply the shared helper and proof requirements in [cutout production integration](../create-labyrinth-cutout/references/motion-and-integration.md#production-integration). The protagonist keeps its separate camera-facing idle.

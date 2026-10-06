@@ -37,3 +37,5 @@ The protagonist's 21 bones, two views, long-stride gait, front idle default and 
 6. `verify-render` must match the final case and proof. Integration additionally requires real action-trigger/outcome proof and a playable pre-action fixture. Give the normal exact-HEAD peer-reviewed handoff with the skill/case path, preview, saved scenes, validation, residual limits and a useful new-task prompt.
 
 Do not add optional actions or redesign the character when the request is narrower. Preserve requested deferrals and existing publication authorization boundaries.
+
+New or repainted board art must be registered by the [board pixel-density rule](../../../spec/board_pixel_density.md), adopted as untouched sources, processed, and native rest-rebaked before landing. The hero front remains the reference; gear and UI-only rigs use their own pipelines. See the production integration reference for the promotion checklist.
