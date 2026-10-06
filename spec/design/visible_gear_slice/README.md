@@ -66,7 +66,7 @@ north.
 | --- | --- | --- | --- |
 | U0 | [Gear visual runtime](unit_0_gear_runtime.md) | rig/renderer gear layer, board/illusion/character-screen wiring, rest bake, fixture, probes | registry + stand-in art (done) |
 | U1 | [Weapon and shield motion study](unit_1_weapon_motion_case.md) | `experiments/cutouts/protagonist_gear/` cases only | stand-in art (done) |
-| U2 | Motion integration (brief written after U1 review) | `motion.gd` clips, renderer clip choice, melee timing, thrust trail | U0, U1 |
+| U2 | [Weapon and shield motion in combat](unit_2_motion_integration.md) | `motion.gd` clips, renderer clip choice, melee timing, thrust trail | U0, U1 |
 | Art | Final paint replaces stand-ins at the same paths | `assets/units/protagonist_cutout/gear/**` | image review |
 
 U0 and U1 run in parallel: U1 touches only its experiment cases.
