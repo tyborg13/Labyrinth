@@ -55,7 +55,11 @@ existing exact silhouette extraction once when their bake arrives. Bare layout
 `rest_source` files and digests remain the gearless baseline.
 
 An item equipped outside its native slot (Open Arsenal's wild trinket) draws
-nothing in the optional offhand/trinket slots rather than a misleading default.
+nothing rather than a misleading default: `run_scene` filters the run's loadout
+through `scripts/visual_equipment.gd` (cached per loadout) before it reaches the
+board, the Character figure or the melee effect. The cutout runtime itself stays
+independent of the rules/data layer, as the production-only export smoke check
+requires.
 
 ### Weapon and shield motion
 
@@ -65,7 +69,8 @@ The resolved weapon's `motion` picks the melee clip: `sword` keeps the accepted
 raised head stays visible, a four-frame slam over the top and an impact hold;
 `stab` plays `attack_stab` (24 frames, 0.40 s), a cock at the hip, then a
 step-in lunge (leading foot 8 source px and root 10 px along the board diagonal)
-with the trailing foot planted. Melee frame counts come from `clip_specs()`;
+with the trailing foot planted. Heavy/stab frame counts come from `clip_specs()`
+(the sword keeps the renderer's `MELEE_FRAMES`);
 contact stays at effect progress 0.42 for all three and self-centred sweeps keep
 their 0.24 s / 0.38 boundary by retiming the archetype pose. Resolver results,
 sounds and analytics do not change. The two-handed grip keeps the off hand on

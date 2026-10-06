@@ -2,7 +2,6 @@ extends RefCounted
 
 ## Presentation-only registry. Validate once; a bad item never enters the cache.
 const AssetLoader = preload("res://scripts/asset_loader.gd")
-const GameData = preload("res://scripts/game_data.gd")
 const BASE: String = "res://assets/units/protagonist_cutout"
 const PATH: String = BASE + "/gear_visuals.json"
 const SLOTS: PackedStringArray = ["weapon", "offhand", "armor", "boots", "trinket"]
@@ -114,10 +113,6 @@ static func resolve(equipped: Dictionary) -> Dictionary:
 			resolved[slot] = "" if slot in ["offhand", "trinket"] else _defaults[slot]
 		else:
 			resolved[slot] = id if _items.has(id) and _items[id]["slot"] == slot else _defaults[slot]
-			# Open Arsenal can put another slot's item in the trinket slot. An
-			# optional slot draws nothing rather than a misleading default.
-			if slot in ["offhand", "trinket"] and GameData.equipment_slot(id) != slot:
-				resolved[slot] = ""
 	return resolved
 
 static func signature(equipped: Dictionary) -> String:

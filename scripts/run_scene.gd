@@ -23320,7 +23320,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"kind": "ranged" if action_type in ["push", "pull"] else action_type,
 				"action_type": action_type,
 				"protagonist_melee": not bool(action.get("_illusion_echo", false)) and AttackFxLibrary.protagonist_uses_melee_motion(action),
-				"protagonist_weapon_motion": preload("res://scripts/protagonist_cutout/gear_visuals.gd").weapon_motion(_run_state.get("equipped_equipment", {})),
+				"protagonist_weapon_motion": preload("res://scripts/protagonist_cutout/gear_visuals.gd").weapon_motion(_equipped_equipment_for_board()),
 				"protagonist_ranged": "" if bool(action.get("_illusion_echo", false)) else preload("res://scripts/protagonist_cutout/ranged_action.gd").clip_for_action(action),
 				"protagonist_origin": player_before_tile,
 				"from": action.get("_origin_tile", player_before_tile),
@@ -25356,8 +25356,19 @@ func _apply_umbra_board_presentation(display_state: Dictionary, target_presentat
 	if target_presentation.has("floating_texts"):
 		target_presentation["floating_texts"] = _visible_umbra_floating_texts(display_state, target_presentation.get("floating_texts", []) as Array)
 
+var _visual_equipment: Dictionary = {}
+var _visual_equipment_source_hash: int = 0
+var _visual_equipment_ready: bool = false
+
 func _equipped_equipment_for_board() -> Dictionary:
-	return _run_state.get("equipped_equipment", {}) as Dictionary
+	# Board submissions call this per rendered frame; filter once per loadout.
+	var equipped: Dictionary = _run_state.get("equipped_equipment", {}) as Dictionary
+	var source_hash: int = equipped.hash()
+	if not _visual_equipment_ready or source_hash != _visual_equipment_source_hash:
+		_visual_equipment = preload("res://scripts/visual_equipment.gd").native_slot_loadout(equipped)
+		_visual_equipment_source_hash = source_hash
+		_visual_equipment_ready = true
+	return _visual_equipment
 
 func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void:
 	if step.has("guardian_board_after"):
@@ -29289,7 +29300,7 @@ func _build_equipment_portrait_panel() -> Control:
 	var art := TextureRect.new()
 	art.name = "EquipmentCharacterArt"
 	var cutout := ProtagonistCutout.new()
-	cutout.set_gear(_run_state.get("equipped_equipment", {}))
+	cutout.set_gear(_equipped_equipment_for_board())
 	art.add_child(cutout)
 	cutout.name = "EquipmentCutout"
 	cutout.reduced_motion_source = _reduced_motion_enabled

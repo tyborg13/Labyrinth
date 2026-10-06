@@ -21,8 +21,9 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	expect.call(Gear.resolve({"weapon": "", "offhand": "", "armor": "", "boots": "", "trinket": ""}) == Gear.resolve({}), "Empty slots follow the same fallback rules")
 	expect.call(Gear.resolve(L4) == Gear.DEFAULTS and Gear.signature(L4) == Gear.signature(Gear.DEFAULTS), "Out-of-slice loadout resolves exactly to default visuals")
 	expect.call(Gear.resolve({"weapon": "ward_kite"})["weapon"] == "training_sword", "An item in the wrong slot also falls back")
-	expect.call(Gear.resolve({"trinket": "war_maul"})["trinket"] == "" and Gear.resolve({"trinket": "grave_greatsword"})["trinket"] == "", "An Open Arsenal trinket from another slot draws nothing")
-	expect.call(Gear.resolve({"offhand": "tower_shield"})["offhand"] == "splintered_shield", "An out-of-slice offhand still shows the slot default")
+	var arsenal: Dictionary = preload("res://scripts/visual_equipment.gd").native_slot_loadout({"weapon": "war_maul", "offhand": "tower_shield", "trinket": "grave_greatsword"})
+	expect.call(arsenal == {"weapon": "war_maul", "offhand": "tower_shield"} and Gear.resolve(arsenal)["trinket"] == "", "An Open Arsenal trinket from another slot draws nothing")
+	expect.call(Gear.resolve(arsenal)["offhand"] == "splintered_shield", "An out-of-slice offhand still shows the slot default")
 	expect.call(Gear.weapon_motion(L1) == "heavy" and Gear.weapon_motion(L2) == "stab" and Gear.weapon_motion({}) == "sword", "Weapon motion contract is data driven")
 	expect.call(Gear.is_two_handed(L1) and Gear.offhand_kind(L1).is_empty() and Gear.offhand_kind(L2) == "hand" and Gear.offhand_kind(Gear.DEFAULTS) == "shield", "Two-handed and held-kind contracts")
 	for facing: String in ["front", "rear"]:
