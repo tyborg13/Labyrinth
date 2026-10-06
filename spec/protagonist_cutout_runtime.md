@@ -20,6 +20,40 @@ The walking gait runs at a 0.30-second cycle with 48 source-pixel strides and 80
 
 The old whole-sprite melee lunge is removed: the articulated torso drive and planted feet supply the action on the protagonist’s real tile. Slash artwork is withheld during anticipation and peaks with the cut; idle resumes as soon as the recovery ends even while damage text is still finishing. Cached equipment views follow later reduced-motion changes. Existing death squash and Blink echo scaling transform the logical body rectangle before padding is added, preserving their floor registration.
 
+## Visible equipment
+
+`assets/units/protagonist_cutout/gear_visuals.json` owns the five slots' visual
+defaults, weapon motion/hand count, per-facing part replacements and bone
+attachments in the unchanged 255-pixel source registration. Armor owns only the
+torso, sleeves and hips; boots own the feet. Mesh textures must retain their base
+crop size. Cloak, mantle, scarf, head, hands and trousers keep their base paint.
+The loader validates and caches the JSON once, reports broken entries, and falls
+back to the slot default for absent or invalid item IDs. Missing/empty weapon,
+armor and boots use defaults; missing/empty offhand and trinket draw nothing.
+Two-handed weapons omit offhands. Shields stay visible during every action; held
+offhands yield only in their declared `hide_in_clips`, exactly while the crossbow
+bone is visible. Reactions and reduced-motion stills use the same visibility rule.
+
+`gear_visuals.gd` exposes static `resolve`, `signature`, `weapon_motion`,
+`is_two_handed`, `offhand_kind` and `ops_for_facing` (replace/attach/weapon_grip).
+`rig.gd.apply_gear({})` restores original textures and rigid positions and removes
+all gear attachments. This layer is opt-in for the protagonist; enemy callers
+keep their original loading and pose paths. The renderer exposes `set_gear`,
+`weapon_motion`, `offhand_kind` and `rest_texture`; identical signatures do no work.
+Snapshots include `gear` and `offhand_visible`. Board, illusions, previews and the
+Character figure receive the run's gear without changing action ownership.
+
+`rest_texture` uses an unmirrored front neutral 255×255 bake, cached across all
+renderers by resolved signature. A dedicated canvas makes one GPU readback per
+new signature; its retained CPU pixels also supply shadow/HUD extraction without
+reading back the uploaded ImageTexture. The live action viewport is never read
+per frame. While a bake is
+pending (or under the dummy renderer), the bare static rest PNG is the fallback.
+The default loadout instead uses `front_default_gear_rest.png`, baked through the
+real renderer and covered by the precomputed shadow cache. Other loadouts use the
+existing exact silhouette extraction once when their bake arrives. Bare layout
+`rest_source` files and digests remain the gearless baseline.
+
 ## Verification and UI handoff — pass eight
 
 The changed surface is the full-body protagonist on the combat/room board and equipment panel. The player identifies facing, travel and melee contact while selecting tiles/cards through the existing pointer and controller paths. Board, HP, action results and target previews retain their hierarchy; there are no copy or icon conversions. CombatBoardView, RunScene, AttackFxLibrary, retained board layers, AssetLoader and the existing equipment TextureRect are extended.

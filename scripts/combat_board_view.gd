@@ -5,6 +5,7 @@ const PathUtils = preload("res://scripts/path_utils.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
 const UiPaletteTokens = preload("res://scripts/ui_palette.gd")
 const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
+const ProtagonistGearBoard = preload("res://scripts/protagonist_cutout/gear_board.gd")
 var _protagonist_renderer: Node
 var _illusion_renderers: Dictionary = {}
 const LightningWispCutout = preload("res://scripts/lightning_wisp_cutout/renderer.gd")
@@ -818,7 +819,10 @@ func _ready() -> void:
 	if _uses_protagonist_cutout():
 		_protagonist_renderer = ProtagonistCutout.new()
 		_protagonist_renderer.name = "ProtagonistCutout"
+		_protagonist_renderer.call("set_gear", presentation.get("equipped_equipment", {}))
 		add_child(_protagonist_renderer)
+		_protagonist_renderer.connect("rest_texture_changed", _on_protagonist_rest_texture_changed)
+		ProtagonistGearBoard.sync(self)
 	if not _initial_assets_prepared:
 		_load_assets(false)
 	startup_started = _record_startup_performance_phase("load_assets", startup_started)
@@ -834,6 +838,9 @@ func _uses_protagonist_cutout() -> bool:
 
 func protagonist_animation_snapshot() -> Dictionary:
 	return _protagonist_renderer.call("snapshot") if is_instance_valid(_protagonist_renderer) else {}
+
+func _on_protagonist_rest_texture_changed() -> void:
+	ProtagonistGearBoard.refresh_rest(self)
 
 func unit_cutout_renderer(unit: Dictionary) -> Node:
 	if str(unit.get("type", "")) == "player":
@@ -867,6 +874,7 @@ func _sync_illusion_renderers() -> void:
 		if not is_instance_valid(renderer):
 			renderer = ProtagonistCutout.new()
 			renderer.name = "IllusionCutout_" + actor_key
+			renderer.call("set_gear", presentation.get("equipped_equipment", {}))
 			add_child(renderer)
 			_illusion_renderers[actor_key] = renderer
 		# Sharing player paint must never share the player's live action pose.
@@ -2740,7 +2748,9 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		refresh_cutout_roster = refresh_cutout_roster or combat_render_changes.has(key)
 	for key: String in ["preview_units", "death_animation_units", "visible_enemy_ids", "reduced_motion"]:
 		refresh_cutout_roster = refresh_cutout_roster or presentation_changes.has(key)
-	if refresh_cutout_roster or presentation_changes.has("illusion_motion"):
+	if refresh_cutout_roster or presentation_changes.has("equipped_equipment"):
+		ProtagonistGearBoard.sync(self)
+	if refresh_cutout_roster or presentation_changes.has("illusion_motion") or presentation_changes.has("equipped_equipment"):
 		_sync_illusion_renderers()
 	if refresh_cutout_roster or presentation_changes.has("warden_motion"):
 		_sync_warden_renderers()
@@ -14313,7 +14323,7 @@ func _ensure_unit_assets_for_type(unit_type: String) -> void:
 		_queue_unit_shadow_source_data(unit_type)
 		return
 	if unit_type == "player" and _uses_protagonist_cutout():
-		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(ProtagonistCutout.REST_PATH)
+		_unit_textures[unit_type] = _protagonist_renderer.call("rest_texture") if is_instance_valid(_protagonist_renderer) else ProtagonistGearBoard.detached_rest(presentation.get("equipped_equipment", {}))
 		_queue_unit_shadow_source_data(unit_type)
 		return
 	if unit_type == "player":
@@ -14395,7 +14405,7 @@ func _process_next_unit_shadow_prewarm() -> void:
 		_unit_shadow_prewarm_pending_ids.erase(texture.get_instance_id())
 		return
 	var readback_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
-	var image: Image = texture.get_image()
+	var image: Image = AssetLoader.texture_source_image(texture)
 	_record_submission_performance_phase("shadow_prewarm_image_readback", readback_started)
 	if image == null or image.is_empty():
 		var empty_polygons: Array[PackedVector2Array] = []

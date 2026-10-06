@@ -29288,17 +29288,17 @@ func _build_equipment_portrait_panel() -> Control:
 	var art := TextureRect.new()
 	art.name = "EquipmentCharacterArt"
 	var cutout := ProtagonistCutout.new()
+	cutout.set_gear(_run_state.get("equipped_equipment", {}))
 	art.add_child(cutout)
 	cutout.name = "EquipmentCutout"
 	cutout.reduced_motion_source = _reduced_motion_enabled
 	cutout.ready.connect(func() -> void:
-		var crop := AtlasTexture.new()
-		crop.atlas = cutout.texture()
-		crop.region = Rect2(ProtagonistCutout.SOURCE_OFFSET, ProtagonistCutout.SOURCE_SIZE)
-		art.texture = crop
 		cutout.present({}, _reduced_motion_enabled())
+		preload("res://scripts/protagonist_cutout/gear_portrait.gd").show_when_drawn(art, cutout)
 	)
-	art.texture = AssetLoader.load_texture_source_first(PLAYER_UNIT_TEXTURE_PATH)
+	art.texture = cutout.rest_texture()
+	if art.texture == null:
+		art.texture = AssetLoader.load_texture_source_first(ProtagonistCutout.DEFAULT_GEAR_REST_PATH)
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED

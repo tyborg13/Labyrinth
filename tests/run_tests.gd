@@ -412,6 +412,7 @@ func _initialize() -> void:
 	await preload("res://tests/suites/dragon_exchange_presentation_suite.gd").run_live(self, Callable(self, "_assert"))
 	await CombatMotionTimingSuite.run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/protagonist_cutout_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/protagonist_gear_suite.gd").run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/contextual_cutout_suite.gd").run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/stone_warden_cutout_suite.gd").run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/crawler_cutout_suite.gd").run(self, Callable(self, "_assert"))

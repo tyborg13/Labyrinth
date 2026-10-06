@@ -16,6 +16,9 @@ var rest_transforms: Dictionary = {}
 var load_errors: PackedStringArray = []
 var skeleton: Skeleton2D
 var _loaded_facing: String = ""
+var _gear_base_parts: Dictionary = {}
+var _gear_attachments: Array[Sprite2D] = []
+var _gear_clip: String = "idle"
 
 func _layout_path(which: String) -> String:
 	return BASE.path_join(which + ".json")
@@ -55,6 +58,8 @@ func load_rig() -> bool:
 		child.free()
 	bones.clear()
 	rest_transforms.clear()
+	_gear_base_parts.clear()
+	_gear_attachments.clear()
 	_source_data = prepared
 	layout = prepared.layout
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -116,6 +121,7 @@ func load_rig() -> bool:
 		sprite.z_as_relative = false
 		(bones[bone_name] as Bone2D).add_child(sprite)
 		sprite.owner = self
+		_remember_gear_part(str(part.get("name", "")), sprite)
 	if use_cape_mesh:
 		_build_mesh(layout["cape_mesh"] as Dictionary, "PaintedCape", "cape")
 	for mesh_index: int in range(joint_meshes.size()):
@@ -151,10 +157,73 @@ func _build_mesh(data: Dictionary, mesh_name: String, source_key: String) -> voi
 	for bone_name: String in prepared["weights"]:
 		mesh.add_bone(skeleton.get_path_to(bones[bone_name]), prepared["weights"][bone_name])
 	mesh.queue_redraw()
+	_remember_gear_part(str(data.get("replaces_part", "")), mesh)
+
+func _remember_gear_part(part_name: String, node: Node2D) -> void:
+	if not part_name.is_empty():
+		_gear_base_parts[part_name] = {"node": node, "texture": node.get("texture"), "position": node.position}
+
+func apply_gear(ops: Dictionary) -> void:
+	for base: Dictionary in _gear_base_parts.values():
+		var node: Node2D = base["node"]
+		node.set("texture", base["texture"])
+		node.position = base["position"]
+	for attachment: Sprite2D in _gear_attachments:
+		attachment.free()
+	_gear_attachments.clear()
+	for op: Dictionary in ops.get("replace", []):
+		var part: String = str(op.get("part", ""))
+		if not _gear_base_parts.has(part):
+			push_error("Unknown protagonist gear part: " + part)
+			continue
+		var base: Dictionary = _gear_base_parts[part]
+		var node: Node2D = base["node"]
+		var texture: Texture2D = _texture(str(op.get("file", "")))
+		if texture == null:
+			push_error("Missing protagonist gear replacement: " + str(op))
+			continue
+		if node is Polygon2D and texture.get_size() != (base["texture"] as Texture2D).get_size():
+			push_error("Protagonist gear mesh crop size differs from base: " + part)
+			continue
+		node.set("texture", texture)
+		if node is Sprite2D and op.has("offset"):
+			var bone_name: String = str(node.get_parent().name)
+			node.position = _vector(op["offset"]) - _vector(layout["joints"][bone_name]["position"])
+	for op: Dictionary in ops.get("attach", []):
+		var bone_name: String = str(op.get("bone", ""))
+		if not bones.has(bone_name):
+			push_error("Unknown protagonist gear attachment bone: " + bone_name)
+			continue
+		var texture: Texture2D = _texture(str(op.get("file", "")))
+		if texture == null:
+			push_error("Missing protagonist gear attachment: " + str(op))
+			continue
+		var sprite := Sprite2D.new()
+		sprite.name = str(op.get("name", "GearAttachment"))
+		sprite.texture = texture
+		sprite.centered = false
+		sprite.position = _vector(op["offset"]) - _vector(layout["joints"][bone_name]["position"])
+		sprite.z_index = int(op.get("z_index", 0))
+		sprite.z_as_relative = false
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		sprite.set_meta("gear_attachment", str(op.get("item_id", "")))
+		sprite.set_meta("hide_in_clips", PackedStringArray(op.get("hide_in_clips", [])))
+		# Skeleton descendants precede the later joint meshes at equal global z.
+		# Thus the front dagger (48) sits below Skin_arm_l (48) and hand_l (49).
+		(bones[bone_name] as Bone2D).add_child(sprite)
+		_gear_attachments.append(sprite)
+	_update_gear_visibility(_gear_clip)
+
+func _update_gear_visibility(clip_name: String) -> void:
+	_gear_clip = clip_name
+	var crossbow_visible: bool = bones.has("weapon_l") and (bones["weapon_l"] as Bone2D).visible
+	for attachment: Sprite2D in _gear_attachments:
+		attachment.visible = not (crossbow_visible and (attachment.get_meta("hide_in_clips") as PackedStringArray).has(clip_name))
 
 func apply_pose(clip_name: String, phase: float) -> void:
 	var pose: Dictionary = Motion.sample_pose(clip_name, phase, layout, facing)
 	_apply_sampled_pose(pose, true)
+	_update_gear_visibility(clip_name)
 
 # A sample specifies the final local transform. Resetting to rest and then
 # setting position/rotation/scale/skew separately dirtied the skeleton up to five

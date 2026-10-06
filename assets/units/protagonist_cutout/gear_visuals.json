@@ -213,7 +213,7 @@
               "file": "gear/parrying_dagger/front_offhand.png",
               "bone": "hand_l",
               "offset": [
-                156,
+                155,
                 138
               ],
               "z_index": 48
@@ -227,7 +227,7 @@
               "file": "gear/parrying_dagger/rear_offhand.png",
               "bone": "hand_l",
               "offset": [
-                78,
+                76,
                 127
               ],
               "z_index": 73
@@ -469,7 +469,7 @@
               "file": "gear/cracked_lantern/front_trinket.png",
               "bone": "hips",
               "offset": [
-                99,
+                98,
                 121
               ],
               "z_index": 43
@@ -483,7 +483,7 @@
               "file": "gear/cracked_lantern/rear_trinket.png",
               "bone": "hips",
               "offset": [
-                145,
+                144,
                 123
               ],
               "z_index": 43
