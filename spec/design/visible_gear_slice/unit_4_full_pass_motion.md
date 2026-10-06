@@ -65,3 +65,7 @@ Polearms (`thrust`) and the bow rest UPRIGHT at the hero's side: tip up, butt ne
   - stormstring bow and windlass repeater shots southwest/northeast at 0.24, 0.42, plus one mirrored southeast;
   - Worldbreaker heavy and Duelist Rapier stab at 0.42.
 - Native capture is the design owner's: confirm the probe parses and give the runner command.
+
+## Revision after native review
+
+The design owner replaced item 3's two-hand bow draw with a one-arm aim, because the hero's left arm cannot reach a bow held at arm's length and the pulled-in compromise did not read. The poles and bow now rest in the owner's steep outward carry instead of upright (unit 5). See `spec/protagonist_ranged_animations.md` and `spec/protagonist_cutout_runtime.md`.

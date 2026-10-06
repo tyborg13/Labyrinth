@@ -46,25 +46,19 @@ main-hand crossbow. The production-only PCK still includes no rules/data layer.
 
 ## Full-pass bow and repeater
 
-Visual registry motions `bow` and `repeater` select `shoot_bow` and
-`shoot_repeater`; every other weapon keeps the generic `shoot`. Both variants
-retain the shooting preparation, raise, recoil, release at pose .42, recovery
-and reduced-motion .40 still. Magic remains `cast`; their melee cards use the
-existing sword cut as a bash. The offhand stays on the left forearm or fist.
+The registry motions `bow` and `repeater` select `shoot_bow` and `shoot_repeater`; every other weapon keeps the generic `shoot`.
+- Both variants keep the shooting preparation, raise, recoil, release at pose .42, recovery and the reduced-motion .40 still.
+- Magic stays `cast`, and these weapons' melee cards use the existing sword cut as a bash.
+- The offhand stays at rest on the left forearm or fist throughout.
 
-The repeater retains the exact right-arm shooting pose and points its own
-grip-to-tip axis along (-1,-0.2) front / (1,-0.3) rear. Its tip is the muzzle.
-The bow's upper limb is perpendicular to that aim and points upward, with its
-string toward the hero. Its left wrist reaches 4px behind the grip by .24,
-draws another 10px toward the chest by .38, and releases at .42 before returning
-to rest. The bow's projectile origin is the registered grip plus 6px along aim.
-Live origins follow the visible weapon; released origins sample .42 and stay
-fixed through recoil, recovery and the idle reset, with reflection applied last.
+Both shots are one-armed. The design owner decided this after the first take tried a two-hand draw: the hero's left arm (37 px painted reach) cannot reach a bow held at arm's length (about 98 px from the left shoulder). The pulled-in pose that resulted read as a stick at the chest and vanished from the rear.
 
-The crossbow's fully extended front wrist is about 98px from the left shoulder,
-outside the left arm's 37px painted reach. To meet the string-hand requirement
-without stretching either sleeve, the bow's raised right-wrist target is 45%
-between the shoulders plus (0,8): (127.45,109.5) front and (125.35,104.15) rear.
-The right arm bends across the chest; the weapon retains its specified aim and
-the original shooting envelopes. No polearm, lash or repeater target correction
-is needed. Native full-pass inspection remains with the design owner.
+Each variant reuses the main-hand crossbow's right-arm aim and recoil unchanged (front aim (-1,-0.2), rear (1,-0.3)) and changes only the weapon:
+- **Repeater:** points its own grip-to-tip axis along the aim; its tip is the muzzle.
+- **Bow:** held at arm's length perpendicular to the aim, upper limb up and the string toward the hero. Its projectile origin is the registered grip plus 6 px along the aim.
+
+Live origins follow the visible weapon. Released origins sample .42 and stay fixed through recoil, recovery and the idle reset, with reflection applied last.
+
+From the rear, a shooting bow or repeater draws at z 66 in front of the body while the shot is active, because the extended weapon sits beyond the silhouette. Every other rear clip, and a hidden rear rig, returns it to the rear weapon depth (z 5).
+
+Proof: `tests/protagonist_full_gear_motion_test.gd` and the native motion probe r15 (236 images at 1920×1080, inspected by the design owner, including bow and repeater shots front, rear and mirrored southeast).

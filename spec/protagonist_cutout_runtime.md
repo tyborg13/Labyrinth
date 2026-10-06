@@ -103,14 +103,13 @@ Gear attachments follow their bone's position and rotation but never its scale
 or skew, so foreshortened rear casting/shooting cannot stretch a shield; the
 rig's mirroring still applies. Reduced motion keeps the neutral still with gear.
 
-The full-pass poses live in `full_gear_motion.gd`, reusing the existing sampler's
-painted-length IK. `thrust` selects `attack_thrust` (34 frames, 0.56 s): lower an
-upright pole by .20, cock its hip-height wrist 8 source px back by .30, drive
-26 px forward by .42, hold through .56, then recover through the lowered pose
-to the landmark-defined upright rest. Its pole stays along the front/rear stab
-line from .20 through .62. It shares the stab's leading-foot step, 10px root
-lunge, planted trailing foot and minimum pelvis fit, with a -0.10 rad front
-offhand brace at contact (mirrored rear). Its contact effect is the stab streak.
+The full-pass poses live in `full_gear_motion.gd` and reuse the existing sampler's painted-length IK. `thrust` selects `attack_thrust` (34 frames, 0.56 s):
+- lower the pole from its steep carry (below) to the attack line by .20;
+- cock the hip-height wrist 8 source px back by .30;
+- drive it 26 px forward by .42 and hold through .56;
+- recover through the lowered pose to the carry by 1.0.
+
+The pole stays along the front/rear stab line from .20 through .62. It shares the stab's leading-foot step, 10 px root lunge, planted trailing foot and minimum pelvis fit, with a −0.10 rad front offhand brace at contact (mirrored rear). Its contact effect is the stab streak.
 
 `lash` selects `attack_lash` (29 frames, 0.48 s): gather the wrist 20px above
 and 6px behind the shoulder, point the whip up over the weapon-side shoulder,
@@ -119,35 +118,36 @@ recover by .90. `melee_lash_fx.gd` draws a hand-to-target quadratic crack bowed
 18 screen px upward, a 3px warm-white core under a 6px teal glow from .36 to
 .62 and a small fading burst at .42. Reduced motion omits both new trails.
 
-`bow` and `repeater` keep the sword cut/remap for melee bashes and keep `cast`
-for magic. Physical shots select `shoot_bow` / `shoot_repeater`, retaining the
-existing shooting clock. Their registered live/released sockets, including
-reflection, come from the bow grip plus 6px along aim or the repeater tip.
-The new clips preserve the offhand, rigid paint and planted feet; existing
-clips remain unchanged. The gameplay effect carries both visual motion values
-without changing resolver, sound, analytics or save ownership.
+`bow` and `repeater` keep the sword cut and phase remap for melee bashes, and keep `cast` for magic. Physical shots are one-armed (see `protagonist_ranged_animations.md`). The new clips keep the offhand, rigid paint and planted feet, and existing clips are unchanged. The gameplay effect carries both visual motion values without changing resolver, sound, analytics or save ownership.
 
-Proof: `tests/suites/protagonist_gear_suite.gd`, `protagonist_gear_motion_suite.gd`,
-`tests/protagonist_ranged_test.gd`, `tests/cutout_rig_data_test.gd`,
-`tests/protagonist_gear_motion_gameplay_test.gd` and the real-renderer probes
-`tests/protagonist_gear_probe.gd` and `tests/protagonist_gear_motion_probe.gd`.
-Design and review captures: `spec/design/visible_gear_slice/` (`review/round2_*.png`).
-Round 2 native proof: `tests/protagonist_gear_probe.gd` (49 images, Metal, with
-`--write-default-rest`) and `tests/protagonist_gear_motion_probe.gd` (116 images,
-including main-hand shots for shield/dagger loadouts and reflection), both PASS
-at 1920×1080 and inspected by the design owner.
+### Carry and draw order
 
-Offhand layering: front shields draw at z 72 (over the mantle at 70, under the
-scarf at 75 and head at 80), so the shield's top sits in front of the cloak.
-Rear offhands draw at z 6, below the far arm (7), so the whole body occludes
-them and only the rim shows past the silhouette. Held offhands (the parrying
-dagger) sit at z 48 in front, under the fist. `hands: 2` currently has no
-runtime effect: every slice weapon is one-handed and the offhand is always on.
+**Steep carry.** Poles (`thrust`) and the bow rest in the owner's steep outward carry:
+- through the fist, head up past the near shoulder, butt down by the foot;
+- never crossing the body;
+- front axis (−0.30, −0.95), rear (0.30, −0.95), read from the weapon's `weapon_grip` landmarks.
 
-Pixel density: every gear texture is consolidated to the hero's density by
-`tools/process_gear_visual_assets.py` (`consolidate`: posterise to 24 colours,
-3×3 mode filter, orphan cleanup). The output depends on the Pillow/numpy
-versions; `--check` and `tests/test_gear_visual_assets.py` catch drift.
+`gear_carry.gd` adds per-rig `weapon_carry` metadata for these two motions only.
+- In rest, idle, walk, block, block_shield, hit and death, the fist turns toward the landmark axis through the existing 15/85 grip split: the glove takes 15% of the angle from the sword's rest direction and the weapon the rest.
+- `attack_thrust` fades the carry out and back in.
+- Sword, heavy and stab poses are unchanged; the carry suite compares 1,320 poses per facing.
+
+**Rear draw order.** In the rear facing, the main weapon belongs to the far arm and draws behind the whole body at z 5. This covers every registered weapon (an optional `z_index` on a `weapon_r` replacement), the default sword and the generic crossbow in `rear.json`. `apply_gear({})` restores the base depth. The front facing keeps z 66 under the fist (67).
+
+Proof:
+- Suites: `tests/suites/protagonist_gear_suite.gd`, `protagonist_gear_motion_suite.gd`, `protagonist_full_gear_motion_suite.gd`, `protagonist_gear_carry_suite.gd`, `tests/protagonist_ranged_test.gd`, `tests/cutout_rig_data_test.gd`, `tests/protagonist_gear_motion_gameplay_test.gd` and `tests/test_gear_visual_assets.py`.
+- Real-renderer probes: `tests/protagonist_gear_probe.gd` and `tests/protagonist_gear_motion_probe.gd`.
+- Design and review captures: `spec/design/visible_gear_slice/` (`review/round2_*.png`, `review/full_*.png`).
+- Full-pass native proof (r15): the gear probe (49 images, Metal, with `--write-default-rest`, which produced no file change) and the motion probe (236 images: all archetypes, the carry front and rear, and the one-arm bow and repeater front, rear and mirrored). Both PASS at 1920×1080 and were inspected by the design owner.
+
+Offhand layering:
+- **Front shields** draw at z 72 (over the mantle at 70, under the scarf at 75 and head at 80), so the shield's top sits in front of the cloak.
+- **Rear offhands** draw at z 6, below the far arm (7), so the whole body occludes them and only the rim shows past the silhouette.
+- **Parrying dagger (front):** z 50, over the sleeve. Its texture has the fist's rest silhouette cut out (`occluded_by: hand_l`, applied at derivation), so the fist reads as gripping it. Both ride `hand_l`, which stays rigid, so the hole stays aligned in every pose.
+- **Grapple hook and sunken anchor (front):** hang from the fist at z 48.
+- `hands: 2` currently has no runtime effect: every weapon is one-handed and the offhand is always on.
+
+Pixel density and derivation: `tools/process_gear_visual_assets.py` takes its output paths from the registry and its native sizes from `spec/assets/visible_gear_slice/native_sizes.json`. Whole items use `item|facing`; a piece that differs from its rig part uses `item|facing|part`, such as robe-style hips at mid-thigh length. Other pieces take the bare rig part's own size, so sleeves and rear shins always match their meshes. Every texture is consolidated to the hero's density (`consolidate`: posterise to 24 colours, 3×3 mode filter, orphan cleanup), and `occluded_by` cuts a covering rig part out. The output depends on the Pillow and numpy versions; `--check` and `tests/test_gear_visual_assets.py` catch drift.
 
 ## Verification and UI handoff — pass eight
 
