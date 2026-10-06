@@ -76,8 +76,8 @@ static func animation_frame_count(effect: Dictionary, fallback_count: int, reduc
 		if reduced_motion:
 			return 1
 		match str(effect.get("protagonist_weapon_motion", "sword")):
-			"heavy": return 43
-			"stab": return 24
+			"heavy": return int(preload("res://scripts/protagonist_cutout/motion.gd").clip_specs()["attack_heavy"]["frames"])
+			"stab": return int(preload("res://scripts/protagonist_cutout/motion.gd").clip_specs()["attack_stab"]["frames"])
 			_: return preload("res://scripts/protagonist_cutout/renderer.gd").MELEE_FRAMES
 	var style: String = style_for_effect(effect)
 	if style == STYLE_DEFAULT:

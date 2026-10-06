@@ -1063,7 +1063,6 @@ const ACTION_CONTEXT_BUTTON_MIN_WIDTH: float = 94.0
 const ACTION_CONTEXT_CONNECTOR_WIDTH: float = 3.0
 const CONTEXTUAL_COMBAT_PROMPT_EDGE_GAP: float = 8.0
 const CONTEXTUAL_COMBAT_PROMPT_VIEWPORT_MARGIN: float = 4.0
-const PLAYER_UNIT_TEXTURE_PATH: String = ProtagonistCutout.REST_PATH
 const HEALTH_ICON_PATH: String = "res://assets/art/icons/health.png"
 const RELIC_BADGE_SIZE: Vector2 = Vector2(52.0, 52.0)
 const RELIC_BAR_HORIZONTAL_GAP: float = 8.0

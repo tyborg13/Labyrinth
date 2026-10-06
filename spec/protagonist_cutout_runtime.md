@@ -54,6 +54,39 @@ real renderer and covered by the precomputed shadow cache. Other loadouts use th
 existing exact silhouette extraction once when their bake arrives. Bare layout
 `rest_source` files and digests remain the gearless baseline.
 
+An item equipped outside its native slot (Open Arsenal's wild trinket) draws
+nothing in the optional offhand/trinket slots rather than a misleading default.
+
+### Weapon and shield motion
+
+The resolved weapon's `motion` picks the melee clip: `sword` keeps the accepted
+`attack` cut and its phase remap; `heavy` plays `attack_heavy` (43 frames,
+0.72 s), a two-handed gather, an apex angled back over the shoulder so the
+raised head stays visible, a four-frame slam over the top and an impact hold;
+`stab` plays `attack_stab` (24 frames, 0.40 s), a cock at the hip, then a
+step-in lunge (leading foot 8 source px and root 10 px along the board diagonal)
+with the trailing foot planted. Melee frame counts come from `clip_specs()`;
+contact stays at effect progress 0.42 for all three and self-centred sweeps keep
+their 0.24 s / 0.38 boundary by retiming the archetype pose. Resolver results,
+sounds and analytics do not change. The two-handed grip keeps the off hand on
+the haft 9 px toward the pommel, using the weapon's `weapon_grip` landmarks;
+those reach the sampler through a per-rig copy of the layout and never mutate
+the shared `RigData` dictionary.
+
+`stab` replaces the slash arc with a thrust streak at the target (52 px behind
+to 16 px past contact, a 7-px warm glow under a 3-px core, plus a short contact
+spark); the harrier keeps its original thin streak. A `block` reaction plays
+`block_shield` (the shield rises in front of the chest, the sword stays down)
+only when a shield is drawn; a two-hander keeps the weapon-guard `block`.
+Gear attachments follow their bone's position and rotation but never its scale
+or skew, so foreshortened rear casting/shooting cannot stretch a shield; the
+rig's mirroring still applies. Reduced motion keeps the neutral still with gear.
+
+Proof: `tests/suites/protagonist_gear_suite.gd`, `protagonist_gear_motion_suite.gd`,
+`tests/protagonist_gear_motion_gameplay_test.gd` and the real-renderer probes
+`tests/protagonist_gear_probe.gd` and `tests/protagonist_gear_motion_probe.gd`.
+Design and review captures: `spec/design/visible_gear_slice/`.
+
 ## Verification and UI handoff — pass eight
 
 The changed surface is the full-body protagonist on the combat/room board and equipment panel. The player identifies facing, travel and melee contact while selecting tiles/cards through the existing pointer and controller paths. Board, HP, action results and target previews retain their hierarchy; there are no copy or icon conversions. CombatBoardView, RunScene, AttackFxLibrary, retained board layers, AssetLoader and the existing equipment TextureRect are extended.

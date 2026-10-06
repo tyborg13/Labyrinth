@@ -52,3 +52,9 @@
   - Assert single damage application per attack.
 
   Also write 3× hero crops as in Unit 0's probe. This host's Codex sandbox cannot start the macOS GUI renderer: check that the probe parses (`--check-only`), state that native capture is pending, and give the exact `visual_probe_runner.py` command. The design owner will run it.
+
+## Revision after native review (round 2)
+
+The first build's stab barely read at board scale (`review/unit2_stab_combat.png` shows the fix). The design owner replaced items 2 (stab commitment) and 6 (stab trail):
+- **Stab body.** Cock at 0.30 keeps root +2 and torso +0.06. From 0.30 the leading foot (`foot_r` in both facings) steps 8 source px along the stab line, lifting 2 px mid-step, landing at 0.40, holding through 0.56 and returning from 0.62 to 0.88. The root moves 10 px along the same line at contact and returns by 0.90. The hips drop is the minimum the planted trailing foot needs: 0 px front, 7.8 px rear.
+- **Stab streak.** It runs from 52 px behind to 16 px past contact, as a 7-px warm glow (alpha 0.28) under a 3-px core (alpha 0.85), with the existing trail envelope. A contact spark (two 12-px lines at ±45°) fades between progress 0.42 and 0.55. The harrier keeps its original thin streak.

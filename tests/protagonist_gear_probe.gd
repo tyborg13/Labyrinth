@@ -68,13 +68,20 @@ func _initialize() -> void:
 	_surface.add_child(_scene)
 	await _settle()
 	_board = _scene.get("board_view")
-	var loadouts: Array[Dictionary] = [Gear.DEFAULTS, Suite.L1, Suite.L2, Suite.L3, Suite.L4]
+	var loadouts: Array = [Gear.DEFAULTS, Suite.L1, Suite.L2, Suite.L3, Suite.L4]
 	for index: int in range(loadouts.size()):
 		await _fixture(loadouts[index])
 		await _pose("idle", 0.0)
 		await _capture("L%d_board_idle_front" % index)
 		await _pose("walk", 0.25, Vector2i(0, -1))
 		await _capture("L%d_board_walk_rear" % index)
+	# Mirrored facings: southeast reflects the front rig, northwest the rear.
+	for index: int in [0, 1, 2]:
+		await _fixture(loadouts[index])
+		await _pose("walk", 0.25, Vector2i(1, 0))
+		await _capture("L%d_board_walk_mirrored_front" % index)
+		await _pose("walk", 0.25, Vector2i(-1, 0))
+		await _capture("L%d_board_walk_mirrored_rear" % index)
 	for index: int in [0, 2]:
 		await _fixture(loadouts[index])
 		for clip: String in ["shoot", "cast"]:
