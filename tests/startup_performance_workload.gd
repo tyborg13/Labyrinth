@@ -60,8 +60,9 @@ func run(probe: SceneTree, sampler: Node) -> Dictionary:
 	probe.root.add_child(menu)
 	probe.current_scene = menu
 	await probe.call("_settle_render_frames", 12)
+	var menu_boot_completed_usec: int = Time.get_ticks_usec()
 	var menu_boot: Dictionary = probe.call("_sampler_phase_result", sampler.call("finish"))
-	menu_boot["completion_ms"] = float(Time.get_ticks_usec() - boot_started) / 1000.0
+	menu_boot["completion_ms"] = float(menu_boot_completed_usec - boot_started) / 1000.0
 	await probe.call("_save_root_screenshot", "startup_%s_menu.png" % mode)
 	await probe.call("_settle_render_frames", 3)
 	sampler.call("begin")
@@ -85,9 +86,10 @@ func run(probe: SceneTree, sampler: Node) -> Dictionary:
 		frames += 1
 	_check(_destination != null, "Startup must finish before its deadlock guard")
 	await probe.call("_await_render_frame")
+	var start_completed_usec: int = Time.get_ticks_usec()
 	var start: Dictionary = probe.call("_sampler_phase_result", sampler.call("finish"))
 	start["handler_ms"] = handler_ms
-	start["completion_ms"] = float(Time.get_ticks_usec() - _started_usec) / 1000.0
+	start["completion_ms"] = float(start_completed_usec - _started_usec) / 1000.0
 	start["phase_changes"] = _phase_changes
 	start["transition_profile"] = _transition_profile
 	if _destination != null:

@@ -1090,7 +1090,9 @@ func _measure_active_blink_preview(instance: Node, sampler: FrameSampler, contex
 	sampler.begin()
 	for _frame: int in range(BLINK_PREVIEW_STEADY_FRAMES):
 		await _await_render_frame()
-	var steady_sample: Dictionary = _sampler_phase_result(sampler.finish())
+	# Keep report materialization outside both sampled windows. Sorting the
+	# steady report here would otherwise enter the sweep's first draw interval.
+	var steady_samples: Dictionary = sampler.finish()
 	var sweep_handler_samples: Array[float] = []
 	sampler.begin()
 	for frame_index: int in range(BLINK_PREVIEW_SWEEP_FRAMES):
@@ -1099,7 +1101,9 @@ func _measure_active_blink_preview(instance: Node, sampler: FrameSampler, contex
 		_board_pointer_hover(instance, target)
 		sweep_handler_samples.append(float(Time.get_ticks_usec() - handler_started) / 1000.0)
 		await _await_render_frame()
-	var sweep_sample: Dictionary = _sampler_phase_result(sampler.finish())
+	var sweep_samples: Dictionary = sampler.finish()
+	var steady_sample: Dictionary = _sampler_phase_result(steady_samples)
+	var sweep_sample: Dictionary = _sampler_phase_result(sweep_samples)
 	await _save_root_screenshot("blink_preview_%s.png" % str(context.get("source", "workload")))
 	await _settle_render_frames(4)
 	var result: Dictionary = context.duplicate(true)
