@@ -311,6 +311,15 @@
       74
     ]
   },
+  "assets/units/protagonist_cutout/gear/dawnlight_censer/front_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dawnlight_censer_front.png",
+    "source_sha256": "0189856a0553bf9edb54ddd70ce079f27fb428fafbad659aeaf28e1caac259ba",
+    "size": [
+      22,
+      74
+    ],
+    "derived": "grip"
+  },
   "assets/units/protagonist_cutout/gear/dawnlight_censer/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/dawnlight_censer_rear.png",
     "source_sha256": "2e5675357ec0e293cc19365dd9bd3f3950ca795f0ce070f112a1bb15c531f82e",
@@ -318,6 +327,15 @@
       22,
       74
     ]
+  },
+  "assets/units/protagonist_cutout/gear/dawnlight_censer/rear_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/dawnlight_censer_rear.png",
+    "source_sha256": "2e5675357ec0e293cc19365dd9bd3f3950ca795f0ce070f112a1bb15c531f82e",
+    "size": [
+      22,
+      74
+    ],
+    "derived": "grip"
   },
   "assets/units/protagonist_cutout/gear/dawnwalkers/front_foot_l.png": {
     "source": "spec/assets/visible_gear_slice/sources/dawnwalkers_front_foot_l.png",
@@ -407,6 +425,15 @@
       71
     ]
   },
+  "assets/units/protagonist_cutout/gear/duelist_rapier/front_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/duelist_rapier_front.png",
+    "source_sha256": "47a596444706096a5ce887460bced9ee1f4cc3c344b910aab9babbfab559b194",
+    "size": [
+      99,
+      71
+    ],
+    "derived": "grip"
+  },
   "assets/units/protagonist_cutout/gear/duelist_rapier/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/duelist_rapier_rear.png",
     "source_sha256": "3d55210fbf473c282ae22aa2876c16333ebb3a4673fd182f2baa73bb6eb803e9",
@@ -414,6 +441,15 @@
       99,
       71
     ]
+  },
+  "assets/units/protagonist_cutout/gear/duelist_rapier/rear_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/duelist_rapier_rear.png",
+    "source_sha256": "3d55210fbf473c282ae22aa2876c16333ebb3a4673fd182f2baa73bb6eb803e9",
+    "size": [
+      99,
+      71
+    ],
+    "derived": "grip"
   },
   "assets/units/protagonist_cutout/gear/dust_tabi/front_foot_l.png": {
     "source": "spec/assets/visible_gear_slice/sources/dust_tabi_front_foot_l.png",
@@ -703,6 +739,15 @@
       88
     ]
   },
+  "assets/units/protagonist_cutout/gear/galewhip/front_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/galewhip_front.png",
+    "source_sha256": "a8f86cc935f5e8839dbc0931b7d5a526e30a38dd15264731768ed76e10cdce41",
+    "size": [
+      12,
+      88
+    ],
+    "derived": "grip"
+  },
   "assets/units/protagonist_cutout/gear/galewhip/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/galewhip_rear.png",
     "source_sha256": "b6204ee36e671108715439fa186a1010e971fdca3983f1efeb1d8c0a56ce7a35",
@@ -710,6 +755,15 @@
       12,
       88
     ]
+  },
+  "assets/units/protagonist_cutout/gear/galewhip/rear_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/galewhip_rear.png",
+    "source_sha256": "b6204ee36e671108715439fa186a1010e971fdca3983f1efeb1d8c0a56ce7a35",
+    "size": [
+      12,
+      88
+    ],
+    "derived": "grip"
   },
   "assets/units/protagonist_cutout/gear/gamblers_watch/front_trinket.png": {
     "source": "spec/assets/visible_gear_slice/sources/gamblers_watch_front.png",
@@ -847,6 +901,15 @@
       85
     ]
   },
+  "assets/units/protagonist_cutout/gear/grave_greatsword/front_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/grave_greatsword_front.png",
+    "source_sha256": "b28afeac73431e94d9d1903fefcbb0dc58bf4403d7e1bfa1b20375488998526b",
+    "size": [
+      112,
+      85
+    ],
+    "derived": "grip"
+  },
   "assets/units/protagonist_cutout/gear/grave_greatsword/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/grave_greatsword_rear.png",
     "source_sha256": "f996c10491227775f5cf2fe7dd9f4509a38967e33b0e596047aca2669f5461f0",
@@ -854,6 +917,15 @@
       112,
       85
     ]
+  },
+  "assets/units/protagonist_cutout/gear/grave_greatsword/rear_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/grave_greatsword_rear.png",
+    "source_sha256": "f996c10491227775f5cf2fe7dd9f4509a38967e33b0e596047aca2669f5461f0",
+    "size": [
+      112,
+      85
+    ],
+    "derived": "grip"
   },
   "assets/units/protagonist_cutout/gear/gravewind_soles/front_foot_l.png": {
     "source": "spec/assets/visible_gear_slice/sources/gravewind_soles_front_foot_l.png",
@@ -1007,6 +1079,15 @@
       172
     ]
   },
+  "assets/units/protagonist_cutout/gear/hookspine_halberd/front_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/hookspine_halberd_front.png",
+    "source_sha256": "ceadd1f47d547aca2af83b099debd56089121ba11c5da006d2db85b2a864f915",
+    "size": [
+      70,
+      172
+    ],
+    "derived": "grip"
+  },
   "assets/units/protagonist_cutout/gear/hookspine_halberd/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/hookspine_halberd_rear.png",
     "source_sha256": "9f86a03577f0286a3521865c9096da8c51276fc8400a811e2f506b5ec3d7cb46",
@@ -1014,6 +1095,15 @@
       70,
       172
     ]
+  },
+  "assets/units/protagonist_cutout/gear/hookspine_halberd/rear_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/hookspine_halberd_rear.png",
+    "source_sha256": "9f86a03577f0286a3521865c9096da8c51276fc8400a811e2f506b5ec3d7cb46",
+    "size": [
+      70,
+      172
+    ],
+    "derived": "grip"
   },
   "assets/units/protagonist_cutout/gear/hunting_spear/front_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/hunting_spear_front.png",
@@ -1023,6 +1113,15 @@
       172
     ]
   },
+  "assets/units/protagonist_cutout/gear/hunting_spear/front_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/hunting_spear_front.png",
+    "source_sha256": "321ba6be3f95cddbb4b8914b9eb3bf53ab77e82e9fd9af9dc3cb70dcf89098d0",
+    "size": [
+      61,
+      172
+    ],
+    "derived": "grip"
+  },
   "assets/units/protagonist_cutout/gear/hunting_spear/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/hunting_spear_rear.png",
     "source_sha256": "86303be65949f70913a180970741536cd1f768d96e42f46f5584f9fe7c4bc29e",
@@ -1030,6 +1129,15 @@
       61,
       172
     ]
+  },
+  "assets/units/protagonist_cutout/gear/hunting_spear/rear_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/hunting_spear_rear.png",
+    "source_sha256": "86303be65949f70913a180970741536cd1f768d96e42f46f5584f9fe7c4bc29e",
+    "size": [
+      61,
+      172
+    ],
+    "derived": "grip"
   },
   "assets/units/protagonist_cutout/gear/iron_cleaver/front_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/iron_cleaver_front.png",
@@ -1039,6 +1147,15 @@
       59
     ]
   },
+  "assets/units/protagonist_cutout/gear/iron_cleaver/front_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/iron_cleaver_front.png",
+    "source_sha256": "1256dbd1f7459c2be56bb8b5e1cea0fd46913abe34cc374bdc1b87878547420e",
+    "size": [
+      69,
+      59
+    ],
+    "derived": "grip"
+  },
   "assets/units/protagonist_cutout/gear/iron_cleaver/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/iron_cleaver_rear.png",
     "source_sha256": "9775f1122c4f6cd6aa0b8a9d674fed7f8e6c3465b5dd61c0884ecd2d8a825037",
@@ -1046,6 +1163,15 @@
       69,
       59
     ]
+  },
+  "assets/units/protagonist_cutout/gear/iron_cleaver/rear_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/iron_cleaver_rear.png",
+    "source_sha256": "9775f1122c4f6cd6aa0b8a9d674fed7f8e6c3465b5dd61c0884ecd2d8a825037",
+    "size": [
+      69,
+      59
+    ],
+    "derived": "grip"
   },
   "assets/units/protagonist_cutout/gear/ironshod_sabatons/front_foot_l.png": {
     "source": "spec/assets/visible_gear_slice/sources/ironshod_sabatons_front_foot_l.png",
@@ -1247,6 +1373,15 @@
       74
     ]
   },
+  "assets/units/protagonist_cutout/gear/phoenix_brand/front_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/phoenix_brand_front.png",
+    "source_sha256": "9078602e5c69ffe8183f50222dedd91ac2fc1cefa12d1da52545cb214e1efe54",
+    "size": [
+      99,
+      74
+    ],
+    "derived": "grip"
+  },
   "assets/units/protagonist_cutout/gear/phoenix_brand/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/phoenix_brand_rear.png",
     "source_sha256": "78fe495e6cfdefec34362aac2007b7d75f448e48ccf6517706bf15ca6f055ccd",
@@ -1254,6 +1389,15 @@
       99,
       74
     ]
+  },
+  "assets/units/protagonist_cutout/gear/phoenix_brand/rear_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/phoenix_brand_rear.png",
+    "source_sha256": "78fe495e6cfdefec34362aac2007b7d75f448e48ccf6517706bf15ca6f055ccd",
+    "size": [
+      99,
+      74
+    ],
+    "derived": "grip"
   },
   "assets/units/protagonist_cutout/gear/pilgrim_vestments/front_arm_l.png": {
     "source": "spec/assets/visible_gear_slice/sources/pilgrim_vestments_front_arm_l.png",
@@ -1399,6 +1543,15 @@
       60
     ]
   },
+  "assets/units/protagonist_cutout/gear/rimebite_hatchet/front_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/rimebite_hatchet_front.png",
+    "source_sha256": "8156ff14a534b7819a2b43de663037eb2ed4e6108445979bb24c0c40a3c794ff",
+    "size": [
+      74,
+      60
+    ],
+    "derived": "grip"
+  },
   "assets/units/protagonist_cutout/gear/rimebite_hatchet/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/rimebite_hatchet_rear.png",
     "source_sha256": "870aeefe530966d45f81301476bc26c96cf0d6293e52dd44173fa22bb225cb4e",
@@ -1406,6 +1559,15 @@
       74,
       60
     ]
+  },
+  "assets/units/protagonist_cutout/gear/rimebite_hatchet/rear_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/rimebite_hatchet_rear.png",
+    "source_sha256": "870aeefe530966d45f81301476bc26c96cf0d6293e52dd44173fa22bb225cb4e",
+    "size": [
+      74,
+      60
+    ],
+    "derived": "grip"
   },
   "assets/units/protagonist_cutout/gear/rimeplate_harness/front_arm_l.png": {
     "source": "spec/assets/visible_gear_slice/sources/rimeplate_harness_front_arm_l.png",
@@ -1479,6 +1641,15 @@
       32
     ]
   },
+  "assets/units/protagonist_cutout/gear/sawtooth_knife/front_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/sawtooth_knife_front.png",
+    "source_sha256": "02eb836398ac28a74c4ef9dce67ebaca79264796671cbb7d7d00ea6afd855e10",
+    "size": [
+      45,
+      32
+    ],
+    "derived": "grip"
+  },
   "assets/units/protagonist_cutout/gear/sawtooth_knife/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/sawtooth_knife_rear.png",
     "source_sha256": "f6a1f280d2674667173d698f0ea65b6caefb1756186456de9e1c35a78ee03022",
@@ -1486,6 +1657,15 @@
       44,
       33
     ]
+  },
+  "assets/units/protagonist_cutout/gear/sawtooth_knife/rear_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/sawtooth_knife_rear.png",
+    "source_sha256": "f6a1f280d2674667173d698f0ea65b6caefb1756186456de9e1c35a78ee03022",
+    "size": [
+      44,
+      33
+    ],
+    "derived": "grip"
   },
   "assets/units/protagonist_cutout/gear/sealed_cyclone/front_trinket.png": {
     "source": "spec/assets/visible_gear_slice/sources/sealed_cyclone_front.png",
@@ -1663,6 +1843,15 @@
       105
     ]
   },
+  "assets/units/protagonist_cutout/gear/stormstring_bow/front_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stormstring_bow_front.png",
+    "source_sha256": "89a7c074616003b803839187dd1e4aeabefb7e9fb00597050c5e93d8c3452733",
+    "size": [
+      38,
+      105
+    ],
+    "derived": "grip"
+  },
   "assets/units/protagonist_cutout/gear/stormstring_bow/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/stormstring_bow_rear.png",
     "source_sha256": "f728b17991244c3b34f5c6d8fd94902858e23b6ef944ce486c991bb8a7904cde",
@@ -1670,6 +1859,15 @@
       38,
       105
     ]
+  },
+  "assets/units/protagonist_cutout/gear/stormstring_bow/rear_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/stormstring_bow_rear.png",
+    "source_sha256": "f728b17991244c3b34f5c6d8fd94902858e23b6ef944ce486c991bb8a7904cde",
+    "size": [
+      38,
+      105
+    ],
+    "derived": "grip"
   },
   "assets/units/protagonist_cutout/gear/stormweave_robe/front_arm_l.png": {
     "source": "spec/assets/visible_gear_slice/sources/stormweave_robe_front_arm_l.png",
@@ -1839,6 +2037,15 @@
       37
     ]
   },
+  "assets/units/protagonist_cutout/gear/tinkers_knives/front_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/tinkers_knives_front.png",
+    "source_sha256": "093c6d41753add0a487d642f0ee44b79d9b37b54463ab5cebff9eb7f617c8719",
+    "size": [
+      45,
+      37
+    ],
+    "derived": "grip"
+  },
   "assets/units/protagonist_cutout/gear/tinkers_knives/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/tinkers_knives_rear.png",
     "source_sha256": "2dea1f25ab6daee8cb187c084ee9e46b3b1f4e2fe1b9cce362caa3fb171afac9",
@@ -1846,6 +2053,15 @@
       45,
       37
     ]
+  },
+  "assets/units/protagonist_cutout/gear/tinkers_knives/rear_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/tinkers_knives_rear.png",
+    "source_sha256": "2dea1f25ab6daee8cb187c084ee9e46b3b1f4e2fe1b9cce362caa3fb171afac9",
+    "size": [
+      45,
+      37
+    ],
+    "derived": "grip"
   },
   "assets/units/protagonist_cutout/gear/tourney_lance/front_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/tourney_lance_front.png",
@@ -1855,6 +2071,15 @@
       168
     ]
   },
+  "assets/units/protagonist_cutout/gear/tourney_lance/front_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/tourney_lance_front.png",
+    "source_sha256": "f14d89bea87cf555efc280448817ae82c2715b8fa23d897807743aef5535004c",
+    "size": [
+      63,
+      168
+    ],
+    "derived": "grip"
+  },
   "assets/units/protagonist_cutout/gear/tourney_lance/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/tourney_lance_rear.png",
     "source_sha256": "f35403fbb7f9e2ef81074907cbd5e18583c3e5ec3d7f781daf68055758b8b051",
@@ -1862,6 +2087,15 @@
       63,
       168
     ]
+  },
+  "assets/units/protagonist_cutout/gear/tourney_lance/rear_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/tourney_lance_rear.png",
+    "source_sha256": "f35403fbb7f9e2ef81074907cbd5e18583c3e5ec3d7f781daf68055758b8b051",
+    "size": [
+      63,
+      168
+    ],
+    "derived": "grip"
   },
   "assets/units/protagonist_cutout/gear/tower_shield/front_offhand.png": {
     "source": "spec/assets/visible_gear_slice/sources/tower_shield_front.png",
@@ -2095,6 +2329,15 @@
       76
     ]
   },
+  "assets/units/protagonist_cutout/gear/war_maul/front_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/war_maul_front.png",
+    "source_sha256": "390d5fda1e2f155aa58fd96ebb269f13cdc4d7fb03e068e2d2bbde87cb65e996",
+    "size": [
+      95,
+      76
+    ],
+    "derived": "grip"
+  },
   "assets/units/protagonist_cutout/gear/war_maul/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/war_maul_rear.png",
     "source_sha256": "5718eadf9e393789f3c6fe39b88f4fe04df28d13eac0186e64bf698f8bf2e403",
@@ -2102,6 +2345,15 @@
       95,
       76
     ]
+  },
+  "assets/units/protagonist_cutout/gear/war_maul/rear_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/war_maul_rear.png",
+    "source_sha256": "5718eadf9e393789f3c6fe39b88f4fe04df28d13eac0186e64bf698f8bf2e403",
+    "size": [
+      95,
+      76
+    ],
+    "derived": "grip"
   },
   "assets/units/protagonist_cutout/gear/ward_kite/front_offhand.png": {
     "source": "spec/assets/visible_gear_slice/sources/ward_kite_front.png",
@@ -2127,6 +2379,15 @@
       62
     ]
   },
+  "assets/units/protagonist_cutout/gear/windlass_repeater/front_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/windlass_repeater_front.png",
+    "source_sha256": "3a8b9555ae2b0b96c5359fea55e5cfd65e3d0bdfefea375cce3b9d1bbe747a79",
+    "size": [
+      73,
+      62
+    ],
+    "derived": "grip"
+  },
   "assets/units/protagonist_cutout/gear/windlass_repeater/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/windlass_repeater_rear.png",
     "source_sha256": "8cf2cf80e799a00487bbafa743ff99accb0b96aa20efad6e23b62ce1d31bb084",
@@ -2134,6 +2395,15 @@
       73,
       62
     ]
+  },
+  "assets/units/protagonist_cutout/gear/windlass_repeater/rear_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/windlass_repeater_rear.png",
+    "source_sha256": "8cf2cf80e799a00487bbafa743ff99accb0b96aa20efad6e23b62ce1d31bb084",
+    "size": [
+      73,
+      62
+    ],
+    "derived": "grip"
   },
   "assets/units/protagonist_cutout/gear/witchglass_aegis/front_offhand.png": {
     "source": "spec/assets/visible_gear_slice/sources/witchglass_aegis_front.png",
@@ -2159,6 +2429,15 @@
       84
     ]
   },
+  "assets/units/protagonist_cutout/gear/worldbreaker/front_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/worldbreaker_front.png",
+    "source_sha256": "192fc253c6a6fad9a1429f3423f02b0f413c58263779de50746a8ba834a5e879",
+    "size": [
+      104,
+      84
+    ],
+    "derived": "grip"
+  },
   "assets/units/protagonist_cutout/gear/worldbreaker/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/worldbreaker_rear.png",
     "source_sha256": "a54b81915bcb7daba17d78eb8a589f0a7d04f41ef6184fd7c882b0c97052a676",
@@ -2166,6 +2445,15 @@
       104,
       84
     ]
+  },
+  "assets/units/protagonist_cutout/gear/worldbreaker/rear_weapon_r_grip.png": {
+    "source": "spec/assets/visible_gear_slice/sources/worldbreaker_rear.png",
+    "source_sha256": "a54b81915bcb7daba17d78eb8a589f0a7d04f41ef6184fd7c882b0c97052a676",
+    "size": [
+      104,
+      84
+    ],
+    "derived": "grip"
   },
   "assets/units/protagonist_cutout/gear/worldroot_greaves/front_foot_l.png": {
     "source": "spec/assets/visible_gear_slice/sources/worldroot_greaves_front_foot_l.png",

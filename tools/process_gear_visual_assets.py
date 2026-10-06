@@ -162,7 +162,8 @@ def jobs():
                     size = tuple(sizes[f"{item}|{facing}"])
                 else:
                     size = tuple(sizes.get(f"{item}|{facing}|{part}", base_part_size(facing, part)))
-                yield source, RIG / op["file"], size, (facing, op) if op.get("occluded_by") else None
+                yield source, RIG / op["file"], size, (facing, op) if op.get("occluded_by") else None, \
+                    (facing, op, ops.get("weapon_grip", {})) if part == "weapon_r" else None
 
 
 def occlude(im: Image.Image, facing: str, op: dict) -> Image.Image:
@@ -186,6 +187,92 @@ def occlude(im: Image.Image, facing: str, op: dict) -> Image.Image:
     return out
 
 
+# Grip layering (owner review 2026-10-06): a carried weapon draws behind the
+# near leg, and the shaft crosses the palm under the fingers. The rig draws
+# the palm (the whole glove) under the weapon, a grip piece of the weapon
+# over the palm, and the fingers over both. The grip piece is the weapon within
+# GRIP_RADIUS of the handle segment that runs from GRIP_BACK px toward the tip
+# to GRIP_REACH px toward the pommel; the fingers are the glove's lit knuckle
+# pixels (luma >= FINGER_LUMA) plus their one-pixel outline.
+GRIP_REACH = 12
+GRIP_BACK = 3
+GRIP_RADIUS = 4
+FINGER_LUMA = 95
+
+
+def grip_piece(weapon: Image.Image, offset: list, landmarks: dict) -> Image.Image:
+    gx, gy = landmarks["assembled"]
+    if "pommel" in landmarks:
+        px, py = landmarks["pommel"]
+    else:
+        tx, ty = landmarks["tip"]
+        px, py = 2 * gx - tx, 2 * gy - ty
+    dx, dy = px - gx, py - gy
+    length = max((dx * dx + dy * dy) ** 0.5, 1e-6)
+    ux, uy = dx / length, dy / length
+    reach = min(length, GRIP_REACH)
+    out = Image.new("RGBA", weapon.size, (0, 0, 0, 0))
+    src, dst = weapon.load(), out.load()
+    for y in range(weapon.height):
+        for x in range(weapon.width):
+            if not src[x, y][3]:
+                continue
+            rx, ry = x + offset[0] - gx, y + offset[1] - gy
+            t = max(-GRIP_BACK, min(reach, rx * ux + ry * uy))
+            if (rx - ux * t) ** 2 + (ry - uy * t) ** 2 <= GRIP_RADIUS ** 2:
+                dst[x, y] = src[x, y]
+    return out
+
+
+def fingers(hand: Image.Image) -> Image.Image:
+    px = hand.load()
+    w, h = hand.size
+    lit = {(x, y) for y in range(h) for x in range(w)
+           if px[x, y][3] and 0.3 * px[x, y][0] + 0.59 * px[x, y][1] + 0.11 * px[x, y][2] >= FINGER_LUMA}
+    keep = set(lit)
+    for x, y in lit:
+        for nx, ny in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1)):
+            if 0 <= nx < w and 0 <= ny < h and px[nx, ny][3]:
+                keep.add((nx, ny))
+    out = Image.new("RGBA", hand.size, (0, 0, 0, 0))
+    op = out.load()
+    for x, y in keep:
+        op[x, y] = px[x, y]
+    return out
+
+
+def grip_path(dst: Path) -> Path:
+    return dst.with_name(dst.stem + "_grip.png")
+
+
+def base_layers():
+    """Grip piece of the default sword and fingers overlay of the bare glove, per facing."""
+    for facing in ("front", "rear"):
+        layout = json.loads((RIG / f"{facing}.json").read_text())
+        parts = {p["name"]: p for p in layout["parts"]}
+        def load(name):
+            with Image.open(RIG / str(parts[name]["file"]).replace("res://assets/units/protagonist_cutout/", "")) as im:
+                return im.convert("RGBA"), parts[name]
+        sword, part = load("weapon_r")
+        yield RIG / facing / "weapon_r_grip.png", grip_piece(sword, part["offset"], layout["weapon_grip"]), part["file"]
+        hand, part = load("hand_r")
+        yield RIG / facing / "hand_r_fingers.png", fingers(hand), part["file"]
+
+
+def write_or_check(dst: Path, out: Image.Image, check: bool, stale: list) -> bool:
+    if check:
+        if not dst.exists() or Image.open(dst).convert("RGBA").tobytes() != out.tobytes():
+            stale.append(str(dst.relative_to(ROOT)))
+        return False
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    out.save(dst)
+    imp = Path(str(dst) + ".import")
+    if not imp.exists():
+        res = "res://" + str(dst.relative_to(ROOT))
+        imp.write_text(f'[remap]\n\nimporter="keep"\n\n[deps]\n\nsource_file="{res}"\n')
+    return True
+
+
 def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -198,7 +285,7 @@ def main() -> int:
     only = {s for s in args.only.split(",") if s}
     manifest = {}
     stale = []
-    for src, dst, size, occlusion in jobs():
+    for src, dst, size, occlusion, grip in jobs():
         item = dst.parent.name
         if only and item not in only:
             continue
@@ -208,14 +295,17 @@ def main() -> int:
         out = reduce(key_green(Image.open(src)), size, True)
         if occlusion:
             out = occlude(out, *occlusion)
-        rel = str(dst.relative_to(ROOT))
-        if args.check:
-            if not dst.exists() or Image.open(dst).convert("RGBA").tobytes() != out.tobytes():
-                stale.append(rel)
-            continue
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        out.save(dst)
-        manifest[rel] = {"source": str(src.relative_to(ROOT)), "source_sha256": digest(src), "size": list(size)}
+        record = {"source": str(src.relative_to(ROOT)), "source_sha256": digest(src), "size": list(size)}
+        if write_or_check(dst, out, args.check, stale):
+            manifest[str(dst.relative_to(ROOT))] = record
+        if grip and grip[2]:
+            facing, op, landmarks = grip
+            gdst = grip_path(dst)
+            if write_or_check(gdst, grip_piece(out, op["offset"], landmarks), args.check, stale):
+                manifest[str(gdst.relative_to(ROOT))] = dict(record, derived="grip")
+    if not only:
+        for dst, out, base in base_layers():
+            write_or_check(dst, out, args.check, stale)
     if args.check:
         for rel in stale:
             print(f"stale: {rel}")
