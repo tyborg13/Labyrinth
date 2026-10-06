@@ -258,22 +258,25 @@ func _refresh() -> void:
 		if int(node.get("section_index", -1)) == viewed_section and bool(node.get("visited", false)) and str(node.get("type", "")) != "start":
 			visited += 1
 	_progress.text = "SECTION %s / VI  ·  %d / %d ROOMS EXPLORED%s" % [_roman(viewed_section), visited, int(info.get("room_count", 11)), "  ·  HISTORY" if viewed_section < Graph.active_section(run_state) else ""]
-	for child: Node in _tabs.get_children():
-		_tabs.remove_child(child)
-		child.queue_free()
+	# Tabs are a fixed six-control surface. Refresh their current state instead
+	# of discarding native controls and their complete theme notifications.
+	if _tabs.get_child_count() == 0:
+		for index: int in range(6):
+			var tab := TooltipButton.new()
+			tab.text = _roman(index)
+			tab.pressed.connect(select_section.bind(index))
+			tab.focus_entered.connect(interaction_changed.emit)
+			tab.name = "Section%d" % (index + 1)
+			tab.custom_minimum_size = Vector2(62, 62)
+			tab.toggle_mode = true
+			MapSkin.section_tab(tab)
+			_tabs.add_child(tab)
 	for index: int in range(6):
-		var tab := TooltipButton.new()
-		tab.text = _roman(index)
-		tab.pressed.connect(select_section.bind(index))
-		tab.focus_entered.connect(interaction_changed.emit)
-		tab.name = "Section%d" % (index + 1)
-		tab.custom_minimum_size = Vector2(62, 62)
-		tab.toggle_mode = true
+		var tab: Button = _tabs.get_child(index) as Button
 		tab.button_pressed = index == viewed_section
-		MapSkin.section_tab(tab)
 		tab.disabled = index > Graph.active_section(run_state)
 		tab.tooltip_text = str(Graph.section(run_state, index).get("title", "")) if not tab.disabled else "Unreached section"
-		_tabs.add_child(tab)
+		tab.focus_neighbor_bottom = NodePath("")
 	_background.texture = Assets.load_texture("res://assets/art/backgrounds/sections/%s.png" % str(info.get("boss_id", "tharokh")))
 	_layout_nodes()
 	_refresh_actions()
@@ -299,8 +302,8 @@ func select_section(index: int) -> void:
 	viewed_section = index
 	reset_interaction()
 	_refresh()
-	# Refresh rebuilds the reached-section tabs. Restore the native focus owner
-	# so keyboard/controller users can keep navigating after switching history.
+	# Keep native focus on the chosen reached section for keyboard/controller
+	# navigation after switching history.
 	if restore_tab_focus:
 		(_tabs.get_child(index) as Control).grab_focus()
 
@@ -393,10 +396,8 @@ func _layout_nodes() -> void:
 	for coord: Vector2i in node_buttons:
 		if (node_buttons[coord] as Control).has_focus():
 			focused_coord = coord
-	for child: Node in _nodes.get_children():
-		_nodes.remove_child(child)
-		child.queue_free()
-	node_buttons.clear()
+	var remaining: Dictionary = node_buttons.duplicate()
+	var retained: Dictionary = {}
 	var info: Dictionary = Graph.section(run_state, viewed_section)
 	var count: int = int(info.get("room_count", 11))
 	var available: Array[Vector2i] = available_destinations()
@@ -411,8 +412,12 @@ func _layout_nodes() -> void:
 		var y: float = 116 + (_field.size.y - 232) * (float(node.get("map_lane", 1)) / 2.0)
 		var point := Vector2(x, y)
 		positions[coord] = point
-		var button: Button = NodeButton.new()
-		button.name = "Room_%s" % Graph.key(coord).replace("-", "n").replace(",", "_")
+		var button: Button = remaining.get(coord) as Button
+		var created: bool = button == null
+		if created:
+			button = NodeButton.new()
+			button.name = "Room_%s" % Graph.key(coord).replace("-", "n").replace(",", "_")
+		remaining.erase(coord)
 		var extent: float = 106.0 if str(node.get("type", "")) == "boss" else 61.0
 		button.position = point - Vector2.ONE * extent
 		button.size = Vector2.ONE * extent * 2.0
@@ -421,19 +426,28 @@ func _layout_nodes() -> void:
 		button.set("scout_target", scout_targeting and can_activate_room(coord))
 		button.set("actionable", can_activate_room(coord))
 		button.call("refresh_state")
-		button.pressed.connect(activate_room.bind(coord))
-		button.focus_entered.connect(_show_preview.bind(coord))
-		button.focus_exited.connect(_hide_preview_for.bind(coord))
-		button.mouse_entered.connect(_show_preview.bind(coord))
-		button.mouse_exited.connect(_hide_preview_for.bind(coord))
-		_nodes.add_child(button)
-		node_buttons[coord] = button
+		if created:
+			button.pressed.connect(activate_room.bind(coord))
+			button.focus_entered.connect(_show_preview.bind(coord))
+			button.focus_exited.connect(_hide_preview_for.bind(coord))
+			button.mouse_entered.connect(_show_preview.bind(coord))
+			button.mouse_exited.connect(_hide_preview_for.bind(coord))
+			_nodes.add_child(button)
+		if button.get_index() != retained.size(): _nodes.move_child(button, retained.size())
+		retained[coord] = button
 		var known: bool = bool(node.get("revealed", false)) or _has_recovery(node)
 		openings.append(Vector4(x / _field.size.x, y / _field.size.y, 0.081 if known else 0.045, 0.21 if known else 0.11))
+	# Keep only the displayed section's known nodes; section switches and lost
+	# outlines remove stale controls, so retention remains bounded by this view.
+	for stale: Control in remaining.values():
+		_nodes.remove_child(stale)
+		stale.queue_free()
+	node_buttons = retained
 	_refresh_route_radii()
 	_wire_choice_focus()
 	if focused_coord != Graph.INVALID and node_buttons.has(focused_coord):
 		(node_buttons[focused_coord] as Control).grab_focus()
+		_show_preview(focused_coord)
 	var opening_count: int = mini(32, openings.size())
 	while openings.size() < 32:
 		openings.append(Vector4.ZERO)
@@ -446,6 +460,10 @@ func _layout_nodes() -> void:
 	_canvas.set("section_index", viewed_section)
 	_canvas.set("selected", selected_coord)
 	_canvas.queue_redraw()
+	# Retained hovered nodes do not re-emit mouse_entered on a resize. Keep the
+	# existing optional preview beside its node after deferred layout settles.
+	if selected_coord != Graph.INVALID and node_buttons.has(selected_coord) and is_instance_valid(_preview):
+		_position_preview.call_deferred(selected_coord)
 
 func _node_route_state(node: Dictionary, available: Array[Vector2i], future: Dictionary) -> String:
 	var coord: Vector2i = node.get("coord", Graph.INVALID)

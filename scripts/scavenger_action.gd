@@ -46,6 +46,15 @@ func _process(delta: float) -> void:
 	var active: bool = _active()
 	var raised: bool = surface == "segment" and button_pressed
 	_lift = (2.0 if raised else 0.0) if reduced_motion else lerpf(_lift, -2.0 if _held else 4.0 if active else 2.0 if raised else 0.0, minf(delta * 24, 1))
+	prepare_label()
+	_label.size.y = size.y - 14
+	_label.position.y = 7 - _lift
+	_label.modulate = Color(1.1, 1.05, 0.94) if active else Color(1, 1, 1, 0.44 if disabled else 1.0)
+	queue_redraw()
+
+# The hidden shop prepares the same label that its visible process uses.
+func prepare_label() -> void:
+	if not is_instance_valid(_label): return
 	var font_size: int = get_theme_font_size("font_size")
 	if _last_text != text or _last_size != size or _last_font != font_size:
 		_last_text = text
@@ -56,10 +65,6 @@ func _process(delta: float) -> void:
 		_label.size = Vector2(size.x - inset * 2, size.y - 14)
 		Materials.shade(_label, font_size, _label.size.y)
 		_label.text = text
-	_label.size.y = size.y - 14
-	_label.position.y = 7 - _lift
-	_label.modulate = Color(1.1, 1.05, 0.94) if active else Color(1, 1, 1, 0.44 if disabled else 1.0)
-	queue_redraw()
 
 func _draw() -> void:
 	var rect := Rect2(Vector2(0, -_lift), size)

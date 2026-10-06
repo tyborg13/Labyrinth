@@ -76,16 +76,37 @@ static func radial_texture(color: Color, end_offset: float = 1.0) -> Texture2D:
 
 static func socket_fill() -> Texture2D:
 	if _socket_fill == null:
-		var image := Image.create(128, 128, false, Image.FORMAT_RGBA8)
-		for y: int in range(128):
-			for x: int in range(128):
-				var point := Vector2(float(x) + 0.5, float(y) + 0.5) / 128.0
-				var distance: float = point.distance_to(Vector2(0.36, 0.34)) / 0.65
-				var color: Color = Palette.INK_3.lerp(Palette.INK_0, clampf(distance, 0.0, 1.0))
-				color.a = clampf((0.5 - point.distance_to(Vector2(0.5, 0.5))) * 128.0, 0.0, 1.0)
-				image.set_pixel(x, y, color)
-		_socket_fill = ImageTexture.create_from_image(image)
+		_socket_fill = ImageTexture.create_from_image(_socket_fill_image())
 	return _socket_fill
+
+static func _socket_fill_image() -> Image:
+	var image := Image.create(128, 128, false, Image.FORMAT_RGBA8)
+	for y: int in range(128):
+		for x: int in range(128):
+			var point := Vector2(float(x) + 0.5, float(y) + 0.5) / 128.0
+			var distance: float = point.distance_to(Vector2(0.36, 0.34)) / 0.65
+			var color: Color = Palette.INK_3.lerp(Palette.INK_0, clampf(distance, 0.0, 1.0))
+			color.a = clampf((0.5 - point.distance_to(Vector2(0.5, 0.5))) * 128.0, 0.0, 1.0)
+			image.set_pixel(x, y, color)
+	return image
+
+# Socket pixels and mipmaps are private CPU data until this caller joins.
+static func prepare_initial_assets_for(root: Node, present_frame: Callable, still_active: Callable) -> void:
+	var path: String = "res://assets/art/ui/visual_pass_4/medallion_ring.png"
+	if _socket_fill != null and _mipmapped_textures.has(path): return
+	await AssetLoader.prepare_textures_for(root, {path: false}, present_frame, still_active)
+	if not bool(still_active.call()): return
+	var source: Image = AssetLoader.load_texture(path).get_image() if not _mipmapped_textures.has(path) else null
+	var result: Variant = await AssetLoader.prepare_cpu_value_for(root, _prepare_socket_images.bind(source, _socket_fill == null), present_frame, still_active)
+	if not bool(still_active.call()) or not result is Dictionary: return
+	if _socket_fill == null and result.get("fill") != null: _socket_fill = ImageTexture.create_from_image(result["fill"])
+	if not _mipmapped_textures.has(path) and result.get("ring") != null: _mipmapped_textures[path] = ImageTexture.create_from_image(result["ring"])
+
+static func _prepare_socket_images(source: Image, needs_fill: bool) -> Dictionary:
+	if source != null:
+		if source.is_compressed(): source.decompress()
+		source.generate_mipmaps()
+	return {"ring": source, "fill": _socket_fill_image() if needs_fill else null}
 
 static func mipmapped_texture(path: String) -> Texture2D:
 	if not _mipmapped_textures.has(path):

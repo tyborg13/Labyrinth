@@ -8,6 +8,7 @@ const OFFERED_CARDS: Array = ["spark_dart", "frostbolt", "firebrand_volley"]
 var _probe: SceneTree
 var _instance: Node
 var _sampler: Node
+var _font_cache_diagnostic_phase: bool = false
 
 func run(probe: SceneTree, instance: Node, sampler: Node) -> Dictionary:
 	_probe = probe
@@ -25,11 +26,14 @@ func run(probe: SceneTree, instance: Node, sampler: Node) -> Dictionary:
 		fixture["grimoire_notice"] = ""
 		fixture["grimoire_unread"] = []
 	var repeat_nodes: Array[int]
+	var character_preparation_snapshots: Array[Dictionary]
+	var repeat_node_snapshots: Array[Array]
 	for cycle: int in range(3):
 		var prefix: String = "cold" if cycle == 0 else "warm_%d" % cycle
 		probe.call("_phase_log", "%s shop" % prefix)
-		# Loading a saved merchant room is a real resume path, reported separately
-		# from live pointer interactions instead of pretending it is map travel.
+		# Install the saved merchant directly in an already live scene. This cold
+		# diagnostic bypasses the public Continue loader; startup workload saved
+		# surfaces separately measure the player-visible production resume path.
 		phases[prefix + "/shop_resume"] = await _phase(func() -> void:
 			instance.call("_load_run_state", merchant.duplicate(true))
 			instance.call("_close_dialogue")
@@ -37,6 +41,9 @@ func run(probe: SceneTree, instance: Node, sampler: Node) -> Dictionary:
 		var shop: Control = instance.get("_scavenger_shop_view") as Control
 		_check(shop != null and shop.is_visible_in_tree(), "Merchant resume must show shop")
 		if shop == null: return result
+		# A retained merchant keeps its last pack/browse mode when resuming the
+		# same coordinate. Use its public toggle for each repeated stock sweep.
+		phases[prefix + "/shop_browse"] = await _phase(func() -> void: _click(shop.find_child("ScavengerBrowseMode", true, false)), 12)
 		phases[prefix + "/shop_idle"] = await _phase(func() -> void: pass, 90)
 		for item_id: String in ["grave_mortar", "boiled_leather", "duelist_rapier", "nail_bomb"]:
 			var offer: Control = (shop.get("_offer_sources") as Dictionary).get("buy:" + item_id) as Control
@@ -67,6 +74,10 @@ func run(probe: SceneTree, instance: Node, sampler: Node) -> Dictionary:
 			await probe.call("_save_root_screenshot", "flow_shop_after_trades.png")
 		phases[prefix + "/shop_leave"] = await _phase(func() -> void: _click(shop.find_child("ScavengerLeaveButton", true, false)), 24)
 		_check(not shop.visible, "Leave must expose room board")
+		# Leaving a merchant now opens the section map. Dismiss that arrival view
+		# through Escape before exercising the visible Return to Shop control.
+		if (instance.get("_large_map_scrim") as Control).visible:
+			await _phase(func() -> void: _key(KEY_ESCAPE), 12)
 		phases[prefix + "/shop_reopen"] = await _phase(func() -> void: _click(instance.find_child("MerchantReturnToShopButton", true, false)), 24)
 		_check(shop.visible, "Return to shop must reopen offers")
 		await _phase(func() -> void: _click(shop.find_child("ScavengerLeaveButton", true, false)), 12)
@@ -103,11 +114,17 @@ func run(probe: SceneTree, instance: Node, sampler: Node) -> Dictionary:
 		expected = engine.skip_reward_for_heal(before)
 		phases[prefix + "/reward_heal"] = await _phase(func() -> void: _click(instance.find_child("RewardRecoverButton", true, false)), 30)
 		_assert_trade(expected, "reward heal", phases[prefix + "/reward_heal"])
+		if instance.has_method("_prepare_known_character_rows"):
+			var pool: RefCounted = instance.get("_character_inventory_rows")
+			character_preparation_snapshots.append({"running_revision": instance.get("_character_row_preparation_running_revision"), "revision": instance.get("_character_row_preparation_revision"), "rows": pool._entries.size(), "panels": pool._panels.size(), "views": pool._views.size(), "hidden_host_nodes": pool._hidden_host.find_children("*", "", true, false).size() if is_instance_valid(pool._hidden_host) else 0})
 		repeat_nodes.append(int(Performance.get_monitor(Performance.OBJECT_NODE_COUNT)))
+		if OS.get_environment("LABYRINTH_FLOW_NODE_DIAGNOSTIC") == "1": repeat_node_snapshots.append(_node_ownership_snapshot(_probe.root))
 	result["interaction_semantics"] = {}
 	for name: String in phases:
 		if (phases[name] as Dictionary).has("semantics"): result["interaction_semantics"][name] = phases[name]["semantics"]
 	result["repeat_nodes"] = repeat_nodes
+	if not repeat_node_snapshots.is_empty(): result["repeat_node_snapshots"] = repeat_node_snapshots
+	result["character_preparation_snapshots"] = character_preparation_snapshots
 	result["orphan_nodes"] = int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT))
 	result["static_memory_bytes"] = int(Performance.get_monitor(Performance.MEMORY_STATIC))
 	result["focus_observations"] = probe.get("_focus_observation_count")
@@ -119,24 +136,38 @@ func run(probe: SceneTree, instance: Node, sampler: Node) -> Dictionary:
 func _phase(action: Callable, minimum_frames: int) -> Dictionary:
 	# A fresh boundary excludes fixture oracles, PNG readback and prior results.
 	await _probe.call("_settle_render_frames", 3)
-	_instance.call("set_runtime_performance_instrumentation_enabled", true)
+	_instance.call("set_runtime_performance_instrumentation_enabled", bool(_probe.call("_section_instrumentation_enabled")))
+	var board: Node = _instance.get("board_view")
+	board.call("set_submission_performance_instrumentation_enabled", bool(_probe.call("_section_instrumentation_enabled")))
+	board.call("reset_render_instrumentation")
 	var compilations_before: int = RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_CANVAS)
+	var font_diagnostic: Dictionary = {}
+	if _font_cache_diagnostic_phase:
+		font_diagnostic["before"] = preload("res://tests/fixtures/native_font_cache_probe.gd").capture(_instance)
 	_sampler.call("begin")
 	var started: int = Time.get_ticks_usec()
 	action.call()
 	var handler_ms: float = float(Time.get_ticks_usec() - started) / 1000.0
+	if _font_cache_diagnostic_phase:
+		font_diagnostic["after_handler"] = preload("res://tests/fixtures/native_font_cache_probe.gd").capture(_instance)
 	var frames: int = 0
-	while frames < minimum_frames or bool(_instance.get("_animation_lock")) or bool(_instance.get("_merchant_trade_animation_active")) or bool(_instance.get("_loadout_acquisition_in_progress")) or bool(_instance.get("_campfire_choice_action_pending")) or bool(_instance.get("_relic_claim_in_progress")) or bool(_instance.get("_equipment_swap_animation_active")) or bool(_instance.get("_item_swap_animation_active")):
+	while frames < minimum_frames or bool(_instance.get("_animation_lock")) or bool(_instance.get("_merchant_trade_animation_active")) or bool(_instance.get("_loadout_acquisition_in_progress")) or bool(_instance.get("_campfire_choice_action_pending")) or bool(_instance.get("_relic_claim_in_progress")) or bool(_instance.get("_equipment_swap_animation_active")) or bool(_instance.get("_item_swap_animation_active")) or (_instance.has_method("_prepare_known_character_rows") and int(_instance.get("_character_row_preparation_running_revision")) >= 0) or (_instance.has_method("_prepare_known_grimoire_rows") and int(_instance.get("_grimoire_row_preparation_running_revision")) >= 0) or not _surface_input_ready():
 		await _probe.call("_await_render_frame")
 		frames += 1
+		if _font_cache_diagnostic_phase and frames == 1:
+			font_diagnostic["first_draw"] = preload("res://tests/fixtures/native_font_cache_probe.gd").capture(_instance)
 		if frames >= 1200:
 			_check(false, "UI interaction must settle before deadlock guard")
 			break
 	var result: Dictionary = _probe.call("_sampler_phase_result", _sampler.call("finish"))
 	result["canvas_pipeline_compilations"] = RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_CANVAS) - compilations_before
 	result["handler_ms"] = handler_ms
+	if _font_cache_diagnostic_phase: result["native_font_cache_diagnostic_only"] = font_diagnostic
 	result["stage_profile"] = _instance.call("runtime_performance_instrumentation_snapshot")
 	result["stage_frame_profile"] = _instance.call("runtime_performance_frame_instrumentation_snapshot")
+	result["board_submission_profile"] = board.call("submission_performance_instrumentation_snapshot")
+	result["board_render_profile"] = board.call("render_instrumentation_snapshot")
+	board.call("set_submission_performance_instrumentation_enabled", false)
 	_instance.call("set_runtime_performance_instrumentation_enabled", false)
 	return result
 
@@ -150,7 +181,12 @@ func _assert_trade(expected: Dictionary, label: String, phase: Dictionary) -> vo
 
 func _click(control: Control) -> void:
 	_check(control != null and control.is_visible_in_tree(), "Live click target must be visible")
-	if control != null: _probe.call("_routed_left_click", control, control.size * 0.5)
+	if control == null or not control.is_visible_in_tree(): return
+	if OS.get_environment("LABYRINTH_FLOW_CLICK_TRACE") == "1":
+		_probe.call("_routed_pointer_motion", control, control.size * 0.5)
+		var route: Control = control.get_viewport().gui_get_hovered_control()
+		print("FLOW CLICK TRACE: " + JSON.stringify({"target": str(control.get_path()), "size": str(control.size), "rect": str(control.get_global_rect()), "route": str(route.get_path()) if route != null else "", "mode": _instance.get("_progression_overlay_mode"), "animation_lock": _instance.get("_animation_lock"), "menu": (_instance.get("_menu_scrim") as Control).visible}))
+	_probe.call("_routed_left_click", control, control.size * 0.5)
 
 func _motion(control: Control) -> void:
 	_check(control != null and control.is_visible_in_tree(), "Live hover target must be visible")
@@ -273,3 +309,18 @@ func _victory_combat_state(combat_state: Dictionary) -> Dictionary:
 		enemies[index] = enemy
 	victory["enemies"] = enemies
 	return victory
+
+func _surface_input_ready() -> bool:
+	if bool(_instance.call("_treasure_presentation_busy")): return false
+	if str((_instance.get("_run_state") as Dictionary).get("mode", "")) == "campfire":
+		var bar: Control = _instance.get("_relic_choice_bar") as Control
+		for child: Node in bar.get_children():
+			if child is Control and not bool(child.get_meta("choice_revealed", false)): return false
+	return true
+
+func _node_ownership_snapshot(node: Node) -> Array:
+	var result: Array
+	var script: Script = node.get_script() as Script
+	result.append({"path": str(node.get_path()), "class": node.get_class(), "script": script.resource_path if script != null else "", "visible": node.is_visible_in_tree() if node is CanvasItem else true, "queued": node.is_queued_for_deletion()})
+	for child: Node in node.get_children(): result.append_array(_node_ownership_snapshot(child))
+	return result

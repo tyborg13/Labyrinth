@@ -7,6 +7,7 @@ static var _paper_grain: Texture2D
 static var _menu_grain_texture: Texture2D
 const MENU_SHADER = preload("res://assets/shaders/menu_surface_finish.gdshader")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
+const Assets = preload("res://scripts/asset_loader.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 var _menu_accent := Color("b49461")
 var _panel: PanelContainer
@@ -176,6 +177,16 @@ static func _quad(rect: Rect2) -> PackedVector2Array:
 static func _grain() -> Texture2D:
 	if _paper_grain != null:
 		return _paper_grain
+	_paper_grain = ImageTexture.create_from_image(_paper_grain_image())
+	return _paper_grain
+
+static func prepare_initial_assets_for(root: Node, present_frame: Callable, still_active: Callable) -> void:
+	if _paper_grain != null: return
+	var image: Image = (await Assets.prepare_cpu_value_for(root, _paper_grain_image, present_frame, still_active)) as Image
+	if bool(still_active.call()) and image != null and _paper_grain == null:
+		_paper_grain = ImageTexture.create_from_image(image)
+
+static func _paper_grain_image() -> Image:
 	var noise := FastNoiseLite.new()
 	noise.seed = 7319
 	noise.frequency = 0.035
@@ -192,5 +203,4 @@ static func _grain() -> Texture2D:
 			var cloud: float = lerpf(upper, lower, v)
 			var grain: float = clampf(0.5 + cloud * 0.55 + (fiber - 0.5) * 0.32, 0.0, 1.0)
 			pixels.set_pixel(x, y, Color(0.34, 0.20, 0.075, grain * 0.28))
-	_paper_grain = ImageTexture.create_from_image(pixels)
-	return _paper_grain
+	return pixels

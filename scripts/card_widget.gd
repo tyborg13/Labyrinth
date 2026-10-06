@@ -2013,6 +2013,7 @@ func _on_local_mouse_exited() -> void:
 	_update_pose()
 
 func play_ready_wave(delay_seconds: float = 0.0) -> void:
+	var probe_started: int = Time.get_ticks_usec() if _layout_probe_enabled else 0
 	if not is_node_ready() or top_level or not _interactive or _dimmed or not _usable:
 		return
 	if SettingsStore.applied_reduced_motion_enabled() or not is_visible_in_tree():
@@ -2044,6 +2045,7 @@ func play_ready_wave(delay_seconds: float = 0.0) -> void:
 		_ready_wave_tween.parallel().tween_property(_ready_wave_glow, "scale", Vector2(1.028, 1.028), READY_WAVE_SETTLE_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	_ready_wave_tween.tween_callback(_finish_ready_wave)
 	_refresh_motion_processing()
+	_record_layout_probe("ready_wave", probe_started)
 
 func _set_ready_wave_progress(progress: float) -> void:
 	_ready_wave_progress = clampf(progress, 0.0, 1.0)
@@ -2061,6 +2063,7 @@ func _finish_ready_wave() -> void:
 func _ensure_ready_wave_glow() -> void:
 	if _ready_wave_glow != null:
 		return
+	var probe_started: int = Time.get_ticks_usec() if _layout_probe_enabled else 0
 	_ready_wave_glow = PanelContainer.new()
 	_ready_wave_glow.name = "ReadyWaveGlow"
 	_ready_wave_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -2069,6 +2072,7 @@ func _ensure_ready_wave_glow() -> void:
 	_ready_wave_glow.add_theme_stylebox_override("panel", _ready_wave_glow_style())
 	add_child(_ready_wave_glow)
 	_sync_ready_wave_glow_geometry()
+	_record_layout_probe("ready_wave_glow_construction", probe_started)
 
 func _sync_ready_wave_glow_geometry() -> void:
 	if _ready_wave_glow == null:

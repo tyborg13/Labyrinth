@@ -28,6 +28,7 @@ const EnemyCutoutFacing = preload("res://scripts/enemy_cutout_facing.gd")
 var _warden_renderers: Dictionary = {}
 const CrawlerCutout = preload("res://scripts/crawler_cutout/renderer.gd")
 var _crawler_renderers: Dictionary = {}
+var _prepared_unit_renderers: Dictionary = {}
 const GuardianCutout = preload("res://scripts/guardian_cutout/renderer.gd")
 const GuardianPool = preload("res://scripts/guardian_cutout/pool.gd")
 var _guardian_renderers: Dictionary = {}
@@ -752,6 +753,8 @@ var _scene_render_layers_by_tile: Dictionary = {}
 var _scene_back_effect_render_layers_by_tile: Dictionary = {}
 var _scene_front_effect_render_layers_by_tile: Dictionary = {}
 var _scene_render_layers: Array = []
+var _retained_asset_bindings: Dictionary = {}
+var _retained_asset_layers: Array = []
 var _foreground_render_layer: Control = null
 var _hud_render_layer: Control = null
 var _effects_render_layer: Control = null
@@ -759,6 +762,9 @@ var _floating_text_layout_cache: Dictionary = {}
 var _floating_text_last_layout: Array[Dictionary] = []
 var _foreground_obstruction_entries_cache: Array[Dictionary]
 var _static_draw_count: int = 0
+var _static_draw_frame_top: Array[Dictionary]
+var _static_render_cache_inputs: Dictionary = {}
+var _static_render_cache_reuse_count: int = 0
 var _dynamic_draw_count: int = 0
 var _static_draw_total_usec: int = 0
 var _static_draw_max_usec: int = 0
@@ -1084,9 +1090,9 @@ func _sync_harrier_renderers() -> void:
 		var renderer: Node = _harrier_renderers.get(actor_key, null) as Node
 		var motion: Dictionary = motions.get(actor_key, {})
 		if not is_instance_valid(renderer):
-			renderer = HarrierCutout.new()
+			renderer = _take_prepared_unit_renderer("harrier", int(unit.get("id", -1)), HarrierCutout)
 			renderer.name = "HarrierCutout_%d" % int(unit.get("id", -1))
-			add_child(renderer)
+			if renderer.get_parent() == null: add_child(renderer)
 			_harrier_renderers[actor_key] = renderer
 		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
 			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
@@ -1213,9 +1219,9 @@ func _sync_crawler_renderers() -> void:
 		var renderer: Node = _crawler_renderers.get(actor_key, null) as Node
 		var motion: Dictionary = motions.get(actor_key, {})
 		if not is_instance_valid(renderer):
-			renderer = CrawlerCutout.new()
+			renderer = _take_prepared_unit_renderer("crawler", int(unit.get("id", -1)), CrawlerCutout)
 			renderer.name = "CrawlerCutout_%d" % int(unit.get("id", -1))
-			add_child(renderer)
+			if renderer.get_parent() == null: add_child(renderer)
 			_crawler_renderers[actor_key] = renderer
 		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
 			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
@@ -1405,9 +1411,9 @@ func _sync_frostglass_renderers() -> void:
 		var renderer: Node = _frostglass_renderers.get(actor_key, null) as Node
 		var motion: Dictionary = motions.get(actor_key, {})
 		if not is_instance_valid(renderer):
-			renderer = FrostglassCutout.new()
+			renderer = _take_prepared_unit_renderer("frostglass_lancer", int(unit.get("id", -1)), FrostglassCutout)
 			renderer.name = "FrostglassCutout_%d" % int(unit.get("id", -1))
-			add_child(renderer)
+			if renderer.get_parent() == null: add_child(renderer)
 			_frostglass_renderers[actor_key] = renderer
 		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
 			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
@@ -1779,6 +1785,7 @@ func _create_static_render_cache() -> void:
 	_static_render_cache_layer = get_script().new() as Control
 	_static_render_cache_layer.name = "StaticBoardRenderCacheLayer"
 	_static_render_cache_layer.set("_is_static_render_cache_layer", true)
+	_static_render_cache_layer.set("_render_instrumentation_owner", self)
 	_static_render_cache_layer.material = _art_treatment.cache_bake_material
 	_static_render_cache_layer.set("_art_treatment", _art_treatment)
 	_static_render_cache_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -1808,9 +1815,19 @@ func _sync_static_render_cache() -> void:
 	var cache_has_content: bool = _static_render_cache_enabled and not combat_state.is_empty()
 	_static_render_cache_texture.visible = cache_has_content
 	if not cache_has_content:
+		_static_render_cache_inputs.clear()
 		return
 	var cache_size: Vector2i = _static_render_cache_size()
 	var pixel_transform: Transform2D = get_viewport().get_stretch_transform() * get_global_transform_with_canvas()
+	_ensure_board_layout_cache()
+	var inputs: Dictionary = _static_floor_inputs(cache_size, pixel_transform)
+	if not _static_render_cache_inputs.is_empty() and _static_render_cache_inputs == inputs:
+		_static_render_cache_reuse_count += 1
+		return
+	# Own the collections so later caller mutations cannot alter the retained
+	# source guard. Texture resources remain the same immutable loaded assets.
+	_static_render_cache_inputs = inputs.duplicate(true)
+
 	if _static_render_cache_viewport.size != cache_size:
 		_static_render_cache_viewport.size = cache_size
 	_static_render_cache_viewport.global_canvas_transform = pixel_transform
@@ -1836,6 +1853,31 @@ func _sync_static_render_cache() -> void:
 	_static_render_cache_viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ONCE
 	_static_render_cache_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	_static_render_cache_update_count += 1
+
+func _static_floor_inputs(cache_size: Vector2i, pixel_transform: Transform2D) -> Dictionary:
+	# Floor commands depend on resolved pixel geometry and visible doors, not
+	# combat mode, actor HP, interaction labels or the layout signature itself.
+	# The cached material uses steady light; flicker stays on its live composite.
+	var doors: Dictionary = {}
+	var grid: Array = combat_state.get("grid", [])
+	for tile: Vector2i in _board_layout_cache_tiles:
+		if str((grid[tile.y] as Array)[tile.x]) == "door":
+			doors[tile] = _door_is_visible(tile)
+	var lighting: Dictionary = _art_treatment._parameters.duplicate(true)
+	lighting.erase("art_light_flicker")
+	return {
+		"viewport_size": cache_size, "transform": pixel_transform, "size": size,
+		"tile_width": _board_layout_cache_tile_width, "origin": _board_layout_cache_origin,
+		"tiles": _board_layout_cache_tiles, "grid": grid, "doors": doors,
+		"room_coord": combat_state.get("room_coord", Vector2i.ZERO),
+		"room_element": combat_state.get("room_element", ElementData.NONE),
+		"moss": _moss_tiles_by_surface, "floor_variants": _floor_variant_by_tile,
+		"backdrop": bool(presentation.get("board_backdrop_visible", false)),
+		"art_enabled": _art_treatment_enabled, "lighting": lighting,
+		"tile_textures": _tile_textures, "floor_textures": _floor_texture_variants,
+		"element_textures": _element_overlay_texture_variants,
+		"torch_texture": _pillar_torch_light_texture,
+	}
 
 func set_static_render_cache_enabled(enabled: bool) -> void:
 	if _static_render_cache_enabled == enabled:
@@ -1897,6 +1939,8 @@ func _retained_render_layers() -> Array:
 
 func _sync_scene_render_layers() -> void:
 	var desired_tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
+	if _scene_render_layers_match(desired_tiles):
+		return
 	var desired_lookup: Dictionary = {}
 	for tile: Vector2i in desired_tiles:
 		desired_lookup[tile] = true
@@ -1940,6 +1984,32 @@ func _sync_scene_render_layers() -> void:
 		move_child(layer_var as Control, insertion_index)
 		insertion_index += 1
 
+
+# A framing-mode change can leave every tile and its painter order intact.
+# Validate the actual retained canvases before omitting native move_child calls.
+func _scene_render_layers_match(tiles: Array[Vector2i]) -> bool:
+	if not is_inside_tree() or not is_instance_valid(_action_floor_render_layer):
+		return false
+	if _scene_render_layers.size() != tiles.size() * 3:
+		return false
+	for mapping: Dictionary in [_scene_back_effect_render_layers_by_tile, _scene_render_layers_by_tile, _scene_front_effect_render_layers_by_tile]:
+		if mapping.size() != tiles.size():
+			return false
+	var index: int = 0
+	var child_index: int = _action_floor_render_layer.get_index() + 1
+	for tile: Vector2i in tiles:
+		for pass_index: int in range(3):
+			var mapping: Dictionary = [_scene_back_effect_render_layers_by_tile, _scene_render_layers_by_tile, _scene_front_effect_render_layers_by_tile][pass_index]
+			var layer: Control = mapping.get(tile, null) as Control
+			if not is_instance_valid(layer) or layer.is_queued_for_deletion() or layer.get_parent() != self:
+				return false
+			if _scene_render_layers[index] != layer or layer.get_index() != child_index:
+				return false
+			if layer.get("_render_layer_tile") != tile or int(layer.get("_render_layer_scene_effect_pass")) != pass_index - 1:
+				return false
+			index += 1
+			child_index += 1
+	return true
 
 func _sync_enemy_shadow_dissolve_effects() -> void:
 	if _is_dynamic_render_layer or _is_static_render_cache_layer:
@@ -2053,8 +2123,9 @@ func _enemy_shadow_dissolve_seed_for_unit(unit: Dictionary) -> float:
 func _sync_dynamic_render_assets() -> void:
 	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
 		return
-	for layer: Control in _retained_render_layers():
-		for field: String in [
+	var layers: Array = _retained_render_layers()
+	var bindings: Dictionary = {}
+	for field: String in [
 			"_tile_textures", "_floor_texture_variants", "_element_overlay_texture_variants",
 			"_prop_textures", "_scene_prop_textures", "_scene_prop_idle_frames",
 			"_pillar_torch_idle_frames", "_pillar_torch_light_texture", "_effect_textures", "_effect_frames",
@@ -2074,10 +2145,25 @@ func _sync_dynamic_render_assets() -> void:
 			"_unit_shadow_prewarm_pending_ids",
 			"_door_opening_frames", "_door_opening_flipped_frames",
 			"_idle_frames_by_type", "_death_frames_by_type", "_texture_used_rect_cache"
-		]:
-			layer.set(field, get(field))
+	]:
+		bindings[field] = get(field)
+	# Keep reference identity, not equal-content values. A shared dictionary's
+	# in-place mutations are already visible, but a replacement must be copied.
+	var same_bindings: bool = not layers.is_empty() and layers == _retained_asset_layers and bindings.size() == _retained_asset_bindings.size()
+	if same_bindings:
+		for field: String in bindings:
+			if not is_same(bindings[field], _retained_asset_bindings.get(field)):
+				same_bindings = false
+				break
+	if same_bindings:
+		return
+	for layer: Control in layers:
+		for field: String in bindings:
+			layer.set(field, bindings[field])
+	_retained_asset_bindings = bindings
+	_retained_asset_layers = layers
 
-func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_changed: bool = false, changed_fields: Array = []) -> void:
+func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_changed: bool = false, changed_fields: Array = [], geometry_changed: bool = true) -> void:
 	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
 		return
 	# Resolve the fixed room envelope once on the parent before invalidating
@@ -2105,8 +2191,11 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 			"_hud_layout_entries_cache"
 		]
 	for layer: Control in _retained_render_layers():
-		if layout_changed:
+		if layout_changed and geometry_changed:
 			layer.call("_invalidate_board_layout_cache")
+		elif layout_changed:
+			# Geometry remains valid; room-dependent particle/obstruction data does not.
+			layer.call("_invalidate_layout_render_semantics")
 		elif visual_framing_changed:
 			layer.call("_invalidate_board_layout_cache", false, true)
 		for field_var: Variant in fields:
@@ -2134,6 +2223,18 @@ func _queue_render_layer_redraw(layer: Control) -> void:
 
 func render_instrumentation_snapshot() -> Dictionary:
 	_commit_retained_draw_frame()
+	var static_count: int = _static_draw_count
+	var static_total_usec: int = _static_draw_total_usec
+	var static_max_usec: int = _static_draw_max_usec
+	var static_frames: Array[Dictionary] = _static_draw_frame_top.duplicate(true)
+	if is_instance_valid(_static_render_cache_layer):
+		static_count += int(_static_render_cache_layer.get("_static_draw_count"))
+		static_total_usec += int(_static_render_cache_layer.get("_static_draw_total_usec"))
+		static_max_usec = maxi(static_max_usec, int(_static_render_cache_layer.get("_static_draw_max_usec")))
+		var cache_frames: Array = _static_render_cache_layer.get("_static_draw_frame_top")
+		static_frames.append_array(cache_frames.duplicate(true))
+		static_frames.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["total_usec"]) > int(b["total_usec"]))
+		if static_frames.size() > 20: static_frames.resize(20)
 	var dynamic_count: int = _dynamic_draw_count
 	var dynamic_total_usec: int = _dynamic_draw_total_usec
 	var dynamic_max_usec: int = _dynamic_draw_max_usec
@@ -2197,10 +2298,12 @@ func render_instrumentation_snapshot() -> Dictionary:
 				layer.get("_unit_shadow_draw_cache_metrics") as Dictionary
 			)
 	return {
-		"static_draw_count": _static_draw_count,
+		"static_draw_count": static_count,
 		"dynamic_draw_count": dynamic_count,
-		"static_draw_total_usec": _static_draw_total_usec,
-		"static_draw_max_usec": _static_draw_max_usec,
+		"static_draw_total_usec": static_total_usec,
+		"static_draw_max_usec": static_max_usec,
+		"static_draw_frame_top": static_frames,
+		"static_render_cache_reuse_count": _static_render_cache_reuse_count,
 		"dynamic_draw_total_usec": dynamic_total_usec,
 		"dynamic_draw_max_usec": dynamic_max_usec,
 		"dynamic_draw_frame_max_usec": _retained_draw_frame_max_usec,
@@ -2284,6 +2387,9 @@ func _merge_unit_shadow_draw_cache_metrics(target: Dictionary, source: Dictionar
 		target["by_type"] = target_by_type
 
 func reset_render_instrumentation() -> void:
+	_static_draw_frame_top.clear()
+	_static_render_cache_reuse_count = 0
+	if is_instance_valid(_static_render_cache_layer): _static_render_cache_layer.call("reset_render_instrumentation")
 	_static_draw_count = 0
 	_static_draw_total_usec = 0
 	_static_draw_max_usec = 0
@@ -2701,6 +2807,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var next_floor_signature: String = next_room_grid_signature if state_changed or _floor_variant_signature.is_empty() else _floor_variant_signature
 	var next_moss_signature: String = _moss_signature_for_state(next_state) if state_changed or _moss_signature.is_empty() else _moss_signature
 	var layout_changed: bool = next_layout_signature != _board_layout_signature
+	var previous_geometry: Dictionary = _resolved_board_geometry_inputs() if layout_changed else {}
+	var geometry_changed: bool = layout_changed
 	var visual_framing_changed: bool = false
 	var floor_changed: bool = next_floor_signature != _floor_variant_signature
 	var moss_changed: bool = next_moss_signature != _moss_signature
@@ -2740,46 +2848,66 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		refresh_cutout_roster = refresh_cutout_roster or combat_render_changes.has(key)
 	for key: String in ["preview_units", "death_animation_units", "visible_enemy_ids", "reduced_motion"]:
 		refresh_cutout_roster = refresh_cutout_roster or presentation_changes.has(key)
+	var roster_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
 	if refresh_cutout_roster or presentation_changes.has("illusion_motion"):
 		_sync_illusion_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_illusion", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("warden_motion"):
 		_sync_warden_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_warden", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("crawler_motion"):
 		_sync_crawler_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_crawler", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("acolyte_motion"):
 		_sync_acolyte_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_acolyte", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("guardian_motion"):
 		_sync_guardian_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_guardian", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("bile_bloomer_motion"):
 		_sync_bile_bloomer_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_bile_bloomer", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("gaoler_motion"):
 		_sync_gaoler_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_gaoler", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("cinder_droplet_motion"):
 		_sync_cinder_droplet_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_cinder_droplet", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("cinder_ooze_motion"):
 		CinderOozePresentation.sync(self)
 	if refresh_cutout_roster or presentation_changes.has("frostglass_motion"):
 		_sync_frostglass_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_frostglass", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("grave_surgeon_motion"):
 		_sync_grave_surgeon_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_grave_surgeon", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("harrier_motion"):
 		_sync_harrier_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_harrier", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("iskaldra_motion"):
 		_sync_iskaldra_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_iskaldra", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("lightning_wisp_motion"):
 		_sync_lightning_wisp_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_lightning_wisp", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("noctyrax_motion"):
 		_sync_noctyrax_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_noctyrax", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("tharokh_motion"):
 		_sync_tharokh_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_tharokh", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("vaeloryx_motion"):
 		_sync_vaeloryx_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_vaeloryx", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("veilbound_acolyte_motion"):
 		_sync_veilbound_acolyte_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_veilbound_acolyte", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("vyraketh_motion"):
 		_sync_vyraketh_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_vyraketh", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("zekarion_motion"):
 		_sync_zekarion_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_zekarion", roster_phase_started)
 	if is_instance_valid(_protagonist_renderer) and (refresh_cutout_roster or presentation_changes.has("protagonist_motion")):
 		_protagonist_renderer.call("present", presentation.get("protagonist_motion", {}),
 			bool(presentation.get("reduced_motion", false)), not (combat_state.get("player", {}) as Dictionary).is_empty())
@@ -2837,7 +2965,9 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	submission_phase_started = _record_submission_performance_phase("assign_and_assets", submission_phase_started)
 	if layout_changed:
 		_board_layout_signature = next_layout_signature
-		_invalidate_board_layout_cache()
+		# Recompute through the original framing path before deciding whether
+		# the existing foot-relative shadow geometry can remain prepared.
+		_invalidate_board_layout_cache(true, false, not previous_geometry.is_empty())
 
 	_board_visual_framing_signature = next_visual_framing_signature
 	if floor_changed:
@@ -2894,6 +3024,12 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		if structural_hud_change or not _refresh_moving_hud_geometry(moving_actor_keys):
 			_rebuild_hud_health_rects_cache()
 	submission_phase_started = _record_submission_performance_phase("hud_layout", submission_phase_started)
+	if layout_changed:
+		_ensure_board_layout_cache()
+		geometry_changed = previous_geometry.is_empty() or previous_geometry != _resolved_board_geometry_inputs()
+		if geometry_changed:
+			_unit_shadow_draw_geometry_cache.clear()
+			_unit_shadow_draw_mesh_cache.clear()
 	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer) and (layout_changed or _scene_render_layers.is_empty()):
 		_sync_scene_render_layers()
 		_sync_dynamic_render_assets()
@@ -2954,7 +3090,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 				unique_sync_fields.append(field_var)
 		retained_sync_fields = unique_sync_fields
 	if layout_changed or visual_framing_changed or not retained_sync_fields.is_empty():
-		_sync_dynamic_render_state(layout_changed, visual_framing_changed, retained_sync_fields)
+		_sync_dynamic_render_state(layout_changed, visual_framing_changed, retained_sync_fields, geometry_changed)
 	submission_phase_started = _record_submission_performance_phase("retained_sync", submission_phase_started)
 	_update_cursor_shape()
 	if layout_changed or visual_framing_changed or floor_changed or moss_changed or static_presentation_changed or _dynamic_render_layer == null:
@@ -4293,6 +4429,11 @@ func _record_static_draw_time(started_usec: int) -> void:
 	var elapsed_usec: int = maxi(0, Time.get_ticks_usec() - started_usec)
 	_static_draw_total_usec += elapsed_usec
 	_static_draw_max_usec = maxi(_static_draw_max_usec, elapsed_usec)
+	if _submission_performance_instrumentation_enabled or (is_instance_valid(_render_instrumentation_owner) and bool(_render_instrumentation_owner.get("_submission_performance_instrumentation_enabled"))):
+		_static_draw_frame_top.append({"frame_id": Engine.get_process_frames(), "total_usec": elapsed_usec})
+		_static_draw_frame_top.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a["total_usec"]) > int(b["total_usec"]))
+		if _static_draw_frame_top.size() > 20: _static_draw_frame_top.resize(20)
+
 
 func _record_dynamic_draw_time(started_usec: int) -> void:
 	var elapsed_usec: int = maxi(0, Time.get_ticks_usec() - started_usec)
@@ -13879,10 +14020,13 @@ func _door_icon_texture(icon_id: String) -> Texture2D:
 var _initial_assets_prepared: bool = false
 var _startup_asset_profiling: bool = false
 
-static func prepare_initial_assets_for(board: Control, present_frame: Callable, instrument: bool = false) -> void:
+static func prepare_initial_assets_for(board: Control, present_frame: Callable, instrument: bool = false, root: Node = null) -> void:
 	if board._initial_assets_prepared:
 		return
 	board._startup_asset_profiling = instrument
+	if root != null:
+		await AssetLoader.prepare_textures_for(root, board._initial_texture_manifest(), present_frame, func() -> bool: return is_instance_valid(board))
+		if not is_instance_valid(board): return
 	var slice_started: int = Time.get_ticks_usec()
 	for job: Callable in board._initial_asset_jobs(false):
 		if not is_instance_valid(board): return
@@ -13904,6 +14048,22 @@ func _load_assets(load_full_unit_roster: bool = true) -> void:
 	for job: Callable in _initial_asset_jobs(load_full_unit_roster):
 		job.call()
 	_initial_assets_prepared = true
+
+func _initial_texture_manifest() -> Dictionary:
+	var manifest: Dictionary = {}
+	AssetLoader.add_texture_constants(manifest, get_script())
+	AssetLoader.add_texture_constants(manifest, ProtagonistCutout)
+	for path: String in ["res://assets/art/tiles/stone.png", "res://assets/art/tiles/ember.png", "res://assets/placeholders/tiles/pillar.png", "res://assets/placeholders/tiles/wall.png", "res://assets/placeholders/tiles/door.png"]:
+		manifest[path] = false
+	for path: String in ["res://assets/props/guardians/watch_brazier_lit.png", "res://assets/props/guardians/watch_brazier_dark.png"]:
+		manifest[path] = true
+	for icon: String in RoomIcons.all_icon_ids():
+		var path: String = RoomIcons.icon_path(icon)
+		if not path.is_empty(): manifest[path] = false
+	for icon: String in ActionIcons.all_icon_keys():
+		var path: String = ActionIcons.icon_path(icon)
+		if not path.is_empty(): manifest[path] = false
+	return manifest
 
 func _initial_asset_jobs(load_full_unit_roster: bool) -> Array[Callable]:
 	var jobs: Array[Callable]
@@ -14143,6 +14303,101 @@ func _ensure_unit_assets_for_submission(state: Dictionary, source_presentation: 
 	for death_var: Variant in source_presentation.get("death_animation_units", []):
 		if typeof(death_var) == TYPE_DICTIONARY:
 			_ensure_unit_assets_for_type(str((death_var as Dictionary).get("type", "")))
+
+func unit_rig_preparation_manifest(state: Dictionary) -> Dictionary:
+	# Derive paths through the production rig loaders on the main thread. Only
+	# these immutable path strings cross into the private CPU preparation worker.
+	var families: Dictionary = {
+		"crawler": CrawlerCutout, "acolyte": AcolyteCutout, "warden": WardenCutout,
+		"chainbound_gaoler": GaolerCutout, "cinder_droplet": CinderDropletCutout,
+		"cinder_ooze": CinderOozeCutout, "frostglass_lancer": FrostglassCutout,
+		"grave_surgeon": GraveSurgeonCutout, "harrier": HarrierCutout,
+		"bile_bloomer": BileBloomerCutout, "lightning_wisp": LightningWispCutout,
+		"iskaldra": IskaldraCutout, "noctyrax": NoctyraxCutout, "tharokh": TharokhCutout,
+		"vaeloryx": VaeloryxCutout, "veilbound_acolyte": VeilboundAcolyteCutout,
+		"vyraketh": VyrakethCutout, "zekarion": ZekarionCutout,
+	}
+	var sources := PackedStringArray()
+	var textures: Dictionary = {}
+	for enemy: Dictionary in state.get("enemies", []):
+		var type: String = str(enemy.get("type", ""))
+		var renderer_script: Script = GuardianCutout if GuardianCutout.handles(type) else families.get(type, null)
+		if renderer_script == null: continue
+		var constants: Dictionary = renderer_script.get_script_constant_map()
+		var rig: Node = (constants["Rig"] as Script).new()
+		if renderer_script == GuardianCutout: rig.set("character_id", type)
+		for facing: String in ["front", "rear"]:
+			var path: String = rig.call("_layout_path", facing)
+			if not sources.has(path): sources.append(path)
+		rig.free()
+		if constants.has("REST_PATH"): textures[str(constants["REST_PATH"])] = true
+	return {"sources": sources, "textures": textures}
+
+# Constructor-only preparation keeps one upcoming encounter's canvases under
+# their final board owner. They stay outside the live roster and cannot render
+# board bodies until the ordinary roster path consumes them.
+func begin_unit_renderer_preparation(state: Dictionary) -> Array[Dictionary]:
+	var desired: Dictionary = {}
+	var jobs: Array[Dictionary]
+	for unit: Dictionary in state.get("enemies", []):
+		var type: String = str(unit.get("type", ""))
+		if type not in ["crawler", "harrier", "frostglass_lancer"] or int(unit.get("hp", 0)) <= 0: continue
+		var key: String = "%s:%d" % [type, int(unit.get("id", -1))]
+		desired[key] = true
+		jobs.append({"key": key, "type": type, "id": int(unit.get("id", -1)), "motion": EnemyCutoutFacing.with_idle_direction({}, unit.get("pos", Vector2i.ZERO), (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))})
+	for key: String in _prepared_unit_renderers.keys():
+		if desired.has(key): continue
+		var renderer: Node = _prepared_unit_renderers[key]
+		_prepared_unit_renderers.erase(key)
+		if is_instance_valid(renderer): renderer.queue_free()
+	return jobs
+
+func prepare_unit_renderer(job: Dictionary, reduced_motion: bool) -> void:
+	var key: String = str(job["key"])
+	var renderer: Node = _prepared_unit_renderers.get(key) as Node
+	if not is_instance_valid(renderer):
+		var script: Script
+		var prefix: String
+		match str(job["type"]):
+			"crawler": script = CrawlerCutout; prefix = "CrawlerCutout"
+			"harrier": script = HarrierCutout; prefix = "HarrierCutout"
+			"frostglass_lancer": script = FrostglassCutout; prefix = "FrostglassCutout"
+			_: return
+		renderer = script.new()
+		renderer.name = "%s_%d" % [prefix, int(job["id"])]
+		add_child(renderer)
+		_prepared_unit_renderers[key] = renderer
+	# Prepare the actual opening facing, including the rear rig. The canvases
+	# remain outside the live roster and pause at the original initial phase.
+	renderer.call("present", job["motion"], reduced_motion, true)
+	renderer.set_process(false)
+
+func _take_prepared_unit_renderer(type: String, unit_id: int, script: Script) -> Node:
+	var key: String = "%s:%d" % [type, unit_id]
+	var renderer: Node = _prepared_unit_renderers.get(key) as Node
+	_prepared_unit_renderers.erase(key)
+	if is_instance_valid(renderer) and not renderer.is_queued_for_deletion() and renderer.get_parent() == self and renderer.get_script() == script:
+		# Adoption starts with the same state and neutral front pose as new().
+		# Reaction-first callers preserve that pose rather than the warm facing.
+		renderer.set("facing", "front")
+		renderer.set("mirrored", false)
+		renderer.set("clip", "idle")
+		renderer.set("phase", 0.0)
+		renderer.set("reduced_motion", false)
+		renderer.set("active", true)
+		if type == "crawler": renderer.set("attack_variant", "attack")
+		renderer.set("_idle_seconds", 0.0)
+		renderer.set("_pose_signature", [])
+		renderer.call("_apply_pose")
+		renderer.set_process(true)
+		return renderer
+	if is_instance_valid(renderer): renderer.queue_free()
+	return script.new()
+
+func cancel_unit_renderer_preparation() -> void:
+	for renderer: Node in _prepared_unit_renderers.values():
+		if is_instance_valid(renderer): renderer.queue_free()
+	_prepared_unit_renderers.clear()
 
 func prepare_unit_assets_for_state(state: Dictionary) -> void:
 	# Pre-battle owns an exact preview of the upcoming composition. Loading its
@@ -15378,7 +15633,7 @@ func _draw_unit_shadow(unit: Dictionary) -> void:
 		if detailed_sections:
 			_record_render_section_time("unit_shadow_fallback", phase_started_usec)
 		return
-	var shadow_mesh: ArrayMesh = _unit_shadow_draw_mesh(texture, draw_rect, unit_type, shadow_geometry)
+	var shadow_mesh: ArrayMesh = _unit_shadow_draw_mesh(texture, draw_rect, unit_type, shadow_geometry, true)
 	if detailed_sections:
 		_record_render_section_time("unit_shadow_mesh", phase_started_usec)
 		phase_started_usec = Time.get_ticks_usec()
@@ -15414,7 +15669,7 @@ func _record_unit_shadow_cache_metric(metric: String, unit_type: String) -> void
 	by_type[unit_type] = type_metrics
 	_unit_shadow_draw_cache_metrics["by_type"] = by_type
 
-func _unit_shadow_draw_mesh(texture: Texture2D, draw_rect: Rect2, unit_type: String, shadow_geometry: Array) -> ArrayMesh:
+func _unit_shadow_draw_mesh(texture: Texture2D, draw_rect: Rect2, unit_type: String, shadow_geometry: Array, shadow_geometry_validated: bool = false) -> ArrayMesh:
 	var cache_key: String = _unit_shadow_draw_cache_key(texture, draw_rect, unit_type)
 	if _unit_shadow_draw_mesh_cache.has(cache_key):
 		_record_unit_shadow_cache_metric("mesh_hit", unit_type)
@@ -15426,22 +15681,42 @@ func _unit_shadow_draw_mesh(texture: Texture2D, draw_rect: Rect2, unit_type: Str
 	for geometry_var: Variant in shadow_geometry:
 		var geometry: Dictionary = geometry_var as Dictionary
 		var triangulated: PackedInt32Array = geometry.get("triangulated", PackedInt32Array()) as PackedInt32Array
-		_append_colored_polygon_to_mesh_arrays(
-			geometry.get("soft", PackedVector2Array()) as PackedVector2Array,
-			UNIT_SHADOW_SOFT_COLOR,
-			vertices,
-			colors,
-			indices,
-			triangulated
-		)
-		_append_colored_polygon_to_mesh_arrays(
-			geometry.get("hard", PackedVector2Array()) as PackedVector2Array,
-			UNIT_SHADOW_COLOR,
-			vertices,
-			colors,
-			indices,
-			triangulated
-		)
+		# The immediate drawing caller owns the geometry produced by the exact
+		# native checks below. Other callers keep the original validation path.
+		if shadow_geometry_validated:
+			_append_validated_shadow_polygon_to_mesh_arrays(
+				geometry.get("soft", PackedVector2Array()) as PackedVector2Array,
+				UNIT_SHADOW_SOFT_COLOR,
+				vertices,
+				colors,
+				indices,
+				triangulated
+			)
+			_append_validated_shadow_polygon_to_mesh_arrays(
+				geometry.get("hard", PackedVector2Array()) as PackedVector2Array,
+				UNIT_SHADOW_COLOR,
+				vertices,
+				colors,
+				indices,
+				triangulated
+			)
+		else:
+			_append_colored_polygon_to_mesh_arrays(
+				geometry.get("soft", PackedVector2Array()) as PackedVector2Array,
+				UNIT_SHADOW_SOFT_COLOR,
+				vertices,
+				colors,
+				indices,
+				triangulated
+			)
+			_append_colored_polygon_to_mesh_arrays(
+				geometry.get("hard", PackedVector2Array()) as PackedVector2Array,
+				UNIT_SHADOW_COLOR,
+				vertices,
+				colors,
+				indices,
+				triangulated
+			)
 	if vertices.is_empty() or indices.is_empty():
 		_unit_shadow_draw_mesh_cache[cache_key] = null
 		return null
@@ -15463,6 +15738,31 @@ func _append_colored_polygon_to_mesh_arrays(
 	pretriangulated: PackedInt32Array = PackedInt32Array()
 ) -> void:
 	if not _polygon_can_draw(polygon):
+		return
+	var triangulated: PackedInt32Array = pretriangulated
+	if triangulated.is_empty():
+		triangulated = Geometry2D.triangulate_polygon(polygon)
+	if triangulated.is_empty():
+		return
+	var first_vertex: int = vertices.size()
+	for point: Vector2 in polygon:
+		vertices.append(Vector3(point.x, point.y, 0.0))
+		colors.append(color)
+	for index: int in triangulated:
+		indices.append(first_vertex + index)
+
+
+func _append_validated_shadow_polygon_to_mesh_arrays(
+	polygon: PackedVector2Array,
+	color: Color,
+	vertices: PackedVector3Array,
+	colors: PackedColorArray,
+	indices: PackedInt32Array,
+	pretriangulated: PackedInt32Array = PackedInt32Array()
+) -> void:
+	# A rejected soft projection has no vertices even when the shared source
+	# topology is nonempty. Preserve the original empty-polygon fallback.
+	if polygon.size() < 3:
 		return
 	var triangulated: PackedInt32Array = pretriangulated
 	if triangulated.is_empty():
@@ -15605,9 +15905,9 @@ func _unit_shadow_data_from_opaque_polygons(opaque_polygons: Array[PackedVector2
 				(point.x - bounds_center_x) / bounds.size.x,
 				(point.y - bounds_bottom_y) / bounds.size.y
 			))
-		if _polygon_can_draw(local_polygon):
+		if local_polygon.size() >= 3:
 			var triangulated: PackedInt32Array = Geometry2D.triangulate_polygon(local_polygon)
-			if not triangulated.is_empty():
+			if triangulated.size() >= 3:
 				local_polygons.append(local_polygon)
 				triangulations.append(triangulated)
 	var data: Dictionary = {
@@ -15852,7 +16152,7 @@ func _board_layout_extents_for_tiles(tiles: Array[Vector2i]) -> Dictionary:
 		"max_sum": max_sum
 	}
 
-func _invalidate_board_layout_cache(content_changed: bool = true, preserve_visual_top_offset: bool = false) -> void:
+func _invalidate_board_layout_cache(content_changed: bool = true, preserve_visual_top_offset: bool = false, preserve_shadow_geometry: bool = false) -> void:
 	var retained_visual_top_offset: float = _board_layout_cache_visual_top_offset if preserve_visual_top_offset else 0.0
 	_board_layout_cache_valid = false
 	_board_layout_cache_visual_top_offset = retained_visual_top_offset
@@ -15861,16 +16161,31 @@ func _invalidate_board_layout_cache(content_changed: bool = true, preserve_visua
 	# Same-room visual framing moves the origin but does not change immutable
 	# foot-relative meshes. Draw size is already in their key. Keep them through
 	# actor moves/deaths/spawns; content, viewport and navigation resets retire them.
-	if content_changed or not preserve_visual_top_offset:
+	if not preserve_shadow_geometry and (content_changed or not preserve_visual_top_offset):
 		_unit_shadow_draw_geometry_cache.clear()
 		_unit_shadow_draw_mesh_cache.clear()
-	_ambient_particle_template_signature = ""
-	_ambient_particle_templates_by_element.clear()
-	_foreground_obstruction_candidates_cache_valid = false
+	_invalidate_layout_render_semantics()
 	if content_changed:
 		_board_layout_content_cache_valid = false
 		_board_layout_cache_tiles.clear()
 		_board_layout_cache_extents.clear()
+
+func _invalidate_layout_render_semantics() -> void:
+	_ambient_particle_template_signature = ""
+	_ambient_particle_templates_by_element.clear()
+	_foreground_obstruction_candidates_cache_valid = false
+
+func _resolved_board_geometry_inputs() -> Dictionary:
+	if not is_inside_tree() or not _board_layout_cache_valid or _board_layout_cache_size != size:
+		return {}
+	return {
+		"size": size, "width": _board_layout_cache_tile_width, "origin": _board_layout_cache_origin,
+		"tiles": _board_layout_cache_tiles.duplicate(), "extents": _board_layout_cache_extents.duplicate(),
+		"zoom": _navigation_zoom, "pan": _navigation_pan,
+		"offset": _board_layout_cache_visual_top_offset,
+		"canvas_transform": get_global_transform_with_canvas(),
+		"viewport_transform": get_viewport().get_stretch_transform(),
+	}
 
 func _copy_resolved_board_layout_to(layer: Control) -> void:
 	_ensure_board_layout_cache()

@@ -1,0 +1,16652 @@
+# Frozen calculation paths; typed local initializers adapted for Windows compatibility.
+extends Control
+
+const PathUtils = preload("res://scripts/path_utils.gd")
+const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
+const UiPaletteTokens = preload("res://scripts/ui_palette.gd")
+const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
+var _protagonist_renderer: Node
+var _illusion_renderers: Dictionary = {}
+const LightningWispCutout = preload("res://scripts/lightning_wisp_cutout/renderer.gd")
+const VyrakethCutout = preload("res://scripts/vyraketh_cutout/renderer.gd")
+const ZekarionCutout = preload("res://scripts/zekarion_cutout/renderer.gd")
+const WardenCutout = preload("res://scripts/stone_warden_cutout/renderer.gd")
+const AcolyteCutout = preload("res://scripts/acolyte_cutout/renderer.gd")
+var _acolyte_renderers: Dictionary = {}
+const CinderDropletCutout = preload("res://scripts/cinder_droplet_cutout/renderer.gd")
+const CinderOozeCutout = preload("res://scripts/cinder_ooze_cutout/renderer.gd")
+const CinderOozePresentation = preload("res://scripts/cinder_ooze_cutout/presentation.gd")
+const CinderOozeActionFx = preload("res://scripts/cinder_ooze_cutout/action_fx.gd")
+const HarrierCutout = preload("res://scripts/harrier_cutout/renderer.gd")
+const IskaldraCutout = preload("res://scripts/iskaldra_cutout/renderer.gd")
+const TharokhCutout = preload("res://scripts/tharokh_cutout/renderer.gd")
+const VaeloryxCutout = preload("res://scripts/vaeloryx_cutout/renderer.gd")
+const VaeloryxWind = preload("res://scripts/vaeloryx_cutout/wind_feedback.gd")
+const VeilboundAcolyteCutout = preload("res://scripts/veilbound_acolyte_cutout/renderer.gd")
+const VeilboundAcolyteFx = preload("res://scripts/veilbound_acolyte_cutout/fx.gd")
+const EnemyCutoutFacing = preload("res://scripts/enemy_cutout_facing.gd")
+var _warden_renderers: Dictionary = {}
+const CrawlerCutout = preload("res://scripts/crawler_cutout/renderer.gd")
+var _crawler_renderers: Dictionary = {}
+var _prepared_unit_renderers: Dictionary = {}
+const GuardianCutout = preload("res://scripts/guardian_cutout/renderer.gd")
+const GuardianPool = preload("res://scripts/guardian_cutout/pool.gd")
+var _guardian_renderers: Dictionary = {}
+const BileBloomerCutout = preload("res://scripts/bile_bloomer_cutout/renderer.gd")
+const BileBloomerPool = preload("res://scripts/bile_bloomer_cutout/pool.gd")
+const BileBloomerFx = preload("res://scripts/bile_bloomer_cutout/bloom_fx.gd")
+var _bile_bloomer_renderers: Dictionary = {}
+const GaolerCutout = preload("res://scripts/chainbound_gaoler_cutout/renderer.gd")
+var _gaoler_renderers: Dictionary = {}
+var _cinder_droplet_renderers: Dictionary = {}
+var _cinder_ooze_renderers: Dictionary = {}
+const FrostglassCutout = preload("res://scripts/frostglass_lancer_cutout/renderer.gd")
+var _frostglass_renderers: Dictionary = {}
+const GraveSurgeonCutout = preload("res://scripts/grave_surgeon_cutout/renderer.gd")
+const GraveSurgeonAttackFx = preload("res://scripts/grave_surgeon_cutout/attack_fx.gd")
+var _grave_surgeon_renderers: Dictionary = {}
+var _harrier_renderers: Dictionary = {}
+var _iskaldra_renderers: Dictionary = {}
+var _lightning_wisp_renderers: Dictionary = {}
+const NoctyraxCutout = preload("res://scripts/noctyrax_cutout/renderer.gd")
+var _noctyrax_renderers: Dictionary = {}
+var _tharokh_renderers: Dictionary = {}
+var _vaeloryx_renderers: Dictionary = {}
+var _veilbound_acolyte_renderers: Dictionary = {}
+var _vyraketh_renderers: Dictionary = {}
+var _zekarion_renderers: Dictionary = {}
+
+const AssetLoader = preload("res://scripts/asset_loader.gd")
+const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
+const ElementalSpellFx = preload("res://scripts/elemental_spell_fx.gd")
+const ElementData = preload("res://scripts/element_data.gd")
+const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
+const BoardSurfaceFireLayer = preload("res://scripts/board_surface_fire_layer.gd")
+const BoardSurfaceIceLayer = preload("res://scripts/board_surface_ice_layer.gd")
+const BoardSurfaceRubbleLayer = preload("res://scripts/board_surface_rubble_layer.gd")
+const BoardSurfaceElectricLayer = preload("res://scripts/board_surface_electric_layer.gd")
+const BoardSurfacePresentation = preload("res://scripts/board_surface_presentation.gd")
+const BoardSurfaceRenderDependencies = preload("res://scripts/board_surface_render_dependencies.gd")
+const GameData = preload("res://scripts/game_data.gd")
+const RetaliateRules = preload("res://scripts/retaliate_rules.gd")
+const RiteRules = preload("res://scripts/rite_rules.gd")
+const TempoRules = preload("res://scripts/tempo_rules.gd")
+const ManeuverRules = preload("res://scripts/maneuver_rules.gd")
+const IllusionCardRules = preload("res://scripts/illusion_card_rules.gd")
+const RoomIcons = preload("res://scripts/room_icon_library.gd")
+const MapSkin = preload("res://scripts/section_map_skin.gd")
+const BoardFraming = preload("res://scripts/board_framing.gd")
+const ActorPresentation = preload("res://scripts/actor_presentation.gd")
+const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
+const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
+const EnemyShadowDissolveEffect = preload("res://scripts/enemy_shadow_dissolve_effect.gd")
+const CombatArtTreatment = preload("res://scripts/combat_art_treatment.gd")
+var _art_treatment: RefCounted = null
+var _art_treatment_enabled: bool = true
+const UiTypography = preload("res://scripts/ui_typography.gd")
+const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
+const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
+const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
+
+signal tile_clicked(tile: Vector2i)
+signal tile_hovered(tile: Vector2i)
+signal tile_dragged(start_tile: Vector2i, current_tile: Vector2i)
+signal tile_drag_released(start_tile: Vector2i, current_tile: Vector2i)
+signal cancel_requested
+signal navigation_changed
+
+class AmbientParticleTemplate:
+	extends RefCounted
+
+	var seed: int = 0
+	var base_point: Vector2 = Vector2.ZERO
+	var variant_index: int = 0
+	var texture: Texture2D = null
+	var glow_texture: Texture2D = null
+	var soft_texture: Texture2D = null
+	var cycle_phase: float = 0.0
+	var speed: float = 0.0
+	var draw_size: Vector2 = Vector2.ZERO
+	var wind_direction: float = 1.0
+	var air_variant_index: int = 0
+	var hashes: PackedFloat64Array = PackedFloat64Array()
+
+const GRID_OUTLINE: Color = Color("1f1713")
+const MOVE_HIGHLIGHT: Color = Color(0.28, 0.75, 0.86, 0.20)
+const ATTACK_HIGHLIGHT: Color = Color(0.96, 0.40, 0.25, 0.20)
+const ABILITY_HIGHLIGHT: Color = Color(0.30, 0.78, 0.35, 0.22)
+const HOVER_HIGHLIGHT: Color = Color(1.0, 0.96, 0.82, 0.22)
+const SELECT_HIGHLIGHT: Color = Color(0.97, 0.81, 0.43, 0.36)
+const EXIT_HIGHLIGHT: Color = Color(0.95, 0.78, 0.31, 0.34)
+const FOCUS_HIGHLIGHT: Color = Color(0.99, 0.92, 0.57, 0.24)
+const AOE_FOOTPRINT_HIGHLIGHT: Color = Color(1.0, 0.68, 0.22, 0.38)
+const AOE_FOOTPRINT_EDGE: Color = Color(1.0, 0.90, 0.58, 0.92)
+const MOVE_PATH_COLOR: Color = Color("80e4f2")
+const ENEMY_PATH_PREVIEW_COLOR: Color = Color("b78cff")
+const MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO: float = 0.333
+const MOVE_PATH_HEAD_WIDTH_TILE_RATIO: float = 0.405
+const MOVE_PATH_HEAD_TIP_REACH_TILE_RATIO: float = 0.138
+const MOVE_PATH_HEAD_TAIL_REACH_TILE_RATIO: float = 0.285
+const MOVE_PATH_SHADOW_OFFSET_TILE_RATIO: float = 0.038
+const MOVE_PATH_OUTLINE_WIDTH_RATIO: float = 1.12
+const MOVE_PATH_GLOW_WIDTH_RATIO: float = 1.24
+const MOVE_PATH_GRADIENT_DARKEN: float = 0.34
+const MOVE_PATH_GRADIENT_LIGHTEN: float = 0.30
+const MOVE_PATH_GRADIENT_LAYER_COUNT: int = 16
+const MOVE_PATH_BODY_ALPHA: float = 0.86
+const MOVE_PATH_GRADIENT_BASE_ALPHA: float = 0.70
+const MOVE_PATH_GRADIENT_LAYER_ALPHA: float = 0.055
+const MOVE_PATH_GRADIENT_DISC_SEGMENTS: int = 24
+const MOVE_PATH_LIGHT_DIRECTION: Vector2 = Vector2(-0.42, -0.91)
+const MOVE_PATH_CRUMBLE_DAMAGE_SPACING_RATIO: float = 0.82
+const MOVE_PATH_CRUMBLE_MICRO_DEPTH_RATIO: float = 0.055
+const MOVE_PATH_CRUMBLE_CHIP_DEPTH_RATIO: float = 0.13
+const MOVE_PATH_CRUMBLE_CHUNK_DEPTH_RATIO: float = 0.235
+const MOVE_PATH_CRUMBLE_SURFACE_SPACING_RATIO: float = 2.40
+const MOVE_PATH_CRUMBLE_SPALL_SIZE_RATIO: float = 0.18
+const MOVE_PATH_CRACK_DARK_WIDTH_RATIO: float = 0.044
+const MOVE_PATH_CRACK_LIGHT_WIDTH_RATIO: float = 0.018
+const RANGED_PREVIEW_ARC_HEIGHT_SCALE: float = 1.35
+const RANGED_PREVIEW_SOURCE_EDGE_INSET_RATIO: float = 0.16
+const RANGED_PREVIEW_TARGET_STANDOFF_WORLD_TILE_RATIO: float = 0.08
+const RANGED_PREVIEW_SOURCE_LIFT_TILE_HEIGHT_RATIO: float = 0.16
+const RANGED_PREVIEW_NON_ACTOR_TARGET_LIFT_TILE_HEIGHT_RATIO: float = 0.18
+const RANGED_PREVIEW_ACTOR_CONTACT_HALF_WIDTH_RATIO: float = 0.24
+const RANGED_PREVIEW_ACTOR_CONTACT_CENTER_Y_RATIO: float = 0.56
+const RANGED_PREVIEW_ACTOR_CONTACT_HALF_HEIGHT_RATIO: float = 0.20
+const RANGED_PREVIEW_OUTLINE_WIDTH: float = 7.0
+const RANGED_PREVIEW_SECONDARY_WIDTH: float = 4.2
+const RANGED_PREVIEW_ACCENT_WIDTH: float = 1.8
+const RANGED_PREVIEW_OUTLINE_ALPHA: float = 0.28
+const RANGED_PREVIEW_SECONDARY_ALPHA: float = 0.26
+const RANGED_PREVIEW_ACCENT_ALPHA: float = 0.82
+const COLLISION_MARKER_ICON_RATIO: float = 0.44
+const COLLISION_MARKER_FILL: Color = Color(0.17, 0.06, 0.04, 0.94)
+const COLLISION_MARKER_RING: Color = Color("ef8b62")
+const MOVE_RISK_CHIP_FONT_SIZE: int = 10
+const MOVE_RISK_CHIP_HEIGHT: float = 18.0
+const MOVE_RISK_CHIP_GAP: float = 3.0
+const IMPACT_FLASH_COLOR: Color = Color(1.0, 0.22, 0.15, 0.72)
+const PLAYER_FOCUS_COLOR: Color = Color("f1d18b")
+const ENEMY_FOCUS_COLOR: Color = Color("f08c53")
+const FLOATING_TEXT_RIGHT_OFFSET: float = 18.0
+const PLAYER_BAR_FILL: Color = Color("4f9f8c")
+const ILLUSION_BAR_FILL: Color = Color("65b96f")
+const ENEMY_BAR_FILL: Color = Color("8f3038")
+const HEALTH_BAR_STYLE_PLAIN: StringName = &"plain"
+const HEALTH_BAR_STYLE_LIGHT: StringName = &"light"
+const HEALTH_BAR_STYLE_UMBRA: StringName = &"umbra"
+const PLAYER_HEALTH_FRAME_PATH: String = "res://assets/art/ui/health_bars/player_lantern_frame_v1.png"
+const ENEMY_HEALTH_FRAME_PATH: String = "res://assets/art/ui/health_bars/enemy_umbra_frame_v1.png"
+const PLAYER_HEALTH_CONTENT_INSETS: Vector4 = Vector4(0.124, 0.326, 0.087, 0.275)
+const ENEMY_HEALTH_CONTENT_INSETS: Vector4 = Vector4(0.161, 0.286, 0.152, 0.301)
+const INTENT_COMPASS_ISOMETRIC_Y_SCALE: float = 0.50
+const INTENT_COMPASS_RING_TILE_SCALE: float = 0.78
+const INTENT_COMPASS_RING_SOURCE_DIAMETER: float = 178.0
+const INTENT_COMPASS_EMBLEM_MAX_RING_FILL: float = 0.88
+const INTENT_COMPASS_EMBLEM_SCALES := {
+	EnemyIntentCompass.FAMILY_ATTACK: 0.70,
+	EnemyIntentCompass.FAMILY_DEFENSE: 0.52,
+	EnemyIntentCompass.FAMILY_SUPPORT: 0.52,
+}
+const INTENT_COMPASS_UNDERLAY_SCALE: float = 1.075
+const INTENT_COMPASS_UNDERLAY_COLOR := Color(0.018, 0.012, 0.025, 0.58)
+const INTENT_COMPASS_ATTACK_TINT := Color(1.0, 0.42, 0.38, 0.98)
+const INTENT_COMPASS_DEFENSE_TINT := Color(0.50, 0.74, 1.0, 0.98)
+const TERRAIN_BAR_FILL: Color = Color("d9b84f")
+const STATUS_BLEED: Color = Color("b84646")
+const STATUS_EXPOSE: Color = Color("d9b36a")
+const STATUS_FREEZE: Color = Color("7dd4ff")
+const STATUS_SHOCK: Color = Color("f3d762")
+const STATUS_IMMOBILIZE: Color = Color("b8c48f")
+const PLAYER_HEALTH_BAR_SIZE: Vector2 = Vector2(142.0, 32.0)
+const ENEMY_HEALTH_BAR_SIZE: Vector2 = Vector2(138.0, 34.0)
+const BOSS_INTENT_ICON_SIZE: float = 20.0
+const BOSS_INTENT_FONT_SIZE: int = 13
+const INTENT_POPUP_WIDTH: float = 136.0
+const INTENT_POPUP_PADDING_X: float = 8.0
+const INTENT_POPUP_TITLE_FONT_SIZE: int = 32
+const INTENT_POPUP_ROW_FONT_SIZE: int = 26
+const INTENT_POPUP_ICON_SIZE: float = 41.0
+const INTENT_CONTOUR_TITLE_HEIGHT: float = 42.0
+const INTENT_CONTOUR_ROW_HEIGHT: float = 47.0
+const INTENT_CONTOUR_SHOULDER_INSET: float = 13.0
+const INTENT_CONTOUR_LINE_STAGGER: float = 11.0
+const INTENT_CONTOUR_OUTLINE_SIZE: float = 2.25
+const INTENT_CONTOUR_ACTION_OUTLINE_SIZE: float = 2.0
+const INTENT_CONTOUR_ICON_HALO_SIZE: float = 2.5
+const INTENT_CONTOUR_SHADOW_OFFSET: Vector2 = Vector2(3.5, 4.5)
+const UNIT_ART_HUD_CLEARANCE: float = 4.0
+const HUD_STACK_GAP: float = 0.0
+const ENEMY_HUD_VIEWPORT_MARGIN: float = 6.0
+const ENEMY_HUD_ACTOR_CLEARANCE: float = 4.0
+const ENEMY_HUD_SIDE_GAP: float = 4.0
+const ENEMY_HUD_REPOSITION_OVERLAP_AREA: float = 1.0
+const ENEMY_HUD_SIDE_SWITCH_SCORE_MARGIN: float = 120000.0
+const ENEMY_HUD_SIDE_STICKY_OVERLAP_AREA: float = 1.0
+const ENEMY_HUD_OFFSET_X_STEPS := [0.0, -24.0, 24.0, -48.0, 48.0, -72.0, 72.0]
+const ENEMY_HUD_OFFSET_Y_STEPS := [0.0, -18.0, 18.0, -36.0, 36.0, -54.0, 54.0, -72.0, 72.0]
+const FOREGROUND_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.54)
+const FOREGROUND_ACTOR_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.26)
+const PILLAR_ACTOR_OBSTRUCTION_TINT: Color = Color(1.0, 1.0, 1.0, 0.32)
+const PILLAR_OBSTRUCTION_CAP_ALPHA: float = 0.54
+const PILLAR_OBSTRUCTION_BASE_ALPHA: float = 0.82
+const PILLAR_OBSTRUCTION_TORCH_ALPHA: float = 0.54
+const FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD: float = 0.25
+const LOOT_DRAW_TILE_WIDTH_SCALE: float = 0.34
+const EQUIPMENT_LOOT_TILE_WIDTH_SCALE: float = 0.56
+const ITEM_LOOT_TILE_WIDTH_SCALE: float = 0.42
+const EQUIPMENT_LOOT_FLOAT_BASELINE_SCALE: float = -0.02
+const IDLE_FRAME_SECONDS: float = 0.10
+const IDLE_SHEET_COLUMNS: int = 4
+const IDLE_SHEET_ROWS: int = 2
+const DEATH_FRAME_SECONDS: float = 0.065
+const DEATH_SHEET_COLUMNS: int = 4
+const DEATH_SHEET_ROWS: int = 4
+const ENEMY_SHADOW_DISSOLVE_FRAME_COUNT: int = 28
+const ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS: float = 0.037
+const TERRAIN_DESTRUCTION_FRAME_SECONDS: float = 0.065
+const TERRAIN_DESTRUCTION_SHEET_LAYOUTS := {
+	"wooden_box": {
+		"path": "res://assets/art/tiles/wooden_box_destroy.png",
+		"columns": 4,
+		"rows": 4,
+		"order": "row_major",
+		"ping_pong": false,
+		"frame_seconds": 0.065
+	},
+	"wooden_crate": {
+		"path": "res://assets/art/tiles/wooden_crate_destroy.png",
+		"columns": 4,
+		"rows": 4,
+		"order": "row_major",
+		"ping_pong": false,
+		"frame_seconds": 0.065
+	},
+	# The powder keg shares the wooden box's 128px framing, so it splinters
+	# with the box sheet; its burst feedback is drawn separately.
+	"powder_keg": {
+		"path": "res://assets/art/tiles/wooden_box_destroy.png",
+		"columns": 4,
+		"rows": 4,
+		"order": "row_major",
+		"ping_pong": false,
+		"frame_seconds": 0.065
+	}
+}
+const IDLE_SHEET_ORDER_ROW_MAJOR: String = "row_major"
+const IDLE_SHEET_ORDER_COLUMN_MAJOR: String = "column_major"
+const OUTER_WALL_RENDERING_ENABLED: bool = false
+const TILE_DEPTH_HEIGHT_RATIO: float = 0.30
+const TILE_DEPTH_LEFT_FACE: Color = Color("292520")
+const TILE_DEPTH_RIGHT_FACE: Color = Color("383128")
+const TILE_DEPTH_EDGE: Color = Color("130e0c")
+const BOARD_SIDE_MARGIN: float = 36.0
+const BOARD_VERTICAL_MARGIN: float = 8.0
+const BOARD_TOP_CLEARANCE_SCALE: float = 0.82
+const BOARD_BOTTOM_CLEARANCE_SCALE: float = 0.34
+const BOARD_COMBAT_VERTICAL_BIAS: float = 1.20
+const BOARD_CONTROLLER_COMPACT_VERTICAL_BIAS: float = 1.55
+const BOARD_CONTROLLER_EXPANDED_VERTICAL_BIAS: float = 1.25
+const BOARD_ROOM_VERTICAL_BIAS: float = 0.50
+const BOARD_MAX_TILE_WIDTH: float = 184.0
+const BOARD_MIN_NAVIGATION_ZOOM: float = 0.80
+const BOARD_MAX_NAVIGATION_ZOOM: float = 1.40
+const BOARD_ZOOM_STEP: float = 1.10
+const BOARD_DEFAULT_NAVIGATION_ZOOM: float = 1.26
+const BOARD_COMBAT_COMPACT_DEFAULT_NAVIGATION_ZOOM: float = 1.04
+const BOARD_COMBAT_EXPANDED_DEFAULT_NAVIGATION_ZOOM: float = 1.24
+const BOARD_REACH_EXIT_DEFAULT_NAVIGATION_ZOOM_SCALE: float = 0.97
+const BOARD_ROOM_COMPACT_DEFAULT_NAVIGATION_ZOOM: float = 1.22
+const BOARD_ROOM_EXPANDED_DEFAULT_NAVIGATION_ZOOM: float = 1.36
+const BOARD_COMPACT_VIEWPORT_HEIGHT: float = 1080.0
+const BOARD_EXPANDED_VIEWPORT_HEIGHT: float = 1227.0
+const BOARD_CONTROLLER_COMPACT_VIEWPORT_HEIGHT: float = 800.0
+const BOARD_CONTROLLER_EXPANDED_VIEWPORT_HEIGHT: float = 1080.0
+const BOARD_CONTROLLER_COMPACT_NAVIGATION_ZOOM_SCALE: float = 1.23
+const BOARD_CONTROLLER_EXPANDED_NAVIGATION_ZOOM_SCALE: float = 1.35
+const BOARD_PAN_DRAG_THRESHOLD: float = 8.0
+const BOARD_PAN_OVERSCROLL_FRACTION: float = 0.08
+const BOARD_PAN_OVERSCROLL_MAX: float = 72.0
+const BOARD_TRACKPAD_PAN_SCALE: float = 18.0
+const DOOR_FRAME_WIDTH_SCALE: float = 1.4
+const DOOR_FRAME_HEIGHT_SCALE: float = 1.7
+const DOOR_BASELINE_OFFSET_SCALE: float = 0.425
+const DOOR_BACK_EDGE_OFFSET_SCALE: float = 0.5
+const DOOR_TOP_BACK_EDGE_OFFSET_SCALE: float = 0.3
+const DOOR_ICON_SIZE_SCALE: float = 0.30
+const DOOR_ICON_MIN_SIZE: float = 36.0
+const DOOR_ICON_MAX_SIZE: float = 52.0
+const DOOR_ICON_FLOAT_GAP_SCALE: float = 0.08
+const DOOR_OPENING_SHEET_PATH: String = "res://assets/placeholders/tiles/door_opening.png"
+const DOOR_OPENING_FRAME_REGIONS := [
+	Rect2i(111, 34, 236, 381),
+	Rect2i(526, 35, 231, 382),
+	Rect2i(912, 35, 231, 382),
+	Rect2i(1307, 34, 228, 383),
+	Rect2i(109, 461, 231, 382),
+	Rect2i(516, 462, 241, 381),
+	Rect2i(895, 463, 256, 378),
+	Rect2i(1274, 462, 252, 379)
+]
+const PILLAR_MOSS_OFFSET_X_SCALE: float = -0.04
+const PILLAR_MOSS_OFFSET_Y_SCALE: float = 0.16
+const STONE_FLOOR_VARIANT_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/base_floor_tile_02.png",
+	"res://assets/placeholders/tiles/base_floor_tile_03.png",
+	"res://assets/placeholders/tiles/base_floor_tile_05.png",
+	"res://assets/placeholders/tiles/base_floor_tile_06.png"
+]
+const MOSS_FLOOR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/moss_overlays/moss_floor_overlay_01.png",
+	"res://assets/placeholders/tiles/moss_overlays/moss_floor_overlay_02.png"
+]
+const MOSS_WALL_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/moss_overlays/moss_wall_overlay_01.png"
+]
+const MOSS_PILLAR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/moss_overlays/moss_pillar_overlay_01.png"
+]
+const FIRE_FLOOR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/fire/fire_floor_overlay_01.png",
+	"res://assets/placeholders/tiles/element_overlays/fire/fire_floor_overlay_02.png"
+]
+const FIRE_WALL_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/fire/fire_wall_overlay_01.png"
+]
+const FIRE_PILLAR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/fire/fire_pillar_overlay_01.png"
+]
+const ICE_FLOOR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/ice/ice_floor_overlay_01.png",
+	"res://assets/placeholders/tiles/element_overlays/ice/ice_floor_overlay_02.png"
+]
+const ICE_WALL_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/ice/ice_wall_overlay_01.png"
+]
+const ICE_PILLAR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/ice/ice_pillar_overlay_01.png"
+]
+const LIGHTNING_FLOOR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/lightning/lightning_floor_overlay_01.png",
+	"res://assets/placeholders/tiles/element_overlays/lightning/lightning_floor_overlay_02.png"
+]
+const LIGHTNING_WALL_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/lightning/lightning_wall_overlay_01.png"
+]
+const LIGHTNING_PILLAR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/lightning/lightning_pillar_overlay_01.png"
+]
+const AIR_FLOOR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/air/air_floor_overlay_01.png",
+	"res://assets/placeholders/tiles/element_overlays/air/air_floor_overlay_02.png"
+]
+const AIR_WALL_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/air/air_wall_overlay_01.png"
+]
+const AIR_PILLAR_OVERLAY_PATHS: PackedStringArray = [
+	"res://assets/placeholders/tiles/element_overlays/air/air_pillar_overlay_01.png"
+]
+const CAMPFIRE_BONFIRE_PATH: String = "res://assets/art/tiles/campfire_bonfire.png"
+const CAMPFIRE_BONFIRE_IDLE_PATH: String = "res://assets/art/tiles/campfire_bonfire_idle.png"
+const CAMPFIRE_BONFIRE_IDLE_COLUMNS: int = 4
+const CAMPFIRE_BONFIRE_IDLE_ROWS: int = 4
+const CAMPFIRE_BONFIRE_IDLE_FRAME_SECONDS: float = 0.10
+const CAMPFIRE_BONFIRE_WIDTH_SCALE: float = 1.2925
+const CAMPFIRE_BONFIRE_BASELINE_SCALE: float = 0.48
+const CAMPFIRE_FIRELIGHT_BLOOM_ALPHA: float = 0.42
+const CAMPFIRE_FIRELIGHT_CORE_ALPHA: float = 0.34
+const CAMPFIRE_EMBER_MOTE_COUNT: int = 46
+const CAMPFIRE_EMBER_MOTE_ALPHA: float = 1.30
+const CAMPFIRE_EMBER_PLUME_HEIGHT_SCALE: float = 1.78
+const RELIC_CHEST_PATH: String = "res://assets/art/tiles/relic_chest.png"
+const RelicChestProp = preload("res://scripts/relic_chest_prop.gd")
+const RELIC_CHEST_WIDTH_SCALE: float = 0.68
+const RELIC_CHEST_BASELINE_SCALE: float = 0.44
+const SCAVENGER_STALL_PATH: String = "res://assets/art/tiles/scavenger_stall.png"
+const COLUMN_TORCH_LEFT_PATH: String = "res://assets/art/tiles/column_torch_left.png"
+const COLUMN_TORCH_RIGHT_PATH: String = "res://assets/art/tiles/column_torch_right.png"
+const COLUMN_TORCH_LEFT_IDLE_PATH: String = "res://assets/art/tiles/column_torch_left_idle.png"
+const COLUMN_TORCH_RIGHT_IDLE_PATH: String = "res://assets/art/tiles/column_torch_right_idle.png"
+const COLUMN_TORCH_IDLE_COLUMNS: int = 4
+const COLUMN_TORCH_IDLE_ROWS: int = 4
+const COLUMN_TORCH_IDLE_FRAME_SECONDS: float = 0.1166667
+const COLUMN_TORCH_EMBER_MOTE_COUNT: int = 4
+const COLUMN_TORCH_FLOOR_LIGHT_COLOR: Color = Color(1.0, 0.57, 0.22, 0.25)
+const COLUMN_TORCH_FLOOR_LIGHT_TILE_RADIUS: int = 2
+const COLUMN_TORCH_EMBER_MOTE_ALPHA: float = 0.90
+const COLUMN_TORCH_EMBER_PLUME_HEIGHT_SCALE: float = 0.52
+const COLUMN_TORCH_EMBER_MIN_WIDTH_SCALE: float = 0.020
+const COLUMN_TORCH_EMBER_MAX_WIDTH_SCALE: float = 0.040
+const CONTINUOUS_PRESENTATION_REDRAW_SECONDS: float = 1.0 / 30.0
+const RENDER_LAYER_AMBIENT: String = "ambient"
+const RENDER_LAYER_OVERLAYS: String = "overlays"
+const RENDER_LAYER_GROUND: String = "ground"
+const RENDER_LAYER_PATH: String = "path"
+const RENDER_LAYER_IMPACT_FLOOR: String = "impact_floor"
+const RENDER_LAYER_WORLD: String = "world"
+const RENDER_LAYER_ACTION_FLOOR: String = "action_floor"
+const RENDER_LAYER_SCENE_TILE: String = "scene_tile"
+const RENDER_LAYER_FOREGROUND: String = "foreground"
+const RENDER_LAYER_HUD: String = "hud"
+const RENDER_LAYER_EFFECTS: String = "effects"
+const HUD_LAYOUT_CACHE_LIMIT: int = 32
+const UMBRA_RETURN_STAGGER_SECONDS: float = 0.52
+const UMBRA_RETURN_FADE_SECONDS: float = 0.46
+const UMBRA_SHAPE_BATCH_SEGMENTS: int = 48
+const AMBIENT_PARTICLE_DENSITY: float = 0.76
+const AMBIENT_PARTICLE_OPACITY: float = 0.68
+const AMBIENT_PARTICLE_SPEED_SCALE: float = 1.0
+const AMBIENT_BATCH_SPRITE_GROWTH: int = 64
+const COLUMN_TORCH_WIDTH_SCALE: float = 0.30
+const COLUMN_TORCH_FACE_OFFSET_X_SCALE: float = 0.26
+const COLUMN_TORCH_TOP_Y_SCALE: float = 0.27
+const AMBIENT_PARTICLE_ATLAS_PATH: String = "res://assets/art/effects/ambient_particles.png"
+const AMBIENT_PARTICLE_GLOW_ATLAS_PATH: String = "res://assets/art/effects/ambient_particles_glow.png"
+const AMBIENT_FIRE_SOFT_ATLAS_PATH: String = "res://assets/art/effects/ambient_fire_soft_particles.png"
+const AMBIENT_AIR_WISP_FRAMES_PATH: String = "res://assets/art/effects/ambient_air_wisp_frames.png"
+const AMBIENT_AIR_WISP_SOFT_ATLAS_PATH: String = "res://assets/art/effects/ambient_air_wisp_soft_particles.png"
+const AMBIENT_AIR_WISP_GLOW_FRAMES_PATH: String = "res://assets/art/effects/ambient_air_wisp_glow_frames.png"
+const AMBIENT_PARTICLE_ATLAS_COLUMNS: int = 4
+const AMBIENT_PARTICLE_ATLAS_ROWS: int = 5
+const AMBIENT_FIRE_SOFT_ATLAS_COLUMNS: int = 4
+const AMBIENT_AIR_WISP_SOFT_ATLAS_COLUMNS: int = 4
+const AMBIENT_AIR_WISP_FRAME_COLUMNS: int = 32
+const AMBIENT_AIR_WISP_FULL_FRAME_INDEX: int = 16
+const AMBIENT_AIR_WISP_VARIANTS: int = 4
+const MELEE_SLASH_SHEET_PATH: String = "res://assets/art/effects/melee_slash_sheet.png"
+const MELEE_SLASH_SHEET_COLUMNS: int = 6
+const MELEE_SLASH_SHEET_ROWS: int = 1
+const ELEMENTAL_PROJECTILE_ATLAS_PATH: String = "res://assets/art/effects/elemental_projectiles.png"
+const ELEMENTAL_PROJECTILE_ATLAS_ROWS: int = 6
+const ELEMENTAL_PERFORMANCE_MIN_SIZE: float = 218.0
+const ELEMENTAL_PERFORMANCE_MAX_SIZE: float = 342.0
+const ELEMENTAL_COMPACT_DETONATION_SCALE: float = 0.50
+const TRAP_ELEMENTAL_DETONATION_SCALE: float = 1.15
+const EARTH_PATH_SPIKE_COUNT: int = 6
+const EARTH_IMPACT_SIZE_SCALE: float = 2.08
+const AIR_GUST_IMPACT_SIZE_SCALE: float = 2.62
+const LIGHTNING_IMPACT_SIZE_SCALE: float = 2.76
+const ICE_IMPACT_SIZE_SCALE: float = 2.04
+const PROJECTILE_DRAW_TILE_SCALE: float = 0.34
+const PROJECTILE_DRAW_MIN_SIZE: float = 30.0
+const PROJECTILE_DRAW_MAX_SIZE: float = 48.0
+const PROJECTILE_SPRITE_PATH_ANCHOR_X: float = 0.78
+const PROJECTILE_PREVIEW_LOOP_SECONDS: float = 2.4
+const LETHAL_DEATH_MARK_EFFECT_PATH: String = "res://assets/art/effects/lethal_death_mark.png"
+const LETHAL_DEATH_MARK_PULSE_SECONDS: float = 1.4
+const LETHAL_DEATH_MARK_MIN_SCALE: float = 0.92
+const LETHAL_DEATH_MARK_MAX_SCALE: float = 1.08
+const LETHAL_DEATH_MARK_MIN_ALPHA: float = 0.80
+const LETHAL_DEATH_MARK_MAX_ALPHA: float = 0.98
+const BLINK_RIFT_PREVIEW_TEXTURE_PATH: String = "res://assets/art/effects/blink_rift_preview.png"
+const DEFENSE_HEAL_CASTS_PATH: String = "res://assets/art/effects/defense_heal_casts.png"
+const DEFENSE_HEAL_CASTS_COLUMNS: int = 4
+const DEFENSE_HEAL_CASTS_ROWS: int = 3
+const DEFENSE_HEAL_CASTS_FRAMES_PER_KIND: int = 4
+const TRAP_DRAW_WIDTH_SCALE: float = 1.0
+# Trap sources are 122x80 while the isometric tile rectangle is 2:1. Preserve
+# the source aspect instead of vertically compressing the pressure plates.
+const TRAP_DRAW_HEIGHT_SCALE: float = 160.0 / 122.0
+const TRAP_DRAW_Y_OFFSET_SCALE: float = 0.0
+const TRAP_ANIMATION_SHEET_COLUMNS: int = 4
+const TRAP_ANIMATION_SHEET_ROWS: int = 4
+const TRAP_IDLE_FRAME_SECONDS: float = 0.12
+const IMPACT_DECAL_FADE_PROGRESS: float = 0.72
+const IMPACT_DECAL_MAX_ALPHA: float = 0.72
+const DROPPED_EMBERS_PATH: String = "res://assets/art/tiles/dropped_embers.png"
+const TERRAIN_BOX_DRAW_WIDTH_SCALE: float = 0.64
+## Where powder_keg.png draws its lit fuse spark, as a fraction of the sprite.
+const POWDER_KEG_FUSE_ANCHOR: Vector2 = Vector2(0.64, 0.13)
+const TERRAIN_CRATE_DRAW_WIDTH_SCALE: float = 0.60
+const TERRAIN_DRAW_BASELINE_SCALE: float = 0.42
+const TERRAIN_HEALTH_BAR_SIZE: Vector2 = Vector2(56.0, 8.0)
+const SHADOW_COLOR: Color = Color(0.0, 0.0, 0.0, 0.22)
+const SHADOW_LIGHT_VECTOR: Vector2 = Vector2(1.0, 0.55)
+const SHADOW_POINT_COUNT: int = 24
+const UnitShadowCacheResourceScript = preload("res://scripts/unit_shadow_cache_resource.gd")
+const UNIT_SHADOW_COLOR: Color = Color(0.0, 0.0, 0.0, 0.24)
+const UNIT_SHADOW_SOFT_COLOR: Color = Color(0.0, 0.0, 0.0, 0.10)
+const UNIT_SHADOW_ALPHA_THRESHOLD: float = UnitShadowCacheResourceScript.ALPHA_THRESHOLD
+const UNIT_SHADOW_SIMPLIFY_EPSILON: float = UnitShadowCacheResourceScript.SIMPLIFY_EPSILON
+const UNIT_SHADOW_RETRY_SIMPLIFY_EPSILON: float = UnitShadowCacheResourceScript.RETRY_SIMPLIFY_EPSILON
+const UNIT_SHADOW_MIN_ALPHA_POLYGON_AREA: float = UnitShadowCacheResourceScript.MIN_ALPHA_POLYGON_AREA
+const UNIT_SHADOW_SHAPE_SCALE: float = 1.72
+const UNIT_SHADOW_WIDTH_SCALE: float = 0.82
+const UNIT_SHADOW_WIDTH_SLOPE_Y: float = 0.0
+const UNIT_SHADOW_HEIGHT_CAST_X: float = -0.02
+const UNIT_SHADOW_HEIGHT_CAST_Y: float = 0.20
+const UNIT_SHADOW_FOOT_OFFSET_Y_RATIO: float = 0.0
+const UNIT_SHADOW_SOFT_SCALE: float = 1.12
+const UNIT_SHADOW_CACHE_PATH: String = "res://assets/generated/unit_shadow_cache.res"
+const UNIT_SHADOW_CACHE_SCHEMA_VERSION: int = UnitShadowCacheResourceScript.SCHEMA_VERSION
+
+var combat_state: Dictionary = {}
+var move_tiles: Array[Vector2i]
+var attack_tiles: Array[Vector2i]
+var selected_tile: Vector2i = Vector2i(-1, -1)
+var status_label: String = ""
+var status_detail: String = ""
+var exit_tiles: Dictionary = {}
+var exit_icon_ids: Dictionary = {}
+var presentation: Dictionary = {}
+const STATUS_LABEL_COLOR := UiPaletteTokens.GOLD_BRIGHT
+const STATUS_RULE_COLOR := UiPaletteTokens.GOLD
+const IMPACT_CAMERA_SHAKE_PX: float = 3.0
+const IMPACT_CAMERA_SHAKE_PLAYER_PX: float = 5.5
+const IMPACT_CAMERA_SHAKE_OSCILLATIONS: float = 3.5
+const IMPACT_SHAKE_STATIC_LAYER_NODES = ["BaseBackdrop", "BoardBackdrop", "CombatAtmosphere"]
+const IMPACT_CAMERA_KICK_SECONDS: float = 0.42
+var _camera_kick_tween: Tween
+var _camera_kick_keys: Array = []
+var _camera_kick_last_progress: float = 1.0
+var _camera_kick_player: bool = false
+var _camera_kick_strength: float = 1.0
+var _hover_tile: Vector2i = Vector2i(-1, -1)
+var _controller_focus_tile: Vector2i = Vector2i(-1, -1)
+var _left_drag_start_tile: Vector2i = Vector2i(-1, -1)
+var _left_drag_moved: bool = false
+var _navigation_zoom: float = BOARD_DEFAULT_NAVIGATION_ZOOM
+var _navigation_pan: Vector2 = Vector2.ZERO
+var _navigation_uses_default_zoom: bool = true
+var _navigation_content_signature: String = ""
+var _navigation_pointer_button: int = MOUSE_BUTTON_NONE
+var _navigation_pointer_start: Vector2 = Vector2.ZERO
+var _navigation_pan_start: Vector2 = Vector2.ZERO
+var _navigation_pan_active: bool = false
+var _last_pointer_position: Vector2 = Vector2.ZERO
+var _tile_textures: Dictionary = {}
+var _floor_texture_variants: Dictionary = {}
+var _floor_variant_by_tile: Dictionary = {}
+var _element_overlay_texture_variants: Dictionary = {}
+var _moss_tiles_by_surface: Dictionary = {}
+var _prop_textures: Dictionary = {}
+var _scene_prop_textures: Dictionary = {}
+var _scene_prop_idle_frames: Dictionary = {}
+var _pillar_torch_idle_frames: Dictionary = {}
+var _pillar_torch_light_texture: GradientTexture2D = null
+var _effect_textures: Dictionary = {}
+var _effect_frames: Dictionary = {}
+var _projectile_atlas: Texture2D = null
+var _projectile_textures: Dictionary = {}
+var _ambient_particle_atlas: Texture2D = null
+var _ambient_particle_glow_atlas: Texture2D = null
+var _ambient_fire_soft_atlas: Texture2D = null
+var _ambient_air_wisp_atlas: Texture2D = null
+var _ambient_air_wisp_soft_atlas: Texture2D = null
+var _ambient_air_wisp_glow_atlas: Texture2D = null
+var _ambient_particle_textures: Dictionary = {}
+var _ambient_particle_glow_textures: Dictionary = {}
+var _ambient_fire_soft_textures: Dictionary = {}
+var _ambient_air_wisp_textures: Dictionary = {}
+var _ambient_air_wisp_soft_textures: Dictionary = {}
+var _ambient_air_wisp_glow_textures: Dictionary = {}
+var _ambient_hash_cache: Dictionary = {}
+var _ambient_hash01_cache: Dictionary = {}
+var _ambient_hash_caches_by_element: Dictionary = {}
+var _ambient_hash01_caches_by_element: Dictionary = {}
+var _ambient_hash_cache_room_coord: Vector2i = Vector2i(-999999, -999999)
+var _ambient_motion_time_by_element: Dictionary = {}
+var _ambient_motion_source_time_by_element: Dictionary = {}
+var _ambient_particle_templates_by_element: Dictionary = {}
+var _ambient_particle_template_signature: String = ""
+var _ambient_particle_batch_enabled: bool = true
+var _ambient_batch_active: bool = false
+var _ambient_batch_vertices: PackedVector3Array = PackedVector3Array()
+var _ambient_batch_uvs: PackedVector2Array = PackedVector2Array()
+var _ambient_batch_colors: PackedColorArray = PackedColorArray()
+var _ambient_batch_indices: PackedInt32Array = PackedInt32Array()
+var _ambient_batch_sprite_count: int = 0
+var _ambient_batch_sprite_capacity: int = 0
+var _ambient_batch_sprite_total_count: int = 0
+var _ambient_batch_sprite_max_count: int = 0
+var _ambient_batch_buffer_grow_count: int = 0
+var _ambient_combined_atlas: Texture2D = null
+var _ambient_combined_atlas_regions: Dictionary = {}
+var _ambient_batch_mesh: ArrayMesh = null
+var _ambient_batch_mesh_create_count: int = 0
+var _ambient_batch_mesh_update_count: int = 0
+var _umbra_shape_batch_enabled: bool = true
+var _umbra_circle_multimesh_enabled: bool = true
+var _umbra_shape_batch_active: bool = false
+var _umbra_shape_batch_vertices: PackedVector3Array = PackedVector3Array()
+var _umbra_shape_batch_colors: PackedColorArray = PackedColorArray()
+var _umbra_shape_batch_indices: PackedInt32Array = PackedInt32Array()
+var _umbra_shape_batch_unit_circle: PackedVector2Array = PackedVector2Array()
+var _umbra_shape_batch_meshes: Array[ArrayMesh]
+var _umbra_shape_batch_mesh_cursor: int = 0
+var _umbra_circle_batch_transforms: Array[Transform2D]
+var _umbra_circle_batch_colors: PackedColorArray = PackedColorArray()
+var _umbra_circle_batch_mesh: ArrayMesh = null
+var _umbra_circle_batch_multimeshes: Array[MultiMesh]
+var _umbra_circle_batch_multimesh_cursor: int = 0
+var _umbra_shape_batch_mesh_create_count: int = 0
+var _umbra_shape_batch_mesh_update_count: int = 0
+var _umbra_shape_batch_flush_count: int = 0
+var _umbra_boundary_line_batch_enabled: bool = true
+var _is_static_render_cache_layer: bool = false
+var _static_render_cache_enabled: bool = true
+var _static_render_cache_viewport: SubViewport = null
+var _static_render_cache_layer: Control = null
+var _static_render_cache_texture: Sprite2D = null
+var _static_render_cache_update_count: int = 0
+var _loot_textures: Dictionary = {}
+var _terrain_textures: Dictionary = {}
+var _terrain_destruction_frames_by_kind: Dictionary = {}
+var _unit_textures: Dictionary = {}
+var _unit_assets_loaded: Dictionary = {}
+var _element_textures: Dictionary = {}
+var _trap_textures: Dictionary = {}
+var _trap_idle_frames: Dictionary = {}
+var _trap_activation_frames: Dictionary = {}
+var _door_icon_textures: Dictionary = {}
+var _keyword_icon_textures: Dictionary = {}
+var _health_bar_frame_textures: Dictionary = {}
+var _unit_shadow_polygon_cache: Dictionary = {}
+var _unit_shadow_bottom_ratio_cache: Dictionary = {}
+var _unit_shadow_draw_geometry_cache: Dictionary = {}
+var _unit_shadow_draw_mesh_cache: Dictionary = {}
+var _submitted_shadow_meshes: Array[ArrayMesh]
+var _door_opening_frames: Array[Texture2D]
+var _door_opening_flipped_frames: Array[Texture2D]
+var _tooltip_regions: Array[Dictionary]
+var _tooltips_enabled: bool = true
+var equipment_tooltip_builder: Callable
+var item_tooltip_builder: Callable
+var _idle_frames_by_type: Dictionary = {}
+var _death_frames_by_type: Dictionary = {}
+var _enemy_shadow_dissolve_effects_by_key: Dictionary = {}
+var _enemy_shadow_dissolve_spare_effect: Control = null
+var _enemy_shadow_dissolve_shader_prewarm_submitted: bool = false
+var _idle_animating: bool = false
+var _idle_elapsed: float = 0.0
+var _idle_frame_by_source: Dictionary = {}
+var _room_framing = BoardFraming.new()
+var _board_layout_cache_valid: bool = false
+var _board_layout_content_cache_valid: bool = false
+var _board_layout_cache_size: Vector2 = Vector2(-1.0, -1.0)
+var _board_layout_cache_tiles: Array[Vector2i]
+var _board_layout_cache_extents: Dictionary = {}
+var _board_layout_cache_tile_width: float = 90.0
+var _board_layout_cache_origin: Vector2 = Vector2.ZERO
+var _board_layout_cache_visual_top_offset: float = 0.0
+var _board_layout_cache_tile_centers: Dictionary = {}
+var _board_layout_cache_tile_polygons: Dictionary = {}
+var _board_layout_signature: String = ""
+var _board_visual_framing_signature: String = ""
+var _floor_variant_signature: String = ""
+var _moss_signature: String = ""
+var _continuous_presentation_elapsed: float = 0.0
+var _last_processed_render_frame: int = -1
+var _explicit_effects_redraw_process_frame: int = -1
+var _explicit_impact_redraw_process_frame: int = -1
+var _submission_cache_valid: bool = false
+var _damage_preview_cache: Dictionary = {}
+var _visible_units_cache: Array[Dictionary]
+var _units_by_draw_tile_cache: Dictionary = {}
+var _scene_props_by_tile: Dictionary = {}
+var _terrain_by_tile: Dictionary = {}
+var _loot_by_tile: Dictionary = {}
+var _traps_by_tile: Dictionary = {}
+var _campfire_scene_props_cache: Array = []
+var _grid_tile_ids_cache: Dictionary = {}
+var _ability_tiles_cache: Array[Vector2i]
+var _move_tiles_lookup_cache: Dictionary = {}
+var _attack_tiles_lookup_cache: Dictionary = {}
+var _focus_tiles_lookup_cache: Dictionary = {}
+var _confirmation_target_tiles_lookup_cache: Dictionary = {}
+var _objective_exit_tiles_lookup_cache: Dictionary = {}
+var _projected_attack_tiles_lookup_cache: Dictionary = {}
+var _summon_tiles_lookup_cache: Dictionary = {}
+var _projected_destination_tiles_lookup_cache: Dictionary = {}
+var _ability_tiles_lookup_cache: Dictionary = {}
+var _ambient_element_id_cache: String = ElementData.NONE
+var _equipment_pickup_beacon_cache: bool = false
+var _preview_unit_pulse_cache: bool = false
+var _hud_health_rects_cache: Dictionary = {}
+var _hud_health_rects_source_snapshot: Dictionary = {}
+var _hud_layout_entries_cache: Array = []
+var _hud_layout_cache_by_signature: Dictionary = {}
+var _hud_layout_cache_order: Array = []
+var _enemy_hud_side_by_actor: Dictionary = {}
+var _foreground_obstruction_candidates_cache: Array = []
+var _foreground_obstruction_candidates_source_snapshot: Dictionary = {}
+var _foreground_obstruction_candidates_cache_valid: bool = false
+var _texture_used_rect_cache: Dictionary = {}
+var _unit_shadow_prewarm_urgent_queue: Array[Texture2D]
+var _unit_shadow_prewarm_background_queue: Array[Texture2D]
+var _unit_shadow_prewarm_queued_ids: Dictionary = {}
+var _unit_shadow_prewarm_pending_ids: Dictionary = {}
+var _unit_shadow_prewarm_thread: Thread = null
+var _unit_shadow_prewarm_active_texture: Texture2D = null
+var _unit_shadow_last_prepare_waited_frames: int = 0
+var _unit_shadow_precomputed_entries: Dictionary = {}
+var _unit_shadow_precomputed_source_sha256: Dictionary = {}
+var _unit_shadow_precomputed_loaded_keys: Dictionary = {}
+var _unit_shadow_precomputed_missing_keys: Dictionary = {}
+var _submission_cache_source_snapshot: Dictionary = {}
+var _submission_cache_initialized: bool = false
+var _cutout_roster_initialized: bool = false
+var _submission_cache_combat_changed: bool = false
+var _is_dynamic_render_layer: bool = false
+var _render_layer_kind: String = ""
+var _render_layer_tile: Vector2i = Vector2i(-1, -1)
+var _render_layer_scene_effect_pass: int = 0
+var _render_instrumentation_owner: Node = null
+var _surface_rubble_layer: Node2D
+var _animated_surface_tiles: Array[Vector2i]
+var _surface_ice_layer: Node2D
+var _surface_fire_layer: Node2D
+var _surface_electric_layer: Node2D
+var _ambient_render_layer: Control = null
+var _overlay_render_layer: Control = null
+var _ground_render_layer: Control = null
+var _path_render_layer: Control = null
+var _path_depth_clip := PackedVector2Array()
+var _path_depth_tile := Vector2i(-1,-1)
+static var _path_crumble_cache: Dictionary = {}
+var _impact_floor_render_layer: Control = null
+var _dynamic_render_layer: Control = null
+var _action_floor_render_layer: Control = null
+var _scene_render_layers_by_tile: Dictionary = {}
+var _scene_back_effect_render_layers_by_tile: Dictionary = {}
+var _scene_front_effect_render_layers_by_tile: Dictionary = {}
+var _scene_render_layers: Array = []
+var _foreground_render_layer: Control = null
+var _hud_render_layer: Control = null
+var _effects_render_layer: Control = null
+var _floating_text_layout_cache: Dictionary = {}
+var _floating_text_last_layout: Array[Dictionary]
+var _foreground_obstruction_entries_cache: Array[Dictionary]
+var _static_draw_count: int = 0
+var _dynamic_draw_count: int = 0
+var _static_draw_total_usec: int = 0
+var _static_draw_max_usec: int = 0
+var _dynamic_draw_total_usec: int = 0
+var _dynamic_draw_max_usec: int = 0
+var _render_section_total_usec: Dictionary = {}
+var _render_section_max_usec: Dictionary = {}
+var _unit_shadow_sync_miss_metrics: Dictionary = {}
+var _unit_shadow_draw_cache_metrics: Dictionary = {}
+var _full_dynamic_redraw_count: int = 0
+var _unclassified_presentation_redraw_keys: Dictionary = {}
+var _submission_performance_instrumentation_enabled: bool = false
+var _submission_performance_total_usec: Dictionary = {}
+var _submission_performance_counts: Dictionary = {}
+var _retained_draw_frame_id: int = -1
+var _retained_draw_frame_total_usec: int = 0
+var _retained_draw_frame_count: int = 0
+var _retained_draw_frame_layer_usec: Dictionary = {}
+var _retained_draw_frame_layer_detail_usec: Dictionary = {}
+var _retained_draw_frame_max_usec: int = 0
+var _retained_draw_frame_max_count: int = 0
+var _retained_draw_frame_max_layers: Dictionary = {}
+var _retained_draw_frame_top: Array[Dictionary]
+var _umbra_return_start_by_tile: Dictionary = {}
+var _board_layout_content_rebuild_count: int = 0
+
+var _startup_performance_timings: Dictionary = {}
+
+func _record_startup_performance_phase(phase: String, started: int) -> int:
+	if started <= 0:
+		return 0
+	var now: int = Time.get_ticks_usec()
+	_startup_performance_timings[phase + "_usec"] = now - started
+	return now
+
+func _ready() -> void:
+	var startup_started: int = Time.get_ticks_usec() if get_tree().root.has_meta("labyrinth_performance_probe_seed") else 0
+	ElementalSpellFx.prepare()
+	startup_started = _record_startup_performance_phase("spell_fx_prepare", startup_started)
+	if _is_dynamic_render_layer or _is_static_render_cache_layer:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		focus_mode = Control.FOCUS_NONE
+		set_process(false)
+		return
+	mouse_filter = Control.MOUSE_FILTER_STOP
+	# Godot only starts its tooltip timer for Controls that advertise tooltip
+	# content. The board resolves that content dynamically in _get_tooltip(), so a
+	# non-empty sentinel is required for real pointer hover to reach that virtual.
+	tooltip_text = " "
+	# The board's input rect remains stage-sized, but its art may flow beneath the
+	# surrounding HUD. The scene keeps fixed HUD controls above this canvas.
+	clip_contents = false
+	custom_minimum_size = Vector2(960.0, 680.0)
+	set_process(true)
+	resized.connect(_on_board_resized)
+	get_viewport().size_changed.connect(_sync_static_render_cache)
+	if _uses_protagonist_cutout():
+		_protagonist_renderer = ProtagonistCutout.new()
+		_protagonist_renderer.name = "ProtagonistCutout"
+		add_child(_protagonist_renderer)
+	if not _initial_assets_prepared:
+		_load_assets(false)
+	startup_started = _record_startup_performance_phase("load_assets", startup_started)
+	_schedule_enemy_shadow_dissolve_shader_prewarm()
+	startup_started = _record_startup_performance_phase("shadow_shader_prewarm", startup_started)
+	_ensure_art_treatment()
+	_create_static_render_cache()
+	_create_dynamic_render_layer()
+	_record_startup_performance_phase("retained_layers", startup_started)
+
+func _uses_protagonist_cutout() -> bool:
+	return true
+
+func protagonist_animation_snapshot() -> Dictionary:
+	return _protagonist_renderer.call("snapshot") if is_instance_valid(_protagonist_renderer) else {}
+
+func unit_cutout_renderer(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) == "player":
+		if str(unit.get("role", "")) in ["illusion", "illusion_preview"]:
+			return _illusion_renderers.get(str(unit.get("key", "")), null) as Node
+		return _protagonist_renderer
+	var renderer: Node = _directional_enemy_renderer_for_unit(unit)
+	if renderer == null:
+		renderer = _veilbound_acolyte_renderer_for_unit(unit)
+	if renderer == null:
+		renderer = _zekarion_renderer_for_unit(unit)
+	return renderer
+
+func _sync_illusion_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actor_keys: Dictionary = {}
+	var motions: Dictionary = presentation.get("illusion_motion", {})
+	var units: Array[Dictionary]
+	for illusion_var: Variant in combat_state.get("illusions", []):
+		if typeof(illusion_var) == TYPE_DICTIONARY and int(illusion_var.get("hp", 0)) > 0:
+			units.append({"key": "illusion_%d" % int(illusion_var.get("id", -1)), "role": "illusion"})
+	for preview_var: Variant in presentation.get("preview_units", []):
+		if typeof(preview_var) == TYPE_DICTIONARY and str(preview_var.get("role", "illusion_preview")) == "illusion_preview":
+			units.append({"key": str(preview_var.get("key", "illusion_preview")), "role": "illusion_preview"})
+	for unit: Dictionary in units:
+		var role: String = str(unit.get("role", ""))
+		var actor_key: String = str(unit.get("key", ""))
+		actor_keys[actor_key] = true
+		var renderer: Node = _illusion_renderers.get(actor_key, null) as Node
+		if not is_instance_valid(renderer):
+			renderer = ProtagonistCutout.new()
+			renderer.name = "IllusionCutout_" + actor_key
+			add_child(renderer)
+			_illusion_renderers[actor_key] = renderer
+		# Sharing player paint must never share the player's live action pose.
+		# Only motion explicitly addressed to this illusion can interrupt its idle.
+		var motion: Dictionary = motions.get(actor_key, {}) if role == "illusion" else {}
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)))
+	for actor_key: String in _illusion_renderers.keys():
+		if not actor_keys.has(actor_key):
+			var renderer: Node = _illusion_renderers[actor_key]
+			_illusion_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func _cutout_floor_registrations() -> Dictionary:
+	var registrations: Dictionary = {}
+	for unit: Dictionary in _visible_units():
+		var unit_type: String = str(unit.get("type", ""))
+		if not ActorPresentation.has_profile(unit_type):
+			continue
+		var renderer: Node = unit_cutout_renderer(unit)
+		if is_instance_valid(renderer):
+			registrations[str(unit.get("key", ""))] = ActorPresentation.floor_anchor(unit_type,
+				str(renderer.get("facing")), bool(renderer.get("mirrored")))
+	return registrations
+
+func source_pixel_scale_for_type(unit_type: String) -> float:
+	_ensure_unit_assets_for_type(unit_type)
+	var unit: Dictionary = {"type": unit_type, "role": "player" if unit_type == "player" else "enemy"}
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / 255.0
+
+func protagonist_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "player", "key": "player", "role": "player"}
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / 255.0
+
+func harrier_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _harrier_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func harrier_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "harrier"}
+	_ensure_unit_assets_for_type("harrier")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / HarrierCutout.SOURCE_SIZE.x
+
+func _harrier_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "harrier":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Harrier, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _harrier_renderers.get(actor_key, null) as Node
+
+func warden_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _warden_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func cinder_ooze_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _cinder_ooze_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func cinder_ooze_source_pixel_scale() -> float:
+	return CinderOozePresentation.source_pixel_scale(self)
+
+func warden_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "warden"}
+	_ensure_unit_assets_for_type("warden")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / WardenCutout.SOURCE_SIZE.x
+
+func _warden_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "warden":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Warden, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _warden_renderers.get(actor_key, null) as Node
+
+func iskaldra_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _iskaldra_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func iskaldra_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "iskaldra"}
+	_ensure_unit_assets_for_type("iskaldra")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / IskaldraCutout.SOURCE_SIZE.x
+
+func _iskaldra_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "iskaldra":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Iskaldra, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _iskaldra_renderers.get(actor_key, null) as Node
+
+func lightning_wisp_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _lightning_wisp_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func lightning_wisp_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "lightning_wisp"}
+	_ensure_unit_assets_for_type("lightning_wisp")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / LightningWispCutout.SOURCE_SIZE.x
+
+func _lightning_wisp_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "lightning_wisp":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Lightning Wisp, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _lightning_wisp_renderers.get(actor_key, null) as Node
+
+func tharokh_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _tharokh_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func tharokh_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "tharokh"}
+	_ensure_unit_assets_for_type("tharokh")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / TharokhCutout.SOURCE_SIZE.x
+
+func _tharokh_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "tharokh":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Tharokh, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _tharokh_renderers.get(actor_key, null) as Node
+
+func veilbound_acolyte_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _veilbound_acolyte_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func veilbound_acolyte_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "veilbound_acolyte"}
+	_ensure_unit_assets_for_type("veilbound_acolyte")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / VeilboundAcolyteCutout.SOURCE_SIZE.x
+
+func _veilbound_acolyte_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "veilbound_acolyte":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Veilbound Acolyte, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _veilbound_acolyte_renderers.get(actor_key, null) as Node
+
+func _unit_uses_cutout(unit: Dictionary) -> bool:
+	return GuardianCutout.handles(str(unit.get("type", ""))) or (str(unit.get("type", "")) == "player" and _uses_protagonist_cutout()) or str(unit.get("type", "")) in ["warden", "crawler", "acolyte", "bile_bloomer", "chainbound_gaoler", "cinder_droplet", "cinder_ooze", "frostglass_lancer", "grave_surgeon", "harrier", "iskaldra", "lightning_wisp", "noctyrax", "tharokh", "vaeloryx", "veilbound_acolyte", "vyraketh", "zekarion"]
+
+func bile_bloomer_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _bile_bloomer_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func bile_bloomer_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "bile_bloomer"}
+	_ensure_unit_assets_for_type("bile_bloomer")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / BileBloomerCutout.SOURCE_SIZE.x
+
+func _enemy_cutout_renderer_for_unit(unit: Dictionary) -> Node:
+	if GuardianCutout.handles(str(unit.get("type", ""))):
+		return _guardian_renderers.get("enemy_%d" % int(unit.get("id", -1)), null) as Node
+	match str(unit.get("type", "")):
+		"vyraketh":
+			return _vyraketh_renderer_for_unit(unit)
+		"crawler":
+			return _crawler_renderer_for_unit(unit)
+		"acolyte":
+			return _acolyte_renderer_for_unit(unit)
+		"chainbound_gaoler":
+			return _gaoler_renderer_for_unit(unit)
+		"cinder_droplet":
+			return _cinder_droplet_renderer_for_unit(unit)
+		"frostglass_lancer":
+			return _frostglass_renderer_for_unit(unit)
+		"grave_surgeon":
+			return _grave_surgeon_renderer_for_unit(unit)
+		"harrier":
+			return _harrier_renderer_for_unit(unit)
+		"iskaldra":
+			return _iskaldra_renderer_for_unit(unit)
+		"lightning_wisp":
+			return _lightning_wisp_renderer_for_unit(unit)
+		"noctyrax":
+			return _noctyrax_renderer_for_unit(unit)
+		"tharokh":
+			return _tharokh_renderer_for_unit(unit)
+		"bile_bloomer":
+			return _bile_bloomer_renderers.get("enemy_%d" % int(unit.get("id", -1)), null) as Node
+		"cinder_ooze":
+			return CinderOozePresentation.renderer_for_unit(self, unit)
+	return _warden_renderer_for_unit(unit)
+
+func guardian_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _guardian_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func _sync_guardian_renderers() -> void:
+	if not _is_dynamic_render_layer and not _is_static_render_cache_layer and is_inside_tree():
+		GuardianPool.sync(self, _guardian_renderers, combat_state, presentation)
+
+func _sync_bile_bloomer_renderers() -> void:
+	if not _is_dynamic_render_layer and not _is_static_render_cache_layer and is_inside_tree():
+		BileBloomerPool.sync(self, _bile_bloomer_renderers, combat_state, presentation)
+
+func _sync_harrier_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "harrier" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "harrier":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("harrier_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _harrier_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = _take_prepared_unit_renderer("harrier", int(unit.get("id", -1)), HarrierCutout)
+			renderer.name = "HarrierCutout_%d" % int(unit.get("id", -1))
+			if renderer.get_parent() == null: add_child(renderer)
+			_harrier_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _harrier_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _harrier_renderers[actor_key]
+			_harrier_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func vaeloryx_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _vaeloryx_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func vaeloryx_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "vaeloryx"}
+	_ensure_unit_assets_for_type("vaeloryx")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / VaeloryxCutout.SOURCE_SIZE.x
+
+func _directional_enemy_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) == "vaeloryx":
+		# Destination echoes share the actual actor's persistent texture.
+		return _vaeloryx_renderers.get("enemy_%d" % int(unit.get("id", -1)), null) as Node
+	return _enemy_cutout_renderer_for_unit(unit)
+
+func _sync_vaeloryx_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "vaeloryx" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "vaeloryx":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("vaeloryx_motion", {})
+	var player: Dictionary = combat_state.get("player", {})
+	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _vaeloryx_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = VaeloryxCutout.new()
+			renderer.name = "VaeloryxCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_vaeloryx_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not player.is_empty():
+			var origin: Vector2i = unit.get("pos", Vector2i.ZERO)
+			# The dragon's center is halfway between its four occupied tiles.
+			# Integer doubled coordinates retain the shared facing policy.
+			motion = EnemyCutoutFacing.with_idle_direction(motion, origin * 2 + _resolved_unit_footprint(unit) - Vector2i.ONE, player_pos * 2)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _vaeloryx_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _vaeloryx_renderers[actor_key]
+			_vaeloryx_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func _sync_warden_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "warden" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "warden":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("warden_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _warden_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = WardenCutout.new()
+			renderer.name = "WardenCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_warden_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _warden_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _warden_renderers[actor_key]
+			_warden_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func crawler_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _crawler_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func crawler_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "crawler"}
+	_ensure_unit_assets_for_type("crawler")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / CrawlerCutout.SOURCE_SIZE.x
+
+func _crawler_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "crawler":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Crawler, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _crawler_renderers.get(actor_key, null) as Node
+
+func _sync_crawler_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "crawler" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "crawler":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("crawler_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _crawler_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = _take_prepared_unit_renderer("crawler", int(unit.get("id", -1)), CrawlerCutout)
+			renderer.name = "CrawlerCutout_%d" % int(unit.get("id", -1))
+			if renderer.get_parent() == null: add_child(renderer)
+			_crawler_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _crawler_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _crawler_renderers[actor_key]
+			_crawler_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func acolyte_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _acolyte_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func acolyte_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "acolyte"}
+	_ensure_unit_assets_for_type("acolyte")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / AcolyteCutout.SOURCE_SIZE.x
+
+func _acolyte_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "acolyte":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Acolyte, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _acolyte_renderers.get(actor_key, null) as Node
+
+func _sync_acolyte_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "acolyte" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "acolyte":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("acolyte_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _acolyte_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = AcolyteCutout.new()
+			renderer.name = "AcolyteCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_acolyte_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _acolyte_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _acolyte_renderers[actor_key]
+			_acolyte_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func gaoler_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _gaoler_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func gaoler_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "chainbound_gaoler"}
+	_ensure_unit_assets_for_type("chainbound_gaoler")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / GaolerCutout.SOURCE_SIZE.x
+
+func _gaoler_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "chainbound_gaoler":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Gaoler, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _gaoler_renderers.get(actor_key, null) as Node
+
+func _sync_gaoler_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "chainbound_gaoler" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "chainbound_gaoler":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("gaoler_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _gaoler_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = GaolerCutout.new()
+			renderer.name = "GaolerCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_gaoler_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _gaoler_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _gaoler_renderers[actor_key]
+			_gaoler_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func cinder_droplet_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _cinder_droplet_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func cinder_droplet_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "cinder_droplet"}
+	_ensure_unit_assets_for_type("cinder_droplet")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / CinderDropletCutout.SOURCE_SIZE.x
+
+func _cinder_droplet_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "cinder_droplet":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second CinderDroplet, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _cinder_droplet_renderers.get(actor_key, null) as Node
+
+func _sync_cinder_droplet_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "cinder_droplet" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "cinder_droplet":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("cinder_droplet_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _cinder_droplet_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = CinderDropletCutout.new()
+			renderer.name = "CinderDropletCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_cinder_droplet_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _cinder_droplet_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _cinder_droplet_renderers[actor_key]
+			_cinder_droplet_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func frostglass_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _frostglass_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func frostglass_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "frostglass_lancer"}
+	_ensure_unit_assets_for_type("frostglass_lancer")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / FrostglassCutout.SOURCE_SIZE.x
+
+func _frostglass_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "frostglass_lancer":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Frostglass Lancer, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _frostglass_renderers.get(actor_key, null) as Node
+
+func _sync_frostglass_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "frostglass_lancer" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "frostglass_lancer":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("frostglass_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _frostglass_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = _take_prepared_unit_renderer("frostglass_lancer", int(unit.get("id", -1)), FrostglassCutout)
+			renderer.name = "FrostglassCutout_%d" % int(unit.get("id", -1))
+			if renderer.get_parent() == null: add_child(renderer)
+			_frostglass_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _frostglass_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _frostglass_renderers[actor_key]
+			_frostglass_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func grave_surgeon_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _grave_surgeon_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func grave_surgeon_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "grave_surgeon"}
+	_ensure_unit_assets_for_type("grave_surgeon")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / GraveSurgeonCutout.SOURCE_SIZE.x
+
+func _grave_surgeon_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "grave_surgeon":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Grave Surgeon, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _grave_surgeon_renderers.get(actor_key, null) as Node
+
+func _sync_grave_surgeon_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "grave_surgeon" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "grave_surgeon":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("grave_surgeon_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _grave_surgeon_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = GraveSurgeonCutout.new()
+			renderer.name = "GraveSurgeonCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_grave_surgeon_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _grave_surgeon_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _grave_surgeon_renderers[actor_key]
+			_grave_surgeon_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func _sync_iskaldra_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "iskaldra" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "iskaldra":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("iskaldra_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _iskaldra_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = IskaldraCutout.new()
+			renderer.name = "IskaldraCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_iskaldra_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			var origin: Vector2i = unit.get("pos", Vector2i.ZERO)
+			# Doubled tiles preserve the half-tile center of a 2x2 boss.
+			motion = EnemyCutoutFacing.with_idle_direction(motion, origin * 2 + _resolved_unit_footprint(unit) - Vector2i.ONE, player_pos * 2)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _iskaldra_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _iskaldra_renderers[actor_key]
+			_iskaldra_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func _sync_lightning_wisp_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "lightning_wisp" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "lightning_wisp":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("lightning_wisp_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _lightning_wisp_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = LightningWispCutout.new()
+			renderer.name = "LightningWispCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_lightning_wisp_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _lightning_wisp_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _lightning_wisp_renderers[actor_key]
+			_lightning_wisp_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func noctyrax_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _noctyrax_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func noctyrax_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "noctyrax"}
+	_ensure_unit_assets_for_type("noctyrax")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / NoctyraxCutout.SOURCE_SIZE.x
+
+func _noctyrax_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "noctyrax":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Noctyrax, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _noctyrax_renderers.get(actor_key, null) as Node
+
+func _sync_noctyrax_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "noctyrax" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "noctyrax":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("noctyrax_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _noctyrax_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = NoctyraxCutout.new()
+			renderer.name = "NoctyraxCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_noctyrax_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, (unit.get("pos", Vector2i.ZERO) as Vector2i)*2+_resolved_unit_footprint(unit)-Vector2i.ONE, player_pos*2)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _noctyrax_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _noctyrax_renderers[actor_key]
+			_noctyrax_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func _sync_tharokh_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "tharokh" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "tharokh":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("tharokh_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _tharokh_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = TharokhCutout.new()
+			renderer.name = "TharokhCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_tharokh_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, (unit.get("pos", Vector2i.ZERO) as Vector2i) * 2 + _resolved_unit_footprint(unit) - Vector2i.ONE, player_pos * 2)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _tharokh_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _tharokh_renderers[actor_key]
+			_tharokh_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func _sync_veilbound_acolyte_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "veilbound_acolyte" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "veilbound_acolyte":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("veilbound_acolyte_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _veilbound_acolyte_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = VeilboundAcolyteCutout.new()
+			renderer.name = "VeilboundAcolyteCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_veilbound_acolyte_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _veilbound_acolyte_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _veilbound_acolyte_renderers[actor_key]
+			_veilbound_acolyte_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func vyraketh_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _vyraketh_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func vyraketh_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "vyraketh"}
+	_ensure_unit_assets_for_type("vyraketh")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / VyrakethCutout.SOURCE_SIZE.x
+
+func _vyraketh_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "vyraketh":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Vyraketh, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _vyraketh_renderers.get(actor_key, null) as Node
+
+func _sync_vyraketh_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "vyraketh" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "vyraketh":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("vyraketh_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _vyraketh_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = VyrakethCutout.new()
+			renderer.name = "VyrakethCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_vyraketh_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, (unit.get("pos", Vector2i.ZERO) as Vector2i)*2+_resolved_unit_footprint(unit)-Vector2i.ONE, player_pos*2)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _vyraketh_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _vyraketh_renderers[actor_key]
+			_vyraketh_renderers.erase(actor_key)
+			renderer.queue_free()
+
+
+func zekarion_animation_snapshot(actor_key: String) -> Dictionary:
+	var renderer: Node = _zekarion_renderers.get(actor_key, null) as Node
+	return renderer.call("snapshot") if is_instance_valid(renderer) else {}
+
+func zekarion_source_pixel_scale() -> float:
+	var unit: Dictionary = {"type": "zekarion"}
+	_ensure_unit_assets_for_type("zekarion")
+	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / ZekarionCutout.SOURCE_SIZE.x
+
+func _zekarion_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) != "zekarion":
+		return null
+	# Destination echoes reuse their actual actor; they must not allocate or
+	# accidentally animate a second Zekarion, and never fall back to legacy art.
+	var actor_key: String = "enemy_%d" % int(unit.get("id", -1))
+	return _zekarion_renderers.get(actor_key, null) as Node
+
+func _sync_zekarion_renderers() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
+		return
+	var actors: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "zekarion" and int(enemy.get("hp", 0)) > 0:
+			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
+	for unit: Dictionary in presentation.get("death_animation_units", []):
+		if str(unit.get("type", "")) == "zekarion":
+			actors["enemy_%d" % int(unit.get("id", -1))] = unit
+	var motions: Dictionary = presentation.get("zekarion_motion", {})
+	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
+	for actor_key: String in actors:
+		var unit: Dictionary = actors[actor_key]
+		var renderer: Node = _zekarion_renderers.get(actor_key, null) as Node
+		var motion: Dictionary = motions.get(actor_key, {})
+		if not is_instance_valid(renderer):
+			renderer = ZekarionCutout.new()
+			renderer.name = "ZekarionCutout_%d" % int(unit.get("id", -1))
+			add_child(renderer)
+			_zekarion_renderers[actor_key] = renderer
+		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
+			motion = EnemyCutoutFacing.with_idle_direction(motion, (unit.get("pos", Vector2i.ZERO) as Vector2i)*2+Vector2i.ONE, player_pos*2)
+		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
+		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
+	for actor_key: String in _zekarion_renderers.keys():
+		if not actors.has(actor_key):
+			var renderer: Node = _zekarion_renderers[actor_key]
+			_zekarion_renderers.erase(actor_key)
+			renderer.queue_free()
+
+func _exit_tree() -> void:
+	if _unit_shadow_prewarm_thread != null and _unit_shadow_prewarm_thread.is_started():
+		_unit_shadow_prewarm_thread.wait_to_finish()
+	_unit_shadow_prewarm_thread = null
+	_unit_shadow_prewarm_active_texture = null
+
+func _on_board_resized() -> void:
+	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer) or combat_state.is_empty():
+		return
+	_invalidate_board_layout_cache(false)
+	_foreground_obstruction_entries_cache = _foreground_obstruction_entries(_visible_units())
+	_rebuild_hud_health_rects_cache()
+	_sync_dynamic_render_state(false)
+	for layer: Control in _retained_render_layers():
+		layer.call("_invalidate_board_layout_cache", false)
+	_sync_static_render_cache()
+	queue_redraw()
+	_queue_dynamic_redraw()
+
+func _ensure_art_treatment() -> void:
+	if _art_treatment == null:
+		_art_treatment = CombatArtTreatment.new()
+		_art_treatment.set_enabled(_art_treatment_enabled)
+	material = _art_treatment.material
+
+func _create_static_render_cache() -> void:
+	_ensure_art_treatment()
+	if _static_render_cache_viewport != null and is_instance_valid(_static_render_cache_viewport):
+		return
+	_static_render_cache_viewport = SubViewport.new()
+	_static_render_cache_viewport.name = "StaticBoardRenderCacheViewport"
+	_static_render_cache_viewport.transparent_bg = true
+	_static_render_cache_viewport.msaa_2d = get_viewport().msaa_2d
+	_static_render_cache_viewport.canvas_item_default_texture_filter = get_viewport().canvas_item_default_texture_filter
+	_static_render_cache_viewport.handle_input_locally = false
+	_static_render_cache_viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ONCE
+	_static_render_cache_viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
+	add_child(_static_render_cache_viewport)
+	_static_render_cache_layer = get_script().new() as Control
+	_static_render_cache_layer.name = "StaticBoardRenderCacheLayer"
+	_static_render_cache_layer.set("_is_static_render_cache_layer", true)
+	_static_render_cache_layer.material = _art_treatment.cache_bake_material
+	_static_render_cache_layer.set("_art_treatment", _art_treatment)
+	_static_render_cache_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_static_render_cache_layer.focus_mode = Control.FOCUS_NONE
+	_static_render_cache_viewport.add_child(_static_render_cache_layer)
+	_static_render_cache_texture = Sprite2D.new()
+	_static_render_cache_texture.name = "StaticBoardRenderCacheTexture"
+	_static_render_cache_texture.centered = false
+	_static_render_cache_texture.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	_static_render_cache_texture.material = _art_treatment.floor_material
+	_static_render_cache_texture.texture = _static_render_cache_viewport.get_texture()
+	add_child(_static_render_cache_texture)
+	move_child(_static_render_cache_texture, 0)
+	_sync_static_render_cache()
+
+func _static_render_cache_size() -> Vector2i:
+	var pixel_scale: Vector2 = get_viewport().get_stretch_transform().get_scale()
+	var viewport_size: Vector2 = get_viewport().get_visible_rect().size * pixel_scale
+	return Vector2i(maxi(2, ceili(viewport_size.x)), maxi(2, ceili(viewport_size.y)))
+
+func _sync_static_render_cache() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer:
+		return
+	if _static_render_cache_viewport == null or not is_instance_valid(_static_render_cache_viewport):
+		return
+	_sync_art_lighting()
+	var cache_has_content: bool = _static_render_cache_enabled and not combat_state.is_empty()
+	_static_render_cache_texture.visible = cache_has_content
+	if not cache_has_content:
+		return
+	var cache_size: Vector2i = _static_render_cache_size()
+	var pixel_transform: Transform2D = get_viewport().get_stretch_transform() * get_global_transform_with_canvas()
+	if _static_render_cache_viewport.size != cache_size:
+		_static_render_cache_viewport.size = cache_size
+	_static_render_cache_viewport.global_canvas_transform = pixel_transform
+	_static_render_cache_layer.size = size
+	# Cover the viewport rather than the board's input rect: zoomed/panned floor
+	# art is intentionally allowed to extend underneath surrounding HUD controls.
+	_static_render_cache_texture.transform = pixel_transform.affine_inverse()
+	_art_treatment.floor_material.set_shader_parameter("cache_to_board", pixel_transform.affine_inverse())
+	_ensure_board_layout_cache()
+	for field: String in [
+		"combat_state", "presentation", "exit_tiles", "_navigation_zoom", "_navigation_pan",
+		"_navigation_uses_default_zoom", "_navigation_content_signature",
+		"_floor_variant_by_tile", "_moss_tiles_by_surface", "_board_layout_signature",
+		"_board_visual_framing_signature", "_board_layout_cache_visual_top_offset",
+		"_floor_variant_signature", "_moss_signature", "_tile_textures",
+		"_floor_texture_variants", "_element_overlay_texture_variants", "_pillar_torch_light_texture", "_art_treatment", "_art_treatment_enabled"
+	]:
+		_static_render_cache_layer.set(field, get(field))
+	# Layout depends on the real viewport and UI safe area. A SubViewport must
+	# reuse the resolved board geometry, not reframe the room inside itself.
+	_copy_resolved_board_layout_to(_static_render_cache_layer)
+	_static_render_cache_layer.queue_redraw()
+	_static_render_cache_viewport.render_target_clear_mode = SubViewport.CLEAR_MODE_ONCE
+	_static_render_cache_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+	_static_render_cache_update_count += 1
+
+func set_static_render_cache_enabled(enabled: bool) -> void:
+	if _static_render_cache_enabled == enabled:
+		return
+	_static_render_cache_enabled = enabled
+	if enabled:
+		_sync_static_render_cache()
+	elif _static_render_cache_texture != null:
+		_static_render_cache_texture.visible = false
+	queue_redraw()
+
+func _create_dynamic_render_layer() -> void:
+	_ensure_art_treatment()
+	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer):
+		return
+	_ambient_render_layer = _create_retained_render_layer("AmbientRenderLayer", RENDER_LAYER_AMBIENT)
+	_overlay_render_layer = _create_retained_render_layer("OverlayRenderLayer", RENDER_LAYER_OVERLAYS)
+	_ground_render_layer = _create_retained_render_layer("GroundRenderLayer", RENDER_LAYER_GROUND)
+	_path_render_layer = _create_retained_render_layer("PathRenderLayer", RENDER_LAYER_PATH)
+	_impact_floor_render_layer = _create_retained_render_layer("ImpactFloorRenderLayer", RENDER_LAYER_IMPACT_FLOOR)
+	_dynamic_render_layer = _create_retained_render_layer("DynamicRenderLayer", RENDER_LAYER_WORLD)
+	_action_floor_render_layer = _create_retained_render_layer("ActionFloorRenderLayer", RENDER_LAYER_ACTION_FLOOR)
+	_foreground_render_layer = _create_retained_render_layer("ForegroundRenderLayer", RENDER_LAYER_FOREGROUND)
+	_effects_render_layer = _create_retained_render_layer("EffectsRenderLayer", RENDER_LAYER_EFFECTS)
+	_hud_render_layer = _create_retained_render_layer("HudRenderLayer", RENDER_LAYER_HUD)
+	_sync_dynamic_render_assets()
+	_sync_dynamic_render_state(true)
+	_sync_enemy_shadow_dissolve_effects()
+	_queue_dynamic_redraw()
+
+func _create_retained_render_layer(layer_name: String, layer_kind: String) -> Control:
+	var layer: Control = get_script().new() as Control
+	layer.name = layer_name
+	layer.set("_is_dynamic_render_layer", true)
+	layer.set("_render_layer_kind", layer_kind)
+	layer.set("_render_instrumentation_owner", self)
+	layer.set("_art_treatment", _art_treatment)
+	layer.set("_art_treatment_enabled", _art_treatment_enabled)
+	layer.material = _art_treatment.material
+	layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.focus_mode = Control.FOCUS_NONE
+	layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(layer)
+	return layer
+
+func _retained_render_layers() -> Array:
+	var layers: Array = []
+	for layer: Control in [_ambient_render_layer, _overlay_render_layer, _ground_render_layer, _path_render_layer, _impact_floor_render_layer, _dynamic_render_layer, _action_floor_render_layer]:
+		if layer != null and is_instance_valid(layer):
+			layers.append(layer)
+	for layer_var: Variant in _scene_render_layers:
+		var layer: Control = layer_var as Control
+		if layer != null and is_instance_valid(layer):
+			layers.append(layer)
+	for layer: Control in [_foreground_render_layer, _effects_render_layer, _hud_render_layer]:
+		if layer != null and is_instance_valid(layer):
+			layers.append(layer)
+	return layers
+
+func _sync_scene_render_layers() -> void:
+	var desired_tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
+	var desired_lookup: Dictionary = {}
+	for tile: Vector2i in desired_tiles:
+		desired_lookup[tile] = true
+	for layers_by_tile: Dictionary in [
+		_scene_back_effect_render_layers_by_tile,
+		_scene_render_layers_by_tile,
+		_scene_front_effect_render_layers_by_tile,
+	]:
+		for tile_var: Variant in layers_by_tile.keys():
+			if desired_lookup.has(tile_var):
+				continue
+			var stale_layer: Control = layers_by_tile.get(tile_var, null) as Control
+			layers_by_tile.erase(tile_var)
+			if stale_layer != null and is_instance_valid(stale_layer):
+				remove_child(stale_layer)
+				stale_layer.queue_free()
+	_scene_render_layers.clear()
+	for tile: Vector2i in desired_tiles:
+		var back_effect_layer: Control = _scene_back_effect_render_layers_by_tile.get(tile, null) as Control
+		if back_effect_layer == null or not is_instance_valid(back_effect_layer):
+			back_effect_layer = _create_retained_render_layer("SceneTileBackEffect_%d_%d" % [tile.x, tile.y], RENDER_LAYER_SCENE_TILE)
+			back_effect_layer.set("_render_layer_tile", tile)
+			back_effect_layer.set("_render_layer_scene_effect_pass", -1)
+			_scene_back_effect_render_layers_by_tile[tile] = back_effect_layer
+		var layer: Control = _scene_render_layers_by_tile.get(tile, null) as Control
+		if layer == null or not is_instance_valid(layer):
+			layer = _create_retained_render_layer("SceneTile_%d_%d" % [tile.x, tile.y], RENDER_LAYER_SCENE_TILE)
+			layer.set("_render_layer_tile", tile)
+			_scene_render_layers_by_tile[tile] = layer
+		var front_effect_layer: Control = _scene_front_effect_render_layers_by_tile.get(tile, null) as Control
+		if front_effect_layer == null or not is_instance_valid(front_effect_layer):
+			front_effect_layer = _create_retained_render_layer("SceneTileFrontEffect_%d_%d" % [tile.x, tile.y], RENDER_LAYER_SCENE_TILE)
+			front_effect_layer.set("_render_layer_tile", tile)
+			front_effect_layer.set("_render_layer_scene_effect_pass", 1)
+			_scene_front_effect_render_layers_by_tile[tile] = front_effect_layer
+		_scene_render_layers.append(back_effect_layer)
+		_scene_render_layers.append(layer)
+		_scene_render_layers.append(front_effect_layer)
+	var insertion_index: int = _action_floor_render_layer.get_index() + 1
+	for layer_var: Variant in _scene_render_layers:
+		move_child(layer_var as Control, insertion_index)
+		insertion_index += 1
+
+
+func _sync_enemy_shadow_dissolve_effects() -> void:
+	if _is_dynamic_render_layer or _is_static_render_cache_layer:
+		return
+	var active_keys: Dictionary = {}
+	for unit: Dictionary in _death_animation_units_from_presentation():
+		if not _unit_uses_procedural_shadow_dissolve(unit):
+			continue
+		var actor_key: String = str(unit.get("key", ""))
+		if actor_key.is_empty():
+			continue
+		var render_tile: Vector2i = _scene_render_tile_for_unit(unit)
+		var target_layer: Control = _scene_render_layers_by_tile.get(render_tile, null) as Control
+		if target_layer == null or not is_instance_valid(target_layer):
+			continue
+		var source_texture: Texture2D = _enemy_shadow_dissolve_source_texture(unit)
+		if source_texture == null:
+			continue
+		var effect: Control = _enemy_shadow_dissolve_effects_by_key.get(actor_key, null) as Control
+		if effect == null or not is_instance_valid(effect) or effect.is_queued_for_deletion():
+			effect = _take_enemy_shadow_dissolve_effect()
+			effect.name = "EnemyShadowDissolve_%d" % int(unit.get("id", _enemy_shadow_dissolve_effects_by_key.size()))
+			if effect.get_parent() == null:
+				target_layer.add_child(effect)
+			elif effect.get_parent() != target_layer:
+				effect.reparent(target_layer, false)
+			_enemy_shadow_dissolve_effects_by_key[actor_key] = effect
+		elif effect.get_parent() != target_layer:
+			effect.reparent(target_layer, false)
+		var source_rect: Rect2 = _unit_texture_draw_rect(unit, _unit_center(unit)) if is_instance_valid(_directional_enemy_renderer_for_unit(unit)) or is_instance_valid(_veilbound_acolyte_renderer_for_unit(unit)) or is_instance_valid(_zekarion_renderer_for_unit(unit)) else _unit_draw_rect_for_texture(unit, _unit_center(unit), source_texture)
+		effect.call(
+			"configure",
+			source_texture,
+			source_rect,
+			float(unit.get("death_progress", 0.0)),
+			_enemy_shadow_dissolve_seed_for_unit(unit),
+			bool(presentation.get("reduced_motion", false))
+		)
+		if _art_treatment != null:
+			_art_treatment.apply_to(effect.material as ShaderMaterial)
+			(effect.material as ShaderMaterial).set_shader_parameter("art_origin", effect.position)
+			(effect.material as ShaderMaterial).set_shader_parameter("art_actor_profile", CombatArtTreatment.actor_profile(unit, source_texture))
+		active_keys[actor_key] = true
+	for actor_key_var: Variant in _enemy_shadow_dissolve_effects_by_key.keys():
+		if active_keys.has(actor_key_var):
+			continue
+		var stale_effect: Control = _enemy_shadow_dissolve_effects_by_key.get(actor_key_var, null) as Control
+		_enemy_shadow_dissolve_effects_by_key.erase(actor_key_var)
+		if stale_effect != null and is_instance_valid(stale_effect):
+			_return_enemy_shadow_dissolve_effect(stale_effect)
+
+
+func _schedule_enemy_shadow_dissolve_shader_prewarm() -> void:
+	if _enemy_shadow_dissolve_shader_prewarm_submitted:
+		return
+	var source_texture: Texture2D = _unit_textures.get("player", null) as Texture2D
+	if source_texture == null:
+		return
+	_enemy_shadow_dissolve_shader_prewarm_submitted = true
+	var effect: Control = EnemyShadowDissolveEffect.new() as Control
+	effect.name = "EnemyShadowDissolvePrewarm"
+	# A real, nearly transparent draw is required to compile the canvas pipeline.
+	# Keep it one pixel and behind the board, then retain the initialized material
+	# as the first death effect so no node/material allocation lands on a kill.
+	effect.z_index = RenderingServer.CANVAS_ITEM_Z_MIN
+	effect.self_modulate = Color(1.0, 1.0, 1.0, 0.001)
+	add_child(effect)
+	effect.call("configure", source_texture, Rect2(Vector2.ONE, Vector2.ONE), 0.46, 0.137, false)
+	_enemy_shadow_dissolve_spare_effect = effect
+	RenderingServer.frame_post_draw.connect(_finish_enemy_shadow_dissolve_shader_prewarm, CONNECT_ONE_SHOT)
+
+
+func _finish_enemy_shadow_dissolve_shader_prewarm() -> void:
+	if _enemy_shadow_dissolve_spare_effect == null or not is_instance_valid(_enemy_shadow_dissolve_spare_effect):
+		_enemy_shadow_dissolve_spare_effect = null
+		return
+	_enemy_shadow_dissolve_spare_effect.visible = false
+
+
+func _take_enemy_shadow_dissolve_effect() -> Control:
+	var effect: Control = _enemy_shadow_dissolve_spare_effect
+	if effect == null or not is_instance_valid(effect) or effect.is_queued_for_deletion():
+		effect = EnemyShadowDissolveEffect.new() as Control
+	else:
+		_enemy_shadow_dissolve_spare_effect = null
+	effect.z_index = 0
+	effect.self_modulate = Color.WHITE
+	effect.visible = true
+	return effect
+
+
+func _return_enemy_shadow_dissolve_effect(effect: Control) -> void:
+	effect.visible = false
+	if _enemy_shadow_dissolve_spare_effect == null or not is_instance_valid(_enemy_shadow_dissolve_spare_effect):
+		if effect.get_parent() != self:
+			effect.reparent(self, false)
+		effect.name = "EnemyShadowDissolveSpare"
+		_enemy_shadow_dissolve_spare_effect = effect
+		return
+	effect.queue_free()
+
+
+func _enemy_shadow_dissolve_seed_for_unit(unit: Dictionary) -> float:
+	var identity: String = "%s:%s:%s" % [
+		str(unit.get("type", "enemy")),
+		str(unit.get("id", -1)),
+		str(unit.get("key", "enemy")),
+	]
+	return fmod(absf(float(identity.hash())), 10007.0) / 997.0 + 0.137
+
+func _sync_dynamic_render_assets() -> void:
+	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
+		return
+	for layer: Control in _retained_render_layers():
+		for field: String in [
+			"_tile_textures", "_floor_texture_variants", "_element_overlay_texture_variants",
+			"_prop_textures", "_scene_prop_textures", "_scene_prop_idle_frames",
+			"_pillar_torch_idle_frames", "_pillar_torch_light_texture", "_effect_textures", "_effect_frames",
+			"_projectile_atlas", "_projectile_textures", "_ambient_particle_atlas",
+			"_ambient_particle_glow_atlas", "_ambient_fire_soft_atlas", "_ambient_air_wisp_atlas",
+			"_ambient_air_wisp_soft_atlas", "_ambient_air_wisp_glow_atlas",
+			"_ambient_particle_textures", "_ambient_particle_glow_textures",
+			"_ambient_fire_soft_textures", "_ambient_air_wisp_textures",
+			"_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures",
+			"_ambient_combined_atlas", "_ambient_combined_atlas_regions",
+			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
+			"_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_illusion_renderers", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_guardian_renderers", "_gaoler_renderers", "_cinder_droplet_renderers",
+			"_cinder_ooze_renderers", "_frostglass_renderers", "_grave_surgeon_renderers", "_harrier_renderers", "_iskaldra_renderers", "_lightning_wisp_renderers", "_noctyrax_renderers", "_tharokh_renderers", "_vaeloryx_renderers", "_veilbound_acolyte_renderers", "_vyraketh_renderers", "_zekarion_renderers",
+			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
+			"_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
+			"_unit_shadow_bottom_ratio_cache", "_unit_shadow_draw_geometry_cache", "_unit_shadow_draw_mesh_cache",
+			"_unit_shadow_prewarm_pending_ids",
+			"_door_opening_frames", "_door_opening_flipped_frames",
+			"_idle_frames_by_type", "_death_frames_by_type", "_texture_used_rect_cache"
+		]:
+			layer.set(field, get(field))
+
+func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_changed: bool = false, changed_fields: Array = []) -> void:
+	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
+		return
+	# Resolve the fixed room envelope once on the parent before invalidating
+	# retained layers so every layer uses the same origin and scale.
+	if (layout_changed or visual_framing_changed) and not combat_state.is_empty():
+		_ensure_board_layout_cache()
+	var fields: Array = changed_fields
+	if fields.is_empty():
+		fields = [
+			"combat_state", "move_tiles", "attack_tiles", "selected_tile", "status_label",
+			"status_detail", "exit_tiles", "exit_icon_ids", "presentation", "_hover_tile", "_controller_focus_tile",
+			"_navigation_zoom", "_navigation_pan", "_navigation_uses_default_zoom", "_navigation_content_signature",
+			"_floor_variant_by_tile", "_moss_tiles_by_surface", "_board_layout_signature", "_board_visual_framing_signature",
+			"_board_layout_cache_visual_top_offset",
+			"_floor_variant_signature", "_moss_signature", "_damage_preview_cache",
+			"_visible_units_cache", "_units_by_draw_tile_cache", "_scene_props_by_tile", "_terrain_by_tile", "_loot_by_tile",
+			"_traps_by_tile", "_campfire_scene_props_cache", "_grid_tile_ids_cache",
+			"_ability_tiles_cache", "_move_tiles_lookup_cache", "_attack_tiles_lookup_cache",
+			"_focus_tiles_lookup_cache", "_objective_exit_tiles_lookup_cache",
+			"_projected_attack_tiles_lookup_cache", "_summon_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache",
+			"_ability_tiles_lookup_cache",
+			"_ambient_element_id_cache", "_equipment_pickup_beacon_cache",
+			"_preview_unit_pulse_cache", "_submission_cache_valid", "_idle_elapsed",
+			"_umbra_return_start_by_tile", "_foreground_obstruction_entries_cache", "_hud_health_rects_cache",
+			"_hud_layout_entries_cache"
+		]
+	for layer: Control in _retained_render_layers():
+		if layout_changed:
+			layer.call("_invalidate_board_layout_cache")
+		elif visual_framing_changed:
+			layer.call("_invalidate_board_layout_cache", false, true)
+		for field_var: Variant in fields:
+			var field: String = str(field_var)
+			layer.set(field, get(field))
+
+func _queue_dynamic_redraw() -> void:
+	_full_dynamic_redraw_count += 1
+	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
+		queue_redraw()
+		return
+	for layer: Control in _retained_render_layers():
+		layer.set("_idle_elapsed", _idle_elapsed)
+		layer.set("_hover_tile", _hover_tile)
+		layer.set("_controller_focus_tile", _controller_focus_tile)
+		layer.queue_redraw()
+
+func _queue_render_layer_redraw(layer: Control) -> void:
+	if layer == null or not is_instance_valid(layer):
+		return
+	layer.set("_idle_elapsed", _idle_elapsed)
+	layer.set("_hover_tile", _hover_tile)
+	layer.set("_controller_focus_tile", _controller_focus_tile)
+	layer.queue_redraw()
+
+func render_instrumentation_snapshot() -> Dictionary:
+	_commit_retained_draw_frame()
+	var dynamic_count: int = _dynamic_draw_count
+	var dynamic_total_usec: int = _dynamic_draw_total_usec
+	var dynamic_max_usec: int = _dynamic_draw_max_usec
+	var section_total_usec: Dictionary = _render_section_total_usec.duplicate()
+	var section_max_usec: Dictionary = _render_section_max_usec.duplicate()
+	var unit_shadow_sync_miss_metrics: Dictionary = _unit_shadow_sync_miss_metrics.duplicate(true)
+	var unit_shadow_draw_cache_metrics: Dictionary = _unit_shadow_draw_cache_metrics.duplicate(true)
+	var layer_draw_counts: Dictionary = {}
+	var layer_draw_total_usec: Dictionary = {}
+	var scene_tile_draw_counts: Dictionary = {}
+	var ambient_batch_mesh_create_count: int = _ambient_batch_mesh_create_count
+	var ambient_batch_mesh_update_count: int = _ambient_batch_mesh_update_count
+	var ambient_batch_sprite_total_count: int = _ambient_batch_sprite_total_count
+	var ambient_batch_sprite_max_count: int = _ambient_batch_sprite_max_count
+	var ambient_batch_sprite_capacity: int = _ambient_batch_sprite_capacity
+	var ambient_batch_buffer_grow_count: int = _ambient_batch_buffer_grow_count
+	var umbra_shape_batch_mesh_count: int = _umbra_shape_batch_meshes.size() + _umbra_circle_batch_multimeshes.size()
+	var umbra_shape_batch_mesh_create_count: int = _umbra_shape_batch_mesh_create_count
+	var umbra_shape_batch_mesh_update_count: int = _umbra_shape_batch_mesh_update_count
+	var umbra_shape_batch_flush_count: int = _umbra_shape_batch_flush_count
+	if not _retained_render_layers().is_empty():
+		dynamic_count = 0
+		dynamic_total_usec = 0
+		dynamic_max_usec = 0
+		for layer: Control in _retained_render_layers():
+			var layer_kind: String = str(layer.get("_render_layer_kind"))
+			var layer_count: int = int(layer.get("_dynamic_draw_count"))
+			var layer_total: int = int(layer.get("_dynamic_draw_total_usec"))
+			dynamic_count += layer_count
+			dynamic_total_usec += layer_total
+			dynamic_max_usec = maxi(dynamic_max_usec, int(layer.get("_dynamic_draw_max_usec")))
+			layer_draw_counts[layer_kind] = int(layer_draw_counts.get(layer_kind, 0)) + layer_count
+			layer_draw_total_usec[layer_kind] = int(layer_draw_total_usec.get(layer_kind, 0)) + layer_total
+			if layer_kind == RENDER_LAYER_SCENE_TILE:
+				var layer_tile: Vector2i = layer.get("_render_layer_tile") as Vector2i
+				var tile_key: String = "%d,%d" % [layer_tile.x, layer_tile.y]
+				scene_tile_draw_counts[tile_key] = int(scene_tile_draw_counts.get(tile_key, 0)) + layer_count
+			ambient_batch_mesh_create_count += int(layer.get("_ambient_batch_mesh_create_count"))
+			ambient_batch_mesh_update_count += int(layer.get("_ambient_batch_mesh_update_count"))
+			ambient_batch_sprite_total_count += int(layer.get("_ambient_batch_sprite_total_count"))
+			ambient_batch_sprite_max_count = maxi(
+				ambient_batch_sprite_max_count,
+				int(layer.get("_ambient_batch_sprite_max_count"))
+			)
+			ambient_batch_sprite_capacity += int(layer.get("_ambient_batch_sprite_capacity"))
+			ambient_batch_buffer_grow_count += int(layer.get("_ambient_batch_buffer_grow_count"))
+			var layer_umbra_meshes: Array = layer.get("_umbra_shape_batch_meshes") as Array
+			var layer_umbra_circle_multimeshes: Array = layer.get("_umbra_circle_batch_multimeshes") as Array
+			umbra_shape_batch_mesh_count += layer_umbra_meshes.size() + layer_umbra_circle_multimeshes.size()
+			umbra_shape_batch_mesh_create_count += int(layer.get("_umbra_shape_batch_mesh_create_count"))
+			umbra_shape_batch_mesh_update_count += int(layer.get("_umbra_shape_batch_mesh_update_count"))
+			umbra_shape_batch_flush_count += int(layer.get("_umbra_shape_batch_flush_count"))
+			_merge_render_section_metrics(section_total_usec, layer.get("_render_section_total_usec") as Dictionary, false)
+			_merge_render_section_metrics(section_max_usec, layer.get("_render_section_max_usec") as Dictionary, true)
+			_merge_unit_shadow_sync_miss_metrics(
+				unit_shadow_sync_miss_metrics,
+				layer.get("_unit_shadow_sync_miss_metrics") as Dictionary
+			)
+			_merge_unit_shadow_draw_cache_metrics(
+				unit_shadow_draw_cache_metrics,
+				layer.get("_unit_shadow_draw_cache_metrics") as Dictionary
+			)
+	return {
+		"static_draw_count": _static_draw_count,
+		"dynamic_draw_count": dynamic_count,
+		"static_draw_total_usec": _static_draw_total_usec,
+		"static_draw_max_usec": _static_draw_max_usec,
+		"dynamic_draw_total_usec": dynamic_total_usec,
+		"dynamic_draw_max_usec": dynamic_max_usec,
+		"dynamic_draw_frame_max_usec": _retained_draw_frame_max_usec,
+		"dynamic_draw_frame_max_count": _retained_draw_frame_max_count,
+		"dynamic_draw_frame_max_layers": _retained_draw_frame_max_layers.duplicate(true),
+		"dynamic_draw_frame_top": _retained_draw_frame_top.duplicate(true),
+		"render_section_total_usec": section_total_usec,
+		"render_section_max_usec": section_max_usec,
+		"layer_draw_counts": layer_draw_counts,
+		"layer_draw_total_usec": layer_draw_total_usec,
+		"scene_tile_draw_counts": scene_tile_draw_counts,
+		"split_layers_active": _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer),
+		"presentation_redraw_dedup_active": true,
+		"presentation_redraw_dedup_mode": "pre_process_render_frame",
+		"retained_layer_count": _retained_render_layers().size(),
+		"hud_layout_cache_entries": _hud_layout_cache_by_signature.size(),
+		"loaded_unit_asset_type_count": _unit_assets_loaded.size(),
+		"layout_content_rebuild_count": _board_layout_content_rebuild_count,
+		"unit_shadow_sync_misses": unit_shadow_sync_miss_metrics,
+		"unit_shadow_draw_cache": unit_shadow_draw_cache_metrics,
+		"full_dynamic_redraw_count": _full_dynamic_redraw_count,
+		"unclassified_presentation_redraw_keys": _unclassified_presentation_redraw_keys.duplicate(),
+		"ambient_batch_mesh_create_count": ambient_batch_mesh_create_count,
+		"ambient_batch_mesh_update_count": ambient_batch_mesh_update_count,
+		"ambient_batch_sprite_total_count": ambient_batch_sprite_total_count,
+		"ambient_batch_sprite_max_count": ambient_batch_sprite_max_count,
+		"ambient_batch_sprite_capacity": ambient_batch_sprite_capacity,
+		"ambient_batch_buffer_grow_count": ambient_batch_buffer_grow_count,
+		"umbra_shape_batch_enabled": _umbra_shape_batch_enabled,
+		"umbra_shape_batch_mesh_count": umbra_shape_batch_mesh_count,
+		"umbra_shape_batch_mesh_create_count": umbra_shape_batch_mesh_create_count,
+		"umbra_shape_batch_mesh_update_count": umbra_shape_batch_mesh_update_count,
+		"umbra_shape_batch_flush_count": umbra_shape_batch_flush_count,
+		"static_render_cache_enabled": _static_render_cache_enabled,
+		"static_render_cache_active": _static_render_cache_texture != null and _static_render_cache_texture.visible,
+		"static_render_cache_update_count": _static_render_cache_update_count,
+	}
+
+func _merge_render_section_metrics(target: Dictionary, source: Dictionary, keep_maximum: bool) -> void:
+	for key_var: Variant in source:
+		var key: String = str(key_var)
+		var value: int = int(source.get(key_var, 0))
+		if keep_maximum:
+			target[key] = maxi(int(target.get(key, 0)), value)
+		else:
+			target[key] = int(target.get(key, 0)) + value
+
+func _merge_unit_shadow_sync_miss_metrics(target: Dictionary, source: Dictionary) -> void:
+	for metric: String in ["count", "total_usec"]:
+		target[metric] = int(target.get(metric, 0)) + int(source.get(metric, 0))
+	target["max_usec"] = maxi(int(target.get("max_usec", 0)), int(source.get("max_usec", 0)))
+	var target_by_type: Dictionary = target.get("by_type", {}) as Dictionary
+	var source_by_type: Dictionary = source.get("by_type", {}) as Dictionary
+	for type_var: Variant in source_by_type:
+		var unit_type: String = str(type_var)
+		var target_metrics: Dictionary = target_by_type.get(unit_type, {}) as Dictionary
+		var source_metrics: Dictionary = source_by_type.get(type_var, {}) as Dictionary
+		for metric: String in ["count", "total_usec"]:
+			target_metrics[metric] = int(target_metrics.get(metric, 0)) + int(source_metrics.get(metric, 0))
+		target_metrics["max_usec"] = maxi(
+			int(target_metrics.get("max_usec", 0)),
+			int(source_metrics.get("max_usec", 0))
+		)
+		target_by_type[unit_type] = target_metrics
+	if not target_by_type.is_empty():
+		target["by_type"] = target_by_type
+
+func _merge_unit_shadow_draw_cache_metrics(target: Dictionary, source: Dictionary) -> void:
+	for metric: String in ["geometry_hit", "geometry_miss", "mesh_hit", "mesh_miss", "fallback"]:
+		target[metric] = int(target.get(metric, 0)) + int(source.get(metric, 0))
+	var target_by_type: Dictionary = target.get("by_type", {}) as Dictionary
+	var source_by_type: Dictionary = source.get("by_type", {}) as Dictionary
+	for type_var: Variant in source_by_type:
+		var unit_type: String = str(type_var)
+		var target_metrics: Dictionary = target_by_type.get(unit_type, {}) as Dictionary
+		var source_metrics: Dictionary = source_by_type.get(type_var, {}) as Dictionary
+		for metric: String in ["geometry_hit", "geometry_miss", "mesh_hit", "mesh_miss", "fallback"]:
+			target_metrics[metric] = int(target_metrics.get(metric, 0)) + int(source_metrics.get(metric, 0))
+		target_by_type[unit_type] = target_metrics
+	if not target_by_type.is_empty():
+		target["by_type"] = target_by_type
+
+func reset_render_instrumentation() -> void:
+	_static_draw_count = 0
+	_static_draw_total_usec = 0
+	_static_draw_max_usec = 0
+	_dynamic_draw_count = 0
+	_dynamic_draw_total_usec = 0
+	_dynamic_draw_max_usec = 0
+	_render_section_total_usec.clear()
+	_render_section_max_usec.clear()
+	_unit_shadow_sync_miss_metrics.clear()
+	_unit_shadow_draw_cache_metrics.clear()
+	_full_dynamic_redraw_count = 0
+	_unclassified_presentation_redraw_keys.clear()
+	_retained_draw_frame_id = -1
+	_retained_draw_frame_total_usec = 0
+	_retained_draw_frame_count = 0
+	_retained_draw_frame_layer_usec.clear()
+	_retained_draw_frame_layer_detail_usec.clear()
+	_retained_draw_frame_max_usec = 0
+	_retained_draw_frame_max_count = 0
+	_retained_draw_frame_max_layers.clear()
+	_retained_draw_frame_top.clear()
+	_ambient_batch_mesh_create_count = 0
+	_ambient_batch_mesh_update_count = 0
+	_ambient_batch_sprite_total_count = 0
+	_ambient_batch_sprite_max_count = 0
+	_ambient_batch_buffer_grow_count = 0
+	_umbra_shape_batch_mesh_create_count = 0
+	_umbra_shape_batch_mesh_update_count = 0
+	_umbra_shape_batch_flush_count = 0
+	for layer: Control in _retained_render_layers():
+		layer.call("reset_render_instrumentation")
+
+func _process(delta: float) -> void:
+	if _art_treatment != null and not _is_dynamic_render_layer and not _is_static_render_cache_layer:
+		if _art_treatment.advance(delta, bool(presentation.get("reduced_motion", false))):
+			for effect: Control in _enemy_shadow_dissolve_effects_by_key.values():
+				_art_treatment.apply_motion_to(effect.material as ShaderMaterial)
+	_process_next_unit_shadow_prewarm()
+	var process_frame: int = Engine.get_process_frames()
+	_last_processed_render_frame = process_frame
+	var explicit_effects_redraw_this_frame: bool = _explicit_effects_redraw_process_frame == process_frame
+	var explicit_impact_redraw_this_frame: bool = _explicit_impact_redraw_process_frame == process_frame
+	if _presentation_needs_continuous_redraw():
+		_continuous_presentation_elapsed += delta
+		if _continuous_presentation_elapsed >= CONTINUOUS_PRESENTATION_REDRAW_SECONDS:
+			_continuous_presentation_elapsed = 0.0
+			_queue_continuous_render_redraws(explicit_effects_redraw_this_frame, explicit_impact_redraw_this_frame)
+	else:
+		_continuous_presentation_elapsed = 0.0
+	var animating: bool = _any_idle_animation_active()
+	if animating != _idle_animating:
+		_idle_animating = animating
+		_idle_elapsed = 0.0
+		_idle_frame_by_source.clear()
+	if not animating:
+		return
+	_idle_elapsed = wrapf(_idle_elapsed + delta, 0.0, 3600.0)
+	var next_frames: Dictionary = _active_idle_frames_by_source()
+	var changed_sources: Dictionary = {}
+	for source_var: Variant in next_frames:
+		if not _idle_frame_by_source.has(source_var) or _idle_frame_by_source.get(source_var) != next_frames.get(source_var):
+			changed_sources[source_var] = true
+	for source_var: Variant in _idle_frame_by_source:
+		if not next_frames.has(source_var):
+			changed_sources[source_var] = true
+	_idle_frame_by_source = next_frames
+	if not changed_sources.is_empty():
+		_queue_active_idle_redraws(changed_sources)
+
+func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: bool = false) -> void:
+	if _ambient_particles_active() or _campfire_atmosphere_active():
+		_queue_render_layer_redraw(_ambient_render_layer)
+	if (
+		(bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty())
+		or (bool(presentation.get("pulse_exit_tiles", false)) and not exit_tiles.is_empty())
+		or not _confirmation_target_tiles_lookup_cache.is_empty()
+	):
+		_queue_render_layer_redraw(_overlay_render_layer)
+	if not skip_impact and str(presentation.get("umbra_stage", "clear")) != "clear":
+		_queue_render_layer_redraw(_dynamic_render_layer)
+	if not skip_impact and _impact_animation_active():
+		_queue_render_layer_redraw(_impact_floor_render_layer)
+		_queue_render_layer_redraw(_action_floor_render_layer)
+	if (
+		_campfire_atmosphere_active()
+		or _pillar_torch_ember_motes_active()
+		or str(presentation.get("umbra_stage", "clear")) != "clear"
+		or (bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty())
+	):
+		_queue_render_layer_redraw(_foreground_render_layer)
+	_queue_continuously_animated_scene_redraws(skip_impact)
+	var damage_preview: Dictionary = _damage_preview_map()
+	if not damage_preview.is_empty():
+		# Damage-preview fill and lethal markers use the existing continuous
+		# presentation cadence. Retaining unrelated layers must not freeze those
+		# pulses, including destructible-terrain health bars drawn per tile.
+		if _unit_damage_preview_active():
+			_queue_render_layer_redraw(_hud_render_layer)
+		for terrain_var: Variant in combat_state.get("terrain", []):
+			if typeof(terrain_var) != TYPE_DICTIONARY:
+				continue
+			var terrain: Dictionary = terrain_var as Dictionary
+			if not _terrain_damage_preview(terrain).is_empty():
+				_queue_scene_render_layer_for_tile(terrain.get("pos", Vector2i(-1, -1)))
+		if not skip_effects:
+			_queue_render_layer_redraw(_effects_render_layer)
+	elif not skip_effects and _preview_effect_needs_continuous_redraw(presentation.get("effect", {})):
+		_queue_render_layer_redraw(_effects_render_layer)
+		_queue_elemental_scene_depth_redraws(
+			_elemental_scene_depth_tiles_for_presentation(presentation),
+			_elemental_scene_depth_tiles_for_presentation(presentation)
+		)
+
+func _queue_continuously_animated_scene_redraws(skip_impact: bool = false) -> void:
+	if not bool(presentation.get("reduced_motion", false)):
+		for surface_tile: Vector2i in _animated_surface_tiles:
+			if _board_tile_is_visible_to_player(surface_tile):
+				_queue_scene_render_layer_for_tile(surface_tile)
+	if _campfire_atmosphere_active():
+		for prop_var: Variant in _campfire_scene_props_cache:
+			if typeof(prop_var) == TYPE_DICTIONARY:
+				_queue_scene_render_layer_for_tile((prop_var as Dictionary).get("tile", Vector2i(-1, -1)))
+	if _pillar_torch_ember_motes_active():
+		for prop_var: Variant in presentation.get("scene_props", []):
+			if typeof(prop_var) == TYPE_DICTIONARY and str((prop_var as Dictionary).get("kind", "")) == "pillar_torch":
+				_queue_scene_render_layer_for_tile((prop_var as Dictionary).get("tile", Vector2i(-1, -1)))
+	if _equipment_pickup_beacon_active():
+		for loot_var: Variant in combat_state.get("loot", []):
+			if typeof(loot_var) != TYPE_DICTIONARY:
+				continue
+			var loot: Dictionary = loot_var
+			if not bool(loot.get("claimed", false)) and _is_floating_loot(loot):
+				_queue_scene_render_layer_for_tile(loot.get("pos", Vector2i(-1, -1)))
+	if _impact_animation_active() and not skip_impact:
+		_queue_impact_scene_redraws()
+	if _preview_unit_pulse_active():
+		for unit: Dictionary in _visible_units():
+			if _unit_is_preview_echo(unit):
+				_queue_scene_render_layer_for_tile(_scene_render_tile_for_unit(unit))
+
+func _queue_impact_scene_redraws() -> void:
+	var impact_keys: Array = presentation.get("impact_actor_keys", [])
+	for unit: Dictionary in _visible_units():
+		if impact_keys.has(str(unit.get("key", ""))):
+			_queue_scene_render_layer_for_tile(_scene_render_tile_for_unit(unit))
+
+func _queue_active_idle_redraws(changed_sources: Dictionary) -> void:
+	for unit: Dictionary in _visible_units():
+		var actor_key: String = str(unit.get("key", unit.get("id", "")))
+		if _unit_idle_animation_active(unit) and changed_sources.has("u:%s" % actor_key):
+			_queue_scene_render_layer_for_tile(_scene_render_tile_for_unit(unit))
+	for prop_var: Variant in presentation.get("scene_props", []):
+		if typeof(prop_var) != TYPE_DICTIONARY:
+			continue
+		var prop: Dictionary = prop_var as Dictionary
+		var prop_source: String = "p:%s:%s" % [str(prop.get("kind", "")), str(prop.get("tile", Vector2i.ZERO))]
+		if _scene_prop_idle_animation_active(prop) and changed_sources.has(prop_source):
+			_queue_scene_render_layer_for_tile(prop.get("tile", Vector2i(-1, -1)))
+	for trap_var: Variant in combat_state.get("traps", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var as Dictionary
+		var trap_source: String = "t:%s:%s" % [str(trap.get("element", "")), str(trap.get("pos", Vector2i.ZERO))]
+		if not _trap_idle_animation_active(trap) or not changed_sources.has(trap_source):
+			continue
+		# Traps retain their authored below-path ordering without invalidating
+		# target highlights, paths, decals, or Umbra on every idle frame.
+		_queue_render_layer_redraw(_ground_render_layer)
+		break
+	if _pillar_torch_idle_animation_active() and (changed_sources.has("tl") or changed_sources.has("tr")):
+		var grid: Array = combat_state.get("grid", [])
+		for tile: Vector2i in _rendered_tiles_in_draw_order():
+			if _tile_renders_as_pillar(grid, tile):
+				_queue_scene_render_layer_for_tile(tile)
+
+func _queue_scene_render_layer_for_tile(tile: Vector2i) -> void:
+	var layer: Control = _scene_render_layers_by_tile.get(tile, null) as Control
+	_queue_render_layer_redraw(layer)
+
+func _queue_scene_effect_render_layers_for_tile(tile: Vector2i) -> void:
+	_queue_render_layer_redraw(_scene_back_effect_render_layers_by_tile.get(tile, null) as Control)
+	_queue_render_layer_redraw(_scene_front_effect_render_layers_by_tile.get(tile, null) as Control)
+
+func _scene_render_tile_for_unit(unit: Dictionary) -> Vector2i:
+	# Retained scene layers draw large actors on the far tile of their footprint.
+	# Falling back to the origin only works for 1x1 actors and freezes dragon
+	# animation until an unrelated event happens to invalidate the scene layer.
+	return _effective_unit_tile(unit)
+
+func _presentation_needs_continuous_redraw() -> bool:
+	if not visible:
+		return false
+	if not bool(presentation.get("reduced_motion", false)) and not _animated_surface_tiles.is_empty():
+		return true
+	if _ambient_particles_active():
+		return true
+	if _campfire_atmosphere_active():
+		return true
+	if _pillar_torch_ember_motes_active():
+		return true
+	if _equipment_pickup_beacon_active():
+		return true
+	if str(presentation.get("umbra_stage", "clear")) != "clear":
+		return true
+	if bool(presentation.get("pulse_attack_tiles", false)) and not attack_tiles.is_empty():
+		return true
+	if bool(presentation.get("pulse_exit_tiles", false)) and not exit_tiles.is_empty():
+		return true
+	if not _confirmation_target_tiles_lookup_cache.is_empty():
+		return true
+	if presentation.is_empty():
+		return false
+	if not _damage_preview_map().is_empty():
+		return true
+	if _impact_animation_active():
+		return true
+	if _preview_unit_pulse_active():
+		return true
+	var effect: Dictionary = presentation.get("effect", {})
+	return _preview_effect_needs_continuous_redraw(effect)
+
+func _impact_animation_active() -> bool:
+	var impact_keys: Array = presentation.get("impact_actor_keys", [])
+	if impact_keys.is_empty():
+		return false
+	if float(presentation.get("impact_strength", 1.0)) <= 0.0:
+		return false
+	if bool(presentation.get("reduced_motion", false)):
+		return false
+	return float(presentation.get("impact_progress", 0.0)) < 1.0
+
+func _preview_unit_pulse_active() -> bool:
+	if bool(presentation.get("reduced_motion", false)):
+		return false
+	if _submission_cache_valid:
+		return _preview_unit_pulse_cache
+	for unit_var: Variant in presentation.get("preview_units", []):
+		if typeof(unit_var) == TYPE_DICTIONARY and _unit_is_preview_echo(unit_var as Dictionary):
+			return true
+	return false
+
+func _unit_is_preview_echo(unit: Dictionary) -> bool:
+	return str(unit.get("role", "")) in ["illusion_preview", "enemy_move_preview"]
+
+func _preview_effect_needs_continuous_redraw(effect: Dictionary) -> bool:
+	if not bool(effect.get("preview", false)):
+		return false
+	# The authored Blink preview is a static integrated-rift texture. Redrawing its
+	# retained effects layer at 30 Hz did no visual work, but it kept a busy combat
+	# canvas active for the entire time the player considered a destination. Keep
+	# animation only for the procedural fallback used when that texture is absent.
+	var kind: String = str(effect.get("kind", ""))
+	if kind == "blink":
+		return _effect_textures.get("blink_rift_preview", null) == null
+	# Attack and AOE previews are deliberately static. Their tile highlights and
+	# thin path lines do not need to keep the effects layer alive at 30 Hz.
+	return false
+
+func _equipment_pickup_beacon_active() -> bool:
+	if _submission_cache_valid:
+		return _equipment_pickup_beacon_cache
+	for loot_var: Variant in combat_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var
+		if bool(loot.get("claimed", false)):
+			continue
+		if _is_floating_loot(loot):
+			return true
+	return false
+
+func _any_idle_animation_active() -> bool:
+	if not visible or combat_state.is_empty():
+		return false
+	if not _idle_frames_by_type.is_empty():
+		for unit: Dictionary in _visible_units():
+			if str(unit.get("role", "")) != "npc" and int(unit.get("hp", 0)) <= 0:
+				continue
+			if _unit_idle_animation_active(unit):
+				return true
+	if not _scene_prop_idle_frames.is_empty():
+		for prop_var: Variant in presentation.get("scene_props", []):
+			if typeof(prop_var) == TYPE_DICTIONARY and _scene_prop_idle_animation_active(prop_var as Dictionary):
+				return true
+	if not _trap_idle_frames.is_empty():
+		for trap_var: Variant in combat_state.get("traps", []):
+			if typeof(trap_var) == TYPE_DICTIONARY and _trap_idle_animation_active(trap_var as Dictionary):
+				return true
+	if _pillar_torch_idle_animation_active():
+		return true
+	return false
+
+func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}, trust_same_reference_state: bool = false) -> void:
+	var submission_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
+	# The owning RunScene submits immutable copy-on-write snapshots. Pointer-only
+	# presentation changes therefore retain the exact combat dictionary reference;
+	# compare only the board-consumed snapshot when a non-conforming caller mutates
+	# that dictionary in place. This keeps the safety net exact without walking
+	# unrelated late-run state on the normal immutable-snapshot path.
+	var state_reference_changed: bool = not is_same(next_state, combat_state)
+	var state_changed: bool = state_reference_changed and next_state != combat_state
+	var same_reference_state_mutation: bool = false
+	# The live combat dictionary may already contain an in-place mutation by the
+	# time it is resubmitted. Use the last deep cache snapshot as the authoritative
+	# previous render source so selective invalidation still sees that mutation.
+	var previous_combat_render_source: Dictionary = {}
+	var next_combat_render_source: Dictionary = {}
+	var combat_render_changes: Dictionary = {}
+	# Generic callers keep conservative in-place mutation detection. RunScene opts
+	# out only for a stable sequence of animation samples after the state boundary
+	# has been validated, avoiding recursive combat-state comparisons on each
+	# subsequent rendered frame without hiding in-place enemy-step commits.
+	if state_reference_changed or (_submission_cache_initialized and not trust_same_reference_state):
+		previous_combat_render_source = (
+			_submission_cache_source_snapshot.get("combat", {}) as Dictionary
+			if _submission_cache_initialized
+			else _combat_submission_cache_source(combat_state)
+		)
+		next_combat_render_source = _combat_submission_cache_source(next_state)
+		combat_render_changes = _changed_presentation_keys(previous_combat_render_source, next_combat_render_source)
+		if not state_reference_changed and _submission_cache_initialized:
+			state_changed = not combat_render_changes.is_empty()
+			same_reference_state_mutation = state_changed
+	var move_tiles_changed: bool = next_move_tiles != move_tiles
+	var attack_tiles_changed: bool = next_attack_tiles != attack_tiles
+	var selected_tile_changed: bool = next_selected_tile != selected_tile
+	var status_changed: bool = next_status_label != status_label or next_status_detail != status_detail
+	var exit_tiles_changed: bool = next_exit_tiles != exit_tiles
+	var exit_icon_ids_changed: bool = next_exit_icon_ids != exit_icon_ids
+	var previous_exit_tiles: Dictionary = exit_tiles
+	var interaction_changed: bool = (
+		move_tiles_changed
+		or attack_tiles_changed
+		or selected_tile_changed
+		or status_changed
+		or exit_tiles_changed
+		or exit_icon_ids_changed
+	)
+	# Layout/framing semantics must remain valid before _ready() creates retained
+	# layers (unit tests and callers can submit state while the view is detached).
+	# Live views already pay this exact diff cost for selective redraw routing.
+	var presentation_changes: Dictionary = _changed_presentation_keys(presentation, next_presentation)
+	var surface_redraw_tiles: Array[Vector2i] = BoardSurfaceRenderDependencies.changed_tiles(presentation, next_presentation, presentation_changes)
+	var previous_damage_preview: Dictionary = {}
+	var moving_actor_keys: Dictionary = {}
+	var previous_unit_render_tiles: Dictionary = {}
+	var previous_unit_obstruction_entries: Dictionary = {}
+	var previous_elemental_scene_tiles: Array[Vector2i] = _elemental_scene_depth_tiles_for_presentation(presentation)
+	var previous_focus_actor_keys: Array = presentation.get("focus_actor_keys", []) as Array
+	var previous_terrain_destruction_units: Array = presentation.get("terrain_destruction_units", []) as Array
+	var previous_scene_props: Array = presentation.get("scene_props", []) as Array
+	var previous_units_by_key: Dictionary = {}
+	var track_visible_unit_changes: bool = false
+	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer):
+		previous_damage_preview = _damage_preview_map().duplicate(true)
+		moving_actor_keys = _changed_unit_presentation_actor_keys(presentation, next_presentation)
+		# The retained visible-unit cache still represents the last submitted
+		# frame even when a non-conforming caller mutated the combat dictionary in
+		# place. Capture it before rebuilding the cache so the exact old/new actor
+		# tiles can use the same selective invalidation route as copy-on-write state.
+		track_visible_unit_changes = (
+			combat_render_changes.has("player")
+			or combat_render_changes.has("illusions")
+			or combat_render_changes.has("enemies")
+			or combat_render_changes.has("npcs")
+			or presentation_changes.has("preview_units")
+			or presentation_changes.has("death_animation_units")
+			or presentation_changes.has("visible_enemy_ids")
+			or presentation_changes.has("surface_status_preview")
+		)
+		if track_visible_unit_changes:
+			previous_units_by_key = _units_by_key(_visible_units())
+			previous_unit_render_tiles = _unit_render_tiles_by_key(_visible_units())
+			previous_unit_obstruction_entries = _unit_obstruction_entries_by_key(_visible_units())
+		elif not moving_actor_keys.is_empty():
+			previous_unit_render_tiles = _unit_render_tiles_for_actor_keys(_visible_units(), moving_actor_keys)
+			previous_unit_obstruction_entries = _unit_obstruction_entries_for_actor_keys(_visible_units(), moving_actor_keys)
+	submission_phase_started = _record_submission_performance_phase("diff", submission_phase_started)
+	var layout_inputs_changed: bool = state_changed or exit_tiles_changed or _board_layout_signature.is_empty()
+	for layout_key: String in [
+		"active_door_tiles",
+		"locked_door_tiles",
+		"board_backdrop_visible",
+		"board_framing_mode",
+		"board_safe_global_rect",
+		"board_fit_rect", "board_encounter_types",
+		"controller_combat_navigation",
+	]:
+		if presentation_changes.has(layout_key):
+			layout_inputs_changed = true
+			break
+	var framing_inputs_changed: bool = state_changed or _board_visual_framing_signature.is_empty()
+	for framing_key: String in ["death_animation_units", "visible_enemy_ids", "scene_props"]:
+		if presentation_changes.has(framing_key):
+			framing_inputs_changed = true
+			break
+	var next_room_grid_signature: String = _room_grid_signature(next_state) if state_changed or layout_inputs_changed or _navigation_content_signature.is_empty() else _floor_variant_signature
+	var next_navigation_content_signature: String = _navigation_content_signature
+	if state_changed or layout_inputs_changed or _navigation_content_signature.is_empty():
+		next_navigation_content_signature = "%s|%s|%s" % [
+			next_room_grid_signature,
+			str(next_state.get("room_coord", Vector2i(-1, -1))),
+			str(next_presentation.get("board_encounter_types", []))
+		]
+	var next_layout_signature: String = (
+		_layout_signature_for_state(next_state, next_exit_tiles, next_presentation, next_room_grid_signature)
+		if layout_inputs_changed
+		else _board_layout_signature
+	)
+	var next_visual_framing_signature: String = (
+		_visual_framing_signature_for_state(next_state, next_presentation)
+		if framing_inputs_changed
+		else _board_visual_framing_signature
+	)
+	var next_floor_signature: String = next_room_grid_signature if state_changed or _floor_variant_signature.is_empty() else _floor_variant_signature
+	var next_moss_signature: String = _moss_signature_for_state(next_state) if state_changed or _moss_signature.is_empty() else _moss_signature
+	var layout_changed: bool = next_layout_signature != _board_layout_signature
+	var visual_framing_changed: bool = false
+	var floor_changed: bool = next_floor_signature != _floor_variant_signature
+	var moss_changed: bool = next_moss_signature != _moss_signature
+	var static_presentation_changed: bool = presentation_changes.has("board_backdrop_visible") or presentation_changes.has("scene_props") or combat_render_changes.has("room_element")
+	submission_phase_started = _record_submission_performance_phase("signatures", submission_phase_started)
+	var previous_transition_state: Dictionary = previous_combat_render_source if same_reference_state_mutation else combat_state
+	_update_umbra_return_transition(previous_transition_state, presentation, next_state, next_presentation, layout_changed)
+	_submission_cache_valid = false
+	# Combat and presentation dictionaries are copy-on-write snapshots owned by
+	# the caller. CombatBoardView only reads them and stores derived render data,
+	# avoiding a full recursive clone on every animation/hover submission.
+	combat_state = next_state
+	if not _submission_cache_initialized or combat_render_changes.has("surfaces"):
+		_animated_surface_tiles.clear()
+		for surface_tile: Vector2i in BoardSurfaceRules.tiles(next_state):
+			# Rubble's authored material is static. Elemental layers keep the
+			# exact existing continuous cadence, including Fire's conduction.
+			if not BoardSurfaceRules.element_at(next_state, surface_tile).is_empty():
+				_animated_surface_tiles.append(surface_tile)
+	move_tiles = _vector2i_array(next_move_tiles)
+	attack_tiles = _vector2i_array(next_attack_tiles)
+	selected_tile = next_selected_tile
+	status_label = next_status_label
+	status_detail = next_status_detail
+	exit_tiles = next_exit_tiles
+	exit_icon_ids = next_exit_icon_ids
+	presentation = next_presentation
+	_update_impact_camera_shake()
+	var previous_registrations: Dictionary = _cutout_floor_registrations()
+	# A pose-only submission affects its addressed family. Other persistent
+	# canvases continue their own idle processing; walking the complete roster
+	# for every family needlessly resubmitted unrelated actors each frame.
+	# Snapshot caches can be populated before _ready(), while actor pools cannot
+	# create their child canvases until this board enters the scene tree.
+	var refresh_cutout_roster: bool = not _cutout_roster_initialized or not _submission_cache_initialized
+	for key: String in ["player", "enemies", "illusions", "npcs"]:
+		refresh_cutout_roster = refresh_cutout_roster or combat_render_changes.has(key)
+	for key: String in ["preview_units", "death_animation_units", "visible_enemy_ids", "reduced_motion"]:
+		refresh_cutout_roster = refresh_cutout_roster or presentation_changes.has(key)
+	var roster_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
+	if refresh_cutout_roster or presentation_changes.has("illusion_motion"):
+		_sync_illusion_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_illusion", roster_phase_started)
+	if refresh_cutout_roster or presentation_changes.has("warden_motion"):
+		_sync_warden_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_warden", roster_phase_started)
+	if refresh_cutout_roster or presentation_changes.has("crawler_motion"):
+		_sync_crawler_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_crawler", roster_phase_started)
+	if refresh_cutout_roster or presentation_changes.has("acolyte_motion"):
+		_sync_acolyte_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_acolyte", roster_phase_started)
+	if refresh_cutout_roster or presentation_changes.has("guardian_motion"):
+		_sync_guardian_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_guardian", roster_phase_started)
+	if refresh_cutout_roster or presentation_changes.has("bile_bloomer_motion"):
+		_sync_bile_bloomer_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_bile_bloomer", roster_phase_started)
+	if refresh_cutout_roster or presentation_changes.has("gaoler_motion"):
+		_sync_gaoler_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_gaoler", roster_phase_started)
+	if refresh_cutout_roster or presentation_changes.has("cinder_droplet_motion"):
+		_sync_cinder_droplet_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_cinder_droplet", roster_phase_started)
+	if refresh_cutout_roster or presentation_changes.has("cinder_ooze_motion"):
+		CinderOozePresentation.sync(self)
+	if refresh_cutout_roster or presentation_changes.has("frostglass_motion"):
+		_sync_frostglass_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_frostglass", roster_phase_started)
+	if refresh_cutout_roster or presentation_changes.has("grave_surgeon_motion"):
+		_sync_grave_surgeon_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_grave_surgeon", roster_phase_started)
+	if refresh_cutout_roster or presentation_changes.has("harrier_motion"):
+		_sync_harrier_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_harrier", roster_phase_started)
+	if refresh_cutout_roster or presentation_changes.has("iskaldra_motion"):
+		_sync_iskaldra_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_iskaldra", roster_phase_started)
+	if refresh_cutout_roster or presentation_changes.has("lightning_wisp_motion"):
+		_sync_lightning_wisp_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_lightning_wisp", roster_phase_started)
+	if refresh_cutout_roster or presentation_changes.has("noctyrax_motion"):
+		_sync_noctyrax_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_noctyrax", roster_phase_started)
+	if refresh_cutout_roster or presentation_changes.has("tharokh_motion"):
+		_sync_tharokh_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_tharokh", roster_phase_started)
+	if refresh_cutout_roster or presentation_changes.has("vaeloryx_motion"):
+		_sync_vaeloryx_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_vaeloryx", roster_phase_started)
+	if refresh_cutout_roster or presentation_changes.has("veilbound_acolyte_motion"):
+		_sync_veilbound_acolyte_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_veilbound_acolyte", roster_phase_started)
+	if refresh_cutout_roster or presentation_changes.has("vyraketh_motion"):
+		_sync_vyraketh_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_vyraketh", roster_phase_started)
+	if refresh_cutout_roster or presentation_changes.has("zekarion_motion"):
+		_sync_zekarion_renderers()
+	roster_phase_started = _record_submission_performance_phase("roster_zekarion", roster_phase_started)
+	if is_instance_valid(_protagonist_renderer) and (refresh_cutout_roster or presentation_changes.has("protagonist_motion")):
+		_protagonist_renderer.call("present", presentation.get("protagonist_motion", {}),
+			bool(presentation.get("reduced_motion", false)), not (combat_state.get("player", {}) as Dictionary).is_empty())
+	# A detached update leaves existing pools stale too; resubmit them after
+	# reattachment even if the next presentation/state is identical.
+	_cutout_roster_initialized = is_inside_tree() and not _is_dynamic_render_layer and not _is_static_render_cache_layer
+	var registration_changes: Dictionary = {}
+	var current_registrations: Dictionary = _cutout_floor_registrations()
+	for actor_key: String in current_registrations:
+		if previous_registrations.get(actor_key) != current_registrations[actor_key]:
+			registration_changes[actor_key] = true
+			moving_actor_keys[actor_key] = true
+	var next_elemental_scene_tiles: Array[Vector2i] = _elemental_scene_depth_tiles_for_presentation(presentation)
+	if move_tiles_changed:
+		_move_tiles_lookup_cache = _vector2i_lookup(move_tiles)
+	if attack_tiles_changed:
+		_attack_tiles_lookup_cache = _vector2i_lookup(attack_tiles)
+	var overlay_presentation_cache_changed: bool = not _submission_cache_initialized
+	for overlay_key: String in ["focus_tiles", "confirmation_target_tiles", "objective_exit_target_tiles", "projected_attack_tiles", "projected_destination", "enemy_threat_previews"]:
+		if presentation_changes.has(overlay_key):
+			overlay_presentation_cache_changed = true
+			break
+	if overlay_presentation_cache_changed:
+		_focus_tiles_lookup_cache = _vector2i_lookup(presentation.get("focus_tiles", []))
+		_confirmation_target_tiles_lookup_cache = _vector2i_lookup(presentation.get("confirmation_target_tiles", []))
+		_objective_exit_tiles_lookup_cache = _vector2i_lookup(presentation.get("objective_exit_target_tiles", []))
+		_projected_attack_tiles_lookup_cache = _vector2i_lookup(presentation.get("projected_attack_tiles", []))
+		_summon_tiles_lookup_cache.clear()
+		_projected_destination_tiles_lookup_cache.clear()
+		var projected_destination: Vector2i = presentation.get("projected_destination", Vector2i(-999, -999))
+		if projected_destination.x > -999:
+			_projected_destination_tiles_lookup_cache[projected_destination] = true
+		for threat_var: Variant in presentation.get("enemy_threat_previews", []):
+			if typeof(threat_var) != TYPE_DICTIONARY:
+				continue
+			var threat: Dictionary = threat_var
+			for summon_tile: Vector2i in _vector2i_array(threat.get("summon", [])):
+				_summon_tiles_lookup_cache[summon_tile] = true
+			for attack_tile: Vector2i in _vector2i_array(threat.get("projected_attack", [])):
+				_projected_attack_tiles_lookup_cache[attack_tile] = true
+			var destination: Vector2i = threat.get("projected_destination", Vector2i(-999, -999))
+			if destination.x > -999 and _threat_has_projected_movement(threat):
+				_projected_destination_tiles_lookup_cache[destination] = true
+			# Where the intent's Push or Pull would land the hero.
+			var player_force: Dictionary = threat.get("projected_player_force", {}) as Dictionary
+			if (player_force.get("path", []) as Array).size() >= 2:
+				_projected_destination_tiles_lookup_cache[player_force.get("destination", Vector2i(-999, -999))] = true
+	if not _navigation_content_signature.is_empty() and next_navigation_content_signature != _navigation_content_signature:
+		_navigation_pan = Vector2.ZERO
+		_enemy_hud_side_by_actor.clear()
+		_clear_hud_layout_signature_cache()
+	_navigation_content_signature = next_navigation_content_signature
+	if state_changed or presentation_changes.has("death_animation_units") or not _submission_cache_initialized:
+		_ensure_unit_assets_for_submission(combat_state, presentation)
+	submission_phase_started = _record_submission_performance_phase("assign_and_assets", submission_phase_started)
+	if layout_changed:
+		_board_layout_signature = next_layout_signature
+		_invalidate_board_layout_cache()
+
+	_board_visual_framing_signature = next_visual_framing_signature
+	if floor_changed:
+		_floor_variant_signature = next_floor_signature
+		_floor_variant_by_tile = _build_floor_variant_lookup(combat_state.get("grid", []))
+	if moss_changed:
+		_moss_signature = next_moss_signature
+		_moss_tiles_by_surface = _build_moss_tile_lookup(combat_state.get("moss", {}))
+	var submission_sources_changed: bool = state_changed or not _submission_cache_initialized
+	for cache_key: String in [
+		"scene_props", "preview_units", "death_animation_units", "unit_draw_tiles",
+		"unit_world_positions", "unit_footprint_world_positions", "visible_enemy_ids", "umbra_visible_tiles",
+		"umbra_light_sources", "umbra_stage", "damage_preview", "effect", "ability_tiles",
+		"enemy_intent_compasses"
+	]:
+		if presentation_changes.has(cache_key):
+			submission_sources_changed = true
+			break
+	if submission_sources_changed:
+		_rebuild_submission_caches(presentation_changes, state_changed, moving_actor_keys)
+	else:
+		_submission_cache_valid = true
+		_submission_cache_combat_changed = false
+	submission_phase_started = _record_submission_performance_phase("derived_caches", submission_phase_started)
+	if track_visible_unit_changes:
+		var current_units_by_key: Dictionary = _units_by_key(_visible_units())
+		for actor_key_var: Variant in previous_units_by_key:
+			if not current_units_by_key.has(actor_key_var) or previous_units_by_key.get(actor_key_var) != current_units_by_key.get(actor_key_var):
+				moving_actor_keys[str(actor_key_var)] = true
+		for actor_key_var: Variant in current_units_by_key:
+			if not previous_units_by_key.has(actor_key_var) or current_units_by_key.get(actor_key_var) != previous_units_by_key.get(actor_key_var):
+				moving_actor_keys[str(actor_key_var)] = true
+	var hud_layout_inputs_changed: bool = state_changed or layout_changed or visual_framing_changed or _hud_layout_entries_cache.is_empty()
+	for hud_key: String in [
+		"expanded_enemy_actor_keys", "expand_enemy_intents", "show_all_enemy_intents",
+		"unit_draw_tiles", "unit_world_positions", "preview_units", "death_animation_units",
+		"visible_enemy_ids", "surface_status_preview"
+	]:
+		if presentation_changes.has(hud_key):
+			hud_layout_inputs_changed = true
+			break
+	if hud_layout_inputs_changed:
+		var structural_hud_change: bool = (
+			state_changed
+			or layout_changed
+			or visual_framing_changed
+			or presentation_changes.has("expanded_enemy_actor_keys")
+			or presentation_changes.has("expand_enemy_intents")
+			or presentation_changes.has("show_all_enemy_intents")
+			or presentation_changes.has("preview_units")
+			or presentation_changes.has("death_animation_units")
+			or presentation_changes.has("visible_enemy_ids")
+		)
+		if structural_hud_change or not _refresh_moving_hud_geometry(moving_actor_keys):
+			_rebuild_hud_health_rects_cache()
+	submission_phase_started = _record_submission_performance_phase("hud_layout", submission_phase_started)
+	if _dynamic_render_layer != null and is_instance_valid(_dynamic_render_layer) and (layout_changed or _scene_render_layers.is_empty()):
+		_sync_scene_render_layers()
+		_sync_dynamic_render_assets()
+	var retained_sync_fields: Array = []
+	if not layout_changed and not visual_framing_changed:
+		if state_changed:
+			retained_sync_fields.append_array([
+				"combat_state", "_terrain_by_tile", "_loot_by_tile", "_traps_by_tile",
+				"_grid_tile_ids_cache", "_ambient_element_id_cache", "_equipment_pickup_beacon_cache",
+				"_visible_units_cache", "_units_by_draw_tile_cache", "_preview_unit_pulse_cache", "_foreground_obstruction_entries_cache",
+				"_hud_health_rects_cache", "_hud_layout_entries_cache", "_submission_cache_valid",
+				"_umbra_return_start_by_tile"
+			])
+		if move_tiles_changed:
+			retained_sync_fields.append_array(["move_tiles", "_move_tiles_lookup_cache"])
+		if attack_tiles_changed:
+			retained_sync_fields.append_array(["attack_tiles", "_attack_tiles_lookup_cache"])
+		if selected_tile_changed:
+			retained_sync_fields.append("selected_tile")
+		if status_changed:
+			retained_sync_fields.append_array(["status_label", "status_detail"])
+		if exit_tiles_changed:
+			retained_sync_fields.append("exit_tiles")
+		if exit_icon_ids_changed:
+			retained_sync_fields.append("exit_icon_ids")
+		if not presentation_changes.is_empty():
+			retained_sync_fields.append("presentation")
+			retained_sync_fields.append_array(["_hud_health_rects_cache", "_hud_layout_entries_cache"])
+		if presentation_changes.has("damage_preview") or presentation_changes.has("effect"):
+			retained_sync_fields.append("_damage_preview_cache")
+		if presentation_changes.has("ability_tiles"):
+			retained_sync_fields.append_array(["_ability_tiles_cache", "_ability_tiles_lookup_cache"])
+		if overlay_presentation_cache_changed:
+			retained_sync_fields.append_array([
+				"_focus_tiles_lookup_cache", "_confirmation_target_tiles_lookup_cache", "_objective_exit_tiles_lookup_cache",
+				"_projected_attack_tiles_lookup_cache", "_summon_tiles_lookup_cache", "_projected_destination_tiles_lookup_cache"
+			])
+		for unit_key: String in ["preview_units", "death_animation_units", "unit_draw_tiles", "unit_world_positions", "unit_footprint_world_positions", "visible_enemy_ids", "umbra_visible_tiles", "umbra_light_sources", "umbra_stage"]:
+			if not presentation_changes.has(unit_key):
+				continue
+			retained_sync_fields.append_array([
+				"_visible_units_cache", "_units_by_draw_tile_cache", "_preview_unit_pulse_cache", "_foreground_obstruction_entries_cache",
+				"_submission_cache_valid"
+			])
+			break
+		if presentation_changes.has("scene_props"):
+			retained_sync_fields.append_array([
+				"_scene_props_by_tile", "_campfire_scene_props_cache", "_foreground_obstruction_entries_cache",
+				"_submission_cache_valid"
+			])
+		if floor_changed:
+			retained_sync_fields.append_array(["_floor_variant_by_tile", "_floor_variant_signature"])
+		if moss_changed:
+			retained_sync_fields.append_array(["_moss_tiles_by_surface", "_moss_signature"])
+		var unique_sync_fields: Array = []
+		for field_var: Variant in retained_sync_fields:
+			if not unique_sync_fields.has(field_var):
+				unique_sync_fields.append(field_var)
+		retained_sync_fields = unique_sync_fields
+	if layout_changed or visual_framing_changed or not retained_sync_fields.is_empty():
+		_sync_dynamic_render_state(layout_changed, visual_framing_changed, retained_sync_fields)
+	submission_phase_started = _record_submission_performance_phase("retained_sync", submission_phase_started)
+	_update_cursor_shape()
+	if layout_changed or visual_framing_changed or floor_changed or moss_changed or static_presentation_changed or _dynamic_render_layer == null:
+		_sync_static_render_cache()
+		queue_redraw()
+	if layout_changed or visual_framing_changed or floor_changed or moss_changed:
+		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
+		_explicit_impact_redraw_process_frame = _coalescible_explicit_redraw_frame()
+		_queue_dynamic_redraw()
+	else:
+		if _submission_cache_combat_changed:
+			_queue_combat_state_change_redraws(
+				combat_render_changes,
+				previous_combat_render_source,
+				next_combat_render_source,
+				moving_actor_keys,
+				previous_unit_render_tiles,
+				previous_unit_obstruction_entries
+			)
+		if interaction_changed:
+			_queue_interaction_change_redraws(
+				move_tiles_changed,
+				attack_tiles_changed,
+				selected_tile_changed,
+				status_changed,
+				exit_tiles_changed,
+				exit_icon_ids_changed,
+				previous_exit_tiles
+			)
+		_queue_presentation_change_redraws(
+			presentation_changes,
+			previous_damage_preview != _damage_preview_cache,
+			moving_actor_keys,
+			previous_unit_render_tiles,
+			previous_unit_obstruction_entries,
+			previous_elemental_scene_tiles,
+			next_elemental_scene_tiles,
+			previous_focus_actor_keys,
+			next_presentation.get("focus_actor_keys", []) as Array,
+			previous_terrain_destruction_units,
+			next_presentation.get("terrain_destruction_units", []) as Array,
+			previous_scene_props,
+			next_presentation.get("scene_props", []) as Array
+		)
+		for surface_tile: Vector2i in surface_redraw_tiles:
+			_queue_scene_render_layer_for_tile(surface_tile)
+	if not registration_changes.is_empty():
+		# A persistent viewport can turn without changing its actor dictionary.
+		# The retained draw command must select that view's floor registration too.
+		_refresh_moving_foreground_obstruction_entries(registration_changes)
+		_rebuild_hud_health_rects_cache()
+		_sync_dynamic_render_state(false, false, ["_foreground_obstruction_entries_cache", "_hud_health_rects_cache", "_hud_layout_entries_cache"])
+		_queue_render_layer_redraw(_hud_render_layer)
+		_queue_moving_actor_redraws(registration_changes, previous_unit_render_tiles, previous_unit_obstruction_entries)
+	_sync_enemy_shadow_dissolve_effects()
+	_record_submission_performance_phase("redraw_routing", submission_phase_started)
+
+func set_submission_performance_instrumentation_enabled(enabled: bool) -> void:
+	_submission_performance_instrumentation_enabled = enabled
+	_submission_performance_total_usec.clear()
+	_submission_performance_counts.clear()
+
+func submission_performance_instrumentation_snapshot() -> Dictionary:
+	var result: Dictionary = {}
+	for phase_var: Variant in _submission_performance_total_usec:
+		var phase: String = str(phase_var)
+		var count: int = int(_submission_performance_counts.get(phase, 0))
+		result[phase] = {
+			"count": count,
+			"total_usec": int(_submission_performance_total_usec.get(phase, 0)),
+			"usec_per_call": float(_submission_performance_total_usec.get(phase, 0)) / float(count) if count > 0 else 0.0,
+		}
+	return result
+
+func _record_submission_performance_phase(phase: String, started_usec: int) -> int:
+	if not _submission_performance_instrumentation_enabled:
+		return 0
+	var now_usec: int = Time.get_ticks_usec()
+	_submission_performance_total_usec[phase] = int(_submission_performance_total_usec.get(phase, 0)) + now_usec - started_usec
+	_submission_performance_counts[phase] = int(_submission_performance_counts.get(phase, 0)) + 1
+	return now_usec
+
+func _queue_interaction_change_redraws(
+	move_changed: bool,
+	attack_changed: bool,
+	selection_changed: bool,
+	status_text_changed: bool,
+	exits_changed: bool,
+	exit_icons_changed: bool,
+	previous_exits: Dictionary
+) -> void:
+	if move_changed or attack_changed or selection_changed or exits_changed:
+		_queue_render_layer_redraw(_overlay_render_layer)
+	if attack_changed:
+		_queue_render_layer_redraw(_foreground_render_layer)
+	if status_text_changed:
+		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
+		_queue_render_layer_redraw(_effects_render_layer)
+	if exit_icons_changed:
+		for tile_var: Variant in previous_exits:
+			if typeof(tile_var) == TYPE_VECTOR2I:
+				_queue_scene_render_layer_for_tile(tile_var)
+		for tile_var: Variant in exit_tiles:
+			if typeof(tile_var) == TYPE_VECTOR2I:
+				_queue_scene_render_layer_for_tile(tile_var)
+
+func _changed_presentation_keys(previous: Dictionary, next: Dictionary) -> Dictionary:
+	var changed: Dictionary = {}
+	for key_var: Variant in previous:
+		if not next.has(key_var):
+			changed[str(key_var)] = true
+			continue
+		var previous_value: Variant = previous.get(key_var)
+		var next_value: Variant = next.get(key_var)
+		if not is_same(previous_value, next_value) and previous_value != next_value:
+			changed[str(key_var)] = true
+	for key_var: Variant in next:
+		if not previous.has(key_var):
+			changed[str(key_var)] = true
+	return changed
+
+func _coalescible_explicit_redraw_frame() -> int:
+	var render_frame: int = Engine.get_process_frames()
+	# Engine advances this counter after rendering. If this board already processed
+	# the current value, a timer/deferred submission will render later in this frame
+	# and must not suppress the following frame's continuous redraw.
+	return render_frame if _last_processed_render_frame != render_frame else -1
+
+func _changed_unit_presentation_actor_keys(previous: Dictionary, next: Dictionary) -> Dictionary:
+	var changed: Dictionary = {}
+	for field: String in ["unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles"]:
+		var previous_values: Dictionary = previous.get(field, {}) as Dictionary
+		var next_values: Dictionary = next.get(field, {}) as Dictionary
+		for key_var: Variant in previous_values:
+			if not next_values.has(key_var) or previous_values.get(key_var) != next_values.get(key_var):
+				changed[str(key_var)] = true
+		for key_var: Variant in next_values:
+			if not previous_values.has(key_var) or previous_values.get(key_var) != next_values.get(key_var):
+				changed[str(key_var)] = true
+	return changed
+
+func _unit_render_tiles_by_key(units_to_draw: Array[Dictionary]) -> Dictionary:
+	var result: Dictionary = {}
+	for unit: Dictionary in units_to_draw:
+		var actor_key: String = str(unit.get("key", ""))
+		if not actor_key.is_empty():
+			result[actor_key] = _effective_unit_tile(unit)
+	return result
+
+func _unit_render_tiles_for_actor_keys(units_to_draw: Array[Dictionary], actor_keys: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for unit: Dictionary in units_to_draw:
+		var actor_key: String = str(unit.get("key", ""))
+		if actor_keys.has(actor_key):
+			result[actor_key] = _effective_unit_tile(unit)
+	return result
+
+func _units_by_key(units_to_draw: Array[Dictionary]) -> Dictionary:
+	var result: Dictionary = {}
+	for unit: Dictionary in units_to_draw:
+		var actor_key: String = str(unit.get("key", ""))
+		if not actor_key.is_empty():
+			result[actor_key] = unit
+	return result
+
+func _unit_obstruction_entries_by_key(units_to_draw: Array[Dictionary]) -> Dictionary:
+	var result: Dictionary = {}
+	for unit: Dictionary in units_to_draw:
+		var actor_key: String = str(unit.get("key", ""))
+		if actor_key.is_empty():
+			continue
+		result[actor_key] = {"tile": _effective_unit_tile(unit), "rect": _unit_draw_rect(unit)}
+	return result
+
+func _unit_obstruction_entries_for_actor_keys(units_to_draw: Array[Dictionary], actor_keys: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for unit: Dictionary in units_to_draw:
+		var actor_key: String = str(unit.get("key", ""))
+		if actor_keys.has(actor_key):
+			result[actor_key] = {"tile": _effective_unit_tile(unit), "rect": _unit_draw_rect(unit)}
+	return result
+
+func _queue_presentation_change_redraws(
+	changed_keys: Dictionary,
+	damage_preview_changed: bool = false,
+	moving_actor_keys: Dictionary = {},
+	previous_unit_render_tiles: Dictionary = {},
+	previous_unit_obstruction_entries: Dictionary = {},
+	previous_elemental_scene_tiles: Array = [],
+	next_elemental_scene_tiles: Array = [],
+	previous_focus_actor_keys: Array = [],
+	next_focus_actor_keys: Array = [],
+	previous_terrain_destruction_units: Array = [],
+	next_terrain_destruction_units: Array = [],
+	previous_scene_props: Array = [],
+	next_scene_props: Array = []
+) -> void:
+	if changed_keys.is_empty() and not damage_preview_changed:
+		return
+	var ambient_changed: bool = false
+	var overlay_changed: bool = false
+	var path_changed: bool = false
+	var impact_floor_changed: bool = false
+	var action_floor_changed: bool = false
+	var impact_changed: bool = false
+	var unit_movement_changed: bool = false
+	var foreground_changed: bool = false
+	var hud_changed: bool = false
+	var effects_changed: bool = false
+	for key_var: Variant in changed_keys:
+		match str(key_var):
+			"surface_preview_events", "surface_preview_arcs", "surface_feedback_events", "surface_feedback_progress":
+				# set_combat_state queues the union of old/new command owners.
+				pass
+			"surface_status_preview", "friendly_damage_chips":
+				hud_changed = true
+			"ambient_time_seconds":
+				ambient_changed = true
+			"ability_tiles", "confirmation_target_tiles", "focus_color", "focus_tiles", "objective_exit_target_tiles", "objective_leader_tile", "projected_attack_tiles", "projected_destination", "pulse_attack_tiles", "pulse_exit_tiles":
+				overlay_changed = true
+			"player_aoe_preview_active":
+				overlay_changed = true
+			"path_color", "path_tiles", "displacement_paths":
+				path_changed = true
+			"enemy_threat_previews", "illusion_echo_previews":
+				overlay_changed = true
+				path_changed = true
+				effects_changed = true
+			"effect", "effect_progress":
+				effects_changed = true
+				action_floor_changed = true
+				overlay_changed = true
+				# Noctyrax's tethered labels solve around the animated actor and
+				# action banner. Retaining the pre-cast HUD until damage changes
+				# actor state can leave its old label over the windup banner.
+				if str((presentation.get("effect",{}) as Dictionary).get("enemy_type","")) == "noctyrax":
+					hud_changed = true
+			"floating_texts", "lethal_preview_time_seconds", "movement_risk_chips", "status_safe_global_rect", "collision_markers":
+				effects_changed = true
+			"trap_effects":
+				effects_changed = true
+				action_floor_changed = true
+			"damage_preview":
+				effects_changed = true
+			"death_site_embers":
+				_queue_render_layer_redraw(_ground_render_layer)
+			"expand_enemy_intents", "expanded_enemy_actor_keys", "show_all_enemy_intents", "hud_obstacle_global_rects":
+				hud_changed = true
+			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength":
+				impact_floor_changed = true
+				impact_changed = true
+			"death_animation_units", "preview_units", "unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "visible_enemy_ids", "umbra_action_actor_clips":
+				unit_movement_changed = true
+				foreground_changed = true
+				# Large-target footprint extensions share the ground overlay layer.
+				# Visibility and geometry can change while the selected tiles stay fixed.
+				overlay_changed = overlay_changed or not attack_tiles.is_empty()
+				hud_changed = true
+			"focus_actor_color", "focus_actor_keys":
+				_queue_focus_actor_scene_redraws(previous_focus_actor_keys, next_focus_actor_keys, previous_unit_render_tiles)
+			"terrain_destruction_units":
+				_queue_scene_tiles_for_presentation_entries(previous_terrain_destruction_units, next_terrain_destruction_units, "pos")
+			"scene_props":
+				_queue_scene_tiles_for_presentation_entries(previous_scene_props, next_scene_props, "tile")
+				_queue_render_layer_redraw(_ambient_render_layer)
+				foreground_changed = true
+			"protagonist_motion":
+				# The rig keeps a stable texture; its small hand charge lives on FX.
+				effects_changed = true
+			"guardian_motion", "warden_motion", "crawler_motion", "acolyte_motion", "bile_bloomer_motion", "cinder_droplet_motion", "cinder_ooze_motion", "frostglass_motion", "harrier_motion", "iskaldra_motion", "noctyrax_motion", "vaeloryx_motion", "veilbound_acolyte_motion":
+				# Per-actor viewports retain their texture RID between poses.
+				pass
+			"tile_drag_aiming":
+				# This flag changes pointer interpretation only; it has no rendered pixels.
+				pass
+			"umbra_visible_tiles":
+				_queue_dynamic_redraw()
+			"umbra_light_sources", "umbra_stage":
+				_queue_render_layer_redraw(_dynamic_render_layer)
+				foreground_changed = true
+			"enemy_intent_compasses":
+				for unit: Dictionary in _visible_units():
+					if str(unit.get("role", "")) == "enemy":
+						_queue_scene_render_layer_for_tile(_effective_unit_tile(unit))
+			_:
+				# Unclassified presentation state remains conservative. The retained
+				# layers optimize known animation-only submissions without risking a
+				# stale frame when a new presentation field is introduced.
+				var unclassified_key: String = str(key_var)
+				_unclassified_presentation_redraw_keys[unclassified_key] = int(_unclassified_presentation_redraw_keys.get(unclassified_key, 0)) + 1
+				_queue_dynamic_redraw()
+				return
+	if ambient_changed:
+		_queue_render_layer_redraw(_ambient_render_layer)
+	if overlay_changed:
+		_queue_render_layer_redraw(_overlay_render_layer)
+	if path_changed:
+		_queue_render_layer_redraw(_path_render_layer)
+		for tile: Vector2i in _scene_render_layers_by_tile:
+			_queue_scene_render_layer_for_tile(tile)
+	if impact_floor_changed or action_floor_changed:
+		_explicit_impact_redraw_process_frame = _coalescible_explicit_redraw_frame()
+	if impact_floor_changed:
+		_queue_render_layer_redraw(_impact_floor_render_layer)
+	if action_floor_changed:
+		_queue_render_layer_redraw(_action_floor_render_layer)
+	if impact_changed:
+		_queue_impact_scene_redraws()
+	if unit_movement_changed:
+		_queue_moving_actor_redraws(moving_actor_keys, previous_unit_render_tiles, previous_unit_obstruction_entries)
+	if foreground_changed:
+		_queue_render_layer_redraw(_foreground_render_layer)
+	if damage_preview_changed:
+		hud_changed = true
+		for terrain_var: Variant in combat_state.get("terrain", []):
+			if typeof(terrain_var) == TYPE_DICTIONARY:
+				_queue_scene_render_layer_for_tile((terrain_var as Dictionary).get("pos", Vector2i(-1, -1)))
+	if hud_changed:
+		_queue_render_layer_redraw(_hud_render_layer)
+	if effects_changed:
+		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
+		_queue_render_layer_redraw(_effects_render_layer)
+		_queue_elemental_scene_depth_redraws(previous_elemental_scene_tiles, next_elemental_scene_tiles)
+
+func _queue_combat_state_change_redraws(
+	changed_keys: Dictionary,
+	previous_source: Dictionary,
+	next_source: Dictionary,
+	moving_actor_keys: Dictionary,
+	previous_unit_render_tiles: Dictionary,
+	previous_unit_obstruction_entries: Dictionary
+) -> void:
+	var units_changed: bool = false
+	for key: String in ["player", "illusions", "enemies", "npcs"]:
+		if changed_keys.has(key):
+			units_changed = true
+			break
+	if units_changed:
+		_queue_moving_actor_redraws(moving_actor_keys, previous_unit_render_tiles, previous_unit_obstruction_entries)
+		_queue_render_layer_redraw(_foreground_render_layer)
+		if not attack_tiles.is_empty():
+			_queue_render_layer_redraw(_overlay_render_layer)
+		_queue_render_layer_redraw(_hud_render_layer)
+	if changed_keys.has("player_turn_restrictions"):
+		for player_source: Dictionary in [
+			previous_source.get("player", {}) as Dictionary,
+			next_source.get("player", {}) as Dictionary,
+		]:
+			_queue_scene_render_layer_for_tile(player_source.get("pos", Vector2i(-1, -1)))
+		_queue_render_layer_redraw(_hud_render_layer)
+	if changed_keys.has("terrain"):
+		_queue_scene_tiles_for_state_entries(previous_source.get("terrain", []) as Array, next_source.get("terrain", []) as Array)
+	if changed_keys.has("loot"):
+		_queue_render_layer_redraw(_ground_render_layer)
+		_queue_scene_tiles_for_state_entries(previous_source.get("loot", []) as Array, next_source.get("loot", []) as Array)
+	if changed_keys.has("traps"):
+		_queue_render_layer_redraw(_ground_render_layer)
+	if changed_keys.has("meteor_marks"):
+		_queue_render_layer_redraw(_overlay_render_layer)
+		# The mark badges (icon and damage) draw above units in the effects layer.
+		_queue_render_layer_redraw(_effects_render_layer)
+	if changed_keys.has("surfaces") or changed_keys.has("relics") or changed_keys.has("surface_rule_overrides"):
+		for tile: Vector2i in BoardSurfaceRules.tiles(previous_source) + BoardSurfaceRules.tiles(next_source):
+			_queue_scene_render_layer_for_tile(tile)
+	if changed_keys.has("grid") or changed_keys.has("room_element"):
+		_queue_dynamic_redraw()
+
+func _queue_scene_tiles_for_state_entries(previous_entries: Array, next_entries: Array) -> void:
+	_queue_scene_tiles_for_presentation_entries(previous_entries, next_entries, "pos")
+
+func _queue_scene_tiles_for_presentation_entries(previous_entries: Array, next_entries: Array, position_key: String) -> void:
+	var queued_tiles: Dictionary = {}
+	for entry_var: Variant in previous_entries + next_entries:
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var tile: Vector2i = (entry_var as Dictionary).get(position_key, Vector2i(-1, -1))
+		if tile.x < 0 or queued_tiles.has(tile):
+			continue
+		queued_tiles[tile] = true
+		_queue_scene_render_layer_for_tile(tile)
+
+func _queue_focus_actor_scene_redraws(previous_actor_keys: Array, next_actor_keys: Array, previous_unit_render_tiles: Dictionary) -> void:
+	var current_unit_render_tiles: Dictionary = _unit_render_tiles_by_key(_visible_units())
+	var queued_keys: Dictionary = {}
+	for actor_key_var: Variant in previous_actor_keys + next_actor_keys:
+		var actor_key: String = str(actor_key_var)
+		if actor_key.is_empty() or queued_keys.has(actor_key):
+			continue
+		queued_keys[actor_key] = true
+		if previous_unit_render_tiles.has(actor_key):
+			_queue_scene_render_layer_for_tile(previous_unit_render_tiles.get(actor_key, Vector2i(-1, -1)))
+		if current_unit_render_tiles.has(actor_key):
+			_queue_scene_render_layer_for_tile(current_unit_render_tiles.get(actor_key, Vector2i(-1, -1)))
+
+func _queue_elemental_scene_depth_redraws(previous_tiles: Array, next_tiles: Array) -> void:
+	var queued_tiles: Dictionary = {}
+	for tile_var: Variant in previous_tiles + next_tiles:
+		if typeof(tile_var) != TYPE_VECTOR2I or queued_tiles.has(tile_var):
+			continue
+		queued_tiles[tile_var] = true
+		_queue_scene_effect_render_layers_for_tile(tile_var as Vector2i)
+
+func _queue_moving_actor_redraws(
+	moving_actor_keys: Dictionary,
+	previous_unit_render_tiles: Dictionary,
+	previous_unit_obstruction_entries: Dictionary
+) -> void:
+	var current_render_tiles: Dictionary = _unit_render_tiles_for_actor_keys(_visible_units(), moving_actor_keys)
+	var current_obstruction_entries: Dictionary = _unit_obstruction_entries_for_actor_keys(_visible_units(), moving_actor_keys)
+	var previous_moving_entries: Array = []
+	var current_moving_entries: Array = []
+	for actor_key_var: Variant in moving_actor_keys:
+		var actor_key: String = str(actor_key_var)
+		if previous_unit_render_tiles.has(actor_key):
+			_queue_scene_render_layer_for_tile(previous_unit_render_tiles.get(actor_key, Vector2i(-1, -1)))
+		if current_render_tiles.has(actor_key):
+			_queue_scene_render_layer_for_tile(current_render_tiles.get(actor_key, Vector2i(-1, -1)))
+		if previous_unit_obstruction_entries.has(actor_key):
+			previous_moving_entries.append(previous_unit_obstruction_entries.get(actor_key))
+		if current_obstruction_entries.has(actor_key):
+			current_moving_entries.append(current_obstruction_entries.get(actor_key))
+	for candidate_var: Variant in _foreground_obstruction_candidates():
+		var candidate: Dictionary = candidate_var as Dictionary
+		if (
+			_moving_entries_obstruct_candidate(previous_moving_entries, candidate)
+			!= _moving_entries_obstruct_candidate(current_moving_entries, candidate)
+		):
+			_queue_scene_render_layer_for_tile(candidate.get("tile", Vector2i(-1, -1)))
+
+func _foreground_obstruction_candidates() -> Array:
+	if _foreground_obstruction_candidates_cache_valid:
+		return _foreground_obstruction_candidates_cache
+	var source: Dictionary = {
+		"size": size,
+		"navigation_zoom": _navigation_zoom,
+		"navigation_pan": _navigation_pan,
+		"grid": combat_state.get("grid", []),
+		"scene_props": presentation.get("scene_props", []),
+		"terrain": combat_state.get("terrain", []),
+		"umbra_visible_tiles": presentation.get("umbra_visible_tiles", [])
+	}
+	var candidates: Array = []
+	var grid: Array = combat_state.get("grid", [])
+	for tile: Vector2i in _rendered_tiles_in_draw_order():
+		for prop_var: Variant in _entries_for_tile(_scene_props_by_tile, presentation.get("scene_props", []), "tile", tile):
+			if typeof(prop_var) != TYPE_DICTIONARY:
+				continue
+			var prop: Dictionary = prop_var as Dictionary
+			var prop_texture: Texture2D = _texture_for_scene_prop(prop)
+			if prop_texture != null:
+				candidates.append({"tile": tile, "rect": _scene_prop_rect(prop_texture, prop)})
+		var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
+		if tile_id == "wall" and not _is_outer_boundary_tile(grid, tile):
+			tile_id = "pillar"
+		match tile_id:
+			"pillar":
+				var pillar_texture: Texture2D = _prop_textures.get("pillar", null)
+				if pillar_texture != null:
+					candidates.append({"tile": tile, "rect": _prop_draw_rect(pillar_texture, _prop_rect_for_tile(tile))})
+			"wall":
+				for segment: Dictionary in _boundary_prop_segments(tile_id, grid, tile):
+					candidates.append({"tile": tile, "rect": segment.get("draw_rect", Rect2())})
+			"door":
+				var door_texture: Texture2D = _door_texture_for_tile(grid, tile)
+				if door_texture != null:
+					candidates.append({"tile": tile, "rect": _prop_draw_rect(door_texture, _door_rect_for_tile(tile, grid))})
+		for terrain_var: Variant in _entries_for_tile(_terrain_by_tile, combat_state.get("terrain", []), "pos", tile):
+			if typeof(terrain_var) != TYPE_DICTIONARY:
+				continue
+			var terrain: Dictionary = terrain_var as Dictionary
+			if not _board_tile_is_visible_to_player(terrain.get("pos", Vector2i(-1, -1))):
+				continue
+			if int(terrain.get("hp", 0)) <= 0:
+				continue
+			var terrain_texture: Texture2D = _terrain_textures.get(str(terrain.get("kind", "")), null)
+			if terrain_texture != null:
+				candidates.append({
+					"tile": tile,
+					"rect": _terrain_rect_for_tile(tile, terrain_texture, str(terrain.get("kind", "")))
+				})
+	_foreground_obstruction_candidates_source_snapshot = source.duplicate(true)
+	_foreground_obstruction_candidates_cache = candidates
+	_foreground_obstruction_candidates_cache_valid = true
+	return _foreground_obstruction_candidates_cache
+
+func _moving_entries_obstruct_candidate(moving_entries: Array, candidate: Dictionary) -> bool:
+	var candidate_tile: Vector2i = candidate.get("tile", Vector2i(-1, -1))
+	var candidate_rect: Rect2 = candidate.get("rect", Rect2())
+	for entry_var: Variant in moving_entries:
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		var entry_tile: Vector2i = entry.get("tile", Vector2i(-1, -1))
+		if not _tile_draws_before(entry_tile, candidate_tile):
+			continue
+		if _foreground_overlap_coverage(candidate_rect, entry.get("rect", Rect2())) >= FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD:
+			return true
+	return false
+
+func _update_umbra_return_transition(previous_state: Dictionary, previous_presentation: Dictionary, next_state: Dictionary, next_presentation: Dictionary, layout_changed: bool) -> void:
+	if layout_changed or str(next_presentation.get("umbra_stage", "clear")) == "clear":
+		_umbra_return_start_by_tile.clear()
+		return
+	var next_visible_lookup: Dictionary = {}
+	for tile_var: Variant in next_presentation.get("umbra_visible_tiles", []):
+		if typeof(tile_var) == TYPE_VECTOR2I:
+			next_visible_lookup[tile_var] = true
+			_umbra_return_start_by_tile.erase(tile_var)
+	if previous_state.is_empty() or int(next_state.get("turn", 0)) <= int(previous_state.get("turn", 0)):
+		return
+	var previous_visible_tiles: Array[Vector2i] = _vector2i_array(previous_presentation.get("umbra_visible_tiles", []))
+	var lost_tiles: Array[Vector2i] = _vector2i_array([])
+	for tile: Vector2i in previous_visible_tiles:
+		if not next_visible_lookup.has(tile):
+			lost_tiles.append(tile)
+	if lost_tiles.is_empty():
+		return
+	var centers: Array[Vector2i] = _vector2i_array([])
+	var next_source_ids: Dictionary = {}
+	for source_var: Variant in next_presentation.get("umbra_light_sources", []):
+		if typeof(source_var) == TYPE_DICTIONARY:
+			next_source_ids[int((source_var as Dictionary).get("id", -1))] = true
+	for source_var: Variant in previous_presentation.get("umbra_light_sources", []):
+		if typeof(source_var) != TYPE_DICTIONARY:
+			continue
+		var source: Dictionary = source_var as Dictionary
+		if next_source_ids.has(int(source.get("id", -1))):
+			continue
+		var source_pos: Vector2i = source.get("pos", Vector2i(-1, -1))
+		if source_pos.x >= 0:
+			centers.append(source_pos)
+	var previous_vision_duration: int = int(previous_presentation.get("umbra_vision_bonus_activations", 0))
+	var next_vision_duration: int = int(next_presentation.get("umbra_vision_bonus_activations", 0))
+	if previous_vision_duration != 0 and next_vision_duration == 0:
+		var player: Dictionary = next_state.get("player", {})
+		centers.append(player.get("pos", Vector2i.ZERO))
+	if centers.is_empty():
+		return
+	var maximum_distance: int = 0
+	var distance_by_tile: Dictionary = {}
+	for tile: Vector2i in lost_tiles:
+		var closest_distance: int = 9999
+		for center: Vector2i in centers:
+			closest_distance = mini(closest_distance, absi(tile.x - center.x) + absi(tile.y - center.y))
+		distance_by_tile[tile] = closest_distance
+		maximum_distance = maxi(maximum_distance, closest_distance)
+	var now_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	for tile: Vector2i in lost_tiles:
+		var normalized_distance: float = float(int(distance_by_tile.get(tile, 0))) / float(maxi(1, maximum_distance))
+		var delay: float = (1.0 - normalized_distance) * UMBRA_RETURN_STAGGER_SECONDS
+		_umbra_return_start_by_tile[tile] = now_seconds + delay
+
+func _combat_submission_cache_source(source_state: Dictionary) -> Dictionary:
+	return {
+		"room_coord": source_state.get("room_coord", Vector2i.ZERO),
+		"turn": source_state.get("turn", 0),
+		"player": source_state.get("player", {}),
+		"player_turn_restrictions": source_state.get("player_turn_restrictions", {}),
+		"illusions": source_state.get("illusions", []),
+		"enemies": source_state.get("enemies", []),
+		"npcs": source_state.get("npcs", []),
+		"terrain": source_state.get("terrain", []),
+		"loot": source_state.get("loot", []),
+		"traps": source_state.get("traps", []),
+		"surfaces": source_state.get("surfaces", {}),
+		"relics": source_state.get("relics", []),
+		# Player keyword badges (Retaliate, Quicken, next attack, Rite thorns).
+		"retaliate": source_state.get("retaliate", {}),
+		"active_rites": source_state.get("active_rites", []),
+		# Player Meteorfall marks (spec/card_mechanics_surfaces.md).
+		"meteor_marks": source_state.get("meteor_marks", []),
+		"turn_flags": source_state.get("turn_flags", {}),
+		# Player self-flag badges (Skate, Rooted, Anchored, Fireproof).
+		ManeuverRules.FLAGS_KEY: source_state.get(ManeuverRules.FLAGS_KEY, {}),
+		"surface_rule_overrides": source_state.get("surface_rule_overrides", {}),
+		"grid": source_state.get("grid", []),
+		"room_element": source_state.get("room_element", ElementData.NONE),
+		"moss": source_state.get("moss", {}),
+	}
+
+func _rebuild_submission_caches(presentation_changes: Dictionary = {}, combat_changed_hint: bool = true, moving_actor_keys: Dictionary = {}) -> bool:
+	# set_combat_state already computes the exact top-level presentation diff.
+	# Use that routing information directly instead of rebuilding and recursively
+	# comparing five overlapping source dictionaries on every animation sample.
+	# Interpolated world positions do not change the visible-unit list: draw and
+	# HUD helpers read those positions from presentation at use time.
+	var first_submission: bool = not _submission_cache_initialized
+	var combat_changed: bool = first_submission or combat_changed_hint
+	var scene_changed: bool = first_submission or presentation_changes.has("scene_props")
+	var units_changed: bool = combat_changed or first_submission
+	for unit_key: String in ["preview_units", "death_animation_units", "visible_enemy_ids"]:
+		if presentation_changes.has(unit_key):
+			units_changed = true
+			break
+	var unit_geometry_changed: bool = units_changed
+	for geometry_key: String in ["unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles"]:
+		if presentation_changes.has(geometry_key):
+			unit_geometry_changed = true
+			break
+	var visibility_changed: bool = (
+		presentation_changes.has("umbra_visible_tiles")
+		or presentation_changes.has("umbra_stage")
+	)
+	var damage_changed: bool = (
+		first_submission
+		or presentation_changes.has("damage_preview")
+		or presentation_changes.has("effect")
+	)
+	var ability_changed: bool = first_submission or presentation_changes.has("ability_tiles")
+	_submission_cache_combat_changed = combat_changed
+	if not combat_changed and not scene_changed and not unit_geometry_changed and not visibility_changed and not damage_changed and not ability_changed:
+		_submission_cache_valid = true
+		_submission_cache_combat_changed = false
+		return false
+	# Keep the one authoritative combat snapshot used to detect non-conforming
+	# in-place state mutation. Presentation is owned as immutable copy-on-write
+	# data by RunScene, so the already-computed change set is its source of truth.
+	if combat_changed:
+		_submission_cache_source_snapshot["combat"] = _combat_submission_cache_source(combat_state).duplicate(true)
+	_submission_cache_initialized = true
+	if damage_changed:
+		_damage_preview_cache = _build_damage_preview_map(presentation)
+	if scene_changed:
+		_scene_props_by_tile = _index_dictionary_entries_by_tile(presentation.get("scene_props", []), "tile")
+		_campfire_scene_props_cache = []
+		for prop_var: Variant in presentation.get("scene_props", []):
+			if typeof(prop_var) != TYPE_DICTIONARY:
+				continue
+			var prop: Dictionary = prop_var
+			if str(prop.get("kind", "")) == "campfire_bonfire":
+				_campfire_scene_props_cache.append(prop)
+	if combat_changed:
+		_terrain_by_tile = _index_dictionary_entries_by_tile(combat_state.get("terrain", []), "pos")
+		_loot_by_tile = _index_dictionary_entries_by_tile(combat_state.get("loot", []), "pos")
+		_traps_by_tile = _index_dictionary_entries_by_tile(combat_state.get("traps", []), "pos")
+		_grid_tile_ids_cache = {}
+		for row_var: Variant in combat_state.get("grid", []):
+			if typeof(row_var) != TYPE_ARRAY:
+				continue
+			for cell_var: Variant in row_var as Array:
+				_grid_tile_ids_cache[str(cell_var)] = true
+		_ambient_element_id_cache = str(combat_state.get("room_element", ElementData.NONE))
+		_equipment_pickup_beacon_cache = false
+		for loot_var: Variant in combat_state.get("loot", []):
+			if typeof(loot_var) != TYPE_DICTIONARY:
+				continue
+			var loot: Dictionary = loot_var
+			if not bool(loot.get("claimed", false)) and _is_floating_loot(loot):
+				_equipment_pickup_beacon_cache = true
+				break
+	if ability_changed:
+		_ability_tiles_cache = _vector2i_array(presentation.get("ability_tiles", []))
+		_ability_tiles_lookup_cache = _vector2i_lookup(_ability_tiles_cache)
+	if combat_changed or units_changed:
+		_visible_units_cache = _build_visible_units()
+		_preview_unit_pulse_cache = false
+		for unit: Dictionary in _visible_units_cache:
+			if _unit_is_preview_echo(unit):
+				_preview_unit_pulse_cache = true
+				break
+	if units_changed or presentation_changes.has("unit_draw_tiles"):
+		# Keep the already-authored unit order inside each tile. Animated draw-tile
+		# overrides change depth ownership without rebuilding the visible list.
+		_units_by_draw_tile_cache = {}
+		for unit: Dictionary in _visible_units_cache:
+			var draw_tile: Vector2i = _effective_unit_tile(unit)
+			var tile_units: Array = _units_by_draw_tile_cache.get(draw_tile, []) as Array
+			tile_units.append(unit)
+			_units_by_draw_tile_cache[draw_tile] = tile_units
+	# Scene props participate in foreground obstruction even though they do not
+	# affect the visible-unit list. Keep that derived cache aligned when a room
+	# prop changes without paying to rebuild it for damage-only hovers.
+	if combat_changed or units_changed or scene_changed or visibility_changed:
+		if is_inside_tree():
+			_foreground_obstruction_entries_cache = _foreground_obstruction_entries(_visible_units_cache)
+		else:
+			_foreground_obstruction_entries_cache.clear()
+	elif unit_geometry_changed and not _refresh_moving_foreground_obstruction_entries(moving_actor_keys):
+		_foreground_obstruction_entries_cache = _foreground_obstruction_entries(_visible_units_cache)
+	if combat_changed or scene_changed or visibility_changed:
+		_foreground_obstruction_candidates_cache_valid = false
+	_submission_cache_valid = true
+	return true
+
+func _index_dictionary_entries_by_tile(entries: Array, tile_key: String) -> Dictionary:
+	var index: Dictionary = {}
+	for entry_var: Variant in entries:
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var
+		var tile_value: Variant = entry.get(tile_key, Vector2i(-1, -1))
+		if typeof(tile_value) != TYPE_VECTOR2I:
+			continue
+		var tile: Vector2i = tile_value
+		var tile_entries: Array = index.get(tile, [])
+		tile_entries.append(entry)
+		index[tile] = tile_entries
+	return index
+
+func _entries_for_tile(index: Dictionary, entries: Array, tile_key: String, tile: Vector2i) -> Array:
+	if _submission_cache_valid:
+		return index.get(tile, []) as Array
+	var matching: Array = []
+	for entry_var: Variant in entries:
+		if typeof(entry_var) == TYPE_DICTIONARY and (entry_var as Dictionary).get(tile_key, Vector2i(-1, -1)) == tile:
+			matching.append(entry_var)
+	return matching
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMagnifyGesture:
+		_last_pointer_position = event.position
+		set_navigation_zoom(_navigation_zoom * event.factor, event.position)
+		accept_event()
+		return
+	if event is InputEventPanGesture:
+		_last_pointer_position = event.position
+		set_navigation_pan(_navigation_pan - event.delta * BOARD_TRACKPAD_PAN_SCALE, false)
+		_update_hover_at(event.position)
+		accept_event()
+		return
+	if event is InputEventMouseMotion:
+		_last_pointer_position = event.position
+		if _navigation_pointer_button != MOUSE_BUTTON_NONE and _mouse_button_is_held(event, _navigation_pointer_button):
+			var drag_delta: Vector2 = event.position - _navigation_pointer_start
+			if not _navigation_pan_active and drag_delta.length() >= BOARD_PAN_DRAG_THRESHOLD:
+				_navigation_pan_active = true
+				_clear_hover_for_navigation()
+			if _navigation_pan_active:
+				set_navigation_pan(_navigation_pan_start + drag_delta, false)
+				_update_cursor_shape()
+				accept_event()
+				return
+		var next_hover: Vector2i = _update_hover_at(event.position)
+		if _navigation_pointer_button == MOUSE_BUTTON_NONE and _tile_drag_aiming_active() and _left_drag_start_tile.x >= 0 and next_hover.x >= 0 and (int(event.button_mask) & MOUSE_BUTTON_MASK_LEFT) != 0:
+			if next_hover != _left_drag_start_tile:
+				_left_drag_moved = true
+			if _left_drag_moved:
+				tile_dragged.emit(_left_drag_start_tile, next_hover)
+		return
+	if not event is InputEventMouseButton:
+		return
+	_last_pointer_position = event.position
+	if event.pressed and event.button_index in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN]:
+		var zoom_direction: float = 1.0 if event.button_index == MOUSE_BUTTON_WHEEL_UP else -1.0
+		var wheel_factor: float = maxf(0.25, event.factor)
+		set_navigation_zoom(_navigation_zoom * pow(BOARD_ZOOM_STEP, zoom_direction * wheel_factor), event.position)
+		accept_event()
+		return
+	if event.button_index == MOUSE_BUTTON_MIDDLE:
+		if event.pressed and event.double_click:
+			reset_navigation()
+			accept_event()
+			return
+		if event.pressed:
+			_begin_navigation_pan(MOUSE_BUTTON_MIDDLE, event.position, true)
+		elif _navigation_pointer_button == MOUSE_BUTTON_MIDDLE:
+			_end_navigation_pan(event.position)
+		accept_event()
+		return
+	if event.button_index == MOUSE_BUTTON_LEFT:
+		var clicked: Vector2i = _tile_at_point(event.position)
+		if event.pressed:
+			_left_drag_start_tile = clicked
+			_left_drag_moved = false
+			if not _tile_drag_aiming_active() or Input.is_key_pressed(KEY_SPACE):
+				_begin_navigation_pan(MOUSE_BUTTON_LEFT, event.position, false)
+			return
+		var completed_navigation_pan: bool = false
+		if _navigation_pointer_button == MOUSE_BUTTON_LEFT:
+			completed_navigation_pan = _navigation_pan_active
+			_end_navigation_pan(event.position)
+		if not completed_navigation_pan and _left_drag_start_tile.x >= 0:
+			if clicked.x >= 0 and _left_drag_moved:
+				tile_drag_released.emit(_left_drag_start_tile, clicked)
+			elif clicked.x >= 0:
+				tile_clicked.emit(clicked)
+		_left_drag_start_tile = Vector2i(-1, -1)
+		_left_drag_moved = false
+		if completed_navigation_pan:
+			accept_event()
+		return
+	if event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+		cancel_requested.emit()
+
+func set_navigation_zoom(next_zoom: float, focus_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
+	var clamped_zoom: float = clampf(next_zoom, BOARD_MIN_NAVIGATION_ZOOM, BOARD_MAX_NAVIGATION_ZOOM)
+	if is_equal_approx(clamped_zoom, _navigation_zoom):
+		return
+	if focus_position.x < 0.0 or focus_position.y < 0.0:
+		focus_position = size * 0.5
+	_ensure_board_layout_cache()
+	var previous_zoom: float = _navigation_zoom
+	var zoom_anchor: Vector2 = _navigation_zoom_anchor()
+	var zoom_ratio: float = clamped_zoom / maxf(0.001, previous_zoom)
+	var anchored_pan: Vector2 = focus_position - zoom_anchor - (focus_position - zoom_anchor - _navigation_pan) * zoom_ratio
+	_navigation_zoom = clamped_zoom
+	var next_tile_width: float = _tile_width_for_extents(_board_layout_cache_extents) * _navigation_zoom
+	_navigation_pan = _clamped_navigation_pan_for_layout(anchored_pan, _board_layout_cache_extents, next_tile_width)
+	_navigation_uses_default_zoom = false
+	_navigation_transform_changed(true)
+
+func set_navigation_pan(next_pan: Vector2, update_hover: bool = true) -> void:
+	_ensure_board_layout_cache()
+	var clamped_pan: Vector2 = _clamped_navigation_pan_for_layout(next_pan, _board_layout_cache_extents, _board_layout_cache_tile_width)
+	if clamped_pan.is_equal_approx(_navigation_pan):
+		return
+	_navigation_pan = clamped_pan
+	_navigation_transform_changed(update_hover)
+
+func reset_navigation() -> void:
+	var default_zoom: float = _default_navigation_zoom_for_viewport()
+	var changed: bool = not is_equal_approx(_navigation_zoom, default_zoom) or not _navigation_pan.is_zero_approx() or not _navigation_uses_default_zoom
+	_navigation_zoom = default_zoom
+	_navigation_pan = Vector2.ZERO
+	_navigation_uses_default_zoom = true
+	if changed:
+		_navigation_transform_changed(true)
+
+func _default_navigation_zoom_for_viewport() -> float:
+	# Fit includes the complete room/actor/HUD envelope. Enlarging that result
+	# again would defeat the up-front clearance and force reactive corrections.
+	return 1.0
+
+func _navigation_zoom_scale_for_presentation(source: Dictionary) -> float:
+	if bool(source.get("controller_combat_navigation", false)):
+		return lerpf(
+			BOARD_CONTROLLER_COMPACT_NAVIGATION_ZOOM_SCALE,
+			BOARD_CONTROLLER_EXPANDED_NAVIGATION_ZOOM_SCALE,
+			_controller_viewport_expansion()
+		)
+	if not (source.get("objective_exit_target_tiles", []) as Array).is_empty():
+		return BOARD_REACH_EXIT_DEFAULT_NAVIGATION_ZOOM_SCALE
+	return 1.0
+
+func navigation_snapshot() -> Dictionary:
+	_ensure_board_layout_cache()
+	var limits: Rect2 = _navigation_pan_limits(_board_layout_cache_extents, _board_layout_cache_tile_width)
+	return {
+		"zoom": _navigation_zoom,
+		"pan": _navigation_pan,
+		"min_zoom": BOARD_MIN_NAVIGATION_ZOOM,
+		"max_zoom": BOARD_MAX_NAVIGATION_ZOOM,
+		"pan_limits": limits,
+		"content_rect": _navigation_content_rect(_board_layout_cache_extents, _board_layout_cache_tile_width, _navigation_pan)
+	}
+
+func _begin_navigation_pan(button: int, pointer_position: Vector2, begin_immediately: bool) -> void:
+	_navigation_pointer_button = button
+	_navigation_pointer_start = pointer_position
+	_navigation_pan_start = _navigation_pan
+	_navigation_pan_active = begin_immediately
+	if begin_immediately:
+		_clear_hover_for_navigation()
+	_update_cursor_shape()
+
+func _end_navigation_pan(pointer_position: Vector2) -> void:
+	_navigation_pointer_button = MOUSE_BUTTON_NONE
+	_navigation_pan_active = false
+	_update_hover_at(pointer_position)
+	_update_cursor_shape()
+
+func _mouse_button_is_held(event: InputEventMouseMotion, button: int) -> bool:
+	if button == MOUSE_BUTTON_LEFT:
+		return (int(event.button_mask) & MOUSE_BUTTON_MASK_LEFT) != 0
+	if button == MOUSE_BUTTON_MIDDLE:
+		return (int(event.button_mask) & MOUSE_BUTTON_MASK_MIDDLE) != 0
+	return false
+
+func _tile_drag_aiming_active() -> bool:
+	return bool(presentation.get("tile_drag_aiming", false))
+
+func _update_hover_at(pointer_position: Vector2) -> Vector2i:
+	var next_hover: Vector2i = _tile_at_point(pointer_position)
+	if next_hover == _hover_tile:
+		return next_hover
+	_hover_tile = next_hover
+	tile_hovered.emit(_hover_tile)
+	_update_cursor_shape()
+	_queue_hover_redraws()
+	return next_hover
+
+func set_controller_focus_tile(tile: Vector2i) -> void:
+	if tile == _controller_focus_tile:
+		return
+	_controller_focus_tile = tile
+	if _controller_focus_tile.x >= 0:
+		_hover_tile = Vector2i(-1, -1)
+	if _overlay_render_layer != null and is_instance_valid(_overlay_render_layer):
+		_overlay_render_layer.set("_controller_focus_tile", _controller_focus_tile)
+		_overlay_render_layer.set("_hover_tile", _hover_tile)
+	if _hud_render_layer != null and is_instance_valid(_hud_render_layer):
+		_hud_render_layer.set("_controller_focus_tile", _controller_focus_tile)
+		_hud_render_layer.set("_hover_tile", _hover_tile)
+	_queue_hover_redraws()
+
+func controller_navigable_tiles(include_visible_doors: bool = false) -> Array[Vector2i]:
+	var result: Array[Vector2i]
+	var grid: Array = combat_state.get("grid", [])
+	for tile: Vector2i in _rendered_tiles_in_draw_order():
+		if not _tile_in_grid(grid, tile) or not _board_tile_is_visible_to_player(tile):
+			continue
+		var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
+		var is_floor: bool = tile_id not in ["wall", "pillar", "door", "void", "empty", ""]
+		if is_floor or (include_visible_doors and tile_id == "door" and _door_is_visible(tile)):
+			result.append(tile)
+	return result
+
+func _clear_hover_for_navigation() -> void:
+	if _hover_tile.x < 0:
+		return
+	_hover_tile = Vector2i(-1, -1)
+	tile_hovered.emit(_hover_tile)
+	_queue_hover_redraws()
+
+func _queue_hover_redraws() -> void:
+	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
+		queue_redraw()
+		return
+	# Hover only changes tile overlays and enemy intent/HUD layout. Ambient,
+	# occupied-tile art, foreground atmosphere, and effects retain their draw
+	# commands while pointer motion remains fully event-driven.
+	_rebuild_hud_health_rects_cache()
+	if _hud_render_layer != null and is_instance_valid(_hud_render_layer):
+		_hud_render_layer.set("_hud_layout_entries_cache", _hud_layout_entries_cache)
+		_hud_render_layer.set("_hud_health_rects_cache", _hud_health_rects_cache)
+	if _effects_render_layer != null and is_instance_valid(_effects_render_layer):
+		_effects_render_layer.set("_hud_health_rects_cache", _hud_health_rects_cache)
+	_queue_render_layer_redraw(_overlay_render_layer)
+	_queue_render_layer_redraw(_hud_render_layer)
+
+func _navigation_transform_changed(update_hover: bool) -> void:
+	_invalidate_board_layout_cache(false)
+	_foreground_obstruction_entries_cache = _foreground_obstruction_entries(_visible_units())
+	_rebuild_hud_health_rects_cache()
+	_sync_dynamic_render_state(false)
+	for layer: Control in _retained_render_layers():
+		layer.call("_invalidate_board_layout_cache", false)
+	_sync_static_render_cache()
+	queue_redraw()
+	_queue_dynamic_redraw()
+	if update_hover:
+		_update_hover_at(_last_pointer_position)
+	_update_cursor_shape()
+	navigation_changed.emit()
+
+func set_tooltips_enabled(enabled: bool) -> void:
+	if _tooltips_enabled == enabled:
+		return
+	_tooltips_enabled = enabled
+	tooltip_text = " " if enabled else ""
+	if enabled:
+		return
+	# Tooltips are separate popup windows, so covering the board does not dismiss
+	# one under a stationary pointer. Retire only popups owned by this board.
+	for child: Node in get_children():
+		if child is Window and str(child.get("theme_type_variation")) == "TooltipPanel":
+			(child as Window).hide()
+			child.queue_free()
+
+func _get_tooltip(at_position: Vector2) -> String:
+	if not _tooltips_enabled:
+		return ""
+	# Equipment floats and bobs independently of its tile layer. Resolve its live
+	# draw rect directly so pointer inspection is reliable even between retained
+	# scene-layer redraws or near the edge of the sprite's glow.
+	var live_loot_tooltip: String = _loot_tooltip_at_position(at_position)
+	if not live_loot_tooltip.is_empty():
+		return live_loot_tooltip
+	var tooltip_sources: Array = _retained_render_layers()
+	tooltip_sources.reverse()
+	tooltip_sources.append(self)
+	for source_var: Variant in tooltip_sources:
+		var source: Control = source_var as Control
+		var regions: Array = source.get("_tooltip_regions") as Array
+		for index: int in range(regions.size() - 1, -1, -1):
+			var region: Dictionary = regions[index]
+			var rect: Rect2 = region.get("rect", Rect2())
+			if rect.has_point(at_position):
+				return str(region.get("tooltip", ""))
+	return _surface_tooltip_for_tile(tile_at_global_position(at_position + global_position))
+
+func _loot_tooltip_at_position(at_position: Vector2) -> String:
+	for loot_var: Variant in combat_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var as Dictionary
+		if bool(loot.get("claimed", false)):
+			continue
+		var tile: Vector2i = loot.get("pos", Vector2i(-1, -1))
+		if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
+			continue
+		var texture: Texture2D = _loot_texture(loot)
+		if texture == null:
+			continue
+		if _loot_rect_for_tile(tile, texture, loot).grow(18.0).has_point(at_position):
+			return _loot_tooltip_text(loot)
+	return ""
+
+func enemy_intent_tooltip(actor_key: String) -> String:
+	var lines := PackedStringArray()
+	var seen: Dictionary = {}
+	for unit: Dictionary in _visible_units():
+		if _enemy_hud_actor_key(unit) != actor_key: continue
+		for row: Array in _intent_rows_for_unit(unit,unit.get("intent",{})):
+			for token: Dictionary in row:
+				# The expanded row already states ordinary movement, damage and reach.
+				if str(token.get("icon","")) in ["move","melee","ranged","aoe","range"] and not token.has("tooltip"): continue
+				var detail: String = ActionIcons.token_tooltip(token)
+				if detail.is_empty() or seen.has(detail): continue
+				seen[detail] = true
+				lines.append(detail)
+	return "\n".join(lines)
+
+func controller_tooltip_for_tile(tile: Vector2i) -> String:
+	for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var as Dictionary
+		if not bool(loot.get("claimed", false)) and _board_tile_is_visible_to_player(tile):
+			return _loot_tooltip_text(loot)
+	return _surface_tooltip_for_tile(tile)
+
+func _make_custom_tooltip(for_text: String) -> Object:
+	if for_text.strip_edges().is_empty():
+		return null
+	if for_text.begins_with("item:"):
+		var card_id: String = for_text.trim_prefix("item:")
+		if item_tooltip_builder.is_valid():
+			return item_tooltip_builder.call(card_id)
+		return UiTooltipPanel.make_text(str(GameData.card_def(card_id).get("name", card_id)))
+	if for_text.begins_with("equipment:"):
+		var equipment_id: String = for_text.trim_prefix("equipment:")
+		if not equipment_id.is_empty() and equipment_tooltip_builder.is_valid():
+			return equipment_tooltip_builder.call(equipment_id)
+		return UiTooltipPanel.make_text(_equipment_loot_fallback_tooltip(equipment_id))
+	return UiTooltipPanel.make_text(for_text)
+
+func _draw() -> void:
+	# Canvas draw commands retain RIDs, not the ArrayMesh resources. Shared cache
+	# invalidation must not free a shadow still submitted by an unchanged layer.
+	# Godot clears this CanvasItem's old commands before entering _draw().
+	_submitted_shadow_meshes.clear()
+	if _is_static_render_cache_layer:
+		_draw_static_board_contents()
+		return
+	if _is_dynamic_render_layer:
+		match _render_layer_kind:
+			RENDER_LAYER_AMBIENT:
+				_draw_ambient_render_layer()
+			RENDER_LAYER_OVERLAYS:
+				_draw_overlay_render_layer()
+			RENDER_LAYER_GROUND:
+				_draw_ground_render_layer()
+			RENDER_LAYER_PATH:
+				_draw_path_render_layer()
+			RENDER_LAYER_IMPACT_FLOOR:
+				_draw_impact_floor_render_layer()
+			RENDER_LAYER_WORLD:
+				_draw_world_render_layer()
+			RENDER_LAYER_ACTION_FLOOR:
+				_draw_action_floor_render_layer()
+			RENDER_LAYER_SCENE_TILE:
+				_draw_scene_tile_render_layer()
+			RENDER_LAYER_FOREGROUND:
+				_draw_foreground_render_layer()
+			RENDER_LAYER_HUD:
+				_draw_hud_render_layer()
+			RENDER_LAYER_EFFECTS:
+				_draw_effects_render_layer()
+			_:
+				_draw_dynamic_board()
+		return
+	_draw_static_board()
+	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
+		_draw_dynamic_board()
+
+func _draw_static_board() -> void:
+	if _static_render_cache_enabled and _static_render_cache_texture != null and _static_render_cache_texture.visible:
+		return
+	_draw_static_board_contents()
+
+func _draw_static_board_contents() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_static_draw_count += 1
+	if not bool(presentation.get("board_backdrop_visible", false)):
+		draw_rect(Rect2(Vector2.ZERO, size), Color("18120f"), true)
+	if combat_state.is_empty():
+		_draw_empty_state()
+		_record_static_draw_time(started_usec)
+		return
+	var grid: Array = combat_state.get("grid", [])
+	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
+	for tile: Vector2i in tiles:
+		_draw_floor_tile(grid, tile)
+	_record_static_draw_time(started_usec)
+
+func _draw_dynamic_board() -> void:
+	_draw_ambient_render_layer()
+	_draw_overlay_render_layer()
+	_draw_ground_render_layer()
+	_draw_path_render_layer()
+	_draw_impact_floor_render_layer()
+	_draw_world_render_layer()
+	_draw_action_floor_render_layer()
+	if not combat_state.is_empty():
+		var grid: Array = combat_state.get("grid", [])
+		var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
+		var units_to_draw: Array[Dictionary] = _visible_units()
+		_draw_scene_objects(grid, tiles, units_to_draw)
+		_draw_umbra_light_source_markers(_umbra_visual_time_seconds())
+		_draw_pillar_torch_ember_motes(tiles, units_to_draw)
+		_draw_campfire_ember_motes()
+	_draw_effects_render_layer()
+	_draw_hud_render_layer()
+
+func _draw_ambient_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
+	var section_started_usec: int = Time.get_ticks_usec()
+	_draw_campfire_room_firelight(tiles)
+	_record_render_section_time("campfire_light", section_started_usec)
+	section_started_usec = Time.get_ticks_usec()
+	_draw_ambient_particles(tiles)
+	_record_render_section_time("ambient_particles", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_world_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
+	var section_started_usec: int = Time.get_ticks_usec()
+	_draw_umbra_overlay(tiles)
+	_record_render_section_time("umbra", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_impact_floor_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var section_started_usec: int = Time.get_ticks_usec()
+	_draw_impact_decals()
+	_record_render_section_time("impact_decals", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_action_floor_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var section_started_usec: int = Time.get_ticks_usec()
+	_draw_elemental_spell_floor_overlay()
+	_draw_elemental_trap_floor_overlay()
+	_record_render_section_time("elemental_floor_overlays", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_overlay_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
+	var section_started_usec: int = Time.get_ticks_usec()
+	for tile: Vector2i in tiles:
+		_draw_tile_overlays(tile)
+	_draw_action_ground_markings()
+	_draw_large_enemy_attack_highlight_extensions(_visible_units())
+	_record_render_section_time("tile_overlays", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_ground_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
+	var section_started_usec: int = Time.get_ticks_usec()
+	_draw_ground_items_below_path(tiles)
+	_record_render_section_time("ground_items", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_path_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var section_started_usec: int = Time.get_ticks_usec()
+	# Paths are ground decals submitted in each tile after its surfaces.
+	_record_render_section_time("path_preview", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_scene_tile_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty() or _render_layer_tile.x < 0:
+		_record_dynamic_draw_time(started_usec)
+		return
+	var section_started_usec: int = Time.get_ticks_usec()
+	if _render_layer_scene_effect_pass != 0:
+		_draw_elemental_scene_depth_pass(_render_layer_tile, _render_layer_scene_effect_pass > 0)
+		_record_render_section_time("scene_tile_effects", section_started_usec)
+		_record_dynamic_draw_time(started_usec)
+		return
+	var detailed_sections: bool = (
+		_render_instrumentation_owner != null
+		and is_instance_valid(_render_instrumentation_owner)
+		and bool(_render_instrumentation_owner.get("_submission_performance_instrumentation_enabled"))
+	)
+	var phase_started_usec: int = Time.get_ticks_usec() if detailed_sections else 0
+	var grid: Array = combat_state.get("grid", [])
+	var units_to_draw: Array[Dictionary] = _visible_units()
+	var obstruction_entries: Array = _foreground_obstruction_entries_cache
+	if detailed_sections:
+		_record_render_section_time("scene_tile_setup", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
+	_draw_board_surface(_render_layer_tile)
+	if detailed_sections:
+		_record_render_section_time("scene_tile_board_surface", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
+	_draw_path_depth_pass(_render_layer_tile)
+	if detailed_sections:
+		_record_render_section_time("scene_tile_path", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
+	_draw_enemy_threat_depth_pass(_render_layer_tile)
+	_draw_noctyrax_refuge_tile(_render_layer_tile)
+	if detailed_sections:
+		_record_render_section_time("scene_tile_enemy_threat", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
+	_draw_scene_props_for_tile(_render_layer_tile, obstruction_entries)
+	if detailed_sections:
+		_record_render_section_time("scene_tile_scene_props", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
+	_draw_tile_props(grid, _render_layer_tile, obstruction_entries)
+	if detailed_sections:
+		_record_render_section_time("scene_tile_props", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
+	_draw_unit_bodies_for_tile(_render_layer_tile, units_to_draw)
+	if detailed_sections:
+		_record_render_section_time("scene_tile_unit_bodies", phase_started_usec)
+	_record_render_section_time("scene_tiles", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_foreground_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var section_started_usec: int = Time.get_ticks_usec()
+	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
+	var units_to_draw: Array[Dictionary] = _visible_units()
+	_draw_umbra_light_source_markers(_umbra_visual_time_seconds())
+	_record_render_section_time("foreground_umbra_markers", section_started_usec)
+	section_started_usec = Time.get_ticks_usec()
+	_draw_pillar_torch_ember_motes(tiles, units_to_draw)
+	_record_render_section_time("foreground_torch_motes", section_started_usec)
+	section_started_usec = Time.get_ticks_usec()
+	_draw_campfire_ember_motes()
+	_record_render_section_time("foreground_campfire_motes", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_hud_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var section_started_usec: int = Time.get_ticks_usec()
+	var units_to_draw: Array[Dictionary] = _visible_units()
+	_draw_noctyrax_brazier_markers()
+	_draw_unit_huds(units_to_draw)
+	_record_render_section_time("unit_huds", section_started_usec)
+	# Damage-preview text and the lost-HP band must composite after the health
+	# bar itself. Drawing them on the lower effects layer lets the retained HUD
+	# layer paint over the projected HP text during ranged targeting.
+	section_started_usec = Time.get_ticks_usec()
+	_draw_unit_damage_preview_overlays(units_to_draw)
+	_draw_friendly_damage_chips()
+	_record_render_section_time("damage_preview_overlays", section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _draw_effects_render_layer() -> void:
+	var started_usec: int = Time.get_ticks_usec()
+	_dynamic_draw_count += 1
+	_tooltip_regions.clear()
+	if combat_state.is_empty():
+		_record_dynamic_draw_time(started_usec)
+		return
+	var total_section_started_usec: int = Time.get_ticks_usec()
+	var section_started_usec: int = total_section_started_usec
+	var units_to_draw: Array[Dictionary] = _visible_units()
+	_draw_effect_overlay()
+	_record_render_section_time("effect_overlay", section_started_usec)
+	section_started_usec = Time.get_ticks_usec()
+	_draw_collision_markers()
+	_draw_meteor_mark_badges()
+	_record_render_section_time("collision_markers", section_started_usec)
+	section_started_usec = Time.get_ticks_usec()
+	_draw_lethal_preview_icons(units_to_draw)
+	_record_render_section_time("lethal_preview_icons", section_started_usec)
+	section_started_usec = Time.get_ticks_usec()
+	_draw_movement_risk_chips()
+	_record_render_section_time("movement_risk_chips", section_started_usec)
+	section_started_usec = Time.get_ticks_usec()
+	_draw_status_text()
+	_record_render_section_time("status_text", section_started_usec)
+	section_started_usec = Time.get_ticks_usec()
+	_draw_floating_texts()
+	_record_render_section_time("floating_texts", section_started_usec)
+	_record_render_section_time("effects_and_feedback", total_section_started_usec)
+	_record_dynamic_draw_time(started_usec)
+
+func _record_static_draw_time(started_usec: int) -> void:
+	var elapsed_usec: int = maxi(0, Time.get_ticks_usec() - started_usec)
+	_static_draw_total_usec += elapsed_usec
+	_static_draw_max_usec = maxi(_static_draw_max_usec, elapsed_usec)
+
+func _record_dynamic_draw_time(started_usec: int) -> void:
+	var elapsed_usec: int = maxi(0, Time.get_ticks_usec() - started_usec)
+	_dynamic_draw_total_usec += elapsed_usec
+	_dynamic_draw_max_usec = maxi(_dynamic_draw_max_usec, elapsed_usec)
+	if (
+		_render_instrumentation_owner != null
+		and is_instance_valid(_render_instrumentation_owner)
+		and bool(_render_instrumentation_owner.get("_submission_performance_instrumentation_enabled"))
+	):
+		_render_instrumentation_owner.call(
+			"_record_retained_layer_draw_frame",
+			Engine.get_process_frames(),
+			_render_layer_kind,
+			_render_instrumentation_detail_key(),
+			elapsed_usec
+		)
+
+func _render_instrumentation_detail_key() -> String:
+	if _render_layer_kind != RENDER_LAYER_SCENE_TILE:
+		return _render_layer_kind
+	var pass_id: String = "body"
+	if _render_layer_scene_effect_pass < 0:
+		pass_id = "effect_back"
+	elif _render_layer_scene_effect_pass > 0:
+		pass_id = "effect_front"
+	return "%s:%d,%d" % [pass_id, _render_layer_tile.x, _render_layer_tile.y]
+
+func _record_retained_layer_draw_frame(frame_id: int, layer_kind: String, layer_detail_key: String, elapsed_usec: int) -> void:
+	if _retained_draw_frame_id != frame_id:
+		_commit_retained_draw_frame()
+		_retained_draw_frame_id = frame_id
+	_retained_draw_frame_total_usec += maxi(0, elapsed_usec)
+	_retained_draw_frame_count += 1
+	_retained_draw_frame_layer_usec[layer_kind] = int(_retained_draw_frame_layer_usec.get(layer_kind, 0)) + maxi(0, elapsed_usec)
+	_retained_draw_frame_layer_detail_usec[layer_detail_key] = int(_retained_draw_frame_layer_detail_usec.get(layer_detail_key, 0)) + maxi(0, elapsed_usec)
+
+func _commit_retained_draw_frame() -> void:
+	if _retained_draw_frame_id < 0 or _retained_draw_frame_count <= 0:
+		return
+	var entry: Dictionary = {
+		"frame_id": _retained_draw_frame_id,
+		"total_usec": _retained_draw_frame_total_usec,
+		"draw_count": _retained_draw_frame_count,
+		"layer_usec": _retained_draw_frame_layer_usec.duplicate(true),
+		"layer_detail_usec": _retained_draw_frame_layer_detail_usec.duplicate(true),
+	}
+	if _retained_draw_frame_total_usec > _retained_draw_frame_max_usec:
+		_retained_draw_frame_max_usec = _retained_draw_frame_total_usec
+		_retained_draw_frame_max_count = _retained_draw_frame_count
+		_retained_draw_frame_max_layers = _retained_draw_frame_layer_usec.duplicate(true)
+	_retained_draw_frame_top.append(entry)
+	_retained_draw_frame_top.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		return int(a.get("total_usec", 0)) > int(b.get("total_usec", 0))
+	)
+	if _retained_draw_frame_top.size() > 20:
+		_retained_draw_frame_top.resize(20)
+	_retained_draw_frame_id = -1
+	_retained_draw_frame_total_usec = 0
+	_retained_draw_frame_count = 0
+	_retained_draw_frame_layer_usec.clear()
+	_retained_draw_frame_layer_detail_usec.clear()
+
+func _record_render_section_time(section: String, started_usec: int) -> void:
+	var elapsed_usec: int = maxi(0, Time.get_ticks_usec() - started_usec)
+	_render_section_total_usec[section] = int(_render_section_total_usec.get(section, 0)) + elapsed_usec
+	_render_section_max_usec[section] = maxi(int(_render_section_max_usec.get(section, 0)), elapsed_usec)
+
+func _draw_umbra_overlay(tiles: Array[Vector2i]) -> void:
+	var stage_id: String = str(presentation.get("umbra_stage", "clear"))
+	if stage_id == "clear" or tiles.is_empty():
+		return
+	var phase_started_usec: int = Time.get_ticks_usec()
+	_begin_umbra_shape_batch(true)
+	var visible_lookup: Dictionary = {}
+	for tile_var: Variant in presentation.get("umbra_visible_tiles", []):
+		if typeof(tile_var) == TYPE_VECTOR2I:
+			visible_lookup[tile_var] = true
+	var stage_alpha: float = _umbra_stage_fill_alpha(stage_id)
+	var time_seconds: float = _umbra_visual_time_seconds()
+	var hidden_tiles: Array[Vector2i] = _vector2i_array([])
+	var hidden_lookup: Dictionary = {}
+	var return_progress_by_tile: Dictionary = {}
+	_record_render_section_time("umbra_setup", phase_started_usec)
+	phase_started_usec = Time.get_ticks_usec()
+	for tile: Vector2i in tiles:
+		if visible_lookup.has(tile):
+			continue
+		var return_progress: float = _umbra_return_progress(tile, time_seconds)
+		hidden_tiles.append(tile)
+		hidden_lookup[tile] = true
+		return_progress_by_tile[tile] = return_progress
+		_draw_or_queue_umbra_polygon(
+			_tile_polygon(tile),
+			Color(0.012, 0.008, 0.026, stage_alpha * return_progress)
+		)
+	_flush_umbra_shape_batch()
+	_record_render_section_time("umbra_tile_fills", phase_started_usec)
+	_begin_umbra_shape_batch()
+	phase_started_usec = Time.get_ticks_usec()
+	for tile: Vector2i in hidden_tiles:
+		var return_progress: float = float(return_progress_by_tile.get(tile, 1.0))
+		if return_progress <= 0.0:
+			continue
+		_draw_umbra_tile_billows(tile, time_seconds, stage_alpha, return_progress)
+	_record_render_section_time("umbra_tile_billows", phase_started_usec)
+	phase_started_usec = Time.get_ticks_usec()
+	_draw_umbra_boundary_billows(hidden_tiles, visible_lookup, hidden_lookup, return_progress_by_tile, time_seconds, stage_alpha)
+	_flush_umbra_shape_batch()
+	_record_render_section_time("umbra_boundary_billows", phase_started_usec)
+	_begin_umbra_shape_batch()
+	phase_started_usec = Time.get_ticks_usec()
+	_draw_umbra_light_sources(time_seconds)
+	_record_render_section_time("umbra_light_sources", phase_started_usec)
+	phase_started_usec = Time.get_ticks_usec()
+	_flush_umbra_shape_batch()
+	_record_render_section_time("umbra_batch_flush", phase_started_usec)
+
+func _begin_umbra_shape_batch(reset_mesh_cursor: bool = false) -> void:
+	_umbra_shape_batch_active = _umbra_shape_batch_enabled
+	_ensure_umbra_shape_batch_unit_circle()
+	if reset_mesh_cursor:
+		_umbra_shape_batch_mesh_cursor = 0
+		_umbra_circle_batch_multimesh_cursor = 0
+	_umbra_shape_batch_vertices = PackedVector3Array()
+	_umbra_shape_batch_colors = PackedColorArray()
+	_umbra_shape_batch_indices = PackedInt32Array()
+	_umbra_circle_batch_transforms.clear()
+	_umbra_circle_batch_colors = PackedColorArray()
+
+func _ensure_umbra_shape_batch_unit_circle() -> void:
+	if _umbra_shape_batch_unit_circle.size() == UMBRA_SHAPE_BATCH_SEGMENTS:
+		return
+	_umbra_shape_batch_unit_circle.resize(UMBRA_SHAPE_BATCH_SEGMENTS)
+	for segment_index: int in range(UMBRA_SHAPE_BATCH_SEGMENTS):
+		var angle: float = TAU * float(segment_index) / float(UMBRA_SHAPE_BATCH_SEGMENTS)
+		_umbra_shape_batch_unit_circle[segment_index] = Vector2(cos(angle), sin(angle))
+
+func _ensure_umbra_circle_batch_mesh() -> void:
+	if _umbra_circle_batch_mesh != null:
+		return
+	_ensure_umbra_shape_batch_unit_circle()
+	var vertices := PackedVector3Array([Vector3.ZERO])
+	for unit_point: Vector2 in _umbra_shape_batch_unit_circle:
+		vertices.append(Vector3(unit_point.x, unit_point.y, 0.0))
+	var indices := PackedInt32Array()
+	for segment_index: int in range(UMBRA_SHAPE_BATCH_SEGMENTS):
+		indices.append(0)
+		indices.append(1 + segment_index)
+		indices.append(1 + (segment_index + 1) % UMBRA_SHAPE_BATCH_SEGMENTS)
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_INDEX] = indices
+	_umbra_circle_batch_mesh = ArrayMesh.new()
+	_umbra_circle_batch_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+
+func _flush_umbra_circle_batch() -> void:
+	if _umbra_circle_batch_transforms.is_empty():
+		return
+	_ensure_umbra_circle_batch_mesh()
+	var batch_multimesh: MultiMesh = null
+	if _umbra_circle_batch_multimesh_cursor < _umbra_circle_batch_multimeshes.size():
+		batch_multimesh = _umbra_circle_batch_multimeshes[_umbra_circle_batch_multimesh_cursor]
+	else:
+		batch_multimesh = MultiMesh.new()
+		batch_multimesh.transform_format = MultiMesh.TRANSFORM_2D
+		batch_multimesh.use_colors = true
+		batch_multimesh.mesh = _umbra_circle_batch_mesh
+		_umbra_circle_batch_multimeshes.append(batch_multimesh)
+		_umbra_shape_batch_mesh_create_count += 1
+	var instance_count: int = _umbra_circle_batch_transforms.size()
+	if batch_multimesh.instance_count != instance_count:
+		batch_multimesh.instance_count = 0
+		batch_multimesh.instance_count = instance_count
+	for instance_index: int in range(instance_count):
+		batch_multimesh.set_instance_transform_2d(instance_index, _umbra_circle_batch_transforms[instance_index])
+		batch_multimesh.set_instance_color(instance_index, _umbra_circle_batch_colors[instance_index])
+	draw_multimesh(batch_multimesh, null)
+	_umbra_circle_batch_multimesh_cursor += 1
+	_umbra_shape_batch_mesh_update_count += 1
+	_umbra_circle_batch_transforms.clear()
+	_umbra_circle_batch_colors = PackedColorArray()
+
+func _flush_umbra_shape_batch() -> void:
+	_umbra_shape_batch_active = false
+	var submitted_geometry: bool = not _umbra_shape_batch_vertices.is_empty() or not _umbra_circle_batch_transforms.is_empty()
+	if not _umbra_shape_batch_vertices.is_empty():
+		var arrays: Array = []
+		arrays.resize(Mesh.ARRAY_MAX)
+		arrays[Mesh.ARRAY_VERTEX] = _umbra_shape_batch_vertices
+		arrays[Mesh.ARRAY_COLOR] = _umbra_shape_batch_colors
+		arrays[Mesh.ARRAY_INDEX] = _umbra_shape_batch_indices
+		var batch_mesh: ArrayMesh = null
+		if _umbra_shape_batch_mesh_cursor < _umbra_shape_batch_meshes.size():
+			batch_mesh = _umbra_shape_batch_meshes[_umbra_shape_batch_mesh_cursor]
+			batch_mesh.clear_surfaces()
+		else:
+			batch_mesh = ArrayMesh.new()
+			_umbra_shape_batch_meshes.append(batch_mesh)
+			_umbra_shape_batch_mesh_create_count += 1
+		batch_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+		_umbra_shape_batch_mesh_cursor += 1
+		_umbra_shape_batch_mesh_update_count += 1
+		draw_mesh(batch_mesh, null)
+	_flush_umbra_circle_batch()
+	if not submitted_geometry:
+		return
+	_umbra_shape_batch_flush_count += 1
+
+func _draw_or_queue_umbra_polygon(points: PackedVector2Array, color: Color) -> void:
+	if not _umbra_shape_batch_active:
+		draw_colored_polygon(points, color)
+		return
+	if points.size() < 3 or color.a <= 0.0:
+		return
+	if not _umbra_circle_batch_transforms.is_empty():
+		_flush_umbra_shape_batch()
+		_begin_umbra_shape_batch()
+	var first_vertex: int = _umbra_shape_batch_vertices.size()
+	for point: Vector2 in points:
+		_umbra_shape_batch_vertices.append(Vector3(point.x, point.y, 0.0))
+		_umbra_shape_batch_colors.append(color)
+	for point_index: int in range(1, points.size() - 1):
+		_umbra_shape_batch_indices.append(first_vertex)
+		_umbra_shape_batch_indices.append(first_vertex + point_index)
+		_umbra_shape_batch_indices.append(first_vertex + point_index + 1)
+
+func _queue_umbra_shape_circle(
+	center: Vector2,
+	radius: float,
+	ellipse_scale: Vector2,
+	rotation: float,
+	color: Color
+) -> void:
+	if radius <= 0.0 or color.a <= 0.0:
+		return
+	if _umbra_circle_multimesh_enabled and not _umbra_shape_batch_vertices.is_empty():
+		_flush_umbra_shape_batch()
+		_begin_umbra_shape_batch()
+	var cosine: float = cos(rotation)
+	var sine: float = sin(rotation)
+	var axis_x := Vector2(cosine, sine) * radius * ellipse_scale.x
+	var axis_y := Vector2(-sine, cosine) * radius * ellipse_scale.y
+	if not _umbra_circle_multimesh_enabled:
+		var center_vertex: int = _umbra_shape_batch_vertices.size()
+		_umbra_shape_batch_vertices.append(Vector3(center.x, center.y, 0.0))
+		_umbra_shape_batch_colors.append(color)
+		var ring_vertex: int = _umbra_shape_batch_vertices.size()
+		for segment_index: int in range(UMBRA_SHAPE_BATCH_SEGMENTS):
+			var unit_point: Vector2 = _umbra_shape_batch_unit_circle[segment_index]
+			var point: Vector2 = center + axis_x * unit_point.x + axis_y * unit_point.y
+			_umbra_shape_batch_vertices.append(Vector3(point.x, point.y, 0.0))
+			_umbra_shape_batch_colors.append(color)
+		for segment_index: int in range(UMBRA_SHAPE_BATCH_SEGMENTS):
+			_umbra_shape_batch_indices.append(center_vertex)
+			_umbra_shape_batch_indices.append(ring_vertex + segment_index)
+			_umbra_shape_batch_indices.append(ring_vertex + (segment_index + 1) % UMBRA_SHAPE_BATCH_SEGMENTS)
+		return
+	_umbra_circle_batch_transforms.append(Transform2D(axis_x, axis_y, center))
+	# ArrayMesh stores vertex colors as UNORM8. MultiMesh retains float colors;
+	# match the old mesh's channel truncation so many translucent lobes do not
+	# subtly change the fog's density when their geometry becomes instanced.
+	_umbra_circle_batch_colors.append(Color(
+		float(int(clampf(color.r, 0.0, 1.0) * 255.0)) / 255.0,
+		float(int(clampf(color.g, 0.0, 1.0) * 255.0)) / 255.0,
+		float(int(clampf(color.b, 0.0, 1.0) * 255.0)) / 255.0,
+		float(int(clampf(color.a, 0.0, 1.0) * 255.0)) / 255.0
+	))
+
+func _queue_umbra_shape_line(start: Vector2, finish: Vector2, color: Color, width: float) -> void:
+	# Circles and lines alternate along the Umbra boundary. Flush at the type
+	# boundary to retain their original alpha order, not group all lines on top.
+	if not _umbra_circle_batch_transforms.is_empty():
+		_flush_umbra_shape_batch()
+		_begin_umbra_shape_batch()
+	var direction: Vector2 = finish - start
+	if direction.length_squared() <= 0.001 or width <= 0.0 or color.a <= 0.0:
+		return
+	var normal: Vector2 = direction.normalized().orthogonal()
+	var half_width: float = width * 0.5
+	# Match draw_line(..., antialiased=true) with a one-pixel transparent fringe.
+	# Keeping the line in one triangle stream avoids one Canvas draw per edge.
+	var offsets: PackedFloat32Array = PackedFloat32Array([
+		-half_width - 1.0,
+		-half_width,
+		half_width,
+		half_width + 1.0,
+	])
+	var colors: PackedColorArray = PackedColorArray([
+		Color(color.r, color.g, color.b, 0.0),
+		color,
+		color,
+		Color(color.r, color.g, color.b, 0.0),
+	])
+	var first_vertex: int = _umbra_shape_batch_vertices.size()
+	for endpoint: Vector2 in [start, finish]:
+		for offset_index: int in range(offsets.size()):
+			var point: Vector2 = endpoint + normal * offsets[offset_index]
+			_umbra_shape_batch_vertices.append(Vector3(point.x, point.y, 0.0))
+			_umbra_shape_batch_colors.append(colors[offset_index])
+	for strip_index: int in range(3):
+		var start_left: int = first_vertex + strip_index
+		var start_right: int = start_left + 1
+		var finish_left: int = first_vertex + 4 + strip_index
+		var finish_right: int = finish_left + 1
+		for vertex_index: int in [start_left, finish_left, finish_right, start_left, finish_right, start_right]:
+			_umbra_shape_batch_indices.append(vertex_index)
+
+func _draw_or_queue_umbra_circle(center: Vector2, radius: float, color: Color) -> void:
+	if _umbra_shape_batch_active:
+		_queue_umbra_shape_circle(center, radius, Vector2.ONE, 0.0, color)
+	else:
+		draw_circle(center, radius, color)
+
+func _umbra_stage_fill_alpha(stage_id: String) -> float:
+	return {
+		"fringe": 0.54,
+		"advancing": 0.58,
+		"pressing": 0.62,
+		"deep": 0.66,
+		"heart": 0.70,
+		"eclipse": 0.74
+	}.get(stage_id, 0.60)
+
+func _umbra_visual_time_seconds() -> float:
+	return float(presentation.get("umbra_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
+
+func _draw_umbra_tile_billows(tile: Vector2i, time_seconds: float, stage_alpha: float, return_progress: float) -> void:
+	var seed: int = tile.x * 92821 + tile.y * 68917 + 1709
+	var flow_phase: float = time_seconds * 0.58 + float(tile.x) * 0.73 + float(tile.y) * 0.51
+	var counter_phase: float = time_seconds * 0.44 - float(tile.x) * 0.39 + float(tile.y) * 0.67
+	var swell: float = 0.5 + 0.5 * sin(flow_phase + _ambient_hash01(seed + 7) * 0.8)
+	var center: Vector2 = _tile_center(tile)
+	var flow := Vector2(
+		sin(flow_phase) * _tile_width() * 0.15,
+		cos(counter_phase) * _tile_height() * 0.24
+	)
+	_draw_umbra_soft_lobe(
+		center + flow,
+		_tile_width() * (0.48 + swell * 0.07),
+		Vector2(1.14 + _ambient_hash01(seed + 11) * 0.14, 0.76 + _ambient_hash01(seed + 13) * 0.14),
+		lerpf(-0.22, 0.22, _ambient_hash01(seed + 17)),
+		Color(0.018, 0.006, 0.042, (0.78 + stage_alpha * 0.16) * return_progress),
+		10
+	)
+	var counter_flow := Vector2(-flow.x * 0.78, -flow.y * 0.46) + Vector2(0.0, -_tile_height() * 0.08)
+	_draw_umbra_soft_lobe(
+		center + counter_flow,
+		_tile_width() * (0.34 + (1.0 - swell) * 0.07),
+		Vector2(1.04 + _ambient_hash01(seed + 19) * 0.14, 0.80 + _ambient_hash01(seed + 23) * 0.12),
+		lerpf(-0.30, 0.30, _ambient_hash01(seed + 29)),
+		Color(0.165, 0.048, 0.235, (0.46 + stage_alpha * 0.14) * return_progress),
+		9
+	)
+
+func _umbra_return_progress(tile: Vector2i, time_seconds: float) -> float:
+	if not _umbra_return_start_by_tile.has(tile):
+		return 1.0
+	var elapsed: float = time_seconds - float(_umbra_return_start_by_tile[tile])
+	if elapsed <= 0.0:
+		return 0.0
+	if elapsed >= UMBRA_RETURN_FADE_SECONDS:
+		_umbra_return_start_by_tile.erase(tile)
+		return 1.0
+	var linear_progress: float = elapsed / UMBRA_RETURN_FADE_SECONDS
+	return smoothstep(0.0, 1.0, linear_progress)
+
+func _draw_umbra_boundary_billows(hidden_tiles: Array[Vector2i], visible_lookup: Dictionary, hidden_lookup: Dictionary, return_progress_by_tile: Dictionary, time_seconds: float, stage_alpha: float) -> void:
+	var neighbor_offsets: Array[Vector2i] = _vector2i_array([
+		Vector2i.LEFT,
+		Vector2i.RIGHT,
+		Vector2i.UP,
+		Vector2i.DOWN
+	])
+	for tile: Vector2i in hidden_tiles:
+		var return_progress: float = float(return_progress_by_tile.get(tile, 1.0))
+		if return_progress <= 0.0:
+			continue
+		var hidden_center: Vector2 = _tile_center(tile)
+		for neighbor_offset: Vector2i in neighbor_offsets:
+			var neighbor: Vector2i = tile + neighbor_offset
+			if hidden_lookup.has(neighbor) or not visible_lookup.has(neighbor):
+				continue
+			var visible_center: Vector2 = _tile_center(neighbor)
+			var edge_center: Vector2 = hidden_center.lerp(visible_center, 0.48)
+			var seed: int = tile.x * 81173 + tile.y * 46349 + neighbor_offset.x * 719 + neighbor_offset.y * 1237
+			var phase: float = _ambient_hash01(seed + 5) * TAU
+			var roll: float = sin(time_seconds * (0.44 + _ambient_hash01(seed + 7) * 0.16) + phase)
+			var tangent: Vector2 = (visible_center - hidden_center).orthogonal().normalized()
+			var inward: Vector2 = (hidden_center - visible_center).normalized()
+			var boundary_center: Vector2 = edge_center + tangent * roll * _tile_width() * 0.08 + inward * _tile_width() * (0.025 + 0.02 * cos(time_seconds * 0.27 + phase))
+			var boundary_angle: float = (visible_center - hidden_center).angle() + PI * 0.5
+			for puff_index: int in range(2):
+				var puff_side: float = -1.0 if puff_index == 0 else 1.0
+				var puff_center: Vector2 = boundary_center + tangent * puff_side * _tile_width() * (0.08 + 0.025 * roll)
+				var puff_swell: float = 0.5 + 0.5 * sin(time_seconds * 0.58 + phase + float(puff_index) * 1.7)
+				_draw_umbra_soft_lobe(
+					puff_center,
+					_tile_width() * (0.28 + puff_swell * 0.07),
+					Vector2(1.14 + puff_swell * 0.12, 0.74 + (1.0 - puff_swell) * 0.12),
+					boundary_angle + roll * 0.10,
+					Color(0.145, 0.044, 0.215, (0.56 + stage_alpha * 0.14) * return_progress),
+					9
+				)
+			var edge_points: PackedVector2Array = _umbra_boundary_edge(tile, neighbor_offset)
+			if edge_points.size() == 2:
+				var outer_color := Color(0.008, 0.005, 0.020, 0.86 * return_progress)
+				var inner_color := Color(0.20, 0.105, 0.285, (0.30 + stage_alpha * 0.10) * return_progress)
+				if _umbra_shape_batch_active and _umbra_boundary_line_batch_enabled:
+					_queue_umbra_shape_line(edge_points[0], edge_points[1], outer_color, 3.4)
+					_queue_umbra_shape_line(edge_points[0], edge_points[1], inner_color, 1.1)
+				else:
+					var resume_shape_batch: bool = _umbra_shape_batch_active
+					if resume_shape_batch:
+						_flush_umbra_shape_batch()
+					draw_line(edge_points[0], edge_points[1], outer_color, 3.4, true)
+					draw_line(edge_points[0], edge_points[1], inner_color, 1.1, true)
+					if resume_shape_batch:
+						_begin_umbra_shape_batch()
+
+func _umbra_boundary_edge(tile: Vector2i, neighbor_offset: Vector2i) -> PackedVector2Array:
+	var polygon: PackedVector2Array = _tile_polygon(tile)
+	var edge := PackedVector2Array()
+	if polygon.size() < 4:
+		return edge
+	match neighbor_offset:
+		Vector2i.UP:
+			edge.append(polygon[0])
+			edge.append(polygon[1])
+		Vector2i.RIGHT:
+			edge.append(polygon[1])
+			edge.append(polygon[2])
+		Vector2i.DOWN:
+			edge.append(polygon[2])
+			edge.append(polygon[3])
+		Vector2i.LEFT:
+			edge.append(polygon[3])
+			edge.append(polygon[0])
+	return edge
+
+func _draw_umbra_soft_lobe(center: Vector2, radius: float, ellipse_scale: Vector2, rotation: float, color: Color, layer_count: int) -> void:
+	if layer_count <= 0 or color.a <= 0.0:
+		return
+	if _umbra_shape_batch_active:
+		for layer_index: int in range(layer_count, 0, -1):
+			var t: float = float(layer_index) / float(layer_count)
+			var inner_weight: float = pow(1.0 - t, 0.76)
+			var layer_alpha: float = color.a * (0.028 + inner_weight * 0.082)
+			var layer_radius: float = radius * (0.12 + t * 0.88)
+			_queue_umbra_shape_circle(
+				center,
+				layer_radius,
+				ellipse_scale,
+				rotation,
+				Color(color.r, color.g, color.b, layer_alpha)
+			)
+		return
+	draw_set_transform(center, rotation, ellipse_scale)
+	for layer_index: int in range(layer_count, 0, -1):
+		var t: float = float(layer_index) / float(layer_count)
+		var inner_weight: float = pow(1.0 - t, 0.76)
+		var layer_alpha: float = color.a * (0.028 + inner_weight * 0.082)
+		var layer_radius: float = radius * (0.12 + t * 0.88)
+		draw_circle(Vector2.ZERO, layer_radius, Color(color.r, color.g, color.b, layer_alpha))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+func _draw_umbra_light_sources(time_seconds: float) -> void:
+	for source_var: Variant in presentation.get("umbra_light_sources", []):
+		if typeof(source_var) != TYPE_DICTIONARY:
+			continue
+		var source: Dictionary = source_var as Dictionary
+		var tile: Vector2i = source.get("pos", Vector2i(-1, -1))
+		if tile.x < 0:
+			continue
+		_draw_umbra_light_source_reach(source, time_seconds)
+
+func _umbra_light_source_tiles(source: Dictionary) -> Array[Vector2i]:
+	var source_tile: Vector2i = source.get("pos", Vector2i(-1, -1))
+	var radius_tiles: int = maxi(1, int(source.get("radius", 1)))
+	var result: Array[Vector2i]
+	if source_tile.x < 0:
+		return result
+	for tile: Vector2i in _rendered_tiles_in_draw_order():
+		if _umbra_light_source_distance(source_tile, tile) <= radius_tiles:
+			result.append(tile)
+	return result
+
+func _umbra_light_source_distance(source_tile: Vector2i, tile: Vector2i) -> int:
+	return absi(tile.x - source_tile.x) + absi(tile.y - source_tile.y)
+
+func _draw_umbra_light_source_reach(source: Dictionary, time_seconds: float) -> void:
+	var source_tile: Vector2i = source.get("pos", Vector2i(-1, -1))
+	var radius_tiles: int = maxi(1, int(source.get("radius", 1)))
+	var source_seed: float = _umbra_light_source_seed(source)
+	var pulse: float = 0.96 + 0.04 * sin(time_seconds * 1.42 + source_seed * 0.73)
+	var footprint_tiles: Array[Vector2i] = _umbra_light_source_tiles(source)
+	for tile: Vector2i in footprint_tiles:
+		var distance: int = _umbra_light_source_distance(source_tile, tile)
+		var reach_weight: float = 1.0 - float(distance) / (float(radius_tiles) + 0.90)
+		var tile_center: Vector2 = _tile_center(tile)
+		var tile_seed: float = float(tile.x * 17 + tile.y * 31)
+		var tile_drift := Vector2(
+			sin(time_seconds * 0.47 + tile_seed) * _tile_width() * 0.010,
+			cos(time_seconds * 0.39 + tile_seed) * _tile_height() * 0.018
+		)
+		_draw_campfire_soft_ellipse(
+			tile_center + tile_drift,
+			_tile_width() * (0.64 + reach_weight * 0.10),
+			Vector2(1.02, 0.48),
+			0.0,
+			Color(1.0, 0.48, 0.10, (0.14 + reach_weight * 0.18) * pulse),
+			22
+		)
+		_draw_campfire_soft_ellipse(
+			tile_center - tile_drift * 0.52,
+			_tile_width() * (0.42 + reach_weight * 0.08),
+			Vector2(1.04, 0.46),
+			0.0,
+			Color(1.0, 0.79, 0.30, (0.08 + reach_weight * 0.13) * pulse),
+			18
+		)
+	_draw_campfire_soft_ellipse(
+		_tile_center(source_tile) + Vector2(0.0, _tile_height() * 0.10),
+		_tile_width() * (0.78 + float(radius_tiles) * 0.18),
+		Vector2(1.32, 0.62),
+		-0.04,
+		Color(1.0, 0.67, 0.20, 0.28 * pulse),
+		26
+	)
+
+func _draw_umbra_light_source_markers(time_seconds: float) -> void:
+	var font: Font = get_theme_default_font()
+	_begin_umbra_shape_batch(true)
+	for source_var: Variant in presentation.get("umbra_light_sources", []):
+		if typeof(source_var) != TYPE_DICTIONARY:
+			continue
+		var source: Dictionary = source_var as Dictionary
+		# Braziers carry their own animated flame and prop tooltip.
+		if str(source.get("id", "")).begins_with("brazier:"): continue
+		var tile: Vector2i = source.get("pos", Vector2i(-1, -1))
+		if tile.x < 0:
+			continue
+		var radius_tiles: int = maxi(1, int(source.get("radius", 1)))
+		var remaining: int = int(source.get("remaining_activations", 0))
+		var source_seed: float = _umbra_light_source_seed(source)
+		if bool(source.get("tethered", false)):
+			var tethered_rect: Rect2 = _draw_umbra_tethered_light_marker(tile, source_seed, time_seconds)
+			_register_tooltip(tethered_rect, _tethered_light_tooltip(source))
+			continue
+		var breath: float = _umbra_light_orb_breath(source_seed, time_seconds)
+		var glow_brightness: float = 0.94 + 0.10 * (0.5 + 0.5 * sin(time_seconds * 2.15 + source_seed * 0.37))
+		var orb_center: Vector2 = _umbra_light_orb_center(tile, source_seed, time_seconds)
+		var orb_radius: float = clampf(_tile_width() * 0.115, 11.0, 20.0) * breath
+		_draw_umbra_light_orb(orb_center, orb_radius, glow_brightness, source_seed, time_seconds)
+		# Counters are text-bearing HUD details. Flush the batched glow underneath
+		# before drawing their native font and outline commands on top.
+		_flush_umbra_shape_batch()
+		var count_text: String = "∞" if remaining < 0 else str(maxi(0, remaining))
+		var chip_rect: Rect2 = _draw_umbra_light_orb_counter(orb_center, orb_radius, count_text, font, glow_brightness)
+		var duration_text: String = "Lasts for this combat." if remaining < 0 else "%d player turn%s remaining." % [remaining, "" if remaining == 1 else "s"]
+		var tooltip: String = "Light Source\nReveals Umbra within %d tile%s.\n%s" % [radius_tiles, "" if radius_tiles == 1 else "s", duration_text]
+		var marker_rect := Rect2(orb_center - Vector2(orb_radius * 1.65, orb_radius * 1.65), Vector2(orb_radius * 3.3, orb_radius * 3.3)).merge(chip_rect)
+		_register_tooltip(marker_rect, tooltip)
+		_begin_umbra_shape_batch()
+	_flush_umbra_shape_batch()
+
+# Night Coil announces a snuff before the next Eclipse. Keep current Light and
+# the future loss distinct, with a visible movement action on every dark refuge.
+func _noctyrax_brazier_markers() -> Array[Dictionary]:
+	var boss: Dictionary = {}
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) == "noctyrax" and int(enemy.get("hp", 0)) > 0:
+			boss = enemy
+			break
+	var result: Array[Dictionary]
+	if boss.is_empty():
+		return result
+	var snuffed_id: int = -1
+	var intent: Dictionary = boss.get("intent", {})
+	var snuff_rule: Dictionary = {}
+	for action: Dictionary in intent.get("actions", []):
+		if bool(action.get("snuff_brazier",false)):
+			snuffed_id = int(action.get("brazier_id", -1))
+			snuff_rule = action
+	var snuffs_before_hit: bool = str(snuff_rule.get("type",""))=="umbra_eclipse"
+	var restores_afterward: bool = bool(intent.get("restore_braziers",false))
+	var font: Font = get_theme_default_font()
+	for brazier: Dictionary in combat_state.get("guardian_braziers", []):
+		var tile: Vector2i = brazier["pos"]
+		var threatened: bool = int(brazier["id"]) == snuffed_id
+		var lit: bool = bool(brazier.get("lit", true))
+		var label: String = "Snuff incoming" if threatened else "Light · Radius 2" if lit else "Unlit brazier"
+		var detail: String = "Relight after Night Coil" if threatened else "Blocks Eclipse darkness" if lit else "Step here to relight"
+		var tooltip: String = ActionIcons.brazier_rule_tooltip(snuff_rule) if threatened else "Light radius 2 blocks Eclipse darkness. The marked ground and other attacks can still hit." if lit else "Step onto this brazier's tile to relight it and restore Light radius 2."
+		if threatened and snuffs_before_hit:
+			label = "Dark before Eclipse"
+			detail = "Use another Light"
+		elif not lit and restores_afterward:
+			detail = "Relights after Night Coil"
+			tooltip = "This brazier relights after Night Coil resolves, including a skipped turn. Step onto it to restore Light sooner."
+		var width: float = maxf(font.get_string_size(label,HORIZONTAL_ALIGNMENT_LEFT,-1,20).x,font.get_string_size(detail,HORIZONTAL_ALIGNMENT_LEFT,-1,18).x)+56.0
+		var center: Vector2 = _tile_center(tile)
+		var rect: Rect2 = _noctyrax_brazier_marker_rect(center,width,result)
+		result.append({"tile":tile,"rect":rect,"label":label,"detail":detail,"tooltip":tooltip,"threatened":threatened,"lit":lit,"eclipse":str(intent.get("id",""))=="last_eclipse"})
+	return result
+
+func _noctyrax_brazier_marker_rect(center: Vector2, width: float, placed: Array[Dictionary]) -> Rect2:
+	var base := Rect2(center+Vector2(-width*.5,-_tile_height()*1.6-54.0),Vector2(width,54))
+	var obstacles: Array[Rect2]
+	var fixed_hud: Array[Rect2]
+	var inverse: Transform2D = get_global_transform_with_canvas().affine_inverse()
+	for global_rect: Rect2 in presentation.get("hud_obstacle_global_rects",[]):
+		fixed_hud.append(inverse*global_rect)
+	obstacles.append_array(fixed_hud)
+	for unit: Dictionary in _visible_units():
+		if _unit_is_preview_echo(unit): continue
+		obstacles.append(_unit_draw_rect(unit).grow(8))
+		obstacles.append_array(_health_bar_collision_rects(unit,_unit_health_bar_rect(unit,_unit_center(unit))))
+	for marker: Dictionary in placed: obstacles.append((marker["rect"] as Rect2).grow(8))
+	var bounds: Rect2 = _enemy_hud_viewport_bounds()
+	var best: Rect2 = base
+	var score: float = INF
+	var y_offsets: Array[float]
+	for value: float in [0.0,-70.0,70.0,-140.0,140.0,210.0]: y_offsets.append(value)
+	# Include exact clear positions beneath/above fixed overlays. Actor crowding
+	# must not push a brazier's words through the current action banner.
+	for rect: Rect2 in fixed_hud:
+		y_offsets.append(rect.end.y+8.0-base.position.y)
+		y_offsets.append(rect.position.y-8.0-base.end.y)
+	for x: float in [0.0,-width*.7,width*.7,-width*1.15,width*1.15]:
+		for y: float in y_offsets:
+			var offset := Vector2(x,y)
+			var candidate := Rect2(base.position+offset,base.size)
+			var candidate_score: float = _enemy_hud_layout_score([candidate],obstacles,bounds,offset)
+			for rect: Rect2 in fixed_hud:
+				candidate_score += _rect_overlap_area(candidate,rect)*1000000000.0
+			if candidate_score < score:
+				score = candidate_score
+				best = candidate
+	return best
+
+func _draw_noctyrax_refuge_tile(tile: Vector2i) -> void:
+	var snuffed_id: int = -1
+	var has_noctyrax: bool = false
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if str(enemy.get("type", "")) != "noctyrax" or int(enemy.get("hp", 0)) <= 0: continue
+		has_noctyrax = true
+		for action: Dictionary in (enemy.get("intent", {}) as Dictionary).get("actions", []):
+			if bool(action.get("snuff_brazier",false)): snuffed_id = int(action.get("brazier_id",-1))
+	if not has_noctyrax: return
+	for brazier: Dictionary in combat_state.get("guardian_braziers", []):
+		if not bool(brazier.get("lit", true)) or int(brazier.get("id", -1)) == snuffed_id: continue
+		var center: Vector2i = brazier["pos"]
+		if absi(tile.x - center.x) + absi(tile.y - center.y) > 2: continue
+		if not preload("res://scripts/path_utils.gd").is_passable(combat_state.get("grid", []), tile): continue
+		var polygon: PackedVector2Array = _tile_polygon(tile)
+		var directions: Array[Vector2i] = _frozen_vector2i_values([Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT])
+		for index: int in range(4):
+			var neighbor: Vector2i = tile + directions[index]
+			if absi(neighbor.x - center.x) + absi(neighbor.y - center.y) <= 2: continue
+			draw_line(polygon[index], polygon[(index + 1) % 4], Color(1.0, 0.83, 0.38, 0.88), 2.0, true)
+
+func _draw_noctyrax_brazier_markers() -> void:
+	var font: Font = get_theme_default_font()
+	for marker: Dictionary in _noctyrax_brazier_markers():
+		var tile: Vector2i = marker["tile"]
+		var rect: Rect2 = marker["rect"]
+		var threatened: bool = marker["threatened"]
+		var color := Color("ffb096") if threatened else Color("ffe4a0")
+		if not bool(marker["lit"]):
+			color = Color("bbb4cd")
+		var tether_top := Vector2(rect.get_center().x, rect.end.y)
+		draw_line(tether_top, _tile_center(tile), Color(0.02, 0.015, 0.025, 0.95), 5.0, true)
+		draw_line(tether_top, _tile_center(tile), color, 2.0, true)
+		var plate := PackedVector2Array([rect.position+Vector2(8,0),Vector2(rect.end.x-8,rect.position.y),Vector2(rect.end.x,rect.position.y+8),rect.end-Vector2(0,8),rect.end-Vector2(8,0),Vector2(rect.position.x+8,rect.end.y),Vector2(rect.position.x,rect.end.y-8),rect.position+Vector2(0,8)])
+		draw_colored_polygon(plate,Color(.035,.025,.055,.88))
+		var rim: PackedVector2Array = plate.duplicate()
+		rim.append(plate[0])
+		draw_polyline(rim,Color(color,.55),1.3,true)
+		_draw_keyword_icon("light",Rect2(rect.position+Vector2(9,11),Vector2(32,32)),"Light radius 2",color if bool(marker["lit"]) else Color(.45,.42,.50),false)
+		_draw_outlined_string(font,rect.position+Vector2(47,23),marker["label"],rect.size.x-54,20,color,Color.BLACK)
+		_draw_outlined_string(font,rect.position+Vector2(47,44),marker["detail"],rect.size.x-54,18,color.lightened(.13),Color.BLACK)
+		_register_tooltip(rect,marker["tooltip"])
+
+func _tethered_light_tooltip(source: Dictionary) -> String:
+	var radius: int = maxi(1, int(source.get("radius", 1)))
+	var lines := PackedStringArray(["Tethered Light — Radius %d" % radius])
+	for contributor_var: Variant in source.get("radius_contributors", []):
+		if typeof(contributor_var) != TYPE_DICTIONARY:
+			continue
+		var contributor: Dictionary = contributor_var
+		lines.append("%s: +%d" % [str(contributor.get("name", "Source")), int(contributor.get("radius", 0))])
+	lines.append("Moves with this illusion and ends when it is removed.")
+	return "\n".join(lines)
+
+func _umbra_light_source_seed(source: Dictionary) -> float:
+	return float(absi(str(source.get("id", "0")).hash()) % 10007)
+
+func _draw_umbra_tethered_light_marker(tile: Vector2i, source_seed: float, time_seconds: float) -> Rect2:
+	var center: Vector2 = _tile_center(tile) + Vector2(0.0, -_tile_height() * 0.22)
+	var breath: float = _umbra_light_orb_breath(source_seed, time_seconds)
+	var halo_radius: float = clampf(_tile_width() * 0.27, 20.0, 38.0) * breath
+	_draw_campfire_soft_ellipse(
+		center,
+		halo_radius * 1.85,
+		Vector2(1.18, 0.48),
+		-0.05,
+		Color(1.0, 0.68, 0.18, 0.34),
+		24
+	)
+	_draw_campfire_soft_ellipse(
+		center + Vector2(0.0, -halo_radius * 0.08),
+		halo_radius,
+		Vector2(1.10, 0.38),
+		0.04,
+		Color(1.0, 0.90, 0.48, 0.42),
+		18
+	)
+	for mote_index: int in range(3):
+		var phase: float = time_seconds * (0.72 + float(mote_index) * 0.11) + source_seed * 0.013 + float(mote_index) * TAU / 3.0
+		var mote_center: Vector2 = center + Vector2(cos(phase) * halo_radius * 0.84, sin(phase) * halo_radius * 0.28)
+		_draw_or_queue_umbra_circle(mote_center, 1.8 + float(mote_index) * 0.35, Color(1.0, 0.90, 0.52, 0.78))
+	return Rect2(center - Vector2(halo_radius * 1.9, halo_radius), Vector2(halo_radius * 3.8, halo_radius * 2.0))
+
+func _umbra_light_orb_breath(source_seed: float, time_seconds: float) -> float:
+	return 1.0 + 0.055 * sin(time_seconds * 2.15 + source_seed * 0.37)
+
+func _umbra_light_orb_center(tile: Vector2i, source_seed: float, time_seconds: float) -> Vector2:
+	var bob: float = sin(time_seconds * 1.45 + source_seed * 0.91) * _tile_height() * 0.045
+	var sway: float = sin(time_seconds * 0.83 + source_seed * 1.17) * _tile_width() * 0.010
+	return _tile_center(tile) + Vector2(sway, -_tile_height() * 0.18 + bob)
+
+func _draw_umbra_light_orb(orb_center: Vector2, orb_radius: float, glow_brightness: float, source_seed: float, time_seconds: float) -> void:
+	_draw_campfire_soft_ellipse(
+		orb_center + Vector2(0.0, orb_radius * 0.76),
+		orb_radius * 1.32,
+		Vector2(1.42, 0.31),
+		0.0,
+		Color(0.14, 0.055, 0.015, 0.34),
+		14
+	)
+	_draw_campfire_soft_ellipse(
+		orb_center,
+		orb_radius * 4.45 * glow_brightness,
+		Vector2(1.08, 0.86),
+		0.0,
+		Color(1.0, 0.56, 0.11, 0.66),
+		28
+	)
+	_draw_campfire_soft_ellipse(
+		orb_center - Vector2(orb_radius * 0.05, orb_radius * 0.08),
+		orb_radius * 2.45 * glow_brightness,
+		Vector2(1.02, 0.94),
+		0.0,
+		Color(1.0, 0.81, 0.30, 0.72),
+		22
+	)
+	_draw_campfire_soft_ellipse(
+		orb_center - Vector2(orb_radius * 0.10, orb_radius * 0.12),
+		orb_radius * 1.42,
+		Vector2(1.0, 0.96),
+		0.0,
+		Color(1.0, 0.96, 0.64, 0.82),
+		18
+	)
+	var core_drift := Vector2(
+		sin(time_seconds * 1.18 + source_seed) * orb_radius * 0.075,
+		cos(time_seconds * 0.96 + source_seed * 1.31) * orb_radius * 0.060
+	)
+	var gradient_layers: int = 30
+	for layer_index: int in range(gradient_layers, 0, -1):
+		var outer_t: float = float(layer_index) / float(gradient_layers)
+		var core_weight: float = 1.0 - outer_t
+		var light_offset := Vector2(-orb_radius * 0.14, -orb_radius * 0.18) * core_weight
+		var layer_center: Vector2 = orb_center + core_drift * (0.42 + core_weight * 0.58) + light_offset
+		var layer_radius: float = orb_radius * (0.16 + outer_t * 0.92)
+		var layer_color: Color = Color("ff9d16").lerp(Color("fff8c9"), pow(core_weight, 0.66))
+		layer_color.a = lerpf(0.012, 0.20, pow(core_weight, 0.74))
+		_draw_or_queue_umbra_circle(layer_center, layer_radius, layer_color)
+	_draw_campfire_soft_ellipse(
+		orb_center + core_drift - Vector2(orb_radius * 0.25, orb_radius * 0.28),
+		orb_radius * 0.55,
+		Vector2(1.0, 0.74),
+		-0.42,
+		Color(1.0, 1.0, 0.90, 0.78),
+		12
+	)
+	_draw_campfire_soft_ellipse(
+		orb_center - core_drift * 0.70 + Vector2(orb_radius * 0.23, orb_radius * 0.20),
+		orb_radius * 0.42,
+		Vector2(1.0, 0.82),
+		0.30,
+		Color(1.0, 0.55, 0.08, 0.42),
+		10
+	)
+	_draw_umbra_light_orb_motes(orb_center, orb_radius, source_seed, time_seconds)
+
+func _draw_umbra_light_orb_motes(orb_center: Vector2, orb_radius: float, source_seed: float, time_seconds: float) -> void:
+	for mote_index: int in range(3):
+		var phase: float = time_seconds * (0.72 + float(mote_index) * 0.09) + source_seed + float(mote_index) * 2.09
+		var orbit_radius: float = orb_radius * (1.34 + float(mote_index) * 0.16)
+		var mote_point := orb_center + Vector2(cos(phase) * orbit_radius, sin(phase) * orbit_radius * 0.62)
+		var mote_alpha: float = 0.28 + 0.24 * (0.5 + 0.5 * sin(phase * 1.7))
+		_draw_campfire_soft_ellipse(
+			mote_point,
+			orb_radius * (0.20 + float(mote_index) * 0.025),
+			Vector2.ONE,
+			0.0,
+			Color(1.0, 0.92, 0.56, mote_alpha),
+			8
+		)
+
+func _draw_umbra_light_orb_counter(orb_center: Vector2, orb_radius: float, count_text: String, font: Font, pulse: float) -> Rect2:
+	var chip_radius: float = clampf(orb_radius * 0.56, 7.5, 10.5)
+	var chip_center: Vector2 = orb_center + Vector2(orb_radius * 0.82, orb_radius * 0.68)
+	# The caller flushes the orb first, so the chip glow can use its own pooled
+	# translucent batch while the label remains a native text draw above it.
+	if _umbra_shape_batch_enabled:
+		_begin_umbra_shape_batch()
+	_draw_campfire_soft_ellipse(
+		chip_center,
+		chip_radius * 1.85 * pulse,
+		Vector2.ONE,
+		0.0,
+		Color(1.0, 0.67, 0.18, 0.28),
+		10
+	)
+	if _umbra_shape_batch_enabled:
+		_flush_umbra_shape_batch()
+	var chip_rect := Rect2(chip_center - Vector2.ONE * chip_radius, Vector2.ONE * chip_radius * 2.0)
+	if font != null:
+		draw_string(font, Vector2(chip_rect.position.x + 1.2, chip_center.y + 5.2), count_text, HORIZONTAL_ALIGNMENT_CENTER, chip_rect.size.x, 11, Color(0.05, 0.025, 0.01, 0.92))
+		draw_string(font, Vector2(chip_rect.position.x, chip_center.y + 4.0), count_text, HORIZONTAL_ALIGNMENT_CENTER, chip_rect.size.x, 11, Color("fff9db"))
+	return chip_rect
+
+func _draw_empty_state() -> void:
+	var font: Font = get_theme_default_font()
+	if font == null:
+		return
+	draw_string(font, Vector2(34, 52), "No active combat.", HORIZONTAL_ALIGNMENT_LEFT, -1.0, 20, Color("f0e5cf"))
+
+func _campfire_atmosphere_active() -> bool:
+	return not _campfire_scene_props().is_empty()
+
+func _campfire_scene_props() -> Array:
+	if _submission_cache_valid:
+		return _campfire_scene_props_cache
+	var props: Array = []
+	for prop_var: Variant in presentation.get("scene_props", []):
+		if typeof(prop_var) != TYPE_DICTIONARY:
+			continue
+		var prop: Dictionary = prop_var
+		if str(prop.get("kind", "")) == "campfire_bonfire":
+			props.append(prop)
+	return props
+
+func _draw_campfire_room_firelight(tiles: Array[Vector2i]) -> void:
+	var props: Array = _campfire_scene_props()
+	if props.is_empty() or tiles.is_empty():
+		return
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	for prop_var: Variant in props:
+		var prop: Dictionary = prop_var
+		var source_tile: Vector2i = prop.get("tile", Vector2i(4, 4))
+		var source_seed: int = _campfire_atmosphere_seed(source_tile)
+		var floor_point: Vector2 = _campfire_floor_light_point(prop)
+		var flame_point: Vector2 = _campfire_flame_point(prop)
+		_draw_campfire_soft_floor_bloom(floor_point, flame_point, source_seed, time_seconds)
+
+func _draw_campfire_soft_floor_bloom(floor_point: Vector2, flame_point: Vector2, source_seed: int, time_seconds: float) -> void:
+	var floor_light_scale: float = _art_treatment.local_light_scale if _art_treatment_enabled and _art_treatment != null else 1.0
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", 0)
+	var flicker: float = 0.88 + 0.12 * sin(time_seconds * 6.9 + _ambient_hash01(source_seed + 5) * TAU)
+	var slow_breath: float = 0.5 + 0.5 * sin(time_seconds * 1.55 + _ambient_hash01(source_seed + 7) * TAU)
+	var drift := Vector2(
+		sin(time_seconds * 0.74 + _ambient_hash01(source_seed + 11) * TAU) * tile_width * 0.045,
+		sin(time_seconds * 0.58 + _ambient_hash01(source_seed + 13) * TAU) * tile_height * 0.08
+	)
+	_draw_campfire_soft_ellipse(
+		floor_point + drift + Vector2(0.0, tile_height * 0.12),
+		tile_width * (1.78 + slow_breath * 0.08),
+		Vector2(1.78, 0.78),
+		-0.04,
+		Color(1.0, 0.40, 0.12, CAMPFIRE_FIRELIGHT_BLOOM_ALPHA * 0.62 * flicker * floor_light_scale),
+		24
+	)
+	_draw_campfire_soft_ellipse(
+		floor_point - drift * 0.50 + Vector2(-tile_width * 0.15, tile_height * 0.03),
+		tile_width * 1.28,
+		Vector2(1.58, 0.72),
+		0.16,
+		Color(1.0, 0.61, 0.23, CAMPFIRE_FIRELIGHT_BLOOM_ALPHA * 0.38 * flicker * floor_light_scale),
+		18
+	)
+	_draw_campfire_soft_ellipse(
+		floor_point + drift * 0.62 + Vector2(tile_width * 0.12, -tile_height * 0.08),
+		tile_width * 0.74,
+		Vector2(1.32, 0.66),
+		-0.20,
+		Color(1.0, 0.80, 0.38, CAMPFIRE_FIRELIGHT_CORE_ALPHA * 0.36 * flicker * floor_light_scale),
+		14
+	)
+	if glow_texture != null:
+		_draw_ambient_particle_sprite(
+			glow_texture,
+			flame_point + Vector2(0.0, tile_height * 0.24),
+			Vector2(tile_width * 1.92, tile_height * 2.02),
+			0.0,
+			CAMPFIRE_FIRELIGHT_CORE_ALPHA * 0.22 * flicker,
+			Color(1.0, 0.50, 0.14, 1.0)
+		)
+		return
+	draw_circle(floor_point, tile_width * 1.65, Color(1.0, 0.48, 0.18, CAMPFIRE_FIRELIGHT_BLOOM_ALPHA * 0.22 * flicker * floor_light_scale))
+	draw_circle(flame_point, tile_width * 0.74, Color(1.0, 0.78, 0.34, CAMPFIRE_FIRELIGHT_CORE_ALPHA * 0.20 * flicker))
+
+func _draw_campfire_soft_ellipse(center: Vector2, radius: float, ellipse_scale: Vector2, rotation: float, color: Color, layer_count: int) -> void:
+	if layer_count <= 0 or color.a <= 0.0:
+		return
+	if _umbra_shape_batch_active:
+		for layer_index: int in range(layer_count, 0, -1):
+			var t: float = float(layer_index) / float(layer_count)
+			var inner_weight: float = pow(1.0 - t, 0.84)
+			var layer_alpha: float = color.a * (0.022 + inner_weight * 0.056)
+			var layer_radius: float = radius * (0.10 + t * 0.90)
+			_queue_umbra_shape_circle(
+				center,
+				layer_radius,
+				ellipse_scale,
+				rotation,
+				Color(color.r, color.g, color.b, layer_alpha)
+			)
+		return
+	for layer_index: int in range(layer_count, 0, -1):
+		var t: float = float(layer_index) / float(layer_count)
+		var inner_weight: float = pow(1.0 - t, 0.84)
+		var layer_alpha: float = color.a * (0.022 + inner_weight * 0.056)
+		var layer_radius: float = radius * (0.10 + t * 0.90)
+		draw_set_transform(center, rotation, ellipse_scale)
+		draw_circle(Vector2.ZERO, layer_radius, Color(color.r, color.g, color.b, layer_alpha))
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _draw_campfire_ember_motes() -> void:
+	var props: Array = _campfire_scene_props()
+	if props.is_empty():
+		return
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	for prop_var: Variant in props:
+		var prop: Dictionary = prop_var
+		var source_tile: Vector2i = prop.get("tile", Vector2i(4, 4))
+		var source_seed: int = _campfire_atmosphere_seed(source_tile)
+		var source_point: Vector2 = _campfire_flame_point(prop) + Vector2(0.0, _tile_height() * 0.08)
+		for index: int in range(CAMPFIRE_EMBER_MOTE_COUNT):
+			var seed: int = source_seed + index * 1759
+			var speed: float = lerpf(0.18, 0.34, _ambient_hash01(seed + 13))
+			var cycle: float = wrapf(_ambient_hash01(seed + 17) + time_seconds * speed, 0.0, 1.0)
+			var center_bias: float = _campfire_ember_center_bias(seed)
+			var edge_lifetime: float = lerpf(0.54, 1.0, pow(center_bias, 0.72))
+			if cycle > edge_lifetime:
+				continue
+			var lifetime_cycle: float = cycle / edge_lifetime
+			var alpha: float = pow(clampf(sin(lifetime_cycle * PI), 0.0, 1.0), 0.72) * CAMPFIRE_EMBER_MOTE_ALPHA
+			alpha *= lerpf(0.62, 1.0, center_bias)
+			if alpha <= 0.04:
+				continue
+			var point: Vector2 = _campfire_ember_mote_point(source_point, seed, cycle, time_seconds)
+			var previous_cycle: float = maxf(0.0, cycle - _ambient_motion_blur_cycle_delta("fire"))
+			var previous_point: Vector2 = _campfire_ember_mote_point(source_point, seed, previous_cycle, time_seconds - 0.12)
+			var velocity: Vector2 = point - previous_point
+			var draw_width: float = _tile_width() * lerpf(0.060, 0.122, _ambient_hash01(seed + 37))
+			var variant_index: int = posmod(index + int(_ambient_hash01(seed + 39) * float(AMBIENT_PARTICLE_ATLAS_COLUMNS)), AMBIENT_PARTICLE_ATLAS_COLUMNS)
+			var texture: Texture2D = _ambient_particle_texture("fire", variant_index)
+			var soft_texture: Texture2D = _ambient_fire_soft_texture(variant_index)
+			var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", variant_index)
+			if texture == null and soft_texture == null:
+				draw_circle(point, draw_width * 0.45, Color(1.0, 0.66, 0.28, minf(alpha * 0.46, 0.74)))
+				continue
+			if texture == null:
+				texture = soft_texture
+			var mote_alpha: float = alpha * lerpf(0.28, 0.58, _ambient_hash01(seed + 41))
+			var texture_size: Vector2 = texture.get_size()
+			var draw_size := Vector2(draw_width, draw_width)
+			if texture_size.x > 0.0:
+				draw_size.y = draw_width * texture_size.y / texture_size.x
+			var rotation: float = lerpf(-0.34, 0.34, _ambient_hash01(seed + 43)) + sin(time_seconds * 0.72 + _ambient_hash01(seed + 47) * TAU) * 0.11
+			_draw_ambient_fire_particle(texture, soft_texture, glow_texture, point, velocity, draw_size, rotation, mote_alpha, seed, time_seconds)
+			draw_circle(point, maxf(1.6, draw_width * 0.14), Color(1.0, 0.84, 0.38, minf(mote_alpha * 0.66, 0.72)))
+
+func _campfire_ember_mote_point(source_point: Vector2, seed: int, cycle: float, time_seconds: float) -> Vector2:
+	var tile_width: float = _tile_width()
+	var base_lateral: float = _campfire_ember_base_lateral(seed)
+	var center_bias: float = 1.0 - absf(base_lateral)
+	var plume_width: float = lerpf(0.52, 0.10, pow(cycle, 0.62)) * tile_width
+	var lateral: float = base_lateral * plume_width
+	var sway: float = sin(time_seconds * lerpf(1.1, 2.5, _ambient_hash01(seed + 29)) + _ambient_hash01(seed + 31) * TAU) * tile_width * lerpf(0.020, 0.105, cycle)
+	var height_scale: float = lerpf(0.50, 1.08, pow(center_bias, 0.70))
+	var rise: float = pow(cycle, 0.72) * tile_width * CAMPFIRE_EMBER_PLUME_HEIGHT_SCALE * height_scale
+	var chimney_pull: float = sin(cycle * TAU + _ambient_hash01(seed + 33) * TAU) * tile_width * 0.035
+	return source_point + Vector2(lateral + sway + chimney_pull, _tile_height() * 0.18 - rise)
+
+func _campfire_ember_base_lateral(seed: int) -> float:
+	return lerpf(-1.0, 1.0, _ambient_hash01(seed + 23))
+
+func _campfire_ember_center_bias(seed: int) -> float:
+	return 1.0 - absf(_campfire_ember_base_lateral(seed))
+
+func _campfire_prop_draw_rect(prop: Dictionary) -> Rect2:
+	var texture: Texture2D = _texture_for_scene_prop(prop)
+	if texture != null:
+		return _scene_prop_rect(texture, prop)
+	var tile: Vector2i = prop.get("tile", Vector2i(4, 4))
+	return Rect2(_tile_center(tile), Vector2.ZERO)
+
+func _campfire_flame_point(prop: Dictionary) -> Vector2:
+	var draw_rect: Rect2 = _campfire_prop_draw_rect(prop)
+	if draw_rect.size == Vector2.ZERO:
+		return draw_rect.position + Vector2(0.0, -_tile_height() * 0.18)
+	return Vector2(draw_rect.get_center().x, draw_rect.position.y + draw_rect.size.y * 0.45)
+
+func _campfire_floor_light_point(prop: Dictionary) -> Vector2:
+	var draw_rect: Rect2 = _campfire_prop_draw_rect(prop)
+	if draw_rect.size == Vector2.ZERO:
+		return draw_rect.position
+	return Vector2(draw_rect.get_center().x, draw_rect.position.y + draw_rect.size.y * 0.62)
+
+func _campfire_atmosphere_seed(source_tile: Vector2i) -> int:
+	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
+	return room_coord.x * 81283 + room_coord.y * 52639 + source_tile.x * 947 + source_tile.y * 1223 + 71
+
+func _ambient_particles_active() -> bool:
+	if combat_state.is_empty():
+		return false
+	return not _ambient_active_element_ids().is_empty()
+
+func _ambient_element_id() -> String:
+	if _submission_cache_valid:
+		return _ambient_element_id_cache
+	return str(combat_state.get("room_element", ElementData.NONE))
+
+
+
+
+
+func _ambient_active_element_ids() -> PackedStringArray:
+	var active := PackedStringArray()
+	var room_element: String = _ambient_element_id()
+	if ElementData.is_elemental(room_element):
+		active.append(room_element)
+	return active
+
+func _draw_ambient_particles(tiles: Array[Vector2i]) -> void:
+	if tiles.is_empty():
+		return
+	var phase_started_usec: int = Time.get_ticks_usec()
+	# Canvas draw commands retain the mesh resource until the next redraw.
+	var time_seconds: float = float(presentation.get("ambient_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
+	var active_element_ids: PackedStringArray = _ambient_active_element_ids()
+	_begin_ambient_particle_batch()
+	_record_render_section_time("ambient_particle_setup", phase_started_usec)
+	phase_started_usec = Time.get_ticks_usec()
+	for element_id: String in active_element_ids:
+		var particle_count: int = _ambient_particle_count(element_id, tiles.size())
+		if particle_count <= 0:
+			continue
+		var motion_time_seconds: float = _ambient_motion_time(element_id, time_seconds)
+		var room_opacity: float = _ambient_room_opacity(element_id)
+		var templates: Array = _ambient_particle_templates(element_id, tiles, particle_count)
+		for index: int in range(particle_count):
+			var particle_template: AmbientParticleTemplate = templates[index] as AmbientParticleTemplate
+			_draw_ambient_particle_from_template(element_id, particle_template, time_seconds, motion_time_seconds, room_opacity)
+	_record_render_section_time("ambient_particle_simulation", phase_started_usec)
+	phase_started_usec = Time.get_ticks_usec()
+	_flush_ambient_particle_batch()
+	_record_render_section_time("ambient_particle_batch_flush", phase_started_usec)
+
+func _ambient_particle_count(element_id: String, tile_count: int) -> int:
+	var base_count: int = 0
+	match element_id:
+		"fire":
+			base_count = 84
+		"ice":
+			base_count = 172
+		"lightning":
+			base_count = 56
+		"air":
+			base_count = 43
+		"earth":
+			base_count = 88
+	var board_scale: float = clampf(float(tile_count) / 72.0, 0.72, 1.14)
+	return maxi(0, int(roundf(float(base_count) * board_scale * AMBIENT_PARTICLE_DENSITY * 0.72)))
+
+func _ambient_room_seed(element_id: String) -> int:
+	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
+	return room_coord.x * 92821 + room_coord.y * 68917 + _ambient_element_seed(element_id) * 3571
+
+func _ambient_element_seed(element_id: String) -> int:
+	match element_id:
+		"fire":
+			return 11
+		"ice":
+			return 23
+		"lightning":
+			return 37
+		"air":
+			return 43
+		"earth":
+			return 59
+		_:
+			return 3
+
+func _ambient_hash(seed: int) -> int:
+	if _ambient_hash_cache.has(seed):
+		return int(_ambient_hash_cache.get(seed, 0))
+	var value: int = posmod(seed, 2147483647)
+	value = posmod(value * 1103515245 + 12345, 2147483647)
+	value = posmod(value * 1103515245 + 12345, 2147483647)
+	_ambient_hash_cache[seed] = value
+	return value
+
+func _ambient_hash01(seed: int) -> float:
+	if _ambient_hash01_cache.has(seed):
+		return float(_ambient_hash01_cache.get(seed, 0.0))
+	var value: float = float(posmod(_ambient_hash(seed), 10000)) / 10000.0
+	_ambient_hash01_cache[seed] = value
+	return value
+
+func _prepare_ambient_hash_cache(element_id: String) -> void:
+	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
+	if room_coord != _ambient_hash_cache_room_coord:
+		_ambient_hash_cache_room_coord = room_coord
+		_ambient_hash_caches_by_element.clear()
+		_ambient_hash01_caches_by_element.clear()
+	if not _ambient_hash_caches_by_element.has(element_id):
+		_ambient_hash_caches_by_element[element_id] = {}
+	if not _ambient_hash01_caches_by_element.has(element_id):
+		_ambient_hash01_caches_by_element[element_id] = {}
+	_ambient_hash_cache = _ambient_hash_caches_by_element.get(element_id, {}) as Dictionary
+	_ambient_hash01_cache = _ambient_hash01_caches_by_element.get(element_id, {}) as Dictionary
+
+func _ambient_motion_time(_element_id: String, source_time_seconds: float) -> float:
+	return source_time_seconds
+
+func _ambient_cycle(seed: int, time_seconds: float, speed: float) -> float:
+	return wrapf(_ambient_hash01(seed) + time_seconds * speed * AMBIENT_PARTICLE_SPEED_SCALE, 0.0, 1.0)
+
+func _ambient_particle_alpha(cycle: float) -> float:
+	return clampf(sin(cycle * PI), 0.0, 1.0)
+
+func _ambient_particle_templates(element_id: String, tiles: Array[Vector2i], particle_count: int) -> Array:
+	_ensure_board_layout_cache()
+	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
+	var signature: String = "%s|%s|%d|%.5f|%.5f|%.5f" % [
+		str(room_coord),
+		_board_layout_signature,
+		tiles.size(),
+		_board_layout_cache_origin.x,
+		_board_layout_cache_origin.y,
+		_board_layout_cache_tile_width,
+	]
+	if signature != _ambient_particle_template_signature:
+		_ambient_particle_template_signature = signature
+		_ambient_particle_templates_by_element.clear()
+	var templates: Array = _ambient_particle_templates_by_element.get(element_id, []) as Array
+	if templates.size() >= particle_count:
+		return templates
+	_prepare_ambient_hash_cache(element_id)
+	var room_seed: int = _ambient_room_seed(element_id)
+	var wind_direction: float = _ambient_air_wind_direction() if element_id == "air" else 1.0
+	for index: int in range(templates.size(), particle_count):
+		var particle_seed: int = room_seed + index * 7919
+		var tile_index: int = posmod(_ambient_hash(particle_seed + 17), tiles.size())
+		templates.append(_build_ambient_particle_template(element_id, _tile_center(tiles[tile_index]), particle_seed, wind_direction))
+	_ambient_particle_templates_by_element[element_id] = templates
+	return templates
+
+func _build_ambient_particle_template(element_id: String, base_point: Vector2, seed: int, wind_direction: float) -> AmbientParticleTemplate:
+	var particle_template := AmbientParticleTemplate.new()
+	particle_template.seed = seed
+	particle_template.base_point = base_point
+	particle_template.wind_direction = wind_direction
+	particle_template.hashes.resize(64)
+	for hash_offset: int in range(particle_template.hashes.size()):
+		particle_template.hashes[hash_offset] = _ambient_hash01(seed + hash_offset)
+	particle_template.cycle_phase = _ambient_hash01(seed + 101)
+	particle_template.speed = _ambient_particle_speed(element_id, seed)
+	particle_template.variant_index = int(particle_template.hashes[41] * float(AMBIENT_PARTICLE_ATLAS_COLUMNS))
+	particle_template.texture = _ambient_particle_texture(element_id, particle_template.variant_index)
+	particle_template.glow_texture = _ambient_particle_glow_texture(element_id, particle_template.variant_index)
+	if element_id == "fire":
+		particle_template.soft_texture = _ambient_fire_soft_texture(particle_template.variant_index)
+	elif element_id == "air":
+		particle_template.air_variant_index = 1 if particle_template.hashes[41] < 0.72 else 3
+		var wisp_texture: Texture2D = _ambient_air_wisp_texture(particle_template.air_variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX)
+		if wisp_texture != null:
+			particle_template.texture = wisp_texture
+		particle_template.soft_texture = _ambient_air_wisp_soft_texture(particle_template.air_variant_index)
+		var wisp_glow_texture: Texture2D = _ambient_air_wisp_glow_texture(particle_template.air_variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX)
+		if wisp_glow_texture != null:
+			particle_template.glow_texture = wisp_glow_texture
+	if particle_template.texture != null:
+		var draw_width: float = _ambient_particle_draw_width_from_hash(element_id, particle_template.hashes[9])
+		var texture_size: Vector2 = particle_template.texture.get_size()
+		particle_template.draw_size = Vector2(draw_width, draw_width)
+		if texture_size.x > 0.0:
+			particle_template.draw_size.y = draw_width * texture_size.y / texture_size.x
+	return particle_template
+
+func _draw_ambient_particle_from_template(
+	element_id: String,
+	particle_template: AmbientParticleTemplate,
+	time_seconds: float,
+	motion_time_seconds: float,
+	room_opacity: float
+) -> void:
+	var texture: Texture2D = particle_template.texture
+	if texture == null:
+		return
+	var cycle: float = wrapf(
+		particle_template.cycle_phase + motion_time_seconds * particle_template.speed * AMBIENT_PARTICLE_SPEED_SCALE,
+		0.0,
+		1.0
+	)
+	var alpha: float = _ambient_alpha_for_element_with_opacity(element_id, cycle, room_opacity)
+	if alpha <= 0.04:
+		return
+	var tile_width: float = _tile_width()
+	var point: Vector2 = particle_template.base_point + _ambient_particle_offset_from_template(element_id, particle_template, cycle, time_seconds, tile_width)
+	var previous_cycle: float = wrapf(cycle - _ambient_motion_blur_cycle_delta(element_id), 0.0, 1.0)
+	var previous_point: Vector2 = particle_template.base_point + _ambient_particle_offset_from_template(
+		element_id,
+		particle_template,
+		previous_cycle,
+		time_seconds - 0.12,
+		tile_width
+	)
+	var velocity: Vector2 = point - previous_point
+	var rotation: float = _ambient_particle_rotation_from_template(element_id, particle_template, time_seconds)
+	if element_id == "fire":
+		_draw_ambient_fire_particle_from_template(particle_template, point, velocity, rotation, alpha, time_seconds)
+		return
+	if element_id == "air":
+		_draw_ambient_air_wisp_particle(texture, particle_template.soft_texture, particle_template.glow_texture, point, velocity, particle_template.draw_size, rotation, alpha)
+		return
+	if particle_template.glow_texture != null:
+		_draw_ambient_particle_trail(particle_template.glow_texture, point, velocity, particle_template.draw_size, alpha, element_id)
+		_draw_ambient_particle_sprite(
+			particle_template.glow_texture,
+			point,
+			particle_template.draw_size * _ambient_glow_scale(element_id),
+			rotation,
+			alpha * _ambient_glow_alpha(element_id)
+		)
+	_draw_ambient_particle_sprite(texture, point, particle_template.draw_size, rotation, alpha)
+
+func _draw_ambient_particle(element_id: String, base_point: Vector2, seed: int, time_seconds: float, motion_time_seconds: float) -> void:
+	var variant_index: int = int(_ambient_hash01(seed + 41) * float(AMBIENT_PARTICLE_ATLAS_COLUMNS))
+	var texture: Texture2D = _ambient_particle_texture(element_id, variant_index)
+	if texture == null:
+		return
+	var glow_texture: Texture2D = _ambient_particle_glow_texture(element_id, variant_index)
+	var air_soft_texture: Texture2D = null
+	var cycle: float = _ambient_cycle(seed + 101, motion_time_seconds, _ambient_particle_speed(element_id, seed))
+	if element_id == "air":
+		var wisp_variant_index: int = _ambient_air_wisp_variant_index(seed)
+		var wisp_texture: Texture2D = _ambient_air_wisp_texture(wisp_variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX)
+		if wisp_texture != null:
+			texture = wisp_texture
+		air_soft_texture = _ambient_air_wisp_soft_texture(wisp_variant_index)
+		var wisp_glow_texture: Texture2D = _ambient_air_wisp_glow_texture(wisp_variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX)
+		if wisp_glow_texture != null:
+			glow_texture = wisp_glow_texture
+	var alpha: float = _ambient_alpha_for_element(element_id, cycle)
+	if alpha <= 0.04:
+		return
+	var tile_width: float = _tile_width()
+	var point: Vector2 = base_point + _ambient_particle_offset(element_id, seed, cycle, time_seconds, tile_width)
+	var previous_cycle: float = wrapf(cycle - _ambient_motion_blur_cycle_delta(element_id), 0.0, 1.0)
+	var previous_point: Vector2 = base_point + _ambient_particle_offset(element_id, seed, previous_cycle, time_seconds - 0.12, tile_width)
+	var velocity: Vector2 = point - previous_point
+	var draw_width: float = _ambient_particle_draw_width(element_id, seed)
+	var texture_size: Vector2 = texture.get_size()
+	var draw_size := Vector2(draw_width, draw_width)
+	if texture_size.x > 0.0:
+		draw_size.y = draw_width * texture_size.y / texture_size.x
+	var rotation: float = _ambient_particle_rotation(element_id, seed, time_seconds)
+	if element_id == "fire":
+		_draw_ambient_fire_particle(
+			texture,
+			_ambient_fire_soft_texture(variant_index),
+			glow_texture,
+			point,
+			velocity,
+			draw_size,
+			rotation,
+			alpha,
+			seed,
+			time_seconds
+		)
+		return
+	if element_id == "air":
+		_draw_ambient_air_wisp_particle(texture, air_soft_texture, glow_texture, point, velocity, draw_size, rotation, alpha)
+		return
+	if glow_texture != null:
+		_draw_ambient_particle_trail(glow_texture, point, velocity, draw_size, alpha, element_id)
+		_draw_ambient_particle_sprite(glow_texture, point, draw_size * _ambient_glow_scale(element_id), rotation, alpha * _ambient_glow_alpha(element_id))
+	_draw_ambient_particle_sprite(texture, point, draw_size, rotation, alpha)
+
+func _ambient_particle_texture(element_id: String, variant_index: int) -> Texture2D:
+	if _ambient_particle_atlas == null:
+		return null
+	return _ambient_particle_texture_from_atlas(_ambient_particle_atlas, _ambient_particle_textures, element_id, variant_index)
+
+func _ambient_particle_glow_texture(element_id: String, variant_index: int) -> Texture2D:
+	if _ambient_particle_glow_atlas == null:
+		return null
+	return _ambient_particle_texture_from_atlas(_ambient_particle_glow_atlas, _ambient_particle_glow_textures, element_id, variant_index)
+
+func _ambient_fire_soft_texture(variant_index: int) -> Texture2D:
+	if _ambient_fire_soft_atlas == null:
+		return null
+	var col: int = posmod(variant_index, AMBIENT_FIRE_SOFT_ATLAS_COLUMNS)
+	var cache_key: String = str(col)
+	if _ambient_fire_soft_textures.has(cache_key):
+		return _ambient_fire_soft_textures.get(cache_key, null)
+	var atlas_size: Vector2 = _ambient_fire_soft_atlas.get_size()
+	var cell_size := Vector2(atlas_size.x / float(AMBIENT_FIRE_SOFT_ATLAS_COLUMNS), atlas_size.y)
+	var atlas_texture := AtlasTexture.new()
+	atlas_texture.atlas = _ambient_fire_soft_atlas
+	atlas_texture.region = Rect2(Vector2(cell_size.x * float(col), 0.0), cell_size)
+	_ambient_fire_soft_textures[cache_key] = atlas_texture
+	return atlas_texture
+
+func _ambient_air_wisp_texture(variant_index: int, frame_index: int) -> Texture2D:
+	if _ambient_air_wisp_atlas == null:
+		return null
+	return _ambient_air_wisp_texture_from_atlas(_ambient_air_wisp_atlas, _ambient_air_wisp_textures, variant_index, frame_index)
+
+func _ambient_air_wisp_soft_texture(variant_index: int) -> Texture2D:
+	if _ambient_air_wisp_soft_atlas == null:
+		return null
+	var col: int = posmod(variant_index, AMBIENT_AIR_WISP_SOFT_ATLAS_COLUMNS)
+	var cache_key: String = str(col)
+	if _ambient_air_wisp_soft_textures.has(cache_key):
+		return _ambient_air_wisp_soft_textures.get(cache_key, null)
+	var atlas_size: Vector2 = _ambient_air_wisp_soft_atlas.get_size()
+	var cell_size := Vector2(atlas_size.x / float(AMBIENT_AIR_WISP_SOFT_ATLAS_COLUMNS), atlas_size.y)
+	var atlas_texture := AtlasTexture.new()
+	atlas_texture.atlas = _ambient_air_wisp_soft_atlas
+	atlas_texture.region = Rect2(Vector2(cell_size.x * float(col), 0.0), cell_size)
+	_ambient_air_wisp_soft_textures[cache_key] = atlas_texture
+	return atlas_texture
+
+func _ambient_air_wisp_glow_texture(variant_index: int, frame_index: int) -> Texture2D:
+	if _ambient_air_wisp_glow_atlas == null:
+		return null
+	return _ambient_air_wisp_texture_from_atlas(_ambient_air_wisp_glow_atlas, _ambient_air_wisp_glow_textures, variant_index, frame_index)
+
+func _ambient_particle_texture_from_atlas(atlas: Texture2D, cache: Dictionary, element_id: String, variant_index: int) -> Texture2D:
+	var row: int = _ambient_particle_row(element_id)
+	if row < 0:
+		return null
+	var col: int = posmod(variant_index, AMBIENT_PARTICLE_ATLAS_COLUMNS)
+	var cache_key: String = "%d:%d" % [row, col]
+	if cache.has(cache_key):
+		return cache.get(cache_key, null)
+	var atlas_size: Vector2 = atlas.get_size()
+	var cell_size := Vector2(
+		atlas_size.x / float(AMBIENT_PARTICLE_ATLAS_COLUMNS),
+		atlas_size.y / float(AMBIENT_PARTICLE_ATLAS_ROWS)
+	)
+	var atlas_texture := AtlasTexture.new()
+	atlas_texture.atlas = atlas
+	atlas_texture.region = Rect2(Vector2(cell_size.x * float(col), cell_size.y * float(row)), cell_size)
+	cache[cache_key] = atlas_texture
+	return atlas_texture
+
+func _ambient_air_wisp_texture_from_atlas(atlas: Texture2D, cache: Dictionary, variant_index: int, frame_index: int) -> Texture2D:
+	var row: int = posmod(variant_index, AMBIENT_AIR_WISP_VARIANTS)
+	var col: int = clampi(frame_index, 0, AMBIENT_AIR_WISP_FRAME_COLUMNS - 1)
+	var cache_key: String = "%d:%d" % [row, col]
+	if cache.has(cache_key):
+		return cache.get(cache_key, null)
+	var atlas_size: Vector2 = atlas.get_size()
+	var cell_size := Vector2(
+		atlas_size.x / float(AMBIENT_AIR_WISP_FRAME_COLUMNS),
+		atlas_size.y / float(AMBIENT_AIR_WISP_VARIANTS)
+	)
+	var atlas_texture := AtlasTexture.new()
+	atlas_texture.atlas = atlas
+	atlas_texture.region = Rect2(Vector2(cell_size.x * float(col), cell_size.y * float(row)), cell_size)
+	cache[cache_key] = atlas_texture
+	return atlas_texture
+
+func _ambient_particle_row(element_id: String) -> int:
+	match element_id:
+		"fire":
+			return 0
+		"ice":
+			return 1
+		"lightning":
+			return 2
+		"air":
+			return 3
+		"earth":
+			return 4
+		_:
+			return -1
+
+func _ambient_particle_speed(element_id: String, seed: int) -> float:
+	match element_id:
+		"fire":
+			return lerpf(0.105, 0.170, _ambient_hash01(seed + 2))
+		"ice":
+			return lerpf(0.085, 0.140, _ambient_hash01(seed + 2))
+		"lightning":
+			return lerpf(0.70, 1.15, _ambient_hash01(seed + 2))
+		"air":
+			return lerpf(0.12, 0.20, _ambient_hash01(seed + 2))
+		"earth":
+			return lerpf(0.060, 0.105, _ambient_hash01(seed + 2))
+		_:
+			return 0.10
+
+func _ambient_alpha_for_element(element_id: String, cycle: float) -> float:
+	return _ambient_alpha_for_element_with_opacity(element_id, cycle, _ambient_room_opacity(element_id))
+
+func _ambient_room_opacity(_element_id: String) -> float:
+	return 0.64
+
+func _ambient_alpha_for_element_with_opacity(element_id: String, cycle: float, room_opacity: float) -> float:
+	if element_id == "lightning":
+		var pulse: float = 1.0 - clampf(absf(cycle - 0.16) / 0.24, 0.0, 1.0)
+		return clampf(pulse * AMBIENT_PARTICLE_OPACITY * room_opacity, 0.0, 1.0)
+	if element_id == "air":
+		return clampf(_ambient_particle_alpha(cycle) * AMBIENT_PARTICLE_OPACITY * room_opacity, 0.0, 1.0)
+	var floor_alpha: float = 0.12 if element_id in ["fire", "ice"] else 0.08
+	return clampf(lerpf(floor_alpha, 1.0, _ambient_particle_alpha(cycle)) * AMBIENT_PARTICLE_OPACITY * room_opacity, 0.0, 1.0)
+
+func _ambient_particle_offset(element_id: String, seed: int, cycle: float, time_seconds: float, tile_width: float) -> Vector2:
+	var lateral: float = lerpf(-0.54, 0.54, _ambient_hash01(seed + 3)) * tile_width
+	var y_jitter: float = lerpf(-0.18, 0.22, _ambient_hash01(seed + 4)) * tile_width
+	match element_id:
+		"fire":
+			return Vector2(
+				lateral + sin(time_seconds * lerpf(1.2, 2.5, _ambient_hash01(seed + 5)) + _ambient_hash01(seed + 6) * TAU) * tile_width * 0.07,
+				_tile_height() * 0.30 - cycle * tile_width * 0.90
+			)
+		"ice":
+			return Vector2(
+				lateral + sin(time_seconds * lerpf(0.8, 1.6, _ambient_hash01(seed + 5)) + _ambient_hash01(seed + 6) * TAU) * tile_width * 0.12 - cycle * tile_width * 0.16,
+				-tile_width * 0.66 + cycle * tile_width * 1.02
+			)
+		"lightning":
+			return Vector2(lateral, y_jitter - tile_width * 0.10)
+		"air":
+			var wind_direction: float = _ambient_air_wind_direction()
+			return Vector2(
+				lateral + (cycle - 0.5) * tile_width * 1.55 * wind_direction,
+				y_jitter + sin((cycle + _ambient_hash01(seed + 5)) * TAU) * tile_width * 0.10
+			)
+		"earth":
+			return Vector2(
+				lateral + sin(time_seconds * 0.7 + _ambient_hash01(seed + 5) * TAU) * tile_width * 0.06,
+				y_jitter - cycle * tile_width * 0.24
+			)
+		_:
+			return Vector2(lateral, y_jitter)
+
+func _ambient_particle_offset_from_template(
+	element_id: String,
+	particle_template: AmbientParticleTemplate,
+	cycle: float,
+	time_seconds: float,
+	tile_width: float
+) -> Vector2:
+	var hashes: PackedFloat64Array = particle_template.hashes
+	var lateral: float = lerpf(-0.54, 0.54, hashes[3]) * tile_width
+	var y_jitter: float = lerpf(-0.18, 0.22, hashes[4]) * tile_width
+	match element_id:
+		"fire":
+			return Vector2(
+				lateral + sin(time_seconds * lerpf(1.2, 2.5, hashes[5]) + hashes[6] * TAU) * tile_width * 0.07,
+				_tile_height() * 0.30 - cycle * tile_width * 0.90
+			)
+		"ice":
+			return Vector2(
+				lateral + sin(time_seconds * lerpf(0.8, 1.6, hashes[5]) + hashes[6] * TAU) * tile_width * 0.12 - cycle * tile_width * 0.16,
+				-tile_width * 0.66 + cycle * tile_width * 1.02
+			)
+		"lightning":
+			return Vector2(lateral, y_jitter - tile_width * 0.10)
+		"air":
+			return Vector2(
+				lateral + (cycle - 0.5) * tile_width * 1.55 * particle_template.wind_direction,
+				y_jitter + sin((cycle + hashes[5]) * TAU) * tile_width * 0.10
+			)
+		"earth":
+			return Vector2(
+				lateral + sin(time_seconds * 0.7 + hashes[5] * TAU) * tile_width * 0.06,
+				y_jitter - cycle * tile_width * 0.24
+			)
+		_:
+			return Vector2(lateral, y_jitter)
+
+func _ambient_particle_draw_width(element_id: String, seed: int) -> float:
+	return _ambient_particle_draw_width_from_hash(element_id, _ambient_hash01(seed + 9))
+
+func _ambient_particle_draw_width_from_hash(element_id: String, scale_hash: float) -> float:
+	var tile_width: float = _tile_width()
+	var min_scale: float = 0.0
+	var max_scale: float = 0.0
+	match element_id:
+		"fire":
+			min_scale = 0.0425
+			max_scale = 0.08
+		"ice":
+			min_scale = 0.08
+			max_scale = 0.15
+		"lightning":
+			min_scale = 0.135
+			max_scale = 0.2625
+		"air":
+			min_scale = 0.20
+			max_scale = 0.39
+		"earth":
+			min_scale = 0.15
+			max_scale = 0.30
+		_:
+			min_scale = 0.16
+			max_scale = 0.28
+	return tile_width * lerpf(min_scale, max_scale, scale_hash)
+
+func _ambient_particle_rotation(element_id: String, seed: int, time_seconds: float) -> float:
+	var base_angle: float = lerpf(-0.32, 0.32, _ambient_hash01(seed + 10))
+	match element_id:
+		"air":
+			return _ambient_air_wisp_rotation(seed, time_seconds)
+		"earth":
+			return base_angle + sin(time_seconds * 0.45 + _ambient_hash01(seed + 11) * TAU) * 0.12
+		"lightning":
+			return lerpf(-0.46, 0.46, _ambient_hash01(seed + 10))
+		_:
+			return base_angle
+
+func _ambient_particle_rotation_from_template(element_id: String, particle_template: AmbientParticleTemplate, time_seconds: float) -> float:
+	var hashes: PackedFloat64Array = particle_template.hashes
+	var base_angle: float = lerpf(-0.32, 0.32, hashes[10])
+	match element_id:
+		"air":
+			var air_base_angle: float = 0.0 if particle_template.wind_direction > 0.0 else PI
+			if particle_template.air_variant_index == 3:
+				air_base_angle = PI * 0.5 if particle_template.wind_direction > 0.0 else -PI * 0.5
+			var wobble: float = lerpf(-0.08, 0.08, hashes[10])
+			return air_base_angle + wobble + sin(time_seconds * 0.38 + hashes[11] * TAU) * 0.045
+		"earth":
+			return base_angle + sin(time_seconds * 0.45 + hashes[11] * TAU) * 0.12
+		"lightning":
+			return lerpf(-0.46, 0.46, hashes[10])
+		_:
+			return base_angle
+
+func _ambient_air_wind_direction() -> float:
+	return 1.0 if _ambient_hash01(_ambient_room_seed("air") + 73) >= 0.5 else -1.0
+
+func _ambient_air_wisp_variant_index(seed: int) -> int:
+	return 1 if _ambient_hash01(seed + 41) < 0.72 else 3
+
+func _ambient_air_wisp_rotation(seed: int, time_seconds: float) -> float:
+	var wind_direction: float = _ambient_air_wind_direction()
+	var variant_index: int = _ambient_air_wisp_variant_index(seed)
+	var base_angle: float = 0.0 if wind_direction > 0.0 else PI
+	if variant_index == 3:
+		base_angle = PI * 0.5 if wind_direction > 0.0 else -PI * 0.5
+	var wobble: float = lerpf(-0.08, 0.08, _ambient_hash01(seed + 10))
+	return base_angle + wobble + sin(time_seconds * 0.38 + _ambient_hash01(seed + 11) * TAU) * 0.045
+
+func _draw_ambient_fire_particle(texture: Texture2D, soft_texture: Texture2D, glow_texture: Texture2D, point: Vector2, velocity: Vector2, draw_size: Vector2, rotation: float, alpha: float, seed: int, time_seconds: float) -> void:
+	var flicker: float = 0.88 + sin(time_seconds * lerpf(7.0, 10.5, _ambient_hash01(seed + 14)) + _ambient_hash01(seed + 15) * TAU) * 0.12
+	var ember_offset := Vector2(
+		sin(time_seconds * lerpf(1.6, 2.8, _ambient_hash01(seed + 16)) + _ambient_hash01(seed + 17) * TAU) * draw_size.x * 0.10,
+		sin(time_seconds * lerpf(2.2, 3.8, _ambient_hash01(seed + 18)) + _ambient_hash01(seed + 19) * TAU) * draw_size.y * 0.05
+	)
+	if glow_texture != null:
+		_draw_ambient_particle_trail(glow_texture, point, velocity, draw_size, alpha * 0.90, "fire")
+		_draw_ambient_particle_sprite(
+			glow_texture,
+			point + ember_offset * 0.45,
+			draw_size * Vector2(2.35, 2.05),
+			rotation + sin(time_seconds * 0.9 + _ambient_hash01(seed + 20) * TAU) * 0.16,
+			alpha * 0.24 * flicker,
+			Color(1.0, 0.60, 0.22, 1.0)
+		)
+	if soft_texture != null:
+		_draw_ambient_particle_sprite(
+			soft_texture,
+			point + ember_offset,
+			draw_size * Vector2(1.30, 1.18),
+			rotation + sin(time_seconds * 1.3 + _ambient_hash01(seed + 21) * TAU) * 0.22,
+			alpha * 0.82 * flicker,
+			Color(1.0, 0.78, 0.42, 1.0)
+		)
+		_draw_ambient_particle_sprite(
+			soft_texture,
+			point - ember_offset * 0.35,
+			draw_size * Vector2(0.72, 0.68),
+			rotation - sin(time_seconds * 1.7 + _ambient_hash01(seed + 22) * TAU) * 0.18,
+			alpha * 0.46,
+			Color(1.0, 0.94, 0.66, 1.0)
+		)
+	_draw_ambient_particle_sprite(
+		texture,
+		point + ember_offset * 0.18,
+		draw_size * Vector2(0.58, 0.56),
+		rotation,
+		alpha * 0.16,
+		Color(1.0, 0.72, 0.38, 1.0)
+	)
+
+func _draw_ambient_fire_particle_from_template(
+	particle_template: AmbientParticleTemplate,
+	point: Vector2,
+	velocity: Vector2,
+	rotation: float,
+	alpha: float,
+	time_seconds: float
+) -> void:
+	var hashes: PackedFloat64Array = particle_template.hashes
+	var draw_size: Vector2 = particle_template.draw_size
+	var flicker: float = 0.88 + sin(time_seconds * lerpf(7.0, 10.5, hashes[14]) + hashes[15] * TAU) * 0.12
+	var ember_offset := Vector2(
+		sin(time_seconds * lerpf(1.6, 2.8, hashes[16]) + hashes[17] * TAU) * draw_size.x * 0.10,
+		sin(time_seconds * lerpf(2.2, 3.8, hashes[18]) + hashes[19] * TAU) * draw_size.y * 0.05
+	)
+	if particle_template.glow_texture != null:
+		_draw_ambient_particle_trail(particle_template.glow_texture, point, velocity, draw_size, alpha * 0.90, "fire")
+		_draw_ambient_particle_sprite(
+			particle_template.glow_texture,
+			point + ember_offset * 0.45,
+			draw_size * Vector2(2.35, 2.05),
+			rotation + sin(time_seconds * 0.9 + hashes[20] * TAU) * 0.16,
+			alpha * 0.24 * flicker,
+			Color(1.0, 0.60, 0.22, 1.0)
+		)
+	if particle_template.soft_texture != null:
+		_draw_ambient_particle_sprite(
+			particle_template.soft_texture,
+			point + ember_offset,
+			draw_size * Vector2(1.30, 1.18),
+			rotation + sin(time_seconds * 1.3 + hashes[21] * TAU) * 0.22,
+			alpha * 0.82 * flicker,
+			Color(1.0, 0.78, 0.42, 1.0)
+		)
+		_draw_ambient_particle_sprite(
+			particle_template.soft_texture,
+			point - ember_offset * 0.35,
+			draw_size * Vector2(0.72, 0.68),
+			rotation - sin(time_seconds * 1.7 + hashes[22] * TAU) * 0.18,
+			alpha * 0.46,
+			Color(1.0, 0.94, 0.66, 1.0)
+		)
+	_draw_ambient_particle_sprite(
+		particle_template.texture,
+		point + ember_offset * 0.18,
+		draw_size * Vector2(0.58, 0.56),
+		rotation,
+		alpha * 0.16,
+		Color(1.0, 0.72, 0.38, 1.0)
+	)
+
+func _draw_ambient_air_wisp_particle(texture: Texture2D, soft_texture: Texture2D, glow_texture: Texture2D, point: Vector2, velocity: Vector2, draw_size: Vector2, rotation: float, alpha: float) -> void:
+	if glow_texture != null:
+		_draw_ambient_particle_trail(glow_texture, point, velocity, draw_size, alpha * 0.82, "air")
+		_draw_ambient_particle_sprite(
+			glow_texture,
+			point,
+			draw_size * _ambient_glow_scale("air"),
+			rotation,
+			alpha * 0.14,
+			Color(0.70, 0.90, 1.0, 1.0)
+		)
+	if soft_texture != null:
+		_draw_ambient_particle_sprite(
+			soft_texture,
+			point,
+			draw_size,
+			rotation,
+			alpha * 0.82,
+			Color(0.90, 0.98, 1.0, 1.0)
+		)
+		_draw_ambient_particle_sprite(
+			soft_texture,
+			point,
+			draw_size * Vector2(0.82, 0.82),
+			rotation,
+			alpha * 0.30,
+			Color(1.0, 1.0, 1.0, 1.0)
+		)
+		_draw_ambient_particle_sprite(
+			texture,
+			point,
+			draw_size,
+			rotation,
+			alpha * 0.26,
+			Color(0.94, 1.0, 1.0, 1.0)
+		)
+	else:
+		_draw_ambient_particle_sprite(texture, point, draw_size, rotation, alpha)
+
+func _ambient_motion_blur_cycle_delta(element_id: String) -> float:
+	match element_id:
+		"fire":
+			return 0.055
+		"ice":
+			return 0.045
+		"lightning":
+			return 0.085
+		"air":
+			return 0.070
+		"earth":
+			return 0.038
+		_:
+			return 0.050
+
+func _ambient_glow_scale(element_id: String) -> Vector2:
+	match element_id:
+		"fire":
+			return Vector2(1.85, 1.72)
+		"lightning":
+			return Vector2(2.10, 1.82)
+		"air":
+			return Vector2(1.95, 1.65)
+		_:
+			return Vector2(1.72, 1.58)
+
+func _ambient_glow_alpha(element_id: String) -> float:
+	match element_id:
+		"lightning":
+			return 0.24
+		"fire":
+			return 0.22
+		"ice":
+			return 0.13
+		"air":
+			return 0.17
+		"earth":
+			return 0.14
+		_:
+			return 0.16
+
+func _draw_ambient_particle_trail(texture: Texture2D, point: Vector2, velocity: Vector2, draw_size: Vector2, alpha: float, element_id: String) -> void:
+	if velocity.length_squared() < 4.0:
+		return
+	var trail_strength: float = _ambient_trail_alpha(element_id) * alpha
+	if trail_strength <= 0.01:
+		return
+	var length_scale: float = clampf(1.0 + velocity.length() / maxf(1.0, _tile_width()) * _ambient_trail_length_scale(element_id), 1.20, 3.80)
+	var trail_size := Vector2(draw_size.x * length_scale, draw_size.y * _ambient_trail_height_scale(element_id))
+	var trail_center: Vector2 = point - velocity.normalized() * trail_size.x * 0.16
+	_draw_ambient_particle_sprite(texture, trail_center, trail_size, velocity.angle(), trail_strength)
+
+func _ambient_trail_alpha(element_id: String) -> float:
+	match element_id:
+		"lightning":
+			return 0.20
+		"fire":
+			return 0.16
+		"ice":
+			return 0.08
+		"air":
+			return 0.15
+		"earth":
+			return 0.08
+		_:
+			return 0.11
+
+func _ambient_trail_length_scale(element_id: String) -> float:
+	match element_id:
+		"lightning":
+			return 8.0
+		"fire":
+			return 5.8
+		"ice":
+			return 4.2
+		"air":
+			return 6.5
+		"earth":
+			return 3.0
+		_:
+			return 4.0
+
+func _ambient_trail_height_scale(element_id: String) -> float:
+	return 0.50 if element_id in ["fire", "lightning", "air"] else 0.62
+
+func _draw_ambient_particle_sprite(texture: Texture2D, point: Vector2, draw_size: Vector2, rotation: float, alpha: float, modulate: Color = Color(1.0, 1.0, 1.0, 1.0)) -> void:
+	if _ambient_batch_active:
+		_queue_ambient_particle_sprite(texture, point, draw_size, rotation, alpha, modulate)
+		return
+	draw_set_transform(point, rotation, Vector2.ONE)
+	draw_texture_rect(texture, Rect2(-draw_size * 0.5, draw_size), false, Color(modulate.r, modulate.g, modulate.b, modulate.a * alpha))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _begin_ambient_particle_batch() -> void:
+	if not _ambient_particle_batch_enabled:
+		_ambient_batch_active = false
+		return
+	_ensure_ambient_combined_atlas()
+	_ambient_batch_active = _ambient_combined_atlas != null
+	_ambient_batch_sprite_count = 0
+	if _ambient_batch_active and _ambient_batch_sprite_capacity > 0:
+		# The mesh only references submitted indices, so the packed vertex buffers
+		# can retain their warmed capacity between redraws. Re-expanding the index
+		# buffer reuses its allocation and avoids thousands of append operations.
+		_ambient_batch_indices.resize(_ambient_batch_sprite_capacity * 6)
+
+func _reserve_ambient_particle_batch(required_sprite_capacity: int) -> void:
+	if required_sprite_capacity <= _ambient_batch_sprite_capacity:
+		return
+	var rounded_capacity: int = int(ceil(float(required_sprite_capacity) / float(AMBIENT_BATCH_SPRITE_GROWTH))) * AMBIENT_BATCH_SPRITE_GROWTH
+	_ambient_batch_vertices.resize(rounded_capacity * 4)
+	_ambient_batch_uvs.resize(rounded_capacity * 4)
+	_ambient_batch_colors.resize(rounded_capacity * 4)
+	_ambient_batch_indices.resize(rounded_capacity * 6)
+	_ambient_batch_sprite_capacity = rounded_capacity
+	_ambient_batch_buffer_grow_count += 1
+
+func _queue_ambient_particle_sprite(texture: Texture2D, point: Vector2, draw_size: Vector2, rotation: float, alpha: float, modulate: Color) -> void:
+	if texture == null or alpha <= 0.0 or draw_size.x <= 0.0 or draw_size.y <= 0.0:
+		return
+	var uv_rect: Rect2 = _ambient_combined_uv_rect(texture)
+	if uv_rect.size.x <= 0.0 or uv_rect.size.y <= 0.0:
+		return
+	_reserve_ambient_particle_batch(_ambient_batch_sprite_count + 1)
+	var axis_x := Vector2(cos(rotation), sin(rotation)) * draw_size.x * 0.5
+	var axis_y := Vector2(-sin(rotation), cos(rotation)) * draw_size.y * 0.5
+	var first_vertex: int = _ambient_batch_sprite_count * 4
+	var first_index: int = _ambient_batch_sprite_count * 6
+	var vertex: Vector2 = point - axis_x - axis_y
+	_ambient_batch_vertices[first_vertex] = Vector3(vertex.x, vertex.y, 0.0)
+	vertex = point + axis_x - axis_y
+	_ambient_batch_vertices[first_vertex + 1] = Vector3(vertex.x, vertex.y, 0.0)
+	vertex = point + axis_x + axis_y
+	_ambient_batch_vertices[first_vertex + 2] = Vector3(vertex.x, vertex.y, 0.0)
+	vertex = point - axis_x + axis_y
+	_ambient_batch_vertices[first_vertex + 3] = Vector3(vertex.x, vertex.y, 0.0)
+	_ambient_batch_uvs[first_vertex] = uv_rect.position
+	_ambient_batch_uvs[first_vertex + 1] = Vector2(uv_rect.end.x, uv_rect.position.y)
+	_ambient_batch_uvs[first_vertex + 2] = uv_rect.end
+	_ambient_batch_uvs[first_vertex + 3] = Vector2(uv_rect.position.x, uv_rect.end.y)
+	var color := Color(modulate.r, modulate.g, modulate.b, modulate.a * alpha)
+	_ambient_batch_colors[first_vertex] = color
+	_ambient_batch_colors[first_vertex + 1] = color
+	_ambient_batch_colors[first_vertex + 2] = color
+	_ambient_batch_colors[first_vertex + 3] = color
+	_ambient_batch_indices[first_index] = first_vertex
+	_ambient_batch_indices[first_index + 1] = first_vertex + 1
+	_ambient_batch_indices[first_index + 2] = first_vertex + 2
+	_ambient_batch_indices[first_index + 3] = first_vertex
+	_ambient_batch_indices[first_index + 4] = first_vertex + 2
+	_ambient_batch_indices[first_index + 5] = first_vertex + 3
+	_ambient_batch_sprite_count += 1
+
+func _flush_ambient_particle_batch() -> void:
+	_ambient_batch_active = false
+	if _ambient_batch_sprite_count <= 0 or _ambient_combined_atlas == null:
+		return
+	_ambient_batch_indices.resize(_ambient_batch_sprite_count * 6)
+	_ambient_batch_sprite_total_count += _ambient_batch_sprite_count
+	_ambient_batch_sprite_max_count = maxi(_ambient_batch_sprite_max_count, _ambient_batch_sprite_count)
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = _ambient_batch_vertices
+	arrays[Mesh.ARRAY_TEX_UV] = _ambient_batch_uvs
+	arrays[Mesh.ARRAY_COLOR] = _ambient_batch_colors
+	arrays[Mesh.ARRAY_INDEX] = _ambient_batch_indices
+	if _ambient_batch_mesh == null:
+		_ambient_batch_mesh = ArrayMesh.new()
+		_ambient_batch_mesh_create_count += 1
+	else:
+		_ambient_batch_mesh.clear_surfaces()
+	_ambient_batch_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	_ambient_batch_mesh_update_count += 1
+	draw_mesh(_ambient_batch_mesh, _ambient_combined_atlas)
+
+func _ensure_ambient_combined_atlas() -> void:
+	if _ambient_combined_atlas != null:
+		return
+	var startup_started: int = Time.get_ticks_usec() if _startup_asset_profiling or (is_inside_tree() and get_tree().root.has_meta("labyrinth_performance_probe_seed")) else 0
+	_ambient_combined_atlas = null
+	_ambient_combined_atlas_regions.clear()
+	var sources: Array[Texture2D]
+	for element_id: String in ElementData.all_elements():
+		for variant_index: int in range(AMBIENT_PARTICLE_ATLAS_COLUMNS):
+			_append_unique_ambient_atlas_source(sources, _ambient_particle_texture(element_id, variant_index))
+			_append_unique_ambient_atlas_source(sources, _ambient_particle_glow_texture(element_id, variant_index))
+			if element_id == "fire":
+				_append_unique_ambient_atlas_source(sources, _ambient_fire_soft_texture(variant_index))
+		if element_id == "air":
+			for variant_index: int in range(AMBIENT_AIR_WISP_VARIANTS):
+				_append_unique_ambient_atlas_source(sources, _ambient_air_wisp_texture(variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX))
+				_append_unique_ambient_atlas_source(sources, _ambient_air_wisp_soft_texture(variant_index))
+				_append_unique_ambient_atlas_source(sources, _ambient_air_wisp_glow_texture(variant_index, AMBIENT_AIR_WISP_FULL_FRAME_INDEX))
+	if sources.is_empty():
+		return
+	const ATLAS_GAP: int = 2
+	const ATLAS_MAX_ROW_WIDTH: int = 4096
+	var atlas_width: int = 1
+	var atlas_height: int = ATLAS_GAP
+	var cursor := Vector2i(ATLAS_GAP, ATLAS_GAP)
+	var row_height: int = 0
+	var source_positions: Dictionary = {}
+	for source: Texture2D in sources:
+		if cursor.x + source.get_width() + ATLAS_GAP > ATLAS_MAX_ROW_WIDTH and cursor.x > ATLAS_GAP:
+			cursor.x = ATLAS_GAP
+			cursor.y += row_height + ATLAS_GAP
+			row_height = 0
+		source_positions[source.get_instance_id()] = cursor
+		cursor.x += source.get_width() + ATLAS_GAP
+		row_height = maxi(row_height, source.get_height())
+		atlas_width = maxi(atlas_width, cursor.x)
+		atlas_height = maxi(atlas_height, cursor.y + row_height + ATLAS_GAP)
+	var image := Image.create(atlas_width, atlas_height, false, Image.FORMAT_RGBA8)
+	image.fill(Color.TRANSPARENT)
+	# Regional AtlasTexture.get_image() rereads its parent texture for every
+	# region. Keep parent pixels only for this packing operation.
+	var parent_images: Dictionary = {}
+	for source: Texture2D in sources:
+		var source_image: Image = _ambient_atlas_source_image(source, parent_images)
+		if source_image == null or source_image.is_empty():
+			_ambient_combined_atlas_regions.clear()
+			return
+		if source_image.get_format() != Image.FORMAT_RGBA8:
+			source_image.convert(Image.FORMAT_RGBA8)
+		var source_position: Vector2i = source_positions.get(source.get_instance_id(), Vector2i.ZERO) as Vector2i
+		image.blit_rect(source_image, Rect2i(Vector2i.ZERO, source_image.get_size()), source_position)
+		_ambient_combined_atlas_regions[source.get_instance_id()] = Rect2i(source_position, source.get_size())
+	_ambient_combined_atlas = ImageTexture.create_from_image(image)
+	_record_startup_performance_phase("ambient_atlas_pack", startup_started)
+
+func _ambient_atlas_source_image(source: Texture2D, parent_images: Dictionary) -> Image:
+	if source is AtlasTexture:
+		var regional: AtlasTexture = source as AtlasTexture
+		var parent: Texture2D = regional.atlas
+		var region := Rect2i(regional.region)
+		# The authored ambient regions are integral, in bounds, and have no margin.
+		# Preserve AtlasTexture's own behavior for any future unsupported layout.
+		if parent != null and not parent is AtlasTexture and regional.margin == Rect2() and Rect2(region) == regional.region and region.size == Vector2i(source.get_size()) and Rect2i(Vector2i.ZERO, Vector2i(parent.get_size())).encloses(region):
+			var key: int = parent.get_instance_id()
+			if not parent_images.has(key):
+				var pixels: Image = parent.get_image()
+				if pixels != null and pixels.is_compressed() and pixels.decompress() != OK:
+					pixels = null
+				parent_images[key] = pixels
+			var pixels: Image = parent_images[key] as Image
+			if pixels != null and not pixels.is_empty():
+				return pixels.get_region(region)
+	return source.get_image()
+
+func _append_unique_ambient_atlas_source(sources: Array[Texture2D], source: Texture2D) -> void:
+	if source != null and not sources.has(source):
+		sources.append(source)
+
+func _ambient_combined_uv_rect(texture: Texture2D) -> Rect2:
+	var packed_region: Rect2 = _ambient_combined_atlas_regions.get(texture.get_instance_id(), Rect2()) as Rect2
+	if packed_region.size.x <= 0.0 or _ambient_combined_atlas == null:
+		return Rect2()
+	var atlas_size: Vector2 = _ambient_combined_atlas.get_size()
+	return Rect2(packed_region.position / atlas_size, packed_region.size / atlas_size)
+
+func set_art_treatment_enabled(enabled: bool) -> void:
+	# Inspection/profiling switch; original assets and rules are never mutated.
+	if _art_treatment_enabled == enabled or _art_treatment == null:
+		return
+	_art_treatment_enabled = enabled
+	_art_treatment.set_enabled(enabled)
+	_unit_shadow_draw_geometry_cache.clear()
+	_unit_shadow_draw_mesh_cache.clear()
+	for layer: Control in _retained_render_layers():
+		layer.set("_art_treatment_enabled", enabled)
+	_sync_static_render_cache()
+	_sync_enemy_shadow_dissolve_effects()
+	_queue_dynamic_redraw()
+	queue_redraw()
+
+func set_art_treatment_preset(preset: String) -> bool:
+	_ensure_art_treatment()
+	if not _art_treatment.set_preset(preset):
+		return false
+	# A deliberate look change rebakes the floor once. Normal light flicker
+	# updates the cached composite material and does not rebuild floor geometry.
+	_sync_static_render_cache()
+	_sync_enemy_shadow_dissolve_effects()
+	return true
+
+func art_treatment_snapshot() -> Dictionary:
+	return {"enabled": _art_treatment_enabled, "preset": _art_treatment.preset if _art_treatment != null else "", "light_count": _art_treatment.source_count if _art_treatment != null else 0,
+		"light_overflow": _art_treatment.source_overflow if _art_treatment != null else 0,
+		"source_equivalents": _art_treatment.source_equivalents if _art_treatment != null else 0.0,
+		"local_light_scale": _art_treatment.local_light_scale if _art_treatment != null else 1.0,
+		"shared_material": _art_treatment.material if _art_treatment != null else null}
+
+func _sync_art_lighting() -> void:
+	if _art_treatment == null or _is_dynamic_render_layer or _is_static_render_cache_layer:
+		return
+	var sources: Array[Dictionary]
+	if not combat_state.is_empty():
+		var grid: Array = combat_state.get("grid", [])
+		for tile: Vector2i in _rendered_tiles_in_draw_order():
+			if not _tile_renders_as_pillar(grid, tile):
+				continue
+			# One broad source for the paired fixtures. A room's key light supplies
+			# cast direction; these secondary sources provide local colored fill.
+			sources.append({"point": _tile_center(tile), "height": _tile_width() * 0.68,
+				"radius": _tile_width() * 2.35, "color": Color(1.0, 0.68, 0.36, 0.80)})
+		for prop: Dictionary in presentation.get("scene_props", []):
+			var kind: String = str(prop.get("kind", ""))
+			if kind not in ["campfire_bonfire", "watch_brazier_lit"]:
+				continue
+			var texture: Texture2D = _texture_for_scene_prop(prop)
+			if texture == null:
+				continue
+			var rect: Rect2 = _scene_prop_rect(texture, prop)
+			var ground: Vector2 = Vector2(rect.get_center().x, rect.end.y)
+			sources.push_front({"point": ground, "height": rect.size.y * 0.55,
+				"radius": _tile_width() * 3.2, "color": Color(1.0, 0.62, 0.30, 1.1)})
+	_art_treatment.configure(sources, str(combat_state.get("room_element", "")), bool(presentation.get("reduced_motion", false)))
+
+func _draw_world_texture(texture: Texture2D, rect: Rect2, tint: Color = Color.WHITE, profile: int = CombatArtTreatment.PROP, source: Rect2 = Rect2()) -> void:
+	if _art_treatment == null or profile == 0:
+		if source.size == Vector2.ZERO:
+			draw_texture_rect(texture, rect, false, tint)
+		else:
+			draw_texture_rect_region(texture, rect, source, tint)
+		return
+	CombatArtTreatment.draw_rect(self, texture, rect, tint, profile, source)
+
+func _draw_contact_pool(center: Vector2, width: float, height: float, alpha: float) -> void:
+	if _art_treatment == null or not _art_treatment_enabled:
+		return
+	var extent := Vector2(width, height)
+	draw_texture_rect(_art_treatment.contact_texture, Rect2(center - extent * 0.5, extent), false, Color(0.055, 0.035, 0.028, alpha))
+
+func _draw_floor_contact_shading(grid: Array, tile: Vector2i, polygon: PackedVector2Array) -> void:
+	if not _art_treatment_enabled or polygon.size() < 4:
+		return
+	# Tight edge-to-floor ambient shading is retained with the stone. Four
+	# neighbors suffice; no blur, image readback, or per-frame floor redraw.
+	var neighbors: Array[Vector2i] = _vector2i_array([Vector2i(0, -1), Vector2i(1, 0), Vector2i(0, 1), Vector2i(-1, 0)])
+	var center: Vector2 = _tile_center(tile)
+	for edge: int in range(4):
+		var neighbor: Vector2i = tile + neighbors[edge]
+		if neighbor.y < 0 or neighbor.y >= grid.size() or neighbor.x < 0 or neighbor.x >= (grid[neighbor.y] as Array).size():
+			continue
+		var neighbor_id: String = _display_tile_id(str(grid[neighbor.y][neighbor.x]), neighbor)
+		if neighbor_id not in ["wall", "pillar"] or not _should_render_tile(neighbor_id, neighbor, grid):
+			continue
+		var a: Vector2 = polygon[edge]
+		var b: Vector2 = polygon[(edge + 1) % 4]
+		var points := PackedVector2Array([a, b, b.lerp(center, 0.48), a.lerp(center, 0.48)])
+		draw_polygon(points, PackedColorArray([Color(0.035, 0.028, 0.035, 0.38), Color(0.035, 0.028, 0.035, 0.38), Color.TRANSPARENT, Color.TRANSPARENT]))
+
+func _draw_floor_moss_overlay(tile: Vector2i) -> void:
+	if not _tile_has_moss("floor", tile):
+		return
+	var texture: Texture2D = _moss_texture_for_surface("floor", tile)
+	if texture == null:
+		return
+	var rect := Rect2(
+		_tile_center(tile) - Vector2(_tile_width() * 0.5, _tile_height() * 0.5),
+		Vector2(_tile_width(), _tile_height())
+	)
+	_draw_world_texture(texture, rect, Color(1.0, 1.0, 1.0, 0.94), CombatArtTreatment.FLOOR)
+
+func _draw_floor_tile(grid: Array, tile: Vector2i) -> void:
+	var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
+	var polygon: PackedVector2Array = _tile_polygon(tile)
+	var base_color: Color = _tile_color(tile_id)
+	_draw_floor_tile_depth(tile)
+	draw_colored_polygon(polygon, base_color)
+	var texture: Texture2D = _floor_texture_for_tile(tile_id, tile)
+	if texture != null:
+		var tile_width: float = _tile_width()
+		var tile_height: float = _tile_height()
+		var rect := Rect2(_tile_center(tile) - Vector2(tile_width * 0.5, tile_height * 0.5), Vector2(tile_width, tile_height))
+		_draw_world_texture(texture, rect, Color.WHITE, CombatArtTreatment.FLOOR)
+	_draw_floor_moss_overlay(tile)
+	_draw_pillar_torch_floor_light(grid, tile, polygon)
+	_draw_floor_contact_shading(grid, tile, polygon)
+	draw_polyline(polygon, GRID_OUTLINE, 2.0, true)
+
+# Light is part of the retained stone surface: it never redraws the floor for
+# flame flicker, floats over a board edge, or covers targeting/actor silhouettes.
+func _draw_pillar_torch_floor_light(grid: Array, tile: Vector2i, polygon: PackedVector2Array) -> void:
+	if _pillar_torch_light_texture == null or not _tile_drawn_as_floor(grid, tile):
+		return
+	var light_color: Color = COLUMN_TORCH_FLOOR_LIGHT_COLOR
+	if _art_treatment_enabled and _art_treatment != null:
+		light_color.a *= _art_treatment.local_light_scale
+	var light_size := Vector2(_tile_width() * 3.2, _tile_height() * 3.2)
+	for dy: int in range(-COLUMN_TORCH_FLOOR_LIGHT_TILE_RADIUS, COLUMN_TORCH_FLOOR_LIGHT_TILE_RADIUS + 1):
+		for dx: int in range(-COLUMN_TORCH_FLOOR_LIGHT_TILE_RADIUS, COLUMN_TORCH_FLOOR_LIGHT_TILE_RADIUS + 1):
+			var source_tile := tile + Vector2i(dx, dy)
+			if not _tile_renders_as_pillar(grid, source_tile):
+				continue
+			var light_center: Vector2 = _tile_center(source_tile) + Vector2(0.0, _tile_height() * 0.22)
+			var light_origin: Vector2 = light_center - light_size * 0.5
+			var uvs := PackedVector2Array()
+			for point: Vector2 in polygon:
+				uvs.append((point - light_origin) / light_size)
+			draw_polygon(polygon, PackedColorArray([light_color]), uvs, _pillar_torch_light_texture)
+
+func _draw_floor_tile_depth(tile: Vector2i) -> void:
+	var faces: Array[PackedVector2Array] = _tile_depth_faces(tile)
+	for face_index: int in range(faces.size()):
+		var face: PackedVector2Array = faces[face_index]
+		var face_color: Color = TILE_DEPTH_RIGHT_FACE if face_index == 0 else TILE_DEPTH_LEFT_FACE
+		if face.size() >= 4:
+			# A lit stone lip and a shaded lower course give the slab thickness;
+			# use vertex shading so the cached floor needs no extra animation pass.
+			var upper_color: Color = face_color.lightened(0.14)
+			var lower_color: Color = face_color.darkened(0.34)
+			draw_polygon(face, PackedColorArray([upper_color, upper_color, lower_color, lower_color]))
+			var bevel_offset := Vector2(0.0, maxf(1.0, _tile_height() * 0.038))
+			draw_line(face[0] + bevel_offset, face[1] + bevel_offset, Color(0.52, 0.45, 0.34, 0.34), 1.0, true)
+			draw_line(face[0].lerp(face[3], 0.70), face[1].lerp(face[2], 0.70), Color(0.025, 0.021, 0.018, 0.35), 1.0, true)
+			draw_polyline(
+				PackedVector2Array([face[0], face[1], face[2], face[3], face[0]]),
+				TILE_DEPTH_EDGE,
+				1.5,
+				true
+			)
+
+func _tile_depth_faces(tile: Vector2i) -> Array[PackedVector2Array]:
+	var faces: Array[PackedVector2Array]
+	var polygon: PackedVector2Array = _tile_polygon(tile)
+	if polygon.size() < 4:
+		return faces
+	var depth_offset := Vector2(0.0, _tile_height() * TILE_DEPTH_HEIGHT_RATIO)
+	faces.append(PackedVector2Array([
+		polygon[1],
+		polygon[2],
+		polygon[2] + depth_offset,
+		polygon[1] + depth_offset
+	]))
+	faces.append(PackedVector2Array([
+		polygon[2],
+		polygon[3],
+		polygon[3] + depth_offset,
+		polygon[2] + depth_offset
+	]))
+	return faces
+
+func _draw_tile_overlays(tile: Vector2i) -> void:
+	var polygon: PackedVector2Array = _tile_polygon(tile)
+	var draw_aoe_footprint: bool = _focus_tiles_lookup_cache.has(tile) and _player_aoe_preview_active()
+	if tile == presentation.get("objective_leader_tile", Vector2i(-1, -1)):
+		_draw_objective_leader_beacon(tile)
+	if _objective_exit_tiles_lookup_cache.has(tile):
+		_draw_objective_exit_target(tile)
+	if exit_tiles.has(tile):
+		draw_colored_polygon(polygon, EXIT_HIGHLIGHT)
+		if bool(presentation.get("pulse_exit_tiles", false)):
+			_draw_exit_tile_pulse(tile)
+	if _confirmation_target_tiles_lookup_cache.has(tile):
+		draw_colored_polygon(polygon, EXIT_HIGHLIGHT)
+		_draw_exit_tile_pulse(tile)
+	if _focus_tiles_lookup_cache.has(tile) and not draw_aoe_footprint:
+		draw_colored_polygon(polygon, presentation.get("focus_color", FOCUS_HIGHLIGHT))
+	if _move_tiles_lookup_cache.has(tile):
+		draw_colored_polygon(polygon, MOVE_HIGHLIGHT)
+		_draw_tile_ring(tile, Color(0.60, 0.91, 0.94, 0.58), 2.0, 0.86)
+	if _ability_tiles_lookup_cache.has(tile):
+		draw_colored_polygon(polygon, ABILITY_HIGHLIGHT)
+		_draw_tile_ring(tile, Color(0.55, 0.92, 0.48, 0.62), 2.0, 0.86)
+	if _attack_tiles_lookup_cache.has(tile) and not _projected_attack_tiles_lookup_cache.has(tile):
+		_draw_attack_tile_highlight(tile)
+	if _projected_attack_tiles_lookup_cache.has(tile):
+		draw_colored_polygon(polygon, Color(0.98, 0.30, 0.20, 0.18))
+		_draw_tile_ring(tile, Color(1.0, 0.42, 0.25, 0.94), 3.6, 0.78)
+	if _summon_tiles_lookup_cache.has(tile):
+		draw_colored_polygon(polygon, Color(0.24, 0.80, 0.30, 0.23))
+		_draw_tile_ring(tile, Color(0.52, 0.96, 0.48, 0.95), 3.6, 0.78)
+		var summon_icon: Texture2D = ActionIcons.icon_texture("summon_minions")
+		if summon_icon != null:
+			var icon_side: float = _tile_width() * 0.23
+			draw_texture_rect(summon_icon, Rect2(_tile_center(tile)-Vector2.ONE*icon_side*0.5, Vector2.ONE*icon_side), false, Color(0.76, 1.0, 0.72))
+	if _projected_destination_tiles_lookup_cache.has(tile):
+		_draw_tile_ring(tile, Color(0.95, 0.78, 0.43, 0.98), 4.0, 0.92)
+	_draw_meteor_mark(tile)
+	if draw_aoe_footprint:
+		# Keep every legal center visible, then layer the concrete consequence on
+		# top so it remains the unmistakable primary targeting signal.
+		_draw_aoe_footprint_highlight(tile)
+	if tile == selected_tile:
+		draw_colored_polygon(polygon, SELECT_HIGHLIGHT)
+	if tile == _hover_tile and _controller_focus_tile.x < 0:
+		draw_colored_polygon(polygon, HOVER_HIGHLIGHT)
+	if tile == _controller_focus_tile:
+		if exit_tiles.has(tile):
+			_draw_controller_door_focus(tile)
+		else:
+			draw_colored_polygon(polygon, Color(0.98, 0.79, 0.37, 0.16))
+			_draw_tile_ring(tile, Color(1.0, 0.80, 0.36, 0.98), 3.2, 0.90)
+
+# Player Meteorfall marks persist through enemy turns and land at the start of
+# the player's next turn. They reuse the Meteorfall (cinder_marks) identity on
+# an ember-ringed tile, with the incoming damage in the tooltip.
+func _draw_meteor_mark(tile: Vector2i) -> void:
+	# Floor wash and ring only; the icon and damage are drawn above units by
+	# `_draw_meteor_mark_badges`.
+	var marked: bool = false
+	for mark_var: Variant in combat_state.get("meteor_marks", []):
+		if typeof(mark_var) == TYPE_DICTIONARY and ((mark_var as Dictionary).get("tiles", []) as Array).has(tile):
+			marked = true
+			break
+	if not marked:
+		return
+	draw_colored_polygon(_tile_polygon(tile), Color(0.95, 0.38, 0.16, 0.20))
+	_draw_tile_ring(tile, Color(1.0, 0.55, 0.22, 0.95), 3.2, 0.80)
+
+func _draw_meteor_mark_badges() -> void:
+	# Meteorfall's icon and incoming damage sit on a medallion at each marked
+	# tile's front edge in the effects layer, above units, so a mark under an
+	# enemy (or under the hero) stays readable without hovering.
+	var marks: Dictionary = {}
+	for mark_var: Variant in combat_state.get("meteor_marks", []):
+		if typeof(mark_var) != TYPE_DICTIONARY:
+			continue
+		var mark: Dictionary = mark_var as Dictionary
+		for tile_var: Variant in mark.get("tiles", []):
+			var tile: Vector2i = tile_var
+			var entry: Dictionary = marks.get(tile, {"damage": 0, "surface": ""}) as Dictionary
+			entry["damage"] = int(entry["damage"]) + int(mark.get("damage", 0))
+			entry["surface"] = str(mark.get("surface", entry["surface"]))
+			marks[tile] = entry
+	if marks.is_empty():
+		return
+	var mark_icon: Texture2D = ActionIcons.icon_texture("cinder_marks")
+	var font: Font = get_theme_default_font()
+	var player_tile: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))
+	for tile_var: Variant in marks.keys():
+		var tile: Vector2i = tile_var
+		if not _board_tile_is_visible_to_player(tile):
+			continue
+		var entry: Dictionary = marks[tile] as Dictionary
+		var damage: int = int(entry["damage"])
+		var surface: String = str(entry["surface"])
+		var icon_size: float = clampf(_tile_width() * 0.22, 24.0, 40.0)
+		var radius: float = icon_size * 0.62
+		var center: Vector2 = _tile_center(tile) + Vector2(-_tile_width() * 0.16, _tile_height() * 0.22)
+		draw_circle(center + Vector2(0.0, 2.0), radius + 2.0, Color(0.0, 0.0, 0.0, 0.40))
+		draw_circle(center, radius, COLLISION_MARKER_FILL)
+		draw_arc(center, radius - 1.0, 0.0, TAU, 32, COLLISION_MARKER_RING, 2.0, true)
+		var tooltip: String = "Meteorfall\nAt the start of your next turn this tile takes %d damage%s.%s" % [
+			damage,
+			" and becomes %s" % surface.capitalize() if not surface.is_empty() else "",
+			"\nYou are standing on it." if tile == player_tile else ""
+		]
+		var rect := Rect2(center - Vector2.ONE * icon_size * 0.5, Vector2.ONE * icon_size)
+		if mark_icon != null:
+			draw_texture_rect(mark_icon, rect, false, Color.WHITE)
+		_register_tooltip(rect, tooltip)
+		if damage > 0 and font != null:
+			var text: String = str(damage)
+			var font_size: int = int(round(clampf(icon_size * 0.50, 14.0, 20.0)))
+			var text_width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
+			var baseline := Vector2(center.x + radius * 0.60, center.y + radius * 0.95)
+			_draw_outlined_string(font, baseline, text, text_width + 4.0, font_size, COLLISION_MARKER_RING.lightened(0.45), Color(0.06, 0.02, 0.01, 0.98), 2.0)
+			_register_tooltip(Rect2(baseline - Vector2(0.0, float(font_size)), Vector2(text_width + 4.0, float(font_size) + 4.0)), tooltip)
+
+func _draw_controller_door_focus(tile: Vector2i) -> void:
+	var pulse: float = 0.5 + 0.5 * sin(float(Time.get_ticks_msec()) * 0.009)
+	draw_colored_polygon(_tile_polygon(tile), Color(0.18, 0.79, 0.78, lerpf(0.22, 0.36, pulse)))
+	_draw_tile_ring(tile, Color(0.40, 0.96, 0.91, 0.98), lerpf(4.0, 5.4, pulse), 0.94)
+	_draw_tile_ring(tile, Color(1.0, 0.84, 0.42, lerpf(0.56, 0.94, pulse)), 2.2, 1.10)
+	var center: Vector2 = _tile_center(tile)
+	var tile_width: float = _tile_width()
+	var marker_y: float = center.y - _tile_height() * 0.42
+	var chevron_half: float = clampf(tile_width * 0.075, 7.0, 13.0)
+	var chevron := PackedVector2Array([
+		Vector2(center.x - chevron_half, marker_y - chevron_half * 0.32),
+		Vector2(center.x, marker_y + chevron_half * 0.45),
+		Vector2(center.x + chevron_half, marker_y - chevron_half * 0.32),
+	])
+	draw_polyline(chevron, Color(0.06, 0.11, 0.12, 0.78), 6.0, true)
+	draw_polyline(chevron, Color(0.76, 1.0, 0.94, 0.98), 3.0, true)
+
+func _draw_attack_target_pulse(tile: Vector2i) -> void:
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	var pulse: float = 0.5 + 0.5 * sin(time_seconds * TAU * 1.45)
+	var alpha: float = lerpf(0.30, 0.78, pulse)
+	var width: float = lerpf(1.6, 3.2, pulse)
+	var scale: float = lerpf(0.82, 0.96, pulse)
+	_draw_tile_ring(tile, Color(1.0, 0.78, 0.44, alpha), width, scale)
+
+func _draw_attack_tile_highlight(tile: Vector2i) -> void:
+	draw_colored_polygon(_tile_polygon(tile), ATTACK_HIGHLIGHT)
+	if bool(presentation.get("pulse_attack_tiles", false)):
+		_draw_attack_target_pulse(tile)
+
+func _player_aoe_preview_active() -> bool:
+	return bool(presentation.get("player_aoe_preview_active", false))
+
+func _draw_aoe_footprint_highlight(tile: Vector2i) -> void:
+	_draw_aoe_footprint_tile(tile, AOE_FOOTPRINT_HIGHLIGHT, AOE_FOOTPRINT_EDGE, 2.4)
+
+func _draw_aoe_footprint_tile(tile: Vector2i, fill: Color, edge: Color, edge_width: float) -> void:
+	draw_colored_polygon(_tile_polygon(tile), fill)
+	_draw_tile_ring(tile, edge, edge_width, 0.92)
+
+func _large_enemy_attack_highlight_tiles(units_to_draw: Array[Dictionary]) -> Array[Vector2i]:
+	var result: Array[Vector2i]
+	for unit: Dictionary in units_to_draw:
+		if str(unit.get("role", "")) != "enemy":
+			continue
+		var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
+		if maxi(1, footprint.x) * maxi(1, footprint.y) <= 1:
+			continue
+		var footprint_tiles: Array[Vector2i] = _unit_footprint_tiles(unit)
+		var targetable: bool = false
+		for tile: Vector2i in footprint_tiles:
+			if attack_tiles.has(tile):
+				targetable = true
+				break
+		if not targetable:
+			continue
+		for tile: Vector2i in footprint_tiles:
+			if not result.has(tile):
+				result.append(tile)
+	return result
+
+func _draw_large_enemy_attack_highlight_extensions(units_to_draw: Array[Dictionary]) -> void:
+	# A large actor exposes its full targetable footprint, but the floor must
+	# still pass behind its body and every prop. Do not repaint these diamonds
+	# on the foreground layer or double the ordinary target-tile opacity.
+	for tile: Vector2i in _large_enemy_attack_highlight_tiles(units_to_draw):
+		if not _attack_tiles_lookup_cache.has(tile):
+			_draw_attack_tile_highlight(tile)
+
+func _draw_exit_tile_pulse(tile: Vector2i) -> void:
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	var pulse: float = 0.5 + 0.5 * sin(time_seconds * TAU * 1.15)
+	var alpha: float = lerpf(0.26, 0.70, pulse)
+	var width: float = lerpf(1.4, 3.0, pulse)
+	var scale: float = lerpf(0.84, 0.98, pulse)
+	_draw_tile_ring(tile, Color(1.0, 0.83, 0.38, alpha), width, scale)
+
+func _draw_objective_exit_target(tile: Vector2i) -> void:
+	var polygon: PackedVector2Array = _tile_polygon(tile)
+	draw_colored_polygon(polygon, Color(0.15, 0.70, 0.72, 0.30))
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	var pulse: float = 0.5 + 0.5 * sin(time_seconds * TAU * 1.05)
+	_draw_tile_ring(tile, Color(0.52, 0.95, 0.91, lerpf(0.66, 0.96, pulse)), lerpf(2.5, 4.0, pulse), 0.90)
+	var texture: Texture2D = AssetLoader.load_texture(CombatObjectiveRules.icon_path(CombatObjectiveRules.REACH_EXIT))
+	if texture == null:
+		return
+	var icon_size: float = clampf(_tile_width() * 0.30, 34.0, 50.0)
+	var center: Vector2 = _tile_center(tile) - Vector2(0.0, _tile_height() * 0.03)
+	var icon_rect := Rect2(center - Vector2(icon_size, icon_size) * 0.5, Vector2(icon_size, icon_size))
+	draw_texture_rect(texture, icon_rect, false, Color(0.88, 1.0, 0.96, 0.92))
+	_register_tooltip(icon_rect, "Objective threshold · Reach this tile to clear the encounter.")
+
+func _draw_objective_leader_beacon(tile: Vector2i) -> void:
+	draw_colored_polygon(_tile_polygon(tile), Color(0.62, 0.30, 0.08, 0.22))
+	_draw_tile_ring(tile, Color(0.98, 0.73, 0.28, 0.92), 3.2, 0.93)
+	var texture: Texture2D = AssetLoader.load_texture(CombatObjectiveRules.icon_path(CombatObjectiveRules.KILL_LEADER))
+	if texture == null:
+		return
+	var icon_size: float = clampf(_tile_width() * 0.21, 28.0, 40.0)
+	var center: Vector2 = _tile_center(tile) + Vector2(0.0, _tile_height() * 0.18)
+	var icon_rect := Rect2(center - Vector2(icon_size, icon_size) * 0.5, Vector2(icon_size, icon_size))
+	draw_texture_rect(texture, icon_rect, false, Color(1.0, 0.90, 0.70, 0.88))
+	_register_tooltip(icon_rect, "Marked leader · Defeat this enemy to clear the encounter.")
+
+func _draw_tile_ring(tile: Vector2i, color: Color, width: float, scale: float = 0.92) -> void:
+	var center: Vector2 = _tile_center(tile)
+	var tile_width: float = _tile_width() * scale
+	var tile_height: float = _tile_height() * scale
+	var points := PackedVector2Array([
+		center + Vector2(0.0, -tile_height * 0.5),
+		center + Vector2(tile_width * 0.5, 0.0),
+		center + Vector2(0.0, tile_height * 0.5),
+		center + Vector2(-tile_width * 0.5, 0.0),
+		center + Vector2(0.0, -tile_height * 0.5)
+	])
+	draw_polyline(points, Color(0.0, 0.0, 0.0, color.a * 0.28), width + 2.0, true)
+	draw_polyline(points, color, width, true)
+
+func _draw_scene_objects(grid: Array, tiles: Array[Vector2i], units_to_draw: Array[Dictionary]) -> void:
+	var obstruction_entries: Array[Dictionary] = _foreground_obstruction_entries(units_to_draw)
+	for tile: Vector2i in tiles:
+		_draw_board_surface(tile)
+		_draw_path_depth_pass(tile)
+		_draw_enemy_threat_depth_pass(tile)
+		_draw_noctyrax_refuge_tile(tile)
+		_draw_scene_props_for_tile(tile, obstruction_entries)
+		_draw_tile_props(grid, tile, obstruction_entries)
+		_draw_unit_bodies_for_tile(tile, units_to_draw)
+
+func _board_tile_is_visible_to_player(tile: Vector2i) -> bool:
+	var visible_tiles: Variant = presentation.get("umbra_visible_tiles", null)
+	if typeof(visible_tiles) != TYPE_ARRAY:
+		return true
+	return (visible_tiles as Array).has(tile)
+
+func _draw_ground_items_below_path(tiles: Array[Vector2i]) -> void:
+	# Traps and ordinary loot lie on the floor, so the raised route ribbon crosses
+	# over them. Floating equipment remains in _draw_tile_props with units and is
+	# intentionally painted after the route.
+	var death_site_embers: Dictionary = presentation.get("death_site_embers", {}) as Dictionary
+	var death_site_tile: Vector2i = death_site_embers.get("tile", Vector2i(-1, -1))
+	for tile: Vector2i in tiles:
+		if tile == death_site_tile:
+			_draw_death_site_embers(tile)
+		if not _board_tile_is_visible_to_player(tile):
+			continue
+		for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
+			if typeof(loot_var) != TYPE_DICTIONARY:
+				continue
+			var loot: Dictionary = loot_var
+			if bool(loot.get("claimed", false)) or not _loot_renders_below_path(loot):
+				continue
+			var loot_texture: Texture2D = _loot_texture(loot)
+			if loot_texture == null:
+				continue
+			var loot_rect: Rect2 = _loot_rect_for_tile(tile, loot_texture, loot)
+			_draw_loot_contact_shadow(tile, loot_rect, loot_texture, false)
+			_draw_world_texture(loot_texture, loot_rect)
+			_register_tooltip(loot_rect.grow(4.0), _loot_tooltip_text(loot))
+		for trap_var: Variant in _entries_for_tile(_traps_by_tile, combat_state.get("traps", []), "pos", tile):
+			if typeof(trap_var) == TYPE_DICTIONARY:
+				_draw_trap_marker(trap_var as Dictionary)
+
+func _draw_death_site_embers(tile: Vector2i) -> void:
+	var texture: Texture2D = _loot_textures.get("dropped_embers", null) as Texture2D
+	if texture == null:
+		return
+	var ember_loot := {"kind": "dropped_embers"}
+	var draw_rect: Rect2 = _loot_rect_for_tile(tile, texture, ember_loot)
+	_draw_rect_ground_shadow(tile, draw_rect, 0.58, 0.16, 0.08)
+	_draw_world_texture(texture, draw_rect, Color.WHITE, CombatArtTreatment.EMISSIVE)
+
+func death_site_embers_snapshot() -> Dictionary:
+	var entry: Dictionary = presentation.get("death_site_embers", {}) as Dictionary
+	var tile: Vector2i = entry.get("tile", Vector2i(-1, -1))
+	var texture: Texture2D = _loot_textures.get("dropped_embers", null) as Texture2D
+	if tile.x < 0 or texture == null:
+		return {}
+	return {
+		"tile": tile,
+		"rect": _loot_rect_for_tile(tile, texture, {"kind": "dropped_embers"}),
+		"tile_center": _tile_center(tile),
+		"tile_width": _tile_width(),
+		"texture": texture,
+	}
+
+# A single rigid prop can move without resubmitting the room or rebuilding
+# the board's presentation indexes. Retained tile layers share these descriptors.
+func set_treasure_chest_open_progress(progress: float) -> void:
+	for entry: Variant in presentation.get("scene_props", []):
+		if typeof(entry) != TYPE_DICTIONARY:
+			continue
+		var prop: Dictionary = entry
+		if str(prop.get("kind", "")) != "relic_chest":
+			continue
+		prop["open_progress"] = clampf(progress, 0.0, 1.0)
+		var tile: Vector2i = prop.get("tile", Vector2i(4, 4))
+		# An unchanged full submission can replace presentation while retaining
+		# its equivalent tile index. Update that retained descriptor as well.
+		for cached: Dictionary in _scene_props_by_tile.get(tile, []):
+			if str(cached.get("kind", "")) == "relic_chest":
+				cached["open_progress"] = clampf(progress, 0.0, 1.0)
+		_queue_scene_render_layer_for_tile(tile)
+
+func _draw_scene_props_for_tile(tile: Vector2i, obstruction_entries: Array = []) -> void:
+	for prop_var: Variant in _entries_for_tile(_scene_props_by_tile, presentation.get("scene_props", []), "tile", tile):
+		if typeof(prop_var) != TYPE_DICTIONARY:
+			continue
+		var prop: Dictionary = prop_var
+		var texture: Texture2D = _texture_for_scene_prop(prop)
+		if texture == null:
+			continue
+		var draw_rect: Rect2 = _scene_prop_rect(texture, prop)
+		var tint: Color = _foreground_blocker_tint("scene_prop", tile, draw_rect, obstruction_entries)
+		if str(prop.get("kind", "")) == "campfire_bonfire":
+			_draw_campfire_prop_glow(tile, draw_rect)
+		_draw_rect_ground_shadow(tile, draw_rect, 0.58, 0.28, 0.16)
+		if str(prop.get("kind", "")) == "relic_chest":
+			RelicChestProp.draw(self, texture, draw_rect, float(prop.get("open_progress", 0.0)), tint)
+		else:
+			_draw_world_texture(texture, draw_rect, tint, CombatArtTreatment.EMISSIVE if str(prop.get("kind", "")) == "campfire_bonfire" else CombatArtTreatment.PROP)
+		if str(prop.get("kind", "")).begins_with("watch_brazier"):
+			var hint: String = "Watch Brazier · Light radius 2" if str(prop["kind"]) == "watch_brazier_lit" else "Watch Brazier · Unlit\nRelights after Last Procession."
+			for marker: Dictionary in _noctyrax_brazier_markers():
+				if marker["tile"]==tile: hint="Watch Brazier\n"+str(marker["tooltip"]); break
+			_register_tooltip(draw_rect,hint)
+		if str(prop.get("kind",""))=="watch_brazier_lit":
+			var reduced: bool = bool(presentation.get("reduced_motion",false))
+			var phase: float = 0.37 if reduced else _idle_elapsed+float(tile.x*7+tile.y*11)
+			var bowl: Vector2 = draw_rect.position+draw_rect.size*Vector2(0.5,0.46)
+			BoardSurfacePresentation._draw_fire(self,bowl,draw_rect.size.x*0.72,phase,tile.x*101+tile.y*307,reduced)
+
+func _draw_campfire_prop_glow(tile: Vector2i, draw_rect: Rect2) -> void:
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	var seed: int = _campfire_atmosphere_seed(tile)
+	var flicker: float = 0.80 + 0.20 * sin(time_seconds * 7.9 + _ambient_hash01(seed + 61) * TAU)
+	var flame_point: Vector2 = Vector2(draw_rect.get_center().x, draw_rect.position.y + draw_rect.size.y * 0.45)
+	var soft_texture: Texture2D = _ambient_fire_soft_texture(1)
+	var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", 1)
+	if glow_texture != null:
+		_draw_ambient_particle_sprite(
+			glow_texture,
+			flame_point + Vector2(0.0, _tile_height() * 0.10),
+			Vector2(_tile_width() * 1.60, _tile_height() * 2.10),
+			0.0,
+			0.18 * flicker,
+			Color(1.0, 0.43, 0.14, 1.0)
+		)
+	if soft_texture != null:
+		_draw_ambient_particle_sprite(
+			soft_texture,
+			flame_point + Vector2(0.0, -_tile_height() * 0.05),
+			Vector2(_tile_width() * 1.10, _tile_height() * 1.64),
+			sin(time_seconds * 1.1 + _ambient_hash01(seed + 67) * TAU) * 0.08,
+			0.44 * flicker,
+			Color(1.0, 0.72, 0.28, 1.0)
+		)
+		_draw_ambient_particle_sprite(
+			soft_texture,
+			flame_point + Vector2(0.0, -_tile_height() * 0.22),
+			Vector2(_tile_width() * 0.56, _tile_height() * 0.94),
+			-sin(time_seconds * 1.4 + _ambient_hash01(seed + 71) * TAU) * 0.10,
+			0.34 * flicker,
+			Color(1.0, 0.93, 0.58, 1.0)
+		)
+		return
+	draw_circle(flame_point, _tile_width() * 0.68, Color(1.0, 0.45, 0.16, 0.15 * flicker))
+
+func _scene_prop_rect(texture: Texture2D, prop: Dictionary) -> Rect2:
+	var tile: Vector2i = prop.get("tile", Vector2i(4, 4))
+	var center: Vector2 = _tile_center(tile)
+	center.x += _tile_width() * float(prop.get("x_offset_scale", 0.0))
+	var default_width_scale: float = RELIC_CHEST_WIDTH_SCALE if str(prop.get("kind", "")) == "relic_chest" else CAMPFIRE_BONFIRE_WIDTH_SCALE
+	var width_scale: float = float(prop.get("width_scale", default_width_scale))
+	var draw_width: float = _tile_width() * width_scale
+	var texture_size: Vector2 = texture.get_size()
+	var draw_height: float = draw_width
+	if texture_size.x > 0.0:
+		draw_height = draw_width * texture_size.y / texture_size.x
+	var default_baseline_scale: float = RELIC_CHEST_BASELINE_SCALE if str(prop.get("kind", "")) == "relic_chest" else CAMPFIRE_BONFIRE_BASELINE_SCALE
+	var baseline_scale: float = float(prop.get("baseline_scale", default_baseline_scale))
+	var bottom_y: float = center.y + _tile_height() * baseline_scale
+	return Rect2(Vector2(center.x - draw_width * 0.5, bottom_y - draw_height), Vector2(draw_width, draw_height))
+
+func _foreground_obstruction_entries(units_to_draw: Array[Dictionary]) -> Array[Dictionary]:
+	var entries: Array[Dictionary]
+	for unit: Dictionary in units_to_draw:
+		entries.append({
+			"actor_key": str(unit.get("key", "")),
+			"tile": _effective_unit_tile(unit),
+			"rect": _unit_draw_rect(unit)
+		})
+	for prop_var: Variant in presentation.get("scene_props", []):
+		if typeof(prop_var) != TYPE_DICTIONARY:
+			continue
+		var prop: Dictionary = prop_var
+		var texture: Texture2D = _texture_for_scene_prop(prop)
+		if texture == null:
+			continue
+		var tile: Vector2i = prop.get("tile", Vector2i(-1, -1))
+		if tile.x < 0:
+			continue
+		entries.append({
+			"tile": tile,
+			"rect": _scene_prop_rect(texture, prop)
+		})
+	for terrain_var: Variant in combat_state.get("terrain", []):
+		if typeof(terrain_var) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = terrain_var
+		if not _board_tile_is_visible_to_player(terrain.get("pos", Vector2i(-1, -1))):
+			continue
+		if int(terrain.get("hp", 0)) <= 0:
+			continue
+		var terrain_texture: Texture2D = _terrain_textures.get(str(terrain.get("kind", "")), null)
+		if terrain_texture == null:
+			continue
+		var terrain_tile: Vector2i = terrain.get("pos", Vector2i(-1, -1))
+		if terrain_tile.x < 0:
+			continue
+		entries.append({
+			"tile": terrain_tile,
+			"rect": _terrain_rect_for_tile(terrain_tile, terrain_texture, str(terrain.get("kind", "")))
+		})
+	for loot_var: Variant in combat_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var
+		if not _board_tile_is_visible_to_player(loot.get("pos", Vector2i(-1, -1))):
+			continue
+		if bool(loot.get("claimed", false)):
+			continue
+		var loot_texture: Texture2D = _loot_texture(loot)
+		if loot_texture == null:
+			continue
+		var loot_tile: Vector2i = loot.get("pos", Vector2i(-1, -1))
+		if loot_tile.x < 0:
+			continue
+		entries.append({
+			"tile": loot_tile,
+			"rect": _loot_rect_for_tile(loot_tile, loot_texture, loot)
+		})
+	for trap_var: Variant in combat_state.get("traps", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var
+		var trap_tile: Vector2i = trap.get("pos", Vector2i(-1, -1))
+		if not _board_tile_is_visible_to_player(trap_tile):
+			continue
+		if trap_tile.x < 0:
+			continue
+		entries.append({
+			"tile": trap_tile,
+			"rect": _trap_draw_rect(trap_tile)
+		})
+	return entries
+
+func _refresh_moving_foreground_obstruction_entries(moving_actor_keys: Dictionary) -> bool:
+	if moving_actor_keys.is_empty() or _foreground_obstruction_entries_cache.is_empty():
+		return false
+	var units_by_key: Dictionary = _units_by_key(_visible_units_cache)
+	var next_entries: Array[Dictionary] = _foreground_obstruction_entries_cache.duplicate(false)
+	var refreshed_actor_keys: Dictionary = {}
+	for entry_index: int in range(next_entries.size()):
+		var entry: Dictionary = next_entries[entry_index]
+		var actor_key: String = str(entry.get("actor_key", ""))
+		if actor_key.is_empty() or not moving_actor_keys.has(actor_key):
+			continue
+		var unit: Dictionary = units_by_key.get(actor_key, {}) as Dictionary
+		if unit.is_empty():
+			return false
+		next_entries[entry_index] = {
+			"actor_key": actor_key,
+			"tile": _effective_unit_tile(unit),
+			"rect": _unit_draw_rect(unit)
+		}
+		refreshed_actor_keys[actor_key] = true
+	for actor_key_var: Variant in moving_actor_keys:
+		var actor_key: String = str(actor_key_var)
+		if units_by_key.has(actor_key) and not refreshed_actor_keys.has(actor_key):
+			return false
+	_foreground_obstruction_entries_cache = next_entries
+	return true
+
+func _draw_prop_moss_overlay(tile_id: String, grid: Array, tile: Vector2i, obstruction_entries: Array) -> void:
+	if tile_id == "pillar":
+		if not _tile_has_moss("pillar", tile):
+			return
+		var pillar_texture: Texture2D = _prop_textures.get("pillar", null)
+		if pillar_texture == null:
+			return
+		var frame_rect: Rect2 = _prop_rect_for_tile(tile)
+		var draw_rect: Rect2 = _prop_draw_rect(pillar_texture, frame_rect)
+		var texture: Texture2D = _moss_texture_for_surface("pillar", tile)
+		if texture == null:
+			return
+		var moss_rect: Rect2 = _pillar_moss_rect(draw_rect)
+		_draw_world_texture(texture, moss_rect, _foreground_blocker_tint(tile_id, tile, moss_rect, obstruction_entries), CombatArtTreatment.STONE)
+		return
+	if tile_id != "wall" or not _tile_has_moss("wall", tile):
+		return
+	var orientation: String = _wall_orientation_for_tile(grid, tile)
+	if orientation.is_empty():
+		return
+	var wall_texture: Texture2D = _prop_textures.get("wall_%s" % orientation, _prop_textures.get("wall", null))
+	if wall_texture == null:
+		return
+	var frame_rect: Rect2 = _prop_rect_for_tile(tile)
+	var draw_rect: Rect2 = _prop_draw_rect(wall_texture, frame_rect)
+	var texture: Texture2D = _moss_texture_for_surface("wall", tile, orientation == "col")
+	if texture == null:
+		return
+	var moss_rect: Rect2 = _wall_moss_rect(draw_rect)
+	_draw_world_texture(texture, moss_rect, _foreground_blocker_tint(tile_id, tile, moss_rect, obstruction_entries), CombatArtTreatment.STONE)
+
+func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = []) -> void:
+	var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
+	if tile_id == "wall" and not _is_outer_boundary_tile(grid, tile):
+		tile_id = "pillar"
+	if tile_id == "pillar":
+		var texture: Texture2D = _prop_textures.get("pillar", null)
+		if texture != null:
+			var frame_rect: Rect2 = _prop_rect_for_tile(tile)
+			var draw_rect: Rect2 = _prop_draw_rect(texture, frame_rect)
+			_draw_rect_ground_shadow(tile, draw_rect, 0.72, 0.28, 0.24)
+			_draw_pillar_body(texture, draw_rect, _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries))
+	elif tile_id == "wall":
+		var segments: Array[Dictionary] = _boundary_prop_segments(tile_id, grid, tile)
+		for segment: Dictionary in segments:
+			var texture: Texture2D = segment.get("texture", null)
+			if texture == null:
+				continue
+			var draw_rect: Rect2 = segment.get("draw_rect", Rect2())
+			var source_rect: Rect2 = segment.get("source_rect", Rect2(Vector2.ZERO, texture.get_size()))
+			var tint: Color = _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries)
+			_draw_wall_segment_shadow(tile, str(segment.get("orientation", "")), draw_rect)
+			if source_rect.position == Vector2.ZERO and source_rect.size == texture.get_size():
+				_draw_world_texture(texture, draw_rect, tint, CombatArtTreatment.STONE)
+			else:
+				_draw_world_texture(texture, draw_rect, tint, CombatArtTreatment.STONE, source_rect)
+	elif tile_id == "door":
+		var door_texture: Texture2D = _door_texture_for_tile(grid, tile)
+		if door_texture != null:
+			var draw_rect: Rect2 = _prop_draw_rect(door_texture, _door_rect_for_tile(tile, grid))
+			var opening_texture: Texture2D = _door_opening_texture_for_tile(grid, tile)
+			var tint: Color = _foreground_blocker_tint(tile_id, tile, draw_rect, obstruction_entries)
+			_draw_rect_ground_shadow(tile, draw_rect, 0.62, 0.24, 0.18)
+			if opening_texture != null:
+				_draw_world_texture(opening_texture, _door_opening_draw_rect(opening_texture, door_texture, draw_rect, _door_uses_flipped_orientation(grid, tile)), tint)
+			else:
+				_draw_world_texture(door_texture, draw_rect, tint)
+				var icon_id: String = str(exit_icon_ids.get(tile, ""))
+				var icon_texture: Texture2D = _door_icon_texture(icon_id)
+				if icon_texture != null:
+					_draw_door_icon(icon_texture, icon_id, door_texture, draw_rect, tint)
+	_draw_prop_moss_overlay(tile_id, grid, tile, obstruction_entries)
+	if tile_id == "pillar":
+		var pillar_texture: Texture2D = _prop_textures.get("pillar", null)
+		if pillar_texture != null:
+			var pillar_rect: Rect2 = _prop_draw_rect(pillar_texture, _prop_rect_for_tile(tile))
+			_draw_pillar_torch_fixtures(tile_id, tile, pillar_rect, obstruction_entries)
+	for terrain_var: Variant in _entries_for_tile(_terrain_by_tile, combat_state.get("terrain", []), "pos", tile):
+		if typeof(terrain_var) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = terrain_var
+		if not _board_tile_is_visible_to_player(terrain.get("pos", Vector2i(-1, -1))):
+			continue
+		if int(terrain.get("hp", 0)) <= 0:
+			continue
+		_draw_terrain_object(terrain, obstruction_entries)
+	for destruction_var: Variant in presentation.get("terrain_destruction_units", []):
+		if typeof(destruction_var) != TYPE_DICTIONARY:
+			continue
+		var destroyed_terrain: Dictionary = destruction_var
+		if destroyed_terrain.get("pos", Vector2i(-1, -1)) != tile:
+			continue
+		if not _board_tile_is_visible_to_player(tile):
+			continue
+		_draw_terrain_destruction(destroyed_terrain, obstruction_entries)
+	for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var
+		if not _board_tile_is_visible_to_player(loot.get("pos", Vector2i(-1, -1))):
+			continue
+		if bool(loot.get("claimed", false)):
+			continue
+		var loot_texture: Texture2D = _loot_texture(loot)
+		if loot_texture == null:
+			continue
+		var loot_rect: Rect2 = _loot_rect_for_tile(tile, loot_texture, loot)
+		if _loot_renders_below_path(loot):
+			continue
+		_draw_equipment_pickup(tile, loot_rect, loot_texture, loot)
+		_register_tooltip(loot_rect.grow(18.0), _loot_tooltip_text(loot))
+
+# Keep the authored stone cap and foot readable as a blocking column. The
+# translucent shaft remains a window onto actors; a soft ramp avoids a cutaway
+# seam. These textured bands stay in the existing tile depth layer.
+func _draw_pillar_body(texture: Texture2D, rect: Rect2, tint: Color) -> void:
+	if tint.a >= 1.0:
+		_draw_world_texture(texture, rect, tint, CombatArtTreatment.STONE)
+		return
+	var rows := PackedFloat32Array([0.0, 0.16, 0.72, 0.88, 1.0])
+	var alphas := PackedFloat32Array([maxf(tint.a, PILLAR_OBSTRUCTION_CAP_ALPHA), tint.a, tint.a, maxf(tint.a, PILLAR_OBSTRUCTION_BASE_ALPHA), maxf(tint.a, PILLAR_OBSTRUCTION_BASE_ALPHA)])
+	for index: int in range(rows.size() - 1):
+		var top: float = rows[index]
+		var bottom: float = rows[index + 1]
+		var uvs := PackedVector2Array([Vector2(0.0, top), Vector2(1.0, top), Vector2(1.0, bottom), Vector2(0.0, bottom)])
+		var points := PackedVector2Array()
+		for uv: Vector2 in uvs:
+			points.append(rect.position + uv * rect.size)
+		# draw_polygon consumes the underlying texture RID, so unlike
+		# draw_texture_rect it needs explicit UVs for the trimmed atlas region.
+		var draw_texture: Texture2D = texture
+		if texture is AtlasTexture:
+			var atlas: AtlasTexture = texture as AtlasTexture
+			draw_texture = atlas.atlas
+			for uv_index: int in range(uvs.size()):
+				uvs[uv_index] = (atlas.region.position + uvs[uv_index] * atlas.region.size) / draw_texture.get_size()
+		var top_color := Color(tint, alphas[index])
+		var bottom_color := Color(tint, alphas[index + 1])
+		CombatArtTreatment.draw_polygon(self, points, PackedColorArray([top_color, top_color, bottom_color, bottom_color]), uvs, draw_texture, CombatArtTreatment.STONE)
+
+func _pillar_torch_tint(tint: Color) -> Color:
+	# Flame, fixture, halo and embers share one floor; floor lighting already
+	# persists independently. Do not wash out the small warm light with the shaft.
+	return Color(tint, maxf(tint.a, PILLAR_OBSTRUCTION_TORCH_ALPHA))
+
+func _draw_pillar_torch_fixtures(tile_id: String, tile: Vector2i, pillar_rect: Rect2, obstruction_entries: Array) -> void:
+	var tint: Color = _pillar_torch_tint(_foreground_blocker_tint(tile_id, tile, pillar_rect, obstruction_entries))
+	var left_texture: Texture2D = _pillar_torch_texture("left")
+	var right_texture: Texture2D = _pillar_torch_texture("right")
+	if left_texture != null:
+		var torch_rect: Rect2 = _pillar_torch_rect(pillar_rect, left_texture, -1.0)
+		_draw_pillar_torch_flame_light(tile, torch_rect, -1.0, tint.a)
+		draw_texture_rect(left_texture, torch_rect, false, tint)
+	if right_texture != null:
+		var torch_rect: Rect2 = _pillar_torch_rect(pillar_rect, right_texture, 1.0)
+		_draw_pillar_torch_flame_light(tile, torch_rect, 1.0, tint.a)
+		draw_texture_rect(right_texture, torch_rect, false, tint)
+
+func _draw_pillar_torch_flame_light(tile: Vector2i, torch_rect: Rect2, side_sign: float, alpha: float) -> void:
+	if _pillar_torch_light_texture == null or alpha <= 0.0:
+		return
+	var flame_point: Vector2 = _pillar_torch_flame_point(torch_rect, side_sign)
+	var flicker: float = 1.0
+	if not bool(presentation.get("reduced_motion", false)):
+		var phase: float = float(tile.x * 17 + tile.y * 31) + side_sign * 1.7
+		flicker += sin(_idle_elapsed * 5.1 + phase) * 0.045 + sin(_idle_elapsed * 8.7 + phase) * 0.025
+	var halo_size := Vector2.ONE * torch_rect.size.x * 2.8
+	draw_texture_rect(_pillar_torch_light_texture, Rect2(flame_point - halo_size * 0.5, halo_size), false, Color(1.0, 0.43, 0.12, 0.38 * alpha * flicker))
+	var core_size: Vector2 = halo_size * 0.42
+	draw_texture_rect(_pillar_torch_light_texture, Rect2(flame_point - core_size * 0.5, core_size), false, Color(1.0, 0.76, 0.32, 0.28 * alpha * flicker))
+
+func _pillar_torch_texture(side_key: String) -> Texture2D:
+	var idle_frames: Array[Texture2D] = _pillar_torch_idle_frames_for_side(side_key)
+	if _pillar_torch_idle_animation_active() and not idle_frames.is_empty():
+		return idle_frames[_pillar_torch_idle_frame_index(side_key)]
+	return _prop_textures.get("column_torch_%s" % side_key, null)
+
+func _pillar_torch_idle_frames_for_side(side_key: String) -> Array[Texture2D]:
+	var frames: Array[Texture2D]
+	for frame_var: Variant in _pillar_torch_idle_frames.get(side_key, []):
+		if frame_var is Texture2D:
+			frames.append(frame_var)
+	return frames
+
+func _pillar_torch_idle_frame_index(side_key: String) -> int:
+	var idle_frames: Array[Texture2D] = _pillar_torch_idle_frames_for_side(side_key)
+	if idle_frames.is_empty():
+		return 0
+	var side_offset: int = 3 if side_key == "right" else 0
+	return (int(floor(_idle_elapsed / COLUMN_TORCH_IDLE_FRAME_SECONDS)) + side_offset) % idle_frames.size()
+
+func _pillar_torch_rect(pillar_rect: Rect2, texture: Texture2D, side_sign: float) -> Rect2:
+	var draw_width: float = pillar_rect.size.x * COLUMN_TORCH_WIDTH_SCALE
+	var draw_height: float = draw_width
+	if texture != null and texture.get_size().x > 0.0:
+		draw_height = draw_width * texture.get_size().y / texture.get_size().x
+	var anchor_x: float = pillar_rect.get_center().x + pillar_rect.size.x * COLUMN_TORCH_FACE_OFFSET_X_SCALE * side_sign
+	var top_y: float = pillar_rect.position.y + pillar_rect.size.y * COLUMN_TORCH_TOP_Y_SCALE
+	if side_sign < 0.0:
+		return Rect2(Vector2(anchor_x - draw_width * 0.84, top_y), Vector2(draw_width, draw_height))
+	return Rect2(Vector2(anchor_x - draw_width * 0.16, top_y), Vector2(draw_width, draw_height))
+
+func _draw_pillar_torch_ember_motes(tiles: Array[Vector2i], units_to_draw: Array[Dictionary]) -> void:
+	if tiles.is_empty() or not _pillar_torch_ember_motes_active():
+		return
+	var grid: Array = combat_state.get("grid", [])
+	var pillar_texture: Texture2D = _prop_textures.get("pillar", null)
+	if pillar_texture == null:
+		return
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	var obstruction_entries: Array[Dictionary] = _foreground_obstruction_entries(units_to_draw)
+	for tile: Vector2i in tiles:
+		if not _tile_renders_as_pillar(grid, tile):
+			continue
+		var pillar_rect: Rect2 = _prop_draw_rect(pillar_texture, _prop_rect_for_tile(tile))
+		var tint: Color = _pillar_torch_tint(_foreground_blocker_tint("pillar", tile, pillar_rect, obstruction_entries))
+		var tint_alpha: float = clampf(tint.a, 0.0, 1.0)
+		_draw_pillar_torch_ember_motes_for_side(tile, pillar_rect, "left", -1.0, tint_alpha, time_seconds)
+		_draw_pillar_torch_ember_motes_for_side(tile, pillar_rect, "right", 1.0, tint_alpha, time_seconds)
+
+func _pillar_torch_ember_motes_active() -> bool:
+	if not visible or combat_state.is_empty():
+		return false
+	var has_torch_texture: bool = _prop_textures.get("column_torch_left", null) != null or _prop_textures.get("column_torch_right", null) != null
+	if not has_torch_texture and _pillar_torch_idle_frames_for_side("left").is_empty() and _pillar_torch_idle_frames_for_side("right").is_empty():
+		return false
+	return _grid_has_tile("pillar")
+
+func _draw_pillar_torch_ember_motes_for_side(tile: Vector2i, pillar_rect: Rect2, side_key: String, side_sign: float, tint_alpha: float, time_seconds: float) -> void:
+	if tint_alpha <= 0.0:
+		return
+	var torch_texture: Texture2D = _pillar_torch_texture(side_key)
+	if torch_texture == null:
+		return
+	var torch_rect: Rect2 = _pillar_torch_rect(pillar_rect, torch_texture, side_sign)
+	var source_point: Vector2 = _pillar_torch_flame_point(torch_rect, side_sign)
+	for index: int in range(COLUMN_TORCH_EMBER_MOTE_COUNT):
+		var seed: int = _pillar_torch_ember_seed(tile, side_key, index)
+		var speed: float = lerpf(0.34, 0.56, _ambient_hash01(seed + 13))
+		var cycle: float = wrapf(_ambient_hash01(seed + 17) + time_seconds * speed, 0.0, 1.0)
+		var alpha: float = pow(clampf(sin(cycle * PI), 0.0, 1.0), 0.86) * COLUMN_TORCH_EMBER_MOTE_ALPHA * tint_alpha
+		alpha *= lerpf(0.56, 1.0, _ambient_hash01(seed + 19))
+		if alpha <= 0.045:
+			continue
+		var point: Vector2 = _pillar_torch_ember_mote_point(source_point, seed, cycle, time_seconds, side_sign)
+		var previous_cycle: float = maxf(0.0, cycle - _ambient_motion_blur_cycle_delta("fire") * 0.62)
+		var previous_point: Vector2 = _pillar_torch_ember_mote_point(source_point, seed, previous_cycle, time_seconds - 0.09, side_sign)
+		var velocity: Vector2 = point - previous_point
+		var draw_width: float = _tile_width() * lerpf(COLUMN_TORCH_EMBER_MIN_WIDTH_SCALE, COLUMN_TORCH_EMBER_MAX_WIDTH_SCALE, _ambient_hash01(seed + 37))
+		var variant_index: int = posmod(index + int(_ambient_hash01(seed + 39) * float(AMBIENT_PARTICLE_ATLAS_COLUMNS)), AMBIENT_PARTICLE_ATLAS_COLUMNS)
+		var texture: Texture2D = _ambient_particle_texture("fire", variant_index)
+		var soft_texture: Texture2D = _ambient_fire_soft_texture(variant_index)
+		var glow_texture: Texture2D = _ambient_particle_glow_texture("fire", variant_index)
+		if texture == null and soft_texture == null:
+			draw_circle(point, maxf(0.7, draw_width * 0.28), Color(1.0, 0.70, 0.30, minf(alpha * 0.62, 0.48)))
+			continue
+		if texture == null:
+			texture = soft_texture
+		var texture_size: Vector2 = texture.get_size()
+		var draw_size := Vector2(draw_width, draw_width)
+		if texture_size.x > 0.0:
+			draw_size.y = draw_width * texture_size.y / texture_size.x
+		var rotation: float = lerpf(-0.22, 0.22, _ambient_hash01(seed + 43)) + sin(time_seconds * 0.86 + _ambient_hash01(seed + 47) * TAU) * 0.07
+		var mote_alpha: float = alpha * lerpf(0.48, 0.74, _ambient_hash01(seed + 41))
+		_draw_ambient_fire_particle(texture, soft_texture, glow_texture, point, velocity, draw_size, rotation, mote_alpha, seed, time_seconds)
+		draw_circle(point, maxf(0.65, draw_width * 0.16), Color(1.0, 0.86, 0.42, minf(mote_alpha * 0.52, 0.46)))
+
+func _pillar_torch_flame_point(torch_rect: Rect2, side_sign: float) -> Vector2:
+	var flame_x_scale: float = 0.34 if side_sign < 0.0 else 0.66
+	return torch_rect.position + Vector2(torch_rect.size.x * flame_x_scale, torch_rect.size.y * 0.23)
+
+func _pillar_torch_ember_seed(tile: Vector2i, side_key: String, index: int) -> int:
+	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
+	var side_seed: int = 211 if side_key == "right" else 103
+	return room_coord.x * 83431 + room_coord.y * 64217 + tile.x * 2459 + tile.y * 3613 + side_seed + index * 1297 + 509
+
+func _pillar_torch_ember_mote_point(source_point: Vector2, seed: int, cycle: float, time_seconds: float, side_sign: float) -> Vector2:
+	var tile_width: float = _tile_width()
+	var base_lateral: float = lerpf(-0.18, 0.18, _ambient_hash01(seed + 23)) * tile_width * lerpf(1.0, 0.64, cycle)
+	var sway: float = sin(time_seconds * lerpf(1.2, 2.6, _ambient_hash01(seed + 29)) + _ambient_hash01(seed + 31) * TAU) * tile_width * lerpf(0.006, 0.038, cycle)
+	var side_drift: float = side_sign * tile_width * lerpf(0.006, 0.030, _ambient_hash01(seed + 33)) * pow(cycle, 1.10)
+	var rise: float = pow(cycle, 0.76) * tile_width * COLUMN_TORCH_EMBER_PLUME_HEIGHT_SCALE * lerpf(0.82, 1.18, _ambient_hash01(seed + 35))
+	return source_point + Vector2(base_lateral + sway + side_drift, _tile_height() * 0.018 - rise)
+
+func _tile_renders_as_pillar(grid: Array, tile: Vector2i) -> bool:
+	if tile.y < 0 or tile.y >= grid.size():
+		return false
+	var row_var: Variant = grid[tile.y]
+	if typeof(row_var) != TYPE_ARRAY:
+		return false
+	var row: Array = row_var
+	if tile.x < 0 or tile.x >= row.size():
+		return false
+	var tile_id: String = _display_tile_id(str(row[tile.x]), tile)
+	if tile_id == "wall" and not _is_outer_boundary_tile(grid, tile):
+		tile_id = "pillar"
+	return tile_id == "pillar"
+
+func _foreground_blocker_tint(tile_id: String, tile: Vector2i, prop_rect: Rect2, obstruction_entries: Array) -> Color:
+	if not _is_tall_obstructive_tile(tile_id):
+		return Color.WHITE
+	var tint: Color = Color.WHITE
+	for entry_var: Variant in obstruction_entries:
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var
+		var entry_tile: Vector2i = entry.get("tile", entry.get("pos", Vector2i(-1, -1)))
+		if entry_tile.x < 0 or entry_tile.y < 0:
+			continue
+		if not _tile_draws_before(entry_tile, tile):
+			continue
+		var entry_rect: Rect2 = entry.get("rect", Rect2())
+		if entry_rect == Rect2() and not entry.has("rect"):
+			entry_rect = _unit_draw_rect(entry)
+		if _foreground_overlap_coverage(prop_rect, entry_rect) >= FOREGROUND_OBSTRUCTION_COVERAGE_THRESHOLD:
+			# Several translucent foreground props can still bury a character.
+			# Preserve more of the actor silhouette while keeping ordinary object
+			# obstruction at its established opacity and retaining board depth.
+			if not str(entry.get("actor_key", entry.get("key", ""))).is_empty():
+				return PILLAR_ACTOR_OBSTRUCTION_TINT if tile_id == "pillar" else FOREGROUND_ACTOR_OBSTRUCTION_TINT
+			tint = FOREGROUND_OBSTRUCTION_TINT
+	return tint
+
+func _foreground_overlap_coverage(foreground_rect: Rect2, covered_rect: Rect2) -> float:
+	if foreground_rect.size.x <= 0.0 or foreground_rect.size.y <= 0.0:
+		return 0.0
+	if covered_rect.size.x <= 0.0 or covered_rect.size.y <= 0.0:
+		return 0.0
+	if not foreground_rect.intersects(covered_rect, true):
+		return 0.0
+	var left: float = maxf(foreground_rect.position.x, covered_rect.position.x)
+	var top: float = maxf(foreground_rect.position.y, covered_rect.position.y)
+	var right: float = minf(foreground_rect.position.x + foreground_rect.size.x, covered_rect.position.x + covered_rect.size.x)
+	var bottom: float = minf(foreground_rect.position.y + foreground_rect.size.y, covered_rect.position.y + covered_rect.size.y)
+	var intersection_size: Vector2 = Vector2(maxf(0.0, right - left), maxf(0.0, bottom - top))
+	var covered_area: float = covered_rect.size.x * covered_rect.size.y
+	if covered_area <= 0.0:
+		return 0.0
+	return (intersection_size.x * intersection_size.y) / covered_area
+
+func _is_tall_obstructive_tile(tile_id: String) -> bool:
+	return tile_id in ["pillar", "wall", "door", "scene_prop", "terrain"]
+
+func _prop_rect_for_tile(tile: Vector2i) -> Rect2:
+	var center: Vector2 = _tile_center(tile)
+	var prop_size: Vector2 = _prop_size()
+	return Rect2(center - Vector2(prop_size.x * 0.5, prop_size.y * 0.84), prop_size)
+
+func _door_rect_for_tile(tile: Vector2i, grid: Array = []) -> Rect2:
+	var center: Vector2 = _tile_center(tile) + _door_back_edge_offset_for_tile(tile, grid)
+	var tile_width: float = _tile_width()
+	var frame_size := Vector2(tile_width * DOOR_FRAME_WIDTH_SCALE, tile_width * DOOR_FRAME_HEIGHT_SCALE)
+	var bottom_y: float = center.y + tile_width * DOOR_BASELINE_OFFSET_SCALE
+	return Rect2(
+		Vector2(center.x - frame_size.x * 0.5, bottom_y - frame_size.y),
+		frame_size
+	)
+
+func _door_back_edge_offset_for_tile(tile: Vector2i, grid: Array = []) -> Vector2:
+	var effective_grid: Array = grid
+	if effective_grid.is_empty():
+		effective_grid = combat_state.get("grid", [])
+	if effective_grid.is_empty():
+		return Vector2.ZERO
+	var height: int = effective_grid.size()
+	var width: int = (effective_grid[0] as Array).size()
+	if tile.y == 0 and tile.x > 0 and tile.x < width - 1:
+		return _tile_step_offset(Vector2i(0, -1)) * DOOR_TOP_BACK_EDGE_OFFSET_SCALE
+	if tile.x == width - 1 and tile.y > 0 and tile.y < height - 1:
+		return _tile_step_offset(Vector2i(1, 0)) * DOOR_BACK_EDGE_OFFSET_SCALE
+	if tile.y == height - 1 and tile.x > 0 and tile.x < width - 1:
+		return _tile_step_offset(Vector2i(0, 1)) * DOOR_BACK_EDGE_OFFSET_SCALE
+	if tile.x == 0 and tile.y > 0 and tile.y < height - 1:
+		return _tile_step_offset(Vector2i(-1, 0)) * DOOR_TOP_BACK_EDGE_OFFSET_SCALE
+	return Vector2.ZERO
+
+func _door_texture_for_tile(grid: Array, tile: Vector2i) -> Texture2D:
+	if grid.is_empty():
+		return _prop_textures.get("door", null)
+	var width: int = (grid[0] as Array).size()
+	var height: int = grid.size()
+	if tile.y == 0 or tile.y == height - 1:
+		return _prop_textures.get("door_row", _prop_textures.get("door", null))
+	if tile.x == 0 or tile.x == width - 1:
+		return _prop_textures.get("door_col", _prop_textures.get("door", null))
+	return _prop_textures.get("door", null)
+
+func _door_opening_texture_for_tile(grid: Array, tile: Vector2i) -> Texture2D:
+	var animation: Dictionary = _door_opening_animation_for_tile(tile)
+	if animation.is_empty():
+		return null
+	var frames: Array[Texture2D] = _door_opening_frames_for_tile(grid, tile)
+	if frames.is_empty():
+		return null
+	return frames[_door_opening_frame_index(animation, frames.size())]
+
+func _door_opening_animation_for_tile(tile: Vector2i) -> Dictionary:
+	var animation: Dictionary = presentation.get("door_opening", {})
+	if animation.is_empty():
+		return {}
+	if animation.get("tile", Vector2i(-999, -999)) != tile:
+		return {}
+	return animation
+
+func _door_opening_frames_for_tile(grid: Array, tile: Vector2i) -> Array[Texture2D]:
+	if _door_uses_flipped_orientation(grid, tile):
+		return _door_opening_flipped_frames
+	return _door_opening_frames
+
+func _door_uses_flipped_orientation(grid: Array, tile: Vector2i) -> bool:
+	if grid.is_empty():
+		return false
+	var width: int = (grid[0] as Array).size()
+	return tile.x == 0 or tile.x == width - 1
+
+func _door_opening_frame_index(animation: Dictionary, frame_count: int) -> int:
+	if frame_count <= 1:
+		return 0
+	if animation.has("frame"):
+		return clampi(int(animation.get("frame", 0)), 0, frame_count - 1)
+	var progress: float = clampf(float(animation.get("progress", 0.0)), 0.0, 1.0)
+	return clampi(int(roundf(progress * float(frame_count - 1))), 0, frame_count - 1)
+
+func _door_opening_draw_rect(texture: Texture2D, static_texture: Texture2D, static_draw_rect: Rect2, flipped_orientation: bool = false) -> Rect2:
+	if texture == null or static_texture == null:
+		return static_draw_rect
+	var reference_size: Vector2 = _door_opening_reference_frame_size()
+	if reference_size.y <= 0.0:
+		return static_draw_rect
+	var static_used_rect: Rect2 = _texture_used_draw_rect(static_texture, static_draw_rect)
+	var scale: float = static_used_rect.size.y / reference_size.y
+	var draw_size: Vector2 = texture.get_size() * scale
+	var draw_y: float = static_used_rect.end.y - draw_size.y
+	var draw_x: float = static_used_rect.position.x if flipped_orientation else static_used_rect.end.x - draw_size.x
+	return Rect2(Vector2(draw_x, draw_y), draw_size)
+
+func _door_opening_reference_frame_size() -> Vector2:
+	if _door_opening_frames.is_empty():
+		return Vector2.ZERO
+	var reference: Texture2D = _door_opening_frames[0]
+	if reference == null:
+		return Vector2.ZERO
+	var reference_used_rect: Rect2i = _texture_used_rect(reference)
+	return Vector2(reference_used_rect.size) if reference_used_rect.size.x > 0 and reference_used_rect.size.y > 0 else reference.get_size()
+
+func _texture_used_draw_rect(texture: Texture2D, draw_rect: Rect2) -> Rect2:
+	if texture == null:
+		return draw_rect
+	var used_rect: Rect2i = _texture_used_rect(texture)
+	if used_rect.size.x <= 0 or used_rect.size.y <= 0:
+		return draw_rect
+	var texture_size: Vector2 = texture.get_size()
+	if texture_size.x <= 0.0 or texture_size.y <= 0.0:
+		return draw_rect
+	var scale := Vector2(draw_rect.size.x / texture_size.x, draw_rect.size.y / texture_size.y)
+	return Rect2(
+		draw_rect.position + Vector2(float(used_rect.position.x) * scale.x, float(used_rect.position.y) * scale.y),
+		Vector2(float(used_rect.size.x) * scale.x, float(used_rect.size.y) * scale.y)
+	)
+
+func _texture_used_rect(texture: Texture2D) -> Rect2i:
+	if texture == null:
+		return Rect2i()
+	var cache_key: int = texture.get_instance_id()
+	if _texture_used_rect_cache.has(cache_key):
+		return _texture_used_rect_cache.get(cache_key, Rect2i())
+	var used_rect: Rect2i = AssetLoader.texture_used_rect(texture)
+	_texture_used_rect_cache[cache_key] = used_rect
+	return used_rect
+
+func _draw_door_icon(icon_texture: Texture2D, icon_id: String, door_texture: Texture2D, door_draw_rect: Rect2, tint: Color = Color.WHITE) -> void:
+	if icon_texture == null:
+		return
+	var visual_rect: Rect2 = _door_icon_visual_rect(door_texture, door_draw_rect)
+	var center: Vector2 = visual_rect.get_center()
+	var radius: float = visual_rect.size.x * 0.5
+	var accent: Color = ElementData.door_tint(icon_id) if ElementData.is_elemental(icon_id) else Color("d3b78e")
+	MapSkin.draw_medallion(self, center, radius, icon_texture, tint, Color(accent.r, accent.g, accent.b, tint.a))
+
+func _door_icon_size() -> float:
+	return clampf(_tile_width() * DOOR_ICON_SIZE_SCALE, DOOR_ICON_MIN_SIZE, DOOR_ICON_MAX_SIZE)
+
+func _door_icon_visual_rect(door_texture: Texture2D, door_draw_rect: Rect2) -> Rect2:
+	var door_used_rect: Rect2 = _texture_used_draw_rect(door_texture, door_draw_rect)
+	var icon_size: float = _door_icon_size()
+	var center := Vector2(
+		door_used_rect.get_center().x,
+		door_used_rect.position.y - icon_size * 0.5 - _tile_height() * DOOR_ICON_FLOAT_GAP_SCALE
+	)
+	var radius: float = icon_size * 0.56
+	return Rect2(center - Vector2(radius, radius), Vector2(radius, radius) * 2.0)
+
+func _is_outer_boundary_tile(grid: Array, tile: Vector2i) -> bool:
+	if grid.is_empty():
+		return false
+	var width: int = (grid[0] as Array).size()
+	var height: int = grid.size()
+	return tile.x == 0 or tile.y == 0 or tile.x == width - 1 or tile.y == height - 1
+
+func _boundary_prop_segments(tile_id: String, grid: Array, tile: Vector2i) -> Array[Dictionary]:
+	var segments: Array[Dictionary]
+	if not _is_outer_boundary_tile(grid, tile):
+		return segments
+	var width: int = (grid[0] as Array).size()
+	var height: int = grid.size()
+	if tile.y == 0 or tile.y == height - 1:
+		var row_half: String = "full"
+		if tile.x == 0:
+			row_half = "right"
+		elif tile.x == width - 1:
+			row_half = "left"
+		var row_segment: Dictionary = _boundary_prop_segment(tile_id, tile, grid, "row", row_half)
+		if not row_segment.is_empty():
+			segments.append(row_segment)
+	if tile.x == 0 or tile.x == width - 1:
+		var col_half: String = "full"
+		if tile.y == 0:
+			col_half = "left"
+		elif tile.y == height - 1:
+			col_half = "right"
+		var col_segment: Dictionary = _boundary_prop_segment(tile_id, tile, grid, "col", col_half)
+		if not col_segment.is_empty():
+			segments.append(col_segment)
+	return segments
+
+func _boundary_prop_segment(tile_id: String, tile: Vector2i, grid: Array, orientation: String, half: String) -> Dictionary:
+	var texture: Texture2D = _prop_textures.get("%s_%s" % [tile_id, orientation], _prop_textures.get(tile_id, null))
+	if texture == null:
+		return {}
+	var frame_rect: Rect2 = _door_rect_for_tile(tile, grid) if tile_id == "door" else _prop_rect_for_tile(tile)
+	var full_rect: Rect2 = _prop_draw_rect(texture, frame_rect)
+	return {
+		"orientation": orientation,
+		"half": half,
+		"texture": texture,
+		"draw_rect": _boundary_segment_draw_rect(full_rect, half),
+		"source_rect": _boundary_segment_source_rect(texture, half)
+	}
+
+func _boundary_segment_draw_rect(full_rect: Rect2, half: String) -> Rect2:
+	if half == "left":
+		return Rect2(full_rect.position, Vector2(full_rect.size.x * 0.5, full_rect.size.y))
+	if half == "right":
+		return Rect2(Vector2(full_rect.position.x + full_rect.size.x * 0.5, full_rect.position.y), Vector2(full_rect.size.x * 0.5, full_rect.size.y))
+	return full_rect
+
+func _boundary_segment_source_rect(texture: Texture2D, half: String) -> Rect2:
+	var texture_size: Vector2 = texture.get_size()
+	if half == "left":
+		return Rect2(Vector2.ZERO, Vector2(texture_size.x * 0.5, texture_size.y))
+	if half == "right":
+		return Rect2(Vector2(texture_size.x * 0.5, 0.0), Vector2(texture_size.x * 0.5, texture_size.y))
+	return Rect2(Vector2.ZERO, texture_size)
+
+func _display_tile_id(tile_id: String, tile: Vector2i) -> String:
+	if tile_id == "door" and not _door_is_visible(tile):
+		return "wall"
+	return tile_id
+
+func _tile_in_grid(grid: Array, tile: Vector2i) -> bool:
+	if tile.y < 0 or tile.y >= grid.size():
+		return false
+	var row: Array = grid[tile.y]
+	return tile.x >= 0 and tile.x < row.size()
+
+func _tile_drawn_as_floor(grid: Array, tile: Vector2i) -> bool:
+	if not _tile_in_grid(grid, tile):
+		return false
+	var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
+	return tile_id != "wall" and tile_id != "pillar" and tile_id != "door"
+
+func _should_render_tile(display_tile_id: String, tile: Vector2i, grid: Array) -> bool:
+	if not OUTER_WALL_RENDERING_ENABLED and display_tile_id == "wall" and _is_outer_boundary_tile(grid, tile):
+		return false
+	return true
+
+func _door_is_visible(tile: Vector2i) -> bool:
+	if exit_tiles.has(tile):
+		return true
+	var active_doors: Dictionary = presentation.get("active_door_tiles", {})
+	if bool(active_doors.get(tile, false)):
+		return true
+	var locked_doors: Dictionary = presentation.get("locked_door_tiles", {})
+	return bool(locked_doors.get(tile, false))
+
+func _is_floating_loot(loot: Dictionary) -> bool:
+	return str(loot.get("kind", "")) in ["equipment", "item"]
+
+func _loot_renders_below_path(loot: Dictionary) -> bool:
+	return not _is_floating_loot(loot)
+
+func _draw_equipment_pickup(tile: Vector2i, loot_rect: Rect2, loot_texture: Texture2D, loot: Dictionary) -> void:
+	var accent: Color = _equipment_loot_accent(loot)
+	var glow_color: Color = _equipment_pickup_glow_color(accent)
+	var pulse: float = _equipment_pickup_pulse(tile, loot)
+	var bobbed_rect: Rect2 = Rect2(loot_rect.position + _equipment_pickup_bob_offset(pulse), loot_rect.size)
+	var disintegration_progress: float = _missed_equipment_disintegration_progress(loot)
+	if disintegration_progress >= 0.0:
+		_draw_missed_equipment_disintegration(tile, bobbed_rect, loot_texture, loot, disintegration_progress)
+		return
+	_draw_equipment_pickup_beacon(tile, accent, glow_color, pulse)
+	_draw_loot_contact_shadow(tile, loot_rect, loot_texture, true)
+	_draw_equipment_pickup_outline(loot_texture, bobbed_rect, glow_color, pulse)
+	_draw_world_texture(loot_texture, bobbed_rect)
+
+func _missed_equipment_disintegration_progress(loot: Dictionary) -> float:
+	var equipment_id: String = str(loot.get("equipment_id", ""))
+	if equipment_id.is_empty() or not (presentation.get("missed_equipment_ids", []) as Array).has(equipment_id):
+		return -1.0
+	return clampf(float(presentation.get("missed_equipment_progress", 0.0)), 0.0, 1.0)
+
+func _draw_missed_equipment_disintegration(tile: Vector2i, loot_rect: Rect2, loot_texture: Texture2D, loot: Dictionary, progress: float) -> void:
+	var corruption: float = smoothstep(0.0, 0.58, progress)
+	var fade: float = 1.0 - smoothstep(0.28, 1.0, progress)
+	var jitter: float = sin(progress * 31.0 + _equipment_loot_phase(tile, loot)) * _tile_width() * 0.018 * corruption
+	var corrupted_rect: Rect2 = Rect2(loot_rect.position + Vector2(jitter, -progress * _tile_height() * 0.05), loot_rect.size)
+	_draw_tile_diamond_fill(tile, Color(0.18, 0.10, 0.17, 0.18 * (1.0 - progress)), 0.64 - progress * 0.12)
+	_draw_rect_ground_shadow(tile, loot_rect, 0.48 * fade, 0.14, 0.08)
+	if fade > 0.01:
+		var tint: Color = Color(1.0, 1.0, 1.0, fade).lerp(Color(0.24, 0.16, 0.22, fade), corruption)
+		_draw_disintegrating_equipment_texture(loot_texture, corrupted_rect, tint, progress)
+	_draw_missed_equipment_cinders(tile, loot_rect, loot, progress)
+
+func _draw_disintegrating_equipment_texture(texture: Texture2D, draw_rect: Rect2, tint: Color, progress: float) -> void:
+	var source_size: Vector2 = texture.get_size()
+	if source_size.x <= 0.0 or source_size.y <= 0.0:
+		return
+	var slice_count: int = 7
+	for index: int in range(slice_count):
+		var source_y: float = source_size.y * float(index) / float(slice_count)
+		var next_source_y: float = source_size.y * float(index + 1) / float(slice_count)
+		var dest_y: float = draw_rect.position.y + draw_rect.size.y * float(index) / float(slice_count)
+		var next_dest_y: float = draw_rect.position.y + draw_rect.size.y * float(index + 1) / float(slice_count)
+		var slice_progress: float = clampf((progress - float(index) * 0.035) / 0.78, 0.0, 1.0)
+		var side: float = -1.0 if index % 2 == 0 else 1.0
+		var drift := Vector2(side * draw_rect.size.x * 0.12 * slice_progress, -draw_rect.size.y * 0.16 * slice_progress * slice_progress)
+		var slice_tint: Color = tint
+		slice_tint.a *= 1.0 - smoothstep(0.52, 1.0, slice_progress)
+		_draw_world_texture(
+			texture,
+			Rect2(Vector2(draw_rect.position.x, dest_y) + drift, Vector2(draw_rect.size.x, next_dest_y - dest_y + 1.0)),
+			slice_tint, CombatArtTreatment.PROP,
+			Rect2(Vector2(0.0, source_y), Vector2(source_size.x, next_source_y - source_y))
+		)
+
+func _draw_missed_equipment_cinders(tile: Vector2i, loot_rect: Rect2, loot: Dictionary, progress: float) -> void:
+	var center: Vector2 = loot_rect.get_center()
+	var phase: float = _equipment_loot_phase(tile, loot)
+	for index: int in range(24):
+		var start: float = float(index % 9) / 12.0
+		var particle_progress: float = clampf((progress - start * 0.42) / 0.72, 0.0, 1.0)
+		if particle_progress <= 0.0:
+			continue
+		var angle: float = phase + float(index) * 2.399
+		var spread: float = loot_rect.size.x * (0.10 + float((index * 7) % 13) / 13.0 * 0.44)
+		var drift := Vector2(cos(angle) * spread * particle_progress, -loot_rect.size.y * (0.12 + 0.80 * particle_progress))
+		drift.x += sin(particle_progress * 8.0 + angle) * loot_rect.size.x * 0.08
+		var particle_size: float = maxf(3.0, loot_rect.size.x * (0.035 + float(index % 4) * 0.010)) * (1.0 - particle_progress * 0.38)
+		var alpha: float = sin(particle_progress * PI) * (0.72 + float(index % 3) * 0.12)
+		var cinder_color: Color = Color("c05b38").lerp(Color("4a3a43"), particle_progress)
+		cinder_color.a = alpha
+		draw_rect(Rect2(center + drift - Vector2.ONE * particle_size * 0.5, Vector2.ONE * particle_size), cinder_color)
+
+func _draw_equipment_pickup_beacon(tile: Vector2i, accent: Color, glow_color: Color, pulse: float) -> void:
+	var center: Vector2 = _tile_center(tile)
+	var tile_size := Vector2(_tile_width(), _tile_height())
+	# Reuse the prepared radial light: a soft floor pool keeps the object
+	# grounded without filling its tile like a selected movement target.
+	if _pillar_torch_light_texture != null:
+		var pool_size: Vector2 = tile_size * Vector2(1.02 + pulse * 0.04, 0.76 + pulse * 0.03)
+		draw_texture_rect(_pillar_torch_light_texture, Rect2(center - pool_size * 0.5, pool_size), false, Color(glow_color.r, glow_color.g, glow_color.b, 0.20 + pulse * 0.07))
+		var core_size: Vector2 = tile_size * Vector2(0.52, 0.40)
+		draw_texture_rect(_pillar_torch_light_texture, Rect2(center - core_size * 0.5, core_size), false, Color(accent.r, accent.g, accent.b, 0.13 + pulse * 0.05))
+	# A low open-topped light barrier reads above the floor in both dark and
+	# torch-lit rooms. The object draws afterward, keeping its silhouette clear.
+	# Height stays fixed; the existing pickup pulse is the only motion source.
+	var half_size: Vector2 = tile_size * (0.76 + pulse * 0.05) * 0.5
+	var corners := PackedVector2Array([
+		center + Vector2(0.0, -half_size.y), center + Vector2(half_size.x, 0.0),
+		center + Vector2(0.0, half_size.y), center + Vector2(-half_size.x, 0.0)
+	])
+	var rise := Vector2(0.0, -tile_size.y * 0.22)
+	var rim := PackedVector2Array()
+	var uprights := PackedVector2Array()
+	var accent_glow: Color = accent.lightened(0.36)
+	for index: int in range(4):
+		var corner: Vector2 = corners[index]
+		var next_corner: Vector2 = corners[(index + 1) % 4]
+		var front_side: bool = index == 1 or index == 2
+		var wall_alpha: float = (0.23 if front_side else 0.14) + pulse * 0.05
+		draw_polygon(PackedVector2Array([corner, next_corner, next_corner + rise, corner + rise]), PackedColorArray([
+			Color(accent_glow.r, accent_glow.g, accent_glow.b, 0.025),
+			Color(accent_glow.r, accent_glow.g, accent_glow.b, 0.025),
+			Color(accent_glow.r, accent_glow.g, accent_glow.b, wall_alpha),
+			Color(accent_glow.r, accent_glow.g, accent_glow.b, wall_alpha)
+		]))
+		rim.append(corner + rise)
+		uprights.append(corner)
+		uprights.append(corner + rise)
+	rim.append(corners[0] + rise)
+	var rim_width: float = maxf(1.2, tile_size.x * 0.007)
+	draw_multiline(uprights, Color(accent_glow.r, accent_glow.g, accent_glow.b, 0.23 + pulse * 0.07), rim_width, true)
+	draw_polyline(rim, Color(glow_color.r, glow_color.g, glow_color.b, 0.14 + pulse * 0.04), rim_width + 4.0, true)
+	draw_polyline(rim, Color(accent_glow.r, accent_glow.g, accent_glow.b, 0.68 + pulse * 0.16), rim_width, true)
+
+func _draw_equipment_pickup_outline(texture: Texture2D, loot_rect: Rect2, glow_color: Color, pulse: float) -> void:
+	# A tight four-direction edge catch separates dark equipment from the room
+	# without the broad duplicate silhouettes of the former seven-copy halo.
+	var offset_px: float = maxf(1.0, _tile_width() * 0.009)
+	var outline_rect: Rect2 = loot_rect.grow(maxf(0.5, _tile_width() * 0.003))
+	var outline_tint := Color(glow_color.r, glow_color.g, glow_color.b, 0.24 + pulse * 0.06)
+	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(-offset_px, 0.0), outline_rect.size), false, outline_tint)
+	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(offset_px, 0.0), outline_rect.size), false, outline_tint)
+	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(0.0, -offset_px), outline_rect.size), false, outline_tint)
+	draw_texture_rect(texture, Rect2(outline_rect.position + Vector2(0.0, offset_px), outline_rect.size), false, outline_tint)
+
+func _draw_tile_diamond_fill(tile: Vector2i, color: Color, scale: float) -> void:
+	var center: Vector2 = _tile_center(tile)
+	var tile_width: float = _tile_width() * scale
+	var tile_height: float = _tile_height() * scale
+	var points := PackedVector2Array([
+		center + Vector2(0.0, -tile_height * 0.5),
+		center + Vector2(tile_width * 0.5, 0.0),
+		center + Vector2(0.0, tile_height * 0.5),
+		center + Vector2(-tile_width * 0.5, 0.0)
+	])
+	draw_colored_polygon(points, color)
+
+func _equipment_pickup_pulse(tile: Vector2i, loot: Dictionary) -> float:
+	if bool(presentation.get("reduced_motion", false)):
+		return 0.5
+	var time_seconds: float = float(Time.get_ticks_msec()) / 1000.0
+	return 0.5 + 0.5 * sin(time_seconds * 2.65 + _equipment_loot_phase(tile, loot))
+
+func _equipment_pickup_bob_offset(pulse: float) -> Vector2:
+	return Vector2(0.0, -_tile_height() * (0.035 + pulse * 0.060))
+
+func _equipment_loot_phase(tile: Vector2i, loot: Dictionary) -> float:
+	var equipment_id: String = str(loot.get("equipment_id", loot.get("card_id", "")))
+	var seed: int = abs(tile.x * 92821 + tile.y * 68917 + equipment_id.length() * 131)
+	return (float(seed % 1000) / 1000.0) * TAU
+
+func _equipment_loot_accent(loot: Dictionary) -> Color:
+	if str(loot.get("kind", "")) == "item":
+		return Color(GameData.card_rarity_accent(GameData.card_rarity(str(loot.get("card_id", "")))))
+	return Color(GameData.equipment_accent(str(loot.get("equipment_id", ""))))
+
+func _equipment_pickup_glow_color(accent: Color) -> Color:
+	return Color("f1d18b").lerp(accent.lightened(0.24), 0.34)
+
+func _loot_draw_width(loot: Dictionary) -> float:
+	# Board objects share the zoomed tile-space basis used by actor frames. Fixed
+	# pixel widths (and equipment's old min/max clamp) made pickups appear to
+	# shrink relative to actors, or stop growing altogether, when navigating in.
+	var width_scale: float = LOOT_DRAW_TILE_WIDTH_SCALE
+	if str(loot.get("kind", "")) == "item":
+		width_scale = ITEM_LOOT_TILE_WIDTH_SCALE
+	elif str(loot.get("kind", "")) == "equipment":
+		width_scale = EQUIPMENT_LOOT_TILE_WIDTH_SCALE
+	return _tile_width() * width_scale
+
+func _loot_rect_for_tile(tile: Vector2i, texture: Texture2D = null, loot: Dictionary = {}) -> Rect2:
+	var draw_width: float = _loot_draw_width(loot)
+	var draw_height: float = draw_width
+	if texture != null and texture.get_size().x > 0.0:
+		draw_height = draw_width * texture.get_size().y / texture.get_size().x
+	var center: Vector2 = _tile_center(tile)
+	var baseline_scale: float = EQUIPMENT_LOOT_FLOAT_BASELINE_SCALE if _is_floating_loot(loot) else 0.30
+	var bottom_y: float = center.y + _tile_height() * baseline_scale
+	return Rect2(Vector2(center.x - draw_width * 0.5, bottom_y - draw_height), Vector2(draw_width, draw_height))
+
+func _loot_tooltip_text(loot: Dictionary) -> String:
+	match str(loot.get("kind", "")):
+		"item":
+			return "item:%s" % str(loot.get("card_id", ""))
+		"dropped_embers":
+			return "Dropped embers: Reclaim %d" % int(loot.get("amount", 0))
+		"equipment":
+			var equipment_id: String = str(loot.get("equipment_id", ""))
+			return "equipment:%s" % equipment_id
+	return ""
+
+func _equipment_loot_fallback_tooltip(equipment_id: String) -> String:
+	var item: Dictionary = GameData.equipment_def(equipment_id)
+	var item_name: String = str(item.get("name", equipment_id))
+	var slot: String = str(item.get("slot", ""))
+	return "%s\n%s" % [item_name, slot.capitalize()]
+
+func _loot_texture(loot: Dictionary) -> Texture2D:
+	if str(loot.get("kind", "")) == "item":
+		return AssetLoader.load_texture(GameData.item_icon_path(str(loot.get("card_id", ""))))
+	if str(loot.get("kind", "")) == "equipment":
+		var item: Dictionary = GameData.equipment_def(str(loot.get("equipment_id", "")))
+		return AssetLoader.load_texture(str(item.get("icon_path", "")))
+	return _loot_textures.get(str(loot.get("kind", "")), null)
+
+func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) -> void:
+	var tile: Vector2i = terrain.get("pos", Vector2i(-1, -1))
+	if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
+		return
+	var terrain_kind: String = _terrain_art_kind(str(terrain.get("kind", "")))
+	var texture: Texture2D = _terrain_textures.get(terrain_kind, null)
+	if texture == null:
+		return
+	var terrain_rect: Rect2 = _terrain_rect_for_tile(tile, texture, terrain_kind)
+	var tint: Color = _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries)
+	_draw_rect_ground_shadow(tile, terrain_rect, 0.70, 0.24, 0.16)
+	if terrain_kind in ["crag_outcrop","dragon_spire"]:
+		tint.a = maxf(tint.a,0.58)
+		var rise: float = preload("res://scripts/combat_outcome_feedback.gd").outcrop_progress(presentation.get("surface_feedback_events",[]),str(terrain.get("id","")),float(presentation.get("surface_feedback_progress",1.0)),bool(presentation.get("reduced_motion",false)))
+		if terrain_kind == "dragon_spire": preload("res://scripts/dragon_board_props.gd").draw_spire(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
+		else: BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
+	else:
+		_draw_world_texture(texture, terrain_rect, tint)
+	if terrain_kind == "powder_keg":
+		_draw_powder_keg_fuse_glow(terrain_rect, tint.a)
+	_draw_terrain_health_bar(terrain, terrain_rect)
+	_register_tooltip(terrain_rect.grow(4.0), _terrain_tooltip_text(terrain))
+
+func _draw_terrain_destruction(terrain: Dictionary, obstruction_entries: Array = []) -> void:
+	var texture: Texture2D = _terrain_destruction_texture(terrain)
+	if texture == null:
+		return
+	var tile: Vector2i = terrain.get("pos", Vector2i(-1, -1))
+	if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
+		return
+	var terrain_kind: String = _terrain_art_kind(str(terrain.get("kind", "")))
+	var terrain_rect: Rect2 = _terrain_rect_for_tile(tile, texture, terrain_kind)
+	var tint: Color = _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries)
+	var progress: float = clampf(float(terrain.get("destruction_progress", 0.0)), 0.0, 1.0)
+	if terrain_kind in ["crag_outcrop","dragon_spire"]: tint.a = maxf(tint.a,0.58)
+	tint.a *= 1.0 - smoothstep(0.84, 1.0, progress)
+	if progress < 0.84:
+		_draw_rect_ground_shadow(tile, terrain_rect, 0.70, 0.24, 0.16)
+	if terrain_kind == "dragon_spire":
+		preload("res://scripts/dragon_board_props.gd").draw_spire(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,1.0-smoothstep(0.0,0.84,progress),tint.a)
+	elif terrain_kind == "crag_outcrop":
+		BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,1.0-smoothstep(0.0,0.84,progress),tint.a)
+	else:
+		_draw_world_texture(texture, terrain_rect, tint)
+
+# A player Worldspine reuses Tharokh's spire art.
+func _terrain_art_kind(terrain_kind: String) -> String:
+	if terrain_kind == "worldspine":
+		return "dragon_spire"
+	return terrain_kind
+
+func _draw_powder_keg_fuse_glow(terrain_rect: Rect2, opacity: float) -> void:
+	# A soft warning halo on the art's lit fuse keeps the keg readable as a
+	# bomb at small board zoom and under Umbra dimming.
+	var center: Vector2 = terrain_rect.position + terrain_rect.size * POWDER_KEG_FUSE_ANCHOR
+	var radius: float = maxf(2.5, terrain_rect.size.x * 0.07)
+	draw_circle(center, radius * 2.0, Color(1.0, 0.46, 0.14, 0.16 * opacity))
+	draw_circle(center, radius * 1.2, Color(1.0, 0.62, 0.24, 0.28 * opacity))
+
+func _terrain_rect_for_tile(tile: Vector2i, texture: Texture2D, terrain_kind: String = "") -> Rect2:
+	if terrain_kind == "dragon_spire":
+		return Rect2(_tile_center(tile)-Vector2(_tile_width()*.41,_tile_width()*.92),Vector2(_tile_width()*.82,_tile_width()*1.07))
+	if terrain_kind == "crag_outcrop":
+		return Rect2(_tile_center(tile)-Vector2(_tile_width()*0.42,_tile_width()*0.75),Vector2(_tile_width()*0.84,_tile_width()*0.90))
+	var draw_width: float = _tile_width() * _terrain_draw_width_scale(terrain_kind)
+	var draw_height: float = draw_width
+	if texture != null and texture.get_size().x > 0.0:
+		draw_height = draw_width * texture.get_size().y / texture.get_size().x
+	var center: Vector2 = _tile_center(tile)
+	var bottom_y: float = center.y + _tile_height() * TERRAIN_DRAW_BASELINE_SCALE
+	return Rect2(Vector2(center.x - draw_width * 0.5, bottom_y - draw_height), Vector2(draw_width, draw_height))
+
+func _terrain_draw_width_scale(terrain_kind: String) -> float:
+	if terrain_kind == "dragon_spire":
+		return 0.72
+	if terrain_kind == "wooden_crate":
+		return TERRAIN_CRATE_DRAW_WIDTH_SCALE
+	return TERRAIN_BOX_DRAW_WIDTH_SCALE
+
+func _draw_terrain_health_bar(terrain: Dictionary, terrain_rect: Rect2) -> void:
+	if not _should_show_terrain_health_bar(terrain):
+		return
+	var bar_size: Vector2 = TERRAIN_HEALTH_BAR_SIZE
+	var bar_rect := Rect2(
+		Vector2(terrain_rect.get_center().x - bar_size.x * 0.5, terrain_rect.position.y - 10.0),
+		bar_size
+	)
+	var preview: Dictionary = _terrain_damage_preview(terrain)
+	SegmentedHealthBar.draw_bar(
+		self,
+		bar_rect,
+		float(terrain.get("hp", 0)),
+		float(maxi(1, int(terrain.get("max_hp", 1)))),
+		_health_bar_segment_count(int(terrain.get("max_hp", 1))),
+		Color("2d1f18"),
+		TERRAIN_BAR_FILL,
+		Color("fff0bf"),
+		Color("eed3a6"),
+		Color(0.0, 0.0, 0.0, 0.35),
+		1.0,
+		1.0
+	)
+	if not preview.is_empty():
+		_draw_health_damage_preview(terrain, bar_rect, preview)
+
+func _should_show_terrain_health_bar(terrain: Dictionary) -> bool:
+	if int(terrain.get("hp", 0)) <= 0:
+		return false
+	if int(terrain.get("hp", 0)) < maxi(1, int(terrain.get("max_hp", 1))):
+		return true
+	if not _terrain_damage_preview(terrain).is_empty():
+		return true
+	return attack_tiles.has(terrain.get("pos", Vector2i(-1, -1)))
+
+func _terrain_damage_preview(terrain: Dictionary) -> Dictionary:
+	if not _board_tile_is_visible_to_player(terrain.get("pos", Vector2i(-1, -1))):
+		return {}
+	var terrain_key: String = _terrain_key(terrain)
+	if terrain_key.is_empty():
+		return {}
+	return _damage_preview_map().get(terrain_key, {}) as Dictionary
+
+func _terrain_key(terrain: Dictionary) -> String:
+	var terrain_id: String = str(terrain.get("id", ""))
+	if terrain_id.is_empty():
+		return ""
+	return "terrain_%s" % terrain_id
+
+func _terrain_tooltip_text(terrain: Dictionary) -> String:
+	var terrain_kind: String = str(terrain.get("kind", ""))
+	var label: String = "Raised Cover" if terrain_kind == "raised_cover" else "Crag Outcrop" if terrain_kind == "crag_outcrop" else "Worldspine" if terrain_kind in ["dragon_spire", "worldspine"] else "Powder Keg" if terrain_kind == "powder_keg" else "Wooden box" if terrain_kind == "wooden_box" else "Wooden crate"
+	var text: String = "%s\n%d/%d HP" % [
+		label,
+		int(terrain.get("hp", 0)),
+		int(terrain.get("max_hp", 1))
+	]
+
+	if terrain_kind == "crag_outcrop": text += "\nBlocks sight. Leaves Rubble when destroyed."
+	if terrain_kind == "powder_keg": text += "\nWhen destroyed, deals %d to its tile and each tile next to it." % int(terrain.get("burst_damage", 0))
+	if terrain_kind == "worldspine": text += "\nAt the start of your turn, each enemy next to it takes %d." % int(terrain.get("pulse_damage", 0))
+	return text
+
+func _visible_units() -> Array[Dictionary]:
+	if _submission_cache_valid:
+		return _visible_units_cache
+	return _build_visible_units()
+
+func _build_visible_units() -> Array[Dictionary]:
+	var units_to_draw: Array[Dictionary]
+	var player: Dictionary = combat_state.get("player", {})
+	var player_restrictions: Dictionary = combat_state.get("player_turn_restrictions", {})
+	if not player.is_empty() and int(player.get("hp", 0)) > 0:
+		var player_statuses: Dictionary = _player_display_statuses(player, player_restrictions)
+		units_to_draw.append({
+			"key": "player",
+			"role": "player",
+			"type": "player",
+			"pos": player.get("pos", Vector2i.ZERO),
+			"hp": int(player.get("hp", 0)),
+			"max_hp": int(player.get("max_hp", 1)),
+			"block": int(player.get("block", 0)),
+			"stoneskin": int(player.get("stoneskin", 0)),
+			"chilled": bool(player.get("chilled", false)),
+		"bleed": int(player_statuses.get("bleed", 0)),
+			"freeze": int(player_statuses.get("freeze", 0)),
+			"shock": int(player_statuses.get("shock", 0)),
+			"immobilize": bool(player_statuses.get("immobilize", false)),
+			"frost_armor": int(player.get("frost_armor", 0)),
+			"keyword_badges": _player_keyword_badges(),
+		})
+	for illusion_var: Variant in combat_state.get("illusions", []):
+		if typeof(illusion_var) != TYPE_DICTIONARY:
+			continue
+		var illusion: Dictionary = illusion_var
+		if int(illusion.get("hp", 0)) <= 0:
+			continue
+		units_to_draw.append({
+			"key": "illusion_%d" % int(illusion.get("id", -1)),
+			"role": "illusion",
+			"type": "player",
+			"name": "Illusion",
+			"pos": illusion.get("pos", Vector2i.ZERO),
+			"hp": int(illusion.get("hp", 0)),
+			"max_hp": int(illusion.get("max_hp", illusion.get("hp", 1))),
+			"block": int(illusion.get("block", 0)),
+			"stoneskin": int(illusion.get("stoneskin", 0)),
+			"bleed": 0,
+			"chilled": bool(illusion.get("chilled", false)),
+			"freeze": int(illusion.get("freeze", 0)),
+			"shock": 0,
+			"immobilize": false,
+			"keyword_badges": IllusionCardRules.illusion_badges(illusion),
+		})
+	for preview_var: Variant in presentation.get("preview_units", []):
+		if typeof(preview_var) != TYPE_DICTIONARY:
+			continue
+		var preview_unit: Dictionary = preview_var
+		if not _unit_is_preview_echo(preview_unit):
+			continue
+		var preview_tile: Vector2i = preview_unit.get("pos", Vector2i(-1, -1))
+		if preview_tile.x < 0:
+			continue
+		var preview_role: String = str(preview_unit.get("role", "illusion_preview"))
+		var preview_hp: int = maxi(1, int(preview_unit.get("hp", preview_unit.get("max_hp", 1))))
+		units_to_draw.append({
+			"key": str(preview_unit.get("key", "illusion_preview")),
+			"role": preview_role,
+			"id": int(preview_unit.get("id", -1)),
+			"type": str(preview_unit.get("type", "player")),
+			"name": str(preview_unit.get("name", "Illusion preview")),
+			"pos": preview_tile,
+			"footprint": preview_unit.get("footprint", Vector2i.ONE),
+			"hp": preview_hp,
+			"max_hp": maxi(1, int(preview_unit.get("max_hp", preview_hp))),
+			"block": 0,
+			"stoneskin": 0,
+			"bleed": 0,
+			"freeze": 0,
+			"shock": 0,
+			"immobilize": false,
+			"intent": {},
+			"preview": true
+		})
+	var visible_enemy_ids: Array = presentation.get("visible_enemy_ids", []) as Array
+	var filter_enemies_for_umbra: bool = presentation.has("visible_enemy_ids")
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if int(enemy.get("hp", 0)) <= 0:
+			continue
+		if filter_enemies_for_umbra and not visible_enemy_ids.has(int(enemy.get("id", -1))):
+			continue
+		var enemy_unit: Dictionary = {
+			"key": "enemy_%d" % int(enemy.get("id", -1)),
+			"role": "enemy",
+			"id": int(enemy.get("id", -1)),
+			"type": str(enemy.get("type", "")),
+			"name": str(_enemy_render_definition(str(enemy.get("type", ""))).get("name", "Enemy")),
+			"boss_bar": bool(_enemy_render_definition(str(enemy.get("type", ""))).get("boss_bar", false)),
+			"is_leader": bool(enemy.get("is_leader", false)),
+			"footprint": enemy.get("footprint", Vector2i.ONE),
+			"intent": enemy.get("intent", {}),
+			"pos": enemy.get("pos", Vector2i.ZERO),
+			"hp": int(enemy.get("hp", 0)),
+			"max_hp": int(enemy.get("max_hp", 1)),
+			"block": int(enemy.get("block", 0)),
+			"stoneskin": int(enemy.get("stoneskin", 0)),
+			"frost_armor": int(enemy.get("frost_armor", 0)),
+			"chilled": bool(enemy.get("chilled", false)),
+		"bleed": int(enemy.get("bleed", 0)),
+			"freeze": int(enemy.get("freeze", 0)),
+			"shock": int(enemy.get("shock", 0)),
+			"immobilize": bool(enemy.get("immobilize", false)),
+			"petrify": int(enemy.get("petrify", 0)),
+		}
+		# Older saves and partial animation snapshots can omit an authored large
+		# footprint (or transiently collapse it to 1x1). Resolve it before any
+		# sprite, shadow, HUD, depth, or compass anchoring consumes the unit.
+		enemy_unit["footprint"] = _resolved_unit_footprint(enemy_unit)
+		units_to_draw.append(enemy_unit)
+	units_to_draw.append_array(_death_animation_units_from_presentation())
+	for npc_index: int in range((combat_state.get("npcs", []) as Array).size()):
+		var npc: Dictionary = (combat_state.get("npcs", []) as Array)[npc_index]
+		var npc_id: String = str(npc.get("id", ""))
+		if npc_id.is_empty():
+			continue
+		var npc_def: Dictionary = _npc_render_definition(npc_id)
+		units_to_draw.append({
+			"key": "npc_%s_%d" % [npc_id, npc_index],
+			"role": "npc",
+			"type": npc_id,
+			"name": str(npc.get("name", npc_def.get("name", npc_id))),
+			"pos": npc.get("pos", Vector2i.ZERO),
+			"accent": Color(str(npc.get("accent", npc_def.get("accent", "#d2c2a7"))))
+		})
+	units_to_draw.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		var a_pos: Vector2i = _effective_unit_tile(a)
+		var b_pos: Vector2i = _effective_unit_tile(b)
+		if a_pos == b_pos:
+			return _tile_draws_before(a.get("pos", Vector2i.ZERO), b.get("pos", Vector2i.ZERO))
+		return _tile_draws_before(a_pos, b_pos)
+	)
+	return units_to_draw
+
+func _death_animation_units_from_presentation() -> Array[Dictionary]:
+	var units: Array[Dictionary]
+	for unit_var: Variant in presentation.get("death_animation_units", []):
+		if typeof(unit_var) != TYPE_DICTIONARY:
+			continue
+		var unit: Dictionary = (unit_var as Dictionary).duplicate(true)
+		var unit_type: String = str(unit.get("type", ""))
+		var unit_key: String = str(unit.get("key", ""))
+		var player_unit: bool = unit_key == "player" or str(unit.get("role", "")) == "player" or unit_type == "player"
+		if player_unit and unit_type.is_empty():
+			unit_type = "player"
+			unit["type"] = unit_type
+		if unit_type.is_empty() or unit_key.is_empty():
+			continue
+		var definition: Dictionary = _enemy_render_definition(unit_type)
+		if definition.is_empty() and not player_unit:
+			continue
+		unit["key"] = unit_key
+		unit["role"] = "player" if player_unit else "enemy"
+		unit["death_animation"] = true
+		unit["boss_bar"] = false
+		unit["name"] = str(unit.get("name", "Player" if player_unit else definition.get("name", "Enemy")))
+		unit["id"] = int(unit.get("id", -1))
+		var pos_value: Variant = unit.get("pos", Vector2i.ZERO)
+		unit["pos"] = pos_value if typeof(pos_value) == TYPE_VECTOR2I else Vector2i.ZERO
+		unit["hp"] = maxi(1, int(unit.get("hp", 1)))
+		unit["max_hp"] = maxi(1, int(unit.get("max_hp", unit.get("hp", 1))))
+		unit["block"] = 0
+		unit["stoneskin"] = 0
+		unit["freeze"] = 0
+		unit["shock"] = 0
+		unit["immobilize"] = false
+		if not unit.has("footprint"):
+			var footprint_value: Variant = definition.get("footprint", [])
+			if typeof(footprint_value) == TYPE_ARRAY and (footprint_value as Array).size() >= 2:
+				unit["footprint"] = Vector2i(int((footprint_value as Array)[0]), int((footprint_value as Array)[1]))
+			else:
+				unit["footprint"] = Vector2i.ONE
+		units.append(unit)
+	return units
+
+func _draw_unit_bodies_for_tile(tile: Vector2i, units_to_draw: Array[Dictionary]) -> void:
+	if _submission_cache_valid:
+		for unit: Dictionary in _units_by_draw_tile_cache.get(tile, []):
+			_draw_unit_body(unit)
+		return
+	for unit: Dictionary in units_to_draw:
+		if _effective_unit_tile(unit) != tile:
+			continue
+		_draw_unit_body(unit)
+
+func _draw_unit_body(unit: Dictionary) -> void:
+	var detailed_sections: bool = (
+		_render_instrumentation_owner != null
+		and is_instance_valid(_render_instrumentation_owner)
+		and bool(_render_instrumentation_owner.get("_submission_performance_instrumentation_enabled"))
+	)
+	var phase_started_usec: int = Time.get_ticks_usec() if detailed_sections else 0
+	var umbra_clip: Dictionary = _umbra_actor_clip_for_unit(unit)
+	if umbra_clip.is_empty():
+		_draw_enemy_intent_compass(unit)
+	if detailed_sections:
+		_record_render_section_time("unit_body_compass", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
+	if umbra_clip.is_empty():
+		_draw_unit_shadow(unit)
+	if detailed_sections:
+		_record_render_section_time("unit_body_shadow", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
+	# Enemy deaths are composited by a dedicated per-actor shader child on this
+	# retained tile layer. Drawing the source sprite again underneath it would fill
+	# every dissolved opening and turn the breakup into a tinted cross-fade.
+	if _unit_uses_procedural_shadow_dissolve(unit):
+		if detailed_sections:
+			_record_render_section_time("unit_body_sprite", phase_started_usec)
+		return
+	var texture: Texture2D = _texture_for_unit(unit)
+	if texture != null:
+		var death_animation: bool = bool(unit.get("death_animation", false))
+		var draw_rect: Rect2 = _unit_texture_draw_rect(unit, _unit_center(unit))
+		var impact: float = _unit_impact_strength(unit)
+		var impact_shake: float = _unit_impact_shake_strength(unit)
+		var impact_offset := Vector2.ZERO
+		if impact_shake > 0.0:
+			impact_offset = Vector2(sin(Time.get_ticks_msec() * 0.09) * 3.0 * impact_shake, 0.0)
+		var shifted_rect := Rect2(draw_rect.position + impact_offset, draw_rect.size)
+		var body_tint: Color = Color.WHITE
+		var role: String = str(unit.get("role", ""))
+		if role == "illusion_preview":
+			var pulse: float = 0.5 if bool(presentation.get("reduced_motion", false)) else 0.5 + sin(Time.get_ticks_msec() * 0.008) * 0.5
+			var preview_echo_rect := Rect2(shifted_rect.position + Vector2(0.0, -7.0), shifted_rect.size)
+			draw_texture_rect(texture, preview_echo_rect, false, Color(0.38, 0.90, 1.0, 0.08 + 0.04 * pulse))
+			body_tint = Color(0.76, 0.98, 1.0, 0.30 + 0.06 * pulse)
+		elif role == "enemy_move_preview":
+			var enemy_preview_pulse: float = 0.5 if bool(presentation.get("reduced_motion", false)) else 0.5 + sin(Time.get_ticks_msec() * 0.007 + float(int(unit.get("id", 0)))) * 0.5
+			var enemy_preview_echo_rect := Rect2(shifted_rect.position + Vector2(-3.0, -6.0), shifted_rect.size)
+			draw_texture_rect(texture, enemy_preview_echo_rect, false, Color(0.24, 0.10, 0.38, 0.11 + 0.04 * enemy_preview_pulse))
+			draw_texture_rect(texture, Rect2(shifted_rect.position + Vector2(3.0, 1.0), shifted_rect.size), false, Color(0.64, 0.44, 0.92, 0.07 + 0.03 * enemy_preview_pulse))
+			body_tint = Color(0.82, 0.72, 1.0, 0.31 + 0.07 * enemy_preview_pulse)
+		elif role == "illusion":
+			var echo_rect := Rect2(shifted_rect.position + Vector2(0.0, -5.0), shifted_rect.size)
+			draw_texture_rect(texture, echo_rect, false, Color(0.38, 0.90, 1.0, 0.18))
+			body_tint = Color(0.70, 0.95, 1.0, 0.58)
+		elif death_animation:
+			body_tint = _death_animation_render_tint(unit)
+		_draw_texture_rect_with_umbra_clip(texture, shifted_rect, body_tint, umbra_clip, 0 if role in ["illusion", "illusion_preview", "enemy_move_preview"] else CombatArtTreatment.actor_profile(unit, texture))
+		if impact > 0.0:
+			var flash: Color = IMPACT_FLASH_COLOR
+			flash.a *= impact
+			_draw_texture_rect_with_umbra_clip(texture, shifted_rect, flash, umbra_clip)
+	if detailed_sections:
+		_record_render_section_time("unit_body_sprite", phase_started_usec)
+
+func _umbra_actor_clip_for_unit(unit: Dictionary) -> Dictionary:
+	var actor_key: String = str(unit.get("key", ""))
+	if actor_key.is_empty():
+		return {}
+	return (presentation.get("umbra_action_actor_clips", {}) as Dictionary).get(actor_key, {}) as Dictionary
+
+func _draw_texture_rect_with_umbra_clip(texture: Texture2D, draw_rect: Rect2, tint: Color, clip: Dictionary, profile: int = 0) -> void:
+	if clip.is_empty():
+		_draw_world_texture(texture, draw_rect, tint, profile)
+		return
+	var hidden_tile: Vector2i = clip.get("hidden_tile", Vector2i(-1, -1))
+	var visible_tile: Vector2i = clip.get("visible_tile", Vector2i(-1, -1))
+	if hidden_tile.x < 0 or visible_tile.x < 0:
+		_draw_world_texture(texture, draw_rect, tint, profile)
+		return
+	if draw_rect.size.x <= 0.0 or draw_rect.size.y <= 0.0:
+		return
+	var boundary_plane: Dictionary = _umbra_tile_boundary_plane(hidden_tile, visible_tile)
+	if boundary_plane.is_empty():
+		return
+	var boundary_midpoint: Vector2 = boundary_plane.get("point", Vector2.ZERO)
+	var boundary_normal: Vector2 = boundary_plane.get("normal", Vector2.ZERO)
+	var source_size := Vector2(texture.get_size())
+	var slice_count: int = clampi(ceili(draw_rect.size.y / 1.5), 1, 128)
+	for slice_index: int in range(slice_count):
+		var y_ratio_start: float = float(slice_index) / float(slice_count)
+		var y_ratio_end: float = float(slice_index + 1) / float(slice_count)
+		var dest_y_start: float = draw_rect.position.y + draw_rect.size.y * y_ratio_start
+		var dest_y_end: float = draw_rect.position.y + draw_rect.size.y * y_ratio_end
+		var sample_y: float = (dest_y_start + dest_y_end) * 0.5
+		var visible_x_start: float = draw_rect.position.x
+		var visible_x_end: float = draw_rect.end.x
+		if absf(boundary_normal.x) <= 0.001:
+			var slice_visible: bool = (
+				Vector2(draw_rect.get_center().x, sample_y) - boundary_midpoint
+			).dot(boundary_normal) >= 0.0
+			if not slice_visible:
+				continue
+		else:
+			var boundary_x: float = boundary_midpoint.x - (
+				boundary_normal.y * (sample_y - boundary_midpoint.y)
+			) / boundary_normal.x
+			if boundary_normal.x > 0.0:
+				visible_x_start = maxf(visible_x_start, boundary_x)
+			else:
+				visible_x_end = minf(visible_x_end, boundary_x)
+		if visible_x_end - visible_x_start <= 0.01:
+			continue
+		var source_x_start: float = (visible_x_start - draw_rect.position.x) / draw_rect.size.x * source_size.x
+		var source_x_end: float = (visible_x_end - draw_rect.position.x) / draw_rect.size.x * source_size.x
+		var destination := Rect2(
+			Vector2(visible_x_start, dest_y_start),
+			Vector2(visible_x_end - visible_x_start, dest_y_end - dest_y_start + 0.35)
+		)
+		var source := Rect2(
+			Vector2(source_x_start, source_size.y * y_ratio_start),
+			Vector2(source_x_end - source_x_start, source_size.y * (y_ratio_end - y_ratio_start))
+		)
+		_draw_world_texture(texture, destination, tint, profile, source)
+
+func _draw_enemy_intent_compass(unit: Dictionary) -> void:
+	if str(unit.get("role", "")) != "enemy" or bool(unit.get("death_animation", false)):
+		return
+	var actor_key: String = str(unit.get("key", ""))
+	var descriptors: Dictionary = presentation.get("enemy_intent_compasses", {}) as Dictionary
+	var descriptor: Dictionary = descriptors.get(actor_key, {}) as Dictionary
+	if descriptor.is_empty():
+		return
+	var family: String = str(descriptor.get("family", EnemyIntentCompass.FAMILY_ATTACK))
+	var base_texture: Texture2D = AssetLoader.load_texture(EnemyIntentCompass.texture_path("base"))
+	var emblem_texture: Texture2D = AssetLoader.load_texture(EnemyIntentCompass.texture_path(family))
+	if base_texture == null or emblem_texture == null:
+		return
+	var center: Vector2 = _intent_compass_center(unit)
+	var scale_factor: float = (
+		_tile_width()
+		* INTENT_COMPASS_RING_TILE_SCALE
+		* _intent_compass_footprint_scale(unit)
+		/ INTENT_COMPASS_RING_SOURCE_DIAMETER
+	)
+	var emblem_scale: float = scale_factor * _intent_compass_emblem_scale(family)
+	if _art_treatment_enabled:
+		# Preserve the authored attack/defense silhouettes, but seat their paint
+		# in the ground plane with a shallow offset shadow and shared local light.
+		CombatArtTreatment.draw_ground_mark(self, base_texture, center, scale_factor, Color(0.91, 0.86, 0.78, 0.80))
+		var tint: Color = _intent_compass_emblem_tint(family)
+		tint = tint.lerp(Color(0.92, 0.84, 0.73, tint.a), 0.16)
+		tint.a = 0.87
+		CombatArtTreatment.draw_ground_mark(self, emblem_texture, center, emblem_scale, tint)
+		return
+	var emblem_basis_x := Vector2(emblem_scale, 0.0)
+	var emblem_basis_y := Vector2(0.0, emblem_scale * INTENT_COMPASS_ISOMETRIC_Y_SCALE)
+	var base_basis_x := Vector2(scale_factor, 0.0)
+	var base_basis_y := Vector2(0.0, scale_factor * INTENT_COMPASS_ISOMETRIC_Y_SCALE)
+	draw_set_transform_matrix(Transform2D(base_basis_x * INTENT_COMPASS_UNDERLAY_SCALE, base_basis_y * INTENT_COMPASS_UNDERLAY_SCALE, center))
+	draw_texture(base_texture, -base_texture.get_size() * 0.5, INTENT_COMPASS_UNDERLAY_COLOR)
+	draw_set_transform_matrix(Transform2D(base_basis_x, base_basis_y, center))
+	draw_texture(base_texture, -base_texture.get_size() * 0.5, Color(1.0, 1.0, 1.0, 0.96))
+	draw_set_transform_matrix(Transform2D(emblem_basis_x * INTENT_COMPASS_UNDERLAY_SCALE, emblem_basis_y * INTENT_COMPASS_UNDERLAY_SCALE, center))
+	draw_texture(emblem_texture, -emblem_texture.get_size() * 0.5, INTENT_COMPASS_UNDERLAY_COLOR)
+	draw_set_transform_matrix(Transform2D(emblem_basis_x, emblem_basis_y, center))
+	draw_texture(emblem_texture, -emblem_texture.get_size() * 0.5, _intent_compass_emblem_tint(family))
+	draw_set_transform_matrix(Transform2D.IDENTITY)
+
+
+func _intent_compass_emblem_scale(family: String) -> float:
+	return float(INTENT_COMPASS_EMBLEM_SCALES.get(family, INTENT_COMPASS_EMBLEM_SCALES[EnemyIntentCompass.FAMILY_ATTACK]))
+
+func _intent_compass_center(unit: Dictionary) -> Vector2:
+	var actor_key: String = str(unit.get("key", ""))
+	var movement_centers: Dictionary = presentation.get("unit_footprint_world_positions", {}) as Dictionary
+	var movement_center: Variant = movement_centers.get(actor_key, null)
+	if typeof(movement_center) == TYPE_VECTOR2:
+		return movement_center as Vector2
+	var tile: Vector2i = unit.get("pos", Vector2i.ZERO)
+	return world_position_for_unit_origin(unit, tile)
+
+func _intent_compass_footprint_scale(unit: Dictionary) -> float:
+	var footprint: Vector2i = _resolved_unit_footprint(unit)
+	return float(maxi(maxi(1, footprint.x), maxi(1, footprint.y)))
+
+# Rendering reads only authored identity, footprint and sprite metadata. The
+# combat definition API also clones/scales every intent and action, which must
+# never run for every sprite anchor or dirty tile. These dictionaries are borrowed
+# from GameData's catalog; callers only read them, and never retain or mutate them.
+# Keeping the lookup live also respects catalog replacement in tools and tests.
+func _enemy_render_definition(unit_type: String) -> Dictionary:
+	return GameData.enemies().get(unit_type, {}) as Dictionary
+
+func _npc_render_definition(unit_type: String) -> Dictionary:
+	return GameData.npcs().get(unit_type, {}) as Dictionary
+
+func _resolved_unit_footprint(unit: Dictionary) -> Vector2i:
+	var state_footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
+	state_footprint = Vector2i(maxi(1, state_footprint.x), maxi(1, state_footprint.y))
+	var definition: Dictionary = _enemy_render_definition(str(unit.get("type", "")))
+	var definition_value: Variant = definition.get("footprint", [])
+	if typeof(definition_value) != TYPE_ARRAY or (definition_value as Array).size() < 2:
+		return state_footprint
+	var definition_footprint := Vector2i(
+		maxi(1, int((definition_value as Array)[0])),
+		maxi(1, int((definition_value as Array)[1]))
+	)
+	return Vector2i(
+		maxi(state_footprint.x, definition_footprint.x),
+		maxi(state_footprint.y, definition_footprint.y)
+	)
+
+func _intent_compass_emblem_tint(family: String) -> Color:
+	if family == EnemyIntentCompass.FAMILY_ATTACK:
+		return INTENT_COMPASS_ATTACK_TINT
+	if family == EnemyIntentCompass.FAMILY_DEFENSE:
+		return INTENT_COMPASS_DEFENSE_TINT
+	return Color(1.0, 1.0, 1.0, 0.96)
+
+func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
+	if not _hud_layout_entries_cache.is_empty():
+		_draw_unit_huds_from_layout_cache(units_to_draw)
+		return
+	var font: Font = get_theme_default_font()
+	var reserved_rects: Array[Rect2] = _enemy_hud_reserved_rects(units_to_draw, font)
+	var deferred_intent_layouts: Array[Dictionary]
+	for unit: Dictionary in units_to_draw:
+		if bool(unit.get("death_animation", false)):
+			continue
+		if not _umbra_actor_clip_for_unit(unit).is_empty():
+			continue
+		var center: Vector2 = _unit_center(unit)
+		if str(unit.get("role", "")) == "npc":
+			_draw_npc_nameplate(unit, center)
+			continue
+		if _unit_is_preview_echo(unit):
+			continue
+		if bool(unit.get("boss_bar", false)):
+			var boss_layout: Dictionary = _boss_intent_layout(unit, center, reserved_rects, font)
+			deferred_intent_layouts.append(boss_layout)
+			for rect_var: Variant in boss_layout.get("occupied_rects", []):
+				if typeof(rect_var) == TYPE_RECT2:
+					reserved_rects.append(rect_var)
+			continue
+		var health_rect: Rect2 = _unit_health_bar_rect(unit, center)
+		if str(unit.get("role", "")) == "enemy":
+			var enemy_layout: Dictionary = _enemy_hud_layout(unit, center, reserved_rects, font)
+			health_rect = enemy_layout.get("health_rect", health_rect)
+			_draw_enemy_hud_tether(unit, center, enemy_layout)
+			_draw_health_bar(unit, health_rect)
+			_draw_unit_statuses(unit, health_rect)
+			_draw_leader_marker(unit, health_rect, enemy_layout.get("intent_rect", Rect2()) as Rect2)
+			deferred_intent_layouts.append(enemy_layout)
+			for rect_var: Variant in enemy_layout.get("occupied_rects", []):
+				if typeof(rect_var) == TYPE_RECT2:
+					reserved_rects.append(rect_var)
+			continue
+		_draw_health_bar(unit, health_rect)
+		_draw_unit_statuses(unit, health_rect)
+	# Expanded intents are the contextual decision layer. Draw every persistent
+	# actor HUD first so no later enemy health bar can obscure intent details.
+	for intent_layout: Dictionary in deferred_intent_layouts:
+		_draw_enemy_intent_layout(intent_layout, font)
+
+func _draw_unit_huds_from_layout_cache(units_to_draw: Array[Dictionary]) -> void:
+	var font: Font = get_theme_default_font()
+	var units_by_key: Dictionary = {}
+	var deferred_intent_layouts: Array[Dictionary]
+	for unit: Dictionary in units_to_draw:
+		units_by_key[str(unit.get("key", ""))] = unit
+	for entry_var: Variant in _hud_layout_entries_cache:
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		var unit: Dictionary = units_by_key.get(str(entry.get("actor_key", "")), {}) as Dictionary
+		if unit.is_empty():
+			continue
+		if not _umbra_actor_clip_for_unit(unit).is_empty():
+			continue
+		var center: Vector2 = entry.get("center", _unit_center(unit))
+		match str(entry.get("kind", "")):
+			"npc":
+				_draw_npc_nameplate(unit, center)
+			"boss":
+				deferred_intent_layouts.append(entry.get("layout", {}) as Dictionary)
+			"enemy":
+				var layout: Dictionary = entry.get("layout", {}) as Dictionary
+				var health_rect: Rect2 = entry.get("health_rect", Rect2()) as Rect2
+				_draw_enemy_hud_tether(unit, center, layout)
+				_draw_health_bar(unit, health_rect)
+				_draw_unit_statuses(unit, health_rect)
+				_draw_leader_marker(unit, health_rect, layout.get("intent_rect", Rect2()) as Rect2)
+				deferred_intent_layouts.append(layout)
+			_:
+				var health_rect: Rect2 = entry.get("health_rect", Rect2()) as Rect2
+				_draw_health_bar(unit, health_rect)
+				_draw_unit_statuses(unit, health_rect)
+	for intent_layout: Dictionary in deferred_intent_layouts:
+		_draw_enemy_intent_layout(intent_layout, font)
+
+func _rebuild_hud_health_rects_cache() -> bool:
+	var performance_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
+	if not is_inside_tree() or combat_state.is_empty():
+		_hud_health_rects_cache.clear()
+		_hud_health_rects_source_snapshot.clear()
+		_hud_layout_entries_cache.clear()
+		return false
+	var hud_units: Array[Dictionary] = _hud_layout_units()
+	performance_phase_started = _record_submission_performance_phase("hud_units", performance_phase_started)
+	var source: Dictionary = _hud_layout_source(hud_units)
+	performance_phase_started = _record_submission_performance_phase("hud_source", performance_phase_started)
+	if source == _hud_health_rects_source_snapshot:
+		return false
+	_hud_health_rects_source_snapshot = source.duplicate(true)
+	var signature: int = hash(source)
+	performance_phase_started = _record_submission_performance_phase("hud_signature", performance_phase_started)
+	var cached: Dictionary = _hud_layout_cache_by_signature.get(signature, {}) as Dictionary
+	if not cached.is_empty() and cached.get("source", {}) == source:
+		_hud_layout_entries_cache = cached.get("entries", []) as Array
+		_hud_health_rects_cache = cached.get("health_rects", {}) as Dictionary
+		return true
+	var built: Dictionary = _build_hud_layout_data(hud_units)
+	performance_phase_started = _record_submission_performance_phase("hud_build", performance_phase_started)
+	_hud_layout_entries_cache = built.get("entries", []) as Array
+	_hud_health_rects_cache = built.get("health_rects", {}) as Dictionary
+	_hud_layout_cache_by_signature[signature] = {
+		"source": source.duplicate(true),
+		"entries": _hud_layout_entries_cache,
+		"health_rects": _hud_health_rects_cache
+	}
+	_hud_layout_cache_order.erase(signature)
+	_hud_layout_cache_order.append(signature)
+	while _hud_layout_cache_order.size() > HUD_LAYOUT_CACHE_LIMIT:
+		var stale_signature: Variant = _hud_layout_cache_order.pop_front()
+		_hud_layout_cache_by_signature.erase(stale_signature)
+	return true
+
+func _hud_layout_source(hud_units: Array[Dictionary]) -> Dictionary:
+	# Framing and safe-rect changes can move the board without changing its
+	# Control size. Resolve first: layout can also update the default zoom/pan.
+	_ensure_board_layout_cache()
+	return {
+		"visible_units": hud_units,
+		"cutout_registrations": _cutout_floor_registrations(),
+		# HUD geometry changes only when pointer hover expands a different enemy's
+		# intent. Every empty tile is layout-equivalent, and every tile in a large
+		# enemy footprint is equivalent too. Keying by the raw tile forced the dense
+		# collision solver to build a distinct layout for every Blink destination.
+		"hover_actor_key": _hud_hover_actor_key(hud_units),
+		"size": size,
+		"board_origin": _board_layout_cache_origin,
+		"tile_width": _board_layout_cache_tile_width,
+		"navigation_zoom": _navigation_zoom,
+		"navigation_pan": _navigation_pan,
+		"expanded_enemy_actor_keys": presentation.get("expanded_enemy_actor_keys", []),
+		"expand_enemy_intents": presentation.get("expand_enemy_intents", false),
+		"show_all_enemy_intents": presentation.get("show_all_enemy_intents", false),
+		"hud_obstacle_global_rects": presentation.get("hud_obstacle_global_rects", []),
+		"unit_draw_tiles": presentation.get("unit_draw_tiles", {}),
+		"unit_world_positions": presentation.get("unit_world_positions", {})
+	}
+
+func _refresh_moving_hud_geometry(moving_actor_keys: Dictionary) -> bool:
+	# Collapsed HUDs have no inter-actor collision solving: their geometry is a
+	# direct function of each actor's center. Update only actors that moved instead
+	# of rebuilding, hashing, and deep-copying the whole room layout every frame.
+	# Expanded enemy intents and bosses retain the full solver path because their
+	# contours deliberately avoid other actors and fixed HUD elements.
+	if moving_actor_keys.is_empty() or _hud_layout_entries_cache.is_empty() or _all_enemy_intents_expanded():
+		return false
+	var hud_units: Array[Dictionary] = _hud_layout_units()
+	if not (presentation.get("expanded_enemy_actor_keys", []) as Array).is_empty():
+		return false
+	if not _hud_hover_actor_key(hud_units).is_empty():
+		return false
+	var units_by_key: Dictionary = _units_by_key(hud_units)
+	var next_entries: Array = _hud_layout_entries_cache.duplicate(false)
+	var next_health_rects: Dictionary = _hud_health_rects_cache.duplicate(false)
+	var font: Font = get_theme_default_font()
+	for entry_index: int in range(next_entries.size()):
+		var entry_var: Variant = next_entries[entry_index]
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		var actor_key: String = str(entry.get("actor_key", ""))
+		if not moving_actor_keys.has(actor_key):
+			continue
+		var unit: Dictionary = units_by_key.get(actor_key, {}) as Dictionary
+		if unit.is_empty() or bool(unit.get("boss_bar", false)):
+			return false
+		var center: Vector2 = _unit_center(unit)
+		var next_entry: Dictionary = entry.duplicate(false)
+		next_entry["center"] = center
+		match str(entry.get("kind", "")):
+			"npc":
+				pass
+			"enemy":
+				var layout: Dictionary = _enemy_hud_layout(unit, center, [], font)
+				var health_rect: Rect2 = layout.get("health_rect", Rect2()) as Rect2
+				next_entry["health_rect"] = health_rect
+				next_entry["layout"] = layout
+				next_health_rects[actor_key] = health_rect
+			_:
+				var health_rect: Rect2 = _unit_health_bar_rect(unit, center)
+				next_entry["health_rect"] = health_rect
+				next_health_rects[actor_key] = health_rect
+		next_entries[entry_index] = next_entry
+	_hud_layout_entries_cache = next_entries
+	_hud_health_rects_cache = next_health_rects
+	# Keep the latest immutable source references for a future full rebuild. This
+	# intentionally avoids inserting animation-frame-specific layouts into the LRU.
+	_hud_health_rects_source_snapshot = _hud_layout_source(hud_units).duplicate(false)
+	return true
+
+func _hud_hover_actor_key(hud_units: Array[Dictionary]) -> String:
+	var focus_tile: Vector2i = _controller_focus_tile if _controller_focus_tile.x >= 0 else _hover_tile
+	if focus_tile.x < 0:
+		return ""
+	for unit: Dictionary in hud_units:
+		if str(unit.get("role", "")) != "enemy":
+			continue
+		var origin: Vector2i = unit.get("pos", Vector2i.ZERO)
+		var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
+		if (
+			focus_tile.x >= origin.x
+			and focus_tile.y >= origin.y
+			and focus_tile.x < origin.x + maxi(1, footprint.x)
+			and focus_tile.y < origin.y + maxi(1, footprint.y)
+		):
+			return _enemy_hud_actor_key(unit)
+	return ""
+
+func _hud_layout_units() -> Array[Dictionary]:
+	# Illusion targeting ghosts intentionally have no health bar or intent HUD.
+	# Excluding them from the HUD cache key prevents their tile-by-tile movement
+	# from rerunning the dense enemy collision/layout solver on every hover.
+	var result: Array[Dictionary]
+	for unit: Dictionary in _visible_units():
+		if not _unit_is_preview_echo(unit):
+			result.append(unit)
+	return result
+
+func _clear_hud_layout_signature_cache() -> void:
+	_hud_layout_cache_by_signature.clear()
+	_hud_layout_cache_order.clear()
+
+func _build_hud_layout_data(units_to_draw: Array[Dictionary]) -> Dictionary:
+	var performance_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
+	var health_rects: Dictionary = {}
+	var entries: Array = []
+	var font: Font = get_theme_default_font()
+	var reserved_rects: Array[Rect2] = _enemy_hud_reserved_rects(units_to_draw, font)
+	performance_phase_started = _record_submission_performance_phase("hud_build_reserved", performance_phase_started)
+	for unit: Dictionary in units_to_draw:
+		if bool(unit.get("death_animation", false)):
+			continue
+		var role: String = str(unit.get("role", ""))
+		if _unit_is_preview_echo(unit):
+			continue
+		var center: Vector2 = _unit_center(unit)
+		var actor_key: String = str(unit.get("key", ""))
+		if role == "npc":
+			entries.append({"actor_key": actor_key, "kind": "npc", "center": center})
+			continue
+		if bool(unit.get("boss_bar", false)):
+			var boss_layout: Dictionary = _boss_intent_layout(unit, center, reserved_rects, font)
+			entries.append({"actor_key": actor_key, "kind": "boss", "center": center, "layout": boss_layout})
+			for rect_var: Variant in boss_layout.get("occupied_rects", []):
+				if typeof(rect_var) == TYPE_RECT2:
+					reserved_rects.append(rect_var)
+			continue
+		var health_rect: Rect2 = _unit_health_bar_rect(unit, center)
+		if role == "enemy":
+			var enemy_layout: Dictionary = _enemy_hud_layout(unit, center, reserved_rects, font)
+			health_rect = enemy_layout.get("health_rect", health_rect)
+			entries.append({"actor_key": actor_key, "kind": "enemy", "center": center, "health_rect": health_rect, "layout": enemy_layout})
+			for rect_var: Variant in enemy_layout.get("occupied_rects", []):
+				if typeof(rect_var) == TYPE_RECT2:
+					reserved_rects.append(rect_var)
+		else:
+			entries.append({"actor_key": actor_key, "kind": "unit", "center": center, "health_rect": health_rect})
+		if not actor_key.is_empty():
+			health_rects[actor_key] = health_rect
+	_record_submission_performance_phase("hud_build_units", performance_phase_started)
+	return {"entries": entries, "health_rects": health_rects}
+
+func _draw_npc_nameplate(unit: Dictionary, center: Vector2) -> void:
+	var font: Font = get_theme_default_font()
+	var plate_rect: Rect2 = _npc_nameplate_rect(unit, center, font)
+	if plate_rect.size.x <= 0.0 or plate_rect.size.y <= 0.0:
+		return
+	var accent: Color = unit.get("accent", Color("d2c2a7"))
+	var name: String = str(unit.get("name", ""))
+	draw_rect(plate_rect, Color(0.08, 0.06, 0.05, 0.9), true)
+	draw_rect(plate_rect, accent, false, 1.0)
+	draw_string(font, plate_rect.position + Vector2(0.0, 11.0), name, HORIZONTAL_ALIGNMENT_CENTER, plate_rect.size.x, 8, Color("fff4dc"))
+	_register_tooltip(plate_rect, name)
+
+func _npc_nameplate_rect(unit: Dictionary, center: Vector2, font: Font = null) -> Rect2:
+	if font == null:
+		return Rect2()
+	var name: String = str(unit.get("name", ""))
+	if name.is_empty():
+		return Rect2()
+	var text_width: float = maxf(72.0, font.get_string_size(name, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 8).x + 16.0)
+	return Rect2(
+		Vector2(center.x - text_width * 0.5, _unit_art_top_y(unit, center) - 22.0),
+		Vector2(text_width, 16.0)
+	)
+
+func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
+	var font: Font = get_theme_default_font()
+	var preview: Dictionary = _unit_damage_preview(unit)
+	var display_hp: int = _health_bar_fill_hp(unit, preview)
+	var role: String = str(unit.get("role", ""))
+	var fill_color: Color = ILLUSION_BAR_FILL if role == "illusion" else PLAYER_BAR_FILL if role == "player" else ENEMY_BAR_FILL
+	var visual_style: StringName = _health_bar_visual_style(unit)
+	var content_rect: Rect2 = _health_bar_content_rect(unit, rect)
+	SegmentedHealthBar.draw_bar(
+		self,
+		content_rect,
+		float(display_hp),
+		float(maxi(1, int(unit.get("max_hp", 1)))),
+		_health_bar_segment_count(int(unit.get("max_hp", 1))),
+		Color("160f17") if visual_style == HEALTH_BAR_STYLE_UMBRA else Color("191512"),
+		fill_color,
+		Color("cf6469") if visual_style == HEALTH_BAR_STYLE_UMBRA else Color("9de2ce") if visual_style == HEALTH_BAR_STYLE_LIGHT else Color("f5efdf"),
+		Color("5b405f") if visual_style == HEALTH_BAR_STYLE_UMBRA else Color("8f7345") if visual_style == HEALTH_BAR_STYLE_LIGHT else Color("eed3a6"),
+		Color(0.0, 0.0, 0.0, 0.45),
+		1.0,
+		1.0
+	)
+	var frame_texture: Texture2D = _health_bar_frame_textures.get(visual_style, null) as Texture2D
+	if frame_texture != null:
+		draw_texture_rect(frame_texture, rect, false)
+	var defer_preview_overlay: bool = _health_bar_defers_damage_preview(preview)
+	if _damage_preview_shows_lost_hp(preview) and not defer_preview_overlay:
+		_draw_health_damage_preview(unit, content_rect, preview)
+	if font != null and not defer_preview_overlay:
+		_draw_health_bar_text(unit, content_rect, preview, font)
+	var defense_badge_x: float = rect.position.x + rect.size.x + 4.0
+	for defense: String in ["block", "stoneskin"]:
+		var amount: int = int(preview.get(defense, unit.get(defense, 0)))
+		var spent: bool = int(preview.get(defense + "_loss", 0)) > 0
+		if amount <= 0 and not spent: continue
+		var badge_rect := Rect2(Vector2(defense_badge_x, rect.position.y), Vector2(36.0 if defense == "block" else 40.0, 16.0))
+		var border: Color = Color("ef8b62") if spent else Color("90d9ff") if defense == "block" else ElementData.accent(ElementData.EARTH)
+		var fill: Color = Color(0.27, 0.08, 0.055, 0.94) if spent else Color(0.07, 0.12, 0.16, 0.92) if defense == "block" else Color(0.10, 0.14, 0.08, 0.92)
+		_draw_icon_value_badge(badge_rect, defense, amount, fill, border, Color("ffe5cf") if spent else Color("d9f5ff") if defense == "block" else Color("eff8d7"), font)
+		defense_badge_x += badge_rect.size.x + 4.0
+
+func _health_bar_defers_damage_preview(preview: Dictionary) -> bool:
+	# Unit health bars are only drawn during the HUD phase. Always defer a
+	# nonlethal preview so the one final HUD composite works identically for the
+	# retained HUD child and the monolithic fallback renderer.
+	return _damage_preview_shows_lost_hp(preview)
+
+func _draw_leader_marker(unit: Dictionary, health_rect: Rect2, intent_rect: Rect2 = Rect2()) -> void:
+	if not bool(unit.get("is_leader", false)):
+		return
+	var marker_rect: Rect2 = _leader_marker_rect(unit, health_rect, intent_rect)
+	draw_rect(marker_rect, Color(0.12, 0.055, 0.045, 0.96), true)
+	draw_rect(marker_rect, Color("e4b65f"), false, 2.0)
+	var texture: Texture2D = AssetLoader.load_texture(CombatObjectiveRules.icon_path(CombatObjectiveRules.KILL_LEADER))
+	if texture != null:
+		var icon_rect := Rect2(marker_rect.position + Vector2(3.0, 2.0), Vector2(20.0, 20.0))
+		draw_texture_rect(texture, icon_rect, false)
+	var font: Font = get_theme_default_font()
+	if font != null:
+		draw_string(font, marker_rect.position + Vector2(24.0, 17.0), "LEADER", HORIZONTAL_ALIGNMENT_CENTER, 61.0, 11, Color("ffe2a3"))
+	_register_tooltip(marker_rect, "Leader · Defeating this marked enemy clears the encounter immediately.")
+
+func _draw_unit_damage_preview_overlays(units_to_draw: Array[Dictionary]) -> void:
+	var font: Font = get_theme_default_font()
+	if font == null:
+		return
+	for unit: Dictionary in units_to_draw:
+		var preview: Dictionary = _unit_damage_preview(unit)
+		if not _damage_preview_shows_lost_hp(preview):
+			continue
+		var actor_key: String = str(unit.get("key", ""))
+		var health_rect: Rect2 = _hud_health_rects_cache.get(actor_key, Rect2()) as Rect2
+		if health_rect.size.x <= 0.0 or health_rect.size.y <= 0.0:
+			continue
+		var content_rect: Rect2 = _health_bar_content_rect(unit, health_rect)
+		_draw_health_damage_preview(unit, content_rect, preview)
+		_draw_health_bar_text(unit, content_rect, preview, font)
+
+func _draw_health_bar_text(unit: Dictionary, rect: Rect2, preview: Dictionary, font: Font) -> void:
+	var display_hp: int = _health_bar_fill_hp(unit, preview)
+	var text_baseline: Vector2 = rect.position + Vector2(0.0, rect.size.y - 2.0)
+	var hp_text: String = "%d/%d" % [display_hp, int(unit.get("max_hp", 1))]
+	var text_color: Color = Color("fff4dc") if preview.is_empty() else Color("ffe1ae")
+	for offset: Vector2 in [
+		Vector2(-1.0, 0.0),
+		Vector2(1.0, 0.0),
+		Vector2(0.0, -1.0),
+		Vector2(0.0, 1.0)
+	]:
+		draw_string(
+			font,
+			text_baseline + offset,
+			hp_text,
+			HORIZONTAL_ALIGNMENT_CENTER,
+			rect.size.x,
+			13,
+			Color("140f0b")
+		)
+	draw_string(
+		font,
+		text_baseline,
+		hp_text,
+		HORIZONTAL_ALIGNMENT_CENTER,
+		rect.size.x,
+		13,
+		text_color
+	)
+
+func _health_bar_segment_count(max_hp_value: int) -> int:
+	return SegmentedHealthBar.segment_count_for_max_hp(float(maxi(1, max_hp_value)))
+
+func _health_bar_visual_style(unit: Dictionary) -> StringName:
+	match str(unit.get("role", "")):
+		"player", "illusion":
+			return HEALTH_BAR_STYLE_LIGHT
+		"enemy":
+			return HEALTH_BAR_STYLE_UMBRA
+		_:
+			return HEALTH_BAR_STYLE_PLAIN
+
+func _health_bar_content_rect(unit: Dictionary, rect: Rect2) -> Rect2:
+	var insets: Vector4
+	match _health_bar_visual_style(unit):
+		HEALTH_BAR_STYLE_LIGHT:
+			insets = PLAYER_HEALTH_CONTENT_INSETS
+		HEALTH_BAR_STYLE_UMBRA:
+			insets = ENEMY_HEALTH_CONTENT_INSETS
+		_:
+			return rect
+	return Rect2(
+		rect.position + Vector2(rect.size.x * insets.x, rect.size.y * insets.y),
+		Vector2(
+			rect.size.x * (1.0 - insets.x - insets.z),
+			rect.size.y * (1.0 - insets.y - insets.w)
+		)
+	)
+
+func _health_bar_fill_hp(unit: Dictionary, preview: Dictionary) -> int:
+	return int(preview.get("hp", unit.get("hp", 0)))
+
+func _damage_preview_shows_lost_hp(preview: Dictionary) -> bool:
+	return not preview.is_empty() and not bool(preview.get("lethal", false))
+
+func _draw_health_damage_preview(unit: Dictionary, rect: Rect2, preview: Dictionary) -> void:
+	var current_hp: float = float(unit.get("hp", 0))
+	var next_hp: float = float(preview.get("hp", current_hp))
+	var max_hp: float = maxf(1.0, float(unit.get("max_hp", 1)))
+	var current_ratio: float = clampf(current_hp / max_hp, 0.0, 1.0)
+	var next_ratio: float = clampf(next_hp / max_hp, 0.0, 1.0)
+	if current_ratio > next_ratio:
+		var time_seconds: float = float(presentation.get("damage_preview_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
+		var pulse: float = 0.55 + 0.45 * sin(time_seconds * 10.0)
+		var damage_rect := Rect2(
+			Vector2(rect.position.x + rect.size.x * next_ratio, rect.position.y),
+			Vector2(rect.size.x * (current_ratio - next_ratio), rect.size.y)
+		)
+		var damage_color: Color = Color(1.0, 0.72, 0.34, 0.52 + pulse * 0.22)
+		if bool(preview.get("lethal", false)):
+			damage_color = Color(0.72, 0.18, 0.14, 0.62 + pulse * 0.26)
+		draw_rect(damage_rect, damage_color, true)
+		draw_rect(damage_rect, Color(1.0, 0.93, 0.62, 0.45), false, 1.0)
+func _unit_damage_preview(unit: Dictionary) -> Dictionary:
+	var actor_key: String = str(unit.get("key", ""))
+	if actor_key.is_empty():
+		return {}
+	return _damage_preview_map().get(actor_key, {}) as Dictionary
+
+func _damage_preview_map() -> Dictionary:
+	if _submission_cache_valid:
+		return _damage_preview_cache
+	return _build_damage_preview_map(presentation)
+
+func _unit_damage_preview_active() -> bool:
+	for unit: Dictionary in _visible_units():
+		if not _unit_damage_preview(unit).is_empty():
+			return true
+	return false
+
+func _build_damage_preview_map(source_presentation: Dictionary) -> Dictionary:
+	var effect: Dictionary = source_presentation.get("effect", {})
+	var preview_map: Dictionary = (source_presentation.get("damage_preview", {}) as Dictionary).duplicate(true)
+	var effect_preview_map: Dictionary = effect.get("damage_preview", {}) as Dictionary
+	for key: Variant in effect_preview_map.keys():
+		preview_map[key] = effect_preview_map[key]
+	return preview_map
+
+func _unit_is_preview_lethal(unit: Dictionary) -> bool:
+	return bool(_unit_damage_preview(unit).get("lethal", false))
+
+func _draw_collision_markers() -> void:
+	# Forecast contact point of a stopped Push/Pull: the collision icon sits on
+	# the shared edge between the target and whatever stops it.
+	for marker_var: Variant in presentation.get("collision_markers", []):
+		if typeof(marker_var) != TYPE_DICTIONARY:
+			continue
+		var marker: Dictionary = marker_var as Dictionary
+		var tile: Vector2i = marker.get("tile", Vector2i(-1, -1))
+		var blocked: Vector2i = marker.get("blocked_tile", Vector2i(-1, -1))
+		if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
+			continue
+		# Lean onto the blocker so the landing ghost stays readable.
+		var contact: Vector2 = _tile_center(tile).lerp(_tile_center(blocked), 0.58) if blocked.x > -900 else _tile_center(tile)
+		var icon_size: float = clampf(_tile_width() * COLLISION_MARKER_ICON_RATIO, 34.0, 60.0)
+		var radius: float = icon_size * 0.62
+		var center: Vector2 = contact - Vector2(0.0, _tile_height() * 0.44)
+		var rect := Rect2(center - Vector2.ONE * icon_size * 0.5, Vector2.ONE * icon_size)
+		# Danger medallion in the movement-risk chip palette: an opaque backing and
+		# ember ring keep the icon legible over any floor, unit or prop.
+		draw_circle(center + Vector2(0.0, 2.0), radius + 3.0, Color(0.0, 0.0, 0.0, 0.42))
+		draw_circle(center, radius, COLLISION_MARKER_FILL)
+		draw_arc(center, radius - 1.0, 0.0, TAU, 40, COLLISION_MARKER_RING, 2.5, true)
+		var damage: int = int(marker.get("damage", 0))
+		var tooltip: String = "Collision: %d damage to the target and to what stops it." % damage if str(marker.get("blocker_kind", "")) != "wall" else "Collision: %d damage to the target. Walls take nothing." % damage
+		_draw_keyword_icon("collision", rect, tooltip)
+		var font: Font = get_theme_default_font()
+		if damage > 0 and font != null:
+			# Per-party collision damage, like a card token's value.
+			var text: String = str(damage)
+			var font_size: int = int(round(clampf(icon_size * 0.42, 15.0, 24.0)))
+			var text_width: float = font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
+			var baseline := Vector2(center.x + radius * 0.52, center.y + radius * 0.98)
+			_draw_outlined_string(font, baseline, text, text_width + 4.0, font_size, COLLISION_MARKER_RING.lightened(0.45), Color(0.06, 0.02, 0.01, 0.98), 2.0)
+			_register_tooltip(Rect2(baseline - Vector2(0.0, float(font_size)), Vector2(text_width + 4.0, float(font_size) + 4.0)), tooltip)
+
+func _draw_lethal_preview_icons(units_to_draw: Array[Dictionary]) -> void:
+	for unit: Dictionary in units_to_draw:
+		if bool(unit.get("death_animation", false)) or not _unit_is_preview_lethal(unit):
+			continue
+		_draw_lethal_preview_icon(_unit_draw_rect(unit))
+
+func _draw_lethal_preview_icon(unit_rect: Rect2) -> void:
+	var texture: Texture2D = _effect_textures.get("lethal_death_mark", null)
+	if texture == null or unit_rect.size.x <= 0.0 or unit_rect.size.y <= 0.0:
+		return
+	var pulse: float = _lethal_death_mark_pulse(_lethal_death_mark_time_seconds())
+	var draw_scale: float = lerpf(
+		LETHAL_DEATH_MARK_MIN_SCALE,
+		LETHAL_DEATH_MARK_MAX_SCALE,
+		pulse
+	)
+	var icon_size: float = clampf(
+		minf(unit_rect.size.x, unit_rect.size.y) * 0.58,
+		42.0,
+		76.0
+	) * draw_scale
+	var icon_center := Vector2(
+		unit_rect.get_center().x,
+		unit_rect.position.y + unit_rect.size.y * 0.43
+	)
+	var icon_rect := Rect2(icon_center - Vector2(icon_size, icon_size) * 0.5, Vector2(icon_size, icon_size))
+	var alpha: float = lerpf(
+		LETHAL_DEATH_MARK_MIN_ALPHA,
+		LETHAL_DEATH_MARK_MAX_ALPHA,
+		pulse
+	)
+	draw_texture_rect(texture, icon_rect, false, Color(1.0, 1.0, 1.0, alpha))
+
+func _lethal_death_mark_time_seconds() -> float:
+	if presentation.has("lethal_preview_time_seconds"):
+		return float(presentation.get("lethal_preview_time_seconds", 0.0))
+	return float(Time.get_ticks_msec()) / 1000.0
+
+func _lethal_death_mark_pulse(time_seconds: float) -> float:
+	if bool(presentation.get("reduced_motion", false)):
+		return 0.5
+	var phase: float = time_seconds * TAU / LETHAL_DEATH_MARK_PULSE_SECONDS
+	return 0.5 + sin(phase) * 0.5
+
+func _unit_impact_strength(unit: Dictionary) -> float:
+	var actor_key: String = str(unit.get("key", ""))
+	if actor_key.is_empty():
+		return 0.0
+	var impact_keys: Array = presentation.get("impact_actor_keys", [])
+	if not impact_keys.has(actor_key):
+		return 0.0
+	var progress: float = clampf(float(presentation.get("impact_progress", 0.0)), 0.0, 1.0)
+	var strength: float = maxf(0.0, float(presentation.get("impact_strength", 1.0)))
+	return clampf(1.0 - progress, 0.0, 1.0) * strength
+
+# A short, decaying camera kick on the board layer (never the HUD) sells the
+# weight of a hit. Each new impact (its rising edge in the presentation) starts
+# one tween-driven kick, so every attack path is covered and the camera always
+# settles to rest even if submissions stop mid-impact. Reduced motion keeps the
+# camera still; a player hit also flushes the screen edge crimson.
+func _update_impact_camera_shake() -> void:
+	var impact_keys: Array = (presentation.get("impact_actor_keys", []) as Array).duplicate()
+	var has_progress: bool = presentation.has("impact_progress")
+	var progress: float = clampf(float(presentation.get("impact_progress", 0.0)), 0.0, 1.0)
+	var new_impact: bool = not impact_keys.is_empty() and (
+		_camera_kick_keys.is_empty()
+		or impact_keys != _camera_kick_keys
+		or (has_progress and progress + 0.001 < _camera_kick_last_progress)
+	)
+	_camera_kick_keys = impact_keys
+	_camera_kick_last_progress = progress if has_progress else 0.0
+	if not new_impact:
+		return
+	_camera_kick_player = impact_keys.has("player")
+	_camera_kick_strength = maxf(0.0, float(presentation.get("impact_strength", 1.0)))
+	if _camera_kick_tween != null and _camera_kick_tween.is_valid():
+		_camera_kick_tween.kill()
+	if not is_inside_tree():
+		return
+	_camera_kick_tween = create_tween()
+	_camera_kick_tween.tween_method(_apply_camera_kick, 0.0, 1.0, IMPACT_CAMERA_KICK_SECONDS)
+
+func _apply_camera_kick(progress: float) -> void:
+	var layer: CanvasLayer = get_parent() as CanvasLayer
+	if layer == null:
+		return
+	var atmosphere: Node = layer.get_node_or_null("CombatAtmosphere")
+	if atmosphere != null:
+		atmosphere.call("set_hurt", pow(1.0 - progress, 1.6) * minf(_camera_kick_strength, 1.2) if _camera_kick_player else 0.0)
+	var offset := Vector2.ZERO
+	var decay: float = pow(1.0 - progress, 2.0)
+	if decay > 0.001 and not bool(presentation.get("reduced_motion", false)):
+		var amplitude: float = (IMPACT_CAMERA_SHAKE_PLAYER_PX if _camera_kick_player else IMPACT_CAMERA_SHAKE_PX) * _camera_kick_strength
+		var phase: float = progress * IMPACT_CAMERA_SHAKE_OSCILLATIONS * TAU
+		offset = Vector2(sin(phase) * amplitude * decay, cos(phase * 1.37) * amplitude * 0.55 * decay).round()
+	if layer.offset != offset:
+		layer.offset = offset
+	# The hall art, base fill and atmosphere stay locked to the screen while the
+	# board jolts against them, so a kick can never uncover the window edge.
+	for backdrop_name: String in IMPACT_SHAKE_STATIC_LAYER_NODES:
+		var backdrop: Control = layer.get_node_or_null(backdrop_name) as Control
+		if backdrop != null and backdrop.position != -offset:
+			backdrop.position = -offset
+
+func _unit_impact_shake_strength(unit: Dictionary) -> float:
+	if bool(presentation.get("reduced_motion", false)):
+		return 0.0
+	return _unit_impact_strength(unit)
+
+func _draw_icon_value_badge(rect: Rect2, icon_key: String, amount: int, fill: Color, border: Color, text_color: Color, font: Font) -> void:
+	draw_rect(rect, fill, true)
+	draw_rect(rect, border, false, 1.0)
+	var icon_size: float = maxf(10.0, rect.size.y - 4.0)
+	var icon_rect := Rect2(rect.position + Vector2(2.0, 2.0), Vector2(icon_size, icon_size))
+	_draw_keyword_icon(icon_key, icon_rect, ActionIcons.tooltip(icon_key))
+	if font != null:
+		var text_left: float = icon_size + 4.0
+		draw_string(
+			font,
+			rect.position + Vector2(text_left, rect.size.y - 4.0),
+			str(amount),
+			HORIZONTAL_ALIGNMENT_CENTER,
+			rect.size.x - text_left,
+			9,
+			text_color
+		)
+	_register_tooltip(rect, ActionIcons.tooltip(icon_key))
+
+func _unit_frame_rect(center: Vector2) -> Rect2:
+	var unit_size: Vector2 = _unit_size()
+	return Rect2(center - Vector2(unit_size.x * 0.5, unit_size.y * 0.84), unit_size)
+
+func _unit_art_top_y(unit: Dictionary, center: Vector2) -> float:
+	var unit_type: String = str(unit.get("type", ""))
+	var rect: Rect2 = _unit_draw_rect_for_center(unit, center)
+	if ActorPresentation.has_profile(unit_type):
+		# The current painted body anchors its bar; a raised weapon is not a head.
+		# Rest-view heights keep breathing from making the HUD wander.
+		var renderer: Node = unit_cutout_renderer(unit)
+		var facing: String = str(renderer.get("facing")) if is_instance_valid(renderer) else "front"
+		return center.y - ActorPresentation.height_above_floor(unit_type, facing) * rect.size.x / 255.0
+	return _texture_used_draw_rect(_unit_hud_anchor_texture(unit), rect).position.y
+
+func _unit_health_bar_rect(unit: Dictionary, center: Vector2) -> Rect2:
+	var role: String = str(unit.get("role", ""))
+	var bar_size: Vector2 = PLAYER_HEALTH_BAR_SIZE if role == "player" or role == "illusion" else ENEMY_HEALTH_BAR_SIZE
+	var bottom_y: float = _unit_art_top_y(unit, center) - UNIT_ART_HUD_CLEARANCE
+	return Rect2(
+		Vector2(center.x - bar_size.x * 0.5, bottom_y - bar_size.y),
+		bar_size
+	)
+
+func _draw_unit_statuses(unit: Dictionary, health_rect: Rect2) -> void:
+	var badges: Array[Dictionary] = _unit_status_badges(unit)
+	if badges.is_empty():
+		return
+	var font: Font = get_theme_default_font()
+	if font == null:
+		return
+	var spacing: float = 22.0
+	var start_x: float = health_rect.position.x - 12.0 - (float(badges.size() - 1) * spacing)
+	var center_y: float = health_rect.position.y + health_rect.size.y - 2.0
+	for index: int in range(badges.size()):
+		_draw_status_badge(font, Vector2(start_x + float(index) * spacing, center_y), badges[index])
+
+func _draw_enemy_intent(unit: Dictionary, center: Vector2, health_rect: Rect2) -> void:
+	var font: Font = get_theme_default_font()
+	if font == null:
+		return
+	var layout: Dictionary = _enemy_hud_layout(unit, center, [], font)
+	layout["health_rect"] = health_rect
+	var intent_rect: Rect2 = layout.get("intent_rect", Rect2())
+	if intent_rect.size.x <= 0.0 or intent_rect.size.y <= 0.0:
+		return
+	var default_health_rect: Rect2 = _unit_health_bar_rect(unit, center)
+	var applied_offset: Vector2 = health_rect.position - default_health_rect.position
+	if applied_offset != Vector2.ZERO:
+		intent_rect.position += applied_offset
+		layout["intent_rect"] = intent_rect
+		var shifted_lines: Array[Rect2]
+		for line_rect_var: Variant in layout.get("line_rects", []):
+			if typeof(line_rect_var) == TYPE_RECT2:
+				var line_rect: Rect2 = line_rect_var as Rect2
+				shifted_lines.append(Rect2(line_rect.position + applied_offset, line_rect.size))
+		layout["line_rects"] = shifted_lines
+		layout["offset"] = (layout.get("offset", Vector2.ZERO) as Vector2) + applied_offset
+	_draw_enemy_intent_layout(layout, font)
+
+func _draw_enemy_intent_layout(layout: Dictionary, font: Font) -> void:
+	if font == null:
+		return
+	var line_rects: Array = layout.get("line_rects", []) as Array
+	if line_rects.is_empty():
+		return
+	var rows: Array = layout.get("rows", [])
+	var intent_name: String = str(layout.get("intent_name", ""))
+	var border: Color = layout.get("border", Color("d8b96f"))
+	var line_index: int = 0
+	if not intent_name.is_empty():
+		var title_rect: Rect2 = line_rects[line_index] as Rect2
+		_draw_enemy_intent_title(title_rect, intent_name, border, font)
+		line_index += 1
+	for row_index: int in range(rows.size()):
+		if line_index >= line_rects.size():
+			break
+		var row_rect: Rect2 = line_rects[line_index] as Rect2
+		_draw_token_row(
+			rows[row_index] as Array,
+			row_rect.position + Vector2(2.0, 2.0),
+			INTENT_POPUP_ICON_SIZE,
+			INTENT_POPUP_ROW_FONT_SIZE,
+			Color("f7ecd4"),
+			font,
+			true
+		)
+		line_index += 1
+
+func _enemy_intent_rect_for_line_count(center: Vector2, health_rect: Rect2, line_count: int, popup_width: float = INTENT_POPUP_WIDTH) -> Rect2:
+	if line_count <= 0:
+		return Rect2()
+	var label_height: float = 14.0 + float(line_count) * 20.0
+	return Rect2(
+		Vector2(center.x - popup_width * 0.5, health_rect.position.y - HUD_STACK_GAP - label_height),
+		Vector2(popup_width, label_height)
+	)
+
+func _draw_enemy_intent_title(rect: Rect2, title: String, border: Color, font: Font) -> void:
+	if title.is_empty() or font == null:
+		return
+	var display_font: Font = UiTypography.display_font()
+	if display_font == null:
+		display_font = font
+	var baseline: Vector2 = rect.position + Vector2(2.0, 32.0)
+	var accent_width: float = minf(rect.size.x * 0.58, 74.0)
+	# The accent belongs behind the wordmark so descenders such as the G in
+	# "Lunge" remain intact instead of being crossed by the line.
+	draw_line(baseline + Vector2(1.0, 4.0), baseline + Vector2(accent_width, 4.0), Color(border.r, border.g, border.b, 0.82), 2.0, true)
+	draw_string(display_font, baseline + INTENT_CONTOUR_SHADOW_OFFSET, title, HORIZONTAL_ALIGNMENT_LEFT, rect.size.x, INTENT_POPUP_TITLE_FONT_SIZE, Color(0.015, 0.01, 0.015, 0.82))
+	_draw_outlined_string(display_font, baseline, title, rect.size.x, INTENT_POPUP_TITLE_FONT_SIZE, Color("fff0cf"), Color(0.035, 0.022, 0.025, 0.98), INTENT_CONTOUR_OUTLINE_SIZE)
+
+func _draw_outlined_string(font: Font, baseline: Vector2, text: String, width: float, font_size: int, fill: Color, outline: Color, outline_size: float = 1.0) -> void:
+	for direction: Vector2 in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN, Vector2(-1.0, -1.0), Vector2(1.0, -1.0), Vector2(-1.0, 1.0), Vector2.ONE]:
+		draw_string(font, baseline + direction * outline_size, text, HORIZONTAL_ALIGNMENT_LEFT, width, font_size, outline)
+	draw_string(font, baseline, text, HORIZONTAL_ALIGNMENT_LEFT, width, font_size, fill)
+
+func _draw_token_row(tokens: Array, origin: Vector2, icon_size: float, font_size: int, text_color: Color, font: Font, embossed: bool = false) -> void:
+	# Patterns can be taller than icons. Measure and center the entire row using
+	# the same bounds used by collision placement; never draw above the row.
+	var row_height: float = _token_row_height(tokens, icon_size)
+	origin.y += (row_height - icon_size) * 0.5
+	var cursor_x: float = origin.x
+	for token_var: Variant in tokens:
+		if typeof(token_var) != TYPE_DICTIONARY:
+			continue
+		var token: Dictionary = token_var
+		if str(token.get("kind", "")) == "aoe_pattern":
+			var pattern_size: Vector2 = _aoe_token_size(token, icon_size)
+			var pattern_rect := Rect2(Vector2(cursor_x, origin.y + (icon_size - pattern_size.y) * 0.5), pattern_size)
+			_draw_aoe_token_pattern(token, pattern_rect, icon_size)
+			_register_tooltip(pattern_rect, ActionIcons.token_tooltip(token))
+			cursor_x += pattern_size.x + 5.0
+			continue
+		if str(token.get("kind", "")) == "text":
+			var text_value: String = ActionIcons.token_value_text(token)
+			if text_value.is_empty() or font == null:
+				continue
+			var text_width: float = maxf(font.get_string_size(text_value, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x, 8.0)
+			var text_rect := Rect2(Vector2(cursor_x, origin.y), Vector2(text_width, icon_size))
+			var text_baseline := Vector2(cursor_x, origin.y + icon_size - 2.0)
+			if embossed:
+				draw_string(font, text_baseline + INTENT_CONTOUR_SHADOW_OFFSET, text_value, HORIZONTAL_ALIGNMENT_LEFT, text_width, font_size, Color(0.015, 0.01, 0.015, 0.86))
+				_draw_outlined_string(font, text_baseline, text_value, text_width, font_size, _token_value_color(token, text_color), Color(0.025, 0.015, 0.02, 0.98), INTENT_CONTOUR_ACTION_OUTLINE_SIZE)
+			else:
+				draw_string(font, text_baseline, text_value, HORIZONTAL_ALIGNMENT_LEFT, text_width, font_size, _token_value_color(token, text_color))
+			_register_tooltip(text_rect, ActionIcons.token_tooltip(token))
+			cursor_x += text_width + 6.0
+			continue
+		var icon_key: String = str(token.get("icon", ""))
+		var tooltip: String = ActionIcons.token_tooltip(token)
+		var icon_rect := Rect2(Vector2(cursor_x, origin.y), Vector2(icon_size, icon_size))
+		var condition_tint: Color = Color.WHITE
+		if token.has("condition_active") and not bool(token.get("condition_active", false)):
+			condition_tint = Color(0.42, 0.39, 0.36, 0.64)
+		_draw_keyword_icon(icon_key, icon_rect, tooltip, condition_tint, embossed)
+		if ActionIcons.token_is_modified(token) and font != null:
+			_draw_token_modifier_marker(icon_rect, tooltip, font)
+		cursor_x += icon_size + 3.0
+		var value_text: String = ActionIcons.token_value_text(token)
+		if not value_text.is_empty() and font != null:
+			var value_width: float = maxf(font.get_string_size(value_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x, 8.0)
+			var value_rect := Rect2(Vector2(cursor_x, origin.y), Vector2(value_width, icon_size))
+			var value_baseline := Vector2(cursor_x, origin.y + icon_size - 2.0)
+			if embossed:
+				draw_string(font, value_baseline + INTENT_CONTOUR_SHADOW_OFFSET, value_text, HORIZONTAL_ALIGNMENT_LEFT, value_width, font_size, Color(0.015, 0.01, 0.015, 0.86))
+				_draw_outlined_string(font, value_baseline, value_text, value_width, font_size, _token_value_color(token, text_color), Color(0.025, 0.015, 0.02, 0.98), INTENT_CONTOUR_ACTION_OUTLINE_SIZE)
+			else:
+				draw_string(font, value_baseline, value_text, HORIZONTAL_ALIGNMENT_LEFT, value_width, font_size, _token_value_color(token, text_color))
+			_register_tooltip(value_rect, tooltip)
+			cursor_x += value_width + 6.0
+		else:
+			cursor_x += 5.0
+
+func _draw_token_modifier_marker(icon_rect: Rect2, tooltip: String, font: Font) -> void:
+	var marker_rect := Rect2(icon_rect.position + Vector2(icon_rect.size.x - 7.0, -3.0), Vector2(10.0, 10.0))
+	draw_string(font, marker_rect.position + Vector2(0.0, 8.0), "+", HORIZONTAL_ALIGNMENT_CENTER, marker_rect.size.x, 10, Color("78c46a"))
+	_register_tooltip(marker_rect.grow(2.0), tooltip)
+
+func _enemy_intent_popup_width(intent: Dictionary, rows: Array, font: Font) -> float:
+	var popup_width: float = INTENT_POPUP_WIDTH
+	var intent_name: String = _intent_display_name(intent)
+	if not intent_name.is_empty() and font != null:
+		var title_width: float = font.get_string_size(intent_name, HORIZONTAL_ALIGNMENT_LEFT, -1.0, INTENT_POPUP_TITLE_FONT_SIZE).x
+		popup_width = maxf(popup_width, ceilf(title_width) + INTENT_POPUP_PADDING_X * 2.0 + 4.0)
+	for row_var: Variant in rows:
+		if typeof(row_var) != TYPE_ARRAY:
+			continue
+		popup_width = maxf(popup_width, _token_row_width(row_var as Array, INTENT_POPUP_ICON_SIZE, INTENT_POPUP_ROW_FONT_SIZE, font) + INTENT_POPUP_PADDING_X * 2.0)
+	return popup_width
+
+func _token_row_width(tokens: Array, icon_size: float, font_size: int, font: Font) -> float:
+	var width: float = 0.0
+	for token_var: Variant in tokens:
+		if typeof(token_var) != TYPE_DICTIONARY:
+			continue
+		if str((token_var as Dictionary).get("kind", "")) == "aoe_pattern":
+			width += _aoe_token_size(token_var as Dictionary, icon_size).x + 5.0
+			continue
+		if str((token_var as Dictionary).get("kind", "")) == "text":
+			var text_value: String = ActionIcons.token_value_text(token_var as Dictionary)
+			if not text_value.is_empty() and font != null:
+				width += maxf(font.get_string_size(text_value, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x, 8.0) + 6.0
+			continue
+		width += icon_size + 3.0
+		var value_text: String = ActionIcons.token_value_text(token_var as Dictionary)
+		if not value_text.is_empty() and font != null:
+			width += maxf(font.get_string_size(value_text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x, 8.0) + 6.0
+		else:
+			width += 5.0
+	return width
+
+func _aoe_token_size(token: Dictionary, icon_size: float) -> Vector2:
+	var offsets: Array[Vector2i] = _aoe_token_offsets(token)
+	if bool(token.get("show_origin", false)) and not offsets.has(Vector2i.ZERO):
+		offsets.append(Vector2i.ZERO)
+	var bounds: Rect2 = _aoe_token_bounds(offsets, icon_size)
+	return Vector2(maxf(icon_size * 1.8, bounds.size.x + 6.0), maxf(icon_size, bounds.size.y + 4.0))
+
+func _draw_aoe_token_pattern(token: Dictionary, rect: Rect2, icon_size: float) -> void:
+	var offsets: Array[Vector2i] = _aoe_token_offsets(token)
+	var show_origin: bool = bool(token.get("show_origin", false))
+	var hit_lookup: Dictionary = {}
+	for offset: Vector2i in offsets:
+		hit_lookup[offset] = true
+	if show_origin and not hit_lookup.has(Vector2i.ZERO):
+		offsets.append(Vector2i.ZERO)
+	var bounds: Rect2 = _aoe_token_bounds(offsets, icon_size)
+	var shift: Vector2 = rect.get_center() - bounds.get_center()
+	for offset: Vector2i in offsets:
+		var is_origin: bool = show_origin and offset == Vector2i.ZERO and not hit_lookup.has(offset)
+		var fill: Color = Color("e9dcc6") if is_origin else Color("d95f4a")
+		var border: Color = Color("5a493b") if is_origin else Color("7b2f25")
+		_draw_aoe_token_tile(_aoe_token_center(offset, icon_size) + shift, icon_size, fill, border)
+
+func _aoe_token_offsets(token: Dictionary) -> Array[Vector2i]:
+	var raw_pattern: Variant = token.get("pattern", [])
+	var offsets: Array[Vector2i]
+	if typeof(raw_pattern) == TYPE_ARRAY:
+		for offset_var: Variant in raw_pattern:
+			match typeof(offset_var):
+				TYPE_VECTOR2I:
+					offsets.append(offset_var)
+				TYPE_ARRAY:
+					var pair: Array = offset_var
+					if pair.size() >= 2:
+						offsets.append(Vector2i(int(pair[0]), int(pair[1])))
+				TYPE_DICTIONARY:
+					var offset_dict: Dictionary = offset_var
+					offsets.append(Vector2i(int(offset_dict.get("x", 0)), int(offset_dict.get("y", 0))))
+	if offsets.is_empty():
+		offsets.append(Vector2i.ZERO)
+	return offsets
+
+func _aoe_token_bounds(offsets: Array[Vector2i], icon_size: float) -> Rect2:
+	var first: bool = true
+	var rect := Rect2()
+	var tile_width: float = icon_size * 0.70
+	var tile_height: float = icon_size * 0.46
+	for offset: Vector2i in offsets:
+		var center: Vector2 = _aoe_token_center(offset, icon_size)
+		var tile_rect := Rect2(center - Vector2(tile_width * 0.5, tile_height * 0.5), Vector2(tile_width, tile_height))
+		if first:
+			rect = tile_rect
+			first = false
+		else:
+			rect = rect.merge(tile_rect)
+	return rect
+
+func _aoe_token_center(offset: Vector2i, icon_size: float) -> Vector2:
+	var tile_width: float = icon_size * 0.70
+	var tile_height: float = icon_size * 0.46
+	return Vector2(float(offset.x - offset.y) * tile_width * 0.5, float(offset.x + offset.y) * tile_height * 0.5)
+
+func _draw_aoe_token_tile(center: Vector2, icon_size: float, fill: Color, border: Color) -> void:
+	var tile_width: float = icon_size * 0.70
+	var tile_height: float = icon_size * 0.46
+	var points := PackedVector2Array([
+		center + Vector2(0.0, -tile_height * 0.5),
+		center + Vector2(tile_width * 0.5, 0.0),
+		center + Vector2(0.0, tile_height * 0.5),
+		center + Vector2(-tile_width * 0.5, 0.0),
+		center + Vector2(0.0, -tile_height * 0.5)
+	])
+	var shadow_points := PackedVector2Array()
+	for point: Vector2 in points:
+		shadow_points.append(point + INTENT_CONTOUR_SHADOW_OFFSET)
+	# Keep contrast attached to each diamond silhouette. A rectangular backing
+	# makes sparse AoE patterns read as a UI panel instead of a spatial preview.
+	draw_colored_polygon(shadow_points, Color(0.015, 0.01, 0.015, 0.72))
+	draw_colored_polygon(points, fill)
+	draw_polyline(points, Color(0.02, 0.012, 0.018, 0.96), 3.0, true)
+	draw_polyline(points, border, 1.25, true)
+
+func _fixed_hud_collision_rects(units_to_draw: Array[Dictionary], font: Font) -> Array[Rect2]:
+	var rects: Array[Rect2]
+	var inverse: Transform2D = get_global_transform_with_canvas().affine_inverse()
+	for rect: Rect2 in presentation.get("hud_obstacle_global_rects", []):
+		rects.append(inverse * rect)
+	for marker: Dictionary in _noctyrax_brazier_markers():
+		rects.append(marker["rect"])
+	for unit: Dictionary in units_to_draw:
+		if _unit_is_preview_echo(unit):
+			continue
+		var center: Vector2 = _unit_center(unit)
+		match str(unit.get("role", "")):
+			"enemy":
+				continue
+			"npc":
+				var plate_rect: Rect2 = _npc_nameplate_rect(unit, center, font)
+				if plate_rect.size.x > 0.0 and plate_rect.size.y > 0.0:
+					rects.append(plate_rect)
+			_:
+				rects.append_array(_health_bar_collision_rects(unit, _unit_health_bar_rect(unit, center)))
+	return rects
+
+func _enemy_hud_reserved_rects(units_to_draw: Array[Dictionary], font: Font) -> Array[Rect2]:
+	var rects: Array[Rect2] = _fixed_hud_collision_rects(units_to_draw, font)
+	for unit: Dictionary in units_to_draw:
+		if bool(unit.get("death_animation", false)) or _unit_is_preview_echo(unit):
+			continue
+		var art_rect: Rect2 = _enemy_hud_actor_clear_rect(unit, _unit_center(unit))
+		if art_rect.size.x > 0.0 and art_rect.size.y > 0.0:
+			rects.append(art_rect)
+	return rects
+
+func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array, font: Font = null) -> Dictionary:
+	var health_rect: Rect2 = _unit_health_bar_rect(unit, center)
+	var intent: Dictionary = unit.get("intent", {})
+	var rows: Array = []
+	var intent_name: String = ""
+	var border: Color = Color("d8b96f")
+	if not intent.is_empty() and _enemy_intent_expanded(unit):
+		rows = _enemy_intent_rows_for_display(unit, intent)
+		intent_name = _intent_display_name(intent)
+		border = _intent_color(intent)
+	var contour: Dictionary = _enemy_intent_contour_layout(unit, center, rows, intent_name, occupied_rects, font)
+	var intent_rect: Rect2 = contour.get("bounds", Rect2()) as Rect2
+	var occupied: Array[Rect2] = _health_bar_collision_rects(unit, health_rect)
+	for line_rect_var: Variant in contour.get("line_rects", []):
+		if typeof(line_rect_var) == TYPE_RECT2:
+			occupied.append(line_rect_var as Rect2)
+	return {
+		"health_rect": health_rect,
+		"intent_rect": intent_rect,
+		"line_rects": contour.get("line_rects", []),
+		"rows": rows,
+		"intent_name": intent_name,
+		"border": border,
+		"offset": contour.get("offset", Vector2.ZERO),
+		"health_offset": Vector2.ZERO,
+		"intent_offset": contour.get("offset", Vector2.ZERO),
+		"side": str(contour.get("side", "")),
+		"tether": {},
+		"occupied_rects": occupied
+	}
+
+func _enemy_intent_contour_layout(unit: Dictionary, center: Vector2, rows: Array, intent_name: String, occupied_rects: Array, font: Font) -> Dictionary:
+	if font == null or (rows.is_empty() and intent_name.is_empty()):
+		return {"bounds": Rect2(), "line_rects": [], "side": "", "offset": Vector2.ZERO}
+	var actor_rect: Rect2 = _enemy_hud_actor_clear_rect(unit, center)
+	var external_obstacles: Array[Rect2]
+	for obstacle_var: Variant in occupied_rects:
+		if typeof(obstacle_var) != TYPE_RECT2:
+			continue
+		var obstacle: Rect2 = obstacle_var as Rect2
+		if obstacle.position.is_equal_approx(actor_rect.position) and obstacle.size.is_equal_approx(actor_rect.size):
+			continue
+		external_obstacles.append(obstacle)
+	var line_rects: Array[Rect2] = _enemy_intent_contour_line_rects(actor_rect, rows, intent_name, font, "right")
+	var bounds: Rect2 = _rects_bounds(line_rects)
+	var viewport_bounds: Rect2 = _enemy_hud_viewport_bounds()
+	var x_offset: float = (
+		clampf(bounds.position.x, viewport_bounds.position.x, maxf(viewport_bounds.position.x, viewport_bounds.end.x - bounds.size.x))
+		- bounds.position.x
+	)
+	var min_y_offset: float = viewport_bounds.position.y - bounds.position.y
+	var max_y_offset: float = viewport_bounds.end.y - bounds.end.y
+	var base_y_offset: float = clampf(0.0, min_y_offset, max_y_offset)
+	var y_offsets: Array[float]
+	for y_step_var: Variant in ENEMY_HUD_OFFSET_Y_STEPS:
+		var y_offset: float = clampf(base_y_offset + float(y_step_var), min_y_offset, max_y_offset)
+		if not y_offsets.has(y_offset):
+			y_offsets.append(y_offset)
+	var contour_step: float = bounds.size.y + 8.0
+	for y_offset: float in [
+		clampf(base_y_offset - contour_step, min_y_offset, max_y_offset),
+		clampf(base_y_offset + contour_step, min_y_offset, max_y_offset)
+	]:
+		if not y_offsets.has(y_offset):
+			y_offsets.append(y_offset)
+	# Include exact clear positions around fixed overlays, including the boss bar.
+	# Small actors near the top can need more clearance than a regular nudge.
+	for obstacle: Rect2 in external_obstacles:
+		if obstacle.end.x < bounds.position.x + x_offset or obstacle.position.x > bounds.end.x + x_offset:
+			continue
+		for offset: float in [obstacle.end.y + 8.0 - bounds.position.y, obstacle.position.y - 8.0 - bounds.end.y]:
+			var candidate: float = clampf(offset, min_y_offset, max_y_offset)
+			if not y_offsets.has(candidate):
+				y_offsets.append(candidate)
+	var x_offsets: Array[float] = _frozen_float_values([x_offset])
+	# Boss-room overlays reserve the header and hand. If their remaining vertical
+	# band cannot fit all intents, allow a modest sideways shift too.
+	if not (presentation.get("hud_obstacle_global_rects", []) as Array).is_empty():
+		for shift: float in [-120.0, 120.0, -240.0, 240.0, -360.0, 360.0]:
+			var candidate: float = clampf(bounds.position.x + shift, viewport_bounds.position.x, maxf(viewport_bounds.position.x, viewport_bounds.end.x - bounds.size.x)) - bounds.position.x
+			if not x_offsets.has(candidate): x_offsets.append(candidate)
+	var best: Dictionary = {}
+	for candidate_x: float in x_offsets:
+		for y_offset: float in y_offsets:
+			var offset := Vector2(candidate_x, y_offset)
+			var shifted_rects: Array[Rect2] = _offset_rects(line_rects, offset)
+			var score: float = _enemy_hud_layout_score(shifted_rects, external_obstacles, viewport_bounds, offset)
+			if best.is_empty() or score < float(best.get("score", INF)):
+				best = {"score": score, "side": "right", "line_rects": shifted_rects, "bounds": _rects_bounds(shifted_rects), "offset": offset}
+	if best.is_empty():
+		return {"bounds": Rect2(), "line_rects": [], "side": "", "offset": Vector2.ZERO}
+	return best
+
+func _enemy_intent_contour_line_rects(actor_rect: Rect2, rows: Array, intent_name: String, font: Font, side: String) -> Array[Rect2]:
+	var rects: Array[Rect2]
+	var line_y: float = actor_rect.position.y + minf(14.0, actor_rect.size.y * 0.10)
+	var line_index: int = 0
+	if not intent_name.is_empty():
+		var display_font: Font = UiTypography.display_font()
+		if display_font == null:
+			display_font = font
+		var title_width: float = ceilf(display_font.get_string_size(intent_name, HORIZONTAL_ALIGNMENT_LEFT, -1.0, INTENT_POPUP_TITLE_FONT_SIZE).x) + 10.0
+		var title_x: float = actor_rect.end.x - INTENT_CONTOUR_SHOULDER_INSET if side == "right" else actor_rect.position.x - title_width + INTENT_CONTOUR_SHOULDER_INSET
+		rects.append(Rect2(Vector2(title_x, line_y), Vector2(title_width, INTENT_CONTOUR_TITLE_HEIGHT)))
+		line_y += INTENT_CONTOUR_TITLE_HEIGHT
+		line_index += 1
+	for row_var: Variant in rows:
+		if typeof(row_var) != TYPE_ARRAY:
+			continue
+		var row_width: float = ceilf(_token_row_width(row_var as Array, INTENT_POPUP_ICON_SIZE, INTENT_POPUP_ROW_FONT_SIZE, font)) + 8.0
+		var stagger: float = float(line_index) * INTENT_CONTOUR_LINE_STAGGER
+		var row_x: float = actor_rect.end.x - 2.0 + stagger if side == "right" else actor_rect.position.x - row_width + 2.0 - stagger
+		var row_height: float = maxf(INTENT_CONTOUR_ROW_HEIGHT, ceilf(_token_row_height(row_var as Array, INTENT_POPUP_ICON_SIZE)) + 6.0)
+		rects.append(Rect2(Vector2(row_x, line_y), Vector2(row_width, row_height)))
+		line_y += row_height
+		line_index += 1
+	return rects
+
+func _token_row_height(tokens: Array, icon_size: float) -> float:
+	var height: float = icon_size
+	for token: Dictionary in tokens:
+		if str(token.get("kind", "")) == "aoe_pattern":
+			height = maxf(height, _aoe_token_size(token, icon_size).y)
+	return height
+
+func _enemy_hud_placement_obstacles(occupied_rects: Array, actor_clear_rect: Rect2) -> Array:
+	var placement_obstacles: Array = occupied_rects.duplicate()
+	for occupied_var: Variant in placement_obstacles:
+		if typeof(occupied_var) != TYPE_RECT2:
+			continue
+		var occupied_rect: Rect2 = occupied_var as Rect2
+		if occupied_rect.position.is_equal_approx(actor_clear_rect.position) and occupied_rect.size.is_equal_approx(actor_clear_rect.size):
+			return placement_obstacles
+	placement_obstacles.append(actor_clear_rect)
+	return placement_obstacles
+
+func _boss_intent_layout(unit: Dictionary, center: Vector2, occupied_rects: Array, font: Font = null) -> Dictionary:
+	var intent: Dictionary = unit.get("intent", {})
+	var rows: Array = []
+	var intent_name: String = ""
+	var border: Color = Color("d8b96f")
+	if not intent.is_empty() and _enemy_intent_expanded(unit):
+		rows = _enemy_intent_rows_for_display(unit, intent)
+		intent_name = _intent_display_name(intent)
+		border = _intent_color(intent)
+	var contour: Dictionary = _enemy_intent_contour_layout(unit, center, rows, intent_name, occupied_rects, font)
+	var intent_rect: Rect2 = contour.get("bounds", Rect2()) as Rect2
+	var occupied: Array[Rect2]
+	for line_rect_var: Variant in contour.get("line_rects", []):
+		if typeof(line_rect_var) == TYPE_RECT2:
+			occupied.append(line_rect_var as Rect2)
+	return {
+		"health_rect": Rect2(),
+		"intent_rect": intent_rect,
+		"line_rects": contour.get("line_rects", []),
+		"rows": rows,
+		"intent_name": intent_name,
+		"border": border,
+		"offset": contour.get("offset", Vector2.ZERO),
+		"side": str(contour.get("side", "")),
+		"occupied_rects": occupied
+	}
+
+func _enemy_hud_actor_key(unit: Dictionary) -> String:
+	var actor_key: String = str(unit.get("key", ""))
+	if actor_key.is_empty() and str(unit.get("role", "enemy")) == "enemy":
+		actor_key = "enemy_%d" % int(unit.get("id", -1))
+	return actor_key
+
+func _enemy_intent_rows_for_display(unit: Dictionary, intent: Dictionary) -> Array:
+	if _enemy_intent_expanded(unit):
+		return _intent_rows_for_unit(unit, intent)
+	return []
+
+func _enemy_intent_expanded(unit: Dictionary) -> bool:
+	if _all_enemy_intents_expanded():
+		return true
+	var expanded_keys: Array = presentation.get("expanded_enemy_actor_keys", [])
+	var actor_key: String = str(unit.get("key", ""))
+	if actor_key.is_empty() and str(unit.get("role", "enemy")) == "enemy":
+		actor_key = "enemy_%d" % int(unit.get("id", -1))
+	if not expanded_keys.is_empty():
+		return expanded_keys.has(actor_key)
+	return (
+		_unit_footprint_tiles(unit).has(_hover_tile)
+		or _unit_footprint_tiles(unit).has(_controller_focus_tile)
+	)
+
+func _all_enemy_intents_expanded() -> bool:
+	return bool(presentation.get("show_all_enemy_intents", presentation.get("expand_enemy_intents", false)))
+
+func _enemy_hud_collision_rects(unit: Dictionary, health_rect: Rect2, intent_rect: Rect2) -> Array[Rect2]:
+	var rects: Array[Rect2] = _health_bar_collision_rects(unit, health_rect)
+	if intent_rect.size.x > 0.0 and intent_rect.size.y > 0.0:
+		rects.append(intent_rect)
+	var leader_rect: Rect2 = _leader_marker_rect(unit, health_rect, intent_rect)
+	if leader_rect.size.x > 0.0 and leader_rect.size.y > 0.0:
+		rects.append(leader_rect)
+	return rects
+
+func _leader_marker_rect(unit: Dictionary, health_rect: Rect2, intent_rect: Rect2 = Rect2()) -> Rect2:
+	if not bool(unit.get("is_leader", false)) or health_rect.size.x <= 0.0:
+		return Rect2()
+	var marker_size := Vector2(88.0, 24.0)
+	var top: float = minf(health_rect.position.y, intent_rect.position.y) if intent_rect.size.y > 0.0 else health_rect.position.y
+	return Rect2(
+		Vector2(health_rect.get_center().x - marker_size.x * 0.5, top - marker_size.y - 5.0),
+		marker_size
+	)
+
+func _health_bar_collision_rects(unit: Dictionary, health_rect: Rect2) -> Array[Rect2]:
+	var rects: Array[Rect2]
+	if health_rect.size.x > 0.0 and health_rect.size.y > 0.0:
+		rects.append(health_rect)
+	rects.append_array(_unit_status_badge_rects(unit, health_rect))
+	rects.append_array(_health_bar_defense_badge_rects(unit, health_rect))
+	return rects
+
+func _unit_footprint_tiles(unit: Dictionary) -> Array[Vector2i]:
+	var origin: Vector2i = unit.get("pos", Vector2i.ZERO)
+	var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
+	var tiles: Array[Vector2i]
+	for y: int in range(maxi(1, footprint.y)):
+		for x: int in range(maxi(1, footprint.x)):
+			tiles.append(origin + Vector2i(x, y))
+	return tiles
+
+func _unit_status_badge_rects(unit: Dictionary, health_rect: Rect2) -> Array[Rect2]:
+	var rects: Array[Rect2]
+	var badges: Array[Dictionary] = _unit_status_badges(unit)
+	if badges.is_empty():
+		return rects
+	var spacing: float = 22.0
+	var start_x: float = health_rect.position.x - 12.0 - (float(badges.size() - 1) * spacing)
+	var center_y: float = health_rect.position.y + health_rect.size.y - 2.0
+	for index: int in range(badges.size()):
+		var center := Vector2(start_x + float(index) * spacing, center_y)
+		var badge_rect := Rect2(center - Vector2(10.0, 10.0), Vector2(20.0, 20.0))
+		var badge: Dictionary = badges[index] as Dictionary
+		if int(badge.get("count", 0)) > 0 or not str(badge.get("count_text", "")).is_empty():
+			badge_rect = badge_rect.merge(Rect2(center + Vector2(5.0, 3.0), Vector2(12.0, 12.0)))
+		rects.append(badge_rect)
+	return rects
+
+func _health_bar_defense_badge_rects(unit: Dictionary, health_rect: Rect2) -> Array[Rect2]:
+	var rects: Array[Rect2]
+	var defense_badge_x: float = health_rect.position.x + health_rect.size.x + 4.0
+	if int(unit.get("block", 0)) > 0:
+		var block_rect := Rect2(Vector2(defense_badge_x, health_rect.position.y), Vector2(36.0, 16.0))
+		rects.append(block_rect)
+		defense_badge_x += block_rect.size.x + 4.0
+	if int(unit.get("stoneskin", 0)) > 0:
+		rects.append(Rect2(Vector2(defense_badge_x, health_rect.position.y), Vector2(40.0, 16.0)))
+	return rects
+
+func _best_enemy_hud_offset(base_rects: Array, occupied_rects: Array) -> Vector2:
+	if base_rects.is_empty():
+		return Vector2.ZERO
+	var viewport_bounds: Rect2 = _enemy_hud_viewport_bounds()
+	var hud_bounds: Rect2 = _rects_bounds(base_rects)
+	var candidate_x_steps: Array = ENEMY_HUD_OFFSET_X_STEPS.duplicate()
+	var wide_step: float = ceilf(hud_bounds.size.x + 8.0)
+	if wide_step > 72.0:
+		if not candidate_x_steps.has(-wide_step):
+			candidate_x_steps.append(-wide_step)
+		if not candidate_x_steps.has(wide_step):
+			candidate_x_steps.append(wide_step)
+	var candidate_y_steps: Array = ENEMY_HUD_OFFSET_Y_STEPS.duplicate()
+	var tall_step: float = -ceilf(hud_bounds.size.y + 12.0)
+	if absf(tall_step) > 72.0 and not candidate_y_steps.has(tall_step):
+		candidate_y_steps.append(tall_step)
+	var top_escape_step: float = ceilf(viewport_bounds.position.y - hud_bounds.position.y)
+	if top_escape_step > 0.0 and not candidate_y_steps.has(top_escape_step):
+		candidate_y_steps.append(top_escape_step)
+	var bottom_escape_step: float = -ceilf(hud_bounds.end.y - viewport_bounds.end.y)
+	if bottom_escape_step < 0.0 and not candidate_y_steps.has(bottom_escape_step):
+		candidate_y_steps.append(bottom_escape_step)
+	var best_offset := Vector2.ZERO
+	var best_score: float = INF
+	for y_step_var: Variant in candidate_y_steps:
+		for x_step_var: Variant in candidate_x_steps:
+			var offset := Vector2(float(x_step_var), float(y_step_var))
+			var score: float = _enemy_hud_layout_score_for_offset(base_rects, occupied_rects, viewport_bounds, offset, best_score)
+			if score < best_score:
+				best_score = score
+				best_offset = offset
+	return best_offset
+
+func _enemy_hud_viewport_bounds() -> Rect2:
+	var top: float = ENEMY_HUD_VIEWPORT_MARGIN
+	var bottom: float = size.y - ENEMY_HUD_VIEWPORT_MARGIN
+	var inverse: Transform2D = get_global_transform_with_canvas().affine_inverse()
+	for rect: Rect2 in presentation.get("hud_obstacle_global_rects", []):
+		var local: Rect2 = inverse * rect
+		if local.get_center().y < size.y * 0.5:
+			top = maxf(top, local.end.y + 8.0)
+		else:
+			bottom = minf(bottom, local.position.y - 8.0)
+	return Rect2(Vector2(ENEMY_HUD_VIEWPORT_MARGIN, top), Vector2(maxf(1.0, size.x - ENEMY_HUD_VIEWPORT_MARGIN * 2.0), maxf(1.0, bottom - top)))
+
+func _enemy_hud_actor_clear_rect(unit: Dictionary, center: Vector2) -> Rect2:
+	# HUD placement must not depend on whichever idle-animation frame happens to
+	# be current. Besides making nameplates subtly wander, that forced the first
+	# hover over an actor to synchronously read back and scan an arbitrary atlas
+	# frame that background shadow preparation had not reached yet. The authored
+	# base texture is stable for the unit type and is prepared as an urgent asset.
+	var texture: Texture2D = _unit_hud_anchor_texture(unit)
+	var draw_rect: Rect2 = _unit_draw_rect_for_texture(unit, center, texture)
+	if texture != null:
+		var visible_rect: Rect2 = _texture_used_draw_rect(texture, draw_rect)
+		if visible_rect.size.x > 0.0 and visible_rect.size.y > 0.0:
+			draw_rect = visible_rect
+	return draw_rect.grow(ENEMY_HUD_ACTOR_CLEARANCE)
+
+func _unit_hud_anchor_texture(unit: Dictionary) -> Texture2D:
+	var unit_type: String = str(unit.get("type", ""))
+	var base_texture: Texture2D = _unit_textures.get(unit_type, null) as Texture2D
+	return base_texture if base_texture != null else _texture_for_unit(unit)
+
+func _placed_enemy_hud_offset(base_rects: Array, occupied_rects: Array, actor_clear_rect: Rect2, actor_key: String = "") -> Vector2:
+	if base_rects.is_empty():
+		return Vector2.ZERO
+	var viewport_bounds: Rect2 = _enemy_hud_viewport_bounds()
+	var hud_bounds: Rect2 = _rects_bounds(base_rects)
+	var base_areas: Dictionary = _enemy_hud_collision_areas(base_rects, occupied_rects, viewport_bounds)
+	if _enemy_hud_collision_areas_are_clear(base_areas):
+		return Vector2.ZERO
+	if hud_bounds.position.y < viewport_bounds.position.y:
+		var centered_offset := Vector2(0.0, ceilf(viewport_bounds.position.y - hud_bounds.position.y))
+		var centered_areas: Dictionary = _enemy_hud_collision_areas_for_offset(base_rects, occupied_rects, viewport_bounds, centered_offset)
+		if _enemy_hud_collision_areas_are_clear(centered_areas):
+			return centered_offset
+		var actor_areas: Dictionary = _enemy_hud_collision_areas_for_offset(base_rects, [actor_clear_rect], viewport_bounds, centered_offset)
+		if float(actor_areas.get("overlap_area", 0.0)) > ENEMY_HUD_REPOSITION_OVERLAP_AREA:
+			return _best_enemy_hud_side_offset(base_rects, occupied_rects, actor_clear_rect, viewport_bounds, actor_key)
+	return _best_enemy_hud_offset(base_rects, occupied_rects)
+
+func _best_enemy_hud_side_offset(base_rects: Array, occupied_rects: Array, actor_clear_rect: Rect2, viewport_bounds: Rect2, actor_key: String = "") -> Vector2:
+	var hud_bounds: Rect2 = _rects_bounds(base_rects)
+	var max_y: float = maxf(viewport_bounds.position.y, viewport_bounds.end.y - hud_bounds.size.y)
+	var clamped_y: float = clampf(hud_bounds.position.y, viewport_bounds.position.y, max_y)
+	var y_offsets: Array[float] = _frozen_float_values([
+		clamped_y - hud_bounds.position.y,
+		clampf(actor_clear_rect.position.y, viewport_bounds.position.y, max_y) - hud_bounds.position.y,
+		clampf(actor_clear_rect.get_center().y - hud_bounds.size.y * 0.5, viewport_bounds.position.y, max_y) - hud_bounds.position.y
+	])
+	var best_by_side: Dictionary = {}
+	for y_offset: float in y_offsets:
+		for side: String in ["left", "right"]:
+			var x_offset: float = _enemy_hud_minimum_side_x_offset(base_rects, y_offset, actor_clear_rect, side)
+			var offset := Vector2(x_offset, y_offset)
+			var previous: Dictionary = best_by_side.get(side, {}) as Dictionary
+			var previous_score: float = float(previous.get("score", INF))
+			var score: float = _enemy_hud_layout_score_for_offset(base_rects, occupied_rects, viewport_bounds, offset, previous_score)
+			if not previous.is_empty() and score >= previous_score:
+				continue
+			var collision_areas: Dictionary = _enemy_hud_collision_areas_for_offset(base_rects, occupied_rects, viewport_bounds, offset)
+			if previous.is_empty() or score < float(previous.get("score", INF)):
+				best_by_side[side] = {
+					"offset": offset,
+					"score": score,
+					"side": side,
+					"overlap_area": float(collision_areas.get("overlap_area", 0.0)),
+					"overflow_area": float(collision_areas.get("overflow_area", 0.0))
+				}
+	var chosen: Dictionary = {}
+	for side_var: Variant in best_by_side:
+		var candidate: Dictionary = best_by_side.get(side_var, {}) as Dictionary
+		if chosen.is_empty() or float(candidate.get("score", INF)) < float(chosen.get("score", INF)):
+			chosen = candidate
+	var preferred_side: String = str(_enemy_hud_side_by_actor.get(actor_key, ""))
+	var preferred: Dictionary = best_by_side.get(preferred_side, {}) as Dictionary
+	if not preferred.is_empty() and not chosen.is_empty():
+		var preferred_score: float = float(preferred.get("score", INF))
+		var chosen_score: float = float(chosen.get("score", INF))
+		# A remembered side is sticky through small score changes caused by board
+		# motion. It only changes when the other side is materially safer, avoiding
+		# left/right chatter around a nearly tied collision boundary.
+		if (
+			float(preferred.get("overflow_area", INF)) <= 0.01
+			and float(preferred.get("overlap_area", INF)) <= ENEMY_HUD_SIDE_STICKY_OVERLAP_AREA
+			and preferred_score <= chosen_score + ENEMY_HUD_SIDE_SWITCH_SCORE_MARGIN
+		):
+			chosen = preferred
+	if chosen.is_empty():
+		return Vector2.ZERO
+	_remember_enemy_hud_side(actor_key, str(chosen.get("side", "")))
+	return chosen.get("offset", Vector2.ZERO) as Vector2
+
+func _enemy_hud_minimum_side_x_offset(base_rects: Array, y_offset: float, actor_clear_rect: Rect2, side: String) -> float:
+	var x_offset: float = 0.0
+	for rect_var: Variant in base_rects:
+		if typeof(rect_var) != TYPE_RECT2:
+			continue
+		var rect: Rect2 = rect_var as Rect2
+		var shifted_top: float = rect.position.y + y_offset
+		var shifted_bottom: float = rect.end.y + y_offset
+		if shifted_bottom <= actor_clear_rect.position.y or shifted_top >= actor_clear_rect.end.y:
+			continue
+		if side == "left":
+			x_offset = minf(x_offset, actor_clear_rect.position.x - ENEMY_HUD_SIDE_GAP - rect.end.x)
+		else:
+			x_offset = maxf(x_offset, actor_clear_rect.end.x + ENEMY_HUD_SIDE_GAP - rect.position.x)
+	return x_offset
+
+func _remember_enemy_hud_side(actor_key: String, side: String) -> void:
+	if actor_key.is_empty() or side.is_empty() or str(_enemy_hud_side_by_actor.get(actor_key, "")) == side:
+		return
+	_enemy_hud_side_by_actor[actor_key] = side
+	# Cached pan signatures can otherwise restore an older opposite-side layout
+	# after the preference changes. Keep the current rendered entry, but discard
+	# reusable signatures so future geometry always honors the new side.
+	_clear_hud_layout_signature_cache()
+
+func _offset_rects(rects: Array[Rect2], offset: Vector2) -> Array[Rect2]:
+	var shifted: Array[Rect2]
+	for rect: Rect2 in rects:
+		shifted.append(Rect2(rect.position + offset, rect.size))
+	return shifted
+
+func _enemy_hud_layout_score(candidate_rects: Array, occupied_rects: Array, viewport_bounds: Rect2, offset: Vector2) -> float:
+	var collision_areas: Dictionary = _enemy_hud_collision_areas(candidate_rects, occupied_rects, viewport_bounds)
+	return _enemy_hud_layout_score_from_areas(collision_areas, offset)
+
+func _enemy_hud_layout_score_for_offset(base_rects: Array, occupied_rects: Array, viewport_bounds: Rect2, offset: Vector2, score_ceiling: float = INF) -> float:
+	var overlap_area: float = 0.0
+	var overflow_area: float = 0.0
+	var offset_score: float = absf(offset.x) * 2.4 + absf(offset.y) * 1.6
+	if offset_score >= score_ceiling:
+		return offset_score
+	for base_var: Variant in base_rects:
+		var base_rect: Rect2 = base_var
+		var candidate := Rect2(base_rect.position + offset, base_rect.size)
+		for occupied_var: Variant in occupied_rects:
+			var occupied_rect: Rect2 = occupied_var
+			overlap_area += _rect_overlap_area(candidate, occupied_rect)
+			var partial_score: float = maxf(0.0, overlap_area - ENEMY_HUD_REPOSITION_OVERLAP_AREA) * 100000.0 + offset_score
+			if partial_score >= score_ceiling:
+				return partial_score
+		overflow_area += _rect_outside_area(candidate, viewport_bounds)
+		var partial_score: float = (
+			maxf(0.0, overlap_area - ENEMY_HUD_REPOSITION_OVERLAP_AREA) * 100000.0
+			+ overflow_area * 5000.0
+			+ offset_score
+		)
+		if partial_score >= score_ceiling:
+			return partial_score
+	var meaningful_overlap: float = maxf(0.0, overlap_area - ENEMY_HUD_REPOSITION_OVERLAP_AREA)
+	return meaningful_overlap * 100000.0 + overflow_area * 5000.0 + offset_score
+
+func _enemy_hud_layout_score_from_areas(collision_areas: Dictionary, offset: Vector2) -> float:
+	var overlap_area: float = float(collision_areas.get("overlap_area", 0.0))
+	var overflow_area: float = float(collision_areas.get("overflow_area", 0.0))
+	var meaningful_overlap: float = maxf(0.0, overlap_area - ENEMY_HUD_REPOSITION_OVERLAP_AREA)
+	return meaningful_overlap * 100000.0 + overflow_area * 5000.0 + absf(offset.x) * 2.4 + absf(offset.y) * 1.6
+
+func _enemy_hud_collision_areas_are_clear(collision_areas: Dictionary) -> bool:
+	return (
+		float(collision_areas.get("overflow_area", INF)) <= 0.01
+		and float(collision_areas.get("overlap_area", INF)) <= ENEMY_HUD_REPOSITION_OVERLAP_AREA
+	)
+
+func _enemy_hud_collision_areas(candidate_rects: Array, occupied_rects: Array, viewport_bounds: Rect2) -> Dictionary:
+	var overlap_area: float = 0.0
+	for candidate_var: Variant in candidate_rects:
+		if typeof(candidate_var) != TYPE_RECT2:
+			continue
+		var candidate: Rect2 = candidate_var
+		for occupied_var: Variant in occupied_rects:
+			if typeof(occupied_var) != TYPE_RECT2:
+				continue
+			overlap_area += _rect_overlap_area(candidate, occupied_var)
+	var overflow_area: float = 0.0
+	for candidate_var: Variant in candidate_rects:
+		if typeof(candidate_var) != TYPE_RECT2:
+			continue
+		overflow_area += _rect_outside_area(candidate_var, viewport_bounds)
+	return {"overlap_area": overlap_area, "overflow_area": overflow_area}
+
+func _enemy_hud_collision_areas_for_offset(base_rects: Array, occupied_rects: Array, viewport_bounds: Rect2, offset: Vector2) -> Dictionary:
+	# HUD placement evaluates dozens of offsets for every visible enemy. Applying
+	# an offset arithmetically avoids allocating a shifted Rect2 array for every
+	# candidate while preserving the exact collision score and tie ordering.
+	var overlap_area: float = 0.0
+	var overflow_area: float = 0.0
+	for base_var: Variant in base_rects:
+		if typeof(base_var) != TYPE_RECT2:
+			continue
+		var base_rect: Rect2 = base_var as Rect2
+		var candidate := Rect2(base_rect.position + offset, base_rect.size)
+		for occupied_var: Variant in occupied_rects:
+			if typeof(occupied_var) == TYPE_RECT2:
+				overlap_area += _rect_overlap_area(candidate, occupied_var as Rect2)
+		overflow_area += _rect_outside_area(candidate, viewport_bounds)
+	return {"overlap_area": overlap_area, "overflow_area": overflow_area}
+
+func _rect_overlap_area(a: Rect2, b: Rect2) -> float:
+	var left: float = maxf(a.position.x, b.position.x)
+	var top: float = maxf(a.position.y, b.position.y)
+	var right: float = minf(a.position.x + a.size.x, b.position.x + b.size.x)
+	var bottom: float = minf(a.position.y + a.size.y, b.position.y + b.size.y)
+	if right <= left or bottom <= top:
+		return 0.0
+	return (right - left) * (bottom - top)
+
+func _rect_outside_area(rect: Rect2, bounds: Rect2) -> float:
+	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+		return 0.0
+	var inside_left: float = maxf(rect.position.x, bounds.position.x)
+	var inside_top: float = maxf(rect.position.y, bounds.position.y)
+	var inside_right: float = minf(rect.position.x + rect.size.x, bounds.position.x + bounds.size.x)
+	var inside_bottom: float = minf(rect.position.y + rect.size.y, bounds.position.y + bounds.size.y)
+	var inside_area: float = 0.0
+	if inside_right > inside_left and inside_bottom > inside_top:
+		inside_area = (inside_right - inside_left) * (inside_bottom - inside_top)
+	return rect.size.x * rect.size.y - inside_area
+
+func _rects_bounds(rects: Array) -> Rect2:
+	var bounds := Rect2()
+	var found_rect: bool = false
+	for rect_var: Variant in rects:
+		if typeof(rect_var) != TYPE_RECT2:
+			continue
+		var rect: Rect2 = rect_var
+		if not found_rect:
+			bounds = rect
+			found_rect = true
+			continue
+		bounds = bounds.merge(rect)
+	return bounds
+
+func _draw_enemy_hud_tether(_unit: Dictionary, _center: Vector2, layout: Dictionary) -> void:
+	var tether: Dictionary = layout.get("tether", {})
+	if tether.is_empty():
+		return
+	var border: Color = layout.get("border", Color("d8b96f"))
+	var anchor: Vector2 = tether.get("from", Vector2.ZERO)
+	var target: Vector2 = tether.get("to", Vector2.ZERO)
+	draw_line(anchor, target, Color(0.0, 0.0, 0.0, 0.24), 3.0, true)
+	draw_line(anchor, target, Color(border.r, border.g, border.b, 0.58), 1.0, true)
+
+func _enemy_intent_tether_geometry(unit: Dictionary, center: Vector2, intent_rect: Rect2) -> Dictionary:
+	if intent_rect.size.x <= 0.0 or intent_rect.size.y <= 0.0:
+		return {}
+	var art_rect: Rect2 = _unit_draw_rect_for_center(unit, center)
+	if art_rect.size.x <= 0.0 or art_rect.size.y <= 0.0:
+		return {}
+	return {
+		"from": _rect_edge_point_toward(art_rect, intent_rect.get_center()),
+		"to": _rect_edge_point_toward(intent_rect, art_rect.get_center())
+	}
+
+func _rect_edge_point_toward(rect: Rect2, target: Vector2) -> Vector2:
+	var center: Vector2 = rect.get_center()
+	var direction: Vector2 = target - center
+	if direction.length_squared() <= 0.0001:
+		return center
+	var half_size: Vector2 = rect.size * 0.5
+	var x_scale: float = half_size.x / absf(direction.x) if absf(direction.x) > 0.0001 else INF
+	var y_scale: float = half_size.y / absf(direction.y) if absf(direction.y) > 0.0001 else INF
+	return center + direction * minf(x_scale, y_scale)
+
+func _draw_keyword_icon(icon_key: String, rect: Rect2, tooltip: String = "", tint: Color = Color.WHITE, embossed: bool = false) -> void:
+	var texture: Texture2D = _keyword_icon_textures.get(icon_key, null)
+	if texture != null:
+		if embossed:
+			for direction: Vector2 in [Vector2.LEFT, Vector2.RIGHT, Vector2.UP, Vector2.DOWN, Vector2(-1.0, -1.0), Vector2(1.0, -1.0), Vector2(-1.0, 1.0), Vector2.ONE]:
+				draw_texture_rect(texture, Rect2(rect.position + direction * INTENT_CONTOUR_ICON_HALO_SIZE, rect.size), false, Color(0.015, 0.01, 0.015, 0.88))
+			draw_texture_rect(texture, Rect2(rect.position + INTENT_CONTOUR_SHADOW_OFFSET, rect.size), false, Color(0.015, 0.01, 0.015, 0.72))
+		draw_texture_rect(texture, rect, false, tint)
+	else:
+		if embossed:
+			draw_rect(Rect2(rect.position + INTENT_CONTOUR_SHADOW_OFFSET, rect.size), Color(0.015, 0.01, 0.015, 0.72), true)
+		draw_rect(rect, Color(0.0, 0.0, 0.0, 0.22), true)
+	if not tooltip.is_empty():
+		_register_tooltip(rect, tooltip)
+
+func _register_tooltip(rect: Rect2, tooltip: String) -> void:
+	if tooltip.is_empty() or rect.size.x <= 0.0 or rect.size.y <= 0.0:
+		return
+	_tooltip_regions.append({
+		"rect": rect,
+		"tooltip": tooltip
+	})
+
+func _token_value_color(token: Dictionary, default_color: Color) -> Color:
+	if token.has("condition_active") and not bool(token.get("condition_active", false)):
+		return default_color.darkened(0.42)
+	match str(token.get("tone", "neutral")):
+		"bonus":
+			return Color("78c46a")
+		"penalty":
+			return Color("d46c62")
+		_:
+			return default_color
+
+func _draw_status_text() -> void:
+	if status_label.is_empty():
+		return
+	var role: String = str(presentation.get("status_typography_role", UiTypography.ROLE_SECTION))
+	var font: Font = UiTypography.font_for_role(role)
+	if font == null:
+		font = get_theme_default_font()
+	if font == null:
+		return
+	var label_font_size: int = UiTypography.scaled_size(self, UiTypography.role_size(role))
+	var layout: Dictionary = _status_text_layout(font, label_font_size)
+	var label_rect: Rect2 = layout.get("label", Rect2()) as Rect2
+	draw_string_outline(font, label_rect.position + Vector2(0.0, label_rect.size.y), status_label, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, label_font_size, 4, Color(0.03, 0.02, 0.015, 0.9))
+	draw_string(font, label_rect.position + Vector2(0.0, label_rect.size.y), status_label, HORIZONTAL_ALIGNMENT_CENTER, label_rect.size.x, label_font_size, STATUS_LABEL_COLOR)
+	# Short gilded rules flank the room status so it reads as a placard.
+	var rule_y: float = label_rect.position.y + label_rect.size.y * 0.62
+	var rule_gap: float = 16.0
+	var rule_length: float = 64.0
+	GildedFrame.draw_fading_line(self, Vector2(label_rect.position.x - rule_gap, rule_y), Vector2(label_rect.position.x - rule_gap - rule_length, rule_y), Color(STATUS_RULE_COLOR, 0.8))
+	GildedFrame.draw_fading_line(self, Vector2(label_rect.end.x + rule_gap, rule_y), Vector2(label_rect.end.x + rule_gap + rule_length, rule_y), Color(STATUS_RULE_COLOR, 0.8))
+	GildedFrame.draw_diamond(self, Vector2(label_rect.position.x - rule_gap + 2.0, rule_y), 3.0, STATUS_RULE_COLOR, 1.0)
+	GildedFrame.draw_diamond(self, Vector2(label_rect.end.x + rule_gap - 2.0, rule_y), 3.0, STATUS_RULE_COLOR, 1.0)
+	if not status_detail.is_empty():
+		var detail_font: Font = UiTypography.text_font()
+		if detail_font == null:
+			detail_font = font
+		var detail_font_size: int = UiTypography.scaled_size(self, UiTypography.SIZE_BODY)
+		var detail_rect: Rect2 = layout.get("detail", Rect2()) as Rect2
+		draw_string(detail_font, detail_rect.position + Vector2(0.0, detail_rect.size.y), status_detail, HORIZONTAL_ALIGNMENT_CENTER, detail_rect.size.x, detail_font_size, Color("d8ccb6"))
+
+func _status_text_layout(font: Font, label_font_size: int) -> Dictionary:
+	var safe_rect: Rect2 = Rect2(Vector2(280.0, 18.0), Vector2(maxf(1.0, size.x - 560.0), 82.0))
+	var safe_global_rect: Rect2 = presentation.get("status_safe_global_rect", Rect2()) as Rect2
+	if safe_global_rect.size.x > 0.0 and safe_global_rect.size.y > 0.0:
+		# The board camera's transform can settle after RunScene builds its
+		# presentation. Convert the screen-safe band at draw time so its label stays
+		# centered between the actual header groups rather than drifting with a stale
+		# board-local transform.
+		var inverse_transform: Transform2D = get_global_transform().affine_inverse()
+		var local_top_left: Vector2 = inverse_transform * safe_global_rect.position
+		var local_bottom_right: Vector2 = inverse_transform * safe_global_rect.end
+		safe_rect = Rect2(local_top_left, local_bottom_right - local_top_left)
+	if safe_rect.size.x <= 0.0 or safe_rect.size.y <= 0.0:
+		safe_rect = Rect2(Vector2(0.0, 18.0), Vector2(maxf(1.0, size.x), 82.0))
+	var label_size: Vector2 = font.get_string_size(status_label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, label_font_size)
+	var label_rect := Rect2(
+		Vector2(safe_rect.get_center().x - label_size.x * 0.5, safe_rect.position.y + 6.0),
+		label_size
+	)
+	var detail_rect := Rect2()
+	if not status_detail.is_empty():
+		var detail_font: Font = UiTypography.text_font()
+		if detail_font == null:
+			detail_font = font
+		var detail_font_size: int = UiTypography.scaled_size(self, UiTypography.SIZE_BODY)
+		var detail_size: Vector2 = detail_font.get_string_size(status_detail, HORIZONTAL_ALIGNMENT_LEFT, -1.0, detail_font_size)
+		detail_rect = Rect2(
+			Vector2(safe_rect.get_center().x - detail_size.x * 0.5, label_rect.end.y + 5.0),
+			detail_size
+		)
+	return {"label": label_rect, "detail": detail_rect}
+
+func status_text_local_bounds() -> Rect2:
+	# Keep UI probes coupled to the exact board-owned status paint region.
+	if status_label.is_empty():
+		return Rect2()
+	var role: String = str(presentation.get("status_typography_role", UiTypography.ROLE_SECTION))
+	var font: Font = UiTypography.font_for_role(role)
+	if font == null:
+		font = get_theme_default_font()
+	if font == null:
+		return Rect2()
+	var layout: Dictionary = _status_text_layout(font, UiTypography.scaled_size(self, UiTypography.role_size(role)))
+	var label_bounds: Rect2 = layout.get("label", Rect2()) as Rect2
+	if status_detail.is_empty():
+		return label_bounds
+	var detail_bounds: Rect2 = layout.get("detail", Rect2()) as Rect2
+	return label_bounds.merge(detail_bounds)
+
+func _draw_projectile_diamond(center: Vector2, direction: Vector2, color: Color, size: float = 5.0) -> void:
+	var dir: Vector2 = direction.normalized() if direction.length() > 0.01 else Vector2.RIGHT
+	var perp: Vector2 = Vector2(-dir.y, dir.x)
+	draw_colored_polygon(PackedVector2Array([
+		center + dir * size,
+		center + perp * size * 0.6,
+		center - dir * size,
+		center - perp * size * 0.6
+	]), color)
+
+func _draw_bezier_glow(from_point: Vector2, control: Vector2, to_point: Vector2, color: Color, width: float) -> void:
+	_draw_partial_bezier_glow(from_point, control, to_point, color, width, 1.0)
+
+func _draw_partial_bezier_glow(from_point: Vector2, control: Vector2, to_point: Vector2, color: Color, width: float, progress: float) -> void:
+	var points: Array[Vector2] = _sample_quadratic_points(from_point, control, to_point, 10)
+	var clamped_progress: float = clampf(progress, 0.0, 1.0)
+	if points.size() < 2 or clamped_progress <= 0.0:
+		return
+	var segment_count: int = mini(points.size() - 1, maxi(1, int(ceil(float(points.size() - 1) * clamped_progress))))
+	for idx: int in range(segment_count):
+		var segment_alpha: float = color.a * (0.40 + 0.60 * float(idx + 1) / float(segment_count))
+		draw_line(points[idx], points[idx + 1], Color(0.0, 0.0, 0.0, segment_alpha * 0.18), width + 2.0, true)
+		draw_line(points[idx], points[idx + 1], Color(color.r, color.g, color.b, segment_alpha), width, true)
+
+func _quadratic_bezier(from_point: Vector2, control: Vector2, to_point: Vector2, t: float) -> Vector2:
+	var u: float = 1.0 - t
+	return u * u * from_point + 2.0 * u * t * control + t * t * to_point
+
+func _sample_quadratic_points(from_point: Vector2, control: Vector2, to_point: Vector2, segments: int) -> Array[Vector2]:
+	var out: Array[Vector2]
+	var safe_segments: int = maxi(1, segments)
+	for idx: int in range(safe_segments + 1):
+		var t: float = float(idx) / float(safe_segments)
+		out.append(_quadratic_bezier(from_point, control, to_point, t))
+	return out
+
+func _arc_control_point(from_point: Vector2, to_point: Vector2) -> Vector2:
+	var midpoint: Vector2 = (from_point + to_point) * 0.5
+	var height: float = 34.0 + absf(to_point.x - from_point.x) * 0.18
+	return midpoint + Vector2(0.0, -height)
+
+func _draw_impact_decals() -> void:
+	var decals: Array = presentation.get("impact_decals", [])
+	if decals.is_empty():
+		return
+	var progress: float = clampf(float(presentation.get("impact_progress", 0.0)), 0.0, 1.0)
+	for decal_var: Variant in decals:
+		if typeof(decal_var) != TYPE_DICTIONARY:
+			continue
+		var decal: Dictionary = decal_var
+		var tile: Vector2i = decal.get("tile", Vector2i(-1, -1))
+		if tile.x < 0:
+			continue
+		var element_id: String = str(decal.get("element", ElementData.NONE))
+		var kind: String = str(decal.get("kind", ""))
+		var seed: int = int(decal.get("seed", _impact_decal_seed(tile, element_id, kind)))
+		_draw_impact_decal(tile, element_id, kind, seed, progress)
+
+func _draw_impact_decal(tile: Vector2i, element_id: String, kind: String, seed: int, progress: float) -> void:
+	var fade: float = clampf(1.0 - progress / IMPACT_DECAL_FADE_PROGRESS, 0.0, 1.0)
+	if fade <= 0.0:
+		return
+	var pop: float = clampf(progress / 0.16, 0.0, 1.0)
+	var alpha: float = fade * lerpf(0.78, 1.0, pop) * IMPACT_DECAL_MAX_ALPHA
+	var center: Vector2 = _tile_center(tile) + Vector2(0.0, _tile_height() * 0.07)
+	var scale: float = 1.12 if kind in ["aoe", "lightning_strikes"] else 0.96
+	match element_id:
+		ElementData.FIRE:
+			_draw_fire_impact_decal(center, seed, scale, alpha)
+		ElementData.ICE:
+			_draw_ice_impact_decal(center, seed, scale, alpha)
+		ElementData.LIGHTNING:
+			_draw_lightning_impact_decal(center, seed, scale, alpha)
+		ElementData.AIR:
+			_draw_air_impact_decal(center, seed, scale, alpha)
+		ElementData.EARTH:
+			_draw_earth_impact_decal(center, seed, scale, alpha)
+		_:
+			_draw_neutral_impact_decal(center, seed, scale, alpha)
+
+func _draw_fire_impact_decal(center: Vector2, seed: int, scale: float, alpha: float) -> void:
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	_draw_impact_ellipse(center, tile_width * 0.46 * scale, tile_height * 0.56 * scale, tile_width * 0.08, Color(0.07, 0.035, 0.020, 0.46 * alpha))
+	_draw_impact_ellipse_outline(center, tile_width * 0.54 * scale, tile_height * 0.64 * scale, tile_width * 0.10, Color(0.98, 0.34, 0.13, 0.30 * alpha), 1.8)
+	_draw_impact_radial_marks(center, seed, 6, Color(1.0, 0.48, 0.18, 0.66 * alpha), tile_width * 0.08 * scale, tile_width * 0.25 * scale, 0.48, 2.0)
+	for idx: int in range(3):
+		var ember_point: Vector2 = center + _impact_offset(seed + idx * 17, tile_width * 0.18 * scale, tile_height * 0.22 * scale)
+		draw_circle(ember_point, tile_width * (0.014 + 0.006 * _ambient_hash01(seed + idx + 40)), Color(1.0, 0.62, 0.22, 0.72 * alpha))
+
+func _draw_ice_impact_decal(center: Vector2, seed: int, scale: float, alpha: float) -> void:
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	_draw_impact_ellipse(center, tile_width * 0.50 * scale, tile_height * 0.58 * scale, -tile_width * 0.04, Color(0.52, 0.86, 1.0, 0.18 * alpha))
+	_draw_impact_ellipse_outline(center, tile_width * 0.56 * scale, tile_height * 0.64 * scale, -tile_width * 0.05, Color(0.78, 0.96, 1.0, 0.42 * alpha), 1.6)
+	_draw_impact_crack_marks(center, seed, 7, Color(0.82, 0.98, 1.0, 0.72 * alpha), tile_width * 0.07 * scale, tile_width * 0.27 * scale, 0.42, 1.7)
+	for idx: int in range(4):
+		var shard_center: Vector2 = center + _impact_offset(seed + idx * 23, tile_width * 0.21 * scale, tile_height * 0.22 * scale)
+		draw_line(shard_center + Vector2(-2.0, 1.0), shard_center + Vector2(3.0, -5.0), Color(0.92, 1.0, 1.0, 0.72 * alpha), 1.3, true)
+
+func _draw_lightning_impact_decal(center: Vector2, seed: int, scale: float, alpha: float) -> void:
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	_draw_impact_ellipse(center, tile_width * 0.44 * scale, tile_height * 0.52 * scale, tile_width * 0.03, Color(0.08, 0.07, 0.16, 0.36 * alpha))
+	_draw_impact_ellipse_outline(center, tile_width * 0.58 * scale, tile_height * 0.68 * scale, tile_width * 0.06, Color(0.96, 0.86, 0.26, 0.52 * alpha), 1.7)
+	_draw_impact_crack_marks(center, seed, 5, Color(0.52, 0.82, 1.0, 0.66 * alpha), tile_width * 0.06 * scale, tile_width * 0.28 * scale, 0.44, 1.8)
+	_draw_impact_radial_marks(center, seed + 53, 4, Color(1.0, 0.94, 0.42, 0.82 * alpha), tile_width * 0.05 * scale, tile_width * 0.22 * scale, 0.40, 2.1)
+
+func _draw_air_impact_decal(center: Vector2, seed: int, scale: float, alpha: float) -> void:
+	var tile_width: float = _tile_width()
+	_draw_impact_ellipse(center, tile_width * 0.52 * scale, _tile_height() * 0.58 * scale, -tile_width * 0.05, Color(0.46, 0.88, 0.72, 0.12 * alpha))
+	for idx: int in range(3):
+		var radius: float = tile_width * (0.12 + float(idx) * 0.055) * scale
+		var start_angle: float = _ambient_hash01(seed + idx * 31) * TAU
+		draw_arc(center, radius, start_angle, start_angle + PI * 0.86, 18, Color(0.72, 1.0, 0.86, (0.48 - float(idx) * 0.09) * alpha), 1.6, true)
+	_draw_impact_radial_marks(center, seed + 71, 5, Color(0.82, 0.70, 0.48, 0.32 * alpha), tile_width * 0.12 * scale, tile_width * 0.30 * scale, 0.40, 1.5)
+
+func _draw_earth_impact_decal(center: Vector2, seed: int, scale: float, alpha: float) -> void:
+	var tile_width: float = _tile_width()
+	_draw_impact_ellipse(center, tile_width * 0.46 * scale, _tile_height() * 0.54 * scale, tile_width * 0.05, Color(0.10, 0.07, 0.035, 0.38 * alpha))
+	_draw_impact_crack_marks(center, seed, 8, Color(0.74, 0.62, 0.36, 0.66 * alpha), tile_width * 0.05 * scale, tile_width * 0.30 * scale, 0.46, 2.0)
+	for idx: int in range(5):
+		var chip_point: Vector2 = center + _impact_offset(seed + idx * 19, tile_width * 0.24 * scale, _tile_height() * 0.26 * scale)
+		draw_circle(chip_point, tile_width * 0.013, Color(0.58, 0.44, 0.24, 0.54 * alpha))
+
+func _draw_neutral_impact_decal(center: Vector2, seed: int, scale: float, alpha: float) -> void:
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	_draw_impact_ellipse(center, tile_width * 0.44 * scale, tile_height * 0.52 * scale, tile_width * 0.04, Color(0.09, 0.07, 0.05, 0.34 * alpha))
+	_draw_impact_ellipse_outline(center, tile_width * 0.54 * scale, tile_height * 0.62 * scale, tile_width * 0.05, Color(0.72, 0.56, 0.35, 0.34 * alpha), 1.5)
+	_draw_impact_radial_marks(center, seed, 7, Color(0.78, 0.62, 0.42, 0.46 * alpha), tile_width * 0.07 * scale, tile_width * 0.25 * scale, 0.44, 1.7)
+
+func _draw_impact_ellipse(center: Vector2, width: float, height: float, skew: float, color: Color) -> void:
+	draw_colored_polygon(_impact_ellipse_points(center, width, height, skew), color)
+
+func _draw_impact_ellipse_outline(center: Vector2, width: float, height: float, skew: float, color: Color, line_width: float) -> void:
+	draw_polyline(_impact_ellipse_points(center, width, height, skew), color, line_width, true)
+
+func _impact_ellipse_points(center: Vector2, width: float, height: float, skew: float) -> PackedVector2Array:
+	var points := PackedVector2Array()
+	var segments: int = 28
+	for idx: int in range(segments + 1):
+		var angle: float = TAU * float(idx) / float(segments)
+		var unit_y: float = sin(angle)
+		points.append(center + Vector2(cos(angle) * width * 0.5 + unit_y * skew, unit_y * height * 0.5))
+	return points
+
+func _draw_impact_radial_marks(center: Vector2, seed: int, count: int, color: Color, inner_radius: float, outer_radius: float, y_scale: float, line_width: float) -> void:
+	for idx: int in range(count):
+		var angle: float = _ambient_hash01(seed + idx * 13) * TAU
+		var direction := Vector2(cos(angle), sin(angle) * y_scale)
+		if direction.length_squared() <= 0.001:
+			continue
+		direction = direction.normalized()
+		draw_line(center + direction * inner_radius, center + direction * outer_radius, color, line_width, true)
+
+func _draw_impact_crack_marks(center: Vector2, seed: int, count: int, color: Color, inner_radius: float, outer_radius: float, y_scale: float, line_width: float) -> void:
+	for idx: int in range(count):
+		var angle: float = _ambient_hash01(seed + idx * 29) * TAU
+		var direction := Vector2(cos(angle), sin(angle) * y_scale)
+		if direction.length_squared() <= 0.001:
+			continue
+		direction = direction.normalized()
+		var start: Vector2 = center + direction * inner_radius
+		var finish: Vector2 = center + direction * outer_radius
+		var perpendicular := Vector2(-direction.y, direction.x)
+		var kink: Vector2 = start.lerp(finish, 0.54) + perpendicular * lerpf(-5.0, 5.0, _ambient_hash01(seed + idx * 29 + 7))
+		draw_line(start, kink, color, line_width, true)
+		draw_line(kink, finish, color, maxf(1.0, line_width - 0.35), true)
+
+func _impact_offset(seed: int, radius_x: float, radius_y: float) -> Vector2:
+	var angle: float = _ambient_hash01(seed) * TAU
+	return Vector2(cos(angle) * radius_x, sin(angle) * radius_y)
+
+func _impact_decal_seed(tile: Vector2i, element_id: String, kind: String) -> int:
+	return tile.x * 92821 + tile.y * 68917 + _impact_element_seed(element_id) * 3571 + kind.length() * 197
+
+func _impact_element_seed(element_id: String) -> int:
+	match element_id:
+		ElementData.FIRE:
+			return 11
+		ElementData.ICE:
+			return 23
+		ElementData.LIGHTNING:
+			return 37
+		ElementData.AIR:
+			return 41
+		ElementData.EARTH:
+			return 53
+		_:
+			return 7
+
+func _dragon_full_area_fx(effect: Dictionary) -> bool:
+	var profile: Dictionary = preload("res://scripts/dragon_presentation.gd").profile(effect)
+	return preload("res://scripts/dragon_presentation.gd").area_fx(effect) or (str(profile.get("geometry","")) == "physical" and str(effect.get("kind","")) == "aoe")
+
+func _effect_uses_elemental_scene_depth(effect: Dictionary) -> bool:
+	if _dragon_full_area_fx(effect) and not bool(effect.get("preview",false)): return true
+	return (
+		str(effect.get("kind", "")) in ["ranged", "aoe"]
+		and AttackFxLibrary.uses_authored_elemental_attack(effect)
+		and not bool(effect.get("preview", false))
+	)
+
+func _elemental_scene_depth_tiles_for_presentation(source_presentation: Dictionary) -> Array[Vector2i]:
+	var tiles: Array[Vector2i] = _vector2i_array([])
+	# Static intent ribbons use the target scene layer so the merged arrow sits
+	# below its target and below board objects that are visually in front of it.
+	for echo: Dictionary in source_presentation.get("illusion_echo_previews", []):
+		_elemental_append_unique_depth_tile(tiles, _ranged_preview_depth_tile(echo))
+	for threat_var: Variant in source_presentation.get("enemy_threat_previews", []):
+		if typeof(threat_var) != TYPE_DICTIONARY:
+			continue
+		var threat_effect: Dictionary = _enemy_threat_ranged_effect(threat_var as Dictionary)
+		if not threat_effect.is_empty():
+			_elemental_append_unique_depth_tile(tiles, _ranged_preview_depth_tile(threat_effect))
+	for trap_var: Variant in source_presentation.get("trap_effects", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		_elemental_append_unique_depth_tile(tiles, (trap_var as Dictionary).get("pos", Vector2i(-1, -1)))
+	var effect: Dictionary = source_presentation.get("effect", {}) as Dictionary
+	if not _effect_uses_elemental_scene_depth(effect):
+		return tiles
+	if _dragon_full_area_fx(effect):
+		for tile: Vector2i in preload("res://scripts/dragon_presentation.gd").tiles(effect):
+			if _board_tile_is_visible_to_player(tile): _elemental_append_unique_depth_tile(tiles,tile)
+		var origin: Vector2i = effect.get("from",Vector2i(-1,-1))
+		if _board_tile_is_visible_to_player(origin): _elemental_append_unique_depth_tile(tiles,origin)
+		return tiles
+	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
+	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
+	if from_tile.x < 0 or to_tile.x < 0:
+		return tiles
+	var style: String = AttackFxLibrary.style_for_effect(effect)
+	if bool(effect.get("ground_burst",false)):
+		for tile: Vector2i in _vector2i_array(effect.get("burst_tiles",[])):
+			_elemental_append_unique_depth_tile(tiles,tile)
+		return tiles
+	if str(effect.get("kind", "")) == "ranged" and bool(effect.get("umbra_action_clipped", false)):
+		# Travel stays on its clipped interval. Only a visible, reached target
+		# receives the ordinary rear/actor/front impact, including reduced motion.
+		var original_target: Vector2i = effect.get("umbra_original_to", to_tile)
+		var visible_tiles: Variant = source_presentation.get("umbra_visible_tiles", null)
+		var target_visible: bool = original_target == to_tile and (
+			typeof(visible_tiles) != TYPE_ARRAY or (visible_tiles as Array).has(original_target)
+		)
+		var progress: float = float(source_presentation.get("effect_progress", 1.0))
+		if target_visible and (
+			bool(source_presentation.get("reduced_motion", false))
+			or progress >= AttackFxLibrary.travel_end_progress(style)
+		):
+			_elemental_append_unique_depth_tile(tiles, original_target)
+		return tiles
+	if style == AttackFxLibrary.STYLE_EARTH_SPIKES:
+		_elemental_append_unique_depth_tile(tiles, from_tile)
+		for spike_index: int in range(EARTH_PATH_SPIKE_COUNT):
+			var path_progress: float = lerpf(0.10, 0.96, float(spike_index) / float(EARTH_PATH_SPIKE_COUNT - 1))
+			_elemental_append_unique_depth_tile(tiles, _elemental_lerp_depth_tile(from_tile, to_tile, path_progress))
+		_elemental_append_unique_depth_tile(tiles, to_tile)
+		return tiles
+	if bool(effect.get("preview", false)):
+		for sample_index: int in range(13):
+			var sample_progress: float = float(sample_index) / 12.0
+			_elemental_append_unique_depth_tile(tiles, _elemental_lerp_depth_tile(from_tile, to_tile, sample_progress))
+		return tiles
+	var progress: float = clampf(float(source_presentation.get("effect_progress", 1.0)), 0.0, 1.0)
+	_elemental_append_unique_depth_tile(tiles, _elemental_scene_depth_tile_for_effect(effect, progress))
+	return tiles
+
+func _elemental_append_unique_depth_tile(tiles: Array[Vector2i], tile: Vector2i) -> void:
+	if tile.x >= 0 and not tiles.has(tile):
+		tiles.append(tile)
+
+func _elemental_scene_depth_tile_for_effect(effect: Dictionary, progress: float) -> Vector2i:
+	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
+	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
+	if from_tile.x < 0 or to_tile.x < 0:
+		return Vector2i(-1, -1)
+	if str(effect.get("kind", "")) == "ranged" and bool(effect.get("umbra_action_clipped", false)):
+		return to_tile
+	var travel_progress: float = 0.0
+	if bool(effect.get("preview", false)):
+		var phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
+		travel_progress = lerpf(0.05, 0.95, phase)
+	else:
+		var style: String = AttackFxLibrary.style_for_effect(effect)
+		travel_progress = AttackFxLibrary.travel_progress_for_style(style, progress)
+	return _elemental_lerp_depth_tile(from_tile, to_tile, travel_progress)
+
+func _elemental_lerp_depth_tile(from_tile: Vector2i, to_tile: Vector2i, progress: float) -> Vector2i:
+	var point: Vector2 = Vector2(from_tile).lerp(Vector2(to_tile), clampf(progress, 0.0, 1.0))
+	return Vector2i(roundi(point.x), roundi(point.y))
+
+func _draw_elemental_scene_depth_pass(tile: Vector2i, foreground_pass: bool) -> void:
+	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
+	for trap_var: Variant in presentation.get("trap_effects", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var as Dictionary
+		if trap.get("pos", Vector2i(-1, -1)) == tile:
+			_draw_trap_elemental_depth_effect(trap, _trap_elemental_effect_progress(trap, progress), foreground_pass)
+	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
+	if not _effect_uses_elemental_scene_depth(effect):
+		return
+	if _dragon_full_area_fx(effect):
+		_draw_dragon_area_depth(effect,tile,progress,foreground_pass)
+		return
+	var style: String = AttackFxLibrary.style_for_effect(effect)
+	var depth_tiles: Array[Vector2i] = _elemental_scene_depth_tiles_for_presentation(presentation)
+	if not depth_tiles.has(tile):
+		return
+	if bool(effect.get("ground_burst",false)):
+		var reduced: bool = bool(presentation.get("reduced_motion",false))
+		var phase: float = 0.42 if reduced else AttackFxLibrary.impact_progress_for_style(style,progress)
+		if not reduced and progress<AttackFxLibrary.travel_end_progress(style): return
+		var point: Vector2 = _tile_center(tile)
+		var fade: float = 1.0 if reduced else _elemental_impact_volume_fade(style,phase)
+		ElementalSpellFx.impact(self,_elemental_style_id(style),point,_elemental_performance_size(style,phase)*0.88,phase,fade,reduced,foreground_pass)
+		return
+	var current_depth_tile: Vector2i = _elemental_scene_depth_tile_for_effect(effect, progress)
+	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
+	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
+	var from_point: Vector2 = _tile_center(from_tile)
+	var to_point: Vector2 = _tile_center(to_tile)
+	if foreground_pass:
+		if tile == current_depth_tile:
+			_draw_elemental_foreground_depth_effect(effect, style, progress, to_point)
+		return
+	if style != AttackFxLibrary.STYLE_EARTH_SPIKES and tile != current_depth_tile:
+		return
+	_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
+
+func _draw_dragon_area_depth(effect: Dictionary, tile: Vector2i, progress: float, foreground: bool) -> void:
+	if not _board_tile_is_visible_to_player(tile): return
+	var profile: Dictionary = preload("res://scripts/dragon_presentation.gd").profile(effect)
+	var targets: Array[Vector2i] = preload("res://scripts/dragon_presentation.gd").tiles(effect)
+	var origin: Vector2i = effect.get("from", Vector2i(-1,-1))
+	var source_visible: bool = not bool(effect.get("umbra_action_clipped",false)) and _board_tile_is_visible_to_player(origin)
+	var ground: Vector2 = _tile_center(origin)
+	var source: Vector2 = _dragon_spell_source(str(effect.get("actor_key","")),ground-Vector2(0,_tile_width()*.4))
+	var reduced: bool = bool(presentation.get("reduced_motion",false))
+	if str(profile.get("geometry","")) == "physical":
+		if foreground and targets.has(tile) and (reduced or (progress >= .30 and progress <= .72)):
+			_draw_melee_slash_effect(ground,_tile_center(tile),.40 if reduced else clampf((progress-.30)/.42,0.0,1.0))
+		return
+	if tile == origin and source_visible and not foreground and not reduced:
+		preload("res://scripts/dragon_spell_presentation.gd").draw_source(self,str(profile["element"]),source,ground,_tile_width(),progress)
+	if not targets.has(tile): return
+	# Only the outer edge emits long trails; every declared cell gets its own
+	# impact. This makes a fan read as a filled area instead of dozens of bolts.
+	var endpoint: bool = true
+	var ray: Vector2 = (Vector2(tile)-Vector2(origin)).normalized()
+	var distance: float = Vector2(tile).distance_squared_to(Vector2(origin))
+	for other: Vector2i in targets:
+		if Vector2(other).distance_squared_to(Vector2(origin)) > distance and ray.dot((Vector2(other)-Vector2(origin)).normalized()) > .94:
+			endpoint = false
+			break
+	preload("res://scripts/dragon_spell_presentation.gd").draw_target(self,profile,source,ground,_tile_center(tile),_tile_width(),progress,reduced,foreground,endpoint,source_visible,tile.x*101+tile.y*307)
+
+func _dragon_spell_source(actor_key: String, fallback: Vector2) -> Vector2:
+	var renderer: Node
+	for registry: Dictionary in [_vyraketh_renderers,_tharokh_renderers,_vaeloryx_renderers,_iskaldra_renderers,_zekarion_renderers,_noctyrax_renderers]:
+		if registry.has(actor_key): renderer = registry[actor_key]; break
+	if not is_instance_valid(renderer): return fallback
+	var rigs: Dictionary = renderer.get("rigs")
+	var facing: String = str(renderer.get("facing"))
+	var rig: Node2D = rigs.get(facing) as Node2D
+	if not is_instance_valid(rig): return fallback
+	var bones: Dictionary = rig.get("bones")
+	var head: Node2D = bones.get("head") as Node2D
+	if not is_instance_valid(head): return fallback
+	var layout: Dictionary = rig.get("layout")
+	var landmarks: Dictionary = layout.get("landmarks",{})
+	var muzzle: Vector2 = Vector2(18,-3) if facing == "rear" else Vector2(-24,17)
+	for landmark: String in ["muzzle","maw"]:
+		if landmarks.has(landmark):
+			var point: Array = landmarks[landmark]
+			var bind: Array = layout["joints"]["head"]["position"]
+			muzzle = Vector2(float(point[0])-float(bind[0]),float(point[1])-float(bind[1]))
+			break
+	var canvas_point: Vector2 = head.global_transform * muzzle
+	for unit: Dictionary in _visible_units():
+		if str(unit.get("key","")) == actor_key:
+			var body: Rect2 = _unit_draw_rect(unit)
+			return body.position + (canvas_point-Vector2(128,128)) * body.size / Vector2(255,255)
+	return fallback
+
+func _draw_trap_elemental_depth_effect(trap: Dictionary, progress: float, foreground_pass: bool) -> void:
+	var element_id: String = str(trap.get("element", ElementData.NONE))
+	var style: String = _elemental_style_for_element(element_id)
+	if style == AttackFxLibrary.STYLE_DEFAULT:
+		return
+	var reduced_motion: bool = bool(presentation.get("reduced_motion", false))
+	var impact_progress: float = 0.52 if reduced_motion else clampf(progress, 0.0, 1.0)
+	var core_fade: float = 1.0 if reduced_motion else _elemental_impact_core_fade(style, impact_progress)
+	var volume_fade: float = 1.0 if reduced_motion else _elemental_impact_volume_fade(style, impact_progress)
+	if core_fade <= 0.0 and volume_fade <= 0.0:
+		return
+	var tile_center: Vector2 = _tile_center(trap.get("pos", Vector2i(-1, -1)))
+	var ground_point: Vector2 = _elemental_ground_point(tile_center)
+	var scale_ratio: float = _trap_elemental_scale_ratio(style)
+	_draw_scaled_elemental_begin(ground_point, scale_ratio)
+	if foreground_pass:
+		_draw_elemental_foreground_performance(style, ground_point, impact_progress, core_fade, reduced_motion)
+	else:
+		match style:
+			AttackFxLibrary.STYLE_EARTH_SPIKES:
+				_draw_earth_impact(ground_point, impact_progress, 1.0, reduced_motion)
+			AttackFxLibrary.STYLE_AIR_GUST:
+				_draw_air_gust_impact(_elemental_air_point(tile_center, 0.56), ground_point, impact_progress, 1.0, reduced_motion)
+			AttackFxLibrary.STYLE_LIGHTNING_BOLT:
+				_draw_lightning_impact(_elemental_air_point(tile_center, 0.58), ground_point, impact_progress, 1.0, reduced_motion)
+			AttackFxLibrary.STYLE_ICE_SHARDS:
+				_draw_ice_icicle_impact(ground_point, impact_progress, 1.0, reduced_motion)
+			_:
+				_draw_fireball_impact_frame(ground_point, ground_point, impact_progress, 1.0, reduced_motion)
+	_draw_scaled_elemental_end()
+
+func _draw_elemental_foreground_depth_effect(effect: Dictionary, style: String, progress: float, target_point: Vector2) -> void:
+	if bool(effect.get("preview", false)):
+		return
+	var reduced_motion: bool = bool(presentation.get("reduced_motion", false))
+	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
+	if not reduced_motion and progress < travel_end:
+		return
+	var impact_progress: float = 0.52 if reduced_motion else AttackFxLibrary.impact_progress_for_style(style, progress)
+	var core_fade: float = 1.0 if reduced_motion else _elemental_impact_core_fade(style, impact_progress)
+	var volume_fade: float = 1.0 if reduced_motion else _elemental_impact_volume_fade(style, impact_progress)
+	if core_fade <= 0.0 and volume_fade <= 0.0:
+		return
+	var ground_point: Vector2 = _elemental_ground_point(target_point)
+	_draw_elemental_foreground_performance(style, ground_point, impact_progress, core_fade, reduced_motion)
+
+func _draw_elemental_foreground_performance(style: String, ground_point: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
+	ElementalSpellFx.impact(self, _elemental_style_id(style), ground_point, _elemental_performance_size(style, impact_progress), impact_progress, alpha, reduced_motion, true)
+
+func _draw_elemental_spell_floor_overlay() -> void:
+	var effect: Dictionary = presentation.get("effect", {})
+	if effect.is_empty() or bool(effect.get("preview", false)):
+		return
+	if preload("res://scripts/dragon_presentation.gd").area_fx(effect): return
+	if bool(effect.get("umbra_action_clipped", false)):
+		var original_target: Vector2i = effect.get("umbra_original_to", effect.get("to", Vector2i(-1, -1)))
+		if not _board_tile_is_visible_to_player(original_target):
+			return
+	var style: String = AttackFxLibrary.style_for_effect(effect)
+	if style == AttackFxLibrary.STYLE_DEFAULT:
+		return
+	var target_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
+	if target_tile.x < 0:
+		return
+	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
+	_draw_elemental_spell_scene(
+		style,
+		progress,
+		_elemental_ground_point(_tile_center(target_tile)),
+		bool(presentation.get("reduced_motion", false))
+	)
+
+func _draw_elemental_trap_floor_overlay() -> void:
+	var trap_effects: Array = presentation.get("trap_effects", [])
+	if trap_effects.is_empty():
+		return
+	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
+	var reduced_motion: bool = bool(presentation.get("reduced_motion", false))
+	for trap_var: Variant in trap_effects:
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var as Dictionary
+		var trap_pos: Vector2i = trap.get("pos", Vector2i(-1, -1))
+		if not _board_tile_is_visible_to_player(trap_pos):
+			continue
+		var element_id: String = str(trap.get("element", ElementData.NONE))
+		var style: String = _elemental_style_for_element(element_id)
+		if style == AttackFxLibrary.STYLE_DEFAULT:
+			continue
+		var trap_progress: float = _trap_elemental_effect_progress(trap, progress)
+		var ground_point: Vector2 = _elemental_ground_point(_tile_center(trap_pos))
+		var style_progress: float = lerpf(AttackFxLibrary.travel_end_progress(style), 1.0, trap_progress)
+		var scale_ratio: float = _trap_elemental_scale_ratio(style)
+		_draw_scaled_elemental_begin(ground_point, scale_ratio)
+		_draw_elemental_spell_scene(style, style_progress, ground_point, reduced_motion)
+		_draw_scaled_elemental_end()
+		_draw_trap_elemental_footprint(trap, element_id, trap_progress, reduced_motion)
+		var activation_texture: Texture2D = _trap_activation_texture(trap, trap_progress)
+		if activation_texture != null:
+			draw_texture_rect(activation_texture, _trap_visual_draw_rect(trap), false, _trap_visual_modulate(trap))
+
+func _trap_elemental_effect_progress(trap: Dictionary, fallback_progress: float) -> float:
+	return clampf(float(trap.get("effect_progress", fallback_progress)), 0.0, 1.0)
+
+func _draw_trap_elemental_footprint(trap: Dictionary, element_id: String, progress: float, reduced_motion: bool) -> void:
+	var frame_progress: float = 0.38 if reduced_motion else clampf(progress, 0.0, 1.0)
+	var envelope: float = 0.44 if reduced_motion else sin(frame_progress * PI)
+	if envelope <= 0.0:
+		return
+	for tile: Vector2i in _trap_blast_tiles(trap):
+		if not _board_tile_is_visible_to_player(tile):
+			continue
+		var is_center: bool = tile == trap.get("pos", Vector2i(-1, -1))
+		ElementalSpellFx.floor_light(self, element_id, _tile_center(tile), _tile_width() * (0.79 if is_center else 0.60), envelope * (0.55 if is_center else 0.33))
+
+func _draw_effect_overlay() -> void:
+	_draw_protagonist_charge()
+	var effect: Dictionary = presentation.get("effect", {})
+	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
+	if effect.is_empty():
+		return
+	if _dragon_full_area_fx(effect) and not bool(effect.get("preview",false)): return
+	_draw_bile_bloomer_fragments(effect, progress)
+	var kind: String = str(effect.get("kind", ""))
+	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
+	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
+	var center_tile: Vector2i = effect.get("center", to_tile)
+	var from_point: Vector2 = _tile_center(from_tile) if from_tile.x >= 0 else Vector2.ZERO
+	var to_point: Vector2 = _tile_center(to_tile) if to_tile.x >= 0 else Vector2.ZERO
+	var center_point: Vector2 = _tile_center(center_tile) if center_tile.x >= 0 else Vector2.ZERO
+	match kind:
+		"move":
+			return
+		"blink":
+			if from_tile.x < 0 or to_tile.x < 0:
+				return
+			_draw_blink_rift_effect(from_tile, to_tile, progress, bool(effect.get("preview", false)))
+			# A traded Illusion (Glassway Compass, Empty Husk) blinks the other way.
+			var exchange_from: Vector2i = effect.get("exchange_from", Vector2i(-1, -1))
+			var exchange_to: Vector2i = effect.get("exchange_to", Vector2i(-1, -1))
+			if exchange_from.x >= 0 and exchange_to.x >= 0 and exchange_from != exchange_to:
+				_draw_blink_rift_effect(exchange_from, exchange_to, progress, bool(effect.get("preview", false)))
+		"ranged":
+			if from_tile.x < 0 or to_tile.x < 0:
+				return
+			if bool(effect.get("umbra_action_clipped", false)):
+				_draw_umbra_clipped_ranged_effect(effect, progress)
+			elif not _effect_uses_elemental_scene_depth(effect) or not _is_dynamic_render_layer:
+				_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
+		"melee":
+			if to_tile.x < 0:
+				return
+			if str(effect.get("cinder_ooze_action", "")) == "attack":
+				CinderOozeActionFx.draw_contact(self, to_point, _tile_width(), progress, bool(presentation.get("reduced_motion", false)))
+				return
+			if bool(effect.get("grave_surgeon_melee", false)):
+				GraveSurgeonAttackFx.draw_jab(self, from_point, to_point, progress, _tile_width(), bool(presentation.get("reduced_motion", false)))
+				return
+			if bool(effect.get("harrier_thrust", false)) and not bool(presentation.get("reduced_motion", false)):
+				var thrust: float = HarrierCutout.attack_trail_phase(progress)
+				if thrust >= 0:
+					var contact: Vector2 = to_point + Vector2(0,-24)
+					var direction: Vector2 = (to_point-from_point).normalized()
+					draw_line(contact-direction*22,contact+direction*8,Color(0.85,0.73,0.49,sin(thrust*PI)*0.60),2.0,true)
+				return
+			if bool(effect.get("veilbound_acolyte_melee", false)):
+				var strike_start: Vector2 = _veilbound_acolyte_launch_point(effect, from_point + Vector2(0,-24), false)
+				VeilboundAcolyteFx.melee(self,progress,strike_start,to_point+Vector2(0,-24),_tile_width()/150.0,bool(presentation.get("reduced_motion",false)))
+				return
+			var slash_progress: float = progress
+			if bool(effect.get("protagonist_melee", false)) and not bool(presentation.get("reduced_motion", false)):
+				var trail_phase: float = ProtagonistCutout.attack_trail_phase(progress)
+				if trail_phase < 0.0:
+					return
+				slash_progress = trail_phase * 0.82
+			elif bool(effect.get("crawler_melee", false)) and not bool(presentation.get("reduced_motion", false)):
+				var trail_phase: float = CrawlerCutout.attack_trail_phase(progress)
+				if trail_phase < 0.0:
+					return
+				slash_progress = trail_phase * 0.82
+			elif bool(effect.get("noctyrax_claw", false)) and not bool(presentation.get("reduced_motion", false)):
+				var trail_phase: float = NoctyraxCutout.claw_trail_phase(progress)
+				if trail_phase < 0.0:
+					return
+				slash_progress = trail_phase * 0.82
+			elif bool(effect.get("warden_melee", false)) and not bool(presentation.get("reduced_motion", false)):
+				var trail_phase: float = WardenCutout.attack_trail_phase(progress)
+				if trail_phase < 0.0:
+					return
+				slash_progress = trail_phase * 0.82
+			elif bool(effect.get("cinder_droplet_melee", false)):
+				var reduced: bool = bool(presentation.get("reduced_motion", false))
+				var impact_phase: float = .38 if reduced else CinderDropletCutout.spatter_impact_phase(progress)
+				if impact_phase < 0.0:
+					return
+				ElementalSpellFx.impact(self, "fire", to_point - Vector2(0.0, _tile_width() * .12),
+					_tile_width() * .28, impact_phase, .85, reduced, true)
+				return
+			elif bool(effect.get("tharokh_melee", false)) and not bool(presentation.get("reduced_motion", false)):
+				var trail_phase: float = TharokhCutout.attack_trail_phase(progress)
+				if trail_phase < 0.0:
+					return
+				slash_progress = trail_phase * 0.82
+			elif bool(effect.get("vaeloryx_melee", false)) and not bool(presentation.get("reduced_motion", false)):
+				var trail_phase: float = VaeloryxCutout.attack_trail_phase(progress)
+				if trail_phase < 0.0:
+					return
+				slash_progress = trail_phase * 0.82
+			elif bool(effect.get("zekarion_claw", false)) and not bool(presentation.get("reduced_motion", false)):
+				var trail_phase: float = ZekarionCutout.attack_trail_phase(progress)
+				if trail_phase < 0.0:
+					return
+				slash_progress = trail_phase*0.82
+				from_point = _zekarion_effect_socket(effect, "strike", from_point)
+			if bool(effect.get("vyraketh_maw", false)):
+				_draw_vyraketh_bite_effect(from_point, to_point, progress)
+			else:
+				_draw_melee_slash_effect(from_point, to_point, slash_progress)
+		"push", "pull":
+			if from_tile.x < 0 or to_tile.x < 0:
+				return
+			if VaeloryxWind.handles(effect):
+				_draw_vaeloryx_wind_feedback(effect, progress)
+				return
+			var force_from: Vector2i = effect.get("umbra_original_from", from_tile)
+			var force_to: Vector2i = effect.get("umbra_original_to", to_tile)
+			var force_distance: int = absi(force_from.x - force_to.x) + absi(force_from.y - force_to.y)
+			if bool(effect.get("umbra_action_clipped", false)) and force_distance > 1:
+				_draw_umbra_clipped_ranged_effect(effect, progress)
+			elif force_distance > 1:
+				_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
+			else:
+				_draw_melee_slash_effect(from_point, to_point, progress)
+		"aoe":
+			_draw_aoe_cast_preview(effect, from_point, center_point)
+			if str(effect.get("cinder_ooze_action", "")) == "bloom":
+				CinderOozeActionFx.draw_bloom(self, from_point, _tile_width(), progress, bool(presentation.get("reduced_motion", false)))
+		"chain":
+			_draw_surface_chain_effect(effect, progress)
+		"lightning_strikes":
+			var strike_tiles: Array[Vector2i] = _vector2i_array(effect.get("tiles", []))
+			var bolt_alpha: float = 0.24 + progress * 0.34
+			for tile: Vector2i in strike_tiles:
+				var tile_point: Vector2 = _tile_center(tile)
+				var top_point: Vector2 = tile_point + Vector2(-10.0 + sin(float(tile.x + tile.y)) * 8.0, -_tile_height() * 1.45)
+				if not bool(effect.get("zekarion_cutout", false)) or progress >= 0.38 or bool(presentation.get("reduced_motion",false)):
+					draw_line(top_point, tile_point, Color(1.0, 0.94, 0.42, bolt_alpha), 3.0, true)
+					draw_line(top_point + Vector2(7.0, 22.0), tile_point + Vector2(-5.0, -6.0), Color(0.58, 0.78, 1.0, bolt_alpha * 0.76), 2.0, true)
+				draw_arc(tile_point, _tile_width() * (0.18 + progress * 0.08), 0.0, TAU, 18, Color(1.0, 0.86, 0.28, 0.48 + progress * 0.24), 3.0)
+				draw_circle(tile_point, _tile_width() * 0.10, Color(1.0, 0.95, 0.50, 0.16 + progress * 0.18))
+		"block":
+			var block_tiles: Array[Vector2i] = _vector2i_array(effect.get("focus_tiles", []))
+			if block_tiles.is_empty():
+				block_tiles = _vector2i_array([effect.get("tile", Vector2i(-1, -1))])
+			for block_tile: Vector2i in block_tiles:
+				if block_tile.x >= 0:
+					_draw_block_cast_effect(block_tile, progress)
+		"heal":
+			var heal_tile: Vector2i = effect.get("tile", Vector2i(-1, -1))
+			if heal_tile.x < 0:
+				return
+			_draw_heal_cast_effect(heal_tile, progress)
+		"stoneskin":
+			var stoneskin_tile: Vector2i = effect.get("tile", Vector2i(-1, -1))
+			if stoneskin_tile.x < 0:
+				return
+			_draw_stoneskin_cast_effect(stoneskin_tile, progress)
+
+func _draw_vaeloryx_wind_feedback(effect: Dictionary, progress: float) -> void:
+	var actor_key: String = str(effect.get("actor_key", ""))
+	for unit: Dictionary in _visible_units():
+		if str(unit.get("key", "")) != actor_key:
+			continue
+		var ground: Vector2 = _unit_center(unit)
+		var body: Rect2 = _unit_draw_rect_for_center(unit, ground)
+		var target: Vector2i = effect.get("player_from", effect.get("to", Vector2i.ZERO))
+		var target_ground: Vector2 = _tile_center(target)
+		VaeloryxWind.draw(self, effect, progress, body.position + body.size * Vector2(0.5, 0.52),
+			target_ground - Vector2(0.0, _tile_height() * 0.70), ground, target_ground,
+			_tile_width(), bool(presentation.get("reduced_motion", false)))
+		return
+
+func _draw_block_cast_effect(tile: Vector2i, progress: float) -> void:
+	_draw_cast_icon_effect("block", tile, progress, -0.30, 0.50)
+
+func _draw_heal_cast_effect(tile: Vector2i, progress: float) -> void:
+	var normalized_progress: float = clampf(progress, 0.0, 1.0)
+	var tile_width: float = _tile_width()
+	var base: Vector2 = _tile_center(tile) + Vector2(0.0, -tile_width * 0.08)
+	var plus_offsets := [
+		Vector2(-0.18, 0.02),
+		Vector2(0.14, -0.02),
+		Vector2(-0.03, 0.08),
+		Vector2(0.24, 0.05),
+		Vector2(-0.26, 0.09)
+	]
+	for index: int in range(plus_offsets.size()):
+		var local_progress: float = clampf(normalized_progress * 1.30 - float(index) * 0.12, 0.0, 1.0)
+		if local_progress <= 0.0 or local_progress >= 1.0:
+			continue
+		var texture: Texture2D = _defense_heal_cast_frame(DEFENSE_HEAL_CASTS_FRAMES_PER_KIND + (index % DEFENSE_HEAL_CASTS_FRAMES_PER_KIND))
+		if texture == null:
+			continue
+		var fade: float = clampf(sin(local_progress * PI) * 1.08, 0.0, 1.0)
+		var rise: float = tile_width * lerpf(0.03, 0.34, local_progress)
+		var drift: Vector2 = plus_offsets[index]
+		var point: Vector2 = base + Vector2(tile_width * drift.x, tile_width * drift.y - rise)
+		var size: float = tile_width * (0.20 + 0.025 * sin(float(index) * 1.7))
+		_draw_ambient_particle_sprite(texture, point, Vector2.ONE * size, 0.0, fade)
+
+func _draw_stoneskin_cast_effect(tile: Vector2i, progress: float) -> void:
+	_draw_cast_icon_effect("stoneskin", tile, progress, -0.26, 0.56)
+
+func _draw_cast_icon_effect(effect_id: String, tile: Vector2i, progress: float, y_offset_scale: float, size_scale: float) -> void:
+	var frame_index: int = _cast_effect_frame_index(effect_id, progress)
+	var texture: Texture2D = _defense_heal_cast_frame(frame_index)
+	if texture == null:
+		return
+	var normalized_progress: float = clampf(progress, 0.0, 1.0)
+	var fade_in: float = clampf(normalized_progress / 0.18, 0.0, 1.0)
+	var fade_out: float = clampf((1.0 - normalized_progress) / 0.24, 0.0, 1.0)
+	var alpha: float = minf(fade_in, fade_out)
+	var pop: float = 1.0 - pow(1.0 - fade_in, 2.0)
+	var settle: float = 1.0 + 0.06 * sin(normalized_progress * PI)
+	var tile_width: float = _tile_width()
+	var center: Vector2 = _tile_center(tile) + Vector2(0.0, tile_width * y_offset_scale)
+	var draw_size: Vector2 = Vector2.ONE * tile_width * size_scale * lerpf(0.72, 1.0, pop) * settle
+	_draw_ambient_particle_sprite(texture, center, draw_size, 0.0, alpha)
+
+func _cast_effect_frame_index(effect_id: String, progress: float) -> int:
+	var row: int = 0
+	match effect_id:
+		"heal":
+			row = 1
+		"stoneskin":
+			row = 2
+		_:
+			row = 0
+	var local_progress: float = clampf(progress, 0.0, 0.999)
+	var column: int = clampi(int(floor(local_progress * float(DEFENSE_HEAL_CASTS_FRAMES_PER_KIND))), 0, DEFENSE_HEAL_CASTS_FRAMES_PER_KIND - 1)
+	return row * DEFENSE_HEAL_CASTS_FRAMES_PER_KIND + column
+
+func _defense_heal_cast_frame(frame_index: int) -> Texture2D:
+	var frames: Array = _effect_frames.get("defense_heal_casts", [])
+	if frame_index < 0 or frame_index >= frames.size():
+		return null
+	return frames[frame_index] as Texture2D
+
+func _protagonist_socket_world(shot: bool, released: bool = false, direction_delta: Vector2i = Vector2i.ZERO) -> Vector2:
+	var player: Dictionary = combat_state.get("player", {})
+	var unit: Dictionary = {"type": "player", "key": "player", "role": "player", "pos": player.get("pos", Vector2i.ZERO)}
+	var body: Rect2 = _unit_draw_rect(unit)
+	var socket: Vector2 = _protagonist_renderer.call("source_socket", shot, released, direction_delta)
+	return body.position + body.size * socket / ProtagonistCutout.SOURCE_SIZE
+
+func _acolyte_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2:
+	# Umbra callers pass the visible segment's start, even during impact and
+	# reduced motion. A hidden orb must never replace that clipped origin.
+	if not bool(effect.get("acolyte_cast", false)) or bool(effect.get("preview", false)) or bool(effect.get("umbra_action_clipped", false)):
+		return fallback
+	var key: String = str(effect.get("actor_key", ""))
+	var renderer: Node = _acolyte_renderers.get(key, null) as Node
+	if not is_instance_valid(renderer):
+		return fallback
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if "enemy_%d" % int(enemy.get("id", -1)) != key:
+			continue
+		var unit: Dictionary = enemy.duplicate(false)
+		unit["key"] = key
+		var body: Rect2 = _unit_draw_rect(unit)
+		# Freeze the launch socket at the release pose so the flight origin
+		# cannot drift back with the recovering casting hand.
+		return body.position + body.size * Vector2(renderer.call("source_socket", true)) / AcolyteCutout.SOURCE_SIZE
+	return fallback
+
+func _veilbound_acolyte_launch_point(effect: Dictionary, fallback: Vector2, ranged: bool = true) -> Vector2:
+	if not bool(effect.get("veilbound_acolyte_ranged" if ranged else "veilbound_acolyte_melee", false)) or bool(effect.get("preview", false)):
+		return fallback
+	var actor_key: String = str(effect.get("actor_key", ""))
+	var renderer: Node = _veilbound_acolyte_renderers.get(actor_key, null) as Node
+	if not is_instance_valid(renderer):
+		return fallback
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if "enemy_%d" % int(enemy.get("id", -1)) != actor_key:
+			continue
+		# Umbra-clipped remote origins keep the established clipping geometry.
+		if enemy.get("pos", Vector2i.ZERO) != effect.get("from", Vector2i.ZERO):
+			return fallback
+		var unit: Dictionary = enemy.duplicate(false)
+		unit["key"] = actor_key
+		unit["role"] = "enemy"
+		var body: Rect2 = _unit_draw_rect(unit)
+		var direction: Vector2i = (effect.get("to", Vector2i.ZERO) as Vector2i) - (effect.get("from", Vector2i.ZERO) as Vector2i)
+		var socket: Vector2 = renderer.call("release_source_socket", direction, ranged)
+		return body.position + body.size * socket / VeilboundAcolyteCutout.SOURCE_SIZE
+	return fallback
+
+func _zekarion_effect_socket(effect: Dictionary, socket_name: String, fallback: Vector2) -> Vector2:
+	if not bool(effect.get("zekarion_cutout", false)) or bool(effect.get("preview", false)):
+		return fallback
+	var key: String = str(effect.get("actor_key", ""))
+	var renderer: Node = _zekarion_renderers.get(key) as Node
+	if not is_instance_valid(renderer): return fallback
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if key == "enemy_%d" % int(enemy.get("id", -1)):
+			var unit: Dictionary = enemy.duplicate(false)
+			unit["key"] = key
+			var rect: Rect2 = _unit_draw_rect_for_center(unit, _unit_center(unit))
+			return rect.position + Vector2(renderer.call("socket_source_point",socket_name))*rect.size/255.0
+	return fallback
+
+func _protagonist_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2:
+	fallback = _acolyte_launch_point(effect, fallback)
+	var bloomer_socket: Variant = _bile_bloomer_socket_world(effect)
+	if bloomer_socket is Vector2:
+		return bloomer_socket
+	if bool(effect.get("harrier_ranged", false)) and not bool(effect.get("preview", false)):
+		return _harrier_launch_point(effect, fallback)
+	if str(effect.get("protagonist_ranged", "")).is_empty() or bool(effect.get("preview", false)) or not is_instance_valid(_protagonist_renderer):
+		return fallback
+	# A relic's explicitly remote origin remains on that ground. Enemy, trap,
+	# preview, and later chain-hop descriptors never carry this player marker.
+	if effect.get("from", Vector2i.ZERO) != effect.get("protagonist_origin", Vector2i.ZERO):
+		return fallback
+	return _protagonist_socket_world(str(effect["protagonist_ranged"]) == "shoot", true, (effect.get("to", Vector2i.ZERO) as Vector2i) - (effect.get("protagonist_origin", Vector2i.ZERO) as Vector2i))
+
+func _bile_bloomer_socket_world(effect: Dictionary) -> Variant:
+	if not bool(effect.get("bile_bloomer_release", false)) or bool(effect.get("preview", false)) or bool(effect.get("umbra_action_clipped", false)):
+		return null
+	var key: String = str(effect.get("actor_key", ""))
+	var renderer: Node = _bile_bloomer_renderers.get(key, null) as Node
+	if not is_instance_valid(renderer) or not bool(renderer.get("active")):
+		return null
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if key == "enemy_%d" % int(enemy.get("id", -1)):
+			var unit: Dictionary = enemy.duplicate(false)
+			unit.merge({"key": key, "role": "enemy"}, true)
+			var body: Rect2 = _unit_draw_rect(unit)
+			return body.position + body.size * (renderer.call("source_socket") as Vector2) / BileBloomerCutout.SOURCE_SIZE
+	return null
+
+func _draw_bile_bloomer_fragments(effect: Dictionary, progress: float) -> void:
+	if bool(presentation.get("reduced_motion", false)):
+		return
+	var socket: Variant = _bile_bloomer_socket_world(effect)
+	if not socket is Vector2:
+		return
+	var target: Vector2 = _elemental_ground_point(_tile_center(effect.get("to", Vector2i.ZERO)))
+	BileBloomerFx.draw_fragments(self, socket, target, progress, str(effect.get("kind", "")) == "aoe", bile_bloomer_source_pixel_scale())
+
+func _cutout_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2:
+	var action: String = str(effect.get("frostglass_action", ""))
+	if action.is_empty() or bool(effect.get("preview", false)):
+		return _protagonist_launch_point(effect, fallback)
+	var key: String = str(effect.get("actor_key", ""))
+	var renderer: Node = _frostglass_renderers.get(key, null) as Node
+	if not is_instance_valid(renderer):
+		return fallback
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if key != "enemy_%d" % int(enemy.get("id", -1)):
+			continue
+		var unit: Dictionary = enemy.duplicate(false)
+		unit["key"] = key
+		var body: Rect2 = _unit_draw_rect(unit)
+		var delta: Vector2i = (effect.get("to", Vector2i.ZERO) as Vector2i) - (effect.get("from", Vector2i.ZERO) as Vector2i)
+		var source: Vector2 = renderer.call("source_socket", action, delta)
+		return body.position + body.size * source / FrostglassCutout.SOURCE_SIZE
+	return fallback
+
+func _harrier_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2:
+	var renderer: Node = _harrier_renderers.get(str(effect.get("actor_key", "")), null) as Node
+	if not is_instance_valid(renderer) or bool(effect.get("umbra_action_clipped", false)):
+		return fallback
+	var origin: Vector2i = effect.get("from", Vector2i.ZERO)
+	var unit: Dictionary = {"type":"harrier","pos":origin,"id":int(str(effect.get("actor_key", "enemy_-1")).trim_prefix("enemy_"))}
+	var body: Rect2 = _unit_draw_rect(unit)
+	var socket: Vector2 = renderer.call("source_release_socket", (effect.get("to", Vector2i.ZERO) as Vector2i)-origin)
+	return body.position + body.size * socket / HarrierCutout.SOURCE_SIZE
+
+func _iskaldra_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2:
+	if bool(effect.get("preview", false)) or bool(effect.get("umbra_action_clipped", false)) or str(effect.get("kind", "")) != "ranged":
+		return fallback
+	var actor_key: String = str(effect.get("actor_key", ""))
+	var renderer: Node = _iskaldra_renderers.get(actor_key, null) as Node
+	if not is_instance_valid(renderer) or not bool(renderer.get("active")):
+		return fallback
+	for enemy: Dictionary in combat_state.get("enemies", []):
+		if "enemy_%d" % int(enemy.get("id", -1)) != actor_key:
+			continue
+		var unit: Dictionary = enemy.duplicate(false)
+		unit.merge({"key": actor_key, "role": "enemy"}, true)
+		var body: Rect2 = _unit_draw_rect(unit)
+		return body.position + body.size * Vector2(renderer.call("source_socket", true)) / IskaldraCutout.SOURCE_SIZE
+	return fallback
+
+func _draw_protagonist_charge() -> void:
+	var motion: Dictionary = presentation.get("protagonist_motion", {})
+	var amount: float = float(motion.get("charge", 0.0))
+	if amount <= 0.0 or bool(presentation.get("reduced_motion", false)) or not is_instance_valid(_protagonist_renderer):
+		return
+	var center: Vector2 = _protagonist_socket_world(false)
+	var scale: float = protagonist_source_pixel_scale()
+	var accent: Color = _projectile_accent(str(motion.get("element", "none")))
+	var radius: float = lerpf(10.0, 4.0, amount) * scale
+	draw_circle(center, 4.0 * scale, Color(accent, amount * 0.23))
+	draw_arc(center, radius, amount * 2.0, amount * 2.0 + TAU * 0.76, 18, Color(accent, amount * 0.85), maxf(1.0, scale), true)
+	for index: int in range(4):
+		var ray: Vector2 = Vector2.from_angle(float(index) * TAU / 4.0 + amount * 1.6)
+		draw_line(center + ray * (radius + 3.0 * scale), center + ray * radius, Color(accent, amount), maxf(1.0, scale), true)
+	draw_circle(center, 1.4 * scale, Color(1.0, 0.97, 0.85, amount))
+
+func _noctyrax_maw_point(actor_key: String, fallback: Vector2) -> Vector2:
+	var renderer: Node = _noctyrax_renderers.get(actor_key, null) as Node
+	if not is_instance_valid(renderer):
+		return fallback
+	for unit: Dictionary in _visible_units():
+		if str(unit.get("key", "")) == actor_key:
+			var logical: Rect2 = _unit_draw_rect(unit)
+			return logical.position + (Vector2(renderer.call("maw_canvas_position")) - NoctyraxCutout.SOURCE_OFFSET) * logical.size / NoctyraxCutout.SOURCE_SIZE
+	return fallback
+
+func _draw_ranged_projectile_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
+	if bool(effect.get("preview", false)):
+		if _target_preview_curve_visible(effect):
+			_draw_ranged_target_preview_curve(effect, from_point, to_point)
+		return
+	if bool(effect.get("noctyrax_breath", false)):
+		_draw_noctyrax_breath(effect, progress, from_point, to_point)
+		return
+	var style: String = AttackFxLibrary.style_for_effect(effect)
+	match style:
+		AttackFxLibrary.STYLE_FIREBALL:
+			_draw_fireball_attack_effect(effect, progress, from_point, to_point)
+			return
+		AttackFxLibrary.STYLE_EARTH_SPIKES:
+			_draw_earth_spike_attack_effect(effect, progress, from_point, to_point)
+			return
+		AttackFxLibrary.STYLE_AIR_GUST:
+			_draw_air_gust_attack_effect(effect, progress, from_point, to_point)
+			return
+		AttackFxLibrary.STYLE_LIGHTNING_BOLT:
+			_draw_lightning_attack_effect(effect, progress, from_point, to_point)
+			return
+		AttackFxLibrary.STYLE_ICE_SHARDS:
+			_draw_ice_shard_attack_effect(effect, progress, from_point, to_point)
+			return
+	var element_id: String = _projectile_element_id(_effect_element(effect))
+	var accent: Color = _projectile_accent(element_id)
+	var secondary: Color = _projectile_secondary(element_id)
+	var start: Vector2 = _veilbound_acolyte_launch_point(effect, _cutout_launch_point(effect, from_point + Vector2(0.0, -24.0)))
+	var end: Vector2 = to_point + Vector2(0.0, -24.0)
+	var control: Vector2 = _arc_control_point(start, end)
+	if bool(effect.get("veilbound_acolyte_ranged", false)):
+		VeilboundAcolyteFx.ranged(self,progress,start,control,end,_tile_width()/150.0,bool(presentation.get("reduced_motion",false)))
+		return
+	var warmup_progress: float = clampf(progress / 0.34, 0.0, 1.0)
+	var arc_alpha: float = 0.11 + 0.08 * warmup_progress
+	_draw_bezier_glow(start, control, end, Color(accent.r, accent.g, accent.b, arc_alpha), 1.5)
+	var travel_progress: float = clampf((progress - 0.18) / 0.48, 0.0, 1.0)
+	if travel_progress > 0.0:
+		_draw_elemental_projectile_trail(start, control, end, travel_progress, element_id, accent, secondary)
+		var projectile_point: Vector2 = _quadratic_bezier(start, control, end, travel_progress)
+		var behind_point: Vector2 = _quadratic_bezier(start, control, end, maxf(0.0, travel_progress - 0.04))
+		var ahead_point: Vector2 = _quadratic_bezier(start, control, end, minf(1.0, travel_progress + 0.04))
+		_draw_projectile_sprite(projectile_point, ahead_point - behind_point, element_id, travel_progress)
+
+func _draw_noctyrax_breath(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
+	# Starless Breath is exhaled shadow, not the default physical projectile.
+	# Keep the resolver's 18% launch and 66% impact boundaries. Hidden intervals
+	# still use the common Umbra-clipped fragment path below.
+	var start: Vector2 = _noctyrax_maw_point(str(effect.get("actor_key", "")), from_point + Vector2(0.0, -24.0))
+	var end: Vector2 = to_point + Vector2(0.0, -24.0)
+	var scale: float = clampf(_tile_width() / 96.0, 0.65, 1.5)
+	var reduced: bool = bool(presentation.get("reduced_motion", false))
+	if progress >= 0.66 or reduced:
+		var impact: float = 0.45 if reduced else clampf((progress - 0.66) / 0.34, 0.0, 1.0)
+		var alpha: float = 0.75 if reduced else 1.0 - impact
+		draw_circle(end, (5.0 + 12.0 * impact) * scale, Color(0.12, 0.04, 0.22, alpha * 0.72))
+		draw_arc(end, (7.0 + 16.0 * impact) * scale, 0.0, TAU, 28, Color(0.65, 0.40, 0.90, alpha), 2.0 * scale, true)
+		return
+	if bool(effect.get("umbra_action_clipped", false)):
+		return
+	if progress < 0.18:
+		var charge: float = clampf(progress / 0.18, 0.0, 1.0)
+		draw_circle(start, (2.0 + charge * 3.0) * scale, Color(0.61, 0.32, 0.88, charge * 0.60))
+		return
+	var travel: float = clampf((progress - 0.18) / 0.48, 0.0, 1.0)
+	if travel <= 0.001:
+		return
+	var direction: Vector2 = (end - start).normalized()
+	var normal := Vector2(-direction.y, direction.x)
+	var upper := PackedVector2Array()
+	var lower := PackedVector2Array()
+	var spine := PackedVector2Array()
+	for index: int in range(19):
+		var along: float = float(index) / 18.0
+		var t: float = along * travel
+		var wave: float = sin(along * TAU * 2.5 - travel * TAU * 2.0)
+		var center: Vector2 = start.lerp(end, t) + normal * wave * 2.2 * along * scale
+		var width: float = (1.5 + 6.5 * along + 1.4 * sin(along * TAU * 4.0 - travel * 9.0)) * scale
+		upper.append(center + normal * width)
+		lower.append(center - normal * width)
+		spine.append(center)
+	lower.reverse()
+	upper.append_array(lower)
+	draw_colored_polygon(upper, Color(0.16, 0.055, 0.27, 0.88))
+	draw_polyline(spine, Color(0.48, 0.23, 0.70, 0.66), 4.0 * scale, true)
+	for index: int in range(1, 7):
+		var t: float = travel * float(index) / 7.0
+		var center: Vector2 = start.lerp(end, t)
+		center += normal * sin(float(index) * 2.4 - travel * 11.0) * (2.0 + 7.0 * t) * scale
+		draw_circle(center, (1.0 + 1.7 * t) * scale, Color(0.75, 0.52, 0.93, 0.62))
+	var tip: Vector2 = spine[spine.size() - 1]
+	draw_circle(tip, 8.0 * scale, Color(0.28, 0.09, 0.43, 0.88))
+	draw_arc(tip, 7.0 * scale, direction.angle() - PI * 0.65, direction.angle() + PI * 0.65, 14, Color(0.77, 0.51, 0.96, 0.90), 2.0 * scale, true)
+
+func _draw_umbra_clipped_ranged_effect(effect: Dictionary, progress: float) -> void:
+	var original_from: Vector2i = effect.get("umbra_original_from", Vector2i(-1, -1))
+	var original_to: Vector2i = effect.get("umbra_original_to", Vector2i(-1, -1))
+	var segments: Array = effect.get("umbra_visible_line_segments", []) as Array
+	if original_from.x < 0 or original_to.x < 0 or segments.is_empty():
+		return
+	var full_start: Vector2 = _tile_center(original_from)
+	var full_end: Vector2 = _tile_center(original_to)
+	var style: String = AttackFxLibrary.style_for_effect(effect)
+	var travel_start: float = 0.18 if style == AttackFxLibrary.STYLE_DEFAULT else AttackFxLibrary.anticipation_end_progress(style)
+	var travel_end: float = 0.66 if style == AttackFxLibrary.STYLE_DEFAULT else AttackFxLibrary.travel_end_progress(style)
+	var target_visible: bool = _board_tile_is_visible_to_player(original_to)
+	var impact_in_scene: bool = _is_dynamic_render_layer and _effect_uses_elemental_scene_depth(effect)
+	if bool(presentation.get("reduced_motion", false)):
+		for segment_index: int in range(segments.size()):
+			var reduced_segment: Dictionary = segments[segment_index] as Dictionary
+			var reduced_start: float = clampf(float(reduced_segment.get("start", 0.0)), 0.0, 1.0)
+			var reduced_end: float = clampf(float(reduced_segment.get("end", 1.0)), reduced_start, 1.0)
+			var reduced_segment_start: Vector2 = full_start.lerp(full_end, reduced_start)
+			var reduced_segment_end: Vector2 = full_start.lerp(full_end, reduced_end)
+			if target_visible and segment_index == segments.size() - 1:
+				if not impact_in_scene:
+					_draw_ranged_projectile_effect(effect, 1.0, reduced_segment_start, full_end)
+			else:
+				_draw_umbra_projectile_fragment(effect, reduced_segment_start, reduced_segment_end, 0.5, reduced_segment)
+		return
+	if progress < travel_start:
+		return
+	if progress > travel_end:
+		if target_visible and not impact_in_scene:
+			var impact_segment: Dictionary = segments[segments.size() - 1] as Dictionary
+			_draw_ranged_projectile_effect(
+				effect,
+				progress,
+				full_start.lerp(full_end, float(impact_segment.get("start", 0.0))),
+				full_end
+			)
+		return
+	var spatial_progress: float = _umbra_ranged_spatial_progress(style, progress, travel_start, travel_end)
+	for segment_var: Variant in segments:
+		if typeof(segment_var) != TYPE_DICTIONARY:
+			continue
+		var segment: Dictionary = segment_var as Dictionary
+		var segment_start: float = clampf(float(segment.get("start", 0.0)), 0.0, 1.0)
+		var segment_end: float = clampf(float(segment.get("end", 1.0)), segment_start, 1.0)
+		if spatial_progress + 0.0001 < segment_start or spatial_progress - 0.0001 > segment_end:
+			continue
+		var segment_span: float = maxf(0.0001, segment_end - segment_start)
+		var local_spatial_progress: float = clampf((spatial_progress - segment_start) / segment_span, 0.0, 1.0)
+		_draw_umbra_projectile_fragment(
+			effect,
+			full_start.lerp(full_end, segment_start),
+			full_start.lerp(full_end, segment_end),
+			local_spatial_progress,
+			segment
+		)
+		return
+
+func _draw_umbra_projectile_fragment(
+	effect: Dictionary,
+	segment_start: Vector2,
+	segment_end: Vector2,
+	segment_progress: float,
+	clip_segment: Dictionary
+) -> void:
+	# Large authored projectile sheets extend well behind their logical center.
+	# Build a compact elemental streak whose longitudinal vertices are clamped to
+	# the visible interval, so neither its head nor tail can paint into Umbra.
+	var lifted_start: Vector2 = segment_start + Vector2(0.0, -24.0)
+	var lifted_end: Vector2 = segment_end + Vector2(0.0, -24.0)
+	var segment_delta: Vector2 = lifted_end - lifted_start
+	var segment_length: float = segment_delta.length()
+	if segment_length <= 0.01:
+		return
+	var direction: Vector2 = segment_delta / segment_length
+	var normal := Vector2(-direction.y, direction.x)
+	var local_progress: float = clampf(segment_progress, 0.0, 1.0)
+	var center: Vector2 = lifted_start.lerp(lifted_end, local_progress)
+	var available_before: float = segment_length * local_progress
+	var available_after: float = segment_length * (1.0 - local_progress)
+	var tail_length: float = minf(minf(_tile_width() * 0.42, segment_length * 0.58), available_before)
+	var head_length: float = minf(minf(_tile_width() * 0.16, segment_length * 0.24), available_after)
+	var shoulder_length: float = minf(_tile_width() * 0.07, available_before)
+	var back: Vector2 = center - direction * tail_length
+	var shoulder: Vector2 = center - direction * shoulder_length
+	var tip: Vector2 = center + direction * head_length
+	var half_width: float = minf(_tile_width() * 0.060, maxf(2.5, segment_length * 0.10))
+	var element_id: String = _projectile_element_id(_effect_element(effect))
+	var accent: Color = Color(0.65, 0.40, 0.90) if bool(effect.get("noctyrax_breath", false)) else _projectile_accent(element_id)
+	var secondary: Color = Color(0.20, 0.055, 0.32) if bool(effect.get("noctyrax_breath", false)) else _projectile_secondary(element_id)
+	var outer := PackedVector2Array([
+		back,
+		shoulder + normal * half_width * 1.35,
+		tip,
+		shoulder - normal * half_width * 1.35,
+	])
+	var texture: Texture2D = _umbra_projectile_fragment_texture(effect, local_progress)
+	if texture == null:
+		var inner := PackedVector2Array([
+			back,
+			shoulder + normal * half_width,
+			tip,
+			shoulder - normal * half_width,
+		])
+		_draw_umbra_clipped_colored_polygon(outer, Color(secondary.r, secondary.g, secondary.b, 0.18), clip_segment)
+		_draw_umbra_clipped_colored_polygon(inner, Color(accent.r, accent.g, accent.b, 0.72), clip_segment)
+		var core := PackedVector2Array([
+			back,
+			shoulder + normal * half_width * 0.26,
+			tip,
+			shoulder - normal * half_width * 0.26,
+		])
+		var core_color: Color = accent.lightened(0.55)
+		core_color.a = 0.88
+		_draw_umbra_clipped_colored_polygon(core, core_color, clip_segment)
+		return
+	_draw_umbra_clipped_colored_polygon(outer, Color(secondary.r, secondary.g, secondary.b, 0.20), clip_segment)
+	var texture_size := Vector2(
+		clampf(_tile_width() * 0.82, 70.0, 112.0),
+		clampf(_tile_width() * 0.48, 40.0, 72.0)
+	)
+	_draw_umbra_clipped_oriented_texture(
+		texture,
+		center,
+		direction,
+		texture_size * 1.12,
+		available_before,
+		available_after,
+		Color(secondary.r, secondary.g, secondary.b, 0.24),
+		clip_segment
+	)
+	_draw_umbra_clipped_oriented_texture(
+		texture,
+		center,
+		direction,
+		texture_size,
+		available_before,
+		available_after,
+		Color.WHITE,
+		clip_segment
+	)
+
+func _umbra_projectile_fragment_texture(effect: Dictionary, _progress: float) -> Texture2D:
+	# Elemental spells use clipped material geometry, including when only a short
+	# visible interval crosses Umbra. Do not resurrect the removed spell atlases.
+	if bool(effect.get("noctyrax_breath", false)) or AttackFxLibrary.uses_authored_elemental_attack(effect):
+		return null
+	return _projectile_texture(_projectile_element_id(_effect_element(effect)))
+
+func _draw_umbra_clipped_oriented_texture(
+	texture: Texture2D,
+	center: Vector2,
+	direction: Vector2,
+	draw_size: Vector2,
+	available_before: float,
+	available_after: float,
+	tint: Color,
+	clip_segment: Dictionary
+) -> void:
+	var destination := Rect2(-draw_size * 0.5, draw_size)
+	var clipped_x_start: float = maxf(destination.position.x, -available_before)
+	var clipped_x_end: float = minf(destination.end.x, available_after)
+	if clipped_x_end - clipped_x_start <= 0.01:
+		return
+	var x_ratio_start: float = (clipped_x_start - destination.position.x) / destination.size.x
+	var x_ratio_end: float = (clipped_x_end - destination.position.x) / destination.size.x
+	var source_size := Vector2(texture.get_size())
+	var clipped_destination := Rect2(
+		Vector2(clipped_x_start, destination.position.y),
+		Vector2(clipped_x_end - clipped_x_start, destination.size.y)
+	)
+	var source := Rect2(
+		Vector2(source_size.x * x_ratio_start, 0.0),
+		Vector2(source_size.x * (x_ratio_end - x_ratio_start), source_size.y)
+	)
+	var normal := Vector2(-direction.y, direction.x)
+	var polygon_vertices: Array[Dictionary] = _umbra_dictionary_array([
+		{
+			"point": center + direction * clipped_destination.position.x + normal * clipped_destination.position.y,
+			"uv": Vector2(source.position.x / source_size.x, source.position.y / source_size.y),
+		},
+		{
+			"point": center + direction * clipped_destination.end.x + normal * clipped_destination.position.y,
+			"uv": Vector2(source.end.x / source_size.x, source.position.y / source_size.y),
+		},
+		{
+			"point": center + direction * clipped_destination.end.x + normal * clipped_destination.end.y,
+			"uv": Vector2(source.end.x / source_size.x, source.end.y / source_size.y),
+		},
+		{
+			"point": center + direction * clipped_destination.position.x + normal * clipped_destination.end.y,
+			"uv": Vector2(source.position.x / source_size.x, source.end.y / source_size.y),
+		},
+	])
+	polygon_vertices = _umbra_clip_polygon_vertices(polygon_vertices, clip_segment)
+	if polygon_vertices.size() < 3:
+		return
+	var points := PackedVector2Array()
+	var colors := PackedColorArray()
+	var uvs := PackedVector2Array()
+	for vertex: Dictionary in polygon_vertices:
+		points.append(vertex.get("point", Vector2.ZERO))
+		colors.append(tint)
+		uvs.append(vertex.get("uv", Vector2.ZERO))
+	draw_polygon(points, colors, uvs, texture)
+
+func _draw_umbra_clipped_colored_polygon(points: PackedVector2Array, color: Color, clip_segment: Dictionary) -> void:
+	var vertices: Array[Dictionary] = _umbra_dictionary_array([])
+	for point: Vector2 in points:
+		vertices.append({"point": point, "uv": Vector2.ZERO})
+	vertices = _umbra_clip_polygon_vertices(vertices, clip_segment)
+	if vertices.size() < 3:
+		return
+	var clipped_points := PackedVector2Array()
+	for vertex: Dictionary in vertices:
+		clipped_points.append(vertex.get("point", Vector2.ZERO))
+	draw_colored_polygon(clipped_points, color)
+
+func _umbra_clip_polygon_vertices(vertices: Array[Dictionary], clip_segment: Dictionary) -> Array[Dictionary]:
+	var result: Array[Dictionary] = vertices
+	for plane: Dictionary in _umbra_clip_planes_for_segment(clip_segment):
+		if result.is_empty():
+			break
+		var clipped: Array[Dictionary] = _umbra_dictionary_array([])
+		var plane_point: Vector2 = plane.get("point", Vector2.ZERO)
+		var plane_normal: Vector2 = plane.get("normal", Vector2.ZERO)
+		for vertex_index: int in range(result.size()):
+			var current: Dictionary = result[vertex_index]
+			var next: Dictionary = result[(vertex_index + 1) % result.size()]
+			var current_point: Vector2 = current.get("point", Vector2.ZERO)
+			var next_point: Vector2 = next.get("point", Vector2.ZERO)
+			var current_distance: float = (current_point - plane_point).dot(plane_normal)
+			var next_distance: float = (next_point - plane_point).dot(plane_normal)
+			var current_inside: bool = current_distance >= -0.001
+			var next_inside: bool = next_distance >= -0.001
+			if current_inside:
+				clipped.append(current)
+			if current_inside == next_inside:
+				continue
+			var denominator: float = current_distance - next_distance
+			if absf(denominator) <= 0.0001:
+				continue
+			var interpolation: float = clampf(current_distance / denominator, 0.0, 1.0)
+			clipped.append({
+				"point": current_point.lerp(next_point, interpolation),
+				"uv": (current.get("uv", Vector2.ZERO) as Vector2).lerp(next.get("uv", Vector2.ZERO) as Vector2, interpolation),
+			})
+		result = clipped
+	return result
+
+func _umbra_dictionary_array(values: Array) -> Array[Dictionary]:
+	var result: Array[Dictionary]
+	for value: Variant in values:
+		if typeof(value) == TYPE_DICTIONARY:
+			result.append(value as Dictionary)
+	return result
+
+func _umbra_clip_planes_for_segment(segment: Dictionary) -> Array[Dictionary]:
+	var planes: Array[Dictionary] = _umbra_dictionary_array([])
+	for boundary_group: Dictionary in [
+		{
+			"boundaries": segment.get("start_clip_boundaries", []),
+			"hidden": segment.get("start_hidden_tile", Vector2i(-1, -1)),
+			"visible": segment.get("start_visible_tile", Vector2i(-1, -1)),
+		},
+		{
+			"boundaries": segment.get("end_clip_boundaries", []),
+			"hidden": segment.get("end_hidden_tile", Vector2i(-1, -1)),
+			"visible": segment.get("end_visible_tile", Vector2i(-1, -1)),
+		},
+	]:
+		var boundaries: Array = boundary_group.get("boundaries", []) as Array
+		if boundaries.is_empty():
+			var hidden_tile: Vector2i = boundary_group.get("hidden", Vector2i(-1, -1))
+			var visible_tile: Vector2i = boundary_group.get("visible", Vector2i(-1, -1))
+			if hidden_tile.x >= 0 and visible_tile.x >= 0:
+				boundaries = [{"hidden_tile": hidden_tile, "visible_tile": visible_tile}]
+		for boundary_var: Variant in boundaries:
+			if typeof(boundary_var) != TYPE_DICTIONARY:
+				continue
+			var boundary: Dictionary = boundary_var as Dictionary
+			var hidden_tile: Vector2i = boundary.get("hidden_tile", Vector2i(-1, -1))
+			var visible_tile: Vector2i = boundary.get("visible_tile", Vector2i(-1, -1))
+			if hidden_tile.x < 0 or visible_tile.x < 0:
+				continue
+			var plane: Dictionary = _umbra_tile_boundary_plane(hidden_tile, visible_tile)
+			if not plane.is_empty():
+				planes.append(plane)
+	return planes
+
+func _umbra_tile_boundary_plane(hidden_tile: Vector2i, visible_tile: Vector2i) -> Dictionary:
+	var visible_center: Vector2 = _tile_center(visible_tile)
+	var hidden_polygon: PackedVector2Array = _tile_polygon(hidden_tile)
+	if hidden_polygon.size() < 4:
+		return {}
+	var closest_corner_index: int = 0
+	var second_corner_index: int = 1
+	var closest_distance: float = INF
+	var second_distance: float = INF
+	for corner_index: int in range(4):
+		var corner_distance: float = hidden_polygon[corner_index].distance_squared_to(visible_center)
+		if corner_distance < closest_distance:
+			second_distance = closest_distance
+			second_corner_index = closest_corner_index
+			closest_distance = corner_distance
+			closest_corner_index = corner_index
+		elif corner_distance < second_distance:
+			second_distance = corner_distance
+			second_corner_index = corner_index
+	var boundary_start: Vector2 = hidden_polygon[closest_corner_index]
+	var boundary_end: Vector2 = hidden_polygon[second_corner_index]
+	var midpoint: Vector2 = (boundary_start + boundary_end) * 0.5
+	var normal := Vector2(-(boundary_end - boundary_start).y, (boundary_end - boundary_start).x)
+	if (visible_center - midpoint).dot(normal) < 0.0:
+		normal *= -1.0
+	if normal.length_squared() <= 0.001:
+		return {}
+	return {"point": midpoint, "normal": normal.normalized()}
+
+func _umbra_ranged_spatial_progress(style: String, progress: float, travel_start: float, travel_end: float) -> float:
+	if style == AttackFxLibrary.STYLE_DEFAULT:
+		return clampf((progress - travel_start) / maxf(0.001, travel_end - travel_start), 0.0, 1.0)
+	return AttackFxLibrary.travel_progress_for_style(style, progress)
+
+func _ranged_target_preview_curve_points(from_point: Vector2, to_point: Vector2) -> Array[Vector2]:
+	var start: Vector2 = from_point + Vector2(0.0, -_tile_height() * RANGED_PREVIEW_SOURCE_LIFT_TILE_HEIGHT_RATIO)
+	var end: Vector2 = to_point
+	var midpoint: Vector2 = (start + end) * 0.5
+	var base_control: Vector2 = _arc_control_point(start, end)
+	var base_arc_height: float = maxf(1.0, midpoint.y - base_control.y)
+	var desired_apex_y: float = minf(start.y, end.y) - base_arc_height * RANGED_PREVIEW_ARC_HEIGHT_SCALE * 0.52
+	# Solve the quadratic control point from the desired t=0.5 apex. Measuring
+	# from the higher endpoint keeps tile-edge launches visibly airborne even
+	# when source and target have very different screen-space baselines.
+	var preview_control := Vector2(midpoint.x, desired_apex_y * 2.0 - midpoint.y)
+	return _sample_quadratic_points(start, preview_control, end, 16)
+
+func _target_preview_curve_visible(effect: Dictionary) -> bool:
+	# Player card previews explicitly yield line ownership to the segmented arrow
+	# anchored in the hand. Enemy intent previews omit the flag and retain this
+	# familiar airborne trajectory when they are shown independently.
+	return bool(effect.get("target_curve_visible", true))
+
+func _draw_enemy_threat_depth_pass(tile: Vector2i) -> void:
+	for echo: Dictionary in presentation.get("illusion_echo_previews", []):
+		if _ranged_preview_depth_tile(echo) == tile:
+			_draw_ranged_target_preview_curve(echo, _ranged_preview_source_anchor(echo), _ranged_preview_target_anchor(echo))
+	for threat_var: Variant in presentation.get("enemy_threat_previews", []):
+		if typeof(threat_var) != TYPE_DICTIONARY:
+			continue
+		var effect: Dictionary = _enemy_threat_ranged_effect(threat_var as Dictionary)
+		if effect.is_empty() or _ranged_preview_depth_tile(effect) != tile:
+			continue
+		var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
+		var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
+		if from_tile.x < 0 or to_tile.x < 0 or from_tile == to_tile:
+			continue
+		_draw_ranged_target_preview_curve(
+			effect,
+			_ranged_preview_source_anchor(effect),
+			_ranged_preview_target_anchor(effect)
+		)
+
+func _ranged_preview_depth_tile(effect: Dictionary) -> Vector2i:
+	return effect.get("to", Vector2i(-1, -1))
+
+func _ranged_preview_source_anchor(effect: Dictionary) -> Vector2:
+	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
+	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
+	var world_direction: Vector2 = _ranged_preview_world_direction(effect)
+	if from_tile.x < 0 or to_tile.x < 0 or world_direction.length_squared() <= 0.0:
+		return _tile_center(from_tile) if from_tile.x >= 0 else Vector2.ZERO
+	var edge_distance: float = 0.5 / maxf(absf(world_direction.x), absf(world_direction.y))
+	return (
+		_tile_center(from_tile)
+		+ _ranged_preview_projected_board_vector(
+			world_direction * edge_distance * (1.0 - RANGED_PREVIEW_SOURCE_EDGE_INSET_RATIO)
+		)
+	)
+
+func _ranged_preview_target_anchor(effect: Dictionary) -> Vector2:
+	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
+	var world_direction: Vector2 = _ranged_preview_world_direction(effect)
+	if to_tile.x < 0:
+		return Vector2.ZERO
+	var actor: Dictionary = _ranged_preview_target_actor(to_tile)
+	if not actor.is_empty():
+		return _ranged_preview_actor_contact_point(effect, actor)
+	if world_direction.length_squared() <= 0.0:
+		return _tile_center(to_tile) if to_tile.x >= 0 else Vector2.ZERO
+	return (
+		_tile_center(to_tile)
+		- _ranged_preview_projected_board_vector(
+			world_direction * RANGED_PREVIEW_TARGET_STANDOFF_WORLD_TILE_RATIO
+		)
+		+ Vector2(0.0, -_tile_height() * RANGED_PREVIEW_NON_ACTOR_TARGET_LIFT_TILE_HEIGHT_RATIO)
+	)
+
+func _ranged_preview_target_actor(target_tile: Vector2i) -> Dictionary:
+	for preferred_role: String in ["illusion_preview", "illusion", "player", "enemy"]:
+		for unit: Dictionary in _visible_units():
+			if (
+				str(unit.get("role", "")) == preferred_role
+				and _unit_footprint_tiles(unit).has(target_tile)
+			):
+				return unit
+	return {}
+
+func _ranged_preview_actor_contact_point(effect: Dictionary, actor: Dictionary) -> Vector2:
+	var actor_rect: Rect2 = _unit_draw_rect(actor)
+	var actor_center := Vector2(
+		actor_rect.get_center().x,
+		lerpf(actor_rect.position.y, actor_rect.end.y, RANGED_PREVIEW_ACTOR_CONTACT_CENTER_Y_RATIO)
+	)
+	var half_extents := Vector2(
+		actor_rect.size.x * RANGED_PREVIEW_ACTOR_CONTACT_HALF_WIDTH_RATIO,
+		actor_rect.size.y * RANGED_PREVIEW_ACTOR_CONTACT_HALF_HEIGHT_RATIO
+	)
+	var visual_source: Vector2 = (
+		_ranged_preview_source_anchor(effect)
+		+ Vector2(0.0, -_tile_height() * RANGED_PREVIEW_SOURCE_LIFT_TILE_HEIGHT_RATIO)
+	)
+	var toward_source: Vector2 = visual_source - actor_center
+	if toward_source.length_squared() <= 0.0 or half_extents.x <= 0.0 or half_extents.y <= 0.0:
+		return actor_center
+	var x_scale: float = half_extents.x / absf(toward_source.x) if absf(toward_source.x) > 0.001 else INF
+	var y_scale: float = half_extents.y / absf(toward_source.y) if absf(toward_source.y) > 0.001 else INF
+	# Contact the source-facing edge of a torso-sized box within the art rect.
+	# Aiming at the art center hides too much of the thin arc behind the target;
+	# aiming at the tile edge lays it on the floor. This keeps the familiar line
+	# airborne while still making visible contact with the character silhouette.
+	return actor_center + toward_source * minf(x_scale, y_scale)
+
+func _ranged_preview_world_direction(effect: Dictionary) -> Vector2:
+	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
+	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
+	if from_tile.x >= 0 and to_tile.x >= 0 and from_tile != to_tile:
+		return Vector2(to_tile - from_tile).normalized()
+	return Vector2.ZERO
+
+func _ranged_preview_projected_board_vector(delta: Vector2) -> Vector2:
+	return Vector2(
+		(delta.x - delta.y) * _tile_width() * 0.5,
+		(delta.x + delta.y) * _tile_width() * 0.25
+	)
+
+func _enemy_threat_ranged_effect(threat: Dictionary) -> Dictionary:
+	var projected_attack: Array[Vector2i] = _vector2i_array(threat.get("projected_attack", []))
+	var action: Dictionary = threat.get("projected_attack_action", {}) as Dictionary
+	if projected_attack.is_empty() or str(action.get("type", "")) != "ranged":
+		return {}
+	var from_tile: Vector2i = threat.get(
+		"projected_attack_from",
+		threat.get("projected_destination", Vector2i(-1, -1))
+	)
+	var to_tile: Vector2i = threat.get("projected_attack_target", Vector2i(-1, -1))
+	if to_tile.x < 0:
+		to_tile = projected_attack[0]
+	if from_tile.x < 0 or to_tile.x < 0:
+		return {}
+	return {
+		"kind": "ranged",
+		"action_type": "ranged",
+		"from": from_tile,
+		"to": to_tile,
+		"preview": true,
+		"element": str(threat.get("projected_attack_element", action.get("element", ElementData.NONE)))
+	}
+
+func _draw_ranged_target_preview_curve(effect: Dictionary, from_point: Vector2, to_point: Vector2) -> void:
+	# Every preview caller, including AOE, must respect the hand arrow's ownership.
+	if not _target_preview_curve_visible(effect):
+		return
+	var element_id: String = _projectile_element_id(_effect_element(effect))
+	var accent: Color = _projectile_accent(element_id)
+	var secondary: Color = _projectile_secondary(element_id)
+	var points: Array[Vector2] = _ranged_target_preview_curve_points(from_point, to_point)
+	if points.size() < 2:
+		return
+	var packed_points := PackedVector2Array(points)
+	# Preserve the original ranged-preview treatment. The richer movement-arrow
+	# material does not project cleanly around a steep aerial curve and was
+	# deliberately rejected after in-game review.
+	draw_polyline(
+		packed_points,
+		Color(0.0, 0.0, 0.0, RANGED_PREVIEW_OUTLINE_ALPHA),
+		RANGED_PREVIEW_OUTLINE_WIDTH,
+		true
+	)
+	draw_polyline(
+		packed_points,
+		Color(secondary.r, secondary.g, secondary.b, RANGED_PREVIEW_SECONDARY_ALPHA),
+		RANGED_PREVIEW_SECONDARY_WIDTH,
+		true
+	)
+	draw_polyline(
+		packed_points,
+		Color(accent.r, accent.g, accent.b, RANGED_PREVIEW_ACCENT_ALPHA),
+		RANGED_PREVIEW_ACCENT_WIDTH,
+		true
+	)
+
+func _elemental_ground_point(tile_center: Vector2) -> Vector2:
+	# _tile_center is the center of the rendered 2:1 diamond: the exact floor
+	# plane players target. Sprite-local anchors map authored eruption origins to
+	# this invariant point; the world anchor must never drift toward an actor's
+	# screen-space feet or the diamond's lower vertex.
+	return tile_center
+
+func _elemental_air_point(tile_center: Vector2, lift_ratio: float) -> Vector2:
+	return tile_center - Vector2(0.0, _tile_height() * lift_ratio)
+
+func _elemental_style_id(style: String) -> String:
+	match style:
+		AttackFxLibrary.STYLE_EARTH_SPIKES:
+			return "earth"
+		AttackFxLibrary.STYLE_AIR_GUST:
+			return "air"
+		AttackFxLibrary.STYLE_LIGHTNING_BOLT:
+			return "lightning"
+		AttackFxLibrary.STYLE_ICE_SHARDS:
+			return "ice"
+		_:
+			return "fire"
+
+func _elemental_style_for_element(element_id: String) -> String:
+	return AttackFxLibrary.style_for_effect({
+		"kind": "ranged",
+		"action_type": "ranged",
+		"element": element_id,
+	})
+
+func _trap_elemental_scale_ratio(style: String) -> float:
+	return TRAP_ELEMENTAL_DETONATION_SCALE / maxf(0.001, _elemental_detonation_scale(style))
+
+func _draw_scaled_elemental_begin(ground_point: Vector2, scale_ratio: float) -> void:
+	var clamped_ratio: float = maxf(0.001, scale_ratio)
+	draw_set_transform(ground_point * (1.0 - clamped_ratio), 0.0, Vector2.ONE * clamped_ratio)
+
+func _draw_scaled_elemental_end() -> void:
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _draw_elemental_spell_scene(style: String, progress: float, target_ground: Vector2, reduced_motion: bool) -> void:
+	if not reduced_motion and progress < AttackFxLibrary.travel_end_progress(style):
+		return
+	var t: float = 0.38 if reduced_motion else AttackFxLibrary.impact_progress_for_style(style, progress)
+	ElementalSpellFx.ground(self, _elemental_style_id(style), target_ground, _elemental_performance_size(style, t), t, 0.65 if reduced_motion else 1.0)
+
+func _draw_elemental_release(style: String, start: Vector2, ground_start: Vector2, end: Vector2, release_progress: float, alpha: float = 1.0) -> void:
+	ElementalSpellFx.release(self, _elemental_style_id(style), start, ground_start, _tile_width(), release_progress, alpha)
+
+func _elemental_performance_size_scale(style: String) -> float:
+	match style:
+		AttackFxLibrary.STYLE_EARTH_SPIKES:
+			return EARTH_IMPACT_SIZE_SCALE
+		AttackFxLibrary.STYLE_AIR_GUST:
+			return AIR_GUST_IMPACT_SIZE_SCALE
+		AttackFxLibrary.STYLE_LIGHTNING_BOLT:
+			return LIGHTNING_IMPACT_SIZE_SCALE
+		AttackFxLibrary.STYLE_ICE_SHARDS:
+			return ICE_IMPACT_SIZE_SCALE
+		_:
+			return 2.55
+
+func _elemental_detonation_scale(style: String) -> float:
+	return 1.0 if style == AttackFxLibrary.STYLE_LIGHTNING_BOLT else ELEMENTAL_COMPACT_DETONATION_SCALE
+
+func _elemental_performance_size(style: String, impact_progress: float) -> float:
+	var detonation_scale: float = _elemental_detonation_scale(style)
+	var scale: float = _elemental_performance_size_scale(style) * detonation_scale
+	var bloom: float = sin(clampf(impact_progress, 0.0, 1.0) * PI)
+	var bloom_scale: float = 0.08 if style in [AttackFxLibrary.STYLE_EARTH_SPIKES, AttackFxLibrary.STYLE_ICE_SHARDS] else 0.16
+	return clampf(
+		_tile_width() * scale * (0.90 + bloom * bloom_scale),
+		ELEMENTAL_PERFORMANCE_MIN_SIZE * detonation_scale,
+		ELEMENTAL_PERFORMANCE_MAX_SIZE * detonation_scale
+	)
+
+func _elemental_impact_core_fade(style: String, impact_progress: float) -> float:
+	if style == AttackFxLibrary.STYLE_FIREBALL:
+		return 1.0 - smoothstep(0.64, 0.88, impact_progress)
+	return 1.0 - smoothstep(0.86, 1.0, impact_progress)
+
+func _elemental_impact_volume_fade(style: String, impact_progress: float) -> float:
+	if style == AttackFxLibrary.STYLE_FIREBALL:
+		return 1.0 - smoothstep(0.76, 1.0, impact_progress)
+	return _elemental_impact_core_fade(style, impact_progress)
+
+func _draw_elemental_performance(style: String, ground_point: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> float:
+	var draw_size: float = _elemental_performance_size(style, impact_progress)
+	ElementalSpellFx.impact(self, _elemental_style_id(style), ground_point, draw_size, impact_progress, alpha, reduced_motion, false)
+	return draw_size
+
+func _draw_earth_spike_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
+	var style: String = AttackFxLibrary.STYLE_EARTH_SPIKES
+	var from_tile: Vector2i = effect.get("from", Vector2i(-1, -1))
+	var to_tile: Vector2i = effect.get("to", Vector2i(-1, -1))
+	var start: Vector2 = _elemental_ground_point(from_point)
+	var end: Vector2 = _elemental_ground_point(to_point)
+	if bool(presentation.get("reduced_motion", false)):
+		if _render_layer_kind != RENDER_LAYER_SCENE_TILE or _render_layer_tile == to_tile:
+			_draw_earth_impact(end, 0.52, 1.0, true)
+		return
+	if bool(effect.get("preview", false)):
+		var phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
+		_draw_earth_spike_path(start, end, phase, 0.62, from_tile, to_tile)
+		return
+	var anticipation_end: float = AttackFxLibrary.anticipation_end_progress(style)
+	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
+	var travel_progress: float = AttackFxLibrary.travel_progress_for_style(style, progress)
+	if progress <= anticipation_end and (_render_layer_kind != RENDER_LAYER_SCENE_TILE or _render_layer_tile == from_tile):
+		_draw_elemental_release(style, _cutout_launch_point(effect, start), start, end, AttackFxLibrary.release_progress_for_style(style, progress))
+	if progress >= anticipation_end and progress <= travel_end:
+		_draw_earth_spike_path(start, end, travel_progress, 1.0, from_tile, to_tile)
+	if progress >= travel_end and (_render_layer_kind != RENDER_LAYER_SCENE_TILE or _render_layer_tile == to_tile):
+		_draw_earth_impact(end, AttackFxLibrary.impact_progress_for_style(style, progress), 1.0, false)
+
+func _draw_earth_spike_path(start: Vector2, end: Vector2, travel_progress: float, alpha: float, from_tile: Vector2i = Vector2i(-1, -1), to_tile: Vector2i = Vector2i(-1, -1)) -> void:
+	for burst: int in range(EARTH_PATH_SPIKE_COUNT):
+		var phase: float = lerpf(0.10, 0.96, float(burst) / float(EARTH_PATH_SPIKE_COUNT - 1))
+		if _render_layer_kind == RENDER_LAYER_SCENE_TILE and from_tile.x >= 0 and _render_layer_tile != _elemental_lerp_depth_tile(from_tile, to_tile, phase):
+			continue
+		var age: float = (travel_progress - phase) / 0.55
+		if age <= 0.0 or age >= 1.0:
+			continue
+		var point: Vector2 = start.lerp(end, phase)
+		ElementalSpellFx.ground(self, "earth", point, _tile_width() * 0.62, age, alpha * 0.82)
+		ElementalSpellFx.impact(self, "earth", point, _tile_width() * 0.62, age, alpha * 0.82, false, false)
+		ElementalSpellFx.impact(self, "earth", point, _tile_width() * 0.62, age, alpha * 0.82, false, true)
+
+func _draw_earth_impact(point: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
+	_draw_elemental_performance(AttackFxLibrary.STYLE_EARTH_SPIKES, point, impact_progress, alpha, reduced_motion)
+
+func _draw_air_gust_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
+	var style: String = AttackFxLibrary.STYLE_AIR_GUST
+	var start: Vector2 = _cutout_launch_point(effect, _elemental_air_point(from_point, 0.62))
+	var end: Vector2 = _elemental_air_point(to_point, 0.56)
+	var ground_start: Vector2 = _elemental_ground_point(from_point)
+	var ground_end: Vector2 = _elemental_ground_point(to_point)
+	if bool(presentation.get("reduced_motion", false)):
+		_draw_air_gust_impact(end, ground_end, 0.52, 1.0, true)
+		return
+	if bool(effect.get("preview", false)):
+		var phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
+		var preview_alpha: float = clampf(minf(phase / 0.14, (1.0 - phase) / 0.14), 0.0, 1.0) * 0.64
+		_draw_air_gust_travel(start, end, ground_start, ground_end, lerpf(0.05, 0.95, phase), preview_alpha)
+		return
+	var anticipation_end: float = AttackFxLibrary.anticipation_end_progress(style)
+	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
+	if progress <= anticipation_end:
+		_draw_elemental_release(style, start, ground_start, end, AttackFxLibrary.release_progress_for_style(style, progress))
+	if progress >= anticipation_end and progress <= travel_end:
+		_draw_air_gust_travel(start, end, ground_start, ground_end, AttackFxLibrary.travel_progress_for_style(style, progress), 1.0)
+	if progress >= travel_end:
+		_draw_air_gust_impact(end, ground_end, AttackFxLibrary.impact_progress_for_style(style, progress), 1.0, false)
+
+func _draw_air_gust_travel(start: Vector2, end: Vector2, ground_start: Vector2, ground_end: Vector2, travel_progress: float, alpha: float) -> void:
+	ElementalSpellFx.travel(self, "air", start, end, ground_start, ground_end, _tile_width(), travel_progress, alpha)
+
+func _draw_air_gust_impact(center: Vector2, ground_center: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
+	_draw_elemental_performance(AttackFxLibrary.STYLE_AIR_GUST, ground_center, impact_progress, alpha, reduced_motion)
+
+func _draw_lightning_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
+	var style: String = AttackFxLibrary.STYLE_LIGHTNING_BOLT
+	var start: Vector2 = _zekarion_effect_socket(effect, "maw", _cutout_launch_point(effect, _elemental_air_point(from_point, 0.66)))
+	var end: Vector2 = _elemental_air_point(to_point, 0.58)
+	var ground_start: Vector2 = _elemental_ground_point(from_point)
+	var ground_end: Vector2 = _elemental_ground_point(to_point)
+	if bool(presentation.get("reduced_motion", false)):
+		_draw_lightning_impact(end, ground_end, 0.52, 1.0, true)
+		return
+	if bool(effect.get("preview", false)):
+		var phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / 1.35, 0.0, 1.0)
+		var preview_alpha: float = clampf(minf(phase / 0.10, (1.0 - phase) / 0.10), 0.0, 1.0) * 0.66
+		_draw_lightning_travel(start, end, ground_start, ground_end, lerpf(0.06, 0.96, phase), preview_alpha)
+		return
+	var anticipation_end: float = AttackFxLibrary.anticipation_end_progress(style)
+	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
+	if progress <= anticipation_end:
+		_draw_elemental_release(style, start, ground_start, end, AttackFxLibrary.release_progress_for_style(style, progress))
+	if progress >= anticipation_end and progress <= travel_end:
+		_draw_lightning_travel(start, end, ground_start, ground_end, AttackFxLibrary.travel_progress_for_style(style, progress), 1.0)
+	if progress >= travel_end:
+		_draw_lightning_impact(end, ground_end, AttackFxLibrary.impact_progress_for_style(style, progress), 1.0, false)
+
+func _draw_lightning_travel(start: Vector2, end: Vector2, ground_start: Vector2, ground_end: Vector2, travel_progress: float, alpha: float) -> void:
+	ElementalSpellFx.travel(self, "lightning", start, end, ground_start, ground_end, _tile_width(), travel_progress, alpha)
+
+func _draw_lightning_impact(center: Vector2, ground_center: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
+	_draw_elemental_performance(AttackFxLibrary.STYLE_LIGHTNING_BOLT, ground_center, impact_progress, alpha, reduced_motion)
+
+func _draw_ice_shard_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
+	var style: String = AttackFxLibrary.STYLE_ICE_SHARDS
+	var start: Vector2 = _iskaldra_launch_point(effect, _cutout_launch_point(effect, _elemental_air_point(from_point, 0.60)))
+	var end: Vector2 = _elemental_air_point(to_point, 0.40)
+	var ground_start: Vector2 = _elemental_ground_point(from_point)
+	var ground_end: Vector2 = _elemental_ground_point(to_point)
+	if bool(presentation.get("reduced_motion", false)):
+		_draw_ice_icicle_impact(ground_end, 0.52, 1.0, true)
+		return
+	if bool(effect.get("preview", false)):
+		var phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
+		var preview_alpha: float = clampf(minf(phase / 0.14, (1.0 - phase) / 0.14), 0.0, 1.0) * 0.66
+		_draw_ice_shard_travel(start, end, ground_start, ground_end, lerpf(0.05, 0.95, phase), preview_alpha)
+		return
+	var anticipation_end: float = AttackFxLibrary.anticipation_end_progress(style)
+	var travel_end: float = AttackFxLibrary.travel_end_progress(style)
+	if progress <= anticipation_end:
+		_draw_elemental_release(style, start, ground_start, end, AttackFxLibrary.release_progress_for_style(style, progress))
+	if progress >= anticipation_end and progress <= travel_end:
+		_draw_ice_shard_travel(start, end, ground_start, ground_end, AttackFxLibrary.travel_progress_for_style(style, progress), 1.0)
+	if progress >= travel_end:
+		_draw_ice_icicle_impact(ground_end, AttackFxLibrary.impact_progress_for_style(style, progress), 1.0, false)
+
+func _draw_ice_shard_travel(start: Vector2, end: Vector2, ground_start: Vector2, ground_end: Vector2, travel_progress: float, alpha: float) -> void:
+	ElementalSpellFx.travel(self, "ice", start, end, ground_start, ground_end, _tile_width(), travel_progress, alpha)
+
+func _draw_ice_icicle_impact(point: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
+	_draw_elemental_performance(AttackFxLibrary.STYLE_ICE_SHARDS, point, impact_progress, alpha, reduced_motion)
+
+func _draw_fireball_attack_effect(effect: Dictionary, progress: float, from_point: Vector2, to_point: Vector2) -> void:
+	var style: String = AttackFxLibrary.STYLE_FIREBALL
+	var start: Vector2 = _cutout_launch_point(effect, _elemental_air_point(from_point, 0.72))
+	var end: Vector2 = _elemental_air_point(to_point, 0.66)
+	var ground_start: Vector2 = _elemental_ground_point(from_point)
+	var ground_end: Vector2 = _elemental_ground_point(to_point)
+	if bool(presentation.get("reduced_motion", false)):
+		_draw_fireball_impact_frame(end, ground_end, 0.52, 1.0, true)
+		return
+	if bool(effect.get("preview", false)):
+		var preview_phase: float = wrapf((float(Time.get_ticks_msec()) / 1000.0) / PROJECTILE_PREVIEW_LOOP_SECONDS, 0.0, 1.0)
+		var preview_travel: float = lerpf(0.06, 0.94, preview_phase)
+		var preview_alpha: float = clampf(minf(preview_phase / 0.14, (1.0 - preview_phase) / 0.14), 0.0, 1.0) * 0.66
+		_draw_fireball_travel_composite(start, end, ground_start, ground_end, preview_travel, preview_alpha, true)
+		return
+	var anticipation_end: float = AttackFxLibrary.anticipation_end_progress(style)
+	var travel_progress: float = AttackFxLibrary.fireball_travel_progress(progress)
+	if progress <= anticipation_end:
+		_draw_elemental_release(style, start, ground_start, end, AttackFxLibrary.release_progress_for_style(style, progress))
+	if progress >= anticipation_end and progress <= AttackFxLibrary.FIREBALL_TRAVEL_END_PROGRESS:
+		_draw_fireball_travel_composite(start, end, ground_start, ground_end, travel_progress, 1.0, false)
+	var impact_progress: float = AttackFxLibrary.fireball_impact_progress(progress)
+	if progress >= AttackFxLibrary.FIREBALL_TRAVEL_END_PROGRESS:
+		_draw_fireball_impact_frame(end, ground_end, impact_progress, 1.0, false)
+
+func _draw_fireball_travel_composite(start: Vector2, end: Vector2, ground_start: Vector2, ground_end: Vector2, travel_progress: float, alpha: float, preview: bool) -> void:
+	ElementalSpellFx.travel(self, "fire", start, end, ground_start, ground_end, _tile_width(), travel_progress, alpha)
+
+func _draw_fireball_impact_frame(center: Vector2, ground_center: Vector2, impact_progress: float, alpha: float, reduced_motion: bool) -> void:
+	_draw_elemental_performance(AttackFxLibrary.STYLE_FIREBALL, ground_center, impact_progress, alpha, reduced_motion)
+
+func _draw_elemental_projectile_trail(
+	start: Vector2,
+	control: Vector2,
+	end: Vector2,
+	travel_progress: float,
+	element_id: String,
+	accent: Color,
+	secondary: Color,
+	alpha_multiplier: float = 1.0
+) -> void:
+	var points: Array[Vector2] = _sample_quadratic_points(start, control, end, 16)
+	if points.size() < 2:
+		return
+	var last_index: int = clampi(int(floor(float(points.size() - 1) * travel_progress)), 1, points.size() - 1)
+	var first_index: int = maxi(0, last_index - _projectile_trail_segment_count(element_id))
+	var segment_total: int = maxi(1, last_index - first_index)
+	for index: int in range(first_index, last_index):
+		var local_t: float = float(index - first_index + 1) / float(segment_total)
+		var alpha: float = (0.16 + 0.62 * local_t) * clampf(travel_progress * 1.25, 0.0, 1.0) * alpha_multiplier
+		var width: float = lerpf(1.4, _projectile_trail_width(element_id), local_t)
+		draw_line(points[index], points[index + 1], Color(0.0, 0.0, 0.0, alpha * 0.18), width + 4.5, true)
+		draw_line(points[index], points[index + 1], Color(secondary.r, secondary.g, secondary.b, alpha * 0.62), width + 1.8, true)
+		draw_line(points[index], points[index + 1], Color(accent.r, accent.g, accent.b, alpha), width, true)
+
+func _draw_projectile_sprite(center: Vector2, direction: Vector2, element_id: String, travel_progress: float, alpha_multiplier: float = 1.0) -> void:
+	var dir: Vector2 = direction.normalized() if direction.length_squared() > 0.01 else Vector2.RIGHT
+	var texture: Texture2D = _projectile_texture(element_id)
+	var draw_size: float = clampf(_tile_width() * PROJECTILE_DRAW_TILE_SCALE, PROJECTILE_DRAW_MIN_SIZE, PROJECTILE_DRAW_MAX_SIZE)
+	var alpha: float = clampf((0.68 + sin(travel_progress * PI) * 0.30) * alpha_multiplier, 0.0, 1.0)
+	if texture == null:
+		var fallback_color: Color = _projectile_secondary(element_id)
+		fallback_color.a = alpha
+		_draw_projectile_diamond(center, dir, fallback_color, draw_size * 0.18)
+		return
+	var shadow_rect: Rect2 = _projectile_sprite_rect(draw_size, element_id, 1.28)
+	var glow_rect: Rect2 = _projectile_sprite_rect(draw_size, element_id, 1.14)
+	var sprite_rect: Rect2 = _projectile_sprite_rect(draw_size, element_id, 1.0)
+	draw_set_transform(center + Vector2(2.5, 4.0), dir.angle(), Vector2.ONE)
+	draw_texture_rect(texture, shadow_rect, false, Color(0.0, 0.0, 0.0, 0.28 * alpha))
+	draw_set_transform(center, dir.angle(), Vector2.ONE)
+	var glow_color: Color = _projectile_secondary(element_id)
+	draw_texture_rect(texture, glow_rect, false, Color(glow_color.r, glow_color.g, glow_color.b, 0.26 * alpha))
+	draw_texture_rect(texture, sprite_rect, false, Color(1.0, 1.0, 1.0, alpha))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _projectile_sprite_rect(draw_size: float, element_id: String, scale: float = 1.0) -> Rect2:
+	var sprite_size := Vector2(draw_size, draw_size) * scale
+	var anchor: Vector2 = _projectile_sprite_anchor(element_id)
+	return Rect2(
+		Vector2(-sprite_size.x * anchor.x, -sprite_size.y * anchor.y),
+		sprite_size
+	)
+
+func _projectile_sprite_anchor(element_id: String) -> Vector2:
+	match _projectile_element_id(element_id):
+		ElementData.LIGHTNING:
+			return Vector2(PROJECTILE_SPRITE_PATH_ANCHOR_X, 0.38)
+		ElementData.AIR:
+			return Vector2(PROJECTILE_SPRITE_PATH_ANCHOR_X, 0.34)
+		ElementData.EARTH:
+			return Vector2(PROJECTILE_SPRITE_PATH_ANCHOR_X, 0.46)
+		_:
+			return Vector2(PROJECTILE_SPRITE_PATH_ANCHOR_X, 0.50)
+
+func _projectile_texture(element_id: String) -> Texture2D:
+	if _projectile_atlas == null:
+		return null
+	var row: int = _projectile_atlas_row(element_id)
+	var cache_key: String = str(row)
+	if _projectile_textures.has(cache_key):
+		return _projectile_textures.get(cache_key, null)
+	var atlas_size: Vector2 = _projectile_atlas.get_size()
+	var cell_size := Vector2(atlas_size.x, atlas_size.y / float(ELEMENTAL_PROJECTILE_ATLAS_ROWS))
+	var atlas_texture := AtlasTexture.new()
+	atlas_texture.atlas = _projectile_atlas
+	atlas_texture.region = Rect2(Vector2(0.0, cell_size.y * float(row)), cell_size)
+	_projectile_textures[cache_key] = atlas_texture
+	return atlas_texture
+
+func _projectile_atlas_row(element_id: String) -> int:
+	match _projectile_element_id(element_id):
+		ElementData.FIRE:
+			return 1
+		ElementData.ICE:
+			return 2
+		ElementData.LIGHTNING:
+			return 3
+		ElementData.AIR:
+			return 4
+		ElementData.EARTH:
+			return 5
+		_:
+			return 0
+
+func _projectile_element_id(element_id: String) -> String:
+	return element_id if ElementData.is_elemental(element_id) else ElementData.NONE
+
+func _projectile_accent(element_id: String) -> Color:
+	match _projectile_element_id(element_id):
+		ElementData.FIRE:
+			return Color("d66a38")
+		ElementData.ICE:
+			return Color("79bddd")
+		ElementData.LIGHTNING:
+			return Color("d8bd48")
+		ElementData.AIR:
+			return Color("78b99f")
+		ElementData.EARTH:
+			return Color("8a9a5a")
+		_:
+			return Color("b99c72")
+
+func _projectile_secondary(element_id: String) -> Color:
+	match _projectile_element_id(element_id):
+		ElementData.FIRE:
+			return Color("f0a65b")
+		ElementData.ICE:
+			return Color("c8ebf4")
+		ElementData.LIGHTNING:
+			return Color("8da4d6")
+		ElementData.AIR:
+			return Color("c4e6d4")
+		ElementData.EARTH:
+			return Color("c0ad72")
+		_:
+			return Color("dcc59c")
+
+func _projectile_trail_segment_count(element_id: String) -> int:
+	match _projectile_element_id(element_id):
+		ElementData.AIR:
+			return 7
+		ElementData.LIGHTNING:
+			return 4
+		ElementData.EARTH:
+			return 3
+		_:
+			return 5
+
+func _projectile_trail_width(element_id: String) -> float:
+	match _projectile_element_id(element_id):
+		ElementData.FIRE:
+			return 4.1
+		ElementData.ICE:
+			return 3.2
+		ElementData.LIGHTNING:
+			return 2.6
+		ElementData.AIR:
+			return 2.8
+		ElementData.EARTH:
+			return 4.4
+		_:
+			return 3.0
+
+func _draw_blink_rift_effect(from_tile: Vector2i, to_tile: Vector2i, progress: float, preview: bool = false) -> void:
+	var from_point: Vector2 = _tile_center(from_tile)
+	var to_point: Vector2 = _tile_center(to_tile)
+	var path: Vector2 = to_point - from_point
+	var path_length: float = path.length()
+	var direction: Vector2 = path / path_length if path_length > 0.001 else Vector2.RIGHT
+	var normal := Vector2(-direction.y, direction.x)
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	var clamped_progress: float = clampf(progress, 0.0, 1.0)
+	var eased_progress: float = _blink_rift_ease(clamped_progress)
+	var distance_tiles: float = maxf(1.0, path_length / maxf(1.0, tile_width * 0.56))
+	var preview_scale: float = 0.78 if preview else 1.0
+	var rift_alpha_scale: float = 0.96 if preview else 1.0
+	var band_width: float = clampf(tile_width * (0.15 + distance_tiles * 0.012), 8.0, 19.0) * preview_scale
+	var path_lift := Vector2(0.0, -tile_height * 0.28)
+	var from_lifted: Vector2 = from_point + path_lift
+	var to_lifted: Vector2 = to_point + path_lift
+	var current_point: Vector2 = from_point.lerp(to_point, eased_progress)
+	var wash_reveal: float = 1.0 if preview else clampf(eased_progress + 0.22, 0.0, 1.0)
+
+	if preview:
+		_draw_blink_preview_integrated_rift(from_lifted, to_lifted, direction, normal, band_width, rift_alpha_scale, clamped_progress * TAU)
+		return
+
+	_draw_blink_smoke_wash(from_lifted, to_lifted, direction, normal, wash_reveal, band_width, rift_alpha_scale, clamped_progress * TAU, false)
+	draw_line(from_lifted, to_lifted, Color(0.018, 0.012, 0.034, 0.15 * rift_alpha_scale), band_width * 1.75, true)
+	_draw_blink_smoke_band(from_lifted, to_lifted, normal, wash_reveal, band_width * 0.70, Color(0.08, 0.055, 0.13, 0.13 * rift_alpha_scale), clamped_progress * TAU)
+	_draw_blink_smoke_band(from_lifted, to_lifted, normal, eased_progress, band_width, Color(0.18, 0.12, 0.27, 0.45 * rift_alpha_scale), clamped_progress * TAU * 1.35)
+	_draw_blink_smoke_band(from_lifted, to_lifted, normal, clampf(eased_progress + 0.12, 0.0, 1.0), band_width * 0.42, Color(0.55, 0.49, 0.78, 0.30 * rift_alpha_scale), clamped_progress * TAU * 1.75)
+	_draw_blink_rift_edge_strokes(from_lifted, to_lifted, direction, normal, wash_reveal, band_width, rift_alpha_scale, clamped_progress * TAU, false)
+	_draw_blink_rift_motes(from_lifted, to_lifted, direction, normal, wash_reveal, band_width, rift_alpha_scale, clamped_progress * TAU, false)
+
+	var source_alpha: float = lerpf(0.68, 0.20, eased_progress) * preview_scale
+	var destination_alpha: float = lerpf(0.18, 0.74, eased_progress) * preview_scale
+	_draw_tile_ring(from_tile, Color(0.20, 0.13, 0.28, source_alpha), 2.4 * preview_scale, lerpf(0.82, 1.02, eased_progress))
+	_draw_tile_ring(to_tile, Color(0.52, 0.46, 0.74, destination_alpha), 2.5 * preview_scale, lerpf(0.78, 0.98, eased_progress))
+	_draw_blink_rift_mouth(from_point, source_alpha, clamped_progress, 0.08, preview)
+	_draw_blink_rift_mouth(to_point, destination_alpha, clamped_progress, 0.58, preview)
+
+	var settle_fade: float = 1.0 - clampf((clamped_progress - 0.86) / 0.14, 0.0, 1.0)
+	for puff_index: int in range(4):
+		var trail_t: float = clampf(eased_progress - float(puff_index) * 0.17, 0.0, 1.0)
+		if trail_t <= 0.0 and clamped_progress < 0.16:
+			continue
+		var puff_alpha: float = (0.20 - float(puff_index) * 0.035) * (0.55 + 0.45 * clamped_progress) * preview_scale * settle_fade
+		if puff_alpha <= 0.01:
+			continue
+		var wave_offset: Vector2 = normal * sin(trail_t * TAU * 1.7 + float(puff_index) * 0.9) * tile_width * 0.065
+		var puff_center: Vector2 = from_point.lerp(to_point, trail_t) + path_lift * 0.84 + wave_offset
+		var puff_radius: float = clampf(tile_width * (0.10 + float(puff_index) * 0.025), 6.0, 15.0)
+		draw_circle(puff_center, puff_radius, Color(0.025, 0.018, 0.045, puff_alpha))
+		draw_circle(puff_center + normal * tile_width * 0.03, puff_radius * 0.55, Color(0.18, 0.12, 0.26, puff_alpha * 0.48))
+
+	var ghost_fade: float = 1.0 - clampf((clamped_progress - 0.80) / 0.20, 0.0, 1.0)
+	_draw_blink_afterimage_ghost(from_point, maxf(0.0, 0.20 * (1.0 - eased_progress)) * ghost_fade, 0.96)
+	for ghost_index: int in range(4):
+		var ghost_t: float = clampf(eased_progress - float(ghost_index) * 0.13, 0.0, 1.0)
+		if ghost_t <= 0.02:
+			continue
+		var ghost_center: Vector2 = from_point.lerp(to_point, ghost_t)
+		ghost_center += normal * sin(ghost_t * TAU * 1.25 + float(ghost_index) * 0.65) * tile_width * 0.035
+		var ghost_alpha: float = (0.28 - float(ghost_index) * 0.045) * (0.38 + 0.62 * clamped_progress) * ghost_fade
+		_draw_blink_afterimage_ghost(ghost_center, ghost_alpha, 0.98 - float(ghost_index) * 0.045)
+	_draw_blink_afterimage_ghost(current_point, (0.14 + 0.18 * clamped_progress) * ghost_fade, 1.04)
+
+func _blink_rift_ease(progress: float) -> float:
+	var t: float = clampf(progress, 0.0, 1.0)
+	return t * t * (3.0 - 2.0 * t)
+
+func _draw_blink_preview_integrated_rift(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, width: float, alpha_scale: float, phase: float) -> void:
+	var texture: Texture2D = _effect_textures.get("blink_rift_preview", null)
+	if texture != null:
+		_draw_blink_preview_rift_texture(texture, from_point, to_point, width, alpha_scale)
+		return
+	_draw_blink_preview_rift_ribbon(from_point, to_point, direction, normal, 1.0, width, alpha_scale, phase)
+	_draw_blink_preview_endpoint_smudge(from_point, direction, normal, width * 1.08, Color(0.010, 0.008, 0.026, 0.17 * alpha_scale), phase + 0.40)
+	_draw_blink_preview_endpoint_smudge(from_point + direction * width * 0.42 - normal * width * 0.12, direction, normal, width * 0.72, Color(0.105, 0.070, 0.150, 0.11 * alpha_scale), phase + 1.60)
+	_draw_blink_preview_endpoint_smudge(to_point, direction * -1.0, normal, width * 1.22, Color(0.030, 0.020, 0.060, 0.21 * alpha_scale), phase + 2.10)
+	_draw_blink_preview_endpoint_smudge(to_point - direction * width * 0.36 + normal * width * 0.10, direction * -1.0, normal, width * 0.78, Color(0.36, 0.29, 0.52, 0.085 * alpha_scale), phase + 3.20)
+
+func _draw_blink_preview_rift_texture(texture: Texture2D, from_point: Vector2, to_point: Vector2, width: float, alpha_scale: float) -> void:
+	var path: Vector2 = to_point - from_point
+	var path_length: float = path.length()
+	if path_length <= 0.001:
+		return
+	var draw_size := Vector2(
+		path_length + width * 8.4,
+		clampf(width * 8.6, 74.0, 136.0)
+	)
+	var center: Vector2 = from_point.lerp(to_point, 0.5)
+	draw_set_transform(center, path.angle(), Vector2.ONE)
+	draw_texture_rect(texture, Rect2(-draw_size * 0.5, draw_size), false, Color(1.0, 1.0, 1.0, 0.88 * alpha_scale))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _draw_blink_preview_endpoint_smudge(center: Vector2, direction: Vector2, normal: Vector2, width: float, color: Color, phase: float) -> void:
+	var points := PackedVector2Array()
+	var point_count: int = 17
+	for point_index: int in range(point_count):
+		var angle: float = TAU * float(point_index) / float(point_count)
+		var forward: float = cos(angle)
+		var sideways: float = sin(angle)
+		var contour: float = 0.88 + 0.13 * sin(angle * 3.0 + phase)
+		contour += 0.07 * sin(angle * 7.0 + phase * 0.63)
+		var taper: float = 1.0 + maxf(forward, 0.0) * 0.34
+		var point: Vector2 = center
+		point += direction * forward * width * 0.78 * contour * taper
+		point += normal * sideways * width * 0.50 * contour
+		point += direction * sin(angle * 5.0 + phase * 0.41) * width * 0.055
+		points.append(point)
+	if points.size() >= 3:
+		draw_colored_polygon(points, color)
+
+func _draw_blink_smoke_wash(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, reveal: float, width: float, alpha_scale: float, phase: float, preview: bool) -> void:
+	var clamped_reveal: float = clampf(reveal, 0.0, 1.0)
+	if clamped_reveal <= 0.0 or width <= 0.0:
+		return
+	if preview:
+		_draw_blink_preview_rift_ribbon(from_point, to_point, direction, normal, clamped_reveal, width, alpha_scale, phase)
+		return
+	var path_length: float = from_point.distance_to(to_point)
+	var lobe_count: int = mini(18, maxi(6, int(ceil(path_length / maxf(width * 0.85, 1.0)))))
+	var base_alpha: float = 0.088
+	for lobe_index: int in range(lobe_count):
+		var t: float = (float(lobe_index) + 0.5) / float(lobe_count)
+		if t > clamped_reveal:
+			continue
+		var reveal_fade: float = clampf((clamped_reveal - t) * float(lobe_count), 0.0, 1.0)
+		var center_fade: float = 0.38 + 0.62 * sin(t * PI)
+		var drift: float = sin(t * TAU * 2.15 + phase * 0.58) * width * 0.78
+		drift += sin(t * TAU * 5.0 + phase * 0.21) * width * 0.22
+		var pull: float = cos(t * TAU * 1.4 + phase * 0.35) * width * 0.24
+		var center: Vector2 = from_point.lerp(to_point, t) + normal * drift + direction * pull
+		center += Vector2(0.0, sin(t * PI) * width * 0.13)
+		var rough: float = 0.84 + 0.16 * sin(t * TAU * 6.0 + phase)
+		var radius: float = width * ((1.48 if preview else 1.18) + 0.44 * sin(t * TAU * 2.8 + phase * 0.42)) * rough
+		var alpha: float = base_alpha * alpha_scale * center_fade * reveal_fade
+		draw_circle(center + normal * width * 0.18, radius * 1.36, Color(0.010, 0.008, 0.025, alpha * 0.46))
+		draw_circle(center, radius, Color(0.055, 0.035, 0.085, alpha))
+		draw_circle(center + direction * width * 0.24 - normal * width * 0.10, radius * 0.56, Color(0.20, 0.145, 0.29, alpha * 0.52))
+
+func _draw_blink_preview_rift_ribbon(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, reveal: float, width: float, alpha_scale: float, phase: float) -> void:
+	var clamped_reveal: float = clampf(reveal, 0.0, 1.0)
+	if clamped_reveal <= 0.0:
+		return
+	var path_length: float = from_point.distance_to(to_point)
+	var segment_count: int = mini(18, maxi(7, int(ceil(path_length / maxf(width * 0.88, 1.0)))))
+	_draw_blink_preview_ribbon_layer(from_point, to_point, direction, normal, clamped_reveal, width * 2.75, segment_count, Color(0.006, 0.005, 0.018, 0.135 * alpha_scale), phase + 0.20, Vector2(0.0, width * 0.18))
+	_draw_blink_preview_ribbon_layer(from_point, to_point, direction, normal, clamped_reveal, width * 2.05, segment_count, Color(0.035, 0.023, 0.070, 0.175 * alpha_scale), phase + 1.00, normal * width * 0.05)
+	_draw_blink_preview_ribbon_layer(from_point, to_point, direction, normal, clamped_reveal, width * 1.22, segment_count, Color(0.120, 0.080, 0.180, 0.135 * alpha_scale), phase + 2.20, -normal * width * 0.06)
+	_draw_blink_preview_ribbon_layer(from_point, to_point, direction, normal, clamped_reveal, width * 0.54, segment_count, Color(0.46, 0.38, 0.64, 0.055 * alpha_scale), phase + 3.50, direction * width * 0.06)
+
+func _draw_blink_preview_ribbon_layer(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, reveal: float, width: float, segment_count: int, color: Color, phase: float, offset: Vector2) -> void:
+	var left_points: Array[Vector2]
+	var right_points: Array[Vector2]
+	var safe_segments: int = maxi(2, segment_count)
+	for point_index: int in range(safe_segments + 1):
+		var t: float = reveal * float(point_index) / float(safe_segments)
+		var center_fade: float = pow(sin(t * PI), 0.62)
+		var wave: float = sin(t * TAU * 1.70 + phase) * width * 0.10
+		wave += sin(t * TAU * 3.85 + phase * 0.43) * width * 0.045
+		var center: Vector2 = from_point.lerp(to_point, t) + offset + normal * wave
+		center += Vector2(0.0, sin(t * PI) * width * 0.030)
+		var edge_noise: float = 0.74 + 0.18 * sin(t * TAU * 5.10 + phase * 0.80)
+		edge_noise += 0.08 * sin(t * TAU * 9.30 + phase * 1.70)
+		var half_width: float = width * (0.18 + 0.44 * center_fade) * edge_noise
+		var ragged_shift: Vector2 = direction * sin(t * TAU * 6.50 + phase * 0.37) * width * 0.035
+		left_points.append(center + normal * half_width + ragged_shift)
+		right_points.push_front(center - normal * half_width - ragged_shift * 0.72)
+	var polygon := PackedVector2Array()
+	for point: Vector2 in left_points:
+		polygon.append(point)
+	for point: Vector2 in right_points:
+		polygon.append(point)
+	if polygon.size() >= 3:
+		draw_colored_polygon(polygon, color)
+
+func _draw_blink_smoke_band(from_point: Vector2, to_point: Vector2, normal: Vector2, progress: float, width: float, color: Color, phase: float) -> void:
+	var clamped_progress: float = clampf(progress, 0.0, 1.0)
+	if clamped_progress <= 0.0 or width <= 0.0:
+		return
+	var segment_count: int = 16
+	var visible_segments: int = maxi(2, int(ceil(float(segment_count) * clamped_progress)))
+	var previous_point := Vector2.ZERO
+	for point_index: int in range(visible_segments + 1):
+		var t: float = clamped_progress * float(point_index) / float(visible_segments)
+		var wave: float = sin(t * TAU * 1.7 + phase) * width * 0.42
+		wave += sin(t * TAU * 3.4 + phase * 0.55) * width * 0.18
+		var sag: float = sin(t * PI) * width * 0.12
+		var point: Vector2 = from_point.lerp(to_point, t) + normal * wave + Vector2(0.0, sag)
+		if point_index > 0:
+			var segment_t: float = float(point_index) / float(visible_segments)
+			var center_fade: float = 0.34 + 0.66 * sin(t * PI)
+			var rough: float = 0.78 + 0.22 * sin(t * TAU * 5.6 + phase * 0.37)
+			var alpha: float = color.a * (0.38 + 0.62 * segment_t) * center_fade * rough
+			var segment_width: float = width * (0.55 + 0.35 * center_fade + 0.10 * rough)
+			draw_line(previous_point, point, Color(color.r, color.g, color.b, alpha), segment_width, true)
+		previous_point = point
+
+func _draw_blink_rift_edge_strokes(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, reveal: float, width: float, alpha_scale: float, phase: float, preview: bool) -> void:
+	var clamped_reveal: float = clampf(reveal, 0.0, 1.0)
+	if clamped_reveal <= 0.0 or width <= 0.0:
+		return
+	var path_length: float = from_point.distance_to(to_point)
+	var stroke_count: int = mini(22, maxi(8, int(ceil(path_length / maxf(width * 0.58, 1.0)))))
+	var base_alpha: float = 0.31 if preview else 0.22
+	for stroke_index: int in range(stroke_count):
+		var t: float = (float(stroke_index) + 0.36) / float(stroke_count)
+		if t > clamped_reveal:
+			continue
+		var side: float = -1.0 if stroke_index % 2 == 0 else 1.0
+		var edge_offset: float = width * (0.70 + 0.34 * sin(t * TAU * 3.1 + phase)) * side
+		var center: Vector2 = from_point.lerp(to_point, t) + normal * edge_offset
+		center += direction * sin(t * TAU * 4.4 + phase * 0.33) * width * 0.20
+		var tangent_length: float = width * (0.34 + 0.18 * sin(t * TAU * 5.3 + phase * 0.44))
+		var curl: Vector2 = normal * side * width * 0.20 * sin(t * TAU * 2.2 + phase)
+		var stroke_alpha: float = base_alpha * alpha_scale * (0.48 + 0.52 * sin(t * PI))
+		var start_point: Vector2 = center - direction * tangent_length + curl
+		var end_point: Vector2 = center + direction * tangent_length - curl * 0.36
+		draw_line(start_point, end_point, Color(0.020, 0.014, 0.040, stroke_alpha * 0.88), 1.45 if preview else 1.9, true)
+		draw_line(start_point.lerp(end_point, 0.34), end_point, Color(0.48, 0.42, 0.66, stroke_alpha * 0.38), 0.75 if preview else 1.05, true)
+
+func _draw_blink_rift_motes(from_point: Vector2, to_point: Vector2, direction: Vector2, normal: Vector2, reveal: float, width: float, alpha_scale: float, phase: float, preview: bool) -> void:
+	var clamped_reveal: float = clampf(reveal, 0.0, 1.0)
+	if clamped_reveal <= 0.0 or width <= 0.0:
+		return
+	var path_length: float = from_point.distance_to(to_point)
+	var mote_count: int = mini(28, maxi(9, int(ceil(path_length / maxf(width * 0.42, 1.0)))))
+	var base_alpha: float = 0.22 if preview else 0.18
+	for mote_index: int in range(mote_count):
+		var t: float = (float(mote_index) + 0.24) / float(mote_count)
+		if t > clamped_reveal:
+			continue
+		var offset: float = sin(t * TAU * 7.0 + phase * 0.49) * width * 1.28
+		var lift: float = cos(t * TAU * 4.0 + phase * 0.31) * width * 0.26
+		var center: Vector2 = from_point.lerp(to_point, t) + normal * offset + direction * lift
+		var center_fade: float = 0.28 + 0.72 * sin(t * PI)
+		var alpha: float = base_alpha * alpha_scale * center_fade * (0.56 + 0.44 * sin(t * TAU * 5.5 + phase))
+		var radius: float = 0.75 + 1.15 * (0.5 + 0.5 * sin(t * TAU * 6.3 + phase * 0.62))
+		if preview:
+			var mote_direction: Vector2 = direction * radius * 1.55 + normal * sin(t * TAU * 3.4 + phase) * radius * 0.70
+			draw_line(center - mote_direction * 0.35, center + mote_direction, Color(0.58, 0.52, 0.76, alpha * 0.74), 0.85, true)
+			draw_line(center + Vector2(0.0, 0.8), center + mote_direction * 0.72 + Vector2(0.0, 0.8), Color(0.025, 0.018, 0.045, alpha * 0.18), 1.2, true)
+		else:
+			draw_circle(center, radius, Color(0.58, 0.52, 0.76, alpha))
+			draw_circle(center + Vector2(0.0, 0.8), radius * 1.7, Color(0.025, 0.018, 0.045, alpha * 0.22))
+
+func _draw_blink_rift_mouth(center: Vector2, alpha: float, progress: float, phase: float, preview: bool = false) -> void:
+	if alpha <= 0.0:
+		return
+	var tile_width: float = _tile_width()
+	var tile_height: float = _tile_height()
+	var mouth_center: Vector2 = center + Vector2(0.0, -tile_height * 0.20)
+	var pulse: float = 0.5 + 0.5 * sin((progress + phase) * TAU)
+	var mouth_scale: float = 0.88 if preview else 1.0
+	draw_circle(mouth_center + Vector2(0.0, tile_height * 0.04), tile_width * (0.18 + 0.03 * pulse) * mouth_scale, Color(0.010, 0.008, 0.024, alpha * 0.16))
+	draw_circle(mouth_center, tile_width * (0.10 + 0.04 * pulse) * mouth_scale, Color(0.015, 0.010, 0.030, alpha * 0.46))
+	draw_circle(mouth_center + Vector2(tile_width * 0.018, -tile_height * 0.018), tile_width * (0.058 + 0.018 * pulse) * mouth_scale, Color(0.20, 0.14, 0.30, alpha * 0.28))
+	for ring_index: int in range(4):
+		var radius: float = tile_width * (0.12 + float(ring_index) * 0.044 + pulse * 0.016) * mouth_scale
+		var start_angle: float = phase * TAU + progress * TAU * (0.62 + float(ring_index) * 0.16) + float(ring_index) * 0.74
+		var end_angle: float = start_angle + PI * (0.74 + float(ring_index) * 0.13)
+		var ring_alpha: float = alpha * (0.56 - float(ring_index) * 0.09)
+		draw_arc(mouth_center, radius, start_angle, end_angle, 14, Color(0.18, 0.12, 0.28, ring_alpha), 1.25 if preview else 1.6)
+		draw_arc(mouth_center, radius + 1.8, end_angle - PI * 0.22, end_angle, 7, Color(0.58, 0.52, 0.78, ring_alpha * 0.34), 0.9 if preview else 1.2)
+
+func _draw_blink_afterimage_ghost(center: Vector2, alpha: float, scale: float) -> void:
+	if alpha <= 0.0:
+		return
+	var unit: Dictionary = _blink_player_unit_snapshot()
+	var texture: Texture2D = _texture_for_unit(unit)
+	if texture == null:
+		draw_circle(center + Vector2(0.0, -_tile_height() * 0.18), _tile_width() * 0.12, Color(0.36, 0.30, 0.52, alpha))
+		return
+	var ghost_rect: Rect2 = _unit_texture_draw_rect(unit, center, scale)
+	ghost_rect.position += Vector2(0.0, -_tile_height() * 0.06)
+	_draw_iso_ground_shadow(center + Vector2(0.0, _tile_height() * 0.14), _tile_width() * 0.36 * scale, _tile_height() * 0.18, _tile_width() * 0.04, alpha * 0.34)
+	draw_texture_rect(texture, Rect2(ghost_rect.position + Vector2(-2.0, -2.0), ghost_rect.size), false, Color(0.018, 0.012, 0.035, alpha * 0.72))
+	draw_texture_rect(texture, ghost_rect, false, Color(0.48, 0.40, 0.68, alpha))
+	draw_texture_rect(texture, Rect2(ghost_rect.position + Vector2(2.0, 1.0), ghost_rect.size), false, Color(0.08, 0.04, 0.12, alpha * 0.30))
+
+func _blink_player_unit_snapshot() -> Dictionary:
+	var player: Dictionary = combat_state.get("player", {})
+	return {
+		"key": "player",
+		"role": "player",
+		"type": "player",
+		"name": "Player",
+		"pos": player.get("pos", Vector2i.ZERO),
+		"hp": int(player.get("hp", 1)),
+		"max_hp": int(player.get("max_hp", maxi(1, int(player.get("hp", 1))))),
+		"block": int(player.get("block", 0)),
+		"stoneskin": int(player.get("stoneskin", 0)),
+		"freeze": int(player.get("freeze", 0)),
+		"shock": int(player.get("shock", 0)),
+		"immobilize": bool(player.get("immobilize", false)),
+	}
+
+func _draw_action_ground_markings() -> void:
+	# Tactical diamonds describe the floor, including while the attack resolves.
+	# Keep filled cells and outlines beside preview highlights, beneath trap
+	# sprites, loot, paths, Umbra and raised scenery. Light effects have their own
+	# later floor pass; they must not lift tactical diamonds above ground objects.
+	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
+	var kind: String = str(effect.get("kind", ""))
+	if kind == "aoe" and not bool(effect.get("preview", false)):
+		var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
+		_draw_aoe_resolution_footprint(effect, progress)
+	elif kind == "ranged" and (effect.get("from", Vector2i(-1, -1)) as Vector2i).x >= 0 and (effect.get("to", Vector2i(-1, -1)) as Vector2i).x >= 0:
+		for force_tile: Vector2i in _vector2i_array(effect.get("force_tiles", [])):
+			if _board_tile_is_visible_to_player(force_tile):
+				_draw_tile_ring(force_tile, Color(0.72, 0.95, 1.0, 0.64), 2.2, 0.74)
+
+func _draw_aoe_cast_preview(effect: Dictionary, from_point: Vector2, center_point: Vector2) -> void:
+	if not bool(effect.get("preview", false)) or (effect.get("tiles", []) as Array).is_empty():
+		return
+	# The shared floor highlights already express the affected area. Only the
+	# thin cast path belongs above the scene; resolution diamonds stay below it.
+	if from_point != Vector2.ZERO and center_point != Vector2.ZERO and from_point.distance_squared_to(center_point) > 1.0:
+		_draw_ranged_target_preview_curve(effect, from_point, center_point)
+
+func _draw_aoe_resolution_footprint(effect: Dictionary, progress: float) -> void:
+	var visibility: float = _aoe_resolution_footprint_visibility(effect, progress)
+	if visibility <= 0.0:
+		return
+	var accent: Color = _aoe_effect_accent(effect)
+	var edge_rgb: Color = accent.lightened(0.34)
+	var fill := Color(accent.r, accent.g, accent.b, 0.18 * visibility)
+	var edge := Color(edge_rgb.r, edge_rgb.g, edge_rgb.b, 0.78 * visibility)
+	for tile: Vector2i in _vector2i_array(effect.get("tiles", [])):
+		_draw_aoe_footprint_tile(tile, fill, edge, 2.0)
+
+func _aoe_resolution_footprint_visibility(effect: Dictionary, progress: float) -> float:
+	if bool(presentation.get("reduced_motion", false)):
+		return 0.86
+	var style: String = AttackFxLibrary.style_for_effect(effect)
+	var impact_progress: float = AttackFxLibrary.impact_progress_for_style(style, progress)
+	var reveal: float = smoothstep(0.0, 0.16, impact_progress)
+	var fade: float = 1.0 - smoothstep(0.72, 1.0, impact_progress)
+	return reveal * fade
+
+func _aoe_effect_accent(effect: Dictionary) -> Color:
+	var element_id: String = _effect_element(effect)
+	if ElementData.is_elemental(element_id):
+		if element_id == ElementData.LIGHTNING:
+			return Color(1.0, 0.91, 0.34, 1.0)
+		return ElementData.accent(element_id).lightened(0.22)
+	return Color(1.0, 0.76, 0.42, 1.0)
+
+func _effect_element(effect: Dictionary) -> String:
+	return str(effect.get("element", effect.get("_card_element", ElementData.NONE)))
+
+func _draw_floating_texts() -> void:
+	var default_font: Font = get_theme_default_font()
+	if default_font == null:
+		return
+	_floating_text_last_layout = _floating_text_screen_layout(default_font)
+	for popup: Dictionary in _floating_text_last_layout:
+		var entry: Dictionary = popup["entry"]
+		var font: Font = popup["font"] as Font
+		var label_width: float = float(popup["label_width"])
+		var font_scale: float = float(popup["font_scale"])
+		var text_pos: Vector2 = (popup["origin"] as Vector2) + (popup.get("layout_offset", Vector2.ZERO) as Vector2)
+		var color: Color = entry.get("color", Color("f8f0da"))
+		color.a *= clampf(float(entry.get("alpha", 1.0)), 0.0, 1.0)
+		var font_size: int = int(entry.get("font_size", 16))
+		var text: String = str(entry.get("text", ""))
+		var alignment: HorizontalAlignment = entry.get("alignment", HORIZONTAL_ALIGNMENT_LEFT)
+		draw_set_transform(text_pos, 0.0, Vector2(font_scale, font_scale))
+		var local_text_pos := Vector2.ZERO
+		var icon_key: String = str(entry.get("icon", ""))
+		if not icon_key.is_empty():
+			var icon_size: float = float(entry.get("icon_size", 18.0))
+			var icon_rect := Rect2(Vector2(0.0, -icon_size + 2.0), Vector2(icon_size, icon_size))
+			var icon_fill: Color = entry.get("icon_fill", Color(0.12, 0.06, 0.05, 0.90))
+			icon_fill.a *= color.a
+			var icon_border: Color = entry.get("icon_border", color)
+			icon_border.a *= color.a
+			var icon_tint: Color = entry.get("icon_tint", Color.WHITE)
+			icon_tint.a *= color.a
+			draw_circle(icon_rect.get_center(), icon_size * 0.56, icon_fill)
+			draw_arc(icon_rect.get_center(), icon_size * 0.56, 0.0, TAU, 20, icon_border, 1.3)
+			_draw_keyword_icon(icon_key, icon_rect.grow(-2.0), "", icon_tint)
+			local_text_pos.x += icon_size + 4.0
+			label_width = maxf(0.0, label_width - icon_size - 4.0)
+		var outline_size: int = int(entry.get("outline_size", 2))
+		var shadow_offset: Vector2 = entry.get("shadow_offset", Vector2.ZERO)
+		if not shadow_offset.is_zero_approx():
+			var shadow_color: Color = entry.get("shadow_color", Color(0.03, 0.01, 0.01, 0.70))
+			shadow_color.a *= color.a
+			draw_string(font, local_text_pos + shadow_offset, text, alignment, label_width, font_size, shadow_color)
+		if outline_size > 0:
+			var outline_color: Color = entry.get("outline_color", Color("200806"))
+			outline_color.a *= color.a
+			for outline_y: int in range(-outline_size, outline_size + 1):
+				for outline_x: int in range(-outline_size, outline_size + 1):
+					if outline_x == 0 and outline_y == 0:
+						continue
+					if Vector2(outline_x, outline_y).length() > float(outline_size) + 0.35:
+						continue
+					draw_string(font, local_text_pos + Vector2(outline_x, outline_y), text, alignment, label_width, font_size, outline_color)
+		draw_string(font, local_text_pos, text, alignment, label_width, font_size, color)
+		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _floating_text_screen_layout(default_font: Font) -> Array[Dictionary]:
+	var popups: Array[Dictionary]
+	for entry_var: Variant in presentation.get("floating_texts", []):
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var
+		var tile: Vector2i = entry.get("tile", Vector2i(-1, -1))
+		if tile.x < 0:
+			continue
+		var font: Font = UiTypography.display_font() if FloatingCombatText.is_damage_entry(entry) else default_font
+		if font == null:
+			font = default_font
+		var label_width: float = _floating_text_rendered_width(entry, font)
+		var automatic_anchor: bool = FloatingCombatText.is_popup_entry(entry) and bool(entry.get("automatic_anchor", false))
+		var reduced_motion: bool = bool(entry.get("animation_reduced_motion", presentation.get("reduced_motion", false)))
+		var key: String = "%s|%s" % [str(reduced_motion), str(entry.get("screen_layout_key", "%s|%s|%d" % [tile, str(entry.get("text", "")), popups.size()]))]
+		var anchor: Vector2 = _floating_text_local_origin(tile, label_width) if automatic_anchor else _tile_center(tile) + Vector2(float(entry.get("x_offset", -18.0)), float(entry.get("anchor_y", -84.0)))
+		var font_size: int = int(entry.get("font_size", 16))
+		var natural_rect := Rect2(anchor - Vector2(0.0, font.get_ascent(font_size)), Vector2(label_width, font.get_height(font_size)))
+		popups.append({"entry": entry, "font": font, "key": key, "tile": tile, "label_width": label_width, "automatic_anchor": automatic_anchor, "reduced_motion": reduced_motion, "natural_rect": natural_rect})
+	var actor_centers: Array[Vector2]
+	var actor_center_by_tile: Dictionary = {}
+	if not popups.is_empty():
+		for unit: Dictionary in _visible_units():
+			var center: Vector2 = _unit_draw_rect(unit).get_center()
+			actor_centers.append(center)
+			for tile: Vector2i in _unit_footprint_tiles(unit):
+				if not actor_center_by_tile.has(tile):
+					actor_center_by_tile[tile] = center
+	for popup: Dictionary in popups:
+		var entry: Dictionary = popup["entry"]
+		var font: Font = popup["font"] as Font
+		var font_size: int = int(entry.get("font_size", 16))
+		var tile: Vector2i = popup["tile"]
+		var label_width: float = float(popup["label_width"])
+		var layout_scale: float = 1.0
+		var key: String = str(popup["key"])
+		if _floating_text_layout_cache.has(key):
+			layout_scale = float((_floating_text_layout_cache[key] as Dictionary).get("scale", 1.0))
+		elif bool(popup["automatic_anchor"]) and not bool(popup["reduced_motion"]):
+			for other: Dictionary in popups:
+				if other != popup and (popup["natural_rect"] as Rect2).grow(8.0).intersects(other["natural_rect"] as Rect2):
+					# Preserve the solo hit's punch; crowded volleys use a slightly
+					# smaller peak so every target's result has room to read.
+					layout_scale = 0.66
+					break
+		var font_scale: float = clampf(float(entry.get("font_scale", 1.0)), 0.1, 2.0) * layout_scale
+		var motion: Vector2 = entry.get("motion_offset", Vector2.ZERO)
+		var motion_scale: float = layout_scale if is_equal_approx(layout_scale, 1.0) else layout_scale * 0.5
+		if not bool(popup["reduced_motion"]):
+			motion *= motion_scale
+		var anchor: Vector2 = _floating_text_local_origin(tile, label_width * layout_scale) if bool(popup["automatic_anchor"]) else _tile_center(tile) + Vector2(float(entry.get("x_offset", -18.0)), float(entry.get("anchor_y", -84.0)))
+		var origin: Vector2 = _floating_text_local_origin(tile, label_width * font_scale) if bool(popup["automatic_anchor"]) else anchor
+		if bool(popup["automatic_anchor"]):
+			motion.x = absf(motion.x)
+		var extra_offset := Vector2(0.0, float(entry.get("offset", 0.0)))
+		origin += motion + extra_offset
+		var glyph_width: float = _floating_text_glyph_width(entry, font)
+		if not str(entry.get("icon", "")).is_empty():
+			glyph_width += float(entry.get("icon_size", 18.0)) + 4.0
+		var alignment: HorizontalAlignment = entry.get("alignment", HORIZONTAL_ALIGNMENT_LEFT)
+		var glyph_inset: float = maxf(0.0, label_width - glyph_width) * (0.5 if alignment == HORIZONTAL_ALIGNMENT_CENTER else (1.0 if alignment == HORIZONTAL_ALIGNMENT_RIGHT else 0.0))
+		# The 140px label width includes alignment padding. Collision space belongs
+		# to visible glyphs, otherwise adjacent actors push their results off-board.
+		var ascent: float = font.get_ascent(font_size)
+		var descent: float = font.get_descent(font_size)
+		if FloatingCombatText.is_damage_entry(entry):
+			ascent = float(font_size) * 0.80
+			descent = float(font_size) * 0.12
+		ascent = maxf(ascent, float(entry.get("icon_size", 0.0)))
+		var outline: float = float(entry.get("outline_size", 2))
+		var shadow: Vector2 = entry.get("shadow_offset", Vector2.ZERO)
+		var peak_origin: Vector2 = anchor + (motion if bool(popup["reduced_motion"]) else Vector2(motion.x, 0.0)) + extra_offset
+		var envelope := Rect2(peak_origin + Vector2((glyph_inset - outline) * layout_scale, -(ascent + outline) * layout_scale), Vector2((glyph_width + outline * 2.0 + absf(shadow.x)) * layout_scale, (ascent + descent + outline * 2.0 + absf(shadow.y)) * layout_scale)).grow(3.0)
+		if not bool(popup["reduced_motion"]):
+			# Reserve the whole rise/fall, so later hits cannot enter an older
+			# popup's lane as their differently timed arcs converge.
+			envelope = envelope.grow_individual(0.0, FloatingCombatText.ARC_RISE_HEIGHT * motion_scale, 0.0, FloatingCombatText.ARC_END_DROP * motion_scale)
+		var rendered_rect := Rect2(origin + Vector2((glyph_inset - outline) * font_scale, -(ascent + outline) * font_scale), Vector2((glyph_width + outline * 2.0 + absf(shadow.x)) * font_scale, (ascent + descent + outline * 2.0 + absf(shadow.y)) * font_scale))
+		popup["rendered_rect"] = rendered_rect
+		popup["origin"] = origin
+		popup["font_scale"] = font_scale
+		popup["layout_scale"] = layout_scale
+		popup["envelope"] = envelope
+		if bool(popup["automatic_anchor"]) and FloatingCombatText.is_damage_entry(entry) and actor_center_by_tile.has(tile):
+			var centers := Rect2(rendered_rect.get_center(), Vector2.ZERO)
+			if not bool(popup["reduced_motion"]):
+				# Bound centers across font settling and the full authored arc, so
+				# a cached lane stays associated after impact as well as at impact.
+				var glyph_center := Vector2(glyph_inset + glyph_width * 0.5 + absf(shadow.x) * 0.5, (descent - ascent + absf(shadow.y)) * 0.5)
+				var small_scale: float = 0.1 * layout_scale
+				var peak_center: Vector2 = anchor + extra_offset + glyph_center * layout_scale
+				var small_center: Vector2 = _floating_text_local_origin(tile, label_width * small_scale) + extra_offset + glyph_center * small_scale
+				centers = Rect2(peak_center, Vector2.ZERO).expand(small_center)
+				centers = centers.grow_individual(0.0, FloatingCombatText.ARC_RISE_HEIGHT * motion_scale, FloatingCombatText.ARC_LATERAL_DRIFT * motion_scale, FloatingCombatText.ARC_END_DROP * motion_scale)
+			popup["actor_association"] = {"target": actor_center_by_tile[tile], "centers": centers, "neighbors": actor_centers}
+	var obstacles: Array[Rect2]
+	for rect_var: Variant in _hud_health_rects_cache.values():
+		if typeof(rect_var) != TYPE_RECT2:
+			continue
+		# Each popup envelope already reserves its complete rise and fall.
+		# Extending health bars down by that rise again displaced hits off-target.
+		obstacles.append((rect_var as Rect2).grow(6.0))
+	return FloatingCombatText.place_screen_popups(popups, Rect2(Vector2(12.0, 16.0), size - Vector2(24.0, 44.0)), _floating_text_layout_cache, obstacles)
+
+func _floating_text_rendered_width(entry: Dictionary, font: Font = null) -> float:
+	var resolved_font: Font = font
+	if resolved_font == null:
+		resolved_font = UiTypography.body_font() if FloatingCombatText.is_damage_entry(entry) else get_theme_default_font()
+	if resolved_font == null:
+		return float(entry.get("width", 48.0))
+	var text: String = str(entry.get("text", ""))
+	var font_size: int = int(entry.get("font_size", 16))
+	var outline_size: int = int(entry.get("outline_size", 2))
+	var shadow_offset: Vector2 = entry.get("shadow_offset", Vector2.ZERO)
+	var text_width: float = resolved_font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
+	# draw_string's width bounds the glyph layout. Reserve its outline and shadow
+	# as well, so short status words such as Draw and Play cannot lose their final
+	# glyph at the impact scale.
+	var required_width: float = ceilf(text_width) + float(outline_size * 2) + absf(shadow_offset.x)
+	var icon_key: String = str(entry.get("icon", ""))
+	if not icon_key.is_empty():
+		required_width += float(entry.get("icon_size", 18.0)) + 4.0
+	return maxf(float(entry.get("width", 48.0)), required_width)
+
+func _floating_text_glyph_width(entry: Dictionary, font: Font = null) -> float:
+	var resolved_font: Font = font
+	if resolved_font == null:
+		resolved_font = UiTypography.body_font() if FloatingCombatText.is_damage_entry(entry) else get_theme_default_font()
+	if resolved_font == null:
+		return 0.0
+	return resolved_font.get_string_size(str(entry.get("text", "")), HORIZONTAL_ALIGNMENT_LEFT, -1.0, int(entry.get("font_size", 16))).x
+
+func _floating_text_local_origin(tile: Vector2i, rendered_width: float) -> Vector2:
+	var target_rect: Rect2 = _floating_text_target_rect(tile)
+	var x: float = target_rect.get_center().x + FLOATING_TEXT_RIGHT_OFFSET - rendered_width * 0.5
+	var y: float = lerpf(target_rect.position.y, target_rect.end.y, 0.42)
+	x = clampf(x, 12.0, maxf(12.0, size.x - rendered_width - 12.0))
+	y = clampf(y, 36.0, maxf(36.0, size.y - 28.0))
+	return Vector2(x, y)
+
+func _floating_text_target_rect(tile: Vector2i) -> Rect2:
+	for unit: Dictionary in _visible_units():
+		if _unit_footprint_tiles(unit).has(tile):
+			return _unit_draw_rect(unit)
+	for terrain_var: Variant in combat_state.get("terrain", []):
+		if typeof(terrain_var) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = terrain_var
+		if terrain.get("pos", Vector2i(-1, -1)) != tile:
+			continue
+		var terrain_kind: String = str(terrain.get("kind", ""))
+		var texture: Texture2D = _terrain_textures.get(terrain_kind, null)
+		return _terrain_rect_for_tile(tile, texture, terrain_kind)
+	var center: Vector2 = _tile_center(tile)
+	var width: float = _tile_width() * 0.72
+	var height: float = _tile_height() * 0.92
+	return Rect2(center - Vector2(width * 0.5, height * 0.72), Vector2(width, height))
+
+func _draw_vyraketh_bite_effect(from_point: Vector2, to_point: Vector2, progress: float) -> void:
+	var phase: float = VyrakethCutout.bite_trail_phase(progress)
+	if phase < 0.0 and not bool(presentation.get("reduced_motion", false)):
+		return
+	phase = 0.5 if phase < 0.0 else phase
+	var forward: Vector2 = (to_point-from_point).normalized()
+	var side: Vector2 = forward.orthogonal()
+	var spread: float = 7.0 + 14.0 * absf(phase-0.35)
+	var color := Color(1.0, 0.36, 0.07, 0.82*(1.0-phase))
+	for sign: float in [-1.0, 1.0]:
+		var points := PackedVector2Array([to_point-forward*15.0+side*spread*sign,
+			to_point-forward*3.0+side*4.0*sign, to_point+forward*13.0+side*spread*sign])
+		draw_polyline(points, color, 2.0, true)
+
+func _draw_melee_slash_effect(from_point: Vector2, to_point: Vector2, progress: float) -> void:
+	if progress >= 0.82:
+		return
+	var frames: Array = _effect_frames.get("melee_slash", [])
+	if frames.is_empty():
+		return
+	var slash_progress: float = clampf(progress / 0.82, 0.0, 1.0)
+	var frame_index: int = clampi(int(floor(slash_progress * float(frames.size()))), 0, frames.size() - 1)
+	var texture: Texture2D = frames[frame_index]
+	if texture == null:
+		return
+	var from_anchor: Vector2 = from_point + Vector2(0.0, -_tile_width() * 0.52)
+	var to_anchor: Vector2 = to_point + Vector2(0.0, -_tile_width() * 0.38)
+	var direction: Vector2 = to_anchor - from_anchor
+	var slash_center: Vector2 = from_anchor.lerp(to_anchor, 0.50)
+	var draw_size := Vector2.ONE * _tile_width() * 1.24
+	var alpha: float = clampf(sin(slash_progress * PI) * 1.18, 0.0, 1.0)
+	if frame_index == 0:
+		alpha = maxf(alpha, 0.58)
+	elif frame_index >= frames.size() - 1:
+		alpha = minf(alpha, 0.22)
+	var horizontal_sign: float = -1.0 if direction.x < -1.0 else 1.0
+	var rotation: float = deg_to_rad(-10.0 * horizontal_sign)
+	draw_set_transform(slash_center, rotation, Vector2(horizontal_sign, 1.0))
+	var draw_rect := Rect2(-draw_size * 0.5, draw_size)
+	draw_texture_rect(texture, draw_rect, false, Color(1.0, 1.0, 1.0, alpha))
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+
+func _draw_path_depth_pass(tile: Vector2i) -> void:
+	_path_depth_tile = tile
+	_path_depth_clip = _tile_polygon(tile)
+	_draw_path_preview()
+	_path_depth_clip = PackedVector2Array()
+	_path_depth_tile = Vector2i(-1,-1)
+
+func _draw_path_color_polygon(polygon: PackedVector2Array, color: Color) -> void:
+	if _path_depth_clip.is_empty():
+		draw_colored_polygon(polygon,color)
+		return
+	for piece: PackedVector2Array in Geometry2D.intersect_polygons(polygon,_path_depth_clip):
+		if _polygon_can_draw(piece): draw_colored_polygon(piece,color)
+
+func _draw_path_line(line: PackedVector2Array, color: Color, width: float, antialiased: bool) -> void:
+	if _path_depth_clip.is_empty():
+		draw_polyline(line,color,width,antialiased)
+		return
+	for piece: PackedVector2Array in Geometry2D.intersect_polyline_with_polygon(line,_path_depth_clip):
+		if piece.size()>1: draw_polyline(piece,color,width,antialiased)
+
+func _draw_path_preview() -> void:
+	if _blink_preview_effect_active():
+		return
+	for path: Array in presentation.get("displacement_paths",[]):
+		_draw_path_tiles(_vector2i_array(path),ENEMY_PATH_PREVIEW_COLOR)
+	var path_tiles: Array[Vector2i] = _vector2i_array(presentation.get("path_tiles", []))
+	var color: Color = presentation.get("path_color", MOVE_PATH_COLOR)
+	var enemy_threat_previews: Array = presentation.get("enemy_threat_previews", []) as Array
+	var base_path_is_focused_enemy: bool = false
+	if enemy_threat_previews.size() == 1 and typeof(enemy_threat_previews[0]) == TYPE_DICTIONARY:
+		var focused_threat: Dictionary = enemy_threat_previews[0] as Dictionary
+		base_path_is_focused_enemy = (
+			color.is_equal_approx(ENEMY_PATH_PREVIEW_COLOR)
+			and path_tiles == _vector2i_array(focused_threat.get("projected_path", []))
+		)
+	if not base_path_is_focused_enemy:
+		_draw_path_tiles(path_tiles, color, true)
+	for threat_var: Variant in enemy_threat_previews:
+		if typeof(threat_var) != TYPE_DICTIONARY:
+			continue
+		var threat: Dictionary = threat_var as Dictionary
+		if not _threat_has_projected_movement(threat):
+			continue
+		_draw_path_tiles(
+			_vector2i_array(threat.get("projected_path", [])),
+			ENEMY_PATH_PREVIEW_COLOR
+		)
+
+func _draw_light_jump_arc(from: Vector2, to: Vector2, color: Color) -> void:
+	# A Light jump is a dashed arc, thinner than the walked shaft so it reads as a
+	# leap rather than a step; dashes scale with the line so they never become rungs.
+	var height: float = from.distance_to(to) * 0.35
+	var width: float = maxf(3.0, _tile_height() * MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO * 0.45)
+	var dash: float = width * 2.6
+	var period: float = dash + width * 1.7
+	var samples: PackedVector2Array = PackedVector2Array()
+	var lengths: PackedFloat32Array = PackedFloat32Array()
+	for index: int in range(0, 65):
+		var t: float = float(index) / 64.0
+		samples.append(from.lerp(to, t) + Vector2.UP * (4.0 * t * (1.0 - t) * height))
+		lengths.append(0.0 if index == 0 else lengths[index - 1] + samples[index - 1].distance_to(samples[index]))
+	var total: float = lengths[lengths.size() - 1]
+	var dash_start: float = 0.0
+	while dash_start < total:
+		var dash_end: float = minf(total, dash_start + dash)
+		var points: PackedVector2Array = PackedVector2Array([_arc_point_at(samples, lengths, dash_start)])
+		for index: int in range(samples.size()):
+			if lengths[index] > dash_start and lengths[index] < dash_end:
+				points.append(samples[index])
+		points.append(_arc_point_at(samples, lengths, dash_end))
+		draw_polyline(points, color, width, true)
+		dash_start += period
+	draw_circle(to, width * 1.1, color)
+
+func _light_jump_depth_tile(a: Vector2i, b: Vector2i) -> Vector2i:
+	if a.x + a.y != b.x + b.y:
+		return a if a.x + a.y > b.x + b.y else b
+	return a if a.x > b.x else b
+
+func _arc_point_at(samples: PackedVector2Array, lengths: PackedFloat32Array, distance: float) -> Vector2:
+	for index: int in range(1, samples.size()):
+		if lengths[index] >= distance:
+			var span: float = lengths[index] - lengths[index - 1]
+			return samples[index - 1].lerp(samples[index], 0.0 if span <= 0.0 else (distance - lengths[index - 1]) / span)
+	return samples[samples.size() - 1]
+
+func _threat_has_projected_movement(threat: Dictionary) -> bool:
+	var path: Array[Vector2i] = _vector2i_array(threat.get("projected_path", []))
+	return path.size() >= 2 and path[0] != path[path.size() - 1]
+
+func _draw_path_tiles(path_tiles: Array[Vector2i], color: Color, hero_path: bool = false) -> void:
+	if _path_depth_tile.x>=0 and not path_tiles.has(_path_depth_tile): return
+	if path_tiles.is_empty():
+		return
+	if hero_path and path_tiles.size() >= 2:
+		var variety = preload("res://scripts/surface_variety_relic_rules.gd")
+		var has_jump: bool = false
+		for index: int in range(1, path_tiles.size()):
+			if variety.is_light_link(combat_state, path_tiles[index - 1], path_tiles[index]): has_jump = true
+		if has_jump:
+			var segment: Array[Vector2i]
+			segment.append(path_tiles[0])
+			for index: int in range(1, path_tiles.size()):
+				if PathUtils.manhattan(path_tiles[index - 1], path_tiles[index]) > 1:
+					if segment.size() >= 2: _draw_path_tiles(segment, color)
+					# The arc floats above the floor, so it draws once, in the later endpoint's depth pass.
+					var jump_depth_tile: Vector2i = _light_jump_depth_tile(path_tiles[index - 1], path_tiles[index])
+					if _path_depth_tile.x < 0 or _path_depth_tile == jump_depth_tile:
+						_draw_light_jump_arc(_tile_center(path_tiles[index - 1]), _tile_center(path_tiles[index]), color)
+					segment.clear()
+				segment.append(path_tiles[index])
+			if segment.size() >= 2: _draw_path_tiles(segment, color)
+			return
+	var tile_width: float = _tile_width()
+	var point_offset := Vector2(0.0, -tile_width * 0.075)
+	if path_tiles.size() == 1:
+		_draw_single_path_marker(_tile_center(path_tiles[0]) + point_offset, color, tile_width)
+		return
+	var points := PackedVector2Array()
+	for tile: Vector2i in path_tiles:
+		points.append(_tile_center(tile) + point_offset)
+	var shaft_width: float = _tile_height() * MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO
+	var arrow_geometry: Dictionary = _path_arrow_geometry(
+		points[points.size() - 2],
+		points[points.size() - 1],
+		tile_width,
+		shaft_width
+	)
+	if arrow_geometry.is_empty():
+		return
+	var arrow_points: PackedVector2Array = arrow_geometry.get("polygon", PackedVector2Array())
+	var shaft_points: PackedVector2Array = points.duplicate()
+	var final_direction: Vector2 = arrow_geometry.get("direction", Vector2.ZERO)
+	shaft_points[shaft_points.size() - 1] = (
+		arrow_geometry.get("tail_center", points[points.size() - 1])
+		+ final_direction * shaft_width * 0.18
+	)
+	var unified_arrow: PackedVector2Array = _unified_path_arrow_polygon(shaft_points, arrow_points, shaft_width)
+	if unified_arrow.is_empty():
+		return
+	var crumble_geometry: Dictionary = _path_crumble_geometry(
+		path_tiles,
+		points,
+		unified_arrow,
+		shaft_width
+	)
+	var body_polygons: Array[PackedVector2Array] = _path_polygon_array(
+		crumble_geometry.get("body_polygons", [])
+	)
+	if body_polygons.is_empty():
+		body_polygons.append(unified_arrow)
+	var shadow_offset := Vector2(0.0, tile_width * MOVE_PATH_SHADOW_OFFSET_TILE_RATIO)
+	var outline_color: Color = _path_outline_color(color)
+
+	# The distressed silhouette feeds every depth layer, so its missing chunks cut
+	# the glow, outline, face, and cast shadow together. Interior spalls are inset
+	# afterward with the same light axis, keeping all damage in the ribbon's plane.
+	_draw_expanded_path_polygons(
+		body_polygons,
+		shaft_width * 0.15,
+		shadow_offset * 1.55,
+		Color(0.0, 0.0, 0.0, 0.13)
+	)
+	_draw_expanded_path_polygons(
+		body_polygons,
+		shaft_width * 0.07,
+		shadow_offset,
+		Color(0.005, 0.018, 0.025, 0.48)
+	)
+	_draw_expanded_path_polygons(
+		body_polygons,
+		shaft_width * (MOVE_PATH_GLOW_WIDTH_RATIO - 1.0) * 0.5,
+		Vector2.ZERO,
+		Color(color.r, color.g, color.b, 0.09)
+	)
+	_draw_expanded_path_polygons(
+		body_polygons,
+		shaft_width * (MOVE_PATH_OUTLINE_WIDTH_RATIO - 1.0) * 0.5,
+		Vector2.ZERO,
+		outline_color
+	)
+	_draw_gradient_path_polygons(body_polygons, shaft_width, color)
+	_draw_path_surface_spalls(
+		crumble_geometry.get("surface_spalls", []) as Array,
+		shaft_width,
+		color
+	)
+	_draw_path_cracks(crumble_geometry.get("cracks", []) as Array, shaft_width, color)
+
+func _blink_preview_effect_active() -> bool:
+	var effect: Dictionary = presentation.get("effect", {})
+	return str(effect.get("kind", "")) == "blink" and bool(effect.get("preview", false))
+
+func _draw_single_path_marker(center: Vector2, color: Color, tile_width: float) -> void:
+	var marker_width: float = _tile_height() * MOVE_PATH_SHAFT_TILE_HEIGHT_RATIO
+	var marker_radius: float = marker_width * 0.5
+	var shadow_offset := Vector2(0.0, tile_width * MOVE_PATH_SHADOW_OFFSET_TILE_RATIO)
+	draw_circle(center + shadow_offset * 1.55, marker_radius * 1.30, Color(0.0, 0.0, 0.0, 0.13), true, -1.0, true)
+	draw_circle(center + shadow_offset, marker_radius * 1.14, Color(0.005, 0.018, 0.025, 0.48), true, -1.0, true)
+	draw_circle(center, marker_radius * MOVE_PATH_GLOW_WIDTH_RATIO, Color(color.r, color.g, color.b, 0.09), true, -1.0, true)
+	draw_circle(center, marker_radius * MOVE_PATH_OUTLINE_WIDTH_RATIO, _path_outline_color(color), true, -1.0, true)
+	_draw_gradient_disc(center, marker_radius, color)
+
+func _path_outline_color(color: Color) -> Color:
+	var outline_color: Color = color.darkened(0.87)
+	outline_color.a = 0.92
+	return outline_color
+
+func _path_arrow_geometry(from_point: Vector2, to_point: Vector2, tile_width: float, _shaft_width: float) -> Dictionary:
+	var dir: Vector2 = (to_point - from_point).normalized()
+	if dir.length_squared() <= 0.0:
+		return {}
+	var board_cross_direction: Vector2 = _path_board_cross_direction(dir)
+	var half_width: float = tile_width * MOVE_PATH_HEAD_WIDTH_TILE_RATIO * 0.5
+	var tip: Vector2 = to_point + dir * tile_width * MOVE_PATH_HEAD_TIP_REACH_TILE_RATIO
+	var tail_center: Vector2 = to_point - dir * tile_width * MOVE_PATH_HEAD_TAIL_REACH_TILE_RATIO
+	var plus_shoulder: Vector2 = tail_center + board_cross_direction * half_width
+	var minus_shoulder: Vector2 = tail_center - board_cross_direction * half_width
+	# Build the triangle in isometric board space instead of rotating the screen
+	# direction by 90 degrees. Its rear edge now follows the board's other grid
+	# axis, while the base/tip straddle the destination's near edge so the route
+	# visibly lands on that tile instead of pointing through it.
+	var polygon := PackedVector2Array([tip, plus_shoulder, minus_shoulder])
+	return {
+		"polygon": polygon,
+		"tail_center": tail_center,
+		"direction": dir,
+		"board_cross_direction": board_cross_direction,
+		"tip": tip,
+		"plus_shoulder": plus_shoulder,
+		"minus_shoulder": minus_shoulder
+	}
+
+func _path_board_cross_direction(direction: Vector2) -> Vector2:
+	if direction.length_squared() <= 0.0:
+		return Vector2.ZERO
+	# Isometric cardinal steps are (±0.5, ±0.25) in tile-width units. Flipping
+	# only x maps either movement axis to the other family of board grid lines.
+	return Vector2(-direction.x, direction.y).normalized()
+
+func _unified_path_arrow_polygon(
+	shaft_points: PackedVector2Array,
+	head_points: PackedVector2Array,
+	shaft_width: float
+) -> PackedVector2Array:
+	if shaft_points.size() < 2 or head_points.size() < 3 or shaft_width <= 0.0:
+		return PackedVector2Array()
+	var shaft_polygons: Array[PackedVector2Array] = Geometry2D.offset_polyline(
+		shaft_points,
+		shaft_width * 0.5,
+		Geometry2D.JOIN_ROUND,
+		Geometry2D.END_ROUND
+	)
+	if shaft_polygons.is_empty():
+		return PackedVector2Array()
+	var merged: Array[PackedVector2Array] = Geometry2D.merge_polygons(shaft_polygons[0], head_points)
+	return _largest_path_polygon(merged)
+
+func _path_crumble_geometry(
+	path_tiles: Array[Vector2i],
+	path_points: PackedVector2Array,
+	unified_arrow: PackedVector2Array,
+	shaft_width: float,
+	allow_boundary_damage: bool = true
+) -> Dictionary:
+	var key: int = hash([path_tiles,path_points,unified_arrow,shaft_width,allow_boundary_damage])
+	if not _path_crumble_cache.has(key):
+		if _path_crumble_cache.size()>=32: _path_crumble_cache.clear()
+		_path_crumble_cache[key] = _build_path_crumble_geometry(path_tiles,path_points,unified_arrow,shaft_width,allow_boundary_damage)
+	return _path_crumble_cache[key]
+
+func _build_path_crumble_geometry(
+	path_tiles: Array[Vector2i],
+	path_points: PackedVector2Array,
+	unified_arrow: PackedVector2Array,
+	shaft_width: float,
+	allow_boundary_damage: bool = true
+) -> Dictionary:
+	var body_polygons: Array[PackedVector2Array]
+	var notches: Array[PackedVector2Array]
+	var surface_spalls: Array[Dictionary]
+	var cracks: Array[Dictionary]
+	var damage_counts: Dictionary = {"micro": 0, "chip": 0, "chunk": 0}
+	var boundary_sample_count: int = 0
+	if unified_arrow.size() < 3 or path_points.size() < 2 or shaft_width <= 0.0:
+		return {
+			"body_polygons": body_polygons,
+			"notches": notches,
+			"surface_spalls": surface_spalls,
+			"cracks": cracks,
+			"damage_counts": damage_counts,
+			"boundary_sample_count": boundary_sample_count,
+		}
+	var path_seed: int = _path_crumble_seed(path_tiles)
+	body_polygons.append(unified_arrow)
+	var original_area: float = absf(_path_polygon_signed_area(unified_arrow))
+	var minimum_body_area: float = original_area * 0.78
+	var perimeter: float = _path_polygon_perimeter(unified_arrow)
+	var target_spacing: float = maxf(4.0, shaft_width * MOVE_PATH_CRUMBLE_DAMAGE_SPACING_RATIO)
+	var sample_count: int = maxi(7, int(floor(perimeter / target_spacing))) if allow_boundary_damage else 0
+	boundary_sample_count = sample_count
+	var sample_spacing: float = perimeter / float(sample_count) if sample_count > 0 else 0.0
+	var winding: float = 1.0 if _path_polygon_signed_area(unified_arrow) > 0.0 else -1.0
+	for sample_index: int in range(sample_count):
+		var hash_value: int = _path_boundary_damage_hash(path_seed, sample_index)
+		var sample_distance: float = (
+			(float(sample_index) + 0.5) * sample_spacing
+			+ (float(hash_value % 7) - 3.0) * sample_spacing * 0.055
+		)
+		var boundary_sample: Dictionary = _path_polygon_boundary_sample(
+			unified_arrow,
+			wrapf(sample_distance, 0.0, perimeter),
+			winding
+		)
+		if boundary_sample.is_empty() or _path_boundary_sample_near_sharp_corner(
+			unified_arrow,
+			boundary_sample,
+			shaft_width
+		):
+			continue
+		var cadence: int = (sample_index + path_seed) % 8
+		var damage_tier: String = "micro"
+		if cadence == 0:
+			damage_tier = "chunk"
+		elif cadence == 3 or cadence == 6:
+			damage_tier = "chip"
+		elif (hash_value / 7) % 5 == 0:
+			continue
+		var anchor: Vector2 = boundary_sample.get("point", Vector2.ZERO)
+		var tangent: Vector2 = boundary_sample.get("tangent", Vector2.ZERO)
+		var inward: Vector2 = boundary_sample.get("inward", Vector2.ZERO)
+		var outward: Vector2 = -inward
+		var damage: PackedVector2Array = _path_boundary_damage_polygon(
+			anchor,
+			tangent,
+			inward,
+			outward,
+			shaft_width,
+			hash_value,
+			damage_tier
+		)
+		var clipped_polygons: Array[PackedVector2Array] = _clip_path_polygon_array(
+			body_polygons,
+			damage
+		)
+		if (
+			clipped_polygons.is_empty()
+			or _path_polygon_array_area(clipped_polygons) < minimum_body_area
+		):
+			continue
+		body_polygons = clipped_polygons
+		notches.append(damage)
+		damage_counts[damage_tier] = int(damage_counts.get(damage_tier, 0)) + 1
+		var segment_frame: Dictionary = _path_nearest_segment_frame(path_points, damage[4])
+		if damage_tier != "micro" and not segment_frame.is_empty():
+			var crack_scale: float = 1.0 if damage_tier == "chunk" else 0.72
+			var crack: Dictionary = _path_fitted_crack_geometry(
+				damage[4],
+				segment_frame.get("direction", Vector2.ZERO),
+				float(segment_frame.get("side", 1.0)),
+				shaft_width,
+				hash_value,
+				crack_scale,
+				unified_arrow
+			)
+			if not crack.is_empty():
+				crack["source_kind"] = "edge_notch"
+				crack["source_damage_index"] = notches.size() - 1
+				cracks.append(crack)
+	var surface_geometry: Dictionary = _path_surface_damage_geometry(
+		path_points,
+		body_polygons,
+		shaft_width,
+		path_seed
+	)
+	surface_spalls = _path_spall_array(surface_geometry.get("spalls", []))
+	cracks.append_array(_path_crack_array(surface_geometry.get("cracks", [])))
+	return {
+		"body_polygons": body_polygons,
+		"notches": notches,
+		"surface_spalls": surface_spalls,
+		"cracks": cracks,
+		"damage_counts": damage_counts,
+		"boundary_sample_count": boundary_sample_count,
+	}
+
+func _path_crumble_seed(path_tiles: Array[Vector2i]) -> int:
+	var seed: int = path_tiles.size() * 104729
+	for tile_index: int in range(path_tiles.size()):
+		var tile: Vector2i = path_tiles[tile_index]
+		seed += tile.x * (73856093 + tile_index * 193)
+		seed += tile.y * (19349663 + tile_index * 389)
+	return absi(seed)
+
+func _path_polygon_inward_normal(direction: Vector2, winding: float) -> Vector2:
+	var left_normal := Vector2(-direction.y, direction.x)
+	return left_normal if winding > 0.0 else -left_normal
+
+func _path_polygon_perimeter(polygon: PackedVector2Array) -> float:
+	var perimeter: float = 0.0
+	for index: int in range(polygon.size()):
+		perimeter += polygon[index].distance_to(polygon[(index + 1) % polygon.size()])
+	return perimeter
+
+func _path_boundary_damage_hash(path_seed: int, sample_index: int) -> int:
+	return absi(path_seed + sample_index * 49979687 + (sample_index + 3) * 15485863)
+
+func _path_polygon_boundary_sample(
+	polygon: PackedVector2Array,
+	distance: float,
+	winding: float
+) -> Dictionary:
+	var remaining: float = distance
+	for edge_index: int in range(polygon.size()):
+		var start: Vector2 = polygon[edge_index]
+		var end: Vector2 = polygon[(edge_index + 1) % polygon.size()]
+		var edge: Vector2 = end - start
+		var edge_length: float = edge.length()
+		if edge_length <= 0.001:
+			continue
+		if remaining <= edge_length or edge_index == polygon.size() - 1:
+			var progress: float = clampf(remaining / edge_length, 0.0, 1.0)
+			var tangent: Vector2 = edge / edge_length
+			return {
+				"point": start.lerp(end, progress),
+				"tangent": tangent,
+				"inward": _path_polygon_inward_normal(tangent, winding),
+				"edge_index": edge_index,
+				"edge_length": edge_length,
+				"progress": progress,
+			}
+		remaining -= edge_length
+	return {}
+
+func _path_boundary_sample_near_sharp_corner(
+	polygon: PackedVector2Array,
+	boundary_sample: Dictionary,
+	shaft_width: float
+) -> bool:
+	var edge_index: int = int(boundary_sample.get("edge_index", 0))
+	var edge_length: float = float(boundary_sample.get("edge_length", 0.0))
+	var progress: float = float(boundary_sample.get("progress", 0.0))
+	var margin: float = shaft_width * 0.16
+	if progress * edge_length < margin and _path_polygon_vertex_is_sharp(polygon, edge_index):
+		return true
+	var end_index: int = (edge_index + 1) % polygon.size()
+	return (1.0 - progress) * edge_length < margin and _path_polygon_vertex_is_sharp(polygon, end_index)
+
+func _path_polygon_vertex_is_sharp(polygon: PackedVector2Array, vertex_index: int) -> bool:
+	var previous: Vector2 = polygon[(vertex_index - 1 + polygon.size()) % polygon.size()]
+	var current: Vector2 = polygon[vertex_index]
+	var next: Vector2 = polygon[(vertex_index + 1) % polygon.size()]
+	var incoming: Vector2 = (current - previous).normalized()
+	var outgoing: Vector2 = (next - current).normalized()
+	return incoming.length_squared() > 0.0 and outgoing.length_squared() > 0.0 and incoming.dot(outgoing) < 0.72
+
+func _path_boundary_damage_polygon(
+	anchor: Vector2,
+	tangent: Vector2,
+	inward: Vector2,
+	outward: Vector2,
+	shaft_width: float,
+	hash_value: int,
+	damage_tier: String
+) -> PackedVector2Array:
+	var half_span_ratio: float = 0.085
+	var depth_ratio: float = MOVE_PATH_CRUMBLE_MICRO_DEPTH_RATIO
+	match damage_tier:
+		"chunk":
+			half_span_ratio = 0.27
+			depth_ratio = MOVE_PATH_CRUMBLE_CHUNK_DEPTH_RATIO
+		"chip":
+			half_span_ratio = 0.17
+			depth_ratio = MOVE_PATH_CRUMBLE_CHIP_DEPTH_RATIO
+	var half_span: float = shaft_width * half_span_ratio * (0.72 + 0.11 * float(hash_value % 5))
+	var depth: float = shaft_width * depth_ratio * (0.72 + 0.11 * float((hash_value / 5) % 5))
+	var outer_center: Vector2 = anchor + outward * shaft_width * 0.30
+	var root_skew: float = (float((hash_value / 11) % 7) - 3.0) * half_span * 0.075
+	return PackedVector2Array([
+		outer_center - tangent * half_span * 1.24,
+		outer_center + tangent * half_span * 1.17,
+		anchor + tangent * half_span * 0.88,
+		anchor + tangent * half_span * 0.24 + inward * depth * 0.58,
+		anchor - tangent * half_span * 0.10 + inward * depth + tangent * root_skew,
+		anchor - tangent * half_span * 0.82 + inward * depth * 0.34,
+	])
+
+func _path_surface_damage_geometry(
+	path_points: PackedVector2Array,
+	body_polygons: Array[PackedVector2Array],
+	shaft_width: float,
+	path_seed: int
+) -> Dictionary:
+	var spalls: Array[Dictionary]
+	var cracks: Array[Dictionary]
+	var path_length: float = _path_polyline_length(path_points)
+	if path_length <= 0.001 or body_polygons.is_empty():
+		return {"spalls": spalls, "cracks": cracks}
+	var target_spacing: float = maxf(
+		shaft_width * MOVE_PATH_CRUMBLE_SURFACE_SPACING_RATIO,
+		8.0
+	)
+	var sample_count: int = maxi(2, int(floor(path_length / target_spacing)))
+	for sample_index: int in range(sample_count):
+		var hash_value: int = _path_boundary_damage_hash(path_seed + 32452843, sample_index)
+		var progress: float = (float(sample_index) + 0.5) / float(sample_count)
+		var distance_jitter: float = (
+			(float(hash_value % 7) - 3.0)
+			* minf(target_spacing, path_length / float(sample_count))
+			* 0.035
+		)
+		var sample: Dictionary = _path_polyline_sample(
+			path_points,
+			clampf(path_length * progress + distance_jitter, 0.0, path_length)
+		)
+		if sample.is_empty():
+			continue
+		var direction: Vector2 = sample.get("direction", Vector2.ZERO)
+		var board_cross: Vector2 = _path_board_cross_direction(direction)
+		if direction.length_squared() <= 0.0 or board_cross.length_squared() <= 0.0:
+			continue
+		var lateral_step: float = float((hash_value / 7) % 5) - 2.0
+		var center: Vector2 = (
+			sample.get("point", Vector2.ZERO)
+			+ board_cross * shaft_width * lateral_step * 0.032
+		)
+		var tier_scale: float = 1.16 if (sample_index + path_seed) % 4 == 0 else 0.82
+		var spall_polygon := PackedVector2Array()
+		for fit_scale_var: Variant in [1.0, 0.76, 0.56]:
+			var candidate: PackedVector2Array = _path_surface_spall_polygon(
+				center,
+				direction,
+				board_cross,
+				shaft_width,
+				hash_value,
+				tier_scale * float(fit_scale_var)
+			)
+			if _path_polygon_inside_any_path_polygon(candidate, body_polygons):
+				spall_polygon = candidate
+				break
+		if not _polygon_can_draw(spall_polygon):
+			continue
+		var spall: Dictionary = {
+			"polygon": spall_polygon,
+			"center": center,
+			"segment_direction": direction,
+			"board_cross_direction": board_cross,
+		}
+		spalls.append(spall)
+		if sample_index != 0 and (sample_index + path_seed) % 3 == 1:
+			continue
+		var source_vertex: int = 1 if (hash_value / 13) % 2 == 0 else 5
+		var source: Vector2 = spall_polygon[source_vertex]
+		var crack_side: float = -1.0 if source_vertex == 1 else 1.0
+		var crack: Dictionary = _path_fitted_surface_crack_geometry(
+			source,
+			direction,
+			crack_side,
+			shaft_width,
+			hash_value,
+			0.68,
+			body_polygons
+		)
+		if not crack.is_empty():
+			crack["source_kind"] = "surface_spall"
+			crack["source_spall_index"] = spalls.size() - 1
+			cracks.append(crack)
+	return {"spalls": spalls, "cracks": cracks}
+
+func _path_polyline_length(points: PackedVector2Array) -> float:
+	var length: float = 0.0
+	for index: int in range(points.size() - 1):
+		length += points[index].distance_to(points[index + 1])
+	return length
+
+func _path_polyline_sample(points: PackedVector2Array, distance: float) -> Dictionary:
+	var remaining: float = distance
+	for segment_index: int in range(points.size() - 1):
+		var start: Vector2 = points[segment_index]
+		var segment: Vector2 = points[segment_index + 1] - start
+		var segment_length: float = segment.length()
+		if segment_length <= 0.001:
+			continue
+		if remaining <= segment_length or segment_index == points.size() - 2:
+			var progress: float = clampf(remaining / segment_length, 0.0, 1.0)
+			return {
+				"point": start + segment * progress,
+				"direction": segment / segment_length,
+				"segment_index": segment_index,
+			}
+		remaining -= segment_length
+	return {}
+
+func _path_surface_spall_polygon(
+	center: Vector2,
+	direction: Vector2,
+	board_cross: Vector2,
+	shaft_width: float,
+	hash_value: int,
+	scale_factor: float
+) -> PackedVector2Array:
+	var radius: float = (
+		shaft_width
+		* MOVE_PATH_CRUMBLE_SPALL_SIZE_RATIO
+		* scale_factor
+		* (0.82 + 0.06 * float(hash_value % 5))
+	)
+	var longitudinal: float = 0.78 + 0.07 * float((hash_value / 5) % 5)
+	var crosswise: float = 0.64 + 0.08 * float((hash_value / 11) % 5)
+	return PackedVector2Array([
+		center + direction * radius * longitudinal - board_cross * radius * 0.16,
+		center + direction * radius * 0.32 + board_cross * radius * crosswise,
+		center - direction * radius * 0.18 + board_cross * radius * (crosswise * 0.78),
+		center - direction * radius * 0.84 + board_cross * radius * 0.22,
+		center - direction * radius * 0.62 - board_cross * radius * (crosswise * 0.66),
+		center + direction * radius * 0.10 - board_cross * radius * (crosswise * 0.92),
+		center + direction * radius * 0.61 - board_cross * radius * 0.52,
+	])
+
+func _path_polygon_inside_any_path_polygon(
+	inner: PackedVector2Array,
+	containers: Array[PackedVector2Array]
+) -> bool:
+	if inner.size() < 3:
+		return false
+	for container: PackedVector2Array in containers:
+		var contains_all: bool = true
+		for point: Vector2 in inner:
+			if not Geometry2D.is_point_in_polygon(point, container):
+				contains_all = false
+				break
+		if contains_all:
+			return true
+	return false
+
+func _path_nearest_segment_frame(path_points: PackedVector2Array, point: Vector2) -> Dictionary:
+	var best_distance_squared: float = INF
+	var best_direction: Vector2 = Vector2.ZERO
+	var best_side: float = 1.0
+	for segment_index: int in range(path_points.size() - 1):
+		var from_point: Vector2 = path_points[segment_index]
+		var segment: Vector2 = path_points[segment_index + 1] - from_point
+		var segment_length_squared: float = segment.length_squared()
+		if segment_length_squared <= 0.001:
+			continue
+		var progress: float = clampf((point - from_point).dot(segment) / segment_length_squared, 0.0, 1.0)
+		var closest: Vector2 = from_point + segment * progress
+		var distance_squared: float = point.distance_squared_to(closest)
+		if distance_squared >= best_distance_squared:
+			continue
+		var direction: Vector2 = segment.normalized()
+		var screen_normal: Vector2 = Vector2(-direction.y, direction.x)
+		best_distance_squared = distance_squared
+		best_direction = direction
+		best_side = -1.0 if (point - closest).dot(screen_normal) < 0.0 else 1.0
+	if best_direction.length_squared() <= 0.0:
+		return {}
+	return {"direction": best_direction, "side": best_side}
+
+func _path_crack_geometry(
+	source: Vector2,
+	direction: Vector2,
+	side: float,
+	shaft_width: float,
+	hash_value: int,
+	damage_scale: float = 1.0
+) -> Dictionary:
+	var board_cross: Vector2 = _path_board_cross_direction(direction) * side
+	var longitudinal_sign: float = -1.0 if (hash_value / 5) % 2 == 0 else 1.0
+	var points := PackedVector2Array([
+		source,
+		source - board_cross * shaft_width * 0.085 * damage_scale,
+		source - board_cross * shaft_width * 0.155 * damage_scale + direction * shaft_width * 0.050 * longitudinal_sign,
+		source - board_cross * shaft_width * 0.225 * damage_scale - direction * shaft_width * 0.025 * longitudinal_sign,
+	])
+	var branch := PackedVector2Array([
+		points[2],
+		points[2] + direction * shaft_width * 0.067 * longitudinal_sign - board_cross * shaft_width * 0.030,
+	])
+	return {
+		"points": points,
+		"branch": branch,
+		"source": source,
+		"segment_direction": direction,
+		"board_cross_direction": board_cross,
+	}
+
+func _path_fitted_crack_geometry(
+	source: Vector2,
+	direction: Vector2,
+	side: float,
+	shaft_width: float,
+	hash_value: int,
+	damage_scale: float,
+	containing_polygon: PackedVector2Array
+) -> Dictionary:
+	var fit_scales: Array = [1.0, 0.72, 0.50]
+	for fit_scale_var: Variant in fit_scales:
+		var crack: Dictionary = _path_crack_geometry(
+			source,
+			direction,
+			side,
+			shaft_width,
+			hash_value,
+			damage_scale * float(fit_scale_var)
+		)
+		if _path_crack_fits_polygon(crack, containing_polygon):
+			return crack
+	return {}
+
+func _path_fitted_surface_crack_geometry(
+	source: Vector2,
+	direction: Vector2,
+	side: float,
+	shaft_width: float,
+	hash_value: int,
+	damage_scale: float,
+	containing_polygons: Array[PackedVector2Array]
+) -> Dictionary:
+	var fit_scales: Array = [1.0, 0.72, 0.50]
+	for fit_scale_var: Variant in fit_scales:
+		var crack: Dictionary = _path_crack_geometry(
+			source,
+			direction,
+			side,
+			shaft_width,
+			hash_value,
+			damage_scale * float(fit_scale_var)
+		)
+		if _path_crack_fits_polygon_array(crack, containing_polygons):
+			return crack
+	return {}
+
+func _path_crack_fits_polygon(crack: Dictionary, containing_polygon: PackedVector2Array) -> bool:
+	var crack_lines: Array = [
+		crack.get("points", PackedVector2Array()),
+		crack.get("branch", PackedVector2Array()),
+	]
+	for line_var: Variant in crack_lines:
+		var line: PackedVector2Array = line_var as PackedVector2Array
+		for point: Vector2 in line:
+			if not Geometry2D.is_point_in_polygon(point, containing_polygon):
+				return false
+	return true
+
+func _path_crack_fits_polygon_array(
+	crack: Dictionary,
+	containing_polygons: Array[PackedVector2Array]
+) -> bool:
+	for container: PackedVector2Array in containing_polygons:
+		if _path_crack_fits_polygon(crack, container):
+			return true
+	return false
+
+func _clip_path_polygon_array(
+	polygons: Array[PackedVector2Array],
+	clip_polygon: PackedVector2Array
+) -> Array[PackedVector2Array]:
+	var result: Array[PackedVector2Array]
+	for polygon: PackedVector2Array in polygons:
+		var clipped: Array[PackedVector2Array] = Geometry2D.clip_polygons(polygon, clip_polygon)
+		for piece: PackedVector2Array in clipped:
+			if absf(_path_polygon_signed_area(piece)) >= 0.5 and _polygon_can_draw(piece):
+				result.append(piece)
+	return result
+
+func _path_polygon_array(value: Variant) -> Array[PackedVector2Array]:
+	var result: Array[PackedVector2Array]
+	if typeof(value) != TYPE_ARRAY:
+		return result
+	for polygon_var: Variant in value as Array:
+		if typeof(polygon_var) == TYPE_PACKED_VECTOR2_ARRAY:
+			result.append(polygon_var as PackedVector2Array)
+	return result
+
+func _path_spall_array(value: Variant) -> Array[Dictionary]:
+	var result: Array[Dictionary]
+	if typeof(value) != TYPE_ARRAY:
+		return result
+	for spall_var: Variant in value as Array:
+		if typeof(spall_var) == TYPE_DICTIONARY:
+			result.append(spall_var as Dictionary)
+	return result
+
+func _path_crack_array(value: Variant) -> Array[Dictionary]:
+	var result: Array[Dictionary]
+	if typeof(value) != TYPE_ARRAY:
+		return result
+	for crack_var: Variant in value as Array:
+		if typeof(crack_var) == TYPE_DICTIONARY:
+			result.append(crack_var as Dictionary)
+	return result
+
+func _path_polygon_array_area(polygons: Array[PackedVector2Array]) -> float:
+	var area: float = 0.0
+	for polygon: PackedVector2Array in polygons:
+		area += absf(_path_polygon_signed_area(polygon))
+	return area
+
+func _largest_path_polygon(polygons: Array[PackedVector2Array]) -> PackedVector2Array:
+	var largest := PackedVector2Array()
+	var largest_area: float = 0.0
+	for polygon: PackedVector2Array in polygons:
+		var area: float = absf(_path_polygon_signed_area(polygon))
+		if area > largest_area:
+			largest_area = area
+			largest = polygon
+	return largest
+
+func _path_polygon_signed_area(polygon: PackedVector2Array) -> float:
+	var twice_area: float = 0.0
+	for index: int in range(polygon.size()):
+		var current: Vector2 = polygon[index]
+		var next: Vector2 = polygon[(index + 1) % polygon.size()]
+		twice_area += current.x * next.y - next.x * current.y
+	return twice_area * 0.5
+
+func _draw_expanded_path_polygon(
+	polygon: PackedVector2Array,
+	expansion: float,
+	offset: Vector2,
+	color: Color
+) -> void:
+	var expanded: Array[PackedVector2Array] = Geometry2D.offset_polygon(
+		polygon,
+		expansion,
+		Geometry2D.JOIN_ROUND
+	)
+	_draw_path_polygons(expanded, offset, color)
+
+func _draw_expanded_path_polygons(
+	polygons: Array[PackedVector2Array],
+	expansion: float,
+	offset: Vector2,
+	color: Color
+) -> void:
+	for polygon: PackedVector2Array in polygons:
+		_draw_expanded_path_polygon(polygon, expansion, offset, color)
+
+func _draw_gradient_path_polygon(polygon: PackedVector2Array, width: float, color: Color) -> void:
+	if polygon.size() < 3 or width <= 0.0 or not _polygon_can_draw(polygon):
+		return
+	var edge_color: Color = color.darkened(MOVE_PATH_GRADIENT_DARKEN)
+	var light_color: Color = color.lightened(MOVE_PATH_GRADIENT_LIGHTEN)
+	edge_color.a = color.a * MOVE_PATH_GRADIENT_BASE_ALPHA
+	var light_direction: Vector2 = MOVE_PATH_LIGHT_DIRECTION.normalized()
+	_draw_path_color_polygon(polygon, edge_color)
+	for layer: int in range(1, MOVE_PATH_GRADIENT_LAYER_COUNT + 1):
+		var progress: float = float(layer) / float(MOVE_PATH_GRADIENT_LAYER_COUNT)
+		var eased: float = smoothstep(0.0, 1.0, progress)
+		var layer_offset: Vector2 = light_direction * width * 0.46 * progress
+		var layer_color: Color = edge_color.lerp(light_color, eased)
+		layer_color.a = color.a * MOVE_PATH_GRADIENT_LAYER_ALPHA
+		var shifted: PackedVector2Array = _shifted_path_polygon(polygon, layer_offset)
+		var lit_polygons: Array[PackedVector2Array] = Geometry2D.intersect_polygons(polygon, shifted)
+		_draw_path_polygons(lit_polygons, Vector2.ZERO, layer_color)
+
+func _draw_gradient_path_polygons(
+	polygons: Array[PackedVector2Array],
+	width: float,
+	color: Color
+) -> void:
+	for polygon: PackedVector2Array in polygons:
+		_draw_gradient_path_polygon(polygon, width, color)
+
+func _draw_path_surface_spalls(spalls: Array, shaft_width: float, color: Color) -> void:
+	var light_direction: Vector2 = MOVE_PATH_LIGHT_DIRECTION.normalized()
+	var lip_offset: Vector2 = -light_direction * maxf(0.9, shaft_width * 0.052)
+	var floor_offset: Vector2 = light_direction * maxf(0.35, shaft_width * 0.015)
+	var lip_color: Color = color.lightened(0.50)
+	lip_color.a = 0.48
+	var recess_color: Color = color.darkened(0.90)
+	recess_color.a = 0.88
+	var floor_color: Color = color.darkened(0.66)
+	floor_color.a = 0.72
+	for spall_var: Variant in spalls:
+		if typeof(spall_var) != TYPE_DICTIONARY:
+			continue
+		var spall: Dictionary = spall_var as Dictionary
+		var polygon: PackedVector2Array = spall.get("polygon", PackedVector2Array())
+		if not _polygon_can_draw(polygon):
+			continue
+		var center: Vector2 = spall.get("center", _path_polygon_center(polygon))
+		_draw_path_color_polygon(_shifted_path_polygon(polygon, lip_offset), lip_color)
+		_draw_path_color_polygon(polygon, recess_color)
+		var floor_polygon: PackedVector2Array = _scaled_path_polygon(polygon, center, 0.56)
+		# Very slim ranged ribbons can collapse the innermost spall floor below
+		# Metal's triangulation precision even though the full recess remains valid.
+		# Keep the visible lip/recess and omit only that degenerate inner facet.
+		if _polygon_can_draw(floor_polygon):
+			_draw_path_color_polygon(_shifted_path_polygon(floor_polygon, floor_offset), floor_color)
+
+func _draw_path_cracks(cracks: Array, shaft_width: float, color: Color) -> void:
+	var light_direction: Vector2 = MOVE_PATH_LIGHT_DIRECTION.normalized()
+	var lip_offset: Vector2 = -light_direction * maxf(0.75, shaft_width * 0.018)
+	var dark_color: Color = color.darkened(0.88)
+	dark_color.a = 0.82
+	var lip_color: Color = color.lightened(0.46)
+	lip_color.a = 0.34
+	for crack_var: Variant in cracks:
+		if typeof(crack_var) != TYPE_DICTIONARY:
+			continue
+		var crack: Dictionary = crack_var
+		var points: PackedVector2Array = crack.get("points", PackedVector2Array())
+		if points.size() < 2:
+			continue
+		var crack_lines: Array = [points, crack.get("branch", PackedVector2Array())]
+		for line_var: Variant in crack_lines:
+			var line: PackedVector2Array = line_var as PackedVector2Array
+			if line.size() < 2:
+				continue
+			_draw_path_line(
+				_shifted_path_polygon(line, lip_offset),
+				lip_color,
+				maxf(0.75, shaft_width * MOVE_PATH_CRACK_LIGHT_WIDTH_RATIO),
+				true
+			)
+			_draw_path_line(
+				line,
+				dark_color,
+				maxf(1.25, shaft_width * MOVE_PATH_CRACK_DARK_WIDTH_RATIO),
+				true
+			)
+
+func _path_polygon_center(polygon: PackedVector2Array) -> Vector2:
+	if polygon.is_empty():
+		return Vector2.ZERO
+	var center := Vector2.ZERO
+	for point: Vector2 in polygon:
+		center += point
+	return center / float(polygon.size())
+
+func _scaled_path_polygon(
+	polygon: PackedVector2Array,
+	center: Vector2,
+	scale_factor: float
+) -> PackedVector2Array:
+	var scaled := PackedVector2Array()
+	for point: Vector2 in polygon:
+		scaled.append(center + (point - center) * scale_factor)
+	return scaled
+
+func _shifted_path_polygon(polygon: PackedVector2Array, offset: Vector2) -> PackedVector2Array:
+	var shifted := PackedVector2Array()
+	for point: Vector2 in polygon:
+		shifted.append(point + offset)
+	return shifted
+
+func _draw_path_polygons(polygons: Array[PackedVector2Array], offset: Vector2, color: Color) -> void:
+	for polygon: PackedVector2Array in polygons:
+		if polygon.size() < 3 or not _polygon_can_draw(polygon):
+			continue
+		var shifted := PackedVector2Array()
+		for point: Vector2 in polygon:
+			shifted.append(point + offset)
+		_draw_path_color_polygon(shifted, color)
+
+func _draw_gradient_disc(center: Vector2, radius: float, color: Color) -> void:
+	if radius <= 0.0:
+		return
+	var center_color: Color = _path_gradient_color(Vector2.ZERO, radius, color)
+	for index: int in range(MOVE_PATH_GRADIENT_DISC_SEGMENTS):
+		var angle_a: float = TAU * float(index) / float(MOVE_PATH_GRADIENT_DISC_SEGMENTS)
+		var angle_b: float = TAU * float(index + 1) / float(MOVE_PATH_GRADIENT_DISC_SEGMENTS)
+		var offset_a := Vector2(cos(angle_a), sin(angle_a)) * radius
+		var offset_b := Vector2(cos(angle_b), sin(angle_b)) * radius
+		draw_primitive(
+			PackedVector2Array([center, center + offset_a, center + offset_b]),
+			PackedColorArray([
+				center_color,
+				_path_gradient_color(offset_a, radius, color),
+				_path_gradient_color(offset_b, radius, color)
+			]),
+			PackedVector2Array()
+		)
+
+func _path_gradient_color(offset: Vector2, radius: float, color: Color) -> Color:
+	var light_direction: Vector2 = MOVE_PATH_LIGHT_DIRECTION.normalized()
+	var light_amount: float = clampf(0.5 + offset.dot(light_direction) / maxf(radius * 2.0, 0.001), 0.0, 1.0)
+	light_amount = smoothstep(0.0, 1.0, light_amount)
+	var gradient_color: Color = color.darkened(MOVE_PATH_GRADIENT_DARKEN).lerp(color.lightened(MOVE_PATH_GRADIENT_LIGHTEN), light_amount)
+	gradient_color.a = color.a * MOVE_PATH_BODY_ALPHA
+	return gradient_color
+
+func _draw_friendly_damage_chips() -> void:
+	var chips: Array = presentation.get("friendly_damage_chips", [])
+	if chips.is_empty(): return
+	var font: Font = get_theme_default_font()
+	if font == null: return
+	var occupied: Array[Rect2]
+	for value: Variant in _hud_health_rects_cache.values():
+		occupied.append((value as Rect2).grow(4.0))
+	for chip: Dictionary in chips:
+		var health: Rect2 = _hud_health_rects_cache.get(str(chip.get("actor_key", "")), Rect2())
+		if health.size.x <= 0.0: continue
+		var label: String = str(chip.get("label", ""))
+		var width: float = clampf(font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, 12).x + 14.0, 38.0, 184.0)
+		var rect := Rect2(Vector2(health.get_center().x - width * 0.5, health.position.y - 28.0), Vector2(width, 22.0))
+		# Keep explicit self/friendly costs out of health bars and neighboring chips.
+		# Search above and below so a crowded top edge never sends warnings offscreen.
+		rect.position.y = clampf(rect.position.y, 4.0, maxf(4.0, size.y - rect.size.y - 4.0))
+		for attempt: int in range(24):
+			var candidate: Rect2 = rect
+			var offset: float = float(attempt / 2) * 25.0
+			candidate.position.y = health.position.y - 28.0 - offset if attempt % 2 == 0 else health.end.y + 6.0 + offset
+			if candidate.position.y < 4.0 or candidate.end.y > size.y - 4.0: continue
+			if occupied.any(func(other: Rect2) -> bool: return candidate.grow(2.0).intersects(other)): continue
+			rect = candidate
+			break
+		occupied.append(rect)
+		_draw_movement_risk_chip(font, rect.get_center(), label, "danger", 12, 22.0)
+
+func _draw_movement_risk_chips() -> void:
+	var chips: Array = presentation.get("movement_risk_chips", [])
+	if chips.is_empty():
+		return
+	var font: Font = get_theme_default_font()
+	if font == null:
+		return
+	var slots_by_tile: Dictionary = {}
+	for chip_var: Variant in chips:
+		if typeof(chip_var) != TYPE_DICTIONARY:
+			continue
+		var chip: Dictionary = chip_var
+		var tile: Vector2i = chip.get("tile", Vector2i(-1, -1))
+		if tile.x < 0:
+			continue
+		var label: String = str(chip.get("label", "")).strip_edges()
+		if label.is_empty():
+			continue
+		var slot: int = int(slots_by_tile.get(tile, 0))
+		slots_by_tile[tile] = slot + 1
+		var center: Vector2 = _tile_center(tile) + Vector2(0.0, -_tile_height() * 0.92 - float(slot) * (MOVE_RISK_CHIP_HEIGHT + MOVE_RISK_CHIP_GAP))
+		_draw_movement_risk_chip(font, center, label, str(chip.get("kind", "")))
+
+func _draw_movement_risk_chip(font: Font, center: Vector2, label: String, kind: String, font_size: int = MOVE_RISK_CHIP_FONT_SIZE, height: float = MOVE_RISK_CHIP_HEIGHT) -> void:
+	var colors: Dictionary = _movement_risk_chip_colors(kind)
+	var text_width: float = font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1.0, font_size).x
+	var chip_width: float = clampf(text_width + 14.0, 38.0, 184.0)
+	var rect := Rect2(center - Vector2(chip_width * 0.5, height * 0.5), Vector2(chip_width, height))
+	draw_rect(rect.grow(1.5), Color(0.0, 0.0, 0.0, 0.34), true)
+	draw_rect(rect, colors.get("fill", Color("241914")), true)
+	draw_rect(rect, colors.get("border", Color("d8b96f")), false, 1.4)
+	draw_string(
+		font,
+		rect.position + Vector2(0.0, height * 0.5 + float(font_size) * 0.35),
+		label,
+		HORIZONTAL_ALIGNMENT_CENTER,
+		rect.size.x,
+		font_size,
+		colors.get("text", Color("fff4dc"))
+	)
+
+func _movement_risk_chip_colors(kind: String) -> Dictionary:
+	match kind:
+		"danger":
+			return {"fill": Color(0.27, 0.08, 0.055, 0.94), "border": Color("ef8b62"), "text": Color("ffe5cf")}
+		"status":
+			return {"fill": Color(0.18, 0.15, 0.07, 0.94), "border": Color("f3d762"), "text": Color("fff0b7")}
+		"pickup":
+			return {"fill": Color(0.08, 0.20, 0.13, 0.94), "border": Color("83d088"), "text": Color("ddffd7")}
+	return {"fill": Color(0.12, 0.10, 0.08, 0.94), "border": Color("d8b96f"), "text": Color("fff4dc")}
+
+func _draw_unit_focus(unit: Dictionary, center: Vector2) -> void:
+	var focus_keys: Array = presentation.get("focus_actor_keys", [])
+	if not focus_keys.has(str(unit.get("key", ""))):
+		return
+	var points := PackedVector2Array()
+	var color: Color = presentation.get("focus_actor_color", PLAYER_FOCUS_COLOR)
+	var focus_center: Vector2 = center + Vector2(0.0, -10.0)
+	for step: int in range(18):
+		var angle: float = TAU * float(step) / 18.0
+		points.append(focus_center + Vector2(cos(angle) * _tile_width() * 0.24, sin(angle) * _tile_height() * 0.32))
+	draw_colored_polygon(points, Color(color.r, color.g, color.b, 0.14))
+	draw_polyline(points, color, 2.0, true)
+
+func _effective_unit_tile(unit: Dictionary) -> Vector2i:
+	var actor_key: String = str(unit.get("key", ""))
+	if not actor_key.is_empty():
+		var overrides: Dictionary = presentation.get("unit_draw_tiles", {})
+		if overrides.has(actor_key):
+			return overrides[actor_key]
+	return draw_tile_for_unit_origin(unit, unit.get("pos", Vector2i.ZERO))
+
+func _nearest_tile_for_world_position(world_position: Vector2) -> Vector2i:
+	var grid: Array = combat_state.get("grid", [])
+	var best_tile: Vector2i = Vector2i(-1, -1)
+	var best_distance_sq: float = INF
+	for y: int in range(grid.size()):
+		for x: int in range((grid[y] as Array).size()):
+			var tile: Vector2i = Vector2i(x, y)
+			var distance_sq: float = _tile_center(tile).distance_squared_to(world_position)
+			if distance_sq >= best_distance_sq:
+				continue
+			best_distance_sq = distance_sq
+			best_tile = tile
+	return best_tile if best_tile.x >= 0 else Vector2i.ZERO
+
+func _tile_color(tile_id: String) -> Color:
+	match tile_id:
+		"ember":
+			return Color("874d36")
+		"wall":
+			return Color("4a3930")
+		"pillar":
+			return Color("5d4f47")
+		_:
+			return Color("75695f")
+
+func _floor_texture_key(tile_id: String) -> String:
+	match tile_id:
+		"ember":
+			return "ember"
+		"door":
+			return "stone"
+		"wall":
+			return "stone"
+		"pillar":
+			return "stone"
+		_:
+			return "stone"
+
+func _floor_texture_for_tile(tile_id: String, tile: Vector2i) -> Texture2D:
+	var texture_key: String = _floor_texture_key(tile_id)
+	var variants: Array = _floor_texture_variants.get(texture_key, [])
+	if not variants.is_empty():
+		var variant_index: int = int(_floor_variant_by_tile.get(tile, 0))
+		if variant_index >= 0 and variant_index < variants.size():
+			return variants[variant_index]
+		return variants[0]
+	return _tile_textures.get(texture_key, null)
+
+func _build_floor_variant_lookup(grid: Array) -> Dictionary:
+	var lookup: Dictionary = {}
+	var stone_variants: Array = _floor_texture_variants.get("stone", [])
+	var variant_count: int = stone_variants.size()
+	if variant_count <= 1:
+		return lookup
+	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
+	for y: int in range(grid.size()):
+		var row: Array = grid[y]
+		for x: int in range(row.size()):
+			if _floor_texture_key(str(row[x])) != "stone":
+				continue
+			var tile := Vector2i(x, y)
+			var variant_index: int = _hashed_floor_variant_index(tile, room_coord, variant_count)
+			var left_tile := Vector2i(x - 1, y)
+			var up_tile := Vector2i(x, y - 1)
+			if lookup.has(left_tile) and int(lookup.get(left_tile, -1)) == variant_index:
+				variant_index = (variant_index + 1 + posmod(room_coord.x + y, maxi(1, variant_count - 1))) % variant_count
+			if lookup.has(up_tile) and int(lookup.get(up_tile, -1)) == variant_index:
+				variant_index = (variant_index + 2 + posmod(room_coord.y + x, maxi(1, variant_count - 1))) % variant_count
+				if variant_count > 2 and lookup.has(left_tile) and int(lookup.get(left_tile, -1)) == variant_index:
+					variant_index = (variant_index + 1) % variant_count
+			lookup[tile] = variant_index
+	return lookup
+
+func _hashed_floor_variant_index(tile: Vector2i, room_coord: Vector2i, variant_count: int) -> int:
+	if variant_count <= 1:
+		return 0
+	var mixed: int = tile.x * 92821
+	mixed += tile.y * 68917
+	mixed += room_coord.x * 1237
+	mixed += room_coord.y * 1999
+	mixed += tile.x * tile.y * 17
+	mixed += (tile.x - tile.y) * 53
+	mixed += (room_coord.x + room_coord.y) * 31
+	return posmod(mixed, variant_count)
+
+func _build_moss_tile_lookup(moss: Dictionary) -> Dictionary:
+	var lookup: Dictionary = {
+		"floor": {},
+		"wall": {},
+		"pillar": {}
+	}
+	for surface: String in ["floor", "wall", "pillar"]:
+		var surface_lookup: Dictionary = {}
+		for tile_var: Variant in moss.get(surface, []):
+			if typeof(tile_var) == TYPE_VECTOR2I:
+				surface_lookup[tile_var] = true
+		lookup[surface] = surface_lookup
+	return lookup
+
+func _layout_signature_for_state(next_state: Dictionary, next_exit_tiles: Dictionary, next_presentation: Dictionary, room_grid_signature: String) -> String:
+	if next_state.is_empty():
+		return ""
+	var parts: Array[String]
+	parts.append(room_grid_signature)
+	parts.append("exit:%s" % _vector2i_dict_key_signature(next_exit_tiles))
+	parts.append("active:%s" % _truthy_vector2i_dict_key_signature(next_presentation.get("active_door_tiles", {}) as Dictionary))
+	parts.append("locked:%s" % _truthy_vector2i_dict_key_signature(next_presentation.get("locked_door_tiles", {}) as Dictionary))
+	parts.append("backdrop:%s" % bool(next_presentation.get("board_backdrop_visible", false)))
+	parts.append("framing:%s" % str(next_presentation.get("board_framing_mode", "room")))
+	parts.append("zoom:%s" % _navigation_zoom_scale_for_presentation(next_presentation))
+	parts.append("fit:%s|roster:%s" % [str(next_presentation.get("board_fit_rect", Rect2())), str(next_presentation.get("board_encounter_types", []))])
+	return "|".join(parts)
+
+func _visual_framing_signature_for_state(next_state: Dictionary, next_presentation: Dictionary) -> String:
+	if next_state.is_empty():
+		return ""
+	var parts: Array[String]
+	var player: Dictionary = next_state.get("player", {})
+	parts.append("player:%s" % (str(player.get("pos", Vector2i.ZERO)) if not player.is_empty() and int(player.get("hp", 0)) > 0 else "hidden"))
+	parts.append("illusions:%s" % _visual_framing_unit_entries_signature(next_state.get("illusions", []), true))
+	parts.append("enemies:%s" % _visual_framing_unit_entries_signature(next_state.get("enemies", []), true))
+	parts.append("npcs:%s" % _visual_framing_unit_entries_signature(next_state.get("npcs", []), false, "id"))
+	# Ephemeral targeting ghosts always occupy legal in-grid unit origins and use
+	# the same art bounds already reserved for committed actors. Including them in
+	# framing made every illusion-target hover recalculate the entire board's
+	# visual bounds even though the resulting origin and scale did not move.
+	parts.append("deaths:%s" % _visual_framing_unit_entries_signature(next_presentation.get("death_animation_units", []), false))
+	var visible_enemy_ids: Array[String]
+	if next_presentation.has("visible_enemy_ids"):
+		for enemy_id_var: Variant in next_presentation.get("visible_enemy_ids", []):
+			visible_enemy_ids.append(str(enemy_id_var))
+		visible_enemy_ids.sort()
+		parts.append("visible:%s" % ",".join(visible_enemy_ids))
+	else:
+		parts.append("visible:all")
+	var scene_prop_entries: Array[String]
+	for prop_var: Variant in next_presentation.get("scene_props", []):
+		if typeof(prop_var) != TYPE_DICTIONARY:
+			continue
+		var prop: Dictionary = prop_var as Dictionary
+		scene_prop_entries.append("%s@%s:x%s:w%s:b%s" % [
+			str(prop.get("kind", "")),
+			str(prop.get("tile", Vector2i(-1, -1))),
+			str(prop.get("x_offset_scale", 0.0)),
+			str(prop.get("width_scale", "default")),
+			str(prop.get("baseline_scale", "default"))
+		])
+	scene_prop_entries.sort()
+	parts.append("props:%s" % ";".join(scene_prop_entries))
+	var visible_tiles: Variant = next_presentation.get("umbra_visible_tiles", null)
+	parts.append("terrain:%s" % _visual_framing_board_entries_signature(next_state.get("terrain", []), "pos", ["kind"], true, "hp", visible_tiles))
+	parts.append("loot:%s" % _visual_framing_board_entries_signature(next_state.get("loot", []), "pos", ["kind", "equipment_id", "card_id"], true, "claimed", visible_tiles))
+	parts.append("traps:%s" % _visual_framing_board_entries_signature(next_state.get("traps", []), "pos", [], false, "", visible_tiles))
+	# unit_world_positions contains per-frame interpolation coordinates. Stable
+	# state positions drive framing so an animation cannot move the entire board
+	# every frame; its committed destination triggers one cache refresh instead.
+	return "|".join(parts)
+
+func _visual_framing_unit_entries_signature(entries: Array, living_only: bool, type_key: String = "type", required_role: String = "") -> String:
+	var signatures: Array[String]
+	for entry_var: Variant in entries:
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		if living_only and int(entry.get("hp", 0)) <= 0:
+			continue
+		if not required_role.is_empty() and str(entry.get("role", "")) != required_role:
+			continue
+		var footprint: Variant = entry.get("footprint", Vector2i.ONE)
+		signatures.append("%s:%s@%s:%s" % [
+			str(entry.get("id", entry.get("key", ""))),
+			str(entry.get(type_key, "player")),
+			str(entry.get("pos", Vector2i(-1, -1))),
+			str(footprint)
+		])
+	signatures.sort()
+	return ";".join(signatures)
+
+func _visual_framing_board_entries_signature(entries: Array, position_key: String, fields: Array, exclude_flag: bool = false, flag_key: String = "", visible_tiles: Variant = null) -> String:
+	var signatures: Array[String]
+	for entry_var: Variant in entries:
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		if typeof(visible_tiles) == TYPE_ARRAY and not (visible_tiles as Array).has(entry.get(position_key, Vector2i(-1, -1))):
+			continue
+		if exclude_flag:
+			if flag_key == "hp" and int(entry.get(flag_key, 0)) <= 0:
+				continue
+			if flag_key != "hp" and bool(entry.get(flag_key, false)):
+				continue
+		var field_values: Array[String]
+		for field_var: Variant in fields:
+			field_values.append(str(entry.get(str(field_var), "")))
+		signatures.append("%s@%s" % [":".join(field_values), str(entry.get(position_key, Vector2i(-1, -1)))])
+	signatures.sort()
+	return ";".join(signatures)
+
+func _moss_signature_for_state(next_state: Dictionary) -> String:
+	if next_state.is_empty():
+		return ""
+	var parts: Array[String]
+	parts.append(_coord_signature(next_state.get("room_coord", Vector2i.ZERO)))
+	parts.append("element:%s" % str(next_state.get("room_element", ElementData.NONE)))
+	var moss: Dictionary = next_state.get("moss", {})
+	for surface: String in ["floor", "wall", "pillar"]:
+		parts.append("%s:%s" % [surface, _vector2i_array_signature(moss.get(surface, []))])
+	return "|".join(parts)
+
+func _room_grid_signature(next_state: Dictionary) -> String:
+	if next_state.is_empty():
+		return ""
+	var parts: Array[String]
+	parts.append(_coord_signature(next_state.get("room_coord", Vector2i.ZERO)))
+	var grid: Array = next_state.get("grid", [])
+	for row_var: Variant in grid:
+		if typeof(row_var) != TYPE_ARRAY:
+			continue
+		var cells: Array[String]
+		for cell_var: Variant in (row_var as Array):
+			cells.append(str(cell_var))
+		parts.append(",".join(cells))
+	return "|".join(parts)
+
+func _vector2i_dict_key_signature(values: Dictionary) -> String:
+	var keys: Array[String]
+	for key_var: Variant in values.keys():
+		if typeof(key_var) == TYPE_VECTOR2I:
+			keys.append(_coord_signature(key_var))
+	keys.sort()
+	return ",".join(keys)
+
+func _truthy_vector2i_dict_key_signature(values: Dictionary) -> String:
+	var keys: Array[String]
+	for key_var: Variant in values.keys():
+		if typeof(key_var) != TYPE_VECTOR2I:
+			continue
+		if bool(values.get(key_var, false)):
+			keys.append(_coord_signature(key_var))
+	keys.sort()
+	return ",".join(keys)
+
+func _vector2i_array_signature(values: Array) -> String:
+	var keys: Array[String]
+	for value: Variant in values:
+		if typeof(value) == TYPE_VECTOR2I:
+			keys.append(_coord_signature(value))
+	keys.sort()
+	return ",".join(keys)
+
+func _coord_signature(coord: Vector2i) -> String:
+	return "%d,%d" % [coord.x, coord.y]
+
+func _tile_has_moss(surface: String, tile: Vector2i) -> bool:
+	var surface_lookup: Dictionary = _moss_tiles_by_surface.get(surface, {})
+	if not surface_lookup.has(tile):
+		return false
+	if surface != "floor" or _element_overlay_family_id() == ElementData.EARTH:
+		return true
+	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
+	return posmod(_hashed_moss_value(tile, room_coord, surface, 419), 11) < 7
+
+func _moss_texture_for_surface(surface: String, tile: Vector2i, flip_override: bool = false) -> Texture2D:
+	var element_id: String = _element_overlay_family_id(surface)
+	var element_variants: Dictionary = _element_overlay_texture_variants.get(element_id, {})
+	var variants: Array = element_variants.get(surface, [])
+	if variants.is_empty():
+		return null
+	var room_coord: Vector2i = combat_state.get("room_coord", Vector2i.ZERO)
+	var variant_index: int = _hashed_moss_variant_index(tile, room_coord, surface, variants.size())
+	var texture: Texture2D = variants[variant_index]
+	var should_flip: bool = _should_flip_moss_h(tile, room_coord, surface)
+	if flip_override:
+		should_flip = not should_flip
+	return AssetLoader.flip_texture_h(texture) if should_flip else texture
+
+func _element_overlay_family_id(surface: String = "") -> String:
+	if surface == "pillar":
+		return ElementData.EARTH
+	var element_id: String = str(combat_state.get("room_element", ElementData.NONE))
+	return element_id if _element_overlay_texture_variants.has(element_id) else ElementData.EARTH
+
+func _hashed_moss_variant_index(tile: Vector2i, room_coord: Vector2i, surface: String, variant_count: int) -> int:
+	if variant_count <= 1:
+		return 0
+	return posmod(_hashed_moss_value(tile, room_coord, surface, 0), variant_count)
+
+func _should_flip_moss_h(tile: Vector2i, room_coord: Vector2i, surface: String) -> bool:
+	return posmod(_hashed_moss_value(tile, room_coord, surface, 211), 2) == 0
+
+func _hashed_moss_value(tile: Vector2i, room_coord: Vector2i, surface: String, salt: int) -> int:
+	var surface_salt: int = 97
+	match surface:
+		"wall":
+			surface_salt = 173
+		"pillar":
+			surface_salt = 251
+	var mixed: int = tile.x * 92821
+	mixed += tile.y * 68917
+	mixed += room_coord.x * 1237
+	mixed += room_coord.y * 1999
+	mixed += tile.x * tile.y * 29
+	mixed += (tile.x - tile.y) * 61
+	mixed += (room_coord.x + room_coord.y) * 37
+	mixed += surface_salt + salt
+	return mixed
+
+func _wall_orientation_for_tile(grid: Array, tile: Vector2i) -> String:
+	if not _is_outer_boundary_tile(grid, tile):
+		return ""
+	if tile.y == 0 or tile.y == grid.size() - 1:
+		return "row"
+	if tile.x == 0 or tile.x == (grid[0] as Array).size() - 1:
+		return "col"
+	return ""
+
+func _wall_moss_rect(draw_rect: Rect2) -> Rect2:
+	var width: float = draw_rect.size.x
+	var height: float = draw_rect.size.y * 0.54
+	return Rect2(
+		Vector2(draw_rect.get_center().x - width * 0.5, draw_rect.position.y + draw_rect.size.y * 0.02),
+		Vector2(width, height)
+	)
+
+func _pillar_moss_rect(draw_rect: Rect2) -> Rect2:
+	var width: float = draw_rect.size.x * 0.96
+	var height: float = draw_rect.size.y * 0.52
+	return Rect2(
+		Vector2(
+			draw_rect.get_center().x - width * 0.5 + draw_rect.size.x * PILLAR_MOSS_OFFSET_X_SCALE,
+			draw_rect.position.y + draw_rect.size.y * PILLAR_MOSS_OFFSET_Y_SCALE
+		),
+		Vector2(width, height)
+	)
+
+func _door_icon_texture(icon_id: String) -> Texture2D:
+	if icon_id.is_empty():
+		return null
+	if not _door_icon_textures.has(icon_id):
+		_door_icon_textures[icon_id] = RoomIcons.icon_texture(icon_id)
+	return _door_icon_textures.get(icon_id, null)
+
+var _initial_assets_prepared: bool = false
+var _startup_asset_profiling: bool = false
+
+static func prepare_initial_assets_for(board: Control, present_frame: Callable, instrument: bool = false, root: Node = null) -> void:
+	if board._initial_assets_prepared:
+		return
+	board._startup_asset_profiling = instrument
+	if root != null:
+		await AssetLoader.prepare_textures_for(root, board._initial_texture_manifest(), present_frame, func() -> bool: return is_instance_valid(board))
+		if not is_instance_valid(board): return
+	var slice_started: int = Time.get_ticks_usec()
+	for job: Callable in board._initial_asset_jobs(false):
+		if not is_instance_valid(board): return
+		var started: int = Time.get_ticks_usec() if instrument else 0
+		job.call()
+		if instrument:
+			var jobs: Array = board._startup_performance_timings.get("asset_jobs", [])
+			jobs.append({"method": str(job.get_method()), "arguments": str(job.get_bound_arguments()), "usec": Time.get_ticks_usec() - started})
+			board._startup_performance_timings["asset_jobs"] = jobs
+		# Static continuation checks the board after suspension; transition teardown
+		# can free a detached destination without resuming a freed Node's script.
+		if Time.get_ticks_usec() - slice_started >= 4000:
+			await present_frame.call()
+			if not is_instance_valid(board): return
+			slice_started = Time.get_ticks_usec()
+	board._initial_assets_prepared = true
+
+func _load_assets(load_full_unit_roster: bool = true) -> void:
+	for job: Callable in _initial_asset_jobs(load_full_unit_roster):
+		job.call()
+	_initial_assets_prepared = true
+
+func _initial_texture_manifest() -> Dictionary:
+	var manifest: Dictionary = {}
+	AssetLoader.add_texture_constants(manifest, get_script())
+	AssetLoader.add_texture_constants(manifest, ProtagonistCutout)
+	for path: String in ["res://assets/art/tiles/stone.png", "res://assets/art/tiles/ember.png", "res://assets/placeholders/tiles/pillar.png", "res://assets/placeholders/tiles/wall.png", "res://assets/placeholders/tiles/door.png"]:
+		manifest[path] = false
+	for path: String in ["res://assets/props/guardians/watch_brazier_lit.png", "res://assets/props/guardians/watch_brazier_dark.png"]:
+		manifest[path] = true
+	for icon: String in RoomIcons.all_icon_ids():
+		var path: String = RoomIcons.icon_path(icon)
+		if not path.is_empty(): manifest[path] = false
+	for icon: String in ActionIcons.all_icon_keys():
+		var path: String = ActionIcons.icon_path(icon)
+		if not path.is_empty(): manifest[path] = false
+	return manifest
+
+func _initial_asset_jobs(load_full_unit_roster: bool) -> Array[Callable]:
+	var jobs: Array[Callable]
+	jobs.append(ElementalSpellFx.prepare)
+	jobs.append(_load_board_style_assets)
+	jobs.append(_load_base_floor_assets)
+	for family: Array in [
+		[ElementData.EARTH, MOSS_FLOOR_OVERLAY_PATHS, MOSS_WALL_OVERLAY_PATHS, MOSS_PILLAR_OVERLAY_PATHS],
+		[ElementData.FIRE, FIRE_FLOOR_OVERLAY_PATHS, FIRE_WALL_OVERLAY_PATHS, FIRE_PILLAR_OVERLAY_PATHS],
+		[ElementData.ICE, ICE_FLOOR_OVERLAY_PATHS, ICE_WALL_OVERLAY_PATHS, ICE_PILLAR_OVERLAY_PATHS],
+		[ElementData.LIGHTNING, LIGHTNING_FLOOR_OVERLAY_PATHS, LIGHTNING_WALL_OVERLAY_PATHS, LIGHTNING_PILLAR_OVERLAY_PATHS],
+		[ElementData.AIR, AIR_FLOOR_OVERLAY_PATHS, AIR_WALL_OVERLAY_PATHS, AIR_PILLAR_OVERLAY_PATHS]
+	]:
+		for index: int in range(3):
+			jobs.append(_load_floor_overlay_assets.bind(str(family[0]), ["floor", "wall", "pillar"][index], family[index + 1]))
+	jobs.append(_load_board_prop_assets)
+	jobs.append(_load_scene_prop_assets)
+	jobs.append(_load_scene_prop_idle_assets)
+	jobs.append(_load_pillar_idle_assets)
+	jobs.append(_load_board_effect_assets)
+	jobs.append(_reset_particle_assets)
+	for source: Array in [
+		["_projectile_atlas", ELEMENTAL_PROJECTILE_ATLAS_PATH],
+		["_ambient_particle_atlas", AMBIENT_PARTICLE_ATLAS_PATH],
+		["_ambient_particle_glow_atlas", AMBIENT_PARTICLE_GLOW_ATLAS_PATH],
+		["_ambient_fire_soft_atlas", AMBIENT_FIRE_SOFT_ATLAS_PATH],
+		["_ambient_air_wisp_atlas", AMBIENT_AIR_WISP_FRAMES_PATH],
+		["_ambient_air_wisp_soft_atlas", AMBIENT_AIR_WISP_SOFT_ATLAS_PATH],
+		["_ambient_air_wisp_glow_atlas", AMBIENT_AIR_WISP_GLOW_FRAMES_PATH]
+	]:
+		jobs.append(_load_texture_property.bind(str(source[0]), str(source[1])))
+	jobs.append(_load_door_assets)
+	jobs.append(_load_loot_and_terrain_assets)
+	for kind: String in TERRAIN_DESTRUCTION_SHEET_LAYOUTS:
+		jobs.append(_load_terrain_destruction_asset.bind(kind))
+	for element: String in ElementData.all_elements():
+		jobs.append(_load_element_trap_assets.bind(element))
+	for icon: String in RoomIcons.all_icon_ids():
+		jobs.append(_load_door_icon_asset.bind(icon))
+	for icon: String in ActionIcons.all_icon_keys():
+		jobs.append(_load_keyword_icon_asset.bind(icon))
+	jobs.append(_load_base_unit_assets)
+	jobs.append(_ensure_unit_assets_for_type.bind("player"))
+	if load_full_unit_roster:
+		for type: String in GameData.enemies(): jobs.append(_ensure_unit_assets_for_type.bind(type))
+		for type: String in GameData.npcs(): jobs.append(_ensure_unit_assets_for_type.bind(type))
+	jobs.append(_ensure_ambient_combined_atlas)
+	return jobs
+
+func _load_board_style_assets() -> void:
+	if _pillar_torch_light_texture == null:
+		var gradient := Gradient.new()
+		gradient.offsets = PackedFloat32Array([0.0, 0.20, 0.46, 0.74, 1.0])
+		gradient.colors = PackedColorArray([Color(1, 1, 1, 1), Color(1, 1, 1, 0.68), Color(1, 1, 1, 0.25), Color(1, 1, 1, 0.035), Color(1, 1, 1, 0)])
+		_pillar_torch_light_texture = GradientTexture2D.new()
+		_pillar_torch_light_texture.gradient = gradient
+		_pillar_torch_light_texture.width = 256
+		_pillar_torch_light_texture.height = 256
+		_pillar_torch_light_texture.fill = GradientTexture2D.FILL_RADIAL
+		_pillar_torch_light_texture.fill_from = Vector2(0.5, 0.5)
+		_pillar_torch_light_texture.fill_to = Vector2(1.0, 0.5)
+	# Status prompts can use display, UI, or text roles depending on room/combat
+	# mode. Resolve all three while the board is being prepared so the first
+	# player-visible prompt never pays font-resource decode during an action frame.
+	UiTypography.display_font()
+	UiTypography.ui_font()
+	UiTypography.text_font()
+	_health_bar_frame_textures = {
+		HEALTH_BAR_STYLE_LIGHT: AssetLoader.load_texture(PLAYER_HEALTH_FRAME_PATH),
+		HEALTH_BAR_STYLE_UMBRA: AssetLoader.load_texture(ENEMY_HEALTH_FRAME_PATH),
+	}
+
+func _load_base_floor_assets() -> void:
+	var stone_floor_variants: Array[Texture2D] = _load_floor_variants(STONE_FLOOR_VARIANT_PATHS)
+	_tile_textures = {
+		"stone": stone_floor_variants[0] if not stone_floor_variants.is_empty() else AssetLoader.load_texture("res://assets/art/tiles/stone.png"),
+		"ember": AssetLoader.load_texture("res://assets/art/tiles/ember.png")
+	}
+	_floor_texture_variants = {"stone": stone_floor_variants}
+	_element_overlay_texture_variants = {}
+
+func _load_floor_overlay_assets(element: String, surface: String, paths: PackedStringArray) -> void:
+	if not _element_overlay_texture_variants.has(element): _element_overlay_texture_variants[element] = {}
+	_element_overlay_texture_variants[element][surface] = _load_floor_variants(paths)
+
+func _load_board_prop_assets() -> void:
+	var pillar_texture: Texture2D = AssetLoader.trim_texture_to_used_rect(AssetLoader.load_texture("res://assets/placeholders/tiles/pillar.png"))
+	var wall_row_texture: Texture2D = AssetLoader.trim_texture_to_used_rect(AssetLoader.load_texture("res://assets/placeholders/tiles/wall.png"))
+	var door_texture: Texture2D = AssetLoader.load_texture("res://assets/placeholders/tiles/door.png")
+	_prop_textures = {
+		"pillar": pillar_texture,
+		"wall": wall_row_texture,
+		"wall_row": wall_row_texture,
+		"wall_col": AssetLoader.flip_texture_h(wall_row_texture),
+		"door": door_texture,
+		"door_row": door_texture,
+		"door_col": AssetLoader.flip_texture_h(door_texture),
+		"column_torch_left": AssetLoader.load_texture(COLUMN_TORCH_LEFT_PATH),
+		"column_torch_right": AssetLoader.load_texture(COLUMN_TORCH_RIGHT_PATH)
+	}
+
+func _load_scene_prop_assets() -> void:
+	_scene_prop_textures = {
+		"watch_brazier_lit": AssetLoader.load_texture_source_first("res://assets/props/guardians/watch_brazier_lit.png"),
+		"watch_brazier_dark": AssetLoader.load_texture_source_first("res://assets/props/guardians/watch_brazier_dark.png"),
+		"campfire_bonfire": AssetLoader.load_texture(CAMPFIRE_BONFIRE_PATH),
+		"relic_chest": AssetLoader.load_texture(RELIC_CHEST_PATH),
+		"scavenger_stall": AssetLoader.load_texture(SCAVENGER_STALL_PATH)
+	}
+
+func _load_scene_prop_idle_assets() -> void:
+	_scene_prop_idle_frames = {
+		"campfire_bonfire": _load_sprite_sheet_frames(
+			CAMPFIRE_BONFIRE_IDLE_PATH,
+			CAMPFIRE_BONFIRE_IDLE_COLUMNS,
+			CAMPFIRE_BONFIRE_IDLE_ROWS
+		)
+	}
+
+func _load_pillar_idle_assets() -> void:
+	_pillar_torch_idle_frames = {
+		"left": _load_sprite_sheet_frames(
+			COLUMN_TORCH_LEFT_IDLE_PATH,
+			COLUMN_TORCH_IDLE_COLUMNS,
+			COLUMN_TORCH_IDLE_ROWS
+		),
+		"right": _load_sprite_sheet_frames(
+			COLUMN_TORCH_RIGHT_IDLE_PATH,
+			COLUMN_TORCH_IDLE_COLUMNS,
+			COLUMN_TORCH_IDLE_ROWS
+		)
+	}
+
+func _load_board_effect_assets() -> void:
+	_effect_textures = {
+		"lethal_death_mark": AssetLoader.load_texture(LETHAL_DEATH_MARK_EFFECT_PATH),
+		"blink_rift_preview": AssetLoader.load_texture(BLINK_RIFT_PREVIEW_TEXTURE_PATH)
+	}
+	_effect_frames = {
+		"melee_slash": _load_sprite_sheet_frames(
+			MELEE_SLASH_SHEET_PATH,
+			MELEE_SLASH_SHEET_COLUMNS,
+			MELEE_SLASH_SHEET_ROWS
+		),
+		"defense_heal_casts": _load_sprite_sheet_frames(
+			DEFENSE_HEAL_CASTS_PATH,
+			DEFENSE_HEAL_CASTS_COLUMNS,
+			DEFENSE_HEAL_CASTS_ROWS
+		)
+	}
+
+func _reset_particle_assets() -> void:
+	_projectile_textures.clear()
+	_ambient_particle_textures.clear()
+	_ambient_particle_glow_textures.clear()
+	_ambient_fire_soft_textures.clear()
+	_ambient_air_wisp_textures.clear()
+	_ambient_air_wisp_soft_textures.clear()
+	_ambient_air_wisp_glow_textures.clear()
+	_ambient_combined_atlas = null
+	_ambient_combined_atlas_regions.clear()
+
+func _load_texture_property(property: String, path: String) -> void:
+	set(property, AssetLoader.load_texture(path))
+
+func _load_door_assets() -> void:
+	var started: int = Time.get_ticks_usec() if _startup_asset_profiling or (is_inside_tree() and get_tree().root.has_meta("labyrinth_performance_probe_seed")) else 0
+	_door_opening_flipped_frames.clear()
+	_door_opening_frames = _load_door_opening_frames(_door_opening_flipped_frames)
+	_record_startup_performance_phase("door_frames", started)
+
+func _load_loot_and_terrain_assets() -> void:
+	_loot_textures = {
+		"dropped_embers": AssetLoader.load_texture(DROPPED_EMBERS_PATH)
+	}
+	_terrain_textures = {
+		"raised_cover": AssetLoader.load_texture_source_first("res://assets/props/guardians/raised_cover.png"),
+		"crag_outcrop": AssetLoader.load_texture_source_first("res://assets/props/guardians/crag_outcrop.png"),
+		"wooden_box": AssetLoader.load_texture("res://assets/art/tiles/wooden_box.png"),
+		"wooden_crate": AssetLoader.load_texture("res://assets/art/tiles/wooden_crate.png"),
+		"powder_keg": AssetLoader.load_texture("res://assets/art/tiles/powder_keg.png"),
+		"dragon_spire": AssetLoader.load_texture("res://assets/art/tiles/dragon_spire.png")
+	}
+	_terrain_destruction_frames_by_kind.clear()
+	_element_textures.clear()
+	_trap_textures.clear()
+	_trap_idle_frames.clear()
+	_trap_activation_frames.clear()
+	_door_icon_textures.clear()
+	_keyword_icon_textures.clear()
+
+func _load_terrain_destruction_asset(kind: String) -> void:
+	var frames: Array[Texture2D] = _load_terrain_destruction_frames(kind)
+	if not frames.is_empty(): _terrain_destruction_frames_by_kind[kind] = frames
+
+func _load_element_trap_assets(element: String) -> void:
+	_element_textures[element] = AssetLoader.load_texture(ElementData.icon_path(element))
+	_trap_textures[element] = AssetLoader.load_texture("res://assets/art/traps/trap_%s.png" % element)
+	_trap_idle_frames[element] = _load_sprite_sheet_frames("res://assets/art/traps/trap_%s_idle.png" % element, TRAP_ANIMATION_SHEET_COLUMNS, TRAP_ANIMATION_SHEET_ROWS)
+	_trap_activation_frames[element] = _load_sprite_sheet_frames("res://assets/art/traps/trap_%s_activation.png" % element, TRAP_ANIMATION_SHEET_COLUMNS, TRAP_ANIMATION_SHEET_ROWS)
+
+func _load_door_icon_asset(icon: String) -> void:
+	_door_icon_textures[icon] = RoomIcons.icon_texture(icon)
+
+func _load_keyword_icon_asset(icon: String) -> void:
+	_keyword_icon_textures[icon] = ActionIcons.icon_texture(icon)
+
+func _load_base_unit_assets() -> void:
+	_unit_textures.clear()
+	_unit_assets_loaded.clear()
+	_idle_frames_by_type.clear()
+	_death_frames_by_type.clear()
+	_unit_shadow_polygon_cache.clear()
+	_unit_shadow_bottom_ratio_cache.clear()
+	_unit_shadow_draw_geometry_cache.clear()
+	_unit_shadow_draw_mesh_cache.clear()
+	_unit_shadow_prewarm_urgent_queue.clear()
+	_unit_shadow_prewarm_background_queue.clear()
+	_unit_shadow_prewarm_queued_ids.clear()
+	_unit_shadow_prewarm_pending_ids.clear()
+	_unit_shadow_last_prepare_waited_frames = 0
+	_unit_shadow_precomputed_loaded_keys.clear()
+	_unit_shadow_precomputed_missing_keys.clear()
+	_load_unit_shadow_precomputed_cache()
+
+func _ensure_unit_assets_for_submission(state: Dictionary, source_presentation: Dictionary) -> void:
+	if not (state.get("player", {}) as Dictionary).is_empty():
+		_ensure_unit_assets_for_type("player")
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) == TYPE_DICTIONARY:
+			_ensure_unit_assets_for_type(str((enemy_var as Dictionary).get("type", "")))
+	for npc_var: Variant in state.get("npcs", []):
+		if typeof(npc_var) != TYPE_DICTIONARY:
+			continue
+		var npc: Dictionary = npc_var
+		_ensure_unit_assets_for_type(str(npc.get("id", npc.get("type", ""))))
+	for death_var: Variant in source_presentation.get("death_animation_units", []):
+		if typeof(death_var) == TYPE_DICTIONARY:
+			_ensure_unit_assets_for_type(str((death_var as Dictionary).get("type", "")))
+
+func unit_rig_preparation_manifest(state: Dictionary) -> Dictionary:
+	# Derive paths through the production rig loaders on the main thread. Only
+	# these immutable path strings cross into the private CPU preparation worker.
+	var families: Dictionary = {
+		"crawler": CrawlerCutout, "acolyte": AcolyteCutout, "warden": WardenCutout,
+		"chainbound_gaoler": GaolerCutout, "cinder_droplet": CinderDropletCutout,
+		"cinder_ooze": CinderOozeCutout, "frostglass_lancer": FrostglassCutout,
+		"grave_surgeon": GraveSurgeonCutout, "harrier": HarrierCutout,
+		"bile_bloomer": BileBloomerCutout, "lightning_wisp": LightningWispCutout,
+		"iskaldra": IskaldraCutout, "noctyrax": NoctyraxCutout, "tharokh": TharokhCutout,
+		"vaeloryx": VaeloryxCutout, "veilbound_acolyte": VeilboundAcolyteCutout,
+		"vyraketh": VyrakethCutout, "zekarion": ZekarionCutout,
+	}
+	var sources := PackedStringArray()
+	var textures: Dictionary = {}
+	for enemy: Dictionary in state.get("enemies", []):
+		var type: String = str(enemy.get("type", ""))
+		var renderer_script: Script = GuardianCutout if GuardianCutout.handles(type) else families.get(type, null)
+		if renderer_script == null: continue
+		var constants: Dictionary = renderer_script.get_script_constant_map()
+		var rig: Node = (constants["Rig"] as Script).new()
+		if renderer_script == GuardianCutout: rig.set("character_id", type)
+		for facing: String in ["front", "rear"]:
+			var path: String = rig.call("_layout_path", facing)
+			if not sources.has(path): sources.append(path)
+		rig.free()
+		if constants.has("REST_PATH"): textures[str(constants["REST_PATH"])] = true
+	return {"sources": sources, "textures": textures}
+
+# Constructor-only preparation keeps one upcoming encounter's canvases under
+# their final board owner. They stay outside the live roster and cannot render
+# board bodies until the ordinary roster path consumes them.
+func begin_unit_renderer_preparation(state: Dictionary) -> Array[Dictionary]:
+	var desired: Dictionary = {}
+	var jobs: Array[Dictionary]
+	for unit: Dictionary in state.get("enemies", []):
+		var type: String = str(unit.get("type", ""))
+		if type not in ["crawler", "harrier", "frostglass_lancer"] or int(unit.get("hp", 0)) <= 0: continue
+		var key: String = "%s:%d" % [type, int(unit.get("id", -1))]
+		desired[key] = true
+		jobs.append({"key": key, "type": type, "id": int(unit.get("id", -1)), "motion": EnemyCutoutFacing.with_idle_direction({}, unit.get("pos", Vector2i.ZERO), (state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))})
+	for key: String in _prepared_unit_renderers.keys():
+		if desired.has(key): continue
+		var renderer: Node = _prepared_unit_renderers[key]
+		_prepared_unit_renderers.erase(key)
+		if is_instance_valid(renderer): renderer.queue_free()
+	return jobs
+
+func prepare_unit_renderer(job: Dictionary, reduced_motion: bool) -> void:
+	var key: String = str(job["key"])
+	var renderer: Node = _prepared_unit_renderers.get(key) as Node
+	if not is_instance_valid(renderer):
+		var script: Script
+		var prefix: String
+		match str(job["type"]):
+			"crawler": script = CrawlerCutout; prefix = "CrawlerCutout"
+			"harrier": script = HarrierCutout; prefix = "HarrierCutout"
+			"frostglass_lancer": script = FrostglassCutout; prefix = "FrostglassCutout"
+			_: return
+		renderer = script.new()
+		renderer.name = "%s_%d" % [prefix, int(job["id"])]
+		add_child(renderer)
+		_prepared_unit_renderers[key] = renderer
+	# Prepare the actual opening facing, including the rear rig. The canvases
+	# remain outside the live roster and pause at the original initial phase.
+	renderer.call("present", job["motion"], reduced_motion, true)
+	renderer.set_process(false)
+
+func _take_prepared_unit_renderer(type: String, unit_id: int, script: Script) -> Node:
+	var key: String = "%s:%d" % [type, unit_id]
+	var renderer: Node = _prepared_unit_renderers.get(key) as Node
+	_prepared_unit_renderers.erase(key)
+	if is_instance_valid(renderer) and not renderer.is_queued_for_deletion() and renderer.get_parent() == self and renderer.get_script() == script:
+		# Adoption starts with the same state and neutral front pose as new().
+		# Reaction-first callers preserve that pose rather than the warm facing.
+		renderer.set("facing", "front")
+		renderer.set("mirrored", false)
+		renderer.set("clip", "idle")
+		renderer.set("phase", 0.0)
+		renderer.set("reduced_motion", false)
+		renderer.set("active", true)
+		if type == "crawler": renderer.set("attack_variant", "attack")
+		renderer.set("_idle_seconds", 0.0)
+		renderer.set("_pose_signature", [])
+		renderer.call("_apply_pose")
+		renderer.set_process(true)
+		return renderer
+	if is_instance_valid(renderer): renderer.queue_free()
+	return script.new()
+
+func cancel_unit_renderer_preparation() -> void:
+	for renderer: Node in _prepared_unit_renderers.values():
+		if is_instance_valid(renderer): renderer.queue_free()
+	_prepared_unit_renderers.clear()
+
+func prepare_unit_assets_for_state(state: Dictionary) -> void:
+	# Pre-battle owns an exact preview of the upcoming composition. Loading its
+	# textures here lets expensive immutable alpha/shadow metadata build a frame at
+	# a time while the player inspects the encounter instead of blocking Start.
+	_ensure_unit_assets_for_submission(state, {})
+
+func prepare_unit_shadows_for_state(state: Dictionary) -> bool:
+	# Generated alpha polygons keep the exact animated silhouette ready without an
+	# input-delaying frame gate. Missing or build-rejected generated entries fall
+	# back to exact synchronous extraction so visuals never swap through a generic
+	# shadow; cache coverage and source-fingerprint tests keep that fallback off the
+	# shipped path.
+	_ensure_unit_assets_for_submission(state, {})
+	var required_textures: Array[Texture2D] = _unit_shadow_immediate_textures_for_state(state)
+	for texture: Texture2D in required_textures:
+		_queue_unit_shadow_texture(texture, true)
+		if not _unit_shadow_polygon_cache.has(texture.get_instance_id()):
+			_unit_shadow_data_for_texture(texture)
+			_texture_used_rect(texture)
+	_unit_shadow_last_prepare_waited_frames = 0
+	return true
+
+func _load_unit_shadow_precomputed_cache() -> void:
+	_unit_shadow_precomputed_entries.clear()
+	_unit_shadow_precomputed_source_sha256.clear()
+	var cache: Resource = load(UNIT_SHADOW_CACHE_PATH) as Resource
+	if (
+		cache == null
+		or int(cache.get("schema_version")) != UNIT_SHADOW_CACHE_SCHEMA_VERSION
+		or str(cache.get("extraction_signature")) != UnitShadowCacheResourceScript.expected_extraction_signature()
+	):
+		return
+	var entries_var: Variant = cache.get("entries")
+	if typeof(entries_var) == TYPE_DICTIONARY:
+		_unit_shadow_precomputed_entries = entries_var as Dictionary
+	var sources_var: Variant = cache.get("source_sha256")
+	if typeof(sources_var) == TYPE_DICTIONARY:
+		_unit_shadow_precomputed_source_sha256 = sources_var as Dictionary
+
+func _install_unit_shadow_precomputed_data(texture: Texture2D) -> bool:
+	if texture == null:
+		return false
+	var texture_id: int = texture.get_instance_id()
+	if _unit_shadow_polygon_cache.has(texture_id):
+		return true
+	var key: String = UnitShadowCacheResourceScript.texture_key(texture)
+	if key.is_empty() or not _unit_shadow_precomputed_entries.has(key):
+		if not key.is_empty():
+			_unit_shadow_precomputed_missing_keys[key] = true
+		return false
+	var entry: Dictionary = _unit_shadow_precomputed_entries.get(key, {}) as Dictionary
+	var shadow_data: Dictionary = entry.get("shadow_data", {}) as Dictionary
+	if shadow_data.is_empty():
+		_unit_shadow_precomputed_missing_keys[key] = true
+		return false
+	_unit_shadow_polygon_cache[texture_id] = shadow_data
+	var used_rect: Rect2i = entry.get("used_rect", Rect2i()) as Rect2i
+	_texture_used_rect_cache[texture_id] = used_rect
+	AssetLoader.cache_texture_used_rect(texture, used_rect)
+	_unit_shadow_precomputed_loaded_keys[key] = true
+	return true
+
+func _unit_shadow_immediate_textures_for_state(state: Dictionary) -> Array[Texture2D]:
+	var units: Array[Dictionary]
+	if not (state.get("player", {}) as Dictionary).is_empty():
+		var player: Dictionary = (state.get("player", {}) as Dictionary).duplicate(false)
+		player["type"] = "player"
+		player["key"] = "player"
+		units.append(player)
+	for enemy_var: Variant in state.get("enemies", []):
+		if typeof(enemy_var) == TYPE_DICTIONARY:
+			var enemy: Dictionary = enemy_var as Dictionary
+			if int(enemy.get("hp", 0)) > 0:
+				units.append(enemy)
+	for npc_var: Variant in state.get("npcs", []):
+		if typeof(npc_var) == TYPE_DICTIONARY:
+			var npc: Dictionary = npc_var as Dictionary
+			var prepared_npc: Dictionary = npc.duplicate(false)
+			prepared_npc["type"] = str(npc.get("id", npc.get("type", "")))
+			units.append(prepared_npc)
+	var textures: Array[Texture2D]
+	for unit: Dictionary in units:
+		var texture: Texture2D = _unit_hud_anchor_texture(unit) if _unit_uses_cutout(unit) else _texture_for_unit(unit)
+		if texture != null and not textures.has(texture):
+			textures.append(texture)
+	return textures
+
+func _ensure_unit_assets_for_type(unit_type: String) -> void:
+	if unit_type.is_empty() or _unit_assets_loaded.has(unit_type):
+		return
+	_unit_assets_loaded[unit_type] = true
+	var art_path: String = ""
+	if unit_type == "crawler":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(CrawlerCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "acolyte":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(AcolyteCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "chainbound_gaoler":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(GaolerCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "cinder_droplet":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(CinderDropletCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "cinder_ooze":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(CinderOozeCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "frostglass_lancer":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(FrostglassCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "grave_surgeon":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(GraveSurgeonCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "harrier":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(HarrierCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "iskaldra":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(IskaldraCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "lightning_wisp":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(LightningWispCutout.REST_PATH)
+		return
+	if unit_type == "noctyrax":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(NoctyraxCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		_unit_assets_loaded[unit_type] = true
+		return
+	if unit_type == "tharokh":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(TharokhCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "vaeloryx":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(VaeloryxCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "veilbound_acolyte":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(VeilboundAcolyteCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "vyraketh":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(VyrakethCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "zekarion":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(ZekarionCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "warden":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(WardenCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if GuardianCutout.handles(unit_type):
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(GuardianCutout.rest_path(unit_type))
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "bile_bloomer":
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(BileBloomerCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "player" and _uses_protagonist_cutout():
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(ProtagonistCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "player":
+		art_path = "res://assets/placeholders/units/player_reaver.png"
+	else:
+		var definition: Dictionary = _npc_render_definition(unit_type)
+		if definition.is_empty():
+			definition = _enemy_render_definition(unit_type)
+		art_path = str(definition.get("art_path", ""))
+	_unit_textures[unit_type] = _load_unit_texture_with_idle(unit_type, art_path)
+	_queue_unit_shadow_source_data(unit_type)
+
+func _queue_unit_shadow_source_data(unit_type: String) -> void:
+	var urgent_textures: Array[Texture2D]
+	var background_textures: Array[Texture2D]
+	var base_texture: Texture2D = _unit_textures.get(unit_type, null) as Texture2D
+	if base_texture != null:
+		urgent_textures.append(base_texture)
+	var idle_index: int = 0
+	for frame_var: Variant in _idle_frames_by_type.get(unit_type, []):
+		if frame_var is Texture2D:
+			var idle_texture: Texture2D = frame_var as Texture2D
+			if idle_index == 0:
+				urgent_textures.append(idle_texture)
+			else:
+				background_textures.append(idle_texture)
+			idle_index += 1
+	for frame_var: Variant in _death_frames_by_type.get(unit_type, []):
+		if frame_var is Texture2D:
+			background_textures.append(frame_var as Texture2D)
+	for texture: Texture2D in urgent_textures:
+		_queue_unit_shadow_texture(texture, true)
+	for texture: Texture2D in background_textures:
+		_queue_unit_shadow_texture(texture, false)
+
+func _queue_unit_shadow_texture(texture: Texture2D, urgent: bool) -> void:
+	if texture == null:
+		return
+	var texture_id: int = texture.get_instance_id()
+	_install_unit_shadow_precomputed_data(texture)
+	if _unit_shadow_polygon_cache.has(texture_id):
+		return
+	_unit_shadow_prewarm_pending_ids[texture_id] = true
+	if _unit_shadow_prewarm_queued_ids.has(texture_id):
+		if urgent and _unit_shadow_prewarm_background_queue.has(texture):
+			_unit_shadow_prewarm_background_queue.erase(texture)
+			_unit_shadow_prewarm_urgent_queue.append(texture)
+		return
+	_unit_shadow_prewarm_queued_ids[texture_id] = true
+	if urgent:
+		_unit_shadow_prewarm_urgent_queue.append(texture)
+	else:
+		_unit_shadow_prewarm_background_queue.append(texture)
+
+func _process_next_unit_shadow_prewarm() -> void:
+	if _unit_shadow_prewarm_thread != null:
+		if _unit_shadow_prewarm_thread.is_alive():
+			return
+		var result: Dictionary = _unit_shadow_prewarm_thread.wait_to_finish() as Dictionary
+		if _unit_shadow_prewarm_active_texture != null:
+			var texture_id: int = _unit_shadow_prewarm_active_texture.get_instance_id()
+			if not _unit_shadow_polygon_cache.has(texture_id):
+				_unit_shadow_polygon_cache[texture_id] = result.get("shadow_data", {})
+			_unit_shadow_prewarm_pending_ids.erase(texture_id)
+			var used_rect: Rect2i = result.get("used_rect", Rect2i())
+			_texture_used_rect_cache[texture_id] = used_rect
+			AssetLoader.cache_texture_used_rect(_unit_shadow_prewarm_active_texture, used_rect)
+		_unit_shadow_prewarm_thread = null
+		_unit_shadow_prewarm_active_texture = null
+	var texture: Texture2D = null
+	if not _unit_shadow_prewarm_urgent_queue.is_empty():
+		texture = _unit_shadow_prewarm_urgent_queue.pop_front()
+	elif not _unit_shadow_prewarm_background_queue.is_empty():
+		texture = _unit_shadow_prewarm_background_queue.pop_front()
+	if texture == null:
+		return
+	_unit_shadow_prewarm_queued_ids.erase(texture.get_instance_id())
+	if _unit_shadow_polygon_cache.has(texture.get_instance_id()):
+		_unit_shadow_prewarm_pending_ids.erase(texture.get_instance_id())
+		return
+	var readback_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
+	var image: Image = texture.get_image()
+	_record_submission_performance_phase("shadow_prewarm_image_readback", readback_started)
+	if image == null or image.is_empty():
+		var empty_polygons: Array[PackedVector2Array]
+		var empty_triangulations: Array[PackedInt32Array]
+		_unit_shadow_polygon_cache[texture.get_instance_id()] = {
+			"polygons": empty_polygons,
+			"triangulations": empty_triangulations,
+			"bounds": Rect2(),
+		}
+		_unit_shadow_prewarm_pending_ids.erase(texture.get_instance_id())
+		_texture_used_rect_cache[texture.get_instance_id()] = Rect2i()
+		return
+	_unit_shadow_prewarm_active_texture = texture
+	_unit_shadow_prewarm_thread = Thread.new()
+	var start_error: Error = _unit_shadow_prewarm_thread.start(_compute_unit_shadow_data_for_image.bind(image))
+	if start_error != OK:
+		_unit_shadow_prewarm_thread = null
+		_unit_shadow_prewarm_active_texture = null
+		_unit_shadow_data_for_texture(texture)
+		_unit_shadow_prewarm_pending_ids.erase(texture.get_instance_id())
+		_texture_used_rect(texture)
+
+func _compute_unit_shadow_data_for_image(image: Image) -> Dictionary:
+	var data: Dictionary = _unit_shadow_data_for_image_with_simplify(image, UNIT_SHADOW_SIMPLIFY_EPSILON)
+	var shadow_polygons: Array = data.get("polygons", [])
+	var bounds: Rect2 = data.get("bounds", Rect2())
+	if shadow_polygons.is_empty() and bounds.size.x > 0.0 and bounds.size.y > 0.0 and UNIT_SHADOW_RETRY_SIMPLIFY_EPSILON < UNIT_SHADOW_SIMPLIFY_EPSILON:
+		var retry_data: Dictionary = _unit_shadow_data_for_image_with_simplify(image, UNIT_SHADOW_RETRY_SIMPLIFY_EPSILON)
+		if not (retry_data.get("polygons", []) as Array).is_empty():
+			data = retry_data
+	return {"shadow_data": data, "used_rect": image.get_used_rect()}
+
+func _load_floor_variants(paths: PackedStringArray) -> Array[Texture2D]:
+	var textures: Array[Texture2D]
+	for path: String in paths:
+		var texture: Texture2D = AssetLoader.load_texture(path)
+		if texture == null:
+			continue
+		textures.append(texture)
+	return textures
+
+func _load_door_opening_frames(flipped_frames: Array[Texture2D] = []) -> Array[Texture2D]:
+	var sheet: Texture2D = AssetLoader.load_texture(DOOR_OPENING_SHEET_PATH)
+	if sheet == null:
+		return []
+	var sheet_image: Image = sheet.get_image()
+	if sheet_image == null or sheet_image.is_empty():
+		return []
+	var canvas_size: Vector2i = _door_opening_frame_canvas_size()
+	if canvas_size.x <= 0 or canvas_size.y <= 0:
+		return []
+	var frames: Array[Texture2D]
+	for region: Rect2i in DOOR_OPENING_FRAME_REGIONS:
+		var frame_image := Image.create_empty(canvas_size.x, canvas_size.y, false, Image.FORMAT_RGBA8)
+		frame_image.fill(Color(0.0, 0.0, 0.0, 0.0))
+		var frame_position := Vector2i(canvas_size.x - region.size.x, canvas_size.y - region.size.y)
+		frame_image.blit_rect(sheet_image, region, frame_position)
+		frames.append(ImageTexture.create_from_image(frame_image))
+		# Flip the owned CPU image before uploading its second orientation.
+		# Reading the just-uploaded texture back forces an avoidable GPU round trip.
+		var flipped_image: Image = frame_image.duplicate() as Image
+		flipped_image.flip_x()
+		flipped_frames.append(ImageTexture.create_from_image(flipped_image))
+	return frames
+
+func _load_sprite_sheet_frames(path: String, columns: int, rows: int) -> Array[Texture2D]:
+	var frames: Array[Texture2D]
+	var sheet: Texture2D = AssetLoader.load_texture(path)
+	if sheet == null:
+		return frames
+	var frame_size := Vector2i(
+		int(sheet.get_width() / maxi(1, columns)),
+		int(sheet.get_height() / maxi(1, rows))
+	)
+	return AssetLoader.build_sprite_sheet_frames(sheet, frame_size, _idle_frame_indices({
+		"columns": columns,
+		"rows": rows,
+		"order": IDLE_SHEET_ORDER_ROW_MAJOR,
+		"ping_pong": false
+	}))
+
+func _load_terrain_destruction_frames(terrain_kind: String) -> Array[Texture2D]:
+	var frames: Array[Texture2D]
+	var layout: Dictionary = TERRAIN_DESTRUCTION_SHEET_LAYOUTS.get(terrain_kind, {})
+	if layout.is_empty():
+		return frames
+	var sheet: Texture2D = AssetLoader.load_texture(str(layout.get("path", "")))
+	if sheet == null:
+		return frames
+	var columns: int = maxi(1, int(layout.get("columns", 1)))
+	var rows: int = maxi(1, int(layout.get("rows", 1)))
+	var frame_size := Vector2i(int(sheet.get_width() / columns), int(sheet.get_height() / rows))
+	return AssetLoader.build_sprite_sheet_frames(sheet, frame_size, _idle_frame_indices(layout))
+
+func _terrain_destruction_frames_for_kind(terrain_kind: String) -> Array[Texture2D]:
+	var frames: Array[Texture2D]
+	for frame_var: Variant in _terrain_destruction_frames_by_kind.get(terrain_kind, []):
+		if frame_var is Texture2D:
+			frames.append(frame_var)
+	return frames
+
+func _terrain_destruction_frame_count(terrain: Dictionary) -> int:
+	return _terrain_destruction_frames_for_kind(_terrain_art_kind(str(terrain.get("kind", "")))).size()
+
+func _terrain_destruction_frame_seconds(terrain: Dictionary) -> float:
+	var layout: Dictionary = TERRAIN_DESTRUCTION_SHEET_LAYOUTS.get(_terrain_art_kind(str(terrain.get("kind", ""))), {})
+	return maxf(0.01, float(layout.get("frame_seconds", TERRAIN_DESTRUCTION_FRAME_SECONDS)))
+
+func _terrain_destruction_texture(terrain: Dictionary) -> Texture2D:
+	var frames: Array[Texture2D] = _terrain_destruction_frames_for_kind(_terrain_art_kind(str(terrain.get("kind", ""))))
+	if frames.is_empty():
+		return null
+	return frames[clampi(int(terrain.get("destruction_frame", 0)), 0, frames.size() - 1)]
+
+func _texture_for_scene_prop(prop: Dictionary) -> Texture2D:
+	if str(prop.get("kind",""))=="watch_brazier_lit": return _scene_prop_textures.get("watch_brazier_dark",null)
+	var idle_frames: Array[Texture2D] = _scene_prop_idle_frames_for_kind(str(prop.get("kind", "")))
+	if _scene_prop_idle_animation_active(prop) and not idle_frames.is_empty():
+		return idle_frames[_scene_prop_idle_frame_index(prop)]
+	return _scene_prop_textures.get(str(prop.get("kind", "")), null)
+
+func _scene_prop_idle_frames_for_kind(kind: String) -> Array[Texture2D]:
+	var frames: Array[Texture2D]
+	for frame_var: Variant in _scene_prop_idle_frames.get(kind, []):
+		if frame_var is Texture2D:
+			frames.append(frame_var)
+	return frames
+
+func _door_opening_frame_canvas_size() -> Vector2i:
+	var canvas_size := Vector2i.ZERO
+	for region: Rect2i in DOOR_OPENING_FRAME_REGIONS:
+		canvas_size.x = maxi(canvas_size.x, region.size.x)
+		canvas_size.y = maxi(canvas_size.y, region.size.y)
+	return canvas_size
+
+func _texture_for_unit(unit: Dictionary) -> Texture2D:
+	var zekarion: Node = _zekarion_renderer_for_unit(unit)
+	if is_instance_valid(zekarion):
+		return zekarion.call("texture") as Texture2D
+	var veilbound: Node = _veilbound_acolyte_renderer_for_unit(unit)
+	if is_instance_valid(veilbound):
+		return veilbound.call("texture") as Texture2D
+	var cutout: Node = _directional_enemy_renderer_for_unit(unit)
+	if is_instance_valid(cutout):
+		return cutout.call("texture") as Texture2D
+	var unit_type: String = str(unit.get("type", ""))
+	if unit_type == "player":
+		var renderer: Node = unit_cutout_renderer(unit)
+		if is_instance_valid(renderer):
+			return renderer.call("texture") as Texture2D
+	if _unit_uses_procedural_shadow_dissolve(unit):
+		return _enemy_shadow_dissolve_source_texture(unit)
+	var death_frames: Array[Texture2D] = _unit_death_frames(unit)
+	if _unit_death_animation_active(unit) and not death_frames.is_empty():
+		return death_frames[_death_frame_index(unit)]
+	var idle_frames: Array[Texture2D] = _unit_idle_frames(unit)
+	# Effect focus pauses retained-layer idle invalidation; it must not swap the
+	# living actor to the independently framed static source. Movement and its
+	# immediate follow-up action must share one sprite geometry or the body appears
+	# to snap away from its tile while the separately drawn HUD stays grounded.
+	if not idle_frames.is_empty():
+		return idle_frames[_idle_frame_index(unit)]
+	return _unit_textures.get(unit_type, null)
+
+
+func _enemy_shadow_dissolve_source_texture(unit: Dictionary) -> Texture2D:
+	var zekarion: Node = _zekarion_renderer_for_unit(unit)
+	if is_instance_valid(zekarion):
+		return zekarion.call("texture") as Texture2D
+	var veilbound: Node = _veilbound_acolyte_renderer_for_unit(unit)
+	if is_instance_valid(veilbound):
+		return veilbound.call("texture") as Texture2D
+	var cutout: Node = _directional_enemy_renderer_for_unit(unit)
+	if is_instance_valid(cutout):
+		return cutout.call("texture") as Texture2D
+	var unit_type: String = str(unit.get("type", ""))
+	var idle_frames: Array[Texture2D] = _unit_idle_frames(unit)
+	if not idle_frames.is_empty():
+		var source_frame: int = clampi(int(unit.get("death_source_idle_frame", 0)), 0, idle_frames.size() - 1)
+		return idle_frames[source_frame]
+	return _unit_textures.get(unit_type, null) as Texture2D
+
+func _load_unit_texture_with_idle(unit_type: String, art_path: String) -> Texture2D:
+	var texture: Texture2D = AssetLoader.load_texture(art_path)
+	var idle_frames: Array[Texture2D] = _load_idle_frames_for_art_path(unit_type, art_path)
+	if not idle_frames.is_empty():
+		_idle_frames_by_type[unit_type] = idle_frames
+		if texture == null:
+			return idle_frames[0]
+	# Enemy death sheets remain source/reference assets, but runtime deliberately
+	# uses one procedural silhouette-driven dissolve. The player keeps the authored
+	# terminal collapse, which belongs to a different defeat/recap presentation.
+	if unit_type == "player":
+		var death_frames: Array[Texture2D] = _load_death_frames_for_art_path(unit_type, art_path)
+		if not death_frames.is_empty():
+			_death_frames_by_type[unit_type] = death_frames
+	return texture
+
+func _load_idle_frames_for_art_path(unit_type: String, art_path: String) -> Array[Texture2D]:
+	var idle_frames: Array[Texture2D]
+	if art_path.is_empty():
+		return idle_frames
+	var idle_sheet: Texture2D = AssetLoader.load_texture_by_stem("%s_idle" % art_path.get_basename(), AssetLoader.PNG_FIRST_TEXTURE_EXTENSIONS)
+	if idle_sheet == null:
+		return idle_frames
+	var idle_layout: Dictionary = _unit_idle_sheet_layout(unit_type)
+	var frame_size := Vector2i(
+		int(idle_sheet.get_width() / int(idle_layout.get("columns", IDLE_SHEET_COLUMNS))),
+		int(idle_sheet.get_height() / int(idle_layout.get("rows", IDLE_SHEET_ROWS)))
+	)
+	return AssetLoader.build_sprite_sheet_frames(idle_sheet, frame_size, _idle_frame_indices(idle_layout))
+
+func _load_death_frames_for_art_path(unit_type: String, art_path: String) -> Array[Texture2D]:
+	var death_frames: Array[Texture2D]
+	if art_path.is_empty():
+		return death_frames
+	var death_sheet: Texture2D = AssetLoader.load_texture_by_stem("%s_death" % art_path.get_basename(), AssetLoader.PNG_FIRST_TEXTURE_EXTENSIONS)
+	if death_sheet == null:
+		return death_frames
+	var death_layout: Dictionary = _unit_death_sheet_layout(unit_type)
+	var frame_size := Vector2i(
+		int(death_sheet.get_width() / int(death_layout.get("columns", DEATH_SHEET_COLUMNS))),
+		int(death_sheet.get_height() / int(death_layout.get("rows", DEATH_SHEET_ROWS)))
+	)
+	return AssetLoader.build_sprite_sheet_frames(death_sheet, frame_size, _idle_frame_indices(death_layout))
+
+func _unit_idle_sheet_layout(unit_type: String) -> Dictionary:
+	var definition: Dictionary = {}
+	if unit_type != "player" and not unit_type.is_empty():
+		definition = _npc_render_definition(unit_type)
+		if definition.is_empty():
+			definition = _enemy_render_definition(unit_type)
+	return {
+		"columns": maxi(1, int(definition.get("idle_sheet_columns", IDLE_SHEET_COLUMNS))),
+		"rows": maxi(1, int(definition.get("idle_sheet_rows", IDLE_SHEET_ROWS))),
+		"order": str(definition.get("idle_sheet_order", IDLE_SHEET_ORDER_ROW_MAJOR)),
+		"ping_pong": bool(definition.get("idle_sheet_ping_pong", false))
+	}
+
+func _unit_death_sheet_layout(unit_type: String) -> Dictionary:
+	var definition: Dictionary = {}
+	if unit_type != "player" and not unit_type.is_empty():
+		definition = _npc_render_definition(unit_type)
+		if definition.is_empty():
+			definition = _enemy_render_definition(unit_type)
+	return {
+		"columns": maxi(1, int(definition.get("death_sheet_columns", DEATH_SHEET_COLUMNS))),
+		"rows": maxi(1, int(definition.get("death_sheet_rows", DEATH_SHEET_ROWS))),
+		"order": str(definition.get("death_sheet_order", IDLE_SHEET_ORDER_ROW_MAJOR)),
+		"ping_pong": bool(definition.get("death_sheet_ping_pong", false))
+	}
+
+func _idle_frame_indices(layout: Dictionary) -> Array:
+	var columns: int = maxi(1, int(layout.get("columns", IDLE_SHEET_COLUMNS)))
+	var rows: int = maxi(1, int(layout.get("rows", IDLE_SHEET_ROWS)))
+	var order: String = str(layout.get("order", IDLE_SHEET_ORDER_ROW_MAJOR))
+	var frame_indices: Array = []
+	if order == IDLE_SHEET_ORDER_COLUMN_MAJOR:
+		for column: int in range(columns):
+			for row: int in range(rows):
+				frame_indices.append(row * columns + column)
+	else:
+		for row: int in range(rows):
+			for column: int in range(columns):
+				frame_indices.append(row * columns + column)
+	if bool(layout.get("ping_pong", false)):
+		if frame_indices.size() > 1:
+			frame_indices.pop_back()
+		var reverse_indices: Array = frame_indices.duplicate()
+		reverse_indices.reverse()
+		if not reverse_indices.is_empty():
+			reverse_indices.pop_front()
+		if not reverse_indices.is_empty():
+			reverse_indices.pop_back()
+		frame_indices.append_array(reverse_indices)
+	return frame_indices
+
+func _unit_idle_frames(unit: Dictionary) -> Array[Texture2D]:
+	var unit_type: String = str(unit.get("type", ""))
+	if not _idle_frames_by_type.has(unit_type):
+		return []
+	return _idle_frames_by_type[unit_type]
+
+func _unit_death_frames(unit: Dictionary) -> Array[Texture2D]:
+	var unit_type: String = str(unit.get("type", ""))
+	if not _death_frames_by_type.has(unit_type):
+		return []
+	return _death_frames_by_type[unit_type]
+
+func _unit_has_authored_death_animation(unit: Dictionary) -> bool:
+	return not _unit_death_frames(unit).is_empty()
+
+func _unit_death_frame_count(unit: Dictionary) -> int:
+	if _unit_uses_procedural_shadow_dissolve(unit):
+		return ENEMY_SHADOW_DISSOLVE_FRAME_COUNT
+	return _unit_death_frames(unit).size()
+
+
+func _unit_uses_procedural_shadow_dissolve(unit: Dictionary) -> bool:
+	if not bool(unit.get("death_animation", false)):
+		return false
+	var unit_type: String = str(unit.get("type", ""))
+	var role: String = str(unit.get("role", ""))
+	if unit_type == "player" or role == "player" or str(unit.get("key", "")) == "player":
+		return false
+	return role == "enemy" or not _enemy_render_definition(unit_type).is_empty()
+
+func _death_frame_index(unit: Dictionary) -> int:
+	var death_frames: Array[Texture2D] = _unit_death_frames(unit)
+	if death_frames.is_empty():
+		return 0
+	return clampi(int(unit.get("death_frame", 0)), 0, death_frames.size() - 1)
+
+func _idle_frame_index(unit: Dictionary) -> int:
+	var idle_frames: Array[Texture2D] = _unit_idle_frames(unit)
+	if idle_frames.is_empty():
+		return 0
+	return int(floor(_idle_elapsed / _unit_idle_frame_seconds(unit))) % idle_frames.size()
+
+func _unit_idle_frame_seconds(unit: Dictionary) -> float:
+	var unit_type: String = str(unit.get("type", ""))
+	if unit_type == "player" or unit_type.is_empty():
+		return IDLE_FRAME_SECONDS
+	var definition: Dictionary = _npc_render_definition(unit_type)
+	if definition.is_empty():
+		definition = _enemy_render_definition(unit_type)
+	return maxf(0.01, float(definition.get("idle_frame_seconds", IDLE_FRAME_SECONDS)))
+
+func _unit_death_frame_seconds(unit: Dictionary) -> float:
+	if _unit_uses_procedural_shadow_dissolve(unit):
+		return ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS
+	var unit_type: String = str(unit.get("type", ""))
+	if unit_type == "player" or unit_type.is_empty():
+		return DEATH_FRAME_SECONDS
+	var definition: Dictionary = _npc_render_definition(unit_type)
+	if definition.is_empty():
+		definition = _enemy_render_definition(unit_type)
+	return maxf(0.01, float(definition.get("death_frame_seconds", DEATH_FRAME_SECONDS)))
+
+func _scene_prop_idle_frame_index(prop: Dictionary) -> int:
+	if str(prop.get("kind",""))=="watch_brazier_lit": return 0 if bool(presentation.get("reduced_motion",false)) else int(floor(_idle_elapsed*12.0))
+	var idle_frames: Array[Texture2D] = _scene_prop_idle_frames_for_kind(str(prop.get("kind", "")))
+	if idle_frames.is_empty():
+		return 0
+	return int(floor(_idle_elapsed / _scene_prop_idle_frame_seconds(prop))) % idle_frames.size()
+
+func _scene_prop_idle_frame_seconds(prop: Dictionary) -> float:
+	return maxf(0.01, float(prop.get("idle_frame_seconds", CAMPFIRE_BONFIRE_IDLE_FRAME_SECONDS)))
+
+func _trap_idle_frames_for_element(element_id: String) -> Array[Texture2D]:
+	if not _trap_idle_frames.has(element_id):
+		var empty_frames: Array[Texture2D]
+		return empty_frames
+	var frames: Array[Texture2D] = _trap_idle_frames[element_id] as Array[Texture2D]
+	return frames
+
+func _trap_activation_frames_for_element(element_id: String) -> Array[Texture2D]:
+	if not _trap_activation_frames.has(element_id):
+		var empty_frames: Array[Texture2D]
+		return empty_frames
+	var frames: Array[Texture2D] = _trap_activation_frames[element_id] as Array[Texture2D]
+	return frames
+
+func _trap_idle_frame_index(trap: Dictionary) -> int:
+	var frames: Array[Texture2D] = _trap_idle_frames_for_element(str(trap.get("element", ElementData.NONE)))
+	if frames.is_empty():
+		return 0
+	return int(floor(_idle_elapsed / TRAP_IDLE_FRAME_SECONDS)) % frames.size()
+
+func _trap_idle_texture(trap: Dictionary) -> Texture2D:
+	var element_id: String = str(trap.get("element", ElementData.NONE))
+	if bool(presentation.get("reduced_motion", false)):
+		return _trap_textures.get(element_id, null)
+	var frames: Array[Texture2D] = _trap_idle_frames_for_element(element_id)
+	if frames.is_empty():
+		return _trap_textures.get(element_id, null)
+	return frames[_trap_idle_frame_index(trap)]
+
+func _trap_activation_frame_index(progress: float, frame_count: int) -> int:
+	if frame_count <= 0:
+		return 0
+	if bool(presentation.get("reduced_motion", false)):
+		return mini(7, frame_count - 1)
+	return clampi(int(floor(clampf(progress, 0.0, 1.0) * float(frame_count))), 0, frame_count - 1)
+
+func _trap_activation_texture(trap: Dictionary, progress: float) -> Texture2D:
+	var frames: Array[Texture2D] = _trap_activation_frames_for_element(str(trap.get("element", ElementData.NONE)))
+	if frames.is_empty():
+		return null
+	return frames[_trap_activation_frame_index(progress, frames.size())]
+
+func _active_idle_frames_by_source() -> Dictionary:
+	var result: Dictionary = {}
+	for unit: Dictionary in _visible_units():
+		if str(unit.get("role", "")) != "npc" and int(unit.get("hp", 0)) <= 0:
+			continue
+		if not _unit_idle_animation_active(unit):
+			continue
+		var actor_key: String = str(unit.get("key", unit.get("id", "")))
+		result["u:%s" % actor_key] = _idle_frame_index(unit)
+	for prop_var: Variant in presentation.get("scene_props", []):
+		if typeof(prop_var) != TYPE_DICTIONARY:
+			continue
+		var prop: Dictionary = prop_var
+		if not _scene_prop_idle_animation_active(prop):
+			continue
+		result["p:%s:%s" % [str(prop.get("kind", "")), str(prop.get("tile", Vector2i.ZERO))]] = _scene_prop_idle_frame_index(prop)
+	for trap_var: Variant in combat_state.get("traps", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var
+		if not _trap_idle_animation_active(trap):
+			continue
+		result["t:%s:%s" % [str(trap.get("element", "")), str(trap.get("pos", Vector2i.ZERO))]] = _trap_idle_frame_index(trap)
+	if _pillar_torch_idle_animation_active():
+		result["tl"] = _pillar_torch_idle_frame_index("left")
+		result["tr"] = _pillar_torch_idle_frame_index("right")
+	return result
+
+func _active_idle_frame_key() -> String:
+	# Preserve the diagnostic/test surface while runtime redraw routing uses the
+	# structured per-source map to invalidate only the animation that advanced.
+	var parts: Array[String]
+	var frames_by_source: Dictionary = _active_idle_frames_by_source()
+	for source_var: Variant in frames_by_source:
+		var source: String = str(source_var)
+		parts.append("%s:%d" % [source, int(frames_by_source.get(source_var, 0))])
+	return "|".join(parts)
+
+func _unit_idle_animation_active(unit: Dictionary) -> bool:
+	if not visible or combat_state.is_empty() or _unit_idle_frames(unit).is_empty():
+		return false
+	if bool(unit.get("death_animation", false)):
+		return false
+	if bool(presentation.get("reduced_motion", false)) and _unit_is_preview_echo(unit):
+		return false
+	var actor_key: String = str(unit.get("key", ""))
+	if actor_key.is_empty():
+		return false
+	if (presentation.get("unit_world_positions", {}) as Dictionary).has(actor_key):
+		return false
+	var effect: Dictionary = presentation.get("effect", {})
+	if effect.is_empty():
+		return true
+	var focus_actor_keys: Array = presentation.get("focus_actor_keys", [])
+	return not focus_actor_keys.has(actor_key)
+
+func _unit_death_animation_active(unit: Dictionary) -> bool:
+	if not visible or combat_state.is_empty() or not bool(unit.get("death_animation", false)):
+		return false
+	return _unit_has_authored_death_animation(unit)
+
+func _scene_prop_idle_animation_active(prop: Dictionary) -> bool:
+	if str(prop.get("kind",""))=="watch_brazier_lit": return visible and not combat_state.is_empty() and not bool(presentation.get("reduced_motion",false))
+	if not visible or combat_state.is_empty():
+		return false
+	return not _scene_prop_idle_frames_for_kind(str(prop.get("kind", ""))).is_empty()
+
+func _trap_idle_animation_active(trap: Dictionary) -> bool:
+	if not visible or combat_state.is_empty() or bool(presentation.get("reduced_motion", false)):
+		return false
+	return not _trap_idle_frames_for_element(str(trap.get("element", ElementData.NONE))).is_empty()
+
+func _pillar_torch_idle_animation_active() -> bool:
+	if not visible or combat_state.is_empty():
+		return false
+	if _pillar_torch_idle_frames_for_side("left").is_empty() and _pillar_torch_idle_frames_for_side("right").is_empty():
+		return false
+	return _grid_has_tile("pillar")
+
+func _grid_has_tile(tile_id: String) -> bool:
+	if _submission_cache_valid:
+		return _grid_tile_ids_cache.has(tile_id)
+	var grid: Array = combat_state.get("grid", [])
+	for row_var: Variant in grid:
+		if typeof(row_var) != TYPE_ARRAY:
+			continue
+		var row: Array = row_var
+		for cell_var: Variant in row:
+			if str(cell_var) == tile_id:
+				return true
+	return false
+
+func _unit_draw_rect(unit: Dictionary) -> Rect2:
+	return _unit_draw_rect_for_center(unit, _unit_center(unit))
+
+func _unit_draw_rect_for_center(unit: Dictionary, center: Vector2) -> Rect2:
+	var texture: Texture2D = _unit_hud_anchor_texture(unit) if _unit_uses_cutout(unit) else _texture_for_unit(unit)
+	var rect: Rect2 = _unit_draw_rect_for_texture(unit, center, texture)
+	var unit_type: String = str(unit.get("type", ""))
+	var renderer: Node = unit_cutout_renderer(unit)
+	if ActorPresentation.has_profile(unit_type) and is_instance_valid(renderer):
+		var facing: String = str(renderer.get("facing"))
+		var mirrored: bool = bool(renderer.get("mirrored"))
+		var source_anchor: Vector2 = ActorPresentation.floor_anchor(unit_type, facing, mirrored)
+		rect.position = center - source_anchor * rect.size / 255.0
+	return rect
+
+func _unit_texture_draw_rect(unit: Dictionary, center: Vector2, body_scale: float = 1.0) -> Rect2:
+	var rect: Rect2 = _unit_draw_rect_for_center(unit, center)
+	# Collapse around the logical body floor before adding transparent rig padding.
+	# Squashing the padded viewport would pull the actor below its death tile.
+	if bool(unit.get("death_animation", false)):
+		rect = _death_animation_render_rect(unit, rect)
+	if not is_equal_approx(body_scale, 1.0):
+		rect = _scaled_unit_rect(rect, body_scale)
+	if is_instance_valid(unit_cutout_renderer(unit)):
+		return Rect2(rect.position - rect.size * ProtagonistCutout.SOURCE_OFFSET / ProtagonistCutout.SOURCE_SIZE,
+			rect.size * Vector2(ProtagonistCutout.CANVAS_SIZE) / ProtagonistCutout.SOURCE_SIZE)
+	return rect
+
+func _unit_draw_rect_for_texture(unit: Dictionary, center: Vector2, texture: Texture2D) -> Rect2:
+	var frame_rect: Rect2 = _unit_frame_rect(center)
+	if texture == null:
+		return frame_rect
+	var draw_rect: Rect2 = _scaled_unit_rect(_fitted_unit_rect(texture, frame_rect), _unit_art_scale(unit))
+	var unit_type: String = str(unit.get("type", ""))
+	if ActorPresentation.has_profile(unit_type):
+		# Baked rest art, shadows and obstruction geometry share one neutral
+		# registration. The live padded texture selects its own facing above.
+		draw_rect.position = center - ActorPresentation.floor_anchor(unit_type) * draw_rect.size / 255.0
+	else:
+		draw_rect.position += _unit_art_offset(unit)
+	return draw_rect
+
+func _unit_center(unit: Dictionary) -> Vector2:
+	var unit_key: String = str(unit.get("key", ""))
+	var overrides: Dictionary = presentation.get("unit_world_positions", {})
+	if overrides.has(unit_key):
+		return overrides[unit_key]
+	return world_position_for_unit_origin(unit, unit.get("pos", Vector2i.ZERO))
+
+func _fitted_unit_rect(texture: Texture2D, frame_rect: Rect2) -> Rect2:
+	return _fitted_draw_rect(texture, frame_rect)
+
+func _fitted_prop_rect(texture: Texture2D, frame_rect: Rect2) -> Rect2:
+	return _fitted_draw_rect(texture, frame_rect)
+
+func _prop_draw_rect(texture: Texture2D, frame_rect: Rect2) -> Rect2:
+	return _fitted_prop_rect(texture, frame_rect)
+
+func _fitted_draw_rect(texture: Texture2D, frame_rect: Rect2) -> Rect2:
+	var texture_size: Vector2 = texture.get_size()
+	if texture_size.x <= 0.0 or texture_size.y <= 0.0:
+		return frame_rect
+	var scale_factor: float = minf(frame_rect.size.x / texture_size.x, frame_rect.size.y / texture_size.y)
+	var draw_size: Vector2 = texture_size * scale_factor
+	var draw_position := Vector2(
+		frame_rect.position.x + (frame_rect.size.x - draw_size.x) * 0.5,
+		frame_rect.position.y + frame_rect.size.y - draw_size.y
+	)
+	return Rect2(draw_position, draw_size)
+
+func _scaled_unit_rect(rect: Rect2, scale: float) -> Rect2:
+	if rect.size.x <= 0.0 or rect.size.y <= 0.0 or is_equal_approx(scale, 1.0):
+		return rect
+	var scaled_size: Vector2 = rect.size * maxf(scale, 0.1)
+	var scaled_position := Vector2(
+		rect.position.x + (rect.size.x - scaled_size.x) * 0.5,
+		rect.position.y + rect.size.y - scaled_size.y
+	)
+	return Rect2(scaled_position, scaled_size)
+
+func _death_animation_render_rect(unit: Dictionary, rect: Rect2) -> Rect2:
+	# Authored collapse frames already contain the complete body motion on one
+	# consistently registered canvas. Applying the fallback squash/stretch on top
+	# would distort the pixel art and make its feet slide away from the death tile.
+	if _unit_uses_cutout(unit) or _unit_uses_procedural_shadow_dissolve(unit) or _unit_has_authored_death_animation(unit):
+		return rect
+	return _death_animation_draw_rect(rect, float(unit.get("death_progress", 0.0)))
+
+func _death_animation_render_tint(unit: Dictionary) -> Color:
+	# Preserve the downloaded frame colors; the procedural violet dissolve remains
+	# available only for units that have no authored death sheet.
+	if _unit_uses_procedural_shadow_dissolve(unit) or _unit_has_authored_death_animation(unit):
+		return Color.WHITE
+	return _death_animation_tint(unit)
+
+func _death_animation_draw_rect(rect: Rect2, progress: float) -> Rect2:
+	if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+		return rect
+	var t: float = clampf(progress, 0.0, 1.0)
+	var vertical_scale: float = lerpf(1.0, 0.62, smoothstep(0.34, 1.0, t))
+	var horizontal_scale: float = 1.0 + sin(t * PI) * 0.10
+	var draw_size := Vector2(rect.size.x * horizontal_scale, rect.size.y * vertical_scale)
+	var bottom_center := Vector2(rect.get_center().x, rect.end.y)
+	return Rect2(Vector2(bottom_center.x - draw_size.x * 0.5, bottom_center.y - draw_size.y), draw_size)
+
+func _death_animation_tint(unit: Dictionary) -> Color:
+	var t: float = clampf(float(unit.get("death_progress", 0.0)), 0.0, 1.0)
+	var alpha: float = 1.0 - smoothstep(0.72, 1.0, t)
+	return Color(0.78, 0.76, 0.92, clampf(alpha, 0.0, 1.0))
+
+func _unit_shadow_alpha_scale(unit: Dictionary) -> float:
+	if not bool(unit.get("death_animation", false)):
+		return 1.0
+	if _unit_has_authored_death_animation(unit):
+		return 1.0
+	var t: float = clampf(float(unit.get("death_progress", 0.0)), 0.0, 1.0)
+	# Preserve normal floor contact at lethal impact, then retire the pre-existing
+	# actor shadow before the body becomes an umbral silhouette. This prevents the
+	# ordinary oval from reading like a new death-effect pool as the body clears.
+	return 1.0 - smoothstep(0.04, 0.30, t)
+
+func _unit_art_scale(unit: Dictionary) -> float:
+	var unit_type: String = str(unit.get("type", ""))
+	if unit_type == "player" or unit_type.is_empty():
+		return 1.0
+	var npc_def: Dictionary = _npc_render_definition(unit_type)
+	if not npc_def.is_empty():
+		return float(npc_def.get("art_scale", 1.0))
+	return float(_enemy_render_definition(unit_type).get("art_scale", 1.0))
+
+func _unit_art_offset(unit: Dictionary) -> Vector2:
+	var unit_type: String = str(unit.get("type", ""))
+	if unit_type == "player" or unit_type.is_empty():
+		return Vector2.ZERO
+	var definition: Dictionary = _npc_render_definition(unit_type)
+	if definition.is_empty():
+		definition = _enemy_render_definition(unit_type)
+	return Vector2(
+		float(definition.get("art_offset_x", 0.0)),
+		float(definition.get("art_offset_y", 0.0))
+	)
+
+func _tiles_in_draw_order(grid: Array) -> Array[Vector2i]:
+	var tiles: Array[Vector2i]
+	for y: int in range(grid.size()):
+		for x: int in range((grid[y] as Array).size()):
+			var tile := Vector2i(x, y)
+			var tile_id: String = str((grid[y] as Array)[x])
+			var display_tile_id: String = _display_tile_id(tile_id, tile)
+			if _should_render_tile(display_tile_id, tile, grid):
+				tiles.append(tile)
+	tiles.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+		return _tile_draws_before(a, b)
+	)
+	return tiles
+
+func _rendered_tiles_in_draw_order() -> Array[Vector2i]:
+	_ensure_board_layout_cache()
+	return _board_layout_cache_tiles
+
+func rendered_visual_rects(include_unit_hud: bool = true, include_units: bool = true) -> Array[Rect2]:
+	# This is deliberately based on the exact draw rectangles used by the static
+	# board and DynamicRenderLayer, rather than only tile diamonds. Keeping the
+	# rectangles separate lets HUD collision checks distinguish a genuinely
+	# occupied corner from the empty corner of their combined bounding box.
+	_ensure_board_layout_cache()
+	var rects: Array[Rect2]
+	var grid: Array = combat_state.get("grid", [])
+	for tile: Vector2i in _board_layout_cache_tiles:
+		var polygon: PackedVector2Array = _tile_polygon(tile)
+		if not polygon.is_empty():
+			var tile_bounds := Rect2(polygon[0], Vector2.ZERO)
+			for point: Vector2 in polygon:
+				tile_bounds = tile_bounds.expand(point)
+			rects.append(tile_bounds)
+		if tile.y < 0 or tile.y >= grid.size() or tile.x < 0 or tile.x >= (grid[tile.y] as Array).size():
+			continue
+		var tile_id: String = _display_tile_id(str((grid[tile.y] as Array)[tile.x]), tile)
+		if tile_id == "wall" and not _is_outer_boundary_tile(grid, tile):
+			tile_id = "pillar"
+		if tile_id == "pillar":
+			var pillar: Texture2D = _prop_textures.get("pillar", null)
+			if pillar != null:
+				var pillar_rect: Rect2 = _prop_draw_rect(pillar, _prop_rect_for_tile(tile))
+				rects.append(pillar_rect)
+				var left_torch: Texture2D = _pillar_torch_texture("left")
+				var right_torch: Texture2D = _pillar_torch_texture("right")
+				if left_torch != null:
+					rects.append(_pillar_torch_rect(pillar_rect, left_torch, -1.0))
+				if right_torch != null:
+					rects.append(_pillar_torch_rect(pillar_rect, right_torch, 1.0))
+		elif tile_id == "wall":
+			for segment: Dictionary in _boundary_prop_segments(tile_id, grid, tile):
+				rects.append(segment.get("draw_rect", Rect2()) as Rect2)
+		elif tile_id == "door":
+			var door: Texture2D = _door_texture_for_tile(grid, tile)
+			if door != null:
+				var door_rect: Rect2 = _prop_draw_rect(door, _door_rect_for_tile(tile, grid))
+				var opening: Texture2D = _door_opening_texture_for_tile(grid, tile)
+				rects.append(_door_opening_draw_rect(opening, door, door_rect, _door_uses_flipped_orientation(grid, tile)) if opening != null else door_rect)
+				if opening == null and not str(exit_icon_ids.get(tile, "")).is_empty():
+					rects.append(_door_icon_visual_rect(door, door_rect))
+	for unit: Dictionary in _visible_units():
+		if not include_units and str(unit.get("role", "")) != "npc":
+			continue
+		rects.append(_unit_draw_rect(unit))
+		if include_unit_hud:
+			rects.append(_unit_health_bar_rect(unit, _unit_center(unit)))
+	for prop_var: Variant in presentation.get("scene_props", []):
+		if typeof(prop_var) != TYPE_DICTIONARY:
+			continue
+		var prop: Dictionary = prop_var
+		var prop_texture: Texture2D = _texture_for_scene_prop(prop)
+		if prop_texture != null:
+			rects.append(_scene_prop_rect(prop_texture, prop))
+	for terrain_var: Variant in combat_state.get("terrain", []):
+		if typeof(terrain_var) != TYPE_DICTIONARY:
+			continue
+		var terrain: Dictionary = terrain_var
+		if not _board_tile_is_visible_to_player(terrain.get("pos", Vector2i(-1, -1))):
+			continue
+		if int(terrain.get("hp", 0)) <= 0:
+			continue
+		var terrain_texture: Texture2D = _terrain_textures.get(str(terrain.get("kind", "")), null)
+		if terrain_texture != null:
+			rects.append(_terrain_rect_for_tile(terrain.get("pos", Vector2i(-1, -1)), terrain_texture, str(terrain.get("kind", ""))))
+	for loot_var: Variant in combat_state.get("loot", []):
+		if typeof(loot_var) != TYPE_DICTIONARY:
+			continue
+		var loot: Dictionary = loot_var
+		if not _board_tile_is_visible_to_player(loot.get("pos", Vector2i(-1, -1))):
+			continue
+		if bool(loot.get("claimed", false)):
+			continue
+		var loot_texture: Texture2D = _loot_texture(loot)
+		if loot_texture != null:
+			rects.append(_loot_rect_for_tile(loot.get("pos", Vector2i(-1, -1)), loot_texture, loot))
+	for trap_var: Variant in combat_state.get("traps", []):
+		if typeof(trap_var) != TYPE_DICTIONARY:
+			continue
+		var trap: Dictionary = trap_var
+		if _board_tile_is_visible_to_player(trap.get("pos", Vector2i(-1, -1))):
+			rects.append(_trap_draw_rect(trap.get("pos", Vector2i(-1, -1))))
+	return rects
+
+func enemy_intent_visual_global_rect(actor_key: String) -> Rect2:
+	if actor_key.is_empty() or not is_inside_tree():
+		return Rect2()
+	_rebuild_hud_health_rects_cache()
+	for entry_var: Variant in _hud_layout_entries_cache:
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		if str(entry.get("actor_key", "")) != actor_key:
+			continue
+		var layout: Dictionary = entry.get("layout", {}) as Dictionary
+		var local_rect: Rect2 = layout.get("intent_rect", Rect2()) as Rect2
+		if not local_rect.has_area():
+			return Rect2()
+		return _visual_rect_to_global(local_rect)
+	return Rect2()
+
+func enemy_inspection_visual_global_rect(actor_key: String) -> Rect2:
+	if actor_key.is_empty() or not is_inside_tree():
+		return Rect2()
+	var local_bounds := Rect2()
+	for unit: Dictionary in _visible_units():
+		if _enemy_hud_actor_key(unit) != actor_key:
+			continue
+		local_bounds = _enemy_hud_actor_clear_rect(unit, _unit_center(unit))
+		break
+	if not local_bounds.has_area():
+		return Rect2()
+	_rebuild_hud_health_rects_cache()
+	for entry_var: Variant in _hud_layout_entries_cache:
+		if typeof(entry_var) != TYPE_DICTIONARY:
+			continue
+		var entry: Dictionary = entry_var as Dictionary
+		if str(entry.get("actor_key", "")) != actor_key:
+			continue
+		var health_rect: Rect2 = entry.get("health_rect", Rect2()) as Rect2
+		if health_rect.has_area():
+			local_bounds = local_bounds.merge(health_rect)
+		var layout: Dictionary = entry.get("layout", {}) as Dictionary
+		var intent_rect: Rect2 = layout.get("intent_rect", Rect2()) as Rect2
+		if intent_rect.has_area():
+			local_bounds = local_bounds.merge(intent_rect)
+		break
+	return _visual_rect_to_global(local_bounds)
+
+func _visual_rect_to_global(local_rect: Rect2) -> Rect2:
+	if not local_rect.has_area():
+		return Rect2()
+	var transform: Transform2D = get_global_transform()
+	var points: Array[Vector2] = _frozen_vector2_values([
+		transform * local_rect.position,
+		transform * Vector2(local_rect.end.x, local_rect.position.y),
+		transform * local_rect.end,
+		transform * Vector2(local_rect.position.x, local_rect.end.y),
+	])
+	var result := Rect2(points[0], Vector2.ZERO)
+	for point: Vector2 in points:
+		result = result.expand(point)
+	return result
+
+func rendered_visual_bounds() -> Rect2:
+	# Consumers use the combined bound for broad framing so tall pillars, doors,
+	# actors, pickups, and room props cannot be silently clipped while the tile
+	# polygon still fits.
+	var rects: Array[Rect2] = rendered_visual_rects()
+	var bounds := Rect2()
+	var has_bounds: bool = false
+	for rect: Rect2 in rects:
+		if rect.size.x <= 0.0 or rect.size.y <= 0.0:
+			continue
+		bounds = rect if not has_bounds else bounds.merge(rect)
+		has_bounds = true
+	return bounds
+
+func _tile_draws_before(a: Vector2i, b: Vector2i) -> bool:
+	var a_score: int = a.x + a.y
+	var b_score: int = b.x + b.y
+	if a_score == b_score:
+		return a.x < b.x
+	return a_score < b_score
+
+func _tile_center(tile: Vector2i) -> Vector2:
+	_ensure_board_layout_cache()
+	if _board_layout_cache_tile_centers.has(tile):
+		return _board_layout_cache_tile_centers.get(tile, Vector2.ZERO)
+	var origin: Vector2 = _board_layout_cache_origin
+	var tile_width: float = _board_layout_cache_tile_width
+	var half_w: float = tile_width * 0.5
+	var half_h: float = tile_width * 0.25
+	return Vector2(
+		origin.x + float(tile.x - tile.y) * half_w,
+		origin.y + float(tile.x + tile.y) * half_h
+	)
+
+func _tile_step_offset(dir: Vector2i) -> Vector2:
+	var tile_width: float = _tile_width()
+	return Vector2(
+		float(dir.x - dir.y) * tile_width * 0.5,
+		float(dir.x + dir.y) * tile_width * 0.25
+	)
+
+func world_position_for_tile(tile: Vector2i) -> Vector2:
+	return _tile_center(tile)
+
+
+func tile_at_global_position(global_position: Vector2) -> Vector2i:
+	var local_position: Vector2 = get_global_transform_with_canvas().affine_inverse() * global_position
+	return _tile_at_point(local_position)
+
+func world_position_for_unit_origin(unit: Dictionary, origin: Vector2i) -> Vector2:
+	var footprint: Vector2i = _resolved_unit_footprint(unit)
+	if footprint != Vector2i.ONE:
+		var total := Vector2.ZERO
+		var count: int = 0
+		for y: int in range(maxi(1, footprint.y)):
+			for x: int in range(maxi(1, footprint.x)):
+				total += _tile_center(origin + Vector2i(x, y))
+				count += 1
+		if count > 0:
+			return total / float(count)
+	return _tile_center(origin)
+
+func draw_tile_for_unit_origin(unit: Dictionary, origin: Vector2i) -> Vector2i:
+	var footprint: Vector2i = _resolved_unit_footprint(unit)
+	return origin + Vector2i(maxi(1, footprint.x) - 1, maxi(1, footprint.y) - 1)
+
+func _tile_polygon(tile: Vector2i) -> PackedVector2Array:
+	_ensure_board_layout_cache()
+	if _board_layout_cache_tile_polygons.has(tile):
+		return _board_layout_cache_tile_polygons.get(tile, PackedVector2Array())
+	var center: Vector2 = _tile_center(tile)
+	var tile_width: float = _board_layout_cache_tile_width
+	var tile_height: float = tile_width * 0.5
+	return PackedVector2Array([
+		center + Vector2(0.0, -tile_height * 0.5),
+		center + Vector2(tile_width * 0.5, 0.0),
+		center + Vector2(0.0, tile_height * 0.5),
+		center + Vector2(-tile_width * 0.5, 0.0),
+		center + Vector2(0.0, -tile_height * 0.5)
+	])
+
+func _board_origin() -> Vector2:
+	_ensure_board_layout_cache()
+	return _board_layout_cache_origin
+
+func _board_origin_for_extents(_extents: Dictionary, tile_width: float, _tiles: Array[Vector2i]) -> Vector2:
+	return _room_framing.origin(_board_layout_available_rect(), tile_width) + _navigation_pan
+
+func room_centering_offset() -> Vector2:
+	_ensure_board_layout_cache()
+	# Center the actual floor, retaining the combat scale and the player's pan.
+	var floor_center: Vector2 = _room_framing.floor_bounds.get_center() * _board_layout_cache_tile_width / BoardFraming.REFERENCE_WIDTH
+	var default_origin: Vector2 = _board_layout_cache_origin - _navigation_pan
+	return Vector2(0.0, size.y * 0.5 - default_origin.y - floor_center.y)
+
+func _board_local_safe_top() -> float:
+	return _board_layout_available_rect().position.y
+
+func _navigation_zoom_anchor() -> Vector2:
+	return _board_layout_available_rect().get_center()
+
+func _navigation_content_rect(_extents: Dictionary, tile_width: float, pan: Vector2 = Vector2.ZERO) -> Rect2:
+	var bounds: Rect2 = _room_framing.bounds(tile_width)
+	return Rect2(_room_framing.origin(_board_layout_available_rect(), tile_width) + bounds.position + pan, bounds.size)
+
+func _board_vertical_bias() -> float:
+	if str(presentation.get("board_framing_mode", "room")) != "combat":
+		return BOARD_ROOM_VERTICAL_BIAS
+	if bool(presentation.get("controller_combat_navigation", false)):
+		return lerpf(
+			BOARD_CONTROLLER_COMPACT_VERTICAL_BIAS,
+			BOARD_CONTROLLER_EXPANDED_VERTICAL_BIAS,
+			_controller_viewport_expansion()
+		)
+	return BOARD_COMBAT_VERTICAL_BIAS
+
+func _controller_viewport_expansion() -> float:
+	# Controller framing is authored against two fixed output envelopes: the
+	# Steam Deck's 800p panel and the desktop 1080p proof surface. Interpolating
+	# only from viewport size keeps a stable composition for a given display; it
+	# never reacts to actors, props, tutorials, hand focus, or animation state.
+	# Viewport.size is the physical output envelope. get_viewport_rect() may report
+	# a stretched logical override (the Deck proof is 1280x800 rendered from a
+	# 1503x939 logical canvas), which would incorrectly treat 800p as a midpoint.
+	var viewport_height: float = float(get_viewport().size.y) if is_inside_tree() else size.y
+	return clampf(
+		(viewport_height - BOARD_CONTROLLER_COMPACT_VIEWPORT_HEIGHT)
+		/ (BOARD_CONTROLLER_EXPANDED_VIEWPORT_HEIGHT - BOARD_CONTROLLER_COMPACT_VIEWPORT_HEIGHT),
+		0.0,
+		1.0
+	)
+
+func _navigation_pan_limits(extents: Dictionary, tile_width: float) -> Rect2:
+	var content_rect: Rect2 = _navigation_content_rect(extents, tile_width)
+	var available_rect: Rect2 = _board_layout_available_rect()
+	var overscroll := Vector2(
+		minf(BOARD_PAN_OVERSCROLL_MAX, available_rect.size.x * BOARD_PAN_OVERSCROLL_FRACTION),
+		minf(BOARD_PAN_OVERSCROLL_MAX, available_rect.size.y * BOARD_PAN_OVERSCROLL_FRACTION)
+	)
+	var minimum := Vector2(
+		minf(0.0, available_rect.end.x - content_rect.end.x) - overscroll.x,
+		minf(0.0, available_rect.end.y - content_rect.end.y) - overscroll.y
+	)
+	var maximum := Vector2(
+		maxf(0.0, available_rect.position.x - content_rect.position.x) + overscroll.x,
+		maxf(0.0, available_rect.position.y - content_rect.position.y) + overscroll.y
+	)
+	return Rect2(minimum, maximum - minimum)
+
+func _clamped_navigation_pan_for_layout(candidate: Vector2, extents: Dictionary, tile_width: float) -> Vector2:
+	var limits: Rect2 = _navigation_pan_limits(extents, tile_width)
+	return Vector2(
+		clampf(candidate.x, limits.position.x, limits.end.x),
+		clampf(candidate.y, limits.position.y, limits.end.y)
+	)
+
+func _tile_at_point(point: Vector2) -> Vector2i:
+	var tiles: Array[Vector2i] = _rendered_tiles_in_draw_order()
+	for index: int in range(tiles.size() - 1, -1, -1):
+		var tile: Vector2i = tiles[index]
+		if Geometry2D.is_point_in_polygon(point, _tile_polygon(tile)):
+			return tile
+	return Vector2i(-1, -1)
+
+func _draw_unit_shadow(unit: Dictionary) -> void:
+	if str(unit.get("role", "")) == "illusion" or _unit_is_preview_echo(unit):
+		return
+	var detailed_sections: bool = _unit_shadow_detailed_instrumentation_enabled()
+	var phase_started_usec: int = Time.get_ticks_usec() if detailed_sections else 0
+	var shadow_alpha_scale: float = _unit_shadow_alpha_scale(unit)
+	if shadow_alpha_scale <= 0.02:
+		return
+	var texture: Texture2D = _unit_hud_anchor_texture(unit) if _unit_uses_cutout(unit) else _texture_for_unit(unit)
+	if detailed_sections:
+		_record_render_section_time("unit_shadow_texture", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
+	if texture == null:
+		_record_unit_shadow_cache_metric("fallback", str(unit.get("type", "")))
+		_draw_unit_shadow_fallback(unit)
+		if detailed_sections:
+			_record_render_section_time("unit_shadow_fallback", phase_started_usec)
+		return
+	var draw_rect: Rect2 = _unit_draw_rect_for_texture(unit, _unit_center(unit), texture)
+	var unit_type: String = str(unit.get("type", ""))
+	var shadow_geometry: Array = _unit_shadow_draw_geometry(texture, draw_rect, unit_type)
+	if detailed_sections:
+		_record_render_section_time("unit_shadow_geometry", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
+	if shadow_geometry.is_empty():
+		_record_unit_shadow_cache_metric("fallback", unit_type)
+		_draw_unit_shadow_fallback(unit)
+		if detailed_sections:
+			_record_render_section_time("unit_shadow_fallback", phase_started_usec)
+		return
+	var shadow_mesh: ArrayMesh = _unit_shadow_draw_mesh(texture, draw_rect, unit_type, shadow_geometry)
+	if detailed_sections:
+		_record_render_section_time("unit_shadow_mesh", phase_started_usec)
+		phase_started_usec = Time.get_ticks_usec()
+	if shadow_mesh == null:
+		_record_unit_shadow_cache_metric("fallback", unit_type)
+		_draw_unit_shadow_fallback(unit)
+		if detailed_sections:
+			_record_render_section_time("unit_shadow_fallback", phase_started_usec)
+		return
+	var shadow_bounds: Rect2 = _unit_shadow_bounds_for_texture(texture)
+	var shadow_origin: Vector2 = _unit_shadow_foot_point(texture, draw_rect, shadow_bounds, unit_type)
+	shadow_origin += Vector2(0.0, _tile_height() * UNIT_SHADOW_FOOT_OFFSET_Y_RATIO)
+	_draw_contact_pool(shadow_origin, _tile_width() * 0.48, _tile_height() * 0.34, 0.48 * shadow_alpha_scale)
+	_submitted_shadow_meshes.append(shadow_mesh)
+	draw_mesh(shadow_mesh, null, Transform2D(0.0, shadow_origin), Color(1.0, 1.0, 1.0, shadow_alpha_scale))
+	if detailed_sections:
+		_record_render_section_time("unit_shadow_submit", phase_started_usec)
+
+func _unit_shadow_detailed_instrumentation_enabled() -> bool:
+	return (
+		_render_instrumentation_owner != null
+		and is_instance_valid(_render_instrumentation_owner)
+		and bool(_render_instrumentation_owner.get("_submission_performance_instrumentation_enabled"))
+	)
+
+func _record_unit_shadow_cache_metric(metric: String, unit_type: String) -> void:
+	if not _unit_shadow_detailed_instrumentation_enabled():
+		return
+	_unit_shadow_draw_cache_metrics[metric] = int(_unit_shadow_draw_cache_metrics.get(metric, 0)) + 1
+	var by_type: Dictionary = _unit_shadow_draw_cache_metrics.get("by_type", {}) as Dictionary
+	var type_metrics: Dictionary = by_type.get(unit_type, {}) as Dictionary
+	type_metrics[metric] = int(type_metrics.get(metric, 0)) + 1
+	by_type[unit_type] = type_metrics
+	_unit_shadow_draw_cache_metrics["by_type"] = by_type
+
+func _unit_shadow_draw_mesh(texture: Texture2D, draw_rect: Rect2, unit_type: String, shadow_geometry: Array) -> ArrayMesh:
+	var cache_key: String = _unit_shadow_draw_cache_key(texture, draw_rect, unit_type)
+	if _unit_shadow_draw_mesh_cache.has(cache_key):
+		_record_unit_shadow_cache_metric("mesh_hit", unit_type)
+		return _unit_shadow_draw_mesh_cache.get(cache_key, null) as ArrayMesh
+	_record_unit_shadow_cache_metric("mesh_miss", unit_type)
+	var vertices := PackedVector3Array()
+	var colors := PackedColorArray()
+	var indices := PackedInt32Array()
+	for geometry_var: Variant in shadow_geometry:
+		var geometry: Dictionary = geometry_var as Dictionary
+		var triangulated: PackedInt32Array = geometry.get("triangulated", PackedInt32Array()) as PackedInt32Array
+		_append_colored_polygon_to_mesh_arrays(
+			geometry.get("soft", PackedVector2Array()) as PackedVector2Array,
+			UNIT_SHADOW_SOFT_COLOR,
+			vertices,
+			colors,
+			indices,
+			triangulated
+		)
+		_append_colored_polygon_to_mesh_arrays(
+			geometry.get("hard", PackedVector2Array()) as PackedVector2Array,
+			UNIT_SHADOW_COLOR,
+			vertices,
+			colors,
+			indices,
+			triangulated
+		)
+	if vertices.is_empty() or indices.is_empty():
+		_unit_shadow_draw_mesh_cache[cache_key] = null
+		return null
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_COLOR] = colors
+	arrays[Mesh.ARRAY_INDEX] = indices
+	var shadow_mesh := ArrayMesh.new()
+	shadow_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	_unit_shadow_draw_mesh_cache[cache_key] = shadow_mesh
+	return shadow_mesh
+func _append_colored_polygon_to_mesh_arrays(
+	polygon: PackedVector2Array,
+	color: Color,
+	vertices: PackedVector3Array,
+	colors: PackedColorArray,
+	indices: PackedInt32Array,
+	pretriangulated: PackedInt32Array = PackedInt32Array()
+) -> void:
+	if not _polygon_can_draw(polygon):
+		return
+	var triangulated: PackedInt32Array = pretriangulated
+	if triangulated.is_empty():
+		triangulated = Geometry2D.triangulate_polygon(polygon)
+	if triangulated.is_empty():
+		return
+	var first_vertex: int = vertices.size()
+	for point: Vector2 in polygon:
+		vertices.append(Vector3(point.x, point.y, 0.0))
+		colors.append(color)
+	for index: int in triangulated:
+		indices.append(first_vertex + index)
+
+func _unit_shadow_draw_cache_key(texture: Texture2D, draw_rect: Rect2, unit_type: String) -> String:
+	# Shadow geometry is authored around the feet and translated at submission.
+	# Position is therefore not part of its identity: movement between tiles can
+	# reuse the same immutable mesh for a given sprite frame and draw size.
+	return "%d|%.3f,%.3f|%s|%s" % [
+		texture.get_instance_id(),
+		draw_rect.size.x,
+		draw_rect.size.y,
+		unit_type, _art_treatment_enabled
+	]
+
+func _unit_shadow_draw_geometry(texture: Texture2D, draw_rect: Rect2, unit_type: String) -> Array:
+	var cache_key: String = _unit_shadow_draw_cache_key(texture, draw_rect, unit_type)
+	if _unit_shadow_draw_geometry_cache.has(cache_key):
+		_record_unit_shadow_cache_metric("geometry_hit", unit_type)
+		return _unit_shadow_draw_geometry_cache.get(cache_key, []) as Array
+	_record_unit_shadow_cache_metric("geometry_miss", unit_type)
+	var geometry: Array = []
+	var shadow_data_was_missing: bool = not _unit_shadow_polygon_cache.has(texture.get_instance_id())
+	var shadow_data_started_usec: int = Time.get_ticks_usec() if shadow_data_was_missing else 0
+	var shadow_data: Dictionary = _unit_shadow_data_for_texture(texture)
+	var shadow_polygons: Array[PackedVector2Array] = _packed_vector2_array_array(
+		shadow_data.get("polygons", [])
+	)
+	var shadow_triangulations: Array[PackedInt32Array] = _packed_int32_array_array(
+		shadow_data.get("triangulations", [])
+	)
+	var bounds: Rect2 = shadow_data.get("bounds", Rect2()) as Rect2
+	if shadow_data_was_missing:
+		var elapsed_usec: int = Time.get_ticks_usec() - shadow_data_started_usec
+		_unit_shadow_sync_miss_metrics["count"] = int(_unit_shadow_sync_miss_metrics.get("count", 0)) + 1
+		_unit_shadow_sync_miss_metrics["total_usec"] = int(_unit_shadow_sync_miss_metrics.get("total_usec", 0)) + elapsed_usec
+		_unit_shadow_sync_miss_metrics["max_usec"] = maxi(int(_unit_shadow_sync_miss_metrics.get("max_usec", 0)), elapsed_usec)
+		var by_type: Dictionary = _unit_shadow_sync_miss_metrics.get("by_type", {}) as Dictionary
+		var type_metrics: Dictionary = by_type.get(unit_type, {}) as Dictionary
+		type_metrics["count"] = int(type_metrics.get("count", 0)) + 1
+		type_metrics["total_usec"] = int(type_metrics.get("total_usec", 0)) + elapsed_usec
+		type_metrics["max_usec"] = maxi(int(type_metrics.get("max_usec", 0)), elapsed_usec)
+		by_type[unit_type] = type_metrics
+		_unit_shadow_sync_miss_metrics["by_type"] = by_type
+	if shadow_polygons.is_empty() or bounds.size.x <= 0.0 or bounds.size.y <= 0.0:
+		_unit_shadow_draw_geometry_cache[cache_key] = geometry
+		return geometry
+	var shadow_size: Vector2 = _unit_shadow_draw_size(texture, draw_rect.size, bounds)
+	for polygon_index: int in range(shadow_polygons.size()):
+		var local_polygon: PackedVector2Array = shadow_polygons[polygon_index]
+		var shadow_polygon: PackedVector2Array = _project_unit_shadow_polygon(local_polygon, shadow_size, Vector2.ZERO)
+		if not _polygon_can_draw(shadow_polygon):
+			continue
+		var soft_polygon: PackedVector2Array = _scaled_polygon(shadow_polygon, UNIT_SHADOW_SOFT_SCALE)
+		var triangulated := PackedInt32Array()
+		if polygon_index < shadow_triangulations.size():
+			triangulated = shadow_triangulations[polygon_index]
+		geometry.append({
+			"hard": shadow_polygon,
+			"soft": soft_polygon if _polygon_can_draw(soft_polygon) else PackedVector2Array(),
+			"triangulated": triangulated,
+		})
+	_unit_shadow_draw_geometry_cache[cache_key] = geometry
+	return geometry
+
+func _draw_unit_shadow_fallback(unit: Dictionary) -> void:
+	var shadow_alpha_scale: float = _unit_shadow_alpha_scale(unit)
+	if shadow_alpha_scale <= 0.02:
+		return
+	var draw_rect: Rect2 = _unit_draw_rect(unit)
+	var center := Vector2(draw_rect.get_center().x, draw_rect.position.y + draw_rect.size.y - _tile_height() * 0.03)
+	var width: float = clampf(draw_rect.size.x * 0.54, _tile_width() * 0.26, _tile_width() * 0.68)
+	var height: float = clampf(_tile_height() * 0.34, _tile_height() * 0.20, _tile_height() * 0.44)
+	_draw_iso_ground_shadow(center, width, height, width * 0.10, 0.20 * shadow_alpha_scale)
+
+func _unit_shadow_polygons_for_texture(texture: Texture2D) -> Array[PackedVector2Array]:
+	return _packed_vector2_array_array(_unit_shadow_data_for_texture(texture).get("polygons", []))
+
+func _unit_shadow_bounds_for_texture(texture: Texture2D) -> Rect2:
+	return _unit_shadow_data_for_texture(texture).get("bounds", Rect2()) as Rect2
+
+func _unit_shadow_data_for_texture(texture: Texture2D) -> Dictionary:
+	var local_polygons: Array[PackedVector2Array]
+	var local_triangulations: Array[PackedInt32Array]
+	if texture == null:
+		return {"polygons": local_polygons, "triangulations": local_triangulations, "bounds": Rect2()}
+	var cache_key: int = texture.get_instance_id()
+	if _unit_shadow_polygon_cache.has(cache_key):
+		return _unit_shadow_polygon_cache.get(cache_key, {})
+	var data: Dictionary = _unit_shadow_data_for_texture_with_simplify(texture, UNIT_SHADOW_SIMPLIFY_EPSILON)
+	var shadow_polygons: Array = data.get("polygons", [])
+	var bounds: Rect2 = data.get("bounds", Rect2())
+	if shadow_polygons.is_empty() and bounds.size.x > 0.0 and bounds.size.y > 0.0 and UNIT_SHADOW_RETRY_SIMPLIFY_EPSILON < UNIT_SHADOW_SIMPLIFY_EPSILON:
+		var retry_data: Dictionary = _unit_shadow_data_for_texture_with_simplify(texture, UNIT_SHADOW_RETRY_SIMPLIFY_EPSILON)
+		var retry_polygons: Array = retry_data.get("polygons", [])
+		if not retry_polygons.is_empty():
+			data = retry_data
+	_unit_shadow_polygon_cache[cache_key] = data
+	return data
+
+func _unit_shadow_data_for_texture_with_simplify(texture: Texture2D, simplify_epsilon: float) -> Dictionary:
+	var opaque_polygons: Array[PackedVector2Array] = AssetLoader.build_alpha_polygons(
+		texture,
+		UNIT_SHADOW_ALPHA_THRESHOLD,
+		simplify_epsilon,
+		UNIT_SHADOW_MIN_ALPHA_POLYGON_AREA
+	)
+	return _unit_shadow_data_from_opaque_polygons(opaque_polygons)
+
+func _unit_shadow_data_for_image_with_simplify(image: Image, simplify_epsilon: float) -> Dictionary:
+	var opaque_polygons: Array[PackedVector2Array] = AssetLoader.build_alpha_polygons_from_image(
+		image,
+		UNIT_SHADOW_ALPHA_THRESHOLD,
+		simplify_epsilon,
+		UNIT_SHADOW_MIN_ALPHA_POLYGON_AREA
+	)
+	return _unit_shadow_data_from_opaque_polygons(opaque_polygons)
+
+func _unit_shadow_data_from_opaque_polygons(opaque_polygons: Array[PackedVector2Array]) -> Dictionary:
+	var local_polygons: Array[PackedVector2Array]
+	var triangulations: Array[PackedInt32Array]
+	var bounds: Rect2 = _polygon_bounds(opaque_polygons)
+	if bounds.size.x <= 0.0 or bounds.size.y <= 0.0:
+		return {"polygons": local_polygons, "triangulations": triangulations, "bounds": Rect2()}
+	var bounds_center_x: float = bounds.position.x + bounds.size.x * 0.5
+	var bounds_bottom_y: float = bounds.position.y + bounds.size.y
+	for polygon: PackedVector2Array in opaque_polygons:
+		var local_polygon := PackedVector2Array()
+		for point: Vector2 in polygon:
+			local_polygon.append(Vector2(
+				(point.x - bounds_center_x) / bounds.size.x,
+				(point.y - bounds_bottom_y) / bounds.size.y
+			))
+		if _polygon_can_draw(local_polygon):
+			var triangulated: PackedInt32Array = Geometry2D.triangulate_polygon(local_polygon)
+			if not triangulated.is_empty():
+				local_polygons.append(local_polygon)
+				triangulations.append(triangulated)
+	var data: Dictionary = {
+		"polygons": local_polygons,
+		"triangulations": triangulations,
+		"bounds": bounds,
+	}
+	return data
+
+func _unit_shadow_draw_size(texture: Texture2D, draw_size: Vector2, bounds: Rect2) -> Vector2:
+	if texture == null or bounds.size.x <= 0.0 or bounds.size.y <= 0.0:
+		return draw_size
+	return Vector2(
+		draw_size.x * bounds.size.x / maxf(1.0, float(texture.get_width())),
+		draw_size.y * bounds.size.y / maxf(1.0, float(texture.get_height()))
+	)
+
+func _unit_shadow_foot_point(texture: Texture2D, draw_rect: Rect2, bounds: Rect2, unit_type: String = "") -> Vector2:
+	if texture == null or bounds.size.x <= 0.0 or bounds.size.y <= 0.0:
+		return Vector2(draw_rect.get_center().x, draw_rect.end.y)
+	var texture_size := Vector2(maxf(1.0, float(texture.get_width())), maxf(1.0, float(texture.get_height())))
+	if ActorPresentation.has_profile(unit_type):
+		return draw_rect.position + ActorPresentation.floor_anchor(unit_type) / texture_size * draw_rect.size
+	var bottom_ratio: float = _unit_shadow_stable_bottom_ratio(unit_type, texture, bounds)
+	return Vector2(
+		draw_rect.position.x + (bounds.position.x + bounds.size.x * 0.5) / texture_size.x * draw_rect.size.x,
+		draw_rect.position.y + bottom_ratio * draw_rect.size.y
+	)
+
+func _unit_shadow_stable_bottom_ratio(unit_type: String, fallback_texture: Texture2D, fallback_bounds: Rect2) -> float:
+	if unit_type.is_empty():
+		return _unit_shadow_bottom_ratio(fallback_texture, fallback_bounds)
+	if _unit_shadow_bottom_ratio_cache.has(unit_type):
+		return float(_unit_shadow_bottom_ratio_cache.get(unit_type, _unit_shadow_bottom_ratio(fallback_texture, fallback_bounds)))
+	var ratios: Array[float]
+	for frame_texture: Texture2D in _unit_idle_frames({"type": unit_type}):
+		var frame_bounds: Rect2 = _unit_shadow_bounds_for_texture(frame_texture)
+		if frame_bounds.size.y > 0.0:
+			ratios.append(_unit_shadow_bottom_ratio(frame_texture, frame_bounds))
+	if ratios.is_empty() and _unit_textures.has(unit_type):
+		var base_texture: Texture2D = _unit_textures.get(unit_type, null)
+		if base_texture != null:
+			var base_bounds: Rect2 = _unit_shadow_bounds_for_texture(base_texture)
+			if base_bounds.size.y > 0.0:
+				ratios.append(_unit_shadow_bottom_ratio(base_texture, base_bounds))
+	if ratios.is_empty():
+		ratios.append(_unit_shadow_bottom_ratio(fallback_texture, fallback_bounds))
+	ratios.sort()
+	var ratio: float = ratios[int(floor(float(ratios.size() - 1) * 0.5))]
+	_unit_shadow_bottom_ratio_cache[unit_type] = ratio
+	return ratio
+
+func _unit_shadow_bottom_ratio(texture: Texture2D, bounds: Rect2) -> float:
+	if texture == null:
+		return 1.0
+	return clampf((bounds.position.y + bounds.size.y) / maxf(1.0, float(texture.get_height())), 0.0, 1.0)
+
+func _polygon_bounds(polygons: Array[PackedVector2Array]) -> Rect2:
+	var found_point: bool = false
+	var min_point := Vector2.ZERO
+	var max_point := Vector2.ZERO
+	for polygon: PackedVector2Array in polygons:
+		for point: Vector2 in polygon:
+			if not found_point:
+				min_point = point
+				max_point = point
+				found_point = true
+				continue
+			min_point.x = minf(min_point.x, point.x)
+			min_point.y = minf(min_point.y, point.y)
+			max_point.x = maxf(max_point.x, point.x)
+			max_point.y = maxf(max_point.y, point.y)
+	if not found_point:
+		return Rect2()
+	return Rect2(min_point, max_point - min_point)
+
+func _project_unit_shadow_polygon(local_polygon: PackedVector2Array, sprite_size: Vector2, shadow_origin: Vector2) -> PackedVector2Array:
+	var projected := PackedVector2Array()
+	for point: Vector2 in local_polygon:
+		var horizontal_px: float = point.x * sprite_size.x * UNIT_SHADOW_SHAPE_SCALE
+		var height_px: float = -point.y * sprite_size.y * UNIT_SHADOW_SHAPE_SCALE
+		projected.append(shadow_origin + Vector2(
+			horizontal_px * UNIT_SHADOW_WIDTH_SCALE + height_px * (CombatArtTreatment.SHADOW_CAST.x if _art_treatment_enabled else UNIT_SHADOW_HEIGHT_CAST_X),
+			horizontal_px * UNIT_SHADOW_WIDTH_SLOPE_Y + height_px * (CombatArtTreatment.SHADOW_CAST.y if _art_treatment_enabled else UNIT_SHADOW_HEIGHT_CAST_Y)
+		))
+	return projected
+
+func _polygon_can_draw(points: PackedVector2Array) -> bool:
+	if points.size() < 3:
+		return false
+	return Geometry2D.triangulate_polygon(points).size() >= 3
+
+func _scaled_polygon(points: PackedVector2Array, scale_factor: float, offset: Vector2 = Vector2.ZERO) -> PackedVector2Array:
+	var center := Vector2.ZERO
+	for point: Vector2 in points:
+		center += point
+	if points.size() > 0:
+		center /= float(points.size())
+	center += offset
+	var scaled := PackedVector2Array()
+	for point: Vector2 in points:
+		scaled.append(center + (point - center) * scale_factor)
+	return scaled
+
+func _draw_loot_contact_shadow(tile: Vector2i, rect: Rect2, texture: Texture2D, floating: bool) -> void:
+	if not _art_treatment_enabled:
+		_draw_rect_ground_shadow(tile, rect, 0.54 if floating else 0.62, 0.15 if floating else 0.18, 0.10 if floating else 0.08)
+		return
+	var bounds: Rect2 = _unit_shadow_bounds_for_texture(texture)
+	var visible_size: Vector2 = _unit_shadow_draw_size(texture, rect.size, bounds)
+	var foot: Vector2 = _unit_shadow_foot_point(texture, rect, bounds)
+	# Floating pickups retain their beacon/bob; project onto the floor beneath
+	# their actual painted center, not the transparent texture-frame center.
+	if floating:
+		foot.y = _tile_center(tile).y + _tile_height() * 0.30
+	var width: float = maxf(visible_size.x * 1.12, _tile_width() * 0.16)
+	_draw_contact_pool(foot + SHADOW_LIGHT_VECTOR * _tile_width() * 0.09, width * 1.25, width * 0.43, 0.27)
+	_draw_contact_pool(foot, width * 0.83, width * 0.26, 0.52 if not floating else 0.43)
+
+func _draw_rect_ground_shadow(tile: Vector2i, draw_rect: Rect2, width_scale: float, height_scale: float, cast_scale: float) -> void:
+	if draw_rect.size.x <= 0.0 or draw_rect.size.y <= 0.0:
+		return
+	var base_center: Vector2 = _tile_center(tile) + Vector2(0.0, _tile_height() * 0.34)
+	var width: float = maxf(_tile_width() * 0.24, draw_rect.size.x * width_scale)
+	var height: float = maxf(_tile_height() * 0.13, _tile_height() * height_scale)
+	if _art_treatment_enabled:
+		_draw_contact_pool(base_center + SHADOW_LIGHT_VECTOR * _tile_width() * cast_scale * 0.7, width * 1.20, height * 1.4, 0.23)
+		_draw_contact_pool(base_center, width * 0.86, height * 1.10, 0.44)
+		return
+	var cast_offset: Vector2 = SHADOW_LIGHT_VECTOR * _tile_width() * cast_scale
+	_draw_iso_ground_shadow(base_center + cast_offset, width * 0.96, height * 0.86, width * 0.28, float(SHADOW_COLOR.a) * 0.38)
+	_draw_iso_ground_shadow(base_center, width * 0.48, height * 0.54, width * 0.08, float(SHADOW_COLOR.a) * 0.56)
+
+func _draw_wall_segment_shadow(tile: Vector2i, orientation: String, draw_rect: Rect2) -> void:
+	var base_center: Vector2 = _tile_center(tile) + Vector2(0.0, _tile_height() * 0.32)
+	var width: float = maxf(_tile_width() * 0.38, draw_rect.size.x * 0.82)
+	var height: float = _tile_height() * 0.16
+	var skew: float = width * (0.16 if orientation == "row" else -0.16)
+	if _art_treatment_enabled:
+		_draw_contact_pool(base_center, width * 1.10, height * 1.65, 0.38)
+		return
+	var cast_offset: Vector2 = SHADOW_LIGHT_VECTOR * _tile_width() * 0.12
+	_draw_iso_ground_shadow(base_center + cast_offset, width, height, skew, float(SHADOW_COLOR.a) * 0.32)
+	_draw_iso_ground_shadow(base_center, width * 0.56, height * 0.58, skew * 0.45, float(SHADOW_COLOR.a) * 0.46)
+
+func _draw_iso_ground_shadow(center: Vector2, width: float, height: float, skew: float, alpha: float) -> void:
+	if width <= 0.0 or height <= 0.0 or alpha <= 0.0:
+		return
+	var points := PackedVector2Array()
+	for step: int in range(SHADOW_POINT_COUNT):
+		var angle: float = TAU * float(step) / float(SHADOW_POINT_COUNT)
+		var unit_y: float = sin(angle)
+		points.append(center + Vector2(cos(angle) * width * 0.5 + unit_y * skew, unit_y * height * 0.5))
+	draw_colored_polygon(points, Color(SHADOW_COLOR.r, SHADOW_COLOR.g, SHADOW_COLOR.b, alpha))
+
+func _vector2i_array(values: Array) -> Array[Vector2i]:
+	var result: Array[Vector2i]
+	for value: Variant in values:
+		if typeof(value) == TYPE_VECTOR2I:
+			result.append(value)
+	return result
+
+func _packed_int32_array_array(values: Variant) -> Array[PackedInt32Array]:
+	var result: Array[PackedInt32Array]
+	if typeof(values) != TYPE_ARRAY:
+		return result
+	for value: Variant in values as Array:
+		if typeof(value) == TYPE_PACKED_INT32_ARRAY:
+			result.append(value as PackedInt32Array)
+	return result
+
+func _packed_vector2_array_array(values: Variant) -> Array[PackedVector2Array]:
+	var result: Array[PackedVector2Array]
+	if typeof(values) != TYPE_ARRAY:
+		return result
+	for value: Variant in values as Array:
+		if typeof(value) == TYPE_PACKED_VECTOR2_ARRAY:
+			result.append(value as PackedVector2Array)
+	return result
+
+func _vector2i_lookup(values: Array) -> Dictionary:
+	var result: Dictionary = {}
+	for value: Variant in values:
+		if typeof(value) == TYPE_VECTOR2I:
+			result[value] = true
+	return result
+
+func _ability_tiles() -> Array[Vector2i]:
+	if _submission_cache_valid:
+		return _ability_tiles_cache
+	return _vector2i_array(presentation.get("ability_tiles", []))
+
+func _tile_width() -> float:
+	_ensure_board_layout_cache()
+	return _board_layout_cache_tile_width
+
+func _tile_width_for_extents(_extents: Dictionary) -> float:
+	return _room_framing.tile_width(_board_layout_available_rect(), BOARD_MAX_TILE_WIDTH)
+
+func _board_layout_available_rect() -> Rect2:
+	var authored: Rect2 = presentation.get("board_fit_rect", Rect2()) as Rect2
+	if authored.has_area():
+		return authored
+	return Rect2(Vector2(BOARD_SIDE_MARGIN, BOARD_VERTICAL_MARGIN),
+		Vector2(maxf(1.0, size.x - BOARD_SIDE_MARGIN * 2.0), maxf(1.0, size.y - BOARD_VERTICAL_MARGIN * 2.0)))
+
+func _board_layout_width_units(extents: Dictionary) -> float:
+	var diag_span: float = maxf(0.0, float(extents.get("max_diag", 4.0)) - float(extents.get("min_diag", -4.0)))
+	return diag_span * 0.5 + 1.0
+
+func _board_layout_height_units(extents: Dictionary) -> float:
+	var sum_span: float = maxf(0.0, float(extents.get("max_sum", 14.0)) - float(extents.get("min_sum", 0.0)))
+	return sum_span * 0.25 + BOARD_TOP_CLEARANCE_SCALE + BOARD_BOTTOM_CLEARANCE_SCALE
+
+func _board_layout_extents() -> Dictionary:
+	_ensure_board_layout_cache()
+	return _board_layout_cache_extents
+
+func _board_layout_extents_for_tiles(tiles: Array[Vector2i]) -> Dictionary:
+	if tiles.is_empty():
+		return {
+			"min_diag": -4.0,
+			"max_diag": 4.0,
+			"min_sum": 0.0,
+			"max_sum": 14.0
+		}
+	var min_diag: int = tiles[0].x - tiles[0].y
+	var max_diag: int = min_diag
+	var min_sum: int = tiles[0].x + tiles[0].y
+	var max_sum: int = min_sum
+	for tile: Vector2i in tiles:
+		var diag: int = tile.x - tile.y
+		var sum: int = tile.x + tile.y
+		min_diag = mini(min_diag, diag)
+		max_diag = maxi(max_diag, diag)
+		min_sum = mini(min_sum, sum)
+		max_sum = maxi(max_sum, sum)
+	return {
+		"min_diag": min_diag,
+		"max_diag": max_diag,
+		"min_sum": min_sum,
+		"max_sum": max_sum
+	}
+
+func _invalidate_board_layout_cache(content_changed: bool = true, preserve_visual_top_offset: bool = false) -> void:
+	var retained_visual_top_offset: float = _board_layout_cache_visual_top_offset if preserve_visual_top_offset else 0.0
+	_board_layout_cache_valid = false
+	_board_layout_cache_visual_top_offset = retained_visual_top_offset
+	_board_layout_cache_tile_centers.clear()
+	_board_layout_cache_tile_polygons.clear()
+	# Same-room visual framing moves the origin but does not change immutable
+	# foot-relative meshes. Draw size is already in their key. Keep them through
+	# actor moves/deaths/spawns; content, viewport and navigation resets retire them.
+	if content_changed or not preserve_visual_top_offset:
+		_unit_shadow_draw_geometry_cache.clear()
+		_unit_shadow_draw_mesh_cache.clear()
+	_ambient_particle_template_signature = ""
+	_ambient_particle_templates_by_element.clear()
+	_foreground_obstruction_candidates_cache_valid = false
+	if content_changed:
+		_board_layout_content_cache_valid = false
+		_board_layout_cache_tiles.clear()
+		_board_layout_cache_extents.clear()
+
+func _copy_resolved_board_layout_to(layer: Control) -> void:
+	_ensure_board_layout_cache()
+	for field: String in [
+		"_room_framing", "_board_layout_cache_valid", "_board_layout_content_cache_valid",
+		"_board_layout_cache_tiles", "_board_layout_cache_extents",
+		"_board_layout_cache_tile_width", "_board_layout_cache_origin",
+		"_board_layout_cache_visual_top_offset", "_board_layout_cache_tile_centers",
+		"_board_layout_cache_tile_polygons", "_navigation_zoom", "_navigation_pan",
+		"_navigation_uses_default_zoom"
+	]:
+		var value: Variant = get(field)
+		layer.set(field, value.duplicate() if value is Dictionary or value is Array else value)
+	# Retained controls share the owner's coordinate space even while full-rect
+	# anchors are settling; their local size must not trigger independent framing.
+	layer.set("_board_layout_cache_size", layer.size)
+
+func _ensure_board_layout_cache() -> void:
+	if _board_layout_cache_valid and _board_layout_cache_size == size:
+		return
+	if _is_dynamic_render_layer:
+		# Animation positions are already in the owner's resolved pixel space.
+		# Reframing them per layer can lose retained top clearance after a pickup,
+		# resize or zoom, so idle sprites jump away from the authoritative floor.
+		var board: Control = get_parent() as Control
+		if board != null and board.has_method("_copy_resolved_board_layout_to"):
+			board.call("_copy_resolved_board_layout_to", self)
+			return
+	if _navigation_uses_default_zoom:
+		_navigation_zoom = _default_navigation_zoom_for_viewport()
+	var tiles: Array[Vector2i] = _board_layout_cache_tiles
+	var extents: Dictionary = _board_layout_cache_extents
+	if not _board_layout_content_cache_valid:
+		var grid: Array = combat_state.get("grid", [])
+		tiles = _tiles_in_draw_order(grid)
+		extents = _board_layout_extents_for_tiles(tiles)
+		_board_layout_content_rebuild_count += 1
+		_board_layout_cache_tiles = tiles
+		_board_layout_cache_extents = extents
+		_board_layout_content_cache_valid = true
+	var room_signature: String = _navigation_content_signature
+	if room_signature.is_empty():
+		room_signature = _room_grid_signature(combat_state)
+	if _room_framing.signature != room_signature or not _room_framing.body_bounds.has_area():
+		_populate_board_layout_cache(tiles, BoardFraming.REFERENCE_WIDTH, Vector2.ZERO)
+		_room_framing.capture(self, room_signature, tiles)
+	var tile_width: float = _tile_width_for_extents(extents) * _navigation_zoom
+	_navigation_pan = _clamped_navigation_pan_for_layout(_navigation_pan, extents, tile_width)
+	_populate_board_layout_cache(tiles, tile_width, _board_origin_for_extents(extents, tile_width, tiles))
+
+func _populate_board_layout_cache(tiles: Array[Vector2i], tile_width: float, origin: Vector2) -> void:
+	_board_layout_cache_size = size
+	_board_layout_cache_tile_width = tile_width
+	_board_layout_cache_origin = origin
+	_board_layout_cache_visual_top_offset = 0.0
+	_board_layout_cache_tile_centers = {}
+	_board_layout_cache_tile_polygons = {}
+	for tile: Vector2i in tiles:
+		var center := origin + Vector2(float(tile.x - tile.y) * tile_width * 0.5, float(tile.x + tile.y) * tile_width * 0.25)
+		_board_layout_cache_tile_centers[tile] = center
+		_board_layout_cache_tile_polygons[tile] = PackedVector2Array([
+			center + Vector2(0.0, -tile_width * 0.25),
+			center + Vector2(tile_width * 0.5, 0.0),
+			center + Vector2(0.0, tile_width * 0.25),
+			center + Vector2(-tile_width * 0.5, 0.0),
+			center + Vector2(0.0, -tile_width * 0.25)
+		])
+	_board_layout_cache_valid = true
+
+func _tile_height() -> float:
+	return _tile_width() * 0.5
+
+func _unit_size() -> Vector2:
+	var tile_width: float = _tile_width()
+	return Vector2(tile_width * 1.03, tile_width * 1.32)
+
+func _prop_size() -> Vector2:
+	var tile_width: float = _tile_width()
+	return Vector2(tile_width * 0.92, tile_width * 1.14)
+
+func _intent_rows(intent: Dictionary) -> Array:
+	return _intent_rows_for_unit({}, intent)
+
+func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
+	var rows: Array = []
+	for action_var: Variant in intent.get("actions", []):
+		var action: Dictionary = action_var
+		if action.has("range_status"):
+			action = action.duplicate(false)
+			action["range"] = mini(int(action.get("maximum_range",99)),int(action.get("range",1))+int(unit.get(str(action["range_status"]),0)))
+		var row: Array = ActionIcons.tokens_for_action(action)
+		var support_token: Dictionary = _support_target_token_for_action(unit, action)
+		if not support_token.is_empty():
+			row.append(support_token)
+		if not row.is_empty():
+			rows.append(row)
+		var guardian_row: Array = ActionIcons.tokens_for_guardian_rule(action)
+		if not guardian_row.is_empty(): rows.append(guardian_row)
+		var bonus_row: Array = ActionIcons.tokens_for_surface_bonus(action)
+		if not bonus_row.is_empty():
+			rows.append(bonus_row)
+	if bool(intent.get("restore_braziers", false)):
+		rows.append([ActionIcons.text_token("Braziers relight afterward", "light", "Both fixed Light refuges return after this intent resolves, including a skipped turn.")])
+	return rows
+
+
+func _intent_display_name(intent: Dictionary) -> String:
+	return str(intent.get("name", "")).strip_edges()
+
+func _enemy_intent_line_count(intent: Dictionary) -> int:
+	var line_count: int = _intent_rows(intent).size()
+	if not _intent_display_name(intent).is_empty():
+		line_count += 1
+	return line_count
+
+func _intent_lines(intent: Dictionary) -> PackedStringArray:
+	var parts: PackedStringArray = []
+	for row_var: Variant in _intent_rows(intent):
+		if typeof(row_var) == TYPE_ARRAY:
+			parts.append(ActionIcons.plain_text_for_tokens(row_var as Array))
+	return parts
+
+func _intent_color(intent: Dictionary) -> Color:
+	var element_id: String = str(intent.get("element", ElementData.NONE))
+	if ElementData.is_elemental(element_id):
+		return ElementData.accent(element_id)
+	for action_var: Variant in intent.get("actions", []):
+		var action_type: String = str((action_var as Dictionary).get("type", ""))
+		if action_type in ["melee", "ranged", "aoe"]:
+			return Color("d56a55")
+		if action_type == "stoneskin":
+			return ElementData.accent(ElementData.EARTH)
+		if action_type == "block" or action_type == "guard_ally":
+			return Color("7eb9d5")
+		if action_type == "heal_self" or action_type == "heal_ally":
+			return Color("90c86d")
+	return Color("d8b96f")
+
+func _support_target_token_for_action(unit: Dictionary, action: Dictionary) -> Dictionary:
+	var action_type: String = str(action.get("type", ""))
+	if action_type not in ["heal_ally", "guard_ally"]:
+		return {}
+	if action_type == "guard_ally" and str(action.get("target_mode", "")) == "all_other_enemies":
+		return ActionIcons.text_token("→ All Allies", "neutral", "Grants Block to every other living enemy.")
+	var source_enemy: Dictionary = _support_source_enemy(unit)
+	if source_enemy.is_empty():
+		return {}
+	var target_enemy: Dictionary = _support_target_enemy(source_enemy, action)
+	var value_text: String = "None"
+	var tooltip_text: String = "No valid support target."
+	if not target_enemy.is_empty():
+		var source_id: int = int(source_enemy.get("id", -1))
+		var target_id: int = int(target_enemy.get("id", -1))
+		value_text = "→ Self" if target_id == source_id else "→ %s" % _short_enemy_name(target_enemy)
+		tooltip_text = "Support target: %s." % str(target_enemy.get("name", "Enemy"))
+	return ActionIcons.text_token(value_text, "neutral", tooltip_text)
+
+func _support_source_enemy(unit: Dictionary) -> Dictionary:
+	var source_id: int = int(unit.get("id", -1))
+	if source_id < 0:
+		var key: String = str(unit.get("key", ""))
+		if key.begins_with("enemy_"):
+			var id_text: String = key.substr(6)
+			if id_text.is_valid_int():
+				source_id = int(id_text)
+	for enemy_var: Variant in combat_state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var enemy: Dictionary = _support_enemy_unit(enemy_var as Dictionary)
+		if int(enemy.get("id", -1)) == source_id:
+			return enemy
+	return {}
+
+func _support_target_enemy(source_enemy: Dictionary, action: Dictionary) -> Dictionary:
+	var allow_self: bool = bool(action.get("allow_self", true))
+	var max_range: int = int(action.get("range", 99)) if action.has("range") else 99
+	var best_enemy: Dictionary = {}
+	var player: Dictionary = combat_state.get("player", {}) as Dictionary
+	for enemy_var: Variant in combat_state.get("enemies", []):
+		if typeof(enemy_var) != TYPE_DICTIONARY:
+			continue
+		var candidate: Dictionary = _support_enemy_unit(enemy_var as Dictionary)
+		if int(candidate.get("hp", 0)) <= 0:
+			continue
+		if int(candidate.get("id", -1)) == int(source_enemy.get("id", -1)) and not allow_self:
+			continue
+		if not _support_action_can_affect(candidate, action):
+			continue
+		if _support_unit_distance_between(source_enemy, candidate) > max_range:
+			continue
+		if best_enemy.is_empty() or _support_candidate_precedes(str(action.get("type", "")), source_enemy, candidate, best_enemy, player):
+			best_enemy = candidate
+	return best_enemy
+
+func _support_enemy_unit(enemy: Dictionary) -> Dictionary:
+	var unit: Dictionary = enemy.duplicate(true)
+	unit["id"] = int(unit.get("id", -1))
+	unit["name"] = str(_enemy_render_definition(str(unit.get("type", ""))).get("name", "Enemy"))
+	unit["hp"] = int(unit.get("hp", 0))
+	unit["max_hp"] = maxi(1, int(unit.get("max_hp", 1)))
+	unit["block"] = int(unit.get("block", 0))
+	unit["stoneskin"] = int(unit.get("stoneskin", 0))
+	if not unit.has("footprint"):
+		var footprint_value: Variant = _enemy_render_definition(str(unit.get("type", ""))).get("footprint", [])
+		if typeof(footprint_value) == TYPE_ARRAY and (footprint_value as Array).size() >= 2:
+			unit["footprint"] = Vector2i(int((footprint_value as Array)[0]), int((footprint_value as Array)[1]))
+	var footprint: Vector2i = unit.get("footprint", Vector2i.ONE)
+	unit["footprint"] = Vector2i(maxi(1, footprint.x), maxi(1, footprint.y))
+	return unit
+
+func _support_action_can_affect(candidate: Dictionary, action: Dictionary) -> bool:
+	if int(action.get("amount", 0)) <= 0:
+		return false
+	match str(action.get("type", "")):
+		"heal_ally":
+			return int(candidate.get("hp", 0)) < int(candidate.get("max_hp", 1))
+		"guard_ally":
+			return true
+		_:
+			return false
+
+func _support_candidate_precedes(action_type: String, source_enemy: Dictionary, candidate: Dictionary, incumbent: Dictionary, player: Dictionary) -> bool:
+	match action_type:
+		"heal_ally":
+			var candidate_missing: int = maxi(0, int(candidate.get("max_hp", 1)) - int(candidate.get("hp", 0)))
+			var incumbent_missing: int = maxi(0, int(incumbent.get("max_hp", 1)) - int(incumbent.get("hp", 0)))
+			if candidate_missing != incumbent_missing:
+				return candidate_missing > incumbent_missing
+			var candidate_support_distance: int = _support_unit_distance_between(source_enemy, candidate)
+			var incumbent_support_distance: int = _support_unit_distance_between(source_enemy, incumbent)
+			if candidate_support_distance != incumbent_support_distance:
+				return candidate_support_distance < incumbent_support_distance
+			if int(candidate.get("hp", 0)) != int(incumbent.get("hp", 0)):
+				return int(candidate.get("hp", 0)) < int(incumbent.get("hp", 0))
+		"guard_ally":
+			var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
+			var candidate_threat_distance: int = _support_unit_distance_to_tile(candidate, player_pos)
+			var incumbent_threat_distance: int = _support_unit_distance_to_tile(incumbent, player_pos)
+			if candidate_threat_distance != incumbent_threat_distance:
+				return candidate_threat_distance < incumbent_threat_distance
+			var candidate_defense: int = int(candidate.get("block", 0)) + int(candidate.get("stoneskin", 0))
+			var incumbent_defense: int = int(incumbent.get("block", 0)) + int(incumbent.get("stoneskin", 0))
+			if candidate_defense != incumbent_defense:
+				return candidate_defense < incumbent_defense
+			var candidate_ratio: int = int(candidate.get("hp", 0)) * int(incumbent.get("max_hp", 1))
+			var incumbent_ratio: int = int(incumbent.get("hp", 0)) * int(candidate.get("max_hp", 1))
+			if candidate_ratio != incumbent_ratio:
+				return candidate_ratio < incumbent_ratio
+			var candidate_guard_distance: int = _support_unit_distance_between(source_enemy, candidate)
+			var incumbent_guard_distance: int = _support_unit_distance_between(source_enemy, incumbent)
+			if candidate_guard_distance != incumbent_guard_distance:
+				return candidate_guard_distance < incumbent_guard_distance
+	return int(candidate.get("id", 0)) < int(incumbent.get("id", 0))
+
+func _support_unit_distance_between(first_unit: Dictionary, second_unit: Dictionary) -> int:
+	var best_distance: int = 9999
+	for first_tile: Vector2i in _unit_footprint_tiles(first_unit):
+		for second_tile: Vector2i in _unit_footprint_tiles(second_unit):
+			best_distance = mini(best_distance, absi(first_tile.x - second_tile.x) + absi(first_tile.y - second_tile.y))
+	return best_distance
+
+func _support_unit_distance_to_tile(unit: Dictionary, tile: Vector2i) -> int:
+	var best_distance: int = 9999
+	for unit_tile: Vector2i in _unit_footprint_tiles(unit):
+		best_distance = mini(best_distance, absi(unit_tile.x - tile.x) + absi(unit_tile.y - tile.y))
+	return best_distance
+
+func _short_enemy_name(enemy: Dictionary) -> String:
+	var display_name: String = str(enemy.get("name", "Enemy"))
+	for prefix: String in ["Tunnel ", "Dust ", "Stone ", "Bone ", "Lightning ", "Grave "]:
+		if display_name.begins_with(prefix):
+			return display_name.substr(prefix.length())
+	return display_name
+
+func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
+	var badges: Array[Dictionary]
+	var truesight_activations: int = int(presentation.get("umbra_truesight_activations", 0))
+	var conditional_truesight: bool = bool(presentation.get("umbra_truesight_conditional", false))
+	if str(unit.get("role", "")) == "player" and (truesight_activations != 0 or conditional_truesight):
+		var duration_text: String = "Active while standing in Light." if conditional_truesight else "Lasts for this combat." if truesight_activations < 0 else "%d player turn%s remaining." % [truesight_activations, "" if truesight_activations == 1 else "s"]
+		badges.append({
+			"icon": "truesight",
+			"count_text": "" if conditional_truesight else "∞" if truesight_activations < 0 else str(truesight_activations),
+			"fill": Color("3c285f"),
+			"border": Color("8eefff"),
+			"icon_tint": Color.WHITE,
+			"tooltip": "True Sight\nEnemies remain visible through Umbra and reveal their intents.\n%s" % duration_text
+		})
+	if int(unit.get("bleed", 0)) > 0:
+		badges.append({
+			"icon": "bleed",
+			"count": int(unit.get("bleed", 0)),
+			"fill": STATUS_BLEED,
+			"border": STATUS_BLEED.lightened(0.22),
+			"icon_tint": Color("ffe9df")
+		})
+	if int(unit.get("expose", 0)) > 0:
+		badges.append({
+			"icon": "expose",
+			"count": int(unit.get("expose", 0)),
+			"fill": STATUS_EXPOSE,
+			"border": STATUS_EXPOSE.lightened(0.18)
+		})
+	if bool(unit.get("chilled", false)) and int(unit.get("freeze", 0)) <= 0:
+		badges.append({"icon": "chilled", "count": 0, "fill": Color("30586c"), "border": Color("a0e6ef"), "icon_tint": Color.WHITE})
+	if int(unit.get("freeze", 0)) > 0:
+		badges.append({
+			"icon": "freeze",
+			"count": 0,
+			"fill": STATUS_FREEZE,
+			"border": STATUS_FREEZE.lightened(0.20)
+		})
+	if int(unit.get("frost_armor", 0)) > 0:
+		badges.append({
+			"icon": "frost_armor",
+			"count": int(unit.get("frost_armor", 0)),
+			"fill": Color("274864"),
+			"border": Color("b9f3ff"),
+			"icon_tint": Color.WHITE,
+			"tooltip": "Crystal Mantle\nEach direct damaging hit breaks one layer and prevents its damage. Ground and damage over time bypass it."
+		})
+	if int(unit.get("petrify", 0)) > 0:
+		badges.append({
+			"icon": "petrify",
+			"count": 0,
+			"fill": Color("4b4639"),
+			"border": Color("d8cfb4"),
+			"icon_tint": Color.WHITE,
+			"tooltip": "Petrified\nSkips its next turn; the skipped turn still costs its Time. Its Petrify Block lasts through your next turn."
+		})
+	if int(unit.get("shock", 0)) > 0:
+		badges.append({
+			"icon": "shock",
+			"count": 0,
+			"fill": STATUS_SHOCK,
+			"border": STATUS_SHOCK.lightened(0.18)
+		})
+	if bool(unit.get("immobilize", false)):
+		badges.append({
+			"icon": "immobilize",
+			"count": 0,
+			"fill": STATUS_IMMOBILIZE,
+			"border": STATUS_IMMOBILIZE.lightened(0.20)
+		})
+	for keyword_badge_var: Variant in unit.get("keyword_badges", []):
+		if typeof(keyword_badge_var) == TYPE_DICTIONARY:
+			badges.append(keyword_badge_var as Dictionary)
+	var predicted: Dictionary = (presentation.get("surface_status_preview", {}) as Dictionary).get(str(unit.get("key", "")), {}) as Dictionary
+	if not predicted.is_empty():
+		var frozen: bool = int(predicted.get("freeze", 0)) > 0
+		var chilled: bool = bool(predicted.get("chilled", false))
+		if frozen or chilled:
+			badges.append({"icon": "freeze" if frozen else "chilled", "count_text": "→", "fill": Color("152d41"), "border": Color("f4e2ab"), "icon_tint": Color.WHITE, "tooltip": "After this action: %s" % ("Frozen" if frozen else "Chilled")})
+		if int(predicted.get("shock", 0)) > int(unit.get("shock", 0)):
+			badges.append({"icon": "shock", "count_text": "→", "fill": STATUS_SHOCK, "border": STATUS_SHOCK.lightened(0.18), "icon_tint": Color.WHITE, "tooltip": "After this action: Shocked"})
+
+	return badges
+
+## Retaliate (incl. Rite thorns), pending Quicken and next-attack buffs.
+func _player_keyword_badges() -> Array[Dictionary]:
+	var badges: Array[Dictionary] = RetaliateRules.player_badges(combat_state, RiteRules.effects(combat_state))
+	badges.append_array(TempoRules.player_badges(combat_state))
+	badges.append_array(ManeuverRules.player_badges(combat_state))
+	return badges
+
+func _player_display_statuses(player: Dictionary, restrictions: Dictionary) -> Dictionary:
+	return {
+		"chilled": bool(player.get("chilled", false)),
+		"bleed": int(player.get("bleed", 0)),
+		"expose": int(player.get("expose", 0)),
+		"freeze": maxi(int(player.get("freeze", 0)), 1 if bool(restrictions.get("frozen", false)) else 0),
+		"shock": maxi(int(player.get("shock", 0)), 1 if bool(restrictions.get("shocked", false)) else 0),
+		"immobilize": bool(player.get("immobilize", false)) or bool(restrictions.get("immobilized", false))
+	}
+
+func _draw_status_badge(font: Font, center: Vector2, badge: Dictionary) -> void:
+	var radius: float = 10.0
+	draw_circle(center, radius, badge.get("fill", Color("888888")))
+	draw_arc(center, radius, 0.0, TAU, 18, badge.get("border", Color.WHITE), 1.6)
+	var icon_key: String = str(badge.get("icon", ""))
+	var badge_rect := Rect2(center - Vector2(radius, radius), Vector2(radius * 2.0, radius * 2.0))
+	var icon_tint: Color = badge.get("icon_tint", Color("1f1812"))
+	var tooltip: String = str(badge.get("tooltip", ActionIcons.tooltip(icon_key)))
+	# Painted full-colour keyword icons (white tint) fill the badge so their
+	# shapes read at board size; tinted silhouettes keep the inset glyph size.
+	var icon_side: float = 18.0 if icon_tint.is_equal_approx(Color.WHITE) else 13.0
+	_draw_keyword_icon(icon_key, Rect2(center - Vector2.ONE * icon_side * 0.5, Vector2.ONE * icon_side), tooltip, icon_tint)
+	var count: int = int(badge.get("count", 0))
+	var count_text: String = str(badge.get("count_text", ""))
+	if count_text.is_empty() and count > 0:
+		count_text = str(count)
+	if count_text.is_empty():
+		_register_tooltip(badge_rect, tooltip)
+		return
+	var chip_rect := Rect2(center + Vector2(5.0, 3.0), Vector2(12.0, 12.0))
+	badge_rect = badge_rect.merge(chip_rect)
+	draw_rect(chip_rect, Color(0.09, 0.07, 0.05, 0.96), true)
+	draw_rect(chip_rect, badge.get("border", Color.WHITE), false, 1.0)
+	draw_string(
+		font,
+		chip_rect.position + Vector2(0.0, 9.0),
+		count_text,
+		HORIZONTAL_ALIGNMENT_CENTER,
+		chip_rect.size.x,
+		9,
+		Color("fff4dc")
+	)
+	_register_tooltip(badge_rect, tooltip)
+
+var _cursor_shape_update_queued: bool = false
+
+func _update_cursor_shape() -> void:
+	# Card mouse-enter refreshes the board during the press's hover dispatch.
+	# Godot 4.6.1 cursor assignment pushes a nested internal MouseMotion into
+	# the root Window; a STOP Control then marks the outer press handled before
+	# Node._input or CardWidget can see it. Keep previews immediate, but settle
+	# the cursor after dispatch. Recompute then so queued refreshes cannot go stale.
+	# https://github.com/godotengine/godot/blob/4.6.1-stable/scene/main/window.cpp#L817-L831
+	if _cursor_shape_update_queued:
+		return
+	_cursor_shape_update_queued = true
+	call_deferred("_apply_cursor_shape")
+
+func _apply_cursor_shape() -> void:
+	_cursor_shape_update_queued = false
+	var desired: int = Control.CURSOR_MOVE
+	var is_hot: bool = exit_tiles.has(_hover_tile) or move_tiles.has(_hover_tile) or attack_tiles.has(_hover_tile) or _ability_tiles().has(_hover_tile)
+	if _navigation_pan_active:
+		desired = Control.CURSOR_DRAG
+	elif is_hot:
+		desired = Control.CURSOR_POINTING_HAND
+	elif _tile_drag_aiming_active():
+		desired = Control.CURSOR_DRAG
+	if mouse_default_cursor_shape != desired:
+		mouse_default_cursor_shape = desired
+
+func _trap_blast_tiles(trap: Dictionary) -> Array[Vector2i]:
+	var offsets: Array[Vector2i]
+	offsets.append_array([Vector2i.ZERO, Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT])
+	var trap_pos: Vector2i = trap.get("pos", Vector2i(-1, -1))
+	var tiles: Array[Vector2i]
+	var grid: Array = combat_state.get("grid", [])
+	for offset: Vector2i in offsets:
+		var tile: Vector2i = trap_pos + offset
+		if not _tile_in_grid(grid, tile):
+			continue
+		if not _tile_drawn_as_floor(grid, tile):
+			continue
+		tiles.append(tile)
+	return tiles
+
+func _draw_trap_marker(trap: Dictionary) -> void:
+	var tile: Vector2i = trap.get("pos", Vector2i(-1, -1))
+	if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
+		return
+	var trap_texture: Texture2D = _trap_idle_texture(trap)
+	if trap_texture != null:
+		var trap_rect: Rect2 = _trap_visual_draw_rect(trap)
+		draw_texture_rect(trap_texture, trap_rect, false, _trap_visual_modulate(trap))
+		_register_tooltip(trap_rect.grow(4.0), _trap_tooltip_text(trap))
+
+func _trap_visual_draw_rect(trap: Dictionary) -> Rect2:
+	var tile: Vector2i = trap.get("pos", Vector2i(-1, -1))
+	return _trap_draw_rect(tile) if tile.x >= 0 else Rect2()
+
+func _trap_visual_modulate(_trap: Dictionary) -> Color:
+	return Color.WHITE
+
+func _trap_draw_rect(tile: Vector2i) -> Rect2:
+	var tile_width: float = _tile_width()
+	var draw_size := Vector2(tile_width * TRAP_DRAW_WIDTH_SCALE, _tile_height() * TRAP_DRAW_HEIGHT_SCALE)
+	var center: Vector2 = _tile_center(tile) + Vector2(0.0, _tile_height() * TRAP_DRAW_Y_OFFSET_SCALE)
+	return Rect2(center - draw_size * 0.5, draw_size)
+
+func _trap_tooltip_text(trap: Dictionary) -> String:
+	var element: String = str(trap.get("element", ElementData.NONE))
+	var damage: int = int(trap.get("base_damage", trap.get("damage", 0)))
+	var wake: String = "Pushes neighboring units outward 1 tile." if element == "air" else "Creates %s on the four cardinal neighbors." % ("Rubble" if element == "earth" else "Electrified" if element == "lightning" else ElementData.name(element))
+	return "%s Trap
+%d damage only to its center occupant.
+%s
+New ground has no immediate occupant effect." % [ElementData.name(element), damage, wake]
+
+
+func _surface_tooltip_for_tile(tile: Vector2i) -> String:
+	if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
+		return ""
+	var text: String = BoardSurfacePresentation.tooltip(combat_state, tile)
+	for trap_var: Variant in combat_state.get("traps", []):
+		if typeof(trap_var) == TYPE_DICTIONARY and (trap_var as Dictionary).get("pos", Vector2i(-1, -1)) == tile:
+			text += ("\n\n" if not text.is_empty() else "") + _trap_tooltip_text(trap_var as Dictionary)
+	return text
+
+func _draw_board_surface(tile: Vector2i) -> void:
+	var visible_tile: bool = _board_tile_is_visible_to_player(tile)
+	var retained_rubble: bool = BoardSurfacePresentation.retained_cache_enabled and _is_dynamic_render_layer and _render_layer_tile == tile
+	# Ground a feedback beat replaces, consumes or breaks keeps its retained
+	# layer for the start of the beat, fading out as the new ground arrives.
+	var feedback_events: Array = presentation.get("surface_feedback_events", []) as Array
+	var feedback_progress: float = float(presentation.get("surface_feedback_progress", 0.0))
+	if retained_rubble:
+		var has_rubble: bool = BoardSurfaceRules.has_rubble(combat_state, tile)
+		var rubble_leaving: float = 0.0 if has_rubble else BoardSurfacePresentation.leaving_alpha(tile, "rubble", feedback_events, feedback_progress)
+		var show_rubble: bool = visible_tile and (has_rubble or rubble_leaving > 0.0)
+		if show_rubble and _surface_rubble_layer == null:
+			_surface_rubble_layer = BoardSurfaceRubbleLayer.new()
+			_surface_rubble_layer.name = "SurfaceRubble"
+			_surface_rubble_layer.show_behind_parent = true
+			add_child(_surface_rubble_layer)
+		if _surface_rubble_layer != null:
+			_surface_rubble_layer.visible = show_rubble
+			if show_rubble:
+				_surface_rubble_layer.modulate.a = 1.0 if has_rubble else rubble_leaving
+				_surface_rubble_layer.configure(_tile_center(tile), _tile_width(), tile.x * 101 + tile.y * 307)
+	elif _surface_rubble_layer != null:
+		_surface_rubble_layer.visible = false
+	if not visible_tile:
+		if _surface_ice_layer != null: _surface_ice_layer.visible = false
+		if _surface_fire_layer != null: _surface_fire_layer.visible = false
+		if _surface_electric_layer != null: _surface_electric_layer.visible = false
+		return
+	var time: float = float(presentation.get("ambient_time_seconds", float(Time.get_ticks_msec()) / 1000.0))
+	var reduced_motion: bool = bool(presentation.get("reduced_motion", false))
+	var element: String = BoardSurfaceRules.element_at(combat_state, tile)
+	var ice_leaving: float = 0.0 if element == "ice" else BoardSurfacePresentation.leaving_alpha(tile, "ice", feedback_events, feedback_progress)
+	var retained_ice: bool = retained_rubble and (element == "ice" or ice_leaving > 0.0)
+	if retained_ice and _surface_ice_layer == null:
+		_surface_ice_layer = BoardSurfaceIceLayer.new()
+		_surface_ice_layer.name = "SurfaceIce"
+		_surface_ice_layer.show_behind_parent = true
+		add_child(_surface_ice_layer)
+	if _surface_ice_layer != null:
+		_surface_ice_layer.visible = retained_ice
+		if retained_ice:
+			var seed: int = tile.x * 101 + tile.y * 307
+			var phase: float = 0.37 if reduced_motion else time + float(posmod(seed, 127)) * 0.137
+			_surface_ice_layer.modulate.a = 1.0 if element == "ice" else ice_leaving
+			_surface_ice_layer.configure(_tile_center(tile), _tile_width(), seed, phase)
+			# Rubble may be added after this Ice child already exists.
+			move_child(_surface_ice_layer, get_child_count() - 1)
+	var fire_leaving: float = 0.0 if element == "fire" else BoardSurfacePresentation.leaving_alpha(tile, "fire", feedback_events, feedback_progress)
+	var retained_fire: bool = retained_rubble and (element == "fire" or fire_leaving > 0.0)
+	if retained_fire and _surface_fire_layer == null:
+		_surface_fire_layer = BoardSurfaceFireLayer.new()
+		_surface_fire_layer.name = "SurfaceFire"
+		_surface_fire_layer.show_behind_parent = true
+		add_child(_surface_fire_layer)
+	if _surface_fire_layer != null:
+		_surface_fire_layer.visible = retained_fire
+		if retained_fire:
+			var seed: int = tile.x * 101 + tile.y * 307
+			var phase: float = 0.37 if reduced_motion else time + float(posmod(seed, 127)) * 0.137
+			_surface_fire_layer.modulate.a = 1.0 if element == "fire" else fire_leaving
+			_surface_fire_layer.configure(_tile_center(tile), _tile_width(), seed, phase, reduced_motion)
+			move_child(_surface_fire_layer, get_child_count() - 1)
+	var conductive: bool = BoardSurfaceRules.is_conductive(combat_state, tile)
+	var electric_leaving: float = 0.0 if conductive else BoardSurfacePresentation.leaving_alpha(tile, "electrified", feedback_events, feedback_progress)
+	var retained_electric: bool = retained_rubble and BoardSurfacePresentation.retained_electric_enabled and (conductive or electric_leaving > 0.0)
+	if retained_electric and _surface_electric_layer == null:
+		_surface_electric_layer = BoardSurfaceElectricLayer.new()
+		_surface_electric_layer.name = "SurfaceElectric"
+		_surface_electric_layer.show_behind_parent = true
+		add_child(_surface_electric_layer)
+	if _surface_electric_layer != null:
+		_surface_electric_layer.visible = retained_electric
+		if retained_electric:
+			var seed: int = tile.x * 101 + tile.y * 307
+			var phase: float = 0.37 if reduced_motion else time + float(posmod(seed, 127)) * 0.137
+			var opacity: float = 0.75 if element == "fire" else 1.0
+			_surface_electric_layer.modulate.a = 1.0 if conductive else electric_leaving
+			_surface_electric_layer.configure(_tile_center(tile), _tile_width(), seed, phase, opacity)
+			move_child(_surface_electric_layer, get_child_count() - 1)
+	BoardSurfacePresentation.draw_tile(self, combat_state, tile, _tile_center(tile), _tile_width(), time, reduced_motion, not retained_rubble, not retained_ice and not retained_fire, not retained_electric)
+	BoardSurfacePresentation.draw_preview(self, tile, _tile_center(tile), _tile_width(), presentation.get("surface_preview_events", []) as Array)
+	_draw_surface_connection_preview(tile)
+	_draw_surface_conduction_floor(tile)
+	BoardSurfacePresentation.draw_feedback(self, tile, _tile_center(tile), _tile_width(), feedback_events, feedback_progress, bool(presentation.get("reduced_motion", false)))
+
+func _draw_surface_connection_preview(tile: Vector2i) -> void:
+	for arc_var: Variant in presentation.get("surface_preview_arcs", []):
+		if typeof(arc_var) != TYPE_DICTIONARY: continue
+		var arc: Dictionary = arc_var as Dictionary
+		var path: Array = arc.get("path", []) as Array
+		if path.is_empty(): path = [arc.get("from", Vector2i(-1, -1)), arc.get("to", Vector2i(-1, -1))]
+		for edge: int in range(1, path.size()):
+			_draw_surface_floor_line(tile, path[edge - 1], path[edge], true, 1.0)
+
+func _draw_surface_floor_line(tile: Vector2i, from: Vector2i, to: Vector2i, dashed: bool, alpha: float) -> void:
+	if from.x < 0 or to.x < 0 or from == to: return
+	var steps: int = BoardSurfaceRenderDependencies.floor_line_steps(from, to)
+	for index: int in range(steps):
+		if BoardSurfaceRenderDependencies.floor_line_depth_tile(from, to, index, steps) != tile or (dashed and index % 3 == 2): continue
+		var a: Vector2 = _tile_center(from).lerp(_tile_center(to), float(index) / float(steps))
+		var b: Vector2 = _tile_center(from).lerp(_tile_center(to), float(index + 1) / float(steps))
+		if dashed:
+			draw_line(a, b, Color(0.79, 0.70, 1.0, alpha * 0.75), maxf(1.1, _tile_width() * 0.014), true)
+		else:
+			var middle: Vector2 = a.lerp(b, 0.5) + Vector2(0, sin(float(index) * 2.3) * _tile_width() * 0.015)
+			var bolt := PackedVector2Array([a, middle, b])
+			draw_polyline(bolt, Color(0.55, 0.34, 1.0, alpha * 0.26), _tile_width() * 0.046, true)
+			draw_polyline(bolt, Color(0.83, 0.76, 1.0, alpha * 0.9), maxf(1.0, _tile_width() * 0.011), true)
+
+func _draw_surface_conduction_floor(tile: Vector2i) -> void:
+	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
+	if str(effect.get("kind", "")) != "chain": return
+	var t: float = float(presentation.get("effect_progress", 0.0))
+	var alpha: float = sin(clampf(t / 0.8, 0.0, 1.0) * PI)
+	var branches: Array = effect.get("branches", []) as Array
+	if branches.is_empty(): branches = [effect]
+	for branch: Dictionary in branches:
+		var path: Array = branch.get("path", []) as Array
+		for edge: int in range(1, path.size()):
+			_draw_surface_floor_line(tile, path[edge - 1], path[edge], false, alpha)
+
+func _draw_surface_chain_effect(effect: Dictionary, progress: float) -> void:
+	var branches: Array = effect.get("branches", []) as Array
+	if branches.is_empty(): branches = [effect]
+	for branch_var: Variant in branches:
+		var branch: Dictionary = branch_var as Dictionary
+		var path: Array = branch.get("path", []) as Array
+		if path.size() >= 2:
+			continue # Conductive paths are drawn on the depth-sorted floor.
+		else:
+			var from_tile: Vector2i = branch.get("from", Vector2i(-1, -1))
+			var to_tile: Vector2i = branch.get("to", Vector2i(-1, -1))
+			if from_tile.x < 0 or to_tile.x < 0: continue
+			var to: Vector2 = _tile_center(to_tile)
+			if bool(effect.get("relay", false)): to.y += _tile_width() * 0.23
+			preload("res://scripts/chain_attack_fx.gd").draw_hop(self, _tile_center(from_tile), to, _tile_width(), progress, bool(presentation.get("reduced_motion", false)))
+
+static func _frozen_vector2_values(values: Array) -> Array[Vector2]:
+	var typed: Array[Vector2]
+	for value: Vector2 in values: typed.append(value)
+	return typed
+
+static func _frozen_vector2i_values(values: Array) -> Array[Vector2i]:
+	var typed: Array[Vector2i]
+	for value: Vector2i in values: typed.append(value)
+	return typed
+
+static func _frozen_float_values(values: Array) -> Array[float]:
+	var typed: Array[float]
+	for value: float in values: typed.append(value)
+	return typed
