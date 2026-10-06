@@ -145,7 +145,8 @@ static func attack_trail_phase(progress: float) -> float:
 func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	reduced_motion = reduce
 	active = enabled
-	if ReactionPlayback.present(self, motion):
+	var guard_clip: String = "block_shield" if str(motion.get("clip", "")) == "block" and offhand_kind() == "shield" else ""
+	if ReactionPlayback.present(self, motion, guard_clip):
 		return
 	var delta: Vector2i = motion.get("direction", Vector2i.ZERO)
 	if delta != Vector2i.ZERO:
@@ -159,7 +160,10 @@ func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 		if phase >= 1.0:
 			clip = "idle"
 		else:
-			phase = attack_pose_phase(phase)
+			match weapon_motion():
+				"heavy": clip = "attack_heavy"
+				"stab": clip = "attack_stab"
+				_: phase = attack_pose_phase(phase)
 	if clip in ["cast", "shoot"] and phase >= 1.0 and not reduced_motion:
 		clip = "idle"
 	if clip == "idle":

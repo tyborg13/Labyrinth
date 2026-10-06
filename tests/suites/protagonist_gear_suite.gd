@@ -16,6 +16,7 @@ const L4: Dictionary = {"weapon": "grave_greatsword", "offhand": "tower_shield",
 
 static func run(tree: SceneTree, expect: Callable) -> void:
 	_check_registry(expect)
+	await preload("res://tests/suites/protagonist_gear_motion_suite.gd").run(tree, expect)
 	expect.call(Gear.resolve({}) == {"weapon": "training_sword", "offhand": "", "armor": "patched_cloak", "boots": "skirmisher_boots", "trinket": ""}, "Missing optional slots are bare; the body uses defaults")
 	expect.call(Gear.resolve({"weapon": "", "offhand": "", "armor": "", "boots": "", "trinket": ""}) == Gear.resolve({}), "Empty slots follow the same fallback rules")
 	expect.call(Gear.resolve(L4) == Gear.DEFAULTS and Gear.signature(L4) == Gear.signature(Gear.DEFAULTS), "Out-of-slice loadout resolves exactly to default visuals")

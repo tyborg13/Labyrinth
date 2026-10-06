@@ -18,7 +18,9 @@ var skeleton: Skeleton2D
 var _loaded_facing: String = ""
 var _gear_base_parts: Dictionary = {}
 var _gear_attachments: Array[Sprite2D] = []
+var _gear_mounts: Array[Dictionary]
 var _gear_clip: String = "idle"
+var _gear_phase: float = 0.0
 
 func _layout_path(which: String) -> String:
 	return BASE.path_join(which + ".json")
@@ -60,6 +62,7 @@ func load_rig() -> bool:
 	rest_transforms.clear()
 	_gear_base_parts.clear()
 	_gear_attachments.clear()
+	_gear_mounts.clear()
 	_source_data = prepared
 	layout = prepared.layout
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
@@ -164,6 +167,13 @@ func _remember_gear_part(part_name: String, node: Node2D) -> void:
 		_gear_base_parts[part_name] = {"node": node, "texture": node.get("texture"), "position": node.position}
 
 func apply_gear(ops: Dictionary) -> void:
+	# RigData caches this dictionary across instances. Only this rig receives
+	# weapon landmarks; clearing gear restores the exact shared base layout.
+	layout = _source_data.layout
+	var grip: Dictionary = ops.get("weapon_grip", {})
+	if not grip.is_empty():
+		layout = layout.duplicate()
+		layout["weapon_grip"] = grip.duplicate(true)
 	for base: Dictionary in _gear_base_parts.values():
 		var node: Node2D = base["node"]
 		node.set("texture", base["texture"])
@@ -171,6 +181,7 @@ func apply_gear(ops: Dictionary) -> void:
 	for attachment: Sprite2D in _gear_attachments:
 		attachment.free()
 	_gear_attachments.clear()
+	_gear_mounts.clear()
 	for op: Dictionary in ops.get("replace", []):
 		var part: String = str(op.get("part", ""))
 		if not _gear_base_parts.has(part):
@@ -212,7 +223,34 @@ func apply_gear(ops: Dictionary) -> void:
 		# Thus the front dagger (48) sits below Skin_arm_l (48) and hand_l (49).
 		(bones[bone_name] as Bone2D).add_child(sprite)
 		_gear_attachments.append(sprite)
-	_update_gear_visibility(_gear_clip)
+		_gear_mounts.append({"sprite": sprite, "bone": bones[bone_name],
+			"offset": sprite.position, "centre": sprite.position + texture.get_size() * 0.5,
+			"shield": bone_name == "forearm_l" and str(sprite.name) == "GearOffhand"})
+	_update_gear_pose(_gear_clip, _gear_phase)
+
+func _update_gear_pose(clip_name: String, phase: float) -> void:
+	_gear_phase = phase
+	_update_gear_visibility(clip_name)
+	if _gear_mounts.is_empty():
+		return
+	var to_source: Transform2D = global_transform.affine_inverse()
+	for mount: Dictionary in _gear_mounts:
+		var sprite: Sprite2D = mount["sprite"]
+		var bone: Bone2D = mount["bone"]
+		var bone_pose: Transform2D = to_source * bone.global_transform
+		var angle: float = bone_pose.get_rotation()
+		var rigid := Transform2D(angle, bone_pose.origin)
+		var next := Transform2D(angle, rigid * (mount["offset"] as Vector2))
+		if clip_name == "block_shield" and bool(mount["shield"]):
+			# Unit 1's centre-based guard compensation, without an extra bone.
+			# The wrist follows its authored solve while the shield stays upright.
+			var centre: Vector2 = rigid * (mount["centre"] as Vector2)
+			var guard: float = Motion._hold(phase, 0.0, 0.14, 0.32, 1.0)
+			angle = clampf(angle * (1.0 - guard), -0.15, 0.15)
+			next = Transform2D(angle, centre - ((mount["centre"] as Vector2) - (mount["offset"] as Vector2)).rotated(angle))
+		# Cancel the inherited affine basis in source space, retaining the rig's
+		# reflection. No bone writes or allocations in this per-pose gear path.
+		sprite.transform = bone_pose.affine_inverse() * next
 
 func _update_gear_visibility(clip_name: String) -> void:
 	_gear_clip = clip_name
@@ -223,7 +261,16 @@ func _update_gear_visibility(clip_name: String) -> void:
 func apply_pose(clip_name: String, phase: float) -> void:
 	var pose: Dictionary = Motion.sample_pose(clip_name, phase, layout, facing)
 	_apply_sampled_pose(pose, true)
-	_update_gear_visibility(clip_name)
+	_update_gear_pose(clip_name, phase)
+
+func apply_gear_reaction(clip_name: String, phase: float, source: Dictionary, weight: float) -> void:
+	_apply_sampled_pose(Motion.sample_pose(clip_name, phase, layout, facing), true)
+	if weight < 1.0:
+		for bone_name: String in source:
+			var bone: Bone2D = bones[bone_name]
+			bone.transform = (source[bone_name] as Transform2D).interpolate_with(bone.transform, weight)
+	# Update attachments once, after the interrupted-pose blend is final.
+	_update_gear_pose(clip_name, phase)
 
 # A sample specifies the final local transform. Resetting to rest and then
 # setting position/rotation/scale/skew separately dirtied the skeleton up to five

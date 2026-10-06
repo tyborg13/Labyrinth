@@ -10495,15 +10495,18 @@ func _draw_effect_overlay() -> void:
 			if bool(effect.get("harrier_thrust", false)) and not bool(presentation.get("reduced_motion", false)):
 				var thrust: float = HarrierCutout.attack_trail_phase(progress)
 				if thrust >= 0:
-					var contact: Vector2 = to_point + Vector2(0,-24)
-					var direction: Vector2 = (to_point-from_point).normalized()
-					draw_line(contact-direction*22,contact+direction*8,Color(0.85,0.73,0.49,sin(thrust*PI)*0.60),2.0,true)
+					preload("res://scripts/melee_thrust_fx.gd").draw_streak(self, from_point, to_point, thrust, Color(0.85, 0.73, 0.49))
 				return
 			if bool(effect.get("veilbound_acolyte_melee", false)):
 				var strike_start: Vector2 = _veilbound_acolyte_launch_point(effect, from_point + Vector2(0,-24), false)
 				VeilboundAcolyteFx.melee(self,progress,strike_start,to_point+Vector2(0,-24),_tile_width()/150.0,bool(presentation.get("reduced_motion",false)))
 				return
 			var slash_progress: float = progress
+			if bool(effect.get("protagonist_melee", false)) and str(effect.get("protagonist_weapon_motion", "sword")) == "stab":
+				var thrust: float = ProtagonistCutout.attack_trail_phase(progress)
+				if thrust >= 0.0 and not bool(presentation.get("reduced_motion", false)):
+					preload("res://scripts/melee_thrust_fx.gd").draw_protagonist_stab(self, from_point, to_point, thrust, progress)
+				return
 			if bool(effect.get("protagonist_melee", false)) and not bool(presentation.get("reduced_motion", false)):
 				var trail_phase: float = ProtagonistCutout.attack_trail_phase(progress)
 				if trail_phase < 0.0:

@@ -73,7 +73,12 @@ static func protagonist_uses_melee_motion(action: Dictionary) -> bool:
 
 static func animation_frame_count(effect: Dictionary, fallback_count: int, reduced_motion: bool) -> int:
 	if bool(effect.get("protagonist_melee", false)) and str(effect.get("kind", "")) == "melee":
-		return 1 if reduced_motion else preload("res://scripts/protagonist_cutout/renderer.gd").MELEE_FRAMES
+		if reduced_motion:
+			return 1
+		match str(effect.get("protagonist_weapon_motion", "sword")):
+			"heavy": return 43
+			"stab": return 24
+			_: return preload("res://scripts/protagonist_cutout/renderer.gd").MELEE_FRAMES
 	var style: String = style_for_effect(effect)
 	if style == STYLE_DEFAULT:
 		return maxi(1, fallback_count)

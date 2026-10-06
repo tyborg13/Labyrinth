@@ -109,3 +109,15 @@ exact-phase PNGs to each `review/`, and builds a labeled sheet per clip with 2×
 poses and 0.77× thumbnails at one shared source registration. Its packing path
 is prepared but could not execute without successful native inputs. Inspect the
 actual cycles and sheets before adding the deferred readability judgments.
+
+## Design-owner native review (2026-10-05)
+
+The design owner ran `key_pose_probe.gd` natively (100 images, all keys of the
+three clips plus the shield case's cast/shoot/walk/hit/attack). Contact sheets
+are in `spec/design/visible_gear_slice/review/unit1_*.png`. Findings carried into
+Unit 2: the straight-up heavy apex hid behind the hair (production apex is
+angled over the shoulder), the stab needed more commitment (production adds a
+step-in lunge and a stronger streak), and rear cast/shoot stretched the
+forearm-parented shield (production attachments cancel inherited scale/skew).
+The toolkit `render` reels for heavy and shield were interrupted by concurrent
+production edits; the stab reel completed at `/private/tmp/pg-stab-v01-r1`.

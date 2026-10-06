@@ -23321,6 +23321,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"kind": "ranged" if action_type in ["push", "pull"] else action_type,
 				"action_type": action_type,
 				"protagonist_melee": not bool(action.get("_illusion_echo", false)) and AttackFxLibrary.protagonist_uses_melee_motion(action),
+				"protagonist_weapon_motion": preload("res://scripts/protagonist_cutout/gear_visuals.gd").weapon_motion(_run_state.get("equipped_equipment", {})),
 				"protagonist_ranged": "" if bool(action.get("_illusion_echo", false)) else preload("res://scripts/protagonist_cutout/ranged_action.gd").clip_for_action(action),
 				"protagonist_origin": player_before_tile,
 				"from": action.get("_origin_tile", player_before_tile),
@@ -24990,7 +24991,8 @@ func _stop_music_tween() -> void:
 
 func _protagonist_attack_motion(effect: Dictionary, progress: float) -> Dictionary:
 	# Area sweeps keep their existing 0.38 result boundary and cadence. Retiming
-	# only the cutout phase puts its aggressive cut at that same contact point.
+	# only the archetype pose puts its authored contact at that same boundary.
+	# Sword playback retains its renderer remap; heavy/stab use this directly.
 	var contact: float = _attack_feedback_start_progress(effect)
 	var phase: float = 0.42 * progress / contact if progress <= contact else 0.42 + 0.58 * (progress - contact) / (1.0 - contact)
 	return {"clip": "attack", "phase": phase,
