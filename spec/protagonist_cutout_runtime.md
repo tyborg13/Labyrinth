@@ -132,7 +132,7 @@ recover by .90. `melee_lash_fx.gd` draws a hand-to-target quadratic crack bowed
 - `attack_thrust` fades the carry out and back in.
 - Sword, heavy and stab poses are unchanged; the carry suite compares 1,320 poses per facing.
 
-**Rear draw order.** In the rear facing, the main weapon belongs to the far arm and draws behind the whole body at z 5. This covers every registered weapon (an optional `z_index` on a `weapon_r` replacement), the default sword and the generic crossbow in `rear.json`. `apply_gear({})` restores the base depth. The front facing keeps z 66 under the fist (67).
+**Draw order** is one policy, owned by `gear_layers.gd` and tabulated under "Grip and side carry" below.
 
 Proof:
 - Suites: `tests/suites/protagonist_gear_suite.gd`, `protagonist_gear_motion_suite.gd`, `protagonist_full_gear_motion_suite.gd`, `protagonist_gear_carry_suite.gd`, `tests/protagonist_ranged_test.gd`, `tests/cutout_rig_data_test.gd`, `tests/protagonist_gear_motion_gameplay_test.gd` and `tests/test_gear_visual_assets.py`.
@@ -140,11 +140,18 @@ Proof:
 - Design and review captures: `spec/design/visible_gear_slice/` (`review/round2_*.png`, `review/full_*.png`).
 - Full-pass native proof (r15): the gear probe (49 images, Metal, with `--write-default-rest`, which produced no file change) and the motion probe (236 images: all archetypes, the carry front and rear, and the one-arm bow and repeater front, rear and mirrored). Both PASS at 1920×1080 and were inspected by the design owner.
 
-Grip and side carry (unit 6, owner-approved):
-- **Glove and grip:** the glove (`hand_r`) draws at z 65, a grip piece of the weapon at 66 and the glove's lit knuckles (`hand_r_fingers.png`) at 67, so the shaft crosses the palm under the fingers. Both overlays derive from committed art through `tools/process_gear_visual_assets.py`.
-- **Front:** a carried weapon (rest, idle, walk, hit, death, cast, block_shield) draws at z 8, behind the near leg and foot, so a pole's butt tucks behind the boot; the grip piece keeps the handle in the fist. Use clips (every attack, the weapon guard `block`, every shot) draw it at 66.
-- **Rear:** unchanged (z 5; z 66 during a bow or repeater shot).
-- **Code and proof:** `gear_layers.gd` owns the policy. Native proof r16: gear probe 49 images, motion probe 256.
+Grip and side carry (unit 6, owner-approved). `GearLayers.base_depth` overrides the authored layout z for the glove (`hand_r`), the main weapon (`weapon_r`, through the clip policy) and the crossbow. A `z_index` on a `weapon_r` registry replacement is ignored; it still applies to other replaced parts.
+
+| Layer | Front | Rear |
+| --- | --- | --- |
+| Main weapon, carry clips (rest, idle, walk, hit, death, cast, block_shield) | 8: behind the near leg and foot, so a pole's butt tucks behind the boot | 5: behind the whole body |
+| Main weapon, use clips (every attack, the weapon guard `block`, every shot) | 66 | 5; a bow or repeater shot draws at 66 |
+| Generic crossbow (only while shooting a non-bow, non-repeater weapon) | 66 | 66: an aimed crossbow extends beyond the rear silhouette, like the bow and repeater (design-owner decision; `rear.json` matches) |
+| Glove (`hand_r`) | 65 | 65 |
+| Grip piece (the weapon's handle zone; shown only while the weapon body is not at 66) | 66 | 66 |
+| Fingers (`hand_r_fingers.png`, the glove's lit knuckles) | 67 | 67 |
+
+The shaft therefore crosses the palm under the fingers. Both overlays derive from committed art through `tools/process_gear_visual_assets.py`. The policy restores on clear, on rig hide and on clip exit. Native proof r16: gear probe 49 images, motion probe 256.
 
 Offhand layering:
 - **Front shields** draw at z 72 (over the mantle at 70, under the scarf at 75 and head at 80), so the shield's top sits in front of the cloak.
