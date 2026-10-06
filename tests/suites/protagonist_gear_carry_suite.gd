@@ -1,10 +1,10 @@
 extends RefCounted
-## Rear ordering and authored carry axes, including the pending steep paint's
-## landmarks in memory. No generated textures or rules-layer dependencies.
+## Carry axes plus palm/finger and per-clip body-depth contracts.
+## No generated textures or rules-layer dependencies.
 const Gear = preload("res://scripts/protagonist_cutout/gear_visuals.gd")
 const Rig = preload("res://scripts/protagonist_cutout/rig.gd")
 const Motion = preload("res://scripts/protagonist_cutout/motion.gd")
-const Reaction = preload("res://scripts/cutout_reaction_playback.gd")
+const Layers = preload("res://tests/helpers/protagonist_gear_layer_checks.gd")
 const CARRY_WEAPONS: PackedStringArray = ["hunting_spear", "tourney_lance", "hookspine_halberd", "stormstring_bow"]
 const CARRY_CLIPS: PackedStringArray = ["rest", "idle", "walk", "block", "block_shield", "hit", "death"]
 
@@ -18,7 +18,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		expect.call(rig.load_rig(), "Carry/order rig loads: " + facing)
 		var shared: Dictionary = rig.layout
 		var original: Dictionary = shared.duplicate(true)
-		_check_depth(rig, expect)
+		Layers.rig_contracts(rig, expect)
 		_check_legacy(rig, expect)
 		for weapon: String in CARRY_WEAPONS:
 			for steep: bool in [false, true]:
@@ -32,6 +32,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 			rig.apply_gear({})
 			expect.call(is_same(rig.layout, shared), "Clear restores the exact shared layout and removes carry metadata")
 		rig.free()
+	await Layers.renderer_contracts(tree, expect)
 	print("PROTAGONIST GEAR CARRY CONTRACTS: checked")
 
 static func _check_z_validation(expect: Callable) -> void:
@@ -51,49 +52,6 @@ static func _check_z_validation(expect: Callable) -> void:
 	for value: Variant in [null, "5", false, 5.5, RenderingServer.CANVAS_ITEM_Z_MIN - 1, RenderingServer.CANVAS_ITEM_Z_MAX + 1]:
 		entry["facings"]["rear"]["replace"][0]["z_index"] = value
 		expect.call(not Gear._valid_entry(entry, layouts), "Replacement rejects invalid z: " + str(value))
-
-static func _check_depth(rig: Node2D, expect: Callable) -> void:
-	var wanted: int = 5 if rig.facing == "rear" else 66
-	var weapon: Node2D = rig._gear_base_parts["weapon_r"]["node"]
-	var crossbow: Node2D = rig._gear_base_parts["crossbow"]["node"]
-	expect.call(weapon.z_index == wanted and crossbow.z_index == wanted, "Default sword/crossbow depth: " + rig.facing)
-	var clips: Array = Motion.clip_specs().keys()
-	clips.append("rest")
-	var count: int = 0
-	for id: String in Gear._items:
-		if Gear._items[id]["slot"] != "weapon":
-			continue
-		rig.apply_gear(Gear.ops_for_facing({"weapon": id, "offhand": "ward_kite"}, rig.facing))
-		expect.call(weapon.z_index == wanted, "Every main-hand weapon uses facing depth: " + rig.facing + "/" + id)
-		if rig.facing == "rear":
-			expect.call(weapon.z_index < rig._gear_attachments[0].z_index and weapon.z_index < rig._gear_base_parts["arm_r"]["node"].z_index, "Rear weapon is below the offhand and far arm")
-		for clip: String in clips:
-			for reduced: bool in [false, true]:
-				for phase: float in [0.0, 0.14, 0.42, 0.94, 1.0]:
-					Reaction.apply_pose(rig, clip, phase, reduced)
-					var shot: bool = rig.facing == "rear" and Gear._items[id]["motion"] in ["bow", "repeater"] and clip in ["shoot", "shoot_bow", "shoot_repeater"]
-					expect.call(weapon.z_index == (66 if shot else wanted) and crossbow.z_index == wanted, "Only rear bow/repeater shot clips override weapon depth: " + clip)
-		count += 1
-	# Exercise an actual override and both reset paths, independent of whether
-	# the owner has already supplied explicit rear z entries in the registry.
-	var ops: Dictionary = Gear.ops_for_facing({"weapon": "war_maul", "boots": "ironshod_sabatons"}, rig.facing)
-	for op: Dictionary in ops["replace"]:
-		op["z_index"] = 12
-	rig.apply_gear(ops)
-	for op: Dictionary in ops["replace"]:
-		expect.call(rig._gear_base_parts[op["part"]]["node"].z_index == 12, "Replacement override applies to sprites and skinned parts")
-	for op: Dictionary in ops["replace"]:
-		op.erase("z_index")
-	rig.apply_gear(ops)
-	for base: Dictionary in rig._gear_base_parts.values():
-		expect.call(base["node"].z_index == base["z_index"], "Replacement without z restores the base instead of retaining an old override")
-	for op: Dictionary in ops["replace"]:
-		op["z_index"] = 12
-	rig.apply_gear(ops)
-	rig.apply_gear({})
-	for base: Dictionary in rig._gear_base_parts.values():
-		expect.call(base["node"].z_index == base["z_index"], "Clearing gear restores every base z")
-	print("PROTAGONIST GEAR DEPTH %s: %d weapons, sword/crossbow z=%d, overrides/reset checked" % [rig.facing, count, wanted])
 
 static func _steep_landmarks(ops: Dictionary, facing: String) -> void:
 	var grip: Dictionary = ops["weapon_grip"]

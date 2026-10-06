@@ -3,6 +3,7 @@ extends Node2D
 ## Runtime version of the accepted pass-seven cutout. One instance per painted facing.
 const RigData = preload("res://scripts/protagonist_cutout/rig_data.gd")
 const Motion = preload("res://scripts/protagonist_cutout/motion.gd")
+const GearLayers = preload("res://scripts/protagonist_cutout/gear_layers.gd")
 const BASE: String = "res://assets/units/protagonist_cutout"
 const CANVAS_SIZE := Vector2i(512, 512)
 const SOURCE_OFFSET := Vector2(128, 128)
@@ -22,7 +23,7 @@ var _gear_mounts: Array[Dictionary]
 var _gear_clip: String = "idle"
 var _gear_phase: float = 0.0
 var _gear_weapon_motion: String = "sword"
-var _gear_weapon_z: int = 0
+var _gear_layers: GearLayers
 
 func _layout_path(which: String) -> String:
 	return BASE.path_join(which + ".json")
@@ -66,8 +67,11 @@ func load_rig() -> bool:
 	_gear_attachments.clear()
 	_gear_mounts.clear()
 	_gear_weapon_motion = "sword"
+	_gear_layers = null
 	_source_data = prepared
 	layout = prepared.layout
+	# Enemy subclasses share this loader, but retain their authored layers.
+	var protagonist_layers: bool = _layout_path(facing).get_base_dir() == BASE
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	skeleton = Skeleton2D.new()
 	skeleton.name = "Skeleton"
@@ -124,6 +128,8 @@ func load_rig() -> bool:
 		sprite.centered = false
 		sprite.position = _vector(part["offset"]) - _vector((joints[bone_name] as Dictionary)["position"])
 		sprite.z_index = int(part.get("z_index", 0))
+		if protagonist_layers:
+			sprite.z_index = GearLayers.base_depth(str(part.get("name", "")), facing, sprite.z_index)
 		sprite.z_as_relative = false
 		(bones[bone_name] as Bone2D).add_child(sprite)
 		sprite.owner = self
@@ -133,6 +139,11 @@ func load_rig() -> bool:
 	for mesh_index: int in range(joint_meshes.size()):
 		var mesh: Dictionary = joint_meshes[mesh_index]
 		_build_mesh(mesh, str(mesh.get("name", "PaintedJoint")), "joint:%d" % mesh_index)
+	if protagonist_layers:
+		_gear_layers = GearLayers.new()
+		_gear_layers.setup(self)
+		if not visibility_changed.is_connected(_restore_hidden_weapon):
+			visibility_changed.connect(_restore_hidden_weapon)
 	if not load_errors.is_empty():
 		return false
 	_loaded_facing = facing
@@ -168,8 +179,6 @@ func _build_mesh(data: Dictionary, mesh_name: String, source_key: String) -> voi
 func _remember_gear_part(part_name: String, node: Node2D) -> void:
 	if not part_name.is_empty():
 		_gear_base_parts[part_name] = {"node": node, "texture": node.get("texture"), "position": node.position, "z_index": node.z_index}
-		if part_name == "weapon_r":
-			_gear_weapon_z = node.z_index
 
 func apply_gear(ops: Dictionary) -> void:
 	# RigData caches this dictionary across instances. Only this rig receives
@@ -238,18 +247,19 @@ func apply_gear(ops: Dictionary) -> void:
 		_gear_mounts.append({"sprite": sprite, "bone": bones[bone_name],
 			"offset": sprite.position, "centre": sprite.position + texture.get_size() * 0.5,
 			"shield": bone_name == "forearm_l" and str(sprite.name) == "GearOffhand"})
-	_gear_weapon_z = (_gear_base_parts["weapon_r"]["node"] as Node2D).z_index
+	if _gear_layers != null:
+		_gear_layers.refresh(self)
 	_update_gear_pose(_gear_clip, _gear_phase)
+	if ops.is_empty():
+		_update_weapon_depth("rest")
 
 func _update_weapon_depth(clip_name: String) -> void:
-	if not _gear_base_parts.has("weapon_r"):
-		return
-	# Extended rear ranged weapons clear the body during the whole shot clip.
-	# Every other clip restores the effective registry/base depth, including
-	# bare offhands and interrupted shots. The generic crossbow is unchanged.
-	var shot: bool = facing == "rear" and _gear_weapon_motion in ["bow", "repeater"] \
-		and clip_name in ["shoot", "shoot_bow", "shoot_repeater"]
-	(_gear_base_parts["weapon_r"]["node"] as Node2D).z_index = 66 if shot else _gear_weapon_z
+	if _gear_layers != null:
+		_gear_layers.apply_depth(self, clip_name, _gear_weapon_motion)
+
+func _restore_hidden_weapon() -> void:
+	if not visible:
+		_update_weapon_depth("rest")
 
 func _update_gear_pose(clip_name: String, phase: float) -> void:
 	_gear_clip = clip_name

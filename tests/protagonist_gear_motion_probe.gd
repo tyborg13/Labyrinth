@@ -4,14 +4,15 @@ const Runtime = preload("res://scripts/parallel_runtime.gd")
 const Progression = preload("res://scripts/progression_store.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Scenarios = preload("res://tests/helpers/protagonist_gear_motion_scenarios.gd")
+const Layers = preload("res://tests/helpers/protagonist_gear_layer_checks.gd")
 const Playback = preload("res://tests/fixtures/protagonist_gear_motion_run_scene.gd")
 const SIZE := Vector2i(1920, 1080)
 const OUTPUT: String = "user://probes/protagonist_gear_motion"
 
 var _surface: SubViewport
 var _errors: Array[String]
-var _manifest: Dictionary = {"round": 6, "size": [1920, 1080], "ui_scale": 1.0,
-	"scope": "One-arm bow/repeater aim: exact crossbow right arm, resting visible offhand, rear shot z66 with carry/rest z5. Retained rear idle/walk, front steep carry, full-pass melee and Round 2 checks. Carry uses registry landmarks at capture time.",
+var _manifest: Dictionary = {"round": 7, "size": [1920, 1080], "ui_scale": 1.0,
+	"scope": "Unit 6: front side carry body z8 behind legs/feet, use z66; palm65/grip66/fingers67 in both facings. Added sword/maul/poles/bow/censer front idle and walk. Retained rear carry, one-arm ranged, full-pass melee and Round 2 checks; all poses and landmarks unchanged.",
 	"clock": "Deterministic production-frame stepping; exact effect/pose checkpoints use a frame on the same side of contact for result display. Resolver and card input paths are unchanged.",
 	"captures": []}
 
@@ -74,6 +75,13 @@ func _capture(scene: Node, label: String, metadata: Dictionary) -> void:
 	zoom.resize(1020, 1020, Image.INTERPOLATE_NEAREST)
 	_expect(zoom.save_png(OUTPUT.path_join(label + "_hero_3x.png")) == OK, "Hero crop saves: " + label)
 	metadata = metadata.duplicate(true)
+	var renderer: Node = board.get("_protagonist_renderer")
+	var rig: Node2D = renderer.rigs[renderer.snapshot()["facing"]]
+	Layers.overlays(rig, _expect)
+	metadata["layers"] = {"weapon_z": rig._gear_base_parts["weapon_r"]["node"].z_index,
+		"palm_z": rig._gear_base_parts["hand_r"]["node"].z_index, "fingers_z": rig._gear_layers.fingers.z_index,
+		"grip_z": rig._gear_layers.grip.z_index, "grip_visible": rig._gear_layers.grip.is_visible_in_tree(),
+		"grip_texture": rig._gear_layers.grip.texture.get_meta("asset_source_path")}
 	metadata["file"] = label + ".png"
 	metadata["crop"] = label + "_hero_3x.png"
 	_manifest["captures"].append(metadata)

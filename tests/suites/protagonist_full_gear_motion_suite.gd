@@ -171,7 +171,8 @@ static func _check_depth(renderer: Node, expect: Callable) -> void:
 	var snapshot: Dictionary = renderer.snapshot()
 	var shot: bool = snapshot["facing"] == "rear" and snapshot["clip"] in ["shoot_bow", "shoot_repeater"]
 	expect.call(renderer.rigs["rear"]._gear_base_parts["weapon_r"]["node"].z_index == (66 if shot else 5), "Rear equipped shot depth restores on every exit, including hidden rear rig and bare offhand")
-	expect.call(renderer.rigs["front"]._gear_base_parts["weapon_r"]["node"].z_index == 66, "Front ranged depth is unchanged")
+	var use: bool = snapshot["facing"] == "front" and snapshot["clip"] in ["attack", "attack_heavy", "attack_stab", "attack_thrust", "attack_lash", "block", "shoot", "shoot_bow", "shoot_repeater"]
+	expect.call(renderer.rigs["front"]._gear_base_parts["weapon_r"]["node"].z_index == (66 if use else 8), "Front use depth restores to carry on exit, hidden rigs and reduced melee stills")
 
 static func _check_socket(renderer: Node, motion: String, delta: Vector2i, expect: Callable) -> void:
 	var snapshot: Dictionary = renderer.snapshot()

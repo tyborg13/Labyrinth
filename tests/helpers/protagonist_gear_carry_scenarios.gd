@@ -1,6 +1,7 @@
 extends RefCounted
 ## Static carry views on the real combat board, through the production rig.
 const Gear = preload("res://scripts/protagonist_cutout/gear_visuals.gd")
+const Layers = preload("res://tests/helpers/protagonist_gear_layer_checks.gd")
 const Motion = preload("res://scripts/protagonist_cutout/motion.gd")
 
 static func run(scene: Node, expect: Callable, capture: Callable) -> Array:
@@ -10,8 +11,9 @@ static func run(scene: Node, expect: Callable, capture: Callable) -> Array:
 	for weapon: String in ["training_sword", "war_maul", "hunting_spear", "stormstring_bow"]:
 		for clip: String in ["idle", "walk"]:
 			cases.append({"weapon": weapon, "facing": "rear", "clip": clip})
-	for weapon: String in ["hunting_spear", "tourney_lance", "hookspine_halberd", "stormstring_bow"]:
-		cases.append({"weapon": weapon, "facing": "front", "clip": "idle"})
+	for weapon: String in ["training_sword", "war_maul", "hunting_spear", "tourney_lance", "hookspine_halberd", "stormstring_bow", "dawnlight_censer"]:
+		for clip: String in ["idle", "walk"]:
+			cases.append({"weapon": weapon, "facing": "front", "clip": clip})
 	for case: Dictionary in cases:
 		var rear: bool = case["facing"] == "rear"
 		var delta := Vector2i(0, -1) if rear else Vector2i(0, 1)
@@ -34,9 +36,10 @@ static func run(scene: Node, expect: Callable, capture: Callable) -> Array:
 		var snapshot: Dictionary = renderer.snapshot()
 		var rig: Node2D = renderer.rigs[case["facing"]]
 		var weapon: Node2D = rig._gear_base_parts["weapon_r"]["node"]
-		var z: int = 5 if rear else 66
+		var z: int = 5 if rear else 8
 		expect.call(snapshot["facing"] == case["facing"] and snapshot["clip"] == case["clip"] and not snapshot["mirrored"], "Carry probe retains the requested facing/clip")
-		expect.call(weapon.z_index == z and rig._gear_base_parts["crossbow"]["node"].z_index == z, "Carry probe sword/crossbow have the facing depth")
+		expect.call(weapon.z_index == z and rig._gear_base_parts["crossbow"]["node"].z_index == 66, "Carry probe body is behind the legs; crossbow stays over the palm")
+		Layers.overlays(rig, expect)
 		var pose: Dictionary = Motion.sample_pose(case["clip"], snapshot["phase"], rig.layout, case["facing"])
 		var axis: Vector2 = Motion._world_transform(pose, rig.layout, "weapon_r").basis_xform(Motion._gear_axis(rig.layout)).normalized()
 		var grip: Vector2 = Motion._gear_vector(rig.layout["weapon_grip"]["assembled"])

@@ -1379,8 +1379,8 @@
               "part": "weapon_r",
               "file": "gear/stormstring_bow/front_weapon_r.png",
               "offset": [
-                67,
-                82
+                62,
+                65
               ]
             }
           ],
@@ -1390,12 +1390,12 @@
               135
             ],
             "tip": [
-              70,
-              84
+              64,
+              66
             ],
             "pommel": [
-              102,
-              186
+              106,
+              198
             ]
           }
         },
@@ -1405,8 +1405,8 @@
               "part": "weapon_r",
               "file": "gear/stormstring_bow/rear_weapon_r.png",
               "offset": [
-                151,
-                94
+                147,
+                77
               ],
               "z_index": 5
             }
@@ -1417,12 +1417,12 @@
               147
             ],
             "tip": [
-              186,
-              96
+              192,
+              78
             ],
             "pommel": [
-              154,
-              198
+              150,
+              210
             ]
           }
         }

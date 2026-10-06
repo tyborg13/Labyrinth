@@ -208,7 +208,7 @@ func _apply_pose() -> void:
 	_pose_signature = signature
 	for view: String in rigs:
 		var rig: Node2D = rigs[view]
-		# Restore shot depth even when action recovery switches to the other
+		# Restore carry depth even when action recovery switches to the other
 		# facing and hides the previously extended rear weapon.
 		rig._update_weapon_depth(shown_clip if view == facing else "rest")
 		rig.visible = view == facing

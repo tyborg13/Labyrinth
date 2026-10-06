@@ -1837,35 +1837,35 @@
   },
   "assets/units/protagonist_cutout/gear/stormstring_bow/front_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/stormstring_bow_front.png",
-    "source_sha256": "89a7c074616003b803839187dd1e4aeabefb7e9fb00597050c5e93d8c3452733",
+    "source_sha256": "b859053bef45ae9e75bbbbef542cf34c36d331fefdde8cf7a79f1c25c16f9e09",
     "size": [
-      38,
-      105
+      47,
+      134
     ]
   },
   "assets/units/protagonist_cutout/gear/stormstring_bow/front_weapon_r_grip.png": {
     "source": "spec/assets/visible_gear_slice/sources/stormstring_bow_front.png",
-    "source_sha256": "89a7c074616003b803839187dd1e4aeabefb7e9fb00597050c5e93d8c3452733",
+    "source_sha256": "b859053bef45ae9e75bbbbef542cf34c36d331fefdde8cf7a79f1c25c16f9e09",
     "size": [
-      38,
-      105
+      47,
+      134
     ],
     "derived": "grip"
   },
   "assets/units/protagonist_cutout/gear/stormstring_bow/rear_weapon_r.png": {
     "source": "spec/assets/visible_gear_slice/sources/stormstring_bow_rear.png",
-    "source_sha256": "f728b17991244c3b34f5c6d8fd94902858e23b6ef944ce486c991bb8a7904cde",
+    "source_sha256": "1d92bf52e3b79af1b5301bdd659e415cb5f575be69c19ba721e598f2801f3eed",
     "size": [
-      38,
-      105
+      47,
+      134
     ]
   },
   "assets/units/protagonist_cutout/gear/stormstring_bow/rear_weapon_r_grip.png": {
     "source": "spec/assets/visible_gear_slice/sources/stormstring_bow_rear.png",
-    "source_sha256": "f728b17991244c3b34f5c6d8fd94902858e23b6ef944ce486c991bb8a7904cde",
+    "source_sha256": "1d92bf52e3b79af1b5301bdd659e415cb5f575be69c19ba721e598f2801f3eed",
     "size": [
-      38,
-      105
+      47,
+      134
     ],
     "derived": "grip"
   },

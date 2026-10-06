@@ -8,6 +8,7 @@ const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const Gear = preload("res://scripts/protagonist_cutout/gear_visuals.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const Baker = preload("res://scripts/protagonist_cutout/gear_rest_baker.gd")
+const Layers = preload("res://tests/helpers/protagonist_gear_layer_checks.gd")
 const Suite = preload("res://tests/suites/protagonist_gear_suite.gd")
 const SIZE := Vector2i(1920, 1080)
 const OUTPUT: String = "user://probes/protagonist_gear"
@@ -178,7 +179,11 @@ func _capture(label: String, board_capture: bool = true) -> void:
 		var zoom: Image = image.get_region(Rect2i(crop_origin, Vector2i(340, 340)))
 		zoom.resize(1020, 1020, Image.INTERPOLATE_NEAREST)
 		_expect(zoom.save_png(OUTPUT.path_join(label + "_hero_3x.png")) == OK, "Nearest-neighbour hero crop saves")
-	_manifest["captures"].append({"file": label + ".png", "hero": _board.protagonist_animation_snapshot()})
+	var renderer: Node = _board.get("_protagonist_renderer")
+	var rig: Node2D = renderer.rigs[renderer.snapshot()["facing"]]
+	Layers.overlays(rig, _expect)
+	_manifest["captures"].append({"file": label + ".png", "hero": _board.protagonist_animation_snapshot(),
+		"weapon_z": rig._gear_base_parts["weapon_r"]["node"].z_index, "grip_visible": rig._gear_layers.grip.is_visible_in_tree()})
 
 func _settle() -> void:
 	for frame: int in range(5):
