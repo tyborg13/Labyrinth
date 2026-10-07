@@ -4044,6 +4044,10 @@ func _navigation_transform_changed(update_hover: bool) -> void:
 	_sync_dynamic_render_state(false)
 	for layer: Control in _retained_render_layers():
 		layer.call("_invalidate_board_layout_cache", false)
+	# The strike trail is projected to board space when submitted; rebuild it
+	# against the new layout so a zoom or pan never leaves it one frame behind.
+	if is_instance_valid(_effects_render_layer):
+		_effects_render_layer.call("_sync_strike_trail", presentation.get("effect", {}), float(presentation.get("effect_progress", 1.0)))
 	_sync_static_render_cache()
 	queue_redraw()
 	_queue_dynamic_redraw()
@@ -10611,8 +10615,11 @@ func _sync_strike_trail(effect: Dictionary, progress: float) -> void:
 	if not is_instance_valid(_strike_trail_layer) and HeroStrikeTrail.handles(effect):
 		_ensure_strike_trail_layer()
 	if is_instance_valid(_strike_trail_layer):
+		var batches: Array[Dictionary] = _hero_strike_trail.prepare(self, effect, progress)
+		if batches.is_empty() and (_strike_trail_layer.get("_batches") as Array).is_empty():
+			return
 		var started: int = Time.get_ticks_usec()
-		_strike_trail_layer.submit(_hero_strike_trail.prepare(self, effect, progress))
+		_strike_trail_layer.submit(batches)
 		_record_render_section_time("effect_overlay", started)
 
 func _draw_effect_overlay() -> void:
@@ -10843,11 +10850,11 @@ func _defense_heal_cast_frame(frame_index: int) -> Texture2D:
 		return null
 	return frames[frame_index] as Texture2D
 
-func _protagonist_socket_world(shot: bool, released: bool = false, direction_delta: Vector2i = Vector2i.ZERO, weapon_grip: bool = false) -> Vector2:
+func _protagonist_socket_world(shot: bool, released: bool = false, direction_delta: Vector2i = Vector2i.ZERO) -> Vector2:
 	var player: Dictionary = combat_state.get("player", {})
 	var unit: Dictionary = {"type": "player", "key": "player", "role": "player", "pos": player.get("pos", Vector2i.ZERO)}
 	var body: Rect2 = _unit_draw_rect(unit)
-	var socket: Vector2 = _protagonist_renderer.call("weapon_grip_source") if weapon_grip else _protagonist_renderer.call("source_socket", shot, released, direction_delta)
+	var socket: Vector2 = _protagonist_renderer.call("source_socket", shot, released, direction_delta)
 	return body.position + body.size * socket / ProtagonistCutout.SOURCE_SIZE
 
 func _acolyte_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2:
