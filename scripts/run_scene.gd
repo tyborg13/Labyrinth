@@ -23319,6 +23319,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			var effect := {
 				"kind": "ranged" if action_type in ["push", "pull"] else action_type,
 				"action_type": action_type,
+				"illusion_echo": bool(action.get("_illusion_echo", false)),
 				"protagonist_melee": not bool(action.get("_illusion_echo", false)) and AttackFxLibrary.protagonist_uses_melee_motion(action),
 				"protagonist_weapon_motion": preload("res://scripts/protagonist_cutout/gear_visuals.gd").weapon_motion(_equipped_equipment_for_board()),
 				"protagonist_ranged_motion": preload("res://scripts/protagonist_cutout/gear_visuals.gd").ranged_motion(_equipped_equipment_for_board()),

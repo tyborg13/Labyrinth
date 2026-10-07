@@ -255,7 +255,7 @@ func apply_gear(ops: Dictionary) -> void:
 
 func _update_weapon_depth(clip_name: String) -> void:
 	if _gear_layers != null:
-		_gear_layers.apply_depth(self, clip_name, _gear_weapon_motion)
+		_gear_layers.apply_depth(self, clip_name, _gear_weapon_motion, _gear_phase)
 
 func _restore_hidden_weapon() -> void:
 	if not visible:

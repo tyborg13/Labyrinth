@@ -5,7 +5,7 @@ const Gear = preload("res://scripts/protagonist_cutout/gear_visuals.gd")
 const Rig = preload("res://scripts/protagonist_cutout/rig.gd")
 const Renderer = preload("res://scripts/protagonist_cutout/renderer.gd")
 const Fx = preload("res://scripts/attack_fx_library.gd")
-const LashFx = preload("res://scripts/melee_lash_fx.gd")
+const LayerChecks = preload("res://tests/helpers/protagonist_gear_layer_checks.gd")
 
 static func run(tree: SceneTree, expect: Callable) -> void:
 	for facing: String in ["front", "rear"]:
@@ -24,9 +24,6 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		rig.free()
 	await _check_renderer(tree, expect)
 	_check_clocks(expect)
-	var curve: PackedVector2Array = LashFx.crack_points(Vector2(10, 20), Vector2(110, 40))
-	expect.call(curve[0] == Vector2(10, 20) and curve[-1] == Vector2(110, 40) and curve[12] == Vector2(60, 12), "Lash crack joins the hand/target and bows 18 screen px upward")
-	expect.call(LashFx.trail_phase(0.359) < 0 and LashFx.trail_phase(0.36) == 0 and LashFx.trail_phase(0.42) == 0.45 and LashFx.trail_phase(0.62) < 0, "Lash crack uses the .36-.62 trail envelope with the .42 contact")
 	print("PROTAGONIST FULL GEAR MOTION CONTRACTS: checked")
 	print("PROTAGONIST ONE-ARM SHOT CONTRACTS: checked")
 
@@ -171,8 +168,7 @@ static func _check_depth(renderer: Node, expect: Callable) -> void:
 	var snapshot: Dictionary = renderer.snapshot()
 	var shot: bool = snapshot["facing"] == "rear" and snapshot["clip"] in ["shoot_bow", "shoot_repeater"]
 	expect.call(renderer.rigs["rear"]._gear_base_parts["weapon_r"]["node"].z_index == (66 if shot else 5), "Rear equipped shot depth restores on every exit, including hidden rear rig and bare offhand")
-	var use: bool = snapshot["facing"] == "front" and snapshot["clip"] in ["attack", "attack_heavy", "attack_stab", "attack_thrust", "attack_lash", "block", "shoot", "shoot_bow", "shoot_repeater"]
-	expect.call(renderer.rigs["front"]._gear_base_parts["weapon_r"]["node"].z_index == (66 if use else 8), "Front use depth restores to carry on exit, hidden rigs and reduced melee stills")
+	expect.call(renderer.rigs["front"]._gear_base_parts["weapon_r"]["node"].z_index == LayerChecks.depth("front", str(snapshot["clip"]) if snapshot["facing"] == "front" else "rest", renderer.weapon_motion(), float(snapshot["phase"])), "Front use depth restores to carry on exit, hidden rigs and reduced melee stills")
 
 static func _check_socket(renderer: Node, motion: String, delta: Vector2i, expect: Callable) -> void:
 	var snapshot: Dictionary = renderer.snapshot()

@@ -6,8 +6,10 @@ const Renderer = preload("res://scripts/protagonist_cutout/renderer.gd")
 const CARRY: PackedStringArray = ["rest", "idle", "walk", "hit", "death", "cast", "block_shield"]
 const USE: PackedStringArray = ["attack", "attack_heavy", "attack_stab", "attack_thrust", "attack_lash", "block", "shoot", "shoot_bow", "shoot_repeater"]
 
-static func depth(facing: String, clip: String, motion: String) -> int:
+static func depth(facing: String, clip: String, motion: String, phase: float = 0.0) -> int:
 	if facing == "front":
+		if clip == "attack_thrust":
+			return 38 if phase >= 0.20 and phase <= 0.62 else 8
 		return 8 if clip in CARRY else 66
 	return 66 if motion in ["bow", "repeater"] and clip in ["shoot", "shoot_bow", "shoot_repeater"] else 5
 
@@ -24,7 +26,7 @@ static func overlays(rig: Node2D, expect: Callable) -> void:
 	expect.call(grip.texture.get_size() == weapon.texture.get_size() and fingers.texture.get_size() == glove.texture.get_size(), "Overlay crops remain pixel-aligned")
 	expect.call(glove.z_index == 65 and grip.z_index == 66 and fingers.z_index == 67 and rig._gear_base_parts["crossbow"]["node"].z_index == 66, "Palm/grip/crossbow/fingers have the approved depths in both facings")
 	expect.call(not grip.z_as_relative and not fingers.z_as_relative and not grip.centered and not fingers.centered, "Overlays use absolute depth and uncentred source pixels")
-	expect.call(grip.visible == (weapon.z_index != 66), "Only carried weapon bodies need an extra handle above the palm")
+	expect.call(grip.visible == (weapon.z_index != 66), "Every weapon body below the palm needs the visible grip overlay")
 	expect.call(grip.is_visible_in_tree() == (weapon.is_visible_in_tree() and weapon.z_index != 66), "Grip inherits hidden weapon/rig visibility without a ghost handle")
 	for point: Vector2 in [Vector2.ZERO, Vector2(3, 7), weapon.texture.get_size()]:
 		expect.call(grip.to_global(point).distance_to(weapon.to_global(point)) < 0.001, "Grip pixels follow the complete weapon transform, including mirrored and moving rigs")
@@ -50,7 +52,7 @@ static func rig_contracts(rig: Node2D, expect: Callable) -> void:
 		for clip: String in clips:
 			for phase: float in [0.0, 0.14, 0.42, 0.94, 1.0]:
 				rig.apply_pose(clip, phase)
-				expect.call(weapon.z_index == depth(rig.facing, clip, motion), "Carry/use body depth: " + rig.facing + "/" + id + "/" + clip)
+				expect.call(weapon.z_index == depth(rig.facing, clip, motion, phase), "Carry/use body depth: " + rig.facing + "/" + id + "/" + clip)
 				overlays(rig, expect)
 				var before: Dictionary = {}
 				for bone: String in rig.bones:
@@ -114,7 +116,7 @@ static func renderer_contracts(tree: SceneTree, expect: Callable) -> void:
 					for facing: String in ["front", "rear"]:
 						var rig: Node2D = renderer.rigs[facing]
 						var shown: String = str(snapshot["clip"]) if snapshot["facing"] == facing else "rest"
-						expect.call(rig._gear_base_parts["weapon_r"]["node"].z_index == depth(facing, shown, Gear.weapon_motion({"weapon": weapon})), "Shown clip and hidden rig determine depth, including reduced stills and reflection")
+						expect.call(rig._gear_base_parts["weapon_r"]["node"].z_index == depth(facing, shown, Gear.weapon_motion({"weapon": weapon}), float(snapshot["phase"])), "Shown clip and hidden rig determine depth, including reduced stills and reflection")
 						overlays(rig, expect)
 				# A generic rear shot hides both the low body and its high grip;
 				# switching to the front resets the previously shown rear rig.

@@ -147,7 +147,8 @@ Grip and side carry (unit 6, owner-approved). `GearLayers.base_depth` overrides 
 | Layer | Front | Rear |
 | --- | --- | --- |
 | Main weapon, carry clips (rest, idle, walk, hit, death, cast, block_shield) | 8: behind the near leg and foot, so a pole's butt tucks behind the boot | 5: behind the whole body |
-| Main weapon, use clips (every attack, the weapon guard `block`, every shot) | 66 | 5; a bow or repeater shot draws at 66 |
+| Main weapon, `attack_thrust` | 38 during clip phase 0.20–0.62 (behind torso 40 and hips 42, above legs ≤22); 8 during lowering and recovery. Thrust uses effect progress directly, so these are also renderer progress boundaries. | 5 |
+| Main weapon, other use clips (other attacks, the weapon guard `block`, every shot) | 66 | 5; a bow or repeater shot draws at 66 |
 | Generic crossbow (only while shooting a non-bow, non-repeater weapon) | 66 | 66: an aimed crossbow extends beyond the rear silhouette, like the bow and repeater (design-owner decision; `rear.json` matches) |
 | Glove (`hand_r`) | 65 | 65 |
 | Grip piece (the weapon's handle zone; shown only while the weapon body is not at 66) | 66 | 66 |

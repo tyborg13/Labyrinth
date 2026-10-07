@@ -109,9 +109,6 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	expect.call(Cutout.attack_pose_phase(0.42) >= 0.41, "Sword passes through the cut by the existing melee contact threshold")
 	expect.call(Cutout.attack_pose_phase(0.36) <= 0.31, "The sword holds anticipation until the short aggressive cut")
 	expect.call(is_equal_approx(Cutout.attack_pose_phase(1.0), 1.0), "Melee finishes in the accepted neutral pose")
-	expect.call(Cutout.attack_trail_phase(0.30) < 0.0, "The slash trail must not precede the blade during preparation")
-	expect.call(Cutout.attack_trail_phase(0.42) > 0.3 and Cutout.attack_trail_phase(0.42) < 0.6, "The bright slash coincides with melee contact")
-	expect.call(Cutout.attack_trail_phase(1.0) < 0.0, "The slash clears before returning to idle")
 	var scene: Node = load("res://scripts/run_scene.gd").new()
 	for card_id: String in ["whirlwind_slash", "grave_cleave", "tombsplitter", "sweeping_haft"]:
 		var action: Dictionary = GameData.card_def(card_id)["actions"][0]

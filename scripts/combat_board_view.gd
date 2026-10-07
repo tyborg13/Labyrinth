@@ -4,6 +4,8 @@ class_name CombatBoardView
 const PathUtils = preload("res://scripts/path_utils.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
 const UiPaletteTokens = preload("res://scripts/ui_palette.gd")
+const HeroStrikeTrail = preload("res://scripts/hero_strike_trail.gd")
+const StrikeTrailLayer = preload("res://scripts/strike_trail_layer.gd")
 const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
 const ProtagonistGearBoard = preload("res://scripts/protagonist_cutout/gear_board.gd")
 var _protagonist_renderer: Node
@@ -753,6 +755,8 @@ var _scene_render_layers: Array = []
 var _foreground_render_layer: Control = null
 var _hud_render_layer: Control = null
 var _effects_render_layer: Control = null
+var _strike_trail_layer: Node2D
+var _hero_strike_trail: RefCounted = HeroStrikeTrail.new()
 var _floating_text_layout_cache: Dictionary = {}
 var _floating_text_last_layout: Array[Dictionary] = []
 var _foreground_obstruction_entries_cache: Array[Dictionary]
@@ -1884,6 +1888,8 @@ func _create_retained_render_layer(layer_name: String, layer_kind: String) -> Co
 	layer.focus_mode = Control.FOCUS_NONE
 	layer.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(layer)
+	if layer_kind == RENDER_LAYER_EFFECTS:
+		layer.call("_ensure_strike_trail_layer")
 	return layer
 
 func _retained_render_layers() -> Array:
@@ -2071,7 +2077,7 @@ func _sync_dynamic_render_assets() -> void:
 			"_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures",
 			"_ambient_combined_atlas", "_ambient_combined_atlas_regions",
 			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
-			"_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_illusion_renderers", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_guardian_renderers", "_gaoler_renderers", "_cinder_droplet_renderers",
+			"_hero_strike_trail", "_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_illusion_renderers", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_guardian_renderers", "_gaoler_renderers", "_cinder_droplet_renderers",
 			"_cinder_ooze_renderers", "_frostglass_renderers", "_grave_surgeon_renderers", "_harrier_renderers", "_iskaldra_renderers", "_lightning_wisp_renderers", "_noctyrax_renderers", "_tharokh_renderers", "_vaeloryx_renderers", "_veilbound_acolyte_renderers", "_vyraketh_renderers", "_zekarion_renderers",
 			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
 			"_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
@@ -2084,6 +2090,7 @@ func _sync_dynamic_render_assets() -> void:
 
 func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_changed: bool = false, changed_fields: Array = []) -> void:
 	if _dynamic_render_layer == null or not is_instance_valid(_dynamic_render_layer):
+		_sync_strike_trail(presentation.get("effect", {}), float(presentation.get("effect_progress", 1.0)))
 		return
 	# Resolve the fixed room envelope once on the parent before invalidating
 	# retained layers so every layer uses the same origin and scale.
@@ -2117,6 +2124,8 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 		for field_var: Variant in fields:
 			var field: String = str(field_var)
 			layer.set(field, get(field))
+
+	_effects_render_layer.call("_sync_strike_trail", presentation.get("effect", {}), float(presentation.get("effect_progress", 1.0)))
 
 func _queue_dynamic_redraw() -> void:
 	_full_dynamic_redraw_count += 1
@@ -10446,6 +10455,25 @@ func _draw_trap_elemental_footprint(trap: Dictionary, element_id: String, progre
 		var is_center: bool = tile == trap.get("pos", Vector2i(-1, -1))
 		ElementalSpellFx.floor_light(self, element_id, _tile_center(tile), _tile_width() * (0.79 if is_center else 0.60), envelope * (0.55 if is_center else 0.33))
 
+func _ensure_strike_trail_layer() -> void:
+	if is_instance_valid(_strike_trail_layer):
+		return
+	_strike_trail_layer = StrikeTrailLayer.new()
+	_strike_trail_layer.instrumentation_owner = self
+	add_child(_strike_trail_layer)
+
+func _sync_strike_trail(effect: Dictionary, progress: float) -> void:
+	# Detached submissions are picked up by the retained effects layer in
+	# _ready(); creating a root light there would composite it twice.
+	if not is_inside_tree():
+		return
+	if not is_instance_valid(_strike_trail_layer) and HeroStrikeTrail.handles(effect):
+		_ensure_strike_trail_layer()
+	if is_instance_valid(_strike_trail_layer):
+		var started: int = Time.get_ticks_usec()
+		_strike_trail_layer.submit(_hero_strike_trail.prepare(self, effect, progress))
+		_record_render_section_time("effect_overlay", started)
+
 func _draw_effect_overlay() -> void:
 	_draw_protagonist_charge()
 	var effect: Dictionary = presentation.get("effect", {})
@@ -10498,22 +10526,10 @@ func _draw_effect_overlay() -> void:
 				var strike_start: Vector2 = _veilbound_acolyte_launch_point(effect, from_point + Vector2(0,-24), false)
 				VeilboundAcolyteFx.melee(self,progress,strike_start,to_point+Vector2(0,-24),_tile_width()/150.0,bool(presentation.get("reduced_motion",false)))
 				return
+			if HeroStrikeTrail.handles(effect):
+				return
 			var slash_progress: float = progress
-			if bool(effect.get("protagonist_melee", false)) and str(effect.get("protagonist_weapon_motion", "sword")) == "lash":
-				if not bool(presentation.get("reduced_motion", false)):
-					preload("res://scripts/melee_lash_fx.gd").draw(self, _protagonist_socket_world(false, false, Vector2i.ZERO, true), to_point, progress)
-				return
-			if bool(effect.get("protagonist_melee", false)) and str(effect.get("protagonist_weapon_motion", "sword")) in ["stab", "thrust"]:
-				var thrust: float = ProtagonistCutout.attack_trail_phase(progress)
-				if thrust >= 0.0 and not bool(presentation.get("reduced_motion", false)):
-					preload("res://scripts/melee_thrust_fx.gd").draw_protagonist_stab(self, from_point, to_point, thrust, progress)
-				return
-			if bool(effect.get("protagonist_melee", false)) and not bool(presentation.get("reduced_motion", false)):
-				var trail_phase: float = ProtagonistCutout.attack_trail_phase(progress)
-				if trail_phase < 0.0:
-					return
-				slash_progress = trail_phase * 0.82
-			elif bool(effect.get("crawler_melee", false)) and not bool(presentation.get("reduced_motion", false)):
+			if bool(effect.get("crawler_melee", false)) and not bool(presentation.get("reduced_motion", false)):
 				var trail_phase: float = CrawlerCutout.attack_trail_phase(progress)
 				if trail_phase < 0.0:
 					return

@@ -138,14 +138,43 @@ static func attack_pose_phase(progress: float) -> float:
 				inverse_lerp(keys[index - 1].x, keys[index].x, clampf(progress, 0, 1)))
 	return 1.0
 
-static func attack_trail_phase(progress: float) -> float:
-	# Hide the old full-arc effect during preparation. Its bright cut now reaches
-	# the target at the same time as the blade and damage, then dissipates.
-	if progress < 0.36 or progress >= 0.74:
-		return -1.0
-	if progress <= 0.42:
-		return remap(progress, 0.36, 0.42, 0.0, 0.45)
-	return remap(progress, 0.42, 0.74, 0.45, 1.0)
+func _attack_pose(progress: float) -> Dictionary:
+	var attack_clip: String = "attack"
+	match weapon_motion():
+		"heavy": attack_clip = "attack_heavy"
+		"stab": attack_clip = "attack_stab"
+		"thrust": attack_clip = "attack_thrust"
+		"lash": attack_clip = "attack_lash"
+		_: progress = attack_pose_phase(progress)
+	return {"clip": attack_clip, "phase": progress}
+
+func strike_samples(direction_delta: Vector2i, progress_from: float,
+		progress_to: float, step: float) -> Array[Dictionary]:
+	# Sample in source space without presenting a pose or touching live bones.
+	var samples: Array[Dictionary]
+	if rigs.is_empty() or step <= 0.0 or progress_to < progress_from:
+		return samples
+	var direction: Dictionary = direction_for_delta(direction_delta) if direction_delta != Vector2i.ZERO else {"facing": facing, "mirrored": mirrored}
+	var view: String = str(direction["facing"])
+	var layout: Dictionary = rigs[view].layout
+	var grip: Dictionary = layout["weapon_grip"]
+	var joint: Vector2 = Motion._joint_position(layout, "weapon_r")
+	var tip_local: Vector2 = Motion._gear_vector(grip["tip"]) - joint
+	var hand_local: Vector2 = Motion._gear_vector(grip["assembled"]) - joint
+	var reach: float = float(preload("res://scripts/strike_trail_fx.gd").motion_settings(weapon_motion())["reach"])
+	var count: int = ceili((progress_to - progress_from) / step)
+	for index: int in range(count + 1):
+		var progress: float = minf(progress_from + float(index) * step, progress_to)
+		var attack: Dictionary = _attack_pose(progress)
+		var pose: Dictionary = Motion.sample_pose(attack["clip"], attack["phase"], layout, view)
+		var transform: Transform2D = Motion._world_transform(pose, layout, "weapon_r")
+		var tip: Vector2 = transform * tip_local
+		var inner: Vector2 = tip.lerp(transform * hand_local, reach)
+		if bool(direction["mirrored"]):
+			tip.x = SOURCE_SIZE.x - tip.x
+			inner.x = SOURCE_SIZE.x - inner.x
+		samples.append({"progress": progress, "tip": tip, "inner": inner})
+	return samples
 
 func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	reduced_motion = reduce
@@ -165,12 +194,9 @@ func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 		if phase >= 1.0:
 			clip = "idle"
 		else:
-			match weapon_motion():
-				"heavy": clip = "attack_heavy"
-				"stab": clip = "attack_stab"
-				"thrust": clip = "attack_thrust"
-				"lash": clip = "attack_lash"
-				_: phase = attack_pose_phase(phase)
+			var attack: Dictionary = _attack_pose(phase)
+			clip = attack["clip"]
+			phase = attack["phase"]
 	if clip in ["cast", "shoot"] and phase >= 1.0 and not reduced_motion:
 		clip = "idle"
 	if clip == "shoot" and not ranged_motion().is_empty():

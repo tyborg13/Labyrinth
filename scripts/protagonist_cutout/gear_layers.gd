@@ -7,8 +7,12 @@ const USE_CLIPS: PackedStringArray = ["attack", "attack_heavy", "attack_stab", "
 var grip: Sprite2D
 var fingers: Sprite2D
 
-static func weapon_depth(facing: String, clip: String, motion: String) -> int:
+static func weapon_depth(facing: String, clip: String, motion: String, phase: float = 0.0) -> int:
 	if facing == "front":
+		if clip == "attack_thrust":
+			# The renderer uses clip phase directly for thrust. The pole is level
+			# from .20 to .62; keep its butt behind the foot on either side.
+			return 38 if phase >= 0.20 and phase <= 0.62 else 8
 		return 66 if clip in USE_CLIPS else 8
 	var shot: bool = motion in ["bow", "repeater"] and clip in ["shoot", "shoot_bow", "shoot_repeater"]
 	return 66 if shot else 5
@@ -47,9 +51,9 @@ func refresh(rig: Node2D) -> void:
 	grip.position = weapon.position
 	fingers.position = glove.position
 
-func apply_depth(rig: Node2D, clip: String, motion: String) -> void:
+func apply_depth(rig: Node2D, clip: String, motion: String, phase: float) -> void:
 	var weapon: Sprite2D = rig._gear_base_parts["weapon_r"]["node"]
-	weapon.z_index = weapon_depth(rig.facing, clip if rig.visible else "rest", motion)
+	weapon.z_index = weapon_depth(rig.facing, clip if rig.visible else "rest", motion, phase)
 	# At use depth the full texture supplies the same handle pixels. During
 	# carry only its handle is above the palm; its butt stays behind the leg.
 	grip.visible = weapon.z_index != 66
