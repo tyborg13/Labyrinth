@@ -111,3 +111,22 @@ func _ids() -> Dictionary:
 	result["items"] = panel.find_child("CharacterEquippedItems", true, false).get_instance_id()
 	for slot: String in Data.equipment_slots(): result[slot] = scenes[0]._equipment_slot_panels[slot].get_instance_id()
 	return result
+
+func _compare(state: Dictionary, mode: String, label: String, reopen: bool = false) -> void:
+	await super._compare(state, mode, label, reopen)
+	var rigs: Array[Node]
+	for scene: Node in scenes:
+		var rig: Node = scene._upgrade_dialog.find_child("EquipmentCutout", true, false)
+		rigs.append(rig)
+		var expected: String = preload("res://scripts/protagonist_cutout/gear_visuals.gd").signature(scene._equipped_equipment_for_board())
+		_check(str(rig.snapshot().get("gear", "")) == expected, "Retained and fresh portraits must show the current equipped gear: " + label)
+	if DisplayServer.get_name() != "headless":
+		# Freeze authored idle equally; compare the actual actor canvases after draw.
+		for rig: Node in rigs:
+			rig.set_process(false)
+			rig._idle_seconds = 0.0
+			rig.present({}, false)
+		await RenderingServer.frame_post_draw
+		await RenderingServer.frame_post_draw
+		_check(rigs[0].texture().get_image().get_data() == rigs[1].texture().get_image().get_data(), "Retained gear portrait pixels must match a fresh original portrait: " + label)
+		for rig: Node in rigs: rig.set_process(true)

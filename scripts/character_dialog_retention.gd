@@ -90,6 +90,9 @@ static func refresh_equipment_loadout(scene: Node, panel: Control, previous: Dic
 	art.modulate = scene._equipment_player_art_tint()
 	# A fresh original portrait starts this same idle pose on every changed
 	# column. Reset that phase while retaining the ready rig and texture RID.
+	# The live portrait now owns visible gear. Keep its canvas while adopting
+	# the same filtered loadout used by a fresh original portrait.
+	cutout.set_gear(scene._equipped_equipment_for_board())
 	cutout._idle_seconds = 0.0
 	cutout.present({}, scene._reduced_motion_enabled())
 	var scroll: ScrollContainer = panel.find_child("EquipmentLoadoutScroll", true, false) as ScrollContainer
