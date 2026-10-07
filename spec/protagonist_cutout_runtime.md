@@ -20,6 +20,150 @@ The walking gait runs at a 0.30-second cycle with 48 source-pixel strides and 80
 
 The old whole-sprite melee lunge is removed: the articulated torso drive and planted feet supply the action on the protagonist’s real tile. Slash artwork is withheld during anticipation and peaks with the cut; idle resumes as soon as the recovery ends even while damage text is still finishing. Cached equipment views follow later reduced-motion changes. Existing death squash and Blink echo scaling transform the logical body rectangle before padding is added, preserving their floor registration.
 
+The [board pixel-density pipeline](board_pixel_density.md) cleans only the rear body paint; the untouched front remains the reference, and rear weapon, crossbow and hand layers stay protected.
+
+## Visible equipment
+
+`assets/units/protagonist_cutout/gear_visuals.json` owns the five slots' visual
+defaults, weapon motion/hand count, per-facing part replacements and bone
+attachments in the unchanged 255-pixel source registration. Armor owns only the
+torso, sleeves and hips; boots own the feet and shins (including same-size
+skinned rear shin replacements). Mesh textures must retain their base
+crop size. Cloak, mantle, scarf, head, hands and trousers keep their base paint.
+The loader validates and caches the JSON once, reports broken entries, and falls
+back to the slot default for absent or invalid item IDs. Missing/empty weapon,
+armor and boots use defaults; missing/empty offhand and trinket draw nothing.
+All registered weapons are one-handed. Shields and held offhands stay visible in
+every clip, reaction and reduced-motion still; there is no clip-hiding or
+two-handed offhand-hiding path. `is_two_handed` remains a metadata API for later.
+The temporary `crossbow_r` bone is under `hand_r`, registered at the main weapon
+joint. Generic `shoot` hides `weapon_r`, exactly while the crossbow is visible
+(phase > 0.01 and < 0.94). Equipped bow/repeater shooting variants keep
+`weapon_r` visible and the generic crossbow hidden; casting still uses the left hand.
+
+`gear_visuals.gd` exposes static `resolve`, `signature`, `weapon_motion`, `ranged_motion`,
+`is_two_handed`, `offhand_kind` and `ops_for_facing` (replace/attach/weapon_grip).
+`rig.gd.apply_gear({})` restores original textures and rigid positions and removes
+all gear attachments. This layer is opt-in for the protagonist; enemy callers
+keep their original loading and pose paths. The renderer exposes `set_gear`,
+`weapon_motion`, `offhand_kind` and `rest_texture`; identical signatures do no work.
+Snapshots include `gear` and `offhand_visible`. Board, illusions, previews and the
+Character figure receive the run's gear without changing action ownership.
+
+`rest_texture` uses an unmirrored front neutral 255×255 bake, cached across all
+renderers by resolved signature. A dedicated canvas makes one GPU readback per
+new signature; its retained CPU pixels also supply shadow/HUD extraction without
+reading back the uploaded ImageTexture. The live action viewport is never read
+per frame. While a bake is
+pending (or under the dummy renderer), the bare static rest PNG is the fallback.
+The default loadout instead uses `front_default_gear_rest.png`, baked through the
+real renderer and covered by the precomputed shadow cache. Other loadouts use the
+existing exact silhouette extraction once when their bake arrives. Bare layout
+`rest_source` files and digests remain the gearless baseline.
+
+An item equipped outside its native slot (Open Arsenal's wild trinket) draws
+nothing rather than a misleading default: `run_scene` filters the run's loadout
+through `scripts/visual_equipment.gd` (cached per loadout) before it reaches the
+board, the Character figure or the melee effect. The cutout runtime itself stays
+independent of the rules/data layer, as the production-only export smoke check
+requires.
+
+### Weapon and shield motion
+
+The resolved weapon's `motion` picks the melee clip: `sword` keeps the accepted
+`attack` cut and its phase remap; `heavy` plays `attack_heavy` (43 frames,
+0.72 s), a one-handed gather, an apex raised over the weapon-side shoulder so
+the hammer head stays visible beside the hair, a four-frame slam over the top and an impact hold;
+`stab` plays `attack_stab` (24 frames, 0.40 s), a cock at the hip, then a
+step-in lunge (leading foot 8 source px and root 10 px along the board diagonal)
+with the trailing foot planted. Heavy/stab frame counts come from `clip_specs()`
+(the sword keeps the renderer's `MELEE_FRAMES`);
+contact stays at effect progress 0.42 for every melee archetype and self-centred sweeps keep
+their 0.24 s / 0.38 boundary by retiming the archetype pose. Resolver results,
+sounds and analytics do not change. Only the right arm holds the maul; the left
+forearm braces at -0.12 rad (front, mirrored rear) at contact and recovers by
+0.80. The approved body/direction keys stay intact. Front wrist targets are
+(106,118) at gather, (104,78) at apex with the maul pointing (-0.35,-0.94),
+(96,134) at contact/hold and (94,130) at lift. Rear targets are (145,114) at
+gather, (150,80) at apex pointing (0.60,-0.80), (155,130) at contact/hold and
+(157,126) at lift. The rear apex is deliberately lower than a mirror of the
+front so the hammer head stays under the board HP bar. Owner rule: a
+right-handed overhead raise goes over the weapon-side shoulder (screen-left in
+front, screen-right in rear) and the downstroke passes through that side; tests
+require the hammer head to clear the posed hair by at least 8 source px at the
+apex. No reach corrections are needed. The updated
+registry `weapon_grip` preserves the painted palm/pommel registration through
+a per-rig layout copy, without mutating the shared `RigData` dictionary.
+
+`stab` replaces the slash arc with a thrust streak at the target (52 px behind
+to 16 px past contact, a 7-px warm glow under a 3-px core, plus a short contact
+spark); the harrier keeps its original thin streak. A `block` reaction plays
+`block_shield` (the shield rises in front of the chest, the sword stays down)
+only when a shield is drawn, including the maul loadout; held or empty offhands
+keep the weapon-guard `block`.
+Gear attachments follow their bone's position and rotation but never its scale
+or skew, so foreshortened rear casting/shooting cannot stretch a shield; the
+rig's mirroring still applies. Reduced motion keeps the neutral still with gear.
+
+The full-pass poses live in `full_gear_motion.gd` and reuse the existing sampler's painted-length IK. `thrust` selects `attack_thrust` (34 frames, 0.56 s):
+- lower the pole from its steep carry (below) to the attack line by .20;
+- cock the hip-height wrist 8 source px back by .30;
+- drive it 26 px forward by .42 and hold through .56;
+- recover through the lowered pose to the carry by 1.0.
+
+The pole stays along the front/rear stab line from .20 through .62. It shares the stab's leading-foot step, 10 px root lunge, planted trailing foot and minimum pelvis fit, with a −0.10 rad front offhand brace at contact (mirrored rear). Its contact effect is the stab streak.
+
+`lash` selects `attack_lash` (29 frames, 0.48 s): gather the wrist 20px above
+and 6px behind the shoulder, point the whip up over the weapon-side shoulder,
+snap along the attack line at shoulder height at .42, follow through low and
+recover by .90. `melee_lash_fx.gd` draws a hand-to-target quadratic crack bowed
+18 screen px upward, a 3px warm-white core under a 6px teal glow from .36 to
+.62 and a small fading burst at .42. Reduced motion omits both new trails.
+
+`bow` and `repeater` keep the sword cut and phase remap for melee bashes, and keep `cast` for magic. Physical shots are one-armed (see `protagonist_ranged_animations.md`). The new clips keep the offhand, rigid paint and planted feet, and existing clips are unchanged. The gameplay effect carries both visual motion values without changing resolver, sound, analytics or save ownership.
+
+### Carry and draw order
+
+**Steep carry.** Poles (`thrust`) and the bow rest in the owner's steep outward carry:
+- through the fist, head up past the near shoulder, butt down by the foot;
+- never crossing the body;
+- front axis (−0.30, −0.95), rear (0.30, −0.95), read from the weapon's `weapon_grip` landmarks.
+
+`gear_carry.gd` adds per-rig `weapon_carry` metadata for these two motions only.
+- In rest, idle, walk, block, block_shield, hit and death, the fist turns toward the landmark axis through the existing 15/85 grip split: the glove takes 15% of the angle from the sword's rest direction and the weapon the rest.
+- `attack_thrust` fades the carry out and back in.
+- Sword, heavy and stab poses are unchanged; the carry suite compares 1,320 poses per facing.
+
+**Draw order** is one policy, owned by `gear_layers.gd` and tabulated under "Grip and side carry" below.
+
+Proof:
+- Suites: `tests/suites/protagonist_gear_suite.gd`, `protagonist_gear_motion_suite.gd`, `protagonist_full_gear_motion_suite.gd`, `protagonist_gear_carry_suite.gd`, `tests/protagonist_ranged_test.gd`, `tests/cutout_rig_data_test.gd`, `tests/protagonist_gear_motion_gameplay_test.gd` and `tests/test_gear_visual_assets.py`.
+- Real-renderer probes: `tests/protagonist_gear_probe.gd` and `tests/protagonist_gear_motion_probe.gd`.
+- Design and review captures: `spec/design/visible_gear_slice/` (`review/round2_*.png`, `review/full_*.png`).
+- Full-pass native proof (r15): the gear probe (49 images, Metal, with `--write-default-rest`, which produced no file change) and the motion probe (236 images: all archetypes, the carry front and rear, and the one-arm bow and repeater front, rear and mirrored). Both PASS at 1920×1080 and were inspected by the design owner.
+
+Grip and side carry (unit 6, owner-approved). `GearLayers.base_depth` overrides the authored layout z for the glove (`hand_r`), the main weapon (`weapon_r`, through the clip policy) and the crossbow. A `z_index` on a `weapon_r` registry replacement is ignored; it still applies to other replaced parts.
+
+| Layer | Front | Rear |
+| --- | --- | --- |
+| Main weapon, carry clips (rest, idle, walk, hit, death, cast, block_shield) | 8: behind the near leg and foot, so a pole's butt tucks behind the boot | 5: behind the whole body |
+| Main weapon, use clips (every attack, the weapon guard `block`, every shot) | 66 | 5; a bow or repeater shot draws at 66 |
+| Generic crossbow (only while shooting a non-bow, non-repeater weapon) | 66 | 66: an aimed crossbow extends beyond the rear silhouette, like the bow and repeater (design-owner decision; `rear.json` matches) |
+| Glove (`hand_r`) | 65 | 65 |
+| Grip piece (the weapon's handle zone; shown only while the weapon body is not at 66) | 66 | 66 |
+| Fingers (`hand_r_fingers.png`, the glove's lit knuckles) | 67 | 67 |
+
+The shaft therefore crosses the palm under the fingers. Both overlays derive from committed art through `tools/process_gear_visual_assets.py`. The policy restores on clear, on rig hide and on clip exit. Native proof r16: gear probe 49 images, motion probe 256.
+
+Offhand layering:
+- **Front shields** draw at z 72 (over the mantle at 70, under the scarf at 75 and head at 80), so the shield's top sits in front of the cloak.
+- **Rear offhands** draw at z 6, below the far arm (7), so the whole body occludes them and only the rim shows past the silhouette.
+- **Parrying dagger (front):** z 50, over the sleeve. Its texture has the fist's rest silhouette cut out (`occluded_by: hand_l`, applied at derivation), so the fist reads as gripping it. Both ride `hand_l`, which stays rigid, so the hole stays aligned in every pose.
+- **Grapple hook and sunken anchor (front):** hang from the fist at z 48.
+- `hands: 2` currently has no runtime effect: every weapon is one-handed and the offhand is always on.
+
+Pixel density and derivation: `tools/process_gear_visual_assets.py` takes its output paths from the registry and its native sizes from `spec/assets/visible_gear_slice/native_sizes.json`. Whole items use `item|facing`; a piece that differs from its rig part uses `item|facing|part`, such as robe-style hips at mid-thigh length. Other pieces take the bare rig part's own size, so sleeves and rear shins always match their meshes. Every texture is consolidated to the hero's density (`consolidate`: posterise to 24 colours, 3×3 mode filter, orphan cleanup), and `occluded_by` cuts a covering rig part out. The output depends on the Pillow and numpy versions; `--check` and `tests/test_gear_visual_assets.py` catch drift.
+
 ## Verification and UI handoff — pass eight
 
 The changed surface is the full-body protagonist on the combat/room board and equipment panel. The player identifies facing, travel and melee contact while selecting tiles/cards through the existing pointer and controller paths. Board, HP, action results and target previews retain their hierarchy; there are no copy or icon conversions. CombatBoardView, RunScene, AttackFxLibrary, retained board layers, AssetLoader and the existing equipment TextureRect are extended.

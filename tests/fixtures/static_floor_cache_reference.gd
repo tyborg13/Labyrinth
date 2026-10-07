@@ -1,3 +1,4 @@
+# Oracle: original cache algorithms plus master b792d218c visible-gear/pixel-density changes.
 # Frozen calculation paths; typed local initializers adapted for Windows compatibility.
 extends Control
 

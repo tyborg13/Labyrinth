@@ -584,6 +584,17 @@ static func cache_texture_used_rect(texture: Texture2D, used_rect: Rect2i) -> vo
 		return
 	_texture_used_rect_cache[_texture_processing_cache_key(texture)] = used_rect
 
+static func texture_source_image(texture: Texture2D) -> Image:
+	if texture == null:
+		return null
+	# Runtime gear bakes already own CPU pixels from their single viewport
+	# readback. Silhouette consumers must not read the uploaded ImageTexture back.
+	if texture.has_meta("gear_rest_image"):
+		var gear_image: Variant = texture.get_meta("gear_rest_image")
+		if gear_image is Image:
+			return gear_image
+	return texture.get_image()
+
 static func build_alpha_polygons(
 	texture: Texture2D,
 	alpha_threshold: float = DEFAULT_ALPHA_POLYGON_THRESHOLD,
@@ -596,7 +607,7 @@ static func build_alpha_polygons(
 	var cache_key: String = _alpha_polygon_cache_key(texture, alpha_threshold, simplify_epsilon, minimum_area)
 	if _alpha_polygon_cache.has(cache_key):
 		return _alpha_polygon_cache.get(cache_key, [])
-	var image: Image = texture.get_image()
+	var image: Image = texture_source_image(texture)
 	if image == null or image.is_empty():
 		_alpha_polygon_cache[cache_key] = polygons
 		return polygons
@@ -787,7 +798,7 @@ static func _texture_to_image(texture: Texture2D) -> Image:
 		if region.size.x <= 0 or region.size.y <= 0:
 			return atlas_image
 		return atlas_image.get_region(region)
-	return texture.get_image()
+	return texture_source_image(texture)
 
 static func _pixel_touches_transparent(image: Image, x: int, y: int, alpha_threshold: float) -> bool:
 	for offset_y: int in range(-1, 2):

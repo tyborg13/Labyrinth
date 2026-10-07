@@ -3,6 +3,7 @@ extends Node2D
 ## Runtime version of the accepted pass-seven cutout. One instance per painted facing.
 const RigData = preload("res://scripts/protagonist_cutout/rig_data.gd")
 const Motion = preload("res://scripts/protagonist_cutout/motion.gd")
+const GearLayers = preload("res://scripts/protagonist_cutout/gear_layers.gd")
 const BASE: String = "res://assets/units/protagonist_cutout"
 const CANVAS_SIZE := Vector2i(512, 512)
 const SOURCE_OFFSET := Vector2(128, 128)
@@ -16,6 +17,13 @@ var rest_transforms: Dictionary = {}
 var load_errors: PackedStringArray = []
 var skeleton: Skeleton2D
 var _loaded_facing: String = ""
+var _gear_base_parts: Dictionary = {}
+var _gear_attachments: Array[Sprite2D] = []
+var _gear_mounts: Array[Dictionary]
+var _gear_clip: String = "idle"
+var _gear_phase: float = 0.0
+var _gear_weapon_motion: String = "sword"
+var _gear_layers: GearLayers
 
 func _layout_path(which: String) -> String:
 	return BASE.path_join(which + ".json")
@@ -55,8 +63,15 @@ func load_rig() -> bool:
 		child.free()
 	bones.clear()
 	rest_transforms.clear()
+	_gear_base_parts.clear()
+	_gear_attachments.clear()
+	_gear_mounts.clear()
+	_gear_weapon_motion = "sword"
+	_gear_layers = null
 	_source_data = prepared
 	layout = prepared.layout
+	# Enemy subclasses share this loader, but retain their authored layers.
+	var protagonist_layers: bool = _layout_path(facing).get_base_dir() == BASE
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	skeleton = Skeleton2D.new()
 	skeleton.name = "Skeleton"
@@ -113,14 +128,22 @@ func load_rig() -> bool:
 		sprite.centered = false
 		sprite.position = _vector(part["offset"]) - _vector((joints[bone_name] as Dictionary)["position"])
 		sprite.z_index = int(part.get("z_index", 0))
+		if protagonist_layers:
+			sprite.z_index = GearLayers.base_depth(str(part.get("name", "")), facing, sprite.z_index)
 		sprite.z_as_relative = false
 		(bones[bone_name] as Bone2D).add_child(sprite)
 		sprite.owner = self
+		_remember_gear_part(str(part.get("name", "")), sprite)
 	if use_cape_mesh:
 		_build_mesh(layout["cape_mesh"] as Dictionary, "PaintedCape", "cape")
 	for mesh_index: int in range(joint_meshes.size()):
 		var mesh: Dictionary = joint_meshes[mesh_index]
 		_build_mesh(mesh, str(mesh.get("name", "PaintedJoint")), "joint:%d" % mesh_index)
+	if protagonist_layers:
+		_gear_layers = GearLayers.new()
+		_gear_layers.setup(self)
+		if not visibility_changed.is_connected(_restore_hidden_weapon):
+			visibility_changed.connect(_restore_hidden_weapon)
 	if not load_errors.is_empty():
 		return false
 	_loaded_facing = facing
@@ -151,10 +174,131 @@ func _build_mesh(data: Dictionary, mesh_name: String, source_key: String) -> voi
 	for bone_name: String in prepared["weights"]:
 		mesh.add_bone(skeleton.get_path_to(bones[bone_name]), prepared["weights"][bone_name])
 	mesh.queue_redraw()
+	_remember_gear_part(str(data.get("replaces_part", "")), mesh)
+
+func _remember_gear_part(part_name: String, node: Node2D) -> void:
+	if not part_name.is_empty():
+		_gear_base_parts[part_name] = {"node": node, "texture": node.get("texture"), "position": node.position, "z_index": node.z_index}
+
+func apply_gear(ops: Dictionary) -> void:
+	# RigData caches this dictionary across instances. Only this rig receives
+	# weapon landmarks; clearing gear restores the exact shared base layout.
+	layout = _source_data.layout
+	var grip: Dictionary = ops.get("weapon_grip", {})
+	var motion: String = str(ops.get("weapon_motion", "sword"))
+	_gear_weapon_motion = motion
+	if not grip.is_empty() or motion in ["thrust", "bow"]:
+		layout = layout.duplicate()
+		if not grip.is_empty():
+			layout["weapon_grip"] = grip.duplicate(true)
+		if motion in ["thrust", "bow"]:
+			layout["weapon_carry"] = {"motion": motion, "sword_axis": Motion._gear_axis(_source_data.layout)}
+	for base: Dictionary in _gear_base_parts.values():
+		var node: Node2D = base["node"]
+		node.set("texture", base["texture"])
+		node.position = base["position"]
+		node.z_index = int(base["z_index"])
+	for attachment: Sprite2D in _gear_attachments:
+		attachment.free()
+	_gear_attachments.clear()
+	_gear_mounts.clear()
+	for op: Dictionary in ops.get("replace", []):
+		var part: String = str(op.get("part", ""))
+		if not _gear_base_parts.has(part):
+			push_error("Unknown protagonist gear part: " + part)
+			continue
+		var base: Dictionary = _gear_base_parts[part]
+		var node: Node2D = base["node"]
+		var texture: Texture2D = _texture(str(op.get("file", "")))
+		if texture == null:
+			push_error("Missing protagonist gear replacement: " + str(op))
+			continue
+		if node is Polygon2D and texture.get_size() != (base["texture"] as Texture2D).get_size():
+			push_error("Protagonist gear mesh crop size differs from base: " + part)
+			continue
+		node.set("texture", texture)
+		if op.has("z_index"):
+			node.z_index = int(op["z_index"])
+		if node is Sprite2D and op.has("offset"):
+			var bone_name: String = str(node.get_parent().name)
+			node.position = _vector(op["offset"]) - _vector(layout["joints"][bone_name]["position"])
+	for op: Dictionary in ops.get("attach", []):
+		var bone_name: String = str(op.get("bone", ""))
+		if not bones.has(bone_name):
+			push_error("Unknown protagonist gear attachment bone: " + bone_name)
+			continue
+		var texture: Texture2D = _texture(str(op.get("file", "")))
+		if texture == null:
+			push_error("Missing protagonist gear attachment: " + str(op))
+			continue
+		var sprite := Sprite2D.new()
+		sprite.name = str(op.get("name", "GearAttachment"))
+		sprite.texture = texture
+		sprite.centered = false
+		sprite.position = _vector(op["offset"]) - _vector(layout["joints"][bone_name]["position"])
+		sprite.z_index = int(op.get("z_index", 0))
+		sprite.z_as_relative = false
+		sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		sprite.set_meta("gear_attachment", str(op.get("item_id", "")))
+		# Skeleton descendants precede the later joint meshes at equal global z.
+		# Thus the front dagger (48) sits below Skin_arm_l (48) and hand_l (49).
+		(bones[bone_name] as Bone2D).add_child(sprite)
+		_gear_attachments.append(sprite)
+		_gear_mounts.append({"sprite": sprite, "bone": bones[bone_name],
+			"offset": sprite.position, "centre": sprite.position + texture.get_size() * 0.5,
+			"shield": bone_name == "forearm_l" and str(sprite.name) == "GearOffhand"})
+	if _gear_layers != null:
+		_gear_layers.refresh(self)
+	_update_gear_pose(_gear_clip, _gear_phase)
+	if ops.is_empty():
+		_update_weapon_depth("rest")
+
+func _update_weapon_depth(clip_name: String) -> void:
+	if _gear_layers != null:
+		_gear_layers.apply_depth(self, clip_name, _gear_weapon_motion)
+
+func _restore_hidden_weapon() -> void:
+	if not visible:
+		_update_weapon_depth("rest")
+
+func _update_gear_pose(clip_name: String, phase: float) -> void:
+	_gear_clip = clip_name
+	_gear_phase = phase
+	_update_weapon_depth(clip_name)
+	if _gear_mounts.is_empty():
+		return
+	var to_source: Transform2D = global_transform.affine_inverse()
+	for mount: Dictionary in _gear_mounts:
+		var sprite: Sprite2D = mount["sprite"]
+		var bone: Bone2D = mount["bone"]
+		var bone_pose: Transform2D = to_source * bone.global_transform
+		var angle: float = bone_pose.get_rotation()
+		var rigid := Transform2D(angle, bone_pose.origin)
+		var next := Transform2D(angle, rigid * (mount["offset"] as Vector2))
+		if clip_name == "block_shield" and bool(mount["shield"]):
+			# Unit 1's centre-based guard compensation, without an extra bone.
+			# The wrist follows its authored solve while the shield stays upright.
+			var centre: Vector2 = rigid * (mount["centre"] as Vector2)
+			var guard: float = Motion._hold(phase, 0.0, 0.14, 0.32, 1.0)
+			angle = clampf(angle * (1.0 - guard), -0.15, 0.15)
+			next = Transform2D(angle, centre - ((mount["centre"] as Vector2) - (mount["offset"] as Vector2)).rotated(angle))
+		# Cancel the inherited affine basis in source space, retaining the rig's
+		# reflection. No bone writes or allocations in this per-pose gear path.
+		sprite.transform = bone_pose.affine_inverse() * next
 
 func apply_pose(clip_name: String, phase: float) -> void:
 	var pose: Dictionary = Motion.sample_pose(clip_name, phase, layout, facing)
 	_apply_sampled_pose(pose, true)
+	_update_gear_pose(clip_name, phase)
+
+func apply_gear_reaction(clip_name: String, phase: float, source: Dictionary, weight: float) -> void:
+	_apply_sampled_pose(Motion.sample_pose(clip_name, phase, layout, facing), true)
+	if weight < 1.0:
+		for bone_name: String in source:
+			var bone: Bone2D = bones[bone_name]
+			bone.transform = (source[bone_name] as Transform2D).interpolate_with(bone.transform, weight)
+	# Update attachments once, after the interrupted-pose blend is final.
+	_update_gear_pose(clip_name, phase)
 
 # A sample specifies the final local transform. Resetting to rest and then
 # setting position/rotation/scale/skew separately dirtied the skeleton up to five

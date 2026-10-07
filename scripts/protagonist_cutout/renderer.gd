@@ -1,12 +1,18 @@
 extends Node
 
+signal rest_texture_changed
+
 const ReactionPlayback = preload("res://scripts/cutout_reaction_playback.gd")
+const GearVisuals = preload("res://scripts/protagonist_cutout/gear_visuals.gd")
+const RestBaker = preload("res://scripts/protagonist_cutout/gear_rest_baker.gd")
+const AssetLoader = preload("res://scripts/asset_loader.gd")
 
 ## A stable texture RID lets the retained board draw live bones without rebuilding
 ## its tiles for every breath. Both painted facings stay loaded between turns.
 const Rig = preload("res://scripts/protagonist_cutout/rig.gd")
 const Motion = preload("res://scripts/protagonist_cutout/motion.gd")
 const REST_PATH: String = "res://assets/units/protagonist_cutout/front/front_assembled_rest_v9.png"
+const DEFAULT_GEAR_REST_PATH: String = RestBaker.DEFAULT_PATH
 const SOURCE_SIZE := Vector2(255, 255)
 const SOURCE_OFFSET := Vector2(128, 128)
 const CANVAS_SIZE := Vector2i(512, 512)
@@ -27,6 +33,14 @@ var reduced_motion_source: Callable
 var active: bool = true
 var _idle_seconds: float = 0.0
 var _pose_signature: Array = []
+var _equipped: Dictionary = {}
+var _gear_signature: String = ""
+var _gear_revision: int = 0
+var _weapon_motion: String = "sword"
+var _ranged_motion: String = ""
+var _offhand_kind: String = ""
+var _rest_texture: Texture2D
+var _rest_fallback: Texture2D = AssetLoader.load_texture_source_first(REST_PATH)
 
 func _ready() -> void:
 	viewport = SubViewport.new()
@@ -45,7 +59,60 @@ func _ready() -> void:
 		if not rig.load_rig():
 			push_error("Protagonist cutout could not load: " + str(rig.load_errors))
 		rigs[view] = rig
+	_rest_fallback = AssetLoader.load_texture_source_first(REST_PATH)
+	if _gear_signature.is_empty():
+		set_gear(_equipped)
+	else:
+		_apply_gear()
+		_prepare_rest_texture()
+
+func set_gear(equipped: Dictionary) -> void:
+	var next_signature: String = GearVisuals.signature(equipped)
+	if next_signature == _gear_signature:
+		return
+	_equipped = GearVisuals.resolve(equipped)
+	_gear_signature = next_signature
+	_weapon_motion = GearVisuals.weapon_motion(_equipped)
+	_ranged_motion = GearVisuals.ranged_motion(_equipped)
+	_offhand_kind = GearVisuals.offhand_kind(_equipped)
+	_gear_revision += 1
+	_rest_texture = RestBaker.cached(_gear_signature)
+	if not rigs.is_empty():
+		_apply_gear()
+		_prepare_rest_texture()
+		rest_texture_changed.emit()
+
+func _apply_gear() -> void:
+	for view: String in rigs:
+		rigs[view].apply_gear(GearVisuals.ops_for_facing(_equipped, view))
+	_pose_signature.clear()
 	_apply_pose()
+
+func _prepare_rest_texture() -> void:
+	if _rest_texture != null:
+		return
+	_rest_texture = RestBaker.cached(_gear_signature)
+	if _rest_texture == null and is_inside_tree():
+		var job: Node = RestBaker.request(get_tree(), _gear_signature, _equipped)
+		if job != null and not job.is_connected("baked", _on_rest_baked):
+			job.connect("baked", _on_rest_baked)
+
+func _on_rest_baked(signature: String, baked_texture: Texture2D) -> void:
+	if signature == _gear_signature and baked_texture != null:
+		_rest_texture = baked_texture
+		rest_texture_changed.emit()
+
+func rest_texture() -> Texture2D:
+	return _rest_texture if _rest_texture != null else _rest_fallback
+
+func weapon_motion() -> String:
+	return _weapon_motion
+
+func ranged_motion() -> String:
+	return _ranged_motion
+
+func offhand_kind() -> String:
+	return _offhand_kind
 
 static func walk_cycle_distance() -> float:
 	return (Motion.walk_cycle_info({}, "front")["travel_per_cycle"] as Vector2).length()
@@ -83,7 +150,8 @@ static func attack_trail_phase(progress: float) -> float:
 func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	reduced_motion = reduce
 	active = enabled
-	if ReactionPlayback.present(self, motion):
+	var guard_clip: String = "block_shield" if str(motion.get("clip", "")) == "block" and offhand_kind() == "shield" else ""
+	if ReactionPlayback.present(self, motion, guard_clip):
 		return
 	var delta: Vector2i = motion.get("direction", Vector2i.ZERO)
 	if delta != Vector2i.ZERO:
@@ -97,9 +165,16 @@ func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 		if phase >= 1.0:
 			clip = "idle"
 		else:
-			phase = attack_pose_phase(phase)
+			match weapon_motion():
+				"heavy": clip = "attack_heavy"
+				"stab": clip = "attack_stab"
+				"thrust": clip = "attack_thrust"
+				"lash": clip = "attack_lash"
+				_: phase = attack_pose_phase(phase)
 	if clip in ["cast", "shoot"] and phase >= 1.0 and not reduced_motion:
 		clip = "idle"
+	if clip == "shoot" and not ranged_motion().is_empty():
+		clip = "shoot_" + ranged_motion()
 	if clip == "idle":
 		facing = "front"
 		mirrored = false
@@ -124,7 +199,7 @@ func _process(delta: float) -> void:
 func _apply_pose() -> void:
 	if rigs.is_empty():
 		return
-	var ranged_still: bool = reduced_motion and clip in ["cast", "shoot"]
+	var ranged_still: bool = reduced_motion and clip in ["cast", "shoot", "shoot_bow", "shoot_repeater"]
 	var shown_clip: String = "death" if clip == "death" else clip if ranged_still else "rest" if reduced_motion else clip
 	var shown_phase: float = 1.0 if clip == "death" and reduced_motion else 0.4 if ranged_still else 0.0 if reduced_motion else (_idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase)
 	var signature: Array = [facing, mirrored, shown_clip, shown_phase]
@@ -133,6 +208,9 @@ func _apply_pose() -> void:
 	_pose_signature = signature
 	for view: String in rigs:
 		var rig: Node2D = rigs[view]
+		# Restore carry depth even when action recovery switches to the other
+		# facing and hides the previously extended rear weapon.
+		rig._update_weapon_depth(shown_clip if view == facing else "rest")
 		rig.visible = view == facing
 		if not rig.visible:
 			continue
@@ -154,26 +232,50 @@ func source_socket(shot: bool = false, released: bool = false, direction_delta: 
 		socket_facing = direction["facing"]
 		socket_mirrored = bool(direction["mirrored"])
 	var rig: Node2D = rigs[socket_facing]
-	var bone_name: String = "weapon_l" if shot else "hand_l"
+	var bone_name: String = "crossbow_r" if shot else "hand_l"
 	var point: Vector2
 	var offset: Vector2 = Vector2.ZERO
-	if shot:
-		var raw: Array = rig.layout.get("offhand_attachment", {}).get("muzzle_offset", [0, 0])
+	if shot and not ranged_motion().is_empty():
+		bone_name = "weapon_r"
+		var landmark: String = "assembled" if ranged_motion() == "bow" else "tip"
+		offset = Motion._gear_vector(rig.layout["weapon_grip"][landmark]) - Motion._joint_position(rig.layout, bone_name)
+	elif shot:
+		var raw: Array = rig.layout.get("ranged_attachment", {}).get("muzzle_offset", [0, 0])
 		offset = Vector2(float(raw[0]), float(raw[1]))
 	else:
 		offset = Vector2(-2, 5)
 	if released:
-		var pose: Dictionary = Motion.sample_pose("shoot" if shot else "cast", 0.42, rig.layout, socket_facing)
+		var socket_clip: String = "shoot_" + ranged_motion() if shot and not ranged_motion().is_empty() else "shoot" if shot else "cast"
+		var pose: Dictionary = Motion.sample_pose(socket_clip, 0.42, rig.layout, socket_facing)
 		point = Motion._world_transform(pose, rig.layout, bone_name) * offset
 	else:
 		point = rig.to_local((rig.bones[bone_name] as Bone2D).to_global(offset))
+	if shot and ranged_motion() == "bow":
+		point += preload("res://scripts/protagonist_cutout/full_gear_motion.gd").aim_for_facing(socket_facing) * 6.0
 	return Vector2(SOURCE_SIZE.x - point.x, point.y) if socket_mirrored else point
 
+func weapon_grip_source() -> Vector2:
+	if rigs.is_empty():
+		return SOURCE_SIZE * 0.5
+	var rig: Node2D = rigs[facing]
+	var offset: Vector2 = Motion._gear_vector(rig.layout["weapon_grip"]["assembled"]) - Motion._joint_position(rig.layout, "weapon_r")
+	var point: Vector2 = rig.to_local(rig.bones["weapon_r"].to_global(offset))
+	return Vector2(SOURCE_SIZE.x - point.x, point.y) if mirrored else point
+
 func snapshot() -> Dictionary:
-	var ranged_still: bool = reduced_motion and clip in ["cast", "shoot"]
+	var ranged_still: bool = reduced_motion and clip in ["cast", "shoot", "shoot_bow", "shoot_repeater"]
 	return {"art": "protagonist_cutout_pass9", "facing": facing, "mirrored": mirrored,
 		"clip": "death" if clip == "death" else clip if ranged_still else "rest" if reduced_motion else clip,
 		"phase": 1.0 if clip == "death" and reduced_motion else 0.4 if ranged_still else 0.0 if reduced_motion else (_idle_seconds / IDLE_CYCLE_SECONDS if clip == "idle" else phase),
 		"hand_source": source_socket(), "muzzle_source": source_socket(true),
-		"crossbow_visible": (rigs[facing].bones["weapon_l"] as Bone2D).visible if rigs[facing].bones.has("weapon_l") else false,
+		"crossbow_visible": (rigs[facing].bones["crossbow_r"] as Bone2D).visible if rigs[facing].bones.has("crossbow_r") else false,
+		"gear": _gear_signature, "ranged_motion": ranged_motion(), "offhand_visible": _offhand_visible(),
 		"rig_count": rigs.size(), "texture_id": texture().get_instance_id() if texture() != null else 0}
+
+func _offhand_visible() -> bool:
+	if rigs.is_empty():
+		return false
+	for attachment: Sprite2D in rigs[facing]._gear_attachments:
+		if str(attachment.name) == "GearOffhand":
+			return attachment.visible
+	return false

@@ -352,14 +352,21 @@ func _validate_live_traps(board: Control) -> void:
 		_expect(texture != null, "%s should resolve through the live trap texture registry" % element)
 		var used_rect := Rect2i()
 		if texture != null:
-			_expect(texture.get_size() == Vector2(122, 80), "%s should load the canonical 122x80 asset" % element)
+			# The plate is authored on a 122x80 canvas with a 90x45 visible envelope; the
+			# board density pass resamples it uniformly (spec/board_pixel_density.md), so
+			# both stay exact up to one source pixel of rounding at the current scale.
+			var plate_scale: float = float(texture.get_size().x) / 122.0
+			_expect(
+				absi(texture.get_size().y - roundi(80.0 * plate_scale)) <= 1,
+				"%s should keep the canonical 122x80 canvas proportions" % element
+			)
 			used_rect = texture.get_image().get_used_rect()
 			_expect(
-				used_rect.size == Vector2i(90, 45),
+				absf(used_rect.size.x - 90.0 * plate_scale) <= plate_scale and absf(used_rect.size.y - 45.0 * plate_scale) <= plate_scale,
 				"%s should keep its visible plate inside the approved 90x45 stone-margin envelope" % element
 			)
 			_expect(
-				used_rect.size.x == used_rect.size.y * 2,
+				absi(used_rect.size.x - used_rect.size.y * 2) <= ceili(plate_scale),
 				"%s should use the same 2:1 isometric perspective as the board tile" % element
 			)
 		var trap: Dictionary = _trap_for_element(traps, element)
@@ -369,13 +376,13 @@ func _validate_live_traps(board: Control) -> void:
 		var rect: Rect2 = board.call("_trap_visual_draw_rect", trap) as Rect2
 		_expect(rect.size.x > 0.0 and rect.size.y > 0.0, "%s should have a visible live draw rectangle" % element)
 		_expect(
-			is_equal_approx(rect.size.x / rect.size.y, 122.0 / 80.0),
-			"%s should preserve the canonical trap texture aspect ratio" % element
+			is_equal_approx(rect.size.x / rect.size.y, texture.get_size().x / texture.get_size().y),
+			"%s should preserve the current trap texture aspect ratio" % element
 		)
 		if used_rect.size.x > 0 and used_rect.size.y > 0:
 			var visible_size := Vector2(
-				rect.size.x * float(used_rect.size.x) / 122.0,
-				rect.size.y * float(used_rect.size.y) / 80.0
+				rect.size.x * float(used_rect.size.x) / texture.get_size().x,
+				rect.size.y * float(used_rect.size.y) / texture.get_size().y
 			)
 			var tile_width: float = float(board.call("_tile_width"))
 			var tile_height: float = float(board.call("_tile_height"))

@@ -1,0 +1,900 @@
+[
+ {
+  "kind": "rig",
+  "id": "warden",
+  "dir": "assets/units/stone_warden_cutout",
+  "r": 1.18,
+  "orphan": 18.1,
+  "t": 1.5,
+  "grid": 1.27,
+  "mode": "regrid",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "crawler",
+  "dir": "assets/units/crawler_cutout",
+  "r": 0.64,
+  "orphan": 7.4,
+  "t": 1.0,
+  "grid": 1.56,
+  "mode": "regrid",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "acolyte",
+  "dir": "assets/units/acolyte_cutout",
+  "r": 1.0,
+  "orphan": 5.1,
+  "t": 1.0,
+  "grid": 1.0,
+  "mode": "clean",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "bile_bloomer",
+  "dir": "assets/units/bile_bloomer_cutout",
+  "r": 0.86,
+  "orphan": 39.3,
+  "t": 1.5,
+  "grid": 1.74,
+  "mode": "regrid",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "chainbound_gaoler",
+  "dir": "assets/units/chainbound_gaoler_cutout",
+  "r": 0.9,
+  "orphan": 7.2,
+  "t": 1.0,
+  "grid": 1.11,
+  "mode": "clean",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "cinder_droplet",
+  "dir": "assets/units/cinder_droplet_cutout",
+  "r": 0.56,
+  "orphan": 20.3,
+  "t": 1.5,
+  "grid": 2.68,
+  "mode": "regrid",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "cinder_ooze",
+  "dir": "assets/units/cinder_ooze_cutout",
+  "r": 0.82,
+  "orphan": 19.2,
+  "t": 1.5,
+  "grid": 1.83,
+  "mode": "regrid",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "frostglass_lancer",
+  "dir": "assets/units/frostglass_lancer_cutout",
+  "r": 1.0,
+  "orphan": 6.7,
+  "t": 1.0,
+  "grid": 1.0,
+  "mode": "clean",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "grave_surgeon",
+  "dir": "assets/units/grave_surgeon_cutout",
+  "r": 0.98,
+  "orphan": 23.4,
+  "t": 1.5,
+  "grid": 1.53,
+  "mode": "regrid",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "harrier",
+  "dir": "assets/units/harrier_cutout",
+  "r": 1.0,
+  "orphan": 39.5,
+  "t": 1.5,
+  "grid": 1.5,
+  "mode": "regrid",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "iskaldra",
+  "dir": "assets/units/iskaldra_cutout",
+  "r": 1.78,
+  "orphan": 52.3,
+  "t": 1.5,
+  "grid": 0.84,
+  "mode": "clean",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "lightning_wisp",
+  "dir": "assets/units/lightning_wisp_cutout",
+  "r": 0.68,
+  "orphan": 46.4,
+  "t": 1.5,
+  "grid": 1.5,
+  "mode": "regrid",
+  "note": "line art: coarser grids smear the bolts (design review 2026-10-06)"
+ },
+ {
+  "kind": "rig",
+  "id": "noctyrax",
+  "dir": "assets/units/noctyrax_cutout",
+  "r": 1.86,
+  "orphan": 27.8,
+  "t": 1.5,
+  "grid": 0.81,
+  "mode": "clean",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "tharokh",
+  "dir": "assets/units/tharokh_cutout",
+  "r": 1.78,
+  "orphan": 30.7,
+  "t": 1.5,
+  "grid": 0.84,
+  "mode": "clean",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "vaeloryx",
+  "dir": "assets/units/vaeloryx_cutout",
+  "r": 1.82,
+  "orphan": 40.5,
+  "t": 1.5,
+  "grid": 0.82,
+  "mode": "clean",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "veilbound_acolyte",
+  "dir": "assets/units/veilbound_acolyte_cutout",
+  "r": 1.0,
+  "orphan": 5.1,
+  "t": 1.0,
+  "grid": 1.0,
+  "mode": "clean",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "vyraketh",
+  "dir": "assets/units/vyraketh_cutout",
+  "r": 1.76,
+  "orphan": 41.5,
+  "t": 1.5,
+  "grid": 0.85,
+  "mode": "clean",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "zekarion",
+  "dir": "assets/units/zekarion_cutout",
+  "r": 1.92,
+  "orphan": 45.0,
+  "t": 1.5,
+  "grid": 0.78,
+  "mode": "clean",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "ash_hound",
+  "dir": "assets/units/guardians/ash_hound",
+  "r": 0.75,
+  "orphan": 10.2,
+  "t": 1.0,
+  "grid": 1.33,
+  "mode": "regrid",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "ashen_reaver",
+  "dir": "assets/units/guardians/ashen_reaver",
+  "r": 1.15,
+  "orphan": 8.3,
+  "t": 1.0,
+  "grid": 0.87,
+  "mode": "clean",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "bell_tender",
+  "dir": "assets/units/guardians/bell_tender",
+  "r": 0.75,
+  "orphan": 7.2,
+  "t": 1.0,
+  "grid": 1.33,
+  "mode": "regrid",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "craghide",
+  "dir": "assets/units/guardians/craghide",
+  "r": 1.15,
+  "orphan": 9.1,
+  "t": 1.0,
+  "grid": 0.87,
+  "mode": "clean",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "gallows_roc",
+  "dir": "assets/units/guardians/gallows_roc",
+  "r": 1.15,
+  "orphan": 21.7,
+  "t": 1.5,
+  "grid": 1.3,
+  "mode": "regrid",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "last_lamplighter",
+  "dir": "assets/units/guardians/last_lamplighter",
+  "r": 1.15,
+  "orphan": 18.3,
+  "t": 1.5,
+  "grid": 1.3,
+  "mode": "regrid",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "rime_spitter",
+  "dir": "assets/units/guardians/rime_spitter",
+  "r": 0.75,
+  "orphan": 6.4,
+  "t": 1.0,
+  "grid": 1.33,
+  "mode": "regrid",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "rime_whelp",
+  "dir": "assets/units/guardians/rime_whelp",
+  "r": 0.75,
+  "orphan": 4.6,
+  "t": 1.0,
+  "grid": 1.33,
+  "mode": "regrid",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "rimejaw",
+  "dir": "assets/units/guardians/rimejaw",
+  "r": 1.15,
+  "orphan": 20.2,
+  "t": 1.5,
+  "grid": 1.3,
+  "mode": "regrid",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "roc_fledgling",
+  "dir": "assets/units/guardians/roc_fledgling",
+  "r": 0.75,
+  "orphan": 8.5,
+  "t": 1.0,
+  "grid": 1.33,
+  "mode": "regrid",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "stoneback_mite",
+  "dir": "assets/units/guardians/stoneback_mite",
+  "r": 0.75,
+  "orphan": 1.5,
+  "t": 1.0,
+  "grid": 1.33,
+  "mode": "regrid",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "storm_cantor",
+  "dir": "assets/units/guardians/storm_cantor",
+  "r": 1.15,
+  "orphan": 28.9,
+  "t": 1.5,
+  "grid": 1.3,
+  "mode": "regrid",
+  "note": ""
+ },
+ {
+  "kind": "rig",
+  "id": "wick_shade",
+  "dir": "assets/units/guardians/wick_shade",
+  "r": 0.75,
+  "orphan": 2.8,
+  "t": 1.0,
+  "grid": 1.33,
+  "mode": "regrid",
+  "note": ""
+ },
+ {
+  "kind": "prop",
+  "id": "column_torch_idle",
+  "paths": [
+   "assets/art/tiles/column_torch_left_idle.png",
+   "assets/art/tiles/column_torch_right_idle.png"
+  ],
+  "r": 0.352,
+  "orphan": 0.0,
+  "t": 1.0,
+  "grid": 2.84,
+  "mode": "regrid",
+  "frames": {
+   "grid": [
+    4,
+    4
+   ]
+  },
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "column_torch_static",
+  "paths": [
+   "assets/art/tiles/column_torch_left.png",
+   "assets/art/tiles/column_torch_right.png"
+  ],
+  "r": 1.406,
+  "orphan": 29.8,
+  "t": 1.5,
+  "grid": 1.07,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "campfire",
+  "paths": [
+   "assets/art/tiles/campfire_bonfire.png"
+  ],
+  "r": 0.323,
+  "orphan": 0.0,
+  "t": 1.0,
+  "grid": 3.1,
+  "mode": "regrid",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "campfire_idle",
+  "paths": [
+   "assets/art/tiles/campfire_bonfire_idle.png"
+  ],
+  "r": 0.323,
+  "orphan": 0.0,
+  "t": 1.0,
+  "grid": 3.1,
+  "mode": "regrid",
+  "frames": {
+   "grid": [
+    4,
+    4
+   ]
+  },
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "door",
+  "paths": [
+   "assets/placeholders/tiles/door.png"
+  ],
+  "r": 1.359,
+  "orphan": 6.8,
+  "t": 1.0,
+  "grid": 0.74,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "door_opening",
+  "paths": [
+   "assets/placeholders/tiles/door_opening.png"
+  ],
+  "r": 0.649,
+  "orphan": 1.6,
+  "t": 1.0,
+  "grid": 1.54,
+  "mode": "regrid",
+  "frames": {
+   "rects": "DOOR_OPENING_FRAME_REGIONS (combat_board_view.gd)"
+  },
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "watch_brazier",
+  "paths": [
+   "assets/props/guardians/watch_brazier_dark.png"
+  ],
+  "r": 0.582,
+  "orphan": 3.3,
+  "t": 1.0,
+  "grid": 1.72,
+  "mode": "regrid",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "scavenger_stall",
+  "paths": [
+   "assets/art/tiles/scavenger_stall.png"
+  ],
+  "r": 1.114,
+  "orphan": 36.7,
+  "t": 1.5,
+  "grid": 1.35,
+  "mode": "regrid",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "scavenger_npc",
+  "paths": [
+   "assets/art/npcs/scavenger.png"
+  ],
+  "r": 0.92,
+  "orphan": 30.7,
+  "t": 1.5,
+  "grid": 1.63,
+  "mode": "regrid",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "dropped_embers",
+  "paths": [
+   "assets/art/tiles/dropped_embers.png"
+  ],
+  "r": 0.877,
+  "orphan": 58.9,
+  "t": 1.5,
+  "grid": 1.71,
+  "mode": "regrid",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "emaciated_man_idle",
+  "paths": [
+   "assets/placeholders/units/emaciated_man_anime_trial_idle.png"
+  ],
+  "r": 0.23,
+  "orphan": 0.0,
+  "t": 1.0,
+  "grid": 4.35,
+  "mode": "regrid",
+  "frames": {
+   "grid": [
+    4,
+    2
+   ]
+  },
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "wooden_box",
+  "paths": [
+   "assets/art/tiles/wooden_box.png"
+  ],
+  "r": 1.238,
+  "orphan": 10.8,
+  "t": 1.0,
+  "grid": 0.81,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "wooden_box_destroy",
+  "paths": [
+   "assets/art/tiles/wooden_box_destroy.png"
+  ],
+  "r": 1.238,
+  "orphan": 10.3,
+  "t": 1.0,
+  "grid": 0.81,
+  "mode": "clean",
+  "frames": {
+   "grid": [
+    4,
+    4
+   ]
+  },
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "wooden_crate",
+  "paths": [
+   "assets/art/tiles/wooden_crate.png"
+  ],
+  "r": 1.238,
+  "orphan": 12.6,
+  "t": 1.0,
+  "grid": 0.81,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "wooden_crate_destroy",
+  "paths": [
+   "assets/art/tiles/wooden_crate_destroy.png"
+  ],
+  "r": 1.238,
+  "orphan": 10.5,
+  "t": 1.0,
+  "grid": 0.81,
+  "mode": "clean",
+  "frames": {
+   "grid": [
+    4,
+    4
+   ]
+  },
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "powder_keg",
+  "paths": [
+   "assets/art/tiles/powder_keg.png"
+  ],
+  "r": 1.238,
+  "orphan": 22.7,
+  "t": 1.5,
+  "grid": 1.21,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "relic_chest",
+  "paths": [
+   "assets/art/tiles/relic_chest.png"
+  ],
+  "r": 1.753,
+  "orphan": 27.9,
+  "t": 1.5,
+  "grid": 0.86,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "pillar",
+  "paths": [
+   "assets/placeholders/tiles/pillar.png"
+  ],
+  "r": 1.377,
+  "orphan": 3.6,
+  "t": 1.0,
+  "grid": 0.73,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "moss_pillar_overlay",
+  "paths": [
+   "assets/placeholders/tiles/moss_overlays/moss_pillar_overlay_01.png"
+  ],
+  "r": 1.717,
+  "orphan": 13.5,
+  "t": 1.0,
+  "grid": 0.58,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "floor_tiles",
+  "paths": [
+   "assets/placeholders/tiles/base_floor_tile_02.png",
+   "assets/placeholders/tiles/base_floor_tile_03.png",
+   "assets/placeholders/tiles/base_floor_tile_05.png",
+   "assets/placeholders/tiles/base_floor_tile_06.png"
+  ],
+  "r": 1.772,
+  "orphan": 3.6,
+  "t": 1.0,
+  "grid": 0.56,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "moss_floor_overlays",
+  "paths": [
+   "assets/placeholders/tiles/moss_overlays/moss_floor_overlay_01.png",
+   "assets/placeholders/tiles/moss_overlays/moss_floor_overlay_02.png"
+  ],
+  "r": 1.772,
+  "orphan": 25.2,
+  "t": 1.5,
+  "grid": 0.85,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "fire_floor_overlays",
+  "paths": [
+   "assets/placeholders/tiles/element_overlays/fire/fire_floor_overlay_01.png",
+   "assets/placeholders/tiles/element_overlays/fire/fire_floor_overlay_02.png"
+  ],
+  "r": 1.772,
+  "orphan": 64.4,
+  "t": 1.5,
+  "grid": 0.85,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "ice_floor_overlays",
+  "paths": [
+   "assets/placeholders/tiles/element_overlays/ice/ice_floor_overlay_01.png",
+   "assets/placeholders/tiles/element_overlays/ice/ice_floor_overlay_02.png"
+  ],
+  "r": 1.772,
+  "orphan": 70.5,
+  "t": 1.5,
+  "grid": 0.85,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "lightning_floor_overlays",
+  "paths": [
+   "assets/placeholders/tiles/element_overlays/lightning/lightning_floor_overlay_01.png",
+   "assets/placeholders/tiles/element_overlays/lightning/lightning_floor_overlay_02.png"
+  ],
+  "r": 1.772,
+  "orphan": 13.4,
+  "t": 1.0,
+  "grid": 0.56,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "air_floor_overlays",
+  "paths": [
+   "assets/placeholders/tiles/element_overlays/air/air_floor_overlay_01.png",
+   "assets/placeholders/tiles/element_overlays/air/air_floor_overlay_02.png"
+  ],
+  "r": 1.772,
+  "orphan": 27.3,
+  "t": 1.5,
+  "grid": 0.85,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "trap_air",
+  "paths": [
+   "assets/art/traps/trap_air.png"
+  ],
+  "r": 2.029,
+  "orphan": 36.5,
+  "t": 1.5,
+  "grid": 0.74,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "trap_air_sheets",
+  "paths": [
+   "assets/art/traps/trap_air_idle.png",
+   "assets/art/traps/trap_air_activation.png"
+  ],
+  "r": 2.029,
+  "orphan": 36.5,
+  "t": 1.5,
+  "grid": 0.74,
+  "mode": "clean",
+  "frames": {
+   "grid": [
+    4,
+    4
+   ]
+  },
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "trap_earth",
+  "paths": [
+   "assets/art/traps/trap_earth.png"
+  ],
+  "r": 2.029,
+  "orphan": 31.9,
+  "t": 1.5,
+  "grid": 0.74,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "trap_earth_sheets",
+  "paths": [
+   "assets/art/traps/trap_earth_idle.png",
+   "assets/art/traps/trap_earth_activation.png"
+  ],
+  "r": 2.029,
+  "orphan": 32.0,
+  "t": 1.5,
+  "grid": 0.74,
+  "mode": "clean",
+  "frames": {
+   "grid": [
+    4,
+    4
+   ]
+  },
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "trap_fire",
+  "paths": [
+   "assets/art/traps/trap_fire.png"
+  ],
+  "r": 2.029,
+  "orphan": 37.7,
+  "t": 1.5,
+  "grid": 0.74,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "trap_fire_sheets",
+  "paths": [
+   "assets/art/traps/trap_fire_idle.png",
+   "assets/art/traps/trap_fire_activation.png"
+  ],
+  "r": 2.029,
+  "orphan": 36.7,
+  "t": 1.5,
+  "grid": 0.74,
+  "mode": "clean",
+  "frames": {
+   "grid": [
+    4,
+    4
+   ]
+  },
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "trap_ice",
+  "paths": [
+   "assets/art/traps/trap_ice.png"
+  ],
+  "r": 2.029,
+  "orphan": 35.1,
+  "t": 1.5,
+  "grid": 0.74,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "trap_ice_sheets",
+  "paths": [
+   "assets/art/traps/trap_ice_idle.png",
+   "assets/art/traps/trap_ice_activation.png"
+  ],
+  "r": 2.029,
+  "orphan": 34.8,
+  "t": 1.5,
+  "grid": 0.74,
+  "mode": "clean",
+  "frames": {
+   "grid": [
+    4,
+    4
+   ]
+  },
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "trap_lightning",
+  "paths": [
+   "assets/art/traps/trap_lightning.png"
+  ],
+  "r": 2.029,
+  "orphan": 39.0,
+  "t": 1.5,
+  "grid": 0.74,
+  "mode": "clean",
+  "frames": null,
+  "missing": []
+ },
+ {
+  "kind": "prop",
+  "id": "trap_lightning_sheets",
+  "paths": [
+   "assets/art/traps/trap_lightning_idle.png",
+   "assets/art/traps/trap_lightning_activation.png"
+  ],
+  "r": 2.029,
+  "orphan": 38.6,
+  "t": 1.5,
+  "grid": 0.74,
+  "mode": "clean",
+  "frames": {
+   "grid": [
+    4,
+    4
+   ]
+  },
+  "missing": []
+ }
+]

@@ -1,0 +1,34 @@
+{
+  "item": "splintered_shield",
+  "registry": "assets/units/protagonist_cutout/gear_visuals.json",
+  "facings": {
+    "front": {
+      "attach": [
+        {
+          "name": "GearOffhand",
+          "file": "gear/splintered_shield/front_offhand.png",
+          "bone": "forearm_l",
+          "offset": [
+            158,
+            127
+          ],
+          "z_index": 50
+        }
+      ]
+    },
+    "rear": {
+      "attach": [
+        {
+          "name": "GearOffhand",
+          "file": "gear/splintered_shield/rear_offhand.png",
+          "bone": "forearm_l",
+          "offset": [
+            67,
+            124
+          ],
+          "z_index": 73
+        }
+      ]
+    }
+  }
+}

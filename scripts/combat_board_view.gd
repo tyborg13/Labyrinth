@@ -5,6 +5,7 @@ const PathUtils = preload("res://scripts/path_utils.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
 const UiPaletteTokens = preload("res://scripts/ui_palette.gd")
 const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
+const ProtagonistGearBoard = preload("res://scripts/protagonist_cutout/gear_board.gd")
 var _protagonist_renderer: Node
 var _illusion_renderers: Dictionary = {}
 const LightningWispCutout = preload("res://scripts/lightning_wisp_cutout/renderer.gd")
@@ -486,9 +487,6 @@ const DEFENSE_HEAL_CASTS_COLUMNS: int = 4
 const DEFENSE_HEAL_CASTS_ROWS: int = 3
 const DEFENSE_HEAL_CASTS_FRAMES_PER_KIND: int = 4
 const TRAP_DRAW_WIDTH_SCALE: float = 1.0
-# Trap sources are 122x80 while the isometric tile rectangle is 2:1. Preserve
-# the source aspect instead of vertically compressing the pressure plates.
-const TRAP_DRAW_HEIGHT_SCALE: float = 160.0 / 122.0
 const TRAP_DRAW_Y_OFFSET_SCALE: float = 0.0
 const TRAP_ANIMATION_SHEET_COLUMNS: int = 4
 const TRAP_ANIMATION_SHEET_ROWS: int = 4
@@ -824,7 +822,10 @@ func _ready() -> void:
 	if _uses_protagonist_cutout():
 		_protagonist_renderer = ProtagonistCutout.new()
 		_protagonist_renderer.name = "ProtagonistCutout"
+		_protagonist_renderer.call("set_gear", presentation.get("equipped_equipment", {}))
 		add_child(_protagonist_renderer)
+		_protagonist_renderer.connect("rest_texture_changed", _on_protagonist_rest_texture_changed)
+		ProtagonistGearBoard.sync(self)
 	if not _initial_assets_prepared:
 		_load_assets(false)
 	startup_started = _record_startup_performance_phase("load_assets", startup_started)
@@ -840,6 +841,9 @@ func _uses_protagonist_cutout() -> bool:
 
 func protagonist_animation_snapshot() -> Dictionary:
 	return _protagonist_renderer.call("snapshot") if is_instance_valid(_protagonist_renderer) else {}
+
+func _on_protagonist_rest_texture_changed() -> void:
+	ProtagonistGearBoard.refresh_rest(self)
 
 func unit_cutout_renderer(unit: Dictionary) -> Node:
 	if str(unit.get("type", "")) == "player":
@@ -873,6 +877,7 @@ func _sync_illusion_renderers() -> void:
 		if not is_instance_valid(renderer):
 			renderer = ProtagonistCutout.new()
 			renderer.name = "IllusionCutout_" + actor_key
+			renderer.call("set_gear", presentation.get("equipped_equipment", {}))
 			add_child(renderer)
 			_illusion_renderers[actor_key] = renderer
 		# Sharing player paint must never share the player's live action pose.
@@ -2849,7 +2854,9 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	for key: String in ["preview_units", "death_animation_units", "visible_enemy_ids", "reduced_motion"]:
 		refresh_cutout_roster = refresh_cutout_roster or presentation_changes.has(key)
 	var roster_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
-	if refresh_cutout_roster or presentation_changes.has("illusion_motion"):
+	if refresh_cutout_roster or presentation_changes.has("equipped_equipment"):
+		ProtagonistGearBoard.sync(self)
+	if refresh_cutout_roster or presentation_changes.has("illusion_motion") or presentation_changes.has("equipped_equipment"):
 		_sync_illusion_renderers()
 	roster_phase_started = _record_submission_performance_phase("roster_illusion", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("warden_motion"):
@@ -7057,7 +7064,7 @@ func _foreground_obstruction_entries(units_to_draw: Array[Dictionary]) -> Array[
 			continue
 		entries.append({
 			"tile": trap_tile,
-			"rect": _trap_draw_rect(trap_tile)
+			"rect": _trap_visual_draw_rect(trap)
 		})
 	return entries
 
@@ -10626,15 +10633,22 @@ func _draw_effect_overlay() -> void:
 			if bool(effect.get("harrier_thrust", false)) and not bool(presentation.get("reduced_motion", false)):
 				var thrust: float = HarrierCutout.attack_trail_phase(progress)
 				if thrust >= 0:
-					var contact: Vector2 = to_point + Vector2(0,-24)
-					var direction: Vector2 = (to_point-from_point).normalized()
-					draw_line(contact-direction*22,contact+direction*8,Color(0.85,0.73,0.49,sin(thrust*PI)*0.60),2.0,true)
+					preload("res://scripts/melee_thrust_fx.gd").draw_streak(self, from_point, to_point, thrust, Color(0.85, 0.73, 0.49))
 				return
 			if bool(effect.get("veilbound_acolyte_melee", false)):
 				var strike_start: Vector2 = _veilbound_acolyte_launch_point(effect, from_point + Vector2(0,-24), false)
 				VeilboundAcolyteFx.melee(self,progress,strike_start,to_point+Vector2(0,-24),_tile_width()/150.0,bool(presentation.get("reduced_motion",false)))
 				return
 			var slash_progress: float = progress
+			if bool(effect.get("protagonist_melee", false)) and str(effect.get("protagonist_weapon_motion", "sword")) == "lash":
+				if not bool(presentation.get("reduced_motion", false)):
+					preload("res://scripts/melee_lash_fx.gd").draw(self, _protagonist_socket_world(false, false, Vector2i.ZERO, true), to_point, progress)
+				return
+			if bool(effect.get("protagonist_melee", false)) and str(effect.get("protagonist_weapon_motion", "sword")) in ["stab", "thrust"]:
+				var thrust: float = ProtagonistCutout.attack_trail_phase(progress)
+				if thrust >= 0.0 and not bool(presentation.get("reduced_motion", false)):
+					preload("res://scripts/melee_thrust_fx.gd").draw_protagonist_stab(self, from_point, to_point, thrust, progress)
+				return
 			if bool(effect.get("protagonist_melee", false)) and not bool(presentation.get("reduced_motion", false)):
 				var trail_phase: float = ProtagonistCutout.attack_trail_phase(progress)
 				if trail_phase < 0.0:
@@ -10813,11 +10827,11 @@ func _defense_heal_cast_frame(frame_index: int) -> Texture2D:
 		return null
 	return frames[frame_index] as Texture2D
 
-func _protagonist_socket_world(shot: bool, released: bool = false, direction_delta: Vector2i = Vector2i.ZERO) -> Vector2:
+func _protagonist_socket_world(shot: bool, released: bool = false, direction_delta: Vector2i = Vector2i.ZERO, weapon_grip: bool = false) -> Vector2:
 	var player: Dictionary = combat_state.get("player", {})
 	var unit: Dictionary = {"type": "player", "key": "player", "role": "player", "pos": player.get("pos", Vector2i.ZERO)}
 	var body: Rect2 = _unit_draw_rect(unit)
-	var socket: Vector2 = _protagonist_renderer.call("source_socket", shot, released, direction_delta)
+	var socket: Vector2 = _protagonist_renderer.call("weapon_grip_source") if weapon_grip else _protagonist_renderer.call("source_socket", shot, released, direction_delta)
 	return body.position + body.size * socket / ProtagonistCutout.SOURCE_SIZE
 
 func _acolyte_launch_point(effect: Dictionary, fallback: Vector2) -> Vector2:
@@ -14568,7 +14582,7 @@ func _ensure_unit_assets_for_type(unit_type: String) -> void:
 		_queue_unit_shadow_source_data(unit_type)
 		return
 	if unit_type == "player" and _uses_protagonist_cutout():
-		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(ProtagonistCutout.REST_PATH)
+		_unit_textures[unit_type] = _protagonist_renderer.call("rest_texture") if is_instance_valid(_protagonist_renderer) else ProtagonistGearBoard.detached_rest(presentation.get("equipped_equipment", {}))
 		_queue_unit_shadow_source_data(unit_type)
 		return
 	if unit_type == "player":
@@ -14650,7 +14664,7 @@ func _process_next_unit_shadow_prewarm() -> void:
 		_unit_shadow_prewarm_pending_ids.erase(texture.get_instance_id())
 		return
 	var readback_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
-	var image: Image = texture.get_image()
+	var image: Image = AssetLoader.texture_source_image(texture)
 	_record_submission_performance_phase("shadow_prewarm_image_readback", readback_started)
 	if image == null or image.is_empty():
 		var empty_polygons: Array[PackedVector2Array] = []
@@ -15376,7 +15390,7 @@ func rendered_visual_rects(include_unit_hud: bool = true, include_units: bool = 
 			continue
 		var trap: Dictionary = trap_var
 		if _board_tile_is_visible_to_player(trap.get("pos", Vector2i(-1, -1))):
-			rects.append(_trap_draw_rect(trap.get("pos", Vector2i(-1, -1))))
+			rects.append(_trap_visual_draw_rect(trap))
 	return rects
 
 func enemy_intent_visual_global_rect(actor_key: String) -> Rect2:
@@ -16649,14 +16663,26 @@ func _draw_trap_marker(trap: Dictionary) -> void:
 
 func _trap_visual_draw_rect(trap: Dictionary) -> Rect2:
 	var tile: Vector2i = trap.get("pos", Vector2i(-1, -1))
-	return _trap_draw_rect(tile) if tile.x >= 0 else Rect2()
+	var texture: Texture2D = _trap_textures.get(str(trap.get("element", ElementData.NONE)), null)
+	return _trap_draw_rect(tile, texture) if tile.x >= 0 else Rect2()
 
 func _trap_visual_modulate(_trap: Dictionary) -> Color:
 	return Color.WHITE
 
-func _trap_draw_rect(tile: Vector2i) -> Rect2:
+func _trap_draw_rect(tile: Vector2i, texture: Texture2D = null) -> Rect2:
 	var tile_width: float = _tile_width()
-	var draw_size := Vector2(tile_width * TRAP_DRAW_WIDTH_SCALE, _tile_height() * TRAP_DRAW_HEIGHT_SCALE)
+	if texture == null:
+		for candidate: Texture2D in _trap_textures.values():
+			if candidate != null:
+				texture = candidate
+				break
+	var draw_width: float = tile_width * TRAP_DRAW_WIDTH_SCALE
+	var draw_height: float = draw_width * 80.0 / 122.0
+	if texture != null and texture.get_width() > 0:
+		# Resampling rounds frame dimensions. Markers, tooltips and retained
+		# obstruction/culling rectangles all use the texture's actual aspect.
+		draw_height = draw_width * texture.get_height() / texture.get_width()
+	var draw_size := Vector2(draw_width, draw_height)
 	var center: Vector2 = _tile_center(tile) + Vector2(0.0, _tile_height() * TRAP_DRAW_Y_OFFSET_SCALE)
 	return Rect2(center - draw_size * 0.5, draw_size)
 

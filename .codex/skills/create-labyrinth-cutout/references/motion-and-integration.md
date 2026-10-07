@@ -52,6 +52,8 @@ Enemy cutouts default to **player-facing idle**. Use `scripts/enemy_cutout_facin
 
 Promote reviewed case art/layout/motion into production-owned paths and register the requested actor explicitly. Do not introduce a broad actor-system refactor unless the requested integration requires it. Update that enemy's portrait/turn-clock path independently; a valid body animation does not establish a valid portrait.
 
+Before landing new or repainted board paint: register it by the [density rule](../../../../spec/board_pixel_density.md), adopt the untouched production paint with `process_board_density.py --adopt`, then process → native rest-rebake with `rebake_cutout_rests.gd` → `process_board_density.py --record-rests` → refresh the shadow cache. Run the density check after that sequence. Dedicated portraits and UI-only rigs are outside this board treatment; shared board art used in UI stays treated.
+
 Keep a persistent viewport texture between actions/facings. Every state—idle, travel, attack, spell, block, hit, Blink, defeat, equipment view and resumed save—must continue to use the intended art. Don't restore the old whole-body sprite when one animation ends. Reduced motion should retain the same new art in a still pose with the intended facing policy.
 
 The logical body is 255×255 inside a padded 512×512 action canvas. Body, HP, obstruction and tile geometry use the logical rectangle; padding belongs only to texture submission. Apply squash/echo/death scaling to the logical rectangle before adding transparent padding. Otherwise feet drift when the effect anchors to the padded edge. An extended sword should use the padding without shrinking/recentering the actor every frame.

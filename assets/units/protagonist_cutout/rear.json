@@ -154,11 +154,11 @@
         147
       ]
     },
-    "weapon_l": {
-      "parent": "hand_l",
+    "crossbow_r": {
+      "parent": "hand_r",
       "position": [
-        86,
-        136
+        170,
+        147
       ]
     }
   },
@@ -359,7 +359,7 @@
         136
       ],
       "bone": "weapon_r",
-      "z_index": 66
+      "z_index": 5
     },
     {
       "name": "knee_cover_r",
@@ -386,13 +386,13 @@
     {
       "name": "crossbow",
       "file": "res://assets/units/protagonist_cutout/rear/crossbow.png",
-      "bone": "weapon_l",
+      "bone": "crossbow_r",
       "offset": [
-        78,
-        84
+        162,
+        95
       ],
-      "z_index": 9,
-      "equipment_slot": "offhand"
+      "z_index": 66,
+      "equipment_slot": "weapon"
     }
   ],
   "joint_meshes": [
@@ -206827,7 +206827,7 @@
     "Separately generated shoulder caps, hidden pants, cloak, sword and alternate rear knee/boot views are fitted to recorded landmarks.",
     "The source ownership reconstruction proves segmentation, not the quality of the modified assembled character."
   ],
-  "rest_source_sha256": "bdad21c1e45ea771e347f1b8f8c9cf224c17e38a85d0ee0e5f7b86aa208f1544",
+  "rest_source_sha256": "137001a47dde8d98bd17bd314c61a4ab43d64055871478f2eeb5d89a5b94c6c5",
   "seam_refinement": {
     "baseline_commit": "a01366412c8dd9263044751ac63bce6c556b9544",
     "changes": [
@@ -206872,10 +206872,10 @@
     "rear_leg": "one-source-pixel mesh rows with shared knee and ankle weights; rigid boot retained",
     "rear_cloak": "independent drape widened 70 percent toward the far shoulder and 20 percent toward the near shoulder and raised three pixels; tapers to unchanged hanging tail by y118; underlying shoulder coverage retained"
   },
-  "offhand_attachment": {
+  "ranged_attachment": {
     "grip": [
-      86,
-      136
+      170,
+      147
     ],
     "muzzle_offset": [
       60,

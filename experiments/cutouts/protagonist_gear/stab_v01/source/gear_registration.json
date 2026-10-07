@@ -1,0 +1,58 @@
+{
+  "item": "sawtooth_knife",
+  "registry": "assets/units/protagonist_cutout/gear_visuals.json",
+  "facings": {
+    "front": {
+      "replace": [
+        {
+          "part": "weapon_r",
+          "file": "gear/sawtooth_knife/front_weapon_r.png",
+          "offset": [
+            52,
+            126
+          ]
+        }
+      ],
+      "weapon_grip": {
+        "assembled": [
+          86,
+          135
+        ],
+        "tip": [
+          53,
+          158
+        ],
+        "pommel": [
+          95,
+          129
+        ]
+      }
+    },
+    "rear": {
+      "replace": [
+        {
+          "part": "weapon_r",
+          "file": "gear/sawtooth_knife/rear_weapon_r.png",
+          "offset": [
+            159,
+            138
+          ]
+        }
+      ],
+      "weapon_grip": {
+        "assembled": [
+          170,
+          147
+        ],
+        "tip": [
+          203,
+          170
+        ],
+        "pommel": [
+          161,
+          141
+        ]
+      }
+    }
+  }
+}

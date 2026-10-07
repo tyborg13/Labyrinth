@@ -1,6 +1,6 @@
-# Protagonist casting and offhand crossbow
+# Protagonist casting and main-hand crossbow
 
-Combat attacks now prepare the protagonist's offhand before their existing projectile feedback. The player sees the actor face the selected target, raise a straight arm, briefly charge magic or aim a clearly visible crossbow, release, then return to the front idle. The sword stays in its original hand. This extends the shared board presentation and preserves targeting, rules text, input routes, and outcomes.
+Combat attacks prepare the left casting hand or the right main-hand physical weapon before their existing projectile feedback. The player sees the actor face the selected target, raise the action arm, briefly charge magic or aim, release, then return to the front idle. Generic shots use the temporary crossbow: during its existing visibility window (phase > 0.01 and < 0.94), the main weapon yields and returns afterward. Equipped bows and repeaters stay visible for their own shooting variants, with the generic crossbow hidden. Equipped offhands stay visible in every action; casting retains the main weapon. This extends the shared board presentation and preserves targeting, rules text, input routes, and outcomes.
 
 ## Routing and timing
 
@@ -14,9 +14,9 @@ Reduced motion skips preparation/charge and shows a still raised casting hand or
 
 ## Art and motion
 
-The editable case is `experiments/cutouts/protagonist_ranged/v03`. It retains approved pass-nine inputs and generator provenance. The extra `weapon_l` bone is separate from the glove. Front and rear crossbows are separately painted, 84×54 and 84×64 source pixels, with explicit grip/muzzle registration. After comparing v01 and a threefold enlargement in v02, the user requested the midpoint size. The final v03 registers both images at exactly twice v01’s native dimensions around the same offhand grip, sampling the retained original paint. Versions v01 and v02 and their proof remain available for comparison. PNGs use raw `keep` imports and production paths; the runtime has no experiment dependency.
+The editable case is `experiments/cutouts/protagonist_ranged/v03`. It retains approved pass-nine inputs and generator provenance. Round 2 moves the production attachment to `crossbow_r`, under `hand_r`, separate from the glove and registered at the `weapon_r` joint. The retained case is historical offhand proof; production layouts and the Round 2 motion probe own the current main-hand integration. Front and rear crossbows are separately painted, 84×54 and 84×64 source pixels, with explicit grip/muzzle registration. After comparing v01 and a threefold enlargement in v02, the user requested the midpoint size. The final v03 registers both images at exactly twice v01’s native dimensions around the then-offhand grip, sampling the retained original paint. Versions v01 and v02 and their proof remain available for comparison. PNGs use raw `keep` imports and production paths; the runtime has no experiment dependency.
 
-The requested straight reach preserves each arm's painted width and the rigid glove/weapon. The rear arm recovers its foreshortened length to match the near arm during extension. In the rear shooting view, the body correctly occludes the far arm and grip while the front of the crossbow emerges beyond the shoulder. The rear casting hand lifts outside the cloak so its charge is visible.
+The requested straight reach preserves each arm's painted width and the rigid glove/weapon. Casting retains the left-arm solve, including the rear arm's foreshortening correction and charge clearance outside the cloak. Shooting uses the right arm's painted lengths and the existing raise/recoil/recovery envelopes, aiming along (-1,-0.2) front and (1,-0.3) rear. The left arm stays at its bind pose. Existing crossbow PNGs are unchanged: front grip (76,24), muzzle (12,48); rear grip (8,52), muzzle (68,6). Their source offsets are now (10,111) front and (162,95) rear. Both draw at z 66, over the palm (65) and under the fingers (67). `ranged_attachment.muzzle_offset` retains the painted grip-to-muzzle vectors (-64,24) and (60,-46). Live sockets follow recoil; released sockets sample the .42 pose and retain facing/reflection through idle return. No reach correction or added preparation is needed.
 
 Temporary attachment visibility is a bone pose property and an editable AnimationPlayer track. Unrelated 21-bone idle/walk/sword transforms and static rest/shadow artwork remain unchanged.
 
@@ -29,3 +29,36 @@ The gameplay probe activates actual cards through shared selection/board-target 
 Affected UI rubric rows—state/consequence, gameplay visibility, cohesion, accessibility, interaction completeness, layout resilience, and visual proof—are Pass after inspecting the final 1920×1080/100% gameplay captures, all four facings, preparation/release/recovery cycles, cloak-off anatomy, and both reduced-motion stills. No text, control layout, targeting behavior, or input mapping changed. Native controller hardware and Windows runtime certification are outside this proof; Windows-compatible typed-array assignments are retained.
 
 Final retained proof is under `experiments/cutouts/protagonist_ranged/v03/review/`: gameplay preview with captured timing, native case reel, saved scenes, full and focused suite logs, export-runtime log, 67 real-renderer gameplay screenshots across the main and reduced-motion runs, and matching case verifier results. The complete raw native capture is `/private/tmp/protagonist-ranged-case-v03-accepted` (420 authored frames, 10 pixel-identical saved-scene roundtrips; 933 input and 1087 output hashes verified). Existing full-suite warnings about an intentionally ambiguous legacy save and exit-time ObjectDB cleanup remain; the suite result is Pass.
+
+## Round 2 verification
+
+`tests/suites/protagonist_ranged_suite.gd` is shared by the focused ranged runner
+and protagonist cutout suite. It protects unchanged idle/walk/sword poses,
+classifies actions, checks right-hand grip/muzzle registration, front/rear and
+mirrored sockets, released origins through recovery, visibility and reduced
+shooting stills. The gear suites additionally cover shield and dagger visibility
+in every clip and the one-handed maul. The updated fixed-1920×1080 motion probe
+uses actual card/board handlers for L0/L2 shots southwest/northeast, L0 reflected
+southeast, front/rear casting and the kite/maul slam checkpoints. Round 2 native
+proof (`tests/protagonist_gear_motion_probe.gd`, 116 images at 1920×1080, PASS)
+was inspected by the design owner; the historical proof above predates the
+main-hand crossbow. The production-only PCK still includes no rules/data layer.
+
+## Full-pass bow and repeater
+
+The registry motions `bow` and `repeater` select `shoot_bow` and `shoot_repeater`; every other weapon keeps the generic `shoot`.
+- Both variants keep the shooting preparation, raise, recoil, release at pose .42, recovery and the reduced-motion .40 still.
+- Magic stays `cast`, and these weapons' melee cards use the existing sword cut as a bash.
+- The offhand stays at rest on the left forearm or fist throughout.
+
+Both shots are one-armed. The design owner decided this after the first take tried a two-hand draw: the hero's left arm (37 px painted reach) cannot reach a bow held at arm's length (about 98 px from the left shoulder). The pulled-in pose that resulted read as a stick at the chest and vanished from the rear.
+
+Each variant reuses the main-hand crossbow's right-arm aim and recoil unchanged (front aim (-1,-0.2), rear (1,-0.3)) and changes only the weapon:
+- **Repeater:** points its own grip-to-tip axis along the aim; its tip is the muzzle.
+- **Bow:** held at arm's length perpendicular to the aim, upper limb up and the string toward the hero. Its projectile origin is the registered grip plus 6 px along the aim.
+
+Live origins follow the visible weapon. Released origins sample .42 and stay fixed through recoil, recovery and the idle reset, with reflection applied last.
+
+From the rear, a shooting bow or repeater draws at z 66 in front of the body while the shot is active, because the extended weapon sits beyond the silhouette. Every other rear clip, and a hidden rear rig, returns it to the rear weapon depth (z 5).
+
+Proof: `tests/protagonist_full_gear_motion_test.gd` and the native motion probe r15 (236 images at 1920×1080, inspected by the design owner, including bow and repeater shots front, rear and mirrored southeast).

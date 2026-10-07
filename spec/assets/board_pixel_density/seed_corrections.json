@@ -1,0 +1,114 @@
+[
+  {
+    "id": "moss_pillar_overlay",
+    "seed": {
+      "r": 1.717,
+      "t": 1.0,
+      "grid": 0.58,
+      "mode": "clean"
+    },
+    "verified": {
+      "r": 1.888109333243124,
+      "t": 1.0,
+      "grid": 0.53,
+      "mode": "clean"
+    },
+    "reason": "_pillar_moss_rect: trimmed/fitted pillar draw width (0.8897560975609755) * 0.96 / 112 / (1.03/255)"
+  },
+  {
+    "id": "floor_tiles",
+    "seed": {
+      "r": 1.772,
+      "t": 1.0,
+      "grid": 0.56,
+      "mode": "clean"
+    },
+    "verified": {
+      "r": 2.029285373229349,
+      "t": 1.0,
+      "grid": 0.49,
+      "mode": "clean"
+    },
+    "reason": "_draw_floor_tile / _draw_floor_moss_overlay: tile_width / 122 / (1.03/255)"
+  },
+  {
+    "id": "moss_floor_overlays",
+    "seed": {
+      "r": 1.772,
+      "t": 1.5,
+      "grid": 0.85,
+      "mode": "clean"
+    },
+    "verified": {
+      "r": 2.029285373229349,
+      "t": 1.5,
+      "grid": 0.74,
+      "mode": "clean"
+    },
+    "reason": "_draw_floor_tile / _draw_floor_moss_overlay: tile_width / 122 / (1.03/255)"
+  },
+  {
+    "id": "fire_floor_overlays",
+    "seed": {
+      "r": 1.772,
+      "t": 1.5,
+      "grid": 0.85,
+      "mode": "clean"
+    },
+    "verified": {
+      "r": 2.029285373229349,
+      "t": 1.5,
+      "grid": 0.74,
+      "mode": "clean"
+    },
+    "reason": "_draw_floor_tile / _draw_floor_moss_overlay: tile_width / 122 / (1.03/255)"
+  },
+  {
+    "id": "ice_floor_overlays",
+    "seed": {
+      "r": 1.772,
+      "t": 1.5,
+      "grid": 0.85,
+      "mode": "clean"
+    },
+    "verified": {
+      "r": 2.029285373229349,
+      "t": 1.5,
+      "grid": 0.74,
+      "mode": "clean"
+    },
+    "reason": "_draw_floor_tile / _draw_floor_moss_overlay: tile_width / 122 / (1.03/255)"
+  },
+  {
+    "id": "lightning_floor_overlays",
+    "seed": {
+      "r": 1.772,
+      "t": 1.0,
+      "grid": 0.56,
+      "mode": "clean"
+    },
+    "verified": {
+      "r": 2.029285373229349,
+      "t": 1.5,
+      "grid": 0.74,
+      "mode": "clean"
+    },
+    "reason": "_draw_floor_tile / _draw_floor_moss_overlay: tile_width / 122 / (1.03/255)"
+  },
+  {
+    "id": "air_floor_overlays",
+    "seed": {
+      "r": 1.772,
+      "t": 1.5,
+      "grid": 0.85,
+      "mode": "clean"
+    },
+    "verified": {
+      "r": 2.029285373229349,
+      "t": 1.5,
+      "grid": 0.74,
+      "mode": "clean"
+    },
+    "reason": "_draw_floor_tile / _draw_floor_moss_overlay: tile_width / 122 / (1.03/255)"
+  }
+]

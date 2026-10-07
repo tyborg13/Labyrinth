@@ -45,6 +45,12 @@ func _build_cache() -> Dictionary:
 	for unit_type: String in unit_types:
 		board.call("_ensure_unit_assets_for_type", unit_type)
 	var textures: Array[Texture2D] = []
+	# Keep bare-rig source coverage for gearless fixtures as well as the default
+	# equipped hero. Rest-source art and its identity remain unchanged.
+	_append_unique_texture(textures, preload("res://scripts/asset_loader.gd").load_texture_source_first(preload("res://scripts/protagonist_cutout/renderer.gd").REST_PATH))
+	var default_gear_path: String = preload("res://scripts/protagonist_cutout/renderer.gd").DEFAULT_GEAR_REST_PATH
+	if FileAccess.file_exists(default_gear_path):
+		_append_unique_texture(textures, preload("res://scripts/asset_loader.gd").load_texture_source_first(default_gear_path))
 	for unit_type: String in unit_types:
 		_append_unique_texture(textures, (board.get("_unit_textures") as Dictionary).get(unit_type, null) as Texture2D)
 		for texture_var: Variant in (board.get("_idle_frames_by_type") as Dictionary).get(unit_type, []):
