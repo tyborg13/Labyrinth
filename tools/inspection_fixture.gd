@@ -9,6 +9,7 @@ const GuidedCombatScenario = preload("res://scripts/guided_combat_scenario.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const RoomGenerator = preload("res://scripts/room_generator.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 const DEFAULT_SEED: int = 7262026
@@ -16,6 +17,7 @@ const INVALID_COORD: Vector2i = Vector2i(-999999, -999999)
 const DEFAULT_REWARD_CARDS: Array = ["quick_stab", "pale_spark", "sidestep_slash"]
 const DEFAULT_RELIC_CHOICES: Array = ["iron_lung", "ember_lens", "pilgrim_boots"]
 const VALID_SCENARIOS: Array = ["dragon", "guardian","start", "pre_battle", "combat", "reach_exit", "guided_tutorial", "reward", "campfire", "treasure", "character", "blacksmith", "arcanist", "scavenger", "graftwright", "boss", "victory", "defeat"]
+const INSPECTION_TERRAIN_KINDS: Array = ["wooden_box", "wooden_crate", "powder_keg"]
 const VALID_UMBRA_STAGES: Array = ["clear", "fringe", "advancing", "pressing", "deep", "heart", "eclipse"]
 const MAX_ROUTE_DEPTH: int = RunEngine.MAX_DEPTH - 1
 const MAX_ROUTE_STEPS: int = 4 * RunEngine.MAX_DEPTH * (RunEngine.MAX_DEPTH + 1) + 1
@@ -110,6 +112,7 @@ func _parse_args() -> Dictionary:
 		"surfaces": "",
 		"trap_elements": "",
 		"trap_positions": "",
+		"terrain": "",
 		"reward_cards": "",
 		"relic_choices": "",
 		"relics": "",
@@ -207,6 +210,9 @@ func _parse_args() -> Dictionary:
 			"--trap-positions":
 				index += 1
 				parsed["trap_positions"] = _required_arg(args, index, arg)
+			"--terrain":
+				index += 1
+				parsed["terrain"] = _required_arg(args, index, arg)
 			"--reward-cards":
 				index += 1
 				parsed["reward_cards"] = _required_arg(args, index, arg)
@@ -312,6 +318,7 @@ func _print_help() -> void:
 	print("  --hand card_a,card_b --draw card_c --discard card_d --burned card_e")
 	print("  --surfaces fire@4:3,rubble@4:3,ice@5:4,electrified@6:4")
 	print("  --trap-elements fire,ice [--trap-positions 3:4,5:2]")
+	print("  --terrain wooden_box@2:6,wooden_crate@5:7,powder_keg@7:3")
 	print("  --enemy-types enemy_a,enemy_b --enemy-positions 6:1,5:4 --enemy-intents intent_a,intent_b")
 	print("  --enemy-hp N --equipment-drop equipment_id [--equipment-drop-position 6:5]")
 	print("  --item-drops crimson_draught@2:3,nail_bomb@6:1")
@@ -840,6 +847,10 @@ func _apply_combat_overrides(run_state: Dictionary) -> Dictionary:
 		combat_state = _apply_trap_overrides(combat_state)
 		if _failed:
 			return state
+	if not str(_options.get("terrain", "")).strip_edges().is_empty():
+		combat_state = _apply_terrain_overrides(combat_state)
+		if _failed:
+			return state
 	_apply_surface_overrides(combat_state)
 	if _failed:
 		return state
@@ -1017,6 +1028,33 @@ func _apply_trap_overrides(combat_state: Dictionary) -> Dictionary:
 		traps.append(trap)
 	state["traps"] = traps
 	return state
+
+# Replaces generated terrain with explicit breakable objects, for inspecting their art.
+func _apply_terrain_overrides(combat_state: Dictionary) -> Dictionary:
+	var grid: Array = combat_state.get("grid", [])
+	var blocked: Dictionary = {}
+	blocked[(combat_state.get("player", {}) as Dictionary).get("pos", INVALID_COORD)] = true
+	for collection_key: String in ["enemies", "illusions", "traps"]:
+		for entry_var: Variant in combat_state.get(collection_key, []):
+			if typeof(entry_var) == TYPE_DICTIONARY:
+				blocked[(entry_var as Dictionary).get("pos", INVALID_COORD)] = true
+	var terrain: Array = []
+	for entry: String in _string_list(str(_options.get("terrain", ""))):
+		var pair: PackedStringArray = entry.split("@")
+		if pair.size() != 2 or not INSPECTION_TERRAIN_KINDS.has(pair[0]):
+			_fail("Invalid --terrain entry %s. Use %s@x:y." % [entry, "|".join(INSPECTION_TERRAIN_KINDS)])
+			return combat_state
+		var tile: Vector2i = _parse_colon_coord(pair[1], "--terrain")
+		if _failed:
+			return combat_state
+		if blocked.has(tile) or not _inspection_trap_tile_is_valid(grid, tile):
+			_fail("Terrain tile %s must be a clear in-bounds stone or ember floor tile." % pair[1])
+			return combat_state
+		blocked[tile] = true
+		terrain.append({"id": "inspection_terrain_%d_%d" % [tile.x, tile.y], "kind": pair[0], "pos": tile,
+			"hp": RoomGenerator.TERRAIN_HP, "max_hp": RoomGenerator.TERRAIN_HP})
+	combat_state["terrain"] = terrain
+	return combat_state
 
 func _automatic_inspection_trap_positions(
 	grid: Array,
