@@ -13,7 +13,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from pixel_density import frame_rects, metrics, process
+from pixel_density import classify_alpha, frame_rects, metrics, process
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "spec/assets/board_pixel_density"
@@ -42,7 +42,32 @@ def load_registry() -> dict:
             if path in paths:
                 raise ValueError(f"duplicate registered path: {path}")
             paths.add(path)
+    for entry in registry["entries"]:
+        alpha_source_entry(entry, registry)
     return registry
+
+
+def alpha_source_entry(entry: dict, registry: dict) -> dict:
+    """Resolve the static/measurement owner, rejecting broken family links."""
+    entries = {e["id"]: e for e in registry["entries"]}
+    source, seen = entry, {entry["id"]}
+    while "alpha_class_from" in source:
+        name = source["alpha_class_from"]
+        if not isinstance(name, str) or name not in entries:
+            raise ValueError(f"unknown alpha_class_from for {source['id']}: {name}")
+        if name in seen:
+            raise ValueError(f"cyclic alpha_class_from for {entry['id']}: {name}")
+        seen.add(name)
+        source = entries[name]
+    return source
+
+
+def alpha_settings(entry: dict, registry: dict | None = None) -> dict:
+    source = alpha_source_entry(entry, registry if registry is not None else load_registry())
+    measurement = sample(SOURCES / source["measurement_path"], source["frames"])
+    return {**classify_alpha(measurement), "alpha_class_from": source["id"],
+            "alpha_measurement_path": source["measurement_path"],
+            "alpha_source_pixel_sha256": pixel_digest(measurement)}
 
 
 def source_paths(registry: dict, entries: list[dict]) -> list[str]:
@@ -51,9 +76,12 @@ def source_paths(registry: dict, entries: list[dict]) -> list[str]:
     paths = {registry["hero_reference"]}
     for entry in entries:
         paths.update(entry["paths"])
-        paths.add(entry["measurement_path"])
+        for settings in entry.get("facings", {"": entry}).values():
+            paths.add(settings["measurement_path"])
         for rests in entry.get("rest_paths", {}).values():
             paths.update(rests)
+        if "alpha_class_from" in entry:
+            paths.add(alpha_source_entry(entry, registry)["measurement_path"])
     return sorted(paths)
 
 
@@ -84,13 +112,31 @@ def pixel_digest(image: Image.Image) -> str:
     return hashlib.sha256(b"RGBA\0" + struct.pack(">II", *rgba.size) + rgba.tobytes()).hexdigest()
 
 
+def settings_for_path(entry: dict, path: str) -> dict:
+    if "facings" not in entry:
+        return entry
+    facing = Path(path).parent.name
+    if facing not in entry["facings"]:
+        raise ValueError(f"no facing settings for {path}")
+    return entry["facings"][facing]
+
+
 def derive(entry: dict, path: str) -> tuple[Image.Image, dict]:
     source = SOURCES / path
+    settings = settings_for_path(entry, path)
+    alpha = alpha_settings(entry) if settings["mode"] == "resample" else {}
     with Image.open(source) as original:
-        output = process(original, entry["mode"], entry["grid"], entry["frames"])
+        output = process(original, settings["mode"], settings["grid"], entry["frames"],
+                         settings.get("scale", 1.0), alpha.get("alpha_class"))
         source_digest = pixel_digest(original)
-    return output, {"pixel_sha256": pixel_digest(output), "source_pixel_sha256": source_digest,
-                  "id": entry["id"], "mode": entry["mode"], "grid": entry["grid"]}
+    record = {"pixel_sha256": pixel_digest(output), "source_pixel_sha256": source_digest,
+              "id": entry["id"], "mode": settings["mode"], "grid": settings["grid"]}
+    if "facings" in entry:
+        record["facing"] = Path(path).parent.name
+    if settings["mode"] == "resample":
+        record["scale"] = settings["scale"]
+        record.update(alpha)
+    return output, record
 
 
 def same_pixels(path: Path, expected: Image.Image) -> bool:
@@ -181,40 +227,54 @@ def sample(path: Path, frames: dict | None) -> Image.Image:
 
 def report(registry: dict) -> None:
     lines = ["# Board pixel-density report", "",
-             "All measurements are at native resolution; orphan share uses alpha > 0 and threshold 24.",
-             "Native is the untouched front rest (rig) or first frame of the first path (prop).",
-             "Before/after are arithmetic means over the first frame of each registered painted part/path.",
-             "After is derived from sources in memory; it does not claim a GPU rest rebake or visual approval.",
-             "Horizontal runs are multiplied by r for the relative on-screen block size.", "",
-             "| Entry | r | t | grid | mode | Native orphan / run | Before orphan / run | After orphan / run | Screen run before → after |",
-             "| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |"]
+             "Native calibration uses each facing's untouched rest or the first prop frame.",
+             "Before/after are means over the first frame of each registered paint path.",
+             "After derives from sources in memory; native rest/visual proof is separate.",
+             "Pixel ratios are relative to the hero: resample changes r to r/scale = 1.0;",
+             "integer frame-size rounding can differ slightly from that ideal ratio.", "",
+             "| Entry / facing | r | t | grid | mode | Pixel ratio old → new | Native orphan / run | Before orphan / run | After orphan / run | Screen run before → after |",
+             "| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: |"]
     hero = metrics(sample(SOURCES / registry["hero_reference"], None))
     label = lambda m: f"{100*m['orphan_share']:.2f}% / {m['run_length']:.3f}"
-    lines.append(f"| Hero front (reference, untouched) | 1 | — | — | reference | {label(hero)} | {label(hero)} | {label(hero)} | {hero['run_length']:.3f} → {hero['run_length']:.3f} |")
+    lines.append(f"| Hero front (untouched reference) | 1 | — | — | reference | 1.000 → 1.000 | {label(hero)} | {label(hero)} | {label(hero)} | {hero['run_length']:.3f} → {hero['run_length']:.3f} |")
     for entry in registry["entries"]:
-        native = metrics(sample(SOURCES / entry["measurement_path"], entry["frames"]))
-        before, after = [], []
-        for path in entry["paths"]:
-            im = sample(SOURCES / path, entry["frames"])
-            before.append(metrics(im))
-            after.append(metrics(process(im, entry["mode"], entry["grid"], None)))
-        mean = lambda values: {key: sum(m[key] for m in values) / len(values) for key in hero}
-        b, a = mean(before), mean(after)
-        lines.append(f"| {entry['id']} | {entry['r']:.6f} | {entry['t']} | {entry['grid']:.2f} | {entry['mode']} | {label(native)} | {label(b)} | {label(a)} | {b['run_length']*entry['r']:.3f} → {a['run_length']*entry['r']:.3f} |")
-    lines += ["", "## Scale mismatches for owner decision", "",
-              "Entries with r > 1.25 already draw larger pixels than the hero. They receive native cleanup;",
-              "only a higher-resolution repaint could match the hero exactly. No draw-code change is made.", ""]
+        for facing, settings in entry.get("facings", {"": entry}).items():
+            alpha = alpha_settings(entry, registry) if settings["mode"] == "resample" else {}
+            paths = [p for p in entry["paths"] if not facing or Path(p).parent.name == facing]
+            native = metrics(sample(SOURCES / settings["measurement_path"], entry["frames"]))
+            before, after = [], []
+            for path in paths:
+                im = sample(SOURCES / path, entry["frames"])
+                before.append(metrics(im))
+                after.append(metrics(process(im, settings["mode"], settings["grid"], None,
+                                             settings.get("scale", 1.0), alpha.get("alpha_class"))))
+            mean = lambda values: {key: sum(m[key] for m in values) / len(values) for key in hero}
+            b, a = mean(before), mean(after)
+            new_r = entry["r"] / settings.get("scale", 1.0)
+            name = entry["id"] + (" / " + facing if facing else "")
+            lines.append(f"| {name} | {entry['r']:.6f} | {settings['t']:.4f} | {settings['grid']:.2f} | {settings['mode']} | {entry['r']:.3f} → {new_r:.3f} | {label(native)} | {label(b)} | {label(a)} | {b['run_length']*entry['r']:.3f} → {a['run_length']*new_r:.3f} |")
+    lines += ["", "## Fixed rig geometry", "",
+              "Rigs retain their 255-pixel logical canvas and never resample. Dragon pixels",
+              "still draw larger than the hero; native cleanup preserves their fixed geometry.", "",
+              "## Resample alpha families", "",
+              "Each entry measures once; linked sheets/parts inherit their static family source.",
+              "The translucent fraction counts 64 ≤ alpha < 240 among nonzero source pixels.", "",
+              "| Entry | Measurement owner | Alpha class | Translucent fraction | Measurement path |",
+              "| --- | --- | --- | ---: | --- |"]
     for entry in registry["entries"]:
-        if entry["r"] > 1.25:
-            lines.append(f"- `{entry['id']}`: r = {entry['r']:.6f}, {entry['mode']}.")
-    lines += ["", "## Production files per entry", "",
-              "Listed paths are regenerated. A † marks an image whose decoded pixels change from its source.", ""]
+        if entry.get("mode") == "resample":
+            alpha = alpha_settings(entry, registry)
+            lines.append(f"| {entry['id']} | {alpha['alpha_class_from']} | {alpha['alpha_class']} | {alpha['translucent_alpha_fraction']:.6f} | `{alpha['alpha_measurement_path']}` |")
+    lines += ["",
+              "## Production files per entry", "",
+              "A † marks changed decoded pixels or dimensions relative to untouched source paint.", ""]
     for entry in registry["entries"]:
         lines += [f"### {entry['id']}", ""]
         for path in entry["paths"]:
+            image, _ = derive(entry, path)
             with Image.open(SOURCES / path) as original:
                 im = original.convert("RGBA")
-            changed = im.tobytes() != process(im, entry["mode"], entry["grid"], entry["frames"]).tobytes()
+            changed = im.size != image.size or im.tobytes() != image.tobytes()
             lines.append(f"- `{path}`" + (" †" if changed else " (pixels unchanged)"))
         lines.append("")
     REPORT.write_text("\n".join(lines) + "\n")

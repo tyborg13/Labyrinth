@@ -51,6 +51,7 @@ const SkillTreeCompletionEquivalenceSuite = preload("res://tests/suites/skill_tr
 const TerrainConnectivityEquivalenceSuite = preload("res://tests/suites/terrain_connectivity_equivalence_suite.gd")
 const MapUiSuite = preload("res://tests/suites/map_ui_suite.gd")
 const CombatBoardLayoutSuite = preload("res://tests/suites/combat_board_layout_suite.gd")
+const BoardDensityConsumerSuite = preload("res://tests/suites/board_density_consumer_suite.gd")
 const EnemyIntentCompassSuite = preload("res://tests/suites/enemy_intent_compass_suite.gd")
 const HealthBarThemeSuite = preload("res://tests/suites/health_bar_theme_suite.gd")
 const UmbraActionAnimationSuite = preload("res://tests/suites/umbra_action_animation_suite.gd")
@@ -170,6 +171,7 @@ func _initialize() -> void:
 	TerrainConnectivityEquivalenceSuite.run(Callable(self, "_assert"))
 	MapUiSuite.run(Callable(self, "_assert"))
 	CombatBoardLayoutSuite.run(Callable(self, "_assert"))
+	BoardDensityConsumerSuite.run(Callable(self, "_assert"))
 	preload("res://tests/suites/actor_presentation_suite.gd").run(Callable(self, "_assert"))
 	EnemyIntentCompassSuite.run(Callable(self, "_assert"))
 	HealthBarThemeSuite.run(Callable(self, "_assert"))
@@ -6126,7 +6128,8 @@ func _test_terrain_destruction_sheets_load_for_full_prop_roster() -> void:
 	board.visible = true
 	board.call("_load_assets")
 	for terrain_kind: String in ["wooden_box", "wooden_crate"]:
-		var expected_frame_size: Vector2 = Vector2(128.0, 128.0) if terrain_kind == "wooden_box" else Vector2(120.0, 152.0)
+		var intact_texture: Texture2D = (board.get("_terrain_textures") as Dictionary).get(terrain_kind, null)
+		var expected_frame_size: Vector2 = intact_texture.get_size()
 		var expected_last_origin: Vector2 = Vector2(expected_frame_size.x * 3.0, expected_frame_size.y * 3.0)
 		var destruction_path: String = "res://assets/art/tiles/%s_destroy.png" % terrain_kind
 		var terrain := {
@@ -6142,7 +6145,7 @@ func _test_terrain_destruction_sheets_load_for_full_prop_roster() -> void:
 		if destruction_frames.size() >= 16:
 			var first_frame: AtlasTexture = destruction_frames[0] as AtlasTexture
 			var last_frame: AtlasTexture = destruction_frames[destruction_frames.size() - 1] as AtlasTexture
-			_assert((destruction_frames[0] as Texture2D).get_size() == expected_frame_size, "%s destruction frames should preserve the native prop canvas" % terrain_kind)
+			_assert((destruction_frames[0] as Texture2D).get_size() == expected_frame_size, "%s destruction frames should preserve the standing prop canvas" % terrain_kind)
 			_assert(first_frame != null and last_frame != null, "%s destruction frames should be atlas-backed slices" % terrain_kind)
 			_assert(first_frame.region.position == Vector2.ZERO, "%s destruction animation should begin at the intact source frame" % terrain_kind)
 			_assert(last_frame.region.position == expected_last_origin, "%s destruction animation should include the final 4x4 source frame" % terrain_kind)
@@ -6150,7 +6153,7 @@ func _test_terrain_destruction_sheets_load_for_full_prop_roster() -> void:
 		_assert(is_equal_approx(float(board.call("_terrain_destruction_frame_seconds", terrain)), 0.065), "%s destruction animation should use the configured frame cadence" % terrain_kind)
 	# The powder keg has its own standing art and splinters with the wooden box sheet.
 	var keg_texture: Texture2D = (board.get("_terrain_textures") as Dictionary).get("powder_keg", null) as Texture2D
-	_assert(keg_texture != null and keg_texture.get_size() == Vector2(128.0, 128.0), "The powder keg should draw its purpose-built 128px board art")
+	_assert(keg_texture != null and keg_texture.get_size() == (board.get("_terrain_textures") as Dictionary).get("wooden_box").get_size(), "The powder keg should retain the standing box canvas after resampling")
 	var keg_frames: Array = board.call("_terrain_destruction_frames_for_kind", "powder_keg")
 	var box_frames: Array = board.call("_terrain_destruction_frames_for_kind", "wooden_box")
 	_assert(keg_frames.size() == 16 and box_frames.size() == 16, "The powder keg should break apart with all 16 wooden box destruction frames")
@@ -6175,17 +6178,18 @@ func _test_elemental_trap_animation_sheets_load_and_respect_reduced_motion() -> 
 	var static_textures: Dictionary = board.get("_trap_textures") as Dictionary
 	var idle_registry: Dictionary = board.get("_trap_idle_frames") as Dictionary
 	var activation_registry: Dictionary = board.get("_trap_activation_frames") as Dictionary
-	var stable_plate_samples: Array[Vector2i] = [Vector2i(20, 38), Vector2i(102, 38), Vector2i(61, 59)]
+	var stable_plate_samples := PackedVector2Array([Vector2(20.0/122.0, 38.0/80.0), Vector2(102.0/122.0, 38.0/80.0), Vector2(61.0/122.0, 59.0/80.0)])
 	for element_id: String in ElementData.all_elements():
 		var idle_frames: Array = idle_registry.get(element_id, []) as Array
 		var activation_frames: Array = activation_registry.get(element_id, []) as Array
 		_assert(idle_frames.size() == 16, "%s trap idle should load all 16 Retro Diffusion frames" % element_id)
 		_assert(activation_frames.size() == 16, "%s trap activation should load all 16 Retro Diffusion frames" % element_id)
-		if idle_frames.size() == 16:
-			_assert((idle_frames[0] as Texture2D).get_size() == Vector2(122.0, 80.0), "%s trap idle should preserve the native 122x80 canvas" % element_id)
-		if activation_frames.size() == 16:
-			_assert((activation_frames[0] as Texture2D).get_size() == Vector2(122.0, 80.0), "%s trap activation should preserve the native 122x80 canvas" % element_id)
 		var base_image: Image = Image.load_from_file(ProjectSettings.globalize_path("res://assets/art/traps/trap_%s.png" % element_id))
+		var frame_size: Vector2i = base_image.get_size()
+		if idle_frames.size() == 16:
+			_assert((idle_frames[0] as Texture2D).get_size() == Vector2(frame_size), "%s trap idle should preserve the static plate canvas" % element_id)
+		if activation_frames.size() == 16:
+			_assert((activation_frames[0] as Texture2D).get_size() == Vector2(frame_size), "%s trap activation should preserve the static plate canvas" % element_id)
 		var idle_sheet: Image = Image.load_from_file(ProjectSettings.globalize_path("res://assets/art/traps/trap_%s_idle.png" % element_id))
 		var activation_sheet: Image = Image.load_from_file(ProjectSettings.globalize_path("res://assets/art/traps/trap_%s_activation.png" % element_id))
 		_assert(not base_image.is_empty(), "%s trap static plate should be readable for animation validation" % element_id)
@@ -6193,17 +6197,18 @@ func _test_elemental_trap_animation_sheets_load_and_respect_reduced_motion() -> 
 		_assert(not activation_sheet.is_empty(), "%s trap activation sheet should be readable for animation validation" % element_id)
 		if not base_image.is_empty() and not idle_sheet.is_empty():
 			for frame_index: int in range(16):
-				var frame_origin := Vector2i((frame_index % 4) * 122, (frame_index / 4) * 80)
-				for sample: Vector2i in stable_plate_samples:
+				var frame_origin := Vector2i((frame_index % 4) * frame_size.x, (frame_index / 4) * frame_size.y)
+				for sample_uv: Vector2 in stable_plate_samples:
+					var sample := Vector2i((sample_uv * Vector2(frame_size)).round())
 					_assert(
 						idle_sheet.get_pixelv(frame_origin + sample) == base_image.get_pixelv(sample),
 						"%s trap idle frame %d should not wobble or recolor the approved plate" % [element_id, frame_index]
 					)
 		if not activation_sheet.is_empty():
-			_assert(activation_sheet.get_region(Rect2i(Vector2i.ZERO, Vector2i(122, 80))).get_used_rect().size != Vector2i.ZERO, "%s trap activation should begin with a visible plate" % element_id)
+			_assert(activation_sheet.get_region(Rect2i(Vector2i.ZERO, frame_size)).get_used_rect().size != Vector2i.ZERO, "%s trap activation should begin with a visible plate" % element_id)
 			for final_frame_index: int in [13, 14, 15]:
-				var final_origin := Vector2i((final_frame_index % 4) * 122, (final_frame_index / 4) * 80)
-				var final_frame: Image = activation_sheet.get_region(Rect2i(final_origin, Vector2i(122, 80)))
+				var final_origin := Vector2i((final_frame_index % 4) * frame_size.x, (final_frame_index / 4) * frame_size.y)
+				var final_frame: Image = activation_sheet.get_region(Rect2i(final_origin, frame_size))
 				_assert(final_frame.get_used_rect().size == Vector2i.ZERO, "%s trap activation frame %d should be fully transparent after the trap is consumed" % [element_id, final_frame_index])
 	var fire_trap: Dictionary = (board.combat_state.get("traps", []) as Array)[0] as Dictionary
 	_assert(bool(board.call("_trap_idle_animation_active", fire_trap)), "Trap idle animation should run for an armed on-board plate")

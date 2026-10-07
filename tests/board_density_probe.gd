@@ -21,7 +21,7 @@ const DensitySettings = preload("res://scripts/settings_store.gd")
 const DensityBoardBase = preload("res://scripts/combat_board_view.gd")
 const DENSITY_SIZE := Vector2i(1920, 1080)
 const DENSITY_SEED: int = 7262026
-const DENSITY_SCENES: Array = ["props", "small_a", "small_b", "mixed_a", "mixed_b", "guardians", "dragon", "campfire", "scavenger", "start", "relic_chest"]
+const DENSITY_SCENES: Array = ["props", "small_a", "small_b", "mixed_a", "mixed_b", "guardians", "rear_a", "rear_b", "dragon", "campfire", "scavenger", "start", "relic_chest"]
 # Explicit rosters: at most three actors, spaced so no sprite or HP bar overlaps another's crop.
 const DENSITY_ROSTERS: Dictionary = {
 	"props": ["crawler"],
@@ -30,6 +30,9 @@ const DENSITY_ROSTERS: Dictionary = {
 	"mixed_a": ["warden", "grave_surgeon", "frostglass_lancer"],
 	"mixed_b": ["chainbound_gaoler", "acolyte", "veilbound_acolyte"],
 	"guardians": ["storm_cantor", "rime_spitter", "wick_shade"],
+	# The hero stands above these rosters, so they face away and show their rear paint.
+	"rear_a": ["chainbound_gaoler", "frostglass_lancer", "craghide"],
+	"rear_b": ["bell_tender", "ash_hound", "roc_fledgling"],
 }
 const DENSITY_REAR_SCENE: String = "small_a"
 var _density_output: String
@@ -223,11 +226,15 @@ func _density_roster_run(scene_name: String, progression: Dictionary) -> Diction
 	var types: Array = DENSITY_ROSTERS[scene_name]
 	# Screen columns (x - y) at least 3 apart, or rows (x + y) at least 7 apart.
 	var positions: Array[Vector2i]
+	var player_start: Vector2i = Vector2i(6, 7)
 	if scene_name == "props":
 		positions.assign([Vector2i(1, 8)])
+		player_start = Vector2i(6, 8)
+	elif scene_name.begins_with("rear_"):
+		positions.assign([Vector2i(6, 7), Vector2i(7, 4), Vector2i(3, 7)])
+		player_start = Vector2i(2, 2)
 	else:
 		positions.assign([Vector2i(2, 2), Vector2i(6, 3), Vector2i(2, 6)])
-	var player_start: Vector2i = Vector2i(6, 8) if scene_name == "props" else Vector2i(6, 7)
 	var grid: Array = []
 	for y: int in range(10):
 		var row: Array = []
@@ -300,6 +307,8 @@ func _density_scene_manifest(scene_name: String) -> Dictionary:
 			actor_phases[str(unit["key"])] = {"clip": snapshot.get("clip", ""), "phase": snapshot.get("phase", -1.0),
 				"facing": snapshot.get("facing", ""), "mirrored": snapshot.get("mirrored", false)}
 			_density_check(is_zero_approx(float(snapshot.get("phase", -1.0))), scene_name + ": cutout phase zero " + str(unit["key"]))
+			if scene_name.begins_with("rear_") and str(unit["key"]) != "player":
+				_density_check(str(snapshot.get("facing", "")) == "rear", scene_name + ": enemy shows its rear view " + str(unit["key"]))
 		_density_add_rect(rects, str(unit["key"]), str(unit["type"]), "actor", rect)
 	var state: Dictionary = _density_board.get("combat_state")
 	var grid: Array = state.get("grid", [])
@@ -383,7 +392,7 @@ func _density_verify_manifest(scene_name: String, manifest: Dictionary) -> void:
 		"props":
 			required.append_array(["fire_trap", "ice_trap", "wooden_box", "wooden_crate", "powder_keg", "pillar",
 				"column_torch_left", "column_torch_right", "door", "dropped_embers"])
-		"small_a", "small_b", "mixed_a", "mixed_b":
+		"small_a", "small_b", "mixed_a", "mixed_b", "rear_a", "rear_b":
 			required.append_array(DENSITY_ROSTERS[scene_name])
 		"guardians":
 			required.append_array(DENSITY_ROSTERS[scene_name] + ["watch_brazier_dark"])

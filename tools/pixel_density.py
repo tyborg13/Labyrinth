@@ -1,7 +1,7 @@
 """Shared pixel-density operations for painted RGBA assets.
 
-Gear keeps its accepted palette/outline pipeline. Board treatment changes only
-interior RGB, retaining native alpha, hidden RGB and the original silhouette edge.
+Gear keeps its accepted palette/outline pipeline. Native board treatment retains
+alpha and edges; oversized props resample onto the hero's source-pixel scale.
 """
 from __future__ import annotations
 
@@ -138,9 +138,90 @@ def frame_rects(size: tuple[int, int], frames: dict | None) -> list[tuple[int, i
     return rects
 
 
-def process(im: Image.Image, mode: str, grid: float, frames: dict | None = None) -> Image.Image:
+def strength(orphan_share: float) -> float:
+    return 1.0 + 0.5 * min(1.0, max(0.0, (orphan_share - 0.05) / 0.10))
+
+
+def classify_alpha(im: Image.Image) -> dict[str, str | float]:
+    """Visibly translucent paint is soft; faint halos/near-opaque paint are solid."""
+    alpha = np.asarray(im.convert("RGBA"))[..., 3]
+    visible = alpha > 0
+    fraction = float(((alpha >= 64) & (alpha < 240)).sum()) / max(int(visible.sum()), 1)
+    return {"alpha_class": "soft" if fraction >= 0.10 else "solid",
+            "translucent_alpha_fraction": fraction}
+
+
+def _upscale_channels(premultiplied: np.ndarray, size: tuple[int, int], method: Image.Resampling) -> np.ndarray:
+    return np.stack([np.asarray(Image.fromarray(premultiplied[..., c]).resize(
+        size, method)) for c in range(4)], -1)
+
+
+def _unpremultiplied_rgb(pixels: np.ndarray) -> np.ndarray:
+    alpha = pixels[..., 3:4].clip(0, 255)
+    return np.where(alpha > 1e-3, pixels[..., :3] * 255.0 / np.maximum(alpha, 1e-3), 0).clip(0, 255)
+
+
+def resample_frame(im: Image.Image, scale: float, grid: float = 1.5,
+                   alpha_class: str | None = None) -> Image.Image:
+    """Solid Lanczos body/bilinear halo, or soft bilinear, within source support."""
+    if not math.isfinite(scale) or scale <= 0:
+        raise ValueError("scale must be positive and finite")
+    if alpha_class is None:
+        alpha_class = str(classify_alpha(im)["alpha_class"])
+    if alpha_class not in ("solid", "soft"):
+        raise ValueError("alpha_class must be solid or soft")
+    source = np.asarray(im.convert("RGBA"))
+    size = (max(1, round(im.width * scale)), max(1, round(im.height * scale)))
+    solid = alpha_class == "solid"
+    premultiplied = source.astype(np.float32)
+    premultiplied[..., :3] *= premultiplied[..., 3:4] / 255.0
+    bilinear = _upscale_channels(premultiplied, size, Image.Resampling.BILINEAR)
+    near = np.asarray(im.convert("RGBA").resize(size, Image.Resampling.NEAREST))
+    support = near[..., 3] > 0
+    alpha = np.where(support, np.rint(bilinear[..., 3].clip(0, 255)), 0)
+    rgb = _unpremultiplied_rgb(bilinear)
+    if solid:
+        lanczos = _upscale_channels(premultiplied, size, Image.Resampling.LANCZOS)
+        body = (lanczos[..., 3].clip(0, 255) >= 128) & support
+        alpha = np.where(body, 255, alpha)
+        rgb = np.where(body[..., None], _unpremultiplied_rgb(lanczos), rgb)
+    pixels = np.dstack((rgb, alpha))
+    hidden = alpha == 0
+    pixels[hidden, :3] = near[hidden, :3]
+    output = np.asarray(regrid(Image.fromarray(np.rint(pixels).astype(np.uint8)), grid)).copy()
+    if solid:
+        # Restore the solid body's own outline, even when a faint halo surrounds
+        # it. Restoring the full nonzero-alpha edge would miss that dark rim.
+        ring = edge_ring(body) & (near[..., 3] >= 128)
+        output[ring, :3] = near[ring, :3]
+    return Image.fromarray(output)
+
+
+def resample(im: Image.Image, scale: float, grid: float, frames: dict | None,
+             alpha_class: str | None = None) -> Image.Image:
+    rects = frame_rects(im.size, frames)
+    if frames is not None and "grid" not in frames:
+        raise ValueError("resample sheets require a regular frame grid")
+    cols, rows = (1, 1) if frames is None else frames["grid"]
+    first_source = im.crop((0, 0, rects[0][2], rects[0][3]))
+    # Sheet-only callers measure frame 0 once; registered families supply the
+    # static measurement's class so their shared paint uses the same path.
+    if alpha_class is None:
+        alpha_class = str(classify_alpha(first_source)["alpha_class"])
+    first = resample_frame(first_source, scale, grid, alpha_class)
+    output = Image.new("RGBA", (first.width * cols, first.height * rows))
+    for index, (x, y, w, h) in enumerate(rects):
+        frame = first if index == 0 else resample_frame(im.crop((x, y, x+w, y+h)), scale, grid, alpha_class)
+        output.paste(frame, ((index % cols) * first.width, (index // cols) * first.height))
+    return output
+
+
+def process(im: Image.Image, mode: str, grid: float, frames: dict | None = None,
+            scale: float = 1.0, alpha_class: str | None = None) -> Image.Image:
+    if mode == "resample":
+        return resample(im, scale, grid, frames, alpha_class)
     if mode not in ("clean", "regrid"):
-        raise ValueError("mode must be clean or regrid")
+        raise ValueError("mode must be clean, regrid or resample")
     source = im.convert("RGBA")
     output = source.copy()
     for x, y, w, h in frame_rects(source.size, frames):

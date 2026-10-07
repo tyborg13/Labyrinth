@@ -486,9 +486,6 @@ const DEFENSE_HEAL_CASTS_COLUMNS: int = 4
 const DEFENSE_HEAL_CASTS_ROWS: int = 3
 const DEFENSE_HEAL_CASTS_FRAMES_PER_KIND: int = 4
 const TRAP_DRAW_WIDTH_SCALE: float = 1.0
-# Trap sources are 122x80 while the isometric tile rectangle is 2:1. Preserve
-# the source aspect instead of vertically compressing the pressure plates.
-const TRAP_DRAW_HEIGHT_SCALE: float = 160.0 / 122.0
 const TRAP_DRAW_Y_OFFSET_SCALE: float = 0.0
 const TRAP_ANIMATION_SHEET_COLUMNS: int = 4
 const TRAP_ANIMATION_SHEET_ROWS: int = 4
@@ -6926,7 +6923,7 @@ func _foreground_obstruction_entries(units_to_draw: Array[Dictionary]) -> Array[
 			continue
 		entries.append({
 			"tile": trap_tile,
-			"rect": _trap_draw_rect(trap_tile)
+			"rect": _trap_visual_draw_rect(trap)
 		})
 	return entries
 
@@ -15138,7 +15135,7 @@ func rendered_visual_rects(include_unit_hud: bool = true, include_units: bool = 
 			continue
 		var trap: Dictionary = trap_var
 		if _board_tile_is_visible_to_player(trap.get("pos", Vector2i(-1, -1))):
-			rects.append(_trap_draw_rect(trap.get("pos", Vector2i(-1, -1))))
+			rects.append(_trap_visual_draw_rect(trap))
 	return rects
 
 func enemy_intent_visual_global_rect(actor_key: String) -> Rect2:
@@ -16351,14 +16348,26 @@ func _draw_trap_marker(trap: Dictionary) -> void:
 
 func _trap_visual_draw_rect(trap: Dictionary) -> Rect2:
 	var tile: Vector2i = trap.get("pos", Vector2i(-1, -1))
-	return _trap_draw_rect(tile) if tile.x >= 0 else Rect2()
+	var texture: Texture2D = _trap_textures.get(str(trap.get("element", ElementData.NONE)), null)
+	return _trap_draw_rect(tile, texture) if tile.x >= 0 else Rect2()
 
 func _trap_visual_modulate(_trap: Dictionary) -> Color:
 	return Color.WHITE
 
-func _trap_draw_rect(tile: Vector2i) -> Rect2:
+func _trap_draw_rect(tile: Vector2i, texture: Texture2D = null) -> Rect2:
 	var tile_width: float = _tile_width()
-	var draw_size := Vector2(tile_width * TRAP_DRAW_WIDTH_SCALE, _tile_height() * TRAP_DRAW_HEIGHT_SCALE)
+	if texture == null:
+		for candidate: Texture2D in _trap_textures.values():
+			if candidate != null:
+				texture = candidate
+				break
+	var draw_width: float = tile_width * TRAP_DRAW_WIDTH_SCALE
+	var draw_height: float = draw_width * 80.0 / 122.0
+	if texture != null and texture.get_width() > 0:
+		# Resampling rounds frame dimensions. Markers, tooltips and retained
+		# obstruction/culling rectangles all use the texture's actual aspect.
+		draw_height = draw_width * texture.get_height() / texture.get_width()
+	var draw_size := Vector2(draw_width, draw_height)
 	var center: Vector2 = _tile_center(tile) + Vector2(0.0, _tile_height() * TRAP_DRAW_Y_OFFSET_SCALE)
 	return Rect2(center - draw_size * 0.5, draw_size)
 

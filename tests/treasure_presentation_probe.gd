@@ -48,16 +48,20 @@ func _initialize() -> void:
 	quit(0 if _treasure_failures.is_empty() else 1)
 
 func _prop_registration_contract() -> void:
+	var body: Image = Image.load_from_file(ChestProp.ROOT + "body.png")
+	var canvas_size: Vector2i = body.get_size()
 	for part: String in ["lid_interior", "lid_exterior"]:
 		var pixels: Image = Image.load_from_file(ChestProp.ROOT + part + ".png")
-		_expect_treasure(pixels != null and pixels.get_size() == Vector2i(128, 160), "Every lid layer uses the registered padded canvas")
+		_expect_treasure(pixels != null and pixels.get_size() == canvas_size, "Every lid layer shares the body's current padded canvas")
 		var used: Rect2 = Rect2(pixels.get_used_rect())
+		used.position *= ChestProp.CANVAS_SIZE / Vector2(canvas_size)
+		used.size *= ChestProp.CANVAS_SIZE / Vector2(canvas_size)
 		for sample: int in range(101):
 			var projection: float = lerpf(0.16 if part == "lid_interior" else 0.45, 1.0, float(sample) / 100.0)
 			_expect_treasure(ChestProp.project_lid_point(ChestProp.HINGE_LEFT, projection).is_equal_approx(ChestProp.HINGE_LEFT) and ChestProp.project_lid_point(ChestProp.HINGE_RIGHT, projection).is_equal_approx(ChestProp.HINGE_RIGHT), "Both hinge landmarks remain fixed throughout the opening")
 			for corner: Vector2 in [used.position, Vector2(used.end.x, used.position.y), used.end, Vector2(used.position.x, used.end.y)]:
 				var point: Vector2 = ChestProp.project_lid_point(corner - ChestProp.CANVAS_OFFSET, projection) + ChestProp.CANVAS_OFFSET
-				_expect_treasure(point.x >= 0.0 and point.y >= 0.0 and point.x <= 128.0 and point.y <= 160.0, "Painted lid stays in its fixed registered canvas")
+				_expect_treasure(point.x >= 0.0 and point.y >= 0.0 and point.x <= ChestProp.CANVAS_SIZE.x and point.y <= ChestProp.CANVAS_SIZE.y, "Painted lid stays in its authored registered canvas")
 
 func _normal_sequence(treasure: Dictionary) -> void:
 	_treasure_scene.call("_load_run_state", treasure)

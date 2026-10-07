@@ -19,6 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import pixel_density as density
 import process_board_density as tool
+import generate_trap_pressure_plate_preview as trap_preview
 
 REGISTRY = ROOT / "spec/assets/board_pixel_density/registry.json"
 SOURCES = ROOT / "spec/assets/board_pixel_density/sources"
@@ -26,6 +27,28 @@ SOURCES = ROOT / "spec/assets/board_pixel_density/sources"
 
 def function_text(code: str, name: str) -> str:
     return code.split(f"func {name}(", 1)[1].split("\nfunc ", 1)[0]
+
+
+def mask_bounds(mask: np.ndarray) -> tuple[int, int, int, int] | None:
+    y, x = np.nonzero(mask)
+    return (int(x.min()), int(y.min()), int(x.max())+1, int(y.max())+1) if len(x) else None
+
+
+def silhouette_boundary_distance(source: np.ndarray, output: np.ndarray) -> int:
+    """Worst Chebyshev distance of changed support from the source edge ring."""
+    changed = source ^ output
+    if not changed.any():
+        return 0
+    covered = density.edge_ring(source)
+    if not covered.any():
+        return max(source.shape)
+    distance = 0
+    while (changed & ~covered).any():
+        padded = np.pad(covered, 1, constant_values=False)
+        covered = np.logical_or.reduce([padded[y:y+source.shape[0], x:x+source.shape[1]]
+                                        for y in range(3) for x in range(3)])
+        distance += 1
+    return distance
 
 
 def board_png_paths(root: Path) -> set[str]:
@@ -92,6 +115,8 @@ class BoardPixelDensityTest(unittest.TestCase):
     def test_every_output_preserves_size_alpha_hidden_rgb_and_frame_edges(self) -> None:
         for entry in self.entries.values():
             for path in entry["paths"]:
+                if tool.settings_for_path(entry, path)["mode"] == "resample":
+                    continue
                 with self.subTest(path=path):
                     with Image.open(SOURCES / path) as original, Image.open(ROOT / path) as current:
                         self.assertEqual(current.mode, "RGBA")
@@ -207,16 +232,115 @@ class BoardPixelDensityTest(unittest.TestCase):
 
     def test_grid_rule_and_measurement_use_untouched_native_sources(self) -> None:
         for entry in self.entries.values():
-            with self.subTest(entry=entry["id"]):
-                native = tool.sample(SOURCES / entry["measurement_path"], entry["frames"])
-                share = density.metrics(native)["orphan_share"]
-                self.assertAlmostEqual(share, entry["orphan_share"])
-                self.assertEqual(entry["t"], 1.5 if share >= 0.15 else 1.0)
-                if entry.get("override"):
-                    self.assertTrue(entry["override"].strip())
-                else:
-                    self.assertEqual(entry["grid"], round(entry["t"] / entry["r"], 2))
-                    self.assertEqual(entry["mode"], "regrid" if entry["grid"] >= 1.25 else "clean")
+            for facing, settings in entry.get("facings", {"": entry}).items():
+                with self.subTest(entry=entry["id"], facing=facing):
+                    native = tool.sample(SOURCES / settings["measurement_path"], entry["frames"])
+                    share = density.metrics(native)["orphan_share"]
+                    self.assertAlmostEqual(share, settings["orphan_share"])
+                    self.assertAlmostEqual(settings["t"], density.strength(share))
+                    if entry.get("override"):
+                        self.assertTrue(entry["override"].strip())
+                    elif entry["kind"] != "rig" and entry["r"] > 1.05:
+                        self.assertEqual(settings["mode"], "resample")
+                        self.assertEqual(settings["scale"], entry["r"])
+                        self.assertEqual(settings["grid"], 1.5)
+                        self.assertTrue(settings["resample_note"])
+                    else:
+                        self.assertEqual(settings["grid"], round(settings["t"] / entry["r"], 2))
+                        self.assertEqual(settings["mode"], "regrid" if settings["grid"] >= 1.2 else "clean")
+                    if entry["kind"] == "rig":
+                        self.assertNotEqual(settings["mode"], "resample")
+                        self.assertIn(settings["measurement_path"], entry["rest_paths"][facing])
+                        for path in entry["paths"]:
+                            if Path(path).parent.name == facing:
+                                self.assertIs(tool.settings_for_path(entry, path), settings)
+
+    def test_approved_per_facing_results_and_overrides(self) -> None:
+        expected = {"chainbound_gaoler": (1.23, 1.46), "frostglass_lancer": (1.08, 1.37),
+                    "craghide": (1.05, 1.22), "ash_hound": (1.68, 1.84), "bell_tender": (1.48, 1.76),
+                    "rime_spitter": (1.43, 1.53), "roc_fledgling": (1.57, 2.0), "crawler": (1.73, 1.73)}
+        for name, grids in expected.items():
+            self.assertEqual(tuple(self.entries[name]["facings"][f]["grid"] for f in ("front", "rear")), grids, name)
+        for settings in self.entries["lightning_wisp"]["facings"].values():
+            self.assertEqual((settings["mode"], settings["grid"]), ("regrid", 1.5))
+        self.assertEqual(self.entries["hero_rear"]["facings"]["rear"]["mode"], "clean")
+        self.assertEqual((self.entries["scavenger_npc"]["mode"], self.entries["scavenger_npc"]["grid"]), ("clean", 1.0))
+
+    def test_resampled_outputs_size_alpha_silhouette_and_fringe(self) -> None:
+        manifest = json.loads(tool.MANIFEST.read_text())
+        for entry in self.entries.values():
+            if entry.get("mode") != "resample":
+                continue
+            owner = self.entries[entry.get("alpha_class_from", entry["id"])]
+            measurement = tool.sample(SOURCES / owner["measurement_path"], owner["frames"])
+            measurement_alpha = np.asarray(measurement)[...,3]
+            translucent = int(((measurement_alpha >= 64) & (measurement_alpha < 240)).sum())
+            fraction = translucent / max(int((measurement_alpha > 0).sum()), 1)
+            solid = fraction < 0.10
+            for path in entry["paths"]:
+                with Image.open(SOURCES / path) as original, Image.open(ROOT / path) as current:
+                    source, output = original.convert("RGBA"), current.convert("RGBA")
+                old_rects = density.frame_rects(source.size, entry["frames"])
+                new_rects = density.frame_rects(output.size, entry["frames"])
+                self.assertEqual(len(new_rects), len(old_rects))
+                record = manifest[path]
+                self.assertEqual(record["alpha_class"], "solid" if solid else "soft")
+                self.assertAlmostEqual(record["translucent_alpha_fraction"], fraction)
+                self.assertEqual(record["alpha_class_from"], owner["id"])
+                self.assertEqual(record["alpha_measurement_path"], owner["measurement_path"])
+                self.assertEqual(record["alpha_source_pixel_sha256"], tool.pixel_digest(measurement))
+                for index, ((x,y,w,h), (xx,yy,ww,hh)) in enumerate(zip(old_rects, new_rects)):
+                    with self.subTest(path=path, frame=index):
+                        self.assertEqual((ww, hh), (round(w*entry["scale"]), round(h*entry["scale"])))
+                        frame = source.crop((x,y,x+w,y+h))
+                        pixels = np.asarray(output.crop((xx,yy,xx+ww,yy+hh)))
+                        near = np.asarray(frame.resize((ww,hh), Image.Resampling.NEAREST))
+                        a, b = near[..., 3] > 0, pixels[..., 3] > 0
+                        source_alpha = np.asarray(frame)[..., 3]
+                        bilinear = np.asarray(Image.fromarray(source_alpha.astype(np.float32)).resize(
+                            (ww,hh), Image.Resampling.BILINEAR))
+                        expected_alpha = np.where(a, np.rint(bilinear.clip(0,255)), 0)
+                        if solid:
+                            lanczos = np.asarray(Image.fromarray(source_alpha.astype(np.float32)).resize(
+                                (ww,hh), Image.Resampling.LANCZOS))
+                            body = (lanczos.clip(0,255) >= 128) & a
+                            expected_alpha = np.where(body, 255, expected_alpha)
+                            ring = density.edge_ring(body) & (near[..., 3] >= 128)
+                            np.testing.assert_array_equal(pixels[..., :3][ring], near[..., :3][ring])
+                        np.testing.assert_array_equal(pixels[..., 3], expected_alpha.astype(np.uint8))
+                        self.assertFalse((b & ~a).any(), "Resampled alpha support must stay within NEAREST source")
+                        hidden = pixels[..., 3] == 0
+                        np.testing.assert_array_equal(pixels[..., :3][hidden], near[..., :3][hidden])
+                        old_bounds, new_bounds = mask_bounds(a), mask_bounds(b)
+                        if old_bounds is None:
+                            self.assertIsNone(new_bounds)
+                        elif new_bounds is not None:
+                            self.assertGreaterEqual(new_bounds[0], old_bounds[0])
+                            self.assertGreaterEqual(new_bounds[1], old_bounds[1])
+                            self.assertLessEqual(new_bounds[2], old_bounds[2])
+                            self.assertLessEqual(new_bounds[3], old_bounds[3])
+                        self.assertLessEqual(silhouette_boundary_distance(a, b), 1)
+
+    def test_static_sheet_families_and_independent_elemental_overlays(self) -> None:
+        families = {f"trap_{element}_sheets": f"trap_{element}"
+                    for element in ("air", "earth", "fire", "ice", "lightning")}
+        families.update(wooden_box_destroy="wooden_box", wooden_crate_destroy="wooden_crate",
+                        campfire_idle="campfire", column_torch_idle="column_torch_static",
+                        door_opening="door", relic_chest_opening="relic_chest")
+        for child, parent in families.items():
+            self.assertEqual(self.entries[child]["alpha_class_from"], parent, child)
+            self.assertEqual(tool.alpha_settings(self.entries[child], self.registry),
+                             tool.alpha_settings(self.entries[parent], self.registry))
+        for element in ("air", "earth", "fire", "ice", "lightning"):
+            self.assertEqual(tool.alpha_settings(self.entries[f"trap_{element}"], self.registry)["alpha_class"], "solid")
+        overlays = [e for e in self.entries.values()
+                    if any("/element_overlays/" in path for path in e["paths"])]
+        self.assertEqual(len(overlays), 8)
+        for entry in overlays:
+            self.assertEqual(entry["paths"], [entry["measurement_path"]])
+            self.assertNotIn("alpha_class_from", entry)
+        self.assertEqual({e["id"] for e in overlays if tool.alpha_settings(e, self.registry)["alpha_class"] == "soft"},
+                         {"fire_floor_overlay_01", "fire_floor_overlay_02", "ice_floor_overlay_01"})
 
     def test_draw_scales_follow_live_code_including_trimmed_pillar(self) -> None:
         def constant(name: str) -> float:
@@ -391,6 +515,177 @@ class DensityOperationTest(unittest.TestCase):
         output = np.asarray(density.regrid(Image.fromarray(pixels), 2.0))
         np.testing.assert_array_equal(output[2, 2], (11, 11, 11, 255))
 
+    def test_continuous_strength_knots_and_clamps(self) -> None:
+        for share, expected in ((0, 1.0), (0.05, 1.0), (0.075, 1.125), (0.10, 1.25), (0.15, 1.5), (1, 1.5)):
+            self.assertAlmostEqual(density.strength(share), expected)
+
+    def test_resample_frames_are_independent_and_share_the_first_frame_class(self) -> None:
+        source = self.image()
+        # Only frame 0 selects the class; sampling/regridding remains frame-local.
+        pixels = np.asarray(source).copy()
+        pixels[..., 3] = np.where(pixels[..., 3] > 24, 255, 0)
+        pixels[:6, :8, 3] = np.where(pixels[:6, :8, 3] > 0, 100, 0)
+        source = Image.fromarray(pixels)
+        frames = {"grid": [2, 2]}
+        first_class = density.classify_alpha(source.crop((0,0,8,6)))["alpha_class"]
+        self.assertEqual(first_class, "soft")
+        result = density.process(source, "resample", 1.5, frames, 1.7)
+        differs_from_per_frame = False
+        for old, new in zip(density.frame_rects(source.size, frames), density.frame_rects(result.size, frames)):
+            x,y,w,h = old
+            xx,yy,ww,hh = new
+            frame = source.crop((x,y,x+w,y+h))
+            expected = density.resample_frame(frame, 1.7, alpha_class=first_class)
+            self.assertEqual(result.crop((xx,yy,xx+ww,yy+hh)).tobytes(), expected.tobytes())
+            near = np.asarray(frame.resize((ww,hh), Image.Resampling.NEAREST))
+            self.assertFalse(((np.asarray(expected)[...,3] > 0) & (near[...,3] == 0)).any())
+            differs_from_per_frame |= expected.tobytes() != density.resample_frame(frame, 1.7).tobytes()
+        self.assertTrue(differs_from_per_frame, "Later frames must keep frame 0's class even when their own paint differs")
+
+    def test_alpha_classification_counts_only_nonzero_pixels_and_uses_strict_threshold(self) -> None:
+        pixels = np.zeros((10, 20, 4), dtype=np.uint8)
+        pixels[:5, :, 3] = 255
+        # Faint halos and nearly opaque paint do not count as translucent.
+        pixels[1, :, 3] = (1, 63, 240, 254) * 5
+        for count, expected in ((0, "solid"), (9, "solid"), (10, "soft"), (11, "soft")):
+            frame = pixels.copy()
+            frame[0, :count, 3] = np.where(np.arange(count) % 2, 239, 64)
+            classification = density.classify_alpha(Image.fromarray(frame))
+            self.assertEqual(classification, {"alpha_class": expected, "translucent_alpha_fraction": count/100})
+        self.assertEqual(density.classify_alpha(Image.new("RGBA", (8, 8))),
+                         {"alpha_class": "solid", "translucent_alpha_fraction": 0.0})
+
+    def test_solid_hybrid_keeps_faint_halo_and_restores_the_body_outline(self) -> None:
+        paint = np.full((12, 16, 4), (91, 74, 56, 0), dtype=np.uint8)
+        paint[1:11, 1:15] = (126, 99, 65, 12)
+        paint[2:10, 2:14] = (18, 12, 8, 245)
+        paint[3:9, 3:13] = (195, 163, 118, 245)
+        source = Image.fromarray(paint)
+        self.assertEqual(density.classify_alpha(source)["alpha_class"], "solid")
+        result = density.resample_frame(source, 1.7)
+        lanczos = np.asarray(Image.fromarray(paint[...,3].astype(np.float32)).resize(
+            result.size, Image.Resampling.LANCZOS))
+        bilinear = np.asarray(Image.fromarray(paint[...,3].astype(np.float32)).resize(
+            result.size, Image.Resampling.BILINEAR))
+        near = np.asarray(source.resize(result.size, Image.Resampling.NEAREST))
+        support = near[...,3] > 0
+        body = (lanczos.clip(0,255) >= 128) & support
+        expected_alpha = np.where(body, 255, np.where(support, np.rint(bilinear.clip(0,255)), 0))
+        pixels = np.asarray(result)
+        np.testing.assert_array_equal(pixels[...,3], expected_alpha.astype(np.uint8))
+        self.assertTrue(((pixels[...,3] > 0) & (pixels[...,3] < 128)).any(), "Keep the faint halo")
+        ring = density.edge_ring(body) & (near[...,3] >= 128)
+        self.assertTrue((ring & ~density.edge_ring(support)).any(), "Outline belongs to the body, inside the halo")
+        np.testing.assert_array_equal(pixels[..., :3][ring], near[..., :3][ring])
+        self.assertTrue((near[..., :3][ring] == (18, 12, 8)).all(axis=-1).any(), "Keep the dark body rim")
+        hidden = pixels[...,3] == 0
+        np.testing.assert_array_equal(pixels[..., :3][hidden], near[..., :3][hidden])
+
+    def test_soft_resample_alpha_is_bilinear_support_limited_and_fringe_is_nearest(self) -> None:
+        pixels = np.asarray(self.image()).copy()
+        pixels[2:6, 2:8, 3] = 100
+        source = Image.fromarray(pixels)
+        self.assertEqual(density.classify_alpha(source)["alpha_class"], "soft")
+        result = density.resample_frame(source, 1.7)
+        alpha = np.asarray(Image.fromarray(np.asarray(source)[...,3].astype(np.float32)).resize(
+            result.size, Image.Resampling.BILINEAR))
+        near = np.asarray(source.resize(result.size, Image.Resampling.NEAREST))
+        expected_alpha = np.where(near[...,3] > 0, np.rint(alpha.clip(0,255)), 0).astype(np.uint8)
+        np.testing.assert_array_equal(np.asarray(result)[...,3], expected_alpha)
+        self.assertFalse(set(result.getchannel("A").getdata()) <= {0, 255})
+        pixels = np.asarray(result)
+        hidden = pixels[...,3] == 0
+        np.testing.assert_array_equal(pixels[..., :3][hidden], near[..., :3][hidden])
+
+    def test_boundary_distance_uses_chebyshev_and_catches_interior_changes(self) -> None:
+        source = np.zeros((12, 12), dtype=bool)
+        source[2:10, 2:10] = True
+        for point, expected in (((1, 1), 1), ((0, 0), 2), ((5, 5), 3)):
+            changed = source.copy()
+            changed[point] = ~changed[point]
+            self.assertEqual(silhouette_boundary_distance(source, changed), expected)
+
+    def test_resample_cli_reruns_from_sources_are_idempotent(self) -> None:
+        with self.temporary_rig() as (root, manifest, run):
+            registry = json.loads(tool.REGISTRY.read_text())
+            entry = registry["entries"][0]
+            entry.update(kind="prop", mode="resample", scale=1.7, grid=1.5)
+            entry.pop("rest_paths")
+            tool.REGISTRY.write_text(json.dumps(registry))
+            self.assertEqual(run()[0], 0)
+            pixels = (root / "paint/part.png").read_bytes()
+            records = manifest.read_bytes()
+            self.assertEqual(run()[0], 0)
+            self.assertEqual((root / "paint/part.png").read_bytes(), pixels)
+            self.assertEqual(manifest.read_bytes(), records)
+            self.assertEqual(run("--check"), (0, "CHECK-OK\n"))
+
+    def test_family_class_comes_from_static_measurement_even_with_only(self) -> None:
+        with self.temporary_rig() as (root, manifest, run):
+            source = self.image()
+            source.save(root / "sources/paint/part.png")
+            plate = {"id": "plate", "kind": "prop", "paths": ["paint/part.png"],
+                     "measurement_path": "paint/part.png", "mode": "resample", "scale": 1.7,
+                     "grid": 1.5, "frames": None}
+            sheets = {**plate, "id": "sheets", "paths": ["paint/sheet.png"],
+                      "measurement_path": "paint/sheet.png", "frames": {"grid": [2, 2]},
+                      "alpha_class_from": "plate"}
+            registry = {"hero_reference": "paint/hero.png", "entries": [plate, sheets]}
+            tool.REGISTRY.write_text(json.dumps(registry))
+            translucent = np.asarray(source).copy()
+            translucent[1:4, 1:4, 3] = 100
+            sheet = Image.fromarray(translucent)
+            self.assertEqual(density.classify_alpha(sheet.crop((0,0,8,6)))["alpha_class"], "soft")
+            sheet.save(root / "paint/sheet.png")
+            self.assertEqual(run("--adopt", "paint/sheet.png")[0], 0)
+            self.assertIn("paint/part.png", tool.source_paths(registry, [sheets]))
+            self.assertEqual(run()[0], 0)
+            record = json.loads(manifest.read_text())["paint/sheet.png"]
+            self.assertEqual(record["alpha_class"], "solid")
+            self.assertEqual(record["alpha_class_from"], "plate")
+            expected = density.process(sheet, "resample", 1.5, sheets["frames"], 1.7, "solid")
+            self.assertTrue(tool.same_pixels(root / "paint/sheet.png", expected))
+            self.assertTrue(expected.tobytes() != density.process(sheet, "resample", 1.5, sheets["frames"], 1.7).tobytes())
+            source.save(root / "sources/paint/part.png", compress_level=0)
+            self.assertEqual(run("--check", "--only", "sheets"), (0, "CHECK-OK\n"))
+            # Changing the static measurement selects the new path for every
+            # child frame, even when only that child is processed or checked.
+            measurement = np.asarray(source).copy()
+            measurement[...,3] = np.where(measurement[...,3] > 0, 100, 0)
+            Image.fromarray(measurement).save(root / "sources/paint/part.png")
+            self.assertEqual(run("--check", "--only", "sheets")[0], 1)
+            self.assertEqual(run("--only", "sheets")[0], 0)
+            record = json.loads(manifest.read_text())["paint/sheet.png"]
+            self.assertEqual(record["alpha_class"], "soft")
+            self.assertTrue(tool.same_pixels(root / "paint/sheet.png",
+                                            density.process(sheet, "resample", 1.5, sheets["frames"], 1.7, "soft")))
+            self.assertEqual(run("--check", "--only", "sheets"), (0, "CHECK-OK\n"))
+
+    def test_alpha_family_links_reject_missing_sources_and_cycles(self) -> None:
+        source = {"id": "source"}
+        child = {"id": "child", "alpha_class_from": "source"}
+        registry = {"entries": [source, child]}
+        self.assertIs(tool.alpha_source_entry(child, registry), source)
+        child["alpha_class_from"] = "missing"
+        with self.assertRaisesRegex(ValueError, "unknown alpha_class_from"):
+            tool.alpha_source_entry(child, registry)
+        child["alpha_class_from"] = "source"
+        source["alpha_class_from"] = "child"
+        with self.assertRaisesRegex(ValueError, "cyclic alpha_class_from"):
+            tool.alpha_source_entry(child, registry)
+
+    def test_trap_preview_uses_current_canvas_and_fits_legacy_floors(self) -> None:
+        with tempfile.TemporaryDirectory(dir=REGISTRY.parent) as directory:
+            root = Path(directory)
+            (root / "traps").mkdir()
+            (root / "floors").mkdir()
+            for _, element, variant in trap_preview.ELEMENTS:
+                Image.new("RGBA", (248, 162), (100, 20, 30, 255)).save(root / "traps" / f"trap_{element}.png")
+                Image.new("RGBA", (122, 80), (40, 50, 60, 255)).save(root / "floors" / f"base_floor_tile_{variant:02d}.png")
+            with mock.patch.multiple(trap_preview, TRAP_DIR=root / "traps", FLOOR_DIR=root / "floors"):
+                sheet = trap_preview.build_sheet()
+            self.assertEqual(sheet.size, (3892, 1186))
+
     def test_frames_are_independent_and_rect_gaps_are_untouched(self) -> None:
         source = self.image()
         frames = {"rects": [[1, 1, 6, 10], [9, 2, 6, 8]]}
@@ -441,8 +736,12 @@ class DensityOperationTest(unittest.TestCase):
         for grid in (0, -1, float("inf")):
             with self.assertRaises(ValueError):
                 density.regrid(image, grid)
+            with self.assertRaises(ValueError):
+                density.resample_frame(image, grid)
         with self.assertRaises(ValueError):
             density.process(image, "posterise", 1.5)
+        with self.assertRaisesRegex(ValueError, "alpha_class must be solid or soft"):
+            density.resample_frame(image, 1.7, alpha_class="hard")
 
     def test_adoption_refuses_existing_sources_before_any_copy(self) -> None:
         with tempfile.TemporaryDirectory(dir=REGISTRY.parent) as directory:

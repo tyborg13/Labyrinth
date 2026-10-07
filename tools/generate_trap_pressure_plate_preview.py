@@ -20,8 +20,6 @@ ELEMENTS = (
 )
 
 SCALE = 3
-TILE_SIZE = (122, 80)
-PREVIEW_SIZE = (TILE_SIZE[0] * SCALE, TILE_SIZE[1] * SCALE)
 MARGIN = 34
 GAP = 26
 HEADER_HEIGHT = 80
@@ -51,8 +49,8 @@ def _checkerboard(size: tuple[int, int], cell_size: int = 12) -> Image.Image:
     return image
 
 
-def _scaled(image: Image.Image) -> Image.Image:
-    return image.resize(PREVIEW_SIZE, Image.Resampling.NEAREST)
+def _scaled(image: Image.Image, size: tuple[int, int]) -> Image.Image:
+    return image.resize(size, Image.Resampling.NEAREST)
 
 
 def _centered_text(
@@ -68,15 +66,18 @@ def _centered_text(
 
 
 def build_sheet() -> Image.Image:
+    with Image.open(TRAP_DIR / f"trap_{ELEMENTS[0][1]}.png") as reference:
+        tile_size = reference.size
+    preview_size = (tile_size[0] * SCALE, tile_size[1] * SCALE)
     columns = len(ELEMENTS)
-    width = MARGIN * 2 + columns * PREVIEW_SIZE[0] + (columns - 1) * GAP
+    width = MARGIN * 2 + columns * preview_size[0] + (columns - 1) * GAP
     height = (
         HEADER_HEIGHT
         + ROW_LABEL_HEIGHT
-        + PREVIEW_SIZE[1]
+        + preview_size[1]
         + ELEMENT_LABEL_HEIGHT
         + ROW_LABEL_HEIGHT
-        + PREVIEW_SIZE[1]
+        + preview_size[1]
         + MARGIN
     )
     sheet = Image.new("RGBA", (width, height), BACKGROUND)
@@ -84,40 +85,42 @@ def build_sheet() -> Image.Image:
     draw.text((MARGIN, 22), "ELEMENTAL PRESSURE PLATES", font=_font(), fill=TEXT)
     draw.text(
         (MARGIN, 46),
-        "122 x 80 transparent assets with a 90 x 45 isometric footprint, shown at 3x",
+        f"{tile_size[0]} x {tile_size[1]} current transparent plate canvases, shown at {SCALE}x",
         font=_font(),
         fill=MUTED_TEXT,
     )
 
     actual_y = HEADER_HEIGHT + ROW_LABEL_HEIGHT
-    cutout_y = actual_y + PREVIEW_SIZE[1] + ELEMENT_LABEL_HEIGHT + ROW_LABEL_HEIGHT
+    cutout_y = actual_y + preview_size[1] + ELEMENT_LABEL_HEIGHT + ROW_LABEL_HEIGHT
     draw.text((MARGIN, HEADER_HEIGHT), "ON CURRENT GAME FLOOR VARIANTS", font=_font(), fill=MUTED_TEXT)
     draw.text(
-        (MARGIN, actual_y + PREVIEW_SIZE[1] + ELEMENT_LABEL_HEIGHT),
+        (MARGIN, actual_y + preview_size[1] + ELEMENT_LABEL_HEIGHT),
         "THE EXACT DROP-IN PNGS (CHECKERBOARD = TRANSPARENT)",
         font=_font(),
         fill=MUTED_TEXT,
     )
 
     for index, (label, element, floor_variant) in enumerate(ELEMENTS):
-        x = MARGIN + index * (PREVIEW_SIZE[0] + GAP)
+        x = MARGIN + index * (preview_size[0] + GAP)
         trap_path = TRAP_DIR / f"trap_{element}.png"
         floor_path = FLOOR_DIR / f"base_floor_tile_{floor_variant:02d}.png"
         trap = Image.open(trap_path).convert("RGBA")
         floor = Image.open(floor_path).convert("RGBA")
-        if trap.size != TILE_SIZE or floor.size != TILE_SIZE:
-            raise ValueError(f"Expected {TILE_SIZE}: {trap_path}={trap.size}, {floor_path}={floor.size}")
+        if trap.size != tile_size:
+            raise ValueError(f"Expected matching plate canvases: {trap_path}={trap.size}, reference={tile_size}")
+        # Legacy, unused floor variants can still have their native canvas.
+        floor = floor.resize(tile_size, Image.Resampling.NEAREST)
 
         composite = floor.copy()
         composite.alpha_composite(trap)
-        actual_panel = Image.new("RGBA", PREVIEW_SIZE, PANEL)
-        actual_panel.alpha_composite(_scaled(composite))
+        actual_panel = Image.new("RGBA", preview_size, PANEL)
+        actual_panel.alpha_composite(_scaled(composite, preview_size))
         sheet.alpha_composite(actual_panel, (x, actual_y))
 
-        checker = _checkerboard(PREVIEW_SIZE)
-        checker.alpha_composite(_scaled(trap))
+        checker = _checkerboard(preview_size)
+        checker.alpha_composite(_scaled(trap, preview_size))
         sheet.alpha_composite(checker, (x, cutout_y))
-        _centered_text(draw, x + PREVIEW_SIZE[0] // 2, actual_y + PREVIEW_SIZE[1] + 12, label, TEXT)
+        _centered_text(draw, x + preview_size[0] // 2, actual_y + preview_size[1] + 12, label, TEXT)
 
     return sheet
 
