@@ -1,0 +1,57 @@
+extends SceneTree
+
+## Design tooling (not shipped): samples the hero's weapon tip and mid-blade path
+## through each attack clip and saves the rig canvas at a few phases.
+const Renderer = preload("res://scripts/protagonist_cutout/renderer.gd")
+const Motion = preload("res://scripts/protagonist_cutout/motion.gd")
+const OUT: String = "user://melee_strike_paths"
+const LOADOUTS: Dictionary = {
+	"sword": "iron_cleaver", "heavy": "war_maul", "stab": "duelist_rapier",
+	"thrust": "hunting_spear", "lash": "galewhip"}
+const DIRECTIONS: Dictionary = {"front": Vector2i(0, 1), "rear": Vector2i(0, -1), "front_mirror": Vector2i(1, 0)}
+const SNAP_PHASES: Array = [0.30, 0.36, 0.40, 0.42, 0.46, 0.55]
+
+func _initialize() -> void:
+	call_deferred("_run")
+
+func _point(renderer: Node, landmark_from: String, t: float) -> Vector2:
+	var rig: Node2D = renderer.rigs[renderer.facing]
+	var grip: Dictionary = rig.layout["weapon_grip"]
+	var joint: Vector2 = Motion._joint_position(rig.layout, "weapon_r")
+	var tip: Vector2 = Motion._gear_vector(grip["tip"])
+	var hand: Vector2 = Motion._gear_vector(grip["assembled"])
+	var local: Vector2 = hand.lerp(tip, t) - joint
+	var point: Vector2 = rig.to_local((rig.bones["weapon_r"] as Bone2D).to_global(local))
+	return Vector2(255.0 - point.x, point.y) if renderer.mirrored else point
+
+func _run() -> void:
+	DirAccess.make_dir_recursive_absolute(OUT)
+	var result: Dictionary = {}
+	for motion: String in LOADOUTS:
+		var renderer: Node = Renderer.new()
+		root.add_child(renderer)
+		await process_frame
+		renderer.set_gear({"weapon": LOADOUTS[motion]})
+		await process_frame
+		for view: String in DIRECTIONS:
+			var samples: Array = []
+			for frame: int in range(0, 241):
+				var t: float = frame / 240.0
+				renderer.present({"clip": "attack", "phase": t, "direction": DIRECTIONS[view]}, false)
+				samples.append({"t": t, "clip": renderer.clip, "pose_phase": renderer.phase,
+					"tip": [_point(renderer, "tip", 1.0).x, _point(renderer, "tip", 1.0).y],
+					"mid": [_point(renderer, "mid", 0.45).x, _point(renderer, "mid", 0.45).y],
+					"hand": [_point(renderer, "hand", 0.0).x, _point(renderer, "hand", 0.0).y]})
+				if frame % 4 == 0 and int(frame / 4) >= 15 and int(frame / 4) <= 38 and view == "front":
+					renderer.viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
+					await RenderingServer.frame_post_draw
+					var image: Image = renderer.viewport.get_texture().get_image()
+					image.save_png(OUT.path_join("%s_%s_%02d.png" % [motion, view, int(frame / 4)]))
+			result["%s_%s" % [motion, view]] = {"facing": renderer.facing, "mirrored": renderer.mirrored, "samples": samples}
+		renderer.queue_free()
+		await process_frame
+	var file := FileAccess.open(OUT.path_join("paths.json"), FileAccess.WRITE)
+	file.store_string(JSON.stringify(result))
+	file.close()
+	print("MELEE PATHS: DONE")
+	quit(0)
