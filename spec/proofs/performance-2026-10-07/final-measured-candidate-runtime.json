@@ -1,0 +1,29 @@
+{
+  "worktree_head": "37b38c822bd7e87eced91a048af5ba2860b6380f",
+  "base": "b792d218c281181eb2fa20aa853bdad1ca242305",
+  "sources": {
+    "scripts/asset_loader.gd": "1754df7111a7f1dfa9aed69f93d7734bff808d5a4f74bf51eb67919eb4f883fd",
+    "scripts/card_widget.gd": "40c98b294a41afab6eb5b6a5a14a57a237188a6ad6f18214c2e610445b4fcc97",
+    "scripts/character_menu_view.gd": "58c061df96bac3073daa8731bfc3d6f99876c8ec08e74e6a524e56eab0a7f995",
+    "scripts/combat_board_view.gd": "113cdff8b4efe5340acd5cf95aef16363ad4bc6a7e65957216fb702945c7f637",
+    "scripts/combat_engine.gd": "bcf4a2a2c4c1351f0e26e11fe344f89994317cebdaad211a775cbf89d132230d",
+    "scripts/combat_objective_hud.gd": "daa754adf541e5d85a7330a85b050cdb2e4abd71944b6bc4a81ccc04f5a26555",
+    "scripts/cursor_feedback.gd": "257e3b3a551d2166a4e8d635ed7c39747378081aeea9749ac9999ac5f3e1e601",
+    "scripts/guardian_combat_rules.gd": "8af7611d6b62bd47840460c91298d5897115747d34f63b44312a9dcdc16b8e61",
+    "scripts/menu_run_transition.gd": "ce154ac2bba4342d8d5fbf90f5f99380d10ea297b301357c98f6b758519a691d",
+    "scripts/pre_battle_view.gd": "99001a4a21f25953bbd656a73796cccde7675485ba7f893c838cfa85619c5a76",
+    "scripts/protagonist_cutout/rig_data.gd": "92a286c6644bfbc4ef0cdb3ce894b5aca5ee4634bffee4e48c2e4c958b11b82a",
+    "scripts/run_end_recap_overlay.gd": "65e895933f7417f26b5d0ca9c23654e88f47fc6eda28bc117b8124dd97eee1ff",
+    "scripts/run_engine.gd": "bb03ad1afeccd60b61dcf13a86126fd3ce9809308c05fc2157e0f4328f6fc45c",
+    "scripts/run_scene.gd": "1feb6928fcec749872c8a0b34b659d9483e85fee5c7024e5f4d9ca078f6c8578",
+    "scripts/scavenger_action.gd": "2d3e0ea6cbf86793e6ab453b97707c2c9d391d07d548e8663ba428bb7dce3295",
+    "scripts/scavenger_shop_view.gd": "4f1cc47f0fde631aba0fc980af463be36474b63f283e8077a6d3c0883387a1f1",
+    "scripts/section_map_node.gd": "4fdb81d28762844c6a5f2befab40006fe41b385327d3f0fa4bd3030cf5bdda8b",
+    "scripts/section_map_panel.gd": "ab3c328f5573f5193ce29ee7725fffe62382d8d0b1b651cf8801d336a0c140b9",
+    "scripts/section_map_skin.gd": "5e892dfce0379a8d46bcbef917fca388198b5060e8746c5d8e17d1ee95ffcfb1",
+    "scripts/skill_tree_view.gd": "f3aeb6e62d5faf7a27a088de90c8a32bc595ffdf0189ffa4e708e33db676fdb3",
+    "scripts/ui_component_surface.gd": "0047847117a424c28e980b394f078da0e2c4337ffc4df04c54017fabc70fcfc4",
+    "scripts/ui_surface_finish.gd": "758d0628483b11c0e5a770e144350786995b715b1f1f0c88e3c04d63078927b2",
+    "scripts/ui_typography.gd": "9ba8e17f4817a856682a5f0a741c7c830eb66aac72a2d4f2dcb27a2d21cdde7a"
+  }
+}

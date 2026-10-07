@@ -99,6 +99,7 @@ const CardDragTargetingArrow = preload("res://scripts/card_drag_targeting_arrow.
 const UiTooltipButton = preload("res://scripts/ui_tooltip_button.gd")
 const UiTooltipControl = preload("res://scripts/ui_tooltip_control.gd")
 const CardActionContextArt = preload("res://scripts/card_action_context_art.gd")
+const CharacterInventoryRows = preload("res://scripts/character_inventory_rows.gd")
 const PreBattleView = preload("res://scripts/pre_battle_view.gd")
 const PreBattleInspectionView = preload("res://scripts/pre_battle_inspection_view.gd")
 const PreBattleThreatTags = preload("res://scripts/pre_battle_threat_tags.gd")
@@ -139,6 +140,7 @@ const RUNTIME_PERFORMANCE_DIAGNOSTIC_PHASES: Dictionary = {
 	"enemy_round_lock_and_cache_wall_total": true,
 	"enemy_round_final_refresh_ui_wall_total": true,
 	"refresh_ui_sliced_wall_total": true,
+	"opening_objective_glyph_preparation": true,
 }
 
 class TooltipPanelContainer:
@@ -1314,6 +1316,11 @@ var _combat_state: Dictionary = {}
 var _committed_run_state_override: Dictionary = {}
 var _save_in_progress: bool = false
 var _skill_analytics_queue = DeferredReconciliationQueue.new()
+var _run_skill_analytics_queue = DeferredReconciliationQueue.new()
+var _run_skill_analytics_requested_scope: String = ""
+var _run_skill_analytics_flushing: bool = false
+var _run_skill_event_context_scope: String = ""
+var _run_skill_event_contexts: Dictionary = {}
 var _skill_analytics_requested_scope: String = ""
 var _skill_analytics_locked_scope: String = ""
 var _skill_analytics_staged_now: bool = false
@@ -1332,12 +1339,18 @@ var _board_preview_display_cache_key: String = ""
 var _board_preview_display_cache: Dictionary = {}
 var _preview_selection_revision: int = 0
 var _card_preview_cache: Dictionary = {}
+var _card_full_preview_summary_cache: Dictionary = {}
 var _card_playability_cache: Dictionary = {}
 var _committed_hand_query_generation: int = 0
 var _committed_hand_query_state: Dictionary = {}
 var _committed_hand_query_flags: Dictionary = {}
 var _committed_hand_query_display: Dictionary = {}
 var _committed_hand_query_forecast: Dictionary = {}
+var _committed_hand_query_previews: Dictionary = {}
+var _committed_hand_query_full_flags: Dictionary = {}
+var _committed_hand_query_shortcuts: Dictionary = {}
+var _committed_hand_query_definitions: Array = []
+var _committed_hand_query_prepare_previews: bool = false
 var _combat_forecast_cache = preload("res://scripts/combat_forecast_cache.gd").new()
 var _committed_hand_query_diagnostics: Dictionary = {}
 
@@ -1471,6 +1484,9 @@ var _grimoire_cached_results_valid: bool = false
 var _grimoire_cached_results: Array[Dictionary]
 var _grimoire_search_results: Array[Dictionary] = []
 var _grimoire_search_result_buttons: Array[Button] = []
+var _grimoire_search_retained_rows: Dictionary = {}
+var _grimoire_row_preparation_revision: int = 0
+var _grimoire_row_preparation_running_revision: int = -1
 var _grimoire_nav_buttons: Array[Button] = []
 var _grimoire_search_restore_selection: Dictionary = {}
 var _grimoire_search_restore_scroll: int = 0
@@ -1758,6 +1774,11 @@ var _skill_reset_button: Button
 var _skill_hud_refresh_pending: bool = false
 var _skill_reset_confirmation_scrim: ColorRect
 var _equipment_slot_panels: Dictionary = {}
+var _character_inventory_rows := CharacterInventoryRows.new()
+var _live_character_view_key: Dictionary = {}
+var _character_row_preparation_revision: int = 0
+var _character_row_preparation_running_revision: int = -1
+var _character_other_view_preparation_revision: int = 0
 var _equipment_inventory_tiles: Dictionary = {}
 var _equipment_drag_id: String = ""
 var _equipment_drag_source_rect: Rect2 = Rect2()
@@ -1835,6 +1856,38 @@ var _board_centering_tween: Tween
 var _board_centering_target := Vector2.INF
 var _board_canvas_size := Vector2.ZERO
 
+var _encounter_preparation_generation: int = 0
+var _encounter_cpu_asset_holds: Array[RefCounted]
+var _prepared_pre_battle_factory: Dictionary = {}
+var _equipment_factory_preparation := preload("res://scripts/prepared_equipment_combat.gd").new()
+var _equipment_factory_preparation_generation: int = 0
+var _prepared_pre_battle_view_key: Dictionary = {}
+var _live_pre_battle_view_key: Dictionary = {}
+var _prepared_pre_battle_view_ready: bool = false
+var _prepared_pre_battle_view_revision: int = 0
+var _opening_hand_pool_preparation_input: Dictionary = {}
+var _opening_hand_pool_preparation_revision: int = 0
+var _reward_reroll_preparation := preload("res://scripts/prepared_reward_choices.gd").new()
+
+func _schedule_encounter_assets(state: Dictionary) -> void:
+	_cancel_equipment_factory_preparation()
+	if is_instance_valid(board_view) and board_view.has_method("cancel_unit_renderer_preparation"): board_view.cancel_unit_renderer_preparation()
+	_encounter_preparation_generation += 1
+	_prepared_pre_battle_view_key.clear()
+	_live_pre_battle_view_key.clear()
+	_prepared_pre_battle_view_ready = false
+	_prepared_pre_battle_view_revision += 1
+	_encounter_cpu_asset_holds.clear()
+	_prepared_pre_battle_factory.clear()
+	_opening_hand_pool_preparation_input.clear()
+	_opening_hand_pool_preparation_revision += 1
+	preload("res://scripts/encounter_asset_preparation.gd").begin_for.call_deferred(self, state.duplicate(true), _encounter_preparation_generation)
+
+var _initial_ui_staging_requested: bool = false
+var _initial_ui_complete: bool = false
+var _initial_cpu_asset_holds: Array[RefCounted]
+var _defer_initial_run_presentation: bool = false
+
 func _ready() -> void:
 	var prefix_started: int = Time.get_ticks_usec()
 	ParallelRuntime.apply_from_environment()
@@ -1863,6 +1916,8 @@ func _ready() -> void:
 	if not stage_root.item_rect_changed.is_connected(_queue_board_view_rect_sync):
 		stage_root.item_rect_changed.connect(_queue_board_view_rect_sync)
 	call_deferred("_sync_board_view_rect")
+	if _initial_ui_staging_requested:
+		return
 	var ready_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_apply_style()
 	_layout_mini_map_overlay()
@@ -1886,6 +1941,65 @@ func _ready() -> void:
 	_record_runtime_performance_phase("startup_boot_run", ready_started)
 	call_deferred("_refresh_hand_panel_after_viewport_change")
 	call_deferred("_refresh_controller_interface")
+	_initial_ui_complete = true
+
+func request_staged_initial_ui() -> void:
+	_initial_ui_staging_requested = true
+
+static func prepare_initial_ui_for(scene: Node, present_frame: Callable, still_active: Callable) -> void:
+	await preload("res://scripts/run_initial_preparation.gd").prepare_ui_for(scene, present_frame, still_active)
+
+func _initial_ui_jobs() -> Array[Callable]:
+	var jobs: Array[Callable]
+	for job: Callable in [
+		_apply_style, _layout_mini_map_overlay,
+		_build_card_fx_layer, _build_card_focus_tooltip_stack,
+		_build_equipment_fx_layer, _build_choice_button_overlay,
+		_build_dialogue_overlay, _build_pinned_tooltip_overlay,
+		_build_menu_overlay, _build_grimoire_overlay, _build_pile_overlay,
+		_build_card_upgrade_overlay, _build_large_map_overlay,
+		_build_pre_battle_overlay, _build_drag_overlay,
+		_build_skill_status_popover, _build_combat_skill_card_selection_prompt,
+		_build_skill_choice_dialog, _connect_overlay_music_signals,
+		_build_controller_interface, _build_context_choice_panel,
+		_build_relic_choice_overlay.bind(stage_root), _build_graftwright_overlay.bind(stage_root),
+		_build_scavenger_shop_overlay.bind(stage_root), _build_run_end_recap.bind(stage_root),
+		_build_post_combat_victory_overlay,
+		_setup_pile_widgets, _setup_contextual_combat_tutorial,
+		_setup_action_step_tracker, _setup_play_meter, _setup_movement_meter,
+		_connect_header_layout_signals, _connect_choice_overlay_layout_signals,
+		_connect_board_aim_signals, _connect_initial_viewport_signal, _prepare_initial_run_state,
+		_prepare_initial_skill_tree_geometry, _prepare_initial_skill_tree_view,
+	]:
+		jobs.append(job)
+	return jobs
+
+func _connect_initial_viewport_signal() -> void:
+	if not get_viewport().size_changed.is_connected(_on_hand_viewport_size_changed):
+		get_viewport().size_changed.connect(_on_hand_viewport_size_changed)
+
+func initial_texture_preparation_manifest() -> Dictionary:
+	var manifest: Dictionary = {}
+	AssetLoader.add_texture_constants(manifest, get_script())
+	AssetLoader.add_texture_constants(manifest, UiSkin)
+	AssetLoader.add_texture_constants(manifest, ScavengerShopView)
+	AssetLoader.add_texture_constants(manifest, preload("res://scripts/scavenger_signage.gd"))
+	AssetLoader.add_texture_constants(manifest, preload("res://scripts/scavenger_materials.gd"))
+	AssetLoader.add_texture_constants(manifest, preload("res://scripts/character_menu_view.gd"))
+	for skill_id: String in SkillTreeLibrary.visible_ids():
+		var path: String = ActionIcons.icon_path(SkillTreeLibrary.icon_key(skill_id))
+		if not path.is_empty(): manifest[path] = false
+	var npc_art: String = str(GameData.npc_def("emaciated_man").get("art_path", ""))
+	if not npc_art.is_empty():
+		manifest[npc_art] = false
+		var idle_path: String = npc_art.get_basename() + "_idle.png"
+		if FileAccess.file_exists(idle_path): manifest[idle_path] = false
+	for name: String in ["action_frame", "medallion", "panel_frame"]:
+		manifest["res://assets/art/ui/section_map/" + name + ".png"] = false
+	return manifest
+
+static func prepare_initial_cpu_assets_for(scene: Node, root: Node, present_frame: Callable, still_active: Callable) -> void:
+	await preload("res://scripts/run_initial_preparation.gd").prepare_cpu_assets_for(scene, root, present_frame, still_active)
 
 func initial_asset_preparation_target() -> Control:
 	# This scene is detached; @onready bindings are not available yet.
@@ -1894,7 +2008,7 @@ func initial_asset_preparation_target() -> Control:
 func initial_presentation_is_ready() -> bool:
 	# Initial viewport/hand refreshes schedule further container fitting. The
 	# menu must cover that work even when reduced motion omits its reveal fade.
-	return is_node_ready() and not _run_state.is_empty() and (
+	return is_node_ready() and _initial_ui_complete and not _run_state.is_empty() and (
 		str(_run_state.get("mode", "")) != "combat" or _hand_layout_pending_revision < 0
 	)
 
@@ -3623,6 +3737,8 @@ func _notification(what: int) -> void:
 		_layout_progression_dialog()
 
 func _exit_tree() -> void:
+	_reward_reroll_preparation.cancel()
+	_cancel_equipment_factory_preparation()
 	_campfire_presentation.reset()
 	_cancel_deferred_skill_analytics()
 	_cancel_treasure_presentation()
@@ -4033,6 +4149,9 @@ func _build_overlay_ui() -> void:
 	_build_skill_status_popover()
 	_build_combat_skill_card_selection_prompt()
 	_build_skill_choice_dialog()
+	_connect_overlay_music_signals()
+
+func _connect_overlay_music_signals() -> void:
 	for surface: Control in [_menu_scrim, _grimoire_scrim, _pile_scrim, _upgrade_scrim, _large_map_scrim, _pre_battle_scrim]:
 		surface.visibility_changed.connect(_queue_music_context_refresh)
 
@@ -5034,20 +5153,73 @@ func _rebuild_pre_battle_overlay() -> void:
 		return
 	var total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_cancel_pre_battle_entry()
-	_clear_children_now(_pre_battle_panel)
-	_apply_pre_battle_outer_frame()
+	_prepared_pre_battle_view_revision += 1
+	var current_key: Dictionary = _pre_battle_view_key(_run_state, _pre_battle_preview_run_state)
+	var prepared_matches: bool = _prepared_pre_battle_view_ready and _prepared_pre_battle_view_key == current_key
+	_prepared_pre_battle_view_ready = false
+	if prepared_matches:
+		_live_pre_battle_view_key = _prepared_pre_battle_view_key
+		_prepared_pre_battle_view_key = {}
+		_record_runtime_performance_phase("pre_battle_overlay_prepared", total_started)
+		return
+	_prepared_pre_battle_view_key.clear()
 	var preview_state: Dictionary = _pre_battle_preview_run_state.duplicate(true)
 	var combat_state: Dictionary = (preview_state.get("combat_state", {}) as Dictionary).duplicate(true)
 	if combat_state.is_empty():
+		_live_pre_battle_view_key.clear()
+		_clear_children_now(_pre_battle_panel)
 		return
 	var room: Dictionary = _run_engine.room_metadata(preview_state, preview_state.get("current_room", _run_state.get("current_room", _pre_battle_destination)))
 	var room_element: String = str(combat_state.get("room_element", room.get("element", ElementData.NONE)))
 	var accent: Color = ElementData.accent(room_element) if ElementData.is_elemental(room_element) else Color("d8b06d")
 
+	if PreBattleView.refresh_sections(self, _pre_battle_panel, room, combat_state, accent, _run_state, _live_pre_battle_view_key, current_key):
+		_live_pre_battle_view_key = current_key.duplicate(true)
+		_record_runtime_performance_phase("pre_battle_changed_sections", total_started)
+		return
+	_clear_children_now(_pre_battle_panel)
+	_apply_pre_battle_outer_frame()
 	_ui_skin.apply_menu_finish(_pre_battle_panel, "outer")
 	_record_runtime_performance_phase("pre_battle_clear_and_context", total_started)
 	PreBattleView.build(self, _pre_battle_panel, room, combat_state, accent)
+	_live_pre_battle_view_key = current_key.duplicate(true)
 	_record_runtime_performance_phase("pre_battle_overlay_total", total_started)
+
+# Exclude receipts and notices that this panel never reads, but compare every
+# actual presentation input, including current definitions and derived skills.
+func _pre_battle_view_key(state: Dictionary, preview: Dictionary) -> Dictionary:
+	var room: Dictionary = _run_engine.room_metadata(preview, preview.get("current_room", state.get("current_room", _pre_battle_destination)))
+	var key: Dictionary = {
+		"room": room,
+		"combat": preview.get("combat_state", {}),
+		"umbra_stage": _combat_engine.effective_umbra_stage(preview.get("combat_state", {})),
+		"start_tiles": _run_engine.pre_battle_start_tiles(state),
+		"defiance_capacity": _run_engine.defiance_capacity(state),
+		"defiance_remaining": _run_engine.defiance_remaining(state),
+		"viewport": get_viewport_rect().size,
+		"scale": UiTypography.ui_scale(self),
+		"skin": _ui_skin.get_instance_id(),
+		"cards": GameData.cards(), "enemies": GameData.enemies(), "equipment": GameData.equipment(),
+		"true_bearing_description": SkillTreeLibrary.description("true_bearing"),
+	}
+	for field: String in ["player_hp", "player_max_hp", "equipped_equipment", "attuned_magic_cards", "deck_cards", "pre_battle_start"]:
+		key[field] = state.get(field)
+	return key
+
+func _begin_hidden_pre_battle_view(state: Dictionary, preview: Dictionary) -> Array[Callable]:
+	var jobs: Array[Callable]
+	_prepared_pre_battle_view_ready = false
+	_live_pre_battle_view_key.clear()
+	_prepared_pre_battle_view_key = _pre_battle_view_key(state, preview).duplicate(true)
+	_cancel_pre_battle_entry()
+	_clear_children_now(_pre_battle_panel)
+	_apply_pre_battle_outer_frame()
+	_ui_skin.apply_menu_finish(_pre_battle_panel, "outer")
+	var combat: Dictionary = preview.get("combat_state", {})
+	var room: Dictionary = _prepared_pre_battle_view_key["room"]
+	var element: String = str(combat.get("room_element", room.get("element", ElementData.NONE)))
+	var accent: Color = ElementData.accent(element) if ElementData.is_elemental(element) else Color("d8b06d")
+	return PreBattleView.build_jobs(self, _pre_battle_panel, room, combat, accent, state)
 
 func _apply_pre_battle_start_button_glow(button: BaseButton) -> void:
 	if button == null:
@@ -5283,6 +5455,17 @@ func _animate_pre_battle_entry() -> void:
 	)
 
 func _build_context_choice_overlay() -> void:
+	_build_context_choice_panel()
+	_build_relic_choice_overlay(stage_root)
+	_build_graftwright_overlay(stage_root)
+	_build_scavenger_shop_overlay(stage_root)
+	_build_run_end_recap(stage_root)
+	_build_post_combat_victory_overlay()
+
+func _build_post_combat_victory_overlay() -> void:
+	_post_combat_victory_overlay = PostCombatRewardSequence.build_victory_overlay(stage_root)
+
+func _build_context_choice_panel() -> void:
 	if stage_root == null:
 		return
 	_context_choice_overlay = PanelContainer.new()
@@ -5321,11 +5504,6 @@ func _build_context_choice_overlay() -> void:
 	_context_choice_bar.add_theme_constant_override("separation", 16)
 	margin.add_child(_context_choice_bar)
 	_layout_context_choice_overlay()
-	_build_relic_choice_overlay(stage_root)
-	_build_graftwright_overlay(stage_root)
-	_build_scavenger_shop_overlay(stage_root)
-	_build_run_end_recap(stage_root)
-	_post_combat_victory_overlay = PostCombatRewardSequence.build_victory_overlay(stage_root)
 
 func _layout_context_choice_overlay() -> void:
 	if _context_choice_overlay == null:
@@ -6000,7 +6178,7 @@ func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
 	if _grimoire_selected_section.is_empty() or _grimoire_entries_for_section_map(entries_by_section, _grimoire_selected_section).is_empty():
 		_grimoire_selected_section = _first_unlocked_grimoire_section_from(sections, entries_by_section)
 	_grimoire_sync_selected_entry(_grimoire_entries_for_section_map(entries_by_section, _grimoire_selected_section))
-	_clear_children_now(_grimoire_section_list)
+	_clear_grimoire_browse_controls()
 	var selected_index: int = 0
 	for section_var: Variant in sections:
 		if typeof(section_var) != TYPE_DICTIONARY:
@@ -6024,7 +6202,7 @@ func _rebuild_grimoire_overlay(scroll_to_selection: bool = false) -> void:
 		section_button.pressed.connect(_on_grimoire_section_pressed.bind(section_id))
 		_add_grimoire_nav_button(section_button, 0)
 		if section_selected and _grimoire_selected_entry.is_empty():
-			selected_index = _grimoire_section_list.get_child_count() - 1
+			selected_index = _grimoire_nav_buttons.size() - 1
 		if not section_selected:
 			continue
 		var groups: Array[String] = _grimoire_group_ids_for_entries(section_entries)
@@ -6085,7 +6263,6 @@ func _rebuild_grimoire_search_results(unlocked: Array[String], unread: Array[Str
 	# so selection/unread changes can reuse the same immutable ranking.
 	_grimoire_search_results.assign(_grimoire_cached_results)
 	grimoire_started = _record_runtime_performance_phase("grimoire_search_score", grimoire_started)
-	_clear_children_now(_grimoire_section_list)
 	var selected_still_matches: bool = false
 	for result: Dictionary in _grimoire_search_results:
 		var result_entry: Dictionary = result.get("entry", {}) as Dictionary
@@ -6094,8 +6271,7 @@ func _rebuild_grimoire_search_results(unlocked: Array[String], unread: Array[Str
 			break
 	if not selected_still_matches:
 		_grimoire_selected_entry = "" if _grimoire_search_results.is_empty() else str((_grimoire_search_results[0].get("entry", {}) as Dictionary).get("id", ""))
-	for result: Dictionary in _grimoire_search_results:
-		_add_grimoire_search_result(result, unread)
+	_reconcile_grimoire_search_rows(unread)
 	_update_grimoire_search_chrome(unlocked.size())
 	if _grimoire_search_results.is_empty():
 		call_deferred("_restore_grimoire_entry_list_scroll", 0, 0, scroll_revision)
@@ -6115,7 +6291,144 @@ func _rebuild_grimoire_search_results(unlocked: Array[String], unread: Array[Str
 	_record_runtime_performance_phase("grimoire_detail_build", grimoire_started)
 	_refresh_grimoire_badge()
 
-func _add_grimoire_search_result(result: Dictionary, unread: Array[String]) -> void:
+func _grimoire_known_row_ids() -> Array[String]:
+	return GrimoireLibrary.normalize_entry_ids(_run_state.get(GrimoireLibrary.UNLOCKED_KEY, []))
+
+func _grimoire_row_preparation_key() -> Dictionary:
+	return {"ids": _grimoire_known_row_ids(), "common": [get_viewport_rect().size, UiTypography.ui_scale(self)]}
+
+func _prepare_known_grimoire_rows() -> void:
+	await preload("res://scripts/grimoire_search_rows.gd").prepare_current_for(self, _grimoire_row_preparation_revision, preload("res://scripts/encounter_asset_preparation.gd").present_frame.bind(get_tree()), func() -> bool: return true)
+
+func _grimoire_search_row_input(result: Dictionary, unread: Array[String], common: Array) -> Array:
+	var entry: Dictionary = result.get("entry", {}) as Dictionary
+	var id: String = str(entry.get("id", ""))
+	return [str(entry.get("title", id)), unread.has(id), id == _grimoire_selected_entry, _grimoire_search_result_context(result), _grimoire_search_result_tooltip(result), common]
+
+func _park_grimoire_search_row(wrapper: Control) -> void:
+	var button: Button = wrapper.get_child(0) as Button
+	if button.has_focus(): button.release_focus()
+	button.focus_mode = Control.FOCUS_NONE
+	wrapper.hide()
+	wrapper.process_mode = Node.PROCESS_MODE_DISABLED
+
+func _clear_grimoire_browse_controls() -> void:
+	for child: Node in _grimoire_section_list.get_children():
+		var id: String = str(child.get_meta("grimoire_prepared_search_row", ""))
+		if _grimoire_search_retained_rows.get(id, {}).get("node") == child:
+			_park_grimoire_search_row(child as Control)
+		else:
+			_prepare_node_for_immediate_free(child)
+			_grimoire_section_list.remove_child(child)
+			child.queue_free()
+
+func _prune_grimoire_search_rows(ids: Array[String]) -> void:
+	for id: String in _grimoire_search_retained_rows.keys():
+		var node: Variant = _grimoire_search_retained_rows[id].get("node")
+		if ids.has(id) and _node_is_alive(node): continue
+		_grimoire_search_retained_rows.erase(id)
+		if _node_is_alive(node):
+			_prepare_node_for_immediate_free(node)
+			if node.get_parent() != null: node.get_parent().remove_child(node)
+			node.queue_free()
+
+func _prepare_grimoire_search_row(document: Dictionary) -> void:
+	var entry: Dictionary = document["entry"]
+	var id: String = str(entry["id"])
+	var common: Array = [get_viewport_rect().size, UiTypography.ui_scale(self)]
+	var cached: Variant = _grimoire_search_retained_rows.get(id, {}).get("node")
+	if _node_is_alive(cached):
+		# Published rows may already be in use. Preparation never replaces a
+		# visible row or changes any live selection, focus, or search results.
+		if cached.visible or _grimoire_search_retained_rows[id]["input"][5] == common: return
+		_grimoire_search_retained_rows.erase(id)
+		_prepare_node_for_immediate_free(cached)
+		cached.get_parent().remove_child(cached)
+		cached.queue_free()
+	var unread: Array[String] = GrimoireLibrary.normalize_entry_ids(_run_state.get(GrimoireLibrary.UNREAD_KEY, []))
+	var result: Dictionary = {"entry": entry, "breadcrumb": document.get("breadcrumb", ""), "match_kind": "title"}
+	var button: Button = _new_grimoire_search_result(result, unread)
+	var wrapper := MarginContainer.new()
+	wrapper.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	wrapper.add_theme_constant_override("margin_left", 0)
+	wrapper.add_theme_constant_override("margin_right", 0)
+	wrapper.add_child(button)
+	wrapper.set_meta("grimoire_prepared_search_row", id)
+	_park_grimoire_search_row(wrapper)
+	# Its final parent/theme/layout context is ready before publication. No
+	# continuation owns or discards this row after a rendered boundary.
+	_grimoire_section_list.add_child(wrapper)
+	_grimoire_search_retained_rows[id] = {"node": wrapper, "input": _grimoire_search_row_input(result, unread, common).duplicate(true)}
+
+func _reconcile_grimoire_search_rows(unread: Array[String]) -> void:
+	# Only discovered entries have prepared controls. Keep hidden rows after the
+	# ordered visible rows under their final parent, avoiding native theme setup
+	# when a broad query first exposes hundreds of results.
+	_prune_grimoire_search_rows(_grimoire_known_row_ids())
+	var next: Dictionary = _grimoire_search_retained_rows.duplicate()
+	var ordered: Array[Control]
+	var common: Array = [get_viewport_rect().size, UiTypography.ui_scale(self)]
+	for result: Dictionary in _grimoire_search_results:
+		var id: String = str((result.get("entry", {}) as Dictionary).get("id", ""))
+		var input: Array = _grimoire_search_row_input(result, unread, common)
+		var previous: Dictionary = _grimoire_search_retained_rows.get(id, {})
+		var cached: Variant = previous.get("node")
+		var wrapper: Control
+		if _node_is_alive(cached) and cached.get_parent() == _grimoire_section_list and (previous.get("input", []) as Array).size() == input.size() and previous["input"][5] == common:
+			var button: Button = cached.get_child(0) as Button
+			# A visible row with active pointer state takes the original fallback.
+			# Hidden prepared rows have no gesture and normalize selection at use.
+			if not cached.visible or button.get_draw_mode() not in [BaseButton.DRAW_HOVER, BaseButton.DRAW_HOVER_PRESSED, BaseButton.DRAW_PRESSED]:
+				wrapper = cached
+				if button.has_focus(): button.release_focus()
+				_update_grimoire_search_result(button, previous["input"], input)
+				button.focus_mode = Control.FOCUS_ALL
+				wrapper.process_mode = Node.PROCESS_MODE_INHERIT
+				wrapper.show()
+				_grimoire_nav_buttons.append(button)
+				_grimoire_search_result_buttons.append(button)
+		if wrapper == null:
+			var button: Button = _new_grimoire_search_result(result, unread)
+			_add_grimoire_nav_button(button, 0)
+			_grimoire_search_result_buttons.append(button)
+			wrapper = button.get_parent() as Control
+			wrapper.set_meta("grimoire_prepared_search_row", id)
+		next[id] = {"node": wrapper, "input": input.duplicate(true)}
+		ordered.append(wrapper)
+	for child: Node in _grimoire_section_list.get_children():
+		if ordered.has(child): continue
+		var id: String = str(child.get_meta("grimoire_prepared_search_row", ""))
+		if next.get(id, {}).get("node") == child:
+			_park_grimoire_search_row(child as Control)
+		else:
+			_prepare_node_for_immediate_free(child)
+			_grimoire_section_list.remove_child(child)
+			child.queue_free()
+	for index: int in ordered.size(): _grimoire_section_list.move_child(ordered[index], index)
+	_grimoire_search_retained_rows = next
+
+
+func _update_grimoire_search_result(button: Button, previous: Array, input: Array) -> void:
+	var content: VBoxContainer = button.get_child(0) as VBoxContainer
+	var title: Label = content.get_child(0) as Label
+	var breadcrumb: Label = content.get_child(1) as Label
+	var selected: bool = bool(input[2])
+	# Native accessibility activation may toggle before emitting pressed. Match
+	# a freshly constructed result even when presentation inputs did not change.
+	button.set_pressed_no_signal(selected)
+	if previous[0] != input[0] or previous[1] != input[1]:
+		title.text = "%s%s" % ["* " if bool(input[1]) else "", str(input[0])]
+	if previous[3] != input[3]: breadcrumb.text = str(input[3])
+	if previous[4] != input[4]: button.tooltip_text = str(input[4])
+	if previous[2] != input[2]:
+		button.add_theme_stylebox_override("normal", _grimoire_tab_style(1, selected, false, false, "search"))
+		button.add_theme_stylebox_override("hover", _grimoire_tab_style(1, selected, true, false, "search"))
+		button.add_theme_stylebox_override("focus", _grimoire_tab_style(1, selected, true, false, "search"))
+		var color: Color = Color("2f1d10") if selected else Color("3d2818")
+		for role: String in ["font_color", "font_pressed_color", "font_focus_color"]: button.add_theme_color_override(role, color)
+		title.add_theme_color_override("font_color", color)
+
+func _new_grimoire_search_result(result: Dictionary, unread: Array[String]) -> Button:
 	var entry: Dictionary = result.get("entry", {}) as Dictionary
 	var entry_id: String = str(entry.get("id", ""))
 	var selected: bool = entry_id == _grimoire_selected_entry
@@ -6159,8 +6472,7 @@ func _add_grimoire_search_result(result: Dictionary, unread: Array[String]) -> v
 	UiTypography.apply_label_role(breadcrumb, UiTypography.ROLE_CAPTION)
 	breadcrumb.add_theme_color_override("font_color", Color(0.28, 0.18, 0.10, 0.76))
 	content.add_child(breadcrumb)
-	_add_grimoire_nav_button(button, 0)
-	_grimoire_search_result_buttons.append(button)
+	return button
 
 func _grimoire_search_result_context(result: Dictionary) -> String:
 	var breadcrumb: String = str(result.get("breadcrumb", ""))
@@ -6380,7 +6692,7 @@ func _add_grimoire_entry_tab(entry: Dictionary, unread: Array[String], depth: in
 	button.set_meta("grimoire_nav_id", entry_id)
 	button.pressed.connect(_on_grimoire_entry_pressed.bind(entry_id))
 	_add_grimoire_nav_button(button, depth)
-	return _grimoire_section_list.get_child_count() - 1
+	return _grimoire_nav_buttons.size() - 1
 
 func _add_grimoire_nav_button(button: Button, depth: int) -> void:
 	var wrapper := MarginContainer.new()
@@ -6389,6 +6701,7 @@ func _add_grimoire_nav_button(button: Button, depth: int) -> void:
 	wrapper.add_theme_constant_override("margin_right", 0)
 	wrapper.add_child(button)
 	_grimoire_section_list.add_child(wrapper)
+	_grimoire_section_list.move_child(wrapper, _grimoire_nav_buttons.size())
 	_grimoire_nav_buttons.append(button)
 
 func _grimoire_nav_button(label: String, depth: int, selected: bool, unread: bool, tooltip: String, kind: String) -> Button:
@@ -10061,6 +10374,11 @@ func _pile_card_style(fill: Color, border: Color, margin: float = 10.0) -> Style
 	style.content_margin_bottom = margin
 	return style
 
+func _prepare_initial_run_state() -> void:
+	_defer_initial_run_presentation = true
+	_boot_run()
+	_defer_initial_run_presentation = false
+
 func _boot_run() -> void:
 	_progression = ProgressionStore.load_data()
 	_reconcile_progression_analytics_outbox()
@@ -10082,6 +10400,21 @@ func _boot_run() -> void:
 	_start_run()
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	_reward_reroll_preparation.cancel()
+	_cancel_equipment_factory_preparation()
+	if is_instance_valid(board_view) and board_view.has_method("cancel_unit_renderer_preparation"): board_view.cancel_unit_renderer_preparation()
+	_grimoire_row_preparation_revision += 1
+	_character_row_preparation_revision += 1
+	_live_character_view_key.clear()
+	_encounter_preparation_generation += 1
+	_prepared_pre_battle_view_key.clear()
+	_live_pre_battle_view_key.clear()
+	_prepared_pre_battle_view_ready = false
+	_prepared_pre_battle_view_revision += 1
+	_encounter_cpu_asset_holds.clear()
+	_prepared_pre_battle_factory.clear()
+	_opening_hand_pool_preparation_input.clear()
+	_opening_hand_pool_preparation_revision += 1
 	_return_to_emaciated_service = false
 	_acknowledge_saved_starting_relic_gift(next_run_state)
 	_campfire_presentation.reset()
@@ -10119,6 +10452,8 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	merged_run_state = _run_engine.reconcile_progression_revision(merged_run_state, _progression)
 	_run_state = _ensure_run_analytics_metadata(_run_engine.repair_loaded_run_state(merged_run_state))
 	_run_state = GrimoireLibrary.ensure_run_state(_run_state)
+	_prune_grimoire_search_rows(_grimoire_known_row_ids())
+	_character_inventory_rows.prune(_current_character_row_keys(), _prepare_node_for_immediate_free)
 	_baseline_run_skill_event_cursors()
 	_sync_progression_from_run()
 	_repair_profile_progression_from_run()
@@ -10144,7 +10479,13 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_board_presentation.clear()
 	action_banner.visible = false
 	_reward_intro_suppressed = _reward_intro_pending()
-	_refresh_ui()
+	if not _defer_initial_run_presentation: _refresh_ui()
+	if not _defer_initial_run_presentation: _queue_loaded_run_continuation()
+	if _initial_ui_complete:
+		call_deferred("_prepare_known_character_rows")
+		call_deferred("_prepare_known_grimoire_rows")
+
+func _queue_loaded_run_continuation() -> void:
 	if _has_pending_combat_checkpoints():
 		call_deferred("_resume_pending_combat_checkpoints")
 	elif _reward_intro_suppressed:
@@ -10175,7 +10516,7 @@ func _start_run() -> void:
 	if not previous.is_empty() and not _acknowledge_saved_starting_relic_gift(previous):
 		_load_run_state(previous)
 		_run_state["notice"] = "Could not save the previous run's relic gift. Try again."
-		_refresh_ui()
+		if not _defer_initial_run_presentation: _refresh_ui()
 		return
 	var starting_profile: Dictionary = ProgressionStore.load_data()
 	if not previous.is_empty(): starting_profile = ProgressionStore.set_embers(starting_profile, 0)
@@ -10189,7 +10530,7 @@ func _start_run() -> void:
 		if not previous.is_empty():
 			_load_run_state(previous)
 			_run_state["notice"] = "The new run could not be saved. Your previous run is available."
-			_refresh_ui()
+			if not _defer_initial_run_presentation: _refresh_ui()
 		else:
 			push_error("Failed to save the new run.")
 		return
@@ -10209,16 +10550,57 @@ func _refresh_ui(
 	unlock_animation_after_slices: bool = false,
 	queue_hand_ready_wave_on_unlock: bool = false
 ) -> void:
-	_consume_pending_card_draw_sfx(_combat_state)
-	if _hud_seat_scrim != null:
-		_hud_seat_scrim.show_bottom_band = str(_run_state.get("mode", "room")) == "combat"
-	if frame_sliced:
-		_frame_sliced_ui_refresh_active = true
+	_begin_ui_refresh(frame_sliced)
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var performance_phase_started: int = performance_total_started
 	var slice_cpu_started: int = Time.get_ticks_usec()
 	var slice_telemetry_overhead_started: int = _runtime_performance_record_overhead_live_usec
 	var sliced_wait_occurred: bool = false
+	for job: Callable in [_refresh_ui_header, _refresh_ui_navigation, _refresh_ui_choices, _refresh_ui_stage, _refresh_ui_hand]:
+		job.call()
+		if frame_sliced and _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec:
+			var wait_started: int = Time.get_ticks_usec()
+			await RenderingServer.frame_post_draw
+			var resumed: int = Time.get_ticks_usec()
+			sliced_wait_occurred = true
+			slice_cpu_started = resumed
+			slice_telemetry_overhead_started = _runtime_performance_record_overhead_live_usec
+			if _runtime_performance_instrumentation_enabled: performance_total_started += resumed - wait_started
+	if unlock_animation_after_slices:
+		# Input must remain locked across every rendered scheduling boundary above.
+		# Unlock and rebuild all lock-dependent surfaces synchronously after the final
+		# await so no Pass/card/board event can enter the still-running refresh.
+		var unlock_inputs_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+		_animation_lock = false
+		if queue_hand_ready_wave_on_unlock:
+			_queue_hand_ready_wave("player_turn_start")
+			_show_turn_banner(true)
+		_refresh_card_play_meter()
+		_refresh_player_movement_meter()
+		_refresh_choice_bar()
+		_refresh_stage_view()
+		_refresh_hand_panel()
+		_record_runtime_performance_phase("refresh_ui_unlock_inputs_total", unlock_inputs_started)
+	_refresh_ui_finish()
+	_record_runtime_performance_phase("refresh_ui_sliced_wall_total" if sliced_wait_occurred else "refresh_ui_total", performance_total_started)
+	_end_ui_refresh(frame_sliced)
+
+func _begin_ui_refresh(frame_sliced: bool) -> void:
+	_consume_pending_card_draw_sfx(_combat_state)
+	if _hud_seat_scrim != null:
+		_hud_seat_scrim.show_bottom_band = str(_run_state.get("mode", "room")) == "combat"
+	if frame_sliced: _frame_sliced_ui_refresh_active = true
+
+func _end_ui_refresh(frame_sliced: bool) -> void:
+	call_deferred("_prepare_reward_reroll_choices")
+	_sync_click_targeting_arrow()
+	call_deferred("_sync_click_targeting_arrow")
+	if frame_sliced: _frame_sliced_ui_refresh_active = false
+
+func _prepare_reward_reroll_choices() -> void:
+	_reward_reroll_preparation.schedule(self)
+
+func _refresh_ui_header() -> void:
+	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	if _dialogue_active and str(_run_state.get("mode", "room")) != "room":
 		_close_dialogue()
 	_sync_analytics_combat_tracker()
@@ -10260,16 +10642,9 @@ func _refresh_ui(
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_umbra_and_stats", performance_phase_started)
 	_refresh_relic_bar()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_relic_bar_total", performance_phase_started)
-	if frame_sliced and _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec:
-		var relic_slice_wait_started: int = Time.get_ticks_usec()
-		await RenderingServer.frame_post_draw
-		var relic_slice_resumed: int = Time.get_ticks_usec()
-		sliced_wait_occurred = true
-		slice_cpu_started = relic_slice_resumed
-		slice_telemetry_overhead_started = _runtime_performance_record_overhead_live_usec
-		if _runtime_performance_instrumentation_enabled:
-			performance_total_started += relic_slice_resumed - relic_slice_wait_started
-			performance_phase_started = relic_slice_resumed
+
+func _refresh_ui_navigation() -> void:
+	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_refresh_turn_order_bar()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_turn_order_total", performance_phase_started)
 	_refresh_combat_objective_hud()
@@ -10286,20 +10661,9 @@ func _refresh_ui(
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_large_map", performance_phase_started)
 	_refresh_pile_counts()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_pile_counts", performance_phase_started)
-	if frame_sliced and _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec:
-		# End-of-turn initiative/objective layout and the interactive resource dock
-		# are independent surfaces. Give the renderer the former before legality
-		# scans and Pass reconstruction start, keeping both CPU batches below a
-		# single 60 Hz frame on weaker hardware.
-		var dock_slice_wait_started: int = Time.get_ticks_usec()
-		await RenderingServer.frame_post_draw
-		var dock_slice_resumed: int = Time.get_ticks_usec()
-		sliced_wait_occurred = true
-		slice_cpu_started = dock_slice_resumed
-		slice_telemetry_overhead_started = _runtime_performance_record_overhead_live_usec
-		if _runtime_performance_instrumentation_enabled:
-			performance_total_started += dock_slice_resumed - dock_slice_wait_started
-			performance_phase_started = dock_slice_resumed
+
+func _refresh_ui_choices(reward_jobs: Variant = null) -> void:
+	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_refresh_card_play_meter()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_card_play_meter", performance_phase_started)
 	_refresh_player_movement_meter()
@@ -10308,57 +10672,21 @@ func _refresh_ui(
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_action_step_tracker_total", performance_phase_started)
 	_refresh_pile_visuals()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_pile_visuals", performance_phase_started)
-	_refresh_choice_bar()
+	_refresh_choice_bar(reward_jobs)
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_choice_bar_total", performance_phase_started)
-	if frame_sliced and _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec:
-		var choice_slice_wait_started: int = Time.get_ticks_usec()
-		await RenderingServer.frame_post_draw
-		var choice_slice_resumed: int = Time.get_ticks_usec()
-		sliced_wait_occurred = true
-		slice_cpu_started = choice_slice_resumed
-		slice_telemetry_overhead_started = _runtime_performance_record_overhead_live_usec
-		if _runtime_performance_instrumentation_enabled:
-			performance_total_started += choice_slice_resumed - choice_slice_wait_started
-			performance_phase_started = choice_slice_resumed
+
+func _refresh_ui_stage() -> void:
+	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_refresh_stage_view()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_stage_total", performance_phase_started)
-	if frame_sliced and _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec:
-		var stage_slice_wait_started: int = Time.get_ticks_usec()
-		await RenderingServer.frame_post_draw
-		var stage_slice_resumed: int = Time.get_ticks_usec()
-		sliced_wait_occurred = true
-		slice_cpu_started = stage_slice_resumed
-		slice_telemetry_overhead_started = _runtime_performance_record_overhead_live_usec
-		if _runtime_performance_instrumentation_enabled:
-			performance_total_started += stage_slice_resumed - stage_slice_wait_started
-			performance_phase_started = stage_slice_resumed
+
+func _refresh_ui_hand() -> void:
+	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_refresh_hand_panel()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_hand_total", performance_phase_started)
-	if frame_sliced and _runtime_slice_cpu_elapsed_usec(slice_cpu_started, slice_telemetry_overhead_started) >= _runtime_ui_slice_budget_usec:
-		var hand_slice_wait_started: int = Time.get_ticks_usec()
-		await RenderingServer.frame_post_draw
-		var hand_slice_resumed: int = Time.get_ticks_usec()
-		sliced_wait_occurred = true
-		slice_cpu_started = hand_slice_resumed
-		slice_telemetry_overhead_started = _runtime_performance_record_overhead_live_usec
-		if _runtime_performance_instrumentation_enabled:
-			performance_total_started += hand_slice_resumed - hand_slice_wait_started
-			performance_phase_started = hand_slice_resumed
-	if unlock_animation_after_slices:
-		# Input must remain locked across every rendered scheduling boundary above.
-		# Unlock and rebuild all lock-dependent surfaces synchronously after the final
-		# await so no Pass/card/board event can enter the still-running refresh.
-		var unlock_inputs_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-		_animation_lock = false
-		if queue_hand_ready_wave_on_unlock:
-			_queue_hand_ready_wave("player_turn_start")
-			_show_turn_banner(true)
-		_refresh_card_play_meter()
-		_refresh_player_movement_meter()
-		_refresh_choice_bar()
-		_refresh_stage_view()
-		_refresh_hand_panel()
-		performance_phase_started = _record_runtime_performance_phase("refresh_ui_unlock_inputs_total", unlock_inputs_started)
+
+func _refresh_ui_finish() -> void:
+	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_refresh_pile_interaction_states()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_pile_interactions", performance_phase_started)
 	_refresh_visibility()
@@ -10383,14 +10711,6 @@ func _refresh_ui(
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_auto_dialogue", performance_phase_started)
 	_update_performance_telemetry_context()
 	_record_runtime_performance_phase("refresh_ui_telemetry_context", performance_phase_started)
-	_record_runtime_performance_phase(
-		"refresh_ui_sliced_wall_total" if sliced_wait_occurred else "refresh_ui_total",
-		performance_total_started
-	)
-	_sync_click_targeting_arrow()
-	call_deferred("_sync_click_targeting_arrow")
-	if frame_sliced:
-		_frame_sliced_ui_refresh_active = false
 
 func _refresh_animation_lock_ui() -> void:
 	# Animation entry only changes combat interactivity/presentation. Avoid rebuilding
@@ -10588,7 +10908,7 @@ func _refresh_relic_bar() -> void:
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_skill_presentation", performance_phase_started)
 	_request_skill_event_analytics()
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_reconcile_analytics_total", performance_phase_started)
-	_flush_run_skill_event_analytics("hud_run_skill")
+	_request_run_skill_event_analytics()
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_flush_analytics_total", performance_phase_started)
 	_skill_event_revision_seen = maxi(_skill_event_revision_seen, event_revision)
 	_run_skill_event_revision_seen = maxi(_run_skill_event_revision_seen, run_event_revision)
@@ -14190,7 +14510,7 @@ func _refresh_card_preview_visibility() -> void:
 	left_action_stack.visible = action_step_tracker_visible or choice_bar.visible or piles_bar.visible
 	bottom_stack.visible = choice_bar.visible or hand_row.visible
 
-func _refresh_choice_bar() -> void:
+func _refresh_choice_bar(reward_jobs: Variant = null) -> void:
 	board_view.set_tooltips_enabled(str(_run_state.get("mode", "room")) != "reward")
 	_sync_treasure_room_reveal()
 	if _scavenger_shop_view != null:
@@ -14227,7 +14547,7 @@ func _refresh_choice_bar() -> void:
 			var merchant_kind: String = _current_room_merchant_kind()
 			if not merchant_kind.is_empty():
 				if _merchant_shop_open:
-					_scavenger_shop_view.configure(_run_state, _run_engine, _reduced_motion_enabled())
+					_scavenger_shop_view.configure(_run_state, _run_engine, _reduced_motion_enabled(), _record_runtime_performance_phase if _runtime_performance_instrumentation_enabled else Callable())
 					_scavenger_shop_view.present()
 				else:
 					_add_merchant_return_to_shop_button()
@@ -14265,7 +14585,7 @@ func _refresh_choice_bar() -> void:
 					_add_dragon_reward_stack()
 				else:
 					_set_relic_choice_title(REWARD_CHOICE_TITLE_TEXT)
-					_add_reward_choice_stack()
+					_add_reward_choice_stack(reward_jobs)
 		"treasure":
 			var pending_relics: Array = [] if _treasure_reveal_active else (_run_state.get("pending_relics", []) as Array).duplicate()
 			if not pending_relics.is_empty():
@@ -14382,7 +14702,7 @@ func _commit_quick_wits(skill_id: String, hand_index: int) -> void:
 		_release_card_proxy(discard_proxy)
 		_finish_combat_skill_card_motion()
 		return
-	_schedule_committed_hand_queries(_combat_state)
+	_schedule_committed_hand_queries(_combat_state, true)
 	await _animate_card_to_pile_fx(card_id, "discard", card_size, discard_proxy)
 	var draw_transition: Dictionary = _draw_hand_transition_between_states(
 		before_state,
@@ -15461,12 +15781,12 @@ func _play_reward_reveal() -> void:
 	_animation_lock = true
 	_refresh_ui()
 	var card_slots: Array[Control] = []
-	var card_row: HBoxContainer = find_child("RewardCardRow", true, false) as HBoxContainer
+	var card_row: HBoxContainer = _relic_choice_bar.find_child("RewardCardRow", true, false) as HBoxContainer
 	if card_row != null:
 		for child: Node in card_row.get_children():
 			if child is Control:
 				card_slots.append(child as Control)
-	var secondary_actions: Control = find_child("RewardSecondaryActions", true, false) as Control
+	var secondary_actions: Control = _relic_choice_bar.find_child("RewardSecondaryActions", true, false) as Control
 	await PostCombatRewardSequence.play_reward_reveal(
 		stage_root,
 		_relic_choice_banner,
@@ -15491,6 +15811,7 @@ func _finish_reward_intro() -> void:
 	reward_state["intro_pending"] = false
 	_run_state["pending_reward"] = reward_state
 	_persist_committed_boundary("reward_intro_complete")
+	call_deferred("_prepare_reward_reroll_choices")
 
 func _add_dragon_reward_stack() -> void:
 	if _relic_choice_bar == null: return
@@ -15649,10 +15970,14 @@ func _commit_dragon_reward_continue() -> bool:
 		_persist_committed_boundary("dragon_reward_claim_ack")
 	return true
 
-func _add_reward_choice_stack() -> void:
+func _add_reward_choice_stack(reward_jobs: Variant = null) -> void:
 	if _relic_choice_bar == null:
 		return
-	var reward_state: Dictionary = _run_state.get("pending_reward", {}) as Dictionary
+	if _reward_reroll_preparation.adopt(self, _relic_choice_bar): return
+	_build_reward_choice_stack(_relic_choice_bar, _run_state, reward_jobs)
+
+func _build_reward_choice_stack(destination: Control, choice_state: Dictionary, reward_jobs: Variant = null, definitions: Dictionary = {}) -> VBoxContainer:
+	var reward_state: Dictionary = choice_state.get("pending_reward", {}) as Dictionary
 	var reward_cards: Array = reward_state.get("cards", []) as Array
 	var heal_amount: int = maxi(0, int(reward_state.get("heal_amount", 0)))
 	var stack := VBoxContainer.new()
@@ -15661,9 +15986,9 @@ func _add_reward_choice_stack() -> void:
 	stack.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	stack.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	stack.add_theme_constant_override("separation", int(REWARD_CHOICE_STACK_GAP))
-	_relic_choice_bar.add_child(stack)
-	var focusable_cards: Array[Control] = []
-	var action_buttons: Array[Control] = []
+	destination.add_child(stack)
+	var focusable_cards: Array[Control]
+	var action_buttons: Array[Control]
 
 	if not reward_cards.is_empty():
 		var card_row := HBoxContainer.new()
@@ -15674,23 +15999,34 @@ func _add_reward_choice_stack() -> void:
 		stack.add_child(card_row)
 		var reward_card_size: Vector2 = _reward_choice_card_size(reward_cards.size(), heal_amount > 0)
 		for card_id_var: Variant in reward_cards:
-			var card_id: String = str(card_id_var)
-			var widget = CardWidgetScene.instantiate()
-			widget.custom_minimum_size = reward_card_size
-			widget.configure(card_id, false, false, true, false, true, true, _card_def(card_id))
-			widget.set_hover_pose(REWARD_CARD_HOVER_LIFT, REWARD_CARD_HOVER_SCALE)
-			widget.activated.connect(_on_reward_card_pressed.bind(card_id, widget))
-			var card_slot: Control = _reward_card_choice_slot(widget, card_id, reward_card_size)
-			card_row.add_child(card_slot)
-			widget.focus_mode = Control.FOCUS_ALL
-			widget.focus_entered.connect(widget.set_external_highlighted.bind(true))
-			widget.focus_exited.connect(widget.set_external_highlighted.bind(false))
-			widget.gui_input.connect(_on_reward_card_keyboard_input.bind(card_id, widget))
-			focusable_cards.append(widget)
-			if _reward_reveal_pending:
-				PostCombatRewardSequence.prepare_card_slot(card_slot, CARD_BACK_TEXTURE_PATH)
+			var job: Callable = _add_reward_choice_card.bind(card_row, str(card_id_var), reward_card_size, focusable_cards, definitions.get(str(card_id_var), {}), choice_state)
+			if reward_jobs is Array: reward_jobs.append(job)
+			else: job.call()
 
-	var has_reroll: bool = _run_engine.run_skill_is_ready(_run_state, "discerning_eye")
+	var finish: Callable = _finish_reward_choice_stack.bind(stack, heal_amount, focusable_cards, action_buttons, choice_state)
+	if reward_jobs is Array: reward_jobs.append(finish)
+	else: finish.call()
+	return stack
+
+func _add_reward_choice_card(card_row: HBoxContainer, card_id: String, reward_card_size: Vector2, focusable_cards: Array[Control], definition: Dictionary = {}, choice_state: Dictionary = {}) -> void:
+	var widget = CardWidgetScene.instantiate()
+	widget.custom_minimum_size = reward_card_size
+	widget.configure(card_id, false, false, true, false, true, true, _card_def(card_id) if definition.is_empty() else definition)
+	widget.set_hover_pose(REWARD_CARD_HOVER_LIFT, REWARD_CARD_HOVER_SCALE)
+	widget.activated.connect(_on_reward_card_pressed.bind(card_id, widget))
+	var card_slot: Control = _reward_card_choice_slot(widget, card_id, reward_card_size, choice_state)
+	card_row.add_child(card_slot)
+	widget.focus_mode = Control.FOCUS_ALL
+	widget.focus_entered.connect(widget.set_external_highlighted.bind(true))
+	widget.focus_exited.connect(widget.set_external_highlighted.bind(false))
+	widget.gui_input.connect(_on_reward_card_keyboard_input.bind(card_id, widget))
+	focusable_cards.append(widget)
+	if _reward_reveal_pending:
+		PostCombatRewardSequence.prepare_card_slot(card_slot, CARD_BACK_TEXTURE_PATH)
+
+func _finish_reward_choice_stack(stack: VBoxContainer, heal_amount: int, focusable_cards: Array[Control], action_buttons: Array[Control], choice_state: Dictionary = {}) -> void:
+	var action_state: Dictionary = _run_state if choice_state.is_empty() else choice_state
+	var has_reroll: bool = _run_engine.run_skill_is_ready(action_state, "discerning_eye")
 	if heal_amount <= 0 and not has_reroll:
 		_configure_reward_choice_focus(focusable_cards, action_buttons)
 		return
@@ -15714,7 +16050,7 @@ func _add_reward_choice_stack() -> void:
 		action_row.add_child(reroll_button)
 		action_buttons.append(reroll_button)
 	if heal_amount > 0:
-		var recover_button: UiTooltipButton = _reward_recover_button(heal_amount)
+		var recover_button: UiTooltipButton = _reward_recover_button(heal_amount, action_state)
 		action_row.add_child(recover_button)
 		action_buttons.append(recover_button)
 	_configure_reward_choice_focus(focusable_cards, action_buttons)
@@ -15785,15 +16121,16 @@ func _reward_secondary_button(
 	button.pressed.connect(callback)
 	return button
 
-func _reward_recover_button(heal_amount: int) -> UiTooltipButton:
-	var current_hp: int = maxi(0, int(_run_state.get("player_hp", 0)))
-	var max_hp: int = maxi(1, int(_run_state.get("player_max_hp", current_hp)))
+func _reward_recover_button(heal_amount: int, choice_state: Dictionary = {}) -> UiTooltipButton:
+	var action_state: Dictionary = _run_state if choice_state.is_empty() else choice_state
+	var current_hp: int = maxi(0, int(action_state.get("player_hp", 0)))
+	var max_hp: int = maxi(1, int(action_state.get("player_max_hp", current_hp)))
 	var result_hp: int = mini(max_hp, current_hp + heal_amount)
 	var effective_heal: int = maxi(0, result_hp - current_hp)
 	var wasted_heal: int = maxi(0, heal_amount - effective_heal)
 	var fully_wasted: bool = heal_amount > 0 and effective_heal == 0
 	var tooltip: String = "Leave every offered card behind and recover %d HP." % heal_amount
-	if _run_engine.has_run_skill(_run_state, "deferred_choice"):
+	if _run_engine.has_run_skill(action_state, "deferred_choice"):
 		tooltip = "Recover %d HP, then choose whether one offered card follows you to the next reward." % heal_amount
 	elif fully_wasted:
 		tooltip = "Leave every offered card behind. Health is already full."
@@ -17024,6 +17361,9 @@ func _acquire_hand_card_pool_entry(card_id: String, card_size: Vector2) -> Dicti
 		if slot != null:
 			slot.visible = true
 		return entry
+	return _new_hand_card_pool_entry(card_id, card_size)
+
+func _new_hand_card_pool_entry(card_id: String, card_size: Vector2) -> Dictionary:
 	var widget := CardWidgetScene.instantiate() as CardWidget
 	widget.activated.connect(_on_hand_card_widget_activated.bind(widget))
 	widget.drag_started.connect(_on_hand_card_widget_drag_started.bind(widget))
@@ -17036,6 +17376,39 @@ func _acquire_hand_card_pool_entry(card_id: String, card_size: Vector2) -> Dicti
 		"slot": slot,
 		"definition_signature": -1,
 	}
+
+# Own only the exact opening hand. The hidden pool runs no input or deal motion;
+# acquisition still applies the current interaction state and display overrides.
+func _schedule_opening_hand_pool_preparation(combat_state: Dictionary) -> void:
+	if combat_state.is_empty() or combat_state == _opening_hand_pool_preparation_input: return
+	_opening_hand_pool_preparation_input = combat_state.duplicate(true)
+	_opening_hand_pool_preparation_revision += 1
+	preload("res://scripts/encounter_asset_preparation.gd").prepare_opening_hand_for.call_deferred(self, _opening_hand_pool_preparation_input, _encounter_preparation_generation, _opening_hand_pool_preparation_revision)
+
+func _prepare_opening_hand_pool_entry(card_id: String, card_size: Vector2, combat_state: Dictionary, copy_index: int) -> void:
+	_ensure_hand_card_pool_host()
+	var entry: Dictionary = {}
+	var matching: int = 0
+	for pooled: Dictionary in _hand_card_pool:
+		if str(pooled.get("card_id", "")) != card_id: continue
+		if matching == copy_index:
+			entry = pooled
+			break
+		matching += 1
+	if entry.is_empty():
+		entry = _new_hand_card_pool_entry(card_id, card_size)
+		var slot: Control = entry["slot"]
+		slot.visible = false
+		_hand_card_pool_host.add_child(slot)
+		_hand_card_pool.append(entry)
+	var card_definition: Dictionary = _card_def(card_id, combat_state)
+	var signature: int = hash(card_definition)
+	if int(entry.get("definition_signature", -1)) == signature: return
+	var widget: CardWidget = entry["widget"]
+	widget.configure(card_id, false, true, false, false, false, false, card_definition)
+	widget.set_native_tooltips_enabled(false)
+	entry["definition_signature"] = signature
+	widget.set_meta("hand_card_definition_signature", signature)
 
 func _configure_scaled_card_slot_geometry(slot: Control, card_size: Vector2, retain_hand_transform: bool = false) -> void:
 	if slot == null:
@@ -17240,10 +17613,10 @@ func _ensure_skill_hand_selection_card_visible(button: Button) -> void:
 	if hand_scroll != null and button != null and button.is_inside_tree():
 		hand_scroll.ensure_control_visible(button)
 
-func _reward_card_choice_slot(widget: Control, card_id: String, card_size: Vector2) -> Control:
+func _reward_card_choice_slot(widget: Control, card_id: String, card_size: Vector2, choice_state: Dictionary = {}) -> Control:
 	var slot: Control = _hand_card_slot(widget, card_size)
 	slot.name = "RewardCardChoiceSlot"
-	var context: Dictionary = _reward_card_choice_context(card_id)
+	var context: Dictionary = _reward_card_choice_context(card_id, choice_state)
 	slot.set_meta("reward_card_id", card_id)
 	slot.set_meta("reward_status", str(context.get("status", "new")))
 	if widget != null:
@@ -17257,10 +17630,11 @@ func _reward_card_choice_slot(widget: Control, card_id: String, card_size: Vecto
 		)
 	return slot
 
-func _reward_card_choice_context(card_id: String) -> Dictionary:
-	var attuned: Array = _run_state.get("attuned_magic_cards", []) as Array
-	var inventory: Array = _run_state.get("magic_inventory", []) as Array
-	var history: Array = _run_state.get("reward_cards", []) as Array
+func _reward_card_choice_context(card_id: String, choice_state: Dictionary = {}) -> Dictionary:
+	var ownership_state: Dictionary = _run_state if choice_state.is_empty() else choice_state
+	var attuned: Array = ownership_state.get("attuned_magic_cards", []) as Array
+	var inventory: Array = ownership_state.get("magic_inventory", []) as Array
+	var history: Array = ownership_state.get("reward_cards", []) as Array
 	var owned: bool = attuned.has(card_id) or inventory.has(card_id) or history.has(card_id)
 	return {
 		"status": "owned" if owned else "new",
@@ -17579,6 +17953,7 @@ func _refresh_stage_view() -> void:
 		_exit_icon_ids_for_board() if str(_run_state.get("mode", "room")) == "room" else _objective_exit_icon_ids_for_board(display_state),
 		presentation
 	)
+	if run_mode == "combat" and board_view.has_method("cancel_unit_renderer_preparation"): board_view.cancel_unit_renderer_preparation()
 	performance_phase_started = _record_runtime_performance_phase("stage_board_submission", performance_phase_started)
 	_refresh_boss_health_overlay(display_state, presentation)
 	_record_runtime_performance_phase("stage_boss_overlay", performance_phase_started)
@@ -18364,6 +18739,11 @@ func _card_playability_for_index(index: int) -> Dictionary:
 		return _card_play_options_cache[options_key] as Dictionary
 	var preview_key: String = _card_preview_cache_key(index)
 	if _card_preview_cache.has(preview_key):
+		# The prepared full preview also owns its exact information-safe flags.
+		# Prefer those to sanitizing all targets again for every hand paint. The
+		# complete preview and this summary share the same revision invalidation.
+		if _card_full_preview_summary_cache.has(preview_key):
+			return _card_full_preview_summary_cache[preview_key] as Dictionary
 		var full_preview: Dictionary = _sanitize_preview_for_umbra_information(_card_preview_cache[preview_key] as Dictionary)
 		var full_playable: bool = bool(full_preview.get("playable", false))
 		return {"printed_playable": full_playable, "any_playable": full_playable}
@@ -18404,18 +18784,26 @@ func _cancel_committed_hand_queries() -> void:
 	_committed_hand_query_flags.clear()
 	_committed_hand_query_display.clear()
 	_committed_hand_query_forecast.clear()
+	_committed_hand_query_previews.clear()
+	_committed_hand_query_full_flags.clear()
+	_committed_hand_query_shortcuts.clear()
+	_committed_hand_query_definitions.clear()
+	_committed_hand_query_prepare_previews = false
 
-func _schedule_committed_hand_queries(source: Dictionary) -> void:
+func _schedule_committed_hand_queries(source: Dictionary, prepare_previews: bool = false) -> void:
 	_cancel_committed_hand_queries()
 	if not is_inside_tree() or source.is_empty() or not _combat_engine.combat_outcome(source).is_empty():
 		return
-	_warm_committed_hand_queries(source, _committed_hand_query_generation)
+	_committed_hand_query_prepare_previews = prepare_previews
+	if prepare_previews:
+		_committed_hand_query_definitions = _committed_query_definitions().duplicate(true)
+	_warm_committed_hand_queries(source.duplicate(true), _committed_hand_query_generation)
 
 func _warm_committed_hand_queries(source: Dictionary, generation: int) -> void:
 	# Use the already-authored card flight/hold. No caller awaits this job and
 	# adoption takes only ready results; it never waits for the remaining cards.
 	await get_tree().process_frame
-	if generation != _committed_hand_query_generation or not is_inside_tree():
+	if not _committed_hand_query_active(generation):
 		return
 	var normalize_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var state: Dictionary = _combat_engine.normalize_player_movement_pool(source)
@@ -18424,7 +18812,7 @@ func _warm_committed_hand_queries(source: Dictionary, generation: int) -> void:
 	var hand: Array = (state.get("deck", {}) as Dictionary).get("hand", [])
 	for index: int in range(hand.size()):
 		await get_tree().process_frame
-		if generation != _committed_hand_query_generation or not is_inside_tree():
+		if not _committed_hand_query_active(generation):
 			return
 		var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		_committed_hand_query_flags[index] = _card_playability_for_state(state, index)
@@ -18437,10 +18825,11 @@ func _warm_committed_hand_queries(source: Dictionary, generation: int) -> void:
 	# The authoritative preview cursor preserves hidden-enemy information and
 	# initiative ordering; no UI refresh ever waits for this optional result.
 	await get_tree().process_frame
-	if generation != _committed_hand_query_generation or not is_inside_tree():
+	if not _committed_hand_query_active(generation):
 		return
 	if not _combat_engine.is_player_turn(state):
 		_committed_hand_query_forecast = {"summary": {}}
+		_warm_committed_card_previews(state, generation)
 		return
 	var forecast_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var scheduled: Dictionary = _combat_engine.finish_player_activation(state)
@@ -18448,7 +18837,7 @@ func _warm_committed_hand_queries(source: Dictionary, generation: int) -> void:
 	_record_runtime_performance_phase("committed_forecast_prepare", forecast_started)
 	while not bool(cursor.get("complete", false)):
 		await get_tree().process_frame
-		if generation != _committed_hand_query_generation or not is_inside_tree():
+		if not _committed_hand_query_active(generation):
 			return
 		forecast_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		_combat_engine.advance_revealed_enemy_actions_preview(cursor)
@@ -18457,16 +18846,77 @@ func _warm_committed_hand_queries(source: Dictionary, generation: int) -> void:
 	_committed_hand_query_forecast = {"summary": _pass_preview_summary_for_phase_result(state, phase_result)}
 	if _runtime_performance_instrumentation_enabled:
 		_committed_hand_query_diagnostics["prepared_forecasts"] = int(_committed_hand_query_diagnostics.get("prepared_forecasts", 0)) + 1
+	_warm_committed_card_previews(state, generation)
+
+func _committed_hand_query_active(generation: int) -> bool:
+	if generation != _committed_hand_query_generation or not is_inside_tree(): return false
+	if _committed_hand_query_prepare_previews and _committed_hand_query_definitions != _committed_query_definitions():
+		_cancel_committed_hand_queries()
+		return false
+	return true
+
+func _committed_query_definitions() -> Array:
+	return [GameData.cards(), GameData.enemies(), GameData.equipment(), GameData.relics(), GameData.upgrades()]
+
+func _warm_committed_card_previews(state: Dictionary, generation: int) -> void:
+	if not _committed_hand_query_prepare_previews: return
+	# Finish the flags and forecast first. Each complete card query uses one
+	# existing rendered animation frame; adoption never waits for this work.
+	var hand: Array = (state.get("deck", {}) as Dictionary).get("hand", [])
+	for index: int in range(hand.size()):
+		await get_tree().process_frame
+		if not _committed_hand_query_active(generation): return
+		var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+		var raw_preview: Dictionary = {"playable": false}
+		if _combat_engine.hand_card_has_play_budget(state, index):
+			var card_id: String = str(hand[index])
+			var prepared_state: Dictionary = _combat_engine.prepare_player_card(state, index, "play")
+			var actions: Array = _combat_engine.card_play_actions(card_id, prepared_state)
+			raw_preview = _card_preview_from_state(card_id, prepared_state, actions, 0, false, true, true, false, state)
+		var preview: Dictionary = _sanitize_preview_for_umbra_information(raw_preview, state)
+		if str((preview.get("action", {}) as Dictionary).get("type", "")) in ["move", "blink"]:
+			var prepared: Dictionary = {
+				"preview": preview,
+				"result": _compute_preview_shortcuts(preview, false, true, state).duplicate(true),
+			}
+			_record_runtime_performance_phase("committed_card_preview_warm", started)
+			# Selection can request the exact payment/trap-resolved variant even
+			# after hover used its deferred plan. Preserve both query semantics.
+			await get_tree().process_frame
+			if not _committed_hand_query_active(generation): return
+			started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+			prepared["exact_result"] = _compute_preview_shortcuts(preview, false, false, state).duplicate(true)
+			_committed_hand_query_shortcuts[index] = prepared
+		_committed_hand_query_previews[index] = raw_preview
+		var playable: bool = bool(preview.get("playable", false))
+		_committed_hand_query_full_flags[index] = {"printed_playable": playable, "any_playable": playable}
+		_record_runtime_performance_phase("committed_card_preview_warm", started)
+		if _runtime_performance_instrumentation_enabled:
+			_committed_hand_query_diagnostics["prepared_previews"] = int(_committed_hand_query_diagnostics.get("prepared_previews", 0)) + 1
 
 func _adopt_committed_hand_queries() -> void:
 	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	# Full value equality, not a hash or selected-field guess, guards hand order,
 	# Umbra information, status, relics, skill charges, surfaces and RNG/history.
-	if not _committed_hand_query_state.is_empty() and _committed_hand_query_state == _combat_state:
+	if not _committed_hand_query_state.is_empty() and _committed_hand_query_state == _combat_state and (not _committed_hand_query_prepare_previews or _committed_hand_query_definitions == _committed_query_definitions()):
 		for index: int in _committed_hand_query_flags:
 			_card_playability_cache[_card_preview_cache_key(index)] = _committed_hand_query_flags[index]
 		for index: int in _committed_hand_query_display:
 			_card_widget_display_cache[_card_preview_cache_key(index, "display")] = _committed_hand_query_display[index]
+		for index: int in _committed_hand_query_previews:
+			_card_preview_cache[_card_preview_cache_key(index)] = _committed_hand_query_previews[index]
+			_card_full_preview_summary_cache[_card_preview_cache_key(index)] = _committed_hand_query_full_flags[index]
+		# Publish later hand entries first so the bounded four-entry foreground
+		# cache keeps the first card's ready shortcuts when a hand has many moves.
+		var shortcut_indices: Array = _committed_hand_query_shortcuts.keys()
+		shortcut_indices.reverse()
+		for index: int in shortcut_indices:
+			var prepared: Dictionary = _committed_hand_query_shortcuts[index]
+			_adopt_owned_preview_shortcuts(_preview_shortcuts_content_key(prepared["preview"], true), prepared["result"])
+			_adopt_owned_preview_shortcuts(_preview_shortcuts_content_key(prepared["preview"], false), prepared["exact_result"])
+		if _runtime_performance_instrumentation_enabled:
+			_committed_hand_query_diagnostics["adopted_previews"] = int(_committed_hand_query_diagnostics.get("adopted_previews", 0)) + _committed_hand_query_previews.size()
+			_committed_hand_query_diagnostics["adopted_shortcuts"] = int(_committed_hand_query_diagnostics.get("adopted_shortcuts", 0)) + _committed_hand_query_shortcuts.size()
 		if _committed_hand_query_forecast.has("summary"):
 			_combat_forecast_cache.remember(_committed_hand_query_state, _committed_hand_query_forecast["summary"])
 			if _runtime_performance_instrumentation_enabled:
@@ -18693,6 +19143,7 @@ func _mark_combat_preview_state_changed() -> void:
 	_stage_visibility_cache_key = ""
 	_stage_visibility_cache.clear()
 	_card_preview_cache.clear()
+	_card_full_preview_summary_cache.clear()
 	_card_playability_cache.clear()
 	_fallback_preview_cache.clear()
 	_card_play_options_cache.clear()
@@ -19694,11 +20145,7 @@ func _preview_shortcuts_for_current_action(
 	# Keep the inexpensive revision key for repeated consumers in one selection.
 	# Only on its miss compare the actual inputs, allowing hover -> click to reuse
 	# the same exact movement simulation while all world/information changes miss.
-	var content_key: String = str(hash([
-		_combat_preview_revision, _combat_state, preview.get("state", {}), action,
-		preview.get("actions", []), preview.get("action_index", -1), preview.get("card_id", ""),
-		preview.get("target_tiles", []), preview.get("skip_allowed", false), defer_safe_move_resolution,
-	]))
+	var content_key: String = _preview_shortcuts_content_key(preview, defer_safe_move_resolution)
 	if not skip_spatial_prefilter and _preview_shortcuts_content_cache.has(content_key):
 		_preview_shortcuts_cache_key = cache_key
 		# Active plans can be materialized/annotated during targeting; keep the
@@ -19706,6 +20153,37 @@ func _preview_shortcuts_for_current_action(
 		_preview_shortcuts_cache = (_preview_shortcuts_content_cache[content_key] as Dictionary).duplicate(true)
 		_record_runtime_performance_phase("shortcut_equivalent_input_hit", Time.get_ticks_usec())
 		return _preview_shortcuts_cache
+	var result: Dictionary = _compute_preview_shortcuts(preview, skip_spatial_prefilter, defer_safe_move_resolution)
+	if result.is_empty(): return result
+	if not skip_spatial_prefilter:
+		_preview_shortcuts_cache_key = cache_key
+		_preview_shortcuts_cache = result
+		_remember_preview_shortcuts(content_key, result)
+	return result
+
+func _preview_shortcuts_content_key(preview: Dictionary, defer_safe_move_resolution: bool) -> String:
+	# Append-only analytics acknowledgements can change after a committed query
+	# is adopted without changing the combat revision. Combat rules and Umbra
+	# information never read that bookkeeping field. Keep every other committed
+	# field, plus the complete preview state/actions, in the content boundary.
+	var information_state: Dictionary = _combat_state.duplicate(false)
+	information_state.erase("analytics")
+	return str(hash([
+		_combat_preview_revision, information_state, preview.get("state", {}), preview.get("action", {}),
+		preview.get("actions", []), preview.get("action_index", -1), preview.get("card_id", ""),
+		preview.get("target_tiles", []), preview.get("skip_allowed", false), defer_safe_move_resolution,
+	]))
+
+func _compute_preview_shortcuts(
+	preview: Dictionary,
+	skip_spatial_prefilter: bool = false,
+	defer_safe_move_resolution: bool = false,
+	information_override: Variant = null
+) -> Dictionary:
+	var action: Dictionary = preview.get("action", {})
+	var action_type: String = str(action.get("type", ""))
+	if action_type not in ["move", "blink"]:
+		return {}
 	var actions: Array = preview.get("actions", [])
 	var action_index: int = int(preview.get("action_index", -1))
 	var card_id: String = str(preview.get("card_id", ""))
@@ -19714,8 +20192,8 @@ func _preview_shortcuts_for_current_action(
 	var preview_state: Dictionary = preview.get("state", {}) as Dictionary
 	if preview_state.is_empty():
 		return {}
-	var umbra_limited: bool = _preview_umbra_is_limited(preview_state)
-	var information_state: Dictionary = _preview_information_state(preview_state)
+	var umbra_limited: bool = _preview_umbra_is_limited(preview_state, information_override)
+	var information_state: Dictionary = _preview_information_state(preview_state, information_override)
 	var visible_lookup: Dictionary = _combat_engine.umbra_visible_tile_lookup(information_state) if umbra_limited else {}
 	# Umbra shortcuts use only already-visible actors, terrain and traps, along
 	# routes made entirely of visible tiles. Visible destructibles must remain
@@ -19737,10 +20215,6 @@ func _preview_shortcuts_for_current_action(
 			"tiles": _vector2i_array([]),
 			"movement_plan": movement_plan,
 		}
-		if not skip_spatial_prefilter:
-			_preview_shortcuts_cache_key = cache_key
-			_preview_shortcuts_cache = no_shortcuts
-			_remember_preview_shortcuts(content_key, no_shortcuts)
 		return no_shortcuts
 	var immediate_attack_tiles: Array[Vector2i] = _vector2i_array([])
 	var immediate_action: Dictionary = {}
@@ -19772,11 +20246,9 @@ func _preview_shortcuts_for_current_action(
 			defer_safe_move_resolution and not umbra_limited,
 			information_state,
 			visible_lookup,
-			allowed_target_tiles
+			allowed_target_tiles,
+			information_override
 		)
-		_preview_shortcuts_cache_key = cache_key
-		_preview_shortcuts_cache = optimized_result
-		_remember_preview_shortcuts(content_key, optimized_result)
 		return optimized_result
 	for move_target: Vector2i in move_targets:
 		var path_tiles: Array[Vector2i] = _vector2i_array([])
@@ -19795,10 +20267,10 @@ func _preview_shortcuts_for_current_action(
 			plans, card_id, actions, action_index, after_move_state, move_target, move_target,
 			move_distance, path_tiles, movement_risk_chips, allowed_target_tiles,
 			_shortcut_path_trap_count(preview_state, path_tiles),
-			_shortcut_path_pickup_score(preview_state, path_tiles)
+			_shortcut_path_pickup_score(preview_state, path_tiles), information_override
 		)
 	if bool(preview.get("skip_allowed", false)):
-		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, preview_state, INVALID_TARGET_TILE, player_tile, 0, [], [], allowed_target_tiles)
+		_collect_shortcut_attack_plans(plans, card_id, actions, action_index, preview_state, INVALID_TARGET_TILE, player_tile, 0, [], [], allowed_target_tiles, 0, 0, information_override)
 	if umbra_limited and plans.is_empty():
 		# "No visible shortcut" is a stable, information-safe result for this
 		# preview revision. Cache the empty result too; otherwise every presentation
@@ -19808,10 +20280,6 @@ func _preview_shortcuts_for_current_action(
 			"tiles": _vector2i_array([]),
 			"movement_plan": movement_plan,
 		}
-		if not skip_spatial_prefilter:
-			_preview_shortcuts_cache_key = cache_key
-			_preview_shortcuts_cache = empty_result
-			_remember_preview_shortcuts(content_key, empty_result)
 		return empty_result
 	var tiles: Array[Vector2i] = []
 	for tile_var: Variant in plans.keys():
@@ -19824,16 +20292,18 @@ func _preview_shortcuts_for_current_action(
 		"tiles": tiles,
 		"movement_plan": movement_plan
 	}
-	if not skip_spatial_prefilter:
-		_preview_shortcuts_cache_key = cache_key
-		_preview_shortcuts_cache = result
-		_remember_preview_shortcuts(content_key, result)
 	return result
 
 func _remember_preview_shortcuts(content_key: String, result: Dictionary) -> void:
+	_adopt_owned_preview_shortcuts(content_key, result.duplicate(true))
+
+func _adopt_owned_preview_shortcuts(content_key: String, snapshot: Dictionary) -> void:
+	# This private transfer requires a detached, completed snapshot. Background
+	# preparation clones it during the existing animation, leaving adoption to
+	# publish references. Foreground callers retain the ordinary copying wrapper.
 	if not _preview_shortcuts_content_cache.has(content_key):
 		_preview_shortcuts_content_order.append(content_key)
-	_preview_shortcuts_content_cache[content_key] = result.duplicate(true)
+	_preview_shortcuts_content_cache[content_key] = snapshot
 	while _preview_shortcuts_content_order.size() > 4:
 		_preview_shortcuts_content_cache.erase(_preview_shortcuts_content_order.pop_front())
 
@@ -19852,7 +20322,8 @@ func _preview_immediate_attack_shortcuts(
 	defer_safe_move_resolution: bool,
 	information_state: Dictionary,
 	visible_lookup: Dictionary,
-	allowed_target_tiles: Variant
+	allowed_target_tiles: Variant,
+	information_override: Variant = null
 ) -> Dictionary:
 	var player_tile: Vector2i = (preview_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
 	var candidates: Array = []
@@ -19982,7 +20453,8 @@ func _preview_immediate_attack_shortcuts(
 			movement_risk_chips,
 			allowed_target_tiles,
 			int(candidate.get("route_traps", 0)),
-			int(candidate.get("route_pickups", 0))
+			int(candidate.get("route_pickups", 0)),
+			information_override
 		)
 		candidate_phase_started = _record_runtime_performance_phase("shortcut_collect_attack_total", candidate_phase_started)
 		if safely_deferred:
@@ -20171,7 +20643,8 @@ func _collect_shortcut_attack_plans(
 	movement_risk_chips: Array = [],
 	allowed_target_tiles: Variant = null,
 	route_traps: int = 0,
-	route_pickups: int = 0
+	route_pickups: int = 0,
+	information_override: Variant = null
 ) -> void:
 	var followup: Dictionary = _next_shortcut_attack_step(base_state, actions, action_index + 1)
 	if followup.is_empty():
@@ -20187,7 +20660,7 @@ func _collect_shortcut_attack_plans(
 		# the full combat state solely to rediscover that the action list has ended.
 		if followup_index + 1 < actions.size():
 			var after_attack_state: Dictionary = _combat_engine.apply_player_action(followup_state, planned_attack_action, enemy_tile)
-			var continuation: Dictionary = _card_preview_from_state(card_id, after_attack_state, actions, followup_index + 1, true)
+			var continuation: Dictionary = _card_preview_from_state(card_id, after_attack_state, actions, followup_index + 1, true, true, true, false, information_override)
 			if not bool(continuation.get("playable", false)):
 				continue
 		var existing: Dictionary = plans.get(enemy_tile, {})
@@ -24754,13 +25227,7 @@ func _ensure_ambient_sfx_player() -> void:
 	add_child(_ambient_sfx_player)
 
 func _looping_audio_stream(resource: AudioStream) -> AudioStream:
-	var looped: AudioStream = resource.duplicate() as AudioStream
-	if looped is AudioStreamWAV:
-		var wav: AudioStreamWAV = looped as AudioStreamWAV
-		wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
-		wav.loop_begin = 0
-		wav.loop_end = maxi(1, int(round(wav.get_length() * float(wav.mix_rate))))
-	return looped
+	return AssetLoader.looping_audio_copy(resource)
 
 func _stop_attack_sfx_player(player: AudioStreamPlayer, generation: int = -1) -> void:
 	if not is_instance_valid(player):
@@ -26392,6 +26859,8 @@ func _unlock_grimoire_entries(candidate_ids: Array) -> Array[String]:
 	if progression_changed:
 		_persist_grimoire_progression_from_run()
 	if not added.is_empty():
+		_grimoire_row_preparation_revision += 1
+		if _initial_ui_complete: call_deferred("_prepare_known_grimoire_rows")
 		_refresh_grimoire_badge()
 		if _grimoire_scrim != null and _grimoire_scrim.visible:
 			_rebuild_grimoire_overlay()
@@ -26443,11 +26912,11 @@ func _hide_transient_combat_log(message: String) -> void:
 
 func _pre_battle_preview_for_current_room() -> Dictionary:
 	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
-	var preview_state: Dictionary = _run_engine.pre_battle_preview_state(_run_state)
+	if not _run_engine.prepared_pre_battle_matches_input(_prepared_pre_battle_factory, _run_state):
+		_prepared_pre_battle_factory = _run_engine.prepare_pre_battle_combat(_run_state)
+	var preview_state: Dictionary = _run_engine.pre_battle_preview_state(_run_state, _prepared_pre_battle_factory)
 	_record_runtime_performance_phase("pre_battle_engine_preview", started)
-	var combat_state: Dictionary = (preview_state.get("combat_state", {}) as Dictionary).duplicate(true)
-	if combat_state.is_empty():
-		return {}
+	_schedule_opening_hand_pool_preparation(preview_state.get("combat_state", {}) as Dictionary)
 	return preview_state
 
 func _show_pre_battle_preview() -> bool:
@@ -26460,6 +26929,10 @@ func _show_pre_battle_preview() -> bool:
 	var combat_state: Dictionary = preview_state.get("combat_state", {}) as Dictionary
 	board_view.prepare_unit_assets_for_state(combat_state)
 	_unlock_grimoire_entries(GrimoireLibrary.entry_ids_for_combat_state(combat_state))
+	# Unlocking this already-computed encounter adds only encyclopedia receipt
+	# fields. Carry those current receipts into Begin without regenerating it.
+	if not _prepared_pre_battle_factory.is_empty():
+		_prepared_pre_battle_factory["input"] = _run_state.duplicate(true)
 	log_label.text = _log_text()
 	_refresh_log_overlay_visibility()
 	_pre_battle_start_pending = false
@@ -26544,19 +27017,25 @@ func _on_pre_battle_start_pressed() -> void:
 	if str(_run_state.get("mode", "room")) != RunEngineScript.MODE_PRE_BATTLE:
 		_close_pre_battle_preview()
 		return
+	var phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var previous_run_state: Dictionary = _run_state.duplicate(true)
 	_pre_battle_start_pending = true
 	var preview_combat_state: Dictionary = _pre_battle_preview_run_state.get("combat_state", {}) as Dictionary
 	if not preview_combat_state.is_empty():
 		board_view.prepare_unit_shadows_for_state(preview_combat_state)
+	phase_started = _record_runtime_performance_phase("pre_battle_start_shadows", phase_started)
 	_close_pre_battle_preview()
-	_run_state = _run_engine.begin_pre_battle_combat(_run_state)
+	_run_state = _run_engine.begin_pre_battle_combat(_run_state, _prepared_pre_battle_factory)
+	phase_started = _record_runtime_performance_phase("pre_battle_start_engine", phase_started)
 	_sync_progression_from_run()
 	_sync_combat_state_from_run()
 	_board_presentation.clear()
 	_reset_card_resolution()
+	phase_started = _record_runtime_performance_phase("pre_battle_start_sync", phase_started)
 	_analytics_log_combat_transition(previous_run_state, "pre_battle_start", _combat_state)
+	phase_started = _record_runtime_performance_phase("pre_battle_start_analytics", phase_started)
 	_persist_committed_boundary("pre_battle_start")
+	_record_runtime_performance_phase("pre_battle_start_checkpoint", phase_started)
 	_pre_battle_start_pending = false
 	await _present_opening_hand_after_combat_entry()
 
@@ -26579,6 +27058,7 @@ func _present_opening_hand_after_combat_entry() -> void:
 	_opening_hand_draw_in_progress = not draw_entries.is_empty()
 	_prepare_combat_objective_intro()
 	_refresh_ui()
+	_encounter_cpu_asset_holds.clear()
 	if hand_box != null and not draw_entries.is_empty():
 		hand_box.visible = false
 	await _await_opening_hand_draw_layout()
@@ -26626,6 +27106,7 @@ func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_T
 	var selected_door_tile: Vector2i = door_tile if door_tile.x >= 0 else _door_tile_for_destination(coord)
 	var committed_run_state: Dictionary = _run_engine.move_to_room(_run_state, coord) if skip_pre_battle else _run_engine.move_to_pre_battle(_run_state, coord)
 	committed_run_state = _hold_committed_run_state(committed_run_state, "room_move")
+	_schedule_encounter_assets(committed_run_state)
 	var map_travel_started: bool = _begin_map_travel_animation(previous_coord, coord)
 	_animation_lock = true
 	_reset_card_resolution()
@@ -26825,10 +27306,12 @@ func _on_reward_reroll_pressed() -> void:
 	if _guided_tutorial_hard_gate_active():
 		_guided_tutorial_reject("Choose a reward before rerolling on the guided run.")
 		return
+	var source_was_ready: bool = _reward_reroll_preparation.ready and _reward_reroll_preparation.matches_source(self)
 	var before_state: Dictionary = _run_state.duplicate(true)
 	_run_state = _run_engine.reroll_card_reward(_run_state)
 	if _run_state == before_state:
 		return
+	_reward_reroll_preparation.authorize_result(self, _run_state, source_was_ready)
 	_persist_committed_boundary("reward_rerolled")
 	_refresh_ui()
 
@@ -27989,8 +28472,9 @@ func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool
 		return {"state": state, "saved": false}
 	_save_in_progress = true
 	var mode: String = str(state.get("mode", ""))
+	var resume_run_skill_request: bool = mode not in ["combat", "victory", "defeat"] and _run_skill_analytics_queue.busy() and not _run_skill_analytics_flushing
 	if mode != "combat" and not _skill_analytics_flushing:
-		_cancel_deferred_skill_analytics()
+		_cancel_deferred_skill_analytics(true)
 	var saved: bool = false
 	if mode in ["victory", "defeat"]:
 		var terminal_resume_state: Dictionary = state.duplicate(true)
@@ -28013,6 +28497,9 @@ func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool
 	if saved:
 		_analytics_flush_surface_events(state.get("combat_state", {}) as Dictionary, state)
 		_analytics_flush_map_events(state)
+		# A reveal/action may save after its final HUD refresh. Keep that same-run
+		# request alive so unlocking without another refresh still drains it.
+		if resume_run_skill_request: _request_run_skill_event_analytics()
 	return {"state": state, "saved": saved}
 
 func _finalize_terminal_committed_state(run_state: Dictionary) -> Dictionary:
@@ -28063,6 +28550,7 @@ func _save_run_progress() -> void:
 			push_error("Failed to persist terminal progression; the resumable fallback remains intact.")
 		return
 	_reconcile_skill_event_analytics()
+	_flush_run_skill_event_analytics("explicit_run_skill")
 	committed_state = _committed_run_state()
 	var saved_progression: Dictionary = _progression.duplicate(true)
 	var run_progression: Dictionary = (committed_state.get("progression", {}) as Dictionary).duplicate(true)
@@ -28108,7 +28596,7 @@ func _change_scene_to_file(path: String) -> void:
 	if cursor_feedback != null and cursor_feedback.has_method("change_scene_to_file"):
 		cursor_feedback.call("change_scene_to_file", path)
 		return
-	get_tree().change_scene_to_file(path)
+	preload("res://scripts/departed_run_cleanup.gd").change_scene_to_file(get_tree(), path)
 
 func _on_pile_gui_input(event: InputEvent, pile_kind: String) -> void:
 	if (
@@ -28422,6 +28910,7 @@ func _on_character_pressed() -> void:
 	_open_character_overlay("equipment")
 
 func _open_character_overlay(mode: String = "equipment") -> void:
+	_character_row_preparation_revision += 1
 	if _upgrade_scrim == null or _pending_umbra_commit_locked:
 		return
 	_cancel_drag_play()
@@ -28437,15 +28926,17 @@ func _open_character_overlay(mode: String = "equipment") -> void:
 	if (
 		_progression_overlay_cached_mode == _progression_overlay_mode
 		and _progression_overlay_content_signature == content_signature
+		and _live_character_view_key == _character_view_key()
 		and _upgrade_dialog.get_child_count() > 0
 	):
 		_upgrade_scrim.visible = true
 		_update_performance_telemetry_context()
 		_sync_pre_battle_overlay_layering()
-		if _skill_tree_view != null:
+		if is_instance_valid(_skill_tree_view):
 			_skill_tree_view.call_deferred("grab_tree_focus")
 		_schedule_controller_modal_refresh()
 		_play_character_menu_arrival(_upgrade_dialog, 0.14)
+		_schedule_equipment_factory_preparation()
 		return
 	_rebuild_progression_overlay()
 	_upgrade_scrim.visible = true
@@ -28453,6 +28944,7 @@ func _open_character_overlay(mode: String = "equipment") -> void:
 	_sync_pre_battle_overlay_layering()
 	_schedule_controller_modal_refresh()
 	_play_character_menu_arrival(_upgrade_dialog, 0.14)
+	_schedule_equipment_factory_preparation()
 
 func _play_character_menu_arrival(target: Control, duration: float) -> void:
 	_stop_character_menu_arrival()
@@ -28481,6 +28973,7 @@ func _stop_character_menu_arrival() -> void:
 
 func _on_character_menu_visibility_changed() -> void:
 	if _upgrade_scrim != null and not _upgrade_scrim.is_visible_in_tree():
+		_cancel_equipment_factory_preparation()
 		_stop_character_menu_arrival()
 
 func _resume_emaciated_services() -> void:
@@ -28608,6 +29101,7 @@ func _open_level_up_overlay(source: String = "campfire", present_feedback: bool 
 	_sync_pre_battle_overlay_layering()
 
 func _close_card_upgrade_overlay() -> void:
+	_cancel_equipment_factory_preparation()
 	if _return_to_emaciated_service:
 		call_deferred("_resume_emaciated_services")
 	_stop_character_menu_arrival()
@@ -28648,6 +29142,47 @@ func _rebuild_progression_overlay() -> void:
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_sync_progression_from_run()
 	performance_phase_started = _record_runtime_performance_phase("character_sync", performance_phase_started)
+	var current_key: Dictionary = _character_view_key()
+	var prepared_view: Dictionary = _character_inventory_rows.take_view(_progression_overlay_mode, current_key, _character_view_can_retain.bind(_progression_overlay_mode))
+	if not prepared_view.is_empty():
+		_adopt_character_view(prepared_view)
+		if _live_character_view_key == current_key or _refresh_current_character_columns(_live_character_view_key, current_key):
+			_finish_character_view_key(current_key)
+			_record_runtime_performance_phase("character_prepared_dialog", performance_phase_started)
+			return
+	var previous_key: Dictionary = _live_character_view_key
+	# Hidden pack preparation does not move the Skills body. Its own last
+	# completed input remains usable after the pack-cache revision is cleared.
+	if previous_key.is_empty() and _progression_overlay_mode == "skills":
+		previous_key = _upgrade_dialog.get_meta("character_view_input", {})
+	if _refresh_current_character_columns(previous_key, current_key):
+		_finish_character_view_key(current_key)
+		_record_runtime_performance_phase("character_changed_sections", performance_phase_started)
+		return
+	_preserve_character_skill_tree()
+	_character_inventory_rows.stash(_upgrade_dialog, _current_character_row_keys(), _prepare_node_for_immediate_free)
+	_character_inventory_rows.clear_views(_upgrade_dialog)
+	_clear_children_now(_upgrade_dialog)
+	_layout_progression_dialog()
+	performance_phase_started = _record_runtime_performance_phase("character_clear_layout", performance_phase_started)
+	var vbox: VBoxContainer = _build_character_dialog_header()
+	performance_phase_started = _record_runtime_performance_phase("character_chrome", performance_phase_started)
+
+	if _progression_overlay_mode == "equipment":
+		vbox.add_child(_build_equipment_overlay_body())
+	elif _progression_overlay_mode == "magic":
+		vbox.add_child(_build_magic_overlay_body())
+	else:
+		vbox.add_child(_build_skill_tree_overlay_body())
+	performance_phase_started = _record_runtime_performance_phase("character_body", performance_phase_started)
+	preload("res://scripts/character_menu_view.gd").finish_dialog(_upgrade_dialog)
+	# A freshly built auto-wrapping detail panel can briefly report its minimum
+	# height before receiving its final width. CenterContainer preserves that
+	# transient growth in its offsets, so refit once layout has settled.
+	_finish_character_view_key(current_key)
+	_record_runtime_performance_phase("character_finish", performance_phase_started)
+
+func _preserve_character_skill_tree() -> void:
 	# Preserve the graph while rebuilding the much smaller surrounding chrome.
 	# Keep it owned by this scene under a hidden host across other Character tabs.
 	if is_instance_valid(_skill_tree_view):
@@ -28660,9 +29195,8 @@ func _rebuild_progression_overlay() -> void:
 			add_child(_retained_skill_tree_host)
 		if _skill_tree_view.get_parent() != _retained_skill_tree_host:
 			_skill_tree_view.reparent(_retained_skill_tree_host, false)
-	_clear_children_now(_upgrade_dialog)
-	_layout_progression_dialog()
-	performance_phase_started = _record_runtime_performance_phase("character_clear_layout", performance_phase_started)
+
+func _build_character_dialog_header() -> VBoxContainer:
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", int(UiTypography.PANEL_PADDING_LARGE))
 	margin.add_theme_constant_override("margin_top", int(UiTypography.PANEL_PADDING))
@@ -28703,24 +29237,89 @@ func _rebuild_progression_overlay() -> void:
 		vbox.add_child(notice_label)
 
 	vbox.add_child(_build_character_overlay_tabs())
-	performance_phase_started = _record_runtime_performance_phase("character_chrome", performance_phase_started)
+	return vbox
 
-	if _progression_overlay_mode == "equipment":
-		vbox.add_child(_build_equipment_overlay_body())
-	elif _progression_overlay_mode == "magic":
-		vbox.add_child(_build_magic_overlay_body())
-	else:
-		vbox.add_child(_build_skill_tree_overlay_body())
-	performance_phase_started = _record_runtime_performance_phase("character_body", performance_phase_started)
-	Menu.finish_dialog(_upgrade_dialog)
-	# A freshly built auto-wrapping detail panel can briefly report its minimum
-	# height before receiving its final width. CenterContainer preserves that
-	# transient growth in its offsets, so refit once layout has settled.
+func _finish_character_view_key(key: Dictionary) -> void:
+	_character_other_view_preparation_revision += 1
+	if _initial_ui_complete and _progression_overlay_mode in ["equipment", "magic"]:
+		CharacterInventoryRows.prepare_other_for.call_deferred(self, _character_other_view_preparation_revision)
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	_schedule_equipment_factory_preparation()
+	started = _record_runtime_performance_phase("character_finish_factory_schedule", started)
 	_fit_progression_modal_to_viewport()
 	call_deferred("_fit_progression_modal_to_viewport")
 	_progression_overlay_cached_mode = _progression_overlay_mode
 	_progression_overlay_content_signature = _progression_overlay_signature()
-	_record_runtime_performance_phase("character_finish", performance_phase_started)
+	_live_character_view_key = key.duplicate(true)
+	_record_runtime_performance_phase("character_finish_input_snapshot", started)
+	if _progression_overlay_mode == "skills":
+		# Only these completed chrome inputs are needed to reuse the live Skills
+		# body. Own them independently of the pack-cache key that preparation clears.
+		_upgrade_dialog.set_meta("character_view_input", {
+			"mode": key["mode"], "common": (key["common"] as Array).duplicate(true),
+			"header": (key["header"] as Array).duplicate(true),
+		})
+	elif _upgrade_dialog.has_meta("character_view_input"):
+		_upgrade_dialog.remove_meta("character_view_input")
+
+func _character_view_key() -> Dictionary:
+	return {
+		"mode": _progression_overlay_mode,
+		"common": [get_viewport_rect().size, UiTypography.ui_scale(self)],
+		"header": [_progression_overlay_mode, _progression, _progression_overlay_notice, _progression_overlay_notice_is_error, _run_engine.defiance_capacity(_run_state), _run_engine.defiance_remaining(_run_state), GameData.max_progression_level(), _run_engine.loadout_unread_ids(_run_state, "equipment"), _run_engine.loadout_unread_ids(_run_state, "magic")],
+		"state": _run_state,
+		"definitions": [GameData.cards(), GameData.equipment()],
+	}
+
+func _replace_character_column(body: HBoxContainer, index: int, replacement: Control) -> void:
+	# A rejected retained builder may already detach/retire its old last column.
+	var old: Control = body.get_child(index) as Control if index < body.get_child_count() else null
+	if old == replacement: return
+	if old != null:
+		_prepare_node_for_immediate_free(old)
+		body.remove_child(old)
+		old.queue_free()
+	body.add_child(replacement)
+	body.move_child(replacement, index)
+
+func _refresh_current_character_columns(previous: Dictionary, current: Dictionary) -> bool:
+	if previous.is_empty() or previous.get("mode") != current["mode"] or previous.get("common") != current["common"]: return false
+	if _progression_overlay_mode == "skills":
+		return preload("res://scripts/character_dialog_retention.gd").refresh_skills(self, previous, current)
+	if _progression_overlay_mode not in ["equipment", "magic"]: return false
+	var frame: Control = _upgrade_dialog.find_child("CharacterBodyFrame", true, false) as Control
+	if frame == null or frame.get_child_count() != 1: return false
+	var body: HBoxContainer = frame.get_child(0) as HBoxContainer
+	if body == null or body.get_child_count() != 3: return false
+	var expected: Array = ["EquipmentLoadoutPanel", "EquipmentInventoryPanel", "CurrentDeckPanel"] if _progression_overlay_mode == "equipment" else ["MagicAttunedPanel", "MagicInventoryPanel", "CurrentDeckPanel"]
+	for index: int in range(expected.size()):
+		if body.get_child(index).name != expected[index]: return false
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var header_changed: bool = previous.get("header") != current["header"]
+	if header_changed and not preload("res://scripts/character_dialog_retention.gd").refresh_header(self, previous, current): return false
+	started = _record_runtime_performance_phase("character_header_refresh", started)
+	_character_inventory_rows.release_focus(_upgrade_dialog)
+	_character_inventory_rows.prune(_current_character_row_keys(), _prepare_node_for_immediate_free)
+	started = _record_runtime_performance_phase("character_retain_prune", started)
+	var state_changed: bool = previous["state"] != current["state"] or previous["definitions"] != current["definitions"] or header_changed
+	if _progression_overlay_mode == "equipment":
+		if state_changed and not preload("res://scripts/character_dialog_retention.gd").refresh_equipment_loadout(self, body.get_child(0), previous, current):
+			_equipment_slot_panels.clear()
+			_item_equipped_tiles.clear()
+			_replace_character_column(body, 0, _build_equipment_character_column())
+		started = _record_runtime_performance_phase("character_equipment_loadout_column", started)
+		_equipment_inventory_tiles.clear()
+		_item_inventory_tiles.clear()
+		_replace_character_column(body, 1, _build_equipment_inventory_column(true))
+		started = _record_runtime_performance_phase("character_pack_column", started)
+	else:
+		_magic_attuned_tiles.clear()
+		_magic_inventory_tiles.clear()
+		_replace_character_column(body, 0, _build_magic_attuned_column(true))
+		_replace_character_column(body, 1, _build_magic_inventory_column(true))
+	if state_changed: _replace_character_column(body, 2, _build_current_deck_column(true))
+	_record_runtime_performance_phase("character_deck_column", started)
+	return true
 
 func _progression_overlay_signature() -> String:
 	return str(hash([
@@ -28926,7 +29525,7 @@ func _on_loadout_asset_hovered(mode: String, asset_id: String) -> void:
 func _apply_character_tab_style(button: Button, active: bool) -> void:
 	preload("res://scripts/character_menu_view.gd").style_tab(button, active)
 
-func _build_equipment_overlay_body() -> Control:
+func _begin_character_loadout_body() -> HBoxContainer:
 	_equipment_slot_panels.clear()
 	_equipment_inventory_tiles.clear()
 	_magic_attuned_tiles.clear()
@@ -28940,29 +29539,57 @@ func _build_equipment_overlay_body() -> Control:
 	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", UiTypography.SPACE_LARGE)
+	return body
+
+func _build_equipment_overlay_body() -> Control:
+	var body: HBoxContainer = _begin_character_loadout_body()
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	body.add_child(_build_equipment_character_column())
+	started = _record_runtime_performance_phase("character_equipped_column", started)
 	body.add_child(_build_equipment_inventory_column())
+	started = _record_runtime_performance_phase("character_inventory_column", started)
 	body.add_child(_build_current_deck_column())
+	_record_runtime_performance_phase("character_deck_column", started)
 	return _fixed_character_body_frame(body)
 
 func _build_magic_overlay_body() -> Control:
-	_equipment_slot_panels.clear()
-	_equipment_inventory_tiles.clear()
-	_magic_attuned_tiles.clear()
-	_magic_inventory_tiles.clear()
-	_magic_attuned_drop_panel = null
-	_magic_inventory_drop_panel = null
-	_item_equipped_tiles.clear()
-	_item_inventory_tiles.clear()
-	_item_inventory_drop_panel = null
-	var body := HBoxContainer.new()
-	body.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	body.add_theme_constant_override("separation", UiTypography.SPACE_LARGE)
+	var body: HBoxContainer = _begin_character_loadout_body()
 	body.add_child(_build_magic_attuned_column())
 	body.add_child(_build_magic_inventory_column())
 	body.add_child(_build_current_deck_column())
 	return _fixed_character_body_frame(body)
+
+func _ensure_skill_tree_view() -> void:
+	if is_instance_valid(_skill_tree_view): return
+	_skill_tree_view = SkillTreeView.new()
+	_skill_tree_view.name = "CharacterSkillTree"
+	_skill_tree_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_skill_tree_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_skill_tree_view.skill_focused.connect(_on_skill_tree_focused)
+	_skill_tree_view.learn_requested.connect(_on_skill_learn_requested)
+
+func _prepare_initial_skill_tree_geometry() -> void:
+	_ensure_skill_tree_view()
+	_skill_tree_view._rebuild_link_geometry()
+
+func _prepare_initial_skill_tree_view() -> void:
+	_ensure_skill_tree_view()
+	if _skill_tree_view.is_inside_tree(): return
+	if _retained_skill_tree_host == null:
+		_retained_skill_tree_host = Control.new()
+		_retained_skill_tree_host.name = "RetainedSkillTreeHost"
+		_retained_skill_tree_host.visible = false
+		_retained_skill_tree_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_retained_skill_tree_host)
+	_skill_tree_view.configure({
+		"mode": SkillTreeView.MODE_VIEW,
+		"owned_ids": ProgressionStore.selected_skill_ids(_progression),
+		"required_count": ProgressionStore.skill_points_for_level(int(_progression.get("level", 1))),
+		"unspent_points": ProgressionStore.unspent_skill_points(_progression),
+		"editing_enabled": _skill_editing_can_edit(),
+		"focused_id": _progression_focused_skill_id,
+	})
+	_retained_skill_tree_host.add_child(_skill_tree_view)
 
 func _build_skill_tree_overlay_body() -> Control:
 	var column := VBoxContainer.new()
@@ -28976,13 +29603,7 @@ func _build_skill_tree_overlay_body() -> Control:
 	var unspent_points: int = ProgressionStore.unspent_skill_points(_progression)
 
 	var retained_tree: bool = is_instance_valid(_skill_tree_view)
-	if not retained_tree:
-		_skill_tree_view = SkillTreeView.new()
-		_skill_tree_view.name = "CharacterSkillTree"
-		_skill_tree_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		_skill_tree_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		_skill_tree_view.skill_focused.connect(_on_skill_tree_focused)
-		_skill_tree_view.learn_requested.connect(_on_skill_learn_requested)
+	_ensure_skill_tree_view()
 	_skill_tree_view.configure({
 		"mode": SkillTreeView.MODE_VIEW,
 		"owned_ids": owned_ids,
@@ -29056,13 +29677,13 @@ func _on_skill_learn_requested(skill_id: String) -> void:
 	if prior_notice != null:
 		_queue_free_node_now(prior_notice)
 	_refresh_skill_progression_surface(skill_id)
-	if _skill_tree_view != null:
+	if is_instance_valid(_skill_tree_view):
 		_skill_tree_view.play_learned_confirmation(skill_id, _reduced_motion_enabled())
 	_skill_hud_refresh_pending = true
 
 func _refresh_skill_progression_surface(focused_id: String = "") -> void:
 	_refresh_progression_resource_summary()
-	if _skill_tree_view != null:
+	if is_instance_valid(_skill_tree_view):
 		var next_focus: String = focused_id if SkillTreeLibrary.has_definition(focused_id) else _progression_focused_skill_id
 		_skill_tree_view.configure({
 			"mode": SkillTreeView.MODE_VIEW,
@@ -29149,7 +29770,7 @@ func _close_skill_reset_confirmation() -> void:
 		return
 	_queue_free_node_now(_skill_reset_confirmation_scrim)
 	_skill_reset_confirmation_scrim = null
-	if _skill_tree_view != null:
+	if is_instance_valid(_skill_tree_view):
 		_skill_tree_view.call_deferred("grab_tree_focus")
 
 func _confirm_skill_reset() -> void:
@@ -29280,8 +29901,11 @@ func _build_equipment_character_column() -> Control:
 	const Menu = preload("res://scripts/character_menu_view.gd")
 	var panel := Menu.column("EquipmentLoadoutPanel", 420.0, "EQUIPPED")
 	var list := Menu.scroll_list(panel, "EquipmentLoadoutScroll", "EquipmentLoadoutList")
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	list.add_child(_build_equipment_portrait_panel())
+	started = _record_runtime_performance_phase("character_portrait", started)
 	list.add_child(_build_equipped_items_section())
+	_record_runtime_performance_phase("character_item_slots", started)
 	return panel
 
 func _build_equipped_items_section() -> Control:
@@ -29294,7 +29918,7 @@ func _build_equipped_items_section() -> Control:
 	section.add_child(Menu.section("ITEMS", "%d / %d" % [mini(equipped_items.size(), GameData.item_loadout_limit()), GameData.item_loadout_limit()]))
 	for index: int in range(GameData.item_loadout_limit()):
 		var card_id: String = str(equipped_items[index]) if index < equipped_items.size() else ""
-		section.add_child(_build_item_card_tile(card_id, "equipped", index))
+		section.add_child(_build_item_card_tile(card_id, "equipped", index, "item/equipped/%d" % index))
 	return section
 
 func _build_equipment_portrait_panel() -> Control:
@@ -29345,63 +29969,118 @@ func _build_equipment_slot_panel(slot: String, equipment_id: String) -> Control:
 	_equipment_slot_panels[slot] = panel
 	return panel
 
-func _build_equipment_inventory_column() -> Control:
+func _place_character_row(parent: Node, row: Control, index: int) -> void:
+	if row.get_parent() != parent:
+		if row.get_parent() != null: row.get_parent().remove_child(row)
+		parent.add_child(row)
+	if row.get_index() != index: parent.move_child(row, index)
+
+func _finish_character_rows(parent: Node, rows: Array[Control]) -> void:
+	for child: Node in parent.get_children():
+		if not rows.has(child):
+			_prepare_node_for_immediate_free(child)
+			parent.remove_child(child)
+			child.queue_free()
+
+func _character_empty_row(parent: Node, text: String) -> Label:
+	for child: Node in parent.get_children():
+		if child is Label and (child as Label).text == text: return child as Label
+	return preload("res://scripts/character_menu_view.gd").empty_copy(text)
+
+func _refresh_character_column_header(panel: PanelContainer, title: String, count_text: String) -> void:
+	var header: Control = panel.get_node("ColumnContent").get_child(0) as Control
+	header.call("setup", title, count_text)
+	# A retained Label can keep its old minimum width until its text update is
+	# processed. Refit before rendering, just as the original new header does.
+	header.call_deferred("_layout")
+
+func _build_equipment_inventory_column(keep_parent: bool = false) -> Control:
 	const Menu = preload("res://scripts/character_menu_view.gd")
 	var inventory_ids: Array = _equipment_inventory_ids()
 	var item_ids: Array = _item_inventory_ids()
-	var panel := Menu.column("EquipmentInventoryPanel", 400.0, "PACK", "%d gear · %d items" % [inventory_ids.size(), item_ids.size()])
-	var list := Menu.scroll_list(panel)
-	var gear_rows := VBoxContainer.new()
-	gear_rows.name = "EquipmentInventoryRows"
-	gear_rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	gear_rows.add_theme_constant_override("separation", 8)
-	list.add_child(gear_rows)
-	if inventory_ids.is_empty():
-		gear_rows.add_child(Menu.empty_copy("No spare gear"))
+	var panel: PanelContainer = _character_inventory_rows.take_panel("equipment", _character_row_common_input(), func() -> PanelContainer:
+		var created := preload("res://scripts/character_menu_view.gd").column("EquipmentInventoryPanel", 400.0, "PACK")
+		var list := preload("res://scripts/character_menu_view.gd").scroll_list(created)
+		var gear_rows := VBoxContainer.new()
+		gear_rows.name = "EquipmentInventoryRows"
+		gear_rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		gear_rows.add_theme_constant_override("separation", 8)
+		list.add_child(gear_rows)
+		var item_rows := VBoxContainer.new()
+		item_rows.name = "ItemInventoryRows"
+		item_rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		item_rows.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		item_rows.add_theme_constant_override("separation", 8)
+		list.add_child(item_rows)
+		return created
+	, keep_parent)
+	_refresh_character_column_header(panel, "PACK", "%d gear · %d items" % [inventory_ids.size(), item_ids.size()])
+	var gear_rows: VBoxContainer = panel.find_child("EquipmentInventoryRows", true, false) as VBoxContainer
+	var item_rows: VBoxContainer = panel.find_child("ItemInventoryRows", true, false) as VBoxContainer
+	var current_gear: Array[Control]
+	if inventory_ids.is_empty(): current_gear.append(_character_empty_row(gear_rows, "No spare gear"))
 	else:
+		var copies: Dictionary = {}
 		for equipment_id: Variant in inventory_ids:
-			gear_rows.add_child(_build_equipment_inventory_tile(str(equipment_id)))
-	var item_rows := VBoxContainer.new()
-	item_rows.name = "ItemInventoryRows"
-	item_rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	item_rows.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	item_rows.add_theme_constant_override("separation", 8)
-	list.add_child(item_rows)
+			var id: String = str(equipment_id)
+			var occurrence: int = int(copies.get(id, 0))
+			current_gear.append(_build_equipment_inventory_tile(id, "gear/%s/%d" % [id, occurrence]))
+			copies[id] = occurrence + 1
+	for index: int in range(current_gear.size()): _place_character_row(gear_rows, current_gear[index], index)
+	_finish_character_rows(gear_rows, current_gear)
 	_item_inventory_drop_panel = item_rows
-	if item_ids.is_empty():
-		item_rows.add_child(Menu.empty_copy("No consumables"))
+	var current_items: Array[Control]
+	if item_ids.is_empty(): current_items.append(_character_empty_row(item_rows, "No consumables"))
 	else:
-		for index: int in range(item_ids.size()):
-			item_rows.add_child(_build_item_card_tile(str(item_ids[index]), "inventory", index))
+		for index: int in range(item_ids.size()): current_items.append(_build_item_card_tile(str(item_ids[index]), "inventory", index, "item/inventory/%d" % index))
+	for index: int in range(current_items.size()): _place_character_row(item_rows, current_items[index], index)
+	_finish_character_rows(item_rows, current_items)
 	return panel
 
-func _build_magic_attuned_column() -> Control:
+func _build_magic_attuned_column(keep_parent: bool = false) -> Control:
 	const Menu = preload("res://scripts/character_menu_view.gd")
 	var attuned: Array = (_run_state.get("attuned_magic_cards", []) as Array).duplicate()
-	var panel := Menu.column("MagicAttunedPanel", 420.0, "ATTUNED MAGIC", "%d / %d" % [mini(attuned.size(), GameData.magic_loadout_limit()), GameData.magic_loadout_limit()])
+	var panel: PanelContainer = _character_inventory_rows.take_panel("attuned", _character_row_common_input(), func() -> PanelContainer:
+		var created := preload("res://scripts/character_menu_view.gd").column("MagicAttunedPanel", 420.0, "ATTUNED MAGIC")
+		preload("res://scripts/character_menu_view.gd").scroll_list(created, "", "MagicAttunedRows")
+		return created
+	, keep_parent)
+	_refresh_character_column_header(panel, "ATTUNED MAGIC", "%d / %d" % [mini(attuned.size(), GameData.magic_loadout_limit()), GameData.magic_loadout_limit()])
 	_magic_attuned_drop_panel = panel
-	var slots := Menu.scroll_list(panel)
+	var slots: VBoxContainer = panel.find_child("MagicAttunedRows", true, false) as VBoxContainer
+	var rows: Array[Control]
 	for index: int in range(GameData.magic_loadout_limit()):
 		var card_id: String = str(attuned[index]) if index < attuned.size() else ""
-		slots.add_child(_build_magic_card_tile(card_id, "attuned", index))
+		rows.append(_build_magic_card_tile(card_id, "attuned", index, "magic/attuned/%d" % index))
 	if not _magic_overlay_can_change():
-		slots.add_child(Menu.label("Locked in combat", 14, UiPalette.TEXT_2))
+		var lock_copy: Label = null
+		for child: Node in slots.get_children():
+			if child is Label and (child as Label).text == "Locked in combat": lock_copy = child as Label
+		rows.append(lock_copy if lock_copy != null else Menu.label("Locked in combat", 14, UiPalette.TEXT_2))
+	for index: int in range(rows.size()): _place_character_row(slots, rows[index], index)
+	_finish_character_rows(slots, rows)
 	return panel
 
-func _build_magic_inventory_column() -> Control:
+func _build_magic_inventory_column(keep_parent: bool = false) -> Control:
 	const Menu = preload("res://scripts/character_menu_view.gd")
 	var reserve: Array = (_run_state.get("magic_inventory", []) as Array).duplicate()
-	var panel := Menu.column("MagicInventoryPanel", 400.0, "LEARNED MAGIC", str(reserve.size()))
+	var panel: PanelContainer = _character_inventory_rows.take_panel("magic", _character_row_common_input(), func() -> PanelContainer:
+		var created := preload("res://scripts/character_menu_view.gd").column("MagicInventoryPanel", 400.0, "LEARNED MAGIC")
+		preload("res://scripts/character_menu_view.gd").scroll_list(created, "", "MagicInventoryRows")
+		return created
+	, keep_parent)
+	_refresh_character_column_header(panel, "LEARNED MAGIC", str(reserve.size()))
 	_magic_inventory_drop_panel = panel
-	var slots := Menu.scroll_list(panel)
-	if reserve.is_empty():
-		slots.add_child(Menu.empty_copy("No learned magic"))
+	var slots: VBoxContainer = panel.find_child("MagicInventoryRows", true, false) as VBoxContainer
+	var rows: Array[Control]
+	if reserve.is_empty(): rows.append(_character_empty_row(slots, "No learned magic"))
 	else:
-		for index: int in range(reserve.size()):
-			slots.add_child(_build_magic_card_tile(str(reserve[index]), "inventory", index))
+		for index: int in range(reserve.size()): rows.append(_build_magic_card_tile(str(reserve[index]), "inventory", index, "magic/inventory/%d" % index))
+	for index: int in range(rows.size()): _place_character_row(slots, rows[index], index)
+	_finish_character_rows(slots, rows)
 	return panel
 
-func _build_current_deck_column() -> Control:
+func _build_current_deck_column(keep_parent: bool = false) -> Control:
 	const Menu = preload("res://scripts/character_menu_view.gd")
 	var attuned: Array = (_run_state.get("attuned_magic_cards", []) as Array).duplicate()
 	var items: Array = (_run_state.get("equipped_items", []) as Array).duplicate()
@@ -29409,18 +30088,227 @@ func _build_current_deck_column() -> Control:
 	var card_count: int = attuned.size() + items.size()
 	for slot: String in GameData.equipment_slots():
 		card_count += GameData.equipment_cards(str(equipped.get(slot, "")), _run_state).size()
-	var panel := Menu.column("CurrentDeckPanel", 0.0, "DECK", "%d cards" % card_count)
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var list := Menu.scroll_list(panel)
-	list.add_child(_build_attuned_magic_deck_group(attuned))
-	list.add_child(_build_equipped_items_deck_group(items))
+	# A weapon swap changes only its deck group. Keep idle unchanged groups and
+	# their final native parent, using the same constructors for every changed
+	# group. Separate Gear/Magic owners keep both prepared dialogs complete.
+	var panel: PanelContainer = _character_inventory_rows.take_panel("deck/" + _progression_overlay_mode, _character_row_common_input(), func() -> PanelContainer:
+		var created := preload("res://scripts/character_menu_view.gd").column("CurrentDeckPanel", 0.0, "DECK", "%d cards" % card_count)
+		created.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		preload("res://scripts/character_menu_view.gd").scroll_list(created)
+		return created
+	, keep_parent, _character_dialog_can_retain)
+	# Both mode panels share the authored name. Parking them under one hidden
+	# host can assign an automatic collision name; restore it after detaching.
+	panel.name = "CurrentDeckPanel"
+	_refresh_character_column_header(panel, "DECK", "%d cards" % card_count)
+	var scroll: ScrollContainer = panel.find_children("*", "ScrollContainer", true, false)[0] as ScrollContainer
+	var list: VBoxContainer = scroll.get_child(0) as VBoxContainer
+	var groups: Array[Control]
+	groups.append(_character_deck_group("magic", "Attuned Magic %d/%d" % [mini(attuned.size(), GameData.magic_loadout_limit()), GameData.magic_loadout_limit()], "", attuned, _build_attuned_magic_deck_group.bind(attuned)))
+	groups.append(_character_deck_group("items", "Items %d/%d" % [mini(items.size(), GameData.item_loadout_limit()), GameData.item_loadout_limit()], "", items, _build_equipped_items_deck_group.bind(items)))
 	for slot: String in GameData.equipment_slots():
 		var equipment_id: String = str(equipped.get(slot, ""))
 		if not equipment_id.is_empty():
-			list.add_child(_build_equipment_deck_group(equipment_id, _equipment_slot_label(slot)))
+			var heading: String = _equipment_slot_label(slot)
+			groups.append(_character_deck_group("equipment/" + slot, heading.to_upper(), str(GameData.equipment_def(equipment_id).get("name", equipment_id)), GameData.equipment_cards(equipment_id, _run_state), _build_equipment_deck_group.bind(equipment_id, heading)))
+	for index: int in range(groups.size()): _place_character_row(list, groups[index], index)
+	_finish_character_rows(list, groups)
 	return panel
 
-func _build_equipment_inventory_tile(equipment_id: String) -> Control:
+func _character_deck_group(key: String, heading: String, source: String, cards: Array, constructor: Callable) -> Control:
+	const Menu = preload("res://scripts/character_menu_view.gd")
+	var definitions: Array
+	for id: Variant in cards:
+		var resolved: String = Menu.deck_card_id(str(id))
+		# Include the raw alias as well as the exact printed definition: retired
+		# save IDs can change which printed card or duplicate count is displayed.
+		definitions.append([str(id), GameData.cards().get(str(id), {}), resolved, GameData.card_def(resolved)])
+	var input: Array = [heading, source, cards, definitions, _character_row_common_input()]
+	return _character_inventory_rows.take("deck/" + _progression_overlay_mode + "/" + key, input, constructor, _character_dialog_can_retain)
+
+const CHARACTER_VIEW_BINDINGS = [
+	"_equipment_slot_panels", "_equipment_inventory_tiles", "_magic_attuned_tiles", "_magic_inventory_tiles",
+	"_magic_attuned_drop_panel", "_magic_inventory_drop_panel", "_item_equipped_tiles", "_item_inventory_tiles", "_item_inventory_drop_panel",
+	"_progression_level_label", "_progression_skill_points_label", "_progression_moltshards_label", "_progression_defiance_label",
+]
+
+func _character_view_bindings() -> Dictionary:
+	var bindings: Dictionary = {}
+	for field: String in CHARACTER_VIEW_BINDINGS:
+		var value: Variant = get(field)
+		bindings[field] = value.duplicate() if value is Dictionary else value
+	return bindings
+
+func _apply_character_view_bindings(bindings: Dictionary) -> void:
+	for field: String in CHARACTER_VIEW_BINDINGS: set(field, bindings[field])
+
+func _character_view_job(dialog: PanelContainer, mode: String, bindings: Dictionary, job: Callable) -> Variant:
+	var previous_dialog: PanelContainer = _upgrade_dialog
+	var previous_mode: String = _progression_overlay_mode
+	var previous_bindings: Dictionary = _character_view_bindings()
+	_upgrade_dialog = dialog
+	_progression_overlay_mode = mode
+	if not bindings.is_empty(): _apply_character_view_bindings(bindings)
+	var result: Variant = job.call()
+	bindings.assign(_character_view_bindings())
+	_apply_character_view_bindings(previous_bindings)
+	_progression_overlay_mode = previous_mode
+	_upgrade_dialog = previous_dialog
+	return result
+
+func _begin_hidden_character_view(dialog: PanelContainer, mode: String, bindings: Dictionary) -> Array[Callable]:
+	_character_view_job(dialog, mode, bindings, _layout_progression_dialog)
+	var vbox: VBoxContainer = _character_view_job(dialog, mode, bindings, _build_character_dialog_header)
+	var body: HBoxContainer = _character_view_job(dialog, mode, bindings, _begin_character_loadout_body)
+	var frame: Control = _character_view_job(dialog, mode, bindings, _fixed_character_body_frame.bind(body))
+	vbox.add_child(frame)
+	var jobs: Array[Callable]
+	var columns: Array[Callable]
+	if mode == "equipment":
+		columns.assign([_build_equipment_character_column, _build_equipment_inventory_column, _build_current_deck_column])
+	else:
+		columns.assign([_build_magic_attuned_column, _build_magic_inventory_column, _build_current_deck_column])
+	for column: Callable in columns:
+		jobs.append(_append_hidden_character_column.bind(dialog, mode, bindings, body, column))
+	jobs.append(_finish_hidden_character_view.bind(dialog))
+	return jobs
+
+func _append_hidden_character_column(dialog: PanelContainer, mode: String, bindings: Dictionary, body: HBoxContainer, builder: Callable) -> void:
+	# The constructor and ready callbacks see their actual future context only
+	# during this synchronous job. All live bindings are restored before await.
+	_character_view_job(dialog, mode, bindings, func() -> void: body.add_child(builder.call()))
+
+func _finish_hidden_character_view(dialog: PanelContainer) -> void:
+	preload("res://scripts/character_menu_view.gd").finish_dialog(dialog)
+
+func _adopt_character_view(view: Dictionary) -> void:
+	_preserve_character_skill_tree()
+	var previous_dialog: PanelContainer = _upgrade_dialog
+	if _live_character_view_key.get("mode", "") in ["equipment", "magic"]:
+		_character_inventory_rows.store_view(str(_live_character_view_key["mode"]), previous_dialog, _live_character_view_key, _character_view_bindings())
+		_character_inventory_rows.park_view(previous_dialog)
+	else:
+		_prepare_node_for_immediate_free(previous_dialog)
+		previous_dialog.get_parent().remove_child(previous_dialog)
+		previous_dialog.queue_free()
+	_upgrade_dialog = view["node"]
+	if _upgrade_dialog.get_parent() != _upgrade_center:
+		if _upgrade_dialog.get_parent() != null: _upgrade_dialog.get_parent().remove_child(_upgrade_dialog)
+		_upgrade_center.add_child(_upgrade_dialog)
+	_upgrade_center.move_child(_upgrade_dialog, 0)
+	_upgrade_dialog.process_mode = Node.PROCESS_MODE_INHERIT
+	_upgrade_dialog.show()
+	_apply_character_view_bindings(view["bindings"])
+	# Switching tabs originally constructed fresh scroll containers.
+	for scroll: Node in _upgrade_dialog.find_children("*", "ScrollContainer", true, false):
+		(scroll as ScrollContainer).scroll_horizontal = 0
+		(scroll as ScrollContainer).scroll_vertical = 0
+	_live_character_view_key = view["input"]
+
+func _character_row_preparation_key() -> Dictionary:
+	return {"state": _run_state, "profile": _progression, "definitions": [GameData.cards(), GameData.equipment()], "common": _character_row_common_input()}
+
+func _prepare_known_character_rows() -> void:
+	await CharacterInventoryRows.prepare_current_for(self, _character_row_preparation_revision, preload("res://scripts/encounter_asset_preparation.gd").present_frame.bind(get_tree()), func() -> bool: return true)
+
+func _character_row_preparation_jobs(mode: String = "") -> Array[Callable]:
+	var jobs: Array[Callable]
+	_character_inventory_rows.prune(_current_character_row_keys(), _prepare_node_for_immediate_free)
+	var common: Array = _character_row_common_input()
+	var can_gear: bool = _run_engine.can_change_equipment(_run_state)
+	var can_items: bool = _run_engine.can_change_items(_run_state)
+	var can_magic: bool = _run_engine.can_change_magic(_run_state)
+	var copies: Dictionary = {}
+	if mode.is_empty() or mode == "equipment":
+		for id: String in _equipment_inventory_ids():
+			var occurrence: int = int(copies.get(id, 0))
+			copies[id] = occurrence + 1
+			var input: Array = [GameData.equipment_def(id), _equipment_slot_label(GameData.equipment_slot(id)), _equipment_rarity_label(GameData.equipment_rarity(id)), _equipment_card_summary(id), can_gear, _run_engine.loadout_asset_is_new(_run_state, "equipment", id), common]
+			jobs.append(_character_inventory_rows.prepare.bind(_upgrade_dialog, "gear/%s/%d" % [id, occurrence], input, _new_equipment_inventory_tile.bind(id, can_gear, false), _character_row_can_retain))
+		for source_kind: String in ["inventory", "equipped"]:
+			var items: Array = _item_inventory_ids() if source_kind == "inventory" else (_run_state.get("equipped_items", []) as Array)
+			var count: int = items.size() if source_kind == "inventory" else GameData.item_loadout_limit()
+			for index: int in range(count):
+				var id: String = str(items[index]) if index < items.size() else ""
+				var input: Array = [id, GameData.card_def(id), GameData.item_icon_path(id), source_kind, index, can_items, _run_engine.loadout_asset_is_new(_run_state, "equipment", id), common]
+				jobs.append(_character_inventory_rows.prepare.bind(_upgrade_dialog, "item/%s/%d" % [source_kind, index], input, _new_item_card_tile.bind(id, source_kind, index, can_items, false), _character_row_can_retain))
+	if mode.is_empty() or mode == "magic":
+		for source_kind: String in ["inventory", "attuned"]:
+			var cards: Array = _run_state.get("magic_inventory" if source_kind == "inventory" else "attuned_magic_cards", []) as Array
+			var count: int = cards.size() if source_kind == "inventory" else GameData.magic_loadout_limit()
+			for index: int in range(count):
+				var id: String = str(cards[index]) if index < cards.size() else ""
+				var input: Array = [id, GameData.card_def(id), source_kind, index, can_magic, _run_engine.loadout_asset_is_new(_run_state, "magic", id), common]
+				jobs.append(_character_inventory_rows.prepare.bind(_upgrade_dialog, "magic/%s/%d" % [source_kind, index], input, _new_magic_card_tile.bind(id, source_kind, index, can_magic, false), _character_row_can_retain))
+	return jobs
+
+func _current_character_row_keys() -> Array[String]:
+	var keys: Array[String]
+	var copies: Dictionary = {}
+	for id: String in _equipment_inventory_ids():
+		var occurrence: int = int(copies.get(id, 0))
+		keys.append("gear/%s/%d" % [id, occurrence])
+		copies[id] = occurrence + 1
+	for index: int in range(_item_inventory_ids().size()): keys.append("item/inventory/%d" % index)
+	for index: int in range(GameData.item_loadout_limit()): keys.append("item/equipped/%d" % index)
+	for index: int in range(GameData.magic_loadout_limit()): keys.append("magic/attuned/%d" % index)
+	for index: int in range((_run_state.get("magic_inventory", []) as Array).size()): keys.append("magic/inventory/%d" % index)
+	var equipped: Dictionary = _run_state.get("equipped_equipment", {}) as Dictionary
+	for mode: String in ["equipment", "magic"]:
+		keys.append("deck/" + mode + "/magic")
+		keys.append("deck/" + mode + "/items")
+		for slot: String in GameData.equipment_slots():
+			if not str(equipped.get(slot, "")).is_empty(): keys.append("deck/" + mode + "/equipment/" + slot)
+	return keys
+
+func _character_row_common_input() -> Array:
+	return [get_viewport_rect().size, UiTypography.ui_scale(self)]
+
+# A refresh formerly created fresh interaction state. Rebuild an active row
+# rather than carrying a held gesture, inspection, selected strip or pulse into
+# the next view. Unchanged idle rows retain their authored controls.
+func _character_view_can_retain(dialog: Control, mode: String) -> bool:
+	var frame: Control = dialog.find_child("CharacterBodyFrame", true, false) as Control
+	if frame == null or frame.get_child_count() != 1: return false
+	var body: HBoxContainer = frame.get_child(0) as HBoxContainer
+	if body == null or body.get_child_count() != 3: return false
+	var expected: Array[String]
+	if mode == "equipment": expected.assign(["EquipmentLoadoutPanel", "EquipmentInventoryPanel", "CurrentDeckPanel"])
+	else: expected.assign(["MagicAttunedPanel", "MagicInventoryPanel", "CurrentDeckPanel"])
+	for index: int in range(expected.size()):
+		if body.get_child(index).name != expected[index]: return false
+	return _character_dialog_can_retain(dialog)
+
+func _character_dialog_can_retain(dialog: Control) -> bool:
+	if not _character_row_can_retain(dialog): return false
+	for child: Node in dialog.get_children():
+		if child is Control and not _character_dialog_can_retain(child as Control): return false
+	return true
+
+func _character_row_can_retain(row: Control) -> bool:
+	# Committed drag rebuilds create fresh selection/dimming/feedback states,
+	# including replacing an equipped consumable with an identical copy.
+	if not _equipment_drag_id.is_empty() or not _item_drag_card_id.is_empty() or not _magic_drag_card_id.is_empty(): return false
+	if row.scale != Vector2.ONE or bool(row.get_meta("character_hovered", false)) or bool(row.get_meta("character_swap_target", false)): return false
+	if row.get_script() == preload("res://scripts/ui_card_strip.gd") and (bool(row.get("_inspection_active")) or bool(row.get("selected"))): return false
+	if row is EquipmentInventoryTile or row is MagicCardTile or row is ItemCardTile:
+		if bool(row.get("_left_pressed")): return false
+	var pack: Node = row.get_node_or_null("CharacterPackActionController")
+	if pack != null and (bool(pack.get("_gesture_active")) or bool(pack.get("_pointer_blocked"))): return false
+	for strip: Node in row.get_children():
+		if strip.get_script() == preload("res://scripts/ui_card_strip.gd") and (bool(strip.get("_inspection_active")) or bool(strip.get("selected"))): return false
+	return true
+
+func _build_equipment_inventory_tile(equipment_id: String, retention_key: String = "") -> Control:
+	if retention_key.is_empty(): return _new_equipment_inventory_tile(equipment_id, _equipment_overlay_can_change())
+	var input: Array = [GameData.equipment_def(equipment_id), _equipment_slot_label(GameData.equipment_slot(equipment_id)), _equipment_rarity_label(GameData.equipment_rarity(equipment_id)), _equipment_card_summary(equipment_id), _equipment_overlay_can_change(), _run_engine.loadout_asset_is_new(_run_state, "equipment", equipment_id), _character_row_common_input()]
+	var tile: Control = _character_inventory_rows.take(retention_key, input, _new_equipment_inventory_tile.bind(equipment_id, _equipment_overlay_can_change()), _character_row_can_retain)
+	tile.set("_left_pressed", false)
+	tile.modulate = Color.WHITE if _equipment_overlay_can_change() else Color(0.72, 0.72, 0.72, 1.0)
+	_equipment_inventory_tiles[equipment_id] = tile
+	return tile
+
+func _new_equipment_inventory_tile(equipment_id: String, can_change: bool, register_row: bool = true) -> Control:
 	const Menu = preload("res://scripts/character_menu_view.gd")
 	var item: Dictionary = GameData.equipment_def(equipment_id)
 	var tile := EquipmentInventoryTile.new()
@@ -29430,14 +30318,14 @@ func _build_equipment_inventory_tile(equipment_id: String) -> Control:
 	tile.mouse_filter = Control.MOUSE_FILTER_STOP
 	tile.focus_mode = Control.FOCUS_ALL
 	tile.tooltip_text = "equipment:%s" % equipment_id
-	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if _equipment_overlay_can_change() else Control.CURSOR_ARROW
+	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if can_change else Control.CURSOR_ARROW
 	tile.add_theme_stylebox_override("panel", Menu.row_style())
 	_configure_controller_loadout_focus(tile, UiPalette.GOLD)
 	tile.add_child(Menu.row_body(AssetLoader.load_texture(str(item.get("icon_path", ""))), "%s · %s" % [_equipment_slot_label(GameData.equipment_slot(equipment_id)), _equipment_rarity_label(GameData.equipment_rarity(equipment_id))], str(item.get("name", equipment_id)), _equipment_card_summary(equipment_id)))
-	Menu.pack_actions(tile, self, _equip_equipment_from_overlay.bind(equipment_id), _equipment_overlay_can_change())
-	_equipment_inventory_tiles[equipment_id] = tile
+	Menu.pack_actions(tile, self, _equip_equipment_from_overlay.bind(equipment_id), can_change)
+	if register_row: _equipment_inventory_tiles[equipment_id] = tile
 	_add_loadout_new_tag(tile, "equipment", equipment_id)
-	if not _equipment_overlay_can_change():
+	if not can_change:
 		tile.modulate = Color(0.72, 0.72, 0.72, 1.0)
 	return tile
 
@@ -29450,7 +30338,18 @@ func _build_attuned_magic_deck_group(attuned_card_ids: Array) -> Control:
 func _build_equipped_items_deck_group(item_card_ids: Array) -> Control:
 	return preload("res://scripts/character_menu_view.gd").deck_group("Items %d/%d" % [mini(item_card_ids.size(), GameData.item_loadout_limit()), GameData.item_loadout_limit()], "", item_card_ids, self)
 
-func _build_magic_card_tile(card_id: String, source_kind: String, index: int) -> Control:
+func _build_magic_card_tile(card_id: String, source_kind: String, index: int, retention_key: String = "") -> Control:
+	if retention_key.is_empty(): return _new_magic_card_tile(card_id, source_kind, index, _magic_overlay_can_change())
+	var input: Array = [card_id, GameData.card_def(card_id), source_kind, index, _magic_overlay_can_change(), _run_engine.loadout_asset_is_new(_run_state, "magic", card_id), _character_row_common_input()]
+	var tile: Control = _character_inventory_rows.take(retention_key, input, _new_magic_card_tile.bind(card_id, source_kind, index, _magic_overlay_can_change()), _character_row_can_retain)
+	tile.set("_left_pressed", false)
+	tile.modulate = Color.WHITE
+	if not card_id.is_empty():
+		if source_kind == "attuned": _magic_attuned_tiles[index] = tile
+		else: _magic_inventory_tiles[index] = tile
+	return tile
+
+func _new_magic_card_tile(card_id: String, source_kind: String, index: int, can_change: bool, register_row: bool = true) -> Control:
 	const Menu = preload("res://scripts/character_menu_view.gd")
 	var tile := MagicCardTile.new()
 	tile.card_id = card_id
@@ -29465,25 +30364,34 @@ func _build_magic_card_tile(card_id: String, source_kind: String, index: int) ->
 		return tile
 	tile.focus_mode = Control.FOCUS_ALL
 	tile.tooltip_text = "card:%s" % card_id
-	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if _magic_overlay_can_change() else Control.CURSOR_ARROW
+	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if can_change else Control.CURSOR_ARROW
 	var strip := Menu.strip_content(card_id, 1, 34.0)
-	strip.locked = not _magic_overlay_can_change()
+	strip.locked = not can_change
 	tile.add_child(strip)
 	_configure_controller_loadout_focus(tile, UiPalette.GOLD)
-	if source_kind == "attuned":
-		_magic_attuned_tiles[index] = tile
-	else:
-		_magic_inventory_tiles[index] = tile
+	if register_row:
+		if source_kind == "attuned": _magic_attuned_tiles[index] = tile
+		else: _magic_inventory_tiles[index] = tile
 	_add_loadout_new_tag(tile, "magic", card_id)
 	return tile
 
-func _build_item_card_tile(card_id: String, source_kind: String, index: int) -> Control:
+func _build_item_card_tile(card_id: String, source_kind: String, index: int, retention_key: String = "") -> Control:
+	if retention_key.is_empty(): return _new_item_card_tile(card_id, source_kind, index, _item_overlay_can_change())
+	var input: Array = [card_id, GameData.card_def(card_id), GameData.item_icon_path(card_id), source_kind, index, _item_overlay_can_change(), _run_engine.loadout_asset_is_new(_run_state, "equipment", card_id), _character_row_common_input()]
+	var tile: Control = _character_inventory_rows.take(retention_key, input, _new_item_card_tile.bind(card_id, source_kind, index, _item_overlay_can_change()), _character_row_can_retain)
+	if tile is ItemCardTile: tile.set("_left_pressed", false)
+	tile.modulate = Color.WHITE
+	if source_kind == "equipped": _item_equipped_tiles[index] = tile
+	else: _item_inventory_tiles[index] = tile
+	return tile
+
+func _new_item_card_tile(card_id: String, source_kind: String, index: int, can_change: bool, register_row: bool = true) -> Control:
 	const Menu = preload("res://scripts/character_menu_view.gd")
 	if card_id.is_empty():
 		var empty := PanelContainer.new()
 		empty.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		Menu.empty_row(empty, "Empty item slot")
-		if source_kind == "equipped":
+		if register_row and source_kind == "equipped":
 			_item_equipped_tiles[index] = empty
 		return empty
 	var tile := ItemCardTile.new()
@@ -29495,15 +30403,15 @@ func _build_item_card_tile(card_id: String, source_kind: String, index: int) -> 
 	tile.mouse_filter = Control.MOUSE_FILTER_STOP
 	tile.focus_mode = Control.FOCUS_ALL
 	tile.tooltip_text = "card:%s" % card_id
-	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if _item_overlay_can_change() else Control.CURSOR_ARROW
+	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if can_change else Control.CURSOR_ARROW
 	tile.add_theme_stylebox_override("panel", Menu.row_style())
 	tile.add_child(_build_item_card_tile_body(card_id))
 	_configure_controller_loadout_focus(tile, UiPalette.GOLD)
 	if source_kind == "equipped":
-		_item_equipped_tiles[index] = tile
+		if register_row: _item_equipped_tiles[index] = tile
 	else:
-		_item_inventory_tiles[index] = tile
-		Menu.pack_actions(tile, self, _equip_item_from_overlay.bind(index), _item_overlay_can_change())
+		if register_row: _item_inventory_tiles[index] = tile
+		Menu.pack_actions(tile, self, _equip_item_from_overlay.bind(index), can_change)
 	_add_loadout_new_tag(tile, "equipment", card_id)
 	return tile
 
@@ -30658,6 +31566,25 @@ func _build_card_preview_widget(card_id: String, card_size: Vector2, interactive
 	widget.configure(card_id, false, false, true, false, interactive, true, _card_def(card_id))
 	return _scaled_card_slot(widget, card_size, interactive)
 
+func _cancel_equipment_factory_preparation() -> void:
+	_equipment_factory_preparation_generation += 1
+	_equipment_factory_preparation.reset()
+
+func _schedule_equipment_factory_preparation() -> void:
+	if _progression_overlay_mode != "equipment" or not is_instance_valid(_upgrade_scrim) or not _upgrade_scrim.is_visible_in_tree() or not _combat_state.is_empty() or str(_run_state.get("mode", "")) != RunEngineScript.MODE_PRE_BATTLE:
+		_cancel_equipment_factory_preparation()
+		return
+	if _equipment_factory_preparation.matches_source(_run_state): return
+	_cancel_equipment_factory_preparation()
+	var options: Array[Dictionary]
+	for id: String in _equipment_inventory_ids():
+		var slot: String = GameData.equipment_slot(id)
+		options.append({"id": id, "slot": slot})
+		if slot != "trinket" and _equipment_slot_accepts_drag("trinket", id): options.append({"id": id, "slot": "trinket"})
+	_equipment_factory_preparation = preload("res://scripts/prepared_equipment_combat.gd").new()
+	_equipment_factory_preparation.begin(_run_state, options)
+	preload("res://scripts/prepared_equipment_combat.gd").prepare_for.call_deferred(self, _equipment_factory_preparation, _equipment_factory_preparation_generation)
+
 func _equipment_inventory_ids() -> Array:
 	var inventory: Array = (_run_state.get("equipment_inventory", []) as Array).duplicate()
 	var sorted_ids: Array = []
@@ -30718,11 +31645,17 @@ func _equip_equipment_from_overlay(equipment_id: String, drop_slot: String = "",
 	var previous_slot_rect: Rect2 = _equipment_slot_icon_rect(slot)
 	if previous_slot_rect.size.x <= 0.0 or previous_slot_rect.size.y <= 0.0:
 		previous_slot_rect = drop_rect
+	var before_run_state: Dictionary = _run_state
 	_run_state = _run_engine.equip_equipment(_run_state, equipment_id, slot)
 	var after_equipped: Dictionary = _run_state.get("equipped_equipment", {}) as Dictionary
 	if str(after_equipped.get(slot, "")) == before_id:
 		_clear_equipment_drag_state(true)
 		return
+	var preparation_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var prepared_factory: Dictionary = _equipment_factory_preparation.take(before_run_state, _run_state, equipment_id, slot)
+	_cancel_equipment_factory_preparation()
+	if not prepared_factory.is_empty(): _prepared_pre_battle_factory = prepared_factory
+	_record_runtime_performance_phase("equipment_factory_adopt_ready" if not prepared_factory.is_empty() else "equipment_factory_adopt_miss", preparation_started)
 	_equipment_swap_animation_active = true
 	_play_item_equip_sfx()
 	_persist_committed_boundary("equipment_equipped")
@@ -31483,7 +32416,13 @@ func _request_skill_event_analytics() -> void:
 	_skill_analytics_requested_scope = scope
 	_skill_analytics_queue.request(_skill_analytics_steps(), _skill_analytics_ready, _skill_analytics_scope)
 
-func _cancel_deferred_skill_analytics() -> void:
+func _cancel_deferred_skill_analytics(preserve_run_event_contexts: bool = false) -> void:
+	if not preserve_run_event_contexts:
+		_run_skill_event_context_scope = ""
+		_run_skill_event_contexts.clear()
+	if not _run_skill_analytics_flushing:
+		_run_skill_analytics_queue.cancel()
+		_run_skill_analytics_requested_scope = ""
 	_skill_analytics_queue.cancel()
 	_skill_analytics_requested_scope = ""
 	_skill_analytics_locked_scope = ""
@@ -31682,7 +32621,89 @@ func _has_pending_combat_skill_event_analytics() -> bool:
 			return true
 	return false
 
+# The gameplay checkpoint already retains each revisioned run trigger. HUD
+# refresh schedules the existing replay-safe protocol after a rendered frame,
+# instead of adding two analytics saves to the input's completion frame.
+func _request_run_skill_event_analytics() -> void:
+	var pending: int = _run_engine.run_skill_event_revision(_run_state)
+	var logged: int = int((_run_state.get("analytics", {}) as Dictionary).get("run_skill_event_revision_logged", 0))
+	if pending <= logged:
+		return
+	_capture_run_skill_event_contexts(logged)
+	if not is_inside_tree() or str(_run_state.get("mode", "")) in ["victory", "defeat"]:
+		_flush_run_skill_event_analytics("hud_run_skill")
+		return
+	var scope: String = _run_skill_analytics_scope()
+	if _run_skill_analytics_requested_scope != scope:
+		_run_skill_analytics_queue.cancel()
+	_run_skill_analytics_requested_scope = scope
+	var steps: Array[Callable]
+	steps.append(_drain_run_skill_event_analytics)
+	_run_skill_analytics_queue.request(steps, _run_skill_analytics_ready, _run_skill_analytics_scope)
+
+func _run_skill_analytics_ready() -> bool:
+	if _run_skill_analytics_requested_scope != _run_skill_analytics_scope() or str(_run_state.get("mode", "")) in ["victory", "defeat"]:
+		_run_skill_analytics_queue.cancel()
+		_run_skill_analytics_requested_scope = ""
+		return false
+	return (
+		is_inside_tree()
+		and not is_queued_for_deletion()
+		and str(_run_state.get("mode", "")) not in ["victory", "defeat"]
+		and _run_skill_analytics_requested_scope == _run_skill_analytics_scope()
+		and _committed_run_state_override.is_empty()
+		and not _animation_lock
+	)
+
+func _run_skill_analytics_scope() -> String:
+	return "%s|%s" % [_skill_analytics_scope(), _run_skill_event_context_namespace()]
+
+func _run_skill_event_context_namespace(state: Dictionary = {}) -> String:
+	var source: Dictionary = _run_state if state.is_empty() else state
+	var run_id: String = str((source.get("analytics", {}) as Dictionary).get("run_id", ""))
+	if run_id.is_empty(): run_id = RunEngineScript.run_result_id(source)
+	return "%s|%s|%s|%s" % [
+		run_id,
+		ProgressionStore._run_storage_path, ProgressionStore._storage_path,
+		AnalyticsStore.storage_dir(),
+	]
+
+func _capture_run_skill_event_contexts(logged: int) -> void:
+	var scope: String = _run_skill_event_context_namespace()
+	if scope != _run_skill_event_context_scope:
+		_run_skill_event_contexts.clear()
+		_run_skill_event_context_scope = scope
+	var context: Dictionary = {}
+	var pending_keys: Dictionary = {}
+	for event: Dictionary in _run_engine.run_skill_events(_run_state):
+		var revision: int = int(event.get("revision", 0))
+		if revision <= logged: continue
+		var key: String = _run_skill_event_idempotency_key(_run_state, revision, str(event.get("skill_id", "")))
+		pending_keys[key] = true
+		var previous: Dictionary = _run_skill_event_contexts.get(key, {})
+		if previous.get("event", {}) == event: continue
+		if context.is_empty(): context = _analytics_context_from_states(_run_state, _combat_state)
+		# A fast following action must not attribute the previous trigger to its
+		# new room/HP/turn. The event and its original context are owned values.
+		_run_skill_event_contexts[key] = {"event": event.duplicate(true), "context": context.duplicate(true)}
+
+	# The engine keeps a bounded trigger history. Failed writes must not keep
+	# attribution for older entries that no longer exist in that pending history.
+	for key: String in _run_skill_event_contexts.keys():
+		if not pending_keys.has(key): _run_skill_event_contexts.erase(key)
+
+func _drain_run_skill_event_analytics() -> bool:
+	_run_skill_analytics_flushing = true
+	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var succeeded: bool = _flush_run_skill_event_analytics("hud_run_skill")
+	_record_runtime_performance_phase("deferred_run_skill_analytics_total", started)
+	_run_skill_analytics_flushing = false
+	return succeeded
+
 func _flush_run_skill_event_analytics(boundary: String = "run_skill_event") -> bool:
+	if not _run_skill_analytics_flushing:
+		_run_skill_analytics_queue.cancel()
+		_run_skill_analytics_requested_scope = ""
 	if _run_state.is_empty():
 		return true
 	var analytics: Dictionary = _run_state.get("analytics", {}) as Dictionary
@@ -31727,17 +32748,25 @@ func _reconcile_run_skill_event_analytics_for_state(run_state: Dictionary, comba
 			continue
 		var skill_id: String = str(event.get("skill_id", ""))
 		var idempotency_key: String = _run_skill_event_idempotency_key(next_state, revision, skill_id)
-		var wrote_event: bool = _analytics_store.write_event("skill_triggered", _analytics_context_from_states(next_state, combat_state), {
+		var context: Dictionary = _analytics_context_from_states(next_state, combat_state)
+		var captured: Dictionary = _run_skill_event_contexts.get(idempotency_key, {}) if _run_skill_event_context_scope == _run_skill_event_context_namespace(next_state) else {}
+		if captured.get("event", {}) == event:
+			context = (captured.get("context", {}) as Dictionary).duplicate(true)
+		var wrote_event: bool = _analytics_store.write_event("skill_triggered", context, {
 			"skill_id": skill_id,
 			"activation": SkillTreeLibrary.activation_kind(skill_id),
 			"trigger_revision": revision,
 			"trigger_scope": "run",
-			"turn": int(combat_state.get("turn", 0)),
+			"turn": int(context.get("turn", 0)),
 			"message": str(event.get("message", ""))
 		}, idempotency_key)
 		if not wrote_event:
 			break
 		latest_revision = maxi(latest_revision, revision)
+	if _run_skill_event_context_scope == _run_skill_event_context_namespace(next_state):
+		for key: String in _run_skill_event_contexts.keys():
+			if int((_run_skill_event_contexts[key].get("event", {}) as Dictionary).get("revision", 0)) <= latest_revision:
+				_run_skill_event_contexts.erase(key)
 	if latest_revision > logged_revision:
 		analytics["run_skill_event_revision_logged"] = latest_revision
 		next_state["analytics"] = analytics

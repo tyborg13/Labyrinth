@@ -113,6 +113,20 @@ never means written, and append failure never advances an acknowledgment.
 An interruption may leave the last complete checkpoint or a pending replayable
 outbox. Terminal banking and profile-before-run-clear rules remain unchanged.
 
+Run-stream HUD analytics use a separate coalescing queue after a rendered frame.
+Their existing outbox-save → JSONL append → cursor-save sequence stays within
+one synchronous slice and always reads current authoritative events. Gameplay
+commits still save before UI refresh. Held presentation pauses this queue;
+lifecycle/namespace changes cancel it. A successful nonterminal checkpoint that
+follows the last HUD refresh resumes an already pending same-run request, so
+reward-reveal completion does not require another player action to drain it.
+Explicit save/window-close cancels sleeping work, synchronously reconciles the
+live stream, and then saves the held/current checkpoint. Newer held events
+remain replayable until their checkpoint becomes live; reconciliation never
+replaces held gameplay with the older display state. First-HUD attribution
+context is owned in memory and discarded on load, without adding save fields.
+
+
 ## State intentionally excluded
 
 The save never includes hover state, card drag state, a selected but uncommitted

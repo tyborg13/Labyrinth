@@ -93,14 +93,14 @@ func _phase(action: Callable, minimum_frames: int) -> Dictionary:
 	_check(is_instance_valid(source), "Ordinary phase must retain its run scene")
 	if not is_instance_valid(source):
 		return {}
-	source.call("set_runtime_performance_instrumentation_enabled", true)
+	source.call("set_runtime_performance_instrumentation_enabled", bool(_probe.call("_section_instrumentation_enabled")))
 	var compilations_before: int = RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_CANVAS)
 	_sampler.call("begin")
 	var started_usec: int = Time.get_ticks_usec()
 	action.call()
 	var handler_ms: float = float(Time.get_ticks_usec() - started_usec) / 1000.0
 	var frames: int = 0
-	while is_instance_valid(source) and (frames < minimum_frames or _run_action_busy(source)):
+	while is_instance_valid(source) and (frames < minimum_frames or _run_action_busy(source) or not _surface_input_ready()):
 		await _probe.call("_await_render_frame")
 		frames += 1
 		if frames >= ACTION_GUARD_FRAMES:
@@ -153,7 +153,7 @@ func _scene_phase(name: String, action: Callable, ready: Callable) -> Dictionary
 	var exit_callback: Callable = func() -> void: _capture_source_profiles(source, result)
 	if is_instance_valid(source):
 		if source.has_method("set_runtime_performance_instrumentation_enabled"):
-			source.call("set_runtime_performance_instrumentation_enabled", true)
+			source.call("set_runtime_performance_instrumentation_enabled", bool(_probe.call("_section_instrumentation_enabled")))
 		source.tree_exiting.connect(exit_callback, CONNECT_ONE_SHOT)
 	_scene_failed = false
 	var compilations_before: int = RenderingServer.get_rendering_info(RenderingServer.RENDERING_INFO_PIPELINE_COMPILATIONS_CANVAS)
@@ -423,9 +423,8 @@ func _enter_route_fixture(fixture: Dictionary, prefix: String) -> void:
 	var expected: Dictionary = _engine.move_to_pre_battle(before, destination)
 	await _measure(prefix + "/map_open", func() -> void: _key(KEY_M), 12)
 	var map: Control = _instance.get("_large_map_view") as Control
-	var point: Vector2 = map.call("_coord_position", destination)
-	_check(map.call("_coord_at_point", point) == destination, "Routed map target must identify the generated room")
-	var phase: Dictionary = await _measure(prefix + "/enter", func() -> void: _probe.call("_routed_left_click", map, point), 60)
+	var map_target: Dictionary = _map_choice_target(map, destination)
+	var phase: Dictionary = await _measure(prefix + "/enter", func() -> void: _probe.call("_routed_left_click", map_target["control"], map_target["point"]), 90)
 	_assert_state_fields(expected, phase, ["mode", "current_room", "current_room_layout", "turns_spent", "held_embers", "pending_relics"])
 	_instance.call("_close_dialogue")
 	await _probe.call("_settle_render_frames", 6)
@@ -484,7 +483,10 @@ func _terminal_fixture(outcome: String) -> Dictionary:
 		combat["player"]["hp"] = 0
 	state["combat_state"] = combat
 	var terminal: Dictionary = _engine.finish_combat(state, combat)
-	_check(str(terminal.get("mode", "")) == outcome, "Terminal fixture must reach " + outcome + " through finish_combat without overriding its outcome")
+	if outcome == "victory":
+		_check(_engine.is_dragon_reward(terminal), "Final dragon combat must first offer its milestone reward")
+		terminal = _engine.continue_dragon_reward(terminal)
+	_check(str(terminal.get("mode", "")) == outcome, "Terminal fixture must reach " + outcome + " through the current combat/reward engine flow without overriding its outcome")
 	_check(not bool(terminal.get("debug_boss_run", false)), "Terminal proof must exercise ordinary progression persistence")
 	return terminal
 
@@ -600,7 +602,7 @@ func _start_from_title(name: String) -> bool:
 	_instance = _next_run
 	_probe.call("_set_candidate_batching_enabled", _instance)
 	_assert_persisted_state_fields(expected, phase, ["seed", "run_index", "current_room", "mode", "equipped_equipment", "attuned_magic_cards", "equipment_inventory", "magic_inventory", "item_inventory", "equipped_items", "held_embers", "player_hp", "player_max_hp", "deck_cards"])
-	_assert_profile_fields(prepared, phase)
+	_assert_profile_fields(ProgressionStore.acknowledge_starting_relic_gifts(prepared, expected.get("starting_relic_gift_ids", []) as Array), phase)
 	_check((_instance.get("_run_state") as Dictionary).get("run_index") == int(profile.get("run_counter", 0)) + 1, "New Run must advance the persisted run counter exactly once")
 	await _probe.call("_save_root_screenshot", name.replace("/", "_") + "_ready.png")
 	return true

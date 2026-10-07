@@ -1,0 +1,623 @@
+[
+  {
+    "name": "final-departed_run_cleanup_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-departed_run_cleanup_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/departed_run_cleanup_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 5.09,
+    "engine_errors": [],
+    "result_lines": [
+      "DEPARTED CLEANUP RESULT: {\"cases\":3,\"draining_at_menu\":true,\"errors\":[],\"native\":false,\"orphans\":0}"
+    ]
+  },
+  {
+    "name": "final-owned_cpu_asset_preparation_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-owned_cpu_asset_preparation_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/owned_cpu_asset_preparation_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 1.24,
+    "engine_errors": [],
+    "result_lines": [
+      "OWNED CPU ASSET PREPARATION RESULT: {\"errors\":[],\"orphan_nodes\":0,\"presented_frames\":69}"
+    ]
+  },
+  {
+    "name": "final-owned_combat_creation_equivalence_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-owned_combat_creation_equivalence_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/owned_combat_creation_equivalence_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 126.88,
+    "engine_errors": [],
+    "result_lines": [
+      "OWNED COMBAT CREATION RESULT: {\"cases\":2712,\"checks\":36700,\"errors\":[],\"step_max_usec\":9736,\"step_top\":[{\"enemy\":\"tharokh\",\"relics\":[\"worldroot_idol\"],\"room_type\":\"boss\",\"seed\":32,\"usec\":9736},{\"enemy\":\"tharokh\",\"relics\":[\"venom_signet\"],\"room_type\":\"boss\",\"seed\":32,\"usec\":9337},{\"enemy\":\"tharokh\",\"relics\":[\"rosary_of_vows\"],\"room_type\":\"boss\",\"seed\":32,\"usec\":9271},{\"enemy\":\"tharokh\",\"relics\":[\"rubblewalker_greaves\"],\"room_type\":\"boss\",\"seed\":32,\"usec\":9267},{\"enemy\":\"tharokh\",\"relics\":[\"storm_crown\"],\"room_type\":\"boss\",\"seed\":32,\"usec\":9152},{\"enemy\":\"tharokh\",\"relics\":[\"chorus_mask\"],\"room_type\":\"boss\",\"seed\":32,\"usec\":9133},{\"enemy\":\"tharokh\",\"relics\":[\"tectonic_abacus\"],\"room_type\":\"boss\",\"seed\":32,\"usec\":9110},{\"enemy\":\"tharokh\",\"relics\":[\"crowncoal_heart\"],\"room_type\":\"boss\",\"seed\":32,\"usec\":9103}]}"
+    ]
+  },
+  {
+    "name": "final-prepared_encounter_equivalence_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-prepared_encounter_equivalence_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/prepared_encounter_equivalence_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 7.79,
+    "engine_errors": [],
+    "result_lines": [
+      "PREPARED ENCOUNTER EQUIVALENCE RESULT: {\"cases\":24,\"errors\":[]}"
+    ]
+  },
+  {
+    "name": "final-prepared_card_preview_queries_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-prepared_card_preview_queries_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/prepared_card_preview_queries_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 6.85,
+    "engine_errors": [],
+    "result_lines": [
+      "PREPARED CARD PREVIEW RESULT: {\"checks\":429,\"failures\":[],\"orphan_nodes\":0}"
+    ]
+  },
+  {
+    "name": "final-prepared_travel_combat_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-prepared_travel_combat_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/prepared_travel_combat_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 5.85,
+    "engine_errors": [],
+    "result_lines": [
+      "PREPARED TRAVEL COMBAT RESULT: {\"cases\":24,\"checks\":469,\"errors\":[],\"orphans\":0.0}"
+    ]
+  },
+  {
+    "name": "final-prepared_equipment_combat_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-prepared_equipment_combat_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/prepared_equipment_combat_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 16.24,
+    "engine_errors": [],
+    "result_lines": [
+      "PREPARED EQUIPMENT COMBAT RESULT: {\"cases\":144,\"checks\":1625,\"errors\":[],\"orphans\":0,\"step_max_usec\":16379}"
+    ]
+  },
+  {
+    "name": "final-prepared_equipment_scene_handoff_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-prepared_equipment_scene_handoff_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/prepared_equipment_scene_handoff_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 5.8,
+    "engine_errors": [],
+    "result_lines": [
+      "PREPARED EQUIPMENT SCENE HANDOFF RESULT: {\"checks\":38,\"errors\":[],\"orphans\":0}"
+    ]
+  },
+  {
+    "name": "final-prepared_other_character_view_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-prepared_other_character_view_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/prepared_other_character_view_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 16.86,
+    "engine_errors": [],
+    "result_lines": [
+      "PREPARED OTHER CHARACTER VIEW RESULT: {\"boundaries\":{\"equipment\":25,\"magic\":19},\"cancellation_boundaries\":12,\"cases\":43,\"checks\":1020,\"differences\":0,\"errors\":[],\"orphans\":0}"
+    ]
+  },
+  {
+    "name": "final-prepared_pre_battle_view_equivalence_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-prepared_pre_battle_view_equivalence_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/prepared_pre_battle_view_equivalence_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 5.0,
+    "engine_errors": [],
+    "result_lines": [
+      "PREPARED PRE-BATTLE VIEW EQUIVALENCE RESULT: {\"cases\":18,\"errors\":[],\"presented\":12}"
+    ]
+  },
+  {
+    "name": "final-prepared_reward_choices_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-prepared_reward_choices_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/prepared_reward_choices_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 8.07,
+    "engine_errors": [],
+    "result_lines": [
+      "PREPARED REWARD CHOICES RESULT: {\"cases\":20,\"differences\":0,\"errors\":[],\"native\":false,\"orphans\":0,\"pixel_differences\":[],\"preparation_boundaries\":187,\"source_checks\":187}"
+    ]
+  },
+  {
+    "name": "final-staged_reward_choices_equivalence_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-staged_reward_choices_equivalence_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/staged_reward_choices_equivalence_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 4.68,
+    "engine_errors": [],
+    "result_lines": [
+      "STAGED REWARD CHOICES RESULT: {\"cases\":19,\"differences\":0,\"errors\":[],\"native\":false,\"orphans\":0}"
+    ]
+  },
+  {
+    "name": "final-noncombat_move_equivalence_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-noncombat_move_equivalence_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/noncombat_move_equivalence_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 14.08,
+    "engine_errors": [],
+    "result_lines": [
+      "NONCOMBAT MOVE EQUIVALENCE RESULT: {\"cases\":1587,\"checks\":15739,\"coverage\":{\"generated\":870,\"invalid\":54,\"legacy\":15,\"merchant\":66,\"recovery\":270,\"section_0\":true,\"section_1\":true,\"section_2\":true,\"section_3\":true,\"section_4\":true,\"section_5\":true,\"type\":312},\"errors\":[],\"orphans\":0,\"removed_layout_generations\":813,\"removed_stock_generations\":239}"
+    ]
+  },
+  {
+    "name": "final-structural_route_equivalence_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-structural_route_equivalence_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/structural_route_equivalence_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 5.39,
+    "engine_errors": [],
+    "result_lines": [
+      "STRUCTURAL ROUTE EQUIVALENCE RESULT: {\"cases\":57289,\"errors\":[]}"
+    ]
+  },
+  {
+    "name": "final-grimoire_search_rows_equivalence_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-grimoire_search_rows_equivalence_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/grimoire_search_rows_equivalence_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 7.64,
+    "engine_errors": [],
+    "result_lines": [
+      "GRIMOIRE ROW RETENTION RESULT: {\"cases\":50,\"differences\":0,\"errors\":[],\"orphan_nodes\":0,\"reused_rows\":332}"
+    ]
+  },
+  {
+    "name": "final-retained_character_deck_equivalence_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-retained_character_deck_equivalence_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/retained_character_deck_equivalence_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 5.01,
+    "engine_errors": [],
+    "result_lines": [
+      "CHARACTER DECK RETENTION RESULT: {\"cases\":22,\"differences\":0,\"errors\":[],\"orphan_nodes\":0}"
+    ]
+  },
+  {
+    "name": "final-retained_character_header_equivalence_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-retained_character_header_equivalence_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/retained_character_header_equivalence_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 7.21,
+    "engine_errors": [],
+    "result_lines": [
+      "CHARACTER HEADER RESULT: {\"cases\":42,\"differences\":0,\"errors\":[],\"orphan_nodes\":0}"
+    ]
+  },
+  {
+    "name": "final-retained_character_loadout_equivalence_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-retained_character_loadout_equivalence_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/retained_character_loadout_equivalence_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 5.01,
+    "engine_errors": [],
+    "result_lines": [
+      "CHARACTER LOADOUT RETENTION RESULT: {\"cases\":19,\"differences\":0,\"errors\":[],\"orphan_nodes\":0}"
+    ]
+  },
+  {
+    "name": "final-retained_character_inventory_equivalence_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-retained_character_inventory_equivalence_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/retained_character_inventory_equivalence_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 40.29,
+    "engine_errors": [],
+    "result_lines": [
+      "CHARACTER RETENTION RESULT: {\"cases\":96,\"differences\":0,\"errors\":[],\"orphan_nodes\":0,\"preparation_frames\":1959}"
+    ]
+  },
+  {
+    "name": "final-retained_section_map_equivalence_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-retained_section_map_equivalence_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/retained_section_map_equivalence_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 3.69,
+    "engine_errors": [],
+    "result_lines": [
+      "RETAINED SECTION MAP EQUIVALENCE RESULT: {\"cases\":42,\"errors\":[]}"
+    ]
+  },
+  {
+    "name": "final-retained_shop_rows_equivalence_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-retained_shop_rows_equivalence_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/retained_shop_rows_equivalence_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 7.24,
+    "engine_errors": [],
+    "result_lines": [
+      "SHOP ROW RETENTION RESULT: {\"cases\":75,\"differences\":0,\"errors\":[],\"orphan_nodes\":0,\"reused\":29}"
+    ]
+  },
+  {
+    "name": "final-prepared_shop_equivalence_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-prepared_shop_equivalence_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/prepared_shop_equivalence_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 1.21,
+    "engine_errors": [],
+    "result_lines": [
+      "PREPARED SHOP EQUIVALENCE RESULT: {\"cases\":3,\"errors\":[],\"presented_frames\":3}"
+    ]
+  },
+  {
+    "name": "final-skill_link_geometry_equivalence_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-skill_link_geometry_equivalence_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/skill_link_geometry_equivalence_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 0.64,
+    "engine_errors": [],
+    "result_lines": [
+      "SKILL LINK GEOMETRY EQUIVALENCE RESULT: {\"errors\":[],\"links\":32,\"route_cases\":200}"
+    ]
+  },
+  {
+    "expected_error_lines": [
+      "ERROR: Parse JSON failed. Error at line 0: Expected 'true', 'false', or 'null', got 'not'",
+      "ERROR: Failed to persist committed run boundary: terminal_defeat_forced_failure",
+      "ERROR: Failed to persist terminal progression; the resumable fallback remains intact.",
+      "ERROR: Failed to persist committed run boundary: terminal_victory_forced_failure",
+      "ERROR: Failed to persist terminal progression; the resumable fallback remains intact.",
+      "ERROR: Failed to persist campfire Embrace; the run remains resumable."
+    ],
+    "unexpected_error_lines": [],
+    "missing_expected_error_lines": [],
+    "name": "final-save_resume_boundary_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-save_resume_boundary_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/save_resume_boundary_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 3.4,
+    "engine_errors": [
+      "ERROR: Parse JSON failed. Error at line 0: Expected 'true', 'false', or 'null', got 'not'",
+      "ERROR: Failed to persist committed run boundary: terminal_defeat_forced_failure",
+      "ERROR: Failed to persist terminal progression; the resumable fallback remains intact.",
+      "ERROR: Failed to persist committed run boundary: terminal_victory_forced_failure",
+      "ERROR: Failed to persist terminal progression; the resumable fallback remains intact.",
+      "ERROR: Failed to persist campfire Embrace; the run remains resumable."
+    ],
+    "result_lines": [
+      "TEST RESULT: PASS \u2014 committed save/resume boundary matrix"
+    ]
+  },
+  {
+    "expected_error_lines": [],
+    "unexpected_error_lines": [],
+    "missing_expected_error_lines": [],
+    "name": "final-card_draw_hand_flow_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-card_draw_hand_flow_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/card_draw_hand_flow_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 8.65,
+    "engine_errors": [],
+    "result_lines": [
+      "CARD DRAW HAND FLOW TEST RESULT: PASS"
+    ]
+  },
+  {
+    "expected_error_lines": [],
+    "unexpected_error_lines": [],
+    "missing_expected_error_lines": [],
+    "name": "final-save_pipeline_performance_test",
+    "command": [
+      "/Library/Developer/CommandLineTools/usr/bin/python3",
+      "tools/godot_task_runner.py",
+      "--task-id",
+      "isolate-card-completion-stalls-final-save_pipeline_performance_test",
+      "--stream",
+      "--",
+      "godot",
+      "--headless",
+      "--path",
+      ".",
+      "--script",
+      "tests/save_pipeline_performance_test.gd"
+    ],
+    "returncode": 0,
+    "seconds": 0.5,
+    "engine_errors": [],
+    "result_lines": [
+      "TEST RESULT: PASS \u2014 save pipeline compatibility and cleanup"
+    ]
+  }
+]

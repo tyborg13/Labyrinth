@@ -1620,11 +1620,19 @@ func _link_draw_priority(link_state: String, relationship: String) -> int:
 
 func _annotate_connection_bridges(links: Array[Dictionary]) -> Array[Dictionary]:
 	var records: Array[Dictionary]
+	var bounds: Array[Rect2]
+	for link: Dictionary in links:
+		var points: PackedVector2Array = link.get("points", PackedVector2Array())
+		var box := Rect2(points[0], Vector2.ZERO) if not points.is_empty() else Rect2()
+		for point: Vector2 in points: box = box.expand(point)
+		# Match the endpoint tolerance in _point_is_on_axis_segment. Include
+		# touching boundaries so every prior crossing/overlap reaches the oracle.
+		bounds.append(box.grow(0.01))
 	for left_index: int in range(links.size()):
 		var left: Dictionary = links[left_index]
 		for right_index: int in range(left_index + 1, links.size()):
 			var right: Dictionary = links[right_index]
-			if _links_are_incident(left, right):
+			if not bounds[left_index].intersects(bounds[right_index], true) or _links_are_incident(left, right):
 				continue
 			var left_points: PackedVector2Array = left.get("points", PackedVector2Array()) as PackedVector2Array
 			var right_points: PackedVector2Array = right.get("points", PackedVector2Array()) as PackedVector2Array
@@ -1830,31 +1838,30 @@ func _node_boundary_port(skill_id: String, offset_x: float, bottom: bool) -> Vec
 			vertical_extent = radius
 	return center + Vector2(offset_x, vertical_extent if bottom else -vertical_extent)
 
-func _best_route_channel_x(
-	source_id: String,
-	target_id: String,
-	source_stub: Vector2,
-	target_stub: Vector2
-) -> float:
+func _best_route_channel_x(source_id: String, target_id: String, source_stub: Vector2, target_stub: Vector2) -> float:
 	var preferred_x: float = (source_stub.x + target_stub.x) * 0.5
+	var obstacle_ranges: Array[Vector2] = _vertical_route_obstacle_ranges(source_stub.y, target_stub.y, source_id, target_id)
+	# The original score increases away from the midpoint. On its exact 4px
+	# lattice, the best clear point is next to the midpoint or a blocked interval
+	# edge. Keep ascending evaluation and strict score comparison for identical
+	# ties, including fully blocked graphs' original midpoint fallback.
+	var last_index: int = floori((GRAPH_SIZE.x - 24.0) / 4.0)
+	var candidates: Array[int]
+	for index: int in [0, last_index, floori((preferred_x - 12.0) / 4.0), ceili((preferred_x - 12.0) / 4.0)]:
+		if index >= 0 and index <= last_index and not candidates.has(index): candidates.append(index)
+	for obstacle: Vector2 in obstacle_ranges:
+		for index: int in [ceili((obstacle.x - 12.0) / 4.0) - 1, floori((obstacle.y - 12.0) / 4.0) + 1]:
+			if index >= 0 and index <= last_index and not candidates.has(index): candidates.append(index)
+	candidates.sort()
 	var best_x: float = preferred_x
 	var best_score: float = INF
-	var obstacle_ranges: Array[Vector2] = _vertical_route_obstacle_ranges(
-		source_stub.y,
-		target_stub.y,
-		source_id,
-		target_id
-	)
-	var candidate_x: float = 12.0
-	while candidate_x <= GRAPH_SIZE.x - 12.0:
+	for index: int in candidates:
+		var candidate_x: float = 12.0 + float(index) * 4.0
 		if _route_channel_is_clear(candidate_x, obstacle_ranges):
-			var score: float = absf(candidate_x - preferred_x) + 0.18 * (
-				absf(candidate_x - source_stub.x) + absf(candidate_x - target_stub.x)
-			)
+			var score: float = absf(candidate_x - preferred_x) + 0.18 * (absf(candidate_x - source_stub.x) + absf(candidate_x - target_stub.x))
 			if score < best_score:
 				best_score = score
 				best_x = candidate_x
-		candidate_x += 4.0
 	return best_x
 
 func _vertical_route_obstacle_ranges(

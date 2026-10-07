@@ -6,6 +6,7 @@ const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
+const Glyphs = preload("res://scripts/ui_glyph_preparation.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 
 const INTRO_START_SCALE: float = 0.88
@@ -433,6 +434,35 @@ func _intro_title_font_size(amount: float) -> int:
 	var requested: int = roundi(lerpf(INTRO_TITLE_START_FONT_SIZE, INTRO_TITLE_FONT_SIZE, amount))
 	var width: float = _intro_title.get_theme_font("font").get_string_size(_intro_title.text, HORIZONTAL_ALIGNMENT_LEFT, -1, requested).x
 	return mini(requested, floori(float(requested) * (INTRO_TEXT_SIZE.x - 32.0) / maxf(1.0, width)))
+
+# Prepare the exact bitmap sizes the authored tween can request, including
+# its settled plate. Rasterization stays in existing cancelable travel slices;
+# live labels, font resources, text, motion and input remain unchanged.
+# Clipped Labels shape an ellipsis even when their current text fits.
+func opening_glyph_preparation_jobs(state: Dictionary) -> Array[Dictionary]:
+	var jobs: Array[Dictionary]
+	var objective: Dictionary = state.get("objective", {})
+	if objective.is_empty() or _intro_title == null: return jobs
+	var title: String = CombatObjectiveRules.title_for_objective(objective).to_upper()
+	var oversampling: float = get_viewport().get_oversampling()
+	var title_font: Font = _intro_title.get_theme_font("font")
+	var title_sizes: Dictionary = {}
+	for requested: int in range(INTRO_TITLE_START_FONT_SIZE, INTRO_TITLE_FONT_SIZE + 1):
+		var width: float = title_font.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, requested).x
+		var title_size: int = mini(requested, floori(float(requested) * (INTRO_TEXT_SIZE.x - 32.0) / maxf(1.0, width)))
+		if title_sizes.has(title_size): continue
+		title_sizes[title_size] = true
+		jobs.append_array(Glyphs.text_jobs(title + " …", title_font, title_size, _intro_title.get_theme_constant("outline_size"), _intro_title.get_theme_constant("shadow_outline_size"), oversampling, _intro_title.language))
+	# Text assignment first shapes at the retained label size, before the
+	# intro resets/fits it. Warm its fill metrics without changing that label.
+	jobs.append_array(Glyphs.text_jobs(title + " …", title_font, _intro_title.get_theme_font_size("font_size"), 0, 0, oversampling, _intro_title.language))
+	for requested: int in range(INTRO_KICKER_START_FONT_SIZE, INTRO_KICKER_FONT_SIZE + 1):
+		jobs.append_array(Glyphs.text_jobs(_intro_kicker.text, _intro_kicker.get_theme_font("font"), requested, _intro_kicker.get_theme_constant("outline_size"), _intro_kicker.get_theme_constant("shadow_outline_size"), oversampling, _intro_kicker.language))
+	var kicker: Label = _title.get_parent().get_child(0) as Label
+	for entry: Dictionary in [{"label": kicker, "text": kicker.text}, {"label": _title, "text": title}, {"label": _detail, "text": _live_detail(state, objective)}]:
+		var label: Label = entry["label"]
+		jobs.append_array(Glyphs.text_jobs(str(entry["text"]) + (" …" if label.clip_text else ""), label.get_theme_font("font"), label.get_theme_font_size("font_size"), label.get_theme_constant("outline_size"), label.get_theme_constant("shadow_outline_size"), oversampling, label.language))
+	return jobs
 
 func _set_intro_shadow_progress(progress: float) -> void:
 	intro_shadow_progress = clampf(progress, 0.0, 1.0)

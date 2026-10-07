@@ -272,6 +272,8 @@ func _test_terminal_failure_preserves_fallback(mode: String, held: int) -> void:
 		terminal_combat["player"] = player
 	var engine := RunEngine.new()
 	terminal_run = engine.finish_combat(terminal_run, terminal_combat)
+	# Dragons now present their committed milestone before entering victory.
+	if mode == "victory": terminal_run = engine.continue_dragon_reward(terminal_run)
 	terminal_run["debug_boss_run"] = false
 	terminal_run["held_embers"] = held
 	terminal_run["unbanked_embers"] = held

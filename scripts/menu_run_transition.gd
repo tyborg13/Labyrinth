@@ -5,6 +5,7 @@ signal phase_changed(phase: StringName)
 signal finished(destination: Node)
 signal failed
 
+const Assets = preload("res://scripts/asset_loader.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const MESSAGE := "Entering the Labyrinth"
@@ -108,16 +109,22 @@ func _load_destination() -> void:
 static func _load_destination_while_alive(transition: CanvasLayer, tree: SceneTree) -> void:
 	await _present_frame_for(tree)
 	if not _loading_is_active(transition): return
+	# Let the loading canvas settle before the scene dependency loader starts.
+	# Native cold-start controls isolate a 90 ms stall when these overlap;
+	# one further presentation removes it without gating a playable screen.
+	for frame: int in range(int(tree.root.get_meta("labyrinth_load_request_delay_frames", 1))):
+		await _present_frame_for(tree)
+		if not _loading_is_active(transition): return
 	var performance_started: int = Time.get_ticks_usec()
 	var error := ResourceLoader.load_threaded_request(transition._path, "PackedScene")
 	performance_started = transition._record_performance_phase("resource_request", performance_started)
 	if error != OK:
 		transition._fail()
 		return
-	while ResourceLoader.load_threaded_get_status(transition._path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+	while _threaded_load_status(transition) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
 		await tree.process_frame
 		if not _loading_is_active(transition): return
-	if ResourceLoader.load_threaded_get_status(transition._path) != ResourceLoader.THREAD_LOAD_LOADED:
+	if _threaded_load_status(transition) != ResourceLoader.THREAD_LOAD_LOADED:
 		transition._fail()
 		return
 	performance_started = transition._record_performance_phase("threaded_load_wait", performance_started)
@@ -134,9 +141,15 @@ static func _load_destination_while_alive(transition: CanvasLayer, tree: SceneTr
 		transition._fail()
 		return
 	transition._destination_process_mode = transition.destination.process_mode
+	if transition.destination.has_method("initial_texture_preparation_manifest"):
+		await Assets.prepare_textures_for(tree.root, transition.destination.call("initial_texture_preparation_manifest"), _present_frame_for.bind(tree), _loading_is_active.bind(transition))
+		if not _loading_is_active(transition): return
 	if transition.destination.has_method("initial_asset_preparation_target"):
 		var target: Control = transition.destination.call("initial_asset_preparation_target")
-		await target.get_script().call("prepare_initial_assets_for", target, _present_frame_for.bind(tree), tree.root.has_meta("labyrinth_performance_probe_seed"))
+		await target.get_script().call("prepare_initial_assets_for", target, _present_frame_for.bind(tree), tree.root.has_meta("labyrinth_performance_probe_seed"), tree.root)
+		if not _loading_is_active(transition): return
+	if transition.destination.has_method("prepare_initial_cpu_assets_for"):
+		await transition.destination.get_script().call("prepare_initial_cpu_assets_for", transition.destination, tree.root, _present_frame_for.bind(tree), _loading_is_active.bind(transition))
 		if not _loading_is_active(transition): return
 	performance_started = transition._record_performance_phase("initial_asset_preparation", performance_started)
 	# Only commit New Run replacement / resume intent after loading succeeds.
@@ -145,9 +158,19 @@ static func _load_destination_while_alive(transition: CanvasLayer, tree: SceneTr
 	performance_started = transition._record_performance_phase("prepare_run_intent", performance_started)
 	if transition.destination.has_method("defer_initial_music_until_reveal"):
 		transition.destination.call("defer_initial_music_until_reveal")
+	if transition.destination.has_method("request_staged_initial_ui"):
+		transition.destination.call("request_staged_initial_ui")
 	transition.destination.process_mode = Node.PROCESS_MODE_DISABLED
 	transition._menu_parent.add_child(transition.destination)
 	performance_started = transition._record_performance_phase("scene_add_and_ready", performance_started)
+	# Let native child viewports and the scene's base canvas finish their first
+	# draw before adding styled UI. Loading still owns the destination and input.
+	await _present_frame_for(tree)
+	if not _loading_is_active(transition): return
+	if transition.destination.has_method("prepare_initial_ui_for"):
+		await transition.destination.get_script().call("prepare_initial_ui_for", transition.destination, _present_frame_for.bind(tree), _loading_is_active.bind(transition))
+		if not _loading_is_active(transition): return
+	performance_started = transition._record_performance_phase("initial_ui_preparation", performance_started)
 	# RunScene._ready builds the room synchronously, then its hand layout waits
 	# two process frames before scheduling additional hand/dock fitting. Allow
 	# that first refresh to run, then use the room's live readiness contract;
@@ -187,6 +210,17 @@ static func _load_destination_while_alive(transition: CanvasLayer, tree: SceneTr
 	transition.finished.emit(transition.destination)
 	if _loading_is_active(transition): transition.queue_free()
 
+static func _threaded_load_status(transition: CanvasLayer) -> ResourceLoader.ThreadLoadStatus:
+	if not transition.get_tree().root.has_meta("labyrinth_trace_load_status"):
+		return ResourceLoader.load_threaded_get_status(transition._path)
+	var started: int = Time.get_ticks_usec()
+	var status := ResourceLoader.load_threaded_get_status(transition._path)
+	var elapsed: int = Time.get_ticks_usec() - started
+	var queries: Array = transition._performance_timings.get("resource_status_queries", [])
+	queries.append({"frame": Engine.get_process_frames(), "started_usec": started, "elapsed_usec": elapsed, "status": status})
+	transition._performance_timings["resource_status_queries"] = queries
+	return status
+
 static func _loading_is_active(transition: Variant) -> bool:
 	return is_instance_valid(transition) and transition.is_inside_tree() and not transition.is_queued_for_deletion()
 
@@ -196,6 +230,9 @@ func performance_snapshot() -> Dictionary:
 func _record_performance_phase(section: String, started_usec: int) -> int:
 	var now_usec: int = Time.get_ticks_usec()
 	_performance_timings[section + "_usec"] = now_usec - started_usec
+	_performance_timings[section + "_frame"] = Engine.get_process_frames()
+	_performance_timings[section + "_started_usec"] = started_usec
+	_performance_timings[section + "_finished_usec"] = now_usec
 	return now_usec
 
 static func _present_frame_for(tree: SceneTree) -> void:
@@ -253,5 +290,9 @@ func _exit_tree() -> void:
 	if is_instance_valid(destination):
 		if destination.get_parent() == null:
 			destination.free()
+		elif destination.has_method("initial_presentation_is_ready") and not bool(destination.call("initial_presentation_is_ready")):
+			# An interrupted staged scene has incomplete controls and must never
+			# resume processing after the loading layer relinquishes ownership.
+			destination.queue_free()
 		else:
 			destination.process_mode = _destination_process_mode

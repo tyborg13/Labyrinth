@@ -175,6 +175,8 @@ static func socket(icon: Texture2D, diameter: float, node_name: String = "Equipm
 static func paper_doll(art: Control, slots: Dictionary) -> Control:
 	var stage := Control.new()
 	stage.name = "CharacterPaperDoll"
+	# The resize closure and live refresh share these exact slot owners.
+	stage.set_meta("character_doll_slots", slots)
 	stage.custom_minimum_size.y = Typography.scaled_value(stage, 398.0)
 	var pool := InkStage.new()
 	pool.name = "CharacterInkPool"

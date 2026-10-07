@@ -11457,6 +11457,8 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(_label_with_text(upgrade_scrim, "Might") == null and _label_with_text(upgrade_scrim, "Fire Magick") == null, "The Skills overlay should not expose retired stat allocation rows")
 	instance.call("_switch_character_overlay_mode", "equipment")
 	await process_frame
+	# Prepared tabs can adopt a different final-parent dialog. Inspect the live owner.
+	character_dialog = instance.get("_upgrade_dialog") as PanelContainer
 	_assert(character_dialog != null and character_dialog.custom_minimum_size == stats_dialog_size, "Switching from Skills to Gear should keep the character dialog size stable")
 	var character_body_frame: Control = character_dialog.find_child("CharacterBodyFrame", true, false) as Control if character_dialog != null else null
 	var gear_body_rect: Rect2 = character_body_frame.get_global_rect().grow(1.0) if character_body_frame != null else Rect2()
@@ -11577,6 +11579,8 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(not (item_stowed_state.get("deck_cards", []) as Array).has("crimson_draught"), "Dragging an equipped item out should remove the item card from the active deck")
 	instance.call("_switch_character_overlay_mode", "magic")
 	await process_frame
+	# Prepared tabs can adopt a different final-parent dialog. Inspect the live owner.
+	character_dialog = instance.get("_upgrade_dialog") as PanelContainer
 	_assert(character_dialog != null and character_dialog.custom_minimum_size == stats_dialog_size, "Switching from Gear to Magic should keep the character dialog size stable")
 	_assert(character_dialog != null and character_dialog.size == stats_dialog_actual_size, "Switching from Gear to Magic should keep the visible character dialog size stable")
 	character_body_frame = character_dialog.find_child("CharacterBodyFrame", true, false) as Control
@@ -11709,6 +11713,8 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(str((magic_state.get("attuned_magic_cards", []) as Array)[4]) == "static_lash", "Dragging an attuned spell into learned-panel whitespace should swap with the nearest learned magic")
 	instance.call("_switch_character_overlay_mode", "equipment")
 	await process_frame
+	# Prepared tabs can adopt a different final-parent dialog. Inspect the live owner.
+	character_dialog = instance.get("_upgrade_dialog") as PanelContainer
 	var source_rect: Rect2 = instance.call("_equipment_inventory_icon_rect", "iron_cleaver")
 	var tile_map: Dictionary = instance.get("_equipment_inventory_tiles")
 	var source_tile: Control = tile_map.get("iron_cleaver", null) as Control
@@ -11862,6 +11868,8 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(str((board_presentation.get("equipped_equipment", {}) as Dictionary).get("weapon", "")) == "iron_cleaver", "Equipping gear should refresh board presentation for future player equipment art")
 	instance.call("_switch_character_overlay_mode", "skills")
 	await process_frame
+	# Prepared tabs can adopt a different final-parent dialog. Inspect the live owner.
+	character_dialog = instance.get("_upgrade_dialog") as PanelContainer
 	_assert(character_dialog != null and character_dialog.custom_minimum_size == stats_dialog_size, "Switching from Gear back to Skills should keep the character dialog size stable")
 	_assert(character_dialog != null and character_dialog.size == stats_dialog_actual_size, "Switching from Gear back to Skills should keep the visible character dialog size stable")
 	_assert(character_dialog.find_child("CharacterSkillTree", true, false) != null, "Returning to Skills should rebuild the skill tree")

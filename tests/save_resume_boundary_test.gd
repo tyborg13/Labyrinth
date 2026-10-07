@@ -544,6 +544,10 @@ func _test_terminal_boundaries(base_run: Dictionary) -> void:
 		victory_enemies[index] = enemy
 	victory_combat["enemies"] = victory_enemies
 	victory_run = _run_engine.finish_combat(victory_run, victory_combat)
+	# A boss kill now enters its durable dragon reward; terminal persistence
+	# begins only after the original Continue action completes that reward.
+	victory_run = _run_engine.continue_dragon_reward(victory_run)
+	_assert(str(victory_run.get("mode", "")) == "victory", "Victory persistence fixture must cross the dragon reward boundary")
 	victory_run["debug_boss_run"] = false
 	var expected_banked_embers: int = _run_engine.held_embers(victory_run)
 	_run_scene.set("_progression", ProgressionStore.default_data())
@@ -637,6 +641,8 @@ func _terminal_run_state(base_run: Dictionary, mode: String, held: int) -> Dicti
 			enemies[index] = enemy
 		combat_state["enemies"] = enemies
 		terminal_run = _run_engine.finish_combat(terminal_run, combat_state)
+		terminal_run = _run_engine.continue_dragon_reward(terminal_run)
+		_assert(str(terminal_run.get("mode", "")) == "victory", "Victory recovery fixture must start after dragon reward Continue")
 		terminal_run["debug_boss_run"] = false
 	else:
 		combat_state = (base_run.get("combat_state", {}) as Dictionary).duplicate(true)

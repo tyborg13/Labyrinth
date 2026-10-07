@@ -99,6 +99,7 @@ class FrameSampler:
 	var objects_in_frame: Array[float] = []
 	var primitives_in_frame: Array[float] = []
 	var skip_next_observed_frame: bool = false
+	var window_geometries: Array[Dictionary]
 
 	func _ready() -> void:
 		RenderingServer.frame_post_draw.connect(_on_frame_post_draw)
@@ -116,6 +117,7 @@ class FrameSampler:
 	func begin() -> void:
 		frame_intervals_ms.clear()
 		frame_ids.clear()
+		window_geometries.clear()
 		process_ms.clear()
 		render_setup_cpu_ms.clear()
 		viewport_render_cpu_ms.clear()
@@ -134,6 +136,7 @@ class FrameSampler:
 		return {
 			"frame_interval_ms": frame_intervals_ms.duplicate(),
 			"frame_ids": frame_ids.duplicate(),
+			"window_geometries": window_geometries.duplicate(true),
 			"process_ms": process_ms.duplicate(),
 			"render_setup_cpu_ms": render_setup_cpu_ms.duplicate(),
 			"viewport_render_cpu_ms": viewport_render_cpu_ms.duplicate(),
@@ -161,6 +164,13 @@ class FrameSampler:
 			skip_next_observed_frame = false
 			previous_tick_usec = now_tick
 			return
+		var measured_window: Window = get_window()
+		var native_size: Vector2i = DisplayServer.window_get_size(measured_window.get_window_id())
+		var last_geometry: Dictionary = window_geometries.back() if not window_geometries.is_empty() else {}
+		if last_geometry.get("root_size") == measured_window.size and last_geometry.get("native_size") == native_size and last_geometry.get("mode") == measured_window.mode and last_geometry.get("ui_scale") == measured_window.content_scale_factor:
+			last_geometry["sample_count"] += 1
+		else:
+			window_geometries.append({"first_frame": Engine.get_process_frames(), "sample_count": 1, "root_size": measured_window.size, "native_size": native_size, "mode": measured_window.mode, "ui_scale": measured_window.content_scale_factor})
 		frame_ids.append(Engine.get_process_frames())
 		frame_intervals_ms.append(float(now_tick - previous_tick_usec) / 1000.0)
 		process_ms.append(float(Performance.get_monitor(Performance.TIME_PROCESS)) * 1000.0)
@@ -257,7 +267,11 @@ func _initialize() -> void:
 		startup_sampler.measured_viewport_rid = root.get_viewport_rid()
 		RenderingServer.viewport_set_measure_render_time(startup_sampler.measured_viewport_rid, true)
 		root.add_child(startup_sampler)
-		await _acquire_probe_window_focus()
+		var startup_focused: bool = await _acquire_probe_window_focus()
+		if not startup_focused:
+			_expect(false, "native public startup must acquire focus before requesting its first measured render")
+			quit(1)
+			return
 		await _settle_render_frames(4)
 		var startup_workload = load("res://tests/startup_performance_workload.gd").new()
 		var startup_report: Dictionary = await startup_workload.run(self, startup_sampler)
@@ -265,10 +279,30 @@ func _initialize() -> void:
 		print("STARTUP PERF RESULT: %s" % JSON.stringify(startup_report))
 		quit(0 if _errors.is_empty() else 1)
 		return
-	var packed: PackedScene = load("res://scenes/run_scene.tscn")
-	_phase_log("scene loaded")
-	var instance: Node = packed.instantiate()
-	root.add_child(instance)
+	var public_startup: Dictionary = {}
+	var instance: Node
+	if OS.get_environment("LABYRINTH_RUNTIME_PERF_PUBLIC_MENU") == "1":
+		var startup_sampler := FrameSampler.new()
+		startup_sampler.request_render = _render_pulse.pulse
+		startup_sampler.observe_frame = _observe_probe_focus
+		startup_sampler.measured_viewport_rid = root.get_viewport_rid()
+		root.add_child(startup_sampler)
+		var startup_focused: bool = await _acquire_probe_window_focus()
+		if not startup_focused:
+			_expect(false, "native public startup must acquire focus before requesting its first measured render")
+			quit(1)
+			return
+		await _settle_render_frames(4)
+		var startup_workload = load("res://tests/startup_performance_workload.gd").new()
+		public_startup = await startup_workload.run(self, startup_sampler)
+		startup_sampler.queue_free()
+		instance = current_scene
+		_expect(instance != null and instance.has_method("_load_run_state"), "Public surface route must finish at the run")
+	else:
+		var packed: PackedScene = load("res://scenes/run_scene.tscn")
+		_phase_log("scene loaded")
+		instance = packed.instantiate()
+		root.add_child(instance)
 	root.mode = Window.MODE_WINDOWED
 	root.size = _viewport_size
 	_phase_log("scene ready")
@@ -300,6 +334,7 @@ func _initialize() -> void:
 		var remaining_report: Dictionary = await remaining_workload.run(self, instance, sampler)
 		instance = remaining_workload.final_instance()
 		remaining_report["semantic_errors"] = _errors
+		remaining_report["public_startup"] = public_startup
 		print("REMAINING SURFACE PERF RESULT: %s" % JSON.stringify(remaining_report))
 		if is_instance_valid(instance): instance.queue_free()
 		sampler.queue_free()
@@ -310,6 +345,7 @@ func _initialize() -> void:
 		var broad_workload = load("res://tests/all_surface_performance_workload.gd").new()
 		var broad_report: Dictionary = await broad_workload.run(self, instance, sampler)
 		broad_report["semantic_errors"] = _errors
+		broad_report["public_startup"] = public_startup
 		print("ALL SURFACE PERF RESULT: %s" % JSON.stringify(broad_report))
 		instance.queue_free()
 		sampler.queue_free()
@@ -320,6 +356,7 @@ func _initialize() -> void:
 		var flow_workload = load("res://tests/ui_flow_performance_workload.gd").new()
 		var flow_report: Dictionary = await flow_workload.run(self, instance, sampler)
 		flow_report["semantic_errors"] = _errors
+		flow_report["public_startup"] = public_startup
 		print("UI FLOW PERF RESULT: %s" % JSON.stringify(flow_report))
 		instance.queue_free()
 		sampler.queue_free()
@@ -1053,7 +1090,9 @@ func _measure_active_blink_preview(instance: Node, sampler: FrameSampler, contex
 	sampler.begin()
 	for _frame: int in range(BLINK_PREVIEW_STEADY_FRAMES):
 		await _await_render_frame()
-	var steady_sample: Dictionary = _sampler_phase_result(sampler.finish())
+	# Keep report materialization outside both sampled windows. Sorting the
+	# steady report here would otherwise enter the sweep's first draw interval.
+	var steady_samples: Dictionary = sampler.finish()
 	var sweep_handler_samples: Array[float] = []
 	sampler.begin()
 	for frame_index: int in range(BLINK_PREVIEW_SWEEP_FRAMES):
@@ -1062,7 +1101,9 @@ func _measure_active_blink_preview(instance: Node, sampler: FrameSampler, contex
 		_board_pointer_hover(instance, target)
 		sweep_handler_samples.append(float(Time.get_ticks_usec() - handler_started) / 1000.0)
 		await _await_render_frame()
-	var sweep_sample: Dictionary = _sampler_phase_result(sampler.finish())
+	var sweep_samples: Dictionary = sampler.finish()
+	var steady_sample: Dictionary = _sampler_phase_result(steady_samples)
+	var sweep_sample: Dictionary = _sampler_phase_result(sweep_samples)
 	await _save_root_screenshot("blink_preview_%s.png" % str(context.get("source", "workload")))
 	await _settle_render_frames(4)
 	var result: Dictionary = context.duplicate(true)
@@ -1970,6 +2011,14 @@ func _measure_enemy_round_matrix(instance: Node, sampler: FrameSampler) -> Dicti
 		before_state["turn_queue"] = queue
 		before_state["activation_seq"] = sequence
 		before_state["player_turn_time_spent"] = 0
+		# The current relic pool includes one immediate extra activation for an
+		# unused play. Exercise enemy rounds after that once-per-combat proc.
+		var round_flags: Dictionary = (before_state.get("relic_flags", {}) as Dictionary).duplicate()
+		for relic_id: String in before_state.get("relics", []):
+			for effect: Dictionary in GameData.relic_def(relic_id).get("effects", []):
+				if str(effect.get("type", "")) == "unused_play_extra_turn":
+					round_flags["tempo_used:" + relic_id] = true
+		before_state["relic_flags"] = round_flags
 		instance.set("_combat_state", before_state)
 		var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
 		run_state["combat_state"] = before_state
@@ -2191,7 +2240,11 @@ func _validate_pass_preview_progression_equivalence(instance: Node, preview: Dic
 		actions,
 		action_index + 1
 	) as Dictionary
-	var legacy_state: Dictionary = instance.call("_pass_preview_state_after_pending_preview", legacy_preview) as Dictionary
+	# Keep the full-continuation oracle independent of the production shortcut;
+	# its historical wrapper was removed when card forecasts gained confirmation.
+	var legacy_state: Dictionary = legacy_preview.get("state", {}) as Dictionary
+	if bool(legacy_preview.get("complete", false)):
+		legacy_state = _combat.finish_player_card(legacy_state, int(instance.get("_selected_card_index")), _combat.card_plays_spent_for_actions(actions), {"play_mode": "play"})
 	var linear_state: Dictionary = instance.call("_pass_preview_state_after_resolved_target", resolved, actions, action_index + 1) as Dictionary
 	_expect(linear_state == legacy_state, "%s linear pass-preview progression must match full continuation construction" % str(preview.get("card_id", "card")))
 
@@ -2721,6 +2774,10 @@ func _sampler_phase_result(sampled: Dictionary) -> Dictionary:
 		sampled.get("objects_in_frame", []) as Array[float],
 		sampled.get("primitives_in_frame", []) as Array[float]
 	)
+	result["window_geometries"] = sampled.get("window_geometries", [])
+	if DisplayServer.get_name().to_lower() != "headless":
+		for geometry: Dictionary in result["window_geometries"]:
+			_expect(geometry["root_size"] == _viewport_size and geometry["native_size"] == _viewport_size and int(geometry["mode"]) == Window.MODE_WINDOWED and is_equal_approx(float(geometry["ui_scale"]), 1.0), "every measured native frame must retain the requested viewport, window mode, and UI scale: " + str(geometry))
 	result["raw_frame_intervals_ms"] = sampled.get("frame_interval_ms", [])
 	result["raw_frame_ids"] = sampled.get("frame_ids", [])
 	result["raw_process_ms"] = sampled.get("process_ms", [])
@@ -2810,6 +2867,8 @@ func _vector2i_array(values: Variant) -> Array[Vector2i]:
 	return result
 
 func _root_screenshot_image() -> Image:
+	if DisplayServer.get_name().to_lower() != "headless":
+		_expect(root.size == _viewport_size and DisplayServer.window_get_size(root.get_window_id()) == _viewport_size and root.mode == Window.MODE_WINDOWED and is_equal_approx(root.content_scale_factor, 1.0), "every native screenshot must retain the requested viewport, window mode, and UI scale before Retina image normalization")
 	var image: Image = root.get_viewport().get_texture().get_image()
 	# Retina windows return the backing texture at device-pixel resolution even
 	# though the authored viewport is 1920x1080. Normalize proof output to that

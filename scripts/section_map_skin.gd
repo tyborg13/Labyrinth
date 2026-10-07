@@ -12,17 +12,60 @@ static var _medallion_normals := PackedVector2Array()
 static var _medallion_rim: ArrayMesh
 const MEDALLION_SEGMENTS: int = 96
 
+static func _processed_image(image: Image, name: String) -> Image:
+	if name == "action_frame":
+		image = image.get_region(Rect2i(24, 212, 1944, 328))
+		image.resize(512, 86, Image.INTERPOLATE_LANCZOS)
+	elif name == "medallion":
+		image.resize(192, 192, Image.INTERPOLATE_LANCZOS)
+	elif name == "panel_frame":
+		image.resize(720, 240, Image.INTERPOLATE_LANCZOS)
+	image.generate_mipmaps()
+	return image
+
+static func prepare_initial_assets_for(root: Node, present_frame: Callable, still_active: Callable) -> void:
+	for name: String in ["action_frame", "medallion", "panel_frame"]:
+		if _textures.has(name): continue
+		var source: Image = Assets.load_texture(ART + name + ".png").get_image()
+		var image: Image = (await Assets.prepare_cpu_value_for(root, _processed_image.bind(source, name), present_frame, still_active)) as Image
+		if not bool(still_active.call()): return
+		if image != null and not _textures.has(name): _textures[name] = ImageTexture.create_from_image(image)
+
+	# CPU copies are obtained on the main thread. A single owned worker makes
+	# every exact 128px map icon; GPU publication remains bounded on the main.
+	var sources: Dictionary = {}
+	var started: int = Time.get_ticks_usec()
+	for id: String in Icons.all_icon_ids():
+		var key: String = "icon_" + id
+		if _textures.has(key): continue
+		var texture: Texture2D = Icons.icon_texture(id)
+		if texture != null: sources[key] = texture.get_image()
+		if Time.get_ticks_usec() - started >= 4000:
+			await present_frame.call()
+			if not bool(still_active.call()): return
+			started = Time.get_ticks_usec()
+	if sources.is_empty(): return
+	var result: Variant = await Assets.prepare_cpu_value_for(root, _process_icon_images.bind(sources), present_frame, still_active)
+	if not bool(still_active.call()) or not result is Dictionary: return
+	var images: Dictionary = result
+	started = Time.get_ticks_usec()
+	for key: String in images:
+		if not _textures.has(key): _textures[key] = ImageTexture.create_from_image(images[key])
+		if Time.get_ticks_usec() - started >= 4000:
+			await present_frame.call()
+			if not bool(still_active.call()): return
+			started = Time.get_ticks_usec()
+
+static func _process_icon_images(sources: Dictionary) -> Dictionary:
+	for key: String in sources:
+		var image: Image = sources[key]
+		image.resize(128, 128, Image.INTERPOLATE_LANCZOS)
+		image.generate_mipmaps()
+	return sources
+
 static func _texture(name: String) -> Texture2D:
 	if not _textures.has(name):
-		var image: Image = Assets.load_texture(ART + name + ".png").get_image()
-		if name == "action_frame":
-			image = image.get_region(Rect2i(24, 212, 1944, 328))
-			image.resize(512, 86, Image.INTERPOLATE_LANCZOS)
-		elif name == "medallion":
-			image.resize(192, 192, Image.INTERPOLATE_LANCZOS)
-		elif name == "panel_frame":
-			image.resize(720, 240, Image.INTERPOLATE_LANCZOS)
-		image.generate_mipmaps()
+		var image: Image = _processed_image(Assets.load_texture(ART + name + ".png").get_image(), name)
 		_textures[name] = ImageTexture.create_from_image(image)
 	return _textures[name]
 
