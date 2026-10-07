@@ -307,6 +307,10 @@
     }
   ],
   "landmarks": {
+    "mace_head": [
+      212,
+      207
+    ],
     "mace_grip": [
       181,
       152

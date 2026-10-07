@@ -5,6 +5,7 @@ const PathUtils = preload("res://scripts/path_utils.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
 const UiPaletteTokens = preload("res://scripts/ui_palette.gd")
 const HeroStrikeTrail = preload("res://scripts/hero_strike_trail.gd")
+const EnemyStrikeTrail = preload("res://scripts/enemy_strike_trail.gd")
 const StrikeTrailLayer = preload("res://scripts/strike_trail_layer.gd")
 const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
 const ProtagonistGearBoard = preload("res://scripts/protagonist_cutout/gear_board.gd")
@@ -457,9 +458,6 @@ const AMBIENT_AIR_WISP_SOFT_ATLAS_COLUMNS: int = 4
 const AMBIENT_AIR_WISP_FRAME_COLUMNS: int = 32
 const AMBIENT_AIR_WISP_FULL_FRAME_INDEX: int = 16
 const AMBIENT_AIR_WISP_VARIANTS: int = 4
-const MELEE_SLASH_SHEET_PATH: String = "res://assets/art/effects/melee_slash_sheet.png"
-const MELEE_SLASH_SHEET_COLUMNS: int = 6
-const MELEE_SLASH_SHEET_ROWS: int = 1
 const ELEMENTAL_PROJECTILE_ATLAS_PATH: String = "res://assets/art/effects/elemental_projectiles.png"
 const ELEMENTAL_PROJECTILE_ATLAS_ROWS: int = 6
 const ELEMENTAL_PERFORMANCE_MIN_SIZE: float = 218.0
@@ -757,6 +755,7 @@ var _hud_render_layer: Control = null
 var _effects_render_layer: Control = null
 var _strike_trail_layer: Node2D
 var _hero_strike_trail: RefCounted = HeroStrikeTrail.new()
+var _enemy_strike_trail: RefCounted = EnemyStrikeTrail.new()
 var _floating_text_layout_cache: Dictionary = {}
 var _floating_text_last_layout: Array[Dictionary] = []
 var _foreground_obstruction_entries_cache: Array[Dictionary]
@@ -2077,7 +2076,7 @@ func _sync_dynamic_render_assets() -> void:
 			"_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures",
 			"_ambient_combined_atlas", "_ambient_combined_atlas_regions",
 			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
-			"_hero_strike_trail", "_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_illusion_renderers", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_guardian_renderers", "_gaoler_renderers", "_cinder_droplet_renderers",
+			"_hero_strike_trail", "_enemy_strike_trail", "_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_illusion_renderers", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_guardian_renderers", "_gaoler_renderers", "_cinder_droplet_renderers",
 			"_cinder_ooze_renderers", "_frostglass_renderers", "_grave_surgeon_renderers", "_harrier_renderers", "_iskaldra_renderers", "_lightning_wisp_renderers", "_noctyrax_renderers", "_tharokh_renderers", "_vaeloryx_renderers", "_veilbound_acolyte_renderers", "_vyraketh_renderers", "_zekarion_renderers",
 			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
 			"_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
@@ -10247,6 +10246,9 @@ func _elemental_lerp_depth_tile(from_tile: Vector2i, to_tile: Vector2i, progress
 	return Vector2i(roundi(point.x), roundi(point.y))
 
 func _draw_elemental_scene_depth_pass(tile: Vector2i, foreground_pass: bool) -> void:
+	if is_instance_valid(_strike_trail_layer):
+		var empty: Array[Dictionary]
+		_strike_trail_layer.submit(empty)
 	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
 	for trap_var: Variant in presentation.get("trap_effects", []):
 		if typeof(trap_var) != TYPE_DICTIONARY:
@@ -10295,8 +10297,12 @@ func _draw_dragon_area_depth(effect: Dictionary, tile: Vector2i, progress: float
 	var source: Vector2 = _dragon_spell_source(str(effect.get("actor_key","")),ground-Vector2(0,_tile_width()*.4))
 	var reduced: bool = bool(presentation.get("reduced_motion",false))
 	if str(profile.get("geometry","")) == "physical":
-		if foreground and targets.has(tile) and (reduced or (progress >= .30 and progress <= .72)):
-			_draw_melee_slash_effect(ground,_tile_center(tile),.40 if reduced else clampf((progress-.30)/.42,0.0,1.0))
+		if foreground and targets.has(tile):
+			if str(profile.get("enemy", "")) == "vyraketh":
+				_draw_vyraketh_bite_effect(ground, _tile_center(tile), progress)
+			elif not reduced:
+				_ensure_strike_trail_layer()
+				_strike_trail_layer.submit(EnemyStrikeTrail.area_rake(self, effect, tile, progress))
 		return
 	if tile == origin and source_visible and not foreground and not reduced:
 		preload("res://scripts/dragon_spell_presentation.gd").draw_source(self,str(profile["element"]),source,ground,_tile_width(),progress)
@@ -10467,11 +10473,12 @@ func _sync_strike_trail(effect: Dictionary, progress: float) -> void:
 	# _ready(); creating a root light there would composite it twice.
 	if not is_inside_tree():
 		return
-	if not is_instance_valid(_strike_trail_layer) and HeroStrikeTrail.handles(effect):
+	if not is_instance_valid(_strike_trail_layer) and (HeroStrikeTrail.handles(effect) or EnemyStrikeTrail.handles(self, effect)):
 		_ensure_strike_trail_layer()
 	if is_instance_valid(_strike_trail_layer):
 		var started: int = Time.get_ticks_usec()
-		_strike_trail_layer.submit(_hero_strike_trail.prepare(self, effect, progress))
+		var batches: Array[Dictionary] = _hero_strike_trail.prepare(self, effect, progress) if HeroStrikeTrail.handles(effect) else _enemy_strike_trail.prepare(self, effect, progress)
+		_strike_trail_layer.submit(batches)
 		_record_render_section_time("effect_overlay", started)
 
 func _draw_effect_overlay() -> void:
@@ -10517,34 +10524,11 @@ func _draw_effect_overlay() -> void:
 			if bool(effect.get("grave_surgeon_melee", false)):
 				GraveSurgeonAttackFx.draw_jab(self, from_point, to_point, progress, _tile_width(), bool(presentation.get("reduced_motion", false)))
 				return
-			if bool(effect.get("harrier_thrust", false)) and not bool(presentation.get("reduced_motion", false)):
-				var thrust: float = HarrierCutout.attack_trail_phase(progress)
-				if thrust >= 0:
-					preload("res://scripts/melee_thrust_fx.gd").draw_streak(self, from_point, to_point, thrust, Color(0.85, 0.73, 0.49))
-				return
 			if bool(effect.get("veilbound_acolyte_melee", false)):
 				var strike_start: Vector2 = _veilbound_acolyte_launch_point(effect, from_point + Vector2(0,-24), false)
 				VeilboundAcolyteFx.melee(self,progress,strike_start,to_point+Vector2(0,-24),_tile_width()/150.0,bool(presentation.get("reduced_motion",false)))
 				return
-			if HeroStrikeTrail.handles(effect):
-				return
-			var slash_progress: float = progress
-			if bool(effect.get("crawler_melee", false)) and not bool(presentation.get("reduced_motion", false)):
-				var trail_phase: float = CrawlerCutout.attack_trail_phase(progress)
-				if trail_phase < 0.0:
-					return
-				slash_progress = trail_phase * 0.82
-			elif bool(effect.get("noctyrax_claw", false)) and not bool(presentation.get("reduced_motion", false)):
-				var trail_phase: float = NoctyraxCutout.claw_trail_phase(progress)
-				if trail_phase < 0.0:
-					return
-				slash_progress = trail_phase * 0.82
-			elif bool(effect.get("warden_melee", false)) and not bool(presentation.get("reduced_motion", false)):
-				var trail_phase: float = WardenCutout.attack_trail_phase(progress)
-				if trail_phase < 0.0:
-					return
-				slash_progress = trail_phase * 0.82
-			elif bool(effect.get("cinder_droplet_melee", false)):
+			if bool(effect.get("cinder_droplet_melee", false)):
 				var reduced: bool = bool(presentation.get("reduced_motion", false))
 				var impact_phase: float = .38 if reduced else CinderDropletCutout.spatter_impact_phase(progress)
 				if impact_phase < 0.0:
@@ -10552,26 +10536,9 @@ func _draw_effect_overlay() -> void:
 				ElementalSpellFx.impact(self, "fire", to_point - Vector2(0.0, _tile_width() * .12),
 					_tile_width() * .28, impact_phase, .85, reduced, true)
 				return
-			elif bool(effect.get("tharokh_melee", false)) and not bool(presentation.get("reduced_motion", false)):
-				var trail_phase: float = TharokhCutout.attack_trail_phase(progress)
-				if trail_phase < 0.0:
-					return
-				slash_progress = trail_phase * 0.82
-			elif bool(effect.get("vaeloryx_melee", false)) and not bool(presentation.get("reduced_motion", false)):
-				var trail_phase: float = VaeloryxCutout.attack_trail_phase(progress)
-				if trail_phase < 0.0:
-					return
-				slash_progress = trail_phase * 0.82
-			elif bool(effect.get("zekarion_claw", false)) and not bool(presentation.get("reduced_motion", false)):
-				var trail_phase: float = ZekarionCutout.attack_trail_phase(progress)
-				if trail_phase < 0.0:
-					return
-				slash_progress = trail_phase*0.82
-				from_point = _zekarion_effect_socket(effect, "strike", from_point)
 			if bool(effect.get("vyraketh_maw", false)):
 				_draw_vyraketh_bite_effect(from_point, to_point, progress)
-			else:
-				_draw_melee_slash_effect(from_point, to_point, slash_progress)
+			# Hero/enemy light is submitted to the additive child at state sync.
 		"push", "pull":
 			if from_tile.x < 0 or to_tile.x < 0:
 				return
@@ -10585,8 +10552,6 @@ func _draw_effect_overlay() -> void:
 				_draw_umbra_clipped_ranged_effect(effect, progress)
 			elif force_distance > 1:
 				_draw_ranged_projectile_effect(effect, progress, from_point, to_point)
-			else:
-				_draw_melee_slash_effect(from_point, to_point, progress)
 		"aoe":
 			_draw_aoe_cast_preview(effect, from_point, center_point)
 			if str(effect.get("cinder_ooze_action", "")) == "bloom":
@@ -12451,34 +12416,6 @@ func _draw_vyraketh_bite_effect(from_point: Vector2, to_point: Vector2, progress
 			to_point-forward*3.0+side*4.0*sign, to_point+forward*13.0+side*spread*sign])
 		draw_polyline(points, color, 2.0, true)
 
-func _draw_melee_slash_effect(from_point: Vector2, to_point: Vector2, progress: float) -> void:
-	if progress >= 0.82:
-		return
-	var frames: Array = _effect_frames.get("melee_slash", [])
-	if frames.is_empty():
-		return
-	var slash_progress: float = clampf(progress / 0.82, 0.0, 1.0)
-	var frame_index: int = clampi(int(floor(slash_progress * float(frames.size()))), 0, frames.size() - 1)
-	var texture: Texture2D = frames[frame_index]
-	if texture == null:
-		return
-	var from_anchor: Vector2 = from_point + Vector2(0.0, -_tile_width() * 0.52)
-	var to_anchor: Vector2 = to_point + Vector2(0.0, -_tile_width() * 0.38)
-	var direction: Vector2 = to_anchor - from_anchor
-	var slash_center: Vector2 = from_anchor.lerp(to_anchor, 0.50)
-	var draw_size := Vector2.ONE * _tile_width() * 1.24
-	var alpha: float = clampf(sin(slash_progress * PI) * 1.18, 0.0, 1.0)
-	if frame_index == 0:
-		alpha = maxf(alpha, 0.58)
-	elif frame_index >= frames.size() - 1:
-		alpha = minf(alpha, 0.22)
-	var horizontal_sign: float = -1.0 if direction.x < -1.0 else 1.0
-	var rotation: float = deg_to_rad(-10.0 * horizontal_sign)
-	draw_set_transform(slash_center, rotation, Vector2(horizontal_sign, 1.0))
-	var draw_rect := Rect2(-draw_size * 0.5, draw_size)
-	draw_texture_rect(texture, draw_rect, false, Color(1.0, 1.0, 1.0, alpha))
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
-
 func _draw_path_depth_pass(tile: Vector2i) -> void:
 	_path_depth_tile = tile
 	_path_depth_clip = _tile_polygon(tile)
@@ -14073,11 +14010,6 @@ func _load_board_effect_assets() -> void:
 		"blink_rift_preview": AssetLoader.load_texture(BLINK_RIFT_PREVIEW_TEXTURE_PATH)
 	}
 	_effect_frames = {
-		"melee_slash": _load_sprite_sheet_frames(
-			MELEE_SLASH_SHEET_PATH,
-			MELEE_SLASH_SHEET_COLUMNS,
-			MELEE_SLASH_SHEET_ROWS
-		),
 		"defense_heal_casts": _load_sprite_sheet_frames(
 			DEFENSE_HEAL_CASTS_PATH,
 			DEFENSE_HEAL_CASTS_COLUMNS,
