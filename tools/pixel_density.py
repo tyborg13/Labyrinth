@@ -16,7 +16,7 @@ POSTERISE_COLOURS = 24
 def clean_orphans(im: Image.Image, threshold: int = 24, passes: int = 2) -> Image.Image:
     """Give each pixel unlike all four neighbours the colour of its closest neighbour."""
     a = _clean_orphan_array(np.asarray(im, dtype=np.float32), threshold, passes)
-    return Image.fromarray(a.clip(0, 255).astype(np.uint8)).copy()
+    return Image.fromarray(np.rint(a.clip(0, 255)).astype(np.uint8)).copy()
 
 
 def _clean_orphan_array(pixels: np.ndarray, threshold: int = 24, passes: int = 2) -> np.ndarray:
@@ -81,7 +81,7 @@ def edge_ring(mask: np.ndarray) -> np.ndarray:
 def _restore_edge(source: np.ndarray, treated: np.ndarray) -> Image.Image:
     ring = edge_ring(source[..., 3] > 0)
     treated[ring] = source[ring]
-    return Image.fromarray(treated.clip(0, 255).astype(np.uint8))
+    return Image.fromarray(np.rint(treated.clip(0, 255)).astype(np.uint8))
 
 
 def clean(im: Image.Image) -> Image.Image:
@@ -111,7 +111,7 @@ def regrid(im: Image.Image, grid: float) -> Image.Image:
         im.size, Image.Resampling.NEAREST)) > 0
     output = source.copy()
     write = (source[..., 3] > 0) & nonempty
-    output[..., :3][write] = big[write].clip(0, 255).astype(np.uint8)
+    output[..., :3][write] = np.rint(big[write].clip(0, 255)).astype(np.uint8)
     return _restore_edge(source, output)
 
 

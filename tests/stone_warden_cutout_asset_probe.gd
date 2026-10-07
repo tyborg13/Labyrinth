@@ -50,7 +50,8 @@ func _run() -> void:
 		production.free()
 		reference.free()
 	var output := FileAccess.open(OUTPUT.path_join("comparison.json"), FileAccess.WRITE)
-	output.store_string(JSON.stringify({"ok": _errors.is_empty(), "native_identical_frames": compared, "errors": _errors}, "\t"))
+	# Count attempted native silhouette comparisons; ok reports whether all checks passed.
+	output.store_string(JSON.stringify({"ok": _errors.is_empty(), "native_silhouette_comparisons": compared, "errors": _errors}, "\t"))
 	output.close()
 	actual.free()
 	accepted.free()

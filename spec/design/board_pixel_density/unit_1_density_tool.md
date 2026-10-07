@@ -4,7 +4,7 @@
 
 - **Read first:** `README.md` in this folder (the rule, decisions and scope), and the sheets in `review/`.
 - **Seed data:** `grid_table.json`.
-- **Reference prototype** (not production code; write your own clean implementation): `/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/1192fff8-0018-41b6-b489-30bcf96f6a52/scratchpad/density/treat.py`. Its functions are `regrid`, `regrid_keep_edge`, `edge_ring` and `clean_orphans`; `calib.py` there has `clean_only`.
+- **Reference prototype** (not production code; write your own clean implementation): a scratch prototype (not retained).
 - **Existing pipeline to share code with:** `tools/process_gear_visual_assets.py` and `tests/test_gear_visual_assets.py`.
 
 ## Change
@@ -34,7 +34,7 @@ Seed it from `grid_table.json`.
 
 **Fields per entry:**
 - `id` and `kind`;
-- `paths`. For rigs, this is every PNG under `<dir>/front` and `<dir>/rear` except `rest*.png`;
+- `paths`. For rigs, this is every PNG under `<dir>/front` and `<dir>/rear` except the exact rest/assembly outputs named by layouts or renderers and explicitly protected paint. Rest-named live parts such as Acolyte `rest_hand.png` and `rest_sleeve.png` remain included;
 - `r` with its derivation:
   - rigs: `art_scale` in `data/enemies.json`, defaulting to 1.0;
   - props: the named draw constant in `scripts/combat_board_view.gd` ÷ `1.03/255`;
@@ -59,10 +59,11 @@ Seed it from `grid_table.json`.
   - Run it once, before any processing.
 - **Default run.**
   - Process every registered file from its source and write the production path.
-  - Then write `spec/assets/board_pixel_density/outputs.json`, mapping each path to its sha256, id, mode and grid.
+  - Then write `spec/assets/board_pixel_density/outputs.json`, mapping each painted path to its decoded pixel digest, id, mode and grid; preserve native rest records.
 - **Other options:**
   - `--check`: recompute in memory and compare with production and `outputs.json`. Print `CHECK-OK`, or list the stale paths and exit non-zero.
   - `--only <id>`.
+  - `--record-rests`: after the native rebake, record every shipped rest pixel digest and the current rig parts digest. Then regenerate the shadow cache. `--check` requires a new rebake if either digest changes.
   - `--adopt <path>...`: make the current production file the new source, for repainted or new art.
   - `--write-originals`: copy the sources back over production, for before/after captures. The next default run restores the outputs.
   - `--report`: write `spec/assets/board_pixel_density/report.md`. It lists, per entry:
@@ -82,7 +83,7 @@ Seed it from `grid_table.json`.
 
 **Running it.** Your sandbox cannot start the GUI renderer.
 - Make the script parse cleanly under `--check-only` through `tools/godot_task_runner.py`.
-- Give the exact `tools/visual_probe_runner.py` command. The design owner runs it natively, then regenerates `assets/generated/unit_shadow_cache.res`.
+- Give the exact `tools/visual_probe_runner.py` command. The design owner runs it natively, runs `process_board_density.py --record-rests`, then regenerates `assets/generated/unit_shadow_cache.res`.
 
 **Do not regenerate** the turn-order portraits (`tools/build_turn_order_assets.gd`). Portraits are out of scope.
 

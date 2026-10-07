@@ -38,4 +38,4 @@ The protagonist's 21 bones, two views, long-stride gait, front idle default and 
 
 Do not add optional actions or redesign the character when the request is narrower. Preserve requested deferrals and existing publication authorization boundaries.
 
-New or repainted board art must be registered by the [board pixel-density rule](../../../spec/board_pixel_density.md), adopted as untouched sources, processed, and native rest-rebaked before landing. The hero front remains the reference; gear and UI-only rigs use their own pipelines. See the production integration reference for the promotion checklist.
+New or repainted board art must be registered by the [board pixel-density rule](../../../spec/board_pixel_density.md) and adopted as untouched sources before landing. Follow process → native rest-rebake → `process_board_density.py --record-rests` → shadow cache, then run `--check`. The hero front remains the reference; gear and UI-only rigs use their own pipelines. Shared board art used in UI stays treated. See the production integration reference for the promotion checklist.

@@ -21,6 +21,8 @@ This follows the visible-gear work, where gear art was consolidated to match the
   - Small creatures and heavily shrunk paintings get a coarser grid (torch: `review/05_torch_grid.png`).
   - Assets drawn larger than the hero (dragons, tiles, traps, crates, chest, door, pillar) only get the orphan cleanup.
 - **Lightning Wisp override.** It is line art, and grids above 1.5 smear its bolts (`review/06_wisp_grid.png`).
+- **Scavenger NPC override: cleanup only.** The same PNG is cropped for the dialogue portrait, where grid 1.63 muddied his face (`review/14_ui_scavenger_portrait_grid163_rejected.png`, then `15_..._clean.png`).
+- **Shared UI uses stay treated.** The warden, gaoler and Zekarion front rests (pre-battle and grimoire) and dropped embers (map recovery marker) are the board art itself (`review/13_ui_prebattle_warden.png`).
 - **No palette posterise in this pass.** Colours stay as the source painted them, averaged within each block.
 
 ## The rule

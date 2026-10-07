@@ -58,7 +58,7 @@ description: Create, balance, animate, or review Escape the Umbra enemies and en
 
 ## Visual Production
 
-New or repainted board art must be registered by the [board pixel-density rule](../../../spec/board_pixel_density.md), adopted as untouched sources, processed, and native rest-rebaked before landing. Refresh the shadow cache after rebaking; portraits stay in their independent UI pipeline.
+New or repainted board art must be registered by the [board pixel-density rule](../../../spec/board_pixel_density.md) and adopted as untouched sources before landing. Follow process → native rest-rebake → `process_board_density.py --record-rests` → refresh the shadow cache, then run `--check`. Dedicated portraits stay in their independent UI pipeline; shared board art used in UI stays treated.
 
 - Final enemy sprites should be runtime-visible raster art, not SVG placeholders. Use the `imagegen` skill for final enemy art unless the user explicitly asks for a placeholder.
 - Prefer new final sprites under `assets/art/enemies/<enemy_id>.png`. Existing legacy sprites live under `assets/placeholders/units`; do not add new placeholder-era art there unless intentionally staging.

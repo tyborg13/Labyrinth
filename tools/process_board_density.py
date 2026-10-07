@@ -7,6 +7,7 @@ import hashlib
 import io
 import json
 import shutil
+import struct
 import sys
 from pathlib import Path
 
@@ -77,17 +78,98 @@ def png_bytes(image: Image.Image) -> bytes:
     return buffer.getvalue()
 
 
-def digest(data: bytes) -> str:
-    return hashlib.sha256(data).hexdigest()
+def pixel_digest(image: Image.Image) -> str:
+    """Hash decoded RGBA, independent of PNG encoder, metadata or compression."""
+    rgba = image.convert("RGBA")
+    return hashlib.sha256(b"RGBA\0" + struct.pack(">II", *rgba.size) + rgba.tobytes()).hexdigest()
 
 
-def derive(entry: dict, path: str) -> tuple[bytes, dict]:
+def derive(entry: dict, path: str) -> tuple[Image.Image, dict]:
     source = SOURCES / path
     with Image.open(source) as original:
         output = process(original, entry["mode"], entry["grid"], entry["frames"])
-    data = png_bytes(output)
-    return data, {"sha256": digest(data), "source_sha256": digest(source.read_bytes()),
+        source_digest = pixel_digest(original)
+    return output, {"pixel_sha256": pixel_digest(output), "source_pixel_sha256": source_digest,
                   "id": entry["id"], "mode": entry["mode"], "grid": entry["grid"]}
+
+
+def same_pixels(path: Path, expected: Image.Image) -> bool:
+    if not path.is_file():
+        return False
+    with Image.open(path) as current:
+        rgba = current.convert("RGBA")
+    return rgba.size == expected.size and rgba.tobytes() == expected.tobytes()
+
+
+def rest_paths(entry: dict) -> list[str]:
+    paths = {path for facing in entry.get("rest_paths", {}).values() for path in facing}
+    # Historical assemblies remain shipped but are deliberately not rebaked.
+    paths.update(entry.get("preserved_rest_paths", []))
+    return sorted(paths)
+
+
+def parts_digest(entry: dict) -> str:
+    """Bind a rebake to the current decoded paint, including its path identities."""
+    records = []
+    for path in sorted(entry["paths"]):
+        with Image.open(repo_path(path)) as image:
+            records.append(path + "\0" + pixel_digest(image) + "\n")
+    return hashlib.sha256("".join(records).encode("utf-8")).hexdigest()
+
+
+def paint_errors(entries: list[dict], manifest: dict) -> list[str]:
+    stale = []
+    for entry in entries:
+        for path in entry["paths"]:
+            image, record = derive(entry, path)
+            if not same_pixels(repo_path(path), image) or manifest.get(path) != record:
+                stale.append(path)
+    return stale
+
+
+def rest_errors(entries: list[dict], manifest: dict) -> list[str]:
+    stale = []
+    for entry in entries:
+        paths = rest_paths(entry)
+        if not paths:
+            continue
+        current_parts = parts_digest(entry)
+        for path in paths:
+            record = manifest.get(path)
+            reason = ""
+            if not record or record.get("kind") != "rest" or record.get("id") != entry["id"]:
+                reason = "no rebake record; run --record-rests after native rebake"
+            elif not repo_path(path).is_file():
+                reason = "rest image missing"
+            else:
+                with Image.open(repo_path(path)) as image:
+                    if pixel_digest(image) != record.get("pixel_sha256"):
+                        reason = "rest pixels changed since recorded rebake"
+                if not reason and current_parts != record.get("parts_pixel_sha256"):
+                    reason = "rig part pixels changed since recorded rebake"
+            if reason:
+                stale.append(f"rest rebake needed: {path}: {reason}")
+    return stale
+
+
+def record_rests(entries: list[dict], manifest: dict) -> None:
+    stale = paint_errors(entries, manifest)
+    if stale:
+        raise ValueError("process current paint before --record-rests:\n" + "\n".join(stale))
+    # Stage all records before writing, so a missing rest cannot record half a rig.
+    records = {}
+    for entry in entries:
+        paths = rest_paths(entry)
+        if not paths:
+            continue
+        current_parts = parts_digest(entry)
+        for path in paths:
+            with Image.open(repo_path(path)) as image:
+                records[path] = {"kind": "rest", "id": entry["id"],
+                                 "pixel_sha256": pixel_digest(image), "parts_pixel_sha256": current_parts}
+    manifest.update(records)
+    MANIFEST.write_text(json.dumps(dict(sorted(manifest.items())), indent=2) + "\n")
+    print(f"RECORDED-RESTS {len(records)} file(s)")
 
 
 def sample(path: Path, frames: dict | None) -> Image.Image:
@@ -146,6 +228,7 @@ def main() -> int:
     action.add_argument("--adopt", nargs="+", metavar="PATH")
     action.add_argument("--check", action="store_true")
     action.add_argument("--write-originals", action="store_true")
+    action.add_argument("--record-rests", action="store_true", help="record rests after a successful native rebake")
     parser.add_argument("--force-adopt", action="store_true")
     parser.add_argument("--only", default="", metavar="ID")
     parser.add_argument("--report", action="store_true", help="write the full registry report without processing production")
@@ -183,29 +266,30 @@ def main() -> int:
         report(registry)
         return 0
     manifest = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
-    outputs = dict(manifest) if args.only else {}
-    stale = []
-    expected_paths = {path for entry in registry["entries"] for path in entry["paths"]}
-    if args.check and not args.only:
-        stale.extend(f"outputs.json: unregistered {path}" for path in sorted(set(manifest) - expected_paths))
-    for entry in entries:
-        for path in entry["paths"]:
-            data, record = derive(entry, path)
-            if args.check:
-                current = repo_path(path)
-                if not current.is_file() or current.read_bytes() != data or manifest.get(path) != record:
-                    stale.append(path)
-            else:
-                repo_path(path).write_bytes(data)
-                outputs[path] = record
+    if args.record_rests:
+        record_rests(entries, manifest)
+        return 0
+    expected_paint = {path for entry in registry["entries"] for path in entry["paths"]}
+    expected_rests = {path for entry in registry["entries"] for path in rest_paths(entry)}
     if args.check:
+        stale = paint_errors(entries, manifest) + rest_errors(entries, manifest)
+        if not args.only:
+            stale.extend(f"outputs.json: unregistered {path}" for path in sorted(set(manifest) - expected_paint - expected_rests))
         for path in stale:
-            print(f"stale: {path}")
+            print(path if path.startswith("rest rebake needed:") else f"stale: {path}")
         if not stale:
             print("CHECK-OK")
         if args.report:
             report(registry)
         return 1 if stale else 0
+    # Processing must never certify rests. Preserve their last native rebake
+    # records so later part edits make --check demand a new rebake.
+    outputs = dict(manifest) if args.only else {p: manifest[p] for p in expected_rests if p in manifest}
+    for entry in entries:
+        for path in entry["paths"]:
+            image, record = derive(entry, path)
+            repo_path(path).write_bytes(png_bytes(image))
+            outputs[path] = record
     MANIFEST.write_text(json.dumps(dict(sorted(outputs.items())), indent=2) + "\n")
     print(f"PROCESSED {sum(len(e['paths']) for e in entries)} file(s)")
     return 0

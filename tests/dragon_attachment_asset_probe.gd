@@ -1,6 +1,6 @@
 extends SceneTree
 
-## Bind the accepted attachment cases to the shipped rigs at native pixels.
+## Bind the accepted attachment cases to the shipped rigs by native silhouette parity.
 ## Fractional phases include the former Breath/Walk seams; mirrors also exercise
 ## the production transform path without changing the authored articulation.
 const CaseRig = preload("res://tools/cutout_pipeline/rig.gd")
@@ -69,7 +69,8 @@ func _run() -> void:
 			reference.free()
 	_check(records.size() == 392, "Both rigs cover both facings, mirrors, rest and all six clips")
 	var report := FileAccess.open(OUTPUT.path_join("comparison.json"), FileAccess.WRITE)
-	report.store_string(JSON.stringify({"ok": _errors.is_empty(), "native_identical_frames": records.size(), "records": records, "rest_matches_shipped": rest_matches, "errors": _errors}, "\t"))
+	# Count attempted native silhouette comparisons; ok reports whether all checks passed.
+	report.store_string(JSON.stringify({"ok": _errors.is_empty(), "native_silhouette_comparisons": records.size(), "records": records, "rest_matches_shipped": rest_matches, "errors": _errors}, "\t"))
 	report.close()
 	actual.free()
 	expected.free()

@@ -110,9 +110,10 @@ def promote(case):
  print('Before landing, register new/repainted board paint by spec/board_pixel_density.md, then run:')
  print(f'  python3 tools/process_board_density.py --adopt-all --force-adopt --only {actor}')
  print(f'  python3 tools/process_board_density.py --only {actor}')
- print(f'  python3 tools/process_board_density.py --check --only {actor}')
  print(f'  python3 tools/visual_probe_runner.py tools/rebake_cutout_rests.gd --task-id <task-id> --no-headless --display-driver macos --audio-driver Dummy --timeout 180 -- --only {actor}')
+ print(f'  python3 tools/process_board_density.py --record-rests --only {actor}')
  print('  python3 tools/godot_task_runner.py --task-id <task-id> --stream -- godot --headless --path . --script tools/generate_unit_shadow_cache.gd')
+ print(f'  python3 tools/process_board_density.py --check --only {actor}')
 
 if __name__=='__main__':
  parser=argparse.ArgumentParser(description=__doc__)

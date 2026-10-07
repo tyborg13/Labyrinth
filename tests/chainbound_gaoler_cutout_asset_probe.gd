@@ -55,7 +55,8 @@ func _run() -> void:
 		reference.free()
 	_check(capture_inputs == ProofInputs.capture(), "Production inputs remain unchanged during native assembly capture")
 	var output := FileAccess.open(OUTPUT.path_join("comparison.json"), FileAccess.WRITE)
-	output.store_string(JSON.stringify({"ok": _errors.is_empty(), "native_identical_frames": compared, "capture_input_sha256": capture_inputs, "errors": _errors}, "\t"))
+	# Count attempted native silhouette comparisons; ok reports whether all checks passed.
+	output.store_string(JSON.stringify({"ok": _errors.is_empty(), "native_silhouette_comparisons": compared, "capture_input_sha256": capture_inputs, "errors": _errors}, "\t"))
 	output.close()
 	actual.free()
 	accepted.free()
