@@ -61,7 +61,7 @@ The largest interval falls by about 65%, while >33.33 ms counts fall by 15%. Med
 | Enter Scavenger | 103.225–103.779 | 54.485–57.980 |
 | Enter treasure | 40.087–43.443 | 39.159–42.410 |
 
-Later Skills switches are repeatable local regressions. The skills_10 synchronous handler changes 9.654–10.131 → 20.726–21.979 ms; skills_4 and skills_16 also take about 20–21 ms. First Skills improves from 42.771–43.729 → 15.299–15.394 ms. Source inspection suggests some freeing cost moves from Equipment→Magic to Magic→Skills; parked dialogs disable processing and their hidden cutout canvases do not continually redraw. This is an inference, not a measured causal breakdown. In the first Gear/Magic/Skills cycle, total handlers rise about 3.5 ms, so it is not simply cost-free rescheduling.
+Later Skills switches are repeatable local regressions. The skills_10 synchronous handler changes 9.654–10.131 → 20.726–21.979 ms; skills_4 and skills_16 also take about 20–21 ms. First Skills improves from 42.771–43.729 → 15.299–15.394 ms. Source inspection suggests some freeing cost moves from Equipment→Magic to Magic→Skills; parked dialogs disable processing and their hidden cutout canvases do not continually redraw. This is an inference, not a measured causal breakdown. In the first accepted pair, total synchronous handlers for each of the two repeated tab cycles rise about 3.5 ms, so it is not simply cost-free rescheduling. The initial tab cycle improves overall.
 
 Combat-arrival p95 increases 9.153–9.220 → 11.767–11.861 ms despite a much lower worst frame. Equipment close p95 increases 8.519–8.530 → 13.677–15.337 ms. Treasure arrival remains mixed. These moderate tails are retained and disclosed.
 
@@ -106,6 +106,6 @@ cd /Users/borgerding/workspace/Labyrinth.worktrees/isolate-card-completion-stall
 python3 tools/inspection_fixture.py --task-id isolate-card-completion-stalls --run-id isolate-card-completion-stalls-master-integration-inspection --scenario pre_battle --seed 84217 --min-enemies 3 --equipment-inventory iron_cleaver,ward_kite --held-embers 720 --summary 'Inspect current-master performance integration: visible gear, character tabs, Start and travel.'
 ```
 
-Choose Continue to inspect Gear/Magic/Skills, equipment swaps, Start, card actions, Pass, and travel. The fixture uses isolated saves and Steam disabled. After publication/cleanup, run from the primary checkout and supply a new run ID if further inspection is desired.
+Add --launch to that command to open the isolated fixture, then choose Continue to inspect Gear/Magic/Skills, equipment swaps, Start, card actions, Pass, and travel. The fixture uses isolated saves and Steam disabled. After publication/cleanup, run from the primary checkout and supply a new run ID if further inspection is desired.
 
 Remaining measured hitches include menu creation (~185 ms), equipment changes (~54 ms), combat/Scavenger arrival (~56–58 ms), Begin (~40 ms), campfire Strength (~46 ms), and later Skills switches (~37–43 ms). Occasional combat frames around 35 ms remain. This integration concludes the authorized checkpoint; it does not resume broad optimization or claim all hitches removed.
