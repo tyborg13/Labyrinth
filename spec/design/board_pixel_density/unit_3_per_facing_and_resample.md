@@ -61,25 +61,26 @@ The owner approved both proposals.
 
 Rigs never resample: their geometry is fixed to the 255-px canvas. Entries with `r` ≤ 1.05 keep the per-facing rule above, for example the door opening, torch idle sheets, campfire, brazier, embers and NPCs.
 
-**Algorithm.** For each frame (whole image, or each grid frame), with `r` the entry's scale:
+**Algorithm.** For each frame (whole image, or each grid frame), with the entry's scalar or per-axis scale:
 0. **Classify alpha once per entry/family (revised owner decision).** On the entry's static measurement image, or frame 0 of a sheet-only entry, divide the count of source pixels with 64 ≤ alpha < 240 by the count with alpha > 0. A visibly translucent fraction ≥ 0.10 makes the entry soft; every other entry is solid. An empty measurement is solid with fraction zero. All entry frames use that one class. Related sheets/parts inherit the static entry's class through registry `alpha_class_from`: traps, box/crate destruction, chest opening, campfire idle, door opening and torch idle. Each elemental floor overlay keeps its own measured class, using a separate entry. Record the applied class/fraction and measurement owner in outputs. Faint halos and nearly opaque paint do not select the soft path.
-1. **New frame size:** `round(fw × r)` × `round(fh × r)`. Sheets keep their cols × rows layout.
-2. **Colour:** premultiplied upscale of all four channels as float, then un-premultiply with rounding. Solid frames upscale with both LANCZOS and BILINEAR; soft frames use ringing-free BILINEAR.
+1. **New frame size:** `round(fw × sx)` × `round(fh × sy)`. A scalar scale r sets both axes to r for aspect-preserving props. Fixed non-square floor and pillar-moss rects use an x/y pair derived independently from each axis's screen pixels per source pixel relative to hero `1.03/255`. Floors/overlays become 248×124 at `[2.029285, 1.547330]`; pillar moss becomes 211×147 at `[1.888109, 1.561289]`. Sheets keep their cols × rows layout.
+2. **Colour:** premultiplied upscale of all four channels as float. Solid frames upscale with both LANCZOS and normalized BILINEAR; soft frames use ringing-free normalized BILINEAR. Separately upscale the source's nonzero-alpha float 0/1 mask with BILINEAR. Divide all BILINEAR premultiplied channels by this weight with a floor of `1e-3`, clip alpha to 0–255 and round, then un-premultiply colour by normalized alpha. Round float colour before the uint8 cast. Excluding transparent padding preserves uniform-alpha paint exactly.
 3. **Alpha:**
    - `support` is the NEAREST-upscaled source alpha > 0.
-   - Solid `body` is LANCZOS alpha ≥ 128 intersected with support. Set alpha to 255 on the body, rounded BILINEAR alpha off the body inside support, and zero elsewhere. RGB comes from un-premultiplied LANCZOS on the body and BILINEAR off it. Fully binary art uses this same hybrid path.
-   - Soft frames keep rounded, clipped BILINEAR alpha inside support and zero elsewhere.
+   - Solid `body` is LANCZOS alpha ≥ 128 intersected with support. Set body alpha to NEAREST source alpha, rounded normalized BILINEAR alpha off the body inside support, and zero elsewhere. This preserves authored opacity and trap activation fades. RGB comes from un-premultiplied LANCZOS on the body and normalized BILINEAR off it. Fully binary art uses this same hybrid path.
+   - Soft frames keep rounded, clipped normalized BILINEAR alpha inside support and zero elsewhere.
 4. **Hidden fringe:** pixels with output alpha 0 take the RGB of the NEAREST-upscaled source. This preserves the source's hidden fringe colour under bilinear sampling.
 5. **Regrid** the upscaled frame at grid **1.5**, the owner-approved grid at the hero's pixel size. Use the existing `regrid`, including its edge restore.
 6. **Crisp outline (solid frames only):** on the body's own edge ring (body pixels with a non-body or out-of-bounds 4-neighbour), set RGB to the NEAREST-upscaled source colour where that source alpha is ≥ 128. Soft frames have no additional outline step.
 
 Process independently per frame using the family's single class. This revision supersedes the previous per-frame classification; all trap families are solid, restoring exact static/idle plate parity. A scratch prototype (not retained), `resample_hybrid`, and [sheet 18](review/18_resample_hybrid_alpha.png) specify the approved solid-body/faint-halo path.
 
-**Registry.** Resampled entries record `mode: "resample"`, `scale: r`, `grid: 1.5`, a note, and `alpha_class_from` when inheriting a static family entry. Outputs are deterministic and checked by pixel digest, like the others. Their class/fraction and measurement path/pixel digest bind the single applied family classification.
+**Registry.** Resampled entries record `mode: "resample"`, scalar or `[sx, sy]` `scale`, `grid: 1.5`, a note, and `alpha_class_from` when inheriting a static family entry. Anisotropic entries record `r_axes` and `scale_derivation.x/y`; the report shows both axes' screen-pixel ratios reaching about 1.0. Outputs are deterministic and checked by pixel digest, like the others. Their class/fraction and measurement path/pixel digest bind the single applied family classification.
 
 **Invariants and tests for resample entries:**
 - the output size equals the scaled size per frame;
 - every frame uses the entry's measured or inherited class, preserving existing exact static/idle plate samples;
+- mean output alpha over NEAREST source support differs from mean source alpha over the same support by at most 3/255;
 - nonzero support never exceeds the NEAREST source footprint for either class;
 - every changed nonzero-support pixel lies within 1 output pixel (Chebyshev distance) of the NEAREST source silhouette boundary;
 - output nonzero bounds stay within NEAREST source bounds with zero expansion for either class;

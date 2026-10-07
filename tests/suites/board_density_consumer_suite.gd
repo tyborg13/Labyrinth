@@ -6,6 +6,7 @@ const Chest = preload("res://scripts/relic_chest_prop.gd")
 static func run(expect: Callable) -> void:
 	_test_trap_aspect_uses_texture(expect)
 	_test_live_trap_envelope(expect)
+	_test_fixed_rect_pixel_density(expect)
 	_test_chest_registration(expect)
 
 static func _test_trap_aspect_uses_texture(expect: Callable) -> void:
@@ -37,6 +38,37 @@ static func _test_live_trap_envelope(expect: Callable) -> void:
 		# Same perspective/margin contracts as the native elemental trap probe.
 		expect.call(absi(used.size.x - used.size.y * 2) <= 2, "Live trap keeps 2:1 perspective within integer rounding: " + element)
 		expect.call(visible.x <= float(board.call("_tile_width")) * 0.75 and visible.y <= float(board.call("_tile_height")) * 0.75, "Live trap keeps the approved stone margin: " + element)
+	board.free()
+
+static func _test_fixed_rect_pixel_density(expect: Callable) -> void:
+	var board := Board.new()
+	board.size = Vector2(960, 680)
+	board.call("_load_assets", false)
+	var tile_size := Vector2(float(board.call("_tile_width")), float(board.call("_tile_height")))
+	var hero_pixel: float = (board.call("_unit_size") as Vector2).x / 255.0
+	var pillar: Texture2D = (board.get("_prop_textures") as Dictionary).get("pillar", null)
+	expect.call(pillar != null, "Live pillar texture loads for fixed moss-rect proof")
+	if pillar == null:
+		board.free()
+		return
+	var pillar_rect: Rect2 = board.call("_prop_draw_rect", pillar, board.call("_prop_rect_for_tile", Vector2i(2, 2)))
+	var moss_rect: Rect2 = board.call("_pillar_moss_rect", pillar_rect)
+	var registry: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://spec/assets/board_pixel_density/registry.json"))
+	for entry: Dictionary in registry["entries"]:
+		var id: String = str(entry["id"])
+		if not id.contains("floor") and id != "moss_pillar_overlay":
+			continue
+		var fixed_size: Vector2 = moss_rect.size if id == "moss_pillar_overlay" else tile_size
+		for path: String in entry["paths"]:
+			var image := Image.load_from_file("res://" + path)
+			expect.call(not image.is_empty(), "Fixed-rect paint loads: " + path)
+			if image.is_empty():
+				continue
+			var pixel_size: Vector2 = fixed_size / Vector2(image.get_size())
+			expect.call(absf(pixel_size.x / hero_pixel - 1.0) < 0.01 and absf(pixel_size.y / hero_pixel - 1.0) < 0.01, "Both fixed-rect pixel axes match hero density within canvas rounding: " + path)
+			if id.contains("floor"):
+				expect.call(image.get_size() == Vector2i(248, 124), "All floor paint uses the 2:1 density canvas: " + path)
+				expect.call(is_equal_approx(pixel_size.x, pixel_size.y), "Floor fitting keeps square on-screen source pixels: " + path)
 	board.free()
 
 static func _test_chest_registration(expect: Callable) -> void:

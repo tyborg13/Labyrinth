@@ -156,26 +156,48 @@ def _upscale_channels(premultiplied: np.ndarray, size: tuple[int, int], method: 
         size, method)) for c in range(4)], -1)
 
 
+def _normalized_bilinear(premultiplied: np.ndarray, size: tuple[int, int]) -> np.ndarray:
+    """Average painted samples without fading them into transparent padding."""
+    pixels = _upscale_channels(premultiplied, size, Image.Resampling.BILINEAR)
+    mask = (premultiplied[..., 3] > 0).astype(np.float32)
+    weight = np.asarray(Image.fromarray(mask).resize(size, Image.Resampling.BILINEAR))
+    pixels /= np.maximum(weight[..., None], 1e-3)
+    pixels[..., 3] = np.rint(pixels[..., 3].clip(0, 255))
+    return pixels
+
+
 def _unpremultiplied_rgb(pixels: np.ndarray) -> np.ndarray:
     alpha = pixels[..., 3:4].clip(0, 255)
     return np.where(alpha > 1e-3, pixels[..., :3] * 255.0 / np.maximum(alpha, 1e-3), 0).clip(0, 255)
 
 
-def resample_frame(im: Image.Image, scale: float, grid: float = 1.5,
+def scale_axes(scale: float | tuple[float, float] | list[float]) -> tuple[float, float]:
+    """A scalar preserves aspect; an x/y pair compensates a fixed draw rect."""
+    if isinstance(scale, (tuple, list)):
+        if len(scale) != 2:
+            raise ValueError("scale must be a scalar or an x/y pair")
+        sx, sy = scale
+    else:
+        sx = sy = scale
+    if not all(math.isfinite(value) and value > 0 for value in (sx, sy)):
+        raise ValueError("scale must be positive and finite on both axes")
+    return float(sx), float(sy)
+
+
+def resample_frame(im: Image.Image, scale: float | tuple[float, float] | list[float], grid: float = 1.5,
                    alpha_class: str | None = None) -> Image.Image:
-    """Solid Lanczos body/bilinear halo, or soft bilinear, within source support."""
-    if not math.isfinite(scale) or scale <= 0:
-        raise ValueError("scale must be positive and finite")
+    """Lanczos body/normalized halo, or soft normalized paint, in source support."""
+    sx, sy = scale_axes(scale)
     if alpha_class is None:
         alpha_class = str(classify_alpha(im)["alpha_class"])
     if alpha_class not in ("solid", "soft"):
         raise ValueError("alpha_class must be solid or soft")
     source = np.asarray(im.convert("RGBA"))
-    size = (max(1, round(im.width * scale)), max(1, round(im.height * scale)))
+    size = (max(1, round(im.width * sx)), max(1, round(im.height * sy)))
     solid = alpha_class == "solid"
     premultiplied = source.astype(np.float32)
     premultiplied[..., :3] *= premultiplied[..., 3:4] / 255.0
-    bilinear = _upscale_channels(premultiplied, size, Image.Resampling.BILINEAR)
+    bilinear = _normalized_bilinear(premultiplied, size)
     near = np.asarray(im.convert("RGBA").resize(size, Image.Resampling.NEAREST))
     support = near[..., 3] > 0
     alpha = np.where(support, np.rint(bilinear[..., 3].clip(0, 255)), 0)
@@ -183,7 +205,9 @@ def resample_frame(im: Image.Image, scale: float, grid: float = 1.5,
     if solid:
         lanczos = _upscale_channels(premultiplied, size, Image.Resampling.LANCZOS)
         body = (lanczos[..., 3].clip(0, 255) >= 128) & support
-        alpha = np.where(body, 255, alpha)
+        # Family classification selects crisp paint without erasing authored
+        # partial opacity, including a solid plate's per-frame activation fade.
+        alpha = np.where(body, near[..., 3], alpha)
         rgb = np.where(body[..., None], _unpremultiplied_rgb(lanczos), rgb)
     pixels = np.dstack((rgb, alpha))
     hidden = alpha == 0
@@ -197,7 +221,7 @@ def resample_frame(im: Image.Image, scale: float, grid: float = 1.5,
     return Image.fromarray(output)
 
 
-def resample(im: Image.Image, scale: float, grid: float, frames: dict | None,
+def resample(im: Image.Image, scale: float | tuple[float, float] | list[float], grid: float, frames: dict | None,
              alpha_class: str | None = None) -> Image.Image:
     rects = frame_rects(im.size, frames)
     if frames is not None and "grid" not in frames:
@@ -217,7 +241,7 @@ def resample(im: Image.Image, scale: float, grid: float, frames: dict | None,
 
 
 def process(im: Image.Image, mode: str, grid: float, frames: dict | None = None,
-            scale: float = 1.0, alpha_class: str | None = None) -> Image.Image:
+            scale: float | tuple[float, float] | list[float] = 1.0, alpha_class: str | None = None) -> Image.Image:
     if mode == "resample":
         return resample(im, scale, grid, frames, alpha_class)
     if mode not in ("clean", "regrid"):

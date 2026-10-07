@@ -2144,7 +2144,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 1.4060388651810498,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support."
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support."
     },
     {
       "id": "campfire",
@@ -2209,7 +2209,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 1.3592233009708736,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support."
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support."
     },
     {
       "id": "door_opening",
@@ -2320,7 +2320,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 1.1140776699029127,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support."
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support."
     },
     {
       "id": "scavenger_npc",
@@ -2404,7 +2404,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 1.2378640776699028,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support."
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support."
     },
     {
       "id": "wooden_box_destroy",
@@ -2430,7 +2430,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 1.2378640776699028,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support.",
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
       "alpha_class_from": "wooden_box"
     },
     {
@@ -2452,7 +2452,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 1.2378640776699028,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support."
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support."
     },
     {
       "id": "wooden_crate_destroy",
@@ -2478,7 +2478,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 1.2378640776699028,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support.",
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
       "alpha_class_from": "wooden_crate"
     },
     {
@@ -2500,7 +2500,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 1.2378640776699028,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support."
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support."
     },
     {
       "id": "relic_chest",
@@ -2521,7 +2521,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 1.7536407766990292,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support."
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support."
     },
     {
       "id": "relic_chest_opening",
@@ -2546,7 +2546,7 @@
       "frames": null,
       "coverage_note": "All four hinge parts draw at open_progress > 0.001; horizontal mapping matches closed chest.",
       "scale": 1.7536407766990292,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support.",
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
       "alpha_class_from": "relic_chest"
     },
     {
@@ -2568,7 +2568,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 1.3767463888231115,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support."
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support."
     },
     {
       "id": "moss_pillar_overlay",
@@ -2588,8 +2588,26 @@
       "t": 1.423289183222958,
       "grid": 1.5,
       "mode": "resample",
-      "scale": 1.888109333243124,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support."
+      "scale": [
+        1.888109333243124,
+        1.5612889898781244
+      ],
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
+      "r_axes": [
+        1.888109333243124,
+        1.5612889898781244
+      ],
+      "scale_derivation": {
+        "path": "scripts/combat_board_view.gd",
+        "x": {
+          "expression": "_prop_draw_rect fits trimmed pillar 160x205 into _prop_size() 0.92x1.14; min(0.92/160,1.14/205) * 160 * _pillar_moss_rect width 0.96 / source width 112 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.007626480836236933
+        },
+        "y": {
+          "expression": "_prop_draw_rect fits trimmed pillar 160x205 into _prop_size() 0.92x1.14; min(0.92/160,1.14/205) * 205 * _pillar_moss_rect height 0.52 / source height 94 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.0063063829787234045
+        }
+      }
     },
     {
       "id": "floor_tiles",
@@ -2612,8 +2630,26 @@
       "t": 1.0,
       "grid": 1.5,
       "mode": "resample",
-      "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support."
+      "scale": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
+      "r_axes": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "scale_derivation": {
+        "path": "scripts/combat_board_view.gd",
+        "x": {
+          "expression": "_draw_floor_tile / _draw_floor_moss_overlay: _tile_width() / source width 122 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00819672131147541
+        },
+        "y": {
+          "expression": "_tile_height() = _tile_width() * 0.5; _draw_floor_tile / _draw_floor_moss_overlay: 0.5 / source height 80 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00625
+        }
+      }
     },
     {
       "id": "moss_floor_overlays",
@@ -2634,8 +2670,26 @@
       "t": 1.5,
       "grid": 1.5,
       "mode": "resample",
-      "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support."
+      "scale": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
+      "r_axes": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "scale_derivation": {
+        "path": "scripts/combat_board_view.gd",
+        "x": {
+          "expression": "_draw_floor_tile / _draw_floor_moss_overlay: _tile_width() / source width 122 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00819672131147541
+        },
+        "y": {
+          "expression": "_tile_height() = _tile_width() * 0.5; _draw_floor_tile / _draw_floor_moss_overlay: 0.5 / source height 80 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00625
+        }
+      }
     },
     {
       "id": "fire_floor_overlay_01",
@@ -2655,9 +2709,27 @@
       "t": 1.5,
       "grid": 1.5,
       "mode": "resample",
-      "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support.",
-      "alpha_measurement_note": "Each elemental overlay has its own measurement and alpha class; split from fire_floor_overlays."
+      "scale": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
+      "alpha_measurement_note": "Each elemental overlay has its own measurement and alpha class; split from fire_floor_overlays.",
+      "r_axes": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "scale_derivation": {
+        "path": "scripts/combat_board_view.gd",
+        "x": {
+          "expression": "_draw_floor_tile / _draw_floor_moss_overlay: _tile_width() / source width 122 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00819672131147541
+        },
+        "y": {
+          "expression": "_tile_height() = _tile_width() * 0.5; _draw_floor_tile / _draw_floor_moss_overlay: 0.5 / source height 80 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00625
+        }
+      }
     },
     {
       "id": "fire_floor_overlay_02",
@@ -2677,9 +2749,27 @@
       "t": 1.5,
       "grid": 1.5,
       "mode": "resample",
-      "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support.",
-      "alpha_measurement_note": "Each elemental overlay has its own measurement and alpha class; split from fire_floor_overlays."
+      "scale": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
+      "alpha_measurement_note": "Each elemental overlay has its own measurement and alpha class; split from fire_floor_overlays.",
+      "r_axes": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "scale_derivation": {
+        "path": "scripts/combat_board_view.gd",
+        "x": {
+          "expression": "_draw_floor_tile / _draw_floor_moss_overlay: _tile_width() / source width 122 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00819672131147541
+        },
+        "y": {
+          "expression": "_tile_height() = _tile_width() * 0.5; _draw_floor_tile / _draw_floor_moss_overlay: 0.5 / source height 80 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00625
+        }
+      }
     },
     {
       "id": "ice_floor_overlay_01",
@@ -2699,9 +2789,27 @@
       "t": 1.5,
       "grid": 1.5,
       "mode": "resample",
-      "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support.",
-      "alpha_measurement_note": "Each elemental overlay has its own measurement and alpha class; split from ice_floor_overlays."
+      "scale": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
+      "alpha_measurement_note": "Each elemental overlay has its own measurement and alpha class; split from ice_floor_overlays.",
+      "r_axes": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "scale_derivation": {
+        "path": "scripts/combat_board_view.gd",
+        "x": {
+          "expression": "_draw_floor_tile / _draw_floor_moss_overlay: _tile_width() / source width 122 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00819672131147541
+        },
+        "y": {
+          "expression": "_tile_height() = _tile_width() * 0.5; _draw_floor_tile / _draw_floor_moss_overlay: 0.5 / source height 80 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00625
+        }
+      }
     },
     {
       "id": "ice_floor_overlay_02",
@@ -2721,9 +2829,27 @@
       "t": 1.5,
       "grid": 1.5,
       "mode": "resample",
-      "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support.",
-      "alpha_measurement_note": "Each elemental overlay has its own measurement and alpha class; split from ice_floor_overlays."
+      "scale": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
+      "alpha_measurement_note": "Each elemental overlay has its own measurement and alpha class; split from ice_floor_overlays.",
+      "r_axes": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "scale_derivation": {
+        "path": "scripts/combat_board_view.gd",
+        "x": {
+          "expression": "_draw_floor_tile / _draw_floor_moss_overlay: _tile_width() / source width 122 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00819672131147541
+        },
+        "y": {
+          "expression": "_tile_height() = _tile_width() * 0.5; _draw_floor_tile / _draw_floor_moss_overlay: 0.5 / source height 80 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00625
+        }
+      }
     },
     {
       "id": "lightning_floor_overlay_01",
@@ -2743,9 +2869,27 @@
       "t": 1.5,
       "grid": 1.5,
       "mode": "resample",
-      "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support.",
-      "alpha_measurement_note": "Each elemental overlay has its own measurement and alpha class; split from lightning_floor_overlays."
+      "scale": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
+      "alpha_measurement_note": "Each elemental overlay has its own measurement and alpha class; split from lightning_floor_overlays.",
+      "r_axes": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "scale_derivation": {
+        "path": "scripts/combat_board_view.gd",
+        "x": {
+          "expression": "_draw_floor_tile / _draw_floor_moss_overlay: _tile_width() / source width 122 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00819672131147541
+        },
+        "y": {
+          "expression": "_tile_height() = _tile_width() * 0.5; _draw_floor_tile / _draw_floor_moss_overlay: 0.5 / source height 80 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00625
+        }
+      }
     },
     {
       "id": "lightning_floor_overlay_02",
@@ -2765,9 +2909,27 @@
       "t": 1.5,
       "grid": 1.5,
       "mode": "resample",
-      "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support.",
-      "alpha_measurement_note": "Each elemental overlay has its own measurement and alpha class; split from lightning_floor_overlays."
+      "scale": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
+      "alpha_measurement_note": "Each elemental overlay has its own measurement and alpha class; split from lightning_floor_overlays.",
+      "r_axes": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "scale_derivation": {
+        "path": "scripts/combat_board_view.gd",
+        "x": {
+          "expression": "_draw_floor_tile / _draw_floor_moss_overlay: _tile_width() / source width 122 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00819672131147541
+        },
+        "y": {
+          "expression": "_tile_height() = _tile_width() * 0.5; _draw_floor_tile / _draw_floor_moss_overlay: 0.5 / source height 80 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00625
+        }
+      }
     },
     {
       "id": "air_floor_overlay_01",
@@ -2787,9 +2949,27 @@
       "t": 1.5,
       "grid": 1.5,
       "mode": "resample",
-      "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support.",
-      "alpha_measurement_note": "Each elemental overlay has its own measurement and alpha class; split from air_floor_overlays."
+      "scale": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
+      "alpha_measurement_note": "Each elemental overlay has its own measurement and alpha class; split from air_floor_overlays.",
+      "r_axes": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "scale_derivation": {
+        "path": "scripts/combat_board_view.gd",
+        "x": {
+          "expression": "_draw_floor_tile / _draw_floor_moss_overlay: _tile_width() / source width 122 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00819672131147541
+        },
+        "y": {
+          "expression": "_tile_height() = _tile_width() * 0.5; _draw_floor_tile / _draw_floor_moss_overlay: 0.5 / source height 80 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00625
+        }
+      }
     },
     {
       "id": "air_floor_overlay_02",
@@ -2809,9 +2989,27 @@
       "t": 1.5,
       "grid": 1.5,
       "mode": "resample",
-      "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support.",
-      "alpha_measurement_note": "Each elemental overlay has its own measurement and alpha class; split from air_floor_overlays."
+      "scale": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
+      "alpha_measurement_note": "Each elemental overlay has its own measurement and alpha class; split from air_floor_overlays.",
+      "r_axes": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "scale_derivation": {
+        "path": "scripts/combat_board_view.gd",
+        "x": {
+          "expression": "_draw_floor_tile / _draw_floor_moss_overlay: _tile_width() / source width 122 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00819672131147541
+        },
+        "y": {
+          "expression": "_tile_height() = _tile_width() * 0.5; _draw_floor_tile / _draw_floor_moss_overlay: 0.5 / source height 80 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00625
+        }
+      }
     },
     {
       "id": "trap_air",
@@ -2832,7 +3030,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support."
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support."
     },
     {
       "id": "trap_air_sheets",
@@ -2859,7 +3057,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support.",
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
       "alpha_class_from": "trap_air"
     },
     {
@@ -2881,7 +3079,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support."
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support."
     },
     {
       "id": "trap_earth_sheets",
@@ -2908,7 +3106,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support.",
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
       "alpha_class_from": "trap_earth"
     },
     {
@@ -2930,7 +3128,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support."
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support."
     },
     {
       "id": "trap_fire_sheets",
@@ -2957,7 +3155,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support.",
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
       "alpha_class_from": "trap_fire"
     },
     {
@@ -2979,7 +3177,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support."
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support."
     },
     {
       "id": "trap_ice_sheets",
@@ -3006,7 +3204,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support.",
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
       "alpha_class_from": "trap_ice"
     },
     {
@@ -3028,7 +3226,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support."
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support."
     },
     {
       "id": "trap_lightning_sheets",
@@ -3055,7 +3253,7 @@
       "grid": 1.5,
       "mode": "resample",
       "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support.",
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
       "alpha_class_from": "trap_lightning"
     },
     {
@@ -3077,8 +3275,26 @@
       "mode": "resample",
       "frames": null,
       "coverage_note": "Runtime ember floor; _floor_texture_key(\"ember\")",
-      "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support."
+      "scale": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
+      "r_axes": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "scale_derivation": {
+        "path": "scripts/combat_board_view.gd",
+        "x": {
+          "expression": "_draw_floor_tile / _draw_floor_moss_overlay: _tile_width() / source width 122 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00819672131147541
+        },
+        "y": {
+          "expression": "_tile_height() = _tile_width() * 0.5; _draw_floor_tile / _draw_floor_moss_overlay: 0.5 / source height 80 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00625
+        }
+      }
     },
     {
       "id": "stone_floor_fallback",
@@ -3099,8 +3315,26 @@
       "mode": "resample",
       "frames": null,
       "coverage_note": "Fallback when STONE_FLOOR_VARIANT_PATHS cannot load",
-      "scale": 2.029285373229349,
-      "resample_note": "Owner 2026-10-07 (review 18, family-class follow-up): upscale to hero pixel scale, then grid 1.5. Classify once from the entry measurement image, or inherit alpha_class_from. Soft (>=10% with 64<=alpha<240 among nonzero pixels) uses BILINEAR; solid uses a Lanczos body, BILINEAR faint halo and NEAREST body outline. Both stay within NEAREST source support."
+      "scale": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "resample_note": "Owner 2026-10-07 (review 18 and peer fixes): upscale to hero pixel scale on both axes, using separate x/y scales for fixed non-square draw rects; then grid 1.5. Classify once from the measurement or inherit alpha_class_from. Soft uses normalized BILINEAR; solid uses Lanczos body colour with NEAREST source body alpha, normalized BILINEAR halo and NEAREST body outline. Normalize BILINEAR premultiplied channels by the resized float nonzero-alpha mask (weight floor 1e-3), clip/round alpha, then un-premultiply. Both stay within NEAREST source support.",
+      "r_axes": [
+        2.029285373229349,
+        1.5473300970873787
+      ],
+      "scale_derivation": {
+        "path": "scripts/combat_board_view.gd",
+        "x": {
+          "expression": "_draw_floor_tile / _draw_floor_moss_overlay: _tile_width() / source width 122 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00819672131147541
+        },
+        "y": {
+          "expression": "_tile_height() = _tile_width() * 0.5; _draw_floor_tile / _draw_floor_moss_overlay: 0.5 / source height 80 / (1.03/255)",
+          "screen_pixels_per_source_pixel_per_tile_width": 0.00625
+        }
+      }
     },
     {
       "id": "hero_rear",

@@ -318,7 +318,7 @@ func _print_help() -> void:
 	print("  --hand card_a,card_b --draw card_c --discard card_d --burned card_e")
 	print("  --surfaces fire@4:3,rubble@4:3,ice@5:4,electrified@6:4")
 	print("  --trap-elements fire,ice [--trap-positions 3:4,5:2]")
-	print("  --terrain wooden_box@2:6,wooden_crate@5:7,powder_keg@7:3")
+	print("  --terrain wooden_box@3:6,wooden_crate@5:6,powder_keg@4:3")
 	print("  --enemy-types enemy_a,enemy_b --enemy-positions 6:1,5:4 --enemy-intents intent_a,intent_b")
 	print("  --enemy-hp N --equipment-drop equipment_id [--equipment-drop-position 6:5]")
 	print("  --item-drops crimson_draught@2:3,nail_bomb@6:1")

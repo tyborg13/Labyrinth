@@ -242,7 +242,8 @@ class BoardPixelDensityTest(unittest.TestCase):
                         self.assertTrue(entry["override"].strip())
                     elif entry["kind"] != "rig" and entry["r"] > 1.05:
                         self.assertEqual(settings["mode"], "resample")
-                        self.assertEqual(settings["scale"], entry["r"])
+                        self.assertEqual(density.scale_axes(settings["scale"]),
+                                         density.scale_axes(entry.get("r_axes", entry["r"])))
                         self.assertEqual(settings["grid"], 1.5)
                         self.assertTrue(settings["resample_note"])
                     else:
@@ -291,7 +292,8 @@ class BoardPixelDensityTest(unittest.TestCase):
                 self.assertEqual(record["alpha_source_pixel_sha256"], tool.pixel_digest(measurement))
                 for index, ((x,y,w,h), (xx,yy,ww,hh)) in enumerate(zip(old_rects, new_rects)):
                     with self.subTest(path=path, frame=index):
-                        self.assertEqual((ww, hh), (round(w*entry["scale"]), round(h*entry["scale"])))
+                        sx, sy = density.scale_axes(entry["scale"])
+                        self.assertEqual((ww, hh), (round(w*sx), round(h*sy)))
                         frame = source.crop((x,y,x+w,y+h))
                         pixels = np.asarray(output.crop((xx,yy,xx+ww,yy+hh)))
                         near = np.asarray(frame.resize((ww,hh), Image.Resampling.NEAREST))
@@ -299,12 +301,15 @@ class BoardPixelDensityTest(unittest.TestCase):
                         source_alpha = np.asarray(frame)[..., 3]
                         bilinear = np.asarray(Image.fromarray(source_alpha.astype(np.float32)).resize(
                             (ww,hh), Image.Resampling.BILINEAR))
+                        weight = np.asarray(Image.fromarray((source_alpha > 0).astype(np.float32)).resize(
+                            (ww,hh), Image.Resampling.BILINEAR))
+                        bilinear = bilinear / np.maximum(weight, 1e-3)
                         expected_alpha = np.where(a, np.rint(bilinear.clip(0,255)), 0)
                         if solid:
                             lanczos = np.asarray(Image.fromarray(source_alpha.astype(np.float32)).resize(
                                 (ww,hh), Image.Resampling.LANCZOS))
                             body = (lanczos.clip(0,255) >= 128) & a
-                            expected_alpha = np.where(body, 255, expected_alpha)
+                            expected_alpha = np.where(body, near[...,3], expected_alpha)
                             ring = density.edge_ring(body) & (near[..., 3] >= 128)
                             np.testing.assert_array_equal(pixels[..., :3][ring], near[..., :3][ring])
                         np.testing.assert_array_equal(pixels[..., 3], expected_alpha.astype(np.uint8))
@@ -320,6 +325,28 @@ class BoardPixelDensityTest(unittest.TestCase):
                             self.assertLessEqual(new_bounds[2], old_bounds[2])
                             self.assertLessEqual(new_bounds[3], old_bounds[3])
                         self.assertLessEqual(silhouette_boundary_distance(a, b), 1)
+
+    def test_every_resampled_frame_preserves_mean_source_alpha(self) -> None:
+        for entry in self.entries.values():
+            if entry.get("mode") != "resample":
+                continue
+            for path in entry["paths"]:
+                with Image.open(SOURCES / path) as im:
+                    source = im.convert("RGBA")
+                with Image.open(ROOT / path) as im:
+                    output = im.convert("RGBA")
+                for index, (old, new) in enumerate(zip(density.frame_rects(source.size, entry["frames"]),
+                                                       density.frame_rects(output.size, entry["frames"]))):
+                    with self.subTest(path=path, frame=index):
+                        x,y,w,h = old
+                        xx,yy,ww,hh = new
+                        near_alpha = np.asarray(source.crop((x,y,x+w,y+h)).resize(
+                            (ww,hh), Image.Resampling.NEAREST))[...,3]
+                        alpha = np.asarray(output.crop((xx,yy,xx+ww,yy+hh)))[...,3]
+                        support = near_alpha > 0
+                        if support.any():
+                            difference = abs(float(alpha[support].mean()) - float(near_alpha[support].mean())) / 255
+                            self.assertLessEqual(difference, 3/255, "Resampling must preserve paint/fade opacity over source support")
 
     def test_static_sheet_families_and_independent_elemental_overlays(self) -> None:
         families = {f"trap_{element}_sheets": f"trap_{element}"
@@ -360,11 +387,13 @@ class BoardPixelDensityTest(unittest.TestCase):
         pw, ph = right - left, bottom - top
         pillar_factor = min(prop_x / pw, prop_y / ph)
         pillar_width = pillar_factor * pw
+        pillar_height = pillar_factor * ph
         enemies = json.loads((ROOT / "data/enemies.json").read_text())
         npcs = json.loads((ROOT / "data/npcs.json").read_text())
         run_scene = (ROOT / "scripts/run_scene.gd").read_text()
         for entry in self.entries.values():
             name = entry["id"]
+            draw_y = None
             if entry["kind"] == "rig":
                 expected = 1.0 if name == "hero_rear" else enemies[name].get("art_scale", 1.0)
             else:
@@ -380,6 +409,8 @@ class BoardPixelDensityTest(unittest.TestCase):
                 elif name == "moss_pillar_overlay":
                     scale = float(re.search(r"draw_rect.size.x \* ([0-9.]+)", function_text(self.board, "_pillar_moss_rect")).group(1))
                     draw = pillar_width * scale / w
+                    height_scale = float(re.search(r"draw_rect.size.y \* ([0-9.]+)", function_text(self.board, "_pillar_moss_rect")).group(1))
+                    draw_y = pillar_height * height_scale / h
                 elif name == "door":
                     draw = min(constant("DOOR_FRAME_WIDTH_SCALE") / w, constant("DOOR_FRAME_HEIGHT_SCALE") / h)
                 elif name == "door_opening":
@@ -412,10 +443,22 @@ class BoardPixelDensityTest(unittest.TestCase):
                     draw = constant("TRAP_DRAW_WIDTH_SCALE") / w
                 elif "floor" in name:
                     draw = 1.0 / w
+                    tile_height_scale = float(re.search(r"return _tile_width\(\) \* ([0-9.]+)", function_text(self.board, "_tile_height")).group(1))
+                    draw_y = tile_height_scale / h
                 else:
                     self.fail(f"New prop needs a live-code scale assertion: {name}")
                 expected = draw / unit_factor
             self.assertAlmostEqual(entry["r"], expected, msg=name)
+            if draw_y is not None:
+                expected_axes = (expected, draw_y / unit_factor)
+                np.testing.assert_allclose(entry["r_axes"], expected_axes, err_msg=name)
+                np.testing.assert_allclose(entry["scale"], expected_axes, err_msg=name)
+                for axis, value in zip(("x", "y"), expected_axes):
+                    derivation = entry["scale_derivation"][axis]
+                    self.assertAlmostEqual(derivation["screen_pixels_per_source_pixel_per_tile_width"] / unit_factor, value)
+                    self.assertTrue(derivation["expression"])
+            elif entry.get("mode") == "resample":
+                self.assertIsInstance(entry["scale"], (float, int), "Aspect-preserving props keep a uniform scale")
 
     def test_door_regions_match_code(self) -> None:
         block = self.board.split("const DOOR_OPENING_FRAME_REGIONS := [", 1)[1].split("]", 1)[0]
@@ -542,6 +585,23 @@ class DensityOperationTest(unittest.TestCase):
             differs_from_per_frame |= expected.tobytes() != density.resample_frame(frame, 1.7).tobytes()
         self.assertTrue(differs_from_per_frame, "Later frames must keep frame 0's class even when their own paint differs")
 
+    def test_per_axis_sheet_resampling_keeps_frame_sizes_and_local_grid(self) -> None:
+        source = self.image()
+        frames = {"grid": [2, 2]}
+        scale = [2.1, 1.6]
+        result = density.process(source, "resample", 1.5, frames, scale, "solid")
+        self.assertEqual(result.size, (34, 20))
+        for old, new in zip(density.frame_rects(source.size, frames), density.frame_rects(result.size, frames)):
+            x,y,w,h = old
+            xx,yy,ww,hh = new
+            self.assertEqual((ww,hh), (17,10))
+            expected = density.resample_frame(source.crop((x,y,x+w,y+h)), scale, alpha_class="solid")
+            self.assertEqual(result.crop((xx,yy,xx+ww,yy+hh)).tobytes(), expected.tobytes())
+        scalar = density.process(source, "resample", 1.5, frames, 1.7)
+        pair = density.process(source, "resample", 1.5, frames, [1.7,1.7])
+        self.assertEqual(scalar.size, pair.size)
+        self.assertEqual(scalar.tobytes(), pair.tobytes())
+
     def test_alpha_classification_counts_only_nonzero_pixels_and_uses_strict_threshold(self) -> None:
         pixels = np.zeros((10, 20, 4), dtype=np.uint8)
         pixels[:5, :, 3] = 255
@@ -567,10 +627,13 @@ class DensityOperationTest(unittest.TestCase):
             result.size, Image.Resampling.LANCZOS))
         bilinear = np.asarray(Image.fromarray(paint[...,3].astype(np.float32)).resize(
             result.size, Image.Resampling.BILINEAR))
+        weight = np.asarray(Image.fromarray((paint[...,3] > 0).astype(np.float32)).resize(
+            result.size, Image.Resampling.BILINEAR))
+        bilinear = bilinear / np.maximum(weight, 1e-3)
         near = np.asarray(source.resize(result.size, Image.Resampling.NEAREST))
         support = near[...,3] > 0
         body = (lanczos.clip(0,255) >= 128) & support
-        expected_alpha = np.where(body, 255, np.where(support, np.rint(bilinear.clip(0,255)), 0))
+        expected_alpha = np.where(body, near[...,3], np.where(support, np.rint(bilinear.clip(0,255)), 0))
         pixels = np.asarray(result)
         np.testing.assert_array_equal(pixels[...,3], expected_alpha.astype(np.uint8))
         self.assertTrue(((pixels[...,3] > 0) & (pixels[...,3] < 128)).any(), "Keep the faint halo")
@@ -581,7 +644,7 @@ class DensityOperationTest(unittest.TestCase):
         hidden = pixels[...,3] == 0
         np.testing.assert_array_equal(pixels[..., :3][hidden], near[..., :3][hidden])
 
-    def test_soft_resample_alpha_is_bilinear_support_limited_and_fringe_is_nearest(self) -> None:
+    def test_soft_resample_alpha_is_normalized_bilinear_support_limited_and_fringe_is_nearest(self) -> None:
         pixels = np.asarray(self.image()).copy()
         pixels[2:6, 2:8, 3] = 100
         source = Image.fromarray(pixels)
@@ -589,6 +652,9 @@ class DensityOperationTest(unittest.TestCase):
         result = density.resample_frame(source, 1.7)
         alpha = np.asarray(Image.fromarray(np.asarray(source)[...,3].astype(np.float32)).resize(
             result.size, Image.Resampling.BILINEAR))
+        weight = np.asarray(Image.fromarray((np.asarray(source)[...,3] > 0).astype(np.float32)).resize(
+            result.size, Image.Resampling.BILINEAR))
+        alpha = alpha / np.maximum(weight, 1e-3)
         near = np.asarray(source.resize(result.size, Image.Resampling.NEAREST))
         expected_alpha = np.where(near[...,3] > 0, np.rint(alpha.clip(0,255)), 0).astype(np.uint8)
         np.testing.assert_array_equal(np.asarray(result)[...,3], expected_alpha)
@@ -596,6 +662,23 @@ class DensityOperationTest(unittest.TestCase):
         pixels = np.asarray(result)
         hidden = pixels[...,3] == 0
         np.testing.assert_array_equal(pixels[..., :3][hidden], near[..., :3][hidden])
+
+    def test_normalized_bilinear_preserves_uniform_paint_on_sparse_support(self) -> None:
+        for alpha_class in ("solid", "soft"):
+            for alpha in (255, 245, 219, 178, 133, 87, 46, 18, 12):
+                with self.subTest(alpha_class=alpha_class, alpha=alpha):
+                    paint = np.full((12, 16, 4), (91, 74, 56, 0), dtype=np.uint8)
+                    paint[2, 3] = (126, 99, 65, alpha)
+                    paint[5:9, 7:13] = (126, 99, 65, alpha)
+                    source = Image.fromarray(paint)
+                    result = density.resample_frame(source, [2.03, 1.55], alpha_class=alpha_class)
+                    near = np.asarray(source.resize(result.size, Image.Resampling.NEAREST))
+                    pixels = np.asarray(result)
+                    np.testing.assert_array_equal(pixels[...,3], near[...,3])
+                    hidden = pixels[...,3] == 0
+                    np.testing.assert_array_equal(pixels[..., :3][hidden], near[..., :3][hidden])
+                    if alpha_class == "soft":
+                        np.testing.assert_array_equal(pixels[..., :3][~hidden], near[..., :3][~hidden])
 
     def test_boundary_distance_uses_chebyshev_and_catches_interior_changes(self) -> None:
         source = np.zeros((12, 12), dtype=bool)
@@ -619,6 +702,25 @@ class DensityOperationTest(unittest.TestCase):
             self.assertEqual((root / "paint/part.png").read_bytes(), pixels)
             self.assertEqual(manifest.read_bytes(), records)
             self.assertEqual(run("--check"), (0, "CHECK-OK\n"))
+
+    def test_per_axis_cli_records_scales_and_reports_both_pixel_ratios(self) -> None:
+        with self.temporary_rig() as (root, manifest, run):
+            registry = json.loads(tool.REGISTRY.read_text())
+            entry = registry["entries"][0]
+            entry.update(kind="prop", mode="resample", scale=[1.7,1.3], r=1.7,
+                         r_axes=[1.7,1.3], t=1.5, grid=1.5)
+            entry.pop("rest_paths")
+            tool.REGISTRY.write_text(json.dumps(registry))
+            self.assertEqual(run()[0], 0)
+            record = json.loads(manifest.read_text())["paint/part.png"]
+            self.assertEqual(record["scale"], [1.7,1.3])
+            with Image.open(root / "sources/paint/part.png") as source, Image.open(root / "paint/part.png") as output:
+                self.assertEqual(output.size, (round(source.width*1.7), round(source.height*1.3)))
+            self.assertEqual(run("--check"), (0, "CHECK-OK\n"))
+            with mock.patch.object(tool, "REPORT", root / "report.md"):
+                self.assertEqual(run("--report")[0], 0)
+            row = next(line for line in (root / "report.md").read_text().splitlines() if line.startswith("| fixture |"))
+            self.assertIn("| 1.700 → 1.000 | 1.300 → 1.000 |", row)
 
     def test_family_class_comes_from_static_measurement_even_with_only(self) -> None:
         with self.temporary_rig() as (root, manifest, run):
@@ -738,6 +840,9 @@ class DensityOperationTest(unittest.TestCase):
                 density.regrid(image, grid)
             with self.assertRaises(ValueError):
                 density.resample_frame(image, grid)
+        for scale in ([1], [1,2,3], [0,1], [1,-1], [1,float("nan")]):
+            with self.assertRaises(ValueError):
+                density.resample_frame(image, scale)
         with self.assertRaises(ValueError):
             density.process(image, "posterise", 1.5)
         with self.assertRaisesRegex(ValueError, "alpha_class must be solid or soft"):

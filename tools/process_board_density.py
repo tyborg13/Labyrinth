@@ -13,7 +13,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from pixel_density import classify_alpha, frame_rects, metrics, process
+from pixel_density import classify_alpha, frame_rects, metrics, process, scale_axes
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "spec/assets/board_pixel_density"
@@ -230,13 +230,13 @@ def report(registry: dict) -> None:
              "Native calibration uses each facing's untouched rest or the first prop frame.",
              "Before/after are means over the first frame of each registered paint path.",
              "After derives from sources in memory; native rest/visual proof is separate.",
-             "Pixel ratios are relative to the hero: resample changes r to r/scale = 1.0;",
+             "Screen-pixel ratios are relative to the hero on each axis: r_axis/scale_axis = 1.0;",
              "integer frame-size rounding can differ slightly from that ideal ratio.", "",
-             "| Entry / facing | r | t | grid | mode | Pixel ratio old → new | Native orphan / run | Before orphan / run | After orphan / run | Screen run before → after |",
-             "| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: |"]
+             "| Entry / facing | r (x) | t | grid | mode | Pixel ratio x old → new | Pixel ratio y old → new | Native orphan / run | Before orphan / run | After orphan / run | Screen run x before → after |",
+             "| --- | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: | ---: | ---: |"]
     hero = metrics(sample(SOURCES / registry["hero_reference"], None))
     label = lambda m: f"{100*m['orphan_share']:.2f}% / {m['run_length']:.3f}"
-    lines.append(f"| Hero front (untouched reference) | 1 | — | — | reference | 1.000 → 1.000 | {label(hero)} | {label(hero)} | {label(hero)} | {hero['run_length']:.3f} → {hero['run_length']:.3f} |")
+    lines.append(f"| Hero front (untouched reference) | 1 | — | — | reference | 1.000 → 1.000 | 1.000 → 1.000 | {label(hero)} | {label(hero)} | {label(hero)} | {hero['run_length']:.3f} → {hero['run_length']:.3f} |")
     for entry in registry["entries"]:
         for facing, settings in entry.get("facings", {"": entry}).items():
             alpha = alpha_settings(entry, registry) if settings["mode"] == "resample" else {}
@@ -250,9 +250,11 @@ def report(registry: dict) -> None:
                                              settings.get("scale", 1.0), alpha.get("alpha_class"))))
             mean = lambda values: {key: sum(m[key] for m in values) / len(values) for key in hero}
             b, a = mean(before), mean(after)
-            new_r = entry["r"] / settings.get("scale", 1.0)
+            rx, ry = scale_axes(entry.get("r_axes", entry["r"]))
+            sx, sy = scale_axes(settings.get("scale", 1.0))
+            new_rx, new_ry = rx / sx, ry / sy
             name = entry["id"] + (" / " + facing if facing else "")
-            lines.append(f"| {name} | {entry['r']:.6f} | {settings['t']:.4f} | {settings['grid']:.2f} | {settings['mode']} | {entry['r']:.3f} → {new_r:.3f} | {label(native)} | {label(b)} | {label(a)} | {b['run_length']*entry['r']:.3f} → {a['run_length']*new_r:.3f} |")
+            lines.append(f"| {name} | {rx:.6f} | {settings['t']:.4f} | {settings['grid']:.2f} | {settings['mode']} | {rx:.3f} → {new_rx:.3f} | {ry:.3f} → {new_ry:.3f} | {label(native)} | {label(b)} | {label(a)} | {b['run_length']*rx:.3f} → {a['run_length']*new_rx:.3f} |")
     lines += ["", "## Fixed rig geometry", "",
               "Rigs retain their 255-pixel logical canvas and never resample. Dragon pixels",
               "still draw larger than the hero; native cleanup preserves their fixed geometry.", "",
