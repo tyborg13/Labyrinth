@@ -1,5 +1,7 @@
 # Remaining hitch performance pass — 6 October 2026
 
+> Publication rerun: [7 October current-master integration and measurements](performance_pass_2026_10_07.md) supersede the baseline comparison in this historical checkpoint.
+
 This is the bounded checkpoint requested by the user after the current in-flight changes. It retains measured reductions in repeated construction, transition preparation, UI rebuilds, and first-use font work. It does **not** remove every hitch. The final comparison and remaining work below use complete playable workload windows, including preparation and arrival frames.
 
 ## Source and conditions

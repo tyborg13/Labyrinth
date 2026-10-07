@@ -1,0 +1,10 @@
+{
+  "command": "python3 tools/godot_task_runner.py --task-id isolate-card-completion-stalls-master-full-suite --stream -- godot --headless --path . --script tests/run_tests.gd",
+  "returncode": 0,
+  "result": "PASS",
+  "expected_error_lines": [
+    "ERROR: Failed to acknowledge progression analytics event batch."
+  ],
+  "existing_warning": "ObjectDB instances leaked at exit",
+  "candidate_runtime_commit": "37b38c822bd7e87eced91a048af5ba2860b6380f"
+}

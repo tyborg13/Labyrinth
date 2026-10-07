@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "tests/test_gear_visual_assets.py"
+  ],
+  "cwd": "/Users/borgerding/workspace/Labyrinth.worktrees/isolate-card-completion-stalls",
+  "returncode": 0,
+  "test_count": 3,
+  "seconds": 74.698,
+  "stdout": "...\n----------------------------------------------------------------------\nRan 3 tests in 74.698s\n\nOK\n",
+  "source": "Actual exec session 41923 completion output"
+}
