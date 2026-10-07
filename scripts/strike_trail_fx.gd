@@ -5,6 +5,8 @@ const TAIL: float = 0.10
 const FADE: float = 0.06
 const CONTACT: float = 0.42
 const SAMPLE_STEP: float = 1.0 / 240.0
+const ARC_RADIUS: float = 44.0
+const ARC_BODY_HEIGHT: float = 80.0
 const PALETTES: Dictionary = {
 	"none": [Color8(255, 244, 220), Color8(255, 178, 92), Color8(150, 60, 20)],
 	"fire": [Color8(255, 236, 200), Color8(255, 128, 48), Color8(170, 40, 10)],
@@ -19,6 +21,8 @@ static func motion_settings(motion: String) -> Dictionary:
 		"stab": return {"window": Vector2(0.33, 0.54), "kind": "streak", "reach": 1.0, "length": 48.0}
 		"thrust": return {"window": Vector2(0.30, 0.54), "kind": "streak", "reach": 1.0, "length": 74.0}
 		"lash": return {"window": Vector2(0.30, 0.54), "kind": "sweep", "reach": 0.09, "length": 0.0}
+		# A bow/repeater limb needs a short smear, clear of the hero's head.
+		"bow", "repeater": return {"window": Vector2(0.33, 0.56), "kind": "sweep", "reach": 0.25, "length": 0.0}
 		_: return {"window": Vector2(0.33, 0.56), "kind": "sweep", "reach": 0.55, "length": 0.0}
 
 static func palette(element: String) -> Array:
@@ -62,12 +66,15 @@ static func arc_samples(from: Vector2, to: Vector2, scale: float, window: Vector
 	var direction: Vector2 = (to - from).normalized()
 	if direction == Vector2.ZERO:
 		direction = Vector2.RIGHT
-	var center: Vector2 = to - Vector2(0, 30.0 * scale)
+	# Tiles are floor anchors. The old 30px lift put the contact near the
+	# target's feet; use body height and complete the cut by contact instead
+	# of spreading its angle uniformly across the entire strike window.
+	var center: Vector2 = to - Vector2(0, ARC_BODY_HEIGHT * scale)
 	var count: int = ceili((window.y - window.x) / SAMPLE_STEP)
 	for index: int in range(count + 1):
 		var progress: float = minf(window.x + float(index) * SAMPLE_STEP, window.y)
-		var angle: float = lerpf(-2.2, 0.9, inverse_lerp(window.x, window.y, progress))
-		var tip: Vector2 = center + direction.rotated(angle) * 44.0 * scale
+		var angle: float = lerpf(-2.2, 0.3, smoothstep(window.x, CONTACT, progress)) if progress <= CONTACT else lerpf(0.3, 0.9, clampf(inverse_lerp(CONTACT, window.y, progress), 0.0, 1.0))
+		var tip: Vector2 = center + direction.rotated(angle) * ARC_RADIUS * scale
 		samples.append({"progress": progress, "tip": tip, "inner": tip.lerp(center, 0.55)})
 	return samples
 
@@ -119,7 +126,7 @@ static func geometry(samples: Array[Dictionary], kind: String, progress: float,
 					for index: int in range(19):
 						points.append(tip - axis * streak_length * scale * float(index) / 18.0 * (1.0 if lane == 0 else 0.7) + normal * offset * scale)
 					points.reverse()
-					pass_batches.append(_ribbon(points, colors, alpha * (1.0 if lane == 0 else 0.6), (4.4 if lane == 0 else 1.6) * scale, glow))
+					pass_batches.append(_streak(points, colors, _streak_envelope(progress, window, contact) * (1.0 if lane == 0 else 0.6), (4.4 if lane == 0 else 1.6) * scale, glow))
 			"rake":
 				for lane: int in range(-1, 2):
 					var points := PackedVector2Array()
@@ -194,6 +201,34 @@ static func _ribbon(points: PackedVector2Array, palette_colors: Array, alpha: fl
 		vertices.append_array(PackedVector2Array([points[index] + normal * half_width, points[index], points[index] - normal * half_width]))
 		colors.append_array(PackedColorArray([clear, color, clear]))
 	return _strip(vertices, colors, 3)
+
+static func _streak_envelope(progress: float, window: Vector2, contact: float = CONTACT) -> float:
+	# The thrust must already read at full strength during the drive, before
+	# the .42 contact glint. Follow-through keeps the shared .06 fade.
+	if progress <= contact:
+		return smoothstep(window.x, minf(0.40, contact), progress)
+	return envelope(progress, window, contact)
+
+static func _streak(points: PackedVector2Array, palette_colors: Array, alpha: float, width: float, glow: bool) -> Dictionary:
+	# Axial speed lines have their own profile. The tip-path ribbon and the
+	# approved sword/heavy sweep keep their existing width and alpha taper.
+	var vertices := PackedVector2Array()
+	var colors := PackedColorArray()
+	for index: int in range(points.size()):
+		var u: float = float(index) / float(points.size() - 1)
+		var tangent: Vector2 = (points[mini(index + 1, points.size() - 1)] - points[maxi(index - 1, 0)]).normalized()
+		var normal := Vector2(-tangent.y, tangent.x)
+		var half_width: float = width * 0.5 * (3.0 if glow else 1.0)
+		var color: Color = (palette_colors[1] as Color).lerp(palette_colors[0], u)
+		color.a = alpha * minf(1.0, u / 0.30) * (0.35 if glow else 1.0)
+		vertices.append(points[index] + normal * half_width)
+		if glow:
+			vertices.append(points[index])
+			colors.append_array(PackedColorArray([Color(color, 0.0), color, Color(color, 0.0)]))
+		else:
+			colors.append_array(PackedColorArray([color, color]))
+		vertices.append(points[index] - normal * half_width)
+	return _strip(vertices, colors, 3 if glow else 2)
 
 static func _strip(vertices: PackedVector2Array, colors: PackedColorArray, rows: int) -> Dictionary:
 	var indices := PackedInt32Array()
