@@ -63,6 +63,12 @@ term.
   ACT AGAIN. It uses the complete projected order while the rail retains its
   ten-entry disclosure cap. Blocking overlays hide the strip; it stays below
   contextual tutorial callouts and clears both the callout and focus tooltip.
+  Closing an overlay immediately restores the strip for a retained selected
+  or focused card, without requiring another input.
+- **Turn banner.** ENEMY TURN appears only when the scheduled state's real
+  activation selection chooses a live enemy before the next hero activation,
+  including stale-entry skipping and due reinforcements. Back-to-back hero
+  turns retain the next YOUR TURN banner without an intervening ENEMY TURN.
 - **Pass plate.** While base plays remain, the plate's lead cell shows the Time
   icon and `+N` (the Wait the pass would pay) instead of TURN END.
   Because a pass can now span an enemy's unrevealed second activation, the

@@ -3323,8 +3323,11 @@ func _refresh_pointer_after_layout(expected_revision: int) -> void:
 	_refresh_controller_interface()
 
 func _schedule_controller_modal_refresh() -> void:
-	if _turn_order_landing_strip != null and not _turn_order_landing_strip_allowed():
-		_turn_order_landing_strip.hide_strip()
+	if _turn_order_landing_strip != null:
+		if _turn_order_landing_strip_allowed():
+			_refresh_turn_order_landing_strip()
+		else:
+			_turn_order_landing_strip.hide_strip()
 	# Pointer targeting remains selected behind non-destructive overlays, but the
 	# overlay temporarily owns the pointer. Suspend or restore the arrow at the
 	# same visibility boundary that already governs modal controller focus.
@@ -24105,7 +24108,13 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_lock_started: int = performance_total_started
 	_animation_lock = true
-	_show_turn_banner(false)
+	# Schedule once before presenting the hand-off. The clock may return directly
+	# to the Reaver; an enemy banner must agree with actual activation selection.
+	var finish_activation_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
+	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(_combat_state)
+	_record_runtime_performance_phase("enemy_round_finish_player_activation", finish_activation_started)
+	if _combat_engine.enemy_acts_before_next_player_turn(scheduled_state):
+		_show_turn_banner(false)
 	_refresh_enemy_round_lock_ui()
 	performance_lock_started = _record_runtime_performance_phase("enemy_round_lock_ui_total", performance_lock_started)
 	await _begin_locked_hand_render_cache()
@@ -24120,8 +24129,6 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	var previous_combat_state: Dictionary = _combat_state.duplicate(true)
 	var previous_tracker: Dictionary = _analytics_snapshot_combat_tracker()
 	performance_phase_started = _record_runtime_performance_phase("enemy_round_initial_snapshots", performance_phase_started)
-	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(_combat_state)
-	performance_phase_started = _record_runtime_performance_phase("enemy_round_finish_player_activation", performance_phase_started)
 	previous_run_state = _stage_player_turn_ended_analytics(previous_run_state, previous_combat_state, scheduled_state, end_reason)
 	var initial_checkpoint_state: Dictionary = _run_state_for_combat_checkpoint(previous_run_state, scheduled_state)
 	# The initial checkpoint owns the analytics outbox and staged revision cursors
@@ -28922,6 +28929,7 @@ func _close_pile_view() -> void:
 		_pile_scrim.visible = false
 	_active_pile_kind = ""
 	_update_performance_telemetry_context()
+	_schedule_controller_modal_refresh()
 
 func _on_combat_skill_discard_card_selected(discard_index: int) -> void:
 	if _combat_skill_card_selection_zone != "discard" or not _combat_skill_card_selection_indices.has(discard_index):

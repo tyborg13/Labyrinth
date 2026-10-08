@@ -9,6 +9,7 @@ const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
+const ActivationSelectionSuite = preload("res://tests/suites/turn_clock_activation_selection_suite.gd")
 
 static func run(expect: Callable) -> void:
 	U4.install_fixtures()
@@ -22,6 +23,7 @@ static func run(expect: Callable) -> void:
 	_test_borrowed_and_sundial(engine, expect)
 	_test_projections(engine, expect)
 	_test_late_agreement(engine, expect)
+	ActivationSelectionSuite.run(engine, U4.state(engine), expect)
 	_test_analytics(engine, expect)
 	for id: String in U4.FIXTURES:
 		GameData.cards().erase(id)

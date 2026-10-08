@@ -13,6 +13,7 @@ const ForecastLine = preload("res://scripts/turn_clock_forecast_line.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ReviewSuite = preload("res://tests/suites/turn_clock_hud_review_suite.gd")
+const BannerSuite = preload("res://tests/suites/turn_clock_banner_suite.gd")
 const SIZE := Vector2i(1920, 1080)
 const HAND: Array = ["pale_spark", "quick_stab", "sidestep_slash", "bloody_lunge", "brace"]
 
@@ -105,6 +106,7 @@ static func run(tree: SceneTree, expect: Callable, capture_dir: String = "") -> 
 	await _test_preview_visibility(tree, scene, engine, check)
 	_test_forecasts(scene, check)
 	await ReviewSuite.run(tree, scene, engine, check, fixture(engine), _install, _hover, func(phase: String) -> void: await _capture(capture_viewport, check, capture_dir, phase))
+	await BannerSuite.run(tree, scene, fixture(engine), _install, _play, check)
 	router.call("set_modality", old_modality)
 	capture_viewport.queue_free()
 	await tree.process_frame

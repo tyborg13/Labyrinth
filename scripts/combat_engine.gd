@@ -2226,6 +2226,17 @@ func recover_player_turn_after_stalled_initiative(state: Dictionary) -> Dictiona
 	_log(next_state, "The stalled initiative clock resets to the Reaver.")
 	return prepare_next_player_turn(next_state)
 
+func enemy_acts_before_next_player_turn(scheduled_state: Dictionary) -> bool:
+	if scheduled_state.is_empty():
+		return false
+	# Once per ended activation, use the real selection path on an owned probe.
+	# It skips dead/stale entries, applies tie ordering and spawns due survival
+	# reinforcements. Reaching an objective at that clock can cancel activation.
+	var probe: Dictionary = scheduled_state.duplicate(true)
+	var popped: Dictionary = _pop_next_actor(probe)
+	probe = popped.get("state", probe) as Dictionary
+	return combat_outcome(probe) == "" and str((popped.get("entry", {}) as Dictionary).get("kind", "")) == "enemy"
+
 func advance_one_activation_with_steps(state: Dictionary, include_commit_steps: bool = true) -> Dictionary:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var next_state: Dictionary = state.duplicate(true)

@@ -117,7 +117,7 @@ static func _test_expensive_paths(tree: SceneTree, viewport: Viewport, fixture: 
 
 static func _test_modals(tree: SceneTree, scene: Node, fixture: Dictionary, install: Callable, hover: Callable, expect: Callable, capture: Callable) -> void:
 	for selected: bool in [false, true]:
-		for overlay: String in ["map", "pile"]:
+		for overlay: String in ["map", "pile", "menu"]:
 			await install.call(tree, scene, fixture.duplicate(true))
 			await hover.call(tree, scene, 1)
 			if selected:
@@ -128,13 +128,23 @@ static func _test_modals(tree: SceneTree, scene: Node, fixture: Dictionary, inst
 			expect.call(strip.visible and (not selected or int(scene.get("_selected_card_index")) == 1), "%s: the card preview and strip are active before opening the overlay" % phase)
 			if overlay == "map":
 				scene.call("_open_large_map", true)
-			else:
+			elif overlay == "pile":
 				scene.call("_open_pile_view", "draw")
+			else:
+				scene.call("_open_menu_overlay")
 			await tree.process_frame
 			await tree.process_frame
-			expect.call((scene.get("_large_map_scrim" if overlay == "map" else "_pile_scrim") as Control).visible and not strip.visible, "%s: opening the actual modal hides the strip" % phase)
+			var scrim_property: String = "_large_map_scrim" if overlay == "map" else "_pile_scrim" if overlay == "pile" else "_menu_scrim"
+			expect.call((scene.get(scrim_property) as Control).visible and not strip.visible, "%s: opening the actual modal hides the strip" % phase)
 			await capture.call(phase)
-			scene.call("_close_large_map" if overlay == "map" else "_close_pile_view")
+			scene.call("_close_large_map" if overlay == "map" else "_close_pile_view" if overlay == "pile" else "_close_menu_overlay")
+			# No pointer event, controller action or process frame after modal close.
+			if selected:
+				expect.call(int(scene.get("_selected_card_index")) == 1 and strip.visible, "%s: closing the overlay immediately restores the selected card's strip without further input" % phase)
+			elif bool(scene.call("_turn_order_landing_strip_allowed")):
+				expect.call(strip.visible, "%s: closing the overlay immediately restores a retained hover's strip" % phase)
+			if selected:
+				await capture.call("%s_restored" % phase)
 	await install.call(tree, scene, fixture.duplicate(true))
 	await hover.call(tree, scene, 1)
 	var strip: Control = scene.get("_turn_order_landing_strip") as Control
