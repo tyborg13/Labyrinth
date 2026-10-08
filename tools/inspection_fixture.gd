@@ -99,6 +99,7 @@ func _parse_args() -> Dictionary:
 		"umbra_warning": false,
 		"embers": 0,
 		"held_embers": -1,
+		"lost_embers": 0,
 		"level": 1,
 		"skills": "",
 		"moltshards": 0,
@@ -169,6 +170,9 @@ func _parse_args() -> Dictionary:
 			"--held-embers":
 				index += 1
 				parsed["held_embers"] = int(_required_arg(args, index, arg))
+			"--lost-embers":
+				index += 1
+				parsed["lost_embers"] = int(_required_arg(args, index, arg))
 			"--level":
 				index += 1
 				parsed["level"] = int(_required_arg(args, index, arg))
@@ -329,6 +333,8 @@ func _print_help() -> void:
 	print("Dragon options: --scenario dragon --dragon-id vyraketh --dragon-depth 4")
 	print("  --dragon-case encounter|pre_battle|reward --dragon-build balanced|skirmisher")
 	print("  Uses a seeded natural arena, plausible acquired loadout, normal stats and shuffled deck.")
+	print("Guardian options: --scenario guardian --guardian-id rimejaw --guardian-case map_choice")
+	print("  --lost-embers N (a prior run's lost Embers, staged on the Guardian's node)")
 	print("Pre-battle options:")
 	print("  --min-enemies N")
 	print("Safety:")
@@ -371,6 +377,19 @@ func _build_progression() -> Dictionary:
 		# Mirror RunScene._start_run so the saved profile and embedded run snapshot
 		# agree on the first-run counter as well as tutorial eligibility.
 		progression = ProgressionStore.prepare_for_new_run(progression)
+	var lost_embers: int = int(_options.get("lost_embers", 0))
+	if lost_embers > 0:
+		if str(_options.get("scenario", "")) != "guardian":
+			_fail("--lost-embers is only available with --scenario guardian.")
+			return progression
+		# Record the pile on this Guardian's node in a prior run, then let the
+		# real next-run recovery staging place it there.
+		var banked: int = int(progression.get("embers", 0))
+		for node: Dictionary in (_run_engine.create_new_run(int(_options.get("seed", DEFAULT_SEED)), progression).get("rooms", {}) as Dictionary).values():
+			if str(node.get("guardian_id", "")) != str(_options.get("guardian_id", "")): continue
+			progression = ProgressionStore.record_lost_embers(progression, lost_embers, node["coord"], int(progression.get("run_counter", 0)))
+			progression = ProgressionStore.prepare_for_new_run(progression)
+			progression["embers"] = banked
 	return progression
 
 func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:

@@ -6,6 +6,7 @@ const Objectives = preload("res://scripts/combat_objective_rules.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
+const Guardians = preload("res://scripts/guardian_library.gd")
 
 static func run(expect: Callable) -> void:
 	var engine := RunEngineScript.new()
@@ -53,6 +54,7 @@ static func run(expect: Callable) -> void:
 	_test_reach_exit(engine, expect)
 	_test_generated_escape_transaction(engine, expect)
 	_test_recovery_mapping(engine, expect)
+	_test_recovery_keeps_landmark_encounters(engine, expect)
 
 static func _test_local_routes(state: Dictionary, index: int, node_count: int, expect: Callable) -> void:
 	var entry: Vector2i = Graph.section(state, index).get("entry")
@@ -288,3 +290,41 @@ static func _test_recovery_mapping(engine: RunEngineScript, expect: Callable) ->
 	combat = Combat.new().apply_player_action(combat, {"type": "blink", "range": 99}, drop.get("pos", Vector2i.ZERO))
 	state = engine.set_combat_state(state, combat)
 	expect.call(engine.held_embers(state) == 23 and Progression.recovery_marker(state.get("progression", {})).is_empty(), "Picking up the mapped pile restores Embers exactly once")
+
+static func _test_recovery_keeps_landmark_encounters(engine: RunEngineScript, expect: Callable) -> void:
+	var baseline: Dictionary = engine.create_new_run(51, Progression.default_data())
+	for room_type: String in ["guardian", "boss"]:
+		var landmark: Dictionary = {}
+		for node: Dictionary in (baseline.get("rooms", {}) as Dictionary).values():
+			if str(node.get("type", "")) == room_type:
+				landmark = node
+				break
+		expect.call(not landmark.is_empty(), "The recovery fixture seed has a %s node" % room_type)
+		if landmark.is_empty(): continue
+		var coord: Vector2i = landmark.get("coord")
+		var progression: Dictionary = Progression.prepare_for_new_run(Progression.default_data())
+		progression = Progression.record_lost_embers(progression, 31, coord, int(progression.get("run_counter", 0)))
+		progression = Progression.prepare_for_new_run(progression)
+		var state: Dictionary = engine.create_new_run(51, progression)
+		expect.call(state.get("map_recovery_coord", Graph.INVALID) == coord and str(Graph.room(state, coord).get("type", "")) == room_type, "Lost Embers map onto a %s node without changing its map identity" % room_type)
+		state["current_room"] = coord
+		state["mode"] = "pre_battle"
+		state["pre_battle_travel_dir"] = Vector2i.RIGHT
+		state = engine.begin_pre_battle_combat(state)
+		var combat: Dictionary = state.get("combat_state", {})
+		var boss_id: String = str(landmark.get("boss_id", ""))
+		var leader_type: String = str(Guardians.for_boss(boss_id).get("id", "")) if room_type == "guardian" else boss_id
+		var leader_index: int = -1
+		for index: int in range((combat.get("enemies", []) as Array).size()):
+			if str(combat["enemies"][index].get("type", "")) == leader_type: leader_index = index
+		expect.call(not leader_type.is_empty() and leader_index >= 0, "A %s node holding lost Embers still fights its own leader" % room_type)
+		var drop: Dictionary = {}
+		for item: Dictionary in combat.get("loot", []):
+			if str(item.get("kind", "")) == "dropped_embers": drop = item
+		expect.call(int(drop.get("amount", 0)) == 31, "The %s encounter contains the exact recoverable Ember pile" % room_type)
+		if room_type != "guardian" or leader_index < 0: continue
+		expect.call(str(combat.get("guardian_id", "")) == leader_type, "The Guardian arena keeps its Guardian identity")
+		var battle: Dictionary = combat.duplicate(true)
+		battle["enemies"][leader_index]["hp"] = 0
+		var reward: Dictionary = engine.finish_combat(state, battle)
+		expect.call(str(reward.get("mode", "")) == "treasure" and reward.get("pending_relics", []) == [str(landmark.get("guardian_relic", ""))], "Defeating the real Guardian still awards its trophy")
