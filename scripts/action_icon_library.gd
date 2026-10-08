@@ -89,7 +89,7 @@ const KEYWORDS: Dictionary = {
 	"stagger": {"label": "Stagger", "description": "Delays the target's next turn by this much Time. Dragons take half. At most 6 per enemy each turn.", "path": "%s/stagger.png" % ICON_ROOT},
 	"time": {
 		"label": "Time",
-		"description": "Adds to the initiative delay before your next turn.",
+		"description": "Delays your next turn. Each unused play takes 5.",
 		"path": "%s/time.png" % ICON_ROOT
 	},
 	"illusion": {

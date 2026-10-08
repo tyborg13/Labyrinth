@@ -155,9 +155,9 @@ relic("tallow_candle", "Tallow Candle", C, "new", "Setup", ["radiance"], 3, 1,
       ["relic:tectonic_abacus", "relic:sunlit_edge"],
       "", impl=1)
 relic("pocket_sundial", "Pocket Sundial", C, "new", "Convert", ["tempo"], 2, 1,
-      "Each card play you leave unused at the end of your turn makes your next turn come 1 Time sooner (max 2).",
-      "Playing one card is a real choice instead of a wasted play.",
-      "Big single cards and Quicken turns; with Toll of the Late Bell, acting sooner means more enemies are late.",
+      "If you use both card plays in a turn, your next turn comes 2 Time sooner.",
+      "Using both base plays earns 2 Time without changing card costs.",
+      "Fast two-card turns and Quicken; with Toll of the Late Bell, acting sooner means more enemies are late.",
       ["relic:toll_late_bell", "card:skybolt"],
       "Shown on the turn order rail as your next turn moving earlier.", impl=2)
 relic("leaden_pommel", "Leaden Pommel", C, "new", "Amplify", ["tempo"], 2, 1,

@@ -61,6 +61,7 @@ available:
 - `card_became_playable`
 - `card_played`
 - `player_moved`
+- `player_turn_ended`
 - `enemy_action_resolved`
 - `enemy_status_tick`
 - `defiance_triggered`
@@ -81,6 +82,24 @@ available:
 - `guided_tutorial_completed`
 - `guided_tutorial_dismissed`
 - `guided_tutorial_restarted`
+
+## Player activation ends
+
+`player_turn_ended` records one committed hero activation end. `end_reason` is
+`pass`, `auto`, or `frozen` (Freeze takes precedence). Its payload contains
+`plays_made` (slots spent on cards, excluding status forfeits),
+`base_plays_waited`, `unused_bonus_plays`, `card_time` (paid before ending),
+`wait_time`, `sundial_reduction`, `borrowed_extra_turn`, `next_turn_eta`
+(scheduled hero Time minus clock), and `enemy_activations_before_next_turn`
+(enemy entries before the first scheduled hero in the post-schedule rail
+projection, including repeat entries).
+
+The initial enemy-phase checkpoint stages the event in the existing durable
+progression analytics outbox before JSONL append. The stable key is
+`player_turn_ended|<combat_id>|<turn>|<actor_seq>`; append/acknowledgment replay
+keeps a single record. Pass and card previews never stage or write it. Existing
+event payloads and the append-only schema are unchanged. Timing follows
+[turn_clock.md](turn_clock.md).
 
 Guided tutorial events are local-only like the rest of the stream. Start events
 are idempotent per run and tutorial version. Step events

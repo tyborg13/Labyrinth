@@ -102,7 +102,7 @@ const AUTHORED_TEXT := {
   "recoil_plates": "You take 1 Collision damage per lost tile instead of 2. Whenever you are part of a Collision, gain 3 Block.",
   "millstone_fob": "When an enemy you Push or Pull collides, the tile it stopped on becomes Rubble.",
   "tallow_candle": "At the start of each combat, create radius-2 Light on your tile for 3 turns.",
-  "pocket_sundial": "Each card play you leave unused at the end of your turn makes your next turn come 1 Time sooner (max 2).",
+  "pocket_sundial": "If you use both card plays in a turn, your next turn comes 2 Time sooner.",
   "leaden_pommel": "Attacks on cards that cost 5 or more Time Stagger 1.",
   "pitch_gloves": "Fire deals you 1 less damage. Fire you create deals enemies 1 more.",
   "hobnail_cleats": "Ice doesn't make you Chilled. While you stand on Ice, your Ice attacks deal 2 more damage.",
@@ -372,6 +372,8 @@ static func _test_authored_copy(expect: Callable) -> void:
 		# Existing glyphs represent Light and surfaces; their tooltip labels are
 		# Illuminate and Shape Ground. All other labels expand normally.
 		markup = markup.replace("@icon(illuminate)", "Light").replace("@icon(surface)", "surface")
+		# The Sundial's "both" supplies the plurality of its standalone play glyph.
+		markup = markup.replace("both @icon(card_play)", "both card plays")
 		expect.call(InlineIcons.plain_text(markup).to_lower() == text.to_lower(), "U1 exact copy/%s: preserve every word, suffix, number and punctuation mark" % relic_id)
 	# An inline icon stands alone: letters glued to it ("@icon(stagger)ed",
 	# "@icon(illusion)s") render as a glyph followed by a stray suffix.

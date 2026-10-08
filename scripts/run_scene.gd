@@ -31,6 +31,7 @@ const VeilboundAcolyteCutout = preload("res://scripts/veilbound_acolyte_cutout/r
 const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
+const PlayerTurnAnalytics = preload("res://scripts/player_turn_analytics.gd")
 const DeferredReconciliationQueue = preload("res://scripts/deferred_reconciliation_queue.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
@@ -24044,7 +24045,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 	await _animate_board_pickup_acquisitions(before_state, after_state)
 	_consume_pending_card_draw_sfx(after_state)
 
-func _resolve_enemy_round() -> void:
+func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_lock_started: int = performance_total_started
 	_animation_lock = true
@@ -24065,6 +24066,7 @@ func _resolve_enemy_round() -> void:
 	performance_phase_started = _record_runtime_performance_phase("enemy_round_initial_snapshots", performance_phase_started)
 	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(_combat_state)
 	performance_phase_started = _record_runtime_performance_phase("enemy_round_finish_player_activation", performance_phase_started)
+	previous_run_state = _stage_player_turn_ended_analytics(previous_run_state, previous_combat_state, scheduled_state, end_reason)
 	var initial_checkpoint_state: Dictionary = _run_state_for_combat_checkpoint(previous_run_state, scheduled_state)
 	# The initial checkpoint owns the analytics outbox and staged revision cursors
 	# for the whole deterministic phase. Reuse that base for later boundaries so
@@ -28039,7 +28041,7 @@ func _on_pass_turn_pressed() -> void:
 	if _selected_card_index >= 0:
 		_cancel_card_selection()
 	_guided_tutorial_pass_pending = _guided_tutorial_is_active() and _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_PASS_TURN
-	await _resolve_enemy_round()
+	await _resolve_enemy_round("pass")
 	if _guided_tutorial_pass_pending:
 		_guided_tutorial_pass_pending = false
 		_guided_tutorial_complete_milestone(ContextualCombatTutorial.MILESTONE_PASS)
@@ -28055,7 +28057,7 @@ func _maybe_auto_pass_exhausted_player_turn() -> bool:
 		return false
 	if _guided_tutorial_is_active() and not ContextualCombatTutorial.has_completed(_progression, ContextualCombatTutorial.MILESTONE_PASS):
 		return false
-	await _resolve_enemy_round()
+	await _resolve_enemy_round("auto")
 	return true
 
 func _open_menu_overlay() -> void:
@@ -33165,6 +33167,16 @@ func _analytics_log_card_played(card_id: String, card_instance_id: String, befor
 	# Additive wave-4 family B fields (spec/analytics.md).
 	payload.merge(ManeuverRules.analytics_fields(before_state, resolved_state), true)
 	_analytics_store.write_event("card_played", _analytics_context_from_states(_run_state, before_state, card_id, card_instance_id), payload)
+
+func _stage_player_turn_ended_analytics(run_state: Dictionary, before_state: Dictionary, scheduled_state: Dictionary, end_reason: String) -> Dictionary:
+	var staged: Dictionary = PlayerTurnAnalytics.stage(
+		_combat_engine, run_state, before_state, scheduled_state, end_reason,
+		_analytics_context_from_states(run_state, before_state), _progression
+	)
+	# The initial enemy-phase checkpoint persists this same outbox before the
+	# existing reconciliation/acknowledgment path is allowed to append JSONL.
+	_progression = ProgressionStore.merge_progression_analytics_outbox(_progression, staged.get("progression", _progression) as Dictionary)
+	return staged
 
 func _analytics_log_player_moved(before_state: Dictionary, resolved_state: Dictionary) -> void:
 	_analytics_flush_surface_events(resolved_state)

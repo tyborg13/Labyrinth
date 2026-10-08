@@ -34,7 +34,7 @@ const SUPPORTED_EFFECT_TYPES := [
   "combat_element_knots", "alternating_element_card_bonus", "matching_equipment_card_bonus",
   "blink_distance_next_attack", "light_move_refund", "move_through_enemies_stagger",
   "light_move_links", "death_status_spread",
-  "unused_play_time_reduction", "damage_vs_late", "stagger_overflow_damage",
+  "full_turn_time_reduction", "damage_vs_late", "stagger_overflow_damage",
   "high_time_quicken", "unused_play_extra_turn", "cards_per_turn_bonus",
   "later_card_time_surcharge", "empower_quicken", "grant_first_action_empower",
   "movement_first_follow_up", "follow_up_next_card",

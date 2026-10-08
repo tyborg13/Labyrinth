@@ -139,17 +139,18 @@ Additive `card_played` fields: `quicken_spent` (Time removed by Quicken from thi
 
 `scripts/tempo_relic_rules.gd` owns data-driven tempo effects, with small engine
 and card-definition hooks. Pocket Sundial reduces the projected and scheduled
-hero activation by unused plays (up to two). Late Bell compares the enemy's
+hero activation by 2 Time when both base plays are made. Late Bell compares the enemy's
 next queued action against clock + base initiative + carried Time debt + paid
-Time + the pending card's Time (including discounts and surcharges). The Late
-comparison excludes Sundial's unused-play reduction and a pending Hourglass
-extra activation; the rail's hero portrait and scheduling still include them.
+Time + the pending card's Time (including discounts and surcharges) + pending
+Wait − Sundial's full-turn reduction. Pending card slots are counted before
+payment, matching the card preview on the rail. The comparison excludes the
+pending Hourglass immediate activation shortcut. See [turn_clock.md](turn_clock.md).
 Exact Time ties are not late. Hidden enemies do not disclose their bell on the rail.
 
 Borrowed Hourglass schedules a normal hero activation at the current clock
 before enemies, once per combat. `relic_flags["tempo_used:<relic_id>"]` persists
 its spent state; `tempo_turn_time_debt` carries the first turn's paid Time
-(minus its Sundial reduction) until the extra activation finishes. The ordinary
+plus Wait (minus its Sundial reduction) until the extra activation finishes. The ordinary
 start path draws, clears Block, resets movement/plays/status-turn flags, and
 plays the turn banner. Both dictionaries survive the normal run save.
 

@@ -124,8 +124,8 @@ static func _test_survival_reinforcements_join_initiative_and_clock_wins(expect:
 	var advanced: Dictionary = combat.advance_to_next_player_turn_with_steps(combat.finish_player_activation(reinforcement_state))
 	var after_spawn: Dictionary = advanced.get("state", {}) as Dictionary
 	var spawn_steps: Array = (advanced.get("steps", []) as Array).filter(func(step: Dictionary) -> bool: return str(step.get("kind", "")) == "reinforcement_spawn")
-	expect.call(spawn_steps.size() == 1, "Crossing a survival wave time should emit one reinforcement animation step")
-	expect.call((after_spawn.get("enemies", []) as Array).size() == 2, "A survival reinforcement should enter the live enemy roster")
+	expect.call(spawn_steps.size() == 2, "A pass returns at 19 and crosses both survival waves at 8 and 16")
+	expect.call((after_spawn.get("enemies", []) as Array).size() == 3, "Both survival reinforcements should enter the live enemy roster")
 	var spawned_enemy: Dictionary = (after_spawn.get("enemies", []) as Array)[1]
 	expect.call(bool(spawned_enemy.get("objective_reinforcement", false)) and not (spawned_enemy.get("intent", {}) as Dictionary).is_empty(), "Reinforcements should arrive with an assigned intent")
 	var queued_ids: Array[int] = []

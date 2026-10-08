@@ -701,10 +701,10 @@
    ],
    "I": 2,
    "E": 1,
-   "text": "Each card play you leave unused at the end of your turn makes your next turn come 1 Time sooner (max 2).",
+   "text": "If you use both card plays in a turn, your next turn comes 2 Time sooner.",
    "was": null,
-   "intrinsic": "Playing one card is a real choice instead of a wasted play.",
-   "extrinsic": "Big single cards and Quicken turns; with Toll of the Late Bell, acting sooner means more enemies are late.",
+   "intrinsic": "Using both base plays earns 2 Time without changing card costs.",
+   "extrinsic": "Fast two-card turns and Quicken; with Toll of the Late Bell, acting sooner means more enemies are late.",
    "combos": [
     "relic:toll_late_bell",
     "card:skybolt"

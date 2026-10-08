@@ -87,39 +87,41 @@ static func hero_projection(engine: CombatEngine, s: Dictionary) -> int:
 
 static func _test_sundial(engine: CombatEngine, expect: Callable) -> void:
 	var s: Dictionary = state(engine, ["pocket_sundial"])
-	expect.call(hero_projection(engine, s) == 7, "Sundial projects two unused plays, capped at two")
+	expect.call(hero_projection(engine, s) == 19, "Sundial does not reduce a pass with both base plays unused")
 	s["card_play_bonus_this_turn"] = 8
-	expect.call(hero_projection(engine, s) == 7, "Sundial caps large play refunds at two")
+	expect.call(hero_projection(engine, s) == 19, "Bonus play refunds do not add Wait or earn Sundial")
 	s["card_play_bonus_this_turn"] = 0
 	s = play(engine, s, "u4_guard")
-	expect.call(hero_projection(engine, s) == 11, "Sundial one play used updates projected hero time")
+	expect.call(hero_projection(engine, s) == 17, "Sundial one play used still pays five Wait")
 	var end: Dictionary = engine.finish_player_activation(resume(s))
 	var queue: Array = end["turn_queue"]
 	var hero_time: int = -1
 	for entry: Dictionary in queue:
 		if str(entry.get("kind", "")) == "player": hero_time = int(entry["time"])
-	expect.call(hero_time == 11, "Sundial projection equals scheduling after save/resume")
+	expect.call(hero_time == 17, "Sundial projection equals scheduling after save/resume")
 	s["cards_played_this_turn"] = 2
-	expect.call(hero_projection(engine, s) == 12, "Sundial idle without unused plays")
+	expect.call(hero_projection(engine, s) == 10, "Sundial brings a full turn back two Time sooner")
 
 static func _test_late_bell(engine: CombatEngine, expect: Callable) -> void:
 	var s: Dictionary = state(engine, ["toll_late_bell"])
 	var actions: Array = engine.card_play_actions("u4_strike", s)
 	var preview: Dictionary = engine.apply_player_action(s, actions[0], TARGET)
-	expect.call(int((preview["enemies"][0] as Dictionary)["hp"]) == 34, "Late Bell adds three to an enemy after hero time including card cost")
+	expect.call(int((preview["enemies"][0] as Dictionary)["hp"]) == 37, "Late Bell includes five Wait after the pending first card")
 	var committed: Dictionary = play(engine, s, "u4_strike", TARGET)
 	expect.call(preview["enemies"] == committed["enemies"], "Late Bell forecast equals commit")
+	s["turn_queue"][0]["time"] = 19
 	s["player_turn_time_spent"] = 1
 	preview = engine.apply_player_action(s, engine.card_play_actions("u4_strike", s)[0], TARGET)
 	expect.call(int((preview["enemies"][0] as Dictionary)["hp"]) == 37, "Enemy at exact hero next-turn time is not late")
+	s["turn_queue"][0]["time"] = 14
 	s["turn_flags"] = {"quicken_pending": 2}
 	preview = engine.apply_player_action(s, engine.card_play_actions("u4_strike", s)[0], TARGET)
-	expect.call(int((preview["enemies"][0] as Dictionary)["hp"]) == 34, "Quicken changes late status using discounted cost")
+	expect.call(int((preview["enemies"][0] as Dictionary)["hp"]) == 37, "Quicken discounts card Time but the unused play still waits")
 	var order: Array[Dictionary] = engine.current_turn_order(s)
 	var bell: bool = false
 	for entry: Dictionary in order:
 		bell = bell or str(entry.get("late_relic_id", "")) == "toll_late_bell"
-	expect.call(bell, "Late Bell marks visible enemy rail entries")
+	expect.call(not bell, "Late Bell does not mark enemies before the end-now projection")
 	s["current_actor"] = {"kind": "enemy", "enemy_id": 2}
 	expect.call(not Rules.is_late(engine, s, 1, GameData.relic_effects_for_state(s)), "Late Bell idle on enemy turns")
 
@@ -129,10 +131,10 @@ static func _test_late_bell(engine: CombatEngine, expect: Callable) -> void:
 		var action: Dictionary = engine.card_play_actions("u4_strike", paired)[0]
 		var forecast: Dictionary = engine.surface_preview_for_player_action(paired, action, TARGET)["state"]
 		var commit: Dictionary = play(engine, paired, "u4_strike", TARGET)
-		expect.call(forecast["enemies"] == commit["enemies"] and commit["enemies"][0]["hp"] == 37, "Late Bell ignores unused-play scheduling from " + partner + " in preview and commit")
+		expect.call(forecast["enemies"] == commit["enemies"] and commit["enemies"][0]["hp"] == 37, "Late Bell includes Wait and excludes the immediate shortcut from " + partner + " in preview and commit")
 		paired["turn_queue"][0]["time"] = 8
 		paired["turn_queue"][1]["time"] = 8
-		expect.call(not Rules.is_late(engine, paired, 1, GameData.relic_effects_for_state(paired)), "Late Bell rail ignores pending unused-play benefit from " + partner)
+		expect.call(not Rules.is_late(engine, paired, 1, GameData.relic_effects_for_state(paired)), "Late Bell rail includes pending Wait with " + partner)
 		paired[Rules.DEBT_KEY] = 3
 		paired["turn_queue"][0]["time"] = 11
 		expect.call(not Rules.is_late(engine, paired, 1, GameData.relic_effects_for_state(paired)), "Late Bell includes carried Time debt with " + partner)
@@ -191,12 +193,12 @@ static func _test_borrowed(engine: CombatEngine, expect: Callable) -> void:
 	expect.call(int(extra["cards_played_this_turn"]) == 0 and int(extra["player_movement_remaining"]) == int(extra["player_movement_capacity"]) and int((extra["player"] as Dictionary)["block"]) == 0, "Borrowed turn resets normal plays, movement and Block")
 	expect.call(((extra["deck"] as Dictionary)["hand"] as Array).size() == 2, "Borrowed turn draws normally")
 	extra = play(engine, extra, "u4_guard")
-	expect.call(hero_projection(engine, extra) == 15, "Borrowed following activation includes both turns' Time")
+	expect.call(hero_projection(engine, extra) == 25, "Borrowed following activation includes both turns' Time and Wait")
 	extra = engine.finish_player_activation(resume(extra))
 	var hero: int = -1
 	for entry: Dictionary in extra["turn_queue"]:
 		if str(entry.get("kind", "")) == "player": hero = int(entry["time"])
-	expect.call(hero == 15, "Borrowed cannot trigger twice after resume; debt matches projection")
+	expect.call(hero == 25, "Borrowed cannot trigger twice after resume; debt matches projection")
 	var idle: Dictionary = state(engine, ["borrowed_hourglass"])
 	idle["cards_played_this_turn"] = 2
 	expect.call(hero_projection(engine, idle) == 9, "Borrowed idle when all plays spent")
@@ -204,7 +206,7 @@ static func _test_borrowed(engine: CombatEngine, expect: Callable) -> void:
 	var together: Dictionary = state(engine, ["borrowed_hourglass", "pocket_sundial"])
 	together = play(engine, together, "u4_guard")
 	together = (engine.advance_one_activation_with_steps(engine.finish_player_activation(together))["state"] as Dictionary)
-	expect.call(hero_projection(engine, together) == 9, "Sundial reductions apply at each activation end without duplicating Borrowed base initiative")
+	expect.call(hero_projection(engine, together) == 27, "Sundial does not reduce either partial activation; Borrowed carries Wait without duplicating base initiative")
 
 static func _test_sash(engine: CombatEngine, expect: Callable) -> void:
 	var s: Dictionary = state(engine, ["whirling_sash"])
@@ -284,6 +286,7 @@ static func _test_feint_echo(engine: CombatEngine, expect: Callable) -> void:
 static func _test_ui(engine: CombatEngine, expect: Callable) -> void:
 	var scene: Node = RunScene.new()
 	var s: Dictionary = state(engine, ["toll_late_bell"])
+	s["turn_queue"][0]["time"] = 20
 	var entry: Dictionary = {}
 	for candidate: Dictionary in engine.current_turn_order(s):
 		if candidate.has("late_relic_id"): entry = candidate; break

@@ -63,7 +63,7 @@ Lightning under Stormcoal.
 
 | Relic | Trigger / payoff | Repeat and scaling check |
 | --- | --- | --- |
-| Pocket Sundial | Each unused card play brings your next turn 1 Time sooner. | At most 2 per turn. |
+| Pocket Sundial | Using both base card plays brings your next turn 2 Time sooner. | 2 per full turn. |
 | Borrowed Hourglass | End your turn with a card play unused: take another turn at once. | Once per combat; the extra turn's Time is added to the following turn. |
 | Whirling Sash | One extra card play each turn; cards after the second cost 2 more Time. | The surcharge makes long turns delay the next one. |
 | Crown of Surplus | Cards without Empower gain Empower (+3 Time): repeat the first action. | Excludes Rites, items, Flurry and cards with their own Empower. |

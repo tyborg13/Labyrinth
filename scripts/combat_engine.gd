@@ -37,6 +37,7 @@ const BASE_PLAYER_MOVEMENT: int = 2
 const MAX_HAND_SIZE: int = BattlefieldItemRules.MAX_HAND_SIZE
 const MAX_LOG_LINES: int = 12
 const PLAYER_BASE_INITIATIVE: int = 9
+const WAIT_TIME_PER_UNUSED_PLAY: int = 5
 const PLAYER_MIN_INITIATIVE: int = 5
 const ENEMY_MIN_INITIATIVE: int = 4
 const DEFAULT_CARD_TIME_COST: int = 5
@@ -860,6 +861,7 @@ func begin_combat_creation(run_seed: int, room_layout: Dictionary, player_snapsh
 		"cards_per_turn": int(player_snapshot.get("cards_per_turn", BASE_CARDS_PER_TURN)) + GameData.stat_bonus_from_relics(relic_ids, "cards_per_turn_bonus"),
 		"draw_per_turn": int(player_snapshot.get("draw_per_turn", BASE_DRAW_PER_TURN)) + GameData.stat_bonus_from_relics(relic_ids, "draw_per_turn_bonus"),
 		"cards_played_this_turn": 0,
+		"plays_forfeited_this_turn": 0,
 		"player_movement_capacity": BASE_PLAYER_MOVEMENT + GameData.stat_bonus_from_relics(relic_ids, "movement_pool_bonus"),
 		"player_movement_remaining": BASE_PLAYER_MOVEMENT + GameData.stat_bonus_from_relics(relic_ids, "movement_pool_bonus"),
 		"death_bonus_card_plays_this_turn": 0,
@@ -1994,7 +1996,7 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 	TempoRelicRules.finish_card(next_state, tempo_modifiers, _relic_effects(next_state), time_cost, cards_played_before)
 	var restrictions: Dictionary = next_state.get("player_turn_restrictions", {})
 	if bool(restrictions.get("frozen", false)):
-		next_state["cards_played_this_turn"] = _card_play_capacity(next_state)
+		_forfeit_remaining_card_plays(next_state)
 	return next_state
 
 func _action_card_name(action: Dictionary) -> String:
@@ -2797,6 +2799,7 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 	next_state["turn"] = int(next_state.get("turn", 1)) + 1
 	next_state["player_turn_time_spent"] = 0
 	next_state["cards_played_this_turn"] = 0
+	next_state["plays_forfeited_this_turn"] = 0
 	next_state["player_movement_capacity"] = player_movement_capacity(next_state)
 	next_state["player_movement_remaining"] = int(next_state.get("player_movement_capacity", BASE_PLAYER_MOVEMENT))
 	next_state["death_bonus_card_plays_this_turn"] = 0
@@ -2829,7 +2832,7 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 		return next_state
 	var restrictions: Dictionary = next_state.get("player_turn_restrictions", {})
 	if bool(restrictions.get("frozen", false)):
-		next_state["cards_played_this_turn"] = _card_play_capacity(next_state)
+		_forfeit_remaining_card_plays(next_state)
 	return next_state
 
 func player_movement_capacity(state: Dictionary) -> int:
@@ -2925,6 +2928,22 @@ func apply_player_movement(state: Dictionary, target_tile: Vector2i) -> Dictiona
 	if spent > 0 and bool((next_state.get("skill_flags", {}) as Dictionary).get("movement_blink_armed", false)):
 		_erase_skill_flag(next_state, "movement_blink_armed")
 	return next_state
+
+func _forfeit_remaining_card_plays(state: Dictionary) -> void:
+	var forfeited: int = maxi(0, _card_play_capacity(state) - int(state.get("cards_played_this_turn", 0)))
+	state["plays_forfeited_this_turn"] = int(state.get("plays_forfeited_this_turn", 0)) + forfeited
+	state["cards_played_this_turn"] = _card_play_capacity(state)
+
+func base_plays_waited(state: Dictionary, extra_plays_spent: int = 0) -> int:
+	if not is_player_turn(state):
+		return 0
+	# Freeze exhausts the budget without playing cards. Old saves have no
+	# forfeit field; bonus and banked plays never increase the two-play Wait.
+	var plays_made: int = maxi(0, int(state.get("cards_played_this_turn", 0)) - int(state.get("plays_forfeited_this_turn", 0)))
+	return maxi(0, mini(BASE_CARDS_PER_TURN, int(state.get("cards_per_turn", BASE_CARDS_PER_TURN))) - plays_made - extra_plays_spent)
+
+func pending_wait_time(state: Dictionary, extra_plays_spent: int = 0) -> int:
+	return WAIT_TIME_PER_UNUSED_PLAY * base_plays_waited(state, extra_plays_spent)
 
 func cards_remaining_this_turn(state: Dictionary) -> int:
 	if not is_player_turn(state):
@@ -5244,6 +5263,9 @@ func _resolved_actor_entry(state: Dictionary, entry: Dictionary, projection_cont
 			player_entry["projected"] = true
 		if entry.has("projected_time_cost"):
 			player_entry["projected_time_cost"] = int(entry.get("projected_time_cost", 0))
+		for field: String in ["projected_time_delta", "projected_wait_time"]:
+			if entry.has(field):
+				player_entry[field] = int(entry[field])
 		if entry.has("projected_card_name"):
 			player_entry["projected_card_name"] = str(entry.get("projected_card_name", ""))
 		return player_entry
@@ -5294,11 +5316,16 @@ func _projected_next_entry_for_current_actor(state: Dictionary, current_actor: D
 	match str(current_actor.get("kind", "")):
 		"player":
 			var preview_delta: int = maxi(0, int(state.get("turn_order_preview_time_delta", 0)))
+			var preview_plays: int = int(state.get("turn_order_preview_plays_spent", 0))
+			var effects: Array[Dictionary] = _relic_effects(state)
 			var player_entry: Dictionary = _player_actor_entry(
-				TempoRelicRules.next_turn_time(self, state, _relic_effects(state), preview_delta, int(state.get("turn_order_preview_plays_spent", 0))),
+				TempoRelicRules.next_turn_time(self, state, effects, preview_delta, preview_plays),
 				-1
 			)
 			player_entry["projected"] = true
+			player_entry["projected_wait_time"] = pending_wait_time(state, preview_plays)
+			if preview_delta > 0 or preview_plays > 0 or state.has("turn_order_preview_card_name"):
+				player_entry["projected_time_delta"] = int(player_entry["time"]) - TempoRelicRules.next_turn_time(self, state, effects)
 			if preview_delta > 0:
 				player_entry["projected_time_cost"] = preview_delta
 			if state.has("turn_order_preview_card_name"):
@@ -5342,8 +5369,17 @@ func _projected_next_entry_after_entry(state: Dictionary, entry: Dictionary, pro
 	var projected_seq: int = int(entry.get("seq", 0)) + 10000
 	match str(resolved.get("kind", "")):
 		"player":
-			var player_entry: Dictionary = _player_actor_entry(scheduled_time + player_base_initiative(state), projected_seq)
+			# This follow-up forecasts ending the upcoming activation without a
+			# card. Its refreshed base plays wait; only an immediate Hourglass
+			# activation can still have carried debt in the scheduled state.
+			var next_activation: Dictionary = state.duplicate()
+			next_activation["current_actor"] = entry
+			next_activation["cards_played_this_turn"] = 0
+			next_activation["plays_forfeited_this_turn"] = 0
+			var wait_time: int = pending_wait_time(next_activation)
+			var player_entry: Dictionary = _player_actor_entry(scheduled_time + player_base_initiative(state) + wait_time + int(state.get(TempoRelicRules.DEBT_KEY, 0)), projected_seq)
 			player_entry["projected"] = true
+			player_entry["projected_wait_time"] = wait_time
 			return player_entry
 		"enemy":
 			var enemy_id: int = int(resolved.get("enemy_id", -1))

@@ -130,6 +130,7 @@ func _initialize() -> void:
 	SkillCombatSuite.run(Callable(self, "_assert"))
 	PlayerMovementSuite.run(Callable(self, "_assert"))
 	InitiativeOrderSuite.run(Callable(self, "_assert"))
+	preload("res://tests/suites/turn_clock_wait_suite.gd").run(Callable(self, "_assert"))
 	SkillRunSuite.run(Callable(self, "_assert"))
 	RelicSuite.run(Callable(self, "_assert"))
 	preload("res://tests/suites/relic_u1_suite.gd").run(Callable(self, "_assert"))
@@ -444,6 +445,7 @@ func _initialize() -> void:
 	await CardDragPlaySuite.run_live(self, Callable(self, "_assert"))
 	await ForcedMovementSuite.run_live(self, Callable(self, "_assert"))
 	await CardKeywordsSuite.run_live(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/turn_clock_copy_suite.gd").run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/card_pool_overhaul_suite.gd").run_live(self, Callable(self, "_assert"))
 	await _test_run_scene_combat_log_prominence()
 	await _test_run_scene_minimap_click_opens_large_map()
@@ -8675,6 +8677,23 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	_assert(int((live_state.get("player", {}) as Dictionary).get("hp", 0)) == 24, "Pass preview summary should not damage the live player")
 	_assert(int(live_state.get("cards_played_this_turn", 0)) == 0, "Pass preview summary should not spend live card plays")
 
+	# Wait lapping is separate from the revealed display cases above and below.
+	# Unit 2 will change the chip's presentation of this mixed known/unknown case.
+	var wait_lapping_state: Dictionary = _pass_preview_chip_state("wait_lapping")
+	var scheduled_lapping_state: Dictionary = CombatEngine.new().finish_player_activation(wait_lapping_state)
+	var lapping_return_time: int = -1
+	for entry: Dictionary in scheduled_lapping_state.get("turn_queue", []):
+		if str(entry.get("kind", "")) == "player":
+			lapping_return_time = int(entry.get("time", -1))
+	_assert(lapping_return_time == 19, "Wait lapping fixture should pass at +19 with both base plays unused")
+	_install_pass_preview_chip_state(instance, wait_lapping_state)
+	await process_frame
+	await process_frame
+	var wait_lapping_summary: Dictionary = instance.call("_pass_preview_summary")
+	_assert(bool(wait_lapping_summary.get("unrevealed_before_player", false)), "A pass at +19 should include the enemy's unrevealed second activation")
+	_assert(int(wait_lapping_summary.get("hp_loss", 0)) == 5, "Wait lapping should retain the first activation's revealed health damage")
+	_assert_pass_preview_chip(instance, ["UNKNOWN"], false, true, "Wait lapping pass at +19 (current presentation)")
+
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("safe"))
 	await process_frame
 	await process_frame
@@ -8732,7 +8751,23 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	var umbra_line: Label = instance.find_child("PassPreviewForecastLine", true, false) as Label
 	_assert(umbra_line != null and umbra_line.text.contains("UNKNOWN"), "Hidden pass preview should explain uncertainty in its compact forecast ribbon")
 
-	_install_pass_preview_chip_state(instance, danger_state)
+	# A revealed Eclipse precedes a guard's first activation. Staying nearby keeps
+	# both intents visible; moving away hides the guard without either enemy lapping.
+	var move_hover_state: Dictionary = danger_state.duplicate(true)
+	(move_hover_state["enemies"][0]["intent"]["actions"] as Array).push_front({"type": "umbra_eclipse", "damage": 0, "duration": 1})
+	var move_guard: Dictionary = (move_hover_state["enemies"][0] as Dictionary).duplicate(true)
+	move_guard["id"] = 2
+	move_guard["pos"] = Vector2i(1, 4)
+	move_guard["intent"] = {"name": "Brace", "time": 1, "actions": [{"type": "block", "amount": 1}]}
+	(move_hover_state["enemies"] as Array).append(move_guard)
+	var move_guard_entry: Dictionary = (move_hover_state["turn_queue"][0] as Dictionary).duplicate(true)
+	move_guard_entry["actor_key"] = "enemy_2"
+	move_guard_entry["enemy_id"] = 2
+	move_guard_entry["pos"] = move_guard["pos"]
+	move_guard_entry["time"] = 12
+	move_guard_entry["seq"] = 2
+	(move_hover_state["turn_queue"] as Array).append(move_guard_entry)
+	_install_pass_preview_chip_state(instance, move_hover_state)
 	await process_frame
 	await process_frame
 	await _choose_clicked_card_action(instance, 0, "play")
@@ -13474,7 +13509,9 @@ func _pass_preview_chip_state(kind: String) -> Dictionary:
 		"type": "crawler",
 		"name": "Tunnel Crawler",
 		"team": "enemy",
-		"time": 1,
+		# Crawler repeats after 8 + 1 Time: 11 -> 20, after the +19 pass.
+		# Only the isolated Wait-lapping case keeps the fast 1 -> 10 schedule.
+		"time": 1 if kind == "wait_lapping" else 11,
 		"seq": 1,
 		"pos": enemy_pos
 	}]
@@ -13487,7 +13524,7 @@ func _pass_preview_chip_state(kind: String) -> Dictionary:
 			"type": "crawler",
 			"name": "Tunnel Crawler",
 			"team": "enemy",
-			"time": 2,
+			"time": 12,
 			"seq": 2,
 			"pos": followup_queue_pos
 		})

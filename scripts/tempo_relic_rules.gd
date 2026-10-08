@@ -18,16 +18,16 @@ static func extra_turn_available(state: Dictionary, effects: Array, unused: int)
 	var effect: Dictionary = effect_of_type(effects, "unused_play_extra_turn")
 	return unused > 0 and not effect.is_empty() and not used(state, effect)
 
-static func unused_play_reduction(effects: Array, unused: int) -> int:
-	var effect: Dictionary = effect_of_type(effects, "unused_play_time_reduction")
-	return mini(maxi(0, unused), int(effect.get("max", 0))) * int(effect.get("amount", 1))
+static func full_turn_reduction(engine: RefCounted, state: Dictionary, effects: Array, plays_spent: int = 0) -> int:
+	var effect: Dictionary = effect_of_type(effects, "full_turn_time_reduction")
+	return int(effect.get("amount", 0)) if engine.base_plays_waited(state, plays_spent) == 0 else 0
 
 static func next_turn_time(engine: RefCounted, state: Dictionary, effects: Array, extra_time: int = 0, plays_spent: int = 0) -> int:
 	var unused: int = maxi(0, engine.cards_remaining_this_turn(state) - plays_spent)
 	var clock: int = int(state.get("initiative_clock", 0))
 	if extra_turn_available(state, effects, unused):
 		return clock
-	return clock + engine.player_base_initiative(state) + int(state.get(DEBT_KEY, 0)) + maxi(0, int(state.get("player_turn_time_spent", 0))) + extra_time - unused_play_reduction(effects, unused)
+	return clock + engine.player_base_initiative(state) + int(state.get(DEBT_KEY, 0)) + maxi(0, int(state.get("player_turn_time_spent", 0))) + extra_time + engine.pending_wait_time(state, plays_spent) - full_turn_reduction(engine, state, effects, plays_spent)
 
 static func end_activation(engine: RefCounted, state: Dictionary, effects: Array, unused: int) -> Dictionary:
 	if not extra_turn_available(state, effects, unused):
@@ -38,14 +38,15 @@ static func end_activation(engine: RefCounted, state: Dictionary, effects: Array
 	var flags: Dictionary = (state.get("relic_flags", {}) as Dictionary).duplicate(true)
 	flags["tempo_used:" + str(effect.get("relic_id", ""))] = true
 	state["relic_flags"] = flags
-	state[DEBT_KEY] = int(state.get(DEBT_KEY, 0)) + int(state.get("player_turn_time_spent", 0)) - unused_play_reduction(effects, unused)
+	state[DEBT_KEY] = int(state.get(DEBT_KEY, 0)) + int(state.get("player_turn_time_spent", 0)) + engine.pending_wait_time(state) - full_turn_reduction(engine, state, effects)
 	return {"time": int(state.get("initiative_clock", 0)), "immediate": true}
 
-static func is_late(engine: RefCounted, state: Dictionary, enemy_id: int, effects: Array, extra_time: int = 0, _plays_spent: int = 0) -> bool:
+static func is_late(engine: RefCounted, state: Dictionary, enemy_id: int, effects: Array, extra_time: int = 0, plays_spent: int = 0) -> bool:
 	if not engine.is_player_turn(state):
 		return false
-	# Late Bell must not assume the hero will leave a play unused.
-	var hero_time: int = int(state.get("initiative_clock", 0)) + engine.player_base_initiative(state) + int(state.get(DEBT_KEY, 0)) + maxi(0, int(state.get("player_turn_time_spent", 0))) + extra_time
+	# Actions carry the pending card's Time/slots before finish_player_card pays
+	# them. Match its rail preview, but exclude Hourglass's immediate shortcut.
+	var hero_time: int = int(state.get("initiative_clock", 0)) + engine.player_base_initiative(state) + int(state.get(DEBT_KEY, 0)) + maxi(0, int(state.get("player_turn_time_spent", 0))) + extra_time + engine.pending_wait_time(state, plays_spent) - full_turn_reduction(engine, state, effects, plays_spent)
 	var enemy_time: int = 2147483647
 	for entry: Dictionary in state.get("turn_queue", []):
 		if str(entry.get("kind", "")) == "enemy" and int(entry.get("enemy_id", -1)) == enemy_id:

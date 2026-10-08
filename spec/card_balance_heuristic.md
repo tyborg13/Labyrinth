@@ -39,11 +39,14 @@ These assumptions are baked into the current coefficients:
   damaging statuses are stored and resolved without the retired `×10` layer.
 - Player turns now run on an initiative clock instead of a fixed player-then-all-
   enemies round. The player starts combat active, then their next turn is
-  scheduled at `base initiative + time spent on played cards`.
+  scheduled at `base initiative + time spent on played cards + 5 × unused base plays`
+  (plus carried debt and relic adjustments; see [turn_clock.md](turn_clock.md)).
+  Each of the first two plays left unused takes 5 Time; bonus plays never wait.
 - Player base initiative is fixed at `9`. Qualitative progression skills do
   not permanently reduce it.
 - Printed cards carry a `time` cost on a `1-10` scale. The current baseline
-  card is `5` time; fast cards are meant to be a real initiative advantage,
+  card is `5` time. The tempo term `(5 − time) × 0.45` measures the
+  saving against waiting, so its coefficient is unchanged. Fast cards are meant to be a real initiative advantage,
   while heavy cards can let enemies lap the player if overplayed.
 - Enemies reveal an intent before entering the queue. Initial enemy slots and
   repeat enemy slots both use `enemy base initiative + revealed intent time`;

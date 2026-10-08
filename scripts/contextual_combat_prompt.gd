@@ -288,6 +288,9 @@ func _build() -> void:
 	_callout.set_meta("panel_surface_accent", Color("d9aa58"))
 	_ui_skin.apply_inset_surface(_callout, UiSkin.SURFACE_HUD)
 	add_child(_callout)
+	# Wrapped copy changes its minimum height after the container gets its
+	# width. Reflow that settled height, including a freshly resumed lesson.
+	_callout.minimum_size_changed.connect(_layout_callout, CONNECT_DEFERRED)
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 16)

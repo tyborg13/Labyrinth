@@ -49,7 +49,7 @@ func _initialize() -> void:
 	prepared = engine.apply_player_action(prepared, engine.card_play_actions("u4_guard", prepared)[0])
 	s = engine.finish_player_card(prepared, 2)
 	await install(s)
-	expect(Suite.hero_projection(engine, s) == 11, "Sundial moves next portrait to Time 11")
+	expect(Suite.hero_projection(engine, s) == 17, "A partial Sundial turn moves the next portrait to Time 17")
 	save("02_pocket_sundial.png")
 	s = Suite.state(engine, ["whirling_sash"])
 	s["cards_played_this_turn"] = 2

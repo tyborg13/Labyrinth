@@ -183,16 +183,16 @@ const PHASES: Dictionary = {
 	PHASE_TURN_CLOCK: {
 		"id": PHASE_TURN_CLOCK, "lesson": 5, "lesson_total": 8,
 		"icon": "time", "kicker": "TURN CLOCK", "title": "Read the Turn Clock",
-		"pointer_text": "Card Time places your next turn. Lower Time means you act sooner.",
-		"controller_text": "Card Time places your next turn. Lower Time means you act sooner.",
+		"pointer_text": "Card Time places your next turn. An unused play still takes 5, so faster cards bring you back sooner.",
+		"controller_text": "Card Time places your next turn. An unused play still takes 5, so faster cards bring you back sooner.",
 		"controller_action": "controller_accept", "action_label": "Continue",
 		"requires_continue": true, "continue_text": "Continue",
 	},
 	PHASE_PASS_TURN: {
 		"id": PHASE_PASS_TURN, "lesson": 6, "lesson_total": 8,
 		"icon": "", "kicker": "END TURN", "title": "Let the Enemy Act",
-		"pointer_text": "Pass gives up remaining actions. The preview shows what enemies do next.",
-		"controller_text": "Pass gives up remaining actions. The preview shows what enemies do next.",
+		"pointer_text": "Pass ends your turn. Each unused play still takes 5 Time. The preview shows what enemies do next.",
+		"controller_text": "Pass ends your turn. Each unused play still takes 5 Time. The preview shows what enemies do next.",
 		"controller_action": "controller_pass", "action_label": "Pass",
 	},
 	PHASE_CORE_COMPLETE: {
@@ -356,8 +356,8 @@ const AUTHORED_PHASES: Dictionary = {
 	PHASE_TURN_CLOCK: {
 		"id": PHASE_TURN_CLOCK, "lesson": 7, "lesson_total": 10,
 		"icon": "time", "kicker": "TURN CLOCK", "title": "Read the Turn Clock",
-		"pointer_text": "Card Time places your next turn. Lower Time means you act sooner.",
-		"controller_text": "Card Time places your next turn. Lower Time means you act sooner.",
+		"pointer_text": "Card Time places your next turn. An unused play still takes 5, so faster cards bring you back sooner.",
+		"controller_text": "Card Time places your next turn. An unused play still takes 5, so faster cards bring you back sooner.",
 		"controller_action": "controller_accept", "action_label": "Continue",
 		"requires_continue": true, "continue_text": "Continue",
 	},

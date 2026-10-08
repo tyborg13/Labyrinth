@@ -175,7 +175,7 @@ static func _test_real_cards_preserve_repeated_icon_semantics(expect: Callable) 
 		if str(entry.get("icon", "")) == "time":
 			lantern_time_descriptions.append(str(entry.get("description", "")))
 	expect.call(lantern_time_descriptions.size() == 2, "Lantern Shot should keep card-cost Time and light-duration Time as separate tooltips")
-	expect.call(lantern_time_descriptions.any(func(text: String) -> bool: return text.contains("initiative delay")), "Lantern Shot should retain the initiative-delay Time explanation")
+	expect.call(lantern_time_descriptions.has("Delays your next turn. Each unused play takes 5."), "Lantern Shot should retain the card-cost Time and Wait explanation")
 	expect.call(lantern_time_descriptions.any(func(text: String) -> bool: return text.to_lower().contains("turns") and text.to_lower().contains("light")), "Lantern Shot should retain the light-duration Time explanation")
 
 	var stormstring: Dictionary = GameData.card_def("stormstring_shot")

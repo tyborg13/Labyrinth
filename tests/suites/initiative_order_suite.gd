@@ -22,7 +22,7 @@ static func _test_equal_initiative_ties_favor_player(expect: Callable) -> void:
 	expect.call(not queue.is_empty(), "Initiative tie coverage requires one queued enemy")
 	if queue.is_empty():
 		return
-	var tied_time: int = int(state.get("initiative_clock", 0)) + combat.player_base_initiative(state)
+	var tied_time: int = int(state.get("initiative_clock", 0)) + combat.player_base_initiative(state) + combat.pending_wait_time(state)
 	var enemy_entry: Dictionary = (queue[0] as Dictionary).duplicate(true)
 	enemy_entry["time"] = tied_time
 	enemy_entry["seq"] = 1

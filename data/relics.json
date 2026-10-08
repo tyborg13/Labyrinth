@@ -2020,7 +2020,7 @@
   "pocket_sundial": {
     "name": "Pocket Sundial",
     "rarity": "common",
-    "description": "Each @icon(card_play) you leave unused at the end of your turn makes your next turn come 1 @icon(time) sooner (max 2).",
+    "description": "If you use both @icon(card_play) in a turn, your next turn comes 2 @icon(time) sooner.",
     "icon_path": "res://assets/art/relics/pocket_sundial.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -2032,9 +2032,8 @@
     ],
     "effects": [
       {
-        "type": "unused_play_time_reduction",
-        "amount": 1,
-        "max": 2
+        "type": "full_turn_time_reduction",
+        "amount": 2
       }
     ]
   },
