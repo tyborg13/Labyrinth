@@ -7,6 +7,7 @@ const Fixture = preload("res://tests/helpers/enemy_strike_fixture.gd")
 const Guardian = preload("res://scripts/guardian_cutout/renderer.gd")
 const Geometry = preload("res://scripts/enemy_strike_geometry.gd")
 const ClawMarks = preload("res://scripts/enemy_claw_marks.gd")
+const HeroTrail = preload("res://scripts/hero_strike_trail.gd")
 const DIRECTIONS: Array = [Vector2i(0,1),Vector2i(0,-1),Vector2i(1,0),Vector2i(-1,0)]
 
 static func run(tree: SceneTree, expect: Callable) -> void:
@@ -57,6 +58,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		renderer.queue_free()
 		await tree.process_frame
 	await _check_board(tree, expect)
+	await _check_target_effects(tree, expect)
 	_check_claw_profile(expect)
 	print("ENEMY STRIKE TRAIL CONTRACTS: registry, live front/rear/mirrored contacts, cache, bespoke exclusions, reduced motion and per-tile area rakes checked")
 
@@ -216,3 +218,64 @@ static func _check_fallback(board: Control, effect: Dictionary, expect: Callable
 	else:
 		expect.call(_area(Trail.geometry(adapted,"arc",0.42,0.42,settings_value["window"],"none",scale,11)[1]) > 0.0, "Stationary Ashen landmark still draws a visible sweep arc")
 	print("ENEMY SHORT-PATH FIXTURE %s: %.3f source px; authored strike %.3f source px" % [type,resolved["span"] / scale,real_span])
+
+static func _check_target_effects(tree: SceneTree, expect: Callable) -> void:
+	var board := Board.new()
+	board.size = Vector2(1920,1080)
+	tree.root.add_child(board)
+	await tree.process_frame
+	for type: String in ["harrier","frostglass_lancer","bell_tender","storm_cantor","chainbound_gaoler"]:
+		for delta: Vector2i in DIRECTIONS:
+			var state_value: Dictionary = Fixture.state(type,delta)
+			var effect: Dictionary = Fixture.effect(type,state_value)
+			board.set_combat_state(state_value,[],[],Vector2i(-1,-1),"","",{},{},Fixture.presentation(type,state_value,effect,0.42))
+			var cache: RefCounted = board.get("_enemy_strike_trail")
+			cache.prepare(board,effect,0.42)
+			var resolved: Dictionary = cache.resolved
+			var target: Vector2 = EnemyTrail.target_center(board,effect["to"])
+			var width: float = board.call("_tile_width")
+			var far: bool = (resolved["strike_point"] as Vector2).distance_to(target) > 0.6 * width
+			expect.call(resolved["target_anchor"] == far, "Every enemy streak applies the .6-tile contact-distance rule: " + type)
+			var adapted: Array[Dictionary] = Geometry.samples_for(resolved)
+			var tip: Vector2 = Trail.sample_at(adapted,Points.contact(effect))["tip"]
+			expect.call(tip.distance_to(target if far else resolved["strike_point"]) < 0.0001, "Streak contact leads at the target when far; near landmarks stay unchanged: " + type)
+			if far:
+				var source: Dictionary = EnemyTrail.actor(board,effect)
+				var body: Rect2 = board.call("_unit_draw_rect_for_center",source,board.call("_unit_center",source))
+				expect.call((resolved["direction"] as Vector2).dot((target-body.get_center()).normalized()) > 0.999, "Relocated streak aims attacker to target: " + type)
+			if type == "storm_cantor" and delta == Vector2i(0,1):
+				expect.call(far and tip.distance_to(target) < 0.0001, "Storm Cantor's raised front spear produces a streak on the hero")
+	for entry: Array in [["lightning_wisp",""],["warden","push"],["ashen_reaver","guardian_area"]]:
+		for delta: Vector2i in DIRECTIONS:
+			var state_value: Dictionary = Fixture.state(entry[0],delta)
+			var effect: Dictionary = Fixture.effect(entry[0],state_value,entry[1])
+			var live_tips: Array[Dictionary]
+			for progress: float in [0.40,0.42,0.48]:
+				board.set_combat_state(state_value,[],[],Vector2i(-1,-1),"","",{},{},Fixture.presentation(entry[0],state_value,effect,progress))
+				var cache: RefCounted = board.get("_enemy_strike_trail")
+				var batches: Array[Dictionary] = cache.prepare(board,effect,progress)
+				var echo: Dictionary = {"kind":"melee","illusion_echo":true,"from":effect["from"],"to":effect["to"],"element":"none","seed":11}
+				var reference: Array[Dictionary] = HeroTrail.new().prepare(board,echo,progress)
+				var ratio: float = _core_energy(batches[1]) / _core_energy(reference[1])
+				expect.call(ratio >= 0.8, "Enemy arc has at least .8 times the echo's integrated core alpha/area: " + entry[0])
+				var source: Dictionary = EnemyTrail.actor(board,effect)
+				var scale: float = Geometry.size_scale(board,source)
+				var samples: Array[Dictionary] = Trail.arc_samples(board.world_position_for_tile(effect["from"]),board.world_position_for_tile(effect["to"]),scale,Geometry.ARC_WINDOW)
+				var exact: Array[Dictionary] = Trail.geometry(samples,"arc",progress,Trail.CONTACT,Geometry.ARC_WINDOW,"none",scale,11)
+				expect.call(batches == exact, "Enemy target arc uses exactly the echo construction, brightness and fade: " + entry[0])
+				if progress == 0.42 and delta == Vector2i(0,1): print("ENEMY/ECHO ARC CORE ALPHA AREA %s: %.3fx (minimum .8x)" % [entry[0],ratio])
+				if entry[0] == "ashen_reaver":
+					var renderer: Node = board.unit_cutout_renderer(source)
+					expect.call(Fixture.check_pose(renderer,entry[0],effect,state_value,progress), "Ashen area capture uses the gameplay strike pose")
+					var rig: Node = renderer.rigs[renderer.facing]
+					var settings_value: Dictionary = Points.settings(entry[0],effect)
+					var bind: Array = rig.layout["joints"]["blade"]["position"]
+					var tip: Vector2 = (rig.global_transform as Transform2D).affine_inverse() * (rig.bones["blade"] as Bone2D).global_transform * (Points.bind_point(rig.layout,settings_value,renderer.facing)-Vector2(bind[0],bind[1]))
+					live_tips.append({"tip":tip})
+					expect.call(cache.resolved.get("reason","") == "held_contact" and cache.resolved["kind"] == "arc", "Ashen's held area-contact blade gets a visible arc at the target")
+			if entry[0] == "ashen_reaver":
+				var span: float = Geometry.path_span(live_tips)
+				expect.call(span > 0.0 and span < Geometry.SHORT_PATH, "Displayed Ashen blade moves slightly, but its reviewed contact/follow-through is short")
+				if delta in [Vector2i(0,1),Vector2i(0,-1)]: print("ASHEN DISPLAYED AREA BLADE SPAN %s: %.3f source px" % [delta,span])
+	board.queue_free()
+	await tree.process_frame

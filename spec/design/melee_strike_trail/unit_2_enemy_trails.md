@@ -74,3 +74,10 @@ Enemy clocks, contacts, damage-once, sounds and reduced motion (no trail), plus 
 - Enemy weapon axes are accepted only within 50° of attacker → target. Other streaks use contact → target body. Gaoler's Cudgel Press uses `hand_fist` and a 48 px punch streak.
 - The review's old Gaoler chain fixture spans 4.47 source px and triggers the fallback. The replacement fist actually spans 87.17 front / 70.38 rear; Ashen's authored blade spans 157.70 front / 115.90 rear. These real attacks exceed the threshold and retain their authored paths. Tests also cover an Ashen held-contact fixture to reproduce a stationary displayed landmark without forcing a false fallback on its moving attack.
 - The native probe supplies the gameplay motion dictionaries (including Crawler's attack variant) and cutout routing flags, asserts the displayed clip/phase, and keeps each cutout viewport updating through three settling frames so skinning cannot leave the initial rest texture in the sheet.
+
+### Third native-review round
+
+- Every enemy streak whose real contact landmark is more than .6 board tile widths from the target body centre instead leads at that centre and points attacker → target. Near contact landmarks keep their previous behavior, lengths and profile.
+- Enemy arcs use the exact echo construction, `.33–.56` visual window and `.42` visual peak, scaled by the enemy size floor. Gameplay result/contact clocks are unchanged; the previous push/pull retiming to `.50` made the arc faint at the reviewed `.40/.42` frames.
+- Ashen Hooked Sweep is correctly posed, but the reviewed `.40/.42/.48` blade tip spans only 5.45 front / 4.87 rear source px after its `.38` result. Its full windup span hid that held contact. For this area variant, test the actual contact plus the next `.10` of progress; below 24 scaled px, draw the echo-style target arc. The rig animation remains unchanged.
+- The frozen static-floor-cache oracle retains its independent cache algorithms while sharing current additive hero/enemy dispatch and dragon physical-area routing. It no longer loads or references slash-sheet assets or `MeleeThrustFx`.

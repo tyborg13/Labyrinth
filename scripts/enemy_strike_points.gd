@@ -56,6 +56,9 @@ static func settings(enemy_type: String, effect: Dictionary) -> Dictionary:
 	if enemy_type in BESPOKE:
 		return {"kind":"bespoke", "actions":["melee"]}
 	var result: Dictionary = REGISTRY.get(enemy_type, {"kind":"arc", "window":Vector2(0.33,0.56)}).duplicate()
+	# Hooked Sweep's blade is nearly held after its .38 contact. A moving
+	# windup must not disguise that stationary displayed contact/follow-through.
+	if enemy_type == "ashen_reaver" and kind == "aoe": result["contact_hold_arc"] = true
 	result["actions"] = ["melee", "aoe"] if enemy_type in ["frostglass_lancer", "warden"] or Guardian.handles(enemy_type) else ["melee"]
 	return result
 

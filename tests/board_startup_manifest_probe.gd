@@ -32,12 +32,15 @@ func _run() -> void:
 	sync.call("_ensure_ambient_combined_atlas")
 	await _present_frame()
 	var initial: Dictionary = _manifest(sync)
+	_expect(not (sync.get("_effect_frames") as Dictionary).has("melee_slash"), "Synchronous startup must not load the retired slash frames")
+	_expect(not (sync.call("_initial_texture_manifest") as Dictionary).has("res://assets/art/effects/melee_slash_sheet.png"), "Startup manifest must not queue the retired slash sheet")
 	var supports_staging: bool = sync.has_method("prepare_initial_assets_for")
 	var async_board := Board.new()
 	if supports_staging:
 		await async_board.get_script().call("prepare_initial_assets_for", async_board, _present_frame, true)
 		await _present_frame()
 		_expect(_manifest(async_board) == initial, "Staged assets must exactly match synchronous pixels, regions, order and metadata")
+		_expect(not (async_board.get("_effect_frames") as Dictionary).has("melee_slash"), "Staged startup must not load the retired slash frames")
 		var prepared_atlas: Texture2D = async_board.get("_ambient_combined_atlas")
 		var prepared_frames: Array = (async_board.get("_door_opening_frames") as Array).duplicate()
 		var prepared_player: Texture2D = (async_board.get("_unit_textures") as Dictionary).get("player")
@@ -70,6 +73,7 @@ func _run() -> void:
 	await _present_frame()
 	var roster: Dictionary = _manifest(sync)
 	print("BOARD STARTUP MANIFEST RESULT: %s" % JSON.stringify({"initial": initial, "full_roster": roster, "staging_supported": supports_staging, "presented_slices": _present_count, "semantic_errors": _errors}))
+	print("BOARD STARTUP MANIFEST TEST RESULT: %s (staging_supported=%s; semantic_errors=%d)" % ["PASS" if _errors.is_empty() else "FAIL", supports_staging, _errors.size()])
 	sync.free()
 	await process_frame
 	quit(0 if _errors.is_empty() else 1)

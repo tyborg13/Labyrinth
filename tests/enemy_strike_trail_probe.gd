@@ -107,11 +107,13 @@ func _capture(type: String, variant: String, view: String, progress: float, redu
 	var boundary: float = Points.contact(effect)
 	var window: Vector2 = Vector2(0.30,0.60) if variant == "area" else Points.window_for(Points.settings(type,effect),boundary)
 	var resolved: Dictionary = (_board.get("_enemy_strike_trail") as RefCounted).get("resolved") if variant != "area" else {}
+	window = resolved.get("window",window)
 	var profile: String = "rake" if variant == "area" else str(resolved.get("kind",Points.settings(type,effect)["kind"]))
 	if profile == "claw_marks": window.x = 0.36
 	_captures.append({"file":label+".png","enemy_type":type,"variant":variant,"view":view,"progress":progress,"element":element,"contact":boundary,"window":[window.x,window.y],
 		"kind":"rake" if profile == "claw_marks" else profile, "profile":profile,"reduced":reduced,"light_layers":layer_count,
 		"short_path_fallback":resolved.get("fallback",false), "path_span":resolved.get("span",0.0), "fx_scale":preload("res://scripts/enemy_strike_geometry.gd").size_scale(_board,source),
+		"visual_contact":resolved.get("visual_contact",boundary),"target_anchor":resolved.get("target_anchor",false),"fallback_reason":resolved.get("reason",""),"held_contact_span":resolved.get("held_span",0.0),
 		"crop":[crop.position.x,crop.position.y,crop.size.x,crop.size.y],"clip":renderer.clip,"clip_phase":renderer.phase})
 
 func _expect(condition: bool, message: String) -> void:

@@ -10,6 +10,7 @@ var _effect: Dictionary = {}
 var _renderer_id: int = 0
 var _samples: Array[Dictionary]
 var _source_span: float = 0.0
+var _contact_hold_span: float = 0.0
 var resolved: Dictionary = {}
 var sample_build_count: int = 0
 
@@ -60,11 +61,7 @@ func prepare(board: Control, effect: Dictionary, progress: float) -> Array[Dicti
 	resolved = {"kind":kind, "fallback":false}
 	if kind == "arc" or not is_instance_valid(renderer):
 		kind = "arc"
-		var original: Dictionary = Points.settings(type, effect)
-		samples_value = Trail.arc_samples(board.world_position_for_tile(from), board.world_position_for_tile(to), scale, original["window"])
-		for sample: Dictionary in samples_value:
-			var time: float = sample["progress"]
-			sample["progress"] = time / Trail.CONTACT * boundary if time <= Trail.CONTACT else boundary + (time - Trail.CONTACT) / (1.0 - Trail.CONTACT) * (1.0 - boundary)
+		samples_value = Geometry.target_arc_samples(board.world_position_for_tile(from), board.world_position_for_tile(to), scale)
 	else:
 		var delta: Vector2i = Points.direction(effect, source, board.combat_state.get("player", {}).get("pos", to))
 		if _effect != effect or _renderer_id != renderer.get_instance_id():
@@ -72,15 +69,28 @@ func prepare(board: Control, effect: Dictionary, progress: float) -> Array[Dicti
 			_renderer_id = renderer.get_instance_id()
 			_samples = Points.samples(renderer, source, effect, delta, settings_value, boundary)
 			_source_span = Geometry.path_span(_samples)
+			if bool(settings_value.get("contact_hold_arc",false)):
+				_contact_hold_span = Geometry.path_span(Geometry.window_samples(_samples,Vector2(boundary,minf(boundary + Trail.TAIL,window.y))))
 			sample_build_count += 1
 		for sample: Dictionary in _samples:
 			var tip: Vector2 = body.position + (sample["tip"] as Vector2) * body.size / 255.0
 			samples_value.append({"progress":sample["progress"], "tip":tip,
 				"inner":tip + ((sample["inner"] as Vector2) - (sample["tip"] as Vector2)) * scale})
-		resolved = Geometry.resolve(samples_value, kind, body.get_center(), target_center(board,to), scale, boundary, window, _source_span * body.size.x / 255.0)
-		samples_value = Geometry.samples_for(resolved)
-		kind = resolved["kind"]
-		if kind == "claw_marks": window.x = 0.36
+		if bool(settings_value.get("contact_hold_arc",false)) and _contact_hold_span * body.size.x / 255.0 < Geometry.SHORT_PATH * scale:
+			kind = "arc"
+			resolved = {"kind":kind,"fallback":true,"reason":"held_contact","held_span":_contact_hold_span * body.size.x / 255.0,
+				"strike_point":Trail.sample_at(samples_value,boundary)["tip"]}
+			samples_value = Geometry.target_arc_samples(board.world_position_for_tile(from), board.world_position_for_tile(to), scale)
+		else:
+			resolved = Geometry.resolve(samples_value, kind, body.get_center(), target_center(board,to), scale, boundary, window, _source_span * body.size.x / 255.0, float(board.call("_tile_width")))
+			samples_value = Geometry.samples_for(resolved)
+			kind = resolved["kind"]
+			if kind == "claw_marks": window.x = 0.36
+	if kind == "arc":
+		boundary = Trail.CONTACT
+		window = Geometry.ARC_WINDOW
+	resolved["window"] = window
+	resolved["visual_contact"] = boundary
 	return Trail.geometry(samples_value, kind, progress, boundary, window, str(effect.get("element", "none")), scale,
 		int(effect.get("seed", hash(effect))), float(settings_value.get("length", 48.0)))
 
