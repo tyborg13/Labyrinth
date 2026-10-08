@@ -5,6 +5,8 @@ const Trail = preload("res://scripts/strike_trail_fx.gd")
 const Board = preload("res://scripts/combat_board_view.gd")
 const Fixture = preload("res://tests/helpers/enemy_strike_fixture.gd")
 const Guardian = preload("res://scripts/guardian_cutout/renderer.gd")
+const Geometry = preload("res://scripts/enemy_strike_geometry.gd")
+const ClawMarks = preload("res://scripts/enemy_claw_marks.gd")
 const DIRECTIONS: Array = [Vector2i(0,1),Vector2i(0,-1),Vector2i(1,0),Vector2i(-1,0)]
 
 static func run(tree: SceneTree, expect: Callable) -> void:
@@ -55,7 +57,20 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		renderer.queue_free()
 		await tree.process_frame
 	await _check_board(tree, expect)
+	_check_claw_profile(expect)
 	print("ENEMY STRIKE TRAIL CONTRACTS: registry, live front/rear/mirrored contacts, cache, bespoke exclusions, reduced motion and per-tile area rakes checked")
+
+static func _check_claw_profile(expect: Callable) -> void:
+	var colors: Array = Trail.palette("none")
+	var contact: Dictionary = ClawMarks.geometry(Vector2.ZERO,Vector2.RIGHT,colors,1.0,0.9,false,0.42)
+	var full: Dictionary = ClawMarks.geometry(Vector2.ZERO,Vector2.RIGHT,colors,1.0,0.9,false,0.44)
+	expect.call(is_equal_approx(_core_energy(contact) / (0.9 * 0.9),228.2175), "Three contact claws have the specified integrated alpha and tapered area")
+	expect.call(is_equal_approx(_core_energy(full) / (0.9 * 0.9),260.82), "The middle claw is 15 percent longer; each middle width is 3.6 source px")
+	expect.call(_core_energy(ClawMarks.geometry(Vector2.ZERO,Vector2.RIGHT,colors,1.0,0.9,false,0.36)) == 0.0, "Rake reveal starts at .36")
+	expect.call(_core_energy(ClawMarks.geometry(Vector2.ZERO,Vector2.RIGHT,colors,1.0,0.9,false,0.40)) < _core_energy(contact), "Rake geometry reveals progressively through .44")
+	expect.call(full == ClawMarks.geometry(Vector2.ZERO,Vector2.RIGHT,colors,1.0,0.9,false,0.48), "Rake holds its full geometry after .44")
+	var glow: Dictionary = ClawMarks.geometry(Vector2.ZERO,Vector2.RIGHT,colors,1.0,0.9,true,0.44)
+	expect.call(is_equal_approx(_area(glow) / _area(full),3.0) and is_equal_approx(_core_energy(glow) / _core_energy(full),0.525), "Rake glow is three times the width with .35 centre alpha and clear edges")
 
 static func _area(batch: Dictionary) -> float:
 	var total: float = 0.0
@@ -63,6 +78,18 @@ static func _area(batch: Dictionary) -> float:
 	var indices: PackedInt32Array = batch["indices"]
 	for i: int in range(0,indices.size(),3):
 		total += absf((points[indices[i+1]]-points[indices[i]]).cross(points[indices[i+2]]-points[indices[i]])) * 0.5
+	return total
+
+static func _core_energy(batch: Dictionary) -> float:
+	var total: float = 0.0
+	var points: PackedVector2Array = batch["vertices"]
+	var colors: PackedColorArray = batch["colors"]
+	var indices: PackedInt32Array = batch["indices"]
+	for i: int in range(0,indices.size(),3):
+		var a: int = indices[i]
+		var b: int = indices[i+1]
+		var c: int = indices[i+2]
+		total += absf((points[b]-points[a]).cross(points[c]-points[a])) * 0.5 * (colors[a].a+colors[b].a+colors[c].a) / 3.0
 	return total
 
 static func _check_board(tree: SceneTree, expect: Callable) -> void:
@@ -77,6 +104,20 @@ static func _check_board(tree: SceneTree, expect: Callable) -> void:
 		var cache: RefCounted = board.get("_enemy_strike_trail")
 		var batches: Array[Dictionary] = cache.prepare(board,effect,0.42)
 		expect.call(not batches.is_empty(), "Board dispatch draws enemy trail: " + type)
+		var source: Dictionary = EnemyTrail.actor(board,effect)
+		expect.call(is_equal_approx(Geometry.size_scale(board,source),board.protagonist_source_pixel_scale() * clampf(float(board.call("_unit_art_scale",source)),0.9,1.6)), "Enemy light uses the specified art-scale clamp: " + type)
+		if type == "crawler":
+			var scale: float = board.protagonist_source_pixel_scale() * 0.9
+			var energy: float = _core_energy(batches[1]) / (scale * scale)
+			print("CRAWLER CONTACT CORE ALPHA AREA: %.3f source px squared (minimum 180)" % energy)
+			expect.call(energy > 180.0, "Small Crawler rake has bold contact geometry, independently of the glint")
+			expect.call(Trail.geometry(Geometry.samples_for(cache.resolved),"claw_marks",0.35,0.42,Vector2(0.36,0.66),"none",scale,11).is_empty(), "Claw swipe is hidden before .36")
+		if type in ["chainbound_gaoler","ashen_reaver","storm_cantor"]:
+			_check_fallback(board,effect,expect)
+		for progress: float in [0.40,0.42,0.48]:
+			board.set_combat_state(state_value,[],[],Vector2i(-1,-1),"","",{},{},Fixture.presentation(type,state_value,effect,progress))
+			expect.call(Fixture.check_pose(board.unit_cutout_renderer(EnemyTrail.actor(board,effect)),type,effect,state_value,progress), "Probe motion matches the gameplay action and authored phase: %s at %.2f" % [type,progress])
+		batches = cache.prepare(board,effect,0.42)
 		var builds: int = cache.sample_build_count
 		var repeated: Array[Dictionary] = cache.prepare(board,effect,0.42)
 		expect.call(batches == repeated and cache.sample_build_count == builds, "Retained redraw reuses deterministic source samples: " + type)
@@ -94,6 +135,7 @@ static func _check_board(tree: SceneTree, expect: Callable) -> void:
 	var area: Dictionary = Fixture.effect("tharokh",state_value,"area")
 	board.set_combat_state(state_value,[],[],Vector2i(-1,-1),"","",{},{},Fixture.presentation("tharokh",state_value,area,0.42))
 	await tree.process_frame
+
 	expect.call(not EnemyTrail.handles(board,area), "Physical areas do not also draw in the global overlay")
 	var prior: Array[Dictionary]
 	var layers: Dictionary = board.get("_scene_front_effect_render_layers_by_tile")
@@ -123,3 +165,54 @@ static func _check_board(tree: SceneTree, expect: Callable) -> void:
 			expect.call(not is_instance_valid(light) or light.get("_batches").is_empty(), "A completed area clears its retained light")
 	board.queue_free()
 	await tree.process_frame
+
+static func _check_fallback(board: Control, effect: Dictionary, expect: Callable) -> void:
+	var source: Dictionary = EnemyTrail.actor(board,effect)
+	var type: String = source["type"]
+	var renderer: Node = board.unit_cutout_renderer(source)
+	var body: Rect2 = board.call("_unit_draw_rect_for_center",source,board.call("_unit_center",source))
+	var scale: float = Geometry.size_scale(board,source)
+	var settings_value: Dictionary = Points.settings(type,effect)
+	var samples: Array[Dictionary] = Points.samples(renderer,source,effect,Vector2i(0,1),settings_value,0.42)
+	var target: Vector2 = EnemyTrail.target_center(board,effect["to"])
+	if type == "storm_cantor":
+		var cache: RefCounted = board.get("_enemy_strike_trail")
+		for delta: Vector2i in DIRECTIONS:
+			var state_value: Dictionary = Fixture.state(type,delta)
+			var facing_effect: Dictionary = Fixture.effect(type,state_value)
+			board.set_combat_state(state_value,[],[],Vector2i(-1,-1),"","",{},{},Fixture.presentation(type,state_value,facing_effect,0.42))
+			for progress: float in [0.40,0.42,0.48]:
+				cache.prepare(board,facing_effect,progress)
+				var resolved: Dictionary = cache.resolved
+				expect.call(rad_to_deg(absf((resolved["direction"] as Vector2).angle_to(resolved["target_direction"]))) <= Geometry.AXIS_LIMIT, "Storm Cantor streak points within 50 degrees of its target in every view")
+		# Restore the caller's board fixture.
+		var state_value: Dictionary = Fixture.state(type,Vector2i(0,1))
+		board.set_combat_state(state_value,[],[],Vector2i(-1,-1),"","",{},{},Fixture.presentation(type,state_value,effect,0.42))
+		return
+	# Real attack motion is much longer than the almost stationary review art:
+	# the replacement Gaoler fist spans 87px, and Ashen's blade spans 158px.
+	# Preserve those paths; exercise the fallback with the old Gaoler chain
+	# fixture and an Ashen held-contact fixture rather than forcing a false hit.
+	var real_span: float = Geometry.path_span(samples) * body.size.x / 255.0 / scale
+	expect.call(real_span > Geometry.SHORT_PATH, "The moving authored strike is not incorrectly classified as short: " + type)
+	var short_samples: Array[Dictionary]
+	if type == "chainbound_gaoler":
+		var chain: Dictionary = {"kind":"streak","bone":"hook","landmark":"chain_tip","inner_bone":"hand_hook","window":settings_value["window"],"reach":0.09}
+		short_samples = Points.samples(renderer,source,effect,Vector2i(0,1),chain,0.42)
+	else:
+		var point: Dictionary = Trail.sample_at(samples,0.42)
+		for sample: Dictionary in samples:
+			short_samples.append({"progress":sample["progress"],"tip":point["tip"],"inner":point["inner"]})
+	for sample: Dictionary in short_samples:
+		sample["tip"] = body.position + (sample["tip"] as Vector2) * body.size / 255.0
+		sample["inner"] = body.position + (sample["inner"] as Vector2) * body.size / 255.0
+	var resolved: Dictionary = Geometry.resolve(short_samples,settings_value["kind"],body.get_center(),target,scale,0.42,settings_value["window"])
+	expect.call(resolved["fallback"], "Short-path fallback triggers for the review fixture: " + type)
+	var adapted: Array[Dictionary] = Geometry.samples_for(resolved)
+	expect.call((Trail.sample_at(adapted,0.42)["tip"] as Vector2).distance_to(Trail.sample_at(short_samples,0.42)["tip"]) < 0.0001, "Fallback retains the real contact landmark anchor: " + type)
+	expect.call(resolved["kind"] == ("streak" if type == "chainbound_gaoler" else "arc"), "Short streak stays a streak; short sweep becomes an arc: " + type)
+	if type == "chainbound_gaoler":
+		expect.call((resolved["direction"] as Vector2).dot(resolved["target_direction"]) > 0.999, "Short punch aims from its contact anchor toward the target body")
+	else:
+		expect.call(_area(Trail.geometry(adapted,"arc",0.42,0.42,settings_value["window"],"none",scale,11)[1]) > 0.0, "Stationary Ashen landmark still draws a visible sweep arc")
+	print("ENEMY SHORT-PATH FIXTURE %s: %.3f source px; authored strike %.3f source px" % [type,resolved["span"] / scale,real_span])

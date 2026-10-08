@@ -7,6 +7,7 @@ const CONTACT: float = 0.42
 const SAMPLE_STEP: float = 1.0 / 240.0
 const ARC_RADIUS: float = 44.0
 const ARC_BODY_HEIGHT: float = 80.0
+const ClawMarks = preload("res://scripts/enemy_claw_marks.gd")
 const PALETTES: Dictionary = {
 	"none": [Color8(255, 244, 220), Color8(255, 178, 92), Color8(150, 60, 20)],
 	"fire": [Color8(255, 236, 200), Color8(255, 128, 48), Color8(170, 40, 10)],
@@ -134,7 +135,10 @@ static func geometry(samples: Array[Dictionary], kind: String, progress: float,
 						var axis: Vector2 = ((sample["tip"] as Vector2) - (sample["inner"] as Vector2)).normalized()
 						points.append((sample["tip"] as Vector2) + Vector2(-axis.y, axis.x) * float(lane) * 4.0 * scale)
 					pass_batches.append(_ribbon(points, colors, alpha, 1.6 * scale, glow))
-		if kind != "rake":
+			"claw_marks":
+				var point: Dictionary = sample_at(samples, contact)
+				pass_batches.append(ClawMarks.geometry(point["tip"], (point["tip"] as Vector2) - (point["inner"] as Vector2), colors, alpha, scale, glow, progress))
+		if kind not in ["rake", "claw_marks"]:
 			var edge := PackedVector2Array()
 			for sample: Dictionary in visible:
 				edge.append(sample["tip"])

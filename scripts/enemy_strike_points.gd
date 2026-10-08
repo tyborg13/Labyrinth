@@ -23,9 +23,8 @@ const REGISTRY: Dictionary = {
 	"harrier": {"kind":"streak", "bone":"weapon_r", "landmark":"weapon_tip", "inner_bone":"weapon_r", "window":Vector2(0.34,0.60), "length":74.0},
 	"frostglass_lancer": {"kind":"streak", "bone":"lance", "landmark":"weapon_tip", "inner_bone":"lance", "window":Vector2(0.315,0.60), "length":74.0},
 	"warden": {"kind":"sweep", "bone":"weapon_r", "landmark":"mace_head", "inner_bone":"weapon_r", "window":Vector2(0.3696,0.66), "reach":0.50},
-	# Cudgel Press mainly drives the fist. Keep the brief's chain-tip landmark
-	# and narrow reach without changing that accepted action clip.
-	"chainbound_gaoler": {"kind":"sweep", "bone":"hook", "landmark":"chain_tip", "inner_bone":"hand_hook", "window":Vector2(0.30,0.56), "reach":0.09},
+	# Cudgel Press is a punch; the hanging chain barely moves during this clip.
+	"chainbound_gaoler": {"kind":"streak", "bone":"hand_fist", "inner_bone":"fore_fist", "window":Vector2(0.30,0.56), "length":48.0},
 	"crawler": {"kind":"rake", "bone":"claw_near", "landmark":"contacts.claw_near", "inner_bone":"fore_near", "window":Vector2(0.378,0.66)},
 	"noctyrax": {"kind":"rake", "bone":"claw_fore_near", "point":[Vector2(107,205),Vector2(228,208)], "inner_bone":"lower_fore_near", "window":Vector2(0.336,0.66)},
 	"zekarion": {"kind":"rake", "bone":"claw_near", "landmark":"strike", "inner_bone":"lower_near", "window":Vector2(0.3696,0.66)},

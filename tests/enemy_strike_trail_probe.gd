@@ -65,12 +65,17 @@ func _capture(type: String, variant: String, view: String, progress: float, redu
 	var element: String = "lightning" if type in ["lightning_wisp","storm_cantor","zekarion"] else "ice" if type == "frostglass_lancer" else "earth" if type == "tharokh" else "fire" if type == "ashen_reaver" else "none"
 	effect["element"] = element
 	_board.set_combat_state(state,[],[],Vector2i(-1,-1),"","",{},{},Fixture.presentation(type,state,effect,progress,reduced))
-	for frame: int in range(3):
-		await process_frame
-		await RenderingServer.frame_post_draw
 	var source: Dictionary = EnemyTrail.actor(_board,effect)
 	var renderer: Node = _board.unit_cutout_renderer(source)
 	_expect(is_instance_valid(renderer),"Production cutout exists: " + type)
+	# Bone/skeleton updates can settle after the renderer's UPDATE_ONCE pass.
+	# Keep the actual gameplay canvas live through the capture settling frames,
+	# so the sheet cannot freeze its initial rest texture with attack metadata.
+	if is_instance_valid(renderer): renderer.viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	for frame: int in range(3):
+		await process_frame
+		await RenderingServer.frame_post_draw
+	if not reduced: _expect(Fixture.check_pose(renderer,type,effect,state,progress),"Capture displays the gameplay attack pose: " + label_for_view(type,variant,view))
 	_expect(renderer.facing == ("rear" if view.begins_with("rear") else "front") and renderer.mirrored == view.ends_with("mirror"),"Capture uses its requested facing and mirror: " + label_for_view(type,variant,view))
 	var layer_count: int = 0
 	if variant == "area":
@@ -96,12 +101,17 @@ func _capture(type: String, variant: String, view: String, progress: float, redu
 	var pixels: Image = _surface.get_texture().get_image()
 	_expect(pixels.get_size() == SIZE,"Capture is 1920x1080")
 	_expect(pixels.save_png(OUTPUT.path_join(label+".png")) == OK,"Frame saves: " + label)
+	renderer.viewport.render_target_update_mode = SubViewport.UPDATE_DISABLED
 	var body: Rect2 = _board.call("_unit_draw_rect_for_center",source,_board.call("_unit_center",source))
 	var crop := Rect2i(Vector2i(body.get_center()-Vector2(250,250)),Vector2i(500,500))
 	var boundary: float = Points.contact(effect)
 	var window: Vector2 = Vector2(0.30,0.60) if variant == "area" else Points.window_for(Points.settings(type,effect),boundary)
+	var resolved: Dictionary = (_board.get("_enemy_strike_trail") as RefCounted).get("resolved") if variant != "area" else {}
+	var profile: String = "rake" if variant == "area" else str(resolved.get("kind",Points.settings(type,effect)["kind"]))
+	if profile == "claw_marks": window.x = 0.36
 	_captures.append({"file":label+".png","enemy_type":type,"variant":variant,"view":view,"progress":progress,"element":element,"contact":boundary,"window":[window.x,window.y],
-		"kind":"rake" if variant == "area" else Points.settings(type,effect)["kind"],"reduced":reduced,"light_layers":layer_count,
+		"kind":"rake" if profile == "claw_marks" else profile, "profile":profile,"reduced":reduced,"light_layers":layer_count,
+		"short_path_fallback":resolved.get("fallback",false), "path_span":resolved.get("span",0.0), "fx_scale":preload("res://scripts/enemy_strike_geometry.gd").size_scale(_board,source),
 		"crop":[crop.position.x,crop.position.y,crop.size.x,crop.size.y],"clip":renderer.clip,"clip_phase":renderer.phase})
 
 func _expect(condition: bool, message: String) -> void:

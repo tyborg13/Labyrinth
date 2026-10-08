@@ -65,3 +65,12 @@ Enemy clocks, contacts, damage-once, sounds and reduced motion (no trail), plus 
 - **Unit tests:** registry coverage, so every enemy type that has a melee intent resolves to a kind; strike samples at contact for each kind, front and rear; dragon area rakes per tile.
 - **Probe:** native 1920×1080 captures at progress 0.40, 0.42 and 0.48 for Harrier, Crawler, Warden, Gaoler, one guardian of each kind, Zekarion claw, a dragon area claw, Lightning Wisp and an enemy push. The design owner runs the captures.
 - **Suites and benchmark:** the full Godot suite, the enemy cutout suites, and the render performance benchmark.
+
+## Native-review fix decisions
+
+- Single-target rakes are three contact claw marks: 46 source px long, 3.6 wide at the middle, tapered to zero at both ends, spaced 8 px apart. The middle is 15% longer. Reveal clips the fixed slashes over effect progress .36–.44; the normal trail envelope holds and fades them. Glow is 3× width at .35 centre alpha. The approved dragon per-tile area rake keeps its existing profile.
+- Enemy light dimensions use the hero's board source-pixel scale multiplied by `clamp(art_scale, .9, 1.6)`. Real rig points keep their draw-rect projection; inner reach, light widths, lengths, arcs, sparks and glints use the clamped scale.
+- A window's maximum pairwise strike-point distance below 24 scaled source px enables the fallback. Sweeps become the approved 44 px arc, translated so its contact point remains the real strike landmark. Streaks aim from that contact point toward the target body. Claw marks centre on the contact landmark and use the claw's incoming contact tangent, or attacker → target for a short path.
+- Enemy weapon axes are accepted only within 50° of attacker → target. Other streaks use contact → target body. Gaoler's Cudgel Press uses `hand_fist` and a 48 px punch streak.
+- The review's old Gaoler chain fixture spans 4.47 source px and triggers the fallback. The replacement fist actually spans 87.17 front / 70.38 rear; Ashen's authored blade spans 157.70 front / 115.90 rear. These real attacks exceed the threshold and retain their authored paths. Tests also cover an Ashen held-contact fixture to reproduce a stationary displayed landmark without forcing a false fallback on its moving attack.
+- The native probe supplies the gameplay motion dictionaries (including Crawler's attack variant) and cutout routing flags, asserts the displayed clip/phase, and keeps each cutout viewport updating through three settling frames so skinning cannot leave the initial rest texture in the sheet.
