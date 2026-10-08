@@ -26,8 +26,8 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 			var before: Dictionary = {}
 			for bone: String in rig.bones:
 				before[bone] = rig.bones[bone].transform
-			var samples: Array[Dictionary] = renderer.strike_samples(direction, window.x, window.y, Trail.SAMPLE_STEP)
-			var single: Array[Dictionary] = renderer.strike_samples(direction, 0.42, 0.42, Trail.SAMPLE_STEP)
+			var samples: Array[Dictionary] = renderer.strike_samples(direction, window.x, window.y, Trail.SAMPLE_STEP, float(settings["reach"]))
+			var single: Array[Dictionary] = renderer.strike_samples(direction, 0.42, 0.42, Trail.SAMPLE_STEP, float(settings["reach"]))
 			var joint: Vector2 = Motion._joint_position(rig.layout, "weapon_r")
 			var tip: Vector2 = rig.to_local(rig.bones["weapon_r"].to_global(Motion._gear_vector(rig.layout["weapon_grip"]["tip"]) - joint))
 			var grip: Vector2 = rig.to_local(rig.bones["weapon_r"].to_global(Motion._gear_vector(rig.layout["weapon_grip"]["assembled"]) - joint))

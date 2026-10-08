@@ -52,7 +52,7 @@ func _source_samples(renderer: Node, delta: Vector2i, motion: String, window: Ve
 	var key: String = "%s|%s|%s" % [direction["facing"], direction["mirrored"], motion]
 	if _cache.has(key):
 		return _cache[key]
-	var samples: Array[Dictionary] = renderer.strike_samples(delta, window.x, window.y, Trail.SAMPLE_STEP)
+	var samples: Array[Dictionary] = renderer.strike_samples(delta, window.x, window.y, Trail.SAMPLE_STEP, float(Trail.motion_settings(motion)["reach"]))
 	sample_build_count += 1
 	# A renderer without rigs yields nothing; never pin that for the effect.
 	if not samples.is_empty():

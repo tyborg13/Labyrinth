@@ -149,7 +149,9 @@ func _attack_pose(progress: float) -> Dictionary:
 	return {"clip": attack_clip, "phase": progress}
 
 func strike_samples(direction_delta: Vector2i, progress_from: float,
-		progress_to: float, step: float) -> Array[Dictionary]:
+		progress_to: float, step: float, reach: float) -> Array[Dictionary]:
+	# reach: fraction of the tip-to-grip span for the inner point. Callers pass
+	# it so the cutout runtime never depends on the board's trail module.
 	# Sample in source space without presenting a pose or touching live bones.
 	var samples: Array[Dictionary]
 	if rigs.is_empty() or step <= 0.0 or progress_to < progress_from:
@@ -161,7 +163,6 @@ func strike_samples(direction_delta: Vector2i, progress_from: float,
 	var joint: Vector2 = Motion._joint_position(layout, "weapon_r")
 	var tip_local: Vector2 = Motion._gear_vector(grip["tip"]) - joint
 	var hand_local: Vector2 = Motion._gear_vector(grip["assembled"]) - joint
-	var reach: float = float(preload("res://scripts/strike_trail_fx.gd").motion_settings(weapon_motion())["reach"])
 	var count: int = ceili((progress_to - progress_from) / step)
 	for index: int in range(count + 1):
 		var progress: float = minf(progress_from + float(index) * step, progress_to)
