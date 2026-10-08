@@ -41,7 +41,7 @@ func begin_pre_battle_combat(run_state: Dictionary, _prepared: Dictionary = {}) 
 
 func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: Dictionary) -> Dictionary:
 	var layout_room: Dictionary = room.duplicate(true)
-	if _room_has_recovery_marker(room):
+	if _room_has_recovery_marker(room) and str(room.get("type", "combat")) not in ["combat", "boss", "guardian"]:
 		layout_room["type"] = "combat"
 		if not ElementData.is_elemental(str(layout_room.get("element", ElementData.NONE))):
 			layout_room["element"] = _room_element_for_coord(int(run_state.get("seed", 0)), layout_room.get("coord", Vector2i.ZERO), "combat")

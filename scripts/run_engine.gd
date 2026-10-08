@@ -4,6 +4,7 @@ class_name RunEngine
 const GraftwrightRules = preload("res://scripts/graftwright_rules.gd")
 
 const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
+const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
@@ -2386,7 +2387,10 @@ func _display_layout_for_room(seed: int, room: Dictionary, travel_dir: Vector2i)
 
 func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: Dictionary) -> Dictionary:
 	var layout_room: Dictionary = room.duplicate(true)
-	if _room_has_recovery_marker(room):
+	# Lost Embers join the room's own encounter so the map stays truthful. Only a
+	# legacy marker on a non-encounter room needs a generic fight to hold the pile;
+	# a Guardian or boss node chosen by section recovery keeps its real roster.
+	if _room_has_recovery_marker(room) and str(room.get("type", "combat")) not in ["combat", "boss", "guardian"]:
 		layout_room["type"] = "combat"
 		if not ElementData.is_elemental(str(layout_room.get("element", ElementData.NONE))):
 			layout_room["element"] = _room_element_for_coord(int(run_state.get("seed", 0)), layout_room.get("coord", Vector2i.ZERO), "combat")
@@ -3554,7 +3558,14 @@ func _layout_with_recovery_loot(layout: Dictionary, room: Dictionary, run_state:
 
 func _recovery_loot_tile(layout: Dictionary) -> Vector2i:
 	var grid: Array = layout.get("grid", [])
+	# The pile lands only on empty floor: beyond units, objects and loot, never a
+	# brazier, a ground surface or an exit target that would hide or hazard it.
 	var occupied: Dictionary = _layout_occupied_tiles(layout)
+	for brazier_var: Variant in layout.get("guardian_braziers", []):
+		if typeof(brazier_var) == TYPE_DICTIONARY:
+			occupied[(brazier_var as Dictionary).get("pos", Vector2i(-1, -1))] = true
+	for exit_tile: Vector2i in CombatObjectiveRules.exit_target_tiles(layout.get("objective", {}) as Dictionary):
+		occupied[exit_tile] = true
 	var best_tile: Vector2i = Vector2i(-1, -1)
 	var best_score: float = -INF
 	var center := Vector2(4.0, 4.0)
@@ -3564,7 +3575,7 @@ func _recovery_loot_tile(layout: Dictionary) -> Vector2i:
 			var tile := Vector2i(x, y)
 			if occupied.has(tile):
 				continue
-			if not PathUtils.is_passable(grid, tile):
+			if not PathUtils.is_passable(grid, tile) or not BoardSurfaceRules.surface_at(layout, tile).is_empty():
 				continue
 			var score: float = -tile.distance_to(center)
 			score += float(_coord_hash(int(layout.get("depth", 0)), tile, 1307) % 1000) / 10000.0
