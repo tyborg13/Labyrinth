@@ -96,6 +96,12 @@ const DEFIANCE_REMAINING_KEY: String = "defiance_remaining"
 
 var _combat_engine = CombatEngineScript.new()
 var _room_generator = RoomGeneratorScript.new()
+# One owned generated layout per engine. Start placement and recovery loot are
+# applied to fresh copies after this cache, so player state never aliases it.
+var _generated_layout_input: Array = []
+var _generated_layout: Dictionary = {}
+var _generated_layout_count: int = 0
+var _generated_layout_cache_hits: int = 0
 
 static func normalized_run_stats(value: Variant) -> Dictionary:
 	return CombatEngineScript.normalized_run_stats(value)
@@ -967,6 +973,11 @@ func move_to_pre_battle(run_state: Dictionary, destination: Vector2i) -> Diction
 	var connection: Dictionary = _connection_to_room(current_room_before_move, destination)
 	if connection.is_empty():
 		return run_state.duplicate(true)
+	# These destinations use the ordinary room transition. Dispatch before
+	# building a private pre-battle state that would be discarded below. The
+	# canonical transition still owns stock, recovery, map events and layout.
+	if not _room_blocks_exit_reveal(room_metadata(run_state, destination)):
+		return move_to_room(run_state, destination)
 	var next_state: Dictionary = run_state.duplicate(true)
 	SectionMapGraph.record_choice(next_state, destination)
 	next_state["pending_escape"] = {}
@@ -1012,18 +1023,55 @@ func move_to_pre_battle(run_state: Dictionary, destination: Vector2i) -> Diction
 	next_state["pre_battle_travel_dir"] = travel_dir
 	return next_state
 
-func pre_battle_preview_state(run_state: Dictionary) -> Dictionary:
-	if str(run_state.get("mode", "room")) != MODE_PRE_BATTLE:
-		return {}
+# A preview and Begin use the same deterministic factory. Retain its private
+# result only for an exactly matching input; equipment, HP, profile, room or
+# start-tile changes all invalidate it. No authoritative action is delayed.
+func prepare_pre_battle_combat(run_state: Dictionary) -> Dictionary:
+	var owned: Dictionary = begin_pre_battle_combat_preparation(run_state)
+	while not advance_pre_battle_combat_preparation(owned): pass
+	return owned
+
+# The complete synchronous factory and future menu preparation share the same
+# ordered creation steps. Incomplete state remains private to its owned cursor.
+func begin_pre_battle_combat_preparation(run_state: Dictionary) -> Dictionary:
+	if str(run_state.get("mode", "room")) != MODE_PRE_BATTLE: return {}
+	var source: Dictionary = run_state.duplicate(true)
+	var room: Dictionary = room_metadata(source, source.get("current_room", Vector2i.ZERO))
+	if not _room_blocks_exit_reveal(room): return {}
+	var travel_dir: Vector2i = source.get("pre_battle_travel_dir", Vector2i.ZERO)
+	var layout: Dictionary = _combat_layout_for_room(room, travel_dir, source)
+	return {"input": source, "definitions": _pre_battle_definitions().duplicate(true), "layout": layout,
+		"combat_creation": _combat_engine.begin_combat_creation(int(source.get("seed", 0)), layout, _player_snapshot(source))}
+
+func advance_pre_battle_combat_preparation(owned: Dictionary) -> bool:
+	if owned.is_empty() or not owned.has("combat_creation"): return true
+	# Global catalogs can change between main-thread preparation callbacks.
+	# Abort the whole result rather than combining definitions from two moments.
+	if owned["definitions"] != _pre_battle_definitions():
+		owned.clear()
+		return true
+	var cursor: Dictionary = owned["combat_creation"]
+	if not _combat_engine.advance_combat_creation(cursor): return false
+	var state: Dictionary = cursor["state"]
+	var source: Dictionary = owned["input"]
+	owned["authored_tutorial"] = GuidedCombatScenario.should_prepare(source, state)
+	owned["combat_state"] = GuidedCombatScenario.prepare_for_run(source, state)
+	owned.erase("combat_creation")
+	return true
+
+func _pre_battle_definitions() -> Array:
+	return [GameData.cards(), GameData.enemies(), GameData.equipment(), GameData.npcs(), GameData.relics(), GameData.upgrades(), GameData.progression_levels(), SkillTreeLibrary.definitions()]
+
+func prepared_pre_battle_matches_input(prepared: Dictionary, run_state: Dictionary) -> bool:
+	# Definition dictionaries are mutable in tests/developer reloads. Retain one
+	# owned catalog snapshot with the factory, and compare the current contents.
+	return prepared.has("combat_state") and not prepared.has("combat_creation") and prepared.get("input") == run_state and prepared.get("definitions") == _pre_battle_definitions()
+
+func pre_battle_preview_state(run_state: Dictionary, prepared: Dictionary = {}) -> Dictionary:
+	var owned: Dictionary = prepared if prepared_pre_battle_matches_input(prepared, run_state) else prepare_pre_battle_combat(run_state)
+	if owned.is_empty(): return {}
 	var next_state: Dictionary = run_state.duplicate(true)
-	var room: Dictionary = room_metadata(next_state, next_state.get("current_room", Vector2i.ZERO))
-	if not _room_blocks_exit_reveal(room):
-		return {}
-	var travel_dir: Vector2i = next_state.get("pre_battle_travel_dir", Vector2i.ZERO)
-	var layout: Dictionary = _combat_layout_for_room(room, travel_dir, next_state)
-	var combat_state: Dictionary = _combat_engine.create_combat(int(next_state.get("seed", 0)), layout, _player_snapshot(next_state))
-	combat_state = GuidedCombatScenario.prepare_for_run(next_state, combat_state)
-	next_state["combat_state"] = combat_state
+	next_state["combat_state"] = (owned["combat_state"] as Dictionary).duplicate(true)
 	next_state["mode"] = "combat"
 	return next_state
 
@@ -1075,21 +1123,14 @@ func set_pre_battle_start(run_state: Dictionary, tile: Vector2i) -> Dictionary:
 	_record_run_skill_event(next_state, "true_bearing", "Chose a different combat entry tile.")
 	return next_state
 
-func begin_pre_battle_combat(run_state: Dictionary) -> Dictionary:
-	if str(run_state.get("mode", "room")) != MODE_PRE_BATTLE:
-		return run_state.duplicate(true)
+func begin_pre_battle_combat(run_state: Dictionary, prepared: Dictionary = {}) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
+	var owned: Dictionary = prepared if prepared_pre_battle_matches_input(prepared, run_state) else prepare_pre_battle_combat(run_state)
+	if owned.is_empty(): return next_state
 	var room: Dictionary = room_metadata(next_state, next_state.get("current_room", Vector2i.ZERO))
-	if not _room_blocks_exit_reveal(room):
-		return next_state
-	var travel_dir: Vector2i = next_state.get("pre_battle_travel_dir", Vector2i.ZERO)
-	var layout: Dictionary = _combat_layout_for_room(room, travel_dir, next_state)
-	var combat_state: Dictionary = _combat_engine.create_combat(int(next_state.get("seed", 0)), layout, _player_snapshot(next_state))
-	var authored_tutorial: bool = GuidedCombatScenario.should_prepare(next_state, combat_state)
-	if _equipment_drop_can_attempt(next_state, room) and not authored_tutorial:
-		next_state = _record_equipment_drop_attempt(next_state, layout)
-	combat_state = GuidedCombatScenario.prepare_for_run(next_state, combat_state)
-	next_state["combat_state"] = combat_state
+	if _equipment_drop_can_attempt(next_state, room) and not bool(owned["authored_tutorial"]):
+		next_state = _record_equipment_drop_attempt(next_state, owned["layout"])
+	next_state["combat_state"] = (owned["combat_state"] as Dictionary).duplicate(true)
 	next_state["mode"] = "combat"
 	_clear_pre_battle_state(next_state)
 	return next_state
@@ -2354,12 +2395,26 @@ func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: 
 	var equipment_drop: String = _equipment_drop_for_room(run_state, layout_room)
 	if not equipment_drop.is_empty():
 		layout_room["equipment_drop"] = equipment_drop
-	var layout: Dictionary = _room_generator.generate_room(int(run_state.get("seed", 0)), layout_room, travel_dir)
+	var layout: Dictionary = _generated_combat_layout(int(run_state.get("seed", 0)), layout_room, travel_dir)
 	layout = _layout_with_recovery_loot(layout, room, run_state)
 	if has_run_skill(run_state, "true_bearing") and typeof(run_state.get("pre_battle_start", null)) == TYPE_VECTOR2I:
 		var chosen_start: Vector2i = run_state.get("pre_battle_start", Vector2i(-1, -1))
 		if _layout_accepts_pre_battle_start(layout, chosen_start):
 			layout["player_start"] = chosen_start
+	return layout
+
+func _generated_combat_layout(seed: int, room: Dictionary, travel_dir: Vector2i) -> Dictionary:
+	# RoomGenerator consumes these complete immutable definitions plus its exact
+	# seed, room metadata and entrance. Compare content, not a hash or an inferred
+	# subset of the run: changed drops, onboarding, rosters or definitions miss.
+	var inputs: Array = [seed, room, travel_dir, GameData.cards(), GameData.enemies(), GameData.npcs()]
+	if not _generated_layout.is_empty() and inputs == _generated_layout_input:
+		_generated_layout_cache_hits += 1
+		return _generated_layout.duplicate(true)
+	var layout: Dictionary = _room_generator.generate_room(seed, room, travel_dir)
+	_generated_layout_input = inputs.duplicate(true)
+	_generated_layout = layout.duplicate(true)
+	_generated_layout_count += 1
 	return layout
 
 func _run_has_completed_combat(run_state: Dictionary) -> bool:

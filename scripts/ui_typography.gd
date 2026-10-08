@@ -125,13 +125,18 @@ static func apply_eyebrow(label: Label, size: int = SIZE_CAPTION, color: Color =
 static func text_font() -> Font:
 	return AssetLoader.load_font(TEXT_FONT_PATH)
 
+static var _stone_text_shader: Shader
+
 static func apply_stone_text(control: CanvasItem, texture_strength: float = 0.12, grain_scale: float = 4.0) -> void:
 	if control == null:
 		return
-	var shader := Shader.new()
-	shader.code = STONE_TEXT_SHADER_CODE
+	# Uniforms belong to each control's material. The immutable program is shared,
+	# so labels with identical art do not create duplicate native pipelines.
+	if _stone_text_shader == null:
+		_stone_text_shader = Shader.new()
+		_stone_text_shader.code = STONE_TEXT_SHADER_CODE
 	var material := ShaderMaterial.new()
-	material.shader = shader
+	material.shader = _stone_text_shader
 	material.set_shader_parameter("texture_strength", texture_strength)
 	material.set_shader_parameter("grain_scale", grain_scale)
 	control.material = material

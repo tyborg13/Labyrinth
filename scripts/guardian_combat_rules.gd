@@ -54,23 +54,33 @@ static func is_empty_floor(engine: RefCounted, state: Dictionary, tile: Vector2i
 # Removing the proposed tile may shorten routes, but must not split any part of
 # its current floor component away from the player or the other floor tiles.
 static func preserves_routes(engine: RefCounted, state: Dictionary, blocked: Vector2i) -> bool:
-	var adjacent: Array[Vector2i] = []
+	# This checks only connectivity among the blocked tile's floor neighbors.
+	# Normalize terrain once, then stop as soon as those neighbors connect;
+	# exploring the rest of the component cannot change the Boolean result.
+	var blockers: Dictionary = engine._occupied_terrain_tiles(state)
+	var grid: Array = state["grid"]
+	var adjacent: Array[Vector2i]
 	for direction: Vector2i in Paths.DIRS_4:
 		var tile: Vector2i = blocked + direction
-		if Paths.is_passable(state["grid"],tile) and engine._terrain_index_at_tile(state,tile)<0: adjacent.append(tile)
-	if adjacent.size()<2: return false
-	var seen: Dictionary = {blocked:true, adjacent[0]:true}
+		if Paths.is_passable(grid, tile) and not blockers.has(tile): adjacent.append(tile)
+	if adjacent.size() < 2: return false
+	var remaining: Dictionary = {}
+	for tile: Vector2i in adjacent: remaining[tile] = true
+	remaining.erase(adjacent[0])
+	var seen: Dictionary = {blocked: true, adjacent[0]: true}
 	var queue: Array[Vector2i] = tiles([adjacent[0]])
-	while not queue.is_empty():
-		var current: Vector2i = queue.pop_front()
+	var head: int = 0
+	while head < queue.size():
+		var current: Vector2i = queue[head]
+		head += 1
 		for direction: Vector2i in Paths.DIRS_4:
 			var tile: Vector2i = current + direction
-			if not seen.has(tile) and Paths.is_passable(state["grid"],tile) and engine._terrain_index_at_tile(state,tile)<0:
+			if not seen.has(tile) and Paths.is_passable(grid, tile) and not blockers.has(tile):
 				seen[tile] = true
+				remaining.erase(tile)
+				if remaining.is_empty(): return true
 				queue.append(tile)
-	for tile: Vector2i in adjacent:
-		if not seen.has(tile): return false
-	return true
+	return false
 
 static func candidates(engine: RefCounted, state: Dictionary, origin: Vector2i, toward: Vector2i, reach: int) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []

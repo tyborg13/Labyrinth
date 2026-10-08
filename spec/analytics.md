@@ -495,6 +495,23 @@ Stable keys, local append-only JSONL, acknowledgment-on-success, terminal reward
 and the banked/held-Ember separation remain unchanged. See
 [save persistence](save_persistence.md#ordinary-combat-analytics-scheduling).
 
+Nonterminal HUD refreshes also defer run-stream reconciliation until after a
+rendered frame. A separate coalescing queue runs the complete existing
+outbox-save, append, cursor-save protocol synchronously in one later slice;
+there is no yield between those three operations. It reads current authoritative
+events, waits for held presentation to release, and cancels on lifecycle or
+storage changes. A successful same-run checkpoint after the final HUD refresh
+keeps its pending request alive, including reward-reveal completion.
+
+Each unchanged pending trigger retains an owned copy of its first HUD context
+and payload turn, so an immediate following action cannot reattribute it to a
+new room, HP, or turn. This presentation-time cache is not a save-schema change;
+loading uses the existing saved-state replay context. Explicit Save & Quit and
+window close synchronously flush the live stream before saving the held/current
+checkpoint. A newer held trigger that is not yet in the live display remains in
+that durable checkpoint for replay, preserving the existing held-state rule.
+
+
 Priming and effect realization do not create a second activation event.
 Realized card, damage, defense, movement, and resource outcomes remain in their
 existing events rather than being converted into a guessed skill score.

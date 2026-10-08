@@ -21,7 +21,13 @@ const FoeCaption = preload("res://scripts/pre_battle_foe_caption.gd")
 const FoeLayout = preload("res://scripts/pre_battle_foe_layout.gd")
 const Lineup = preload("res://scripts/pre_battle_lineup.gd")
 
-static func build(host: Node, panel: PanelContainer, room: Dictionary, combat: Dictionary, accent: Color) -> void:
+static func build(host: Node, panel: PanelContainer, room: Dictionary, combat: Dictionary, accent: Color, state: Dictionary = {}) -> void:
+	for job: Callable in build_jobs(host, panel, room, combat, accent, state): job.call()
+
+# The synchronous path and hidden travel preparation execute the same ordered
+# constructors. Nodes, fonts, and host callbacks remain main-thread-owned.
+static func build_jobs(host: Node, panel: PanelContainer, room: Dictionary, combat: Dictionary, accent: Color, state: Dictionary = {}) -> Array[Callable]:
+	var jobs: Array[Callable]
 	var margin := MarginContainer.new()
 	for side: String in ["left", "right"]:
 		margin.add_theme_constant_override("margin_" + side, roundi(Typography.scaled_value(panel, 52.0)))
@@ -32,23 +38,77 @@ static func build(host: Node, panel: PanelContainer, room: Dictionary, combat: D
 	content.name = "PreBattleContent"
 	content.add_theme_constant_override("separation", roundi(Typography.scaled_value(panel, 16.0)))
 	margin.add_child(content)
-	var phase_started: int = Time.get_ticks_usec()
-	content.add_child(build_header(host, room, combat, accent))
-	phase_started = int(host.call("_record_runtime_performance_phase", "pre_battle_header", phase_started))
+	jobs.append(func() -> void:
+		var started: int = Time.get_ticks_usec()
+		content.add_child(build_header(host, room, combat, accent))
+		host.call("_record_runtime_performance_phase", "pre_battle_header", started)
+	)
 	var body := HBoxContainer.new()
 	body.name = "PreBattleBody"
 	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_theme_constant_override("separation", roundi(Typography.scaled_value(panel, 16.0)))
 	content.add_child(body)
-	body.add_child(build_foes(host, combat))
-	phase_started = int(host.call("_record_runtime_performance_phase", "pre_battle_enemy_section", phase_started))
-	var divider := Controls.Rule.new()
-	divider.name = "PreBattleColumnDivider"
-	divider.vertical = true
-	divider.custom_minimum_size.x = Typography.scaled_value(panel, 1.0)
-	body.add_child(divider)
-	body.add_child(build_kit(host))
-	host.call("_record_runtime_performance_phase", "pre_battle_deck_section", phase_started)
+	jobs.append(func() -> void:
+		var started: int = Time.get_ticks_usec()
+		body.add_child(build_foes(host, combat, state))
+		host.call("_record_runtime_performance_phase", "pre_battle_enemy_section", started)
+	)
+	jobs.append(func() -> void:
+		var started: int = Time.get_ticks_usec()
+		var divider := Controls.Rule.new()
+		divider.name = "PreBattleColumnDivider"
+		divider.vertical = true
+		divider.custom_minimum_size.x = Typography.scaled_value(panel, 1.0)
+		body.add_child(divider)
+		body.add_child(build_kit(host, state))
+		host.call("_record_runtime_performance_phase", "pre_battle_deck_section", started)
+	)
+	# Keep the authored header before the body even though the body shell is
+	# present while a staged build is waiting between its component jobs.
+	jobs.append(func() -> void: content.move_child(body, content.get_child_count() - 1))
+	return jobs
+
+# Retain only the currently displayed components. These keys name every input
+# read by their constructors; the scene owns an exact snapshot, never a hash.
+# Rebuilding a kit must not destroy an unchanged foe's native controls/layout.
+static func refresh_sections(host: Node, panel: PanelContainer, room: Dictionary, combat: Dictionary, accent: Color, state: Dictionary, previous: Dictionary, current: Dictionary) -> bool:
+	if previous.is_empty() or _common_key(previous) != _common_key(current): return false
+	var content: VBoxContainer = panel.find_child("PreBattleContent", true, false) as VBoxContainer
+	if content == null or content.get_child_count() != 2: return false
+	var body: HBoxContainer = content.get_child(1) as HBoxContainer
+	if body == null or body.name != "PreBattleBody" or body.get_child_count() != 3: return false
+	if content.get_child(0).name != "PreBattleHeader" or body.get_child(0).name != "PreBattleEnemySection" or body.get_child(2).name != "PreBattleDeckSection": return false
+	if _header_key(previous) != _header_key(current):
+		_replace_component(host, content, 0, build_header(host, room, combat, accent))
+	if _foes_key(previous) != _foes_key(current):
+		_replace_component(host, body, 0, build_foes(host, combat, state))
+	if _kit_key(previous) != _kit_key(current):
+		if not _refresh_kit(host, body.get_child(2) as Control, state, previous, current):
+			_replace_component(host, body, 2, build_kit(host, state))
+	return true
+
+static func _replace_component(host: Node, parent: Node, index: int, replacement: Control) -> void:
+	var old: Node = parent.get_child(index)
+	host.call("_prepare_node_for_immediate_free", old)
+	parent.remove_child(old)
+	old.queue_free()
+	parent.add_child(replacement)
+	parent.move_child(replacement, index)
+
+static func _common_key(key: Dictionary) -> Array:
+	return [key.get("viewport"), key.get("scale"), key.get("skin")]
+
+static func _header_key(key: Dictionary) -> Array:
+	var combat: Dictionary = key.get("combat", {})
+	return [key.get("room"), combat.get("room_name"), combat.get("room_type"), combat.get("room_element"), combat.get("room_depth"), key.get("umbra_stage"), combat.has("umbra"), combat.get("objective", {})]
+
+static func _foes_key(key: Dictionary) -> Array:
+	var combat: Dictionary = key.get("combat", {})
+	# Actions live beneath the foe lineup, including True Bearing's selected tile.
+	return [combat.get("enemies", []), combat.get("objective", {}), key.get("enemies"), key.get("start_tiles"), key.get("pre_battle_start"), key.get("true_bearing_description")]
+
+static func _kit_key(key: Dictionary) -> Array:
+	return [key.get("player_hp"), key.get("player_max_hp"), key.get("defiance_capacity"), key.get("defiance_remaining"), key.get("equipped_equipment"), key.get("attuned_magic_cards"), key.get("deck_cards"), key.get("cards"), key.get("equipment")]
 
 static func label(text: String, font_size: int, color: Color = Palette.TEXT, eyebrow: bool = false) -> Label:
 	var result := Label.new()
@@ -161,7 +221,7 @@ static func icon(path: String, diameter: float, node_name: String = "") -> Textu
 	result.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return result
 
-static func build_foes(host: Node, combat: Dictionary) -> Control:
+static func build_foes(host: Node, combat: Dictionary, state: Dictionary = {}) -> Control:
 	var foes := VBoxContainer.new()
 	foes.name = "PreBattleEnemySection"
 	foes.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -218,7 +278,7 @@ static func build_foes(host: Node, combat: Dictionary) -> Control:
 	hint.set_anchors_preset(Control.PRESET_BOTTOM_WIDE)
 	hint.offset_top = -hint_height
 	foes.add_child(hint_slot)
-	var actions := build_actions(host)
+	var actions := build_actions(host, state)
 	foes.add_child(actions)
 	if flow.get_child_count() > 0:
 		var focus_foe := flow.get_child(mini(1, flow.get_child_count() - 1)) as Control
@@ -324,12 +384,12 @@ static func build_move_tags(host: Node, threat_tags: Array) -> Control:
 		tag.add_child(label(word, 14, Palette.TEXT_2))
 	return tags
 
-static func build_actions(host: Node) -> Control:
+static func build_actions(host: Node, future_state: Dictionary = {}) -> Control:
 	var row := HBoxContainer.new()
 	row.name = "PreBattleActions"
 	row.alignment = BoxContainer.ALIGNMENT_END
 	row.add_theme_constant_override("separation", 12)
-	var state: Dictionary = host.get("_run_state")
+	var state: Dictionary = host.get("_run_state") if future_state.is_empty() else future_state
 	var tiles: Array[Vector2i] = host.get("_run_engine").pre_battle_start_tiles(state)
 	if not tiles.is_empty():
 		var selected: Vector2i = state.get("pre_battle_start", tiles[0])
@@ -362,37 +422,15 @@ static func action(host: Node, node_name: String, text: String, callback: String
 	button.pressed.connect(Callable(host, callback))
 	return button
 
-static func build_kit(host: Node) -> Control:
+static func build_kit(host: Node, future_state: Dictionary = {}) -> Control:
 	var kit := VBoxContainer.new()
 	kit.name = "PreBattleDeckSection"
 	kit.custom_minimum_size.x = Typography.scaled_value(host, 404.0)
 	kit.add_theme_constant_override("separation", 6)
 	kit.add_child(section("YOUR KIT"))
-	kit.add_child(build_health(host))
-	var gear_row := HBoxContainer.new()
-	gear_row.add_theme_constant_override("separation", 8)
-	kit.add_child(gear_row)
-	var gear_label := label("GEAR", 14, Palette.TEXT_2, true)
-	gear_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	gear_row.add_child(gear_label)
-	var sockets := HFlowContainer.new()
-	sockets.name = "PreBattleEquipmentRow"
-	sockets.add_theme_constant_override("h_separation", 8)
-	sockets.custom_minimum_size.x = Typography.scaled_value(host, 282.0)
-	gear_row.add_child(sockets)
-	var state: Dictionary = host.get("_run_state")
-	var equipped: Dictionary = state.get("equipped_equipment", {}) as Dictionary
-	for slot: String in GameData.equipment_slots():
-		var socket := Controls.Gear.new()
-		socket.name = "PreBattleEquipmentChip"
-		socket.host = host
-		socket.equipment_id = str(equipped.get(slot, ""))
-		socket.set_meta("equipment_id", socket.equipment_id)
-		socket.set_meta("slot_id", slot)
-		var definition: Dictionary = GameData.equipment_def(socket.equipment_id)
-		socket.setup(AssetLoader.load_texture(str(definition.get("icon_path", ""))), "equipment:%s" % socket.equipment_id if not socket.equipment_id.is_empty() else "")
-		socket.interactive = not socket.equipment_id.is_empty()
-		sockets.add_child(socket)
+	kit.add_child(build_health(host, future_state))
+	kit.add_child(_gear_row(host, future_state))
+	var state: Dictionary = host.get("_run_state") if future_state.is_empty() else future_state
 	var attuned: Array = state.get("attuned_magic_cards", []) as Array
 	kit.add_child(loadout_header("ATTUNED MAGIC", "%d / %d" % [attuned.size(), GameData.magic_loadout_limit()]))
 	kit.add_child(card_grid(host, attuned, "attuned", "PreBattleAttunedRow"))
@@ -410,6 +448,32 @@ static func build_kit(host: Node) -> Control:
 	scroll.add_child(card_grid(host, deck, "deck", "PreBattleDeckFlow"))
 	return kit
 
+static func _gear_row(host: Node, future_state: Dictionary = {}) -> Control:
+	var gear_row := HBoxContainer.new()
+	gear_row.add_theme_constant_override("separation", 8)
+	var gear_label := label("GEAR", 14, Palette.TEXT_2, true)
+	gear_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	gear_row.add_child(gear_label)
+	var sockets := HFlowContainer.new()
+	sockets.name = "PreBattleEquipmentRow"
+	sockets.add_theme_constant_override("h_separation", 8)
+	sockets.custom_minimum_size.x = Typography.scaled_value(host, 282.0)
+	gear_row.add_child(sockets)
+	var state: Dictionary = host.get("_run_state") if future_state.is_empty() else future_state
+	var equipped: Dictionary = state.get("equipped_equipment", {}) as Dictionary
+	for slot: String in GameData.equipment_slots():
+		var socket := Controls.Gear.new()
+		socket.name = "PreBattleEquipmentChip"
+		socket.host = host
+		socket.equipment_id = str(equipped.get(slot, ""))
+		socket.set_meta("equipment_id", socket.equipment_id)
+		socket.set_meta("slot_id", slot)
+		var definition: Dictionary = GameData.equipment_def(socket.equipment_id)
+		socket.setup(AssetLoader.load_texture(str(definition.get("icon_path", ""))), "equipment:%s" % socket.equipment_id if not socket.equipment_id.is_empty() else "")
+		socket.interactive = not socket.equipment_id.is_empty()
+		sockets.add_child(socket)
+	return gear_row
+
 static func loadout_header(title: String, count_text: String) -> Control:
 	var row := HBoxContainer.new()
 	var title_label := label(title, 14, Palette.TEXT_2, true)
@@ -425,24 +489,110 @@ static func card_grid(host: Node, ids: Array, source_kind: String, node_name: St
 	grid.add_theme_constant_override("h_separation", 8)
 	grid.add_theme_constant_override("v_separation", 4)
 	for group: Dictionary in host.call("_pre_battle_card_groups", ids):
-		var strip := Controls.Strip.new()
-		strip.host = host
-		strip.name = "PreBattleAttunedBadge" if source_kind == "attuned" else "PreBattleDeckBadge"
-		strip.source_kind = source_kind
-		var id: String = str(group["card_id"])
-		var definition: Dictionary = GameData.card_def(id)
-		strip.setup(id, str(definition.get("name", id)), int(group["count"]))
-		strip.set_meta("card_id", id)
-		strip.set_meta("source_kind", source_kind)
-		strip.set_meta("card_count", int(group["count"]))
-		strip.set_meta("display_name", str(definition.get("name", id)))
-		strip.tooltip_text = "card:%s" % id
-		# Reserve scrollbar width so both columns remain stable when scrolling.
-		strip.custom_minimum_size.x = Typography.scaled_value(host, 190.0)
-		grid.add_child(strip)
+		grid.add_child(_card_strip(host, group, source_kind))
 	return grid
 
-static func build_health(host: Node) -> Control:
+
+# The current kit owns its controls in their final parents. Changed cards use
+# the original constructor; unchanged idle cards avoid native theme/layout work.
+# Keep no detached pool, and reset scroll only when the original kit rebuilt.
+static func _refresh_kit(host: Node, kit: Control, state: Dictionary, previous: Dictionary, current: Dictionary) -> bool:
+	if kit == null or kit.get_child_count() != 7 or not _kit_idle(kit): return false
+	var gear: HBoxContainer = kit.get_child(2) as HBoxContainer
+	var attuned: HFlowContainer = kit.get_child(4) as HFlowContainer
+	var scroll: ScrollContainer = kit.get_child(6) as ScrollContainer
+	if gear == null or attuned == null or scroll == null or gear.get_child_count() != 2 or scroll.get_child_count() != 1: return false
+	var deck: HFlowContainer = scroll.get_child(0) as HFlowContainer
+	if deck == null: return false
+	var health_fields: Array[String]
+	health_fields.assign(["player_hp", "player_max_hp", "defiance_capacity", "defiance_remaining"])
+	var health_changed: bool = false
+	for field: String in health_fields:
+		health_changed = health_changed or previous.get(field) != current.get(field)
+	if health_changed: _replace_component(host, kit, 1, build_health(host, state))
+	if previous.get("equipped_equipment") != current.get("equipped_equipment") or previous.get("equipment") != current.get("equipment"):
+		# This small socket row retains its original slot order and constructor.
+		_replace_component(host, kit, 2, _gear_row(host, state))
+	var attuned_ids: Array = state.get("attuned_magic_cards", []) as Array
+	var deck_ids: Array = state.get("deck_cards", []) as Array
+	if previous.get("attuned_magic_cards") != current.get("attuned_magic_cards"):
+		_replace_component(host, kit, 3, loadout_header("ATTUNED MAGIC", "%d / %d" % [attuned_ids.size(), GameData.magic_loadout_limit()]))
+	if previous.get("deck_cards") != current.get("deck_cards"):
+		_replace_component(host, kit, 5, loadout_header("ACTIVE DECK", "%d cards" % deck_ids.size()))
+	_refresh_card_grid(host, attuned, attuned_ids, "attuned")
+	_refresh_card_grid(host, deck, deck_ids, "deck")
+	scroll.set_meta("deck_entry_count", deck_ids.size())
+	scroll.set_meta("deck_group_count", host.call("_pre_battle_card_groups", deck_ids).size())
+	scroll.scroll_horizontal = 0
+	scroll.scroll_vertical = 0
+	return true
+
+static func _kit_idle(node: Node) -> bool:
+	if node is BaseButton:
+		var button: BaseButton = node as BaseButton
+		if button.has_focus() or button.is_hovered() or button.get_draw_mode() in [BaseButton.DRAW_PRESSED, BaseButton.DRAW_HOVER_PRESSED]: return false
+	if node is Controls.Strip and (bool(node.get("selected")) or bool(node.get("_inspection_active"))): return false
+	if node is Controls.Gear and bool(node.get("selected")): return false
+	for child: Node in node.get_children():
+		if not _kit_idle(child): return false
+	return true
+
+static func _card_strip_input(host: Node, group: Dictionary, source_kind: String) -> Array:
+	var id: String = str(group["card_id"])
+	return [id, source_kind, int(group["count"]), GameData.card_def(id).duplicate(true), Typography.ui_scale(host)]
+
+static func _refresh_card_grid(host: Node, grid: HFlowContainer, ids: Array, source_kind: String) -> void:
+	var available: Dictionary = {}
+	for child: Node in grid.get_children():
+		available[str(child.get_meta("card_id", ""))] = child
+	var retained: Array[Control]
+	for group: Dictionary in host.call("_pre_battle_card_groups", ids):
+		var id: String = str(group["card_id"])
+		var strip: Control = available.get(id) as Control
+		if strip == null or strip.get_meta("presentation_input", []) != _card_strip_input(host, group, source_kind):
+			strip = _card_strip(host, group, source_kind)
+			grid.add_child(strip)
+		grid.move_child(strip, retained.size())
+		retained.append(strip)
+	for child: Node in grid.get_children():
+		if not retained.has(child):
+			host.call("_prepare_node_for_immediate_free", child)
+			grid.remove_child(child)
+			child.queue_free()
+	# The original fresh grid gives only its first child the authored name;
+	# later duplicates receive native automatic names. Preserve that observable
+	# lookup when retained groups reorder. Only the displaced name owner needs
+	# reinsertion; every other unchanged card keeps its final native parent.
+	if not retained.is_empty():
+		var authored_name: String = "PreBattleAttunedBadge" if source_kind == "attuned" else "PreBattleDeckBadge"
+		var named: Node = grid.get_node_or_null(NodePath(authored_name))
+		if named != retained[0]:
+			var displaced_index: int = named.get_index() if named != null else -1
+			if named != null: grid.remove_child(named)
+			retained[0].name = authored_name
+			if named != null:
+				grid.add_child(named)
+				grid.move_child(named, displaced_index)
+
+static func _card_strip(host: Node, group: Dictionary, source_kind: String) -> Control:
+	var strip := Controls.Strip.new()
+	strip.host = host
+	strip.name = "PreBattleAttunedBadge" if source_kind == "attuned" else "PreBattleDeckBadge"
+	strip.source_kind = source_kind
+	var id: String = str(group["card_id"])
+	var definition: Dictionary = GameData.card_def(id)
+	strip.setup(id, str(definition.get("name", id)), int(group["count"]))
+	strip.set_meta("card_id", id)
+	strip.set_meta("source_kind", source_kind)
+	strip.set_meta("card_count", int(group["count"]))
+	strip.set_meta("display_name", str(definition.get("name", id)))
+	strip.tooltip_text = "card:%s" % id
+	# Reserve scrollbar width so both columns remain stable when scrolling.
+	strip.custom_minimum_size.x = Typography.scaled_value(host, 190.0)
+	strip.set_meta("presentation_input", _card_strip_input(host, group, source_kind))
+	return strip
+
+static func build_health(host: Node, future_state: Dictionary = {}) -> Control:
 	var row := HBoxContainer.new()
 	row.name = "PreBattleHealthChip"
 	row.add_theme_constant_override("separation", 12)
@@ -464,7 +614,7 @@ static func build_health(host: Node) -> Control:
 	var health_label := label("Health", 17)
 	health_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	values.add_child(health_label)
-	var state: Dictionary = host.get("_run_state")
+	var state: Dictionary = host.get("_run_state") if future_state.is_empty() else future_state
 	values.add_child(label("%d / %d" % [int(state.get("player_hp", 0)), int(state.get("player_max_hp", 0))], 19, Palette.ALLY))
 	var capacity: int = int(host.get("_run_engine").defiance_capacity(state))
 	if capacity > 0:

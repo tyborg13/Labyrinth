@@ -120,7 +120,7 @@ func change_scene_to_file(path: String) -> void:
 	await get_tree().create_timer(SCENE_TRANSITION_LEAD_SECONDS, true, false, true).timeout
 	if generation != _transition_generation or not is_inside_tree():
 		return
-	var result: Error = get_tree().change_scene_to_file(path)
+	var result: Error = preload("res://scripts/departed_run_cleanup.gd").change_scene_to_file(get_tree(), path)
 	if result != OK:
 		_loading_until_msec = 0
 		push_error("CursorFeedback could not change scene to %s (error %d)" % [path, result])

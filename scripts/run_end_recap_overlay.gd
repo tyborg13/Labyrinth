@@ -273,7 +273,9 @@ func _process(delta: float) -> void:
 	_update_presentation()
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_RESIZED and visible:
+	# Controls added to an already-ready scene can resize before _ready has
+	# constructed the recap body. Its first presentation owns that layout.
+	if what == NOTIFICATION_RESIZED and is_node_ready() and visible:
 		_update_presentation()
 
 func _draw() -> void:

@@ -20,8 +20,174 @@ static var _outline_clean_texture_cache: Dictionary = {}
 static var _scaled_texture_cache: Dictionary = {}
 static var _texture_used_rect_cache: Dictionary = {}
 static var _audio_cache: Dictionary = {}
+static var _looping_audio_cache: Dictionary = {}
 static var _font_cache: Dictionary = {}
 static var _texture_cache: Dictionary = {}
+
+# The worker owns only its newly decoded CPU Image. Texture creation, source
+# tagging and the shared caches stay on the main thread. The drain joins the
+# outstanding task on tree shutdown; cancellation never publishes into a freed
+# scene and every pool task is reclaimed, including interrupted transitions.
+class SourceImageResult extends RefCounted:
+	var value: Variant
+	var paths: PackedStringArray
+	var images: Array[Image]
+	var cancel_mutex := Mutex.new()
+	var cancel_requested: bool = false
+
+	func cancel() -> void:
+		cancel_mutex.lock()
+		cancel_requested = true
+		cancel_mutex.unlock()
+
+	func is_cancelled() -> bool:
+		cancel_mutex.lock()
+		var cancelled: bool = cancel_requested
+		cancel_mutex.unlock()
+		return cancelled
+
+class SourceImageDrain extends Node:
+	var task_id: int = -1
+	var result: SourceImageResult
+
+	func join() -> void:
+		if task_id >= 0:
+			WorkerThreadPool.wait_for_task_completion(task_id)
+			task_id = -1
+
+	func _exit_tree() -> void:
+		if result != null: result.cancel()
+		join()
+
+static func prepare_textures_for(root: Node, manifest: Dictionary, present_frame: Callable, still_active: Callable = Callable()) -> void:
+	var drain := SourceImageDrain.new()
+	drain.name = "SourceImageDecodeDrain"
+	drain.process_mode = Node.PROCESS_MODE_ALWAYS
+	drain.result = SourceImageResult.new()
+	root.add_child(drain)
+	var source_paths: Dictionary = {}
+	for path: String in manifest:
+		if _texture_cache.has(path): continue
+		var source_first: bool = bool(manifest[path])
+		if FileAccess.file_exists(path) and (source_first or _should_prefer_source_file(path, TEXTURE_EXTENSIONS) or not ResourceLoader.exists(path)):
+			source_paths[path] = drain.result.paths.size()
+			drain.result.paths.append(path)
+	if not drain.result.paths.is_empty():
+		# One worker decodes the batch continuously instead of charging a whole
+		# display interval per small asset. Inputs remain immutable; the result
+		# array transfers to the main thread only after the pool task is joined.
+		drain.task_id = WorkerThreadPool.add_task(_decode_owned_source_images.bind(drain.result), false, "Decode initial source images")
+	var slice_started: int = Time.get_ticks_usec()
+	for path: String in manifest:
+		if still_active.is_valid() and not bool(still_active.call()):
+			drain.result.cancel()
+			break
+		if _texture_cache.has(path) or source_paths.has(path): continue
+		load_texture_source_first(path) if bool(manifest[path]) else load_texture(path)
+		if Time.get_ticks_usec() - slice_started >= 4000:
+			await present_frame.call()
+			if not is_instance_valid(drain) or not drain.is_inside_tree(): return
+			slice_started = Time.get_ticks_usec()
+	if drain.task_id >= 0:
+		while not WorkerThreadPool.is_task_completed(drain.task_id):
+			await present_frame.call()
+			if not is_instance_valid(drain) or not drain.is_inside_tree(): return
+			if still_active.is_valid() and not bool(still_active.call()): drain.result.cancel()
+		drain.join()
+	if not drain.result.is_cancelled():
+		slice_started = Time.get_ticks_usec()
+		for path: String in source_paths:
+			if still_active.is_valid() and not bool(still_active.call()): break
+			# Keep an identity published by another main-thread consumer while
+			# decoding, and use the existing fallback on a failed source decode.
+			if not _texture_cache.has(path):
+				var image: Image = drain.result.images[int(source_paths[path])]
+				if image != null:
+					_texture_cache[path] = _tag_texture_source(ImageTexture.create_from_image(image), path)
+				else:
+					load_texture_source_first(path) if bool(manifest[path]) else load_texture(path)
+			if Time.get_ticks_usec() - slice_started >= 4000:
+				await present_frame.call()
+				if not is_instance_valid(drain) or not drain.is_inside_tree(): return
+				slice_started = Time.get_ticks_usec()
+	drain.queue_free()
+
+# Producers must create private CPU data only: no scene nodes, GPU objects or
+# shared-cache mutation. The main-thread caller owns publication after the join.
+static func prepare_cpu_value_for(root: Node, producer: Callable, present_frame: Callable, still_active: Callable) -> Variant:
+	var drain := SourceImageDrain.new()
+	drain.name = "OwnedCpuPreparationDrain"
+	drain.result = SourceImageResult.new()
+	root.add_child(drain)
+	drain.task_id = WorkerThreadPool.add_task(_produce_owned_cpu_value.bind(producer, drain.result), false, "Prepare owned CPU asset")
+	while not WorkerThreadPool.is_task_completed(drain.task_id):
+		await present_frame.call()
+		if not is_instance_valid(drain) or not drain.is_inside_tree(): return null
+		if not bool(still_active.call()): drain.result.cancel()
+	drain.join()
+	var value: Variant = null if drain.result.is_cancelled() else drain.result.value
+	drain.queue_free()
+	return value
+
+static func _produce_owned_cpu_value(producer: Callable, result: SourceImageResult) -> void:
+	if not result.is_cancelled(): result.value = producer.call()
+
+static func prepare_audio_for(root: Node, paths: PackedStringArray, present_frame: Callable, still_active: Callable, prepare_loop: bool = false) -> void:
+	for path: String in paths:
+		if _audio_cache.has(path) and (not prepare_loop or _looping_audio_cache.has(_audio_cache[path])): continue
+		if _audio_cache.has(path):
+			if prepare_loop: looping_audio_copy(_audio_cache[path] as AudioStream)
+			continue
+		# Imported resources remain on the main thread. Only the same raw-file
+		# route used by load_audio_stream creates privately owned worker data.
+		if not _should_prefer_source_file(path, AUDIO_EXTENSIONS) and ResourceLoader.exists(path):
+			var imported: AudioStream = load_audio_stream(path)
+			if prepare_loop: looping_audio_copy(imported)
+			continue
+		var result: Variant = await prepare_cpu_value_for(root, _prepare_owned_audio.bind(path, prepare_loop), present_frame, still_active)
+		if not bool(still_active.call()) or not result is Dictionary: return
+		var stream: AudioStream = result.get("stream") as AudioStream
+		if stream != null and not _audio_cache.has(path): _audio_cache[path] = stream
+		if prepare_loop and stream != null and _audio_cache.get(path) == stream:
+			_looping_audio_cache[stream] = result.get("looped")
+
+static func _prepare_owned_audio(path: String, prepare_loop: bool) -> Dictionary:
+	var stream: AudioStream = _load_audio_stream_from_file(path)
+	return {"stream": stream, "looped": _new_looping_audio_copy(stream) if prepare_loop and stream != null else null}
+
+static func looping_audio_copy(resource: AudioStream) -> AudioStream:
+	if resource == null: return null
+	if not _looping_audio_cache.has(resource): _looping_audio_cache[resource] = _new_looping_audio_copy(resource)
+	return _looping_audio_cache[resource] as AudioStream
+
+static func _new_looping_audio_copy(resource: AudioStream) -> AudioStream:
+	var looped: AudioStream = resource.duplicate() as AudioStream
+	if looped is AudioStreamWAV:
+		var wav: AudioStreamWAV = looped as AudioStreamWAV
+		wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		wav.loop_begin = 0
+		wav.loop_end = maxi(1, int(round(wav.get_length() * float(wav.mix_rate))))
+	return looped
+
+static func _decode_owned_source_images(result: SourceImageResult) -> void:
+	for path: String in result.paths:
+		if result.is_cancelled(): return
+		result.images.append(_load_source_image(path))
+
+static func add_texture_constants(manifest: Dictionary, script: Script) -> void:
+	# Constants are the owning loader's asset manifest. Do not walk preloaded
+	# scripts: that would eagerly retain unrelated content and whole enemy rigs.
+	_add_texture_paths(manifest, script.get_script_constant_map())
+
+static func _add_texture_paths(manifest: Dictionary, value: Variant) -> void:
+	if value is String:
+		var path: String = value
+		if path.begins_with("res://") and TEXTURE_EXTENSIONS.has(path.get_extension().to_lower()) and not manifest.has(path):
+			manifest[path] = false
+	elif value is Dictionary:
+		for entry: Variant in value.values(): _add_texture_paths(manifest, entry)
+	elif value is Array or value is PackedStringArray:
+		for entry: Variant in value: _add_texture_paths(manifest, entry)
 
 static func load_texture(path: String) -> Texture2D:
 	if path.is_empty():
@@ -88,6 +254,10 @@ static func load_audio_stream(path: String, loop: bool = false) -> AudioStream:
 	return _configure_audio_loop(stream, loop)
 
 static func _load_texture_from_file(path: String) -> Texture2D:
+	var image: Image = _load_source_image(path)
+	return ImageTexture.create_from_image(image) if image != null else null
+
+static func _load_source_image(path: String) -> Image:
 	if not FileAccess.file_exists(path):
 		return null
 	var image := Image.new()
@@ -106,7 +276,7 @@ static func _load_texture_from_file(path: String) -> Texture2D:
 			error = ERR_FILE_UNRECOGNIZED
 	if error != OK or image.is_empty():
 		return null
-	return ImageTexture.create_from_image(image)
+	return image
 
 static func _load_audio_stream_from_file(path: String) -> AudioStream:
 	if not FileAccess.file_exists(path):

@@ -18,9 +18,23 @@ Motion descriptors are presentation-only. No resolver, card balance, initiative,
 
 The walking gait runs at a 0.30-second cycle with 48 source-pixel strides and 80 source pixels of travel per cycle. Relative to pass eight, cadence is 20% lower, travel per cycle is 60% greater, and nominal ground speed is 28% greater. Root speed follows this projected travel, so a typical full-size tile takes 31 frames (about 0.52 seconds), with support feet held against the ground. Single-target melee takes 0.50 seconds overall; its cut occupies 30 milliseconds around the existing 42% contact threshold. Self-centered AoE weapon attacks use the existing melee sound classification and play the cutout swing while preserving their 0.24-second effect and 38% contact boundary. Targeted AoE remains a casting action. Other actors keep their existing presentation timing.
 
-The old whole-sprite melee lunge is removed: the articulated torso drive and planted feet supply the action on the protagonist’s real tile. Slash artwork is withheld during anticipation and peaks with the cut; idle resumes as soon as the recovery ends even while damage text is still finishing. Cached equipment views follow later reduced-motion changes. Existing death squash and Blink echo scaling transform the logical body rectangle before padding is added, preserving their floor registration.
+The old whole-sprite melee lunge is removed: the articulated torso drive and planted feet supply the action on the protagonist’s real tile. The strike trail (below) appears with the cut and peaks at contact; idle resumes as soon as the recovery ends even while damage text is still finishing. Cached equipment views follow later reduced-motion changes. Existing death squash and Blink echo scaling transform the logical body rectangle before padding is added, preserving their floor registration.
 
 The [board pixel-density pipeline](board_pixel_density.md) cleans only the rear body paint; the untouched front remains the reference, and rear weapon, crossbow and hand layers stay protected.
+
+## Strike trail
+
+Hero melee and Mirror Triptych echoes draw a procedural, additive strike trail instead of the old painted slash (design and owner decisions: `spec/design/melee_strike_trail/README.md`).
+
+- **Path.** `renderer.strike_samples()` samples the weapon tip and an inner point down the weapon from the attack clip at 1/240 progress. It uses the same clip routing and sword/bow phase remap as `present()`, without touching the live rig. `scripts/hero_strike_trail.gd` caches samples per renderer, gear revision, facing and motion, and projects them through the body draw rect.
+- **Kinds** (`scripts/strike_trail_fx.gd`):
+  - `sweep` for sword, heavy, whip and bow/repeater bashes: a crescent between the tip path and the inner point.
+  - `streak` for stab and thrust: a speed streak along the weapon.
+  - `arc` for echoes: a synthetic crescent at the target.
+- **Look.** Warm ember light: a warm-white edge, an amber body and an ember-red tail. Elemental melee uses its element palette. A few deterministic sparks, and one four-point glint at contact (0.42).
+- **Timing.** The trail fades within 0.06 progress after the strike window. Reduced motion draws no trail.
+- **Drawing.** `scripts/strike_trail_layer.gd` is an additive child of the retained effects layer. It sits above units and below floating/status text and the HUD, and is resubmitted on every state sync and after zoom or pan.
+- **Enemies.** Enemy melee keeps its own effects until the enemy strike-trail unit lands.
 
 ## Visible equipment
 
@@ -95,9 +109,7 @@ apex. No reach corrections are needed. The updated
 registry `weapon_grip` preserves the painted palm/pommel registration through
 a per-rig layout copy, without mutating the shared `RigData` dictionary.
 
-`stab` replaces the slash arc with a thrust streak at the target (52 px behind
-to 16 px past contact, a 7-px warm glow under a 3-px core, plus a short contact
-spark); the harrier keeps its original thin streak. A `block` reaction plays
+`stab` and `thrust` draw a speed-streak strike trail along the weapon (below). A `block` reaction plays
 `block_shield` (the shield rises in front of the chest, the sword stays down)
 only when a shield is drawn, including the maul loadout; held or empty offhands
 keep the weapon-guard `block`.
@@ -111,14 +123,12 @@ The full-pass poses live in `full_gear_motion.gd` and reuse the existing sampler
 - drive it 26 px forward by .42 and hold through .56;
 - recover through the lowered pose to the carry by 1.0.
 
-The pole stays along the front/rear stab line from .20 through .62. It shares the stab's leading-foot step, 10 px root lunge, planted trailing foot and minimum pelvis fit, with a −0.10 rad front offhand brace at contact (mirrored rear). Its contact effect is the stab streak.
+The pole stays along the front/rear stab line from .20 through .62. It shares the stab's leading-foot step, 10 px root lunge, planted trailing foot and minimum pelvis fit, with a −0.10 rad front offhand brace at contact (mirrored rear). Its contact effect is the streak strike trail.
 
 `lash` selects `attack_lash` (29 frames, 0.48 s): gather the wrist 20px above
 and 6px behind the shoulder, point the whip up over the weapon-side shoulder,
 snap along the attack line at shoulder height at .42, follow through low and
-recover by .90. `melee_lash_fx.gd` draws a hand-to-target quadratic crack bowed
-18 screen px upward, a 3px warm-white core under a 6px teal glow from .36 to
-.62 and a small fading burst at .42. Reduced motion omits both new trails.
+recover by .90. Its contact effect is a thin sweep strike trail that follows the whip tip.
 
 `bow` and `repeater` keep the sword cut and phase remap for melee bashes, and keep `cast` for magic. Physical shots are one-armed (see `protagonist_ranged_animations.md`). The new clips keep the offhand, rigid paint and planted feet, and existing clips are unchanged. The gameplay effect carries both visual motion values without changing resolver, sound, analytics or save ownership.
 
@@ -147,7 +157,7 @@ Grip and side carry (unit 6, owner-approved). `GearLayers.base_depth` overrides 
 | Layer | Front | Rear |
 | --- | --- | --- |
 | Main weapon, carry clips (rest, idle, walk, hit, death, cast, block_shield) | 8: behind the near leg and foot, so a pole's butt tucks behind the boot | 5: behind the whole body |
-| Main weapon, `attack_thrust` | 38 during clip phase 0.20–0.62 (behind torso 40 and hips 42, above legs ≤22); 8 during lowering and recovery. Thrust uses effect progress directly, so these are also renderer progress boundaries. | 5 |
+| Main weapon, `attack_thrust` | 38 during clip phase 0.20–0.62 (behind torso 40 and hips 42, above legs ≤22); 8 during lowering and recovery. Single-target thrusts use effect progress as clip phase, so these are also their effect-progress boundaries; self-centred weapon sweeps remap progress to clip phase, so for them the boundaries are clip phase only. | 5 |
 | Main weapon, other use clips (other attacks, the weapon guard `block`, every shot) | 66 | 5; a bow or repeater shot draws at 66 |
 | Generic crossbow (only while shooting a non-bow, non-repeater weapon) | 66 | 66: an aimed crossbow extends beyond the rear silhouette, like the bow and repeater (design-owner decision; `rear.json` matches) |
 | Glove (`hand_r`) | 65 | 65 |

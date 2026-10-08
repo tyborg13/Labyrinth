@@ -9,19 +9,25 @@ var pulse_phase: float = 0.0
 var actionable: bool = false
 var scout_target: bool = false
 var activation_progress: float = 0.0
+var _configured: bool = false
 
 func configure(data: Dictionary, _caption: String, state: String, reduce_motion: bool = false) -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	room_data = data
 	route_state = state
 	reduced_motion = reduce_motion
-	for style: String in ["normal", "hover", "pressed", "focus", "disabled"]:
-		add_theme_stylebox_override(style, StyleBoxEmpty.new())
-	focus_mode = Control.FOCUS_ALL
-	mouse_entered.connect(queue_redraw)
-	mouse_exited.connect(queue_redraw)
-	focus_entered.connect(queue_redraw)
-	focus_exited.connect(queue_redraw)
+	# Reconfiguration retains the native button, with the same pulse reset that
+	# a newly constructed room node used on each map refresh.
+	pulse_phase = 0.0
+	if not _configured:
+		_configured = true
+		for style: String in ["normal", "hover", "pressed", "focus", "disabled"]:
+			add_theme_stylebox_override(style, StyleBoxEmpty.new())
+		focus_mode = Control.FOCUS_ALL
+		mouse_entered.connect(queue_redraw)
+		mouse_exited.connect(queue_redraw)
+		focus_entered.connect(queue_redraw)
+		focus_exited.connect(queue_redraw)
 	refresh_state()
 
 func refresh_state() -> void:

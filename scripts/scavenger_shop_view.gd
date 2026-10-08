@@ -9,6 +9,7 @@ signal item_hovered(merchant_kind: String, item_id: String, source: Control)
 signal item_unhovered(merchant_kind: String, item_id: String, source: Control)
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const Glyphs = preload("res://scripts/ui_glyph_preparation.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
@@ -122,7 +123,15 @@ func _ready() -> void:
 	_layout_canvas()
 	set_process(true)
 
-func configure(run_state: Dictionary, run_engine: RefCounted, reduced_motion: bool) -> void:
+func configure(run_state: Dictionary, run_engine: RefCounted, reduced_motion: bool, performance_checkpoint: Callable = Callable()) -> void:
+	var started: int = Time.get_ticks_usec() if performance_checkpoint.is_valid() else 0
+	_configure_context(run_state, run_engine, reduced_motion)
+	started = _performance_checkpoint(performance_checkpoint, "state", started)
+	_rebuild_inventory(performance_checkpoint)
+	started = _performance_checkpoint(performance_checkpoint, "inventory", started)
+	_complete_configuration(performance_checkpoint, started)
+
+func _configure_context(run_state: Dictionary, run_engine: RefCounted, reduced_motion: bool) -> void:
 	_run_state = run_state.duplicate(true)
 	_run_engine = run_engine
 	if reduced_motion and not _reduced_motion:
@@ -146,16 +155,55 @@ func configure(run_state: Dictionary, run_engine: RefCounted, reduced_motion: bo
 		_intro_open = true
 		_clear_receipt()
 		_sync_dialogue()
-	_rebuild_inventory()
+
+func _complete_configuration(performance_checkpoint: Callable = Callable(), started: int = 0) -> void:
 	_restore_selection_after_rebuild()
 	_sync_currency()
 	_sync_detail()
 	_sync_mode()
+	started = _performance_checkpoint(performance_checkpoint, "detail_mode", started)
 	for button: Node in _canvas.find_children("*", "Button", true, false):
 		if button is ShopAction or button is Ware: button.set("reduced_motion", _reduced_motion)
+	_performance_checkpoint(performance_checkpoint, "motion_settings", started)
 	if _portrait != null and _reduced_motion: _portrait.call("apply_pose", "rest", 0.0)
 	if visible and not _entry_played_for_room:
 		call_deferred("_play_entry")
+
+# The hidden destination can construct its exact offers during existing travel.
+# Each suspension resumes into this static owner check. Arrival keeps the same
+# synchronous configure fallback, so unfinished preparation never delays input.
+static func prepare_hidden_for(shop: Control, state: Dictionary, engine: RefCounted, reduced: bool, present_frame: Callable, still_active: Callable, observer: Callable = Callable()) -> void:
+	if not _hidden_preparation_active(shop, still_active): return
+	shop._configure_context(state, engine, reduced)
+	var jobs: Array[Callable] = shop._inventory_shelf_jobs()
+	var slice_started: int = Time.get_ticks_usec()
+	for job: Callable in jobs:
+		if not _hidden_preparation_active(shop, still_active): return
+		var started: int = Time.get_ticks_usec() if observer.is_valid() else 0
+		job.call()
+		_performance_checkpoint(observer, "prepare_offer_job", started)
+		if Time.get_ticks_usec() - slice_started >= 4000:
+			await present_frame.call()
+			if not _hidden_preparation_active(shop, still_active): return
+			slice_started = Time.get_ticks_usec()
+	shop._finish_inventory()
+	shop._complete_configuration()
+	for action: Node in shop._canvas.find_children("*", "Button", true, false):
+		if action is ShopAction and shop._action_will_be_visible(action): action.prepare_label()
+	# Hidden controls have their final stock and native typography. Prepare their
+	# exact bitmap caches while travel is already presenting; showing or replacing
+	# this shop cancels immediately and retains the ordinary arrival fallback.
+	await Glyphs.prepare_controls_for(shop, shop, present_frame, _hidden_preparation_active.bind(shop, still_active))
+
+func _action_will_be_visible(action: Control) -> bool:
+	var node: Node = action
+	while is_instance_valid(node) and node != self:
+		if node is CanvasItem and not node.visible: return false
+		node = node.get_parent()
+	return node == self
+
+static func _hidden_preparation_active(shop: Variant, still_active: Callable) -> bool:
+	return is_instance_valid(shop) and shop.is_inside_tree() and not shop.is_queued_for_deletion() and not shop.visible and bool(still_active.call())
 
 func present() -> void:
 	visible = true
@@ -658,9 +706,15 @@ func _sync_mode() -> void:
 	_sync_dialogue()
 	_configure_focus_neighbors()
 
-func _rebuild_inventory() -> void:
-	if _run_engine == null or _magic_group == null:
-		return
+func _rebuild_inventory(performance_checkpoint: Callable = Callable()) -> void:
+	if _run_engine == null or _magic_group == null: return
+	var started: int = Time.get_ticks_usec() if performance_checkpoint.is_valid() else 0
+	for job: Callable in _inventory_shelf_jobs(): job.call()
+	started = _performance_checkpoint(performance_checkpoint, "shelf_build", started)
+	_finish_inventory(performance_checkpoint, started)
+
+func _inventory_shelf_jobs() -> Array[Callable]:
+	var jobs: Array[Callable]
 	var offers: Array = _run_engine.call("merchant_offer_ids", _run_state, MERCHANT_KIND)
 	var offers_by_kind: Dictionary = {MAGIC: [], GEAR: [], ITEM: []}
 	for offer_var: Variant in offers:
@@ -670,51 +724,134 @@ func _rebuild_inventory() -> void:
 	for kind: String in offers_by_kind:
 		var ids: Array = offers_by_kind[kind] as Array
 		var signatures: Array = []
-		for item_id: String in ids:
-			var affordable: bool = _offer_is_affordable(item_id, false)
-			signatures.append([item_id, affordable])
+		for item_id: String in ids: signatures.append([item_id, _offer_is_affordable(item_id, false)])
 		var signature: int = hash(signatures)
 		if _shelf_signatures.get(kind, -1) != signature:
-			var target_group: Control = _magic_group if kind == MAGIC else (_gear_group if kind == GEAR else _item_group)
-			var row := target_group.get_node("OfferRow") as HBoxContainer
-			for child: Node in row.get_children():
-				var item_id: String = str(child.get_meta("shop_item_id", ""))
-				var key: String = "buy:" + item_id
-				_forget_offer(key)
-			_clear_children(row)
-			for item_id: String in ids:
-				var shelf_slot := CenterContainer.new()
-				shelf_slot.name = "ShelfCubby_%s" % item_id
-				shelf_slot.set_meta("shop_item_id", item_id)
-				shelf_slot.custom_minimum_size = Vector2(SHELF_SLOT_WIDTH, row.size.y)
-				shelf_slot.size_flags_vertical = Control.SIZE_EXPAND_FILL
-				shelf_slot.add_child(_build_offer(item_id, kind))
-				row.add_child(shelf_slot)
-			_shelf_signatures[kind] = signature
-		# Unaffordable tooltips include the changing amount still needed even
-		# while their price, disabled tint and card artwork remain unchanged.
-		for item_id: String in ids:
-			var offer: Control = _offer_sources.get("buy:" + item_id) as Control
-			if offer != null: offer.tooltip_text = _offer_tooltip(item_id, false, _offer_is_affordable(item_id, false))
+			jobs.append(_prune_shelf.bind(kind, ids))
+			for index: int in ids.size(): jobs.append(_retain_shelf_offer.bind(kind, str(ids[index]), index))
+			jobs.append(_publish_shelf_signature.bind(kind, signature))
+		jobs.append(_refresh_shelf_tooltips.bind(ids))
+	return jobs
+
+func _shelf_row(kind: String) -> HBoxContainer:
+	var group: Control = _magic_group if kind == MAGIC else (_gear_group if kind == GEAR else _item_group)
+	return group.get_node("OfferRow") as HBoxContainer
+
+func _clear_shelf(kind: String) -> void:
+	var row: HBoxContainer = _shelf_row(kind)
+	for child: Node in row.get_children(): _forget_offer("buy:" + str(child.get_meta("shop_item_id", "")))
+	_clear_children(row)
+	# A cancelled partial build must not advertise the old complete signature.
+	_shelf_signatures.erase(kind)
+
+func _add_shelf_offer(kind: String, item_id: String) -> void:
+	var row: HBoxContainer = _shelf_row(kind)
+	var slot := CenterContainer.new()
+	slot.name = "ShelfCubby_%s" % item_id
+	slot.set_meta("shop_item_id", item_id)
+	slot.custom_minimum_size = Vector2(SHELF_SLOT_WIDTH, row.size.y)
+	slot.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var offer: Control = _build_offer(item_id, kind)
+	offer.set_meta("shop_content_input", _offer_content_input(item_id, kind, false))
+	slot.add_child(offer)
+	row.add_child(slot)
+
+# Reconcile in the existing final parents. A sale removes one pack tile; it
+# does not invalidate the native card compositions of the remaining wares.
+# The same per-offer jobs serve hidden travel preparation and live refresh.
+func _prune_shelf(kind: String, ids: Array) -> void:
+	_shelf_signatures.erase(kind)
+	var row: HBoxContainer = _shelf_row(kind)
+	for child: Node in row.get_children():
+		var item_id: String = str(child.get_meta("shop_item_id", ""))
+		if not ids.has(item_id): _retire_offer_child(child, "buy:" + item_id)
+
+func _retain_shelf_offer(kind: String, item_id: String, index: int) -> void:
+	var row: HBoxContainer = _shelf_row(kind)
+	var slot: Control
+	for child: Node in row.get_children():
+		if str(child.get_meta("shop_item_id", "")) == item_id:
+			slot = child as Control
+			break
+	var source: Variant = _offer_sources.get("buy:" + item_id)
+	if slot != null and (not is_instance_valid(source) or source.is_queued_for_deletion() or not slot.is_ancestor_of(source) or source.get_meta("shop_content_input", []) != _offer_content_input(item_id, kind, false)):
+		_retire_offer_child(slot, "buy:" + item_id)
+		slot = null
+	if slot == null:
+		_add_shelf_offer(kind, item_id)
+		slot = row.get_child(row.get_child_count() - 1) as Control
+	else:
+		slot.custom_minimum_size = Vector2(SHELF_SLOT_WIDTH, row.size.y)
+		_refresh_offer_price(source, item_id, false)
+	if slot.get_index() != index: row.move_child(slot, index)
+
+func _offer_content_input(item_id: String, kind: String, selling: bool) -> Array:
+	var definition: Dictionary = GameData.equipment_def(item_id) if kind == GEAR else GameData.card_def(item_id)
+	return [item_id, kind, selling, definition.duplicate(true), UiTypography.ui_scale(self)]
+
+func _retire_offer_child(child: Node, key: String) -> void:
+	var source: Variant = child if child is Button else child.get_child(0) if child.get_child_count() > 0 else null
+	_retire_offer_source(source)
+	if _offer_sources.get(key) == source:
+		_offer_sources.erase(key)
+		_selection_effects.erase(key)
+	if child is Control:
+		child.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		child.focus_mode = Control.FOCUS_NONE
+	child.get_parent().remove_child(child)
+	child.queue_free()
+
+func _refresh_offer_price(source: Control, item_id: String, selling: bool) -> void:
+	var affordable: bool = _offer_is_affordable(item_id, selling)
+	source.tooltip_text = _offer_tooltip(item_id, selling, affordable)
+	source.set_meta("shop_affordable", affordable)
+	var old: Control = source.find_child("ScavengerPriceTag", true, false) as Control
+	var amount: int = int(_run_engine.call("merchant_sell_value" if selling else "merchant_buy_cost", MERCHANT_KIND, item_id))
+	if old != null and (old.get("amount") != amount or old.get("affordable") != affordable or old.get("selling") != selling):
+		var parent: Node = old.get_parent()
+		var index: int = old.get_index()
+		parent.remove_child(old)
+		old.queue_free()
+		var next: Control = _price_tag(item_id, selling)
+		parent.add_child(next)
+		parent.move_child(next, index)
+
+func _publish_shelf_signature(kind: String, signature: int) -> void:
+	_shelf_signatures[kind] = signature
+
+func _refresh_shelf_tooltips(ids: Array) -> void:
+	# Prices and tint can stay unchanged while the amount still needed changes.
+	for item_id: String in ids:
+		var offer: Control = _offer_sources.get("buy:" + item_id) as Control
+		if offer != null: offer.tooltip_text = _offer_tooltip(item_id, false, _offer_is_affordable(item_id, false))
+
+func _finish_inventory(performance_checkpoint: Callable = Callable(), started: int = 0) -> void:
 	_all_sellable_ids = _run_engine.call("merchant_sellable_ids", _run_state, MERCHANT_KIND)
 	_sellable_ids = _all_sellable_ids.filter(func(id: Variant) -> bool: return _pack_filter == "all" or str(_run_engine.call("merchant_item_kind", str(id))) == _pack_filter)
 	_populate_sell_page()
+	started = _performance_checkpoint(performance_checkpoint, "pack_build", started)
 	_update_selection_effects()
 	_shade_ui_labels(_magic_group)
 	_shade_ui_labels(_gear_group)
 	_shade_ui_labels(_item_group)
 	_shade_ui_labels(_sell_panel)
+	_performance_checkpoint(performance_checkpoint, "selection_shading", started)
+
+static func _performance_checkpoint(observer: Callable, phase: String, started: int) -> int:
+	return int(observer.call("shop_" + phase, started)) if observer.is_valid() else 0
 
 func _forget_offer(key: String) -> void:
-	var source: Control = _offer_sources.get(key) as Control
-	if is_instance_valid(source):
-		source.set_meta("shop_offer_retired", true)
-		var tween_key: int = source.get_instance_id()
-		var tween: Tween = _slot_tweens.get(tween_key) as Tween
-		if tween != null and tween.is_valid(): tween.kill()
-		_slot_tweens.erase(tween_key)
+	_retire_offer_source(_offer_sources.get(key))
 	_offer_sources.erase(key)
 	_selection_effects.erase(key)
+
+func _retire_offer_source(source: Variant) -> void:
+	if not is_instance_valid(source): return
+	source.set_meta("shop_offer_retired", true)
+	var tween_key: int = source.get_instance_id()
+	var tween: Tween = _slot_tweens.get(tween_key) as Tween
+	if tween != null and tween.is_valid(): tween.kill()
+	_slot_tweens.erase(tween_key)
 
 func _populate_sell_page() -> void:
 	var page_count: int = maxi(1, ceili(float(_sellable_ids.size()) / float(SELL_PAGE_SIZE)))
@@ -722,10 +859,6 @@ func _populate_sell_page() -> void:
 	var signature: String = "%d|%d|%d" % [hash([_sellable_ids, _pack_filter]), _sell_page, page_count]
 	if signature == _sell_page_signature: return
 	_sell_page_signature = signature
-	for key_var: Variant in _offer_sources.keys():
-		var key: String = str(key_var)
-		if key.begins_with("sell:"): _forget_offer(key)
-	_clear_children(_sell_row)
 	_sell_heading.text = "YOUR PACK" if page_count == 1 else "YOUR PACK  ·  %d / %d" % [_sell_page + 1, page_count]
 	_sell_previous.disabled = _sell_page <= 0
 	_sell_next.disabled = _sell_page >= page_count - 1
@@ -736,6 +869,27 @@ func _populate_sell_page() -> void:
 	_sell_row.size.y = grid_height
 	_sell_panel.custom_minimum_size.y = grid_height + 168.0
 	_sell_panel.size.y = grid_height + 168.0
+	var ids: Array[String]
+	var first_index: int = _sell_page * SELL_PAGE_SIZE
+	for index: int in range(first_index, mini(first_index + SELL_PAGE_SIZE, _sellable_ids.size())): ids.append(str(_sellable_ids[index]))
+	var retained: Dictionary = {}
+	for child: Node in _sell_row.get_children():
+		var item_id: String = str(child.get_meta("shop_item_id", ""))
+		var kind: String = str(_run_engine.call("merchant_item_kind", item_id))
+		if ids.has(item_id) and child.get_meta("shop_content_input", []) == _offer_content_input(item_id, kind, true):
+			if not retained.has(item_id): retained[item_id] = []
+			(retained[item_id] as Array).append(child)
+		else: _retire_offer_child(child, "sell:" + item_id)
+	# The original registry resolves an ID to its last visible occurrence. Clear
+	# it independently of child iteration, including externally freed rows, and
+	# publish that same mapping while preserving one control per actual copy.
+	for key: String in _offer_sources.keys():
+		if key.begins_with("sell:"):
+			_offer_sources.erase(key)
+			_selection_effects.erase(key)
+	for tween_key: Variant in _slot_tweens.keys():
+		var tween: Tween = _slot_tweens[tween_key] as Tween
+		if tween == null or not tween.is_valid(): _slot_tweens.erase(tween_key)
 	if _sellable_ids.is_empty():
 		var empty := Label.new()
 		empty.text = "No spare wares to sell." if _pack_filter == "all" else "No %s to sell." % ("items" if _pack_filter == ITEM else _pack_filter)
@@ -748,9 +902,36 @@ func _populate_sell_page() -> void:
 		_sell_row.add_child(empty)
 	else:
 		_sell_row.columns = 3
-		var first_index: int = _sell_page * SELL_PAGE_SIZE
-		for index: int in range(first_index, mini(first_index + SELL_PAGE_SIZE, _sellable_ids.size())):
-			_sell_row.add_child(_build_sell_offer(str(_sellable_ids[index])))
+		for index: int in ids.size():
+			var item_id: String = ids[index]
+			var available: Array = retained.get(item_id, [])
+			var offer: Control = available.pop_front() as Control if not available.is_empty() else null
+			if offer == null:
+				offer = _build_sell_offer(item_id)
+				offer.set_meta("shop_content_input", _offer_content_input(item_id, str(_run_engine.call("merchant_item_kind", item_id)), true))
+				_sell_row.add_child(offer)
+			else:
+				_refresh_offer_price(offer, item_id, true)
+				# A retained former last occurrence may become an earlier copy; all
+				# copies start with the original unselected paint before map sync.
+				offer.set("chosen", false)
+				offer.modulate = Color.WHITE
+				offer.self_modulate = Color.WHITE
+				var art: Control = offer.find_child("WareArt", true, false) as Control
+				if art != null: art.modulate = Color.WHITE
+			_offer_sources["sell:" + item_id] = offer
+			_selection_effects["sell:" + item_id] = offer
+			if offer.get_index() != index: _sell_row.move_child(offer, index)
+
+	for item_id: String in retained:
+		for child: Node in retained[item_id]: _retire_offer_child(child, "sell:" + item_id)
+
+	# Shrink after pruning: assigning size while the old page still contributes
+	# its minimum clamps the new smaller grid to the previous height.
+	_sell_row.update_minimum_size()
+	_sell_row.size.y = grid_height
+	_sell_panel.update_minimum_size()
+	_sell_panel.size.y = grid_height + 168.0
 
 func _turn_sell_page(delta: int) -> void:
 	var focus: Control = get_viewport().gui_get_focus_owner()
@@ -915,6 +1096,7 @@ func _wire_offer_button(button: Button, item_id: String, selling: bool) -> void:
 	button.mouse_entered.connect(_hover_item.bind(item_id, button))
 	button.mouse_exited.connect(_unhover_item.bind(item_id, button))
 	var affordable: bool = _offer_is_affordable(item_id, selling)
+	button.set_meta("shop_item_id", item_id)
 	button.set_meta("shop_affordable", affordable)
 	button.set_meta("shop_pointer_hovered", false)
 	button.tooltip_text = _offer_tooltip(item_id, selling, affordable)

@@ -280,14 +280,6 @@ func source_socket(shot: bool = false, released: bool = false, direction_delta: 
 		point += preload("res://scripts/protagonist_cutout/full_gear_motion.gd").aim_for_facing(socket_facing) * 6.0
 	return Vector2(SOURCE_SIZE.x - point.x, point.y) if socket_mirrored else point
 
-func weapon_grip_source() -> Vector2:
-	if rigs.is_empty():
-		return SOURCE_SIZE * 0.5
-	var rig: Node2D = rigs[facing]
-	var offset: Vector2 = Motion._gear_vector(rig.layout["weapon_grip"]["assembled"]) - Motion._joint_position(rig.layout, "weapon_r")
-	var point: Vector2 = rig.to_local(rig.bones["weapon_r"].to_global(offset))
-	return Vector2(SOURCE_SIZE.x - point.x, point.y) if mirrored else point
-
 func snapshot() -> Dictionary:
 	var ranged_still: bool = reduced_motion and clip in ["cast", "shoot", "shoot_bow", "shoot_repeater"]
 	return {"art": "protagonist_cutout_pass9", "facing": facing, "mirrored": mirrored,

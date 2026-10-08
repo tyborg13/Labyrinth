@@ -135,6 +135,7 @@ const RUN_STAT_DAMAGE_RECEIVED: String = "damage_received"
 # preview, status hook, and death hook.
 var _relic_effect_cache_ids: Array = []
 var _relic_effect_cache_rites: String = ""
+var _relic_effect_cache_valid: bool = false
 var _relic_effect_cache: Array[Dictionary] = []
 var _runtime_performance_instrumentation_enabled: bool = false
 var _runtime_performance_totals_usec: Dictionary = {}
@@ -782,6 +783,15 @@ func _maybe_trigger_pain_recall(state: Dictionary, discarded_card_id: String) ->
 	return next_state
 
 func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dictionary) -> Dictionary:
+	var cursor: Dictionary = begin_combat_creation(run_seed, room_layout, player_snapshot)
+	while not advance_combat_creation(cursor): pass
+	return cursor["state"]
+
+func begin_combat_creation(run_seed: int, room_layout: Dictionary, player_snapshot: Dictionary) -> Dictionary:
+	# A cancelled future may be retried after mutable definitions change.
+	# Refresh once per new combat, retaining the cheap ordered-input cache
+	# for every later rules query within that combat.
+	_relic_effect_cache_valid = false
 	var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 	rng.seed = _combat_seed(run_seed, room_layout.get("coord", Vector2i.ZERO))
 	var deck_cards: Array = player_snapshot.get("deck_cards", []).duplicate()
@@ -796,7 +806,7 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 	var relic_ids: Array = player_snapshot.get("relics", []).duplicate()
 	player["block"] = int(player.get("block", 0)) + GameData.stat_bonus_from_relics(relic_ids, "start_combat_block")
 	player["stoneskin"] = int(player.get("stoneskin", 0)) + GameData.stat_bonus_from_relics(relic_ids, "start_combat_stoneskin")
-	var enemies: Array[Dictionary] = []
+	var enemies: Array[Dictionary]
 	for enemy_var: Variant in room_layout.get("enemies", []):
 		if typeof(enemy_var) != TYPE_DICTIONARY:
 			continue
@@ -894,15 +904,33 @@ func create_combat(run_seed: int, room_layout: Dictionary, player_snapshot: Dict
 	SurfaceRelicRules.configure(state)
 	state = _apply_start_combat_relic_effects(state, player_snapshot)
 	state = CommonRelicRules.start_combat(self, state)
-	for enemy_index: int in range((state.get("enemies", []) as Array).size()):
-		_assign_enemy_intent(state, enemy_index, rng)
+	return {"state": state, "rng": rng, "enemy_index": 0, "enemy_count": (state.get("enemies", []) as Array).size(), "complete": false}
+
+# One original enemy assignment per call, followed by the unchanged opening.
+# The cursor owns its state/RNG; callers may prepare it at existing frame
+# boundaries without installing partial state or changing authoritative timing.
+func advance_combat_creation(cursor: Dictionary) -> bool:
+	if bool(cursor.get("complete", false)): return true
+	# Independent cursors may interleave across a temporary catalog reload.
+	# The owning factory checks its complete definitions before each advance;
+	# refresh shared effects too, even if the catalog has returned to old values.
+	_relic_effect_cache_valid = false
+	var state: Dictionary = cursor["state"]
+	var rng: RandomNumberGenerator = cursor["rng"]
+	var index: int = int(cursor["enemy_index"])
+	if index < int(cursor["enemy_count"]):
+		_assign_enemy_intent(state, index, rng)
+		cursor["enemy_index"] = index + 1
+		return false
 	state["rng_state"] = rng.state
 	state = _initialize_initiative_queue(state)
 	ManeuverRules.record_activation_start(state)
 	state = _draw_cards_in_place(state, maxi(0, int(state.get("hand_size", 5)) + GameData.stat_bonus_from_relics(state.get("relics", []), "opening_draw_bonus")))
 	state = DefenseRelicRules.opening_hand(self, state)
 	_log(state, "Entered %s." % state.get("room_name", "a room"))
-	return state
+	cursor["state"] = state
+	cursor["complete"] = true
+	return true
 
 func _apply_start_combat_relic_effects(state: Dictionary, player_snapshot: Dictionary) -> Dictionary:
 	var next_state: Dictionary = state
@@ -10947,7 +10975,8 @@ func _relic_effects(state: Dictionary) -> Array[Dictionary]:
 	var rites: String = RiteRules.signature(state)
 	# Array equality checks the complete ordered inputs without allocating a
 	# string key for every rules query. Own the key so in-place edits invalidate.
-	if relic_ids != _relic_effect_cache_ids or rites != _relic_effect_cache_rites:
+	if not _relic_effect_cache_valid or relic_ids != _relic_effect_cache_ids or rites != _relic_effect_cache_rites:
+		_relic_effect_cache_valid = true
 		_relic_effect_cache_ids = relic_ids.duplicate(true)
 		_relic_effect_cache_rites = rites
 		_relic_effect_cache = GameData.relic_effects_for_state(state)

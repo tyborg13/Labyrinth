@@ -11,8 +11,13 @@ func run(probe: SceneTree, instance: Node, sampler: Node) -> Dictionary:
 	_instance = instance
 	_sampler = sampler
 	var pre_battle_only: bool = OS.get_environment("LABYRINTH_RUNTIME_PERF_PRE_BATTLE_ONLY") == "1"
-	if pre_battle_only:
-		await _travel("combat")
+	var grimoire_only: bool = OS.get_environment("LABYRINTH_RUNTIME_PERF_GRIMOIRE_ONLY") == "1"
+	var pre_battle_kind: String = OS.get_environment("LABYRINTH_RUNTIME_PERF_PRE_BATTLE_ROOM_TYPE")
+	if pre_battle_kind not in ["combat", "boss", "guardian"]: pre_battle_kind = "combat"
+	if grimoire_only:
+		await _grimoire()
+	elif pre_battle_only:
+		await _travel(pre_battle_kind)
 	else:
 		await _character_tabs()
 		await _skills_navigation_and_actions()
@@ -21,7 +26,7 @@ func run(probe: SceneTree, instance: Node, sampler: Node) -> Dictionary:
 		await _grimoire_unlock_invalidation()
 		for kind: String in ["scavenger", "campfire", "treasure", "combat"]:
 			await _travel(kind)
-	return {"schema_version": 1, "workload_id": "routed_pre_battle_travel_equipment_start_v1" if pre_battle_only else "routed_character_grimoire_travel_campfire_treasure_v1", "viewport": "1920x1080", "ui_scale": 1.0, "cpu_profile": OS.get_environment("LABYRINTH_PERF_CPU_PROFILE"), "renderer": RenderingServer.get_video_adapter_name(), "rendering_method": RenderingServer.get_current_rendering_method(), "sample_boundary": "RenderingServer.frame_post_draw", "phases": _phases, "observed_behavior_gaps": _observed_behavior_gaps, "orphan_nodes": int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)), "static_memory_bytes": int(Performance.get_monitor(Performance.MEMORY_STATIC)), "focus_observations": probe.get("_focus_observation_count"), "unfocused_observations": probe.get("_unfocused_observation_count")}
+	return {"schema_version": 1, "workload_id": "routed_grimoire_typing_v1" if grimoire_only else "routed_pre_battle_travel_equipment_start_v1" if pre_battle_only else "routed_character_grimoire_travel_campfire_treasure_v1", "route_room_type": pre_battle_kind if pre_battle_only else "mixed", "route_seed": OS.get_environment("LABYRINTH_RUNTIME_PERF_ROUTE_SEED"), "viewport": "1920x1080", "ui_scale": 1.0, "cpu_profile": OS.get_environment("LABYRINTH_PERF_CPU_PROFILE"), "renderer": RenderingServer.get_video_adapter_name(), "rendering_method": RenderingServer.get_current_rendering_method(), "sample_boundary": "RenderingServer.frame_post_draw", "phases": _phases, "observed_behavior_gaps": _observed_behavior_gaps, "orphan_nodes": int(Performance.get_monitor(Performance.OBJECT_ORPHAN_NODE_COUNT)), "static_memory_bytes": int(Performance.get_monitor(Performance.MEMORY_STATIC)), "focus_observations": probe.get("_focus_observation_count"), "unfocused_observations": probe.get("_unfocused_observation_count")}
 
 func _install(state: Dictionary) -> void:
 	var progression: Dictionary = Tutorial.complete_tutorial(state.get("progression", ProgressionStore.default_data()))
@@ -35,11 +40,28 @@ func _install(state: Dictionary) -> void:
 	_instance.call("_load_run_state", state)
 	_instance.call("_close_dialogue")
 	await _probe.call("_settle_render_frames", 12)
+	var ready_frames: int = 0
+	while not _surface_input_ready() and ready_frames < 600:
+		await _probe.call("_await_render_frame")
+		ready_frames += 1
+	_check(_surface_input_ready(), "Installed fixture must finish its authored arrival before interaction")
+	# Current room fixtures automatically present the section map. Start these
+	# independent surface measurements after dismissing that public arrival view.
+	if (_instance.get("_large_map_scrim") as Control).visible:
+		_key(KEY_ESCAPE)
+		await _probe.call("_settle_render_frames", 3)
 
 func _measure(name: String, action: Callable, frames: int = 24) -> Dictionary:
 	_probe.call("_phase_log", name)
+	if name == OS.get_environment("LABYRINTH_PERF_SAMPLE_PHASE"):
+		print("EXTERNAL SAMPLE READY: " + str(OS.get_process_id()))
+		await _probe.create_timer(0.8).timeout
+	_font_cache_diagnostic_phase = name == OS.get_environment("LABYRINTH_PERF_FONT_PHASE")
 	var result: Dictionary = await _phase(action, frames)
+	_font_cache_diagnostic_phase = false
 	_phases[name] = result
+	if name == OS.get_environment("LABYRINTH_PERF_SAMPLE_PHASE"):
+		await _probe.create_timer(1.5).timeout
 	return result
 
 func _character_tabs() -> void:
@@ -281,33 +303,35 @@ func _travel(kind: String) -> void:
 	var expected: Dictionary = _engine.move_to_pre_battle(before, destination)
 	await _measure("travel/%s/map_open" % kind, func() -> void: _key(KEY_M), 12)
 	var map: Control = _instance.get("_large_map_view") as Control
-	var point: Vector2 = map.call("_coord_position", destination)
-	_check(map.call("_coord_at_point", point) == destination, "Map point must identify the reachable destination")
-	var phase: Dictionary = await _measure("travel/%s/enter" % kind, func() -> void: _probe.call("_routed_left_click", map, point), 60)
+	var map_target: Dictionary = _map_choice_target(map, destination)
+	var phase: Dictionary = await _measure("travel/%s/enter" % kind, func() -> void: _probe.call("_routed_left_click", map_target["control"], map_target["point"]), 90)
 	_assert_state_fields(expected, phase, ["mode", "current_room", "current_room_layout", "turns_spent", "held_embers", "pending_relics"])
 	_instance.call("_close_dialogue")
 	await _probe.call("_settle_render_frames", 6)
 	if kind == "campfire": await _campfire()
 	elif kind == "treasure": await _treasure()
-	elif kind == "combat":
+	elif kind in ["combat", "boss", "guardian"]:
 		_check((_instance.get("_pre_battle_scrim") as Control).visible, "Combat travel must expose the pre-battle preview")
 		await _probe.call("_save_root_screenshot", "all_surface_pre_battle.png")
-		await _measure("travel/combat/equip_open", func() -> void: _click(_instance.find_child("PreBattleEquipButton", true, false)))
-		await _measure("travel/combat/equipment_tab", func() -> void: _click(_instance.find_child("CharacterEquipmentTab", true, false)))
+		await _measure("travel/%s/equip_open" % kind, func() -> void: _click(_instance.find_child("PreBattleEquipButton", true, false)))
+		await _measure("travel/%s/equipment_tab" % kind, func() -> void: _click(_instance.find_child("CharacterEquipmentTab", true, false)))
 		before = (_instance.get("_run_state") as Dictionary).duplicate(true)
 		expected = _engine.equip_equipment(before, "iron_cleaver", "weapon")
 		var tile: Control = (_instance.get("_equipment_inventory_tiles") as Dictionary).get("iron_cleaver")
 		_check(tile != null and tile.is_visible_in_tree(), "Prebattle must expose the owned replacement weapon")
-		phase = await _measure("travel/combat/equip_weapon", func() -> void: _probe.call("_routed_left_click", tile, tile.size * 0.5, true), 90)
+		phase = await _measure("travel/%s/equip_weapon" % kind, func() -> void: _probe.call("_routed_left_click", tile, tile.size * 0.5, true), 90)
 		_assert_state_fields(expected, phase, ["equipped_equipment", "equipment_inventory"])
-		await _measure("travel/combat/equip_close", func() -> void: _click(_instance.find_child("CloseCharacterOverlay", true, false)), 24)
+		await _probe.call("_save_root_screenshot", "all_surface_equipment_after_swap.png")
+		await _measure("travel/%s/equip_close" % kind, func() -> void: _click(_instance.find_child("CloseCharacterOverlay", true, false)), 24)
 		_check((_instance.get("_pre_battle_scrim") as Control).visible, "Closing Character must return to the prebattle preview")
+		await _probe.call("_save_root_screenshot", "all_surface_pre_battle_after_swap.png")
 		before = (_instance.get("_run_state") as Dictionary).duplicate(true)
 		expected = _engine.begin_pre_battle_combat(before)
-		phase = await _measure("travel/combat/begin", func() -> void: _click(_instance.find_child("PreBattleStartButton", true, false)), 90)
+		phase = await _measure("travel/%s/begin" % kind, func() -> void: _click(_instance.find_child("PreBattleStartButton", true, false)), 90)
 		_assert_state_fields(expected, phase, ["mode", "current_room", "equipped_equipment", "held_embers"])
 		_check(not bool(_instance.get("_animation_lock")), "Beginning combat must restore input")
 		_check(not ((_instance.get("_combat_state") as Dictionary).get("deck", {}) as Dictionary).get("hand", []).is_empty(), "Beginning combat must deal a visible hand")
+		await _probe.call("_save_root_screenshot", "all_surface_combat_begun.png")
 
 func _campfire() -> void:
 	var state: Dictionary = (_instance.get("_run_state") as Dictionary).duplicate(true)
@@ -330,6 +354,7 @@ func _campfire() -> void:
 	_check(ProgressionStore.unspent_skill_points(after) == ProgressionStore.unspent_skill_points(expected_progression), "Campfire Strength must preserve unspent skill points")
 	phase["progression_semantics"] = {"level": after.get("level"), "embers": after.get("embers"), "skill_points": ProgressionStore.unspent_skill_points(after)}
 	_check((_instance.get("_upgrade_scrim") as Control).visible and str(_instance.get("_progression_overlay_mode")) == "skills", "Strength must open Skills")
+	await _probe.call("_save_root_screenshot", "all_surface_skills_after_strength.png")
 	await _measure("campfire/skills_close", func() -> void: _click(_instance.find_child("CloseCharacterOverlay", true, false)), 12)
 
 func _treasure() -> void:
@@ -357,38 +382,48 @@ func _assert_state_fields(expected: Dictionary, phase: Dictionary, fields: Array
 
 func _route_fixture(kind: String) -> Dictionary:
 	var progression: Dictionary = Tutorial.complete_tutorial(ProgressionStore.set_embers(ProgressionStore.default_data(), 720))
-	var state: Dictionary = _engine.create_new_run(73491, progression)
-	for radius: int in range(1, 10):
-		for x: int in range(-radius, radius + 1):
-			for y: int in range(-radius, radius + 1):
-				if maxi(absi(x), absi(y)) != radius: continue
-				var destination := Vector2i(x, y)
-				var destination_room: Dictionary = _engine.room_metadata(state, destination)
-				if str(destination_room.get("type", "")) != kind: continue
-				for connection: Dictionary in destination_room.get("connections", []):
-					var origin: Vector2i = connection.get("coord", Vector2i(999, 999))
-					var source: Dictionary = _engine.room_metadata(state, origin)
-					if int(source.get("depth", 99)) > radius or str(source.get("type", "")) != "combat": continue
-					var candidate: Dictionary = state.duplicate(true)
-					source["revealed"] = true
-					source["visited"] = true
-					source["cleared"] = true
-					source["sealed"] = false
-					destination_room["revealed"] = true
-					destination_room["visited"] = false
-					destination_room["sealed"] = false
-					destination_room["cleared"] = false
-					candidate["rooms"]["%d,%d" % [origin.x, origin.y]] = source
-					candidate["rooms"]["%d,%d" % [destination.x, destination.y]] = destination_room
-					candidate["current_room"] = origin
-					candidate["current_room_layout"] = _engine.call("_display_layout_for_room", int(candidate.get("seed")), source, Vector2i(1, 0))
-					candidate["mode"] = "room"
-					candidate["combat_state"] = {}
-					candidate["held_embers"] = 720
-					candidate["unbanked_embers"] = 720
-					candidate["player_hp"] = maxi(1, int(candidate.get("player_max_hp", 24)) / 2)
-					candidate["equipment_inventory"] = ["iron_cleaver", "ward_kite"]
-					candidate = _engine.repair_loaded_run_state(candidate)
-					if str(_engine.room_metadata(candidate, destination).get("type", "")) != kind: continue
-					if _engine.available_moves(candidate).has(destination): return {"state": candidate, "destination": destination}
+	var route_seed: String = OS.get_environment("LABYRINTH_RUNTIME_PERF_ROUTE_SEED")
+	var state: Dictionary = _engine.create_new_run(int(route_seed) if route_seed.is_valid_int() else 73491, progression)
+	# Search the generated graph itself. room_metadata can synthesize a legacy
+	# grid room for an absent coordinate, which is not a modern map destination.
+	var sources: Array = (state.get("rooms", {}) as Dictionary).values()
+	sources.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return int(a.get("depth", 0)) < int(b.get("depth", 0)))
+	for original_source: Dictionary in sources:
+		if str(original_source.get("type", "")) not in ["combat", "start"]: continue
+		var origin: Vector2i = original_source.get("coord", Vector2i.ZERO)
+		for connection: Dictionary in original_source.get("connections", []):
+			var destination: Vector2i = connection.get("coord", Vector2i(999, 999))
+			var original_destination: Dictionary = (state.get("rooms", {}) as Dictionary).get("%d,%d" % [destination.x, destination.y], {})
+			if str(original_destination.get("type", "")) != kind: continue
+			var candidate: Dictionary = state.duplicate(true)
+			var source: Dictionary = candidate["rooms"]["%d,%d" % [origin.x, origin.y]]
+			var destination_room: Dictionary = candidate["rooms"]["%d,%d" % [destination.x, destination.y]]
+			source["revealed"] = true
+			source["visited"] = true
+			source["cleared"] = true
+			source["sealed"] = false
+			destination_room["revealed"] = true
+			destination_room["visited"] = false
+			destination_room["sealed"] = false
+			destination_room["cleared"] = false
+			candidate["current_room"] = origin
+			candidate["current_room_layout"] = _engine.call("_display_layout_for_room", int(candidate.get("seed")), source, Vector2i(1, 0))
+			candidate["mode"] = "room"
+			candidate["combat_state"] = {}
+			candidate["held_embers"] = 720
+			candidate["unbanked_embers"] = 720
+			candidate["player_hp"] = maxi(1, int(candidate.get("player_max_hp", 24)) / 2)
+			candidate["equipment_inventory"] = ["iron_cleaver", "ward_kite"]
+			candidate = _engine.repair_loaded_run_state(candidate)
+			if str(_engine.room_metadata(candidate, destination).get("type", "")) != kind: continue
+			if _engine.available_moves(candidate).has(destination): return {"state": candidate, "destination": destination}
 	return {}
+
+func _map_choice_target(map: Control, destination: Vector2i) -> Dictionary:
+	if map.has_method("can_activate_room"):
+		var button: Control = (map.get("node_buttons") as Dictionary).get(destination) as Control
+		_check(button != null and button.is_visible_in_tree() and bool(map.call("can_activate_room", destination)), "Section map must expose a visible actionable destination")
+		return {"control": button, "point": button.size * 0.5 if button != null else Vector2.ZERO}
+	var point: Vector2 = map.call("_coord_position", destination)
+	_check(map.call("_coord_at_point", point) == destination, "Legacy map point must identify the reachable destination")
+	return {"control": map, "point": point}

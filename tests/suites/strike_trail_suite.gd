@@ -30,9 +30,10 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 			var single: Array[Dictionary] = renderer.strike_samples(direction, 0.42, 0.42, Trail.SAMPLE_STEP)
 			var joint: Vector2 = Motion._joint_position(rig.layout, "weapon_r")
 			var tip: Vector2 = rig.to_local(rig.bones["weapon_r"].to_global(Motion._gear_vector(rig.layout["weapon_grip"]["tip"]) - joint))
-			var grip: Vector2 = renderer.weapon_grip_source()
+			var grip: Vector2 = rig.to_local(rig.bones["weapon_r"].to_global(Motion._gear_vector(rig.layout["weapon_grip"]["assembled"]) - joint))
 			if renderer.mirrored:
 				tip.x = 255.0 - tip.x
+				grip.x = 255.0 - grip.x
 			expect.call((single[0]["tip"] as Vector2).distance_to(tip) <= 0.5, "Contact tip matches live socket for " + motion + "/" + str(direction))
 			expect.call((Trail.sample_at(samples, 0.42)["tip"] as Vector2).distance_to(tip) <= 0.5, "240Hz contact interpolation matches live socket for " + motion + "/" + str(direction))
 			expect.call((single[0]["inner"] as Vector2).distance_to(tip.lerp(grip, settings["reach"])) <= 0.5, "Inner landmark uses the approved reach for " + motion)
@@ -169,6 +170,17 @@ static func _check_dispatch(tree: SceneTree, expect: Callable) -> void:
 	var count: int = helper.sample_build_count
 	var batches: Array[Dictionary] = helper.prepare(board, effect, 0.46)
 	expect.call(not batches.is_empty() and helper.sample_build_count == count, "Retained redraw reuses source samples per effect")
+	# A later attack in the same facing with a new target and element is a new
+	# effect dictionary; it must not resample (a 4-7 ms first-frame spike).
+	var again: Dictionary = effect.duplicate(true)
+	again["element"] = "ice"
+	again["seed"] = 99
+	helper.prepare(board, again, 0.10)
+	expect.call(helper.sample_build_count == count, "Same facing and loadout reuse cached strike samples across effects")
+	var rear: Dictionary = effect.duplicate(true)
+	rear["to"] = player + Vector2i(0, -1)
+	helper.prepare(board, rear, 0.10)
+	expect.call(helper.sample_build_count == count + 1, "A new facing samples once")
 	var retained: Control = board.get("_effects_render_layer")
 	expect.call(retained.get("_hero_strike_trail") == helper, "Retained effects layer shares the source cache")
 	var light: Node2D = retained.get("_strike_trail_layer")
