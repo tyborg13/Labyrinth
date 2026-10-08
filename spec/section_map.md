@@ -214,7 +214,9 @@ route. New-run recovery maps lost Embers to an existing combat, Guardian or boss
 node near the old depth, keeping every generated service and connection intact.
 The selected recovery coordinate is saved and the matching encounter owns the
 Ember pile without changing its roster: a Guardian or boss node still fights its
-own leader, so the map stays truthful.
+own leader, so the map stays truthful. The pile lands on the empty floor tile
+nearest the board center: never under a unit, NPC, trap, terrain object, other
+loot, brazier, ground surface or exit target.
 The map exposes its recovery badge through fog without granting the unknown
 room identity; focus/hover details retain the exact amount. The connections and
 recovery badge show the route to the pile; tooltips do not repeat those paths.

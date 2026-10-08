@@ -7,6 +7,7 @@ const Combat = preload("res://scripts/combat_engine.gd")
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
 const RoomIcons = preload("res://scripts/room_icon_library.gd")
 const Guardians = preload("res://scripts/guardian_library.gd")
+const Surfaces = preload("res://scripts/board_surface_rules.gd")
 
 static func run(expect: Callable) -> void:
 	var engine := RunEngineScript.new()
@@ -55,6 +56,7 @@ static func run(expect: Callable) -> void:
 	_test_generated_escape_transaction(engine, expect)
 	_test_recovery_mapping(engine, expect)
 	_test_recovery_keeps_landmark_encounters(engine, expect)
+	_test_recovery_pile_lands_on_empty_floor(engine, expect)
 
 static func _test_local_routes(state: Dictionary, index: int, node_count: int, expect: Callable) -> void:
 	var entry: Vector2i = Graph.section(state, index).get("entry")
@@ -328,3 +330,23 @@ static func _test_recovery_keeps_landmark_encounters(engine: RunEngineScript, ex
 		battle["enemies"][leader_index]["hp"] = 0
 		var reward: Dictionary = engine.finish_combat(state, battle)
 		expect.call(str(reward.get("mode", "")) == "treasure" and reward.get("pending_relics", []) == [str(landmark.get("guardian_relic", ""))], "Defeating the real Guardian still awards its trophy")
+
+static func _test_recovery_pile_lands_on_empty_floor(engine: RunEngineScript, expect: Callable) -> void:
+	# Fill every tile beside the center with a different occupant so the pile
+	# must step out to the next ring of genuinely empty floor.
+	var grid: Array = []
+	for y: int in range(9):
+		var row: Array = []
+		for x: int in range(9): row.append("wall" if x in [0, 8] or y in [0, 8] else "stone")
+		grid.append(row)
+	grid[3][3] = "pillar"
+	var layout: Dictionary = {
+		"grid": grid, "depth": 4, "player_start": Vector2i(4, 7), "npcs": [],
+		"enemies": [{"pos": Vector2i(5, 3), "footprint": Vector2i(2, 2)}],
+		"traps": [{"pos": Vector2i(3, 5)}], "loot": [{"pos": Vector2i(5, 5)}], "terrain": [{"pos": Vector2i(4, 5), "hp": 2}],
+		"guardian_braziers": [{"id": 1, "pos": Vector2i(4, 4), "lit": true}],
+		"surfaces": {Surfaces.tile_key(Vector2i(4, 3)): {"elemental": "electrified"}},
+		"objective": {"exits": [{"target_tile": Vector2i(3, 4)}]}
+	}
+	var tile: Vector2i = engine._recovery_loot_tile(layout)
+	expect.call(tile in [Vector2i(4, 2), Vector2i(2, 4), Vector2i(4, 6)], "Lost Embers skip braziers, surfaces, exits, objects and units for the nearest empty floor")
