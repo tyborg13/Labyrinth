@@ -48,7 +48,7 @@ Top-level costs:
 - `burn: true`: exhausts the card for the rest of combat and renders as an Exhaust cost row.
 - `health_cost: N`: pays health after the card resolves and renders as a Health Cost token.
 
-Time is not just UI flavor. Player turns are scheduled on the initiative clock at `player base initiative + time spent on played cards`, so a low `time` card can help the player act again before enemies while a high `time` card can expose them to enemy double-ups. Use the current pool's time distribution and `tools/card_heuristic.py` tempo breakdown when choosing a cost.
+Time is not just UI flavor. Player turns are scheduled on the initiative clock at `player base initiative + time spent on played cards + 5 × unused base plays` (Wait), with carried debt and relic adjustments described in [the turn clock rule](../../../../spec/turn_clock.md). A low `time` card can help the player act again before enemies while a high `time` card can expose them to enemy double-ups. Use the current pool's time distribution and `tools/card_heuristic.py` tempo breakdown when choosing a cost.
 
 ## Current Action Model
 

@@ -25,7 +25,13 @@ func configure(wait_time: int, entries: Array[Dictionary]) -> void:
 	_wait_time = wait_time
 	_time_icon = ActionIcons.icon_texture("time") if wait_time > 0 else null
 	_cells.clear()
-	var lead_color: Color = UiPalette.GOLD_BRIGHT if wait_time > 0 else entries.back().get("color", UiPalette.TEXT) if not entries.is_empty() else UiPalette.TEXT
+	var lead_color: Color = UiPalette.TEXT
+	for index: int in range(entries.size() - 1, -1, -1):
+		if not bool(entries[index].get("suffix", false)):
+			lead_color = entries[index].get("color", UiPalette.TEXT)
+			break
+	if wait_time > 0:
+		lead_color = UiPalette.GOLD_BRIGHT
 	_cells.append({"text": "+%d" % wait_time if wait_time > 0 else "TURN END", "color": lead_color})
 	for entry: Dictionary in entries:
 		_cells.append({"text": " " if bool(entry.get("suffix", false)) else "  •  ", "color": lead_color})

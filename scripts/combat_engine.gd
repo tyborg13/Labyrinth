@@ -5263,9 +5263,13 @@ func _resolved_actor_entry(state: Dictionary, entry: Dictionary, projection_cont
 			player_entry["projected"] = true
 		if entry.has("projected_time_cost"):
 			player_entry["projected_time_cost"] = int(entry.get("projected_time_cost", 0))
-		for field: String in ["projected_time_delta", "projected_wait_time"]:
+		for field: String in ["projected_time_delta", "projected_wait_time", "projected_carried_time"]:
 			if entry.has(field):
 				player_entry[field] = int(entry[field])
+		if entry.has("projection_kind"):
+			player_entry["projection_kind"] = str(entry["projection_kind"])
+		if entry.has("projected_extra_turn"):
+			player_entry["projected_extra_turn"] = bool(entry["projected_extra_turn"])
 		if entry.has("projected_card_name"):
 			player_entry["projected_card_name"] = str(entry.get("projected_card_name", ""))
 		return player_entry
@@ -5323,7 +5327,11 @@ func _projected_next_entry_for_current_actor(state: Dictionary, current_actor: D
 				-1
 			)
 			player_entry["projected"] = true
+			player_entry["projection_kind"] = "end_now"
 			player_entry["projected_wait_time"] = pending_wait_time(state, preview_plays)
+			if TempoRelicRules.extra_turn_available(state, effects, maxi(0, cards_remaining_this_turn(state) - preview_plays)):
+				player_entry["projected_extra_turn"] = true
+				player_entry["projected_carried_time"] = int(state.get(TempoRelicRules.DEBT_KEY, 0)) + maxi(0, int(state.get("player_turn_time_spent", 0))) + preview_delta + int(player_entry["projected_wait_time"]) - TempoRelicRules.full_turn_reduction(self, state, effects, preview_plays)
 			if preview_delta > 0 or preview_plays > 0 or state.has("turn_order_preview_card_name"):
 				player_entry["projected_time_delta"] = int(player_entry["time"]) - TempoRelicRules.next_turn_time(self, state, effects)
 			if preview_delta > 0:
@@ -5379,6 +5387,7 @@ func _projected_next_entry_after_entry(state: Dictionary, entry: Dictionary, pro
 			var wait_time: int = pending_wait_time(next_activation)
 			var player_entry: Dictionary = _player_actor_entry(scheduled_time + player_base_initiative(state) + wait_time + int(state.get(TempoRelicRules.DEBT_KEY, 0)), projected_seq)
 			player_entry["projected"] = true
+			player_entry["projection_kind"] = "follow_up"
 			player_entry["projected_wait_time"] = wait_time
 			return player_entry
 		"enemy":

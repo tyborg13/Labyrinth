@@ -3323,6 +3323,8 @@ func _refresh_pointer_after_layout(expected_revision: int) -> void:
 	_refresh_controller_interface()
 
 func _schedule_controller_modal_refresh() -> void:
+	if _turn_order_landing_strip != null and not _turn_order_landing_strip_allowed():
+		_turn_order_landing_strip.hide_strip()
 	# Pointer targeting remains selected behind non-destructive overlays, but the
 	# overlay temporarily owns the pointer. Suspend or restore the arrow at the
 	# same visibility boundary that already governs modal controller focus.
@@ -12300,24 +12302,39 @@ func _refresh_turn_order_bar() -> void:
 		_refresh_turn_order_landing_strip()
 		return
 	_turn_order_source_signature = source_signature
-	var all_entries: Array[Dictionary] = _combat_engine.current_turn_order(_turn_order_display_state(), TURN_ORDER_DISCLOSURE_LIMIT)
+	var display_state: Dictionary = _turn_order_display_state()
+	# The strip needs the end-now hero even beyond the rail's disclosure cap.
+	# Each queued actor can contribute its entry and one follow-up, plus the
+	# active actor and its next turn. Project once, then cap only the rail.
+	var strip_limit: int = maxi(TURN_ORDER_DISCLOSURE_LIMIT, (display_state.get("turn_queue", []) as Array).size() * 2 + 2)
+	var all_entries: Array[Dictionary] = _combat_engine.current_turn_order(display_state, strip_limit)
 	var entries: Array[Dictionary] = []
 	_turn_order_all_entries = all_entries
 	_refresh_turn_order_landing_strip()
 	for index: int in range(mini(TURN_ORDER_MAX_SLOTS, all_entries.size())):
 		entries.append(all_entries[index])
 	var overflow_entries: Array[Dictionary] = []
-	for index: int in range(entries.size(), all_entries.size()):
+	for index: int in range(entries.size(), mini(TURN_ORDER_DISCLOSURE_LIMIT, all_entries.size())):
 		overflow_entries.append(all_entries[index])
 	_set_turn_order_bar_entries(entries, overflow_entries.size(), _turn_order_overflow_tooltip(overflow_entries), _turn_order_signature(overflow_entries))
 
-func _turn_order_landing_strip_allowed() -> bool:
-	return str(_run_state.get("mode", "room")) == "combat" and _drag_card_index < 0 and not _turn_order_card_time_preview().is_empty()
+func _turn_order_landing_strip_allowed(focused_index: int = -1) -> bool:
+	# Called while following the hand every frame: never build a card preview
+	# here. Preview-dependent playability is checked only during HUD refresh.
+	if str(_run_state.get("mode", "room")) != "combat" or _animation_lock or _drag_card_index >= 0 or _combat_state.is_empty() or not _combat_engine.is_player_turn(_combat_state):
+		return false
+	if not _map_shortcut_can_open() or _visible_control(_large_map_scrim) or _loadout_acquisition_in_progress:
+		return false
+	for blocker: Control in [_skill_choice_scrim, _skill_status_scrim, _skill_reset_confirmation_scrim]:
+		if _visible_control(blocker):
+			return false
+	var index: int = _selected_card_index if _selected_card_index >= 0 else _hovered_card_index
+	return index >= 0 and (focused_index < 0 or index == focused_index) and not _card_id_for_hand_index(index).is_empty()
 
 func _refresh_turn_order_landing_strip() -> void:
 	if _turn_order_landing_strip == null:
 		return
-	if not _turn_order_landing_strip_allowed():
+	if not _turn_order_landing_strip_allowed() or _turn_order_card_time_preview().is_empty():
 		_turn_order_landing_strip.hide_strip()
 		return
 	var index: int = _selected_card_index if _selected_card_index >= 0 else _hovered_card_index
@@ -12325,7 +12342,8 @@ func _refresh_turn_order_landing_strip() -> void:
 	if card == null or not card.is_visible_in_tree():
 		_turn_order_landing_strip.hide_strip()
 		return
-	_turn_order_landing_strip.present(_turn_order_all_entries, index, card, _card_focus_tooltip_stack, _turn_order_portrait_path, _turn_order_landing_strip_allowed, _reduced_motion_enabled())
+	var callout: Control = _contextual_combat_prompt.get_node_or_null("GuidedActionCallout") as Control if _contextual_combat_prompt != null else null
+	_turn_order_landing_strip.present(_turn_order_all_entries, index, card, _card_focus_tooltip_stack, _turn_order_portrait_path, _turn_order_landing_strip_allowed.bind(index), _reduced_motion_enabled(), callout)
 
 func _turn_order_display_state() -> Dictionary:
 	var preview: Dictionary = _turn_order_card_time_preview()
@@ -12910,17 +12928,22 @@ func _turn_order_tooltip(entry: Dictionary, _index: int) -> String:
 		elif base > 0:
 			lines.append("Base %d" % base)
 	elif str(entry.get("kind", "")) == "player" and bool(entry.get("projected", false)):
-		var cards: int = int(entry.get("turn_time_spent", 0)) + int(entry.get("projected_time_cost", 0))
-		var wait_time: int = int(entry.get("projected_wait_time", 0))
-		if entry.has("projected_time_delta"):
-			var card_name: String = str(entry.get("projected_card_name", "")).strip_edges()
-			lines.append("Preview: %s (%s vs ending now)" % [card_name if not card_name.is_empty() else "Card", TurnOrderInk.delta_text(int(entry["projected_time_delta"]))])
-		lines.append("Base %d + cards %d + unused plays %d" % [base, cards, wait_time])
-		var adjustment: int = eta - base - cards - wait_time
-		if adjustment > 0:
-			lines.append("Carried +%d" % adjustment)
-		elif adjustment < 0:
-			lines.append("Relics −%d" % -adjustment)
+		if bool(entry.get("projected_extra_turn", false)):
+			lines.append("Borrowed Hourglass: another turn at once (+%d carried)" % int(entry.get("projected_carried_time", 0)))
+		elif str(entry.get("projection_kind", "")) == "follow_up":
+			lines.append("If that turn ends without a card")
+		elif str(entry.get("projection_kind", "")) == "end_now":
+			var cards: int = int(entry.get("turn_time_spent", 0)) + int(entry.get("projected_time_cost", 0))
+			var wait_time: int = int(entry.get("projected_wait_time", 0))
+			if entry.has("projected_time_delta"):
+				var card_name: String = str(entry.get("projected_card_name", "")).strip_edges()
+				lines.append("Preview: %s (%s vs ending now)" % [card_name if not card_name.is_empty() else "Card", TurnOrderInk.delta_text(int(entry["projected_time_delta"]))])
+			lines.append("Base %d + cards %d + unused plays %d" % [base, cards, wait_time])
+			var adjustment: int = eta - base - cards - wait_time
+			if adjustment > 0:
+				lines.append("Carried +%d" % adjustment)
+			elif adjustment < 0:
+				lines.append("Relics −%d" % -adjustment)
 	elif base > 0:
 		var spent: int = int(entry.get("turn_time_spent", 0))
 		lines.append("Base %d + played %d" % [base, spent] if spent > 0 else "Base %d" % base)
@@ -13005,6 +13028,8 @@ func _turn_order_signature(entries: Array[Dictionary]) -> String:
 			int(entry.get("max_hp", -1)),
 			("P" if bool(entry.get("petrified", false)) else "") + str(entry.get("late_relic_id", ""))
 		])
+		if str(entry.get("kind", "")) == "player":
+			parts.append("projection:%s:%s:%d:%d:%d:%d" % [str(entry.get("projection_kind", "")), str(entry.get("projected_extra_turn", false)), int(entry.get("projected_carried_time", 0)), int(entry.get("projected_wait_time", 0)), int(entry.get("turn_time_spent", 0)), int(entry.get("projected_time_delta", 0))])
 	return "|".join(parts)
 
 func _turn_order_motion_signature(entries: Array[Dictionary]) -> String:
@@ -14058,9 +14083,9 @@ func _action_context_target_color(tone: String) -> Color:
 			return Color("c9b9a3")
 
 func _update_action_context_risk() -> void:
-	var wait_time: int = _combat_engine.pending_wait_time(_pass_preview_source_state())
-	var lead: String = "WAIT +%d" % wait_time if wait_time > 0 else "TURN END"
 	var summary: Dictionary = _pass_preview_summary()
+	var wait_time: int = int(summary.get("wait_time", 0))
+	var lead: String = "WAIT +%d" % wait_time if wait_time > 0 else "TURN END"
 	if summary.is_empty():
 		_set_action_context_risk("neutral", "%s · --" % lead)
 		return
@@ -14977,7 +15002,7 @@ func _add_pass_preview_chip() -> void:
 	damage_row.add_child(forecast_line)
 	forecast_line.position = Vector2.ZERO
 	forecast_line.size = damage_row.size
-	_refresh_pass_forecast_line(forecast_line, damage_row, forecast_entries)
+	_refresh_pass_forecast_line(forecast_line, damage_row, forecast_entries, int(summary.get("wait_time", 0)))
 	var danger_state: bool = (
 		card_defiance_spent > 0
 		or bool(summary.get("defeat", false))
@@ -15011,12 +15036,11 @@ func _refresh_selected_card_forecast() -> void:
 		return
 	var summary: Dictionary = _pass_preview_summary()
 	var entries: Array[Dictionary] = _pass_preview_forecast_entries(summary)
-	_refresh_pass_forecast_line(label, row, entries)
+	_refresh_pass_forecast_line(label, row, entries, int(summary.get("wait_time", 0)))
 	chip.tooltip_text = _pass_preview_tooltip(summary)
 	label.tooltip_text = chip.tooltip_text
 
-func _refresh_pass_forecast_line(label: Label, row: Control, entries: Array[Dictionary]) -> void:
-	var wait_time: int = _combat_engine.pending_wait_time(_pass_preview_source_state())
+func _refresh_pass_forecast_line(label: Label, row: Control, entries: Array[Dictionary], wait_time: int) -> void:
 	label.configure(wait_time, entries)
 	row.set_meta("pass_preview_values", entries.duplicate(true))
 	row.set_meta("pass_preview_wait_time", wait_time)
@@ -15430,6 +15454,7 @@ func _pass_preview_summary_for_phase_result(source_state: Dictionary, phase_resu
 	elif int(losses.get("block", 0)) > 0 or int(losses.get("stoneskin", 0)) > 0 or unrevealed_before_player or umbra_unknown_before_player:
 		tone = "warning"
 	var summary: Dictionary = {
+		"wait_time": _combat_engine.pending_wait_time(source_state),
 		"tone": tone,
 		"entries": entries,
 		"defeat": defeat,
@@ -15541,11 +15566,10 @@ func _pass_preview_damage_entries(losses: Dictionary) -> Array[Dictionary]:
 	return entries
 
 func _pass_preview_tooltip(summary: Dictionary) -> String:
-	var source: Dictionary = _pass_preview_source_state()
-	var wait_time: int = _combat_engine.pending_wait_time(source)
+	var wait_time: int = int(summary.get("wait_time", 0))
 	var lines := PackedStringArray()
 	if wait_time > 0:
-		var unused: int = _combat_engine.base_plays_waited(source)
+		var unused: int = wait_time / CombatEngineScript.WAIT_TIME_PER_UNUSED_PLAY
 		lines.append("Ending now leaves %d card %s unused: +%d Time." % [unused, "play" if unused == 1 else "plays", wait_time])
 	var details: String = _pass_preview_risk_tooltip(summary)
 	if not details.is_empty():
@@ -15555,6 +15579,7 @@ func _pass_preview_tooltip(summary: Dictionary) -> String:
 func _pass_preview_risk_tooltip(summary: Dictionary) -> String:
 	if bool(summary.get("umbra_unknown_before_player", false)):
 		return "One or more hidden presences act before your next turn. Their intents and possible damage are unknown."
+	var lines := PackedStringArray()
 	if int(summary.get("defiance_spent", 0)) > 0:
 		var net_hp_change: int = int(summary.get("net_hp_change", 0))
 		var net_text: String = (
@@ -15564,17 +15589,17 @@ func _pass_preview_risk_tooltip(summary: Dictionary) -> String:
 			if net_hp_change < 0
 			else "no net HP change"
 		)
-		return "A revealed lethal hit will spend %d Defiance and restore %d HP. You return with %d/%d HP (%s) and %d Defiance." % [
+		lines.append("A revealed lethal hit will spend %d Defiance and restore %d HP. You return with %d/%d HP (%s) and %d Defiance." % [
 			int(summary.get("defiance_spent", 0)),
 			int(summary.get("defiance_restored", 0)),
 			int(summary.get("projected_hp", 0)),
 			int(summary.get("projected_max_hp", 1)),
 			net_text,
 			int(summary.get("defiance_remaining_after", 0))
-		]
+		])
 	if bool(summary.get("unrevealed_before_player", false)):
-		return "Enemies have unrevealed actions before your next turn, you may take additional damage."
-	return ""
+		lines.append("Enemies have unrevealed actions before your next turn, you may take additional damage.")
+	return "\n".join(lines)
 
 func _pass_preview_chip_style(summary: Dictionary) -> StyleBoxFlat:
 	var tone: String = str(summary.get("tone", "safe"))

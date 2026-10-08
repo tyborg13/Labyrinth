@@ -113,12 +113,15 @@ static func _test_borrowed_and_sundial(engine: CombatEngine, expect: Callable) -
 	_expect_time(engine, expect, state, 0, "Borrowed Hourglass keeps its immediate shortcut")
 	var ended: Dictionary = U4.resume(engine.finish_player_activation(state))
 	expect.call(ended[RelicRules.DEBT_KEY] == 9, "Borrowed debt includes four card Time and five Wait")
+	var immediate: Dictionary = _ghost(engine, state)
+	expect.call(immediate.get("projection_kind", "") == "end_now" and bool(immediate.get("projected_extra_turn", false)) and immediate.get("projected_carried_time", -1) == ended[RelicRules.DEBT_KEY], "Hourglass projection tags the immediate turn with exactly the scheduled carried Time")
 	var projected_extra: Dictionary = engine._projected_next_entry_after_entry(ended, ended["turn_queue"].back())
 	# The queue is sorted during presentation; find its scheduled hero explicitly.
 	for entry: Dictionary in ended["turn_queue"]:
 		if str(entry.get("kind", "")) == "player":
 			projected_extra = engine._projected_next_entry_after_entry(ended, entry)
 	expect.call(projected_extra.get("time", -1) == 28 and projected_extra.get("projected_wait_time", -1) == 10, "Scheduled extra-turn follow-up includes carried debt and refreshed Wait")
+	expect.call(projected_extra.get("projection_kind", "") == "follow_up" and not bool(projected_extra.get("projected_extra_turn", false)), "Upcoming-activation projection is a follow-up, not an immediate Hourglass turn")
 	var extra: Dictionary = engine.advance_one_activation_with_steps(ended)["state"]
 	_expect_time(engine, expect, extra, 28, "Extra-turn pass pays carried debt and new Wait")
 	extra = U4.play(engine, U4.play(engine, extra, "wait_guard_4"), "wait_guard_4")
@@ -147,6 +150,7 @@ static func _test_projections(engine: CombatEngine, expect: Callable) -> void:
 		if played == 1:
 			state = U4.play(engine, state, "wait_guard_4")
 		var idle: Dictionary = _ghost(engine, state)
+		expect.call(idle.get("projection_kind", "") == "end_now" and not bool(idle.get("projected_extra_turn", false)), "Ordinary current-activation hero projection is tagged end_now")
 		expect.call(idle.get("projected_wait_time", -1) == 10 - played * 5 and not idle.has("projected_time_delta"), "Idle ghost exposes end-now Wait without a card delta")
 		for time: int in [2, 5, 6]:
 			var preview: Dictionary = state.duplicate(true)

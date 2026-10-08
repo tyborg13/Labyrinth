@@ -113,10 +113,10 @@ static func _test_late_bell(engine: CombatEngine, expect: Callable) -> void:
 	s["player_turn_time_spent"] = 1
 	preview = engine.apply_player_action(s, engine.card_play_actions("u4_strike", s)[0], TARGET)
 	expect.call(int((preview["enemies"][0] as Dictionary)["hp"]) == 37, "Enemy at exact hero next-turn time is not late")
-	s["turn_queue"][0]["time"] = 14
+	s["turn_queue"][0]["time"] = 18
 	s["turn_flags"] = {"quicken_pending": 2}
 	preview = engine.apply_player_action(s, engine.card_play_actions("u4_strike", s)[0], TARGET)
-	expect.call(int((preview["enemies"][0] as Dictionary)["hp"]) == 37, "Quicken discounts card Time but the unused play still waits")
+	expect.call(int((preview["enemies"][0] as Dictionary)["hp"]) == 34, "Quicken lands the hero at 17 before the enemy at 18 and triggers Late Bell")
 	var order: Array[Dictionary] = engine.current_turn_order(s)
 	var bell: bool = false
 	for entry: Dictionary in order:

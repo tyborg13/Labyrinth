@@ -47,8 +47,12 @@ term.
 
 ## Presentation
 
-- **Rail ghost.** The hero's projected slot is always the "end now" projection,
-  including Wait. At turn start it sits at `+19`.
+- **Rail ghost.** During the hero's activation, its next projected slot is the "end now" projection,
+  including Wait (`projection_kind: end_now`). At turn start it sits at `+19`.
+  Only this projection gets the current activation's cost breakdown. A later
+  `follow_up` projection says "If that turn ends without a card". An immediate
+  Borrowed Hourglass projection is flagged `projected_extra_turn` and reports
+  `projected_carried_time`: "Borrowed Hourglass: another turn at once (+N carried)".
 - **Delta pill.** While a card is hovered, selected, or controller-focused, the
   ghost moves to the projection after that card and its pill reads
   `<Card> −N` / `±0` / `+N`: the change versus ending now. Faster is Quicken
@@ -56,7 +60,9 @@ term.
 - **Landing strip.** Above the focused hand card, a short horizontal excerpt of
   the rail shows every actor that acts before the projected hero turn, the hero
   ghost, and the first actor after it (dimmed). When nobody acts first it reads
-  ACT AGAIN.
+  ACT AGAIN. It uses the complete projected order while the rail retains its
+  ten-entry disclosure cap. Blocking overlays hide the strip; it stays below
+  contextual tutorial callouts and clears both the callout and focus tooltip.
 - **Pass plate.** While base plays remain, the plate's lead cell shows the Time
   icon and `+N` (the Wait the pass would pay) instead of TURN END.
   Because a pass can now span an enemy's unrevealed second activation, the

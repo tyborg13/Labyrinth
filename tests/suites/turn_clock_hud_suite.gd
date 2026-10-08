@@ -12,6 +12,7 @@ const Strip = preload("res://scripts/turn_order_landing_strip.gd")
 const ForecastLine = preload("res://scripts/turn_clock_forecast_line.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 const GameData = preload("res://scripts/game_data.gd")
+const ReviewSuite = preload("res://tests/suites/turn_clock_hud_review_suite.gd")
 const SIZE := Vector2i(1920, 1080)
 const HAND: Array = ["pale_spark", "quick_stab", "sidestep_slash", "bloody_lunge", "brace"]
 
@@ -103,6 +104,7 @@ static func run(tree: SceneTree, expect: Callable, capture_dir: String = "") -> 
 	await _capture(capture_viewport, check, capture_dir, "pass_lap_known_damage")
 	await _test_preview_visibility(tree, scene, engine, check)
 	_test_forecasts(scene, check)
+	await ReviewSuite.run(tree, scene, engine, check, fixture(engine), _install, _hover, func(phase: String) -> void: await _capture(capture_viewport, check, capture_dir, phase))
 	router.call("set_modality", old_modality)
 	capture_viewport.queue_free()
 	await tree.process_frame
@@ -128,7 +130,7 @@ static func _test_pills_and_tooltips(expect: Callable) -> void:
 		expect.call(bool(scene.call("_turn_order_is_card_preview_projection", entry)), "Zero-Time and zero-delta cards still show a preview")
 	expect.call(str(scene.call("_turn_order_projection_badge_text", {"stagger_preview": 4})) == "Stagger +4", "Stagger pill copy remains unchanged")
 	expect.call(str(scene.call("_turn_order_projection_badge_text", {"petrified": true})) == "Skips", "Petrified pill copy remains unchanged")
-	var entry: Dictionary = {"kind": "player", "projected": true, "name": "Reaver", "eta": 12, "base_initiative": 9, "turn_time_spent": 1, "projected_time_cost": 2, "projected_wait_time": 0, "projected_time_delta": -3, "projected_card_name": "Quick Stab"}
+	var entry: Dictionary = {"kind": "player", "projected": true, "projection_kind": "end_now", "name": "Reaver", "eta": 12, "base_initiative": 9, "turn_time_spent": 1, "projected_time_cost": 2, "projected_wait_time": 0, "projected_time_delta": -3, "projected_card_name": "Quick Stab"}
 	var tooltip: String = scene.call("_turn_order_tooltip", entry, 0)
 	expect.call(tooltip.contains("Preview: Quick Stab (−3 vs ending now)") and tooltip.contains("Base 9 + cards 3 + unused plays 0"), "Projected tooltip shows delta and full Time breakdown")
 	entry["eta"] = 17

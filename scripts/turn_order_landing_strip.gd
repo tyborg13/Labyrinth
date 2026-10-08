@@ -19,6 +19,7 @@ var _roles: Dictionary = {}
 var _signature: String = ""
 var _target: Control
 var _tooltip_stack: Control
+var _tutorial_callout: Control
 var _allowed: Callable
 var _fade: Tween
 
@@ -27,7 +28,7 @@ func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	top_level = true
 	z_as_relative = false
-	z_index = 1310
+	z_index = 1260
 	visible = false
 	set_process(false)
 
@@ -60,39 +61,56 @@ static func actor_key(entry: Dictionary) -> String:
 
 # Coordinates include the stroke's bleed, so the painted strip as well as its
 # portrait Controls clears the stack and stays within the viewport gutter.
-static func placement(card: Rect2, stack: Rect2, strip_size: Vector2, viewport: Rect2) -> Rect2:
+static func placement(card: Rect2, stack: Rect2, strip_size: Vector2, viewport: Rect2, callout: Rect2 = Rect2()) -> Rect2:
 	var safe: Rect2 = viewport.grow(-GUTTER)
 	if strip_size.x > safe.size.x or strip_size.y > safe.size.y:
 		return Rect2()
-	var stack_left: bool = stack.has_area() and stack.get_center().x < card.get_center().x
+	var primary: Rect2 = stack if stack.has_area() else callout
+	var stack_left: bool = primary.has_area() and primary.get_center().x < card.get_center().x
 	var x: float = card.position.x - 8.0 if stack_left else card.end.x + 8.0 - strip_size.x
 	var y: float = card.position.y - 4.0 - strip_size.y
 	x = clampf(x, safe.position.x, safe.end.x - strip_size.x)
 	y = clampf(y, safe.position.y, safe.end.y - strip_size.y)
 	var result := Rect2(Vector2(x, y), strip_size)
-	if not stack.has_area() or not result.intersects(stack):
+	var blockers: Array[Rect2]
+	for blocker: Rect2 in [stack, callout]:
+		if blocker.has_area():
+			blockers.append(blocker)
+	if not _intersects_blockers(result, blockers):
 		return result
-	var away_x: float = stack.end.x + 4.0 if stack_left else stack.position.x - 4.0 - strip_size.x
-	var alternate_x: float = stack.position.x - 4.0 - strip_size.x if stack_left else stack.end.x + 4.0
-	for candidate_x: float in [away_x, alternate_x]:
-		var candidate := Rect2(Vector2(candidate_x, y), strip_size)
-		if safe.encloses(candidate) and not candidate.intersects(stack):
-			return candidate
-	# A clamped tooltip can cross the card. Move above it only when neither side
-	# fits; never change the tooltip stack's established placement rules.
-	for candidate_y: float in [stack.position.y - 4.0 - strip_size.y, stack.end.y + 4.0]:
-		var candidate := Rect2(Vector2(x, candidate_y), strip_size)
-		if safe.encloses(candidate) and not candidate.intersects(stack):
-			return candidate
+	var xs: Array[float]
+	var ys: Array[float]
+	xs.append(x)
+	ys.append(y)
+	for blocker: Rect2 in blockers:
+		var blocker_left: bool = blocker.get_center().x < card.get_center().x
+		xs.append(blocker.end.x + 4.0 if blocker_left else blocker.position.x - 4.0 - strip_size.x)
+		xs.append(blocker.position.x - 4.0 - strip_size.x if blocker_left else blocker.end.x + 4.0)
+		ys.append(blocker.position.y - 4.0 - strip_size.y)
+		ys.append(blocker.end.y + 4.0)
+	# Preserve the preferred alignment and try horizontal clearance first. If
+	# neither side fits, clear the stack and callout together vertically.
+	for candidate_y: float in ys:
+		for candidate_x: float in xs:
+			var candidate := Rect2(Vector2(candidate_x, candidate_y), strip_size)
+			if safe.encloses(candidate) and not _intersects_blockers(candidate, blockers):
+				return candidate
 	return Rect2()
 
-func present(entries: Array[Dictionary], focused_index: int, target: Control, tooltip_stack: Control, portrait_path: Callable, allowed: Callable, reduced_motion: bool) -> void:
+static func _intersects_blockers(rect: Rect2, blockers: Array[Rect2]) -> bool:
+	for blocker: Rect2 in blockers:
+		if rect.intersects(blocker):
+			return true
+	return false
+
+func present(entries: Array[Dictionary], focused_index: int, target: Control, tooltip_stack: Control, portrait_path: Callable, allowed: Callable, reduced_motion: bool, tutorial_callout: Control = null) -> void:
 	var roles: Dictionary = roles_for(entries)
 	if roles.is_empty() or target == null:
 		hide_strip()
 		return
 	_target = target
 	_tooltip_stack = tooltip_stack
+	_tutorial_callout = tutorial_callout
 	_allowed = allowed
 	var signature: String = content_signature(roles, focused_index)
 	if signature != _signature:
@@ -136,7 +154,10 @@ func _follow_target() -> void:
 	var stack_rect := Rect2()
 	if is_instance_valid(_tooltip_stack) and _tooltip_stack.is_visible_in_tree():
 		stack_rect = _tooltip_stack.get_global_rect()
-	var rect: Rect2 = placement(CardFocusTooltipStack._visual_global_rect(_target), stack_rect, size, get_viewport().get_visible_rect())
+	var callout_rect := Rect2()
+	if is_instance_valid(_tutorial_callout) and _tutorial_callout.is_visible_in_tree():
+		callout_rect = _tutorial_callout.get_global_rect()
+	var rect: Rect2 = placement(CardFocusTooltipStack._visual_global_rect(_target), stack_rect, size, get_viewport().get_visible_rect(), callout_rect)
 	visible = rect.has_area()
 	if visible:
 		global_position = rect.position
