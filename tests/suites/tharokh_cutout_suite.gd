@@ -64,7 +64,6 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		expect.call(is_equal_approx(float(renderer.call("snapshot")["phase"]), 0.55), "Claw and Faultline reach the approved contact pose at their existing result boundary")
 		renderer.call("present", {"clip": "attack", "phase": 1.0}, false)
 		expect.call(renderer.call("snapshot")["clip"] == "idle", "Completed attacks restore idle during the result hold")
-	expect.call(Cutout.attack_trail_phase(0.30) < 0.0 and is_equal_approx(Cutout.attack_trail_phase(0.42), 0.45) and Cutout.attack_trail_phase(0.90) < 0.0, "Melee trail stays absent during claw preparation and follows the contact beat")
 	expect.call(Cutout.walk_cycle_distance() > 75.0 and Cutout.WALK_CYCLE_SECONDS >= 0.6, "The four-foot dragon travels a meaningful source distance with a deliberate cadence")
 	_submit(board, state, {"tharokh_motion": {"enemy_1": {"clip": "walk", "direction": Vector2i(0, -1), "phase": 0.5}}, "reduced_motion": true})
 	renderer.call("_process", 0.6)

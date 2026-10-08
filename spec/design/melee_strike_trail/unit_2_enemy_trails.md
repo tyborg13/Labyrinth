@@ -47,7 +47,7 @@ For guardians without an obvious weapon, pick `rake` or `sweep` per creature fro
 
 ### 2. Enemy strike samples
 
-Add a strike-samples function per enemy renderer, or one shared helper. It samples the rig's attack clip with its own `sample_pose` and `attack_pose_phase`, from progress, the same way unit 1 does for the hero. It returns tip and inner points in source space, mirrored. Map them to board space with the enemy's draw rect (`_unit_draw_rect_for_center`, `ActorPresentation.floor_anchor`, art_scale). Cache per effect.
+Add a strike-samples function per enemy renderer, or one shared helper. It samples the rig's attack clip with its own `sample_pose` and `attack_pose_phase`, from progress, the same way unit 1 does for the hero. It returns tip and inner points in source space, mirrored. Map them to board space with the enemy's draw rect (`_unit_draw_rect_for_center`, `ActorPresentation.floor_anchor`, art_scale). Cache non-empty authored samples per renderer/type, kind, intent/attack variant, facing/mirror and contact boundary. Cache resolved source geometry separately from live board projection.
 
 ### 3. Dispatch
 
@@ -58,7 +58,7 @@ Add a strike-samples function per enemy renderer, or one shared helper. It sampl
 
 ## Keep
 
-Enemy clocks, contacts, damage-once, sounds and reduced motion (no trail), plus the enemy `attack_trail_phase` tests. Update those tests where they asserted the old slash gating, keeping the timing intent.
+Enemy clocks, contacts, damage-once and sounds remain unchanged. Reduced motion keeps static, fully revealed claw marks per target tile for dragon physical-area attacks; all other enemy melee draws no strike trail. Bespoke effects keep their existing reduced presentation. Retired slash-gating helpers and their obsolete suite assertions are removed; authored pose/contact timing tests remain.
 
 ## Proof
 
@@ -81,3 +81,22 @@ Enemy clocks, contacts, damage-once, sounds and reduced motion (no trail), plus 
 - Enemy arcs use the exact echo construction, `.33–.56` visual window and `.42` visual peak, scaled by the enemy size floor. Gameplay result/contact clocks are unchanged; the previous push/pull retiming to `.50` made the arc faint at the reviewed `.40/.42` frames.
 - Ashen Hooked Sweep is correctly posed, but the reviewed `.40/.42/.48` blade tip spans only 5.45 front / 4.87 rear source px after its `.38` result. Its full windup span hid that held contact. For this area variant, test the actual contact plus the next `.10` of progress; below 24 scaled px, draw the echo-style target arc. The rig animation remains unchanged.
 - The frozen static-floor-cache oracle retains its independent cache algorithms while sharing current additive hero/enemy dispatch and dragon physical-area routing. It no longer loads or references slash-sheet assets or `MeleeThrustFx`.
+
+
+### Peer-review implementation fixes
+
+- Palette/seed changes reuse non-empty pose samples per renderer instance, type, kind, intent/variant, facing/mirror and contact. Iskaldra's talon only uses action/facing, so target distance is excluded from its sampling key. Relative target/size changes refresh resolved source geometry without resampling; framing changes refresh board projection.
+- Zero envelopes skip pose sampling/resolution, with the `.36` claw reveal start and canonical arc window. Resolved source samples remain immutable across frames; `Geometry.resolve()` and typed sample conversion run only when that resolution changes.
+- Dragon area lights are allocated with their retained front-effect canvases, and their draw time is attributed to `scene_tile_effects`. Reduced physical areas use full, stationary contact marks per tile; all other enemy melee has no reduced trail.
+- Attack feedback boundaries share `AttackFxLibrary.feedback_start_progress()`, preserving RunScene's existing dragon-area precedence and all kind/style clocks. The retired slash sheet, unused gating helpers and unread effect flags are removed.
+
+Matched headless benchmark against `3da1cc766`, at 1920×1080: Harrier, Crawler, Warden, Storm Cantor, Ashen area, Zekarion and Iskaldra. Each case uses 24 new palette/seed attacks in one facing, then 128 calls cycling `.40/.42/.48`. Values below are ranges of per-enemy medians in milliseconds; sync measures `_sync_dynamic_render_state(false, false, ["presentation"])`, excluding native draw/GPU cost.
+
+| CPU path | Before | After |
+| --- | --- | --- |
+| New attack in a reused facing | 2.578–4.155 | .160–.268 |
+| Warm `prepare()` | .201–.324 | .152–.263 |
+| Retained presentation sync | .232–.354 | .179–.297 |
+| Hidden `.20` `prepare()` | .075–.097 | .010–.012 |
+
+Each case went from 24 source builds to one. The first unseen motion/facing still pays its single pose-sampling cost; subsequent palette/seed changes reuse it. A frozen copy of the old helper fails the palette/seed reuse check (two builds where one is expected); the current helper passes.

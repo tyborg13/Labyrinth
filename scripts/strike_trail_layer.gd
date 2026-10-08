@@ -4,6 +4,7 @@ extends Node2D
 const Trail = preload("res://scripts/strike_trail_fx.gd")
 var _batches: Array[Dictionary]
 var instrumentation_owner: Control
+var instrumentation_section: String = "effect_overlay"
 
 func _init() -> void:
 	name = "StrikeTrailLight"
@@ -22,4 +23,4 @@ func _draw() -> void:
 	var started: int = Time.get_ticks_usec()
 	Trail.draw(self, _batches)
 	if is_instance_valid(instrumentation_owner):
-		instrumentation_owner.call("_record_render_section_time", "effect_overlay", started)
+		instrumentation_owner.call("_record_render_section_time", instrumentation_section, started)

@@ -190,7 +190,7 @@ static func _check_dispatch(tree: SceneTree, expect: Callable) -> void:
 	board.presentation["reduced_motion"] = false
 	var echo: Dictionary = {"kind": "melee", "illusion_echo": true, "from": player, "to": player + Vector2i(0, 1), "element": "ice"}
 	expect.call(Hero.handles(echo) and not helper.prepare(board, echo, 0.42).is_empty(), "Illusion echo uses a tinted synthetic arc without an attack rig")
-	expect.call(not Hero.handles({"kind": "melee", "crawler_melee": true}) and not Hero.handles({"kind": "push"}), "Enemy and force dispatch stays on legacy paths")
+	expect.call(not Hero.handles({"kind": "melee", "enemy_type": "crawler"}) and not Hero.handles({"kind": "push"}), "Enemy melee and force effects are excluded from hero trail dispatch")
 	retained._sync_strike_trail({}, 1.0)
 	expect.call(light.get("_batches").is_empty(), "Ending an effect clears retained trail geometry")
 	board.queue_free()

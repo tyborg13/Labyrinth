@@ -23113,20 +23113,7 @@ func _attack_terrain_destruction_progress(effect: Dictionary, effect_progress: f
 	return clampf((effect_progress - contact_progress) / maxf(0.001, 1.0 - contact_progress), 0.0, 1.0)
 
 func _attack_feedback_start_progress(effect: Dictionary) -> float:
-	if preload("res://scripts/dragon_presentation.gd").area_fx(effect): return preload("res://scripts/dragon_presentation.gd").CONTACT
-	if str(preload("res://scripts/dragon_presentation.gd").profile(effect).get("geometry","")) == "physical": return 0.42
-	var style: String = AttackFxLibrary.style_for_effect(effect)
-	if style != AttackFxLibrary.STYLE_DEFAULT:
-		return AttackFxLibrary.travel_end_progress(style)
-	match str(effect.get("kind", "")):
-		"melee":
-			return 0.42
-		"ranged":
-			return 0.66
-		"aoe", "lightning_strikes":
-			return 0.38
-		_:
-			return 0.50
+	return AttackFxLibrary.feedback_start_progress(effect)
 
 func _attack_feedback_elapsed_seconds(
 	effect: Dictionary,
@@ -25521,20 +25508,12 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 				"phase": float(presentation.get("effect_progress", 1.0)), "contact": _attack_feedback_start_progress(cutout_effect),
 				"direction": VaeloryxCutout.effect_direction(cutout_effect, vaeloryx_actor, (display_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO))}
 			rendered_presentation["vaeloryx_motion"] = vaeloryx_motions
-			if vaeloryx_action == "dive":
-				var vaeloryx_effect: Dictionary = cutout_effect.duplicate(false)
-				vaeloryx_effect["vaeloryx_melee"] = true
-				rendered_presentation["effect"] = vaeloryx_effect
 	if not effect_actor_key.is_empty() and WardenCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
 		var warden_motions: Dictionary = (presentation.get("warden_motion", {}) as Dictionary).duplicate(false)
 		warden_motions[effect_actor_key] = {"clip": "attack", "phase": float(presentation.get("effect_progress", 1.0)),
 			"contact": _attack_feedback_start_progress(cutout_effect),
 			"direction": (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)}
 		rendered_presentation["warden_motion"] = warden_motions
-		if str(cutout_effect.get("kind", "")) == "melee":
-			var warden_effect: Dictionary = cutout_effect.duplicate(false)
-			warden_effect["warden_melee"] = true
-			rendered_presentation["effect"] = warden_effect
 	if not effect_actor_key.is_empty():
 		var crawler_actor: Dictionary = _animation_actor_unit(display_state, effect_actor_key)
 		if CrawlerCutout.uses_attack(cutout_effect, crawler_actor) or CrawlerCutout.uses_coil(cutout_effect, crawler_actor):
@@ -25545,10 +25524,6 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 				"contact": _attack_feedback_start_progress(cutout_effect),
 				"direction": (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)}
 			rendered_presentation["crawler_motion"] = crawler_motions
-			if crawler_attack:
-				var crawler_effect: Dictionary = cutout_effect.duplicate(false)
-				crawler_effect["crawler_melee"] = true
-				rendered_presentation["effect"] = crawler_effect
 	if not effect_actor_key.is_empty() and AcolyteCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
 		var acolyte_motions: Dictionary = (presentation.get("acolyte_motion", {}) as Dictionary).duplicate(false)
 		var style: String = AttackFxLibrary.style_for_effect(cutout_effect)
@@ -25609,9 +25584,10 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 		if str(cutout_effect.get("kind", "")) == "melee":harrier_motion["contact"] = _attack_feedback_start_progress(cutout_effect)
 		harrier_motions[effect_actor_key] = harrier_motion
 		rendered_presentation["harrier_motion"] = harrier_motions
-		var harrier_effect: Dictionary = cutout_effect.duplicate(false)
-		harrier_effect["harrier_ranged" if str(cutout_effect.get("kind", "")) == "ranged" else "harrier_thrust"] = true
-		rendered_presentation["effect"] = harrier_effect
+		if str(cutout_effect.get("kind", "")) == "ranged":
+			var harrier_effect: Dictionary = cutout_effect.duplicate(false)
+			harrier_effect["harrier_ranged"] = true
+			rendered_presentation["effect"] = harrier_effect
 	if not effect_actor_key.is_empty():
 		var iskaldra_actor: Dictionary = _animation_actor_unit(display_state, effect_actor_key)
 		if not IskaldraAction.clip_for_effect(cutout_effect, iskaldra_actor).is_empty():
@@ -25632,7 +25608,6 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 			"direction": (cutout_effect.get("to", Vector2i.ZERO) as Vector2i) - (cutout_effect.get("from", Vector2i.ZERO) as Vector2i)}
 		rendered_presentation["noctyrax_motion"] = noctyrax_motions
 		var noctyrax_effect: Dictionary = cutout_effect.duplicate(false)
-		noctyrax_effect["noctyrax_claw"] = str(cutout_effect.get("kind", "")) == "melee"
 		noctyrax_effect["noctyrax_breath"] = str(cutout_effect.get("kind", "")) == "ranged"
 		rendered_presentation["effect"] = noctyrax_effect
 	var tharokh_actor: Dictionary = _animation_actor_unit(display_state, effect_actor_key)
@@ -25642,10 +25617,6 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 			"phase": float(presentation.get("effect_progress", 1.0)), "contact": _attack_feedback_start_progress(cutout_effect),
 			"direction": _tharokh_action_direction(cutout_effect, tharokh_actor)}
 		rendered_presentation["tharokh_motion"] = tharokh_motions
-		if str(cutout_effect.get("kind", "")) == "melee":
-			var tharokh_effect: Dictionary = cutout_effect.duplicate(false)
-			tharokh_effect["tharokh_melee"] = true
-			rendered_presentation["effect"] = tharokh_effect
 	if not effect_actor_key.is_empty() and VeilboundAcolyteCutout.uses_attack(cutout_effect, _animation_actor_unit(display_state, effect_actor_key)):
 		var veilbound_motions: Dictionary = (presentation.get("veilbound_acolyte_motion", {}) as Dictionary).duplicate(false)
 		veilbound_motions[effect_actor_key] = {"clip": "attack", "action": str(cutout_effect.get("kind", "")),
@@ -25677,7 +25648,6 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 		rendered_presentation["zekarion_motion"] = dragon_motions
 		var dragon_effect: Dictionary = cutout_effect.duplicate(false)
 		dragon_effect["zekarion_cutout"] = true
-		dragon_effect["zekarion_claw"] = str(cutout_effect.get("kind","")) == "melee"
 		rendered_presentation["effect"] = dragon_effect
 	var dragon_actor: Dictionary = _animation_actor_unit(display_state,effect_actor_key) if not effect_actor_key.is_empty() else {}
 	var dragon_profile: Dictionary = preload("res://scripts/dragon_presentation.gd").profile(cutout_effect,dragon_actor)

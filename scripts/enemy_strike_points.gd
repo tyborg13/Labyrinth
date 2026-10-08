@@ -63,14 +63,7 @@ static func settings(enemy_type: String, effect: Dictionary) -> Dictionary:
 	return result
 
 static func contact(effect: Dictionary) -> float:
-	# Same feedback boundary as RunScene; this helper never moves its clock.
-	if str(Dragon.profile(effect).get("geometry", "")) == "physical": return 0.42
-	var style: String = Fx.style_for_effect(effect)
-	if style != Fx.STYLE_DEFAULT: return Fx.travel_end_progress(style)
-	match str(effect.get("kind", "")):
-		"melee": return 0.42
-		"aoe": return 0.38
-		_: return 0.50
+	return Fx.feedback_start_progress(effect)
 
 static func window_for(settings_value: Dictionary, boundary: float) -> Vector2:
 	var window: Vector2 = settings_value["window"]
@@ -105,6 +98,7 @@ static func samples(renderer: Node, actor: Dictionary, effect: Dictionary, delta
 	var enemy_type: String = str(actor["type"])
 	var orientation: Dictionary = Facing.direction_for_delta(delta)
 	var view: String = orientation["facing"]
+	if not renderer.rigs.has(view): return result
 	var layout: Dictionary = renderer.rigs[view].layout
 	var model: Script = Guardian if Guardian.handles(enemy_type) else MODELS[enemy_type]
 	var motion: Script = model.Motion

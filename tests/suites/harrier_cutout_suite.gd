@@ -73,7 +73,6 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		expect.call(renderer.call("snapshot")["clip"] == "idle","Ranged recovery returns to idle")
 	renderer.call("present",{"clip":"walk","travel_variant":"retreat","phase":0.3},false)
 	expect.call(renderer.call("snapshot")["clip"] == "retreat","Retreat Step selects guarded withdrawal")
-	expect.call(Cutout.attack_trail_phase(0.20)<0 and Cutout.attack_trail_phase(0.42)>0 and Cutout.attack_trail_phase(0.9)<0,"Spear trail only accompanies the forward contact beat")
 	_submit(board, state, {"harrier_motion": {"enemy_1": {"clip": "walk", "direction": Vector2i(0, -1), "phase": 0.5}}, "reduced_motion": true})
 	renderer.call("_process", 0.6)
 	var still: Dictionary = renderer.call("snapshot")

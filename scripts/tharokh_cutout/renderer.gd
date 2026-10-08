@@ -80,16 +80,6 @@ static func attack_pose_phase(progress: float, contact: float) -> float:
 				inverse_lerp(keys[index - 1].x, keys[index].x, clampf(progress, 0.0, 1.0)))
 	return 1.0
 
-static func attack_trail_phase(progress: float) -> float:
-	# The existing slash is visible only during the claw rake/contact,
-	# so it cannot announce a hit while Tharokh is still preparing the rake.
-	var cut_start: float = 0.42 * 0.88
-	if progress < cut_start or progress >= 0.72:
-		return -1.0
-	if progress <= 0.42:
-		return remap(progress, cut_start, 0.42, 0.0, 0.45)
-	return remap(progress, 0.42, 0.72, 0.45, 1.0)
-
 func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	active = enabled
 	reduced_motion = reduce

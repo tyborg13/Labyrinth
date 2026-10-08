@@ -67,9 +67,6 @@ static func attack_pose_phase(progress: float, contact: float) -> float:
 			return lerpf(keys[index-1].y,keys[index].y,inverse_lerp(keys[index-1].x,keys[index].x,clampf(progress,0,1)))
 	return 1.0
 
-static func attack_trail_phase(progress: float) -> float:
-	return -1.0 if progress < 0.34 or progress > 0.60 else inverse_lerp(0.34,0.60,progress)
-
 func source_release_socket(delta: Vector2i) -> Vector2:
 	var orientation: Dictionary = direction_for_delta(delta)
 	var rig: Node = rigs[orientation["facing"]]

@@ -62,19 +62,11 @@ static func presentation(enemy_type: String, state_value: Dictionary, effect_val
 	elif enemy_type == "lightning_wisp": motion["action"] = "dart"
 	if str(effect_value["kind"]) in ["push","pull"] and not Guardian.handles(enemy_type): motion = {}
 	result[field] = {"enemy_1":motion}
-	# Match RunScene's cutout routing flags as well as its motion dictionaries.
-	var shown_effect: Dictionary = effect_value.duplicate(false)
-	if str(effect_value["kind"]) == "melee":
-		match enemy_type:
-			"harrier": shown_effect["harrier_thrust"] = true
-			"crawler": shown_effect["crawler_melee"] = true
-			"warden": shown_effect["warden_melee"] = true
-			"noctyrax": shown_effect["noctyrax_claw"] = true
-			"tharokh": shown_effect["tharokh_melee"] = true
-			"zekarion":
-				shown_effect["zekarion_cutout"] = true
-				shown_effect["zekarion_claw"] = true
-	result["effect"] = shown_effect
+	# Zekarion still routes its socket-based ranged effects through this flag.
+	if enemy_type == "zekarion":
+		var shown_effect: Dictionary = effect_value.duplicate(false)
+		shown_effect["zekarion_cutout"] = true
+		result["effect"] = shown_effect
 	return result
 
 static func check_pose(renderer: Node, enemy_type: String, effect_value: Dictionary, state_value: Dictionary, progress: float) -> bool:

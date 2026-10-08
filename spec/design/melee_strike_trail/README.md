@@ -23,14 +23,14 @@ The old melee effect is one painted crescent (`assets/art/effects/melee_slash_sh
 | --- | --- | --- |
 | `sweep` | sword, heavy, bow/repeater bash, whip, and blade or club wielders | A crescent smear between the tip path and a point part-way down the weapon. Its reach narrows toward the tail, so it hugs the tip path. |
 | `streak` | dagger stab, spear thrust, and enemy spears | A speed streak behind the tip along the weapon axis, with two thinner side lines. |
-| `rake` | claws (crawler, dragons, clawed guardians) | Three thin parallel sweeps, offset across the claw path. |
+| `rake` | claws (crawler, dragons, clawed guardians) | Three bold, tapered contact claw marks revealed over .36–.44. Dragon per-tile area rakes retain their approved sweep profile. |
 | `arc` | attackers with no strike point (Lightning Wisp, sprite-lunge enemies, illusion echoes) | A synthetic crescent at the target, oriented by the attack direction. |
 
 **Timing:**
 - The trail appears with the strike and is brightest at contact (progress 0.42, unchanged).
 - Its tail covers the last 0.10 of effect progress behind the tip. It fades out within about 0.06 of progress after the strike window ends.
 - One impact accent at contact: a four-point glint at the strike point, about 0.10 of progress long.
-- Contact, damage-once, sounds and reduced-motion behaviour are unchanged. Reduced motion still draws no trail.
+- Contact, damage-once and sounds are unchanged. Reduced motion draws no hero or ordinary enemy strike trail; dragon physical areas retain static, fully revealed claw marks per target tile. Bespoke effects keep their existing reduced presentation.
 
 **Look:**
 - **Additive light.** A soft wide glow pass under a sharp core pass.
@@ -56,7 +56,7 @@ The old melee effect is one painted crescent (`assets/art/effects/melee_slash_sh
 - Cinder Ooze molten contact
 - Vyraketh bite
 
-**Retired:** the old slash sheet. It stays loaded only if something outside melee still draws it. Report any such remaining user.
+**Retired:** the old slash sheet and `MeleeThrustFx`. No runtime user remains; the sheet is removed from loading and the asset inventory.
 
 The prototype that produced the review sheets is in `prototype/`. It is reference only; the production version is procedural GDScript.
 

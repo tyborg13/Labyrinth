@@ -29,6 +29,19 @@ const ICE_FRAME_SECONDS: float = 0.016
 const ICE_ANTICIPATION_END_PROGRESS: float = 4.0 / 42.0
 const ICE_TRAVEL_END_PROGRESS: float = 14.0 / 42.0
 
+static func feedback_start_progress(effect: Dictionary) -> float:
+	# Shared resolver/presentation boundary; preserve RunScene's precedence.
+	var dragon: Script = preload("res://scripts/dragon_presentation.gd")
+	if dragon.area_fx(effect): return dragon.CONTACT
+	if str(dragon.profile(effect).get("geometry","")) == "physical": return 0.42
+	var style: String = style_for_effect(effect)
+	if style != STYLE_DEFAULT: return travel_end_progress(style)
+	match str(effect.get("kind","")):
+		"melee": return 0.42
+		"ranged": return 0.66
+		"aoe", "lightning_strikes": return 0.38
+		_: return 0.50
+
 static func style_for_effect(effect: Dictionary) -> String:
 	var dragon: Dictionary = preload("res://scripts/dragon_presentation.gd").profile(effect)
 	if str(dragon.get("geometry", "")) == "physical": return STYLE_DEFAULT

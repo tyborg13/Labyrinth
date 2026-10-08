@@ -82,15 +82,6 @@ static func attack_pose_phase(progress: float, contact: float, action: String = 
 			return lerpf(keys[index-1].y,keys[index].y,inverse_lerp(keys[index-1].x,keys[index].x,clampf(progress,0.0,1.0)))
 	return 1.0
 
-static func attack_trail_phase(progress: float) -> float:
-	# The slash begins with the claw sweep, after the raised preparation.
-	var cut_start: float = 0.42 * 0.88
-	if progress < cut_start or progress >= 0.72:
-		return -1.0
-	if progress <= 0.42:
-		return remap(progress, cut_start, 0.42, 0.0, 0.45)
-	return remap(progress, 0.42, 0.72, 0.45, 1.0)
-
 func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	active = enabled
 	reduced_motion = reduce

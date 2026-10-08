@@ -49,6 +49,7 @@ func _initialize() -> void:
 			for progress: float in PHASES:
 				await _capture(entry[0],entry[1],view,progress)
 	await _capture("crawler","","front",0.42,true)
+	await _capture("tharokh","area","front",0.42,true)
 	var file := FileAccess.open(OUTPUT.path_join("manifest.json"),FileAccess.WRITE)
 	file.store_string(JSON.stringify({"size":[1920,1080],"ui_scale":1.0,"captures":_captures,"errors":_errors},"\t"))
 	file.close()

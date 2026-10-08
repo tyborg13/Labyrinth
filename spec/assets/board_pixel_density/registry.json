@@ -3428,10 +3428,6 @@
       "category": "vfx",
       "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
     },
-    "assets/art/effects/melee_slash_sheet.png": {
-      "category": "vfx",
-      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
-    },
     "assets/art/tiles/dragon_spire.png": {
       "category": "presence_gate",
       "reason": "Texture presence gates drawing; dimensions/shadow references use this raster, but the visible body draws procedurally."

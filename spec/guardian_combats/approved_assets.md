@@ -69,7 +69,7 @@ Six head components are composited into the shared frame. The components remain 
 | Fire, Ice and Electrified ground | Existing board-surface renderer and matching surface identities; no new element texture family. |
 | Rubble from destroyed cover/outcrops | Existing Rubble surface and `surface_rubble` identity. |
 | Light, darkness and Illusions | Existing lighting/visibility and Illusion renderers; Procession changes movement rules, not the decoy design. |
-| Ordinary melee and elemental impacts | Existing slash, Fire, Ice and Lightning effect sheets and action presentation. New attack timing is authored during animation integration. |
+| Ordinary melee and elemental impacts | Procedural additive strike trails for ordinary melee; the slash sheet is retired. Fire, Ice and Lightning effect sheets and action presentation remain. New attack timing is authored during animation integration. |
 | Push/Pull, lanes, target rings, summon markers | Existing action previews and board overlays. No separate painted telegraph identity for each named guardian move. |
 | Intent rows | Each actor gets its dedicated portrait; action types use existing Melee, Move, surface, Push/Pull and summon icon identities. |
 | Map reachable, focused, current, visited, bypassed and cleared states | Existing map state treatment around the new guardian frame/head art. These remain runtime states rather than duplicate painted PNGs. |

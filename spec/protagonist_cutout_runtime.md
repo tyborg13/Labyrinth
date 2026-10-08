@@ -34,7 +34,13 @@ Hero melee and Mirror Triptych echoes draw a procedural, additive strike trail i
 - **Look.** Warm ember light: a warm-white edge, an amber body and an ember-red tail. Elemental melee uses its element palette. A few deterministic sparks, and one four-point glint at contact (0.42).
 - **Timing.** The trail fades within 0.06 progress after the strike window. Reduced motion draws no trail.
 - **Drawing.** `scripts/strike_trail_layer.gd` is an additive child of the retained effects layer. It sits above units and below floating/status text and the HUD, and is resubmitted on every state sync and after zoom or pan.
-- **Enemies.** Enemy melee keeps its own effects until the enemy strike-trail unit lands.
+Enemy melee uses the same light module. `scripts/enemy_strike_points.gd` owns the per-type landmark, inner reference, window and kind registry: weapon sweeps, spear/punch streaks, contact claw marks (`rake` → `claw_marks`), and target arcs. Grave Surgeon, Veilbound Acolyte, Cinder Droplet, Cinder Ooze and Vyraketh keep their bespoke effects. Light sizes use the hero's board source-pixel scale times `clamp(art_scale, .9, 1.6)`; real rig landmarks retain their draw-rect registration.
+
+Paths spanning less than 24 scaled source pixels use an anchored arc for sweeps or target-directed streak/claw orientation. A streak contact more than .6 tile widths from the target body instead leads at that body centre, pointing attacker → target. Ashen's area blade is nearly held after contact; its short contact/follow-through span uses an echo-style target arc. Enemy arcs share the echo's 44 px radius, body-height placement, `.33–.56` window and `.42` visual peak. These visual fallbacks do not change gameplay contact clocks.
+
+Dragon physical-area attacks draw an independently oriented rake on every declared target tile's front-effect layer. Its additive child is allocated with that layer; draw time belongs to `scene_tile_effects`. Reduced motion keeps a static, fully revealed claw mark on each physical-area target. All other enemy melee emits no strike trail in reduced motion; bespoke effects retain their existing reduced presentation.
+
+`scripts/enemy_strike_cache.gd` caches non-empty authored samples per renderer/type, effect kind, intent/attack variant, facing/mirror and contact boundary. Relative target geometry and the size ratio invalidate resolved source geometry independently of sampling; camera changes reproject it. Iskaldra's talon pose is distance-independent and needs no target offset in its sampling key. Palette and seed changes never resample. Zero envelopes skip sampling and drawing. The old slash sheet and `MeleeThrustFx` are retired from runtime loading and the asset inventory.
 
 ## Visible equipment
 

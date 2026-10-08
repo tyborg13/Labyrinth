@@ -123,7 +123,6 @@ static func _verify_routes(expect: Callable) -> void:
 	expect.call((definition["status_immunities"] as Array).size() == 1 and str(definition["status_immunities"][0]) == "immobilize", "The boss retains only its existing Immobilize immunity")
 	expect.call((definition["intents"] as Array).size() == 4, "The existing four-intent kit remains intact")
 	expect.call(RunScene.TURN_ORDER_PORTRAITS["vaeloryx"] == "res://assets/art/portraits/vaeloryx.png", "The dedicated turn-clock portrait remains registered")
-	expect.call(Cutout.attack_trail_phase(0.20) < 0.0 and is_equal_approx(Cutout.attack_trail_phase(0.42), 0.45), "The melee trail follows claw release rather than windup")
 
 static func _verify_motion(renderer: Node, expect: Callable) -> void:
 	for facing: String in ["front", "rear"]:

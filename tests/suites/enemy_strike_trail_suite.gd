@@ -7,6 +7,9 @@ const Fixture = preload("res://tests/helpers/enemy_strike_fixture.gd")
 const Guardian = preload("res://scripts/guardian_cutout/renderer.gd")
 const Geometry = preload("res://scripts/enemy_strike_geometry.gd")
 const ClawMarks = preload("res://scripts/enemy_claw_marks.gd")
+const RunScene = preload("res://scripts/run_scene.gd")
+const Fx = preload("res://scripts/attack_fx_library.gd")
+const SourceCache = preload("res://scripts/enemy_strike_cache.gd")
 const HeroTrail = preload("res://scripts/hero_strike_trail.gd")
 const DIRECTIONS: Array = [Vector2i(0,1),Vector2i(0,-1),Vector2i(1,0),Vector2i(-1,0)]
 
@@ -59,6 +62,8 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		await tree.process_frame
 	await _check_board(tree, expect)
 	await _check_target_effects(tree, expect)
+	await _check_cache(tree,expect)
+	_check_feedback_boundaries(expect)
 	_check_claw_profile(expect)
 	print("ENEMY STRIKE TRAIL CONTRACTS: registry, live front/rear/mirrored contacts, cache, bespoke exclusions, reduced motion and per-tile area rakes checked")
 
@@ -149,15 +154,28 @@ static func _check_board(tree: SceneTree, expect: Callable) -> void:
 		var layer: Control = layers.get(tile)
 		expect.call(is_instance_valid(layer), "Physical area retains its per-target depth layer")
 		if is_instance_valid(layer):
+			var children: int = layer.get_child_count()
+			var light_id: int = (layer.get("_strike_trail_layer") as Node2D).get_instance_id()
 			layer.call("_draw_elemental_scene_depth_pass",tile,true)
 			var light: Node2D = layer.get("_strike_trail_layer")
+			expect.call(layer.get_child_count() == children and light.get_instance_id() == light_id, "Area drawing reuses the light created with its front-effect layer")
+			expect.call(light.instrumentation_section == "scene_tile_effects", "Area light draw time belongs to scene-tile effects")
 			expect.call(is_instance_valid(light) and light.get("_batches") == batches, "Production target depth layer submits its own rake")
 			if is_instance_valid(light):
 				expect.call((light.material as CanvasItemMaterial).blend_mode == CanvasItemMaterial.BLEND_MODE_ADD, "Area rake uses the approved additive pass")
 		prior = batches
 	expect.call(EnemyTrail.area_rake(board,area,Vector2i(0,0),0.42).is_empty(), "Dragon area does not draw outside its declared tiles")
 	board.presentation["reduced_motion"] = true
-	expect.call(EnemyTrail.area_rake(board,area,area["to"],0.42).is_empty(), "Reduced motion draws no area rake")
+	var static_mark: Array[Dictionary] = EnemyTrail.area_rake(board,area,area["to"],0.42)
+	expect.call(not static_mark.is_empty() and _core_energy(static_mark[1]) > 0.0, "Reduced physical area retains a fully revealed static claw mark")
+	for progress: float in [0.0,0.20,0.48,0.90,1.0]:
+		expect.call(EnemyTrail.area_rake(board,area,area["to"],progress) == static_mark, "Reduced physical claw marks do not animate or fade")
+	print("REDUCED DRAGON AREA: static fully revealed claw marks; PASS")
+	for tile: Vector2i in area["tiles"]:
+		var layer: Control = layers.get(tile)
+		if is_instance_valid(layer):
+			layer.call("_draw_elemental_scene_depth_pass",tile,true)
+			expect.call((layer.get("_strike_trail_layer") as Node2D).get("_batches") == EnemyTrail.area_rake(board,area,tile,0.42), "Reduced physical-area depth layer submits its static mark")
 	for tile: Vector2i in area["tiles"]:
 		var layer: Control = layers.get(tile)
 		if is_instance_valid(layer):
@@ -279,3 +297,113 @@ static func _check_target_effects(tree: SceneTree, expect: Callable) -> void:
 				if delta in [Vector2i(0,1),Vector2i(0,-1)]: print("ASHEN DISPLAYED AREA BLADE SPAN %s: %.3f source px" % [delta,span])
 	board.queue_free()
 	await tree.process_frame
+
+class UnreadyRenderer:
+	extends Node
+	var rigs: Dictionary = {}
+	static func direction_for_delta(delta: Vector2i) -> Dictionary:
+		return preload("res://scripts/enemy_cutout_facing.gd").direction_for_delta(delta)
+
+static func _check_cache(tree: SceneTree, expect: Callable) -> void:
+	var board := Board.new()
+	board.size = Vector2(1920,1080)
+	tree.root.add_child(board)
+	await tree.process_frame
+	for type: String in ["harrier","crawler","warden","chainbound_gaoler","ashen_reaver","storm_cantor","zekarion","iskaldra"]:
+		var state: Dictionary = Fixture.state(type,Vector2i(0,1))
+		var effect: Dictionary = Fixture.effect(type,state)
+		board.set_combat_state(state,[],[],Vector2i(-1,-1),"","",{},{},Fixture.presentation(type,state,effect,0.42))
+		var cache: RefCounted = board.get("_enemy_strike_trail")
+		cache.prepare(board,effect,0.42)
+		var builds: int = cache.sample_build_count
+		var resolutions: int = cache.resolution_build_count
+		var again: Dictionary = effect.duplicate(false)
+		again["element"] = "ice"
+		again["seed"] = 99
+		cache.prepare(board,again,0.42)
+		expect.call(cache.sample_build_count == builds, "Same facing with a new element/seed must not resample: " + type)
+		expect.call(cache.resolution_build_count == resolutions, "Same source/target reuses resolved source geometry: " + type)
+		var repeat: Array[Dictionary] = cache.prepare(board,again,0.48)
+		expect.call(repeat == cache.prepare(board,again,0.48) and cache.resolution_build_count == resolutions, "Per-frame geometry is deterministic without re-resolving: " + type)
+		var rear_state: Dictionary = Fixture.state(type,Vector2i(0,-1))
+		var rear: Dictionary = Fixture.effect(type,rear_state)
+		rear["action_direction"] = Vector2i(0,-1)
+		# Sampling follows the requested renderer direction, not its last pose.
+		cache.prepare(board,rear,0.42)
+		expect.call(cache.sample_build_count == builds+1, "A new enemy facing samples once: " + type)
+		cache.prepare(board,rear,0.48)
+		expect.call(cache.sample_build_count == builds+1, "Enemy rear cache survives follow-through: " + type)
+		var hidden: RefCounted = EnemyTrail.new()
+		for progress: float in [0.0,0.20,0.90,1.0]:
+			expect.call(hidden.prepare(board,effect,progress).is_empty(), "Zero envelope returns no enemy geometry: " + type)
+		expect.call(hidden.sample_build_count == 0 and hidden.resolution_build_count == 0, "Zero envelope skips sampling and resolution: " + type)
+		# Framing invalidates projection without resampling authored motion.
+		board._navigation_zoom *= 0.9
+		board._navigation_pan += Vector2(8,-5)
+		board._invalidate_board_layout_cache()
+		var projected: Array[Dictionary] = cache.prepare(board,effect,0.42)
+		var fresh: RefCounted = EnemyTrail.new()
+		expect.call(projected == fresh.prepare(board,effect,0.42), "Cached source resolution reprojects identically to a fresh attack after framing: " + type)
+		expect.call(cache.sample_build_count == builds+1, "Zoom/pan never resamples enemy poses: " + type)
+		if type == "crawler":
+			expect.call(hidden.prepare(board,effect,0.35).is_empty() and hidden.sample_build_count == 0, "Claw's effective .36 start skips sampling")
+			again = effect.duplicate(false)
+			again["intent_id"] = "lunge"
+			cache.prepare(board,again,0.42)
+			expect.call(cache.sample_build_count == builds+2, "Crawler attack variants retain separate authored samples")
+		if type == "iskaldra":
+			var source: Dictionary = EnemyTrail.actor(board,effect)
+			var far: Dictionary = effect.duplicate(false)
+			far["to"] = source["pos"]+Vector2i(2,4)
+			var renderer: Node = board.unit_cutout_renderer(source)
+			var delta: Vector2i = Points.direction(effect,source,state["player"]["pos"])
+			var far_delta: Vector2i = Points.direction(far,source,state["player"]["pos"])
+			expect.call(renderer.direction_for_delta(delta) == renderer.direction_for_delta(far_delta), "Iskaldra distance fixture shares the same facing")
+			var settings: Dictionary = Points.settings(type,effect)
+			expect.call(Points.samples(renderer,source,effect,delta,settings,0.42) == Points.samples(renderer,source,far,far_delta,settings,0.42), "Iskaldra's talon authored pose is independent of target distance")
+			cache.prepare(board,far,0.42)
+			expect.call(cache.sample_build_count == builds+1, "Iskaldra target distance does not resample an unchanged authored pose")
+	# Never cache a temporary empty result from a renderer still loading rigs.
+	var unready := UnreadyRenderer.new()
+	var source_cache := SourceCache.new()
+	var source: Dictionary = {"type":"harrier"}
+	var effect: Dictionary = {"kind":"melee"}
+	var settings: Dictionary = Points.settings("harrier",effect)
+	for i: int in range(2):
+		expect.call(source_cache.entry(unready,source,effect,Vector2i(0,1),settings,0.42).is_empty(), "Unready rig returns no samples")
+	expect.call(source_cache.sample_build_count == 2, "Empty samples remain retryable instead of entering the cache")
+	unready.free()
+	board.queue_free()
+	await tree.process_frame
+	print("ENEMY SOURCE CACHE: palettes/seeds, facing, variants, target distance, resolved reuse, zero envelopes and empty retries; PASS")
+
+static func _check_feedback_boundaries(expect: Callable) -> void:
+	var scene := RunScene.new()
+	var effects: Array[Dictionary]
+	var kinds: Array = ["","melee","ranged","aoe","lightning_strikes","push","pull","move","intent","intent_refresh","status","status_damage","heal","block","terrain_burst","summon","cinder_marks","detonate_cinders","raise_terrain","blink","chain","draw","discard","pickup","detonate","stoneskin","status_applied","surface_damage","terrain_created","actor_death","trap_triggered","surface_conducted","reinforcement_spawn","transition"]
+	for kind: String in kinds:
+		for element: String in ["none","fire","earth","air","lightning","ice"]:
+			effects.append({"kind":kind,"element":element})
+			effects.append({"kind":kind,"action_type":"ranged","range":2,"element":element})
+	for type: String in ["vyraketh","tharokh","vaeloryx","iskaldra","zekarion","noctyrax"]:
+		for kind: String in ["melee","ranged","aoe","lightning_strikes","terrain_burst"]:
+			effects.append({"enemy_type":type,"kind":kind,"action_type":kind,"element":"fire"})
+	for effect: Dictionary in effects:
+		var expected: float = _previous_feedback_boundary(effect)
+		expect.call(is_equal_approx(scene.call("_attack_feedback_start_progress",effect),expected), "Shared feedback preserves RunScene's previous boundary and precedence for " + str(effect))
+		expect.call(is_equal_approx(Points.contact(effect),expected) and is_equal_approx(Fx.feedback_start_progress(effect),expected), "Enemy and RunScene feedback agree for every kind and dragon area")
+	scene.free()
+	print("SHARED ATTACK FEEDBACK: %d kind/element/dragon fixtures; PASS" % effects.size())
+
+static func _previous_feedback_boundary(effect: Dictionary) -> float:
+	# Frozen pre-refactor oracle, including the .52 dragon-area precedence.
+	var dragon: Script = preload("res://scripts/dragon_presentation.gd")
+	if dragon.area_fx(effect): return dragon.CONTACT
+	if str(dragon.profile(effect).get("geometry","")) == "physical": return 0.42
+	var style: String = Fx.style_for_effect(effect)
+	if style != Fx.STYLE_DEFAULT: return Fx.travel_end_progress(style)
+	match str(effect.get("kind","")):
+		"melee": return 0.42
+		"ranged": return 0.66
+		"aoe", "lightning_strikes": return 0.38
+		_: return 0.50

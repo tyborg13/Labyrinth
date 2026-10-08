@@ -78,15 +78,6 @@ static func attack_pose_phase(progress: float, contact: float) -> float:
 		return Motion.CONTACT * t / boundary
 	return lerpf(Motion.CONTACT, 1.0, (t - boundary) / (1.0 - boundary))
 
-static func attack_trail_phase(progress: float) -> float:
-	# Existing melee FX begins with the claw thrust, after the lifted windup.
-	var start: float = 0.34
-	if progress < start or progress >= 0.72:
-		return -1.0
-	if progress <= 0.42:
-		return remap(progress, start, 0.42, 0.0, 0.45)
-	return remap(progress, 0.42, 0.72, 0.45, 1.0)
-
 func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	active = enabled
 	reduced_motion = reduce

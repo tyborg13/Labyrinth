@@ -1945,6 +1945,7 @@ func _sync_scene_render_layers() -> void:
 			front_effect_layer = _create_retained_render_layer("SceneTileFrontEffect_%d_%d" % [tile.x, tile.y], RENDER_LAYER_SCENE_TILE)
 			front_effect_layer.set("_render_layer_tile", tile)
 			front_effect_layer.set("_render_layer_scene_effect_pass", 1)
+			front_effect_layer.call("_ensure_strike_trail_layer")
 			_scene_front_effect_render_layers_by_tile[tile] = front_effect_layer
 		_scene_render_layers.append(back_effect_layer)
 		_scene_render_layers.append(layer)
@@ -10325,8 +10326,7 @@ func _draw_dragon_area_depth(effect: Dictionary, tile: Vector2i, progress: float
 		if foreground and targets.has(tile):
 			if str(profile.get("enemy", "")) == "vyraketh":
 				_draw_vyraketh_bite_effect(ground, _tile_center(tile), progress)
-			elif not reduced:
-				_ensure_strike_trail_layer()
+			else:
 				_strike_trail_layer.submit(EnemyStrikeTrail.area_rake(self, effect, tile, progress))
 		return
 	if tile == origin and source_visible and not foreground and not reduced:
@@ -10491,6 +10491,7 @@ func _ensure_strike_trail_layer() -> void:
 		return
 	_strike_trail_layer = StrikeTrailLayer.new()
 	_strike_trail_layer.instrumentation_owner = self
+	_strike_trail_layer.instrumentation_section = "scene_tile_effects" if _render_layer_kind == RENDER_LAYER_SCENE_TILE else "effect_overlay"
 	add_child(_strike_trail_layer)
 
 func _sync_strike_trail(effect: Dictionary, progress: float) -> void:

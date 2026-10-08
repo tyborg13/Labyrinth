@@ -83,12 +83,6 @@ static func breath_pose_phase(progress: float) -> float:
 			return lerpf(keys[index-1].y,keys[index].y,inverse_lerp(keys[index-1].x,keys[index].x,progress))
 	return 1.0
 
-static func claw_trail_phase(progress: float) -> float:
-	var start: float = 0.42*0.80
-	if progress < start or progress >= 0.72:
-		return -1.0
-	return remap(progress,start,0.42,0.0,0.45) if progress <= 0.42 else remap(progress,0.42,0.72,0.45,1.0)
-
 func maw_canvas_position() -> Vector2:
 	var rig: Node2D = rigs.get(facing) as Node2D
 	if rig == null: return SOURCE_OFFSET+Vector2(127,100)
