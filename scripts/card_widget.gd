@@ -1362,7 +1362,7 @@ func _refresh_time_badge(card: Dictionary) -> void:
 	var total_surcharge: int = maxi(_time_surcharge, item_surcharge + tempo_surcharge)
 	var time_cost: int = printed_cost + total_surcharge
 	_time_badge.visible = time_cost > 0
-	var detail: String = "%s\n%d initiative delay." % [ActionIcons.label("time"), time_cost]
+	var detail: String = "Time\nDelays your next turn by %d. An unused play takes 5." % time_cost
 	var time_saved: int = maxi(0,int(card.get("_time_reserve_base",printed_cost)) - printed_cost)
 	if time_saved > 0: detail += "\nSpends %d stored Time." % time_saved
 	if int(card.get("_rite_time_discount", 0)) > 0: detail += "\nRite: -%d" % int(card["_rite_time_discount"])

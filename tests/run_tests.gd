@@ -446,6 +446,7 @@ func _initialize() -> void:
 	await ForcedMovementSuite.run_live(self, Callable(self, "_assert"))
 	await CardKeywordsSuite.run_live(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/turn_clock_copy_suite.gd").run(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/turn_clock_hud_suite.gd").run(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/card_pool_overhaul_suite.gd").run_live(self, Callable(self, "_assert"))
 	await _test_run_scene_combat_log_prominence()
 	await _test_run_scene_minimap_click_opens_large_map()
@@ -8678,7 +8679,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	_assert(int(live_state.get("cards_played_this_turn", 0)) == 0, "Pass preview summary should not spend live card plays")
 
 	# Wait lapping is separate from the revealed display cases above and below.
-	# Unit 2 will change the chip's presentation of this mixed known/unknown case.
+	# Known first-lap damage stays visible beside the unrevealed-lap suffix.
 	var wait_lapping_state: Dictionary = _pass_preview_chip_state("wait_lapping")
 	var scheduled_lapping_state: Dictionary = CombatEngine.new().finish_player_activation(wait_lapping_state)
 	var lapping_return_time: int = -1
@@ -8692,7 +8693,7 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	var wait_lapping_summary: Dictionary = instance.call("_pass_preview_summary")
 	_assert(bool(wait_lapping_summary.get("unrevealed_before_player", false)), "A pass at +19 should include the enemy's unrevealed second activation")
 	_assert(int(wait_lapping_summary.get("hp_loss", 0)) == 5, "Wait lapping should retain the first activation's revealed health damage")
-	_assert_pass_preview_chip(instance, ["UNKNOWN"], false, true, "Wait lapping pass at +19 (current presentation)")
+	_assert_pass_preview_chip(instance, ["-5 +?"], false, true, "Wait lapping pass at +19")
 
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("safe"))
 	await process_frame
@@ -8737,9 +8738,9 @@ func _test_run_scene_pass_preview_chip_updates() -> void:
 	await process_frame
 	_assert_pass_preview_chip(instance, ["UNKNOWN"], false, true, "unrevealed pass")
 	var danger_line: Label = instance.find_child("PassPreviewForecastLine", true, false) as Label
-	_assert(danger_line != null and danger_line.text.contains("TURN END") and danger_line.text.contains("UNKNOWN"), "Unrevealed follow-up preview should keep its compact uncertainty ribbon")
+	_assert(danger_line != null and danger_line.text.begins_with("+10") and danger_line.text.contains("UNKNOWN"), "Unrevealed follow-up preview should keep its compact uncertainty ribbon")
 	var danger_chip: Control = instance.find_child("PassPreviewChip", true, false) as Control
-	_assert(danger_chip != null and danger_chip.tooltip_text == "Enemies have unrevealed actions before your next turn, you may take additional damage.", "DANGER! pass preview should expose the unrevealed-action tooltip")
+	_assert(danger_chip != null and danger_chip.tooltip_text == "Ending now leaves 2 card plays unused: +10 Time.\nEnemies have unrevealed actions before your next turn, you may take additional damage.", "DANGER! pass preview should expose the unrevealed-action tooltip")
 
 	_install_pass_preview_chip_state(instance, _pass_preview_chip_state("umbra"))
 	await process_frame
@@ -13551,9 +13552,9 @@ func _install_pass_preview_chip_state(instance: Node, combat_state: Dictionary) 
 
 func _assert_action_context_risk(instance: Node, expected_fragment: String, expected_tone: String, context: String) -> void:
 	var forecast: Label = instance.find_child("PassPreviewForecastLine", true, false) as Label
-	var fragment: String = "UNKNOWN" if expected_fragment == "DANGER" else expected_fragment.trim_suffix(" HP")
-	_assert(forecast != null and forecast.is_visible_in_tree() and forecast.text.contains(fragment), "%s should retain risk in the existing forecast ribbon: %s" % [context, fragment])
 	var summary: Dictionary = instance.call("_pass_preview_summary")
+	var fragment: String = ("+?" if bool(instance.call("_pass_preview_known_damage_suffix", summary)) else "UNKNOWN") if expected_fragment == "DANGER" else expected_fragment.trim_suffix(" HP")
+	_assert(forecast != null and forecast.is_visible_in_tree() and forecast.text.contains(fragment), "%s should retain risk in the existing forecast ribbon: %s" % [context, fragment])
 	_assert(str(summary.get("tone", "safe")) == expected_tone, "%s should retain its risk tone" % context)
 	var pass_chip: Button = instance.find_child("PassPreviewChip", true, false) as Button
 	_assert(pass_chip != null and pass_chip.disabled and pass_chip.focus_mode == Control.FOCUS_NONE, "%s forecast remains visible while Pass is unavailable during targeting" % context)
@@ -13630,11 +13631,13 @@ func _assert_pass_preview_chip(instance: Node, expected_texts: Array, expect_def
 		_assert(forecast_text.contains(str(expected_text)), "%s forecast ribbon should include %s, got %s" % [context, str(expected_text), forecast_text])
 	var forecast_line: Label = instance.find_child("PassPreviewForecastLine", true, false) as Label
 	var action_label: Label = instance.find_child("PassActionLabel", true, false) as Label
-	_assert(forecast_line != null and forecast_line.text.begins_with("TURN END"), "%s pass preview should use one turn-end forecast ribbon" % context)
+	var wait_time: int = int(forecast_line.get_meta("pass_preview_wait_time", 0)) if forecast_line != null else 0
+	var lead: String = "+%d" % wait_time if wait_time > 0 else "TURN END"
+	_assert(forecast_line != null and forecast_line.text.begins_with(lead), "%s pass preview should lead with its Wait cost or turn end" % context)
 	_assert(forecast_line != null and _label_text_fits(forecast_line), "%s pass forecast ribbon should fit its full text" % context)
 	_assert(action_label != null and absf(action_label.get_global_rect().get_center().x - chip.get_global_rect().get_center().x) <= 1.0, "%s PASS label should be centered in the main action bay" % context)
 	_assert((forecast_line != null and forecast_line.text.contains("DEFEAT")) == expect_defeat, "%s defeat forecast presence should be %s" % [context, str(expect_defeat)])
-	_assert((forecast_line != null and (forecast_line.text.contains("UNKNOWN") or forecast_line.text.contains("SAFE"))) == expect_danger or not expect_danger, "%s danger forecast should retain its compact risk result" % context)
+	_assert((forecast_line != null and (forecast_line.text.contains("UNKNOWN") or forecast_line.text.contains("+?") or forecast_line.text.contains("SAFE"))) == expect_danger or not expect_danger, "%s danger forecast should retain its compact risk result" % context)
 
 func _pass_preview_chip_damage_texts(row: Node) -> PackedStringArray:
 	var texts := PackedStringArray()

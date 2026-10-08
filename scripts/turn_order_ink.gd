@@ -62,6 +62,41 @@ static func brush_flipped(actor_key: String, active: bool) -> bool:
 static func _hash(text: String) -> int:
 	return absi(hash(text))
 
+static func delta_text(delta: int) -> String:
+	if delta < 0:
+		return "−%d" % -delta
+	return "±0" if delta == 0 else "+%d" % delta
+
+# Reserve the delta first: Label's usual end ellipsis would hide the decision.
+static func projection_text(entry: Dictionary, font: Font = null, width: float = INF) -> String:
+	var delta: String = delta_text(int(entry.get("projected_time_delta", 0)))
+	var card_name: String = str(entry.get("projected_card_name", "")).strip_edges()
+	if card_name.is_empty():
+		return "%s Time" % delta
+	if font != null:
+		var original: String = card_name
+		while not card_name.is_empty() and font.get_string_size("%s %s" % [card_name, delta], HORIZONTAL_ALIGNMENT_LEFT, -1, 9).x > width:
+			original = original.left(maxi(0, original.length() - 1)).strip_edges()
+			card_name = original + "…" if not original.is_empty() else ""
+	return delta if card_name.is_empty() else "%s %s" % [card_name, delta]
+
+static func projection_style(delta: int = 0) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.12, 0.085, 0.035, 0.92)
+	style.border_color = Color("f4c968")
+	if delta < 0:
+		style.bg_color = Color(Color("27465a"), 0.94)
+		style.border_color = Color("a8e4ff")
+	elif delta > 0:
+		style.bg_color = Color(Color("4a2410"), 0.94)
+		style.border_color = Palette.EMBER
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(5)
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.34)
+	style.shadow_size = 7
+	style.shadow_offset = Vector2(0.0, 2.0)
+	return style
+
 
 # Slanted portrait window. With clip_children the drawn polygon is the mask:
 # only the portrait inside it is visible, and the mask itself is never shown.

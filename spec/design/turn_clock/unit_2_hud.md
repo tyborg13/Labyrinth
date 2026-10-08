@@ -57,7 +57,7 @@ Files involved:
      - a gold chevron (16 px tall, `UiPalette.GOLD`) when at least one *before* slot exists;
      - the hero slot;
      - the *after* slot, dimmed (modulate about `Color(0.62,0.58,0.55,0.42)`).
-     - Consecutive slots overlap by 18 px.
+     - Spacing: each slot's numeral bleed starts where the previous slot's portrait ends, so portraits and numerals never overlap; only the ink strokes may run under each other. The slot-to-slot step is `SLOT_SIZE.x + LEFT_BLEED` (about 116 px). The chevron sits in its own 20 px gap after the last *before* portrait.
    - **ACT AGAIN** (no *before* slots):
      - the hero slot comes first, with a soft warm glow behind it (`UiPalette.GOLD_BRIGHT` at about 0.43 alpha, about 13 px blur radius);
      - then a two-line label `ACT` / `AGAIN` (display font 16, `UiPalette.GOLD_BRIGHT`, outline 3, dark);

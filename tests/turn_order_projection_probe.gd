@@ -99,8 +99,9 @@ func _assert_card_projection(instance: Node, expected_name: String, expected_tim
 		_fail("Turn order did not show projected player slot for %s during %s." % [expected_name, phase])
 		return
 	var tooltip: String = str(slot.get_meta("turn_order_tooltip", ""))
-	if not tooltip.contains(expected_name) or not tooltip.contains("+%d time" % expected_time):
-		_fail("Projected slot tooltip did not name %s and +%d time during %s." % [expected_name, expected_time, phase])
+	var delta: String = preload("res://scripts/turn_order_ink.gd").delta_text(int(slot.get_meta("turn_order_projection_time_delta", 0)))
+	if not tooltip.contains(expected_name) or not tooltip.contains("%s vs ending now" % delta):
+		_fail("Projected slot tooltip did not name %s and %s vs ending now during %s." % [expected_name, delta, phase])
 		return
 	var badge: Node = _first_node_named(slot, "ProjectionPreviewBadge")
 	if badge == null:
@@ -108,9 +109,9 @@ func _assert_card_projection(instance: Node, expected_name: String, expected_tim
 		return
 	var labels: Array[Label] = _labels_under(badge)
 	for label: Label in labels:
-		if label.text.contains(expected_name) and label.text.contains("+%d" % expected_time):
+		if label.text.contains(expected_name) and label.text.ends_with(delta):
 			return
-	_fail("Projected slot badge did not name %s and +%d during %s." % [expected_name, expected_time, phase])
+	_fail("Projected slot badge did not name %s and %s during %s." % [expected_name, delta, phase])
 
 func _card_projection_slot(instance: Node, expected_name: String, expected_time: int) -> Control:
 	var bar: Control = instance.get("_turn_order_bar") as Control

@@ -90,6 +90,8 @@ const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
 const LockedHandRenderCache = preload("res://scripts/locked_hand_render_cache.gd")
 const CardFocusTooltipStack = preload("res://scripts/card_focus_tooltip_stack.gd")
+const TurnOrderLandingStrip = preload("res://scripts/turn_order_landing_strip.gd")
+const TurnClockForecastLine = preload("res://scripts/turn_clock_forecast_line.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const RunEndRecapOverlay = preload("res://scripts/run_end_recap_overlay.gd")
@@ -1617,6 +1619,8 @@ var _action_step_resolution_damage_options: Array = []
 var _turn_order_panel: PanelContainer
 var _turn_order_anchor: Control
 var _turn_order_bar: Control
+var _turn_order_landing_strip: Control
+var _turn_order_all_entries: Array[Dictionary]
 var _turn_order_header_host: Control
 var _turn_order_label: Label
 var _enemy_intent_toggle_button: Button
@@ -4159,6 +4163,8 @@ func _connect_overlay_music_signals() -> void:
 func _build_card_focus_tooltip_stack() -> void:
 	_card_focus_tooltip_stack = CardFocusTooltipStack.new()
 	ui_root.add_child(_card_focus_tooltip_stack)
+	_turn_order_landing_strip = TurnOrderLandingStrip.new()
+	ui_root.add_child(_turn_order_landing_strip)
 
 func _build_skill_status_popover() -> void:
 	_skill_status_scrim = ColorRect.new()
@@ -12265,6 +12271,8 @@ func _setup_boss_health_overlay() -> void:
 	_boss_health_host.add_child(_boss_health_hp_label)
 
 func _refresh_turn_order_bar() -> void:
+	if _turn_order_landing_strip != null and not _turn_order_landing_strip_allowed():
+		_turn_order_landing_strip.hide_strip()
 	if _turn_order_bar == null:
 		return
 	_refresh_enemy_intent_toggle()
@@ -12289,16 +12297,35 @@ func _refresh_turn_order_bar() -> void:
 		str(_turn_order_stagger_preview_delays())
 	]
 	if source_signature == _turn_order_source_signature:
+		_refresh_turn_order_landing_strip()
 		return
 	_turn_order_source_signature = source_signature
 	var all_entries: Array[Dictionary] = _combat_engine.current_turn_order(_turn_order_display_state(), TURN_ORDER_DISCLOSURE_LIMIT)
 	var entries: Array[Dictionary] = []
+	_turn_order_all_entries = all_entries
+	_refresh_turn_order_landing_strip()
 	for index: int in range(mini(TURN_ORDER_MAX_SLOTS, all_entries.size())):
 		entries.append(all_entries[index])
 	var overflow_entries: Array[Dictionary] = []
 	for index: int in range(entries.size(), all_entries.size()):
 		overflow_entries.append(all_entries[index])
 	_set_turn_order_bar_entries(entries, overflow_entries.size(), _turn_order_overflow_tooltip(overflow_entries), _turn_order_signature(overflow_entries))
+
+func _turn_order_landing_strip_allowed() -> bool:
+	return str(_run_state.get("mode", "room")) == "combat" and _drag_card_index < 0 and not _turn_order_card_time_preview().is_empty()
+
+func _refresh_turn_order_landing_strip() -> void:
+	if _turn_order_landing_strip == null:
+		return
+	if not _turn_order_landing_strip_allowed():
+		_turn_order_landing_strip.hide_strip()
+		return
+	var index: int = _selected_card_index if _selected_card_index >= 0 else _hovered_card_index
+	var card: Control = _hand_card_control(index)
+	if card == null or not card.is_visible_in_tree():
+		_turn_order_landing_strip.hide_strip()
+		return
+	_turn_order_landing_strip.present(_turn_order_all_entries, index, card, _card_focus_tooltip_stack, _turn_order_portrait_path, _turn_order_landing_strip_allowed, _reduced_motion_enabled())
 
 func _turn_order_display_state() -> Dictionary:
 	var preview: Dictionary = _turn_order_card_time_preview()
@@ -12560,6 +12587,8 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	frame.set_meta("turn_order_projected", bool(entry.get("projected", false)))
 	frame.set_meta("turn_order_projection_card_name", str(entry.get("projected_card_name", "")))
 	frame.set_meta("turn_order_projection_time_cost", int(entry.get("projected_time_cost", 0)))
+	frame.set_meta("turn_order_projection_time_delta", int(entry.get("projected_time_delta", 0)))
+	frame.set_meta("turn_order_projection_wait_time", int(entry.get("projected_wait_time", 0)))
 	frame.set_meta("turn_order_tooltip", frame.tooltip_text)
 	frame.set_meta("turn_order_rail_index", index)
 	frame.set_meta("turn_order_art_hook", TURN_ORDER_INK_ART_HOOK)
@@ -12696,7 +12725,7 @@ func _turn_order_is_card_preview_projection(entry: Dictionary) -> bool:
 	return (
 		bool(entry.get("projected", false))
 		and str(entry.get("kind", "")) == "player"
-		and int(entry.get("projected_time_cost", 0)) > 0
+		and (entry.has("projected_time_delta") or not str(entry.get("projected_card_name", "")).is_empty())
 	)
 
 func _turn_order_health_bar(entry: Dictionary, slot_size: Vector2) -> SegmentedHealthBar:
@@ -12751,11 +12780,17 @@ func _turn_order_projection_badge(entry: Dictionary, slot_size: Vector2) -> Cont
 	badge.tooltip_text = _turn_order_tooltip(entry, 0)
 	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	badge.z_index = 8
-	badge.add_theme_stylebox_override("panel", _turn_order_projection_badge_style())
+	badge.add_theme_stylebox_override("panel", _turn_order_projection_badge_style(int(entry.get("projected_time_delta", 0))))
 	var label := Label.new()
 	label.text = _turn_order_projection_badge_text(entry)
+	if entry.has("projected_time_delta"):
+		var width: float = clampf(UiTypography.ui_font().get_string_size(label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, 9).x + 10.0, badge.size.x, maxf(badge.size.x, 132.0))
+		badge.custom_minimum_size.x = width
+		badge.size.x = width
+		label.text = TurnOrderInk.projection_text(entry, UiTypography.ui_font(), width - 10.0)
+	else:
+		label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	label.clip_text = true
-	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -12771,28 +12806,10 @@ func _turn_order_projection_badge_text(entry: Dictionary) -> String:
 		return "Stagger +%d" % int(entry.get("stagger_preview", 0))
 	if bool(entry.get("petrified", false)) and not bool(entry.get("projected", false)):
 		return "Skips"
-	var preview_time: int = int(entry.get("projected_time_cost", 0))
-	var card_name: String = str(entry.get("projected_card_name", "")).strip_edges()
-	if card_name.is_empty():
-		return "+%d time" % preview_time
-	return "%s +%d" % [card_name, preview_time]
+	return TurnOrderInk.projection_text(entry)
 
-func _turn_order_projection_badge_style() -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.12, 0.085, 0.035, 0.92)
-	style.border_color = Color("f4c968")
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 5
-	style.corner_radius_top_right = 5
-	style.corner_radius_bottom_right = 5
-	style.corner_radius_bottom_left = 5
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.34)
-	style.shadow_size = 7
-	style.shadow_offset = Vector2(0.0, 2.0)
-	return style
+func _turn_order_projection_badge_style(delta: int = 0) -> StyleBoxFlat:
+	return TurnOrderInk.projection_style(delta)
 
 func _turn_order_number_badge(text: String, entry: Dictionary, active: bool, slot_size: Vector2) -> Control:
 	# The time is painted straight onto the stroke's left end, like a brushed
@@ -12892,20 +12909,21 @@ func _turn_order_tooltip(entry: Dictionary, _index: int) -> String:
 			lines.append("Base %d + intent %d" % [base, intent_time])
 		elif base > 0:
 			lines.append("Base %d" % base)
-	else:
-		var spent: int = int(entry.get("turn_time_spent", 0))
-		var preview_time: int = int(entry.get("projected_time_cost", 0))
-		if preview_time > 0:
+	elif str(entry.get("kind", "")) == "player" and bool(entry.get("projected", false)):
+		var cards: int = int(entry.get("turn_time_spent", 0)) + int(entry.get("projected_time_cost", 0))
+		var wait_time: int = int(entry.get("projected_wait_time", 0))
+		if entry.has("projected_time_delta"):
 			var card_name: String = str(entry.get("projected_card_name", "")).strip_edges()
-			if not card_name.is_empty():
-				lines.append("Preview: %s (+%d time)" % [card_name, preview_time])
-			else:
-				lines.append("Preview: +%d time" % preview_time)
-			lines.append("Base %d + played %d + preview %d" % [base, spent, preview_time])
-		elif spent > 0:
-			lines.append("Base %d + played %d" % [base, spent])
-		elif base > 0:
-			lines.append("Base %d" % base)
+			lines.append("Preview: %s (%s vs ending now)" % [card_name if not card_name.is_empty() else "Card", TurnOrderInk.delta_text(int(entry["projected_time_delta"]))])
+		lines.append("Base %d + cards %d + unused plays %d" % [base, cards, wait_time])
+		var adjustment: int = eta - base - cards - wait_time
+		if adjustment > 0:
+			lines.append("Carried +%d" % adjustment)
+		elif adjustment < 0:
+			lines.append("Relics −%d" % -adjustment)
+	elif base > 0:
+		var spent: int = int(entry.get("turn_time_spent", 0))
+		lines.append("Base %d + played %d" % [base, spent] if spent > 0 else "Base %d" % base)
 	return "\n".join(lines)
 
 func _turn_order_relative_time(entry: Dictionary) -> int:
@@ -14040,19 +14058,22 @@ func _action_context_target_color(tone: String) -> Color:
 			return Color("c9b9a3")
 
 func _update_action_context_risk() -> void:
+	var wait_time: int = _combat_engine.pending_wait_time(_pass_preview_source_state())
+	var lead: String = "WAIT +%d" % wait_time if wait_time > 0 else "TURN END"
 	var summary: Dictionary = _pass_preview_summary()
 	if summary.is_empty():
-		_set_action_context_risk("neutral", "TURN END · --")
+		_set_action_context_risk("neutral", "%s · --" % lead)
 		return
 	var tone: String = str(summary.get("tone", "safe"))
-	var risk_text: String = "TURN END · SAFE"
+	var risk_text: String = "%s · SAFE" % lead
 	if bool(summary.get("defeat", false)):
-		risk_text = "TURN END · DEFEAT"
+		risk_text = "%s · DEFEAT" % lead
 		tone = "danger"
 	elif int(summary.get("defiance_spent", 0)) > 0:
 		var projected_hp: int = int(summary.get("projected_hp", -1))
 		var projected_hp_text: String = str(projected_hp) if projected_hp >= 0 else "?"
-		risk_text = "TURN END · DEFIANCE -%d · %s HP · %d LEFT%s" % [
+		risk_text = "%s · DEFIANCE -%d · %s HP · %d LEFT%s" % [
+			lead,
 			int(summary.get("defiance_spent", 0)),
 			projected_hp_text,
 			int(summary.get("defiance_remaining_after", 0)),
@@ -14071,10 +14092,12 @@ func _update_action_context_risk() -> void:
 			values.append("+ ? UMBRA")
 			tone = "warning"
 		if not values.is_empty():
-			risk_text = "TURN END · %s" % " ".join(values)
+			risk_text = "%s · %s" % [lead, " ".join(values)]
 		elif bool(summary.get("unrevealed_before_player", false)):
-			risk_text = "TURN END · DANGER"
+			risk_text = "%s · DANGER" % lead
 			tone = "warning"
+	if _pass_preview_known_damage_suffix(summary):
+		risk_text += " +?"
 	_set_action_context_risk(tone, risk_text)
 
 func _set_action_context_risk(tone: String, text: String) -> void:
@@ -14949,25 +14972,12 @@ func _add_pass_preview_chip() -> void:
 	content.add_child(damage_row)
 	var forecast_entries: Array[Dictionary] = _pass_preview_forecast_entries(summary)
 	damage_row.set_meta("pass_preview_values", forecast_entries.duplicate(true))
-	var forecast_parts: PackedStringArray = PackedStringArray()
-	var forecast_color: Color = Color("d9cdb4")
-	for entry: Dictionary in forecast_entries:
-		forecast_parts.append(str(entry.get("text", "")))
-		forecast_color = entry.get("color", forecast_color) as Color
-	var forecast_line := _pass_preview_damage_label(
-		"TURN END  •  %s" % "  •  ".join(forecast_parts),
-		"PassPreviewForecastLine",
-		forecast_color,
-		false
-	)
-	forecast_line.custom_minimum_size = Vector2.ZERO
+	var forecast_line := TurnClockForecastLine.new()
 	forecast_line.tooltip_text = tooltip_text
-	UiTypography.set_label_size(forecast_line, UiTypography.SIZE_SMALL)
 	damage_row.add_child(forecast_line)
-	# Set explicit bounds after parenting so the Label's previous standalone
-	# minimum does not reclaim height beyond the art's lower ribbon.
 	forecast_line.position = Vector2.ZERO
 	forecast_line.size = damage_row.size
+	_refresh_pass_forecast_line(forecast_line, damage_row, forecast_entries)
 	var danger_state: bool = (
 		card_defiance_spent > 0
 		or bool(summary.get("defeat", false))
@@ -15001,14 +15011,21 @@ func _refresh_selected_card_forecast() -> void:
 		return
 	var summary: Dictionary = _pass_preview_summary()
 	var entries: Array[Dictionary] = _pass_preview_forecast_entries(summary)
-	var parts: PackedStringArray = []
-	for entry: Dictionary in entries:
-		parts.append(str(entry.get("text", "")))
-		label.add_theme_color_override("font_color", entry.get("color", Color.WHITE))
-	label.text = "TURN END  •  %s" % "  •  ".join(parts)
-	row.set_meta("pass_preview_values", entries.duplicate(true))
+	_refresh_pass_forecast_line(label, row, entries)
 	chip.tooltip_text = _pass_preview_tooltip(summary)
 	label.tooltip_text = chip.tooltip_text
+
+func _refresh_pass_forecast_line(label: Label, row: Control, entries: Array[Dictionary]) -> void:
+	var wait_time: int = _combat_engine.pending_wait_time(_pass_preview_source_state())
+	label.configure(wait_time, entries)
+	row.set_meta("pass_preview_values", entries.duplicate(true))
+	row.set_meta("pass_preview_wait_time", wait_time)
+
+func _pass_preview_has_known_losses(summary: Dictionary) -> bool:
+	return int(summary.get("hp_loss", 0)) + int(summary.get("block_loss", 0)) + int(summary.get("stoneskin_loss", 0)) + int(summary.get("defiance_spent", 0)) > 0
+
+func _pass_preview_known_damage_suffix(summary: Dictionary) -> bool:
+	return bool(summary.get("unrevealed_before_player", false)) and not bool(summary.get("umbra_unknown_before_player", false)) and not bool(summary.get("defeat", false)) and _pass_preview_has_known_losses(summary)
 
 func _pass_preview_action_available() -> bool:
 	if _surface_aim.active():
@@ -15072,14 +15089,14 @@ func _refresh_pass_preview_interaction(chip: Button, art_host: TextureRect, cont
 	focus_edge.add_theme_stylebox_override("panel", style)
 
 func _pass_preview_forecast_entries(summary: Dictionary) -> Array[Dictionary]:
-	# The frame provides exactly two small right-side cells. Keep complete detail in
-	# the existing tooltip, while reserving the visible cells for the decision that
-	# matters now: uncertainty/defeat, then a defense cost and projected HP result.
+	# Keep defense/HP cells compact. A revealed loss remains useful when Wait
+	# spans a second, unrevealed activation: append +? without replacing that loss.
+	# Defeat and Umbra uncertainty keep precedence.
 	if bool(summary.get("defeat", false)):
 		var defeat_result: Array[Dictionary] = []
 		defeat_result.append({"name": "PassPreviewDefeat", "text": "DEFEAT", "color": Color("f39779")})
 		return defeat_result
-	if bool(summary.get("unrevealed_before_player", false)) or bool(summary.get("umbra_unknown_before_player", false)):
+	if bool(summary.get("umbra_unknown_before_player", false)) or (bool(summary.get("unrevealed_before_player", false)) and not _pass_preview_has_known_losses(summary)):
 		var unknown_result: Array[Dictionary] = []
 		unknown_result.append({"name": "PassPreviewUmbraUnknown", "text": "UNKNOWN", "color": Color("c89be3")})
 		return unknown_result
@@ -15106,6 +15123,8 @@ func _pass_preview_forecast_entries(summary: Dictionary) -> Array[Dictionary]:
 		result.append(hp)
 	if result.is_empty():
 		result.append(entries[0] as Dictionary)
+	if _pass_preview_known_damage_suffix(summary):
+		result.append({"name": "PassPreviewUnrevealedSuffix", "text": "+?", "color": Color("c89be3"), "suffix": true})
 	return result
 
 func _pass_preview_title_label() -> Label:
@@ -15522,6 +15541,18 @@ func _pass_preview_damage_entries(losses: Dictionary) -> Array[Dictionary]:
 	return entries
 
 func _pass_preview_tooltip(summary: Dictionary) -> String:
+	var source: Dictionary = _pass_preview_source_state()
+	var wait_time: int = _combat_engine.pending_wait_time(source)
+	var lines := PackedStringArray()
+	if wait_time > 0:
+		var unused: int = _combat_engine.base_plays_waited(source)
+		lines.append("Ending now leaves %d card %s unused: +%d Time." % [unused, "play" if unused == 1 else "plays", wait_time])
+	var details: String = _pass_preview_risk_tooltip(summary)
+	if not details.is_empty():
+		lines.append(details)
+	return "\n".join(lines)
+
+func _pass_preview_risk_tooltip(summary: Dictionary) -> String:
 	if bool(summary.get("umbra_unknown_before_player", false)):
 		return "One or more hidden presences act before your next turn. Their intents and possible damage are unknown."
 	if int(summary.get("defiance_spent", 0)) > 0:
