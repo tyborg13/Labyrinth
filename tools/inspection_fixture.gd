@@ -390,6 +390,7 @@ func _build_progression() -> Dictionary:
 			progression = ProgressionStore.record_lost_embers(progression, lost_embers, node["coord"], int(progression.get("run_counter", 0)))
 			progression = ProgressionStore.prepare_for_new_run(progression)
 			progression["embers"] = banked
+			break
 	return progression
 
 func _build_run_state(scenario: String, progression: Dictionary) -> Dictionary:

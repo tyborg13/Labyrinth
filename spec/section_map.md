@@ -210,9 +210,11 @@ new runs. New generation also records `section_map_layout_revision: 2` for the
 neighboring-lane layout. That marker does not trigger regeneration: previously
 saved section maps keep their exact stored connections. Legacy runs lacking the
 section-map marker retain their original circular map and generation/repair rules. No in-progress run is converted to a different
-route. New-run recovery maps lost Embers to an existing combat/boss near the old
-depth, keeping every generated service and connection intact. The selected
-recovery coordinate is saved and the matching encounter owns the Ember pile.
+route. New-run recovery maps lost Embers to an existing combat, Guardian or boss
+node near the old depth, keeping every generated service and connection intact.
+The selected recovery coordinate is saved and the matching encounter owns the
+Ember pile without changing its roster: a Guardian or boss node still fights its
+own leader, so the map stays truthful.
 The map exposes its recovery badge through fog without granting the unknown
 room identity; focus/hover details retain the exact amount. The connections and
 recovery badge show the route to the pile; tooltips do not repeat those paths.
