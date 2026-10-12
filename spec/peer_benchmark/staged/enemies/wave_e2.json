@@ -199,7 +199,8 @@
      }
     ]
    }
-  ]
+  ],
+  "construct": true
  },
  "gust_shrike": {
   "name": "Gust Shrike",
