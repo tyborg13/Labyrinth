@@ -83,6 +83,7 @@ const MapSkin = preload("res://scripts/section_map_skin.gd")
 const BoardFraming = preload("res://scripts/board_framing.gd")
 const ActorPresentation = preload("res://scripts/actor_presentation.gd")
 const SegmentedHealthBar = preload("res://scripts/segmented_health_bar.gd")
+const HealthGhostTracker = preload("res://scripts/health_ghost_tracker.gd")
 const FloatingCombatText = preload("res://scripts/floating_combat_text.gd")
 const EnemyShadowDissolveEffect = preload("res://scripts/enemy_shadow_dissolve_effect.gd")
 const CombatArtTreatment = preload("res://scripts/combat_art_treatment.gd")
@@ -641,6 +642,8 @@ var _trap_activation_frames: Dictionary = {}
 var _door_icon_textures: Dictionary = {}
 var _keyword_icon_textures: Dictionary = {}
 var _health_bar_frame_textures: Dictionary = {}
+var health_ghost_tracker: RefCounted = HealthGhostTracker.new()
+var _next_health_ghost_state: Dictionary = {}
 var _unit_shadow_polygon_cache: Dictionary = {}
 var _unit_shadow_bottom_ratio_cache: Dictionary = {}
 var _unit_shadow_draw_geometry_cache: Dictionary = {}
@@ -810,6 +813,13 @@ func _ready() -> void:
 		focus_mode = Control.FOCUS_NONE
 		set_process(false)
 		return
+	health_ghost_tracker.attach_to(self)
+	health_ghost_tracker.changed.connect(func() -> void:
+		if is_instance_valid(_hud_render_layer):
+			_queue_render_layer_redraw(_hud_render_layer)
+		else:
+			queue_redraw()
+	)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	# Godot only starts its tooltip timer for Controls that advertise tooltip
 	# content. The board resolves that content dynamically in _get_tooltip(), so a
@@ -1922,6 +1932,7 @@ func _create_retained_render_layer(layer_name: String, layer_kind: String) -> Co
 	layer.set("_is_dynamic_render_layer", true)
 	layer.set("_render_layer_kind", layer_kind)
 	layer.set("_render_instrumentation_owner", self)
+	layer.set("health_ghost_tracker", health_ghost_tracker)
 	layer.set("_art_treatment", _art_treatment)
 	layer.set("_art_treatment_enabled", _art_treatment_enabled)
 	layer.material = _art_treatment.material
@@ -2696,6 +2707,10 @@ func _any_idle_animation_active() -> bool:
 		return true
 	return false
 
+# Forecast HP is drawn separately; the normal stage supplies true durability.
+func set_health_ghost_source_state(next_state: Dictionary) -> void:
+	_next_health_ghost_state = next_state
+
 func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}, trust_same_reference_state: bool = false) -> void:
 	var submission_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
 	# The owning RunScene submits immutable copy-on-write snapshots. Pointer-only
@@ -2850,6 +2865,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	exit_tiles = next_exit_tiles
 	exit_icon_ids = next_exit_icon_ids
 	presentation = next_presentation
+	health_ghost_tracker.observe_state(combat_state if _next_health_ghost_state.is_empty() else _next_health_ghost_state, presentation)
+	_next_health_ghost_state = {}
 	_update_impact_camera_shake()
 	var previous_registrations: Dictionary = _cutout_floor_registrations()
 	# A pose-only submission affects its addressed family. Other persistent
@@ -8455,6 +8472,7 @@ func _intent_compass_emblem_tint(family: String) -> Color:
 	return Color(1.0, 1.0, 1.0, 0.96)
 
 func _draw_unit_huds(units_to_draw: Array[Dictionary]) -> void:
+	_draw_death_health_bars(units_to_draw)
 	if not _hud_layout_entries_cache.is_empty():
 		_draw_unit_huds_from_layout_cache(units_to_draw)
 		return
@@ -8745,7 +8763,17 @@ func _npc_nameplate_rect(unit: Dictionary, center: Vector2, font: Font = null) -
 		Vector2(text_width, 16.0)
 	)
 
-func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
+func _draw_death_health_bars(units_to_draw: Array[Dictionary]) -> void:
+	for unit: Dictionary in units_to_draw:
+		if not bool(unit.get("death_animation", false)) or not _umbra_actor_clip_for_unit(unit).is_empty():
+			continue
+		if bool(_enemy_render_definition(str(unit.get("type", ""))).get("boss_bar", false)):
+			continue
+		var dead_unit: Dictionary = unit.duplicate(false)
+		dead_unit["hp"] = 0
+		_draw_health_bar(dead_unit, _unit_health_bar_rect(unit, _unit_center(unit)), _death_animation_tint(unit).a)
+
+func _draw_health_bar(unit: Dictionary, rect: Rect2, bar_alpha: float = 1.0) -> void:
 	var font: Font = get_theme_default_font()
 	var preview: Dictionary = _unit_damage_preview(unit)
 	var display_hp: int = _health_bar_fill_hp(unit, preview)
@@ -8753,23 +8781,30 @@ func _draw_health_bar(unit: Dictionary, rect: Rect2) -> void:
 	var fill_color: Color = ILLUSION_BAR_FILL if role == "illusion" else PLAYER_BAR_FILL if role == "player" else ENEMY_BAR_FILL
 	var visual_style: StringName = _health_bar_visual_style(unit)
 	var content_rect: Rect2 = _health_bar_content_rect(unit, rect)
+	var ghost: Dictionary = health_ghost_tracker.sample(str(unit.get("key", "")))
 	SegmentedHealthBar.draw_bar(
 		self,
 		content_rect,
 		float(display_hp),
 		float(maxi(1, int(unit.get("max_hp", 1)))),
 		_health_bar_segment_count(int(unit.get("max_hp", 1))),
-		Color("160f17") if visual_style == HEALTH_BAR_STYLE_UMBRA else Color("191512"),
-		fill_color,
-		Color("cf6469") if visual_style == HEALTH_BAR_STYLE_UMBRA else Color("9de2ce") if visual_style == HEALTH_BAR_STYLE_LIGHT else Color("f5efdf"),
-		Color("5b405f") if visual_style == HEALTH_BAR_STYLE_UMBRA else Color("8f7345") if visual_style == HEALTH_BAR_STYLE_LIGHT else Color("eed3a6"),
-		Color(0.0, 0.0, 0.0, 0.45),
+		Color(Color("160f17") if visual_style == HEALTH_BAR_STYLE_UMBRA else Color("191512"), bar_alpha),
+		Color(fill_color, bar_alpha),
+		Color(Color("cf6469") if visual_style == HEALTH_BAR_STYLE_UMBRA else Color("9de2ce") if visual_style == HEALTH_BAR_STYLE_LIGHT else Color("f5efdf"), bar_alpha),
+		Color(Color("5b405f") if visual_style == HEALTH_BAR_STYLE_UMBRA else Color("8f7345") if visual_style == HEALTH_BAR_STYLE_LIGHT else Color("eed3a6"), bar_alpha),
+		Color(0.0, 0.0, 0.0, 0.45 * bar_alpha),
 		1.0,
-		1.0
+		1.0,
+		ghost.get("ghost_range", Vector2.ZERO),
+		Color(HealthGhostTracker.ENEMY_GHOST_COLOR if role == "enemy" else HealthGhostTracker.ALLY_GHOST_COLOR, (0.85 if role == "enemy" else 0.8) * bar_alpha),
+		ghost.get("heal_range", Vector2.ZERO),
+		float(ghost.get("heal_flash", 0.0))
 	)
 	var frame_texture: Texture2D = _health_bar_frame_textures.get(visual_style, null) as Texture2D
 	if frame_texture != null:
-		draw_texture_rect(frame_texture, rect, false)
+		draw_texture_rect(frame_texture, rect, false, Color(1.0, 1.0, 1.0, bar_alpha))
+	if bool(unit.get("death_animation", false)):
+		return
 	var defer_preview_overlay: bool = _health_bar_defers_damage_preview(preview)
 	if _damage_preview_shows_lost_hp(preview) and not defer_preview_overlay:
 		_draw_health_damage_preview(unit, content_rect, preview)
