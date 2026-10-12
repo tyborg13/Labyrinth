@@ -107,7 +107,7 @@ var _generated_layout_count: int = 0
 var _generated_layout_cache_hits: int = 0
 
 static func normalized_run_stats(value: Variant) -> Dictionary:
-	return CombatEngineScript.normalized_run_stats(value)
+	return preload("res://scripts/run_score_rules.gd").normalized_stats(value)
 
 static func run_result_id(run_state: Dictionary) -> String:
 	return "run:%d:seed:%d" % [int(run_state.get("run_index", 0)), int(run_state.get("seed", 0))]
@@ -176,7 +176,7 @@ func create_new_run(seed: int, progression: Dictionary, section_maps: bool = tru
 		"game_over": false,
 		"victory": false,
 		"turns_spent": 0,
-		"run_stats": CombatEngineScript.default_run_stats(),
+		"run_stats": normalized_run_stats({}),
 		"notice": "",
 		SKILL_STATE_KEY: _default_skill_state(),
 		"progression": normalized_progression
@@ -291,7 +291,7 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"game_over": false,
 		"victory": false,
 		"turns_spent": 11,
-		"run_stats": CombatEngineScript.default_run_stats(),
+		"run_stats": normalized_run_stats({}),
 		"notice": "Debug boss fixture",
 		SKILL_STATE_KEY: _default_skill_state(),
 		"progression": progression.duplicate(true),
@@ -313,7 +313,7 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	next_state[RUN_CONTENT_SCHEMA_KEY] = RUN_CONTENT_SCHEMA
 	next_state[COMBAT_UNITS_SCHEMA_KEY] = COMBAT_UNITS_SCHEMA
 	next_state = GrimoireLibrary.ensure_run_state(next_state)
-	next_state["run_stats"] = CombatEngineScript.normalized_run_stats(next_state.get("run_stats", {}))
+	next_state["run_stats"] = normalized_run_stats(next_state.get("run_stats", {}))
 	next_state["run_stats"]["max_held_embers"] = maxi(int(next_state["run_stats"]["max_held_embers"]), held_embers(next_state))
 	next_state["relics"] = GameData.normalized_relic_ids(next_state.get("relics", []))
 	next_state["pending_relics"] = GameData.normalized_relic_ids(next_state.get("pending_relics", []), next_state["relics"])
@@ -347,7 +347,7 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 			repaired_combat_state["score_wallet_base"] = held_embers(next_state) - int(repaired_combat_state.get("recovered_embers_total", 0))
 		var known_wallet: int = held_embers(next_state) + int(repaired_combat_state.get("room_embers", 0)) + maxi(0, int(repaired_combat_state.get("recovered_embers_total", 0)) - int(next_state.get("recovered_embers_total", 0)))
 		next_state["run_stats"]["max_held_embers"] = maxi(int(next_state["run_stats"]["max_held_embers"]), known_wallet)
-		repaired_combat_state["run_stats"] = normalized_run_stats(repaired_combat_state.get("run_stats", next_state["run_stats"]))
+		repaired_combat_state["run_stats"] = CombatEngineScript.normalized_run_stats(repaired_combat_state.get("run_stats", next_state["run_stats"]))
 		repaired_combat_state["run_stats"]["max_held_embers"] = next_state["run_stats"]["max_held_embers"]
 		repaired_combat_state = _mark_balance_transition(repaired_combat_state)
 		repaired_combat_state["skill_ids"] = ProgressionStore.selected_skill_ids(next_state.get("progression", {}) as Dictionary)
@@ -1177,10 +1177,10 @@ func set_combat_state(run_state: Dictionary, combat_state: Dictionary) -> Dictio
 	next_state.erase("combat_state")
 	next_state = next_state.duplicate(true)
 	next_state["combat_state"] = combat_state.duplicate(true)
-	next_state["run_stats"] = CombatEngineScript.normalized_run_stats(combat_state.get("run_stats", next_state.get("run_stats", {})))
-	next_state["run_stats"]["run_seconds"] = maxf(float(next_state["run_stats"]["run_seconds"]), float((run_state.get("run_stats", {}) as Dictionary).get("run_seconds", 0.0)))
+	next_state["run_stats"] = normalized_run_stats(combat_state.get("run_stats", next_state.get("run_stats", {})))
+	next_state["run_stats"]["run_seconds"] = maxf(0.0, float((run_state.get("run_stats", {}) as Dictionary).get("run_seconds", 0.0)))
 	next_state["run_stats"]["max_held_embers"] = maxi(int(next_state["run_stats"]["max_held_embers"]), held_embers(run_state) + int(combat_state.get("room_embers", 0)) + maxi(0, int(combat_state.get("recovered_embers_total", 0)) - int(run_state.get("recovered_embers_total", 0))))
-	next_state["combat_state"]["run_stats"] = next_state["run_stats"].duplicate(true)
+	next_state["combat_state"]["run_stats"] = CombatEngineScript.normalized_run_stats(next_state["run_stats"])
 	next_state["player_hp"] = int((combat_state.get("player", {}) as Dictionary).get("hp", next_state.get("player_hp", 1)))
 	next_state[DEFIANCE_CAPACITY_KEY] = maxi(0, int(combat_state.get(DEFIANCE_CAPACITY_KEY, next_state.get(DEFIANCE_CAPACITY_KEY, 0))))
 	next_state[DEFIANCE_REMAINING_KEY] = clampi(
@@ -1925,7 +1925,7 @@ func set_held_embers(run_state: Dictionary, amount: int) -> Dictionary:
 	stats["max_held_embers"] = maxi(int(stats["max_held_embers"]), maxi(0, amount))
 	next_state["run_stats"] = stats
 	if not (next_state.get("combat_state", {}) as Dictionary).is_empty():
-		var combat_stats: Dictionary = normalized_run_stats(next_state["combat_state"].get("run_stats", {}))
+		var combat_stats: Dictionary = CombatEngineScript.normalized_run_stats(next_state["combat_state"].get("run_stats", {}))
 		combat_stats["max_held_embers"] = stats["max_held_embers"]
 		next_state["combat_state"]["run_stats"] = combat_stats
 		next_state["combat_state"]["score_wallet_base"] = amount - int(next_state["combat_state"].get("recovered_embers_total", 0))
@@ -3850,18 +3850,13 @@ func _record_score_encounter(state: Dictionary, room: Dictionary, combat: Dictio
 				stats["dragons_flawless"].append(id)
 	state["run_stats"] = stats
 
-# The scene clock supplies only active play time; no wall timestamp is serialized.
+# Pure run-only accumulation for callers supplying elapsed active play time.
 static func advance_play_time(state: Dictionary, seconds: float, paused: bool = false) -> void:
 	if paused or bool(state.get("game_over", false)) or str(state.get("mode", "")) in ["defeat", "victory", "embrace"] or seconds <= 0.0:
 		return
 	var stats: Dictionary = normalized_run_stats(state.get("run_stats", {}))
 	stats["run_seconds"] = float(stats["run_seconds"]) + seconds
 	state["run_stats"] = stats
-	var combat: Dictionary = state.get("combat_state", {}) as Dictionary
-	if not combat.is_empty():
-		var combat_stats: Dictionary = normalized_run_stats(combat.get("run_stats", {}))
-		combat_stats["run_seconds"] = stats["run_seconds"]
-		combat["run_stats"] = combat_stats
 
 func _recovery_coord_for_run(run_state: Dictionary) -> Vector2i:
 	var original: Vector2i = ProgressionStore.recovery_coord(run_state.get("progression", {}) as Dictionary)

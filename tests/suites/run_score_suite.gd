@@ -9,12 +9,21 @@ const Analytics = preload("res://scripts/analytics_store.gd")
 const COUNTER_RUN_SEED: int = 6101
 const EVENT_RUN_SEED: int = 6111
 const PERSISTENCE_RUN_SEED: int = 512
+const CLOCK_START_USEC: int = 1000000
+const CLOCK_SAVED_SECONDS: float = 120.5
+const CLOCK_ACTIVE_SECONDS: float = 10.5
+const CLOCK_PAUSED_SECONDS: float = 90.0
+const CLOCK_RESUMED_SECONDS: float = 7.25
+const CLOCK_USEC_PER_SECOND: int = 1000000
+const LIVE_CLOCK_PROOF_FRAMES: int = 3
+const LIVE_CLOCK_POOL_WARM_FRAME_BUDGET: int = 120
 const Graph = preload("res://scripts/section_map_graph.gd")
 
 static func run(expect: Callable) -> void:
 	_score_table(expect)
 	_boundaries(expect)
 	_counters(expect)
+	_play_time(expect)
 	_persistence(expect)
 	_text(expect)
 
@@ -167,6 +176,138 @@ static func _counters(expect: Callable) -> void:
 	var restored: Dictionary = engine.repair_loaded_run_state(Store.load_saved_run())
 	expect.call(restored["run_stats"] == run_state["run_stats"], "Every score counter survives save/resume")
 	Store.clear_saved_run()
+
+static func _play_time(expect: Callable) -> void:
+	var engine := Run.new()
+	var state: Dictionary = engine.create_new_run(PERSISTENCE_RUN_SEED, Store.default_data())
+	state["run_stats"]["run_seconds"] = CLOCK_SAVED_SECONDS
+	state["combat_state"] = _combat_fixture()
+	var combat_before: Dictionary = state["combat_state"].duplicate(true)
+	var run_before: Dictionary = state.duplicate(true)
+	var clock := Score.new()
+	var now_usec: int = CLOCK_START_USEC
+	clock.sample_play_time(state, true, now_usec)
+	now_usec += int(CLOCK_ACTIVE_SECONDS * CLOCK_USEC_PER_SECOND)
+	clock.sample_play_time(state, false, now_usec)
+	expect.call(state == run_before, "Wall-clock samples leave the entire run/resolver snapshot unchanged until commit")
+	expect.call(clock.play_seconds == CLOCK_SAVED_SECONDS + CLOCK_ACTIVE_SECONDS, "Clock counts unscaled monotonic time, including the interval before pausing")
+	now_usec += int(CLOCK_PAUSED_SECONDS * CLOCK_USEC_PER_SECOND)
+	clock.sample_play_time(state, false, now_usec)
+	expect.call(clock.play_seconds == CLOCK_SAVED_SECONDS + CLOCK_ACTIVE_SECONDS, "Menu, hidden-scene and tree-pause intervals are excluded")
+	clock.commit_play_time(state)
+	expect.call(state["run_stats"]["run_seconds"] == clock.play_seconds and state["combat_state"] == combat_before, "Save-boundary clock commit updates only the run's stats")
+	var committed: Dictionary = state.duplicate(true)
+	clock.commit_play_time(state)
+	expect.call(state == committed, "Repeated clock commits do not double count")
+	expect.call(Store.save_run_state(state), "Elapsed play time saves during combat")
+	var restored: Dictionary = engine.repair_loaded_run_state(Store.load_saved_run())
+	expect.call(restored["run_stats"]["run_seconds"] == CLOCK_SAVED_SECONDS + CLOCK_ACTIVE_SECONDS, "Saved run time survives combat save/resume")
+	expect.call(not restored["combat_state"]["run_stats"].has("run_seconds"), "Resumed combat stats do not contain wall-clock time")
+	var resumed_clock := Score.new()
+	now_usec += int(CLOCK_PAUSED_SECONDS * CLOCK_USEC_PER_SECOND)
+	resumed_clock.sample_play_time(restored, true, now_usec)
+	now_usec += int(CLOCK_RESUMED_SECONDS * CLOCK_USEC_PER_SECOND)
+	resumed_clock.sample_play_time(restored, false, now_usec)
+	resumed_clock.commit_play_time(restored)
+	var total: float = CLOCK_SAVED_SECONDS + CLOCK_ACTIVE_SECONDS + CLOCK_RESUMED_SECONDS
+	expect.call(restored["run_stats"]["run_seconds"] == total, "A resumed clock adds active time while excluding time outside the run")
+	var adopted: Dictionary = engine.set_combat_state(restored, restored["combat_state"])
+	expect.call(adopted["run_stats"]["run_seconds"] == total and not adopted["combat_state"]["run_stats"].has("run_seconds"), "Combat checkpoint adoption preserves the run clock without copying it into combat")
+	# Old meta-01 saves may still contain a stale combat clock.
+	restored["combat_state"]["run_stats"]["run_seconds"] = total + CLOCK_PAUSED_SECONDS
+	var repaired: Dictionary = engine.repair_loaded_run_state(restored)
+	expect.call(repaired["run_stats"]["run_seconds"] == total and not repaired["combat_state"]["run_stats"].has("run_seconds"), "Legacy combat clock is removed without replacing the authoritative saved run time")
+	var pure_combat_before: Dictionary = repaired["combat_state"].duplicate(true)
+	Run.advance_play_time(repaired, CLOCK_ACTIVE_SECONDS)
+	expect.call(repaired["combat_state"] == pure_combat_before, "Explicit elapsed-time accumulation cannot mutate a combat snapshot")
+	for outcome: String in ["defeat", "victory", "embrace"]:
+		var terminal: Dictionary = restored.duplicate(true)
+		terminal["mode"] = outcome
+		resumed_clock.sample_play_time(terminal, true, now_usec)
+		now_usec += int(CLOCK_PAUSED_SECONDS * CLOCK_USEC_PER_SECOND)
+		resumed_clock.sample_play_time(terminal, true, now_usec)
+		resumed_clock.commit_play_time(terminal)
+		expect.call(terminal["run_stats"]["run_seconds"] == total, "%s run-end screen time is excluded" % outcome)
+		if outcome == "victory":
+			var swift: Dictionary = _row(Score.score(terminal, outcome), "swift")
+			expect.call(swift["points"] == 50 and swift["detail"] == "Escaped in 2 minutes", "Swift reads the committed cumulative run clock")
+	clock.reset_play_time()
+	clock.sample_play_time(state, true, now_usec)
+	expect.call(clock.play_seconds == float(state["run_stats"]["run_seconds"]), "Reloading the same run id resets pending time to the saved total")
+	var new_run: Dictionary = engine.create_new_run(COUNTER_RUN_SEED, Store.default_data())
+	clock.sample_play_time(new_run, true, now_usec)
+	expect.call(clock.play_seconds == 0.0, "A new run cannot inherit the previous run's clock")
+	Store.clear_saved_run()
+	print("RUN SCORE CLOCK: commit/save/resume/pause/terminal/combat isolation checked")
+
+static func test_live_play_time(tree: SceneTree, scene: Control, expect: Callable) -> void:
+	var clock: RefCounted = scene.get("_run_play_clock")
+	var before: Dictionary = (scene.get("_run_state") as Dictionary).duplicate(true)
+	var combat_before: Dictionary = (scene.get("_combat_state") as Dictionary).duplicate(true)
+	var active_at: float = float(clock.get("play_seconds"))
+	await _clock_frames(tree)
+	expect.call(float(clock.get("play_seconds")) > active_at, "Scene physics advances pending active play time")
+	expect.call((scene.get("_run_state") as Dictionary)["run_stats"] == before["run_stats"] and scene.get("_combat_state") == combat_before, "Live clock leaves run stats and complete combat/RNG unchanged between commits")
+	scene.call("_open_menu_overlay")
+	var paused_at: float = float(clock.get("play_seconds"))
+	await _clock_frames(tree)
+	expect.call(float(clock.get("play_seconds")) == paused_at, "Menu transition excludes pending play time while open")
+	scene.call("_open_settings_overlay")
+	await _clock_frames(tree)
+	expect.call(float(clock.get("play_seconds")) == paused_at, "Settings time is excluded from the scene clock")
+	scene.call("_close_menu_overlay")
+	tree.paused = true
+	paused_at = float(clock.get("play_seconds"))
+	await _clock_frames(tree)
+	expect.call(float(clock.get("play_seconds")) == paused_at, "Tree pause excludes elapsed play time")
+	tree.paused = false
+	scene.hide()
+	paused_at = float(clock.get("play_seconds"))
+	await _clock_frames(tree)
+	expect.call(float(clock.get("play_seconds")) == paused_at, "Hidden run scenes exclude elapsed play time")
+	scene.show()
+	await _clock_frames(tree)
+	expect.call(float(clock.get("play_seconds")) > paused_at, "Visible unpaused gameplay resumes accumulating")
+	scene.call("_save_run_progress")
+	var saved: Dictionary = Store.load_saved_run()
+	expect.call(not saved.is_empty(), "Production explicit-save path stores the run clock")
+	if saved.is_empty():
+		return
+	var saved_seconds: float = float(saved["run_stats"]["run_seconds"])
+	expect.call(saved_seconds > float(before["run_stats"]["run_seconds"]) and saved_seconds == float((scene.get("_run_state") as Dictionary)["run_stats"]["run_seconds"]), "Explicit save commits the pending clock into both live and persisted run stats")
+	expect.call(not (saved.get("combat_state", {}) as Dictionary).get("run_stats", {}).has("run_seconds") and scene.get("_combat_state") == combat_before, "Production save keeps elapsed time out of the combat snapshot")
+	# Clock/resume proof does not need the fixture's checkpoint presentation.
+	var deferred_presentation: bool = bool(scene.get("_defer_initial_run_presentation"))
+	scene.set("_defer_initial_run_presentation", true)
+	scene.call("_load_run_state", saved)
+	scene.set("_defer_initial_run_presentation", deferred_presentation)
+	scene.call("_close_dialogue")
+	await _clock_frames(tree)
+	expect.call(float(clock.get("play_seconds")) > saved_seconds, "Production resume continues from the saved cumulative clock")
+	var terminal: Dictionary = (scene.get("_run_state") as Dictionary).duplicate(true)
+	terminal["mode"] = "defeat"
+	terminal["game_over"] = true
+	terminal = scene.call("_terminal_state_with_recorded_run_result", terminal, scene.get("_progression"))
+	scene.set("_run_state", terminal)
+	var ended_at: float = float(clock.get("play_seconds"))
+	await _clock_frames(tree)
+	expect.call(float(clock.get("play_seconds")) == ended_at and float(terminal["run_stats"]["run_seconds"]) == ended_at, "Production run end commits time once and excludes the terminal screen")
+	for index: int in range(LIVE_CLOCK_POOL_WARM_FRAME_BUDGET):
+		if not bool(scene.get("_pile_dialog_pool_warm_scheduled")) and int(scene.get("_character_row_preparation_running_revision")) < 0 and int(scene.get("_grimoire_row_preparation_running_revision")) < 0:
+			break
+		await tree.process_frame
+		if DisplayServer.get_name() == "headless":
+			RenderingServer.frame_post_draw.emit()
+	expect.call(not bool(scene.get("_pile_dialog_pool_warm_scheduled")), "Resume's existing card-pool coroutine finishes before clock-fixture teardown")
+	expect.call(int(scene.get("_character_row_preparation_running_revision")) < 0 and int(scene.get("_grimoire_row_preparation_running_revision")) < 0, "Resume's existing row-preparation coroutines finish before clock-fixture teardown")
+	print("RUN SCORE LIVE CLOCK: physics/menu/settings/tree pause/visibility/save/resume/run end checked")
+
+static func _clock_frames(tree: SceneTree) -> void:
+	for index: int in range(LIVE_CLOCK_PROOF_FRAMES):
+		await tree.physics_frame
+		await tree.process_frame
+		if DisplayServer.get_name() == "headless":
+			RenderingServer.frame_post_draw.emit()
 
 static func _persistence(expect: Callable) -> void:
 	var old: Dictionary = Store.normalized_data({"progression_schema": 7, "last_run_result": {"result_id": "old", "stats": {"depth": 1}}, "completed_run_results": [{"result_id": "older", "stats": {"depth": 2}}]})

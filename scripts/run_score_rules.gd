@@ -14,6 +14,49 @@ const FEAT_NAME_LIMIT: int = 3
 static var _text: Dictionary = {}
 static var _biomes: Dictionary = {}
 
+# Scene-owned wall time stays outside resolver/saved state until a commit.
+var _play_run_id: String = ""
+var _play_last_usec: int = -1
+var _play_active: bool = false
+var play_seconds: float = 0.0
+
+func reset_play_time() -> void:
+	_play_run_id = ""
+	_play_last_usec = -1
+	_play_active = false
+	play_seconds = 0.0
+
+func sample_play_time(state: Dictionary, active: bool, now_usec: int = Time.get_ticks_usec()) -> void:
+	if state.is_empty():
+		reset_play_time()
+		return
+	var run_id: String = "run:%d:seed:%d" % [int(state.get("run_index", 0)), int(state.get("seed", 0))]
+	var saved_seconds: float = maxf(0.0, float((state.get("run_stats", {}) as Dictionary).get("run_seconds", 0.0)))
+	if run_id != _play_run_id:
+		_play_run_id = run_id
+		play_seconds = saved_seconds
+	elif _play_active and _play_last_usec >= 0:
+		play_seconds += float(maxi(0, now_usec - _play_last_usec)) / 1000000.0
+	play_seconds = maxf(play_seconds, saved_seconds)
+	_play_last_usec = now_usec
+	_play_active = active and not bool(state.get("game_over", false)) and str(state.get("mode", "")) not in ["defeat", "victory", "embrace"]
+
+func commit_play_time(state: Dictionary) -> void:
+	if state.is_empty() or _play_run_id != "run:%d:seed:%d" % [int(state.get("run_index", 0)), int(state.get("seed", 0))]:
+		return
+	var stats: Dictionary = normalized_stats(state.get("run_stats", {}))
+	stats["run_seconds"] = maxf(float(stats["run_seconds"]), play_seconds)
+	state["run_stats"] = stats
+
+func sample_scene_play_time(host: Control, committed_state: Dictionary = {}) -> void:
+	var live_state: Dictionary = host.get("_run_state") as Dictionary
+	var state: Dictionary = live_state if committed_state.is_empty() else committed_state
+	var menu: Control = host.get("_menu_scrim") as Control
+	sample_play_time(state, host.is_visible_in_tree() and not host.get_tree().paused and (menu == null or not menu.visible))
+	if not committed_state.is_empty():
+		commit_play_time(committed_state)
+		commit_play_time(live_state)
+
 static func normalized_stats(value: Variant) -> Dictionary:
 	var stats: Dictionary = (value as Dictionary).duplicate(true) if value is Dictionary else {}
 	for key: String in COUNTERS:

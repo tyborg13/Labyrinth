@@ -29,7 +29,7 @@ and `damage_received` semantics. The new fields are:
 | `events_resolved` | Successful choice-page to result-page transition; repeats and Continue do not increment |
 | `max_held_embers` | High-water wallet value, including starting, recovered and HUD-visible pending combat Embers; spending does not decrease it |
 | `defiance_spent` | Actual Defiance trigger, independent of capacity increases |
-| `run_seconds` | Active monotonic elapsed time sampled by the scene physics adapter; menu/settings pause, tree pause, hidden run scene and terminal time excluded |
+| `run_seconds` | Scene-owned active monotonic elapsed time, copied into the run snapshot only at existing commit/save and run-end boundaries; menu/settings pause, tree pause, hidden run scene and terminal time excluded |
 | `killer` | Final lethal enemy type, intent id and resolved incoming damage, or fatigue/surface/trap attribution |
 
 Guardian ids rather than a bare unscathed count retain the names required by the
@@ -40,10 +40,24 @@ checkpoints/resume retain the resolution boundary. A new encounter resets only
 those temporary card fields. Defiance, Last Door and Fatigue survival clear
 lethal attribution when the player survives.
 
-The existing recap node is present for the lifetime of RunScene. Its hidden
-physics adapter advances the clock without changing RunScene's dialogue-driven
-process switch. It updates the run snapshot and committed card resolutions while preserving passive drag/cancel combat snapshots;
-combat adoption preserves the greater saved clock. Pause/resume notifications reset the sample baseline. Physics catch-up and dropped steps cannot inflate or discard elapsed play time. No wall timestamp is saved.
+RunScene owns a `RunScoreRules` clock instance, sampled from its existing physics
+callback independently of dialogue processing and animation time scale. Samples
+change only that instance. The recap's legacy physics clock adapter is disabled
+when installed in RunScene. Menu transitions, tree-pause and visibility
+notifications sample the transition boundary; the clock counts the preceding
+active interval and excludes the subsequent inactive interval. Physics catch-up
+and dropped steps cannot inflate or discard elapsed play time. No wall timestamp
+or pending clock field is saved.
+
+Existing committed-boundary saves copy the cumulative clock into
+`run_state.run_stats.run_seconds`, including room exits, combat checkpoints and
+explicit saves. Terminal scoring and Embrace commit the clock before building
+their result. Loading a run resets the scene clock to the saved total, including
+when the same run id is reloaded. Combat stats omit `run_seconds`: encounter
+creation, combat adoption, wallet synchronization and save repair all preserve
+this separation. Run adoption retains the run snapshot's saved time rather than
+reading a stale combat value. Swift and the Chronicle's run-time source continue
+to use the committed run field.
 
 ## Scoring
 
@@ -169,6 +183,29 @@ retaining its banking, save-clearing and departure-cue checks.
 No peer review, commit, publication or inspection fixture is performed here.
 
 ## Proof and chosen non-player defaults
+
+For fix-02, `run_score_suite.gd` covers commit-only samples, combat save/resume,
+paused/offline time, legacy combat-clock repair, terminal exclusions and Swift
+against the cumulative saved total. `combat_feel_suite.gd` retains its complete
+resolver-state/RNG equality assertion and also calls the score suite's live
+clock checks against production physics, menus/settings, tree pause, visibility,
+explicit save, resume and run end. This state-plumbing fix needs headless proof;
+it changes no layout, assets, motion or input flow and needs no renderer capture
+or inspection fixture.
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/fix-02 && python3 tools/godot_task_runner.py --task-id fix-02 --stream -- godot --headless --path . --script tests/combat_feel_test.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/fix-02 && python3 tools/godot_task_runner.py --task-id fix-02 --stream -- godot --headless --path . --script tests/run_score_test.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/fix-02 && python3 tools/godot_task_runner.py --task-id fix-02 --timeout 600 --stream -- godot --headless --path . --script tests/run_tests.gd
+```
+
+The synthetic clock proof uses `CLOCK_START_USEC=1000000`,
+`CLOCK_SAVED_SECONDS=120.5`, `CLOCK_ACTIVE_SECONDS=10.5`,
+`CLOCK_PAUSED_SECONDS=90.0`, `CLOCK_RESUMED_SECONDS=7.25` and
+`CLOCK_USEC_PER_SECOND=1000000`, with the existing persistence seed `512`.
+`LIVE_CLOCK_PROOF_FRAMES=3` bounds each production-clock observation and
+`LIVE_CLOCK_POOL_WARM_FRAME_BUDGET=120` bounds fixture teardown. These
+values affect only tests; production scoring thresholds remain unchanged.
 
 Focused headless suite:
 

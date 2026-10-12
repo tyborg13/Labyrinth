@@ -370,6 +370,7 @@ static func _test_run_scene(tree: SceneTree, expect: Callable) -> void:
 	expect.call(not bool(instance.get("_animation_lock")) and not incorrectly_sped_up,"Back-to-back hero hand-offs stay at 1.0 even at Fastest")
 	for _frame: int in range(CLEANUP_FRAMES): await tree.process_frame
 	instance.call("_close_menu_overlay")
+	await preload("res://tests/suites/run_score_suite.gd").test_live_play_time(tree, instance, expect)
 	instance.queue_free()
 	await tree.process_frame
 	print("COMBAT FEEL INTEGRATION: committed card/state/RNG/settings row checked")

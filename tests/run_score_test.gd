@@ -53,18 +53,19 @@ func _test_live_clock_and_terminal_bridge() -> void:
 	var scene: Control = preload("res://scenes/run_scene.tscn").instantiate()
 	root.add_child(scene)
 	await process_frame
-	var before: float = float((scene.get("_run_state") as Dictionary)["run_stats"]["run_seconds"])
+	# Live play time is scene-owned (fix-02); the run state only receives it at commit points.
+	var before: float = float((scene.get("_run_play_clock") as RefCounted).get("play_seconds"))
 	for index: int in range(CLOCK_PROOF_FRAMES):
 		await physics_frame
 		await process_frame
-	var active: float = float((scene.get("_run_state") as Dictionary)["run_stats"]["run_seconds"])
+	var active: float = float((scene.get("_run_play_clock") as RefCounted).get("play_seconds"))
 	_assert(active > before, "Hidden recap clock advances active gameplay")
 	scene.call("_open_menu_overlay")
-	var paused_at: float = float((scene.get("_run_state") as Dictionary)["run_stats"]["run_seconds"])
+	var paused_at: float = float((scene.get("_run_play_clock") as RefCounted).get("play_seconds"))
 	for index: int in range(CLOCK_PROOF_FRAMES):
 		await physics_frame
 		await process_frame
-	_assert(float((scene.get("_run_state") as Dictionary)["run_stats"]["run_seconds"]) == paused_at, "Menu pauses live play-time clock")
+	_assert(is_equal_approx(float((scene.get("_run_play_clock") as RefCounted).get("play_seconds")), paused_at), "Menu pauses live play-time clock")
 	scene.call("_close_menu_overlay")
 	var terminal: Dictionary = (scene.get("_run_state") as Dictionary).duplicate(true)
 	terminal["mode"] = "defeat"
