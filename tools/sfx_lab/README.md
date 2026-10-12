@@ -10,6 +10,7 @@ formats, measurement definitions, approved rendering decisions and licence restr
 
 | Entry point | Input | Output |
 | --- | --- | --- |
+| `design.py --recipes … --features … --out-root …` | Director's layered recipes and measured takes | 24-bit designed WAVs and per-file licence sidecars |
 | `index.py --sources … --out …` | Approved library tree | `index.json` |
 | `slice.py --index … --out …` | File index | `takes.jsonl` |
 | `features.py --index … --takes … --out …` | Index and take boundaries | `features.jsonl` |
@@ -48,3 +49,12 @@ libraries and FFmpeg. Updating an encoder may change encoded hashes; rerun the
 determinism proof after a toolchain update. All sound-lab FFmpeg calls use two
 threads and four cooperative machine-wide lock slots. Keep unrelated encoders
 within the machine's same four-process limit.
+
+Layered recipes carry every director-selected processing value; the renderer
+does not choose takes or write production recipes. See [Layered designs](../../spec/sfx_pipeline.md#layered-designs)
+for the format and design → index → slice → features → audition commands. Repeat
+`index.py --sources` for the read-only library and the design output root (the
+parent of `designed/`); index order follows argument order and then the existing
+file sort. Per-file sidecars determine the designed source's licence. Existing
+audition/build `--sources` can relocate either root, with untouched roots kept
+from the index, or use a combined tree containing both approved folder sets.
