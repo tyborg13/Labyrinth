@@ -1,0 +1,712 @@
+{
+ "block.gain": {
+  "category": "body",
+  "variants": [
+   {
+    "take": "74b5e34233ea#1",
+    "source_path": "opengameart/rpg-sound-pack/RPG Sound Pack/inventory/chainmail2.wav"
+   }
+  ],
+  "loop": false
+ },
+ "card.exhaust": {
+  "category": "card",
+  "variants": [
+   {
+    "take": "02fa3a2c6e79#1",
+    "source_path": "opengameart/80-cc0-rpg-sfx/spell_fire_01.ogg"
+   }
+  ],
+  "loop": false
+ },
+ "card.hover": {
+  "category": "card",
+  "variants": [
+   {
+    "take": "7c8f32b690ad#1",
+    "source_path": "sonniss_gdc/GDC2016/Timothy McHugh - Playing Cards & Betting Chips/games - Deck of cards dealt on to felt table surface 43.wav"
+   }
+  ],
+  "loop": false
+ },
+ "card.invalid": {
+  "category": "card",
+  "variants": [
+   {
+    "take": "81e976532565#1",
+    "source_path": "kenney/rpg-audio/Audio/bookClose.ogg"
+   }
+  ],
+  "loop": false
+ },
+ "card.select": {
+  "category": "card",
+  "variants": [
+   {
+    "take": "c85db5dceb3f#1",
+    "source_path": "kenney/rpg-audio/Audio/bookFlip3.ogg"
+   }
+  ],
+  "loop": false
+ },
+ "cast.arcane": {
+  "category": "spell",
+  "variants": [
+   {
+    "take": "86667cb39885#1",
+    "source_path": "sonniss_gdc/GDC2020/David Dumais Audio - Spells Magic 1/Magic_Spells_CastShort_Push14.wav"
+   }
+  ],
+  "loop": false
+ },
+ "crate.break": {
+  "category": "impact",
+  "variants": [
+   {
+    "take": "7c19b64080b8#1",
+    "source_path": "sonniss_gdc/GDC2017/Double Trouble Audio - Tools and Wood/Small Wood Pile, Smash.wav"
+   }
+  ],
+  "loop": false
+ },
+ "crate.hit": {
+  "category": "impact",
+  "variants": [
+   {
+    "take": "312d5dc97085#1",
+    "source_path": "sonniss_gdc/GDC2019/BlueZone - Wood Sound Effects/Bluezone_BC0254_wood_falling_log_002_006.wav"
+   }
+  ],
+  "loop": false
+ },
+ "death.avian": {
+  "category": "body",
+  "variants": [
+   {
+    "take": "d9a0ff2ad536#42",
+    "source_path": "sonniss_gdc/GDC2019/Soundmind - Predatory Birds/PRB102 Harris Hawk (Heniek) - Call, Squawk Shriek, Harsh - Schoeps MF.wav"
+   },
+   {
+    "take": "d9a0ff2ad536#40",
+    "source_path": "sonniss_gdc/GDC2019/Soundmind - Predatory Birds/PRB102 Harris Hawk (Heniek) - Call, Squawk Shriek, Harsh - Schoeps MF.wav"
+   },
+   {
+    "take": "d9a0ff2ad536#41",
+    "source_path": "sonniss_gdc/GDC2019/Soundmind - Predatory Birds/PRB102 Harris Hawk (Heniek) - Call, Squawk Shriek, Harsh - Schoeps MF.wav"
+   }
+  ],
+  "loop": false
+ },
+ "death.beast": {
+  "category": "body",
+  "variants": [
+   {
+    "take": "d752dcc0c183#1",
+    "source_path": "sonniss_gdc/GDC2016/SoundBits -  Screams & Shouts 2 - Monsters/Monster_Pain_Death_121.wav"
+   }
+  ],
+  "loop": false
+ },
+ "death.bone": {
+  "category": "body",
+  "variants": [
+   {
+    "take": "a94061d20e34#1",
+    "source_path": "sonniss_gdc/GDC2017/Double Trouble Audio - Wood Impacts and Debris/Rustles - Pile, Debris 22.wav"
+   }
+  ],
+  "loop": false
+ },
+ "death.dragon": {
+  "category": "body",
+  "variants": [
+   {
+    "take": "5eefb98e5ac1#1",
+    "source_path": "sonniss_gdc/GDC2019/Baxter Audio - IMPACT/10 Hit Deep Thud.wav"
+   }
+  ],
+  "loop": false
+ },
+ "death.hero": {
+  "category": "stinger",
+  "variants": [
+   {
+    "take": "028d02d2e983#1",
+    "source_path": "sonniss_gdc/GDC2019/344 Audio - Low Frequency Elements/Trailer Hit Cavernous 10 Filtered, Low End.wav"
+   }
+  ],
+  "loop": false
+ },
+ "death.humanoid": {
+  "category": "body",
+  "variants": [
+   {
+    "take": "90d5ae7ee9f6#1",
+    "source_path": "sonniss_gdc/GDC2019/Red Libraries - Bodyfall/RL_bodyfall_Dirt_M4_Close_Stereo_Hard_Impact_10.wav"
+   }
+  ],
+  "loop": false
+ },
+ "death.ooze": {
+  "category": "body",
+  "variants": [
+   {
+    "take": "7ed1e1ffb2e5#1",
+    "source_path": "sonniss_gdc/GDC2015/Mattia Cellotto - The Borax Experiment/Borax,Impact,Slime,Gore,Various16.wav"
+   }
+  ],
+  "loop": false
+ },
+ "death.spirit": {
+  "category": "body",
+  "variants": [
+   {
+    "take": "8e5551798202#1",
+    "source_path": "opengameart/rpg-sound-pack/RPG Sound Pack/NPC/shade/shade8.wav"
+   }
+  ],
+  "loop": false
+ },
+ "death.stone": {
+  "category": "body",
+  "variants": [
+   {
+    "take": "118965f88555#1",
+    "source_path": "sonniss_gdc/GDC2016/Alexander Kopeikin - Rocks/rock tumble down debris long 06.wav"
+   }
+  ],
+  "loop": false
+ },
+ "deck.shuffle": {
+  "category": "card",
+  "variants": [
+   {
+    "take": "96c84883a308#2",
+    "source_path": "kenney/casino-audio/Audio/card-shuffle.ogg"
+   }
+  ],
+  "loop": false
+ },
+ "defiance": {
+  "category": "status",
+  "variants": [
+   {
+    "take": "29e04533335a#1",
+    "source_path": "sonniss_gdc/GDC2019/Sound Spark LLC \u2013 Forge Sound Design Toolkit/Heart_Beat_02.wav"
+   }
+  ],
+  "loop": false
+ },
+ "dragon.roar": {
+  "category": "vocal",
+  "variants": [
+   {
+    "take": "563dfc1594d9#1",
+    "source_path": "sonniss_gdc/GDC2017/MatiasMacSD - CREATURES ZONE/Creature_Dragon_Roar_01.wav"
+   }
+  ],
+  "loop": false
+ },
+ "dragon.wings": {
+  "category": "movement",
+  "variants": [
+   {
+    "take": "c29710a75967#10",
+    "source_path": "sonniss_gdc/GDC2019/Soundholder - Swipes And Whooshes/swipes and whooshes tshirt fast and short swings stereo ORTF 8040.wav"
+   }
+  ],
+  "loop": false
+ },
+ "event.choose": {
+  "category": "ui",
+  "variants": [
+   {
+    "take": "15824e7daf7a#1",
+    "source_path": "sonniss_gdc/GDC2019/PMSFX - Books Alive/PM_BA_BOOK_2_6 Book, Paper, Page Turn.wav"
+   }
+  ],
+  "loop": false
+ },
+ "fatigue": {
+  "category": "status",
+  "variants": [
+   {
+    "take": "5890be2e8ea1#1",
+    "source_path": "sonniss_gdc/GDC2018/Airborne Sound - Eclectic Whooshes/Whoosh,Sound Design,Power Down,Groan,Choppy,Very High.wav"
+   }
+  ],
+  "loop": false
+ },
+ "heal": {
+  "category": "status",
+  "variants": [
+   {
+    "take": "4600822379d1#1",
+    "source_path": "opengameart/spell-sounds/healing.ogg"
+   },
+   {
+    "take": "4600822379d1#3",
+    "source_path": "opengameart/spell-sounds/healing.ogg"
+   },
+   {
+    "take": "4600822379d1#2",
+    "source_path": "opengameart/spell-sounds/healing.ogg"
+   }
+  ],
+  "loop": false
+ },
+ "hit.arcane": {
+  "category": "impact",
+  "variants": [
+   {
+    "take": "2da761109a0d#1",
+    "source_path": "sonniss_gdc/GDC2020/David Dumais Audio - Spells Magic 1/Magic_Spells_Impact_Creation20.wav"
+   }
+  ],
+  "loop": false
+ },
+ "hit.blade.heavy": {
+  "category": "impact",
+  "variants": [
+   {
+    "take": "f68bcd9c5970#1",
+    "source_path": "sonniss_gdc/GDC2019/Sound Spark LLC \u2013 Gore/Melee_Deep_Wound_05.wav"
+   }
+  ],
+  "loop": false
+ },
+ "hit.blade.light": {
+  "category": "impact",
+  "variants": [
+   {
+    "take": "c5c4dad45b65#1",
+    "source_path": "sonniss_gdc/GDC2015/Timothy McHugh - Gorification [HD]/gore - medium metal blade wet impact in to flesh and removed - 6.wav"
+   }
+  ],
+  "loop": false
+ },
+ "hit.blocked": {
+  "category": "impact",
+  "variants": [
+   {
+    "take": "a6a1ca66d08e#1",
+    "source_path": "sonniss_gdc/GDC2017/Double Trouble Audio - Medieval Armor and Impacts/Plate_Impact_Hard_02.wav"
+   }
+  ],
+  "loop": false
+ },
+ "hit.blunt.heavy": {
+  "category": "impact",
+  "variants": [
+   {
+    "take": "2aba933da572#1",
+    "source_path": "sonniss_gdc/GDC2019/Rock The Speakerbox - Melee/MELEE - DESIGNED - HEADBUTT Crack.wav"
+   },
+   {
+    "take": "2aba933da572#4",
+    "source_path": "sonniss_gdc/GDC2019/Rock The Speakerbox - Melee/MELEE - DESIGNED - HEADBUTT Crack.wav"
+   }
+  ],
+  "loop": false
+ },
+ "hit.blunt.light": {
+  "category": "impact",
+  "variants": [
+   {
+    "take": "a03c9b28a140#1",
+    "source_path": "sonniss_gdc/GDC2017/Gamemaster Audio -  Punch Sound Pack/punch_general_body_impact_03.wav"
+   }
+  ],
+  "loop": false
+ },
+ "hit.claw": {
+  "category": "impact",
+  "variants": [
+   {
+    "take": "635bbefc1262#1",
+    "source_path": "sonniss_gdc/GDC2020/Bluezone - Cave Creature Sound Effects/Bluezone_BC0272_creature_attack_whoosh_impact_003.wav"
+   }
+  ],
+  "loop": false
+ },
+ "hit.pierce": {
+  "category": "impact",
+  "variants": [
+   {
+    "take": "06b86244763b#1",
+    "source_path": "sonniss_gdc/GDC2016/Game Audio Factory - GAFSFX01 - Dark Materials/GAF SFX01 - HORROR - DESIGNED - stab_medium_10.wav"
+   }
+  ],
+  "loop": false
+ },
+ "hurt.hero": {
+  "category": "body",
+  "variants": [
+   {
+    "take": "024041387dd1#1",
+    "source_path": "sonniss_gdc/GDC2020/Shapeforms - Hit & Punch/IMPACT_LOW_THUD_10.wav"
+   }
+  ],
+  "loop": false
+ },
+ "illusion.spawn": {
+  "category": "status",
+  "variants": [
+   {
+    "take": "5ec6e7f68412#1",
+    "source_path": "sonniss_gdc/GDC2020/David Dumais Audio - Magic Sound FX Pack 1/Magic_Transformation03.wav"
+   }
+  ],
+  "loop": false
+ },
+ "map.hover": {
+  "category": "ui",
+  "variants": [
+   {
+    "take": "d69e1871a566#2",
+    "source_path": "sonniss_gdc/GDC2016/Sounds Hunter - Paper Sound Effects/Paper Handling and Turning Sequence.wav"
+   }
+  ],
+  "loop": false
+ },
+ "map.select": {
+  "category": "ui",
+  "variants": [
+   {
+    "take": "26f3ce60fbde#1",
+    "source_path": "kenney/rpg-audio/Audio/bookPlace1.ogg"
+   }
+  ],
+  "loop": false
+ },
+ "move.blink": {
+  "category": "spell",
+  "variants": [
+   {
+    "take": "b0155d884f78#1",
+    "source_path": "sonniss_gdc/GDC2018/Soundrangers - Whooshes And Transitions/morph_whoosh_13.wav"
+   }
+  ],
+  "loop": false
+ },
+ "omen.bane": {
+  "category": "stinger",
+  "variants": [
+   {
+    "take": "236c3f02a8c1#1",
+    "source_path": "sonniss_gdc/GDC2016/Bluezone - Scary Ambiences and Sound Effects/Bluezone-BC0217-impact-014.wav"
+   }
+  ],
+  "loop": false
+ },
+ "omen.blessing": {
+  "category": "stinger",
+  "variants": [
+   {
+    "take": "847f624edfa3#1",
+    "source_path": "sonniss_gdc/GDC2019/3maze - Zwoosh/swoosh_meta_L_R_006.wav"
+   }
+  ],
+  "loop": false
+ },
+ "pickup.gear": {
+  "category": "pickup",
+  "variants": [
+   {
+    "take": "44d4d6b0cda8#1",
+    "source_path": "opengameart/rpg-sound-pack/RPG Sound Pack/inventory/chainmail1.wav"
+   }
+  ],
+  "loop": false
+ },
+ "pickup.item": {
+  "category": "pickup",
+  "variants": [
+   {
+    "take": "f3143682525e#1",
+    "source_path": "sonniss_gdc/GDC2018/Gamemaster Audio - Punch and Combat Sounds/foley_object_grab_pickup_04.wav"
+   }
+  ],
+  "loop": false
+ },
+ "push.collision": {
+  "category": "impact",
+  "variants": [
+   {
+    "take": "1c4105509c28#1",
+    "source_path": "sonniss_gdc/GDC2018/The Chris Alan - Hand-to-Hand Combat - Body Hits & Vocal Excursions/Hand-to-Hand Combat - Body Hits - Body Slam Floor 08.wav"
+   }
+  ],
+  "loop": false
+ },
+ "relic.trigger": {
+  "category": "status",
+  "variants": [
+   {
+    "take": "a6e700faf7c5#1",
+    "source_path": "sonniss_gdc/GDC2015/Eiravaein Works - Start Select/StartSelect,UI,set3,pure,warm,simple,quick,tonal,deaction.wav"
+   }
+  ],
+  "loop": false
+ },
+ "shop.buy": {
+  "category": "pickup",
+  "variants": [
+   {
+    "take": "ecf18f859347#1",
+    "source_path": "sonniss_gdc/GDC2020/The Sound Pack Tree - Money/264604 - Stack Coin Bag 04.wav"
+   }
+  ],
+  "loop": false
+ },
+ "shop.sell": {
+  "category": "pickup",
+  "variants": [
+   {
+    "take": "66fc5c8e35a3#6",
+    "source_path": "sonniss_gdc/GDC2018/Effectsworks - COINAGE/Coins_Hand_Jingle_Movement_Takes_6.wav"
+   },
+   {
+    "take": "66fc5c8e35a3#3",
+    "source_path": "sonniss_gdc/GDC2018/Effectsworks - COINAGE/Coins_Hand_Jingle_Movement_Takes_6.wav"
+   }
+  ],
+  "loop": false
+ },
+ "shot.bow": {
+  "category": "body",
+  "variants": [
+   {
+    "take": "93600043464a#2",
+    "source_path": "sonniss_gdc/GDC2019/Rock The Speakerbox - Melee/MELEE - CK - ROPE WHOOSH Fast Light 01.wav"
+   }
+  ],
+  "loop": false
+ },
+ "spell.air": {
+  "category": "spell",
+  "variants": [
+   {
+    "take": "b043bd250f27#1",
+    "source_path": "sonniss_gdc/GDC2019/Articulated Sounds - Magic Elements vol.1/MAGIC AIR Large Whoosh, Swirl, Wind Gust, Foliage 01.wav"
+   }
+  ],
+  "loop": false
+ },
+ "spell.earth": {
+  "category": "spell",
+  "variants": [
+   {
+    "take": "fbe1ae1f569c#1",
+    "source_path": "sonniss_gdc/GDC2020/PMSFX - Rocky Impacts/PM_RI_Designed_19 Rocks Impact Hit Big LFE Heavy Designed.wav"
+   }
+  ],
+  "loop": false
+ },
+ "spell.fire": {
+  "category": "spell",
+  "variants": [
+   {
+    "take": "44a6dd54ddcf#1",
+    "source_path": "sonniss_gdc/GDC2020/David Dumais Audio - Magic Sound FX Pack 1/Magic_Explosion_Short19.wav"
+   }
+  ],
+  "loop": false
+ },
+ "spell.ice": {
+  "category": "spell",
+  "variants": [
+   {
+    "take": "2eb4176c9b7c#1",
+    "source_path": "sonniss_gdc/GDC2019/Articulated Sounds - Magic Elements vol.1/MAGIC ICE Whoosh, Ice Bloc, Debris 01.wav"
+   }
+  ],
+  "loop": false
+ },
+ "spell.lightning": {
+  "category": "spell",
+  "variants": [
+   {
+    "take": "00013f78ed4c#1",
+    "source_path": "sonniss_gdc/GDC2020/David Dumais Audio - Electricity Magic 1/Magic_Spells_CastShort_Electricity_General08.wav"
+   }
+  ],
+  "loop": false
+ },
+ "spell.shadow": {
+  "category": "spell",
+  "variants": [
+   {
+    "take": "dd1d0dd1c90e#1",
+    "source_path": "sonniss_gdc/GDC2019/Sound Spark LLC \u2013 Magic Spells, Buffs and Attacks/Dark_Spell_Life_Tap_03.wav"
+   }
+  ],
+  "loop": false
+ },
+ "status.bleed": {
+  "category": "status",
+  "variants": [
+   {
+    "take": "6abe00f2625a#1",
+    "source_path": "sonniss_gdc/GDC2015/Soundopolis - Gore Toolkit HD/Punch_Spurt Blood_Fienup_001.wav"
+   }
+  ],
+  "loop": false
+ },
+ "status.freeze": {
+  "category": "status",
+  "variants": [
+   {
+    "take": "090977264d65#1",
+    "source_path": "opengameart/ice-spells/coldsnap.wav"
+   }
+  ],
+  "loop": false
+ },
+ "status.shatter": {
+  "category": "status",
+  "variants": [
+   {
+    "take": "7934cec9d9b2#1",
+    "source_path": "sonniss_gdc/GDC2017/Articulated Sounds - Thin Ice/ICE Thin Smashed Brittle Fragments 55.wav"
+   }
+  ],
+  "loop": false
+ },
+ "status.shock": {
+  "category": "status",
+  "variants": [
+   {
+    "take": "4c27cc0903f7#1",
+    "source_path": "sonniss_gdc/GDC2020/Sound Spark LLC - Electric Arcs and Energy/Electric_Arc_Reverberant_Shock_Long_05.wav"
+   }
+  ],
+  "loop": false
+ },
+ "status.stagger": {
+  "category": "status",
+  "variants": [
+   {
+    "take": "c05215b30195#1",
+    "source_path": "sonniss_gdc/GDC2017/SoundBits - Just Impacts - Extension II/Misc_Hits_118.wav"
+   }
+  ],
+  "loop": false
+ },
+ "step.enemy.heavy": {
+  "category": "movement",
+  "variants": [
+   {
+    "take": "3524b2f6d692#1",
+    "source_path": "opengameart/80-cc0-creture-sfx-2/stomp_01.ogg"
+   }
+  ],
+  "loop": false
+ },
+ "step.enemy.light": {
+  "category": "movement",
+  "variants": [
+   {
+    "take": "327b491c264c#24",
+    "source_path": "sonniss_gdc/GDC2020/Joshua Reinhardt - Ultimate Creature Footstep and Movement Library/Paw 1_Wood_Trot-Walk.wav"
+   }
+  ],
+  "loop": false
+ },
+ "step.hero": {
+  "category": "movement",
+  "variants": [
+   {
+    "take": "a4e71651caf6#41",
+    "source_path": "sonniss_gdc/GDC2017/Tovusound - Edward \u2013 Foleyart Collection Add-On Extended Footsteps/015_Foley_Footsteps_Asphalt_Boot_Walk_Fast_Run_Jog_Close.wav"
+   },
+   {
+    "take": "a4e71651caf6#46",
+    "source_path": "sonniss_gdc/GDC2017/Tovusound - Edward \u2013 Foleyart Collection Add-On Extended Footsteps/015_Foley_Footsteps_Asphalt_Boot_Walk_Fast_Run_Jog_Close.wav"
+   },
+   {
+    "take": "a4e71651caf6#31",
+    "source_path": "sonniss_gdc/GDC2017/Tovusound - Edward \u2013 Foleyart Collection Add-On Extended Footsteps/015_Foley_Footsteps_Asphalt_Boot_Walk_Fast_Run_Jog_Close.wav"
+   }
+  ],
+  "loop": false
+ },
+ "surface.electric": {
+  "category": "spell",
+  "variants": [
+   {
+    "take": "7321232dcf97#1",
+    "source_path": "sonniss_gdc/GDC2020/David Dumais Audio - Magic Sound FX Pack 1/Magic_Bonus_ElectricityLoop33.wav"
+   }
+  ],
+  "loop": false
+ },
+ "surface.fire": {
+  "category": "spell",
+  "variants": [
+   {
+    "take": "c1eaafba3746#1",
+    "source_path": "opengameart/catching-fire/flame_0.ogg"
+   }
+  ],
+  "loop": false
+ },
+ "surface.ice": {
+  "category": "spell",
+  "variants": [
+   {
+    "take": "f22e76473283#2",
+    "source_path": "sonniss_gdc/GDC2018/Soundrangers - Foley Elements Ice and Snow/ice_freeze_crack_04.wav"
+   }
+  ],
+  "loop": false
+ },
+ "surface.rubble": {
+  "category": "spell",
+  "variants": [
+   {
+    "take": "f6dfa52e7106#1",
+    "source_path": "sonniss_gdc/GDC2018/Soundrangers - Foley Elements Rocks, Dirt And Stone/dirt_collapse_05.wav"
+   }
+  ],
+  "loop": false
+ },
+ "swing.heavy": {
+  "category": "body",
+  "variants": [
+   {
+    "take": "37d1a8893bf4#1",
+    "source_path": "sonniss_gdc/GDC2020/David Dumais Audio - Weapon Sounds - Weapon Swings/MeleeSwingsPack_96khz_Stereo_NormalSwings39.wav"
+   }
+  ],
+  "loop": false
+ },
+ "swing.light": {
+  "category": "body",
+  "variants": [
+   {
+    "take": "93600043464a#6",
+    "source_path": "sonniss_gdc/GDC2019/Rock The Speakerbox - Melee/MELEE - CK - ROPE WHOOSH Fast Light 01.wav"
+   },
+   {
+    "take": "93600043464a#1",
+    "source_path": "sonniss_gdc/GDC2019/Rock The Speakerbox - Melee/MELEE - CK - ROPE WHOOSH Fast Light 01.wav"
+   },
+   {
+    "take": "93600043464a#5",
+    "source_path": "sonniss_gdc/GDC2019/Rock The Speakerbox - Melee/MELEE - CK - ROPE WHOOSH Fast Light 01.wav"
+   }
+  ],
+  "loop": false
+ },
+ "vocal.beast": {
+  "category": "vocal",
+  "variants": [
+   {
+    "take": "ad35298a07ef#1",
+    "source_path": "sonniss_gdc/GDC2020/SmartSoundFX - Monsters/BEAST 01 Threaten Short 06.wav"
+   }
+  ],
+  "loop": false
+ }
+}

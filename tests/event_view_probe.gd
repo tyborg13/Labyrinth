@@ -15,7 +15,7 @@ const PROOF_OPEN_FRAME_SECONDS: float = 0.12
 const PROOF_READY_FRAMES: int = 240
 const PROOF_POST_DRAW_FRAMES: int = 2
 const PROOF_CONTRACT: Dictionary = {
-	"min_images": 7,
+	"min_images": 10,
 	"expected_sizes": ["1920x1080"],
 	"required_images": [
 		{"pattern": "*01_hanged_knight_choices.png", "width": 1920, "height": 1080, "regions": [{"rect": [166, 202, 930, 630], "min_luma_range": 8, "min_luma_stdev": 2}, {"rect": [1200, 202, 548, 675], "min_luma_range": 8, "min_luma_stdev": 2}]},
@@ -23,6 +23,9 @@ const PROOF_CONTRACT: Dictionary = {
 		{"pattern": "*03_name_collector_choices.png", "width": 1920, "height": 1080},
 		{"pattern": "*04_frozen_champion_disabled.png", "width": 1920, "height": 1080},
 		{"pattern": "*05_hanged_knight_result.png", "width": 1920, "height": 1080},
+		{"pattern": "*05b_moth_library_result.png", "width": 1920, "height": 1080},
+		{"pattern": "*05c_event_continue_reward.png", "width": 1920, "height": 1080},
+		{"pattern": "*05d_event_reward_map.png", "width": 1920, "height": 1080},
 		{"pattern": "*06_combat_omens_tooltip.png", "width": 1920, "height": 1080},
 		{"pattern": "*07_reduced_motion_open.png", "width": 1920, "height": 1080}
 	]
@@ -95,6 +98,20 @@ func _probe() -> void:
 	view = _scene.get("_event_view")
 	_expect(view.page == "result" and view.continue_button.has_focus(), "Hanged Knight result and Continue are shown")
 	await _capture("05_hanged_knight_result.png", "hanged_knight")
+	await _present(Suite.fixture("moth_library", true))
+	view = _scene.get("_event_view")
+	view.choices[0].pressed.emit()
+	await create_timer(PROOF_SETTLE_SECONDS).timeout
+	_expect(view.page == "result" and str(_scene.get("_run_state")["event_state"]["choice_id"]) == "search", "Moth-Eaten Library search shows its result before Continue")
+	await _capture("05b_moth_library_result.png", "moth_library")
+	view.continue_button.pressed.emit()
+	await Suite.wait_for_close(view)
+	_expect(not view.visible and str(_scene.get("_run_state")["mode"]) == "reward" and str(_scene.get("_run_state")["pending_reward"]["kind"]) == "event", "Continue closes the event and exposes its card reward")
+	_expect(not bool(_scene.get("_large_map_scrim").visible), "Map stays closed while the event card reward is pending")
+	await _capture("05c_event_continue_reward.png")
+	await _present(Run.new().skip_reward_for_heal(_scene.get("_run_state")))
+	_expect(str(_scene.get("_run_state")["mode"]) == "room" and bool(_scene.get("_large_map_scrim").visible), "Map reopens after the event card reward is skipped")
+	await _capture("05d_event_reward_map.png")
 	var combat: Dictionary = Suite.combat_fixture()
 	_expect(str(combat.get("mode", "")) == "combat", "Proof state is real combat")
 	await _present(combat)

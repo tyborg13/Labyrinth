@@ -149,7 +149,8 @@ static func _walk_layout(rng: RandomNumberGenerator, count: int) -> Dictionary:
 				for candidate: int in range(4):
 					if candidate != int(walks[0][0]): alternatives.append(candidate)
 				lane = alternatives[rng.randi_range(0, alternatives.size() - 1)]
-			var walk: Array[int] = [lane]
+			var walk: Array[int] = []
+			walk.assign([lane])
 			for step: int in range(1, count - 1):
 				var moves: Array[int] = _walk_moves(lane, _coords(edges.get(step, [])))
 				var next_lane: int = lane if moves.is_empty() else moves[rng.randi_range(0, moves.size() - 1)]
@@ -330,7 +331,8 @@ static func _straight_fallback_walks(count: int) -> Array:
 static func _fallback_layout(count: int, fights: int) -> Dictionary:
 	var layout: Dictionary = _layout_from_walks(_straight_fallback_walks(count), count)
 	_prepare_types(layout, 0, 0, count)
-	var fight_steps: Array[int] = [1, 2, 3]
+	var fight_steps: Array[int] = []
+	fight_steps.assign([1, 2, 3])
 	for step: int in range(5, count - 1):
 		if step != ceili(count / 2.0) and fight_steps.size() < fights: fight_steps.append(step)
 	for cell: Vector2i in layout["order"]:
@@ -394,7 +396,8 @@ static func _initialize_revision_3(state: Dictionary) -> void:
 		var info: Dictionary = {"index": index, "boss_id": boss_id, "title": Bosses.room_name_for_boss(boss_id), "entry": entry, "boss": boss, "room_count": count, "fight_count": FIGHT_COUNTS[index], "scouts": 2, "entered": false}
 		sections.append(info)
 		rooms[key(entry)] = _node(entry, index, 0, 1, index * 4, "start", "none")
-		var previous: Array[Vector2i] = [entry]
+		var previous: Array[Vector2i] = []
+		previous.assign([entry])
 		var slots: Dictionary = {}
 		var step: int = 1
 		var landmark_groups: Dictionary = {}
@@ -423,7 +426,8 @@ static func _initialize_revision_3(state: Dictionary) -> void:
 					elif step + offset == count - 1:
 						types.append("campfire")
 					else:
-						var services: Array[String] = ["treasure", "scavenger", "event"]
+						var services: Array[String] = []
+						services.assign(["treasure", "scavenger", "event"])
 						types.append(services[posmod(index + group + branch + rng.randi_range(0, 2), 3)])
 				# Each branch has the same combat burden but a different service/order.
 				for offset: int in range(types.size() - 1, 0, -1):
@@ -566,8 +570,10 @@ static func _connect_groups(rooms: Dictionary, sources: Array[Vector2i], targets
 
 static func descendants(state: Dictionary, start: Vector2i, max_hops: int = 99) -> Dictionary:
 	var result: Dictionary = {}
-	var queue: Array[Vector2i] = [start]
-	var distances: Array[int] = [0]
+	var queue: Array[Vector2i] = []
+	queue.assign([start])
+	var distances: Array[int] = []
+	distances.assign([0])
 	var source_section: int = int(room(state, start).get("section_index", -1))
 	while not queue.is_empty():
 		var coord: Vector2i = queue.pop_front()

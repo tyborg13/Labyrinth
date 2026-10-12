@@ -64,6 +64,8 @@ const MoltExchangeFeedback = preload("res://scripts/molt_exchange_feedback.gd")
 const GraftwrightView = preload("res://scripts/graftwright_view.gd")
 const ScavengerShopView = preload("res://scripts/scavenger_shop_view.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
+const IntentBadges = preload("res://scripts/intent_badges.gd")
+const IntentCallouts = preload("res://scripts/intent_callouts.gd")
 const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
 const EnemyShadowDissolveEffect = preload("res://scripts/enemy_shadow_dissolve_effect.gd")
 const BoardFraming = preload("res://scripts/board_framing.gd")
@@ -1373,6 +1375,8 @@ var _pass_preview_warm_generation: int = 0
 var _pass_preview_warm_active: bool = false
 var _pass_preview_warm_key: String = ""
 var _hover_resolved_preview_key: String = ""
+var _intent_badges := IntentBadges.new()
+var _intent_callouts := IntentCallouts.new()
 var _hover_resolved_preview_state: Dictionary = {}
 var _stage_visibility_cache_key: String = ""
 var _stage_visibility_cache: Dictionary = {}
@@ -17898,6 +17902,7 @@ func _refresh_stage_view() -> void:
 	presentation["board_framing_mode"] = "combat" if run_mode in ["combat", "defeat"] or post_combat_board_visible else "room"
 	presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	presentation["hud_obstacle_global_rects"] = _board_hud_obstacles(display_state)
+	presentation["boss_header_global_rect"] = _boss_health_overlay.get_global_rect() if _boss_health_overlay != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
 	presentation["status_typography_role"] = _board_status_typography_role()
 	presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	presentation["board_fit_rect"] = _board_fit_rect()
@@ -18029,6 +18034,10 @@ func _refresh_stage_view() -> void:
 			presentation["expanded_enemy_actor_keys"] = [_turn_order_hovered_enemy_key]
 			presentation["focus_actor_keys"] = [_turn_order_hovered_enemy_key]
 			presentation["focus_actor_color"] = Color("f2ddb2")
+		var rest_preview: Dictionary = _enemy_intent_preview_state(display_state)
+		var rest_focus: String = str((_enemy_threat_at_tile(display_state, intent_focus_tile) if enemy_hover_active else {}).get("enemy_key", _turn_order_hovered_enemy_key))
+		presentation["threats_at_rest"] = _intent_badges.presentation_for_state(_combat_engine, _combat_state, rest_preview, rest_focus, _surface_preview_information_state.bind(rest_preview))
+		_intent_callouts.observe(_combat_engine, _combat_state)
 		presentation["show_all_enemy_intents"] = render_all_enemy_intents
 	performance_phase_started = _record_runtime_performance_phase("stage_preview_presentation_total", performance_phase_started)
 	if not _animation_lock and str(_run_state.get("mode", "room")) == "room" and _hovered_board_tile.x >= 0 and _exit_destinations_by_tile.has(_hovered_board_tile):
@@ -21985,12 +21994,12 @@ func _refresh_enemy_intent_toggle() -> void:
 	_enemy_intent_toggle_button.visible = in_combat
 	_enemy_intent_toggle_button.disabled = not in_combat or _animation_lock
 	_enemy_intent_toggle_button.set_pressed_no_signal(_show_all_enemy_intents)
-	_enemy_intent_toggle_button.text = "INTENTS ON [I]" if _show_all_enemy_intents else "INTENTS [I]"
+	_enemy_intent_toggle_button.text = "DETAILS [I]"
 	_enemy_intent_toggle_button.call("refresh_state")
 	_enemy_intent_toggle_button.tooltip_text = (
-		"Hide all enemy intents and threat previews [I]"
+		"Hide full plans [I]"
 		if _show_all_enemy_intents
-		else "Show all enemy intents and threat previews [I]"
+		else "Show every enemy's full plan [I]"
 	)
 
 func _map_shortcut_can_open() -> bool:
@@ -24374,7 +24383,7 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> void:
 	if steps.is_empty():
 		return
-	for step_var: Variant in steps:
+	for step_var: Variant in _intent_callouts.decorate_steps(_combat_engine, animated_state, steps):
 		var step: Dictionary = (step_var as Dictionary).duplicate(false)
 		var dragon_actor: Dictionary = _animation_actor_unit(animated_state,str(step.get("actor_key","")))
 		if str(dragon_actor.get("type","")) in preload("res://scripts/dragon_presentation.gd").TYPES:
@@ -24390,6 +24399,8 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 		var step_actor_key: String = str(step.get("actor_key", ""))
 		var step_actor_tile: Vector2i = step.get("tile", step.get("from", Vector2i(-1, -1)))
 		match str(step.get("kind", "")):
+			"intent_callout":
+				await IntentCallouts.play(self, animated_state, step)
 			"reinforcement_spawn":
 				await _animate_reinforcement_spawn(animated_state, step)
 			"turn_order":
@@ -25826,6 +25837,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	rendered_presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	rendered_presentation["status_typography_role"] = _board_status_typography_role()
 	rendered_presentation["hud_obstacle_global_rects"] = _board_hud_obstacles(display_state)
+	rendered_presentation["boss_header_global_rect"] = _boss_health_overlay.get_global_rect() if _boss_health_overlay != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
 	rendered_presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	rendered_presentation["board_fit_rect"] = _board_fit_rect()
 	rendered_presentation["board_encounter_types"] = _board_encounter_types()

@@ -1,0 +1,306 @@
+{
+ "ambience.stone": {
+  "label": "none",
+  "note": "B is probably closest but the dripping water or whatever that occassional sound is, is probably too much."
+ },
+ "block.break": {
+  "label": "none",
+  "note": "Not sure that any actually convey that the block is being broken."
+ },
+ "block.gain": {
+  "label": "C",
+  "note": ""
+ },
+ "card.exhaust": {
+  "label": "A",
+  "note": ""
+ },
+ "card.hover": {
+  "label": "D",
+  "note": ""
+ },
+ "card.invalid": {
+  "label": "C",
+  "note": ""
+ },
+ "card.select": {
+  "label": "C",
+  "note": ""
+ },
+ "cast.arcane": {
+  "label": "A",
+  "note": ""
+ },
+ "crate.break": {
+  "label": "C",
+  "note": ""
+ },
+ "crate.hit": {
+  "label": "B",
+  "note": ""
+ },
+ "death.avian": {
+  "label": "B",
+  "note": ""
+ },
+ "death.beast": {
+  "label": "C",
+  "note": ""
+ },
+ "death.bone": {
+  "label": "C",
+  "note": ""
+ },
+ "death.dragon": {
+  "label": "D",
+  "note": ""
+ },
+ "death.hero": {
+  "label": "D",
+  "note": ""
+ },
+ "death.humanoid": {
+  "label": "B",
+  "note": ""
+ },
+ "death.ooze": {
+  "label": "A",
+  "note": ""
+ },
+ "death.spirit": {
+  "label": "D",
+  "note": ""
+ },
+ "death.stone": {
+  "label": "C",
+  "note": ""
+ },
+ "deck.shuffle": {
+  "label": "A",
+  "note": ""
+ },
+ "defiance": {
+  "label": "A",
+  "note": ""
+ },
+ "dragon.roar": {
+  "label": "B",
+  "note": ""
+ },
+ "dragon.wings": {
+  "label": "A",
+  "note": ""
+ },
+ "event.choose": {
+  "label": "C",
+  "note": ""
+ },
+ "fatigue": {
+  "label": "A",
+  "note": ""
+ },
+ "heal": {
+  "label": "A",
+  "note": ""
+ },
+ "hit.arcane": {
+  "label": "A",
+  "note": ""
+ },
+ "hit.blade.heavy": {
+  "label": "B",
+  "note": ""
+ },
+ "hit.blade.light": {
+  "label": "C",
+  "note": ""
+ },
+ "hit.blocked": {
+  "label": "D",
+  "note": ""
+ },
+ "hit.blunt.heavy": {
+  "label": "A",
+  "note": ""
+ },
+ "hit.blunt.light": {
+  "label": "C",
+  "note": ""
+ },
+ "hit.claw": {
+  "label": "A",
+  "note": ""
+ },
+ "hit.pierce": {
+  "label": "D",
+  "note": ""
+ },
+ "hurt.hero": {
+  "label": "A",
+  "note": ""
+ },
+ "illusion.break": {
+  "label": "none",
+  "note": "Maybe a subset of D, but it's like 20 seconds"
+ },
+ "illusion.spawn": {
+  "label": "A",
+  "note": ""
+ },
+ "map.hover": {
+  "label": "A",
+  "note": ""
+ },
+ "map.select": {
+  "label": "B",
+  "note": ""
+ },
+ "move.blink": {
+  "label": "B",
+  "note": ""
+ },
+ "omen.bane": {
+  "label": "D",
+  "note": ""
+ },
+ "omen.blessing": {
+  "label": "A",
+  "note": ""
+ },
+ "pickup.gear": {
+  "label": "B",
+  "note": ""
+ },
+ "pickup.item": {
+  "label": "A",
+  "note": ""
+ },
+ "push.collision": {
+  "label": "A",
+  "note": ""
+ },
+ "push.slide": {
+  "label": "none",
+  "note": "these are all too specific. Like rocks or heavy objects getting slid around."
+ },
+ "radiance.light": {
+  "label": "none",
+  "note": "C is probably closest, but I don't think any quite do it"
+ },
+ "relic.trigger": {
+  "label": "B",
+  "note": ""
+ },
+ "shop.buy": {
+  "label": "C",
+  "note": ""
+ },
+ "shop.sell": {
+  "label": "D",
+  "note": ""
+ },
+ "shot.bow": {
+  "label": "C",
+  "note": ""
+ },
+ "shot.crossbow": {
+  "label": "none",
+  "note": "Maybe reuse bow sound. None of these work that well imo."
+ },
+ "spell.air": {
+  "label": "A",
+  "note": ""
+ },
+ "spell.earth": {
+  "label": "A",
+  "note": ""
+ },
+ "spell.fire": {
+  "label": "none",
+  "note": "I actually think that option C of the last sample works better than any of these. None of these quite fit imo."
+ },
+ "spell.ice": {
+  "label": "B",
+  "note": ""
+ },
+ "spell.lightning": {
+  "label": "A",
+  "note": ""
+ },
+ "spell.shadow": {
+  "label": "A",
+  "note": ""
+ },
+ "status.bleed": {
+  "label": "A",
+  "note": ""
+ },
+ "status.expose": {
+  "label": "none",
+  "note": "not sure what this should sound like, but I don't think these are it"
+ },
+ "status.freeze": {
+  "label": "D",
+  "note": ""
+ },
+ "status.shatter": {
+  "label": "D",
+  "note": ""
+ },
+ "status.shock": {
+  "label": "A",
+  "note": ""
+ },
+ "status.stagger": {
+  "label": "B",
+  "note": ""
+ },
+ "step.enemy.heavy": {
+  "label": "C",
+  "note": ""
+ },
+ "step.enemy.light": {
+  "label": "A",
+  "note": ""
+ },
+ "step.hero": {
+  "label": "A",
+  "note": ""
+ },
+ "stoneskin.gain": {
+  "label": "none",
+  "note": "they're all kind of weird sounding, feel like it will be out of place in game. Maybe we just use the block sound here too?"
+ },
+ "surface.electric": {
+  "label": "B",
+  "note": ""
+ },
+ "surface.fire": {
+  "label": "B",
+  "note": ""
+ },
+ "surface.ice": {
+  "label": "A",
+  "note": ""
+ },
+ "surface.rubble": {
+  "label": "A",
+  "note": ""
+ },
+ "swing.heavy": {
+  "label": "D",
+  "note": ""
+ },
+ "swing.light": {
+  "label": "C",
+  "note": ""
+ },
+ "trap.trigger": {
+  "label": "none",
+  "note": "these all sound like locks being opened, not an elemental floor trap being triggered"
+ },
+ "vocal.beast": {
+  "label": "A",
+  "note": ""
+ }
+}
