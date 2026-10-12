@@ -7,6 +7,7 @@ extends Control
 # particle system that stops entirely under reduced motion.
 
 const SettingsStore = preload("res://scripts/settings_store.gd")
+const Biomes = preload("res://scripts/biome_library.gd")
 
 const ATMOSPHERE_SHADER_CODE: String = """
 shader_type canvas_item;
@@ -49,6 +50,7 @@ var _material: ShaderMaterial
 var _motes: CPUParticles2D
 var _sample_elapsed: float = 0.0
 var _motion_enabled: bool = true
+var _biome_id: String = "stone"
 
 func _ready() -> void:
 	name = "CombatAtmosphere"
@@ -64,11 +66,55 @@ func _ready() -> void:
 	_material.shader = shader
 	_shade.material = _material
 	add_child(_shade)
-	_motes = build_motes(MOTE_COUNT)
+	var atmosphere: Dictionary = Biomes.atmosphere(_biome_id)
+	_material.set_shader_parameter("pool_color", Biomes.color(atmosphere["pool_color"]))
+	_motes = build_preset_motes(str(atmosphere["motes"]))
 	add_child(_motes)
 	resized.connect(_on_resized)
 	_on_resized()
 	set_motion_enabled(not SettingsStore.applied_reduced_motion_enabled())
+
+func set_biome(id: String) -> void:
+	if _biome_id == id:
+		return
+	_biome_id = id
+	_apply_biome()
+
+func _apply_biome() -> void:
+	if _material == null or _motes == null:
+		return
+	var preset: Dictionary = Biomes.atmosphere(_biome_id)
+	_material.set_shader_parameter("pool_color", Biomes.color(preset["pool_color"]))
+	var previous: CPUParticles2D = _motes
+	_motes = build_preset_motes(str(preset["motes"]))
+	remove_child(previous)
+	previous.queue_free()
+	add_child(_motes)
+	_on_resized()
+	set_motion_enabled(_motion_enabled)
+
+static func build_preset_motes(name: String) -> CPUParticles2D:
+	var preset: Dictionary = Biomes.mote_preset(name)
+	if preset.is_empty():
+		return build_motes(MOTE_COUNT)
+	var motes: CPUParticles2D = build_motes(int(preset["count"]))
+	motes.lifetime = float(preset["lifetime"])
+	motes.preprocess = motes.lifetime
+	var direction: Array = preset["direction"]
+	motes.direction = Vector2(float(direction[0]), float(direction[1]))
+	motes.spread = float(preset["spread"])
+	motes.initial_velocity_min = float(preset["speed"][0])
+	motes.initial_velocity_max = float(preset["speed"][1])
+	# The director's legacy marker retains the exact authored RGB/alpha ramp
+	# and white particle modulation; all motion fields still come from data.
+	if str(preset.get("color_ramp", "")) == "legacy":
+		return motes
+	motes.color = Biomes.color(preset["color"])
+	# Use the existing temporal opacity envelope without its ember RGB tint.
+	for index: int in range(motes.color_ramp.get_point_count()):
+		var old: Color = motes.color_ramp.get_color(index)
+		motes.color_ramp.set_color(index, Color(1.0, 1.0, 1.0, old.a))
+	return motes
 
 func set_motion_enabled(enabled: bool) -> void:
 	_motion_enabled = enabled

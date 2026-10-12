@@ -41,6 +41,7 @@ const DialogueEngineScript = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const EmberRewardFeedback = preload("res://scripts/ember_reward_feedback.gd")
 const CombatAtmosphereScript = preload("res://scripts/combat_atmosphere.gd")
+const Biomes = preload("res://scripts/biome_library.gd")
 const UiPalette = preload("res://scripts/ui_palette.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
 const HudSeatScrimScript = preload("res://scripts/hud_seat_scrim.gd")
@@ -17841,6 +17842,7 @@ func _refresh_stage_view() -> void:
 	presentation["board_fit_rect"] = _board_fit_rect()
 	presentation["board_encounter_types"] = _board_encounter_types()
 	presentation["board_backdrop_visible"] = _board_backdrop_visible_for_board()
+	_apply_biome_presentation(presentation)
 	performance_phase_started = _record_runtime_performance_phase("stage_base", performance_phase_started)
 	if (str(_run_state.get("mode", "room")) == "combat" or post_combat_board_visible) and not display_state.is_empty():
 		var visibility_presentation: Dictionary = _stage_visibility_presentation(visibility_state)
@@ -18018,6 +18020,12 @@ func _refresh_stage_view() -> void:
 	_refresh_boss_health_overlay(display_state, presentation)
 	_record_runtime_performance_phase("stage_boss_overlay", performance_phase_started)
 	_record_runtime_performance_phase("stage_total", performance_total_started)
+
+func _apply_biome_presentation(target: Dictionary) -> void:
+	var id: String = Biomes.biome_for_run(_run_state, _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO)))
+	target["biome_id"] = id
+	if board_backdrop != null: board_backdrop.modulate = Biomes.backdrop_modulate(id)
+	if _combat_atmosphere != null: _combat_atmosphere.call("set_biome", id)
 
 func _stage_chrome_presentation() -> Dictionary:
 	# Pointer hovers cannot change room props, doors, or equipment. These values
@@ -25741,6 +25749,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	rendered_presentation["board_fit_rect"] = _board_fit_rect()
 	rendered_presentation["board_encounter_types"] = _board_encounter_types()
 	rendered_presentation["board_backdrop_visible"] = _board_backdrop_visible_for_board()
+	_apply_biome_presentation(rendered_presentation)
 	rendered_presentation["controller_combat_navigation"] = _controller_is_active() and str(_run_state.get("mode", "room")) == "combat"
 	rendered_presentation["controller_hand_focused"] = _controller_hand_focused
 	rendered_presentation["reduced_motion"] = _reduced_motion_enabled()

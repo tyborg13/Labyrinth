@@ -61,6 +61,8 @@ var _vyraketh_renderers: Dictionary = {}
 var _zekarion_renderers: Dictionary = {}
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
+const Biomes = preload("res://scripts/biome_library.gd")
+const BiomeLighting = preload("res://scripts/combat_lighting_profiles.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
 const ElementalSpellFx = preload("res://scripts/elemental_spell_fx.gd")
@@ -556,6 +558,8 @@ var _navigation_pan_active: bool = false
 var _last_pointer_position: Vector2 = Vector2.ZERO
 var _tile_textures: Dictionary = {}
 var _floor_texture_variants: Dictionary = {}
+var _biome_id: String = "stone"
+var _biome_light_color: Color = COLUMN_TORCH_FLOOR_LIGHT_COLOR
 var _floor_variant_by_tile: Dictionary = {}
 var _element_overlay_texture_variants: Dictionary = {}
 var _moss_tiles_by_surface: Dictionary = {}
@@ -1851,7 +1855,7 @@ func _sync_static_render_cache() -> void:
 		"_floor_variant_by_tile", "_moss_tiles_by_surface", "_board_layout_signature",
 		"_board_visual_framing_signature", "_board_layout_cache_visual_top_offset",
 		"_floor_variant_signature", "_moss_signature", "_tile_textures",
-		"_floor_texture_variants", "_element_overlay_texture_variants", "_pillar_torch_light_texture", "_art_treatment", "_art_treatment_enabled"
+		"_floor_texture_variants", "_element_overlay_texture_variants", "_pillar_torch_light_texture", "_art_treatment", "_art_treatment_enabled", "_biome_id", "_biome_light_color"
 	]:
 		_static_render_cache_layer.set(field, get(field))
 	# Layout depends on the real viewport and UI safe area. A SubViewport must
@@ -1885,6 +1889,7 @@ func _static_floor_inputs(cache_size: Vector2i, pixel_transform: Transform2D) ->
 		"tile_textures": _tile_textures, "floor_textures": _floor_texture_variants,
 		"element_textures": _element_overlay_texture_variants,
 		"torch_texture": _pillar_torch_light_texture,
+		"biome_light_color": _biome_light_color,
 	}
 
 func set_static_render_cache_enabled(enabled: bool) -> void:
@@ -2137,7 +2142,7 @@ func _sync_dynamic_render_assets() -> void:
 	var layers: Array = _retained_render_layers()
 	var bindings: Dictionary = {}
 	for field: String in [
-			"_tile_textures", "_floor_texture_variants", "_element_overlay_texture_variants",
+			"_tile_textures", "_floor_texture_variants", "_element_overlay_texture_variants", "_biome_id", "_biome_light_color",
 			"_prop_textures", "_scene_prop_textures", "_scene_prop_idle_frames",
 			"_pillar_torch_idle_frames", "_pillar_torch_light_texture", "_effect_textures", "_effect_frames",
 			"_projectile_atlas", "_projectile_textures", "_ambient_particle_atlas",
@@ -2746,6 +2751,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	# layers (unit tests and callers can submit state while the view is detached).
 	# Live views already pay this exact diff cost for selective redraw routing.
 	var presentation_changes: Dictionary = _changed_presentation_keys(presentation, next_presentation)
+	var biome_changed: bool = _biome_id != str(next_presentation.get("biome_id", Biomes.default_biome()))
 	var surface_redraw_tiles: Array[Vector2i] = BoardSurfaceRenderDependencies.changed_tiles(presentation, next_presentation, presentation_changes)
 	var previous_damage_preview: Dictionary = {}
 	var moving_actor_keys: Dictionary = {}
@@ -2826,7 +2832,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var visual_framing_changed: bool = false
 	var floor_changed: bool = next_floor_signature != _floor_variant_signature
 	var moss_changed: bool = next_moss_signature != _moss_signature
-	var static_presentation_changed: bool = presentation_changes.has("board_backdrop_visible") or presentation_changes.has("scene_props") or combat_render_changes.has("room_element")
+	var static_presentation_changed: bool = biome_changed or presentation_changes.has("board_backdrop_visible") or presentation_changes.has("scene_props") or combat_render_changes.has("room_element")
 	submission_phase_started = _record_submission_performance_phase("signatures", submission_phase_started)
 	var previous_transition_state: Dictionary = previous_combat_render_source if same_reference_state_mutation else combat_state
 	_update_umbra_return_transition(previous_transition_state, presentation, next_state, next_presentation, layout_changed)
@@ -2850,6 +2856,12 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	exit_tiles = next_exit_tiles
 	exit_icon_ids = next_exit_icon_ids
 	presentation = next_presentation
+	if biome_changed:
+		_biome_id = str(presentation.get("biome_id", Biomes.default_biome()))
+		_biome_light_color = Biomes.light_color(_biome_id)
+		if not _tile_textures.is_empty(): _load_base_floor_assets()
+		if not _prop_textures.is_empty(): _load_biome_prop_assets()
+		if not _pillar_torch_idle_frames.is_empty(): _load_pillar_idle_assets()
 	_update_impact_camera_shake()
 	var previous_registrations: Dictionary = _cutout_floor_registrations()
 	# A pose-only submission affects its addressed family. Other persistent
@@ -3050,6 +3062,9 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		_sync_scene_render_layers()
 		_sync_dynamic_render_assets()
 	var retained_sync_fields: Array = []
+	if biome_changed:
+		_sync_dynamic_render_assets()
+		retained_sync_fields.append_array(["_biome_id", "_biome_light_color"])
 	if not layout_changed and not visual_framing_changed:
 		if state_changed:
 			retained_sync_fields.append_array([
@@ -3112,7 +3127,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	if layout_changed or visual_framing_changed or floor_changed or moss_changed or static_presentation_changed or _dynamic_render_layer == null:
 		_sync_static_render_cache()
 		queue_redraw()
-	if layout_changed or visual_framing_changed or floor_changed or moss_changed:
+	if biome_changed or layout_changed or visual_framing_changed or floor_changed or moss_changed:
 		_explicit_effects_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_explicit_impact_redraw_process_frame = _coalescible_explicit_redraw_frame()
 		_queue_dynamic_redraw()
@@ -6480,6 +6495,7 @@ func _sync_art_lighting() -> void:
 			sources.push_front({"point": ground, "height": rect.size.y * 0.55,
 				"radius": _tile_width() * 3.2, "color": Color(1.0, 0.62, 0.30, 1.1)})
 	_art_treatment.configure(sources, str(combat_state.get("room_element", "")), bool(presentation.get("reduced_motion", false)))
+	BiomeLighting.apply_biome(_art_treatment, _biome_id)
 
 func _draw_world_texture(texture: Texture2D, rect: Rect2, tint: Color = Color.WHITE, profile: int = CombatArtTreatment.PROP, source: Rect2 = Rect2()) -> void:
 	if _art_treatment == null or profile == 0:
@@ -6549,7 +6565,7 @@ func _draw_floor_tile(grid: Array, tile: Vector2i) -> void:
 func _draw_pillar_torch_floor_light(grid: Array, tile: Vector2i, polygon: PackedVector2Array) -> void:
 	if _pillar_torch_light_texture == null or not _tile_drawn_as_floor(grid, tile):
 		return
-	var light_color: Color = COLUMN_TORCH_FLOOR_LIGHT_COLOR
+	var light_color: Color = _biome_light_color
 	if _art_treatment_enabled and _art_treatment != null:
 		light_color.a *= _art_treatment.local_light_scale
 	var light_size := Vector2(_tile_width() * 3.2, _tile_height() * 3.2)
@@ -14111,20 +14127,20 @@ func _load_board_style_assets() -> void:
 	}
 
 func _load_base_floor_assets() -> void:
-	var stone_floor_variants: Array[Texture2D] = _load_floor_variants(STONE_FLOOR_VARIANT_PATHS)
+	var stone_floor_variants: Array[Texture2D] = Biomes.floor_textures(_biome_id)
 	_tile_textures = {
 		"stone": stone_floor_variants[0] if not stone_floor_variants.is_empty() else AssetLoader.load_texture("res://assets/art/tiles/stone.png"),
 		"ember": AssetLoader.load_texture("res://assets/art/tiles/ember.png")
 	}
 	_floor_texture_variants = {"stone": stone_floor_variants}
-	_element_overlay_texture_variants = {}
+	# Biome replacement must retain already prepared elemental overlays.
 
 func _load_floor_overlay_assets(element: String, surface: String, paths: PackedStringArray) -> void:
 	if not _element_overlay_texture_variants.has(element): _element_overlay_texture_variants[element] = {}
 	_element_overlay_texture_variants[element][surface] = _load_floor_variants(paths)
 
 func _load_board_prop_assets() -> void:
-	var pillar_texture: Texture2D = AssetLoader.trim_texture_to_used_rect(AssetLoader.load_texture("res://assets/placeholders/tiles/pillar.png"))
+	var pillar_texture: Texture2D = Biomes.trimmed_pillar_texture(_biome_id)
 	var wall_row_texture: Texture2D = AssetLoader.trim_texture_to_used_rect(AssetLoader.load_texture("res://assets/placeholders/tiles/wall.png"))
 	var door_texture: Texture2D = AssetLoader.load_texture("res://assets/placeholders/tiles/door.png")
 	_prop_textures = {
@@ -14135,8 +14151,8 @@ func _load_board_prop_assets() -> void:
 		"door": door_texture,
 		"door_row": door_texture,
 		"door_col": AssetLoader.flip_texture_h(door_texture),
-		"column_torch_left": AssetLoader.load_texture(COLUMN_TORCH_LEFT_PATH),
-		"column_torch_right": AssetLoader.load_texture(COLUMN_TORCH_RIGHT_PATH)
+		"column_torch_left": Biomes.light_texture(_biome_id, "left"),
+		"column_torch_right": Biomes.light_texture(_biome_id, "right")
 	}
 
 func _load_scene_prop_assets() -> void:
@@ -14147,6 +14163,11 @@ func _load_scene_prop_assets() -> void:
 		"relic_chest": AssetLoader.load_texture(RELIC_CHEST_PATH),
 		"scavenger_stall": AssetLoader.load_texture(SCAVENGER_STALL_PATH)
 	}
+
+func _load_biome_prop_assets() -> void:
+	_prop_textures["pillar"] = Biomes.trimmed_pillar_texture(_biome_id)
+	_prop_textures["column_torch_left"] = Biomes.light_texture(_biome_id, "left")
+	_prop_textures["column_torch_right"] = Biomes.light_texture(_biome_id, "right")
 
 func _load_scene_prop_idle_assets() -> void:
 	_scene_prop_idle_frames = {
@@ -14159,16 +14180,8 @@ func _load_scene_prop_idle_assets() -> void:
 
 func _load_pillar_idle_assets() -> void:
 	_pillar_torch_idle_frames = {
-		"left": _load_sprite_sheet_frames(
-			COLUMN_TORCH_LEFT_IDLE_PATH,
-			COLUMN_TORCH_IDLE_COLUMNS,
-			COLUMN_TORCH_IDLE_ROWS
-		),
-		"right": _load_sprite_sheet_frames(
-			COLUMN_TORCH_RIGHT_IDLE_PATH,
-			COLUMN_TORCH_IDLE_COLUMNS,
-			COLUMN_TORCH_IDLE_ROWS
-		)
+		"left": Biomes.light_idle_frames(_biome_id, "left"),
+		"right": Biomes.light_idle_frames(_biome_id, "right")
 	}
 
 func _load_board_effect_assets() -> void:

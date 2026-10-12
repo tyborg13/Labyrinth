@@ -85,6 +85,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="Enable Steam only for the final interactive launch; fixture generation and verification remain deterministic.",
     )
     parser.add_argument("--dry-run", action="store_true", help="Print commands without running Godot.")
+    parser.add_argument("--biome", default="", help="Force a presentation biome for inspection; never saved.")
     return parser
 
 
@@ -92,6 +93,8 @@ def main(argv: list[str] | None = None) -> int:
     raw_args = list(sys.argv[1:] if argv is None else argv)
     parser = build_parser()
     args, fixture_args = parser.parse_known_args(raw_args)
+    if args.biome:
+        fixture_args.extend(["--biome", args.biome])
     project = Path(args.project).expanduser().resolve()
     task_id = slugify(args.task_id or infer_task_id(project))
     run_id = slugify(args.run_id or f"{task_id}-inspection")
@@ -153,6 +156,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.allow_steam:
         direct_launch_command.append("--allow-steam")
     direct_launch_command.extend(["--", args.godot, "--path", "."])
+    if args.biome:
+        direct_launch_command.extend(["--", "--biome", args.biome])
     manifest_path = Path(args.manifest).expanduser().resolve() if args.manifest else (
         Path("/private/tmp/labyrinth-inspection-manifests") / (run_id + ".json")
     )
