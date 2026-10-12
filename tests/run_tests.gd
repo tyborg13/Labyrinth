@@ -115,6 +115,7 @@ func _initialize() -> void:
 	ReachRebalanceSuite.run(Callable(self, "_assert"))
 	EnemyIntentPreviewSuite.run(Callable(self, "_assert"))
 	preload("res://tests/suites/guardian_suite.gd").run(Callable(self, "_assert"))
+	preload("res://tests/suites/run_score_suite.gd").run(Callable(self, "_assert"))
 	preload("res://tests/suites/ground_targeting_suite.gd").run(Callable(self, "_assert"))
 	preload("res://tests/suites/card_pool_overhaul_suite.gd").run(Callable(self, "_assert"))
 	preload("res://tests/suites/combat_outcome_feedback_suite.gd").run(Callable(self, "_assert"))

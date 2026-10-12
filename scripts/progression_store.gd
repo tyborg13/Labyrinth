@@ -5,6 +5,9 @@ const GameData = preload("res://scripts/game_data.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const LegacyCardGrowthRefunds = preload("res://scripts/legacy_card_growth_refunds.gd")
+const RunScoreRules = preload("res://scripts/run_score_rules.gd")
+const BEST_SCORE_KEY: String = "best_score"
+
 const SURFACE_RULES_VERSION: int = 5
 
 const DEFAULT_STORAGE_PATH: String = "user://progression.json"
@@ -73,6 +76,7 @@ static func default_data() -> Dictionary:
 		"run_counter": 0,
 		ContextualCombatTutorial.PROGRESSION_KEY: ContextualCombatTutorial.default_state(),
 		"recovery_marker": {},
+		BEST_SCORE_KEY: 0,
 		RUN_BESTS_KEY: {},
 		LAST_RUN_RESULT_KEY: {},
 		RUN_RESULT_LEDGER_KEY: [],
@@ -181,6 +185,7 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 	data[EMACIATED_AWAKENING_SEEN_KEY] = bool(data.get(EMACIATED_AWAKENING_SEEN_KEY, false))
 	if not data.has("recovery_marker"):
 		data["recovery_marker"] = {}
+	data[BEST_SCORE_KEY] = maxi(0, int(data.get(BEST_SCORE_KEY, 0)))
 	data[RUN_BESTS_KEY] = _normalized_run_metric_map(data.get(RUN_BESTS_KEY, {}), BEST_ELIGIBLE_STAT_IDS)
 	data[LAST_RUN_RESULT_KEY] = _normalized_last_run_result(data.get(LAST_RUN_RESULT_KEY, {}))
 	var completed_results: Array[Dictionary] = _normalized_run_result_ledger(data.get(RUN_RESULT_LEDGER_KEY, []))
@@ -616,7 +621,7 @@ static func _remove_run_file_if_present(path: String) -> void:
 	if FileAccess.file_exists(path):
 		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
 
-static func record_run_result(data: Dictionary, result_id: String, stats_value: Variant) -> Dictionary:
+static func record_run_result(data: Dictionary, result_id: String, stats_value: Variant, run_state: Dictionary = {}, outcome: String = "") -> Dictionary:
 	var next_data: Dictionary = _normalized_data(data.duplicate(true))
 	var safe_result_id: String = result_id.strip_edges()
 	if safe_result_id.is_empty():
@@ -649,7 +654,28 @@ static func record_run_result(data: Dictionary, result_id: String, stats_value: 
 		"stats": stats,
 		"new_bests": new_bests
 	}
+	var score_input: Dictionary = {}
+	if stats_value is Dictionary:
+		score_input = (stats_value as Dictionary).get("_score_result", {}) as Dictionary
+	if not run_state.is_empty():
+		var location: Dictionary = RunScoreRules.location(run_state)
+		score_input = {"scored": RunScoreRules.score(run_state, outcome), "killer": RunScoreRules.normalized_stats(run_state.get("run_stats", {}))["killer"], "section": location["section"], "biome": location["biome"], "outcome": outcome, "context": RunScoreRules.analytics_context(run_state)}
+	if not score_input.is_empty():
+		var scored: Dictionary = score_input["scored"]
+		result["score"] = int(scored["total"])
+		result["lines"] = scored["lines"]
+		result["feats"] = scored["feats"]
+		result["killer"] = score_input["killer"]
+		result["section"] = score_input["section"]
+		result["biome"] = score_input["biome"]
+		result["outcome"] = score_input["outcome"]
+		result["new_best_score"] = int(result["score"]) > int(next_data[BEST_SCORE_KEY])
+		next_data[BEST_SCORE_KEY] = maxi(int(next_data[BEST_SCORE_KEY]), int(result["score"]))
+		# Durable, idempotent outbox follows the existing local JSONL delivery path.
+		next_data = queue_progression_analytics_event(next_data, "run_scored", "%s:run_scored" % safe_result_id, score_input.get("context", {"run_id": safe_result_id}), scored)
 	next_data[RUN_BESTS_KEY] = bests
+	next_data[LAST_RUN_RESULT_KEY] = result
+	result = _normalized_last_run_result(result)
 	next_data[LAST_RUN_RESULT_KEY] = result
 	completed_results.append(result.duplicate(true))
 	next_data[RUN_RESULT_LEDGER_KEY] = _bounded_run_result_ledger(completed_results)
@@ -695,8 +721,26 @@ static func _normalized_last_run_result(value: Variant) -> Dictionary:
 	return {
 		"result_id": result_id,
 		"stats": _normalized_run_metric_map(source.get("stats", {}), RUN_RESULT_STAT_IDS),
-		"new_bests": new_bests
+		"new_bests": new_bests,
+		"score": maxi(0, int(source["score"])) if source.get("score") != null else null,
+		"lines": _score_rows(source.get("lines", [])),
+		"feats": _score_rows(source.get("feats", [])),
+		"killer": RunScoreRules.normalized_killer(source.get("killer", {})),
+		"section": maxi(0, int(source.get("section", 0))),
+		"biome": str(source.get("biome", "")),
+		"outcome": str(source.get("outcome", "")),
+		"new_best_score": bool(source.get("new_best_score", false))
 	}
+
+static func _score_rows(value: Variant) -> Array[Dictionary]:
+	var result: Array[Dictionary]
+	if value is Array:
+		for row: Variant in value:
+			if row is Dictionary:
+				var normalized: Dictionary = (row as Dictionary).duplicate(true)
+				normalized["points"] = maxi(0, int(normalized.get("points", 0)))
+				result.append(normalized)
+	return result
 
 static func _normalized_run_result_ledger(value: Variant) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []
