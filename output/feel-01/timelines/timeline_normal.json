@@ -1,0 +1,229 @@
+{
+	"pass_to_hero_banner_seconds": 4.765346,
+	"renderer": false,
+	"speed": "normal",
+	"timeline": [
+		{
+			"actor": "",
+			"end": 0.356344,
+			"phase": "banner",
+			"start": 0.0
+		},
+		{
+			"actor": "enemy_1",
+			"end": 0.35635,
+			"phase": "pre-action delay",
+			"start": 0.35635
+		},
+		{
+			"actor": "enemy_1",
+			"end": 0.356351,
+			"phase": "caption",
+			"start": 0.356351
+		},
+		{
+			"actor": "enemy_1",
+			"end": 0.358646,
+			"phase": "wind-up",
+			"start": 0.356352
+		},
+		{
+			"actor": "enemy_1",
+			"end": 0.358735,
+			"phase": "walk",
+			"start": 0.358646
+		},
+		{
+			"actor": "enemy_1",
+			"end": 0.548121,
+			"phase": "walk (tile 1)",
+			"start": 0.358735
+		},
+		{
+			"actor": "enemy_1",
+			"end": 0.602454,
+			"phase": "post-action settle",
+			"start": 0.548123
+		},
+		{
+			"actor": "enemy_1",
+			"end": 0.861793,
+			"phase": "wind-up",
+			"start": 0.602455
+		},
+		{
+			"actor": "enemy_1",
+			"end": 0.951382,
+			"phase": "impact",
+			"start": 0.861794
+		},
+		{
+			"actor": "enemy_1",
+			"end": 1.299197,
+			"phase": "hit reaction / damage number",
+			"start": 0.951383
+		},
+		{
+			"actor": "enemy_1",
+			"end": 1.299198,
+			"phase": "post-action settle",
+			"start": 1.299198
+		},
+		{
+			"actor": "enemy_1",
+			"end": 1.304595,
+			"phase": "hand-off gap",
+			"start": 1.299199
+		},
+		{
+			"actor": "enemy_4",
+			"end": 1.304597,
+			"phase": "pre-action delay",
+			"start": 1.304597
+		},
+		{
+			"actor": "enemy_4",
+			"end": 1.304598,
+			"phase": "caption",
+			"start": 1.304598
+		},
+		{
+			"actor": "enemy_4",
+			"end": 1.305691,
+			"phase": "wind-up",
+			"start": 1.304598
+		},
+		{
+			"actor": "enemy_4",
+			"end": 1.736515,
+			"phase": "wind-up",
+			"start": 1.305691
+		},
+		{
+			"actor": "enemy_4",
+			"end": 1.827908,
+			"phase": "impact",
+			"start": 1.736516
+		},
+		{
+			"actor": "enemy_4",
+			"end": 2.077144,
+			"phase": "hit reaction / damage number",
+			"start": 1.827909
+		},
+		{
+			"actor": "enemy_4",
+			"end": 2.077146,
+			"phase": "post-action settle",
+			"start": 2.077146
+		},
+		{
+			"actor": "enemy_4",
+			"end": 2.084581,
+			"phase": "hand-off gap",
+			"start": 2.077147
+		},
+		{
+			"actor": "enemy_2",
+			"end": 2.084583,
+			"phase": "pre-action delay",
+			"start": 2.084583
+		},
+		{
+			"actor": "enemy_2",
+			"end": 2.084584,
+			"phase": "caption",
+			"start": 2.084584
+		},
+		{
+			"actor": "enemy_2",
+			"end": 2.085912,
+			"phase": "wind-up",
+			"start": 2.084584
+		},
+		{
+			"actor": "enemy_2",
+			"end": 2.871758,
+			"phase": "wind-up",
+			"start": 2.085913
+		},
+		{
+			"actor": "enemy_2",
+			"end": 2.962053,
+			"phase": "impact",
+			"start": 2.871759
+		},
+		{
+			"actor": "enemy_2",
+			"end": 3.384831,
+			"phase": "hit reaction / damage number",
+			"start": 2.962054
+		},
+		{
+			"actor": "enemy_2",
+			"end": 3.384833,
+			"phase": "post-action settle",
+			"start": 3.384833
+		},
+		{
+			"actor": "enemy_2",
+			"end": 3.3933,
+			"phase": "hand-off gap",
+			"start": 3.384834
+		},
+		{
+			"actor": "enemy_3",
+			"end": 3.393303,
+			"phase": "pre-action delay",
+			"start": 3.393303
+		},
+		{
+			"actor": "enemy_3",
+			"end": 3.393303,
+			"phase": "caption",
+			"start": 3.393303
+		},
+		{
+			"actor": "enemy_3",
+			"end": 3.394464,
+			"phase": "wind-up",
+			"start": 3.393303
+		},
+		{
+			"actor": "enemy_3",
+			"end": 3.650311,
+			"phase": "wind-up",
+			"start": 3.394464
+		},
+		{
+			"actor": "enemy_3",
+			"end": 3.738761,
+			"phase": "impact",
+			"start": 3.650311
+		},
+		{
+			"actor": "enemy_3",
+			"end": 4.191574,
+			"phase": "hit reaction / damage number",
+			"start": 3.738762
+		},
+		{
+			"actor": "enemy_3",
+			"end": 4.191575,
+			"phase": "post-action settle",
+			"start": 4.191575
+		},
+		{
+			"actor": "enemy_3",
+			"end": 4.195021,
+			"phase": "hand-off gap",
+			"start": 4.191576
+		},
+		{
+			"actor": "enemy_3",
+			"end": 4.705475,
+			"phase": "hero hand-off",
+			"start": 4.195021
+		}
+	]
+}

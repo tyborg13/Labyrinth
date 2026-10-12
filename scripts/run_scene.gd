@@ -1891,7 +1891,11 @@ func _schedule_encounter_assets(state: Dictionary) -> void:
 var _initial_ui_staging_requested: bool = false
 var _initial_ui_complete: bool = false
 var _initial_cpu_asset_holds: Array[RefCounted]
+var _combat_pacing = preload("res://scripts/combat_pacing.gd").new()
 var _defer_initial_run_presentation: bool = false
+
+func _init() -> void:
+	_combat_pacing.install(self)
 
 func _ready() -> void:
 	var prefix_started: int = Time.get_ticks_usec()
@@ -3747,6 +3751,7 @@ func _notification(what: int) -> void:
 		_layout_progression_dialog()
 
 func _exit_tree() -> void:
+	_combat_pacing.end_scope()
 	_reward_reroll_preparation.cancel()
 	_cancel_equipment_factory_preparation()
 	_campfire_presentation.reset()
@@ -13151,9 +13156,9 @@ func _turn_order_shadow_dissolve_slot(slot: Control) -> Dictionary:
 func _animate_turn_order_shadow_dissolves(dissolve_slots: Array[Dictionary]) -> void:
 	if dissolve_slots.is_empty():
 		return
-	var started_usec: int = Time.get_ticks_usec()
+	var started_usec: int = _combat_pacing.presentation_usec()
 	while true:
-		var elapsed_seconds: float = float(Time.get_ticks_usec() - started_usec) / 1000000.0
+		var elapsed_seconds: float = float(_combat_pacing.presentation_usec() - started_usec) / 1000000.0
 		var progress: float = clampf(elapsed_seconds / TURN_ORDER_DEFEAT_DISSOLVE_SECONDS, 0.0, 1.0)
 		# Keep the recognizable portrait and rail chrome through the middle of the
 		# shader breakup. Fading these in the opening third made the small widget
@@ -13373,6 +13378,7 @@ func _animate_turn_order_alongside_defeats(
 	skip_terrain_destruction: bool = false,
 	order_before_state: Dictionary = {}
 ) -> void:
+	if _combat_pacing.overlap_defeats(before_state, after_state, skip_terrain_destruction): return
 	# The rail may start from a different projection (for example, before this
 	# card's Stagger) so its motion shows the delay landing.
 	var before_order: Array[Dictionary] = _turn_order_entries_from_state(order_before_state if not order_before_state.is_empty() else before_state)
@@ -22327,6 +22333,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 	# choice-bar early-return case and retains the immediate refresh.
 	_begin_action_step_resolution_tracker(card_id, actions, selected_targets, _dialogue_active and _dialogue_suppresses_choices)
 	_animation_lock = true
+	_combat_pacing.begin_card()
 	_sync_click_targeting_arrow()
 	_begin_card_play_meter_spend_preview(plays_spent)
 	_refresh_animation_lock_ui()
@@ -22421,6 +22428,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 		await _play_reward_reveal()
 	else:
 		_animation_lock = false
+		_combat_pacing.end_scope()
 		_refresh_ui()
 	await _maybe_auto_pass_exhausted_player_turn()
 	# The resolution pipeline performs several animation-lock refreshes before the
@@ -23000,7 +23008,7 @@ func _board_global_position_for_tile(tile: Vector2i) -> Vector2:
 
 func _begin_player_popup_timeline() -> void:
 	_player_popup_timeline_active = true
-	_player_popup_timeline_started_usec = Time.get_ticks_usec()
+	_player_popup_timeline_started_usec = _combat_pacing.presentation_usec()
 	_player_popup_timeline_groups.clear()
 	_player_popup_companion_states.clear()
 
@@ -23008,7 +23016,7 @@ func _begin_player_popup_timeline() -> void:
 func _player_popup_timeline_elapsed_seconds() -> float:
 	if not _player_popup_timeline_active or _player_popup_timeline_started_usec <= 0:
 		return 0.0
-	return float(Time.get_ticks_usec() - _player_popup_timeline_started_usec) / 1000000.0
+	return float(_combat_pacing.presentation_usec() - _player_popup_timeline_started_usec) / 1000000.0
 
 
 func _queue_player_popup_group(base_texts: Array, initial_elapsed_seconds: float = 0.0) -> void:
@@ -23066,15 +23074,16 @@ func _animate_floating_text_presentation(
 		if use_player_timeline
 		else FloatingCombatText.total_duration(base_texts)
 	)
+	duration_seconds = _combat_pacing.feedback_duration(base_texts, duration_seconds, initial_elapsed_seconds)
 	if base_texts.is_empty() and base_decals.is_empty() and trap_effects.is_empty() and not base_presentation.has("surface_feedback_events"):
 		_render_board_state(display_state, base_presentation)
 		await get_tree().create_timer(duration_seconds).timeout
 		return
 	var reduced_motion: bool = _reduced_motion_enabled()
-	var started_usec: int = Time.get_ticks_usec()
+	var started_usec: int = _combat_pacing.presentation_usec()
 	var state_validated_for_animation: bool = false
 	while true:
-		var elapsed_seconds: float = maxf(0.0, initial_elapsed_seconds) + float(Time.get_ticks_usec() - started_usec) / 1000000.0
+		var elapsed_seconds: float = maxf(0.0, initial_elapsed_seconds) + float(_combat_pacing.presentation_usec() - started_usec) / 1000000.0
 		var t: float = clampf(elapsed_seconds / maxf(0.001, FloatingCombatText.ANIMATION_DURATION_SECONDS), 0.0, 1.0)
 		var presentation: Dictionary = base_presentation.duplicate(true)
 		if presentation.has("surface_feedback_events"):
@@ -23203,6 +23212,7 @@ func _play_timed_animation_frames(frame_count: int, frame_seconds: float, render
 	if safe_frame_count == 0 or not render_frame.is_valid():
 		return
 	var started_usec: int = Time.get_ticks_usec()
+	var presentation_started_usec: int = _combat_pacing.presentation_usec()
 	var rendered_frames: int = 0
 	if frame_seconds <= 0.0:
 		render_frame.call(safe_frame_count)
@@ -23219,7 +23229,7 @@ func _play_timed_animation_frames(frame_count: int, frame_seconds: float, render
 	var authored_duration_usec: int = safe_frame_count * frame_duration_usec
 	var last_rendered_frame: int = 0
 	while true:
-		var elapsed_usec: int = Time.get_ticks_usec() - started_usec
+		var elapsed_usec: int = _combat_pacing.presentation_usec() - presentation_started_usec
 		var due_frame: int = clampi(1 + int(elapsed_usec / frame_duration_usec), 1, safe_frame_count)
 		if due_frame > last_rendered_frame:
 			render_frame.call(due_frame)
@@ -23435,10 +23445,10 @@ func _animate_fatigue_damage(display_state: Dictionary, fatigue_events: Array[Di
 		return
 	var base_texts: Array[Dictionary] = _fatigue_floating_texts_for_events(display_state, fatigue_events)
 	var duration_seconds: float = FloatingCombatText.total_duration(base_texts)
-	var started_usec: int = Time.get_ticks_usec()
+	var started_usec: int = _combat_pacing.presentation_usec()
 	var state_validated_for_animation: bool = false
 	while true:
-		var elapsed_seconds: float = float(Time.get_ticks_usec() - started_usec) / 1000000.0
+		var elapsed_seconds: float = float(_combat_pacing.presentation_usec() - started_usec) / 1000000.0
 		_render_board_state(
 			display_state,
 			_fatigue_damage_presentation_for_elapsed(display_state, fatigue_events, elapsed_seconds),
@@ -24119,6 +24129,7 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	var scheduled_state: Dictionary = _combat_engine.finish_player_activation(_combat_state)
 	_record_runtime_performance_phase("enemy_round_finish_player_activation", finish_activation_started)
 	if _combat_engine.enemy_acts_before_next_player_turn(scheduled_state):
+		_combat_pacing.begin_enemies()
 		_show_turn_banner(false)
 	_refresh_enemy_round_lock_ui()
 	performance_lock_started = _record_runtime_performance_phase("enemy_round_lock_ui_total", performance_lock_started)
@@ -24150,7 +24161,7 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 	_record_runtime_performance_phase("enemy_round_initial_checkpoint_persist_total", performance_phase_started)
 	await _animate_enemy_loss_feedback_between_states(_combat_state, scheduled_state)
 	await _animate_defeats_and_terrain_destruction(_combat_state, scheduled_state)
-	await _animate_turn_order_transition_between_states(_combat_state, scheduled_state)
+	_combat_pacing.present_initial_order(_combat_state, scheduled_state)
 	_combat_state = scheduled_state.duplicate(true)
 	_mark_combat_preview_state_changed()
 	var animated_state: Dictionary = scheduled_state.duplicate(true)
@@ -24206,6 +24217,7 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 		)
 		_consume_pending_card_draw_sfx(draw_sfx_state)
 		phase_state = slice_result.get("state", phase_state) as Dictionary
+	await _combat_pacing.finish_enemies()
 	if phase_slice_safety >= 100:
 		push_error("Enemy phase slice safety limit reached before player activation.")
 	var phase_result: Dictionary = {
@@ -24302,8 +24314,10 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			if not step.has("intent_id"): step["intent_id"] = dragon_actor.get("intent",{}).get("id","")
 		if str(step.get("kind", "")) == "commit":
 			continue
+		await _combat_pacing.before_step(step)
 		if bool(step.get("hidden_by_umbra", false)):
 			await _animate_hidden_umbra_enemy_step(animated_state, step)
+			_combat_pacing.after_step(step)
 			continue
 		var step_actor_key: String = str(step.get("actor_key", ""))
 		var step_actor_tile: Vector2i = step.get("tile", step.get("from", Vector2i(-1, -1)))
@@ -24311,14 +24325,13 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			"reinforcement_spawn":
 				await _animate_reinforcement_spawn(animated_state, step)
 			"turn_order":
-				await _animate_turn_order_transition(_turn_order_array(step.get("before_order", [])), _turn_order_array(step.get("after_order", [])))
+				_combat_pacing.present_turn_order(step.get("before_order", []), step.get("after_order", []))
 			"intent":
 				_clear_enemy_block_by_key(animated_state, step_actor_key)
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("intent_name", ""))])
 				var intent_presentation: Dictionary = {"focus_actor_keys":[step_actor_key], "focus_actor_color":PLAYER_ATTACK_FOCUS,
 					"focus_tiles":[step_actor_tile], "focus_color":Color(0.95,0.62,0.37,0.18)}
 				_render_board_state(animated_state, intent_presentation)
-				await get_tree().create_timer(0.20).timeout
 			"intent_refresh":
 				var dark_tiles: Array[Vector2i]
 				for brazier: Dictionary in animated_state.get("guardian_braziers",[]):
@@ -24550,6 +24563,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 						final_feedback_elapsed_seconds
 					)
 				await _animate_turn_order_alongside_defeats(before_attack_step_state, animated_state, {}, true)
+		_combat_pacing.after_step(step)
 
 func _tharokh_action_direction(effect: Dictionary, actor: Dictionary) -> Vector2i:
 	# Double coordinates retain the exact half-tile center of this 2x2 boss.
@@ -24634,7 +24648,6 @@ func _animate_hidden_umbra_enemy_step(animated_state: Dictionary, step: Dictiona
 		_clear_enemy_block_by_key(animated_state, str(step.get("actor_key", "")))
 		_set_action_banner("Unknown Presence: Hidden Intent")
 		_render_board_state(animated_state, {})
-		await get_tree().create_timer(0.16).timeout
 		return
 	var visible_action_step: Dictionary = _visible_umbra_action_step(animated_state, step)
 	if not visible_action_step.is_empty():
@@ -24869,6 +24882,7 @@ func _animate_move_step(animated_state: Dictionary, step: Dictionary) -> void:
 		"harrier_travel_variant": "retreat" if str(step.get("label", "")) == "Retreat" else "walk",
 		"umbra_reveal_actor_on_visible_tiles": bool(step.get("umbra_reveal_actor_on_visible_tiles", false))
 	})
+	_combat_pacing.walk_finished()
 	var before_move_state: Dictionary = animated_state.duplicate(true)
 	_apply_animation_step(animated_state, step)
 	var ground_events: Array[Dictionary] = OutcomeFeedback.prepare(step.get("surface_events",[]))
@@ -25029,11 +25043,13 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 		distance_before.append(distance)
 		distance += length
 		total_frame_count += frames
+	frame_seconds = _combat_pacing.walk_frame_seconds(actor_key, segment_frame_counts, frame_seconds)
 	await _play_timed_animation_frames(total_frame_count, frame_seconds, func(frame_number: int) -> void:
 		var zero_based_frame: int = frame_number - 1
 		var path_index: int = 0
 		while path_index + 1 < segment_count and zero_based_frame >= segment_start_frames[path_index + 1]:
 			path_index += 1
+		if _combat_pacing.enemies_active: _combat_pacing.walk_tile(path_index)
 		var segment_frames: int = segment_frame_counts[path_index]
 		var segment_frame: int = zero_based_frame - segment_start_frames[path_index] + 1
 		var segment_from: Vector2i = path[path_index]
@@ -25201,7 +25217,7 @@ func _play_sfx(entry: Dictionary) -> float:
 		_duck_music_for(resource.get_length())
 	var duration: float = float(entry.get("duration", 0.0))
 	if duration > 0.0:
-		get_tree().create_timer(duration).timeout.connect(_stop_attack_sfx_player.bind(player, generation))
+		get_tree().create_timer(duration, true, false, true).timeout.connect(_stop_attack_sfx_player.bind(player, generation))
 		return minf(duration, maxf(0.0, resource.get_length()))
 	return maxf(0.0, resource.get_length())
 
@@ -25780,6 +25796,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 			merged_floating_texts.append_array(timeline_entries)
 			merged_floating_texts.append_array(rendered_presentation.get("floating_texts", []) as Array)
 			rendered_presentation["floating_texts"] = merged_floating_texts
+	_combat_pacing.decorate(display_state, rendered_presentation)
 	preload("res://scripts/cutout_context.gd").apply_to_presentation(display_state, rendered_presentation)
 	rendered_presentation["equipped_equipment"] = _equipped_equipment_for_board()
 	call_deferred("_sync_board_view_rect")
@@ -26579,6 +26596,7 @@ func _animation_actor_unit(state: Dictionary, actor_key: String) -> Dictionary:
 	return {"footprint": Vector2i.ONE}
 
 func _set_action_banner(text: String) -> void:
+	text = _combat_pacing.caption_text(text)
 	action_banner.visible = not text.is_empty()
 	action_banner.text = text
 	if not text.is_empty() and _turn_banner != null and _turn_banner.visible:
@@ -34451,6 +34469,7 @@ func _friendly_damage_preview_chips(state: Dictionary, losses: Dictionary, movem
 	return chips
 
 func _animate_surface_change(before: Dictionary, after: Dictionary, base: Dictionary = {}) -> void:
+	if _combat_pacing.overlap_surface(before, after, base): return
 	var events: Array[Dictionary] = _surface_events_between(before, after)
 	if events.is_empty(): events = _dictionary_array(base.get("surface_feedback_events", []))
 	events = OutcomeFeedback.prepare(events)

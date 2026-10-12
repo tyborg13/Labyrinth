@@ -1,0 +1,232 @@
+Running task-local command:
+  task: feel-01
+  run: feel-01-1791829680615585000-5607
+  HOME: /private/tmp/labyrinth-godot-home/feel-01-1791829680615585000-5607
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/feel-01-1791829680615585000-5607/godot.log --headless --path . --script tests/run_tests.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ENEMY TACTICAL AI RESOURCE PROOF: plans=14 future_searches=11 total_ms=10.08
+Guardian relic contracts exercised
+Guardian exercised: Ashen Reaver
+Guardian exercised: Rimejaw
+Guardian exercised: Storm Cantor
+Guardian exercised: Gallows Roc
+Guardian exercised: Craghide
+Guardian exercised: Last Lamplighter
+SPIRE ROUTE ENTRY: player=(1, 4) boss=(4, 3) held=[(2, 3), (1, 2), (1, 6), (2, 5)]
+SPIRE ROUTE RESOLVED: player=(3, 4) spires=[(2, 3), (1, 2), (1, 6), (2, 5)] clock=19
+R1 dense-Light navigation best of 3: 2.322 ms
+WARNING: Conflicting legacy combat-unit evidence; preserving serialized values rather than risking destructive conversion.
+     at: push_warning (core/variant/variant_utility.cpp:1034)
+     GDScript backtrace (most recent call first):
+         [0] migrate_combat_units (res://scripts/run_engine.gd:453)
+         [1] _test_natural_and_ambiguous_saves_are_not_rescaled (res://tests/suites/balance_pacing_suite.gd:100)
+         [2] run (res://tests/suites/balance_pacing_suite.gd:14)
+         [3] _initialize (res://tests/run_tests.gd:163)
+         [4] run (res://tests/suites/pre_battle_ui_suite.gd:27)
+         [5] test_true_scale_lineups (res://tests/suites/pre_battle_ui_suite.gd:244)
+ITEM DROP SAMPLE (600 rooms): [107, 369, 124]
+ERROR: Failed to acknowledge progression analytics event batch.
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _reconcile_progression_analytics_outbox (res://scripts/run_scene.gd:32299)
+       [1] _reconcile_progression_analytics_outbox (res://tests/fixtures/dragon_exchange_run_scene.gd:16)
+       [2] _exchange_moltshard_at_entrance (res://scripts/run_scene.gd:29054)
+       [3] run (res://tests/suites/dragon_exchange_presentation_suite.gd:118)
+       [4] setup (res://tests/suites/dragon_exchange_presentation_suite.gd:62)
+PROTAGONIST RANGED CONTRACTS: checked
+STRIKE STREAK ENERGY stab: core=234.015 edge=10.983 ratio=21.308
+STRIKE STREAK ENERGY thrust: core=360.773 edge=16.932 ratio=21.308
+STRIKE TRAIL CONTRACTS: 7 motions, 4 directions; sampling/envelope/palettes/sparks/dispatch/depth checked
+CRAWLER CONTACT CORE ALPHA AREA: 258.083 source px squared (minimum 180)
+ENEMY SHORT-PATH FIXTURE chainbound_gaoler: 4.472 source px; authored strike 87.174 source px
+ENEMY SHORT-PATH FIXTURE ashen_reaver: 0.000 source px; authored strike 157.705 source px
+REDUCED DRAGON AREA: static fully revealed claw marks; PASS
+ENEMY/ECHO ARC CORE ALPHA AREA lightning_wisp: 0.810x (minimum .8x)
+ENEMY/ECHO ARC CORE ALPHA AREA warden: 1.392x (minimum .8x)
+ENEMY/ECHO ARC CORE ALPHA AREA ashen_reaver: 1.323x (minimum .8x)
+ASHEN DISPLAYED AREA BLADE SPAN (0, 1): 5.453 source px
+ASHEN DISPLAYED AREA BLADE SPAN (0, -1): 4.866 source px
+ENEMY SOURCE CACHE: palettes/seeds, facing, variants, target distance, resolved reuse, zero envelopes and empty retries; PASS
+SHARED ATTACK FEEDBACK: 438 kind/element/dragon fixtures; PASS
+ENEMY STRIKE TRAIL CONTRACTS: registry, live front/rear/mirrored contacts, cache, bespoke exclusions, reduced motion and per-tile area rakes checked
+GEAR MOTION front/attack_heavy: foot_error=0.000046 length_error=0.000029 basis_error=0.000001
+GEAR HEAVY REACH front 0.12: wrist=(106.0, 118.0) shift=0.000008 grip_error=0.000017
+GEAR HEAVY REACH front 0.30: wrist=(104.0, 77.99999) shift=0.000017 grip_error=0.000017
+GEAR HEAVY REACH front 0.36: wrist=(104.0, 78.0) shift=0.000015 grip_error=0.000017
+GEAR HEAVY REACH front 0.42: wrist=(95.99998, 134.0) shift=0.000015 grip_error=0.000017
+GEAR HEAVY REACH front 0.48: wrist=(95.99998, 134.0) shift=0.000015 grip_error=0.000017
+GEAR HEAVY REACH front 0.58: wrist=(95.99999, 134.0) shift=0.000017 grip_error=0.000017
+GEAR HEAVY REACH front 0.72: wrist=(94.0, 130.0) shift=0.000000 grip_error=0.000017
+GEAR HEAVY APEX front 0.30: tip=(79.65953, 17.70138) hair_clearance=17.809830
+GEAR HEAVY APEX front 0.36: tip=(79.65953, 17.70138) hair_clearance=18.174683
+GEAR MOTION front/attack_stab: foot_error=0.000046 length_error=0.000027 basis_error=0.000001
+GEAR STAB KEY front 0.42: hips_drop=0.000000
+GEAR STAB KEY front 0.54: hips_drop=0.000000
+GEAR MOTION front/block_shield: foot_error=0.000043 length_error=0.000034 basis_error=0.000001
+GEAR MOTION rear/attack_heavy: foot_error=0.000043 length_error=0.000027 basis_error=0.000001
+GEAR HEAVY REACH rear 0.12: wrist=(145.0, 114.0) shift=0.000015 grip_error=0.000031
+GEAR HEAVY REACH rear 0.30: wrist=(150.0, 80.0) shift=0.000015 grip_error=0.000031
+GEAR HEAVY REACH rear 0.36: wrist=(150.0, 79.99998) shift=0.000022 grip_error=0.000031
+GEAR HEAVY REACH rear 0.42: wrist=(155.0, 130.0) shift=0.000015 grip_error=0.000031
+GEAR HEAVY REACH rear 0.48: wrist=(155.0, 130.0) shift=0.000022 grip_error=0.000031
+GEAR HEAVY REACH rear 0.58: wrist=(155.0, 130.0) shift=0.000015 grip_error=0.000031
+GEAR HEAVY REACH rear 0.72: wrist=(157.0, 126.0) shift=0.000034 grip_error=0.000031
+GEAR HEAVY APEX rear 0.30: tip=(191.3726, 29.95396) hair_clearance=31.436005
+GEAR HEAVY APEX rear 0.36: tip=(191.3726, 29.95395) hair_clearance=31.859451
+GEAR MOTION rear/attack_stab: foot_error=0.000048 length_error=0.000038 basis_error=0.000001
+GEAR STAB KEY rear 0.42: hips_drop=7.822052
+GEAR STAB KEY rear 0.54: hips_drop=7.822052
+GEAR MOTION rear/block_shield: foot_error=0.000043 length_error=0.000032 basis_error=0.000001
+FULL GEAR front/attack_thrust: grip_error=0.000017 length_error=0.000029 foot_error=0.000046 basis_error=0.000001
+FULL GEAR THRUST REACH front 0.20: wrist=(100.0, 130.0) shift=0.000015
+FULL GEAR THRUST REACH front 0.30: wrist=(107.1554, 126.4223) shift=0.000008
+FULL GEAR THRUST REACH front 0.42: wrist=(83.90031, 138.0499) shift=0.000000
+FULL GEAR THRUST REACH front 0.56: wrist=(83.90031, 138.0499) shift=0.000000
+FULL GEAR front/attack_thrust: grip_error=0.000017 length_error=0.000029 foot_error=0.000046 basis_error=0.000001
+FULL GEAR THRUST REACH front 0.20: wrist=(100.0, 130.0) shift=0.000015
+FULL GEAR THRUST REACH front 0.30: wrist=(107.1554, 126.4223) shift=0.000008
+FULL GEAR THRUST REACH front 0.42: wrist=(83.90031, 138.0499) shift=0.000000
+FULL GEAR THRUST REACH front 0.56: wrist=(83.90031, 138.0499) shift=0.000000
+FULL GEAR front/attack_thrust: grip_error=0.000017 length_error=0.000029 foot_error=0.000046 basis_error=0.000001
+FULL GEAR THRUST REACH front 0.20: wrist=(100.0, 130.0) shift=0.000015
+FULL GEAR THRUST REACH front 0.30: wrist=(107.1554, 126.4223) shift=0.000008
+FULL GEAR THRUST REACH front 0.42: wrist=(83.90031, 138.0499) shift=0.000000
+FULL GEAR THRUST REACH front 0.56: wrist=(83.90031, 138.0499) shift=0.000000
+FULL GEAR front/attack_thrust: grip_error=0.000017 length_error=0.000029 foot_error=0.000046 basis_error=0.000001
+FULL GEAR THRUST REACH front 0.20: wrist=(100.0, 130.0) shift=0.000015
+FULL GEAR THRUST REACH front 0.30: wrist=(107.1554, 126.4223) shift=0.000008
+FULL GEAR THRUST REACH front 0.42: wrist=(83.90031, 138.0499) shift=0.000000
+FULL GEAR THRUST REACH front 0.56: wrist=(83.90031, 138.0499) shift=0.000000
+FULL GEAR front/attack_thrust: grip_error=0.000017 length_error=0.000029 foot_error=0.000046 basis_error=0.000001
+FULL GEAR THRUST REACH front 0.20: wrist=(100.0, 130.0) shift=0.000015
+FULL GEAR THRUST REACH front 0.30: wrist=(107.1554, 126.4223) shift=0.000008
+FULL GEAR THRUST REACH front 0.42: wrist=(83.90031, 138.0499) shift=0.000000
+FULL GEAR THRUST REACH front 0.56: wrist=(83.90031, 138.0499) shift=0.000000
+FULL GEAR front/attack_thrust: grip_error=0.000017 length_error=0.000029 foot_error=0.000046 basis_error=0.000001
+FULL GEAR THRUST REACH front 0.20: wrist=(100.0, 130.0) shift=0.000015
+FULL GEAR THRUST REACH front 0.30: wrist=(107.1554, 126.4223) shift=0.000008
+FULL GEAR THRUST REACH front 0.42: wrist=(83.90031, 138.0499) shift=0.000000
+FULL GEAR THRUST REACH front 0.56: wrist=(83.90031, 138.0499) shift=0.000000
+FULL GEAR front/attack_lash: grip_error=0.000008 length_error=0.000027 foot_error=0.000043 basis_error=0.000001
+FULL GEAR LASH REACH front 0.30: wrist=(106.0, 76.99999) shift=0.000017
+FULL GEAR LASH REACH front 0.42: wrist=(74.00003, 97.00002) shift=0.000034
+FULL GEAR LASH REACH front 0.58: wrist=(77.99998, 128.0) shift=0.000024
+FULL GEAR front/attack_lash: grip_error=0.000008 length_error=0.000027 foot_error=0.000043 basis_error=0.000001
+FULL GEAR LASH REACH front 0.30: wrist=(106.0, 76.99999) shift=0.000017
+FULL GEAR LASH REACH front 0.42: wrist=(74.00003, 97.00002) shift=0.000034
+FULL GEAR LASH REACH front 0.58: wrist=(77.99998, 128.0) shift=0.000024
+FULL GEAR front/shoot_bow: grip_error=0.000017 length_error=0.000019 foot_error=0.000000 basis_error=0.000001
+FULL GEAR BOW AIM front 0.24: wrist=(62.92948, 89.5859) reach=37.844656
+FULL GEAR BOW AIM front 0.38: wrist=(62.92948, 89.5859) reach=37.844656
+FULL GEAR BOW AIM front 0.42: wrist=(62.92948, 89.5859) reach=37.844656
+FULL GEAR front/shoot_bow: grip_error=0.000017 length_error=0.000019 foot_error=0.000000 basis_error=0.000001
+FULL GEAR BOW AIM front 0.24: wrist=(62.92948, 89.5859) reach=37.844656
+FULL GEAR BOW AIM front 0.38: wrist=(62.92948, 89.5859) reach=37.844656
+FULL GEAR BOW AIM front 0.42: wrist=(62.92948, 89.5859) reach=37.844656
+FULL GEAR front/shoot_repeater: grip_error=0.000017 length_error=0.000019 foot_error=0.000000 basis_error=0.000001
+FULL GEAR front/shoot_repeater: grip_error=0.000017 length_error=0.000019 foot_error=0.000000 basis_error=0.000001
+FULL GEAR rear/attack_thrust: grip_error=0.000022 length_error=0.000031 foot_error=0.000055 basis_error=0.000001
+FULL GEAR THRUST REACH rear 0.20: wrist=(158.0, 128.0) shift=0.000015
+FULL GEAR THRUST REACH rear 0.30: wrist=(150.8446, 131.5777) shift=0.000000
+FULL GEAR THRUST REACH rear 0.42: wrist=(174.0997, 119.9502) shift=0.000046
+FULL GEAR THRUST REACH rear 0.56: wrist=(174.0997, 119.9502) shift=0.000046
+FULL GEAR rear/attack_thrust: grip_error=0.000022 length_error=0.000031 foot_error=0.000055 basis_error=0.000001
+FULL GEAR THRUST REACH rear 0.20: wrist=(158.0, 128.0) shift=0.000015
+FULL GEAR THRUST REACH rear 0.30: wrist=(150.8446, 131.5777) shift=0.000000
+FULL GEAR THRUST REACH rear 0.42: wrist=(174.0997, 119.9502) shift=0.000046
+FULL GEAR THRUST REACH rear 0.56: wrist=(174.0997, 119.9502) shift=0.000046
+FULL GEAR rear/attack_thrust: grip_error=0.000034 length_error=0.000031 foot_error=0.000055 basis_error=0.000001
+FULL GEAR THRUST REACH rear 0.20: wrist=(158.0, 128.0) shift=0.000015
+FULL GEAR THRUST REACH rear 0.30: wrist=(150.8446, 131.5777) shift=0.000000
+FULL GEAR THRUST REACH rear 0.42: wrist=(174.0997, 119.9502) shift=0.000046
+FULL GEAR THRUST REACH rear 0.56: wrist=(174.0997, 119.9502) shift=0.000046
+FULL GEAR rear/attack_thrust: grip_error=0.000034 length_error=0.000031 foot_error=0.000055 basis_error=0.000001
+FULL GEAR THRUST REACH rear 0.20: wrist=(158.0, 128.0) shift=0.000015
+FULL GEAR THRUST REACH rear 0.30: wrist=(150.8446, 131.5777) shift=0.000000
+FULL GEAR THRUST REACH rear 0.42: wrist=(174.0997, 119.9502) shift=0.000046
+FULL GEAR THRUST REACH rear 0.56: wrist=(174.0997, 119.9502) shift=0.000046
+FULL GEAR rear/attack_thrust: grip_error=0.000034 length_error=0.000031 foot_error=0.000055 basis_error=0.000001
+FULL GEAR THRUST REACH rear 0.20: wrist=(158.0, 128.0) shift=0.000015
+FULL GEAR THRUST REACH rear 0.30: wrist=(150.8446, 131.5777) shift=0.000000
+FULL GEAR THRUST REACH rear 0.42: wrist=(174.0997, 119.9502) shift=0.000046
+FULL GEAR THRUST REACH rear 0.56: wrist=(174.0997, 119.9502) shift=0.000046
+FULL GEAR rear/attack_thrust: grip_error=0.000034 length_error=0.000031 foot_error=0.000055 basis_error=0.000001
+FULL GEAR THRUST REACH rear 0.20: wrist=(158.0, 128.0) shift=0.000015
+FULL GEAR THRUST REACH rear 0.30: wrist=(150.8446, 131.5777) shift=0.000000
+FULL GEAR THRUST REACH rear 0.42: wrist=(174.0997, 119.9502) shift=0.000046
+FULL GEAR THRUST REACH rear 0.56: wrist=(174.0997, 119.9502) shift=0.000046
+FULL GEAR rear/attack_lash: grip_error=0.000015 length_error=0.000027 foot_error=0.000043 basis_error=0.000001
+FULL GEAR LASH REACH rear 0.30: wrist=(145.0, 72.99998) shift=0.000034
+FULL GEAR LASH REACH rear 0.42: wrist=(177.0, 93.0) shift=0.000015
+FULL GEAR LASH REACH rear 0.58: wrist=(173.0, 124.0) shift=0.000008
+FULL GEAR rear/attack_lash: grip_error=0.000015 length_error=0.000027 foot_error=0.000043 basis_error=0.000001
+FULL GEAR LASH REACH rear 0.30: wrist=(145.0, 72.99998) shift=0.000034
+FULL GEAR LASH REACH rear 0.42: wrist=(177.0, 93.0) shift=0.000015
+FULL GEAR LASH REACH rear 0.58: wrist=(173.0, 124.0) shift=0.000008
+FULL GEAR rear/shoot_bow: grip_error=0.000015 length_error=0.000023 foot_error=0.000000 basis_error=0.000000
+FULL GEAR BOW AIM rear 0.24: wrist=(202.1983, 77.6405) reach=53.492617
+FULL GEAR BOW AIM rear 0.38: wrist=(202.1983, 77.6405) reach=53.492617
+FULL GEAR BOW AIM rear 0.42: wrist=(202.1983, 77.6405) reach=53.492617
+FULL GEAR rear/shoot_bow: grip_error=0.000015 length_error=0.000023 foot_error=0.000000 basis_error=0.000000
+FULL GEAR BOW AIM rear 0.24: wrist=(202.1983, 77.6405) reach=53.492617
+FULL GEAR BOW AIM rear 0.38: wrist=(202.1983, 77.6405) reach=53.492617
+FULL GEAR BOW AIM rear 0.42: wrist=(202.1983, 77.6405) reach=53.492617
+FULL GEAR rear/shoot_repeater: grip_error=0.000015 length_error=0.000023 foot_error=0.000000 basis_error=0.000000
+FULL GEAR rear/shoot_repeater: grip_error=0.000015 length_error=0.000023 foot_error=0.000000 basis_error=0.000000
+PROTAGONIST FULL GEAR MOTION CONTRACTS: checked
+PROTAGONIST ONE-ARM SHOT CONTRACTS: checked
+PROTAGONIST GEAR LAYERS front: 18 weapons, 1440 unchanged poses; depth/overlays/offsets/clear checked
+PROTAGONIST GEAR CARRY LEGACY front: 1320 unchanged poses
+PROTAGONIST GEAR CARRY front/hunting_spear/authored: grip_error=0.000023 axis_error=0.000001 glove_delta=0.280844
+PROTAGONIST GEAR CARRY ACTION front/attack_thrust/authored: grip_error=0.000017 rest/recovery checked
+PROTAGONIST GEAR CARRY front/hunting_spear/steep: grip_error=0.000031 axis_error=0.000001 glove_delta=0.281225
+PROTAGONIST GEAR CARRY ACTION front/attack_thrust/steep: grip_error=0.000017 rest/recovery checked
+PROTAGONIST GEAR CARRY front/tourney_lance/authored: grip_error=0.000031 axis_error=0.000001 glove_delta=0.280696
+PROTAGONIST GEAR CARRY ACTION front/attack_thrust/authored: grip_error=0.000017 rest/recovery checked
+PROTAGONIST GEAR CARRY front/tourney_lance/steep: grip_error=0.000031 axis_error=0.000001 glove_delta=0.281225
+PROTAGONIST GEAR CARRY ACTION front/attack_thrust/steep: grip_error=0.000017 rest/recovery checked
+PROTAGONIST GEAR CARRY front/hookspine_halberd/authored: grip_error=0.000022 axis_error=0.000001 glove_delta=0.281753
+PROTAGONIST GEAR CARRY ACTION front/attack_thrust/authored: grip_error=0.000017 rest/recovery checked
+PROTAGONIST GEAR CARRY front/hookspine_halberd/steep: grip_error=0.000031 axis_error=0.000001 glove_delta=0.281225
+PROTAGONIST GEAR CARRY ACTION front/attack_thrust/steep: grip_error=0.000017 rest/recovery checked
+PROTAGONIST GEAR CARRY front/stormstring_bow/authored: grip_error=0.000022 axis_error=0.000001 glove_delta=0.280809
+PROTAGONIST GEAR CARRY ACTION front/shoot_bow/authored: grip_error=0.000017 rest/recovery checked
+PROTAGONIST GEAR CARRY front/stormstring_bow/steep: grip_error=0.000031 axis_error=0.000001 glove_delta=0.281225
+PROTAGONIST GEAR CARRY ACTION front/shoot_bow/steep: grip_error=0.000017 rest/recovery checked
+PROTAGONIST GEAR LAYERS rear: 18 weapons, 1440 unchanged poses; depth/overlays/offsets/clear checked
+PROTAGONIST GEAR CARRY LEGACY rear: 1320 unchanged poses
+PROTAGONIST GEAR CARRY rear/hunting_spear/authored: grip_error=0.000034 axis_error=0.000000 glove_delta=-0.280844
+PROTAGONIST GEAR CARRY ACTION rear/attack_thrust/authored: grip_error=0.000022 rest/recovery checked
+PROTAGONIST GEAR CARRY rear/hunting_spear/steep: grip_error=0.000034 axis_error=0.000000 glove_delta=-0.281225
+PROTAGONIST GEAR CARRY ACTION rear/attack_thrust/steep: grip_error=0.000034 rest/recovery checked
+PROTAGONIST GEAR CARRY rear/tourney_lance/authored: grip_error=0.000034 axis_error=0.000000 glove_delta=-0.280696
+PROTAGONIST GEAR CARRY ACTION rear/attack_thrust/authored: grip_error=0.000034 rest/recovery checked
+PROTAGONIST GEAR CARRY rear/tourney_lance/steep: grip_error=0.000034 axis_error=0.000000 glove_delta=-0.281225
+PROTAGONIST GEAR CARRY ACTION rear/attack_thrust/steep: grip_error=0.000031 rest/recovery checked
+PROTAGONIST GEAR CARRY rear/hookspine_halberd/authored: grip_error=0.000034 axis_error=0.000000 glove_delta=-0.281753
+PROTAGONIST GEAR CARRY ACTION rear/attack_thrust/authored: grip_error=0.000034 rest/recovery checked
+PROTAGONIST GEAR CARRY rear/hookspine_halberd/steep: grip_error=0.000034 axis_error=0.000000 glove_delta=-0.281225
+PROTAGONIST GEAR CARRY ACTION rear/attack_thrust/steep: grip_error=0.000034 rest/recovery checked
+PROTAGONIST GEAR CARRY rear/stormstring_bow/authored: grip_error=0.000034 axis_error=0.000000 glove_delta=-0.280809
+PROTAGONIST GEAR CARRY ACTION rear/shoot_bow/authored: grip_error=0.000015 rest/recovery checked
+PROTAGONIST GEAR CARRY rear/stormstring_bow/steep: grip_error=0.000034 axis_error=0.000000 glove_delta=-0.281225
+PROTAGONIST GEAR CARRY ACTION rear/shoot_bow/steep: grip_error=0.000015 rest/recovery checked
+PROTAGONIST GEAR LAYER ENEMY ISOLATION: checked
+PROTAGONIST GEAR LAYER PRESENTATION: reduced/mirrored/shot exit/hidden rig checked
+PROTAGONIST GEAR CARRY CONTRACTS: checked
+PROTAGONIST GEAR MOTION CONTRACTS: checked
+PROTAGONIST GEAR GPU BAKE: deferred to real-renderer probe
+TURN CLOCK BANNER SEQUENCE: pass_enemy_first: ["ENEMY TURN", "YOUR TURN"]
+TURN CLOCK BANNER SEQUENCE: fast_back_to_back: ["YOUR TURN"]
+TURN CLOCK BANNER SEQUENCE: hourglass_immediate: ["YOUR TURN"]
+TURN CLOCK BANNER SEQUENCE: enemy_then_hero: ["ENEMY TURN", "YOUR TURN"]
+CARD TARGETING AUDIT: 309 cards, 699 upgrades; /private/tmp/labyrinth-godot-home/feel-01-1791829680615585000-5607/Library/Application Support/Escape the Umbra Parallel feel-01-1791829680615585000-5607/card_targeting_audit.json
+TEST RESULT: PASS
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)

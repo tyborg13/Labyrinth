@@ -171,7 +171,8 @@ const COLLISION_MARKER_RING: Color = Color("ef8b62")
 const MOVE_RISK_CHIP_FONT_SIZE: int = 10
 const MOVE_RISK_CHIP_HEIGHT: float = 18.0
 const MOVE_RISK_CHIP_GAP: float = 3.0
-const IMPACT_FLASH_COLOR: Color = Color(1.0, 0.22, 0.15, 0.72)
+const IMPACT_FLASH_COLOR: Color = Color.WHITE
+const CombatPacingScript = preload("res://scripts/combat_pacing.gd")
 const PLAYER_FOCUS_COLOR: Color = Color("f1d18b")
 const ENEMY_FOCUS_COLOR: Color = Color("f08c53")
 const FLOATING_TEXT_RIGHT_OFFSET: float = 18.0
@@ -541,6 +542,10 @@ var _camera_kick_keys: Array = []
 var _camera_kick_last_progress: float = 1.0
 var _camera_kick_player: bool = false
 var _camera_kick_strength: float = 1.0
+var _camera_kick_amplitude: float = 0.0
+var _camera_kick_started_usec: int = -120001
+var _camera_kick_progress: float = 1.0
+var _feel_surface_tiles: Array = []
 var _hover_tile: Vector2i = Vector2i(-1, -1)
 var _controller_focus_tile: Vector2i = Vector2i(-1, -1)
 var _left_drag_start_tile: Vector2i = Vector2i(-1, -1)
@@ -1774,6 +1779,7 @@ func _on_board_resized() -> void:
 func _ensure_art_treatment() -> void:
 	if _art_treatment == null:
 		_art_treatment = CombatArtTreatment.new()
+		_art_treatment.material.shader = CombatPacingScript.impact_flash_shader(CombatArtTreatment.SHADER)
 		_art_treatment.set_enabled(_art_treatment_enabled)
 	material = _art_treatment.material
 
@@ -2545,7 +2551,8 @@ func _queue_continuously_animated_scene_redraws(skip_impact: bool = false) -> vo
 				_queue_scene_render_layer_for_tile(_scene_render_tile_for_unit(unit))
 
 func _queue_impact_scene_redraws() -> void:
-	var impact_keys: Array = presentation.get("impact_actor_keys", [])
+	var impact_keys: Array = (presentation.get("impact_actor_keys", []) as Array).duplicate()
+	impact_keys.append_array(presentation.get("combat_feel_flash_actor_keys",[]))
 	for unit: Dictionary in _visible_units():
 		if impact_keys.has(str(unit.get("key", ""))):
 			_queue_scene_render_layer_for_tile(_scene_render_tile_for_unit(unit))
@@ -3355,7 +3362,7 @@ func _queue_presentation_change_redraws(
 				_queue_render_layer_redraw(_ground_render_layer)
 			"expand_enemy_intents", "expanded_enemy_actor_keys", "show_all_enemy_intents", "hud_obstacle_global_rects":
 				hud_changed = true
-			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength":
+			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength", "combat_feel_flash", "combat_feel_flash_actor_keys":
 				impact_floor_changed = true
 				impact_changed = true
 			"death_animation_units", "preview_units", "unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "visible_enemy_ids", "umbra_action_actor_clips":
@@ -3379,6 +3386,12 @@ func _queue_presentation_change_redraws(
 			"guardian_motion", "warden_motion", "crawler_motion", "acolyte_motion", "bile_bloomer_motion", "cinder_droplet_motion", "cinder_ooze_motion", "frostglass_motion", "harrier_motion", "iskaldra_motion", "noctyrax_motion", "vaeloryx_motion", "veilbound_acolyte_motion":
 				# Per-actor viewports retain their texture RID between poses.
 				pass
+			"combat_feel_owner", "combat_feel_hits":
+				pass
+			"combat_feel_surface_frames":
+				for tile: Vector2i in _feel_surface_tiles: _queue_scene_render_layer_for_tile(tile)
+				_feel_surface_tiles = (presentation.get("combat_feel_surface_frames",{}) as Dictionary).keys()
+				for tile: Vector2i in _feel_surface_tiles: _queue_scene_render_layer_for_tile(tile)
 			"tile_drag_aiming":
 				# This flag changes pointer interpretation only; it has no rendered pixels.
 				pass
@@ -7917,7 +7930,7 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 	_draw_rect_ground_shadow(tile, terrain_rect, 0.70, 0.24, 0.16)
 	if terrain_kind in ["crag_outcrop","dragon_spire"]:
 		tint.a = maxf(tint.a,0.58)
-		var rise: float = preload("res://scripts/combat_outcome_feedback.gd").outcrop_progress(presentation.get("surface_feedback_events",[]),str(terrain.get("id","")),float(presentation.get("surface_feedback_progress",1.0)),bool(presentation.get("reduced_motion",false)))
+		var rise: float = preload("res://scripts/combat_outcome_feedback.gd").outcrop_progress(presentation.get("surface_feedback_events",[]),str(terrain.get("id","")),float(((presentation.get("combat_feel_surface_frames",{}) as Dictionary).get(terrain.get("pos",Vector2i(-1,-1)),{}) as Dictionary).get("progress",presentation.get("surface_feedback_progress",1.0))),bool(presentation.get("reduced_motion",false)))
 		if terrain_kind == "dragon_spire": preload("res://scripts/dragon_board_props.gd").draw_spire(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
 		else: BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
 	else:
@@ -8259,6 +8272,11 @@ func _draw_unit_body(unit: Dictionary) -> void:
 	# retained tile layer. Drawing the source sprite again underneath it would fill
 	# every dissolved opening and turn the breakup into a tinted cross-fade.
 	if _unit_uses_procedural_shadow_dissolve(unit):
+		var terminal_flash: float = _unit_impact_strength(unit)
+		if terminal_flash > 0.0:
+			var terminal_texture: Texture2D = _texture_for_unit(unit)
+			if terminal_texture != null:
+				_draw_texture_rect_with_umbra_clip(terminal_texture, _unit_texture_draw_rect(unit, _unit_center(unit)), Color(1.0, 1.0, 1.0, terminal_flash), umbra_clip, CombatPacingScript.WHITE_FLASH_PROFILE)
 		if detailed_sections:
 			_record_render_section_time("unit_body_sprite", phase_started_usec)
 		return
@@ -8295,7 +8313,7 @@ func _draw_unit_body(unit: Dictionary) -> void:
 		if impact > 0.0:
 			var flash: Color = IMPACT_FLASH_COLOR
 			flash.a *= impact
-			_draw_texture_rect_with_umbra_clip(texture, shifted_rect, flash, umbra_clip)
+			_draw_texture_rect_with_umbra_clip(texture, shifted_rect, flash, umbra_clip, CombatPacingScript.WHITE_FLASH_PROFILE)
 	if detailed_sections:
 		_record_render_section_time("unit_body_sprite", phase_started_usec)
 
@@ -9014,6 +9032,8 @@ func _lethal_death_mark_pulse(time_seconds: float) -> float:
 	return 0.5 + sin(phase) * 0.5
 
 func _unit_impact_strength(unit: Dictionary) -> float:
+	if presentation.has("combat_feel_owner"):
+		return float((presentation.get("combat_feel_flash", {}) as Dictionary).get(str(unit.get("key", "")), 0.0))
 	var actor_key: String = str(unit.get("key", ""))
 	if actor_key.is_empty():
 		return 0.0
@@ -9030,6 +9050,8 @@ func _unit_impact_strength(unit: Dictionary) -> float:
 # settles to rest even if submissions stop mid-impact. Reduced motion keeps the
 # camera still; a player hit also flushes the screen edge crimson.
 func _update_impact_camera_shake() -> void:
+	var feel_owner: Node = presentation.get("combat_feel_owner") as Node
+	var feel_amplitude: float = float(feel_owner.call("present_hits", presentation)) if is_instance_valid(feel_owner) else 0.0
 	var impact_keys: Array = (presentation.get("impact_actor_keys", []) as Array).duplicate()
 	var has_progress: bool = presentation.has("impact_progress")
 	var progress: float = clampf(float(presentation.get("impact_progress", 0.0)), 0.0, 1.0)
@@ -9040,18 +9062,27 @@ func _update_impact_camera_shake() -> void:
 	)
 	_camera_kick_keys = impact_keys
 	_camera_kick_last_progress = progress if has_progress else 0.0
-	if not new_impact:
+	if (feel_amplitude <= 0.0 if is_instance_valid(feel_owner) else not new_impact):
 		return
 	_camera_kick_player = impact_keys.has("player")
 	_camera_kick_strength = maxf(0.0, float(presentation.get("impact_strength", 1.0)))
+	var now: int = Time.get_ticks_usec()
+	var merged: bool = now - _camera_kick_started_usec <= preload("res://scripts/combat_hit_stop.gd").MERGE_WINDOW_USEC
+	var amplitude: float = feel_amplitude if is_instance_valid(feel_owner) else (IMPACT_CAMERA_SHAKE_PLAYER_PX if _camera_kick_player else IMPACT_CAMERA_SHAKE_PX) * _camera_kick_strength
+	_camera_kick_amplitude = maxf(_camera_kick_amplitude, amplitude) if merged else amplitude
+	if not merged:
+		_camera_kick_started_usec = now
+		_camera_kick_progress = 0.0
 	if _camera_kick_tween != null and _camera_kick_tween.is_valid():
 		_camera_kick_tween.kill()
 	if not is_inside_tree():
 		return
 	_camera_kick_tween = create_tween()
-	_camera_kick_tween.tween_method(_apply_camera_kick, 0.0, 1.0, IMPACT_CAMERA_KICK_SECONDS)
+	var seconds: float = CombatPacingScript.shake_seconds(_camera_kick_amplitude) if is_instance_valid(feel_owner) else IMPACT_CAMERA_KICK_SECONDS
+	_camera_kick_tween.tween_method(_apply_camera_kick, _camera_kick_progress, 1.0, seconds * (1.0 - _camera_kick_progress))
 
 func _apply_camera_kick(progress: float) -> void:
+	_camera_kick_progress = progress
 	var layer: CanvasLayer = get_parent() as CanvasLayer
 	if layer == null:
 		return
@@ -9059,9 +9090,11 @@ func _apply_camera_kick(progress: float) -> void:
 	if atmosphere != null:
 		atmosphere.call("set_hurt", pow(1.0 - progress, 1.6) * minf(_camera_kick_strength, 1.2) if _camera_kick_player else 0.0)
 	var offset := Vector2.ZERO
+	# Until the owner supplies the rate, retain the shipped decay profile.
 	var decay: float = pow(1.0 - progress, 2.0)
+	if progress >= 1.0: decay = 0.0
 	if decay > 0.001 and not bool(presentation.get("reduced_motion", false)):
-		var amplitude: float = (IMPACT_CAMERA_SHAKE_PLAYER_PX if _camera_kick_player else IMPACT_CAMERA_SHAKE_PX) * _camera_kick_strength
+		var amplitude: float = _camera_kick_amplitude
 		var phase: float = progress * IMPACT_CAMERA_SHAKE_OSCILLATIONS * TAU
 		offset = Vector2(sin(phase) * amplitude * decay, cos(phase * 1.37) * amplitude * 0.55 * decay).round()
 	if layer.offset != offset:
@@ -9074,9 +9107,7 @@ func _apply_camera_kick(progress: float) -> void:
 			backdrop.position = -offset
 
 func _unit_impact_shake_strength(unit: Dictionary) -> float:
-	if bool(presentation.get("reduced_motion", false)):
-		return 0.0
-	return _unit_impact_strength(unit)
+	return CombatPacingScript.unit_shake_strength(presentation, str(unit.get("key", "")))
 
 func _draw_icon_value_badge(rect: Rect2, icon_key: String, amount: int, fill: Color, border: Color, text_color: Color, font: Font) -> void:
 	draw_rect(rect, fill, true)
@@ -16665,8 +16696,9 @@ func _draw_board_surface(tile: Vector2i) -> void:
 	var retained_rubble: bool = BoardSurfacePresentation.retained_cache_enabled and _is_dynamic_render_layer and _render_layer_tile == tile
 	# Ground a feedback beat replaces, consumes or breaks keeps its retained
 	# layer for the start of the beat, fading out as the new ground arrives.
-	var feedback_events: Array = presentation.get("surface_feedback_events", []) as Array
-	var feedback_progress: float = float(presentation.get("surface_feedback_progress", 0.0))
+	var feedback_frame: Dictionary = (presentation.get("combat_feel_surface_frames",{}) as Dictionary).get(tile,{})
+	var feedback_events: Array = feedback_frame.get("events",presentation.get("surface_feedback_events", [])) as Array
+	var feedback_progress: float = float(feedback_frame.get("progress",presentation.get("surface_feedback_progress", 0.0)))
 	if retained_rubble:
 		var has_rubble: bool = BoardSurfaceRules.has_rubble(combat_state, tile)
 		var rubble_leaving: float = 0.0 if has_rubble else BoardSurfacePresentation.leaving_alpha(tile, "rubble", feedback_events, feedback_progress)

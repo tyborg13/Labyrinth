@@ -11,6 +11,9 @@ const DISPLAY_WINDOWED: String = "windowed"
 const DIALOGUE_STANDARD: String = "standard"
 const DIALOGUE_FAST: String = "fast"
 const DIALOGUE_INSTANT: String = "instant"
+const COMBAT_NORMAL: String = "normal"
+const COMBAT_FAST: String = "fast"
+const COMBAT_FASTEST: String = "fastest"
 
 const MASTER_BUS: String = "Master"
 const MUSIC_BUS: String = "Music"
@@ -84,6 +87,7 @@ static func default_settings() -> Dictionary:
 		"display_mode": DISPLAY_FULLSCREEN,
 		"ui_scale": default_ui_scale(),
 		"dialogue_speed": DIALOGUE_STANDARD,
+		"combat_speed": COMBAT_NORMAL,
 		"reduced_motion": false
 	}
 
@@ -108,6 +112,8 @@ static func normalize_settings(data: Variant) -> Dictionary:
 	if dialogue_speed not in [DIALOGUE_STANDARD, DIALOGUE_FAST, DIALOGUE_INSTANT]:
 		dialogue_speed = str(defaults["dialogue_speed"])
 	normalized["dialogue_speed"] = dialogue_speed
+	var combat_speed: String = str(source.get("combat_speed", COMBAT_NORMAL))
+	normalized["combat_speed"] = combat_speed if combat_speed in [COMBAT_NORMAL, COMBAT_FAST, COMBAT_FASTEST] else COMBAT_NORMAL
 	normalized["reduced_motion"] = _bool_or_default(source.get("reduced_motion"), bool(defaults["reduced_motion"]))
 	normalized["settings_schema"] = SETTINGS_SCHEMA
 	return normalized
@@ -240,6 +246,15 @@ static func dialogue_characters_per_second(settings: Dictionary) -> float:
 			return INF
 		_:
 			return STANDARD_DIALOGUE_CHARACTERS_PER_SECOND
+
+static func combat_speed_scale(settings: Dictionary) -> float:
+	match str(settings.get("combat_speed", COMBAT_NORMAL)):
+		COMBAT_FAST:
+			return 1.5
+		COMBAT_FASTEST:
+			return 2.0
+		_:
+			return 1.0
 
 static func dialogue_is_instant(settings: Dictionary) -> bool:
 	return str(normalize_settings(settings)["dialogue_speed"]) == DIALOGUE_INSTANT
