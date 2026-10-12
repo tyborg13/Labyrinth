@@ -1691,6 +1691,7 @@ var _treasure_sequence_tweens: Array[Tween]
 var _treasure_sequence_nodes: Array[Node]
 var _loadout_acquisition_in_progress: bool = false
 var _run_end_recap: RunEndRecapOverlay
+var _run_play_clock := preload("res://scripts/run_score_rules.gd").new()
 var _section_map_hud_button: Button
 var _map_opened_from_toolbar: bool = false
 var _section_map_presented_key: String = ""
@@ -2092,6 +2093,7 @@ func _refresh_guided_tutorial_live_geometry() -> void:
 		_layout_contextual_combat_prompt_overlay()
 
 func _physics_process(delta: float) -> void:
+	_run_play_clock.sample_scene_play_time(self)
 	if not _controller_is_active():
 		_controller_stick = Vector2.ZERO
 		_controller_reset_stick_repeat()
@@ -3763,6 +3765,8 @@ func _board_fit_rect() -> Rect2:
 		maxf(1.0, viewport_size.y - DESKTOP_HAND_ROW_HEIGHT - 18.0 - header_bottom)))
 
 func _notification(what: int) -> void:
+	if what in [NOTIFICATION_PAUSED, NOTIFICATION_UNPAUSED, NOTIFICATION_VISIBILITY_CHANGED] and is_inside_tree():
+		_run_play_clock.sample_scene_play_time(self)
 	if what == NOTIFICATION_WM_CLOSE_REQUEST:
 		_save_run_progress()
 		_finalize_performance_telemetry_scene("window_close")
@@ -5779,6 +5783,7 @@ func _build_run_end_recap(stage_root: Control) -> void:
 	_run_end_recap.new_run_pressed.connect(_on_restart_pressed)
 	_run_end_recap.main_menu_pressed.connect(_on_back_to_menu_pressed)
 	stage_root.add_child(_run_end_recap)
+	_run_end_recap.set_physics_process(false)
 	_run_end_recap.set_motion_enabled(not _reduced_motion_enabled())
 
 func _build_card_fx_layer() -> void:
@@ -10517,6 +10522,7 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_run_state = _ensure_run_analytics_metadata(_run_engine.repair_loaded_run_state(merged_run_state))
 	_run_state = GrimoireLibrary.ensure_run_state(_run_state)
 	_prune_grimoire_search_rows(_grimoire_known_row_ids())
+	_run_play_clock.reset_play_time()
 	_character_inventory_rows.prune(_current_character_row_keys(), _prepare_node_for_immediate_free)
 	_baseline_run_skill_event_cursors()
 	_sync_progression_from_run()
@@ -27491,7 +27497,9 @@ func _on_campfire_embrace_pressed(present_feedback: bool = false) -> void:
 	var held: int = _run_engine.held_embers(_run_state)
 	var committed_progression: Dictionary = ProgressionStore.set_embers(_progression, held)
 	committed_progression = ProgressionStore.mark_rested_at_fire(committed_progression)
+	_run_play_clock.sample_scene_play_time(self, _run_state)
 	var withdrawal: Dictionary = RunEndRecapOverlay.embrace_state(_run_state, committed_progression)
+	_run_play_clock.sample_scene_play_time(self, withdrawal)
 	committed_progression = withdrawal["progression"]
 	if not ProgressionStore.save_data(committed_progression):
 		push_error("Failed to persist campfire Embrace; the run remains resumable.")
@@ -28280,6 +28288,7 @@ func _open_menu_overlay() -> void:
 	if _menu_dialog != null:
 		_menu_dialog.visible = true
 	_menu_scrim.visible = true
+	_run_play_clock.sample_scene_play_time(self)
 	_update_performance_telemetry_context()
 	_schedule_controller_modal_refresh()
 
@@ -28293,6 +28302,7 @@ func _close_menu_overlay() -> void:
 	if _menu_dialog != null:
 		_menu_dialog.visible = true
 	_update_performance_telemetry_context()
+	_run_play_clock.sample_scene_play_time(self)
 	if _event_view != null and _event_view.visible: _event_view.restore_choice_focus()
 	_schedule_controller_modal_refresh()
 
@@ -28650,6 +28660,7 @@ func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool
 		return {"state": state, "saved": false}
 	if _save_in_progress:
 		return {"state": state, "saved": false}
+	_run_play_clock.sample_scene_play_time(self, state)
 	_save_in_progress = true
 	var mode: String = str(state.get("mode", ""))
 	var resume_run_skill_request: bool = mode not in ["combat", "victory", "defeat"] and _run_skill_analytics_queue.busy() and not _run_skill_analytics_flushing
@@ -34009,6 +34020,7 @@ func _terminal_state_with_recorded_run_result(terminal_state: Dictionary, progre
 	var state: Dictionary = terminal_state.duplicate(true)
 	if str(state.get("mode", "")) not in ["victory", "defeat"] or bool(state.get("debug_boss_run", false)):
 		return state
+	_run_play_clock.sample_scene_play_time(self, state)
 	var result_stats: Dictionary = RunEndRecapOverlay.result_stats(state)
 	var result_id: String = RunEngineScript.run_result_id(state)
 	# Terminal commits may carry newly staged receipts absent from the scene's

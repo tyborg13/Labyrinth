@@ -199,10 +199,12 @@ func _record_runtime_performance_phase(phase: String, started_usec: int) -> int:
 	return Time.get_ticks_usec()
 
 static func default_run_stats() -> Dictionary:
-	return RunScoreRules.normalized_stats({})
+	return normalized_run_stats({})
 
 static func normalized_run_stats(value: Variant) -> Dictionary:
-	return RunScoreRules.normalized_stats(value)
+	var stats: Dictionary = RunScoreRules.normalized_stats(value)
+	stats.erase("run_seconds") # Wall-clock time belongs exclusively to the run scene.
+	return stats
 
 static func _score_encounter_stats(value: Variant) -> Dictionary:
 	var stats: Dictionary = normalized_run_stats(value)
