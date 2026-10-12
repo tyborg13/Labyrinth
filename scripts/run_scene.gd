@@ -22357,7 +22357,7 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 		else:
 			transition_combat_state = await _animate_missed_equipment_resolution(post_combat_board_state, _salvaged_equipment_ids(committed_run_state))
 		if str(committed_run_state.get("mode", "room")) == "reward":
-			_combat_pacing.end_scope()
+			_combat_pacing.restore_time_scale()
 			await _play_post_combat_victory(transition_combat_state)
 	_board_presentation.clear()
 	_set_action_banner("")
@@ -22456,7 +22456,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 		else:
 			transition_combat_state = await _animate_missed_equipment_resolution(post_combat_board_state, _salvaged_equipment_ids(committed_run_state))
 		if str(committed_run_state.get("mode", "room")) == "reward":
-			_combat_pacing.end_scope()
+			_combat_pacing.restore_time_scale()
 			await _play_post_combat_victory(transition_combat_state)
 	var card_finish_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_board_presentation.clear()
