@@ -74,3 +74,9 @@ Enemy briefs: one icon per concept, stand-in art policy, encounter data entries.
 - SFX: all cues picked (round 2 built ed2e07f04). Waiting on sfx-01 (cue bank) to hear them in game.
 - Enemies: E1 art approved (6), E2 art approved except briar weaver r1; 7 icons approved. en-01, en-02 running; en-03
   queued. enc-01 r1 (empty earth/shadow boards in captures) queued. meta-01 r1 (12 TODO_DESIGN decided) queued.
+
+## Playtest rule (2026-10-12 incident)
+The owner's playtest runs from a FROZEN detached worktree (`../Labyrinth.worktrees/peer-benchmark-playtest`, pinned to a
+verified commit), never from the integration worktree: the game reads data files at runtime, so merging mid-session
+mixed old enemies.json with new encounters.json and blanked the board. Refresh the playtest worktree only between
+sessions (`git -C <wt> checkout --detach <commit>` + headless `--import`), after the suite passes at that commit.
