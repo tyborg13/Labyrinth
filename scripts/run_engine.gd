@@ -188,6 +188,7 @@ func create_new_run(seed: int, progression: Dictionary, section_maps: bool = tru
 		run_state["starting_relic_gift_ids"] = [str(gift["id"])]
 	if section_maps:
 		SectionMapGraph.initialize(run_state)
+		run_state["encounter_history"] = []
 		SectionMapGraph.room(run_state, Vector2i.ZERO)["npcs"] = start_room.get("npcs", [])
 		run_state["current_room_layout"] = _display_layout_for_room(seed, room_metadata(run_state, Vector2i.ZERO), Vector2i.ZERO)
 	run_state = GrimoireLibrary.ensure_run_state(run_state)
@@ -301,6 +302,10 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = migrate_renamed_content_ids(run_state) if run_content_migration_required(run_state) else run_state.duplicate(true)
 	if next_state.is_empty():
 		return next_state
+	# Older section saves start with no picks. Do not add fields to legacy runs:
+	# their complete serialized state remains compatible byte for byte.
+	if SectionMapGraph.modern(next_state) and not next_state.has("encounter_history"):
+		next_state["encounter_history"] = []
 	next_state = migrate_combat_units(next_state)
 	next_state = SurfaceSaveMigration.migrate_run(next_state, _combat_engine)
 	next_state = _repair_legacy_merchant_rooms(next_state)
@@ -969,6 +974,7 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 			if _equipment_drop_can_attempt(next_state, room) and not authored_tutorial:
 				next_state = _record_equipment_drop_attempt(next_state, layout)
 			combat_state = GuidedCombatScenario.prepare_for_run(next_state, combat_state)
+			_record_encounter_pick(next_state, layout)
 			next_state["combat_state"] = combat_state
 			next_state["mode"] = "combat"
 	return next_state
@@ -1147,6 +1153,7 @@ func begin_pre_battle_combat(run_state: Dictionary, prepared: Dictionary = {}) -
 	if _equipment_drop_can_attempt(next_state, room) and not bool(owned["authored_tutorial"]):
 		next_state = _record_equipment_drop_attempt(next_state, owned["layout"])
 	SectionMapGraph.room(next_state, next_state["current_room"]).erase("omen_combat_finished")
+	_record_encounter_pick(next_state, owned["layout"])
 	next_state["combat_state"] = (owned["combat_state"] as Dictionary).duplicate(true)
 	next_state["mode"] = "combat"
 	_clear_pre_battle_state(next_state)
@@ -2434,6 +2441,11 @@ func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: 
 	var equipment_drop: String = _equipment_drop_for_room(run_state, layout_room)
 	if not equipment_drop.is_empty():
 		layout_room["equipment_drop"] = equipment_drop
+	if SectionMapGraph.modern(run_state) and str(room.get("type", "")) == "combat" and room.has("section_index") and not GuidedCombatScenario.should_prepare(run_state, {"room_type": "combat"}):
+		layout_room["section_map_layout_revision"] = int(run_state.get("section_map_layout_revision", 4))
+		var section: Dictionary = SectionMapGraph.section(run_state, int(room["section_index"]))
+		layout_room["encounter_biome"] = DragonBossLibrary.element_for_boss(str(section["boss_id"]))
+		layout_room["encounter_history"] = run_state.get("encounter_history", []).duplicate()
 	var layout: Dictionary = _generated_combat_layout(int(run_state.get("seed", 0)), layout_room, travel_dir)
 	layout = _layout_with_recovery_loot(layout, room, run_state)
 	if has_run_skill(run_state, "true_bearing") and typeof(run_state.get("pre_battle_start", null)) == TYPE_VECTOR2I:
@@ -2441,6 +2453,15 @@ func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: 
 		if _layout_accepts_pre_battle_start(layout, chosen_start):
 			layout["player_start"] = chosen_start
 	return layout
+
+func _record_encounter_pick(run_state: Dictionary, layout: Dictionary) -> void:
+	if not layout.has("encounter_id"): return
+	var history: Array = run_state.get("encounter_history", []).duplicate()
+	history.append(str(layout["encounter_id"]))
+	run_state["encounter_history"] = history
+	var room: Dictionary = SectionMapGraph.room(run_state, run_state["current_room"])
+	room["encounter_id"] = layout["encounter_id"]
+	room["biome"] = layout["biome"]
 
 func _generated_combat_layout(seed: int, room: Dictionary, travel_dir: Vector2i) -> Dictionary:
 	# RoomGenerator consumes these complete immutable definitions plus its exact

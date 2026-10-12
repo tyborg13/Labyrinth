@@ -296,6 +296,16 @@ presentation data, not a new saved-state field or analytics event. Claw damage,
 lightning launch/arrival, Skybreak results, and the atomic enemy-action event
 boundaries retain their existing semantics.
 
+`combat_started.payload` also includes additive `encounter_id` and `biome`.
+For revision-4 section regular fights, `encounter_id` is the authored table
+composition id and `biome` is the section dragon's element (`fire`, `earth`,
+`ice`, `air`, `lightning`, `shadow`). Both come from persisted room metadata,
+so resume retains the selected cohort. Non-table fights and older saves without
+identity emit empty strings. Previewing a fight does not append encounter history
+or emit a combat-start event. Compare section cohorts separately from legacy
+hard-coded encounters; objective extras and leader scaling remain identified by
+the existing objective fields. See [encounters.md](encounters.md).
+
 `combat_started` marks recovery combats with `recovery_marker_present` and
 `recovery_marker_amount`. It also includes any unclaimed floor equipment ids as
 `equipment_drops`, plus the opening Umbra stage, effective vision radius, and

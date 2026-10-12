@@ -3100,7 +3100,10 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var retained_sync_fields: Array = []
 	if biome_changed:
 		_sync_dynamic_render_assets()
-		retained_sync_fields.append_array(["_biome_id", "_biome_light_color"])
+		# New/reframed tile layers need the full state. A biome-only list would
+		# override that full sync and leave their combat_state empty indefinitely.
+		if not layout_changed and not visual_framing_changed:
+			retained_sync_fields.append_array(["_biome_id", "_biome_light_color"])
 	if not layout_changed and not visual_framing_changed:
 		if state_changed:
 			retained_sync_fields.append_array([
