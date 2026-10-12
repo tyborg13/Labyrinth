@@ -42,6 +42,8 @@
 ## Change (numbered, testable)
 1. **Processing tool** `tools/process_biome_art.py --raw-dir <dir> --biome <id>|--all`:
    - Key #00FF00 (tolerant of anti-aliased green fringes; no green halo may survive — test it).
+   - If the biome has  in data/biomes.json, multiply the keyed floor (or pillar) RGB by those per-channel
+     gains before fitting (vaeloryx floors: 0.624/0.600/0.540 — the director's approved darkening of the raw).
    - Floors and pillar: fit the repaint's opaque bbox onto the template's opaque bbox (alpha-bbox fit, box filter), then
      REUSE THE TEMPLATE ALPHA byte-for-byte; RGB inside comes from the repaint (fill any transparent-in-repaint pixels
      inside the template alpha from the nearest repaint pixel).
@@ -51,6 +53,9 @@
      it exactly). Idle frames animate per the biome's `light_flicker`: `flame` = brightness of the glow region
      (luminance > 0.55) cycling 0.86–1.06 with a 1-px vertical jitter of that region on alternate frames; `glow` =
      brightness 0.92–1.05, no jitter; `spark` = mostly 0.9 with two frames at 1.25 (flash).
+   - Floors: after fitting, colour-match the biome's 4 variants: scale each variant's per-channel mean (inside the
+     alpha) toward the median of the 4 variants' per-channel means, gains clamped to 0.85–1.15 (zekarion's variants
+     drift in hue today).
    - Then apply the board pixel-density treatment the TEMPLATE received in `spec/assets/board_pixel_density/` (same class,
      grid and resample path as the template; reuse `tools/process_board_density.py`/`tools/pixel_density.py` functions,
      do not fork them). Report each output's orphan share vs its template.
