@@ -10925,7 +10925,7 @@ func _test_run_scene_show_all_enemy_intents_and_threats() -> void:
 	_assert(not (board_view.get("move_tiles") as Array).is_empty(), "Show-all mode should surface the enemies' combined movement preview")
 	_assert(not (board_view.get("attack_tiles") as Array).is_empty(), "Show-all mode should surface the enemies' combined attack preview")
 	var toggle: Button = instance.find_child("EnemyIntentToggle", true, false) as Button
-	_assert(toggle != null and toggle.button_pressed and toggle.text == "INTENTS ON [I]", "The turn-order rail should expose a pressed, labeled, focusable intent toggle")
+	_assert(toggle != null and toggle.button_pressed and toggle.text == "DETAILS [I]", "The turn-order rail should expose a pressed, labeled, focusable intent toggle")
 	instance.set("_selected_card_index", 0)
 	instance.set("_pending_actions", [{"type": "melee", "damage": 2, "range": 1}])
 	instance.set("_pending_action_index", 0)
