@@ -23,8 +23,10 @@ from tools.sfx_lab.slice import create_slices, slice_audio
 from tools.sfx_lab.features import create_features, measure
 from tools.sfx_lab.audition import audition, PAGE_SCRIPT, PAGE_TITLE, AUDITION_CSS, KEYBOARD_SHORTCUTS
 from tools.sfx_lab.build import build, process, CATEGORY_TARGETS, choose_channels, crossfade_loop
+from tools.sfx_lab.design import design, render_entry, render_layer, LAYER_DEFAULTS, MASTER_DEFAULTS
 import numpy as np
 import soundfile as sf
+from scipy import signal
 
 
 # Debug-only proof defaults, not production design or approved cue choices.
@@ -33,6 +35,10 @@ FIXTURE_RANDOM_SEED = 19012
 FIXTURE_DESIGN = {}  # Production decisions are now supplied by approved constants.
 FIXTURE_STEREO_SIDE_RATIOS = [0.249, 0.25, 0.251]
 PROOF_OUT: Path | None = None
+DESIGN_FIXTURE = {"seconds": .6, "trim": [.05, .35], "offset_ms": 7.35,
+                  "peak_dbfs": -6, "pitch": 2, "native_rate": 44100,
+                  "highpass_hz": 700, "lowpass_hz": 2000,
+                  "frequencies_hz": [100, 1000, 7000], "fade_ms": 10}
 
 
 def sine(seconds: float, frequency: float = 1000, amplitude: float = 0.2) -> np.ndarray:
@@ -608,6 +614,285 @@ function assert(value,message){if(!value) throw Error(message);}
                                     capture_output=True, text=True, timeout=180)
             self.assertEqual(0, result.returncode, result.stderr)
             self.assertTrue(result.stdout.strip())
+
+
+class LayeredDesignTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.temporary = tempfile.TemporaryDirectory(prefix="sfx-layer-tests-")
+        cls.root = Path(cls.temporary.name)
+        cls.sources = cls.root / "sources"
+        for folder in ("kenney", "opengameart", "sonniss_gdc"):
+            directory = cls.sources / folder
+            directory.mkdir(parents=True)
+            (directory / "LICENSE.txt").write_text("Synthetic test licence record\n")
+        seconds = DESIGN_FIXTURE["seconds"]
+        sf.write(cls.sources / "kenney/mono.wav", sine(seconds), FIXTURE_RATE, subtype="PCM_24")
+        sf.write(cls.sources / "opengameart/stereo.wav",
+                 np.concatenate((sine(seconds), sine(seconds, frequency=1300)), axis=1),
+                 FIXTURE_RATE, subtype="PCM_24")
+        sf.write(cls.sources / "sonniss_gdc/sonniss.wav", sine(seconds, frequency=200),
+                 FIXTURE_RATE, subtype="PCM_24")
+        sf.write(cls.sources / "kenney/bands.wav",
+                 sum(sine(seconds, frequency=f) for f in DESIGN_FIXTURE["frequencies_hz"]),
+                 FIXTURE_RATE, subtype="PCM_24")
+        native_rate = DESIGN_FIXTURE["native_rate"]
+        native = .2 * np.sin(2 * np.pi * 1000 * np.arange(round(seconds * native_rate)) / native_rate)
+        sf.write(cls.sources / "kenney/native.wav", native, native_rate, subtype="PCM_24")
+        cls.analysis = cls.root / "analysis"
+        create_index(cls.sources, cls.analysis / "index.json", 1)
+        create_slices(cls.analysis / "index.json", cls.analysis / "takes.jsonl", 1)
+        cls.rows = create_features(cls.analysis / "index.json", cls.analysis / "takes.jsonl",
+                                   cls.analysis / "features.jsonl", 1)
+        cls.features = cls.analysis / "features.jsonl"
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.temporary.cleanup()
+
+    def setUp(self):
+        self.work = self.root / self._testMethodName
+        self.work.mkdir()
+        self.library = TakeLibrary(self.features)
+
+    def row(self, path="kenney/mono.wav"):
+        return next(row for row in self.rows if row["source_path"] == path)
+
+    def layer(self, path="kenney/mono.wav", **settings):
+        return {"take": self.row(path)["take_id"], "trim": [0, None],
+                "fade_in_ms": 0, "fade_out_ms": 0, **settings}
+
+    def recipe(self, layers=None, **settings):
+        return {"note": "Debug-only layered implementation fixture",
+                "master": {"peak_dbfs": DESIGN_FIXTURE["peak_dbfs"], "fade_out_ms": 0},
+                "layers": layers or [self.layer()], **settings}
+
+    def recipes_path(self, value):
+        path = self.work / "recipes.json"
+        write_json(path, value)
+        return path
+
+    def test_layer_without_trim_renders_full_take(self):
+        row = self.row()
+        data, offset, provenance = render_layer(self.library, {"take": row["take_id"]})
+        expected, _, _ = render_layer(self.library, {"take": row["take_id"], "trim": [0.0, None]})
+        self.assertEqual(round((row["end_seconds"] - row["start_seconds"]) * FIXTURE_RATE), len(data))
+        np.testing.assert_array_equal(expected, data)
+        self.assertEqual(0, offset)
+        self.assertEqual(row["take_id"], provenance["take_id"])
+
+    def test_sample_exact_offset_mono_stereo_sum_and_default_length(self):
+        offset_ms = DESIGN_FIXTURE["offset_ms"]
+        layers = [self.layer(offset_ms=offset_ms), self.layer("opengameart/stereo.wav", gain_db=-6)]
+        rendered = [render_layer(self.library, layer) for layer in layers]
+        self.assertEqual(round(offset_ms * 48), rendered[0][1])
+        data, _ = render_entry(self.library, self.recipe(layers))
+        expected = np.zeros_like(data)
+        for samples, offset, _ in rendered:
+            expected[offset:offset + len(samples)] += samples
+        expected *= 10 ** (DESIGN_FIXTURE["peak_dbfs"] / 20) / np.max(np.abs(expected))
+        np.testing.assert_allclose(expected, data, atol=1e-14)
+        self.assertEqual(2, data.shape[1])
+        self.assertEqual(len(rendered[0][0]) + round(offset_ms * 48), len(data))
+        mono, _ = render_entry(self.library, self.recipe([self.layer(offset_ms=offset_ms)]))
+        self.assertEqual(1, mono.shape[1])
+        self.assertTrue(np.all(mono[:round(offset_ms * 48)] == 0))
+        np.testing.assert_allclose(mono[round(offset_ms * 48):],
+                                   rendered[0][0] * 10 ** (DESIGN_FIXTURE["peak_dbfs"] / 20)
+                                   / np.max(np.abs(rendered[0][0])), atol=1e-14)
+
+    def test_trim_pitch_reverse_filters_and_layer_fades(self):
+        trim = DESIGN_FIXTURE["trim"]
+        ordinary, _, _ = render_layer(self.library, self.layer(trim=trim))
+        reversed_data, _, _ = render_layer(self.library, self.layer(trim=trim, reverse=True))
+        np.testing.assert_array_equal(ordinary[::-1], reversed_data)
+        self.assertEqual(round((trim[1] - trim[0]) * FIXTURE_RATE), len(ordinary))
+        pitched, _, _ = render_layer(self.library, self.layer("kenney/native.wav", trim=trim,
+                                                            pitch=DESIGN_FIXTURE["pitch"]))
+        self.assertEqual(len(ordinary) // DESIGN_FIXTURE["pitch"], len(pitched))
+        self.assertAlmostEqual(2000, measure(pitched, FIXTURE_RATE)["centroid_hz"], delta=20)
+        high, low = DESIGN_FIXTURE["highpass_hz"], DESIGN_FIXTURE["lowpass_hz"]
+        raw, _, _ = render_layer(self.library, self.layer("kenney/bands.wav", reverse=True))
+        filtered, _, _ = render_layer(self.library, self.layer("kenney/bands.wav", reverse=True,
+                                                              highpass_hz=high, lowpass_hz=low))
+        expected = signal.sosfilt(signal.butter(2, high, btype="highpass", fs=FIXTURE_RATE,
+                                               output="sos"), raw, axis=0)
+        expected = signal.sosfilt(signal.butter(2, low, fs=FIXTURE_RATE, output="sos"), expected, axis=0)
+        np.testing.assert_allclose(expected, filtered, atol=1e-14)
+        measured = measure(filtered, FIXTURE_RATE)
+        self.assertLess(measured["low_band_ratio"], .01)
+        self.assertLess(measured["high_band_ratio"], .01)
+        milliseconds = DESIGN_FIXTURE["fade_ms"]
+        faded, _, _ = render_layer(self.library, self.layer(trim=trim, fade_in_ms=milliseconds,
+                                                           fade_out_ms=milliseconds))
+        count = round(milliseconds * 48)
+        expected = ordinary.copy()
+        expected[:count] *= np.linspace(0, 1, count)[:, None]
+        expected[-count:] *= np.sin(np.linspace(np.pi / 2, 0, count))[:, None]
+        np.testing.assert_allclose(expected, faded, atol=1e-14)
+        self.assertEqual([0.0, None], LAYER_DEFAULTS["trim"])
+        self.assertEqual(-1, MASTER_DEFAULTS["peak_dbfs"])
+
+    def test_master_order_filters_peak_fade_length_and_errors(self):
+        recipe = self.recipe([self.layer("kenney/bands.wav")], length_s=.2,
+                             master={"highpass_hz": 700, "lowpass_hz": 2000,
+                                     "peak_dbfs": -6, "fade_out_ms": 30})
+        raw, _, _ = render_layer(self.library, recipe["layers"][0])
+        expected = signal.sosfilt(signal.butter(2, 700, btype="highpass", fs=FIXTURE_RATE,
+                                               output="sos"), raw, axis=0)
+        expected = signal.sosfilt(signal.butter(2, 2000, fs=FIXTURE_RATE, output="sos"), expected, axis=0)
+        expected *= 10 ** (-6 / 20) / np.max(np.abs(expected))
+        expected = fade_out(expected, FIXTURE_RATE, 30)[:round(.2 * FIXTURE_RATE)]
+        actual, _ = render_entry(self.library, recipe)
+        np.testing.assert_allclose(expected, actual, atol=1e-14)
+        for settings in ({"offset_ms": -1}, {"pitch": 0}, {"trim": [0, 99]},
+                         {"highpass_hz": 24000}, {"lowpass_hz": 0}, {"reverse": "false"},
+                         {"fade_in_ms": -1}, {"gain_db": 1000000}):
+            with self.subTest(settings=settings), self.assertRaises(LabError):
+                render_entry(self.library, self.recipe([self.layer(**settings)]))
+        for recipe in (self.recipe(length_s=0), self.recipe(master={"peak_dbfs": 1})):
+            with self.assertRaises(LabError):
+                render_entry(self.library, recipe)
+        # The first sample of the synthetic sine is exact silence.
+        with self.assertRaisesRegex(LabError, "silent"):
+            render_entry(self.library, self.recipe([self.layer(trim=[0, 1 / FIXTURE_RATE])]))
+        extended, _ = render_entry(self.library, self.recipe(length_s=.8))
+        self.assertEqual(round(.8 * FIXTURE_RATE), len(extended))
+        self.assertTrue(np.all(extended[round(.6 * FIXTURE_RATE):] == 0))
+
+    def test_bytes_peak_provenance_source_preservation_and_no_deletions(self):
+        entry = self.recipe([self.layer(trim=[0, .3]), self.layer("opengameart/stereo.wav",
+                                                                offset_ms=7.35, gain_db=-3)])
+        recipes = self.recipes_path({"fixture.layered": {"A": entry, "B": self.recipe()}})
+        source_hashes = {str(path): sha256(path) for path in self.sources.rglob("*") if path.is_file()}
+        output = self.work / "output"
+        result = design(recipes, self.features, output)
+        hashes = {str(path.relative_to(output)): sha256(path) for path in output.rglob("*") if path.is_file()}
+        self.assertEqual(result, design(recipes, self.features, output))
+        other = self.work / "other-output"
+        self.assertEqual(result, design(recipes, self.features, other))
+        for name, digest in hashes.items():
+            self.assertEqual(digest, sha256(output / name))
+            self.assertEqual(digest, sha256(other / name))
+        for row in result:
+            info = sf.info(output / "designed" / row["cue"] / (row["label"] + ".wav"))
+            self.assertEqual(FIXTURE_RATE, info.samplerate)
+            self.assertEqual("PCM_24", info.subtype)
+            self.assertAlmostEqual(-6, row["peak_dbfs"], delta=.05)
+        sidecar = read_json(output / "designed/fixture.layered/A.json")
+        self.assertEqual(entry, sidecar["recipe"])
+        for layer, resolved in zip(entry["layers"], sidecar["layers"]):
+            row = self.library.get(layer)
+            self.assertEqual({key: row[key] for key in resolved}, resolved)
+        self.assertEqual(source_hashes, {str(path): sha256(path) for path in self.sources.rglob("*") if path.is_file()})
+        write_json(recipes, {"fixture.layered": {"A": entry}})
+        design(recipes, self.features, output)
+        self.assertTrue((output / "designed/fixture.layered/B.wav").exists())
+        with self.assertRaisesRegex(LabError, "read-only"):
+            design(recipes, self.features, self.sources)
+        if PROOF_OUT:
+            shutil.copytree(output, PROOF_OUT / "layered/sources", dirs_exist_ok=True)
+            write_json(PROOF_OUT / "layered/recipes.json", {"fixture.layered": {"A": entry}})
+        print("LAYERED_RENDER_PROOF offsets=PASS stereo=PASS peak=PASS bytes=PASS provenance=PASS")
+
+    def test_licence_derivation_and_missing_or_invalid_sidecar_before_index(self):
+        entries = {"fixture.cc0": {"A": self.recipe([self.layer(), self.layer("opengameart/stereo.wav")])},
+                   "fixture.sonniss": {"A": self.recipe([self.layer(), self.layer("sonniss_gdc/sonniss.wav")])}}
+        output = self.work / "output"
+        result = design(self.recipes_path(entries), self.features, output)
+        self.assertEqual(["CC0-1.0", "Sonniss GDC Bundle licence"], [row["licence_id"] for row in result])
+        indexed = create_index(output, self.work / "index.json", 1)
+        self.assertEqual(["CC0-1.0", "Sonniss GDC Bundle licence"], [row["licence_id"] for row in indexed["files"]])
+        sidecar_path = output / "designed/fixture.sonniss/A.json"
+        original = read_json(sidecar_path)
+        for replacement in ({}, {**original, "licence_id": "CC0-1.0"}, {**original, "layers": []},
+                            {**original, "recipe": {}}, {**original, "layers": [{**original["layers"][0],
+                             "source_path": "mixkit/excluded.wav"}, original["layers"][1]]}):
+            write_json(sidecar_path, replacement)
+            with self.assertRaisesRegex(LabError, "sidecar"):
+                create_index(output, self.work / "bad-index.json", 1)
+        sidecar_path.unlink()
+        with self.assertRaisesRegex(LabError, "sidecar"):
+            create_index(output, self.work / "missing-index.json", 1)
+        self.assertFalse((self.work / "missing-index.json").exists())
+        print("LAYERED_LICENCE_PROOF cc0=PASS sonniss=PASS invalid_sidecar=PASS missing_sidecar=PASS")
+
+    def test_excluded_recipe_paths_and_ambiguous_take(self):
+        for path in ("mixkit/bad.wav", "sfx-sources-excluded-old/bad.wav", "kenney/mixkit/bad.wav"):
+            with self.subTest(path=path), self.assertRaisesRegex(LabError, "Excluded"):
+                design(self.recipes_path({"fixture": {"A": self.recipe([self.layer(source_path=path)])}}),
+                       self.features, self.work / "output")
+        duplicate = self.work / "analysis"
+        duplicate.mkdir()
+        shutil.copyfile(self.analysis / "index.json", duplicate / "index.json")
+        duplicate_features = duplicate / "features.jsonl"
+        write_jsonl(duplicate_features, [*self.rows, self.row()])
+        library = TakeLibrary(duplicate_features)
+        with self.assertRaisesRegex(LabError, "Ambiguous"):
+            render_layer(library, self.layer())
+        # An output symlink must never turn a render into a source-root write.
+        output = self.work / "unsafe-output"
+        output.mkdir()
+        (output / "designed").symlink_to(self.sources / "kenney", target_is_directory=True)
+        with self.assertRaisesRegex(LabError, "escapes design output"):
+            design(self.recipes_path({"fixture": {"A": self.recipe()}}), self.features, output)
+
+    def test_designed_multi_root_cli_pipeline_and_relocation(self):
+        output = self.work / "output"
+        recipes = self.recipes_path({"fixture.pipeline": {"A": self.recipe(), "B": self.recipe()}})
+        def run(name, *arguments):
+            result = subprocess.run([sys.executable, str(ROOT / "tools/sfx_lab" / (name + ".py")),
+                                     *map(str, arguments)], capture_output=True, text=True, timeout=180)
+            self.assertEqual(0, result.returncode, result.stderr)
+            self.assertTrue(result.stdout.strip())
+            return result.stdout
+        text = run("design", "--recipes", recipes, "--features", self.features, "--out-root", output,
+                   "--only", "fixture.pipeline")
+        self.assertEqual(2, len(text.strip().splitlines()))
+        destination = self.work / "analysis"
+        run("index", "--sources", output, "--sources", self.sources, "--out", destination / "index.json",
+            "--workers", 1)
+        catalogue = read_json(destination / "index.json")
+        self.assertTrue(catalogue["files"][0]["source_path"].startswith("designed/"))
+        self.assertEqual([str(output.resolve()), str(self.sources.resolve())], catalogue["sources"])
+        again = create_index([output, self.sources], destination / "again.json", 4)
+        self.assertEqual(catalogue, again)
+        run("slice", "--index", destination / "index.json", "--out", destination / "takes.jsonl", "--workers", 1)
+        run("features", "--index", destination / "index.json", "--takes", destination / "takes.jsonl",
+            "--out", destination / "features.jsonl", "--workers", 1)
+        rows = TakeLibrary(destination / "features.jsonl").rows
+        designed = next(row for group in rows.values() for row in group
+                        if row["source_path"] == "designed/fixture.pipeline/A.wav")
+        # A/B are identical; the selector must carry source_path to resolve them.
+        picks = self.work / "picks.json"
+        selected = [{"take": designed["take_id"], "source_path": designed["source_path"]}, self.layer()]
+        write_json(picks, {"fixture.pipeline": {"note": "Synthetic pipeline proof",
+                                               "candidates": [{**item, "label": label}
+                                                              for item, label in zip(selected, "AB")]}})
+        approved = self.work / "approved.json"
+        write_json(approved, {"fixture.pipeline": {"category": "impact", "variants": selected, "loop": False}})
+        for relocation in (None, "library", "designed", "combined"):
+            extra = []
+            suffix = relocation or "original"
+            if relocation:
+                relocated = self.work / ("relocated-" + relocation)
+                if relocation in ("library", "combined"):
+                    shutil.copytree(self.sources, relocated, dirs_exist_ok=True)
+                if relocation in ("designed", "combined"):
+                    shutil.copytree(output, relocated, dirs_exist_ok=True)
+                extra = ["--sources", relocated]
+            run("audition", "--picks", picks, "--features", destination / "features.jsonl",
+                "--out", self.work / ("audition-" + suffix), *extra)
+            run("build", "--approved", approved, "--features", destination / "features.jsonl",
+                "--out-dir", self.work / ("build-" + suffix), "--manifest", self.work / ("manifest-" + suffix + ".json"), *extra)
+            self.assertEqual("CC0-1.0", read_json(self.work / ("manifest-" + suffix + ".json"))["outputs"][0]["licence_id"])
+        with self.assertRaisesRegex(LabError, "Duplicate source path"):
+            create_index([self.sources, self.sources], self.work / "duplicate-index.json", 1)
+        if PROOF_OUT:
+            shutil.copytree(self.work / "audition-original", PROOF_OUT / "layered/audition", dirs_exist_ok=True)
+            shutil.copytree(self.work / "build-original", PROOF_OUT / "layered/build", dirs_exist_ok=True)
+            shutil.copyfile(self.work / "manifest-original.json", PROOF_OUT / "layered/manifest.json")
+        print("LAYERED_PIPELINE_PROOF design=PASS index=PASS slice=PASS features=PASS audition=PASS build=PASS relocation=PASS")
 
 
 if __name__ == "__main__":
