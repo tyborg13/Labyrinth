@@ -10,8 +10,8 @@
     "light": "an iron wall bracket holding a small iron brazier bowl with a bright flame (orange-red fire, a few sparks)"
   },
   "vaeloryx": {
-    "floor": "pale wind-scoured limestone flagstones from an air dragon's open sky-temple: cool grey-white stone, edges rounded by wind, faint drifts of pale sand in the cracks, calm and airy but not bright white",
-    "pillar": "pale weathered limestone blocks worn smooth by wind, a carved cap with a few wind-cut grooves, a tattered pale-blue cloth strip tied around the shaft (kept within the silhouette)",
+    "floor": "weathered mid-grey limestone flagstones from an air dragon's ruined sky-temple: cool grey stone at MID value (clearly darker than white, similar overall brightness to ordinary dungeon stone), edges rounded by wind, faint drifts of pale sand in the cracks, a slight cool blue-grey cast",
+    "pillar": "weathered mid-grey limestone blocks worn smooth by wind (mid value, not white), a carved cap with a few wind-cut grooves, a tattered pale-blue cloth strip tied around the shaft (kept within the silhouette)",
     "light": "an iron wall bracket holding a small glass wind-lantern with a pale gold flame, tilted slightly as if by a breeze"
   },
   "iskaldra": {
