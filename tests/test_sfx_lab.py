@@ -11,24 +11,31 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from tools.sfx_lab.common import (LabError, TakeLibrary, decode, encode, fade_in, fade_out,
-    read_json, safe_path, sha256, write_json, write_jsonl, workers, SHORT_PEAK_TARGETS,
+    read_json, safe_path, sha256, normalize, db, write_json, write_jsonl, workers, SHORT_PEAK_TARGETS,
     FADE_IN_MS, FADE_CURVE)
 from tools.sfx_lab.index import create_index, query
 from tools.sfx_lab.slice import create_slices, slice_audio
 from tools.sfx_lab.features import create_features, measure
 from tools.sfx_lab.audition import audition, PAGE_SCRIPT, PAGE_TITLE, AUDITION_CSS, KEYBOARD_SHORTCUTS
-from tools.sfx_lab.build import build, process, CATEGORY_TARGETS, choose_channels, crossfade_loop
+from tools.sfx_lab.build import build, process, encode_verified, CATEGORY_TARGETS, choose_channels, crossfade_loop
 import numpy as np
 import soundfile as sf
 
 
 # Debug-only proof defaults, not production design or approved cue choices.
 FIXTURE_RATE = 48000
+FIXTURE_TARGET_LUFS = -18.0
+FIXTURE_DRIFT_LUFS = -20.0
+FIXTURE_CAPPED_PEAK_DBFS = -10.0
+FIXTURE_UNCAPPED_PEAK_DBFS = -1.2
+FIXTURE_ENCODER_MEASUREMENTS = 100
+FIXTURE_CAP_INPUT_AMPLITUDE = 0.8
 FIXTURE_RANDOM_SEED = 19012
 FIXTURE_DESIGN = {}  # Production decisions are now supplied by approved constants.
 FIXTURE_STEREO_SIDE_RATIOS = [0.249, 0.25, 0.251]
@@ -111,6 +118,36 @@ class SfxLabTests(unittest.TestCase):
         path = self.root / name
         write_json(path, value)
         return path
+
+    def _encoded_tolerance_fixture(self, capped: bool, peak_dbfs: float):
+        target_lufs, drift_lufs = FIXTURE_TARGET_LUFS, FIXTURE_DRIFT_LUFS
+        parameters = {"normalization": "integrated_lufs", "peak_target_dbfs": None,
+                      "peak_cap_applied": capped}
+        decoded = sine(1, amplitude=10 ** (peak_dbfs / 20))
+        path = self.root / ("capped.ogg" if capped else "uncapped.ogg")
+        def write_encoded(output, *_args):
+            output.write_bytes(b"synthetic encoded fixture")
+        # Fixed encoder drift isolates the acceptance gate from codec versions.
+        with patch("tools.sfx_lab.build.encode", side_effect=write_encoded), \
+             patch("tools.sfx_lab.build.decode", return_value=(decoded, FIXTURE_RATE)), \
+             patch("tools.sfx_lab.build.loudness", side_effect=[(target_lufs, "integrated_lufs")] +
+                   [(drift_lufs, "integrated_lufs")] * FIXTURE_ENCODER_MEASUREMENTS):
+            return encode_verified(path, sine(1), FIXTURE_RATE, parameters, "ogg")
+
+    def test_capped_take_passes_below_loudness_target(self):
+        result = self._encoded_tolerance_fixture(True, FIXTURE_CAPPED_PEAK_DBFS)
+        self.assertEqual(FIXTURE_DRIFT_LUFS, result["output_lufs"])
+        self.assertTrue(result["loudness_target_limited_by_peak_cap"])
+
+    def test_uncapped_take_outside_tolerance_fails_even_near_ceiling(self):
+        with self.assertRaisesRegex(LabError, "Encoded loudness outside tolerance"):
+            self._encoded_tolerance_fixture(False, FIXTURE_UNCAPPED_PEAK_DBFS)
+
+    def test_normalize_no_clip_cap_is_recorded(self):
+        normalized, parameters = normalize(sine(1, amplitude=FIXTURE_CAP_INPUT_AMPLITUDE), FIXTURE_RATE, 0.0, None)
+        self.assertAlmostEqual(-1.0, db(float(np.max(np.abs(normalized)))), places=6)
+        self.assertTrue(parameters["peak_cap_applied"])
+        self.assertLessEqual(float(np.max(np.abs(normalized))), 10 ** (-1 / 20) + 1e-12)
 
     def test_index_all_formats_license_hash_and_skips(self):
         files = self.catalogue["files"]

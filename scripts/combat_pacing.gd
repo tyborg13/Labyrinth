@@ -44,6 +44,7 @@ var _pending_order: Dictionary = {}
 var _order_running: bool = false
 var _last_state: Dictionary = {}
 var _last_presentation: Dictionary = {}
+var _last_render_frame: int = -1
 
 func install(owner_scene: Node) -> void:
 	scene = owner_scene
@@ -112,7 +113,7 @@ func begin_enemies() -> void:
 func _begin_scope(scope: String) -> void:
 	_sync_clock()
 	if _scope.is_empty():
-		_base_scale = Engine.time_scale
+		_base_scale = hit_stop.previous_scale() if hit_stop != null and hit_stop.active else Engine.time_scale
 	_scope = scope
 	_apply_speed()
 
@@ -122,8 +123,9 @@ func current_scale() -> float:
 	return _base_scale * Settings.combat_speed_scale(scene.get("_settings") as Dictionary)
 
 func _apply_speed() -> void:
+	if _base_scale <= 0.0: _base_scale = 1.0
 	if hit_stop != null and hit_stop.active:
-		if not is_zero_approx(Engine.time_scale):
+		if Engine.time_scale > 0.0:
 			_base_scale = Engine.time_scale
 			Engine.time_scale = 0.0
 		return
@@ -131,7 +133,7 @@ func _apply_speed() -> void:
 	var desired: float = current_scale()
 	if not is_equal_approx(Engine.time_scale, _applied_scale) and not is_equal_approx(Engine.time_scale, desired):
 		# The director writes its own slow-motion scale; retain it as the base.
-		_base_scale = Engine.time_scale
+		_base_scale = Engine.time_scale if Engine.time_scale > 0.0 else 1.0
 		desired = current_scale()
 	Engine.time_scale = desired
 	_applied_scale = desired
@@ -160,6 +162,7 @@ func finish_enemies() -> void:
 func end_scope() -> void:
 	var owns_scale: bool = not _scope.is_empty() or (hit_stop != null and hit_stop.active)
 	_sync_clock()
+	if _base_scale <= 0.0: _base_scale = 1.0
 	_scope = ""
 	enemies_active = false
 	if hit_stop != null:
@@ -168,6 +171,14 @@ func end_scope() -> void:
 		Engine.time_scale = _base_scale
 		_applied_scale = _base_scale
 	_close_phase()
+	_flashes.clear()
+	_popups.clear()
+	_deaths.clear()
+	_surfaces.clear()
+	_last_state = {}
+	_last_presentation = {}
+	if owns_scale and is_instance_valid(scene) and scene.is_inside_tree() and scene.has_method("_refresh_stage_view"):
+		scene.call_deferred("_refresh_stage_view")
 
 func _presentation_allowed() -> bool:
 	if scene == null or not scene.is_inside_tree() or scene.get_tree().paused:
@@ -185,11 +196,11 @@ func _process(_delta: float) -> void:
 			if not _presentation_allowed():
 				hit_stop.cancel()
 			_apply_speed()
-	if not hit_stop.active and (not _flashes.is_empty() or not _popups.is_empty() or not _deaths.is_empty() or not _surfaces.is_empty()):
-		_refresh_overlays()
+	if not _scope.is_empty() and _last_render_frame != Engine.get_process_frames() and not hit_stop.active and (not _flashes.is_empty() or not _popups.is_empty() or not _deaths.is_empty() or not _surfaces.is_empty()):
+		_refresh_overlays.call_deferred()
 
 func _refresh_overlays() -> void:
-	if scene != null and scene.is_inside_tree() and not _last_state.is_empty():
+	if not _scope.is_empty() and _last_render_frame != Engine.get_process_frames() and scene != null and scene.is_inside_tree() and not _last_state.is_empty():
 		scene.call("_render_board_state", _last_state, _last_presentation, true)
 
 func _active_overlays(entries: Array[Dictionary], clock: int) -> Array[Dictionary]:
@@ -269,10 +280,11 @@ func feedback_duration(_texts: Array, authored: float, initial_elapsed: float) -
 	return minf(authored, maxf(initial_elapsed, ENEMY_FEEDBACK_ADVANCE_SECONDS))
 
 func decorate(state: Dictionary, presentation: Dictionary) -> void:
+	_last_render_frame = Engine.get_process_frames()
 	_last_state = state
 	_last_presentation = presentation.duplicate(false)
 	var clock: int = presentation_usec()
-	var hits: Array[Dictionary] = []
+	var hits: Array[Dictionary]
 	for entry: Dictionary in presentation.get("floating_texts", []):
 		var key: String = str(entry.get("reaction_actor_key", ""))
 		if str(entry.get("reaction", "")) not in ["hit", "block"] and not FloatingText.is_damage_entry(entry):
@@ -335,7 +347,7 @@ func decorate(state: Dictionary, presentation: Dictionary) -> void:
 	_flash_draw_keys = strengths.keys()
 	_deaths = _active_overlays(_deaths, clock)
 	_surfaces = _active_overlays(_surfaces, clock)
-	var deaths: Array[Dictionary] = []
+	var deaths: Array[Dictionary]
 	for entry: Dictionary in _deaths:
 		var progress: float = clampf(float(clock - int(entry["start"])) / float(entry["duration"]), 0.0, 1.0)
 		if progress >= 1.0:
@@ -388,7 +400,7 @@ func present_hits(presentation: Dictionary) -> float:
 		if not _presentation_allowed():
 			continue
 		var key: String = hit["actor_key"]
-		if _scope.is_empty() and not hit_stop.active: _base_scale = Engine.time_scale
+		if _scope.is_empty() and not hit_stop.active: _base_scale = Engine.time_scale if Engine.time_scale > 0.0 else 1.0
 		elif not _scope.is_empty(): _apply_speed()
 		var stopped: bool = hit_stop.request(int(hit["damage"]), bool(hit["killed"]), key == "player", bool(presentation.get("reduced_motion", false)))
 		if not key.is_empty(): _flashes[key] = -1 if stopped else presentation_usec()

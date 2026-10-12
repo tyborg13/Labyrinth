@@ -2116,11 +2116,17 @@ func _physics_process(delta: float) -> void:
 			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
-	if _event_view != null and _event_view.visible:
-		if _event_view.handle_input(event): get_viewport().set_input_as_handled()
-		return
-	if _movement_undo_button != null and await _movement_undo_button.handle_input(event):
+	if _event_view != null and _event_view.visible and not _visible_control(_menu_scrim):
+		if _event_view.handle_input(event):
+			get_viewport().set_input_as_handled()
+			return
+		if event.is_action_pressed(InputRouterScript.ACTION_MENU):
+			_on_menu_button_pressed()
+			get_viewport().set_input_as_handled()
+			return
+	if _movement_undo_button != null and _movement_undo_button.consumes_input(event):
 		get_viewport().set_input_as_handled()
+		_movement_undo_button.request_undo()
 		return
 	if _drag_cancel_in_progress:
 		get_viewport().set_input_as_handled()
@@ -2413,7 +2419,10 @@ func _on_input_modality_changed(modality: String) -> void:
 	call_deferred("_sync_click_targeting_arrow")
 
 func _handle_controller_input(event: InputEvent) -> bool:
-	if _movement_undo_button != null and await _movement_undo_button.handle_input(event): return true
+	if _movement_undo_button != null and _movement_undo_button.consumes_input(event):
+		get_viewport().set_input_as_handled()
+		_movement_undo_button.request_undo()
+		return true
 	if event is InputEventJoypadButton and not (event as InputEventJoypadButton).pressed:
 		return false
 	var controller_activity: bool = true
@@ -3375,6 +3384,7 @@ func _refresh_controller_modal_after_layout() -> void:
 	_sync_click_targeting_arrow()
 
 func _controller_focus_scope() -> Control:
+	if _visible_control(_menu_scrim): return _menu_scrim
 	if _event_view != null and _event_view.visible: return _event_view
 	if _graftwright_view != null and _graftwright_view.visible: return _graftwright_view
 	if (
@@ -3525,7 +3535,7 @@ func _refresh_controller_prompts() -> void:
 	_controller_prompt_bar.anchor_right = _controller_prompt_bar.anchor_left
 	_controller_prompt_bar.visible = _controller_is_active() and not (graft_open and _graftwright_view.busy)
 	var prompts: Array = []
-	if _event_view != null and _event_view.visible:
+	if _event_view != null and _event_view.visible and not _visible_control(_menu_scrim):
 		_controller_prompt_bar.set_prompts([{ "action": InputRouterScript.ACTION_ACCEPT, "label": _event_view.controller_action_label() }])
 		return
 	if _guided_tutorial_hard_gate_active():
@@ -18075,9 +18085,10 @@ func _refresh_stage_view() -> void:
 	_record_runtime_performance_phase("stage_total", performance_total_started)
 
 func _apply_biome_presentation(target: Dictionary) -> void:
-	var id: String = Biomes.biome_for_run(_run_state, _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO)))
+	var biome: Dictionary = Biomes.presentation_for_run(_run_state)
+	var id: String = biome["id"]
 	target["biome_id"] = id
-	if board_backdrop != null: board_backdrop.modulate = Biomes.backdrop_modulate(id)
+	if board_backdrop != null: board_backdrop.modulate = biome["backdrop_modulate"]
 	if _combat_atmosphere != null: _combat_atmosphere.call("set_biome", id)
 
 func _stage_chrome_presentation() -> Dictionary:
@@ -22337,6 +22348,7 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 		else:
 			transition_combat_state = await _animate_missed_equipment_resolution(post_combat_board_state, _salvaged_equipment_ids(committed_run_state))
 		if str(committed_run_state.get("mode", "room")) == "reward":
+			_combat_pacing.end_scope()
 			await _play_post_combat_victory(transition_combat_state)
 	_board_presentation.clear()
 	_set_action_banner("")
@@ -22435,6 +22447,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 		else:
 			transition_combat_state = await _animate_missed_equipment_resolution(post_combat_board_state, _salvaged_equipment_ids(committed_run_state))
 		if str(committed_run_state.get("mode", "room")) == "reward":
+			_combat_pacing.end_scope()
 			await _play_post_combat_victory(transition_combat_state)
 	var card_finish_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_board_presentation.clear()
@@ -28232,6 +28245,7 @@ func _close_menu_overlay() -> void:
 	if _menu_dialog != null:
 		_menu_dialog.visible = true
 	_update_performance_telemetry_context()
+	if _event_view != null and _event_view.visible: _event_view.restore_choice_focus()
 	_schedule_controller_modal_refresh()
 
 func _open_settings_overlay() -> void:
@@ -32899,6 +32913,8 @@ func _run_skill_event_idempotency_key(run_state: Dictionary, revision: int, skil
 
 func _analytics_log_reward_choice(choice_kind: String, reward_state: Dictionary, selected_card_id: String, player_hp_before: int, player_hp_after: int) -> void:
 	_analytics_store.write_event("reward_choice", _analytics_context_from_states(_run_state, _combat_state, selected_card_id), {
+		"reward_kind": str(reward_state.get("kind", "combat")),
+		"event_id": str(reward_state.get("event_id", "")),
 		"choice_kind": choice_kind,
 		"selected_card_id": selected_card_id,
 		"offered_cards": (reward_state.get("cards", []) as Array).duplicate(true),
@@ -34623,6 +34639,7 @@ func _on_section_map_scout(coord: Vector2i) -> void:
 
 func _on_section_map_event(choice: String) -> void:
 	if _animation_lock:
+		if _event_view != null: _event_view.release_request()
 		return
 	_run_state = _run_engine.resolve_map_event(_run_state, choice)
 	_persist_committed_boundary("map_event")

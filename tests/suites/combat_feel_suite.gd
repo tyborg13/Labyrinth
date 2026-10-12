@@ -3,6 +3,7 @@ extends RefCounted
 const HitStop = preload("res://scripts/combat_hit_stop.gd")
 const Pacing = preload("res://scripts/combat_pacing.gd")
 const Settings = preload("res://scripts/settings_store.gd")
+const FloatingText = preload("res://scripts/floating_combat_text.gd")
 const FloatingSuite = preload("res://tests/suites/floating_combat_text_suite.gd")
 const MotionSuite = preload("res://tests/suites/combat_motion_timing_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
@@ -14,6 +15,8 @@ const HEAVY_OBSERVATION_MS: int = 125
 const CARD_RESOLUTION_TIMEOUT_MS: int = 6000
 const CLEANUP_FRAMES: int = 20
 const NO_ENEMY_FIXTURE_TIME: int = 1000
+const VICTORY_FIXTURE_ENEMY_HP: int = 1
+const VICTORY_FIXTURE_ENEMY_TILE: Vector2i = Vector2i(3, 4)
 const PROOF_CONTRACT: Dictionary = {
 	"min_images": 8, "expected_sizes": ["1920x1080"],
 	"required_images": [
@@ -28,6 +31,12 @@ const PROOF_CONTRACT: Dictionary = {
 	]
 }
 
+class VictoryFixture:
+	extends "res://scripts/run_scene.gd"
+	var victory_scale: float = -1.0
+	func _play_post_combat_victory(_state: Dictionary) -> void:
+		victory_scale = Engine.time_scale
+
 class FixtureOwner:
 	extends Node
 	var _settings: Dictionary = Settings.default_settings()
@@ -35,10 +44,18 @@ class FixtureOwner:
 	var _animation_lock: bool = true
 	var _drag_card_index: int = -1
 	var modal: bool = false
+	var pacing: Node
+	var rendered: Dictionary = {}
+	var render_count: int = 0
+	var planning: Dictionary = {"planning": true}
 	func _controller_modal_visible() -> bool:
 		return modal
-	func _render_board_state(_state: Dictionary, _presentation: Dictionary, _stable: bool) -> void:
-		pass
+	func _render_board_state(state: Dictionary, presentation: Dictionary, _stable: bool) -> void:
+		rendered = state
+		render_count += 1
+		if pacing != null: pacing.decorate(state, presentation)
+	func _refresh_stage_view() -> void:
+		rendered = planning
 	func _animation_actor_unit(state: Dictionary, key: String) -> Dictionary:
 		return state.get(key, {}) as Dictionary
 
@@ -48,8 +65,11 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	_test_settings(expect)
 	FloatingSuite.run(expect)
 	await _test_real_stop(tree, expect)
+	await _test_scope_less_stop(tree, expect)
+	await _test_overlay_refresh(tree, expect)
 	await _test_scopes(tree, expect)
 	await _test_run_scene(tree, expect)
+	await _test_card_victory(tree, expect)
 	write_proof_contract()
 
 static func write_proof_contract() -> void:
@@ -135,6 +155,52 @@ static func _test_real_stop(tree: SceneTree, expect: Callable) -> void:
 	expect.call(Engine.time_scale == 1.0, "Scene exit during a stop restores time")
 	print("COMBAT FEEL REAL STOP: observed=%dms expected=130ms restored=%s" % [elapsed,Engine.time_scale])
 
+static func _test_scope_less_stop(tree: SceneTree, expect: Callable) -> void:
+	var owner := FixtureOwner.new()
+	tree.root.add_child(owner)
+	var pacing: Node = Pacing.new()
+	pacing.install(owner)
+	owner._settings["combat_speed"] = "fastest"
+	pacing.hit_stop.request(12, false, true)
+	expect.call(pacing.hit_stop.active and Engine.time_scale == 0.0, "Scope-less hit-stop starts at zero")
+	pacing.begin_card()
+	await _wait_real(tree, HEAVY_OBSERVATION_MS + REAL_WAIT_TOLERANCE_MS)
+	expect.call(not pacing.hit_stop.active and Engine.time_scale == 2.0, "Card begun inside scope-less stop restores selected combat speed")
+	pacing.end_scope()
+	expect.call(Engine.time_scale == 1.0, "Scope-less stop/card overlap ends at 1.0")
+	owner.free()
+	expect.call(Engine.time_scale == 1.0, "Freeing scope-less stop owner leaves scale 1.0")
+	Engine.time_scale = 1.0
+	var stop: Node = HitStop.new()
+	stop.restore_scale = func() -> float: return 0.0
+	stop.request(1)
+	stop.cancel()
+	expect.call(Engine.time_scale == 1.0, "Hit-stop never restores a nonpositive callback scale")
+	stop.free()
+	Engine.time_scale = 1.0
+
+static func _test_overlay_refresh(tree: SceneTree, expect: Callable) -> void:
+	var owner := FixtureOwner.new()
+	tree.root.add_child(owner)
+	var pacing: Node = Pacing.new()
+	pacing.install(owner)
+	owner.pacing = pacing
+	pacing.begin_enemies()
+	var shown: Dictionary = {"animation": true}
+	var popup: Dictionary = preload("res://scripts/floating_combat_text.gd").damage_entry(Vector2i(3, 4), "-3", Color.WHITE)
+	var presentation: Dictionary = {"floating_texts": FloatingText.animate_entries([popup], 0.0, false)}
+	owner._render_board_state(shown, presentation, true)
+	var renders: int = owner.render_count
+	pacing._process(0.0)
+	pacing._refresh_overlays()
+	expect.call(owner.render_count == renders, "Overlay refresh skips a frame already submitted by the scene")
+	await pacing.finish_enemies()
+	owner._refresh_stage_view()
+	await _wait_real(tree, int(FloatingText.ANIMATION_DURATION_SECONDS * 1000.0) + REAL_WAIT_TOLERANCE_MS)
+	expect.call(owner.rendered == owner.planning, "Finished enemy overlays cannot overwrite or retain an animation over planning")
+	expect.call((pacing.get("_popups") as Dictionary).is_empty(), "Scope end clears retained overlays")
+	owner.free()
+
 static func _test_scopes(tree: SceneTree, expect: Callable) -> void:
 	var owner: Node = FixtureOwner.new()
 	tree.root.add_child(owner)
@@ -206,6 +272,30 @@ static func _test_scopes(tree: SceneTree, expect: Callable) -> void:
 	owner.free()
 	Engine.time_scale = 1.0
 	print("COMBAT FEEL SCOPES: clock/menu/drag/pause/director/card/end checked")
+
+static func _test_card_victory(tree: SceneTree, expect: Callable) -> void:
+	var instance: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+	instance.set_script(VictoryFixture)
+	tree.root.add_child(instance)
+	await tree.process_frame
+	MotionSuite._install_fixture(instance, true)
+	var state: Dictionary = instance.get("_combat_state")
+	state["deck"]["hand"] = ["quick_stab"]
+	state["enemies"][0]["pos"] = VICTORY_FIXTURE_ENEMY_TILE
+	state["enemies"][0]["hp"] = VICTORY_FIXTURE_ENEMY_HP
+	instance.get("_settings")["combat_speed"] = "fastest"
+	instance.get("_run_state")["combat_state"] = state
+	instance.call("_refresh_ui")
+	instance.call("_on_card_pressed", 0)
+	instance.call("_on_board_tile_clicked", VICTORY_FIXTURE_ENEMY_TILE)
+	var render_boundary: Callable = func() -> void: RenderingServer.frame_post_draw.emit()
+	if DisplayServer.get_name() == "headless": tree.process_frame.connect(render_boundary)
+	var deadline: int = Time.get_ticks_msec() + CARD_RESOLUTION_TIMEOUT_MS
+	while bool(instance.get("_animation_lock")) and Time.get_ticks_msec() < deadline: await tree.process_frame
+	if tree.process_frame.is_connected(render_boundary): tree.process_frame.disconnect(render_boundary)
+	expect.call(instance.victory_scale == 1.0, "Fastest card killing blow starts the production victory beat at 1.0")
+	instance.queue_free()
+	for frame: int in range(CLEANUP_FRAMES): await tree.process_frame
 
 static func _test_run_scene(tree: SceneTree, expect: Callable) -> void:
 	var instance: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()

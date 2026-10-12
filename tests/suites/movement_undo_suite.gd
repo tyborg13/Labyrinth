@@ -79,7 +79,8 @@ static func run(expect: Callable) -> void:
 
 	# A visibility excursion in a multi-tile path is unsafe even when endpoint
 	# and origin happen to share the same view.
-	var excursion: Array[Vector2i] = [Vector2i(2, 4), FIRST_TILE, Vector2i(2, 4)]
+	var excursion: Array[Vector2i]
+	excursion.assign([Vector2i(2, 4), FIRST_TILE, Vector2i(2, 4)])
 	var returned: Dictionary = umbra.duplicate(true)
 	returned["last_player_movement"] = {"resolved": true, "action_type": "move"}
 	expect.call(not (Rules.walk_report(engine, umbra, returned, excursion)["changed_fields"] as Array).is_empty(), "Intermediate visibility changes are included in the generic report")
@@ -131,7 +132,8 @@ static func run(expect: Callable) -> void:
 	print("MOVEMENT UNDO RULES: completed")
 
 static func _path() -> Array[Vector2i]:
-	var result: Array[Vector2i] = [Vector2i(2, 4), FIRST_TILE]
+	var result: Array[Vector2i]
+	result.assign([Vector2i(2, 4), FIRST_TILE])
 	return result
 
 static func prepare_storage() -> void:
@@ -256,8 +258,12 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 		key.pressed = true
 		key.ctrl_pressed = modifier == "ctrl"
 		key.meta_pressed = modifier == "meta"
-		await scene.call("_input", key)
+		set_reduced_motion(scene, false)
+		scene.get_viewport().push_input(key, true)
+		expect.call(scene.get_viewport().is_input_handled() and scene.get("_animation_lock"), "Undo key is consumed synchronously before its animation completes")
+		await wait_for_wall_clock(tree, Time.get_ticks_usec(), FADE_OPAQUE_CHECK_SECONDS)
 		expect.call(scene.get("_combat_state") == before, "Keyboard Z with %s modifier restores exact state" % modifier)
+	set_reduced_motion(scene, true)
 	await walk(scene)
 	var router: Node = tree.root.get_node("InputRouter")
 	router.call("set_forced_state_for_test", "controller", "steam_deck")

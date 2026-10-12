@@ -93,7 +93,7 @@ func refresh() -> void:
 		size = Vector2(meter.size.x, maxf(UNDO_BUTTON_HEIGHT, get_combined_minimum_size().y))
 		global_position = meter.global_position + Vector2(0.0, meter.size.y + UNDO_BUTTON_GAP)
 
-func handle_input(event: InputEvent) -> bool:
+func consumes_input(event: InputEvent) -> bool:
 	var pressed_now: bool = event.is_action_pressed(Router.ACTION_UNDO_MOVE)
 	if event is InputEventJoypadMotion and event.axis == JOY_AXIS_TRIGGER_LEFT:
 		var was_down: bool = _trigger_down
@@ -103,7 +103,6 @@ func handle_input(event: InputEvent) -> bool:
 	if Router.is_controller_event(event):
 		var router: Node = get_node_or_null("/root/InputRouter")
 		if router != null: router.call("mark_controller_device", event.device)
-	await request_undo()
 	return true
 
 func record_walk(before: Dictionary, after: Dictionary) -> void:
