@@ -129,6 +129,8 @@ const DEFAULT_AOE_PATTERN: Array = [
 ]
 
 
+const RunScoreRules = preload("res://scripts/run_score_rules.gd")
+
 const RUN_STAT_ENEMIES_KILLED: String = "enemies_killed"
 const RUN_STAT_DAMAGE_DEALT: String = "damage_dealt"
 const RUN_STAT_DAMAGE_RECEIVED: String = "damage_received"
@@ -193,19 +195,16 @@ func _record_runtime_performance_phase(phase: String, started_usec: int) -> int:
 	return Time.get_ticks_usec()
 
 static func default_run_stats() -> Dictionary:
-	return {
-		RUN_STAT_ENEMIES_KILLED: 0,
-		RUN_STAT_DAMAGE_DEALT: 0,
-		RUN_STAT_DAMAGE_RECEIVED: 0
-	}
+	return RunScoreRules.normalized_stats({})
 
 static func normalized_run_stats(value: Variant) -> Dictionary:
-	var source: Dictionary = value as Dictionary if typeof(value) == TYPE_DICTIONARY else {}
-	return {
-		RUN_STAT_ENEMIES_KILLED: maxi(0, int(source.get(RUN_STAT_ENEMIES_KILLED, 0))),
-		RUN_STAT_DAMAGE_DEALT: maxi(0, int(source.get(RUN_STAT_DAMAGE_DEALT, 0))),
-		RUN_STAT_DAMAGE_RECEIVED: maxi(0, int(source.get(RUN_STAT_DAMAGE_RECEIVED, 0)))
-	}
+	return RunScoreRules.normalized_stats(value)
+
+static func _score_encounter_stats(value: Variant) -> Dictionary:
+	var stats: Dictionary = normalized_run_stats(value)
+	stats["card_resolution_kills"] = 0
+	stats["card_resolution_active"] = false
+	return stats
 
 static func umbra_stage_for_section(section_index: int) -> String:
 	# Five elemental-dragon sections build toward the separate Shadow Dragon
@@ -687,6 +686,9 @@ func prepare_player_card(state: Dictionary, hand_index: int, play_mode: String =
 	var hand: Array = ((next_state.get("deck", {}) as Dictionary).get("hand", []) as Array)
 	if hand_index >= 0 and hand_index < hand.size():
 		var card_id: String = str(hand[hand_index])
+		next_state["run_stats"] = normalized_run_stats(next_state.get("run_stats", {}))
+		next_state["run_stats"]["card_resolution_kills"] = 0
+		next_state["run_stats"]["card_resolution_active"] = true
 		if CardKeywordRules.card_id_may_have_keywords(card_id) or not TempoRelicRules.effect_of_type(_relic_effects(next_state), "grant_first_action_empower").is_empty():
 			CardKeywordRules.stamp_card_start(next_state, card_id, card_def(card_id, next_state), play_mode == "empower")
 	return next_state
@@ -899,7 +901,9 @@ func begin_combat_creation(run_seed: int, room_layout: Dictionary, player_snapsh
 		},
 		"relic_flags": {},
 		"zekarion_summon_waves": 0,
-		"run_stats": normalized_run_stats(player_snapshot.get("run_stats", {})),
+		"run_stats": _score_encounter_stats(player_snapshot.get("run_stats", {})),
+		"score_wallet_base": int(player_snapshot.get("score_wallet_base", 0)),
+		"score_health_loss_at_start": int(normalized_run_stats(player_snapshot.get("run_stats", {})).get(RUN_STAT_DAMAGE_RECEIVED, 0)),
 		"death_rewards": [],
 		"room_embers": 0,
 		"recovered_embers_total": 0,
@@ -1991,6 +1995,7 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 		used_banked_play,
 		cards_played_before
 	)
+	_record_run_max(next_state, "max_kills_one_card", int((next_state.get("run_stats", {}) as Dictionary).get("card_resolution_kills", 0)))
 	SurfaceVarietyRules.finish_card(next_state, GameData.card_element_from_def(card), _relic_effects(next_state))
 	# A Rite begins after its own payment and card-play triggers.
 	var rite_started: bool = RiteRules.start(next_state, card_id, card)
@@ -2001,6 +2006,7 @@ func finish_player_card(state: Dictionary, hand_index: int, plays_spent: int = 1
 	var restrictions: Dictionary = next_state.get("player_turn_restrictions", {})
 	if bool(restrictions.get("frozen", false)):
 		_forfeit_remaining_card_plays(next_state)
+	next_state["run_stats"]["card_resolution_active"] = false
 	return next_state
 
 func _action_card_name(action: Dictionary) -> String:
@@ -4314,7 +4320,7 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 	action = action.duplicate(true)
 	action["_enemy_id"] = int(enemy.get("id", -1))
 	action["_origin_tile"] = enemy.get("pos", INVALID_TILE)
-	next_state["damage_context"] = {"actor_kind": "enemy", "actor_id": int(enemy.get("id", -1)), "source_kind": "direct_attack", "player_card": false}
+	next_state["damage_context"] = {"actor_kind": "enemy", "actor_id": int(enemy.get("id", -1)), "source_kind": "direct_attack", "player_card": false, "enemy_type": str(enemy.get("type", "")), "intent_id": str((enemy.get("intent", {}) as Dictionary).get("id", ""))}
 	if not enemy_action_can_resolve(next_state, action):
 		return next_state
 	var resolved_action: Dictionary = _resolved_surface_action(next_state, action)
@@ -4557,6 +4563,9 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 		BoardSurfaceRules.record_event(next_state, {"kind": "crystal_mantle_broken", "actor_kind": "enemy", "id": int(enemy.get("id", -1)), "tile": enemy.get("pos", INVALID_TILE), "prevented_damage": total_damage, "layers_remaining": int(enemy["frost_armor"]), "source": (next_state.get("damage_context", {}) as Dictionary).duplicate(true)})
 		_log(next_state, "%s's Crystal Mantle shatters a blow." % _enemy_display_name(enemy))
 		return next_state
+	var hit_context: Dictionary = next_state.get("damage_context", {}) as Dictionary
+	if was_alive and str(hit_context.get("actor_kind", "")) == "player" and str(hit_context.get("source_kind", "")) == "direct_attack":
+		_record_run_max(next_state, "max_single_hit", total_damage)
 	var remaining: int = total_damage
 	if not bypass_defense:
 		var block_amount: int = int(enemy.get("block", 0))
@@ -4574,6 +4583,11 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 	_record_run_stat(next_state, RUN_STAT_DAMAGE_DEALT, maxi(0, hp_before - int(enemy.get("hp", 0))))
 	if was_alive and int(enemy.get("hp", 0)) <= 0:
 		_record_run_stat(next_state, RUN_STAT_ENEMIES_KILLED, 1)
+		if not bool(enemy.get("summoned", false)):
+			_record_run_stat(next_state, "enemies_slain", 1)
+		if bool((next_state.get("run_stats", {}) as Dictionary).get("card_resolution_active", false)):
+			_record_run_stat(next_state, "card_resolution_kills", 1)
+			_record_run_max(next_state, "max_kills_one_card", int((next_state["run_stats"] as Dictionary).get("card_resolution_kills", 0)))
 		var reward_embers: int = 0 if bool(enemy.get("guardian_helper", false)) else int(GameData.enemy_def(str(enemy.get("type", ""))).get("reward_embers", 0))
 		var context: Dictionary = next_state.get("damage_context", {}) as Dictionary
 		var credit: bool = bool(context.get("player_card", is_player_turn(next_state)))
@@ -4581,6 +4595,7 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 		BoardSurfaceRules.record_event(next_state, {"kind": "actor_death", "actor_kind": "enemy", "id": int(enemy.get("id", -1)), "actor_key": _enemy_key(enemy), "source_kind": str(context.get("source_kind", "direct_attack")), "unit": enemy.duplicate(true), "player_card": credit, "source": context.duplicate(true)})
 		reward_embers = OmenRules.ember_drop(next_state, reward_embers)
 		next_state["room_embers"] = int(next_state.get("room_embers", 0)) + reward_embers
+		_record_score_wallet_max(next_state)
 		next_state["death_bonus_card_plays_this_turn"] = int(next_state.get("death_bonus_card_plays_this_turn", 0)) + bonus_card_plays
 		_record_death_reward(next_state, enemy, reward_embers, bonus_card_plays)
 		var pending: Array = next_state.get("_surface_pending_deaths", [])
@@ -4685,6 +4700,7 @@ func _damage_player(
 		next_state["player"] = player
 		_log(next_state, "Your Crystal Mantle shatters a blow.")
 		return next_state
+	var incoming_damage: int = remaining
 	if not bypass_block:
 		var block_amount: int = int(player.get("block", 0))
 		var applied_to_block: int = mini(block_amount, remaining)
@@ -4707,12 +4723,34 @@ func _damage_player(
 			next_state = _trigger_defiance(next_state, cause, hp_before)
 	if was_alive and int((next_state.get("player", {}) as Dictionary).get("hp", 0)) <= 0:
 		var context: Dictionary = next_state.get("damage_context", {}) as Dictionary
+		next_state["run_stats"]["killer"] = _score_killer(context, cause, incoming_damage)
 		BoardSurfaceRules.record_event(next_state, {"kind": "actor_death", "actor_kind": "player", "id": -1, "actor_key": "player", "source_kind": str(context.get("source_kind", cause)), "unit": player.duplicate(true), "player_card": bool(context.get("player_card", false)), "source": context.duplicate(true)})
 	var pain_id: String = SkillTreeLibrary.skill_id_for_effect("pain_recall")
 	var pain_flags: Dictionary = next_state.get("skill_flags", {}) as Dictionary
 	if health_was_lost and has_skill(next_state, pain_id) and not skill_was_used(next_state, pain_id) and not bool(pain_flags.get("pain_recall_primed", false)):
 		_set_skill_flag(next_state, "pain_recall_primed", true)
 	return next_state
+
+func _record_score_wallet_max(state: Dictionary) -> void:
+	var total: int = int(state.get("score_wallet_base", 0)) + int(state.get("room_embers", 0)) + int(state.get("recovered_embers_total", 0))
+	_record_run_max(state, "max_held_embers", total)
+
+func _record_run_max(state: Dictionary, stat_id: String, amount: int) -> void:
+	var stats: Dictionary = normalized_run_stats(state.get("run_stats", {}))
+	stats[stat_id] = maxi(int(stats.get(stat_id, 0)), amount)
+	state["run_stats"] = stats
+
+func _score_killer(context: Dictionary, cause: String, damage: int) -> Dictionary:
+	if cause == "fatigue":
+		return {"cause": "fatigue", "damage": damage}
+	var source: String = str(context.get("source_kind", cause))
+	if source == "trap":
+		return {"cause": "trap", "element": context.get("trap_element", ""), "damage": damage}
+	if source.begins_with("surface_"):
+		return {"cause": "surface", "surface": source.trim_prefix("surface_"), "damage": damage}
+	if context.has("enemy_type"):
+		return {"enemy_type": context["enemy_type"], "intent_id": context.get("intent_id", ""), "damage": damage}
+	return {"cause": cause, "damage": damage, "source_kind": source}
 
 func _record_run_stat(state: Dictionary, stat_id: String, amount: int) -> void:
 	if amount <= 0:
@@ -7214,6 +7252,7 @@ func _trigger_trap_at_index(state: Dictionary, trap_index: int, protect_player: 
 	var context: Dictionary = (state.get("damage_context", {}) as Dictionary).duplicate(true)
 	state["damage_context"] = context.duplicate(true)
 	state["damage_context"]["source_kind"] = "trap"
+	state["damage_context"]["trap_element"] = str(trap.get("element", ""))
 	var actors: Array[Dictionary] = _surface_actor_records(state)
 	for actor: Dictionary in actors:
 		if not BoardSurfaceRules.footprint_tiles(actor["unit"] as Dictionary).has(center):
@@ -7647,6 +7686,7 @@ func _draw_cards_in_place(state: Dictionary, count: int) -> Dictionary:
 				var reserve_health: int = GameData.fixed_point_amount(maxi(1, int(reserve_effect.get("minimum_health_visible", 1))))
 				fatigue_player["hp"] = reserve_health
 				next_state["player"] = fatigue_player
+				next_state["run_stats"]["killer"] = {}
 				_mark_skill_used(next_state, reserve_id, "%s survives Fatigue at %d health." % [SkillTreeLibrary.display_name(reserve_id), reserve_health])
 			fatigue_player = _normalized_player(next_state.get("player", {}))
 			if int(fatigue_player.get("hp", 0)) <= 0:
@@ -7690,6 +7730,7 @@ func _collect_loot_at_player(state: Dictionary) -> void:
 			"dropped_embers":
 				state["recovered_embers_total"] = int(state.get("recovered_embers_total", 0)) + amount
 				state["recovery_marker_claimed"] = true
+				_record_score_wallet_max(state)
 				_log(state, "Recovered %d embers." % amount)
 			"equipment":
 				var equipment_id: String = str(loot.get("equipment_id", ""))
@@ -10738,6 +10779,8 @@ func _trigger_defiance(state: Dictionary, cause: String, hp_before: int) -> Dict
 	player["hp"] = mini(int(player.get("max_hp", 1)), restored_hp)
 	next_state["player"] = player
 	next_state["defiance_remaining"] = remaining_before - 1
+	_record_run_stat(next_state, "defiance_spent", 1)
+	next_state["run_stats"]["killer"] = {}
 	var revision: int = int(next_state.get("defiance_event_revision", 0)) + 1
 	var event: Dictionary = {
 		"revision": revision,

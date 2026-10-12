@@ -51,6 +51,7 @@ available:
 - `run_started`
 - `run_resumed`
 - `run_ended`
+- `run_scored`
 - `combat_started`
 - `combat_resumed`
 - `combat_ended`
@@ -83,6 +84,28 @@ available:
 - `guided_tutorial_completed`
 - `guided_tutorial_dismissed`
 - `guided_tutorial_restarted`
+
+## Run score (meta-01)
+
+`run_scored` adds `{total, lines, feats}` after a completed defeat, victory or
+Ember Hearth withdrawal is recorded. Rows carry `id`, `label`, `detail`,
+`points`, `subject` and `feat`; the two lists retain the run-end brief's order
+and omit zero-point rows. `total` is the sum of both lists. Scoring and counters
+are defined in [run_end.md](run_end.md).
+
+The event uses the original run analytics id and progression/relic context.
+`ProgressionStore` queues it in the existing durable progression outbox using
+`<result_id>:run_scored` as its idempotency key. Existing local JSONL delivery
+and acknowledgment retain retry semantics; the ledger returns the originally
+scored result on terminal replay. Delivery occurs at an existing outbox
+reconciliation, including boot. No existing event, Steam stat or historical
+JSONL record is changed. Production Embrace stages its score before the existing
+banked-profile save and displays the recap only after that save succeeds.
+
+Completed results add nullable `score`, `lines`, `feats`, `killer`, `section`,
+`biome`, `outcome` and `new_best_score`; the progression adds strict monotonic
+`best_score`. Legacy scores remain null for Chronicle's later “—” display. The
+existing metric personal bests and 32-result ledger retain their policies.
 
 ## Player activation ends
 

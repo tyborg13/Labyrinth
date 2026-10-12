@@ -14572,7 +14572,7 @@ func _deck_piles() -> Dictionary:
 
 func _refresh_visibility() -> void:
 	var mode: String = str(_run_state.get("mode", "room"))
-	var terminal_recap_visible: bool = mode in ["victory", "defeat"]
+	var terminal_recap_visible: bool = mode in ["victory", "defeat", "embrace"]
 	var section_map: bool = SectionMapGraph.enabled(_run_state)
 	mini_map_overlay.visible = not section_map and mode != "combat" and not terminal_recap_visible
 	mini_map.get_parent().visible = not section_map
@@ -14597,10 +14597,7 @@ func _refresh_visibility() -> void:
 		_choice_button_overlay.visible = false
 	if _context_choice_overlay != null and mode != "campfire" and not _run_engine.can_speak_to_emaciated_man(_run_state):
 		_context_choice_overlay.visible = false
-	stats_label.visible = mode not in ["victory", "defeat"]
-	loadout_button.visible = mode not in ["victory", "defeat"]
-	grimoire_button.visible = mode not in ["victory", "defeat"]
-	menu_button.visible = mode not in ["victory", "defeat"]
+	for header_control: Control in [stats_label, loadout_button, grimoire_button, menu_button]: header_control.visible = not terminal_recap_visible
 	if mode != "combat":
 		_clear_card_action_choice_state()
 		# This full refresh already reconciles choices/stage/hand. Cancelling
@@ -14650,7 +14647,7 @@ func _refresh_choice_bar(reward_jobs: Variant = null) -> void:
 	var mode: String = str(_run_state.get("mode", "room"))
 	if _graftwright_view != null and mode != "graftwright": _graftwright_view.hide()
 	var relic_offer_sfx_signature: String = ""
-	if mode not in ["victory", "defeat"] and _run_end_recap != null:
+	if mode not in ["victory", "defeat", "embrace"] and _run_end_recap != null:
 		_run_end_recap.reset()
 	choice_bar.custom_minimum_size = Vector2.ZERO
 	if _dialogue_active and _dialogue_suppresses_choices:
@@ -14718,7 +14715,7 @@ func _refresh_choice_bar(reward_jobs: Variant = null) -> void:
 				var relic: Dictionary = GameData.relic_def(relic_id)
 				_add_relic_choice(relic_id, relic)
 			_configure_relic_choice_focus()
-		"victory", "defeat":
+		"victory", "defeat", "embrace":
 			_show_run_end_recap(mode)
 	var has_overlay_choices: bool = _choice_button_overlay != null and _choice_button_overlay.get_child_count() > 0
 	var has_pass_preview: bool = _pass_preview_overlay != null and _pass_preview_overlay.get_child_count() > 0
@@ -15749,6 +15746,7 @@ func _show_run_end_recap(outcome: String) -> void:
 	if _run_end_recap == null:
 		return
 	var ember_amount: int = _victory_carry_amount if outcome == "victory" else _defeat_lost_amount
+	if outcome == "embrace": ember_amount = _run_engine.held_embers(_run_state)
 	var model: Dictionary = RunEndRecapOverlay.build_model(_run_state, _progression, outcome, ember_amount)
 	var window_center: Vector2 = RunEndRecapOverlay.DEFEAT_WINDOW_CENTER_NORMALIZED
 	_run_end_recap.present(model, window_center)
@@ -27482,10 +27480,13 @@ func _on_campfire_embrace_pressed(present_feedback: bool = false) -> void:
 	var held: int = _run_engine.held_embers(_run_state)
 	var committed_progression: Dictionary = ProgressionStore.set_embers(_progression, held)
 	committed_progression = ProgressionStore.mark_rested_at_fire(committed_progression)
+	var withdrawal: Dictionary = RunEndRecapOverlay.embrace_state(_run_state, committed_progression)
+	committed_progression = withdrawal["progression"]
 	if not ProgressionStore.save_data(committed_progression):
 		push_error("Failed to persist campfire Embrace; the run remains resumable.")
 		return
 	_progression = committed_progression
+	_run_state = withdrawal
 	_campfire_embrace_committed = true
 	ProgressionStore.clear_saved_run()
 	if present_feedback:
@@ -27493,7 +27494,9 @@ func _on_campfire_embrace_pressed(present_feedback: bool = false) -> void:
 		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.HEARTH_DEPART_ID))
 		await _play_campfire_result("%d Embers banked" % held, false)
 		if token != _campfire_presentation.generation: return
-	_change_scene_to_file("res://scenes/main_menu.tscn")
+	_set_campfire_choice_action_pending(false)
+	_animation_lock = false
+	_refresh_ui()
 
 func _on_campfire_linger_pressed() -> void:
 	_run_state = _run_engine.leave_campfire(_run_state, CAMPFIRE_LINGER_HEAL_AMOUNT)
