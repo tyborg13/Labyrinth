@@ -183,6 +183,16 @@ def _gd_function(source: str, function_name: str) -> str:
 
 
 class IconIdentityPolicyTests(unittest.TestCase):
+    def test_en01_approved_enemy_icon_identities(self) -> None:
+        registry = _action_icon_paths()
+        aliases = _action_icon_aliases()
+        for concept in ("burrow", "erupt", "burst"):
+            self.assertEqual(registry[concept], f"res://assets/art/icons/{concept}.png")
+        self.assertEqual(aliases["burrow"], "burrow")
+        self.assertEqual(aliases["erupt"], "erupt")
+        self.assertEqual(aliases["kindle"], "burst")
+        self.assertFalse({"burrow", "erupt", "kindle"} & PENDING_ICON_PLACEHOLDER_ALIASES.keys())
+
     def test_distinct_player_facing_concepts_own_distinct_assets(self) -> None:
         registry = _action_icon_paths()
         concepts: dict[str, str] = {

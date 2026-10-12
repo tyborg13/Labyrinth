@@ -8,6 +8,9 @@ const ICON_ROOT: String = "res://assets/art/icons"
 const SKILL_ICON_ROOT: String = "res://assets/art/skills"
 
 const KEYWORDS: Dictionary = {
+	"burrow": {"label": "Burrow", "description": "Burrowed; marks your current tile. Erupt is its next intent.", "path": "%s/burrow.png" % ICON_ROOT},
+	"erupt": {"label": "Erupt", "description": "Surfaces at the mark, displaces its occupant, pushes adjacent units, leaves Rubble and gains Expose 2.", "path": "%s/erupt.png" % ICON_ROOT},
+	"burst": {"label": "Bursts", "description": "When this dies, it deals the shown damage to everything next to it.", "path": "%s/burst.png" % ICON_ROOT},
 	"raise_cover": {"label":"Raise Cover","description":"Spend 1 independent Move and all Stoneskin. Place cover within 2 with that much HP.","path":"res://assets/art/icons/guardians/raise_cover.png"},
 	"reclaim_cover": {"label":"Reclaim Cover","description":"Spend 1 independent Move to remove adjacent owned cover and recover its surviving HP as Stoneskin.","path":"res://assets/art/icons/guardians/reclaim_cover.png"},
 	"surface": {"label": "Shape Ground", "description": "Creates a surface in the shown area.", "path": "%s/surface.png" % ICON_ROOT},
@@ -418,6 +421,9 @@ const SKILL_ICONS: Dictionary = {
 ## Action names may share an icon only when players experience them as the exact
 ## same concept. Keep this dictionary parseable by tests/test_icon_identity_policy.py.
 const ACTION_ICON_ALIASES: Dictionary = {
+	"burrow": "burrow",
+	"erupt": "erupt",
+	"kindle": "burst",
 	"aoe": "aoe",
 	# Wave-4 surface family (spec/card_mechanics_surfaces.md). Wards are the
 	# Shape Ground action placed under each adjacent enemy.
@@ -1158,6 +1164,12 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 	var action_type: String = str(action.get("type", ""))
 	var tokens: Array = []
 	match action_type:
+		"burrow":
+			tokens.append(text_token("Burrow", action_icon_key(action), "Burrowed; marks your current tile. Erupt is its next intent."))
+		"erupt":
+			tokens.append(text_token("Erupt %d" % int(action.get("damage", 0)), action_icon_key(action), "Surfaces at the mark, displaces its occupant, pushes adjacent units, leaves Rubble and gains Expose 2."))
+		"kindle":
+			tokens.append(text_token("Kindle +%d" % int(action.get("amount", 0)), action_icon_key(action), "Burst damage increases until death; stacks to max +4."))
 		"cost":
 			if bool(action.get("exhaust", false)):
 				tokens.append(token_for("exhaust"))

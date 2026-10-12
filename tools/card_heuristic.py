@@ -178,6 +178,20 @@ BOSS_ENCOUNTER_ROLES = {
     "noctyrax": "snuff and darkness, declared player-centered ground sweeps, live pursuit and capped replacement Acolytes",
 }
 
+# Director-authored section regulars. Context only: no intrinsic card coefficient changes.
+SECTION_ENEMY_ROSTER = {
+    "burrow_grub": {"section": "earth", "hp": 12, "initiative": 10, "reward_embers": 10,
+                    "first_weighted_cadence": 14.6, "repeat_weighted_cadence": 14.75,
+                    "reach": "Gnaw Move 2 + melee 3; Burrow marks hero tile, forced Erupt 6",
+                    "support": "Erupt displaces center, pushes cardinal neighbors, leaves Rubble, self-Expose 2; no exit leaves center in place and surfaces nearby",
+                    "counterplay": "leave the mark, place an enemy on it, punish self-Expose"},
+    "ember_tick": {"section": "fire", "hp": 6, "initiative": 8, "reward_embers": 6,
+                   "first_weighted_cadence": 12.0, "repeat_weighted_cadence": 12.0,
+                   "reach": "Scuttle Move 3 + melee 2; death Burst hits eight surrounding tiles for 4",
+                   "support": "Kindle adds 2 until death, max bonus 4; death leaves Fire; breadth-first chains",
+                   "counterplay": "kill at range, push beside allies, block burst damage"},
+}
+
 ENEMY_TACTICAL_ROLES = {
     "frontliner": "close distance and convert reachable attacks",
     "artillery": "hold useful range and establish legal shots",
@@ -219,6 +233,7 @@ def encounter_assumptions() -> dict[str, Any]:
         "randomized_elemental_bosses": RANDOMIZED_ELEMENTAL_BOSSES,
         "final_boss_depth": FINAL_BOSS_DEPTH,
         "boss_encounter_roles": BOSS_ENCOUNTER_ROLES,
+        "section_enemy_roster": SECTION_ENEMY_ROSTER,
         "dragon_feedback_rules": {
             "winters_hourglass": "first Ice card per activation banks 3 Time, cap 3; non-Ice cards spend only needed reserve to minimum Time 1; persists within combat; free Borrowed Time preserves it; excluded from intrinsic scores",
             "stormroad_coil": "one visible Electrified relay for single-target ranged attacks; normal range and LOS on both legs, visible target, direct contact preferred; at most twice printed range before intrinsic Chain; excluded from intrinsic scores",

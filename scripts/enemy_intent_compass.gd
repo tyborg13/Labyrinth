@@ -15,11 +15,11 @@ const TEXTURE_PATHS := {
 const MELEE_TYPES := ["melee", "pull"]
 const RANGED_TYPES := ["ranged"]
 const AREA_TYPES := [
-	"aoe", "detonate", "cinder_marks", "detonate_cinders", "gale_force",
+	"burrow", "erupt", "aoe", "detonate", "cinder_marks", "detonate_cinders", "gale_force",
 	"lightning_strikes", "terrain_burst", "umbra_eclipse",
 ]
 const DEFENSE_TYPES := ["block", "frost_armor", "guard_ally", "stoneskin"]
-const SUPPORT_TYPES := ["heal_ally", "heal_self", "raise_terrain", "summon_minions", "surface", "consume_surface", "surface_relocate"]
+const SUPPORT_TYPES := ["kindle", "heal_ally", "heal_self", "raise_terrain", "summon_minions", "surface", "consume_surface", "surface_relocate"]
 const MOVEMENT_TYPES := ["move_away", "move_toward"]
 
 static func descriptors_for_state(state: Dictionary, visible_enemy_ids: Array = []) -> Dictionary:
