@@ -1,0 +1,65 @@
+{
+	"expected_sizes": [
+		"1920x1080"
+	],
+	"min_images": 7,
+	"required_images": [
+		{
+			"height": 1080,
+			"pattern": "*01_hanged_knight_choices.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						166,
+						202,
+						930,
+						630
+					]
+				},
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						1200,
+						202,
+						548,
+						675
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*02_bloodletters_basin_choices.png",
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*03_name_collector_choices.png",
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*04_frozen_champion_disabled.png",
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*05_hanged_knight_result.png",
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*06_combat_omens_tooltip.png",
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*07_reduced_motion_open.png",
+			"width": 1920
+		}
+	]
+}

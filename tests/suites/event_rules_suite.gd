@@ -9,7 +9,7 @@ const Graph = preload("res://scripts/section_map_graph.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const Objectives = preload("res://scripts/combat_objective_rules.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
-const EventPanel = preload("res://scripts/section_map_panel.gd")
+const EventPanel = preload("res://scripts/event_view.gd")
 const TEST_SEED: int = 421
 const SELECTION_SEEDS: int = 24
 const EVENTS_PER_SECTION: int = 2
@@ -535,17 +535,15 @@ static func _edges(engine: RefCounted, expect: Callable) -> void:
 	expect.call(not Graph.enabled(repaired) and Events.current_id(repaired) == "lost_cartographer", "Circular-map legacy event saves retain their map and resume Cartographer")
 
 static func _ui(engine: RefCounted, expect: Callable) -> void:
-	var panel := EventPanel.new()
-	Engine.get_main_loop().root.add_child(panel)
+	var view := EventPanel.new()
+	Engine.get_main_loop().root.add_child(view)
 	var state: Dictionary = _event_state(engine, "bloodletters_basin")
 	state["player_hp"] = 5
-	panel.set_run_state(state)
-	panel._refresh_event()
-	expect.call(panel.get("_event_buttons").size() == 3 and panel.get("_event_buttons")[0].disabled and panel.get("_event_buttons")[0].tooltip_text == "Requires more than 5 Health.", "Stopgap UI keeps unavailable choices with exact reasons")
-	panel.set_run_state(engine.resolve_map_event(state, "leave"))
-	panel._refresh_event()
-	expect.call(panel.get("_event_buttons").size() == 1 and panel.get("_event_buttons")[0].text == "Continue", "Stopgap result page exposes Continue")
-	panel.free()
+	view.present(state, true)
+	expect.call(view.choices.size() == 3 and not view.choices[0].available and view.choices[0].tooltip_text == "Requires more than 5 Health.", "Illustrated event UI keeps unavailable choices with exact reasons")
+	view.present(engine.resolve_map_event(state, "leave"), true)
+	expect.call(view.choices.is_empty() and view.continue_button != null and view.continue_button.text == "Continue", "Illustrated event result page exposes Continue")
+	view.free()
 
 static func _strings(values: Array) -> Array[String]:
 	var result: Array[String]

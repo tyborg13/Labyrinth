@@ -1514,6 +1514,8 @@ var _pile_state_overlays: Dictionary = {}
 var _active_pile_kind: String = ""
 var _pile_visual_signature: String = "<unset>"
 var _pile_dialog_content_source: Dictionary = {}
+var _event_view: Control
+var _omen_badges = preload("res://scripts/omen_badges.gd").new()
 var _relic_bar_signature: String = "<unset>"
 var _relic_utility_bar: HBoxContainer
 var _relic_icon_grid: GridContainer
@@ -2111,6 +2113,9 @@ func _physics_process(delta: float) -> void:
 			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
+	if _event_view != null and _event_view.visible:
+		if _event_view.handle_input(event): get_viewport().set_input_as_handled()
+		return
 	if _drag_cancel_in_progress:
 		get_viewport().set_input_as_handled()
 		return
@@ -2612,6 +2617,7 @@ func _controller_uses_gui_focus() -> bool:
 	)
 
 func _controller_modal_visible() -> bool:
+	if _event_view != null and _event_view.visible: return true
 	if _graftwright_view != null and _graftwright_view.visible: return true
 	for control: Control in [
 		_skill_choice_scrim,
@@ -3362,6 +3368,7 @@ func _refresh_controller_modal_after_layout() -> void:
 	_sync_click_targeting_arrow()
 
 func _controller_focus_scope() -> Control:
+	if _event_view != null and _event_view.visible: return _event_view
 	if _graftwright_view != null and _graftwright_view.visible: return _graftwright_view
 	if (
 		_guided_tutorial_requires_continue()
@@ -3510,6 +3517,9 @@ func _refresh_controller_prompts() -> void:
 	_controller_prompt_bar.anchor_right = _controller_prompt_bar.anchor_left
 	_controller_prompt_bar.visible = _controller_is_active() and not (graft_open and _graftwright_view.busy)
 	var prompts: Array = []
+	if _event_view != null and _event_view.visible:
+		_controller_prompt_bar.set_prompts([{ "action": InputRouterScript.ACTION_ACCEPT, "label": _event_view.controller_action_label() }])
+		return
 	if _guided_tutorial_hard_gate_active():
 		match _guided_tutorial_phase_id:
 			ContextualCombatTutorial.PHASE_SELECT_CARD_FOR_CANCEL, ContextualCombatTutorial.PHASE_SELECT_FIRST_CARD, ContextualCombatTutorial.PHASE_SELECT_KILL_CARD, ContextualCombatTutorial.PHASE_SELECT_REFUND_CARD:
@@ -10658,6 +10668,8 @@ func _refresh_ui_header() -> void:
 	_set_stats_label_text(_displayed_ember_count())
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_umbra_and_stats", performance_phase_started)
 	_refresh_relic_bar()
+	_omen_badges.sync(_relic_icon_grid, _run_state, _reduced_motion_enabled())
+	relic_bar.visible = relic_bar.visible or _omen_badges.has_visible_badges(_relic_icon_grid)
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_relic_bar_total", performance_phase_started)
 
 func _refresh_ui_navigation() -> void:
@@ -10703,6 +10715,7 @@ func _refresh_ui_hand() -> void:
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_hand_total", performance_phase_started)
 
 func _refresh_ui_finish() -> void:
+	_refresh_event_view()
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_refresh_pile_interaction_states()
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_pile_interactions", performance_phase_started)
@@ -10959,7 +10972,7 @@ func _refresh_relic_bar() -> void:
 	var icon_signature: int = hash([relic_ids, _combat_state.get("relic_stored_surfaces", []), _combat_state.get("relic_element_knots", []), _combat_state.get("relic_time_reserve", {}), _combat_state.get("relic_flags", {}), rite_entries])
 	var icons_changed: bool = int(_relic_icon_grid.get_meta("relic_icon_signature", -1)) != icon_signature
 	if icons_changed:
-		_clear_children(_relic_icon_grid)
+		_omen_badges.clear_relic_children(_relic_icon_grid)
 		_relic_icon_grid.set_meta("relic_icon_signature", icon_signature)
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_clear", performance_phase_started)
 	_skill_sigil = null
@@ -21933,6 +21946,7 @@ func _refresh_enemy_intent_toggle() -> void:
 	)
 
 func _map_shortcut_can_open() -> bool:
+	if str(_run_state.get("mode", "")) == "event" or (_event_view != null and _event_view.visible): return false
 	if _large_map_scrim == null or _dialogue_active or _animation_lock or _treasure_presentation_busy() or _drag_card_index >= 0:
 		return false
 	for blocking_control: Control in [
@@ -21949,6 +21963,7 @@ func _map_shortcut_can_open() -> bool:
 	return true
 
 func _open_large_map(from_toolbar: bool = false) -> void:
+	if str(_run_state.get("mode", "")) == "event": return
 	if _large_map_scrim == null or _treasure_presentation_busy():
 		return
 	_map_opened_from_toolbar = from_toolbar
@@ -28198,6 +28213,7 @@ func _close_settings_overlay() -> void:
 
 func _on_settings_changed(settings: Dictionary) -> void:
 	_settings = SettingsStore.normalize_settings(settings)
+	if _event_view != null: _event_view.set_reduced_motion(_reduced_motion_enabled())
 	if _reduced_motion_enabled():
 		_cancel_pre_battle_entry()
 	if _run_end_recap != null:
@@ -34542,7 +34558,7 @@ func _section_map_should_present() -> bool:
 	if not SectionMapGraph.enabled(_run_state) or _animation_lock or _treasure_presentation_busy() or _loadout_acquisition_in_progress or _dialogue_active:
 		return false
 	var mode: String = str(_run_state.get("mode", ""))
-	if mode not in ["room", "event"] or not _map_shortcut_can_open():
+	if mode != "room" or not _map_shortcut_can_open():
 		return false
 	if mode == "room" and not _current_room_merchant_kind().is_empty() and _merchant_shop_open:
 		return false
@@ -34651,3 +34667,16 @@ func _animate_guardian_utility(state: Dictionary, step: Dictionary, actor_key: S
 func _play_outcome_sounds(events: Array, primary_element: String = "", traps: Array = []) -> void:
 	for entry: Dictionary in OutcomeFeedback.sounds(events,primary_element,traps):
 		_play_sfx(entry)
+
+func _refresh_event_view() -> void:
+	if str(_run_state.get("mode", "")) == "event":
+		if _large_map_scrim != null and _large_map_scrim.visible: _close_large_map()
+		if _event_view == null:
+			_event_view = preload("res://scripts/event_view.gd").new()
+			ui_root.add_child(_event_view)
+			_event_view.choice_requested.connect(_on_section_map_event)
+			_event_view.interaction_changed.connect(_refresh_controller_prompts)
+			_event_view.closed.connect(_queue_section_map_presentation)
+		_event_view.present(_run_state, _reduced_motion_enabled(), _play_sfx)
+	elif _event_view != null and _event_view.visible:
+		_event_view.dismiss()

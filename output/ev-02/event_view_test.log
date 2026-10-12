@@ -1,0 +1,14 @@
+Running task-local command:
+  task: ev-02
+  run: ev-02-1791834824629173000-41364
+  HOME: /private/tmp/labyrinth-godot-home/ev-02-1791834824629173000-41364
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/ev-02-1791834824629173000-41364/godot.log --headless --path . --script tests/event_view_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+Event view fit: 207 pages, 27 events × fresh/rich states; 89 outcome branches
+Event view suite: 0 failures
