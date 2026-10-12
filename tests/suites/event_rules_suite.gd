@@ -13,6 +13,8 @@ const EventPanel = preload("res://scripts/section_map_panel.gd")
 const TEST_SEED: int = 421
 const SELECTION_SEEDS: int = 24
 const EVENTS_PER_SECTION: int = 2
+const SURVEY_FIXTURE_HOPS: int = 4
+const SURVEY_FIXTURE_TARGET_COUNT: int = 2
 
 static func run(expect: Callable) -> void:
 	var engine := Run.new()
@@ -23,6 +25,7 @@ static func run(expect: Callable) -> void:
 	_selection(engine, expect)
 	_requirements(engine, expect)
 	_effects(engine, expect)
+	_reveals(engine, expect)
 	_previews(engine, expect)
 	_result_rows(engine, expect)
 	_replacement_fallbacks(engine, expect)
@@ -31,8 +34,9 @@ static func run(expect: Callable) -> void:
 	_edges(engine, expect)
 	_ui(engine, expect)
 
-static func _event_state(engine: RefCounted, id: String = "lost_cartographer") -> Dictionary:
+static func _event_state(engine: RefCounted, id: String = "lost_cartographer", legacy: bool = false) -> Dictionary:
 	var state: Dictionary = engine.create_new_run(TEST_SEED, Store.default_data())
+	if legacy: Graph._initialize_revision_3(state)
 	for room: Dictionary in state["rooms"].values():
 		if str(room.get("type", "")) != "event": continue
 		state["current_room"] = room["coord"]
@@ -40,6 +44,14 @@ static func _event_state(engine: RefCounted, id: String = "lost_cartographer") -
 		state["mode"] = "event"
 		return Events.enter_event(state)
 	return {}
+
+static func _survey_mystery(state: Dictionary) -> Vector2i:
+	var hops: int = int(Events.choice_def("lost_cartographer", "survey")["effects"][0]["hops"])
+	for coord: Vector2i in Graph.descendants(state, state["current_room"], hops):
+		if coord == state["current_room"]: continue
+		Graph.room(state, coord).merge({"type": "mystery", "mystery_type": "event", "visited": false, "scouted": false}, true)
+		return coord
+	return Graph.INVALID
 
 static func _apply(engine: RefCounted, state: Dictionary, effects: Array, purpose: String = "test") -> Dictionary:
 	return Events.apply_effects(state, effects, Events.rng_for(state, purpose), engine)
@@ -145,7 +157,9 @@ static func _requirements(engine: RefCounted, expect: Callable) -> void:
 	expect.call(Events.choice_available(state, "test_requirements", "choice"), "Equipped consumables satisfy has_item")
 	Data.events().erase("test_requirements")
 	state = _event_state(engine)
-	for room: Dictionary in state["rooms"].values(): room["revealed"] = true
+	for room: Dictionary in state["rooms"].values():
+		room["revealed"] = true
+		if room["type"] == "mystery": room["scouted"] = true
 	expect.call(not Events.choice_available(state, "lost_cartographer", "survey") and Events.choice_block_reason(state, "lost_cartographer", "survey") == "Nothing new to reveal.", "An empty reveal-only choice stays listed but unavailable")
 	expect.call(not Events.choice_available(state, "lost_cartographer", "unknown"), "Unknown choice ids are rejected")
 
@@ -215,6 +229,7 @@ static func _effects(engine: RefCounted, expect: Callable) -> void:
 	for outcome: Dictionary in result["outcomes"]:
 		expect.call(outcome["from"] != outcome["to"] and Data.card_rarity(outcome["to"]) == "rare", "Transform records from-to and raises rarity")
 	var progression_before: Dictionary = state["progression"].duplicate(true)
+	_survey_mystery(state)
 	result = _apply(engine, state, [{"type": "defiance", "amount": 1}, {"type": "scout", "amount": 2}, {"type": "omen", "id": "hunted"}, {"type": "reveal", "hops": 4}])
 	var next: Dictionary = result["state"]
 	expect.call(next["defiance_capacity"] == state["defiance_capacity"] + 1 and next["defiance_remaining"] == state["defiance_remaining"] + 1 and next["progression"] == progression_before, "Event Defiance belongs only to this run")
@@ -231,6 +246,85 @@ static func _effects(engine: RefCounted, expect: Callable) -> void:
 	expect.call(seen_random.size() == 2, "Both random branches are reachable")
 	expect.call(Events.stepped_rarity("legendary", 1) == "legendary", "Rarity upgrades cap at Legendary")
 
+static func _reveal_state(engine: RefCounted, index: int, revision: int) -> Dictionary:
+	var state: Dictionary = engine.create_new_run(TEST_SEED, Store.default_data())
+	if revision < 4: Graph._initialize_revision_3(state)
+	state["section_map_layout_revision"] = revision
+	state["current_room"] = Graph.section(state, index)["entry"]
+	Graph.room(state, state["current_room"]).merge({"type": "event", "event_id": "lost_cartographer", "visited": true, "cleared": false}, true)
+	state["mode"] = "event"
+	Graph.refresh_knowledge(state)
+	return Events.enter_event(state)
+
+static func _reveals(engine: RefCounted, expect: Callable) -> void:
+	var effects: Array = [{"type": "reveal", "hops": SURVEY_FIXTURE_HOPS}]
+	for index: int in range(5):
+		var state: Dictionary = _reveal_state(engine, index, 4)
+		var distances: Dictionary = Graph.descendants(state, state["current_room"])
+		var targets: Array[Vector2i]
+		var excluded: Array[Vector2i]
+		var distant: Vector2i = Graph.INVALID
+		for coord: Vector2i in distances:
+			var node: Dictionary = Graph.room(state, coord)
+			if node["type"] == "mystery": node["scouted"] = true
+			if int(distances[coord]) == 0: continue
+			if int(distances[coord]) <= SURVEY_FIXTURE_HOPS:
+				if targets.size() < SURVEY_FIXTURE_TARGET_COUNT: targets.append(coord)
+				elif excluded.size() < SURVEY_FIXTURE_TARGET_COUNT: excluded.append(coord)
+			elif distant == Graph.INVALID: distant = coord
+		expect.call(targets.size() == SURVEY_FIXTURE_TARGET_COUNT and excluded.size() == SURVEY_FIXTURE_TARGET_COUNT and distant != Graph.INVALID, "Survey fixture covers near, excluded and distant rooms")
+		for coord: Vector2i in targets:
+			Graph.room(state, coord).merge({"type": "mystery", "mystery_type": "combat", "visited": false, "scouted": false}, true)
+		Graph.room(state, excluded[0]).merge({"type": "mystery", "mystery_type": "event", "visited": false, "scouted": true}, true)
+		Graph.room(state, excluded[1]).merge({"type": "mystery", "mystery_type": "event", "visited": true, "scouted": false}, true)
+		Graph.room(state, distant).merge({"type": "mystery", "mystery_type": "event", "visited": false, "scouted": false}, true)
+		var future: Vector2i = Graph.section(state, index + 1)["entry"]
+		Graph.room(state, future).merge({"type": "mystery", "mystery_type": "event", "visited": false, "scouted": false}, true)
+		Graph.section(state, index)["scouts"] = 0
+		expect.call(Events.reveal_targets(state, SURVEY_FIXTURE_HOPS) == targets and Events.choice_available(state, "lost_cartographer", "survey"), "I–V survey identifies all and only in-range unentered unscouted mysteries, even with no Scouts")
+		expect.call(Events.effect_lines(state, effects) == _strings(["Reveal what the unknown rooms up to 4 rooms ahead hold."]), "I–V reveal preview uses the exact approved wording")
+		var before: Dictionary = state.duplicate(true)
+		var result: Dictionary = _apply(engine, state, effects)
+		var next: Dictionary = result["state"]
+		expect.call(state == before and next["map_sections"] == before["map_sections"] and next["map_events"] == before["map_events"], "Survey is atomic and does not spend Scouts or emit Scout-use events")
+		for node: Dictionary in next["rooms"].values():
+			var coord: Vector2i = node["coord"]
+			if targets.has(coord):
+				expect.call(node["type"] == "mystery" and node["scouted"] and node["revealed"] and node["map_outline"] and Graph.display_type(node) == "combat" and not node.get("was_mystery", false), "Survey grants Scout knowledge without entering or converting mysteries")
+			else: expect.call(node == Graph.room(before, coord), "Survey preserves ordinary, visited, scouted, distant and other-section rooms")
+		next["event_state"]["outcomes"] = result["outcomes"]
+		expect.call(Events.outcome_lines(next) == _strings(["Revealed 2 unknown rooms."]), "I–V survey result uses the exact plural row")
+		var single: Dictionary = state.duplicate(true)
+		Graph.room(single, targets[1])["scouted"] = true
+		var singular: Dictionary = _apply(engine, single, effects)
+		singular["state"]["event_state"]["outcomes"] = singular["outcomes"]
+		expect.call(Events.outcome_lines(singular["state"]) == _strings(["Revealed 1 unknown room."]), "I–V survey result uses the exact singular row")
+		expect.call(not Events.choice_available(next, "lost_cartographer", "survey") and Events.choice_block_reason(next, "lost_cartographer", "survey") == "Nothing new to reveal.", "A completed mystery survey leaves the reveal-only choice unavailable")
+		expect.call(_apply(engine, next, effects)["state"] == next, "Repeating an empty survey changes no state")
+	for revision: int in [1, 2, 3, 4]:
+		var state: Dictionary = _reveal_state(engine, 5 if revision == 4 else 0, revision)
+		var distances: Dictionary = Graph.descendants(state, state["current_room"], SURVEY_FIXTURE_HOPS)
+		var targets: Array[Vector2i]
+		var known_mystery: Vector2i = Graph.INVALID
+		for coord: Vector2i in distances:
+			var node: Dictionary = Graph.room(state, coord)
+			if not node["revealed"]: targets.append(coord)
+			elif int(distances[coord]) == 1: known_mystery = coord
+		expect.call(not targets.is_empty() and known_mystery != Graph.INVALID, "Legacy and VI survey fixture has revealed and unknown rooms")
+		Graph.room(state, targets[0]).merge({"type": "mystery", "mystery_type": "event", "scouted": false}, true)
+		Graph.room(state, known_mystery).merge({"type": "mystery", "mystery_type": "combat", "scouted": false}, true)
+		expect.call(Events.reveal_targets(state, SURVEY_FIXTURE_HOPS) == targets, "VI and older layouts keep the exact legacy reveal target rule")
+		expect.call(Events.effect_lines(state, effects) == _strings(["Reveal the routes up to 4 rooms ahead."]), "VI and older layouts retain their reveal preview")
+		var result: Dictionary = _apply(engine, state, effects)
+		var next: Dictionary = result["state"]
+		for coord: Vector2i in targets:
+			expect.call(Graph.room(next, coord)["revealed"] and Graph.room(next, coord)["map_outline"], "Legacy and VI survey still reveals and outlines every unknown room in range")
+		expect.call(Graph.room(next, targets[0]).get("scouted", false) == (revision == 4) and not Graph.room(next, known_mystery)["scouted"], "VI scouts newly revealed mysteries only; older layouts never gain mystery Scout state")
+		expect.call(next["map_sections"] == state["map_sections"], "Legacy and VI surveys preserve their Scout budgets")
+		next["event_state"]["outcomes"] = result["outcomes"]
+		expect.call(Events.outcome_lines(next) == _strings(["Revealed %d rooms." % targets.size()]), "VI and older layouts retain their reveal result row")
+		expect.call(not Events.choice_available(next, "lost_cartographer", "survey") and Events.choice_block_reason(next, "lost_cartographer", "survey") == "Nothing new to reveal.", "VI and older reveal-only choices are unavailable when nothing remains")
+
 static func _previews(engine: RefCounted, expect: Callable) -> void:
 	var state: Dictionary = _event_state(engine)
 	expect.call(Events.choice_effect_lines(state, "bloodletters_basin", "bleed") == _strings(["Lose 5 @icon(health).", "Gain a random Rare relic."]), "Basin bleed exact preview strings")
@@ -241,7 +335,7 @@ static func _previews(engine: RefCounted, expect: Callable) -> void:
 	expect.call(Events.effect_lines(state, [{"type": "max_hp", "amount": -4}, {"type": "random", "outcomes": [{"weight": 100, "effects": []}]}]) == _strings(["−4 max @icon(health).", "100%: Nothing."]), "Preview uses U+2212 minus and empty-outcome copy")
 
 static func _result_rows(engine: RefCounted, expect: Callable) -> void:
-	var state: Dictionary = _event_state(engine)
+	var state: Dictionary = _event_state(engine, "lost_cartographer", true)
 	state["event_state"]["outcomes"] = [
 		{"type": "hp", "amount": -5}, {"type": "heal", "amount": 3}, {"type": "heal_percent", "amount": 6},
 		{"type": "max_hp", "amount": 3}, {"type": "max_hp", "amount": -4},
@@ -447,11 +541,24 @@ static func _persistence_and_rewards(engine: RefCounted, expect: Callable) -> vo
 	var continued: Dictionary = engine.resolve_map_event(loaded, "continue")
 	expect.call(continued["mode"] == "room" and not continued.has("event_state") and Graph.room(continued, continued["current_room"])["cleared"], "Continue clears the room and releases the map flow")
 	state = _event_state(engine)
+	var mystery: Vector2i = _survey_mystery(state)
+	expect.call(mystery != Graph.INVALID and Graph.modern(state), "Cartographer survey fixture has an in-range mystery on revision 4")
 	state.erase("event_state")
 	Graph.room(state, state["current_room"]).erase("event_id")
 	expect.call(Events.current_id(engine.repair_loaded_run_state(state)) == "lost_cartographer", "Legacy mid-event saves resume Cartographer")
 	for choice_id: String in ["embers", "survey"]:
 		expect.call(engine.resolve_map_event(state, choice_id)["event_state"]["choice_id"] == choice_id, "Legacy Cartographer choice ids remain accepted")
+	chosen = engine.resolve_map_event(state, "survey")
+	expect.call(Graph.room(chosen, mystery).get("scouted", false) and Graph.room(chosen, mystery)["type"] == "mystery", "Cartographer survey identifies its mystery without converting it")
+	expect.call(Store.save_run_state(chosen), "Survey result saves through production serialization")
+	loaded = engine.repair_loaded_run_state(Store.load_saved_run())
+	expect.call(loaded["rooms"] == chosen["rooms"] and loaded["event_state"] == chosen["event_state"], "Survey knowledge and exact result survive resume")
+	expect.call(engine.resolve_map_event(loaded, "survey") == loaded, "Resuming a survey result does not replay its effect")
+	state = _event_state(engine, "lost_cartographer", true)
+	var legacy_targets: Array[Vector2i] = Events.reveal_targets(state, 4)
+	expect.call(not legacy_targets.is_empty(), "Legacy Cartographer fixture retains unknown routes in range")
+	for choice_id: String in ["embers", "survey"]:
+		expect.call(engine.resolve_map_event(state, choice_id)["event_state"]["choice_id"] == choice_id, "Legacy-layout Cartographer choice ids remain accepted")
 	for action: String in ["claim", "skip"]:
 		state = engine.resolve_map_event(_event_state(engine, "moth_library"), "search")
 		continued = engine.resolve_map_event(state, "continue")
