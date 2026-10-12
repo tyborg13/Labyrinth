@@ -96,6 +96,12 @@ const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
 
+# Audio consumes presentation snapshots, never gameplay mutations.
+signal sound_presentation(state: Dictionary, shown: Dictionary)
+
+func present_sound_snapshot(state: Dictionary, shown: Dictionary) -> void:
+	sound_presentation.emit(state, shown)
+
 signal tile_clicked(tile: Vector2i)
 signal tile_hovered(tile: Vector2i)
 signal tile_dragged(start_tile: Vector2i, current_tile: Vector2i)

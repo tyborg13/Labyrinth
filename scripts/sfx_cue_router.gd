@@ -1,0 +1,400 @@
+extends RefCounted
+class_name SfxCueRouter
+
+const GameData = preload("res://scripts/game_data.gd")
+const Attacks = preload("res://scripts/attack_sfx_library.gd")
+const Fx = preload("res://scripts/attack_fx_library.gd")
+const Graph = preload("res://scripts/section_map_graph.gd")
+const Omens = preload("res://scripts/omen_rules.gd")
+const ENEMY_ATTACK_FAMILIES: Dictionary = {
+	"crawler": "claw", "acolyte": "blunt", "harrier": "pierce", "warden": "blunt",
+	"cinder_ooze": "blunt", "cinder_droplet": "blunt", "bile_bloomer": "blunt",
+	"chainbound_gaoler": "blunt", "grave_surgeon": "blade", "frostglass_lancer": "pierce",
+	"veilbound_acolyte": "blunt", "lightning_wisp": "blunt", "ashen_reaver": "blade",
+	"rimejaw": "claw", "storm_cantor": "pierce", "gallows_roc": "claw", "craghide": "claw",
+	"last_lamplighter": "blunt", "ash_hound": "claw", "rime_whelp": "claw",
+	"rime_spitter": "claw", "bell_tender": "pierce", "roc_fledgling": "claw",
+	"stoneback_mite": "claw", "wick_shade": "claw",
+	"tharokh": "claw", "vyraketh": "claw", "vaeloryx": "claw", "iskaldra": "claw",
+	"noctyrax": "claw", "zekarion": "claw"
+}
+const DEATH_FAMILIES: Dictionary = {
+	"crawler": "beast", "acolyte": "humanoid", "harrier": "bone", "warden": "stone",
+	"cinder_ooze": "ooze", "cinder_droplet": "ooze", "bile_bloomer": "stone",
+	"chainbound_gaoler": "humanoid", "grave_surgeon": "humanoid", "frostglass_lancer": "humanoid",
+	"veilbound_acolyte": "spirit", "lightning_wisp": "spirit", "ashen_reaver": "humanoid",
+	"rimejaw": "beast", "storm_cantor": "humanoid", "gallows_roc": "avian", "craghide": "stone",
+	"last_lamplighter": "humanoid", "ash_hound": "beast", "rime_whelp": "beast",
+	"rime_spitter": "beast", "bell_tender": "humanoid", "roc_fledgling": "avian",
+	"stoneback_mite": "beast", "wick_shade": "spirit",
+	"tharokh": "dragon", "vyraketh": "dragon", "vaeloryx": "dragon", "iskaldra": "dragon",
+	"noctyrax": "dragon", "zekarion": "dragon"
+}
+const WEAPON_FAMILIES: Dictionary = {
+	"sword": "blade", "dagger": "blade", "knife": "blade", "knives": "blade", "rapier": "blade", "axe": "blade",
+	"hatchet": "blade", "halberd": "blade", "scythe": "blade", "glass spear edge": "blade",
+	"mace": "blunt", "maul": "blunt", "hammer": "blunt", "club": "blunt", "flail": "blunt",
+	"shield": "blunt", "staff": "blunt", "spear": "pierce", "lance": "pierce",
+	"bow": "pierce", "crossbow": "pierce", "repeater": "pierce", "sling": "pierce"
+}
+const HEAVY_TYPES: Array[String] = ["warden", "craghide", "ashen_reaver", "rimejaw", "storm_cantor", "gallows_roc", "last_lamplighter", "tharokh", "vyraketh", "vaeloryx", "iskaldra", "noctyrax", "zekarion"]
+# No general relic badge pulse exists; its visual contract must come from the owner.
+const TODO_DESIGN_RELIC_BADGE_PULSE: String = "TODO_DESIGN_RELIC_BADGE_PULSE"
+const TODO_DESIGN_GALEWHIP_IMPACT_FAMILY: String = "TODO_DESIGN_GALEWHIP_IMPACT_FAMILY"
+const EQUIPMENT_FAMILIES: Dictionary = {"phoenix_brand": "blade", "worldbreaker": "blunt", "dawnlight_censer": "blunt", "galewhip": TODO_DESIGN_GALEWHIP_IMPACT_FAMILY}
+const TODO_DESIGN_WEAPON_FAMILY: String = "TODO_DESIGN_WEAPON_FAMILY"
+const TODO_DESIGN_ENEMY_FAMILY: String = "TODO_DESIGN_ENEMY_FAMILY"
+const AREA_STAGGER_MS: int = 35
+const AREA_GAIN_DB: float = -6.0
+const CHAIN_GAIN_DB: float = -5.0
+const BEAST_VOCAL_CHANCE: float = 0.30
+
+var bank: Node
+var _action: Dictionary = {}
+var _actor: Dictionary = {}
+var _weapon: String = ""
+var _units: Dictionary = {}
+var _terrain: Dictionary = {}
+var _illusions: Dictionary = {}
+var _deaths: Dictionary = {}
+var _dragons: Dictionary = {}
+var _resolved: bool = false
+var _released: bool = false
+var _impact_count: int = 0
+var _action_serial: int = 0
+var _fight_key: String = ""
+var _deck: Dictionary = {}
+var _omen_ids: Dictionary = {}
+var _relic_logs: Array = []
+var _relic_names: Array[String] = []
+var _collisions: Dictionary = {}
+var _merged_hits: Dictionary = {}
+var _run_hp: int = -1
+var _trap_impact_pending: bool = false
+var _radiance_played: bool = false
+var _run_baselined: bool = false
+var _vocal_rng := RandomNumberGenerator.new()
+
+func _init(cue_bank: Node = null) -> void:
+	bank = cue_bank
+
+func request(cue_id: String, opts: Dictionary = {}) -> void:
+	if bank != null: bank.play(cue_id, opts)
+
+func weapon_family(weapon: String) -> String:
+	if EQUIPMENT_FAMILIES.has(weapon): return EQUIPMENT_FAMILIES[weapon]
+	var name: String = weapon.to_lower().replace("_", " ")
+	for token: String in WEAPON_FAMILIES:
+		if name.contains(token): return WEAPON_FAMILIES[token]
+	return TODO_DESIGN_WEAPON_FAMILY if not weapon.is_empty() else ""
+
+func weapon_for_card(card_id: String, state: Dictionary) -> String:
+	for slot: String in ["weapon", "offhand"]:
+		var id: String = str(state.get("equipped_equipment", {}).get(slot, ""))
+		if not id.is_empty() and GameData.equipment_cards(id, state).has(card_id): return id
+	return ""
+
+func bind_map_hover(host: Node) -> void:
+	if not host.child_entered_tree.is_connected(bind_map_hover): host.child_entered_tree.connect(bind_map_hover)
+	var script: Script = host.get_script() as Script
+	if script != null and script.resource_path == "res://scripts/section_map_node.gd":
+		var callback: Callable = _map_node_entered.bind(host)
+		if not host.mouse_entered.is_connected(callback): host.mouse_entered.connect(callback)
+		if not host.focus_entered.is_connected(callback): host.focus_entered.connect(callback)
+	for child: Node in host.get_children(): bind_map_hover(child)
+
+func _map_node_entered(button: Node) -> void:
+	if bool(button.get("actionable")): map_hover()
+
+func attack_family(action: Dictionary, actor: Dictionary = {}, weapon: String = "") -> String:
+	var kind: String = str(action.get("type", action.get("kind", "")))
+	if kind in ["push", "pull", "charge", "force_area"]: return "blunt"
+	if not actor.is_empty() and str(actor.get("type", "player")) != "player":
+		if kind == "ranged" and str(actor.get("type", "")) in ["acolyte", "veilbound_acolyte"]: return "arcane"
+		return ENEMY_ATTACK_FAMILIES.get(str(actor.get("type", "")), TODO_DESIGN_ENEMY_FAMILY)
+	var family: String = weapon_family(weapon)
+	if not family.is_empty(): return family
+	return "blade" if kind == "melee" or (kind == "aoe" and str(action.get("aim", "")) == "facing") else "pierce" if str(action.get("physical", "")) == "true" or bool(action.get("physical", false)) else "arcane"
+
+func impact_cue(action: Dictionary, actor: Dictionary = {}, weapon: String = "", target_before: Dictionary = {}, hp_loss: int = 1, absorbed: int = 0, collision: bool = false) -> String:
+	if hp_loss <= 0 and absorbed > 0: return "hit.blocked"
+	if collision or bool(action.get("collision", false)): return "push.collision"
+	if int(target_before.get("freeze", 0)) > 0 and hp_loss > 0: return "status.shatter"
+	var element: String = str(action.get("element", action.get("_card_element", "none")))
+	if str(action.get("type", "")) == "detonate": element = "earth" if str(action.get("_detonate_surface", "fire")) == "rubble" else "fire"
+	if element in ["umbra", "shadow"]: return "spell.shadow"
+	if element in ["fire", "ice", "lightning", "earth", "air"]: return "spell." + element
+	var family: String = attack_family(action, actor, weapon)
+	if family in ["blade", "blunt"]:
+		return "hit.%s.%s" % [family, "heavy" if int(action.get("damage", action.get("amount", hp_loss + absorbed))) >= 6 else "light"]
+	return family if family.begins_with("TODO_DESIGN_") else "hit." + family
+
+func begin_player_action(before: Dictionary, action: Dictionary, weapon: String = "") -> void:
+	begin_action(before, action, {"type": "player"}, weapon)
+
+func begin_enemy_action(before: Dictionary, action: Dictionary, actor: Dictionary) -> void:
+	begin_action(before, action, actor)
+
+func begin_action(before: Dictionary, action: Dictionary, actor: Dictionary, weapon: String = "") -> void:
+	_action = action
+	_actor = actor
+	_weapon = weapon
+	_action_serial += 1
+	_impact_count = 0
+	_collisions.clear()
+	_merged_hits.clear()
+	_resolved = false
+	_released = false
+	_trap_impact_pending = false
+	_radiance_played = false
+	baseline(before)
+	var family: String = DEATH_FAMILIES.get(str(actor.get("type", "")), "")
+	var actor_key: String = str(action.get("actor_key", actor.get("id", "player")))
+	if family == "dragon" and not _dragons.has(actor_key):
+		_dragons[actor_key] = true
+		request("dragon.roar")
+	var kind: String = str(action.get("type", action.get("kind", "")))
+	if kind == "umbra_eclipse": request("spell.shadow")
+	if kind not in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "detonate", "all_enemies", "burst_terrain", "destroy_illusion"]: return
+	if family in ["beast", "avian"]:
+		# Presentation randomness is reproducible per action and never consumes combat RNG.
+		_vocal_rng.seed = int(before.get("seed", before.get("rng_state", 0))) + _action_serial + actor_key.hash()
+		if _vocal_rng.randf() < BEAST_VOCAL_CHANCE: request("vocal.beast")
+	wind_up(action, actor, weapon)
+	if int(action.get("push", 0)) > 0 or int(action.get("pull", 0)) > 0: push()
+
+func wind_up(action: Dictionary, actor: Dictionary = {}, weapon: String = "") -> void:
+	var kind: String = str(action.get("type", action.get("kind", "")))
+	var element: String = str(action.get("element", action.get("_card_element", "none")))
+	if element not in ["", "none"] or kind in ["detonate", "destroy_illusion", "burst_terrain"]: return
+	if kind == "melee" or (kind == "aoe" and str(action.get("aim", "")) == "facing"):
+		request("swing.heavy" if attack_family(action, actor, weapon) == "blunt" or int(action.get("damage", action.get("amount", 0))) >= 6 else "swing.light")
+
+func release(action: Dictionary, actor: Dictionary = {}, weapon: String = "") -> void:
+	var kind: String = str(action.get("type", action.get("kind", "")))
+	var element: String = str(action.get("element", action.get("_card_element", "none")))
+	if element not in ["", "none"]: return
+	if kind in ["ranged", "aoe", "all_enemies"]:
+		var name: String = weapon.to_lower()
+		if name.contains("crossbow") or name.contains("repeater") or bool(action.get("thrown", false)): request("shot.crossbow")
+		elif name.contains("bow") or name.contains("sling"): request("shot.bow")
+		elif attack_family(action, actor, weapon) == "arcane" or str(actor.get("type", "")) in ["acolyte", "veilbound_acolyte"]: request("cast.arcane")
+		elif attack_family(action, actor, weapon) == "pierce": request("shot.crossbow")
+
+func hit(action: Dictionary, actor: Dictionary, weapon: String, target_before: Dictionary, target_after: Dictionary, gain_db: float = 0.0) -> void:
+	var hp_loss: int = maxi(0, int(target_before.get("hp", 0)) - int(target_after.get("hp", 0)))
+	var absorbed: int = maxi(0, int(target_before.get("block", 0)) - int(target_after.get("block", 0))) + maxi(0, int(target_before.get("stoneskin", 0)) - int(target_after.get("stoneskin", 0)))
+	var key: String = _unit_key(target_before)
+	var now: int = bank.now_ms() if bank != null else Time.get_ticks_msec()
+	var merge_ms: int = int(bank.data.get("rules", {}).get("merge_window_ms", 60)) if bank != null else 60
+	if _merged_hits.has(key) and now - int(_merged_hits[key]) < merge_ms: return
+	_merged_hits[key] = now
+	var cue: String = impact_cue(action, actor, weapon, target_before, hp_loss, absorbed, _collisions.has(key))
+	if _impact_count == 0:
+		request(cue, {"gain_db": gain_db})
+	elif _impact_count <= 2 and bank != null:
+		bank.schedule_area(cue, _impact_count * AREA_STAGGER_MS, gain_db + AREA_GAIN_DB)
+	_impact_count += 1
+	if hp_loss > 0 and int(target_before.get("block", 0)) > 0 and int(target_after.get("block", 0)) == 0: request("block.break")
+	if hp_loss >= 5 and str(target_before.get("type", "player")) == "player": request("hurt.hero")
+
+func death(unit: Dictionary) -> void:
+	var key: String = _unit_key(unit)
+	if _deaths.has(key): return
+	_deaths[key] = true
+	request("death." + ("hero" if key == "player" else str(DEATH_FAMILIES.get(str(unit.get("type", "")), TODO_DESIGN_ENEMY_FAMILY))))
+
+func walk_tile(unit: Dictionary) -> void:
+	if str(unit.get("type", "player")) == "player": request("step.hero")
+	else:
+		var footprint: Variant = unit.get("footprint", [1, 1])
+		var large: bool = HEAVY_TYPES.has(str(unit.get("type", ""))) or (footprint is Vector2i and footprint.x * footprint.y > 1) or (footprint is Array and int(footprint[0]) * int(footprint[1]) > 1)
+		request("step.enemy.heavy" if large else "step.enemy.light")
+		if DEATH_FAMILIES.get(str(unit.get("type", "")), "") == "dragon": request("dragon.wings")
+
+func blink() -> void: request("move.blink")
+func push() -> void: request("push.slide")
+func trap(traps: Array) -> void:
+	_trap_impact_pending = not traps.is_empty()
+	var seen: Dictionary = {}
+	for entry: Dictionary in traps:
+		request("trap.trigger")
+		var element: String = str(entry.get("element", ""))
+		if not element.is_empty() and not seen.has(element):
+			request("spell." + element)
+			seen[element] = true
+func surface(surface_id: String) -> void:
+	request("surface." + ("electric" if surface_id == "electrified" else surface_id))
+func status(status_id: String) -> void:
+	if status_id in ["bleed", "freeze", "shock", "stagger"]: request("status." + status_id)
+func light() -> void: request("radiance.light")
+func heal() -> void: request("heal")
+func illusion_spawn() -> void: request("illusion.spawn")
+func illusion_break() -> void: request("illusion.break")
+func crate(broken: bool) -> void: request("crate.break" if broken else "crate.hit")
+func pickup(kind: String) -> void: request("pickup.item" if kind == "item" else "pickup.gear")
+func defiance() -> void: request("defiance")
+func fatigue() -> void: request("fatigue")
+func relic_trigger() -> void: request("relic.trigger")
+func card_hover() -> void: request("card.hover")
+func card_select() -> void: request("card.select")
+func card_invalid() -> void: request("card.invalid")
+func card_exhaust() -> void: request("card.exhaust")
+func deck_shuffle() -> void: request("deck.shuffle")
+func map_hover() -> void: request("map.hover")
+func map_select() -> void: request("map.select")
+func event_choose() -> void: request("event.choose")
+func omen(kind: String) -> void: request("omen." + kind)
+func shop_buy() -> void: request("shop.buy")
+func shop_sell() -> void: request("shop.sell")
+func ambience(biome: String = "stone") -> void: request("ambience." + biome)
+
+func baseline(state: Dictionary) -> void:
+	_units = _unit_snapshot(state)
+	_terrain = _indexed(state.get("terrain", []), "id")
+	_illusions = _indexed(state.get("illusions", []), "id")
+	_deck = (state.get("deck", {}) as Dictionary).duplicate(true)
+	_relic_logs = (state.get("log", []) as Array).duplicate()
+	_relic_names.clear()
+	for id: String in state.get("relics", []):
+		var name: String = str(GameData.relic_def(id).get("name", ""))
+		if not name.is_empty(): _relic_names.append(name)
+
+func presentation(state: Dictionary, shown: Dictionary) -> void:
+	var effect: Dictionary = shown.get("effect", {})
+	if not effect.is_empty() and not _released and str(effect.get("kind", "")) in ["ranged", "aoe"]:
+		var style: String = Fx.style_for_effect(effect)
+		var release_progress: float = 0.18 if style == Fx.STYLE_DEFAULT else Fx.anticipation_end_progress(style)
+		if float(shown.get("effect_progress", 0.0)) >= release_progress:
+			release(_action, _actor, _weapon)
+			_released = true
+	var chain_hop: bool = int(effect.get("chain_index", 0)) > 0
+	if chain_hop: _impact_count = 0
+	var hit_action: Dictionary = effect if chain_hop else _action
+	var next_units: Dictionary = _unit_snapshot(state)
+	for key: String in next_units:
+		var after: Dictionary = next_units[key]
+		var before: Dictionary = _units.get(key, after)
+		var loss: int = int(before.get("hp", 0)) - int(after.get("hp", 0))
+		var absorbed: int = int(before.get("block", 0)) + int(before.get("stoneskin", 0)) - int(after.get("block", 0)) - int(after.get("stoneskin", 0))
+		if loss > 0 or absorbed > 0:
+			if str(_action.get("kind", "")) == "status_damage":
+				if str(_action.get("label", "")) == "Bleed": status("bleed")
+				elif str(_action.get("label", "")) == "Fire": request("spell.fire")
+			elif str(_action.get("kind", "")) != "fatigue" and not _trap_impact_pending: hit(hit_action, _actor, _weapon, before, after, CHAIN_GAIN_DB if chain_hop else 0.0)
+			if _trap_impact_pending and loss >= 5 and key == "player": request("hurt.hero")
+			if not _resolved:
+				_resolved = true
+				if DEATH_FAMILIES.get(str(_actor.get("type", "")), "") == "dragon" and str(_action.get("kind", "")) in ["aoe", "lightning_strikes"]: request("dragon.roar")
+		if loss < 0: heal()
+		for field: String in ["block", "stoneskin"]:
+			if int(after.get(field, 0)) > int(before.get(field, 0)): request(field + ".gain")
+		for field: String in ["bleed", "freeze", "shock", "stagger"]:
+			if int(after.get(field, 0)) > int(before.get(field, 0)): status(field)
+	if not _radiance_played and int(_action.get("illuminate_radius", 0)) > 0 and next_units != _units:
+		light()
+		_radiance_played = true
+	if not _resolved and shown.has("impact_actor_keys"):
+		if DEATH_FAMILIES.get(str(_actor.get("type", "")), "") == "dragon" and str(_action.get("kind", "")) in ["aoe", "lightning_strikes"]: request("dragon.roar")
+		var element: String = str(_action.get("element", _action.get("_card_element", "none")))
+		if element not in ["", "none"] and _impact_count == 0 and not _trap_impact_pending: request(impact_cue(_action, _actor, _weapon))
+		_resolved = true
+	if next_units != _units: _trap_impact_pending = false
+	_units = next_units
+	for unit: Dictionary in shown.get("death_animation_units", []): death(unit)
+	var next_terrain: Dictionary = _indexed(state.get("terrain", []), "id")
+	for key: Variant in _terrain:
+		var before: Dictionary = _terrain[key]
+		var after: Dictionary = next_terrain.get(key, {})
+		if int(before.get("hp", 0)) > int(after.get("hp", 0)) and str(before.get("kind", before.get("type", ""))) in ["box", "crate"]: crate(int(after.get("hp", 0)) <= 0)
+	_terrain = next_terrain
+	var next_illusions: Dictionary = _indexed(state.get("illusions", []), "id")
+	for key: Variant in next_illusions:
+		if not _illusions.has(key): illusion_spawn()
+	for key: Variant in _illusions:
+		if not next_illusions.has(key) or (int(_illusions[key].get("hp", 1)) > 0 and int(next_illusions[key].get("hp", 1)) <= 0): illusion_break()
+	_illusions = next_illusions
+	deck_transition(state.get("deck", {}))
+	relic_outcomes(state.get("log", []))
+
+func deck_transition(deck: Dictionary) -> void:
+	if int(deck.get("cycles", 0)) > int(_deck.get("cycles", 0)): deck_shuffle()
+	if (deck.get("burned", []) as Array).size() > (_deck.get("burned", []) as Array).size(): card_exhaust()
+	_deck = deck.duplicate(true)
+
+func outcomes(events: Array) -> void:
+	var seen: Dictionary = {}
+	for event: Dictionary in events:
+		var kind: String = str(event.get("kind", ""))
+		var surface_id: String = str(event.get("surface", ""))
+		var source: Dictionary = event.get("source", {})
+		var relic_id: String = str(event.get("relic_id", source.get("relic_id", "")))
+		if not relic_id.is_empty() and not relic_id.begins_with("rite:") and not seen.has("relic:" + relic_id):
+			relic_trigger()
+			seen["relic:" + relic_id] = true
+		if kind in ["surface_created", "surface_replaced"] and surface_id in ["fire", "ice", "electrified", "rubble"] and not seen.has(surface_id):
+			surface(surface_id)
+			seen[surface_id] = true
+		if kind == "force_collision":
+			var actor_key: String = "player" if str(event.get("actor_kind", "")) == "player" else "enemy:%s" % event.get("id", -1)
+			_collisions[actor_key] = true
+			for blocker: Dictionary in event.get("blockers", []):
+				if str(blocker.get("kind", "")) == "enemy": _collisions["enemy:%s" % blocker.get("id", -1)] = true
+
+func run_context(state: Dictionary) -> void:
+	var key: String = "%s:%s" % [state.get("seed", 0), state.get("current_room", "")]
+	if key != _fight_key:
+		_fight_key = key
+		_dragons.clear()
+		_deaths.clear()
+		baseline(state.get("combat_state", {}))
+	var hp: int = int(state.get("player_hp", -1))
+	if _run_hp >= 0 and hp > _run_hp and str(state.get("mode", "")) != "combat": heal()
+	_run_hp = hp
+	var next_ids: Dictionary = {}
+	for entry: Dictionary in Omens.active(state):
+		var id: String = str(entry.get("id", ""))
+		next_ids[id] = true
+		if _run_baselined and not _omen_ids.has(id): omen(str(entry.get("kind", "blessing")))
+	_omen_ids = next_ids
+	_run_baselined = true
+
+func ambience_for_run(state: Dictionary) -> String:
+	if not Graph.enabled(state): return "stone"
+	return str(Graph.section(state, Graph.active_section(state)).get("boss_id", "stone"))
+
+func _unit_key(unit: Dictionary) -> String:
+	return "enemy:%s" % unit["id"] if unit.has("id") else "player"
+
+func _unit_snapshot(state: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	if state.has("player"):
+		result["player"] = _audible_unit(state["player"])
+	for unit: Dictionary in state.get("enemies", []): result[_unit_key(unit)] = _audible_unit(unit)
+	return result
+
+func _audible_unit(unit: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	for field: String in ["id", "type", "hp", "block", "stoneskin", "bleed", "freeze", "shock", "stagger"]:
+		if unit.has(field): result[field] = unit[field]
+	return result
+
+func _indexed(entries: Array, field: String) -> Dictionary:
+	var result: Dictionary = {}
+	for entry: Dictionary in entries: result[entry.get(field, "")] = entry.duplicate(true)
+	return result
+
+# Legacy resolvers expose actual reward records in their bounded log. Do not
+# infer a fired effect from counters: counters also advance before thresholds.
+# Relics without a reward record need a semantic engine presentation event.
+func relic_outcomes(log_lines: Array) -> void:
+	if log_lines == _relic_logs: return
+	var overlap: int = mini(_relic_logs.size(), log_lines.size())
+	while overlap > 0 and _relic_logs.slice(_relic_logs.size() - overlap) != log_lines.slice(0, overlap): overlap -= 1
+	for index: int in range(overlap, log_lines.size()):
+		var line: String = str(log_lines[index])
+		for name: String in _relic_names:
+			if line == name + " triggers." or line == name + " prevents death." or line.begins_with(name + " carries ") or line.begins_with(name + " hardens "):
+				relic_trigger()
+				break
+	_relic_logs = log_lines.duplicate()
