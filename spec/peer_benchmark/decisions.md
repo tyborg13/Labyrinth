@@ -7,3 +7,19 @@
   no account creation or logins.
 - 2026-10-12 OWNER: use orchestrate-codex (Claude decides taste, Codex implements); keep the owner in the loop with
   screenshots/clips; inspection fixtures only for feel-critical work.
+- 2026-10-12 CLAUDE: Events are data-driven (data/events.json), 27 authored events (15 shared, 2 per dragon element, 2
+  shadow-only in section VI), illustrated full-screen view per mockup output/peer-benchmark-2026-10-12/mockups/
+  event_choices.png. Exact effect lines, costs red / gains gold / banes violet / odds neutral; locked choices stay
+  visible with a reason (StS grammar). Omens = timed blessings/banes (11), our analogue of StS curses-for-power.
+- 2026-10-12 CLAUDE: Event art style = pixel-painted dark fantasy matching key art + card art; 1536x1024 3:2, edges dark.
+  Approved pilots: hanged_knight, frozen_champion, bloodletters_basin (spec/peer_benchmark/staged/event_art/approved/).
+- 2026-10-12 CLAUDE: Map revision 4 = StS rules adapted: 4 lanes, 5 non-crossing walks, fixed rows (step 1 fights,
+  mid treasure row, Hearth row before boss), mystery "?" rooms (event 70/combat 20/treasure 5/scavenger 5), several
+  optional Guardians (≤1 per route), full visibility in sections I–V, section VI keeps fog (heart of the Umbra), Scout
+  reveals mystery contents.
+- 2026-10-12 CLAUDE: Feel: modest hit-stop (StS has none; ITB-style crunch) + damage-scaled shake + enemy-phase pacing
+  budget (4-enemy round ≤ 6 s) + Combat speed setting. Next feel round candidates from StS research: HP-bar damage
+  ghost (1.2 s hold), damage numbers that pop large and settle, round-robin SFX variants.
+- Backlog from StS research: score tally + run history + compendium/stats (meta screen); Ascension-style 20-step
+  difficulty ladder; daily seeded run with modifiers; event v2 (opt-in fights, push-your-luck, cross-event callbacks,
+  harsher variants at high difficulty); tiered intent art by damage.
