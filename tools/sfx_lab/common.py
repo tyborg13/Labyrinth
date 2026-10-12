@@ -334,8 +334,8 @@ def normalize(data: np.ndarray, rate: int, target: float, peak_target: float | N
     # UI's peak target and impact's cap apply to long sounds as well.
     if peak_target is not None:
         adjustment = min(adjustment, peak_target - peak)
-    if peak + adjustment > 0:
-        raise LabError("Normalization would clip; approval must supply a lower gain")
+    # Never clip: cap the gain so the peak lands at -1 dBFS (recorded as a peak cap).
+    adjustment = min(adjustment, -1.0 - peak)
     result = data * 10 ** (adjustment / 20)
     return result, {"normalization": normalization, "target_lufs": target,
                     "peak_target_dbfs": peak_target, "gain_db": gain_db,

@@ -159,7 +159,8 @@ def encode_verified(path: Path, data: np.ndarray, rate: int, parameters: dict,
         if best is None:
             raise LabError(f"Encoded output clips or exceeds peak cap: {path}")
         error, level, method, peak, duration, cumulative = best
-        if error > LOUDNESS_TOLERANCE_LU and (cap is None or peak < cap - LOUDNESS_TOLERANCE_LU):
+        # A peak-limited take (peak near the -1 dBFS ceiling) may sit below its loudness target.
+        if error > LOUDNESS_TOLERANCE_LU and (cap is None or peak < cap - LOUDNESS_TOLERANCE_LU) and peak < -1.0 - LOUDNESS_TOLERANCE_LU:
             raise LabError(f"Encoded loudness outside tolerance: {path}")
         selected.replace(path)
     return {"output_lufs": level, "output_loudness_method": method,

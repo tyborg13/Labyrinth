@@ -40,3 +40,4 @@ M0 — research + gap audit (in progress).
   (scripted download vs its terms) in output/sfx-sources-excluded-2026-10-12/.
 - SFX venv: ~/.cache/umbra-sfx/venv (numpy/scipy/soundfile/pyloudnorm).
 - Peer review: none yet — run one review over the merged wave before asking the owner to inspect.
+- SFX audition page (artifact, db picks in collection 'picks'): https://claude.ai/artifact/PZV7sqf6pPZSpK7r6419Rk — source output/peer-benchmark-2026-10-12/sfx/audition_v1/publish.html (make_publish_page.py); candidates picks_v1.json
