@@ -65,6 +65,7 @@ static func run(expect: Callable) -> void:
 		expect.call(mote.direction == Vector2(preset["direction"][0], preset["direction"][1]) and mote.color == expected_color, "Mote direction and color data: " + name)
 		expect.call(mote.initial_velocity_min == preset["speed"][0] and mote.initial_velocity_max == preset["speed"][1], "Mote speed data: " + name)
 		mote.free()
+	_test_room_cache(expect)
 	_test_fallback(expect)
 	_test_board_dispatch(expect)
 	_test_data_driven_legacy_defaults(expect)
@@ -163,3 +164,16 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 			treatment.configure(sources, "ice", true)
 			Lighting.apply_biome(treatment, "stone")
 			expect.call(treatment._parameters["art_look_tint"] == Lighting.resolved_definition(profile, 1.0)["tint"], "No cumulative biome lighting")
+
+static func _test_room_cache(expect: Callable) -> void:
+	var previous: String = Biomes.inspection_override()
+	Biomes.set_inspection_override("")
+	var state: Dictionary = {"seed": 83, "section_map_version": preload("res://scripts/section_map_graph.gd").VERSION, "map_sections": [{"boss_id": "tharokh"}], "current_room": Vector2i(1, 1), "rooms": {"1,1": {"section_index": 0}, "2,1": {"section_index": 0}}}
+	var first: Dictionary = Biomes.presentation_for_run(state)
+	expect.call(is_same(first, Biomes.presentation_for_run(state)), "Repeated room renders reuse biome id/colour without a copied definition")
+	state["current_room"] = Vector2i(2, 1)
+	expect.call(not is_same(first, Biomes.presentation_for_run(state)), "Room change invalidates the presentation cache")
+	Biomes.set_inspection_override("iskaldra")
+	var overridden: Dictionary = Biomes.presentation_for_run(state)
+	expect.call(overridden["id"] == "iskaldra" and overridden["backdrop_modulate"] == Biomes.backdrop_modulate("iskaldra"), "Live inspection override invalidates id and colour together")
+	Biomes.set_inspection_override(previous)

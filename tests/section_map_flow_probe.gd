@@ -7,13 +7,33 @@ const Settings = preload("res://scripts/settings_store.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Objectives = preload("res://scripts/combat_objective_rules.gd")
+const EventViewSuite = preload("res://tests/suites/event_view_suite.gd")
+const PAUSE_FOCUS_CHOICE_INDEX: int = 1
+const PAUSE_PROOF_CONTRACT_PATH: String = "res://output/fix-01/pause-proof-contract.json"
+const PAUSE_PROOF_CONTRACT: Dictionary = {
+	"min_images": 2, "expected_sizes": ["1920x1080"],
+	"required_images": [
+		{"pattern": "*pause_over_event.png", "width": 1920, "height": 1080},
+		{"pattern": "*event_focus_restored.png", "width": 1920, "height": 1080}
+	]
+}
 var output_dir: String = "user://section_map_flow_v4"
 var viewport: SubViewport
 var instance: Node
 var failed: bool = false
 
 func _initialize() -> void:
+	if OS.get_cmdline_user_args().has("--write-pause-proof-contract"):
+		DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://output/fix-01"))
+		var contract := FileAccess.open(PAUSE_PROOF_CONTRACT_PATH, FileAccess.WRITE)
+		contract.store_string(JSON.stringify(PAUSE_PROOF_CONTRACT, "\t"))
+		print("PAUSE EVENT PROOF CONTRACT: " + ProjectSettings.globalize_path(PAUSE_PROOF_CONTRACT_PATH))
+		quit(0)
+		return
 	await _setup()
+	if OS.get_cmdline_user_args().has("--pause-event-only"):
+		await _pause_event_proof()
+		return
 	var engine := RunEngineScript.new()
 	var state: Dictionary = engine.create_new_run(81, Progression.default_data())
 	# Use a real reward transaction with the current generated room and exits.
@@ -178,30 +198,37 @@ func _initialize() -> void:
 	_load(state)
 	await process_frame
 	await _capture("07_event.png")
-	_check(scrim.visible and (panel.get("_event_panel") as Control).visible, "Event choices appear as a dedicated encounter surface")
+	_check(not scrim.visible and (instance.get("_event_view") as Control).visible, "Event choices appear as a dedicated encounter surface")
 	for coord: Vector2i in panel.call("available_destinations"):
 		_check(not bool(panel.call("can_activate_room", coord)), "Event resolution blocks direct room travel")
-	var event_button: Button = panel.get("_event_embers")
+	var event_view: Control = instance.get("_event_view")
+	event_view.finish_animation_for_test()
+	var event_button: Button = event_view.choices[maxi(0, event_view.focused_choice_index())]
 	await _pointer_click(event_button.get_global_rect().get_center())
 	_check(str((instance.get("_run_state") as Dictionary).get("event_state", {}).get("page")) == "result", "Choosing shows the saved event result")
 	await process_frame
-	await _pointer_click((panel.get("_event_embers") as Button).get_global_rect().get_center())
+	event_view.finish_animation_for_test()
+	await _pointer_click((event_view.continue_button as Button).get_global_rect().get_center())
 	_check(str((instance.get("_run_state") as Dictionary).get("mode")) == "room", "The event releases normal route selection")
 	await _capture("08_event_resolved.png")
 	_load(state.duplicate(true))
 	await process_frame
 	await process_frame
 	router.call("set_forced_state_for_test", "controller", "xbox")
-	panel.call("focus_controller_on_current")
-	_check(viewport.gui_get_focus_owner() == panel.get("_event_embers"), "Controller focus enters the dedicated event choices")
+	event_view.finish_animation_for_test()
+	event_view.focus_initial()
+	_check(event_view.focused_choice_index() >= 0 and viewport.gui_get_focus_owner() == event_view.choices[event_view.focused_choice_index()], "Controller focus enters the dedicated event choices")
 	_check(_prompt_labels().has(str(EventRules.choice_def(EventRules.current_id(state), EventRules.first_available_choice_id(state))["label"])), "The event confirm cue names the focused choice")
 	await _capture("08b_event_controller.png")
 	await _joy(JOY_BUTTON_A)
 	await process_frame
 	_check(str((instance.get("_run_state") as Dictionary).get("event_state", {}).get("page")) == "result", "Controller choice shows the event result")
+	event_view.finish_animation_for_test()
 	await _joy(JOY_BUTTON_A)
 	await process_frame
 	_check(str((instance.get("_run_state") as Dictionary).get("mode")) == "room", "Controller confirm resolves the event")
+	await create_timer(EventViewSuite.CLOSE_PROOF_WAIT_SECONDS).timeout
+	await process_frame
 	_check(viewport.gui_get_focus_owner() != null and viewport.gui_get_focus_owner().get_parent() == panel.get("_nodes"), "Controller event resolution restores room focus")
 	_check(_prompt_labels().has("Enter"), "The room confirm cue explicitly means direct entry")
 	await _capture("08c_event_focus_restored.png")
@@ -209,12 +236,13 @@ func _initialize() -> void:
 	instance.queue_free()
 	await process_frame
 	print(ProjectSettings.globalize_path(output_dir))
+	print("SECTION MAP FLOW PROBE TEST RESULT: %s" % ("FAIL" if failed else "PASS"))
 	quit(1 if failed else 0)
 
 func _known_room_count(state: Dictionary) -> int:
 	var count: int = 0
 	for node: Dictionary in (state.get("rooms", {}) as Dictionary).values():
-		count += 1 if bool(node.get("revealed", false)) else 0
+		count += 1 if bool(node.get("revealed", false)) and (str(node.get("type", "")) != "mystery" or bool(node.get("scouted", false)) or bool(node.get("visited", false))) else 0
 	return count
 
 func _exercise_scout_inputs(state: Dictionary) -> void:
@@ -320,6 +348,26 @@ func _exercise_door_emblems() -> void:
 		_check((instance.call("_exit_icon_ids_for_board") as Dictionary).values().has(expected), "Physical doors use the registered " + type + " emblem")
 		await _capture("09_door_" + type + ".png")
 
+func _pause_event_proof() -> void:
+	output_dir = "user://fix-01-pause-event"
+	_load(EventViewSuite.fixture("hanged_knight"))
+	await process_frame
+	var view: Control = instance.get("_event_view")
+	view.finish_animation_for_test()
+	view.choices[PAUSE_FOCUS_CHOICE_INDEX].grab_focus()
+	await _key(KEY_ESCAPE)
+	var menu: Control = instance.get("_menu_scrim")
+	_check(menu.visible and menu.z_index > view.z_index, "Esc opens pause above an event")
+	await _capture("pause_over_event.png")
+	await _key(KEY_ESCAPE)
+	_check(not menu.visible and view.focused_choice_index() == PAUSE_FOCUS_CHOICE_INDEX, "Closing pause restores the event's choice focus")
+	await _capture("event_focus_restored.png")
+	print(ProjectSettings.globalize_path(output_dir))
+	print("PAUSE OVER EVENT PROBE TEST RESULT: %s" % ("FAIL" if failed else "PASS"))
+	instance.queue_free()
+	await process_frame
+	quit(1 if failed else 0)
+
 func _load(state: Dictionary) -> void:
 	instance.call("_close_large_map")
 	instance.set("_animation_lock", false)
@@ -331,6 +379,10 @@ func _load(state: Dictionary) -> void:
 	instance.call("_refresh_ui")
 
 func _capture(name: String) -> void:
+	if DisplayServer.get_name() == "headless":
+		await process_frame
+		await process_frame
+		return
 	await process_frame
 	await process_frame
 	RenderingServer.force_draw()

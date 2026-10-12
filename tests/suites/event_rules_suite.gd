@@ -11,6 +11,13 @@ const Objectives = preload("res://scripts/combat_objective_rules.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
 const EventPanel = preload("res://scripts/event_view.gd")
 const TEST_SEED: int = 421
+const EXPOSE_FIXTURE_HP: int = 30
+const EXPOSE_FIXTURE_ENEMY_HP: int = 99
+const EXPOSE_FIXTURE_HIT: int = 5
+const EXPOSE_FIXTURE_BLOCK: int = 3
+const EXPOSE_FIXTURE_LETHAL_HP: int = 9
+const EXPOSE_FIXTURE_PLAYER_TILE: Vector2i = Vector2i(3, 4)
+const EXPOSE_FIXTURE_ENEMY_TILE: Vector2i = Vector2i(4, 4)
 const SELECTION_SEEDS: int = 24
 const EVENTS_PER_SECTION: int = 2
 const SURVEY_FIXTURE_HOPS: int = 4
@@ -29,6 +36,7 @@ static func run(expect: Callable) -> void:
 	_previews(engine, expect)
 	_result_rows(engine, expect)
 	_replacement_fallbacks(engine, expect)
+	_hero_expose(engine, expect)
 	_omens(engine, expect)
 	_persistence_and_rewards(engine, expect)
 	_edges(engine, expect)
@@ -397,6 +405,18 @@ static func _replacement_fallbacks(engine: RefCounted, expect: Callable) -> void
 			expect.call(result["state"]["equipped_equipment"]["weapon"] == fixture[0] and Data.equipment_def(str(fixture[0]))["rarity"] == fixture[1], "Reforge falls back to the old rarity, then any different same-slot piece")
 		catalog.clear()
 		catalog.merge(original_gear)
+	state["equipment_inventory"] = ["iron_cleaver"]
+	state["collected_equipment"].append("iron_cleaver")
+	state["equipment_grafts"]["iron_cleaver"] = {"index": 0, "cards": ["quick_stab"]}
+	var catalog: Dictionary = Data.equipment()
+	catalog.clear()
+	catalog[old] = original_gear[old]
+	catalog["iron_cleaver"] = original_gear["iron_cleaver"]
+	var owned: Dictionary = _apply(engine, state, [{"type": "reforge", "slot": "weapon", "rarity_step": 1}])
+	expect.call(owned["state"]["equipped_equipment"] == state["equipped_equipment"] and owned["state"]["equipment_inventory"] == state["equipment_inventory"] and owned["state"]["equipment_grafts"] == state["equipment_grafts"], "Reforge cannot consume an owned pack piece or destroy its grafts")
+	expect.call(owned["outcomes"][0].get("substitution_for") == "reforge", "Owned-only reforge pool uses the existing empty-pool substitution")
+	catalog.clear()
+	catalog.merge(original_gear)
 	var original_cards: Dictionary = Data.cards().duplicate(true)
 	var magic_ids: Array[String]
 	var pools: Dictionary = Data.reward_card_pool_by_rarity("", true)
@@ -433,6 +453,64 @@ static func _retain_magic(original: Dictionary, magic_ids: Array[String], retain
 	catalog.clear()
 	for id: String in original:
 		if not magic_ids.has(id) or retained.has(id): catalog[id] = original[id]
+
+static func _same_combat_bytes(actual: Dictionary, expected: Dictionary) -> bool:
+	return hash(actual) == hash(expected) and var_to_bytes(actual) == var_to_bytes(expected)
+
+static func _hero_expose(engine: RefCounted, expect: Callable) -> void:
+	var combat := Combat.new()
+	var room: Dictionary = {"coord": Vector2i(1, 2), "type": "combat", "depth": 1, "element": "earth", "connections": []}
+	var state: Dictionary = combat.create_combat(TEST_SEED, Rooms.new().generate_room(TEST_SEED, room, Vector2i.ZERO), engine._player_snapshot(_event_state(engine)))
+	state["player"]["block"] = 0
+	state["player"]["stoneskin"] = 0
+	state["player"]["pos"] = EXPOSE_FIXTURE_PLAYER_TILE
+	state["player"]["hp"] = EXPOSE_FIXTURE_HP
+	state["player"]["max_hp"] = EXPOSE_FIXTURE_HP
+	state["enemies"][0]["pos"] = EXPOSE_FIXTURE_ENEMY_TILE
+	state["enemies"][0]["hp"] = EXPOSE_FIXTURE_ENEMY_HP
+	state["enemies"][0]["type"] = "bile_bloomer"
+	for y: int in range((state["grid"] as Array).size()):
+		for x: int in range((state["grid"][y] as Array).size()): state["grid"][y][x] = "stone"
+	state["terrain"] = []
+	state["traps"] = []
+	state["illusions"] = []
+	var mark: Dictionary
+	for intent: Dictionary in Data.enemy_def("bile_bloomer")["intents"]:
+		if intent["id"] == "spore_mark": mark = intent
+	var marked: Dictionary = combat._resolve_enemy_intent(state.duplicate(true), 0, mark)
+	expect.call(marked["player"]["expose"] == 2, "Shard Mark applies authored hero Expose 2")
+	var unexposed: Dictionary = marked.duplicate(true)
+	unexposed["player"]["expose"] = 0
+	var legacy: Dictionary = unexposed.duplicate(true)
+	legacy["player"]["hp"] -= EXPOSE_FIXTURE_HIT
+	legacy["run_stats"][Combat.RUN_STAT_DAMAGE_RECEIVED] += EXPOSE_FIXTURE_HIT
+	var reference: Dictionary = combat._damage_player(unexposed, EXPOSE_FIXTURE_HIT, false)
+	expect.call(_same_combat_bytes(reference, legacy), "Omen-free hit without Expose preserves the complete legacy combat state")
+	var hit: Dictionary = combat._damage_player(marked.duplicate(true), EXPOSE_FIXTURE_HIT, false)
+	var expected: Dictionary = legacy.duplicate(true)
+	expected["player"]["hp"] -= 2
+	expected["run_stats"][Combat.RUN_STAT_DAMAGE_RECEIVED] += 2
+	expect.call(hit["player"]["hp"] == marked["player"]["hp"] - 7 and hit["player"]["expose"] == 0, "Next enemy hit deals +2 and clears hero Expose")
+	expect.call(_same_combat_bytes(hit, expected), "No-omen hit differs only by the exact Expose rule and corresponding damage statistic")
+	var altered: Dictionary = expected.duplicate(true)
+	altered["player"]["block"] += 1
+	expect.call(not _same_combat_bytes(altered, expected), "No-omen identity comparison catches a different player-field change")
+	var followup: Dictionary = combat._damage_player(hit.duplicate(true), EXPOSE_FIXTURE_HIT, false)
+	expect.call(followup["player"]["hp"] == hit["player"]["hp"] - 5, "Consumed Expose never boosts a second hit")
+	for enemy: Dictionary in marked["enemies"]: enemy["hp"] = 0
+	marked["enemies"][0]["hp"] = EXPOSE_FIXTURE_ENEMY_HP
+	marked["enemies"][0]["intent"] = {"id": "fixture", "name": "Fixture", "time": 5, "actions": [{"type": "melee", "damage": EXPOSE_FIXTURE_HIT, "range": 1}, {"type": "melee", "damage": EXPOSE_FIXTURE_HIT, "range": 1}]}
+	marked["player"]["block"] = EXPOSE_FIXTURE_BLOCK
+	marked["player"]["hp"] = EXPOSE_FIXTURE_LETHAL_HP
+	marked["player"]["defiance"] = 0
+	marked["turn_queue"] = [combat._enemy_actor_entry(marked, marked["enemies"][0], 1, 1), combat._player_actor_entry(2, 2)]
+	var preview: Dictionary = combat.preview_revealed_enemy_actions_before_player_turn_with_steps(marked)
+	var losses: Array[int]
+	for step: Dictionary in preview["steps"]:
+		for loss: Dictionary in step.get("target_losses", []):
+			if loss.get("key") == "player": losses.append(int(loss.get("hp_loss", 0)))
+	print("HERO EXPOSE PREVIEW: first_hp_loss=%s second_hp_loss=%s projected_hp=%s" % [losses[0] if not losses.is_empty() else -1, losses[1] if losses.size() > 1 else -1, preview["state"]["player"]["hp"]])
+	expect.call(losses == [4, 5] and preview["state"]["player"]["hp"] == 0, "Intent/danger preview applies Expose once before Block and reports the lethal second hit")
 
 static func _omens(engine: RefCounted, expect: Callable) -> void:
 	var state: Dictionary = _event_state(engine)

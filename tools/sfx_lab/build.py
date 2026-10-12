@@ -159,14 +159,14 @@ def encode_verified(path: Path, data: np.ndarray, rate: int, parameters: dict,
         if best is None:
             raise LabError(f"Encoded output clips or exceeds peak cap: {path}")
         error, level, method, peak, duration, cumulative = best
-        # A peak-limited take (peak near the -1 dBFS ceiling) may sit below its loudness target.
-        if error > LOUDNESS_TOLERANCE_LU and (cap is None or peak < cap - LOUDNESS_TOLERANCE_LU) and peak < -1.0 - LOUDNESS_TOLERANCE_LU:
+        # Only a normalization cap can waive the encoded loudness tolerance.
+        if error > LOUDNESS_TOLERANCE_LU and not parameters["peak_cap_applied"]:
             raise LabError(f"Encoded loudness outside tolerance: {path}")
         selected.replace(path)
     return {"output_lufs": level, "output_loudness_method": method,
             "output_peak_dbfs": peak, "output_duration": duration,
             "encoder_gain_correction_db": cumulative,
-            "loudness_target_limited_by_peak_cap": parameters["peak_cap_applied"] or error > LOUDNESS_TOLERANCE_LU,
+            "loudness_target_limited_by_peak_cap": parameters["peak_cap_applied"],
             "codec": "libvorbis" if codec == "ogg" else "libmp3lame",
             "encoder_backend": "libsndfile" if codec == "ogg" else "ffmpeg",
             "muxer": "ffmpeg",

@@ -82,7 +82,8 @@ func _initialize() -> void:
 		intents[int(foe[0])] = str(foe[3])
 	layout["enemies"] = enemies
 	var initial: Dictionary = staging.stage_intents(_showcase_combat(layout),intents)
-	var speeds: Array[String] = ["normal"]
+	var speeds: Array[String]
+	speeds.assign(["normal"])
 	if not _baseline: speeds.assign(["normal","fast","fastest"])
 	for speed: String in speeds:
 		await _round(layout,initial,speed)
@@ -223,7 +224,8 @@ func _apply_combat(layout: Dictionary, state: Dictionary) -> void:
 	run_scene.call("_refresh_ui")
 
 func _showcase_combat(layout: Dictionary) -> Dictionary:
-	var hand: Array[String] = ["rite_of_noon","tempest_form","brace","kestrel_dive","joust"]
+	var hand: Array[String]
+	hand.assign(["rite_of_noon","tempest_form","brace","kestrel_dive","joust"])
 	var state: Dictionary = combat_engine.create_combat(seed,layout,{"hp":21,"max_hp":24,"deck_cards":hand,"relics":[],"hand_size":hand.size(),"cards_per_turn":2,"draw_per_turn":2,"heal_bonus":0})
 	var deck: Dictionary = (state["deck"] as Dictionary).duplicate(true)
 	deck["hand"] = hand.duplicate()

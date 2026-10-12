@@ -83,7 +83,8 @@ static func start_combat(engine: RefCounted, state: Dictionary, snapshot: Dictio
 	return state
 
 static func first_movement(state: Dictionary) -> int:
-	return amount(state, "first_turn_movement") if int(state.get("turn", 1)) == 1 else 0
+	if int(state.get("turn", 1)) != 1 or (state.get("omens", []) as Array).is_empty(): return 0
+	return amount(state, "first_turn_movement")
 
 static func ember_drop(state: Dictionary, base: int) -> int:
 	var value: float = float(base)

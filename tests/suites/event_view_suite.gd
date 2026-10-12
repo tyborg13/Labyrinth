@@ -11,6 +11,8 @@ const Router = preload("res://scripts/input_router.gd")
 const Text = preload("res://scripts/event_view_text.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const FIXTURE_SEED: int = 421
+const PAUSE_FOCUS_CHOICE_INDEX: int = 1
+const EVENT_ANALYTICS_FIXTURE_HP: int = 10
 const FIXTURE_FRAMES: int = 2
 const FIXTURE_BLOCKED_HP: int = 5
 const EXPIRE_PROOF_WAIT_SECONDS: float = 0.32
@@ -116,7 +118,7 @@ static func run(expect: Callable) -> void:
 	var escape := InputEventKey.new()
 	escape.keycode = KEY_ESCAPE
 	escape.pressed = true
-	view.handle_input(escape)
+	expect.call(not view.handle_input(escape), "Escape reaches the existing pause handler")
 	expect.call(selections.is_empty(), "Choices page ignores Back/Escape")
 	var stick := InputEventJoypadMotion.new()
 	stick.axis = JOY_AXIS_LEFT_Y
@@ -150,6 +152,9 @@ static func run(expect: Callable) -> void:
 	expect.call(selections.size() == 1 and selections[0] == view.choices[1].choice_id, "Controller A activates focused choice")
 	view.handle_input(accept)
 	expect.call(selections.size() == 1, "Repeated input cannot reapply a choice")
+	view.present(blocked, true)
+	view.handle_input(accept)
+	expect.call(selections.size() == 2, "Unchanged event signature releases a declined request")
 	for number: int in range(3):
 		view.present(fixture("hanged_knight"), true)
 		view.finish_animation_for_test()
@@ -167,8 +172,12 @@ static func run(expect: Callable) -> void:
 	expect.call(selections.back() == "cut", "Physical controller A activates choice")
 	view.present(engine.resolve_map_event(fixture("hanged_knight"), "cut"), true)
 	view.finish_animation_for_test()
-	view.handle_input(escape)
-	expect.call(selections.back() == "continue", "Result Back/Escape activates Continue")
+	expect.call(not view.handle_input(escape), "Result Escape also reaches pause without continuing")
+	var back := InputEventAction.new()
+	back.action = Router.ACTION_CANCEL
+	back.pressed = true
+	view.handle_input(back)
+	expect.call(selections.back() == "continue", "Result controller Back activates Continue")
 	view.present(fixture("hanged_knight"), true)
 	view.finish_animation_for_test()
 	var enter := InputEventKey.new()
@@ -193,6 +202,7 @@ static func run(expect: Callable) -> void:
 	expect.call(badges.badges.size() == 1, "Expired omen is removed from active badges")
 	await tree.create_timer(EXPIRE_PROOF_WAIT_SECONDS).timeout
 	expect.call(grid.get_child_count() == 1, "Expired badge fades out and is removed")
+	_flow_probe_contract(FileAccess.get_file_as_string("res://tests/section_map_flow_probe.gd"), expect)
 	_luminance_contract(expect)
 	await _motion(viewport, expect)
 	await _integration(viewport, expect)
@@ -228,12 +238,34 @@ static func _integration(viewport: SubViewport, expect: Callable) -> void:
 	await tree.process_frame
 	await tree.process_frame
 	scene.call("_close_dialogue")
+	_event_reward_payload(scene, expect)
 	scene.call("_load_run_state", fixture("moth_library", true))
 	await tree.process_frame
 	var view: Control = scene.get("_event_view")
 	expect.call(view != null and view.visible and not scene.get("_large_map_scrim").visible, "Real event room opens modal with map closed")
 	expect.call(not bool(scene.call("_map_shortcut_can_open")), "Event modal blocks map shortcut")
 	view.finish_animation_for_test()
+	view.choices[PAUSE_FOCUS_CHOICE_INDEX].grab_focus()
+	var escape := InputEventKey.new()
+	escape.keycode = KEY_ESCAPE
+	escape.pressed = true
+	viewport.push_input(escape, true)
+	var menu: Control = scene.get("_menu_scrim")
+	expect.call(menu.visible and menu.z_index > view.z_index, "Escape during an event opens the pause menu above it")
+	await tree.process_frame
+	expect.call(scene.call("_controller_focus_scope") == menu, "Pause menu owns focus while the event remains open")
+	scene.call("_close_menu_overlay")
+	expect.call(view.focused_choice_index() == PAUSE_FOCUS_CHOICE_INDEX, "Closing pause returns to the event's focused choice")
+	var start := InputEventJoypadButton.new()
+	start.button_index = JOY_BUTTON_START
+	start.pressed = true
+	viewport.push_input(start, true)
+	expect.call(menu.visible, "Controller Start during an event opens pause")
+	scene.call("_close_menu_overlay")
+	scene.set("_animation_lock", true)
+	view.activate_choice(0)
+	expect.call(not view.get("_busy") and view.page == "choices", "A scene-declined event request stays interactive")
+	scene.set("_animation_lock", false)
 	view.choices[0].pressed.emit()
 	view.finish_animation_for_test()
 	expect.call(str(scene.get("_run_state")["event_state"]["page"]) == "result", "Mouse/keyboard choice signal reaches real rules and result page")
@@ -274,6 +306,7 @@ static func _integration(viewport: SubViewport, expect: Callable) -> void:
 	await tree.create_timer(COMBAT_PROOF_SETTLE_SECONDS).timeout
 	expect.call(str(scene.get("_run_state")["mode"]) == "combat" and manager.badges.size() == 2, "Real combat header includes blessing and bane badges")
 	for frame: int in range(DEFERRED_CLEANUP_FRAMES): await tree.process_frame
+	await _event_reward_analytics(scene, tree, expect)
 	scene.queue_free()
 	await tree.process_frame
 
@@ -282,6 +315,33 @@ static func wait_for_close(view: Control) -> void:
 	var deadline: int = Time.get_ticks_msec() + CLOSE_PROOF_TIMEOUT_MSEC
 	while view.visible and Time.get_ticks_msec() < deadline:
 		await tree.process_frame
+
+static func _event_reward_payload(scene: Node, expect: Callable) -> void:
+	for kind: String in ["card", "heal_skip"]:
+		scene.call("_analytics_log_reward_choice", kind, {"kind": "event", "event_id": "moth_library", "cards": []}, "", EVENT_ANALYTICS_FIXTURE_HP, EVENT_ANALYTICS_FIXTURE_HP)
+		var choices: Array[Dictionary]
+		for event: Dictionary in preload("res://scripts/analytics_store.gd").load_all_events():
+			if event.get("event_type") == "reward_choice": choices.append(event)
+		expect.call(not choices.is_empty() and choices.back()["payload"].get("reward_kind") == "event" and choices.back()["payload"].get("event_id") == "moth_library", "Event reward_choice emitter adds kind/id for claims and skips")
+
+static func _event_reward_analytics(scene: Node, tree: SceneTree, expect: Callable) -> void:
+	var engine := Run.new()
+	for claim: bool in [true, false]:
+		var reward: Dictionary = engine.resolve_map_event(engine.resolve_map_event(fixture("moth_library", true), "search"), "continue")
+		expect.call(str(reward.get("mode")) == "reward", "Event analytics fixture opens authored card choice")
+		scene.call("_load_run_state", reward)
+		scene.set("_animation_lock", false)
+		if claim: scene.call("_on_reward_card_pressed", reward["pending_reward"]["cards"][0])
+		else: scene.call("_commit_reward_heal", "")
+		await tree.process_frame
+		var events: Array[Dictionary] = preload("res://scripts/analytics_store.gd").load_all_events()
+		var choices: Array[Dictionary]
+		for event: Dictionary in events:
+			if event.get("event_type") == "reward_choice": choices.append(event)
+		expect.call(not choices.is_empty(), "Event claim/skip appends reward_choice")
+		if not choices.is_empty():
+			var payload: Dictionary = choices.back()["payload"]
+			expect.call(payload.get("reward_kind") == "event" and payload.get("event_id") == "moth_library" and payload.get("choice_kind") == ("card" if claim else "heal_skip"), "Event claim/skip analytics retains choice fields and adds kind/id")
 
 static func combat_fixture() -> Dictionary:
 	var engine := Run.new()
@@ -353,3 +413,7 @@ static func _luminance_contract(expect: Callable) -> void:
 			squared.set_pixel(x, y, Color(pixel.r * pixel.r, pixel.g * pixel.g, pixel.b * pixel.b))
 	var regression: Dictionary = painting_luminance_report(squared, source, Rect2i(Vector2i.ZERO, drawn_size))
 	expect.call(float(regression["relative_error"]) > PAINTING_LUMINANCE_TOLERANCE, "Luminance contract rejects texture multiplied by itself")
+
+static func _flow_probe_contract(source: String, expect: Callable) -> void:
+	# Keep the historical flow probe on the production EventView API.
+	expect.call(not source.contains('get("_event_panel")') and not source.contains('get("_event_embers")'), "Map-flow probe uses EventView choices and Continue instead of removed controls")

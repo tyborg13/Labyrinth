@@ -1,5 +1,8 @@
 extends Control
+
 class_name CombatBoardView
+
+const EMPTY_FEEL_FRAME: Dictionary = {}
 
 const PathUtils = preload("res://scripts/path_utils.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
@@ -9088,7 +9091,7 @@ func _lethal_death_mark_pulse(time_seconds: float) -> float:
 
 func _unit_impact_strength(unit: Dictionary) -> float:
 	if presentation.has("combat_feel_owner"):
-		return float((presentation.get("combat_feel_flash", {}) as Dictionary).get(str(unit.get("key", "")), 0.0))
+		return float((presentation.get("combat_feel_flash", EMPTY_FEEL_FRAME) as Dictionary).get(str(unit.get("key", "")), 0.0))
 	var actor_key: String = str(unit.get("key", ""))
 	if actor_key.is_empty():
 		return 0.0
@@ -16748,7 +16751,7 @@ func _draw_board_surface(tile: Vector2i) -> void:
 	var retained_rubble: bool = BoardSurfacePresentation.retained_cache_enabled and _is_dynamic_render_layer and _render_layer_tile == tile
 	# Ground a feedback beat replaces, consumes or breaks keeps its retained
 	# layer for the start of the beat, fading out as the new ground arrives.
-	var feedback_frame: Dictionary = (presentation.get("combat_feel_surface_frames",{}) as Dictionary).get(tile,{})
+	var feedback_frame: Dictionary = (presentation.get("combat_feel_surface_frames", EMPTY_FEEL_FRAME) as Dictionary).get(tile, EMPTY_FEEL_FRAME)
 	var feedback_events: Array = feedback_frame.get("events",presentation.get("surface_feedback_events", [])) as Array
 	var feedback_progress: float = float(feedback_frame.get("progress",presentation.get("surface_feedback_progress", 0.0)))
 	if retained_rubble:
