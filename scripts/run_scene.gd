@@ -1235,6 +1235,8 @@ const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_FRAME_OUTSET: Vector2 = Vector2(48.0, 32.0)
 const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v8.png"
 const TURN_ORDER_PORTRAITS := {
+	"arc_thrall": "res://assets/art/portraits/arc_thrall.png",
+	"gloam_stalker": "res://assets/art/portraits/gloam_stalker.png",
 	"ash_hound": "res://assets/art/portraits/guardians/ash_hound_portrait.png",
 	"ashen_reaver": "res://assets/art/portraits/guardians/ashen_reaver_portrait.png",
 	"bell_tender": "res://assets/art/portraits/guardians/bell_tender_portrait.png",
@@ -7887,6 +7889,7 @@ func _commit_drag_drop(zone: String, mouse_position: Vector2 = Vector2(-1.0, -1.
 		_set_drag_hover_tile(target_tile)
 	var target_is_valid: bool = _drag_hover_target_is_valid(target_tile)
 	var outcome: String = CardDragPlayRules.release_outcome(zone == "play", preview, target_is_valid)
+	if zone == "play" and not target_is_valid: preload("res://scripts/enemy_mechanics/veil_view.gd").show_target_denial(self, preview, target_tile)
 	if outcome == CardDragPlayRules.OUTCOME_CANCEL:
 		await _animate_drag_cancel_to_source()
 		return
@@ -14107,8 +14110,9 @@ func _action_context_target_state() -> Dictionary:
 	var shortcut_plans: Dictionary = _preview_shortcuts_cache.get("plans", {}) as Dictionary
 	if _hovered_board_tile.x >= 0:
 		var hovered_valid: bool = target_tiles.has(_hovered_board_tile) or shortcut_plans.has(_hovered_board_tile)
+		var reason: String = "" if hovered_valid else preload("res://scripts/enemy_mechanics/veil_view.gd").targeting_reason(self, preview, _hovered_board_tile)
 		return {
-			"text": "VALID TARGET" if hovered_valid else "INVALID TARGET",
+			"text": reason if not reason.is_empty() else "VALID TARGET" if hovered_valid else "INVALID TARGET",
 			"tone": "valid" if hovered_valid else "invalid"
 		}
 	var target_count: int = target_tiles.size()
@@ -21804,6 +21808,7 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 		shortcut_plan = _shortcut_plan_for_tile(preview, tile)
 		preview_action_type = str((preview.get("action", {}) as Dictionary).get("type", ""))
 	if not _pending_target_tiles.has(tile) and shortcut_plan.is_empty():
+		preload("res://scripts/enemy_mechanics/veil_view.gd").show_target_denial(self, preview, tile)
 		return
 	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_SELECT_FIRST_TARGET:
 		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_FINISH_FIRST_CARD, false)
@@ -24387,6 +24392,14 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			await _animate_hidden_umbra_enemy_step(animated_state, step)
 			_combat_pacing.after_step(step)
 			continue
+		if str(step.get("action_type", "")) == "tether_beam":
+			await preload("res://scripts/enemy_mechanics/tether_view.gd").animate(self, animated_state, step)
+			_combat_pacing.after_step(step)
+			continue
+		if bool(step.get("en03_veil", false)):
+			await preload("res://scripts/enemy_mechanics/veil_view.gd").animate(self, animated_state, step)
+			_combat_pacing.after_step(step)
+			continue
 		var step_actor_key: String = str(step.get("actor_key", ""))
 		var step_actor_tile: Vector2i = step.get("tile", step.get("from", Vector2i(-1, -1)))
 		match str(step.get("kind", "")):
@@ -25966,6 +25979,9 @@ func _equipped_equipment_for_board() -> Dictionary:
 	return _visual_equipment
 
 func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void:
+	if step.has("en03_after"):
+		animated_state.merge((step["en03_after"] as Dictionary).duplicate(true), true)
+		return
 	if step.has("guardian_board_after"):
 		animated_state.merge((step["guardian_board_after"] as Dictionary).duplicate(true),true)
 		return

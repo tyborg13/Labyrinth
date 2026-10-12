@@ -15,11 +15,11 @@ const TEXTURE_PATHS := {
 const MELEE_TYPES := ["melee", "pull"]
 const RANGED_TYPES := ["ranged"]
 const AREA_TYPES := [
-	"aoe", "detonate", "cinder_marks", "detonate_cinders", "gale_force",
+	"tether_beam", "aoe", "detonate", "cinder_marks", "detonate_cinders", "gale_force",
 	"lightning_strikes", "terrain_burst", "umbra_eclipse",
 ]
 const DEFENSE_TYPES := ["block", "frost_armor", "guard_ally", "stoneskin"]
-const SUPPORT_TYPES := ["heal_ally", "heal_self", "raise_terrain", "summon_minions", "surface", "consume_surface", "surface_relocate"]
+const SUPPORT_TYPES := ["veil_blink", "heal_ally", "heal_self", "raise_terrain", "summon_minions", "surface", "consume_surface", "surface_relocate"]
 const MOVEMENT_TYPES := ["move_away", "move_toward"]
 
 static func descriptors_for_state(state: Dictionary, visible_enemy_ids: Array = []) -> Dictionary:
@@ -38,6 +38,11 @@ static func descriptors_for_state(state: Dictionary, visible_enemy_ids: Array = 
 		if intent.is_empty():
 			continue
 		var descriptor: Dictionary = descriptor_for_enemy(intent)
+		if str(descriptor.get("action_type", "")) == "tether_beam":
+			var engine = preload("res://scripts/combat_engine.gd").new()
+			var index: int = engine._enemy_index_for_id(state, enemy_id)
+			var plan: Dictionary = engine.enemy_intent_plan(state, index, intent, bool(enemy.get("immobilize", false)), int(enemy.get("freeze", 0)) > 0 or int(enemy.get("shock", 0)) > 0)
+			if not bool(plan.get("attack_available", false)): descriptor["value"] = 0
 		if not descriptor.is_empty():
 			result["enemy_%d" % enemy_id] = descriptor
 	return result

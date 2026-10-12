@@ -3385,6 +3385,44 @@
           "mode": "clean"
         }
       }
+    },
+    {
+      "id": "arc_thrall",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/arc_thrall.png"
+      ],
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "arc_thrall.art_scale",
+        "expression": "art_scale (default 1.0)"
+      },
+      "measurement_path": "assets/art/enemies/arc_thrall.png",
+      "frames": null,
+      "orphan_share": 0.364034417799501,
+      "t": 1.5,
+      "grid": 1.5,
+      "mode": "regrid"
+    },
+    {
+      "id": "gloam_stalker",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/gloam_stalker.png"
+      ],
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "gloam_stalker.art_scale",
+        "expression": "art_scale (default 1.0)"
+      },
+      "measurement_path": "assets/art/enemies/gloam_stalker.png",
+      "frames": null,
+      "orphan_share": 0.23419478437658833,
+      "t": 1.5,
+      "grid": 1.5,
+      "mode": "regrid"
     }
   ],
   "excluded_paths": {

@@ -53,6 +53,12 @@ static func _check_routing(expect: Callable) -> void:
 		var roster_presentation: Dictionary = {"floating_texts":FloatingText.animate_entries([damage],.054,false)}
 		Context.apply_to_presentation(roster_state,roster_presentation)
 		var family: String = Context.family_key(actor_type)
+		if actor_type in Context.STATIC_ENEMY_TYPES:
+			var board: Control = preload("res://scripts/combat_board_view.gd").new()
+			board.presentation = {"impact_actor_keys": ["enemy_7"], "impact_progress": .15}
+			expect.call(not board._unit_uses_cutout({"type": actor_type}) and family.is_empty() and board._unit_impact_strength({"key": "enemy_7"}) > 0.0, actor_type + " uses its approved static sprite and existing impact feedback")
+			board.free()
+			continue
 		expect.call(not family.is_empty() and roster_presentation.get(family,{}).get("enemy_7",{}).get("clip","") == "hit", actor_type + " content identity routes its incoming damage")
 	presentation = {"floating_texts":[{"reaction_actor_key":"illusion_3", "reaction":"hit", "animation_progress":.1}]}
 	Context.apply_to_presentation(state,presentation)

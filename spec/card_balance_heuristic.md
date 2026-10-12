@@ -880,3 +880,18 @@ the base decoy keeps `0.48` per illusion health point and `0.12` per placement r
   scored as an ordinary placed surface.
 - Outcrop kinds: a powder keg adds its burst at `0.45` detonation chance and `1.4` targets
   to the ordinary outcrop value; Worldspines add `pulse x 0.45 x 1.2 targets x 2 pulses`.
+
+### Section wave E1: en-03 (staged, encounter tables pending enc-01)
+
+| Enemy | HP / initiative / Embers | Authored cadence before spawn stagger | Reach and counterplay | Closest comparison |
+| --- | --- | --- | --- | --- |
+| Arc Thrall | 10 / 11 / 9 | Tether 16 (3/5), Arc Jab 15 (2/5); weighted 15.6 | Pairs; clear cardinal beam ≤6, strictly between endpoints; align Move ≤3 then 4 lightning + Shock 1, all units. Displace/kill partner or move off beam; push enemies into it. Jab Move 2 + melee 3 + Shock 1. | Lightning Wisp's Shock pressure, with a held partner and friendly-fire lane rather than a direct shot. |
+| Gloam Stalker | 11 / 10 / 10 | Fade 15 (3/5), Slash 14 (2/5); Fade forces Ambush 15. Including that forced step, (3×30 + 2×14)/8 = 14.75 per activation. | Fade Blink ≤4 behind the hero + Veil; distant single-target targeting denied, adjacent attacks/area/secondary chains/surfaces/collisions work. Ambush re-Blinks if needed, melee 7, ends Veil; Slash Move 2 + melee 4. Move away, block, or use area damage. | Tunnel Crawler's melee closure, with positional Blink and a revealed high-damage follow-up. |
+
+The entries use protected director values from `peer_benchmark/staged/enemies/wave_e1.json`.
+The cadence calculations are authored-weight comparisons, not estimates of uptime:
+Tether availability, movement blockers, Shock/Freeze and blocked Blink destinations
+reduce realized pressure. Enemy kills preserve the existing Ember-drop rule and do
+not grant player-card kill bonuses. New verb geometry, Veil targeting and forced
+intent timing are encounter assumptions; intrinsic card coefficients are unchanged.
+The matching rows are exported by `tools/card_heuristic.py` under `en03_enemies`.

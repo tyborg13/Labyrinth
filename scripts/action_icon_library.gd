@@ -8,6 +8,8 @@ const ICON_ROOT: String = "res://assets/art/icons"
 const SKILL_ICON_ROOT: String = "res://assets/art/skills"
 
 const KEYWORDS: Dictionary = {
+	"tether": {"label": "Tether", "description": "Tether: lightning strikes every tile between the two Arc Thralls for 4 and Shocks. Break the line to stop it.", "path": "%s/tether.png" % ICON_ROOT},
+	"veil": {"label": "Veiled", "description": "Veiled: only attacks from an adjacent tile, or area effects, can hit it.", "path": "%s/veil.png" % ICON_ROOT},
 	"raise_cover": {"label":"Raise Cover","description":"Spend 1 independent Move and all Stoneskin. Place cover within 2 with that much HP.","path":"res://assets/art/icons/guardians/raise_cover.png"},
 	"reclaim_cover": {"label":"Reclaim Cover","description":"Spend 1 independent Move to remove adjacent owned cover and recover its surviving HP as Stoneskin.","path":"res://assets/art/icons/guardians/reclaim_cover.png"},
 	"surface": {"label": "Shape Ground", "description": "Creates a surface in the shown area.", "path": "%s/surface.png" % ICON_ROOT},
@@ -418,6 +420,8 @@ const SKILL_ICONS: Dictionary = {
 ## Action names may share an icon only when players experience them as the exact
 ## same concept. Keep this dictionary parseable by tests/test_icon_identity_policy.py.
 const ACTION_ICON_ALIASES: Dictionary = {
+	"tether_beam": "tether",
+	"veil_blink": "veil",
 	"aoe": "aoe",
 	# Wave-4 surface family (spec/card_mechanics_surfaces.md). Wards are the
 	# Shape Ground action placed under each adjacent enemy.
@@ -1158,6 +1162,12 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 	var action_type: String = str(action.get("type", ""))
 	var tokens: Array = []
 	match action_type:
+		"tether_beam":
+			_append_damage_token(tokens, "tether", action, options)
+			_append_keyword_tokens(tokens, action)
+		"veil_blink":
+			tokens.append(token_for("veil"))
+			tokens.append(_token_for_action_field(action, "blink", "range", int(action.get("range", 4))))
 		"cost":
 			if bool(action.get("exhaust", false)):
 				tokens.append(token_for("exhaust"))

@@ -31,6 +31,9 @@ const SurfaceCardRules = preload("res://scripts/surface_card_rules.gd")
 const IllusionCardRules = preload("res://scripts/illusion_card_rules.gd")
 const IllusionRelicRules = preload("res://scripts/illusion_relic_rules.gd")
 const TerrainCardRules = preload("res://scripts/terrain_card_rules.gd")
+const TetherRules = preload("res://scripts/enemy_mechanics/tether.gd")
+const VeilRules = preload("res://scripts/enemy_mechanics/veil.gd")
+
 const MovementUndoRules = preload("res://scripts/movement_undo_rules.gd")
 
 const FATIGUE_BASE_DAMAGE: int = 2
@@ -1342,9 +1345,13 @@ func action_with_automatic_origin(state: Dictionary, action: Dictionary, target:
 	invalid["_surface_relic_invalid"] = true
 	return invalid
 
+func player_action_target_reason(state: Dictionary, action: Dictionary, tile: Vector2i) -> String:
+	return VeilRules.target_reason(self, state, action, tile)
+
 func _player_action_target_is_accepted(state: Dictionary, action: Dictionary, tile: Vector2i, accept_target: Callable) -> bool:
 	return (
-		_surface_condition_met_or_empty(state, action.get("requires_surface", {}) as Dictionary, tile)
+		VeilRules.target_reason(self, state, action, tile).is_empty()
+		and _surface_condition_met_or_empty(state, action.get("requires_surface", {}) as Dictionary, tile)
 		and SurfaceRelicRules.can_prepare(state, action, tile)
 		and (not accept_target.is_valid() or bool(accept_target.call(tile)))
 	)
@@ -1485,6 +1492,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 		or (not validate_target and not bool(action.get("_empower_repeat_first", false)) and not SurfaceRelicRules.mode_enabled(action, "cross"))
 		or valid_targets_for_player_action(next_state, action).has(target_tile)
 	)
+	if not VeilRules.target_reason(self, next_state, action, target_tile).is_empty(): return next_state
 	if not target_is_valid or not SurfaceRelicRules.can_prepare(next_state, action, target_tile) or (action.has("_origin_tile") and not is_tile_visible_to_player(next_state, action["_origin_tile"])):
 		return next_state
 	# A relay changes attack delivery, never the origin paid by Worldroot.
@@ -1674,6 +1682,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 		for tile: Vector2i in BoardSurfaceRules.footprint_tiles(next_state.get("player", {}) as Dictionary):
 			BoardSurfaceRules.remove(next_state, tile, str(action["clear_surface"]), "clear")
 	next_state.erase("_forced_relic_knocked")
+	if str(action.get("type", "")) in ["blink", "swap", "illusion_swap"]: VeilRules.record_move(next_state, state["player"]["pos"], next_state["player"]["pos"])
 	next_state = SurfaceRelicRules.apply_events(self, state, next_state, action, target_tile, presentation_trace)
 	next_state = SurfaceVarietyRules.after_action(self, state, next_state, action, target_tile, _relic_effects(next_state))
 	_record_runtime_performance_phase("player_action_body_total", performance_phase_started)
@@ -2525,7 +2534,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			var action: Dictionary = action_var
 			if combat_outcome(next_state) != "":
 				break
-			if shocked and not _enemy_action_is_movement(action):
+			if shocked and not _enemy_action_is_movement(action) and not TetherRules.handles(action):
 				continue
 			if immobilized and _enemy_action_is_movement(action):
 				continue
@@ -2638,7 +2647,7 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 			"raise_terrain", "terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse":
 				for attack_tile: Vector2i in _boss_action_threat_tiles(state, enemy, action):
 					attack_lookup[attack_tile] = true
-	if intent.has("committed_plan") and GuardianCombatRules.has_held_actions(intent):
+	if not TetherRules.action_for(intent).is_empty() or VeilRules.handles_intent(intent) or (intent.has("committed_plan") and GuardianCombatRules.has_held_actions(intent)):
 		move_lookup.clear()
 		attack_lookup.clear()
 		for tile: Vector2i in plan.get("path",[]):
@@ -2757,7 +2766,7 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 				var action: Dictionary = action_var
 				if combat_outcome(next_state) != "":
 					break
-				if shocked and not _enemy_action_is_movement(action):
+				if shocked and not _enemy_action_is_movement(action) and not TetherRules.handles(action):
 					continue
 				if immobilized and _enemy_action_is_movement(action):
 					continue
@@ -4319,6 +4328,8 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 		return next_state
 	var resolved_action: Dictionary = _resolved_surface_action(next_state, action)
 	action = resolved_action
+	if TetherRules.handles(action): return TetherRules.resolve(self, next_state, enemy_index, action, action_context, bleed_steps)
+	if VeilRules.handles(action): return VeilRules.resolve(self, next_state, enemy_index, action, action_context, bleed_steps)
 	if GuardianCombatRules.handles(action):
 		action["_resolved_path"] = action_context.get("resolved_path",_vector2i_values([enemy["pos"]]))
 		return GuardianCombatRules.resolve(self, next_state, enemy_index, action, rng, bleed_steps)
@@ -5139,6 +5150,8 @@ func _initialize_initiative_queue(state: Dictionary) -> Dictionary:
 		var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
 		if int(enemy.get("hp", 0)) <= 0:
 			continue
+		enemy["intent"] = TetherRules.commit(self, next_state, enemy, enemy.get("intent", {}))
+		enemies[enemy_index] = enemy
 		var intent_time_cost: int = _enemy_intent_time_cost(enemy.get("intent", {}) as Dictionary)
 		var first_delay: int = maxi(ENEMY_MIN_INITIATIVE, _enemy_base_initiative(next_state, enemy) + maxi(0, intent_time_cost))
 		# Setup bosses can bring their first warning to life sooner without
@@ -7015,6 +7028,7 @@ func _move_player_along_path(state: Dictionary, path: Array[Vector2i], allowance
 				if not vaulted.has(enemy_id):
 					vaulted[enemy_id] = true
 					_apply_stagger_to_enemy(next_state, enemy_id, int(vault.get("stagger", 2)))
+		VeilRules.record_move(next_state, player["pos"], path[step_index])
 		player["pos"] = path[step_index]
 		next_state["player"] = player
 		performance_phase_started = _record_runtime_performance_phase("traverse_position", performance_phase_started)
@@ -8418,7 +8432,9 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		enemy["cinder_detonation_pending"] = false
 		enemies[enemy_index] = enemy
 		state["enemies"] = enemies
-	var forced_intent: Dictionary = _forced_dragon_intent(state, enemy, intents)
+	var forced_intent: Dictionary = _intent_by_id(intents, str((enemy.get("intent", {}) as Dictionary).get("next_intent", "")))
+	if VeilRules.handles_intent(forced_intent) and not bool(VeilRules.plan(self, state, enemy_index, forced_intent).get("attack_available", true)): forced_intent = _intent_by_id(intents, "slash")
+	if forced_intent.is_empty(): forced_intent = _forced_dragon_intent(state, enemy, intents)
 	if not forced_intent.is_empty():
 		enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, forced_intent)
 		enemies[enemy_index] = enemy
@@ -8428,7 +8444,7 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		if typeof(intent_var) != TYPE_DICTIONARY:
 			continue
 		var intent: Dictionary = intent_var as Dictionary
-		if _dragon_intent_available(state, enemy, intent):
+		if int(intent.get("weight", 1)) > 0 and _dragon_intent_available(state, enemy, intent) and TetherRules.available(self, state, enemy_index, intent):
 			available_intents.append(intent)
 	intents = available_intents
 	if intents.is_empty():
@@ -8468,7 +8484,7 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 	enemies[enemy_index] = enemy
 
 func _objective_adjusted_intent_weight(state: Dictionary, intent: Dictionary) -> int:
-	var weight: int = maxi(1, int(intent.get("weight", 1)))
+	var weight: int = maxi(0, int(intent.get("weight", 1)))
 	var objective: Dictionary = state.get("objective", {}) as Dictionary
 	if str(objective.get("type", "")) == CombatObjectiveRules.REACH_EXIT and CombatObjectiveRules.is_control_intent(intent):
 		weight *= 3
@@ -8489,7 +8505,7 @@ func enemy_tactical_intent_options(state: Dictionary, enemy_index: int) -> Array
 		if typeof(intent_var) != TYPE_DICTIONARY:
 			continue
 		var intent: Dictionary = intent_var as Dictionary
-		if _dragon_intent_available(state, enemy, intent):
+		if int(intent.get("weight", 1)) > 0 and _dragon_intent_available(state, enemy, intent) and TetherRules.available(self, state, enemy_index, intent):
 			available.append(intent)
 	return _enemy_tactical_intent_options(state, enemy_index, enemy, definition, available)
 
@@ -8500,6 +8516,7 @@ func _enemy_tactical_intent_options(
 	definition: Dictionary,
 	intents: Array
 ) -> Array[Dictionary]:
+	if str(enemy.get("type", "")) in ["arc_thrall", "gloam_stalker"]: return [] # Authored weights; availability is filtered before rolling.
 	var profile: Dictionary = definition.get("ai_profile", {}) as Dictionary
 	var role: String = str(profile.get("role", ""))
 	if role.is_empty():
@@ -8937,6 +8954,8 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		_record_runtime_performance_phase("enemy_plan_total", performance_total_started)
 		return {}
 	var intent: Dictionary = intent_override if not intent_override.is_empty() else enemy.get("intent", {})
+	if not TetherRules.action_for(intent).is_empty(): return TetherRules.plan(self, state, enemy_index, intent, movement_disabled, attack_disabled)
+	if VeilRules.handles_intent(intent): return VeilRules.plan(self, state, enemy_index, intent, movement_disabled, attack_disabled)
 	if intent.has("committed_plan") and GuardianCombatRules.has_held_actions(intent):
 		return GuardianCombatRules.current_plan(self, state, enemy, intent, movement_disabled, attack_disabled)
 	var actions: Array = intent.get("actions", [])
@@ -11932,6 +11951,7 @@ func _surface_move_illusion(state: Dictionary, id: int, direction: Vector2i) -> 
 	return surface_actor_arrival(state, "illusion", id, origin)
 
 func _surface_prepare_enemy_intent(state: Dictionary, enemy: Dictionary, intent: Dictionary) -> Dictionary:
+	intent = TetherRules.commit(self, state, enemy, intent)
 	var prepared: Dictionary = intent.duplicate(true)
 	var fuel: Dictionary = prepared.get("surface_fuel", {}) as Dictionary
 	if fuel.is_empty():
@@ -12053,7 +12073,10 @@ func _surface_events_since(before_state: Dictionary, after_state: Dictionary) ->
 func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy_index: int, action: Dictionary, action_context: Dictionary = {}) -> Dictionary:
 	action = action.duplicate(true)
 	action["_resolved_path"] = action_context.get("resolved_path",_vector2i_values([before_state["enemies"][enemy_index]["pos"]]))
-	var step: Dictionary = GuardianCombatRules.animation_step(self,before_state,after_state,enemy_index,action) if GuardianCombatRules.handles(action) else _enemy_action_step_base(before_state, after_state, enemy_index, action, action_context)
+	var step: Dictionary
+	if TetherRules.handles(action): step = TetherRules.animation_step(self, before_state, after_state, enemy_index, action, action_context)
+	elif VeilRules.handles(action): step = VeilRules.animation_step(self, before_state, after_state, enemy_index, action, action_context)
+	else: step = GuardianCombatRules.animation_step(self,before_state,after_state,enemy_index,action) if GuardianCombatRules.handles(action) else _enemy_action_step_base(before_state, after_state, enemy_index, action, action_context)
 	step = RetaliateRules.decorate_attack_step(before_state, after_state, step)
 	if not step.is_empty():
 		step["surfaces_after"] = (after_state.get("surfaces", {}) as Dictionary).duplicate(true)

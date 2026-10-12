@@ -1,4 +1,18 @@
 {
+  "assets/art/enemies/arc_thrall.png": {
+    "pixel_sha256": "fcfdcd6fd9c0cbec1b40b831e4429ee9effc73360565dab7ec58f5f4b5f0f3aa",
+    "source_pixel_sha256": "11563e768e40131a6dc20713c193786146f331fa1178d216cebdd720e4fbfd6a",
+    "id": "arc_thrall",
+    "mode": "regrid",
+    "grid": 1.5
+  },
+  "assets/art/enemies/gloam_stalker.png": {
+    "pixel_sha256": "b7439f856ffc1038ce634affcd311986100d493c719767285d79a64022111381",
+    "source_pixel_sha256": "546f0f39233766380d360b55479e8f4727df238864e5b1f3f8cfe447abe80033",
+    "id": "gloam_stalker",
+    "mode": "regrid",
+    "grid": 1.5
+  },
   "assets/art/npcs/scavenger.png": {
     "pixel_sha256": "7de3e08b3df3f4a4a7111de756e3cfcbdef6a053298713a2538170824e1e1868",
     "source_pixel_sha256": "9a0b52250afb76a638fbf5bbc4352b601bb8c99b2b3078e10f0176cd445719ee",
