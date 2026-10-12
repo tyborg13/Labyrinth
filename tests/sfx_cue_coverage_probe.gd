@@ -6,6 +6,8 @@ const Settings = preload("res://scripts/settings_store.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const Combat = preload("res://scripts/combat_engine.gd")
+const CursorFeedback = preload("res://scripts/cursor_feedback.gd")
+const ButtonFeedback = preload("res://scripts/ui_button_feedback.gd")
 const TEST_VIEWPORT: Vector2i = Vector2i(1920, 1080)
 const CAPTURE_DIR: String = "user://sfx_cue_coverage/1920x1080_ui100"
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
@@ -46,6 +48,7 @@ func _check(expected: Array, label: String) -> void:
 	bank.set_test_clock(clock_ms)
 
 func _drive() -> void:
+	_check_director_families()
 	for weapon: String in ["sword", "maul", "spear"]:
 		for amount: int in [5, 6]:
 			var action: Dictionary = {"type": "melee", "damage": amount}
@@ -119,7 +122,9 @@ func _drive() -> void:
 	router.hit({"type": "push", "collision": true}, {}, "", {"id": 1, "hp": 12}, {"hp": 10})
 	_check(["move.blink", "push.slide", "push.collision"], "blink and push collision")
 	router.trap([{"element": "fire"}])
-	_check(["trap.trigger", "spell.fire"], "trap springs before element impact")
+	_check(["trap.trigger"], "trap springs with one designed cue")
+	router.outcomes([{"kind": "surface_created", "surface": "fire"}])
+	_check(["surface.fire"], "trap element is heard only through its created surface")
 	for surface: String in ["fire", "ice", "electrified", "rubble"]:
 		router.outcomes([{"kind": "surface_created", "surface": surface}])
 		_check(["surface." + ("electric" if surface == "electrified" else surface)], "surface created " + surface)
@@ -212,17 +217,39 @@ func _drive() -> void:
 	router.status("expose")
 	_check([], "removed Expose")
 
+func _check_director_families() -> void:
+	var section_families: Dictionary = {
+		"burrow_grub": ["claw", "beast"], "ember_tick": ["claw", "beast"],
+		"hoarfrost_seer": ["blunt", "humanoid"], "gale_herald": ["blunt", "humanoid"],
+		"arc_thrall": ["blunt", "humanoid"], "gloam_stalker": ["blade", "spirit"],
+		"briar_weaver": ["claw", "stone"], "slag_mortar": ["blunt", "humanoid"],
+		"glacial_mirror": ["blunt", "stone"], "gust_shrike": ["claw", "avian"],
+		"storm_capacitor": ["blunt", "stone"], "hollow_mimic": ["blade", "spirit"],
+		"bell_tender": ["blunt", "humanoid"], "storm_cantor": ["blunt", "humanoid"]
+	}
+	for type: String in section_families:
+		if router.enemy_family(type) != section_families[type][0] or router.enemy_family(type, true) != section_families[type][1]:
+			failures.append("Director enemy families differ: " + type)
+		if router.impact_cue({"type": "melee", "element": "fire"}, {"type": type}) != "spell.fire":
+			failures.append("Element fails to override physical family: " + type)
+	if router.weapon_family("galewhip") != "blade" or router.weapon_family("fixture_unknown_weapon") != "blunt":
+		failures.append("Director Galewhip/unknown weapon families differ")
+	if router.enemy_family("fixture_unknown_enemy") != "blunt" or router.enemy_family("fixture_unknown_enemy", true) != "humanoid":
+		failures.append("Director unknown enemy/death defaults differ")
+
 func _state() -> Dictionary:
 	return {"seed": TEST_SEED, "player": {"type": "player", "hp": 12}, "enemies": [], "deck": {"cycles": 0, "burned": []}}
 
 func _report() -> void:
-	var lines: PackedStringArray = PackedStringArray(["cue | requested | variants/fallback"])
+	var lines: PackedStringArray = PackedStringArray(["cue | requested | variants/fallback | source"])
 	for cue: String in bank.data["cues"]:
 		var state: Dictionary = bank.cues[cue]
 		var available: String = "fallback" if state["fallback"] and not (state["streams"] as Array).is_empty() else "variants" if not (state["streams"] as Array).is_empty() else "silent"
-		lines.append("%s | %s | %s" % [cue, "yes" if covered.has(cue) else "no", available])
+		var source: String = str(state["entry"].get("variants_from", "direct"))
+		lines.append("%s | %s | %s | %s" % [cue, "yes" if covered.has(cue) else "no", available, source])
 		if not covered.has(cue): failures.append("Uncovered trigger: " + cue)
-	for cue: String in bank.data.get("removed", {}): lines.append("%s | removed | deliberately silent" % cue)
+		if available == "silent": failures.append("Director cue has no loaded variants/fallback: " + cue)
+	for cue: String in bank.data.get("removed", {}): lines.append("%s | removed | deliberately silent | removed" % cue)
 	var report: String = "\n".join(lines)
 	print(report)
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(REPORT_DIR))
@@ -272,6 +299,10 @@ func _live_checks() -> void:
 	await process_frame
 	var live_bank: Node = scene.get("_sfx_bank")
 	var live_router: RefCounted = scene.get("_sfx_router")
+	var hand_card: Control = scene.call("_hand_card_control", 0)
+	if not CursorFeedback.cue_owns_feedback(hand_card) or not CursorFeedback.cue_owns_feedback(hand_card, true):
+		failures.append("Production hand card must own click and focus feedback")
+	await _check_shared_feedback(live_router)
 	live_bank.cue_requested.connect(_record)
 	requested.clear()
 	var after: Dictionary = state.duplicate(true)
@@ -306,6 +337,56 @@ func _live_checks() -> void:
 	_check([], "same rendered snapshot does not retrigger cues")
 	if visual: await _capture("02_defense_result")
 	scene.queue_free()
+	await process_frame
+
+func _check_shared_feedback(live_router: RefCounted) -> void:
+	var feedback: Node = root.get_node("CursorFeedback")
+	while bool(feedback.call("is_loading")): await process_frame
+	var surface := Control.new()
+	root.add_child(surface)
+	var map: Button = preload("res://scripts/section_map_node.gd").new()
+	map.set("actionable", true)
+	surface.add_child(map)
+	live_router.bind_map_hover(map)
+	var choice: Control = preload("res://scripts/event_view_choice.gd").new()
+	choice.focus_mode = Control.FOCUS_ALL
+	surface.add_child(choice)
+	live_router.bind_map_hover(choice)
+	var card := Control.new()
+	card.focus_mode = Control.FOCUS_ALL
+	card.set_meta(CursorFeedback.CUE_CLICK_META, true)
+	card.set_meta(CursorFeedback.CUE_FOCUS_META, true)
+	surface.add_child(card)
+	for control: Control in [map, choice, card]:
+		if not CursorFeedback.cue_owns_feedback(control): failures.append("Dedicated cue must own pointer feedback")
+		var before: Dictionary = feedback.call("feedback_counts")
+		feedback.call("_begin_pointer_press_with_context", Vector2.ZERO, {"actionable": true, "drag_source": control == card, "cue_click": true})
+		feedback.call("_end_pointer_press")
+		feedback.call("play_action_confirmation")
+		if feedback.call("feedback_counts") != before: failures.append("Dedicated cue must suppress pointer press/release confirmation")
+		control.grab_focus()
+		feedback.set("_last_valid_gesture_msec", -1000)
+		feedback.call("play_action_confirmation")
+		if feedback.call("feedback_counts") != before: failures.append("Dedicated cue must suppress keyboard/controller confirmation")
+		control.release_focus()
+	map.grab_focus()
+	await process_frame
+	var before: Dictionary = feedback.call("feedback_counts")
+	feedback.set("_last_valid_gesture_msec", -1000)
+	feedback.call("play_action_confirmation")
+	feedback.call("play_focus_feedback", map)
+	ButtonFeedback.bind_button(map)
+	map.mouse_entered.emit()
+	if feedback.call("feedback_counts") != before: failures.append("Map cue must suppress native confirmation and shared hover tick")
+	feedback.call("play_focus_feedback", card)
+	if feedback.call("feedback_counts") != before: failures.append("Card cue must suppress shared hover tick")
+	if CursorFeedback.cue_owns_feedback(choice, true): failures.append("Event choices retain their shared focus tick")
+	map.release_focus()
+	feedback.set("_last_valid_gesture_msec", -1000)
+	feedback.call("play_action_confirmation")
+	if int((feedback.call("feedback_counts") as Dictionary)["valid"]) != int(before["valid"]) + 1:
+		failures.append("Ordinary actions must retain their shared click")
+	surface.queue_free()
 	await process_frame
 
 func _capture(label: String) -> void:

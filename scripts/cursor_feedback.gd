@@ -10,6 +10,8 @@ const CONTEXT_META: String = "cursor_feedback_context"
 const DRAG_SOURCE_META: String = "cursor_feedback_drag_source"
 const CONTEXT_PROVIDER_META: String = "cursor_feedback_context_provider"
 const CONTEXT_AT_METHOD: String = "cursor_feedback_context_at"
+const CUE_CLICK_META: String = "sfx_cue_owns_click"
+const CUE_FOCUS_META: String = "sfx_cue_owns_focus"
 const DRAG_THRESHOLD: float = 7.0
 const AUDIO_MIX_RATE: int = 44100
 const VALID_CLICK_SECONDS: float = 0.045
@@ -36,6 +38,7 @@ var _press_actionable: bool = false
 var _press_drag_source: bool = false
 var _drag_started: bool = false
 var _drag_sound_pending: bool = false
+var _press_cue_click: bool = false
 var _manual_loading_depth: int = 0
 var _loading_until_msec: int = 0
 var _transition_generation: int = 0
@@ -263,7 +266,9 @@ func _resolved_cursor_state(hovered: Control, pointer_position: Variant = null) 
 func _begin_pointer_press(position: Vector2) -> void:
 	if _left_pressed or is_loading():
 		return
-	var context: Dictionary = context_for_control(get_viewport().gui_get_hovered_control(), position)
+	var hovered: Control = get_viewport().gui_get_hovered_control()
+	var context: Dictionary = context_for_control(hovered, position)
+	context["cue_click"] = cue_owns_feedback(hovered)
 	_begin_pointer_press_with_context(position, context)
 
 func _begin_pointer_press_with_context(position: Vector2, context: Dictionary) -> void:
@@ -273,10 +278,12 @@ func _begin_pointer_press_with_context(position: Vector2, context: Dictionary) -
 	_press_position = position
 	_press_actionable = bool(context.get("actionable", false))
 	_press_drag_source = bool(context.get("drag_source", false))
+	_press_cue_click = bool(context.get("cue_click", false))
 	_drag_started = false
 	_drag_sound_pending = _press_drag_source and not _press_actionable
 	if _press_actionable:
-		_play_click_feedback(true)
+		if _press_cue_click: _last_valid_gesture_msec = Time.get_ticks_msec()
+		else: _play_click_feedback(true)
 	elif not _drag_sound_pending:
 		_play_click_feedback(false)
 
@@ -288,7 +295,7 @@ func _update_drag_from_motion(event: InputEventMouseMotion) -> void:
 	_drag_started = true
 	if _drag_sound_pending:
 		_drag_sound_pending = false
-		_play_click_feedback(true)
+		if not _press_cue_click: _play_click_feedback(true)
 
 func _end_pointer_press() -> void:
 	if not _left_pressed:
@@ -304,14 +311,17 @@ func _end_pointer_press() -> void:
 	_press_drag_source = false
 	_drag_started = false
 	_drag_sound_pending = false
+	_press_cue_click = false
 
 func play_action_confirmation() -> void:
+	if is_inside_tree() and cue_owns_feedback(get_viewport().gui_get_focus_owner()): return
 	# Native keyboard/controller actions share the forged click. A pointer
 	# press already plays it; do not double that sound on the release signal.
 	if Time.get_ticks_msec() - _last_valid_gesture_msec >= 120:
 		_play_click_feedback(true)
 
-func play_focus_feedback() -> void:
+func play_focus_feedback(control: Control = null) -> void:
+	if cue_owns_feedback(control, true): return
 	var now: int = Time.get_ticks_msec()
 	if is_loading() or now - _last_focus_msec < FOCUS_COOLDOWN_MSEC:
 		return
@@ -357,6 +367,13 @@ func _create_audio_players() -> void:
 		player.bus = SettingsStore.UI_SFX_BUS
 		add_child(player)
 		_audio_players.append(player)
+
+static func cue_owns_feedback(control: Control, focus: bool = false) -> bool:
+	var key: String = CUE_FOCUS_META if focus else CUE_CLICK_META
+	while control != null:
+		if bool(control.get_meta(key, false)): return true
+		control = control.get_parent() as Control
+	return false
 
 static func context_for_control(hovered: Control, pointer_position: Variant = null) -> Dictionary:
 	var context: Dictionary = _empty_context()

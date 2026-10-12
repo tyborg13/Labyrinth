@@ -17500,6 +17500,8 @@ func _acquire_hand_card_pool_entry(card_id: String, card_size: Vector2) -> Dicti
 
 func _new_hand_card_pool_entry(card_id: String, card_size: Vector2) -> Dictionary:
 	var widget := CardWidgetScene.instantiate() as CardWidget
+	widget.set_meta("sfx_cue_owns_click", true)
+	widget.set_meta("sfx_cue_owns_focus", true)
 	widget.activated.connect(_on_hand_card_widget_activated.bind(widget))
 	widget.drag_started.connect(_on_hand_card_widget_drag_started.bind(widget))
 	widget.mouse_entered.connect(_on_hand_card_widget_hover_started.bind(widget))

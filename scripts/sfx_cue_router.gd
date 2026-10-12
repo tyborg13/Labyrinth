@@ -6,15 +6,20 @@ const Attacks = preload("res://scripts/attack_sfx_library.gd")
 const Fx = preload("res://scripts/attack_fx_library.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Omens = preload("res://scripts/omen_rules.gd")
+const CursorFeedback = preload("res://scripts/cursor_feedback.gd")
 const ENEMY_ATTACK_FAMILIES: Dictionary = {
 	"crawler": "claw", "acolyte": "blunt", "harrier": "pierce", "warden": "blunt",
 	"cinder_ooze": "blunt", "cinder_droplet": "blunt", "bile_bloomer": "blunt",
 	"chainbound_gaoler": "blunt", "grave_surgeon": "blade", "frostglass_lancer": "pierce",
 	"veilbound_acolyte": "blunt", "lightning_wisp": "blunt", "ashen_reaver": "blade",
-	"rimejaw": "claw", "storm_cantor": "pierce", "gallows_roc": "claw", "craghide": "claw",
+	"rimejaw": "claw", "storm_cantor": "blunt", "gallows_roc": "claw", "craghide": "claw",
 	"last_lamplighter": "blunt", "ash_hound": "claw", "rime_whelp": "claw",
-	"rime_spitter": "claw", "bell_tender": "pierce", "roc_fledgling": "claw",
+	"rime_spitter": "claw", "bell_tender": "blunt", "roc_fledgling": "claw",
 	"stoneback_mite": "claw", "wick_shade": "claw",
+	"burrow_grub": "claw", "ember_tick": "claw", "hoarfrost_seer": "blunt",
+	"gale_herald": "blunt", "arc_thrall": "blunt", "gloam_stalker": "blade",
+	"briar_weaver": "claw", "slag_mortar": "blunt", "glacial_mirror": "blunt",
+	"gust_shrike": "claw", "storm_capacitor": "blunt", "hollow_mimic": "blade",
 	"tharokh": "claw", "vyraketh": "claw", "vaeloryx": "claw", "iskaldra": "claw",
 	"noctyrax": "claw", "zekarion": "claw"
 }
@@ -27,6 +32,10 @@ const DEATH_FAMILIES: Dictionary = {
 	"last_lamplighter": "humanoid", "ash_hound": "beast", "rime_whelp": "beast",
 	"rime_spitter": "beast", "bell_tender": "humanoid", "roc_fledgling": "avian",
 	"stoneback_mite": "beast", "wick_shade": "spirit",
+	"burrow_grub": "beast", "ember_tick": "beast", "hoarfrost_seer": "humanoid",
+	"gale_herald": "humanoid", "arc_thrall": "humanoid", "gloam_stalker": "spirit",
+	"briar_weaver": "stone", "slag_mortar": "humanoid", "glacial_mirror": "stone",
+	"gust_shrike": "avian", "storm_capacitor": "stone", "hollow_mimic": "spirit",
 	"tharokh": "dragon", "vyraketh": "dragon", "vaeloryx": "dragon", "iskaldra": "dragon",
 	"noctyrax": "dragon", "zekarion": "dragon"
 }
@@ -38,12 +47,7 @@ const WEAPON_FAMILIES: Dictionary = {
 	"bow": "pierce", "crossbow": "pierce", "repeater": "pierce", "sling": "pierce"
 }
 const HEAVY_TYPES: Array[String] = ["warden", "craghide", "ashen_reaver", "rimejaw", "storm_cantor", "gallows_roc", "last_lamplighter", "tharokh", "vyraketh", "vaeloryx", "iskaldra", "noctyrax", "zekarion"]
-# No general relic badge pulse exists; its visual contract must come from the owner.
-const TODO_DESIGN_RELIC_BADGE_PULSE: String = "TODO_DESIGN_RELIC_BADGE_PULSE"
-const TODO_DESIGN_GALEWHIP_IMPACT_FAMILY: String = "TODO_DESIGN_GALEWHIP_IMPACT_FAMILY"
-const EQUIPMENT_FAMILIES: Dictionary = {"phoenix_brand": "blade", "worldbreaker": "blunt", "dawnlight_censer": "blunt", "galewhip": TODO_DESIGN_GALEWHIP_IMPACT_FAMILY}
-const TODO_DESIGN_WEAPON_FAMILY: String = "TODO_DESIGN_WEAPON_FAMILY"
-const TODO_DESIGN_ENEMY_FAMILY: String = "TODO_DESIGN_ENEMY_FAMILY"
+const EQUIPMENT_FAMILIES: Dictionary = {"phoenix_brand": "blade", "worldbreaker": "blunt", "dawnlight_censer": "blunt", "galewhip": "blade"}
 const AREA_STAGGER_MS: int = 35
 const AREA_GAIN_DB: float = -6.0
 const CHAIN_GAIN_DB: float = -5.0
@@ -74,6 +78,7 @@ var _trap_impact_pending: bool = false
 var _radiance_played: bool = false
 var _run_baselined: bool = false
 var _vocal_rng := RandomNumberGenerator.new()
+var _warned_families: Dictionary = {}
 
 func _init(cue_bank: Node = null) -> void:
 	bank = cue_bank
@@ -86,7 +91,19 @@ func weapon_family(weapon: String) -> String:
 	var name: String = weapon.to_lower().replace("_", " ")
 	for token: String in WEAPON_FAMILIES:
 		if name.contains(token): return WEAPON_FAMILIES[token]
-	return TODO_DESIGN_WEAPON_FAMILY if not weapon.is_empty() else ""
+	return _unknown_family("weapon", weapon, "blunt") if not weapon.is_empty() else ""
+
+func _unknown_family(kind: String, id: String, fallback: String) -> String:
+	var key: String = kind + ":" + id
+	if OS.is_debug_build() and not _warned_families.has(key):
+		_warned_families[key] = true
+		push_warning("Unknown SFX %s family for '%s'; using %s." % [kind, id, fallback])
+	return fallback
+
+func enemy_family(type: String, death_family: bool = false) -> String:
+	var families: Dictionary = DEATH_FAMILIES if death_family else ENEMY_ATTACK_FAMILIES
+	if families.has(type): return families[type]
+	return _unknown_family("death" if death_family else "enemy attack", type, "humanoid" if death_family else "blunt")
 
 func weapon_for_card(card_id: String, state: Dictionary) -> String:
 	for slot: String in ["weapon", "offhand"]:
@@ -98,9 +115,13 @@ func bind_map_hover(host: Node) -> void:
 	if not host.child_entered_tree.is_connected(bind_map_hover): host.child_entered_tree.connect(bind_map_hover)
 	var script: Script = host.get_script() as Script
 	if script != null and script.resource_path == "res://scripts/section_map_node.gd":
+		host.set_meta(CursorFeedback.CUE_CLICK_META, true)
+		host.set_meta(CursorFeedback.CUE_FOCUS_META, true)
 		var callback: Callable = _map_node_entered.bind(host)
 		if not host.mouse_entered.is_connected(callback): host.mouse_entered.connect(callback)
 		if not host.focus_entered.is_connected(callback): host.focus_entered.connect(callback)
+	elif script != null and script.resource_path in ["res://scripts/event_view_choice.gd", "res://scripts/labyrinth_map_view.gd"]:
+		host.set_meta(CursorFeedback.CUE_CLICK_META, true)
 	for child: Node in host.get_children(): bind_map_hover(child)
 
 func _map_node_entered(button: Node) -> void:
@@ -111,7 +132,7 @@ func attack_family(action: Dictionary, actor: Dictionary = {}, weapon: String = 
 	if kind in ["push", "pull", "charge", "force_area"]: return "blunt"
 	if not actor.is_empty() and str(actor.get("type", "player")) != "player":
 		if kind == "ranged" and str(actor.get("type", "")) in ["acolyte", "veilbound_acolyte"]: return "arcane"
-		return ENEMY_ATTACK_FAMILIES.get(str(actor.get("type", "")), TODO_DESIGN_ENEMY_FAMILY)
+		return enemy_family(str(actor.get("type", "")))
 	var family: String = weapon_family(weapon)
 	if not family.is_empty(): return family
 	return "blade" if kind == "melee" or (kind == "aoe" and str(action.get("aim", "")) == "facing") else "pierce" if str(action.get("physical", "")) == "true" or bool(action.get("physical", false)) else "arcane"
@@ -127,7 +148,7 @@ func impact_cue(action: Dictionary, actor: Dictionary = {}, weapon: String = "",
 	var family: String = attack_family(action, actor, weapon)
 	if family in ["blade", "blunt"]:
 		return "hit.%s.%s" % [family, "heavy" if int(action.get("damage", action.get("amount", hp_loss + absorbed))) >= 6 else "light"]
-	return family if family.begins_with("TODO_DESIGN_") else "hit." + family
+	return "hit." + family
 
 func begin_player_action(before: Dictionary, action: Dictionary, weapon: String = "") -> void:
 	begin_action(before, action, {"type": "player"}, weapon)
@@ -202,7 +223,7 @@ func death(unit: Dictionary) -> void:
 	var key: String = _unit_key(unit)
 	if _deaths.has(key): return
 	_deaths[key] = true
-	request("death." + ("hero" if key == "player" else str(DEATH_FAMILIES.get(str(unit.get("type", "")), TODO_DESIGN_ENEMY_FAMILY))))
+	request("death." + ("hero" if key == "player" else enemy_family(str(unit.get("type", "")), true)))
 
 func walk_tile(unit: Dictionary) -> void:
 	if str(unit.get("type", "player")) == "player": request("step.hero")
@@ -216,13 +237,8 @@ func blink() -> void: request("move.blink")
 func push() -> void: request("push.slide")
 func trap(traps: Array) -> void:
 	_trap_impact_pending = not traps.is_empty()
-	var seen: Dictionary = {}
-	for entry: Dictionary in traps:
+	for _entry: Dictionary in traps:
 		request("trap.trigger")
-		var element: String = str(entry.get("element", ""))
-		if not element.is_empty() and not seen.has(element):
-			request("spell." + element)
-			seen[element] = true
 func surface(surface_id: String) -> void:
 	request("surface." + ("electric" if surface_id == "electrified" else surface_id))
 func status(status_id: String) -> void:

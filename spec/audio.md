@@ -65,8 +65,9 @@ The router does not change gameplay, saves, analytics, or input behavior.
 Weapon cards resolve the equipment that supplies that card (weapon/offhand),
 while magic and weaponless cards use their action type. Physical facing areas are
 melee. Push/pull/charge use blunt. Weaponless neutral spells use arcane; elements
-replace the physical impact. Unknown future weapons/enemies return
-`TODO_DESIGN_WEAPON_FAMILY` / `TODO_DESIGN_ENEMY_FAMILY` rather than choosing a sound.
+replace the physical impact. Unknown weapons and enemy attacks use blunt;
+unknown deaths use humanoid. Debug builds warn once per unknown id/family;
+release builds remain quiet.
 
 | Weapon family | Weapons |
 | --- | --- |
@@ -96,17 +97,29 @@ Shale Bloomer is the current `bile_bloomer` id and has the director's stone deat
 | lightning_wisp | blunt | spirit |
 | ashen_reaver | blade | humanoid |
 | rimejaw | claw | beast |
-| storm_cantor | pierce | humanoid |
+| storm_cantor | blunt | humanoid |
 | gallows_roc | claw | avian |
 | craghide | claw | stone |
 | last_lamplighter | blunt | humanoid |
 | ash_hound | claw | beast |
 | rime_whelp | claw | beast |
 | rime_spitter | claw | beast |
-| bell_tender | pierce | humanoid |
+| bell_tender | blunt | humanoid |
 | roc_fledgling | claw | avian |
 | stoneback_mite | claw | beast |
 | wick_shade | claw | spirit |
+| burrow_grub | claw | beast |
+| ember_tick | claw | beast |
+| hoarfrost_seer | blunt | humanoid |
+| gale_herald | blunt | humanoid |
+| arc_thrall | blunt | humanoid |
+| gloam_stalker | blade | spirit |
+| briar_weaver | claw | stone |
+| slag_mortar | blunt | humanoid |
+| glacial_mirror | blunt | stone |
+| gust_shrike | claw | avian |
+| storm_capacitor | blunt | stone |
+| hollow_mimic | blade | spirit |
 | tharokh | claw | dragon |
 | vyraketh | claw | dragon |
 | vaeloryx | claw | dragon |
@@ -132,8 +145,8 @@ Shale Bloomer is the current `bile_bloomer` id and has the director's stone deat
   resolution per the brief (the protected data's wording says start; the brief
   takes precedence); the data's 4000 ms cooldown still applies. Dragon travel
   requests wings alongside each large-enemy tile arrival.
-- Trap spring precedes its element impact. Created surfaces use the separate
-  `surface.*` cues, without stacking a second spell on the attack contact.
+- A trap spring uses only `trap.trigger`; it never adds an element spell impact.
+  If the trap creates a surface, that creation uses the separate `surface.*` cue.
 - Expose is deliberately removed. Its card/intent provides the signal. Pass
   continues to produce only the shared click. Card cues apply only to cards.
 
@@ -152,26 +165,29 @@ cue's request and effective variant/fallback/silent status, plus removed entries
 Its optional `--visual` mode is a 1920×1080, 100% UI-scale real-renderer handoff.
 Existing UI hover, feedback and run probes remain the owner audition surfaces.
 
-## Integration limits for the design owner
+## Director decisions and shared feedback
 
-Galewhip is a lash in the production rig; the brief supplies no whip impact
-family. `TODO_DESIGN_GALEWHIP_IMPACT_FAMILY` stays silent. The generic future
-weapon/enemy family placeholders are also silent until a family is supplied.
-Phoenix Brand's sword art uses blade; Worldbreaker and Dawnlight Censer's heavy
-blunt implements use blunt. Unknown equipment does not inherit a default sword.
+Galewhip and Phoenix Brand use blade; Worldbreaker and Dawnlight Censer use blunt.
+Section enemy families above include the director's parallel-unit assignments.
+Bell Tender and Storm Cantor use blunt staff contacts; elements still override.
 
-The owned-file boundary excludes `cursor_feedback.gd`, which currently has no
-cue override/suppression hook. Map/event commitment requests are wired, but the
-shared click still occurs before those requests. Suppressing that click requires
-an adjacent hook; no cursor/input behavior is changed as a workaround.
+Hand cards and map nodes own their click and hover/focus sound through dedicated
+cues. Event choices own their click while retaining the shared focus tick.
+The router marks these controls; `CursorFeedback` suppresses the corresponding
+shared pointer press, native confirmation and UI focus tick. Cursor motion,
+drag thresholds, activation and navigation remain unchanged. Ordinary buttons
+and Pass retain the shared click.
 
 Relic trigger detection uses existing explicit reward log records and
 relic-owned resolved surface events. It never treats a threshold counter increment
-as a fired effect. Relics that emit neither record need an engine presentation
-event; a general relic HUD badge-pulse hook is absent and reserved as
-`TODO_DESIGN_RELIC_BADGE_PULSE`. The coverage table proves
-representative cue requests and the live probe proves selected scene hooks; it
-is not a claim that these two adjacent integration limits have been resolved.
+as a fired effect. Per the director, relics without explicit outcome records
+remain quiet and no general badge-pulse hook is added.
+
+The protected data currently contains 72 direct variant lists, two variant
+aliases (Stoneskin and crossbow), six ambience aliases to `ambience.stone`,
+and that one fallback-only stone bed. All sections retain the existing hall tone;
+no biome bed assets are added. Coverage reports both effective playback and the
+alias source, and fails if any active cue has no loaded stream.
 
 ## Proof commands for the design owner
 
@@ -182,7 +198,7 @@ preserve their established capture/input checks. The inspection fixture remains
 owned by the design owner under the workflow split.
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-01 && python3 tools/visual_probe_runner.py --task-id sfx-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/sfx_cue_coverage_probe_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/sfx-01-coverage.json tests/sfx_cue_coverage_probe.gd -- --visual
+cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-01 && python3 tools/visual_probe_runner.py --task-id sfx-01 --no-headless --display-driver macos --audio-driver CoreAudio --expect-size 1920x1080 --proof-contract tests/sfx_cue_coverage_probe_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/sfx-01-coverage.json tests/sfx_cue_coverage_probe.gd -- --visual
 cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-01 && python3 tools/visual_probe_runner.py --task-id sfx-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 tests/run_sfx_probe.gd
 cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-01 && python3 tools/visual_probe_runner.py --task-id sfx-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 tests/ui_feedback_sfx_probe.gd
 cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-01 && python3 tools/visual_probe_runner.py --task-id sfx-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/ui_hover_sfx_probe_contract.json tests/ui_hover_sfx_probe.gd
