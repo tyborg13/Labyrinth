@@ -202,6 +202,12 @@ class IconIdentityPolicyTests(unittest.TestCase):
         self.assertEqual(set(room_icons), {"boss_vyraketh", "boss_tharokh", "boss_noctyrax", "scavenger", "graftwright", "boss_zekarion", "scout", "combat", "boss_vaeloryx", "treasure", "campfire", "boss_iskaldra", "event", "start"})
         concepts.update({f"map:{key}": path for key, path in room_icons.items()})
 
+        omen_source = (REPO_ROOT / "scripts/omen_badges.gd").read_text(encoding="utf-8")
+        omen_icons = dict(re.findall(r'^\s*"([^\"]+)": "(res://assets/art/icons/omens/[^\"]+)"', omen_source, re.MULTILINE))
+        omen_catalog = json.loads((REPO_ROOT / "data/events.json").read_text(encoding="utf-8"))["omens"]
+        self.assertEqual(set(omen_icons), set(omen_catalog), "Every omen needs its own registered seal")
+        concepts.update({f"omen:{key}": path for key, path in omen_icons.items()})
+
         skills = json.loads((REPO_ROOT / "data/skills.json").read_text(encoding="utf-8"))
         for skill_id, skill in skills.items():
             icon_key = skill.get("icon", "")

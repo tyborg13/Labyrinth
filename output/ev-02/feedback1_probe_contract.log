@@ -1,0 +1,13 @@
+Running task-local command:
+  task: ev-02
+  run: ev-02-1791835371754239000-43762
+  HOME: /private/tmp/labyrinth-godot-home/ev-02-1791835371754239000-43762
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/ev-02-1791835371754239000-43762/godot.log --headless --path . --script tests/event_view_probe.gd -- --write-proof-contract res://output/ev-02/proof-contract.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+Event view proof contract: /Users/borgerding/workspace/Labyrinth.worktrees/ev-02/output/ev-02/proof-contract.json

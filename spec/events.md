@@ -2,8 +2,7 @@
 
 Event rooms use the protected, director-authored `data/events.json` catalog rather
 than a fixed encounter. `EventRules` owns selection, requirements, ordered effect
-transactions and previews. `OmenRules` owns timed combat modifiers. No art or
-sound is required by this stopgap panel.
+transactions and previews. `OmenRules` owns timed combat modifiers. `EventView` presents those rules using the approved illustrated assets and existing UI cues.
 
 ## Schema and validation
 
@@ -23,8 +22,7 @@ omens. `GameData` caches the file once and exposes `events()`, `event_def(id)`,
 `omens()`, and `omen_def(id)`.
 
 Art paths are derived only by `EventRules.art_path(id)` as
-`res://assets/art/events/<event_id>.png`. Missing art is allowed. The temporary
-panel does not load art.
+`res://assets/art/events/<event_id>.png`. `EventView` loads this derived path through `AssetLoader`.
 
 ## Selection
 
@@ -112,7 +110,7 @@ existing map flow.
 
 Run state stores `omens` as `{id, fights_left}` entries. Refresh uses the maximum
 of the remaining duration and authored duration. `OmenRules.active()` supplies
-id, name, kind, description and remaining fights for a future HUD.
+id, name, kind, description and remaining fights for the room and combat HUD.
 
 Each finished combat decrements active omens and removes entries at zero.
 Victory, physical escape, defeat/Last Door retreat, Guardian and boss completion
@@ -217,21 +215,109 @@ the entire catalog, selection, requirements, effects, omens, persistence,
 reward continuation and exact previews. Runtime regression proof also includes
 the section-map, dragon-boss and full Godot suites.
 
+## Presentation
+
+`EventView` is a full-screen modal over the board. The section map remains
+closed until resolution and any deferred card choice have finished. It reads
+`EventRules.choice_effect_lines`, availability/block reasons and saved
+`event_state` pages/outcomes; all rules, saves and analytics stay owned by ev-01.
+
+At **1920×1080, 100% UI scale**:
+
+- The scrim blurs/dims the board and adds radial darkening. The approved CSS
+  specifies 2 px blur, brightness 0.35, saturation 0.7, and a radial gradient
+  from rgba(8,6,5,0.35) to rgba(4,3,2,0.86) at 75%.
+- The 1640×780 panel starts at (140,150), with the existing major-dialog
+  `ThemedPanelOrnament` material, gilded hairlines and bold corner brackets
+  (CSS: 46 px, 4 px).
+- The painting covers (26,26,1062,728) inside the panel. It has no frame. The
+  right 18%, top 7% and bottom 10% fade into the panel through an alpha mask.
+- The right column begins at panel (1060,52), width 540. `EVENT` uses the UI
+  eyebrow font at 15 px with 5 px tracking in GOLD_DIM. The title uses the UI
+  font at 44 px in GOLD_BRIGHT, reduced in 2 px steps to at least 34 px to avoid
+  wrapping. The shared gilded rule follows the title. Body text uses the Text
+  font at 22 px, line height 1.42, in TEXT.
+- Choices start 32 px after the body. Each existing choice plate is 548 px
+  wide, with padding top/right/bottom/left 13/18/13/58, 14 px between plates,
+  and the CSS minimum content height of 52 px (78 px including padding).
+  Its 26 px key disc has a GOLD_DIM ring and a GOLD numeral 1–3. The label is
+  UI 24 px TEXT. Effects use Text 19 px, one row per rules effect line.
+- UiPalette event tones: EVENT_COST #e07a6c, EVENT_GAIN #e9cf8f, EVENT_BANE
+  #c58cf0, EVENT_BLESSING #f2d27a. Neutral and odds prefixes are TEXT_2
+  #b5a58a; the rest of each odds line retains its semantic tone.
+- Hover/focus brightens gilding and adds a 22 px ember glow at 28% opacity.
+  Unavailable plates stay focusable at 50% opacity, with TEXT_2 labels and
+  exact block reasons in italic Text 17 px TEXT_3. They cannot activate.
+- On the result page, italic Text 22 px #d8c9a8 replaces the body. A quiet
+  outcome well follows after 30 px; its rows use toned Text 19 px. The
+  ember-bronze Continue button uses VARIANT_SELECTED, the approved CSS plate
+  height of 78 px, and is anchored 40 px above the panel bottom.
+- Layout uses the live font shaper. On overflow, reduce body text to 20 px,
+  then effects to 18 px. No text is clipped. The suite and probe assert fit
+  for all 27 events and both pages in fresh/rich states, plus every random
+  outcome branch.
+
+Motion: scrim fade 0.18 s; panel fade/rise 12 px over 0.22 s, ease-out. Painting
+starts once the panel reaches 80% opacity, then settles 1.04→1.00 over 0.9 s.
+Right-column page changes crossfade over 0.18 s; outcome rows stagger by 0.08 s.
+Reduced motion keeps fades and removes rise/zoom/badge pop. Close fades 0.16 s.
+Painting fade-in is 0.22 s (`PAINTING_FADE_SECONDS`); individual outcome-row
+fades are 0.18 s (`OUTCOME_ROW_FADE_SECONDS`), accepted by the design owner.
+The art shader passes vertex modulation to the fragment explicitly: fragment
+`COLOR` already contains the texture sample, so multiplying by it would square
+source RGB and darken the painting. Only the specified edge mask changes alpha.
+The native probe checks the central 40% mean Rec.709 RGB luminance against the
+cover-scaled processed source, with at most 8% relative error on settled pages.
+Reduced motion is applied through the live settings callback; enabling it during
+an event immediately stops rise/zoom while the opacity fades continue.
+
+Sound: existing menu-page-open on opening, shared forged button click on choice
+activation, and menu-page-close on Continue. No new audio. Mouse, 1–3, Up/Down,
+Enter and controller A activate choices; stick/D-pad navigate, including
+unavailable plates. Initial focus is the first available choice. Back/Escape
+is inert on choices and activates Continue on results. The controller prompt
+names the focused choice.
+
+Active omens appear after relics/Rites in the existing header grid in room and
+combat modes. Each unique approved 96 px wax seal is shown at 38×38, with a
+bottom-right fights-left numeral in UI 15 px TEXT on a 16 px INK_0 disc. Its
+1 px border is GOLD for blessings or UMBRA #9a7cf0 for banes. The shared tooltip
+shows the name, Blessing/Bane eyebrow in its event tone, exact description
+with inline icons, and `N fights left`. Newly gained badges pop 1.25→1.00 over
+0.25 s; expired badges fade over 0.3 s. Result rows retain exact rules text;
+the optional 20 px relic/omen icon prefix is not used.
+
+Art processing uses only protected, hash-approved raw inputs. Paintings become
+RGB 1152×768 PNGs using Lanczos then PNG optimization. Seals have #00FF00 keyed
+and edge colours unmixed, are trimmed to the alpha bounding box, centred in a
+square and reduced to RGBA 96×96 with no green fringe. Prompts, source/output
+SHA-256 and encoder version are recorded in `spec/assets/events/README.md`
+and `hashes.json`; `tests/test_process_event_art.py` audits and reconstructs
+all 38 outputs. No raw input, prompt or catalog value is rewritten.
+
 ## Design-owner renderer proof
 
-The focused test script also supplies a `--probe` mode and an embedded proof
-contract. This worker cannot access the macOS window server and does not run
-that mode. The owner can materialize its contract headlessly, then run the
-windowed probe at 1920×1080, 100% scale:
+The worker has no macOS window-server access. The following commands materialize
+the proof contract headlessly and capture seven real-renderer states windowed:
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/ev-01 && python3 tools/godot_task_runner.py --task-id ev-01 --stream -- godot --headless --path . --script tests/event_rules_test.gd -- --write-proof-contract /private/tmp/ev-01-event-proof.json
-cd /Users/borgerding/workspace/Labyrinth.worktrees/ev-01 && python3 tools/visual_probe_runner.py tests/event_rules_test.gd --task-id ev-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract /private/tmp/ev-01-event-proof.json --result-manifest /private/tmp/ev-01-event-proof-result.json -- --probe
+cd /Users/borgerding/workspace/Labyrinth.worktrees/ev-02 && python3 tools/godot_task_runner.py --task-id ev-02 --stream -- godot --headless --path . --script tests/event_view_probe.gd -- --write-proof-contract res://output/ev-02/proof-contract.json
+cd /Users/borgerding/workspace/Labyrinth.worktrees/ev-02 && python3 tools/visual_probe_runner.py tests/event_view_probe.gd --task-id ev-02 --no-headless --display-driver macos --audio-driver Dummy --timeout 60 --expect-size 1920x1080 --proof-contract output/ev-02/proof-contract.json --result-manifest output/ev-02/renderer-proof-result.json
 ```
 
-Captures are `user://ev-01-events/01_choices.png`, `02_blocked_focus.png`, and
-`03_result.png` in the visual runner's isolated namespace; the probe prints the
-absolute directory. Script assertions check disabled-choice retention and the
-result Continue action. Inspect the fresh captures before accepting visual
-layout. The existing inspection fixture tool has no event/room selector, so no
-unsupported `--event` fixture invocation is advertised or added.
+The 60 s timeout covers the full fit/branch suite followed by scene setup and
+seven timed captures. Captures are in `user://ev-02-events/` in the runner's
+isolated namespace; the probe prints the absolute directory:
+
+1. `01_hanged_knight_choices.png` (choice 1 hovered).
+2. `02_bloodletters_basin_choices.png` (choice 1 hovered).
+3. `03_name_collector_choices.png` (choice 1 hovered).
+4. `04_frozen_champion_disabled.png` (0 Embers, blocked choice focused).
+5. `05_hanged_knight_result.png` (cut).
+6. `06_combat_omens_tooltip.png` (Stone Vow and Hunted, tooltip open).
+7. `07_reduced_motion_open.png` (opening frame, no rise/zoom).
+
+The existing inspection fixture tool has no event/room selector; no unsupported
+fixture command is advertised. The design owner owns fixture preparation,
+commit/review and publication. The event-rules suite now exercises EventView for
+availability, exact block reason and Continue while retaining every rules assertion.

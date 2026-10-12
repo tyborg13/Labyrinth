@@ -26,3 +26,9 @@ const ALLY := Color("5cc0a8")
 const UMBRA := Color("9a7cf0")
 const STEEL := Color("8fb3d9")
 const SUCCESS := Color("8fcf7d")
+
+# Authored event transaction tones.
+const EVENT_COST := Color("e07a6c")
+const EVENT_GAIN := Color("e9cf8f")
+const EVENT_BANE := Color("c58cf0")
+const EVENT_BLESSING := Color("f2d27a")
