@@ -88,6 +88,9 @@ const EnemyShadowDissolveEffect = preload("res://scripts/enemy_shadow_dissolve_e
 const CombatArtTreatment = preload("res://scripts/combat_art_treatment.gd")
 var _art_treatment: RefCounted = null
 var _art_treatment_enabled: bool = true
+const IntentBadges = preload("res://scripts/intent_badges.gd")
+const ThreatTiles = preload("res://scripts/threat_tiles.gd")
+const IntentCallouts = preload("res://scripts/intent_callouts.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
@@ -663,6 +666,7 @@ var _enemy_shadow_dissolve_effects_by_key: Dictionary = {}
 var _enemy_shadow_dissolve_spare_effect: Control = null
 var _enemy_shadow_dissolve_shader_prewarm_submitted: bool = false
 var _idle_animating: bool = false
+var _rest_threat_tile_alphas: Dictionary = {}
 var _idle_elapsed: float = 0.0
 var _idle_frame_by_source: Dictionary = {}
 var _room_framing = BoardFraming.new()
@@ -2206,7 +2210,7 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 			"_ambient_element_id_cache", "_equipment_pickup_beacon_cache",
 			"_preview_unit_pulse_cache", "_submission_cache_valid", "_idle_elapsed",
 			"_umbra_return_start_by_tile", "_foreground_obstruction_entries_cache", "_hud_health_rects_cache",
-			"_hud_layout_entries_cache"
+			"_hud_layout_entries_cache", "_rest_threat_tile_alphas"
 		]
 	for layer: Control in _retained_render_layers():
 		if layout_changed and geometry_changed:
@@ -2480,6 +2484,8 @@ func _process(delta: float) -> void:
 		_queue_active_idle_redraws(changed_sources)
 
 func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: bool = false) -> void:
+	if ThreatTiles.needs_pulse(presentation, _rest_threat_tile_alphas):
+		_queue_render_layer_redraw(_overlay_render_layer)
 	if _ambient_particles_active() or _campfire_atmosphere_active():
 		_queue_render_layer_redraw(_ambient_render_layer)
 	if (
@@ -2603,6 +2609,8 @@ func _scene_render_tile_for_unit(unit: Dictionary) -> Vector2i:
 func _presentation_needs_continuous_redraw() -> bool:
 	if not visible:
 		return false
+	if ThreatTiles.needs_pulse(presentation, _rest_threat_tile_alphas):
+		return true
 	if not bool(presentation.get("reduced_motion", false)) and not _animated_surface_tiles.is_empty():
 		return true
 	if _ambient_particles_active():
@@ -2704,6 +2712,7 @@ func _any_idle_animation_active() -> bool:
 	return false
 
 func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}, trust_same_reference_state: bool = false) -> void:
+	_rest_threat_tile_alphas = ThreatTiles.tile_alphas((next_presentation.get("threats_at_rest", {}) as Dictionary).get("threats", []))
 	var submission_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
 	# The owning RunScene submits immutable copy-on-write snapshots. Pointer-only
 	# presentation changes therefore retain the exact combat dictionary reference;
@@ -3079,7 +3088,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		if exit_icon_ids_changed:
 			retained_sync_fields.append("exit_icon_ids")
 		if not presentation_changes.is_empty():
-			retained_sync_fields.append("presentation")
+			retained_sync_fields.append_array(["presentation", "_rest_threat_tile_alphas"])
 			retained_sync_fields.append_array(["_hud_health_rects_cache", "_hud_layout_entries_cache"])
 		if presentation_changes.has("damage_preview") or presentation_changes.has("effect"):
 			retained_sync_fields.append("_damage_preview_cache")
@@ -3360,7 +3369,7 @@ func _queue_presentation_change_redraws(
 				effects_changed = true
 			"death_site_embers":
 				_queue_render_layer_redraw(_ground_render_layer)
-			"expand_enemy_intents", "expanded_enemy_actor_keys", "show_all_enemy_intents", "hud_obstacle_global_rects":
+			"expand_enemy_intents", "expanded_enemy_actor_keys", "show_all_enemy_intents", "hud_obstacle_global_rects", "boss_header_global_rect":
 				hud_changed = true
 			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength", "combat_feel_flash", "combat_feel_flash_actor_keys":
 				impact_floor_changed = true
@@ -3400,6 +3409,11 @@ func _queue_presentation_change_redraws(
 			"umbra_light_sources", "umbra_stage":
 				_queue_render_layer_redraw(_dynamic_render_layer)
 				foreground_changed = true
+			"threats_at_rest":
+				overlay_changed = true
+				hud_changed = true
+			"intent_callouts":
+				effects_changed = true
 			"enemy_intent_compasses":
 				for unit: Dictionary in _visible_units():
 					if str(unit.get("role", "")) == "enemy":
@@ -4416,6 +4430,7 @@ func _draw_hud_render_layer() -> void:
 	var section_started_usec: int = Time.get_ticks_usec()
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_noctyrax_brazier_markers()
+	IntentBadges.draw(self, (presentation.get("threats_at_rest", {}) as Dictionary).get("badges", []))
 	_draw_unit_huds(units_to_draw)
 	_record_render_section_time("unit_huds", section_started_usec)
 	# Damage-preview text and the lost-HP band must composite after the health
@@ -6621,6 +6636,8 @@ func _tile_depth_faces(tile: Vector2i) -> Array[PackedVector2Array]:
 
 func _draw_tile_overlays(tile: Vector2i) -> void:
 	var polygon: PackedVector2Array = _tile_polygon(tile)
+	var rest: Dictionary = presentation.get("threats_at_rest", {}) as Dictionary
+	ThreatTiles.draw_tile(self, tile, polygon, _rest_threat_tile_alphas, rest.get("hero_tile", Vector2i(-1, -1)), bool(presentation.get("reduced_motion", false)))
 	var draw_aoe_footprint: bool = _focus_tiles_lookup_cache.has(tile) and _player_aoe_preview_active()
 	if tile == presentation.get("objective_leader_tile", Vector2i(-1, -1)):
 		_draw_objective_leader_beacon(tile)
@@ -12371,6 +12388,7 @@ func _effect_element(effect: Dictionary) -> String:
 	return str(effect.get("element", effect.get("_card_element", ElementData.NONE)))
 
 func _draw_floating_texts() -> void:
+	IntentCallouts.draw(self, presentation.get("intent_callouts", []))
 	var default_font: Font = get_theme_default_font()
 	if default_font == null:
 		return

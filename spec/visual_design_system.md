@@ -130,6 +130,8 @@ floor shadows); the former navy button bodies clashed with it.
   board. One row for 1–3 foes (centred vertically), two rows for 4–6 with 2×2
   foes spanning both rows in the centre.
 
+- At rest, enemy intent pills and imminent crimson threat diamonds use the exact dimensions, semantic colours, order projection and preview/privacy contract in [threats at rest](threats_at_rest.md); full plans remain in Details [I].
+
 ## Combat composition
 
 - `scripts/combat_atmosphere.gd` sits between the hall art and the board: a warm

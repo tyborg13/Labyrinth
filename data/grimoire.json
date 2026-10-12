@@ -105,7 +105,8 @@
       "icon": "combat_board",
       "body": [
         "Cards resolve against board coordinates. A target is legal only when the card's targeting rule, range, line of sight, occupancy, and terrain checks all pass.",
-        "Card previews show legal targets, affected tiles, and projected result values before resolution."
+        "Card previews show legal targets, affected tiles, and projected result values before resolution.",
+        "Enemies show their next attack above them: its damage and the order they act in. Red tiles will be struck before your next turn. Press I for every enemy's full plan."
       ]
     },
     {
