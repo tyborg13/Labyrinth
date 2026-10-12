@@ -1,0 +1,130 @@
+Running task-local command:
+  task: feel-01
+  run: feel-01-1791834442373781000-38865
+  HOME: /private/tmp/labyrinth-godot-home/feel-01-1791834442373781000-38865
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/feel-01-1791834442373781000-38865/godot.log --headless --path . --script tests/combat_feel_probe.gd -- --timeline-only
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+COMBAT FEEL FIXTURE: seed=126065 room=(1, 2)
+B_PLACE anchor=(4, 3) xf=3 score=298290 room=(1, 2)
+COMBAT FEEL ROUND normal (headless scheduling): pass_to_hero_banner=4.765s
+COMBAT FEEL TIMELINE: {"actor":"","end":0.356344,"phase":"banner","start":0.0}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.35635,"phase":"pre-action delay","start":0.35635}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.356351,"phase":"caption","start":0.356351}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.358646,"phase":"wind-up","start":0.356352}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.358735,"phase":"walk","start":0.358646}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.548121,"phase":"walk (tile 1)","start":0.358735}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.602454,"phase":"post-action settle","start":0.548123}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.861793,"phase":"wind-up","start":0.602455}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.951382,"phase":"impact","start":0.861794}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":1.299197,"phase":"hit reaction / damage number","start":0.951383}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":1.299198,"phase":"post-action settle","start":1.299198}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":1.304595,"phase":"hand-off gap","start":1.299199}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":1.304597,"phase":"pre-action delay","start":1.304597}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":1.304598,"phase":"caption","start":1.304598}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":1.305691,"phase":"wind-up","start":1.304598}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":1.736515,"phase":"wind-up","start":1.305691}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":1.827908,"phase":"impact","start":1.736516}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":2.077144,"phase":"hit reaction / damage number","start":1.827909}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":2.077146,"phase":"post-action settle","start":2.077146}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":2.084581,"phase":"hand-off gap","start":2.077147}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":2.084583,"phase":"pre-action delay","start":2.084583}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":2.084584,"phase":"caption","start":2.084584}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":2.085912,"phase":"wind-up","start":2.084584}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":2.871758,"phase":"wind-up","start":2.085913}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":2.962053,"phase":"impact","start":2.871759}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":3.384831,"phase":"hit reaction / damage number","start":2.962054}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":3.384833,"phase":"post-action settle","start":3.384833}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":3.3933,"phase":"hand-off gap","start":3.384834}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":3.393303,"phase":"pre-action delay","start":3.393303}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":3.393303,"phase":"caption","start":3.393303}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":3.394464,"phase":"wind-up","start":3.393303}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":3.650311,"phase":"wind-up","start":3.394464}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":3.738761,"phase":"impact","start":3.650311}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":4.191574,"phase":"hit reaction / damage number","start":3.738762}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":4.191575,"phase":"post-action settle","start":4.191575}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":4.195021,"phase":"hand-off gap","start":4.191576}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":4.705475,"phase":"hero hand-off","start":4.195021}
+COMBAT FEEL ROUND fast (headless scheduling): pass_to_hero_banner=3.352s
+COMBAT FEEL TIMELINE: {"actor":"","end":0.238335,"phase":"banner","start":0.0}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.23834,"phase":"pre-action delay","start":0.23834}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.23834,"phase":"caption","start":0.23834}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.240412,"phase":"wind-up","start":0.238341}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.240488,"phase":"walk","start":0.240412}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.367678,"phase":"walk (tile 1)","start":0.240488}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.404099,"phase":"post-action settle","start":0.36768}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.57818,"phase":"wind-up","start":0.4041}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.667821,"phase":"impact","start":0.578181}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.903942,"phase":"hit reaction / damage number","start":0.667822}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.903944,"phase":"post-action settle","start":0.903944}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.909898,"phase":"hand-off gap","start":0.903944}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":0.909901,"phase":"pre-action delay","start":0.909901}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":0.909901,"phase":"caption","start":0.909901}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":0.911318,"phase":"wind-up","start":0.909902}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":1.200973,"phase":"wind-up","start":0.911319}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":1.291361,"phase":"impact","start":1.200974}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":1.460367,"phase":"hit reaction / damage number","start":1.291362}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":1.460368,"phase":"post-action settle","start":1.460368}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":1.467842,"phase":"hand-off gap","start":1.460369}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":1.467844,"phase":"pre-action delay","start":1.467844}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":1.467845,"phase":"caption","start":1.467845}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":1.469511,"phase":"wind-up","start":1.467845}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":2.001505,"phase":"wind-up","start":1.469512}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":2.089494,"phase":"impact","start":2.001506}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":2.369038,"phase":"hit reaction / damage number","start":2.089495}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":2.369039,"phase":"post-action settle","start":2.369039}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":2.376014,"phase":"hand-off gap","start":2.36904}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":2.376016,"phase":"pre-action delay","start":2.376016}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":2.376017,"phase":"caption","start":2.376017}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":2.377101,"phase":"wind-up","start":2.376017}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":2.547252,"phase":"wind-up","start":2.377102}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":2.638838,"phase":"impact","start":2.547253}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":2.944088,"phase":"hit reaction / damage number","start":2.638838}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":2.94409,"phase":"post-action settle","start":2.94409}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":2.947208,"phase":"hand-off gap","start":2.944091}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":3.291211,"phase":"hero hand-off","start":2.947208}
+COMBAT FEEL ROUND fastest (headless scheduling): pass_to_hero_banner=2.628s
+COMBAT FEEL TIMELINE: {"actor":"","end":0.179919,"phase":"banner","start":0.0}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.179924,"phase":"pre-action delay","start":0.179924}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.179925,"phase":"caption","start":0.179925}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.182116,"phase":"wind-up","start":0.179926}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.182195,"phase":"walk","start":0.182117}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.277743,"phase":"walk (tile 1)","start":0.182195}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.305199,"phase":"post-action settle","start":0.277744}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.436548,"phase":"wind-up","start":0.3052}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.527148,"phase":"impact","start":0.436549}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.702117,"phase":"hit reaction / damage number","start":0.527149}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.702118,"phase":"post-action settle","start":0.702118}
+COMBAT FEEL TIMELINE: {"actor":"enemy_1","end":0.70816,"phase":"hand-off gap","start":0.702119}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":0.708181,"phase":"pre-action delay","start":0.708181}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":0.708185,"phase":"caption","start":0.708185}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":0.709442,"phase":"wind-up","start":0.708187}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":0.933828,"phase":"wind-up","start":0.709442}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":1.022981,"phase":"impact","start":0.933828}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":1.142182,"phase":"hit reaction / damage number","start":1.022982}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":1.142183,"phase":"post-action settle","start":1.142183}
+COMBAT FEEL TIMELINE: {"actor":"enemy_4","end":1.148965,"phase":"hand-off gap","start":1.142184}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":1.148967,"phase":"pre-action delay","start":1.148967}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":1.148967,"phase":"caption","start":1.148967}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":1.150195,"phase":"wind-up","start":1.148968}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":1.551255,"phase":"wind-up","start":1.150196}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":1.641478,"phase":"impact","start":1.551256}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":1.848213,"phase":"hit reaction / damage number","start":1.641479}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":1.848214,"phase":"post-action settle","start":1.848214}
+COMBAT FEEL TIMELINE: {"actor":"enemy_2","end":1.855232,"phase":"hand-off gap","start":1.848215}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":1.855234,"phase":"pre-action delay","start":1.855234}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":1.855234,"phase":"caption","start":1.855234}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":1.856323,"phase":"wind-up","start":1.855235}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":1.986802,"phase":"wind-up","start":1.856323}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":2.077956,"phase":"impact","start":1.986802}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":2.303011,"phase":"hit reaction / damage number","start":2.077958}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":2.303012,"phase":"post-action settle","start":2.303012}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":2.306602,"phase":"hand-off gap","start":2.303013}
+COMBAT FEEL TIMELINE: {"actor":"enemy_3","end":2.570027,"phase":"hero hand-off","start":2.306602}
+/private/tmp/labyrinth-godot-home/feel-01-1791834442373781000-38865/Library/Application Support/Escape the Umbra Parallel feel-01-1791834442373781000-38865/probes/combat_feel
+COMBAT FEEL PROBE TEST RESULT: PASS

@@ -13,6 +13,8 @@ const TEXT_FONT = preload("res://fonts/LabyrinthCrumble-Text.tres")
 const PANEL_MINIMUM_SIZE := Vector2(820.0, 720.0)
 const CONTROL_WIDTH: float = 276.0
 const ROW_HEIGHT: float = 56.0
+# The brief supplies the label/options, but no secondary row copy.
+const COMBAT_SPEED_DETAIL: String = "How quickly enemy turns and card effects play out."
 const GOLD := Color("d8a356")
 const PALE_GOLD := Color("f5dfae")
 const MUTED_TEXT := Color("b9a98c")
@@ -153,6 +155,20 @@ func _build_accessibility_section() -> Control:
 	_controls["dialogue_speed"] = dialogue_option
 	rows.add_child(_setting_row("Dialogue speed", "Instant reveals each line at once", dialogue_option))
 
+	var combat_option := _option_control()
+	combat_option.name = "CombatSpeedOption"
+	for item: Dictionary in [
+		{"label": "Normal", "value": SettingsStore.COMBAT_NORMAL},
+		{"label": "Fast", "value": SettingsStore.COMBAT_FAST},
+		{"label": "Fastest", "value": SettingsStore.COMBAT_FASTEST}
+	]:
+		combat_option.add_item(str(item["label"]))
+		combat_option.set_item_metadata(combat_option.item_count - 1, item["value"])
+	combat_option.focus_entered.connect(_reveal_combat_speed.bind(combat_option))
+	combat_option.item_selected.connect(_on_option_selected.bind("combat_speed", combat_option))
+	_controls["combat_speed"] = combat_option
+	rows.add_child(_setting_row("Combat speed", COMBAT_SPEED_DETAIL, combat_option))
+
 	var reduced_button := Button.new()
 	reduced_button.toggle_mode = true
 	reduced_button.custom_minimum_size = Vector2(CONTROL_WIDTH, 44.0)
@@ -161,6 +177,13 @@ func _build_accessibility_section() -> Control:
 	_controls["reduced_motion"] = reduced_button
 	rows.add_child(_setting_row("Reduced motion", "Skips supported entrance and travel flourishes", reduced_button))
 	return section
+
+func _reveal_combat_speed(option: Control) -> void:
+	var parent: Node = option.get_parent()
+	while parent != null and not parent is ScrollContainer:
+		parent = parent.get_parent()
+	if parent is ScrollContainer:
+		parent.ensure_control_visible(option)
 
 func _build_footer() -> Control:
 	var footer := VBoxContainer.new()
@@ -358,6 +381,7 @@ func _sync_controls_from_settings() -> void:
 	_select_option_value(_controls.get("display_mode") as OptionButton, _settings.get("display_mode"))
 	_select_option_value(_controls.get("ui_scale") as OptionButton, _settings.get("ui_scale"))
 	_select_option_value(_controls.get("dialogue_speed") as OptionButton, _settings.get("dialogue_speed"))
+	_select_option_value(_controls.get("combat_speed") as OptionButton, _settings.get("combat_speed"))
 	var reduced_button: Button = _controls.get("reduced_motion") as Button
 	if reduced_button != null:
 		reduced_button.button_pressed = bool(_settings.get("reduced_motion", false))
@@ -384,7 +408,7 @@ func _on_option_selected(index: int, key: String, option: OptionButton) -> void:
 		return
 	_settings[key] = option.get_item_metadata(index)
 	var status: String = "Display updated" if key in ["display_mode", "ui_scale"] else "Dialogue updated"
-	_commit_change(status)
+	_commit_change("Saved automatically" if key == "combat_speed" else status)
 
 func _on_reduced_motion_toggled(enabled: bool) -> void:
 	var button: Button = _controls.get("reduced_motion") as Button

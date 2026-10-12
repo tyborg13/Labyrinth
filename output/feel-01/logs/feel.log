@@ -1,0 +1,20 @@
+Running task-local command:
+  task: feel-01
+  run: feel-01-1791834882322416000-41502
+  HOME: /private/tmp/labyrinth-godot-home/feel-01-1791834882322416000-41502
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/feel-01-1791834882322416000-41502/godot.log --headless --path . --script tests/combat_feel_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+COMBAT FEEL TABLES: duration/shake/block/kill/hero/reduced/flash checked
+COMBAT FEEL MERGE: first-origin/largest/120ms/late/cancel/restore checked
+COMBAT FEEL SETTINGS: Normal=1/Fast=1.5/Fastest=2 persistence checked
+COMBAT FEEL REAL STOP: observed=135ms expected=130ms restored=1.0
+COMBAT FEEL SCOPES: clock/menu/drag/pause/director/card/end checked
+COMBAT FEEL INTEGRATION: committed card/state/RNG/settings row checked
+FLOATING COMBAT TEXT TEST RESULT: PASS
+COMBAT FEEL TEST RESULT: PASS

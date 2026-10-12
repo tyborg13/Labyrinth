@@ -1,0 +1,89 @@
+{
+  "task_id": "feel-01",
+  "risk_tier": "standard",
+  "branch": "codex/feel-01",
+  "base_head": "abbf2d0df677e3279d209d301dd7d44016284831",
+  "changes_uncommitted": true,
+  "peer_review_run": false,
+  "windowed_attempts": 0,
+  "renderer_proof": "pending design owner",
+  "source_sha256": {
+    "scripts/combat_hit_stop.gd": "be8cd3883de72f4e70dbdcfd4b516f66a3bc4cf0399f6ae29722e7f0d5d514d2",
+    "scripts/combat_pacing.gd": "43f68b8463a0edcb9b4d8e9185d68954cdaecb65c64da8cf13db447d608f96d1",
+    "scripts/combat_board_view.gd": "fe25b2f3058e841103fbf99eac7cc3962537b9dbfefacfa7fa560ef057bbda7b",
+    "scripts/run_scene.gd": "f9cd1be8bc0f7670a8fea4ac88807ce7529e684b389e63d65ea9d19ef0bfa46e",
+    "scripts/settings_store.gd": "4667a1c3bedcceb39b6aa71bec04028484e65e8c8da818284c8f8d5581241e3d",
+    "scripts/settings_panel.gd": "7e7d43c56a34dfec0e9e1c741cd2ee04be520903b3cc8f28e8024eede85d460c",
+    "tests/suites/combat_feel_suite.gd": "cdf28095194917cad9ef384aa070d4bae2bc9b78220b89a3d88ecbfcaa465b95",
+    "tests/combat_feel_test.gd": "20e45cdf8f8a97584eae1c8218e08ce4ab5369c030dcb6ecdca94f2a1ef045f9",
+    "tests/combat_feel_probe.gd": "52d97a4a68a34ce5e17bf59b1f99ed8064e2cca16e87c00c8d4ff65bea615701",
+    "spec/combat_feel.md": "a3c652813b60fdf20bc6120efefd09269421f6eca9a607637d0b60832c84d224",
+    "spec/visual_design_system.md": "1fbf6c725f8c92b651d141aa4181dec9e1664f1dfae783c3b41c792d3d83b8f9"
+  },
+  "tests": {
+    "feel": {
+      "exit_code": 0,
+      "result_line": "COMBAT FEEL TEST RESULT: PASS",
+      "log": "logs/feel.log"
+    },
+    "motion": {
+      "exit_code": 0,
+      "result_line": "COMBAT MOTION TIMING TEST RESULT: PASS",
+      "log": "logs/motion.log"
+    },
+    "floating": {
+      "exit_code": 0,
+      "result_line": "FLOATING TEXT LAYOUT TESTS: PASS",
+      "log": "logs/floating.log"
+    },
+    "strike": {
+      "exit_code": 0,
+      "result_line": "ENEMY STRIKE TRAIL TEST RESULT: PASS",
+      "log": "logs/strike.log"
+    },
+    "full-suite": {
+      "exit_code": 0,
+      "result_line": "TEST RESULT: PASS",
+      "log": "logs/full-suite.log"
+    },
+    "before-timeline": {
+      "exit_code": 0,
+      "result_line": "COMBAT FEEL PROBE TEST RESULT: PASS",
+      "log": "logs/before-timeline.log"
+    },
+    "timeline": {
+      "exit_code": 0,
+      "result_line": "COMBAT FEEL PROBE TEST RESULT: PASS",
+      "log": "logs/timeline.log"
+    }
+  },
+  "headless_pass_to_hero_banner_seconds": {
+    "timeline_fastest": 2.627579,
+    "timeline_normal": 4.765346,
+    "timeline_before_normal": 9.964052,
+    "timeline_fast": 3.352299
+  },
+  "rules_state_rng": "exact committed card and staged enemy-round comparisons passed at all three speeds; existing suites unchanged",
+  "run_scene_changed_lines": 47,
+  "todo_design": [
+    "TODO_DESIGN_SHAKE_DECAY_RATE",
+    "TODO_DESIGN_FLASH_EASE_OUT_EXPONENT",
+    "TODO_DESIGN_COMBAT_SPEED_DETAIL"
+  ],
+  "capture_paths": {
+    "produced_images": [],
+    "expected_directory": "isolated user://probes/combat_feel/",
+    "contract": "proof-contract.json",
+    "commands": "spec/combat_feel.md"
+  },
+  "open_issues": [
+    "Requested shake exponential decay and flash ease-out curve await owner parameters; existing decay profiles are retained.",
+    "Secondary Combat speed row copy awaits owner text.",
+    "Native images/clip inspection and inspection fixture belong to the design owner."
+  ],
+  "baseline_messages": [
+    "macOS CA certificate condition ret != noErr",
+    "intentional progression analytics acknowledgment failure in full suite",
+    "ObjectDB instances leaked at exit warning"
+  ]
+}

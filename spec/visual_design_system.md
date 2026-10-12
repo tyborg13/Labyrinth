@@ -139,9 +139,24 @@ floor shadows); the former navy button bodies clashed with it.
   overlay).
 - The left dock stacks objective, card plays and movement on one flush right
   edge beside the hand; PASS mirrors it on the right.
-- Impacts kick the board layer only (never the HUD) and a short
-  YOUR TURN / ENEMY TURN banner marks hand-offs (`scripts/turn_banner.gd`).
-  Reduced motion removes the camera kick and holds the banner without motion.
+- Impacts freeze presentation for 40 / 65 / 85 / 110 real milliseconds by HP
+  damage tier (block-only 35 ms); kills raise the minimum to 100 ms and hero
+  hits add 20 ms. Hits within 120 ms merge from the first origin. Reduced
+  Motion halves hit-stop; Combat speed never shortens it.
+- Impacts kick the board layer only (never the HUD), at 2 / 3.5 / 5 / 6.5 px
+  by damage tier; kills use 6.5 px and hero hits add 1.5 px. Duration is
+  `0.18 + 0.02 × amplitude` seconds with quadratic falloff. Reduced Motion removes
+  the kick.
+- The existing struck-unit flash is white, absent during hit-stop, then peaks
+  on the first submitted frame at 85% opacity for enemies / 60% for the hero
+  and fades over 140 ms with a quadratic ease-out.
+- YOUR TURN / ENEMY TURN marks scheduled hand-offs (`scripts/turn_banner.gd`).
+  Enemy captions add no delay; the first enemy can act after the 0.35 s banner
+  lead, while independent death/ground feedback overlaps subsequent actors.
+  Reduced Motion retains the existing static banner behavior.
+- Combat speed (Normal / Fast / Fastest) scales enemy and committed-card
+  presentation by 1 / 1.5 / 2, preserving normal planning/menus and trailer
+  slow motion. Full tables and scheduling proof are in [combat feel](combat_feel.md).
 
 ## Audio mix notes
 

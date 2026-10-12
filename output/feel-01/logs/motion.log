@@ -1,0 +1,15 @@
+Running task-local command:
+  task: feel-01
+  run: feel-01-1791834882325364000-41500
+  HOME: /private/tmp/labyrinth-godot-home/feel-01-1791834882325364000-41500
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/feel-01-1791834882325364000-41500/godot.log --headless --path . --script tests/combat_motion_timing_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+COMBAT MOTION TIMING TEST RESULT: PASS
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)

@@ -1,0 +1,60 @@
+{
+	"expected_sizes": [
+		"1920x1080"
+	],
+	"min_images": 8,
+	"required_images": [
+		{
+			"height": 1080,
+			"pattern": "*heavy_hit_minus_1.png",
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*heavy_hit_0.png",
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*heavy_hit_plus_1.png",
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*heavy_hit_plus_4.png",
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*heavy_hit_plus_8.png",
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*heavy_hit_post_stop_peak.png",
+			"regions": [
+				{
+					"min_luma_range": 50,
+					"min_luma_stdev": 3,
+					"rect": [
+						36,
+						62,
+						1848,
+						676
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*combat_speed_settings.png",
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*reduced_motion_hit.png",
+			"width": 1920
+		}
+	]
+}
