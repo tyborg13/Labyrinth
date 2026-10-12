@@ -1,0 +1,178 @@
+{
+  "min_images": 10,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*01_grub_mound_mark.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            240,
+            130,
+            1440,
+            760
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*01b_grub_burrowed.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            240,
+            130,
+            1440,
+            760
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*02_grub_erupt_mid.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            240,
+            130,
+            1440,
+            760
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*03_grub_after_erupt.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            240,
+            130,
+            1440,
+            760
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*04_ticks_hover_burst_ring.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            240,
+            130,
+            1440,
+            760
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*05_tick_kindle_resolution.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            240,
+            130,
+            1440,
+            760
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*06_tick_after_kindle.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            240,
+            130,
+            1440,
+            760
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*07_tick_lethal_card_preview.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            240,
+            130,
+            1440,
+            760
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*08_tick_chain_mid.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            240,
+            130,
+            1440,
+            760
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*09_tick_chain_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            240,
+            130,
+            1440,
+            760
+          ],
+          "min_luma_range": 65,
+          "min_luma_stdev": 12
+        }
+      ]
+    }
+  ]
+}

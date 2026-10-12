@@ -1239,6 +1239,8 @@ const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_FRAME_OUTSET: Vector2 = Vector2(48.0, 32.0)
 const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v8.png"
 const TURN_ORDER_PORTRAITS := {
+	"burrow_grub": "res://assets/art/portraits/burrow_grub.png",
+	"ember_tick": "res://assets/art/portraits/ember_tick.png",
 	"ash_hound": "res://assets/art/portraits/guardians/ash_hound_portrait.png",
 	"ashen_reaver": "res://assets/art/portraits/guardians/ashen_reaver_portrait.png",
 	"bell_tender": "res://assets/art/portraits/guardians/bell_tender_portrait.png",
@@ -5402,7 +5404,7 @@ func _pre_battle_card_full_bleed_texture(path: String) -> Texture2D:
 	return result
 
 func _pre_battle_enemy_threat_summary(enemy_type: String) -> String:
-	return PreBattleThreatTags.summary(PreBattleThreatTags.build(enemy_type))
+	return preload("res://scripts/enemy_mechanics/death_burst_view.gd").pre_battle_summary(enemy_type, PreBattleThreatTags.summary(PreBattleThreatTags.build(enemy_type)))
 
 func _pre_battle_known_enemy_intents(enemy_type: String) -> Array:
 	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
@@ -23374,6 +23376,9 @@ func _animate_defeats_and_terrain_destruction(
 		frame_count = maxi(frame_count, terrain_frame_count)
 		frame_seconds = minf(frame_seconds, _terrain_destruction_frame_seconds_for_unit(terrain))
 	frame_count = maxi(1, frame_count)
+	var burst_clock: Dictionary = preload("res://scripts/enemy_mechanics/death_burst_view.gd").timing(before_state, after_state, frame_count, frame_seconds, self, death_units)
+	frame_count = int(burst_clock["frames"])
+	frame_seconds = float(burst_clock["frame_seconds"])
 	var state_validated_for_animation: bool = false
 	await _play_timed_animation_frames(frame_count, frame_seconds, func(frame_number: int) -> void:
 		var frame: int = frame_number - 1
@@ -23399,7 +23404,9 @@ func _animate_defeats_and_terrain_destruction(
 			presentation["death_animation_units"] = animated_units
 		if not animated_terrain.is_empty():
 			presentation["terrain_destruction_units"] = animated_terrain
-		_render_board_state(after_state, presentation, state_validated_for_animation)
+		preload("res://scripts/enemy_mechanics/death_burst_view.gd").play_cue(self, before_state, after_state, progress, burst_clock)
+		presentation = preload("res://scripts/enemy_mechanics/death_burst_view.gd").decorate(before_state, after_state, presentation, progress, burst_clock)
+		_render_board_state(preload("res://scripts/enemy_mechanics/death_burst_view.gd").state_for_frame(before_state, after_state, progress, burst_clock), presentation, state_validated_for_animation)
 		state_validated_for_animation = true
 	)
 	_render_board_state(after_state, {}, state_validated_for_animation)
@@ -24432,8 +24439,12 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 		_sfx_router.begin_enemy_action(animated_state, step, dragon_actor)
 		if str(step.get("kind", "")) in ["push", "pull"]: _sfx_router.push()
 		await _combat_pacing.before_step(step)
-		if bool(step.get("hidden_by_umbra", false)):
+		if bool(step.get("hidden_by_umbra", false)) and str(step.get("kind", "")) not in ["burrow", "erupt"]:
 			await _animate_hidden_umbra_enemy_step(animated_state, step)
+			_combat_pacing.after_step(step)
+			continue
+		if str(step.get("kind", "")) in ["burrow", "erupt"]:
+			await preload("res://scripts/enemy_mechanics/burrow_view.gd").animate(self, animated_state, step)
 			_combat_pacing.after_step(step)
 			continue
 		var step_actor_key: String = str(step.get("actor_key", ""))

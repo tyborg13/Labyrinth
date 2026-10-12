@@ -3385,6 +3385,44 @@
           "mode": "clean"
         }
       }
+    },
+    {
+      "id": "burrow_grub",
+      "kind": "static",
+      "paths": [
+        "assets/art/enemies/burrow_grub.png"
+      ],
+      "measurement_path": "assets/art/enemies/burrow_grub.png",
+      "frames": null,
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "burrow_grub.art_scale",
+        "expression": "_unit_size width 1.03 / 255 * default art_scale 1.0 / hero reference (1.03 / 255)"
+      },
+      "orphan_share": 0.2866666666666667,
+      "t": 1.5,
+      "grid": 1.5,
+      "mode": "regrid"
+    },
+    {
+      "id": "ember_tick",
+      "kind": "static",
+      "paths": [
+        "assets/art/enemies/ember_tick.png"
+      ],
+      "measurement_path": "assets/art/enemies/ember_tick.png",
+      "frames": null,
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "ember_tick.art_scale",
+        "expression": "_unit_size width 1.03 / 255 * default art_scale 1.0 / hero reference (1.03 / 255)"
+      },
+      "orphan_share": 0.3447399880454274,
+      "t": 1.5,
+      "grid": 1.5,
+      "mode": "regrid"
     }
   ],
   "excluded_paths": {

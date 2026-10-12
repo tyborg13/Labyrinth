@@ -112,6 +112,7 @@ func _initialize() -> void:
 	SteamServiceSuite.run(Callable(self, "_assert"))
 	EnemyPathfindingSuite.run(Callable(self, "_assert"))
 	EnemyTacticalAiSuite.run(Callable(self, "_assert"))
+	preload("res://tests/suites/en01_enemies_suite.gd").run(Callable(self, "_assert"))
 	ReachRebalanceSuite.run(Callable(self, "_assert"))
 	EnemyIntentPreviewSuite.run(Callable(self, "_assert"))
 	preload("res://tests/suites/guardian_suite.gd").run(Callable(self, "_assert"))
