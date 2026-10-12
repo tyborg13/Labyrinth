@@ -32,10 +32,16 @@ number, text and visual from this brief, never from your own judgement.
   until approved icons exist, use `TODO_DESIGN_ICON_<name>` and fall back to the closest existing status icon).
 - **Hidden states** (Burrowed, Veiled): the unit's health bar and intent pill stay visible (ITB honesty); the body is
   drawn as specified per enemy.
-- New enemy art: `assets/art/enemies/<id>.png` static 255×255 sprites processed by the director from approved
-  paintings (provided in your worktree before launch, registered for board pixel density). Portraits:
-  `assets/art/portraits/<id>.png` 128×128 (director-provided). Cutout rigs come later in separate units — keep the
-  enemy working with the static sprite path (the existing static-sprite fallback).
+- New enemy art: the director-approved raw painting for each enemy is at
+  `/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/enemies/<id>.png` (1024–1254 px,
+  flat green background; outside git — record its sha256 in `spec/assets/enemies/raw_sha256.txt`). Process it with the
+  repository's existing tools: key out the green, trim, register onto the 255×255 static sprite canvas with the feet/base
+  on the same baseline as `assets/art/enemies/chainbound_gaoler.png` and the body height matching the roster band
+  (light: 60–70% of `frostglass_lancer`'s height; standard: 85–95%; heavy: 100–115%), then the board pixel-density
+  pipeline (`spec/board_pixel_density.md`: process → rest record → `--check`). Output `assets/art/enemies/<id>.png`.
+  Portrait: `assets/art/portraits/<id>.png` 128×128 crop of the processed art centred on the head/front (top of the
+  silhouette 8 px from the top, same framing as the existing portraits). Cutout rigs come later in separate units —
+  keep the enemy working with the static sprite (the existing static-sprite fallback).
 - Sounds: route through existing cues only (attack families by action type); no new audio.
 
 ## Encounters
