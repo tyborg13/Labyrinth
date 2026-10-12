@@ -18,7 +18,7 @@
 | meta-03 | Umbra Depths ladder (20 levels) | ready (brief briefs/meta-03.md; after meta-01 — shares run_end_recap_overlay/progression_store/run_engine) | — | data staged/meta-03/depths.json; mockup mockups/depth_picker.png |
 | fix-01 | Wave-1 peer-review fixes (13 findings) | merged 83eb01a5c + r1 21ed3604f (commit 78973e64e); peer review APPROVE at 78973e64e | codex/peer-benchmark@b39b4bba0 | feedback/peer_review_wave1.md |
 | sfx-02 | Sound lab layered-design renderer | merged 8ff4eb929 (commit 59f245450); round-2 audition https://claude.ai/artifact/8RUbmHZ3gNL2Fq85Nasmq2 (db picks_r2) | codex/peer-benchmark@b39b4bba0 | recipes staged/sfx/recipes_r2.json |
-| enc-01 | Data-driven section encounter tables | running | codex/peer-benchmark@52ebbefa9 | data staged/enc-01/encounters.json |
+| enc-01 | Data-driven section encounter tables | merged 7a12f17f7 (commit 45bb95f26; r1 found+fixed empty-board render bug on biome/layout change) | codex/peer-benchmark@52ebbefa9 | data staged/enc-01/encounters.json |
 | en-01 | Burrow Grub + Ember Tick | running | codex/peer-benchmark@8290eb183 | briefs/en-common.md + en-01.md |
 | en-02 | Hoarfrost Seer + Gale Herald | queued | codex/peer-benchmark@8290eb183 | |
 | en-03 | Arc Thrall + Gloam Stalker | queued | codex/peer-benchmark@8290eb183 | |
