@@ -63,3 +63,14 @@ M0 — research + gap audit (in progress).
   .import files with marketing paths (never run a full import without it).
 - Peer review wave 1: REQUEST_CHANGES → fix-01 running. Re-review with the same reviewer (agent acb9d916bb6559805) after.
 - Running: fix-01, meta-01, sfx-01, sfx-02; queued: itb-01 r1. Ready: meta-02, meta-03 (after meta-01).
+
+## Brief checklist additions (learned 2026-10-12)
+Every UI brief must also decide: fallback copy for missing/legacy data, overflow layout at the maximum content size,
+sound (or explicitly none) for every new reveal, and the full owned-file list incl. run_scene/run_tests registration.
+Enemy briefs: one icon per concept, stand-in art policy, encounter data entries.
+
+## Update (integration 02c3a4368)
+- Merged: fix-01 (re-review REQUEST_CHANGES → fix-01 r1 running: victory-beat stale board blocker), sfx-02, itb-01.
+- SFX: all cues picked (round 2 built ed2e07f04). Waiting on sfx-01 (cue bank) to hear them in game.
+- Enemies: E1 art approved (6), E2 art approved except briar weaver r1; 7 icons approved. en-01, en-02 running; en-03
+  queued. enc-01 r1 (empty earth/shadow boards in captures) queued. meta-01 r1 (12 TODO_DESIGN decided) queued.
