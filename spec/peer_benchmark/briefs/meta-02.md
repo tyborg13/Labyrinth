@@ -3,7 +3,7 @@
 ## Header
 - Goal: Slay the Spire's run history/compendium habit — every descent is remembered: how it ended, the path through
   the sections, the build, the score and its feats. Lifetime totals give long-term goals.
-- Base: `codex/peer-benchmark` after meta-01 merges (director gives the commit). meta-01 provides score, feats, killer
+- Base: `codex/peer-benchmark` at 6f4bbacfb (meta-01 merged: score, feats, killer, run_seconds in stored results). meta-01 provides score, feats, killer
   and the counters in stored run results; meta-03 (Umbra Depths) may run in parallel and adds `umbra_depth` — read it
   when present, show nothing when absent.
 - Mockup (approved with the changes listed below): `output/peer-benchmark-2026-10-12/mockups/chronicle.png`
