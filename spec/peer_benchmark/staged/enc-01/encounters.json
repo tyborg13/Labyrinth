@@ -248,6 +248,21 @@
           "stoneback_mite",
           "stoneback_mite"
         ]
+      },
+      {
+        "id": "earth_grub",
+        "weight": 3,
+        "units": [
+          "burrow_grub"
+        ]
+      },
+      {
+        "id": "earth_grub_pair",
+        "weight": 1,
+        "units": [
+          "burrow_grub",
+          "stoneback_mite"
+        ]
       }
     ],
     "fire": [
@@ -257,6 +272,23 @@
         "units": [
           "ash_hound",
           "ash_hound"
+        ]
+      },
+      {
+        "id": "fire_ticks",
+        "weight": 3,
+        "units": [
+          "ember_tick",
+          "ember_tick"
+        ]
+      },
+      {
+        "id": "fire_tick_swarm",
+        "weight": 1,
+        "units": [
+          "ember_tick",
+          "ember_tick",
+          "ember_tick"
         ]
       }
     ],
