@@ -31,6 +31,7 @@ const SurfaceCardRules = preload("res://scripts/surface_card_rules.gd")
 const IllusionCardRules = preload("res://scripts/illusion_card_rules.gd")
 const IllusionRelicRules = preload("res://scripts/illusion_relic_rules.gd")
 const TerrainCardRules = preload("res://scripts/terrain_card_rules.gd")
+const MovementUndoRules = preload("res://scripts/movement_undo_rules.gd")
 
 const FATIGUE_BASE_DAMAGE: int = 2
 const BASE_CARDS_PER_TURN: int = 2
@@ -2917,6 +2918,7 @@ func apply_player_movement(state: Dictionary, target_tile: Vector2i) -> Dictiona
 	if action.is_empty() or not valid_targets_for_player_action(movement_state, action).has(target_tile):
 		return movement_state
 	var origin: Vector2i = (_normalized_player(movement_state.get("player", {}))).get("pos", Vector2i.ZERO)
+	var undo_walk_path: Array[Vector2i] = path_for_player_action(movement_state, action, target_tile)
 	var next_state: Dictionary = apply_player_action(movement_state, action, target_tile)
 	var destination: Vector2i = (_normalized_player(next_state.get("player", {}))).get("pos", origin)
 	# A resolved request can die from Bleed before its first step, or collide
@@ -2941,6 +2943,8 @@ func apply_player_movement(state: Dictionary, target_tile: Vector2i) -> Dictiona
 	}
 	if spent > 0 and bool((next_state.get("skill_flags", {}) as Dictionary).get("movement_blink_armed", false)):
 		_erase_skill_flag(next_state, "movement_blink_armed")
+	# Pure report only; resolution, payment, RNG and consequences stay unchanged.
+	next_state["last_player_movement"]["undo_report"] = MovementUndoRules.walk_report(self, state, next_state, _movement_path_through_endpoint(undo_walk_path, destination))
 	return next_state
 
 func _forfeit_remaining_card_plays(state: Dictionary) -> void:

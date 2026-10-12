@@ -61,6 +61,7 @@ available:
 - `card_became_playable`
 - `card_played`
 - `player_moved`
+- `player_move_undone`
 - `player_turn_ended`
 - `enemy_action_resolved`
 - `enemy_status_tick`
@@ -243,6 +244,15 @@ Its payload includes `action_type`, `origin`, requested `target`, resolved
 movement capacity. This preserves split movement and card-interleaved movement
 without attributing either to a card. Ghost Stride movement is identified by
 `action_type: "blink"`.
+
+`player_move_undone` appends `{tiles, activation_seq}` after a successful free-walk
+undo, through the existing combat analytics context. `tiles` counts actual path
+tiles taken back (Rubble pool cost is not extra travel); `activation_seq` is the
+hero activation containing that walk. Existing `player_moved` records remain in
+the append-only stream and can be paired with these undo records. An unavailable
+undo, card selection/cancellation, or tutorial-gated press writes no undo event.
+Walks with side-effect event/state changes cannot be undone. History is ephemeral
+and is never saved. See [movement_undo.md](movement_undo.md).
 
 AOE card actions are logged in that action list with their explicit `pattern`
 offsets so offline balance analysis can distinguish close, line, cluster, and

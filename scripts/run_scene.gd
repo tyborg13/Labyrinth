@@ -115,6 +115,7 @@ const SkillTreeView = preload("res://scripts/skill_tree_view.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const CombatObjectiveHudScript = preload("res://scripts/combat_objective_hud.gd")
 const CombatHudIntents = preload("res://scripts/combat_hud_intents.gd")
+const MovementUndoButton = preload("res://scripts/movement_undo_button.gd")
 const CombatHudBadgeBackground = preload("res://scripts/combat_hud_badge_background.gd")
 const PostCombatRewardSequence = preload("res://scripts/post_combat_reward_sequence.gd")
 const ControllerNavigationScript = preload("res://scripts/controller_navigation.gd")
@@ -1583,6 +1584,7 @@ var _play_meter_icon: TextureRect
 var _play_meter_banked_badge: PanelContainer
 var _play_meter_banked_label: Label
 var _movement_meter: PanelContainer
+var _movement_undo_button: Button
 var _movement_meter_count: Label
 var _movement_meter_icon: TextureRect
 var _action_step_tracker: PanelContainer
@@ -2117,6 +2119,9 @@ func _input(event: InputEvent) -> void:
 	if _event_view != null and _event_view.visible:
 		if _event_view.handle_input(event): get_viewport().set_input_as_handled()
 		return
+	if _movement_undo_button != null and await _movement_undo_button.handle_input(event):
+		get_viewport().set_input_as_handled()
+		return
 	if _drag_cancel_in_progress:
 		get_viewport().set_input_as_handled()
 		return
@@ -2408,6 +2413,7 @@ func _on_input_modality_changed(modality: String) -> void:
 	call_deferred("_sync_click_targeting_arrow")
 
 func _handle_controller_input(event: InputEvent) -> bool:
+	if _movement_undo_button != null and await _movement_undo_button.handle_input(event): return true
 	if event is InputEventJoypadButton and not (event as InputEventJoypadButton).pressed:
 		return false
 	var controller_activity: bool = true
@@ -3508,6 +3514,7 @@ func _refresh_controller_interface() -> void:
 func _refresh_controller_prompts() -> void:
 	if _controller_prompt_bar == null:
 		return
+	_controller_prompt_bar.set_undo_available(_movement_undo_button != null and _movement_undo_button.undo_available())
 	var graft_open: bool = _graftwright_view != null and _graftwright_view.visible
 	var scavenger_open: bool = _scavenger_shop_view != null and _scavenger_shop_view.visible
 	_controller_prompt_bar.anchor_top = 1.0 if scavenger_open else 0.0
@@ -9818,6 +9825,9 @@ func _setup_movement_meter() -> void:
 	_movement_meter.z_as_relative = false
 	_movement_meter.set_meta("panel_surface_accent", Color("65a7bf"))
 	ui_root.add_child(_movement_meter)
+	_movement_undo_button = MovementUndoButton.new()
+	ui_root.add_child(_movement_undo_button)
+	_movement_undo_button.configure(self)
 	_refresh_player_movement_meter()
 
 func _sync_hand_side_widths() -> void:
@@ -10068,6 +10078,7 @@ func _layout_boss_health_overlay_content() -> void:
 func _layout_combat_action_dock() -> void:
 	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_layout_combat_action_dock_content()
+	if _movement_undo_button != null: _movement_undo_button.refresh()
 	_record_runtime_performance_phase("deferred_layout_combat_action_dock", started)
 
 func _layout_combat_action_dock_content() -> void:
@@ -10430,6 +10441,7 @@ func _boot_run() -> void:
 func _load_run_state(next_run_state: Dictionary) -> void:
 	if board_view != null:
 		board_view.health_ghost_tracker.clear()
+	if _movement_undo_button != null: _movement_undo_button.clear_history()
 	_reward_reroll_preparation.cancel()
 	_cancel_equipment_factory_preparation()
 	if is_instance_valid(board_view) and board_view.has_method("cancel_unit_renderer_preparation"): board_view.cancel_unit_renderer_preparation()
@@ -22333,6 +22345,7 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 	_release_committed_run_state()
 	_analytics_reconcile_combat_tracker(previous_combat_state, _combat_state)
 	_analytics_log_card_draws(previous_combat_state, _combat_state, previous_tracker, _analytics_snapshot_combat_tracker(), "player_movement")
+	if _movement_undo_button != null: _movement_undo_button.record_walk(previous_combat_state, _combat_state)
 	_log_item_pickups(previous_combat_state, committed_combat_state)
 	_analytics_log_player_moved(previous_combat_state, committed_combat_state)
 	_analytics_log_playable_cards()
@@ -22348,6 +22361,7 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 	await _maybe_auto_pass_exhausted_player_turn()
 
 func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Array, selected_targets: Array[Vector2i]) -> void:
+	if _movement_undo_button != null: _movement_undo_button.clear_history()
 	var card_id: String = _card_id_for_hand_index(hand_index)
 	var guided_commit_phase: String = _guided_tutorial_phase_id
 	var uses_drag_hand_source: bool = _pending_drag_play_source_rect.size.x > 0.0 and _pending_drag_play_source_rect.size.y > 0.0
@@ -24160,6 +24174,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 	_consume_pending_card_draw_sfx(after_state)
 
 func _resolve_enemy_round(end_reason: String = "auto") -> void:
+	if _movement_undo_button != null: _movement_undo_button.clear_history()
 	var performance_total_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var performance_lock_started: int = performance_total_started
 	_animation_lock = true
@@ -33677,6 +33692,7 @@ func _sync_combat_state_from_run() -> void:
 	# immediately before it. Empty combat still receives an owned dictionary.
 	var source: Dictionary = _run_state.get("combat_state", {}) as Dictionary
 	_combat_state = _combat_engine.normalize_player_movement_pool(source) if not source.is_empty() else {}
+	if _movement_undo_button != null and not _animation_lock: _movement_undo_button.rules.observe(_combat_state)
 	if not _combat_state.is_empty():
 		if str(_run_state.get("mode", "")) == "combat":
 			_run_state = _run_engine.set_combat_state(_run_state, _combat_state)

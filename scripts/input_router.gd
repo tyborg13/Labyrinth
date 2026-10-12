@@ -20,6 +20,7 @@ const ACTION_MENU: StringName = &"controller_menu"
 const ACTION_MAP: StringName = &"controller_map"
 const ACTION_MAP_ZOOM: StringName = &"controller_map_zoom"
 const ACTION_EMPOWER: StringName = &"controller_empower"
+const ACTION_UNDO_MOVE: StringName = &"combat_undo_move"
 
 const JOYSTICK_ACTIVITY_THRESHOLD: float = 0.42
 const POINTER_ACTIVITY_THRESHOLD: float = 2.0
@@ -177,6 +178,8 @@ static func glyph_label_for_family(action_name: StringName, family: String) -> S
 			return "L2·R2" if family == FAMILY_STEAM_DECK else "LT·RT"
 		ACTION_EMPOWER:
 			return "R3" if family == FAMILY_STEAM_DECK else "RS"
+		ACTION_UNDO_MOVE:
+			return "L2" if family == FAMILY_STEAM_DECK else "LT"
 		&"controller_move":
 			return "LS"
 		&"controller_dpad":
@@ -247,6 +250,13 @@ static func family_for_steam_input_type(input_type: int) -> String:
 	return ""
 
 static func ensure_input_map() -> void:
+	_ensure_axis_action(ACTION_UNDO_MOVE, JOY_AXIS_TRIGGER_LEFT, 1.0)
+	for modifier: String in ["", "ctrl", "meta"]:
+		var key := InputEventKey.new()
+		key.physical_keycode = KEY_Z
+		key.ctrl_pressed = modifier == "ctrl"
+		key.meta_pressed = modifier == "meta"
+		if not InputMap.action_has_event(ACTION_UNDO_MOVE, key): InputMap.action_add_event(ACTION_UNDO_MOVE, key)
 	_ensure_button_action(ACTION_ACCEPT, JOY_BUTTON_A)
 	_ensure_button_action(ACTION_CANCEL, JOY_BUTTON_B)
 	_ensure_button_action(ACTION_HAND_TOGGLE, JOY_BUTTON_X)

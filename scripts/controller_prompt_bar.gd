@@ -5,6 +5,10 @@ const InputPromptScript = preload("res://scripts/input_prompt.gd")
 const InputRouterScript = preload("res://scripts/input_router.gd")
 
 var _prompt_row: HBoxContainer
+var _undo_available: bool = false
+
+func set_undo_available(available: bool) -> void:
+	_undo_available = available
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -31,7 +35,10 @@ func set_prompts(prompts: Array) -> void:
 		return
 	for child: Node in _prompt_row.get_children():
 		child.queue_free()
-	for prompt_var: Variant in prompts:
+	var displayed: Array = prompts.duplicate(true)
+	if _undo_available:
+		displayed.append({"action": InputRouterScript.ACTION_UNDO_MOVE, "label": "Undo move"})
+	for prompt_var: Variant in displayed:
 		if typeof(prompt_var) != TYPE_DICTIONARY:
 			continue
 		var prompt_data: Dictionary = prompt_var
