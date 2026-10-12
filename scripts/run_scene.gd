@@ -33000,9 +33000,12 @@ func _analytics_log_combat_transition(previous_run_state: Dictionary, reason: St
 		_reset_analytics_combat_tracker()
 
 func _analytics_log_combat_started(reason: String) -> void:
+	var encounter_room: Dictionary = _run_engine.room_metadata(_run_state, _combat_state.get("room_coord", Vector2i.ZERO))
 	var objective: Dictionary = _combat_state.get("objective", {}) as Dictionary
 	_analytics_store.write_event("combat_started", _analytics_context_from_states(_run_state, _combat_state), {
 		"reason": reason,
+		"encounter_id": str(encounter_room.get("encounter_id", "")),
+		"biome": str(encounter_room.get("biome", "")),
 		"room_name": str(_combat_state.get("room_name", "")),
 		"room_type": str(_combat_state.get("room_type", "")),
 		"room_coord": _combat_state.get("room_coord", Vector2i.ZERO),

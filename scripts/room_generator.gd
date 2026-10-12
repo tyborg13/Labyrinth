@@ -5,6 +5,7 @@ const ElementData = preload("res://scripts/element_data.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
+const EncounterTables = preload("res://scripts/encounter_tables.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 
 const ROOM_WIDTH: int = 9
@@ -118,13 +119,21 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var player_start: Vector2i = entrance_tile
 	var boss_id: String = str(room.get("boss_id", ""))
 	var objective: Dictionary = CombatObjectiveRules.build_for_room(run_seed, room, travel_dir)
-	var enemy_types: Array = [] if not npc_specs.is_empty() else _encounter_enemy_types(room_type, encounter_depth, rng, room_element, boss_id)
+	var encounter: Dictionary = {}
+	var table_encounter: bool = _uses_encounter_tables(room)
+	var enemy_types: Array = []
+	if table_encounter:
+		encounter = _section_encounter(room, clampi(encounter_depth, 1, 3), rng)
+		enemy_types = encounter["units"]
+	elif npc_specs.is_empty():
+		enemy_types = _encounter_enemy_types(room_type, encounter_depth, rng, room_element, boss_id)
 	enemy_types = _objective_adjusted_enemy_types(enemy_types, objective, encounter_depth, rng)
 	if str(objective.get("type", "")) == CombatObjectiveRules.SURVIVE:
 		objective["reinforcement_pool"] = _unique_enemy_types(enemy_types)
 	objective["initial_enemy_count"] = enemy_types.size()
 	var objective_exit_tiles: Array[Vector2i] = CombatObjectiveRules.exit_target_tiles(objective)
-	var enemy_positions: Array[Vector2i] = _pick_boss_enemy_positions(enemy_types) if room_type == "boss" else _pick_enemy_positions(grid, player_start, enemy_types.size(), rng, objective_exit_tiles)
+	var enemy_positions: Array[Vector2i] = _pick_boss_enemy_positions(enemy_types) if room_type == "boss" else _pick_enemy_positions(grid, player_start, enemy_types.size(), rng, objective_exit_tiles, table_encounter)
+	if table_encounter: assert(enemy_positions.size() == enemy_types.size(), "Section encounter placement lost units")
 	var enemies: Array[Dictionary] = []
 	for index: int in range(enemy_types.size()):
 		var enemy_type: String = str(enemy_types[index])
@@ -178,6 +187,9 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		"objective": objective,
 		"theme": TILE_STONE
 	}
+	if table_encounter:
+		layout["encounter_id"] = encounter["id"]
+		layout["biome"] = room["encounter_biome"]
 	if room_type == "boss": DragonBossLibrary.configure_layout(layout)
 	if room_type == "guardian":
 		preload("res://scripts/guardian_library.gd").configure_layout(layout)
@@ -187,6 +199,12 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 		preload("res://scripts/guardian_library.gd").stage_loot(layout)
 	_add_omen_enemies(layout, room, run_seed)
 	return layout
+
+func _uses_encounter_tables(room: Dictionary) -> bool:
+	return int(room.get("section_map_layout_revision", 0)) >= 4 and room.has("section_index") and str(room.get("type", "")) == "combat" and (room.get("npcs", []) as Array).is_empty() and not bool(room.get("encounter_tables_exempt", false))
+
+func _section_encounter(room: Dictionary, tier: int, rng: RandomNumberGenerator) -> Dictionary:
+	return EncounterTables.pick(tier, str(room.get("element", ElementData.NONE)), str(room["encounter_biome"]), room.get("encounter_history", []), rng)
 
 func _add_omen_enemies(layout: Dictionary, room: Dictionary, run_seed: int) -> void:
 	var count: int = int(room.get("omen_extra_enemies", 0))
@@ -647,8 +665,25 @@ func _pick_boss_enemy_positions(enemy_types: Array) -> Array[Vector2i]:
 			minion_index += 1
 	return positions
 
-func _pick_enemy_positions(grid: Array, player_start: Vector2i, count: int, rng: RandomNumberGenerator, objective_exit_tiles: Array[Vector2i]) -> Array[Vector2i]:
+func _pick_enemy_positions(grid: Array, player_start: Vector2i, count: int, rng: RandomNumberGenerator, objective_exit_tiles: Array[Vector2i], section_encounter: bool = false) -> Array[Vector2i]:
 	var floor_tiles: Array[Vector2i] = _floor_tiles(grid)
+	# Table fights can contain seven units before objective extras. Restrict only
+	# this path so legacy door placement and RNG consumption remain identical.
+	if section_encounter:
+		var reachable: Dictionary = {player_start: true}
+		var queue: Array[Vector2i]
+		queue.append(player_start)
+		while not queue.is_empty():
+			var current: Vector2i = queue.pop_front()
+			for direction: Vector2i in PathUtils.DIRS_4:
+				var next: Vector2i = current + direction
+				if reachable.has(next) or not PathUtils.is_passable(grid, next): continue
+				reachable[next] = true
+				queue.append(next)
+		var safe_floor: Array[Vector2i]
+		for tile: Vector2i in floor_tiles:
+			if reachable.has(tile) and str(grid[tile.y][tile.x]) != TILE_DOOR: safe_floor.append(tile)
+		floor_tiles = safe_floor
 	var candidates: Array[Vector2i] = []
 	for tile: Vector2i in floor_tiles:
 		if tile == player_start:
