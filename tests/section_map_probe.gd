@@ -58,9 +58,11 @@ func _initialize() -> void:
 		current["sealed"] = true
 		var dest: Vector2i = (current.get("connections", []) as Array)[0].get("coord", Graph.INVALID)
 		state["current_room"] = dest
+		Graph.resolve_mystery(state, Graph.room(state, dest))
 		Graph.room(state, dest)["visited"] = true
 		Graph.room(state, dest)["cleared"] = true
 		Graph.refresh_knowledge(state)
+		_check(Graph.room(state, dest)["type"] != "mystery", "Manual probe advances resolve mystery rooms on entry")
 	panel.call("set_run_state", state)
 	await _capture("02_three_rooms.png")
 	var available: Array = panel.call("available_destinations")
@@ -86,7 +88,14 @@ func _initialize() -> void:
 	await _capture("03_focus.png")
 	panel.call("_toggle_scout")
 	var unknown: Vector2i = Graph.scout_options(state)[0]
-	_check(bool(panel.call("can_activate_room", unknown)) and not bool(panel.call("can_activate_room", choice)), "Scout highlights unknown rooms rather than travel choices")
+	var scout_targets: Array[Vector2i] = Graph.scout_options(state)
+	for coord: Vector2i in panel.get("node_buttons"):
+		var eligible: bool = scout_targets.has(coord)
+		var button: Control = (panel.get("node_buttons") as Dictionary)[coord]
+		_check(bool(panel.call("can_activate_room", coord)) == eligible and bool(button.get("scout_target")) == eligible, "Scout highlights exactly its reachable unentered mystery targets")
+	for target: Vector2i in scout_targets:
+		var node: Dictionary = Graph.room(state, target)
+		_check(node["type"] == "mystery" and not node["visited"] and not node.get("scouted", false) and Graph.descendants(state, state["current_room"]).has(target), "Revision 4 Scout targets reachable unentered mysteries, including eligible travel destinations")
 	await _capture("03b_unknown_targeting.png")
 	panel.call("cancel_action")
 	state = Graph.scout(state, unknown)
@@ -112,6 +121,9 @@ func _initialize() -> void:
 		state["current_room"] = info.get("entry", Vector2i.ZERO)
 		Graph.room(state, state["current_room"])["visited"] = true
 		Graph.refresh_knowledge(state)
+		if index == 5:
+			panel.call("set_run_state", state)
+			await _capture("domain_5_fog.png")
 		# A fully surveyed layout makes every split/merge inspectable on each
 		# background. Normal fog and direct scouting are proved above/live.
 		for node: Dictionary in (state.get("rooms", {}) as Dictionary).values():

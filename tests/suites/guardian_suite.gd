@@ -10,7 +10,7 @@ static func run(expect: Callable) -> void:
 	var suite = new()
 	suite._run()
 	for failure: String in suite.failures: expect.call(false, failure)
-	expect.call(suite.failures.is_empty(), "Guardian encounter and relic contracts")
+	expect.call(suite.failures.is_empty(), "Guardian encounter, relic and versioned map contracts")
 
 func _run() -> void:
 	_test_relics()
@@ -57,11 +57,33 @@ func _run() -> void:
 	for seed_value: int in range(10):
 		var run: Dictionary = {"seed":seed_value}
 		Map.initialize(run)
-		var counts: Dictionary = {}
-		for room: Dictionary in run["rooms"].values():
-			if room["type"]=="guardian": counts[room["section_index"]]=int(counts.get(room["section_index"],0))+1
-		check(counts.size()==6,"six guardian sections")
-		for count: int in counts.values():check(count==1,"one per section")
+		_test_map_counts(run, false)
+		Map._initialize_revision_3(run)
+		_test_map_counts(run, true)
+
+func _test_map_counts(run: Dictionary, legacy: bool) -> void:
+	var counts: Dictionary = {}
+	for room: Dictionary in run["rooms"].values():
+		if room["type"]=="guardian": counts[room["section_index"]]=int(counts.get(room["section_index"],0))+1
+	check(counts.size()==6,"six guardian sections")
+	for count: int in counts.values():
+		check(count == 1 if legacy else count >= 2, "one per section in older layouts" if legacy else "at least two Guardian nodes per revision 4 section")
+	if not legacy:
+		for index: int in range(6):
+			var outcomes: Dictionary = {}
+			_test_guardian_routes(run, Map.section(run, index)["entry"], index, 0, outcomes)
+			check(outcomes.has(0) and outcomes.has(1), "Revision 4 sections offer Guardian and bypass routes")
+
+func _test_guardian_routes(run: Dictionary, coord: Vector2i, index: int, count: int, outcomes: Dictionary) -> void:
+	var node: Dictionary = Map.room(run, coord)
+	count += int(node["type"] == "guardian")
+	if node["type"] == "boss":
+		check(count <= 1, "Every revision 4 route meets at most one Guardian")
+		outcomes[count] = true
+		return
+	for link: Dictionary in node["connections"]:
+		if int(Map.room(run, link["coord"])["section_index"]) == index:
+			_test_guardian_routes(run, link["coord"], index, count, outcomes)
 
 
 func fixture(relic: String, positions: Array) -> Dictionary:

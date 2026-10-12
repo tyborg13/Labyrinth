@@ -140,8 +140,15 @@ static func choice_block_reason(state: Dictionary, event_id: String, choice_id: 
 
 static func reveal_targets(state: Dictionary, hops: int) -> Array[Vector2i]:
 	var result: Array[Vector2i]
+	var mysteries_only: bool = Graph.full_visibility(state, section_index(state))
 	for coord: Vector2i in Graph.descendants(state, state.get("current_room", Vector2i.ZERO), hops):
-		if not bool(Graph.room(state, coord).get("revealed", false)): result.append(coord)
+		var room: Dictionary = Graph.room(state, coord)
+		# I–V already expose topology: surveys identify the remaining mysteries.
+		# VI and stored older layouts retain the original reveal horizon.
+		if mysteries_only:
+			if str(room.get("type", "")) == "mystery" and not bool(room.get("visited", false)) and not bool(room.get("scouted", false)):
+				result.append(coord)
+		elif not bool(room.get("revealed", false)): result.append(coord)
 	return result
 
 static func choose_event(state: Dictionary, choice_id: String, engine: RefCounted = null) -> Dictionary:
@@ -314,6 +321,9 @@ static func apply_effects(state: Dictionary, effects: Array, rng: RandomNumberGe
 					var room: Dictionary = Graph.room(next, coord)
 					room["revealed"] = true
 					room["map_outline"] = true
+					# Survey grants knowledge through the event transaction, without
+					# consuming Scouts, converting mysteries or emitting Scout uses.
+					if Graph.modern(next) and str(room.get("type", "")) == "mystery": room["scouted"] = true
 				outcomes.append({"type": type, "hops": effect["hops"], "rooms": targets})
 			"random":
 				var random_outcomes: Array = effect["outcomes"]
@@ -474,7 +484,7 @@ static func effect_lines(state: Dictionary, effects: Array) -> Array[String]:
 				lines.append("%s: %s. %s (%d fights)" % [str(omen["kind"]).capitalize(), omen["name"], omen["description"], int(omen["fights"])])
 			"defiance": lines.append("Gain 1 @icon(defiance) for this run.")
 			"scout": lines.append("+%d Scout." % value)
-			"reveal": lines.append("Reveal the routes up to %d rooms ahead." % int(effect["hops"]))
+			"reveal": lines.append(("Reveal what the unknown rooms up to %d rooms ahead hold." if Graph.full_visibility(state, section_index(state)) else "Reveal the routes up to %d rooms ahead.") % int(effect["hops"]))
 			"random":
 				for outcome: Dictionary in effect["outcomes"]:
 					var nested: Array[String] = effect_lines(state, outcome.get("effects", []))
@@ -505,6 +515,10 @@ static func outcome_lines(state: Dictionary) -> Array[String]:
 				lines.append("%s: %s (%d fights)." % [str(omen["kind"]).capitalize(), omen["name"], int(outcome["fights"])])
 			"defiance": lines.append("Gained 1 @icon(defiance) for this run.")
 			"scout": lines.append("+%d Scout." % value)
-			"reveal": lines.append("Revealed %d rooms." % (outcome.get("rooms", []) as Array).size())
+			"reveal":
+				var count: int = (outcome.get("rooms", []) as Array).size()
+				if Graph.full_visibility(state, section_index(state)):
+					lines.append("Revealed 1 unknown room." if count == 1 else "Revealed %d unknown rooms." % count)
+				else: lines.append("Revealed %d rooms." % count)
 			"nothing_changed": lines.append("Nothing changed.")
 	return lines

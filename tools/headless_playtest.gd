@@ -362,7 +362,8 @@ func _print_section_map() -> void:
 	for room: Dictionary in (_run_state.get("rooms", {}) as Dictionary).values():
 		if int(room.get("section_index", -1)) != index or not bool(room.get("map_outline", false)): continue
 		var label: String = _room_label(room) if bool(room.get("revealed", false)) else "unknown"
-		print("  step %d | %s | %s%s%s" % [room.get("map_step", 0), _coord_text(room.get("coord", Vector2i.ZERO)), label, " | visited" if bool(room.get("visited", false)) else "", " | landmark" if bool(room.get("map_landmark", false)) else ""])
+		if str(room.get("type", "")) == "mystery": label = SectionMapGraph.display_type(room) if bool(room.get("scouted", false)) else "?"
+		print("  step %d | lane %s | %s | %s%s%s" % [room.get("map_step", 0), str(room.get("map_lane", 1)), _coord_text(room.get("coord", Vector2i.ZERO)), label, " | visited" if bool(room.get("visited", false)) else "", " | landmark" if bool(room.get("map_landmark", false)) else ""])
 
 	_print_scout_options()
 
@@ -374,7 +375,7 @@ func _print_scout_options() -> void:
 	print("Unknown rooms to Scout:")
 	for index: int in range(options.size()):
 		var node: Dictionary = SectionMapGraph.room(_run_state, options[index])
-		print("  %d: %s | step %d | unknown" % [index, _coord_text(options[index]), node.get("map_step", 0)])
+		print("  %d: %s | step %d | %s" % [index, _coord_text(options[index]), node.get("map_step", 0), "?" if SectionMapGraph.modern(_run_state) else "unknown"])
 	print("Command: scout N")
 
 func _print_room_state() -> void:

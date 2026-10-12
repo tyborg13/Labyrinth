@@ -215,6 +215,14 @@ static func medallion_rim_mesh() -> ArrayMesh:
 
 # Shared room seals keep opaque art inside the same painted rim on the map,
 # in its legend, and above physical doors. All geometry stays native and editable.
+static func draw_unknown_ring(canvas: CanvasItem, center: Vector2, radius: float, tint: Color) -> void:
+	# The existing undiscovered map ring also identifies mystery destinations
+	# above physical doors; no additional artwork or texture is required.
+	canvas.draw_circle(center, radius - 3, Color(0.035, 0.032, 0.05, 0.75 * tint.a))
+	for index: int in range(10):
+		var angle: float = TAU * float(index) / 10.0
+		canvas.draw_arc(center, radius, angle, angle + 0.38, 8, tint, 1.5, true)
+
 static func draw_medallion(canvas: CanvasItem, center: Vector2, radius: float, icon: Texture2D, icon_tint: Color = Color.WHITE, frame_tint: Color = Color.WHITE, glint_alpha: float = 0.0) -> void:
 	canvas.draw_texture_rect(_texture("medallion"), Rect2(center - Vector2.ONE * radius, Vector2.ONE * radius * 2), false, frame_tint)
 	if icon != null:
