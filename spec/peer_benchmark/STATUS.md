@@ -31,3 +31,12 @@ M0 — research + gap audit (in progress).
 5. Gap audit artifact for the owner (after research lands).
 6. Follow-up after ev-01+map-01 merge: reveal effect = scout mystery rooms in layout rev 4.
 - Plan page (artifact): https://claude.ai/artifact/N1G8qgbt58t6CbufwQxq5d — source output/peer-benchmark-2026-10-12/plan_page/ (plan_template.html → index.html via inline-font build snippet)
+
+## Update 2026-10-12 evening
+- Merged into integration: ev-01 (5ca4bfe87).
+- Running: map-01, feel-01, biome-01, sfx-00. Queued (--wait): ev-02 launch, itb-02 fix round.
+- Ready briefs: itb-01 (after feel-01), sfx-01 (after feel-01).
+- Owner feedback: air pillar bow removed (v3 approved). Owner granted CC0/free-commercial downloads; Mixkit set aside
+  (scripted download vs its terms) in output/sfx-sources-excluded-2026-10-12/.
+- SFX venv: ~/.cache/umbra-sfx/venv (numpy/scipy/soundfile/pyloudnorm).
+- Peer review: none yet — run one review over the merged wave before asking the owner to inspect.
