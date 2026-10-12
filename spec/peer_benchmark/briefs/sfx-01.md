@@ -4,7 +4,8 @@
 - Goal: every meaningful action has a distinct, variant-rotating sound (Slay the Spire ships ~410 files with round-robin
   variants; we have 28). This unit builds the cue bank and wires ~80 cues at their exact moments. Assets come later as
   director data: until a cue has `variants`, it plays its `fallback` (existing files) or stays silent.
-- Base: `codex/peer-benchmark` after feel-01 merges (director gives the commit).
+- Base: `codex/peer-benchmark` at 28170510d (feel-01, feel-02, itb-02 merged; itb-01 and meta-01 run in parallel and also touch
+  `combat_board_view.gd` / `run_scene.gd`: keep your edits there small, local and hook-shaped so merges stay clean).
 - Owned files: new `data/sfx_cues.json` (director-authored, committed before launch, protected — read every value from
   it), new `scripts/sfx_bank.gd`, new `scripts/sfx_cue_router.gd` (maps game events → cue ids), new
   `tests/suites/sfx_bank_suite.gd` + `tests/sfx_bank_test.gd`, new `tests/sfx_cue_coverage_probe.gd`; modify
@@ -27,7 +28,10 @@
    (uniform ±fraction), `cooldown_ms` (same cue suppressed inside the window), `max_voices` (steal the oldest), bus
    (`World` → the existing world SFX bus, `UI` → the UI SFX bus), `loop` for ambience (crossfade 0.6 s on change).
    Variants list empty → fallback list; both empty → silent (no error, counted for the coverage report). Pooled
-   players; no per-play allocations after warm-up.
+   players; no per-play allocations after warm-up. `variants_from: <cue>` plays that cue's variants (or its fallback)
+   with pitch × `pitch_scale` (default 1.0) before jitter, keeping this cue's own volume, cooldown, voices and trigger
+   (stoneskin.gain → block.gain × 0.85, shot.crossbow → shot.bow × 0.92). The top-level `removed` map lists cues that
+   deliberately have no sound (status.expose): wire nothing for them and list them as "removed" in the coverage table.
 2. **Router** (`sfx_cue_router.gd`): one function per game moment that decides the cue id:
    - Attack kind → hit cue: hero attacks use the equipped weapon's family (blade: sword, dagger, rapier, axe, halberd,
      scythe; blunt: mace, maul, hammer, club, flail, shield bash, staff; pierce: spear, lance, bow/crossbow

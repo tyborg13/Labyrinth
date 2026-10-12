@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "_doc": "Director-authored cue list. 'variants' is filled by the director after auditions (sfx_lab build output paths); until then 'fallback' (existing assets) plays. volume_db is the playback offset after loudness-normalised assets; pitch_jitter is ± fraction; cooldown_ms suppresses repeats of the same cue; max_voices caps simultaneous instances; 'trigger' documents exactly when it plays.",
+  "_doc": "Director-authored cue list. 'variants' is filled by the director after auditions (sfx_lab build output paths); until then 'fallback' (existing assets) plays. volume_db is the playback offset after loudness-normalised assets; pitch_jitter is ± fraction; cooldown_ms suppresses repeats of the same cue; max_voices caps simultaneous instances; 'trigger' documents exactly when it plays. 'variants_from' names another cue whose variants (and fallback) this cue plays, multiplied by 'pitch_scale' before jitter; the cue keeps its own volume, cooldown, voices and trigger.",
   "rules": {
     "one_impact_per_hit": "A damaging hit plays exactly one impact cue (by attack kind) plus at most one body/hurt layer. Never stack two impacts for one hit.",
     "merge_window_ms": 60,
@@ -18,10 +18,10 @@
     "hit.blocked": {"bus": "World", "volume_db": -3, "pitch_jitter": 0.05, "cooldown_ms": 40, "max_voices": 3, "fallback": ["res://assets/audio/sfx/action_block.wav"], "trigger": "Replaces the impact when a hit is fully absorbed by Block or Stoneskin (no HP lost)."},
     "block.break": {"bus": "World", "volume_db": -2, "pitch_jitter": 0.04, "cooldown_ms": 120, "max_voices": 2, "fallback": [], "trigger": "Plays with the impact when a hit removes the last of a unit's Block (and HP is lost)."},
     "block.gain": {"bus": "World", "volume_db": -4, "pitch_jitter": 0.04, "cooldown_ms": 120, "max_voices": 2, "fallback": ["res://assets/audio/sfx/action_block.wav"], "trigger": "A unit gains Block from a card or intent."},
-    "stoneskin.gain": {"bus": "World", "volume_db": -4, "pitch_jitter": 0.04, "cooldown_ms": 120, "max_voices": 2, "fallback": ["res://assets/audio/sfx/action_block.wav"], "trigger": "A unit gains Stoneskin."},
+    "stoneskin.gain": {"bus": "World", "volume_db": -4, "pitch_jitter": 0.04, "cooldown_ms": 120, "max_voices": 2, "fallback": ["res://assets/audio/sfx/action_block.wav"], "trigger": "A unit gains Stoneskin.", "variants_from": "block.gain", "pitch_scale": 0.85, "_owner": "2026-10-12 audition: no candidate fit; reuse the Block sound pitched down."},
     "hurt.hero": {"bus": "World", "volume_db": -6, "pitch_jitter": 0.04, "cooldown_ms": 150, "max_voices": 1, "fallback": [], "trigger": "Body layer when the hero loses >= 5 HP from one hit (cloth/leather and a low body thud; no voice)."},
     "shot.bow": {"bus": "World", "volume_db": -3, "pitch_jitter": 0.05, "cooldown_ms": 40, "max_voices": 3, "fallback": ["res://assets/audio/sfx/attack_ranged_bow.wav"], "trigger": "Release of a bow or sling shot (hero or enemy)."},
-    "shot.crossbow": {"bus": "World", "volume_db": -3, "pitch_jitter": 0.04, "cooldown_ms": 40, "max_voices": 3, "fallback": ["res://assets/audio/sfx/attack_ranged_bow.wav"], "trigger": "Release of a crossbow bolt or thrown weapon."},
+    "shot.crossbow": {"bus": "World", "volume_db": -3, "pitch_jitter": 0.04, "cooldown_ms": 40, "max_voices": 3, "fallback": ["res://assets/audio/sfx/attack_ranged_bow.wav"], "trigger": "Release of a crossbow bolt or thrown weapon.", "variants_from": "shot.bow", "pitch_scale": 0.92, "_owner": "2026-10-12 audition: reuse the bow sound."},
     "cast.arcane": {"bus": "World", "volume_db": -4, "pitch_jitter": 0.05, "cooldown_ms": 40, "max_voices": 3, "fallback": ["res://assets/audio/sfx/attack_ranged_bow.wav"], "trigger": "Launch of a neutral spell (Pale Spark, Dull Bolt, Waning Pulse, acolyte bolts)."},
     "hit.arcane": {"bus": "World", "volume_db": -3, "pitch_jitter": 0.05, "cooldown_ms": 30, "max_voices": 4, "fallback": [], "trigger": "Impact of a neutral spell."},
     "spell.fire": {"bus": "World", "volume_db": -4, "pitch_jitter": 0.04, "cooldown_ms": 40, "max_voices": 3, "fallback": ["res://assets/audio/sfx/elemental/fire_attack.wav"], "trigger": "Fire spell/attack impact (replaces attack.elemental.fire)."},
@@ -57,7 +57,6 @@
     "status.shatter": {"bus": "World", "volume_db": -3, "pitch_jitter": 0.03, "cooldown_ms": 200, "max_voices": 1, "fallback": [], "trigger": "A frozen unit takes the triple-damage hit (ice shatter replaces the impact)."},
     "status.shock": {"bus": "World", "volume_db": -8, "pitch_jitter": 0.05, "cooldown_ms": 200, "max_voices": 1, "fallback": [], "trigger": "Shock applied."},
     "status.stagger": {"bus": "World", "volume_db": -9, "pitch_jitter": 0.05, "cooldown_ms": 200, "max_voices": 1, "fallback": [], "trigger": "Stagger applied (dull thud + rattle)."},
-    "status.expose": {"bus": "World", "volume_db": -10, "pitch_jitter": 0.05, "cooldown_ms": 200, "max_voices": 1, "fallback": [], "trigger": "Expose applied (armour crack)."},
     "radiance.light": {"bus": "World", "volume_db": -10, "pitch_jitter": 0.04, "cooldown_ms": 300, "max_voices": 1, "fallback": [], "trigger": "Vision/Light/Truesight/Dispel Umbra effects (low warm swell, not a chime)."},
     "heal": {"bus": "World", "volume_db": -8, "pitch_jitter": 0.04, "cooldown_ms": 300, "max_voices": 1, "fallback": [], "trigger": "Any heal on the hero or an enemy."},
     "illusion.spawn": {"bus": "World", "volume_db": -9, "pitch_jitter": 0.05, "cooldown_ms": 150, "max_voices": 2, "fallback": [], "trigger": "An illusion appears."},
@@ -89,5 +88,8 @@
     "ambience.iskaldra": {"bus": "World", "volume_db": -22, "loop": true, "fallback": ["res://assets/audio/sfx/ui/dungeon_hall_ambience_loop.wav"], "trigger": "Iskaldra's section: cold wind and ice creaks."},
     "ambience.zekarion": {"bus": "World", "volume_db": -22, "loop": true, "fallback": ["res://assets/audio/sfx/ui/dungeon_hall_ambience_loop.wav"], "trigger": "Zekarion's section: distant thunder and charged hum."},
     "ambience.noctyrax": {"bus": "World", "volume_db": -22, "loop": true, "fallback": ["res://assets/audio/sfx/ui/dungeon_hall_ambience_loop.wav"], "trigger": "Noctyrax's section: low umbral drone and faint whispers."}
+  },
+  "removed": {
+    "status.expose": "2026-10-12: no dedicated sound. The applying card or intent is the one signal (owner: unsure what it should sound like; none fit)."
   }
 }
