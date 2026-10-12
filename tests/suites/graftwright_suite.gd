@@ -1,5 +1,7 @@
 extends RefCounted
 
+const EventRules = preload("res://scripts/event_rules.gd")
+
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
@@ -114,7 +116,9 @@ static func _test_integration(check: Callable, state: Dictionary, grafted: Dicti
 		match str(onward["mode"]):
 			"graftwright": onward = engine.leave_graftwright(onward)
 			"campfire": onward = engine.leave_campfire(onward)
-			"event": onward = engine.resolve_map_event(onward, "embers")
+			"event": onward = engine.resolve_map_event(onward, "continue" if str(onward.get("event_state", {}).get("page", "choices")) == "result" else EventRules.first_available_choice_id(onward))
+			"reward":
+				if str(onward.get("pending_reward", {}).get("kind", "")) == "event": onward = engine.skip_reward_for_heal(onward)
 			"treasure": onward = engine.claim_relic(onward, "")
 			"pre_battle": onward = engine.begin_pre_battle_combat(onward)
 		var moves: Array[Vector2i] = engine.available_moves(onward)

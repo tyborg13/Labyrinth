@@ -209,10 +209,10 @@ func _resolve_room(engine: RunEngineScript, source: Dictionary) -> Dictionary:
 					var tiles: Array[Vector2i] = Objectives.exit_target_tiles(objective)
 					if not tiles.is_empty(): (combat.get("player", {}) as Dictionary)["pos"] = tiles[0]
 				state = engine.finish_combat(state, combat)
-			"reward": state = engine.claim_card_reward(state, "")
+			"reward": state = engine.skip_reward_for_heal(state) if str(state.get("pending_reward", {}).get("kind", "")) == "event" else engine.claim_card_reward(state, "")
 			"escape": state = engine.continue_pending_escape(state)
 			"campfire": state = engine.leave_campfire(state)
-			"event": state = engine.resolve_map_event(state, "embers")
+			"event": state = engine.resolve_map_event(state, "continue" if str(state.get("event_state", {}).get("page", "choices")) == "result" else EventRules.first_available_choice_id(state))
 			"treasure":
 				var relics: Array = state.get("pending_relics", [])
 				if not relics.is_empty(): state = engine.claim_relic(state, str(relics[0]))

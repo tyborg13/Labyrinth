@@ -1,6 +1,9 @@
 extends Control
 class_name SectionMapPanel
 
+const InlineIcons = preload("res://scripts/inline_icon_text.gd")
+const Events = preload("res://scripts/event_rules.gd")
+const GameData = preload("res://scripts/game_data.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
@@ -53,6 +56,9 @@ var _preview_text: String = ""
 var _event_panel: PanelContainer
 var _event_embers: Button
 var _event_survey: Button
+var _event_stack: VBoxContainer
+var _event_signature: Array = []
+var _event_buttons: Array[Button]
 var _reduced_motion: bool = false
 var activation_coord: Vector2i = Graph.INVALID
 var _activation_kind: String = ""
@@ -225,18 +231,25 @@ func _full_field(control: Control) -> void:
 
 func set_run_state(source: Dictionary) -> void:
 	var objective: Dictionary = (source.get("combat_state", {}) as Dictionary).get("objective", {}) as Dictionary
-	var next_signature: int = hash([source.get("rooms", {}), source.get("map_sections", []), source.get("current_room"), source.get("mode"), objective.get("type", "")])
+	var next_signature: int = hash([source.get("rooms", {}), source.get("map_sections", []), source.get("current_room"), source.get("mode"), objective.get("type", ""), _event_fields(source)])
 	if next_signature == _signature:
 		return
 	_cancel_activation()
 	var previous_current: Vector2i = run_state.get("current_room", Graph.INVALID)
 	_signature = next_signature
 	run_state = {"rooms": source.get("rooms", {}), "map_sections": source.get("map_sections", []), "current_room": source.get("current_room", Vector2i.ZERO), "mode": source.get("mode", "room"), "section_map_version": source.get("section_map_version", 0), "seed": source.get("seed", 0), "reach_exit": str(objective.get("type", "")) == "reach_exit"}
+	run_state.merge(_event_fields(source))
 	if previous_current != run_state.get("current_room", Graph.INVALID):
 		viewed_section = Graph.active_section(run_state)
 		reset_interaction()
 	if _built:
 		_refresh()
+
+func _event_fields(source: Dictionary) -> Dictionary:
+	var fields: Dictionary = {}
+	for key: String in ["event_state", "player_hp", "player_max_hp", "held_embers", "unbanked_embers", "equipped_equipment", "item_inventory", "equipped_items", "attuned_magic_cards"]:
+		if source.has(key): fields[key] = source[key]
+	return fields
 
 func _refresh() -> void:
 	if not _built or run_state.is_empty():
@@ -534,7 +547,9 @@ func _hide_preview() -> void:
 	interaction_changed.emit()
 
 func _refresh_actions() -> void:
-	var return_room_focus: bool = _event_panel.visible and (_event_embers.has_focus() or _event_survey.has_focus())
+	var return_room_focus: bool = false
+	for button: Button in _event_buttons:
+		if is_instance_valid(button) and button.has_focus(): return_room_focus = _event_panel.visible
 	var active: bool = viewed_section == Graph.active_section(run_state)
 	var mode: String = str(run_state.get("mode", ""))
 	var uses: int = int(Graph.section(run_state, viewed_section).get("scouts", 0))
@@ -551,8 +566,7 @@ func _refresh_actions() -> void:
 	_continue.visible = _next_section_destination() != Graph.INVALID
 	_continue.disabled = not _continue.visible
 	_event_panel.visible = active and mode == "event"
-	_event_survey.disabled = not event_has_discoveries()
-	_event_survey.tooltip_text = "All routes within four rooms are already revealed." if _event_survey.disabled else "Reveal every route up to four rooms ahead."
+	if _event_panel.visible: _refresh_event()
 	for coord: Vector2i in node_buttons:
 		var button: Button = node_buttons[coord]
 		button.set("scout_target", scout_targeting and can_activate_room(coord))
@@ -614,8 +628,7 @@ func controller_action_label() -> String:
 	if focused == _scout: return "Cancel Scout" if scout_targeting else "Scout"
 	if focused == _continue: return "Continue"
 	if focused == _close: return "Close"
-	if focused == _event_embers: return "Take Embers"
-	if focused == _event_survey: return "Reveal routes"
+	if focused in _event_buttons: return str(focused.get_meta("event_label", "Continue"))
 	if focused != null and focused.get_parent() == _tabs: return "View section"
 	for coord: Vector2i in node_buttons:
 		if node_buttons[coord] != focused: continue
@@ -639,23 +652,86 @@ func _build_event() -> void:
 	_event_panel.position = Vector2(-340, -114)
 	_event_panel.custom_minimum_size = Vector2(680, 228)
 	_field.add_child(_event_panel)
-	var stack := VBoxContainer.new()
-	stack.add_theme_constant_override("separation", 20)
-	_event_panel.add_child(stack)
-	stack.add_child(_label("The Lost Cartographer", Typography.ROLE_TITLE))
-	var description := _label("Take 25 Embers, or reveal every route up to four rooms ahead.", Typography.ROLE_BODY_LARGE)
-	description.custom_minimum_size.x = 540
-	description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	stack.add_child(description)
-	var choices := HBoxContainer.new()
+	_event_stack = VBoxContainer.new()
+	_event_stack.add_theme_constant_override("separation", 20)
+	_event_panel.add_child(_event_stack)
+	_event_panel.hide()
+
+func _refresh_event() -> void:
+	var id: String = Events.current_id(run_state)
+	var event: Dictionary = GameData.event_def(id)
+	var state: Dictionary = run_state.get("event_state", {})
+	var signature: Array = [event, state, run_state.get("player_hp"), run_state.get("player_max_hp"), run_state.get("held_embers"), run_state.get("equipped_equipment"), run_state.get("item_inventory"), run_state.get("equipped_items"), run_state.get("attuned_magic_cards"), event_has_discoveries()]
+	if signature == _event_signature: return
+	var restore_focus: bool = false
+	for button: Button in _event_buttons:
+		if button.has_focus(): restore_focus = true
+	_event_signature = signature.duplicate(true)
+	for child: Node in _event_stack.get_children():
+		_event_stack.remove_child(child)
+		child.queue_free()
+	_event_buttons.clear()
+	_event_stack.add_child(_label(str(event.get("title", "")), Typography.ROLE_TITLE))
+	var result_page: bool = str(state.get("page", "choices")) == "result"
+	var text: String = str(state.get("result_text", "")) if result_page else str(event.get("body", ""))
+	if result_page:
+		var outcomes: Array[String] = Events.outcome_lines(run_state)
+		if not outcomes.is_empty(): text += "\n" + "\n".join(outcomes)
+	if not text.is_empty():
+		var description := RichTextLabel.new()
+		Typography.apply_rich_text_role(description, Typography.ROLE_BODY_LARGE)
+		description.fit_content = true
+		description.scroll_active = false
+		description.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		description.custom_minimum_size.x = 540
+		description.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		InlineIcons.apply_to(description, text)
+		_event_stack.add_child(description)
+	var choices := VBoxContainer.new()
 	choices.add_theme_constant_override("separation", 20)
-	stack.add_child(choices)
-	_event_embers = _button("Take 25 Embers", func() -> void: event_requested.emit("embers"), UiSkin.VARIANT_SELECTED)
-	_event_survey = _button("Reveal routes", func() -> void: event_requested.emit("survey"))
-	for button: Button in [_event_embers, _event_survey]:
+	_event_stack.add_child(choices)
+	var definitions: Array = [{"id": "continue", "label": "Continue"}] if result_page else event.get("choices", [])
+	for choice: Dictionary in definitions:
+		var choice_id: String = str(choice["id"])
+		var label: String = str(choice["label"])
+		var lines: Array[String] = Events.choice_effect_lines(run_state, id, choice_id)
+		var button := _button(label + (" " + " ".join(lines) if not lines.is_empty() else ""), func() -> void: event_requested.emit(choice_id))
+		button.set_meta("event_label", label)
+		button.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		button.disabled = not result_page and not Events.choice_available(run_state, id, choice_id)
+		button.tooltip_text = Events.choice_block_reason(run_state, id, choice_id) if button.disabled else ""
 		_skin.apply_button_native_size(button, 56, 264, false, UiSkin.VARIANT_STANDARD)
 		choices.add_child(button)
-	_event_panel.hide()
+		if InlineIcons.has_icons(button.text): _event_button_icons(button)
+		_event_buttons.append(button)
+	_event_embers = _event_buttons[0]
+	for button: Button in _event_buttons:
+		if not button.disabled:
+			_event_embers = button
+			break
+	_event_survey = _event_buttons[1] if _event_buttons.size() > 1 else _event_embers
+	if restore_focus: _event_embers.grab_focus()
+
+func _event_button_icons(button: Button) -> void:
+	var text := RichTextLabel.new()
+	text.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	text.scroll_active = false
+	text.fit_content = true
+	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	text.add_theme_font_override("normal_font", button.get_theme_font("font"))
+	text.add_theme_font_size_override("normal_font_size", button.get_theme_font_size("font_size"))
+	text.add_theme_color_override("default_color", button.get_theme_color("font_disabled_color" if button.disabled else "font_color"))
+	var margin := MarginContainer.new()
+	margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	margin.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	var style: StyleBox = button.get_theme_stylebox("normal")
+	for side: int in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
+		margin.add_theme_constant_override("margin_" + ["left", "top", "right", "bottom"][side], int(style.get_margin(side)))
+	button.add_child(margin)
+	margin.add_child(text)
+	InlineIcons.apply_to(text, button.text)
+	for property: String in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_disabled_color"]:
+		button.add_theme_color_override(property, Color.TRANSPARENT)
 
 func _request_onward() -> void:
 	if activation_coord != Graph.INVALID: return
