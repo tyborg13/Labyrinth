@@ -77,6 +77,7 @@ var _canvas: Control
 var _scrim: ColorRect
 var _skin := UiSkin.new()
 var _signature: int = 0
+var _focused_index: int = 0
 var _old_column: Control
 var _transition: Tween
 var _opening: Tween
@@ -84,6 +85,7 @@ var _painting: Tween
 var _zoom: Tween
 var _closing: bool = false
 var _busy: bool = false
+var _request_pending: bool = false
 var _art_started: bool = false
 var _content_bottom: float = 0
 var _sound: Callable
@@ -158,7 +160,10 @@ func present(state: Dictionary, motion_reduced: bool = false, sound: Callable = 
 	_build()
 	var signature: int = hash([state.get("event_state", {}), state.get("player_hp"), state.get("player_max_hp"), state.get("held_embers"), state.get("unbanked_embers"), state.get("equipped_equipment"), state.get("item_inventory"), state.get("equipped_items"), state.get("attuned_magic_cards"), state.get("rooms")])
 	set_reduced_motion(motion_reduced)
-	if visible and not _closing and signature == _signature: return
+	if visible and not _closing and signature == _signature:
+		release_request()
+		return
+	release_request()
 	_signature = signature
 	_sound = sound
 	var already_open: bool = visible and not _closing
@@ -292,7 +297,9 @@ func _build_column() -> void:
 			button.position.y = y
 			y += button.size.y + CHOICE_GAP
 			button.pressed.connect(activate_choice.bind(index, true))
-			button.focus_entered.connect(interaction_changed.emit)
+			button.focus_entered.connect(func() -> void:
+				_focused_index = choices.find(button)
+				interaction_changed.emit())
 			choices.append(button)
 			index += 1
 		for focus_index: int in range(choices.size()):
@@ -328,22 +335,30 @@ func move_focus(direction: int) -> void:
 	choices[posmod(focused_choice_index() + direction, choices.size())].grab_focus()
 
 func activate_choice(index: int, pointer: bool = false) -> void:
-	if _busy or _closing or page != "choices" or index < 0 or index >= choices.size(): return
+	if _busy or _request_pending or _closing or page != "choices" or index < 0 or index >= choices.size(): return
 	if not choices[index].available: return
-	_busy = true
+	_request_pending = true
 	if not pointer:
 		var feedback: Node = get_node_or_null("/root/CursorFeedback")
 		if feedback != null: feedback.call("play_action_confirmation")
 	choice_requested.emit(choices[index].choice_id)
 
 func activate_continue() -> void:
-	if _busy or _closing or page != "result": return
-	_busy = true
+	if _busy or _request_pending or _closing or page != "result": return
+	_request_pending = true
 	_play(Sounds.MENU_CLOSE_ID)
 	choice_requested.emit("continue")
 
+func release_request() -> void:
+	_request_pending = false
+
+func restore_choice_focus() -> void:
+	if page == "result" and continue_button != null: continue_button.grab_focus()
+	elif not choices.is_empty(): choices[maxi(0, _focused_index)].grab_focus()
+
 func handle_input(event: InputEvent) -> bool:
 	if not visible: return false
+	if (event is InputEventKey and event.keycode == KEY_ESCAPE) or event.is_action(Router.ACTION_MENU): return false
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if router != null: router.call("record_input_activity", event)
 	if event is InputEventJoypadMotion:
@@ -358,7 +373,6 @@ func handle_input(event: InputEvent) -> bool:
 		if event.keycode == KEY_UP: move_focus(-1); return true
 		if event.keycode == KEY_DOWN: move_focus(1); return true
 		if event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER: _activate_focused(); return true
-		if event.keycode == KEY_ESCAPE: activate_continue(); return true
 	if event.is_action_pressed("ui_up"): move_focus(-1); return true
 	if event.is_action_pressed("ui_down"): move_focus(1); return true
 	if event.is_action_pressed(Router.ACTION_ACCEPT) or event.is_action_pressed("ui_accept"): _activate_focused(); return true
@@ -422,6 +436,7 @@ func _stagger_outcomes() -> void:
 
 func dismiss() -> void:
 	if not visible or _closing: return
+	release_request()
 	_closing = true
 	_busy = true
 	if _opening != null: _opening.kill()

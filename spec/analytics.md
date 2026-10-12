@@ -951,3 +951,11 @@ optional `virtual: true` and report `surface: electrified` for owned construct
 relays; they do not imply creation or consumption of actual ground. Storm Crown
 return deaths use `source_kind: chain_rebound` and the original card context.
 Forecast copies and presentation append no external analytics.
+
+## Event card rewards
+
+Event card claims and skips retain the ordinary `reward_choice` payload and add
+`reward_kind: "event"` plus the pending reward's `event_id`. `choice_kind` remains
+`card` for a claim and `heal_skip` for a skip. Combat rewards use `reward_kind:
+"combat"` and an empty event id. This is additive within schema 1; historical
+append-only JSONL files are never rewritten.

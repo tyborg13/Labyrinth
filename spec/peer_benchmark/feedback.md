@@ -13,3 +13,9 @@
 - Owner-directed reuse: stoneskin.gain → the Block sound (director: pitched ×0.85); shot.crossbow → the bow sound
   (×0.92); spell.fire → hit.arcane take C ("works better than any of these").
 - status.expose: owner unsure what it should sound like → director decision: no dedicated sound (one signal per concept).
+
+## 2026-10-12 — SFX audition round 2 (owner)
+- Picked layered designs: block.break B (iron give-way), push.slide A (breathy fabric whoosh + scuff), trap.trigger A
+  (stone plate clunk + arcane rune zap), radiance.light B (centred glow swell, no glint), illusion.break A (1 s cut of
+  the processed-glass swell). Built and committed ed2e07f04. All cues except ambience now have owner-picked sounds.
+- Takeaway: layered designs beat single library takes for abstract game concepts (break, trigger, push).

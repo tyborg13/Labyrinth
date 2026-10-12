@@ -38,7 +38,7 @@ func _init() -> void:
 	row.add_child(vision)
 	var title := Label.new()
 	title.name = "IntentTitle"
-	title.text = "Intents"
+	title.text = "Details"
 	title.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	title.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	title.add_theme_font_override("font", Typography.ui_font())

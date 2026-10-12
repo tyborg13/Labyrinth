@@ -96,3 +96,20 @@ The capture tool is absent from this implementation checkout. The owner prepares
 The shake decay rate, flash easing curve and row secondary copy remain owner decisions. Renderer proof, clip inspection, commit, peer review, inspection-fixture preparation and publication are owned by the design owner.
 
 Final headless checks all exited 0: `COMBAT FEEL TEST RESULT: PASS`, `COMBAT MOTION TIMING TEST RESULT: PASS`, `FLOATING TEXT LAYOUT TESTS: PASS`, `ENEMY STRIKE TRAIL TEST RESULT: PASS`, `COMBAT FEEL PROBE TEST RESULT: PASS` (before and after), and full `TEST RESULT: PASS`. Source hashes and logs are indexed in `output/feel-01/verification.json`. Existing macOS certificate, expected analytics-acknowledgment and ObjectDB exit messages also occurred on the unchanged baseline. Native proof is not claimed.
+
+## Scope cleanup regression contract
+
+A scope begun inside a scope-less hit-stop adopts the stop's saved positive base,
+not the frozen engine scale. Applying speed, ending a scope and restoring a stop
+fall back to 1.0 for a nonpositive base. Enemy hand-off waits for the longest
+remaining bounded overlay lifetime while the scope is active, allowing the final
+damage numbers and death dissolves to finish. Its terminal submission retires
+numbers and presents the final dissolve frame even if a render frame was skipped. Scope-end then clears retained feedback and requests the normal stage
+refresh only when the scene is unlocked, attached and not being deleted. Overlay maintenance runs
+only inside a scope and defers its submission until normal animation submissions
+have had an opportunity to render, so overlay refresh never adds a second render in the same process frame.
+Both committed movement/card victory paths restore only time scale before the
+real victory beat, retaining scope bookkeeping until normal cleanup. A restored
+scale remains at the positive base during subsequent scope processing. Deferred
+refresh callbacks recheck attachment, deletion and animation-lock state, and
+exiting pacing never queues a stage refresh.

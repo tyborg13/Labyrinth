@@ -274,9 +274,11 @@ an event immediately stops rise/zoom while the opacity fades continue.
 Sound: existing menu-page-open on opening, shared forged button click on choice
 activation, and menu-page-close on Continue. No new audio. Mouse, 1–3, Up/Down,
 Enter and controller A activate choices; stick/D-pad navigate, including
-unavailable plates. Initial focus is the first available choice. Back/Escape
-is inert on choices and activates Continue on results. The controller prompt
-names the focused choice.
+unavailable plates. Initial focus is the first available choice. Escape on the
+keyboard and Start on the controller open the pause menu over the event; closing
+pause restores its focused choice. Controller Back (`ACTION_CANCEL`) is inert
+on choices and activates Continue on results. This supersedes the ev-02
+Back/Escape wording. The controller prompt names the focused choice.
 
 Active omens appear after relics/Rites in the existing header grid in room and
 combat modes. Each unique approved 96 px wax seal is shown at 38×38, with a
@@ -321,3 +323,23 @@ The existing inspection fixture tool has no event/room selector; no unsupported
 fixture command is advertised. The design owner owns fixture preparation,
 commit/review and publication. The event-rules suite now exercises EventView for
 availability, exact block reason and Continue while retaining every rules assertion.
+
+## Hero Expose compatibility
+
+Expose on the hero follows the same next-hit rule as Expose on enemies: add its
+current amount to the next positive direct hit, before Freeze/Chilled and Block,
+then clear it. Non-direct surface, collision and Bleed damage do not consume it.
+Dread uses this status; enemy-applied Expose from Bile Bloomer's Shard Mark (2)
+and Noctyrax's Void Claw (1) also works. The revealed-intent and lethal/danger
+forecasts run the same resolver, including absorption and one-time consumption.
+The no-omen compatibility exception is exactly this extra damage, consumed Expose
+and its ordinary damage statistic; unrelated player fields remain byte-identical.
+
+`python3 tools/enemy_expose_heuristic.py` evaluates the authored intent packages
+with the existing card scorer and weights: remove only the inert Expose rider for
+the before case, retain it for after, then average by authored intent weights.
+Bile Bloomer: 1.304064 → 1.517118 (Shard Mark 1.5753 → 2.3565).
+Noctyrax: 4.548725 → 4.639225 (Void Claw 3.7239 → 4.0859).
+These are relative health-equivalent package scores, not an encounter simulation;
+boss geometry and unsupported enemy-only actions retain the scorer's existing
+limits. No intrinsic card coefficients or protected tuning values changed.

@@ -249,7 +249,7 @@ static func apply_effects(state: Dictionary, effects: Array, rng: RandomNumberGe
 				var rarities: Dictionary = {}
 				for id: String in GameData.equipment():
 					var gear: Dictionary = GameData.equipment_def(id)
-					if id != old and str(gear.get("slot", "")) == slot:
+					if id != old and not engine._run_has_equipment(next, id) and str(gear.get("slot", "")) == slot:
 						pool.append(id)
 						rarities[id] = str(gear.get("rarity", "common"))
 				var id: String = _pick_with_rarity_fallback(rng, pool, rarities, [rarity, old_rarity])

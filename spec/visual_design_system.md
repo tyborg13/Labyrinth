@@ -130,6 +130,8 @@ floor shadows); the former navy button bodies clashed with it.
   board. One row for 1–3 foes (centred vertically), two rows for 4–6 with 2×2
   foes spanning both rows in the centre.
 
+- At rest, enemy intent pills and imminent crimson threat diamonds use the exact dimensions, semantic colours, order projection and preview/privacy contract in [threats at rest](threats_at_rest.md); full plans remain in Details [I].
+
 ## Combat composition
 
 - Health loss leaves a pale segment ghost above the well and below the fill and separators: enemies use `#f2c3a6` at 85% alpha, heroes/allies `#d9f2e6` at 80%, without glow. It holds for 0.55 s then drains for 0.35 s with ease-in quad; another hit restarts the hold from the highest held top or current draining position. Healing snaps and flashes only the healed range with the fill lightened 35%, fading over 0.2 s. Reduced motion shows a static ghost for 0.4 s then removes it. The shared presentation clock respects `Engine.time_scale`; death bars retain the existing unit fade/lifetime (see `TODO_DESIGN_DEATH_GHOST_LIFETIME`).

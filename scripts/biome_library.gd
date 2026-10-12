@@ -13,6 +13,10 @@ static var _floors: Dictionary = {}
 static var _idle_frames: Dictionary = {}
 static var _trimmed_pillars: Dictionary = {}
 static var _missing_logged: Dictionary = {}
+static var _override_loaded: bool = false
+static var _override_id: String = ""
+static var _presentation_key: String = ""
+static var _presentation: Dictionary = {}
 
 static func _ensure_data() -> void:
 	if _data.is_empty():
@@ -41,11 +45,30 @@ static func definition(id: String) -> Dictionary:
 
 static func inspection_override() -> String:
 	# Development command-line override only, deliberately never serialized.
+	if _override_loaded: return _override_id
+	_override_loaded = true
 	var args: PackedStringArray = OS.get_cmdline_user_args()
 	var index: int = args.find("--biome")
 	if index >= 0 and index + 1 < args.size() and ids().has(args[index + 1]):
-		return args[index + 1]
-	return ""
+		_override_id = args[index + 1]
+	return _override_id
+
+static func set_inspection_override(id: String) -> void:
+	# Debug-only live override; invalidate the room presentation cache.
+	_override_id = id if ids().has(id) else ""
+	_override_loaded = true
+	_presentation_key = ""
+
+static func presentation_for_run(run_state: Dictionary) -> Dictionary:
+	var coord: Vector2i = run_state.get("current_room", Vector2i.ZERO)
+	var room: Dictionary = (run_state.get("rooms", {}) as Dictionary).get("%d,%d" % [coord.x, coord.y], {})
+	var section: Dictionary = Sections.section(run_state, int(room.get("section_index", -1)))
+	var key: String = "%s|%s|%s|%s|%s|%s" % [run_state.get("seed", 0), coord, Sections.enabled(run_state), room.get("section_index", -1), section.get("boss_id", ""), inspection_override()]
+	if key != _presentation_key:
+		var id: String = biome_for_run(run_state, room)
+		_presentation = {"id": id, "backdrop_modulate": backdrop_modulate(id)}
+		_presentation_key = key
+	return _presentation
 
 static func biome_for_run(run_state: Dictionary, room: Dictionary) -> String:
 	var override: String = inspection_override()

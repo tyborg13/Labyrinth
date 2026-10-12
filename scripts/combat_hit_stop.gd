@@ -40,7 +40,7 @@ func request(damage: int, killed: bool = false, hero: bool = false, reduced: boo
 		return false
 	if not active:
 		scale_changing.emit()
-		_previous_scale = Engine.time_scale
+		_previous_scale = Engine.time_scale if Engine.time_scale > 0.0 else 1.0
 		active = true
 		Engine.time_scale = 0.0
 		stop_started.emit(float(duration_usec) / 1000.0)
@@ -57,10 +57,14 @@ func cancel() -> void:
 	first_hit_usec = -MERGE_WINDOW_USEC - 1
 	duration_usec = 0
 
+func previous_scale() -> float:
+	return _previous_scale if _previous_scale > 0.0 else 1.0
+
 func _restore() -> void:
 	scale_changing.emit()
 	active = false
 	Engine.time_scale = float(restore_scale.call()) if restore_scale.is_valid() else _previous_scale
+	if Engine.time_scale <= 0.0: Engine.time_scale = 1.0
 	stop_ended.emit()
 
 func _process(_delta: float) -> void:

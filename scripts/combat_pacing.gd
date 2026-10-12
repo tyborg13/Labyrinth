@@ -25,6 +25,8 @@ var enemies_active: bool = false
 var _scope: String = ""
 var _base_scale: float = 1.0
 var _applied_scale: float = 1.0
+var _scale_restored: bool = false
+var _leaving_tree: bool = false
 var _clock_usec: float = 1.0
 var _last_clock_usec: int = 0
 var _round_started_usec: int = 0
@@ -44,6 +46,7 @@ var _pending_order: Dictionary = {}
 var _order_running: bool = false
 var _last_state: Dictionary = {}
 var _last_presentation: Dictionary = {}
+var _last_render_frame: int = -1
 
 func install(owner_scene: Node) -> void:
 	scene = owner_scene
@@ -112,18 +115,20 @@ func begin_enemies() -> void:
 func _begin_scope(scope: String) -> void:
 	_sync_clock()
 	if _scope.is_empty():
-		_base_scale = Engine.time_scale
+		_base_scale = hit_stop.previous_scale() if hit_stop != null and hit_stop.active else Engine.time_scale
 	_scope = scope
+	_scale_restored = false
 	_apply_speed()
 
 func current_scale() -> float:
-	if _scope.is_empty() or not _presentation_allowed():
+	if _scope.is_empty() or _scale_restored or not _presentation_allowed():
 		return _base_scale
 	return _base_scale * Settings.combat_speed_scale(scene.get("_settings") as Dictionary)
 
 func _apply_speed() -> void:
+	if _base_scale <= 0.0: _base_scale = 1.0
 	if hit_stop != null and hit_stop.active:
-		if not is_zero_approx(Engine.time_scale):
+		if Engine.time_scale > 0.0:
 			_base_scale = Engine.time_scale
 			Engine.time_scale = 0.0
 		return
@@ -131,7 +136,7 @@ func _apply_speed() -> void:
 	var desired: float = current_scale()
 	if not is_equal_approx(Engine.time_scale, _applied_scale) and not is_equal_approx(Engine.time_scale, desired):
 		# The director writes its own slow-motion scale; retain it as the base.
-		_base_scale = Engine.time_scale
+		_base_scale = Engine.time_scale if Engine.time_scale > 0.0 else 1.0
 		desired = current_scale()
 	Engine.time_scale = desired
 	_applied_scale = desired
@@ -155,19 +160,58 @@ func _drain_turn_orders() -> void:
 func finish_enemies() -> void:
 	_change_phase("hero hand-off")
 	while _order_running: await get_tree().process_frame
+	# Snapshot the last bounded feedback deadline. No new actor work starts here.
+	var deadline: int = _overlay_deadline(presentation_usec())
+	while not _scope.is_empty() and is_inside_tree() and not _leaving_tree and presentation_usec() < deadline:
+		await get_tree().process_frame
+	# Submit the terminal feedback state before retiring the scope. A skipped
+	# render frame must not leave the last partial dissolve on the board.
+	_refresh_overlays()
 	end_scope()
 
-func end_scope() -> void:
+func _overlay_deadline(clock: int) -> int:
+	var deadline: int = clock
+	for popup: Dictionary in _popups.values():
+		deadline = maxi(deadline, int(popup["start"]) + int(FloatingText.ANIMATION_DURATION_SECONDS * 1000000.0))
+	for entries: Array[Dictionary] in [_deaths, _surfaces]:
+		for entry: Dictionary in entries:
+			deadline = maxi(deadline, int(entry["start"]) + int(entry["duration"]))
+	for start: int in _flashes.values():
+		deadline = maxi(deadline, (clock if start < 0 else start) + int(FLASH_SECONDS * 1000000.0))
+	return deadline
+
+func restore_time_scale() -> void:
 	var owns_scale: bool = not _scope.is_empty() or (hit_stop != null and hit_stop.active)
 	_sync_clock()
-	_scope = ""
-	enemies_active = false
-	if hit_stop != null:
-		hit_stop.cancel()
+	if _base_scale <= 0.0: _base_scale = 1.0
+	_scale_restored = true
+	if hit_stop != null: hit_stop.cancel()
 	if owns_scale:
 		Engine.time_scale = _base_scale
 		_applied_scale = _base_scale
+
+func end_scope() -> void:
+	var owns_scale: bool = not _scope.is_empty() or (hit_stop != null and hit_stop.active)
+	restore_time_scale()
+	_scope = ""
+	enemies_active = false
+	_scale_restored = false
 	_close_phase()
+	_flashes.clear()
+	_popups.clear()
+	_deaths.clear()
+	_surfaces.clear()
+	_last_state = {}
+	_last_presentation = {}
+	if owns_scale and _stage_refresh_allowed():
+		_refresh_stage_after_scope.call_deferred()
+
+func _stage_refresh_allowed() -> bool:
+	return not _leaving_tree and is_inside_tree() and is_instance_valid(scene) and scene.is_inside_tree() and not scene.is_queued_for_deletion() and not bool(scene.get("_animation_lock")) and scene.has_method("_refresh_stage_view")
+
+func _refresh_stage_after_scope() -> void:
+	# A scene may be detached, deleted or locked after the callback is queued.
+	if _stage_refresh_allowed(): scene.call("_refresh_stage_view")
 
 func _presentation_allowed() -> bool:
 	if scene == null or not scene.is_inside_tree() or scene.get_tree().paused:
@@ -185,11 +229,11 @@ func _process(_delta: float) -> void:
 			if not _presentation_allowed():
 				hit_stop.cancel()
 			_apply_speed()
-	if not hit_stop.active and (not _flashes.is_empty() or not _popups.is_empty() or not _deaths.is_empty() or not _surfaces.is_empty()):
-		_refresh_overlays()
+	if not _scope.is_empty() and _last_render_frame != Engine.get_process_frames() and not hit_stop.active and (not _flashes.is_empty() or not _popups.is_empty() or not _deaths.is_empty() or not _surfaces.is_empty()):
+		_refresh_overlays.call_deferred()
 
 func _refresh_overlays() -> void:
-	if scene != null and scene.is_inside_tree() and not _last_state.is_empty():
+	if not _scope.is_empty() and _last_render_frame != Engine.get_process_frames() and scene != null and scene.is_inside_tree() and not _last_state.is_empty():
 		scene.call("_render_board_state", _last_state, _last_presentation, true)
 
 func _active_overlays(entries: Array[Dictionary], clock: int) -> Array[Dictionary]:
@@ -198,7 +242,11 @@ func _active_overlays(entries: Array[Dictionary], clock: int) -> Array[Dictionar
 		if clock - int(entry["start"]) < int(entry["duration"]): active.append(entry)
 	return active
 
+func _enter_tree() -> void:
+	_leaving_tree = false
+
 func _exit_tree() -> void:
+	_leaving_tree = true
 	end_scope()
 	_flash_shader = null
 
@@ -269,10 +317,11 @@ func feedback_duration(_texts: Array, authored: float, initial_elapsed: float) -
 	return minf(authored, maxf(initial_elapsed, ENEMY_FEEDBACK_ADVANCE_SECONDS))
 
 func decorate(state: Dictionary, presentation: Dictionary) -> void:
+	_last_render_frame = Engine.get_process_frames()
 	_last_state = state
 	_last_presentation = presentation.duplicate(false)
 	var clock: int = presentation_usec()
-	var hits: Array[Dictionary] = []
+	var hits: Array[Dictionary]
 	for entry: Dictionary in presentation.get("floating_texts", []):
 		var key: String = str(entry.get("reaction_actor_key", ""))
 		if str(entry.get("reaction", "")) not in ["hit", "block"] and not FloatingText.is_damage_entry(entry):
@@ -333,18 +382,16 @@ func decorate(state: Dictionary, presentation: Dictionary) -> void:
 		if not draw_keys.has(key): draw_keys.append(key)
 	presentation["combat_feel_flash_actor_keys"] = draw_keys
 	_flash_draw_keys = strengths.keys()
-	_deaths = _active_overlays(_deaths, clock)
 	_surfaces = _active_overlays(_surfaces, clock)
-	var deaths: Array[Dictionary] = []
+	var deaths: Array[Dictionary]
 	for entry: Dictionary in _deaths:
 		var progress: float = clampf(float(clock - int(entry["start"])) / float(entry["duration"]), 0.0, 1.0)
-		if progress >= 1.0:
-			continue
 		for source: Dictionary in entry["units"]:
 			var unit: Dictionary = source.duplicate(true)
 			unit["death_progress"] = progress
 			unit["death_frame"] = int(round(progress * float(int(scene.call("_enemy_death_frame_count_for_unit", unit)) - 1)))
 			deaths.append(unit)
+	_deaths = _active_overlays(_deaths, clock)
 	if not deaths.is_empty():
 		deaths.append_array(presentation.get("death_animation_units", []))
 		presentation["death_animation_units"] = deaths
@@ -388,7 +435,7 @@ func present_hits(presentation: Dictionary) -> float:
 		if not _presentation_allowed():
 			continue
 		var key: String = hit["actor_key"]
-		if _scope.is_empty() and not hit_stop.active: _base_scale = Engine.time_scale
+		if _scope.is_empty() and not hit_stop.active: _base_scale = Engine.time_scale if Engine.time_scale > 0.0 else 1.0
 		elif not _scope.is_empty(): _apply_speed()
 		var stopped: bool = hit_stop.request(int(hit["damage"]), bool(hit["killed"]), key == "player", bool(presentation.get("reduced_motion", false)))
 		if not key.is_empty(): _flashes[key] = -1 if stopped else presentation_usec()
