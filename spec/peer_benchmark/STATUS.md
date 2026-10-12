@@ -68,6 +68,8 @@ M0 — research + gap audit (in progress).
 Every UI brief must also decide: fallback copy for missing/legacy data, overflow layout at the maximum content size,
 sound (or explicitly none) for every new reveal, and the full owned-file list incl. run_scene/run_tests registration.
 Enemy briefs: one icon per concept, stand-in art policy, encounter data entries.
+Every windowed probe brief: capture a 1920×1080 SubViewport (UPDATE_ALWAYS) like tests/movement_undo_probe.gd — never
+root.get_texture() (non-native on this display; failed itb-01, en-02, en-03).
 
 ## Update (integration 02c3a4368)
 - Merged: fix-01 (re-review REQUEST_CHANGES → fix-01 r1 running: victory-beat stale board blocker), sfx-02, itb-01.

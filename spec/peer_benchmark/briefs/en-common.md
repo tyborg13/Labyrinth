@@ -57,6 +57,8 @@ number, text and visual from this brief, never from your own judgement.
   not landed in your base, add nothing to pools and report it (the director adds the data entries).
 
 ## Proof (each unit)
+- Windowed probes capture a 1920×1080 `SubViewport` (`UPDATE_ALWAYS`) exactly like `tests/movement_undo_probe.gd`;
+  never `root.get_texture()`.
 - Engine suite per mechanic (resolution, telegraph tiles = resolved tiles, save/load, friendly fire, AI fallback),
   schema test, turn-clock portrait test, the full suite.
 - A windowed probe `tests/<unit>_enemies_probe.gd` capturing each enemy: at rest with its telegraph visible, mid-way
