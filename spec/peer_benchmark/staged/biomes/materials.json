@@ -1,0 +1,32 @@
+{
+  "tharokh": {
+    "floor": "dark umber bedrock flagstones from an earth dragon's root-choked caverns: fine roots and dark moss threading through the cracks and along the bevel, a little loose soil, earthy brown with muted moss-green accents",
+    "pillar": "rough-hewn dark bedrock blocks gripped by thick gnarled roots that wrap the shaft, a cap of packed earth and moss with a few small ferns (kept low, within the cap outline)",
+    "light": "an iron wall bracket holding a cluster of glowing amber cave fungus caps (warm amber-gold light), small spores drifting"
+  },
+  "vyraketh": {
+    "floor": "black basalt flagstones from a fire dragon's forge-throne: thin glowing ember-orange fissures in a few cracks (subtle, not lava), soot and ash dusting along the bevel, charcoal-black with warm red-orange highlights",
+    "pillar": "black basalt and obsidian blocks with faint glowing ember cracks between them, a charred and scorched cap with a thin lip of cooled lava",
+    "light": "an iron wall bracket holding a small iron brazier bowl with a bright flame (orange-red fire, a few sparks)"
+  },
+  "vaeloryx": {
+    "floor": "pale wind-scoured limestone flagstones from an air dragon's open sky-temple: cool grey-white stone, edges rounded by wind, faint drifts of pale sand in the cracks, calm and airy but not bright white",
+    "pillar": "pale weathered limestone blocks worn smooth by wind, a carved cap with a few wind-cut grooves, a tattered pale-blue cloth strip tied around the shaft (kept within the silhouette)",
+    "light": "an iron wall bracket holding a small glass wind-lantern with a pale gold flame, tilted slightly as if by a breeze"
+  },
+  "iskaldra": {
+    "floor": "frost-rimed dark blue-grey slate flagstones from an ice dragon's frozen hall: a thin crust of hoarfrost along the bevel and cracks and a few fine ice veins; DARK and desaturated (mostly deep slate with only a cold blue tint), calm interior",
+    "pillar": "dark blue-grey slate blocks crusted with frost, the cap covered in a thick lip of clear blue ice with a few short icicles",
+    "light": "an iron wall bracket holding a jagged crystal of glowing pale-blue ice"
+  },
+  "zekarion": {
+    "floor": "dark storm-slate flagstones from a lightning dragon's tempest spire: thin tarnished copper inlay lines running along the bevel and one crack, a little verdigris, cold blue-grey with a faint violet cast",
+    "pillar": "dark slate blocks bound by tarnished copper bands with verdigris, a cap with a short copper lightning-rod spike in its centre (kept short, within 12% above the cap)",
+    "light": "a copper wall sconce holding a small iron cage with a crackling violet-white spark of lightning inside"
+  },
+  "noctyrax": {
+    "floor": "polished black marble flagstones from the heart of the Umbra: faint violet veins, a soft cold sheen, a few hairline cracks leaking a dim violet glow; very dark, calm interior",
+    "pillar": "black marble blocks with thin tarnished silver filigree and violet veins, a cracked cap leaking faint violet light",
+    "light": "an iron wall bracket holding a black candle burning with a dark violet flame (umbral fire, violet-white core)"
+  }
+}
