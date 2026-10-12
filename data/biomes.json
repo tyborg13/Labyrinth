@@ -1,0 +1,387 @@
+{
+  "version": 1,
+  "default_biome": "stone",
+  "section_biomes": {
+    "tharokh": "tharokh",
+    "vyraketh": "vyraketh",
+    "vaeloryx": "vaeloryx",
+    "iskaldra": "iskaldra",
+    "zekarion": "zekarion",
+    "noctyrax": "noctyrax"
+  },
+  "biomes": {
+    "stone": {
+      "name": "Labyrinth Stone",
+      "art_dir": "",
+      "light_color": [
+        1.0,
+        0.57,
+        0.22,
+        0.25
+      ],
+      "light_flicker": "flame",
+      "lighting": {
+        "tint": [
+          1.015,
+          0.985,
+          0.95
+        ],
+        "ambient_scale": 1.0
+      },
+      "atmosphere": {
+        "pool_color": [
+          1.0,
+          0.62,
+          0.3,
+          1.0
+        ],
+        "motes": "embers"
+      },
+      "backdrop_modulate": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "tharokh": {
+      "name": "Worldspine Roots",
+      "art_dir": "res://assets/art/biomes/tharokh",
+      "light_color": [
+        1.0,
+        0.72,
+        0.3,
+        0.24
+      ],
+      "light_flicker": "glow",
+      "lighting": {
+        "tint": [
+          0.99,
+          1.0,
+          0.93
+        ],
+        "ambient_scale": 0.97
+      },
+      "atmosphere": {
+        "pool_color": [
+          0.95,
+          0.78,
+          0.42,
+          1.0
+        ],
+        "motes": "spores"
+      },
+      "backdrop_modulate": [
+        0.85,
+        0.88,
+        0.75
+      ]
+    },
+    "vyraketh": {
+      "name": "Cinder Crown",
+      "art_dir": "res://assets/art/biomes/vyraketh",
+      "light_color": [
+        1.0,
+        0.45,
+        0.15,
+        0.3
+      ],
+      "light_flicker": "flame",
+      "lighting": {
+        "tint": [
+          1.04,
+          0.96,
+          0.9
+        ],
+        "ambient_scale": 0.94
+      },
+      "atmosphere": {
+        "pool_color": [
+          1.0,
+          0.48,
+          0.2,
+          1.0
+        ],
+        "motes": "embers_dense"
+      },
+      "backdrop_modulate": [
+        1.0,
+        0.82,
+        0.72
+      ]
+    },
+    "vaeloryx": {
+      "name": "Hollow Gale",
+      "art_dir": "res://assets/art/biomes/vaeloryx",
+      "light_color": [
+        1.0,
+        0.86,
+        0.55,
+        0.22
+      ],
+      "light_flicker": "flame",
+      "lighting": {
+        "tint": [
+          0.98,
+          1.0,
+          1.03
+        ],
+        "ambient_scale": 1.06
+      },
+      "atmosphere": {
+        "pool_color": [
+          0.95,
+          0.9,
+          0.75,
+          1.0
+        ],
+        "motes": "wind_dust"
+      },
+      "backdrop_modulate": [
+        0.8,
+        0.86,
+        0.95
+      ],
+      "raw_grade": {
+        "floor": [
+          0.624,
+          0.6,
+          0.54
+        ]
+      }
+    },
+    "iskaldra": {
+      "name": "Rime Hall",
+      "art_dir": "res://assets/art/biomes/iskaldra",
+      "light_color": [
+        0.55,
+        0.8,
+        1.0,
+        0.26
+      ],
+      "light_flicker": "glow",
+      "lighting": {
+        "tint": [
+          0.92,
+          0.98,
+          1.08
+        ],
+        "ambient_scale": 0.96
+      },
+      "atmosphere": {
+        "pool_color": [
+          0.62,
+          0.82,
+          1.0,
+          1.0
+        ],
+        "motes": "snow"
+      },
+      "backdrop_modulate": [
+        0.62,
+        0.75,
+        0.95
+      ]
+    },
+    "zekarion": {
+      "name": "Tempest Spire",
+      "art_dir": "res://assets/art/biomes/zekarion",
+      "light_color": [
+        0.78,
+        0.66,
+        1.0,
+        0.26
+      ],
+      "light_flicker": "spark",
+      "lighting": {
+        "tint": [
+          0.94,
+          0.95,
+          1.08
+        ],
+        "ambient_scale": 0.91
+      },
+      "atmosphere": {
+        "pool_color": [
+          0.78,
+          0.72,
+          1.0,
+          1.0
+        ],
+        "motes": "sparks"
+      },
+      "backdrop_modulate": [
+        0.7,
+        0.7,
+        0.95
+      ]
+    },
+    "noctyrax": {
+      "name": "Heart of the Umbra",
+      "art_dir": "res://assets/art/biomes/noctyrax",
+      "light_color": [
+        0.7,
+        0.45,
+        1.0,
+        0.28
+      ],
+      "light_flicker": "glow",
+      "lighting": {
+        "tint": [
+          0.93,
+          0.9,
+          1.06
+        ],
+        "ambient_scale": 0.86
+      },
+      "atmosphere": {
+        "pool_color": [
+          0.62,
+          0.45,
+          0.95,
+          1.0
+        ],
+        "motes": "umbral"
+      },
+      "backdrop_modulate": [
+        0.55,
+        0.5,
+        0.78
+      ]
+    }
+  },
+  "mote_presets": {
+    "embers": {
+      "color": [
+        1.0,
+        0.62,
+        0.28,
+        0.75
+      ],
+      "count": 34,
+      "direction": [
+        0.0,
+        -1.0
+      ],
+      "speed": [
+        6,
+        14
+      ],
+      "lifetime": 11.0,
+      "spread": 25
+    },
+    "embers_dense": {
+      "color": [
+        1.0,
+        0.55,
+        0.22,
+        0.85
+      ],
+      "count": 52,
+      "direction": [
+        0.0,
+        -1.0
+      ],
+      "speed": [
+        8,
+        18
+      ],
+      "lifetime": 9.0,
+      "spread": 30
+    },
+    "spores": {
+      "color": [
+        0.95,
+        0.82,
+        0.48,
+        0.55
+      ],
+      "count": 28,
+      "direction": [
+        0.0,
+        -1.0
+      ],
+      "speed": [
+        3,
+        7
+      ],
+      "lifetime": 14.0,
+      "spread": 60
+    },
+    "wind_dust": {
+      "color": [
+        0.86,
+        0.88,
+        0.95,
+        0.38
+      ],
+      "count": 40,
+      "direction": [
+        1.0,
+        -0.12
+      ],
+      "speed": [
+        22,
+        38
+      ],
+      "lifetime": 7.0,
+      "spread": 8
+    },
+    "snow": {
+      "color": [
+        0.92,
+        0.96,
+        1.0,
+        0.62
+      ],
+      "count": 46,
+      "direction": [
+        0.15,
+        1.0
+      ],
+      "speed": [
+        8,
+        15
+      ],
+      "lifetime": 12.0,
+      "spread": 18
+    },
+    "sparks": {
+      "color": [
+        0.82,
+        0.76,
+        1.0,
+        0.8
+      ],
+      "count": 22,
+      "direction": [
+        0.0,
+        -1.0
+      ],
+      "speed": [
+        2,
+        6
+      ],
+      "lifetime": 1.6,
+      "spread": 180
+    },
+    "umbral": {
+      "color": [
+        0.58,
+        0.42,
+        0.88,
+        0.5
+      ],
+      "count": 36,
+      "direction": [
+        0.0,
+        -1.0
+      ],
+      "speed": [
+        3,
+        8
+      ],
+      "lifetime": 13.0,
+      "spread": 40
+    }
+  }
+}
