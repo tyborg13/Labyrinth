@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "_doc": "Umbra Depths: 20 cumulative difficulty levels (Slay the Spire's Ascension grammar). Depth N includes every level <= N. Each line is shown verbatim in the New Run picker and on the run-end screen. Beating Noctyrax at depth N unlocks N+1 (profile-wide). Score bonus +5% per depth.",
+  "score_bonus_percent_per_depth": 5,
+  "levels": [
+    {"depth": 1, "text": "Guardians stand on more routes.", "modifier": {"type": "map_guardian_weight", "multiplier": 1.6}},
+    {"depth": 2, "text": "Enemies strike harder.", "modifier": {"type": "enemy_damage_bonus", "class": "regular", "amount": 1}},
+    {"depth": 3, "text": "Guardians strike harder.", "modifier": {"type": "enemy_damage_bonus", "class": "guardian", "amount": 2}},
+    {"depth": 4, "text": "Dragons strike harder.", "modifier": {"type": "enemy_damage_bonus", "class": "dragon", "amount": 2}},
+    {"depth": 5, "text": "The Ember Hearth restores less.", "modifier": {"type": "hearth_heal_delta", "amount": -1}},
+    {"depth": 6, "text": "You begin each run wounded.", "modifier": {"type": "start_hp_percent", "amount": 85}},
+    {"depth": 7, "text": "Enemies are hardier.", "modifier": {"type": "enemy_hp_percent", "class": "regular", "amount": 110}},
+    {"depth": 8, "text": "Guardians are hardier.", "modifier": {"type": "enemy_hp_percent", "class": "guardian", "amount": 110}},
+    {"depth": 9, "text": "Dragons are hardier.", "modifier": {"type": "enemy_hp_percent", "class": "dragon", "amount": 108}},
+    {"depth": 10, "text": "You begin each run Hunted.", "modifier": {"type": "start_omen", "omen": "hunted"}},
+    {"depth": 11, "text": "The Umbra presses closer.", "modifier": {"type": "umbra_sight_delta", "amount": -1, "from_section": 1}},
+    {"depth": 12, "text": "Rare spells are offered less often.", "modifier": {"type": "card_reward_rarity_weights", "weights": {"common": 12, "rare": 7, "epic": 4, "legendary": 3}}},
+    {"depth": 13, "text": "Dragons yield fewer Embers.", "modifier": {"type": "dragon_ember_percent", "amount": 75}},
+    {"depth": 14, "text": "Your body is frailer.", "modifier": {"type": "max_hp_delta", "amount": -2}},
+    {"depth": 15, "text": "Events demand more.", "modifier": {"type": "event_costs", "hp_delta": 1, "max_hp_delta": 1, "ember_cost_percent": 125}},
+    {"depth": 16, "text": "The Scavenger charges more.", "modifier": {"type": "shop_price_percent", "amount": 110}},
+    {"depth": 17, "text": "Enemies act sooner.", "modifier": {"type": "enemy_initiative_delta", "class": "regular", "amount": -1}},
+    {"depth": 18, "text": "Fatigue bites deeper.", "modifier": {"type": "fatigue_base_delta", "amount": 1}},
+    {"depth": 19, "text": "Guardians bring another follower.", "modifier": {"type": "guardian_extra_helper", "amount": 1}},
+    {"depth": 20, "text": "Noctyrax wakes enraged.", "modifier": {"type": "boss_enrage", "boss": "noctyrax", "hp_percent": 125, "damage_bonus": 2}}
+  ]
+}
