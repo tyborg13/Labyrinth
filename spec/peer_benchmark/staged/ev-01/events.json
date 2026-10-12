@@ -4,7 +4,7 @@
     "ember_ward": {"name": "Ember Ward", "kind": "blessing", "fights": 3, "description": "Start each combat with 6 @icon(block).", "effect": {"type": "start_block", "amount": 6}},
     "stone_vow": {"name": "Stone Vow", "kind": "blessing", "fights": 3, "description": "Start each combat with 4 @icon(stoneskin).", "effect": {"type": "start_stoneskin", "amount": 4}},
     "quickened_blood": {"name": "Quickened Blood", "kind": "blessing", "fights": 3, "description": "Your first turn in each combat has 1 extra @icon(card_play).", "effect": {"type": "first_turn_card_plays", "amount": 1}},
-    "lantern_sight": {"name": "Lantern Sight", "kind": "blessing", "fights": 4, "description": "Start each combat with 3 turns of @icon(vision).", "effect": {"type": "start_vision_turns", "amount": 3}},
+    "lantern_sight": {"name": "Lantern Sight", "kind": "blessing", "fights": 4, "description": "Start each combat with 3 turns of @icon(vision).", "effect": {"type": "start_vision_turns", "amount": 3, "radius": 2}},
     "ember_tithe": {"name": "Ember Tithe", "kind": "blessing", "fights": 3, "description": "Enemies drop 50% more Embers.", "effect": {"type": "ember_drop_percent", "amount": 150}},
     "hunted": {"name": "Hunted", "kind": "bane", "fights": 2, "description": "Each combat has one more enemy.", "effect": {"type": "extra_enemies", "amount": 1}},
     "dread": {"name": "Dread", "kind": "bane", "fights": 3, "description": "Start each combat with 3 @icon(expose).", "effect": {"type": "start_expose", "amount": 3}},

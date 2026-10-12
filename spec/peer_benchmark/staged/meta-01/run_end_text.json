@@ -1,0 +1,45 @@
+{
+  "titles": {
+    "defeat": [
+      "SLAIN",
+      "FALLEN"
+    ],
+    "victory": [
+      "ESCAPED"
+    ],
+    "embrace": [
+      "WITHDRAWN"
+    ]
+  },
+  "quips": {
+    "defeat": [
+      "The labyrinth keeps what it kills.",
+      "Somewhere, a cartographer adds your name.",
+      "The Umbra is patient.",
+      "Your Embers cool where you fell.",
+      "The dark was never empty.",
+      "Another light goes out below.",
+      "The dragons did not notice.",
+      "The stone remembers the way down.",
+      "Even the Emaciated Man looks away.",
+      "The halls fold shut behind you.",
+      "Not today. Perhaps not ever.",
+      "The Scavenger will find your boots.",
+      "Darkness, at last, is quiet.",
+      "You will wake at the Threshold again."
+    ],
+    "victory": [
+      "The light finds you first.",
+      "Behind you, the labyrinth forgets your name.",
+      "The Umbra loosens its grip. For now.",
+      "Six dragons. One door.",
+      "You step into a morning you had stopped believing in.",
+      "The dark will need a new story."
+    ],
+    "embrace": [
+      "Wisdom is knowing which door to leave by.",
+      "The Embers come with you. The dark stays.",
+      "You live to descend again."
+    ]
+  }
+}

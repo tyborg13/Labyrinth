@@ -1,4 +1,6 @@
 extends SceneTree
+
+const EventRules = preload("res://scripts/event_rules.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const Progression = preload("res://scripts/progression_store.gd")
 const Settings = preload("res://scripts/settings_store.gd")
@@ -181,6 +183,9 @@ func _initialize() -> void:
 		_check(not bool(panel.call("can_activate_room", coord)), "Event resolution blocks direct room travel")
 	var event_button: Button = panel.get("_event_embers")
 	await _pointer_click(event_button.get_global_rect().get_center())
+	_check(str((instance.get("_run_state") as Dictionary).get("event_state", {}).get("page")) == "result", "Choosing shows the saved event result")
+	await process_frame
+	await _pointer_click((panel.get("_event_embers") as Button).get_global_rect().get_center())
 	_check(str((instance.get("_run_state") as Dictionary).get("mode")) == "room", "The event releases normal route selection")
 	await _capture("08_event_resolved.png")
 	_load(state.duplicate(true))
@@ -189,8 +194,11 @@ func _initialize() -> void:
 	router.call("set_forced_state_for_test", "controller", "xbox")
 	panel.call("focus_controller_on_current")
 	_check(viewport.gui_get_focus_owner() == panel.get("_event_embers"), "Controller focus enters the dedicated event choices")
-	_check(_prompt_labels().has("Take Embers"), "The event confirm cue names the focused choice")
+	_check(_prompt_labels().has(str(EventRules.choice_def(EventRules.current_id(state), EventRules.first_available_choice_id(state))["label"])), "The event confirm cue names the focused choice")
 	await _capture("08b_event_controller.png")
+	await _joy(JOY_BUTTON_A)
+	await process_frame
+	_check(str((instance.get("_run_state") as Dictionary).get("event_state", {}).get("page")) == "result", "Controller choice shows the event result")
 	await _joy(JOY_BUTTON_A)
 	await process_frame
 	_check(str((instance.get("_run_state") as Dictionary).get("mode")) == "room", "Controller confirm resolves the event")

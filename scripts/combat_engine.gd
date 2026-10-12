@@ -1,6 +1,8 @@
 extends RefCounted
 class_name CombatEngine
 
+const OmenRules = preload("res://scripts/omen_rules.gd")
+
 const DragonTrophyRules = preload("res://scripts/dragon_trophy_rules.gd")
 
 const ForcedRelicRules = preload("res://scripts/forced_relic_rules.gd")
@@ -906,6 +908,7 @@ func begin_combat_creation(run_seed: int, room_layout: Dictionary, player_snapsh
 	SurfaceRelicRules.configure(state)
 	state = _apply_start_combat_relic_effects(state, player_snapshot)
 	state = CommonRelicRules.start_combat(self, state)
+	state = OmenRules.start_combat(self, state, player_snapshot)
 	return {"state": state, "rng": rng, "enemy_index": 0, "enemy_count": (state.get("enemies", []) as Array).size(), "complete": false}
 
 # One original enemy assignment per call, followed by the unchanged opening.
@@ -2849,7 +2852,7 @@ func prepare_next_player_turn(state: Dictionary) -> Dictionary:
 func player_movement_capacity(state: Dictionary) -> int:
 	return maxi(
 		0,
-		BASE_PLAYER_MOVEMENT + GameData.stat_bonus_from_state(state, "movement_pool_bonus")
+		BASE_PLAYER_MOVEMENT + GameData.stat_bonus_from_state(state, "movement_pool_bonus") + OmenRules.first_movement(state)
 	)
 
 func player_movement_remaining(state: Dictionary) -> int:
@@ -4572,6 +4575,7 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 		var credit: bool = bool(context.get("player_card", is_player_turn(next_state)))
 		var bonus_card_plays: int = 1 if credit and not bool(enemy.get("summoned", false)) else 0
 		BoardSurfaceRules.record_event(next_state, {"kind": "actor_death", "actor_kind": "enemy", "id": int(enemy.get("id", -1)), "actor_key": _enemy_key(enemy), "source_kind": str(context.get("source_kind", "direct_attack")), "unit": enemy.duplicate(true), "player_card": credit, "source": context.duplicate(true)})
+		reward_embers = OmenRules.ember_drop(next_state, reward_embers)
 		next_state["room_embers"] = int(next_state.get("room_embers", 0)) + reward_embers
 		next_state["death_bonus_card_plays_this_turn"] = int(next_state.get("death_bonus_card_plays_this_turn", 0)) + bonus_card_plays
 		_record_death_reward(next_state, enemy, reward_embers, bonus_card_plays)
@@ -4664,6 +4668,9 @@ func _damage_player(
 	var hp_before: int = int(player.get("hp", 0))
 	var was_alive: bool = hp_before > 0
 	var remaining: int = damage
+	if apply_freeze_multiplier and damage > 0 and int(player.get("expose", 0)) > 0:
+		remaining += int(player["expose"])
+		player["expose"] = 0
 	if apply_freeze_multiplier and damage > 0:
 		if int(player.get("freeze", 0)) > 0:
 			remaining *= BoardSurfaceRules.FROZEN_MULTIPLIER

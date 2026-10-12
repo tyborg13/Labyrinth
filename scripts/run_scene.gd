@@ -16086,8 +16086,9 @@ func _add_reward_choice_card(card_row: HBoxContainer, card_id: String, reward_ca
 
 func _finish_reward_choice_stack(stack: VBoxContainer, heal_amount: int, focusable_cards: Array[Control], action_buttons: Array[Control], choice_state: Dictionary = {}) -> void:
 	var action_state: Dictionary = _run_state if choice_state.is_empty() else choice_state
-	var has_reroll: bool = _run_engine.run_skill_is_ready(action_state, "discerning_eye")
-	if heal_amount <= 0 and not has_reroll:
+	var event_reward: bool = str(action_state.get("pending_reward", {}).get("kind", "")) == "event"
+	var has_reroll: bool = not event_reward and _run_engine.run_skill_is_ready(action_state, "discerning_eye")
+	if heal_amount <= 0 and not has_reroll and not event_reward:
 		_configure_reward_choice_focus(focusable_cards, action_buttons)
 		return
 	var action_center := CenterContainer.new()
@@ -16109,6 +16110,10 @@ func _finish_reward_choice_stack(stack: VBoxContainer, heal_amount: int, focusab
 		)
 		action_row.add_child(reroll_button)
 		action_buttons.append(reroll_button)
+	if event_reward:
+		var skip_button: UiTooltipButton = _reward_secondary_button("RewardSkipButton", "Skip", _on_skip_reward_pressed, "", REWARD_REROLL_BUTTON_MIN_WIDTH)
+		action_row.add_child(skip_button)
+		action_buttons.append(skip_button)
 	if heal_amount > 0:
 		var recover_button: UiTooltipButton = _reward_recover_button(heal_amount, action_state)
 		action_row.add_child(recover_button)
@@ -27296,6 +27301,9 @@ func _on_skip_reward_pressed() -> void:
 	if _guided_tutorial_hard_gate_active() and _guided_tutorial_phase_id != ContextualCombatTutorial.PHASE_CHOOSE_REWARD:
 		_guided_tutorial_reject()
 		return
+	if str(_run_state.get("pending_reward", {}).get("kind", "")) == "event":
+		_commit_reward_heal("")
+		return
 	var offered_cards: Array = ((_run_state.get("pending_reward", {}) as Dictionary).get("cards", []) as Array)
 	if _run_engine.has_run_skill(_run_state, "deferred_choice") and not offered_cards.is_empty():
 		var options: Array = [{
@@ -34557,7 +34565,7 @@ func _on_section_map_door(coord: Vector2i) -> void:
 	_refresh_stage_view()
 
 func _analytics_flush_map_events(state: Dictionary) -> void:
-	if not SectionMapGraph.enabled(state):
+	if not SectionMapGraph.enabled(state) and not state.has("map_events"):
 		return
 	var run_id: String = RunEngineScript.run_result_id(state)
 	if run_id != _map_analytics_run_id:

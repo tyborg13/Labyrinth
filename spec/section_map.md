@@ -86,6 +86,13 @@ repeated requests spend nothing and emit nothing. Reopening, loading or browsing
 history never refills the budget. Event contents are owned separately; map
 generation places `event` nodes only.
 
+Event rooms select authored encounters from `data/events.json`, with seeded
+section-appropriate choices, trade-offs and timed omens. Choices and result pages
+persist until Continue; travel remains blocked until the encounter finishes.
+Legacy mid-event saves retain The Lost Cartographer and its choice ids. See
+[events.md](events.md) for selection, rules, saves and the data-only authoring
+contract.
+
 ### Older layouts
 
 Saved revisions 1–3 keep their stored topology and original knowledge rules:
@@ -149,10 +156,10 @@ reloading and automatic travel; it cannot reopen free route selection. Each
 outgoing branch has its own door, separate from the arrival. Ordinary combat
 allows inspection and scouting but does not allow map travel.
 
-The Lost Cartographer uses a dedicated encounter panel with its two choices;
-room travel stays blocked until one resolves. This event panel replaces the
-former overloaded map footer. Controller focus starts on the event's first
-choice and returns to available rooms after resolving it.
+Authored events use the existing encounter panel for title, body, available and
+disabled choices, then result text and Continue. Controller focus begins on an
+available event choice and returns to route selection after completion. Event
+card offers continue through the existing reward chooser. See [events.md](events.md).
 
 Section tabs allow reviewing reached sections with discovered history intact.
 A cleared boss exposes Next section in the header, including after reopening;
@@ -259,8 +266,10 @@ headless console flush them to existing local append-only analytics after a
 successful save, using the same run-id/revision idempotency keys. See
 [analytics.md](analytics.md) for the additive events. The console supports
 `scout` lists visible unknown targets; `scout N` selects their zero-based index,
-independent of the travel list. `event embers|survey` remains available alongside
-ordinary room movement.
+independent of the travel list. `event` lists authored choices;
+`event <choice_id>` resolves and `event continue` advances. Cartographer retains
+`event embers|survey`. Event state, seen ids and omens resume through the same
+save format; see [events.md](events.md).
 
 ## Owning checks
 

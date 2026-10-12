@@ -199,10 +199,12 @@ static func _test_events(engine: RunEngineScript, expect: Callable) -> void:
 		state["mode"] = "event"
 		break
 	var before: int = int(state.get("held_embers", 0))
-	var after: Dictionary = engine.resolve_map_event(state, "embers")
-	expect.call(str(after.get("mode", "")) == "room" and int(after.get("held_embers", 0)) == before + 25, "The event grants its exact advertised Embers and releases room choice")
+	var result: Dictionary = engine.resolve_map_event(state, "embers")
+	expect.call(str(result.get("mode")) == "event" and str(result.get("event_state", {}).get("page")) == "result", "Events preserve their result until Continue")
+	var after: Dictionary = engine.resolve_map_event(result, "continue")
+	expect.call(str(after.get("mode", "")) == "room" and int(after.get("held_embers", 0)) == before + 30, "The event grants its exact advertised Embers and releases room choice")
 	expect.call(engine.resolve_map_event(after, "embers") == after, "Event rewards cannot be reclaimed")
-	var survey: Dictionary = engine.resolve_map_event(state, "survey")
+	var survey: Dictionary = engine.resolve_map_event(engine.resolve_map_event(state, "survey"), "continue")
 	expect.call(int(survey.get("held_embers", 0)) == before and str(survey.get("mode", "")) == "room", "The alternate event choice reveals routes without granting Embers")
 	expect.call(_topology(survey) == _topology(state), "Events preserve revealed graph identities")
 

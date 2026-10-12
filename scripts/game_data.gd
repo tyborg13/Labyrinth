@@ -17,6 +17,7 @@ const CARDS_PATH: String = "res://data/cards.json"
 const ENEMIES_PATH: String = "res://data/enemies.json"
 const EQUIPMENT_PATH: String = "res://data/equipment.json"
 const NPCS_PATH: String = "res://data/npcs.json"
+const EVENTS_PATH: String = "res://data/events.json"
 const RELICS_PATH: String = "res://data/relics.json"
 const UPGRADES_PATH: String = "res://data/upgrades.json"
 const PROGRESSION_LEVELS_PATH: String = "res://data/progression_levels.json"
@@ -99,6 +100,18 @@ static func npcs() -> Dictionary:
 
 static func relics() -> Dictionary:
 	return _load_json_dict(RELICS_PATH)
+
+static func events() -> Dictionary:
+	return _load_json_dict(EVENTS_PATH).get("events", {})
+
+static func event_def(id: String) -> Dictionary:
+	return events().get(id, {})
+
+static func omen_def(id: String) -> Dictionary:
+	return _load_json_dict(EVENTS_PATH).get("omens", {}).get(id, {})
+
+static func omens() -> Dictionary:
+	return _load_json_dict(EVENTS_PATH).get("omens", {})
 
 static func upgrades() -> Dictionary:
 	return _load_json_dict(UPGRADES_PATH)
