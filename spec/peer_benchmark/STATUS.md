@@ -30,3 +30,4 @@ M0 — research + gap audit (in progress).
 4. sfx-01: data-driven SFX cue bank + call sites (after sourcing).
 5. Gap audit artifact for the owner (after research lands).
 6. Follow-up after ev-01+map-01 merge: reveal effect = scout mystery rooms in layout rev 4.
+- Plan page (artifact): https://claude.ai/artifact/N1G8qgbt58t6CbufwQxq5d — source output/peer-benchmark-2026-10-12/plan_page/ (plan_template.html → index.html via inline-font build snippet)
