@@ -28,8 +28,16 @@ number, text and visual from this brief, never from your own judgement.
   the tile's front edge with the intent's icon and its damage; tinted by element — earth `#b98b45`, ice `#9cc8e6`,
   lightning `#a77bf0`, shadow `#8a6bd6`, fire keeps the ember colours. Tooltip: "<Intent>\nOn <Enemy>'s next turn this
   tile takes <N> damage<, and …>.<\nYou are standing on it.>".
-- **Status badges** use the existing status badge row with new icons (icons come from a separate director image job;
-  until approved icons exist, use `TODO_DESIGN_ICON_<name>` and fall back to the closest existing status icon).
+- **Icons** (director-approved raw paintings, outside git, hashes in `spec/peer_benchmark/staged/enemies/raw_sha256.txt`):
+  `/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/icons/<name>.png` — burrow, erupt,
+  burst (en-01); icefall, wind (en-02); tether, veil (en-03). Process the ones your unit uses exactly like the existing
+  64×64 icons in `assets/art/icons/` (key green, trim, fit with the same padding as `cinder_marks.png`/`blink.png`, the
+  repository's icon processing tool if one exists), register them in `ActionIconLibrary` and the icon identity
+  registry, and run `python3 tests/test_icon_identity_policy.py`. One icon per concept: the intent and its status share
+  it (Burrow intent + Burrowed status = burrow; Fade + Veiled = veil; Call the Wind + wind chip = wind; Kindle intent +
+  Bursts badge = burst; Erupt and Icefall marks use erupt/icefall). Ambush, Gnaw, Scuttle etc. use existing
+  melee/ranged icons.
+- **Status badges** use the existing status badge row with these icons.
 - **Hidden states** (Burrowed, Veiled): the unit's health bar and intent pill stay visible (ITB honesty); the body is
   drawn as specified per enemy.
 - New enemy art: the director-approved raw painting for each enemy is at
