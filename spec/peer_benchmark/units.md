@@ -19,8 +19,10 @@
 | fix-01 | Wave-1 peer-review fixes (13 findings) | merged 83eb01a5c + r1 21ed3604f (commit 78973e64e); peer review APPROVE at 78973e64e | codex/peer-benchmark@b39b4bba0 | feedback/peer_review_wave1.md |
 | sfx-02 | Sound lab layered-design renderer | merged 8ff4eb929 (commit 59f245450); round-2 audition https://claude.ai/artifact/8RUbmHZ3gNL2Fq85Nasmq2 (db picks_r2) | codex/peer-benchmark@b39b4bba0 | recipes staged/sfx/recipes_r2.json |
 | enc-01 | Data-driven section encounter tables | merged 7a12f17f7 (commit 45bb95f26; r1 found+fixed empty-board render bug on biome/layout change) | codex/peer-benchmark@52ebbefa9 | data staged/enc-01/encounters.json |
-| en-01 | Burrow Grub + Ember Tick | running | codex/peer-benchmark@8290eb183 | briefs/en-common.md + en-01.md |
-| en-02 | Hoarfrost Seer + Gale Herald | queued | codex/peer-benchmark@8290eb183 | |
-| en-03 | Arc Thrall + Gloam Stalker | queued | codex/peer-benchmark@8290eb183 | |
+| en-01 | Burrow Grub + Ember Tick | merged d56270280 (commit 7f4c1b300; r1 decisions + director dust 5 px); encounters 5ab3b59cc | codex/peer-benchmark@8290eb183 | briefs/en-common.md + en-01.md |
+| en-02 | Hoarfrost Seer + Gale Herald | fixing r1 (feedback/en-02_feedback_1.md: SubViewport capture + 9 decisions) | codex/peer-benchmark@8290eb183 | |
+| en-03 | Arc Thrall + Gloam Stalker | approved r1 (commit 7a74e6d6b); sync with integration in progress (13 conflicts → Codex resolves, director commits) | codex/peer-benchmark@8290eb183 | |
 | en-04..06 | Wave E2 mechanics (briar weaver, slag mortar, glacial mirror, gust shrike, storm capacitor, hollow mimic) | design (data staged/enemies/wave_e2.json; art approved except briar weaver r1) | — | briefs after E1 lands |
 | qa-01 | Program test wiring + native combat-feel determinism | ready (after meta-01/sfx-01/en-0x merge) | — | reviewer nits; native heavy-hit offsets failure |
+| fix-02 | run_seconds out of combat state (combat_feel regression from meta-01) | running | codex/peer-benchmark | brief briefs/fix-02.md |
+| ux-01 | Owner UX backlog (start room → map, threats-at-rest redesign, SFX limiter) | design | — | backlog_ux.md |
