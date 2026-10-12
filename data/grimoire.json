@@ -105,7 +105,8 @@
       "icon": "combat_board",
       "body": [
         "Cards resolve against board coordinates. A target is legal only when the card's targeting rule, range, line of sight, occupancy, and terrain checks all pass.",
-        "Card previews show legal targets, affected tiles, and projected result values before resolution."
+        "Card previews show legal targets, affected tiles, and projected result values before resolution.",
+        "Undo move (Z) takes back free movement until you play a card, unless the move revealed or triggered something."
       ]
     },
     {
