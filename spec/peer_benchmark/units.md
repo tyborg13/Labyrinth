@@ -16,10 +16,11 @@
 | sfx-01 | SFX cue bank + call sites | running | codex/peer-benchmark@83b26b846 | data staged/sfx/sfx_cues.json (81 cues; variants_from aliases; status.expose removed) |
 | meta-02 | Chronicle (run history + stats) | ready (brief briefs/meta-02.md; after meta-01) | — | mockup mockups/chronicle.png + listed changes |
 | meta-03 | Umbra Depths ladder (20 levels) | ready (brief briefs/meta-03.md; after meta-01 — shares run_end_recap_overlay/progression_store/run_engine) | — | data staged/meta-03/depths.json; mockup mockups/depth_picker.png |
-| fix-01 | Wave-1 peer-review fixes (13 findings) | merged 83eb01a5c (commit 9f2893f57) + director typed-array follow-up 9b0f8999d; re-review requested | codex/peer-benchmark@b39b4bba0 | feedback/peer_review_wave1.md |
+| fix-01 | Wave-1 peer-review fixes (13 findings) | merged 83eb01a5c + r1 21ed3604f (commit 78973e64e); peer review APPROVE at 78973e64e | codex/peer-benchmark@b39b4bba0 | feedback/peer_review_wave1.md |
 | sfx-02 | Sound lab layered-design renderer | merged 8ff4eb929 (commit 59f245450); round-2 audition https://claude.ai/artifact/8RUbmHZ3gNL2Fq85Nasmq2 (db picks_r2) | codex/peer-benchmark@b39b4bba0 | recipes staged/sfx/recipes_r2.json |
 | enc-01 | Data-driven section encounter tables | running | codex/peer-benchmark@52ebbefa9 | data staged/enc-01/encounters.json |
 | en-01 | Burrow Grub + Ember Tick | running | codex/peer-benchmark@8290eb183 | briefs/en-common.md + en-01.md |
 | en-02 | Hoarfrost Seer + Gale Herald | queued | codex/peer-benchmark@8290eb183 | |
 | en-03 | Arc Thrall + Gloam Stalker | queued | codex/peer-benchmark@8290eb183 | |
 | en-04..06 | Wave E2 mechanics (briar weaver, slag mortar, glacial mirror, gust shrike, storm capacitor, hollow mimic) | design (data staged/enemies/wave_e2.json; art approved except briar weaver r1) | — | briefs after E1 lands |
+| qa-01 | Program test wiring + native combat-feel determinism | ready (after meta-01/sfx-01/en-0x merge) | — | reviewer nits; native heavy-hit offsets failure |
