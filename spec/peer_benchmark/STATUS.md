@@ -19,8 +19,14 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 M0 — research + gap audit (in progress).
 
 ## In flight
-- Research agents: StS, ITB, Umbra inventory.
+- Codex: ev-01 (event engine), map-01 (map v2). Watchdog: `cu watch` background.
+- Research agents: StS, ITB (pending); SFX sourcing agent → output/sfx-sources-2026-10-12/ (owner approved CC0/free-commercial downloads).
+- Done: Umbra inventory (spec/peer_benchmark/umbra_inventory.md).
 
 ## Next actions
-1. Gap audit doc + owner-facing artifact.
-2. Wave 1 briefs.
+1. Event art: 27 image runs (pixel-painterly like card art, ragged dark vignette; native ~480x320 shown 2x).
+2. ev-02: illustrated event view + omen HUD (needs mockup).
+3. feel-01: hit-stop, impact flash, enemy-turn pacing, combat speed setting.
+4. sfx-01: data-driven SFX cue bank + call sites (after sourcing).
+5. Gap audit artifact for the owner (after research lands).
+6. Follow-up after ev-01+map-01 merge: reveal effect = scout mystery rooms in layout rev 4.
