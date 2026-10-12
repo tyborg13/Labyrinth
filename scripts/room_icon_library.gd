@@ -10,6 +10,7 @@ const ICON_CAMPFIRE: String = "campfire"
 const ICON_TREASURE: String = "treasure"
 const ICON_BOSS: String = "boss"
 const ICON_SCAVENGER: String = "scavenger"
+const ICON_UNKNOWN: String = "unknown"
 
 const ROOM_TYPE_ICON_PATHS := {
 	"guardian": "res://assets/art/icons/guardians/guardian_category.png",
@@ -38,6 +39,9 @@ const ROOM_TYPE_ICON_PATHS := {
 
 static func icon_id_for_room(room: Dictionary) -> String:
 	var room_type: String = str(room.get("type", ICON_COMBAT))
+	if room_type == "mystery":
+		if not bool(room.get("scouted", false)): return ICON_UNKNOWN
+		room_type = str(room.get("mystery_type", ICON_UNKNOWN))
 	if room_type in ["blacksmith", "arcanist"]:
 		room_type = ICON_SCAVENGER
 	if room_type == "guardian":

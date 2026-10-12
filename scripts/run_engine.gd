@@ -876,6 +876,7 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 	current_room["sealed"] = true
 	rooms[current_key] = current_room
 	var room: Dictionary = _merge_room_metadata(int(next_state.get("seed", 0)), destination, rooms.get(destination_key, {}) as Dictionary)
+	SectionMapGraph.resolve_mystery(next_state, room)
 	room["revealed"] = true
 	room["visited"] = true
 	room["sealed"] = false
@@ -977,7 +978,10 @@ func move_to_pre_battle(run_state: Dictionary, destination: Vector2i) -> Diction
 	# These destinations use the ordinary room transition. Dispatch before
 	# building a private pre-battle state that would be discarded below. The
 	# canonical transition still owns stock, recovery, map events and layout.
-	if not _room_blocks_exit_reveal(room_metadata(run_state, destination)):
+	var destination_room: Dictionary = room_metadata(run_state, destination)
+	if SectionMapGraph.modern(run_state) and str(destination_room.get("type", "")) == "mystery":
+		destination_room["type"] = destination_room["mystery_type"]
+	if not _room_blocks_exit_reveal(destination_room):
 		return move_to_room(run_state, destination)
 	var next_state: Dictionary = run_state.duplicate(true)
 	SectionMapGraph.record_choice(next_state, destination)
@@ -993,6 +997,7 @@ func move_to_pre_battle(run_state: Dictionary, destination: Vector2i) -> Diction
 	current_room["sealed"] = true
 	rooms[current_key] = current_room
 	var room: Dictionary = _merge_room_metadata(int(next_state.get("seed", 0)), destination, rooms.get(destination_key, {}) as Dictionary)
+	SectionMapGraph.resolve_mystery(next_state, room)
 	room["revealed"] = true
 	room["visited"] = true
 	room["sealed"] = false

@@ -409,8 +409,11 @@ func _layout_nodes() -> void:
 			continue
 		var coord: Vector2i = node.get("coord", Graph.INVALID)
 		var x: float = 80 + (_field.size.x - 204) * float(node.get("map_step", 0)) / float(count)
-		var y: float = 116 + (_field.size.y - 232) * (float(node.get("map_lane", 1)) / 2.0)
+		var lane_divisor: float = 3.0 if int(info.get("lane_count", 3)) == 4 else 2.0
+		var y: float = 116 + (_field.size.y - 232) * float(node.get("map_lane", 1)) / lane_divisor
 		var point := Vector2(x, y)
+		if Graph.modern(run_state) and str(node.get("type", "")) not in ["start", "boss"]:
+			point += _node_jitter(coord)
 		positions[coord] = point
 		var button: Button = remaining.get(coord) as Button
 		var created: bool = button == null
@@ -423,6 +426,7 @@ func _layout_nodes() -> void:
 		button.size = Vector2.ONE * extent * 2.0
 		var state: String = _node_route_state(node, available, future)
 		button.call("configure", node, _room_label(node), state, _reduced_motion)
+		button.set("modern_layout", Graph.modern(run_state))
 		button.set("scout_target", scout_targeting and can_activate_room(coord))
 		button.set("actionable", can_activate_room(coord))
 		button.call("refresh_state")
@@ -436,7 +440,7 @@ func _layout_nodes() -> void:
 		if button.get_index() != retained.size(): _nodes.move_child(button, retained.size())
 		retained[coord] = button
 		var known: bool = bool(node.get("revealed", false)) or _has_recovery(node)
-		openings.append(Vector4(x / _field.size.x, y / _field.size.y, 0.081 if known else 0.045, 0.21 if known else 0.11))
+		openings.append(Vector4(point.x / _field.size.x, point.y / _field.size.y, 0.081 if known else 0.045, 0.21 if known else 0.11))
 	# Keep only the displayed section's known nodes; section switches and lost
 	# outlines remove stale controls, so retention remains bounded by this view.
 	for stale: Control in remaining.values():
@@ -451,6 +455,10 @@ func _layout_nodes() -> void:
 	var opening_count: int = mini(32, openings.size())
 	while openings.size() < 32:
 		openings.append(Vector4.ZERO)
+	_fog.visible = not Graph.full_visibility(run_state, viewed_section)
+	var unknown_legend: Control = find_child("Legend_unknown", true, false)
+	if unknown_legend != null:
+		(unknown_legend.get_parent().get_child(1) as Label).text = "Unknown room" if Graph.modern(run_state) else "Unknown"
 	var material := _fog.material as ShaderMaterial
 	material.set_shader_parameter("openings", openings)
 	material.set_shader_parameter("opening_count", opening_count)
@@ -464,6 +472,10 @@ func _layout_nodes() -> void:
 	# existing optional preview beside its node after deferred layout settles.
 	if selected_coord != Graph.INVALID and node_buttons.has(selected_coord) and is_instance_valid(_preview):
 		_position_preview.call_deferred(selected_coord)
+
+func _node_jitter(coord: Vector2i) -> Vector2:
+	var coord_hash: int = hash(coord)
+	return Vector2(coord_hash % 33 - 16, (coord_hash >> 8) % 25 - 12)
 
 func _node_route_state(node: Dictionary, available: Array[Vector2i], future: Dictionary) -> String:
 	var coord: Vector2i = node.get("coord", Graph.INVALID)
@@ -683,6 +695,8 @@ func event_has_discoveries() -> bool:
 	return false
 
 func _room_label(node: Dictionary) -> String:
+	if str(node.get("type", "")) == "mystery":
+		return "Unknown room · " + _type_label(Graph.display_type(node)) if bool(node.get("scouted", false)) else "Unknown room"
 	if not bool(node.get("revealed", false)):
 		return "Unknown"
 	if str(node.get("type", "")) == "guardian":

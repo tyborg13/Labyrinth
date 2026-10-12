@@ -7177,7 +7177,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 				_draw_world_texture(door_texture, draw_rect, tint)
 				var icon_id: String = str(exit_icon_ids.get(tile, ""))
 				var icon_texture: Texture2D = _door_icon_texture(icon_id)
-				if icon_texture != null:
+				if icon_texture != null or icon_id == RoomIcons.ICON_UNKNOWN:
 					_draw_door_icon(icon_texture, icon_id, door_texture, draw_rect, tint)
 	_draw_prop_moss_overlay(tile_id, grid, tile, obstruction_entries)
 	if tile_id == "pillar":
@@ -7579,11 +7579,15 @@ func _texture_used_rect(texture: Texture2D) -> Rect2i:
 	return used_rect
 
 func _draw_door_icon(icon_texture: Texture2D, icon_id: String, door_texture: Texture2D, door_draw_rect: Rect2, tint: Color = Color.WHITE) -> void:
-	if icon_texture == null:
+	if icon_texture == null and icon_id != RoomIcons.ICON_UNKNOWN:
 		return
 	var visual_rect: Rect2 = _door_icon_visual_rect(door_texture, door_draw_rect)
 	var center: Vector2 = visual_rect.get_center()
 	var radius: float = visual_rect.size.x * 0.5
+	if icon_id == RoomIcons.ICON_UNKNOWN:
+		MapSkin.draw_unknown_ring(self, center, radius, Color("686471") * tint)
+		draw_string(get_theme_default_font(), center + Vector2(-6, 7), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 24, Color("9c94a4") * tint)
+		return
 	var accent: Color = ElementData.door_tint(icon_id) if ElementData.is_elemental(icon_id) else Color("d3b78e")
 	MapSkin.draw_medallion(self, center, radius, icon_texture, tint, Color(accent.r, accent.g, accent.b, tint.a))
 

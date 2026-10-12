@@ -140,10 +140,15 @@ static func _test_integration(check: Callable, state: Dictionary, grafted: Dicti
 	check.call(not new_run.has("equipment_grafts") and Data.equipment_cards("patched_cloak", new_run) == Data.equipment_cards("patched_cloak"), "A new run starts with authored equipment")
 
 static func _test_map(check: Callable) -> void:
+	_test_map_revision(check, false)
+	_test_map_revision(check, true)
+
+static func _test_map_revision(check: Callable, legacy: bool) -> void:
 	var found: int = 0
 	for seed_value: int in range(1, 65):
 		var state: Dictionary = {"seed": seed_value}
-		Graph.initialize(state)
+		if legacy: Graph._initialize_revision_3(state)
+		else: Graph.initialize(state)
 		var rooms: Dictionary = state["rooms"] as Dictionary
 		# Propagate the least possible count down every edge, including section
 		# gates. A depth-only gate would fail with shuffled service ordering.
@@ -158,9 +163,11 @@ static func _test_map(check: Callable) -> void:
 			seen[key] = fights
 			var room: Dictionary = rooms[key] as Dictionary
 			var type: String = str(room.get("type", ""))
+			if not legacy and type == "start": fights = 0
 			if type == "graftwright":
 				found += 1
 				check.call(fights >= 3, "Every incoming route to a Graftwright has completed three combats")
 			if type in ["combat", "guardian", "boss"]: fights += 1
+			elif not legacy and type == "mystery" and room.get("mystery_type", "") == "combat": fights += 1
 			for edge: Dictionary in room.get("connections", []): pending.append({"coord": edge["coord"], "fights": fights})
 	check.call(found > 20, "Graftwright appears across deterministic map seeds")

@@ -1,10 +1,12 @@
 extends Button
 
+const Graph = preload("res://scripts/section_map_graph.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const MapSkin = preload("res://scripts/section_map_skin.gd")
 var room_data: Dictionary = {}
 var route_state: String = "ahead"
 var reduced_motion: bool = false
+var modern_layout: bool = false
 var pulse_phase: float = 0.0
 var actionable: bool = false
 var scout_target: bool = false
@@ -66,7 +68,8 @@ func has_recovery() -> bool:
 
 func _draw() -> void:
 	var center: Vector2 = size * 0.5
-	var known: bool = bool(room_data.get("revealed", false))
+	var mystery: bool = str(room_data.get("type", "")) == "mystery"
+	var known: bool = bool(room_data.get("revealed", false)) and not mystery
 	var current: bool = route_state == "current"
 	var available: bool = (route_state == "reachable" or scout_target) and actionable
 	var visited: bool = route_state == "visited"
@@ -90,20 +93,17 @@ func _draw() -> void:
 		if bypassed: tint = Color("5b5961")
 		elif not current and not visited and not boss and not available: tint = Color("7a7880")
 		var icon_id: String = preload("res://scripts/room_icon_library.gd").icon_id_for_room(room_data)
-		var icon_tint := Color.WHITE if available or current else Color("89868c")
-		if boss: icon_tint = Color("bbb1a8") if not available else Color.WHITE
-		if visited: icon_tint = Color("99948c")
-		if bypassed: icon_tint = Color("504e56")
+		var icon_tint: Color = medallion_icon_tint()
 		if str(room_data.get("type", "")) == "guardian":
 			draw_texture_rect(MapSkin.icon_texture(icon_id), Rect2(center-Vector2.ONE*radius,Vector2.ONE*radius*2.0), false, icon_tint)
 		else:
 			MapSkin.draw_medallion(self, center, radius, MapSkin.icon_texture(icon_id), icon_tint, tint, 0.25 * sin(PI * activation_progress))
 	else:
-		draw_circle(center, radius - 3, Color(0.035, 0.032, 0.05, 0.75))
-		for index: int in range(10):
-			var angle: float = TAU * float(index) / 10.0
-			draw_arc(center, radius, angle, angle + 0.38, 8, Color("ffe4a2") if available else (Color("686471") if not bypassed else Color("45424d")), 1.5, true)
-		draw_string(get_theme_font("font"), center + Vector2(-6, 7), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 24, Color("fff0c0") if available else (Color("9c94a4") if not bypassed else Color("625c6a")))
+		MapSkin.draw_unknown_ring(self, center, radius, Color("ffe4a2") if available else (Color("686471") if not bypassed else Color("45424d")))
+		if mystery and bool(room_data.get("scouted", false)):
+			_draw_mystery_emblem(center, radius, medallion_icon_tint())
+		else:
+			draw_string(get_theme_font("font"), center + Vector2(-6, 7), "?", HORIZONTAL_ALIGNMENT_LEFT, -1, 24, Color("fff0c0") if available else (Color("9c94a4") if not bypassed else Color("625c6a")))
 	if visited:
 		# A broad stamped seal reads at map scale; the emblem stays recognizable.
 		_draw_outline(center, radius, _rim_gap(4), Color("090c0c"), 8.0)
@@ -137,6 +137,17 @@ func _draw() -> void:
 		if recovery != null:
 			draw_texture_rect(recovery, Rect2(badge_center - Vector2(14, 14), Vector2(28, 28)), false)
 
+func medallion_icon_tint() -> Color:
+	var available: bool = (route_state == "reachable" or scout_target) and actionable
+	if modern_layout and route_state == "ahead" and not available and bool(room_data.get("revealed", false)):
+		return Color(1.0, 1.0, 1.0, 0.85)
+	var tint := Color.WHITE if available or route_state == "current" else Color("89868c")
+	if str(room_data.get("type", "")) == "mystery": return tint
+	if str(room_data.get("type", "")) == "boss": tint = Color.WHITE if available else Color("bbb1a8")
+	if route_state == "visited": tint = Color("99948c")
+	if route_state == "bypassed": tint = Color("504e56")
+	return tint
+
 func _guardian_emblem() -> bool:
 	return str(room_data.get("type",""))=="guardian" and bool(room_data.get("revealed",false))
 
@@ -148,3 +159,15 @@ func _rim_edge(index: int) -> Vector2:
 
 func _outline_points(center: Vector2, radius: float, gap: float, closed: bool = true) -> PackedVector2Array:
 	return MapSkin.icon_contour(preload("res://scripts/room_icon_library.gd").icon_id_for_room(room_data),center,radius,gap,closed) if _guardian_emblem() else MapSkin.medallion_contour(center,radius,gap,closed)
+
+func _draw_mystery_emblem(center: Vector2, radius: float, tint: Color) -> void:
+	# Use the ordinary medallion's existing aperture; retain the unknown ring.
+	var icon: Texture2D = MapSkin.icon_texture(Graph.display_type(room_data))
+	if icon == null: return
+	var points := PackedVector2Array()
+	var uvs := PackedVector2Array()
+	for index: int in range(64):
+		var direction := Vector2.from_angle(TAU * float(index) / 64.0)
+		points.append(center + direction * radius * 0.735)
+		uvs.append(Vector2.ONE * 0.5 + direction * 0.5)
+	draw_polygon(points, PackedColorArray([tint]), uvs, icon)

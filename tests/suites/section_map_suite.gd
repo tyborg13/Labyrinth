@@ -11,11 +11,16 @@ const Surfaces = preload("res://scripts/board_surface_rules.gd")
 
 static func run(expect: Callable) -> void:
 	var engine := RunEngineScript.new()
+	# Preserve the original revision-3 assertions against the retained generator.
+	# The dedicated suite below independently verifies the revision-4 contract.
 	var signatures: Dictionary = {}
 	for seed: int in range(1, 33):
 		var state: Dictionary = engine.create_new_run(seed, Progression.default_data())
+		Graph._initialize_revision_3(state)
 		expect.call(Graph.enabled(state), "New runs use the saved section graph")
-		expect.call(state == engine.create_new_run(seed, Progression.default_data()), "Graph, discoveries and boss order are deterministic")
+		var again: Dictionary = engine.create_new_run(seed, Progression.default_data())
+		Graph._initialize_revision_3(again)
+		expect.call(state == again, "Graph, discoveries and boss order are deterministic")
 		signatures[hash(state.get("rooms"))] = true
 		for index: int in range(6):
 			var info: Dictionary = Graph.section(state, index)
@@ -57,6 +62,7 @@ static func run(expect: Callable) -> void:
 	_test_recovery_mapping(engine, expect)
 	_test_recovery_keeps_landmark_encounters(engine, expect)
 	_test_recovery_pile_lands_on_empty_floor(engine, expect)
+	preload("res://tests/suites/section_map_v2_suite.gd").run(expect)
 
 static func _test_local_routes(state: Dictionary, index: int, node_count: int, expect: Callable) -> void:
 	var entry: Vector2i = Graph.section(state, index).get("entry")
@@ -111,6 +117,7 @@ static func _path_outcomes(state: Dictionary, coord: Vector2i, index: int, visit
 
 static func _test_knowledge(engine: RunEngineScript, expect: Callable) -> void:
 	var state: Dictionary = engine.create_new_run(81, Progression.default_data())
+	Graph._initialize_revision_3(state)
 	var distances: Dictionary = Graph.descendants(state, Vector2i.ZERO)
 	for coord: Vector2i in distances:
 		var node: Dictionary = Graph.room(state, coord)
@@ -185,6 +192,7 @@ static func _topology(state: Dictionary) -> Dictionary:
 
 static func _test_events(engine: RunEngineScript, expect: Callable) -> void:
 	var state: Dictionary = engine.create_new_run(82, Progression.default_data())
+	Graph._initialize_revision_3(state)
 	for node: Dictionary in (state.get("rooms", {}) as Dictionary).values():
 		if str(node.get("type", "")) != "event": continue
 		state["current_room"] = node.get("coord", Vector2i.ZERO)
