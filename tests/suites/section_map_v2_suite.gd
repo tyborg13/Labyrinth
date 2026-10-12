@@ -103,7 +103,8 @@ static func _test_section(state: Dictionary, index: int, expect: Callable) -> vo
 	for depth: int in depth_counts: expect.call(int(depth_counts[depth]) <= 8 * depth, "Every depth band fits its ring capacity")
 	var expected_bands: Dictionary = {}
 	var sizes: Dictionary = {1: 0, 2: 0, 3: 0}
-	var step_counts: Array[int] = [3, 3, 3]
+	var step_counts: Array[int] = []
+	step_counts.assign([3, 3, 3])
 	if count >= 11: step_counts[2] = 4
 	if count == 12: step_counts[1] = 4
 	for step: int in range(1, count):
