@@ -23,3 +23,12 @@
 - Backlog from StS research: score tally + run history + compendium/stats (meta screen); Ascension-style 20-step
   difficulty ladder; daily seeded run with modifiers; event v2 (opt-in fights, push-your-luck, cross-event callbacks,
   harsher variants at high difficulty); tiered intent art by damage.
+
+## 2026-10-12 — Wave-1 peer review outcomes
+- Hero Expose works as displayed (director): master put Expose on the hero (Bile Bloomer Shard Mark 2, Noctyrax Void
+  Claw 1) and showed it, but never consumed it. ev-01 made it consume on the next hit; we keep that (keyword text says
+  so), add it to previews, score both enemies, and tell the owner it is a rules change versus master.
+- Pause/menu must reach through an open event (Esc/Start).
+- Debt (not now): combat_pacing reaches ~12 run_scene privates by string; EventRules/OmenRules call engine privates.
+  Schedule a refactor unit once the parallel waves settle.
+- Sound: round-2 designs are layered recipes (sfx-02 renderer), director-authored.
