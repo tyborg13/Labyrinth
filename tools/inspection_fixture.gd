@@ -292,6 +292,12 @@ func _parse_args() -> Dictionary:
 			"--summary":
 				index += 1
 				parsed["summary"] = _required_arg(args, index, arg)
+			"--biome":
+				index += 1
+				var biome: String = _required_arg(args, index, arg)
+				if not preload("res://scripts/biome_library.gd").ids().has(biome):
+					_fail("Unknown biome: " + biome)
+				# Validated for the wrapper's launch; never put it in run state.
 			_:
 				_fail("Unknown option: %s" % arg)
 				return parsed

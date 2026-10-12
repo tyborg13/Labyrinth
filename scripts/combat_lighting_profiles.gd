@@ -4,6 +4,7 @@ extends RefCounted
 ## See spec/combat_art_treatment.md for tuning, extension and reconstruction.
 
 const DEFAULT_ID: String = "warm"
+const Biomes = preload("res://scripts/biome_library.gd")
 # Authored density anchors: preserve original Warm at two columns and original
 # Gentle at four. Other stored profiles keep their original art direction.
 const SPARSE_SOURCES: float = 2.0
@@ -57,3 +58,30 @@ static func resolved_definition(id: String, source_equivalents: float) -> Dictio
 	var dense_tint: Vector3 = dense["tint"]
 	sparse["tint"] = sparse_tint.lerp(dense_tint, blend)
 	return sparse
+
+static func with_biome(look: Dictionary, biome_id: String) -> Dictionary:
+	var result: Dictionary = look.duplicate(true)
+	if result.is_empty():
+		return result
+	var biome: Dictionary = Biomes.lighting(biome_id)
+	var tint: Array = biome["tint"]
+	result["tint"] = (result["tint"] as Vector3) * Vector3(float(tint[0]), float(tint[1]), float(tint[2]))
+	result["ambient"] = float(result["ambient"]) * float(biome["ambient_scale"])
+	return result
+
+static func apply_biome(treatment: RefCounted, biome_id: String) -> void:
+	# Update the treatment's owned parameter map, so actor/dissolve and all three
+	# floor/world materials inherit exactly the same composed lighting.
+	var look: Dictionary = with_biome(resolved_definition(treatment.get("preset"), treatment.get("source_equivalents")), biome_id)
+	var parameters: Dictionary = treatment.get("_parameters")
+	# Data-authored identity needs no additional uploads after configure.
+	if parameters["art_look_tint"] == look["tint"] and float(parameters["art_ambient_level"]) == float(look["ambient"]):
+		return
+	parameters["art_look_tint"] = look["tint"]
+	parameters["art_ambient_level"] = look["ambient"]
+	# Configure already uploaded the other fields and steady bake flicker.
+	# Upload only these two additions; stone retains the original upload cost.
+	for field: String in ["material", "floor_material", "cache_bake_material"]:
+		var target: ShaderMaterial = treatment.get(field)
+		target.set_shader_parameter("art_look_tint", look["tint"])
+		target.set_shader_parameter("art_ambient_level", look["ambient"])
