@@ -17,7 +17,9 @@ const PLACEMENT_SEEDS: int = 32
 const LEGACY_SEEDS: int = 64
 const LEGACY_LAYOUT_SHA256: String = "dbdc515cc8b36127e2d0f913b508e70c886eb07588cb68636261b203164c3618"
 const LEGACY_POOL_SHA256: String = "effa730618ac9f8acdc67de0198d8eb5682af2708e22b8f12c2da7cb0c2c8b59"
-const LEGACY_STATE_SHA256: String = "7929444654f9757b01d24bd1f58e1f1416e34f7709c0b8e6d0e773a5a92db6c3"
+# Run states compared without meta-01's additive score fields (verified identical before/after meta-01).
+const LEGACY_STATE_SHA256: String = "8e0570de89565aca43d026782b3b0985324cface7334c2627f87f5b9dd77137a"
+const SCORE_FIELDS: Array[String] = ["run_stats", "score_wallet_base", "score_health_loss_at_start", "best_score"]
 
 # Force each authored entry through the actual generator/placement path without
 # replacing the protected table or introducing a gameplay override.
@@ -201,15 +203,27 @@ static func _test_legacy(expect: Callable) -> void:
 			layouts.append(generator.generate_room(seed, {"coord": Vector2i(4, 0), "depth": 4, "type": type, "element":"fire", "boss_id":"vyraketh"}, Vector2i(1, 0)))
 		var engine := RunEngineScript.new()
 		var state: Dictionary = engine.create_new_run(seed, Progression.default_data(), false)
-		states.append(state)
-		states.append(engine.move_to_room(state, state["rooms"]["0,0"]["connections"][0]["coord"]))
+		states.append(_without_score_fields(state))
+		states.append(_without_score_fields(engine.move_to_room(state, state["rooms"]["0,0"]["connections"][0]["coord"])))
 		Graph._initialize_revision_3(state)
-		states.append(state)
-		states.append(engine.move_to_room(state, Graph.room(state, Vector2i.ZERO)["connections"][0]["coord"]))
+		states.append(_without_score_fields(state))
+		states.append(_without_score_fields(engine.move_to_room(state, Graph.room(state, Vector2i.ZERO)["connections"][0]["coord"])))
 	expect.call(hash_bytes(layouts) == LEGACY_LAYOUT_SHA256, "64-seed legacy room layouts remain byte-identical")
 	expect.call(hash_bytes(pools) == LEGACY_POOL_SHA256, "64-seed legacy pool outputs remain byte-identical")
 	expect.call(hash_bytes(states) == LEGACY_STATE_SHA256, "64-seed non-section and revision-3 run states remain byte-identical")
 	print("Encounter legacy SHA256: layouts=%s pools=%s states=%s" % [hash_bytes(layouts), hash_bytes(pools), hash_bytes(states)])
+
+static func _without_score_fields(value: Variant) -> Variant:
+	if typeof(value) == TYPE_DICTIONARY:
+		var out: Dictionary = {}
+		for key: Variant in (value as Dictionary).keys():
+			if not SCORE_FIELDS.has(str(key)): out[key] = _without_score_fields(value[key])
+		return out
+	if typeof(value) == TYPE_ARRAY:
+		var items: Array = []
+		for item: Variant in value: items.append(_without_score_fields(item))
+		return items
+	return value
 
 static func hash_bytes(value: Variant) -> String:
 	var digest := HashingContext.new()
