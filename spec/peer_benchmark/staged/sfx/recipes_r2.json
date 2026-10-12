@@ -1,0 +1,92 @@
+{
+  "block.break": {
+    "A": {"note": "Ward shatter: plate hit, deep glassy crack, falling shards.", "length_s": 0.8,
+      "layers": [
+        {"take": "a6a1ca66d08e#1", "trim": [0.0, 0.25], "pitch": 0.9, "gain_db": -6},
+        {"take": "92a20369f866#1", "pitch": 0.75, "gain_db": 0, "offset_ms": 20, "lowpass_hz": 9000},
+        {"take": "60311be4cc96#1", "pitch": 0.8, "gain_db": -9, "offset_ms": 90}]},
+    "B": {"note": "Iron give-way: chainmail impact, sharp crack, metal debris tail.", "length_s": 0.85,
+      "layers": [
+        {"take": "40617fb11ca6#1", "gain_db": -2},
+        {"take": "5698843b2dff#2", "pitch": 0.85, "gain_db": -3, "offset_ms": 10},
+        {"take": "559c6bc2452f#1", "trim": [0.0, 0.6], "gain_db": -10, "offset_ms": 60, "lowpass_hz": 7000, "fade_out_ms": 200}]},
+    "C": {"note": "Deep glass break with a low thud and a metal rattle as the pieces fall.", "length_s": 0.8,
+      "layers": [
+        {"take": "35dcb1dc6933#1", "pitch": 0.62, "gain_db": 0},
+        {"take": "024041387dd1#1", "gain_db": -4},
+        {"take": "74b5e34233ea#1", "trim": [0.05, 0.4], "gain_db": -10, "offset_ms": 40}]},
+    "D": {"note": "Stone ward crumbles: brick hit, glassy crack above it, low mining thump.", "length_s": 0.8,
+      "layers": [
+        {"take": "5698843b2dff#1", "trim": [0.0, 0.5], "pitch": 0.9, "gain_db": 0},
+        {"take": "34adbcb652d5#1", "pitch": 0.8, "gain_db": -5, "offset_ms": 15, "highpass_hz": 400},
+        {"take": "8ca3a99d85d8#1", "gain_db": -8, "lowpass_hz": 2500}]}
+  },
+  "push.slide": {
+    "A": {"note": "Short breathy fabric whoosh with a soft scuff.", "length_s": 0.5,
+      "layers": [
+        {"take": "61aa3116d5fe#1", "gain_db": 0},
+        {"take": "bc4167d37e93#1", "gain_db": -10, "offset_ms": 30, "lowpass_hz": 4000}]},
+    "B": {"note": "Pushy fabric whoosh (pitched down) and a planted foot.", "length_s": 0.5,
+      "layers": [
+        {"take": "71e9704b02c7#1", "pitch": 0.8, "gain_db": 0},
+        {"take": "327b491c264c#2", "gain_db": -6}]},
+    "C": {"note": "Cloth swing whoosh with a low scrape underneath.", "length_s": 0.55,
+      "layers": [
+        {"take": "c29710a75967#3", "gain_db": 0},
+        {"take": "af2ab62656cb#1", "pitch": 0.7, "gain_db": -8, "offset_ms": 40, "lowpass_hz": 3000}]},
+    "D": {"note": "A body shoved along the floor: short body drag under a cloth whoosh.", "length_s": 0.5,
+      "layers": [
+        {"take": "b356f6e23305#1", "trim": [0.62, 1.12], "pitch": 1.1, "gain_db": -4, "fade_in_ms": 20},
+        {"take": "c29710a75967#5", "gain_db": 0}]}
+  },
+  "trap.trigger": {
+    "A": {"note": "Stone plate clunk, then a rune flare (arcane zap).", "length_s": 0.7,
+      "layers": [
+        {"take": "059558ec7511#1", "gain_db": 0},
+        {"take": "0789cec073b6#1", "trim": [0.0, 0.4], "gain_db": -6, "offset_ms": 50, "highpass_hz": 300}]},
+    "B": {"note": "Brick plate thud, then a rising magic shimmer.", "length_s": 0.9,
+      "layers": [
+        {"take": "a5b615ee0fc6#1", "trim": [0.0, 0.35], "pitch": 0.8, "gain_db": 0},
+        {"take": "5ec6e7f68412#1", "trim": [0.3, 1.1], "gain_db": -8, "offset_ms": 40, "fade_in_ms": 40}]},
+    "C": {"note": "Deep stomp of the plate, then a bright rune glint.", "length_s": 0.7,
+      "layers": [
+        {"take": "3524b2f6d692#1", "gain_db": -2},
+        {"take": "67cfc88cca9f#1", "trim": [0.0, 0.6], "pitch": 0.8, "gain_db": -6, "offset_ms": 30}]},
+    "D": {"note": "Dull stone-metal clunk, then a fire rune catching.", "length_s": 1.0,
+      "layers": [
+        {"take": "a6a1ca66d08e#1", "pitch": 0.6, "gain_db": 0, "lowpass_hz": 1500},
+        {"take": "668f3b508896#1", "trim": [0.25, 1.15], "gain_db": -3, "offset_ms": 60, "fade_in_ms": 20}]}
+  },
+  "radiance.light": {
+    "A": {"note": "Owner's C, cut to the last 1.3 s of the swell, with a faint glint at the peak.", "length_s": 1.4,
+      "layers": [
+        {"take": "befdf4ed8e41#1", "trim": [1.0, 2.3], "gain_db": 0, "fade_in_ms": 120},
+        {"take": "67cfc88cca9f#1", "trim": [0.0, 0.6], "pitch": 0.75, "gain_db": -12, "offset_ms": 880, "lowpass_hz": 6000}]},
+    "B": {"note": "The centred twin of C (same library), same cut, no glint.", "length_s": 1.4,
+      "layers": [
+        {"take": "40b1732e2450#1", "trim": [1.0, 2.35], "gain_db": 0, "fade_in_ms": 120}]},
+    "C": {"note": "C, shorter (peak at 0.55 s), with a soft magic bloom under it.", "length_s": 1.1,
+      "layers": [
+        {"take": "befdf4ed8e41#1", "trim": [1.35, 2.3], "gain_db": 0, "fade_in_ms": 80},
+        {"take": "5ec6e7f68412#1", "trim": [0.4, 1.4], "gain_db": -10, "offset_ms": 300, "lowpass_hz": 5000, "fade_in_ms": 80}]},
+    "D": {"note": "C pitched up for a brighter, quicker light.", "length_s": 1.3,
+      "layers": [
+        {"take": "befdf4ed8e41#1", "trim": [0.9, 2.35], "pitch": 1.15, "gain_db": 0, "fade_in_ms": 120}]}
+  },
+  "illusion.break": {
+    "A": {"note": "Owner's D: 1 s excerpt around its strongest swell.", "length_s": 1.0,
+      "layers": [
+        {"take": "f3b26e762b4f#1", "trim": [12.5, 13.5], "gain_db": 0, "fade_in_ms": 60, "fade_out_ms": 250}]},
+    "B": {"note": "Same excerpt reversed: bright at once, then dissipates.", "length_s": 1.0,
+      "layers": [
+        {"take": "f3b26e762b4f#1", "trim": [12.5, 13.5], "reverse": true, "gain_db": 0, "fade_out_ms": 300}]},
+    "C": {"note": "D's opening swell with a tiny glass pop on top.", "length_s": 1.0,
+      "layers": [
+        {"take": "f3b26e762b4f#1", "trim": [1.0, 2.0], "gain_db": 0, "fade_in_ms": 40, "fade_out_ms": 250},
+        {"take": "451e56c4c581#1", "pitch": 1.2, "gain_db": -10}]},
+    "D": {"note": "Implode then pop: D's swell, then a small glass break.", "length_s": 1.1,
+      "layers": [
+        {"take": "f3b26e762b4f#1", "trim": [12.5, 13.3], "gain_db": 0, "fade_in_ms": 60, "fade_out_ms": 80},
+        {"take": "9e788240282b#1", "pitch": 1.1, "gain_db": -8, "offset_ms": 620}]}
+  }
+}
