@@ -22,17 +22,17 @@
       "light_flicker": "flame",
       "lighting": {
         "tint": [
-          1.015,
-          0.985,
-          0.95
+          1.0,
+          1.0,
+          1.0
         ],
         "ambient_scale": 1.0
       },
       "atmosphere": {
         "pool_color": [
           1.0,
-          0.62,
-          0.3,
+          0.6,
+          0.28,
           1.0
         ],
         "motes": "embers"
@@ -246,7 +246,14 @@
         0.55,
         0.5,
         0.78
-      ]
+      ],
+      "raw_grade": {
+        "floor": [
+          1.3,
+          1.25,
+          1.35
+        ]
+      }
     }
   },
   "mote_presets": {
@@ -259,15 +266,16 @@
       ],
       "count": 34,
       "direction": [
-        0.0,
+        0.15,
         -1.0
       ],
       "speed": [
         6,
-        14
+        18
       ],
       "lifetime": 11.0,
-      "spread": 25
+      "spread": 28,
+      "color_ramp": "legacy"
     },
     "embers_dense": {
       "color": [
