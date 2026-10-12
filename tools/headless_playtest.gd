@@ -107,7 +107,7 @@ func _parse_args() -> Dictionary:
 func _print_help() -> void:
 	print("Manual headless playtest console")
 	print("Usage: godot --headless --path . --script tools/headless_playtest.gd -- [--seed N] [--output-dir res://playtest/headless] [--resume]")
-	print("Commands: state, map, moves, move N, scout N, event embers|survey, graft KEEP_ID DONOR_ID SOURCE_INDEX TARGET_INDEX, cards, card N, click N, drag N play, walk x,y, target N|x,y, skip, force up|right|down|left, pass, continue, skills, skill SKILL_ID [KIND x,y [origin_x,origin_y]], learn SKILL_ID, reward N|heal, relic N, linger, level, leave, rest, note TEXT, new [seed], analytics, help, quit")
+	print("Commands: state, map, moves, move N, scout N, event [choice_id|continue], graft KEEP_ID DONOR_ID SOURCE_INDEX TARGET_INDEX, cards, card N, click N, drag N play, walk x,y, target N|x,y, skip, force up|right|down|left, pass, continue, skills, skill SKILL_ID [KIND x,y [origin_x,origin_y]], learn SKILL_ID, reward N|heal, relic N, linger, level, leave, rest, note TEXT, new [seed], analytics, help, quit")
 	print("Card flow: `card N`/`click N` starts printed text; target prompts commit after `target`. Re-run `cards` after each resolved play because hand indexes can shift.")
 	print("Combat movement: `walk x,y` spends the independent movement pool; it may be used before, between, or after card plays.")
 	print("Board: P player, 0-9 enemies, I illusion, B box, C crate, H potion, S shield, T trap, # wall/pillar, D door")
@@ -332,11 +332,25 @@ func _print_state() -> void:
 		"graftwright":
 			_print_graftwright_state()
 		"event":
-			print("The Lost Cartographer: event embers (25 Embers) or event survey (reveal all routes up to four rooms ahead).")
+			_print_event()
 		"victory", "defeat", "rested":
 			print("Run ended: %s. Use `new [seed]` for another run." % mode)
 		_:
 			print("Unhandled mode: %s" % mode)
+
+func _print_event() -> void:
+	var rules = load("res://scripts/event_rules.gd")
+	var id: String = rules.current_id(_run_state)
+	var definition: Dictionary = GameData.event_def(id)
+	print(str(definition.get("title", "")))
+	if str(_run_state.get("event_state", {}).get("page", "choices")) == "result":
+		print(str(_run_state.get("event_state", {}).get("result_text", "")))
+		for line: String in rules.outcome_lines(_run_state): print(line)
+		print("event continue")
+		return
+	for choice: Dictionary in definition.get("choices", []):
+		var choice_id: String = str(choice["id"])
+		print("event %s: %s | available=%s | %s | %s" % [choice_id, choice["label"], rules.choice_available(_run_state, id, choice_id), " ".join(rules.choice_effect_lines(_run_state, id, choice_id)), rules.choice_block_reason(_run_state, id, choice_id)])
 
 func _print_section_map() -> void:
 	if not SectionMapGraph.enabled(_run_state):
@@ -2505,7 +2519,7 @@ func _save_session() -> void:
 	_flush_map_analytics()
 
 func _flush_map_analytics() -> void:
-	if not SectionMapGraph.enabled(_run_state): return
+	if not SectionMapGraph.enabled(_run_state) and not _run_state.has("map_events"): return
 	var run_id: String = RunEngine.run_result_id(_run_state)
 	if run_id != _map_analytics_run_id:
 		_map_analytics_run_id = run_id

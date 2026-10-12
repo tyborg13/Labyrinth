@@ -10,6 +10,7 @@ const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const ROOM_WIDTH: int = 9
 const ROOM_HEIGHT: int = 9
 const DEPTHS_PER_SEQUENCE: int = 4
+const OMEN_ROSTER_SEED_SALT: int = 1901
 const ENEMY_SPAWN_SAFE_RADIUS: int = 2
 const ENEMY_SPAWN_PICK_WINDOW: int = 6
 const ENEMY_HP_SCALE_PER_SEQUENCE: float = 0.08
@@ -184,7 +185,35 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 			for tile: Vector2i in [Vector2i(3,5), Vector2i(5,4)]:
 				layout["traps"].append(_trap_for_tile(preload("res://scripts/guardian_library.gd").oriented_tile(layout,tile),"air",encounter_depth,_depth_sequence_index(depth)))
 		preload("res://scripts/guardian_library.gd").stage_loot(layout)
+	_add_omen_enemies(layout, room, run_seed)
 	return layout
+
+func _add_omen_enemies(layout: Dictionary, room: Dictionary, run_seed: int) -> void:
+	var count: int = int(room.get("omen_extra_enemies", 0))
+	if count <= 0 or str(room.get("type", "")) != "combat": return
+	var rng := RandomNumberGenerator.new()
+	rng.seed = _room_seed(run_seed, room.get("coord", Vector2i.ZERO), OMEN_ROSTER_SEED_SALT)
+	var depth: int = int(room.get("depth", 1))
+	var groups: Array = _base_encounter_enemy_type_pool(_encounter_depth_for_global_depth(depth))
+	_add_element_locked_enemy_type_pools(groups, _encounter_depth_for_global_depth(depth), str(room.get("element", "none")))
+	var pool: Array[String]
+	for group: Array in groups:
+		for type: String in group: pool.append(type)
+	var occupied: Dictionary = {layout["player_start"]: true}
+	for key: String in ["enemies", "traps", "loot", "terrain", "npcs"]:
+		for entry: Dictionary in layout.get(key, []):
+			for tile: Vector2i in _enemy_footprint_tiles(entry): occupied[tile] = true
+	for tile: Vector2i in CombatObjectiveRules.exit_target_tiles(layout.get("objective", {})): occupied[tile] = true
+	var free: Array[Vector2i]
+	for tile: Vector2i in _floor_tiles(layout["grid"]):
+		if not occupied.has(tile) and PathUtils.manhattan(tile, layout["player_start"]) > ENEMY_SPAWN_SAFE_RADIUS: free.append(tile)
+	for _index: int in range(count):
+		if free.is_empty() or pool.is_empty(): break
+		var type: String = pool[rng.randi_range(0, pool.size() - 1)]
+		var pos: Vector2i = free.pop_at(rng.randi_range(0, free.size() - 1))
+		var hp: int = _scaled_enemy_max_hp(type, depth)
+		layout["enemies"].append({"id": (layout["enemies"] as Array).size() + 1, "type": type, "element": room.get("element", "none"), "pos": pos, "hp": hp, "max_hp": hp, "block": 0, "stoneskin": 0})
+		layout["objective"]["initial_enemy_count"] = int(layout["objective"].get("initial_enemy_count", 0)) + 1
 
 func _base_grid(rng: RandomNumberGenerator) -> Array:
 	# Preserve the old theme roll so later room RNG stays aligned.

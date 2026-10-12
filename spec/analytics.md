@@ -641,7 +641,19 @@ from duplicating events. Existing JSONL storage and vector normalization apply.
 | `route_revealed` | Source (`proximity`), section index, newly identified rooms |
 | `map_scout_used` | Section, `scope: room`, selected `target`, exactly one revealed room, newly `outlined_rooms`, uses remaining; `branch` retained as a legacy alias for the selected coordinate |
 | `route_choice_committed` | Section, origin, destination, known room ids, known room metadata (type, element, step, landmark), remaining Scout uses |
-| `map_event_resolved` | Room, choice (`embers` or `survey`), Embers granted, newly revealed rooms |
+| `map_event_resolved` | Room, legacy `choice`, Embers delta, newly revealed rooms; additive `event_id`, `choice_id`, concrete ordered `outcomes` |
+| `omen_gained` | `id`, `fights` (new or refreshed duration) |
+| `omen_expired` | `id` |
+
+Authored event choices commit their result page and effects with the saved
+`map_event_resolved` receipt. Concrete outcomes include actual resource deltas,
+selected asset ids, from/to transformations, revealed rooms, card offers and
+omen durations; empty resource pools identify their Ember substitution.
+Continue, previews and repeated choices emit no second resolution. Omen gains
+and expirations share this ordered outbox, including combat completion on escape,
+Last Door retreat, Guardian and boss encounters. Existing reward-choice analytics
+also records event card claims/skips through the ordinary chooser; event Skip
+heals zero. See [events.md](events.md) for schema and save compatibility.
 
 Room selection records what the player could know at commitment, before moving
 and revealing the next horizon. Invalid/empty Scout and repeated event requests

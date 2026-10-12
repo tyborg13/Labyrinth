@@ -1,5 +1,7 @@
 extends RefCounted
 
+const EventRules = preload("res://scripts/event_rules.gd")
+
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const Surface = preload("res://scripts/board_surface_rules.gd")
 const CombatBoardView = preload("res://scripts/combat_board_view.gd")
@@ -308,7 +310,7 @@ static func _test_complete_run_can_clear_all_six_bosses(expect: Callable) -> voi
 				var destination: Vector2i = _farthest_available_move(engine, state, moves)
 				state = engine.move_to_room(state, destination)
 			"event":
-				state = engine.resolve_map_event(state, "embers")
+				state = engine.resolve_map_event(state, "continue" if str(state.get("event_state", {}).get("page", "choices")) == "result" else EventRules.first_available_choice_id(state))
 			"graftwright":
 				state = engine.leave_graftwright(state)
 			"campfire":
@@ -316,7 +318,10 @@ static func _test_complete_run_can_clear_all_six_bosses(expect: Callable) -> voi
 			"treasure":
 				state = engine.claim_relic(state, str((state.get("pending_relics", []) as Array)[0]) if not (state.get("guardian_reward", {}) as Dictionary).is_empty() else "")
 			"reward":
-				state = engine.continue_dragon_reward(state) if engine.is_dragon_reward(state) else engine.claim_card_reward(state, "")
+				if str(state.get("pending_reward", {}).get("kind", "")) == "event":
+					state = engine.skip_reward_for_heal(state)
+				else:
+					state = engine.continue_dragon_reward(state) if engine.is_dragon_reward(state) else engine.claim_card_reward(state, "")
 			"escape":
 				state = engine.continue_pending_escape(state)
 			"pre_battle":

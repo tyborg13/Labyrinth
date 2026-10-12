@@ -1,6 +1,8 @@
 extends RefCounted
 class_name RunEngine
 
+const EventRules = preload("res://scripts/event_rules.gd")
+const OmenRules = preload("res://scripts/omen_rules.gd")
 const GraftwrightRules = preload("res://scripts/graftwright_rules.gd")
 
 const BattlefieldItemRules = preload("res://scripts/battlefield_item_rules.gd")
@@ -131,8 +133,11 @@ func create_new_run(seed: int, progression: Dictionary, section_maps: bool = tru
 	var defiance_capacity: int = ProgressionStore.defiance_capacity_for_level(
 		int(normalized_progression.get("level", 1))
 	)
+	var initial_omens: Array[Dictionary]
 	var run_state: Dictionary = {
 		"seed": seed,
+		"seen_events": [],
+		"omens": initial_omens,
 		"run_index": int(normalized_progression.get("run_counter", 0)),
 		RUN_CONTENT_SCHEMA_KEY: RUN_CONTENT_SCHEMA,
 		COMBAT_UNITS_SCHEMA_KEY: COMBAT_UNITS_SCHEMA,
@@ -354,6 +359,8 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	next_state = _repair_pending_escape(next_state)
 	if not next_state.has("equipment_drop_misses"):
 		next_state["equipment_drop_misses"] = EQUIPMENT_DROP_PITY_MISSES
+	if str(next_state.get("mode", "")) == "event":
+		next_state = EventRules.enter_event(next_state, true)
 	_stage_recovery_marker(next_state)
 	var current_coord: Vector2i = next_state.get("current_room", Vector2i.ZERO)
 	var current_room: Dictionary = room_metadata(next_state, current_coord)
@@ -916,6 +923,8 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 			next_state["mode"] = "room" if bool(room.get("cleared", false)) else "graftwright"
 			next_state["combat_state"] = {}
 		"event":
+			if not bool(room.get("cleared", false)):
+				next_state = EventRules.enter_event(next_state)
 			next_state["mode"] = "room" if bool(room.get("cleared", false)) else "event"
 			next_state["combat_state"] = {}
 		"treasure":
@@ -949,6 +958,7 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 				next_state["mode"] = "room"
 				next_state["combat_state"] = {}
 				return next_state
+			SectionMapGraph.room(next_state, destination).erase("omen_combat_finished")
 			var layout: Dictionary = _combat_layout_for_room(room, travel_dir, next_state)
 			var combat_state: Dictionary = _combat_engine.create_combat(int(next_state.get("seed", 0)), layout, _player_snapshot(next_state))
 			var authored_tutorial: bool = GuidedCombatScenario.should_prepare(next_state, combat_state)
@@ -1061,7 +1071,7 @@ func advance_pre_battle_combat_preparation(owned: Dictionary) -> bool:
 	return true
 
 func _pre_battle_definitions() -> Array:
-	return [GameData.cards(), GameData.enemies(), GameData.equipment(), GameData.npcs(), GameData.relics(), GameData.upgrades(), GameData.progression_levels(), SkillTreeLibrary.definitions()]
+	return [GameData.cards(), GameData.enemies(), GameData.equipment(), GameData.npcs(), GameData.relics(), GameData.omens(), GameData.upgrades(), GameData.progression_levels(), SkillTreeLibrary.definitions()]
 
 func prepared_pre_battle_matches_input(prepared: Dictionary, run_state: Dictionary) -> bool:
 	# Definition dictionaries are mutable in tests/developer reloads. Retain one
@@ -1131,6 +1141,7 @@ func begin_pre_battle_combat(run_state: Dictionary, prepared: Dictionary = {}) -
 	var room: Dictionary = room_metadata(next_state, next_state.get("current_room", Vector2i.ZERO))
 	if _equipment_drop_can_attempt(next_state, room) and not bool(owned["authored_tutorial"]):
 		next_state = _record_equipment_drop_attempt(next_state, owned["layout"])
+	SectionMapGraph.room(next_state, next_state["current_room"]).erase("omen_combat_finished")
 	next_state["combat_state"] = (owned["combat_state"] as Dictionary).duplicate(true)
 	next_state["mode"] = "combat"
 	_clear_pre_battle_state(next_state)
@@ -1194,6 +1205,11 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 		pending_escape["board_state"] = resolved_combat_state.duplicate(true)
 	var missed_equipment: Array = resolved_combat_state.get("missed_equipment", []) as Array
 	var next_state: Dictionary = set_combat_state(run_state, resolved_combat_state)
+	if outcome in ["victory", "defeat"] and not (run_state.get("omens", []) as Array).is_empty():
+		var omen_room: Dictionary = room_metadata(next_state, next_state.get("current_room", Vector2i.ZERO))
+		if not bool(omen_room.get("omen_combat_finished", false)):
+			next_state = OmenRules.tick(next_state)
+			SectionMapGraph.room(next_state, next_state["current_room"])["omen_combat_finished"] = true
 	next_state["pending_escape"] = pending_escape
 	if not salvaged_equipment_id.is_empty():
 		var salvaged_name: String = str(GameData.equipment_def(salvaged_equipment_id).get("name", salvaged_equipment_id))
@@ -1395,19 +1411,24 @@ func continue_dragon_reward(run_state: Dictionary) -> Dictionary:
 func claim_card_reward(run_state: Dictionary, card_id: String) -> Dictionary:
 	if is_dragon_reward(run_state): return run_state.duplicate(true)
 	var next_state: Dictionary = _repair_equipment_state(run_state.duplicate(true))
+	if str(next_state.get("pending_reward", {}).get("kind", "")) == "event" and not (next_state.get("pending_reward", {}).get("cards", []) as Array).has(card_id):
+		return run_state.duplicate(true)
 	if not card_id.is_empty():
-		var reward_cards: Array = next_state.get("reward_cards", []).duplicate()
-		reward_cards.append(card_id)
-		next_state["reward_cards"] = reward_cards
-		var magic_inventory: Array = next_state.get("magic_inventory", []).duplicate()
-		magic_inventory.append(card_id)
-		next_state["magic_inventory"] = magic_inventory
-		next_state = _mark_loadout_unread(next_state, "magic", card_id)
-		next_state = _rebuild_deck_cards(next_state)
+		next_state = grant_magic_to_reserve(next_state, card_id)
 		next_state["notice"] = "Added %s to reserve magic." % str(GameData.card_def(card_id).get("name", card_id))
 	next_state["pending_reward"] = {}
 	next_state["mode"] = MODE_ESCAPE if not pending_escape(next_state).is_empty() else "room"
 	return next_state
+
+func grant_magic_to_reserve(run_state: Dictionary, card_id: String) -> Dictionary:
+	var next: Dictionary = run_state.duplicate(true)
+	var rewards: Array = next.get("reward_cards", []).duplicate()
+	rewards.append(card_id)
+	next["reward_cards"] = rewards
+	var inventory: Array = next.get("magic_inventory", []).duplicate()
+	inventory.append(card_id)
+	next["magic_inventory"] = inventory
+	return _rebuild_deck_cards(_mark_loadout_unread(next, "magic", card_id))
 
 func pending_escape(run_state: Dictionary) -> Dictionary:
 	if typeof(run_state.get("pending_escape", null)) != TYPE_DICTIONARY:
@@ -1776,7 +1797,7 @@ func reserve_merchant_offer(run_state: Dictionary, item_id: String) -> Dictionar
 	return next_state
 
 func reroll_card_reward(run_state: Dictionary) -> Dictionary:
-	if is_dragon_reward(run_state): return run_state.duplicate(true)
+	if is_dragon_reward(run_state) or str(run_state.get("pending_reward", {}).get("kind", "")) == "event": return run_state.duplicate(true)
 	var next_state: Dictionary = run_state.duplicate(true)
 	if str(next_state.get("mode", "room")) != "reward" or not run_skill_is_ready(next_state, "discerning_eye"):
 		return next_state
@@ -1798,6 +1819,10 @@ func skip_reward_for_heal(run_state: Dictionary, deferred_card_id: String = "") 
 	if is_dragon_reward(run_state): return run_state.duplicate(true)
 	var next_state: Dictionary = run_state.duplicate(true)
 	var pending_reward: Dictionary = next_state.get("pending_reward", {}) as Dictionary
+	if str(pending_reward.get("kind", "")) == "event":
+		next_state["pending_reward"] = {}
+		next_state["mode"] = "room"
+		return next_state
 	var offered_cards: Array = pending_reward.get("cards", []) as Array
 	if has_run_skill(next_state, "deferred_choice") and not deferred_card_id.is_empty() and offered_cards.has(deferred_card_id):
 		var skill_state: Dictionary = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
@@ -2298,6 +2323,7 @@ func _run_has_equipment(run_state: Dictionary, equipment_id: String) -> bool:
 
 func _player_snapshot(run_state: Dictionary) -> Dictionary:
 	return {
+		"omens": run_state.get("omens", []).duplicate(true),
 		"hp": int(run_state.get("player_hp", 1)),
 		"max_hp": int(run_state.get("player_max_hp", 1)),
 		"deck_cards": run_state.get("deck_cards", []).duplicate(),
@@ -2332,6 +2358,7 @@ func _derived_defiance_capacity(run_state: Dictionary) -> int:
 	return (
 		ProgressionStore.defiance_capacity_for_level(int(progression.get("level", 1)))
 		+ GameData.stat_bonus_from_relics(run_state.get("relics", []), "defiance_capacity")
+		+ int(run_state.get("event_defiance_bonus", 0))
 	)
 
 func _sync_defiance_capacity(run_state: Dictionary, grant_new_capacity: bool) -> Dictionary:
@@ -2396,6 +2423,9 @@ func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: 
 			layout_room["element"] = _room_element_for_coord(int(run_state.get("seed", 0)), layout_room.get("coord", Vector2i.ZERO), "combat")
 	if str(layout_room.get("type", "combat")) == "combat":
 		layout_room[CombatObjectiveRules.ONBOARDING_ROOM_KEY] = not _run_has_completed_combat(run_state)
+	var extra_enemies: int = OmenRules.amount(run_state, "extra_enemies")
+	if extra_enemies > 0 and str(layout_room.get("type", "")) == "combat":
+		layout_room["omen_extra_enemies"] = extra_enemies
 	var equipment_drop: String = _equipment_drop_for_room(run_state, layout_room)
 	if not equipment_drop.is_empty():
 		layout_room["equipment_drop"] = equipment_drop
@@ -3731,30 +3761,7 @@ func scout_map(run_state: Dictionary, target: Vector2i) -> Dictionary:
 	return SectionMapGraph.scout(run_state, target)
 
 func resolve_map_event(run_state: Dictionary, choice: String) -> Dictionary:
-	if str(run_state.get("mode", "")) != "event" or choice not in ["embers", "survey"]:
-		return run_state.duplicate(true)
-	var next: Dictionary = run_state.duplicate(true)
-	var current: Vector2i = next.get("current_room", Vector2i.ZERO)
-	var event_room: Dictionary = SectionMapGraph.room(next, current)
-	if event_room.is_empty() or bool(event_room.get("cleared", false)):
-		return next
-	var discoveries: Array[Vector2i] = []
-	if choice == "survey":
-		for coord: Vector2i in SectionMapGraph.descendants(next, current, 4):
-			var node: Dictionary = SectionMapGraph.room(next, coord)
-			if not bool(node.get("revealed", false)):
-				discoveries.append(coord)
-				node["revealed"] = true
-				node["map_outline"] = true
-		if discoveries.is_empty():
-			return run_state.duplicate(true)
-	else:
-		next["held_embers"] = int(next.get("held_embers", 0)) + 25
-		next["unbanked_embers"] = next["held_embers"]
-	event_room["cleared"] = true
-	next["mode"] = "room"
-	SectionMapGraph.record_event(next, "map_event_resolved", {"choice": choice, "room": current, "embers": 25 if choice == "embers" else 0, "revealed_rooms": discoveries})
-	return next
+	return EventRules.continue_event(run_state) if choice == "continue" else EventRules.choose_event(run_state, choice, self)
 
 func _recovery_coord_for_run(run_state: Dictionary) -> Vector2i:
 	var original: Vector2i = ProgressionStore.recovery_coord(run_state.get("progression", {}) as Dictionary)

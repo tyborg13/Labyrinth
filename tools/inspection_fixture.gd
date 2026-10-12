@@ -1,5 +1,7 @@
 extends SceneTree
 
+const EventRules = preload("res://scripts/event_rules.gd")
+
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
@@ -527,7 +529,7 @@ func _resolve_route_room(run_state: Dictionary) -> Dictionary:
 				var relics: Array = state.get("pending_relics", []) as Array
 				state = _run_engine.claim_relic(state, str(relics[0])) if not relics.is_empty() else state
 			"event":
-				state = _run_engine.resolve_map_event(state, "embers")
+				state = _run_engine.resolve_map_event(state, "continue" if str(state.get("event_state", {}).get("page", "choices")) == "result" else EventRules.first_available_choice_id(state))
 			"campfire":
 				state = _run_engine.leave_campfire(state)
 			_:

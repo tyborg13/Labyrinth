@@ -1,0 +1,287 @@
+{
+  "version": 1,
+  "omens": {
+    "ember_ward": {"name": "Ember Ward", "kind": "blessing", "fights": 3, "description": "Start each combat with 6 @icon(block).", "effect": {"type": "start_block", "amount": 6}},
+    "stone_vow": {"name": "Stone Vow", "kind": "blessing", "fights": 3, "description": "Start each combat with 4 @icon(stoneskin).", "effect": {"type": "start_stoneskin", "amount": 4}},
+    "quickened_blood": {"name": "Quickened Blood", "kind": "blessing", "fights": 3, "description": "Your first turn in each combat has 1 extra @icon(card_play).", "effect": {"type": "first_turn_card_plays", "amount": 1}},
+    "lantern_sight": {"name": "Lantern Sight", "kind": "blessing", "fights": 4, "description": "Start each combat with 3 turns of @icon(vision).", "effect": {"type": "start_vision_turns", "amount": 3, "radius": 2}},
+    "ember_tithe": {"name": "Ember Tithe", "kind": "blessing", "fights": 3, "description": "Enemies drop 50% more Embers.", "effect": {"type": "ember_drop_percent", "amount": 150}},
+    "hunted": {"name": "Hunted", "kind": "bane", "fights": 2, "description": "Each combat has one more enemy.", "effect": {"type": "extra_enemies", "amount": 1}},
+    "dread": {"name": "Dread", "kind": "bane", "fights": 3, "description": "Start each combat with 3 @icon(expose).", "effect": {"type": "start_expose", "amount": 3}},
+    "leaden_limbs": {"name": "Leaden Limbs", "kind": "bane", "fights": 3, "description": "Your first turn in each combat has 1 less @icon(move).", "effect": {"type": "first_turn_movement", "amount": -1}},
+    "kindled": {"name": "Kindled", "kind": "bane", "fights": 2, "description": "Start each combat standing on @icon(surface_fire).", "effect": {"type": "start_on_fire"}},
+    "deepening_dark": {"name": "Deepening Dark", "kind": "bane", "fights": 3, "description": "The @icon(umbra) is one stage deeper in each combat.", "effect": {"type": "umbra_stage_delta", "amount": 1}},
+    "tithe_of_ash": {"name": "Tithe of Ash", "kind": "bane", "fights": 3, "description": "Enemies drop 50% fewer Embers.", "effect": {"type": "ember_drop_percent", "amount": 50}}
+  },
+  "events": {
+    "lost_cartographer": {
+      "title": "The Lost Cartographer", "pool": "any", "min_section": 0, "max_section": 4, "weight": 10,
+      "body": "A mapmaker sits against the wall, quill still in hand, dead a week or a century. His charts are pinned beneath a purse heavy with Embers. The ink on the top sheet is still wet.",
+      "choices": [
+        {"id": "embers", "label": "Take the purse", "effects": [{"type": "embers", "amount": 30}], "result": "The Embers are warm. You do not look at the wet ink again."},
+        {"id": "survey", "label": "Study the charts", "effects": [{"type": "reveal", "hops": 4}], "result": "The routes ahead unfold in his careful hand. One of them, you notice, ends at a drawing of you."}
+      ]
+    },
+    "bloodletters_basin": {
+      "title": "The Bloodletter's Basin", "pool": "any", "min_section": 0, "max_section": 5, "weight": 10,
+      "body": "A basin of black stone stands in an alcove, its lip worn smooth by kneeling. Dried runnels stain the floor beneath it. Something glints at the bottom, and something deeper still is thirsty.",
+      "choices": [
+        {"id": "bleed", "label": "Bleed into the basin", "requires": [{"type": "hp_above", "amount": 5}], "effects": [{"type": "hp", "amount": -5}, {"type": "relic", "rarity": "rare"}], "result": "The basin drinks. When it is done, it gives back what it was guarding."},
+        {"id": "reach", "label": "Reach in", "effects": [{"type": "random", "outcomes": [
+          {"weight": 50, "effects": [{"type": "relic", "rarity": "common"}], "result": "Your fingers close on something cold and real."},
+          {"weight": 50, "effects": [{"type": "hp", "amount": -3}], "result": "Something closes on your fingers first."}
+        ]}]},
+        {"id": "leave", "label": "Leave", "effects": []}
+      ]
+    },
+    "ossuary_gamblers": {
+      "title": "The Ossuary Gamblers", "pool": "any", "min_section": 0, "max_section": 5, "weight": 10,
+      "body": "Three skeletons crouch around an upturned shield, rattling knucklebones in a skull. They do not look up. An empty place has been left in their circle.",
+      "choices": [
+        {"id": "wager_embers", "label": "Wager 50 Embers", "requires": [{"type": "embers_at_least", "amount": 50}], "effects": [{"type": "embers", "amount": -50}, {"type": "random", "outcomes": [
+          {"weight": 50, "effects": [{"type": "embers", "amount": 120}], "result": "The bones fall your way. The skeletons do not seem to mind."},
+          {"weight": 50, "effects": [], "result": "The bones fall against you. One of them tucks your Embers into its ribcage."}
+        ]}]},
+        {"id": "wager_blood", "label": "Wager blood", "requires": [{"type": "hp_above", "amount": 3}], "effects": [{"type": "hp", "amount": -3}, {"type": "random", "outcomes": [
+          {"weight": 45, "effects": [{"type": "relic", "rarity": "rare"}], "result": "You win something they had been keeping a long time."},
+          {"weight": 55, "effects": [], "result": "You lose. They clack approvingly at the blood."}
+        ]}]},
+        {"id": "leave", "label": "Leave the circle empty", "effects": []}
+      ]
+    },
+    "hanged_knight": {
+      "title": "The Hanged Knight", "pool": "any", "min_section": 0, "max_section": 5, "weight": 10,
+      "body": "A knight in good armour turns slowly on a chain above a pit. The chain groans with every turn, loud enough to carry far down the halls.",
+      "choices": [
+        {"id": "cut", "label": "Cut him down", "effects": [{"type": "equipment", "rarity": "rare"}, {"type": "omen", "id": "hunted"}], "result": "He comes down with a crash that echoes for a long time. His gear is yours. So is everything that heard."},
+        {"id": "boots", "label": "Take what you can reach", "effects": [{"type": "equipment", "rarity": "common", "slot": "boots"}], "result": "You work his boots free with the tip of your blade. He does not object."},
+        {"id": "leave", "label": "Leave him swinging", "effects": []}
+      ]
+    },
+    "whispering_well": {
+      "title": "The Whispering Well", "pool": "any", "min_section": 0, "max_section": 5, "weight": 10,
+      "body": "Voices rise from a dry well, your own among them, saying things you have not said yet. A bucket hangs ready on its rope. Far below, black water lies very still.",
+      "choices": [
+        {"id": "drink", "label": "Drink", "effects": [{"type": "heal", "amount": 8}, {"type": "omen", "id": "dread"}], "result": "It tastes of iron and cold stone. Your wounds close. The voices do not stop."},
+        {"id": "ember", "label": "Drop an Ember in", "requires": [{"type": "embers_at_least", "amount": 25}], "effects": [{"type": "embers", "amount": -25}, {"type": "card", "rarity": "rare", "element": "section"}], "result": "The Ember falls a long way. Something at the bottom whispers a spell back up to you."},
+        {"id": "leave", "label": "Leave", "effects": []}
+      ]
+    },
+    "weeping_statue": {
+      "title": "The Weeping Statue", "pool": "any", "min_section": 0, "max_section": 5, "weight": 10,
+      "body": "A stone saint weeps from a single eye. The other socket holds a gem the size of a fist, glowing faintly against the dark.",
+      "choices": [
+        {"id": "gem", "label": "Pry out the gem", "effects": [{"type": "embers", "amount": 80}, {"type": "omen", "id": "deepening_dark"}], "result": "The gem comes free. The light goes with it, and the dark leans closer for a while."},
+        {"id": "pray", "label": "Pray beneath her", "effects": [{"type": "heal_percent", "percent": 25}], "result": "Her tears fall on your brow. They are warm."},
+        {"id": "leave", "label": "Leave", "effects": []}
+      ]
+    },
+    "name_collector": {
+      "title": "The Collector of Names", "pool": "any", "min_section": 1, "max_section": 5, "weight": 10,
+      "body": "A tall figure in a coat of stitched parchment bows to you. Every scrap of the coat bears a name. \"Give me yours,\" it says, \"and I will keep it safe from the dark.\"",
+      "choices": [
+        {"id": "give", "label": "Give your name", "requires": [{"type": "max_hp_above", "amount": 8}], "effects": [{"type": "relic", "rarity": "epic"}, {"type": "max_hp", "amount": -4}], "result": "It writes your name on its sleeve with a careful hand. You feel lighter, and somewhat less."},
+        {"id": "false", "label": "Give a false name", "effects": [{"type": "random", "outcomes": [
+          {"weight": 50, "effects": [{"type": "embers", "amount": 60}], "result": "It hesitates, then pays you for it anyway. A name is a name."},
+          {"weight": 50, "effects": [{"type": "omen", "id": "hunted"}], "result": "It knows. It bows again, and somewhere in the dark, something learns your real one."}
+        ]}]},
+        {"id": "refuse", "label": "Refuse", "effects": []}
+      ]
+    },
+    "moth_library": {
+      "title": "The Moth-Eaten Library", "pool": "any", "min_section": 0, "max_section": 5, "weight": 10,
+      "body": "Shelves of rotting books lean into one another. Most crumble at a touch, but a few still hold their spells, pressed between the pages like dried flowers.",
+      "choices": [
+        {"id": "search", "label": "Search the shelves", "effects": [{"type": "card_choice", "count": 3, "element": "section"}], "result": "Three spells survive your searching."},
+        {"id": "burn", "label": "Burn them for warmth", "effects": [{"type": "heal", "amount": 6}], "result": "The old words burn bright and briefly. You sleep an hour beside them."},
+        {"id": "leave", "label": "Leave", "effects": []}
+      ]
+    },
+    "starving_pilgrim": {
+      "title": "The Starving Pilgrim", "pool": "any", "min_section": 0, "max_section": 5, "weight": 10,
+      "body": "A pilgrim kneels in the dust, too weak to stand. His hands are cupped as if in prayer, but they are only begging. An offering bowl sits untouched at his knees.",
+      "choices": [
+        {"id": "item", "label": "Give him an item", "requires": [{"type": "has_item"}], "effects": [{"type": "lose_item"}, {"type": "max_hp", "amount": 3}], "result": "He eats with shaking hands, then presses his palm to your chest and whispers a blessing. It settles in your bones."},
+        {"id": "embers", "label": "Give him Embers", "requires": [{"type": "embers_at_least", "amount": 40}], "effects": [{"type": "embers", "amount": -40}, {"type": "omen", "id": "ember_tithe"}], "result": "He weeps over their warmth and swears the dark will repay you."},
+        {"id": "rob", "label": "Take his offering bowl", "effects": [{"type": "embers", "amount": 40}, {"type": "omen", "id": "deepening_dark"}], "result": "He does not resist. You will remember that he did not resist."}
+      ]
+    },
+    "abandoned_forge": {
+      "title": "The Abandoned Forge", "pool": "any", "min_section": 1, "max_section": 5, "weight": 10,
+      "body": "The forge is cold, but the anvil is not. Someone was working here very recently and left in a hurry. Their tools are laid out in perfect order.",
+      "choices": [
+        {"id": "weapon", "label": "Reforge your weapon", "requires": [{"type": "has_equipment", "slot": "weapon"}, {"type": "hp_above", "amount": 3}], "effects": [{"type": "reforge", "slot": "weapon", "rarity_step": 1}, {"type": "hp", "amount": -3}], "result": "The anvil remembers the work. Your weapon comes out of the quench better than it went in. Your hands come out burnt."},
+        {"id": "armor", "label": "Reforge your armour", "requires": [{"type": "has_equipment", "slot": "armor"}, {"type": "hp_above", "amount": 3}], "effects": [{"type": "reforge", "slot": "armor", "rarity_step": 1}, {"type": "hp", "amount": -3}], "result": "You beat out the dents and fold in something new. It fits better than it did."},
+        {"id": "leave", "label": "Leave the tools in order", "effects": []}
+      ]
+    },
+    "shrine_last_door": {
+      "title": "Shrine of the Last Door", "pool": "any", "min_section": 1, "max_section": 5, "weight": 10,
+      "body": "A door stands alone in the middle of the hall, framed by nothing. Candles burn along its threshold. Those who pass through it, the pilgrims say, come back.",
+      "choices": [
+        {"id": "kneel", "label": "Kneel at the threshold", "requires": [{"type": "hp_above", "amount": 6}], "effects": [{"type": "hp", "amount": -6}, {"type": "defiance", "amount": 1}], "result": "The candles gutter. When they steady, you know you have one more door to walk through."},
+        {"id": "candle", "label": "Take a candle", "effects": [{"type": "omen", "id": "ember_ward"}], "result": "It burns without wax, and its warmth stays with you."},
+        {"id": "leave", "label": "Leave", "effects": []}
+      ]
+    },
+    "fallen_lantern_bearer": {
+      "title": "The Fallen Lantern-Bearer", "pool": "any", "min_section": 1, "max_section": 5, "weight": 10,
+      "body": "A guide lies where the dark caught him, his lantern still burning in his fist. His satchel has spilled across the floor.",
+      "choices": [
+        {"id": "lantern", "label": "Take his lantern", "effects": [{"type": "omen", "id": "lantern_sight"}], "result": "His grip opens easily, as if he had been waiting to hand it on."},
+        {"id": "satchel", "label": "Search the satchel", "effects": [{"type": "item", "count": 2}], "result": "Oil, a charm, a roll of clean bandage. He packed well."},
+        {"id": "leave", "label": "Leave him his light", "effects": []}
+      ]
+    },
+    "mirror_of_skins": {
+      "title": "The Mirror of Second Skins", "pool": "any", "min_section": 1, "max_section": 5, "weight": 10,
+      "body": "Your reflection in the tall mirror moves half a step late, and it wears your spells differently than you do. It lays one palm flat against the glass.",
+      "choices": [
+        {"id": "hand", "label": "Take its hand", "requires": [{"type": "has_attuned_magic"}], "effects": [{"type": "transform_magic", "count": 1, "rarity_step": 1}], "result": "For a moment you stand on the wrong side of the glass. When you step back, one of your spells has changed."},
+        {"id": "trade", "label": "Let it choose for you", "requires": [{"type": "has_attuned_magic"}], "effects": [{"type": "transform_magic", "count": 3, "rarity_step": 0}], "result": "Your reflection sorts through your spells like a gambler through cards."},
+        {"id": "shatter", "label": "Shatter the glass", "effects": [{"type": "random", "outcomes": [
+          {"weight": 70, "effects": [{"type": "embers", "amount": 50}], "result": "The silver backing is worth something to someone."},
+          {"weight": 30, "effects": [{"type": "omen", "id": "hunted"}], "result": "The crash carries. Something answers it."}
+        ]}]}
+      ]
+    },
+    "sealed_sarcophagus": {
+      "title": "The Breathing Sarcophagus", "pool": "any", "min_section": 0, "max_section": 5, "weight": 10,
+      "body": "A sarcophagus lies open a finger's width. From inside comes slow, even breathing, and the faint gleam of treasure.",
+      "choices": [
+        {"id": "open", "label": "Push the lid open", "effects": [{"type": "random", "outcomes": [
+          {"weight": 60, "effects": [{"type": "relic", "rarity": "rare"}], "result": "The breathing stops. The treasure stays."},
+          {"weight": 40, "effects": [{"type": "hp", "amount": -6}], "result": "The lid opens from the inside first."}
+        ]}]},
+        {"id": "reach", "label": "Reach through the gap", "requires": [{"type": "hp_above", "amount": 2}], "effects": [{"type": "item", "count": 1}, {"type": "hp", "amount": -2}], "result": "Something nips your wrist as you draw back. You keep what you grabbed."},
+        {"id": "leave", "label": "Let it sleep", "effects": []}
+      ]
+    },
+    "ember_usurer": {
+      "title": "The Ember Usurer", "pool": "any", "min_section": 1, "max_section": 5, "weight": 10,
+      "body": "A hunched merchant squats on a heap of coals, counting Embers that are not his. \"Borrow now,\" he purrs, \"and repay as you go.\"",
+      "choices": [
+        {"id": "borrow", "label": "Borrow", "effects": [{"type": "embers", "amount": 100}, {"type": "omen", "id": "tithe_of_ash"}], "result": "The Embers are hot in your hand. The debt is colder."},
+        {"id": "buy", "label": "Buy from his coat", "requires": [{"type": "embers_at_least", "amount": 75}], "effects": [{"type": "embers", "amount": -75}, {"type": "relic", "rarity": "rare"}], "result": "He sells you a trinket from deep in his coat and counts your Embers twice."},
+        {"id": "leave", "label": "Leave", "effects": []}
+      ]
+    },
+    "petrified_pilgrims": {
+      "title": "The Petrified Pilgrims", "pool": "earth", "min_section": 0, "max_section": 4, "weight": 10,
+      "body": "A whole procession stands frozen in stone mid-stride, purses still at their belts. Grit trickles from the ceiling. The Worldspine is restless here.",
+      "choices": [
+        {"id": "purses", "label": "Chip their purses free", "requires": [{"type": "hp_above", "amount": 3}], "effects": [{"type": "embers", "amount": 70}, {"type": "hp", "amount": -3}], "result": "Stone purses, stone coins, but the Embers inside are real. A falling shard opens your cheek."},
+        {"id": "touch", "label": "Touch the foremost pilgrim", "requires": [{"type": "max_hp_above", "amount": 6}], "effects": [{"type": "omen", "id": "stone_vow"}, {"type": "max_hp", "amount": -2}], "result": "The stone creeps a little way up your fingers and stays. It does not hurt. It does not leave."},
+        {"id": "leave", "label": "Leave", "effects": []}
+      ]
+    },
+    "root_choked_vault": {
+      "title": "The Root-Choked Vault", "pool": "earth", "min_section": 0, "max_section": 4, "weight": 10,
+      "body": "Roots as thick as a man's waist have split a vault door from its hinges. Through the gap you can see gear stacked in the dark, and the roots are still growing.",
+      "choices": [
+        {"id": "tear", "label": "Tear through the roots", "requires": [{"type": "hp_above", "amount": 5}], "effects": [{"type": "hp", "amount": -5}, {"type": "equipment", "rarity": "rare"}], "result": "The roots fight back. You win."},
+        {"id": "squeeze", "label": "Squeeze through the gap", "effects": [{"type": "random", "outcomes": [
+          {"weight": 50, "effects": [{"type": "equipment", "rarity": "common"}], "result": "You come out with something, and with most of your skin."},
+          {"weight": 50, "effects": [{"type": "hp", "amount": -3}], "result": "The roots close as you pass. You tear free with nothing."}
+        ]}]},
+        {"id": "leave", "label": "Leave", "effects": []}
+      ]
+    },
+    "cinder_supplicant": {
+      "title": "The Cinder Supplicant", "pool": "fire", "min_section": 0, "max_section": 4, "weight": 10,
+      "body": "A robed figure kneels before a brazier, feeding it with its own fingers. It has very few left. \"The Crown hungers,\" it says. \"Feed it, and it teaches.\"",
+      "choices": [
+        {"id": "hand", "label": "Offer your hand", "requires": [{"type": "hp_above", "amount": 4}], "effects": [{"type": "hp", "amount": -4}, {"type": "card_choice", "count": 3, "element": "fire", "min_rarity": "rare"}], "result": "The flame takes its due. In return it shows you three ways to burn."},
+        {"id": "embers", "label": "Feed it Embers", "requires": [{"type": "embers_at_least", "amount": 50}], "effects": [{"type": "embers", "amount": -50}, {"type": "card", "rarity": "rare", "element": "fire"}], "result": "The brazier swallows your Embers and spits back a spell."},
+        {"id": "leave", "label": "Leave", "effects": []}
+      ]
+    },
+    "ember_font": {
+      "title": "The Ember Font", "pool": "fire", "min_section": 0, "max_section": 4, "weight": 10,
+      "body": "A pool of molten ember seethes in a ring of black glass. Weapons have been plunged into it and abandoned, their hilts blackened, their blades gone strange.",
+      "choices": [
+        {"id": "quench", "label": "Quench your weapon", "requires": [{"type": "has_equipment", "slot": "weapon"}], "effects": [{"type": "reforge", "slot": "weapon", "rarity_step": 1}, {"type": "omen", "id": "kindled"}], "result": "The metal drinks the fire and keeps some for itself. So do you."},
+        {"id": "pull", "label": "Pull a blade from the font", "requires": [{"type": "hp_above", "amount": 6}], "effects": [{"type": "hp", "amount": -6}, {"type": "equipment", "rarity": "epic", "slot": "weapon"}], "result": "The hilt is very hot. You hold on."},
+        {"id": "leave", "label": "Leave", "effects": []}
+      ]
+    },
+    "bell_of_the_gale": {
+      "title": "The Bell of the Gale", "pool": "air", "min_section": 0, "max_section": 4, "weight": 10,
+      "body": "A great bronze bell hangs in an open arch over nothing. The wind rings it now and then, and the halls answer with movement.",
+      "choices": [
+        {"id": "ring", "label": "Ring it", "effects": [{"type": "omen", "id": "quickened_blood"}, {"type": "omen", "id": "hunted"}], "result": "The note goes through you and keeps going. Your blood runs faster. So does everything that heard."},
+        {"id": "strip", "label": "Strip its bronze", "effects": [{"type": "embers", "amount": 45}], "result": "You pry away what you can carry. The bell falls silent, and the wind with it."},
+        {"id": "leave", "label": "Leave it to the wind", "effects": []}
+      ]
+    },
+    "windcut_bridge": {
+      "title": "The Wind-Cut Bridge", "pool": "air", "min_section": 0, "max_section": 4, "weight": 10,
+      "body": "A rope bridge spans a chasm, the wind pulling at it like a hand at a loose thread. On the far side, a corpse has left its pack.",
+      "choices": [
+        {"id": "run", "label": "Run across", "effects": [{"type": "random", "outcomes": [
+          {"weight": 70, "effects": [{"type": "item", "count": 2}, {"type": "equipment", "rarity": "common"}], "result": "You reach the pack before the wind reaches you."},
+          {"weight": 30, "effects": [{"type": "hp", "amount": -5}], "result": "The wind takes the bridge out from under you. You climb back the hard way."}
+        ]}]},
+        {"id": "crawl", "label": "Crawl across", "requires": [{"type": "hp_above", "amount": 2}], "effects": [{"type": "hp", "amount": -2}, {"type": "item", "count": 1}], "result": "Slow, scraped and safe. Most of the pack went over the edge before you got there."},
+        {"id": "leave", "label": "Leave", "effects": []}
+      ]
+    },
+    "frozen_champion": {
+      "title": "The Frozen Champion", "pool": "ice", "min_section": 0, "max_section": 4, "weight": 10,
+      "body": "A champion stands sealed in clear ice, her blade raised against something that never arrived. Her eyes follow you across the room.",
+      "choices": [
+        {"id": "shatter", "label": "Shatter the ice", "requires": [{"type": "hp_above", "amount": 6}], "effects": [{"type": "hp", "amount": -6}, {"type": "equipment", "rarity": "epic", "slot": "weapon"}], "result": "The ice breaks like a shout. She falls into a thousand pieces. Her sword does not."},
+        {"id": "thaw", "label": "Thaw her with Embers", "requires": [{"type": "embers_at_least", "amount": 60}], "effects": [{"type": "embers", "amount": -60}, {"type": "defiance", "amount": 1}], "result": "She lives for three breaths, long enough to press her hand to your chest and pass something on."},
+        {"id": "leave", "label": "Leave her watching", "effects": []}
+      ]
+    },
+    "hoarfrost_spring": {
+      "title": "The Hoarfrost Spring", "pool": "ice", "min_section": 0, "max_section": 4, "weight": 10,
+      "body": "Steam rises from a spring in the ice, though the water is bitter cold. Bones rest on the bottom, picked clean and very peaceful.",
+      "choices": [
+        {"id": "bathe", "label": "Bathe", "effects": [{"type": "heal", "amount": 10}, {"type": "omen", "id": "leaden_limbs"}], "result": "The cold closes your wounds and settles into your joints."},
+        {"id": "flask", "label": "Fill a flask", "effects": [{"type": "item", "count": 1}], "result": "It never warms."},
+        {"id": "leave", "label": "Leave", "effects": []}
+      ]
+    },
+    "storm_obelisk": {
+      "title": "The Storm-Struck Obelisk", "pool": "lightning", "min_section": 0, "max_section": 4, "weight": 10,
+      "body": "An obelisk of fused glass hums in the middle of a scorched circle. Every few breaths, lightning crawls up its length and something inside it lights up.",
+      "choices": [
+        {"id": "grasp", "label": "Grasp it", "requires": [{"type": "hp_above", "amount": 7}], "effects": [{"type": "random", "outcomes": [
+          {"weight": 50, "effects": [{"type": "relic", "rarity": "epic"}], "result": "The storm passes through you and leaves something behind."},
+          {"weight": 50, "effects": [{"type": "hp", "amount": -7}], "result": "The storm passes through you and leaves nothing behind but the burn."}
+        ]}]},
+        {"id": "shard", "label": "Chip a shard loose", "requires": [{"type": "hp_above", "amount": 2}], "effects": [{"type": "hp", "amount": -2}, {"type": "item", "count": 1}], "result": "It bites you on the way out, but it comes."},
+        {"id": "leave", "label": "Leave", "effects": []}
+      ]
+    },
+    "tempest_choir": {
+      "title": "The Tempest Choir", "pool": "lightning", "min_section": 0, "max_section": 4, "weight": 10,
+      "body": "Bell-tenders in tattered robes sing up at the storm. When they see you, they open a space in their circle and keep singing.",
+      "choices": [
+        {"id": "join", "label": "Join the hymn", "requires": [{"type": "hp_above", "amount": 3}], "effects": [{"type": "hp", "amount": -3}, {"type": "card_choice", "count": 3, "element": "lightning", "min_rarity": "rare"}], "result": "The song is mostly thunder. You learn the words anyway."},
+        {"id": "steal", "label": "Rob the collection plate", "effects": [{"type": "embers", "amount": 50}, {"type": "omen", "id": "hunted"}], "result": "The singing stops."},
+        {"id": "leave", "label": "Leave", "effects": []}
+      ]
+    },
+    "umbral_bargain": {
+      "title": "The Umbral Bargain", "pool": "shadow", "min_section": 5, "max_section": 5, "weight": 10,
+      "body": "The dark in this room is thicker than elsewhere, and it is listening. When you speak, it answers in your own voice. \"You want to leave,\" it says. \"I can help.\"",
+      "choices": [
+        {"id": "accept", "label": "Accept", "requires": [{"type": "max_hp_above", "amount": 10}], "effects": [{"type": "relic", "rarity": "legendary"}, {"type": "max_hp", "amount": -6}], "result": "It gives you exactly what you asked for. It takes exactly what it was owed."},
+        {"id": "haggle", "label": "Haggle", "requires": [{"type": "max_hp_above", "amount": 6}], "effects": [{"type": "relic", "rarity": "epic"}, {"type": "max_hp", "amount": -3}], "result": "It laughs with your laugh. The price is smaller. So is the gift."},
+        {"id": "refuse", "label": "Refuse", "effects": []}
+      ]
+    },
+    "your_own_body": {
+      "title": "Your Own Body", "pool": "shadow", "min_section": 5, "max_section": 5, "weight": 10,
+      "body": "A body lies face-down in the dust, wearing your clothes and carrying your gear, one hand outstretched toward the way you came. You do not turn it over.",
+      "choices": [
+        {"id": "search", "label": "Search it", "effects": [{"type": "item", "count": 3}, {"type": "omen", "id": "dread"}], "result": "Everything in its pockets is familiar. Some of it is still warm."},
+        {"id": "bury", "label": "Bury it", "requires": [{"type": "hp_above", "amount": 4}], "effects": [{"type": "hp", "amount": -4}, {"type": "defiance", "amount": 1}], "result": "It takes a long time with bare hands. When you are done, you feel harder to kill."},
+        {"id": "walk", "label": "Walk on", "effects": []}
+      ]
+    }
+  }
+}
