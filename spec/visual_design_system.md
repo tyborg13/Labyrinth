@@ -132,6 +132,7 @@ floor shadows); the former navy button bodies clashed with it.
 
 ## Combat composition
 
+- Health loss leaves a pale segment ghost above the well and below the fill and separators: enemies use `#f2c3a6` at 85% alpha, heroes/allies `#d9f2e6` at 80%, without glow. It holds for 0.55 s then drains for 0.35 s with ease-in quad; another hit restarts the hold from the highest held top or current draining position. Healing snaps and flashes only the healed range with the fill lightened 35%, fading over 0.2 s. Reduced motion shows a static ghost for 0.4 s then removes it. The shared presentation clock respects `Engine.time_scale`; death bars retain the existing unit fade/lifetime (see `TODO_DESIGN_DEATH_GHOST_LIFETIME`).
 - `scripts/combat_atmosphere.gd` sits between the hall art and the board: a warm
   light pool that follows the board, a vignette, and sparse ember motes (off
   under reduced motion). It also carries the brief crimson edge flush when the

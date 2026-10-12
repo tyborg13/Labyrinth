@@ -1,0 +1,178 @@
+{
+	"expected_sizes": [
+		"1920x1080"
+	],
+	"min_images": 10,
+	"required_images": [
+		{
+			"height": 1080,
+			"pattern": "*enemy_hit_010.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						0,
+						0,
+						1920,
+						1080
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*enemy_hit_050.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						0,
+						0,
+						1920,
+						1080
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*enemy_hit_075.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						0,
+						0,
+						1920,
+						1080
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*enemy_hit_100.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						0,
+						0,
+						1920,
+						1080
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*hero_hit_010.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						0,
+						0,
+						1920,
+						1080
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*hero_heal_005.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						0,
+						0,
+						1920,
+						1080
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*boss_hit_010.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						0,
+						0,
+						1920,
+						1080
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*reduced_motion_010.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						0,
+						0,
+						1920,
+						1080
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*reduced_motion_040.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						0,
+						0,
+						1920,
+						1080
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*enemy_death_010.png",
+			"regions": [
+				{
+					"min_luma_range": 8,
+					"min_luma_stdev": 2,
+					"rect": [
+						0,
+						0,
+						1920,
+						1080
+					]
+				}
+			],
+			"width": 1920
+		}
+	]
+}

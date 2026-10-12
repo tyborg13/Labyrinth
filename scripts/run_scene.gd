@@ -10428,6 +10428,8 @@ func _boot_run() -> void:
 	_start_run()
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	if board_view != null:
+		board_view.health_ghost_tracker.clear()
 	_reward_reroll_preparation.cancel()
 	_cancel_equipment_factory_preparation()
 	if is_instance_valid(board_view) and board_view.has_method("cancel_unit_renderer_preparation"): board_view.cancel_unit_renderer_preparation()
@@ -12491,6 +12493,14 @@ func _refresh_boss_health_overlay(display_state: Dictionary, source_presentation
 	if _boss_health_overlay == null or _turn_order_header_host == null:
 		return
 	var boss: Dictionary = _boss_unit_for_health_overlay(display_state)
+	var death_alpha: float = 1.0
+	for unit: Dictionary in source_presentation.get("death_animation_units", []):
+		if bool(GameData.enemy_def(str(unit.get("type", ""))).get("boss_bar", false)) and (boss.is_empty() or int(unit.get("id", -1)) == int(boss.get("id", -2))):
+			boss = unit.duplicate(false)
+			boss["hp"] = 0
+			death_alpha = board_view.call("_death_animation_tint", unit).a if board_view != null else 1.0
+			break
+	_boss_health_overlay.modulate = Color(1.0, 1.0, 1.0, death_alpha)
 	var visible: bool = not boss.is_empty()
 	var preview: Dictionary = _boss_damage_preview_for_overlay(boss, source_presentation) if visible else {}
 	var signature: String = "%d|%d|%d|%d|%d|%d" % [
@@ -12534,6 +12544,8 @@ func _refresh_boss_health_overlay(display_state: Dictionary, source_presentation
 	_refresh_boss_status_row(boss)
 	if _boss_health_bar != null:
 		_boss_health_bar.set_health(float(hp), float(max_hp))
+		if board_view != null:
+			_boss_health_bar.bind_ghost(board_view.health_ghost_tracker, _enemy_key(current_boss), true)
 		_boss_health_bar.set_segment_count(_boss_health_segment_count(max_hp))
 	if _boss_health_hp_label != null:
 		_boss_health_hp_label.text = "%d/%d" % [hp, max_hp]
@@ -12790,6 +12802,9 @@ func _turn_order_health_bar(entry: Dictionary, slot_size: Vector2) -> SegmentedH
 	health_bar.set_health(float(int(entry.get("hp", 0))), float(max_hp))
 	health_bar.set_segment_count(SegmentedHealthBar.segment_count_for_max_hp(float(max_hp)))
 	var player_team: bool = str(entry.get("team", "enemy")) == "player"
+	if board_view != null:
+		var actor_key: String = str(entry.get("actor_key", "player" if player_team else "enemy_%d" % int(entry.get("enemy_id", -1))))
+		health_bar.bind_ghost(board_view.health_ghost_tracker, actor_key, not player_team)
 	if player_team:
 		health_bar.set_fill(Color("4f9f8c"), Color("9de2ce"))
 		health_bar.set_appearance(Color("191512"), Color("d8bd7b"), Color(0.0, 0.0, 0.0, 0.48))
@@ -18028,6 +18043,8 @@ func _refresh_stage_view() -> void:
 	_apply_guardian_props(display_state, presentation)
 	performance_phase_started = _record_runtime_performance_phase("stage_chrome", performance_phase_started)
 	call_deferred("_sync_board_view_rect")
+	if board_view.has_method("set_health_ghost_source_state"):
+		board_view.call("set_health_ghost_source_state", _combat_state if run_mode == "combat" else display_state)
 	board_view.set_combat_state(
 		display_state,
 		move_tiles,
