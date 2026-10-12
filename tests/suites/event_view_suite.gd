@@ -15,6 +15,7 @@ const FIXTURE_FRAMES: int = 2
 const FIXTURE_BLOCKED_HP: int = 5
 const EXPIRE_PROOF_WAIT_SECONDS: float = 0.32
 const CLOSE_PROOF_WAIT_SECONDS: float = 0.2
+const CLOSE_PROOF_TIMEOUT_MSEC: int = 1000
 const COMBAT_PROOF_SETTLE_SECONDS: float = 1.15
 const DEFERRED_CLEANUP_FRAMES: int = 4
 const PAINTING_LUMINANCE_TOLERANCE: float = 0.08
@@ -236,10 +237,17 @@ static func _integration(viewport: SubViewport, expect: Callable) -> void:
 	view.choices[0].pressed.emit()
 	view.finish_animation_for_test()
 	expect.call(str(scene.get("_run_state")["event_state"]["page"]) == "result", "Mouse/keyboard choice signal reaches real rules and result page")
+	var close_events: Dictionary = {"count": 0}
+	view.closed.connect(func() -> void: close_events["count"] += 1)
 	view.continue_button.pressed.emit()
 	expect.call(str(scene.get("_run_state")["mode"]) == "reward" and str(scene.get("_run_state")["pending_reward"]["kind"]) == "event", "Continue follows through to granted card choice")
-	await tree.create_timer(CLOSE_PROOF_WAIT_SECONDS).timeout
+	# A timer can expire before the live close tween has received its final
+	# frame. In the merged integration fixture it had advanced only 0.15 of
+	# 0.16 seconds at the old 0.2-second timer assertion. Observe completion
+	# across frames, with a deadline so a stuck modal still fails the suite.
+	await wait_for_close(view)
 	expect.call(not view.visible, "Event closes after Continue")
+	expect.call(int(close_events["count"]) == 1 and not bool(view.get("_closing")), "Continue completes the live close tween and emits closed exactly once")
 	var engine := Run.new()
 	scene.call("_load_run_state", engine.skip_reward_for_heal(scene.get("_run_state")))
 	await tree.process_frame
@@ -268,6 +276,12 @@ static func _integration(viewport: SubViewport, expect: Callable) -> void:
 	for frame: int in range(DEFERRED_CLEANUP_FRAMES): await tree.process_frame
 	scene.queue_free()
 	await tree.process_frame
+
+static func wait_for_close(view: Control) -> void:
+	var tree: SceneTree = Engine.get_main_loop() as SceneTree
+	var deadline: int = Time.get_ticks_msec() + CLOSE_PROOF_TIMEOUT_MSEC
+	while view.visible and Time.get_ticks_msec() < deadline:
+		await tree.process_frame
 
 static func combat_fixture() -> Dictionary:
 	var engine := Run.new()
