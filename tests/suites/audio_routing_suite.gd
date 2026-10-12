@@ -6,6 +6,7 @@ const RunSceneScript = preload("res://scripts/run_scene.gd")
 const RunSfxLibrary = preload("res://scripts/run_sfx_library.gd")
 
 static func run(expect: Callable) -> void:
+	preload("res://tests/suites/sfx_bank_suite.gd").run(expect)
 	SettingsStore.ensure_audio_buses()
 	var world_index: int = AudioServer.get_bus_index(SettingsStore.WORLD_SFX_BUS)
 	var ui_index: int = AudioServer.get_bus_index(SettingsStore.UI_SFX_BUS)

@@ -1,6 +1,14 @@
 extends RefCounted
 class_name AttackSfxLibrary
 
+# Compatibility ids remain public for saved/authored overrides.
+const CUE_ALIASES: Dictionary = {
+	"attack.melee": "hit.blade.light", "attack.ranged": "shot.bow", "action.block": "block.gain",
+	"attack.elemental.fire": "spell.fire", "attack.elemental.ice": "spell.ice",
+	"attack.elemental.earth": "spell.earth", "attack.elemental.air": "spell.air",
+	"attack.elemental.lightning": "spell.lightning"
+}
+
 const MELEE_SFX_ID: String = "attack.melee"
 const RANGED_SFX_ID: String = "attack.ranged"
 const BLOCK_SFX_ID: String = "action.block"
