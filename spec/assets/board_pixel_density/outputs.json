@@ -6,6 +6,13 @@
     "mode": "regrid",
     "grid": 1.5
   },
+  "assets/art/enemies/briar_weaver.png": {
+    "pixel_sha256": "ee17a7592ab6a72aff9b0eacc79f015c5ed5f009329067b8cb93e48af2ae6642",
+    "source_pixel_sha256": "b1dab4fed690d665f0123741979253bd96133d91cd2dcf7a5628e30c3455fc43",
+    "id": "briar_weaver",
+    "mode": "regrid",
+    "grid": 1.5
+  },
   "assets/art/enemies/burrow_grub.png": {
     "pixel_sha256": "3ca01648a194308ed14f95b236f0fdd739341e1c6d93f277f448a66ee3f3aa70",
     "source_pixel_sha256": "9455daa32a54da8d889886a436ddbbb71e7a7d88e6ab39f201ae48364ff0bc6d",
@@ -38,6 +45,13 @@
     "pixel_sha256": "aeca9120e648c9ac61ec9ca560b4bb1181638afeaac55e0c5ca629b5c3d3905d",
     "source_pixel_sha256": "a5d237bcfcb2e353b50c5cc4cbde97c8778c1bced230fd194045e6c94eada294",
     "id": "hoarfrost_seer",
+    "mode": "regrid",
+    "grid": 1.5
+  },
+  "assets/art/enemies/slag_mortar.png": {
+    "pixel_sha256": "2f3e4cc3839cd5d480478b7094bfa4daef325f55ca4cad33f503dbcdc69c0410",
+    "source_pixel_sha256": "f367f9a1612b708fbf491a37bbf50432c462640b4f0afab1cb99796373c99c5d",
+    "id": "slag_mortar",
     "mode": "regrid",
     "grid": 1.5
   },
@@ -758,6 +772,13 @@
     "id": "emaciated_man_idle",
     "mode": "regrid",
     "grid": 4.35
+  },
+  "assets/props/enemies/bramble_thicket.png": {
+    "pixel_sha256": "873b385c7dc5304ce834bde8216c72a50d7005aa0853e2a89aface2f4b786044",
+    "source_pixel_sha256": "4a36e552263f1172fd4578a7e93fdb9ada859cdf8591bf5a8be58e67dcd7596d",
+    "id": "bramble_thicket",
+    "mode": "regrid",
+    "grid": 1.5
   },
   "assets/props/guardians/watch_brazier_dark.png": {
     "pixel_sha256": "8522f39d7d083f5037bee278d1bf40a0f6fceb24793ffa6f2dd6cda97ea5a5ff",

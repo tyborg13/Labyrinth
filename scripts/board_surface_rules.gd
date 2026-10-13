@@ -50,7 +50,7 @@ static func tiles(state: Dictionary, surface: String = "") -> Array[Vector2i]:
 
 static func terrain_is_live(terrain: Dictionary) -> bool:
 	# Temporary Ice Pillars have lifetime, not attack durability.
-	return int(terrain.get("rounds_left", 0)) > 0 if str(terrain.get("kind", "")) == "ice_pillar" else int(terrain.get("hp", 0)) > 0
+	return int(terrain.get("rounds_left", 0)) > 0 if str(terrain.get("kind", "")) in ["ice_pillar", "bramble"] else int(terrain.get("hp", 0)) > 0
 
 static func can_place(state: Dictionary, tile: Vector2i) -> bool:
 	if not PathUtils.is_passable(state.get("grid", []), tile):

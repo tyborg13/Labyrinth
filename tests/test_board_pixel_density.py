@@ -429,6 +429,17 @@ class BoardPixelDensityTest(unittest.TestCase):
                     self.assertEqual((w, h), (255, 255), "Static enemies use the existing unit canvas")
                     self.assertIn("_unit_art_scale(unit)", function_text(self.board, "_unit_draw_rect_for_texture"))
                     draw = min(unit_x / w, unit_y / h) * enemies[name].get("art_scale", 1.0)
+                elif name == "bramble_thicket":
+                    bramble = (ROOT / "scripts/enemy_mechanics/bramble_view.gd").read_text()
+                    ratio = float(re.search(r"const CRATE_HEIGHT_RATIO: float = ([0-9.]+)", bramble).group(1))
+                    with Image.open(ROOT / "assets/art/tiles/wooden_crate.png") as crate:
+                        bounds = crate.convert("RGBA").getchannel("A").getbbox()
+                        crate_height = constant("TERRAIN_CRATE_DRAW_WIDTH_SCALE") * (bounds[3] - bounds[1]) / crate.width
+                    crag_rect = function_text(self.board, "_terrain_rect_for_tile").split('if terrain_kind == "crag_outcrop":', 1)[1].split("var draw_width", 1)[0]
+                    crag_width = float(re.findall(r"Vector2\(_tile_width\(\)\*([0-9.]+),", crag_rect)[-1])
+                    draw = min(crag_width / w, crate_height * ratio / h)
+                    self.assertIn("BrambleView.rect(self, tile, texture)", function_text(self.board, "_terrain_rect_for_tile"))
+                    self.assertIn("crate_visible_height * CRATE_HEIGHT_RATIO / source.y", bramble)
                 elif name in ("scavenger_stall", "watch_brazier"):
                     pattern = r'"kind":\s*"scavenger_stall"[\s\S]*?"width_scale":\s*([0-9.]+)' if name == "scavenger_stall" else r'"kind":"watch_brazier_lit"[^\n]+"width_scale":([0-9.]+)'
                     draw = float(re.search(pattern, run_scene).group(1)) / w

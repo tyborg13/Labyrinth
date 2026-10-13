@@ -1,0 +1,76 @@
+{
+  "min_images": 4,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*02_thornwall_mid_rise.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*03_thornwall_grown.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*04_bramble_push_collision.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    },
+    {
+      "pattern": "*08_bramble_mid_sink.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            250,
+            220,
+            1350,
+            670
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 12
+        }
+      ]
+    }
+  ]
+}

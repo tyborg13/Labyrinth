@@ -81,9 +81,10 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 		var id: int = int(enemy.get("id", -1))
 		var projected: Dictionary = preview_enemies.get(id, {}) as Dictionary
 		var intent: Dictionary = projected.get("intent", enemy.get("intent", {})) as Dictionary
+		intent = preload("res://scripts/enemy_mechanics/bramble.gd").presentation_intent(known_preview, enemy, intent)
 		if intent.is_empty():
 			continue
-		var primary: Dictionary = primary_action(intent)
+		var primary: Dictionary = preload("res://scripts/enemy_mechanics/lob.gd").presentation_action(engine, known_preview, enemy, primary_action(intent))
 		if primary.is_empty():
 			continue
 		var actor_key: String = "enemy_%d" % id
@@ -117,7 +118,7 @@ static func primary_action(intent: Dictionary) -> Dictionary:
 
 static func is_attack(action: Dictionary) -> bool:
 	var kind: String = str(action.get("type", ""))
-	return kind in Compass.MELEE_TYPES or kind in Compass.RANGED_TYPES or kind in Compass.AREA_TYPES or kind == "push"
+	return kind in Compass.MELEE_TYPES or kind in Compass.RANGED_TYPES or kind in Compass.AREA_TYPES or kind in ["push", "grow_bramble"]
 
 static func descriptor(action: Dictionary, intent: Dictionary = {}) -> Dictionary:
 	var kind: String = str(action.get("type", ""))
@@ -126,6 +127,7 @@ static func descriptor(action: Dictionary, intent: Dictionary = {}) -> Dictionar
 		if action.has(field):
 			number = str(action[field])
 			break
+	if kind in ["lob_mark", "lob_land", "grow_bramble"]: number = str(Compass.value_for_action(action))
 	var hits: int = int(action.get("hits", 1))
 	if hits > 1 and not number.is_empty():
 		number += "×%d" % hits

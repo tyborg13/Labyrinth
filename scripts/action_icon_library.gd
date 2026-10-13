@@ -8,6 +8,8 @@ const ICON_ROOT: String = "res://assets/art/icons"
 const SKILL_ICON_ROOT: String = "res://assets/art/skills"
 
 const KEYWORDS: Dictionary = {
+	"bramble": {"label": "Thornwall", "description": "Bramble: blocks movement for 3 more round(s). A unit pushed into it takes 2 damage and Bleeds.", "path": "%s/bramble.png" % ICON_ROOT},
+	"lob": {"label": "Lob Slag", "description": "Lob Slag", "path": "%s/lob.png" % ICON_ROOT},
 	"icefall": {"label": "Icefall", "description": "Icefall: icicles fall on the marked tiles on the Seer's next turn.", "path": "%s/icefall.png" % ICON_ROOT},
 	"wind": {"label": "Wind", "description": "Wind: at the end of each enemy turn, everything not anchored is pushed one tile with the wind.", "path": "%s/wind.png" % ICON_ROOT},
 	"tether": {"label": "Tether", "description": "Tether: lightning strikes every tile between the two Arc Thralls for 4 and Shocks. Break the line to stop it.", "path": "%s/tether.png" % ICON_ROOT},
@@ -425,6 +427,9 @@ const SKILL_ICONS: Dictionary = {
 ## Action names may share an icon only when players experience them as the exact
 ## same concept. Keep this dictionary parseable by tests/test_icon_identity_policy.py.
 const ACTION_ICON_ALIASES: Dictionary = {
+	"grow_bramble": "bramble",
+	"lob_mark": "lob",
+	"lob_land": "lob",
 	"icefall_mark": "icefall",
 	"icefall_land": "icefall",
 	"call_wind": "wind",
@@ -1173,6 +1178,11 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 	var action_type: String = str(action.get("type", ""))
 	var tokens: Array = []
 	match action_type:
+		"grow_bramble":
+			tokens.append(token_for("bramble", int(action["rounds"])))
+		"lob_mark", "lob_land":
+			tokens.append(token_for("lob", "%d / %d" % [int(action.get("center_damage", 5)), int(action.get("arm_damage", 3))]))
+			if action_type == "lob_mark": tokens.append(token_for("range", "%d–%d" % [int(action["min_range"]), int(action["max_range"])]))
 		"icefall_mark":
 			tokens.append(token_for("icefall", 5))
 			tokens.append(token_for("range", int(action.get("range", 5))))

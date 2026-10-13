@@ -3499,6 +3499,63 @@
       "t": 1.5,
       "grid": 1.5,
       "mode": "regrid"
+    },
+    {
+      "id": "briar_weaver",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/briar_weaver.png"
+      ],
+      "measurement_path": "assets/art/enemies/briar_weaver.png",
+      "frames": null,
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "briar_weaver.art_scale",
+        "expression": "_unit_size width 1.03 / 255 * default art_scale 1.0 / hero reference (1.03 / 255)"
+      },
+      "orphan_share": 0.32370339072567866,
+      "t": 1.5,
+      "grid": 1.5,
+      "mode": "regrid"
+    },
+    {
+      "id": "slag_mortar",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/slag_mortar.png"
+      ],
+      "measurement_path": "assets/art/enemies/slag_mortar.png",
+      "frames": null,
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "slag_mortar.art_scale",
+        "expression": "_unit_size width 1.03 / 255 * default art_scale 1.0 / hero reference (1.03 / 255)"
+      },
+      "orphan_share": 0.21611907285378554,
+      "t": 1.5,
+      "grid": 1.5,
+      "mode": "regrid"
+    },
+    {
+      "id": "bramble_thicket",
+      "kind": "prop",
+      "paths": [
+        "assets/props/enemies/bramble_thicket.png"
+      ],
+      "measurement_path": "assets/props/enemies/bramble_thicket.png",
+      "frames": null,
+      "r": 1.001027512267494,
+      "r_derivation": {
+        "path": "scripts/enemy_mechanics/bramble_view.gd",
+        "expression": "1.1 * visible wooden crate height / thicket height / hero pixel scale; width capped at crag outcrop footprint",
+        "reference_texture": "assets/art/tiles/wooden_crate.png"
+      },
+      "orphan_share": 0.27687411598302686,
+      "t": 1.5,
+      "grid": 1.5,
+      "mode": "regrid"
     }
   ],
   "excluded_paths": {
