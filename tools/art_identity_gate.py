@@ -412,8 +412,13 @@ def metric_bands(entry: dict, bands: dict) -> dict:
         result.update(symmetry=(None, creature["symmetry_max"]), thin_abs=(None, creature["thin_abs_max"]),
                       thin_rel=(None, creature["thin_rel_max"]),
                       feature_px=(creature["feature_px_min_small"] if entry["size_class"] == "small"
-                                  else creature["feature_px_min"], None),
-                      lateral_axis=creature["lateral_axis_deg"])
+                                  else creature["feature_px_min"], None))
+        # Rear feet mix the lateral axis with the stride toward the upper-right, so the angle gates front views only;
+        # rears are judged visually against their approved front (director decision 2026-10-12).
+        rear = (entry.get("facing") == "rear" or str(entry.get("view", "")).endswith("_rear")
+                or "/rear/" in str(entry.get("path", "")))
+        if not rear:
+            result["lateral_axis"] = creature["lateral_axis_deg"]
     elif entry.get("anatomy") == "plinth":
         result.update(bands["object_plinth"])
     elif entry.get("anatomy") == "legged":
@@ -774,7 +779,8 @@ def make_sheet(front: Path, rear: Path, kit_path: Path, out: Path, art_scale: fl
         annotation = (landmarks.get(facing, landmarks) if landmarks else None)
         if annotation:
             measured["lateral_axis"] = lateral_axis(annotation)
-        entry = dict(kit, art_scale=art_scale, landmarks=annotation or {}, boss=candidate_meta.get("boss", False))
+        entry = dict(kit, art_scale=art_scale, landmarks=annotation or {}, boss=candidate_meta.get("boss", False),
+                     facing=facing)
         limits = metric_bands(entry, bands)
         measured["art_scale"] = art_scale
         for metric, value in measured.items():

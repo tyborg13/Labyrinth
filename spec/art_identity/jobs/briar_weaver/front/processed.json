@@ -7,25 +7,25 @@
   "fit_scale": 1.0,
   "k_eff": 4.0,
   "metrics": {
-    "chroma": 0.2197348213265168,
-    "feature_px": 5.728646550830993,
+    "chroma": 0.1224099587340106,
+    "feature_px": 5.519681337527682,
     "height": 205,
     "height_drawn": 205.0,
-    "orphan_share": 0.07074721780604133,
-    "regions": 575,
-    "run_length": 2.553796183516037,
-    "symmetry": 0.5854720929239442,
-    "thin_abs": 0.012453630100688895,
-    "thin_rel": 0.07180710121886591,
-    "value": 0.21861490050604235,
+    "orphan_share": 0.06654647648337664,
+    "regions": 619,
+    "run_length": 2.6120498614958447,
+    "symmetry": 0.5847783377466473,
+    "thin_abs": 0.012301818760273586,
+    "thin_rel": 0.07121268359934252,
+    "value": 0.16853391598539835,
     "width": 172
   },
-  "pixel_sha256": "058b8998cb54e9ceef53b01ea53b769c1540376e055b941ef6342a4f861f6c41",
+  "pixel_sha256": "f7cc605603f64e07ee723d5821ebefb6319209c89756ed141817fe89320d075f",
   "placement": [
     42,
     41
   ],
-  "raw_sha256": "18e9b98d2017804549bdc7697b606e3dcf8b58dc0b5543790dd82e9c600d4573",
+  "raw_sha256": "d8b0be0693d9a7bb2858953a5a14beefc99e22c1fb0e63767f0dd303b1629f11",
   "shift": [
     0,
     0

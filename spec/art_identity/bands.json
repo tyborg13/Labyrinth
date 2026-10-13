@@ -120,6 +120,7 @@
    "hollow_mimic_2026-10-12 (head-on)": {
     "deg": 4.3
    }
-  }
+  },
+  "facing_rule": "lateral_axis gates FRONT views (and legged objects). Rear feet mix the lateral axis with the stride toward the upper-right (hoarfrost seer rear measures -10 deg while correct), so rear views are judged visually against their approved front."
  }
 }

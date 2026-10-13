@@ -62,7 +62,7 @@ Metrics are measured on the production PNG; `size` uses canvas px × `art_scale`
 | `value` | Mean Rec.601 luminance over the silhouette | normal 0.12–0.40; boss ≤ 0.55 |
 | `art_scale` | From `data/enemies.json` | new normal enemies 0.75–1.2 |
 | `base_v` | Line fits to the lowest silhouette row profile over 8–40% and 60–92% of width | plinth objects: left +0.30…+0.75, right −0.75…−0.30 |
-| `lateral_axis` | Angle of the director-annotated far→near landmark pair (feet contacts, or shoulders), y down | creature front/rear and legged objects: +8°…+40° |
+| `lateral_axis` | Angle of the director-annotated far→near landmark pair (feet contacts, or shoulders), y down | creature fronts and legged objects: +8°…+40° (rears are judged visually: their feet mix the lateral axis with the stride) |
 
 Head-on creature art measures 0–5° on `lateral_axis` (Arc Thrall 1.8°, Hollow Mimic 4.3°); the hero measures +13.5° on its feet. The Storm Capacitor's
 square base measures +0.02/−0.01 on `base_v`; the crag outcrop measures +0.54/−0.73.
