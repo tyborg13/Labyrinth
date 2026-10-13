@@ -93,3 +93,27 @@ match, or a metric leaves its band without a recorded exception.
 
 `tests/bestiary_lineup_probe.gd` captures every enemy and the hero on a board at in-game scale (1920×1080
 SubViewport). Every enemy art review includes it.
+
+## Commands
+
+Run `python3 tools/art_identity_gate.py --help` for the CLI and see the
+[command reference](art_identity/README.md) for kit, processing, sheet and provenance schemas.
+
+```sh
+python3 tools/art_identity_gate.py measure PATH --art-scale 1.0 --kind creature --anatomy biped
+python3 tools/art_identity_gate.py kit --id ID --subject SUBJECT.md --view creature_front \
+  --size-class medium --anatomy biped --peers harrier_front grave_surgeon_front --out-dir JOB_DIR
+python3 tools/art_identity_gate.py process RAW.png --kit JOB_DIR/kit.json --out OUT.png
+python3 tools/art_identity_gate.py sheet --front OUT.png --kit JOB_DIR/kit.json --out SHEET.png
+python3 tools/art_identity_gate.py canon-sheet --out CANON_SHEET.png --view front
+python3 tools/art_identity_gate.py check
+python3 tools/art_identity_gate.py check --strict
+python3 tools/art_identity_gate.py adopt-legacy
+python3 tests/test_art_identity_gate.py
+```
+
+`adopt-legacy` refuses to replace an existing baseline. Normal checks list the twelve pending reart jobs as warnings;
+strict checks fail them. The lineup capture command and backdrop-copy instructions are in the command reference.
+Processing normalizes square raw canvases with `k_eff = K × raw_width / 1024`, uniformly fits oversized sprites
+within 251×240 without clipping paint, and records `k_eff` and `fit_scale`. The candidate table shows `fit_scale` as
+INFO. Use `canon-sheet` (front or rear) beside each candidate sheet for the independent judge.
