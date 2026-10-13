@@ -24,7 +24,7 @@ Assignments to `Array[T]` must use a typed helper or explicitly typed temporary.
 
 ## Player-facing work
 
-For player-facing UI, use `$create-labyrinth-ui` and the shared visual language in [the visual design system](spec/visual_design_system.md). Require fresh, inspected real-renderer proof at `1920x1080`, `100%` UI scale; add other configurations only when requested. Preserve supported input paths and precise rules text.
+For player-facing UI, use `$create-labyrinth-ui` and the shared visual language in [the visual design system](spec/visual_design_system.md). New UI must pass the [UI identity gate](spec/ui_identity_gate.md): `python3 tests/test_ui_identity_lint.py` (a ratchet — counts of raw boxes, colour literals, outline boxes, bare bars, ad-hoc fonts and tiny captions may only fall) and an independent judge review of the 1920×1080 capture. Require fresh, inspected real-renderer proof at `1920x1080`, `100%` UI scale; add other configurations only when requested. Preserve supported input paths and precise rules text.
 
 For segmented character art, skeletal cutouts, or new cutout animations/equipment variants, use `$create-labyrinth-cutout`. Start from the current production baseline or a fresh creature case; historical experiment builders are revision-specific.
 
