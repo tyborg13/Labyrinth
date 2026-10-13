@@ -42,13 +42,12 @@ outline. Turn the smooth maquette shapes into painted feather masses (three or f
 primaries at the trailing edge), but never move, merge or invent parts. Do not reproduce the label colours.
 
 ## Identity
-The third reference is the approved painting of this creature: match its plumage colours (dusky storm-grey, grey-tan and
+The third reference is the approved painting of this creature (painted over an earlier, more level pose): match its plumage colours (dusky storm-grey, grey-tan and
 dark brown), heavy hooked iron-grey beak, bold dark mask band across the eyes, grey-brown scaled legs with big talons, and
 pale storm grey-blue only on the leading wing edges, in the same hand. The fourth reference is the hero for scale and hand.
 
 ## Subject: Gust Shrike (front view)
-A lean storm shrike standing low on the ground, body nearly horizontal and pointing toward the image's LOWER-LEFT; both
-wings raised and swept back above the body exactly as in the maquette; the fanned tail trails toward the upper-right.
+A storm shrike in a perched stance: standing upright on its two legs, body tilted nose-up so the head is clearly higher than the rump, chest and head toward the image's LOWER-LEFT; both wings raised and swept back above the body exactly as in the maquette; the fanned tail angles DOWN behind it toward the ground.
 
 ## Size
-Keep the maquette's size and framing: about 745 pixels tall (front) on the 1024 canvas, lowest point about 60-200 pixels above the bottom edge, centred as in the maquette.
+Keep the maquette's size and framing: about the maquette's height on the 1024 canvas, lowest point about 60-200 pixels above the bottom edge, centred as in the maquette.

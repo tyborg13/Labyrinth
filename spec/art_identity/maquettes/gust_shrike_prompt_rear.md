@@ -42,16 +42,15 @@ outline. Turn the smooth maquette shapes into painted feather masses (three or f
 primaries at the trailing edge), but never move, merge or invent parts. Do not reproduce the label colours.
 
 ## Identity
-The third reference is the approved painting of this creature: match its plumage colours (dusky storm-grey, grey-tan and
+The third reference is the approved painting of this creature (painted over an earlier, more level pose): match its plumage colours (dusky storm-grey, grey-tan and
 dark brown), heavy hooked iron-grey beak, bold dark mask band across the eyes, grey-brown scaled legs with big talons, and
 pale storm grey-blue only on the leading wing edges, in the same hand. The fourth reference is the hero for scale and hand.
 
 ## Subject: Gust Shrike (rear view)
-The same bird seen from BEHIND, exactly as in the maquette: body low and horizontal pointing away toward the image's
-UPPER-RIGHT; we see its back and rump; the fanned tail is nearest the viewer at the lower-left; both wings are raised and
+The same bird seen from BEHIND, exactly as in the maquette, in the same perched stance: body tilted nose-up and pointing away toward the image's UPPER-RIGHT; we see its back and rump; the fanned tail angles down toward the ground, nearest the viewer at the lower-left; both wings are raised and
 swept back, seen from behind (we see the upper surfaces of the wings and their leading edges); the head is turned away,
 showing the back of the skull with at most a sliver of beak. Identical bird, colours and hand to the approved painted
 front (third reference).
 
 ## Size
-Keep the maquette's size and framing: about 604 pixels tall (rear) on the 1024 canvas, lowest point about 60-200 pixels above the bottom edge, centred as in the maquette.
+Keep the maquette's size and framing: about the maquette's height on the 1024 canvas, lowest point about 60-200 pixels above the bottom edge, centred as in the maquette.
