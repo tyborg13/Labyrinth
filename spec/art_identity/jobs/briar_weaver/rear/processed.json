@@ -1,33 +1,43 @@
 {
-  "K": 4,
-  "drawn_size": [
-    191,
-    212
-  ],
-  "fit_scale": 1.0,
-  "k_eff": 4.8984375,
-  "metrics": {
-    "chroma": 0.1460555736401428,
-    "feature_px": 5.869146019652263,
-    "height": 212,
-    "height_drawn": 212.0,
-    "orphan_share": 0.05624603102603647,
-    "regions": 640,
-    "run_length": 3.1213365425456603,
-    "symmetry": 0.6377150618774524,
-    "thin_abs": 0.007302912092896685,
-    "thin_rel": 0.0604191236505488,
-    "value": 0.16221340637134832,
-    "width": 191
-  },
-  "pixel_sha256": "6ccf6a44870b2c5c4166ba50584e63d5b4e13168fbef0fc1530fd2c5e0585ac3",
-  "placement": [
-    33,
-    34
-  ],
-  "raw_sha256": "7604caa1c3632ad5d1bf108fd54e5ccae66106a9ca2612c8ce4e37c6666edaa0",
-  "shift": [
-    0,
-    0
-  ]
+ "K": 4,
+ "drawn_size": [
+  191,
+  212
+ ],
+ "fit_scale": 1.0,
+ "k_eff": 4.8984375,
+ "metrics": {
+  "height": 212,
+  "width": 191,
+  "height_drawn": 212.0,
+  "symmetry": 0.6377150618774524,
+  "thin_abs": 0.007302912092896685,
+  "thin_rel": 0.0604191236505488,
+  "feature_px": 5.86456611570106,
+  "regions": 641,
+  "chroma": 0.12264694320075847,
+  "value": 0.16815041579727238,
+  "orphan_share": 0.07393631497777374,
+  "run_length": 2.785696234521102
+ },
+ "pixel_sha256": "5fc8de33d7829cba537d95bea5940544787964d94a93b0dbf31ee0a2010d35d5",
+ "placement": [
+  33,
+  34
+ ],
+ "raw_sha256": "7604caa1c3632ad5d1bf108fd54e5ccae66106a9ca2612c8ce4e37c6666edaa0",
+ "shift": [
+  0,
+  0
+ ],
+ "pre_match_pixel_sha256": "6ccf6a44870b2c5c4166ba50584e63d5b4e13168fbef0fc1530fd2c5e0585ac3",
+ "post_steps": [
+  {
+   "step": "palette_match",
+   "method": "Reinhard mean/std transfer in CIE Lab over opaque non-accent pixels (accent = chroma > p90 + 15); alpha untouched; near-black green key residue stripped",
+   "script": "spec/art_identity/prototype/match_palette.py",
+   "reference": "front/processed.png",
+   "reason": "judge b6: rear warmer than front (criterion 7)"
+  }
+ ]
 }
