@@ -21,3 +21,10 @@ Source: legacy audit `staged/legacy_audit/` (15 High, 14 Medium, 2 Low vs the 11
    material painted over the solo renders; joints from the projected maquette joints → a new case reusing the existing
    joint graph and motion sampler where the topology matches.
 5. Render/validate/integrate with the existing cutout pipeline; portraits; registry.
+
+## Lessons (rr-02 pilot, judge 2026-10-13)
+- Generate the rear only after the front is approved, with the approved front as its identity reference (the kit's
+  rule): parallel front/rear generation from the old art produced two material schemes (chain, hook, sleeves, helm).
+- State materials explicitly (no chainmail checker; "every patch ≥ 3 blocks"); keep the original coat colour so the
+  accent stays the accent.
+- Size class follows drawn height (art_scale × canvas): the gaoler is "medium" at art_scale 0.9.
