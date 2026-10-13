@@ -1,30 +1,97 @@
-import json, sys, numpy as np, soundfile as sf, pyloudnorm as pyln
-root = sys.argv[1]
-def mmax(path):
+"""Compare cue levels using BS.1770 window maxima at quarter-window hops."""
+from __future__ import annotations
+
+import argparse
+import json
+import math
+from pathlib import Path
+
+import numpy as np
+import soundfile as sf
+import pyloudnorm as pyln
+
+DEFAULT_WINDOW_SECONDS = 0.4
+HOP_WINDOW_RATIO = 0.25
+SILENCE_AMPLITUDE = 1e-6
+SILENT_MAX_LOUDNESS = -99.0
+REFERENCES = {"ref.melee_sword(-5.5)": ("assets/audio/sfx/attack_melee_sword_first.wav", -5.5)}
+
+
+def window_seconds(value) -> float:
+    try:
+        window = float(value)
+    except (TypeError, ValueError) as error:
+        raise argparse.ArgumentTypeError("window must be a positive finite number of seconds") from error
+    if not math.isfinite(window) or window <= 0:
+        raise argparse.ArgumentTypeError("window must be a positive finite number of seconds")
+    return window
+
+
+def mmax(path, window: float = DEFAULT_WINDOW_SECONDS) -> float:
+    window = window_seconds(window)
     x, sr = sf.read(path, always_2d=True)
-    m = pyln.Meter(sr, block_size=0.4)
-    win = int(0.4 * sr); hop = int(0.1 * sr)
-    if len(x) < win: x = np.vstack([x, np.zeros((win - len(x), x.shape[1]))])
-    best = -99.0
-    for s in range(0, len(x) - win + 1, hop):
-        seg = x[s:s+win]
-        if np.max(np.abs(seg)) < 1e-6: continue
-        v = m.integrated_loudness(seg)
-        if np.isfinite(v): best = max(best, v)
+    win = int(window * sr)
+    hop = int(window * HOP_WINDOW_RATIO * sr)
+    if win < 1 or hop < 1:
+        raise ValueError("window and quarter-window hop must each span at least one sample")
+    meter = pyln.Meter(sr, block_size=window)
+    if len(x) < win:
+        x = np.vstack([x, np.zeros((win - len(x), x.shape[1]))])
+    best = SILENT_MAX_LOUDNESS
+    for start in range(0, len(x) - win + 1, hop):
+        segment = x[start:start + win]
+        if np.max(np.abs(segment)) < SILENCE_AMPLITUDE:
+            continue
+        value = meter.integrated_loudness(segment)
+        if np.isfinite(value):
+            best = max(best, value)
     return best
-d = json.load(open(f"{root}/data/sfx_cues.json"))
-rows = {}
-for cue, c in d["cues"].items():
-    paths = c.get("variants") or c.get("fallback") or []
-    if c.get("variants_from"):
-        src = d["cues"][c["variants_from"]]; paths = src.get("variants") or src.get("fallback") or []
-    if not paths: continue
-    vals = [mmax(root + "/" + p.replace("res://", "")) for p in paths]
-    rows[cue] = {"file": round(float(np.mean(vals)), 1), "volume_db": c.get("volume_db", 0), "eff": round(float(np.mean(vals)) + c.get("volume_db", 0), 1), "n": len(paths), "has_variants": bool(c.get("variants"))}
-refs = {"ref.melee_sword(-5.5)": ("assets/audio/sfx/attack_melee_sword_first.wav", -5.5)}
-for k,(p,g) in refs.items():
-    try: rows[k] = {"file": round(mmax(root + "/" + p),1), "volume_db": g, "eff": round(mmax(root + "/" + p)+g,1)}
-    except Exception as e: rows[k] = {"err": str(e)}
-json.dump(rows, open(sys.argv[2], "w"), indent=1)
-for k, v in sorted(rows.items(), key=lambda kv: kv[1].get("eff", 0)):
-    print(f"{v.get('eff'):>6} {k:22} file={v.get('file')} vol={v.get('volume_db')}")
+
+
+def measure_mix(root: Path, window: float = DEFAULT_WINDOW_SECONDS) -> dict:
+    window = window_seconds(window)
+    root = Path(root)
+    with (root / "data/sfx_cues.json").open() as stream:
+        document = json.load(stream)
+    rows = {}
+    for cue, settings in document["cues"].items():
+        paths = settings.get("variants") or settings.get("fallback") or []
+        if settings.get("variants_from"):
+            source = document["cues"][settings["variants_from"]]
+            paths = source.get("variants") or source.get("fallback") or []
+        if not paths:
+            continue
+        values = [mmax(root / path.replace("res://", ""), window) for path in paths]
+        level = float(np.mean(values))
+        volume = settings.get("volume_db", 0)
+        rows[cue] = {"file": round(level, 1), "volume_db": volume,
+                     "eff": round(level + volume, 1), "n": len(paths),
+                     "has_variants": bool(settings.get("variants"))}
+    for cue, (path, volume) in REFERENCES.items():
+        try:
+            level = mmax(root / path, window)
+            rows[cue] = {"file": round(level, 1), "volume_db": volume,
+                         "eff": round(level + volume, 1)}
+        except Exception as error:
+            rows[cue] = {"err": str(error)}
+    return rows
+
+
+def main(argv=None) -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("root", type=Path)
+    parser.add_argument("out", type=Path)
+    parser.add_argument("--window", type=window_seconds, default=DEFAULT_WINDOW_SECONDS,
+                        help="BS.1770 window in seconds; hop is one quarter of the window (default: 0.4)")
+    args = parser.parse_args(argv)
+    rows = measure_mix(args.root, args.window)
+    with args.out.open("w") as stream:
+        json.dump(rows, stream, indent=1)
+    for cue, values in sorted(rows.items(), key=lambda item: item[1].get("eff", 0)):
+        effective = values.get("eff")
+        label = f"{effective:>6}" if effective is not None else " error"
+        print(f"{label} {cue:22} file={values.get('file')} vol={values.get('volume_db')}")
+
+
+if __name__ == "__main__":
+    main()
