@@ -104,3 +104,14 @@ sessions (`git -C <wt> checkout --detach <commit>` + headless `--import`), after
 ## Playtest 4 (frozen worktree ../peer-benchmark-playtest-4 at 4fc16f982; import + start fixture verified)
 New since playtest 3: start room opens the map (ux-01), threats at rest v2 (itb-03), en-02/03/06 section enemies with
 placeholder art, Chronicle (meta-02), Umbra Depths (meta-03), encounter fallback (qa-01). Do not touch that worktree.
+
+## Update (art-02 judge-complete, 2026-10-13)
+- All 12 section enemies re-painted through the identity kit; independent judge PASS on every front and rear
+  (spec/peer_benchmark/staged/reart/judge_log.md). Owner review images: output/peer-benchmark-2026-10-12/identity_gate/
+  review_before_after_board.png, review_fronts_rears_2x.png.
+- Gate learnings folded in: despill ring + key unmix; no-copy reference rule; front-only lateral axis; rear handedness
+  rule; rear-specific subjects when a rear keeps coming out as a front/side view; deterministic Lab palette match and
+  outline cleanup (prototypes in spec/art_identity/prototype/, to become first-class `process` steps in art-03).
+- Integration: en-01..06 all merged; full suite green at c474da57f+.
+- Next: owner approves art → art-03 (directional static art + portraits + density + registry + gate metrics:
+  edge_light_share, front/rear consistency).
