@@ -7,15 +7,21 @@ import re
 import sys
 import unittest
 
-import mido
-
-
 REPO_ROOT = Path(__file__).resolve().parents[1]
 TRACK_ROOT = REPO_ROOT / "output" / "classical_soundtracks" / "mussorgsky_pictures_old_castle"
 BUILDER_PATH = TRACK_ROOT / "scripts" / "build_main_menu_loop.py"
 CONFIG_PATH = TRACK_ROOT / "track.v03.json"
 V07_BUILDER_PATH = TRACK_ROOT / "scripts" / "build_main_menu_loop_v07.py"
 V07_CONFIG_PATH = TRACK_ROOT / "track.v07.json"
+MISSING_MODULES = tuple(name for name in ("mido", "music21")
+                        if importlib.util.find_spec(name) is None)
+OPTIONAL_MODULE_REASON = (
+    f"Missing optional modules: {', '.join(MISSING_MODULES)}; "
+    "run with .venv-classical-soundtrack/bin/python "
+    "(tools/classical_soundtrack_requirements.txt)."
+)
+if not MISSING_MODULES:
+    import mido
 
 
 def load_builder():
@@ -38,6 +44,7 @@ def load_v07_builder():
     return module
 
 
+@unittest.skipUnless(not MISSING_MODULES, OPTIONAL_MODULE_REASON)
 class OldCastleMainMenuArrangementTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -172,6 +179,7 @@ class OldCastleMainMenuArrangementTests(unittest.TestCase):
         )
 
 
+@unittest.skipUnless(not MISSING_MODULES, OPTIONAL_MODULE_REASON)
 class OldCastleApprovedIntegrationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:

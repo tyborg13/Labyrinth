@@ -1,0 +1,52 @@
+{
+  "focused_tests": {
+    "command": "python3 tests/test_ui_identity_lint.py",
+    "exit_code": 0,
+    "result_lines": [
+      "Ran 25 tests in 2.501s",
+      "OK"
+    ]
+  },
+  "tree_check": {
+    "command": "python3 tools/ui_identity_lint.py check",
+    "exit_code": 0,
+    "result_lines": [
+      "PASS: UI identity lint (1617 sites within baseline + exceptions)"
+    ]
+  },
+  "synthetic_violation": {
+    "exit_code": 1,
+    "result_lines": [
+      "FAIL: UI identity lint (1 file/rule counts above baseline + exceptions)",
+      "scripts/ui_identity_added_violation.gd:2: R1 raw box (1 > baseline 0 + exceptions 0); use UiSkin / UiComponentSurface.draw_plate"
+    ]
+  },
+  "full_python": {
+    "command": "python3 -m unittest discover -s tests -p 'test_*.py'",
+    "exit_code": 1,
+    "result_lines": [
+      "Ran 317 tests in 213.945s",
+      "FAILED (failures=3, errors=3, skipped=6)"
+    ],
+    "proof": "python_suite.txt"
+  },
+  "full_godot": {
+    "command": "python3 tools/godot_task_runner.py --task-id ui-01 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd",
+    "exit_code": 0,
+    "result_lines": [
+      "FULL SUITE RUNTIME: 675.574 seconds (budget 900 seconds)",
+      "TEST RESULT: PASS"
+    ],
+    "proof": "godot_suite.txt"
+  },
+  "baseline_source": {
+    "commit": "6e214d7a4b5989e5c700dde554d03494eb780823",
+    "scanned_files_unchanged": true
+  },
+  "chosen_defaults": {
+    "CLI_TIMEOUT_SECONDS": 60,
+    "SYNTHETIC_FILE": "scripts/ui_identity_added_violation.gd"
+  },
+  "windowed_proof": "Not applicable: tooling only; no rendered surface changed.",
+  "todo_design": []
+}

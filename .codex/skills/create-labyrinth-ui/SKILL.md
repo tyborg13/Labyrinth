@@ -22,3 +22,8 @@ description: Create, change, or review Escape the Umbra player-facing UI, copy, 
 - Avoid decorative taglines and free-floating explanatory copy; anchor text to the object, state, or action it describes.
 - Use the `imagegen` skill for new raster UI art when generation is appropriate; keep shared controls code-native.
 - Add focused logic tests when clicks, focus, navigation, state transitions, persistence, or outcomes change. Screenshots and logic tests prove different things.
+
+
+## UI identity gate
+
+Every UI change must pass [the UI identity gate](../../../spec/ui_identity_gate.md): run `python3 tests/test_ui_identity_lint.py` (never raise the baseline; use `UiSkin`, `UiComponentSurface`, `GildedFrame`, painted frames, `Palette` tokens and `UiTypography`), and ship a 1920×1080 capture for the independent judge ([rubric](../../../spec/ui_identity/judge_rubric.md)). A plain bordered box or pill is a failure even in palette colours.

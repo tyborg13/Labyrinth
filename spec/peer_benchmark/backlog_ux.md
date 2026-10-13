@@ -11,3 +11,7 @@
    three transient-heavy cues still short of target (hit.blade.light, status.shatter, status.freeze) → need a build
    limiter/compressor stage in sfx_lab, then re-render those.
 4. **Enemy-turn speed** (owner, 2026-10-12): undecided, needs more testing.
+5. **Stacked health bars** (2026-10-13 check): already handled — overlapping bars stack without overlap, each keeps
+   its order disc, the front unit's bar sits lowest (itb-03 crowded capture 09). No unit; revisit only if the owner
+   flags association problems.
+6. **SFX limiter** → sfx-03 (running).

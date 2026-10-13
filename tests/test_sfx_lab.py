@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import copy
 from html.parser import HTMLParser
+import importlib.util
 import json
 from pathlib import Path
 import runpy
@@ -17,20 +18,27 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from tools.sfx_lab.common import (LabError, TakeLibrary, decode, encode, fade_in, fade_out,
-    read_json, safe_path, sha256, normalize, db, write_json, write_jsonl, workers, SHORT_PEAK_TARGETS,
-    FADE_IN_MS, FADE_CURVE)
-from tools.sfx_lab.index import create_index, query
-from tools.sfx_lab.slice import create_slices, slice_audio
-from tools.sfx_lab.features import create_features, measure
-from tools.sfx_lab.audition import audition, PAGE_SCRIPT, PAGE_TITLE, AUDITION_CSS, KEYBOARD_SHORTCUTS
-from tools.sfx_lab.build import (build, process, encode_verified, CATEGORY_TARGETS, choose_channels,
-    crossfade_loop, peak_limiter, ENCODE_CORRECTION_TOLERANCE)
-from tools.sfx_lab.design import design, render_entry, render_layer, LAYER_DEFAULTS, MASTER_DEFAULTS
-import numpy as np
-import pyloudnorm as pyln
-import soundfile as sf
-from scipy import signal
+MISSING_MODULES = tuple(name for name in ("numpy", "soundfile", "scipy", "pyloudnorm")
+                        if importlib.util.find_spec(name) is None)
+SFX_TEST_PYTHON = "/Users/borgerding/.cache/umbra-sfx/venv/bin/python"
+OPTIONAL_MODULE_REASON = (
+    f"Missing optional modules: {', '.join(MISSING_MODULES)}; run with {SFX_TEST_PYTHON}."
+)
+if not MISSING_MODULES:
+    from tools.sfx_lab.common import (LabError, TakeLibrary, decode, encode, fade_in, fade_out,
+        read_json, safe_path, sha256, normalize, db, write_json, write_jsonl, workers, SHORT_PEAK_TARGETS,
+        FADE_IN_MS, FADE_CURVE)
+    from tools.sfx_lab.index import create_index, query
+    from tools.sfx_lab.slice import create_slices, slice_audio
+    from tools.sfx_lab.features import create_features, measure
+    from tools.sfx_lab.audition import audition, PAGE_SCRIPT, PAGE_TITLE, AUDITION_CSS, KEYBOARD_SHORTCUTS
+    from tools.sfx_lab.build import (build, process, encode_verified, CATEGORY_TARGETS, choose_channels,
+        crossfade_loop, peak_limiter, ENCODE_CORRECTION_TOLERANCE)
+    from tools.sfx_lab.design import design, render_entry, render_layer, LAYER_DEFAULTS, MASTER_DEFAULTS
+    import numpy as np
+    import pyloudnorm as pyln
+    import soundfile as sf
+    from scipy import signal
 
 
 # Debug-only proof defaults, not production design or approved cue choices.
@@ -58,7 +66,7 @@ WINDOW_MEASURE_FIXTURE = {"burst_seconds": .1, "tail_seconds": .6,
                           "burst_amplitude": .4, "tail_amplitude": .02,
                           "cue_volume_db": -2.0, "short_seconds": .05}
 MEASURE_MIX_SCRIPT = ROOT / "spec/peer_benchmark/staged/sfx/measure_mix.py"
-MIX_MEASURE = runpy.run_path(str(MEASURE_MIX_SCRIPT))
+MIX_MEASURE = runpy.run_path(str(MEASURE_MIX_SCRIPT)) if not MISSING_MODULES else {}
 
 
 def sine(seconds: float, frequency: float = 1000, amplitude: float = 0.2) -> np.ndarray:
@@ -95,6 +103,7 @@ class PageParser(HTMLParser):
             self.reading_data = False
 
 
+@unittest.skipUnless(not MISSING_MODULES, OPTIONAL_MODULE_REASON)
 class WindowMeasureTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory(prefix="sfx-window-tests-")
@@ -148,6 +157,7 @@ class WindowMeasureTests(unittest.TestCase):
         print("WINDOW_MEASURE_PROOF default_400ms=PASS short_100ms_25ms_hops=PASS cue_gain=PASS inheritance=PASS CLI=PASS")
 
 
+@unittest.skipUnless(not MISSING_MODULES, OPTIONAL_MODULE_REASON)
 class LimiterTests(unittest.TestCase):
     def pulse(self):
         fixture = LIMITER_SIGNAL_FIXTURE
@@ -218,6 +228,7 @@ class LimiterTests(unittest.TestCase):
                 peak_limiter(data, FIXTURE_RATE, settings)
 
 
+@unittest.skipUnless(not MISSING_MODULES, OPTIONAL_MODULE_REASON)
 class SfxLabTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -823,6 +834,7 @@ function assert(value,message){if(!value) throw Error(message);}
             self.assertTrue(result.stdout.strip())
 
 
+@unittest.skipUnless(not MISSING_MODULES, OPTIONAL_MODULE_REASON)
 class LayeredDesignTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

@@ -1,0 +1,45 @@
+{
+ "K": 3,
+ "drawn_size": [
+  159,
+  240
+ ],
+ "fit_scale": 0.9090909090909091,
+ "k_eff": 3.673828125,
+ "metrics": {
+  "height": 240,
+  "width": 159,
+  "height_drawn": 240.0,
+  "symmetry": 0.5855887992152317,
+  "thin_abs": 0.007146986178990011,
+  "thin_rel": 0.10830837143307581,
+  "feature_px": 5.8188856841307866,
+  "regions": 562,
+  "chroma": 0.18335110806107086,
+  "value": 0.2099780458928014,
+  "edge_light_share": 0.0,
+  "orphan_share": 0.05827946818014609,
+  "run_length": 2.238969290504765
+ },
+ "pixel_sha256": "7a31eda34506ed8ae72b20f3fc49ed1f45a7865d0f910b162ed35b05b9b50829",
+ "placement": [
+  49,
+  6
+ ],
+ "raw_sha256": "07f48e70beb5e4ea865133b836a26b863791ff6db44d0973c42b93d797bd71c3",
+ "shift": [
+  0,
+  0
+ ],
+ "pre_post_pixel_sha256": "731770fe7ed2c01cf88e73a720aecda881ca06b5772646623ac7ba2e98bbf6b7",
+ "post_steps": [
+  {
+   "step": "palette_match",
+   "script": "spec/art_identity/prototype/match_palette.py"
+  },
+  {
+   "step": "clean_outline",
+   "script": "spec/art_identity/prototype/clean_outline.py"
+  }
+ ]
+}

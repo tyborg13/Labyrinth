@@ -1,0 +1,113 @@
+Command: python3 -m unittest discover -s tests -p 'test_*.py'
+Exit code: 1
+
+.E...............................................
+======================================================================
+ERROR: setUpClass (test_old_castle_full_arrangement.OldCastleFullArrangementTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/ui-01/tests/test_old_castle_full_arrangement.py", line 30, in setUpClass
+    cls.builder = load_builder()
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/ui-01/tests/test_old_castle_full_arrangement.py", line 23, in load_builder
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 850, in exec_module
+  File "<frozen importlib._bootstrap>", line 228, in _call_with_frames_removed
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/ui-01/output/classical_soundtracks/mussorgsky_pictures_old_castle/scripts/build_full_arrangement.py", line 13, in <module>
+    import mido
+ModuleNotFoundError: No module named 'mido'
+
+======================================================================
+ERROR: test_old_castle_main_menu_arrangement (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_old_castle_main_menu_arrangement
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/ui-01/tests/test_old_castle_main_menu_arrangement.py", line 10, in <module>
+    import mido
+ModuleNotFoundError: No module named 'mido'
+
+
+======================================================================
+ERROR: test_sfx_lab (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_sfx_lab
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/ui-01/tests/test_sfx_lab.py", line 19, in <module>
+    from tools.sfx_lab.common import (LabError, TakeLibrary, decode, encode, fade_in, fade_out,
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/ui-01/tools/sfx_lab/common.py", line 23, in <module>
+    import pyloudnorm as pyln
+ModuleNotFoundError: No module named 'pyloudnorm'
+
+
+======================================================================
+FAIL: test_seed_matches_production_and_copies_portable_sources (test_cutout_workflow.CutoutWorkflowTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/ui-01/tests/test_cutout_workflow.py", line 64, in test_seed_matches_production_and_copies_portable_sources
+    self.assertTrue(validate(case, "all")["ok"])
+AssertionError: False is not true
+
+======================================================================
+FAIL: test_baseline_height_and_portraits (test_en05_assets.En05Assets)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/ui-01/tests/test_en05_assets.py", line 40, in test_baseline_height_and_portraits
+    self.assertEqual(bounds[3], baseline)
+AssertionError: 246 != 251
+
+======================================================================
+FAIL: test_deepest_route_depth_generates_a_verified_room_with_live_moves (test_inspection_fixture.InspectionFixtureTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/ui-01/tests/test_inspection_fixture.py", line 287, in test_deepest_route_depth_generates_a_verified_room_with_live_moves
+    self.assertEqual(result.returncode, 0, result.stderr + result.stdout)
+AssertionError: 1 != 0 : ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+INSPECTION FIXTURE ERROR: Could not traverse a resolved route to depth 23 with live moves; stopped at (3, -3) depth 3 in mode graftwright after 6 steps.
+Inspection fixture generator:
+  task: deepest-route-depth-test-63918
+  run: deepest-route-depth-test-63918
+  scenario: start
+  command: cd /Users/borgerding/workspace/Labyrinth.worktrees/ui-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --project /Users/borgerding/workspace/Labyrinth.worktrees/ui-01 --task-id deepest-route-depth-test-63918 --run-id deepest-route-depth-test-63918 --godot-home-root /private/tmp/labyrinth-godot-home -- godot --headless --path . --script tools/inspection_fixture.gd -- --scenario start --route-depth 23 --summary 'Verify the deepest non-terminal traversed route fixture.'
+  verifier: cd /Users/borgerding/workspace/Labyrinth.worktrees/ui-01 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --project /Users/borgerding/workspace/Labyrinth.worktrees/ui-01 --task-id deepest-route-depth-test-63918 --run-id deepest-route-depth-test-63918 --godot-home-root /private/tmp/labyrinth-godot-home -- godot --headless --path . --script tools/inspection_fixture_verify.gd
+  manifest: /private/tmp/labyrinth-inspection-manifests/deepest-route-depth-test-63918.json
+
+Inspection launch command (regenerates and verifies the pre-action state first):
+  cd /Users/borgerding/workspace/Labyrinth.worktrees/ui-01 && python3 tools/inspection_fixture.py --project /Users/borgerding/workspace/Labyrinth.worktrees/ui-01 --task-id deepest-route-depth-test-63918 --run-id deepest-route-depth-test-63918 --godot godot --godot-home-root /private/tmp/labyrinth-godot-home --manifest /private/tmp/labyrinth-inspection-manifests/deepest-route-depth-test-63918.json --launch --scenario start --route-depth 23 --summary 'Verify the deepest non-terminal traversed route fixture.'
+
+Verified handoff input:
+  --inspection-manifest /private/tmp/labyrinth-inspection-manifests/deepest-route-depth-test-63918.json
+
+Running task-local command:
+  task: deepest-route-depth-test-63918
+  run: deepest-route-depth-test-63918
+  HOME: /private/tmp/labyrinth-godot-home/deepest-route-depth-test-63918
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/deepest-route-depth-test-63918/godot.log --headless --path . --script tools/inspection_fixture.gd -- --scenario start --route-depth 23 --summary 'Verify the deepest non-terminal traversed route fixture.'
+  timeout: 300s
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+
+
+----------------------------------------------------------------------
+Ran 317 tests in 213.945s
+
+FAILED (failures=3, errors=3, skipped=6)
+ADOPTED 1 source file(s)
+ADOPTED 1 source file(s)
+ADOPTED 3 source file(s)
+PROCESSED 2 file(s)
+CHECK-OK
+WROTE-ORIGINALS 1 file(s)
+stale: paint/a.png
+PROCESSED 1 file(s)
+CHECK-OK
+stale: paint/b.png
+Visual proof result manifest: /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmpyao18kbo/report.json

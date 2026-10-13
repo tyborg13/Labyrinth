@@ -54,7 +54,7 @@ class GateTests(unittest.TestCase):
         subject = self.temp / "subject.md"
         subject.write_text("Test fixture subject.\n")
         args = dict(id="fixture", subject=str(subject), view="creature_front", size_class="medium", anatomy="biped",
-                    peers=["harrier_front", "grave_surgeon_front"], front_ref=None, target_h=None, target_w=None,
+                    peers=["arc_thrall_front", "grave_surgeon_front"], front_ref=None, target_h=None, target_w=None,
                     out_dir=str(self.temp / folder))
         args.update(overrides)
         return argparse.Namespace(**args)
@@ -209,7 +209,7 @@ class GateTests(unittest.TestCase):
         prototype_functions("metrics.py", namespace)
         prototype_metric = namespace["metrics"]
         prototype_functions("scale.py", namespace)
-        canon = gate.canon_entries(ROOT)
+        canon = gate.canon_entries(ROOT, include_retired=True)
         for name in ("hero_front", "crawler_front", "crag_outcrop"):
             entry = canon[name]
             path = ROOT / entry["path"]
@@ -269,12 +269,18 @@ class GateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "front-ref"):
             gate.make_kit(self.kit_args(view="creature_rear"))
 
+    def test_retired_canon_resolves_for_provenance_but_not_for_new_kits(self):
+        self.assertIn("harrier_front", gate.canon_entries(ROOT, include_retired=True))
+        self.assertNotIn("harrier_front", gate.canon_entries(ROOT))
+        with self.assertRaisesRegex(ValueError, "not canon"):
+            gate.make_kit(self.kit_args(peers=["harrier_front", "grave_surgeon_front"]))
+
     def test_rear_front_reference_is_unchanged_and_peers_match_view(self):
         args = self.kit_args(view="creature_rear", front_ref=FIXTURES / "hero_front.png")
         kit = gate.make_kit(args)
         self.assertEqual((Path(args.out_dir) / "refs/01_front_ref.png").read_bytes(), args.front_ref.read_bytes())
         self.assertEqual([ref.get("canon_id") for ref in kit["refs"][1:]],
-                         ["hero_rear", "harrier_rear", "grave_surgeon_rear"])
+                         ["hero_rear", "arc_thrall_rear", "grave_surgeon_rear"])
 
     def test_object_kit_guide_and_factor_boundary(self):
         args = self.kit_args(view="object_plinth", anatomy="plinth", peers=["crag_outcrop", "raised_cover"], size_class="large")
@@ -513,7 +519,7 @@ class GateTests(unittest.TestCase):
         shutil.copytree(args.out_dir, root / "jobs/fixture")
         canon = gate.read_json(ROOT / gate.IDENTITY / "canon.json")
         gate.write_json(root / gate.IDENTITY / "canon.json", canon)
-        for reference in canon["entries"]:
+        for reference in canon["entries"] + canon.get("retired", []):
             target = root / reference["path"]
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / reference["path"], target)
@@ -640,13 +646,13 @@ class GateTests(unittest.TestCase):
                     ids = gate.make_canon_sheet(path, view)
                 expected = {entry["id"] for entry in canon.values() if entry["kind"] == "object" or entry["view"] == view}
                 self.assertEqual(set(ids), expected)
-                self.assertEqual(len(ids), 20)
+                self.assertEqual(len(ids), 16)  # hero + grave surgeon + 10 art-02 creatures per view + 4 objects
                 self.assertTrue({"crag_outcrop", "raised_cover", "watch_brazier"}.issubset(ids))
                 subjects = [subject for call in render.call_args_list for subject in call.args[2]]
                 self.assertEqual([subject[2] for subject in subjects], ids)
                 by_id = {label: (image, scale) for image, scale, label in subjects}
-                self.assertEqual(by_id["crawler_" + view][1], 0.64)
-                self.assertEqual(by_id["stone_warden_" + view][1], 1.18)
+                self.assertEqual(by_id["burrow_grub_" + view][1], 0.85)
+                self.assertEqual(by_id["slag_mortar_" + view][1], 1.04)
                 for id, (image, _) in by_id.items():
                     self.assertEqual(gate.pixel_digest(image), gate.pixel_digest(gate.rgba(ROOT / canon[id]["path"])))
                 output = gate.rgba(path)

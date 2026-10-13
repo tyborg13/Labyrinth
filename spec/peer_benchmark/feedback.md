@@ -32,3 +32,12 @@
 - Director: judge rubric gains criterion 9 (structure legibility); bird rears to be built from a 3D maquette
   (front + rear rendered from one posed proxy at the board camera) instead of text-only generation.
 - Owner 2026-10-13: "Let's try the maquette... The other enemies are approved." → art-03 integrates 11; shrike via Blender maquette pilot.
+- Owner 2026-10-13: canon cut approved (hero + approved art-02 + grave surgeon + props); roster upgrade phased, regulars first.
+
+## 2026-10-13 — maquette verdict
+- Owner: the maquette shrike "looks better... the wings make perfect sense now". Pose note: the front is too level with
+  the rump up in the air; prefer a perched stance — upright on two legs, tail down toward the ground (like the rear).
+  "I think we probably want to make that our baseline that we work from and we might need to do the same kind of thing
+  for other bird and bird-like characters who have goofed up wings in their rear views."
+- Director: shrike re-posed perched (body nose-up ~32°, legs under the centre of mass, tail angled down); maquette is
+  the baseline route for anatomy image generation cannot infer; rocs' rears move to the front of wave 2.

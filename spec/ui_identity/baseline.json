@@ -1,0 +1,325 @@
+{
+  "counts": {
+    "scripts/board_surface_presentation.gd": {
+      "R2": 33
+    },
+    "scripts/card_action_context_art.gd": {
+      "R2": 4
+    },
+    "scripts/card_widget.gd": {
+      "R1": 2,
+      "R2": 44
+    },
+    "scripts/chain_attack_feedback.gd": {
+      "R2": 1
+    },
+    "scripts/character_dialog_retention.gd": {
+      "R2": 2
+    },
+    "scripts/character_menu_surface.gd": {
+      "R1": 1
+    },
+    "scripts/character_menu_view.gd": {
+      "R1": 3,
+      "R2": 2
+    },
+    "scripts/chronicle_panel.gd": {
+      "R1": 1,
+      "R2": 11,
+      "R3": 4,
+      "R5": 1
+    },
+    "scripts/combat_art_treatment.gd": {
+      "R2": 2
+    },
+    "scripts/combat_atmosphere.gd": {
+      "R2": 4
+    },
+    "scripts/combat_board_view.gd": {
+      "R2": 229,
+      "R3": 6,
+      "R4": 2,
+      "R5": 24,
+      "R6": 11
+    },
+    "scripts/combat_hud_intents.gd": {
+      "R6": 1
+    },
+    "scripts/combat_objective_hud.gd": {
+      "R1": 2,
+      "R2": 8,
+      "R6": 1
+    },
+    "scripts/contextual_combat_prompt.gd": {
+      "R1": 1,
+      "R2": 19,
+      "R3": 2
+    },
+    "scripts/controller_analog_cursor.gd": {
+      "R2": 7
+    },
+    "scripts/controller_prompt_bar.gd": {
+      "R1": 1,
+      "R2": 2
+    },
+    "scripts/custom_cursor_glyph.gd": {
+      "R2": 38
+    },
+    "scripts/elemental_spell_fx.gd": {
+      "R2": 9
+    },
+    "scripts/ember_hearth_presentation.gd": {
+      "R2": 2
+    },
+    "scripts/ember_reward_feedback.gd": {
+      "R2": 4
+    },
+    "scripts/enemy_mechanics/bramble_view.gd": {
+      "R2": 2
+    },
+    "scripts/enemy_mechanics/burrow_view.gd": {
+      "R2": 5,
+      "R5": 1
+    },
+    "scripts/enemy_mechanics/capacitor_view.gd": {
+      "R2": 2
+    },
+    "scripts/enemy_mechanics/death_burst_view.gd": {
+      "R2": 1
+    },
+    "scripts/enemy_mechanics/dive_view.gd": {
+      "R2": 1
+    },
+    "scripts/enemy_mechanics/icefall_view.gd": {
+      "R2": 2,
+      "R5": 1
+    },
+    "scripts/enemy_mechanics/kindle_view.gd": {
+      "R2": 1
+    },
+    "scripts/enemy_mechanics/lob_view.gd": {
+      "R2": 3,
+      "R5": 1
+    },
+    "scripts/enemy_mechanics/reflect_view.gd": {
+      "R2": 1,
+      "R5": 1
+    },
+    "scripts/enemy_mechanics/tether_view.gd": {
+      "R2": 1
+    },
+    "scripts/enemy_mechanics/veil_view.gd": {
+      "R2": 1
+    },
+    "scripts/enemy_mechanics/wind_view.gd": {
+      "R2": 1
+    },
+    "scripts/event_view.gd": {
+      "R2": 1,
+      "R5": 1
+    },
+    "scripts/event_view_choice.gd": {
+      "R1": 1
+    },
+    "scripts/event_view_text.gd": {
+      "R5": 1
+    },
+    "scripts/floating_combat_text.gd": {
+      "R2": 4
+    },
+    "scripts/graftwright_choice.gd": {
+      "R1": 2,
+      "R2": 7,
+      "R3": 1
+    },
+    "scripts/graftwright_view.gd": {
+      "R2": 14
+    },
+    "scripts/health_ghost_tracker.gd": {
+      "R2": 2
+    },
+    "scripts/hud_seat_scrim.gd": {
+      "R2": 1
+    },
+    "scripts/illusion_card_rules.gd": {
+      "R2": 6
+    },
+    "scripts/input_glyph.gd": {
+      "R1": 1,
+      "R2": 25,
+      "R5": 1
+    },
+    "scripts/input_prompt.gd": {
+      "R2": 2
+    },
+    "scripts/intent_badges.gd": {
+      "R1": 1,
+      "R2": 3
+    },
+    "scripts/intent_callouts.gd": {
+      "R2": 1
+    },
+    "scripts/labyrinth_map_view.gd": {
+      "R2": 61,
+      "R3": 1,
+      "R5": 3
+    },
+    "scripts/main_menu.gd": {
+      "R1": 2,
+      "R2": 47,
+      "R5": 3
+    },
+    "scripts/menu_run_transition.gd": {
+      "R2": 3
+    },
+    "scripts/merchant_acquisition_effect.gd": {
+      "R1": 1,
+      "R2": 1
+    },
+    "scripts/molt_exchange_feedback.gd": {
+      "R2": 3
+    },
+    "scripts/new_descent_panel.gd": {
+      "R1": 2,
+      "R2": 5,
+      "R5": 1
+    },
+    "scripts/post_combat_reward_sequence.gd": {
+      "R2": 2
+    },
+    "scripts/pre_battle_controls.gd": {
+      "R2": 2
+    },
+    "scripts/pre_battle_inspection_view.gd": {
+      "R1": 1
+    },
+    "scripts/pre_battle_view.gd": {
+      "R1": 1
+    },
+    "scripts/retaliate_rules.gd": {
+      "R2": 2
+    },
+    "scripts/run_end_recap_overlay.gd": {
+      "R1": 1,
+      "R2": 11,
+      "R5": 5
+    },
+    "scripts/run_scene.gd": {
+      "R1": 37,
+      "R2": 503,
+      "R3": 1
+    },
+    "scripts/scavenger_action.gd": {
+      "R1": 1,
+      "R2": 9
+    },
+    "scripts/scavenger_atmosphere.gd": {
+      "R2": 2
+    },
+    "scripts/scavenger_materials.gd": {
+      "R2": 3
+    },
+    "scripts/scavenger_price_tag.gd": {
+      "R2": 2
+    },
+    "scripts/scavenger_shop_view.gd": {
+      "R1": 1,
+      "R2": 13
+    },
+    "scripts/scavenger_signage.gd": {
+      "R2": 1,
+      "R5": 1
+    },
+    "scripts/scavenger_ware.gd": {
+      "R1": 1,
+      "R2": 3
+    },
+    "scripts/section_map_canvas.gd": {
+      "R2": 7
+    },
+    "scripts/section_map_node.gd": {
+      "R2": 34
+    },
+    "scripts/section_map_panel.gd": {
+      "R2": 3
+    },
+    "scripts/section_map_skin.gd": {
+      "R1": 1,
+      "R2": 8
+    },
+    "scripts/segmented_health_bar.gd": {
+      "R2": 4,
+      "R3": 1
+    },
+    "scripts/settings_panel.gd": {
+      "R1": 5,
+      "R2": 22,
+      "R5": 2
+    },
+    "scripts/skill_tree_view.gd": {
+      "R1": 1,
+      "R2": 48,
+      "R3": 2
+    },
+    "scripts/stone_outcrop_art.gd": {
+      "R2": 2
+    },
+    "scripts/strike_trail_fx.gd": {
+      "R2": 18
+    },
+    "scripts/tempo_rules.gd": {
+      "R2": 4
+    },
+    "scripts/themed_button_ornament.gd": {
+      "R2": 11,
+      "R3": 1
+    },
+    "scripts/themed_inset_ornament.gd": {
+      "R2": 19
+    },
+    "scripts/themed_panel_ornament.gd": {
+      "R2": 8
+    },
+    "scripts/threat_tiles.gd": {
+      "R2": 1,
+      "R6": 1
+    },
+    "scripts/turn_banner.gd": {
+      "R2": 3,
+      "R5": 1
+    },
+    "scripts/turn_clock_forecast_line.gd": {
+      "R2": 1
+    },
+    "scripts/turn_order_ink.gd": {
+      "R1": 1,
+      "R2": 8
+    },
+    "scripts/turn_order_landing_strip.gd": {
+      "R1": 1,
+      "R2": 3
+    },
+    "scripts/ui_ink_pool_stage.gd": {
+      "R2": 2
+    },
+    "scripts/ui_skin.gd": {
+      "R2": 49
+    },
+    "scripts/ui_socket.gd": {
+      "R2": 3
+    },
+    "scripts/ui_surface_finish.gd": {
+      "R2": 13
+    },
+    "scripts/ui_tooltip_panel.gd": {
+      "R2": 5
+    },
+    "scripts/ui_typography.gd": {
+      "R2": 1
+    },
+    "scripts/veilbound_acolyte_cutout/fx.gd": {
+      "R2": 3
+    }
+  },
+  "version": 1
+}
