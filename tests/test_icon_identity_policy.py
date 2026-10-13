@@ -57,6 +57,7 @@ ALLOWED_EXACT_ACTION_ALIAS_GROUPS = {
     frozenset({"gain_charge", "reset_charge"}),
     # Icefall marking and landing are the same delayed-icicle concept.
     frozenset({"icefall_mark", "icefall_land"}),
+    frozenset({"lob_mark", "lob_land"}),
     frozenset({"heal", "heal_self"}),
     frozenset({"move", "move_toward"}),
     frozenset({"outcrop", "raise_terrain"}),

@@ -8395,5 +8395,26 @@
     "mode": "clean",
     "grid": 0.78,
     "facing": "rear"
+  },
+  "assets/art/enemies/briar_weaver.png": {
+    "pixel_sha256": "ee17a7592ab6a72aff9b0eacc79f015c5ed5f009329067b8cb93e48af2ae6642",
+    "source_pixel_sha256": "b1dab4fed690d665f0123741979253bd96133d91cd2dcf7a5628e30c3455fc43",
+    "id": "briar_weaver",
+    "mode": "regrid",
+    "grid": 1.5
+  },
+  "assets/art/enemies/slag_mortar.png": {
+    "pixel_sha256": "2f3e4cc3839cd5d480478b7094bfa4daef325f55ca4cad33f503dbcdc69c0410",
+    "source_pixel_sha256": "f367f9a1612b708fbf491a37bbf50432c462640b4f0afab1cb99796373c99c5d",
+    "id": "slag_mortar",
+    "mode": "regrid",
+    "grid": 1.5
+  },
+  "assets/props/enemies/bramble_thicket.png": {
+    "pixel_sha256": "873b385c7dc5304ce834bde8216c72a50d7005aa0853e2a89aface2f4b786044",
+    "source_pixel_sha256": "4a36e552263f1172fd4578a7e93fdb9ada859cdf8591bf5a8be58e67dcd7596d",
+    "id": "bramble_thicket",
+    "mode": "regrid",
+    "grid": 1.5
   }
 }

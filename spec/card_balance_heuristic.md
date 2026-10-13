@@ -941,6 +941,29 @@ Enemy-caused kills retain the existing Ember policy; only the initiating
 player-card kill grants the existing bonus card play. No new analytics event
 is needed: resolution uses existing enemy actions, deaths, and ground events.
 
+
+## Director-authored section enemies E2: en-04
+
+Protected source: `peer_benchmark/staged/enemies/wave_e2.json`; assumptions are
+mirrored by `tools/card_heuristic.py` under `section_enemies_e2_en04`. No
+intrinsic card coefficient or director-authored number is retuned.
+
+| Enemy | HP / base initiative / Embers | Authored mean cadence at local depth 2 | Comparison and positional counterplay |
+| --- | --- | --- | --- |
+| Briar Weaver | 14 / 12 / 11 | 17.5 when all three intents are legal: 12 + (3×6 + 2×5 + 5)/6 | Hoarfrost Seer 12 / 12 / 11 and its terrain control. Immediate front-line Bramble, 3 enemy-turn boundaries, no sight block; walk around before closure, push enemies into it for 2 + Bleed 1. Lash 3 + Bleed 1 within 3; heal most wounded other ally within 3 for 4, otherwise Lash. |
+| Slag Mortar | 18 / 14 / 13 | Range 3–6: 19.75 initially, 19 steady including forced landing: 14 + (3×(6+4)+5)/7. Within 2: 19 (Scatter/Brace both Time 5). | Hoarfrost Seer delayed geometry and Warden 20 / 14 / 12 heavy anchor. Lob snapshots a cross ignoring sight; centre 5, arms 3, then Fire. Leave the cross, push enemies onto it, close within 2 to deny new marks. Brace Block 6 + Retreat 2; Scatter ranged 3 + Push 1. |
+
+The Mortar's first ranged mean is 19.75 (14 + (3×6+5)/4), while its
+steady mean including forced landings is 19. Both near and far behaviors
+remove impossible choices before the seeded roll; the table's close cycle
+is 19. A hypothetical all-choice weighted mean is 19.5 initially and 19
+including forced landings, but Lob and Scatter are mutually exclusive in a
+real state. Bramble's grow turn spends its first boundary, as Ice Pillars do.
+Wind collides against a last-round tangle before expiry. Bramble has lifetime,
+not HP; collision never destroys it. Friendly-fire rewards use existing
+Ember rules and never player-card bonus credit. Mark state and terrain rounds
+round-trip through the existing save decoder. No new analytics event is needed.
+The design owner adds encounter groups after merge.
 ## Section regulars: EN06 (director wave E2)
 
 Protected values come from `peer_benchmark/staged/enemies/wave_e2.json` and

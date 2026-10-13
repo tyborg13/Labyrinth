@@ -1239,6 +1239,8 @@ const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_FRAME_OUTSET: Vector2 = Vector2(48.0, 32.0)
 const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v8.png"
 const TURN_ORDER_PORTRAITS := {
+	"briar_weaver": "res://assets/art/portraits/briar_weaver.png",
+	"slag_mortar": "res://assets/art/portraits/slag_mortar.png",
 	"storm_capacitor": "res://assets/art/portraits/storm_capacitor.png",
 	"hollow_mimic": "res://assets/art/portraits/hollow_mimic.png",
 	"hoarfrost_seer": "res://assets/art/portraits/hoarfrost_seer.png",
@@ -24475,6 +24477,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			await _animate_hidden_umbra_enemy_step(animated_state, step)
 			_combat_pacing.after_step(step)
 			continue
+		if step.has("en04_mechanic"):
+			if str(step["en04_mechanic"]).begins_with("lob"): await preload("res://scripts/enemy_mechanics/lob_view.gd").animate(self, animated_state, step)
+			else: await preload("res://scripts/enemy_mechanics/bramble_view.gd").animate(self, animated_state, step)
+			_combat_pacing.after_step(step)
+			continue
 		if str(step.get("action_type", "")) == "chain_discharge" or bool(step.get("en06_mirror", false)):
 			if bool(step.get("en06_mirror", false)): await preload("res://scripts/enemy_mechanics/mimic_view.gd").animate(self, animated_state, step)
 			else: await preload("res://scripts/enemy_mechanics/capacitor_view.gd").animate(self, animated_state, step)
@@ -26054,6 +26061,10 @@ func _equipped_equipment_for_board() -> Dictionary:
 
 func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void:
 	preload("res://scripts/enemy_mechanics/capacitor_view.gd").queue_grounded(self, step)
+	if step.has("en04_state_after"):
+		animated_state.clear()
+		animated_state.merge(step["en04_state_after"].duplicate(true), true)
+		return
 	if step.has("en06_after"):
 		animated_state.merge((step["en06_after"] as Dictionary).duplicate(true), true)
 		return

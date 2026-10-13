@@ -79,6 +79,14 @@ Element identity (`element_fire`, `element_ice`, `element_lightning`, `element_a
 
 `icefall_mark` and `icefall_land` share the director-approved `icefall` identity: marking and resolving one delayed icicle strike. `call_wind` and the Wind HUD chip share the director-approved `wind` identity. No borrowed icons. Sources and hashes: `spec/peer_benchmark/staged/enemies/raw_sha256.txt`.
 
+
+## Section enemies E2 (en-04)
+
+`grow_bramble` and the Bramble terrain tooltip use the approved `bramble`
+painting. `lob_mark` and `lob_land` share the approved `lob` painting because
+marking and landing are one delayed Lob Slag concept. Both paintings are
+independent of Meteorfall and Icefall; hashes are recorded additively under
+`spec/assets/enemies/`. No generic or temporary icon aliases were added.
 ## EN06 section enemy identities
 
 | Concept / actions | Identity | Approved source |

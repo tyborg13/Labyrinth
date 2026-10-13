@@ -2,6 +2,8 @@ extends RefCounted
 class_name CombatEngine
 
 const DepthRules = preload("res://scripts/depth_rules.gd")
+const BrambleRules = preload("res://scripts/enemy_mechanics/bramble.gd")
+const LobRules = preload("res://scripts/enemy_mechanics/lob.gd")
 const IcefallRules = preload("res://scripts/enemy_mechanics/icefall.gd")
 const WindRules = preload("res://scripts/enemy_mechanics/wind.gd")
 
@@ -119,7 +121,7 @@ const CARDINAL_DIRECTIONS: Array[Vector2i] = [
 ]
 const SURFACE_BONUS_FIELDS := ["amount", "damage", "shock", "bleed", "expose", "sunder", "chain", "push", "pull"]
 const PLAYER_BLEED_TRIGGER_ACTION_TYPES := ["move", "melee", "ranged", "aoe", "push", "pull", "detonate"]
-const ENEMY_BLEED_TRIGGER_ACTION_TYPES := ["erupt", "move_toward", "move_away", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "terrain_burst", "detonate_cinders", "gale_force", "umbra_eclipse"]
+const ENEMY_BLEED_TRIGGER_ACTION_TYPES := ["lob_land", "erupt", "move_toward", "move_away", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "terrain_burst", "detonate_cinders", "gale_force", "umbra_eclipse"]
 const ZEKARION_TYPE: String = "zekarion"
 const LIGHTNING_WISP_TYPE: String = "lightning_wisp"
 const DRAGON_SPIRE_KIND: String = "dragon_spire"
@@ -1215,7 +1217,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 				if enemy_targetable:
 					_append_enemy_footprint_targets(targets, enemy)
 			for terrain: Dictionary in _live_terrain(state):
-				if not IcefallRules.attackable(terrain): continue
+				if not BrambleRules.attackable(terrain): continue
 				var terrain_pos: Vector2i = terrain.get("pos", Vector2i.ZERO)
 				if PathUtils.manhattan(player_pos, terrain_pos) <= melee_range and not targets.has(terrain_pos):
 					targets.append(terrain_pos)
@@ -1236,7 +1238,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 				if enemy_targetable:
 					_append_enemy_footprint_targets(targets, enemy)
 			for terrain: Dictionary in _live_terrain(state):
-				if not IcefallRules.attackable(terrain): continue
+				if not BrambleRules.attackable(terrain): continue
 				var terrain_pos: Vector2i = terrain.get("pos", Vector2i.ZERO)
 				if DragonTrophyRules.route(self,state,resolved_action,terrain_pos,visible_lookup).is_empty():
 					continue
@@ -2528,7 +2530,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 	if bool(turn_setup.get("skip_all", false)):
 		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		var before_skip_resolution: Dictionary = next_state.duplicate(true) if include_commit_steps else {}
-		next_state = WindRules.complete_turn(self, next_state, steps)
+		next_state = BrambleRules.complete_turn(self, next_state, steps)
 		var skip_enemies: Array = next_state.get("enemies", [])
 		if enemy_index >= 0 and enemy_index < skip_enemies.size():
 			var skip_enemy: Dictionary = _normalized_enemy(skip_enemies[enemy_index] as Dictionary)
@@ -2609,7 +2611,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			_record_runtime_performance_phase("enemy_turn_action_presentation_total", presentation_started)
 	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var before_turn_complete: Dictionary = next_state.duplicate(true) if include_commit_steps else {}
-	next_state = WindRules.complete_turn(self, next_state, steps)
+	next_state = BrambleRules.complete_turn(self, next_state, steps)
 	if combat_outcome(next_state) == "":
 		var post_turn_enemies: Array = next_state.get("enemies", [])
 		if enemy_index >= 0 and enemy_index < post_turn_enemies.size():
@@ -2640,7 +2642,7 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
 	if not is_enemy_visible_to_player(state, enemy):
 		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
-	var intent: Dictionary = enemy.get("intent", {})
+	var intent: Dictionary = BrambleRules.effective_intent(self, state, enemy, enemy.get("intent", {}))
 	if not (intent.get("actions", []) as Array).is_empty() and BurrowRules.handles(intent["actions"][0]): return BurrowRules.threat(self, state, enemy_index, intent)
 	if intent.is_empty():
 		return {"move": [], "attack": [], "projected_path": [], "projected_attack": []}
@@ -2674,7 +2676,7 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 				for start_tile: Vector2i in frontier:
 					for attack_tile: Vector2i in _threat_attack_tiles(state, enemy, start_tile, action):
 						attack_lookup[attack_tile] = true
-			"icefall_mark", "icefall_land", "call_wind":
+			"icefall_mark", "icefall_land", "call_wind", "grow_bramble", "lob_mark", "lob_land":
 				for attack_tile: Vector2i in plan.get("projected_attack", []): attack_lookup[attack_tile] = true
 			"raise_terrain", "terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse":
 				for attack_tile: Vector2i in _boss_action_threat_tiles(state, enemy, action):
@@ -2780,7 +2782,7 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 		if combat_outcome(next_state) != "":
 			break
 		if bool(turn_setup.get("skip_all", false)):
-			next_state = WindRules.complete_turn(self, next_state, steps)
+			next_state = BrambleRules.complete_turn(self, next_state, steps)
 			var skip_enemies: Array = next_state.get("enemies", [])
 			if enemy_index >= 0 and enemy_index < skip_enemies.size():
 				var skip_enemy: Dictionary = _normalized_enemy(skip_enemies[enemy_index] as Dictionary)
@@ -2829,7 +2831,7 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 					steps.append(_umbra_marked_enemy_status_step(before_state, next_state, retaliate_step, enemy_id))
 				for retort_step: Dictionary in IllusionCardRules.presentation_steps(self, before_state, next_state):
 					steps.append(_umbra_marked_enemy_status_step(before_state, next_state, retort_step, enemy_id))
-		next_state = WindRules.complete_turn(self, next_state, steps)
+		next_state = BrambleRules.complete_turn(self, next_state, steps)
 		if combat_outcome(next_state) == "":
 			var post_turn_enemies: Array = next_state.get("enemies", [])
 			if enemy_index >= 0 and enemy_index < post_turn_enemies.size():
@@ -3920,7 +3922,7 @@ func _terrain_target_losses(before_state: Dictionary, after_state: Dictionary) -
 			continue
 		var before_terrain: Dictionary = before_terrain_var as Dictionary
 		# Ice Pillars are terrain with no attack durability or damage feedback.
-		if str(before_terrain.get("kind", "")) == "ice_pillar": continue
+		if str(before_terrain.get("kind", "")) in ["ice_pillar", "bramble"]: continue
 		if int(before_terrain.get("hp", 0)) <= 0:
 			continue
 		var terrain_id: String = str(before_terrain.get("id", ""))
@@ -4073,6 +4075,7 @@ func _enemy_support_target_index(state: Dictionary, source_enemy_index: int, act
 	var action_type: String = str(action.get("type", ""))
 	if action_type not in ENEMY_SUPPORT_ACTION_TYPES:
 		return -1
+	action = BrambleRules.mend_action(self, state, source_enemy, action)
 	var allow_self: bool = bool(action.get("allow_self", true))
 	var max_range: int = int(action.get("range", 99)) if action.has("range") else 99
 	var best_index: int = -1
@@ -4378,6 +4381,8 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 	if GuardianCombatRules.handles(action):
 		action["_resolved_path"] = action_context.get("resolved_path",_vector2i_values([enemy["pos"]]))
 		return GuardianCombatRules.resolve(self, next_state, enemy_index, action, rng, bleed_steps)
+	if BrambleRules.handles(action): return BrambleRules.resolve(self, next_state, enemy_index, action)
+	if LobRules.handles(action): return LobRules.resolve(self, next_state, enemy_index, action, bleed_steps)
 	if IcefallRules.handles(action): return IcefallRules.resolve(self, next_state, enemy_index, action)
 	if str(action.get("type", "")) == "call_wind": return WindRules.resolve(self, next_state, enemy_index, action)
 	var state_before_action: Dictionary = next_state.duplicate(true)
@@ -4886,7 +4891,7 @@ func _damage_terrain(state: Dictionary, terrain_index: int, damage: int) -> Dict
 	if terrain_index < 0 or terrain_index >= terrain_entries.size():
 		return next_state
 	var terrain: Dictionary = _normalized_terrain(terrain_entries[terrain_index])
-	if not IcefallRules.attackable(terrain): return next_state
+	if not BrambleRules.attackable(terrain): return next_state
 	if not BoardSurfaceRules.terrain_is_live(terrain):
 		return next_state
 	terrain["hp"] = maxi(0, int(terrain.get("hp", 0)) - damage)
@@ -5194,7 +5199,7 @@ func _normalized_terrain(terrain_value: Variant) -> Dictionary:
 	terrain["id"] = str(terrain.get("id", ""))
 	terrain["kind"] = str(terrain.get("kind", "wooden_box"))
 	terrain["pos"] = terrain.get("pos", Vector2i.ZERO)
-	if str(terrain["kind"]) == "ice_pillar":
+	if str(terrain["kind"]) in ["ice_pillar", "bramble"]:
 		terrain.erase("hp")
 		terrain.erase("max_hp")
 		return terrain
@@ -6354,7 +6359,7 @@ func _blocking_terrain_index_for_enemy_action(state: Dictionary, enemy_index: in
 		var terrain_index: int = _terrain_index_at_tile(state, tile)
 		if terrain_index < 0:
 			continue
-		if not IcefallRules.attackable(state["terrain"][terrain_index]): return -1
+		if not BrambleRules.attackable(state["terrain"][terrain_index]): return -1
 		if _enemy_action_reaches_tile(state, enemy, action, tile):
 			return terrain_index
 		return -1
@@ -6994,6 +6999,7 @@ func _force_collision_damage(state: Dictionary, kind: String, id: int, amount: i
 	return _surface_damage_actor(state, kind, id, amount, false, false)
 
 func _apply_force_collision(state: Dictionary, kind: String, id: int, contact: Dictionary, direction: Vector2i, lost: int, pushing: bool) -> Dictionary:
+	if BrambleRules.collision(self, state, kind, id, contact, direction, lost, pushing): return state
 	if IcefallRules.collision(self, state, kind, id, contact, direction, lost, pushing): return state
 	if IllusionRelicRules.puppet_collision(self, state, kind, id, contact, direction, lost, pushing):
 		return state
@@ -8532,10 +8538,11 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 	# Declared zero-weight follow-ups are forced; held mechanics survive skips.
 	var following_id: String = str((enemy.get("intent", {}) as Dictionary).get("next_intent", ""))
 	if enemy_type == "hoarfrost_seer" and not (enemy.get("icefall_tiles", []) as Array).is_empty(): following_id = "icefall_land"
+	if enemy_type == "slag_mortar" and not (enemy.get("lob_tiles", []) as Array).is_empty(): following_id = "slag_lands"
 	if bool(enemy.get("burrowed", false)): following_id = "erupt"
 	var following: Dictionary = _intent_by_id(intents, following_id) if not following_id.is_empty() else {}
 	if VeilRules.handles_intent(following) and not bool(VeilRules.plan(self, state, enemy_index, following).get("attack_available", true)): following = _intent_by_id(intents, "slash")
-	if not following.is_empty() and BurrowRules.available(enemy, following) and IcefallRules.available(self, state, enemy, following) and TetherRules.available(self, state, enemy_index, following):
+	if not following.is_empty() and BurrowRules.available(enemy, following) and IcefallRules.available(self, state, enemy, following) and TetherRules.available(self, state, enemy_index, following) and LobRules.available(self, state, enemy, following):
 		enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, following)
 		enemies[enemy_index] = enemy
 		return
@@ -8568,7 +8575,7 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		if typeof(intent_var) != TYPE_DICTIONARY:
 			continue
 		var intent: Dictionary = intent_var as Dictionary
-		if int(intent.get("weight", 1)) > 0 and IcefallRules.available(self, state, enemy, intent) and BurrowRules.available(enemy, intent) and _dragon_intent_available(state, enemy, intent) and TetherRules.available(self, state, enemy_index, intent):
+		if int(intent.get("weight", 1)) > 0 and IcefallRules.available(self, state, enemy, intent) and BurrowRules.available(enemy, intent) and _dragon_intent_available(state, enemy, intent) and TetherRules.available(self, state, enemy_index, intent) and BrambleRules.available(self, state, enemy, intent) and LobRules.available(self, state, enemy, intent):
 			if str(intent.get("id", "")) == "kindle" and not KindleRules.available(enemy): continue
 			available_intents.append(intent)
 	intents = available_intents
@@ -8578,7 +8585,7 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		enemy["intent"] = MimicRules.choose(self, state, enemy_index, intents, rng)
 		enemies[enemy_index] = enemy
 		return
-	if enemy_type in ["hoarfrost_seer", "gale_herald"]:
+	if enemy_type in ["hoarfrost_seer", "gale_herald", "briar_weaver", "slag_mortar"]:
 		enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, WindRules.choose_intent(self, state, enemy_index, intents, rng))
 		enemies[enemy_index] = enemy
 		return
@@ -8638,7 +8645,7 @@ func enemy_tactical_intent_options(state: Dictionary, enemy_index: int) -> Array
 		if typeof(intent_var) != TYPE_DICTIONARY:
 			continue
 		var intent: Dictionary = intent_var as Dictionary
-		if int(intent.get("weight", 1)) > 0 and IcefallRules.available(self, state, enemy, intent) and BurrowRules.available(enemy, intent) and _dragon_intent_available(state, enemy, intent) and TetherRules.available(self, state, enemy_index, intent):
+		if int(intent.get("weight", 1)) > 0 and IcefallRules.available(self, state, enemy, intent) and BurrowRules.available(enemy, intent) and _dragon_intent_available(state, enemy, intent) and TetherRules.available(self, state, enemy_index, intent) and BrambleRules.available(self, state, enemy, intent) and LobRules.available(self, state, enemy, intent):
 			if str(intent.get("id", "")) == "kindle" and not KindleRules.available(enemy): continue
 			available.append(intent)
 	return _enemy_tactical_intent_options(state, enemy_index, enemy, definition, available)
@@ -9016,6 +9023,8 @@ func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dicti
 	var damage_delta: int = _local_enemy_damage_delta(room_depth)
 	if damage_delta != 0 and (action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes" or action_type in BOSS_DAMAGE_ACTION_TYPES) and scaled.has("damage"):
 		scaled["damage"] = maxi(GameData.fixed_point_amount(1), int(scaled.get("damage", 0)) + damage_delta)
+	if action_type == "lob_land":
+		for field: String in ["center_damage", "arm_damage"]: scaled[field] = maxi(GameData.fixed_point_amount(1), int(scaled[field]) + damage_delta)
 	var support_delta: int = _local_enemy_support_delta(room_depth)
 	if support_delta != 0:
 		if action_type == "block" or action_type == "stoneskin" or action_type == "guard_ally":
@@ -9032,6 +9041,8 @@ func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dicti
 	if action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes" or action_type in BOSS_DAMAGE_ACTION_TYPES:
 		if scaled.has("damage"):
 			scaled["damage"] = int(scaled.get("damage", 0)) + damage_bonus
+	if action_type == "lob_land":
+		for field: String in ["center_damage", "arm_damage"]: scaled[field] = int(scaled[field]) + damage_bonus
 	if action_type == "block" or action_type == "stoneskin" or action_type == "guard_ally":
 		scaled["amount"] = int(scaled.get("amount", 0)) + support_bonus
 	elif action_type == "heal_self" or action_type == "heal_ally":
@@ -9091,6 +9102,11 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		_record_runtime_performance_phase("enemy_plan_total", performance_total_started)
 		return {}
 	var intent: Dictionary = intent_override if not intent_override.is_empty() else enemy.get("intent", {})
+	intent = BrambleRules.effective_intent(self, state, enemy, intent)
+	var bramble_plan: Dictionary = BrambleRules.plan(self, state, enemy_index, intent, attack_disabled)
+	if not bramble_plan.is_empty(): return bramble_plan
+	var lob_plan: Dictionary = LobRules.plan(self, state, enemy_index, intent, attack_disabled)
+	if not lob_plan.is_empty(): return lob_plan
 	if CapacitorRules.handles_intent(intent): return CapacitorRules.plan(self, state, enemy_index, intent, attack_disabled)
 	if MimicRules.handles_intent(intent): return MimicRules.plan(self, state, enemy_index, intent, movement_disabled, attack_disabled)
 	var icefall_plan: Dictionary = IcefallRules.plan(self, state, enemy_index, intent, attack_disabled)
@@ -9851,7 +9867,7 @@ func _enemy_future_anchor_step_cost(state: Dictionary, anchor_details: Dictionar
 			return -1
 		for terrain_index: int in terrain_indices:
 			var terrain: Dictionary = _normalized_terrain((state.get("terrain", []) as Array)[terrain_index])
-			if not IcefallRules.attackable(terrain): return -1
+			if not BrambleRules.attackable(terrain): return -1
 			var hits: int = ceili(float(int(terrain.get("hp", 0))) / float(damage))
 			cost += maxi(1, hits) * maxi(1, move_range)
 	var blocking_enemy_count: int = int(anchor_details.get("blocking_enemy_count", 0))
@@ -10060,7 +10076,7 @@ func _planned_blocking_terrain_index(state: Dictionary, enemy: Dictionary, attac
 	for anchor: Vector2i in route:
 		for terrain_index: int in _enemy_anchor_terrain_indices(state, enemy, anchor):
 			var terrain: Dictionary = _normalized_terrain((state.get("terrain", []) as Array)[terrain_index])
-			if not IcefallRules.attackable(terrain): return -1
+			if not BrambleRules.attackable(terrain): return -1
 			if _enemy_action_reaches_tile(state, enemy, attack_action, terrain.get("pos", INVALID_TILE)):
 				return terrain_index
 			return -1
@@ -12129,6 +12145,7 @@ func _surface_prepare_enemy_intent(state: Dictionary, enemy: Dictionary, intent:
 	return prepared
 
 func _surface_pay_enemy_fuel(state: Dictionary, enemy: Dictionary, intent: Dictionary) -> Dictionary:
+	intent = BrambleRules.effective_intent(self, state, enemy, intent)
 	var resolved: Dictionary = intent.duplicate(true)
 	var fuel: Dictionary = resolved.get("surface_fuel", {}) as Dictionary
 	if fuel.is_empty():
@@ -12236,7 +12253,9 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 	action = action.duplicate(true)
 	action["_resolved_path"] = action_context.get("resolved_path",_vector2i_values([before_state["enemies"][enemy_index]["pos"]]))
 	var step: Dictionary
-	if CapacitorRules.handles(action): step = CapacitorRules.animation_step(self, before_state, after_state, enemy_index, action, action_context)
+	if BrambleRules.handles(action): step = BrambleRules.animation_step(self, before_state, after_state, enemy_index, action)
+	elif LobRules.handles(action): step = LobRules.animation_step(self, before_state, after_state, enemy_index, action)
+	elif CapacitorRules.handles(action): step = CapacitorRules.animation_step(self, before_state, after_state, enemy_index, action, action_context)
 	elif MimicRules.handles(action): step = MimicRules.animation_step(self, before_state, after_state, enemy_index, action, action_context)
 	elif IcefallRules.handles(action): step = IcefallRules.animation_step(self, before_state, after_state, enemy_index, action)
 	elif str(action.get("type", "")) == "call_wind": step = WindRules.animation_step(self, before_state, after_state, enemy_index, action)

@@ -118,6 +118,7 @@ func _initialize() -> void:
 	EnemyTacticalAiSuite.run(Callable(self, "_assert"))
 	preload("res://tests/suites/en01_enemies_suite.gd").run(Callable(self, "_assert"))
 	preload("res://tests/suites/en02_enemies_suite.gd").run(Callable(self, "_assert"))
+	preload("res://tests/suites/en04_enemies_suite.gd").run(Callable(self, "_assert"))
 	ReachRebalanceSuite.run(Callable(self, "_assert"))
 	En06EnemiesSuite.run(Callable(self, "_assert"))
 	En03EnemiesSuite.run(Callable(self, "_assert"))
