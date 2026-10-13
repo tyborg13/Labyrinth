@@ -4,16 +4,18 @@
 | --- | --- | --- | --- |
 | hoarfrost_seer | PASS (b1) | PASS (b3) | pair consistent |
 | gale_herald | PASS (b1) | PASS (b4, after horn/colour edit) | horn bell 6° more copper on rear (nit) |
-| arc_thrall | PASS (b1) | FAIL (b4): rod on wrong arm (handedness) + redder skin | rear_v2 regenerating with body-side rule |
+| arc_thrall | PASS (b1) | PASS (b6, rear_v2: rod on the creature's left arm) | |
 | storm_capacitor | PASS (b1) | n/a (object) | base_v +0.56/-0.55 |
 | gloam_stalker | PASS (b1) | PASS (b4) | rear drips greyer violet (nit) |
 | burrow_grub | PASS (b2) | PASS (b4) | |
-| ember_tick | PASS (b3) | pending (rear v2 colour-matched) | |
-| gust_shrike | PASS (b3, v2) | FAIL (b4 colour; b5 side profile, not a back view) | rear_v2 from a rear-specific subject |
-| briar_weaver | PASS (b4, v3) | generating | |
-| slag_mortar | PASS (b4, art_scale 1.04) | generating | |
+| ember_tick | PASS (b3) | PASS (b6) | |
+| gust_shrike | PASS (b3, v2) | b7 FAIL outline specks only -> clean_outline post-step; re-check pending | |
+| briar_weaver | PASS (b4, v3) | PASS (b7, Lab palette match) | |
+| slag_mortar | PASS (b4, art_scale 1.04) | PASS (b7, rear_v3 from rear subject + Lab match) | kiln on its own left shoulder |
 | glacial_mirror | PASS (b4, v3) | PASS (b5) | |
-| hollow_mimic | PASS (b5, v4 obsidian + hero hair) | generating next | sci-fi flag cleared |
+| hollow_mimic | PASS (b5, v4) | PASS (b7, Lab match) | |
 
 Lesson (b4): rear prompts must name equipment by body side; views.md creature_rear/beast_rear now state the left/right screen swap.
 Lesson (b5): when an edit changes the design, update the subject file before generating its rear (the mimic rear kit still described glossy glass).
+
+Family check (b7): the 12 read as one family (same camera, dark earthy values, one accent, one-block outline); glacial mirror is the coolest/brightest, gust shrike the finest-grained (art_scale 0.75).

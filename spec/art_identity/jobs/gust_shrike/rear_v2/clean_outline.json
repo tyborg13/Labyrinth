@@ -1,0 +1,1 @@
+{"step": "clean_outline", "method": "silhouette-edge pixels brighter than 0.2 luminance take the front outline tone (20,16,21); isolated opaque pixels removed", "script": "spec/art_identity/prototype/clean_outline.py", "reason": "judge b7: broken light outline on the rear (14.3% of edge px > 0.2 vs 0.6% on the front)"}

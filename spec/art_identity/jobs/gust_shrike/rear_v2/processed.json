@@ -1,33 +1,42 @@
 {
-  "K": 3,
-  "drawn_size": [
-    234,
-    238
-  ],
-  "fit_scale": 1.0,
-  "k_eff": 3.0,
-  "metrics": {
-    "chroma": 0.07724113826821319,
-    "feature_px": 6.463126625094527,
-    "height": 238,
-    "height_drawn": 238.0,
-    "orphan_share": 0.012746994611026668,
-    "regions": 693,
-    "run_length": 4.379425113464448,
-    "symmetry": 0.6926608204343476,
-    "thin_abs": 0.013265165123670042,
-    "thin_rel": 0.08408180185159597,
-    "value": 0.20497123117313804,
-    "width": 234
-  },
-  "pixel_sha256": "7e53f4d7679b45fd13fc48647f9db8823004cfeb26738a3864d6612a122b14fe",
-  "placement": [
-    11,
-    8
-  ],
-  "raw_sha256": "5b8fc94bab89a4f3f20657fdade0844232c422469303135c2c787ca93fd777e9",
-  "shift": [
-    0,
-    0
-  ]
+ "K": 3,
+ "drawn_size": [
+  234,
+  238
+ ],
+ "fit_scale": 1.0,
+ "k_eff": 3.0,
+ "metrics": {
+  "height": 238,
+  "width": 234,
+  "height_drawn": 238.0,
+  "symmetry": 0.6926608204343476,
+  "thin_abs": 0.013265165123670042,
+  "thin_rel": 0.08408180185159597,
+  "feature_px": 6.500757956930756,
+  "regions": 685,
+  "chroma": 0.07641721328575647,
+  "value": 0.203072138818219,
+  "orphan_share": 0.009534337432637834,
+  "run_length": 4.464528069093152
+ },
+ "pixel_sha256": "913f8d14185d6f02cb96e77190389daac2cac9896de9bc7fdc56253188855eb2",
+ "placement": [
+  11,
+  8
+ ],
+ "raw_sha256": "5b8fc94bab89a4f3f20657fdade0844232c422469303135c2c787ca93fd777e9",
+ "shift": [
+  0,
+  0
+ ],
+ "pre_post_pixel_sha256": "7e53f4d7679b45fd13fc48647f9db8823004cfeb26738a3864d6612a122b14fe",
+ "post_steps": [
+  {
+   "step": "clean_outline",
+   "method": "silhouette-edge pixels brighter than 0.2 luminance take the front outline tone (20,16,21); isolated opaque pixels removed",
+   "script": "spec/art_identity/prototype/clean_outline.py",
+   "reason": "judge b7: broken light outline on the rear (14.3% of edge px > 0.2 vs 0.6% on the front)"
+  }
+ ]
 }
