@@ -1,0 +1,1 @@
+python3 ~/.claude/skills/orchestrate-codex/scripts/codex_unit.py imagegen id-burrow_grub-beast_front --prompt-file spec/art_identity/jobs/burrow_grub/front/prompt.md --ref spec/art_identity/jobs/burrow_grub/front/refs/*.png

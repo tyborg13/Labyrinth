@@ -1,0 +1,39 @@
+{
+  "K": 3,
+  "anatomy": "plinth",
+  "id": "storm_capacitor",
+  "job_id": "id-storm_capacitor-object_plinth",
+  "kind": "object",
+  "kit_version": "b1da3fa0ed9bfb875bcb8c100b20d6a1fd7e2b6eeb48dc79d2cfb1ff204608cd",
+  "peers": [
+    "crag_outcrop",
+    "raised_cover"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "a8783c07ee03b4bcfb9bfbe4343987770ab779006ed9bd365a86a0a05f6c78c8",
+  "refs": [
+    {
+      "canon_id": "hero_front",
+      "file": "refs/01_hero_front.png",
+      "pixel_sha256": "d3f6dd1b8285845f7e5738590ee53290321062f48eac8f5bbe2176179d5417d2"
+    },
+    {
+      "canon_id": "crag_outcrop",
+      "file": "refs/02_crag_outcrop.png",
+      "pixel_sha256": "5b23ab5c92fc746718fa8a416e92cfb2abbbf553631e1d56c647f13bf95a0570"
+    },
+    {
+      "canon_id": "raised_cover",
+      "file": "refs/03_raised_cover.png",
+      "pixel_sha256": "ffe5e9562d58330cb9f49a6e4ae969d1c624d7370d287394dd2e3b42af24b3eb"
+    },
+    {
+      "file": "refs/footprint_guide.png",
+      "pixel_sha256": "b70c3e76b48b8655d6933ce626004b7771043db65bec809dbb4204ed080989f4"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 238,
+  "target_w": null,
+  "view": "object_plinth"
+}

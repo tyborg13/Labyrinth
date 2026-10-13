@@ -9,9 +9,12 @@ const Callouts = preload("res://scripts/intent_callouts.gd")
 const Badges = preload("res://scripts/intent_badges.gd")
 const Tiles = preload("res://scripts/threat_tiles.gd")
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
-const OUTPUT_DIR: String = "user://probes/threats_at_rest"
+const OUTPUT_DIR: String = "user://probes/threats_at_rest_v2"
 const SETTLE_FRAMES: int = 8
 const CANCELLED_CAPTURE_SECONDS: float = 0.20
+const PROOF_PULSE_PEAK_SECONDS: float = 0.55
+const PROOF_MOVE_OFFSET := Vector2i.UP
+const PROOF_AUDIO_DRAIN_SECONDS: float = 0.10
 var _canvas: SubViewport
 var _visual_proof: bool = false
 var _failures: Array[String]
@@ -58,19 +61,20 @@ func _test_live_stage() -> void:
 	var board: Control = scene.get_node("BoardUnderlay/CombatBoard") as Control
 	var presentation: Dictionary = board.get("presentation") as Dictionary
 	var rest: Dictionary = presentation.get("threats_at_rest", {}) as Dictionary
-	_expect((rest.get("badges", []) as Array).size() == 4, "Live rest view has all four mockup pills")
+	_expect((rest.get("badges", []) as Array).size() == 4, "Live rest view has all four approved feet chips")
 	_expect((presentation.get("enemy_threat_previews", []) as Array).is_empty(), "Rest has no detailed arcs/names/movement wash")
 	_expect(not bool(scene.get("_show_all_enemy_intents")), "Details defaults off")
 	_expect(board.get("_rest_threat_tile_alphas") == Tiles.tile_alphas(rest.get("threats", [])), "Board consumes live attack-only tile data")
 	var overlay: Control = board.get("_overlay_render_layer") as Control
 	if overlay != null: _expect(overlay.get("_rest_threat_tile_alphas") == board.get("_rest_threat_tile_alphas"), "Retained floor layer receives fresh threat data")
+	_assert_feet_layout(board, rest)
 	await _capture("01_rest_1920x1080")
 	scene.call("_on_board_tile_hovered", (state["enemies"][0] as Dictionary)["pos"])
 	await _settle()
 	presentation = board.get("presentation") as Dictionary
 	_expect((presentation.get("enemy_threat_previews", []) as Array).size() == 1, "Pointer hover retains the detailed single-enemy view")
 	for badge: Dictionary in (presentation.get("threats_at_rest", {}) as Dictionary).get("badges", []):
-		_expect(is_equal_approx(float(badge["alpha"]), 1.0 if badge["key"] == "enemy_1" else 0.4), "Live hover dims other pills")
+		_expect(is_equal_approx(float(badge["alpha"]), 1.0 if badge["key"] == "enemy_1" else 0.4), "Live hover dims other discs and chips")
 	await _capture("02_hover_isolation_1920x1080")
 	scene.set("_focused_intent_enemy_id", 2)
 	scene.call("_on_board_tile_hovered", Vector2i(-1, -1))
@@ -109,7 +113,7 @@ func _test_live_stage() -> void:
 	_expect((preview["enemies"][3] as Dictionary)["pos"] != (state["enemies"][3] as Dictionary)["pos"], "Hovered Crosswind actually displaces the preview enemy")
 	rest = (board.get("presentation") as Dictionary).get("threats_at_rest", {}) as Dictionary
 	var expected: Dictionary = Badges.build(combat, state, preview, "", scene.call("_surface_preview_information_state", preview))
-	_expect(rest == expected, "Live push pills/tiles match the same preview source as full plans and Pass")
+	_expect(rest == expected, "Live push chips/tags/tiles match the same preview source as full plans and Pass")
 	var before_plan: Dictionary = combat.enemy_threat_tiles(state, 3)
 	var after_plan: Dictionary = combat.enemy_threat_tiles(preview, 3)
 	_expect(before_plan.get("projected_attack_target") != after_plan.get("projected_attack_target"), "Push re-aims the existing intent from illusion to hero")
@@ -142,7 +146,7 @@ func _test_live_stage() -> void:
 	await _install(scene, state)
 	rest = (board.get("presentation") as Dictionary).get("threats_at_rest", {}) as Dictionary
 	_expect(not combat.visible_enemy_ids(state).has(2), "Umbra proof contains a hidden enemy")
-	for badge: Dictionary in rest.get("badges", []): _expect(badge["key"] != "enemy_2", "Hidden enemy has no live pill/order")
+	for badge: Dictionary in rest.get("badges", []): _expect(badge["key"] != "enemy_2", "Hidden enemy has no live chip/order")
 	for threat: Dictionary in rest.get("threats", []): _expect(threat["key"] != "enemy_2", "Hidden enemy has no live threats")
 	await _capture("07_umbra_hidden_1920x1080")
 	state = Suite.staged_state(combat)
@@ -153,10 +157,79 @@ func _test_live_stage() -> void:
 	scene.call("_refresh_stage_view")
 	await _settle()
 	_expect(bool((board.get("presentation") as Dictionary).get("reduced_motion", false)), "Live reduced motion reaches threat rendering")
+	_expect(is_equal_approx(Badges.halo_alpha(PROOF_PULSE_PEAK_SECONDS, true), 0.55), "Reduced-motion chip halo is steady 55%")
 	await _capture("08_reduced_motion_1920x1080")
+	settings["reduced_motion"] = false
+	scene.set("_settings", settings)
+	state = Suite.crowded_state(combat)
+	await _install(scene, state)
+	rest = (board.get("presentation") as Dictionary).get("threats_at_rest", {}) as Dictionary
+	_assert_feet_layout(board, rest)
+	_expect((state["enemies"][3] as Dictionary)["pos"] == Suite.FIXTURE_HERO + Vector2i(3, 1), "Crowded harrier is in front of crawler at the approved tile")
+	_expect(not (board.call("_foreground_obstruction_candidates") as Array).is_empty(), "Crowded chip placement consumes actual terrain-prop bounds")
+	await _capture("09_crowded_1920x1080")
+	state = Suite.staged_state(combat)
+	await _install(scene, state)
+	var peak: Dictionary = (board.get("presentation") as Dictionary).duplicate(true)
+	peak["threats_proof_seconds"] = PROOF_PULSE_PEAK_SECONDS
+	_submit_presentation(board, peak)
+	await _settle()
+	_expect(is_equal_approx(Badges.halo_alpha(PROOF_PULSE_PEAK_SECONDS, false), 0.75), "Peak capture fixes the chip halo at 75%")
+	_expect(bool(((board.get("_hud_render_layer") as Control).get("presentation") as Dictionary).has("threats_proof_seconds")), "Retained HUD receives the deterministic proof clock")
+	await _capture("10_danger_peak_1920x1080")
+	# Exercise the production independent-movement input and forecast, without
+	# committing a move or fabricating a combat presentation snapshot.
+	(state["enemies"][0] as Dictionary)["pos"] = Suite.FIXTURE_HERO + Vector2i.RIGHT
+	(state["enemies"][0] as Dictionary)["intent"] = {"actions": [{"type": "melee", "damage": 4, "range": 1}]}
+	await _install(scene, state)
+	rest = (board.get("presentation") as Dictionary).get("threats_at_rest", {}) as Dictionary
+	_expect(bool(Suite._badge(rest, "enemy_1")["danger"]), "Move proof starts with adjacent melee danger")
+	scene.call("_begin_player_movement_selection")
+	var move_target: Vector2i = Suite.FIXTURE_HERO + PROOF_MOVE_OFFSET
+	_expect((scene.get("_player_movement_target_tiles") as Array).has(move_target), "Move proof destination is legal")
+	scene.call("_on_board_tile_hovered", move_target)
+	await _settle()
+	rest = (board.get("presentation") as Dictionary).get("threats_at_rest", {}) as Dictionary
+	_expect(rest["hero_tile"] == move_target and not bool(Suite._badge(rest, "enemy_1")["danger"]), "Live independent-move preview removes adjacent melee danger")
+	_assert_feet_layout(board, rest)
+	await _capture("11_move_removes_danger_1920x1080")
+	scene.call("_cancel_player_movement_selection")
+	await _settle()
+	rest = (board.get("presentation") as Dictionary).get("threats_at_rest", {}) as Dictionary
+	_expect(bool(Suite._badge(rest, "enemy_1")["danger"]), "Cancelling movement preview restores danger")
+	(state["deck"] as Dictionary)["hand"] = ["guarded_step"]
+	state["cards_played_this_turn"] = 1
+	await _install(scene, state)
+	scene.call("_on_card_pressed", 0)
+	scene.call("_on_board_tile_hovered", move_target)
+	await _settle()
+	rest = (board.get("presentation") as Dictionary).get("threats_at_rest", {}) as Dictionary
+	_expect(rest["hero_tile"] == move_target and not bool(Suite._badge(rest, "enemy_1")["danger"]), "Live card-move preview removes adjacent melee danger")
+	await _capture("12_card_removes_danger_1920x1080")
+	scene.call("_cancel_card_selection")
+	await _test_wave_e2_stage(scene, combat)
+	for player: Node in scene.find_children("*", "AudioStreamPlayer", true, false):
+		player.call("stop")
+	await create_timer(PROOF_AUDIO_DRAIN_SECONDS).timeout
+	await _settle()
 	_canvas.queue_free()
 	await process_frame
 	if _visual_proof: print(ProjectSettings.globalize_path(OUTPUT_DIR))
+
+func _test_wave_e2_stage(scene: Node, combat: RefCounted) -> void:
+	await _install(scene, Suite.wave_e2_state(combat))
+	var board: Control = scene.get_node("BoardUnderlay/CombatBoard") as Control
+	var rest: Dictionary = board.presentation.get("threats_at_rest", {})
+	_assert_feet_layout(board, rest)
+	var layouts: Array[Dictionary] = Badges.layouts(board, rest.get("badges", []))
+	for index: int in range(Suite.WAVE_E2_ROSTER.size()):
+		var key: String = "enemy_%d" % (index + 1)
+		var entry: Dictionary = Suite.WAVE_E2_ROSTER[index]
+		_expect(Suite._badge(rest, key).get("icon") == entry["icon"], "Live %s chip uses its own icon" % entry["type"])
+		_expect(layouts.any(func(layout: Dictionary) -> bool: return layout["key"] == key and (layout["order_rect"] as Rect2).has_area()), "Live %s has an order disc" % entry["type"])
+		_expect(Tiles.zone_tags(rest.get("threats", [])).any(func(tag: Dictionary) -> bool: return tag["key"] == key), "Live %s has its area zone tag" % entry["type"])
+	_expect(board.presentation.get("enemy_threat_previews", []).is_empty(), "Live wave E2 rest has no detailed popup disclosure")
+	_expect(board.presentation.get("en05_dive_telegraphs", []).size() == 1, "Live wave E2 rest retains Dive dashed path")
 
 func _play_callout(scene: Node, state: Dictionary, entry: Dictionary, completed: Dictionary) -> void:
 	await scene.call("_animate_enemy_phase_steps", state, [entry])
@@ -174,9 +247,27 @@ func _install(scene: Node, state: Dictionary) -> void:
 	scene.set("_show_all_enemy_intents", false)
 	scene.set("_focused_intent_enemy_id", -1)
 	scene.set("_hovered_board_tile", Vector2i(-1, -1))
+	scene.call("_cancel_player_movement_selection", false)
 	scene.call("_reset_card_resolution")
+	scene.call("_mark_combat_preview_state_changed")
 	scene.call("_refresh_ui")
 	await _settle()
+
+func _assert_feet_layout(board: Control, rest: Dictionary) -> void:
+	var layouts: Array[Dictionary] = Badges.layouts(board, rest.get("badges", []))
+	_expect(layouts.size() == (rest.get("badges", []) as Array).size(), "Every visible known intent has a feet chip layout")
+	for layout: Dictionary in layouts:
+		var unit: Dictionary = {}
+		for candidate: Dictionary in board.call("_visible_units"):
+			if candidate["key"] == layout["key"]: unit = candidate
+		var anchor: Vector2 = board.call("_unit_center", unit)
+		_expect(is_equal_approx((layout["center"] as Vector2).y, anchor.y + 4.0), "Live chip stays at the enemy feet")
+		_expect(str(layout["placement"]) in ["lower_left", "lower_right"], "Live chip uses only the authored feet placements")
+		var health: Rect2 = Badges.health_rect(board, unit)
+		_expect((layout["order_rect"] as Rect2).get_center() == Vector2(health.position.x - 14.0, health.get_center().y), "Live order disc follows health frame")
+
+func _submit_presentation(board: Control, presentation: Dictionary) -> void:
+	board.call("set_combat_state", board.get("combat_state"), board.get("move_tiles"), board.get("attack_tiles"), board.get("selected_tile"), board.get("status_label"), board.get("status_detail"), board.get("exit_tiles"), board.get("exit_icon_ids"), presentation)
 
 func _settle() -> void:
 	for _frame: int in range(SETTLE_FRAMES): await process_frame

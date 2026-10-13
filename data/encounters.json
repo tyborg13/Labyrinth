@@ -263,6 +263,13 @@
           "burrow_grub",
           "stoneback_mite"
         ]
+      },
+      {
+        "id": "earth_weaver",
+        "weight": 2,
+        "units": [
+          "briar_weaver"
+        ]
       }
     ],
     "fire": [
@@ -288,6 +295,14 @@
         "units": [
           "ember_tick",
           "ember_tick",
+          "ember_tick"
+        ]
+      },
+      {
+        "id": "fire_mortar",
+        "weight": 2,
+        "units": [
+          "slag_mortar",
           "ember_tick"
         ]
       }
@@ -358,6 +373,14 @@
           "arc_thrall",
           "arc_thrall"
         ]
+      },
+      {
+        "id": "lightning_capacitor",
+        "weight": 2,
+        "units": [
+          "storm_capacitor",
+          "lightning_wisp"
+        ]
       }
     ],
     "shadow": [
@@ -382,6 +405,14 @@
         "weight": 1,
         "units": [
           "gloam_stalker",
+          "wick_shade"
+        ]
+      },
+      {
+        "id": "shadow_mimic",
+        "weight": 2,
+        "units": [
+          "hollow_mimic",
           "wick_shade"
         ]
       }

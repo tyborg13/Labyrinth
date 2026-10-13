@@ -1,0 +1,1 @@
+python3 ~/.claude/skills/orchestrate-codex/scripts/codex_unit.py imagegen id-storm_capacitor-object_plinth --prompt-file spec/art_identity/jobs/storm_capacitor/front/prompt.md --ref spec/art_identity/jobs/storm_capacitor/front/refs/*.png

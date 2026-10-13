@@ -1239,6 +1239,10 @@ const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_FRAME_OUTSET: Vector2 = Vector2(48.0, 32.0)
 const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v8.png"
 const TURN_ORDER_PORTRAITS := {
+	"briar_weaver": "res://assets/art/portraits/briar_weaver.png",
+	"slag_mortar": "res://assets/art/portraits/slag_mortar.png",
+	"storm_capacitor": "res://assets/art/portraits/storm_capacitor.png",
+	"hollow_mimic": "res://assets/art/portraits/hollow_mimic.png",
 	"hoarfrost_seer": "res://assets/art/portraits/hoarfrost_seer.png",
 	"gale_herald": "res://assets/art/portraits/gale_herald.png",
 	"arc_thrall": "res://assets/art/portraits/arc_thrall.png",
@@ -1325,6 +1329,7 @@ const PASS_PREVIEW_CACHE_LIMIT: int = 64
 
 var _ui_skin: UiSkin = UiSkin.new()
 var _dialogue_engine = DialogueEngineScript.new()
+var _start_room_map = preload("res://scripts/start_room_map_flow.gd").new()
 var _run_engine = RunEngineScript.new()
 var _combat_engine = CombatEngineScript.new()
 var _progression: Dictionary = {}
@@ -2434,6 +2439,7 @@ func _on_input_modality_changed(modality: String) -> void:
 	_refresh_controller_card_mode_visuals()
 	_refresh_large_map_navigation_hint()
 	_refresh_controller_prompts()
+	_start_room_map.refresh_hint(self)
 	call_deferred("_sync_click_targeting_arrow")
 
 func _handle_controller_input(event: InputEvent) -> bool:
@@ -7574,6 +7580,7 @@ func _start_dialogue(dialogue: Dictionary) -> void:
 	_close_card_upgrade_overlay()
 	_dialogue_script = dialogue.duplicate(true)
 	_dialogue_active = true
+	_start_room_map.dialogue_started(self, dialogue)
 	_dialogue_suppresses_choices = not _current_room_merchant_kind().is_empty() or str(dialogue.get("npc_id", "")) == "emaciated_man"
 	_dialogue_overlay.visible = true
 	if _dialogue_suppresses_choices:
@@ -7662,6 +7669,7 @@ func _on_dialogue_option_pressed(option: Dictionary) -> void:
 	_close_dialogue()
 
 func _close_dialogue() -> void:
+	_start_room_map.dialogue_closed(self)
 	_molt_exchange_feedback.reset()
 	_maybe_mark_emaciated_awakening_seen()
 	var should_restore_choices := _dialogue_active and _dialogue_suppresses_choices
@@ -10506,6 +10514,7 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_cancel_committed_hand_queries()
 	_focused_intent_enemy_id = -1
 	_section_map_presented_key = ""
+	_start_room_map.reset()
 	_close_large_map()
 	_reset_run_end_board_reframe()
 	_close_dialogue()
@@ -14591,6 +14600,7 @@ func _deck_piles() -> Dictionary:
 	}
 
 func _refresh_visibility() -> void:
+	_start_room_map.refresh_hint(self)
 	var mode: String = str(_run_state.get("mode", "room"))
 	var terminal_recap_visible: bool = mode in ["victory", "defeat", "embrace"]
 	var section_map: bool = SectionMapGraph.enabled(_run_state)
@@ -17932,6 +17942,7 @@ func _refresh_stage_view() -> void:
 	presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	presentation["hud_obstacle_global_rects"] = _board_hud_obstacles(display_state)
 	presentation["boss_header_global_rect"] = _boss_health_overlay.get_global_rect() if _boss_health_overlay != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
+	presentation["boss_health_frame_global_rect"] = _boss_health_frame.get_global_rect() if _boss_health_frame != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
 	presentation["status_typography_role"] = _board_status_typography_role()
 	presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	presentation["board_fit_rect"] = _board_fit_rect()
@@ -18434,6 +18445,9 @@ func _commit_runtime_performance_frame() -> void:
 	_runtime_performance_commit_overhead_usec += commit_elapsed_usec
 
 func _enemy_intent_preview_state(display_state: Dictionary) -> Dictionary:
+	if _player_movement_selected and _player_movement_target_tiles.has(_hovered_board_tile):
+		var movement: Dictionary = _surface_resolution_for_preview(_combat_state, _player_movement_action, _hovered_board_tile)
+		return IntentBadges.movement_preview(_combat_engine, _combat_state, (movement["known"] as Dictionary)["state"])
 	if _selected_card_index < 0 or _preview_combat_state.is_empty():
 		return display_state
 	var current_preview_state: Dictionary = _pass_preview_source_state()
@@ -22083,6 +22097,7 @@ func _open_large_map(from_toolbar: bool = false) -> void:
 		_large_map_view.call("center_on_current", true)
 	_close_grimoire_overlay()
 	_large_map_scrim.visible = true
+	_start_room_map.refresh_hint(self)
 	_large_map_scrim.move_to_front()
 	_update_performance_telemetry_context()
 	_refresh_large_map_navigation_hint()
@@ -22092,9 +22107,11 @@ func _open_large_map(from_toolbar: bool = false) -> void:
 func _close_large_map() -> void:
 	if _large_map_scrim == null:
 		return
+	var was_visible: bool = _large_map_scrim.visible
 	if _large_map_view != null:
 		_large_map_view.call("reset_interaction")
 	_large_map_scrim.visible = false
+	_start_room_map.map_closed(self, was_visible)
 	_update_performance_telemetry_context()
 	if _map_opened_from_toolbar and _section_map_hud_button != null and _section_map_hud_button.is_visible_in_tree():
 		if _controller_is_active() and _controller_custom_navigation_available() and not _controller_card_targeting_needs_initial_candidate():
@@ -24468,6 +24485,16 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			else: await preload("res://scripts/enemy_mechanics/reflect_view.gd").animate_beam(self, animated_state, step)
 			_combat_pacing.after_step(step)
 			continue
+		if step.has("en04_mechanic"):
+			if str(step["en04_mechanic"]).begins_with("lob"): await preload("res://scripts/enemy_mechanics/lob_view.gd").animate(self, animated_state, step)
+			else: await preload("res://scripts/enemy_mechanics/bramble_view.gd").animate(self, animated_state, step)
+			_combat_pacing.after_step(step)
+			continue
+		if str(step.get("action_type", "")) == "chain_discharge" or bool(step.get("en06_mirror", false)):
+			if bool(step.get("en06_mirror", false)): await preload("res://scripts/enemy_mechanics/mimic_view.gd").animate(self, animated_state, step)
+			else: await preload("res://scripts/enemy_mechanics/capacitor_view.gd").animate(self, animated_state, step)
+			_combat_pacing.after_step(step)
+			continue
 		if step.has("en02_mechanic"):
 			if str(step["en02_mechanic"]).begins_with("icefall"): await preload("res://scripts/enemy_mechanics/icefall_view.gd").animate(self, animated_state, step)
 			else: await preload("res://scripts/enemy_mechanics/wind_view.gd").animate(self, animated_state, step)
@@ -25900,6 +25927,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	rendered_presentation["status_typography_role"] = _board_status_typography_role()
 	rendered_presentation["hud_obstacle_global_rects"] = _board_hud_obstacles(display_state)
 	rendered_presentation["boss_header_global_rect"] = _boss_health_overlay.get_global_rect() if _boss_health_overlay != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
+	rendered_presentation["boss_health_frame_global_rect"] = _boss_health_frame.get_global_rect() if _boss_health_frame != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
 	rendered_presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	rendered_presentation["board_fit_rect"] = _board_fit_rect()
 	rendered_presentation["board_encounter_types"] = _board_encounter_types()
@@ -26040,6 +26068,14 @@ func _equipped_equipment_for_board() -> Dictionary:
 	return _visual_equipment
 
 func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void:
+	preload("res://scripts/enemy_mechanics/capacitor_view.gd").queue_grounded(self, step)
+	if step.has("en04_state_after"):
+		animated_state.clear()
+		animated_state.merge(step["en04_state_after"].duplicate(true), true)
+		return
+	if step.has("en06_after"):
+		animated_state.merge((step["en06_after"] as Dictionary).duplicate(true), true)
+		return
 	if step.has("en02_state_after"):
 		animated_state.clear()
 		animated_state.merge((step["en02_state_after"] as Dictionary).duplicate(true), true)
@@ -26887,6 +26923,7 @@ func _player_action_label(card_id: String, _action: Dictionary, _state: Dictiona
 
 func _player_action_floating_texts(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var floats: Array[Dictionary] = _player_damage_floating_texts(before_state, after_state)
+	floats.append_array(preload("res://scripts/enemy_mechanics/capacitor_view.gd").grounded_texts(before_state, after_state))
 	floats.append_array(_stagger_floating_texts(before_state, after_state))
 	for event: Dictionary in _surface_events_between(before_state,after_state):
 		if str(event.get("kind","")) != "crystal_mantle_broken": continue
@@ -32223,6 +32260,7 @@ func _maybe_auto_trigger_room_dialogue() -> void:
 	if trigger_key == _last_auto_dialogue_key:
 		return
 	var dialogue: Dictionary = _dialogue_engine.build_room_dialogue(current_room, _run_state, _progression)
+	dialogue = _start_room_map.opening_dialogue(current_room, dialogue)
 	if dialogue.is_empty():
 		return
 	_last_auto_dialogue_key = trigger_key
@@ -33732,7 +33770,7 @@ func _analytics_enemy_status_tick_events(phase_result: Dictionary, context: Dict
 		var kind: String = str(step.get("kind", ""))
 		if kind not in ["status_damage", "status"]:
 			continue
-		if bool(step.get("boss_mechanic", false)):
+		if bool(step.get("boss_mechanic", false)) or str(step.get("action_type", "")) == "gain_charge":
 			continue
 		events.append({
 			"event_type": "enemy_status_tick",
@@ -33758,7 +33796,7 @@ func _analytics_enemy_action_events(phase_result: Dictionary, context: Dictionar
 			continue
 		var step: Dictionary = step_var
 		var kind: String = str(step.get("kind", ""))
-		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon", "surface"] and not (kind == "status" and (bool(step.get("boss_mechanic", false)) or bool(step.get("guardian_mechanic",false)))):
+		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon", "surface"] and not (kind == "status" and (bool(step.get("boss_mechanic", false)) or bool(step.get("guardian_mechanic",false)) or str(step.get("action_type", "")) == "gain_charge")):
 			continue
 		var path: Array[Vector2i] = _vector2i_array(step.get("path", []))
 		events.append({
@@ -34723,6 +34761,7 @@ func _present_queued_section_map() -> void:
 	_maybe_present_section_map()
 
 func _section_map_should_present() -> bool:
+	if not _start_room_map.allows_auto_open(self): return false
 	if not SectionMapGraph.enabled(_run_state) or _animation_lock or _treasure_presentation_busy() or _loadout_acquisition_in_progress or _dialogue_active:
 		return false
 	var mode: String = str(_run_state.get("mode", ""))
@@ -34737,6 +34776,7 @@ func _maybe_present_section_map() -> void:
 	if not _section_map_should_present():
 		return
 	_section_map_presented_key = "%s:%s" % [str(_run_state.get("current_room", Vector2i.ZERO)), str(_run_state.get("mode", ""))]
+	_start_room_map.map_presented(self)
 	_open_large_map()
 
 func _on_section_map_scout(coord: Vector2i) -> void:

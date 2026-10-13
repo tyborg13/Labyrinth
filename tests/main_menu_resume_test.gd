@@ -96,7 +96,11 @@ func _test_valid_save_summary_and_replacement_gate() -> void:
 	_stop_menu_music(instance)
 	root.remove_child(instance)
 	instance.call("_prepare_new_game")
-	_assert(not ProgressionStore.has_saved_run(), "Explicit Replace Run confirmation should clear the saved run")
+	# meta-02 defers replacement to RunScene's durable save boundary.
+	_assert(_run_file_bytes() == bytes_before, "Replacement preparation must preserve the previous save")
+	_assert(int(ProgressionStore.load_data().get("embers", -1)) == 91, "Replacement preparation must preserve the previous profile")
+	await _complete_new_game_transition()
+	_assert(ProgressionStore.has_saved_run() and _run_file_bytes() != bytes_before, "Explicit replacement should durably replace the saved run")
 	_assert(int(ProgressionStore.load_data().get("embers", -1)) == 0, "Confirmed replacement should preserve the existing New Game ember-reset semantic")
 	instance.free()
 	await process_frame
@@ -193,9 +197,21 @@ func _test_corrupt_save_is_hidden_and_recoverable() -> void:
 	_stop_menu_music(instance)
 	root.remove_child(instance)
 	instance.call("_prepare_new_game")
-	_assert(not ProgressionStore.has_saved_run(), "New Game should recover from a corrupt save by clearing it")
+	_assert(_run_file_bytes() == bytes_before, "Corrupt-save replacement preparation must preserve the old bytes")
+	_assert(int(ProgressionStore.load_data().get("embers", -1)) == 33, "Corrupt-save replacement preparation must preserve the profile")
+	await _complete_new_game_transition()
+	_assert(ProgressionStore.has_saved_run() and _run_file_bytes() != bytes_before and not ProgressionStore.load_saved_run().is_empty(), "New Game should recover by durably replacing the corrupt save")
 	_assert(int(ProgressionStore.load_data().get("embers", -1)) == 0, "Corrupt-save recovery should use the existing New Game replacement semantic")
 	instance.free()
+	await process_frame
+
+func _complete_new_game_transition() -> void:
+	var scene: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
+	# Exercise the real fresh-run bootstrap while deferring unrelated presentation.
+	scene.set("_defer_initial_run_presentation", true)
+	root.add_child(scene)
+	await process_frame
+	scene.queue_free()
 	await process_frame
 
 func _valid_combat_run(progression: Dictionary) -> Dictionary:

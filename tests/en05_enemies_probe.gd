@@ -13,7 +13,7 @@ const VIEWPORT_SIZE := Vector2i(1920, 1080)
 const SETTLE_FRAMES: int = 8 # Probe-only scheduling, matching existing probes.
 const MID_PROGRESS: float = 0.5
 const RETURN_PROGRESS: float = 0.85
-const OUTPUT_ROOT: String = "res://output/en05-enemies"
+const OUTPUT_ROOT: String = "user://probes/en05-enemies"
 var _output: String
 var _errors: Array[String]
 var _canvas: SubViewport
@@ -61,8 +61,6 @@ func _mirror(scene: Control) -> void:
 	var engine := Combat.new()
 	var before: Dictionary = Fixtures.mirror()
 	await _install(scene, before)
-	scene._on_board_tile_hovered(before["enemies"][0]["pos"])
-	await _settle()
 	await _capture("01_mirror_rest_refraction.png")
 	var slot: int = scene._combat_state["deck"]["hand"].find("pale_spark")
 	_expect(slot >= 0, "Fixture has the actual ranged card in hand")
@@ -97,9 +95,8 @@ func _shrike(scene: Control) -> void:
 	var engine := Combat.new()
 	var before: Dictionary = Fixtures.shrike()
 	await _install(scene, before)
-	scene._on_board_tile_hovered(before["enemies"][0]["pos"])
-	await _settle()
-	_expect(scene.board_view.presentation["enemy_threat_previews"].any(func(threat: Dictionary) -> bool: return str(threat.get("enemy_key", "")) == "enemy_1" and threat.get("projected_attack", []).size() == 4), "Dive line telegraphs four tiles with two intermediate units")
+	_expect(scene.board_view.presentation.get("enemy_threat_previews", []).is_empty(), "Dive rest capture has no detailed popup or compass disclosure")
+	_expect(DiveView.telegraphs(scene.board_view.presentation).any(func(threat: Dictionary) -> bool: return threat.get("projected_attack", []).size() == 4), "Dive line telegraphs four tiles with two intermediate units")
 	_expect(scene.board_view.presentation.get("displacement_paths", []).has(engine._vector2i_values([Vector2i(3, 4), Vector2i(3, 5)])) and scene.board_view.presentation.get("displacement_paths", []).has(engine._vector2i_values([Vector2i(4, 4), Vector2i(4, 5)])), "Aligned rest preview shows both approved right-hand pushes")
 	await _capture("07_dive_rest_two_units_on_path.png")
 	var action: Dictionary = before["enemies"][0]["intent"]["actions"][0]
@@ -116,10 +113,8 @@ func _shrike(scene: Control) -> void:
 	await _capture("09_after_dive.png")
 	before = Fixtures.blocked_landing()
 	await _install(scene, before)
-	scene._on_board_tile_hovered(before["enemies"][0]["pos"])
-	await _settle()
 	_expect(not scene.board_view.presentation.get("damage_preview", {}).has("player"), "Blocked landing rest preview excludes hero damage")
-	_expect(scene.board_view.presentation["enemy_threat_previews"].any(func(threat: Dictionary) -> bool: return threat.get("enemy_key") == "enemy_1" and threat.get("projected_attack_target") == Vector2i(4, 4) and threat.get("projected_attack", []).size() == 2), "Blocked landing rest telegraph ends at stop tile")
+	_expect(DiveView.telegraphs(scene.board_view.presentation).any(func(threat: Dictionary) -> bool: return threat.get("projected_attack_target") == Vector2i(4, 4) and threat.get("projected_attack", []).size() == 2), "Blocked landing rest telegraph ends at stop tile")
 	await _capture("10_dive_blocked_landing_rest.png")
 	after = engine._resolve_enemy_action(before.duplicate(true), 0, action)
 	await _install(scene, after)
@@ -128,6 +123,8 @@ func _shrike(scene: Control) -> void:
 
 func _install(scene: Control, state: Dictionary) -> void:
 	BaseFixtures.install(scene, state)
+	scene._show_all_enemy_intents = false
+	scene._on_board_tile_hovered(Vector2i(-1, -1))
 	await _settle()
 
 func _settle() -> void:

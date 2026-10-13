@@ -1,0 +1,35 @@
+{
+  "K": 4,
+  "anatomy": "crawler",
+  "id": "burrow_grub",
+  "job_id": "id-burrow_grub-beast_front",
+  "kind": "creature",
+  "kit_version": "7fc0ab718c48c99fe22c02737639895dfa403d87a86708a6e6e9e476f195aea4",
+  "peers": [
+    "crawler_front",
+    "stoneback_mite_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "a43978612ccd080756a69741fc54b290f46b4a227457b92557f2a662ed936620",
+  "refs": [
+    {
+      "canon_id": "hero_front",
+      "file": "refs/01_hero_front.png",
+      "pixel_sha256": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f"
+    },
+    {
+      "canon_id": "crawler_front",
+      "file": "refs/02_crawler_front.png",
+      "pixel_sha256": "75224866074ce661306acf1b101069467def05c8c4f43fb269b803bfcbef363f"
+    },
+    {
+      "canon_id": "stoneback_mite_front",
+      "file": "refs/03_stoneback_mite_front.png",
+      "pixel_sha256": "f13a7175fa118211cc737ddefb6ab00273de4ced128d7daa4b53642c5ce0ec24"
+    }
+  ],
+  "size_class": "small",
+  "target_h": 150,
+  "target_w": 205,
+  "view": "beast_front"
+}

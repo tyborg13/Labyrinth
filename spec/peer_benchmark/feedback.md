@@ -19,3 +19,9 @@
   (stone plate clunk + arcane rune zap), radiance.light B (centred glow swell, no glint), illusion.break A (1 s cut of
   the processed-glass swell). Built and committed ed2e07f04. All cues except ambience now have owner-picked sounds.
 - Takeaway: layered designs beat single library takes for abstract game concepts (break, trigger, push).
+
+## 2026-10-12 — Threats at rest v2 (owner)
+- Pills over heads rejected; order number beside the health bar; attack chip at the feet with a "can hit you now"
+  danger state (red + pulse); ground compass emblem removed; area zones must show their source.
+- Chips must match the game's visuals (not default boxes) → HUD resource-chip language; offset slightly from the base.
+- Chips always stay at the feet — relocating them to the health bar is confusing (far from their anchor).

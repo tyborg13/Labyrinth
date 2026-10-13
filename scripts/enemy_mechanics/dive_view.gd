@@ -16,18 +16,46 @@ static func badges(unit: Dictionary) -> Array[Dictionary]:
 	return result
 
 static func draw_telegraphs(board: Control) -> void:
-	for threat: Dictionary in board.presentation.get("enemy_threat_previews", []):
+	for threat: Dictionary in telegraphs(board.presentation):
 		if not Rules.handles(threat.get("projected_attack_action", {})) or threat.get("projected_attack", []).is_empty(): continue
 		var start: Vector2 = board._tile_center(threat["projected_attack_from"])
 		var end: Vector2 = board._tile_center(threat["projected_attack_target"])
 		var direction: Vector2 = start.direction_to(end)
 		var cursor: float = 0.0
 		while cursor < start.distance_to(end):
-			board.draw_line(start + direction * cursor, start + direction * minf(cursor + DASH_LENGTH, start.distance_to(end)), COLOR, DASH_WIDTH, true)
+			board.draw_line(start + direction * cursor, start + direction * minf(cursor + DASH_LENGTH, start.distance_to(end)), Color(COLOR, float(threat.get("alpha", 1.0))), DASH_WIDTH, true)
 			cursor += DASH_LENGTH + DASH_GAP
+
+static func telegraphs(presentation: Dictionary) -> Array:
+	return presentation.get("en05_dive_telegraphs", []) if presentation.has("threats_at_rest") else presentation.get("enemy_threat_previews", [])
+
+static func rest_presentation_for(original: Dictionary) -> Dictionary:
+	# ITB-03 owns chips/discs/zone tags and the exact known preview source.
+	# Keep the approved Dive dash and side-push evidence without injecting
+	# detailed popups, movement wash or a second attack-tile treatment at rest.
+	var result: Dictionary = original.duplicate(true)
+	var lines: Array[Dictionary]
+	var paths: Array = result.get("displacement_paths", []).duplicate(true)
+	var markers: Array = result.get("collision_markers", []).duplicate(true)
+	for threat: Dictionary in result["threats_at_rest"].get("threats", []):
+		var plan: Dictionary = threat.get("plan", {})
+		if not Rules.handles(plan.get("projected_attack_action", {})): continue
+		plan = plan.duplicate(true)
+		plan["alpha"] = threat.get("alpha", 1.0)
+		lines.append(plan)
+		for push: Dictionary in plan.get("side_push_previews", []):
+			var path: Array[Vector2i] = Combat.new()._vector2i_values([push["from"], push["to"]])
+			if not paths.has(path): paths.append(path)
+		for collision: Dictionary in plan.get("side_push_collisions", []):
+			if not markers.has(collision): markers.append(collision)
+	result["en05_dive_telegraphs"] = lines
+	result["displacement_paths"] = paths
+	result["collision_markers"] = markers
+	return result
 
 static func presentation_for(state: Dictionary, original: Dictionary) -> Dictionary:
 	if state.is_empty() or (not original.get("effect", {}).is_empty() and not bool(original.get("effect", {}).get("preview", false))): return original
+	if original.has("threats_at_rest"): return rest_presentation_for(original)
 	var result: Dictionary = original.duplicate(true)
 	var engine := Combat.new()
 	var previews: Array = result.get("enemy_threat_previews", []).duplicate(true)

@@ -81,17 +81,20 @@ static func plan(engine: RefCounted, state: Dictionary, index: int, intent: Dict
 	if movement_disabled: tiles.clear()
 	var landing: Vector2i = destination
 	var pushes: Array[Dictionary]
+	var collisions: Array[Dictionary]
 	var projected: Array[Vector2i] = engine._vector2i_values([])
 	if not tiles.is_empty() and not attack_disabled:
 		var simulated: Dictionary = state.duplicate(true)
 		simulated["enemies"][index]["pos"] = destination
 		simulated["damage_context"] = _damage_context(simulated, index)
 		simulated = _push_passed_units(engine, simulated, index, action, tiles, side, pushes)
+		for event: Dictionary in engine._surface_events_since(state, simulated):
+			if str(event.get("kind", "")) == "force_collision": collisions.append(event)
 		landing = _landing_tile(engine, simulated, index, destination, tiles)
 		for tile: Vector2i in tiles:
 			if landing == hero - direction or (tile - destination).length_squared() <= (landing - destination).length_squared(): projected.append(tile)
 	return {"path": path, "route": path, "destination": destination, "movement_action_index": 0, "attack_action_index": 0, "attack_action": action, "projected_attack": projected,
-		"projected_attack_target": hero if landing == hero - direction and not projected.is_empty() else landing, "target_key": "player", "target_tile": hero, "attack_available": not tiles.is_empty() and not attack_disabled, "cancelled": tiles.is_empty(), "side_direction": side, "side_push_previews": pushes, "dive_tiles": tiles, "landing": landing, "movement_disabled": movement_disabled, "attack_disabled": attack_disabled}
+		"projected_attack_target": hero if landing == hero - direction and not projected.is_empty() else landing, "target_key": "player", "target_tile": hero, "attack_available": not tiles.is_empty() and not attack_disabled, "cancelled": tiles.is_empty(), "side_direction": side, "side_push_previews": pushes, "side_push_collisions": collisions, "dive_tiles": tiles, "landing": landing, "movement_disabled": movement_disabled, "attack_disabled": attack_disabled}
 
 static func _damage_context(state: Dictionary, index: int) -> Dictionary:
 	return {"actor_kind": "enemy", "actor_id": state["enemies"][index]["id"], "source_kind": "direct_attack", "player_card": false}

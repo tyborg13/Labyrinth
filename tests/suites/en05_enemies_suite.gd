@@ -14,6 +14,7 @@ const Wind = preload("res://scripts/enemy_mechanics/wind.gd")
 const Surface = preload("res://scripts/board_surface_rules.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
 const Compass = preload("res://scripts/enemy_intent_compass.gd")
+const IntentBadges = preload("res://scripts/intent_badges.gd")
 const TEST_RANGED_DAMAGE: int = 5
 const TEST_BLOCK: int = 2
 const TEST_OUTBOUND_SECONDS: float = .1152
@@ -115,6 +116,7 @@ static func run(expect: Callable) -> void:
 	expect.call(Wind.anchored(before, "enemy", before["enemies"][0]), "Mirror construct stays anchored against wind")
 	_test_flying(expect, engine)
 	_test_dive(expect, engine)
+	_test_integer_intents(expect)
 	var serialized: Dictionary = save_round_trip(beam_after)
 	expect.call(serialized == beam_after, "Reflect and Chilled state serialize losslessly")
 	var order: Array = engine.current_turn_order(shrike())
@@ -122,6 +124,22 @@ static func run(expect: Callable) -> void:
 	expect.call(ReflectView.badges({"type": "glacial_mirror"})[0]["icon"] == "reflect" and DiveView.badges({"type": "gust_shrike"})[0]["icon"] == "flying", "Permanent passive badges use distinct approved identities")
 	var timing: Dictionary = ReflectView.projectile_frame(.8, TEST_OUTBOUND_SECONDS)
 	expect.call(timing["returning"] and timing["travel"] < 1.0, "Reflected projectile returns along its outbound curve")
+	board.free()
+
+static func _test_integer_intents(expect: Callable) -> void:
+	var board: Control = preload("res://scripts/combat_board_view.gd").new()
+	for id: String in ["glacial_mirror", "gust_shrike"]:
+		for intent: Dictionary in Data.enemy_def(id)["intents"]:
+			for row: Array in board._intent_rows_for_unit({"type": id}, intent):
+				for token: Dictionary in row:
+					if token.has("value"): expect.call(not Icons.token_value_text(token).contains("."), "%s %s displayed intent token is an integer" % [id, intent["id"]])
+			var chip: Dictionary = IntentBadges.descriptor(IntentBadges.primary_action(intent), intent)
+			expect.call(not str(chip["number"]).contains(".") and not str(chip["secondary_number"]).contains("."), "%s %s chip numbers are integers" % [id, intent["id"]])
+		for badge: Dictionary in (ReflectView.badges({"type": id}) + DiveView.badges({"type": id})):
+			expect.call(not Icons.token_value_text({"value": badge["count"]}).contains("."), "%s passive badge number is an integer" % id)
+	var floating: Dictionary = {"type": "dive_line", "max_length": 4.0, "damage": 4.0, "side_push": 1.0}
+	var descriptor: Dictionary = IntentBadges.descriptor(floating)
+	expect.call(descriptor["number"] == "4" and descriptor["secondary_number"] == "1", "JSON-float Dive damage and push use the shared integer formatter at the chip source")
 	board.free()
 
 static func _test_flying(expect: Callable, engine: RefCounted) -> void:
@@ -182,7 +200,8 @@ static func _test_dive(expect: Callable, engine: RefCounted) -> void:
 	expect.call(collided["enemies"][1]["pos"] == Vector2i(3, 4) and collided["enemies"][1]["hp"] == collision["enemies"][1]["hp"] - 2, "Dive side push uses ordinary wall collision damage")
 	expect.call(collided["enemies"][1]["pos"] != Vector2i(3, 3), "Blocked right-hand side never falls back to the left")
 	var terrain_collision: Dictionary = before.duplicate(true)
-	terrain_collision["terrain"] = [{"id": 1, "kind": "bramble", "hp": 10, "rounds_left": 3, "pos": Vector2i(3, 5)}]
+	var thornwall: Dictionary = Data.enemy_def("briar_weaver")["intents"][0]["actions"][0]
+	terrain_collision["terrain"] = [{"id": 1, "kind": "bramble", "hp": 10, "rounds_left": 3, "pos": Vector2i(3, 5), "pushed_damage": thornwall["pushed_damage"], "pushed_bleed": thornwall["pushed_bleed"]}]
 	var terrain_after: Dictionary = engine._resolve_enemy_action(terrain_collision.duplicate(true), 0, action)
 	expect.call(terrain_after["enemies"][1]["pos"] == Vector2i(3, 4) and terrain_after["enemies"][1]["hp"] < terrain_collision["enemies"][1]["hp"], "Impassable right-hand terrain uses normal collision rules")
 	_test_blocked_landing(expect, engine, action)

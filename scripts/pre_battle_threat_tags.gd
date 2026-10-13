@@ -43,6 +43,8 @@ static func _append(tags: Array, seen: Dictionary, word: String, icon_key: Strin
 
 static func _word(action: Dictionary) -> String:
 	match str(action.get("type", "")):
+		"grow_bramble": return "Thornwall"
+		"lob_mark", "lob_land": return "Lob Slag"
 		"melee": return "Melee"
 		"ranged": return "Ranged"
 		"aoe", "lightning_strikes": return "Area"

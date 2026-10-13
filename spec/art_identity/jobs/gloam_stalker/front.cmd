@@ -1,0 +1,1 @@
+python3 ~/.claude/skills/orchestrate-codex/scripts/codex_unit.py imagegen id-gloam_stalker-creature_front --prompt-file spec/art_identity/jobs/gloam_stalker/front/prompt.md --ref spec/art_identity/jobs/gloam_stalker/front/refs/*.png

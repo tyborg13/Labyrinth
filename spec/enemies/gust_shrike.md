@@ -61,3 +61,17 @@ needed for these definition-backed passives and immediately resolved actions.
 The headless logic, asset, live preview and windowed proof entry points are
 listed in `glacial_mirror.md`. The probe shows the approved aligned right-hand
 pushes at rest and after Dive, plus blocked-landing rest/after captures.
+
+Director feedback 2 integrates threats-at-rest v2. At rest, Dive uses the
+`dive` feet chip (integer damage and one Push rider), actual health-frame order
+disc and nearest-footprint zone tag. The approved dashed path and right-hand
+push/collision previews remain; no detailed popup or compass is injected.
+The v2 known preview source determines these paths, including movement/card
+previews, focus alpha, cancellation and visibility. Details and focused
+inspection retain their existing full-plan disclosure.
+
+Intent/chip/badge numbers use `ActionIconLibrary.token_value_text`, the shared
+integer formatter from en-06. Regression coverage checks every authored
+intent of both en-05 enemies, including JSON-float Dive input. The unit probe
+saves eleven native captures under `user://probes/en05-enemies/<timestamp>/`
+so the isolated visual runner can discover and validate them.

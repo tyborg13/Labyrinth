@@ -15,12 +15,12 @@ const TEXTURE_PATHS := {
 const MELEE_TYPES := ["melee", "pull"]
 const RANGED_TYPES := ["ranged"]
 const AREA_TYPES := [
-	"icefall_mark", "icefall_land", "call_wind",
+	"chain_discharge", "mirror_last_attack", "icefall_mark", "icefall_land", "call_wind", "lob_mark", "lob_land",
 	"tether_beam", "dive_line", "burrow", "erupt", "aoe", "detonate", "cinder_marks", "detonate_cinders", "gale_force",
 	"lightning_strikes", "terrain_burst", "umbra_eclipse",
 ]
 const DEFENSE_TYPES := ["block", "frost_armor", "guard_ally", "stoneskin"]
-const SUPPORT_TYPES := ["veil_blink", "kindle", "heal_ally", "heal_self", "raise_terrain", "summon_minions", "surface", "consume_surface", "surface_relocate"]
+const SUPPORT_TYPES := ["grow_bramble", "gain_charge", "reset_charge", "veil_blink", "kindle", "heal_ally", "heal_self", "raise_terrain", "summon_minions", "surface", "consume_surface", "surface_relocate"]
 const MOVEMENT_TYPES := ["move_away", "move_toward"]
 
 static func descriptors_for_state(state: Dictionary, visible_enemy_ids: Array = []) -> Dictionary:
@@ -38,7 +38,14 @@ static func descriptors_for_state(state: Dictionary, visible_enemy_ids: Array = 
 		var intent: Dictionary = enemy.get("intent", {}) as Dictionary
 		if intent.is_empty():
 			continue
+		intent = preload("res://scripts/enemy_mechanics/bramble.gd").presentation_intent(state, enemy, intent)
 		var descriptor: Dictionary = descriptor_for_enemy(intent)
+		if str(descriptor.get("action_type", "")) == "lob_mark": descriptor["value"] = preload("res://scripts/enemy_mechanics/lob.gd").landing_action(preload("res://scripts/combat_engine.gd").new(), state, enemy)["center_damage"]
+		if str(intent.get("id", "")) == "mirror":
+			var engine = preload("res://scripts/combat_engine.gd").new()
+			var plan: Dictionary = engine.enemy_intent_plan(state, engine._enemy_index_for_id(state, enemy_id), intent, bool(enemy.get("immobilize", false)), int(enemy.get("freeze", 0)) > 0 or int(enemy.get("shock", 0)) > 0)
+			descriptor = descriptor_for_enemy({"actions": [plan["attack_action"]]})
+			if not bool(plan.get("attack_available", false)): descriptor["value"] = 0
 		if str(descriptor.get("action_type", "")) in ["tether_beam", "dive_line"]:
 			var engine = preload("res://scripts/combat_engine.gd").new()
 			var index: int = engine._enemy_index_for_id(state, enemy_id)
@@ -52,9 +59,11 @@ static func descriptor_for_enemy(intent: Dictionary) -> Dictionary:
 	var primary_action: Dictionary = _primary_action(intent)
 	if primary_action.is_empty():
 		return {}
+	if str(primary_action.get("type", "")) == "mirror_last_attack": primary_action = primary_action.get("copy", primary_action)
 	var family: String = family_for_action(primary_action)
 	var action_type: String = str(primary_action.get("type", ""))
 	return {
+		"icon": primary_action.get("_copied_icon", ""),
 		"family": family,
 		"action_type": action_type,
 		"value": value_for_action(primary_action),
@@ -79,6 +88,9 @@ static func is_supported_action_type(action_type: String) -> bool:
 		or action_type in MOVEMENT_TYPES
 
 static func value_for_action(action: Dictionary) -> int:
+	if str(action.get("type", "")) == "lob_mark": return int(action.get("center_damage", 5))
+	if str(action.get("type", "")) == "lob_land": return int(action["center_damage"])
+	if str(action.get("type", "")) == "grow_bramble": return int(action["rounds"])
 	if str(action.get("type", "")) == "icefall_mark": return 5
 	if str(action.get("type", "")) == "call_wind": return int(action.get("push", 1))
 	for key: String in ["damage", "amount", "count"]:

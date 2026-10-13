@@ -1,225 +1,264 @@
-# Threats at rest — itb-01
+# Threats at rest v2 — itb-03
 
-Presentation only. Combat rules, state, RNG, saves, analytics, turn scheduling,
-Umbra, input paths, existing lethal/pressure markers and the detailed intent
-renderer are unchanged. The approved brief takes precedence over its mockup.
-Approved references are `output/peer-benchmark-2026-10-12/mockups/threats_at_rest.png`
-and `clips/z_intents_on/off_on.png` in the primary checkout. No assets are created
-or changed: use ActionIconLibrary and the existing Crumble UI font.
+Presentation only. Combat rules, state, RNG, saves, analytics, scheduling,
+Umbra and input paths are unchanged. The owner brief overrides mockups.
+Approved references, read-only, in the primary checkout:
 
-## 1. Intent pills
+- `output/peer-benchmark-2026-10-12/mockups/threats_v2/option_D_open_crop.png`
+- `output/peer-benchmark-2026-10-12/mockups/threats_v2/option_D_crowded_crop.png`
+- `output/peer-benchmark-2026-10-12/mockups/threats_v2/option_C_pulse.gif`
+- `output/peer-benchmark-2026-10-12/mockups/threats_v2/make_d.py`, `chip` and `order_disc`
 
-Every visible living enemy with a known next intent receives pill data, centred
-8 screen pixels above its health bar. Plate height 26px, corner radius 5px,
-INK_0 `#0b0908` at 88%, border 1px. Attack/area border DANGER `#c7453b`
-at 90%; defence/guard STEEL `#8fb3d9` at 90%; support/heal/summon GOLD
-`#c9a25e` at 90%; movement-only TEXT_3 `#7f7262`.
+The crowded mockup's crawler chip at the health bar is rejected. Every chip
+stays at the feet. No assets, icon identities, fonts or dependencies are added;
+use ActionIconLibrary and the existing Crumble UI cut. No balance scoring or
+analytics-schema changes apply to this presentation change.
 
-The next action uses its existing primary action icon at 20×20px, followed by
-the primary number in Crumble UI 19px, TEXT `#efe3c8`. Damage is shown for
-attacks; repeated hits use `4×2`; guard/block show their amount. Actions with
-no primary number have none. At most one secondary status/distance is shown,
-with its existing 16px icon and 15px number (Bleed, Chilled, Push, etc.).
-Plate content has 8px horizontal padding on each side, with another 4px on
-its left when an order disc is present; all content is vertically centred.
-The primary icon/number gap is 4px. The gap before a secondary icon is 7px,
-including when the primary has no number. A secondary icon/number gap is 3px;
-numberless secondaries have only their icon and reserve no number gap.
-Secondary priority, first present and at most one: Push/Pull distance,
-Immobilize, Freeze/Chilled, Shock, Bleed, Expose, then Stagger.
+## 1. Remove floating pills and the at-rest compass
 
-An order disc is a 22px circle left of the plate, overlapping its edge by 4px,
-INK_0 fill, 1px GOLD border. Numeral: Crumble UI 14px GOLD_BRIGHT `#f0cf8a`.
-It counts ENEMY activations before the hero's next turn if the hero ended now,
-using the existing finish-activation/uncapped turn-clock projection, including
-Wait, current card-preview Time and the clock's follow-up entries. A repeated
-actor uses `1·3`. Later unrevealed intents are never invented. Enemies outside
-this interval have no disc and the entire plate is at 55% opacity.
+No floating intent plate remains above health bars. The ground compass code
+and its existing descriptor projection are retained only for Details or the
+currently expanded/focused enemy. At rest, neither ring nor emblem is drawn.
+Existing full-plan contours, movement wash and ranged arcs remain available
+through Details and the existing focused inspection paths.
 
-Global-header bosses also draw pills. Centre horizontally on the boss's
-rendered visual bounds (`CombatBoardView._unit_draw_rect`), with the pill's
-bottom 8px above the bounds' top. Clamp its top to at least 8px below the actual
-global boss header's bottom, converted into board coordinates. The existing
-RunScene header rectangle is passed as presentation data; no header size or
-camera is invented.
+## 2. Health-bar order disc
 
-Pills are measured in screen space in action order. A later overlapping pill
-uses levels base, 30px up, then 60px up. If the 60px level still overlaps,
-shift it right by the overlap width plus 6px, keeping its complete plate/disc
-envelope inside the board viewport. If the right shift would be clamped, shift
-left instead, even when the clipped right position would have been clear.
-Resolve further encountered overlaps with the same increments. Never hide a
-pill; there is no unresolved-overlap flag. Bosses retain their header clearance
-while stacking. The approved
-four-enemy proof reads crawler **1 / 4**, lancer **2 / 6**, acolyte **3 / 5**,
-harrier **4 / 4**. Production values always come from the live intent/clock,
-never these proof numbers.
+For each acting visible enemy, a 24px disc is centred 14px left of the actual
+health-frame rectangle's left edge, vertically centred on the frame. Fill
+`#15100c` at 94%; 2px GOLD `#c9a25e` ring; Crumble UI 15px GOLD_BRIGHT
+`#f0cf8a` numeral. A repeated actor retains `1·3`; extend the disc horizontally
+by the extra text width as a capsule, retaining the single-numeral inset.
 
-## 2. Threat tiles
+Use the collision-resolved health-frame cache. Global-header bosses use their
+actual global health-frame rectangle converted into board coordinates, passed
+by RunScene; no synthetic bar or header clearance is introduced.
 
-Only exact `projected_attack` footprints belonging to visible enemies acting
-before the next hero turn are included. Movement ranges, names and arcs are
-excluded from the rest layer. Each struck tile has a 2px inner diamond outline
-in DANGER at 75%, with DANGER fill at 12%. The preview hero tile instead fills
-at 24%, slowly pulsing 18%→30% over 1.1 seconds. Reduced motion is steady 24%.
-Overlapping threats take the maximum alpha and never add their fills.
+Order remains the existing finish-activation/uncapped turn-clock projection,
+including Wait, card-preview Time and follow-up entries before the hero's next
+turn. An enemy outside that interval has no disc and retains the itb-01 55%
+inactive chip alpha. Later intents are never invented.
 
-## 3–4. Preview coupling and isolation
+## 3. Feet chip and danger
 
-At rest and during card/move aim, use the same `_enemy_intent_preview_state`
-source used by full plans and Pass. Known geometry is supplied through the
-existing `_surface_preview_information_state` filter. A hovered Push/Pull
-updates the planner's attack origin/target/tiles; cancelling restores the
-committed source. Kills, Shock, Freeze and Stagger beyond the hero's turn
-cancel the affected pill and remove its tiles. Its primary icon receives a
-2px diagonal strike in TEXT_2 `#b5a58a`.
+The approved HUD chip drawing is code-native:
 
-Hovering an enemy, pinned/controller enemy focus or rail enemy focus preserves
-today's detailed single-enemy view while multiplying other rest pills and
-threats by 40%. Card aim retains its existing ownership of detailed hover
-previews. Neither a preview nor a callout reveals a concealed enemy or uses
-concealed causes to shape a known attack. The board also clips threat drawing
-to the existing visible-tile boundary.
+- 32px medallion, fill `#3a2d1f`, 2px ring, 1px inner keyline at half the
+  ring colour's brightness, 24px existing primary action icon centred.
+- A 22px-high plate begins 6px right of the medallion centre; fill `#140f0b`
+  at 92%, 1px top and bottom rims in the ring colour (the reference drawing's
+  230/255 rim alpha). Primary number starts 24px right of the centre, Crumble
+  UI 19px TEXT `#efe3c8`. The reference's primary text baseline is centred
+  with a 1px vertical offset.
+- At most one secondary rider: 16px icon and Crumble UI 15px number, with a
+  6px gap after primary content. Preserve priority: Push/Pull, Immobilize,
+  Freeze/Chilled, Shock, Bleed, Expose, Stagger. An unnumbered rider shows
+  only its icon. The plate ends 12px after content; its 10px diamond finial
+  is centred 1px after that edge, exactly as in `make_d.py`.
+- Numberless intents, including move-only actions, have only the medallion.
+  Repeated hits keep existing `4×2` formatting.
+- GOLD normally; GOLD_DIM `#7c6240` for defence, support and movement.
 
-## 5. Details
+Danger is true only for an acting, uncancelled attack whose exact known
+`projected_attack` footprint includes the previewed hero tile. Ring, rims
+and finial then become DANGER `#c7453b`. A halo behind both parts uses the
+reference's 19px source circle and rounded plate mask, Gaussian blur radius
+6px. Its alpha follows 35%→75%→35% over 1.1 seconds (sinusoidal); reduced
+motion holds 55%. Gaussian masks are cached by measured plate width; the HUD
+retained layer redraws for the pulse. No art file is generated.
 
-Default off. The existing Intents button becomes **Details [I]**, with the same
-keyboard/controller toggle, focusability and node IDs. On adds the existing
-full all-enemy contours, movement wash and ranged arcs above the rest layer.
-Tooltip off: `Show every enemy's full plan [I]`.
-Tooltip on: `Hide full plans [I]`.
-The guided inspection lesson retains its existing single-enemy evidence and
-input paths; its current copy does not reference the old toggle wording.
+## 4. Placement
 
-## 6. Resolution callouts
+Use the rendered unit's registered base/feet point (`_unit_center`), including
+existing movement overrides. Default medallion centre is feet + `(26, 4)`px.
+Measure the complete medallion/plate/finial rectangle. If it intersects another
+visible unit's sprite bounds, an earlier chip, or the renderer's visible prop
+bounds, use lower left: the chip's right edge is 26px left of the feet, with
+unchanged content orientation and centre Y at feet + 4px. If that also
+intersects, retain lower right and draw after the other chips above board
+sprites, props and HUDs. Never stack vertically or dock at the health bar.
 
-At the visible enemy, Crumble UI 22px, TEXT_2, 0.9-second rise and fade. Reuse
-the existing floating-text anchor and ink outline. Motion and alpha come from
-`FloatingCombatText.animate_entry` with its status/effect popup curves,
-normalised over 0.9 seconds: the existing 32px rise, 24px lateral drift, apex
-at 30%, smoothstep fall to 8px and fade after 64% progress. Keep glyphs at the
-specified 22px. Reduced motion removes the motion offset and keeps the same
-alpha curve. The shared helper exists, so the director's fallback curve is
-not needed. The helper annotates a local copy of the immutable
-resolution stream; engine steps, state and analytics are not modified.
+Resolve chips in the unchanged action order; ties retain roster order. The
+attacker's own sprite is excluded from its collision obstacles. Concealed
+units and props never enter the geometry boundary.
 
-`Cancelled`: an announced attack has no resolving attack because its target
-or line is invalid, Shock/Freeze suppresses it, or it dies during its own
-activation before attacking. Start-of-turn and movement/status deaths count.
-`Redirected`: a moved unit/source changes the actual resolved target from the
-announced target (including another enemy, terrain or empty ground). Held
-directional footprints can resolve on empty ground without a damage step.
-Match each announced attack to at most one actual attack step, producing at
-most one callout per action. None for concealed actions/enemies. Announcements
-retain the pre-displacement target until that activation is resolved.
+## 5. Area zone tags and unchanged tiles
 
-## 7. Grimoire
+Only exact `projected_attack` footprints of visible enemies acting before the
+next hero turn enter the rest layer. The existing 2px inner diamond outline in
+DANGER at 75%, fill at 12%, and hero-tile fill at 24% remain unchanged. Hero
+fill pulses 18%→30% over 1.1 seconds; reduced motion holds 24%. Overlapping
+threats use maximum alpha, never additive fills.
 
-The base has no separate intents/basics entry. Update the existing
-`combat:board` entry, preserving its existing paragraphs, with the approved
-text verbatim:
+An area/pattern intent gains one 20px tag on its footprint tile nearest the
+attacker's previewed tile, using the board's Manhattan distance and existing
+footprint order for equal distances. Place it at that tile's centre. Fill
+`#46140f` at 94%, 2px DANGER ring, Crumble UI 13px GOLD_BRIGHT attacker's order
+numeral. Single-target attacks get no tag. Tags are recomputed from preview
+geometry and obey visible-tile clipping and focus alpha.
 
-> Enemies show their next attack above them: its damage and the order they act in. Red tiles will be struck before your next turn. Press I for every enemy's full plan.
+## 6. Preserve preview, focus and resolution paths
 
-## 8. Implementation and proof
+Rest chips, discs and tiles retain `_enemy_intent_preview_state` and
+`_surface_preview_information_state`. Independent movement now feeds its
+existing known surface forecast to the same presentation source; concealed
+actors are retained solely for unchanged clock accounting. Resolve known
+causes before simulating movement. Committed enemy visibility remains the
+disclosure boundary, including when a preview could reveal a new actor.
 
-`scripts/intent_badges.gd` owns pill data/layout/drawing;
-`scripts/threat_tiles.gd` owns tile union/pulse/drawing;
-`scripts/intent_callouts.gd` owns announcement tracking, step annotations and
-callout drawing. CombatBoardView contains drawing calls, retained-layer
-invalidation and data plumbing only. RunScene integration is under 40 changed
-lines. No rules, icon registry, assets or dependencies change; balance scoring
-and analytics-schema changes are not applicable.
+Hover, pinned/controller focus and rail focus dim other discs, chips and
+threat tiles/tags to 40%, while preserving the existing detailed single-enemy
+view. Push/Pull re-aims footprint/danger/tag data live; cancelling restores the
+committed state. Kill, Shock, Freeze and Stagger beyond the next hero turn
+retain cancellation and the existing 2px TEXT_2 diagonal icon strike.
 
-Standard risk contract: focused test covers clock order, repeat slots, inactive
-enemies, exact attack tiles, max-alpha unions, true Umbra concealment, preview
-re-aim/cancellation, real kill/Shock/Freeze/invalid-target resolution in both committed and
-production snapshot-free step streams, and real Crosswind push redirection, reduced motion and collision stacking. Live scene assertions cover
-rest, pointer/pinned focus, Details labels/tooltips, Crosswind Rotate preview,
-retained floor data and callout expiry. The focused driver also runs the existing
-compass suite. The existing preview suite and full Godot suite remain required.
+Details [I] remains default off, with unchanged node IDs, keyboard and
+controller paths and tooltips `Show every enemy's full plan [I]` /
+`Hide full plans [I]`. Cancelled/Redirected callout classification, privacy,
+text, font and 0.9-second animation remain in `intent_callouts.gd` and use
+`FloatingCombatText` unchanged. Existing Grimoire copy is outside this unit.
 
-Windowed proof uses `tests/threats_at_rest_probe.gd` with
-`tests/threats_at_rest_probe_contract.json` at native 1920×1080, 100% UI scale.
-It captures eight states in `user://probes/threats_at_rest/`: rest, hover,
-pinned/controller focus, Details, hovered Push re-aim, a live Cancelled frame,
-hidden enemy in Umbra and reduced motion. The scene renders in a fixed
-1920×1080 `SubViewport` using `UPDATE_ALWAYS`
-and the root viewport's MSAA setting. Capture its texture directly, preserving
-the 100% UI scale assertion; never rescale an image.
-The headless driver shares the semantic assertions but makes no image claim.
-The trailer-director script is absent from this branch; the proof fixture
-retains its exact hero-relative four-enemy roster/offsets in a named open test
-layout, rather than importing capture tooling from a different revision.
+## Acceptance and proof contract
 
-Run from this worktree:
+Standard risk; full suite required by the unit brief in addition to focused
+checks. Acceptance is each numbered section above: no at-rest compass/pill,
+projected order beside the real bar, approved feet chip/danger rendering,
+only authored feet placements, one owner tag per area, and preserved itb-01
+preview/focus/Details/callout/privacy behaviour.
+
+Ownership: `intent_badges.gd` owns descriptors, measured layouts, chip/disc
+rendering and the Gaussian pulse mask; `threat_tiles.gd` owns unchanged tiles
+plus tags. CombatBoardView contains draw/redraw calls and disclosure plumbing.
+RunScene adds five lines for real boss-frame geometry and existing independent
+movement forecast plumbing. Tests retain resolver/callout coverage and the
+existing compass suite; no assertions in other suites are rewritten.
+
+`tests/threats_at_rest_test.gd` runs the v2 suite and live scene semantics
+headlessly, including native SubViewport dimensions. It makes no image claim.
+The windowed subclass `tests/threats_at_rest_probe.gd` captures directly from a
+1920×1080 SubViewport, UPDATE_ALWAYS, root MSAA, at 100% UI scale, without
+resizing. Its proof contract requires thirteen PNGs in
+`user://probes/threats_at_rest_v2/`:
+
+1. `01_rest_1920x1080.png` — approved itb-01 open fixture, now v2.
+2. `02_hover_isolation_1920x1080.png` — pointer isolation.
+3. `03_focus_isolation_1920x1080.png` — pinned/controller focus.
+4. `04_details_1920x1080.png` — retained full plans.
+5. `05_push_preview_1920x1080.png` — real Crosswind re-aim.
+6. `06_cancelled_1920x1080.png` — real resolving Cancelled frame.
+7. `07_umbra_hidden_1920x1080.png` — truly concealed enemy.
+8. `08_reduced_motion_1920x1080.png` — steady halo.
+9. `09_crowded_1920x1080.png` — harrier at hero+(3,1), crawler at hero+(2,0),
+   wooden box in front of acolyte; every chip stays at the feet.
+10. `10_danger_peak_1920x1080.png` — fixed 0.55s proof clock, halo at 75%.
+11. `11_move_removes_danger_1920x1080.png` — independent movement preview.
+12. `12_card_removes_danger_1920x1080.png` — Guarded Step preview.
+13. `13_wave_e2_rest_1920x1080.png` — Briar Weaver's Thornwall (`bramble`),
+    Slag Mortar's Lob Slag (`lob`), Glacial Mirror's Refraction (`aoe`) and
+    Gust Shrike's Dive (`dive`) around the hero. All four show their order
+    discs, feet chips and exact-footprint zone tags. Dive retains its dashed
+    line and right-hand push preview without detailed popup disclosure.
+
+Director en-05 feedback 2 adds this E2 state to both the headless suite/live
+stage and the windowed probe. Its named `WAVE_E2_ROSTER` proof fields use
+hero-relative offsets `(1,0)`, `(-3,0)`, `(0,-3)`, `(3,0)` in the order above;
+the existing hero, seed, grid and queue timings are retained. Thornwall is
+an area intent for its zone tag. Primary and rider chip numbers use the
+shared `ActionIconLibrary.token_value_text` integer formatter.
+
+### Chosen defaults (non-production)
+
+Existing proof defaults retained: seed `126065`, hero `(4,4)`, 9×9 grid,
+queue times `[8,11,12,13]`, 8 settle frames, Cancelled sample at 0.20s.
+New named proof fields: `FIXTURE_BOX_OFFSET=(1,-2)`, `FIXTURE_BOX_HP=10`,
+`PLACEMENT_TEST_ANCHOR=(600,500)`,
+`PLACEMENT_TEST_HEALTH=Rect2(100,100,140,20)`, `PROOF_MOVE_OFFSET=UP`,
+`ZONE_PREVIEW_OFFSET=UP`.
+`PROOF_AUDIO_DRAIN_SECONDS=0.10` drains stopped audio before probe teardown.
+`PROOF_PULSE_PEAK_SECONDS=0.55` follows the specified 1.1s waveform, and
+`threats_proof_seconds` is an optional debug-only fixed clock.
+`FULL_SUITE_TIMEOUT_SECONDS=900` is the runner deadline after observing the
+full suite still progressing through exhaustive gear checks at the default
+300-second limit.
+Internal numerical fields: `GAUSSIAN_KERNEL_SIGMAS=3` for convolution bounds,
+`CIRCLE_SEGMENTS=64` for arc tessellation. No production design defaults or
+TODO_DESIGN placeholders are introduced.
+
+### Commands
+
+Run these from this worktree; Godot never runs outside the task runner:
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/itb-01 && python3 tools/godot_task_runner.py --task-id itb-01 --stream -- godot --headless --path . --script tests/threats_at_rest_test.gd
-cd /Users/borgerding/workspace/Labyrinth.worktrees/itb-01 && python3 tools/godot_task_runner.py --task-id itb-01 --stream -- godot --headless --path . --script tests/enemy_intent_preview_test.gd
-cd /Users/borgerding/workspace/Labyrinth.worktrees/itb-01 && python3 tools/godot_task_runner.py --task-id itb-01 --stream -- godot --headless --path . --script tests/run_tests.gd
-cd /Users/borgerding/workspace/Labyrinth.worktrees/itb-01 && python3 tools/visual_probe_runner.py --task-id itb-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/threats_at_rest_probe_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/itb-01-threats-at-rest-feedback-1.json tests/threats_at_rest_probe.gd
-cd /Users/borgerding/workspace/Labyrinth.worktrees/itb-01 && python3 tools/visual_probe_runner.py --task-id itb-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/enemy_intent_preview_probe_contract.json tests/enemy_intent_preview_probe.gd
-cd /Users/borgerding/workspace/Labyrinth.worktrees/itb-01 && python3 tools/visual_probe_runner.py --task-id itb-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/enemy_intent_compass_probe_contract.json tests/enemy_intent_compass_probe.gd
-cd /Users/borgerding/workspace/Labyrinth.worktrees/itb-01 && python3 tools/visual_probe_runner.py --task-id itb-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 tests/umbra_preview_privacy_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/itb-03 && python3 tools/godot_task_runner.py --task-id itb-03 --stream -- godot --headless --path . --script tests/threats_at_rest_test.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/itb-03 && python3 tools/godot_task_runner.py --task-id itb-03 --stream -- godot --headless --path . --script tests/enemy_intent_preview_test.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/itb-03 && python3 tools/godot_task_runner.py --task-id itb-03 --stream -- godot --headless --path . --script tests/movement_undo_test.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/itb-03 && python3 tools/godot_task_runner.py --task-id itb-03 --stream -- godot --headless --path . --script tests/en01_enemies_test.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/itb-03 && python3 tools/godot_task_runner.py --task-id itb-03 --stream -- godot --headless --path . --script tests/en02_enemies_test.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/itb-03 && python3 tools/godot_task_runner.py --task-id itb-03 --stream -- godot --headless --path . --script tests/en03_enemies_test.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/itb-03 && python3 tools/godot_task_runner.py --task-id itb-03 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd
 ```
 
-The director authorised adapting `tests/run_tests.gd` to `DETAILS [I]`; the
-existing pressed/focusable toggle checks are preserved. Design owner owns
-commit, peer review, inspection fixture generation and publication. Windowed proof has not been run
-by this implementation worker, whose sandbox has no window-server access.
+Proof for the design owner (requires window-server access):
 
-### Feedback 1 verification
-
-Observed through the task runner on the uncommitted `codex/itb-01` branch:
-
-```text
-THREATS PUSH REDIRECT PROOF: announced=(1, 3) after_push=(4, 4) callouts=1
-THREATS AT REST TEST RESULT: PASS (422 assertions; includes compass suite)
-ENEMY INTENT PREVIEW TEST RESULT: PASS
-TEST RESULT: PASS
-Ran 6 tests in 0.069s
-OK
-OWNERSHIP CHECK: PASS
-TODO CHECK: PASS
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/itb-03 && python3 tools/visual_probe_runner.py --task-id itb-03 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/threats_at_rest_probe_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/itb-03-threats-v2-visual.json tests/threats_at_rest_probe.gd
 ```
 
-The probe parser check completed with exit 0. Focused suite now covers the
-approved padding/gaps, complete secondary priority, icon-only riders, both
-horizontal overflow directions including a clipped-but-clear right candidate,
-boss visual/header anchoring and actual boss layout retention, shared popup
-curve parity and identical reduced-motion alpha. The live driver renders the
-same fixture through its fixed SubViewport in headless tests and windowed proof.
-JSON parsing and `git diff --check` completed with exit 0. The full harness
-continues to emit its intentional analytics acknowledgment-failure fixture error
-and an ObjectDB exit warning; its result and runner exit status are both PASS/0.
+The implementation engineer cannot run windowed proof in this sandbox. The
+design owner owns renderer inspection, fixture preparation, task-contract
+metadata, committing, peer review and publication. The helper currently
+reports an empty task contract; this specification records the concrete
+acceptance/proof expectations without modifying protected task metadata.
 
-Logs:
-- Focused: `/private/tmp/labyrinth-godot-home/itb-01-1791840111259305000-72134/godot.log`.
-- Full: `/private/tmp/labyrinth-godot-home/itb-01-1791840155474559000-72713/godot.log`.
-- Preview: `/private/tmp/labyrinth-godot-home/itb-01-1791840155474978000-72714/godot.log`.
-- Probe parser: `/private/tmp/labyrinth-godot-home/itb-01-1791840111259388000-72135/godot.log`.
+## Observed headless verification
 
-The implementation worker has not run the windowed probe. The director reported
-that the earlier root-texture capture failed its native-size assertion in all
-eight frames. The fixed SubViewport capture awaits the director's renderer run;
-its fresh result manifest is `itb-01-threats-at-rest-feedback-1.json`.
+| Check | Exact result line |
+| --- | --- |
+| Threats v2 and compass | `THREATS AT REST TEST RESULT: PASS (541 assertions; includes compass suite)` |
+| Enemy intent preview | `ENEMY INTENT PREVIEW TEST RESULT: PASS` |
+| Movement undo | `MOVEMENT UNDO RESULT: 0 failures` |
+| en-01 | `EN01 ENEMIES TEST RESULT: PASS` |
+| en-02 | `EN02 ENEMIES TEST RESULT: PASS (235 checks, 0 failures)` |
+| en-03 | `EN03 ENEMIES TEST RESULT: PASS (210 checks, 0 failures)` |
 
-## Approved layout and motion values
+Proof-contract JSON: `THREATS V2 PROOF CONTRACT: PASS (12 native 1920x1080 captures)`
+(validates the contract, not captured pixels). Ownership and diff-whitespace
+checks pass. No windowed probe was attempted and no fresh PNG exists yet.
+The first full-suite attempt ended with
+`error: command timed out after 300 seconds.` while progressing through gear
+checks; the extended full-suite run is recorded separately below.
 
-- `HORIZONTAL_PADDING = 8`, `ORDER_CONTENT_PADDING = 4`.
-- `PRIMARY_NUMBER_GAP = 4`, `SECONDARY_ICON_GAP = 7`, `SECONDARY_NUMBER_GAP = 3`.
-- `SECONDARY_PRIORITY`: Push, Pull, Immobilize, Freeze, Chilled, Shock, Bleed,
-  Expose, Stagger; the first present rider is drawn.
-- `STACK_STEP = 30`, `MAX_STACK_LEVEL = 2`, `STACK_HORIZONTAL_GAP = 6`.
-- `BOSS_VISUAL_GAP = 8`, `BOSS_HEADER_GAP = 8`.
-- `MOTION_STYLE = FloatingCombatText.KIND_EFFECT`, `DURATION_SECONDS = 0.9`.
+Godot emits the environment CA-certificate lookup message on headless launches.
+The standalone en-03 driver also emits `ObjectDB instances leaked at exit`.
+The v2 focused harness stops its audio before teardown and exits without that
+shutdown warning. No assertion in those other suites was changed.
 
-All original design placeholders are resolved by the director's feedback.
+Extended full suite: `TEST RESULT: FAIL (4 failure(s))` (runner exit 1).
+The only failed assertions are:
 
-Only proof/test values are chosen: seed 126065, open 9×9 board, hero (4,4),
-hero-relative roster copied from the director shot, staged queue times
-8/11/12/13, eight settle frames and Cancelled capture at 0.20s. Mutation
-Overflow tests additionally use a 400×200 viewport and 80×26 pill rectangles.
-Fixtures use explicitly named dictionary fields for HP, surfaces, statuses,
-positions and queue times; these never become production tuning.
+- `Depth zero run hash matches pinned integration state: 307`
+- `Depth zero run hash matches pinned integration state: 8821`
+- `Depth zero combat hash matches pinned integration state: 8821`
+- `Depth zero run hash matches pinned integration state: 90429`
+
+Baseline reproduction temporarily loaded the four owned runtime files from
+unchanged starting HEAD `03e4934e78df5df31537faf7864346d4e19f4f06`
+(`codex/peer-benchmark`), then invoked the existing
+`DepthRulesSuite._test_zero_hashes` through the mandatory runner. It printed
+`STARTING-HEAD DEPTH HASH RESULT: 4 failure(s)` with the identical four
+assertion labels, and `BASELINE HASH RUNNER EXIT: 1`. The implementation and
+focused driver were restored byte for byte (`ITB-03 WORKING FILE RESTORATION:
+PASS`). These failures predate this unit on its supplied base; local master
+has different core/data files and no matching depth suite. No master-state
+success claim or hash re-pinning is made.
+
+Evidence logs:
+
+- Final focused v2/compass: `/private/tmp/labyrinth-godot-home/itb-03-1791856106369825000-16020/godot.log`
+- Full suite: `/private/tmp/labyrinth-godot-home/itb-03-1791855682074891000-15490/godot.log`
+- Starting-HEAD hash reproduction: `/private/tmp/labyrinth-godot-home/itb-03-1791856177307977000-16128/godot.log`
+
+All work remains uncommitted on `codex/itb-03`. No branch operation, peer
+review, signoff, publication or task-queue mutation was performed. Remaining
+owner work: renderer inspection and fixture, task contract, and upstream
+pinned depth-hash failures.

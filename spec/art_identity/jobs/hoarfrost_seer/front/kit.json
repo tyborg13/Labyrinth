@@ -1,0 +1,35 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "hoarfrost_seer",
+  "job_id": "id-hoarfrost_seer-creature_front",
+  "kind": "creature",
+  "kit_version": "497a2640373e216e684ea12bad6390c0ee1c2df51d436d00f5d5adcbc0213cda",
+  "peers": [
+    "grave_surgeon_front",
+    "frostglass_lancer_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "0e908a4a746e0186d261b81c25c4479ed627141d63e59ed546f5be857681c4b6",
+  "refs": [
+    {
+      "canon_id": "hero_front",
+      "file": "refs/01_hero_front.png",
+      "pixel_sha256": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f"
+    },
+    {
+      "canon_id": "grave_surgeon_front",
+      "file": "refs/02_grave_surgeon_front.png",
+      "pixel_sha256": "144084172812b88e7d2a18b4a1e27c2d35d6158bfa8b619bc6bb6c0834004736"
+    },
+    {
+      "canon_id": "frostglass_lancer_front",
+      "file": "refs/03_frostglass_lancer_front.png",
+      "pixel_sha256": "812cbb0456b616c96a9671f0db8c975d25f5d483c7eeea0a0d92d3b73cce4aba"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 210,
+  "target_w": null,
+  "view": "creature_front"
+}

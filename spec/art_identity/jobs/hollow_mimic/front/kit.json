@@ -1,0 +1,35 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "hollow_mimic",
+  "job_id": "id-hollow_mimic-creature_front",
+  "kind": "creature",
+  "kit_version": "0ecb5a75337ddc819fc0f834174a6a16162685e7219874e91f70167d599114d8",
+  "peers": [
+    "hero_front",
+    "harrier_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "1a9fb91a7340f489d3cb5054a5a2c8ad03300a86ad9b1450a5dcc576262502b8",
+  "refs": [
+    {
+      "canon_id": "hero_front",
+      "file": "refs/01_hero_front.png",
+      "pixel_sha256": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f"
+    },
+    {
+      "canon_id": "hero_front",
+      "file": "refs/02_hero_front.png",
+      "pixel_sha256": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f"
+    },
+    {
+      "canon_id": "harrier_front",
+      "file": "refs/03_harrier_front.png",
+      "pixel_sha256": "15a3f2b1608185d023b4bfa8c8c80e7cd5f02cb648db5f58e397dca91a9cc885"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 205,
+  "target_w": null,
+  "view": "creature_front"
+}

@@ -1,0 +1,308 @@
+{
+ "version": 1,
+ "adopted": "2026-10-12",
+ "rule": "Only these files may be used as references for new board art. Changes need owner approval.",
+ "not_canon": [
+  "assets/art/enemies/*.png legacy static sprites (front-on, pre-cutout)",
+  "the 12 peer-benchmark enemies of 2026-10-12 (rejected: front-on, thin realistic proportions)"
+ ],
+ "entries": [
+  {
+   "id": "hero_front",
+   "path": "assets/units/protagonist_cutout/front/front_assembled_rest.png",
+   "kind": "creature",
+   "anatomy": "biped",
+   "size_class": "medium",
+   "view": "front",
+   "note": "Reference for scale, view, density and hand."
+  },
+  {
+   "id": "hero_rear",
+   "path": "assets/units/protagonist_cutout/rear/rear_assembled_rest_v9.png",
+   "kind": "creature",
+   "anatomy": "biped",
+   "size_class": "medium",
+   "view": "rear"
+  },
+  {
+   "id": "harrier_front",
+   "path": "assets/units/harrier_cutout/front/rest.png",
+   "kind": "creature",
+   "anatomy": "biped",
+   "size_class": "medium",
+   "view": "front"
+  },
+  {
+   "id": "harrier_rear",
+   "path": "assets/units/harrier_cutout/rear/rest.png",
+   "kind": "creature",
+   "anatomy": "biped",
+   "size_class": "medium",
+   "view": "rear"
+  },
+  {
+   "id": "stone_warden_front",
+   "path": "assets/units/stone_warden_cutout/front/rest.png",
+   "kind": "creature",
+   "anatomy": "biped",
+   "size_class": "large",
+   "view": "front"
+  },
+  {
+   "id": "stone_warden_rear",
+   "path": "assets/units/stone_warden_cutout/rear/rest.png",
+   "kind": "creature",
+   "anatomy": "biped",
+   "size_class": "large",
+   "view": "rear"
+  },
+  {
+   "id": "grave_surgeon_front",
+   "path": "assets/units/grave_surgeon_cutout/front/rest.png",
+   "kind": "creature",
+   "anatomy": "biped",
+   "size_class": "medium",
+   "view": "front"
+  },
+  {
+   "id": "grave_surgeon_rear",
+   "path": "assets/units/grave_surgeon_cutout/rear/rest.png",
+   "kind": "creature",
+   "anatomy": "biped",
+   "size_class": "medium",
+   "view": "rear"
+  },
+  {
+   "id": "acolyte_front",
+   "path": "assets/units/acolyte_cutout/front/rest.png",
+   "kind": "creature",
+   "anatomy": "biped",
+   "size_class": "medium",
+   "view": "front"
+  },
+  {
+   "id": "acolyte_rear",
+   "path": "assets/units/acolyte_cutout/rear/rest.png",
+   "kind": "creature",
+   "anatomy": "biped",
+   "size_class": "medium",
+   "view": "rear"
+  },
+  {
+   "id": "frostglass_lancer_front",
+   "path": "assets/units/frostglass_lancer_cutout/front/rest.png",
+   "kind": "creature",
+   "anatomy": "biped",
+   "size_class": "large",
+   "view": "front"
+  },
+  {
+   "id": "frostglass_lancer_rear",
+   "path": "assets/units/frostglass_lancer_cutout/rear/rest.png",
+   "kind": "creature",
+   "anatomy": "biped",
+   "size_class": "large",
+   "view": "rear"
+  },
+  {
+   "id": "chainbound_gaoler_front",
+   "path": "assets/units/chainbound_gaoler_cutout/front/rest.png",
+   "kind": "creature",
+   "anatomy": "biped",
+   "size_class": "large",
+   "view": "front"
+  },
+  {
+   "id": "chainbound_gaoler_rear",
+   "path": "assets/units/chainbound_gaoler_cutout/rear/rest.png",
+   "kind": "creature",
+   "anatomy": "biped",
+   "size_class": "large",
+   "view": "rear"
+  },
+  {
+   "id": "crawler_front",
+   "path": "assets/units/crawler_cutout/front/rest.png",
+   "kind": "creature",
+   "anatomy": "crawler",
+   "size_class": "small",
+   "view": "front"
+  },
+  {
+   "id": "crawler_rear",
+   "path": "assets/units/crawler_cutout/rear/rest.png",
+   "kind": "creature",
+   "anatomy": "crawler",
+   "size_class": "small",
+   "view": "rear"
+  },
+  {
+   "id": "cinder_ooze_front",
+   "path": "assets/units/cinder_ooze_cutout/front/rest.png",
+   "kind": "creature",
+   "anatomy": "blob",
+   "size_class": "medium",
+   "view": "front"
+  },
+  {
+   "id": "cinder_ooze_rear",
+   "path": "assets/units/cinder_ooze_cutout/rear/rest.png",
+   "kind": "creature",
+   "anatomy": "blob",
+   "size_class": "medium",
+   "view": "rear"
+  },
+  {
+   "id": "cinder_droplet_front",
+   "path": "assets/units/cinder_droplet_cutout/front/rest.png",
+   "kind": "creature",
+   "anatomy": "blob",
+   "size_class": "small",
+   "view": "front"
+  },
+  {
+   "id": "cinder_droplet_rear",
+   "path": "assets/units/cinder_droplet_cutout/rear/rest.png",
+   "kind": "creature",
+   "anatomy": "blob",
+   "size_class": "small",
+   "view": "rear"
+  },
+  {
+   "id": "bile_bloomer_front",
+   "path": "assets/units/bile_bloomer_cutout/front/rest.png",
+   "kind": "creature",
+   "anatomy": "plant",
+   "size_class": "large",
+   "view": "front"
+  },
+  {
+   "id": "bile_bloomer_rear",
+   "path": "assets/units/bile_bloomer_cutout/rear/rest.png",
+   "kind": "creature",
+   "anatomy": "plant",
+   "size_class": "large",
+   "view": "rear"
+  },
+  {
+   "id": "ash_hound_front",
+   "path": "assets/units/guardians/ash_hound/front/rest.png",
+   "kind": "creature",
+   "anatomy": "quadruped",
+   "size_class": "medium",
+   "view": "front"
+  },
+  {
+   "id": "ash_hound_rear",
+   "path": "assets/units/guardians/ash_hound/rear/rest.png",
+   "kind": "creature",
+   "anatomy": "quadruped",
+   "size_class": "medium",
+   "view": "rear"
+  },
+  {
+   "id": "craghide_front",
+   "path": "assets/units/guardians/craghide/front/rest.png",
+   "kind": "creature",
+   "anatomy": "quadruped",
+   "size_class": "medium",
+   "view": "front"
+  },
+  {
+   "id": "craghide_rear",
+   "path": "assets/units/guardians/craghide/rear/rest.png",
+   "kind": "creature",
+   "anatomy": "quadruped",
+   "size_class": "medium",
+   "view": "rear"
+  },
+  {
+   "id": "rime_whelp_front",
+   "path": "assets/units/guardians/rime_whelp/front/rest.png",
+   "kind": "creature",
+   "anatomy": "quadruped",
+   "size_class": "medium",
+   "view": "front"
+  },
+  {
+   "id": "rime_whelp_rear",
+   "path": "assets/units/guardians/rime_whelp/rear/rest.png",
+   "kind": "creature",
+   "anatomy": "quadruped",
+   "size_class": "medium",
+   "view": "rear"
+  },
+  {
+   "id": "stoneback_mite_front",
+   "path": "assets/units/guardians/stoneback_mite/front/rest.png",
+   "kind": "creature",
+   "anatomy": "crawler",
+   "size_class": "small",
+   "view": "front"
+  },
+  {
+   "id": "stoneback_mite_rear",
+   "path": "assets/units/guardians/stoneback_mite/rear/rest.png",
+   "kind": "creature",
+   "anatomy": "crawler",
+   "size_class": "small",
+   "view": "rear"
+  },
+  {
+   "id": "rime_spitter_front",
+   "path": "assets/units/guardians/rime_spitter/front/rest.png",
+   "kind": "creature",
+   "anatomy": "quadruped",
+   "size_class": "small",
+   "view": "front"
+  },
+  {
+   "id": "rime_spitter_rear",
+   "path": "assets/units/guardians/rime_spitter/rear/rest.png",
+   "kind": "creature",
+   "anatomy": "quadruped",
+   "size_class": "small",
+   "view": "rear"
+  },
+  {
+   "id": "roc_fledgling_front",
+   "path": "assets/units/guardians/roc_fledgling/front/rest.png",
+   "kind": "creature",
+   "anatomy": "flyer",
+   "size_class": "small",
+   "view": "front"
+  },
+  {
+   "id": "roc_fledgling_rear",
+   "path": "assets/units/guardians/roc_fledgling/rear/rest.png",
+   "kind": "creature",
+   "anatomy": "flyer",
+   "size_class": "small",
+   "view": "rear"
+  },
+  {
+   "id": "crag_outcrop",
+   "path": "assets/props/guardians/crag_outcrop.png",
+   "kind": "object",
+   "anatomy": "plinth",
+   "size_class": "large",
+   "view": "front"
+  },
+  {
+   "id": "raised_cover",
+   "path": "assets/props/guardians/raised_cover.png",
+   "kind": "object",
+   "anatomy": "plinth",
+   "size_class": "medium",
+   "view": "front"
+  },
+  {
+   "id": "watch_brazier",
+   "path": "assets/props/guardians/watch_brazier_lit.png",
+   "kind": "object",
+   "anatomy": "legged",
+   "size_class": "medium",
+   "view": "front"
+  }
+ ]
+}

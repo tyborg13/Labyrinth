@@ -70,6 +70,9 @@ sound (or explicitly none) for every new reveal, and the full owned-file list in
 Enemy briefs: one icon per concept, stand-in art policy, encounter data entries.
 Every windowed probe brief: capture a 1920×1080 SubViewport (UPDATE_ALWAYS) like tests/movement_undo_probe.gd — never
 root.get_texture() (non-native on this display; failed itb-01, en-02, en-03).
+Every art job (enemy, prop, NPC body): the visual identity gate — canon refs via `kit`, `process`, review sheet + canon
+sheet, independent judge subagent, then owner; never approve at generation size (owner verdict 2026-10-12).
+Every UI brief: no default/unstyled boxes — every panel, chip and bar uses the design-system helpers (bramble empty-bar regression).
 
 ## Update (integration 02c3a4368)
 - Merged: fix-01 (re-review REQUEST_CHANGES → fix-01 r1 running: victory-beat stale board blocker), sfx-02, itb-01.
@@ -85,3 +88,19 @@ sessions (`git -C <wt> checkout --detach <commit>` + headless `--import`), after
 - Playtest builds: `peer-benchmark-playtest` (5ab3b59cc, session 2); `peer-benchmark-playtest-3` (95bf93536: SFX mix
   pass, fix-02, en-01 enemies, run-end screen). New sessions get a NEW frozen worktree; old ones are removed only after
   the owner confirms they're done.
+
+## Update (integration 325ace5ca) — visual identity gate
+- Owner (2026-10-12): new enemy art isn't at standard (head-on views, miniaturized detail, capacitor wrong perspective);
+  wants tooling + rules that make identity regressions hard. Response: spec/visual_identity_gate.md + spec/art_identity/
+  (canon, preamble, views, bands, judge rubric); art-01 builds the tooling; art-02 re-arts all 12 enemies through the kit.
+- Pilot 1 (scratch, unedited): tick/thrall/capacitor at correct view; thrall pale+lanky, capacitor too clean → preamble
+  gained Proportions + Palette sections. Pilot 2 running (thrall, capacitor, gloam stalker, gust shrike).
+  Sheet: output/peer-benchmark-2026-10-12/identity_gate/pilot_before_after.png.
+- Mechanics of en-04..06 keep merging with current art as placeholders (registry kind `pending_reart`).
+- Next: review en-06/itb-03/en-05 probes → merge; en-05 decisions round; art-01 review; after art-01: kit runs for 12
+  fronts → judge → owner sheets → rears; rules: AGENTS.md section + create-labyrinth-enemy skill + brief checklist.
+- Then: UI identity lint (palette/StyleBox via design-system helpers) — phase 2 of the gate.
+
+## Playtest 4 (frozen worktree ../peer-benchmark-playtest-4 at 4fc16f982; import + start fixture verified)
+New since playtest 3: start room opens the map (ux-01), threats at rest v2 (itb-03), en-02/03/06 section enemies with
+placeholder art, Chronicle (meta-02), Umbra Depths (meta-03), encounter fallback (qa-01). Do not touch that worktree.

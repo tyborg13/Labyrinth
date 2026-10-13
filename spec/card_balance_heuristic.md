@@ -961,3 +961,39 @@ Blocked landing can deny the hero strike; the tactical forecast shows this
 outcome rather than assuming full hit uptime. Reflection and line/collision friendly fire preserve the
 existing Ember reward rule and never add a player-card bonus. Existing enemy
 action analytics remain sufficient.
+
+## Director-authored section enemies E2: en-04
+
+Protected source: `peer_benchmark/staged/enemies/wave_e2.json`; assumptions are
+mirrored by `tools/card_heuristic.py` under `section_enemies_e2_en04`. No
+intrinsic card coefficient or director-authored number is retuned.
+
+| Enemy | HP / base initiative / Embers | Authored mean cadence at local depth 2 | Comparison and positional counterplay |
+| --- | --- | --- | --- |
+| Briar Weaver | 14 / 12 / 11 | 17.5 when all three intents are legal: 12 + (3×6 + 2×5 + 5)/6 | Hoarfrost Seer 12 / 12 / 11 and its terrain control. Immediate front-line Bramble, 3 enemy-turn boundaries, no sight block; walk around before closure, push enemies into it for 2 + Bleed 1. Lash 3 + Bleed 1 within 3; heal most wounded other ally within 3 for 4, otherwise Lash. |
+| Slag Mortar | 18 / 14 / 13 | Range 3–6: 19.75 initially, 19 steady including forced landing: 14 + (3×(6+4)+5)/7. Within 2: 19 (Scatter/Brace both Time 5). | Hoarfrost Seer delayed geometry and Warden 20 / 14 / 12 heavy anchor. Lob snapshots a cross ignoring sight; centre 5, arms 3, then Fire. Leave the cross, push enemies onto it, close within 2 to deny new marks. Brace Block 6 + Retreat 2; Scatter ranged 3 + Push 1. |
+
+The Mortar's first ranged mean is 19.75 (14 + (3×6+5)/4), while its
+steady mean including forced landings is 19. Both near and far behaviors
+remove impossible choices before the seeded roll; the table's close cycle
+is 19. A hypothetical all-choice weighted mean is 19.5 initially and 19
+including forced landings, but Lob and Scatter are mutually exclusive in a
+real state. Bramble's grow turn spends its first boundary, as Ice Pillars do.
+Wind collides against a last-round tangle before expiry. Bramble has lifetime,
+not HP; collision never destroys it. Friendly-fire rewards use existing
+Ember rules and never player-card bonus credit. Mark state and terrain rounds
+round-trip through the existing save decoder. No new analytics event is needed.
+The design owner adds encounter groups after merge.
+## Section regulars: EN06 (director wave E2)
+
+Protected values come from `peer_benchmark/staged/enemies/wave_e2.json` and
+`peer_benchmark/briefs/en-06.md`; no intrinsic card coefficients change.
+
+| Enemy | HP / initiative / Embers | Authored local-depth-2 cadence | Existing comparison | Pressure and counterplay |
+| --- | --- | --- | --- | --- |
+| Storm Capacitor | 22 / 16 / 13 | Three 20-Time Charge turns, then a 21-Time Discharge; mean 20.25 | Stone Warden's durable anchor; Lightning Wisp's electrical reach | Persistent Charge 0–3; nearest target within 4, then eight-neighbour hops for 6/5/4/3. Every tie prefers the hero, then lowest current HP, tile y, tile x. Immobile and anchored; becoming Shocked removes one Charge. Kill before three pips, Shock, or separate units; chain can kill allies under the existing friendly-fire reward rules. |
+| Hollow Mimic | 14 / 12 / 11 | Authored weighted mean 17; fallback Shade Bolt uses time 4 | Veilbound Acolyte's ranged pressure; Gloam Stalker's positioning | Selected copy snapshots the first damaging action of the last damaging card this combat, takes base damage/shape/range/element, and copies no riders. Special targeting uses one ranged hit at range 4 with the copied damage/name. Approach up to 2; Shade Bolt 4/range 4 if unavailable; Recede moves away 2 and grants Block 4. Kill first or feed a smaller attack. Seeded rolls filter impossible attacks. |
+
+The scorer's `en06_enemies` context mirrors these assumptions. The director owns
+encounter additions after merge. Existing enemy-action events, source attribution,
+death rewards and save storage carry these mechanics without new analytics types.

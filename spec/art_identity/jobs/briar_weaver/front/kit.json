@@ -1,0 +1,35 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "briar_weaver",
+  "job_id": "id-briar_weaver-creature_front",
+  "kind": "creature",
+  "kit_version": "fc05282a61ef6e5fb37b568dae8df0ef24625af1949c6fb495a6f42263d9ee05",
+  "peers": [
+    "grave_surgeon_front",
+    "harrier_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "8ff2ccd8d06f47704a077d3e9b6b53c324ce34663856f18597fad6566e5fd7c1",
+  "refs": [
+    {
+      "canon_id": "hero_front",
+      "file": "refs/01_hero_front.png",
+      "pixel_sha256": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f"
+    },
+    {
+      "canon_id": "grave_surgeon_front",
+      "file": "refs/02_grave_surgeon_front.png",
+      "pixel_sha256": "144084172812b88e7d2a18b4a1e27c2d35d6158bfa8b619bc6bb6c0834004736"
+    },
+    {
+      "canon_id": "harrier_front",
+      "file": "refs/03_harrier_front.png",
+      "pixel_sha256": "15a3f2b1608185d023b4bfa8c8c80e7cd5f02cb648db5f58e397dca91a9cc885"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 205,
+  "target_w": null,
+  "view": "creature_front"
+}

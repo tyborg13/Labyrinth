@@ -2,6 +2,8 @@ extends Control
 
 class_name CombatBoardView
 
+const BrambleView = preload("res://scripts/enemy_mechanics/bramble_view.gd")
+const LobView = preload("res://scripts/enemy_mechanics/lob_view.gd")
 const IcefallView = preload("res://scripts/enemy_mechanics/icefall_view.gd")
 const WindView = preload("res://scripts/enemy_mechanics/wind_view.gd")
 
@@ -108,6 +110,8 @@ const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
 const ReflectView = preload("res://scripts/enemy_mechanics/reflect_view.gd")
 const DiveView = preload("res://scripts/enemy_mechanics/dive_view.gd")
+const CapacitorView = preload("res://scripts/enemy_mechanics/capacitor_view.gd")
+const MimicView = preload("res://scripts/enemy_mechanics/mimic_view.gd")
 const TetherView = preload("res://scripts/enemy_mechanics/tether_view.gd")
 const VeilView = preload("res://scripts/enemy_mechanics/veil_view.gd")
 
@@ -2527,6 +2531,7 @@ func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: b
 	VeilView.queue_redraws(self)
 	if ThreatTiles.needs_pulse(presentation, _rest_threat_tile_alphas) or (not (WindView.forecast(self).get("wind", {}) as Dictionary).is_empty() and not bool(presentation.get("reduced_motion", false))):
 		_queue_render_layer_redraw(_overlay_render_layer)
+	if IntentBadges.needs_pulse(presentation): _queue_render_layer_redraw(_hud_render_layer)
 	if _ambient_particles_active() or _campfire_atmosphere_active():
 		_queue_render_layer_redraw(_ambient_render_layer)
 	if (
@@ -2654,6 +2659,7 @@ func _presentation_needs_continuous_redraw() -> bool:
 	if TetherView.needs_redraw(self) or VeilView.needs_redraw(self): return true
 	if ThreatTiles.needs_pulse(presentation, _rest_threat_tile_alphas):
 		return true
+	if IntentBadges.needs_pulse(presentation): return true
 	if not bool(presentation.get("reduced_motion", false)) and not _animated_surface_tiles.is_empty():
 		return true
 	if _ambient_particles_active():
@@ -2759,6 +2765,8 @@ func set_health_ghost_source_state(next_state: Dictionary) -> void:
 	_next_health_ghost_state = next_state
 
 func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}, trust_same_reference_state: bool = false) -> void:
+	next_presentation = MimicView.presentation_for(next_state, next_presentation)
+	next_presentation = CapacitorView.presentation_for(next_state, next_presentation)
 	next_presentation = TetherView.presentation_for(next_state, next_presentation)
 	next_presentation = DiveView.presentation_for(next_state, next_presentation)
 	_rest_threat_tile_alphas = ThreatTiles.tile_alphas((next_presentation.get("threats_at_rest", {}) as Dictionary).get("threats", []))
@@ -3416,6 +3424,8 @@ func _queue_presentation_change_redraws(
 				path_changed = true
 				effects_changed = true
 			"effect", "effect_progress":
+				for terrain: Dictionary in combat_state.get("terrain", []):
+					if str(terrain.get("kind", "")) == "bramble": _queue_scene_render_layer_for_tile(terrain["pos"])
 				effects_changed = true
 				action_floor_changed = true
 				overlay_changed = true
@@ -3434,7 +3444,11 @@ func _queue_presentation_change_redraws(
 				overlay_changed = true
 			"death_site_embers":
 				_queue_render_layer_redraw(_ground_render_layer)
-			"expand_enemy_intents", "expanded_enemy_actor_keys", "show_all_enemy_intents", "hud_obstacle_global_rects", "boss_header_global_rect":
+			"expand_enemy_intents", "expanded_enemy_actor_keys", "show_all_enemy_intents":
+				hud_changed = true
+				for unit: Dictionary in _visible_units():
+					if str(unit.get("role", "")) == "enemy": _queue_scene_render_layer_for_tile(_effective_unit_tile(unit))
+			"hud_obstacle_global_rects", "boss_header_global_rect", "boss_health_frame_global_rect":
 				hud_changed = true
 			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength", "combat_feel_flash", "combat_feel_flash_actor_keys":
 				impact_floor_changed = true
@@ -4219,6 +4233,8 @@ func enemy_intent_tooltip(actor_key: String) -> String:
 	return "\n".join(lines)
 
 func controller_tooltip_for_tile(tile: Vector2i) -> String:
+	for terrain: Dictionary in combat_state.get("terrain", []):
+		if terrain.get("pos") == tile and str(terrain.get("kind", "")) == "bramble": return BrambleView.tooltip(terrain)
 	for loot_var: Variant in _entries_for_tile(_loot_by_tile, combat_state.get("loot", []), "pos", tile):
 		if typeof(loot_var) != TYPE_DICTIONARY:
 			continue
@@ -4228,6 +4244,7 @@ func controller_tooltip_for_tile(tile: Vector2i) -> String:
 	return _surface_tooltip_for_tile(tile)
 
 func _make_custom_tooltip(for_text: String) -> Object:
+	if for_text.begins_with("Bramble:"): return UiTooltipPanel.make_icon_lines(ActionIcons.icon_texture("bramble"), "Bramble", PackedStringArray([for_text]))
 	if for_text.strip_edges().is_empty():
 		return null
 	if for_text.begins_with("item:"):
@@ -4497,7 +4514,6 @@ func _draw_hud_render_layer() -> void:
 	var section_started_usec: int = Time.get_ticks_usec()
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_noctyrax_brazier_markers()
-	IntentBadges.draw(self, (presentation.get("threats_at_rest", {}) as Dictionary).get("badges", []))
 	_draw_unit_huds(units_to_draw)
 	_record_render_section_time("unit_huds", section_started_usec)
 	# Damage-preview text and the lost-HP band must composite after the health
@@ -4507,6 +4523,7 @@ func _draw_hud_render_layer() -> void:
 	_draw_unit_damage_preview_overlays(units_to_draw)
 	_draw_friendly_damage_chips()
 	ReflectView.draw_preview(self)
+	IntentBadges.draw(self, (presentation.get("threats_at_rest", {}) as Dictionary).get("badges", []))
 	_record_render_section_time("damage_preview_overlays", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
 
@@ -4520,6 +4537,7 @@ func _draw_effects_render_layer() -> void:
 	var total_section_started_usec: int = Time.get_ticks_usec()
 	var section_started_usec: int = total_section_started_usec
 	var units_to_draw: Array[Dictionary] = _visible_units()
+	CapacitorView.draw_telegraphs(self)
 	TetherView.draw_telegraphs(self)
 	DiveView.draw_telegraphs(self)
 	_draw_effect_overlay()
@@ -4528,6 +4546,7 @@ func _draw_effects_render_layer() -> void:
 	_draw_collision_markers()
 	_draw_meteor_mark_badges()
 	IcefallView.draw_badges(self)
+	LobView.draw_badges(self)
 	WindView.draw_collisions(self)
 	_record_render_section_time("collision_markers", section_started_usec)
 	section_started_usec = Time.get_ticks_usec()
@@ -6747,6 +6766,7 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 		_draw_tile_ring(tile, Color(0.95, 0.78, 0.43, 0.98), 4.0, 0.92)
 	_draw_meteor_mark(tile)
 	IcefallView.draw_tile(self, tile)
+	LobView.draw_tile(self, tile)
 	WindView.draw_tile(self, tile)
 	if draw_aoe_footprint:
 		# Keep every legal center visible, then layer the concrete consequence on
@@ -8027,6 +8047,7 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 	if texture == null:
 		return
 	var terrain_rect: Rect2 = _terrain_rect_for_tile(tile, texture, terrain_kind)
+	if terrain_rect.size.y <= 0.0: return
 	var tint: Color = _foreground_blocker_tint("terrain", tile, terrain_rect, obstruction_entries)
 	_draw_rect_ground_shadow(tile, terrain_rect, 0.70, 0.24, 0.16)
 	if terrain_kind in ["crag_outcrop","dragon_spire"]:
@@ -8036,12 +8057,16 @@ func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) 
 		else: BoardSurfacePresentation.draw_outcrop(self,_tile_center(tile),_tile_width(),tile.x*101+tile.y*307,rise,tint.a)
 	else:
 		_draw_world_texture(texture, terrain_rect, tint)
+	if terrain_kind == "bramble": BrambleView.draw_flecks(self, tile, texture)
 	if terrain_kind == "powder_keg":
 		_draw_powder_keg_fuse_glow(terrain_rect, tint.a)
 	_draw_terrain_health_bar(terrain, terrain_rect)
 	_register_tooltip(terrain_rect.grow(4.0), _terrain_tooltip_text(terrain))
 
 func _draw_terrain_destruction(terrain: Dictionary, obstruction_entries: Array = []) -> void:
+	if str(terrain.get("kind", "")) == "bramble":
+		_draw_terrain_object(terrain, obstruction_entries)
+		return
 	var texture: Texture2D = _terrain_destruction_texture(terrain)
 	if texture == null:
 		return
@@ -8078,6 +8103,7 @@ func _draw_powder_keg_fuse_glow(terrain_rect: Rect2, opacity: float) -> void:
 	draw_circle(center, radius * 1.2, Color(1.0, 0.62, 0.24, 0.28 * opacity))
 
 func _terrain_rect_for_tile(tile: Vector2i, texture: Texture2D, terrain_kind: String = "") -> Rect2:
+	if terrain_kind == "bramble": return BrambleView.rect(self, tile, texture)
 	if terrain_kind == "ice_pillar": return _prop_draw_rect(texture, _prop_rect_for_tile(tile))
 	if terrain_kind == "dragon_spire":
 		return Rect2(_tile_center(tile)-Vector2(_tile_width()*.41,_tile_width()*.92),Vector2(_tile_width()*.82,_tile_width()*1.07))
@@ -8125,7 +8151,7 @@ func _draw_terrain_health_bar(terrain: Dictionary, terrain_rect: Rect2) -> void:
 		_draw_health_damage_preview(terrain, bar_rect, preview)
 
 func _should_show_terrain_health_bar(terrain: Dictionary) -> bool:
-	if str(terrain.get("kind", "")) == "ice_pillar": return false
+	if int(terrain.get("max_hp", 0)) <= 0 or str(terrain.get("kind", "")) == "ice_pillar": return false
 	if not BoardSurfaceRules.terrain_is_live(terrain):
 		return false
 	if int(terrain.get("hp", 0)) < maxi(1, int(terrain.get("max_hp", 1))):
@@ -8135,6 +8161,7 @@ func _should_show_terrain_health_bar(terrain: Dictionary) -> bool:
 	return attack_tiles.has(terrain.get("pos", Vector2i(-1, -1)))
 
 func _terrain_damage_preview(terrain: Dictionary) -> Dictionary:
+	if int(terrain.get("max_hp", 0)) <= 0 or str(terrain.get("kind", "")) == "ice_pillar": return {}
 	if not _board_tile_is_visible_to_player(terrain.get("pos", Vector2i(-1, -1))):
 		return {}
 	var terrain_key: String = _terrain_key(terrain)
@@ -8149,6 +8176,7 @@ func _terrain_key(terrain: Dictionary) -> String:
 	return "terrain_%s" % terrain_id
 
 func _terrain_tooltip_text(terrain: Dictionary) -> String:
+	if str(terrain.get("kind", "")) == "bramble": return BrambleView.tooltip(terrain)
 	if str(terrain.get("kind", "")) == "ice_pillar": return IcefallView.pillar_tooltip(terrain)
 	var terrain_kind: String = str(terrain.get("kind", ""))
 	var label: String = "Raised Cover" if terrain_kind == "raised_cover" else "Crag Outcrop" if terrain_kind == "crag_outcrop" else "Worldspine" if terrain_kind in ["dragon_spire", "worldspine"] else "Powder Keg" if terrain_kind == "powder_keg" else "Wooden box" if terrain_kind == "wooden_box" else "Wooden crate"
@@ -8260,7 +8288,7 @@ func _build_visible_units() -> Array[Dictionary]:
 			"boss_bar": bool(_enemy_render_definition(str(enemy.get("type", ""))).get("boss_bar", false)),
 			"is_leader": bool(enemy.get("is_leader", false)),
 			"footprint": enemy.get("footprint", Vector2i.ONE),
-			"intent": enemy.get("intent", {}),
+			"intent": preload("res://scripts/enemy_mechanics/bramble.gd").presentation_intent(combat_state, enemy, enemy.get("intent", {})),
 			"veiled": bool(enemy.get("veiled", false)),
 			"pos": enemy.get("pos", Vector2i.ZERO),
 			"hp": int(enemy.get("hp", 0)),
@@ -8494,13 +8522,15 @@ func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 	if str(unit.get("role", "")) != "enemy" or bool(unit.get("death_animation", false)):
 		return
 	var actor_key: String = str(unit.get("key", ""))
+	if not IntentBadges.details_discloses_compass(presentation, actor_key):
+		return
 	var descriptors: Dictionary = presentation.get("enemy_intent_compasses", {}) as Dictionary
 	var descriptor: Dictionary = KindleView.descriptor(unit, BurrowView.descriptor(unit, descriptors.get(actor_key, {}) as Dictionary))
 	if descriptor.is_empty():
 		return
 	var family: String = str(descriptor.get("family", EnemyIntentCompass.FAMILY_ATTACK))
 	var base_texture: Texture2D = AssetLoader.load_texture(EnemyIntentCompass.texture_path("base"))
-	var emblem_texture: Texture2D = AssetLoader.load_texture(EnemyIntentCompass.texture_path(family))
+	var emblem_texture: Texture2D = ActionIcons.icon_texture(str(descriptor["icon"])) if not str(descriptor.get("icon", "")).is_empty() else AssetLoader.load_texture(EnemyIntentCompass.texture_path(family))
 	if base_texture == null or emblem_texture == null:
 		return
 	var center: Vector2 = _intent_compass_center(unit)
@@ -8511,6 +8541,7 @@ func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 		/ INTENT_COMPASS_RING_SOURCE_DIAMETER
 	)
 	var emblem_scale: float = scale_factor * _intent_compass_emblem_scale(family)
+	if not str(descriptor.get("icon", "")).is_empty(): emblem_scale *= AssetLoader.load_texture(EnemyIntentCompass.texture_path(family)).get_width() / float(emblem_texture.get_width())
 	if _art_treatment_enabled:
 		# Preserve the authored attack/defense silhouettes, but seat their paint
 		# in the ground plane with a shallow offset shadow and shared local light.
@@ -9286,6 +9317,7 @@ func _unit_health_bar_rect(unit: Dictionary, center: Vector2) -> Rect2:
 	)
 
 func _draw_unit_statuses(unit: Dictionary, health_rect: Rect2) -> void:
+	CapacitorView.draw_pips(self, unit, health_rect)
 	var badges: Array[Dictionary] = _unit_status_badges(unit)
 	if badges.is_empty():
 		return
@@ -9587,7 +9619,7 @@ func _enemy_hud_reserved_rects(units_to_draw: Array[Dictionary], font: Font) -> 
 
 func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array, font: Font = null) -> Dictionary:
 	var health_rect: Rect2 = _unit_health_bar_rect(unit, center)
-	var intent: Dictionary = unit.get("intent", {})
+	var intent: Dictionary = MimicView.display_intent(self, unit, unit.get("intent", {}))
 	var rows: Array = []
 	var intent_name: String = ""
 	var border: Color = Color("d8b96f")
@@ -9722,7 +9754,7 @@ func _enemy_hud_placement_obstacles(occupied_rects: Array, actor_clear_rect: Rec
 	return placement_obstacles
 
 func _boss_intent_layout(unit: Dictionary, center: Vector2, occupied_rects: Array, font: Font = null) -> Dictionary:
-	var intent: Dictionary = unit.get("intent", {})
+	var intent: Dictionary = MimicView.display_intent(self, unit, unit.get("intent", {}))
 	var rows: Array = []
 	var intent_name: String = ""
 	var border: Color = Color("d8b96f")
@@ -10454,7 +10486,7 @@ func _dragon_full_area_fx(effect: Dictionary) -> bool:
 	return preload("res://scripts/dragon_presentation.gd").area_fx(effect) or (str(profile.get("geometry","")) == "physical" and str(effect.get("kind","")) == "aoe")
 
 func _effect_uses_elemental_scene_depth(effect: Dictionary) -> bool:
-	if effect.has("en02_mechanic"): return false
+	if effect.has("en02_mechanic") or effect.has("en04_mechanic"): return false
 	if _dragon_full_area_fx(effect) and not bool(effect.get("preview",false)): return true
 	return (
 		str(effect.get("kind", "")) in ["ranged", "aoe"]
@@ -10702,7 +10734,7 @@ func _draw_elemental_foreground_performance(style: String, ground_point: Vector2
 
 func _draw_elemental_spell_floor_overlay() -> void:
 	var effect: Dictionary = presentation.get("effect", {})
-	if effect.has("en02_mechanic"): return
+	if effect.has("en02_mechanic") or effect.has("en04_mechanic"): return
 	if effect.is_empty() or bool(effect.get("preview", false)):
 		return
 	if preload("res://scripts/dragon_presentation.gd").area_fx(effect): return
@@ -10796,6 +10828,7 @@ func _draw_effect_overlay() -> void:
 	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
 	if effect.is_empty():
 		return
+	if BrambleView.draw_effect(self, effect, progress) or LobView.draw_effect(self, effect, progress): return
 	if IcefallView.draw_effect(self, effect, progress): return
 	if str(effect.get("en02_mechanic", "")) in ["call_wind", "wind_push"]: return
 	if ReflectView.draw_effect(self, effect, progress) or DiveView.draw_effect(self, effect, progress): return
@@ -14377,6 +14410,7 @@ func _load_loot_and_terrain_assets() -> void:
 		"dropped_embers": AssetLoader.load_texture(DROPPED_EMBERS_PATH)
 	}
 	_terrain_textures = {
+		"bramble": AssetLoader.load_texture_source_first(BrambleView.PROP_PATH),
 		"raised_cover": AssetLoader.load_texture_source_first("res://assets/props/guardians/raised_cover.png"),
 		"crag_outcrop": AssetLoader.load_texture_source_first("res://assets/props/guardians/crag_outcrop.png"),
 		"wooden_box": AssetLoader.load_texture("res://assets/art/tiles/wooden_box.png"),
@@ -15401,7 +15435,7 @@ func _unit_art_scale(unit: Dictionary) -> float:
 	var npc_def: Dictionary = _npc_render_definition(unit_type)
 	if not npc_def.is_empty():
 		return float(npc_def.get("art_scale", 1.0))
-	return float(_enemy_render_definition(unit_type).get("art_scale", 1.0))
+	return CapacitorView.art_scale(unit_type, float(_enemy_render_definition(unit_type).get("art_scale", 1.0)))
 
 func _unit_art_offset(unit: Dictionary) -> Vector2:
 	var unit_type: String = str(unit.get("type", ""))
@@ -16413,7 +16447,7 @@ func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 	if not refraction_rows.is_empty(): return refraction_rows
 	var cancelled: Array = TetherView.cancelled_rows(self, unit, intent)
 	if not cancelled.is_empty(): return cancelled
-	var mechanic_rows: Array = BurrowView.rows(intent) + KindleView.rows(intent)
+	var mechanic_rows: Array = CapacitorView.rows(intent) + MimicView.rows(self, unit, intent) + BurrowView.rows(intent) + KindleView.rows(intent) + LobView.rows(self, unit, intent)
 	if not mechanic_rows.is_empty(): return mechanic_rows
 	var rows: Array = []
 	for action_var: Variant in intent.get("actions", []):
@@ -16609,6 +16643,7 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 	var badges: Array[Dictionary] = WindView.status_badges(unit)
 	badges.append_array(ReflectView.badges(unit))
 	badges.append_array(DiveView.badges(unit))
+	badges.append_array(CapacitorView.badges(unit))
 	badges.append_array(VeilView.badges(unit))
 	badges.append_array(BurrowView.badges(unit))
 	badges.append_array(DeathBurstView.badges(unit))

@@ -44,7 +44,7 @@ func _run() -> void:
 	await _settle()
 	preview = scene.board_view.presentation
 	_expect(preview.get("displacement_paths", []).size() >= 2, "Live Dive shows side-push paths on both intervening allies")
-	_expect(preview.get("damage_preview", {}).get("player", {}).get("hp") == before["player"]["hp"] - 4, "Live Dive shows real hero damage")
+	_expect(preview.get("threats_at_rest", {}).get("badges", []).any(func(badge: Dictionary) -> bool: return badge.get("key") == "enemy_1" and badge.get("icon") == "dive" and badge.get("number") == "4" and badge.get("secondary_number") == "1" and bool(badge.get("danger"))), "Live Dive chip shows integer damage, side Push and real hero danger")
 	_expect(scene._combat_portrait_path("gust_shrike") == "res://assets/art/portraits/gust_shrike.png", "Live turn clock resolves explicit shrike portrait")
 	_expect(preview.get("displacement_paths", []).has(engine._vector2i_values([Vector2i(3, 4), Vector2i(3, 5)])), "Live aligned Dive previews approved right-hand tile")
 	before = Fixtures.blocked_landing()
@@ -55,6 +55,13 @@ func _run() -> void:
 	_expect(not preview.get("damage_preview", {}).has("player"), "Live blocked landing omits hero damage")
 	_expect(preview.get("enemy_threat_previews", []).any(func(threat: Dictionary) -> bool: return threat.get("enemy_key") == "enemy_1" and threat.get("projected_attack_target") == Vector2i(4, 4) and threat.get("projected_attack", []).size() == 2), "Live blocked telegraph ends at actual stop tile")
 	_expect(preview.get("displacement_paths", []).has(engine._vector2i_values([Vector2i(5, 4), Vector2i(5, 5)])), "Live blocked push marks attempted right-hand tile")
+	scene._show_all_enemy_intents = false
+	scene._on_board_tile_hovered(Vector2i(-1, -1))
+	await _settle()
+	preview = scene.board_view.presentation
+	_expect(preview.get("enemy_threat_previews", []).is_empty(), "V2 rest presentation does not inject detailed Dive popups")
+	_expect(preview.get("en05_dive_telegraphs", []).any(func(threat: Dictionary) -> bool: return threat.get("projected_attack_target") == Vector2i(4, 4)), "V2 rest Dive retains the dashed line to its blocked stop")
+	_expect(preview.get("threats_at_rest", {}).get("badges", []).any(func(badge: Dictionary) -> bool: return badge.get("key") == "enemy_1" and badge.get("icon") == "dive" and not bool(badge.get("danger"))), "V2 blocked Dive chip has no hero danger")
 	scene.queue_free()
 	await process_frame
 	await process_frame

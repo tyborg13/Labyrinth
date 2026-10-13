@@ -49,3 +49,11 @@ Proof belongs to `tests/en05_enemies_test.gd`,
 `tests/en05_enemies_probe.gd` and its eleven-image contract. Headless checks prove
 logic only. The design owner must run and inspect the windowed captures at
 1920x1080, 100% scale before accepting presentation.
+
+Director feedback 2 keeps Refraction's existing `aoe` identity in the v2 feet
+chip, alongside the health-frame order disc and area zone tag. Refraction,
+Crystal Guard and Grind Forward intent/chip numbers share en-06's integer
+formatting; the regression also covers Talon Rake, Hover, Dive and passives.
+`tests/en05_enemies_probe.gd` now writes its eleven captures in the isolated
+`user://probes/en05-enemies/<timestamp>/` namespace. No art changed in this
+integration; art-02 remains the owner of re-art.
