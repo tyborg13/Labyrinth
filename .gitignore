@@ -46,3 +46,6 @@ Thumbs.db
 
 # Reproducible card targeting audit screenshots, logs and inspection saves.
 /output/card-targeting-audit/
+
+# Identity kit reference images are regenerable from canon (kit.json records their pixel digests)
+spec/art_identity/jobs/**/refs/

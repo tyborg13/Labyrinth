@@ -1,0 +1,35 @@
+{
+  "K": 3,
+  "anatomy": "biped",
+  "id": "slag_mortar",
+  "job_id": "id-slag_mortar-creature_front",
+  "kind": "creature",
+  "kit_version": "62f80b3e3e9de03305f3f5d3c19a1c17f57ba7f1190b4c2e5bb51ab47ad5585f",
+  "peers": [
+    "stone_warden_front",
+    "frostglass_lancer_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "8294eac9a930dd0c8339d9a5c9f59c3e7b55383df802a94acf5286568501d3b0",
+  "refs": [
+    {
+      "canon_id": "hero_front",
+      "file": "refs/01_hero_front.png",
+      "pixel_sha256": "d3f6dd1b8285845f7e5738590ee53290321062f48eac8f5bbe2176179d5417d2"
+    },
+    {
+      "canon_id": "stone_warden_front",
+      "file": "refs/02_stone_warden_front.png",
+      "pixel_sha256": "4dd3a32cd1dfb791e58eb10f370df6c87274820b2b148b04e14dfe468302a3fc"
+    },
+    {
+      "canon_id": "frostglass_lancer_front",
+      "file": "refs/03_frostglass_lancer_front.png",
+      "pixel_sha256": "6ca17d799afb7dab32dedd6f5d77b3b7c41c65db330324889523600983f7cdd0"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 235,
+  "target_w": null,
+  "view": "creature_front"
+}

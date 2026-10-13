@@ -1,0 +1,35 @@
+{
+  "K": 4,
+  "anatomy": "flyer",
+  "id": "gust_shrike",
+  "job_id": "id-gust_shrike-beast_front",
+  "kind": "creature",
+  "kit_version": "33226ad26f24dd746252ad6c114545328184db1388aa8cb4a68baf4ce276e5d3",
+  "peers": [
+    "roc_fledgling_front",
+    "roc_fledgling_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "8494c16f26f94418df8bac9802a45c7cc7f5072f35b3a0726cf6842d92c1bff7",
+  "refs": [
+    {
+      "canon_id": "hero_front",
+      "file": "refs/01_hero_front.png",
+      "pixel_sha256": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f"
+    },
+    {
+      "canon_id": "roc_fledgling_front",
+      "file": "refs/02_roc_fledgling_front.png",
+      "pixel_sha256": "3db7626d3071edbba61315a139d020b3f8830e63fdb472f76cfbdc9896f879c6"
+    },
+    {
+      "canon_id": "roc_fledgling_front",
+      "file": "refs/03_roc_fledgling_front.png",
+      "pixel_sha256": "3db7626d3071edbba61315a139d020b3f8830e63fdb472f76cfbdc9896f879c6"
+    }
+  ],
+  "size_class": "small",
+  "target_h": 160,
+  "target_w": 200,
+  "view": "beast_front"
+}

@@ -1,0 +1,35 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "gale_herald",
+  "job_id": "id-gale_herald-creature_front",
+  "kind": "creature",
+  "kit_version": "b43a7efa1002a1a1d1eee1590b8dc5536e4b9ed5f420172b717123c4c653d8ad",
+  "peers": [
+    "harrier_front",
+    "frostglass_lancer_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "c8a386a0e2a3e04c2f059187163b00f02b7c0d2b326287913090ad2960fe3687",
+  "refs": [
+    {
+      "canon_id": "hero_front",
+      "file": "refs/01_hero_front.png",
+      "pixel_sha256": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f"
+    },
+    {
+      "canon_id": "harrier_front",
+      "file": "refs/02_harrier_front.png",
+      "pixel_sha256": "15a3f2b1608185d023b4bfa8c8c80e7cd5f02cb648db5f58e397dca91a9cc885"
+    },
+    {
+      "canon_id": "frostglass_lancer_front",
+      "file": "refs/03_frostglass_lancer_front.png",
+      "pixel_sha256": "812cbb0456b616c96a9671f0db8c975d25f5d483c7eeea0a0d92d3b73cce4aba"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 215,
+  "target_w": null,
+  "view": "creature_front"
+}

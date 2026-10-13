@@ -1,0 +1,1 @@
+python3 ~/.claude/skills/orchestrate-codex/scripts/codex_unit.py imagegen id-hoarfrost_seer-creature_front --prompt-file spec/art_identity/jobs/hoarfrost_seer/front/prompt.md --ref spec/art_identity/jobs/hoarfrost_seer/front/refs/*.png
