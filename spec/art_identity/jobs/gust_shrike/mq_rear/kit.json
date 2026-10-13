@@ -13,5 +13,12 @@
   "roc_fledgling_front"
  ],
  "target_h": 238,
- "target_w": 234
+ "target_w": 234,
+ "kit_version": "f246b45a8355eb5a8adf36ad427a8f96aad80c65d58f096ebc47bcd5ff107c01",
+ "refs": [
+  "maquette r4 rear_parts_green.png",
+  "maquette r4 rear_clay_green.png",
+  "raw/gust_shrike_front_v2.png",
+  "hero_x3"
+ ]
 }
