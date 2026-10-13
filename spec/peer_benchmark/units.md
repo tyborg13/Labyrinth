@@ -31,7 +31,7 @@
 | en-06 | Storm Capacitor + Hollow Mimic | merged (commit 156ed20f5 + sync 2801799b8); encounters 96a86b86e; art pending_reart (art-02) | — | briefs/en-06.md |
 | itb-03 | Threats at rest v2 (owner direction) | merged 4fc16f982 (commit b18951e46 + sync); proof output/.../proof/itb-03/ | codex/peer-benchmark | brief briefs/itb-03.md |
 | art-01 | Visual identity gate tooling (measure/kit/process/sheet/check, registry, bestiary lineup probe) | merged 2d06756f0 (+ director despill/unmix fixes c8d823082, 674637b2b) | codex/peer-benchmark@f7773b175 | spec/visual_identity_gate.md, briefs/art-01.md |
-| art-02 | Re-art of the 12 section enemies through the identity kit | 11 owner-approved 2026-10-13 and in game via art-03; gust_shrike: maquette pilot judge-PASS, awaiting owner | — | staged/reart/, spec/art_identity/jobs/, maquettes/ |
+| art-02 | Re-art of the 12 section enemies through the identity kit | all 12 owner-approved 2026-10-13 and in game (11 via art-03, gust_shrike via art-04 maquette) | — | staged/reart/, spec/art_identity/jobs/, maquettes/ |
 | qa-02 | Register en04/en05/en06 enemy suites in the full suite (backlog) | design | — | |
 | art-03 | Integrate re-art: directional static art (front/rear + mirrored facing), portraits, density adoption, registry kit entries, gate post-steps + edge/rear-consistency metrics | merged 4aa4c3589 (commit 6b4927d2f + sync; r1 decisions; director: staged data sync, mirror exception, portrait crops) | codex/peer-benchmark | briefs/art-03.md |
 | sfx-03 | Lookahead limiter for hit.blade.light, status.shatter, status.freeze | merged 6786edf5d (commit 29783a2d2: blade +7 dB, shatter +6, freeze +5; +11 dB reverted as ineffective under 12 dB GR) | codex/peer-benchmark | briefs/sfx-03.md |
@@ -39,4 +39,4 @@
 | rr-01 | Roster wave 1a: crawler rig recolour (Lab L×0.76, ab×0.85) | merged 7c770a7ec (signoff 3fe284a60; follow-up fa0351491); integration suite PASS 694 s, Python 388 OK | codex/peer-benchmark | briefs/rr-01.md |
 | qa-03 | Python test hygiene (en05 asset pins, cutout seed, deepest route, optional modules) | merged (e66df1e67) | codex/peer-benchmark | briefs/qa-03.md |
 | rr-02 | Roster wave 1b pilot: chainbound gaoler re-pose via maquette → paint → segment → re-rig | art r3 (owner: too boxy → rounded maquette r3 at drawn size K=4): front painted, scoped coat/boot edit running; then judge → rear from approved front | — | maquettes/chainbound_gaoler/ |
-| art-04 | Integrate the owner-approved perched gust shrike (art-03 pipeline) + canon flyer reference | running | codex/peer-benchmark | briefs/art-04.md |
+| art-04 | Integrate the owner-approved perched gust shrike (art-03 pipeline) + canon flyer reference; gate support for maquette kits | merged 576717eae (signoff dc9de2dc3; follow-ups d9929d446) | codex/peer-benchmark | briefs/art-04.md |

@@ -28,7 +28,8 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   steps: `prototype/tone_region.py` (region tone), `prototype/mask_reference.py` (palette reference without front-only
   parts — the tabard skewed the rear match red; a gate `--match-exclude` option is a follow-up). Earlier gaoler jobs
   (mq_*, mq3_front*) still reference scratchpad paths → convert to the maquette-kit format (refs in the job) at rr-02.
-- art-04 running: integrate the owner-approved perched shrike + canon flyer reference.
+- art-04 merged 576717eae (+ follow-ups d9929d446): perched shrike in game, canon flyer reference, maquette-kit gate support
+  (maquette job folders `mq*`, refs committed). `check`: 0 failures, 0 pending_reart warnings.
 - Watchdog: `scratchpad/watch_loop2.sh` (tracked background job).
 
 ## Next actions
