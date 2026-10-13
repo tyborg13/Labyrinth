@@ -10,3 +10,11 @@ and gallows roc rears). For such subjects the structure is decided in 3D and ima
 - Prompts paint over the maquette: label colours are part labels, keep silhouette/overlap/camera, identity from the
   approved painting. Front and rear come from one pose, so they agree by construction.
 - The part-label renders double as ownership masks for a future cutout rig.
+
+## Primitives: rounded by default (owner 2026-10-13)
+The gaoler pilot's cube helm, slab coat panels, straight column legs and brick boots made the paint-over read "quite
+boxy". Build creatures from ellipsoids and tapered capsules; use `box` only for built objects, and then with a large
+bevel (`bevel` is in the unit cube's local units, before scaling: 0.3–0.5 reads as rounded) and `taper` < 1 for
+buckets/helms. Give the pose life: a slight hunch or lean, bent elbows and knees, a weight shift, plates that flare.
+Frame the render at the drawn size (`ortho_scale` so the figure is target_h × K pixels tall) so the painting needs no
+art_scale reduction.
