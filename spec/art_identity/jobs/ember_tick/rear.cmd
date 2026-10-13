@@ -1,0 +1,1 @@
+python3 ~/.claude/skills/orchestrate-codex/scripts/codex_unit.py imagegen id-ember_tick-beast_rear --prompt-file spec/art_identity/jobs/ember_tick/rear/prompt.md --ref spec/art_identity/jobs/ember_tick/rear/refs/*.png

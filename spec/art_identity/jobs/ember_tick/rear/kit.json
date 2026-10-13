@@ -1,0 +1,39 @@
+{
+  "K": 4,
+  "anatomy": "crawler",
+  "id": "ember_tick",
+  "job_id": "id-ember_tick-beast_rear",
+  "kind": "creature",
+  "kit_version": "f1723978999c5fb4a11036e66e85b49ca6d28fdebe1f36f37c1aca177bc41fa0",
+  "peers": [
+    "crawler_front",
+    "stoneback_mite_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "9cfa35533711e785b34ede0cb41f6fd8fea4f41cef0d4a841d2bb233463e92c8",
+  "refs": [
+    {
+      "file": "refs/01_front_ref.png",
+      "pixel_sha256": "8dd47bf9fbec011ff5cc5ba3f3f791788466ebabc4da1cb45ca1b68dee289685"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/02_hero_rear.png",
+      "pixel_sha256": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af"
+    },
+    {
+      "canon_id": "crawler_rear",
+      "file": "refs/03_crawler_rear.png",
+      "pixel_sha256": "07afd30414296af51ffdf764acbdbc162804a4cb90c63b7203073c3364e4f59d"
+    },
+    {
+      "canon_id": "stoneback_mite_rear",
+      "file": "refs/04_stoneback_mite_rear.png",
+      "pixel_sha256": "77a050f64dbc5aae4dc870a271db42f998e478fb99926499c16a0528792ad7af"
+    }
+  ],
+  "size_class": "small",
+  "target_h": 140,
+  "target_w": 190,
+  "view": "beast_rear"
+}

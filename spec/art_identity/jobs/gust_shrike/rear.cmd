@@ -1,0 +1,1 @@
+python3 ~/.claude/skills/orchestrate-codex/scripts/codex_unit.py imagegen id-gust_shrike-beast_rear --prompt-file spec/art_identity/jobs/gust_shrike/rear/prompt.md --ref spec/art_identity/jobs/gust_shrike/rear/refs/*.png

@@ -1,0 +1,39 @@
+{
+  "K": 3,
+  "anatomy": "flyer",
+  "id": "gust_shrike",
+  "job_id": "id-gust_shrike-beast_rear",
+  "kind": "creature",
+  "kit_version": "9f4d08507862ff0ff662eea1c7662979df8c085d846678c56bc6dbec5cb47480",
+  "peers": [
+    "roc_fledgling_front",
+    "roc_fledgling_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "396d95f5ba9c3ff4ca0d9fb0c7ebfe9f246ada33929f3c4d7ebecfb09a07a013",
+  "refs": [
+    {
+      "file": "refs/01_front_ref.png",
+      "pixel_sha256": "d9f23db0b893cb55994d1f2e7d866c63bc9fca6bc499460ef1480040549ee9a5"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/02_hero_rear.png",
+      "pixel_sha256": "aab8f4166183017913bf2fd295accd95a546044aa90149e05cbc934e640f1c02"
+    },
+    {
+      "canon_id": "roc_fledgling_rear",
+      "file": "refs/03_roc_fledgling_rear.png",
+      "pixel_sha256": "c24b3864a0ce1f8e4568d1097aec9fe7890b7d4a766436cc17e9d0a755b31b6d"
+    },
+    {
+      "canon_id": "roc_fledgling_rear",
+      "file": "refs/04_roc_fledgling_rear.png",
+      "pixel_sha256": "c24b3864a0ce1f8e4568d1097aec9fe7890b7d4a766436cc17e9d0a755b31b6d"
+    }
+  ],
+  "size_class": "small",
+  "target_h": 238,
+  "target_w": 234,
+  "view": "beast_rear"
+}

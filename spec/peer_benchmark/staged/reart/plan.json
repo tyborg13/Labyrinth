@@ -41,11 +41,12 @@
    "anatomy": "biped",
    "size_class": "large",
    "target_h": 235,
-   "art_scale": 1.0,
+   "art_scale": 1.04,
    "peers": [
     "stone_warden",
     "frostglass_lancer"
-   ]
+   ],
+   "note": "v2 head edit drew 223 canvas px; art_scale 1.04 -> 232 drawn (large band)"
   },
   "hoarfrost_seer": {
    "view": "creature",
