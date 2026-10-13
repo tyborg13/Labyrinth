@@ -32,3 +32,4 @@
 - Director: judge rubric gains criterion 9 (structure legibility); bird rears to be built from a 3D maquette
   (front + rear rendered from one posed proxy at the board camera) instead of text-only generation.
 - Owner 2026-10-13: "Let's try the maquette... The other enemies are approved." → art-03 integrates 11; shrike via Blender maquette pilot.
+- Owner 2026-10-13: canon cut approved (hero + approved art-02 + grave surgeon + props); roster upgrade phased, regulars first.

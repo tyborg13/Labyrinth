@@ -337,8 +337,12 @@ def kit_version_verification(kit: dict, prompt: bytes) -> str:
     return "prompt_reconstructed" if prompt_kit_version(kit, prompt) == kit["kit_version"] else "recorded"
 
 
-def canon_entries(root: Path) -> dict:
-    return {entry["id"]: entry for entry in read_json(root / IDENTITY / "canon.json")["entries"]}
+def canon_entries(root: Path, include_retired: bool = False) -> dict:
+    """Active canon (allowed as references for new kits); with include_retired, also entries retired after the
+    art they appear in was generated, so historical kit provenance stays verifiable."""
+    data = read_json(root / IDENTITY / "canon.json")
+    entries = data["entries"] + (data.get("retired", []) if include_retired else [])
+    return {entry["id"]: entry for entry in entries}
 
 
 def matching_view(canon: dict, entry: dict, rear: bool) -> dict:
@@ -606,7 +610,7 @@ def metric_failures(entry: dict, measured: dict, bands: dict) -> list:
 
 def coverage(root: Path) -> dict:
     enemies = read_json(root / "data/enemies.json")
-    canon = canon_entries(root)
+    canon = canon_entries(root, include_retired=True)
     by_path = {e["path"]: e for e in canon.values()}
     paths = {}
     for enemy_id, enemy in enemies.items():
@@ -674,7 +678,7 @@ def validate_kit_entry(entry: dict, root: Path, bands: dict, metadata: dict) -> 
         if entry.get(key) != kit.get(key):
             failures.append("kit " + key + " mismatched")
     refs = kit["refs"]
-    canon = canon_entries(root)
+    canon = canon_entries(root, include_retired=True)
     rear = kit["view"].endswith("_rear")
     if kit["view"] not in VIEWS or kit["kind"] != ("object" if kit["view"] == "object_plinth" else "creature"):
         failures.append("kit view and kind disagree")
@@ -938,7 +942,7 @@ def processed_fit_scale(path: Path):
 def make_sheet(front: Path, rear: Path, kit_path: Path, out: Path, art_scale: float = 1.0,
                landmarks: dict = None, root: Path = ROOT) -> None:
     kit = read_json(kit_path)
-    canon = canon_entries(root)
+    canon = canon_entries(root, include_retired=True)
     references = [matching_view(canon, canon[p], False) for p in kit["peers"]]
     meta = coverage(root)
     def scale_for(path: str) -> float:
