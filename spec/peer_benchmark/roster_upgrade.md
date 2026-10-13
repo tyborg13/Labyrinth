@@ -7,7 +7,8 @@ Source: legacy audit `staged/legacy_audit/` (15 High, 14 Medium, 2 Low vs the 11
 - **1b — rigged regulars, maquette pipeline** (pilot: chainbound gaoler, rr-02): acolyte (+ a distinct veilbound
   variant), frostglass lancer, bile bloomer, harrier, lightning wisp (needs a core mass), warden (front only), cinder
   ooze (front only). cinder_droplet and grave_surgeon stay.
-- **2 — guardians** (13 rigs; rocs via bird maquettes).
+- **2 — guardians** (13 rigs). First: roc fledgling and gallows roc rebuilt from perched bird maquettes (owner: birds with
+  broken rear wings), then the rest.
 - **3 — dragons** via quadruped/wing maquettes.
 
 ## Maquette → rig pipeline (rr-02 pilot)
