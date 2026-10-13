@@ -70,6 +70,9 @@ sound (or explicitly none) for every new reveal, and the full owned-file list in
 Enemy briefs: one icon per concept, stand-in art policy, encounter data entries.
 Every windowed probe brief: capture a 1920×1080 SubViewport (UPDATE_ALWAYS) like tests/movement_undo_probe.gd — never
 root.get_texture() (non-native on this display; failed itb-01, en-02, en-03).
+Every art job (enemy, prop, NPC body): the visual identity gate — canon refs via `kit`, `process`, review sheet + canon
+sheet, independent judge subagent, then owner; never approve at generation size (owner verdict 2026-10-12).
+Every UI brief: no default/unstyled boxes — every panel, chip and bar uses the design-system helpers (bramble empty-bar regression).
 
 ## Update (integration 02c3a4368)
 - Merged: fix-01 (re-review REQUEST_CHANGES → fix-01 r1 running: victory-beat stale board blocker), sfx-02, itb-01.
