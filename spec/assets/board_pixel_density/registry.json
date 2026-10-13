@@ -3499,6 +3499,44 @@
       "t": 1.5,
       "grid": 1.5,
       "mode": "regrid"
+    },
+    {
+      "id": "glacial_mirror",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/glacial_mirror.png"
+      ],
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "glacial_mirror.art_scale",
+        "expression": "art_scale (default 1.0)"
+      },
+      "measurement_path": "assets/art/enemies/glacial_mirror.png",
+      "frames": null,
+      "orphan_share": 0.267004703606098,
+      "t": 1.5,
+      "grid": 1.5,
+      "mode": "regrid"
+    },
+    {
+      "id": "gust_shrike",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/gust_shrike.png"
+      ],
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "gust_shrike.art_scale",
+        "expression": "art_scale (default 1.0)"
+      },
+      "measurement_path": "assets/art/enemies/gust_shrike.png",
+      "frames": null,
+      "orphan_share": 0.2974700120475617,
+      "t": 1.5,
+      "grid": 1.5,
+      "mode": "regrid"
     }
   ],
   "excluded_paths": {

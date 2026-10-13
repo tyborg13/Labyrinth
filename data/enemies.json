@@ -3090,5 +3090,136 @@
         ]
       }
     ]
+  },
+  "glacial_mirror": {
+    "name": "Glacial Mirror",
+    "ai_profile": {
+      "role": "protector",
+      "preferred_range": 1,
+      "retreat_distance": 0
+    },
+    "element": "ice",
+    "max_hp": 20,
+    "base_initiative": 15,
+    "reward_embers": 13,
+    "accent": "#9cc8e6",
+    "art_path": "res://assets/art/enemies/glacial_mirror.png",
+    "reflect_ranged": true,
+    "intents": [
+      {
+        "id": "refraction",
+        "name": "Refraction",
+        "time": 6,
+        "weight": 3,
+        "actions": [
+          {
+            "type": "aoe",
+            "damage": 4,
+            "range": 0,
+            "pattern_line": 4,
+            "pierce": true,
+            "chilled": true,
+            "orient_toward_target": true,
+            "element": "ice"
+          }
+        ]
+      },
+      {
+        "id": "crystal_guard",
+        "name": "Crystal Guard",
+        "time": 5,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "guard_ally",
+            "amount": 6,
+            "range": 1,
+            "target": "least_block",
+            "self_if_none": true
+          }
+        ]
+      },
+      {
+        "id": "advance",
+        "name": "Grind Forward",
+        "time": 5,
+        "weight": 1,
+        "purpose": "approach",
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          }
+        ]
+      }
+    ],
+    "construct": true
+  },
+  "gust_shrike": {
+    "name": "Gust Shrike",
+    "ai_profile": {
+      "role": "skirmisher",
+      "preferred_range": 2,
+      "retreat_distance": 1
+    },
+    "element": "air",
+    "max_hp": 9,
+    "base_initiative": 9,
+    "reward_embers": 8,
+    "accent": "#8ea3b8",
+    "art_path": "res://assets/art/enemies/gust_shrike.png",
+    "flying": true,
+    "intents": [
+      {
+        "id": "dive",
+        "name": "Dive",
+        "time": 5,
+        "weight": 3,
+        "actions": [
+          {
+            "type": "dive_line",
+            "max_length": 4,
+            "damage": 4,
+            "side_push": 1,
+            "element": "air"
+          }
+        ]
+      },
+      {
+        "id": "talon_rake",
+        "name": "Talon Rake",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "damage": 3,
+            "range": 1,
+            "bleed": 1,
+            "element": "air"
+          }
+        ]
+      },
+      {
+        "id": "hover",
+        "name": "Hover",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_away",
+            "range": 2
+          },
+          {
+            "type": "block",
+            "amount": 3
+          }
+        ]
+      }
+    ]
   }
 }

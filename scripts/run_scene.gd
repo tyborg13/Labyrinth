@@ -1243,6 +1243,8 @@ const TURN_ORDER_PORTRAITS := {
 	"gale_herald": "res://assets/art/portraits/gale_herald.png",
 	"arc_thrall": "res://assets/art/portraits/arc_thrall.png",
 	"gloam_stalker": "res://assets/art/portraits/gloam_stalker.png",
+	"glacial_mirror": "res://assets/art/portraits/glacial_mirror.png",
+	"gust_shrike": "res://assets/art/portraits/gust_shrike.png",
 	"burrow_grub": "res://assets/art/portraits/burrow_grub.png",
 	"ember_tick": "res://assets/art/portraits/ember_tick.png",
 	"ash_hound": "res://assets/art/portraits/guardians/ash_hound_portrait.png",
@@ -23823,6 +23825,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 	action = SurfaceRelicRules.resolve_action(before_state, action)
 	_ensure_sfx_bank()
 	_sfx_router.begin_player_action(before_state, action, _sfx_router.weapon_for_card(card_id, _run_state))
+	if await preload("res://scripts/enemy_mechanics/reflect_view.gd").animate_player(self, before_state, after_state, action, target_tile, card_id): return
 	var action_type: String = str(action.get("type", ""))
 	if action_type in ["push", "pull", "force_area"]: _sfx_router.push()
 	if action_type in ["swap", "blink", "illusion_swap"]: _sfx_router.blink()
@@ -24458,6 +24461,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 		await _combat_pacing.before_step(step)
 		if bool(step.get("hidden_by_umbra", false)) and str(step.get("kind", "")) not in ["burrow", "erupt"]:
 			await _animate_hidden_umbra_enemy_step(animated_state, step)
+			_combat_pacing.after_step(step)
+			continue
+		if step.has("en05_after"):
+			if str(step.get("action_type", "")) == "dive_line": await preload("res://scripts/enemy_mechanics/dive_view.gd").animate(self, animated_state, step)
+			else: await preload("res://scripts/enemy_mechanics/reflect_view.gd").animate_beam(self, animated_state, step)
 			_combat_pacing.after_step(step)
 			continue
 		if step.has("en02_mechanic"):
@@ -26035,6 +26043,9 @@ func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void
 	if step.has("en02_state_after"):
 		animated_state.clear()
 		animated_state.merge((step["en02_state_after"] as Dictionary).duplicate(true), true)
+		return
+	if step.has("en05_after"):
+		animated_state.merge((step["en05_after"] as Dictionary).duplicate(true), true)
 		return
 	if step.has("en03_after"):
 		animated_state.merge((step["en03_after"] as Dictionary).duplicate(true), true)
@@ -34493,6 +34504,7 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 		if not predicted.is_empty():
 			status_previews[key] = predicted
 	result["surface_status_preview"] = status_previews
+	preload("res://scripts/enemy_mechanics/reflect_view.gd").decorate_preview(self, result, state, after, action, tile)
 
 func _append_guardian_displacement_preview(result: Dictionary, before: Dictionary, after: Dictionary) -> void:
 	var paths: Dictionary = {}

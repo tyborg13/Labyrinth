@@ -106,6 +106,8 @@ const IntentCallouts = preload("res://scripts/intent_callouts.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
+const ReflectView = preload("res://scripts/enemy_mechanics/reflect_view.gd")
+const DiveView = preload("res://scripts/enemy_mechanics/dive_view.gd")
 const TetherView = preload("res://scripts/enemy_mechanics/tether_view.gd")
 const VeilView = preload("res://scripts/enemy_mechanics/veil_view.gd")
 
@@ -2758,6 +2760,7 @@ func set_health_ghost_source_state(next_state: Dictionary) -> void:
 
 func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}, trust_same_reference_state: bool = false) -> void:
 	next_presentation = TetherView.presentation_for(next_state, next_presentation)
+	next_presentation = DiveView.presentation_for(next_state, next_presentation)
 	_rest_threat_tile_alphas = ThreatTiles.tile_alphas((next_presentation.get("threats_at_rest", {}) as Dictionary).get("threats", []))
 	var submission_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
 	# The owning RunScene submits immutable copy-on-write snapshots. Pointer-only
@@ -4503,6 +4506,7 @@ func _draw_hud_render_layer() -> void:
 	section_started_usec = Time.get_ticks_usec()
 	_draw_unit_damage_preview_overlays(units_to_draw)
 	_draw_friendly_damage_chips()
+	ReflectView.draw_preview(self)
 	_record_render_section_time("damage_preview_overlays", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
 
@@ -4517,6 +4521,7 @@ func _draw_effects_render_layer() -> void:
 	var section_started_usec: int = total_section_started_usec
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	TetherView.draw_telegraphs(self)
+	DiveView.draw_telegraphs(self)
 	_draw_effect_overlay()
 	_record_render_section_time("effect_overlay", section_started_usec)
 	section_started_usec = Time.get_ticks_usec()
@@ -10793,6 +10798,7 @@ func _draw_effect_overlay() -> void:
 		return
 	if IcefallView.draw_effect(self, effect, progress): return
 	if str(effect.get("en02_mechanic", "")) in ["call_wind", "wind_push"]: return
+	if ReflectView.draw_effect(self, effect, progress) or DiveView.draw_effect(self, effect, progress): return
 	if TetherView.draw_effect(self, effect, progress): return
 	if _dragon_full_area_fx(effect) and not bool(effect.get("preview",false)): return
 	_draw_bile_bloomer_fragments(effect, progress)
@@ -16403,6 +16409,8 @@ func _intent_rows(intent: Dictionary) -> Array:
 	return _intent_rows_for_unit({}, intent)
 
 func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
+	var refraction_rows: Array = ReflectView.intent_rows(intent)
+	if not refraction_rows.is_empty(): return refraction_rows
 	var cancelled: Array = TetherView.cancelled_rows(self, unit, intent)
 	if not cancelled.is_empty(): return cancelled
 	var mechanic_rows: Array = BurrowView.rows(intent) + KindleView.rows(intent)
@@ -16599,6 +16607,8 @@ func _short_enemy_name(enemy: Dictionary) -> String:
 
 func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 	var badges: Array[Dictionary] = WindView.status_badges(unit)
+	badges.append_array(ReflectView.badges(unit))
+	badges.append_array(DiveView.badges(unit))
 	badges.append_array(VeilView.badges(unit))
 	badges.append_array(BurrowView.badges(unit))
 	badges.append_array(DeathBurstView.badges(unit))

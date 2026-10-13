@@ -78,3 +78,11 @@ Element identity (`element_fire`, `element_ice`, `element_lightning`, `element_a
 ## Section enemies E1 (en-02)
 
 `icefall_mark` and `icefall_land` share the director-approved `icefall` identity: marking and resolving one delayed icicle strike. `call_wind` and the Wind HUD chip share the director-approved `wind` identity. No borrowed icons. Sources and hashes: `spec/peer_benchmark/staged/enemies/raw_sha256.txt`.
+
+## Section enemies E2 (en-05)
+
+The permanent Reflect badge uses only `reflect`; Dive intent uses only `dive`;
+the permanent Flying badge uses only `flying`. Their unchanged approved raw
+paintings are verified against `peer_benchmark/staged/enemies/raw_sha256.txt`,
+keyed and fitted with the current Blink icon padding. Refraction retains
+`aoe`/`pierce`, and Talon Rake/Hover retain existing action identities.

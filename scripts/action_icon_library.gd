@@ -8,6 +8,9 @@ const ICON_ROOT: String = "res://assets/art/icons"
 const SKILL_ICON_ROOT: String = "res://assets/art/skills"
 
 const KEYWORDS: Dictionary = {
+	"reflect": {"label": "Reflect", "description": "Reflect: ranged attacks against it bounce back to the attacker. Hit it up close or with area effects.", "path": "%s/reflect.png" % ICON_ROOT},
+	"dive": {"label": "Dive", "description": "Dive: flies straight at you (up to %d tiles), knocking each unit it passes %d tile aside, then strikes for %d.", "path": "%s/dive.png" % ICON_ROOT},
+	"flying": {"label": "Flying", "description": "Flying: moves over traps, surfaces, Bramble and Ice Pillars and takes no surface damage. Can still be pushed.", "path": "%s/flying.png" % ICON_ROOT},
 	"icefall": {"label": "Icefall", "description": "Icefall: icicles fall on the marked tiles on the Seer's next turn.", "path": "%s/icefall.png" % ICON_ROOT},
 	"wind": {"label": "Wind", "description": "Wind: at the end of each enemy turn, everything not anchored is pushed one tile with the wind.", "path": "%s/wind.png" % ICON_ROOT},
 	"tether": {"label": "Tether", "description": "Tether: lightning strikes every tile between the two Arc Thralls for 4 and Shocks. Break the line to stop it.", "path": "%s/tether.png" % ICON_ROOT},
@@ -429,6 +432,7 @@ const ACTION_ICON_ALIASES: Dictionary = {
 	"icefall_land": "icefall",
 	"call_wind": "wind",
 	"tether_beam": "tether",
+	"dive_line": "dive",
 	"veil_blink": "veil",
 	"burrow": "burrow",
 	"erupt": "erupt",
@@ -636,7 +640,14 @@ static func label(icon_key: String) -> String:
 	return str(_icon_definition(icon_key).get("label", icon_key.capitalize()))
 
 static func description(icon_key: String) -> String:
+	if icon_key == "dive":
+		for intent: Dictionary in preload("res://scripts/game_data.gd").enemies()["gust_shrike"]["intents"]:
+			for action: Dictionary in intent["actions"]:
+				if str(action.get("type", "")) == "dive_line": return dive_tooltip(action)
 	return str(_icon_definition(icon_key).get("description", ""))
+
+static func dive_tooltip(action: Dictionary) -> String:
+	return str(KEYWORDS["dive"]["description"]) % [int(action["max_length"]), int(action["side_push"]), int(action["damage"])]
 
 static func _icon_definition(icon_key: String) -> Dictionary:
 	if KEYWORDS.has(icon_key):
@@ -646,6 +657,7 @@ static func _icon_definition(icon_key: String) -> Dictionary:
 static func tooltip(icon_key: String) -> String:
 	var text: String = label(icon_key)
 	var detail: String = description(icon_key)
+	if icon_key in ["dive", "flying"]: return detail
 	if detail.is_empty():
 		return text
 	return "%s\n%s" % [text, detail]
@@ -1181,6 +1193,12 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 		"call_wind":
 			tokens.append(token_for("wind", int(action.get("rounds", 2))))
 			tokens.append(token_for("push", int(action.get("push", 1))))
+		"dive_line":
+			_append_damage_token(tokens, "dive", action, options)
+			var tooltip_action: Dictionary = action.duplicate(true)
+			tooltip_action["damage"] = int(options.get("final_damage", action["damage"]))
+			tokens.back()["tooltip"] = dive_tooltip(tooltip_action)
+			tokens.append(token_for("push", int(action.get("side_push", 1))))
 		"tether_beam":
 			_append_damage_token(tokens, "tether", action, options)
 			_append_keyword_tokens(tokens, action)

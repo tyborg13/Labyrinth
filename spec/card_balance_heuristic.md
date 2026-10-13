@@ -940,3 +940,24 @@ are never sampled randomly. Both enemies remain staged until `enc-01` provides
 Enemy-caused kills retain the existing Ember policy; only the initiating
 player-card kill grants the existing bonus card play. No new analytics event
 is needed: resolution uses existing enemy actions, deaths, and ground events.
+
+## Section regulars: EN05 (director roster v1)
+
+Authored values are protected by `peer_benchmark/staged/enemies/wave_e2.json`;
+matching assumptions live in `tools/card_heuristic.py` `en05_enemies`. These
+are encounter comparisons, without new intrinsic card coefficients.
+
+| Enemy | HP / initiative / Embers | Authored weighted cadence | Reach and counterplay | Existing comparison |
+| --- | --- | --- | --- | --- |
+| Glacial Mirror | 20 / 15 / 13 | 20.5 | Reflect returns distant single-target ranged damage before its Block; melee/adjacent/area/surface/chain/push work. Four-tile Refraction deals 4 ice + Chilled to both teams; Crystal Guard 6 to least-Block adjacent ally, itself only without allies. Construct wind immunity. | Warden's heavy support role; Frostglass Lancer's oriented ice pressure. |
+| Gust Shrike | 9 / 9 / 8 | 13.5 | Flying ignores ground costs/contact, crosses Bramble/Ice Pillars but cannot land there; ordinary Push. Dive line <=4 with approach <=2; strictly intermediate units Push 1 right, ordinary collisions/no opposite-side fallback. Hero never pushed; air damage 4 only on adjacent landing. Occupied landing stops at last free path tile without hero damage. Talon Rake Move 2 + melee 3 + Bleed 1; Hover away 2 + Block 3. | Harrier's mobile melee role at light HP/cadence. |
+
+Cadence is `base_initiative + sum(weight*time)/sum(weight)` before spawn
+stagger and legality filtering. Neither entry is added to encounter pools by
+this unit: the director owns `ice_mirror` and `air_shrikes` after merge.
+Director feedback 1 fixes Dive's right-hand rotation to `(dx, dy) -> (-dy, dx)`
+on the x-right/y-down board grid for both aligned and approaching birds.
+Blocked landing can deny the hero strike; the tactical forecast shows this
+outcome rather than assuming full hit uptime. Reflection and line/collision friendly fire preserve the
+existing Ember reward rule and never add a player-card bonus. Existing enemy
+action analytics remain sufficient.
