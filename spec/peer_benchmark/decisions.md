@@ -32,3 +32,14 @@
 - Debt (not now): combat_pacing reaches ~12 run_scene privates by string; EventRules/OmenRules call engine privates.
   Schedule a refactor unit once the parallel waves settle.
 - Sound: round-2 designs are layered recipes (sfx-02 renderer), director-authored.
+
+## 2026-10-12 — visual identity gate, art-02 fronts batch 1
+- Independent judge (fresh subagent, rubric spec/art_identity/judge_rubric.md): 5/10 PASS (hoarfrost_seer, gale_herald,
+  arc_thrall, storm_capacitor, gloam_stalker); FAIL briar_weaver (veined leaves, olive edge fringe), slag_mortar (head
+  hidden under kiln), glacial_mirror (warm terracotta, reads as earth golem), gust_shrike (clone of roc_fledgling —
+  both kit peers were that bird), hollow_mimic (bronze camo, not black glass).
+- Fixes: process unmixes key blends in the edge ring (olive fringe); preamble gains "References are for camera, scale
+  and hand only — never copy a silhouette"; shrike re-generated from a new silhouette subject (front_v2); the other
+  four iterated as colour/detail/head edits of the same job.
+- Lesson: duplicate peers bias copying; when an anatomy has one canon member, the subject must spell out a distinct
+  silhouette.

@@ -7,20 +7,20 @@
   "fit_scale": 1.0,
   "k_eff": 4.0,
   "metrics": {
-    "chroma": 0.1101438412863463,
+    "chroma": 0.1101445450538778,
     "feature_px": 6.125648457393635,
     "height": 215,
     "height_drawn": 215.0,
     "orphan_share": 0.009825474449279914,
     "regions": 594,
-    "run_length": 3.351225379642159,
+    "run_length": 3.3507215874924836,
     "symmetry": 0.5920373027259684,
     "thin_abs": 0.01727309435147384,
     "thin_rel": 0.050742518731212716,
-    "value": 0.1993671796252262,
+    "value": 0.19936774087983256,
     "width": 203
   },
-  "pixel_sha256": "d86d236e2bed64ede1a31906bdf23f891d055ab0040cdb066ca8196ec481c6ce",
+  "pixel_sha256": "9bbd33421669f31df7a0dd1519164a13f97e8c3e9637ab1b43b2be390c91e604",
   "placement": [
     27,
     31

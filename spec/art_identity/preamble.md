@@ -1,5 +1,9 @@
 Use your built-in image generation tool (real image generation, not code drawing). Make ONE image: a square 1024x1024 PNG.
 
+## References are for camera, scale and hand only
+Never copy a reference's pose, silhouette, species or equipment. The new subject must have its own distinct silhouette
+that could not be mistaken for any reference at game size.
+
 ## Scale and detail (most important)
 The reference images are sprites from this game enlarged {K}x with hard pixel edges: every small square block you see in
 them is ONE game pixel. Paint the new subject in exactly the same block size and the same hand:

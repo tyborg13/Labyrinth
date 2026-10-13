@@ -358,6 +358,13 @@ def process_raw(raw: Path, kit_path: Path, out: Path, root: Path = ROOT) -> dict
         grown[1:] |= ring[:-1]; grown[:-1] |= ring[1:]; grown[:, 1:] |= ring[:, :-1]; grown[:, :-1] |= ring[:, 1:]
         ring = grown
     spill = (alpha < 1) | (ring & ~background)
+    # Unmix the key from spill pixels: a bright edge blended with green would otherwise despill to an olive fringe.
+    # The green fraction f lowers alpha (binarization drops mostly-green blends) and is removed from the colour.
+    other = pixels[..., [0, 2]].max(-1)
+    green_share = np.where(spill, np.clip((pixels[..., 1] - other) / np.maximum(255.0 - other, 1.0), 0, 0.95), 0.0)
+    alpha = np.minimum(alpha, 1.0 - green_share)
+    pixels = (pixels - green_share[..., None] * np.array([0.0, 255.0, 0.0])) / (1.0 - green_share[..., None])
+    pixels = np.clip(pixels, 0, 255)
     pixels[..., 1] = np.where(spill, np.minimum(pixels[..., 1], pixels[..., [0, 2]].max(-1)), pixels[..., 1])
     ys, xs = np.nonzero(alpha > 0.5)
     if not len(xs):

@@ -183,7 +183,6 @@ class GateTests(unittest.TestCase):
         raw = Image.new("RGB", (1024, 1024), "#00ff00")
         draw = ImageDraw.Draw(raw)
         draw.rectangle((1, 1, 68, 86), fill=(60, 50, 40))
-        draw.rectangle((1, 1, 2, 86), fill=(0, 190, 0)) # partially keyed/despilled edge
         path, kit = self.temp / "raw.png", self.temp / "kit.json"
         raw.save(path)
         gate.write_json(kit, {"K": 4})
@@ -192,6 +191,22 @@ class GateTests(unittest.TestCase):
         namespace["process"](path, 4, self.temp / "prototype.png")
         gate.process_raw(path, kit, self.temp / "current.png")
         self.assertEqual(gate.pixel_digest(gate.rgba(self.temp / "prototype.png")), gate.pixel_digest(gate.rgba(self.temp / "current.png")))
+
+    def test_process_unmixes_key_blends_instead_of_olive_fringe(self):
+        # Director fix 2026-10-12: bright paint blended with the key (e.g. (110, 222, 75)) used to despill to olive.
+        raw = Image.new("RGB", (1024, 1024), "#00ff00")
+        draw = ImageDraw.Draw(raw)
+        draw.rectangle((100, 100, 199, 299), fill=(60, 50, 40))
+        draw.rectangle((100, 100, 103, 299), fill=(110, 222, 75))  # one output column of mostly-key blend at the edge
+        path, kit = self.temp / "raw.png", self.temp / "kit.json"
+        raw.save(path)
+        gate.write_json(kit, {"K": 4})
+        gate.process_raw(path, kit, self.temp / "out.png")
+        pixels = np.asarray(gate.rgba(self.temp / "out.png")).astype(int)
+        visible = pixels[pixels[..., 3] > 0][:, :3]
+        self.assertFalse(((np.abs(visible[:, 0] - visible[:, 1]) < 12) & (visible[:, 1] > visible[:, 2] + 20)).any())
+        box = gate.alpha_bbox(gate.rgba(self.temp / "out.png"))
+        self.assertEqual(box[2] - box[0], 24)
 
     def test_process_uniformly_fits_tall_sprite_without_clipping_paint(self):
         raw = Image.new("RGB", (1024, 1024), "#00ff00")

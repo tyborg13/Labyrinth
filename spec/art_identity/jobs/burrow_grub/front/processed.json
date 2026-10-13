@@ -7,7 +7,7 @@
   "fit_scale": 1.0,
   "k_eff": 4.0,
   "metrics": {
-    "chroma": 0.16509777426110792,
+    "chroma": 0.16510018293909295,
     "feature_px": 6.255958697975014,
     "height": 150,
     "height_drawn": 150.0,
@@ -17,10 +17,10 @@
     "symmetry": 0.4627985723437357,
     "thin_abs": 0.007247712056998923,
     "thin_rel": 0.011240095817210194,
-    "value": 0.1887277047346179,
+    "value": 0.1887301642357084,
     "width": 205
   },
-  "pixel_sha256": "a4f59cafca392ac1546a9ea47a9b73b85d2272e89de9253452eadcca25945c0c",
+  "pixel_sha256": "c0f5f90b702d2e52bdce622b2ea5d3449c1dded33d198d9b7029c830cff75920",
   "placement": [
     26,
     96
