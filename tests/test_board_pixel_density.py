@@ -422,6 +422,10 @@ class BoardPixelDensityTest(unittest.TestCase):
                 elif name in ("scavenger_npc", "emaciated_man_idle"):
                     npc = npcs["scavenger" if name == "scavenger_npc" else "emaciated_man"]
                     draw = min(unit_x / w, unit_y / h) * npc.get("art_scale", 1.0)
+                elif name in ("hoarfrost_seer", "gale_herald"):
+                    self.assertEqual((w, h), (255, 255), "Static enemies use the existing unit canvas")
+                    self.assertIn("_unit_art_scale(unit)", function_text(self.board, "_unit_draw_rect_for_texture"))
+                    draw = min(unit_x / w, unit_y / h) * enemies[name].get("art_scale", 1.0)
                 elif name in ("scavenger_stall", "watch_brazier"):
                     pattern = r'"kind":\s*"scavenger_stall"[\s\S]*?"width_scale":\s*([0-9.]+)' if name == "scavenger_stall" else r'"kind":"watch_brazier_lit"[^\n]+"width_scale":([0-9.]+)'
                     draw = float(re.search(pattern, run_scene).group(1)) / w

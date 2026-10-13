@@ -3385,6 +3385,44 @@
           "mode": "clean"
         }
       }
+    },
+    {
+      "id": "hoarfrost_seer",
+      "kind": "prop",
+      "paths": [
+        "assets/art/enemies/hoarfrost_seer.png"
+      ],
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "hoarfrost_seer.art_scale",
+        "expression": "_unit_size width 1.03 * default art_scale 1.0 / 255 / hero reference (1.03/255)"
+      },
+      "measurement_path": "assets/art/enemies/hoarfrost_seer.png",
+      "frames": null,
+      "orphan_share": 0.2605479912590351,
+      "t": 1.5,
+      "grid": 1.5,
+      "mode": "regrid"
+    },
+    {
+      "id": "gale_herald",
+      "kind": "prop",
+      "paths": [
+        "assets/art/enemies/gale_herald.png"
+      ],
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "gale_herald.art_scale",
+        "expression": "_unit_size width 1.03 * default art_scale 1.0 / 255 / hero reference (1.03/255)"
+      },
+      "measurement_path": "assets/art/enemies/gale_herald.png",
+      "frames": null,
+      "orphan_share": 0.3117934616559731,
+      "t": 1.5,
+      "grid": 1.5,
+      "mode": "regrid"
     }
   ],
   "excluded_paths": {

@@ -69,3 +69,7 @@ naming the needed key and the borrowed one.
 - Document any intentional alias as a narrow exception naming both identifiers and why players experience them as one concept. There are no blanket family/category exceptions.
 
 Element identity (`element_fire`, `element_ice`, `element_lightning`, `element_air`, `element_earth`) is distinct from a persistent surface (`surface_fire`, `surface_ice`, `surface_electrified`, `surface_rubble`). Chilled, Freeze, Detonate, surface relocation and surface consumption also have purpose-built, separate silhouettes. An element icon never stands in for its ground effect.
+
+## Section enemies E1 (en-02)
+
+`icefall_mark` and `icefall_land` share the director-approved `icefall` identity: marking and resolving one delayed icicle strike. `call_wind` and the Wind HUD chip share the director-approved `wind` identity. No borrowed icons. Sources and hashes: `spec/peer_benchmark/staged/enemies/raw_sha256.txt`.

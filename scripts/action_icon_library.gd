@@ -8,6 +8,8 @@ const ICON_ROOT: String = "res://assets/art/icons"
 const SKILL_ICON_ROOT: String = "res://assets/art/skills"
 
 const KEYWORDS: Dictionary = {
+	"icefall": {"label": "Icefall", "description": "Icefall: icicles fall on the marked tiles on the Seer's next turn.", "path": "%s/icefall.png" % ICON_ROOT},
+	"wind": {"label": "Wind", "description": "Wind: at the end of each enemy turn, everything not anchored is pushed one tile with the wind.", "path": "%s/wind.png" % ICON_ROOT},
 	"raise_cover": {"label":"Raise Cover","description":"Spend 1 independent Move and all Stoneskin. Place cover within 2 with that much HP.","path":"res://assets/art/icons/guardians/raise_cover.png"},
 	"reclaim_cover": {"label":"Reclaim Cover","description":"Spend 1 independent Move to remove adjacent owned cover and recover its surviving HP as Stoneskin.","path":"res://assets/art/icons/guardians/reclaim_cover.png"},
 	"surface": {"label": "Shape Ground", "description": "Creates a surface in the shown area.", "path": "%s/surface.png" % ICON_ROOT},
@@ -418,6 +420,9 @@ const SKILL_ICONS: Dictionary = {
 ## Action names may share an icon only when players experience them as the exact
 ## same concept. Keep this dictionary parseable by tests/test_icon_identity_policy.py.
 const ACTION_ICON_ALIASES: Dictionary = {
+	"icefall_mark": "icefall",
+	"icefall_land": "icefall",
+	"call_wind": "wind",
 	"aoe": "aoe",
 	# Wave-4 surface family (spec/card_mechanics_surfaces.md). Wards are the
 	# Shape Ground action placed under each adjacent enemy.
@@ -1158,6 +1163,14 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 	var action_type: String = str(action.get("type", ""))
 	var tokens: Array = []
 	match action_type:
+		"icefall_mark":
+			tokens.append(token_for("icefall", 5))
+			tokens.append(token_for("range", int(action.get("range", 5))))
+		"icefall_land":
+			tokens.append(token_for("icefall", int(action.get("damage", 5))))
+		"call_wind":
+			tokens.append(token_for("wind", int(action.get("rounds", 2))))
+			tokens.append(token_for("push", int(action.get("push", 1))))
 		"cost":
 			if bool(action.get("exhaust", false)):
 				tokens.append(token_for("exhaust"))

@@ -1,6 +1,9 @@
 extends RefCounted
 class_name CombatEngine
 
+const IcefallRules = preload("res://scripts/enemy_mechanics/icefall.gd")
+const WindRules = preload("res://scripts/enemy_mechanics/wind.gd")
+
 const OmenRules = preload("res://scripts/omen_rules.gd")
 
 const DragonTrophyRules = preload("res://scripts/dragon_trophy_rules.gd")
@@ -1192,6 +1195,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 				if enemy_targetable:
 					_append_enemy_footprint_targets(targets, enemy)
 			for terrain: Dictionary in _live_terrain(state):
+				if not IcefallRules.attackable(terrain): continue
 				var terrain_pos: Vector2i = terrain.get("pos", Vector2i.ZERO)
 				if PathUtils.manhattan(player_pos, terrain_pos) <= melee_range and not targets.has(terrain_pos):
 					targets.append(terrain_pos)
@@ -1212,6 +1216,7 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 				if enemy_targetable:
 					_append_enemy_footprint_targets(targets, enemy)
 			for terrain: Dictionary in _live_terrain(state):
+				if not IcefallRules.attackable(terrain): continue
 				var terrain_pos: Vector2i = terrain.get("pos", Vector2i.ZERO)
 				if DragonTrophyRules.route(self,state,resolved_action,terrain_pos,visible_lookup).is_empty():
 					continue
@@ -2492,6 +2497,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 	if bool(turn_setup.get("skip_all", false)):
 		performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 		var before_skip_resolution: Dictionary = next_state.duplicate(true) if include_commit_steps else {}
+		next_state = WindRules.complete_turn(self, next_state, steps)
 		var skip_enemies: Array = next_state.get("enemies", [])
 		if enemy_index >= 0 and enemy_index < skip_enemies.size():
 			var skip_enemy: Dictionary = _normalized_enemy(skip_enemies[enemy_index] as Dictionary)
@@ -2572,6 +2578,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			_record_runtime_performance_phase("enemy_turn_action_presentation_total", presentation_started)
 	performance_phase_started = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	var before_turn_complete: Dictionary = next_state.duplicate(true) if include_commit_steps else {}
+	next_state = WindRules.complete_turn(self, next_state, steps)
 	if combat_outcome(next_state) == "":
 		var post_turn_enemies: Array = next_state.get("enemies", [])
 		if enemy_index >= 0 and enemy_index < post_turn_enemies.size():
@@ -2635,6 +2642,8 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 				for start_tile: Vector2i in frontier:
 					for attack_tile: Vector2i in _threat_attack_tiles(state, enemy, start_tile, action):
 						attack_lookup[attack_tile] = true
+			"icefall_mark", "icefall_land", "call_wind":
+				for attack_tile: Vector2i in plan.get("projected_attack", []): attack_lookup[attack_tile] = true
 			"raise_terrain", "terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse":
 				for attack_tile: Vector2i in _boss_action_threat_tiles(state, enemy, action):
 					attack_lookup[attack_tile] = true
@@ -2675,6 +2684,7 @@ func projected_player_force(state: Dictionary, enemy_id: int, threat: Dictionary
 	# destination. The caller passes the player's known state, so blockers
 	# hidden in the Umbra never shape the line (spec/forced_movement.md).
 	var action: Dictionary = threat.get("projected_attack_action", {}) as Dictionary
+	if str(action.get("type", "")) == "call_wind": return WindRules.projected_player_force(self, state, enemy_id, action)
 	var amount: int = _forced_movement_amount(action)
 	var enemy_index: int = _enemy_index_for_id(state, enemy_id)
 	if amount <= 0 or enemy_index < 0 or str(threat.get("projected_target_key", "")) != "player":
@@ -2706,6 +2716,7 @@ func projected_player_force(state: Dictionary, enemy_id: int, threat: Dictionary
 				"direction": event.get("direction", Vector2i.ZERO),
 				"damage": int(event.get("damage", 0)),
 				"actor_key": "player",
+				"tooltip_override": str(event.get("tooltip_override", "")),
 				"blocker_kind": str(event.get("blocker_kind", ""))
 			}
 	if path.size() < 2 and collision.is_empty():
@@ -2735,6 +2746,7 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 		if combat_outcome(next_state) != "":
 			break
 		if bool(turn_setup.get("skip_all", false)):
+			next_state = WindRules.complete_turn(self, next_state, steps)
 			var skip_enemies: Array = next_state.get("enemies", [])
 			if enemy_index >= 0 and enemy_index < skip_enemies.size():
 				var skip_enemy: Dictionary = _normalized_enemy(skip_enemies[enemy_index] as Dictionary)
@@ -2783,6 +2795,7 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 					steps.append(_umbra_marked_enemy_status_step(before_state, next_state, retaliate_step, enemy_id))
 				for retort_step: Dictionary in IllusionCardRules.presentation_steps(self, before_state, next_state):
 					steps.append(_umbra_marked_enemy_status_step(before_state, next_state, retort_step, enemy_id))
+		next_state = WindRules.complete_turn(self, next_state, steps)
 		if combat_outcome(next_state) == "":
 			var post_turn_enemies: Array = next_state.get("enemies", [])
 			if enemy_index >= 0 and enemy_index < post_turn_enemies.size():
@@ -3872,6 +3885,8 @@ func _terrain_target_losses(before_state: Dictionary, after_state: Dictionary) -
 		if typeof(before_terrain_var) != TYPE_DICTIONARY:
 			continue
 		var before_terrain: Dictionary = before_terrain_var as Dictionary
+		# Ice Pillars are terrain with no attack durability or damage feedback.
+		if str(before_terrain.get("kind", "")) == "ice_pillar": continue
 		if int(before_terrain.get("hp", 0)) <= 0:
 			continue
 		var terrain_id: String = str(before_terrain.get("id", ""))
@@ -4322,6 +4337,8 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 	if GuardianCombatRules.handles(action):
 		action["_resolved_path"] = action_context.get("resolved_path",_vector2i_values([enemy["pos"]]))
 		return GuardianCombatRules.resolve(self, next_state, enemy_index, action, rng, bleed_steps)
+	if IcefallRules.handles(action): return IcefallRules.resolve(self, next_state, enemy_index, action)
+	if str(action.get("type", "")) == "call_wind": return WindRules.resolve(self, next_state, enemy_index, action)
 	var state_before_action: Dictionary = next_state.duplicate(true)
 	var player: Dictionary = _normalized_player(next_state.get("player", {}))
 	var player_pos: Vector2i = player.get("pos", Vector2i.ZERO)
@@ -4571,6 +4588,7 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 		enemy["stoneskin"] = stoneskin_amount
 	enemy["hp"] = maxi(0, int(enemy.get("hp", 0)) - remaining)
 	enemies[enemy_index] = enemy
+	WindRules.clear_dead_source(self, next_state)
 	_record_run_stat(next_state, RUN_STAT_DAMAGE_DEALT, maxi(0, hp_before - int(enemy.get("hp", 0))))
 	if was_alive and int(enemy.get("hp", 0)) <= 0:
 		_record_run_stat(next_state, RUN_STAT_ENEMIES_KILLED, 1)
@@ -4612,6 +4630,7 @@ func _clear_remaining_enemies_for_leader_objective(state: Dictionary, leader_id:
 	next_state["objective"] = objective
 	if cleared_count > 0:
 		_log(next_state, "The leader falls. %d bound foe(s) collapse without reward." % cleared_count)
+	WindRules.clear_dead_source(self, next_state)
 	return next_state
 
 func _sunder_enemy_defense(state: Dictionary, enemy_index: int, amount: int) -> Dictionary:
@@ -4787,12 +4806,13 @@ func _damage_terrain(state: Dictionary, terrain_index: int, damage: int) -> Dict
 	if terrain_index < 0 or terrain_index >= terrain_entries.size():
 		return next_state
 	var terrain: Dictionary = _normalized_terrain(terrain_entries[terrain_index])
-	if int(terrain.get("hp", 0)) <= 0:
+	if not IcefallRules.attackable(terrain): return next_state
+	if not BoardSurfaceRules.terrain_is_live(terrain):
 		return next_state
 	terrain["hp"] = maxi(0, int(terrain.get("hp", 0)) - damage)
 	terrain_entries[terrain_index] = terrain
 	next_state["terrain"] = terrain_entries
-	if int(terrain.get("hp", 0)) <= 0:
+	if not BoardSurfaceRules.terrain_is_live(terrain):
 		_log(next_state, "Terrain breaks.")
 		if str(terrain.get("surface_on_destroy", "")) == "rubble":
 			BoardSurfaceRules.place(next_state, terrain.get("pos", INVALID_TILE), "rubble", {"actor_kind": "terrain"})
@@ -5094,6 +5114,10 @@ func _normalized_terrain(terrain_value: Variant) -> Dictionary:
 	terrain["id"] = str(terrain.get("id", ""))
 	terrain["kind"] = str(terrain.get("kind", "wooden_box"))
 	terrain["pos"] = terrain.get("pos", Vector2i.ZERO)
+	if str(terrain["kind"]) == "ice_pillar":
+		terrain.erase("hp")
+		terrain.erase("max_hp")
+		return terrain
 	terrain["hp"] = int(terrain.get("hp", 0))
 	terrain["max_hp"] = maxi(1, int(terrain.get("max_hp", terrain.get("hp", 1))))
 	return terrain
@@ -6246,6 +6270,7 @@ func _blocking_terrain_index_for_enemy_action(state: Dictionary, enemy_index: in
 		var terrain_index: int = _terrain_index_at_tile(state, tile)
 		if terrain_index < 0:
 			continue
+		if not IcefallRules.attackable(state["terrain"][terrain_index]): return -1
 		if _enemy_action_reaches_tile(state, enemy, action, tile):
 			return terrain_index
 		return -1
@@ -6719,6 +6744,7 @@ func _force_free_travel(state: Dictionary, kind: String, id: int, direction: Vec
 func _force_line_anchors(state: Dictionary, kind: String, id: int, direction: Vector2i, amount: int, source_tiles: Dictionary, pushing: bool) -> Array[Vector2i]:
 	# Geometric line only: surfaces and traps along the way do not block.
 	var anchors: Array[Vector2i]
+	if _force_actor_anchored(state, kind, id): return anchors
 	var unit: Dictionary = _force_unit(state, kind, id)
 	if unit.is_empty() or direction == Vector2i.ZERO:
 		return anchors
@@ -6842,6 +6868,7 @@ func _force_place_actor(state: Dictionary, kind: String, id: int, anchor: Vector
 	return state
 
 func _force_move_actor(state: Dictionary, kind: String, id: int, direction: Vector2i, amount: int, source_tiles: Dictionary, pushing: bool) -> Dictionary:
+	if _force_actor_anchored(state, kind, id): return state
 	var step_direction: Vector2i = _cardinal_direction(direction)
 	if step_direction == Vector2i.ZERO or amount <= 0:
 		return state
@@ -6882,6 +6909,7 @@ func _force_collision_damage(state: Dictionary, kind: String, id: int, amount: i
 	return _surface_damage_actor(state, kind, id, amount, false, false)
 
 func _apply_force_collision(state: Dictionary, kind: String, id: int, contact: Dictionary, direction: Vector2i, lost: int, pushing: bool) -> Dictionary:
+	if IcefallRules.collision(self, state, kind, id, contact, direction, lost, pushing): return state
 	if IllusionRelicRules.puppet_collision(self, state, kind, id, contact, direction, lost, pushing):
 		return state
 	return ForcedRelicRules.resolve_collision(self, state, kind, id, contact, direction, lost, pushing)
@@ -6893,6 +6921,7 @@ func _force_action_affects_enemy(state: Dictionary, enemy_index: int, action: Di
 	if amount <= 0 or enemy_index < 0 or enemy_index >= enemies.size():
 		return false
 	var enemy: Dictionary = _normalized_enemy(enemies[enemy_index] as Dictionary)
+	if _force_actor_anchored(state, "enemy", int(enemy.get("id", -1))): return false
 	var pushing: bool = _forced_movement_pushes(action)
 	var source_tiles: Dictionary = _force_source_tiles(state, source_pos)
 	var direction: Vector2i = _resolved_force_direction(state, "enemy", int(enemy.get("id", -1)), action, source_pos, pushing, amount, source_tiles)
@@ -6901,6 +6930,9 @@ func _force_action_affects_enemy(state: Dictionary, enemy_index: int, action: Di
 	var level_direction: Vector2i = _force_level_stop_direction(enemy, enemy.get("pos", INVALID_TILE), direction, source_tiles, pushing)
 	var contact: Dictionary = _force_step_contact(state, "enemy", int(enemy.get("id", -1)), enemy, enemy.get("pos", INVALID_TILE) + direction, source_tiles, pushing, level_direction)
 	return not bool(contact.get("source", false))
+
+func _force_actor_anchored(state: Dictionary, kind: String, id: int) -> bool:
+	return WindRules.force_anchored(self, state, kind, id)
 
 func _force_move_enemy_from(state: Dictionary, enemy_index: int, action: Dictionary, source_pos: Vector2i, pushing: bool, amount: int) -> Dictionary:
 	var enemies: Array = state.get("enemies", [])
@@ -7820,7 +7852,7 @@ func _live_terrain(state: Dictionary) -> Array[Dictionary]:
 		if typeof(terrain_var) != TYPE_DICTIONARY:
 			continue
 		var terrain: Dictionary = _normalized_terrain(terrain_var)
-		if int(terrain.get("hp", 0)) > 0:
+		if BoardSurfaceRules.terrain_is_live(terrain):
 			result.append(terrain)
 	return result
 
@@ -7843,7 +7875,7 @@ func _terrain_index_at_tile(state: Dictionary, tile: Vector2i) -> int:
 		if typeof(terrain_entries[index]) != TYPE_DICTIONARY:
 			continue
 		var terrain: Dictionary = _normalized_terrain(terrain_entries[index])
-		if int(terrain.get("hp", 0)) <= 0:
+		if not BoardSurfaceRules.terrain_is_live(terrain):
 			continue
 		if terrain.get("pos", Vector2i(-1, -1)) == tile:
 			return index
@@ -7877,7 +7909,7 @@ func _terrain_indices_in_tiles(state: Dictionary, tiles: Array[Vector2i]) -> Arr
 		if typeof(terrain_entries[index]) != TYPE_DICTIONARY:
 			continue
 		var terrain: Dictionary = terrain_entries[index] as Dictionary
-		if int(terrain.get("hp", 0)) <= 0:
+		if not BoardSurfaceRules.terrain_is_live(terrain):
 			continue
 		if tile_lookup.has(terrain.get("pos", Vector2i.ZERO)):
 			indices.append(index)
@@ -8399,6 +8431,14 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		definition.get("intents", []),
 		int(state.get("room_depth", 1))
 	)
+	# A declared next intent may have zero weight: force it, never roll it.
+	var next_id: String = str((enemy.get("intent", {}) as Dictionary).get("next_intent", ""))
+	if enemy_type == "hoarfrost_seer" and not (enemy.get("icefall_tiles", []) as Array).is_empty(): next_id = "icefall_land"
+	for candidate: Dictionary in intents:
+		if not next_id.is_empty() and str(candidate.get("id", "")) == next_id and IcefallRules.available(self, state, enemy, candidate):
+			enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, candidate.duplicate(true))
+			enemies[enemy_index] = enemy
+			return
 	if bool(definition.get("dragon_cycle", false)) and not intents.is_empty():
 		enemies[enemy_index] = enemy
 		enemy["intent"] = DragonCombatRules.declare(self, state, enemy_index, intents)
@@ -8428,10 +8468,14 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		if typeof(intent_var) != TYPE_DICTIONARY:
 			continue
 		var intent: Dictionary = intent_var as Dictionary
-		if _dragon_intent_available(state, enemy, intent):
+		if int(intent.get("weight", 1)) > 0 and IcefallRules.available(self, state, enemy, intent) and _dragon_intent_available(state, enemy, intent):
 			available_intents.append(intent)
 	intents = available_intents
 	if intents.is_empty():
+		return
+	if enemy_type in ["hoarfrost_seer", "gale_herald"]:
+		enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, WindRules.choose_intent(self, state, enemy_index, intents, rng))
+		enemies[enemy_index] = enemy
 		return
 	var tactical_options: Array[Dictionary] = _enemy_tactical_intent_options(
 		state,
@@ -8468,7 +8512,7 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 	enemies[enemy_index] = enemy
 
 func _objective_adjusted_intent_weight(state: Dictionary, intent: Dictionary) -> int:
-	var weight: int = maxi(1, int(intent.get("weight", 1)))
+	var weight: int = maxi(0, int(intent.get("weight", 1)))
 	var objective: Dictionary = state.get("objective", {}) as Dictionary
 	if str(objective.get("type", "")) == CombatObjectiveRules.REACH_EXIT and CombatObjectiveRules.is_control_intent(intent):
 		weight *= 3
@@ -8489,7 +8533,7 @@ func enemy_tactical_intent_options(state: Dictionary, enemy_index: int) -> Array
 		if typeof(intent_var) != TYPE_DICTIONARY:
 			continue
 		var intent: Dictionary = intent_var as Dictionary
-		if _dragon_intent_available(state, enemy, intent):
+		if int(intent.get("weight", 1)) > 0 and IcefallRules.available(self, state, enemy, intent) and _dragon_intent_available(state, enemy, intent):
 			available.append(intent)
 	return _enemy_tactical_intent_options(state, enemy_index, enemy, definition, available)
 
@@ -8937,6 +8981,10 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		_record_runtime_performance_phase("enemy_plan_total", performance_total_started)
 		return {}
 	var intent: Dictionary = intent_override if not intent_override.is_empty() else enemy.get("intent", {})
+	var icefall_plan: Dictionary = IcefallRules.plan(self, state, enemy_index, intent, attack_disabled)
+	if not icefall_plan.is_empty(): return icefall_plan
+	var wind_plan: Dictionary = WindRules.plan(self, state, enemy_index, intent, attack_disabled)
+	if not wind_plan.is_empty(): return wind_plan
 	if intent.has("committed_plan") and GuardianCombatRules.has_held_actions(intent):
 		return GuardianCombatRules.current_plan(self, state, enemy, intent, movement_disabled, attack_disabled)
 	var actions: Array = intent.get("actions", [])
@@ -9680,6 +9728,7 @@ func _enemy_future_anchor_step_cost(state: Dictionary, anchor_details: Dictionar
 			return -1
 		for terrain_index: int in terrain_indices:
 			var terrain: Dictionary = _normalized_terrain((state.get("terrain", []) as Array)[terrain_index])
+			if not IcefallRules.attackable(terrain): return -1
 			var hits: int = ceili(float(int(terrain.get("hp", 0))) / float(damage))
 			cost += maxi(1, hits) * maxi(1, move_range)
 	var blocking_enemy_count: int = int(anchor_details.get("blocking_enemy_count", 0))
@@ -9722,7 +9771,7 @@ func _enemy_future_planning_context(state: Dictionary, enemy: Dictionary) -> Dic
 		if typeof(terrain_entries[terrain_index]) != TYPE_DICTIONARY:
 			continue
 		var terrain: Dictionary = _normalized_terrain(terrain_entries[terrain_index] as Dictionary)
-		if int(terrain.get("hp", 0)) <= 0:
+		if not BoardSurfaceRules.terrain_is_live(terrain):
 			continue
 		var tile: Vector2i = terrain.get("pos", INVALID_TILE)
 		# Match _terrain_index_at_tile's first-live-entry behavior for malformed
@@ -9888,6 +9937,7 @@ func _planned_blocking_terrain_index(state: Dictionary, enemy: Dictionary, attac
 	for anchor: Vector2i in route:
 		for terrain_index: int in _enemy_anchor_terrain_indices(state, enemy, anchor):
 			var terrain: Dictionary = _normalized_terrain((state.get("terrain", []) as Array)[terrain_index])
+			if not IcefallRules.attackable(terrain): return -1
 			if _enemy_action_reaches_tile(state, enemy, attack_action, terrain.get("pos", INVALID_TILE)):
 				return terrain_index
 			return -1
@@ -12054,6 +12104,8 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 	action = action.duplicate(true)
 	action["_resolved_path"] = action_context.get("resolved_path",_vector2i_values([before_state["enemies"][enemy_index]["pos"]]))
 	var step: Dictionary = GuardianCombatRules.animation_step(self,before_state,after_state,enemy_index,action) if GuardianCombatRules.handles(action) else _enemy_action_step_base(before_state, after_state, enemy_index, action, action_context)
+	if IcefallRules.handles(action): step = IcefallRules.animation_step(self, before_state, after_state, enemy_index, action)
+	if str(action.get("type", "")) == "call_wind": step = WindRules.animation_step(self, before_state, after_state, enemy_index, action)
 	step = RetaliateRules.decorate_attack_step(before_state, after_state, step)
 	if not step.is_empty():
 		step["surfaces_after"] = (after_state.get("surfaces", {}) as Dictionary).duplicate(true)
@@ -12174,7 +12226,7 @@ func combat_line_of_sight(state: Dictionary, start: Vector2i, target: Vector2i) 
 	var ray: Array[Vector2i] = PathUtils._supercover_line(start,target)
 	for terrain: Dictionary in state.get("terrain",[]):
 		var tile: Vector2i = terrain.get("pos",INVALID_TILE)
-		if tile != start and tile != target and int(terrain.get("hp",0))>0 and bool(terrain.get("blocks_sight", str(terrain.get("kind","")) in ["raised_cover", "crag_outcrop"])) and ray.has(tile): return false
+		if tile != start and tile != target and BoardSurfaceRules.terrain_is_live(terrain) and bool(terrain.get("blocks_sight", str(terrain.get("kind","")) in ["raised_cover", "crag_outcrop"])) and ray.has(tile): return false
 	return true
 
 func illusion_movement_plan(state: Dictionary, illusion_id: int) -> Dictionary:

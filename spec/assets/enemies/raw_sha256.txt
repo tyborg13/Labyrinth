@@ -1,0 +1,2 @@
+7adedb50c048d36c4f87f1a525c73a3269fbc759d03faaa8c9019f698df20184  /Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/enemies/hoarfrost_seer.png
+bdb047aaee94888d53180cafca7ffb866eaec15bc8e8acca5a0df84267a0bc37  /Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/enemies/gale_herald.png

@@ -53,6 +53,12 @@ static func _check_routing(expect: Callable) -> void:
 		var roster_presentation: Dictionary = {"floating_texts":FloatingText.animate_entries([damage],.054,false)}
 		Context.apply_to_presentation(roster_state,roster_presentation)
 		var family: String = Context.family_key(actor_type)
+		# Director-owned en-02 art deliberately ships on the static fallback;
+		# its cutout rigs are a later unit. Keep all existing rig assertions.
+		if actor_type in ["hoarfrost_seer", "gale_herald"]:
+			var art_path: String = str(preload("res://scripts/game_data.gd").enemy_def(actor_type).get("art_path", ""))
+			expect.call(family.is_empty() and preload("res://scripts/asset_loader.gd").load_texture(art_path) != null, actor_type + " retains its approved static fallback without borrowing a cutout")
+			continue
 		expect.call(not family.is_empty() and roster_presentation.get(family,{}).get("enemy_7",{}).get("clip","") == "hit", actor_type + " content identity routes its incoming damage")
 	presentation = {"floating_texts":[{"reaction_actor_key":"illusion_3", "reaction":"hit", "animation_progress":.1}]}
 	Context.apply_to_presentation(state,presentation)

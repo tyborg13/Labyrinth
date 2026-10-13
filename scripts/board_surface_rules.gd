@@ -48,11 +48,15 @@ static func tiles(state: Dictionary, surface: String = "") -> Array[Vector2i]:
 	result.sort_custom(func(a: Vector2i, b: Vector2i) -> bool: return a.y < b.y if a.y != b.y else a.x < b.x)
 	return result
 
+static func terrain_is_live(terrain: Dictionary) -> bool:
+	# Temporary Ice Pillars have lifetime, not attack durability.
+	return int(terrain.get("rounds_left", 0)) > 0 if str(terrain.get("kind", "")) == "ice_pillar" else int(terrain.get("hp", 0)) > 0
+
 static func can_place(state: Dictionary, tile: Vector2i) -> bool:
 	if not PathUtils.is_passable(state.get("grid", []), tile):
 		return false
 	for terrain: Dictionary in state.get("terrain", []):
-		if int(terrain.get("hp", 0)) > 0 and terrain.get("pos", Vector2i(-1, -1)) == tile:
+		if terrain_is_live(terrain) and terrain.get("pos", Vector2i(-1, -1)) == tile:
 			return false
 	return true
 
