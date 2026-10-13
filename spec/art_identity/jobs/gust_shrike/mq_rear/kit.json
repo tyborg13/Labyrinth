@@ -7,7 +7,6 @@
  "anatomy": "flyer",
  "method": "maquette paint-over (pilot): spec/art_identity/maquettes/gust_shrike.py r4 renders + approved front_v2 + hero_x3",
  "prompt_sha256": "3bba28441b77902cc5e0965df01d107f7e86cadfc9a075a85db4865c206259c6",
- "job": "mq-gust_shrike-rear",
  "peers": [
   "roc_fledgling_front",
   "roc_fledgling_front"
@@ -16,9 +15,27 @@
  "target_w": 234,
  "kit_version": "f246b45a8355eb5a8adf36ad427a8f96aad80c65d58f096ebc47bcd5ff107c01",
  "refs": [
-  "maquette r4 rear_parts_green.png",
-  "maquette r4 rear_clay_green.png",
-  "raw/gust_shrike_front_v2.png",
-  "hero_x3"
- ]
+  {
+   "canon_id": "maquette_rear_parts",
+   "file": "/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/020b9ac4-7b92-4113-a7d2-bc6e802828dd/scratchpad/maquette/r4/rear_parts_green.png",
+   "pixel_sha256": "571c083170c3e3367af429bfdee19ba4ba3e3b2a0ffb3c8c4976986501f0fd10"
+  },
+  {
+   "canon_id": "maquette_rear_clay",
+   "file": "/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/020b9ac4-7b92-4113-a7d2-bc6e802828dd/scratchpad/maquette/r4/rear_clay_green.png",
+   "pixel_sha256": "088bfecaebec7252b33b9c29a4f5edb1cef140ca067a31858769d46b185e0ec2"
+  },
+  {
+   "canon_id": "approved_front_v2_raw",
+   "file": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/identity_gate/raw/gust_shrike_front_v2.png",
+   "pixel_sha256": "d9f23db0b893cb55994d1f2e7d866c63bc9fca6bc499460ef1480040549ee9a5"
+  },
+  {
+   "canon_id": "hero_front",
+   "file": "/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/020b9ac4-7b92-4113-a7d2-bc6e802828dd/scratchpad/pilot/refs/hero_x3.png",
+   "pixel_sha256": "2200c5a6ec962369292f32359fd7ed11f2ae7055d5dec74eae971ba4e7526317"
+  }
+ ],
+ "job_id": "mq-gust_shrike-rear",
+ "prompt_path": "../../../maquettes/gust_shrike_prompt_rear.md"
 }
