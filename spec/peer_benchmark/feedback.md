@@ -25,3 +25,9 @@
   danger state (red + pulse); ground compass emblem removed; area zones must show their source.
 - Chips must match the game's visuals (not default boxes) → HUD resource-chip language; offset slightly from the base.
 - Chips always stay at the feet — relocating them to the health bar is confusing (far from their anchor).
+
+## 2026-10-13 — art-02 re-art review
+- Owner: "The last pass of the enemies is looking much better except the rear view of the bird. Imagegen seems
+  completely unable to figure out the wings (that's a problem that exists with our other birds too)."
+- Director: judge rubric gains criterion 9 (structure legibility); bird rears to be built from a 3D maquette
+  (front + rear rendered from one posed proxy at the board camera) instead of text-only generation.

@@ -19,5 +19,10 @@ description. Judge only what you see. For each criterion answer PASS or FAIL wit
    creature consistently.
 8. Identity: reads at game size as the subject described, with a distinct silhouette from the canon peers.
 
+9. Structure legibility (wings, extra limbs, anything the model must invent in 3D): for every wing and limb you can
+   point to where it attaches, which side of the body it belongs to, and how front and rear show the same structure.
+   A pile of feathers or limbs you cannot trace is a FAIL even if everything else passes (owner verdict 2026-10-13 on
+   the gust shrike rear: "unable to figure out the wings").
+
 Overall: PASS only if every criterion passes. End with `VERDICT: PASS` or `VERDICT: FAIL` and, for a fail, the
 smallest concrete change that would fix each failed criterion.
