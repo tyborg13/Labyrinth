@@ -776,7 +776,7 @@ def make_sheet(front: Path, rear: Path, kit_path: Path, out: Path, art_scale: fl
         if path is None:
             continue
         measured = measure(path, art_scale, kit["kind"], kit["anatomy"])
-        annotation = (landmarks.get(facing, landmarks) if landmarks else None)
+        annotation = (landmarks.get(facing) if ('front' in landmarks or 'rear' in landmarks) else landmarks) if landmarks else None
         if annotation:
             measured["lateral_axis"] = lateral_axis(annotation)
         entry = dict(kit, art_scale=art_scale, landmarks=annotation or {}, boss=candidate_meta.get("boss", False),
@@ -809,7 +809,7 @@ def make_sheet(front: Path, rear: Path, kit_path: Path, out: Path, art_scale: fl
         if sprite is None:
             continue
         output.alpha_composite(sprite.resize((sprite.width * 2, sprite.height * 2), RESAMPLE.NEAREST), (x, y))
-        annotation = landmarks.get(label, landmarks) if landmarks else None
+        annotation = (landmarks.get(label) if ('front' in landmarks or 'rear' in landmarks) else landmarks) if landmarks else None
         if annotation:
             draw_landmarks(draw, annotation, (x, y))
         if kit["view"] == "object_plinth":
