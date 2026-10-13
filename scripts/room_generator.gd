@@ -128,6 +128,7 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	elif npc_specs.is_empty():
 		enemy_types = _encounter_enemy_types(room_type, encounter_depth, rng, room_element, boss_id)
 	enemy_types = _objective_adjusted_enemy_types(enemy_types, objective, encounter_depth, rng)
+	enemy_types = _apply_spawn_groups(enemy_types, int(room.get("max_units", -1)))
 	if str(objective.get("type", "")) == CombatObjectiveRules.SURVIVE:
 		objective["reinforcement_pool"] = _unique_enemy_types(enemy_types)
 	objective["initial_enemy_count"] = enemy_types.size()
@@ -1182,3 +1183,29 @@ static func door_tile_for_direction(dir: Vector2i) -> Vector2i:
 
 static func entry_tile_for_direction(dir: Vector2i) -> Vector2i:
 	return ENTRANCE_BY_TRAVEL_DIR.get(dir, ENTRANCE_BY_TRAVEL_DIR[Vector2i.ZERO])
+
+# Composition only: summons and splits never enter this helper.
+func _apply_spawn_groups(composition: Array, max_units: int = -1) -> Array:
+	var result: Array = composition.duplicate()
+	for type_var: Variant in composition:
+		var enemy_type: String = str(type_var)
+		var group: int = int(GameData.enemy_def(enemy_type).get("spawn_group", 1))
+		if group <= 1: continue
+		var missing: int = posmod(-result.count(enemy_type), group)
+		while missing > 0:
+			if max_units >= 0 and result.size() >= max_units:
+				var replacement: int = -1
+				for index: int in range(result.size() - 1, -1, -1):
+					if str(result[index]) != enemy_type:
+						replacement = index
+						break
+				if replacement < 0:
+					# An all-thrall odd roster at its hard cap cannot fit a mate.
+					# Keep both the hard cap and the even-count invariant.
+					for remainder: int in range(result.count(enemy_type) % group): result.erase(enemy_type)
+					break
+				result[replacement] = enemy_type
+			else:
+				result.append(enemy_type)
+			missing -= 1
+	return result

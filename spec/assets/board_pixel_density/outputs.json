@@ -1,4 +1,11 @@
 {
+  "assets/art/enemies/arc_thrall.png": {
+    "pixel_sha256": "fcfdcd6fd9c0cbec1b40b831e4429ee9effc73360565dab7ec58f5f4b5f0f3aa",
+    "source_pixel_sha256": "11563e768e40131a6dc20713c193786146f331fa1178d216cebdd720e4fbfd6a",
+    "id": "arc_thrall",
+    "mode": "regrid",
+    "grid": 1.5
+  },
   "assets/art/enemies/burrow_grub.png": {
     "pixel_sha256": "3ca01648a194308ed14f95b236f0fdd739341e1c6d93f277f448a66ee3f3aa70",
     "source_pixel_sha256": "9455daa32a54da8d889886a436ddbbb71e7a7d88e6ab39f201ae48364ff0bc6d",
@@ -10,6 +17,13 @@
     "pixel_sha256": "3921496cecd3a79b83be893e85d361b89cb6a57a31d2cb4cc734eb4bbbd116b5",
     "source_pixel_sha256": "c81af1ab6c1845c64012996729d738a5cde35e231fdaccdfd01deb4eaa8cee55",
     "id": "ember_tick",
+    "mode": "regrid",
+    "grid": 1.5
+  },
+  "assets/art/enemies/gloam_stalker.png": {
+    "pixel_sha256": "b7439f856ffc1038ce634affcd311986100d493c719767285d79a64022111381",
+    "source_pixel_sha256": "546f0f39233766380d360b55479e8f4727df238864e5b1f3f8cfe447abe80033",
+    "id": "gloam_stalker",
     "mode": "regrid",
     "grid": 1.5
   },

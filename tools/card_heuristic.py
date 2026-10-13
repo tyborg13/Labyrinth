@@ -256,6 +256,16 @@ def encounter_assumptions() -> dict[str, Any]:
             "path_tie_break": "true total cost first; equal routes prefer strongest immediate current-activation progress",
             "score_policy": "raises realized encounter pressure without changing intrinsic printed-card coefficients",
         },
+        "en03_enemies": {
+            "arc_thrall": {"hp": 10, "base_initiative": 11, "reward_embers": 9, "weighted_cycle": 15.6,
+                          "tether": "spawn_group 2; held partner; clear cardinal distance <=6; align Move <=3; strictly intermediate tiles take 4 lightning + Shock 1, including enemies",
+                          "arc_jab": "Move 2 + melee 3 + Shock 1"},
+            "gloam_stalker": {"hp": 11, "base_initiative": 10, "reward_embers": 10, "weighted_cycle_including_forced_ambush": 14.75,
+                              "fade": "Blink <=4 behind last hero movement this round; Veil denies distant single targets; adjacent/area/secondary chains/surfaces/collisions hit normally",
+                              "ambush": "forced following Fade; re-Blink if needed; melee 7 then end Veil; impossible strike falls back to Slash",
+                              "slash": "Move 2 + melee 4"},
+            "encounters": "staged until enc-01 biome_groups land; no intrinsic card coefficient change",
+        },
         "warden_bulwark": "grants scaled Block to every other living enemy and never to the acting Warden",
         "player_flow": {
             "base_initiative": PLAYER_BASE_INITIATIVE,

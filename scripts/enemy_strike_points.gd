@@ -20,6 +20,9 @@ const MODELS: Dictionary = {
 	"iskaldra": preload("res://scripts/iskaldra_cutout/renderer.gd")}
 const BESPOKE: Array = ["grave_surgeon", "veilbound_acolyte", "cinder_droplet", "cinder_ooze", "vyraketh"]
 const REGISTRY: Dictionary = {
+	# en-03 intentionally ships static art; inherit the existing generic target arc.
+	"arc_thrall": {"kind":"arc", "window":Vector2(0.33,0.56), "reason":"Approved static sprite fallback; rigs are a later unit."},
+	"gloam_stalker": {"kind":"arc", "window":Vector2(0.33,0.56), "reason":"Approved static sprite fallback; rigs are a later unit."},
 	# Static sprites retain the existing generic arc until the separate cutout unit.
 	"burrow_grub": {"kind":"arc", "window":Vector2(0.33,0.56)},
 	"ember_tick": {"kind":"arc", "window":Vector2(0.33,0.56)},

@@ -103,6 +103,9 @@ const IntentCallouts = preload("res://scripts/intent_callouts.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
+const TetherView = preload("res://scripts/enemy_mechanics/tether_view.gd")
+const VeilView = preload("res://scripts/enemy_mechanics/veil_view.gd")
+
 const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
 
 # Audio consumes presentation snapshots, never gameplay mutations.
@@ -2515,6 +2518,8 @@ func _process(delta: float) -> void:
 		_queue_active_idle_redraws(changed_sources)
 
 func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: bool = false) -> void:
+	if not skip_effects and TetherView.needs_redraw(self): _queue_render_layer_redraw(_effects_render_layer)
+	VeilView.queue_redraws(self)
 	if ThreatTiles.needs_pulse(presentation, _rest_threat_tile_alphas):
 		_queue_render_layer_redraw(_overlay_render_layer)
 	if _ambient_particles_active() or _campfire_atmosphere_active():
@@ -2640,6 +2645,7 @@ func _scene_render_tile_for_unit(unit: Dictionary) -> Vector2i:
 func _presentation_needs_continuous_redraw() -> bool:
 	if not visible:
 		return false
+	if TetherView.needs_redraw(self) or VeilView.needs_redraw(self): return true
 	if ThreatTiles.needs_pulse(presentation, _rest_threat_tile_alphas):
 		return true
 	if not bool(presentation.get("reduced_motion", false)) and not _animated_surface_tiles.is_empty():
@@ -2747,6 +2753,7 @@ func set_health_ghost_source_state(next_state: Dictionary) -> void:
 	_next_health_ghost_state = next_state
 
 func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}, trust_same_reference_state: bool = false) -> void:
+	next_presentation = TetherView.presentation_for(next_state, next_presentation)
 	_rest_threat_tile_alphas = ThreatTiles.tile_alphas((next_presentation.get("threats_at_rest", {}) as Dictionary).get("threats", []))
 	var submission_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
 	# The owning RunScene submits immutable copy-on-write snapshots. Pointer-only
@@ -4505,6 +4512,7 @@ func _draw_effects_render_layer() -> void:
 	var total_section_started_usec: int = Time.get_ticks_usec()
 	var section_started_usec: int = total_section_started_usec
 	var units_to_draw: Array[Dictionary] = _visible_units()
+	TetherView.draw_telegraphs(self)
 	_draw_effect_overlay()
 	_record_render_section_time("effect_overlay", section_started_usec)
 	section_started_usec = Time.get_ticks_usec()
@@ -8236,6 +8244,7 @@ func _build_visible_units() -> Array[Dictionary]:
 			"is_leader": bool(enemy.get("is_leader", false)),
 			"footprint": enemy.get("footprint", Vector2i.ONE),
 			"intent": enemy.get("intent", {}),
+			"veiled": bool(enemy.get("veiled", false)),
 			"pos": enemy.get("pos", Vector2i.ZERO),
 			"hp": int(enemy.get("hp", 0)),
 			"max_hp": int(enemy.get("max_hp", 1)),
@@ -8395,6 +8404,7 @@ func _draw_unit_body(unit: Dictionary) -> void:
 			body_tint = Color(0.70, 0.95, 1.0, 0.58)
 		elif death_animation:
 			body_tint = _death_animation_render_tint(unit)
+		if VeilView.draw_body(self, unit, texture, shifted_rect, body_tint, umbra_clip): return
 		_draw_texture_rect_with_umbra_clip(texture, shifted_rect, body_tint, umbra_clip, 0 if role in ["illusion", "illusion_preview", "enemy_move_preview"] else CombatArtTreatment.actor_profile(unit, texture))
 		if impact > 0.0:
 			var flash: Color = IMPACT_FLASH_COLOR
@@ -10766,6 +10776,7 @@ func _draw_effect_overlay() -> void:
 	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
 	if effect.is_empty():
 		return
+	if TetherView.draw_effect(self, effect, progress): return
 	if _dragon_full_area_fx(effect) and not bool(effect.get("preview",false)): return
 	_draw_bile_bloomer_fragments(effect, progress)
 	var kind: String = str(effect.get("kind", ""))
@@ -12400,6 +12411,10 @@ func _draw_blink_afterimage_ghost(center: Vector2, alpha: float, scale: float) -
 	draw_texture_rect(texture, Rect2(ghost_rect.position + Vector2(2.0, 1.0), ghost_rect.size), false, Color(0.08, 0.04, 0.12, alpha * 0.30))
 
 func _blink_player_unit_snapshot() -> Dictionary:
+	var actor: Dictionary = presentation.get("effect", {})
+	if str(actor.get("actor_key", "")).begins_with("enemy_"):
+		for unit: Dictionary in _visible_units():
+			if str(unit.get("key", "")) == str(actor["actor_key"]): return unit
 	var player: Dictionary = combat_state.get("player", {})
 	return {
 		"key": "player",
@@ -16369,6 +16384,8 @@ func _intent_rows(intent: Dictionary) -> Array:
 	return _intent_rows_for_unit({}, intent)
 
 func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
+	var cancelled: Array = TetherView.cancelled_rows(self, unit, intent)
+	if not cancelled.is_empty(): return cancelled
 	var mechanic_rows: Array = BurrowView.rows(intent) + KindleView.rows(intent)
 	if not mechanic_rows.is_empty(): return mechanic_rows
 	var rows: Array = []
@@ -16562,7 +16579,8 @@ func _short_enemy_name(enemy: Dictionary) -> String:
 	return display_name
 
 func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
-	var badges: Array[Dictionary] = BurrowView.badges(unit)
+	var badges: Array[Dictionary] = VeilView.badges(unit)
+	badges.append_array(BurrowView.badges(unit))
 	badges.append_array(DeathBurstView.badges(unit))
 	var truesight_activations: int = int(presentation.get("umbra_truesight_activations", 0))
 	var conditional_truesight: bool = bool(presentation.get("umbra_truesight_conditional", false))
