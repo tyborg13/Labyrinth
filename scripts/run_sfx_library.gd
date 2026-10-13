@@ -3,6 +3,8 @@ class_name RunSfxLibrary
 
 const SettingsStore = preload("res://scripts/settings_store.gd")
 
+const CUE_ALIASES: Dictionary = {"run.dungeon_hall_ambience": "ambience.stone"}
+
 const DOOR_OPEN_ID: String = "run.door_open"
 const CAMPFIRE_LOOP_ID: String = "run.campfire_loop"
 const REWARD_ACCEPTED_ID: String = "run.reward_accepted"

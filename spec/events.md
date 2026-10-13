@@ -274,9 +274,11 @@ an event immediately stops rise/zoom while the opacity fades continue.
 Sound: existing menu-page-open on opening, shared forged button click on choice
 activation, and menu-page-close on Continue. No new audio. Mouse, 1–3, Up/Down,
 Enter and controller A activate choices; stick/D-pad navigate, including
-unavailable plates. Initial focus is the first available choice. Back/Escape
-is inert on choices and activates Continue on results. The controller prompt
-names the focused choice.
+unavailable plates. Initial focus is the first available choice. Escape on the
+keyboard and Start on the controller open the pause menu over the event; closing
+pause restores its focused choice. Controller Back (`ACTION_CANCEL`) is inert
+on choices and activates Continue on results. This supersedes the ev-02
+Back/Escape wording. The controller prompt names the focused choice.
 
 Active omens appear after relics/Rites in the existing header grid in room and
 combat modes. Each unique approved 96 px wax seal is shown at 38×38, with a

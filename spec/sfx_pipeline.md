@@ -84,6 +84,113 @@ feature worker. Analysis uses at most four workers and one BLAS/OpenMP thread
 per worker. FFmpeg calls use two threads and at most four concurrent processes
 across sound-lab invocations, with cooperative file locks.
 
+## Layered designs
+
+`design.py` renders director-authored recipes locally using the existing audio
+environment. It never chooses production takes, rewrites a recipe, downloads
+assets, installs packages or writes inside a source root. Recipe entries are
+keyed by cue ID and labels A–D:
+
+```json
+{
+  "<cue_id>": {
+    "A": {
+      "note": "<director note, retained verbatim>",
+      "length_s": 1.2,
+      "master": {"highpass_hz": null, "lowpass_hz": null, "peak_dbfs": -1.0, "fade_out_ms": 30},
+      "layers": [
+        {"take": "<take_id>", "source_path": "<optional, required for ambiguous IDs>",
+         "trim": [0.0, 0.45], "pitch": 1.0, "reverse": false, "gain_db": 0.0,
+         "offset_ms": 0, "highpass_hz": null, "lowpass_hz": null,
+         "fade_in_ms": 3, "fade_out_ms": 30}
+      ]
+    }
+  }
+}
+```
+
+All layer fields except `take` are optional. The example's `[0.0, 0.45]` trim
+is illustrative; the default is `[0.0, null]`, selecting the whole take. All
+other layer defaults are shown above (omit `source_path` unless needed).
+Trim is relative to the take start, before pitch; `null` as its end selects
+the take end. Master fields are optional
+with the shown defaults; omitting `master` uses those defaults. Omitting
+`length_s` uses the last layer's end, including its offset and pitched duration.
+
+Each layer decodes the full take to 48 kHz floating audio, trims there, applies
+tape-style pitch resampling, optionally reverses, then applies causal
+second-order Butterworth highpass and lowpass in that order (`sosfilt`). The
+existing front-pair channel policy keeps mono or channels 0/1 of stereo or
+multichannel sources; recipes have no category-dependent stereo collapse.
+Linear fade-in, equal-power quarter-sine fade-out and gain follow. Placement is
+sample-exact at `round(offset_ms * 48)`; offsets and fades must be nonnegative.
+
+Layers sum into mono unless any layer retains stereo, in which case mono
+layers duplicate into both channels. The master applies highpass then lowpass,
+scales the absolute peak to `peak_dbfs` (must be at most zero), applies its
+equal-power fade-out to the end of the full mix, then truncates to `length_s`.
+Longer lengths include silence padding. Peak scaling precedes fade/truncation
+as required by the recipe contract; those later operations can reduce the final
+peak. A silent or non-finite mix fails rather than yielding a source candidate.
+
+Output is `<out-root>/designed/<cue_id>/<label>.wav`: 48 kHz, PCM_24, with no
+timestamps or variable metadata. The adjacent `<label>.json` contains `recipe`
+(the entry verbatim), `layers` (resolved `source_path`, `source_sha256`,
+`take_id`, original take `start_seconds`/`end_seconds` and `licence_id` per layer),
+and the derived `licence_id`. WAVs, sidecars and `designed/LICENSE.txt` are
+replaced atomically, with no deletion of files from retired recipes. The output
+root must be separate from the indexed read-only source roots. FFmpeg, when
+needed for decoding, uses the existing four cooperative slots and two threads.
+Determinism applies to the same installed toolchain.
+
+Any Sonniss GDC layer derives `Sonniss GDC Bundle licence`; otherwise the result
+is `CC0-1.0`. A designed layer retains its sidecar's derived licence, so layering
+an existing Sonniss derivative cannot downgrade it. `designed/` is an additional
+approved source folder. Its folder `LICENSE.txt` states the derivative rule;
+each file's sidecar is authoritative. Missing, malformed or inconsistent
+sidecars fail before audio probing/indexing. Mixkit, excluded paths and escaping
+symlinks are rejected in recipes just as in other source operations.
+
+Exact command sequence (director supplies both the recipes and subsequent picks):
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-02 && /Users/borgerding/.cache/umbra-sfx/venv/bin/python tools/sfx_lab/design.py --recipes /private/tmp/labyrinth_codex/sfx_lab/recipes_r2.json --features /private/tmp/labyrinth_codex/sfx_lab/features.jsonl --out-root /private/tmp/labyrinth_codex/sfx_lab/designed_smoke
+cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-02 && /Users/borgerding/.cache/umbra-sfx/venv/bin/python tools/sfx_lab/index.py --sources /Users/borgerding/workspace/Labyrinth/output/sfx-sources-2026-10-12 --sources /private/tmp/labyrinth_codex/sfx_lab/designed_smoke --out /private/tmp/labyrinth_codex/sfx_lab/layered_analysis/index.json --workers 4
+cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-02 && /Users/borgerding/.cache/umbra-sfx/venv/bin/python tools/sfx_lab/slice.py --index /private/tmp/labyrinth_codex/sfx_lab/layered_analysis/index.json --out /private/tmp/labyrinth_codex/sfx_lab/layered_analysis/takes.jsonl --workers 4
+cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-02 && /Users/borgerding/.cache/umbra-sfx/venv/bin/python tools/sfx_lab/features.py --index /private/tmp/labyrinth_codex/sfx_lab/layered_analysis/index.json --takes /private/tmp/labyrinth_codex/sfx_lab/layered_analysis/takes.jsonl --out /private/tmp/labyrinth_codex/sfx_lab/layered_analysis/features.jsonl --workers 4
+cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-02 && /Users/borgerding/.cache/umbra-sfx/venv/bin/python tools/sfx_lab/audition.py --picks /private/tmp/labyrinth_codex/sfx_lab/designed_picks.json --features /private/tmp/labyrinth_codex/sfx_lab/layered_analysis/features.jsonl --out /private/tmp/labyrinth_codex/sfx_lab/designed_audition
+```
+
+`--only <cue_id> ...` limits design rendering (the flag may also repeat). Its
+stdout has one tab-separated line per output: cue, label, actual duration,
+actual peak dBFS, derived licence and WAV sha256. `index.py --sources` is
+repeatable; single-root CLI usage and the original string `sources` index field
+remain unchanged. Multiple roots use a `sources` array in argument order, with
+the existing file sort within each root. Duplicate relative paths across roots
+fail explicitly because downstream selectors use relative `source_path`.
+Audition/build retain their single `--sources` flag: a relocated library,
+relocated design root, or combined approved tree overrides matching paths;
+other paths still resolve in the index's roots and all hashes are rechecked.
+
+Headless layered proof and retained owner listening fixture:
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-02 && /Users/borgerding/.cache/umbra-sfx/venv/bin/python tests/test_sfx_lab.py --proof-out /private/tmp/labyrinth_codex/sfx_lab/sfx02_proof -v
+```
+
+The new tests use temporary synthetic sources for sample offsets, trims/pitch,
+reverse, causal filters, fades, peak targets, mono/stereo summing, byte-identical
+rerenders, both licence outcomes, excluded recipe paths, missing/invalid sidecars
+and the multi-root CLI pipeline through audition/build including relocation.
+Existing sound-lab tests are unchanged. No game renderer probe or inspection
+fixture is applicable to this tooling unit; the existing audition surface is
+unchanged. The implementation sandbox has no window-server access. Owner-only
+listening command, at 1920×1080 and 100% browser scale:
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-02 && open /private/tmp/labyrinth_codex/sfx_lab/sfx02_proof/layered/audition/index.html
+```
+
 ## Query a measured shortlist
 
 ```bash

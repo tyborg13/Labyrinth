@@ -3,8 +3,9 @@
 ## Header
 - Goal: Slay the Spire's Ascension spine for Escape the Umbra. Escaping at Depth N unlocks Depth N+1. Each depth adds
   one plainly worded difficulty that touches a different system, and adds +5% score.
-- Base: `codex/peer-benchmark` after map-01 merges (the director gives the commit; depth 1 uses the map v4 Guardian
-  weight, depth 10/15 use events/omens from ev-01).
+- Base: `codex/peer-benchmark` at 6f4bbacfb (map v4, ev-01 events/omens and meta-01 run score/run-end are merged).
+  meta-02 (Chronicle) runs in parallel and also edits `main_menu.gd` and `progression_store.gd`: keep your edits there
+  small and local (the director merges).
 - Data provided (director-authored, committed before launch, protected): `data/depths.json` — 20 levels with the
   exact player-facing text and a modifier per level.
 - Mockup (approved): `output/peer-benchmark-2026-10-12/mockups/depth_picker.png` (source `depth_picker.html`).
@@ -15,7 +16,8 @@
   Guardian helper count, Noctyrax enrage), `scripts/run_engine.gd` (start HP, max HP, start omen, Hearth heal, dragon
   Embers, card reward weights, shop prices, event costs via EventRules), `scripts/event_rules.gd` (cost scaling only),
   `scripts/progression_store.gd` (unlocked depth, best per depth), `scripts/main_menu.gd` (New Game → picker),
-  `scripts/run_end_recap_overlay.gd` (depth line + score bonus row, if meta-01 has landed; otherwise TODO note),
+  `scripts/run_end_recap_overlay.gd` + `scripts/run_score_rules.gd` (depth line + score bonus row; meta-01 has landed),
+  `tests/run_tests.gd` (suite registration only),
   `scripts/run_scene.gd` (≤ 15 lines: depth tag in the header), `spec/depths.md` (new), `spec/analytics.md` (additive
   `depth` on run start/end events).
 - Rules: Depth 0 = today's game exactly (byte-identical state hashes for all existing suites); a run stores its
@@ -75,3 +77,13 @@
 
 ## Out of scope
 - New enemy movesets, a double final boss, achievements, daily runs.
+
+## Decided details (brief checklist)
+- Run-end: the score bonus row is the last base row: label "Umbra Depth <N>", detail "+<N×5>%", value = the added
+  points (round half up), before feats; the eyebrow gains " · Umbra Depth <N>" at depth ≥ 1. Depth 0: no row, no text.
+- Picker sounds: existing UI cues only (arrow buttons = the existing UI click; Begin Descent = the existing confirm);
+  no new audio.
+- Fallbacks: a profile without `umbra_depth_unlocked` = 0 (New Game starts as today, no picker); a stored depth above
+  the unlocked value (edited saves) clamps to unlocked; a run save without `umbra_depth` = 0.
+- Overflow: at N > 10 the list uses two columns of up to 10 rows at 19 px (as specified); N = 20 is the maximum, so no
+  further overflow.

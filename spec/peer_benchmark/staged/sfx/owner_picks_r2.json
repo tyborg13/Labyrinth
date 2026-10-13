@@ -1,0 +1,17 @@
+{
+ "block.break": {
+  "label": "B"
+ },
+ "push.slide": {
+  "label": "A"
+ },
+ "trap.trigger": {
+  "label": "A"
+ },
+ "radiance.light": {
+  "label": "B"
+ },
+ "illusion.break": {
+  "label": "A"
+ }
+}

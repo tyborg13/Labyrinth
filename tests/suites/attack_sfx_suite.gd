@@ -19,6 +19,15 @@ const EXPECTED_PATHS: Dictionary = {
 }
 
 static func run(expect: Callable) -> void:
+	var router := preload("res://scripts/sfx_cue_router.gd").new()
+	expect.call(router.impact_cue({"type": "melee", "damage": 5}, {}, "training_sword") == "hit.blade.light", "Light weapon contact should request the blade cue")
+	expect.call(router.impact_cue({"type": "melee", "damage": 6}, {}, "war_maul") == "hit.blunt.heavy", "Heavy weapon contact should request the blunt cue")
+	expect.call(router.impact_cue({"type": "ranged", "damage": 3}) == "hit.arcane", "A weaponless neutral spell should request arcane contact")
+	expect.call(router.impact_cue({"type": "melee", "element": "fire"}) == "spell.fire", "Elemental contact should replace the physical impact")
+	expect.call(router.impact_cue({"type": "melee"}, {}, "training_sword", {"freeze": 1}, 3) == "status.shatter", "A frozen target should receive only the shatter impact")
+	expect.call(router.impact_cue({"type": "melee"}, {}, "training_sword", {}, 0, 3) == "hit.blocked", "Fully absorbed contact should receive only the blocked impact")
+	for legacy_id: String in AttackSfxLibrary.CUE_ALIASES:
+		expect.call(not str(AttackSfxLibrary.CUE_ALIASES[legacy_id]).is_empty(), "Legacy attack ids should retain a cue-bank alias")
 	for element_id: String in EXPECTED_PATHS:
 		var player_entry: Dictionary = AttackSfxLibrary.entry_for_player_action(
 			{"element": element_id},
@@ -134,10 +143,10 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	await tree.create_timer(0.18).timeout
 	var players: Array = instance.get("_sfx_players") as Array
 	expect.call(_sfx_generation_total(players) == draw_generation_before + 2, "A two-card draw should play exactly one staggered sound per card")
-	for player_var: Variant in players:
-		var player: AudioStreamPlayer = player_var as AudioStreamPlayer
-		if player != null:
-			expect.call(player.bus == SettingsStore.UI_SFX_BUS, "Card-draw sounds should use the dry UI SFX path while inheriting shared SFX volume")
+	var draw_voices: Array = (instance.get("_sfx_bank") as Node).get("cues")["legacy:res://assets/audio/sfx/card_draw_deal.wav"]["voices"]
+	expect.call(not draw_voices.is_empty(), "The bank should preallocate the card-draw voice pool")
+	for player: AudioStreamPlayer in draw_voices:
+		expect.call(player.bus == SettingsStore.UI_SFX_BUS, "Card-draw sounds should use the dry UI SFX path while inheriting shared SFX volume")
 	await tree.create_timer(0.20).timeout
 	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == draw_generation_before + 2, "A completed draw should not schedule extra sounds")
 	var replacement_before: Dictionary = {

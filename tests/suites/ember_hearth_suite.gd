@@ -150,7 +150,8 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	expect.call(not Store.has_saved_run() and int(Store.load_data().get("embers", 0)) == 180, "OS close during Embrace cannot resurrect the banked run")
 	await tree.create_timer(0.9).timeout
 	expect.call((instance.get("heard_cues") as Array).has(Sfx.HEARTH_DEPART_ID), "Banked Embrace plays its departure cue")
-	expect.call(instance.get("requested_scene") == "res://scenes/main_menu.tscn", "Embrace returns to the menu after the departure cue")
+	var recap: Control = instance.get("_run_end_recap") as Control
+	expect.call(recap != null and recap.visible and str(recap.call("recap_model").get("title", "")) == "WITHDRAWN", "Embrace displays the WITHDRAWN recap after the departure cue")
 	instance.queue_free()
 	await tree.process_frame
 	Store.set_storage_path(previous_profile_path)

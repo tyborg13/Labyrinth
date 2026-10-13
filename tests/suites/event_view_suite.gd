@@ -11,6 +11,8 @@ const Router = preload("res://scripts/input_router.gd")
 const Text = preload("res://scripts/event_view_text.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const FIXTURE_SEED: int = 421
+const OPEN_LOCK_PROOF_WAIT_SECONDS: float = 0.26
+const PAGE_LOCK_PROOF_WAIT_SECONDS: float = 0.22
 const PAUSE_FOCUS_CHOICE_INDEX: int = 1
 const EVENT_ANALYTICS_FIXTURE_HP: int = 10
 const FIXTURE_FRAMES: int = 2
@@ -203,6 +205,7 @@ static func run(expect: Callable) -> void:
 	await tree.create_timer(EXPIRE_PROOF_WAIT_SECONDS).timeout
 	expect.call(grid.get_child_count() == 1, "Expired badge fades out and is removed")
 	_flow_probe_contract(FileAccess.get_file_as_string("res://tests/section_map_flow_probe.gd"), expect)
+	await _request_animation_locks(viewport, expect)
 	_luminance_contract(expect)
 	await _motion(viewport, expect)
 	await _integration(viewport, expect)
@@ -264,7 +267,7 @@ static func _integration(viewport: SubViewport, expect: Callable) -> void:
 	scene.call("_close_menu_overlay")
 	scene.set("_animation_lock", true)
 	view.activate_choice(0)
-	expect.call(not view.get("_busy") and view.page == "choices", "A scene-declined event request stays interactive")
+	expect.call(not view.get("_busy") and not view.get("_request_pending") and view.page == "choices", "A scene-declined event request stays interactive")
 	scene.set("_animation_lock", false)
 	view.choices[0].pressed.emit()
 	view.finish_animation_for_test()
@@ -417,3 +420,33 @@ static func _luminance_contract(expect: Callable) -> void:
 static func _flow_probe_contract(source: String, expect: Callable) -> void:
 	# Keep the historical flow probe on the production EventView API.
 	expect.call(not source.contains('get("_event_panel")') and not source.contains('get("_event_embers")'), "Map-flow probe uses EventView choices and Continue instead of removed controls")
+
+static func _request_animation_locks(viewport: SubViewport, expect: Callable) -> void:
+	var view := View.new()
+	viewport.add_child(view)
+	var selected: Array[String]
+	view.choice_requested.connect(func(id: String) -> void: selected.append(id))
+	var state: Dictionary = fixture("hanged_knight")
+	view.present(state, false)
+	view.present(state, false)
+	view.activate_choice(0)
+	expect.call(bool(view.get("_busy")) and selected.is_empty(), "Unchanged present preserves the 0.22-second event opening lock")
+	view.release_request()
+	expect.call(bool(view.get("_busy")), "Declined request cannot release the independent opening animation lock")
+	await viewport.get_tree().create_timer(OPEN_LOCK_PROOF_WAIT_SECONDS).timeout
+	view.activate_choice(0)
+	expect.call(selected.size() == 1 and (view.get("_request_pending") == true) and not bool(view.get("_busy")), "Ready event choice sets only the pending-request flag")
+	view.present(state, false)
+	expect.call(not (view.get("_request_pending") == true) and not bool(view.get("_busy")), "Unchanged result releases request ownership after opening completes")
+	var result: Dictionary = Run.new().resolve_map_event(state, "cut")
+	view.present(result, false)
+	view.present(result, false)
+	view.activate_continue()
+	expect.call(bool(view.get("_busy")) and selected.size() == 1, "Unchanged present preserves the 0.18-second event page cross-fade lock")
+	view.release_request()
+	expect.call(bool(view.get("_busy")), "Declined request cannot release the independent page animation lock")
+	await viewport.get_tree().create_timer(PAGE_LOCK_PROOF_WAIT_SECONDS).timeout
+	view.activate_continue()
+	expect.call(selected.size() == 2 and selected.back() == "continue", "Continue becomes interactive after its ordinary cross-fade")
+	view.queue_free()
+	await viewport.get_tree().process_frame

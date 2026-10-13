@@ -9,7 +9,7 @@ const BLOCK_SECONDS: float = 0.30
 const DEATH_SETTLE_PROGRESS: float = 0.62
 # Explicit static roster decisions: existing board flash/shake/dissolve handles
 # these actors. Never route them to another creature's articulated rig.
-const STATIC_ENEMY_TYPES := ["arc_thrall", "gloam_stalker"]
+const STATIC_ENEMY_TYPES := ["arc_thrall", "gloam_stalker", "burrow_grub", "ember_tick"]
 const FAMILY_KEYS: Dictionary = {
 	"player": "protagonist_motion", "warden": "warden_motion",
 	"crawler": "crawler_motion", "acolyte": "acolyte_motion",

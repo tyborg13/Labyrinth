@@ -5,8 +5,12 @@ const AssetLoader = preload("res://scripts/asset_loader.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const DeathEngulfOverlay = preload("res://scripts/death_engulf_overlay.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
+const RunEngine = preload("res://scripts/run_engine.gd")
+const RunScoreRules = preload("res://scripts/run_score_rules.gd")
+const InputRouter = preload("res://scripts/input_router.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
+const Palette = preload("res://scripts/ui_palette.gd")
 const DISPLAY_FONT = preload("res://fonts/LabyrinthCrumble-Display.tres")
 const UI_FONT = preload("res://fonts/LabyrinthCrumble-UI.tres")
 const TEXT_FONT = preload("res://fonts/LabyrinthCrumble-Text.tres")
@@ -14,75 +18,172 @@ const TEXT_FONT = preload("res://fonts/LabyrinthCrumble-Text.tres")
 signal new_run_pressed
 signal main_menu_pressed
 
-const VICTORY_INTRO_SECONDS: float = 0.62
-const DEFEAT_PANEL_DELAY_SECONDS: float = 1.18
-const DEFEAT_PANEL_INTRO_SECONDS: float = 0.62
-const PANEL_MAX_SIZE: Vector2 = Vector2(710.0, 620.0)
-const PANEL_MIN_WIDTH: float = 548.0
-const PANEL_EDGE_MARGIN: float = 42.0
-const BUTTON_HEIGHT: float = 64.0
-const BUTTON_MIN_WIDTH: float = 314.0
-const NEW_BEST_COLOR: Color = Color("f0b35e")
-const DEFEAT_KICKER_COLOR: Color = Color("b98cff")
-const DEFEAT_VALUE_COLOR: Color = Color("f1dcc3")
-const EMBER_ICON_PATH: String = "res://assets/art/icons/ember.png"
 const DEFEAT_WINDOW_CENTER_NORMALIZED: Vector2 = Vector2(0.325, 0.470)
-const DEFEAT_METRIC_POSITIONS: Array[Vector2] = [
-	Vector2(872.0, 292.0),
-	Vector2(902.0, 352.0),
-	Vector2(924.0, 412.0),
-	Vector2(932.0, 472.0),
-	Vector2(920.0, 532.0),
-	Vector2(894.0, 592.0),
-]
-const STAT_SPECS := [
-	{"id": "enemies_killed", "label": "ENEMIES KILLED"},
-	{"id": "damage_dealt", "label": "DAMAGE DEALT"},
-	{"id": "damage_received", "label": "DAMAGE TAKEN"},
-	{"id": "depth", "label": "DEPTH"},
-	{"id": "rooms_cleared", "label": "ROOMS CLEARED"},
-	{"id": "bosses_defeated", "label": "BOSSES"}
-]
+const COLUMN_ORIGIN: Vector2 = Vector2(1010.0, 82.0)
+const COLUMN_WIDTH: float = 780.0
+const SCORE_WIDTH: float = 560.0
+const ROW_MIN_HEIGHT: float = 38.0
+const ROWS_TOP: float = 288.0
+const TITLE_FADE_SECONDS: float = 0.3
+const COPY_DELAY_SECONDS: float = 0.25
+const ROW_REVEAL_SECONDS: float = 0.11
+const TOTAL_COUNT_SECONDS: float = 0.8
+const BEST_POP_SECONDS: float = 0.25
+const SINGLE_COLUMN_ROW_LIMIT: int = 9
+const SPLIT_SCORE_WIDTH: float = 380.0
+const SCORE_COLUMN_GAP: float = 20.0
+const QUIP_SKEW: float = 0.2
+const TITLE_GLOW_RADIUS: int = 18
+const TITLE_GLOW_ALPHA: float = 0.25
+const RULE_DIAMOND_SIDE: float = 9.0
+const SCORE_VALUE_MIN_WIDTH: float = 64.0
+const SCORE_DETAIL_GAPS: float = 12.0
+const LABEL_DETAIL_GAP: float = 8.0
 
-var _ui_skin: UiSkin = UiSkin.new()
+class GildedRule:
+	extends Control
+	func _draw() -> void:
+		var start := Vector2(0, 6)
+		var finish := start + Vector2(SCORE_WIDTH, 0)
+		draw_polygon(PackedVector2Array([start, finish, finish + Vector2(0, 1), start + Vector2(0, 1)]), PackedColorArray([Palette.GOLD_DIM, Color(Palette.GOLD_DIM, 0), Color(Palette.GOLD_DIM, 0), Palette.GOLD_DIM]))
+		var half_side: float = RULE_DIAMOND_SIDE * 0.5
+		var corners := PackedVector2Array([Vector2(-half_side, -half_side), Vector2(half_side, -half_side), Vector2(half_side, half_side), Vector2(-half_side, half_side)])
+		for index: int in range(corners.size()):
+			corners[index] = start + Vector2(half_side, 0) + corners[index].rotated(PI * 0.25)
+		draw_colored_polygon(corners, Palette.GOLD)
+
+class PortraitRing:
+	extends Control
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+	func _draw() -> void:
+		draw_circle(size * 0.5, size.x * 0.5 - 0.5, Palette.GOLD_DIM, false, 1.0, true)
+
+class RoundPortrait:
+	extends Control
+	var texture: Texture2D
+	func _ready() -> void:
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+		clip_children = CanvasItem.CLIP_CHILDREN_ONLY
+		var image := TextureRect.new()
+		image.texture = texture
+		image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		image.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		image.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(image)
+		var ring := PortraitRing.new()
+		ring.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		add_child(ring)
+	func _draw() -> void:
+		draw_circle(size * 0.5, size.x * 0.5, Color.WHITE)
+	func set_texture(value: Texture2D) -> void:
+		texture = value
+		if get_child_count() > 0:
+			(get_child(0) as TextureRect).texture = value
+
+# The approved UI face has proportional digits and no tnum substitution.
+# Center its existing glyphs in equal advances; no alternate font is loaded.
+class TabularValue:
+	extends Label
+	var ink: Color = Palette.TEXT
+	func digit_advance() -> float:
+		var font: Font = get_theme_font("font")
+		var font_size: int = get_theme_font_size("font_size")
+		var advance: float = 0.0
+		for digit: String in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
+			advance = maxf(advance, font.get_string_size(digit, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x)
+		return advance
+	func _draw() -> void:
+		var font: Font = get_theme_font("font")
+		var font_size: int = get_theme_font_size("font_size")
+		var advance: float = digit_advance()
+		var x: float = size.x - text.length() * advance
+		var baseline: float = (size.y - font.get_height(font_size)) * 0.5 + font.get_ascent(font_size)
+		for digit: String in text:
+			var width: float = font.get_string_size(digit, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+			draw_string(font, Vector2(x + (advance - width) * 0.5, baseline), digit, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, ink)
+			x += advance
+
+var _ui_skin := UiSkin.new()
 var _model: Dictionary = {}
 var _model_fingerprint: String = ""
 var _motion_enabled: bool = true
 var _elapsed: float = 0.0
 var _death_site_normalized: Vector2 = DEFEAT_WINDOW_CENTER_NORMALIZED
 var _glow_site_normalized: Vector2 = DEFEAT_WINDOW_CENTER_NORMALIZED
-
 var _death_shroud: DeathEngulfOverlay
-var _victory_panel: PanelContainer
-var _victory_kicker: Label
-var _victory_title: Label
-var _victory_summary: Label
-var _victory_accent_rule: ColorRect
-var _victory_stat_values: Dictionary = {}
-var _victory_stat_bests: Dictionary = {}
-var _victory_ember_label: Label
-var _victory_ember_value: Label
-var _victory_recovery_value: Label
-
-var _defeat_layout: Control
-var _defeat_kicker: Label
-var _defeat_title: Label
-var _defeat_metrics: Control
-var _defeat_metric_rows: Dictionary = {}
-var _defeat_stat_values: Dictionary = {}
-var _defeat_stat_bests: Dictionary = {}
-var _defeat_ember_value: Label
-var _defeat_recovery_value: Label
-var _defeat_ember_result: Control
-
+var _layout_root: Control
+var _column: Control
+var _kicker: Label
+var _title: Label
+var _title_glow: Control
+var _quip: Label
+var _cause: Label
+var _portrait: RoundPortrait
+var _ledger: Control
+var _rows: VBoxContainer
+var _feat_rows: VBoxContainer
+var _row_controls: Array[Control]
+var _total: Control
+var _total_value: Label
+var _best: Label
+var _embers: RichTextLabel
 var _new_run_button: Button
+var _chronicle_button: Button
 var _main_menu_button: Button
+var _run_host: Node
+var _clock_run_id: String = ""
+var _clock_last_usec: int = 0
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	visible = false
 	set_process(false)
 	_build_children()
+	# The recap is installed for the lifetime of RunScene, including while
+	# hidden. Keep the new clock in this unit's adapter without modifying the
+	# scene's dialogue-driven _process enable/disable lifecycle.
+	var ancestor: Node = get_parent()
+	while ancestor != null:
+		if ancestor.has_method("_show_run_end_recap"):
+			_run_host = ancestor
+			call_deferred("_attach_to_viewport_ui")
+			break
+		ancestor = ancestor.get_parent()
+
+func _attach_to_viewport_ui() -> void:
+	# StageRoot excludes margins and the live HUD. The recap is specified in
+	# viewport coordinates and must shade the same entire board in every outcome.
+	var viewport_ui: Control = _run_host.get_node("UiLayer/UiRoot") as Control
+	if get_parent() != viewport_ui:
+		reparent(viewport_ui, false)
+	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_layout()
+
+func _physics_process(_delta: float) -> void:
+	var now_usec: int = Time.get_ticks_usec()
+	var elapsed_seconds: float = float(now_usec - _clock_last_usec) / 1000000.0 if _clock_last_usec > 0 else 0.0
+	_clock_last_usec = now_usec
+	if _run_host == null or not _run_host.is_visible_in_tree():
+		return
+	var state: Dictionary = _run_host.get("_run_state") as Dictionary
+	if state.is_empty():
+		return
+	var run_id: String = RunEngine.run_result_id(state)
+	if run_id != _clock_run_id:
+		_clock_run_id = run_id
+		return # Initial scene construction/new-run loading is not play time.
+	var pause_menu: Control = _run_host.get("_menu_scrim") as Control
+	RunEngine.advance_play_time(state, elapsed_seconds, get_tree().paused or (pause_menu != null and pause_menu.visible))
+	var active_combat: Dictionary = _run_host.get("_combat_state") as Dictionary
+	var active_stats: Dictionary = active_combat.get("run_stats", {}) as Dictionary
+	# Passive drag/cancel and previews retain their exact combat snapshot. Only
+	# a committed card resolution needs its independently owned clock updated.
+	if bool(active_stats.get("card_resolution_active", false)):
+		var combat_stats: Dictionary = RunEngine.normalized_run_stats(active_stats)
+		combat_stats["run_seconds"] = float(state["run_stats"]["run_seconds"])
+		active_combat["run_stats"] = combat_stats
 
 static func result_stats(run_state: Dictionary) -> Dictionary:
 	var rooms: Dictionary = run_state.get("rooms", {}) as Dictionary
@@ -103,7 +204,7 @@ static func result_stats(run_state: Dictionary) -> Dictionary:
 		if str(room.get("type", "")) == "boss":
 			bosses_defeated += 1
 	var combat_stats: Dictionary = CombatEngine.normalized_run_stats(run_state.get("run_stats", {}))
-	return {
+	var metrics: Dictionary = {
 		"enemies_killed": int(combat_stats.get("enemies_killed", 0)),
 		"damage_dealt": int(combat_stats.get("damage_dealt", 0)),
 		"damage_received": int(combat_stats.get("damage_received", 0)),
@@ -111,9 +212,16 @@ static func result_stats(run_state: Dictionary) -> Dictionary:
 		"rooms_cleared": rooms_cleared,
 		"bosses_defeated": bosses_defeated
 	}
+	var outcome: String = str(run_state.get("mode", ""))
+	if outcome in ["victory", "defeat", "embrace"]:
+		var scored: Dictionary = RunScoreRules.score(run_state, outcome)
+		var location: Dictionary = RunScoreRules.location(run_state)
+		metrics["_score_result"] = {"scored": scored, "killer": combat_stats["killer"], "section": location["section"], "biome": location["biome"], "outcome": outcome, "context": RunScoreRules.analytics_context(run_state)}
+	return metrics
+
 
 static func build_model(run_state: Dictionary, progression: Dictionary, outcome: String, ember_amount: int) -> Dictionary:
-	var normalized_outcome: String = "victory" if outcome == "victory" else "defeat"
+	var normalized_outcome: String = outcome if outcome in ["victory", "embrace"] else "defeat"
 	var stats: Dictionary = result_stats(run_state)
 	var boss_result: String
 	if normalized_outcome == "victory":
@@ -149,7 +257,7 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 		var stat_id: String = str(stat_id_var)
 		if ProgressionStore.BEST_ELIGIBLE_STAT_IDS.has(stat_id) and not new_bests.has(stat_id):
 			new_bests.append(stat_id)
-	return {
+	var model: Dictionary = {
 		"outcome": normalized_outcome,
 		"kicker": "THE LABYRINTH YIELDS" if normalized_outcome == "victory" else "THE UMBRA CLOSES IN",
 		"title": "ASCENT COMPLETE" if normalized_outcome == "victory" else "RUN ENDED",
@@ -164,92 +272,414 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 		"ember_amount": maxi(0, ember_amount),
 		"recovery_status": recovery_status
 	}
+	var location: Dictionary = RunScoreRules.location(run_state)
+	var copy: Dictionary = RunScoreRules.seeded_text(RunScoreRules.identity(run_state), normalized_outcome)
+	var scored: Dictionary = RunScoreRules.score(run_state, normalized_outcome)
+	var killer: Dictionary = RunScoreRules.normalized_stats(run_state.get("run_stats", {}))["killer"]
+	model.merge(location, true)
+	model.merge(copy, true)
+	if run_result.get("score") != null:
+		scored = {"total": int(run_result["score"]), "lines": run_result.get("lines", []), "feats": run_result.get("feats", [])}
+	model["score"] = scored
+	model["killer"] = killer
+	model["cause"] = RunScoreRules.cause_text(killer, normalized_outcome, ember_amount)
+	var biome_copy: String = " · %s" % location["biome_name"] if not str(location["biome_name"]).is_empty() else ""
+	model["eyebrow"] = "Section %s%s · Room %d of %d" % [RunScoreRules.roman(int(location["section"])), biome_copy, int(location["step"]), int(location["room_count"])] if int(location["section"]) > 0 else "Depth %d" % int(model["depth"])
+	model["new_best_score"] = bool(run_result.get("new_best_score", int(scored["total"]) > int(progression.get("best_score", 0))))
+	model["embers_text"] = "Embers carried %s." % RunScoreRules.grouped_number(ember_amount)
+	if normalized_outcome == "defeat":
+		model["embers_text"] = "Embers lost %s. They wait where you fell, in Section %s of your next run." % [RunScoreRules.grouped_number(ember_amount), RunScoreRules.roman(int(location["section"]))] if ember_amount > 0 else "No marker · no embers left behind"
+		if int(location["section"]) <= 0 and ember_amount > 0:
+			model["embers_text"] = "%s %d\n%s" % [model["ember_label"], ember_amount, recovery_status]
+	return model
+
+# Pure terminal preparation for the campfire scene connection. Banked
+# currency/recovery state remains authoritative in the supplied progression.
+static func embrace_state(run_state: Dictionary, progression: Dictionary) -> Dictionary:
+	var terminal: Dictionary = run_state.duplicate(true)
+	terminal["mode"] = "embrace"
+	terminal["game_over"] = false # This legacy flag means defeat, not withdrawal.
+	terminal["victory"] = false
+	terminal["run_stats"] = RunScoreRules.normalized_stats(terminal.get("run_stats", {}))
+	terminal["run_stats"]["killer"] = {}
+	var recorded: Dictionary = ProgressionStore.record_run_result(progression, RunEngine.run_result_id(terminal), result_stats(terminal))
+	terminal["run_result"] = recorded["result"]
+	terminal["progression"] = recorded["data"]
+	return terminal
 
 static func _coord_depth(coord: Vector2i) -> int:
 	return maxi(abs(coord.x), abs(coord.y))
 
+func _label(node_name: String, text: String, font: Font, font_size: int, color: Color, rect: Rect2) -> Label:
+	var label := Label.new()
+	label.name = node_name
+	label.text = text
+	label.position = rect.position
+	label.size = rect.size
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	label.add_theme_font_override("font", font)
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", color)
+	return label
+
+func _spaced_font(spacing: int) -> FontVariation:
+	var font := FontVariation.new()
+	font.base_font = UI_FONT
+	font.spacing_glyph = spacing
+	return font
+
+func _build_children() -> void:
+	_death_shroud = DeathEngulfOverlay.new()
+	_death_shroud.name = "DeathShroud"
+	_death_shroud.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(_death_shroud)
+	_layout_root = Control.new()
+	_layout_root.name = "LastLightRecap"
+	_layout_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_layout_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(_layout_root)
+	_column = Control.new()
+	_column.name = "OutcomeRecap"
+	_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_layout_root.add_child(_column)
+	_kicker = _label("OutcomeKicker", "", _spaced_font(5), 15, Palette.UMBRA, Rect2(0, 0, COLUMN_WIDTH, 22))
+	_column.add_child(_kicker)
+	_title = _label("OutcomeTitle", "", DISPLAY_FONT, 112, Color("ddd3c4"), Rect2(0, 30, COLUMN_WIDTH, 112))
+	_title.add_theme_constant_override("shadow_offset_x", 0)
+	_title.add_theme_constant_override("shadow_offset_y", 3)
+	_title_glow = Control.new()
+	_title_glow.name = "TitleGlow"
+	_title_glow.position = _title.position
+	_title_glow.size = _title.size
+	_title_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_column.add_child(_title_glow)
+	# Nested glyph outlines give a soft falloff over the approved 18 px radius.
+	# Their combined inner alpha is exactly the approved 25%.
+	for radius: int in range(TITLE_GLOW_RADIUS, 0, -1):
+		var glow := _label("GlowRadius%d" % radius, "", DISPLAY_FONT, 112, Color.TRANSPARENT, Rect2(Vector2.ZERO, _title.size))
+		glow.add_theme_constant_override("outline_size", radius)
+		glow.add_theme_color_override("font_shadow_color", Color.TRANSPARENT)
+		_title_glow.add_child(glow)
+	_column.add_child(_title)
+	var italic := FontVariation.new()
+	italic.base_font = TEXT_FONT
+	# Synthetic italic implements the approved CSS font-style on the same font.
+	italic.variation_transform = Transform2D(0.0, Vector2.ONE, QUIP_SKEW, Vector2.ZERO)
+	_quip = _label("OutcomeQuip", "", italic, 24, Palette.TEXT_2, Rect2(0, 142, COLUMN_WIDTH, 35))
+	_column.add_child(_quip)
+	_portrait = RoundPortrait.new()
+	_portrait.name = "KillerPortrait"
+	_portrait.position = Vector2(0, 188)
+	_portrait.size = Vector2(44, 44)
+	_column.add_child(_portrait)
+	_cause = _label("OutcomeCause", "", TEXT_FONT, 20, Palette.TEXT, Rect2(56, 190, COLUMN_WIDTH - 56, 44))
+	_cause.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_column.add_child(_cause)
+	var rule := GildedRule.new()
+	rule.name = "GildedRule"
+	rule.position = Vector2(0, 256)
+	rule.size = Vector2(SCORE_WIDTH, 14)
+	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_column.add_child(rule)
+	_ledger = Control.new()
+	_ledger.name = "ScoreLedger"
+	_ledger.position = Vector2(0, ROWS_TOP)
+	_ledger.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_column.add_child(_ledger)
+	_rows = VBoxContainer.new()
+	_rows.name = "ScoreRows"
+	_rows.custom_minimum_size.x = SCORE_WIDTH
+	_rows.add_theme_constant_override("separation", 0)
+	_ledger.add_child(_rows)
+	_feat_rows = VBoxContainer.new()
+	_feat_rows.name = "FeatRows"
+	_feat_rows.position.x = SPLIT_SCORE_WIDTH + SCORE_COLUMN_GAP
+	_feat_rows.add_theme_constant_override("separation", 0)
+	_ledger.add_child(_feat_rows)
+	_total = Control.new()
+	_total.name = "ScoreTotal"
+	_total.size = Vector2(SCORE_WIDTH, 66)
+	_column.add_child(_total)
+	_total.add_child(_label("ScoreHeading", "SCORE", _spaced_font(4), 18, Palette.GOLD, Rect2(0, 30, 150, 28)))
+	_total_value = _label("ScoreValue", "0", DISPLAY_FONT, 52, Palette.GOLD_BRIGHT, Rect2(250, 0, 190, 66))
+	_total_value.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_total.add_child(_total_value)
+	_best = _label("NewBestTag", "NEW BEST", _spaced_font(3), 13, Color("1b0f06"), Rect2(454, 28, 106, 24))
+	_best.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_best.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	var tag_style := StyleBoxFlat.new()
+	tag_style.bg_color = Palette.EMBER
+	tag_style.set_corner_radius_all(2)
+	_best.add_theme_stylebox_override("normal", tag_style)
+	_total.add_child(_best)
+	_embers = RichTextLabel.new()
+	_embers.name = "EmberResult"
+	_embers.size = Vector2(COLUMN_WIDTH, 56)
+	_embers.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_embers.bbcode_enabled = true
+	_embers.scroll_active = false
+	_embers.add_theme_font_override("normal_font", TEXT_FONT)
+	_embers.add_theme_font_size_override("normal_font_size", 19)
+	_embers.add_theme_color_override("default_color", Palette.TEXT_2)
+	_embers.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_column.add_child(_embers)
+	_new_run_button = _button("NewRunButton", "Rise Again")
+	_chronicle_button = _button("ChronicleButton", "Chronicle")
+	_chronicle_button.disabled = true
+	_chronicle_button.tooltip_text = "Coming soon"
+	_chronicle_button.focus_mode = Control.FOCUS_NONE
+	_main_menu_button = _button("MainMenuButton", "Main Menu")
+	_new_run_button.pressed.connect(func() -> void: new_run_pressed.emit())
+	_main_menu_button.pressed.connect(func() -> void: main_menu_pressed.emit())
+	_new_run_button.focus_neighbor_left = _new_run_button.get_path_to(_main_menu_button)
+	_new_run_button.focus_neighbor_right = _new_run_button.get_path_to(_main_menu_button)
+	_main_menu_button.focus_neighbor_left = _main_menu_button.get_path_to(_new_run_button)
+	_main_menu_button.focus_neighbor_right = _main_menu_button.get_path_to(_new_run_button)
+	for button: Button in [_new_run_button, _main_menu_button]:
+		button.focus_entered.connect(_select_action.bind(button))
+		button.mouse_entered.connect(_select_action.bind(button))
+
+func _button(node_name: String, text: String) -> Button:
+	var button := Button.new()
+	button.name = node_name
+	button.text = text
+	button.add_theme_font_override("font", UI_FONT)
+	button.add_theme_font_size_override("font_size", 22)
+	add_child(button)
+	return button
+
+func _select_action(button: Button) -> void:
+	for action: Button in [_new_run_button, _main_menu_button]:
+		action.set_meta("umbra_selected", action == button)
+		action.queue_redraw()
+
+func _add_score_row(data: Dictionary, parent: VBoxContainer, width: float) -> void:
+	var row := Control.new()
+	row.name = "ScoreRow%d" % _row_controls.size()
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	row.clip_contents = true
+	var feat: bool = bool(data.get("feat", false))
+	var label_text: String = str(data["label"])
+	var label_x: float = 17.0 if feat else 0.0
+	var label_width: float = UI_FONT.get_string_size(label_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 20).x
+	var detail_x: float = label_x + label_width + LABEL_DETAIL_GAP
+	var detail_text: String = str(data.get("detail", ""))
+	row.custom_minimum_size = Vector2(width, ROW_MIN_HEIGHT)
+	parent.add_child(row)
+	if feat:
+		row.add_child(_label("FeatDiamond", "◆", UI_FONT, 12, Palette.GOLD, Rect2(0, 9, 14, 20)))
+	row.add_child(_label("ScoreLabel", label_text, UI_FONT, 20, Palette.GOLD_BRIGHT if feat else Palette.TEXT_2, Rect2(label_x, 4, label_width, 30)))
+	var value := TabularValue.new()
+	value.name = "ScorePoints"
+	value.text = str(data["points"])
+	value.add_theme_font_override("font", UI_FONT)
+	value.add_theme_font_size_override("font_size", 22)
+	var value_width: float = maxf(SCORE_VALUE_MIN_WIDTH, value.digit_advance() * value.text.length())
+	var detail_width: float = maxf(0, width - label_x - label_width - value_width - SCORE_DETAIL_GAPS)
+	var detail := _label("ScoreDetail", "", TEXT_FONT, 16, Palette.TEXT_3, Rect2(detail_x, 9, detail_width, 24))
+	detail.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	detail.clip_text = true
+	detail.text = detail_text
+	detail.tooltip_text = detail_text
+	detail.mouse_filter = Control.MOUSE_FILTER_PASS
+	# Font overrides set a Label's natural minimum before clipping is enabled.
+	# Reapply the final bounds after clipping, so long text cannot retain that size.
+	detail.size = Vector2(detail_width, 24)
+	row.add_child(detail)
+	detail.set_deferred("size", Vector2(detail_width, 24))
+	value.position = Vector2(width - value_width, 3)
+	value.clip_text = true
+	value.size = Vector2(value_width, 30)
+	value.ink = Palette.GOLD_BRIGHT if feat else Palette.TEXT
+	value.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	value.add_theme_color_override("font_color", Color.TRANSPARENT)
+	row.add_child(value)
+	var hairline := ColorRect.new()
+	hairline.color = Color(Palette.GOLD_DIM, 0.18)
+	hairline.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hairline.position = Vector2(0, row.custom_minimum_size.y - 1)
+	hairline.size = Vector2(width, 1)
+	row.add_child(hairline)
+	_row_controls.append(row)
+
+func _apply_model() -> void:
+	_kicker.text = str(_model.get("eyebrow", "" )).to_upper()
+	_kicker.add_theme_color_override("font_color", Palette.UMBRA if _is_defeat() else Palette.GOLD)
+	_title.text = str(_model.get("title", ""))
+	_title.add_theme_color_override("font_shadow_color", Color("2b1d3d") if _is_defeat() else Palette.EMBER_DEEP)
+	var glow_color: Color = Palette.UMBRA if _is_defeat() else Palette.EMBER
+	var layer_alpha: float = 1.0 - pow(1.0 - TITLE_GLOW_ALPHA, 1.0 / TITLE_GLOW_RADIUS)
+	for layer: Label in _title_glow.get_children():
+		layer.text = _title.text
+		layer.add_theme_color_override("font_outline_color", Color(glow_color, layer_alpha))
+	_quip.text = str(_model.get("quip", ""))
+	_quip.visible = not _quip.text.is_empty()
+	_cause.text = str(_model.get("cause", ""))
+	var killer: Dictionary = _model.get("killer", {}) as Dictionary
+	var enemy_type: String = str(killer.get("enemy_type", ""))
+	var portrait_path: String = "res://assets/art/portraits/%s.png" % enemy_type
+	if _run_host != null:
+		var approved_path: String = str(_run_host.call("_combat_portrait_path", enemy_type))
+		if not approved_path.is_empty():
+			portrait_path = approved_path
+	_portrait.visible = _is_defeat() and (ResourceLoader.exists(portrait_path) or FileAccess.file_exists(portrait_path))
+	_portrait.set_texture(AssetLoader.load_texture(portrait_path) if _portrait.visible else null)
+	_cause.position.x = 56.0 if _portrait.visible else 0.0
+	_cause.size.x = COLUMN_WIDTH - _cause.position.x
+	for row: Control in _row_controls:
+		row.get_parent().remove_child(row)
+		row.queue_free()
+	_row_controls.clear()
+	var scored: Dictionary = _model.get("score", {}) as Dictionary
+	var split: bool = (scored.get("lines", []) as Array).size() + (scored.get("feats", []) as Array).size() > SINGLE_COLUMN_ROW_LIMIT
+	var ledger_width: float = SPLIT_SCORE_WIDTH if split else SCORE_WIDTH
+	_rows.custom_minimum_size.x = ledger_width
+	_rows.size.x = ledger_width
+	_feat_rows.custom_minimum_size.x = SPLIT_SCORE_WIDTH
+	_feat_rows.size.x = SPLIT_SCORE_WIDTH
+	_feat_rows.visible = split
+	for line: Dictionary in scored.get("lines", []):
+		_add_score_row(line, _rows, ledger_width)
+	for feat: Dictionary in scored.get("feats", []):
+		_add_score_row(feat, _feat_rows if split else _rows, ledger_width)
+	var row_count: int = maxi(_rows.get_child_count(), _feat_rows.get_child_count()) if split else _rows.get_child_count()
+	_ledger.size = Vector2(COLUMN_WIDTH if split else SCORE_WIDTH, row_count * ROW_MIN_HEIGHT)
+	_total.position = Vector2(0, ROWS_TOP + _ledger.size.y + 14)
+	_embers.position = Vector2(0, _total.position.y + 82)
+	var embers_copy: String = str(_model.get("embers_text", ""))
+	var amount: String = RunScoreRules.grouped_number(int(_model.get("ember_amount", 0)))
+	_embers.text = embers_copy.replace(amount, "[font=res://fonts/LabyrinthCrumble-UI.tres][font_size=22][color=#e8893a]%s[/color][/font_size][/font]" % amount) if embers_copy.contains(amount) else embers_copy
+	for button: Button in [_new_run_button, _chronicle_button, _main_menu_button]:
+		var variant: String = UiSkin.VARIANT_UMBRA if _is_defeat() else UiSkin.VARIANT_LARGE
+		_ui_skin.apply_button_stylebox_overrides(button, variant)
+		_ui_skin.apply_button_text_overrides(button)
+		button.set_meta("umbra_selected", button == _new_run_button)
+		var width: float = (COLUMN_WIDTH - 2.0 * 16.0) / 3.0
+		var button_height: float = (width + 4.0) / (1024.0 / 224.0) - 10.0 if _is_defeat() else width / 3.25
+		button.size = Vector2(width, button_height)
+		button.custom_minimum_size = button.size
+	_layout()
+
+func _layout() -> void:
+	if _column == null:
+		return
+	var factor: float = minf(size.x / 1920.0, size.y / 1080.0)
+	_column.position = COLUMN_ORIGIN * factor
+	_column.size = Vector2(COLUMN_WIDTH, 900)
+	_column.scale = Vector2.ONE * factor
+	var x: float = COLUMN_ORIGIN.x
+	for button: Button in [_new_run_button, _chronicle_button, _main_menu_button]:
+		button.position = Vector2(x, 952) * factor
+		button.scale = Vector2.ONE * factor
+		x += button.size.x + 16
+
 func present(model: Dictionary, death_site_normalized: Vector2 = DEFEAT_WINDOW_CENTER_NORMALIZED) -> void:
-	var next_model: Dictionary = model.duplicate(true)
-	var normalized_site := Vector2(clampf(death_site_normalized.x, 0.08, 0.92), clampf(death_site_normalized.y, 0.10, 0.90))
-	var fingerprint: String = "%s|%.4f|%.4f" % [JSON.stringify(next_model), normalized_site.x, normalized_site.y]
-	var restart_motion: bool = not visible or fingerprint != _model_fingerprint
-	_model = next_model
+	var fingerprint: String = JSON.stringify(model)
+	var restart: bool = not visible or fingerprint != _model_fingerprint
+	_model = model.duplicate(true)
 	_model_fingerprint = fingerprint
-	_death_site_normalized = normalized_site
-	_glow_site_normalized = normalized_site
-	_death_shroud.set_death_site_normalized(_death_site_normalized)
-	_death_shroud.set_glow_site_normalized(_glow_site_normalized)
-	_apply_model()
-	visible = true
-	mouse_filter = Control.MOUSE_FILTER_STOP
-	if restart_motion:
-		_elapsed = 0.0 if _motion_enabled else _presentation_duration()
-		if _is_victory():
-			_death_shroud.reset()
-		else:
+	set_death_site_normalized(death_site_normalized)
+	set_glow_site_normalized(death_site_normalized)
+	if restart:
+		_apply_model()
+		_elapsed = 0.0 if _motion_enabled else presentation_duration()
+		if _is_defeat():
 			_death_shroud.set_motion_enabled(_motion_enabled)
 			_death_shroud.play()
-	set_process(_motion_enabled and _elapsed < _presentation_duration())
+		else:
+			_death_shroud.reset()
+	visible = true
+	set_process(_motion_enabled and _elapsed < presentation_duration())
 	_update_presentation()
 	call_deferred("_focus_primary_action")
 
-func set_death_site_normalized(normalized_position: Vector2) -> void:
-	_death_site_normalized = Vector2(
-		clampf(normalized_position.x, 0.08, 0.92),
-		clampf(normalized_position.y, 0.10, 0.90)
-	)
-	if _death_shroud != null:
-		_death_shroud.set_death_site_normalized(_death_site_normalized)
+func _focus_primary_action() -> void:
+	if visible:
+		_new_run_button.grab_focus()
 
-func set_glow_site_normalized(normalized_position: Vector2) -> void:
-	_glow_site_normalized = Vector2(
-		clampf(normalized_position.x, 0.08, 0.92),
-		clampf(normalized_position.y, 0.10, 0.90)
-	)
-	if _death_shroud != null:
-		_death_shroud.set_glow_site_normalized(_glow_site_normalized)
+func _is_defeat() -> bool:
+	return str(_model.get("outcome", "")) == "defeat"
 
-func reset() -> void:
-	_model.clear()
-	_model_fingerprint = ""
-	_elapsed = 0.0
-	visible = false
-	set_process(false)
-	if _death_shroud != null:
-		_death_shroud.reset()
+func presentation_duration() -> float:
+	return maxf(DeathEngulfOverlay.ENGULF_SECONDS if _is_defeat() else 0.0, _total_start() + TOTAL_COUNT_SECONDS + BEST_POP_SECONDS)
+
+func _total_start() -> float:
+	return TITLE_FADE_SECONDS + COPY_DELAY_SECONDS + float(_row_controls.size()) * ROW_REVEAL_SECONDS
+
+func _update_presentation() -> void:
+	_title.modulate.a = clampf(_elapsed / TITLE_FADE_SECONDS, 0, 1)
+	_title_glow.modulate.a = _title.modulate.a
+	var copy_shown: bool = _elapsed >= TITLE_FADE_SECONDS + COPY_DELAY_SECONDS
+	_quip.modulate.a = 1.0 if copy_shown else 0.0
+	_cause.modulate.a = _quip.modulate.a
+	_portrait.modulate.a = _quip.modulate.a
+	var row_start: float = TITLE_FADE_SECONDS + COPY_DELAY_SECONDS
+	for index: int in range(_row_controls.size()):
+		var shown: bool = _elapsed >= row_start + float(index) * ROW_REVEAL_SECONDS
+		_row_controls[index].modulate.a = 1.0 if shown else 0.0
+	var count: float = clampf((_elapsed - _total_start()) / TOTAL_COUNT_SECONDS, 0, 1)
+	_total.modulate.a = 1.0 if _elapsed >= _total_start() else 0.0
+	var score: int = int((_model.get("score", {}) as Dictionary).get("total", 0))
+	_total_value.text = str(roundi(score * (1.0 - pow(1.0 - count, 3.0))))
+	_best.visible = bool(_model.get("new_best_score", false)) and count >= 1.0
+	var pop: float = clampf((_elapsed - _total_start() - TOTAL_COUNT_SECONDS) / BEST_POP_SECONDS, 0, 1)
+	_best.pivot_offset = _best.size * 0.5
+	_best.scale = Vector2.ONE * lerpf(1.25, 1.0, pop)
+	queue_redraw()
+
+func _process(delta: float) -> void:
+	_elapsed = minf(presentation_duration(), _elapsed + delta)
+	_update_presentation()
+	if _elapsed >= presentation_duration():
+		set_process(false)
+
+func _input(event: InputEvent) -> void:
+	if not visible or _elapsed >= presentation_duration():
+		return
+	if event.is_pressed() or event is InputEventMouseMotion or event is InputEventScreenDrag or (event is InputEventJoypadMotion and absf(event.axis_value) >= InputRouter.JOYSTICK_ACTIVITY_THRESHOLD):
+		skip_presentation()
+		get_viewport().set_input_as_handled()
+
+func skip_presentation() -> void:
+	seek_presentation(presentation_duration())
+
+func seek_presentation(seconds: float) -> void:
+	_elapsed = clampf(seconds, 0, presentation_duration())
+	if _is_defeat():
+		_death_shroud.seek_seconds(minf(_elapsed, DeathEngulfOverlay.ENGULF_SECONDS))
+	set_process(_motion_enabled and _elapsed < presentation_duration())
+	_update_presentation()
 
 func set_motion_enabled(enabled: bool) -> void:
 	_motion_enabled = enabled
 	if _death_shroud != null:
 		_death_shroud.set_motion_enabled(enabled)
-	if visible and not _motion_enabled:
-		_elapsed = _presentation_duration()
-		set_process(false)
-		if not _is_victory():
-			_death_shroud.seek_seconds(DeathEngulfOverlay.ENGULF_SECONDS)
-		_update_presentation()
+	if visible and not enabled:
+		skip_presentation()
 
 func motion_enabled() -> bool:
 	return _motion_enabled
 
-func seek_presentation(seconds: float) -> void:
-	_elapsed = clampf(seconds, 0.0, _presentation_duration())
-	if not _is_victory() and _death_shroud != null:
-		_death_shroud.seek_seconds(minf(_elapsed, DeathEngulfOverlay.ENGULF_SECONDS))
-	set_process(_motion_enabled and _elapsed < _presentation_duration())
-	_update_presentation()
-
-func presentation_duration() -> float:
-	return _presentation_duration()
+func reset() -> void:
+	_model.clear()
+	_model_fingerprint = ""
+	visible = false
+	set_process(false)
+	if _death_shroud != null:
+		_death_shroud.reset()
 
 func recap_model() -> Dictionary:
 	return _model.duplicate(true)
 
-func shroud_progress() -> float:
-	return _death_shroud.engulf_progress() if _death_shroud != null and _death_shroud.visible else 0.0
+func set_death_site_normalized(value: Vector2) -> void:
+	_death_site_normalized = value.clamp(Vector2(0.08, 0.10), Vector2(0.92, 0.90))
+	if _death_shroud != null:
+		_death_shroud.set_death_site_normalized(_death_site_normalized)
 
-func final_shroud_alpha() -> float:
-	return DeathEngulfOverlay.FINAL_SHROUD_ALPHA
+func set_glow_site_normalized(value: Vector2) -> void:
+	_glow_site_normalized = value.clamp(Vector2(0.08, 0.10), Vector2(0.92, 0.90))
+	if _death_shroud != null:
+		_death_shroud.set_glow_site_normalized(_glow_site_normalized)
 
 func death_site_normalized() -> Vector2:
 	return _death_site_normalized
@@ -260,461 +690,29 @@ func glow_site_normalized() -> Vector2:
 func death_site_ember_position() -> Vector2:
 	return _death_shroud.ember_position() if _death_shroud != null else Vector2.ZERO
 
+func shroud_progress() -> float:
+	return _death_shroud.engulf_progress() if _death_shroud != null and _death_shroud.visible else 0.0
+
+func final_shroud_alpha() -> float:
+	return DeathEngulfOverlay.FINAL_SHROUD_ALPHA
+
 func has_decorative_edge_strokes() -> bool:
 	return _death_shroud.has_decorative_edge_strokes() if _death_shroud != null else false
 
 func sample_shroud_alpha(normalized_position: Vector2, progress_override: float = -1.0) -> float:
 	return _death_shroud.sample_alpha(normalized_position, progress_override) if _death_shroud != null else 0.0
 
-func _process(delta: float) -> void:
-	_elapsed = minf(_presentation_duration(), _elapsed + minf(delta, 1.0 / 30.0))
-	if _elapsed >= _presentation_duration():
-		set_process(false)
-	_update_presentation()
-
 func _notification(what: int) -> void:
-	# Controls added to an already-ready scene can resize before _ready has
-	# constructed the recap body. Its first presentation owns that layout.
-	if what == NOTIFICATION_RESIZED and is_node_ready() and visible:
-		_update_presentation()
+	if what in [NOTIFICATION_PAUSED, NOTIFICATION_UNPAUSED]:
+		_clock_last_usec = Time.get_ticks_usec()
+	if what == NOTIFICATION_RESIZED and is_node_ready():
+		_layout()
 
 func _draw() -> void:
-	if not visible or _model.is_empty() or not _is_victory():
+	if not visible or _column == null:
 		return
-	var progress: float = _intro_progress()
-	draw_rect(Rect2(Vector2.ZERO, size), Color(0.035, 0.025, 0.018, 0.24 * progress), true)
-
-func _build_children() -> void:
-	_death_shroud = DeathEngulfOverlay.new()
-	_death_shroud.name = "DeathShroud"
-	_death_shroud.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_death_shroud.anchor_right = 1.0
-	_death_shroud.anchor_bottom = 1.0
-	add_child(_death_shroud)
-
-	_build_victory_panel()
-	_build_defeat_layout()
-	_build_shared_actions()
-
-func _build_victory_panel() -> void:
-	_victory_panel = PanelContainer.new()
-	_victory_panel.name = "OutcomeRecap"
-	_victory_panel.mouse_filter = Control.MOUSE_FILTER_STOP
-	add_child(_victory_panel)
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left", 30)
-	margin.add_theme_constant_override("margin_top", 22)
-	margin.add_theme_constant_override("margin_right", 30)
-	margin.add_theme_constant_override("margin_bottom", 22)
-	_victory_panel.add_child(margin)
-	var content := VBoxContainer.new()
-	content.add_theme_constant_override("separation", 9)
-	margin.add_child(content)
-	_victory_kicker = _label("VictoryOutcomeKicker", UiTypography.SIZE_SMALL, HORIZONTAL_ALIGNMENT_LEFT)
-	_victory_kicker.add_theme_font_override("font", UiTypography.eyebrow_font())
-	content.add_child(_victory_kicker)
-	_victory_title = _label("VictoryOutcomeTitle", 44, HORIZONTAL_ALIGNMENT_LEFT)
-	_victory_title.add_theme_font_override("font", DISPLAY_FONT)
-	_victory_title.add_theme_constant_override("outline_size", 5)
-	UiTypography.apply_stone_text(_victory_title, 0.13, 4.0)
-	content.add_child(_victory_title)
-	_victory_accent_rule = ColorRect.new()
-	_victory_accent_rule.custom_minimum_size = Vector2(0.0, 3.0)
-	_victory_accent_rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	content.add_child(_victory_accent_rule)
-	_victory_summary = _label("VictoryOutcomeSummary", UiTypography.SIZE_BODY_LARGE, HORIZONTAL_ALIGNMENT_LEFT)
-	_victory_summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_victory_summary.custom_minimum_size = Vector2(420.0, 38.0)
-	content.add_child(_victory_summary)
-	var stat_grid := GridContainer.new()
-	stat_grid.name = "VictoryRunStatGrid"
-	stat_grid.columns = 3
-	stat_grid.custom_minimum_size = Vector2(0.0, 184.0)
-	stat_grid.add_theme_constant_override("h_separation", 8)
-	stat_grid.add_theme_constant_override("v_separation", 8)
-	content.add_child(stat_grid)
-	for spec_var: Variant in STAT_SPECS:
-		_add_victory_stat_metric(stat_grid, spec_var as Dictionary)
-	var ember_panel := PanelContainer.new()
-	ember_panel.name = "VictoryEmberResult"
-	ember_panel.custom_minimum_size = Vector2(0.0, 94.0)
-	content.add_child(ember_panel)
-	var ember_margin := MarginContainer.new()
-	for side: String in ["left", "right"]:
-		ember_margin.add_theme_constant_override("margin_%s" % side, 16)
-	ember_margin.add_theme_constant_override("margin_top", 9)
-	ember_margin.add_theme_constant_override("margin_bottom", 9)
-	ember_panel.add_child(ember_margin)
-	var ember_row := HBoxContainer.new()
-	ember_row.add_theme_constant_override("separation", 14)
-	ember_margin.add_child(ember_row)
-	var amount_box := VBoxContainer.new()
-	amount_box.custom_minimum_size = Vector2(178.0, 0.0)
-	ember_row.add_child(amount_box)
-	_victory_ember_label = _label("VictoryEmberLabel", UiTypography.SIZE_SMALL, HORIZONTAL_ALIGNMENT_LEFT)
-	amount_box.add_child(_victory_ember_label)
-	_victory_ember_value = _label("VictoryEmberValue", UiTypography.SIZE_HERO, HORIZONTAL_ALIGNMENT_LEFT)
-	_victory_ember_value.add_theme_font_override("font", UI_FONT)
-	amount_box.add_child(_victory_ember_value)
-	var recovery_box := VBoxContainer.new()
-	recovery_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	ember_row.add_child(recovery_box)
-	var recovery_heading := _label("VictoryRecoveryHeading", UiTypography.SIZE_SMALL, HORIZONTAL_ALIGNMENT_LEFT)
-	recovery_heading.text = "NEXT RUN"
-	recovery_box.add_child(recovery_heading)
-	_victory_recovery_value = _label("VictoryRecoveryValue", UiTypography.SIZE_BODY, HORIZONTAL_ALIGNMENT_LEFT)
-	_victory_recovery_value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_victory_recovery_value.custom_minimum_size = Vector2(240.0, 38.0)
-	recovery_box.add_child(_victory_recovery_value)
-
-func _build_defeat_layout() -> void:
-	_defeat_layout = Control.new()
-	_defeat_layout.name = "LastLightRecap"
-	_defeat_layout.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_defeat_layout.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(_defeat_layout)
-
-	_defeat_kicker = _label("OutcomeKicker", 26, HORIZONTAL_ALIGNMENT_LEFT)
-	_defeat_kicker.add_theme_font_override("font", UI_FONT)
-	_defeat_kicker.add_theme_color_override("font_color", DEFEAT_KICKER_COLOR)
-	_defeat_kicker.add_theme_color_override("font_outline_color", Color("140d20"))
-	_defeat_kicker.add_theme_constant_override("outline_size", 3)
-	_defeat_layout.add_child(_defeat_kicker)
-
-	_defeat_title = _label("OutcomeTitle", 126, HORIZONTAL_ALIGNMENT_CENTER)
-	_defeat_title.add_theme_font_override("font", DISPLAY_FONT)
-	_defeat_title.add_theme_color_override("font_color", Color("c9c4c5"))
-	_defeat_title.add_theme_color_override("font_outline_color", Color("211827"))
-	_defeat_title.add_theme_color_override("font_shadow_color", Color(0.56, 0.34, 0.72, 0.48))
-	_defeat_title.add_theme_constant_override("outline_size", 7)
-	_defeat_title.add_theme_constant_override("shadow_offset_x", 0)
-	_defeat_title.add_theme_constant_override("shadow_offset_y", 3)
-	_defeat_title.add_theme_constant_override("shadow_outline_size", 7)
-	_defeat_layout.add_child(_defeat_title)
-
-	_defeat_metrics = Control.new()
-	_defeat_metrics.name = "DefeatStatLedger"
-	_defeat_metrics.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_defeat_layout.add_child(_defeat_metrics)
-	for spec_var: Variant in STAT_SPECS:
-		_add_defeat_stat_metric(_defeat_metrics, spec_var as Dictionary)
-
-	_defeat_ember_result = Control.new()
-	_defeat_ember_result.name = "EmberResult"
-	_defeat_layout.add_child(_defeat_ember_result)
-	var ember_icon := TextureRect.new()
-	ember_icon.name = "LostEmberRaster"
-	ember_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	ember_icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	ember_icon.texture = AssetLoader.load_texture_source_first(EMBER_ICON_PATH)
-	ember_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	ember_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	ember_icon.position = Vector2(0.0, 9.0)
-	ember_icon.size = Vector2(44.0, 44.0)
-	_defeat_ember_result.add_child(ember_icon)
-	var ember_heading := _label("EmberLabel", 15, HORIZONTAL_ALIGNMENT_LEFT)
-	ember_heading.text = "EMBERS LOST"
-	ember_heading.position = Vector2(54.0, 1.0)
-	ember_heading.size = Vector2(230.0, 25.0)
-	ember_heading.add_theme_color_override("font_color", Color("d19879"))
-	_defeat_ember_result.add_child(ember_heading)
-	_defeat_ember_value = _label("EmberValue", 36, HORIZONTAL_ALIGNMENT_LEFT)
-	_defeat_ember_value.add_theme_font_override("font", UI_FONT)
-	_defeat_ember_value.position = Vector2(53.0, 22.0)
-	_defeat_ember_value.size = Vector2(240.0, 48.0)
-	_defeat_ember_value.add_theme_color_override("font_color", Color("ff9a63"))
-	_defeat_ember_result.add_child(_defeat_ember_value)
-
-	_defeat_recovery_value = _label("RecoveryValue", 17, HORIZONTAL_ALIGNMENT_LEFT)
-	_defeat_recovery_value.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_defeat_recovery_value.add_theme_color_override("font_color", Color("d9c8e3"))
-	_defeat_layout.add_child(_defeat_recovery_value)
-
-func _build_shared_actions() -> void:
-	_new_run_button = _button("NewRunButton", "New Run")
-	_new_run_button.pressed.connect(func() -> void: new_run_pressed.emit())
-	add_child(_new_run_button)
-	_main_menu_button = _button("MainMenuButton", "Main Menu")
-	_main_menu_button.pressed.connect(func() -> void: main_menu_pressed.emit())
-	add_child(_main_menu_button)
-	_new_run_button.focus_neighbor_left = _main_menu_button.get_path()
-	_new_run_button.focus_neighbor_right = _main_menu_button.get_path()
-	_main_menu_button.focus_neighbor_left = _new_run_button.get_path()
-	_main_menu_button.focus_neighbor_right = _new_run_button.get_path()
-	for button: Button in [_new_run_button, _main_menu_button]:
-		button.mouse_entered.connect(_select_action.bind(button))
-		button.focus_entered.connect(_select_action.bind(button))
-	_new_run_button.set_meta("umbra_selected", true)
-
-func _add_victory_stat_metric(host: GridContainer, spec: Dictionary) -> void:
-	var stat_id: String = str(spec.get("id", ""))
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = Vector2(156.0, 88.0)
-	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	panel.add_theme_stylebox_override("panel", _inset_style(Color("6e5946"), Color(0.035, 0.030, 0.028, 0.86)))
-	host.add_child(panel)
-	var margin := MarginContainer.new()
-	for side: String in ["left", "right"]:
-		margin.add_theme_constant_override("margin_%s" % side, 11)
-	margin.add_theme_constant_override("margin_top", 6)
-	margin.add_theme_constant_override("margin_bottom", 6)
-	panel.add_child(margin)
-	var box := VBoxContainer.new()
-	margin.add_child(box)
-	var heading := _label("Victory%sHeading" % stat_id.to_pascal_case(), UiTypography.SIZE_CAPTION, HORIZONTAL_ALIGNMENT_LEFT)
-	heading.text = str(spec.get("label", stat_id.to_upper()))
-	heading.add_theme_font_override("font", UiTypography.eyebrow_font())
-	UiTypography.set_label_size(heading, UiTypography.SIZE_CAPTION)
-	box.add_child(heading)
-	var value := _label("Victory%sValue" % stat_id.to_pascal_case(), 30, HORIZONTAL_ALIGNMENT_LEFT)
-	value.add_theme_font_override("font", UI_FONT)
-	box.add_child(value)
-	var best := _label("Victory%sBest" % stat_id.to_pascal_case(), UiTypography.SIZE_CAPTION, HORIZONTAL_ALIGNMENT_LEFT)
-	best.text = "NEW BEST"
-	best.add_theme_color_override("font_color", NEW_BEST_COLOR)
-	box.add_child(best)
-	_victory_stat_values[stat_id] = value
-	_victory_stat_bests[stat_id] = best
-
-func _add_defeat_stat_metric(host: Control, spec: Dictionary) -> void:
-	var stat_id: String = str(spec.get("id", ""))
-	var row := Control.new()
-	row.name = "%sMetric" % stat_id.to_pascal_case()
-	row.custom_minimum_size = Vector2(500.0, 58.0)
-	row.size = row.custom_minimum_size
-	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	host.add_child(row)
-	var heading := _label("%sHeading" % stat_id.to_pascal_case(), 17, HORIZONTAL_ALIGNMENT_RIGHT)
-	heading.text = str(spec.get("label", stat_id.to_upper()))
-	heading.position = Vector2(0.0, 13.0)
-	heading.size = Vector2(174.0, 36.0)
-	heading.add_theme_color_override("font_color", Color("c6ac90"))
-	row.add_child(heading)
-	var value := _label("%sValue" % stat_id.to_pascal_case(), 34, HORIZONTAL_ALIGNMENT_CENTER)
-	value.add_theme_font_override("font", UI_FONT)
-	value.position = Vector2(184.0, 6.0)
-	value.size = Vector2(86.0, 50.0)
-	value.add_theme_color_override("font_color", DEFEAT_VALUE_COLOR)
-	row.add_child(value)
-	var best := _label("%sBest" % stat_id.to_pascal_case(), 14, HORIZONTAL_ALIGNMENT_LEFT)
-	best.text = "NEW BEST"
-	best.position = Vector2(286.0, 16.0)
-	best.size = Vector2(126.0, 32.0)
-	best.add_theme_color_override("font_color", NEW_BEST_COLOR)
-	best.add_theme_color_override("font_outline_color", Color("1c0d05"))
-	best.add_theme_constant_override("outline_size", 2)
-	row.add_child(best)
-	_defeat_metric_rows[stat_id] = row
-	_defeat_stat_values[stat_id] = value
-	_defeat_stat_bests[stat_id] = best
-
-func _label(node_name: String, font_size: int, alignment: HorizontalAlignment) -> Label:
-	var label := Label.new()
-	label.name = node_name
-	label.horizontal_alignment = alignment
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	label.add_theme_font_override("font", TEXT_FONT)
-	UiTypography.set_label_size(label, font_size)
-	label.add_theme_color_override("font_color", Color("f2e8d2"))
-	label.add_theme_color_override("font_outline_color", Color("160f0c"))
-	label.add_theme_constant_override("outline_size", 1)
-	return label
-
-func _button(node_name: String, button_text: String) -> Button:
-	var button := Button.new()
-	button.name = node_name
-	button.text = button_text
-	button.focus_mode = Control.FOCUS_ALL
-	button.add_theme_font_override("font", UI_FONT)
-	_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_LARGE)
-	_ui_skin.apply_button_text_overrides(button)
-	UiTypography.set_button_size(button, UiTypography.SIZE_SECTION)
-	_ui_skin.apply_button_native_size(button, BUTTON_HEIGHT, BUTTON_MIN_WIDTH, false, UiSkin.VARIANT_LARGE)
-	return button
-
-func _apply_action_treatment(victory: bool) -> void:
-	var variant: String = UiSkin.VARIANT_LARGE if victory else UiSkin.VARIANT_UMBRA
-	for button: Button in [_new_run_button, _main_menu_button]:
-		_ui_skin.apply_button_stylebox_overrides(button, variant)
-		if victory:
-			_ui_skin.apply_button_text_overrides(button)
-			UiTypography.set_button_size(button, UiTypography.SIZE_SECTION)
-		else:
-			_ui_skin.apply_button_text_overrides(button, Color("f3e5c5"), Color("080606"), Color("8d806b"), 5)
-			UiTypography.set_button_size(button, 20)
-
-func _select_action(button: Button) -> void:
-	if button == null:
-		return
-	_new_run_button.set_meta("umbra_selected", button == _new_run_button)
-	_main_menu_button.set_meta("umbra_selected", button == _main_menu_button)
-	_new_run_button.queue_redraw()
-	_main_menu_button.queue_redraw()
-
-func _focus_primary_action() -> void:
-	if not visible or _new_run_button == null:
-		return
-	_select_action(_new_run_button)
-	_new_run_button.grab_focus()
-
-func _apply_model() -> void:
-	if _model.is_empty():
-		return
-	var victory: bool = _is_victory()
-	var stats: Dictionary = _model.get("stats", {}) as Dictionary
-	var new_bests: Array = _model.get("new_bests", []) as Array
-	_victory_panel.visible = victory
-	_defeat_layout.visible = not victory
-	_apply_action_treatment(victory)
-	_victory_kicker.text = str(_model.get("kicker", ""))
-	_victory_title.text = str(_model.get("title", ""))
-	_victory_summary.text = str(_model.get("summary", ""))
-	_victory_ember_label.text = str(_model.get("ember_label", ""))
-	_victory_ember_value.text = str(int(_model.get("ember_amount", 0)))
-	_victory_recovery_value.text = str(_model.get("recovery_status", ""))
-	_defeat_kicker.text = str(_model.get("kicker", ""))
-	_defeat_title.text = str(_model.get("title", ""))
-	_defeat_layout.tooltip_text = "%s — %s" % [_defeat_title.text, _defeat_kicker.text]
-	_defeat_ember_value.text = str(int(_model.get("ember_amount", 0)))
-	_defeat_recovery_value.text = str(_model.get("recovery_status", ""))
-	for stat_id_var: Variant in _victory_stat_values.keys():
-		var stat_id: String = str(stat_id_var)
-		(_victory_stat_values.get(stat_id) as Label).text = str(int(stats.get(stat_id, 0)))
-		(_victory_stat_bests.get(stat_id) as Label).visible = new_bests.has(stat_id)
-	for stat_id_var: Variant in _defeat_stat_values.keys():
-		var stat_id: String = str(stat_id_var)
-		(_defeat_stat_values.get(stat_id) as Label).text = str(int(stats.get(stat_id, 0)))
-		(_defeat_stat_bests.get(stat_id) as Label).visible = new_bests.has(stat_id)
-	var accent := Color("e7b85a")
-	_victory_panel.add_theme_stylebox_override("panel", _panel_style(accent))
-	_ui_skin.apply_outer_panel_frame(_victory_panel, UiSkin.SURFACE_DIALOG)
-	_victory_accent_rule.color = accent
-	_victory_kicker.add_theme_color_override("font_color", accent.lightened(0.20))
-	_victory_title.add_theme_color_override("font_color", Color("fff1c8"))
-	_victory_ember_label.add_theme_color_override("font_color", accent.lightened(0.22))
-	_victory_ember_value.add_theme_color_override("font_color", Color("ffd27a"))
-	_victory_recovery_value.add_theme_color_override("font_color", Color("e7d7b7"))
-	var ember_panel: PanelContainer = _victory_panel.find_child("VictoryEmberResult", true, false) as PanelContainer
-	if ember_panel != null:
-		ember_panel.add_theme_stylebox_override("panel", _inset_style(accent, Color(accent.r * 0.12, accent.g * 0.10, accent.b * 0.08, 0.92)))
-
-func _panel_style(accent: Color) -> StyleBoxFlat:
-	var style := _ui_skin.make_plain_card_style(Color(0.075, 0.052, 0.035, 0.965), accent, 0.0)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 3
-	style.corner_radius_top_right = 3
-	style.corner_radius_bottom_right = 3
-	style.corner_radius_bottom_left = 3
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.58)
-	style.shadow_size = 22
-	style.shadow_offset = Vector2(0.0, 8.0)
-	return style
-
-func _inset_style(border: Color, background: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = background
-	style.border_color = Color(border.r, border.g, border.b, 0.28)
-	style.border_width_left = 1
-	style.border_width_top = 1
-	style.border_width_right = 1
-	style.border_width_bottom = 1
-	style.corner_radius_top_left = 3
-	style.corner_radius_top_right = 3
-	style.corner_radius_bottom_right = 3
-	style.corner_radius_bottom_left = 3
-	return style
-
-func _is_victory() -> bool:
-	return str(_model.get("outcome", "defeat")) == "victory"
-
-func _presentation_duration() -> float:
-	return VICTORY_INTRO_SECONDS if _is_victory() else maxf(DeathEngulfOverlay.ENGULF_SECONDS, DEFEAT_PANEL_DELAY_SECONDS + DEFEAT_PANEL_INTRO_SECONDS)
-
-func _intro_progress() -> float:
-	if not _motion_enabled:
-		return 1.0
-	var start: float = 0.0 if _is_victory() else DEFEAT_PANEL_DELAY_SECONDS
-	var duration: float = VICTORY_INTRO_SECONDS if _is_victory() else DEFEAT_PANEL_INTRO_SECONDS
-	var t: float = clampf((_elapsed - start) / duration, 0.0, 1.0)
-	return 1.0 - pow(1.0 - t, 3.0)
-
-func _update_presentation() -> void:
-	if not visible or size.x <= 0.0 or size.y <= 0.0:
-		return
-	var progress: float = _intro_progress()
-	if _is_victory():
-		_update_victory_layout(progress)
-	else:
-		_update_defeat_layout(progress)
-	queue_redraw()
-
-func _update_victory_layout(progress: float) -> void:
-	var content_minimum: Vector2 = _victory_panel.get_combined_minimum_size()
-	var width: float = clampf(size.x * 0.41, PANEL_MIN_WIDTH, PANEL_MAX_SIZE.x)
-	width = minf(maxf(width, content_minimum.x), maxf(320.0, size.x - 32.0))
-	var height: float = minf(maxf(450.0, ceilf(content_minimum.y) + 4.0), minf(PANEL_MAX_SIZE.y, maxf(320.0, size.y - 120.0)))
-	var edge_margin: float = minf(PANEL_EDGE_MARGIN, maxf(16.0, size.x * 0.035))
-	var base_x: float = size.x - width - edge_margin
-	var base_y: float = maxf(12.0, (size.y - height - 84.0) * 0.5)
-	_victory_panel.position = Vector2(base_x + (1.0 - progress) * 46.0, base_y)
-	_victory_panel.size = Vector2(width, height)
-	_victory_panel.modulate = Color(1.0, 1.0, 1.0, progress)
-	var button_width: float = minf(BUTTON_MIN_WIDTH, width * 0.46)
-	var button_y: float = minf(size.y - BUTTON_HEIGHT - 12.0, base_y + height + 12.0)
-	_new_run_button.custom_minimum_size = Vector2(button_width, BUTTON_HEIGHT)
-	_main_menu_button.custom_minimum_size = Vector2(button_width, BUTTON_HEIGHT)
-	_new_run_button.position = Vector2(base_x, button_y)
-	_new_run_button.size = Vector2(button_width, BUTTON_HEIGHT)
-	_main_menu_button.position = Vector2(base_x + width - button_width, button_y)
-	_main_menu_button.size = Vector2(button_width, BUTTON_HEIGHT)
-	_new_run_button.modulate = Color(1.0, 1.0, 1.0, progress)
-	_main_menu_button.modulate = Color(1.0, 1.0, 1.0, progress)
-
-func _update_defeat_layout(progress: float) -> void:
-	var layout_scale: float = minf(size.x / 1920.0, size.y / 1080.0)
-	var layout_origin := Vector2(
-		(size.x - 1920.0 * layout_scale) * 0.5,
-		(size.y - 1080.0 * layout_scale) * 0.5
-	)
-	var hidden_slide: float = (1.0 - progress) * 54.0 * layout_scale
-	_defeat_layout.modulate = Color(1.0, 1.0, 1.0, progress)
-	_defeat_kicker.position = layout_origin + Vector2(1038.0, 62.0) * layout_scale + Vector2(hidden_slide, 0.0)
-	_defeat_kicker.size = Vector2(560.0, 48.0) * layout_scale
-	_defeat_title.position = layout_origin + Vector2(908.0, 104.0) * layout_scale + Vector2(hidden_slide, 0.0)
-	_defeat_title.size = Vector2(804.0, 160.0)
-	_defeat_title.scale = Vector2.ONE * layout_scale
-	_defeat_metrics.position = Vector2.ZERO
-	_defeat_metrics.size = size
-	for index: int in range(STAT_SPECS.size()):
-		var spec: Dictionary = STAT_SPECS[index] as Dictionary
-		var stat_id: String = str(spec.get("id", ""))
-		var row: Control = _defeat_metric_rows.get(stat_id, null) as Control
-		if row == null:
-			continue
-		row.position = layout_origin + DEFEAT_METRIC_POSITIONS[index] * layout_scale + Vector2(hidden_slide, 0.0)
-		row.scale = Vector2.ONE * layout_scale
-	_defeat_ember_result.position = layout_origin + Vector2(826.0, 664.0) * layout_scale + Vector2(hidden_slide, 0.0)
-	_defeat_ember_result.size = Vector2(250.0, 78.0) * layout_scale
-	_defeat_ember_result.scale = Vector2.ONE * layout_scale
-	_defeat_recovery_value.position = layout_origin + Vector2(970.0, 681.0) * layout_scale + Vector2(hidden_slide, 0.0)
-	_defeat_recovery_value.size = Vector2(560.0, 44.0) * layout_scale
-	var actions_y: float = minf(size.y - 82.0 * layout_scale, layout_origin.y + 905.0 * layout_scale)
-	# The ornament draws four pixels wider and ten pixels taller than the Button.
-	# These dimensions retain the source bitmap's exact 1024:224 aspect on screen.
-	var new_run_size := Vector2(361.7143, 70.0)
-	var main_menu_size := Vector2(297.7143, 56.0)
-	var action_gap: float = 34.0
-	var action_group_width: float = new_run_size.x + action_gap + main_menu_size.x
-	var actions_x: float = minf(layout_origin.x + 846.0 * layout_scale, size.x - action_group_width - 24.0 * layout_scale) + hidden_slide
-	_new_run_button.custom_minimum_size = new_run_size
-	_main_menu_button.custom_minimum_size = main_menu_size
-	_new_run_button.position = Vector2(actions_x, actions_y)
-	_new_run_button.size = new_run_size
-	_main_menu_button.position = Vector2(actions_x + new_run_size.x + action_gap, actions_y + (new_run_size.y - main_menu_size.y) * 0.5)
-	_main_menu_button.size = main_menu_size
-	_new_run_button.modulate = Color(1.0, 1.0, 1.0, progress)
-	_main_menu_button.modulate = Color(1.0, 1.0, 1.0, progress)
+	# Approved mockup's right scrim and gilded line/diamond separator.
+	var left: float = size.x * 0.30
+	var right: float = size.x * 0.52
+	draw_polygon(PackedVector2Array([Vector2(left, 0), Vector2(right, 0), Vector2(right, size.y), Vector2(left, size.y)]), PackedColorArray([Color(0.02, 0.016, 0.012, 0), Color(0.02, 0.016, 0.012, 0.82), Color(0.02, 0.016, 0.012, 0.82), Color(0.02, 0.016, 0.012, 0)]))
+	draw_polygon(PackedVector2Array([Vector2(right, 0), Vector2(size.x, 0), Vector2(size.x, size.y), Vector2(right, size.y)]), PackedColorArray([Color(0.02, 0.016, 0.012, 0.82), Color(0.02, 0.016, 0.012, 0.94), Color(0.02, 0.016, 0.012, 0.94), Color(0.02, 0.016, 0.012, 0.82)]))

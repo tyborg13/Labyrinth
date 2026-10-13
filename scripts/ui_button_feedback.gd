@@ -31,7 +31,7 @@ static func _set_highlight(button: BaseButton, source: String, active: bool) -> 
 		return
 	var feedback: Node = button.get_node_or_null("/root/CursorFeedback")
 	if feedback != null and feedback.has_method("play_focus_feedback"):
-		feedback.call("play_focus_feedback")
+		feedback.call("play_focus_feedback", button)
 
 static func _reset_if_hidden(button: BaseButton) -> void:
 	if not button.is_visible_in_tree():

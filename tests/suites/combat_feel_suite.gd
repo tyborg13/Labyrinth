@@ -6,6 +6,7 @@ const Settings = preload("res://scripts/settings_store.gd")
 const FloatingText = preload("res://scripts/floating_combat_text.gd")
 const FloatingSuite = preload("res://tests/suites/floating_combat_text_suite.gd")
 const MotionSuite = preload("res://tests/suites/combat_motion_timing_suite.gd")
+const Regressions = preload("res://tests/suites/combat_pacing_regression_suite.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")
 const PROOF_DIR: String = "res://output/feel-01"
 const REAL_WAIT_TOLERANCE_MS: int = 80
@@ -15,8 +16,6 @@ const HEAVY_OBSERVATION_MS: int = 125
 const CARD_RESOLUTION_TIMEOUT_MS: int = 6000
 const CLEANUP_FRAMES: int = 20
 const NO_ENEMY_FIXTURE_TIME: int = 1000
-const VICTORY_FIXTURE_ENEMY_HP: int = 1
-const VICTORY_FIXTURE_ENEMY_TILE: Vector2i = Vector2i(3, 4)
 const PROOF_CONTRACT: Dictionary = {
 	"min_images": 8, "expected_sizes": ["1920x1080"],
 	"required_images": [
@@ -30,12 +29,6 @@ const PROOF_CONTRACT: Dictionary = {
 		{"pattern": "*reduced_motion_hit.png", "width": 1920, "height": 1080}
 	]
 }
-
-class VictoryFixture:
-	extends "res://scripts/run_scene.gd"
-	var victory_scale: float = -1.0
-	func _play_post_combat_victory(_state: Dictionary) -> void:
-		victory_scale = Engine.time_scale
 
 class FixtureOwner:
 	extends Node
@@ -69,7 +62,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	await _test_overlay_refresh(tree, expect)
 	await _test_scopes(tree, expect)
 	await _test_run_scene(tree, expect)
-	await _test_card_victory(tree, expect)
+	await Regressions.run(tree, expect)
 	write_proof_contract()
 
 static func write_proof_contract() -> void:
@@ -272,30 +265,6 @@ static func _test_scopes(tree: SceneTree, expect: Callable) -> void:
 	owner.free()
 	Engine.time_scale = 1.0
 	print("COMBAT FEEL SCOPES: clock/menu/drag/pause/director/card/end checked")
-
-static func _test_card_victory(tree: SceneTree, expect: Callable) -> void:
-	var instance: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
-	instance.set_script(VictoryFixture)
-	tree.root.add_child(instance)
-	await tree.process_frame
-	MotionSuite._install_fixture(instance, true)
-	var state: Dictionary = instance.get("_combat_state")
-	state["deck"]["hand"] = ["quick_stab"]
-	state["enemies"][0]["pos"] = VICTORY_FIXTURE_ENEMY_TILE
-	state["enemies"][0]["hp"] = VICTORY_FIXTURE_ENEMY_HP
-	instance.get("_settings")["combat_speed"] = "fastest"
-	instance.get("_run_state")["combat_state"] = state
-	instance.call("_refresh_ui")
-	instance.call("_on_card_pressed", 0)
-	instance.call("_on_board_tile_clicked", VICTORY_FIXTURE_ENEMY_TILE)
-	var render_boundary: Callable = func() -> void: RenderingServer.frame_post_draw.emit()
-	if DisplayServer.get_name() == "headless": tree.process_frame.connect(render_boundary)
-	var deadline: int = Time.get_ticks_msec() + CARD_RESOLUTION_TIMEOUT_MS
-	while bool(instance.get("_animation_lock")) and Time.get_ticks_msec() < deadline: await tree.process_frame
-	if tree.process_frame.is_connected(render_boundary): tree.process_frame.disconnect(render_boundary)
-	expect.call(instance.victory_scale == 1.0, "Fastest card killing blow starts the production victory beat at 1.0")
-	instance.queue_free()
-	for frame: int in range(CLEANUP_FRAMES): await tree.process_frame
 
 static func _test_run_scene(tree: SceneTree, expect: Callable) -> void:
 	var instance: Node = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()

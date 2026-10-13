@@ -130,6 +130,8 @@ floor shadows); the former navy button bodies clashed with it.
   board. One row for 1–3 foes (centred vertically), two rows for 4–6 with 2×2
   foes spanning both rows in the centre.
 
+- At rest, enemy intent pills and imminent crimson threat diamonds use the exact dimensions, semantic colours, order projection and preview/privacy contract in [threats at rest](threats_at_rest.md); full plans remain in Details [I].
+
 ## Combat composition
 
 - Health loss leaves a pale segment ghost above the well and below the fill and separators: enemies use `#f2c3a6` at 85% alpha, heroes/allies `#d9f2e6` at 80%, without glow. It holds for 0.55 s then drains for 0.35 s with ease-in quad; another hit restarts the hold from the highest held top or current draining position. Healing snaps and flashes only the healed range with the fill lightened 35%, fading over 0.2 s. Reduced motion shows a static ghost for 0.4 s then removes it. The shared presentation clock respects `Engine.time_scale`; death bars retain the existing unit fade/lifetime (see `TODO_DESIGN_DEATH_GHOST_LIFETIME`).
@@ -161,24 +163,4 @@ floor shadows); the former navy button bodies clashed with it.
 
 ## Audio mix notes
 
-- A gentle SFX glue compressor (threshold −16 dB, 2.5:1, no makeup gain) and a
-  Master hard limiter (−0.8 dB ceiling) keep stacked impacts from clipping
-  (`SettingsStore`). The compressor only acts on the loudest peaks.
-- Short one-shots (≤1.25 s) receive a small random pitch drift (±3.5 %); UI
-  hover/click ticks drift ±3–4.5 %. Stingers keep their authored pitch.
-- New cues are derived from shipped recordings by `tools/generate_ui_cue_sfx.py`:
-  menu page open/close, and a barely-there stone-hall room tone (the campfire
-  loop's low body only, slowed and low-passed, no crackle; playback −20 dB,
-  about −50 dBFS RMS effective)
-  for room, combat, pre-battle, reward, treasure and event modes. Pressing Pass
-  plays only the shared button click; card sounds are reserved for cards.
-- Preserved owner-auditioned decisions: card draw (0 dB, ~9–11 dB under
-  impacts), reward-card flip (no gain boost), door −10 dB, victory −7 dB,
-  accepted reward −12 dB, hover tick −17 dB, the 8 %/4 % reverbs, and the
-  no-overlap music transition.
-- **Changed:** `card_play_take.wav` (+13 dB then limited; it measured ~−37 dB
-  RMS and was nearly inaudible — owner approved the louder play after testing), `item_equip.wav`
-  (+6 dB then limited, playback −1 dB), relic-choices-open playback −2.5 dB,
-  and combat hit playback levels (melee −5.5, ranged −1, block −4.5, fire −6.5,
-  earth −3.5, air 0, lightning −3, ice 0 dB; previously −4/−2/−3/−3/−2/−2/−2/−2)
-  to even out their measured loudness.
+See [Audio](audio.md) for the owner-approved mix, cue bank, routing tables, and variant workflow.

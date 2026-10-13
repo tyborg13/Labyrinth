@@ -3,6 +3,9 @@ extends Control
 class_name CombatBoardView
 
 const EMPTY_FEEL_FRAME: Dictionary = {}
+const BurrowView = preload("res://scripts/enemy_mechanics/burrow_view.gd")
+const DeathBurstView = preload("res://scripts/enemy_mechanics/death_burst_view.gd")
+const KindleView = preload("res://scripts/enemy_mechanics/kindle_view.gd")
 
 const PathUtils = preload("res://scripts/path_utils.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
@@ -94,6 +97,9 @@ const EnemyShadowDissolveEffect = preload("res://scripts/enemy_shadow_dissolve_e
 const CombatArtTreatment = preload("res://scripts/combat_art_treatment.gd")
 var _art_treatment: RefCounted = null
 var _art_treatment_enabled: bool = true
+const IntentBadges = preload("res://scripts/intent_badges.gd")
+const ThreatTiles = preload("res://scripts/threat_tiles.gd")
+const IntentCallouts = preload("res://scripts/intent_callouts.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
@@ -101,6 +107,12 @@ const TetherView = preload("res://scripts/enemy_mechanics/tether_view.gd")
 const VeilView = preload("res://scripts/enemy_mechanics/veil_view.gd")
 
 const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
+
+# Audio consumes presentation snapshots, never gameplay mutations.
+signal sound_presentation(state: Dictionary, shown: Dictionary)
+
+func present_sound_snapshot(state: Dictionary, shown: Dictionary) -> void:
+	sound_presentation.emit(state, shown)
 
 signal tile_clicked(tile: Vector2i)
 signal tile_hovered(tile: Vector2i)
@@ -676,6 +688,7 @@ var _enemy_shadow_dissolve_effects_by_key: Dictionary = {}
 var _enemy_shadow_dissolve_spare_effect: Control = null
 var _enemy_shadow_dissolve_shader_prewarm_submitted: bool = false
 var _idle_animating: bool = false
+var _rest_threat_tile_alphas: Dictionary = {}
 var _idle_elapsed: float = 0.0
 var _idle_frame_by_source: Dictionary = {}
 var _room_framing = BoardFraming.new()
@@ -2228,7 +2241,7 @@ func _sync_dynamic_render_state(layout_changed: bool = false, visual_framing_cha
 			"_ambient_element_id_cache", "_equipment_pickup_beacon_cache",
 			"_preview_unit_pulse_cache", "_submission_cache_valid", "_idle_elapsed",
 			"_umbra_return_start_by_tile", "_foreground_obstruction_entries_cache", "_hud_health_rects_cache",
-			"_hud_layout_entries_cache"
+			"_hud_layout_entries_cache", "_rest_threat_tile_alphas"
 		]
 	for layer: Control in _retained_render_layers():
 		if layout_changed and geometry_changed:
@@ -2465,6 +2478,9 @@ func reset_render_instrumentation() -> void:
 		layer.call("reset_render_instrumentation")
 
 func _process(delta: float) -> void:
+	if not _is_dynamic_render_layer and not bool(presentation.get("reduced_motion", false)):
+		for enemy: Dictionary in combat_state.get("enemies", []):
+			if int(enemy.get("hp", 0)) > 0 and bool(enemy.get("burrowed", false)): _queue_scene_render_layer_for_tile(enemy["pos"])
 	if _art_treatment != null and not _is_dynamic_render_layer and not _is_static_render_cache_layer:
 		if _art_treatment.advance(delta, bool(presentation.get("reduced_motion", false))):
 			for effect: Control in _enemy_shadow_dissolve_effects_by_key.values():
@@ -2504,6 +2520,8 @@ func _process(delta: float) -> void:
 func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: bool = false) -> void:
 	if not skip_effects and TetherView.needs_redraw(self): _queue_render_layer_redraw(_effects_render_layer)
 	VeilView.queue_redraws(self)
+	if ThreatTiles.needs_pulse(presentation, _rest_threat_tile_alphas):
+		_queue_render_layer_redraw(_overlay_render_layer)
 	if _ambient_particles_active() or _campfire_atmosphere_active():
 		_queue_render_layer_redraw(_ambient_render_layer)
 	if (
@@ -2628,6 +2646,8 @@ func _presentation_needs_continuous_redraw() -> bool:
 	if not visible:
 		return false
 	if TetherView.needs_redraw(self) or VeilView.needs_redraw(self): return true
+	if ThreatTiles.needs_pulse(presentation, _rest_threat_tile_alphas):
+		return true
 	if not bool(presentation.get("reduced_motion", false)) and not _animated_surface_tiles.is_empty():
 		return true
 	if _ambient_particles_active():
@@ -2734,6 +2754,7 @@ func set_health_ghost_source_state(next_state: Dictionary) -> void:
 
 func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}, trust_same_reference_state: bool = false) -> void:
 	next_presentation = TetherView.presentation_for(next_state, next_presentation)
+	_rest_threat_tile_alphas = ThreatTiles.tile_alphas((next_presentation.get("threats_at_rest", {}) as Dictionary).get("threats", []))
 	var submission_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
 	# The owning RunScene submits immutable copy-on-write snapshots. Pointer-only
 	# presentation changes therefore retain the exact combat dictionary reference;
@@ -3043,7 +3064,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		"scene_props", "preview_units", "death_animation_units", "unit_draw_tiles",
 		"unit_world_positions", "unit_footprint_world_positions", "visible_enemy_ids", "umbra_visible_tiles",
 		"umbra_light_sources", "umbra_stage", "damage_preview", "effect", "ability_tiles",
-		"enemy_intent_compasses"
+		"enemy_intent_compasses", "en01_erupt", "en01_erupt_dust", "en01_burst", "en01_burst_progress"
 	]:
 		if presentation_changes.has(cache_key):
 			submission_sources_changed = true
@@ -3098,7 +3119,10 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	var retained_sync_fields: Array = []
 	if biome_changed:
 		_sync_dynamic_render_assets()
-		retained_sync_fields.append_array(["_biome_id", "_biome_light_color"])
+		# New/reframed tile layers need the full state. A biome-only list would
+		# override that full sync and leave their combat_state empty indefinitely.
+		if not layout_changed and not visual_framing_changed:
+			retained_sync_fields.append_array(["_biome_id", "_biome_light_color"])
 	if not layout_changed and not visual_framing_changed:
 		if state_changed:
 			retained_sync_fields.append_array([
@@ -3121,7 +3145,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 		if exit_icon_ids_changed:
 			retained_sync_fields.append("exit_icon_ids")
 		if not presentation_changes.is_empty():
-			retained_sync_fields.append("presentation")
+			retained_sync_fields.append_array(["presentation", "_rest_threat_tile_alphas"])
 			retained_sync_fields.append_array(["_hud_health_rects_cache", "_hud_layout_entries_cache"])
 		if presentation_changes.has("damage_preview") or presentation_changes.has("effect"):
 			retained_sync_fields.append("_damage_preview_cache")
@@ -3400,9 +3424,10 @@ func _queue_presentation_change_redraws(
 				action_floor_changed = true
 			"damage_preview":
 				effects_changed = true
+				overlay_changed = true
 			"death_site_embers":
 				_queue_render_layer_redraw(_ground_render_layer)
-			"expand_enemy_intents", "expanded_enemy_actor_keys", "show_all_enemy_intents", "hud_obstacle_global_rects":
+			"expand_enemy_intents", "expanded_enemy_actor_keys", "show_all_enemy_intents", "hud_obstacle_global_rects", "boss_header_global_rect":
 				hud_changed = true
 			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength", "combat_feel_flash", "combat_feel_flash_actor_keys":
 				impact_floor_changed = true
@@ -3442,6 +3467,13 @@ func _queue_presentation_change_redraws(
 			"umbra_light_sources", "umbra_stage":
 				_queue_render_layer_redraw(_dynamic_render_layer)
 				foreground_changed = true
+			"threats_at_rest":
+				overlay_changed = true
+				hud_changed = true
+			"intent_callouts":
+				effects_changed = true
+			"en01_erupt", "en01_erupt_dust", "en01_burst", "en01_burst_progress":
+				_queue_dynamic_redraw()
 			"enemy_intent_compasses":
 				for unit: Dictionary in _visible_units():
 					if str(unit.get("role", "")) == "enemy":
@@ -3519,7 +3551,7 @@ func _queue_combat_state_change_redraws(
 		_queue_scene_tiles_for_state_entries(previous_source.get("loot", []) as Array, next_source.get("loot", []) as Array)
 	if changed_keys.has("traps"):
 		_queue_render_layer_redraw(_ground_render_layer)
-	if changed_keys.has("meteor_marks"):
+	if changed_keys.has("meteor_marks") or changed_keys.has("enemies"):
 		_queue_render_layer_redraw(_overlay_render_layer)
 		# The mark badges (icon and damage) draw above units in the effects layer.
 		_queue_render_layer_redraw(_effects_render_layer)
@@ -4458,6 +4490,7 @@ func _draw_hud_render_layer() -> void:
 	var section_started_usec: int = Time.get_ticks_usec()
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_noctyrax_brazier_markers()
+	IntentBadges.draw(self, (presentation.get("threats_at_rest", {}) as Dictionary).get("badges", []))
 	_draw_unit_huds(units_to_draw)
 	_record_render_section_time("unit_huds", section_started_usec)
 	# Damage-preview text and the lost-HP band must composite after the health
@@ -6665,6 +6698,8 @@ func _tile_depth_faces(tile: Vector2i) -> Array[PackedVector2Array]:
 
 func _draw_tile_overlays(tile: Vector2i) -> void:
 	var polygon: PackedVector2Array = _tile_polygon(tile)
+	var rest: Dictionary = presentation.get("threats_at_rest", {}) as Dictionary
+	ThreatTiles.draw_tile(self, tile, polygon, _rest_threat_tile_alphas, rest.get("hero_tile", Vector2i(-1, -1)), bool(presentation.get("reduced_motion", false)))
 	var draw_aoe_footprint: bool = _focus_tiles_lookup_cache.has(tile) and _player_aoe_preview_active()
 	if tile == presentation.get("objective_leader_tile", Vector2i(-1, -1)):
 		_draw_objective_leader_beacon(tile)
@@ -6719,6 +6754,8 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 # the player's next turn. They reuse the Meteorfall (cinder_marks) identity on
 # an ember-ringed tile, with the incoming damage in the tooltip.
 func _draw_meteor_mark(tile: Vector2i) -> void:
+	BurrowView.draw_mark(self, tile)
+	DeathBurstView.draw_ring(self, tile)
 	# Floor wash and ring only; the icon and damage are drawn above units by
 	# `_draw_meteor_mark_badges`.
 	var marked: bool = false
@@ -6732,6 +6769,8 @@ func _draw_meteor_mark(tile: Vector2i) -> void:
 	_draw_tile_ring(tile, Color(1.0, 0.55, 0.22, 0.95), 3.2, 0.80)
 
 func _draw_meteor_mark_badges() -> void:
+	BurrowView.draw_badges(self)
+	DeathBurstView.draw_resolution(self)
 	# Meteorfall's icon and incoming damage sit on a medallion at each marked
 	# tile's front edge in the effects layer, above units, so a mark under an
 	# enemy (or under the hero) stays readable without hovering.
@@ -8218,6 +8257,8 @@ func _build_visible_units() -> Array[Dictionary]:
 			"shock": int(enemy.get("shock", 0)),
 			"immobilize": bool(enemy.get("immobilize", false)),
 			"petrify": int(enemy.get("petrify", 0)),
+			"burrowed": bool(enemy.get("burrowed", false)),
+			"kindled_bonus": int(enemy.get("kindled_bonus", 0)),
 		}
 		# Older saves and partial animation snapshots can omit an authored large
 		# footprint (or transiently collapse it to 1x1). Resolve it before any
@@ -8290,6 +8331,7 @@ func _death_animation_units_from_presentation() -> Array[Dictionary]:
 	return units
 
 func _draw_unit_bodies_for_tile(tile: Vector2i, units_to_draw: Array[Dictionary]) -> void:
+	KindleView.clear_glows(self)
 	if _submission_cache_valid:
 		for unit: Dictionary in _units_by_draw_tile_cache.get(tile, []):
 			_draw_unit_body(unit)
@@ -8300,6 +8342,10 @@ func _draw_unit_bodies_for_tile(tile: Vector2i, units_to_draw: Array[Dictionary]
 		_draw_unit_body(unit)
 
 func _draw_unit_body(unit: Dictionary) -> void:
+	KindleView.draw_under(self, unit)
+	if BurrowView.draw_body(self, unit):
+		_draw_enemy_intent_compass(unit)
+		return
 	var detailed_sections: bool = (
 		_render_instrumentation_owner != null
 		and is_instance_valid(_render_instrumentation_owner)
@@ -8432,7 +8478,7 @@ func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 		return
 	var actor_key: String = str(unit.get("key", ""))
 	var descriptors: Dictionary = presentation.get("enemy_intent_compasses", {}) as Dictionary
-	var descriptor: Dictionary = descriptors.get(actor_key, {}) as Dictionary
+	var descriptor: Dictionary = KindleView.descriptor(unit, BurrowView.descriptor(unit, descriptors.get(actor_key, {}) as Dictionary))
 	if descriptor.is_empty():
 		return
 	var family: String = str(descriptor.get("family", EnemyIntentCompass.FAMILY_ATTACK))
@@ -9201,6 +9247,7 @@ func _unit_frame_rect(center: Vector2) -> Rect2:
 	return Rect2(center - Vector2(unit_size.x * 0.5, unit_size.y * 0.84), unit_size)
 
 func _unit_art_top_y(unit: Dictionary, center: Vector2) -> float:
+	if bool(unit.get("burrowed", false)): return center.y - _tile_height() * BurrowView.MOUND_TILE_HEIGHT * 0.5
 	var unit_type: String = str(unit.get("type", ""))
 	var rect: Rect2 = _unit_draw_rect_for_center(unit, center)
 	if ActorPresentation.has_profile(unit_type):
@@ -9227,11 +9274,9 @@ func _draw_unit_statuses(unit: Dictionary, health_rect: Rect2) -> void:
 	var font: Font = get_theme_default_font()
 	if font == null:
 		return
-	var spacing: float = 22.0
-	var start_x: float = health_rect.position.x - 12.0 - (float(badges.size() - 1) * spacing)
-	var center_y: float = health_rect.position.y + health_rect.size.y - 2.0
 	for index: int in range(badges.size()):
-		_draw_status_badge(font, Vector2(start_x + float(index) * spacing, center_y), badges[index])
+		var center := Vector2(health_rect.position.x - 12.0 - 22.0 * float(badges.size() - 1 - index), health_rect.end.y - 2.0)
+		_draw_status_badge(font, center, badges[index])
 
 func _draw_enemy_intent(unit: Dictionary, center: Vector2, health_rect: Rect2) -> void:
 	var font: Font = get_theme_default_font()
@@ -9754,11 +9799,8 @@ func _unit_status_badge_rects(unit: Dictionary, health_rect: Rect2) -> Array[Rec
 	var badges: Array[Dictionary] = _unit_status_badges(unit)
 	if badges.is_empty():
 		return rects
-	var spacing: float = 22.0
-	var start_x: float = health_rect.position.x - 12.0 - (float(badges.size() - 1) * spacing)
-	var center_y: float = health_rect.position.y + health_rect.size.y - 2.0
 	for index: int in range(badges.size()):
-		var center := Vector2(start_x + float(index) * spacing, center_y)
+		var center := Vector2(health_rect.position.x - 12.0 - 22.0 * float(badges.size() - 1 - index), health_rect.end.y - 2.0)
 		var badge_rect := Rect2(center - Vector2(10.0, 10.0), Vector2(20.0, 20.0))
 		var badge: Dictionary = badges[index] as Dictionary
 		if int(badge.get("count", 0)) > 0 or not str(badge.get("count_text", "")).is_empty():
@@ -12444,6 +12486,7 @@ func _effect_element(effect: Dictionary) -> String:
 	return str(effect.get("element", effect.get("_card_element", ElementData.NONE)))
 
 func _draw_floating_texts() -> void:
+	IntentCallouts.draw(self, presentation.get("intent_callouts", []))
 	var default_font: Font = get_theme_default_font()
 	if default_font == null:
 		return
@@ -15020,6 +15063,7 @@ func _unit_death_frame_count(unit: Dictionary) -> int:
 
 
 func _unit_uses_procedural_shadow_dissolve(unit: Dictionary) -> bool:
+	if bool(unit.get("burrowed", false)): return false
 	if not bool(unit.get("death_animation", false)):
 		return false
 	var unit_type: String = str(unit.get("type", ""))
@@ -16342,6 +16386,8 @@ func _intent_rows(intent: Dictionary) -> Array:
 func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 	var cancelled: Array = TetherView.cancelled_rows(self, unit, intent)
 	if not cancelled.is_empty(): return cancelled
+	var mechanic_rows: Array = BurrowView.rows(intent) + KindleView.rows(intent)
+	if not mechanic_rows.is_empty(): return mechanic_rows
 	var rows: Array = []
 	for action_var: Variant in intent.get("actions", []):
 		var action: Dictionary = action_var
@@ -16534,6 +16580,8 @@ func _short_enemy_name(enemy: Dictionary) -> String:
 
 func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 	var badges: Array[Dictionary] = VeilView.badges(unit)
+	badges.append_array(BurrowView.badges(unit))
+	badges.append_array(DeathBurstView.badges(unit))
 	var truesight_activations: int = int(presentation.get("umbra_truesight_activations", 0))
 	var conditional_truesight: bool = bool(presentation.get("umbra_truesight_conditional", false))
 	if str(unit.get("role", "")) == "player" and (truesight_activations != 0 or conditional_truesight):

@@ -36,6 +36,8 @@ const DeferredReconciliationQueue = preload("res://scripts/deferred_reconciliati
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
 const InlineIconText = preload("res://scripts/inline_icon_text.gd")
+const SfxBankScript = preload("res://scripts/sfx_bank.gd")
+const SfxCueRouterScript = preload("res://scripts/sfx_cue_router.gd")
 const AttackSfxLibrary = preload("res://scripts/attack_sfx_library.gd")
 const DialogueEngineScript = preload("res://scripts/dialogue_engine.gd")
 const ElementData = preload("res://scripts/element_data.gd")
@@ -64,6 +66,8 @@ const MoltExchangeFeedback = preload("res://scripts/molt_exchange_feedback.gd")
 const GraftwrightView = preload("res://scripts/graftwright_view.gd")
 const ScavengerShopView = preload("res://scripts/scavenger_shop_view.gd")
 const CombatEngineScript = preload("res://scripts/combat_engine.gd")
+const IntentBadges = preload("res://scripts/intent_badges.gd")
+const IntentCallouts = preload("res://scripts/intent_callouts.gd")
 const EnemyIntentCompass = preload("res://scripts/enemy_intent_compass.gd")
 const EnemyShadowDissolveEffect = preload("res://scripts/enemy_shadow_dissolve_effect.gd")
 const BoardFraming = preload("res://scripts/board_framing.gd")
@@ -1237,6 +1241,8 @@ const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v8.p
 const TURN_ORDER_PORTRAITS := {
 	"arc_thrall": "res://assets/art/portraits/arc_thrall.png",
 	"gloam_stalker": "res://assets/art/portraits/gloam_stalker.png",
+	"burrow_grub": "res://assets/art/portraits/burrow_grub.png",
+	"ember_tick": "res://assets/art/portraits/ember_tick.png",
 	"ash_hound": "res://assets/art/portraits/guardians/ash_hound_portrait.png",
 	"ashen_reaver": "res://assets/art/portraits/guardians/ashen_reaver_portrait.png",
 	"bell_tender": "res://assets/art/portraits/guardians/bell_tender_portrait.png",
@@ -1375,6 +1381,8 @@ var _pass_preview_warm_generation: int = 0
 var _pass_preview_warm_active: bool = false
 var _pass_preview_warm_key: String = ""
 var _hover_resolved_preview_key: String = ""
+var _intent_badges := IntentBadges.new()
+var _intent_callouts := IntentCallouts.new()
 var _hover_resolved_preview_state: Dictionary = {}
 var _stage_visibility_cache_key: String = ""
 var _stage_visibility_cache: Dictionary = {}
@@ -1723,6 +1731,8 @@ var _drag_card_proxy: Control
 var _music_player: AudioStreamPlayer
 var _ambient_sfx_player: AudioStreamPlayer
 var _sfx_players: Array = []
+var _sfx_bank: Node
+var _sfx_router: RefCounted
 var _sfx_pitch_rng := RandomNumberGenerator.new()
 var _ambient_fade_tween: Tween
 var _music_duck_tween: Tween
@@ -5396,7 +5406,7 @@ func _pre_battle_card_full_bleed_texture(path: String) -> Texture2D:
 	return result
 
 func _pre_battle_enemy_threat_summary(enemy_type: String) -> String:
-	return PreBattleThreatTags.summary(PreBattleThreatTags.build(enemy_type))
+	return preload("res://scripts/enemy_mechanics/death_burst_view.gd").pre_battle_summary(enemy_type, PreBattleThreatTags.summary(PreBattleThreatTags.build(enemy_type)))
 
 func _pre_battle_known_enemy_intents(enemy_type: String) -> Array:
 	var enemy_def: Dictionary = GameData.enemy_def(enemy_type)
@@ -10452,6 +10462,8 @@ func _boot_run() -> void:
 	_start_run()
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	_ensure_sfx_bank()
+	_sfx_router.baseline(next_run_state.get("combat_state", {}))
 	if board_view != null:
 		board_view.health_ghost_tracker.clear()
 	if _movement_undo_button != null: _movement_undo_button.clear_history()
@@ -10961,6 +10973,9 @@ func _refresh_relic_bar() -> void:
 		or run_event_revision > _run_skill_event_revision_seen
 	)
 	var should_pulse_defiance: bool = defiance_event_revision > _defiance_event_revision_seen
+	if should_pulse_defiance:
+		_ensure_sfx_bank()
+		_sfx_router.defiance()
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_state", performance_phase_started)
 	var skill_sigil_presentation: Dictionary = _skill_sigil_presentation(skill_ids)
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_skill_presentation", performance_phase_started)
@@ -14563,7 +14578,7 @@ func _deck_piles() -> Dictionary:
 
 func _refresh_visibility() -> void:
 	var mode: String = str(_run_state.get("mode", "room"))
-	var terminal_recap_visible: bool = mode in ["victory", "defeat"]
+	var terminal_recap_visible: bool = mode in ["victory", "defeat", "embrace"]
 	var section_map: bool = SectionMapGraph.enabled(_run_state)
 	mini_map_overlay.visible = not section_map and mode != "combat" and not terminal_recap_visible
 	mini_map.get_parent().visible = not section_map
@@ -14588,10 +14603,7 @@ func _refresh_visibility() -> void:
 		_choice_button_overlay.visible = false
 	if _context_choice_overlay != null and mode != "campfire" and not _run_engine.can_speak_to_emaciated_man(_run_state):
 		_context_choice_overlay.visible = false
-	stats_label.visible = mode not in ["victory", "defeat"]
-	loadout_button.visible = mode not in ["victory", "defeat"]
-	grimoire_button.visible = mode not in ["victory", "defeat"]
-	menu_button.visible = mode not in ["victory", "defeat"]
+	for header_control: Control in [stats_label, loadout_button, grimoire_button, menu_button]: header_control.visible = not terminal_recap_visible
 	if mode != "combat":
 		_clear_card_action_choice_state()
 		# This full refresh already reconciles choices/stage/hand. Cancelling
@@ -14641,7 +14653,7 @@ func _refresh_choice_bar(reward_jobs: Variant = null) -> void:
 	var mode: String = str(_run_state.get("mode", "room"))
 	if _graftwright_view != null and mode != "graftwright": _graftwright_view.hide()
 	var relic_offer_sfx_signature: String = ""
-	if mode not in ["victory", "defeat"] and _run_end_recap != null:
+	if mode not in ["victory", "defeat", "embrace"] and _run_end_recap != null:
 		_run_end_recap.reset()
 	choice_bar.custom_minimum_size = Vector2.ZERO
 	if _dialogue_active and _dialogue_suppresses_choices:
@@ -14709,7 +14721,7 @@ func _refresh_choice_bar(reward_jobs: Variant = null) -> void:
 				var relic: Dictionary = GameData.relic_def(relic_id)
 				_add_relic_choice(relic_id, relic)
 			_configure_relic_choice_focus()
-		"victory", "defeat":
+		"victory", "defeat", "embrace":
 			_show_run_end_recap(mode)
 	var has_overlay_choices: bool = _choice_button_overlay != null and _choice_button_overlay.get_child_count() > 0
 	var has_pass_preview: bool = _pass_preview_overlay != null and _pass_preview_overlay.get_child_count() > 0
@@ -15740,6 +15752,7 @@ func _show_run_end_recap(outcome: String) -> void:
 	if _run_end_recap == null:
 		return
 	var ember_amount: int = _victory_carry_amount if outcome == "victory" else _defeat_lost_amount
+	if outcome == "embrace": ember_amount = _run_engine.held_embers(_run_state)
 	var model: Dictionary = RunEndRecapOverlay.build_model(_run_state, _progression, outcome, ember_amount)
 	var window_center: Vector2 = RunEndRecapOverlay.DEFEAT_WINDOW_CENTER_NORMALIZED
 	_run_end_recap.present(model, window_center)
@@ -17491,6 +17504,8 @@ func _acquire_hand_card_pool_entry(card_id: String, card_size: Vector2) -> Dicti
 
 func _new_hand_card_pool_entry(card_id: String, card_size: Vector2) -> Dictionary:
 	var widget := CardWidgetScene.instantiate() as CardWidget
+	widget.set_meta("sfx_cue_owns_click", true)
+	widget.set_meta("sfx_cue_owns_focus", true)
 	widget.activated.connect(_on_hand_card_widget_activated.bind(widget))
 	widget.drag_started.connect(_on_hand_card_widget_drag_started.bind(widget))
 	widget.mouse_entered.connect(_on_hand_card_widget_hover_started.bind(widget))
@@ -17902,6 +17917,7 @@ func _refresh_stage_view() -> void:
 	presentation["board_framing_mode"] = "combat" if run_mode in ["combat", "defeat"] or post_combat_board_visible else "room"
 	presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	presentation["hud_obstacle_global_rects"] = _board_hud_obstacles(display_state)
+	presentation["boss_header_global_rect"] = _boss_health_overlay.get_global_rect() if _boss_health_overlay != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
 	presentation["status_typography_role"] = _board_status_typography_role()
 	presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	presentation["board_fit_rect"] = _board_fit_rect()
@@ -18033,6 +18049,10 @@ func _refresh_stage_view() -> void:
 			presentation["expanded_enemy_actor_keys"] = [_turn_order_hovered_enemy_key]
 			presentation["focus_actor_keys"] = [_turn_order_hovered_enemy_key]
 			presentation["focus_actor_color"] = Color("f2ddb2")
+		var rest_preview: Dictionary = _enemy_intent_preview_state(display_state)
+		var rest_focus: String = str((_enemy_threat_at_tile(display_state, intent_focus_tile) if enemy_hover_active else {}).get("enemy_key", _turn_order_hovered_enemy_key))
+		presentation["threats_at_rest"] = _intent_badges.presentation_for_state(_combat_engine, _combat_state, rest_preview, rest_focus, _surface_preview_information_state.bind(rest_preview))
+		_intent_callouts.observe(_combat_engine, _combat_state)
 		presentation["show_all_enemy_intents"] = render_all_enemy_intents
 	performance_phase_started = _record_runtime_performance_phase("stage_preview_presentation_total", performance_phase_started)
 	if not _animation_lock and str(_run_state.get("mode", "room")) == "room" and _hovered_board_tile.x >= 0 and _exit_destinations_by_tile.has(_hovered_board_tile):
@@ -20900,6 +20920,7 @@ func _movement_risk_chips_for_preview(preview: Dictionary, path_tiles: Array[Vec
 func _movement_risk_chips_for_states(before_state: Dictionary, after_state: Dictionary, path_tiles: Array[Vector2i], trade_route: Array = []) -> Array:
 	var chips: Array = []
 	var triggered_traps: Array = _movement_triggered_traps_between(before_state, after_state)
+	_ensure_sfx_bank()
 	var picked_loot: Array = _movement_picked_loot_between(before_state, after_state)
 	var risk_tile: Vector2i = _movement_risk_chip_tile(path_tiles, triggered_traps)
 	chips.append_array(_movement_player_delta_chips(before_state, after_state, risk_tile))
@@ -21402,6 +21423,8 @@ func _on_card_pressed(index: int) -> void:
 		_on_combat_skill_hand_card_selected(index)
 		return
 	if not _combat_engine.hand_card_has_play_budget(_combat_state, index):
+		_ensure_sfx_bank()
+		_sfx_router.card_invalid()
 		return
 	if _drag_card_index >= 0:
 		return
@@ -21432,6 +21455,9 @@ func _on_card_pressed(index: int) -> void:
 			elif tutorial_phase_before == ContextualCombatTutorial.PHASE_SELECT_REFUND_CARD:
 				finish_phase = ContextualCombatTutorial.PHASE_FINISH_REFUND_CARD
 			_guided_tutorial_set_phase(finish_phase if _pending_card_requires_confirmation() else target_phase)
+	else:
+		_ensure_sfx_bank()
+		_sfx_router.card_invalid()
 
 func _on_card_drag_started(index: int, pointer_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
 	_clear_focused_enemy_intent(false)
@@ -21445,6 +21471,8 @@ func _on_card_drag_started(index: int, pointer_position: Vector2 = Vector2(-1.0,
 	if not _combat_skill_card_selection_zone.is_empty():
 		return
 	if not _combat_engine.hand_card_has_play_budget(_combat_state, index):
+		_ensure_sfx_bank()
+		_sfx_router.card_invalid()
 		return
 	if _pending_umbra_commit_locked:
 		return
@@ -21467,6 +21495,8 @@ func _on_card_drag_started(index: int, pointer_position: Vector2 = Vector2(-1.0,
 			clampf(local_pointer.x / maxf(1.0, source_card.size.x), 0.0, 1.0),
 			clampf(local_pointer.y / maxf(1.0, source_card.size.y), 0.0, 1.0)
 		)
+	_ensure_sfx_bank()
+	_sfx_router.card_select()
 	_drag_card_index = index
 	_set_hand_emphasized_index(-1, false)
 	hand_box.apply_layout_immediately()
@@ -21490,6 +21520,8 @@ func _on_card_drag_started(index: int, pointer_position: Vector2 = Vector2(-1.0,
 func _begin_card_preview(index: int, preview: Dictionary, label_override: String = "", complete_play_confirmed: bool = false) -> void:
 	if not bool(preview.get("playable", false)):
 		return
+	_ensure_sfx_bank()
+	_sfx_router.card_select()
 	_hovered_card_index = -1
 	_selected_card_label_override = label_override
 	var performance_phase_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -21575,6 +21607,9 @@ func _on_card_hover_started(index: int) -> void:
 		return
 	if _animation_lock or _player_movement_selected or _selected_card_index >= 0 or _card_action_choice_index >= 0 or _drag_card_index >= 0 or str(_run_state.get("mode", "room")) != "combat":
 		return
+	if _hovered_card_index != index:
+		_ensure_sfx_bank()
+		_sfx_router.card_hover()
 	_hovered_card_index = index
 	if _updating_hand_interactions:
 		_hand_hover_refresh_pending = true
@@ -21809,6 +21844,8 @@ func _on_board_tile_clicked(tile: Vector2i) -> void:
 		preview_action_type = str((preview.get("action", {}) as Dictionary).get("type", ""))
 	if not _pending_target_tiles.has(tile) and shortcut_plan.is_empty():
 		preload("res://scripts/enemy_mechanics/veil_view.gd").show_target_denial(self, preview, tile)
+		_ensure_sfx_bank()
+		_sfx_router.card_invalid()
 		return
 	if _guided_tutorial_phase_id == ContextualCombatTutorial.PHASE_SELECT_FIRST_TARGET:
 		_guided_tutorial_set_phase(ContextualCombatTutorial.PHASE_FINISH_FIRST_CARD, false)
@@ -21990,12 +22027,12 @@ func _refresh_enemy_intent_toggle() -> void:
 	_enemy_intent_toggle_button.visible = in_combat
 	_enemy_intent_toggle_button.disabled = not in_combat or _animation_lock
 	_enemy_intent_toggle_button.set_pressed_no_signal(_show_all_enemy_intents)
-	_enemy_intent_toggle_button.text = "INTENTS ON [I]" if _show_all_enemy_intents else "INTENTS [I]"
+	_enemy_intent_toggle_button.text = "DETAILS [I]"
 	_enemy_intent_toggle_button.call("refresh_state")
 	_enemy_intent_toggle_button.tooltip_text = (
-		"Hide all enemy intents and threat previews [I]"
+		"Hide full plans [I]"
 		if _show_all_enemy_intents
-		else "Show all enemy intents and threat previews [I]"
+		else "Show every enemy's full plan [I]"
 	)
 
 func _map_shortcut_can_open() -> bool:
@@ -22353,7 +22390,7 @@ func _commit_player_movement(target_tile: Vector2i) -> void:
 		else:
 			transition_combat_state = await _animate_missed_equipment_resolution(post_combat_board_state, _salvaged_equipment_ids(committed_run_state))
 		if str(committed_run_state.get("mode", "room")) == "reward":
-			_combat_pacing.end_scope()
+			_combat_pacing.restore_time_scale()
 			await _play_post_combat_victory(transition_combat_state)
 	_board_presentation.clear()
 	_set_action_banner("")
@@ -22452,7 +22489,7 @@ func _play_player_card(hand_index: int, resolved_state: Dictionary, actions: Arr
 		else:
 			transition_combat_state = await _animate_missed_equipment_resolution(post_combat_board_state, _salvaged_equipment_ids(committed_run_state))
 		if str(committed_run_state.get("mode", "room")) == "reward":
-			_combat_pacing.end_scope()
+			_combat_pacing.restore_time_scale()
 			await _play_post_combat_victory(transition_combat_state)
 	var card_finish_started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
 	_board_presentation.clear()
@@ -22883,6 +22920,8 @@ func _take_pending_card_draw_sfx_count(combat_state: Dictionary) -> int:
 	return draw_count
 
 func _consume_pending_card_draw_sfx(combat_state: Dictionary) -> int:
+	_ensure_sfx_bank()
+	_sfx_router.deck_transition(combat_state.get("deck", {}))
 	if not _card_fx_can_continue_combat():
 		return 0
 	var draw_count: int = _take_pending_card_draw_sfx_count(combat_state)
@@ -23342,6 +23381,9 @@ func _animate_defeats_and_terrain_destruction(
 		frame_count = maxi(frame_count, terrain_frame_count)
 		frame_seconds = minf(frame_seconds, _terrain_destruction_frame_seconds_for_unit(terrain))
 	frame_count = maxi(1, frame_count)
+	var burst_clock: Dictionary = preload("res://scripts/enemy_mechanics/death_burst_view.gd").timing(before_state, after_state, frame_count, frame_seconds, self, death_units)
+	frame_count = int(burst_clock["frames"])
+	frame_seconds = float(burst_clock["frame_seconds"])
 	var state_validated_for_animation: bool = false
 	await _play_timed_animation_frames(frame_count, frame_seconds, func(frame_number: int) -> void:
 		var frame: int = frame_number - 1
@@ -23367,7 +23409,9 @@ func _animate_defeats_and_terrain_destruction(
 			presentation["death_animation_units"] = animated_units
 		if not animated_terrain.is_empty():
 			presentation["terrain_destruction_units"] = animated_terrain
-		_render_board_state(after_state, presentation, state_validated_for_animation)
+		preload("res://scripts/enemy_mechanics/death_burst_view.gd").play_cue(self, before_state, after_state, progress, burst_clock)
+		presentation = preload("res://scripts/enemy_mechanics/death_burst_view.gd").decorate(before_state, after_state, presentation, progress, burst_clock)
+		_render_board_state(preload("res://scripts/enemy_mechanics/death_burst_view.gd").state_for_frame(before_state, after_state, progress, burst_clock), presentation, state_validated_for_animation)
 		state_validated_for_animation = true
 	)
 	_render_board_state(after_state, {}, state_validated_for_animation)
@@ -23496,6 +23540,9 @@ func _fatigue_floating_texts_for_events(display_state: Dictionary, fatigue_event
 	return floats
 
 func _fatigue_damage_presentation_for_elapsed(display_state: Dictionary, fatigue_events: Array[Dictionary], elapsed_seconds: float) -> Dictionary:
+	_ensure_sfx_bank()
+	_sfx_router.fatigue()
+	_sfx_router.begin_player_action(display_state, {"kind": "fatigue"})
 	var base_texts: Array[Dictionary] = _fatigue_floating_texts_for_events(display_state, fatigue_events)
 	var t: float = clampf(elapsed_seconds / maxf(0.001, FloatingCombatText.ANIMATION_DURATION_SECONDS), 0.0, 1.0)
 	return {
@@ -23762,7 +23809,11 @@ func _has_electrical_trace(hits: Array) -> bool:
 
 func _animate_player_action_step(before_state: Dictionary, after_state: Dictionary, card_id: String, action: Dictionary, target_tile: Vector2i, chain_hits: Array = []) -> void:
 	action = SurfaceRelicRules.resolve_action(before_state, action)
+	_ensure_sfx_bank()
+	_sfx_router.begin_player_action(before_state, action, _sfx_router.weapon_for_card(card_id, _run_state))
 	var action_type: String = str(action.get("type", ""))
+	if action_type in ["push", "pull", "force_area"]: _sfx_router.push()
+	if action_type in ["swap", "blink", "illusion_swap"]: _sfx_router.blink()
 	if _combat_engine.player_action_needs_target(action) and target_tile.x < 0:
 		return
 	var player_before: Dictionary = before_state.get("player", {})
@@ -23864,6 +23915,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"floating_texts": illusion_texts
 			}), 0.0, true)
 		"illuminate":
+			_sfx_router.light()
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			await _play_timed_animation_frames(ATTACK_FRAMES, ATTACK_FRAME_SECONDS, func(frame_number: int) -> void:
 				var t: float = float(frame_number) / float(ATTACK_FRAMES)
@@ -23885,6 +23937,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				}]
 			}, 0.0, true)
 		"vision", "truesight", "dispel_umbra":
+			_sfx_router.light()
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			var light_text: String = "Truesight" if action_type == "truesight" else "Umbra -%d" % int(action.get("amount", 1)) if action_type == "dispel_umbra" else "Vision +%d" % int(action.get("amount", 0))
 			await _animate_floating_text_presentation(primary_display_state, {
@@ -23964,7 +24017,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			await preload("res://scripts/protagonist_cutout/ranged_action.gd").prepare(self, before_state, effect, base_presentation)
 			var primary_sound: Dictionary = AttackSfxLibrary.entry_for_player_action(_card_def(card_id, before_state), action)
-			_play_sfx(primary_sound)
+
 			if _has_electrical_trace(chain_hits):
 				await preload("res://scripts/chain_attack_feedback.gd").play(self, before_state, after_state, effect, chain_hits, _reduced_motion_enabled())
 			else:
@@ -24081,7 +24134,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 		"block":
 			var block_gain: int = int(player_after.get("block", 0)) - int(player_before.get("block", 0))
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			_play_sfx(AttackSfxLibrary.entry_for_block_action(_card_def(card_id, before_state), action))
+
 			await _animate_floating_text_presentation(primary_display_state, _death_hold_presentation(before_state, primary_display_state, {
 				"focus_actor_keys": ["player"],
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
@@ -24379,7 +24432,7 @@ func _resolve_enemy_round(end_reason: String = "auto") -> void:
 func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> void:
 	if steps.is_empty():
 		return
-	for step_var: Variant in steps:
+	for step_var: Variant in _intent_callouts.decorate_steps(_combat_engine, animated_state, steps):
 		var step: Dictionary = (step_var as Dictionary).duplicate(false)
 		var dragon_actor: Dictionary = _animation_actor_unit(animated_state,str(step.get("actor_key","")))
 		if str(dragon_actor.get("type","")) in preload("res://scripts/dragon_presentation.gd").TYPES:
@@ -24387,8 +24440,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			if not step.has("intent_id"): step["intent_id"] = dragon_actor.get("intent",{}).get("id","")
 		if str(step.get("kind", "")) == "commit":
 			continue
+		_ensure_sfx_bank()
+		_sfx_router.begin_enemy_action(animated_state, step, dragon_actor)
+		if str(step.get("kind", "")) in ["push", "pull"]: _sfx_router.push()
 		await _combat_pacing.before_step(step)
-		if bool(step.get("hidden_by_umbra", false)):
+		if bool(step.get("hidden_by_umbra", false)) and str(step.get("kind", "")) not in ["burrow", "erupt"]:
 			await _animate_hidden_umbra_enemy_step(animated_state, step)
 			_combat_pacing.after_step(step)
 			continue
@@ -24400,9 +24456,15 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			await preload("res://scripts/enemy_mechanics/veil_view.gd").animate(self, animated_state, step)
 			_combat_pacing.after_step(step)
 			continue
+		if str(step.get("kind", "")) in ["burrow", "erupt"]:
+			await preload("res://scripts/enemy_mechanics/burrow_view.gd").animate(self, animated_state, step)
+			_combat_pacing.after_step(step)
+			continue
 		var step_actor_key: String = str(step.get("actor_key", ""))
 		var step_actor_tile: Vector2i = step.get("tile", step.get("from", Vector2i(-1, -1)))
 		match str(step.get("kind", "")):
+			"intent_callout":
+				await IntentCallouts.play(self, animated_state, step)
 			"reinforcement_spawn":
 				await _animate_reinforcement_spawn(animated_state, step)
 			"turn_order":
@@ -24459,8 +24521,6 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 					await _animate_surface_change(before_status_step_state,animated_state,{"surface_feedback_events":step["surface_events"]})
 					await _animate_turn_order_alongside_defeats(before_status_step_state,animated_state)
 					continue
-				if str(step.get("kind", "")) == "block":
-					_play_sfx(AttackSfxLibrary.entry_for_enemy_step(step))
 				await _animate_floating_text_presentation(
 					animated_state,
 					_death_hold_presentation(
@@ -24484,14 +24544,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				if harrier_attack:
 					await HarrierAction.prepare(self, animated_state, step)
 				if not preload("res://scripts/dragon_presentation.gd").area_fx(step): await IskaldraAction.prepare(self, animated_state, step)
-				if not LightningWispCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key)) or str(step.get("kind", "")) != "ranged":
-					_play_sfx(AttackSfxLibrary.entry_for_enemy_step(step))
 				var from_point: Vector2 = board_view.world_position_for_tile(step.get("from", Vector2i.ZERO))
 				var to_point: Vector2 = board_view.world_position_for_tile(step.get("to", Vector2i.ZERO))
 				var wisp_attack: bool = LightningWispCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
 				if wisp_attack and str(step.get("kind", "")) == "ranged":
 					await LightningWispAction.prepare(self, animated_state, step)
-					_play_sfx(AttackSfxLibrary.entry_for_enemy_step(step))
 				var noctyrax_attack: bool = NoctyraxCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
 				var warden_attack: bool = WardenCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
 				var crawler_attack: bool = CrawlerCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
@@ -25045,6 +25102,8 @@ static func player_move_segments(state: Dictionary, path: Array[Vector2i], excha
 	return segments
 
 func _animate_player_blink_step(display_state: Dictionary, from: Vector2i, to: Vector2i, exchange: Dictionary, base_presentation: Dictionary) -> void:
+	_ensure_sfx_bank()
+	_sfx_router.blink()
 	var player: Dictionary = _animation_actor_unit(display_state, "player")
 	var frame_base: Dictionary = _movement_actor_frame_presentation(
 		base_presentation,
@@ -25080,6 +25139,7 @@ func _illusion_exchange_event(before_state: Dictionary, after_state: Dictionary)
 	return {}
 
 func _animate_actor_along_path(display_state: Dictionary, actor_key: String, path: Array[Vector2i], base_presentation: Dictionary) -> void:
+	_ensure_sfx_bank()
 	var actor_unit: Dictionary = _animation_actor_unit(display_state, actor_key)
 	var segment_count: int = maxi(0, path.size() - 1)
 	var player_walk: bool = actor_key == "player"
@@ -25125,6 +25185,7 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 		distance += length
 		total_frame_count += frames
 	frame_seconds = _combat_pacing.walk_frame_seconds(actor_key, segment_frame_counts, frame_seconds)
+	var sound_arrival: Dictionary = {"tile": -1}
 	await _play_timed_animation_frames(total_frame_count, frame_seconds, func(frame_number: int) -> void:
 		var zero_based_frame: int = frame_number - 1
 		var path_index: int = 0
@@ -25133,6 +25194,10 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 		if _combat_pacing.enemies_active: _combat_pacing.walk_tile(path_index)
 		var segment_frames: int = segment_frame_counts[path_index]
 		var segment_frame: int = zero_based_frame - segment_start_frames[path_index] + 1
+		var arrived: int = path_index if segment_frame == segment_frames else path_index - 1
+		while int(sound_arrival["tile"]) < arrived:
+			_sfx_router.walk_tile(actor_unit)
+			sound_arrival["tile"] += 1
 		var segment_from: Vector2i = path[path_index]
 		var segment_to: Vector2i = path[path_index + 1]
 		var from_point: Vector2 = board_view.world_position_for_unit_origin(actor_unit, segment_from)
@@ -25272,35 +25337,27 @@ func _movement_actor_frame_presentation(
 	presentation["unit_draw_tiles"] = {actor_key: draw_tile}
 	return presentation
 
+func _ensure_sfx_bank() -> void:
+	if _sfx_bank != null: return
+	_sfx_bank = SfxBankScript.new()
+	_sfx_bank.name = "SfxBank"
+	add_child(_sfx_bank)
+	_sfx_bank.warm_up(self)
+	_sfx_bank.prepare_legacy([CARD_DRAW_SFX_ENTRY, CARD_PLAY_SFX_ENTRY, REWARD_CARD_FLIP_SFX_ENTRY, ITEM_EQUIP_SFX_ENTRY, RELIC_CHOICES_OPEN_SFX_ENTRY])
+	_sfx_players = _sfx_bank.players
+	_sfx_router = SfxCueRouterScript.new(_sfx_bank)
+	_sfx_router.bind_map_hover(self)
+	if board_view != null: board_view.sound_presentation.connect(_sfx_router.presentation)
+
 func _play_sfx(entry: Dictionary) -> float:
-	var path: String = str(entry.get("path", ""))
-	if path.is_empty():
-		return 0.0
-	var resource: AudioStream = AssetLoader.load_audio_stream(path)
-	if resource == null:
-		return 0.0
+	_ensure_sfx_bank()
 	var is_stinger: bool = bool(entry.get("music_duck", false))
-	if is_stinger and Time.get_ticks_msec() < _music_stinger_until_msec:
-		# Never stack stingers: a dragon kill's fanfare owns the reward reveal.
-		return 0.0
-	var player: AudioStreamPlayer = _acquire_sfx_player()
-	var generation: int = int(player.get_meta("play_generation", 0)) + 1
-	player.set_meta("play_generation", generation)
-	player.set_meta("sfx_id", str(entry.get("id", "")))
-	player.stream = resource
-	player.bus = str(entry.get("bus", SettingsStore.WORLD_SFX_BUS))
-	player.volume_db = float(entry.get("volume_db", 0.0))
-	player.pitch_scale = _sfx_pitch_for_entry(entry, resource)
-	if player.is_inside_tree():
-		player.play()
-	if is_stinger:
-		_music_stinger_until_msec = Time.get_ticks_msec() + int(maxf(0.0, resource.get_length() - MUSIC_STINGER_TAIL_SECONDS) * 1000.0)
-		_duck_music_for(resource.get_length())
-	var duration: float = float(entry.get("duration", 0.0))
-	if duration > 0.0:
-		get_tree().create_timer(duration, true, false, true).timeout.connect(_stop_attack_sfx_player.bind(player, generation))
-		return minf(duration, maxf(0.0, resource.get_length()))
-	return maxf(0.0, resource.get_length())
+	if is_stinger and Time.get_ticks_msec() < _music_stinger_until_msec: return 0.0
+	var duration: float = _sfx_bank.play_entry(entry)
+	if is_stinger and duration > 0.0:
+		_music_stinger_until_msec = Time.get_ticks_msec() + int(maxf(0.0, duration - MUSIC_STINGER_TAIL_SECONDS) * 1000.0)
+		_duck_music_for(duration)
+	return minf(duration, float(entry.get("duration", duration)))
 
 # Repeated one-shots (card draws, hits, clicks) get a small random pitch drift
 # so a hand of five draws or a flurry of strikes never sounds machine-gunned.
@@ -25327,50 +25384,26 @@ func _duck_music_for(seconds: float) -> void:
 	_music_duck_tween.tween_property(duck, "volume_db", 0.0, 1.2).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 func _play_trap_sfx(traps: Array) -> void:
-	for entry: Dictionary in AttackSfxLibrary.entries_for_traps(traps):
-		_play_sfx(entry)
+	_ensure_sfx_bank()
+	_sfx_router.trap(traps)
 
 func _acquire_sfx_player() -> AudioStreamPlayer:
-	for player_var: Variant in _sfx_players:
-		var pooled_player: AudioStreamPlayer = player_var as AudioStreamPlayer
-		if pooled_player != null and not pooled_player.playing:
-			return pooled_player
-	var player := AudioStreamPlayer.new()
-	player.name = "SfxPlayer%d" % _sfx_players.size()
-	player.bus = SettingsStore.WORLD_SFX_BUS
-	add_child(player)
-	_sfx_players.append(player)
-	return player
+	_ensure_sfx_bank()
+	return _sfx_players[0]
 
 func _update_ambient_sfx_for_context(mode: String) -> void:
+	_ensure_sfx_bank()
+	_sfx_router.run_context(_run_state)
 	var entry: Dictionary = RunSfxLibrary.ambient_entry_for_mode(mode)
 	var next_id: String = str(entry.get("id", ""))
-	if next_id == _active_ambient_sfx_id:
-		return
+	if RunSfxLibrary.DUNGEON_AMBIENCE_MODES.has(mode) and _sfx_router.ambience_for_run(_run_state) != "stone": next_id = "ambience." + _sfx_router.ambience_for_run(_run_state)
+	if next_id == _active_ambient_sfx_id or (not next_id.is_empty() and next_id == _sfx_bank.active_loop_id): return
 	_active_ambient_sfx_id = next_id
-	if next_id.is_empty():
-		if _ambient_sfx_player != null:
-			_ambient_sfx_player.stop()
-			_ambient_sfx_player.stream = null
-		return
-	var resource: AudioStream = AssetLoader.load_audio_stream(str(entry.get("path", "")))
-	if resource == null:
-		_active_ambient_sfx_id = ""
-		return
-	_ensure_ambient_sfx_player()
-	_ambient_sfx_player.stream = _looping_audio_stream(resource)
-	_ambient_sfx_player.bus = str(entry.get("bus", SettingsStore.WORLD_SFX_BUS))
-	var ambient_target_db: float = float(entry.get("volume_db", 0.0))
-	_ambient_sfx_player.volume_db = ambient_target_db
-	if _ambient_sfx_player.is_inside_tree():
-		_ambient_sfx_player.play()
-	# Beds swell in under the room rather than snapping on with the scene cut.
-	if _ambient_fade_tween != null and _ambient_fade_tween.is_valid():
-		_ambient_fade_tween.kill()
-	if is_inside_tree():
-		_ambient_sfx_player.volume_db = AMBIENT_FADE_FLOOR_DB
-		_ambient_fade_tween = create_tween()
-		_ambient_fade_tween.tween_property(_ambient_sfx_player, "volume_db", ambient_target_db, AMBIENT_FADE_IN_SECONDS).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	if next_id.is_empty(): _sfx_bank.stop_loop(true)
+	elif next_id.begins_with("ambience."): _sfx_bank.play(next_id)
+	else: _sfx_bank.play_entry(entry)
+	_active_ambient_sfx_id = _sfx_bank.audible_loop_id()
+	_ambient_sfx_player = _sfx_bank.active_loop_player()
 
 func _ensure_ambient_sfx_player() -> void:
 	if _ambient_sfx_player != null:
@@ -25629,6 +25662,8 @@ func _apply_guardian_props(display_state: Dictionary, target_presentation: Dicti
 		target_presentation["scene_props"] = props
 
 func _render_board_state(display_state: Dictionary, presentation: Dictionary, state_stable_since_last_submission: bool = false) -> void:
+	_ensure_sfx_bank()
+	board_view.present_sound_snapshot(display_state, presentation)
 	var rendered_presentation: Dictionary = presentation.duplicate(false)
 	_apply_guardian_props(display_state, rendered_presentation)
 	var cutout_effect: Dictionary = presentation.get("effect", {})
@@ -25839,6 +25874,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	rendered_presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	rendered_presentation["status_typography_role"] = _board_status_typography_role()
 	rendered_presentation["hud_obstacle_global_rects"] = _board_hud_obstacles(display_state)
+	rendered_presentation["boss_header_global_rect"] = _boss_health_overlay.get_global_rect() if _boss_health_overlay != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
 	rendered_presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	rendered_presentation["board_fit_rect"] = _board_fit_rect()
 	rendered_presentation["board_encounter_types"] = _board_encounter_types()
@@ -27244,6 +27280,8 @@ func _on_map_view_room_selected(coord: Vector2i, door_tile: Vector2i = INVALID_T
 		return
 	if not _run_engine.available_moves(_run_state).has(coord):
 		return
+	_ensure_sfx_bank()
+	_sfx_router.map_select()
 	var previous_run_state: Dictionary = _run_state.duplicate(true)
 	var previous_coord: Vector2i = previous_run_state.get("current_room", Vector2i(-999, -999))
 	var selected_door_tile: Vector2i = door_tile if door_tile.x >= 0 else _door_tile_for_destination(coord)
@@ -27469,10 +27507,13 @@ func _on_campfire_embrace_pressed(present_feedback: bool = false) -> void:
 	var held: int = _run_engine.held_embers(_run_state)
 	var committed_progression: Dictionary = ProgressionStore.set_embers(_progression, held)
 	committed_progression = ProgressionStore.mark_rested_at_fire(committed_progression)
+	var withdrawal: Dictionary = RunEndRecapOverlay.embrace_state(_run_state, committed_progression)
+	committed_progression = withdrawal["progression"]
 	if not ProgressionStore.save_data(committed_progression):
 		push_error("Failed to persist campfire Embrace; the run remains resumable.")
 		return
 	_progression = committed_progression
+	_run_state = withdrawal
 	_campfire_embrace_committed = true
 	ProgressionStore.clear_saved_run()
 	if present_feedback:
@@ -27480,7 +27521,9 @@ func _on_campfire_embrace_pressed(present_feedback: bool = false) -> void:
 		_play_sfx(RunSfxLibrary.entry(RunSfxLibrary.HEARTH_DEPART_ID))
 		await _play_campfire_result("%d Embers banked" % held, false)
 		if token != _campfire_presentation.generation: return
-	_change_scene_to_file("res://scenes/main_menu.tscn")
+	_set_campfire_choice_action_pending(false)
+	_animation_lock = false
+	_refresh_ui()
 
 func _on_campfire_linger_pressed() -> void:
 	_run_state = _run_engine.leave_campfire(_run_state, CAMPFIRE_LINGER_HEAL_AMOUNT)
@@ -27713,7 +27756,9 @@ func _on_merchant_buy_pressed(merchant_kind: String, item_id: String, source_row
 	# Ownership, currency and persistence settle before presentation. Purchase
 	# fanfare has its own lifetime and never holds up another trade or Leave.
 	_refresh_ui()
-	_play_reward_collect_sfx()
+	_ensure_sfx_bank()
+	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER: _sfx_router.shop_buy()
+	else: _play_reward_collect_sfx()
 	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER and _node_is_alive(_scavenger_shop_view):
 		_scavenger_shop_view.present_purchase(item_id, purchase_origin)
 	_merchant_trade_animation_active = false
@@ -27747,7 +27792,9 @@ func _on_merchant_sell_pressed(merchant_kind: String, item_id: String, source_ro
 	_persist_committed_boundary("merchant_sell")
 	_analytics_log_merchant_trade("sell", merchant_kind, item_id, amount, before_embers, after_embers)
 	_refresh_ui()
-	_play_reward_collect_sfx()
+	_ensure_sfx_bank()
+	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER: _sfx_router.shop_sell()
+	else: _play_reward_collect_sfx()
 	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER and _node_is_alive(_scavenger_shop_view):
 		_scavenger_shop_view.present_sale(item_id, sale_origin)
 	_merchant_trade_animation_active = false
@@ -27794,6 +27841,7 @@ func _animate_board_pickup_acquisitions(before_state: Dictionary, after_state: D
 	for loot: Dictionary in picked_loot:
 		if str(loot.get("kind", "")) not in ["equipment", "item"] or str(loot.get("resolution", "")) == "missed":
 			continue
+		_sfx_router.pickup(str(loot.get("kind", "")))
 		_render_board_state(after_state, {})
 		await _animate_pickup_acquisition_flair(
 			loot, loot.get("pos", INVALID_TARGET_TILE), after_state,
@@ -33032,9 +33080,12 @@ func _analytics_log_combat_transition(previous_run_state: Dictionary, reason: St
 		_reset_analytics_combat_tracker()
 
 func _analytics_log_combat_started(reason: String) -> void:
+	var encounter_room: Dictionary = _run_engine.room_metadata(_run_state, _combat_state.get("room_coord", Vector2i.ZERO))
 	var objective: Dictionary = _combat_state.get("objective", {}) as Dictionary
 	_analytics_store.write_event("combat_started", _analytics_context_from_states(_run_state, _combat_state), {
 		"reason": reason,
+		"encounter_id": str(encounter_room.get("encounter_id", "")),
+		"biome": str(encounter_room.get("biome", "")),
 		"room_name": str(_combat_state.get("room_name", "")),
 		"room_type": str(_combat_state.get("room_type", "")),
 		"room_coord": _combat_state.get("room_coord", Vector2i.ZERO),
@@ -34657,6 +34708,8 @@ func _on_section_map_event(choice: String) -> void:
 	if _animation_lock:
 		if _event_view != null: _event_view.release_request()
 		return
+	_ensure_sfx_bank()
+	if choice != "continue": _sfx_router.event_choose()
 	_run_state = _run_engine.resolve_map_event(_run_state, choice)
 	_persist_committed_boundary("map_event")
 	_refresh_ui()
@@ -34739,9 +34792,9 @@ func _animate_guardian_utility(state: Dictionary, step: Dictionary, actor_key: S
 		_render_board_state(after if released else state,shown,true)
 	)
 
-func _play_outcome_sounds(events: Array, primary_element: String = "", traps: Array = []) -> void:
-	for entry: Dictionary in OutcomeFeedback.sounds(events,primary_element,traps):
-		_play_sfx(entry)
+func _play_outcome_sounds(events: Array, _primary_element: String = "", _traps: Array = []) -> void:
+	_ensure_sfx_bank()
+	_sfx_router.outcomes(events)
 
 func _refresh_event_view() -> void:
 	if str(_run_state.get("mode", "")) == "event":
