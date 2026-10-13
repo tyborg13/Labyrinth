@@ -86,11 +86,12 @@
    "size_class": "small",
    "target_h": 160,
    "target_w": 200,
-   "art_scale": 0.85,
+   "art_scale": 0.75,
    "peers": [
     "roc_fledgling",
     "harrier"
-   ]
+   ],
+   "note": "v2 painted at canvas 238 (raised crescent wings); drawn 178 at 0.75"
   },
   "arc_thrall": {
    "view": "creature",
