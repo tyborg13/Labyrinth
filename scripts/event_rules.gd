@@ -1,6 +1,7 @@
 extends RefCounted
 class_name EventRules
 
+const DepthRules = preload("res://scripts/depth_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
@@ -120,7 +121,7 @@ static func first_available_choice_id(state: Dictionary) -> String:
 static func choice_block_reason(state: Dictionary, event_id: String, choice_id: String) -> String:
 	var choice: Dictionary = choice_def(event_id, choice_id)
 	for requirement: Dictionary in choice.get("requires", []):
-		var value: int = int(requirement.get("amount", 0))
+		var value: int = DepthRules.event_requirement(state, str(requirement.get("type", "")), int(requirement.get("amount", 0)))
 		match str(requirement.get("type", "")):
 			"hp_above":
 				if int(state.get("player_hp", 0)) <= value: return "Requires more than %d Health." % value
@@ -197,7 +198,7 @@ static func apply_effects(state: Dictionary, effects: Array, rng: RandomNumberGe
 	var result: Dictionary = {}
 	for effect: Dictionary in effects:
 		var type: String = str(effect["type"])
-		var value: int = int(effect.get("amount", 0))
+		var value: int = DepthRules.event_value(state, str(effect.get("type", "")), int(effect.get("amount", 0)))
 		match type:
 			"hp", "heal", "heal_percent":
 				var before: int = int(next["player_hp"])
@@ -451,7 +452,7 @@ static func choice_effect_lines(state: Dictionary, event_id: String, choice_id: 
 static func effect_lines(state: Dictionary, effects: Array) -> Array[String]:
 	var lines: Array[String]
 	for effect: Dictionary in effects:
-		var value: int = int(effect.get("amount", 0))
+		var value: int = DepthRules.event_value(state, str(effect.get("type", "")), int(effect.get("amount", 0)))
 		var type: String = str(effect["type"])
 		var rarity: String = str(effect.get("rarity", "")).capitalize()
 		var element: String = _resolved_element(state, str(effect.get("element", "any"))).capitalize()

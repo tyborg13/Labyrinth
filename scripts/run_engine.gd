@@ -1,6 +1,7 @@
 extends RefCounted
 class_name RunEngine
 
+const DepthRules = preload("res://scripts/depth_rules.gd")
 const EventRules = preload("res://scripts/event_rules.gd")
 const OmenRules = preload("res://scripts/omen_rules.gd")
 const GraftwrightRules = preload("res://scripts/graftwright_rules.gd")
@@ -112,9 +113,11 @@ static func normalized_run_stats(value: Variant) -> Dictionary:
 static func run_result_id(run_state: Dictionary) -> String:
 	return "run:%d:seed:%d" % [int(run_state.get("run_index", 0)), int(run_state.get("seed", 0))]
 
-func create_new_run(seed: int, progression: Dictionary, section_maps: bool = true) -> Dictionary:
+func create_new_run(seed: int, progression: Dictionary, section_maps: bool = true, requested_depth: int = -1) -> Dictionary:
 	var normalized_progression: Dictionary = ProgressionStore.normalized_data(progression)
-	var max_hp: int = BASE_MAX_HP
+	var selected_depth: int = ProgressionStore.session_umbra_depth(normalized_progression) if requested_depth < 0 else clampi(requested_depth, 0, ProgressionStore.unlocked_umbra_depth(normalized_progression))
+	var depth_state: Dictionary = {DepthRules.STATE_KEY: selected_depth}
+	var max_hp: int = DepthRules.start_max_hp(depth_state, BASE_MAX_HP)
 	var hand_size: int = BASE_HAND_SIZE
 	var heal_bonus: int = 0
 	var starting_embers: int = maxi(0, int(normalized_progression.get("embers", 0)))
@@ -161,7 +164,7 @@ func create_new_run(seed: int, progression: Dictionary, section_maps: bool = tru
 		NEW_LOADOUT_MAGIC_KEY: [],
 		"equipment_drop_misses": 0,
 		"relics": [],
-		"player_hp": max_hp,
+		"player_hp": DepthRules.start_hp(depth_state, max_hp),
 		"player_max_hp": max_hp,
 		DEFIANCE_CAPACITY_KEY: defiance_capacity,
 		DEFIANCE_REMAINING_KEY: defiance_capacity,
@@ -181,6 +184,8 @@ func create_new_run(seed: int, progression: Dictionary, section_maps: bool = tru
 		SKILL_STATE_KEY: _default_skill_state(),
 		"progression": normalized_progression
 	}
+	# Sparse zero is the legacy persisted representation: byte-identical states.
+	if selected_depth > 0: run_state[DepthRules.STATE_KEY] = selected_depth
 	run_state["run_stats"]["max_held_embers"] = starting_embers
 	var gifts: Array[Dictionary] = ProgressionStore.pending_starting_relic_gifts(normalized_progression)
 	if not gifts.is_empty():
@@ -192,6 +197,8 @@ func create_new_run(seed: int, progression: Dictionary, section_maps: bool = tru
 		run_state["encounter_history"] = []
 		SectionMapGraph.room(run_state, Vector2i.ZERO)["npcs"] = start_room.get("npcs", [])
 		run_state["current_room_layout"] = _display_layout_for_room(seed, room_metadata(run_state, Vector2i.ZERO), Vector2i.ZERO)
+	var starting_omen: String = str(DepthRules.modifier(run_state, "start_omen").get("omen", ""))
+	if not starting_omen.is_empty(): run_state = OmenRules.add(run_state, starting_omen)
 	run_state = GrimoireLibrary.ensure_run_state(run_state)
 	_reveal_neighbors(run_state, Vector2i.ZERO)
 	_stage_recovery_marker(run_state)
@@ -339,6 +346,10 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 			next_state[SKILL_STATE_KEY] = raw_skill_state
 	next_state[SKILL_STATE_KEY] = _normalized_skill_state(next_state.get(SKILL_STATE_KEY, {}))
 	next_state["progression"] = ProgressionStore.normalized_data(next_state.get("progression", {}) as Dictionary)
+	if next_state.has(DepthRules.STATE_KEY):
+		next_state[DepthRules.STATE_KEY] = clampi(DepthRules.depth(next_state), 0, ProgressionStore.unlocked_umbra_depth(next_state["progression"]))
+		for board_key: String in ["combat_state", "current_room_layout"]:
+			if not (next_state.get(board_key, {}) as Dictionary).is_empty(): next_state[board_key][DepthRules.STATE_KEY] = DepthRules.depth(next_state)
 	next_state.erase("stats")
 	next_state = _sync_defiance_capacity(next_state, false)
 	var repaired_combat_state: Dictionary = (next_state.get("combat_state", {}) as Dictionary).duplicate(true)
@@ -1278,7 +1289,9 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 		var boss_max_hp: int = maxi(1, int(next_state.get("player_max_hp", 1)))
 		var hp_before: int = int(next_state.get("player_hp", 1))
 		next_state["player_hp"] = mini(boss_max_hp, hp_before + ceili(float(boss_max_hp) * BOSS_VICTORY_HEAL_FRACTION))
-		next_state = add_held_embers(next_state, BOSS_VICTORY_EMBERS)
+		var dragon_reward: int = OmenRules.ember_drop(combat_state, int(GameData.enemy_def(boss_id).get("reward_embers", 0)))
+		var victory_embers: int = DepthRules.dragon_victory_embers(next_state, dragon_reward, BOSS_VICTORY_EMBERS)
+		next_state = add_held_embers(next_state, victory_embers)
 		var relic_id: String = DragonBossLibrary.relic_for_boss(boss_id)
 		var final_boss: bool = _is_final_boss_depth(int(room.get("depth", _room_depth(current_room)))) or bool(next_state.get("debug_boss_run", false))
 		var next_descent: bool = boss_id == DragonBossLibrary.SHADOW_BOSS_ID
@@ -1290,7 +1303,7 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 		next_state["pending_reward"] = {
 			"kind":"dragon", "milestone_id":milestone_id, "boss_id":boss_id,
 			"relic_id":relic_id, "next_descent":next_descent, "final_boss":final_boss,
-			"ember_amount":total_embers + BOSS_VICTORY_EMBERS,
+			"ember_amount":total_embers + victory_embers,
 			"healed_amount":int(next_state["player_hp"]) - hp_before,
 			"moltshards":1 if awarded_moltshard else 0,
 			"board_state":resolved_combat_state.duplicate(true), "intro_pending":true
@@ -1681,7 +1694,10 @@ func merchant_item_kind(item_id: String) -> String:
 		return MERCHANT_ITEM_KIND_MAGIC
 	return ""
 
-func merchant_buy_cost(_merchant_kind: String, item_id: String) -> int:
+func merchant_buy_cost(merchant_kind: String, item_id: String, run_state: Dictionary = {}) -> int:
+	return DepthRules.shop_price(run_state, _merchant_base_buy_cost(merchant_kind, item_id))
+
+func _merchant_base_buy_cost(_merchant_kind: String, item_id: String) -> int:
 	match merchant_item_kind(item_id):
 		MERCHANT_ITEM_KIND_GEAR:
 			var equipment_rarity: String = GameData.equipment_rarity(item_id)
@@ -1695,7 +1711,7 @@ func merchant_buy_cost(_merchant_kind: String, item_id: String) -> int:
 	return 0
 
 func merchant_sell_value(merchant_kind: String, item_id: String) -> int:
-	var buy_cost: int = merchant_buy_cost(merchant_kind, item_id)
+	var buy_cost: int = _merchant_base_buy_cost(merchant_kind, item_id)
 	if buy_cost <= 0:
 		return 0
 	return maxi(1, int(round(float(buy_cost) * MERCHANT_SELL_VALUE_RATIO)))
@@ -1714,7 +1730,7 @@ func buy_merchant_item(run_state: Dictionary, merchant_kind: String, item_id: St
 	if bought_slot < 0:
 		next_state["notice"] = "Not in stock."
 		return next_state
-	var cost: int = merchant_buy_cost(merchant_kind, item_id)
+	var cost: int = merchant_buy_cost(merchant_kind, item_id, next_state)
 	if cost <= 0:
 		return next_state
 	if held_embers(next_state) < cost:
@@ -1905,9 +1921,13 @@ func claim_relic(run_state: Dictionary, relic_id: String, deferred_relic_id: Str
 	next_state["mode"] = "room"
 	return next_state
 
+func campfire_linger_heal(run_state: Dictionary) -> int:
+	return DepthRules.hearth_heal(run_state, CAMPFIRE_LINGER_HEAL)
+
 func leave_campfire(run_state: Dictionary, heal_amount: int = 0) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	if heal_amount > 0:
+		heal_amount = DepthRules.hearth_heal(run_state, heal_amount)
 		var max_hp: int = maxi(1, int(next_state.get("player_max_hp", 1)))
 		var current_hp: int = int(next_state.get("player_hp", max_hp))
 		next_state["player_hp"] = mini(max_hp, current_hp + heal_amount)
@@ -2450,6 +2470,7 @@ func _display_layout_for_room(seed: int, room: Dictionary, travel_dir: Vector2i)
 
 func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: Dictionary) -> Dictionary:
 	var layout_room: Dictionary = room.duplicate(true)
+	if DepthRules.depth(run_state) > 0: layout_room[DepthRules.STATE_KEY] = DepthRules.depth(run_state)
 	# Lost Embers join the room's own encounter so the map stays truthful. Only a
 	# legacy marker on a non-encounter room needs a generic fight to hold the pile;
 	# a Guardian or boss node chosen by section recovery keeps its real roster.
@@ -2689,12 +2710,12 @@ func _generate_card_rewards(run_state: Dictionary, coord: Vector2i, salt: int = 
 	if ElementData.is_elemental(room_element):
 		var blocked_elemental: Array[String] = excluded.duplicate()
 		blocked_elemental.append_array(choices)
-		choices.append_array(_draw_reward_cards_for_element(rng, room_element, 2, blocked_elemental))
+		choices.append_array(_draw_reward_cards_for_element(rng, room_element, 2, blocked_elemental, run_state))
 	var blocked_general: Array[String] = excluded.duplicate()
 	blocked_general.append_array(choices)
-	choices.append_array(_draw_reward_cards_for_element(rng, "", 1, blocked_general))
+	choices.append_array(_draw_reward_cards_for_element(rng, "", 1, blocked_general, run_state))
 	if choices.size() < 3:
-		choices.append_array(_draw_reward_cards_for_element(rng, "", 3 - choices.size(), choices))
+		choices.append_array(_draw_reward_cards_for_element(rng, "", 3 - choices.size(), choices, run_state))
 	return choices
 
 func _offer_with_deferred_id(choices_value: Array, deferred_id: String) -> Array[String]:
@@ -2707,13 +2728,13 @@ func _offer_with_deferred_id(choices_value: Array, deferred_id: String) -> Array
 		choices.append(deferred_id)
 	return choices
 
-func _draw_reward_cards_for_element(rng: RandomNumberGenerator, element_filter: String, count: int, existing_choices: Array[String]) -> Array[String]:
+func _draw_reward_cards_for_element(rng: RandomNumberGenerator, element_filter: String, count: int, existing_choices: Array[String], depth_state: Dictionary = {}) -> Array[String]:
 	var pool_by_rarity: Dictionary = GameData.reward_card_pool_by_rarity(element_filter, true)
 	var choices: Array[String] = []
 	var attempts: int = 0
 	while choices.size() < count and attempts < 72:
 		attempts += 1
-		var rarity: String = _draw_card_reward_rarity(rng, pool_by_rarity)
+		var rarity: String = _draw_card_reward_rarity(rng, pool_by_rarity, depth_state)
 		if rarity.is_empty():
 			break
 		var pool: Array = (pool_by_rarity.get(rarity, []) as Array).duplicate()
@@ -2731,12 +2752,12 @@ func _draw_reward_cards_for_element(rng: RandomNumberGenerator, element_filter: 
 		choices.append(str(weighted_pool[rng.randi_range(0, weighted_pool.size() - 1)]))
 	return choices
 
-func _draw_card_reward_rarity(rng: RandomNumberGenerator, pool_by_rarity: Dictionary) -> String:
+func _draw_card_reward_rarity(rng: RandomNumberGenerator, pool_by_rarity: Dictionary, depth_state: Dictionary = {}) -> String:
 	var total_weight: int = 0
 	for rarity: String in GameData.CARD_RARITY_TIERS:
 		if (pool_by_rarity.get(rarity, []) as Array).is_empty():
 			continue
-		total_weight += GameData.rarity_offer_weight(rarity)
+		total_weight += DepthRules.rarity_weight(depth_state, rarity, GameData.rarity_offer_weight(rarity))
 	if total_weight <= 0:
 		return ""
 	var roll: int = rng.randi_range(1, total_weight)
@@ -2744,7 +2765,7 @@ func _draw_card_reward_rarity(rng: RandomNumberGenerator, pool_by_rarity: Dictio
 	for rarity: String in GameData.CARD_RARITY_TIERS:
 		if (pool_by_rarity.get(rarity, []) as Array).is_empty():
 			continue
-		cursor += GameData.rarity_offer_weight(rarity)
+		cursor += DepthRules.rarity_weight(depth_state, rarity, GameData.rarity_offer_weight(rarity))
 		if roll <= cursor:
 			return rarity
 	return "common"

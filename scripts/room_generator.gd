@@ -1,6 +1,7 @@
 extends RefCounted
 class_name RoomGenerator
 
+const DepthRules = preload("res://scripts/depth_rules.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const DragonBossLibrary = preload("res://scripts/dragon_boss_library.gd")
 const GameData = preload("res://scripts/game_data.gd")
@@ -199,7 +200,37 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 				layout["traps"].append(_trap_for_tile(preload("res://scripts/guardian_library.gd").oriented_tile(layout,tile),"air",encounter_depth,_depth_sequence_index(depth)))
 		preload("res://scripts/guardian_library.gd").stage_loot(layout)
 	_add_omen_enemies(layout, room, run_seed)
+	_apply_umbra_depth(layout, room)
 	return layout
+
+func _apply_umbra_depth(layout: Dictionary, room: Dictionary) -> void:
+	if DepthRules.depth(room) == 0: return
+	layout[DepthRules.STATE_KEY] = DepthRules.depth(room)
+	layout["section_index"] = int(room.get("section_index", (maxi(1, int(room.get("depth", 1))) - 1) / DEPTHS_PER_SEQUENCE))
+	if str(layout.get("type", "")) == "guardian":
+		_add_depth_guardian_helpers(layout, room)
+	for enemy: Dictionary in layout["enemies"]:
+		enemy["max_hp"] = DepthRules.enemy_hp(room, enemy, int(enemy["max_hp"]))
+		enemy["hp"] = enemy["max_hp"]
+
+func _add_depth_guardian_helpers(layout: Dictionary, room: Dictionary) -> void:
+	var count: int = DepthRules.amount(room, "guardian_extra_helper")
+	if count <= 0: return
+	var type: String = DepthRules.extra_helper_type(str(layout.get("guardian_id", "")))
+	if type.is_empty(): return
+	var occupied: Dictionary = {layout["player_start"]: true}
+	for list: String in ["enemies", "traps", "loot", "terrain", "npcs", "guardian_braziers"]:
+		for entry: Dictionary in layout.get(list, []):
+			for tile: Vector2i in _enemy_footprint_tiles(entry): occupied[tile] = true
+	for tile: Vector2i in CombatObjectiveRules.exit_target_tiles(layout.get("objective", {})): occupied[tile] = true
+	for tile: Vector2i in _floor_tiles(layout["grid"]):
+		if count <= 0: break
+		if occupied.has(tile) or PathUtils.manhattan(tile, layout["player_start"]) <= ENEMY_SPAWN_SAFE_RADIUS: continue
+		var hp: int = _scaled_enemy_max_hp(type, int(layout["depth"]))
+		layout["enemies"].append({"id": (layout["enemies"] as Array).size() + 1, "type": type, "element": layout["element"], "pos": tile, "hp": hp, "max_hp": hp, "block": 0, "stoneskin": 0, "guardian_helper": true, "summoned": type in ["lightning_wisp", "wick_shade"], "reward_embers": 0})
+		layout["objective"]["initial_enemy_count"] = int(layout["objective"].get("initial_enemy_count", 0)) + 1
+		occupied[tile] = true
+		count -= 1
 
 func _uses_encounter_tables(room: Dictionary) -> bool:
 	return int(room.get("section_map_layout_revision", 0)) >= 4 and room.has("section_index") and str(room.get("type", "")) == "combat" and (room.get("npcs", []) as Array).is_empty() and not bool(room.get("encounter_tables_exempt", false))

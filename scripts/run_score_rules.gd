@@ -1,6 +1,7 @@
 extends RefCounted
 class_name RunScoreRules
 
+const DepthRules = preload("res://scripts/depth_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const Guardians = preload("res://scripts/guardian_library.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
@@ -133,6 +134,11 @@ static func score(run_state: Dictionary, outcome: String) -> Dictionary:
 	for row: Dictionary in feats:
 		row["feat"] = true
 		total += int(row["points"])
+	if DepthRules.depth(run_state) > 0:
+		var bonus: int = DepthRules.score_bonus(run_state, total)
+		# The multiplier covers base rows and feats, but its own row precedes feats.
+		lines.append({"id": "umbra_depth", "label": "Umbra Depth %d" % DepthRules.depth(run_state), "detail": "+%d%%" % DepthRules.score_percent(run_state), "points": bonus, "subject": "", "feat": false})
+		total += bonus
 	return {"lines": lines, "feats": feats, "total": total}
 
 static func _append(rows: Array[Dictionary], id: String, label: String, detail: String, points: int, subject: String = "") -> void:
@@ -176,6 +182,7 @@ static func analytics_context(state: Dictionary) -> Dictionary:
 	var room: Dictionary = Graph.room(state, state.get("current_room", Vector2i.ZERO))
 	return {
 		"run_id": identity(state),
+		"depth": DepthRules.depth(state),
 		"room_depth": int(room.get("depth", 0)),
 		"room_type": str(room.get("type", "")),
 		"progression_level": int(progression.get("level", 1)),

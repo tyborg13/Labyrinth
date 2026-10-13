@@ -9934,6 +9934,7 @@ func _layout_header_hud_content() -> void:
 	var min_width: float = maxf(room_title.get_combined_minimum_size().x, room_subtitle.get_combined_minimum_size().x)
 	if umbra_subtitle != null and umbra_subtitle.visible:
 		min_width = maxf(min_width, umbra_subtitle.get_combined_minimum_size().x)
+	min_width = preload("res://scripts/new_descent_panel.gd").header_minimum_width(room_subtitle, min_width)
 	if _relic_utility_bar != null:
 		_relic_utility_bar.visible = _relic_utility_bar.get_child_count() > 0
 	if relic_bar != null and relic_bar.visible and relic_bar.get_child_count() > 0:
@@ -9956,6 +9957,7 @@ func _layout_header_hud_content() -> void:
 			var header_bottom: float = room_subtitle.get_global_rect().end.y
 			if umbra_subtitle != null and umbra_subtitle.visible:
 				header_bottom = umbra_subtitle.get_global_rect().end.y
+			header_bottom = preload("res://scripts/new_descent_panel.gd").header_bottom(room_subtitle, header_bottom)
 			relic_bar.global_position = Vector2(title_box.get_global_rect().position.x, header_bottom + float(title_box.get_theme_constant("separation")))
 		else:
 			relic_bar.custom_minimum_size = Vector2.ZERO
@@ -10599,7 +10601,7 @@ func _start_run() -> void:
 	new_run_state = _ensure_run_analytics_metadata(new_run_state)
 	# Never erase the previous run before its replacement is durable. A gift is
 	# stamped into this save before its pending profile entry is acknowledged.
-	if not ProgressionStore.save_data(_progression) or not ProgressionStore.save_run_state(new_run_state):
+	if not ProgressionStore.save_new_descent_profile(_progression) or not ProgressionStore.save_run_state(new_run_state):
 		if not previous.is_empty():
 			_load_run_state(previous)
 			_run_state["notice"] = "The new run could not be saved. Your previous run is available."
@@ -10709,6 +10711,7 @@ func _refresh_ui_header() -> void:
 	_update_ambient_sfx_for_context(str(_run_state.get("mode", "room")))
 	room_title.text = _room_title_text(display_room)
 	room_subtitle.text = _room_subtitle_text(display_room)
+	preload("res://scripts/new_descent_panel.gd").update_run_header(room_subtitle, _run_state, _queue_header_hud_layout)
 	performance_phase_started = _record_runtime_performance_phase("refresh_ui_room_header", performance_phase_started)
 	_refresh_umbra_subtitle()
 	_set_stats_label_text(_displayed_ember_count())
@@ -16677,7 +16680,7 @@ func _campfire_choice_chips(choice_id: String, enabled: bool) -> Array:
 	var chips: Array = []
 	match choice_id:
 		"linger":
-			var gain: int = mini(CAMPFIRE_LINGER_HEAL_AMOUNT, maxi(0, int(_run_state.get("player_max_hp", 1)) - int(_run_state.get("player_hp", 1))))
+			var gain: int = mini(_run_engine.campfire_linger_heal(_run_state), maxi(0, int(_run_state.get("player_max_hp", 1)) - int(_run_state.get("player_hp", 1))))
 			chips.append({"text": "+%d HP" % gain if gain > 0 else "FULL HEALTH", "tone": "benefit"})
 		"embrace":
 			chips.append({"text": "%d EMBERS" % _run_engine.held_embers(_run_state), "tone": "cost"})
@@ -27742,7 +27745,7 @@ func _on_merchant_buy_pressed(merchant_kind: String, item_id: String, source_row
 		return
 	var before_embers: int = _run_engine.held_embers(_run_state)
 	var before_state: Dictionary = _run_state.duplicate(true)
-	var amount: int = _run_engine.merchant_buy_cost(merchant_kind, item_id)
+	var amount: int = _run_engine.merchant_buy_cost(merchant_kind, item_id, _run_state)
 	var purchase_origin := Rect2()
 	if merchant_kind == RunEngineScript.MERCHANT_SCAVENGER and _node_is_alive(_scavenger_shop_view):
 		purchase_origin = _scavenger_shop_view.purchase_origin(item_id, source_row)
@@ -32385,6 +32388,7 @@ func _analytics_context_from_states(run_state: Dictionary, combat_state: Diction
 	var context: Dictionary = {
 		"balance_transition": (combat_state.get("balance_transition", {}) as Dictionary).duplicate(true),
 		"run_id": str(run_analytics.get("run_id", "")),
+		"depth": int(run_state.get("umbra_depth", 0)),
 		"combat_id": str(combat_analytics.get("combat_id", "")),
 		"turn": int(combat_state.get("turn", 0)),
 		"initiative_clock": int(combat_state.get("initiative_clock", 0)),
@@ -32506,6 +32510,7 @@ func _analytics_log_run_started() -> void:
 	var recovery_marker: Dictionary = ProgressionStore.recovery_marker(_progression)
 	_analytics_store.write_event("run_started", _analytics_context_from_states(_run_state, _combat_state), {
 		"seed": int(_run_state.get("seed", 0)),
+		"depth": int(_run_state.get("umbra_depth", 0)),
 		"run_index": int(_run_state.get("run_index", 0)),
 		"player_start_hp": int(_run_state.get("player_hp", 0)),
 		"player_max_hp": int(_run_state.get("player_max_hp", 0)),
@@ -32543,6 +32548,7 @@ func _analytics_log_run_ended(outcome: String) -> void:
 	var run_stats: Dictionary = RunEngineScript.normalized_run_stats(_run_state.get("run_stats", {}))
 	_analytics_store.write_event("run_ended", _analytics_context_from_states(_run_state, _combat_state), {
 		"outcome": outcome,
+		"depth": int(_run_state.get("umbra_depth", 0)),
 		"turns_spent": int(_run_state.get("turns_spent", 0)),
 		"held_embers": _run_engine.held_embers(_run_state),
 		"mode": str(_run_state.get("mode", "room")),

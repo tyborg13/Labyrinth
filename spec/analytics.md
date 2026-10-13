@@ -107,6 +107,21 @@ Completed results add nullable `score`, `lines`, `feats`, `killer`, `section`,
 `best_score`. Legacy scores remain null for Chronicle's later “—” display. The
 existing metric personal bests and 32-result ledger retain their policies.
 
+## Umbra Depths (meta-03)
+
+`run_started` and `run_ended` add integer `depth` to their payloads. This is the
+run's immutable Umbra Depth (0–20), distinct from the existing `room_depth`
+context and run-result room-depth metric. A legacy run without `umbra_depth`
+emits zero. Existing local-first, append-only JSONL, schema version, analytics
+ids and event counts remain unchanged; historical events are never rewritten.
+
+The `run_scored` base rows add the final `Umbra Depth N` bonus row only at
+nonzero depth, before feats. Its points are rounded half up from the complete
+pre-bonus score including feats × N × 5%. The existing `total` remains exactly
+the sum of emitted base and feat rows. Durable ledger replay preserves both
+score and unlock idempotency. See [Umbra Depths](depths.md) for progression,
+save compatibility and proof.
+
 ## Player activation ends
 
 `player_turn_ended` records one committed hero activation end. `end_reason` is

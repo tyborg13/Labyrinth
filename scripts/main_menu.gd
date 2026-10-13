@@ -3,6 +3,7 @@ extends Control
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const MusicLibrary = preload("res://scripts/music_library.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
+const NewDescentPanel = preload("res://scripts/new_descent_panel.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
@@ -148,6 +149,7 @@ void fragment() {
 @onready var replacement_confirm_button: Button = $ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementActions/ReplacementConfirmButton
 
 var _progression: Dictionary = {}
+var _new_descent_panel: Control
 var _saved_run_preview: Dictionary = {}
 var _replacement_confirmation_open: bool = false
 var _using_keyboard_navigation: bool = false
@@ -183,6 +185,9 @@ func _ready() -> void:
 	_play_menu_music()
 
 func _input(event: InputEvent) -> void:
+	if is_instance_valid(_new_descent_panel):
+		if _new_descent_panel.handle_input(event): get_viewport().set_input_as_handled()
+		return
 	if _loading_run:
 		return
 	if InputRouterScript.is_controller_event(event):
@@ -210,6 +215,7 @@ func _input(event: InputEvent) -> void:
 			call_deferred("_clear_menu_keyboard_focus")
 
 func _unhandled_input(event: InputEvent) -> void:
+	if is_instance_valid(_new_descent_panel): return
 	if _loading_run:
 		return
 	if event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
@@ -1012,7 +1018,40 @@ func _on_replacement_confirm_button_pressed() -> void:
 	_begin_new_game()
 
 func _begin_new_game() -> void:
+	if ProgressionStore.unlocked_umbra_depth(_progression) > 0:
+		_open_new_descent()
+		return
 	_change_scene_to_file("res://scenes/run_scene.tscn", _prepare_new_game)
+
+func _open_new_descent() -> void:
+	if is_instance_valid(_new_descent_panel): return
+	_replacement_confirmation_open = false
+	_sync_context_panels()
+	_set_menu_actions_locked(true)
+	_new_descent_panel = NewDescentPanel.new()
+	_new_descent_panel.configure(_progression, ProgressionStore.session_umbra_depth(_progression))
+	_new_descent_panel.begin_requested.connect(_on_depth_begin)
+	_new_descent_panel.back_requested.connect(_close_new_descent)
+	_new_descent_panel.depth_changed.connect(_remember_umbra_depth)
+	add_child(_new_descent_panel)
+	_new_descent_panel.focus_begin()
+
+func _remember_umbra_depth(depth: int) -> void:
+	_progression = ProgressionStore.remember_umbra_depth(ProgressionStore.load_data(), depth)
+
+func _on_depth_begin(depth: int) -> void:
+	_remember_umbra_depth(depth)
+	_close_new_descent()
+	_change_scene_to_file("res://scenes/run_scene.tscn", _prepare_new_game)
+
+func _close_new_descent() -> void:
+	if is_instance_valid(_new_descent_panel):
+		remove_child(_new_descent_panel)
+		_new_descent_panel.queue_free()
+	_new_descent_panel = null
+	_set_menu_actions_locked(false)
+	_refresh_controller_prompts()
+	if _using_keyboard_navigation: start_button.grab_focus()
 
 func _prepare_new_game() -> void:
 	var scene_tree: SceneTree = get_tree() if is_inside_tree() else null

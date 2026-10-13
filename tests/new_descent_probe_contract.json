@@ -1,0 +1,95 @@
+{
+	"expected_sizes": [
+		"1920x1080"
+	],
+	"min_images": 8,
+	"required_images": [
+		{
+			"height": 1080,
+			"pattern": "*00_depth_0.png",
+			"regions": [
+				{
+					"min_luma_range": 20,
+					"min_luma_stdev": 3,
+					"rect": [
+						530,
+						150,
+						860,
+						780
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*01_depth_3.png",
+			"regions": [
+				{
+					"min_luma_range": 20,
+					"min_luma_stdev": 3,
+					"rect": [
+						530,
+						150,
+						860,
+						780
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*02_depth_12.png",
+			"regions": [
+				{
+					"min_luma_range": 20,
+					"min_luma_stdev": 3,
+					"rect": [
+						530,
+						150,
+						860,
+						780
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*03_locked_arrow.png",
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*04_depth_20.png",
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*05_combat_header.png",
+			"regions": [
+				{
+					"min_luma_range": 20,
+					"rect": [
+						24,
+						24,
+						800,
+						170
+					]
+				}
+			],
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*06_shop_depth_13.png",
+			"width": 1920
+		},
+		{
+			"height": 1080,
+			"pattern": "*07_shop_depth_16.png",
+			"width": 1920
+		}
+	]
+}

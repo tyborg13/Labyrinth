@@ -1,5 +1,6 @@
 extends SceneTree
 
+const DepthRulesSuite = preload("res://tests/suites/depth_rules_suite.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
@@ -127,6 +128,7 @@ func _initialize() -> void:
 	AudioRoutingSuite.run(Callable(self, "_assert"))
 	TooltipConsistencySuite.run(Callable(self, "_assert"))
 	InlineIconDescriptionSuite.run(Callable(self, "_assert"))
+	await DepthRulesSuite.run(Callable(self, "_assert"))
 	DragonBossSuite.run(Callable(self, "_assert"))
 	preload("res://tests/suites/dragon_pressure_mechanics_suite.gd").run(Callable(self, "_assert"))
 	preload("res://tests/suites/dragon_spire_routes_suite.gd").run(Callable(self, "_assert"))

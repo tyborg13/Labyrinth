@@ -6,6 +6,7 @@ const CombatEngine = preload("res://scripts/combat_engine.gd")
 const DeathEngulfOverlay = preload("res://scripts/death_engulf_overlay.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const DepthRules = preload("res://scripts/depth_rules.gd")
 const RunScoreRules = preload("res://scripts/run_score_rules.gd")
 const InputRouter = preload("res://scripts/input_router.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
@@ -216,7 +217,7 @@ static func result_stats(run_state: Dictionary) -> Dictionary:
 	if outcome in ["victory", "defeat", "embrace"]:
 		var scored: Dictionary = RunScoreRules.score(run_state, outcome)
 		var location: Dictionary = RunScoreRules.location(run_state)
-		metrics["_score_result"] = {"scored": scored, "killer": combat_stats["killer"], "section": location["section"], "biome": location["biome"], "outcome": outcome, "context": RunScoreRules.analytics_context(run_state)}
+		metrics["_score_result"] = {"scored": scored, "killer": combat_stats["killer"], "section": location["section"], "biome": location["biome"], "outcome": outcome, "context": RunScoreRules.analytics_context(run_state), "escaped_noctyrax": (combat_stats["dragons_slain"] as Array).has("noctyrax")}
 	return metrics
 
 
@@ -285,6 +286,7 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 	model["cause"] = RunScoreRules.cause_text(killer, normalized_outcome, ember_amount)
 	var biome_copy: String = " · %s" % location["biome_name"] if not str(location["biome_name"]).is_empty() else ""
 	model["eyebrow"] = "Section %s%s · Room %d of %d" % [RunScoreRules.roman(int(location["section"])), biome_copy, int(location["step"]), int(location["room_count"])] if int(location["section"]) > 0 else "Depth %d" % int(model["depth"])
+	if DepthRules.depth(run_state) > 0: model["eyebrow"] += " · Umbra Depth %d" % DepthRules.depth(run_state)
 	model["new_best_score"] = bool(run_result.get("new_best_score", int(scored["total"]) > int(progression.get("best_score", 0))))
 	model["embers_text"] = "Embers carried %s." % RunScoreRules.grouped_number(ember_amount)
 	if normalized_outcome == "defeat":
