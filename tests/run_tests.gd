@@ -97,6 +97,7 @@ const MAP_RULE_SCAN_DEPTH: int = 8
 var _failures: Array[String] = []
 
 func _initialize() -> void:
+	var full_suite_started_usec: int = Time.get_ticks_usec()
 	ParallelRuntime.apply_from_environment()
 	ProgressionStore.set_storage_path("user://labyrinth_progression_test.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
@@ -516,6 +517,8 @@ func _initialize() -> void:
 	await _test_settings_persistence_audio_and_presentation_preferences()
 	await _test_main_menu_shows_continue_for_saved_run()
 	GuidedCombatTutorialSuite.run(Callable(self, "_assert"))
+
+	preload("res://tests/helpers/program_sub_suites.gd").run(Callable(self, "_assert"), full_suite_started_usec)
 
 	if _failures.is_empty():
 		print("TEST RESULT: PASS")

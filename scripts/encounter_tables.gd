@@ -11,31 +11,41 @@ const ELEMENT_TOKEN: String = "$element"
 const BIOME_TOKEN: String = "$biome"
 const TRIM_RULE: String = "If an expansion exceeds max_units, drop concrete (non-token) units from the end of the list until it fits; never drop token units."
 static var _table: Dictionary = {}
+static var _load_attempted: bool = false
 
 static func load() -> Dictionary:
 	return _load_table()
 
 ## Tests install a frozen table so data-driven expectations don't move when the director adds groups.
 static func install_table_for_tests(table: Dictionary) -> void:
-	_table = table
+	_load_attempted = true
+	_table = _validated_table(table)
 
 static func clear_table_cache() -> void:
 	_table = {}
+	_load_attempted = false
 
 static func _load_table() -> Dictionary:
-	if not _table.is_empty(): return _table
+	# Cache failed loads too: one error per load, then each room uses legacy pools.
+	if _load_attempted: return _table
+	_load_attempted = true
 	var json := JSON.new()
 	var error: Error = json.parse(FileAccess.get_file_as_string(TABLE_PATH))
-	assert(error == OK, "Encounter table JSON: " + json.get_error_message())
-	assert(typeof(json.data) == TYPE_DICTIONARY, "Encounter table must be an object")
-	var table: Dictionary = json.data if typeof(json.data) == TYPE_DICTIONARY else {}
+	if error != OK:
+		push_error("Invalid encounter table JSON; using legacy pools: " + json.get_error_message())
+		return {}
+	if typeof(json.data) != TYPE_DICTIONARY:
+		push_error("Invalid encounter table object; using legacy pools")
+		return {}
+	_table = _validated_table(json.data)
+	return _table
+
+static func _validated_table(table: Dictionary) -> Dictionary:
 	var errors: Array[String] = validate(table)
 	if not errors.is_empty():
-		push_error("Invalid encounter table: " + "; ".join(errors))
-		assert(false, "Invalid encounter table: " + "; ".join(errors))
+		push_error("Invalid encounter table; using legacy pools: " + "; ".join(errors))
 		return {}
-	_table = table
-	return _table
+	return table
 
 ## Pure validation is also exposed to tests, so malformed fixtures do not need
 ## to replace the protected production file or trigger engine assertion aborts.
@@ -113,6 +123,7 @@ static func _validate_units(value: Variant, tokens: bool, context: String, error
 
 static func pick(tier: int, room_element: String, biome: String, history: Array, rng: RandomNumberGenerator) -> Dictionary:
 	var table: Dictionary = _load_table()
+	if table.is_empty(): return {}
 	assert(BIOMES.has(biome), "Unknown encounter biome: " + biome)
 	assert(room_element == ElementData.NONE or ElementData.is_elemental(room_element), "Unknown room element: " + room_element)
 	var eligible: Array[Dictionary]
@@ -122,16 +133,18 @@ static func pick(tier: int, room_element: String, biome: String, history: Array,
 		if not supports_element(entry, room_element): continue
 		eligible.append(entry)
 		if not recent.has(entry["id"]): fresh.append(entry)
-	assert(not eligible.is_empty(), "No eligible encounters for tier %d" % tier)
+	if eligible.is_empty(): return {}
 	var candidates: Array[Dictionary] = fresh if not fresh.is_empty() else eligible
 	var selected: Dictionary = _weighted_pick(candidates, rng)
 	return expand_entry(selected, room_element, biome, rng)
 
 static func supports_element(entry: Dictionary, room_element: String) -> bool:
+	if _load_table().is_empty(): return false
 	return not (entry["units"] as Array).has(ELEMENT_TOKEN) or (room_element != ElementData.NONE and _load_table()["element_regulars"].has(room_element))
 
 static func expand_entry(entry: Dictionary, room_element: String, biome: String, rng: RandomNumberGenerator) -> Dictionary:
 	var table: Dictionary = _load_table()
+	if table.is_empty(): return {}
 	assert(supports_element(entry, room_element), "Encounter requires an elemental room")
 	var expanded: Array[String]
 	var from_token: Array[bool]

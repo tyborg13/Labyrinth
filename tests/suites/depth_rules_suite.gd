@@ -26,22 +26,13 @@ const FIXTURE_TEARDOWN_FRAMES: int = 240
 const FIXTURE_PURCHASE_BUDGET: int = 10000
 const FIXTURE_ROOM_DEPTH: int = 6
 const FIXTURE_BOSS_DEPTH: int = 8
-# meta-03 proved depth-0 byte-identity against its unchanged task base (6f4bbacfb). After merge there is no
-# pre-depth code path left, so these pin the integration state at 90823d36d+ (battle hashes re-pinned after fix-02
-# removed run_seconds from combat state and en-03 added section enemies; run hashes unchanged). Re-pin only when an
-# unrelated system changes combat creation; a depth change must never move them.
-const DEPTH_ZERO_HASHES: Dictionary = {
-	307: ["4c59082f194b4c6cb7147490442fb02e71fbbcd53edf642810e9f39286141e40", "34c9e338eb1849db9d67811486eac387383a61aecb9fbab77cf29a807b04b89b", "cc40c0f46c994c058234c2785da9bd3d089c8d773ab066cf204410306e32b786", "43f27f76786ad34f9593b3e0df136c92a2552b0fb94a717352451026e487817a"],
-	8821: ["ec4191a9948648e2e9434647a60fbcf41a46694fb9a3d9e4040549792e5820a4", "fc979a8124e0175cf6985b2b8a5835cafeb8a14db8399e1cb02fa5070ebacc9e", "d4c4b8fdb68dc73f063d99cf5dc2781878f00c8ce928c47540d9dd61f8eaba69", "ecee41006a80b0ac148f1891a4954824d41746d6733eb1955d16e96737319b23"],
-	90429: ["af6134e19f8fcbc86c815fde43e468acc00f9d21635871341cf5f646e0fee30f", "290cee1a34bd9e28eae7af1bbf86be6d6bb2828f36fb766234583fa7800cfdba", "86a274e9cba6a017d50082b84c0bbb3b2423d4b44d42b0cc9cfd922a204cca1a", "6db5509078f3b14b4db006413c86732c0325b13c0d79d2e51a3c3e77ec19354f"]
-}
 const PROFILE_PATH: String = "user://meta03-depth-suite-profile.json"
 const SAVE_PATH: String = "user://meta03-depth-suite-run.save"
 
 static func run(expect: Callable) -> void:
 	var protected_data: String = FileAccess.get_file_as_string(Rules.DATA_PATH)
 	_test_gates(expect)
-	_test_zero_hashes(expect)
+	_test_zero_equivalence(expect)
 	_test_encounters(expect)
 	_test_start_and_rewards(expect)
 	_test_shop_prices(expect)
@@ -50,7 +41,7 @@ static func run(expect: Callable) -> void:
 	await _test_selection_save_failure(expect)
 	await _test_picker(expect)
 	expect.call(FileAccess.get_file_as_string(Rules.DATA_PATH) == protected_data, "Depth data remains protected and unchanged")
-	print("Depth rules contracts: 20 level gates; 12 depth-zero hashes; encounter classes, costs, score, unlocks, saves, picker and analytics checked")
+	print("Depth rules contracts: 20 level gates; depth-zero same-build run/combat comparisons; encounter classes, costs, score, unlocks, saves, picker and analytics checked")
 	print("Depth feedback contracts: all Guardian helpers; 30 px rows / 40 px columns / 17 px hint; session save failure; all Scavenger buy prices checked")
 
 static func _at(depth: int) -> Dictionary:
@@ -108,24 +99,47 @@ static func _test_gates(expect: Callable) -> void:
 	for rarity: String in ["common", "rare", "epic", "legendary"]:
 		expect.call(Rules.rarity_weight(_at(12), rarity, 99) == int({"common": 12, "rare": 7, "epic": 4, "legendary": 3}[rarity]), "Every authored reward rarity weight is used")
 
-static func _test_zero_hashes(expect: Callable) -> void:
+# Whole-state pins coupled depth coverage to unrelated score, Chronicle and enemy
+# fields. Compare explicit zero to missing depth fields in the same build instead;
+# only depth metadata is removed, so every gameplay value and RNG remains checked.
+static func _test_zero_equivalence(expect: Callable) -> void:
 	var engine := Run.new()
 	var combat := Combat.new()
+	var legacy_profile: Dictionary = Store.default_data()
+	legacy_profile.erase(Store.UMBRA_DEPTH_UNLOCKED_KEY)
+	legacy_profile.erase(Store.UMBRA_DEPTH_SELECTED_KEY)
 	for seed: int in PROOF_SEEDS:
-		var state: Dictionary = engine.create_new_run(seed, Store.default_data())
-		expect.call(_digest(state) == DEPTH_ZERO_HASHES[seed][0], "Depth zero run hash matches pinned integration state: %d" % seed)
-		var index: int = 1
+		var state: Dictionary = engine.create_new_run(seed, Store.default_data(), true, 0)
+		var legacy: Dictionary = engine.create_new_run(seed, legacy_profile)
+		legacy = _without_depth_fields(legacy)
+		expect.call(_without_depth_fields(state) == legacy, "Depth zero run equals missing-depth profile: %d" % seed)
 		for type: String in ["combat", "guardian", "boss"]:
-			for room: Dictionary in state["rooms"].values():
+			var found: bool = false
+			for key: String in state["rooms"]:
+				var room: Dictionary = state["rooms"][key]
 				if str(room["type"]) != type: continue
+				found = true
 				var layout: Dictionary = engine._combat_layout_for_room(room, FIXTURE_TRAVEL_DIR, state)
+				var legacy_layout: Dictionary = engine._combat_layout_for_room(legacy["rooms"][key], FIXTURE_TRAVEL_DIR, legacy)
+				expect.call(_without_depth_fields(layout) == _without_depth_fields(legacy_layout), "Depth zero %s layout equals missing-depth run: %d" % [type, seed])
 				var battle: Dictionary = combat.create_combat(seed, layout, engine._player_snapshot(state))
-				expect.call(_digest(battle) == DEPTH_ZERO_HASHES[seed][index], "Depth zero %s hash matches pinned integration state: %d" % [type, seed])
-				index += 1
+				var legacy_battle: Dictionary = combat.create_combat(seed, _without_depth_fields(legacy_layout), engine._player_snapshot(legacy))
+				expect.call(_without_depth_fields(battle) == _without_depth_fields(legacy_battle), "Depth zero %s combat equals missing-depth run: %d" % [type, seed])
 				break
+			expect.call(found, "Depth zero differential includes %s: %d" % [type, seed])
 
-static func _digest(state: Dictionary) -> String:
-	return var_to_bytes(state).hex_encode().sha256_text()
+static func _without_depth_fields(value: Variant) -> Variant:
+	if value is Dictionary:
+		var result: Dictionary = {}
+		for key: Variant in value:
+			if key not in [Rules.STATE_KEY, Store.UMBRA_DEPTH_UNLOCKED_KEY, Store.UMBRA_DEPTH_SELECTED_KEY]:
+				result[key] = _without_depth_fields(value[key])
+		return result
+	if value is Array:
+		var result: Array = []
+		for item: Variant in value: result.append(_without_depth_fields(item))
+		return result
+	return value
 
 static func _room(type: String, boss: String = "") -> Dictionary:
 	return {"depth": FIXTURE_BOSS_DEPTH if type == "boss" else FIXTURE_ROOM_DEPTH, "coord": Vector2i(FIXTURE_BOSS_DEPTH, 0) if type == "boss" else Vector2i(FIXTURE_ROOM_DEPTH, 0), "type": type, "boss_id": boss, "element": "fire", "section_index": 1}

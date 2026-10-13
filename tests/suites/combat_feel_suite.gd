@@ -40,6 +40,7 @@ class FixtureOwner:
 	var pacing: Node
 	var rendered: Dictionary = {}
 	var render_count: int = 0
+	var rendered_presentation: Dictionary = {}
 	var planning: Dictionary = {"planning": true}
 	func _controller_modal_visible() -> bool:
 		return modal
@@ -47,6 +48,7 @@ class FixtureOwner:
 		rendered = state
 		render_count += 1
 		if pacing != null: pacing.decorate(state, presentation)
+		rendered_presentation = presentation.duplicate(true)
 	func _refresh_stage_view() -> void:
 		rendered = planning
 	func _animation_actor_unit(state: Dictionary, key: String) -> Dictionary:
@@ -58,6 +60,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	_test_settings(expect)
 	FloatingSuite.run(expect)
 	await _test_real_stop(tree, expect)
+	_test_late_stop_peak(tree, expect)
 	await _test_scope_less_stop(tree, expect)
 	await _test_overlay_refresh(tree, expect)
 	await _test_scopes(tree, expect)
@@ -147,6 +150,36 @@ static func _test_real_stop(tree: SceneTree, expect: Callable) -> void:
 	stop.free()
 	expect.call(Engine.time_scale == 1.0, "Scene exit during a stop restores time")
 	print("COMBAT FEEL REAL STOP: observed=%dms expected=130ms restored=%s" % [elapsed,Engine.time_scale])
+
+static func _test_late_stop_peak(tree: SceneTree, expect: Callable) -> void:
+	var owner := FixtureOwner.new()
+	tree.root.add_child(owner)
+	var pacing: Node = Pacing.new()
+	pacing.install(owner)
+	owner.pacing = pacing
+	pacing.begin_card()
+	owner._render_board_state({"animation": true}, {}, true)
+	pacing.set("_flashes", {"enemy_1": -1})
+	pacing.hit_stop.request(12)
+	# Native order: animation submits while frozen, then hit-stop polls, then draw.
+	owner._render_board_state({"animation": true}, {}, true)
+	var frozen_renders: int = owner.render_count
+	expect.call((owner.rendered_presentation["combat_feel_flash"] as Dictionary).is_empty(), "Frozen submission has no white flash")
+	pacing.hit_stop.poll(pacing.hit_stop.first_hit_usec + pacing.hit_stop.duration_usec)
+	expect.call(owner.render_count == frozen_renders + 1, "Late stop release replaces the pending frozen submission in the same frame")
+	expect.call(is_equal_approx(float(owner.rendered_presentation["combat_feel_flash"].get("enemy_1", 0.0)), Pacing.flash_opacity(0.0)), "First native-order post-stop draw has the exact approved white peak")
+	var peak_renders: int = owner.render_count
+	pacing._refresh_overlays()
+	expect.call(owner.render_count == peak_renders, "Routine overlay maintenance does not submit again after the peak")
+	pacing.set("_flashes", {"enemy_1": -1})
+	pacing.hit_stop.request(12)
+	owner.modal = true
+	pacing.hit_stop.cancel()
+	expect.call(owner.render_count == peak_renders, "Modal cancellation does not force a peak submission")
+	pacing.end_scope()
+	owner.free()
+	expect.call(Engine.time_scale == 1.0, "Late stop-peak fixture restores time scale")
+	print("COMBAT FEEL LATE STOP PEAK: native-order release/overlay guard/modal cancellation checked")
 
 static func _test_scope_less_stop(tree: SceneTree, expect: Callable) -> void:
 	var owner := FixtureOwner.new()
