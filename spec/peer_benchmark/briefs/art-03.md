@@ -7,7 +7,7 @@
   art_scale per enemy), `portrait_crops.json`, `judge_log.md`; `spec/art_identity/bands.json` (new keys
   `creature.edge_light_share_max`, `rear_consistency`). Sources: each folder's `processed.png` + `processed.json`
   (some rears carry `post_steps`: palette_match / clean_outline, with prototypes in `spec/art_identity/prototype/`).
-- Base: `codex/peer-benchmark` (director gives the commit). Owned files: `assets/art/enemies/<id>.png` and new
+- Base: `codex/peer-benchmark` at 139808339. Owned files: `assets/art/enemies/<id>.png` and new
   `<id>_rear.png` for the 11, their portraits under `assets/art/portraits/`, `data/enemies.json` (only the 11 entries'
   presentation fields), the static-enemy draw path in `scripts/combat_board_view.gd` (plumbing only; put the facing
   choice in a new small helper, e.g. `scripts/static_enemy_facing.gd`), `scripts/cutout_context.gd` only if needed,
