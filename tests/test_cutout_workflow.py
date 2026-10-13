@@ -61,7 +61,8 @@ class CutoutWorkflowTests(unittest.TestCase):
     def test_seed_matches_production_and_copies_portable_sources(self):
         production_before = {str(p): p.read_bytes() for folder in ["assets/units/protagonist_cutout", "scripts/protagonist_cutout"] for p in (PROJECT / folder).rglob("*") if p.is_file()}
         case = seed_protagonist(self.root / "seed", "protagonist_guard")
-        self.assertTrue(validate(case, "all")["ok"])
+        result = validate(case, "all")
+        self.assertTrue(result["ok"], result)
         config = read_json(case)
         self.assertAlmostEqual(config["clips"]["idle"]["duration"], 0.84)
         self.assertAlmostEqual(config["clips"]["walk"]["duration"], 0.30)

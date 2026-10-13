@@ -49,6 +49,8 @@ Do not use an editor launch as a parser check. On a clean isolated worktree, `go
 
 The full `tests/run_tests.gd` runner also executes isolated program sub-suites: combat_feel (including combat_pacing_regression), event_view, event_rules, biome, health_ghost, movement_undo, threats_at_rest, encounter_tables, run_score, sfx_bank, section_map_v2, en01/en02/en03 enemies, run_end_recap and main_menu_resume. Its total budget is 900 seconds; each child uses `godot_task_runner.py`.
 
+Run Python checks from the task worktree with `python3 -m unittest discover -s tests -p 'test_*.py' -v`; verbose output lists every skip and its reason. Optional audio tests use `unittest.skipUnless` when their Python modules are absent, while dependency import errors remain failures when those modules are installed. Run the sound-lab checks with `/Users/borgerding/.cache/umbra-sfx/venv/bin/python -m unittest discover -s tests -p 'test_sfx_lab.py' -v`; run the classical arrangement checks with `.venv-classical-soundtrack/bin/python -m unittest discover -s tests -p 'test_*arrangement.py' -v` after preparing that environment with `tools/classical_soundtrack_requirements.txt`. The Chopin approved-artifact checks (`-p 'test_chopin_death_music.py'`) need no optional music modules. Python discovery includes headless fixture checks through the task runners; it does not replace the full Godot suite required for runtime changes.
+
 ## Visual Proof
 
 `tools/visual_probe_runner.py` provides:
