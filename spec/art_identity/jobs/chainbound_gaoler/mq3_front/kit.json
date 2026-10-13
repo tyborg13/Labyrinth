@@ -1,0 +1,45 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "chainbound_gaoler",
+  "job_id": "mq-gaoler-front-r3",
+  "kind": "creature",
+  "kit_version": "530a15a89de6a4ad6f4fac25573f67fb2834418ec0b055e788a8d60bfed87873",
+  "method": "maquette paint-over r3 (owner: less boxy): humanoid.py + chainbound_gaoler/spec.json r3, painted at the drawn size (K=4, art_scale 1.0)",
+  "peers": [
+    "slag_mortar_front",
+    "grave_surgeon_front"
+  ],
+  "prompt_path": "../../../maquettes/chainbound_gaoler/prompt_front_r3.md",
+  "prompt_sha256": "48075712e468d515aa9e997d088ff7d8dbfd4851e8a7683446c1eb01a84ed63c",
+  "refs": [
+    {
+      "canon_id": "approved_gaoler_mq_front_v3_materials",
+      "file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gaoler-front-r3/refs/approved_gaoler_front_v3.png",
+      "pixel_sha256": "3d5b7dbdf08c6ccda8b3e78a3baa56ecf23b9c219d6d366327afe42a8d403eed"
+    },
+    {
+      "canon_id": "maquette_r3_front_clay",
+      "file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gaoler-front-r3/refs/front_clay_green.png",
+      "pixel_sha256": "7991add3c6c9f81d03b9353e3e307bbd60f5dd35d938cdd63edbcdf38b7b47c7"
+    },
+    {
+      "canon_id": "maquette_r3_front_parts",
+      "file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gaoler-front-r3/refs/front_parts_green.png",
+      "pixel_sha256": "66dc821787f54ef44a31d31ec18af88880ff6f5c8aa78d4a632df93e81c64851"
+    },
+    {
+      "canon_id": "hero_front",
+      "file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gaoler-front-r3/refs/hero_x4.png",
+      "pixel_sha256": "b267e751ef5c67f1fe2fcfacda5312dcbdaff928caceef8f682421b41e4dfd82"
+    },
+    {
+      "canon_id": "slag_mortar_front",
+      "file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gaoler-front-r3/refs/peer_slag_mortar_x4.png",
+      "pixel_sha256": "3a86c1b667fddd53d09b2e6b8dd5108a4d0b783b53300db39c5417f94738e941"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 216,
+  "view": "creature_front"
+}
