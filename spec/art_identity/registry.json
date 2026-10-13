@@ -1,30 +1,8 @@
 {
+  "design_followups": {
+    "TODO_DESIGN_GLACIAL_MIRROR_REAR_CONSISTENCY": "The exact palette-match non-accent mask still gives chroma delta 0.038671424 vs the protected 0.03 maximum. Awaiting director clarification; approved pixels and bands unchanged."
+  },
   "entries": [
-    {
-      "anatomy": "",
-      "art_scale": 1.0,
-      "boss": false,
-      "entry_kind": "pending_reart",
-      "id": "arc_thrall",
-      "kind": "creature",
-      "metrics": {
-        "chroma": 0.21869377489929004,
-        "feature_px": 5.502264451055318,
-        "height": 227,
-        "height_drawn": 227.0,
-        "orphan_share": 0.05106664630110483,
-        "regions": 582,
-        "run_length": 2.0401639344262295,
-        "symmetry": 0.5845446182152714,
-        "thin_abs": 0.01753688989784341,
-        "thin_rel": 0.18427922814982978,
-        "value": 0.29835563619772537,
-        "width": 176
-      },
-      "path": "assets/art/enemies/arc_thrall.png",
-      "pixel_sha256": "fcfdcd6fd9c0cbec1b40b831e4429ee9effc73360565dab7ec58f5f4b5f0f3aa",
-      "size_class": "large"
-    },
     {
       "anatomy": "",
       "art_scale": 0.86,
@@ -49,40 +27,6 @@
       "path": "assets/art/enemies/bile_bloomer.png",
       "pixel_sha256": "a5f8ec5436a4d3838a810bc920bff1c60cf9076024a0ab2432101b2cb76b2c4c",
       "size_class": "medium"
-    },
-    {
-      "anatomy": "",
-      "art_scale": 1.0,
-      "boss": false,
-      "entry_kind": "pending_reart",
-      "id": "briar_weaver",
-      "kind": "creature",
-      "path": "assets/art/enemies/briar_weaver.png"
-    },
-    {
-      "anatomy": "",
-      "art_scale": 1.0,
-      "boss": false,
-      "entry_kind": "pending_reart",
-      "id": "burrow_grub",
-      "kind": "creature",
-      "metrics": {
-        "chroma": 0.2687163224555056,
-        "feature_px": 5.545015779959512,
-        "height": 162,
-        "height_drawn": 162.0,
-        "orphan_share": 0.015470737913486006,
-        "regions": 625,
-        "run_length": 2.3737617782072964,
-        "symmetry": 0.6504903540678668,
-        "thin_abs": 0.004058906176822585,
-        "thin_rel": 0.01602747567258156,
-        "value": 0.3402201655601096,
-        "width": 188
-      },
-      "path": "assets/art/enemies/burrow_grub.png",
-      "pixel_sha256": "3ca01648a194308ed14f95b236f0fdd739341e1c6d93f277f448a66ee3f3aa70",
-      "size_class": "small"
     },
     {
       "anatomy": "",
@@ -138,31 +82,6 @@
       "anatomy": "",
       "art_scale": 1.0,
       "boss": false,
-      "entry_kind": "pending_reart",
-      "id": "ember_tick",
-      "kind": "creature",
-      "metrics": {
-        "chroma": 0.2276917452934243,
-        "feature_px": 4.64802825579478,
-        "height": 97,
-        "height_drawn": 97.0,
-        "orphan_share": 0.03945008965929468,
-        "regions": 288,
-        "run_length": 2.2592842673869007,
-        "symmetry": 0.6886727845500616,
-        "thin_abs": 0.019607843137254943,
-        "thin_rel": 0.04194792671166825,
-        "value": 0.17866154064325823,
-        "width": 114
-      },
-      "path": "assets/art/enemies/ember_tick.png",
-      "pixel_sha256": "3921496cecd3a79b83be893e85d361b89cb6a57a31d2cb4cc734eb4bbbd116b5",
-      "size_class": "outside_reference_bands"
-    },
-    {
-      "anatomy": "",
-      "art_scale": 1.0,
-      "boss": false,
       "entry_kind": "legacy",
       "id": "frostglass_lancer",
       "kind": "creature",
@@ -183,65 +102,6 @@
       "path": "assets/art/enemies/frostglass_lancer.png",
       "pixel_sha256": "6253618099416e38f7948af2ade4dbb7474f9e9a3332e98223c8b6f6152b93fe",
       "size_class": "large"
-    },
-    {
-      "anatomy": "",
-      "art_scale": 1.0,
-      "boss": false,
-      "entry_kind": "pending_reart",
-      "id": "gale_herald",
-      "kind": "creature",
-      "metrics": {
-        "chroma": 0.11811029960628194,
-        "feature_px": 5.125229151580362,
-        "height": 227,
-        "height_drawn": 227.0,
-        "orphan_share": 0.08493736633058356,
-        "regions": 612,
-        "run_length": 2.043263288009889,
-        "symmetry": 0.42766281465555855,
-        "thin_abs": 0.0350833540681762,
-        "thin_rel": 0.33621547648668826,
-        "value": 0.2562181639662583,
-        "width": 202
-      },
-      "path": "assets/art/enemies/gale_herald.png",
-      "pixel_sha256": "7e708a9c09517c841878ebb0c0707c2dd8cc7f1026e6613521b779c9ce3a3dc1",
-      "size_class": "large"
-    },
-    {
-      "anatomy": "",
-      "art_scale": 1.0,
-      "boss": false,
-      "entry_kind": "pending_reart",
-      "id": "glacial_mirror",
-      "kind": "creature",
-      "path": "assets/art/enemies/glacial_mirror.png"
-    },
-    {
-      "anatomy": "",
-      "art_scale": 1.0,
-      "boss": false,
-      "entry_kind": "pending_reart",
-      "id": "gloam_stalker",
-      "kind": "creature",
-      "metrics": {
-        "chroma": 0.049520860306909234,
-        "feature_px": 5.328753940341121,
-        "height": 221,
-        "height_drawn": 221.0,
-        "orphan_share": 0.049575790749501504,
-        "regions": 776,
-        "run_length": 2.3331243281977785,
-        "symmetry": 0.46410829193478476,
-        "thin_abs": 0.046108463807578826,
-        "thin_rel": 0.23548899478103014,
-        "value": 0.16017748359339198,
-        "width": 255
-      },
-      "path": "assets/art/enemies/gloam_stalker.png",
-      "pixel_sha256": "b7439f856ffc1038ce634affcd311986100d493c719767285d79a64022111381",
-      "size_class": "medium"
     },
     {
       "anatomy": "",
@@ -276,40 +136,6 @@
       "id": "gust_shrike",
       "kind": "creature",
       "path": "assets/art/enemies/gust_shrike.png"
-    },
-    {
-      "anatomy": "",
-      "art_scale": 1.0,
-      "boss": false,
-      "entry_kind": "pending_reart",
-      "id": "hoarfrost_seer",
-      "kind": "creature",
-      "metrics": {
-        "chroma": 0.07368614048999132,
-        "feature_px": 5.383248764707379,
-        "height": 227,
-        "height_drawn": 227.0,
-        "orphan_share": 0.02357539082198689,
-        "regions": 727,
-        "run_length": 2.105342031029619,
-        "symmetry": 0.6858599364867124,
-        "thin_abs": 0.011913802923865568,
-        "thin_rel": 0.1522688437440668,
-        "value": 0.2646013759367426,
-        "width": 184
-      },
-      "path": "assets/art/enemies/hoarfrost_seer.png",
-      "pixel_sha256": "aeca9120e648c9ac61ec9ca560b4bb1181638afeaac55e0c5ca629b5c3d3905d",
-      "size_class": "large"
-    },
-    {
-      "anatomy": "",
-      "art_scale": 1.0,
-      "boss": false,
-      "entry_kind": "pending_reart",
-      "id": "hollow_mimic",
-      "kind": "creature",
-      "path": "assets/art/enemies/hollow_mimic.png"
     },
     {
       "anatomy": "",
@@ -360,24 +186,6 @@
       "path": "assets/art/enemies/noctyrax.png",
       "pixel_sha256": "c1b82a12a8d582278734e2b8fb426fc19ab2f255128b4e32a5913609a0d5a3c0",
       "size_class": "outside_reference_bands"
-    },
-    {
-      "anatomy": "",
-      "art_scale": 1.0,
-      "boss": false,
-      "entry_kind": "pending_reart",
-      "id": "slag_mortar",
-      "kind": "creature",
-      "path": "assets/art/enemies/slag_mortar.png"
-    },
-    {
-      "anatomy": "",
-      "art_scale": 1.0,
-      "boss": false,
-      "entry_kind": "pending_reart",
-      "id": "storm_capacitor",
-      "kind": "creature",
-      "path": "assets/art/enemies/storm_capacitor.png"
     },
     {
       "anatomy": "",
@@ -2559,6 +2367,827 @@
       "path": "assets/units/zekarion_cutout/rear/rest.png",
       "pixel_sha256": "40d990cf6200deef401cd62962aa1ddb4d388a2e5a6c78d5a9644d027b1a8977",
       "size_class": "outside_reference_bands"
+    },
+    {
+      "anatomy": "crawler",
+      "art_scale": 0.85,
+      "entry_kind": "kit",
+      "facing": "front",
+      "id": "burrow_grub",
+      "job_id": "id-burrow_grub-beast_front",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/burrow_grub/front/kit.json",
+      "kit_version": "7fc0ab718c48c99fe22c02737639895dfa403d87a86708a6e6e9e476f195aea4",
+      "landmarks": {
+        "far": [
+          33,
+          213
+        ],
+        "near": [
+          84,
+          232
+        ]
+      },
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/burrow_grub.png",
+      "pixel_sha256": "96c3f7ef2b88e1f3689a47ad8877e3d174255b093b7c046a90f6e56f6f185c7e",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/burrow_grub/front/prompt.md",
+      "prompt_sha256": "a43978612ccd080756a69741fc54b290f46b4a227457b92557f2a662ed936620",
+      "raw_sha256": "1dabe4ebc5fc251175899e08eb72f2f450c5de76872f69adaa4a2a5b4fb9b04d",
+      "ref_pixel_sha256": {
+        "refs/01_hero_front.png": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f",
+        "refs/02_crawler_front.png": "75224866074ce661306acf1b101069467def05c8c4f43fb269b803bfcbef363f",
+        "refs/03_stoneback_mite_front.png": "f13a7175fa118211cc737ddefb6ab00273de4ced128d7daa4b53642c5ce0ec24"
+      },
+      "sheet_path": "spec/art_identity/jobs/burrow_grub/sheet_pair.png",
+      "size_class": "small",
+      "source_path": "spec/art_identity/jobs/burrow_grub/front/processed.png",
+      "source_pixel_sha256": "c0f5f90b702d2e52bdce622b2ea5d3449c1dded33d198d9b7029c830cff75920"
+    },
+    {
+      "anatomy": "crawler",
+      "art_scale": 0.85,
+      "entry_kind": "kit",
+      "facing": "rear",
+      "id": "burrow_grub",
+      "job_id": "id-burrow_grub-beast_rear",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/burrow_grub/rear/kit.json",
+      "kit_version": "699e55cb5986c8ba58ef807c08dc8f210534d0d04ef0eb7525d2d6d428a35448",
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/burrow_grub_rear.png",
+      "pixel_sha256": "c7ea77ded7db88a44efb2e25edc6c5d73f9ab02c04ee5afcf736b6ed1cb1322e",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/burrow_grub/rear/prompt.md",
+      "prompt_sha256": "5ac3db6774492728888e4acc8768a9a0bf8746aaa35e501cd8c3eee21f800387",
+      "raw_sha256": "87478f15d1d1f23eada5eb65d61a9571f17f59fbe66f3209b1924e43b7ca0cd5",
+      "ref_pixel_sha256": {
+        "refs/01_front_ref.png": "22fb9c7b87008f8350e324e36e198bba0b76c61e518b2374e5962aad7f83ab46",
+        "refs/02_hero_rear.png": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af",
+        "refs/03_crawler_rear.png": "07afd30414296af51ffdf764acbdbc162804a4cb90c63b7203073c3364e4f59d",
+        "refs/04_stoneback_mite_rear.png": "77a050f64dbc5aae4dc870a271db42f998e478fb99926499c16a0528792ad7af"
+      },
+      "sheet_path": "spec/art_identity/jobs/burrow_grub/sheet_pair.png",
+      "size_class": "small",
+      "source_path": "spec/art_identity/jobs/burrow_grub/rear/processed.png",
+      "source_pixel_sha256": "d286e491165016c1a14edb1421fc6d29d030358f962a9690663cb787699b3532"
+    },
+    {
+      "anatomy": "crawler",
+      "art_scale": 0.86,
+      "entry_kind": "kit",
+      "facing": "front",
+      "id": "ember_tick",
+      "job_id": "id-ember_tick-beast_front",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/ember_tick/front/kit.json",
+      "kit_version": "7fc0ab718c48c99fe22c02737639895dfa403d87a86708a6e6e9e476f195aea4",
+      "landmarks": {
+        "far": [
+          43,
+          209
+        ],
+        "near": [
+          99,
+          240
+        ]
+      },
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/ember_tick.png",
+      "pixel_sha256": "112df376bf1b36d6ba1855842b118e2946dbb631f38bac90b76c880ba832a797",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/ember_tick/front/prompt.md",
+      "prompt_sha256": "5034e3353cdf3208b7d6f76f9c329916b738aedd8d1a79f270182a2cdd6ebfaa",
+      "raw_sha256": "973a0fceec83800e1090db4d62cb67ce80976706413f433c976eb025fd5dd194",
+      "ref_pixel_sha256": {
+        "refs/01_hero_front.png": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f",
+        "refs/02_crawler_front.png": "75224866074ce661306acf1b101069467def05c8c4f43fb269b803bfcbef363f",
+        "refs/03_stoneback_mite_front.png": "f13a7175fa118211cc737ddefb6ab00273de4ced128d7daa4b53642c5ce0ec24"
+      },
+      "sheet_path": "spec/art_identity/jobs/ember_tick/sheet_pair.png",
+      "size_class": "small",
+      "source_path": "spec/art_identity/jobs/ember_tick/front/processed.png",
+      "source_pixel_sha256": "3ba949749753a8319d5c0ca6c19b87ed5a9a1bb26432e950dcbd2c71764591a0"
+    },
+    {
+      "anatomy": "crawler",
+      "art_scale": 0.86,
+      "entry_kind": "kit",
+      "facing": "rear",
+      "id": "ember_tick",
+      "job_id": "id-ember_tick-beast_rear",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/ember_tick/rear/kit.json",
+      "kit_version": "f1723978999c5fb4a11036e66e85b49ca6d28fdebe1f36f37c1aca177bc41fa0",
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/ember_tick_rear.png",
+      "pixel_sha256": "db4658df000aa6172a07d5f4bdaacdda2f4ae1b2421e5e47e759a444e22b6a99",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/ember_tick/rear/prompt.md",
+      "prompt_sha256": "9cfa35533711e785b34ede0cb41f6fd8fea4f41cef0d4a841d2bb233463e92c8",
+      "raw_sha256": "7a7304e4164e8e7a41240e31398106bf86af2c32d6bf2e6e828290c95752f7f7",
+      "ref_pixel_sha256": {
+        "refs/01_front_ref.png": "8dd47bf9fbec011ff5cc5ba3f3f791788466ebabc4da1cb45ca1b68dee289685",
+        "refs/02_hero_rear.png": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af",
+        "refs/03_crawler_rear.png": "07afd30414296af51ffdf764acbdbc162804a4cb90c63b7203073c3364e4f59d",
+        "refs/04_stoneback_mite_rear.png": "77a050f64dbc5aae4dc870a271db42f998e478fb99926499c16a0528792ad7af"
+      },
+      "sheet_path": "spec/art_identity/jobs/ember_tick/sheet_pair.png",
+      "size_class": "small",
+      "source_path": "spec/art_identity/jobs/ember_tick/rear/processed.png",
+      "source_pixel_sha256": "d1584f15a94a7cc628b1e603b280dd6ab8cc56d981d38e8f1aa8426bae452274"
+    },
+    {
+      "anatomy": "biped",
+      "art_scale": 1.0,
+      "entry_kind": "kit",
+      "facing": "front",
+      "id": "briar_weaver",
+      "job_id": "id-briar_weaver-creature_front",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/briar_weaver/front/kit.json",
+      "kit_version": "fc05282a61ef6e5fb37b568dae8df0ef24625af1949c6fb495a6f42263d9ee05",
+      "landmarks": {
+        "far": [
+          97,
+          204
+        ],
+        "near": [
+          163,
+          240
+        ]
+      },
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/briar_weaver.png",
+      "pixel_sha256": "7ca1422fafaffdb8edf00fb0ee58b62a1b2c5a6fb70897dcc59a4ce6f04ce483",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/briar_weaver/front/prompt.md",
+      "prompt_sha256": "8ff2ccd8d06f47704a077d3e9b6b53c324ce34663856f18597fad6566e5fd7c1",
+      "raw_sha256": "d8b0be0693d9a7bb2858953a5a14beefc99e22c1fb0e63767f0dd303b1629f11",
+      "ref_pixel_sha256": {
+        "refs/01_hero_front.png": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f",
+        "refs/02_grave_surgeon_front.png": "144084172812b88e7d2a18b4a1e27c2d35d6158bfa8b619bc6bb6c0834004736",
+        "refs/03_harrier_front.png": "15a3f2b1608185d023b4bfa8c8c80e7cd5f02cb648db5f58e397dca91a9cc885"
+      },
+      "sheet_path": "spec/art_identity/jobs/briar_weaver/sheet_pair.png",
+      "size_class": "medium",
+      "source_path": "spec/art_identity/jobs/briar_weaver/front/processed.png",
+      "source_pixel_sha256": "f7cc605603f64e07ee723d5821ebefb6319209c89756ed141817fe89320d075f"
+    },
+    {
+      "anatomy": "biped",
+      "art_scale": 1.0,
+      "entry_kind": "kit",
+      "facing": "rear",
+      "id": "briar_weaver",
+      "job_id": "id-briar_weaver-creature_rear",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/briar_weaver/rear/kit.json",
+      "kit_version": "fc0352c691e782d6d2585507f5f78dcc90373c93b89730ddd75bd8a40e85eabc",
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/briar_weaver_rear.png",
+      "pixel_sha256": "3737f15e87b413ae0f6cb9dfe349409dad18ce6d35957cdfd39cb1413409a19e",
+      "post_steps": [
+        {
+          "method": "Reinhard mean/std transfer in CIE Lab over opaque non-accent pixels (accent = chroma > p90 + 15); alpha untouched; near-black green key residue stripped",
+          "reason": "judge b6: rear warmer than front (criterion 7)",
+          "reference": "front/processed.png",
+          "script": "spec/art_identity/prototype/match_palette.py",
+          "step": "palette_match"
+        }
+      ],
+      "prompt_path": "spec/art_identity/jobs/briar_weaver/rear/prompt.md",
+      "prompt_sha256": "538d49de50173fa823e51c262cfb0d713db7de9ee3009f3eddfdf1aa1274be6d",
+      "raw_sha256": "7604caa1c3632ad5d1bf108fd54e5ccae66106a9ca2612c8ce4e37c6666edaa0",
+      "ref_pixel_sha256": {
+        "refs/01_front_ref.png": "6b62a7f055eaa901a861e43310026fc75098b6abc4a983568a3fbbd6e5b5abbc",
+        "refs/02_hero_rear.png": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af",
+        "refs/03_grave_surgeon_rear.png": "fb9b0f4d55ebdc02bc64221bd2a5dbe3a830e5cdfe32d4935b4d929dc5f12d4a",
+        "refs/04_harrier_rear.png": "69422081034043b2ff1f5a4b7a2e7ac779aff75bf5df81fd7704ac5f458719b9"
+      },
+      "sheet_path": "spec/art_identity/jobs/briar_weaver/sheet_pair.png",
+      "size_class": "medium",
+      "source_path": "spec/art_identity/jobs/briar_weaver/rear/processed.png",
+      "source_pixel_sha256": "5fc8de33d7829cba537d95bea5940544787964d94a93b0dbf31ee0a2010d35d5"
+    },
+    {
+      "anatomy": "biped",
+      "art_scale": 1.04,
+      "entry_kind": "kit",
+      "facing": "front",
+      "id": "slag_mortar",
+      "job_id": "id-slag_mortar-creature_front",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/slag_mortar/front/kit.json",
+      "kit_version": "62f80b3e3e9de03305f3f5d3c19a1c17f57ba7f1190b4c2e5bb51ab47ad5585f",
+      "landmarks": {
+        "far": [
+          82,
+          212
+        ],
+        "near": [
+          153,
+          240
+        ]
+      },
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/slag_mortar.png",
+      "pixel_sha256": "180007b95eb75887d482915d526b3840485de3817fafb1dc2bffa3f56111c83e",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/slag_mortar/front/prompt.md",
+      "prompt_sha256": "8294eac9a930dd0c8339d9a5c9f59c3e7b55383df802a94acf5286568501d3b0",
+      "raw_sha256": "1ee09ae5cb385f3ba2a9f3f115716f0a5ee86dc6b618316ab44b2a4da04d5ade",
+      "ref_pixel_sha256": {
+        "refs/01_hero_front.png": "d3f6dd1b8285845f7e5738590ee53290321062f48eac8f5bbe2176179d5417d2",
+        "refs/02_stone_warden_front.png": "4dd3a32cd1dfb791e58eb10f370df6c87274820b2b148b04e14dfe468302a3fc",
+        "refs/03_frostglass_lancer_front.png": "6ca17d799afb7dab32dedd6f5d77b3b7c41c65db330324889523600983f7cdd0"
+      },
+      "sheet_path": "spec/art_identity/jobs/slag_mortar/sheet_pair.png",
+      "size_class": "large",
+      "source_path": "spec/art_identity/jobs/slag_mortar/front/processed.png",
+      "source_pixel_sha256": "c49a02edf3c9026c74674a3432c60f94255fb2e22c6ccb5cfed503fe0a35ed2a"
+    },
+    {
+      "anatomy": "biped",
+      "art_scale": 1.04,
+      "entry_kind": "kit",
+      "facing": "rear",
+      "id": "slag_mortar",
+      "job_id": "id-slag_mortar-creature_rear",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/slag_mortar/rear_v3/kit.json",
+      "kit_version": "c96713f9f474c5f92142279dafa985fe5f2a0f88890259f6352cd723a968915f",
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/slag_mortar_rear.png",
+      "pixel_sha256": "7e9ed8b07b501e002e7413c7d09af6101527e32211ea7dac01cc6a16f8801934",
+      "post_steps": [
+        {
+          "method": "Reinhard mean/std transfer in CIE Lab over opaque non-accent pixels (accent = chroma > p90 + 15); alpha untouched; near-black green key residue stripped",
+          "reason": "rear warmer than front (dC +0.063)",
+          "reference": "front/processed.png",
+          "script": "spec/art_identity/prototype/match_palette.py",
+          "step": "palette_match"
+        }
+      ],
+      "prompt_path": "spec/art_identity/jobs/slag_mortar/rear_v3/prompt.md",
+      "prompt_sha256": "28ab108a515bbbe5abd2a52cb01cf80436316cf06f616a15a9e15065892def77",
+      "raw_sha256": "262b3c066cfb1c11286efc23b62f536e616f9e45ce044cc202eb5621232fefc5",
+      "ref_pixel_sha256": {
+        "refs/01_front_ref.png": "f1fafeeb36d6babb73b41773f3891a270b933cbf03694721866a158ba4359cee",
+        "refs/02_hero_rear.png": "aab8f4166183017913bf2fd295accd95a546044aa90149e05cbc934e640f1c02",
+        "refs/03_stone_warden_rear.png": "376df56189b8434c82e9196e0b3675cd2d0397557d994b341d5ef25cb3232cb8",
+        "refs/04_frostglass_lancer_rear.png": "2696061ec5af90b33b9b5ddd878808e384701db0aae12b853caf970d095e228b"
+      },
+      "sheet_path": "spec/art_identity/jobs/slag_mortar/sheet_pair.png",
+      "size_class": "large",
+      "source_path": "spec/art_identity/jobs/slag_mortar/rear_v3/processed.png",
+      "source_pixel_sha256": "77bf56203be84a09d30a3d336ff76969a789de383c5675ecfce2adb3829a3b09"
+    },
+    {
+      "anatomy": "biped",
+      "art_scale": 1.0,
+      "entry_kind": "kit",
+      "facing": "front",
+      "id": "hoarfrost_seer",
+      "job_id": "id-hoarfrost_seer-creature_front",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/hoarfrost_seer/front/kit.json",
+      "kit_version": "497a2640373e216e684ea12bad6390c0ee1c2df51d436d00f5d5adcbc0213cda",
+      "landmarks": {
+        "far": [
+          105,
+          220
+        ],
+        "near": [
+          171,
+          237
+        ]
+      },
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/hoarfrost_seer.png",
+      "pixel_sha256": "e30f5f90ad564aac409fcfd055fdfcca018912b345ebc5d2d17541d7b0243f9f",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/hoarfrost_seer/front/prompt.md",
+      "prompt_sha256": "0e908a4a746e0186d261b81c25c4479ed627141d63e59ed546f5be857681c4b6",
+      "raw_sha256": "8bda8c71973be2f1d140502c730f90948a093305a4da4acf6fc7a42870d5aa46",
+      "ref_pixel_sha256": {
+        "refs/01_hero_front.png": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f",
+        "refs/02_grave_surgeon_front.png": "144084172812b88e7d2a18b4a1e27c2d35d6158bfa8b619bc6bb6c0834004736",
+        "refs/03_frostglass_lancer_front.png": "812cbb0456b616c96a9671f0db8c975d25f5d483c7eeea0a0d92d3b73cce4aba"
+      },
+      "sheet_path": "spec/art_identity/jobs/hoarfrost_seer/sheet_pair.png",
+      "size_class": "medium",
+      "source_path": "spec/art_identity/jobs/hoarfrost_seer/front/processed.png",
+      "source_pixel_sha256": "3b0b233245621480e4cb774f16674d2689b4abab99d0d16d9d1923695e82e33a"
+    },
+    {
+      "anatomy": "biped",
+      "art_scale": 1.0,
+      "entry_kind": "kit",
+      "facing": "rear",
+      "id": "hoarfrost_seer",
+      "job_id": "id-hoarfrost_seer-creature_rear",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/hoarfrost_seer/rear/kit.json",
+      "kit_version": "32e0583e88969a3bd5f346d0f6cfbe858e17e15742e1b50b2592cf09689c2b8b",
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/hoarfrost_seer_rear.png",
+      "pixel_sha256": "676ccca5de541c268691ecf801a405fa718ac58286cfb69716422c0b88927e60",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/hoarfrost_seer/rear/prompt.md",
+      "prompt_sha256": "acd336746c77c420cffe890be651e8ab8453e5e524b9797fff21ab6eddd5eb59",
+      "raw_sha256": "a826c05148c85b7eba7a1b5538cfbe6ccd8091d489a29c14d04b5dfdcbcfd685",
+      "ref_pixel_sha256": {
+        "refs/01_front_ref.png": "1384cefe225d13e708364afcc253601be2f5cd2426a453ff52f91f0eec2c0b83",
+        "refs/02_hero_rear.png": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af",
+        "refs/03_grave_surgeon_rear.png": "fb9b0f4d55ebdc02bc64221bd2a5dbe3a830e5cdfe32d4935b4d929dc5f12d4a",
+        "refs/04_frostglass_lancer_rear.png": "03fa87c704f7de72d5d7be29c7665e7abf0613dacd035a83d78518c8f3010028"
+      },
+      "sheet_path": "spec/art_identity/jobs/hoarfrost_seer/sheet_pair.png",
+      "size_class": "medium",
+      "source_path": "spec/art_identity/jobs/hoarfrost_seer/rear/processed.png",
+      "source_pixel_sha256": "56213e9f5da3739377c32f6e36d545629c59e94e973f846efc365092a6ebc0a0"
+    },
+    {
+      "anatomy": "biped",
+      "art_scale": 1.0,
+      "entry_kind": "kit",
+      "exceptions": [
+        {
+          "metric": "rear_consistency.chroma_delta",
+          "reason": "Front-only accent: the pale-blue mirror plate is on the chest and correctly hidden from behind; stone palettes match (judge b5 PASS, owner approved 2026-10-13).",
+          "value": 0.038671
+        }
+      ],
+      "facing": "front",
+      "id": "glacial_mirror",
+      "job_id": "id-glacial_mirror-creature_front",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/glacial_mirror/front/kit.json",
+      "kit_version": "62f80b3e3e9de03305f3f5d3c19a1c17f57ba7f1190b4c2e5bb51ab47ad5585f",
+      "landmarks": {
+        "far": [
+          77,
+          192
+        ],
+        "near": [
+          153,
+          240
+        ]
+      },
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/glacial_mirror.png",
+      "pixel_sha256": "20cace8a96f5a6e5d72eb5c1b8ff245a420ca73ab05df9c60c40fcc8c19f7537",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/glacial_mirror/front/prompt.md",
+      "prompt_sha256": "e5fe73e6834004bf7081aae1dadc371cfeed0d5fff9369a3d9b4fca749fdca72",
+      "raw_sha256": "14de02ac63a3b13d53607c52bec1bd4c94804e4f1fe828d3cfef0a9acd0ce533",
+      "ref_pixel_sha256": {
+        "refs/01_hero_front.png": "d3f6dd1b8285845f7e5738590ee53290321062f48eac8f5bbe2176179d5417d2",
+        "refs/02_stone_warden_front.png": "4dd3a32cd1dfb791e58eb10f370df6c87274820b2b148b04e14dfe468302a3fc",
+        "refs/03_frostglass_lancer_front.png": "6ca17d799afb7dab32dedd6f5d77b3b7c41c65db330324889523600983f7cdd0"
+      },
+      "sheet_path": "spec/art_identity/jobs/glacial_mirror/sheet_pair.png",
+      "size_class": "large",
+      "source_path": "spec/art_identity/jobs/glacial_mirror/front/processed.png",
+      "source_pixel_sha256": "b786300193bd8b76d344b1021773d0943bdf8e4e817320279770f5ed87157e38"
+    },
+    {
+      "anatomy": "biped",
+      "art_scale": 1.0,
+      "entry_kind": "kit",
+      "exceptions": [
+        {
+          "metric": "rear_consistency.chroma_delta",
+          "reason": "Front-only accent: the pale-blue mirror plate is on the chest and correctly hidden from behind; stone palettes match (judge b5 PASS, owner approved 2026-10-13).",
+          "value": 0.038671
+        }
+      ],
+      "facing": "rear",
+      "id": "glacial_mirror",
+      "job_id": "id-glacial_mirror-creature_rear",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/glacial_mirror/rear/kit.json",
+      "kit_version": "2d1cd5a25f04deba5684804a591e6416ca1be5ae146a099cf876cf7a03951247",
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/glacial_mirror_rear.png",
+      "pixel_sha256": "032374cc10ade9281c526e8c6eb131f2653235a46cbe1436389162306a602150",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/glacial_mirror/rear/prompt.md",
+      "prompt_sha256": "dd8d6fa577d901fa470f2bdc27654651629c09c4831532748edfc5cff5d74c23",
+      "raw_sha256": "7309a12509560b0e7fd3f135644602e4409d4a32199b219f7b9bb0616c4f2232",
+      "ref_pixel_sha256": {
+        "refs/01_front_ref.png": "e7826a5a6b9aec2b79ee775d9509ea2cbf4bd0e8d5c6a135ed2a31479437802c",
+        "refs/02_hero_rear.png": "aab8f4166183017913bf2fd295accd95a546044aa90149e05cbc934e640f1c02",
+        "refs/03_stone_warden_rear.png": "376df56189b8434c82e9196e0b3675cd2d0397557d994b341d5ef25cb3232cb8",
+        "refs/04_frostglass_lancer_rear.png": "2696061ec5af90b33b9b5ddd878808e384701db0aae12b853caf970d095e228b"
+      },
+      "sheet_path": "spec/art_identity/jobs/glacial_mirror/sheet_pair.png",
+      "size_class": "large",
+      "source_path": "spec/art_identity/jobs/glacial_mirror/rear/processed.png",
+      "source_pixel_sha256": "fcf1539e14989e23fde782d8ef4622be29f840f631fb4a07a783f3e38ffcc72f"
+    },
+    {
+      "anatomy": "biped",
+      "art_scale": 1.0,
+      "entry_kind": "kit",
+      "facing": "front",
+      "id": "gale_herald",
+      "job_id": "id-gale_herald-creature_front",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/gale_herald/front/kit.json",
+      "kit_version": "b43a7efa1002a1a1d1eee1590b8dc5536e4b9ed5f420172b717123c4c653d8ad",
+      "landmarks": {
+        "far": [
+          87,
+          197
+        ],
+        "near": [
+          145,
+          240
+        ]
+      },
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/gale_herald.png",
+      "pixel_sha256": "feb174023de5d34817fd77cab833e26c73279cdfca940cb6dbed601ab62c9581",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/gale_herald/front/prompt.md",
+      "prompt_sha256": "c8a386a0e2a3e04c2f059187163b00f02b7c0d2b326287913090ad2960fe3687",
+      "raw_sha256": "880c55c91ecb75c035fb7eb58d2d4e1adf00fcd808a6ede202489c81031115b6",
+      "ref_pixel_sha256": {
+        "refs/01_hero_front.png": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f",
+        "refs/02_harrier_front.png": "15a3f2b1608185d023b4bfa8c8c80e7cd5f02cb648db5f58e397dca91a9cc885",
+        "refs/03_frostglass_lancer_front.png": "812cbb0456b616c96a9671f0db8c975d25f5d483c7eeea0a0d92d3b73cce4aba"
+      },
+      "sheet_path": "spec/art_identity/jobs/gale_herald/sheet_pair.png",
+      "size_class": "medium",
+      "source_path": "spec/art_identity/jobs/gale_herald/front/processed.png",
+      "source_pixel_sha256": "d9fc28e04c457ba69d047f2b17641b153f4d9de450a22b5d3af5552fad69b958"
+    },
+    {
+      "anatomy": "biped",
+      "art_scale": 1.0,
+      "entry_kind": "kit",
+      "facing": "rear",
+      "id": "gale_herald",
+      "job_id": "id-gale_herald-creature_rear",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/gale_herald/rear/kit.json",
+      "kit_version": "59f0c612f6fa6b4ee8e87c29222313777f6d4c071d28ffabdc0578bddd3fc875",
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/gale_herald_rear.png",
+      "pixel_sha256": "8edd012456c0a718350bf0cbfe3b36c9d22c8710387d55a3de04cdf16b37a6d3",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/gale_herald/rear/prompt.md",
+      "prompt_sha256": "9c46a8c99f839bb2c090a452bf7de19f16b285e22be36216986617b7d00b6900",
+      "raw_sha256": "b95394685a62952e4bc6304f6dde6f871aa1b0406ad966ebc4402d62cd2e0515",
+      "ref_pixel_sha256": {
+        "refs/01_front_ref.png": "00f400364c20c9db39e72c145d05413fb4599a094609fead7cfeed0c8566ad43",
+        "refs/02_hero_rear.png": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af",
+        "refs/03_harrier_rear.png": "69422081034043b2ff1f5a4b7a2e7ac779aff75bf5df81fd7704ac5f458719b9",
+        "refs/04_frostglass_lancer_rear.png": "03fa87c704f7de72d5d7be29c7665e7abf0613dacd035a83d78518c8f3010028"
+      },
+      "sheet_path": "spec/art_identity/jobs/gale_herald/sheet_pair.png",
+      "size_class": "medium",
+      "source_path": "spec/art_identity/jobs/gale_herald/rear/processed.png",
+      "source_pixel_sha256": "247752869cb0ef68b966a9355ad743bd4bcbdd76144fa9cd44d223829b708da5"
+    },
+    {
+      "anatomy": "biped",
+      "art_scale": 1.0,
+      "entry_kind": "kit",
+      "facing": "front",
+      "id": "arc_thrall",
+      "job_id": "id-arc_thrall-creature_front",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/arc_thrall/front/kit.json",
+      "kit_version": "fc05282a61ef6e5fb37b568dae8df0ef24625af1949c6fb495a6f42263d9ee05",
+      "landmarks": {
+        "far": [
+          77,
+          200
+        ],
+        "near": [
+          156,
+          240
+        ]
+      },
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/arc_thrall.png",
+      "pixel_sha256": "297bf5febcd0a1dbf60f9922879c96fb0f974d8c1b761914318f3846939ac365",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/arc_thrall/front/prompt.md",
+      "prompt_sha256": "acf794272ab1fbf9697c05cdf22ef5f2c897ced4390c2106d9fa6c378379a887",
+      "raw_sha256": "ec21bf3e11ed0b938285ce934a14a398ecb4f21f55a6b599647dbd0cb5886d11",
+      "ref_pixel_sha256": {
+        "refs/01_hero_front.png": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f",
+        "refs/02_grave_surgeon_front.png": "144084172812b88e7d2a18b4a1e27c2d35d6158bfa8b619bc6bb6c0834004736",
+        "refs/03_harrier_front.png": "15a3f2b1608185d023b4bfa8c8c80e7cd5f02cb648db5f58e397dca91a9cc885"
+      },
+      "sheet_path": "spec/art_identity/jobs/arc_thrall/sheet_pair.png",
+      "size_class": "medium",
+      "source_path": "spec/art_identity/jobs/arc_thrall/front/processed.png",
+      "source_pixel_sha256": "1041e98621fd44baf635eb71f99557d786db8bbf09fdb87d14123fa5dcc66c70"
+    },
+    {
+      "anatomy": "biped",
+      "art_scale": 1.0,
+      "entry_kind": "kit",
+      "facing": "rear",
+      "id": "arc_thrall",
+      "job_id": "id-arc_thrall-creature_rear",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/arc_thrall/rear_v2/kit.json",
+      "kit_version": "08b1a9671810c1e8ee4240a0f9a7eb82a3ffcdf6761930d6326a1ad42ae0ffbf",
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/arc_thrall_rear.png",
+      "pixel_sha256": "3268d9ccbeaf634e942d2b925bcf06b2eb38129a75359c5f789480cc49851ec9",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/arc_thrall/rear_v2/prompt.md",
+      "prompt_sha256": "3606aa0e3de41cf2baf16cfa2cb1c97e78f7e0a32959d14612b6023da6f62d50",
+      "raw_sha256": "5cef2cc744ed5cd0a8d1d7d267192993cf2e85f46d476e76aa222127c310eab9",
+      "ref_pixel_sha256": {
+        "refs/01_front_ref.png": "fdbd9c3bc41075374d015f120b2d4c72add5830f849623e89dda033fa38f0279",
+        "refs/02_hero_rear.png": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af",
+        "refs/03_grave_surgeon_rear.png": "fb9b0f4d55ebdc02bc64221bd2a5dbe3a830e5cdfe32d4935b4d929dc5f12d4a",
+        "refs/04_harrier_rear.png": "69422081034043b2ff1f5a4b7a2e7ac779aff75bf5df81fd7704ac5f458719b9"
+      },
+      "sheet_path": "spec/art_identity/jobs/arc_thrall/sheet_pair.png",
+      "size_class": "medium",
+      "source_path": "spec/art_identity/jobs/arc_thrall/rear_v2/processed.png",
+      "source_pixel_sha256": "b620e57e224e3d2cde2e34f3b762368f230b8faf4dd6e14d65959cca3ce1afc2"
+    },
+    {
+      "anatomy": "plinth",
+      "art_scale": 1.0,
+      "entry_kind": "kit",
+      "facing": "front",
+      "id": "storm_capacitor",
+      "job_id": "id-storm_capacitor-object_plinth",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "object",
+      "kit_path": "spec/art_identity/jobs/storm_capacitor/front/kit.json",
+      "kit_version": "b1da3fa0ed9bfb875bcb8c100b20d6a1fd7e2b6eeb48dc79d2cfb1ff204608cd",
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/storm_capacitor.png",
+      "pixel_sha256": "2b289f3f7d5928cb77766e2f41acbd71ee21ae0cff3bcb5d3d4e8ebf69b3c32e",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/storm_capacitor/front/prompt.md",
+      "prompt_sha256": "a8783c07ee03b4bcfb9bfbe4343987770ab779006ed9bd365a86a0a05f6c78c8",
+      "raw_sha256": "4cbd346041d2c5966cb39e3dd223a70a64bffbc6cb3914a3919bae473a7b4add",
+      "ref_pixel_sha256": {
+        "refs/01_hero_front.png": "d3f6dd1b8285845f7e5738590ee53290321062f48eac8f5bbe2176179d5417d2",
+        "refs/02_crag_outcrop.png": "5b23ab5c92fc746718fa8a416e92cfb2abbbf553631e1d56c647f13bf95a0570",
+        "refs/03_raised_cover.png": "ffe5e9562d58330cb9f49a6e4ae969d1c624d7370d287394dd2e3b42af24b3eb",
+        "refs/footprint_guide.png": "b70c3e76b48b8655d6933ce626004b7771043db65bec809dbb4204ed080989f4"
+      },
+      "sheet_path": "spec/art_identity/jobs/storm_capacitor/front/sheet.png",
+      "size_class": "large",
+      "source_path": "spec/art_identity/jobs/storm_capacitor/front/processed.png",
+      "source_pixel_sha256": "5edb0c80bc3d2e1f33c4c0ff83362412f4a28d4abb8622eaeadc9c2cffd52f09"
+    },
+    {
+      "anatomy": "biped",
+      "art_scale": 1.0,
+      "entry_kind": "kit",
+      "facing": "front",
+      "id": "gloam_stalker",
+      "job_id": "id-gloam_stalker-creature_front",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/gloam_stalker/front/kit.json",
+      "kit_version": "fc05282a61ef6e5fb37b568dae8df0ef24625af1949c6fb495a6f42263d9ee05",
+      "landmarks": {
+        "far": [
+          92,
+          212
+        ],
+        "near": [
+          163,
+          240
+        ]
+      },
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/gloam_stalker.png",
+      "pixel_sha256": "bf59c2ef7190d666d01f4de41f919c2c6384ef50bc531a4d9597cc613ae4c79e",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/gloam_stalker/front/prompt.md",
+      "prompt_sha256": "52333a83f355516c46cc285702ecc01d3c3e968416ad663e8911a902b975a157",
+      "raw_sha256": "70bc25ef1db768adaeb1f417fb3387e02ee41cf25f3e30fae4b49d069a533068",
+      "ref_pixel_sha256": {
+        "refs/01_hero_front.png": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f",
+        "refs/02_harrier_front.png": "15a3f2b1608185d023b4bfa8c8c80e7cd5f02cb648db5f58e397dca91a9cc885",
+        "refs/03_grave_surgeon_front.png": "144084172812b88e7d2a18b4a1e27c2d35d6158bfa8b619bc6bb6c0834004736"
+      },
+      "sheet_path": "spec/art_identity/jobs/gloam_stalker/sheet_pair.png",
+      "size_class": "medium",
+      "source_path": "spec/art_identity/jobs/gloam_stalker/front/processed.png",
+      "source_pixel_sha256": "9bbd33421669f31df7a0dd1519164a13f97e8c3e9637ab1b43b2be390c91e604"
+    },
+    {
+      "anatomy": "biped",
+      "art_scale": 1.0,
+      "entry_kind": "kit",
+      "facing": "rear",
+      "id": "gloam_stalker",
+      "job_id": "id-gloam_stalker-creature_rear",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/gloam_stalker/rear/kit.json",
+      "kit_version": "9551b7cb625b2d02545fc3b276140b8680905c35cab8f728431543b09772e9bb",
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/gloam_stalker_rear.png",
+      "pixel_sha256": "f94302632e567df99b01880ead53482b7db19a9197a091b03c6ee6892fc78e66",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/gloam_stalker/rear/prompt.md",
+      "prompt_sha256": "a44922f64c4af704b4e2bf4ba71d55eeaf3c9b770cddfd2b60753e23799df869",
+      "raw_sha256": "0af99880c5c2fc825edff79eaa12387fa39d49c6cd060811453dd096da22e219",
+      "ref_pixel_sha256": {
+        "refs/01_front_ref.png": "bed1f483648347520fb78716fed240bd0df6787b12e3cd1c5fecf5f9dd4631eb",
+        "refs/02_hero_rear.png": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af",
+        "refs/03_harrier_rear.png": "69422081034043b2ff1f5a4b7a2e7ac779aff75bf5df81fd7704ac5f458719b9",
+        "refs/04_grave_surgeon_rear.png": "fb9b0f4d55ebdc02bc64221bd2a5dbe3a830e5cdfe32d4935b4d929dc5f12d4a"
+      },
+      "sheet_path": "spec/art_identity/jobs/gloam_stalker/sheet_pair.png",
+      "size_class": "medium",
+      "source_path": "spec/art_identity/jobs/gloam_stalker/rear/processed.png",
+      "source_pixel_sha256": "7dcb4d6ba67ade6e6799372d65a52c99c40d73f556e3a992a6390f8e958b4386"
+    },
+    {
+      "anatomy": "biped",
+      "art_scale": 1.0,
+      "entry_kind": "kit",
+      "facing": "front",
+      "id": "hollow_mimic",
+      "job_id": "id-hollow_mimic-creature_front",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/hollow_mimic/front/kit.json",
+      "kit_version": "0ecb5a75337ddc819fc0f834174a6a16162685e7219874e91f70167d599114d8",
+      "landmarks": {
+        "far": [
+          100,
+          212
+        ],
+        "near": [
+          153,
+          238
+        ]
+      },
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/hollow_mimic.png",
+      "pixel_sha256": "35f875d15ce7226c12d8b6c148ca01409dcc774ecab707e4e291910139f3bded",
+      "post_steps": [],
+      "prompt_path": "spec/art_identity/jobs/hollow_mimic/front/prompt.md",
+      "prompt_sha256": "1a9fb91a7340f489d3cb5054a5a2c8ad03300a86ad9b1450a5dcc576262502b8",
+      "raw_sha256": "1a994ed4dde507fa0e41254624209c4a1676375599dc6a9bf40d666650541686",
+      "ref_pixel_sha256": {
+        "refs/01_hero_front.png": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f",
+        "refs/02_hero_front.png": "8780544b7e60c42bd96c63aea71d22fc400dd9e159316be54cc994cc1a31fa2f",
+        "refs/03_harrier_front.png": "15a3f2b1608185d023b4bfa8c8c80e7cd5f02cb648db5f58e397dca91a9cc885"
+      },
+      "sheet_path": "spec/art_identity/jobs/hollow_mimic/sheet_pair.png",
+      "size_class": "medium",
+      "source_path": "spec/art_identity/jobs/hollow_mimic/front/processed.png",
+      "source_pixel_sha256": "932293d01bfbc9b309d8ebea6d28ddf2623d2457017974e7074d673458a7c1a3"
+    },
+    {
+      "anatomy": "biped",
+      "art_scale": 1.0,
+      "entry_kind": "kit",
+      "facing": "rear",
+      "id": "hollow_mimic",
+      "job_id": "id-hollow_mimic-creature_rear",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/hollow_mimic/rear/kit.json",
+      "kit_version": "b49c10b82796838dc905de9f5ecfe847ddeca5899425ada34bf6cebab37f9776",
+      "owner_approval": "approved 2026-10-13 (art-02 review)",
+      "path": "assets/art/enemies/hollow_mimic_rear.png",
+      "pixel_sha256": "0fcb7c62294104293449c87234594203be1173e03238d7a55d1fce95ccaa907f",
+      "post_steps": [
+        {
+          "method": "Reinhard mean/std transfer in CIE Lab over opaque non-accent pixels (accent = chroma > p90 + 15); alpha untouched; near-black green key residue stripped",
+          "reason": "judge b6: rear warmer than front (criterion 7)",
+          "reference": "front/processed.png",
+          "script": "spec/art_identity/prototype/match_palette.py",
+          "step": "palette_match"
+        }
+      ],
+      "prompt_path": "spec/art_identity/jobs/hollow_mimic/rear/prompt.md",
+      "prompt_sha256": "e84ce1169edc20becf7e724a796d30f4e3157bc377db7f8bc15f5084e2eb972c",
+      "raw_sha256": "9372b128d4bd4595b0a4ef43ba8d2f3821ccf6d3dacf44fa6a4e5f834cc26c44",
+      "ref_pixel_sha256": {
+        "refs/01_front_ref.png": "7641afc158423fa5fb3f64e6dc4729a24eb400e9a8bbaf02e20df87714a79e43",
+        "refs/02_hero_rear.png": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af",
+        "refs/03_hero_rear.png": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af",
+        "refs/04_harrier_rear.png": "69422081034043b2ff1f5a4b7a2e7ac779aff75bf5df81fd7704ac5f458719b9"
+      },
+      "sheet_path": "spec/art_identity/jobs/hollow_mimic/sheet_pair.png",
+      "size_class": "medium",
+      "source_path": "spec/art_identity/jobs/hollow_mimic/rear/processed.png",
+      "source_pixel_sha256": "0c8d9d47ee79d24b47ebb3f1da6ae3aa75206047ce012e754956f7c76bc67eb5"
     }
   ],
   "version": 1

@@ -114,6 +114,29 @@ integer frame-size rounding can differ slightly from that ideal ratio.
 | ember_floor | 2.029285 | 1.5000 | 1.50 | resample | 2.029 → 1.000 | 1.547 → 1.000 | 38.05% / 1.435 | 38.05% / 1.435 | 5.00% / 3.063 | 2.912 → 3.063 |
 | stone_floor_fallback | 2.029285 | 1.5000 | 1.50 | resample | 2.029 → 1.000 | 1.547 → 1.000 | 38.13% / 1.365 | 38.13% / 1.365 | 4.01% / 3.032 | 2.769 → 3.032 |
 | hero_rear / rear | 1.000000 | 1.1317 | 1.00 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 7.63% / 2.216 | 8.91% / 2.221 | 3.02% / 2.418 | 2.221 → 2.418 |
+| hoarfrost_seer | 1.000000 | 1.0000 | 1.00 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 2.68% / 2.569 | 2.68% / 2.569 | 0.87% / 2.659 | 2.569 → 2.659 |
+| gale_herald | 1.000000 | 1.4187 | 1.42 | regrid | 1.000 → 1.000 | 1.000 → 1.000 | 13.37% / 2.018 | 13.37% / 2.018 | 1.60% / 2.857 | 2.018 → 2.857 |
+| arc_thrall | 1.000000 | 1.0000 | 1.00 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 1.46% / 2.721 | 1.46% / 2.721 | 0.63% / 2.765 | 2.721 → 2.765 |
+| gloam_stalker | 1.000000 | 1.0000 | 1.00 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 0.98% / 3.351 | 0.98% / 3.351 | 0.45% / 3.396 | 3.351 → 3.396 |
+| burrow_grub | 0.850000 | 1.0000 | 1.18 | clean | 0.850 → 0.850 | 0.850 → 0.850 | 2.14% / 3.107 | 2.14% / 3.107 | 0.36% / 3.250 | 2.641 → 2.763 |
+| ember_tick | 0.860000 | 1.0000 | 1.16 | clean | 0.860 → 0.860 | 0.860 → 0.860 | 1.57% / 4.412 | 1.57% / 4.412 | 0.90% / 4.521 | 3.795 → 3.888 |
+| storm_capacitor | 1.000000 | 1.0000 | 1.00 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 2.83% / 3.205 | 2.83% / 3.205 | 0.50% / 3.404 | 3.205 → 3.404 |
+| hollow_mimic | 1.000000 | 1.0857 | 1.09 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 6.71% / 1.977 | 6.71% / 1.977 | 0.99% / 2.171 | 1.977 → 2.171 |
+| briar_weaver | 1.000000 | 1.0827 | 1.08 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 6.65% / 2.612 | 6.65% / 2.612 | 1.06% / 2.954 | 2.612 → 2.954 |
+| slag_mortar | 1.040000 | 1.0577 | 1.02 | clean | 1.040 → 1.040 | 1.040 → 1.040 | 6.15% / 2.246 | 6.15% / 2.246 | 1.38% / 2.480 | 2.336 → 2.579 |
+| bramble_thicket | 1.001028 | 1.5000 | 1.50 | regrid | 1.001 → 1.001 | 1.001 → 1.001 | 27.69% / 1.360 | 27.69% / 1.360 | 1.93% / 2.341 | 1.361 → 2.343 |
+| glacial_mirror | 1.000000 | 1.0000 | 1.00 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 0.66% / 3.898 | 0.66% / 3.898 | 0.17% / 3.957 | 3.898 → 3.957 |
+| gust_shrike | 1.000000 | 1.5000 | 1.50 | regrid | 1.000 → 1.000 | 1.000 → 1.000 | 29.75% / 1.289 | 29.75% / 1.289 | 4.18% / 2.063 | 1.289 → 2.063 |
+| burrow_grub_rear | 0.850000 | 1.0000 | 1.18 | clean | 0.850 → 0.850 | 0.850 → 0.850 | 3.81% / 3.999 | 3.81% / 3.999 | 0.57% / 4.488 | 3.399 → 3.815 |
+| ember_tick_rear | 0.860000 | 1.0000 | 1.16 | clean | 0.860 → 0.860 | 0.860 → 0.860 | 2.03% / 4.328 | 2.03% / 4.328 | 0.41% / 4.612 | 3.722 → 3.967 |
+| briar_weaver_rear | 1.000000 | 1.1197 | 1.12 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 7.39% / 2.786 | 7.39% / 2.786 | 0.88% / 3.257 | 2.786 → 3.257 |
+| slag_mortar_rear | 1.040000 | 1.1896 | 1.14 | clean | 1.040 → 1.040 | 1.040 → 1.040 | 8.79% / 2.322 | 8.79% / 2.322 | 2.16% / 2.633 | 2.415 → 2.738 |
+| hoarfrost_seer_rear | 1.000000 | 1.0000 | 1.00 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 2.11% / 2.477 | 2.11% / 2.477 | 0.51% / 2.560 | 2.477 → 2.560 |
+| glacial_mirror_rear | 1.000000 | 1.0000 | 1.00 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 0.37% / 3.896 | 0.37% / 3.896 | 0.15% / 3.922 | 3.896 → 3.922 |
+| gale_herald_rear | 1.000000 | 1.1915 | 1.19 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 8.83% / 2.432 | 8.83% / 2.432 | 2.57% / 2.758 | 2.432 → 2.758 |
+| arc_thrall_rear | 1.000000 | 1.0000 | 1.00 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 2.56% / 2.415 | 2.56% / 2.415 | 0.63% / 2.511 | 2.415 → 2.511 |
+| gloam_stalker_rear | 1.000000 | 1.0000 | 1.00 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 2.26% / 2.851 | 2.26% / 2.851 | 0.68% / 2.946 | 2.851 → 2.946 |
+| hollow_mimic_rear | 1.000000 | 1.0346 | 1.03 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 5.69% / 1.969 | 5.69% / 1.969 | 1.76% / 2.087 | 1.969 → 2.087 |
 
 ## Fixed rig geometry
 
@@ -1347,4 +1370,96 @@ A † marks changed decoded pixels or dimensions relative to untouched source pa
 - `assets/units/protagonist_cutout/rear/thigh_l.png` †
 - `assets/units/protagonist_cutout/rear/thigh_r.png` †
 - `assets/units/protagonist_cutout/rear/torso.png` †
+
+### hoarfrost_seer
+
+- `assets/art/enemies/hoarfrost_seer.png` †
+
+### gale_herald
+
+- `assets/art/enemies/gale_herald.png` †
+
+### arc_thrall
+
+- `assets/art/enemies/arc_thrall.png` †
+
+### gloam_stalker
+
+- `assets/art/enemies/gloam_stalker.png` †
+
+### burrow_grub
+
+- `assets/art/enemies/burrow_grub.png` †
+
+### ember_tick
+
+- `assets/art/enemies/ember_tick.png` †
+
+### storm_capacitor
+
+- `assets/art/enemies/storm_capacitor.png` †
+
+### hollow_mimic
+
+- `assets/art/enemies/hollow_mimic.png` †
+
+### briar_weaver
+
+- `assets/art/enemies/briar_weaver.png` †
+
+### slag_mortar
+
+- `assets/art/enemies/slag_mortar.png` †
+
+### bramble_thicket
+
+- `assets/props/enemies/bramble_thicket.png` †
+
+### glacial_mirror
+
+- `assets/art/enemies/glacial_mirror.png` †
+
+### gust_shrike
+
+- `assets/art/enemies/gust_shrike.png` †
+
+### burrow_grub_rear
+
+- `assets/art/enemies/burrow_grub_rear.png` †
+
+### ember_tick_rear
+
+- `assets/art/enemies/ember_tick_rear.png` †
+
+### briar_weaver_rear
+
+- `assets/art/enemies/briar_weaver_rear.png` †
+
+### slag_mortar_rear
+
+- `assets/art/enemies/slag_mortar_rear.png` †
+
+### hoarfrost_seer_rear
+
+- `assets/art/enemies/hoarfrost_seer_rear.png` †
+
+### glacial_mirror_rear
+
+- `assets/art/enemies/glacial_mirror_rear.png` †
+
+### gale_herald_rear
+
+- `assets/art/enemies/gale_herald_rear.png` †
+
+### arc_thrall_rear
+
+- `assets/art/enemies/arc_thrall_rear.png` †
+
+### gloam_stalker_rear
+
+- `assets/art/enemies/gloam_stalker_rear.png` †
+
+### hollow_mimic_rear
+
+- `assets/art/enemies/hollow_mimic_rear.png` †
 

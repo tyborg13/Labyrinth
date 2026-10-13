@@ -3782,40 +3782,40 @@
     },
     {
       "id": "hoarfrost_seer",
-      "kind": "prop",
+      "kind": "static_enemy",
       "paths": [
         "assets/art/enemies/hoarfrost_seer.png"
       ],
+      "measurement_path": "assets/art/enemies/hoarfrost_seer.png",
+      "frames": null,
       "r": 1.0,
       "r_derivation": {
         "path": "data/enemies.json",
         "key": "hoarfrost_seer.art_scale",
-        "expression": "_unit_size width 1.03 * default art_scale 1.0 / 255 / hero reference (1.03/255)"
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
       },
-      "measurement_path": "assets/art/enemies/hoarfrost_seer.png",
-      "frames": null,
-      "orphan_share": 0.2605479912590351,
-      "t": 1.5,
-      "grid": 1.5,
-      "mode": "regrid"
+      "orphan_share": 0.0267601146862058,
+      "t": 1.0,
+      "grid": 1.0,
+      "mode": "clean"
     },
     {
       "id": "gale_herald",
-      "kind": "prop",
+      "kind": "static_enemy",
       "paths": [
         "assets/art/enemies/gale_herald.png"
       ],
+      "measurement_path": "assets/art/enemies/gale_herald.png",
+      "frames": null,
       "r": 1.0,
       "r_derivation": {
         "path": "data/enemies.json",
         "key": "gale_herald.art_scale",
-        "expression": "_unit_size width 1.03 * default art_scale 1.0 / 255 / hero reference (1.03/255)"
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
       },
-      "measurement_path": "assets/art/enemies/gale_herald.png",
-      "frames": null,
-      "orphan_share": 0.3117934616559731,
-      "t": 1.5,
-      "grid": 1.5,
+      "orphan_share": 0.13374097742632524,
+      "t": 1.4187048871316261,
+      "grid": 1.42,
       "mode": "regrid"
     },
     {
@@ -3824,18 +3824,18 @@
       "paths": [
         "assets/art/enemies/arc_thrall.png"
       ],
+      "measurement_path": "assets/art/enemies/arc_thrall.png",
+      "frames": null,
       "r": 1.0,
       "r_derivation": {
         "path": "data/enemies.json",
         "key": "arc_thrall.art_scale",
-        "expression": "art_scale (default 1.0)"
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
       },
-      "measurement_path": "assets/art/enemies/arc_thrall.png",
-      "frames": null,
-      "orphan_share": 0.364034417799501,
-      "t": 1.5,
-      "grid": 1.5,
-      "mode": "regrid"
+      "orphan_share": 0.014591655570350644,
+      "t": 1.0,
+      "grid": 1.0,
+      "mode": "clean"
     },
     {
       "id": "gloam_stalker",
@@ -3843,56 +3843,56 @@
       "paths": [
         "assets/art/enemies/gloam_stalker.png"
       ],
+      "measurement_path": "assets/art/enemies/gloam_stalker.png",
+      "frames": null,
       "r": 1.0,
       "r_derivation": {
         "path": "data/enemies.json",
         "key": "gloam_stalker.art_scale",
-        "expression": "art_scale (default 1.0)"
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
       },
-      "measurement_path": "assets/art/enemies/gloam_stalker.png",
-      "frames": null,
-      "orphan_share": 0.23419478437658833,
-      "t": 1.5,
-      "grid": 1.5,
-      "mode": "regrid"
+      "orphan_share": 0.009825474449279914,
+      "t": 1.0,
+      "grid": 1.0,
+      "mode": "clean"
     },
     {
       "id": "burrow_grub",
-      "kind": "static",
+      "kind": "static_enemy",
       "paths": [
         "assets/art/enemies/burrow_grub.png"
       ],
       "measurement_path": "assets/art/enemies/burrow_grub.png",
       "frames": null,
-      "r": 1.0,
+      "r": 0.85,
       "r_derivation": {
         "path": "data/enemies.json",
         "key": "burrow_grub.art_scale",
-        "expression": "_unit_size width 1.03 / 255 * default art_scale 1.0 / hero reference (1.03 / 255)"
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
       },
-      "orphan_share": 0.2866666666666667,
-      "t": 1.5,
-      "grid": 1.5,
-      "mode": "regrid"
+      "orphan_share": 0.02143602972790369,
+      "t": 1.0,
+      "grid": 1.18,
+      "mode": "clean"
     },
     {
       "id": "ember_tick",
-      "kind": "static",
+      "kind": "static_enemy",
       "paths": [
         "assets/art/enemies/ember_tick.png"
       ],
       "measurement_path": "assets/art/enemies/ember_tick.png",
       "frames": null,
-      "r": 1.0,
+      "r": 0.86,
       "r_derivation": {
         "path": "data/enemies.json",
         "key": "ember_tick.art_scale",
-        "expression": "_unit_size width 1.03 / 255 * default art_scale 1.0 / hero reference (1.03 / 255)"
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
       },
-      "orphan_share": 0.3447399880454274,
-      "t": 1.5,
-      "grid": 1.5,
-      "mode": "regrid"
+      "orphan_share": 0.01566942566500284,
+      "t": 1.0,
+      "grid": 1.16,
+      "mode": "clean"
     },
     {
       "id": "storm_capacitor",
@@ -3900,19 +3900,18 @@
       "paths": [
         "assets/art/enemies/storm_capacitor.png"
       ],
-      "r": 1.0666666666666667,
-      "r_derivation": {
-        "path": "scripts/enemy_mechanics/capacitor_view.gd",
-        "key": "BODY_SCALE",
-        "expression": "216 * 1.2 / 243; approved hero-relative body height on fixed 255 canvas"
-      },
       "measurement_path": "assets/art/enemies/storm_capacitor.png",
       "frames": null,
-      "orphan_share": 0.29121275521246665,
-      "t": 1.5,
-      "grid": 1.41,
-      "mode": "regrid",
-      "override": "EN06 brief requires an intact 255x255 static canvas. Native treatment preserves that canvas; derived runtime scale restores the 120% body height without clipping the approved chain/base silhouette."
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "storm_capacitor.art_scale",
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
+      },
+      "orphan_share": 0.028279181708784597,
+      "t": 1.0,
+      "grid": 1.0,
+      "mode": "clean"
     },
     {
       "id": "hollow_mimic",
@@ -3920,18 +3919,18 @@
       "paths": [
         "assets/art/enemies/hollow_mimic.png"
       ],
+      "measurement_path": "assets/art/enemies/hollow_mimic.png",
+      "frames": null,
       "r": 1.0,
       "r_derivation": {
         "path": "data/enemies.json",
         "key": "hollow_mimic.art_scale",
-        "expression": "art_scale (default 1.0)"
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
       },
-      "measurement_path": "assets/art/enemies/hollow_mimic.png",
-      "frames": null,
-      "orphan_share": 0.21486949644081202,
-      "t": 1.5,
-      "grid": 1.5,
-      "mode": "regrid"
+      "orphan_share": 0.06714342471195868,
+      "t": 1.0857171235597933,
+      "grid": 1.09,
+      "mode": "clean"
     },
     {
       "id": "briar_weaver",
@@ -3945,12 +3944,12 @@
       "r_derivation": {
         "path": "data/enemies.json",
         "key": "briar_weaver.art_scale",
-        "expression": "_unit_size width 1.03 / 255 * default art_scale 1.0 / hero reference (1.03 / 255)"
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
       },
-      "orphan_share": 0.32370339072567866,
-      "t": 1.5,
-      "grid": 1.5,
-      "mode": "regrid"
+      "orphan_share": 0.06654647648337664,
+      "t": 1.082732382416883,
+      "grid": 1.08,
+      "mode": "clean"
     },
     {
       "id": "slag_mortar",
@@ -3960,16 +3959,16 @@
       ],
       "measurement_path": "assets/art/enemies/slag_mortar.png",
       "frames": null,
-      "r": 1.0,
+      "r": 1.04,
       "r_derivation": {
         "path": "data/enemies.json",
         "key": "slag_mortar.art_scale",
-        "expression": "_unit_size width 1.03 / 255 * default art_scale 1.0 / hero reference (1.03 / 255)"
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
       },
-      "orphan_share": 0.21611907285378554,
-      "t": 1.5,
-      "grid": 1.5,
-      "mode": "regrid"
+      "orphan_share": 0.06153040254664142,
+      "t": 1.057652012733207,
+      "grid": 1.02,
+      "mode": "clean"
     },
     {
       "id": "bramble_thicket",
@@ -3996,18 +3995,18 @@
       "paths": [
         "assets/art/enemies/glacial_mirror.png"
       ],
+      "measurement_path": "assets/art/enemies/glacial_mirror.png",
+      "frames": null,
       "r": 1.0,
       "r_derivation": {
         "path": "data/enemies.json",
         "key": "glacial_mirror.art_scale",
-        "expression": "art_scale (default 1.0)"
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
       },
-      "measurement_path": "assets/art/enemies/glacial_mirror.png",
-      "frames": null,
-      "orphan_share": 0.267004703606098,
-      "t": 1.5,
-      "grid": 1.5,
-      "mode": "regrid"
+      "orphan_share": 0.006627346524606798,
+      "t": 1.0,
+      "grid": 1.0,
+      "mode": "clean"
     },
     {
       "id": "gust_shrike",
@@ -4027,6 +4026,196 @@
       "t": 1.5,
       "grid": 1.5,
       "mode": "regrid"
+    },
+    {
+      "id": "burrow_grub_rear",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/burrow_grub_rear.png"
+      ],
+      "measurement_path": "assets/art/enemies/burrow_grub_rear.png",
+      "frames": null,
+      "r": 0.85,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "burrow_grub.art_scale",
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
+      },
+      "orphan_share": 0.03807409936827728,
+      "t": 1.0,
+      "grid": 1.18,
+      "mode": "clean"
+    },
+    {
+      "id": "ember_tick_rear",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/ember_tick_rear.png"
+      ],
+      "measurement_path": "assets/art/enemies/ember_tick_rear.png",
+      "frames": null,
+      "r": 0.86,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "ember_tick.art_scale",
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
+      },
+      "orphan_share": 0.020315260225574127,
+      "t": 1.0,
+      "grid": 1.16,
+      "mode": "clean"
+    },
+    {
+      "id": "briar_weaver_rear",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/briar_weaver_rear.png"
+      ],
+      "measurement_path": "assets/art/enemies/briar_weaver_rear.png",
+      "frames": null,
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "briar_weaver.art_scale",
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
+      },
+      "orphan_share": 0.07393631497777374,
+      "t": 1.1196815748888687,
+      "grid": 1.12,
+      "mode": "clean"
+    },
+    {
+      "id": "slag_mortar_rear",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/slag_mortar_rear.png"
+      ],
+      "measurement_path": "assets/art/enemies/slag_mortar_rear.png",
+      "frames": null,
+      "r": 1.04,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "slag_mortar.art_scale",
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
+      },
+      "orphan_share": 0.08792692613185067,
+      "t": 1.1896346306592533,
+      "grid": 1.14,
+      "mode": "clean"
+    },
+    {
+      "id": "hoarfrost_seer_rear",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/hoarfrost_seer_rear.png"
+      ],
+      "measurement_path": "assets/art/enemies/hoarfrost_seer_rear.png",
+      "frames": null,
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "hoarfrost_seer.art_scale",
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
+      },
+      "orphan_share": 0.021114429910392418,
+      "t": 1.0,
+      "grid": 1.0,
+      "mode": "clean"
+    },
+    {
+      "id": "glacial_mirror_rear",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/glacial_mirror_rear.png"
+      ],
+      "measurement_path": "assets/art/enemies/glacial_mirror_rear.png",
+      "frames": null,
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "glacial_mirror.art_scale",
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
+      },
+      "orphan_share": 0.0036904985300556703,
+      "t": 1.0,
+      "grid": 1.0,
+      "mode": "clean"
+    },
+    {
+      "id": "gale_herald_rear",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/gale_herald_rear.png"
+      ],
+      "measurement_path": "assets/art/enemies/gale_herald_rear.png",
+      "frames": null,
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "gale_herald.art_scale",
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
+      },
+      "orphan_share": 0.08830425624925486,
+      "t": 1.1915212812462743,
+      "grid": 1.19,
+      "mode": "clean"
+    },
+    {
+      "id": "arc_thrall_rear",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/arc_thrall_rear.png"
+      ],
+      "measurement_path": "assets/art/enemies/arc_thrall_rear.png",
+      "frames": null,
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "arc_thrall.art_scale",
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
+      },
+      "orphan_share": 0.025636481776832653,
+      "t": 1.0,
+      "grid": 1.0,
+      "mode": "clean"
+    },
+    {
+      "id": "gloam_stalker_rear",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/gloam_stalker_rear.png"
+      ],
+      "measurement_path": "assets/art/enemies/gloam_stalker_rear.png",
+      "frames": null,
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "gloam_stalker.art_scale",
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
+      },
+      "orphan_share": 0.022619327533505762,
+      "t": 1.0,
+      "grid": 1.0,
+      "mode": "clean"
+    },
+    {
+      "id": "hollow_mimic_rear",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/hollow_mimic_rear.png"
+      ],
+      "measurement_path": "assets/art/enemies/hollow_mimic_rear.png",
+      "frames": null,
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "hollow_mimic.art_scale",
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
+      },
+      "orphan_share": 0.05691182133230651,
+      "t": 1.0345591066615325,
+      "grid": 1.03,
+      "mode": "clean"
     }
   ]
 }

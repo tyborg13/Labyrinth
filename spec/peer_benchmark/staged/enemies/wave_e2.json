@@ -57,7 +57,9 @@
      }
     ]
    }
-  ]
+  ],
+  "art_scale": 1.0,
+  "art_rear_path": "res://assets/art/enemies/briar_weaver_rear.png"
  },
  "slag_mortar": {
   "name": "Slag Mortar",
@@ -136,7 +138,9 @@
      }
     ]
    }
-  ]
+  ],
+  "art_scale": 1.04,
+  "art_rear_path": "res://assets/art/enemies/slag_mortar_rear.png"
  },
  "glacial_mirror": {
   "name": "Glacial Mirror",
@@ -200,7 +204,9 @@
     ]
    }
   ],
-  "construct": true
+  "construct": true,
+  "art_scale": 1.0,
+  "art_rear_path": "res://assets/art/enemies/glacial_mirror_rear.png"
  },
  "gust_shrike": {
   "name": "Gust Shrike",
@@ -321,7 +327,8 @@
      }
     ]
    }
-  ]
+  ],
+  "art_scale": 1.0
  },
  "hollow_mimic": {
   "name": "Hollow Mimic",
@@ -380,6 +387,8 @@
      }
     ]
    }
-  ]
+  ],
+  "art_scale": 1.0,
+  "art_rear_path": "res://assets/art/enemies/hollow_mimic_rear.png"
  }
 }

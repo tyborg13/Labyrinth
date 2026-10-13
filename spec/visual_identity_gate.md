@@ -104,6 +104,11 @@ python3 tools/art_identity_gate.py measure PATH --art-scale 1.0 --kind creature 
 python3 tools/art_identity_gate.py kit --id ID --subject SUBJECT.md --view creature_front \
   --size-class medium --anatomy biped --peers harrier_front grave_surgeon_front --out-dir JOB_DIR
 python3 tools/art_identity_gate.py process RAW.png --kit JOB_DIR/kit.json --out OUT.png
+python3 tools/art_identity_gate.py process REAR_RAW.png --kit REAR_JOB/kit.json --out REAR_OUT.png \
+  --match-front FRONT_PROCESSED.png --clean-outline
+python3 tools/art_identity_gate.py kit --id ID --subject SUBJECT.md --subject-rear REAR_SUBJECT.md \
+  --view creature_rear --size-class medium --anatomy biped --peers harrier_rear grave_surgeon_rear \
+  --front-ref FRONT_RAW.png --out-dir REAR_JOB
 python3 tools/art_identity_gate.py sheet --front OUT.png --kit JOB_DIR/kit.json --out SHEET.png
 python3 tools/art_identity_gate.py canon-sheet --out CANON_SHEET.png --view front
 python3 tools/art_identity_gate.py check
@@ -112,8 +117,75 @@ python3 tools/art_identity_gate.py adopt-legacy
 python3 tests/test_art_identity_gate.py
 ```
 
-`adopt-legacy` refuses to replace an existing baseline. Normal checks list the twelve pending reart jobs as warnings;
-strict checks fail them. The lineup capture command and backdrop-copy instructions are in the command reference.
+`adopt-legacy` refuses to replace an existing baseline. Normal checks warn for Gust Shrike, the remaining `pending_reart` enemy; strict checks fail it.
+Reference PNGs are intentionally git-ignored and regenerable; certification reads the committed job records,
+not these files. The lineup capture command and backdrop-copy instructions are in the command reference.
 Processing normalizes square raw canvases with `k_eff = K × raw_width / 1024`, uniformly fits oversized sprites
 within 251×240 without clipping paint, and records `k_eff` and `fit_scale`. The candidate table shows `fit_scale` as
 INFO. Use `canon-sheet` (front or rear) beside each candidate sheet for the independent judge.
+
+
+`--match-front` applies the approved prototype's Reinhard mean/std transfer in CIE Lab over opaque non-accent
+pixels (accent chroma > p90 + 15), retaining accents and alpha and stripping green key residue. `--clean-outline`
+then removes isolated pixels and replaces silhouette edges above Rec.601 luminance 0.2 with RGB (20,16,21).
+Each deterministic step records parameters and the pre-step decoded digest in `post_steps`; palette matching also
+binds its reference digest. Both run after canvas placement. `--subject-rear` uses and records the supplied rear
+subject in the kit and prompt, while retaining the usual front reference requirement.
+
+Creature sheets and kit checks enforce `edge_light_share` ≤ `creature.edge_light_share_max`. Pair sheets show
+absolute front/rear chroma and value differences over non-accent pixels only. Both views use the exact palette-match
+mask: opaque pixels with Lab chroma ≤ their view's p90 + 15. Kit checks enforce the unchanged `rear_consistency` bands
+on those approved processed sources. Registry `source_path` / `source_pixel_sha256` bind those sources, their processing sidecars and
+copied `post_steps`; `pixel_sha256` independently binds the density-treated production files.
+
+
+Kit certification verifies `prompt.md` against `prompt_sha256` in both its job and registry, and the job's recorded
+reference pixel digests against registry `ref_pixel_sha256`. It checks digest validity and reference identities,
+without opening or regenerating reference PNGs. `kit_version` is generation-time provenance: recover the captured
+preamble and view clause from the stored prompt, undo the generation-time `{K}` substitution in its numeric contexts,
+and hash those bytes with the job's sorted reference digests. Today's preamble/view clauses and canon paint are not
+hash inputs. Every current art-03 kit reproduces its version this way; `check` labels these `kit_version
+prompt_reconstructed`. If a historical custom prompt cannot reproduce the recorded value exactly, the director's
+fallback verifies the prompt hash, reference digest bindings, and equality/validity of the job and registry version
+fields; `check` explicitly labels that mode `kit_version recorded`. Protected job files remain unchanged.
+
+Art-03's static enemies use the existing four-direction cutout policy with front/rear stills. Idle observers wait
+for the hero's movement to finish, movement follows the sampled segment and attacks follow their target. Death
+retains the preceding facing. Cached shadows use the selected front/rear silhouette; mirrored textures and cached
+polygons flip about the logical rectangle centre. Logical HUD, tooltip and obstruction rectangles stay fixed.
+Storm Capacitor has no rear and does not turn; its explicit approved `art_scale` supersedes the old canvas fitting
+compensation. Gale Herald's front measures grid 1.42 and uses `regrid` under the existing density rule; the other
+20 art-03 views use `clean`. Static art has no rig rests to rebake or record.
+
+Headless registration and semantic validation (no renderer-proof claim):
+
+```sh
+python3 tools/godot_task_runner.py --task-id art-03 --stream -- godot --headless --path . \
+  --script tests/static_facing_shadow_cache.gd
+python3 tools/godot_task_runner.py --task-id art-03 --stream -- godot --headless --path . \
+  --script tests/static_facing_test.gd
+python3 tools/godot_task_runner.py --task-id art-03 --stream -- godot --headless --path . \
+  --script tests/bestiary_lineup_probe.gd -- --validate-only
+python3 tools/godot_task_runner.py --task-id art-03 --stream -- godot --headless --path . \
+  --script tests/static_facing_probe.gd -- --validate-only
+```
+
+The design owner runs the following windowed proof at 1920×1080, 100% UI scale and inspects the fresh captures:
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/art-03 && python3 tools/visual_probe_runner.py \
+  --task-id art-03 --no-headless --display-driver macos --audio-driver Dummy \
+  --expect-size 1920x1080 --proof-contract tests/bestiary_lineup_probe_contract.json \
+  --result-manifest /private/tmp/labyrinth-inspection-manifests/art-03-lineup.json tests/bestiary_lineup_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/art-03 && python3 tools/visual_probe_runner.py \
+  --task-id art-03 --no-headless --display-driver macos --audio-driver Dummy \
+  --expect-size 1920x1080 --proof-contract tests/static_facing_probe_contract.json \
+  --result-manifest /private/tmp/labyrinth-inspection-manifests/art-03-static-facing.json tests/static_facing_probe.gd
+```
+
+The first probe writes the empty board and normal/boss lineups; the second writes eight idle facing captures
+(`arc_thrall` and `slag_mortar`: front, front mirrored, rear, rear mirrored), `arc_thrall_mid_move.png`,
+`slag_mortar_reduced_motion.png`, `turn_clock_three_portraits.png`, and `semantic-proof.json`. Both print their
+isolated `user://probes/` directory. Capture uses only the fixed SubViewport texture. These probes construct their
+own presentation fixtures; no saved-run inspection fixture is needed. The 11 old/new portrait pairs are available
+at exact 2× NEAREST in `tests/static_facing_portrait_contact.png` (old left, approved crop right).
