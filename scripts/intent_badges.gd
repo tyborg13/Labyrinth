@@ -129,7 +129,7 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 		if attacking and acting and not cancelled:
 			threats.append({"key": actor_key, "tiles": threat.get("projected_attack", []),
 				"alpha": ISOLATED_ALPHA if not focus_key.is_empty() and focus_key != actor_key else 1.0,
-				"area": is_area_intent(intent), "order": badge["order"], "attacker_tile": projected.get("pos", enemy.get("pos", Vector2i(-1, -1)))})
+				"area": is_area_intent(intent), "order": badge["order"], "attacker_tile": projected.get("pos", enemy.get("pos", Vector2i(-1, -1))), "plan": threat})
 	return {"badges": badges, "threats": threats, "hero_tile": (preview.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))}
 
 static func primary_action(intent: Dictionary) -> Dictionary:
@@ -146,9 +146,10 @@ static func descriptor(action: Dictionary, intent: Dictionary = {}) -> Dictionar
 	var number: String = ""
 	for field: String in ["damage", "amount", "count"]:
 		if action.has(field):
-			number = ("+%d" if kind == "gain_charge" else "%d") % int(action[field])
+			# Shared EN06 formatter: JSON numeric fields must never print as 4.0.
+			number = ("+" if kind == "gain_charge" else "") + Icons.token_value_text({"value": action[field]})
 			break
-	if kind in ["lob_mark", "lob_land", "grow_bramble"]: number = str(Compass.value_for_action(action))
+	if kind in ["lob_mark", "lob_land", "grow_bramble"]: number = Icons.token_value_text({"value": Compass.value_for_action(action)})
 	if kind in Compass.MOVEMENT_TYPES: number = ""
 	var hits: int = int(action.get("hits", 1))
 	if hits > 1 and not number.is_empty():
@@ -167,7 +168,7 @@ static func descriptor(action: Dictionary, intent: Dictionary = {}) -> Dictionar
 	if int(action.get("chilled", 0)) > 0: riders.append({"icon": "chilled", "value": action["chilled"]})
 	var secondary: Dictionary = secondary_rider(riders)
 	return {"icon": Icons.action_icon_key(action), "number": number,
-		"secondary_icon": str(secondary.get("icon", "")), "secondary_number": str(int(secondary["value"])) if secondary.has("value") else "",
+		"secondary_icon": str(secondary.get("icon", "")), "secondary_number": Icons.token_value_text(secondary),
 		"family": "movement" if kind in Compass.MOVEMENT_TYPES else Compass.FAMILY_SUPPORT if kind == "grow_bramble" else "attack" if is_attack(action) else Compass.family_for_action(action)}
 
 static func secondary_rider(riders: Array) -> Dictionary:
@@ -178,7 +179,7 @@ static func secondary_rider(riders: Array) -> Dictionary:
 
 static func is_area_intent(intent: Dictionary) -> bool:
 	for action: Dictionary in intent.get("actions", []):
-		if is_attack(action) and (str(action.get("type", "")) in Compass.AREA_TYPES or action.has("pattern") or action.has("pattern_footprint")):
+		if is_attack(action) and (str(action.get("type", "")) in Compass.AREA_TYPES or str(action.get("type", "")) == "grow_bramble" or action.has("pattern") or action.has("pattern_footprint")):
 			return true
 	return false
 

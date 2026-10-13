@@ -27,10 +27,24 @@
     "mode": "regrid",
     "grid": 1.5
   },
+  "assets/art/enemies/glacial_mirror.png": {
+    "pixel_sha256": "12b2acb979ada351963eddb16581a42327cca4924310e147c47cedd24ced506e",
+    "source_pixel_sha256": "08ed4a2793debb9f79c3109bae509206705889b9aa74882f0b46f37d89b6e4dc",
+    "id": "glacial_mirror",
+    "mode": "regrid",
+    "grid": 1.5
+  },
   "assets/art/enemies/gloam_stalker.png": {
     "pixel_sha256": "b7439f856ffc1038ce634affcd311986100d493c719767285d79a64022111381",
     "source_pixel_sha256": "546f0f39233766380d360b55479e8f4727df238864e5b1f3f8cfe447abe80033",
     "id": "gloam_stalker",
+    "mode": "regrid",
+    "grid": 1.5
+  },
+  "assets/art/enemies/gust_shrike.png": {
+    "pixel_sha256": "35aed58079a474e17b68c6c25b2d81623854db8a19088b18ad0931f8a4e1bab5",
+    "source_pixel_sha256": "f514877cd640b2974e15f1afd828f197117fdc226a0ba97d6d535776d2312767",
+    "id": "gust_shrike",
     "mode": "regrid",
     "grid": 1.5
   },

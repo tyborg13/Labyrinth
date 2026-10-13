@@ -41,6 +41,8 @@ const SurfaceCardRules = preload("res://scripts/surface_card_rules.gd")
 const IllusionCardRules = preload("res://scripts/illusion_card_rules.gd")
 const IllusionRelicRules = preload("res://scripts/illusion_relic_rules.gd")
 const TerrainCardRules = preload("res://scripts/terrain_card_rules.gd")
+const ReflectRules = preload("res://scripts/enemy_mechanics/reflect.gd")
+const DiveRules = preload("res://scripts/enemy_mechanics/dive.gd")
 const CapacitorRules = preload("res://scripts/enemy_mechanics/capacitor.gd")
 const MimicRules = preload("res://scripts/enemy_mechanics/mimic.gd")
 const TetherRules = preload("res://scripts/enemy_mechanics/tether.gd")
@@ -2564,7 +2566,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			var action: Dictionary = action_var
 			if combat_outcome(next_state) != "":
 				break
-			if shocked and not _enemy_action_is_movement(action) and not TetherRules.handles(action) and not MimicRules.handles(action):
+			if shocked and not _enemy_action_is_movement(action) and not TetherRules.handles(action) and not DiveRules.handles(action) and not MimicRules.handles(action):
 				continue
 			if immobilized and _enemy_action_is_movement(action):
 				continue
@@ -2681,7 +2683,7 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 			"raise_terrain", "terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse":
 				for attack_tile: Vector2i in _boss_action_threat_tiles(state, enemy, action):
 					attack_lookup[attack_tile] = true
-	if CapacitorRules.handles_intent(intent) or MimicRules.handles_intent(intent) or not TetherRules.action_for(intent).is_empty() or VeilRules.handles_intent(intent) or (intent.has("committed_plan") and GuardianCombatRules.has_held_actions(intent)):
+	if CapacitorRules.handles_intent(intent) or MimicRules.handles_intent(intent) or not DiveRules.action_for(intent).is_empty() or str(enemy.get("type", "")) == "glacial_mirror" or not TetherRules.action_for(intent).is_empty() or VeilRules.handles_intent(intent) or (intent.has("committed_plan") and GuardianCombatRules.has_held_actions(intent)):
 		move_lookup.clear()
 		attack_lookup.clear()
 		for tile: Vector2i in plan.get("path",[]):
@@ -2709,7 +2711,8 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 		"projected_attack_action": (plan.get("attack_action", {}) as Dictionary).duplicate(true),
 		"projected_attack_element": str((plan.get("attack_action", {}) as Dictionary).get("element", enemy_definition.get("element", ElementData.NONE))),
 		"projected_attack_from": plan.get("destination", enemy.get("pos", Vector2i.ZERO)),
-		"projected_attack_target": plan.get("projected_attack_target", INVALID_TILE)
+		"projected_attack_target": plan.get("projected_attack_target", INVALID_TILE),
+		"side_push_previews": plan.get("side_push_previews", []), "side_push_collisions": plan.get("side_push_collisions", [])
 	}
 
 func projected_player_force(state: Dictionary, enemy_id: int, threat: Dictionary) -> Dictionary:
@@ -2805,7 +2808,7 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 				var action: Dictionary = action_var
 				if combat_outcome(next_state) != "":
 					break
-				if shocked and not _enemy_action_is_movement(action) and not TetherRules.handles(action) and not MimicRules.handles(action):
+				if shocked and not _enemy_action_is_movement(action) and not TetherRules.handles(action) and not DiveRules.handles(action) and not MimicRules.handles(action):
 					continue
 				if immobilized and _enemy_action_is_movement(action):
 					continue
@@ -4075,6 +4078,7 @@ func _enemy_support_target_index(state: Dictionary, source_enemy_index: int, act
 	var action_type: String = str(action.get("type", ""))
 	if action_type not in ENEMY_SUPPORT_ACTION_TYPES:
 		return -1
+	if str(action.get("target", "")) == "least_block": return ReflectRules.guard_target(self, state, source_enemy_index, action)
 	action = BrambleRules.mend_action(self, state, source_enemy, action)
 	var allow_self: bool = bool(action.get("allow_self", true))
 	var max_range: int = int(action.get("range", 99)) if action.has("range") else 99
@@ -4371,6 +4375,8 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 		return next_state
 	var resolved_action: Dictionary = _resolved_surface_action(next_state, action)
 	action = resolved_action
+	if DiveRules.handles(action): return DiveRules.resolve(self, next_state, enemy_index, action, action_context, bleed_steps)
+	if ReflectRules.refraction(next_state["enemies"][enemy_index], action): return ReflectRules.resolve(self, next_state, enemy_index, action, bleed_steps, action_context)
 	if CapacitorRules.handles(action): return CapacitorRules.resolve(self, next_state, enemy_index, action, action_context, bleed_steps)
 	if MimicRules.handles(action): return MimicRules.resolve(self, next_state, enemy_index, action, action_context, bleed_steps)
 	if CapacitorRules.immobile(enemy) and _enemy_action_is_movement(action): return next_state
@@ -4573,9 +4579,9 @@ func _move_enemy_along_planned_path(state: Dictionary, enemy_index: int, planned
 		enemy = _normalized_enemy(enemies[enemy_index] as Dictionary)
 		if int(enemy.get("hp", 0)) <= 0 or enemy.get("pos", INVALID_TILE) != planned_path[path_index - 1]:
 			break
-		if bool(action_context.get("committed", false)) and not _enemy_can_occupy_anchor(next_state, enemy, planned_path[path_index], _enemy_path_blockers(next_state,enemy,true,false)):
+		if bool(action_context.get("committed", false)) and not (path_index < planned_path.size() - 1 and DiveRules.can_cross(self, next_state, enemy, planned_path[path_index])) and not _enemy_can_occupy_anchor(next_state, enemy, planned_path[path_index], _enemy_path_blockers(next_state,enemy,true,false)):
 			break
-		var cost: int = BoardSurfaceRules.movement_step_cost(next_state, enemy, planned_path[path_index - 1], planned_path[path_index])
+		var cost: int = 1 if DiveRules.flying(enemy) else BoardSurfaceRules.movement_step_cost(next_state, enemy, planned_path[path_index - 1], planned_path[path_index])
 		if path_index == 1 and allowance > 0:
 			cost = mini(cost, allowance)
 		if allowance >= 0 and spent + cost > allowance:
@@ -8575,7 +8581,7 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		if typeof(intent_var) != TYPE_DICTIONARY:
 			continue
 		var intent: Dictionary = intent_var as Dictionary
-		if int(intent.get("weight", 1)) > 0 and IcefallRules.available(self, state, enemy, intent) and BurrowRules.available(enemy, intent) and _dragon_intent_available(state, enemy, intent) and TetherRules.available(self, state, enemy_index, intent) and BrambleRules.available(self, state, enemy, intent) and LobRules.available(self, state, enemy, intent):
+		if int(intent.get("weight", 1)) > 0 and IcefallRules.available(self, state, enemy, intent) and BurrowRules.available(enemy, intent) and _dragon_intent_available(state, enemy, intent) and TetherRules.available(self, state, enemy_index, intent) and DiveRules.available(self, state, enemy_index, intent) and ReflectRules.available(self, state, enemy_index, intent) and BrambleRules.available(self, state, enemy, intent) and LobRules.available(self, state, enemy, intent):
 			if str(intent.get("id", "")) == "kindle" and not KindleRules.available(enemy): continue
 			available_intents.append(intent)
 	intents = available_intents
@@ -8585,7 +8591,7 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		enemy["intent"] = MimicRules.choose(self, state, enemy_index, intents, rng)
 		enemies[enemy_index] = enemy
 		return
-	if enemy_type in ["hoarfrost_seer", "gale_herald", "briar_weaver", "slag_mortar"]:
+	if enemy_type in ["hoarfrost_seer", "gale_herald", "glacial_mirror", "gust_shrike", "briar_weaver", "slag_mortar"]:
 		enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, WindRules.choose_intent(self, state, enemy_index, intents, rng))
 		enemies[enemy_index] = enemy
 		return
@@ -9021,7 +9027,7 @@ func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dicti
 	var scaled: Dictionary = action.duplicate(true)
 	var action_type: String = str(scaled.get("type", ""))
 	var damage_delta: int = _local_enemy_damage_delta(room_depth)
-	if damage_delta != 0 and (action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes" or action_type in BOSS_DAMAGE_ACTION_TYPES) and scaled.has("damage"):
+	if damage_delta != 0 and (action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes" or action_type in BOSS_DAMAGE_ACTION_TYPES or action_type == "dive_line") and scaled.has("damage"):
 		scaled["damage"] = maxi(GameData.fixed_point_amount(1), int(scaled.get("damage", 0)) + damage_delta)
 	if action_type == "lob_land":
 		for field: String in ["center_damage", "arm_damage"]: scaled[field] = maxi(GameData.fixed_point_amount(1), int(scaled[field]) + damage_delta)
@@ -9038,7 +9044,7 @@ func _scale_enemy_action_for_depth(action: Dictionary, room_depth: int) -> Dicti
 		return scaled
 	var damage_bonus: int = ENEMY_DAMAGE_BONUS_BY_SEQUENCE[mini(sequence_index, ENEMY_DAMAGE_BONUS_BY_SEQUENCE.size() - 1)]
 	var support_bonus: int = ENEMY_SUPPORT_BONUS_BY_SEQUENCE[mini(sequence_index, ENEMY_SUPPORT_BONUS_BY_SEQUENCE.size() - 1)]
-	if action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes" or action_type in BOSS_DAMAGE_ACTION_TYPES:
+	if action_type in ATTACK_ACTION_TYPES or action_type == "lightning_strikes" or action_type in BOSS_DAMAGE_ACTION_TYPES or action_type == "dive_line":
 		if scaled.has("damage"):
 			scaled["damage"] = int(scaled.get("damage", 0)) + damage_bonus
 	if action_type == "lob_land":
@@ -9109,6 +9115,9 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 	if not lob_plan.is_empty(): return lob_plan
 	if CapacitorRules.handles_intent(intent): return CapacitorRules.plan(self, state, enemy_index, intent, attack_disabled)
 	if MimicRules.handles_intent(intent): return MimicRules.plan(self, state, enemy_index, intent, movement_disabled, attack_disabled)
+	if not DiveRules.action_for(intent).is_empty(): return DiveRules.plan(self, state, enemy_index, intent, movement_disabled, attack_disabled)
+	var reflect_plan: Dictionary = ReflectRules.plan(self, state, enemy_index, intent, attack_disabled)
+	if not reflect_plan.is_empty(): return reflect_plan
 	var icefall_plan: Dictionary = IcefallRules.plan(self, state, enemy_index, intent, attack_disabled)
 	if not icefall_plan.is_empty(): return icefall_plan
 	var wind_plan: Dictionary = WindRules.plan(self, state, enemy_index, intent, attack_disabled)
@@ -11387,6 +11396,7 @@ func _surface_actor_records(state: Dictionary, team: String = "all") -> Array[Di
 	return actors
 
 func _surface_damage_actor(state: Dictionary, actor_kind: String, actor_id: int, amount: int, direct: bool = false, pierce: bool = false) -> Dictionary:
+	if not direct and DiveRules.flying(_surface_actor(state, actor_kind, actor_id)): return state
 	if amount <= 0:
 		return state
 	match actor_kind:
@@ -11403,6 +11413,7 @@ func _surface_damage_actor(state: Dictionary, actor_kind: String, actor_id: int,
 
 func _surface_contact(state: Dictionary, actor_kind: String, actor_id: int, previous: Vector2i, start: bool = false, elemental_snapshot: Dictionary = {}) -> Dictionary:
 	var unit: Dictionary = _surface_actor(state, actor_kind, actor_id)
+	if DiveRules.flying(unit): return state
 	if unit.is_empty() or int(unit.get("hp", 0)) <= 0:
 		return state
 	var footprint: Array[Vector2i] = BoardSurfaceRules.footprint_tiles(unit)
@@ -11456,6 +11467,7 @@ func _surface_contact(state: Dictionary, actor_kind: String, actor_id: int, prev
 	return state
 
 func surface_actor_arrival(state: Dictionary, actor_kind: String, actor_id: int, old_pos: Vector2i) -> Dictionary:
+	if DiveRules.flying(_surface_actor(state, actor_kind, actor_id)): return state
 	# Trap wakes are placement, not an extra entry. Snapshot both contact kinds
 	# before the trap can paint beneath a large actor's newly entered footprint.
 	var elemental_before: Dictionary = {INVALID_TILE: ""}
@@ -11513,6 +11525,7 @@ func movement_cost_for_path(state: Dictionary, path: Array, allowance: int = -1,
 	return spent
 
 func _unit_movement_navigation(state: Dictionary, unit: Dictionary, budget: int, occupied: Dictionary, minimum_progress: bool = true, stop_after_reaching: Callable = Callable()) -> Dictionary:
+	if DiveRules.flying(unit): return DiveRules.navigation(self, state, unit, budget, occupied)
 	var blocked: Dictionary = occupied.duplicate()
 	var size: Vector2i = unit.get("footprint", Vector2i.ONE)
 	if size != Vector2i.ONE:
@@ -11791,6 +11804,8 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 		state = _trigger_player_bleed_for_action(state, resolved)
 		if combat_outcome(state) == "defeat":
 			return state
+	if actor_kind == "enemy" and ReflectRules.reflects(self, state, resolved, origin, _enemy_index_at_tile(state, target)):
+		return ReflectRules.bounce(self, state, _enemy_index_at_tile(state, target), int(resolved.get("damage", 0)), actor_kind, actor_id)
 	var melee_fuel: Dictionary = CommonRelicRules.consume_melee_target(self, state, resolved, target, actor_kind == "player" and not echo)
 	var plan: Dictionary = _board_attack_plan(state, route_action, impact, actor_kind)
 	if actor_kind == "player" and bool(action.get("also_hits_near_illusions", false)):
@@ -11877,6 +11892,10 @@ func _resolve_board_attack(state: Dictionary, action: Dictionary, target: Vector
 			hit_action = CardKeywordRules.action_with_state_bonus(self, state, hit_action, index)
 			hit_action = CommonRelicRules.before_melee_hit(state, hit_action, hit, melee_fuel)
 			hit_action = SurfaceCardRules.before_enemy_hit(self, state, hit_action, hit, index, family_context)
+			if str(hit.get("kind_trace", "")) == "actor" and index == _enemy_index_at_tile(state, target) and ReflectRules.reflects(self, state, hit_action, origin, index):
+				var reflected_damage: int = _damage_for_enemy_target(state, hit_action, index) if actor_kind == "player" else int(hit_action.get("damage", 0))
+				state = ReflectRules.bounce(self, state, index, reflected_damage, actor_kind, actor_id)
+				continue
 			if not echo: state = _sunder_enemy_defense(state, index, int(hit_action.get("sunder", 0)))
 			var damage: int = _damage_for_enemy_target(state, hit_action, index)
 			trace_hit["damage"] = IllusionRelicRules.direct_amount(self, state, _surface_actor(state, "enemy", int(hit["id"])), damage)
@@ -12253,7 +12272,9 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 	action = action.duplicate(true)
 	action["_resolved_path"] = action_context.get("resolved_path",_vector2i_values([before_state["enemies"][enemy_index]["pos"]]))
 	var step: Dictionary
-	if BrambleRules.handles(action): step = BrambleRules.animation_step(self, before_state, after_state, enemy_index, action)
+	if DiveRules.handles(action): step = DiveRules.step(self, before_state, after_state, enemy_index, action, action_context)
+	elif ReflectRules.refraction(before_state["enemies"][enemy_index], action): step = ReflectRules.step(self, before_state, after_state, enemy_index, action, action_context)
+	elif BrambleRules.handles(action): step = BrambleRules.animation_step(self, before_state, after_state, enemy_index, action)
 	elif LobRules.handles(action): step = LobRules.animation_step(self, before_state, after_state, enemy_index, action)
 	elif CapacitorRules.handles(action): step = CapacitorRules.animation_step(self, before_state, after_state, enemy_index, action, action_context)
 	elif MimicRules.handles(action): step = MimicRules.animation_step(self, before_state, after_state, enemy_index, action, action_context)

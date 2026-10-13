@@ -1,0 +1,177 @@
+{
+  "min_images": 11,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*01_mirror_rest_refraction.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            260,
+            110,
+            1400,
+            780
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*02_reflect_ranged_card_preview.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            260,
+            110,
+            1400,
+            780
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*03_reflected_projectile_mid_return.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            260,
+            110,
+            1400,
+            780
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*04_after_reflection.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            260,
+            110,
+            1400,
+            780
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*05_refraction_mid_beam.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            260,
+            110,
+            1400,
+            780
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*06_after_refraction.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            260,
+            110,
+            1400,
+            780
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*07_dive_rest_two_units_on_path.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            260,
+            110,
+            1400,
+            780
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*08_dive_mid_flight.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            260,
+            110,
+            1400,
+            780
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*09_after_dive.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            260,
+            110,
+            1400,
+            780
+          ],
+          "min_luma_range": 8,
+          "min_luma_stdev": 2
+        }
+      ]
+    },
+    {
+      "pattern": "*10_dive_blocked_landing_rest.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [260, 110, 1400, 780], "min_luma_range": 8, "min_luma_stdev": 2}
+      ]
+    },
+    {
+      "pattern": "*11_after_blocked_dive.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [260, 110, 1400, 780], "min_luma_range": 8, "min_luma_stdev": 2}
+      ]
+    }
+  ]
+}

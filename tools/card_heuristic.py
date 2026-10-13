@@ -264,6 +264,18 @@ def encounter_assumptions() -> dict[str, Any]:
             "end_enemy_turn_order": "wind pushes, then terrain lifetimes",
             "spawns": "director adds encounter groups after merge",
         },
+        "en05_enemies": {
+            "source": "spec/peer_benchmark/staged/enemies/wave_e2.json",
+            "glacial_mirror": {"hp": 20, "base_initiative": 15, "reward_embers": 13, "weighted_cycle": 15 + (3 * 6 + 2 * 5 + 5) / 6,
+                               "reflect": "non-adjacent single-target ranged returns damage before mirror Block; attacker normal defense; melee/adjacent/area/surface/chain/push bypass",
+                               "refraction": "four cardinal tiles toward hero; 4 ice + persistent Chilled; friendly fire and ordinary death rewards",
+                               "crystal_guard": "6 Block to adjacent ally with least Block, self only without adjacent ally", "construct": True},
+            "gust_shrike": {"hp": 9, "base_initiative": 9, "reward_embers": 8, "weighted_cycle": 9 + (3 * 5 + 2 * 4 + 4) / 6,
+                            "flying": "ignores surface/trap contact and costs; traverses Bramble/Ice Pillars; never ends on impassable terrain; normal Push",
+                            "dive": "straight clear line <=4; align Move <=2 or choose Talon Rake/Hover; strictly intermediate units Push 1 right (dx,dy)->(-dy,dx), normal collision with no opposite-side fallback; hero never pushed, damage4 only on adjacent landing; occupied landing stops at last free path tile with no hero damage"},
+            "spawns": "director adds ice_mirror and air_shrikes after merge",
+            "intrinsic_card_coefficients": "unchanged; positional matchup is encounter context",
+        },
         "section_enemies_e2_en04": {
             "source": "spec/peer_benchmark/staged/enemies/wave_e2.json",
             "briar_weaver": {"hp": 14, "initiative": 12, "embers": 11,

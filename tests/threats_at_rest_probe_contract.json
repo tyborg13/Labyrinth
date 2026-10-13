@@ -1,5 +1,5 @@
 {
-  "min_images": 12,
+  "min_images": 13,
   "expected_sizes": [
     "1920x1080"
   ],
@@ -75,6 +75,23 @@
       "pattern": "*12_card_removes_danger_1920x1080.png",
       "width": 1920,
       "height": 1080
+    },
+    {
+      "pattern": "*13_wave_e2_rest_1920x1080.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            300,
+            120,
+            1320,
+            620
+          ],
+          "min_luma_range": 70,
+          "min_luma_stdev": 10
+        }
+      ]
     }
   ]
 }

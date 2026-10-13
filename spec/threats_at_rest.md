@@ -137,7 +137,7 @@ existing compass suite; no assertions in other suites are rewritten.
 headlessly, including native SubViewport dimensions. It makes no image claim.
 The windowed subclass `tests/threats_at_rest_probe.gd` captures directly from a
 1920×1080 SubViewport, UPDATE_ALWAYS, root MSAA, at 100% UI scale, without
-resizing. Its proof contract requires twelve PNGs in
+resizing. Its proof contract requires thirteen PNGs in
 `user://probes/threats_at_rest_v2/`:
 
 1. `01_rest_1920x1080.png` — approved itb-01 open fixture, now v2.
@@ -153,6 +153,18 @@ resizing. Its proof contract requires twelve PNGs in
 10. `10_danger_peak_1920x1080.png` — fixed 0.55s proof clock, halo at 75%.
 11. `11_move_removes_danger_1920x1080.png` — independent movement preview.
 12. `12_card_removes_danger_1920x1080.png` — Guarded Step preview.
+13. `13_wave_e2_rest_1920x1080.png` — Briar Weaver's Thornwall (`bramble`),
+    Slag Mortar's Lob Slag (`lob`), Glacial Mirror's Refraction (`aoe`) and
+    Gust Shrike's Dive (`dive`) around the hero. All four show their order
+    discs, feet chips and exact-footprint zone tags. Dive retains its dashed
+    line and right-hand push preview without detailed popup disclosure.
+
+Director en-05 feedback 2 adds this E2 state to both the headless suite/live
+stage and the windowed probe. Its named `WAVE_E2_ROSTER` proof fields use
+hero-relative offsets `(1,0)`, `(-3,0)`, `(0,-3)`, `(3,0)` in the order above;
+the existing hero, seed, grid and queue timings are retained. Thornwall is
+an area intent for its zone tag. Primary and rider chip numbers use the
+shared `ActionIconLibrary.token_value_text` integer formatter.
 
 ### Chosen defaults (non-production)
 

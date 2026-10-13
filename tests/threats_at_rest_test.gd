@@ -207,6 +207,7 @@ func _test_live_stage() -> void:
 	_expect(rest["hero_tile"] == move_target and not bool(Suite._badge(rest, "enemy_1")["danger"]), "Live card-move preview removes adjacent melee danger")
 	await _capture("12_card_removes_danger_1920x1080")
 	scene.call("_cancel_card_selection")
+	await _test_wave_e2_stage(scene, combat)
 	for player: Node in scene.find_children("*", "AudioStreamPlayer", true, false):
 		player.call("stop")
 	await create_timer(PROOF_AUDIO_DRAIN_SECONDS).timeout
@@ -214,6 +215,21 @@ func _test_live_stage() -> void:
 	_canvas.queue_free()
 	await process_frame
 	if _visual_proof: print(ProjectSettings.globalize_path(OUTPUT_DIR))
+
+func _test_wave_e2_stage(scene: Node, combat: RefCounted) -> void:
+	await _install(scene, Suite.wave_e2_state(combat))
+	var board: Control = scene.get_node("BoardUnderlay/CombatBoard") as Control
+	var rest: Dictionary = board.presentation.get("threats_at_rest", {})
+	_assert_feet_layout(board, rest)
+	var layouts: Array[Dictionary] = Badges.layouts(board, rest.get("badges", []))
+	for index: int in range(Suite.WAVE_E2_ROSTER.size()):
+		var key: String = "enemy_%d" % (index + 1)
+		var entry: Dictionary = Suite.WAVE_E2_ROSTER[index]
+		_expect(Suite._badge(rest, key).get("icon") == entry["icon"], "Live %s chip uses its own icon" % entry["type"])
+		_expect(layouts.any(func(layout: Dictionary) -> bool: return layout["key"] == key and (layout["order_rect"] as Rect2).has_area()), "Live %s has an order disc" % entry["type"])
+		_expect(Tiles.zone_tags(rest.get("threats", [])).any(func(tag: Dictionary) -> bool: return tag["key"] == key), "Live %s has its area zone tag" % entry["type"])
+	_expect(board.presentation.get("enemy_threat_previews", []).is_empty(), "Live wave E2 rest has no detailed popup disclosure")
+	_expect(board.presentation.get("en05_dive_telegraphs", []).size() == 1, "Live wave E2 rest retains Dive dashed path")
 
 func _play_callout(scene: Node, state: Dictionary, entry: Dictionary, completed: Dictionary) -> void:
 	await scene.call("_animate_enemy_phase_steps", state, [entry])

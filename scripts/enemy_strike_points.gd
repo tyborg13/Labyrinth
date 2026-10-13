@@ -20,6 +20,7 @@ const MODELS: Dictionary = {
 	"iskaldra": preload("res://scripts/iskaldra_cutout/renderer.gd")}
 const BESPOKE: Array = ["grave_surgeon", "veilbound_acolyte", "cinder_droplet", "cinder_ooze", "vyraketh"]
 const REGISTRY: Dictionary = {
+	"gust_shrike": {"kind":"arc", "window":Vector2(0.33,0.56), "reason":"Approved static sprite fallback; rigs are a later unit."},
 	"briar_weaver": {"kind":"arc", "window":Vector2(0.33,0.56), "reason":"Existing static sprite fallback; Lob/Grow use their own effects."},
 	"slag_mortar": {"kind":"arc", "window":Vector2(0.33,0.56), "reason":"Existing static sprite fallback; Lob/Grow use their own effects."},
 	"hoarfrost_seer": {"kind":"arc", "window":Vector2(0.33,0.56), "reason":"Approved static sprite fallback; rigs are a later unit."},

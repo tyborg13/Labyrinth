@@ -21,8 +21,15 @@ const FIXTURE_BOX_HP: int = 10
 const PLACEMENT_TEST_ANCHOR := Vector2(600, 500)
 const PLACEMENT_TEST_HEALTH := Rect2(100, 100, 140, 20)
 const ZONE_PREVIEW_OFFSET := Vector2i.UP
+const WAVE_E2_ROSTER: Array = [
+	{"type": "briar_weaver", "offset": Vector2i.RIGHT, "intent": "thornwall", "icon": "bramble"},
+	{"type": "slag_mortar", "offset": Vector2i(-3, 0), "intent": "lob_slag", "icon": "lob"},
+	{"type": "glacial_mirror", "offset": Vector2i(0, -3), "intent": "refraction", "icon": "aoe"},
+	{"type": "gust_shrike", "offset": Vector2i(3, 0), "intent": "dive", "icon": "dive"},
+]
 
 static func run(expect: Callable) -> void:
+	expect.call(Badges.Icons.token_value_text({"icon": "chilled", "value": true}).is_empty(), "flag riders render no number (was \"true\" on the glacial mirror chip)")
 	_test_order_and_tiles(expect)
 	_test_projection_repeats_and_inactive(expect)
 	_test_previews_and_privacy(expect)
@@ -32,6 +39,41 @@ static func run(expect: Callable) -> void:
 	_test_danger(expect)
 	_test_zone_tags(expect)
 	_test_stage_plumbing(expect)
+	_test_wave_e2(expect)
+
+static func wave_e2_state(combat: RefCounted) -> Dictionary:
+	var state: Dictionary = staged_state(combat)
+	var enemies: Array[Dictionary]
+	for index: int in range(WAVE_E2_ROSTER.size()):
+		var entry: Dictionary = WAVE_E2_ROSTER[index]
+		enemies.append(foe(index + 1, entry["type"], entry["offset"], entry["intent"]))
+	state["enemies"] = enemies
+	return state
+
+static func _test_wave_e2(expect: Callable) -> void:
+	var combat := Combat.new()
+	var state: Dictionary = wave_e2_state(combat)
+	var original: Dictionary = state.duplicate(true)
+	var rest: Dictionary = Badges.build(combat, state, state)
+	var board := Board.new()
+	board.size = Vector2(1920, 1080)
+	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"threats_at_rest": rest})
+	var layouts: Array[Dictionary] = Badges.layouts(board, rest["badges"])
+	var tags: Array[Dictionary] = Tiles.zone_tags(rest["threats"])
+	expect.call(layouts.size() == 4 and tags.size() == 4, "All four wave E2 intents have feet chips and area zone tags")
+	for index: int in range(WAVE_E2_ROSTER.size()):
+		var key: String = "enemy_%d" % (index + 1)
+		var entry: Dictionary = WAVE_E2_ROSTER[index]
+		var badge: Dictionary = _badge(rest, key)
+		expect.call(badge.get("icon") == entry["icon"], "%s at-rest chip uses its own %s icon" % [entry["type"], entry["icon"]])
+		expect.call(not str(badge.get("order", "")).is_empty() and layouts.any(func(layout: Dictionary) -> bool: return layout["key"] == key and (layout["order_rect"] as Rect2).has_area()), "%s has an order disc at its actual health frame" % entry["type"])
+		expect.call(tags.any(func(tag: Dictionary) -> bool: return tag["key"] == key and tag["tile"] in combat.enemy_threat_tiles(state, index)["projected_attack"]), "%s has a zone tag on its exact footprint" % entry["type"])
+		expect.call(not str(badge.get("number", "")).contains(".") and not str(badge.get("secondary_number", "")).contains("."), "%s chip displays only integer numbers" % entry["type"])
+	var presentation: Dictionary = board.presentation
+	expect.call(presentation.get("enemy_threat_previews", []).is_empty(), "Wave E2 rest leaves detailed popups and compass disclosure off")
+	expect.call(presentation.get("en05_dive_telegraphs", []).size() == 1 and presentation.get("displacement_paths", []).has(combat._vector2i_values([Vector2i(5, 4), Vector2i(5, 3)])), "Wave E2 Dive retains its dashed line and right-hand side-push preview through v2")
+	expect.call(state == original, "Wave E2 threat presentation leaves combat, queue and events unchanged")
+	board.free()
 
 static func staged_layout() -> Dictionary:
 	var grid: Array
