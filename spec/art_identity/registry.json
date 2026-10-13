@@ -129,13 +129,102 @@
       "size_class": "medium"
     },
     {
-      "anatomy": "",
-      "art_scale": 1.0,
-      "boss": false,
-      "entry_kind": "pending_reart",
+      "anatomy": "flyer",
+      "art_scale": 0.75,
+      "entry_kind": "kit",
+      "facing": "front",
       "id": "gust_shrike",
+      "job_id": "mq2-gust_shrike-front",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
       "kind": "creature",
-      "path": "assets/art/enemies/gust_shrike.png"
+      "kit_path": "spec/art_identity/jobs/gust_shrike/mq2_front/kit.json",
+      "kit_version": "ae23ec3d3fa8104773244392c220e8383cc2a119a6bd9fe9d4fa6a6bb4e88b15",
+      "landmarks": {
+        "far": [
+          84,
+          225
+        ],
+        "near": [
+          109,
+          236
+        ]
+      },
+      "method": "maquette paint-over (spec/art_identity/maquettes/gust_shrike.py, perched)",
+      "owner_approval": "approved 2026-10-13 (perched maquette review)",
+      "path": "assets/art/enemies/gust_shrike.png",
+      "pixel_sha256": "4b9d1494f7f788620bcd8c4c18a2753a844307ddc104fca15dc100457c5bc84d",
+      "post_steps": [
+        {
+          "reference": "mq_front/processed.png (palette the owner saw)",
+          "script": "spec/art_identity/prototype/match_palette.py",
+          "step": "palette_match"
+        },
+        {
+          "script": "spec/art_identity/prototype/clean_outline.py",
+          "step": "clean_outline"
+        }
+      ],
+      "prompt_path": "spec/art_identity/jobs/gust_shrike/mq2_front/prompt.md",
+      "prompt_sha256": "60a656f33c03bacd47e0ece76236a130898ecb7df45d2e8638d9d60296aeaa86",
+      "raw_sha256": "a43816b7191b78e13e8f25604fc625b586079b5faa7ab3583ba18f9d9b11bd43",
+      "ref_pixel_sha256": {
+        "refs/01_maquette_front_parts.png": "afe00418a60b5ec9b7e76207b96a9c6a905ed6b6e948aaba6040f53b526ad8d1",
+        "refs/02_maquette_front_clay.png": "941a90436fd45f79e0e96f84a53dfa2a9cca8cac5114fa2b101206d450cac401",
+        "refs/03_identity_mq_front.png": "979c8c3ddff388e4ba9503b6ac26e06fef1dab550e37cce8a8c54dde61594c8e",
+        "refs/04_hero_front.png": "2200c5a6ec962369292f32359fd7ed11f2ae7055d5dec74eae971ba4e7526317"
+      },
+      "sheet_path": "spec/art_identity/jobs/gust_shrike/sheet_pair_mq2.png",
+      "size_class": "small",
+      "source_path": "spec/art_identity/jobs/gust_shrike/mq2_front/processed.png",
+      "source_pixel_sha256": "e4f14ec866fd3709dfe1a5969b3a0a3ec03246e13980ec7026eb10188e9ae27c"
+    },
+    {
+      "anatomy": "flyer",
+      "art_scale": 0.75,
+      "entry_kind": "kit",
+      "facing": "rear",
+      "id": "gust_shrike",
+      "job_id": "mq2-gust_shrike-rear",
+      "judge": {
+        "date": "2026-10-13",
+        "log": "spec/peer_benchmark/staged/reart/judge_log.md",
+        "verdict": "PASS"
+      },
+      "kind": "creature",
+      "kit_path": "spec/art_identity/jobs/gust_shrike/mq2_rear/kit.json",
+      "kit_version": "7a137f177efcdb1334ac28a9bda4627988c5110d2ca62db4c2db5152b0ddfe15",
+      "method": "maquette paint-over (spec/art_identity/maquettes/gust_shrike.py, perched)",
+      "owner_approval": "approved 2026-10-13 (perched maquette review)",
+      "path": "assets/art/enemies/gust_shrike_rear.png",
+      "pixel_sha256": "168db9c91a6af668e2687b0d020babe6eb6f14ff8a9982e6a02b220ab483792f",
+      "post_steps": [
+        {
+          "reference": "mq2_front/processed.png",
+          "script": "spec/art_identity/prototype/match_palette.py",
+          "step": "palette_match"
+        },
+        {
+          "script": "spec/art_identity/prototype/clean_outline.py",
+          "step": "clean_outline"
+        }
+      ],
+      "prompt_path": "spec/art_identity/jobs/gust_shrike/mq2_rear/prompt.md",
+      "prompt_sha256": "b92781dfa6b719b79d81a3a9d48d033eba66b10668d4d0d7af1a86e7d42a6434",
+      "raw_sha256": "b236be7b28e3529b79b0ee19fb495d042b3805d9c6938b0597e60c73b4f417ac",
+      "ref_pixel_sha256": {
+        "refs/01_maquette_rear_parts.png": "ecf2e19e253bfd6ccb589de0f7b50e164d774032b554a92f784bc75a12517c36",
+        "refs/02_maquette_rear_clay.png": "f5e88f66087909f748a26405c17e5860558658465917d50222ac7cb0018a79bd",
+        "refs/03_identity_mq_front.png": "979c8c3ddff388e4ba9503b6ac26e06fef1dab550e37cce8a8c54dde61594c8e",
+        "refs/04_hero_front.png": "2200c5a6ec962369292f32359fd7ed11f2ae7055d5dec74eae971ba4e7526317"
+      },
+      "sheet_path": "spec/art_identity/jobs/gust_shrike/sheet_pair_mq2.png",
+      "size_class": "small",
+      "source_path": "spec/art_identity/jobs/gust_shrike/mq2_rear/processed.png",
+      "source_pixel_sha256": "24aa41439fff265698c24b2dec14aed1e4093c7a2db803ddeeead1902c5d1eff"
     },
     {
       "anatomy": "",

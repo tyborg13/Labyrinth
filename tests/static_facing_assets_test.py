@@ -49,7 +49,8 @@ class ApprovedArtTests(unittest.TestCase):
                 self.assertEqual(record['pixel_sha256'], manifest['pixel_sha256'])
                 self.assertEqual(record['post_steps'], json.loads(source.with_suffix('.json').read_text()).get('post_steps', []))
                 count += 1
-        self.assertEqual(count, 21)
+        self.assertEqual(count, sum('front' in source for source in APPROVED.values()) +
+                         sum('rear' in source for source in APPROVED.values()))
 
     def test_portraits_follow_protected_crops_and_existing_processor(self):
         with Image.open(ROOT / 'tests/static_facing_portrait_contact.png') as image:
@@ -68,7 +69,7 @@ class ApprovedArtTests(unittest.TestCase):
             actual = contact.crop((CONTACT_APPROVED_X, y, CONTACT_APPROVED_X + CONTACT_PORTRAIT_SIZE[0], y + CONTACT_PORTRAIT_SIZE[1]))
             self.assertEqual(actual.tobytes(), proof.convert('RGB').tobytes())
 
-    def test_scales_rear_paths_and_remaining_pending_entry(self):
+    def test_scales_rear_paths_and_no_remaining_pending_entry(self):
         enemies = json.loads((ROOT / 'data/enemies.json').read_text())
         for name, approved in APPROVED.items():
             self.assertEqual(enemies[name]['art_scale'], approved['art_scale'])
@@ -78,7 +79,7 @@ class ApprovedArtTests(unittest.TestCase):
                 self.assertNotIn('art_rear_path', enemies[name])
         registry = json.loads((ROOT / 'spec/art_identity/registry.json').read_text())
         pending = [e['id'] for e in registry['entries'] if e['entry_kind'] == 'pending_reart']
-        self.assertEqual(pending, ['gust_shrike'])
+        self.assertEqual(pending, [])
 
 
 if __name__ == '__main__':

@@ -3493,6 +3493,8 @@
           }
         ]
       }
-    ]
+    ],
+    "art_scale": 0.75,
+    "art_rear_path": "res://assets/art/enemies/gust_shrike_rear.png"
   }
 }

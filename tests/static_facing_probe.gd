@@ -18,6 +18,7 @@ const OUTPUT: String = "user://probes/static_facing"
 const PROOF_SETTLE_FRAMES: int = 8
 const PROOF_MOVE_PHASE: float = 0.5
 const PROOF_CLOCK_TYPES: Array[String] = ["arc_thrall", "slag_mortar", "hoarfrost_seer"]
+const PROOF_SELECTED_CLOCK_SLOT: int = 0
 const PROOF_CLOCK_SEED: int = 73101
 const PROOF_HAND_SIZE: int = 5
 const PROOF_PLAYER_HP: int = 24
@@ -29,10 +30,19 @@ var _board: Control
 var _failures: Array[String]
 var _captures: Array[Dictionary]
 var _validate_only: bool = false
+var _enemy_id: String = ""
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
 	_validate_only = OS.get_cmdline_user_args().has("--validate-only")
+	var args: PackedStringArray = OS.get_cmdline_user_args()
+	if args.has("--enemy-id"):
+		var index: int = args.find("--enemy-id") + 1
+		if index >= args.size() or str(Data.enemy_def(args[index]).get("art_rear_path", "")).is_empty():
+			push_error("--enemy-id requires an enemy with approved front/rear art")
+			quit(1)
+			return
+		_enemy_id = args[index]
 	root.size = SIZE
 	root.content_scale_size = SIZE
 	Settings.set_storage_path("user://static_facing_settings.json")
@@ -53,7 +63,10 @@ func _run() -> void:
 	_canvas.render_target_update_mode = SubViewport.UPDATE_ALWAYS
 	root.add_child(_canvas)
 	_expect(DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT)) == OK, "Capture directory")
-	for type: String in ["arc_thrall", "slag_mortar"]:
+	var types: Array[String]
+	types.assign(["arc_thrall", "slag_mortar"])
+	if not _enemy_id.is_empty(): types.assign([_enemy_id])
+	for type: String in types:
 		await _new_board()
 		for index: int in range(Fixture.DIRECTIONS.size()):
 			var state: Dictionary = Fixture.fixture(type)
@@ -63,27 +76,28 @@ func _run() -> void:
 			var semantics: Dictionary = _facing_semantics(type)
 			_expect(semantics["facing"] == Facing.direction_for_delta(Fixture.DIRECTIONS[index]), "Idle facing " + PROOF_FACINGS[index])
 			await _capture(type + "_" + PROOF_FACINGS[index], semantics)
-	await _new_board()
-	var state: Dictionary = Fixture.fixture("arc_thrall")
-	_board.set_combat_state(state)
-	await _settle()
-	var from: Vector2 = _board._tile_center(Fixture.FIXTURE_ENEMY_TILE)
-	var to: Vector2 = _board._tile_center(Fixture.FIXTURE_ENEMY_TILE + Vector2i(-1, 0))
-	var frame: Dictionary = {"unit_world_positions": {"enemy_1": from.lerp(to, PROOF_MOVE_PHASE)},
-		"unit_draw_tiles": {"enemy_1": Fixture.FIXTURE_ENEMY_TILE + Vector2i(-1, 0)}}
-	_board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, frame)
-	await _settle()
-	var semantics: Dictionary = _facing_semantics("arc_thrall")
-	semantics["move_phase"] = PROOF_MOVE_PHASE
-	_expect(semantics["facing"] == Facing.direction_for_delta(Vector2i(-1, 0)), "Mid-move faces away from hero along movement")
-	await _capture("arc_thrall_mid_move", semantics)
-	state = Fixture.fixture("slag_mortar")
-	state["player"]["pos"] = Fixture.FIXTURE_ENEMY_TILE + Vector2i(-2, 0)
-	_board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"reduced_motion": true})
-	await _settle()
-	semantics = _facing_semantics("slag_mortar")
-	_expect(semantics["facing"] == Facing.direction_for_delta(Vector2i(-2, 0)), "Reduced motion follows the same idle policy")
-	await _capture("slag_mortar_reduced_motion", semantics)
+	if _enemy_id.is_empty():
+		await _new_board()
+		var state: Dictionary = Fixture.fixture("arc_thrall")
+		_board.set_combat_state(state)
+		await _settle()
+		var from: Vector2 = _board._tile_center(Fixture.FIXTURE_ENEMY_TILE)
+		var to: Vector2 = _board._tile_center(Fixture.FIXTURE_ENEMY_TILE + Vector2i(-1, 0))
+		var frame: Dictionary = {"unit_world_positions": {"enemy_1": from.lerp(to, PROOF_MOVE_PHASE)},
+			"unit_draw_tiles": {"enemy_1": Fixture.FIXTURE_ENEMY_TILE + Vector2i(-1, 0)}}
+		_board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, frame)
+		await _settle()
+		var semantics: Dictionary = _facing_semantics("arc_thrall")
+		semantics["move_phase"] = PROOF_MOVE_PHASE
+		_expect(semantics["facing"] == Facing.direction_for_delta(Vector2i(-1, 0)), "Mid-move faces away from hero along movement")
+		await _capture("arc_thrall_mid_move", semantics)
+		state = Fixture.fixture("slag_mortar")
+		state["player"]["pos"] = Fixture.FIXTURE_ENEMY_TILE + Vector2i(-2, 0)
+		_board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"reduced_motion": true})
+		await _settle()
+		semantics = _facing_semantics("slag_mortar")
+		_expect(semantics["facing"] == Facing.direction_for_delta(Vector2i(-2, 0)), "Reduced motion follows the same idle policy")
+		await _capture("slag_mortar_reduced_motion", semantics)
 	_board.queue_free()
 	await process_frame
 	await _clock_capture()
@@ -134,9 +148,12 @@ func _clock_capture() -> void:
 	settings["ui_scale"] = 1.0
 	scene.set("_settings", settings)
 	var room: Dictionary = Clock.room_layout()
+	var clock_types: Array[String]
+	clock_types.assign(PROOF_CLOCK_TYPES)
+	if not _enemy_id.is_empty(): clock_types[PROOF_SELECTED_CLOCK_SLOT] = _enemy_id
 	var enemies: Array[Dictionary]
-	for index: int in range(PROOF_CLOCK_TYPES.size()):
-		var type: String = PROOF_CLOCK_TYPES[index]
+	for index: int in range(clock_types.size()):
+		var type: String = clock_types[index]
 		var enemy: Dictionary = room["enemies"][index].duplicate(true)
 		enemy["type"] = type
 		enemy["hp"] = Data.enemy_def(type)["max_hp"]
@@ -153,8 +170,8 @@ func _clock_capture() -> void:
 	await _settle()
 	var visible_portraits: Array[Dictionary]
 	var rail: Control = scene.get("_turn_order_bar")
-	for index: int in range(PROOF_CLOCK_TYPES.size()):
-		var type: String = PROOF_CLOCK_TYPES[index]
+	for index: int in range(clock_types.size()):
+		var type: String = clock_types[index]
 		var key: String = "enemy:enemy_%d" % (index + 1)
 		var found: bool = false
 		for child: Node in rail.get_children():

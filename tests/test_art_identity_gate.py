@@ -28,6 +28,9 @@ NON_ACCENT_FIXTURE_SIDE = 32
 NON_ACCENT_FIXTURE_BODY = (60, 50, 40, 255)
 NON_ACCENT_FIXTURE_ACCENT = (0, 180, 255, 255)
 NON_ACCENT_FIXTURE_ACCENT_RECT = (2, 2, 10, 10)
+MAQUETTE_FIXTURE_JOB_ID = "fixture-maquette-job"
+MAQUETTE_FIXTURE_REF_LABELS = ("fixture_parts", "fixture_identity")
+MAQUETTE_INVALID_ROLE = "unknown_role"
 
 
 def prototype_functions(filename, namespace):
@@ -492,12 +495,12 @@ class GateTests(unittest.TestCase):
         self.assertGreater(failures, 0)
         self.assertTrue(any("prompt digest changed" in line for line in report))
 
-    def test_committed_registry_and_strict_pending_warnings(self):
+    def test_committed_registry_has_no_pending_warnings_even_in_strict_mode(self):
         report, failures = gate.check_registry()
         self.assertEqual(failures, 0, "\n".join(report))
-        self.assertEqual(sum(line.startswith("WARN ") for line in report), 1)
+        self.assertEqual(sum(line.startswith("WARN ") for line in report), 0)
         report, failures = gate.check_registry(strict=True)
-        self.assertEqual(failures, 1)
+        self.assertEqual(failures, 0, "\n".join(report))
 
     def test_changed_legacy_pixels_fail_and_readoption_refused(self):
         root = self.minimal_root()
@@ -562,6 +565,144 @@ class GateTests(unittest.TestCase):
         self.assertTrue(any("lateral_axis=None" in line for line in gate.check_registry(root)[0]))
         entry["exceptions"] = [{"metric": "thin_rel", "value": 0.21, "reason": "Test"}]
         self.assertTrue(any("thin_rel" in line for line in gate.metric_failures(entry, {"thin_rel": 0.21}, gate.read_json(root / gate.IDENTITY / "bands.json"))))
+
+    def maquette_registry(self, rear=False):
+        root, registry, entry = self.kit_registry()
+        path = root / entry["kit_path"]
+        kit = gate.read_json(path)
+        kit["kit_kind"] = "maquette"
+        kit["job_id"] = entry["job_id"] = MAQUETTE_FIXTURE_JOB_ID
+        kit.pop("peers")  # Maquette references have roles, not standard peer ordering.
+        for ref, role, label in zip(kit["refs"], ("maquette_parts", "identity"), MAQUETTE_FIXTURE_REF_LABELS):
+            ref.update(role=role, canon_id=label)
+        kit["refs"][2]["role"] = "canon"
+        for index, role in enumerate(("maquette_clay", "edit_source"), 4):
+            file = "refs/%02d_%s.png" % (index, role)
+            shutil.copyfile(path.parent / kit["refs"][0]["file"], path.parent / file)
+            kit["refs"].append(dict(file=file, role=role, pixel_sha256=kit["refs"][0]["pixel_sha256"]))
+        retired = gate.canon_entries(root, include_retired=True)["harrier_front"]
+        file = "refs/06_harrier_front.png"
+        shutil.copyfile(root / retired["path"], path.parent / file)
+        kit["refs"].append(dict(file=file, role="canon", canon_id="harrier_front",
+                                pixel_sha256=gate.pixel_digest(gate.rgba(path.parent / file))))
+        if rear:
+            kit["view"] = "creature_rear"
+            entry["facing"] = "rear"
+        kit["kit_version"] = entry["kit_version"] = gate.prompt_kit_version(kit, (root / entry["prompt_path"]).read_bytes())
+        entry["ref_pixel_sha256"] = gate.recorded_ref_digests(kit)
+        gate.write_json(path, kit)
+        gate.write_json(root / gate.IDENTITY / "registry.json", registry)
+        return root, registry, entry, kit
+
+    def test_valid_maquette_front_and_rear_allow_active_and_retired_hand_references(self):
+        for rear in (False, True):
+            with self.subTest(rear=rear):
+                root, registry, entry, kit = self.maquette_registry(rear)
+                report, failures = gate.check_registry(root)
+                self.assertEqual(failures, 0, "\n".join(report))
+                self.assertTrue(any("kit_version prompt_ordered_refs" in line for line in report))
+                shutil.rmtree(root)
+                shutil.rmtree(self.temp / "kit")
+
+    def test_maquette_reference_paths_roles_and_ids_are_enforced(self):
+        cases = (("outside", "under refs/"), ("traversal", "under refs/"), ("absolute", "under refs/"),
+                 ("missing_file", "reference missing"), ("missing_role", "role missing or unknown"),
+                 ("unknown_role", "role missing or unknown"), ("unknown_canon", "canon reference has unknown id"),
+                 ("reused_canon", "non-canon maquette reference reuses canon id"),
+                 ("no_parts", "requires a maquette_parts reference"))
+        for change, expected in cases:
+            with self.subTest(change=change):
+                root, registry, entry, kit = self.maquette_registry()
+                ref = kit["refs"][0]
+                if change == "outside": ref["file"] = "processed.png"
+                elif change == "traversal": ref["file"] = "refs/../processed.png"
+                elif change == "absolute": ref["file"] = str(root / entry["source_path"])
+                elif change == "missing_file": ref["file"] = "refs/missing.png"
+                elif change == "missing_role": del ref["role"]
+                elif change == "unknown_role": ref["role"] = MAQUETTE_INVALID_ROLE
+                elif change == "unknown_canon": kit["refs"][2]["canon_id"] = "unknown_canon"
+                elif change == "reused_canon": ref["canon_id"] = "hero_front"
+                elif change == "no_parts": ref["role"] = "maquette_clay"
+                gate.write_json(root / entry["kit_path"], kit)
+                report, failures = gate.check_registry(root)
+                self.assertGreater(failures, 0)
+                self.assertTrue(any(expected in line for line in report), "\n".join(report))
+                shutil.rmtree(root)
+                shutil.rmtree(self.temp / "kit")
+
+    def test_maquette_reference_pixels_are_checked_even_when_record_bindings_match(self):
+        root, registry, entry, kit = self.maquette_registry()
+        kit["refs"][0]["pixel_sha256"] = "b" * 64
+        kit["kit_version"] = entry["kit_version"] = gate.prompt_kit_version(kit, (root / entry["prompt_path"]).read_bytes())
+        entry["ref_pixel_sha256"] = gate.recorded_ref_digests(kit)
+        gate.write_json(root / entry["kit_path"], kit)
+        gate.write_json(root / gate.IDENTITY / "registry.json", registry)
+        report, failures = gate.check_registry(root)
+        self.assertGreater(failures, 0)
+        self.assertTrue(any("reference pixel digest changed" in line for line in report), "\n".join(report))
+
+    def test_maquette_job_id_is_nonempty_and_matches_registry(self):
+        for job in ("", " ", MAQUETTE_FIXTURE_JOB_ID + "-changed"):
+            with self.subTest(job=job):
+                root, registry, entry, kit = self.maquette_registry()
+                kit["job_id"] = job
+                gate.write_json(root / entry["kit_path"], kit)
+                report, failures = gate.check_registry(root)
+                self.assertGreater(failures, 0)
+                self.assertTrue(any("job id missing or mismatched" in line for line in report))
+                shutil.rmtree(root)
+                shutil.rmtree(self.temp / "kit")
+
+    def test_rear_maquette_requires_identity(self):
+        root, registry, entry, kit = self.maquette_registry(rear=True)
+        kit["refs"][1]["role"] = "edit_source"
+        gate.write_json(root / entry["kit_path"], kit)
+        report, failures = gate.check_registry(root)
+        self.assertGreater(failures, 0)
+        self.assertTrue(any("rear maquette requires an identity reference" in line for line in report))
+
+    def test_maquette_version_rejects_reordered_refs_and_matching_but_unreproducible_fields(self):
+        for change in ("order", "version"):
+            with self.subTest(change=change):
+                root, registry, entry, kit = self.maquette_registry()
+                if change == "order": kit["refs"].reverse()
+                else: kit["kit_version"] = entry["kit_version"] = "b" * 64
+                gate.write_json(root / entry["kit_path"], kit)
+                gate.write_json(root / gate.IDENTITY / "registry.json", registry)
+                report, failures = gate.check_registry(root)
+                self.assertGreater(failures, 0)
+                self.assertTrue(any("kit_version does not reproduce" in line for line in report))
+                shutil.rmtree(root)
+                shutil.rmtree(self.temp / "kit")
+
+    def test_maquette_keeps_prompt_sidecar_approval_and_landmark_checks(self):
+        for change, expected in (("prompt", "recorded prompt digest"), ("source", "source pixel digest"),
+                                 ("post_steps", "processed post_steps"), ("judge", "judge requires PASS"),
+                                 ("approval", "owner_approval note missing"), ("landmarks", "lateral_axis=None")):
+            with self.subTest(change=change):
+                root, registry, entry, kit = self.maquette_registry()
+                if change == "prompt": entry["prompt_sha256"] = "b" * 64
+                elif change == "source": entry["source_pixel_sha256"] = "b" * 64
+                elif change == "post_steps": entry["post_steps"] = [{"step": "unknown"}]
+                elif change == "judge": entry["judge"]["verdict"] = "FAIL"
+                elif change == "approval": entry["owner_approval"] = ""
+                elif change == "landmarks": del entry["landmarks"]
+                gate.write_json(root / gate.IDENTITY / "registry.json", registry)
+                report, failures = gate.check_registry(root)
+                self.assertGreater(failures, 0)
+                self.assertTrue(any(expected in line for line in report), "\n".join(report))
+                shutil.rmtree(root)
+                shutil.rmtree(self.temp / "kit")
+
+    def test_shrike_maquette_versions_reproduce_from_protected_jobs(self):
+        approved = gate.read_json(ROOT / "spec/peer_benchmark/staged/reart/approved_sources.json")["enemies"]["gust_shrike"]
+        for view in ("front", "rear"):
+            with self.subTest(view=view):
+                job = ROOT / approved[view]
+                kit = gate.read_json(job / "kit.json")
+                prompt = (job / kit["prompt_path"]).read_bytes()
+                self.assertEqual(kit["kit_version"], gate.prompt_kit_version(kit, prompt))
+                self.assertEqual(gate.kit_version_verification(kit, prompt), "prompt_ordered_refs")
 
     def test_kit_provenance_rejects_changed_prompt_refs_and_version(self):
         for change in ("prompt", "ref_record", "version"):
@@ -646,7 +787,8 @@ class GateTests(unittest.TestCase):
                     ids = gate.make_canon_sheet(path, view)
                 expected = {entry["id"] for entry in canon.values() if entry["kind"] == "object" or entry["view"] == view}
                 self.assertEqual(set(ids), expected)
-                self.assertEqual(len(ids), 16)  # hero + grave surgeon + 10 art-02 creatures per view + 4 objects
+                self.assertEqual(len(ids), 17)  # 16 prior entries + one art-04 shrike per view
+                self.assertIn("gust_shrike_" + view, ids)
                 self.assertTrue({"crag_outcrop", "raised_cover", "watch_brazier"}.issubset(ids))
                 subjects = [subject for call in render.call_args_list for subject in call.args[2]]
                 self.assertEqual([subject[2] for subject in subjects], ids)

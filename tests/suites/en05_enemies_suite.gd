@@ -46,7 +46,14 @@ static func run(expect: Callable) -> void:
 	var staged: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/enemies/wave_e2.json"))
 	var production: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/enemies.json"))
 	for id: String in ["glacial_mirror", "gust_shrike"]:
-		expect.call(production[id] == staged[id], "%s data stays identical to protected authored entry" % id)
+		var current: Dictionary = production[id].duplicate(true)
+		var authored: Dictionary = staged[id].duplicate(true)
+		if id == "gust_shrike":
+			# Art-04 replaces these presentation fields only; retain exact gameplay.
+			for field: String in ["art_scale", "art_rear_path"]:
+				current.erase(field)
+				authored.erase(field)
+		expect.call(current == authored, "%s gameplay stays identical to protected authored entry" % id)
 		for field: String in ["name", "max_hp", "base_initiative", "reward_embers", "accent", "art_path", "intents"]: expect.call(production[id].has(field), "%s schema has %s" % [id, field])
 		expect.call(Assets.load_texture(production[id]["art_path"]) != null, "%s static texture loads" % id)
 		expect.call(RunScene.TURN_ORDER_PORTRAITS.get(id) == "res://assets/art/portraits/%s.png" % id, "%s explicit turn-clock portrait" % id)
