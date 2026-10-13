@@ -34,8 +34,8 @@
 | art-02 | Re-art of the 12 section enemies through the identity kit | 11 owner-approved 2026-10-13 and in game via art-03; gust_shrike: maquette pilot judge-PASS, awaiting owner | — | staged/reart/, spec/art_identity/jobs/, maquettes/ |
 | qa-02 | Register en04/en05/en06 enemy suites in the full suite (backlog) | design | — | |
 | art-03 | Integrate re-art: directional static art (front/rear + mirrored facing), portraits, density adoption, registry kit entries, gate post-steps + edge/rear-consistency metrics | merged 4aa4c3589 (commit 6b4927d2f + sync; r1 decisions; director: staged data sync, mirror exception, portrait crops) | codex/peer-benchmark | briefs/art-03.md |
-| sfx-03 | Lookahead limiter for hit.blade.light, status.shatter, status.freeze | r1: blade +11 dB to its family on a 100 ms window; statuses already in family | codex/peer-benchmark | briefs/sfx-03.md |
+| sfx-03 | Lookahead limiter for hit.blade.light, status.shatter, status.freeze | merged 6786edf5d (commit 29783a2d2: blade +7 dB, shatter +6, freeze +5; +11 dB reverted as ineffective under 12 dB GR) | codex/peer-benchmark | briefs/sfx-03.md |
 | ui-01 | UI identity lint (gate phase 2, ratchet) | merged fceb55376 (1617 baseline sites) | codex/peer-benchmark | briefs/ui-01.md, spec/ui_identity_gate.md |
-| rr-01 | Roster wave 1a: crawler rig recolour (Lab L×0.76, ab×0.85) | running | codex/peer-benchmark | briefs/rr-01.md |
-| qa-03 | Python test hygiene (en05 asset pins, cutout seed, deepest route, optional modules) | running | codex/peer-benchmark | briefs/qa-03.md |
-| rr-02 | Roster wave 1b pilot: chainbound gaoler re-pose via maquette → paint → segment → re-rig | design | — | |
+| rr-01 | Roster wave 1a: crawler rig recolour (Lab L×0.76, ab×0.85) | review: commit b0bcbcb88 + sync 4c7ff2d1a; director rebake/records/probes PASS; grid 1.73 held (pre-recolour calibration); peer review running | codex/peer-benchmark | briefs/rr-01.md |
+| qa-03 | Python test hygiene (en05 asset pins, cutout seed, deepest route, optional modules) | merged (e66df1e67) | codex/peer-benchmark | briefs/qa-03.md |
+| rr-02 | Roster wave 1b pilot: chainbound gaoler re-pose via maquette → paint → segment → re-rig | art: judge r2 FAIL (unprocessed front edit); front v3 (edit + oxblood tabard) + rear v3 edits in progress | — | |
