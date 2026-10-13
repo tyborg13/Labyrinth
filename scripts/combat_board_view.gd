@@ -2525,6 +2525,7 @@ func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: b
 	VeilView.queue_redraws(self)
 	if ThreatTiles.needs_pulse(presentation, _rest_threat_tile_alphas) or (not (WindView.forecast(self).get("wind", {}) as Dictionary).is_empty() and not bool(presentation.get("reduced_motion", false))):
 		_queue_render_layer_redraw(_overlay_render_layer)
+	if IntentBadges.needs_pulse(presentation): _queue_render_layer_redraw(_hud_render_layer)
 	if _ambient_particles_active() or _campfire_atmosphere_active():
 		_queue_render_layer_redraw(_ambient_render_layer)
 	if (
@@ -2652,6 +2653,7 @@ func _presentation_needs_continuous_redraw() -> bool:
 	if TetherView.needs_redraw(self) or VeilView.needs_redraw(self): return true
 	if ThreatTiles.needs_pulse(presentation, _rest_threat_tile_alphas):
 		return true
+	if IntentBadges.needs_pulse(presentation): return true
 	if not bool(presentation.get("reduced_motion", false)) and not _animated_surface_tiles.is_empty():
 		return true
 	if _ambient_particles_active():
@@ -3431,7 +3433,11 @@ func _queue_presentation_change_redraws(
 				overlay_changed = true
 			"death_site_embers":
 				_queue_render_layer_redraw(_ground_render_layer)
-			"expand_enemy_intents", "expanded_enemy_actor_keys", "show_all_enemy_intents", "hud_obstacle_global_rects", "boss_header_global_rect":
+			"expand_enemy_intents", "expanded_enemy_actor_keys", "show_all_enemy_intents":
+				hud_changed = true
+				for unit: Dictionary in _visible_units():
+					if str(unit.get("role", "")) == "enemy": _queue_scene_render_layer_for_tile(_effective_unit_tile(unit))
+			"hud_obstacle_global_rects", "boss_header_global_rect", "boss_health_frame_global_rect":
 				hud_changed = true
 			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength", "combat_feel_flash", "combat_feel_flash_actor_keys":
 				impact_floor_changed = true
@@ -4494,7 +4500,6 @@ func _draw_hud_render_layer() -> void:
 	var section_started_usec: int = Time.get_ticks_usec()
 	var units_to_draw: Array[Dictionary] = _visible_units()
 	_draw_noctyrax_brazier_markers()
-	IntentBadges.draw(self, (presentation.get("threats_at_rest", {}) as Dictionary).get("badges", []))
 	_draw_unit_huds(units_to_draw)
 	_record_render_section_time("unit_huds", section_started_usec)
 	# Damage-preview text and the lost-HP band must composite after the health
@@ -4503,6 +4508,7 @@ func _draw_hud_render_layer() -> void:
 	section_started_usec = Time.get_ticks_usec()
 	_draw_unit_damage_preview_overlays(units_to_draw)
 	_draw_friendly_damage_chips()
+	IntentBadges.draw(self, (presentation.get("threats_at_rest", {}) as Dictionary).get("badges", []))
 	_record_render_section_time("damage_preview_overlays", section_started_usec)
 	_record_dynamic_draw_time(started_usec)
 
@@ -8489,6 +8495,8 @@ func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 	if str(unit.get("role", "")) != "enemy" or bool(unit.get("death_animation", false)):
 		return
 	var actor_key: String = str(unit.get("key", ""))
+	if not IntentBadges.details_discloses_compass(presentation, actor_key):
+		return
 	var descriptors: Dictionary = presentation.get("enemy_intent_compasses", {}) as Dictionary
 	var descriptor: Dictionary = KindleView.descriptor(unit, BurrowView.descriptor(unit, descriptors.get(actor_key, {}) as Dictionary))
 	if descriptor.is_empty():

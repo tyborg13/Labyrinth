@@ -6,29 +6,36 @@ const Icons = preload("res://scripts/action_icon_library.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 
-const HEIGHT: float = 26.0
-const HEALTH_BAR_GAP: float = 8.0
-const RADIUS: int = 5
-const PRIMARY_ICON_SIZE: float = 20.0
+const MEDALLION_DIAMETER: float = 32.0
+const PLATE_HEIGHT: float = 22.0
+const PRIMARY_ICON_SIZE: float = 24.0
 const SECONDARY_ICON_SIZE: float = 16.0
 const PRIMARY_FONT_SIZE: int = 19
 const SECONDARY_FONT_SIZE: int = 15
-const ORDER_FONT_SIZE: int = 14
-const ORDER_DIAMETER: float = 22.0
-const ORDER_OVERLAP: float = 4.0
-const STACK_STEP: float = 30.0
-const MAX_STACK_LEVEL: int = 2
+const ORDER_FONT_SIZE: int = 15
+const ORDER_DIAMETER: float = 24.0
+const ORDER_HEALTH_OFFSET: float = 14.0
+const FEET_OFFSET := Vector2(26.0, 4.0)
+const PLATE_START: float = 6.0
+const NUMBER_START: float = 24.0
+const CONTENT_END_PADDING: float = 12.0
+const SECONDARY_GAP: float = 6.0
+const FINIAL_DIAMETER: float = 10.0
 const INACTIVE_ALPHA: float = 0.55
 const ISOLATED_ALPHA: float = 0.40
-const HORIZONTAL_PADDING: float = 8.0
-const ORDER_CONTENT_PADDING: float = 4.0
-const PRIMARY_NUMBER_GAP: float = 4.0
-const SECONDARY_ICON_GAP: float = 7.0
-const SECONDARY_NUMBER_GAP: float = 3.0
+const DISC_FILL := Color("15100c")
+const MEDALLION_FILL := Color("3a2d1f")
+const PLATE_FILL := Color("140f0b")
+const HALO_RADIUS: float = 6.0
+const HALO_MIN: float = 0.35
+const HALO_MAX: float = 0.75
+const HALO_STEADY: float = 0.55
+const PULSE_SECONDS: float = 1.1
+# Numerical integration bounds; does not change the approved 6px blur radius.
+const GAUSSIAN_KERNEL_SIGMAS: int = 3
+const CIRCLE_SEGMENTS: int = 64
 const SECONDARY_PRIORITY: Array = ["push", "pull", "immobilize", "freeze", "chilled", "shock", "bleed", "expose", "stagger"]
-const STACK_HORIZONTAL_GAP: float = 6.0
-const BOSS_VISUAL_GAP: float = 8.0
-const BOSS_HEADER_GAP: float = 8.0
+static var _halo_cache: Dictionary = {}
 
 var _cache_key: int = 0
 var _cache: Dictionary = {}
@@ -63,6 +70,17 @@ static func enemy_orders(engine: RefCounted, state: Dictionary) -> Dictionary:
 		values.append(str(ordinal))
 		orders[actor_key] = values
 	return orders
+
+static func movement_preview(engine: RefCounted, committed: Dictionary, known: Dictionary) -> Dictionary:
+	# The movement surface forecast resolves known causes before simulation.
+	# Restore concealed actors solely for the existing clock/privacy boundary;
+	# neither their intent nor their bounds can enter the visible rest layer.
+	var result: Dictionary = known.duplicate(true)
+	var enemies: Array = result.get("enemies", []) as Array
+	for enemy: Dictionary in committed.get("enemies", []):
+		if not engine.is_enemy_visible_to_player(committed, enemy): enemies.append(enemy.duplicate(true))
+	result["enemies"] = enemies
+	return result
 
 static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary, focus_key: String = "", known_preview: Dictionary = {}) -> Dictionary:
 	var orders: Dictionary = enemy_orders(engine, preview)
@@ -103,11 +121,13 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 		var badge: Dictionary = descriptor(primary, intent)
 		badge.merge({"key": actor_key, "order": "·".join(orders.get(actor_key, PackedStringArray())),
 			"acting": acting, "cancelled": cancelled,
+			"danger": attacking and acting and not cancelled and (threat.get("projected_attack", []) as Array).has((preview.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))),
 			"alpha": (1.0 if acting else INACTIVE_ALPHA) * (ISOLATED_ALPHA if not focus_key.is_empty() and focus_key != actor_key else 1.0)}, true)
 		badges.append(badge)
 		if attacking and acting and not cancelled:
 			threats.append({"key": actor_key, "tiles": threat.get("projected_attack", []),
-				"alpha": ISOLATED_ALPHA if not focus_key.is_empty() and focus_key != actor_key else 1.0})
+				"alpha": ISOLATED_ALPHA if not focus_key.is_empty() and focus_key != actor_key else 1.0,
+				"area": is_area_intent(intent), "order": badge["order"], "attacker_tile": projected.get("pos", enemy.get("pos", Vector2i(-1, -1)))})
 	return {"badges": badges, "threats": threats, "hero_tile": (preview.get("player", {}) as Dictionary).get("pos", Vector2i(-1, -1))}
 
 static func primary_action(intent: Dictionary) -> Dictionary:
@@ -126,6 +146,7 @@ static func descriptor(action: Dictionary, intent: Dictionary = {}) -> Dictionar
 		if action.has(field):
 			number = str(action[field])
 			break
+	if kind in Compass.MOVEMENT_TYPES: number = ""
 	var hits: int = int(action.get("hits", 1))
 	if hits > 1 and not number.is_empty():
 		number += "×%d" % hits
@@ -152,140 +173,165 @@ static func secondary_rider(riders: Array) -> Dictionary:
 			if str(rider.get("icon", "")) == icon: return rider
 	return {}
 
-static func content_left_padding(badge: Dictionary) -> float:
-	return HORIZONTAL_PADDING + (ORDER_CONTENT_PADDING if not str(badge.get("order", "")).is_empty() else 0.0)
+static func is_area_intent(intent: Dictionary) -> bool:
+	for action: Dictionary in intent.get("actions", []):
+		if is_attack(action) and (str(action.get("type", "")) in Compass.AREA_TYPES or action.has("pattern") or action.has("pattern_footprint")):
+			return true
+	return false
 
-static func plate_width(badge: Dictionary, font: Font) -> float:
-	var width: float = content_left_padding(badge) + PRIMARY_ICON_SIZE + HORIZONTAL_PADDING
+static func plate_end(badge: Dictionary, font: Font) -> float:
 	var number: String = str(badge.get("number", ""))
-	if not number.is_empty():
-		width += PRIMARY_NUMBER_GAP + font.get_string_size(number, HORIZONTAL_ALIGNMENT_LEFT, -1, PRIMARY_FONT_SIZE).x
+	if number.is_empty(): return 0.0
+	var end: float = NUMBER_START + font.get_string_size(number, HORIZONTAL_ALIGNMENT_LEFT, -1, PRIMARY_FONT_SIZE).x
 	if not str(badge.get("secondary_icon", "")).is_empty():
-		width += SECONDARY_ICON_GAP + SECONDARY_ICON_SIZE
-		var secondary_number: String = str(badge.get("secondary_number", ""))
-		if not secondary_number.is_empty():
-			width += SECONDARY_NUMBER_GAP + font.get_string_size(secondary_number, HORIZONTAL_ALIGNMENT_LEFT, -1, SECONDARY_FONT_SIZE).x
-	return width
+		end += SECONDARY_GAP + SECONDARY_ICON_SIZE
+		end += font.get_string_size(str(badge.get("secondary_number", "")), HORIZONTAL_ALIGNMENT_LEFT, -1, SECONDARY_FONT_SIZE).x
+	return end + CONTENT_END_PADDING
 
-static func boss_header_bottom(board: Control) -> float:
-	var header: Rect2 = (board.get("presentation") as Dictionary).get("boss_header_global_rect", Rect2())
-	if not header.has_area(): return 0.0
-	var inverse: Transform2D = board.get_global_transform_with_canvas().affine_inverse() if board.is_inside_tree() else Transform2D.IDENTITY
-	return (inverse * header).end.y
+static func chip_rect(center: Vector2, badge: Dictionary, font: Font) -> Rect2:
+	var right: float = MEDALLION_DIAMETER * 0.5
+	if not str(badge.get("number", "")).is_empty():
+		right = plate_end(badge, font) + 1.0 + FINIAL_DIAMETER * 0.5
+	return Rect2(center - Vector2.ONE * MEDALLION_DIAMETER * 0.5, Vector2(right + MEDALLION_DIAMETER * 0.5, MEDALLION_DIAMETER))
 
-static func base_rect(board: Control, unit: Dictionary, width: float) -> Rect2:
+static func order_rect(health: Rect2, order: String, font: Font) -> Rect2:
+	if order.is_empty(): return Rect2()
+	var width: float = ORDER_DIAMETER
+	if order.contains("·"):
+		# Extend the circle by the added text width, retaining its single-digit inset.
+		width += font.get_string_size(order, HORIZONTAL_ALIGNMENT_LEFT, -1, ORDER_FONT_SIZE).x - font.get_string_size(order.get_slice("·", 0), HORIZONTAL_ALIGNMENT_LEFT, -1, ORDER_FONT_SIZE).x
+	var center := Vector2(health.position.x - ORDER_HEALTH_OFFSET, health.get_center().y)
+	return Rect2(center - Vector2(width, ORDER_DIAMETER) * 0.5, Vector2(width, ORDER_DIAMETER))
+
+static func health_rect(board: Control, unit: Dictionary) -> Rect2:
 	if bool(unit.get("boss_bar", false)):
-		var visual: Rect2 = board.call("_unit_draw_rect", unit)
-		var top: float = maxf(visual.position.y - BOSS_VISUAL_GAP - HEIGHT, boss_header_bottom(board) + BOSS_HEADER_GAP)
-		return Rect2(Vector2(visual.get_center().x - width * 0.5, top), Vector2(width, HEIGHT))
-	var health: Rect2 = (board.get("_hud_health_rects_cache") as Dictionary).get(str(unit.get("key", "")), board.call("_unit_health_bar_rect", unit, board.call("_unit_center", unit)))
-	return Rect2(Vector2(health.get_center().x - width * 0.5, health.position.y - HEALTH_BAR_GAP - HEIGHT), Vector2(width, HEIGHT))
+		var global_frame: Rect2 = (board.get("presentation") as Dictionary).get("boss_health_frame_global_rect", Rect2())
+		if global_frame.has_area():
+			var inverse: Transform2D = board.get_global_transform_with_canvas().affine_inverse() if board.is_inside_tree() else Transform2D.IDENTITY
+			return inverse * global_frame
+	return (board.get("_hud_health_rects_cache") as Dictionary).get(str(unit.get("key", "")), board.call("_unit_health_bar_rect", unit, board.call("_unit_center", unit)))
+
+static func place_chip(anchor: Vector2, badge: Dictionary, font: Font, obstacles: Array, previous: Array) -> Dictionary:
+	var center: Vector2 = anchor + FEET_OFFSET
+	var rect: Rect2 = chip_rect(center, badge, font)
+	if not _overlaps(rect, obstacles, previous):
+		return {"center": center, "rect": rect, "placement": "lower_right", "above_everything": false}
+	var left_center := Vector2(anchor.x - FEET_OFFSET.x - (rect.end.x - center.x), anchor.y + FEET_OFFSET.y)
+	var left_rect: Rect2 = chip_rect(left_center, badge, font)
+	if not _overlaps(left_rect, obstacles, previous):
+		return {"center": left_center, "rect": left_rect, "placement": "lower_left", "above_everything": false}
+	return {"center": center, "rect": rect, "placement": "lower_right", "above_everything": true}
+
+static func _overlaps(rect: Rect2, obstacles: Array, previous: Array) -> bool:
+	for occupied: Rect2 in obstacles:
+		if rect.intersects(occupied): return true
+	for chip: Dictionary in previous:
+		if rect.intersects(chip["rect"]): return true
+	return false
 
 static func layouts(board: Control, badges: Array) -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	var font: Font = Typography.ui_font()
 	var sorted_badges: Array = badges.duplicate(true)
-	# Resolve collisions in action order; ties retain enemy/board roster order.
 	sorted_badges.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		return _first_order(str(a.get("order", ""))) < _first_order(str(b.get("order", ""))))
 	var units: Array = board.call("_visible_units")
+	# These are the actual renderer's prop bounds, already clipped by Umbra.
+	var props: Array = board.call("_foreground_obstruction_candidates")
 	for badge: Dictionary in sorted_badges:
 		var unit: Dictionary = {}
+		var obstacles: Array[Rect2]
 		for candidate: Dictionary in units:
 			if str(candidate.get("key", "")) == str(badge["key"]) and str(candidate.get("role", "")) == "enemy":
 				unit = candidate
-				break
-		if unit.is_empty() or bool(unit.get("death_animation", false)):
-			continue
-		var rect: Rect2 = base_rect(board, unit, plate_width(badge, font))
-		var level: int = 0
-		while level < MAX_STACK_LEVEL and _overlaps(rect, str(badge["order"]), result):
-			rect.position.y -= STACK_STEP
-			if bool(unit.get("boss_bar", false)): rect.position.y = maxf(rect.position.y, boss_header_bottom(board) + BOSS_HEADER_GAP)
-			level += 1
-		if _overlaps(rect, str(badge["order"]), result):
-			rect = resolve_horizontal_overflow(rect, str(badge["order"]), result, Rect2(Vector2.ZERO, board.size))
+			else:
+				obstacles.append(board.call("_unit_draw_rect", candidate))
+		if unit.is_empty() or bool(unit.get("death_animation", false)): continue
+		for prop: Dictionary in props:
+			var tile: Vector2i = prop.get("tile", Vector2i(-1, -1))
+			if bool(board.call("_board_tile_is_visible_to_player", tile)):
+				obstacles.append(prop.get("rect", Rect2()))
 		var layout: Dictionary = badge.duplicate(true)
-		layout.merge({"rect": rect, "stack_level": level})
+		layout.merge(place_chip(board.call("_unit_center", unit), badge, font, obstacles, result), true)
+		layout["order_rect"] = order_rect(health_rect(board, unit), str(badge.get("order", "")), font)
 		result.append(layout)
 	return result
 
 static func _first_order(order: String) -> int:
 	return 2147483647 if order.is_empty() else int(order.get_slice("·", 0))
 
-static func _envelope(rect: Rect2, order: String) -> Rect2:
-	return rect if order.is_empty() else Rect2(rect.position - Vector2(ORDER_DIAMETER - ORDER_OVERLAP, 0), rect.size + Vector2(ORDER_DIAMETER - ORDER_OVERLAP, 0))
+static func ring_color(badge: Dictionary) -> Color:
+	if bool(badge.get("danger", false)): return Palette.DANGER
+	return Palette.GOLD_DIM if str(badge.get("family", "")) in ["defense", "support", "movement"] else Palette.GOLD
 
-static func _overlaps(rect: Rect2, order: String, previous: Array[Dictionary]) -> bool:
-	for other: Dictionary in previous:
-		if _envelope(rect, order).intersects(_envelope(other["rect"], str(other["order"]))):
-			return true
+static func halo_alpha(seconds: float, reduced_motion: bool) -> float:
+	if reduced_motion: return HALO_STEADY
+	return HALO_MIN + (HALO_MAX - HALO_MIN) * (0.5 - 0.5 * cos(TAU * seconds / PULSE_SECONDS))
+
+static func needs_pulse(presentation: Dictionary) -> bool:
+	if bool(presentation.get("reduced_motion", false)): return false
+	for badge: Dictionary in (presentation.get("threats_at_rest", {}) as Dictionary).get("badges", []):
+		if bool(badge.get("danger", false)): return true
 	return false
 
-static func _overlap_width(rect: Rect2, order: String, previous: Array[Dictionary]) -> float:
-	var width: float = 0.0
-	var envelope: Rect2 = _envelope(rect, order)
-	for other: Dictionary in previous:
-		var occupied: Rect2 = _envelope(other["rect"], str(other["order"]))
-		if envelope.intersects(occupied): width = maxf(width, envelope.intersection(occupied).size.x)
-	return width
-
-static func resolve_horizontal_overflow(rect: Rect2, order: String, previous: Array[Dictionary], viewport: Rect2) -> Rect2:
-	var min_x: float = viewport.position.x + (ORDER_DIAMETER - ORDER_OVERLAP if not order.is_empty() else 0.0)
-	var max_x: float = maxf(min_x, viewport.end.x - rect.size.x)
-	var original: Rect2 = rect
-	# Each step advances by the actual overlap width plus the authored gap.
-	# If the rightward solution would be clamped, try left from the original.
-	for direction: float in [1.0, -1.0]:
-		rect = original
-		var was_clamped: bool = false
-		while _overlaps(rect, order, previous):
-			var desired: float = rect.position.x + direction * (_overlap_width(rect, order, previous) + STACK_HORIZONTAL_GAP)
-			rect.position.x = clampf(desired, min_x, max_x)
-			if not is_equal_approx(desired, rect.position.x):
-				was_clamped = true
-				break
-		if direction > 0.0 and was_clamped: continue
-		if not _overlaps(rect, order, previous): return rect
-	return rect
+static func details_discloses_compass(presentation: Dictionary, actor_key: String) -> bool:
+	return bool(presentation.get("show_all_enemy_intents", false)) or (presentation.get("expanded_enemy_actor_keys", []) as Array).has(actor_key)
 
 static func draw(board: Control, badges: Array) -> void:
 	var font: Font = Typography.ui_font()
-	for badge: Dictionary in layouts(board, badges):
-		var rect: Rect2 = badge["rect"]
-		var alpha: float = float(badge["alpha"])
-		var border: Color = Palette.DANGER
-		match str(badge["family"]):
-			"defense": border = Palette.STEEL
-			"support": border = Palette.GOLD
-			"movement": border = Palette.TEXT_3
-		var style := StyleBoxFlat.new()
-		style.bg_color = Color(Palette.INK_0, 0.88 * alpha)
-		style.border_color = Color(border, (1.0 if str(badge["family"]) == "movement" else 0.90) * alpha)
-		style.set_border_width_all(1)
-		style.set_corner_radius_all(RADIUS)
-		board.draw_style_box(style, rect)
-		var x: float = rect.position.x + content_left_padding(badge)
-		var icon_rect := Rect2(Vector2(x, rect.get_center().y - PRIMARY_ICON_SIZE * 0.5), Vector2.ONE * PRIMARY_ICON_SIZE)
-		_draw_icon(board, str(badge["icon"]), icon_rect, alpha)
-		if bool(badge["cancelled"]):
-			board.draw_line(Vector2(icon_rect.position.x, icon_rect.end.y), Vector2(icon_rect.end.x, icon_rect.position.y), Color(Palette.TEXT_2, alpha), 2.0, true)
-		x += PRIMARY_ICON_SIZE
-		if not str(badge["number"]).is_empty():
-			x += PRIMARY_NUMBER_GAP
-			x = _draw_number(board, font, str(badge["number"]), x, rect.get_center().y, PRIMARY_FONT_SIZE, alpha)
-		if not str(badge["secondary_icon"]).is_empty():
-			x += SECONDARY_ICON_GAP
-			_draw_icon(board, str(badge["secondary_icon"]), Rect2(Vector2(x, rect.get_center().y - SECONDARY_ICON_SIZE * 0.5), Vector2.ONE * SECONDARY_ICON_SIZE), alpha)
-			if not str(badge["secondary_number"]).is_empty():
-				_draw_number(board, font, str(badge["secondary_number"]), x + SECONDARY_ICON_SIZE + SECONDARY_NUMBER_GAP, rect.get_center().y, SECONDARY_FONT_SIZE, alpha)
-		var order: String = str(badge["order"])
-		if not order.is_empty():
-			var center := Vector2(rect.position.x - ORDER_DIAMETER * 0.5 + ORDER_OVERLAP, rect.get_center().y)
-			board.draw_circle(center, ORDER_DIAMETER * 0.5, Color(Palette.INK_0, alpha))
-			board.draw_arc(center, ORDER_DIAMETER * 0.5, 0.0, TAU, 32, Color(Palette.GOLD, alpha), 1.0, true)
-			var baseline: float = center.y + (font.get_ascent(ORDER_FONT_SIZE) - font.get_descent(ORDER_FONT_SIZE)) * 0.5
-			board.draw_string(font, Vector2(center.x - ORDER_DIAMETER * 0.5, baseline), order, HORIZONTAL_ALIGNMENT_CENTER, ORDER_DIAMETER, ORDER_FONT_SIZE, Color(Palette.GOLD_BRIGHT, alpha))
+	var presentation: Dictionary = board.get("presentation") as Dictionary
+	# A debug-only fixed clock makes peak-pulse renderer proof deterministic.
+	var seconds: float = float(presentation.get("threats_proof_seconds", float(Time.get_ticks_msec()) / 1000.0))
+	var measured: Array[Dictionary] = layouts(board, badges)
+	for badge: Dictionary in measured:
+		var rect: Rect2 = badge["order_rect"]
+		if rect.has_area(): draw_order_disc(board, rect, str(badge["order"]), float(badge["alpha"]), font)
+	for on_top: bool in [false, true]:
+		for badge: Dictionary in measured:
+			if bool(badge["above_everything"]) == on_top:
+				_draw_chip(board, badge, font, seconds, bool(presentation.get("reduced_motion", false)))
+
+static func draw_order_disc(board: Control, rect: Rect2, order: String, alpha: float, font: Font) -> void:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(DISC_FILL, 0.94 * alpha)
+	style.border_color = Color(Palette.GOLD, alpha)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(int(ORDER_DIAMETER * 0.5))
+	style.anti_aliasing = true
+	board.draw_style_box(style, rect)
+	_draw_centered_text(board, font, order, rect, ORDER_FONT_SIZE, Color(Palette.GOLD_BRIGHT, alpha))
+
+static func _draw_chip(board: Control, badge: Dictionary, font: Font, seconds: float, reduced_motion: bool) -> void:
+	var center: Vector2 = badge["center"]
+	var alpha: float = float(badge.get("alpha", 1.0))
+	var ring: Color = ring_color(badge)
+	var end: float = plate_end(badge, font)
+	if bool(badge.get("danger", false)):
+		var halo: Dictionary = halo_texture(end)
+		board.draw_texture(halo["texture"], center + (halo["offset"] as Vector2), Color(Palette.DANGER, halo_alpha(seconds, reduced_motion) * alpha))
+	if end > 0.0:
+		var plate := Rect2(center + Vector2(PLATE_START, -PLATE_HEIGHT * 0.5), Vector2(end - PLATE_START, PLATE_HEIGHT))
+		board.draw_rect(plate, Color(PLATE_FILL, 0.92 * alpha))
+		board.draw_line(plate.position, Vector2(plate.end.x, plate.position.y), Color(ring, 230.0 / 255.0 * alpha), 1.0, true)
+		board.draw_line(Vector2(plate.position.x, plate.end.y), plate.end, Color(ring, 230.0 / 255.0 * alpha), 1.0, true)
+		var finial: Vector2 = center + Vector2(end + 1.0, 0.0)
+		board.draw_colored_polygon(PackedVector2Array([finial + Vector2(0, -5), finial + Vector2(5, 0), finial + Vector2(0, 5), finial + Vector2(-5, 0)]), Color(ring, alpha))
+		var x: float = _draw_number(board, font, str(badge["number"]), center.x + NUMBER_START, center.y + 1.0, PRIMARY_FONT_SIZE, alpha)
+		if not str(badge.get("secondary_icon", "")).is_empty():
+			x += SECONDARY_GAP
+			_draw_icon(board, str(badge["secondary_icon"]), Rect2(Vector2(x, center.y - SECONDARY_ICON_SIZE * 0.5), Vector2.ONE * SECONDARY_ICON_SIZE), alpha)
+			_draw_number(board, font, str(badge.get("secondary_number", "")), x + SECONDARY_ICON_SIZE, center.y + 1.0, SECONDARY_FONT_SIZE, alpha)
+	board.draw_circle(center, MEDALLION_DIAMETER * 0.5, Color(MEDALLION_FILL, alpha), true, -1.0, true)
+	board.draw_arc(center, MEDALLION_DIAMETER * 0.5 - 1.0, 0.0, TAU, CIRCLE_SEGMENTS, Color(ring, alpha), 2.0, true)
+	board.draw_arc(center, MEDALLION_DIAMETER * 0.5 - 4.0, 0.0, TAU, CIRCLE_SEGMENTS, Color(ring.r * 0.5, ring.g * 0.5, ring.b * 0.5, alpha), 1.0, true)
+	var icon_rect := Rect2(center - Vector2.ONE * PRIMARY_ICON_SIZE * 0.5, Vector2.ONE * PRIMARY_ICON_SIZE)
+	_draw_icon(board, str(badge["icon"]), icon_rect, alpha)
+	if bool(badge.get("cancelled", false)):
+		board.draw_line(Vector2(icon_rect.position.x, icon_rect.end.y), Vector2(icon_rect.end.x, icon_rect.position.y), Color(Palette.TEXT_2, alpha), 2.0, true)
+
+static func _draw_centered_text(board: Control, font: Font, text: String, rect: Rect2, size: int, color: Color) -> void:
+	var baseline: float = rect.get_center().y + (font.get_ascent(size) - font.get_descent(size)) * 0.5
+	board.draw_string(font, Vector2(rect.position.x, baseline), text, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, size, color)
 
 static func _draw_icon(board: Control, key: String, rect: Rect2, alpha: float) -> void:
 	var texture: Texture2D = Icons.icon_texture(key)
@@ -296,3 +342,51 @@ static func _draw_number(board: Control, font: Font, number: String, x: float, c
 	var baseline: float = center_y + (font.get_ascent(font_size) - font.get_descent(font_size)) * 0.5
 	board.draw_string(font, Vector2(x, baseline), number, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color(Palette.TEXT, alpha))
 	return x + width
+
+static func halo_texture(plate_end_x: float) -> Dictionary:
+	var end: int = ceili(plate_end_x)
+	if _halo_cache.has(end): return _halo_cache[end]
+	# Reproduce make_d.py's 19px halo circle and rounded plate mask, then
+	# convolve in both axes with a normalised Gaussian (sigma/radius 6px).
+	var kernel_radius: int = int(HALO_RADIUS) * GAUSSIAN_KERNEL_SIGMAS
+	var padding: int = 19 + kernel_radius
+	var width: int = maxi(19, end + 8) + padding + kernel_radius + 1
+	var height: int = padding * 2 + 1
+	var mask := PackedFloat32Array()
+	mask.resize(width * height)
+	var kernel := PackedFloat32Array()
+	var sum: float = 0.0
+	for offset: int in range(-kernel_radius, kernel_radius + 1):
+		var weight: float = exp(-float(offset * offset) / (2.0 * HALO_RADIUS * HALO_RADIUS))
+		kernel.append(weight)
+		sum += weight
+	for index: int in range(kernel.size()): kernel[index] /= sum
+	for y: int in range(height):
+		for x: int in range(width):
+			var point := Vector2(x - padding, y - padding)
+			var value: float = 1.0 if point.length_squared() <= 19.0 * 19.0 else 0.0
+			if end > 0:
+				var box_center := Vector2((PLATE_START + end + 8) * 0.5, 0)
+				var half_size := Vector2((end + 8 - PLATE_START) * 0.5, PLATE_HEIGHT * 0.5 + 3)
+				var corner: Vector2 = (point - box_center).abs() - half_size + Vector2.ONE * 6
+				if corner.max(Vector2.ZERO).length() + minf(maxf(corner.x, corner.y), 0.0) <= 6.0: value = 200.0 / 255.0
+			mask[y * width + x] = value
+	var horizontal: PackedFloat32Array = mask.duplicate()
+	for y: int in range(height):
+		for x: int in range(width):
+			var value: float = 0.0
+			for offset: int in range(-kernel_radius, kernel_radius + 1):
+				var source_x: int = x + offset
+				if source_x >= 0 and source_x < width: value += mask[y * width + source_x] * kernel[offset + kernel_radius]
+			horizontal[y * width + x] = value
+	var image := Image.create(width, height, false, Image.FORMAT_RGBA8)
+	for y: int in range(height):
+		for x: int in range(width):
+			var value: float = 0.0
+			for offset: int in range(-kernel_radius, kernel_radius + 1):
+				var source_y: int = y + offset
+				if source_y >= 0 and source_y < height: value += horizontal[source_y * width + x] * kernel[offset + kernel_radius]
+			image.set_pixel(x, y, Color(1, 1, 1, value))
+	var result: Dictionary = {"texture": ImageTexture.create_from_image(image), "offset": -Vector2.ONE * padding}
+	_halo_cache[end] = result
+	return result

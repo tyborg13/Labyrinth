@@ -17930,6 +17930,7 @@ func _refresh_stage_view() -> void:
 	presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	presentation["hud_obstacle_global_rects"] = _board_hud_obstacles(display_state)
 	presentation["boss_header_global_rect"] = _boss_health_overlay.get_global_rect() if _boss_health_overlay != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
+	presentation["boss_health_frame_global_rect"] = _boss_health_frame.get_global_rect() if _boss_health_frame != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
 	presentation["status_typography_role"] = _board_status_typography_role()
 	presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	presentation["board_fit_rect"] = _board_fit_rect()
@@ -18432,6 +18433,9 @@ func _commit_runtime_performance_frame() -> void:
 	_runtime_performance_commit_overhead_usec += commit_elapsed_usec
 
 func _enemy_intent_preview_state(display_state: Dictionary) -> Dictionary:
+	if _player_movement_selected and _player_movement_target_tiles.has(_hovered_board_tile):
+		var movement: Dictionary = _surface_resolution_for_preview(_combat_state, _player_movement_action, _hovered_board_tile)
+		return IntentBadges.movement_preview(_combat_engine, _combat_state, (movement["known"] as Dictionary)["state"])
 	if _selected_card_index < 0 or _preview_combat_state.is_empty():
 		return display_state
 	var current_preview_state: Dictionary = _pass_preview_source_state()
@@ -25892,6 +25896,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	rendered_presentation["status_typography_role"] = _board_status_typography_role()
 	rendered_presentation["hud_obstacle_global_rects"] = _board_hud_obstacles(display_state)
 	rendered_presentation["boss_header_global_rect"] = _boss_health_overlay.get_global_rect() if _boss_health_overlay != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
+	rendered_presentation["boss_health_frame_global_rect"] = _boss_health_frame.get_global_rect() if _boss_health_frame != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
 	rendered_presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	rendered_presentation["board_fit_rect"] = _board_fit_rect()
 	rendered_presentation["board_encounter_types"] = _board_encounter_types()
