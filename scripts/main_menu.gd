@@ -12,6 +12,7 @@ const ControllerPromptBarScript = preload("res://scripts/controller_prompt_bar.g
 const InputRouterScript = preload("res://scripts/input_router.gd")
 const MenuRunTransition = preload("res://scripts/menu_run_transition.gd")
 const CombatAtmosphere = preload("res://scripts/combat_atmosphere.gd")
+const ChroniclePanel = preload("res://scripts/chronicle_panel.gd")
 const TITLE_MOTE_COUNT: int = 42
 
 const BACKGROUND_ART_PATH: String = "res://assets/art/ui/main_menu_umbra_dragon.png"
@@ -148,6 +149,8 @@ void fragment() {
 @onready var replacement_cancel_button: Button = $ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementActions/ReplacementCancelButton
 @onready var replacement_confirm_button: Button = $ReplacementPanel/ReplacementMargin/ReplacementVBox/ReplacementActions/ReplacementConfirmButton
 
+var chronicle_button: Button
+var _chronicle: Control
 var _progression: Dictionary = {}
 var _new_descent_panel: Control
 var _saved_run_preview: Dictionary = {}
@@ -172,6 +175,16 @@ var _umbra_selected_style: StyleBoxFlat
 func _ready() -> void:
 	ParallelRuntime.apply_from_environment()
 	SettingsStore.apply_settings(SettingsStore.load_settings(), get_window())
+	chronicle_button = Button.new()
+	chronicle_button.name = "ChronicleButton"
+	chronicle_button.text = "Chronicle"
+	menu_column.add_child(chronicle_button)
+	menu_column.move_child(chronicle_button, settings_button.get_index())
+	chronicle_button.pressed.connect(_on_chronicle_button_pressed)
+	_chronicle = ChroniclePanel.new()
+	_chronicle.name = "ChroniclePanel"
+	add_child(_chronicle)
+	_chronicle.closed.connect(_on_chronicle_closed)
 	_initialize_title_arrays()
 	_connect_steam_service()
 	settings_back_button = settings_panel.call("back_button") as Button
@@ -188,7 +201,7 @@ func _input(event: InputEvent) -> void:
 	if is_instance_valid(_new_descent_panel):
 		if _new_descent_panel.handle_input(event): get_viewport().set_input_as_handled()
 		return
-	if _loading_run:
+	if _loading_run or (_chronicle != null and _chronicle.visible):
 		return
 	if InputRouterScript.is_controller_event(event):
 		_using_keyboard_navigation = true
@@ -216,7 +229,7 @@ func _input(event: InputEvent) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if is_instance_valid(_new_descent_panel): return
-	if _loading_run:
+	if _loading_run or (_chronicle != null and _chronicle.visible):
 		return
 	if event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
 		if _replacement_confirmation_open:
@@ -287,7 +300,7 @@ func _apply_style() -> void:
 	menu_column.add_theme_constant_override("separation", MENU_SEPARATION)
 	_umbra_normal_style = _ui_skin.make_button_style(UiSkin.VARIANT_UMBRA, UiSkin.STATE_NORMAL)
 	_umbra_selected_style = _ui_skin.make_button_style(UiSkin.VARIANT_UMBRA, UiSkin.STATE_SELECTED)
-	for button: Button in [continue_button, start_button, settings_button, quit_button, boss_button]:
+	for button: Button in [continue_button, start_button, chronicle_button, settings_button, quit_button, boss_button]:
 		_apply_menu_button_style(button)
 	_connect_umbra_selection_signals()
 	_apply_confirmation_button_style(replacement_cancel_button, false)
@@ -469,6 +482,7 @@ func _umbra_menu_buttons() -> Array[Button]:
 	var buttons: Array[Button]
 	buttons.append(continue_button)
 	buttons.append(start_button)
+	buttons.append(chronicle_button)
 	buttons.append(settings_button)
 	buttons.append(quit_button)
 	buttons.append(boss_button)
@@ -751,7 +765,7 @@ func _update_layout() -> void:
 	var menu_y: float = title_y + title_size.y + clampf(viewport_size.y * 0.028, 20.0, 42.0) + TITLE_TO_MENU_EXTRA_GAP
 	menu_column.position = Vector2(margin_x, menu_y)
 	menu_column.size = Vector2(menu_width, _menu_column_height(button_height))
-	for button: Button in [continue_button, start_button, settings_button, quit_button, boss_button]:
+	for button: Button in [continue_button, start_button, chronicle_button, settings_button, quit_button, boss_button]:
 		button.custom_minimum_size = Vector2(menu_width, button_height)
 
 	var context_width: float = clampf(viewport_size.x * 0.18, CONTEXT_PANEL_MIN_WIDTH, CONTEXT_PANEL_MAX_WIDTH)
@@ -825,7 +839,7 @@ func _layout_title_line(labels: Array[Label], index: int, position: Vector2, siz
 	label.add_theme_font_size_override("font_size", font_size)
 
 func _menu_column_height(button_height: float) -> float:
-	var visible_buttons: int = 4
+	var visible_buttons: int = 5
 	return float(visible_buttons) * button_height + float(visible_buttons - 1) * float(MENU_SEPARATION)
 
 func _fitted_title_font_size(max_width: float, max_height: float) -> int:
@@ -986,7 +1000,7 @@ func _focus_default_keyboard_target() -> void:
 	target.grab_focus()
 
 func _focusable_menu_buttons() -> Array:
-	return [continue_button, start_button, settings_button, quit_button, boss_button, settings_back_button]
+	return [continue_button, start_button, chronicle_button, settings_button, quit_button, boss_button, settings_back_button]
 
 func _on_start_button_pressed() -> void:
 	if _loading_run:
@@ -1071,6 +1085,23 @@ func _on_continue_button_pressed() -> void:
 
 func _prepare_continue() -> void:
 	get_tree().root.set_meta("labyrinth_resume_saved_run", true)
+
+func _on_chronicle_button_pressed() -> void:
+	if _loading_run:
+		return
+	_chronicle.open()
+	menu_column.visible = false
+	resume_panel.visible = false
+	if _controller_prompt_bar != null:
+		_controller_prompt_bar.modulate.a = 0
+
+func _on_chronicle_closed() -> void:
+	menu_column.visible = true
+	_sync_context_panels()
+	if _controller_prompt_bar != null:
+		_controller_prompt_bar.modulate.a = 1
+	_using_keyboard_navigation = true
+	chronicle_button.grab_focus()
 
 func _on_settings_button_pressed() -> void:
 	if _loading_run:

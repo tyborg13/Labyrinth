@@ -7,6 +7,10 @@ const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const LegacyCardGrowthRefunds = preload("res://scripts/legacy_card_growth_refunds.gd")
 const RunScoreRules = preload("res://scripts/run_score_rules.gd")
+const Chronicle = preload("res://scripts/chronicle_rules.gd")
+const CHRONICLE_RECORDS_KEY: String = "chronicle_records"
+const CHRONICLE_TOTALS_KEY: String = "chronicle_totals"
+const CHRONICLE_RECEIPTS_KEY: String = "chronicle_completed_ids"
 const BEST_SCORE_KEY: String = "best_score"
 const UMBRA_DEPTH_UNLOCKED_KEY: String = "umbra_depth_unlocked"
 const UMBRA_DEPTH_SELECTED_KEY: String = "umbra_depth_selected"
@@ -86,6 +90,9 @@ static func default_data() -> Dictionary:
 		RUN_BESTS_KEY: {},
 		LAST_RUN_RESULT_KEY: {},
 		RUN_RESULT_LEDGER_KEY: [],
+		CHRONICLE_RECORDS_KEY: [],
+		CHRONICLE_TOTALS_KEY: Chronicle.normalized_totals({}),
+		CHRONICLE_RECEIPTS_KEY: [],
 		GRIMOIRE_UNLOCKED_KEY: [],
 		GRIMOIRE_UNREAD_KEY: []
 	}
@@ -191,6 +198,13 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 	data[EMACIATED_AWAKENING_SEEN_KEY] = bool(data.get(EMACIATED_AWAKENING_SEEN_KEY, false))
 	if not data.has("recovery_marker"):
 		data["recovery_marker"] = {}
+	data[CHRONICLE_RECORDS_KEY] = Chronicle.normalized_records(data.get(CHRONICLE_RECORDS_KEY, []))
+	data[CHRONICLE_TOTALS_KEY] = Chronicle.normalized_totals(data.get(CHRONICLE_TOTALS_KEY, {}))
+	var chronicle_receipts: Array = _normalized_string_array(data.get(CHRONICLE_RECEIPTS_KEY, []))
+	for record: Dictionary in data[CHRONICLE_RECORDS_KEY]:
+		if not chronicle_receipts.has(record["run_id"]):
+			chronicle_receipts.append(record["run_id"])
+	data[CHRONICLE_RECEIPTS_KEY] = chronicle_receipts
 	data[BEST_SCORE_KEY] = maxi(0, int(data.get(BEST_SCORE_KEY, 0)))
 	# Missing Depth fields are zero/empty, preserving legacy state hashes.
 	if data.has(UMBRA_DEPTH_UNLOCKED_KEY): data[UMBRA_DEPTH_UNLOCKED_KEY] = unlocked_umbra_depth(data)
@@ -636,6 +650,13 @@ static func record_run_result(data: Dictionary, result_id: String, stats_value: 
 	var safe_result_id: String = result_id.strip_edges()
 	if safe_result_id.is_empty():
 		return {"data": next_data, "result": {}, "recorded": false}
+	# Chronicle has its own uncapped receipts: replay remains harmless even after
+	# the visible history and legacy result ledger have dropped this run.
+	var chronicle_record: Dictionary = Chronicle.terminal_snapshot(safe_result_id)
+	if not run_state.is_empty():
+		chronicle_record = Chronicle.build_record(run_state, outcome, RunScoreRules.score(run_state, outcome))
+	if not chronicle_record.is_empty() and str(chronicle_record.get("run_id", "")) == safe_result_id:
+		next_data = record_chronicle(next_data, chronicle_record)
 	var completed_results: Array[Dictionary] = completed_run_results(next_data)
 	var previous_index: int = _result_index_for_id(completed_results, safe_result_id)
 	if previous_index >= 0:
@@ -699,6 +720,30 @@ static func record_run_result(data: Dictionary, result_id: String, stats_value: 
 	completed_results.append(result.duplicate(true))
 	next_data[RUN_RESULT_LEDGER_KEY] = _bounded_run_result_ledger(completed_results)
 	return {"data": next_data, "result": result, "recorded": true}
+
+static func chronicle_records(data: Dictionary) -> Array[Dictionary]:
+	return Chronicle.normalized_records(data.get(CHRONICLE_RECORDS_KEY, []))
+
+static func chronicle_totals(data: Dictionary) -> Dictionary:
+	return Chronicle.normalized_totals(data.get(CHRONICLE_TOTALS_KEY, {}))
+
+static func record_chronicle(data: Dictionary, value: Dictionary) -> Dictionary:
+	var next_data: Dictionary = data.duplicate(true)
+	var record: Dictionary = Chronicle.normalized_record(value)
+	if record.is_empty():
+		return next_data
+	var receipts: Array = _normalized_string_array(next_data.get(CHRONICLE_RECEIPTS_KEY, []))
+	if receipts.has(record["run_id"]):
+		return next_data
+	receipts.append(record["run_id"])
+	var records: Array[Dictionary] = chronicle_records(next_data)
+	records.push_front(record)
+	while records.size() > Chronicle.RECORD_LIMIT:
+		records.pop_back()
+	next_data[CHRONICLE_RECORDS_KEY] = records
+	next_data[CHRONICLE_RECEIPTS_KEY] = receipts
+	next_data[CHRONICLE_TOTALS_KEY] = Chronicle.add_to_totals(chronicle_totals(next_data), record)
+	return next_data
 
 static func run_bests(data: Dictionary) -> Dictionary:
 	return _normalized_run_metric_map(data.get(RUN_BESTS_KEY, {}), BEST_ELIGIBLE_STAT_IDS)

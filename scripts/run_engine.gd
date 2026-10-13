@@ -19,6 +19,7 @@ const GuidedCombatScenario = preload("res://scripts/guided_combat_scenario.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
+const Chronicle = preload("res://scripts/chronicle_rules.gd")
 const SectionMapGraph = preload("res://scripts/section_map_graph.gd")
 const SurfaceSaveMigration = preload("res://scripts/surface_save_migration.gd")
 
@@ -111,7 +112,8 @@ static func normalized_run_stats(value: Variant) -> Dictionary:
 	return preload("res://scripts/run_score_rules.gd").normalized_stats(value)
 
 static func run_result_id(run_state: Dictionary) -> String:
-	return "run:%d:seed:%d" % [int(run_state.get("run_index", 0)), int(run_state.get("seed", 0))]
+	Chronicle.stage_terminal_snapshot(run_state)
+	return Chronicle.record_id(run_state)
 
 func create_new_run(seed: int, progression: Dictionary, section_maps: bool = true, requested_depth: int = -1) -> Dictionary:
 	var normalized_progression: Dictionary = ProgressionStore.normalized_data(progression)
@@ -199,6 +201,7 @@ func create_new_run(seed: int, progression: Dictionary, section_maps: bool = tru
 		run_state["current_room_layout"] = _display_layout_for_room(seed, room_metadata(run_state, Vector2i.ZERO), Vector2i.ZERO)
 	var starting_omen: String = str(DepthRules.modifier(run_state, "start_omen").get("omen", ""))
 	if not starting_omen.is_empty(): run_state = OmenRules.add(run_state, starting_omen)
+	Chronicle.begin_path(run_state)
 	run_state = GrimoireLibrary.ensure_run_state(run_state)
 	_reveal_neighbors(run_state, Vector2i.ZERO)
 	_stage_recovery_marker(run_state)
@@ -909,6 +912,7 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 	var room: Dictionary = _merge_room_metadata(int(next_state.get("seed", 0)), destination, rooms.get(destination_key, {}) as Dictionary)
 	_record_score_room_entry(next_state, room, destination)
 	SectionMapGraph.resolve_mystery(next_state, room)
+	Chronicle.enter_room(next_state, room)
 	room["revealed"] = true
 	room["visited"] = true
 	room["sealed"] = false
@@ -1035,6 +1039,7 @@ func move_to_pre_battle(run_state: Dictionary, destination: Vector2i) -> Diction
 	var room: Dictionary = _merge_room_metadata(int(next_state.get("seed", 0)), destination, rooms.get(destination_key, {}) as Dictionary)
 	_record_score_room_entry(next_state, room, destination)
 	SectionMapGraph.resolve_mystery(next_state, room)
+	Chronicle.enter_room(next_state, room)
 	room["revealed"] = true
 	room["visited"] = true
 	room["sealed"] = false
