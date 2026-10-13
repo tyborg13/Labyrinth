@@ -22,10 +22,12 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - rr-01 merged 7c770a7ec (+ fa0351491); integration suite PASS (694 s), Python 388 OK. Follow-up noted: 17 other enemy
   turn-order portraits are crops of pre-density art (`build_turn_order_assets.gd --verify-only` fails on them) — a
   portrait rebuild unit after the roster waves.
-- rr-02 gaoler: owner 2026-10-13 "quite boxy" (angle/proportions/style approved). Maquette r3 (rounded tapered helm,
-  hunch, sloped shoulders, flared coat, rounded boots; framed at drawn size K=4, art_scale 1.0) → front r3 painted
-  (`jobs/chainbound_gaoler/mq3_front`), scoped edit (shadow-side coat tail, boots) running; process with
-  `--match-front mq_front_v3/processed.png --clean-outline` (pulls palette to the approved ash), judge, then rear.
+- rr-02 gaoler rounded repaint: judge PASS r6 on front `jobs/chainbound_gaoler/mq3_front_v3` + rear `mq3_rear_v2`
+  (sheet `sheet_pair_mq3_v2.png`, K=4, art_scale 1.0); owner comparison
+  `output/peer-benchmark-2026-10-12/identity_gate/chainbound_gaoler_rounded_compare.png` — awaiting owner. New director
+  steps: `prototype/tone_region.py` (region tone), `prototype/mask_reference.py` (palette reference without front-only
+  parts — the tabard skewed the rear match red; a gate `--match-exclude` option is a follow-up). Earlier gaoler jobs
+  (mq_*, mq3_front*) still reference scratchpad paths → convert to the maquette-kit format (refs in the job) at rr-02.
 - art-04 running: integrate the owner-approved perched shrike + canon flyer reference.
 - Watchdog: `scratchpad/watch_loop2.sh` (tracked background job).
 
