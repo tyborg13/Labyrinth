@@ -12,6 +12,7 @@ const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutori
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const FloatingText = preload("res://scripts/floating_combat_text.gd")
 const OUTPUT_DIR: String = "user://probes/combat_feel"
+const VIEWPORT_SIZE: Vector2i = Vector2i(1920, 1080)
 const ROUND_TIMEOUT_MS: int = 18000
 const HEAVY_PROOF_DAMAGE: int = 12
 const HEAVY_PROOF_RANGE: int = 10
@@ -36,6 +37,7 @@ var seed: int = 126065
 var run_engine = RunEngine.new()
 var combat_engine = CombatEngine.new()
 var run_scene: Node
+var _canvas: SubViewport
 var _failures: Array[String]
 var _heavy_timing_only: bool = false
 var _timeline_only: bool = false
@@ -73,17 +75,26 @@ func _initialize() -> void:
 			root.add_child(draw_boundary)
 		else:
 			process_frame.connect(_headless_draw_tick)
-	root.size = Vector2i(1920,1080)
+	root.size = VIEWPORT_SIZE
+	root.content_scale_size = VIEWPORT_SIZE
 	root.content_scale_factor = 1.0
+	# Match movement_undo_probe: window backing pixels are display-dependent;
+	# this target stays exactly 1920x1080 and participates in every real draw.
+	_canvas = SubViewport.new()
+	_canvas.size = VIEWPORT_SIZE
+	_canvas.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(_canvas)
+	check(_canvas.size == VIEWPORT_SIZE and _canvas.render_target_update_mode == SubViewport.UPDATE_ALWAYS, "Capture viewport is fixed-size and renders every frame")
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
 	Suite.write_proof_contract()
 	run_scene = (load("res://scenes/run_scene.tscn") as PackedScene).instantiate()
 	if _baseline and not _install_baseline_script():
 		_finish()
 		return
-	root.add_child(run_scene)
+	_canvas.add_child(run_scene)
 	if _baseline: run_scene.get("_combat_pacing").debug_baseline = true
 	await _settle_frames(PROBE_SETTLE_FRAMES)
+	check(run_scene.get_viewport() == _canvas, "RunScene renders inside the capture viewport")
 	if _heavy_timing_only:
 		await _heavy_hit(false)
 		await _heavy_hit(true)
@@ -435,7 +446,7 @@ func _heavy_draw() -> void:
 	# Keep the preceding frame until impact; afterwards read back only requested
 	# samples. PNG encoding happens after disconnect, outside the timing callback.
 	var needs_image: bool = _heavy_frame < 0 or _heavy_frame in [0, 1, 4, 8] or _peak_pending
-	var current: Image = root.get_texture().get_image() if needs_image and not _timeline_only else null
+	var current: Image = _read_capture_image() if needs_image and not _timeline_only else null
 	if _capture_heavy and _heavy_frame >= 0:
 		if _heavy_frame in [0, 1, 4, 8]:
 			_heavy_offsets.append(_heavy_frame)
@@ -467,7 +478,12 @@ func _settings_capture() -> void:
 
 func _image() -> Image:
 	await RenderingServer.frame_post_draw
-	return null if _timeline_only else root.get_texture().get_image()
+	return null if _timeline_only else _read_capture_image()
+
+func _read_capture_image() -> Image:
+	var current: Image = _canvas.get_texture().get_image()
+	check(current.get_size() == VIEWPORT_SIZE, "Capture is exactly 1920x1080")
+	return current
 
 func _capture(filename: String) -> void:
 	var current: Image = await _image()
@@ -713,5 +729,4 @@ class ApprovedStaging:
 		state = ce.call("_initialize_initiative_queue", state)
 		state["current_actor"] = {"kind": "player", "key": "player"}
 		return state
-
 
