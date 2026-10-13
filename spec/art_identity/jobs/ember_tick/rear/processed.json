@@ -7,25 +7,25 @@
   "fit_scale": 1.0,
   "k_eff": 4.0,
   "metrics": {
-    "chroma": 0.17569176332035738,
-    "feature_px": 6.358778651129943,
+    "chroma": 0.12287794857037801,
+    "feature_px": 6.4208169851119825,
     "height": 140,
     "height_drawn": 140.0,
-    "orphan_share": 0.026226389455089007,
-    "regions": 364,
-    "run_length": 3.8031007751937986,
+    "orphan_share": 0.020315260225574127,
+    "regions": 357,
+    "run_length": 4.32755072037636,
     "symmetry": 0.6803910293271995,
     "thin_abs": 0.00971599402092671,
     "thin_rel": 0.01596684332110343,
-    "value": 0.14512683229019288,
+    "value": 0.1312928626811507,
     "width": 190
   },
-  "pixel_sha256": "b5e6ba5a8719cdfe5fe00890385fc637eaf88b04a9bc4e8774b2598feb32929a",
+  "pixel_sha256": "d1584f15a94a7cc628b1e603b280dd6ab8cc56d981d38e8f1aa8426bae452274",
   "placement": [
     33,
     106
   ],
-  "raw_sha256": "96ce6fc46106f8ca08e5cdf5206ede88dc7584a51503fc5094e366a2f3739567",
+  "raw_sha256": "7a7304e4164e8e7a41240e31398106bf86af2c32d6bf2e6e828290c95752f7f7",
   "shift": [
     0,
     0
