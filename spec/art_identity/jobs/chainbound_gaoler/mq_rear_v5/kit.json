@@ -1,0 +1,39 @@
+{
+  "K": 3,
+  "anatomy": "biped",
+  "art_scale_decision": "0.9 (pilot): the gaoler stands at the hero height, generated large and scaled on the board",
+  "edit_of_raw_sha256": "79834d685ef9022671eaf57723e9f4e29d4e2cf6da6797c5c81e6fd28f575346",
+  "edit_prompt_path": "../../../maquettes/chainbound_gaoler/resume_rear5.md",
+  "edit_prompt_sha256": "b3efd2a79fafaca78e16521dc3c38c8879c2ec3443a94612cd01c2039f779beb",
+  "id": "chainbound_gaoler",
+  "job_id": "mq-gaoler-rear-v3 (resume 2: judge polish edit)",
+  "kind": "creature",
+  "kit_version": "ef5dcbf29cacd6f7180ab214ff32fc011691541f5d97eec025bcbe11e18b9f2d",
+  "method": "maquette paint-over (rr-02 pilot): image edit of rear v2 to match the approved front v3 materials",
+  "peers": [
+    "slag_mortar_front",
+    "glacial_mirror_front"
+  ],
+  "prompt_path": "../../../maquettes/chainbound_gaoler/resume_rear3.md",
+  "prompt_sha256": "573fd98854e2e901ee3b053dd98ba844b51ea60988447f45263e0c1823006ae0",
+  "refs": [
+    {
+      "canon_id": "edit_source_gaoler_mq_rear_v2",
+      "file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gaoler-rear-v3/refs/chainbound_gaoler_mq_rear_v2.png",
+      "pixel_sha256": "17f1625be8afe01fda018476ba2056e1dae12fa0bd5c0852b1d1a14960dd4924"
+    },
+    {
+      "canon_id": "approved_gaoler_mq_front_v3",
+      "file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gaoler-rear-v3/refs/chainbound_gaoler_mq_front_v3.png",
+      "pixel_sha256": "6a54914d5c0fd9822d620ccc4e2b0de5c24b308f96f86665d36572f28c1ad7d6"
+    },
+    {
+      "canon_id": "maquette_rear_parts",
+      "file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gaoler-rear-v3/refs/rear_parts_green.png",
+      "pixel_sha256": "70aa5b598c2be4ca58ac36f70068d88538e70a8d36b5ba354ce6d934c223a99c"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 241,
+  "view": "creature_rear"
+}
