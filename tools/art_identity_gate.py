@@ -32,6 +32,7 @@ PENDING_REART = (
     "hollow_mimic", "slag_mortar", "storm_capacitor",
 )
 VIEWS = ("creature_front", "creature_rear", "beast_front", "beast_rear", "object_plinth")
+MAQUETTE_REF_ROLES = frozenset(("maquette_parts", "maquette_clay", "identity", "canon", "edit_source"))
 RESAMPLE = getattr(Image, "Resampling", Image)
 # Proof-only dimensions and typography; no production rendering depends on these.
 SHEET_DEFAULTS = {"width": 1920, "row_height": 320, "detail_height": 560,
@@ -316,7 +317,11 @@ def prompt_kit_version(kit: dict, prompt: bytes):
     never read today's preamble/views or regenerable reference PNGs. Historical
     custom prompts may not retain this exact serialization: for those the
     prompt hash and registry bindings still verify the recorded version field.
+    Maquette jobs instead hash the whole captured prompt and ordered digests.
     """
+    if kit.get("kit_kind") == "maquette":
+        digests = "".join(ref["pixel_sha256"] for ref in kit["refs"]).encode("ascii")
+        return sha(prompt + digests)
     preamble, view_marker, remainder = prompt.partition(b"\n## View\n")
     view, subject_marker, _ = remainder.partition(b"\n## Subject")
     if not view_marker or not subject_marker:
@@ -334,6 +339,8 @@ def recorded_ref_digests(kit: dict) -> dict:
 
 
 def kit_version_verification(kit: dict, prompt: bytes) -> str:
+    if kit.get("kit_kind") == "maquette":
+        return "prompt_ordered_refs" if prompt_kit_version(kit, prompt) == kit["kit_version"] else "mismatched"
     return "prompt_reconstructed" if prompt_kit_version(kit, prompt) == kit["kit_version"] else "recorded"
 
 
@@ -667,12 +674,48 @@ def is_digest(value) -> bool:
     return isinstance(value, str) and len(value) == 64 and all(c in "0123456789abcdef" for c in value)
 
 
+def validate_maquette_refs(kit: dict, kit_path: Path, canon: dict, rear: bool) -> list:
+    """Maquette structure/identity references are shipped inputs, not regenerable peers."""
+    failures = []
+    roles = set()
+    refs_root = (kit_path.parent / "refs").resolve()
+    for ref in kit["refs"]:
+        role = ref.get("role")
+        if role not in MAQUETTE_REF_ROLES:
+            failures.append("maquette reference role missing or unknown: " + str(role))
+        else:
+            roles.add(role)
+        canon_id = ref.get("canon_id")
+        if role == "canon" and canon_id not in canon:
+            failures.append("maquette canon reference has unknown id: " + str(canon_id))
+        elif role != "canon" and canon_id in canon:
+            failures.append("non-canon maquette reference reuses canon id: " + str(canon_id))
+        file = ref.get("file", "")
+        try:
+            path = repo_path(kit_path.parent, file)
+            if not file.startswith("refs/") or refs_root not in path.parents:
+                raise ValueError("outside refs/")
+        except ValueError:
+            failures.append("maquette reference must be job-relative under refs/: " + str(file))
+            continue
+        if not path.is_file():
+            failures.append("maquette reference missing: " + file)
+        elif pixel_digest(rgba(path)) != ref.get("pixel_sha256"):
+            failures.append("maquette reference pixel digest changed: " + file)
+    if "maquette_parts" not in roles:
+        failures.append("maquette requires a maquette_parts reference")
+    if rear and "identity" not in roles:
+        failures.append("rear maquette requires an identity reference")
+    return failures
+
+
 def validate_kit_entry(entry: dict, root: Path, bands: dict, metadata: dict) -> list:
     failures = []
     kit_path = repo_path(root, entry["kit_path"])
     kit = read_json(kit_path)
-    job = "id-%s-%s" % (kit["id"], kit["view"])
-    if kit.get("job_id") != job or entry.get("job_id") != job:
+    maquette = kit.get("kit_kind") == "maquette"
+    job = kit.get("job_id") if maquette else "id-%s-%s" % (kit["id"], kit["view"])
+    if not isinstance(job, str) or not job.strip() or kit.get("job_id") != job or entry.get("job_id") != job:
         failures.append("kit job id missing or mismatched")
     for key in ("kind", "anatomy", "size_class"):
         if entry.get(key) != kit.get(key):
@@ -682,13 +725,15 @@ def validate_kit_entry(entry: dict, root: Path, bands: dict, metadata: dict) -> 
     rear = kit["view"].endswith("_rear")
     if kit["view"] not in VIEWS or kit["kind"] != ("object" if kit["view"] == "object_plinth" else "creature"):
         failures.append("kit view and kind disagree")
-    if len(kit["peers"]) != 2:
+    if maquette:
+        failures.extend(validate_maquette_refs(kit, kit_path, canon, rear))
+    elif len(kit["peers"]) != 2:
         failures.append("kit requires exactly two canon peers")
-    for peer_id in kit["peers"]:
+    for peer_id in ([] if maquette else kit["peers"]):
         peer = canon.get(peer_id)
         if peer is None or peer["kind"] != kit["kind"] or peer["anatomy"] != kit["anatomy"]:
             failures.append("kit peer is not same-kind/anatomy canon: " + peer_id)
-    if not failures:
+    if not maquette and not failures:
         expected_ids = ["hero_rear" if rear else "hero_front"] + [
             matching_view(canon, canon[p], rear)["id"] for p in kit["peers"]]
         if [ref["canon_id"] for ref in refs if "canon_id" in ref] != expected_ids:
@@ -698,10 +743,10 @@ def validate_kit_entry(entry: dict, root: Path, bands: dict, metadata: dict) -> 
     factor_bands = bands["kit_factor"]
     if str(kit["K"]) not in factor_bands or not in_band(kit["target_h"], factor_bands[str(kit["K"])]):
         failures.append("kit factor does not match target height")
-    if rear and (not refs or refs[0]["file"] != "refs/01_front_ref.png"):
+    if not maquette and rear and (not refs or refs[0]["file"] != "refs/01_front_ref.png"):
         failures.append("rear job requires unchanged first front reference")
-    # refs/*.png are intentionally git-ignored and regenerable. Certification
-    # binds the committed job's recorded digests, never those files or today's paint.
+    # Standard refs are regenerable: bind their job records, not today's paint.
+    # Maquette refs are shipped inputs; validate_maquette_refs checks the PNGs.
     ref_files = [ref["file"] for ref in refs]
     if len(set(ref_files)) != len(ref_files):
         failures.append("kit has duplicate reference paths")
@@ -710,7 +755,7 @@ def validate_kit_entry(entry: dict, root: Path, bands: dict, metadata: dict) -> 
             failures.append("kit reference path must be repository-relative")
         if not is_digest(ref.get("pixel_sha256")):
             failures.append("recorded reference pixel digest missing or invalid: " + ref["file"])
-        if ref.get("canon_id"):
+        if not maquette and ref.get("canon_id"):
             reference = canon.get(ref["canon_id"])
             if reference is None or reference["view"] != ("rear" if rear else "front"):
                 failures.append("reference is not matching-view canon: " + ref["canon_id"])
@@ -726,8 +771,10 @@ def validate_kit_entry(entry: dict, root: Path, bands: dict, metadata: dict) -> 
         failures.append("prompt digest changed")
     if entry.get("prompt_sha256") != kit.get("prompt_sha256"):
         failures.append("recorded prompt digest differs from registry")
-    # If prompt serialization cannot reproduce the original hash exactly, the
-    # director authorizes the recorded field. Both modes retain all bindings above.
+    if maquette and prompt_kit_version(kit, prompt_bytes) != kit.get("kit_version"):
+        failures.append("maquette kit_version does not reproduce from prompt and ordered reference digests")
+    # Historical standard prompts may use the director-authorized recorded field.
+    # Maquette versions must reproduce exactly; both retain all other bindings.
     if not is_digest(entry.get("raw_sha256")):
         failures.append("raw sha256 missing or invalid")
     if entry.get("raw_path") and sha(repo_path(root, entry["raw_path"]).read_bytes()) != entry.get("raw_sha256"):

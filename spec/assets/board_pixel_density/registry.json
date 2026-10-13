@@ -4014,17 +4014,17 @@
       "paths": [
         "assets/art/enemies/gust_shrike.png"
       ],
-      "r": 1.0,
+      "measurement_path": "assets/art/enemies/gust_shrike.png",
+      "frames": null,
+      "r": 0.75,
       "r_derivation": {
         "path": "data/enemies.json",
         "key": "gust_shrike.art_scale",
-        "expression": "art_scale (default 1.0)"
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
       },
-      "measurement_path": "assets/art/enemies/gust_shrike.png",
-      "frames": null,
-      "orphan_share": 0.2974700120475617,
-      "t": 1.5,
-      "grid": 1.5,
+      "orphan_share": 0.012884244699198539,
+      "t": 1.0,
+      "grid": 1.33,
       "mode": "regrid"
     },
     {
@@ -4216,6 +4216,25 @@
       "t": 1.0345591066615325,
       "grid": 1.03,
       "mode": "clean"
+    },
+    {
+      "id": "gust_shrike_rear",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/gust_shrike_rear.png"
+      ],
+      "measurement_path": "assets/art/enemies/gust_shrike_rear.png",
+      "frames": null,
+      "r": 0.75,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "gust_shrike.art_scale",
+        "expression": "_unit_size width 1.03 / 255 * art_scale / hero reference (1.03 / 255)"
+      },
+      "orphan_share": 0.012464241928892521,
+      "t": 1.0,
+      "grid": 1.33,
+      "mode": "regrid"
     }
   ]
 }

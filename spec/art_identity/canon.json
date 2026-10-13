@@ -246,6 +246,24 @@
    "note": "art-02, owner-approved 2026-10-13"
   },
   {
+   "id": "gust_shrike_front",
+   "path": "assets/art/enemies/gust_shrike.png",
+   "kind": "creature",
+   "anatomy": "flyer",
+   "size_class": "small",
+   "view": "front",
+   "note": "maquette paint-over, owner-approved 2026-10-13; the flyer reference"
+  },
+  {
+   "id": "gust_shrike_rear",
+   "path": "assets/art/enemies/gust_shrike_rear.png",
+   "kind": "creature",
+   "anatomy": "flyer",
+   "size_class": "small",
+   "view": "rear",
+   "note": "maquette paint-over, owner-approved 2026-10-13; the flyer reference"
+  },
+  {
    "id": "storm_capacitor",
    "path": "assets/art/enemies/storm_capacitor.png",
    "kind": "object",
@@ -290,6 +308,14 @@
     "rime_spitter_rear",
     "roc_fledgling_front",
     "roc_fledgling_rear"
+   ]
+  },
+  {
+   "date": "2026-10-13",
+   "change": "added gust_shrike front/rear (art-04) as the flyer reference",
+   "added": [
+    "gust_shrike_front",
+    "gust_shrike_rear"
    ]
   }
  ],

@@ -97,6 +97,31 @@ posed proxy from the board camera — front (yaw 0) and rear (yaw 180) — as pa
 rigs, per-part solo renders and projected joints). Prompts say the label colours are part labels and keep silhouette,
 overlap and camera. Front and rear agree by construction. Birds stand perched (upright on two legs, tail down).
 
+Maquette jobs set `kit_kind: "maquette"` in `kit.json`. Their non-empty `job_id` must equal the registry's job id;
+it does not use the standard `id-<id>-<view>` pattern. `prompt_path: "prompt.md"` names the byte-identical job-local
+prompt; `prompt_source` records its original location. `kit_version` is SHA-256 of the prompt bytes followed by the
+reference pixel digests concatenated in list order (ASCII, no separator). Both perched shrike views reproduce it;
+maquette certification rejects a mismatch rather than using the historical standard-kit fallback.
+
+Every maquette reference has a job-relative `file` under `refs/`, a decoded `pixel_sha256`, and a `role` from
+`maquette_parts`, `maquette_clay`, `identity`, `canon`, or `edit_source`. The PNG must exist inside that directory
+and match its digest. `source_file` is informational provenance. `canon` references resolve to an active or retired
+canon id in any view: they supply the hand, not a matching pose. Other roles may use their own labels in `canon_id`
+but must not reuse a canon id. At least one `maquette_parts` reference is required; rear jobs also require an
+`identity` reference. Standard peer ordering, matching-view canon, and first-front-reference rules do not apply.
+Prompt hashes, registry reference bindings, processed sidecars, post-steps, source/production pixel hashes, metric
+bands, landmarks, judge verdict and owner approval retain the same checks as standard kits.
+Include the maquette reference PNGs with the job records when publishing. Certification requires these files even
+though their `refs/` directory is git-ignored.
+
+Certification commands (read-only):
+
+```sh
+python3 tools/art_identity_gate.py check --id gust_shrike --strict
+python3 tools/art_identity_gate.py check
+python3 tests/test_art_identity_gate.py
+```
+
 ## 8. In-engine lineup
 
 `tests/bestiary_lineup_probe.gd` captures every enemy and the hero on a board at in-game scale (1920×1080
@@ -125,9 +150,12 @@ python3 tools/art_identity_gate.py adopt-legacy
 python3 tests/test_art_identity_gate.py
 ```
 
-`adopt-legacy` refuses to replace an existing baseline. Normal checks warn for Gust Shrike, the remaining `pending_reart` enemy; strict checks fail it.
-Reference PNGs are intentionally git-ignored and regenerable; certification reads the committed job records,
-not these files. The lineup capture command and backdrop-copy instructions are in the command reference.
+`adopt-legacy` refuses to replace an existing baseline. Art-04 adopts the final pending enemy, Gust Shrike, so normal
+and strict checks now require zero `pending_reart` warnings. Standard-kit reference PNGs are intentionally
+git-ignored and regenerable; certification reads their committed job records, not these files. Maquette reference
+PNGs are required certification inputs under §7b and are committed: maquette job folders are named `mq*`, and
+`.gitignore` re-includes `spec/art_identity/jobs/*/mq*/refs/`. The lineup capture command
+and backdrop-copy instructions are in the command reference.
 Processing normalizes square raw canvases with `k_eff = K × raw_width / 1024`, uniformly fits oversized sprites
 within 251×240 without clipping paint, and records `k_eff` and `fit_scale`. The candidate table shows `fit_scale` as
 INFO. Use `canon-sheet` (front or rear) beside each candidate sheet for the independent judge.
@@ -148,8 +176,9 @@ copied `post_steps`; `pixel_sha256` independently binds the density-treated prod
 
 
 Kit certification verifies `prompt.md` against `prompt_sha256` in both its job and registry, and the job's recorded
-reference pixel digests against registry `ref_pixel_sha256`. It checks digest validity and reference identities,
-without opening or regenerating reference PNGs. `kit_version` is generation-time provenance: recover the captured
+reference pixel digests against registry `ref_pixel_sha256`. Standard kits check digest validity and reference
+identities without opening or regenerating reference PNGs; maquette kits also verify their shipped PNGs as in §7b.
+Standard-kit `kit_version` is generation-time provenance: recover the captured
 preamble and view clause from the stored prompt, undo the generation-time `{K}` substitution in its numeric contexts,
 and hash those bytes with the job's sorted reference digests. Today's preamble/view clauses and canon paint are not
 hash inputs. Every current art-03 kit reproduces its version this way; `check` labels these `kit_version

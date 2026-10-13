@@ -98,11 +98,18 @@
     "grid": 1.0
   },
   "assets/art/enemies/gust_shrike.png": {
-    "pixel_sha256": "35aed58079a474e17b68c6c25b2d81623854db8a19088b18ad0931f8a4e1bab5",
-    "source_pixel_sha256": "f514877cd640b2974e15f1afd828f197117fdc226a0ba97d6d535776d2312767",
+    "pixel_sha256": "4b9d1494f7f788620bcd8c4c18a2753a844307ddc104fca15dc100457c5bc84d",
+    "source_pixel_sha256": "e4f14ec866fd3709dfe1a5969b3a0a3ec03246e13980ec7026eb10188e9ae27c",
     "id": "gust_shrike",
     "mode": "regrid",
-    "grid": 1.5
+    "grid": 1.33
+  },
+  "assets/art/enemies/gust_shrike_rear.png": {
+    "pixel_sha256": "168db9c91a6af668e2687b0d020babe6eb6f14ff8a9982e6a02b220ab483792f",
+    "source_pixel_sha256": "24aa41439fff265698c24b2dec14aed1e4093c7a2db803ddeeead1902c5d1eff",
+    "id": "gust_shrike_rear",
+    "mode": "regrid",
+    "grid": 1.33
   },
   "assets/art/enemies/hoarfrost_seer.png": {
     "pixel_sha256": "e30f5f90ad564aac409fcfd055fdfcca018912b345ebc5d2d17541d7b0243f9f",
