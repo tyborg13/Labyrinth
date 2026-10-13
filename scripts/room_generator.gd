@@ -125,8 +125,11 @@ func generate_room(run_seed: int, room: Dictionary, travel_dir: Vector2i) -> Dic
 	var enemy_types: Array = []
 	if table_encounter:
 		encounter = _section_encounter(room, clampi(encounter_depth, 1, 3), rng)
-		enemy_types = encounter["units"]
-	elif npc_specs.is_empty():
+		# Invalid table loads and unavailable entries must take the complete legacy
+		# path, including placement. An empty combat is never a valid fallback.
+		table_encounter = not (encounter.get("units", []) as Array).is_empty()
+		if table_encounter: enemy_types = encounter["units"]
+	if not table_encounter and npc_specs.is_empty():
 		enemy_types = _encounter_enemy_types(room_type, encounter_depth, rng, room_element, boss_id)
 	enemy_types = _objective_adjusted_enemy_types(enemy_types, objective, encounter_depth, rng)
 	enemy_types = _apply_spawn_groups(enemy_types, int(room.get("max_units", -1)))

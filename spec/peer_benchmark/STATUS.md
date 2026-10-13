@@ -85,3 +85,15 @@ sessions (`git -C <wt> checkout --detach <commit>` + headless `--import`), after
 - Playtest builds: `peer-benchmark-playtest` (5ab3b59cc, session 2); `peer-benchmark-playtest-3` (95bf93536: SFX mix
   pass, fix-02, en-01 enemies, run-end screen). New sessions get a NEW frozen worktree; old ones are removed only after
   the owner confirms they're done.
+
+## Update (integration 325ace5ca) — visual identity gate
+- Owner (2026-10-12): new enemy art isn't at standard (head-on views, miniaturized detail, capacitor wrong perspective);
+  wants tooling + rules that make identity regressions hard. Response: spec/visual_identity_gate.md + spec/art_identity/
+  (canon, preamble, views, bands, judge rubric); art-01 builds the tooling; art-02 re-arts all 12 enemies through the kit.
+- Pilot 1 (scratch, unedited): tick/thrall/capacitor at correct view; thrall pale+lanky, capacitor too clean → preamble
+  gained Proportions + Palette sections. Pilot 2 running (thrall, capacitor, gloam stalker, gust shrike).
+  Sheet: output/peer-benchmark-2026-10-12/identity_gate/pilot_before_after.png.
+- Mechanics of en-04..06 keep merging with current art as placeholders (registry kind `pending_reart`).
+- Next: review en-06/itb-03/en-05 probes → merge; en-05 decisions round; art-01 review; after art-01: kit runs for 12
+  fronts → judge → owner sheets → rears; rules: AGENTS.md section + create-labyrinth-enemy skill + brief checklist.
+- Then: UI identity lint (palette/StyleBox via design-system helpers) — phase 2 of the gate.

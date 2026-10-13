@@ -41,6 +41,20 @@
     "mode": "regrid",
     "grid": 1.5
   },
+  "assets/art/enemies/hollow_mimic.png": {
+    "pixel_sha256": "364241a95014858182820efa0665d28e43f7a43e4001e2428cbe0183dd8a2d12",
+    "source_pixel_sha256": "f32e7c241a528fcfad059c2e1fdab384067f48cb255b97ef10e489f1f1ae4c1c",
+    "id": "hollow_mimic",
+    "mode": "regrid",
+    "grid": 1.5
+  },
+  "assets/art/enemies/storm_capacitor.png": {
+    "pixel_sha256": "bac79241ecabbfaedb1a56ca0e596e18d67c485ad83bfaaf881c5b80384cab09",
+    "source_pixel_sha256": "57d2d353000743ae8379330af6e1a6e73c3453d321a83287799b480229f1128d",
+    "id": "storm_capacitor",
+    "mode": "regrid",
+    "grid": 1.41
+  },
   "assets/art/npcs/scavenger.png": {
     "pixel_sha256": "7de3e08b3df3f4a4a7111de756e3cfcbdef6a053298713a2538170824e1e1868",
     "source_pixel_sha256": "9a0b52250afb76a638fbf5bbc4352b601bb8c99b2b3078e10f0176cd445719ee",

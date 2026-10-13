@@ -62,19 +62,93 @@ The owner's original real-renderer benchmark was approximately 10.3 s. A headles
 
 The initial after trace was Normal 4.772 s, Fast 3.351 s and Fastest 2.637 s. Normal's first actor started at 0.351 s; consecutive hand-offs were 0.005 / 0.006 / 0.007 s. Actor intervals were 0.977 / 0.772 / 1.304 / 0.801 s, each below 1.4 s. The final trace passed at **Normal 4.765 s / Fast 3.352 s / Fastest 2.628 s**, against the final original-HEAD trace of **9.964 s**. The final Normal tile walk stayed below 0.20 s, all four actor intervals stayed below 1.4 s, the intent caption stayed visible during action submissions, and all three speeds matched the exact resolver state/RNG. Raw JSON and console logs are saved in `output/feel-01/timelines/` and `output/feel-01/logs/`. Native captures/timing remain pending because the implementation sandbox cannot access the macOS window server.
 
-Headless verification uses `tests/combat_feel_test.gd`, the existing combat motion timing, floating text and enemy strike trail scripts, and the full `tests/run_tests.gd`. The new suite also checks actual card/round resolver equality, stop release on scene exit/pause/scope changes, retained popup lifetime/base font, surface/death overlap/dependencies, persistence native focus behavior, back-to-back hero hand-offs and retained intent captions. It is a separate runner because `tests/run_tests.gd` is outside this unit's owned files; no existing assertions were rewritten.
+Headless verification uses `tests/combat_feel_test.gd`, the existing combat motion timing, floating text and enemy strike trail scripts, and the full `tests/run_tests.gd`. The new suite also checks actual card/round resolver equality, stop release on scene exit/pause/scope changes, retained popup lifetime/base font, surface/death overlap/dependencies, persistence native focus behavior, back-to-back hero hand-offs and retained intent captions. The full `tests/run_tests.gd` now invokes that complete standalone runner (including `combat_pacing_regression_suite`) in an isolated task-runner process.
 
 The probe writes `timeline_normal.json`, `timeline_fast.json`, `timeline_fastest.json` (and `timeline_before_normal.json` for `--baseline`) below its isolated `user://probes/combat_feel/`. Windowed captures are `heavy_hit_minus_1.png`, `heavy_hit_0.png`, `heavy_hit_plus_1.png`, `heavy_hit_plus_4.png`, `heavy_hit_plus_8.png`, `heavy_hit_post_stop_peak.png`, `reduced_motion_hit.png`, and `combat_speed_settings.png`, all 1920×1080 at 100% UI scale. Its generated proof contract is `output/feel-01/proof-contract.json`.
 
+### qa-01 capture determinism and native measurement
+
+The probe renders RunScene in a 1920×1080 `SubViewport` with `UPDATE_ALWAYS`,
+matching `movement_undo_probe.gd`, and reads every capture from that target at
+100% UI scale. The director's first three native runs passed the timing checks
+but emitted 3024×1898 window-backing images, so the runner rejected them. Each
+readback now asserts exact 1920×1080 pixels. Offsets and post-stop peak checks
+still observe the real `RenderingServer.frame_post_draw` boundary; no capture
+is resized or cropped. Fresh accepted runs are required for measurement import.
+
+The old probe disconnected `frame_post_draw` as soon as the action coroutine
+finished. The action uses elapsed presentation time; the requested +8 capture
+uses rendered-frame count. At a slow draw cadence (including GPU readback/PNG
+work), the action can finish before +8. A headless 5 fps reproduction finished
+at offset 4 and failed the unchanged capture assertion; at 15 fps it finished
+at offset 10 and passed. This establishes a probe lifetime defect.
+
+A separate production regression submits an animation while frozen, then polls
+the stop in the same process frame before draw. The old `_release_flashes()`
+used routine overlay maintenance, whose already-submitted-frame guard discarded
+the white peak. The unchanged HEAD pacing code fails both new release/peak
+assertions; the fixed code passes. Stop release now replaces the pending frozen
+board submission with its white peak before draw, even if that frame already
+received animation state. Routine maintenance retains its existing guard;
+modal cancellation, deletion and scene exit cannot force that peak update.
+No stop duration, pacing speed, animation, resolver or RNG values changed.
+
+Headless heavy timing now emits its dummy draw completion from a named late
+process node, after animation and hit-stop polling, rather than relying on the
+earlier `process_frame` boundary. The 5 fps trace captures `[0, 1, 4, 8]` and
+85% on the first post-stop draw. This is deterministic scheduling proof;
+native renderer correctness still requires the owner runs.
+
+The probe now retains the fixture and pacing scope until all exact offsets
+`[0, 1, 4, 8]` and the post-stop draw are observed, with a 3 s watchdog after
+action completion. It reads back only requested samples after impact and encodes
+PNGs after disconnecting the draw callback. The original capture assertion stays,
+and additional checks verify each exact offset, restored positive time scale,
+and the first post-stop enemy flash at the approved 85% peak (capture tolerance
+0.025). `heavy_hit_trace.json` and `reduced_hit_trace.json` record draw offsets,
+process frames, monotonic timestamps, stop state, scale, flash opacity and the
+action-completion offset. Headless `--heavy-timing-only --max-fps 5` is a
+scheduling regression; it creates no PNGs and is not native proof.
+
+<!-- qa-01-native-measurements:start -->
+Native qa-01 measurements from three consecutive validated windowed runs
+at 1920×1080 / 100% UI scale, Pass to YOUR TURN:
+
+| Speed | Run 1 | Run 2 | Run 3 | Median |
+| --- | ---: | ---: | ---: | ---: |
+| Normal | 4.809 s | 4.815 s | 4.808 s | 4.809 s |
+| Fast | 3.394 s | 3.388 s | 3.394 s | 3.394 s |
+| Fastest | 2.696 s | 2.706 s | 2.686 s | 2.696 s |
+
+All three probes passed the frame-offset, post-stop peak, resolver state/RNG
+and Normal-round budget assertions. Source manifests (SHA256):
+
+- `/private/tmp/qa01-feel-feedback1-1.json` — `5252481830364f814de3260800703089ef9f20d7aeaf1ba072fbe6acc51d0bce`; captures/timelines: `/private/tmp/labyrinth-godot-home/qa-01-1791857040191800000-18217-combat_feel_probe-1/Library/Application Support/Escape the Umbra Visual Probe qa-01-1791857040191800000-18217-combat_feel_probe-1/probes/combat_feel`
+- `/private/tmp/qa01-feel-feedback1-2.json` — `8df3f295b5cf11e2f6baee73cc2450877f7a5aca32639fcc718d66cb2c835b18`; captures/timelines: `/private/tmp/labyrinth-godot-home/qa-01-1791857081638524000-18360-combat_feel_probe-1/Library/Application Support/Escape the Umbra Visual Probe qa-01-1791857081638524000-18360-combat_feel_probe-1/probes/combat_feel`
+- `/private/tmp/qa01-feel-feedback1-3.json` — `618094f94a4e5392c047d0f73cacdf65d516fba3a4be6185d701791340a1ea5c`; captures/timelines: `/private/tmp/labyrinth-godot-home/qa-01-1791857122328493000-18458-combat_feel_probe-1/Library/Application Support/Escape the Umbra Visual Probe qa-01-1791857122328493000-18458-combat_feel_probe-1/probes/combat_feel`
+<!-- qa-01-native-measurements:end -->
+
 ### Proof for the design owner
 
-Run in the implementation worktree:
+Run these three commands consecutively in the implementation worktree. Each
+manifest must be fresh and each command must pass before running the next:
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/feel-01 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --task-id feel-01 --timeout 120 --expect-size 1920x1080 --proof-contract output/feel-01/proof-contract.json --result-manifest output/feel-01/probe-result.json tests/combat_feel_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/qa-01 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --task-id qa-01 --timeout 180 --expect-size 1920x1080 --proof-contract output/feel-01/proof-contract.json --result-manifest /private/tmp/qa01-feel-feedback1-1.json tests/combat_feel_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/qa-01 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --task-id qa-01 --timeout 180 --expect-size 1920x1080 --proof-contract output/feel-01/proof-contract.json --result-manifest /private/tmp/qa01-feel-feedback1-2.json tests/combat_feel_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/qa-01 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --task-id qa-01 --timeout 180 --expect-size 1920x1080 --proof-contract output/feel-01/proof-contract.json --result-manifest /private/tmp/qa01-feel-feedback1-3.json tests/combat_feel_probe.gd
 ```
 
-The 120-second budget covers all three rounds, six preparatory card plays, two heavy-hit fixtures and settings capture; the startup watchdog is unchanged. Inspect every capture, especially the first post-stop white peak, frozen frames, reduced-motion state and focused speed row. No windowed attempt was made here.
+The 180-second budget covers all three rounds, preparatory card plays, both
+heavy-hit fixtures and settings capture; the startup watchdog is unchanged.
+The manifests list the isolated capture directories, which also contain all
+three timeline JSON files and the heavy-hit traces. Inspect every image and the
+first post-stop white peak. No windowed attempt was made in the sandbox.
+After the three passes, import their measured medians and per-run values:
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/qa-01 && python3 tools/record_combat_feel_measurements.py --manifests /private/tmp/qa01-feel-feedback1-1.json /private/tmp/qa01-feel-feedback1-2.json /private/tmp/qa01-feel-feedback1-3.json
+```
 
 The director captures clips in their capture worktree after integrating this unit:
 
@@ -91,6 +165,7 @@ The capture tool is absent from this implementation checkout. The owner prepares
 - Test real-stop tolerance 80 ms and timeout 2 s; committed-card timeout 6 s; probe action/round watchdog 18 s; layout settle 30 frames; test cleanup 20 frames.
 - Proof validation uses the existing board region `[36, 62, 1848, 676]`, minimum luminance range 50 and deviation 3 to reject blank renders. The no-enemy fixture places its activation at Time 1000.
 - Internal white-flash shader profile 8, the next free UV profile lane. No palette/art values were chosen.
+- qa-01 proof defaults: `SLOW_DRAW_REGRESSION_FPS = 5`, `HEAVY_CAPTURE_TIMEOUT_MS = 3000`, `PEAK_OPACITY_TOLERANCE = 0.025`, and dummy draw `DRAW_PROCESS_PRIORITY = 100000`. These affect tests/probes only.
 - Temporary before-timeline instrumentation derives from local HEAD and disables new feel; its generated script is deleted after loading.
 
 The shake decay rate, flash easing curve and row secondary copy remain owner decisions. Renderer proof, clip inspection, commit, peer review, inspection-fixture preparation and publication are owned by the design owner.
@@ -107,7 +182,7 @@ damage numbers and death dissolves to finish. Its terminal submission retires
 numbers and presents the final dissolve frame even if a render frame was skipped. Scope-end then clears retained feedback and requests the normal stage
 refresh only when the scene is unlocked, attached and not being deleted. Overlay maintenance runs
 only inside a scope and defers its submission until normal animation submissions
-have had an opportunity to render, so overlay refresh never adds a second render in the same process frame.
+have had an opportunity to render, so overlay refresh never adds a second render in the same process frame. An explicit hit-stop release with a pending white flash replaces the frozen submission before the same renderer draw; this exception adds no wait and does not permit additional routine maintenance submissions.
 Both committed movement/card victory paths restore only time scale before the
 real victory beat, retaining scope bookkeeping until normal cleanup. A restored
 scale remains at the positive base during subsequent scope processing. Deferred

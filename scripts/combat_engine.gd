@@ -39,6 +39,8 @@ const SurfaceCardRules = preload("res://scripts/surface_card_rules.gd")
 const IllusionCardRules = preload("res://scripts/illusion_card_rules.gd")
 const IllusionRelicRules = preload("res://scripts/illusion_relic_rules.gd")
 const TerrainCardRules = preload("res://scripts/terrain_card_rules.gd")
+const CapacitorRules = preload("res://scripts/enemy_mechanics/capacitor.gd")
+const MimicRules = preload("res://scripts/enemy_mechanics/mimic.gd")
 const TetherRules = preload("res://scripts/enemy_mechanics/tether.gd")
 const VeilRules = preload("res://scripts/enemy_mechanics/veil.gd")
 
@@ -1707,6 +1709,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 	if str(action.get("type", "")) in ["blink", "swap", "illusion_swap"]: VeilRules.record_move(next_state, state["player"]["pos"], next_state["player"]["pos"])
 	next_state = SurfaceRelicRules.apply_events(self, state, next_state, action, target_tile, presentation_trace)
 	next_state = SurfaceVarietyRules.after_action(self, state, next_state, action, target_tile, _relic_effects(next_state))
+	MimicRules.record(self, state, next_state, action)
 	_record_runtime_performance_phase("player_action_body_total", performance_phase_started)
 	_record_runtime_performance_phase("player_action_total", performance_total_started)
 	return next_state
@@ -2559,7 +2562,7 @@ func resolve_enemy_turn_with_steps(state: Dictionary, enemy_index: int, include_
 			var action: Dictionary = action_var
 			if combat_outcome(next_state) != "":
 				break
-			if shocked and not _enemy_action_is_movement(action) and not TetherRules.handles(action):
+			if shocked and not _enemy_action_is_movement(action) and not TetherRules.handles(action) and not MimicRules.handles(action):
 				continue
 			if immobilized and _enemy_action_is_movement(action):
 				continue
@@ -2676,7 +2679,7 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 			"raise_terrain", "terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "umbra_eclipse":
 				for attack_tile: Vector2i in _boss_action_threat_tiles(state, enemy, action):
 					attack_lookup[attack_tile] = true
-	if not TetherRules.action_for(intent).is_empty() or VeilRules.handles_intent(intent) or (intent.has("committed_plan") and GuardianCombatRules.has_held_actions(intent)):
+	if CapacitorRules.handles_intent(intent) or MimicRules.handles_intent(intent) or not TetherRules.action_for(intent).is_empty() or VeilRules.handles_intent(intent) or (intent.has("committed_plan") and GuardianCombatRules.has_held_actions(intent)):
 		move_lookup.clear()
 		attack_lookup.clear()
 		for tile: Vector2i in plan.get("path",[]):
@@ -2692,6 +2695,7 @@ func enemy_threat_tiles(state: Dictionary, enemy_index: int) -> Dictionary:
 			for tile: Vector2i in _summon_tiles_for_enemy(summon_state,summoner,_available_summon_count(summon_state,action)):
 				if not summons.has(tile): summons.append(tile)
 	return {
+		"chain_hits": plan.get("chain_hits", []),
 		"summon": summons,
 		"move": _sorted_tiles_from_lookup(move_lookup),
 		"attack": _sorted_tiles_from_lookup(attack_lookup),
@@ -2799,7 +2803,7 @@ func resolve_enemy_phase_with_steps(state: Dictionary) -> Dictionary:
 				var action: Dictionary = action_var
 				if combat_outcome(next_state) != "":
 					break
-				if shocked and not _enemy_action_is_movement(action) and not TetherRules.handles(action):
+				if shocked and not _enemy_action_is_movement(action) and not TetherRules.handles(action) and not MimicRules.handles(action):
 					continue
 				if immobilized and _enemy_action_is_movement(action):
 					continue
@@ -4364,6 +4368,9 @@ func _resolve_enemy_action(state: Dictionary, enemy_index: int, action: Dictiona
 		return next_state
 	var resolved_action: Dictionary = _resolved_surface_action(next_state, action)
 	action = resolved_action
+	if CapacitorRules.handles(action): return CapacitorRules.resolve(self, next_state, enemy_index, action, action_context, bleed_steps)
+	if MimicRules.handles(action): return MimicRules.resolve(self, next_state, enemy_index, action, action_context, bleed_steps)
+	if CapacitorRules.immobile(enemy) and _enemy_action_is_movement(action): return next_state
 	if TetherRules.handles(action): return TetherRules.resolve(self, next_state, enemy_index, action, action_context, bleed_steps)
 	if VeilRules.handles(action): return VeilRules.resolve(self, next_state, enemy_index, action, action_context, bleed_steps)
 	if BurrowRules.handles(action): return BurrowRules.resolve(self, next_state, enemy_index, action, bleed_steps)
@@ -4545,6 +4552,7 @@ func _planned_enemy_movement_path(state: Dictionary, enemy: Dictionary, enemy_in
 	return _vector2i_values((navigation.get("paths", {}) as Dictionary).get(destination, [start]))
 
 func _move_enemy_along_planned_path(state: Dictionary, enemy_index: int, planned_path: Array[Vector2i], action_context: Dictionary, allowance: int = -1) -> Dictionary:
+	if CapacitorRules.immobile(state["enemies"][enemy_index]): return state
 	var next_state: Dictionary = state
 	var resolved_path: Array[Vector2i] = _vector2i_values([])
 	var enemies: Array = next_state.get("enemies", [])
@@ -6182,6 +6190,7 @@ func _apply_action_keywords_to_enemy(state: Dictionary, enemy_index: int, action
 	if int(action.get("shock", 0)) > 0 and not _enemy_is_immune_to_status(enemy, "shock"):
 		var before_shock: int = int(enemy.get("shock", 0))
 		enemy["shock"] = maxi(int(enemy.get("shock", 0)), int(action.get("shock", 0)))
+		CapacitorRules.grounded(self, enemy, before_shock, next_state)
 		if int(enemy.get("shock", 0)) > before_shock:
 			triggered_statuses.append("shock")
 	if _action_applies_immobilize(action) and not _enemy_is_immune_to_status(enemy, "immobilize"):
@@ -7008,7 +7017,7 @@ func _force_action_affects_enemy(state: Dictionary, enemy_index: int, action: Di
 	return not bool(contact.get("source", false))
 
 func _force_actor_anchored(state: Dictionary, kind: String, id: int) -> bool:
-	return WindRules.force_anchored(self, state, kind, id)
+	return (kind == "enemy" and CapacitorRules.immobile(_force_unit(state, kind, id))) or WindRules.force_anchored(self, state, kind, id)
 
 func _force_move_enemy_from(state: Dictionary, enemy_index: int, action: Dictionary, source_pos: Vector2i, pushing: bool, amount: int) -> Dictionary:
 	var enemies: Array = state.get("enemies", [])
@@ -8516,6 +8525,10 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		definition.get("intents", []),
 		int(state.get("room_depth", 1)), state, enemy
 	)
+	if CapacitorRules.is_capacitor(enemy):
+		enemy["intent"] = CapacitorRules.choose(enemy, intents)
+		enemies[enemy_index] = enemy
+		return
 	# Declared zero-weight follow-ups are forced; held mechanics survive skips.
 	var following_id: String = str((enemy.get("intent", {}) as Dictionary).get("next_intent", ""))
 	if enemy_type == "hoarfrost_seer" and not (enemy.get("icefall_tiles", []) as Array).is_empty(): following_id = "icefall_land"
@@ -8560,6 +8573,10 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 			available_intents.append(intent)
 	intents = available_intents
 	if intents.is_empty():
+		return
+	if enemy_type == "hollow_mimic":
+		enemy["intent"] = MimicRules.choose(self, state, enemy_index, intents, rng)
+		enemies[enemy_index] = enemy
 		return
 	if enemy_type in ["hoarfrost_seer", "gale_herald"]:
 		enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, WindRules.choose_intent(self, state, enemy_index, intents, rng))
@@ -9074,6 +9091,8 @@ func enemy_intent_plan(state: Dictionary, enemy_index: int, intent_override: Dic
 		_record_runtime_performance_phase("enemy_plan_total", performance_total_started)
 		return {}
 	var intent: Dictionary = intent_override if not intent_override.is_empty() else enemy.get("intent", {})
+	if CapacitorRules.handles_intent(intent): return CapacitorRules.plan(self, state, enemy_index, intent, attack_disabled)
+	if MimicRules.handles_intent(intent): return MimicRules.plan(self, state, enemy_index, intent, movement_disabled, attack_disabled)
 	var icefall_plan: Dictionary = IcefallRules.plan(self, state, enemy_index, intent, attack_disabled)
 	if not icefall_plan.is_empty(): return icefall_plan
 	var wind_plan: Dictionary = WindRules.plan(self, state, enemy_index, intent, attack_disabled)
@@ -9323,6 +9342,7 @@ func _enemy_support_route_precedes(candidate: Dictionary, incumbent: Dictionary)
 	return _enemy_actual_record_precedes(candidate, incumbent)
 
 func _enemy_actual_path_records(state: Dictionary, enemy: Dictionary, move_range: int) -> Array[Dictionary]:
+	if CapacitorRules.immobile(enemy): move_range = 0
 	var navigation: Dictionary = _unit_movement_navigation(state, enemy, move_range, _enemy_path_blockers(state, enemy, true, false))
 	var records: Array[Dictionary]
 	for tile: Vector2i in _sorted_tiles_from_lookup(navigation["paths"] as Dictionary):
@@ -11062,7 +11082,9 @@ func _apply_status_to_all_live_enemies(state: Dictionary, status_id: String, amo
 		match status_id:
 			"shock":
 				if not _enemy_is_immune_to_status(enemy, "shock"):
-					enemy["shock"] = maxi(int(enemy.get("shock", 0)), amount)
+					var before_shock: int = int(enemy.get("shock", 0))
+					enemy["shock"] = maxi(before_shock, amount)
+					CapacitorRules.grounded(self, enemy, before_shock, next_state)
 			_:
 				continue
 		enemies[index] = enemy
@@ -12090,6 +12112,7 @@ func _surface_move_illusion(state: Dictionary, id: int, direction: Vector2i) -> 
 	return surface_actor_arrival(state, "illusion", id, origin)
 
 func _surface_prepare_enemy_intent(state: Dictionary, enemy: Dictionary, intent: Dictionary) -> Dictionary:
+	intent = MimicRules.prepare(self, state, enemy, intent)
 	intent = TetherRules.commit(self, state, enemy, intent)
 	var prepared: Dictionary = intent.duplicate(true)
 	var fuel: Dictionary = prepared.get("surface_fuel", {}) as Dictionary
@@ -12213,7 +12236,9 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 	action = action.duplicate(true)
 	action["_resolved_path"] = action_context.get("resolved_path",_vector2i_values([before_state["enemies"][enemy_index]["pos"]]))
 	var step: Dictionary
-	if IcefallRules.handles(action): step = IcefallRules.animation_step(self, before_state, after_state, enemy_index, action)
+	if CapacitorRules.handles(action): step = CapacitorRules.animation_step(self, before_state, after_state, enemy_index, action, action_context)
+	elif MimicRules.handles(action): step = MimicRules.animation_step(self, before_state, after_state, enemy_index, action, action_context)
+	elif IcefallRules.handles(action): step = IcefallRules.animation_step(self, before_state, after_state, enemy_index, action)
 	elif str(action.get("type", "")) == "call_wind": step = WindRules.animation_step(self, before_state, after_state, enemy_index, action)
 	elif TetherRules.handles(action): step = TetherRules.animation_step(self, before_state, after_state, enemy_index, action, action_context)
 	elif VeilRules.handles(action): step = VeilRules.animation_step(self, before_state, after_state, enemy_index, action, action_context)
@@ -12222,6 +12247,7 @@ func _enemy_action_step(before_state: Dictionary, after_state: Dictionary, enemy
 		step = {"kind": "status", "actor_key": _enemy_key(after_state["enemies"][enemy_index]), "actor_name": _enemy_display_name(after_state["enemies"][enemy_index]), "label": "Kindle", "enemy_after": (after_state["enemies"][enemy_index] as Dictionary).duplicate(true)}
 	else: step = GuardianCombatRules.animation_step(self,before_state,after_state,enemy_index,action) if GuardianCombatRules.handles(action) else _enemy_action_step_base(before_state, after_state, enemy_index, action, action_context)
 	step = RetaliateRules.decorate_attack_step(before_state, after_state, step)
+	if not CapacitorRules.grounded_targets(before_state, after_state).is_empty(): step["grounded_targets"] = CapacitorRules.grounded_targets(before_state, after_state)
 	if not step.is_empty():
 		step["surfaces_after"] = (after_state.get("surfaces", {}) as Dictionary).duplicate(true)
 		step["surface_events"] = _surface_events_since(before_state, after_state)

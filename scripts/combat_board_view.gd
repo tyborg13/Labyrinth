@@ -106,6 +106,8 @@ const IntentCallouts = preload("res://scripts/intent_callouts.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
 const CombatObjectiveRules = preload("res://scripts/combat_objective_rules.gd")
+const CapacitorView = preload("res://scripts/enemy_mechanics/capacitor_view.gd")
+const MimicView = preload("res://scripts/enemy_mechanics/mimic_view.gd")
 const TetherView = preload("res://scripts/enemy_mechanics/tether_view.gd")
 const VeilView = preload("res://scripts/enemy_mechanics/veil_view.gd")
 
@@ -2759,6 +2761,8 @@ func set_health_ghost_source_state(next_state: Dictionary) -> void:
 	_next_health_ghost_state = next_state
 
 func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_attack_tiles: Array = [], next_selected_tile: Vector2i = Vector2i(-1, -1), next_status_label: String = "", next_status_detail: String = "", next_exit_tiles: Dictionary = {}, next_exit_icon_ids: Dictionary = {}, next_presentation: Dictionary = {}, trust_same_reference_state: bool = false) -> void:
+	next_presentation = MimicView.presentation_for(next_state, next_presentation)
+	next_presentation = CapacitorView.presentation_for(next_state, next_presentation)
 	next_presentation = TetherView.presentation_for(next_state, next_presentation)
 	_rest_threat_tile_alphas = ThreatTiles.tile_alphas((next_presentation.get("threats_at_rest", {}) as Dictionary).get("threats", []))
 	var submission_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
@@ -4522,6 +4526,7 @@ func _draw_effects_render_layer() -> void:
 	var total_section_started_usec: int = Time.get_ticks_usec()
 	var section_started_usec: int = total_section_started_usec
 	var units_to_draw: Array[Dictionary] = _visible_units()
+	CapacitorView.draw_telegraphs(self)
 	TetherView.draw_telegraphs(self)
 	_draw_effect_overlay()
 	_record_render_section_time("effect_overlay", section_started_usec)
@@ -8503,7 +8508,7 @@ func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 		return
 	var family: String = str(descriptor.get("family", EnemyIntentCompass.FAMILY_ATTACK))
 	var base_texture: Texture2D = AssetLoader.load_texture(EnemyIntentCompass.texture_path("base"))
-	var emblem_texture: Texture2D = AssetLoader.load_texture(EnemyIntentCompass.texture_path(family))
+	var emblem_texture: Texture2D = ActionIcons.icon_texture(str(descriptor["icon"])) if not str(descriptor.get("icon", "")).is_empty() else AssetLoader.load_texture(EnemyIntentCompass.texture_path(family))
 	if base_texture == null or emblem_texture == null:
 		return
 	var center: Vector2 = _intent_compass_center(unit)
@@ -8514,6 +8519,7 @@ func _draw_enemy_intent_compass(unit: Dictionary) -> void:
 		/ INTENT_COMPASS_RING_SOURCE_DIAMETER
 	)
 	var emblem_scale: float = scale_factor * _intent_compass_emblem_scale(family)
+	if not str(descriptor.get("icon", "")).is_empty(): emblem_scale *= AssetLoader.load_texture(EnemyIntentCompass.texture_path(family)).get_width() / float(emblem_texture.get_width())
 	if _art_treatment_enabled:
 		# Preserve the authored attack/defense silhouettes, but seat their paint
 		# in the ground plane with a shallow offset shadow and shared local light.
@@ -9289,6 +9295,7 @@ func _unit_health_bar_rect(unit: Dictionary, center: Vector2) -> Rect2:
 	)
 
 func _draw_unit_statuses(unit: Dictionary, health_rect: Rect2) -> void:
+	CapacitorView.draw_pips(self, unit, health_rect)
 	var badges: Array[Dictionary] = _unit_status_badges(unit)
 	if badges.is_empty():
 		return
@@ -9590,7 +9597,7 @@ func _enemy_hud_reserved_rects(units_to_draw: Array[Dictionary], font: Font) -> 
 
 func _enemy_hud_layout(unit: Dictionary, center: Vector2, occupied_rects: Array, font: Font = null) -> Dictionary:
 	var health_rect: Rect2 = _unit_health_bar_rect(unit, center)
-	var intent: Dictionary = unit.get("intent", {})
+	var intent: Dictionary = MimicView.display_intent(self, unit, unit.get("intent", {}))
 	var rows: Array = []
 	var intent_name: String = ""
 	var border: Color = Color("d8b96f")
@@ -9725,7 +9732,7 @@ func _enemy_hud_placement_obstacles(occupied_rects: Array, actor_clear_rect: Rec
 	return placement_obstacles
 
 func _boss_intent_layout(unit: Dictionary, center: Vector2, occupied_rects: Array, font: Font = null) -> Dictionary:
-	var intent: Dictionary = unit.get("intent", {})
+	var intent: Dictionary = MimicView.display_intent(self, unit, unit.get("intent", {}))
 	var rows: Array = []
 	var intent_name: String = ""
 	var border: Color = Color("d8b96f")
@@ -15403,7 +15410,7 @@ func _unit_art_scale(unit: Dictionary) -> float:
 	var npc_def: Dictionary = _npc_render_definition(unit_type)
 	if not npc_def.is_empty():
 		return float(npc_def.get("art_scale", 1.0))
-	return float(_enemy_render_definition(unit_type).get("art_scale", 1.0))
+	return CapacitorView.art_scale(unit_type, float(_enemy_render_definition(unit_type).get("art_scale", 1.0)))
 
 func _unit_art_offset(unit: Dictionary) -> Vector2:
 	var unit_type: String = str(unit.get("type", ""))
@@ -16413,7 +16420,7 @@ func _intent_rows(intent: Dictionary) -> Array:
 func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 	var cancelled: Array = TetherView.cancelled_rows(self, unit, intent)
 	if not cancelled.is_empty(): return cancelled
-	var mechanic_rows: Array = BurrowView.rows(intent) + KindleView.rows(intent)
+	var mechanic_rows: Array = CapacitorView.rows(intent) + MimicView.rows(self, unit, intent) + BurrowView.rows(intent) + KindleView.rows(intent)
 	if not mechanic_rows.is_empty(): return mechanic_rows
 	var rows: Array = []
 	for action_var: Variant in intent.get("actions", []):
@@ -16607,6 +16614,7 @@ func _short_enemy_name(enemy: Dictionary) -> String:
 
 func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 	var badges: Array[Dictionary] = WindView.status_badges(unit)
+	badges.append_array(CapacitorView.badges(unit))
 	badges.append_array(VeilView.badges(unit))
 	badges.append_array(BurrowView.badges(unit))
 	badges.append_array(DeathBurstView.badges(unit))

@@ -3499,6 +3499,45 @@
       "t": 1.5,
       "grid": 1.5,
       "mode": "regrid"
+    },
+    {
+      "id": "storm_capacitor",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/storm_capacitor.png"
+      ],
+      "r": 1.0666666666666667,
+      "r_derivation": {
+        "path": "scripts/enemy_mechanics/capacitor_view.gd",
+        "key": "BODY_SCALE",
+        "expression": "216 * 1.2 / 243; approved hero-relative body height on fixed 255 canvas"
+      },
+      "measurement_path": "assets/art/enemies/storm_capacitor.png",
+      "frames": null,
+      "orphan_share": 0.29121275521246665,
+      "t": 1.5,
+      "grid": 1.41,
+      "mode": "regrid",
+      "override": "EN06 brief requires an intact 255x255 static canvas. Native treatment preserves that canvas; derived runtime scale restores the 120% body height without clipping the approved chain/base silhouette."
+    },
+    {
+      "id": "hollow_mimic",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/hollow_mimic.png"
+      ],
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "hollow_mimic.art_scale",
+        "expression": "art_scale (default 1.0)"
+      },
+      "measurement_path": "assets/art/enemies/hollow_mimic.png",
+      "frames": null,
+      "orphan_share": 0.21486949644081202,
+      "t": 1.5,
+      "grid": 1.5,
+      "mode": "regrid"
     }
   ],
   "excluded_paths": {

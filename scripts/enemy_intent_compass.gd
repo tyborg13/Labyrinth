@@ -15,12 +15,12 @@ const TEXTURE_PATHS := {
 const MELEE_TYPES := ["melee", "pull"]
 const RANGED_TYPES := ["ranged"]
 const AREA_TYPES := [
-	"icefall_mark", "icefall_land", "call_wind",
+	"chain_discharge", "mirror_last_attack", "icefall_mark", "icefall_land", "call_wind",
 	"tether_beam", "burrow", "erupt", "aoe", "detonate", "cinder_marks", "detonate_cinders", "gale_force",
 	"lightning_strikes", "terrain_burst", "umbra_eclipse",
 ]
 const DEFENSE_TYPES := ["block", "frost_armor", "guard_ally", "stoneskin"]
-const SUPPORT_TYPES := ["veil_blink", "kindle", "heal_ally", "heal_self", "raise_terrain", "summon_minions", "surface", "consume_surface", "surface_relocate"]
+const SUPPORT_TYPES := ["gain_charge", "reset_charge", "veil_blink", "kindle", "heal_ally", "heal_self", "raise_terrain", "summon_minions", "surface", "consume_surface", "surface_relocate"]
 const MOVEMENT_TYPES := ["move_away", "move_toward"]
 
 static func descriptors_for_state(state: Dictionary, visible_enemy_ids: Array = []) -> Dictionary:
@@ -39,6 +39,11 @@ static func descriptors_for_state(state: Dictionary, visible_enemy_ids: Array = 
 		if intent.is_empty():
 			continue
 		var descriptor: Dictionary = descriptor_for_enemy(intent)
+		if str(intent.get("id", "")) == "mirror":
+			var engine = preload("res://scripts/combat_engine.gd").new()
+			var plan: Dictionary = engine.enemy_intent_plan(state, engine._enemy_index_for_id(state, enemy_id), intent, bool(enemy.get("immobilize", false)), int(enemy.get("freeze", 0)) > 0 or int(enemy.get("shock", 0)) > 0)
+			descriptor = descriptor_for_enemy({"actions": [plan["attack_action"]]})
+			if not bool(plan.get("attack_available", false)): descriptor["value"] = 0
 		if str(descriptor.get("action_type", "")) == "tether_beam":
 			var engine = preload("res://scripts/combat_engine.gd").new()
 			var index: int = engine._enemy_index_for_id(state, enemy_id)
@@ -52,9 +57,11 @@ static func descriptor_for_enemy(intent: Dictionary) -> Dictionary:
 	var primary_action: Dictionary = _primary_action(intent)
 	if primary_action.is_empty():
 		return {}
+	if str(primary_action.get("type", "")) == "mirror_last_attack": primary_action = primary_action.get("copy", primary_action)
 	var family: String = family_for_action(primary_action)
 	var action_type: String = str(primary_action.get("type", ""))
 	return {
+		"icon": primary_action.get("_copied_icon", ""),
 		"family": family,
 		"action_type": action_type,
 		"value": value_for_action(primary_action),
