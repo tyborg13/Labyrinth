@@ -1,0 +1,40 @@
+{
+ "K": 3,
+ "drawn_size": [
+  210,
+  240
+ ],
+ "fit_scale": 0.9195402298850575,
+ "k_eff": 3.673828125,
+ "metrics": {
+  "height": 240,
+  "width": 210,
+  "height_drawn": 240.0,
+  "symmetry": 0.37371143612072494,
+  "thin_abs": 0.010935666275472156,
+  "thin_rel": 0.054144884241971614,
+  "feature_px": 7.536979541305695,
+  "regions": 330,
+  "chroma": 0.11155425575756814,
+  "value": 0.26223570372136906,
+  "orphan_share": 0.02661901205590526,
+  "run_length": 3.656329237370782
+ },
+ "pixel_sha256": "ec4c8296534a3ac436e81717a2d2b342aa35ea819732005fae4cd2213f834d2a",
+ "placement": [
+  23,
+  6
+ ],
+ "raw_sha256": "de8972ecc50e1140115794540779dd80f38b270a8d88811ffd3a8099f7e93a7e",
+ "shift": [
+  0,
+  0
+ ],
+ "pre_post_pixel_sha256": "addfaaadead876d8d955ba0aa40688773f9d65d5238f8a0fde1a64fea6798929",
+ "post_steps": [
+  {
+   "step": "clean_outline",
+   "script": "spec/art_identity/prototype/clean_outline.py"
+  }
+ ]
+}

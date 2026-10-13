@@ -1,0 +1,11 @@
+{
+ "id": "gust_shrike",
+ "view": "beast_front",
+ "size_class": "small",
+ "K": 3,
+ "kind": "creature",
+ "anatomy": "flyer",
+ "method": "maquette paint-over (pilot): spec/art_identity/maquettes/gust_shrike.py r4 renders + approved front_v2 + hero_x3",
+ "prompt_sha256": "d1a3d9ae0fbcbbbaff48330002b23568b528917ba3497d4606e6aef394da9a9e",
+ "job": "mq-gust_shrike-front"
+}
