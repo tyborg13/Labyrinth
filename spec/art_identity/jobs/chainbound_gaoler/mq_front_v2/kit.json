@@ -5,6 +5,11 @@
   "edit_of_raw_sha256": "60eccb970b5260c622dce92febc038a10c8d838bfa8f9ab251c07c9ba8816ace",
   "edit_prompt_path": "../../../maquettes/chainbound_gaoler/resume_front2.md",
   "edit_prompt_sha256": "91d755a21a3cbf9877efe294972763b660f3afe483d5b6f813935583c84065c0",
+  "edit_prompts_record": {
+    "note": "the edited raw came from two passes (material edit + colour correction); resume_front2.md is the first pass prompt",
+    "path": "../../../maquettes/chainbound_gaoler/front_edit_prompts.txt",
+    "sha256": "0890704b696da4c39eee2944bc970bc2455e4059bfd1faba3c79b93c57d2abed"
+  },
   "id": "chainbound_gaoler",
   "job_id": "mq-gaoler-front (edit round 2)",
   "kind": "creature",

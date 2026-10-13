@@ -1,0 +1,39 @@
+Edit the provided sprite in place. Produce ONE square 1024x1024 opaque PNG of this exact Chainbound Gaoler.
+
+INPUT: The sole reference image is the exact edit target. Preserve its character identity, exact three-quarter pose, exact pixel positions and scale, overall outer silhouette, size, framing, helmet shape and its top ring, raised hand, lowered fist, belt, tabard and tower insignia, boot shapes, and large barbed hook shape. Keep the subject in the same location, approximately x144..698 and y144..866 on the 1024 canvas. Do not recenter, enlarge, shrink, crop, mirror, rotate, change the viewpoint, or change anatomy. Keep the current chain and hook placement; do not revert to an earlier maquette.
+
+Make ONLY these five material/readability edits:
+1. Remove ALL chainmail and checker texture everywhere. Replace the neck mail with a dark grey cloth cowl, built from a few broad folds. Replace mail on the torso flank and near upper arm (VIEWER'S RIGHT shoulder/upper arm) with wrapped dark cloth and a few broad, subdued dark leather bands. Replace any mail on the near thigh with dark worn trousers. No checkerboard, ring pattern, stippling, woven microtexture, tiny repeated highlights, or individual little mail links anywhere. Avoid little squares of alternating colors.
+2. Restore a dark ASH-GREY ragged coat across the torso and both coat tails. The coat is worn charcoal/ash-grey, with restrained warm-brown shadows, broad stepped highlights and a few large worn patches. It must read distinctly grey, not rust-orange, reddish brown, tan, or pale grey. The rust-colored front tabard and its dusky pale tower insignia are unchanged. The rusted iron hook is unchanged. ONLY the tabard and hook provide warm rusty accent color; all other cloth is dark grey, steel is dark, and belt/leather wraps/boots remain subdued deep neutral brown without bright orange or tan patches.
+3. Repaint the existing hanging chain as chunky DARK-IRON links. Keep the same path, number of links, alternating orientation, chain-to-hand attachment and chain-to-hook attachment. Every link has a substantial wall two to three GAME PIXEL BLOCKS thick, approximately 6-9 pixels on this enlarged canvas, and a continuous one-block dark outline, approximately 3 pixels. Large readable dark iron loops with flat green holes, three broad dark value steps and sparing dull highlights. Not thin pale wire, delicate rings, or bright silver. The chain still terminates in precisely the same large BARBED RUSTED HOOK: keep its shape, barbs, size, tilt, and position.
+4. Move ONLY the INNER edge of the near coat tail, on the VIEWER'S RIGHT, outward to the right, exposing more dark trouser-covered near thigh between the front tabard and that coat tail. The coat tail's OUTER edge, bottom edge, placement and length remain the same. Expose a clear broad strip of thigh, approximately 18-30 pixels wide in the gap between tabard and coat, rather than a tiny line. Keep the trouser-covered thigh in its original position and keep tabard, hip, knees and boots unchanged.
+5. Add a clear continuous one-block DARK OUTLINE, approximately 3 pixels wide, along the near shoulder/upper arm's inner boundary against the torso. The outlined boundary visibly separates the upper arm from the torso. Do not merge the upper arm into the torso or add a gap or move the arm.
+
+PIXEL STYLE INVARIANTS:
+Keep this image's coarse 3x game-pixel scale. One game pixel is one 3x3 pixel block on the 1024 canvas; contours step in these blocks, and outlines remain one block wide. Hard pixel edges, no antialiasing, smooth painting, gradients, high-resolution texture, or subpixel details. Interior color patches must be at least THREE BLOCKS WIDE, about 9 pixels, as broad readable clusters. Simplify the paint into a few broad masses with three or four stepped values, subtle broad grime and warm-brown-tinted shadows. Do not introduce fine mottling. Dark, muted, desaturated dungeon palette. Light stays upper-left. Preserve the sprite's existing chunky limbs, oversized helm, fists and boots.
+
+BACKGROUND INVARIANT:
+Every background pixel is flat opaque #00FF00, RGB (0,255,0), including all holes in chain links/hook and every gap between limbs. No floor, shadow, halo, gradients, vignette, scenery, border, text, labels, watermark, transparency or additional objects. Keep generous empty margins exactly as in the input.
+
+This is a localized repaint of the exact supplied image, not a new character illustration. Output ONLY the edited image, 1024x1024 PNG.
+
+COLOR CORRECTION PASS:
+
+Perform a precise COLOR AND MATERIAL CORRECTION on the supplied Chainbound Gaoler sprite. Keep ALL pixels' structural placement, pose, scale, framing, proportions, outlines, helmet silhouette, ring, chain/hook silhouette, insignia, boots, limbs, and coat-tail shapes exactly as in this input. No new pose or composition. ONE 1024x1024 final image.
+
+The coat is currently still brown. Repaint the ENTIRE COAT dark ASH GREY, charcoal grey, visibly GREY rather than brown, rust, orange, or tan. This includes BOTH lower ragged coat tails, the shoulder coat panels, and ALL torso coat panels ABOVE THE BELT. In particular, the orange triangular chest panel ABOVE the belt must become ash grey; it is part of the coat, NOT part of the rust-colored tabard. The front tabard BELOW the belt keeps its existing rust color and pale tower insignia.
+
+Use this dark ash-grey coat palette as a strong guide:
+- deepest outlines and shadows: RGB 22,20,20
+- shadow mass: RGB 34,32,32
+- main ash grey: RGB 49,48,47
+- broad worn highlight: RGB 65,63,61
+- occasional dull grey worn patch: RGB 76,73,69
+These colors are desaturated grey with only a tiny brown bias in deepest shadows. No ochre, tan, orange-brown, or reddish-brown coat highlights. Do not use a large flat monochrome fill: retain three or four broad stepped painted masses and large worn patches.
+
+The neck cowl, torso flank, near upper arm and exposed near thigh remain DARK CHARCOAL CLOTH/TROUSERS, using similarly neutral dark greys. Remove ALL residual checker, mail, ring or stipple texture. Leather bands, belt, wraps and boots are deeply desaturated dark grey-brown, without bright rust or tan highlights. Helmet and its shape remain unchanged. The ONLY clearly rusty orange accents are the existing front TABARD BELOW THE BELT and the existing HOOK.
+
+Keep the chunky dark-iron chain, its thick link walls and continuous one-block dark outlines. Keep the near shoulder's dark separation outline. Keep the near coat tail's moved-out inner edge and exposed dark trouser thigh.
+
+Same hard-edged coarse pixel-art hand: 3x3-pixel game blocks; continuous 3-pixel dark outlines. INTERIOR paint must use a FEW LARGE CLUSTERS each at least THREE GAME BLOCKS, 9 pixels, across, without isolated tiny specks or repeated checker squares. No antialiasing, fine texture, smooth gradients or high-resolution painting.
+Keep the perfectly flat opaque RGB 0,255,0 background, including all gaps and holes. No shadow, halo, scenery, border, text, or extra objects. Correct ONLY the specified material colors and texture simplification.

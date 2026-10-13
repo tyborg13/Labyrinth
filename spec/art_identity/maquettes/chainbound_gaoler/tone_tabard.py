@@ -13,7 +13,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "prototype"))
 from match_palette import to_lab, from_lab  # noqa: E402
 
 BOX = (395, 500, 515, 750)          # raw-pixel x0, y0, x1, y1 of the tabard below the belt
-MIN_CHROMA = 0.12                   # max(rgb) - min(rgb), 0..1
+SEED = (440, 560)                   # raw-pixel x, y inside the tabard cloth
+MIN_CHROMA = 0.12                  # max(rgb) - min(rgb), 0..1
 HUE_DEG = (0.0, 40.0)               # warm reds/oranges only
 LAB_SCALE = (0.60, 0.70, 0.50)      # L, a, b multipliers: darker, slightly less red, much less yellow -> oxblood
 
@@ -29,7 +30,19 @@ def tone(src: Path, out: Path) -> None:
     box = np.zeros(chroma.shape, bool)
     x0, y0, x1, y1 = BOX
     box[y0:y1, x0:x1] = True
-    mask = box & (chroma > MIN_CHROMA) & (hue >= HUE_DEG[0]) & (hue <= HUE_DEG[1])
+    candidate = box & (chroma > MIN_CHROMA) & (hue >= HUE_DEG[0]) & (hue <= HUE_DEG[1])
+    # Only the cloth connected (8-way) to the tabard's centre: the belt edge and boot top inside BOX stay untouched.
+    mask = np.zeros_like(candidate)
+    mask[SEED[1], SEED[0]] = candidate[SEED[1], SEED[0]]
+    while True:
+        grown = mask.copy()
+        for dy in (-1, 0, 1):
+            for dx in (-1, 0, 1):
+                grown |= np.roll(np.roll(mask, dy, 0), dx, 1)
+        grown &= candidate
+        if (grown == mask).all():
+            break
+        mask = grown
     lab = to_lab(rgb[mask])
     lab = lab * np.array(LAB_SCALE)
     rgb[mask] = np.clip(np.rint(from_lab(lab)), 0, 255)
