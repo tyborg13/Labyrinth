@@ -1321,6 +1321,7 @@ const PASS_PREVIEW_CACHE_LIMIT: int = 64
 
 var _ui_skin: UiSkin = UiSkin.new()
 var _dialogue_engine = DialogueEngineScript.new()
+var _start_room_map = preload("res://scripts/start_room_map_flow.gd").new()
 var _run_engine = RunEngineScript.new()
 var _combat_engine = CombatEngineScript.new()
 var _progression: Dictionary = {}
@@ -2430,6 +2431,7 @@ func _on_input_modality_changed(modality: String) -> void:
 	_refresh_controller_card_mode_visuals()
 	_refresh_large_map_navigation_hint()
 	_refresh_controller_prompts()
+	_start_room_map.refresh_hint(self)
 	call_deferred("_sync_click_targeting_arrow")
 
 func _handle_controller_input(event: InputEvent) -> bool:
@@ -7570,6 +7572,7 @@ func _start_dialogue(dialogue: Dictionary) -> void:
 	_close_card_upgrade_overlay()
 	_dialogue_script = dialogue.duplicate(true)
 	_dialogue_active = true
+	_start_room_map.dialogue_started(self, dialogue)
 	_dialogue_suppresses_choices = not _current_room_merchant_kind().is_empty() or str(dialogue.get("npc_id", "")) == "emaciated_man"
 	_dialogue_overlay.visible = true
 	if _dialogue_suppresses_choices:
@@ -7658,6 +7661,7 @@ func _on_dialogue_option_pressed(option: Dictionary) -> void:
 	_close_dialogue()
 
 func _close_dialogue() -> void:
+	_start_room_map.dialogue_closed(self)
 	_molt_exchange_feedback.reset()
 	_maybe_mark_emaciated_awakening_seen()
 	var should_restore_choices := _dialogue_active and _dialogue_suppresses_choices
@@ -10502,6 +10506,7 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_cancel_committed_hand_queries()
 	_focused_intent_enemy_id = -1
 	_section_map_presented_key = ""
+	_start_room_map.reset()
 	_close_large_map()
 	_reset_run_end_board_reframe()
 	_close_dialogue()
@@ -14586,6 +14591,7 @@ func _deck_piles() -> Dictionary:
 	}
 
 func _refresh_visibility() -> void:
+	_start_room_map.refresh_hint(self)
 	var mode: String = str(_run_state.get("mode", "room"))
 	var terminal_recap_visible: bool = mode in ["victory", "defeat", "embrace"]
 	var section_map: bool = SectionMapGraph.enabled(_run_state)
@@ -22078,6 +22084,7 @@ func _open_large_map(from_toolbar: bool = false) -> void:
 		_large_map_view.call("center_on_current", true)
 	_close_grimoire_overlay()
 	_large_map_scrim.visible = true
+	_start_room_map.refresh_hint(self)
 	_large_map_scrim.move_to_front()
 	_update_performance_telemetry_context()
 	_refresh_large_map_navigation_hint()
@@ -22087,9 +22094,11 @@ func _open_large_map(from_toolbar: bool = false) -> void:
 func _close_large_map() -> void:
 	if _large_map_scrim == null:
 		return
+	var was_visible: bool = _large_map_scrim.visible
 	if _large_map_view != null:
 		_large_map_view.call("reset_interaction")
 	_large_map_scrim.visible = false
+	_start_room_map.map_closed(self, was_visible)
 	_update_performance_telemetry_context()
 	if _map_opened_from_toolbar and _section_map_hud_button != null and _section_map_hud_button.is_visible_in_tree():
 		if _controller_is_active() and _controller_custom_navigation_available() and not _controller_card_targeting_needs_initial_candidate():
@@ -32200,6 +32209,7 @@ func _maybe_auto_trigger_room_dialogue() -> void:
 	if trigger_key == _last_auto_dialogue_key:
 		return
 	var dialogue: Dictionary = _dialogue_engine.build_room_dialogue(current_room, _run_state, _progression)
+	dialogue = _start_room_map.opening_dialogue(current_room, dialogue)
 	if dialogue.is_empty():
 		return
 	_last_auto_dialogue_key = trigger_key
@@ -34698,6 +34708,7 @@ func _present_queued_section_map() -> void:
 	_maybe_present_section_map()
 
 func _section_map_should_present() -> bool:
+	if not _start_room_map.allows_auto_open(self): return false
 	if not SectionMapGraph.enabled(_run_state) or _animation_lock or _treasure_presentation_busy() or _loadout_acquisition_in_progress or _dialogue_active:
 		return false
 	var mode: String = str(_run_state.get("mode", ""))
@@ -34712,6 +34723,7 @@ func _maybe_present_section_map() -> void:
 	if not _section_map_should_present():
 		return
 	_section_map_presented_key = "%s:%s" % [str(_run_state.get("current_room", Vector2i.ZERO)), str(_run_state.get("mode", ""))]
+	_start_room_map.map_presented(self)
 	_open_large_map()
 
 func _on_section_map_scout(coord: Vector2i) -> void:
