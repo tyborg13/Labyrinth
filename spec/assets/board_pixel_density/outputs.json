@@ -20,10 +20,24 @@
     "mode": "regrid",
     "grid": 1.5
   },
+  "assets/art/enemies/gale_herald.png": {
+    "pixel_sha256": "7e708a9c09517c841878ebb0c0707c2dd8cc7f1026e6613521b779c9ce3a3dc1",
+    "source_pixel_sha256": "04bda877d1adecb2f146a551f6b85b051c1884efcacaa5246ba47b9ddac4746e",
+    "id": "gale_herald",
+    "mode": "regrid",
+    "grid": 1.5
+  },
   "assets/art/enemies/gloam_stalker.png": {
     "pixel_sha256": "b7439f856ffc1038ce634affcd311986100d493c719767285d79a64022111381",
     "source_pixel_sha256": "546f0f39233766380d360b55479e8f4727df238864e5b1f3f8cfe447abe80033",
     "id": "gloam_stalker",
+    "mode": "regrid",
+    "grid": 1.5
+  },
+  "assets/art/enemies/hoarfrost_seer.png": {
+    "pixel_sha256": "aeca9120e648c9ac61ec9ca560b4bb1181638afeaac55e0c5ca629b5c3d3905d",
+    "source_pixel_sha256": "a5d237bcfcb2e353b50c5cc4cbde97c8778c1bced230fd194045e6c94eada294",
+    "id": "hoarfrost_seer",
     "mode": "regrid",
     "grid": 1.5
   },

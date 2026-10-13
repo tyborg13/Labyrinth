@@ -2,6 +2,9 @@ extends Control
 
 class_name CombatBoardView
 
+const IcefallView = preload("res://scripts/enemy_mechanics/icefall_view.gd")
+const WindView = preload("res://scripts/enemy_mechanics/wind_view.gd")
+
 const EMPTY_FEEL_FRAME: Dictionary = {}
 const BurrowView = preload("res://scripts/enemy_mechanics/burrow_view.gd")
 const DeathBurstView = preload("res://scripts/enemy_mechanics/death_burst_view.gd")
@@ -2520,7 +2523,7 @@ func _process(delta: float) -> void:
 func _queue_continuous_render_redraws(skip_effects: bool = false, skip_impact: bool = false) -> void:
 	if not skip_effects and TetherView.needs_redraw(self): _queue_render_layer_redraw(_effects_render_layer)
 	VeilView.queue_redraws(self)
-	if ThreatTiles.needs_pulse(presentation, _rest_threat_tile_alphas):
+	if ThreatTiles.needs_pulse(presentation, _rest_threat_tile_alphas) or (not (WindView.forecast(self).get("wind", {}) as Dictionary).is_empty() and not bool(presentation.get("reduced_motion", false))):
 		_queue_render_layer_redraw(_overlay_render_layer)
 	if _ambient_particles_active() or _campfire_atmosphere_active():
 		_queue_render_layer_redraw(_ambient_render_layer)
@@ -2643,6 +2646,7 @@ func _scene_render_tile_for_unit(unit: Dictionary) -> Vector2i:
 	return _effective_unit_tile(unit)
 
 func _presentation_needs_continuous_redraw() -> bool:
+	if not (WindView.forecast(self).get("wind", {}) as Dictionary).is_empty() and not bool(presentation.get("reduced_motion", false)): return true
 	if not visible:
 		return false
 	if TetherView.needs_redraw(self) or VeilView.needs_redraw(self): return true
@@ -3666,7 +3670,7 @@ func _foreground_obstruction_candidates() -> Array:
 			var terrain: Dictionary = terrain_var as Dictionary
 			if not _board_tile_is_visible_to_player(terrain.get("pos", Vector2i(-1, -1))):
 				continue
-			if int(terrain.get("hp", 0)) <= 0:
+			if not BoardSurfaceRules.terrain_is_live(terrain):
 				continue
 			var terrain_texture: Texture2D = _terrain_textures.get(str(terrain.get("kind", "")), null)
 			if terrain_texture != null:
@@ -4518,6 +4522,8 @@ func _draw_effects_render_layer() -> void:
 	section_started_usec = Time.get_ticks_usec()
 	_draw_collision_markers()
 	_draw_meteor_mark_badges()
+	IcefallView.draw_badges(self)
+	WindView.draw_collisions(self)
 	_record_render_section_time("collision_markers", section_started_usec)
 	section_started_usec = Time.get_ticks_usec()
 	_draw_lethal_preview_icons(units_to_draw)
@@ -6735,6 +6741,8 @@ func _draw_tile_overlays(tile: Vector2i) -> void:
 	if _projected_destination_tiles_lookup_cache.has(tile):
 		_draw_tile_ring(tile, Color(0.95, 0.78, 0.43, 0.98), 4.0, 0.92)
 	_draw_meteor_mark(tile)
+	IcefallView.draw_tile(self, tile)
+	WindView.draw_tile(self, tile)
 	if draw_aoe_footprint:
 		# Keep every legal center visible, then layer the concrete consequence on
 		# top so it remains the unmistakable primary targeting signal.
@@ -7132,7 +7140,7 @@ func _foreground_obstruction_entries(units_to_draw: Array[Dictionary]) -> Array[
 		var terrain: Dictionary = terrain_var
 		if not _board_tile_is_visible_to_player(terrain.get("pos", Vector2i(-1, -1))):
 			continue
-		if int(terrain.get("hp", 0)) <= 0:
+		if not BoardSurfaceRules.terrain_is_live(terrain):
 			continue
 		var terrain_texture: Texture2D = _terrain_textures.get(str(terrain.get("kind", "")), null)
 		if terrain_texture == null:
@@ -7287,7 +7295,7 @@ func _draw_tile_props(grid: Array, tile: Vector2i, obstruction_entries: Array = 
 		var terrain: Dictionary = terrain_var
 		if not _board_tile_is_visible_to_player(terrain.get("pos", Vector2i(-1, -1))):
 			continue
-		if int(terrain.get("hp", 0)) <= 0:
+		if not BoardSurfaceRules.terrain_is_live(terrain):
 			continue
 		_draw_terrain_object(terrain, obstruction_entries)
 	for destruction_var: Variant in presentation.get("terrain_destruction_units", []):
@@ -8005,6 +8013,7 @@ func _loot_texture(loot: Dictionary) -> Texture2D:
 	return _loot_textures.get(str(loot.get("kind", "")), null)
 
 func _draw_terrain_object(terrain: Dictionary, obstruction_entries: Array = []) -> void:
+	if IcefallView.draw_pillar(self, terrain, obstruction_entries): return
 	var tile: Vector2i = terrain.get("pos", Vector2i(-1, -1))
 	if tile.x < 0 or not _board_tile_is_visible_to_player(tile):
 		return
@@ -8064,6 +8073,7 @@ func _draw_powder_keg_fuse_glow(terrain_rect: Rect2, opacity: float) -> void:
 	draw_circle(center, radius * 1.2, Color(1.0, 0.62, 0.24, 0.28 * opacity))
 
 func _terrain_rect_for_tile(tile: Vector2i, texture: Texture2D, terrain_kind: String = "") -> Rect2:
+	if terrain_kind == "ice_pillar": return _prop_draw_rect(texture, _prop_rect_for_tile(tile))
 	if terrain_kind == "dragon_spire":
 		return Rect2(_tile_center(tile)-Vector2(_tile_width()*.41,_tile_width()*.92),Vector2(_tile_width()*.82,_tile_width()*1.07))
 	if terrain_kind == "crag_outcrop":
@@ -8110,7 +8120,8 @@ func _draw_terrain_health_bar(terrain: Dictionary, terrain_rect: Rect2) -> void:
 		_draw_health_damage_preview(terrain, bar_rect, preview)
 
 func _should_show_terrain_health_bar(terrain: Dictionary) -> bool:
-	if int(terrain.get("hp", 0)) <= 0:
+	if str(terrain.get("kind", "")) == "ice_pillar": return false
+	if not BoardSurfaceRules.terrain_is_live(terrain):
 		return false
 	if int(terrain.get("hp", 0)) < maxi(1, int(terrain.get("max_hp", 1))):
 		return true
@@ -8133,6 +8144,7 @@ func _terrain_key(terrain: Dictionary) -> String:
 	return "terrain_%s" % terrain_id
 
 func _terrain_tooltip_text(terrain: Dictionary) -> String:
+	if str(terrain.get("kind", "")) == "ice_pillar": return IcefallView.pillar_tooltip(terrain)
 	var terrain_kind: String = str(terrain.get("kind", ""))
 	var label: String = "Raised Cover" if terrain_kind == "raised_cover" else "Crag Outcrop" if terrain_kind == "crag_outcrop" else "Worldspine" if terrain_kind in ["dragon_spire", "worldspine"] else "Powder Keg" if terrain_kind == "powder_keg" else "Wooden box" if terrain_kind == "wooden_box" else "Wooden crate"
 	var text: String = "%s\n%d/%d HP" % [
@@ -9090,6 +9102,7 @@ func _draw_collision_markers() -> void:
 		draw_arc(center, radius - 1.0, 0.0, TAU, 40, COLLISION_MARKER_RING, 2.5, true)
 		var damage: int = int(marker.get("damage", 0))
 		var tooltip: String = "Collision: %d damage to the target and to what stops it." % damage if str(marker.get("blocker_kind", "")) != "wall" else "Collision: %d damage to the target. Walls take nothing." % damage
+		if not str(marker.get("tooltip_override", "")).is_empty(): tooltip = str(marker["tooltip_override"])
 		_draw_keyword_icon("collision", rect, tooltip)
 		var font: Font = get_theme_default_font()
 		if damage > 0 and font != null:
@@ -10436,6 +10449,7 @@ func _dragon_full_area_fx(effect: Dictionary) -> bool:
 	return preload("res://scripts/dragon_presentation.gd").area_fx(effect) or (str(profile.get("geometry","")) == "physical" and str(effect.get("kind","")) == "aoe")
 
 func _effect_uses_elemental_scene_depth(effect: Dictionary) -> bool:
+	if effect.has("en02_mechanic"): return false
 	if _dragon_full_area_fx(effect) and not bool(effect.get("preview",false)): return true
 	return (
 		str(effect.get("kind", "")) in ["ranged", "aoe"]
@@ -10683,6 +10697,7 @@ func _draw_elemental_foreground_performance(style: String, ground_point: Vector2
 
 func _draw_elemental_spell_floor_overlay() -> void:
 	var effect: Dictionary = presentation.get("effect", {})
+	if effect.has("en02_mechanic"): return
 	if effect.is_empty() or bool(effect.get("preview", false)):
 		return
 	if preload("res://scripts/dragon_presentation.gd").area_fx(effect): return
@@ -10776,6 +10791,8 @@ func _draw_effect_overlay() -> void:
 	var progress: float = clampf(float(presentation.get("effect_progress", 1.0)), 0.0, 1.0)
 	if effect.is_empty():
 		return
+	if IcefallView.draw_effect(self, effect, progress): return
+	if str(effect.get("en02_mechanic", "")) in ["call_wind", "wind_push"]: return
 	if TetherView.draw_effect(self, effect, progress): return
 	if _dragon_full_area_fx(effect) and not bool(effect.get("preview",false)): return
 	_draw_bile_bloomer_fragments(effect, progress)
@@ -12733,6 +12750,7 @@ func _draw_path_line(line: PackedVector2Array, color: Color, width: float, antia
 		if piece.size()>1: draw_polyline(piece,color,width,antialiased)
 
 func _draw_path_preview() -> void:
+	WindView.draw_paths(self)
 	if _blink_preview_effect_active():
 		return
 	for path: Array in presentation.get("displacement_paths",[]):
@@ -13983,7 +14001,7 @@ func _visual_framing_board_entries_signature(entries: Array, position_key: Strin
 		if typeof(visible_tiles) == TYPE_ARRAY and not (visible_tiles as Array).has(entry.get(position_key, Vector2i(-1, -1))):
 			continue
 		if exclude_flag:
-			if flag_key == "hp" and int(entry.get(flag_key, 0)) <= 0:
+			if flag_key == "hp" and not BoardSurfaceRules.terrain_is_live(entry):
 				continue
 			if flag_key != "hp" and bool(entry.get(flag_key, false)):
 				continue
@@ -14358,6 +14376,7 @@ func _load_loot_and_terrain_assets() -> void:
 		"wooden_box": AssetLoader.load_texture("res://assets/art/tiles/wooden_box.png"),
 		"wooden_crate": AssetLoader.load_texture("res://assets/art/tiles/wooden_crate.png"),
 		"powder_keg": AssetLoader.load_texture("res://assets/art/tiles/powder_keg.png"),
+		"ice_pillar": Biomes.trimmed_pillar_texture("iskaldra"),
 		"dragon_spire": AssetLoader.load_texture("res://assets/art/tiles/dragon_spire.png")
 	}
 	_terrain_destruction_frames_by_kind.clear()
@@ -15469,7 +15488,7 @@ func rendered_visual_rects(include_unit_hud: bool = true, include_units: bool = 
 		var terrain: Dictionary = terrain_var
 		if not _board_tile_is_visible_to_player(terrain.get("pos", Vector2i(-1, -1))):
 			continue
-		if int(terrain.get("hp", 0)) <= 0:
+		if not BoardSurfaceRules.terrain_is_live(terrain):
 			continue
 		var terrain_texture: Texture2D = _terrain_textures.get(str(terrain.get("kind", "")), null)
 		if terrain_texture != null:
@@ -16579,7 +16598,8 @@ func _short_enemy_name(enemy: Dictionary) -> String:
 	return display_name
 
 func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
-	var badges: Array[Dictionary] = VeilView.badges(unit)
+	var badges: Array[Dictionary] = WindView.status_badges(unit)
+	badges.append_array(VeilView.badges(unit))
 	badges.append_array(BurrowView.badges(unit))
 	badges.append_array(DeathBurstView.badges(unit))
 	var truesight_activations: int = int(presentation.get("umbra_truesight_activations", 0))

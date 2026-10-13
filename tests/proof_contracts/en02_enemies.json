@@ -1,0 +1,14 @@
+{
+  "min_images": 8,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*01_icefall_marks.png", "width": 1920, "height": 1080, "regions": [{"rect": [250, 220, 1350, 670], "min_luma_range": 70, "min_luma_stdev": 12}]},
+    {"pattern": "*02_icicles_mid_fall.png", "width": 1920, "height": 1080, "regions": [{"rect": [250, 220, 1350, 670], "min_luma_range": 70, "min_luma_stdev": 12}]},
+    {"pattern": "*03_ice_pillars.png", "width": 1920, "height": 1080, "regions": [{"rect": [250, 220, 1350, 670], "min_luma_range": 70, "min_luma_stdev": 12}]},
+    {"pattern": "*04_call_wind_dashed_preview.png", "width": 1920, "height": 1080},
+    {"pattern": "*05_wind_at_rest_hud.png", "width": 1920, "height": 1080},
+    {"pattern": "*06_wind_mid_push.png", "width": 1920, "height": 1080},
+    {"pattern": "*07_wind_after_push_hud.png", "width": 1920, "height": 1080},
+    {"pattern": "*08_wind_reduced_motion.png", "width": 1920, "height": 1080}
+  ]
+}

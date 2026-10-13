@@ -88,6 +88,7 @@ static func force_group(engine: RefCounted, state: Dictionary, index: int, actio
 	var target: Dictionary = state["enemies"][index]
 	# Defeated targets cannot move or reserve their surviving neighbors.
 	if int(target.get("hp",0))<=0: return state
+	if engine._force_actor_anchored(state, "enemy", int(target["id"])): return state
 	var context: Dictionary = action.get("_group_force_context", {})
 	var moved_ids: Dictionary = context.get("moved_ids", {})
 	if moved_ids.has(int(target["id"])): return state
@@ -107,6 +108,7 @@ static func force_group(engine: RefCounted, state: Dictionary, index: int, actio
 			if group.has(member_index): continue
 			var member: Dictionary = state["enemies"][member_index]
 			if int(member.get("hp",0))<=0: continue
+			if engine._force_actor_anchored(state, "enemy", int(member["id"])): continue
 			var delta: Vector2i = member["pos"]-target["pos"]
 			if (direction.x!=0 and delta.y!=0) or (direction.y!=0 and delta.x!=0): continue
 			for prior_index: int in group:

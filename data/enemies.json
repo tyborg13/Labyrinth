@@ -2724,6 +2724,141 @@
       }
     ]
   },
+  "hoarfrost_seer": {
+    "name": "Hoarfrost Seer",
+    "ai_profile": {
+      "role": "controller",
+      "preferred_range": 3,
+      "retreat_distance": 1
+    },
+    "element": "ice",
+    "max_hp": 12,
+    "base_initiative": 12,
+    "reward_embers": 11,
+    "accent": "#9cc8e6",
+    "art_path": "res://assets/art/enemies/hoarfrost_seer.png",
+    "intents": [
+      {
+        "id": "icefall",
+        "name": "Icefall",
+        "time": 6,
+        "weight": 3,
+        "next_intent": "icefall_land",
+        "actions": [
+          {
+            "type": "icefall_mark",
+            "shape": "line3_perpendicular",
+            "range": 5
+          }
+        ]
+      },
+      {
+        "id": "icefall_land",
+        "name": "Icefall",
+        "time": 4,
+        "weight": 0,
+        "actions": [
+          {
+            "type": "icefall_land",
+            "damage": 5,
+            "terrain": "ice_pillar",
+            "terrain_rounds": 3,
+            "pillar_shatter_damage": 2,
+            "element": "ice"
+          }
+        ]
+      },
+      {
+        "id": "rime_bolt",
+        "name": "Rime Bolt",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "ranged",
+            "damage": 3,
+            "range": 4,
+            "chilled": true,
+            "element": "ice"
+          }
+        ]
+      },
+      {
+        "id": "withdraw",
+        "name": "Withdraw",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_away",
+            "range": 2
+          },
+          {
+            "type": "block",
+            "amount": 4
+          }
+        ]
+      }
+    ]
+  },
+  "gale_herald": {
+    "name": "Gale Herald",
+    "ai_profile": {
+      "role": "controller",
+      "preferred_range": 3,
+      "retreat_distance": 1
+    },
+    "element": "air",
+    "max_hp": 14,
+    "base_initiative": 13,
+    "reward_embers": 11,
+    "accent": "#8ea3b8",
+    "art_path": "res://assets/art/enemies/gale_herald.png",
+    "intents": [
+      {
+        "id": "call_the_wind",
+        "name": "Call the Wind",
+        "time": 6,
+        "weight": 3,
+        "actions": [
+          {
+            "type": "call_wind",
+            "rounds": 2,
+            "push": 1,
+            "direction": "toward_hazard",
+            "hazard_scan": 3
+          }
+        ]
+      },
+      {
+        "id": "gust_bolt",
+        "name": "Gust Bolt",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "ranged",
+            "damage": 3,
+            "range": 4,
+            "push": 1,
+            "element": "air"
+          }
+        ]
+      },
+      {
+        "id": "still_air",
+        "name": "Still Air",
+        "time": 5,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "block",
+            "amount": 5
+          }
+        ]
+      }
+    ]
+  },
   "arc_thrall": {
     "name": "Arc Thrall",
     "ai_profile": {

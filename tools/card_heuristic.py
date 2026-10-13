@@ -256,6 +256,14 @@ def encounter_assumptions() -> dict[str, Any]:
             "path_tie_break": "true total cost first; equal routes prefer strongest immediate current-activation progress",
             "score_policy": "raises realized encounter pressure without changing intrinsic printed-card coefficients",
         },
+        "section_enemies_e1_en02": {
+            "source": "spec/peer_benchmark/staged/enemies/wave_e1.json",
+            "hoarfrost_seer": {"hp": 12, "initiative": 12, "embers": 11, "initial_cycle": 17.0, "repeat_cycle": 12 + (3 * (6 + 4) + 2 * 4 + 4) / (3 * 2 + 2 + 1), "mark_range": 5, "mark_tiles": 3, "damage_per_tile": 5, "pillar_enemy_turn_boundaries": 3, "pillar_shatter_damage": 2, "pillar_attackable": False},
+            "gale_herald": {"hp": 14, "initiative": 13, "embers": 11, "weighted_cycle": 13 + (3 * 6 + 2 * 4 + 5) / 6, "wind_enemy_turn_boundaries": 2, "push": 1, "hazard_scan": 3, "order": "farthest downwind first", "source_death": "immediate cancellation", "construct_classification": "enemy definition construct=true only"},
+            "friendly_fire": "existing rewards; no player-card bonus for enemy kills",
+            "end_enemy_turn_order": "wind pushes, then terrain lifetimes",
+            "spawns": "director adds encounter groups after merge",
+        },
         "en03_enemies": {
             "arc_thrall": {"hp": 10, "base_initiative": 11, "reward_embers": 9, "weighted_cycle": 15.6,
                           "tether": "spawn_group 2; held partner; clear cardinal distance <=6; align Move <=3; strictly intermediate tiles take 4 lightning + Shock 1, including enemies",

@@ -53,6 +53,8 @@ EXPECTED_GRIMOIRE_TOPIC_ICONS = {
 # These are one player-facing concept despite differing engine direction/target
 # names. Every other shared action icon is rejected.
 ALLOWED_EXACT_ACTION_ALIAS_GROUPS = {
+    # Icefall marking and landing are the same delayed-icicle concept.
+    frozenset({"icefall_mark", "icefall_land"}),
     frozenset({"heal", "heal_self"}),
     frozenset({"move", "move_toward"}),
     frozenset({"outcrop", "raise_terrain"}),

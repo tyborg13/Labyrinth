@@ -15,6 +15,7 @@ const TEXTURE_PATHS := {
 const MELEE_TYPES := ["melee", "pull"]
 const RANGED_TYPES := ["ranged"]
 const AREA_TYPES := [
+	"icefall_mark", "icefall_land", "call_wind",
 	"tether_beam", "burrow", "erupt", "aoe", "detonate", "cinder_marks", "detonate_cinders", "gale_force",
 	"lightning_strikes", "terrain_burst", "umbra_eclipse",
 ]
@@ -78,6 +79,8 @@ static func is_supported_action_type(action_type: String) -> bool:
 		or action_type in MOVEMENT_TYPES
 
 static func value_for_action(action: Dictionary) -> int:
+	if str(action.get("type", "")) == "icefall_mark": return 5
+	if str(action.get("type", "")) == "call_wind": return int(action.get("push", 1))
 	for key: String in ["damage", "amount", "count"]:
 		if action.has(key):
 			return maxi(0, int(action.get(key, 0)))

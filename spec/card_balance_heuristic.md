@@ -881,6 +881,31 @@ the base decoy keeps `0.48` per illusion health point and `0.12` per placement r
 - Outcrop kinds: a powder keg adds its burst at `0.45` detonation chance and `1.4` targets
   to the ordinary outcrop value; Worldspines add `pulse x 0.45 x 1.2 targets x 2 pulses`.
 
+
+## Director-authored section enemies E1: en-02
+
+Values come unchanged from `peer_benchmark/staged/enemies/wave_e1.json` and
+`peer_benchmark/enemy_roster_v1.md`; this implementation does not tune them.
+The scorer records the same assumptions in `section_enemies_e1_en02`.
+
+| Enemy | HP / base initiative / Embers | Authored weighted cadence at local depth 2 | Closest existing comparison | Shared risk and counterplay |
+| --- | --- | --- | --- | --- |
+| Hoarfrost Seer | 12 / 12 / 11 | Initial 17; repeat 16.667 including forced Icefall landing | Frostglass Lancer 12 / 11 / 11; Acolyte 12 / 12 / 10 | Range-5 three-tile delayed line, 5 damage per tile, then 3-turn impassable pillars; leave the line, push enemies onto marks, use pillars to stop sight and cause 2 collision damage |
+| Gale Herald | 14 / 13 / 11 | 18.167 | Chainbound Gaoler 14 / 13 / 12 | Two enemy-turn boundaries of shared Push 1, including Call's own turn; downwind-first ordering, ordinary collision/surface/trap rules; stand upwind or kill the Herald |
+
+Cadence is base initiative plus authored intent time, before initial index
+stagger, sequence scaling or status skips. Seer random weights are 3:2:1 for
+mark / bolt / withdraw. Mark always adds a zero-random-weight landing slot:
+mean time is `(3*(6+4)+2*4+1*4)/(3*2+2+1) = 4.667`. Herald mean time is
+`(3*6+2*4+1*5)/6 = 5.167`. Illegal ranged intents and out-of-range marks are
+removed before a seeded weighted roll. These are roster assumptions, not new
+card coefficients. At each enemy-turn boundary, wind pushes resolve before
+terrain expiry; a last-round pillar still blocks and shatters on collision. Ice
+Pillars have no attack durability and cannot be targeted or damaged by attacks.
+Construct wind immunity reads only the enemy definition's `construct: true`.
+Freeze does not suppress that boundary. Enemy kills retain existing reward
+rules and never gain a player-card kill bonus. Per director feedback 1, enc-01
+has landed; the director adds these enemies to spawn pools after merge.
 ### Section wave E1: en-03 (staged, encounter tables pending enc-01)
 
 | Enemy | HP / initiative / Embers | Authored cadence before spawn stagger | Reach and counterplay | Closest comparison |

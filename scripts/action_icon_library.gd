@@ -8,6 +8,8 @@ const ICON_ROOT: String = "res://assets/art/icons"
 const SKILL_ICON_ROOT: String = "res://assets/art/skills"
 
 const KEYWORDS: Dictionary = {
+	"icefall": {"label": "Icefall", "description": "Icefall: icicles fall on the marked tiles on the Seer's next turn.", "path": "%s/icefall.png" % ICON_ROOT},
+	"wind": {"label": "Wind", "description": "Wind: at the end of each enemy turn, everything not anchored is pushed one tile with the wind.", "path": "%s/wind.png" % ICON_ROOT},
 	"tether": {"label": "Tether", "description": "Tether: lightning strikes every tile between the two Arc Thralls for 4 and Shocks. Break the line to stop it.", "path": "%s/tether.png" % ICON_ROOT},
 	"veil": {"label": "Veiled", "description": "Veiled: only attacks from an adjacent tile, or area effects, can hit it.", "path": "%s/veil.png" % ICON_ROOT},
 	"burrow": {"label": "Burrow", "description": "Burrowed; marks your current tile. Erupt is its next intent.", "path": "%s/burrow.png" % ICON_ROOT},
@@ -423,6 +425,9 @@ const SKILL_ICONS: Dictionary = {
 ## Action names may share an icon only when players experience them as the exact
 ## same concept. Keep this dictionary parseable by tests/test_icon_identity_policy.py.
 const ACTION_ICON_ALIASES: Dictionary = {
+	"icefall_mark": "icefall",
+	"icefall_land": "icefall",
+	"call_wind": "wind",
 	"tether_beam": "tether",
 	"veil_blink": "veil",
 	"burrow": "burrow",
@@ -1168,6 +1173,14 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 	var action_type: String = str(action.get("type", ""))
 	var tokens: Array = []
 	match action_type:
+		"icefall_mark":
+			tokens.append(token_for("icefall", 5))
+			tokens.append(token_for("range", int(action.get("range", 5))))
+		"icefall_land":
+			tokens.append(token_for("icefall", int(action.get("damage", 5))))
+		"call_wind":
+			tokens.append(token_for("wind", int(action.get("rounds", 2))))
+			tokens.append(token_for("push", int(action.get("push", 1))))
 		"tether_beam":
 			_append_damage_token(tokens, "tether", action, options)
 			_append_keyword_tokens(tokens, action)

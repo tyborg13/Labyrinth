@@ -54,6 +54,8 @@ static func _check_routing(expect: Callable) -> void:
 		Context.apply_to_presentation(roster_state,roster_presentation)
 		var family: String = Context.family_key(actor_type)
 		if actor_type in Context.STATIC_ENEMY_TYPES:
+			var art_path: String = str(preload("res://scripts/game_data.gd").enemy_def(actor_type).get("art_path", ""))
+			expect.call(preload("res://scripts/asset_loader.gd").load_texture(art_path) != null, actor_type + " loads its approved static sprite")
 			var board: Control = preload("res://scripts/combat_board_view.gd").new()
 			board.presentation = {"impact_actor_keys": ["enemy_7"], "impact_progress": .15}
 			expect.call(not board._unit_uses_cutout({"type": actor_type}) and family.is_empty() and board._unit_impact_strength({"key": "enemy_7"}) > 0.0, actor_type + " uses its approved static sprite and existing impact feedback")

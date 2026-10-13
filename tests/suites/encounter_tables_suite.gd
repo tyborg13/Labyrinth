@@ -9,6 +9,7 @@ const GameData = preload("res://scripts/game_data.gd")
 const PathUtils = preload("res://scripts/path_utils.gd")
 const Guided = preload("res://scripts/guided_combat_scenario.gd")
 const FIXTURE_SEED: int = 83
+const TRIM_BIOME_GROUP_ID: String = "shadow_helpers"
 # Fixed statistical fixtures for 10k samples with a relative 2% bound.
 const WEIGHT_SEEDS: Dictionary = {"1": {"fire": 4723, "none": 4709}, "2": {"fire": 4820, "none": 4703}, "3": {"fire": 4743, "none": 4704}}
 const WEIGHT_PICKS: int = 10000
@@ -68,12 +69,23 @@ static func _test_tokens_and_trim(expect: Callable) -> void:
 	var expanded: Dictionary = Tables.expand_entry(table["tiers"]["1"][5], "lightning", "ice", rng)
 	expect.call(expanded["units"] == ["lightning_wisp", "lightning_wisp", "rime_whelp", "rime_spitter", "harrier"], "Tokens expand in place with the room regular and section biome")
 	expect.call(not Tables.supports_element(table["tiers"]["1"][3], "none"), "Neutral rooms skip element tokens")
+	# Trim checks need the three-unit authored group, independently of new pool
+	# choices. Preserve their assertions and production group values/weights.
+	var trim_groups: Array[Dictionary]
+	for group: Dictionary in table["biome_groups"]["shadow"]:
+		if str(group["id"]) == TRIM_BIOME_GROUP_ID: trim_groups.append(group.duplicate(true))
+	expect.call(trim_groups.size() == 1, "Trim fixture resolves the authored shadow helper group")
+	if trim_groups.size() != 1: return
+	var trim_table: Dictionary = table.duplicate(true)
+	trim_table["biome_groups"]["shadow"] = trim_groups
+	Tables._table = trim_table
 	var trimmed: Dictionary = Tables.expand_entry(table["tiers"]["3"][4], "fire", "shadow", rng)
 	expect.call(trimmed["units"] == ["wick_shade", "wick_shade", "veilbound_acolyte", "wick_shade", "wick_shade", "veilbound_acolyte", "warden"], "Trim drops the last concrete unit, preserves both token groups")
 	trimmed = Tables.expand_entry(table["tiers"]["3"][5], "lightning", "shadow", rng)
 	expect.call(trimmed["units"] == ["lightning_wisp", "lightning_wisp", "lightning_wisp", "lightning_wisp", "wick_shade", "wick_shade", "veilbound_acolyte"], "Trim preserves token units at the seven-unit cap")
 	trimmed = Tables.expand_entry({"id": "multi_trim_fixture", "units": ["crawler", "$biome", "harrier", "$biome", "warden", "acolyte"]}, "none", "shadow", rng)
 	expect.call(trimmed["units"] == ["crawler", "wick_shade", "wick_shade", "veilbound_acolyte", "wick_shade", "wick_shade", "veilbound_acolyte"], "Trim walks backward across token groups and removes multiple concrete units")
+	Tables._table = table
 	# A synthetic multi-group biome proves each token draws independently.
 	var synthetic: Dictionary = table.duplicate(true)
 	synthetic["biome_groups"]["earth"] = [{"id": "first", "weight": 1, "units": ["crawler"]}, {"id": "second", "weight": 3, "units": ["harrier"]}]

@@ -1239,6 +1239,8 @@ const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_FRAME_OUTSET: Vector2 = Vector2(48.0, 32.0)
 const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v8.png"
 const TURN_ORDER_PORTRAITS := {
+	"hoarfrost_seer": "res://assets/art/portraits/hoarfrost_seer.png",
+	"gale_herald": "res://assets/art/portraits/gale_herald.png",
 	"arc_thrall": "res://assets/art/portraits/arc_thrall.png",
 	"gloam_stalker": "res://assets/art/portraits/gloam_stalker.png",
 	"burrow_grub": "res://assets/art/portraits/burrow_grub.png",
@@ -12346,6 +12348,7 @@ func _setup_boss_health_overlay() -> void:
 	_boss_health_host.add_child(_boss_health_hp_label)
 
 func _refresh_turn_order_bar() -> void:
+	if _turn_order_panel != null: preload("res://scripts/enemy_mechanics/wind_view.gd").refresh_chip(self, _board_display_state())
 	if _turn_order_landing_strip != null and not _turn_order_landing_strip_allowed():
 		_turn_order_landing_strip.hide_strip()
 	if _turn_order_bar == null:
@@ -24457,6 +24460,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			await _animate_hidden_umbra_enemy_step(animated_state, step)
 			_combat_pacing.after_step(step)
 			continue
+		if step.has("en02_mechanic"):
+			if str(step["en02_mechanic"]).begins_with("icefall"): await preload("res://scripts/enemy_mechanics/icefall_view.gd").animate(self, animated_state, step)
+			else: await preload("res://scripts/enemy_mechanics/wind_view.gd").animate(self, animated_state, step)
+			_combat_pacing.after_step(step)
+			continue
 		if str(step.get("action_type", "")) == "tether_beam":
 			await preload("res://scripts/enemy_mechanics/tether_view.gd").animate(self, animated_state, step)
 			_combat_pacing.after_step(step)
@@ -26024,6 +26032,10 @@ func _equipped_equipment_for_board() -> Dictionary:
 	return _visual_equipment
 
 func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void:
+	if step.has("en02_state_after"):
+		animated_state.clear()
+		animated_state.merge((step["en02_state_after"] as Dictionary).duplicate(true), true)
+		return
 	if step.has("en03_after"):
 		animated_state.merge((step["en03_after"] as Dictionary).duplicate(true), true)
 		return
@@ -34076,7 +34088,7 @@ func _enemy_occupied_tiles(state: Dictionary) -> Dictionary:
 		if typeof(terrain_var) != TYPE_DICTIONARY:
 			continue
 		var terrain: Dictionary = terrain_var
-		if int(terrain.get("hp", 0)) <= 0:
+		if not BoardSurfaceRules.terrain_is_live(terrain):
 			continue
 		occupied[terrain.get("pos", Vector2i.ZERO)] = true
 	return occupied
@@ -34516,6 +34528,7 @@ func _append_forced_displacement_preview(result: Dictionary, before: Dictionary,
 					"direction": event.get("direction", Vector2i.ZERO),
 					"damage": int(event.get("damage", 0)),
 					"actor_key": str(event.get("actor_key", "")),
+					"tooltip_override": str(event.get("tooltip_override", "")),
 					"blocker_kind": str(event.get("blocker_kind", ""))
 				})
 	var after_by_key: Dictionary = {}
