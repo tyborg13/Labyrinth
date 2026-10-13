@@ -330,6 +330,14 @@
           "hoarfrost_seer",
           "rime_whelp"
         ]
+      },
+      {
+        "id": "ice_mirror",
+        "weight": 2,
+        "units": [
+          "glacial_mirror",
+          "rime_spitter"
+        ]
       }
     ],
     "air": [
@@ -354,6 +362,14 @@
         "units": [
           "gale_herald",
           "roc_fledgling"
+        ]
+      },
+      {
+        "id": "air_shrikes",
+        "weight": 2,
+        "units": [
+          "gust_shrike",
+          "gust_shrike"
         ]
       }
     ],
