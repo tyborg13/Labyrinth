@@ -1,0 +1,132 @@
+Command: python3 tools/godot_task_runner.py --task-id ui-01 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd
+Exit code: 0
+Log: /private/tmp/labyrinth-godot-home/ui-01-1791901749668846000-63071/godot.log
+
+Running task-local command:
+  task: qa-01
+  run: qa-01-1791902372519013000-64703
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1791902372519013000-64703
+  Steam: disabled
+  command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/ui-01/ --script res://tests/section_map_v2_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+Section map v2 visual proof contract: /private/tmp/labyrinth-inspection-manifests/map-01-visual-contract.json
+Section map v2 suite: 0 failures (64 seeds x 6 sections)
+
+PROGRAM SUITE section_map_v2_test: PASS
+Running task-local command:
+  task: qa-01
+  run: qa-01-1791902405489628000-64724
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1791902405489628000-64724
+  Steam: disabled
+  command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/ui-01/ --script res://tests/en01_enemies_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+EN01 HEADLESS DRAW BRANCHES: executed; no renderer capture
+EN01 ENEMIES TEST RESULT: PASS
+
+PROGRAM SUITE en01_enemies_test: PASS
+Running task-local command:
+  task: qa-01
+  run: qa-01-1791902409140188000-64729
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1791902409140188000-64729
+  Steam: disabled
+  command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/ui-01/ --script res://tests/en02_enemies_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+EN02 ENEMIES TEST RESULT: PASS (235 checks, 0 failures)
+
+PROGRAM SUITE en02_enemies_test: PASS
+Running task-local command:
+  task: qa-01
+  run: qa-01-1791902412113124000-64733
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1791902412113124000-64733
+  Steam: disabled
+  command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/ui-01/ --script res://tests/en03_enemies_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+EN03 ENEMIES TEST RESULT: PASS (210 checks, 0 failures)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+
+PROGRAM SUITE en03_enemies_test: PASS
+Running task-local command:
+  task: qa-01
+  run: qa-01-1791902417406765000-64741
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1791902417406765000-64741
+  Steam: disabled
+  command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/ui-01/ --script res://tests/run_end_recap_tests.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ERROR: Can't use get_node() with absolute paths from outside the active scene tree.
+   at: get_node_or_null (scene/main/node.cpp:1898)
+   GDScript backtrace (most recent call first):
+       [0] _controller_is_active (res://scripts/run_scene.gd:2605)
+       [1] _refresh_controller_prompts (res://scripts/run_scene.gd:3560)
+       [2] _refresh_controller_modal_after_layout (res://scripts/run_scene.gd:3397)
+ERROR: Can't use get_node() with absolute paths from outside the active scene tree.
+   at: get_node_or_null (scene/main/node.cpp:1898)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_controller_modal_after_layout (res://scripts/run_scene.gd:3398)
+ERROR: Can't use get_node() with absolute paths from outside the active scene tree.
+   at: get_node_or_null (scene/main/node.cpp:1898)
+   GDScript backtrace (most recent call first):
+       [0] _controller_is_active (res://scripts/run_scene.gd:2605)
+       [1] _refresh_controller_prompts (res://scripts/run_scene.gd:3560)
+       [2] _refresh_controller_modal_after_layout (res://scripts/run_scene.gd:3397)
+ERROR: Can't use get_node() with absolute paths from outside the active scene tree.
+   at: get_node_or_null (scene/main/node.cpp:1898)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_controller_modal_after_layout (res://scripts/run_scene.gd:3398)
+ERROR: Can't use get_node() with absolute paths from outside the active scene tree.
+   at: get_node_or_null (scene/main/node.cpp:1898)
+   GDScript backtrace (most recent call first):
+       [0] _controller_is_active (res://scripts/run_scene.gd:2605)
+       [1] _refresh_controller_prompts (res://scripts/run_scene.gd:3560)
+       [2] _refresh_controller_modal_after_layout (res://scripts/run_scene.gd:3397)
+ERROR: Can't use get_node() with absolute paths from outside the active scene tree.
+   at: get_node_or_null (scene/main/node.cpp:1898)
+   GDScript backtrace (most recent call first):
+       [0] _refresh_controller_modal_after_layout (res://scripts/run_scene.gd:3398)
+RUN END RECAP TEST RESULT: PASS
+
+PROGRAM SUITE run_end_recap_tests: PASS
+Running task-local command:
+  task: qa-01
+  run: qa-01-1791902423579749000-64745
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1791902423579749000-64745
+  Steam: disabled
+  command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/ui-01/ --script res://tests/main_menu_resume_test.gd
+  timeout: 180s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+TEST RESULT: PASS — main menu resume safety
+
+PROGRAM SUITE main_menu_resume_test: PASS
+FULL SUITE RUNTIME: 675.574 seconds (budget 900 seconds)
+TEST RESULT: PASS
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)

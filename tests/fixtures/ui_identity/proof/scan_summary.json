@@ -1,0 +1,311 @@
+{
+  "palette_matches": [
+    {
+      "file": "scripts/run_scene.gd",
+      "hex": "0b0908ff",
+      "line": 7176,
+      "tokens": [
+        "INK_0"
+      ]
+    },
+    {
+      "file": "scripts/run_scene.gd",
+      "hex": "8fcf7dff",
+      "line": 15230,
+      "tokens": [
+        "SUCCESS"
+      ]
+    },
+    {
+      "file": "scripts/run_scene.gd",
+      "hex": "8fcf7dff",
+      "line": 15706,
+      "tokens": [
+        "SUCCESS"
+      ]
+    },
+    {
+      "file": "scripts/ui_skin.gd",
+      "hex": "efe3c8ff",
+      "line": 29,
+      "tokens": [
+        "TEXT"
+      ]
+    },
+    {
+      "file": "scripts/ui_skin.gd",
+      "hex": "7f7262ff",
+      "line": 32,
+      "tokens": [
+        "TEXT_3"
+      ]
+    },
+    {
+      "file": "scripts/ui_typography.gd",
+      "hex": "b5a58aff",
+      "line": 115,
+      "tokens": [
+        "TEXT_2"
+      ]
+    }
+  ],
+  "source_commit": "6e214d7a4b5989e5c700dde554d03494eb780823",
+  "top_files": {
+    "R1": [
+      {
+        "count": 37,
+        "file": "scripts/run_scene.gd"
+      },
+      {
+        "count": 5,
+        "file": "scripts/settings_panel.gd"
+      },
+      {
+        "count": 3,
+        "file": "scripts/character_menu_view.gd"
+      },
+      {
+        "count": 2,
+        "file": "scripts/card_widget.gd"
+      },
+      {
+        "count": 2,
+        "file": "scripts/combat_objective_hud.gd"
+      },
+      {
+        "count": 2,
+        "file": "scripts/graftwright_choice.gd"
+      },
+      {
+        "count": 2,
+        "file": "scripts/main_menu.gd"
+      },
+      {
+        "count": 2,
+        "file": "scripts/new_descent_panel.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/character_menu_surface.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/chronicle_panel.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/contextual_combat_prompt.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/controller_prompt_bar.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/event_view_choice.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/input_glyph.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/intent_badges.gd"
+      }
+    ],
+    "R2": [
+      {
+        "count": 503,
+        "file": "scripts/run_scene.gd"
+      },
+      {
+        "count": 229,
+        "file": "scripts/combat_board_view.gd"
+      },
+      {
+        "count": 61,
+        "file": "scripts/labyrinth_map_view.gd"
+      },
+      {
+        "count": 49,
+        "file": "scripts/ui_skin.gd"
+      },
+      {
+        "count": 48,
+        "file": "scripts/skill_tree_view.gd"
+      },
+      {
+        "count": 47,
+        "file": "scripts/main_menu.gd"
+      },
+      {
+        "count": 44,
+        "file": "scripts/card_widget.gd"
+      },
+      {
+        "count": 38,
+        "file": "scripts/custom_cursor_glyph.gd"
+      },
+      {
+        "count": 34,
+        "file": "scripts/section_map_node.gd"
+      },
+      {
+        "count": 33,
+        "file": "scripts/board_surface_presentation.gd"
+      },
+      {
+        "count": 25,
+        "file": "scripts/input_glyph.gd"
+      },
+      {
+        "count": 22,
+        "file": "scripts/settings_panel.gd"
+      },
+      {
+        "count": 19,
+        "file": "scripts/contextual_combat_prompt.gd"
+      },
+      {
+        "count": 19,
+        "file": "scripts/themed_inset_ornament.gd"
+      },
+      {
+        "count": 18,
+        "file": "scripts/strike_trail_fx.gd"
+      }
+    ],
+    "R3": [
+      {
+        "count": 6,
+        "file": "scripts/combat_board_view.gd"
+      },
+      {
+        "count": 4,
+        "file": "scripts/chronicle_panel.gd"
+      },
+      {
+        "count": 2,
+        "file": "scripts/contextual_combat_prompt.gd"
+      },
+      {
+        "count": 2,
+        "file": "scripts/skill_tree_view.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/graftwright_choice.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/labyrinth_map_view.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/run_scene.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/segmented_health_bar.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/themed_button_ornament.gd"
+      }
+    ],
+    "R4": [
+      {
+        "count": 2,
+        "file": "scripts/combat_board_view.gd"
+      }
+    ],
+    "R5": [
+      {
+        "count": 24,
+        "file": "scripts/combat_board_view.gd"
+      },
+      {
+        "count": 5,
+        "file": "scripts/run_end_recap_overlay.gd"
+      },
+      {
+        "count": 3,
+        "file": "scripts/labyrinth_map_view.gd"
+      },
+      {
+        "count": 3,
+        "file": "scripts/main_menu.gd"
+      },
+      {
+        "count": 2,
+        "file": "scripts/settings_panel.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/chronicle_panel.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/enemy_mechanics/burrow_view.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/enemy_mechanics/icefall_view.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/enemy_mechanics/lob_view.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/enemy_mechanics/reflect_view.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/event_view.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/event_view_text.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/input_glyph.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/new_descent_panel.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/scavenger_signage.gd"
+      }
+    ],
+    "R6": [
+      {
+        "count": 11,
+        "file": "scripts/combat_board_view.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/combat_hud_intents.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/combat_objective_hud.gd"
+      },
+      {
+        "count": 1,
+        "file": "scripts/threat_tiles.gd"
+      }
+    ]
+  },
+  "totals": {
+    "R1": 73,
+    "R2": 1461,
+    "R3": 19,
+    "R4": 2,
+    "R5": 48,
+    "R6": 14
+  }
+}
