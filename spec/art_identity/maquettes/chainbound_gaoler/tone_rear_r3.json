@@ -1,0 +1,90 @@
+[
+ {
+  "name": "rear boots: less red, a touch lighter (front dull brown)",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.1,
+  "hue_deg": [
+   0,
+   14
+  ],
+  "lab_scale": [
+   1.08,
+   0.68,
+   1.0
+  ],
+  "box": [
+   336,
+   732,
+   744,
+   936
+  ],
+  "seed": null
+ },
+ {
+  "name": "rear belt: less orange (front belt brown)",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.16,
+  "hue_deg": [
+   0,
+   40
+  ],
+  "lab_scale": [
+   1.08,
+   0.85,
+   0.72
+  ],
+  "box": [
+   368,
+   416,
+   672,
+   520
+  ],
+  "seed": null
+ },
+ {
+  "name": "rear chain-arm bands: less orange (front bands)",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.16,
+  "hue_deg": [
+   0,
+   40
+  ],
+  "lab_scale": [
+   1.0,
+   0.8,
+   0.7
+  ],
+  "box": [
+   720,
+   340,
+   816,
+   476
+  ],
+  "seed": null
+ },
+ {
+  "name": "rear hook: front hook saturation",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.2,
+  "hue_deg": [
+   0,
+   45
+  ],
+  "lab_scale": [
+   1.0,
+   0.85,
+   0.72
+  ],
+  "box": [
+   832,
+   692,
+   952,
+   852
+  ],
+  "seed": null
+ }
+]

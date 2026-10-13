@@ -5,7 +5,7 @@ CONFIG is a list of regions applied in order; each region:
   {"name": str, "box": [x0, y0, x1, y1],            raw-pixel box the edit may touch
    "seed": [x, y] | null,                           flood-fill (8-way) from here through matching pixels; null = whole box
    "min_lum": 0..1, "max_lum": 0..1,                Rec.601 luminance window of pixels that may change
-   "min_chroma": 0..1, "hue_deg": [lo, hi] | null,  RGB max-min chroma floor and optional hue window
+   "min_chroma": 0..1, "hue_deg": [lo, hi] | null,  RGB max-min chroma floor and optional hue window (lo > hi wraps)
    "exclude_green": true,                           never touch key-green background
    "lab_scale": [L, a, b]}                          CIE Lab multipliers (prototype/match_palette.py conversion)
 Prints the changed pixel count per region.
@@ -33,7 +33,7 @@ def region_mask(rgb: np.ndarray, region: dict) -> np.ndarray:
     if region.get("hue_deg"):
         hue = np.degrees(np.arctan2(np.sqrt(3) * (g - b), 2 * r - g - b)) % 360
         lo, hi = region["hue_deg"]
-        candidate &= (hue >= lo) & (hue <= hi)
+        candidate &= ((hue >= lo) & (hue <= hi)) if lo <= hi else ((hue >= lo) | (hue <= hi))  # lo > hi wraps past 0
     if region.get("exclude_green", True):
         candidate &= ~((g > 200) & (r < 80) & (b < 80))
     if region.get("seed") is None:
