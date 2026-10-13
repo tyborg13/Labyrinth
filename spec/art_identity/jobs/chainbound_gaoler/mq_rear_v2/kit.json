@@ -1,0 +1,46 @@
+{
+  "K": 3,
+  "anatomy": "biped",
+  "art_scale_decision": "0.9 (pilot): the gaoler stands at the hero height, generated large and scaled on the board",
+  "id": "chainbound_gaoler",
+  "job_id": "mq-gaoler-rear-v2",
+  "kind": "creature",
+  "kit_version": "7d98be1f4254163f70c3743b762ef281683551d2db176ce929ba50698835d1b9",
+  "method": "maquette paint-over (rr-02 pilot), rear generated from the approved front v2 as identity reference",
+  "peers": [
+    "slag_mortar_front",
+    "glacial_mirror_front"
+  ],
+  "prompt_path": "../../../maquettes/chainbound_gaoler/prompt_rear_v2.md",
+  "prompt_sha256": "9001e4d0d715aecebcb1866ccee5ff07b773c9e5e75fa392ef94edb2779e63ab",
+  "refs": [
+    {
+      "canon_id": "maquette_rear_parts",
+      "file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gaoler-rear-v2/refs/rear_parts_green.png",
+      "pixel_sha256": "70aa5b598c2be4ca58ac36f70068d88538e70a8d36b5ba354ce6d934c223a99c"
+    },
+    {
+      "canon_id": "maquette_rear_clay",
+      "file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gaoler-rear-v2/refs/rear_clay_green.png",
+      "pixel_sha256": "8d6f5ea806227525dcf76075a4b06384ddcc61ad6d477c1557e82539b1e7fe21"
+    },
+    {
+      "canon_id": "approved_gaoler_mq_front_v2",
+      "file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gaoler-rear-v2/refs/chainbound_gaoler_mq_front_v2.png",
+      "pixel_sha256": "ef0343daaab3370571d89064a41605ecbe823e25b40a60d02c4ac30a62008cfb"
+    },
+    {
+      "canon_id": "slag_mortar_front",
+      "file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gaoler-rear-v2/refs/peer_slag_mortar_x3.png",
+      "pixel_sha256": "8e54da7e93a228bc39bd87d57fb83ae4eb7617d0c595820e599f59ca8966b71b"
+    },
+    {
+      "canon_id": "hero_front",
+      "file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gaoler-rear-v2/refs/hero_x3.png",
+      "pixel_sha256": "2200c5a6ec962369292f32359fd7ed11f2ae7055d5dec74eae971ba4e7526317"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 241,
+  "view": "creature_rear"
+}

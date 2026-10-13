@@ -1,6 +1,7 @@
 {
   "K": 3,
   "anatomy": "biped",
+  "art_scale_decision": "0.9 (pilot): the gaoler stands at the hero height, generated large and scaled on the board",
   "id": "chainbound_gaoler",
   "job_id": "mq-gaoler-front",
   "kind": "creature",
@@ -39,7 +40,7 @@
       "pixel_sha256": "2200c5a6ec962369292f32359fd7ed11f2ae7055d5dec74eae971ba4e7526317"
     }
   ],
-  "size_class": "large",
+  "size_class": "medium",
   "target_h": 241,
   "view": "creature_front"
 }
