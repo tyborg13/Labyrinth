@@ -114,7 +114,9 @@ class RecolourLabTests(unittest.TestCase):
         for path in paths:
             with self.subTest(path=path):
                 before = path.read_bytes()
-                with self.assertRaisesRegex(ValueError, "already recoloured crawler path"):
+                # A broken refusal must fail here, never rewrite tracked assets.
+                with patch.object(Image.Image, "save", side_effect=AssertionError("refusal bypassed")), \
+                        self.assertRaisesRegex(ValueError, "already recoloured crawler path"):
                     tool.main(["--in-place", "--l-scale", "0.76", "--ab-scale", "0.85", str(path)])
                 self.assertEqual(path.read_bytes(), before)
 
