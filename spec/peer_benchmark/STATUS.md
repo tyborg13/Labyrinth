@@ -140,3 +140,6 @@ Adds art-03: the 11 approved section enemies with new front/rear art, four-direc
   measure). Sync conflict in tests/test_sfx_lab.py resolved keeping qa-03's optional-module guards on every class.
   Sound-lab venv: 39 tests OK; system Python: 39 skipped cleanly; SFX bank PASS.
 - Integration full Godot suite PASS (685 s) at the qa-03 merge; Python discovery's 2 failures are environmental (above).
+
+## Playtest 7 (frozen worktree ../peer-benchmark-playtest-7 at 7901c37f0; import + start fixture verified)
+Adds: perched gust shrike (maquette repaint, four facings, portrait); crawler rig recolour; sfx-03 limiter + louder blade/shatter/freeze cues. The gaoler still uses its old rig (rounded repaint awaiting owner, then rr-02 re-rig).
