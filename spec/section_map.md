@@ -120,6 +120,8 @@ the encounter. Reward, dialogue and animation locks keep their input priority.
 Scavenger dialogue/shop remains its own interaction; leaving the shop opens
 the map once for onward travel. Closing that map is respected on later refreshes.
 
+On the first visit to a section's start room, closing the Emaciated Man's opening dialogue by pointer, keyboard or controller queues the existing map transition, including after leaving his level-up service. The map centers on the current room, retains its existing travel availability marks, and controller focus starts on the available room with the lowest lane. Room activation continues through the same physical-door travel, save and analytics boundary. Closing the map leaves working doors and the hint “Choose your path on the map [M]” for the rest of that visit, with the map-action glyph on controller. The existing hint plate is horizontally centered, its bottom 16 px above the visible bottom action buttons (Speak), or 72 px above the viewport bottom when no buttons are shown; text uses Text 17 px in TEXT_2. Repeated refreshes do not reopen it; loading clears this presentation state, and narration must replay and close to request it again. Other rooms and start-room revisits retain their existing flow. Sections II–VI currently lack opening NPC/narration data; `TODO_DESIGN_SECTION_START_NARRATION` in `start_room_map_flow.gd` reserves the owner's script while preserving those thresholds' existing automatic map handoff.
+
 A single click, Enter, or controller confirm on an available room starts a
 0.28-second press-and-settle acknowledgement before committing legal adjacent
 travel. A brief highlight replaces scaling and the expanding outline at reduced

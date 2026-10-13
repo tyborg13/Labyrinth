@@ -1946,7 +1946,7 @@
       },
       {
         "id": "executioners_fall",
-        "name": "Executioner\u2019s Fall",
+        "name": "Executioner’s Fall",
         "time": 7,
         "weight": 1,
         "actions": [
@@ -3086,6 +3086,119 @@
           {
             "type": "kindle",
             "amount": 2
+          }
+        ]
+      }
+    ]
+  },
+  "storm_capacitor": {
+    "name": "Storm Capacitor",
+    "ai_profile": {
+      "role": "artillery",
+      "preferred_range": 4,
+      "retreat_distance": 0
+    },
+    "element": "lightning",
+    "max_hp": 22,
+    "base_initiative": 16,
+    "reward_embers": 13,
+    "accent": "#a77bf0",
+    "art_path": "res://assets/art/enemies/storm_capacitor.png",
+    "immobile": true,
+    "construct": true,
+    "charge": {
+      "max": 3,
+      "lose_on_shock": 1
+    },
+    "intents": [
+      {
+        "id": "charge",
+        "name": "Charge",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "gain_charge",
+            "amount": 1
+          }
+        ]
+      },
+      {
+        "id": "discharge",
+        "name": "Discharge",
+        "time": 5,
+        "weight": 0,
+        "when_charge_at_least": 3,
+        "actions": [
+          {
+            "type": "chain_discharge",
+            "damage": 6,
+            "first_range": 4,
+            "jumps": 3,
+            "falloff": 1,
+            "element": "lightning"
+          },
+          {
+            "type": "reset_charge"
+          }
+        ]
+      }
+    ]
+  },
+  "hollow_mimic": {
+    "name": "Hollow Mimic",
+    "ai_profile": {
+      "role": "skirmisher",
+      "preferred_range": 2,
+      "retreat_distance": 1
+    },
+    "element": "shadow",
+    "max_hp": 14,
+    "base_initiative": 12,
+    "reward_embers": 11,
+    "accent": "#8a6bd6",
+    "art_path": "res://assets/art/enemies/hollow_mimic.png",
+    "intents": [
+      {
+        "id": "mirror",
+        "name": "Mirror",
+        "time": 6,
+        "weight": 3,
+        "actions": [
+          {
+            "type": "mirror_last_attack",
+            "fallback_intent": "shade_bolt",
+            "use_base_values": true
+          }
+        ]
+      },
+      {
+        "id": "shade_bolt",
+        "name": "Shade Bolt",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "ranged",
+            "damage": 4,
+            "range": 4,
+            "element": "shadow"
+          }
+        ]
+      },
+      {
+        "id": "recede",
+        "name": "Recede",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "move_away",
+            "range": 2
+          },
+          {
+            "type": "block",
+            "amount": 4
           }
         ]
       }

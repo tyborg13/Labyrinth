@@ -14,6 +14,7 @@ const SteamServiceSuite = preload("res://tests/suites/steam_service_suite.gd")
 const EnemyPathfindingSuite = preload("res://tests/suites/enemy_pathfinding_suite.gd")
 const ReachRebalanceSuite = preload("res://tests/suites/reach_rebalance_suite.gd")
 const EnemyTacticalAiSuite = preload("res://tests/suites/enemy_tactical_ai_suite.gd")
+const En06EnemiesSuite = preload("res://tests/suites/en06_enemies_suite.gd")
 const En03EnemiesSuite = preload("res://tests/suites/en03_enemies_suite.gd")
 const EnemyIntentPreviewSuite = preload("res://tests/suites/enemy_intent_preview_suite.gd")
 const EmberRewardFeedbackSuite = preload("res://tests/suites/ember_reward_feedback_suite.gd")
@@ -96,6 +97,7 @@ const MAP_RULE_SCAN_DEPTH: int = 8
 var _failures: Array[String] = []
 
 func _initialize() -> void:
+	var full_suite_started_usec: int = Time.get_ticks_usec()
 	ParallelRuntime.apply_from_environment()
 	ProgressionStore.set_storage_path("user://labyrinth_progression_test.json")
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
@@ -118,6 +120,7 @@ func _initialize() -> void:
 	preload("res://tests/suites/en02_enemies_suite.gd").run(Callable(self, "_assert"))
 	preload("res://tests/suites/en04_enemies_suite.gd").run(Callable(self, "_assert"))
 	ReachRebalanceSuite.run(Callable(self, "_assert"))
+	En06EnemiesSuite.run(Callable(self, "_assert"))
 	En03EnemiesSuite.run(Callable(self, "_assert"))
 	EnemyIntentPreviewSuite.run(Callable(self, "_assert"))
 	preload("res://tests/suites/guardian_suite.gd").run(Callable(self, "_assert"))
@@ -420,6 +423,7 @@ func _initialize() -> void:
 	await preload("res://tests/suites/ui_components_suite.gd").run(self, Callable(self, "_assert"))
 	_suppress_guided_tutorial_for_legacy_live_scene_tests()
 	await EmberRewardFeedbackSuite.run(self, Callable(self, "_assert"))
+	await En06EnemiesSuite.run_live(self, Callable(self, "_assert"))
 	await En03EnemiesSuite.run_live(self, Callable(self, "_assert"))
 	await preload("res://tests/suites/dragon_exchange_presentation_suite.gd").run_live(self, Callable(self, "_assert"))
 	await CombatMotionTimingSuite.run(self, Callable(self, "_assert"))
@@ -514,6 +518,8 @@ func _initialize() -> void:
 	await _test_settings_persistence_audio_and_presentation_preferences()
 	await _test_main_menu_shows_continue_for_saved_run()
 	GuidedCombatTutorialSuite.run(Callable(self, "_assert"))
+
+	preload("res://tests/helpers/program_sub_suites.gd").run(Callable(self, "_assert"), full_suite_started_usec)
 
 	if _failures.is_empty():
 		print("TEST RESULT: PASS")

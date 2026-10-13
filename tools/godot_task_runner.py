@@ -24,6 +24,7 @@ FAILURE_MARKERS = (
 )
 DEFAULT_TIMEOUT_SECONDS = 300.0
 TERMINATION_GRACE_SECONDS = 2.0
+WATCHDOG_JOIN_MARGIN_SECONDS = 1.0
 TIMEOUT_RETURN_CODE = 124
 
 
@@ -88,11 +89,16 @@ def read_pipe(pipe: TextIO, sink: TextIO, chunks: list[str], stream: bool) -> No
         pipe.close()
 
 
+class RunnerInterrupted(BaseException):
+    def __init__(self, signum: int):
+        self.signum = signum
+
+
 def terminate_process_tree(process: subprocess.Popen[str]) -> None:
-    if process.poll() is not None:
-        return
+    # The group may still contain descendants after its leader has exited.
     if os.name == "nt":
-        process.terminate()
+        if process.poll() is None:
+            process.terminate()
     else:
         try:
             os.killpg(process.pid, signal.SIGTERM)
@@ -102,52 +108,103 @@ def terminate_process_tree(process: subprocess.Popen[str]) -> None:
     try:
         process.wait(timeout=TERMINATION_GRACE_SECONDS)
     except subprocess.TimeoutExpired:
-        if os.name == "nt":
+        pass
+    if os.name == "nt":
+        if process.poll() is None:
             process.kill()
-        else:
-            try:
-                os.killpg(process.pid, signal.SIGKILL)
-            except ProcessLookupError:
-                pass
-        process.wait()
+    else:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+    process.wait()
+
+
+# A separate session observes EOF on a parent-owned pipe. It handles even
+# SIGKILL, which Python cannot catch, without macOS-specific dependencies.
+PARENT_DEATH_WATCHDOG = """
+import os, signal, sys, time
+fd, group = map(int, sys.argv[1:3])
+grace = float(sys.argv[3])
+for sig in (signal.SIGINT, signal.SIGHUP):
+    signal.signal(sig, signal.SIG_IGN)
+if not os.read(fd, 1):
+    try:
+        os.killpg(group, signal.SIGTERM)
+        time.sleep(grace)
+        os.killpg(group, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
+os.close(fd)
+"""
 
 
 def run_task_command(command: list[str], project: Path, env: dict[str, str], timeout: float | None, stream: bool) -> CommandResult:
-    process = subprocess.Popen(
-        command,
-        cwd=str(project),
-        env=env,
-        text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        bufsize=1,
-        start_new_session=(os.name != "nt"),
-    )
+    process = None
+    watchdog = None
+    watchdog_write = None
+    previous_handlers = {}
+
+    def interrupted(signum: int, _frame: object) -> None:
+        raise RunnerInterrupted(signum)
+
+    # Install before launching, so TERM/INT/HUP cannot strand a just-created child.
+    if threading.current_thread() is threading.main_thread():
+        for signum in (signal.SIGINT, signal.SIGTERM, *([signal.SIGHUP] if hasattr(signal, "SIGHUP") else [])):
+            previous_handlers[signum] = signal.signal(signum, interrupted)
     stdout_chunks: list[str] = []
     stderr_chunks: list[str] = []
-    stdout_thread = threading.Thread(
-        target=read_pipe,
-        args=(process.stdout, sys.stdout, stdout_chunks, stream),
-        daemon=True,
-    )
-    stderr_thread = threading.Thread(
-        target=read_pipe,
-        args=(process.stderr, sys.stderr, stderr_chunks, stream),
-        daemon=True,
-    )
-    stdout_thread.start()
-    stderr_thread.start()
-
+    threads: list[threading.Thread] = []
     timed_out = False
     try:
-        returncode = process.wait(timeout=timeout)
-    except subprocess.TimeoutExpired:
-        timed_out = True
-        terminate_process_tree(process)
-        returncode = TIMEOUT_RETURN_CODE
-
-    stdout_thread.join()
-    stderr_thread.join()
+        process = subprocess.Popen(
+            command, cwd=str(project), env=env, text=True,
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1,
+            start_new_session=(os.name != "nt"),
+        )
+        if os.name != "nt":
+            watchdog_read, watchdog_write = os.pipe()
+            try:
+                watchdog = subprocess.Popen(
+                    [sys.executable, "-c", PARENT_DEATH_WATCHDOG,
+                     str(watchdog_read), str(process.pid), str(TERMINATION_GRACE_SECONDS)],
+                    pass_fds=(watchdog_read,), start_new_session=True,
+                    stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                )
+            finally:
+                os.close(watchdog_read)
+        for pipe, sink, chunks in ((process.stdout, sys.stdout, stdout_chunks), (process.stderr, sys.stderr, stderr_chunks)):
+            thread = threading.Thread(target=read_pipe, args=(pipe, sink, chunks, stream), daemon=True)
+            thread.start()
+            threads.append(thread)
+        try:
+            returncode = process.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            timed_out = True
+            returncode = TIMEOUT_RETURN_CODE
+    except RunnerInterrupted as exc:
+        returncode = 128 + exc.signum
+    finally:
+        # Repeated signals during cleanup must not interrupt group termination.
+        for signum in previous_handlers:
+            signal.signal(signum, signal.SIG_IGN)
+        try:
+            if process is not None:
+                terminate_process_tree(process)
+            if watchdog_write is not None:
+                try:
+                    os.write(watchdog_write, b"done")
+                except BrokenPipeError:
+                    pass
+                finally:
+                    os.close(watchdog_write)
+            if watchdog is not None:
+                watchdog.wait(timeout=TERMINATION_GRACE_SECONDS + WATCHDOG_JOIN_MARGIN_SECONDS)
+            for thread in threads:
+                thread.join()
+        finally:
+            for signum, handler in previous_handlers.items():
+                signal.signal(signum, handler)
     stdout = "".join(stdout_chunks)
     stderr = "".join(stderr_chunks)
     if not stream:

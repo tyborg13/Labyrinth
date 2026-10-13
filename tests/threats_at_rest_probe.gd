@@ -1,4 +1,5 @@
 extends "res://tests/threats_at_rest_test.gd"
+## V2: open/crowded feet chips, order discs, tags, peak halo and live move previews.
 ## Run only with tools/visual_probe_runner.py and a real windowed renderer.
 ## The focused headless test shares every semantic/input assertion, but never
 ## attempts a capture or claims pixel proof.

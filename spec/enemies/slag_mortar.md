@@ -76,7 +76,7 @@ Focused headless proof covers range gating, off-board clipping, LOS bypass,
 forced landing, skipped-turn persistence, damage/surface parity, friendly fire,
 large footprints, Bleed cancellation, depth scaling, Brace/Scatter, explicit
 portraits, compass/at-rest rows, loaded art/icons and production save decoding.
-Latest focused result is `EN04 ENEMIES TEST RESULT: PASS (427 checks, 0 failures)`.
+Latest focused result is `EN04 ENEMIES TEST RESULT: PASS (454 checks, 0 failures)`.
 Chosen debug defaults, the shared real-renderer command, capture filenames and
 the approved painted Bramble update are documented in `briar_weaver.md`.
 
@@ -100,13 +100,15 @@ peer review, signoff and publication remain with the design owner.
 
 ## Final validation results
 
-- Focused runner: `EN04 ENEMIES TEST RESULT: PASS (427 checks, 0 failures)`.
+- Focused runner: `EN04 ENEMIES TEST RESULT: PASS (454 checks, 0 failures)`.
 - Headless probe: `EN04 ENEMIES PROBE CONTRACT: PASS (9 states, 1920x1080, UI scale 100%)`.
 - Icon audit: `Ran 7 tests` / `OK`.
 - Density suite: `Ran 41 tests in 88.471s` / `OK`; complete density check: `CHECK-OK`.
-- Shadow generation: `UNIT SHADOW CACHE GENERATED: res://assets/generated/unit_shadow_cache.res entries=50 sources=44`.
+- Shadow generation: `UNIT SHADOW CACHE GENERATED: res://assets/generated/unit_shadow_cache.res entries=52 sources=46`.
 - Protected data comparison: `EN04 PROTECTED DATA: PASS (2 verbatim entries)`.
-- Final full suite: `TEST RESULT: FAIL (4 failure(s))` — only the brief's known
+- Feedback-3 final full suite: `TEST RESULT: PASS`; `FULL SUITE RUNTIME: 638.335 seconds (budget 900 seconds)`.
+  Full log: `/private/tmp/labyrinth-godot-home/en-04-1791860144961155000-26405/godot.log`.
+- Feedback-2 full suite: `TEST RESULT: FAIL (4 failure(s))` — only the brief's known
   pinned depth assertions: run seeds 307, 8821, 90429 and combat seed 8821.
   The encounter-table pinned assertion did not fail in this run. No existing
   assertion was edited. Full log:

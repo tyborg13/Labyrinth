@@ -450,11 +450,20 @@ func present_hits(presentation: Dictionary) -> float:
 
 func _release_flashes() -> void:
 	presentation_usec()
+	var pending_peak: bool = false
 	for key: String in _flashes:
 		if int(_flashes[key]) < 0:
 			_flashes[key] = -2
+			pending_peak = true
 	_applied_scale = Engine.time_scale
-	_refresh_overlays()
+	# Stop polling runs after animation submissions in a native process frame.
+	# A submission made while frozen cannot carry the released white peak. Replace
+	# that pending board state before the draw, even if this frame was submitted;
+	# routine overlay maintenance still obeys its one-submission guard.
+	if pending_peak and not _leaving_tree and _presentation_allowed() and not scene.is_queued_for_deletion() and not _last_state.is_empty():
+		scene.call("_render_board_state", _last_state, _last_presentation, true)
+	else:
+		_refresh_overlays()
 	if enemies_active and _phase == "impact":
 		_change_phase("hit reaction / damage number")
 

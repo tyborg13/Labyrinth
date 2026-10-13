@@ -53,6 +53,8 @@ EXPECTED_GRIMOIRE_TOPIC_ICONS = {
 # These are one player-facing concept despite differing engine direction/target
 # names. Every other shared action icon is rejected.
 ALLOWED_EXACT_ACTION_ALIAS_GROUPS = {
+    # EN06 Charge gain/reset share the Charge concept.
+    frozenset({"gain_charge", "reset_charge"}),
     # Icefall marking and landing are the same delayed-icicle concept.
     frozenset({"icefall_mark", "icefall_land"}),
     frozenset({"lob_mark", "lob_land"}),

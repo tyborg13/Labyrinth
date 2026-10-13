@@ -88,8 +88,7 @@ static func draw_effect(view: Control, effect: Dictionary, progress: float) -> b
 
 static func animate(scene: Control, state: Dictionary, step: Dictionary) -> void:
 	if str(step["en04_mechanic"]) == "lob_mark":
-		state.clear()
-		state.merge(step["en04_state_after"].duplicate(true), true)
+		scene._apply_animation_step(state, step)
 		scene._render_board_state(state, {})
 		return
 	var before: Dictionary = state.duplicate(true)
@@ -99,8 +98,7 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary) -> void
 		await scene._play_timed_animation_frames(scene.ATTACK_FRAMES, ARC_SECONDS / float(scene.ATTACK_FRAMES), func(frame: int) -> void:
 			scene._render_board_state(state, {"effect": step, "effect_progress": float(frame) / float(scene.ATTACK_FRAMES) * ARC_SECONDS / (ARC_SECONDS + SPLASH_SECONDS)}))
 	# Damage at splash contact, Fire surfaces after the 0.25 s burst completes.
-	state.clear()
-	state.merge(step["en04_state_after"].duplicate(true), true)
+	scene._apply_animation_step(state, step)
 	var surfaces: Dictionary = state.get("surfaces", {}).duplicate(true)
 	state["surfaces"] = before.get("surfaces", {}).duplicate(true)
 	var texts: Array[Dictionary] = preload("res://scripts/enemy_mechanics/wind_view.gd").damage_texts(scene, step)

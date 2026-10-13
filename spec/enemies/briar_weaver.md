@@ -62,6 +62,21 @@ The existing Ice Pillar exclusion remains; damaged, highlighted and previewed
 boxes, crates and kegs retain their contextual bars. The focused suite adds 35
 regressions for missing/zero/negative durability and these destructible props.
 
+Director feedback 3 preserves the integration's itb-03 presentation. Thornwall
+uses the Bramble icon and three-round lifetime in the feet chip, with the
+support family, and the projected order disc beside the health bar. Lob Slag
+marking and landing enter the area-zone model with one owner-order tag on the
+marked tile nearest the Mortar; existing delayed damage medallions remain.
+There are no floating pills or ground compass at rest; contextual Details and
+focus still use the existing descriptors. The en-04 and en-06 planner, resolver,
+animation and state-application dispatch paths are combined. En-04 views apply
+snapshots through the shared RunScene hook; Grounded feedback runs before either
+wave's early return, while en-04 still replaces state and en-06 merges it. Four
+focused regressions retain those state and popup contracts. Every conflicting
+data/registry entry retains both sides' values, including all 85 density entries.
+The regenerated shadow cache has 52 entries / 46 sources; additive checks against
+both 50-entry pre-merge caches confirm that existing entries are unchanged.
+
 The tooltip and icon are unchanged:
 
 > Bramble: blocks movement for &lt;n&gt; more round(s). A unit pushed into it takes 2 damage and Bleeds.
@@ -90,13 +105,16 @@ Focused suite: `tests/en04_enemies_test.gd` and
 occupancy, immediate preview/resolution parity, movement/LOS, collision defense,
 Bleed, lifetime, skipped turns, wind-before-expiry, friendly fire, heal targets,
 fallback presentation, schema, turn-clock portraits, persistence, Lob
-integration and terrain health/damage-preview bars. The full suite includes
+integration, terrain health/damage-preview bars, itb-03 chips/order tags and the
+shared Grounded hook. The full suite includes
 this suite without changing existing master assertions. Latest focused result: `EN04 ENEMIES TEST RESULT: PASS
-(427 checks, 0 failures)`.
+(454 checks, 0 failures)`.
 
 Debug/proof defaults are plain named constants: `FIXTURE_SEED = 20261012`,
 `FIXTURE_BOARD_SIZE = 11`, `FIXTURE_PLAYER_HP = 50`, `FIXTURE_HELPER_HP = 20`,
 `FIXTURE_TERRAIN_MAX_HP = 3` (damage-preview fixture: `hp = 1`, `hp_loss = 2`),
+`FIXTURE_REST_QUEUE_TIME = 8`, `FIXTURE_REST_SPENT_TIME = 10`,
+`FIXTURE_REST_CARD_PLAYS = 2` (reuse the itb-03 proof clock choices),
 `FIXTURE_HERO = (5,5)`, `FIXTURE_SOURCE = (5,2)`, `AI_ROLL_COUNT = 32`, and
 `SAVE_PATH = user://en04_roundtrip.save` in the suite. The test guard's
 `MINIMUM_CHECK_COUNT` covers the completed suite. The probe uses
@@ -141,12 +159,12 @@ cd /Users/borgerding/workspace/Labyrinth.worktrees/en-04 && python3 tools/inspec
 See `slag_mortar.md` for the other fixture and requirements 3–5. The design
 owner must inspect native screenshots before accepting visual proof.
 
-For feedback 2, recapture the Bramble subset (including 03 and 04) with a fresh
+For feedback 3, recapture the Bramble subset (including 03 and 04) with a fresh
 result manifest. The runner assigns an isolated run directory automatically
 and emits the exact PNG paths in its output and result manifest:
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/en-04 && python3 tools/visual_probe_runner.py tests/en04_enemies_probe.gd --task-id en-04 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/en04_bramble_probe_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/en04-bramble-feedback2-v3.json -- --bramble-only
+cd /Users/borgerding/workspace/Labyrinth.worktrees/en-04 && python3 tools/visual_probe_runner.py tests/en04_enemies_probe.gd --task-id en-04 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/en04_bramble_probe_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/en04-bramble-feedback3-sync-v4.json -- --bramble-only
 ```
 
 This emits `02_thornwall_mid_rise.png`, `03_thornwall_grown.png`,
@@ -166,14 +184,23 @@ bramble_thicket` for subsequent processing; it starts from the adopted source.
 
 ## Final validation results
 
-- Focused runner: `EN04 ENEMIES TEST RESULT: PASS (427 checks, 0 failures)`.
-- Headless probe: `EN04 ENEMIES PROBE CONTRACT: PASS (9 states, 1920x1080, UI scale 100%)`.
-- Feedback-2 headless capture subset: `EN04 ENEMIES PROBE CONTRACT: PASS (4 states, 1920x1080, UI scale 100%)`.
+- Focused runner: `EN04 ENEMIES TEST RESULT: PASS (454 checks, 0 failures)`.
+- Previous full-probe contract: `EN04 ENEMIES PROBE CONTRACT: PASS (9 states, 1920x1080, UI scale 100%)`.
+- Feedback-3 headless capture subset: `EN04 ENEMIES PROBE CONTRACT: PASS (4 states, 1920x1080, UI scale 100%)`.
 - Icon audit: `Ran 7 tests` / `OK`.
-- Density suite: `Ran 41 tests in 88.471s` / `OK`; complete density check: `CHECK-OK`.
-- Shadow generation: `UNIT SHADOW CACHE GENERATED: res://assets/generated/unit_shadow_cache.res entries=50 sources=44`.
+- Previous density suite: `Ran 41 tests in 88.471s` / `OK`; feedback-3 complete density check: `CHECK-OK`.
+- Shadow generation: `UNIT SHADOW CACHE GENERATED: res://assets/generated/unit_shadow_cache.res entries=52 sources=46`.
+- Both original shadow caches: `EN06 SHADOW CACHE ADDITIVE CHECK: PASS (50 existing entries; 2 additions)`.
+- Integration values: `EN04 SYNC PROTECTED VALUES: PASS (both stages; 85 density entries)`.
+- en-06: `EN06 ENEMIES TEST RESULT: PASS (176 checks, 0 failures)`.
+- Threats v2: `THREATS AT REST TEST RESULT: PASS (556 assertions; includes compass suite)`.
+- en-01: `EN01 ENEMIES TEST RESULT: PASS`.
+- en-02: `EN02 ENEMIES TEST RESULT: PASS (235 checks, 0 failures)`.
+- en-03: `EN03 ENEMIES TEST RESULT: PASS (210 checks, 0 failures)`.
 - Protected data comparison: `EN04 PROTECTED DATA: PASS (2 verbatim entries)`.
-- Final full suite: `TEST RESULT: FAIL (4 failure(s))` — only the brief's known
+- Feedback-3 final full suite: `TEST RESULT: PASS`; `FULL SUITE RUNTIME: 638.335 seconds (budget 900 seconds)`.
+  Full log: `/private/tmp/labyrinth-godot-home/en-04-1791860144961155000-26405/godot.log`.
+- Feedback-2 full suite: `TEST RESULT: FAIL (4 failure(s))` — only the brief's known
   pinned depth assertions: run seeds 307, 8821, 90429 and combat seed 8821.
   The encounter-table pinned assertion did not fail in this run. No existing
   assertion was edited. Full log:
@@ -182,3 +209,35 @@ bramble_thicket` for subsequent processing; it starts from the adopted source.
   RunScene gained 11 lines.
 - Windowed captures were not run and no PNG capture paths are claimed as proof.
   The design owner must run and inspect the listed native command.
+
+## Feedback-3 merge index handoff
+
+Files changed for this sync:
+
+- Conflict resolutions: `data/enemies.json`, `scripts/action_icon_library.gd`,
+  `scripts/cutout_context.gd`, `scripts/enemy_intent_compass.gd`,
+  `scripts/intent_badges.gd`, `scripts/combat_board_view.gd`,
+  `scripts/combat_engine.gd`, `scripts/run_scene.gd`,
+  `assets/generated/unit_shadow_cache.res`,
+  `spec/assets/board_pixel_density/{registry,outputs}.json`,
+  `spec/assets/enemies/raw_sha256.txt`, `spec/card_balance_heuristic.md`,
+  `spec/icon_identity_policy.md`, `tools/card_heuristic.py`.
+- Shared snapshot hook: `scripts/enemy_mechanics/{bramble,lob}_view.gd`.
+- Regressions/guard: `tests/suites/en04_enemies_suite.gd`,
+  `tests/en04_enemies_test.gd`.
+- Owning handoff: `spec/enemies/{briar_weaver,slag_mortar}.md`.
+
+All 15 conflict files have resolved contents with no remaining markers. Git
+staging is blocked by this sandbox's protected Git metadata:
+
+```text
+fatal: Unable to create '/Users/borgerding/workspace/Labyrinth/.git/worktrees/en-04/index.lock': Operation not permitted
+```
+
+The merge remains in progress, with 15 unmerged index entries until the design
+owner runs the following command. It also stages the focused regression and
+owning-spec updates; it does not commit the merge.
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/en-04 && git add -- assets/generated/unit_shadow_cache.res data/enemies.json scripts/action_icon_library.gd scripts/combat_board_view.gd scripts/combat_engine.gd scripts/cutout_context.gd scripts/enemy_intent_compass.gd scripts/intent_badges.gd scripts/run_scene.gd spec/assets/board_pixel_density/outputs.json spec/assets/board_pixel_density/registry.json spec/assets/enemies/raw_sha256.txt spec/card_balance_heuristic.md spec/icon_identity_policy.md tools/card_heuristic.py scripts/enemy_mechanics/bramble_view.gd scripts/enemy_mechanics/lob_view.gd tests/en04_enemies_test.gd tests/suites/en04_enemies_suite.gd spec/enemies/briar_weaver.md spec/enemies/slag_mortar.md
+```

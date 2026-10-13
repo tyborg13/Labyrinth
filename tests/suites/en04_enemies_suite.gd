@@ -15,11 +15,16 @@ const Compass = preload("res://scripts/enemy_intent_compass.gd")
 const Icons = preload("res://scripts/action_icon_library.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const Strikes = preload("res://scripts/enemy_strike_points.gd")
+const Badges = preload("res://scripts/intent_badges.gd")
+const ThreatTiles = preload("res://scripts/threat_tiles.gd")
 const FIXTURE_SEED: int = 20261012
 const FIXTURE_BOARD_SIZE: int = 11
 const FIXTURE_PLAYER_HP: int = 50
 const FIXTURE_HELPER_HP: int = 20
 const FIXTURE_TERRAIN_MAX_HP: int = 3
+const FIXTURE_REST_QUEUE_TIME: int = 8
+const FIXTURE_REST_SPENT_TIME: int = 10
+const FIXTURE_REST_CARD_PLAYS: int = 2
 const FIXTURE_HERO := Vector2i(5, 5)
 const FIXTURE_SOURCE := Vector2i(5, 2)
 const SAVE_PATH: String = "user://en04_roundtrip.save"
@@ -61,6 +66,68 @@ static func run(expect: Callable) -> void:
 	_integration_boundaries(engine, expect)
 	_bramble_paint(expect)
 	_terrain_health_bars(engine, expect)
+	_itb03_presentation(engine, expect)
+	_shared_animation_hook(expect)
+
+static func _shared_animation_hook(expect: Callable) -> void:
+	var scene: Control = Scene.new()
+	for field: String in ["en04_state_after", "en06_after"]:
+		scene._player_popup_timeline_active = true
+		scene._player_popup_timeline_groups.clear()
+		var after: Dictionary = {"resolved": true}
+		var animated: Dictionary = {"stale": true}
+		var step: Dictionary = {"grounded_targets": [{"tile": FIXTURE_SOURCE}]}
+		step[field] = after
+		scene._apply_animation_step(animated, step)
+		expect.call(animated.get("resolved", false) and animated.has("stale") == (field == "en06_after"), "Both waves preserve their snapshot replacement/merge behavior")
+		expect.call(scene._player_popup_timeline_groups.size() == 1 and scene._player_popup_timeline_groups[0]["entries"][0]["text"] == "Grounded", "Both waves retain the shared Grounded popup hook")
+	scene.free()
+
+static func _rest_clock(state: Dictionary) -> void:
+	state["current_actor"] = {"kind": "player"}
+	var queue: Array[Dictionary]
+	queue.append({"kind": "enemy", "enemy_id": 1, "time": FIXTURE_REST_QUEUE_TIME, "seq": 1})
+	state["turn_queue"] = queue
+	state["player_turn_time_spent"] = FIXTURE_REST_SPENT_TIME
+	state["cards_played_this_turn"] = FIXTURE_REST_CARD_PLAYS
+
+static func _itb03_presentation(engine: RefCounted, expect: Callable) -> void:
+	var state: Dictionary = fixture(engine)
+	state["enemies"][0]["intent"] = intent("briar_weaver", "thornwall")
+	_rest_clock(state)
+	var rest: Dictionary = Badges.build(engine, state, state)
+	var chip: Dictionary = rest["badges"][0]
+	expect.call(chip["icon"] == "bramble" and chip["number"] == "3", "Thornwall feet chip uses the approved Bramble icon and lifetime")
+	expect.call(chip["family"] == Compass.FAMILY_SUPPORT, "Thornwall retains the itb-03 support-chip family")
+	expect.call(chip["order"] == "1" and bool(chip["acting"]), "Thornwall has the projected health-bar order disc")
+	expect.call(not Badges.details_discloses_compass({"threats_at_rest": rest}, "enemy_1"), "Thornwall has no compass at rest")
+	state["enemies"][0]["intent"] = intent("briar_weaver", "root_mend")
+	rest = Badges.build(engine, state, state)
+	chip = rest["badges"][0]
+	expect.call(chip["icon"] == Icons.action_icon_key(intent("briar_weaver", "lash_of_thorns")["actions"][0]) and chip["number"] == "3" and chip["secondary_icon"] == "bleed", "Root Mend fallback is expressed by the actual Lash feet chip")
+	state = fixture(engine, "slag_mortar")
+	state["enemies"][0]["intent"] = intent("slag_mortar", "lob_slag")
+	_rest_clock(state)
+	for landing: bool in [false, true]:
+		if landing:
+			state = engine._resolve_enemy_action(state, 0, intent("slag_mortar", "lob_slag")["actions"][0])
+			state["enemies"][0]["intent"] = intent("slag_mortar", "slag_lands")
+		var original: Dictionary = state.duplicate(true)
+		rest = Badges.build(engine, state, state)
+		chip = rest["badges"][0]
+		expect.call(chip["icon"] == "lob" and chip["number"] == "5", "Lob mark/landing feet chip uses the real landing damage")
+		expect.call(chip["order"] == "1" and bool(chip["danger"]), "Lob owner disc agrees with the clock and hero danger")
+		var zone: Dictionary = rest["threats"][0]
+		expect.call(bool(zone["area"]) and zone["tiles"] == engine.enemy_threat_tiles(state, 0)["projected_attack"], "Lob mark/landing is an area zone using the resolved plus shape")
+		var tags: Array[Dictionary] = ThreatTiles.zone_tags(rest["threats"])
+		expect.call(tags.size() == 1, "Lob mark/landing has exactly one owner zone tag")
+		expect.call(tags[0]["key"] == "enemy_1" and tags[0]["order"] == chip["order"] and tags[0]["tile"] == FIXTURE_HERO + Vector2i.UP, "Lob zone tag uses the attacker's order on the nearest marked tile")
+		expect.call(not Badges.details_discloses_compass({"threats_at_rest": rest}, "enemy_1"), "Lob has no compass at rest")
+		expect.call(state == original, "itb-03 Lob presentation preserves combat, marks and schedule")
+	var cache: Resource = load("res://assets/generated/unit_shadow_cache.res")
+	for type: String in ["briar_weaver", "slag_mortar", "storm_capacitor", "hollow_mimic"]:
+		var path: String = "res://assets/art/enemies/%s.png" % type
+		expect.call(cache.entries.has(path) and cache.source_sha256.get(path, "") == FileAccess.get_sha256(path), "Both waves retain current shadow entries: %s" % type)
 
 static func _terrain_health_bars(engine: RefCounted, expect: Callable) -> void:
 	var board: Control = Board.new()
@@ -323,13 +390,13 @@ static func _integration_boundaries(engine: RefCounted, expect: Callable) -> voi
 	var board: Control = Board.new()
 	board.combat_state = state
 	for unit: Dictionary in board._visible_units():
-		if unit.get("key") == "enemy_1": expect.call(unit["intent"]["id"] == "lash_of_thorns", "Visible intent pill adopts live fallback name and actions")
+		if unit.get("key") == "enemy_1": expect.call(unit["intent"]["id"] == "lash_of_thorns", "Visible intent model adopts live fallback name and actions")
 	var threats: Dictionary = engine.enemy_threat_tiles(state, 0)
 	expect.call(threats["projected_attack_action"]["type"] == "ranged" and (threats["projected_attack"] as Array).has(FIXTURE_HERO), "Fallback threat reflects actual Lash outcome")
 	board.free()
 	var badges = preload("res://scripts/intent_badges.gd")
 	expect.call(badges.is_attack(intent("briar_weaver", "thornwall")["actions"][0]), "Thornwall telegraphs terrain tiles in threats-at-rest")
-	expect.call(badges.descriptor(intent("slag_mortar", "slag_lands")["actions"][0])["number"] == "5", "Lob at-rest pill shows landing damage")
+	expect.call(badges.descriptor(intent("slag_mortar", "slag_lands")["actions"][0])["number"] == "5", "Lob at-rest chip shows landing damage")
 	state["enemies"].append(enemy(2, Vector2i(6, 2)))
 	state["enemies"].append(enemy(3, Vector2i(5, 4)))
 	state["enemies"][1]["hp"] = 18

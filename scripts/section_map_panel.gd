@@ -689,6 +689,11 @@ func focus_controller_on_current() -> void:
 		_continue.grab_focus()
 	else:
 		var choices: Array[Vector2i] = _choice_destinations()
+		# At a section threshold the approved first focus is the lowest lane.
+		# Other rooms retain their established connection ordering.
+		if not scout_targeting and str(Graph.room(run_state, run_state.get("current_room", Graph.INVALID)).get("type", "")) == "start":
+			choices.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
+				return float(Graph.room(run_state, a).get("map_lane", 0)) < float(Graph.room(run_state, b).get("map_lane", 0)))
 		for coord: Vector2i in choices:
 			if node_buttons.has(coord) and (not scout_targeting or can_activate_room(coord)):
 				(node_buttons[coord] as Control).grab_focus()

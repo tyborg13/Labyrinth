@@ -1,6 +1,400 @@
 {
   "schema_version": 2,
   "hero_reference": "assets/units/protagonist_cutout/front/front_assembled_rest_v9.png",
+  "excluded_paths": {
+    "assets/art/effects/ambient_air_wisp_frames.png": {
+      "category": "vfx",
+      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
+    },
+    "assets/art/effects/ambient_air_wisp_glow_frames.png": {
+      "category": "vfx",
+      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
+    },
+    "assets/art/effects/ambient_air_wisp_soft_particles.png": {
+      "category": "vfx",
+      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
+    },
+    "assets/art/effects/ambient_fire_soft_particles.png": {
+      "category": "vfx",
+      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
+    },
+    "assets/art/effects/ambient_particles.png": {
+      "category": "vfx",
+      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
+    },
+    "assets/art/effects/ambient_particles_glow.png": {
+      "category": "vfx",
+      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
+    },
+    "assets/art/effects/blink_rift_preview.png": {
+      "category": "vfx",
+      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
+    },
+    "assets/art/effects/defense_heal_casts.png": {
+      "category": "vfx",
+      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
+    },
+    "assets/art/effects/elemental_projectiles.png": {
+      "category": "vfx",
+      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
+    },
+    "assets/art/effects/lethal_death_mark.png": {
+      "category": "vfx",
+      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
+    },
+    "assets/art/tiles/dragon_spire.png": {
+      "category": "presence_gate",
+      "reason": "Texture presence gates drawing; dimensions/shadow references use this raster, but the visible body draws procedurally."
+    },
+    "assets/art/ui/health_bars/enemy_umbra_frame_v1.png": {
+      "category": "ui_icon",
+      "reason": "Player/enemy HUD health-bar frame; UI chrome, not painted board art."
+    },
+    "assets/art/ui/health_bars/player_lantern_frame_v1.png": {
+      "category": "ui_icon",
+      "reason": "Player/enemy HUD health-bar frame; UI chrome, not painted board art."
+    },
+    "assets/placeholders/tiles/element_overlays/air/air_pillar_overlay_01.png": {
+      "category": "never_drawn",
+      "reason": "_element_overlay_family_id(\"pillar\") always returns EARTH; non-earth pillar overlay is never selected."
+    },
+    "assets/placeholders/tiles/element_overlays/air/air_wall_overlay_01.png": {
+      "category": "never_drawn",
+      "reason": "Outer wall rendering is disabled by OUTER_WALL_RENDERING_ENABLED; interior walls draw as pillars."
+    },
+    "assets/placeholders/tiles/element_overlays/fire/fire_pillar_overlay_01.png": {
+      "category": "never_drawn",
+      "reason": "_element_overlay_family_id(\"pillar\") always returns EARTH; non-earth pillar overlay is never selected."
+    },
+    "assets/placeholders/tiles/element_overlays/fire/fire_wall_overlay_01.png": {
+      "category": "never_drawn",
+      "reason": "Outer wall rendering is disabled by OUTER_WALL_RENDERING_ENABLED; interior walls draw as pillars."
+    },
+    "assets/placeholders/tiles/element_overlays/ice/ice_pillar_overlay_01.png": {
+      "category": "never_drawn",
+      "reason": "_element_overlay_family_id(\"pillar\") always returns EARTH; non-earth pillar overlay is never selected."
+    },
+    "assets/placeholders/tiles/element_overlays/ice/ice_wall_overlay_01.png": {
+      "category": "never_drawn",
+      "reason": "Outer wall rendering is disabled by OUTER_WALL_RENDERING_ENABLED; interior walls draw as pillars."
+    },
+    "assets/placeholders/tiles/element_overlays/lightning/lightning_pillar_overlay_01.png": {
+      "category": "never_drawn",
+      "reason": "_element_overlay_family_id(\"pillar\") always returns EARTH; non-earth pillar overlay is never selected."
+    },
+    "assets/placeholders/tiles/element_overlays/lightning/lightning_wall_overlay_01.png": {
+      "category": "never_drawn",
+      "reason": "Outer wall rendering is disabled by OUTER_WALL_RENDERING_ENABLED; interior walls draw as pillars."
+    },
+    "assets/placeholders/tiles/moss_overlays/moss_wall_overlay_01.png": {
+      "category": "never_drawn",
+      "reason": "Outer wall rendering is disabled by OUTER_WALL_RENDERING_ENABLED; interior walls draw as pillars."
+    },
+    "assets/placeholders/tiles/wall.png": {
+      "category": "never_drawn",
+      "reason": "Outer wall rendering is disabled by OUTER_WALL_RENDERING_ENABLED; interior walls draw as pillars."
+    },
+    "assets/placeholders/units/emaciated_man_anime_trial.png": {
+      "category": "other",
+      "reason": "Legacy static NPC fallback if its idle sheet cannot load; the authored idle sheet is the board treatment target. Static portrait paint remains unchanged."
+    },
+    "assets/placeholders/units/player_reaver.png": {
+      "category": "never_drawn",
+      "reason": "Legacy player fallback; _uses_protagonist_cutout() always returns true."
+    },
+    "assets/props/guardians/crag_outcrop.png": {
+      "category": "presence_gate",
+      "reason": "Texture presence gates drawing; dimensions/shadow references use this raster, but the visible body draws procedurally."
+    },
+    "assets/props/guardians/raised_cover.png": {
+      "category": "never_drawn",
+      "reason": "No production room or enemy creates raised_cover terrain; generic raster fallback is retained in the board renderer."
+    },
+    "assets/props/guardians/watch_brazier_lit.png": {
+      "category": "never_drawn",
+      "reason": "Loaded but _texture_for_scene_prop uses watch_brazier_dark for both states."
+    },
+    "assets/units/acolyte_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/acolyte_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/bile_bloomer_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/bile_bloomer_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/chainbound_gaoler_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/chainbound_gaoler_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/cinder_droplet_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/cinder_droplet_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/cinder_ooze_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/cinder_ooze_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/crawler_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/crawler_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/frostglass_lancer_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/frostglass_lancer_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/grave_surgeon_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/grave_surgeon_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/ash_hound/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/ash_hound/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/ashen_reaver/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/ashen_reaver/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/bell_tender/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/bell_tender/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/craghide/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/craghide/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/gallows_roc/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/gallows_roc/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/last_lamplighter/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/last_lamplighter/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/rime_spitter/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/rime_spitter/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/rime_whelp/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/rime_whelp/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/rimejaw/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/rimejaw/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/roc_fledgling/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/roc_fledgling/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/stoneback_mite/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/stoneback_mite/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/storm_cantor/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/storm_cantor/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/wick_shade/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/guardians/wick_shade/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/harrier_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/harrier_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/iskaldra_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/iskaldra_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/lightning_wisp_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/lightning_wisp_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/noctyrax_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/noctyrax_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/protagonist_cutout/rear/crossbow.png": {
+      "category": "other",
+      "reason": "Protected front-matched weapon/crossbow/hand or gear-derived grip/fingers layer."
+    },
+    "assets/units/protagonist_cutout/rear/hand_l.png": {
+      "category": "other",
+      "reason": "Protected front-matched weapon/crossbow/hand or gear-derived grip/fingers layer."
+    },
+    "assets/units/protagonist_cutout/rear/hand_r.png": {
+      "category": "other",
+      "reason": "Protected front-matched weapon/crossbow/hand or gear-derived grip/fingers layer."
+    },
+    "assets/units/protagonist_cutout/rear/hand_r_fingers.png": {
+      "category": "other",
+      "reason": "Protected front-matched weapon/crossbow/hand or gear-derived grip/fingers layer."
+    },
+    "assets/units/protagonist_cutout/rear/rear_assembled_rest.png": {
+      "category": "never_drawn",
+      "reason": "Historical pre-v9 assembly, preserved and rest-digest tracked; runtime/layout consumers use rear_assembled_rest_v9.png."
+    },
+    "assets/units/protagonist_cutout/rear/rear_assembled_rest_v9.png": {
+      "category": "other",
+      "reason": "Native assembled rest; current v9 is rebaked, legacy reference is preserved."
+    },
+    "assets/units/protagonist_cutout/rear/weapon_r.png": {
+      "category": "other",
+      "reason": "Protected front-matched weapon/crossbow/hand or gear-derived grip/fingers layer."
+    },
+    "assets/units/protagonist_cutout/rear/weapon_r_grip.png": {
+      "category": "other",
+      "reason": "Protected front-matched weapon/crossbow/hand or gear-derived grip/fingers layer."
+    },
+    "assets/units/stone_warden_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/stone_warden_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/tharokh_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/tharokh_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/vaeloryx_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/vaeloryx_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/veilbound_acolyte_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/veilbound_acolyte_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/vyraketh_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/vyraketh_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/zekarion_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/zekarion_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    }
+  },
   "entries": [
     {
       "id": "warden",
@@ -3501,6 +3895,45 @@
       "mode": "regrid"
     },
     {
+      "id": "storm_capacitor",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/storm_capacitor.png"
+      ],
+      "r": 1.0666666666666667,
+      "r_derivation": {
+        "path": "scripts/enemy_mechanics/capacitor_view.gd",
+        "key": "BODY_SCALE",
+        "expression": "216 * 1.2 / 243; approved hero-relative body height on fixed 255 canvas"
+      },
+      "measurement_path": "assets/art/enemies/storm_capacitor.png",
+      "frames": null,
+      "orphan_share": 0.29121275521246665,
+      "t": 1.5,
+      "grid": 1.41,
+      "mode": "regrid",
+      "override": "EN06 brief requires an intact 255x255 static canvas. Native treatment preserves that canvas; derived runtime scale restores the 120% body height without clipping the approved chain/base silhouette."
+    },
+    {
+      "id": "hollow_mimic",
+      "kind": "static_enemy",
+      "paths": [
+        "assets/art/enemies/hollow_mimic.png"
+      ],
+      "r": 1.0,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "hollow_mimic.art_scale",
+        "expression": "art_scale (default 1.0)"
+      },
+      "measurement_path": "assets/art/enemies/hollow_mimic.png",
+      "frames": null,
+      "orphan_share": 0.21486949644081202,
+      "t": 1.5,
+      "grid": 1.5,
+      "mode": "regrid"
+    },
+    {
       "id": "briar_weaver",
       "kind": "static_enemy",
       "paths": [
@@ -3557,399 +3990,5 @@
       "grid": 1.5,
       "mode": "regrid"
     }
-  ],
-  "excluded_paths": {
-    "assets/art/effects/ambient_air_wisp_frames.png": {
-      "category": "vfx",
-      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
-    },
-    "assets/art/effects/ambient_air_wisp_glow_frames.png": {
-      "category": "vfx",
-      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
-    },
-    "assets/art/effects/ambient_air_wisp_soft_particles.png": {
-      "category": "vfx",
-      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
-    },
-    "assets/art/effects/ambient_fire_soft_particles.png": {
-      "category": "vfx",
-      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
-    },
-    "assets/art/effects/ambient_particles.png": {
-      "category": "vfx",
-      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
-    },
-    "assets/art/effects/ambient_particles_glow.png": {
-      "category": "vfx",
-      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
-    },
-    "assets/art/effects/blink_rift_preview.png": {
-      "category": "vfx",
-      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
-    },
-    "assets/art/effects/defense_heal_casts.png": {
-      "category": "vfx",
-      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
-    },
-    "assets/art/effects/elemental_projectiles.png": {
-      "category": "vfx",
-      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
-    },
-    "assets/art/effects/lethal_death_mark.png": {
-      "category": "vfx",
-      "reason": "Transient glow, particles or combat VFX; excluded by the board density scope."
-    },
-    "assets/art/tiles/dragon_spire.png": {
-      "category": "presence_gate",
-      "reason": "Texture presence gates drawing; dimensions/shadow references use this raster, but the visible body draws procedurally."
-    },
-    "assets/art/ui/health_bars/enemy_umbra_frame_v1.png": {
-      "category": "ui_icon",
-      "reason": "Player/enemy HUD health-bar frame; UI chrome, not painted board art."
-    },
-    "assets/art/ui/health_bars/player_lantern_frame_v1.png": {
-      "category": "ui_icon",
-      "reason": "Player/enemy HUD health-bar frame; UI chrome, not painted board art."
-    },
-    "assets/placeholders/tiles/element_overlays/air/air_pillar_overlay_01.png": {
-      "category": "never_drawn",
-      "reason": "_element_overlay_family_id(\"pillar\") always returns EARTH; non-earth pillar overlay is never selected."
-    },
-    "assets/placeholders/tiles/element_overlays/air/air_wall_overlay_01.png": {
-      "category": "never_drawn",
-      "reason": "Outer wall rendering is disabled by OUTER_WALL_RENDERING_ENABLED; interior walls draw as pillars."
-    },
-    "assets/placeholders/tiles/element_overlays/fire/fire_pillar_overlay_01.png": {
-      "category": "never_drawn",
-      "reason": "_element_overlay_family_id(\"pillar\") always returns EARTH; non-earth pillar overlay is never selected."
-    },
-    "assets/placeholders/tiles/element_overlays/fire/fire_wall_overlay_01.png": {
-      "category": "never_drawn",
-      "reason": "Outer wall rendering is disabled by OUTER_WALL_RENDERING_ENABLED; interior walls draw as pillars."
-    },
-    "assets/placeholders/tiles/element_overlays/ice/ice_pillar_overlay_01.png": {
-      "category": "never_drawn",
-      "reason": "_element_overlay_family_id(\"pillar\") always returns EARTH; non-earth pillar overlay is never selected."
-    },
-    "assets/placeholders/tiles/element_overlays/ice/ice_wall_overlay_01.png": {
-      "category": "never_drawn",
-      "reason": "Outer wall rendering is disabled by OUTER_WALL_RENDERING_ENABLED; interior walls draw as pillars."
-    },
-    "assets/placeholders/tiles/element_overlays/lightning/lightning_pillar_overlay_01.png": {
-      "category": "never_drawn",
-      "reason": "_element_overlay_family_id(\"pillar\") always returns EARTH; non-earth pillar overlay is never selected."
-    },
-    "assets/placeholders/tiles/element_overlays/lightning/lightning_wall_overlay_01.png": {
-      "category": "never_drawn",
-      "reason": "Outer wall rendering is disabled by OUTER_WALL_RENDERING_ENABLED; interior walls draw as pillars."
-    },
-    "assets/placeholders/tiles/moss_overlays/moss_wall_overlay_01.png": {
-      "category": "never_drawn",
-      "reason": "Outer wall rendering is disabled by OUTER_WALL_RENDERING_ENABLED; interior walls draw as pillars."
-    },
-    "assets/placeholders/tiles/wall.png": {
-      "category": "never_drawn",
-      "reason": "Outer wall rendering is disabled by OUTER_WALL_RENDERING_ENABLED; interior walls draw as pillars."
-    },
-    "assets/placeholders/units/emaciated_man_anime_trial.png": {
-      "category": "other",
-      "reason": "Legacy static NPC fallback if its idle sheet cannot load; the authored idle sheet is the board treatment target. Static portrait paint remains unchanged."
-    },
-    "assets/placeholders/units/player_reaver.png": {
-      "category": "never_drawn",
-      "reason": "Legacy player fallback; _uses_protagonist_cutout() always returns true."
-    },
-    "assets/props/guardians/crag_outcrop.png": {
-      "category": "presence_gate",
-      "reason": "Texture presence gates drawing; dimensions/shadow references use this raster, but the visible body draws procedurally."
-    },
-    "assets/props/guardians/raised_cover.png": {
-      "category": "never_drawn",
-      "reason": "No production room or enemy creates raised_cover terrain; generic raster fallback is retained in the board renderer."
-    },
-    "assets/props/guardians/watch_brazier_lit.png": {
-      "category": "never_drawn",
-      "reason": "Loaded but _texture_for_scene_prop uses watch_brazier_dark for both states."
-    },
-    "assets/units/acolyte_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/acolyte_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/bile_bloomer_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/bile_bloomer_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/chainbound_gaoler_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/chainbound_gaoler_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/cinder_droplet_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/cinder_droplet_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/cinder_ooze_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/cinder_ooze_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/crawler_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/crawler_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/frostglass_lancer_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/frostglass_lancer_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/grave_surgeon_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/grave_surgeon_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/ash_hound/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/ash_hound/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/ashen_reaver/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/ashen_reaver/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/bell_tender/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/bell_tender/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/craghide/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/craghide/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/gallows_roc/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/gallows_roc/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/last_lamplighter/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/last_lamplighter/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/rime_spitter/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/rime_spitter/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/rime_whelp/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/rime_whelp/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/rimejaw/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/rimejaw/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/roc_fledgling/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/roc_fledgling/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/stoneback_mite/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/stoneback_mite/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/storm_cantor/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/storm_cantor/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/wick_shade/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/guardians/wick_shade/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/harrier_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/harrier_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/iskaldra_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/iskaldra_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/lightning_wisp_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/lightning_wisp_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/noctyrax_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/noctyrax_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/protagonist_cutout/rear/crossbow.png": {
-      "category": "other",
-      "reason": "Protected front-matched weapon/crossbow/hand or gear-derived grip/fingers layer."
-    },
-    "assets/units/protagonist_cutout/rear/hand_l.png": {
-      "category": "other",
-      "reason": "Protected front-matched weapon/crossbow/hand or gear-derived grip/fingers layer."
-    },
-    "assets/units/protagonist_cutout/rear/hand_r.png": {
-      "category": "other",
-      "reason": "Protected front-matched weapon/crossbow/hand or gear-derived grip/fingers layer."
-    },
-    "assets/units/protagonist_cutout/rear/hand_r_fingers.png": {
-      "category": "other",
-      "reason": "Protected front-matched weapon/crossbow/hand or gear-derived grip/fingers layer."
-    },
-    "assets/units/protagonist_cutout/rear/rear_assembled_rest.png": {
-      "category": "never_drawn",
-      "reason": "Historical pre-v9 assembly, preserved and rest-digest tracked; runtime/layout consumers use rear_assembled_rest_v9.png."
-    },
-    "assets/units/protagonist_cutout/rear/rear_assembled_rest_v9.png": {
-      "category": "other",
-      "reason": "Native assembled rest; current v9 is rebaked, legacy reference is preserved."
-    },
-    "assets/units/protagonist_cutout/rear/weapon_r.png": {
-      "category": "other",
-      "reason": "Protected front-matched weapon/crossbow/hand or gear-derived grip/fingers layer."
-    },
-    "assets/units/protagonist_cutout/rear/weapon_r_grip.png": {
-      "category": "other",
-      "reason": "Protected front-matched weapon/crossbow/hand or gear-derived grip/fingers layer."
-    },
-    "assets/units/stone_warden_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/stone_warden_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/tharokh_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/tharokh_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/vaeloryx_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/vaeloryx_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/veilbound_acolyte_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/veilbound_acolyte_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/vyraketh_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/vyraketh_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/zekarion_cutout/front/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    },
-    "assets/units/zekarion_cutout/rear/rest.png": {
-      "category": "other",
-      "reason": "Derived native assembly; rebake after density processing."
-    }
-  }
+  ]
 }

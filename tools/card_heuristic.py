@@ -283,6 +283,18 @@ def encounter_assumptions() -> dict[str, Any]:
             "spawns": "design owner adds earth_weaver/fire_mortar after merge",
             "card_coefficients": "unchanged",
         },
+        "en06_enemies": {
+            "source": "spec/peer_benchmark/staged/enemies/wave_e2.json",
+            "storm_capacitor": {"hp": 22, "initiative": 16, "embers": 13, "cycle": (3 * (16 + 4) + (16 + 5)) / 4,
+                                "charge": "persistent 0..3; three Charge activations then Discharge; becoming Shocked removes one",
+                                "discharge": "nearest hero/enemy within Manhattan 4; every tie: hero, lowest current HP, tile y, tile x; nearest eight-neighbour unstruck target; 6/5/4/3 damage; ordinary friendly-fire rewards",
+                                "movement": "immobile; force and wind anchored"},
+            "hollow_mimic": {"hp": 14, "initiative": 12, "embers": 11, "authored_weighted_cycle": 12 + (3 * 6 + 2 * 4 + 4) / 6,
+                             "mirror": "combat-wide last card that actually dealt attack damage; snapshot first damaging action at selection; base damage/shape/range/element only; special targeting becomes single ranged range 4 with copied damage/name; Move up to 2 then Shade Bolt fallback",
+                             "shade_bolt": "4 shadow, range 4", "recede": "Move away 2 + Block 4"},
+            "spawns": "director adds the authored lightning/shadow encounter groups after merge",
+            "card_coefficients": "unchanged; positional exposure and kill order are encounter context",
+        },
         "en03_enemies": {
             "arc_thrall": {"hp": 10, "base_initiative": 11, "reward_embers": 9, "weighted_cycle": 15.6,
                           "tether": "spawn_group 2; held partner; clear cardinal distance <=6; align Move <=3; strictly intermediate tiles take 4 lightning + Shock 1, including enemies",

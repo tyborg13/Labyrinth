@@ -1014,3 +1014,9 @@ Event card claims and skips retain the ordinary `reward_choice` payload and add
 `card` for a claim and `heal_skip` for a skip. Combat rewards use `reward_kind:
 "combat"` and an empty event id. This is additive within schema 1; historical
 append-only JSONL files are never rewritten.
+
+EN06 Charge (`gain_charge`) is an ordinary `enemy_action_resolved` event rather
+than an `enemy_status_tick`; its status-shaped animation does not make it a
+turn-start status decrement. Discharge and Mirror use the existing ranged/area
+classification. Event types, local JSONL storage and source attribution stay
+unchanged; no new enemy-mechanic analytics event is introduced.

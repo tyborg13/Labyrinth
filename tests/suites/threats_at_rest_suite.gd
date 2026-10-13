@@ -16,6 +16,11 @@ const FIXTURE_SEED: int = 126065
 const FIXTURE_HERO: Vector2i = Vector2i(4, 4)
 const FIXTURE_QUEUE_TIMES: Array = [8, 11, 12, 13]
 const FIXTURE_GRID_SIDE: int = 9
+const FIXTURE_BOX_OFFSET := Vector2i(1, -2)
+const FIXTURE_BOX_HP: int = 10
+const PLACEMENT_TEST_ANCHOR := Vector2(600, 500)
+const PLACEMENT_TEST_HEALTH := Rect2(100, 100, 140, 20)
+const ZONE_PREVIEW_OFFSET := Vector2i.UP
 
 static func run(expect: Callable) -> void:
 	_test_order_and_tiles(expect)
@@ -23,7 +28,9 @@ static func run(expect: Callable) -> void:
 	_test_previews_and_privacy(expect)
 	_test_callouts(expect)
 	_test_style_and_overlap(expect)
-	_test_director_decisions(expect)
+	_test_chip_content(expect)
+	_test_danger(expect)
+	_test_zone_tags(expect)
 	_test_stage_plumbing(expect)
 
 static func staged_layout() -> Dictionary:
@@ -72,7 +79,7 @@ static func _test_order_and_tiles(expect: Callable) -> void:
 	var state: Dictionary = staged_state(combat)
 	var original: Dictionary = state.duplicate(true)
 	var rest: Dictionary = Badges.build(combat, state, state)
-	expect.call((rest["badges"] as Array).size() == 4, "All four visible known intents have at-rest pills")
+	expect.call((rest["badges"] as Array).size() == 4, "All four visible known intents have at-rest chips")
 	var expected: Dictionary = {"enemy_1": "1", "enemy_3": "2", "enemy_2": "3", "enemy_4": "4"}
 	var damage: Dictionary = {"enemy_1": "4", "enemy_3": "6", "enemy_2": "5", "enemy_4": "4"}
 	for badge: Dictionary in rest["badges"]:
@@ -87,7 +94,7 @@ static func _test_order_and_tiles(expect: Callable) -> void:
 	expect.call(state == original, "Rest presentation must not mutate combat, queue, RNG, saves or events")
 	var isolated: Dictionary = Badges.build(combat, state, state, "enemy_1")
 	for badge: Dictionary in isolated["badges"]:
-		expect.call(is_equal_approx(float(badge["alpha"]), 1.0 if badge["key"] == "enemy_1" else 0.4), "Hover/focus isolates pills at 40%")
+		expect.call(is_equal_approx(float(badge["alpha"]), 1.0 if badge["key"] == "enemy_1" else 0.4), "Hover/focus isolates chips at 40%")
 	for threat: Dictionary in isolated["threats"]:
 		expect.call(is_equal_approx(float(threat["alpha"]), 1.0 if threat["key"] == "enemy_1" else 0.4), "Hover/focus isolates tiles at 40%")
 
@@ -134,7 +141,7 @@ static func _test_previews_and_privacy(expect: Callable) -> void:
 		else: enemy[status] = 1
 		rest = Badges.build(combat, state, preview)
 		for badge: Dictionary in rest["badges"]:
-			if badge["key"] == "enemy_1": expect.call(bool(badge["cancelled"]), "%s preview strikes the announced pill" % status)
+			if badge["key"] == "enemy_1": expect.call(bool(badge["cancelled"]), "%s preview strikes the announced chip" % status)
 		for threat: Dictionary in rest["threats"]: expect.call(threat["key"] != "enemy_1", "%s preview removes cancelled tiles" % status)
 	state["umbra"] = {"stage": "heart", "light_sources": []}
 	var hidden_id: int = 2
@@ -146,10 +153,19 @@ static func _test_previews_and_privacy(expect: Callable) -> void:
 	rest = Badges.build(combat, state, state, "", known)
 	for badge: Dictionary in rest["badges"]:
 		var id: int = int(str(badge["key"]).trim_prefix("enemy_"))
-		expect.call(combat.visible_enemy_ids(state).has(id), "Hidden enemies expose no pill or action order")
+		expect.call(combat.visible_enemy_ids(state).has(id), "Hidden enemies expose no chip or action order")
 	for threat: Dictionary in rest["threats"]:
 		var id: int = int(str(threat["key"]).trim_prefix("enemy_"))
 		expect.call(combat.visible_enemy_ids(state).has(id), "Hidden enemies expose no threat tiles")
+	for tag: Dictionary in Tiles.zone_tags(rest["threats"]):
+		expect.call(tag["key"] != "enemy_2", "Hidden enemies expose no zone tags")
+	var moved: Dictionary = known.duplicate(true)
+	(moved["player"] as Dictionary)["pos"] += Vector2i.UP
+	var movement: Dictionary = Badges.movement_preview(combat, state, moved)
+	expect.call((movement["enemies"] as Array).size() == (state["enemies"] as Array).size(), "Known movement preview retains concealed actors for unchanged clock accounting")
+	rest = Badges.build(combat, state, movement, "", view.call("_surface_preview_information_state", movement))
+	for badge: Dictionary in rest["badges"]:
+		expect.call(badge["key"] != "enemy_2", "Known movement preview cannot reveal a concealed intent")
 	view.free()
 
 static func _test_callouts(expect: Callable) -> void:
@@ -214,35 +230,64 @@ static func _test_callouts(expect: Callable) -> void:
 
 static func _test_style_and_overlap(expect: Callable) -> void:
 	expect.call(is_equal_approx(Tiles.hero_fill_alpha(0.0, true), 0.24), "Reduced-motion hero threat is steady 24%")
-	expect.call(is_equal_approx(Tiles.hero_fill_alpha(Tiles.PULSE_SECONDS * 0.25, false), 0.30), "Hero pulse reaches 30%")
-	expect.call(is_equal_approx(Tiles.hero_fill_alpha(Tiles.PULSE_SECONDS * 0.75, false), 0.18), "Hero pulse reaches 18%")
+	expect.call(is_equal_approx(Tiles.hero_fill_alpha(Tiles.PULSE_SECONDS * 0.25, false), 0.30), "Hero tile pulse reaches 30%")
+	expect.call(is_equal_approx(Tiles.hero_fill_alpha(Tiles.PULSE_SECONDS * 0.75, false), 0.18), "Hero tile pulse reaches 18%")
 	var overlapping: Dictionary = Tiles.tile_alphas([{ "tiles": [FIXTURE_HERO], "alpha": 0.4 }, { "tiles": [FIXTURE_HERO], "alpha": 1.0 }])
 	expect.call(float(overlapping[FIXTURE_HERO]) == 1.0, "Overlapping threats use max fill, never additive")
-	var multi: Dictionary = Badges.descriptor({"type": "melee", "damage": 4, "hits": 2, "bleed": 1})
-	expect.call(multi["number"] == "4×2" and multi["secondary_icon"] == "bleed" and multi["secondary_number"] == "1", "Multi-hit and single rider formatting follows the brief")
+	var font: Font = Typography.ui_font()
+	var badge: Dictionary = Badges.descriptor({"type": "melee", "damage": 4})
+	var anchor: Vector2 = PLACEMENT_TEST_ANCHOR
+	var placed: Dictionary = Badges.place_chip(anchor, badge, font, [], [])
+	var default_rect: Rect2 = placed["rect"]
+	expect.call(placed["center"] == anchor + Vector2(26, 4) and placed["placement"] == "lower_right", "Default medallion is 26px right and 4px below feet")
+	for blocker: String in ["unit", "prop", "chip"]:
+		var obstacles: Array[Rect2]
+		var previous: Array[Dictionary]
+		if blocker == "chip": previous.append({"rect": default_rect})
+		else: obstacles.append(default_rect)
+		placed = Badges.place_chip(anchor, badge, font, obstacles, previous)
+		expect.call(placed["placement"] == "lower_left" and not bool(placed["above_everything"]), "%s overlap flips chip to lower left" % blocker)
+		expect.call(is_equal_approx((placed["rect"] as Rect2).end.x, anchor.x - 26.0) and is_equal_approx((placed["center"] as Vector2).y, anchor.y + 4.0), "Mirrored chip keeps its orientation and exact feet offset")
+	var left_rect: Rect2 = placed["rect"]
+	var blocked: Array[Rect2]
+	blocked.append(default_rect)
+	blocked.append(left_rect)
+	placed = Badges.place_chip(anchor, badge, font, blocked, [])
+	expect.call(placed["rect"] == default_rect and bool(placed["above_everything"]), "Both blocked retains lower-right chip above everything")
+	var health: Rect2 = PLACEMENT_TEST_HEALTH
+	var disc: Rect2 = Badges.order_rect(health, "1", font)
+	expect.call(disc.size == Vector2(24, 24) and disc.get_center() == Vector2(86, 110), "24px order disc centres 14px left of health frame")
+	var capsule: Rect2 = Badges.order_rect(health, "1·3", font)
+	expect.call(capsule.size.x > 24 and capsule.size.y == 24 and capsule.get_center() == disc.get_center(), "1·3 extends the disc as a same-style capsule")
+	expect.call(not Badges.order_rect(health, "", font).has_area(), "Non-acting enemy has no order disc")
 	var combat := Combat.new()
-	var state: Dictionary = staged_state(combat)
+	var state: Dictionary = crowded_state(combat)
 	var board := Board.new()
 	board.size = Vector2(1920, 1080)
 	board.set_combat_state(state)
-	var badges: Array = Badges.build(combat, state, state)["badges"]
-	# Coincident proof anchors exercise the specified two raised levels.
-	var coincident: Dictionary = state.duplicate(true)
-	for enemy: Dictionary in coincident["enemies"]:
-		enemy["pos"] = FIXTURE_HERO + Vector2i.RIGHT
-		enemy["type"] = "crawler"
-	board.set_combat_state(coincident)
-	var layouts: Array[Dictionary] = Badges.layouts(board, badges.slice(0, 3))
-	expect.call(layouts.size() == 3, "Visible enemy pills have measured screen layouts")
-	if layouts.size() == 3:
-		expect.call(layouts[0]["stack_level"] == 0 and layouts[1]["stack_level"] == 1 and layouts[2]["stack_level"] == 2, "Later pills stack exactly 30px, at most two raised levels")
-		for index: int in range(layouts.size()):
-			expect.call(not layouts[index].has("overlap_unresolved"), "Layouts no longer expose an unresolved-overlap flag")
-			for earlier: int in range(index):
-				expect.call(not Badges._envelope(layouts[index]["rect"], str(layouts[index]["order"])).intersects(Badges._envelope(layouts[earlier]["rect"], str(layouts[earlier]["order"]))), "Stacked pill envelopes do not overlap")
+	var layouts: Array[Dictionary] = Badges.layouts(board, Badges.build(combat, state, state)["badges"])
+	expect.call(layouts.size() == 4, "Crowded layout retains every chip at its feet")
+	for layout: Dictionary in layouts:
+		var unit: Dictionary = {}
+		for candidate: Dictionary in board.call("_visible_units"):
+			if candidate["key"] == layout["key"]: unit = candidate
+		var feet: Vector2 = board.call("_unit_center", unit)
+		expect.call(is_equal_approx((layout["center"] as Vector2).y, feet.y + 4.0), "Crowded chip never docks at the health bar")
+		expect.call((layout["order_rect"] as Rect2).get_center() == Vector2(Badges.health_rect(board, unit).position.x - 14.0, Badges.health_rect(board, unit).get_center().y), "Disc follows collision-resolved health frame")
+	var boss: Dictionary = {"key": "enemy_1", "role": "enemy", "boss_bar": true}
+	board.set("presentation", {"boss_health_frame_global_rect": Rect2(570, 28, 780, 90)})
+	expect.call(Badges.health_rect(board, boss) == Rect2(570, 28, 780, 90), "Boss disc uses its real global health frame")
 	board.free()
 
-static func _test_director_decisions(expect: Callable) -> void:
+static func _test_chip_content(expect: Callable) -> void:
+	var multi: Dictionary = Badges.descriptor({"type": "melee", "damage": 4, "hits": 2, "bleed": 1})
+	expect.call(multi["number"] == "4×2" and multi["secondary_icon"] == "bleed" and multi["secondary_number"] == "1", "Multi-hit and single rider formatting follows the brief")
+	for action: Dictionary in [{"type": "melee", "damage": 4}, {"type": "ranged", "damage": 5}, {"type": "aoe", "damage": 6}, {"type": "block", "amount": 3}, {"type": "heal_self", "amount": 2}, {"type": "summon_minions", "count": 2}, {"type": "move_away", "range": 3}]:
+		var chip: Dictionary = Badges.descriptor(action)
+		expect.call(chip["icon"] == Badges.Icons.action_icon_key(action), "%s uses its existing primary action icon" % action["type"])
+		expect.call(chip["number"] == str(action.get("damage", action.get("amount", action.get("count", "")))), "%s retains its primary number" % action["type"])
+		var family: String = str(chip["family"])
+		expect.call(Badges.ring_color(chip) == (Badges.Palette.GOLD_DIM if family in ["defense", "support", "movement"] else Badges.Palette.GOLD), "%s uses its approved normal ring" % action["type"])
 	var priority: Dictionary = Badges.descriptor({"type": "melee", "damage": 4, "bleed": 1, "shock": 1, "freeze": 1, "immobilize": true, "push": 2})
 	expect.call(priority["secondary_icon"] == "push" and priority["secondary_number"] == "2", "Push distance wins over all lower-priority riders")
 	var candidates: Array[Dictionary]
@@ -255,60 +300,79 @@ static func _test_director_decisions(expect: Callable) -> void:
 	var icon_only: Dictionary = Badges.descriptor({"type": "melee", "damage": 4, "immobilize": true, "bleed": 1})
 	expect.call(icon_only["secondary_icon"] == "immobilize" and icon_only["secondary_number"] == "", "Unnumbered secondary is icon-only")
 	var font: Font = Typography.ui_font()
-	var badge: Dictionary = {"number": "4", "order": "1", "secondary_icon": "push", "secondary_number": "2"}
-	var expected_width: float = 12.0 + 20.0 + 4.0 + font.get_string_size("4", HORIZONTAL_ALIGNMENT_LEFT, -1, 19).x + 7.0 + 16.0 + 3.0 + font.get_string_size("2", HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x + 8.0
-	expect.call(is_equal_approx(Badges.plate_width(badge, font), expected_width), "Pill measures 12px ordered left padding, 8px right padding and 4/7/3px gaps")
-	badge["order"] = ""
-	expect.call(is_equal_approx(Badges.plate_width(badge, font), expected_width - 4.0), "Disc-free pill has 8px padding on each side")
-	badge["number"] = ""
-	badge["secondary_number"] = ""
-	expect.call(is_equal_approx(Badges.plate_width(badge, font), 8.0 + 20.0 + 7.0 + 16.0 + 8.0), "Icon-only content omits both number gaps")
-	var occupied: Array[Dictionary]
-	occupied.append({"rect": Rect2(100, 100, 80, 26), "order": "1"})
-	var right: Rect2 = Badges.resolve_horizontal_overflow(Rect2(100, 100, 80, 26), "2", occupied, Rect2(0, 0, 400, 200))
-	expect.call(is_equal_approx(right.position.x, 204.0), "Overflow shifts right by 98px envelope overlap plus 6px")
-	expect.call(not Badges._overlaps(right, "2", occupied), "Right overflow solution clears prior pills")
-	occupied[0]["rect"] = Rect2(300, 100, 80, 26)
-	var left: Rect2 = Badges.resolve_horizontal_overflow(Rect2(300, 100, 80, 26), "2", occupied, Rect2(0, 0, 400, 200))
-	expect.call(is_equal_approx(left.position.x, 196.0), "A viewport-clamped right shift instead moves left by overlap plus 6px")
-	expect.call(not Badges._overlaps(left, "2", occupied) and Badges._envelope(left, "2").position.x >= 0.0 and left.end.x <= 400.0, "Overflow remains inside the viewport")
-	occupied[0]["rect"] = Rect2(222, 100, 80, 26)
-	var clamped_clear: Rect2 = Badges.resolve_horizontal_overflow(Rect2(300, 100, 80, 26), "2", occupied, Rect2(0, 0, 400, 200))
-	expect.call(clamped_clear.position.x < 300.0 and not Badges._overlaps(clamped_clear, "2", occupied), "Any clamped right shift switches to the left even if its clipped position was clear")
+	var chip: Dictionary = {"number": "4", "secondary_icon": "push", "secondary_number": "2"}
+	var end: float = 24.0 + font.get_string_size("4", HORIZONTAL_ALIGNMENT_LEFT, -1, 19).x + 6.0 + 16.0 + font.get_string_size("2", HORIZONTAL_ALIGNMENT_LEFT, -1, 15).x + 12.0
+	expect.call(is_equal_approx(Badges.plate_end(chip, font), end), "Plate content uses approved font sizes, 6px rider gap and 12px end padding")
+	chip["number"] = ""
+	expect.call(Badges.plate_end(chip, font) == 0.0 and Badges.chip_rect(Vector2.ZERO, chip, font).size == Vector2(32, 32), "Numberless intent has only its 32px medallion")
+	expect.call(is_equal_approx(Badges.halo_alpha(0, false), 0.35) and is_equal_approx(Badges.halo_alpha(0.55, false), 0.75) and is_equal_approx(Badges.halo_alpha(1.1, false), 0.35), "Danger halo follows 35% to 75% to 35% over 1.1s")
+	expect.call(is_equal_approx(Badges.halo_alpha(0, true), 0.55) and is_equal_approx(Badges.halo_alpha(0.55, true), 0.55), "Reduced motion is steady 55%")
+	var halo: Dictionary = Badges.halo_texture(end)
+	var image: Image = (halo["texture"] as Texture2D).get_image()
+	var center: Vector2i = Vector2i(-(halo["offset"] as Vector2))
+	expect.call(image.get_pixel(center.x, center.y).a > image.get_pixel(center.x - 25, center.y).a and image.get_pixel(center.x - 25, center.y).a > 0.0, "Gaussian halo has a soft nonzero tail outside the medallion")
+	expect.call(Badges.halo_texture(end)["texture"] == halo["texture"], "Repeated halo drawing reuses its cached Gaussian mask")
+	expect.call(not Badges.details_discloses_compass({}, "enemy_1"), "Ground compass is absent at rest")
+	expect.call(Badges.details_discloses_compass({"show_all_enemy_intents": true}, "enemy_1"), "Details retains the ground compass")
+	expect.call(Badges.details_discloses_compass({"expanded_enemy_actor_keys": ["enemy_1"]}, "enemy_1") and not Badges.details_discloses_compass({"expanded_enemy_actor_keys": ["enemy_1"]}, "enemy_2"), "Focus retains only its disclosed compass")
+
+static func _test_danger(expect: Callable) -> void:
+	var combat := Combat.new()
+	for kind: String in ["melee", "ranged", "aoe"]:
+		var state: Dictionary = staged_state(combat)
+		var enemy: Dictionary = state["enemies"][0]
+		enemy["pos"] = FIXTURE_HERO + Vector2i.RIGHT
+		enemy["intent"] = {"actions": [{"type": kind, "damage": 4, "range": 3 if kind == "ranged" else 1}]}
+		var badge: Dictionary = _badge(Badges.build(combat, state, state), "enemy_1")
+		expect.call(bool(badge["danger"]), "%s hitting the hero's tile is danger" % kind)
+		expect.call(Badges.ring_color(badge) == Badges.Palette.DANGER, "Danger ring/rims/finial use DANGER")
+		var preview: Dictionary = state.duplicate(true)
+		(preview["player"] as Dictionary)["pos"] = Vector2i(1, 1)
+		badge = _badge(Badges.build(combat, state, preview), "enemy_1")
+		expect.call(not bool(badge["danger"]), "%s preview moving hero out removes danger" % kind)
+	var state: Dictionary = staged_state(combat)
+	state["illusions"] = [{"id": 1, "pos": Vector2i(1, 3), "hp": 10, "max_hp": 10, "block": 0, "stoneskin": 0}]
+	var badge: Dictionary = _badge(Badges.build(combat, state, state), "enemy_4")
+	expect.call(not bool(badge["danger"]), "Attack aimed at an illusion is not danger to hero")
+	var rest: Dictionary = Badges.build(combat, state, state)
+	expect.call(Badges.needs_pulse({"threats_at_rest": rest}), "Danger chip requests retained HUD redraw")
+	expect.call(not Badges.needs_pulse({"threats_at_rest": rest, "reduced_motion": true}), "Reduced motion does not animate chip halo")
+
+static func _test_zone_tags(expect: Callable) -> void:
 	var combat := Combat.new()
 	var state: Dictionary = staged_state(combat)
-	for enemy: Dictionary in state["enemies"]:
-		enemy["type"] = "crawler"
-		enemy["pos"] = FIXTURE_HERO + Vector2i.RIGHT
-	var board := Board.new()
-	board.size = Vector2(1920, 1080)
-	board.set_combat_state(state)
-	var layouts: Array[Dictionary] = Badges.layouts(board, Badges.build(combat, state, state)["badges"])
-	expect.call(layouts.size() == 4 and int(layouts[3]["stack_level"]) == 2, "A fourth coincident pill is retained at the +60px level")
-	for index: int in range(layouts.size()):
-		expect.call(not Badges._overlaps(layouts[index]["rect"], str(layouts[index]["order"]), _layouts_before(layouts, index)), "Horizontal overflow clears every earlier envelope")
-	var boss: Dictionary = {"key": "enemy_1", "role": "enemy", "type": "tharokh", "pos": Vector2i(5, 1), "boss_bar": true}
-	var visual: Rect2 = board.call("_unit_draw_rect", boss)
-	board.set("presentation", {"boss_header_global_rect": Rect2(0, 0, 780, visual.position.y + 40.0)})
-	var rect: Rect2 = Badges.base_rect(board, boss, 80.0)
-	expect.call(is_equal_approx(rect.get_center().x, visual.get_center().x), "Boss pill is centred on its rendered visual bounds")
-	expect.call(is_equal_approx(rect.position.y, visual.position.y + 48.0), "Boss pill top clamps 8px below the global header")
-	board.set("presentation", {})
-	rect = Badges.base_rect(board, boss, 80.0)
-	expect.call(is_equal_approx(rect.end.y, visual.position.y - 8.0), "Unclamped boss pill bottom clears rendered bounds by 8px")
-	var boss_enemies: Array[Dictionary]
-	boss_enemies.append(foe(1, "tharokh", Vector2i(1, -3), str((GameData.enemy_def("tharokh")["intents"][0] as Dictionary)["id"])))
-	state["enemies"] = boss_enemies
-	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"boss_header_global_rect": Rect2(570, 18, 780, 134)})
-	layouts = Badges.layouts(board, Badges.build(combat, state, state)["badges"])
-	expect.call(layouts.size() == 1, "Global-header bosses keep their visible pill in the actual board layout")
-	if not layouts.is_empty(): expect.call((layouts[0]["rect"] as Rect2).position.y >= 160.0, "Boss layout respects the live 152px header bottom plus 8px")
-	board.free()
+	var rest: Dictionary = Badges.build(combat, state, state)
+	var tags: Array[Dictionary] = Tiles.zone_tags(rest["threats"])
+	expect.call(tags.size() == 1 and tags[0]["key"] == "enemy_3" and tags[0]["order"] == "2", "Only area attacker gets a zone tag with its order numeral")
+	for threat: Dictionary in rest["threats"]:
+		if not bool(threat["area"]): continue
+		var source: Vector2i = threat["attacker_tile"]
+		var nearest: Vector2i = tags[0]["tile"]
+		var distance: int = absi(nearest.x - source.x) + absi(nearest.y - source.y)
+		for tile: Vector2i in threat["tiles"]:
+			expect.call(distance <= absi(tile.x - source.x) + absi(tile.y - source.y), "Tag tile is nearest its attacker")
+	expect.call(Badges.is_area_intent({"actions": [{"type": "ranged", "pattern": [[0, 0]]}]}), "Pattern attacks qualify for a zone tag")
+	var isolated: Array[Dictionary] = Tiles.zone_tags(Badges.build(combat, state, state, "enemy_1")["threats"])
+	expect.call(is_equal_approx(float(isolated[0]["alpha"]), 0.4), "Other zone tags dim to 40% under isolation")
+	var preview: Dictionary = state.duplicate(true)
+	(preview["enemies"][2] as Dictionary)["pos"] += ZONE_PREVIEW_OFFSET
+	var after: Dictionary = Badges.build(combat, state, preview)
+	var after_tags: Array[Dictionary] = Tiles.zone_tags(after["threats"])
+	expect.call(after_tags.size() == 1, "Re-aim fixture retains a real area zone tag")
+	if not after_tags.is_empty(): expect.call(after_tags[0]["tile"] != tags[0]["tile"], "Displacing an area source re-aims its zone tag")
+	for tag: Dictionary in after_tags:
+		expect.call(tag["tile"] in combat.enemy_threat_tiles(preview, 2)["projected_attack"], "Preview zone tag stays on re-aimed area")
 
-static func _layouts_before(layouts: Array[Dictionary], count: int) -> Array[Dictionary]:
-	var result: Array[Dictionary]
-	for index: int in range(count): result.append(layouts[index])
-	return result
+static func _badge(rest: Dictionary, key: String) -> Dictionary:
+	for badge: Dictionary in rest["badges"]:
+		if badge["key"] == key: return badge
+	return {}
+
+static func crowded_state(combat: RefCounted) -> Dictionary:
+	var state: Dictionary = staged_state(combat)
+	(state["enemies"][3] as Dictionary)["pos"] = FIXTURE_HERO + Vector2i(3, 1)
+	state["terrain"] = [{"id": "proof_box", "kind": "wooden_box", "pos": FIXTURE_HERO + FIXTURE_BOX_OFFSET, "hp": FIXTURE_BOX_HP, "max_hp": FIXTURE_BOX_HP}]
+	return state
 
 static func _test_stage_plumbing(expect: Callable) -> void:
 	var view := RunScene.new()

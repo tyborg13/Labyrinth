@@ -358,6 +358,14 @@
           "arc_thrall",
           "arc_thrall"
         ]
+      },
+      {
+        "id": "lightning_capacitor",
+        "weight": 2,
+        "units": [
+          "storm_capacitor",
+          "lightning_wisp"
+        ]
       }
     ],
     "shadow": [
@@ -382,6 +390,14 @@
         "weight": 1,
         "units": [
           "gloam_stalker",
+          "wick_shade"
+        ]
+      },
+      {
+        "id": "shadow_mimic",
+        "weight": 2,
+        "units": [
+          "hollow_mimic",
           "wick_shade"
         ]
       }

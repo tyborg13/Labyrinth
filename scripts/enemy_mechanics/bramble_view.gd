@@ -79,8 +79,7 @@ static func presentation_for_step(step: Dictionary, progress: float, reduced: bo
 
 static func animate(scene: Control, state: Dictionary, step: Dictionary) -> void:
 	var reduced: bool = scene._reduced_motion_enabled()
-	state.clear()
-	state.merge(step["en04_state_after"].duplicate(true), true)
+	scene._apply_animation_step(state, step)
 	if str(step.get("en04_mechanic", "")) == "grow_bramble": scene._play_sfx(Sfx.entry_for_enemy_action({"type": "ranged", "element": "earth"}))
 	if not reduced:
 		scene._render_board_state(state, presentation_for_step(step, 0.0))

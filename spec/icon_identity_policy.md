@@ -87,3 +87,13 @@ painting. `lob_mark` and `lob_land` share the approved `lob` painting because
 marking and landing are one delayed Lob Slag concept. Both paintings are
 independent of Meteorfall and Icefall; hashes are recorded additively under
 `spec/assets/enemies/`. No generic or temporary icon aliases were added.
+## EN06 section enemy identities
+
+| Concept / actions | Identity | Approved source |
+| --- | --- | --- |
+| Charge intent, Charge badge, gain/reset charge | `charge` | `raw_art/icons/charge.png` |
+| Mirror intent | `mirror` | `raw_art/icons/mirror.png` |
+| Discharge chain | `chain` | Existing Chain painting; explicitly shared by the unit brief |
+
+Mirror's revealed copy uses the copied card's central attack identity in its row
+and compass. This is the copied action, rather than a new icon concept.

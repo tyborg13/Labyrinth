@@ -10,6 +10,8 @@ const SKILL_ICON_ROOT: String = "res://assets/art/skills"
 const KEYWORDS: Dictionary = {
 	"bramble": {"label": "Thornwall", "description": "Bramble: blocks movement for 3 more round(s). A unit pushed into it takes 2 damage and Bleeds.", "path": "%s/bramble.png" % ICON_ROOT},
 	"lob": {"label": "Lob Slag", "description": "Lob Slag", "path": "%s/lob.png" % ICON_ROOT},
+	"charge": {"label": "Charge", "description": "Charge <n>/3: at 3 it discharges chain lightning.", "path": "%s/charge.png" % ICON_ROOT},
+	"mirror": {"label": "Mirror", "description": "Mirror: it copies the last attack you played — <card>: <damage> damage.", "path": "%s/mirror.png" % ICON_ROOT},
 	"icefall": {"label": "Icefall", "description": "Icefall: icicles fall on the marked tiles on the Seer's next turn.", "path": "%s/icefall.png" % ICON_ROOT},
 	"wind": {"label": "Wind", "description": "Wind: at the end of each enemy turn, everything not anchored is pushed one tile with the wind.", "path": "%s/wind.png" % ICON_ROOT},
 	"tether": {"label": "Tether", "description": "Tether: lightning strikes every tile between the two Arc Thralls for 4 and Shocks. Break the line to stop it.", "path": "%s/tether.png" % ICON_ROOT},
@@ -430,6 +432,10 @@ const ACTION_ICON_ALIASES: Dictionary = {
 	"grow_bramble": "bramble",
 	"lob_mark": "lob",
 	"lob_land": "lob",
+	"gain_charge": "charge",
+	"chain_discharge": "chain",
+	"reset_charge": "charge",
+	"mirror_last_attack": "mirror",
 	"icefall_mark": "icefall",
 	"icefall_land": "icefall",
 	"call_wind": "wind",
@@ -530,6 +536,7 @@ static func all_icon_keys() -> Array:
 	return result
 
 static func action_icon_key(action: Dictionary) -> String:
+	if action.has("_copied_icon"): return str(action["_copied_icon"])
 	var action_type: String = str(action.get("type", ""))
 	if action_type == "force_area" and int(action.get("pull", 0)) > 0 and int(action.get("push", 0)) <= 0:
 		return "pull"
@@ -745,7 +752,7 @@ static func token_value_text(token: Dictionary) -> String:
 	var value: Variant = token.get("value", "")
 	if value == null:
 		return ""
-	return str(value)
+	return str(int(value)) if typeof(value) in [TYPE_INT, TYPE_FLOAT] else str(value)
 
 static func token_for(icon_key: String, value: Variant = null, tone: String = "neutral", tooltip_override: String = "", modifiers: Array = [], base_value: Variant = null) -> Dictionary:
 	var token: Dictionary = {
