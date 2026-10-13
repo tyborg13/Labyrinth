@@ -27,9 +27,10 @@
 | fix-02 | run_seconds out of combat state (combat_feel regression from meta-01) | merged 0d54a5970 (commit 13ffa4a8a; director adapted live-clock test) | codex/peer-benchmark | brief briefs/fix-02.md |
 | ux-01 | Owner UX backlog (start room → map, threats-at-rest redesign, SFX limiter) | merged a0855abec (commit 5f80cf506; r1 hint placement) | — | backlog_ux.md |
 | en-04 | Briar Weaver + Slag Mortar | merged 63271ccf4 (commit a2d078dd8 + sync ada498dda); encounters 8455019d7; art pending_reart | — | briefs/en-04.md |
-| en-05 | Glacial Mirror + Gust Shrike | review (r0 done; 5 TODO_DESIGN decided: dive right-hand push, hero not pushed, blocked landing stops short, two tooltips) | — | briefs/en-05.md |
+| en-05 | Glacial Mirror + Gust Shrike | merged 062c3d40a (commit 5923db9da + sync 1530c6eb9 + director flag-rider fix); encounters c474da57f; art pending_reart | — | briefs/en-05.md |
 | en-06 | Storm Capacitor + Hollow Mimic | merged (commit 156ed20f5 + sync 2801799b8); encounters 96a86b86e; art pending_reart (art-02) | — | briefs/en-06.md |
 | itb-03 | Threats at rest v2 (owner direction) | merged 4fc16f982 (commit b18951e46 + sync); proof output/.../proof/itb-03/ | codex/peer-benchmark | brief briefs/itb-03.md |
 | art-01 | Visual identity gate tooling (measure/kit/process/sheet/check, registry, bestiary lineup probe) | merged 2d06756f0 (+ director despill/unmix fixes c8d823082, 674637b2b) | codex/peer-benchmark@f7773b175 | spec/visual_identity_gate.md, briefs/art-01.md |
-| art-02 | Re-art of the 12 section enemies through the identity kit (front+rear, judge, owner sheets) | running: judge PASS 6/12 fronts (seer, herald, thrall, capacitor, stalker, grub); 6 iterating; 5 rears generating | — | staged/reart/plan.json, spec/art_identity/jobs/ |
+| art-02 | Re-art of the 12 section enemies through the identity kit (front+rear, judge, owner sheets) | fronts 12/12 judge PASS; rears PASS 5 (seer, herald, stalker, grub, mirror), 6 iterating, capacitor n/a | — | staged/reart/plan.json, judge_log.md, spec/art_identity/jobs/ |
 | qa-02 | Register en04/en05/en06 enemy suites in the full suite (backlog) | design | — | |
+| art-03 | Integrate re-art: directional static art (front/rear + mirrored facing), portraits, density adoption, registry kit entries, front/rear consistency check | design (after owner approval of art-02) | — | |
