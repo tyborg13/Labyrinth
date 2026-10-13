@@ -263,6 +263,13 @@
           "burrow_grub",
           "stoneback_mite"
         ]
+      },
+      {
+        "id": "earth_weaver",
+        "weight": 2,
+        "units": [
+          "briar_weaver"
+        ]
       }
     ],
     "fire": [
@@ -288,6 +295,14 @@
         "units": [
           "ember_tick",
           "ember_tick",
+          "ember_tick"
+        ]
+      },
+      {
+        "id": "fire_mortar",
+        "weight": 2,
+        "units": [
+          "slag_mortar",
           "ember_tick"
         ]
       }
