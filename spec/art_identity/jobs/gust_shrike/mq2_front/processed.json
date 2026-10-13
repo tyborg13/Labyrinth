@@ -1,37 +1,37 @@
 {
  "K": 3,
  "drawn_size": [
-  174,
-  240
+  192,
+  235
  ],
- "fit_scale": 0.975609756097561,
+ "fit_scale": 1.0,
  "k_eff": 3.673828125,
  "metrics": {
-  "height": 240,
-  "width": 174,
-  "height_drawn": 240.0,
-  "symmetry": 0.52608125819135,
-  "thin_abs": 0.010881089224931695,
-  "thin_rel": 0.08252887673678921,
-  "feature_px": 8.07262489697575,
-  "regions": 275,
-  "chroma": 0.08569724859979146,
-  "value": 0.2087499404248056,
+  "height": 235,
+  "width": 192,
+  "height_drawn": 235.0,
+  "symmetry": 0.5104005567584287,
+  "thin_abs": 0.00867403875418482,
+  "thin_rel": 0.037993304250786286,
+  "feature_px": 9.258133909069413,
+  "regions": 230,
+  "chroma": 0.08590610435104346,
+  "value": 0.21099207351399524,
   "edge_light_share": 0.0,
-  "orphan_share": 0.012387701579152949,
-  "run_length": 5.4158355998791174
+  "orphan_share": 0.012884244699198539,
+  "run_length": 5.209830866807611
  },
- "pixel_sha256": "8b28c5522608ac442969491c695b6c9d47d271688b084d0edc549f9e5687e510",
+ "pixel_sha256": "e4f14ec866fd3709dfe1a5969b3a0a3ec03246e13980ec7026eb10188e9ae27c",
  "placement": [
-  41,
-  6
+  32,
+  11
  ],
- "raw_sha256": "5b060af422f3ece44c1b2ed1df3ad399c4973b7dec07eaec15f505e8070f4ba5",
+ "raw_sha256": "a43816b7191b78e13e8f25604fc625b586079b5faa7ab3583ba18f9d9b11bd43",
  "shift": [
   0,
   0
  ],
- "pre_post_pixel_sha256": "46fc3fa68563ed2199df99c031e319b43f7f63c4420018bd3e39ba394a7b622d",
+ "pre_post_pixel_sha256": "d2c5b48031e77fe4a3fb3225727b9663014777d1137c3217ce38ca2a7148520a",
  "post_steps": [
   {
    "step": "palette_match",
