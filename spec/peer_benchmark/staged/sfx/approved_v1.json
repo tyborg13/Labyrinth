@@ -280,7 +280,13 @@
   "variants": [
    {
     "take": "c5c4dad45b65#1",
-    "source_path": "sonniss_gdc/GDC2015/Timothy McHugh - Gorification [HD]/gore - medium metal blade wet impact in to flesh and removed - 6.wav"
+    "source_path": "sonniss_gdc/GDC2015/Timothy McHugh - Gorification [HD]/gore - medium metal blade wet impact in to flesh and removed - 6.wav",
+    "limiter": {
+     "input_gain_db": 7.0,
+     "ceiling_dbfs": -1.0,
+     "lookahead_ms": 2.0,
+     "release_ms": 60.0
+    }
    }
   ],
   "loop": false
@@ -558,7 +564,13 @@
   "variants": [
    {
     "take": "090977264d65#1",
-    "source_path": "opengameart/ice-spells/coldsnap.wav"
+    "source_path": "opengameart/ice-spells/coldsnap.wav",
+    "limiter": {
+     "input_gain_db": 5.0,
+     "ceiling_dbfs": -1.0,
+     "lookahead_ms": 2.0,
+     "release_ms": 60.0
+    }
    }
   ],
   "loop": false
@@ -568,7 +580,13 @@
   "variants": [
    {
     "take": "7934cec9d9b2#1",
-    "source_path": "sonniss_gdc/GDC2017/Articulated Sounds - Thin Ice/ICE Thin Smashed Brittle Fragments 55.wav"
+    "source_path": "sonniss_gdc/GDC2017/Articulated Sounds - Thin Ice/ICE Thin Smashed Brittle Fragments 55.wav",
+    "limiter": {
+     "input_gain_db": 6.0,
+     "ceiling_dbfs": -1.0,
+     "lookahead_ms": 2.0,
+     "release_ms": 60.0
+    }
    }
   ],
   "loop": false

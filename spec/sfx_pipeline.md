@@ -318,7 +318,8 @@ alongside the finite mid/side RMS measurements.
 
 Processing order is take/trim, optional pitch resampling, channel policy,
 optional causal second-order Butterworth lowpass, 3 ms linear fade-in, loop
-crossfade or equal-power quarter-sine fade-out, normalization and gain, then
+crossfade or equal-power quarter-sine fade-out, optional director-specified
+per-variant limiter (otherwise normalization and gain), then
 encoding/verification. Lowpass uses scipy `butter(..., output="sos")` followed
 by `sosfilt` before normalization. Pitch is tape-style resampling: pitch and
 duration change together. Every rendered take receives the 3 ms fade-in.
@@ -334,13 +335,69 @@ the head, with theta running from 0 to pi/2. All categories use this treatment.
 For sounds at least 0.4 s, normalization aims at the category's integrated
 target, then applies approved `gain_db`; the impact/UI peak caps take precedence.
 Short sounds use the category peak target and retain RMS measurements in the
-manifest. No taste-selected compressor or limiter is introduced. If a mandated
+manifest. A director-specified per-variant lookahead peak limiter is permitted
+for transient-heavy cues that cannot reach their loudness target under the peak
+cap. Other variants retain normalization without a compressor or limiter. If a mandated
 cap prevents the loudness target, the manifest flags the cap. Otherwise measured
 encoded loudness must be within 0.5 LU of the processed target; encoded peak
 caps are checked within 0.05 dB. Short Vorbis quantizer changes can cause direct
 gain corrections to oscillate; verification brackets gain with up to 16
 encode/measure attempts and retains the closest valid encoding. Clipping without a specified cap fails and
 requires an owner-approved lower gain.
+
+The optional variant field is
+`"limiter": {"input_gain_db": G, "ceiling_dbfs": -1.0, "lookahead_ms": 2.0, "release_ms": 60.0}`.
+It applies after fade-out (or loop crossfade), and replaces normalization and
+its `gain_db` stage: the input gain and limiter ceiling control level. The
+sfx-03 approvals use +11 dB for `hit.blade.light` (director feedback 1), +6 dB for `status.shatter`,
+and +5 dB for `status.freeze`; takes and all other processing stay unchanged.
+
+After input gain, the gain computer is `min(1, ceiling / max_channels(abs(x)))`
+per sample. The forward sliding minimum includes the current sample through
+`N = round(lookahead_ms * rate / 1000)` future samples. Its trailing `N + 1`
+sample average creates a linear attack beginning N samples before a peak;
+unity padding handles the file start without moving the audio. Every minimum
+contributing to the attack contains the current sample, guaranteeing its cap.
+Release uses `alpha = exp(-1 / (rate * release_ms / 1000))` and
+`gain = min(attack, 1 + alpha * (previous_gain - 1))`, so recovery follows a
+one-pole exponential toward unity unless the attack requires more reduction.
+The linked gain preserves channel balance and file duration. A one-float-step
+rounding guard and gain-computer bound preserve the ceiling on the float signal.
+Encoded verification uses the limiter ceiling with the existing 0.05 dB
+tolerance and corrects codec drift against the processed peak, without applying
+category loudness normalization. Limiter parameters, unboosted input peak,
+pre-limiter boosted peak, post-limiter float peak and maximum gain reduction
+are recorded in `processing.limiter`; actual encoded peak remains
+`processing.output_peak_dbfs`. `processing.normalization` is `limiter`, and
+`target_lufs` is null because category normalization was skipped.
+
+The initial sfx-03 mix used the maximum integrated
+BS.1770 loudness over 400 ms windows at 100 ms hops with the director's
+`spec/peer_benchmark/staged/sfx/measure_mix.py` (short files are zero-padded to
+one window). Each cue's `volume_db` was set to the smaller of target minus measured
+momentary-max and -1 dBFS minus actual encoded peak. Initial 400 ms targets were -19, -19 and
+-24 respectively. Retain the other manifest outputs, cue values and import
+identities. Before/after measurements and decoded WAV listening pairs live
+under `output/sfx-03/`; these compare effective cue gain as well as limiting.
+
+For cues shorter than 1 s, use **short-window max loudness** for mix comparisons:
+the maximum BS.1770 loudness over 100 ms windows at 25 ms hops. Keep the existing
+400 ms momentary-max (100 ms hops) alongside it. Compare a cue against its
+family (hits, statuses, UI) on the short-window measure; it captures the level
+of short transients without averaging them across a longer window. The same
+script supports both measures through `--window`, in seconds, defaulting to
+0.4; hops are always one quarter of the selected window. It retains the same
+zero-padding and cue-gain treatment for either measure.
+
+Director feedback 1 keeps `status.shatter` and `status.freeze` unchanged. Rebuild
+only `hit.blade.light` with +11 dB limiter input gain, then set its `volume_db`
+to `min(-13.0 - short_window_max, -1.0 - encoded_peak_dbfs)`. The encoded peak
+cap still takes precedence if the -13 LUFS short-window target cannot be met.
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-03 && /Users/borgerding/.cache/umbra-sfx/venv/bin/python spec/peer_benchmark/staged/sfx/measure_mix.py . output/sfx-03/mix_400ms.json
+cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-03 && /Users/borgerding/.cache/umbra-sfx/venv/bin/python spec/peer_benchmark/staged/sfx/measure_mix.py . output/sfx-03/mix_100ms.json --window 0.1
+```
 
 The manifest lists every output's relative path, cue/category/variant, source
 path and source ID, original take range, licence ID, source and output SHA-256,
