@@ -92,6 +92,7 @@ static func build(engine: RefCounted, committed: Dictionary, preview: Dictionary
 			if int((known_enemies[index] as Dictionary).get("id", -2)) == id:
 				threat = engine.enemy_threat_tiles(known_preview, index)
 				break
+		if str(primary.get("type", "")) == "mirror_last_attack": primary = threat.get("projected_attack_action", primary)
 		var acting: bool = orders.has(actor_key)
 		var attacking: bool = is_attack(primary)
 		var cancelled: bool = projected.is_empty() or int(projected.get("hp", 0)) <= 0
@@ -124,7 +125,7 @@ static func descriptor(action: Dictionary, intent: Dictionary = {}) -> Dictionar
 	var number: String = ""
 	for field: String in ["damage", "amount", "count"]:
 		if action.has(field):
-			number = str(action[field])
+			number = ("+%d" if kind == "gain_charge" else "%d") % int(action[field])
 			break
 	var hits: int = int(action.get("hits", 1))
 	if hits > 1 and not number.is_empty():
@@ -143,7 +144,7 @@ static func descriptor(action: Dictionary, intent: Dictionary = {}) -> Dictionar
 	if int(action.get("chilled", 0)) > 0: riders.append({"icon": "chilled", "value": action["chilled"]})
 	var secondary: Dictionary = secondary_rider(riders)
 	return {"icon": Icons.action_icon_key(action), "number": number,
-		"secondary_icon": str(secondary.get("icon", "")), "secondary_number": str(secondary.get("value", "")),
+		"secondary_icon": str(secondary.get("icon", "")), "secondary_number": str(int(secondary["value"])) if secondary.has("value") else "",
 		"family": "movement" if kind in Compass.MOVEMENT_TYPES else "attack" if is_attack(action) else Compass.family_for_action(action)}
 
 static func secondary_rider(riders: Array) -> Dictionary:

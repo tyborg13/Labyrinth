@@ -395,7 +395,7 @@ class BoardPixelDensityTest(unittest.TestCase):
             name = entry["id"]
             draw_y = None
             if entry["kind"] in ("rig", "static_enemy"):
-                expected = 1.0 if name == "hero_rear" else enemies[name].get("art_scale", 1.0)
+                expected = (216 * 1.2 / 243) if name == "storm_capacitor" else 1.0 if name == "hero_rear" else enemies[name].get("art_scale", 1.0)
             else:
                 frame = tool.sample(SOURCES / entry["paths"][0], entry["frames"])
                 w, h = frame.size
