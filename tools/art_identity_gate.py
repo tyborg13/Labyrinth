@@ -348,7 +348,17 @@ def process_raw(raw: Path, kit_path: Path, out: Path, root: Path = ROOT) -> dict
     pixels = np.asarray(image.convert("RGB"), dtype=float)
     distance = np.abs(pixels - np.array([0, 255, 0])).max(-1)
     alpha = np.clip((distance - 40) / 40, 0, 1)
-    pixels[..., 1] = np.where(alpha < 1, np.minimum(pixels[..., 1], pixels[..., [0, 2]].max(-1)), pixels[..., 1])
+    # Despill partial-key pixels and a ring of ceil(k_eff) + 1 raw pixels (one output pixel and a margin) inside the
+    # silhouette: opaque outline pixels blended with the
+    # green background otherwise survive binarization as a green fringe. Interior greens (moss, accents) are kept.
+    background = alpha <= 0.5
+    ring = background.copy()
+    for _ in range(math.ceil(k_eff) + 1):
+        grown = ring.copy()
+        grown[1:] |= ring[:-1]; grown[:-1] |= ring[1:]; grown[:, 1:] |= ring[:, :-1]; grown[:, :-1] |= ring[:, 1:]
+        ring = grown
+    spill = (alpha < 1) | (ring & ~background)
+    pixels[..., 1] = np.where(spill, np.minimum(pixels[..., 1], pixels[..., [0, 2]].max(-1)), pixels[..., 1])
     ys, xs = np.nonzero(alpha > 0.5)
     if not len(xs):
         raise ValueError("green-keyed raw has no subject")
