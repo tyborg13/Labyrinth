@@ -26,12 +26,14 @@ const FIXTURE_TEARDOWN_FRAMES: int = 240
 const FIXTURE_PURCHASE_BUDGET: int = 10000
 const FIXTURE_ROOM_DEPTH: int = 6
 const FIXTURE_BOSS_DEPTH: int = 8
-# Captured on the unchanged task base before implementation. Hash the full
-# Variant byte stream, including key order, RNG, intents, queue and progression.
+# meta-03 proved depth-0 byte-identity against its unchanged task base (6f4bbacfb). After merge there is no
+# pre-depth code path left, so these pin the integration state at 90823d36d+ (battle hashes re-pinned after fix-02
+# removed run_seconds from combat state and en-03 added section enemies; run hashes unchanged). Re-pin only when an
+# unrelated system changes combat creation; a depth change must never move them.
 const DEPTH_ZERO_HASHES: Dictionary = {
-	307: ["4c59082f194b4c6cb7147490442fb02e71fbbcd53edf642810e9f39286141e40", "6b2c2e8ad2a47f68da1fd5487e57a75203783000eb96395e23efacd28f3c4c91", "edb7e3fce37cdd89d617730686638869520c6af9e8c37438bb229ac86246b59f", "6172665bb885f369cd22713d825215a5d5f432d37617f8dc6cd8dee5647a1f57"],
-	8821: ["ec4191a9948648e2e9434647a60fbcf41a46694fb9a3d9e4040549792e5820a4", "d83fb87f81811b8cce768d5817fa82d2bea51f9abfb6c476c2954c4f6fe3f29c", "e639aa7c1476c2daff78a614ab7ccacbdd8d2b235b2be4c0aaa9f68e91b7c5c1", "9c096998658956d868e3bdecf2cf08021e9c7e1968fc870ad9b6d6461713354d"],
-	90429: ["af6134e19f8fcbc86c815fde43e468acc00f9d21635871341cf5f646e0fee30f", "70c9b66b98d70c2d492b7466ad72154111e20e347ae97479a9fa53a3f770a473", "2ac64290eab1f07f62430949e14b60b9dc92ef7e9fed6cc719a94390ce03bd37", "896d62fe5d4d665bca5d9a9f0d617209b873506a8ede1b5d3db0e1e179dc8bcc"]
+	307: ["4c59082f194b4c6cb7147490442fb02e71fbbcd53edf642810e9f39286141e40", "34c9e338eb1849db9d67811486eac387383a61aecb9fbab77cf29a807b04b89b", "cc40c0f46c994c058234c2785da9bd3d089c8d773ab066cf204410306e32b786", "43f27f76786ad34f9593b3e0df136c92a2552b0fb94a717352451026e487817a"],
+	8821: ["ec4191a9948648e2e9434647a60fbcf41a46694fb9a3d9e4040549792e5820a4", "fc979a8124e0175cf6985b2b8a5835cafeb8a14db8399e1cb02fa5070ebacc9e", "d4c4b8fdb68dc73f063d99cf5dc2781878f00c8ce928c47540d9dd61f8eaba69", "ecee41006a80b0ac148f1891a4954824d41746d6733eb1955d16e96737319b23"],
+	90429: ["af6134e19f8fcbc86c815fde43e468acc00f9d21635871341cf5f646e0fee30f", "290cee1a34bd9e28eae7af1bbf86be6d6bb2828f36fb766234583fa7800cfdba", "86a274e9cba6a017d50082b84c0bbb3b2423d4b44d42b0cc9cfd922a204cca1a", "6db5509078f3b14b4db006413c86732c0325b13c0d79d2e51a3c3e77ec19354f"]
 }
 const PROFILE_PATH: String = "user://meta03-depth-suite-profile.json"
 const SAVE_PATH: String = "user://meta03-depth-suite-run.save"
@@ -111,14 +113,14 @@ static func _test_zero_hashes(expect: Callable) -> void:
 	var combat := Combat.new()
 	for seed: int in PROOF_SEEDS:
 		var state: Dictionary = engine.create_new_run(seed, Store.default_data())
-		expect.call(_digest(state) == DEPTH_ZERO_HASHES[seed][0], "Depth zero run hash matches task base: %d" % seed)
+		expect.call(_digest(state) == DEPTH_ZERO_HASHES[seed][0], "Depth zero run hash matches pinned integration state: %d" % seed)
 		var index: int = 1
 		for type: String in ["combat", "guardian", "boss"]:
 			for room: Dictionary in state["rooms"].values():
 				if str(room["type"]) != type: continue
 				var layout: Dictionary = engine._combat_layout_for_room(room, FIXTURE_TRAVEL_DIR, state)
 				var battle: Dictionary = combat.create_combat(seed, layout, engine._player_snapshot(state))
-				expect.call(_digest(battle) == DEPTH_ZERO_HASHES[seed][index], "Depth zero %s hash matches task base: %d" % [type, seed])
+				expect.call(_digest(battle) == DEPTH_ZERO_HASHES[seed][index], "Depth zero %s hash matches pinned integration state: %d" % [type, seed])
 				index += 1
 				break
 
