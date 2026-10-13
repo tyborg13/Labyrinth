@@ -300,6 +300,21 @@
           "rime_whelp",
           "rime_spitter"
         ]
+      },
+      {
+        "id": "ice_seer",
+        "weight": 3,
+        "units": [
+          "hoarfrost_seer"
+        ]
+      },
+      {
+        "id": "ice_seer_whelp",
+        "weight": 1,
+        "units": [
+          "hoarfrost_seer",
+          "rime_whelp"
+        ]
       }
     ],
     "air": [
@@ -308,6 +323,21 @@
         "weight": 1,
         "units": [
           "roc_fledgling",
+          "roc_fledgling"
+        ]
+      },
+      {
+        "id": "air_herald",
+        "weight": 3,
+        "units": [
+          "gale_herald"
+        ]
+      },
+      {
+        "id": "air_herald_fledglings",
+        "weight": 1,
+        "units": [
+          "gale_herald",
           "roc_fledgling"
         ]
       }
