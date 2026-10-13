@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+; A StyleBoxFlat.new() mentioned in a resource comment is not a site.
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_backing"]
+bg_color = Color(0.1, 0.2, 0.3, 1)
+
+[node name="Panel" type="Panel"]
+theme_override_styles/panel = SubResource("StyleBoxFlat_backing")
+tooltip_text = "StyleBoxFlat.new()"
