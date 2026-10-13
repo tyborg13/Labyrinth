@@ -1,0 +1,146 @@
+{
+	"empty_board_capture": "00_empty_board.png",
+	"rows": [
+		[
+			{
+				"centre": [
+					160.0,
+					400.0
+				],
+				"screen_px_per_canvas_px": 0.634156889073989,
+				"tile": [
+					0,
+					40
+				]
+			},
+			{
+				"centre": [
+					480.0,
+					400.0
+				],
+				"screen_px_per_canvas_px": 0.634156889073989,
+				"tile": [
+					1,
+					0
+				]
+			},
+			{
+				"centre": [
+					800.0,
+					400.0
+				],
+				"screen_px_per_canvas_px": 0.634156889073989,
+				"tile": [
+					2,
+					0
+				]
+			},
+			{
+				"centre": [
+					1120.0,
+					400.0
+				],
+				"screen_px_per_canvas_px": 0.634156889073989,
+				"tile": [
+					3,
+					0
+				]
+			},
+			{
+				"centre": [
+					1440.0,
+					400.0
+				],
+				"screen_px_per_canvas_px": 0.634156889073989,
+				"tile": [
+					4,
+					0
+				]
+			},
+			{
+				"centre": [
+					1760.0,
+					400.0
+				],
+				"screen_px_per_canvas_px": 0.634156889073989,
+				"tile": [
+					5,
+					0
+				]
+			}
+		],
+		[
+			{
+				"centre": [
+					160.0,
+					730.0
+				],
+				"screen_px_per_canvas_px": 0.634156889073989,
+				"tile": [
+					0,
+					1
+				]
+			},
+			{
+				"centre": [
+					480.0,
+					730.0
+				],
+				"screen_px_per_canvas_px": 0.634156889073989,
+				"tile": [
+					1,
+					1
+				]
+			},
+			{
+				"centre": [
+					800.0,
+					730.0
+				],
+				"screen_px_per_canvas_px": 0.634156889073989,
+				"tile": [
+					2,
+					1
+				]
+			},
+			{
+				"centre": [
+					1120.0,
+					730.0
+				],
+				"screen_px_per_canvas_px": 0.634156889073989,
+				"tile": [
+					3,
+					1
+				]
+			},
+			{
+				"centre": [
+					1440.0,
+					730.0
+				],
+				"screen_px_per_canvas_px": 0.634156889073989,
+				"tile": [
+					4,
+					1
+				]
+			},
+			{
+				"centre": [
+					1760.0,
+					730.0
+				],
+				"screen_px_per_canvas_px": 0.634156889073989,
+				"tile": [
+					5,
+					1
+				]
+			}
+		]
+	],
+	"size": [
+		1920,
+		1080
+	],
+	"ui_scale": 1.0
+}

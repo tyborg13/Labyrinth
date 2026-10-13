@@ -1,0 +1,12 @@
+{
+  "min_images": 3,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*00_empty_board.png", "width": 1920, "height": 1080,
+     "regions": [{"rect": [50, 330, 1820, 470], "min_luma_range": 15, "min_luma_stdev": 3}]},
+    {"pattern": "*01_lineup_normals.png", "width": 1920, "height": 1080,
+     "regions": [{"rect": [10, 100, 1900, 900], "min_luma_range": 50, "min_luma_stdev": 5}]},
+    {"pattern": "*02_lineup_bosses.png", "width": 1920, "height": 1080,
+     "regions": [{"rect": [20, 100, 1880, 940], "min_luma_range": 50, "min_luma_stdev": 5}]}
+  ]
+}
