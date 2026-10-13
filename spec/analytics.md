@@ -51,6 +51,7 @@ available:
 - `run_started`
 - `run_resumed`
 - `run_ended`
+- `run_scored`
 - `combat_started`
 - `combat_resumed`
 - `combat_ended`
@@ -83,6 +84,28 @@ available:
 - `guided_tutorial_completed`
 - `guided_tutorial_dismissed`
 - `guided_tutorial_restarted`
+
+## Run score (meta-01)
+
+`run_scored` adds `{total, lines, feats}` after a completed defeat, victory or
+Ember Hearth withdrawal is recorded. Rows carry `id`, `label`, `detail`,
+`points`, `subject` and `feat`; the two lists retain the run-end brief's order
+and omit zero-point rows. `total` is the sum of both lists. Scoring and counters
+are defined in [run_end.md](run_end.md).
+
+The event uses the original run analytics id and progression/relic context.
+`ProgressionStore` queues it in the existing durable progression outbox using
+`<result_id>:run_scored` as its idempotency key. Existing local JSONL delivery
+and acknowledgment retain retry semantics; the ledger returns the originally
+scored result on terminal replay. Delivery occurs at an existing outbox
+reconciliation, including boot. No existing event, Steam stat or historical
+JSONL record is changed. Production Embrace stages its score before the existing
+banked-profile save and displays the recap only after that save succeeds.
+
+Completed results add nullable `score`, `lines`, `feats`, `killer`, `section`,
+`biome`, `outcome` and `new_best_score`; the progression adds strict monotonic
+`best_score`. Legacy scores remain null for Chronicle's later “—” display. The
+existing metric personal bests and 32-result ledger retain their policies.
 
 ## Player activation ends
 
@@ -295,6 +318,16 @@ at the calling gesture's release; it never invokes summoning again. This is
 presentation data, not a new saved-state field or analytics event. Claw damage,
 lightning launch/arrival, Skybreak results, and the atomic enemy-action event
 boundaries retain their existing semantics.
+
+`combat_started.payload` also includes additive `encounter_id` and `biome`.
+For revision-4 section regular fights, `encounter_id` is the authored table
+composition id and `biome` is the section dragon's element (`fire`, `earth`,
+`ice`, `air`, `lightning`, `shadow`). Both come from persisted room metadata,
+so resume retains the selected cohort. Non-table fights and older saves without
+identity emit empty strings. Previewing a fight does not append encounter history
+or emit a combat-start event. Compare section cohorts separately from legacy
+hard-coded encounters; objective extras and leader scaling remain identified by
+the existing objective fields. See [encounters.md](encounters.md).
 
 `combat_started` marks recovery combats with `recovery_marker_present` and
 `recovery_marker_amount`. It also includes any unclaimed floor equipment ids as

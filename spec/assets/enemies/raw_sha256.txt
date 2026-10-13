@@ -1,2 +1,8 @@
 7adedb50c048d36c4f87f1a525c73a3269fbc759d03faaa8c9019f698df20184  /Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/enemies/hoarfrost_seer.png
 bdb047aaee94888d53180cafca7ffb866eaec15bc8e8acca5a0df84267a0bc37  /Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/enemies/gale_herald.png
+66f1f4036780d887ee2433f282819e6182781daae0ee92f1986bc7573fa56d0a  enemies/arc_thrall.png
+1f5387c788e7a7b6d0d5edec2d4f2e44dd377ca3288f81635d4a6038064660c2  enemies/gloam_stalker.png
+5610518d373b550abf41d65432da23830a2817a83aca58fabc2cb660a3b36d50  icons/tether.png
+34c99aebf724005cb542ed90a0c391ca72d050a5511ae83559b60b4c44e81076  icons/veil.png
+652f83647cb1de9dccaf426904cb4749763239f66afe103b8f2a68eda7c1a935  /Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/enemies/burrow_grub.png
+def73b0094ecbc8a181e6b0fd01914b92dfa571432dc78a9baea58eb1d32eff6  /Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art/enemies/ember_tick.png

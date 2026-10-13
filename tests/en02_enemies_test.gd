@@ -1,7 +1,7 @@
 extends SceneTree
 
 const Suite = preload("res://tests/suites/en02_enemies_suite.gd")
-const MINIMUM_CHECK_COUNT: int = 212
+const MINIMUM_CHECK_COUNT: int = 235
 var _failures: Array[String]
 var _checks: int = 0
 

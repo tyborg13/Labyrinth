@@ -1,0 +1,52 @@
+{
+ "block.break": {
+  "category": "impact",
+  "variants": [
+   {
+    "take": "07e41d15ffe0#1",
+    "source_path": "designed/block.break/B.wav"
+   }
+  ],
+  "loop": false
+ },
+ "push.slide": {
+  "category": "movement",
+  "variants": [
+   {
+    "take": "8dda424ea150#1",
+    "source_path": "designed/push.slide/A.wav"
+   }
+  ],
+  "loop": false
+ },
+ "trap.trigger": {
+  "category": "impact",
+  "variants": [
+   {
+    "take": "0baf5fdc6fd5#1",
+    "source_path": "designed/trap.trigger/A.wav"
+   }
+  ],
+  "loop": false
+ },
+ "radiance.light": {
+  "category": "spell",
+  "variants": [
+   {
+    "take": "153eac7ee5b3#1",
+    "source_path": "designed/radiance.light/B.wav"
+   }
+  ],
+  "loop": false
+ },
+ "illusion.break": {
+  "category": "status",
+  "variants": [
+   {
+    "take": "e172ab9cdd69#1",
+    "source_path": "designed/illusion.break/A.wav"
+   }
+  ],
+  "loop": false
+ }
+}

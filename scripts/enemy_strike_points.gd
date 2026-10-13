@@ -20,6 +20,14 @@ const MODELS: Dictionary = {
 	"iskaldra": preload("res://scripts/iskaldra_cutout/renderer.gd")}
 const BESPOKE: Array = ["grave_surgeon", "veilbound_acolyte", "cinder_droplet", "cinder_ooze", "vyraketh"]
 const REGISTRY: Dictionary = {
+	"hoarfrost_seer": {"kind":"arc", "window":Vector2(0.33,0.56), "reason":"Approved static sprite fallback; rigs are a later unit."},
+	"gale_herald": {"kind":"arc", "window":Vector2(0.33,0.56), "reason":"Approved static sprite fallback; rigs are a later unit."},
+	# en-03 intentionally ships static art; inherit the existing generic target arc.
+	"arc_thrall": {"kind":"arc", "window":Vector2(0.33,0.56), "reason":"Approved static sprite fallback; rigs are a later unit."},
+	"gloam_stalker": {"kind":"arc", "window":Vector2(0.33,0.56), "reason":"Approved static sprite fallback; rigs are a later unit."},
+	# Static sprites retain the existing generic arc until the separate cutout unit.
+	"burrow_grub": {"kind":"arc", "window":Vector2(0.33,0.56)},
+	"ember_tick": {"kind":"arc", "window":Vector2(0.33,0.56)},
 	"harrier": {"kind":"streak", "bone":"weapon_r", "landmark":"weapon_tip", "inner_bone":"weapon_r", "window":Vector2(0.34,0.60), "length":74.0},
 	"frostglass_lancer": {"kind":"streak", "bone":"lance", "landmark":"weapon_tip", "inner_bone":"lance", "window":Vector2(0.315,0.60), "length":74.0},
 	"warden": {"kind":"sweep", "bone":"weapon_r", "landmark":"mace_head", "inner_bone":"weapon_r", "window":Vector2(0.3696,0.66), "reach":0.50},

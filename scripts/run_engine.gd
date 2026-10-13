@@ -107,7 +107,7 @@ var _generated_layout_count: int = 0
 var _generated_layout_cache_hits: int = 0
 
 static func normalized_run_stats(value: Variant) -> Dictionary:
-	return CombatEngineScript.normalized_run_stats(value)
+	return preload("res://scripts/run_score_rules.gd").normalized_stats(value)
 
 static func run_result_id(run_state: Dictionary) -> String:
 	return "run:%d:seed:%d" % [int(run_state.get("run_index", 0)), int(run_state.get("seed", 0))]
@@ -176,11 +176,12 @@ func create_new_run(seed: int, progression: Dictionary, section_maps: bool = tru
 		"game_over": false,
 		"victory": false,
 		"turns_spent": 0,
-		"run_stats": CombatEngineScript.default_run_stats(),
+		"run_stats": normalized_run_stats({}),
 		"notice": "",
 		SKILL_STATE_KEY: _default_skill_state(),
 		"progression": normalized_progression
 	}
+	run_state["run_stats"]["max_held_embers"] = starting_embers
 	var gifts: Array[Dictionary] = ProgressionStore.pending_starting_relic_gifts(normalized_progression)
 	if not gifts.is_empty():
 		var gift: Dictionary = gifts.front()
@@ -188,6 +189,7 @@ func create_new_run(seed: int, progression: Dictionary, section_maps: bool = tru
 		run_state["starting_relic_gift_ids"] = [str(gift["id"])]
 	if section_maps:
 		SectionMapGraph.initialize(run_state)
+		run_state["encounter_history"] = []
 		SectionMapGraph.room(run_state, Vector2i.ZERO)["npcs"] = start_room.get("npcs", [])
 		run_state["current_room_layout"] = _display_layout_for_room(seed, room_metadata(run_state, Vector2i.ZERO), Vector2i.ZERO)
 	run_state = GrimoireLibrary.ensure_run_state(run_state)
@@ -289,7 +291,7 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"game_over": false,
 		"victory": false,
 		"turns_spent": 11,
-		"run_stats": CombatEngineScript.default_run_stats(),
+		"run_stats": normalized_run_stats({}),
 		"notice": "Debug boss fixture",
 		SKILL_STATE_KEY: _default_skill_state(),
 		"progression": progression.duplicate(true),
@@ -301,13 +303,18 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = migrate_renamed_content_ids(run_state) if run_content_migration_required(run_state) else run_state.duplicate(true)
 	if next_state.is_empty():
 		return next_state
+	# Older section saves start with no picks. Do not add fields to legacy runs:
+	# their complete serialized state remains compatible byte for byte.
+	if SectionMapGraph.modern(next_state) and not next_state.has("encounter_history"):
+		next_state["encounter_history"] = []
 	next_state = migrate_combat_units(next_state)
 	next_state = SurfaceSaveMigration.migrate_run(next_state, _combat_engine)
 	next_state = _repair_legacy_merchant_rooms(next_state)
 	next_state[RUN_CONTENT_SCHEMA_KEY] = RUN_CONTENT_SCHEMA
 	next_state[COMBAT_UNITS_SCHEMA_KEY] = COMBAT_UNITS_SCHEMA
 	next_state = GrimoireLibrary.ensure_run_state(next_state)
-	next_state["run_stats"] = CombatEngineScript.normalized_run_stats(next_state.get("run_stats", {}))
+	next_state["run_stats"] = normalized_run_stats(next_state.get("run_stats", {}))
+	next_state["run_stats"]["max_held_embers"] = maxi(int(next_state["run_stats"]["max_held_embers"]), held_embers(next_state))
 	next_state["relics"] = GameData.normalized_relic_ids(next_state.get("relics", []))
 	next_state["pending_relics"] = GameData.normalized_relic_ids(next_state.get("pending_relics", []), next_state["relics"])
 	for reward_key: String in ["guardian_reward", "pending_reward", "pending_escape"]:
@@ -336,6 +343,12 @@ func repair_loaded_run_state(run_state: Dictionary) -> Dictionary:
 	next_state = _sync_defiance_capacity(next_state, false)
 	var repaired_combat_state: Dictionary = (next_state.get("combat_state", {}) as Dictionary).duplicate(true)
 	if not repaired_combat_state.is_empty():
+		if not repaired_combat_state.has("score_wallet_base"):
+			repaired_combat_state["score_wallet_base"] = held_embers(next_state) - int(repaired_combat_state.get("recovered_embers_total", 0))
+		var known_wallet: int = held_embers(next_state) + int(repaired_combat_state.get("room_embers", 0)) + maxi(0, int(repaired_combat_state.get("recovered_embers_total", 0)) - int(next_state.get("recovered_embers_total", 0)))
+		next_state["run_stats"]["max_held_embers"] = maxi(int(next_state["run_stats"]["max_held_embers"]), known_wallet)
+		repaired_combat_state["run_stats"] = CombatEngineScript.normalized_run_stats(repaired_combat_state.get("run_stats", next_state["run_stats"]))
+		repaired_combat_state["run_stats"]["max_held_embers"] = next_state["run_stats"]["max_held_embers"]
 		repaired_combat_state = _mark_balance_transition(repaired_combat_state)
 		repaired_combat_state["skill_ids"] = ProgressionStore.selected_skill_ids(next_state.get("progression", {}) as Dictionary)
 		repaired_combat_state.erase("stats")
@@ -883,6 +896,7 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 	current_room["sealed"] = true
 	rooms[current_key] = current_room
 	var room: Dictionary = _merge_room_metadata(int(next_state.get("seed", 0)), destination, rooms.get(destination_key, {}) as Dictionary)
+	_record_score_room_entry(next_state, room, destination)
 	SectionMapGraph.resolve_mystery(next_state, room)
 	room["revealed"] = true
 	room["visited"] = true
@@ -969,6 +983,7 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 			if _equipment_drop_can_attempt(next_state, room) and not authored_tutorial:
 				next_state = _record_equipment_drop_attempt(next_state, layout)
 			combat_state = GuidedCombatScenario.prepare_for_run(next_state, combat_state)
+			_record_encounter_pick(next_state, layout)
 			next_state["combat_state"] = combat_state
 			next_state["mode"] = "combat"
 	return next_state
@@ -1007,6 +1022,7 @@ func move_to_pre_battle(run_state: Dictionary, destination: Vector2i) -> Diction
 	current_room["sealed"] = true
 	rooms[current_key] = current_room
 	var room: Dictionary = _merge_room_metadata(int(next_state.get("seed", 0)), destination, rooms.get(destination_key, {}) as Dictionary)
+	_record_score_room_entry(next_state, room, destination)
 	SectionMapGraph.resolve_mystery(next_state, room)
 	room["revealed"] = true
 	room["visited"] = true
@@ -1147,6 +1163,7 @@ func begin_pre_battle_combat(run_state: Dictionary, prepared: Dictionary = {}) -
 	if _equipment_drop_can_attempt(next_state, room) and not bool(owned["authored_tutorial"]):
 		next_state = _record_equipment_drop_attempt(next_state, owned["layout"])
 	SectionMapGraph.room(next_state, next_state["current_room"]).erase("omen_combat_finished")
+	_record_encounter_pick(next_state, owned["layout"])
 	next_state["combat_state"] = (owned["combat_state"] as Dictionary).duplicate(true)
 	next_state["mode"] = "combat"
 	_clear_pre_battle_state(next_state)
@@ -1160,7 +1177,10 @@ func set_combat_state(run_state: Dictionary, combat_state: Dictionary) -> Dictio
 	next_state.erase("combat_state")
 	next_state = next_state.duplicate(true)
 	next_state["combat_state"] = combat_state.duplicate(true)
-	next_state["run_stats"] = CombatEngineScript.normalized_run_stats(combat_state.get("run_stats", next_state.get("run_stats", {})))
+	next_state["run_stats"] = normalized_run_stats(combat_state.get("run_stats", next_state.get("run_stats", {})))
+	next_state["run_stats"]["run_seconds"] = maxf(0.0, float((run_state.get("run_stats", {}) as Dictionary).get("run_seconds", 0.0)))
+	next_state["run_stats"]["max_held_embers"] = maxi(int(next_state["run_stats"]["max_held_embers"]), held_embers(run_state) + int(combat_state.get("room_embers", 0)) + maxi(0, int(combat_state.get("recovered_embers_total", 0)) - int(run_state.get("recovered_embers_total", 0))))
+	next_state["combat_state"]["run_stats"] = CombatEngineScript.normalized_run_stats(next_state["run_stats"])
 	next_state["player_hp"] = int((combat_state.get("player", {}) as Dictionary).get("hp", next_state.get("player_hp", 1)))
 	next_state[DEFIANCE_CAPACITY_KEY] = maxi(0, int(combat_state.get(DEFIANCE_CAPACITY_KEY, next_state.get(DEFIANCE_CAPACITY_KEY, 0))))
 	next_state[DEFIANCE_REMAINING_KEY] = clampi(
@@ -1236,6 +1256,7 @@ func finish_combat(run_state: Dictionary, combat_state: Dictionary) -> Dictionar
 	var current_room: Vector2i = next_state.get("current_room", Vector2i.ZERO)
 	var room_key: String = _room_key(current_room)
 	var room: Dictionary = (rooms.get(room_key, {}) as Dictionary).duplicate(true)
+	_record_score_encounter(next_state, room, combat_state)
 	room["cleared"] = true
 	rooms[room_key] = room
 	next_state["rooms"] = rooms
@@ -1387,6 +1408,7 @@ func _retreat_through_last_door(run_state: Dictionary) -> Dictionary:
 		previous_room,
 		return_connection.get("door_dir", Vector2i.ZERO)
 	)
+	next_state["run_stats"]["killer"] = {}
 	next_state["player_hp"] = return_health
 	next_state["combat_state"] = {}
 	next_state["pending_reward"] = {}
@@ -1899,6 +1921,14 @@ func set_held_embers(run_state: Dictionary, amount: int) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)
 	next_state["held_embers"] = maxi(0, amount)
 	next_state["unbanked_embers"] = maxi(0, amount)
+	var stats: Dictionary = normalized_run_stats(next_state.get("run_stats", {}))
+	stats["max_held_embers"] = maxi(int(stats["max_held_embers"]), maxi(0, amount))
+	next_state["run_stats"] = stats
+	if not (next_state.get("combat_state", {}) as Dictionary).is_empty():
+		var combat_stats: Dictionary = CombatEngineScript.normalized_run_stats(next_state["combat_state"].get("run_stats", {}))
+		combat_stats["max_held_embers"] = stats["max_held_embers"]
+		next_state["combat_state"]["run_stats"] = combat_stats
+		next_state["combat_state"]["score_wallet_base"] = amount - int(next_state["combat_state"].get("recovered_embers_total", 0))
 	return next_state
 
 func add_held_embers(run_state: Dictionary, amount: int) -> Dictionary:
@@ -2345,6 +2375,7 @@ func _player_snapshot(run_state: Dictionary) -> Dictionary:
 		"heal_bonus": int(run_state.get("heal_bonus", 0)),
 		"cards_per_turn": BASE_CARDS_PER_TURN,
 		"draw_per_turn": BASE_DRAW_PER_TURN,
+		"score_wallet_base": held_embers(run_state),
 		"run_stats": CombatEngineScript.normalized_run_stats(run_state.get("run_stats", {}))
 	}
 
@@ -2434,6 +2465,11 @@ func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: 
 	var equipment_drop: String = _equipment_drop_for_room(run_state, layout_room)
 	if not equipment_drop.is_empty():
 		layout_room["equipment_drop"] = equipment_drop
+	if SectionMapGraph.modern(run_state) and str(room.get("type", "")) == "combat" and room.has("section_index") and not GuidedCombatScenario.should_prepare(run_state, {"room_type": "combat"}):
+		layout_room["section_map_layout_revision"] = int(run_state.get("section_map_layout_revision", 4))
+		var section: Dictionary = SectionMapGraph.section(run_state, int(room["section_index"]))
+		layout_room["encounter_biome"] = DragonBossLibrary.element_for_boss(str(section["boss_id"]))
+		layout_room["encounter_history"] = run_state.get("encounter_history", []).duplicate()
 	var layout: Dictionary = _generated_combat_layout(int(run_state.get("seed", 0)), layout_room, travel_dir)
 	layout = _layout_with_recovery_loot(layout, room, run_state)
 	if has_run_skill(run_state, "true_bearing") and typeof(run_state.get("pre_battle_start", null)) == TYPE_VECTOR2I:
@@ -2441,6 +2477,15 @@ func _combat_layout_for_room(room: Dictionary, travel_dir: Vector2i, run_state: 
 		if _layout_accepts_pre_battle_start(layout, chosen_start):
 			layout["player_start"] = chosen_start
 	return layout
+
+func _record_encounter_pick(run_state: Dictionary, layout: Dictionary) -> void:
+	if not layout.has("encounter_id"): return
+	var history: Array = run_state.get("encounter_history", []).duplicate()
+	history.append(str(layout["encounter_id"]))
+	run_state["encounter_history"] = history
+	var room: Dictionary = SectionMapGraph.room(run_state, run_state["current_room"])
+	room["encounter_id"] = layout["encounter_id"]
+	room["biome"] = layout["biome"]
 
 func _generated_combat_layout(seed: int, room: Dictionary, travel_dir: Vector2i) -> Dictionary:
 	# RoomGenerator consumes these complete immutable definitions plus its exact
@@ -3766,7 +3811,52 @@ func scout_map(run_state: Dictionary, target: Vector2i) -> Dictionary:
 	return SectionMapGraph.scout(run_state, target)
 
 func resolve_map_event(run_state: Dictionary, choice: String) -> Dictionary:
-	return EventRules.continue_event(run_state) if choice == "continue" else EventRules.choose_event(run_state, choice, self)
+	var next: Dictionary = EventRules.continue_event(run_state) if choice == "continue" else EventRules.choose_event(run_state, choice, self)
+	var before_page: String = str((run_state.get("event_state", {}) as Dictionary).get("page", ""))
+	var after_page: String = str((next.get("event_state", {}) as Dictionary).get("page", ""))
+	if before_page != "result" and after_page == "result":
+		var stats: Dictionary = normalized_run_stats(next.get("run_stats", {}))
+		stats["events_resolved"] = int(stats["events_resolved"]) + 1
+		next["run_stats"] = stats
+	return next
+
+func _record_score_room_entry(state: Dictionary, room: Dictionary, destination: Vector2i) -> void:
+	if destination == Vector2i.ZERO or bool(room.get("visited", false)):
+		return
+	var stats: Dictionary = normalized_run_stats(state.get("run_stats", {}))
+	stats["rooms_explored"] = int(stats["rooms_explored"]) + 1
+	if str(room.get("type", "")) == "mystery":
+		stats["mystery_rooms_entered"] = int(stats["mystery_rooms_entered"]) + 1
+	state["run_stats"] = stats
+
+func _record_score_encounter(state: Dictionary, room: Dictionary, combat: Dictionary) -> void:
+	var kind: String = str(room.get("type", ""))
+	if kind not in ["guardian", "boss"]:
+		return
+	var stats: Dictionary = normalized_run_stats(state.get("run_stats", {}))
+	var unscathed: bool = int(stats["damage_received"]) == int(combat.get("score_health_loss_at_start", -1))
+	if kind == "guardian":
+		stats["guardians_slain"] = int(stats["guardians_slain"]) + 1
+		if unscathed:
+			var guardian_id: String = str(room.get("guardian_id", combat.get("guardian_id", "")))
+			if guardian_id.is_empty():
+				guardian_id = str(preload("res://scripts/guardian_library.gd").for_boss(str(room.get("boss_id", ""))).get("id", ""))
+			stats["guardians_unscathed"].append(guardian_id)
+	else:
+		var id: String = str(room.get("boss_id", combat.get("boss_id", "")))
+		if not stats["dragons_slain"].has(id):
+			stats["dragons_slain"].append(id)
+			if unscathed:
+				stats["dragons_flawless"].append(id)
+	state["run_stats"] = stats
+
+# Pure run-only accumulation for callers supplying elapsed active play time.
+static func advance_play_time(state: Dictionary, seconds: float, paused: bool = false) -> void:
+	if paused or bool(state.get("game_over", false)) or str(state.get("mode", "")) in ["defeat", "victory", "embrace"] or seconds <= 0.0:
+		return
+	var stats: Dictionary = normalized_run_stats(state.get("run_stats", {}))
+	stats["run_seconds"] = float(stats["run_seconds"]) + seconds
+	state["run_stats"] = stats
 
 func _recovery_coord_for_run(run_state: Dictionary) -> Vector2i:
 	var original: Vector2i = ProgressionStore.recovery_coord(run_state.get("progression", {}) as Dictionary)

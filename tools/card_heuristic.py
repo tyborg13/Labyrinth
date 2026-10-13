@@ -178,6 +178,20 @@ BOSS_ENCOUNTER_ROLES = {
     "noctyrax": "snuff and darkness, declared player-centered ground sweeps, live pursuit and capped replacement Acolytes",
 }
 
+# Director-authored section regulars. Context only: no intrinsic card coefficient changes.
+SECTION_ENEMY_ROSTER = {
+    "burrow_grub": {"section": "earth", "hp": 12, "initiative": 10, "reward_embers": 10,
+                    "first_weighted_cadence": 14.6, "repeat_weighted_cadence": 14.75,
+                    "reach": "Gnaw Move 2 + melee 3; Burrow marks hero tile, forced Erupt 6",
+                    "support": "Erupt displaces center, pushes cardinal neighbors, leaves Rubble, self-Expose 2; no exit leaves center in place and surfaces nearby",
+                    "counterplay": "leave the mark, place an enemy on it, punish self-Expose"},
+    "ember_tick": {"section": "fire", "hp": 6, "initiative": 8, "reward_embers": 6,
+                   "first_weighted_cadence": 12.0, "repeat_weighted_cadence": 12.0,
+                   "reach": "Scuttle Move 3 + melee 2; death Burst hits eight surrounding tiles for 4",
+                   "support": "Kindle adds 2 until death, max bonus 4; death leaves Fire; breadth-first chains",
+                   "counterplay": "kill at range, push beside allies, block burst damage"},
+}
+
 ENEMY_TACTICAL_ROLES = {
     "frontliner": "close distance and convert reachable attacks",
     "artillery": "hold useful range and establish legal shots",
@@ -219,6 +233,7 @@ def encounter_assumptions() -> dict[str, Any]:
         "randomized_elemental_bosses": RANDOMIZED_ELEMENTAL_BOSSES,
         "final_boss_depth": FINAL_BOSS_DEPTH,
         "boss_encounter_roles": BOSS_ENCOUNTER_ROLES,
+        "section_enemy_roster": SECTION_ENEMY_ROSTER,
         "dragon_feedback_rules": {
             "winters_hourglass": "first Ice card per activation banks 3 Time, cap 3; non-Ice cards spend only needed reserve to minimum Time 1; persists within combat; free Borrowed Time preserves it; excluded from intrinsic scores",
             "stormroad_coil": "one visible Electrified relay for single-target ranged attacks; normal range and LOS on both legs, visible target, direct contact preferred; at most twice printed range before intrinsic Chain; excluded from intrinsic scores",
@@ -248,6 +263,16 @@ def encounter_assumptions() -> dict[str, Any]:
             "friendly_fire": "existing rewards; no player-card bonus for enemy kills",
             "end_enemy_turn_order": "wind pushes, then terrain lifetimes",
             "spawns": "director adds encounter groups after merge",
+        },
+        "en03_enemies": {
+            "arc_thrall": {"hp": 10, "base_initiative": 11, "reward_embers": 9, "weighted_cycle": 15.6,
+                          "tether": "spawn_group 2; held partner; clear cardinal distance <=6; align Move <=3; strictly intermediate tiles take 4 lightning + Shock 1, including enemies",
+                          "arc_jab": "Move 2 + melee 3 + Shock 1"},
+            "gloam_stalker": {"hp": 11, "base_initiative": 10, "reward_embers": 10, "weighted_cycle_including_forced_ambush": 14.75,
+                              "fade": "Blink <=4 behind last hero movement this round; Veil denies distant single targets; adjacent/area/secondary chains/surfaces/collisions hit normally",
+                              "ambush": "forced following Fade; re-Blink if needed; melee 7 then end Veil; impossible strike falls back to Slash",
+                              "slash": "Move 2 + melee 4"},
+            "encounters": "staged until enc-01 biome_groups land; no intrinsic card coefficient change",
         },
         "warden_bulwark": "grants scaled Block to every other living enemy and never to the acting Warden",
         "player_flow": {

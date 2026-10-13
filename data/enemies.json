@@ -2858,5 +2858,237 @@
         ]
       }
     ]
+  },
+  "arc_thrall": {
+    "name": "Arc Thrall",
+    "ai_profile": {
+      "role": "skirmisher",
+      "preferred_range": 2,
+      "retreat_distance": 0
+    },
+    "element": "lightning",
+    "max_hp": 10,
+    "base_initiative": 11,
+    "reward_embers": 9,
+    "accent": "#a77bf0",
+    "art_path": "res://assets/art/enemies/arc_thrall.png",
+    "spawn_group": 2,
+    "intents": [
+      {
+        "id": "tether",
+        "name": "Tether",
+        "time": 5,
+        "weight": 3,
+        "actions": [
+          {
+            "type": "tether_beam",
+            "partner": "arc_thrall",
+            "max_length": 6,
+            "damage": 4,
+            "shock": 1,
+            "align_move": 3,
+            "element": "lightning"
+          }
+        ]
+      },
+      {
+        "id": "arc_jab",
+        "name": "Arc Jab",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "damage": 3,
+            "range": 1,
+            "shock": 1,
+            "element": "lightning"
+          }
+        ]
+      }
+    ]
+  },
+  "gloam_stalker": {
+    "name": "Gloam Stalker",
+    "ai_profile": {
+      "role": "skirmisher",
+      "preferred_range": 1,
+      "retreat_distance": 0
+    },
+    "element": "shadow",
+    "max_hp": 11,
+    "base_initiative": 10,
+    "reward_embers": 10,
+    "accent": "#8a6bd6",
+    "art_path": "res://assets/art/enemies/gloam_stalker.png",
+    "intents": [
+      {
+        "id": "fade",
+        "name": "Fade",
+        "time": 5,
+        "weight": 3,
+        "next_intent": "ambush",
+        "actions": [
+          {
+            "type": "veil_blink",
+            "destination": "behind_hero",
+            "range": 4
+          }
+        ]
+      },
+      {
+        "id": "ambush",
+        "name": "Ambush",
+        "time": 5,
+        "weight": 0,
+        "actions": [
+          {
+            "type": "melee",
+            "damage": 7,
+            "range": 1,
+            "ends_veil": true,
+            "element": "shadow"
+          }
+        ]
+      },
+      {
+        "id": "slash",
+        "name": "Slash",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "damage": 4,
+            "range": 1,
+            "element": "shadow"
+          }
+        ]
+      }
+    ]
+  },
+  "burrow_grub": {
+    "name": "Burrow Grub",
+    "ai_profile": {
+      "role": "skirmisher",
+      "preferred_range": 1,
+      "retreat_distance": 0
+    },
+    "element": "earth",
+    "max_hp": 12,
+    "base_initiative": 10,
+    "reward_embers": 10,
+    "accent": "#b98b45",
+    "art_path": "res://assets/art/enemies/burrow_grub.png",
+    "intents": [
+      {
+        "id": "burrow",
+        "name": "Burrow",
+        "time": 5,
+        "weight": 3,
+        "next_intent": "erupt",
+        "actions": [
+          {
+            "type": "burrow",
+            "mark": "hero_tile"
+          }
+        ]
+      },
+      {
+        "id": "erupt",
+        "name": "Erupt",
+        "time": 5,
+        "weight": 0,
+        "actions": [
+          {
+            "type": "erupt",
+            "damage": 6,
+            "push": 1,
+            "surface": "rubble",
+            "self_expose": 2,
+            "element": "earth"
+          }
+        ]
+      },
+      {
+        "id": "gnaw",
+        "name": "Gnaw",
+        "time": 4,
+        "weight": 2,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 2
+          },
+          {
+            "type": "melee",
+            "damage": 3,
+            "range": 1,
+            "element": "earth"
+          }
+        ]
+      }
+    ]
+  },
+  "ember_tick": {
+    "name": "Ember Tick",
+    "ai_profile": {
+      "role": "frontliner",
+      "preferred_range": 1,
+      "retreat_distance": 0
+    },
+    "element": "fire",
+    "max_hp": 6,
+    "base_initiative": 8,
+    "reward_embers": 6,
+    "accent": "#e8722c",
+    "art_path": "res://assets/art/enemies/ember_tick.png",
+    "death_burst": {
+      "damage": 4,
+      "radius": 1,
+      "surface": "fire",
+      "element": "fire",
+      "hits_enemies": true
+    },
+    "intents": [
+      {
+        "id": "scuttle",
+        "name": "Scuttle",
+        "time": 4,
+        "weight": 3,
+        "actions": [
+          {
+            "type": "move_toward",
+            "range": 3
+          },
+          {
+            "type": "melee",
+            "damage": 2,
+            "range": 1,
+            "element": "fire"
+          }
+        ]
+      },
+      {
+        "id": "kindle",
+        "name": "Kindle",
+        "time": 4,
+        "weight": 1,
+        "actions": [
+          {
+            "type": "kindle",
+            "amount": 2
+          }
+        ]
+      }
+    ]
   }
 }

@@ -394,12 +394,15 @@ class BoardPixelDensityTest(unittest.TestCase):
         for entry in self.entries.values():
             name = entry["id"]
             draw_y = None
-            if entry["kind"] == "rig":
+            if entry["kind"] in ("rig", "static_enemy"):
                 expected = 1.0 if name == "hero_rear" else enemies[name].get("art_scale", 1.0)
             else:
                 frame = tool.sample(SOURCES / entry["paths"][0], entry["frames"])
                 w, h = frame.size
-                if name.startswith("column_torch"):
+                if name in ("burrow_grub", "ember_tick"):
+                    self.assertEqual(entry["kind"], "static")
+                    draw = min(unit_x / w, unit_y / h) * enemies[name].get("art_scale", 1.0)
+                elif name.startswith("column_torch"):
                     draw = pillar_width * constant("COLUMN_TORCH_WIDTH_SCALE") / w
                 elif name.startswith("campfire"):
                     draw = constant("CAMPFIRE_BONFIRE_WIDTH_SCALE") / w

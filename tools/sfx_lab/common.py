@@ -30,6 +30,7 @@ SOURCE_LICENSES = {
     "kenney": "CC0-1.0",
     "opengameart": "CC0-1.0",
 }
+DESIGNED_SOURCE = "designed"
 AUDIO_EXTENSIONS = {".wav", ".ogg", ".flac", ".mp3"}
 MAX_WORKERS = 4
 FFMPEG_THREADS = 2
@@ -68,8 +69,33 @@ class LabError(ValueError):
     pass
 
 
-def safe_path(path: str | Path) -> Path:
+class SourceRoots:
+    """Validated index roots; str preserves the list across legacy worker jobs."""
+    def __init__(self, roots):
+        if not roots or not all(isinstance(root, (str, Path)) for root in roots):
+            raise LabError("sources must contain at least one source root")
+        self.roots = tuple(safe_path(root) for root in roots)
+        if not all(isinstance(root, Path) for root in self.roots):
+            raise LabError("Nested source roots are invalid")
+
+    def __str__(self):
+        return json.dumps([str(root) for root in self.roots])
+
+
+def safe_path(path: str | Path | list | SourceRoots) -> Path | SourceRoots:
     """Reject excluded lexical paths AND symlink destinations before opening."""
+    if isinstance(path, SourceRoots):
+        return SourceRoots(path.roots)
+    if isinstance(path, list):
+        return SourceRoots(path)
+    # slice's existing worker interface carries roots as str(safe_path(sources)).
+    if str(path).startswith("["):
+        try:
+            roots = json.loads(str(path))
+        except json.JSONDecodeError:
+            roots = None
+        if isinstance(roots, list):
+            return SourceRoots(roots)
     value = Path(path).expanduser()
     for candidate in (value, value.resolve()):
         if any(part.lower() == "mixkit" or part.lower().startswith("sfx-sources-excluded")
@@ -78,19 +104,87 @@ def safe_path(path: str | Path) -> Path:
     return value.resolve()
 
 
-def source_path(root: str | Path, relative: str, licence_id: str | None = None) -> Path:
+def source_path(root: str | Path | list | SourceRoots, relative: str,
+                licence_id: str | None = None) -> Path:
     root = safe_path(root)
     rel = Path(relative)
     if rel.is_absolute() or ".." in rel.parts or not rel.parts:
         raise LabError(f"Source path must be relative to the approved root: {relative}")
-    if rel.parts[0] not in SOURCE_LICENSES:
+    safe_path(relative)
+    if rel.parts[0] not in SOURCE_LICENSES and rel.parts[0] != DESIGNED_SOURCE:
         raise LabError(f"Unapproved source: {relative}")
-    if licence_id is not None and licence_id != SOURCE_LICENSES[rel.parts[0]]:
-        raise LabError(f"Licence mismatch: {relative}")
+    if isinstance(root, SourceRoots):
+        matches = []
+        for item in root.roots:
+            candidate = safe_path(item / rel)
+            if candidate.is_file():
+                matches.append(source_path(item, relative, licence_id))
+        if len(matches) != 1:
+            raise LabError(f"Source path must resolve in exactly one root: {relative}")
+        return matches[0]
     result = safe_path(root / rel)
     if not result.is_relative_to(root / rel.parts[0]):
         raise LabError(f"Source escapes its library: {relative}")
+    actual_licence = (designed_licence(result) if rel.parts[0] == DESIGNED_SOURCE
+                      else SOURCE_LICENSES[rel.parts[0]])
+    if licence_id is not None and licence_id != actual_licence:
+        raise LabError(f"Licence mismatch: {relative}")
     return result
+
+
+def derive_licence(layers: list[dict]) -> str:
+    if not layers:
+        raise LabError("A designed source requires layer provenance")
+    licences = []
+    for layer in layers:
+        relative = layer["source_path"]
+        safe_path(relative)
+        rel = Path(relative)
+        if rel.is_absolute() or ".." in rel.parts or not rel.parts:
+            raise LabError(f"Invalid layer source path: {relative}")
+        folder = rel.parts[0]
+        licence = layer["licence_id"]
+        if folder == DESIGNED_SOURCE:
+            if licence not in SOURCE_LICENSES.values():
+                raise LabError(f"Invalid designed layer licence: {relative}")
+        elif folder not in SOURCE_LICENSES or licence != SOURCE_LICENSES[folder]:
+            raise LabError(f"Invalid layer licence: {relative}")
+        licences.append(licence)
+    return (SOURCE_LICENSES["sonniss_gdc"] if SOURCE_LICENSES["sonniss_gdc"] in licences
+            else SOURCE_LICENSES["kenney"])
+
+
+def designed_licence(path: Path) -> str:
+    """The per-file sidecar, not the folder licence, owns derivative provenance."""
+    try:
+        sidecar = read_json(path.with_suffix(".json"))
+        if not isinstance(sidecar["recipe"], dict):
+            raise LabError("Missing recipe entry")
+        layers = sidecar["layers"]
+        if not isinstance(layers, list) or not layers:
+            raise LabError("Missing layers")
+        if len(sidecar["recipe"]["layers"]) != len(layers):
+            raise LabError("Inconsistent recipe layers")
+        for layer, recipe_layer in zip(layers, sidecar["recipe"]["layers"]):
+            if layer["take_id"] != recipe_layer["take"]:
+                raise LabError("Inconsistent take identity")
+            if recipe_layer.get("source_path", layer["source_path"]) != layer["source_path"]:
+                raise LabError("Inconsistent source path")
+            if not re.fullmatch(r"[0-9a-f]{64}", layer["source_sha256"]):
+                raise LabError("Invalid source hash")
+            if not re.fullmatch(re.escape(layer["source_sha256"][:12]) + r"#[1-9][0-9]*",
+                                layer["take_id"]):
+                raise LabError("Take identity does not match source hash")
+            start = finite(layer["start_seconds"], "start_seconds")
+            end = finite(layer["end_seconds"], "end_seconds")
+            if not 0 <= start < end:
+                raise LabError("Invalid take range")
+        licence = derive_licence(layers)
+        if sidecar["licence_id"] != licence:
+            raise LabError("Incorrect derived licence")
+        return licence
+    except (LabError, OSError, KeyError, TypeError, AttributeError, json.JSONDecodeError) as error:
+        raise LabError(f"Missing or invalid designed sidecar: {path.with_suffix('.json')}: {error}") from error
 
 
 def sha256(path: Path) -> str:
@@ -248,14 +342,32 @@ class TakeLibrary:
     def __init__(self, features: Path, sources: Path | None = None):
         self.features_path = safe_path(features)
         catalogue = read_json(self.features_path.parent / "index.json")
-        self.sources = safe_path(sources or catalogue["sources"])
+        self.sources = safe_path(catalogue["sources"])
+        self.relocated = None
+        if sources is not None:
+            relocated = safe_path(sources)
+            if isinstance(self.sources, SourceRoots) and isinstance(relocated, Path):
+                # A single --sources can relocate either tree, or a combined tree.
+                self.relocated = relocated
+            else:
+                self.sources = relocated
         self.rows: dict[str, list[dict]] = {}
         for row in read_jsonl(self.features_path):
-            source_path(self.sources, row["source_path"], row["licence_id"])
+            self.path(row)
             self.rows.setdefault(row["take_id"], []).append(row)
         self.verified: set[tuple[str, str]] = set()
 
+    def path(self, row: dict) -> Path:
+        relative = row["source_path"]
+        if self.relocated is not None:
+            candidate = safe_path(self.relocated / relative)
+            if candidate.is_file():
+                return source_path(self.relocated, relative, row["licence_id"])
+        return source_path(self.sources, relative, row["licence_id"])
+
     def get(self, candidate: dict) -> dict:
+        if candidate.get("source_path"):
+            safe_path(candidate["source_path"])
         rows = self.rows.get(candidate["take"], [])
         if candidate.get("source_path"):
             rows = [row for row in rows if row["source_path"] == candidate["source_path"]]
@@ -266,18 +378,19 @@ class TakeLibrary:
         row = rows[0]
         key = row["source_path"], row["source_sha256"]
         if key not in self.verified:
-            if sha256(source_path(self.sources, key[0], row["licence_id"])) != key[1]:
+            if sha256(self.path(row)) != key[1]:
                 raise LabError(f"Source hash changed: {key[0]}")
             self.verified.add(key)
         return row
 
     def excerpt(self, row: dict, variant: dict) -> tuple[np.ndarray, int, dict]:
-        data, rate = decode(source_path(self.sources, row["source_path"], row["licence_id"]))
+        data, rate = decode(self.path(row))
         duration = row["end_seconds"] - row["start_seconds"]
         trim = variant.get("trim", [0, duration])
         if not isinstance(trim, list) or len(trim) != 2:
             raise LabError("trim must be [start, end] in seconds relative to the take")
-        start, end = (finite(value, "trim") for value in trim)
+        start = finite(trim[0], "trim")
+        end = duration if trim[1] is None else finite(trim[1], "trim")
         if not 0 <= start < end <= duration + 1 / rate:
             raise LabError(f"trim is outside take: {trim}")
         absolute_start = row["start_seconds"] + start
@@ -287,15 +400,24 @@ class TakeLibrary:
         if pitch <= 0:
             raise LabError("pitch must be positive")
         ratio = Fraction(OUTPUT_RATE / (rate * pitch)).limit_denominator(RESAMPLE_MAX_DENOMINATOR)
-        data = signal.resample_poly(data, ratio.numerator, ratio.denominator, axis=0)
+        data = resample_audio(data, rate, OUTPUT_RATE, pitch)
         return data, OUTPUT_RATE, {"trim": [start, end], "pitch": pitch,
                                   "excerpt_start_seconds": absolute_start,
                                   "excerpt_end_seconds": absolute_end,
                                   "resample_ratio": [ratio.numerator, ratio.denominator]}
 
 
-def fade_in(data: np.ndarray, rate: int) -> np.ndarray:
-    count = min(len(data), round(FADE_IN_MS * rate / 1000))
+def resample_audio(data: np.ndarray, rate: int, output_rate: int,
+                   pitch: float = 1.0) -> np.ndarray:
+    ratio = Fraction(output_rate / (rate * pitch)).limit_denominator(RESAMPLE_MAX_DENOMINATOR)
+    return signal.resample_poly(data, ratio.numerator, ratio.denominator, axis=0)
+
+
+def fade_in(data: np.ndarray, rate: int, milliseconds: float = FADE_IN_MS) -> np.ndarray:
+    milliseconds = finite(milliseconds, "fade_in_ms")
+    if milliseconds < 0:
+        raise LabError("fade_in_ms must be nonnegative")
+    count = min(len(data), round(milliseconds * rate / 1000))
     if count:
         data = data.copy()
         data[:count] *= np.linspace(0, 1, count)[:, None]

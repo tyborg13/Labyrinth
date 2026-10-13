@@ -101,8 +101,15 @@ Final headless checks all exited 0: `COMBAT FEEL TEST RESULT: PASS`, `COMBAT MOT
 
 A scope begun inside a scope-less hit-stop adopts the stop's saved positive base,
 not the frozen engine scale. Applying speed, ending a scope and restoring a stop
-fall back to 1.0 for a nonpositive base. Scope-end clears retained presentation
-feedback and requests the scene's normal stage refresh. Overlay maintenance runs
+fall back to 1.0 for a nonpositive base. Enemy hand-off waits for the longest
+remaining bounded overlay lifetime while the scope is active, allowing the final
+damage numbers and death dissolves to finish. Its terminal submission retires
+numbers and presents the final dissolve frame even if a render frame was skipped. Scope-end then clears retained feedback and requests the normal stage
+refresh only when the scene is unlocked, attached and not being deleted. Overlay maintenance runs
 only inside a scope and defers its submission until normal animation submissions
 have had an opportunity to render, so overlay refresh never adds a second render in the same process frame.
-Both committed movement/card victory paths end pacing before the victory beat.
+Both committed movement/card victory paths restore only time scale before the
+real victory beat, retaining scope bookkeeping until normal cleanup. A restored
+scale remains at the positive base during subsequent scope processing. Deferred
+refresh callbacks recheck attachment, deletion and animation-lock state, and
+exiting pacing never queues a stage refresh.

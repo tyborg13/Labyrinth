@@ -76,6 +76,8 @@ static func actors(state: Dictionary, axis: Vector2i) -> Array[Dictionary]:
 	if int(state.get("player", {}).get("hp", 0)) > 0 and not anchored(state, "player", state["player"]): result.append({"kind": "player", "id": -1, "unit": state["player"]})
 	for kind: String in ["enemy", "illusion"]:
 		for unit: Dictionary in state.get("enemies" if kind == "enemy" else "illusions", []):
+			# en-01's forced mover leaves buried bodies in place; previews agree.
+			if bool(unit.get("burrowed", false)): continue
 			if int(unit.get("hp", 0)) > 0 and not anchored(state, kind, unit): result.append({"kind": kind, "id": int(unit["id"]), "unit": unit})
 	result.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		var a_pos: Vector2i = a["unit"]["pos"]

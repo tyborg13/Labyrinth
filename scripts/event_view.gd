@@ -85,6 +85,7 @@ var _painting: Tween
 var _zoom: Tween
 var _closing: bool = false
 var _busy: bool = false
+var _request_pending: bool = false
 var _art_started: bool = false
 var _content_bottom: float = 0
 var _sound: Callable
@@ -162,6 +163,7 @@ func present(state: Dictionary, motion_reduced: bool = false, sound: Callable = 
 	if visible and not _closing and signature == _signature:
 		release_request()
 		return
+	release_request()
 	_signature = signature
 	_sound = sound
 	var already_open: bool = visible and not _closing
@@ -333,22 +335,22 @@ func move_focus(direction: int) -> void:
 	choices[posmod(focused_choice_index() + direction, choices.size())].grab_focus()
 
 func activate_choice(index: int, pointer: bool = false) -> void:
-	if _busy or _closing or page != "choices" or index < 0 or index >= choices.size(): return
+	if _busy or _request_pending or _closing or page != "choices" or index < 0 or index >= choices.size(): return
 	if not choices[index].available: return
-	_busy = true
+	_request_pending = true
 	if not pointer:
 		var feedback: Node = get_node_or_null("/root/CursorFeedback")
 		if feedback != null: feedback.call("play_action_confirmation")
 	choice_requested.emit(choices[index].choice_id)
 
 func activate_continue() -> void:
-	if _busy or _closing or page != "result": return
-	_busy = true
+	if _busy or _request_pending or _closing or page != "result": return
+	_request_pending = true
 	_play(Sounds.MENU_CLOSE_ID)
 	choice_requested.emit("continue")
 
 func release_request() -> void:
-	_busy = false
+	_request_pending = false
 
 func restore_choice_focus() -> void:
 	if page == "result" and continue_button != null: continue_button.grab_focus()
@@ -434,6 +436,7 @@ func _stagger_outcomes() -> void:
 
 func dismiss() -> void:
 	if not visible or _closing: return
+	release_request()
 	_closing = true
 	_busy = true
 	if _opening != null: _opening.kill()

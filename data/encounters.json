@@ -1,0 +1,360 @@
+{
+  "version": 1,
+  "_doc": "Director-authored regular-fight compositions for section-map (revision 4) runs. Tokens expand in place: $element = the room's element regular group (room element, or the mystery's element); $biome = one group picked (weighted, seeded) from the section dragon's biome_groups. Each $biome token picks independently. Tier = the existing encounter tier (1-3) from the room's depth band. Weights are relative. Legacy layouts keep today's hard-coded pools. New section enemies are added as biome_groups entries (data only).",
+  "element_regulars": {
+    "fire": [
+      "cinder_ooze"
+    ],
+    "earth": [
+      "bile_bloomer"
+    ],
+    "ice": [
+      "frostglass_lancer"
+    ],
+    "air": [
+      "chainbound_gaoler"
+    ],
+    "lightning": [
+      "lightning_wisp",
+      "lightning_wisp"
+    ]
+  },
+  "tiers": {
+    "1": [
+      {
+        "id": "t1_crawl_pack",
+        "weight": 2,
+        "units": [
+          "crawler",
+          "crawler",
+          "harrier"
+        ]
+      },
+      {
+        "id": "t1_dust_line",
+        "weight": 2,
+        "units": [
+          "crawler",
+          "harrier",
+          "acolyte"
+        ]
+      },
+      {
+        "id": "t1_surgeon",
+        "weight": 1,
+        "units": [
+          "grave_surgeon",
+          "crawler",
+          "harrier"
+        ]
+      },
+      {
+        "id": "t1_element",
+        "weight": 3,
+        "units": [
+          "$element",
+          "crawler",
+          "harrier"
+        ]
+      },
+      {
+        "id": "t1_biome",
+        "weight": 3,
+        "units": [
+          "$biome",
+          "crawler",
+          "harrier"
+        ]
+      },
+      {
+        "id": "t1_biome_element",
+        "weight": 2,
+        "units": [
+          "$element",
+          "$biome",
+          "harrier"
+        ]
+      },
+      {
+        "id": "t1_warden_biome",
+        "weight": 1,
+        "units": [
+          "warden",
+          "$biome"
+        ]
+      }
+    ],
+    "2": [
+      {
+        "id": "t2_warden_pack",
+        "weight": 1,
+        "units": [
+          "warden",
+          "crawler",
+          "crawler",
+          "harrier"
+        ]
+      },
+      {
+        "id": "t2_surgeon_line",
+        "weight": 1,
+        "units": [
+          "acolyte",
+          "harrier",
+          "crawler",
+          "grave_surgeon"
+        ]
+      },
+      {
+        "id": "t2_element",
+        "weight": 3,
+        "units": [
+          "$element",
+          "crawler",
+          "harrier",
+          "acolyte"
+        ]
+      },
+      {
+        "id": "t2_biome_warden",
+        "weight": 3,
+        "units": [
+          "$biome",
+          "warden",
+          "harrier",
+          "crawler"
+        ]
+      },
+      {
+        "id": "t2_biome_element",
+        "weight": 2,
+        "units": [
+          "$biome",
+          "$element",
+          "crawler",
+          "harrier"
+        ]
+      },
+      {
+        "id": "t2_element_pair",
+        "weight": 1,
+        "units": [
+          "$element",
+          "$element",
+          "crawler",
+          "harrier"
+        ]
+      },
+      {
+        "id": "t2_biome_support",
+        "weight": 2,
+        "units": [
+          "$biome",
+          "acolyte",
+          "grave_surgeon",
+          "crawler"
+        ]
+      }
+    ],
+    "3": [
+      {
+        "id": "t3_full_line",
+        "weight": 1,
+        "units": [
+          "warden",
+          "harrier",
+          "acolyte",
+          "crawler",
+          "grave_surgeon"
+        ]
+      },
+      {
+        "id": "t3_double_warden",
+        "weight": 1,
+        "units": [
+          "warden",
+          "warden",
+          "crawler",
+          "crawler",
+          "harrier"
+        ]
+      },
+      {
+        "id": "t3_element",
+        "weight": 3,
+        "units": [
+          "$element",
+          "warden",
+          "harrier",
+          "crawler",
+          "acolyte"
+        ]
+      },
+      {
+        "id": "t3_biome_element",
+        "weight": 3,
+        "units": [
+          "$biome",
+          "$element",
+          "warden",
+          "acolyte",
+          "crawler"
+        ]
+      },
+      {
+        "id": "t3_biome_swarm",
+        "weight": 2,
+        "units": [
+          "$biome",
+          "$biome",
+          "warden",
+          "acolyte"
+        ]
+      },
+      {
+        "id": "t3_element_pair",
+        "weight": 2,
+        "units": [
+          "$element",
+          "$element",
+          "$biome",
+          "warden"
+        ]
+      },
+      {
+        "id": "t3_biome_support",
+        "weight": 1,
+        "units": [
+          "$biome",
+          "warden",
+          "acolyte",
+          "grave_surgeon",
+          "crawler"
+        ]
+      }
+    ]
+  },
+  "rules": {
+    "no_repeat_last": 2,
+    "max_units": 7,
+    "trim_rule": "If an expansion exceeds max_units, drop concrete (non-token) units from the end of the list until it fits; never drop token units."
+  },
+  "biome_groups": {
+    "earth": [
+      {
+        "id": "earth_helpers",
+        "weight": 1,
+        "units": [
+          "stoneback_mite",
+          "stoneback_mite"
+        ]
+      },
+      {
+        "id": "earth_grub",
+        "weight": 3,
+        "units": [
+          "burrow_grub"
+        ]
+      },
+      {
+        "id": "earth_grub_pair",
+        "weight": 1,
+        "units": [
+          "burrow_grub",
+          "stoneback_mite"
+        ]
+      }
+    ],
+    "fire": [
+      {
+        "id": "fire_helpers",
+        "weight": 1,
+        "units": [
+          "ash_hound",
+          "ash_hound"
+        ]
+      },
+      {
+        "id": "fire_ticks",
+        "weight": 3,
+        "units": [
+          "ember_tick",
+          "ember_tick"
+        ]
+      },
+      {
+        "id": "fire_tick_swarm",
+        "weight": 1,
+        "units": [
+          "ember_tick",
+          "ember_tick",
+          "ember_tick"
+        ]
+      }
+    ],
+    "ice": [
+      {
+        "id": "ice_helpers",
+        "weight": 1,
+        "units": [
+          "rime_whelp",
+          "rime_spitter"
+        ]
+      }
+    ],
+    "air": [
+      {
+        "id": "air_helpers",
+        "weight": 1,
+        "units": [
+          "roc_fledgling",
+          "roc_fledgling"
+        ]
+      }
+    ],
+    "lightning": [
+      {
+        "id": "lightning_helpers",
+        "weight": 1,
+        "units": [
+          "lightning_wisp",
+          "bell_tender"
+        ]
+      },
+      {
+        "id": "lightning_thralls",
+        "weight": 3,
+        "units": [
+          "arc_thrall",
+          "arc_thrall"
+        ]
+      }
+    ],
+    "shadow": [
+      {
+        "id": "shadow_helpers",
+        "weight": 1,
+        "units": [
+          "wick_shade",
+          "wick_shade",
+          "veilbound_acolyte"
+        ]
+      },
+      {
+        "id": "shadow_stalker",
+        "weight": 3,
+        "units": [
+          "gloam_stalker"
+        ]
+      },
+      {
+        "id": "shadow_stalker_shades",
+        "weight": 1,
+        "units": [
+          "gloam_stalker",
+          "wick_shade"
+        ]
+      }
+    ]
+  }
+}

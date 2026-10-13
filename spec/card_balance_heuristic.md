@@ -906,3 +906,37 @@ Construct wind immunity reads only the enemy definition's `construct: true`.
 Freeze does not suppress that boundary. Enemy kills retain existing reward
 rules and never gain a player-card kill bonus. Per director feedback 1, enc-01
 has landed; the director adds these enemies to spawn pools after merge.
+### Section wave E1: en-03 (staged, encounter tables pending enc-01)
+
+| Enemy | HP / initiative / Embers | Authored cadence before spawn stagger | Reach and counterplay | Closest comparison |
+| --- | --- | --- | --- | --- |
+| Arc Thrall | 10 / 11 / 9 | Tether 16 (3/5), Arc Jab 15 (2/5); weighted 15.6 | Pairs; clear cardinal beam ≤6, strictly between endpoints; align Move ≤3 then 4 lightning + Shock 1, all units. Displace/kill partner or move off beam; push enemies into it. Jab Move 2 + melee 3 + Shock 1. | Lightning Wisp's Shock pressure, with a held partner and friendly-fire lane rather than a direct shot. |
+| Gloam Stalker | 11 / 10 / 10 | Fade 15 (3/5), Slash 14 (2/5); Fade forces Ambush 15. Including that forced step, (3×30 + 2×14)/8 = 14.75 per activation. | Fade Blink ≤4 behind the hero + Veil; distant single-target targeting denied, adjacent attacks/area/secondary chains/surfaces/collisions work. Ambush re-Blinks if needed, melee 7, ends Veil; Slash Move 2 + melee 4. Move away, block, or use area damage. | Tunnel Crawler's melee closure, with positional Blink and a revealed high-damage follow-up. |
+
+The entries use protected director values from `peer_benchmark/staged/enemies/wave_e1.json`.
+The cadence calculations are authored-weight comparisons, not estimates of uptime:
+Tether availability, movement blockers, Shock/Freeze and blocked Blink destinations
+reduce realized pressure. Enemy kills preserve the existing Ember-drop rule and do
+not grant player-card kill bonuses. New verb geometry, Veil targeting and forced
+intent timing are encounter assumptions; intrinsic card coefficients are unchanged.
+The matching rows are exported by `tools/card_heuristic.py` under `en03_enemies`.
+## Section regulars: EN01 (director roster v1)
+
+These are encounter-context rows, mirrored in `tools/card_heuristic.py`
+`SECTION_ENEMY_ROSTER`; intrinsic printed-card coefficients are unchanged.
+
+| Enemy | Base HP / initiative / Embers | Weighted cadence before spawn stagger | Reach and pressure | Comparison / counterplay |
+| --- | --- | --- | --- | --- |
+| Burrow Grub | 12 / 10 / 10 | First choice 14.6; steady activation mean 14.75 including forced Erupt | Gnaw Move 2 + melee 3. Burrow snapshots hero tile; Erupt 6, displaces center and pushes cardinal neighbors, Rubble, self-Expose 2; no exit means center stays and grub surfaces nearby | Frostglass Lancer's baseline HP and cadence, with held positional pressure instead of Ice lanes. Leave mark, push an enemy onto it, punish Expose. |
+| Ember Tick | 6 / 8 / 6 | 12 | Scuttle Move 3 + melee 2; death Burst 4 on eight neighbors, Fire on own tile. Kindle +2, cap +4; breadth-first friendly-fire chains. | Tunnel Crawler's fast cadence, with lower HP and explicit kill-order pressure. Kill at range, place beside allies, Block bursts. |
+
+Burrow's selectable weights are 3 (Time 5) and 2 (Gnaw Time 4).
+Its forced Time-5 Erupt has weight zero: the steady mean is
+`10 + (3 * (5 + 5) + 2 * 4) / (3 * 2 + 2) = 14.75`.
+Kindle and Scuttle both cost Time 4. The Kindle cap removes a no-op choice.
+Generic `next_intent` forces the following declaration; weight-zero declarations
+are never sampled randomly. Both enemies remain staged until `enc-01` provides
+`data/encounters.json`; no existing pool was changed in this base.
+Enemy-caused kills retain the existing Ember policy; only the initiating
+player-card kill grants the existing bonus card play. No new analytics event
+is needed: resolution uses existing enemy actions, deaths, and ground events.

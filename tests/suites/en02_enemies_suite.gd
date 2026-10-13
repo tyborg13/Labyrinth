@@ -51,6 +51,7 @@ static func run(expect: Callable) -> void:
 	_presentation(engine, expect)
 	_additional_boundaries(engine, expect)
 	_director_feedback(engine, expect)
+	preload("res://tests/suites/en02_enemy_integration_suite.gd").run(engine, fixture, intent, enemy, expect)
 
 static func _schema(engine: RefCounted, expect: Callable) -> void:
 	var staged: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/enemies/wave_e1.json"))

@@ -58,7 +58,12 @@ Grimoire topics use the new icons where the icon is the topic's concept:
 
 ## Pending purpose-built icons
 
-None. A future action type that must ship before its art may borrow an icon
+None. EN01 uses the approved distinct `burrow`, `erupt` and `burst` paintings.
+Burrow intent and Burrowed status share `burrow`; Erupt intent and delayed mark
+share `erupt`; Kindle intent, Kindled state and the Bursts badge share `burst`.
+These are the director-approved identities for each mechanic.
+
+A future action type that must ship before its art may borrow an icon
 only through `PENDING_ICON_PLACEHOLDER_ALIASES` in the test, with a row here
 naming the needed key and the borrowed one.
 
