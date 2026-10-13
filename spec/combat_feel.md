@@ -68,6 +68,14 @@ The probe writes `timeline_normal.json`, `timeline_fast.json`, `timeline_fastest
 
 ### qa-01 capture determinism and native measurement
 
+The probe renders RunScene in a 1920×1080 `SubViewport` with `UPDATE_ALWAYS`,
+matching `movement_undo_probe.gd`, and reads every capture from that target at
+100% UI scale. The director's first three native runs passed the timing checks
+but emitted 3024×1898 window-backing images, so the runner rejected them. Each
+readback now asserts exact 1920×1080 pixels. Offsets and post-stop peak checks
+still observe the real `RenderingServer.frame_post_draw` boundary; no capture
+is resized or cropped. Fresh accepted runs are required for measurement import.
+
 The old probe disconnected `frame_post_draw` as soon as the action coroutine
 finished. The action uses elapsed presentation time; the requested +8 capture
 uses rendered-frame count. At a slow draw cadence (including GPU readback/PNG
@@ -103,9 +111,21 @@ action-completion offset. Headless `--heavy-timing-only --max-fps 5` is a
 scheduling regression; it creates no PNGs and is not native proof.
 
 <!-- qa-01-native-measurements:start -->
-Native qa-01 measurements are pending three consecutive windowed passes. Normal,
-Fast and Fastest numbers above are historical **headless scheduling** measurements;
-they must not be represented as native measurements.
+Native qa-01 measurements from three consecutive validated windowed runs
+at 1920×1080 / 100% UI scale, Pass to YOUR TURN:
+
+| Speed | Run 1 | Run 2 | Run 3 | Median |
+| --- | ---: | ---: | ---: | ---: |
+| Normal | 4.809 s | 4.815 s | 4.808 s | 4.809 s |
+| Fast | 3.394 s | 3.388 s | 3.394 s | 3.394 s |
+| Fastest | 2.696 s | 2.706 s | 2.686 s | 2.696 s |
+
+All three probes passed the frame-offset, post-stop peak, resolver state/RNG
+and Normal-round budget assertions. Source manifests (SHA256):
+
+- `/private/tmp/qa01-feel-feedback1-1.json` — `5252481830364f814de3260800703089ef9f20d7aeaf1ba072fbe6acc51d0bce`; captures/timelines: `/private/tmp/labyrinth-godot-home/qa-01-1791857040191800000-18217-combat_feel_probe-1/Library/Application Support/Escape the Umbra Visual Probe qa-01-1791857040191800000-18217-combat_feel_probe-1/probes/combat_feel`
+- `/private/tmp/qa01-feel-feedback1-2.json` — `8df3f295b5cf11e2f6baee73cc2450877f7a5aca32639fcc718d66cb2c835b18`; captures/timelines: `/private/tmp/labyrinth-godot-home/qa-01-1791857081638524000-18360-combat_feel_probe-1/Library/Application Support/Escape the Umbra Visual Probe qa-01-1791857081638524000-18360-combat_feel_probe-1/probes/combat_feel`
+- `/private/tmp/qa01-feel-feedback1-3.json` — `618094f94a4e5392c047d0f73cacdf65d516fba3a4be6185d701791340a1ea5c`; captures/timelines: `/private/tmp/labyrinth-godot-home/qa-01-1791857122328493000-18458-combat_feel_probe-1/Library/Application Support/Escape the Umbra Visual Probe qa-01-1791857122328493000-18458-combat_feel_probe-1/probes/combat_feel`
 <!-- qa-01-native-measurements:end -->
 
 ### Proof for the design owner
@@ -114,9 +134,9 @@ Run these three commands consecutively in the implementation worktree. Each
 manifest must be fresh and each command must pass before running the next:
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/qa-01 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --task-id qa-01 --timeout 180 --expect-size 1920x1080 --proof-contract output/feel-01/proof-contract.json --result-manifest /private/tmp/qa01-feel-1.json tests/combat_feel_probe.gd
-cd /Users/borgerding/workspace/Labyrinth.worktrees/qa-01 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --task-id qa-01 --timeout 180 --expect-size 1920x1080 --proof-contract output/feel-01/proof-contract.json --result-manifest /private/tmp/qa01-feel-2.json tests/combat_feel_probe.gd
-cd /Users/borgerding/workspace/Labyrinth.worktrees/qa-01 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --task-id qa-01 --timeout 180 --expect-size 1920x1080 --proof-contract output/feel-01/proof-contract.json --result-manifest /private/tmp/qa01-feel-3.json tests/combat_feel_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/qa-01 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --task-id qa-01 --timeout 180 --expect-size 1920x1080 --proof-contract output/feel-01/proof-contract.json --result-manifest /private/tmp/qa01-feel-feedback1-1.json tests/combat_feel_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/qa-01 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --task-id qa-01 --timeout 180 --expect-size 1920x1080 --proof-contract output/feel-01/proof-contract.json --result-manifest /private/tmp/qa01-feel-feedback1-2.json tests/combat_feel_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/qa-01 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --task-id qa-01 --timeout 180 --expect-size 1920x1080 --proof-contract output/feel-01/proof-contract.json --result-manifest /private/tmp/qa01-feel-feedback1-3.json tests/combat_feel_probe.gd
 ```
 
 The 180-second budget covers all three rounds, preparatory card plays, both
@@ -127,7 +147,7 @@ first post-stop white peak. No windowed attempt was made in the sandbox.
 After the three passes, import their measured medians and per-run values:
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/qa-01 && python3 tools/record_combat_feel_measurements.py --manifests /private/tmp/qa01-feel-1.json /private/tmp/qa01-feel-2.json /private/tmp/qa01-feel-3.json
+cd /Users/borgerding/workspace/Labyrinth.worktrees/qa-01 && python3 tools/record_combat_feel_measurements.py --manifests /private/tmp/qa01-feel-feedback1-1.json /private/tmp/qa01-feel-feedback1-2.json /private/tmp/qa01-feel-feedback1-3.json
 ```
 
 The director captures clips in their capture worktree after integrating this unit:
