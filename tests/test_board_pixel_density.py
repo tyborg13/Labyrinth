@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import copy
 import contextlib
 import io
 import re
@@ -23,6 +24,8 @@ import generate_trap_pressure_plate_preview as trap_preview
 
 REGISTRY = ROOT / "spec/assets/board_pixel_density/registry.json"
 SOURCES = ROOT / "spec/assets/board_pixel_density/sources"
+CALIBRATION_INVALID_FIXTURE_GRID = 2.0
+CALIBRATION_INVALID_FIXTURE_DIGEST = "0" * 64
 
 
 def function_text(code: str, name: str) -> str:
@@ -234,7 +237,7 @@ class BoardPixelDensityTest(unittest.TestCase):
         for entry in self.entries.values():
             for facing, settings in entry.get("facings", {"": entry}).items():
                 with self.subTest(entry=entry["id"], facing=facing):
-                    native = tool.sample(SOURCES / settings["measurement_path"], entry["frames"])
+                    native = tool.calibration_sample(entry, settings)
                     share = density.metrics(native)["orphan_share"]
                     self.assertAlmostEqual(share, settings["orphan_share"])
                     self.assertAlmostEqual(settings["t"], density.strength(share))
@@ -266,6 +269,65 @@ class BoardPixelDensityTest(unittest.TestCase):
             self.assertEqual((settings["mode"], settings["grid"]), ("regrid", 1.5))
         self.assertEqual(self.entries["hero_rear"]["facings"]["rear"]["mode"], "clean")
         self.assertEqual((self.entries["scavenger_npc"]["mode"], self.entries["scavenger_npc"]["grid"]), ("clean", 1.0))
+
+    def test_crawler_calibration_binds_pre_recolour_paint_and_preserves_grid(self) -> None:
+        entry = self.entries["crawler"]
+        self.assertEqual(entry["calibration_source"], tool.PRE_RECOLOUR_CALIBRATION)
+        self.assertIn("director decision 2026-10-13", entry["calibration_note"])
+        self.assertEqual(tool.calibration_errors([entry]), [])
+        for settings in entry["facings"].values():
+            original = tool.calibration_sample(entry, settings)
+            current = tool.sample(SOURCES / settings["measurement_path"], entry["frames"])
+            self.assertNotEqual(original.tobytes(), current.tobytes())
+            self.assertEqual(settings["grid"], 1.73)
+        invalid = copy.deepcopy(entry)
+        invalid["facings"]["front"]["grid"] = CALIBRATION_INVALID_FIXTURE_GRID
+        self.assertTrue(tool.calibration_errors([invalid]))
+        invalid = copy.deepcopy(entry)
+        invalid["calibration_baseline"]["pixel_sha256"][entry["facings"]["front"]["measurement_path"]] = CALIBRATION_INVALID_FIXTURE_DIGEST
+        self.assertTrue(tool.calibration_errors([invalid]))
+        for field in tool.CALIBRATION_FIELDS:
+            invalid = copy.deepcopy(entry)
+            del invalid[field]
+            self.assertTrue(tool.calibration_errors([invalid]), field)
+        invalid = {k: v for k, v in entry.items() if k not in tool.CALIBRATION_FIELDS}
+        self.assertTrue(tool.calibration_errors([invalid]))
+        invalid = copy.deepcopy(entry)
+        invalid["id"] = "other"
+        self.assertTrue(tool.calibration_errors([invalid]))
+
+    def test_calibration_fixtures_fail_closed_without_git_history(self) -> None:
+        entry = copy.deepcopy(self.entries["crawler"])
+        entry["calibration_baseline"]["commit"] = "f" * 40 # Provenance only; no historical object is needed.
+        with mock.patch("subprocess.run", side_effect=AssertionError("density calibration must not call Git")):
+            self.assertEqual(tool.calibration_errors([entry]), [])
+        front = entry["facings"]["front"]["measurement_path"]
+        entry["calibration_baseline"]["paths"][front] += ".missing"
+        self.assertIn("fixture missing", "\n".join(tool.calibration_errors([entry])))
+
+    def test_density_check_refuses_incorrect_calibration_evidence(self) -> None:
+        registry = copy.deepcopy(self.registry)
+        entry = next(e for e in registry["entries"] if e["id"] == "crawler")
+        path = entry["facings"]["front"]["measurement_path"]
+        entry["calibration_baseline"]["pixel_sha256"][path] = CALIBRATION_INVALID_FIXTURE_DIGEST
+        with tempfile.TemporaryDirectory(dir=REGISTRY.parent) as directory:
+            recorded = Path(directory) / "registry.json"
+            recorded.write_text(json.dumps(registry))
+            output = io.StringIO()
+            with mock.patch.object(tool, "REGISTRY", recorded), \
+                 mock.patch.object(sys, "argv", ["process_board_density.py", "--check", "--only", "crawler"]), \
+                 contextlib.redirect_stdout(output):
+                self.assertEqual(tool.main(), 1)
+            self.assertIn("calibration baseline pixel digest changed", output.getvalue())
+
+    def test_entries_without_calibration_notes_still_sample_current_sources(self) -> None:
+        for entry in self.entries.values():
+            if entry["id"] == "crawler":
+                continue
+            self.assertFalse(any(field in entry for field in tool.CALIBRATION_FIELDS), entry["id"])
+            for settings in entry.get("facings", {"": entry}).values():
+                expected = tool.sample(SOURCES / settings["measurement_path"], entry["frames"])
+                self.assertEqual(tool.calibration_sample(entry, settings).tobytes(), expected.tobytes(), entry["id"])
 
     def test_resampled_outputs_size_alpha_silhouette_and_fringe(self) -> None:
         manifest = json.loads(tool.MANIFEST.read_text())

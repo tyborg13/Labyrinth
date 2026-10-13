@@ -1,0 +1,19 @@
+{
+  "min_images": 1,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*crawler_before_after.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [64, 35, 510, 510], "min_luma_range": 40, "min_luma_stdev": 5},
+        {"rect": [704, 35, 510, 510], "min_luma_range": 40, "min_luma_stdev": 5},
+        {"rect": [1344, 35, 510, 510], "min_luma_range": 40, "min_luma_stdev": 5},
+        {"rect": [64, 565, 510, 510], "min_luma_range": 40, "min_luma_stdev": 5},
+        {"rect": [704, 565, 510, 510], "min_luma_range": 40, "min_luma_stdev": 5},
+        {"rect": [1344, 565, 510, 510], "min_luma_range": 40, "min_luma_stdev": 5}
+      ]
+    }
+  ]
+}

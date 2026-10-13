@@ -53,6 +53,7 @@ func _build_cache() -> Dictionary:
 		_append_unique_texture(textures, preload("res://scripts/asset_loader.gd").load_texture_source_first(default_gear_path))
 	for unit_type: String in unit_types:
 		_append_unique_texture(textures, (board.get("_unit_textures") as Dictionary).get(unit_type, null) as Texture2D)
+		_append_unique_texture(textures, (board.get("_unit_rear_textures") as Dictionary).get(unit_type, null) as Texture2D)
 		for texture_var: Variant in (board.get("_idle_frames_by_type") as Dictionary).get(unit_type, []):
 			if texture_var is Texture2D:
 				_append_unique_texture(textures, texture_var as Texture2D)

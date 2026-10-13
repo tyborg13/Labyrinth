@@ -31,12 +31,32 @@ const PORTRAITS := [
 ]
 
 func _initialize() -> void:
+	var only: String = ""
+	var arguments: PackedStringArray = OS.get_cmdline_user_args()
+	var verify_only: bool = arguments.has("--verify-only")
+	for index: int in range(arguments.size()):
+		if arguments[index] == "--only":
+			if index + 1 >= arguments.size():
+				push_error("--only requires a portrait key")
+				quit(1)
+				return
+			only = arguments[index + 1]
+	var matched: bool = false
+	var valid: bool = true
 	_ensure_dir("res://assets/art/portraits")
 	for config: Dictionary in PORTRAITS:
-		_build_portrait(config)
-	_copy_png("res://assets/art/icons/retreat.png", "res://assets/art/icons/stat_agility.png")
-	_build_time_icon("res://assets/art/icons/time.png")
-	quit(0)
+		if not only.is_empty() and str(config["key"]) != only:
+			continue
+		matched = true
+		valid = (_verify_portrait(config) if verify_only else _build_portrait(config)) and valid
+	if not matched:
+		push_error("Unknown portrait key: " + only)
+		valid = false
+	if only.is_empty() and not verify_only:
+		_copy_png("res://assets/art/icons/retreat.png", "res://assets/art/icons/stat_agility.png")
+		_build_time_icon("res://assets/art/icons/time.png")
+	print("TURN ORDER ASSETS: %s (%s; %s)" % ["PASS" if valid else "FAIL", "verify" if verify_only else "build", "all" if only.is_empty() else only])
+	quit(0 if valid else 1)
 
 func _ensure_dir(res_path: String) -> void:
 	var absolute: String = ProjectSettings.globalize_path(res_path)
@@ -51,8 +71,12 @@ func _load_image(res_path: String) -> Image:
 	image.convert(Image.FORMAT_RGBA8)
 	return image
 
-func _build_portrait(config: Dictionary) -> void:
-	var source: Image = _load_image(str(config.get("source", "")))
+func _portrait_image(config: Dictionary) -> Image:
+	var source := Image.new()
+	if source.load(str(config["source"])) != OK:
+		push_error("Could not load portrait source: " + str(config["source"]))
+		return null
+	source.convert(Image.FORMAT_RGBA8)
 	var focus: Vector2i = config.get("focus", source.get_size() / 2)
 	var half: int = PORTRAIT_SIZE / 2
 	var canvas := Image.create_empty(PORTRAIT_SIZE, PORTRAIT_SIZE, false, Image.FORMAT_RGBA8)
@@ -63,9 +87,28 @@ func _build_portrait(config: Dictionary) -> void:
 	var clipped: Rect2i = window.intersection(Rect2i(Vector2i.ZERO, source.get_size()))
 	if clipped.size.x > 0 and clipped.size.y > 0:
 		canvas.blit_rect(source, clipped, clipped.position - window.position)
+	return canvas
+
+func _build_portrait(config: Dictionary) -> bool:
+	var canvas: Image = _portrait_image(config)
+	if canvas == null:
+		return false
 	var err: Error = canvas.save_png(str(config.get("out", "")))
 	if err != OK:
 		push_error("Could not save portrait %s" % str(config.get("out", "")))
+	return err == OK
+
+func _verify_portrait(config: Dictionary) -> bool:
+	var expected: Image = _portrait_image(config)
+	var current := Image.new()
+	if expected == null or current.load(str(config["out"])) != OK:
+		push_error("Could not load portrait for verification: " + str(config["out"]))
+		return false
+	current.convert(Image.FORMAT_RGBA8)
+	var valid: bool = current.get_size() == expected.get_size() and current.get_data() == expected.get_data()
+	if not valid:
+		push_error("Portrait differs from current source crop: " + str(config["out"]))
+	return valid
 
 func _copy_png(source_path: String, out_path: String) -> void:
 	var image: Image = _load_image(source_path)
