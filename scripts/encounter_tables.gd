@@ -15,6 +15,13 @@ static var _table: Dictionary = {}
 static func load() -> Dictionary:
 	return _load_table()
 
+## Tests install a frozen table so data-driven expectations don't move when the director adds groups.
+static func install_table_for_tests(table: Dictionary) -> void:
+	_table = table
+
+static func clear_table_cache() -> void:
+	_table = {}
+
 static func _load_table() -> Dictionary:
 	if not _table.is_empty(): return _table
 	var json := JSON.new()

@@ -63,6 +63,7 @@ static func _test_validation(expect: Callable) -> void:
 static func _test_tokens_and_trim(expect: Callable) -> void:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = FIXTURE_SEED
+	Tables.install_table_for_tests(JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/encounters_enc01_fixture.json")))
 	var table: Dictionary = Tables.load()
 	var expanded: Dictionary = Tables.expand_entry(table["tiers"]["1"][5], "lightning", "ice", rng)
 	expect.call(expanded["units"] == ["lightning_wisp", "lightning_wisp", "rime_whelp", "rime_spitter", "harrier"], "Tokens expand in place with the room regular and section biome")
@@ -87,6 +88,7 @@ static func _test_tokens_and_trim(expect: Callable) -> void:
 	Tables._table = table
 	expect.call(seen.size() == 4, "Repeated biome tokens pick independently")
 	expect.call(absf(float(harriers) / float(2 * WEIGHT_PICKS) - 0.75) <= 0.75 * WEIGHT_RELATIVE_TOLERANCE, "Biome token weights match the expected share")
+	Tables.clear_table_cache()
 
 static func _test_weights(expect: Callable) -> void:
 	var table: Dictionary = Tables.load()
