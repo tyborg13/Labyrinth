@@ -1,0 +1,39 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "arc_thrall",
+  "job_id": "id-arc_thrall-creature_rear",
+  "kind": "creature",
+  "kit_version": "a30d55d3f1722ed76bfd1ab632c365c229d9587a16a1a09579b4725ef7ebd55b",
+  "peers": [
+    "grave_surgeon_front",
+    "harrier_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "29796b6a1ab6913038739d859432da5d563a4cd715823a7f699dcc98768e3c5a",
+  "refs": [
+    {
+      "file": "refs/01_front_ref.png",
+      "pixel_sha256": "fdbd9c3bc41075374d015f120b2d4c72add5830f849623e89dda033fa38f0279"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/02_hero_rear.png",
+      "pixel_sha256": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af"
+    },
+    {
+      "canon_id": "grave_surgeon_rear",
+      "file": "refs/03_grave_surgeon_rear.png",
+      "pixel_sha256": "fb9b0f4d55ebdc02bc64221bd2a5dbe3a830e5cdfe32d4935b4d929dc5f12d4a"
+    },
+    {
+      "canon_id": "harrier_rear",
+      "file": "refs/04_harrier_rear.png",
+      "pixel_sha256": "69422081034043b2ff1f5a4b7a2e7ac779aff75bf5df81fd7704ac5f458719b9"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 205,
+  "target_w": null,
+  "view": "creature_rear"
+}

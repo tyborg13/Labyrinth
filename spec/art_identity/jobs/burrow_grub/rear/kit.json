@@ -1,0 +1,39 @@
+{
+  "K": 4,
+  "anatomy": "crawler",
+  "id": "burrow_grub",
+  "job_id": "id-burrow_grub-beast_rear",
+  "kind": "creature",
+  "kit_version": "699e55cb5986c8ba58ef807c08dc8f210534d0d04ef0eb7525d2d6d428a35448",
+  "peers": [
+    "crawler_front",
+    "stoneback_mite_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "5ac3db6774492728888e4acc8768a9a0bf8746aaa35e501cd8c3eee21f800387",
+  "refs": [
+    {
+      "file": "refs/01_front_ref.png",
+      "pixel_sha256": "22fb9c7b87008f8350e324e36e198bba0b76c61e518b2374e5962aad7f83ab46"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/02_hero_rear.png",
+      "pixel_sha256": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af"
+    },
+    {
+      "canon_id": "crawler_rear",
+      "file": "refs/03_crawler_rear.png",
+      "pixel_sha256": "07afd30414296af51ffdf764acbdbc162804a4cb90c63b7203073c3364e4f59d"
+    },
+    {
+      "canon_id": "stoneback_mite_rear",
+      "file": "refs/04_stoneback_mite_rear.png",
+      "pixel_sha256": "77a050f64dbc5aae4dc870a271db42f998e478fb99926499c16a0528792ad7af"
+    }
+  ],
+  "size_class": "small",
+  "target_h": 150,
+  "target_w": 205,
+  "view": "beast_rear"
+}

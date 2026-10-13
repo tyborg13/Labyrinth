@@ -1,0 +1,1 @@
+python3 ~/.claude/skills/orchestrate-codex/scripts/codex_unit.py imagegen id-gale_herald-creature_rear --prompt-file spec/art_identity/jobs/gale_herald/rear/prompt.md --ref spec/art_identity/jobs/gale_herald/rear/refs/*.png

@@ -1,0 +1,39 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "hoarfrost_seer",
+  "job_id": "id-hoarfrost_seer-creature_rear",
+  "kind": "creature",
+  "kit_version": "32e0583e88969a3bd5f346d0f6cfbe858e17e15742e1b50b2592cf09689c2b8b",
+  "peers": [
+    "grave_surgeon_front",
+    "frostglass_lancer_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "acd336746c77c420cffe890be651e8ab8453e5e524b9797fff21ab6eddd5eb59",
+  "refs": [
+    {
+      "file": "refs/01_front_ref.png",
+      "pixel_sha256": "1384cefe225d13e708364afcc253601be2f5cd2426a453ff52f91f0eec2c0b83"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/02_hero_rear.png",
+      "pixel_sha256": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af"
+    },
+    {
+      "canon_id": "grave_surgeon_rear",
+      "file": "refs/03_grave_surgeon_rear.png",
+      "pixel_sha256": "fb9b0f4d55ebdc02bc64221bd2a5dbe3a830e5cdfe32d4935b4d929dc5f12d4a"
+    },
+    {
+      "canon_id": "frostglass_lancer_rear",
+      "file": "refs/04_frostglass_lancer_rear.png",
+      "pixel_sha256": "03fa87c704f7de72d5d7be29c7665e7abf0613dacd035a83d78518c8f3010028"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 210,
+  "target_w": null,
+  "view": "creature_rear"
+}

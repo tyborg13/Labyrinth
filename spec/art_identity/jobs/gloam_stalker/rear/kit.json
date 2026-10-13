@@ -1,0 +1,39 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "gloam_stalker",
+  "job_id": "id-gloam_stalker-creature_rear",
+  "kind": "creature",
+  "kit_version": "9551b7cb625b2d02545fc3b276140b8680905c35cab8f728431543b09772e9bb",
+  "peers": [
+    "harrier_front",
+    "grave_surgeon_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "a44922f64c4af704b4e2bf4ba71d55eeaf3c9b770cddfd2b60753e23799df869",
+  "refs": [
+    {
+      "file": "refs/01_front_ref.png",
+      "pixel_sha256": "bed1f483648347520fb78716fed240bd0df6787b12e3cd1c5fecf5f9dd4631eb"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/02_hero_rear.png",
+      "pixel_sha256": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af"
+    },
+    {
+      "canon_id": "harrier_rear",
+      "file": "refs/03_harrier_rear.png",
+      "pixel_sha256": "69422081034043b2ff1f5a4b7a2e7ac779aff75bf5df81fd7704ac5f458719b9"
+    },
+    {
+      "canon_id": "grave_surgeon_rear",
+      "file": "refs/04_grave_surgeon_rear.png",
+      "pixel_sha256": "fb9b0f4d55ebdc02bc64221bd2a5dbe3a830e5cdfe32d4935b4d929dc5f12d4a"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 215,
+  "target_w": null,
+  "view": "creature_rear"
+}
