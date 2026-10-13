@@ -78,3 +78,14 @@ Element identity (`element_fire`, `element_ice`, `element_lightning`, `element_a
 ## Section enemies E1 (en-02)
 
 `icefall_mark` and `icefall_land` share the director-approved `icefall` identity: marking and resolving one delayed icicle strike. `call_wind` and the Wind HUD chip share the director-approved `wind` identity. No borrowed icons. Sources and hashes: `spec/peer_benchmark/staged/enemies/raw_sha256.txt`.
+
+## EN06 section enemy identities
+
+| Concept / actions | Identity | Approved source |
+| --- | --- | --- |
+| Charge intent, Charge badge, gain/reset charge | `charge` | `raw_art/icons/charge.png` |
+| Mirror intent | `mirror` | `raw_art/icons/mirror.png` |
+| Discharge chain | `chain` | Existing Chain painting; explicitly shared by the unit brief |
+
+Mirror's revealed copy uses the copied card's central attack identity in its row
+and compass. This is the copied action, rather than a new icon concept.

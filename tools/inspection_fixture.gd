@@ -271,6 +271,9 @@ func _parse_args() -> Dictionary:
 			"--enemy-intents":
 				index += 1
 				parsed["enemy_intents"] = _required_arg(args, index, arg)
+			"--enemy-charge":
+				index += 1
+				parsed["enemy_charge"] = int(_required_arg(args, index, arg))
 			"--enemy-hp":
 				index += 1
 				parsed["enemy_hp"] = int(_required_arg(args, index, arg))
@@ -871,6 +874,8 @@ func _apply_combat_overrides(run_state: Dictionary) -> Dictionary:
 		combat_state = _apply_enemy_position_overrides(combat_state)
 		if _failed:
 			return state
+	combat_state = preload("res://tools/en06_inspection_rules.gd").apply(self, combat_state, _options)
+	if _failed: return state
 	if not str(_options.get("trap_elements", "")).strip_edges().is_empty():
 		combat_state = _apply_trap_overrides(combat_state)
 		if _failed:

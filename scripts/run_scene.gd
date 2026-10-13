@@ -1239,6 +1239,8 @@ const PRE_BATTLE_DIALOG_MIN_SIZE: Vector2 = Vector2(980.0, 560.0)
 const PRE_BATTLE_FRAME_OUTSET: Vector2 = Vector2(48.0, 32.0)
 const PRE_BATTLE_FRAME_PATH: String = "res://assets/art/ui/pre_battle_frame_v8.png"
 const TURN_ORDER_PORTRAITS := {
+	"storm_capacitor": "res://assets/art/portraits/storm_capacitor.png",
+	"hollow_mimic": "res://assets/art/portraits/hollow_mimic.png",
 	"hoarfrost_seer": "res://assets/art/portraits/hoarfrost_seer.png",
 	"gale_herald": "res://assets/art/portraits/gale_herald.png",
 	"arc_thrall": "res://assets/art/portraits/arc_thrall.png",
@@ -17936,6 +17938,7 @@ func _refresh_stage_view() -> void:
 	presentation["status_safe_global_rect"] = _board_status_safe_global_rect()
 	presentation["hud_obstacle_global_rects"] = _board_hud_obstacles(display_state)
 	presentation["boss_header_global_rect"] = _boss_health_overlay.get_global_rect() if _boss_health_overlay != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
+	presentation["boss_health_frame_global_rect"] = _boss_health_frame.get_global_rect() if _boss_health_frame != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
 	presentation["status_typography_role"] = _board_status_typography_role()
 	presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	presentation["board_fit_rect"] = _board_fit_rect()
@@ -18438,6 +18441,9 @@ func _commit_runtime_performance_frame() -> void:
 	_runtime_performance_commit_overhead_usec += commit_elapsed_usec
 
 func _enemy_intent_preview_state(display_state: Dictionary) -> Dictionary:
+	if _player_movement_selected and _player_movement_target_tiles.has(_hovered_board_tile):
+		var movement: Dictionary = _surface_resolution_for_preview(_combat_state, _player_movement_action, _hovered_board_tile)
+		return IntentBadges.movement_preview(_combat_engine, _combat_state, (movement["known"] as Dictionary)["state"])
 	if _selected_card_index < 0 or _preview_combat_state.is_empty():
 		return display_state
 	var current_preview_state: Dictionary = _pass_preview_source_state()
@@ -24469,6 +24475,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 			await _animate_hidden_umbra_enemy_step(animated_state, step)
 			_combat_pacing.after_step(step)
 			continue
+		if str(step.get("action_type", "")) == "chain_discharge" or bool(step.get("en06_mirror", false)):
+			if bool(step.get("en06_mirror", false)): await preload("res://scripts/enemy_mechanics/mimic_view.gd").animate(self, animated_state, step)
+			else: await preload("res://scripts/enemy_mechanics/capacitor_view.gd").animate(self, animated_state, step)
+			_combat_pacing.after_step(step)
+			continue
 		if step.has("en02_mechanic"):
 			if str(step["en02_mechanic"]).begins_with("icefall"): await preload("res://scripts/enemy_mechanics/icefall_view.gd").animate(self, animated_state, step)
 			else: await preload("res://scripts/enemy_mechanics/wind_view.gd").animate(self, animated_state, step)
@@ -25901,6 +25912,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	rendered_presentation["status_typography_role"] = _board_status_typography_role()
 	rendered_presentation["hud_obstacle_global_rects"] = _board_hud_obstacles(display_state)
 	rendered_presentation["boss_header_global_rect"] = _boss_health_overlay.get_global_rect() if _boss_health_overlay != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
+	rendered_presentation["boss_health_frame_global_rect"] = _boss_health_frame.get_global_rect() if _boss_health_frame != null and not _boss_unit_for_health_overlay(display_state).is_empty() else Rect2()
 	rendered_presentation["board_safe_global_rect"] = _board_framing_safe_global_rect()
 	rendered_presentation["board_fit_rect"] = _board_fit_rect()
 	rendered_presentation["board_encounter_types"] = _board_encounter_types()
@@ -26041,6 +26053,10 @@ func _equipped_equipment_for_board() -> Dictionary:
 	return _visual_equipment
 
 func _apply_animation_step(animated_state: Dictionary, step: Dictionary) -> void:
+	preload("res://scripts/enemy_mechanics/capacitor_view.gd").queue_grounded(self, step)
+	if step.has("en06_after"):
+		animated_state.merge((step["en06_after"] as Dictionary).duplicate(true), true)
+		return
 	if step.has("en02_state_after"):
 		animated_state.clear()
 		animated_state.merge((step["en02_state_after"] as Dictionary).duplicate(true), true)
@@ -26885,6 +26901,7 @@ func _player_action_label(card_id: String, _action: Dictionary, _state: Dictiona
 
 func _player_action_floating_texts(before_state: Dictionary, after_state: Dictionary) -> Array[Dictionary]:
 	var floats: Array[Dictionary] = _player_damage_floating_texts(before_state, after_state)
+	floats.append_array(preload("res://scripts/enemy_mechanics/capacitor_view.gd").grounded_texts(before_state, after_state))
 	floats.append_array(_stagger_floating_texts(before_state, after_state))
 	for event: Dictionary in _surface_events_between(before_state,after_state):
 		if str(event.get("kind","")) != "crystal_mantle_broken": continue
@@ -33731,7 +33748,7 @@ func _analytics_enemy_status_tick_events(phase_result: Dictionary, context: Dict
 		var kind: String = str(step.get("kind", ""))
 		if kind not in ["status_damage", "status"]:
 			continue
-		if bool(step.get("boss_mechanic", false)):
+		if bool(step.get("boss_mechanic", false)) or str(step.get("action_type", "")) == "gain_charge":
 			continue
 		events.append({
 			"event_type": "enemy_status_tick",
@@ -33757,7 +33774,7 @@ func _analytics_enemy_action_events(phase_result: Dictionary, context: Dictionar
 			continue
 		var step: Dictionary = step_var
 		var kind: String = str(step.get("kind", ""))
-		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon", "surface"] and not (kind == "status" and (bool(step.get("boss_mechanic", false)) or bool(step.get("guardian_mechanic",false)))):
+		if kind not in ["move", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "block", "stoneskin", "heal", "summon", "surface"] and not (kind == "status" and (bool(step.get("boss_mechanic", false)) or bool(step.get("guardian_mechanic",false)) or str(step.get("action_type", "")) == "gain_charge")):
 			continue
 		var path: Array[Vector2i] = _vector2i_array(step.get("path", []))
 		events.append({

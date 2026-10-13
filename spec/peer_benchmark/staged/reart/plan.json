@@ -1,0 +1,141 @@
+{
+ "rule": "Every subject follows spec/art_identity/preamble.md: chunky stylized proportions, low detail, dusky values, one accent. Creatures get front then rear (rear uses the approved front raw as --front-ref).",
+ "enemies": {
+  "burrow_grub": {
+   "view": "beast",
+   "anatomy": "crawler",
+   "size_class": "small",
+   "target_h": 150,
+   "target_w": 205,
+   "art_scale": 0.85,
+   "peers": [
+    "crawler",
+    "stoneback_mite"
+   ]
+  },
+  "ember_tick": {
+   "view": "beast",
+   "anatomy": "crawler",
+   "size_class": "small",
+   "target_h": 140,
+   "target_w": 190,
+   "art_scale": 0.8,
+   "peers": [
+    "crawler",
+    "stoneback_mite"
+   ]
+  },
+  "briar_weaver": {
+   "view": "creature",
+   "anatomy": "biped",
+   "size_class": "medium",
+   "target_h": 205,
+   "art_scale": 1.0,
+   "peers": [
+    "grave_surgeon",
+    "harrier"
+   ]
+  },
+  "slag_mortar": {
+   "view": "creature",
+   "anatomy": "biped",
+   "size_class": "large",
+   "target_h": 235,
+   "art_scale": 1.0,
+   "peers": [
+    "stone_warden",
+    "frostglass_lancer"
+   ]
+  },
+  "hoarfrost_seer": {
+   "view": "creature",
+   "anatomy": "biped",
+   "size_class": "medium",
+   "target_h": 210,
+   "art_scale": 1.0,
+   "peers": [
+    "grave_surgeon",
+    "frostglass_lancer"
+   ]
+  },
+  "glacial_mirror": {
+   "view": "creature",
+   "anatomy": "biped",
+   "size_class": "large",
+   "target_h": 240,
+   "art_scale": 1.0,
+   "peers": [
+    "stone_warden",
+    "frostglass_lancer"
+   ]
+  },
+  "gale_herald": {
+   "view": "creature",
+   "anatomy": "biped",
+   "size_class": "medium",
+   "target_h": 215,
+   "art_scale": 1.0,
+   "peers": [
+    "harrier",
+    "frostglass_lancer"
+   ]
+  },
+  "gust_shrike": {
+   "view": "beast",
+   "anatomy": "flyer",
+   "size_class": "small",
+   "target_h": 160,
+   "target_w": 200,
+   "art_scale": 0.85,
+   "peers": [
+    "roc_fledgling",
+    "harrier"
+   ]
+  },
+  "arc_thrall": {
+   "view": "creature",
+   "anatomy": "biped",
+   "size_class": "medium",
+   "target_h": 205,
+   "art_scale": 1.0,
+   "peers": [
+    "grave_surgeon",
+    "harrier"
+   ]
+  },
+  "storm_capacitor": {
+   "view": "object_plinth",
+   "anatomy": "plinth",
+   "size_class": "large",
+   "target_h": 238,
+   "art_scale": 1.0,
+   "peers": [
+    "crag_outcrop",
+    "watch_brazier"
+   ]
+  },
+  "gloam_stalker": {
+   "view": "creature",
+   "anatomy": "biped",
+   "size_class": "medium",
+   "target_h": 215,
+   "art_scale": 1.0,
+   "peers": [
+    "harrier",
+    "grave_surgeon"
+   ]
+  },
+  "hollow_mimic": {
+   "view": "creature",
+   "anatomy": "biped",
+   "size_class": "medium",
+   "target_h": 205,
+   "art_scale": 1.0,
+   "peers": [
+    "hero",
+    "harrier"
+   ]
+  }
+ },
+ "peer_rule": "Peers are the most clearly turned canon figures (lowest symmetry): harrier 0.46, lancer 0.61, surgeon 0.63, warden 0.67. Acolyte (0.75) and gaoler (0.71) front rests are close to head-on and are not used as view references."
+}

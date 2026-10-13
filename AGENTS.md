@@ -28,6 +28,8 @@ For player-facing UI, use `$create-labyrinth-ui` and the shared visual language 
 
 For segmented character art, skeletal cutouts, or new cutout animations/equipment variants, use `$create-labyrinth-cutout`. Start from the current production baseline or a fresh creature case; historical experiment builders are revision-specific.
 
+New or repainted board art (enemies, guardians, NPC bodies, standing props) must pass the [visual identity gate](spec/visual_identity_gate.md). Use references only from its canon, prompts only from `tools/art_identity_gate.py kit`, and approve only from its review sheet after an independent judge pass. Never approve art at generation size. Run `python3 tests/test_art_identity_gate.py` when board art or `spec/art_identity/` changes.
+
 Distinct player-facing concepts require purpose-built, distinct icons under [the icon identity policy](spec/icon_identity_policy.md). Run `python3 tests/test_icon_identity_policy.py` when identities or registries change.
 
 For card balance or combat/encounter assumptions, consult [the heuristic](spec/card_balance_heuristic.md). Score changed mechanics; update its specification and scorer together when assumptions change. Art-only changes do not require balance scoring.
