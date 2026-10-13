@@ -1,0 +1,55 @@
+{
+  "K": 3,
+  "anatomy": "biped",
+  "art_scale_decision": "0.9 (pilot): the gaoler stands at the hero height, generated large and scaled on the board",
+  "edit_of_raw_sha256": "60eccb970b5260c622dce92febc038a10c8d838bfa8f9ab251c07c9ba8816ace",
+  "edit_prompt_path": "../../../maquettes/chainbound_gaoler/resume_front2.md",
+  "edit_prompt_sha256": "91d755a21a3cbf9877efe294972763b660f3afe483d5b6f813935583c84065c0",
+  "id": "chainbound_gaoler",
+  "job_id": "mq-gaoler-front (edit round 2 + director tabard tone)",
+  "kind": "creature",
+  "kit_version": "c8ae6b3a24e14e7373cdd7f24a89f480c365bc36539341cabd13ca9a916cd8c7",
+  "method": "maquette paint-over (rr-02 pilot): spec/art_identity/maquettes/humanoid.py + chainbound_gaoler/spec.json r2; front v2 = image edit of the round-1 front per resume_front2.md (mail pattern and rust coat removed)",
+  "peers": [
+    "slag_mortar_front",
+    "glacial_mirror_front"
+  ],
+  "prompt_path": "../../../maquettes/chainbound_gaoler/prompt_front.md",
+  "prompt_sha256": "497f476d1fc0ba4a1f6c81a32b3808a36f455c945de4ca69f332eeb72f41c6c9",
+  "refs": [
+    {
+      "canon_id": "maquette_front_parts",
+      "file": "/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/020b9ac4-7b92-4113-a7d2-bc6e802828dd/scratchpad/maquette/gaoler/r2/front_parts_green.png",
+      "pixel_sha256": "a1656590290eb91955731a05c1deb70723dd043b55238df76ef26037d2f8feb0"
+    },
+    {
+      "canon_id": "maquette_front_clay",
+      "file": "/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/020b9ac4-7b92-4113-a7d2-bc6e802828dd/scratchpad/maquette/gaoler/r2/front_clay_green.png",
+      "pixel_sha256": "6ad2437b87091c7b549154a2cf254febdb38170085e3c2ba773461bdec20f334"
+    },
+    {
+      "canon_id": "identity_old_gaoler_front",
+      "file": "/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/020b9ac4-7b92-4113-a7d2-bc6e802828dd/scratchpad/maquette/gaoler/r2/identity_old_gaoler_front_x3.png",
+      "pixel_sha256": "eab81f51d024ba5e15bf36aa6b2b82f208b890628170ccd38641f7a0b1fff88c"
+    },
+    {
+      "canon_id": "slag_mortar_front",
+      "file": "/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/020b9ac4-7b92-4113-a7d2-bc6e802828dd/scratchpad/maquette/gaoler/r2/peer_slag_mortar_x3.png",
+      "pixel_sha256": "8e54da7e93a228bc39bd87d57fb83ae4eb7617d0c595820e599f59ca8966b71b"
+    },
+    {
+      "canon_id": "hero_front",
+      "file": "/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/020b9ac4-7b92-4113-a7d2-bc6e802828dd/scratchpad/maquette/gaoler/r2/hero_x3.png",
+      "pixel_sha256": "2200c5a6ec962369292f32359fd7ed11f2ae7055d5dec74eae971ba4e7526317"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 241,
+  "tone_edit": {
+    "input_raw_sha256": "34d993ada3f4805fbb186a4f9cc3496e782a86dfa2a8da9872aecc7f322bda93",
+    "script": "spec/art_identity/maquettes/chainbound_gaoler/tone_tabard.py",
+    "script_sha256": "e26c20b6947e1a39623c2bdd1ebf4b98cb9fbd93847e9c58ff10a3dc0f26cb2e",
+    "why": "tabard chroma 0.52 out-shouted the rust hook; oxblood keeps the hook as the single hot accent"
+  },
+  "view": "creature_front"
+}

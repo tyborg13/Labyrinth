@@ -21,8 +21,11 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 ## In flight (2026-10-13 11:45)
 - rr-01 (crawler rig recolour) fix round 1: calibration decided (grid 1.73 held, pre-recolour calibration note). Next:
   director windowed rest rebake → record-rests/cache/registry → crawler_recolour + bestiary lineup probes → review.
-- rr-02 gaoler maquette pilot: front v2 + rear v2 processed (`spec/art_identity/jobs/chainbound_gaoler/mq_rear_v2`,
-  sheet_pair_mq_v2.png, size_class medium at art_scale 0.9; every band passes); independent judge running.
+- rr-02 gaoler maquette pilot: judge round 2 FAILED — the sheet used the unedited front (edit never processed) and
+  the rear (copper riveted helm, pale chain, grey-tan coat, orange arm wraps) did not match the edited front. Fixed:
+  front edit processed (`mq_front_v2`), tabard toned to oxblood (`mq_front_v3`, tone_tabard.py); rear repaint from
+  front v3 running as image job `mq-gaoler-rear-v3` (prompt `maquettes/chainbound_gaoler/resume_rear3.md`). Then
+  process with `--match-front mq_front_v3/processed.png --clean-outline`, rebuild the sheet, fresh judge.
 - Gust shrike perched repaint (mq2): judge PASS round 2; owner comparison
   `output/peer-benchmark-2026-10-12/identity_gate/gust_shrike_perched_compare.png` — awaiting owner verdict.
 - Watchdog: `scratchpad/watch_loop2.sh` (tracked background job).

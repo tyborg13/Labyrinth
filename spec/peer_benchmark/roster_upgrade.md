@@ -28,3 +28,14 @@ Source: legacy audit `staged/legacy_audit/` (15 High, 14 Medium, 2 Low vs the 11
 - State materials explicitly (no chainmail checker; "every patch ≥ 3 blocks"); keep the original coat colour so the
   accent stays the accent.
 - Size class follows drawn height (art_scale × canvas): the gaoler is "medium" at art_scale 0.9.
+- Every edited raw gets its own job folder (`mq_front_v2`, `mq_front_v3`, …) and is processed before anything depends
+  on it; before a judge runs, check that the sheet's "front pixels" digest is the newest front job's `pixel_sha256`
+  and that the rear's `palette_match.reference_pixel_sha256` is the same digest. (Round 2 judged the unedited front
+  because the edit was copied to raw/ but never processed; the rear was generated from the edit and matched to the
+  old front.)
+- `rear_consistency` is global statistics: it passes local material swaps (copper vs iron helm, cloth vs mail). The
+  judge's per-part colour table is the real consistency check.
+- Paint at the drawn size: kit K=4 with target ≤ 225 and art_scale 1.0 beats painting at 241 and drawing at 0.9.
+- One hot accent: a second saturated mass at the accent's hue (the gaoler's tabard at chroma 0.52 beside the rust
+  hook) is toned down deterministically (`maquettes/chainbound_gaoler/tone_tabard.py`, oxblood) rather than
+  re-prompted.
