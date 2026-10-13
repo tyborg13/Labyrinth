@@ -31,6 +31,6 @@
 | en-06 | Storm Capacitor + Hollow Mimic | merged (commit 156ed20f5 + sync 2801799b8); encounters 96a86b86e; art pending_reart (art-02) | — | briefs/en-06.md |
 | itb-03 | Threats at rest v2 (owner direction) | merged 4fc16f982 (commit b18951e46 + sync); proof output/.../proof/itb-03/ | codex/peer-benchmark | brief briefs/itb-03.md |
 | art-01 | Visual identity gate tooling (measure/kit/process/sheet/check, registry, bestiary lineup probe) | merged 2d06756f0 (+ director despill/unmix fixes c8d823082, 674637b2b) | codex/peer-benchmark@f7773b175 | spec/visual_identity_gate.md, briefs/art-01.md |
-| art-02 | Re-art of the 12 section enemies through the identity kit (front+rear, judge, owner sheets) | fronts 12/12 judge PASS; rears PASS 5 (seer, herald, stalker, grub, mirror), 6 iterating, capacitor n/a | — | staged/reart/plan.json, judge_log.md, spec/art_identity/jobs/ |
+| art-02 | Re-art of the 12 section enemies through the identity kit | 11 owner-approved 2026-10-13 and in game via art-03; gust_shrike: maquette pilot judge-PASS, awaiting owner | — | staged/reart/, spec/art_identity/jobs/, maquettes/ |
 | qa-02 | Register en04/en05/en06 enemy suites in the full suite (backlog) | design | — | |
-| art-03 | Integrate re-art: directional static art (front/rear + mirrored facing), portraits, density adoption, registry kit entries, front/rear consistency check | design (after owner approval of art-02) | — | |
+| art-03 | Integrate re-art: directional static art (front/rear + mirrored facing), portraits, density adoption, registry kit entries, gate post-steps + edge/rear-consistency metrics | merged 4aa4c3589 (commit 6b4927d2f + sync; r1 decisions; director: staged data sync, mirror exception, portrait crops) | codex/peer-benchmark | briefs/art-03.md |
