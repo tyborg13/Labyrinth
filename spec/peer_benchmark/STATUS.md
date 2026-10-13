@@ -19,8 +19,7 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
 ## In flight (2026-10-13 11:45)
-- rr-01 (crawler rig recolour) fix round 1: calibration decided (grid 1.73 held, pre-recolour calibration note). Next:
-  director windowed rest rebake → record-rests/cache/registry → crawler_recolour + bestiary lineup probes → review.
+- rr-01 (crawler rig recolour): committed b0bcbcb88 + sync 4c7ff2d1a after the director's windowed rebake/probes (all PASS).
 - rr-02 gaoler maquette pilot: judge PASS (rounds 3–4) on front v3 (edited raw + oxblood tabard, region-masked tone)
   + rear v5 (materials edit → helm-only edit → polish edit); sheet `jobs/chainbound_gaoler/sheet_pair_mq_v5.png`; owner
   comparison `output/peer-benchmark-2026-10-12/identity_gate/chainbound_gaoler_maquette_compare.png` — awaiting owner.
