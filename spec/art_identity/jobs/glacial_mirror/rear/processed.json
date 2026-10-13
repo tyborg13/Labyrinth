@@ -1,0 +1,33 @@
+{
+  "K": 3,
+  "drawn_size": [
+    218,
+    240
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 3.0,
+  "metrics": {
+    "chroma": 0.04577150307173598,
+    "feature_px": 7.0626790425029435,
+    "height": 240,
+    "height_drawn": 240.0,
+    "orphan_share": 0.0036904985300556703,
+    "regions": 641,
+    "run_length": 3.8964172556665853,
+    "symmetry": 0.6100286315149366,
+    "thin_abs": 0.008694564333521004,
+    "thin_rel": 0.01620066303871892,
+    "value": 0.18255215058313312,
+    "width": 218
+  },
+  "pixel_sha256": "fcf1539e14989e23fde782d8ef4622be29f840f631fb4a07a783f3e38ffcc72f",
+  "placement": [
+    19,
+    6
+  ],
+  "raw_sha256": "7309a12509560b0e7fd3f135644602e4409d4a32199b219f7b9bb0616c4f2232",
+  "shift": [
+    0,
+    0
+  ]
+}
