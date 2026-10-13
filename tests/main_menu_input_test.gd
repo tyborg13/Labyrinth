@@ -139,6 +139,7 @@ func _test_empty_space_pointer_motion_preserves_navigation_focus() -> void:
 	await process_frame
 	var continue_button: Button = menu.get_node("MenuColumn/ContinueButton")
 	var start_button: Button = menu.get_node("MenuColumn/StartButton")
+	var chronicle_button: Button = menu.get_node("MenuColumn/ChronicleButton")
 	var settings_button: Button = menu.get_node("MenuColumn/SettingsButton")
 	continue_button.grab_focus()
 	await process_frame
@@ -156,6 +157,12 @@ func _test_empty_space_pointer_motion_preserves_navigation_focus() -> void:
 	await process_frame
 	_expect(start_button.has_focus(), "Empty-space pointer motion must preserve New Game focus during sequential navigation")
 	_expect(bool(start_button.get_meta("umbra_selected", false)) and not bool(continue_button.get_meta("umbra_selected", false)), "Empty-space pointer motion must not snap the molten selection back to Continue Run")
+
+	await _push_navigation_down(menu.get_viewport())
+	menu.call("_input", empty_motion)
+	await process_frame
+	_expect(chronicle_button.has_focus(), "Empty-space pointer motion must preserve Chronicle focus between New Game and Settings")
+	_expect(bool(chronicle_button.get_meta("umbra_selected", false)) and not bool(start_button.get_meta("umbra_selected", false)), "Sequential navigation must advance the molten selection to Chronicle")
 
 	await _push_navigation_down(menu.get_viewport())
 	menu.call("_input", empty_motion)
