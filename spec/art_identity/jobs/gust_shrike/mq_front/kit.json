@@ -1,0 +1,41 @@
+{
+ "id": "gust_shrike",
+ "view": "beast_front",
+ "size_class": "small",
+ "K": 3,
+ "kind": "creature",
+ "anatomy": "flyer",
+ "method": "maquette paint-over (pilot): spec/art_identity/maquettes/gust_shrike.py r4 renders + approved front_v2 + hero_x3",
+ "prompt_sha256": "d1a3d9ae0fbcbbbaff48330002b23568b528917ba3497d4606e6aef394da9a9e",
+ "peers": [
+  "roc_fledgling_front",
+  "roc_fledgling_front"
+ ],
+ "target_h": 238,
+ "target_w": 234,
+ "kit_version": "3d8e567ea115865340f42bfe9623434b08fcf06fd4e61cd92ddcf7794ffd3cef",
+ "refs": [
+  {
+   "canon_id": "maquette_front_parts",
+   "file": "/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/020b9ac4-7b92-4113-a7d2-bc6e802828dd/scratchpad/maquette/r4/front_parts_green.png",
+   "pixel_sha256": "6b505fafad0e122c4585fe3244d4b2fffaf1ed95af41d1e086e0f55af4482e96"
+  },
+  {
+   "canon_id": "maquette_front_clay",
+   "file": "/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/020b9ac4-7b92-4113-a7d2-bc6e802828dd/scratchpad/maquette/r4/front_clay_green.png",
+   "pixel_sha256": "93f3ec10c399ee3a2fad897d945c898d77f7979dd8f1a7a7cc4bd598ff6fe682"
+  },
+  {
+   "canon_id": "approved_front_v2_raw",
+   "file": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/identity_gate/raw/gust_shrike_front_v2.png",
+   "pixel_sha256": "d9f23db0b893cb55994d1f2e7d866c63bc9fca6bc499460ef1480040549ee9a5"
+  },
+  {
+   "canon_id": "hero_front",
+   "file": "/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/020b9ac4-7b92-4113-a7d2-bc6e802828dd/scratchpad/pilot/refs/hero_x3.png",
+   "pixel_sha256": "2200c5a6ec962369292f32359fd7ed11f2ae7055d5dec74eae971ba4e7526317"
+  }
+ ],
+ "job_id": "mq-gust_shrike-front",
+ "prompt_path": "../../../maquettes/gust_shrike_prompt_front.md"
+}
