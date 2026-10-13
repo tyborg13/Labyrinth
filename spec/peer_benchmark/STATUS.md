@@ -115,3 +115,6 @@ placeholder art, Chronicle (meta-02), Umbra Depths (meta-03), encounter fallback
 - Integration: en-01..06 all merged; full suite green at c474da57f+.
 - Next: owner approves art → art-03 (directional static art + portraits + density + registry + gate metrics:
   edge_light_share, front/rear consistency).
+
+## Playtest 5 (frozen worktree ../peer-benchmark-playtest-5 at b7bec5a4b; import + start fixture verified)
+Adds en-04 (briar weaver, slag mortar) and en-05 (glacial mirror, gust shrike) + flag-rider fix over playtest 4. All 12 section enemies, old art. Do not touch that worktree.
