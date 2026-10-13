@@ -320,6 +320,14 @@
           "lightning_wisp",
           "bell_tender"
         ]
+      },
+      {
+        "id": "lightning_thralls",
+        "weight": 3,
+        "units": [
+          "arc_thrall",
+          "arc_thrall"
+        ]
       }
     ],
     "shadow": [
@@ -330,6 +338,21 @@
           "wick_shade",
           "wick_shade",
           "veilbound_acolyte"
+        ]
+      },
+      {
+        "id": "shadow_stalker",
+        "weight": 3,
+        "units": [
+          "gloam_stalker"
+        ]
+      },
+      {
+        "id": "shadow_stalker_shades",
+        "weight": 1,
+        "units": [
+          "gloam_stalker",
+          "wick_shade"
         ]
       }
     ]
