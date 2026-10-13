@@ -21,11 +21,14 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 ## In flight (2026-10-13 11:45)
 - rr-01 (crawler rig recolour) fix round 1: calibration decided (grid 1.73 held, pre-recolour calibration note). Next:
   director windowed rest rebake → record-rests/cache/registry → crawler_recolour + bestiary lineup probes → review.
-- rr-02 gaoler maquette pilot: judge round 2 FAILED — the sheet used the unedited front (edit never processed) and
-  the rear (copper riveted helm, pale chain, grey-tan coat, orange arm wraps) did not match the edited front. Fixed:
-  front edit processed (`mq_front_v2`), tabard toned to oxblood (`mq_front_v3`, tone_tabard.py); rear repaint from
-  front v3 running as image job `mq-gaoler-rear-v3` (prompt `maquettes/chainbound_gaoler/resume_rear3.md`). Then
-  process with `--match-front mq_front_v3/processed.png --clean-outline`, rebuild the sheet, fresh judge.
+- rr-02 gaoler maquette pilot: judge PASS (rounds 3–4) on front v3 (edited raw + oxblood tabard, region-masked tone)
+  + rear v5 (materials edit → helm-only edit → polish edit); sheet `jobs/chainbound_gaoler/sheet_pair_mq_v5.png`; owner
+  comparison `output/peer-benchmark-2026-10-12/identity_gate/chainbound_gaoler_maquette_compare.png` — awaiting owner.
+  Known residue for rr-02 implementation: rear boots pinker/lighter, rear belt + chain-arm wraps more orange than the
+  front → fix deterministically with a per-part palette match driven by the maquette label maps (not by re-prompting).
+- rr-01 fix round 2 running (peer review: test-enforced replay check + in-place refusal, README rewrite, density
+  report regen, registry derivation/metrics notes, calibration fixtures instead of git history, portrait from builder,
+  shadow cache cleanup). Feedback: spec/peer_benchmark/feedback/rr-01_feedback_2.md.
 - Gust shrike perched repaint (mq2): judge PASS round 2; owner comparison
   `output/peer-benchmark-2026-10-12/identity_gate/gust_shrike_perched_compare.png` — awaiting owner verdict.
 - Watchdog: `scratchpad/watch_loop2.sh` (tracked background job).
