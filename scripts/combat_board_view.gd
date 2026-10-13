@@ -40,6 +40,7 @@ const VaeloryxWind = preload("res://scripts/vaeloryx_cutout/wind_feedback.gd")
 const VeilboundAcolyteCutout = preload("res://scripts/veilbound_acolyte_cutout/renderer.gd")
 const VeilboundAcolyteFx = preload("res://scripts/veilbound_acolyte_cutout/fx.gd")
 const EnemyCutoutFacing = preload("res://scripts/enemy_cutout_facing.gd")
+const StaticEnemyFacing = preload("res://scripts/static_enemy_facing.gd")
 var _warden_renderers: Dictionary = {}
 const CrawlerCutout = preload("res://scripts/crawler_cutout/renderer.gd")
 var _crawler_renderers: Dictionary = {}
@@ -670,6 +671,8 @@ var _loot_textures: Dictionary = {}
 var _terrain_textures: Dictionary = {}
 var _terrain_destruction_frames_by_kind: Dictionary = {}
 var _unit_textures: Dictionary = {}
+var _unit_rear_textures: Dictionary = {}
+var _static_enemy_art: RefCounted = StaticEnemyFacing.new()
 var _unit_assets_loaded: Dictionary = {}
 var _element_textures: Dictionary = {}
 var _trap_textures: Dictionary = {}
@@ -2198,7 +2201,7 @@ func _sync_dynamic_render_assets() -> void:
 			"_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures",
 			"_ambient_combined_atlas", "_ambient_combined_atlas_regions",
 			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
-			"_hero_strike_trail", "_enemy_strike_trail", "_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_illusion_renderers", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_guardian_renderers", "_gaoler_renderers", "_cinder_droplet_renderers",
+			"_hero_strike_trail", "_enemy_strike_trail", "_unit_rear_textures", "_static_enemy_art", "_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_illusion_renderers", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_guardian_renderers", "_gaoler_renderers", "_cinder_droplet_renderers",
 			"_cinder_ooze_renderers", "_frostglass_renderers", "_grave_surgeon_renderers", "_harrier_renderers", "_iskaldra_renderers", "_lightning_wisp_renderers", "_noctyrax_renderers", "_tharokh_renderers", "_vaeloryx_renderers", "_veilbound_acolyte_renderers", "_vyraketh_renderers", "_zekarion_renderers",
 			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
 			"_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
@@ -2769,6 +2772,7 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	next_presentation = CapacitorView.presentation_for(next_state, next_presentation)
 	next_presentation = TetherView.presentation_for(next_state, next_presentation)
 	next_presentation = DiveView.presentation_for(next_state, next_presentation)
+	next_presentation = StaticEnemyFacing.presentation_for(self, next_state, next_presentation, presentation)
 	_rest_threat_tile_alphas = ThreatTiles.tile_alphas((next_presentation.get("threats_at_rest", {}) as Dictionary).get("threats", []))
 	var submission_phase_started: int = Time.get_ticks_usec() if _submission_performance_instrumentation_enabled else 0
 	# The owning RunScene submits immutable copy-on-write snapshots. Pointer-only
@@ -3325,7 +3329,7 @@ func _coalescible_explicit_redraw_frame() -> int:
 
 func _changed_unit_presentation_actor_keys(previous: Dictionary, next: Dictionary) -> Dictionary:
 	var changed: Dictionary = {}
-	for field: String in ["unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles"]:
+	for field: String in ["unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "static_enemy_facings"]:
 		var previous_values: Dictionary = previous.get(field, {}) as Dictionary
 		var next_values: Dictionary = next.get(field, {}) as Dictionary
 		for key_var: Variant in previous_values:
@@ -3453,7 +3457,7 @@ func _queue_presentation_change_redraws(
 			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength", "combat_feel_flash", "combat_feel_flash_actor_keys":
 				impact_floor_changed = true
 				impact_changed = true
-			"death_animation_units", "preview_units", "unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "visible_enemy_ids", "umbra_action_actor_clips":
+			"static_enemy_facings", "death_animation_units", "preview_units", "unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "visible_enemy_ids", "umbra_action_actor_clips":
 				unit_movement_changed = true
 				foreground_changed = true
 				# Large-target footprint extensions share the ground overlay layer.
@@ -14750,7 +14754,12 @@ func _ensure_unit_assets_for_type(unit_type: String) -> void:
 		if definition.is_empty():
 			definition = _enemy_render_definition(unit_type)
 		art_path = str(definition.get("art_path", ""))
-	_unit_textures[unit_type] = _load_unit_texture_with_idle(unit_type, art_path)
+	if StaticEnemyFacing.handles(unit_type):
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(art_path)
+		_unit_rear_textures[unit_type] = AssetLoader.load_texture_source_first(str(_enemy_render_definition(unit_type)["art_rear_path"]))
+		_queue_unit_shadow_texture(_unit_rear_textures[unit_type], true)
+	else:
+		_unit_textures[unit_type] = _load_unit_texture_with_idle(unit_type, art_path)
 	_queue_unit_shadow_source_data(unit_type)
 
 func _queue_unit_shadow_source_data(unit_type: String) -> void:
@@ -14973,6 +14982,8 @@ func _texture_for_unit(unit: Dictionary) -> Texture2D:
 		var renderer: Node = unit_cutout_renderer(unit)
 		if is_instance_valid(renderer):
 			return renderer.call("texture") as Texture2D
+	if StaticEnemyFacing.handles(unit_type):
+		return _static_enemy_art.texture_for(self, unit, _unit_textures.get(unit_type), _unit_rear_textures.get(unit_type))
 	if _unit_uses_procedural_shadow_dissolve(unit):
 		return _enemy_shadow_dissolve_source_texture(unit)
 	var death_frames: Array[Texture2D] = _unit_death_frames(unit)
@@ -14999,6 +15010,8 @@ func _enemy_shadow_dissolve_source_texture(unit: Dictionary) -> Texture2D:
 	if is_instance_valid(cutout):
 		return cutout.call("texture") as Texture2D
 	var unit_type: String = str(unit.get("type", ""))
+	if StaticEnemyFacing.handles(unit_type):
+		return _static_enemy_art.texture_for(self, unit, _unit_textures.get(unit_type), _unit_rear_textures.get(unit_type))
 	var idle_frames: Array[Texture2D] = _unit_idle_frames(unit)
 	if not idle_frames.is_empty():
 		var source_frame: int = clampi(int(unit.get("death_source_idle_frame", 0)), 0, idle_frames.size() - 1)
@@ -15311,7 +15324,7 @@ func _unit_draw_rect(unit: Dictionary) -> Rect2:
 	return _unit_draw_rect_for_center(unit, _unit_center(unit))
 
 func _unit_draw_rect_for_center(unit: Dictionary, center: Vector2) -> Rect2:
-	var texture: Texture2D = _unit_hud_anchor_texture(unit) if _unit_uses_cutout(unit) else _texture_for_unit(unit)
+	var texture: Texture2D = _unit_textures.get(str(unit.get("type", ""))) if StaticEnemyFacing.handles(str(unit.get("type", ""))) else (_unit_hud_anchor_texture(unit) if _unit_uses_cutout(unit) else _texture_for_unit(unit))
 	var rect: Rect2 = _unit_draw_rect_for_texture(unit, center, texture)
 	var unit_type: String = str(unit.get("type", ""))
 	var renderer: Node = unit_cutout_renderer(unit)
@@ -15435,7 +15448,9 @@ func _unit_art_scale(unit: Dictionary) -> float:
 	var npc_def: Dictionary = _npc_render_definition(unit_type)
 	if not npc_def.is_empty():
 		return float(npc_def.get("art_scale", 1.0))
-	return CapacitorView.art_scale(unit_type, float(_enemy_render_definition(unit_type).get("art_scale", 1.0)))
+	var definition: Dictionary = _enemy_render_definition(unit_type)
+	# An explicit approved scale supersedes the old capacitor canvas compensation.
+	return float(definition["art_scale"]) if definition.has("art_scale") else CapacitorView.art_scale(unit_type, 1.0)
 
 func _unit_art_offset(unit: Dictionary) -> Vector2:
 	var unit_type: String = str(unit.get("type", ""))

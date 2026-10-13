@@ -520,6 +520,7 @@ func _initialize() -> void:
 	await _test_main_menu_shows_continue_for_saved_run()
 	GuidedCombatTutorialSuite.run(Callable(self, "_assert"))
 
+	preload("res://tests/static_facing_program_suites.gd").run(Callable(self, "_assert"), full_suite_started_usec)
 	preload("res://tests/helpers/program_sub_suites.gd").run(Callable(self, "_assert"), full_suite_started_usec)
 
 	if _failures.is_empty():

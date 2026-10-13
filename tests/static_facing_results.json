@@ -1,0 +1,420 @@
+{
+  "unit": "art-03",
+  "publication_state": "uncommitted; design owner owns commit/review/inspection/publication",
+  "files_changed": [
+    "assets/art/enemies/arc_thrall.png",
+    "assets/art/enemies/arc_thrall_rear.png",
+    "assets/art/enemies/briar_weaver.png",
+    "assets/art/enemies/briar_weaver_rear.png",
+    "assets/art/enemies/burrow_grub.png",
+    "assets/art/enemies/burrow_grub_rear.png",
+    "assets/art/enemies/ember_tick.png",
+    "assets/art/enemies/ember_tick_rear.png",
+    "assets/art/enemies/gale_herald.png",
+    "assets/art/enemies/gale_herald_rear.png",
+    "assets/art/enemies/glacial_mirror.png",
+    "assets/art/enemies/glacial_mirror_rear.png",
+    "assets/art/enemies/gloam_stalker.png",
+    "assets/art/enemies/gloam_stalker_rear.png",
+    "assets/art/enemies/hoarfrost_seer.png",
+    "assets/art/enemies/hoarfrost_seer_rear.png",
+    "assets/art/enemies/hollow_mimic.png",
+    "assets/art/enemies/hollow_mimic_rear.png",
+    "assets/art/enemies/slag_mortar.png",
+    "assets/art/enemies/slag_mortar_rear.png",
+    "assets/art/enemies/storm_capacitor.png",
+    "assets/art/portraits/arc_thrall.png",
+    "assets/art/portraits/briar_weaver.png",
+    "assets/art/portraits/burrow_grub.png",
+    "assets/art/portraits/ember_tick.png",
+    "assets/art/portraits/gale_herald.png",
+    "assets/art/portraits/glacial_mirror.png",
+    "assets/art/portraits/gloam_stalker.png",
+    "assets/art/portraits/hoarfrost_seer.png",
+    "assets/art/portraits/hollow_mimic.png",
+    "assets/art/portraits/slag_mortar.png",
+    "assets/art/portraits/storm_capacitor.png",
+    "assets/generated/unit_shadow_cache.res",
+    "data/enemies.json",
+    "scripts/combat_board_view.gd",
+    "scripts/static_enemy_facing.gd",
+    "spec/art_identity/registry.json",
+    "spec/assets/board_pixel_density/outputs.json",
+    "spec/assets/board_pixel_density/registry.json",
+    "spec/assets/board_pixel_density/report.md",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/arc_thrall.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/arc_thrall_rear.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/briar_weaver.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/briar_weaver_rear.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/burrow_grub.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/burrow_grub_rear.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/ember_tick.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/ember_tick_rear.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/gale_herald.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/gale_herald_rear.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/glacial_mirror.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/glacial_mirror_rear.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/gloam_stalker.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/gloam_stalker_rear.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/hoarfrost_seer.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/hoarfrost_seer_rear.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/hollow_mimic.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/hollow_mimic_rear.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/slag_mortar.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/slag_mortar_rear.png",
+    "spec/assets/board_pixel_density/sources/assets/art/enemies/storm_capacitor.png",
+    "spec/peer_benchmark/staged/enemies/wave_e1.json",
+    "spec/peer_benchmark/staged/enemies/wave_e2.json",
+    "spec/visual_identity_gate.md",
+    "tests/run_tests.gd",
+    "tests/static_facing_assets_test.py",
+    "tests/static_facing_portrait_contact.png",
+    "tests/static_facing_probe.gd",
+    "tests/static_facing_probe_contract.json",
+    "tests/static_facing_program_suites.gd",
+    "tests/static_facing_results.json",
+    "tests/static_facing_shadow_cache.gd",
+    "tests/static_facing_test.gd",
+    "tests/test_art_identity_gate.py",
+    "tests/test_board_pixel_density.py",
+    "tools/art_identity_gate.py"
+  ],
+  "requirements": {
+    "1": "21 approved views installed/adopted/processed; 11 scales and 10 rear paths; density CHECK-OK; no static rig rests to record.",
+    "2": "Four facings use cutout policy; sampled movement/actions own direction; hero-only completion updates idle; death freezes; fixed logical rect; per-facing mirrored shadow cache. Headless tested; real renderer pending.",
+    "3": "11 protected front crops resized with the existing en03 portrait processor to 128x128; exact 2x old/new contact inspected.",
+    "4": "21 kit entries verify job prompt and recorded reference digest bindings without reference files; all 21 versions reproduce from stored prompt inputs. Gust Shrike remains pending. The Glacial Mirror pair band still fails with the exact requested non-accent mask.",
+    "5": "Deterministic post steps and prototype parity retained; rear consistency shares the palette-match non-accent mask. Prompt/version/reference provenance regressions added; all 38 functional gate regressions pass.",
+    "6": "Standalone en04/en05/en06 and static-facing suites registered. Full suite PASS in 665.805 seconds, below 900 seconds; all program sub-suites PASS."
+  },
+  "checks": {
+    "assets-tests": {
+      "log_path": "/private/tmp/labyrinth_codex/art-03/feedback1-assets-tests.log",
+      "result_lines": [
+        "Ran 3 tests in 0.374s",
+        "OK"
+      ]
+    },
+    "gate-tests": {
+      "log_path": "/private/tmp/labyrinth_codex/art-03/feedback1-gate-tests.log",
+      "result_lines": [
+        "ART IDENTITY CHECK: FAIL (2 failures, 1 pending_reart warnings)",
+        "Ran 39 tests in 5.358s",
+        "FAILED (failures=1)"
+      ]
+    },
+    "gate-check": {
+      "log_path": "/private/tmp/labyrinth_codex/art-03/feedback1-gate-check.log",
+      "result_lines": [
+        "ART IDENTITY CHECK: FAIL (2 failures, 1 pending_reart warnings)"
+      ]
+    },
+    "density-check": {
+      "log_path": "/private/tmp/labyrinth_codex/art-03/feedback1-density-check.log",
+      "result_lines": [
+        "CHECK-OK"
+      ]
+    },
+    "density-tests": {
+      "log_path": "/private/tmp/labyrinth_codex/art-03/feedback1-density-tests.log",
+      "result_lines": [
+        "Ran 41 tests in 90.154s",
+        "OK",
+        "CHECK-OK",
+        "CHECK-OK"
+      ]
+    },
+    "icon-tests": {
+      "log_path": "/private/tmp/labyrinth_codex/art-03/feedback1-icon-tests.log",
+      "result_lines": [
+        "Ran 7 tests in 0.051s",
+        "OK"
+      ]
+    },
+    "shadow": {
+      "log_path": "/private/tmp/labyrinth_codex/art-03/shadow.log",
+      "result_lines": [
+        "ART03 SHADOW CACHE: PASS (21 views; unrelated entries unchanged)"
+      ]
+    },
+    "static-tests": {
+      "log_path": "/private/tmp/labyrinth_codex/art-03/feedback1-static_facing_test.log",
+      "result_lines": [
+        "STATIC FACING TEST RESULT: PASS (50 checks, 0 failures)"
+      ]
+    },
+    "lineup-validation": {
+      "log_path": "/private/tmp/labyrinth_codex/art-03/lineup-validation.log",
+      "result_lines": [
+        "BESTIARY LINEUP HEADLESS VALIDATION: PASS"
+      ]
+    },
+    "static-probe-validation": {
+      "log_path": "/private/tmp/labyrinth_codex/art-03/static-probe-validation.log",
+      "result_lines": [
+        "STATIC FACING HEADLESS VALIDATION: PASS"
+      ]
+    },
+    "en01_enemies_test": {
+      "log_path": "/private/tmp/labyrinth_codex/art-03/feedback1-en01_enemies_test.log",
+      "result_lines": [
+        "EN01 ENEMIES TEST RESULT: PASS"
+      ]
+    },
+    "en02_enemies_test": {
+      "log_path": "/private/tmp/labyrinth_codex/art-03/feedback1-en02_enemies_test.log",
+      "result_lines": [
+        "EN02 ENEMIES TEST RESULT: PASS (235 checks, 0 failures)"
+      ]
+    },
+    "en03_enemies_test": {
+      "log_path": "/private/tmp/labyrinth_codex/art-03/feedback1-en03_enemies_test.log",
+      "result_lines": [
+        "EN03 ENEMIES TEST RESULT: PASS (210 checks, 0 failures)"
+      ]
+    },
+    "en04_enemies_test": {
+      "log_path": "/private/tmp/labyrinth_codex/art-03/feedback1-en04_enemies_test.log",
+      "result_lines": [
+        "EN04 ENEMIES TEST RESULT: PASS (454 checks, 0 failures)"
+      ]
+    },
+    "en05_enemies_test": {
+      "log_path": "/private/tmp/labyrinth_codex/art-03/feedback1-en05_enemies_test.log",
+      "result_lines": [
+        "EN05 ENEMIES TEST RESULT: PASS (179 checks, 0 failures)"
+      ]
+    },
+    "en06_enemies_test": {
+      "log_path": "/private/tmp/labyrinth_codex/art-03/feedback1-en06_enemies_test.log",
+      "result_lines": [
+        "EN06 ENEMIES TEST RESULT: PASS (176 checks, 0 failures)"
+      ]
+    },
+    "threats_at_rest_test": {
+      "log_path": "/private/tmp/labyrinth_codex/art-03/feedback1-threats_at_rest_test.log",
+      "result_lines": [
+        "THREATS AT REST TEST RESULT: PASS (612 assertions; includes compass suite)"
+      ]
+    },
+    "full-suite": {
+      "log_path": "/private/tmp/labyrinth_codex/art-03/feedback1-full-suite.log",
+      "result_lines": [
+        "EN04 ENEMIES TEST RESULT: PASS (454 checks, 0 failures)",
+        "EN05 ENEMIES TEST RESULT: PASS (179 checks, 0 failures)",
+        "EN06 ENEMIES TEST RESULT: PASS (176 checks, 0 failures)",
+        "STATIC FACING TEST RESULT: PASS (50 checks, 0 failures)",
+        "FLOATING COMBAT TEXT TEST RESULT: PASS",
+        "COMBAT FEEL TEST RESULT: PASS",
+        "HEALTH GHOST TEST RESULT: PASS",
+        "THREATS AT REST TEST RESULT: PASS (612 assertions; includes compass suite)",
+        "RUN SCORE TEST RESULT: PASS",
+        "SFX BANK TEST RESULT: PASS (0 failures)",
+        "EN01 ENEMIES TEST RESULT: PASS",
+        "EN02 ENEMIES TEST RESULT: PASS (235 checks, 0 failures)",
+        "EN03 ENEMIES TEST RESULT: PASS (210 checks, 0 failures)",
+        "RUN END RECAP TEST RESULT: PASS",
+        "TEST RESULT: PASS \u2014 main menu resume safety",
+        "FULL SUITE RUNTIME: 665.805 seconds (budget 900 seconds)",
+        "TEST RESULT: PASS"
+      ]
+    },
+    "gate-functional-subset": {
+      "result_lines": [
+        "Ran 38 tests in 4.662s",
+        "OK"
+      ],
+      "scope": "All gate behavioral/provenance tests except the production registry integration; full 39-test run remains recorded above."
+    }
+  },
+  "headless_semantics": {
+    "lineup": {
+      "headless_manifest_path": "/private/tmp/labyrinth_codex/art-03/lineup-semantic-proof.json",
+      "isolated_output_dir": "/private/tmp/labyrinth-godot-home/art-03-1791892419668958000-53045/Library/Application Support/Escape the Umbra Parallel art-03-1791892419668958000-53045/probes/bestiary_lineup",
+      "images_captured": false
+    },
+    "static-facing": {
+      "headless_manifest_path": "/private/tmp/labyrinth_codex/art-03/static-facing-semantic-proof.json",
+      "isolated_output_dir": "/private/tmp/labyrinth-godot-home/art-03-1791892358972146000-52986/Library/Application Support/Escape the Umbra Parallel art-03-1791892358972146000-52986/probes/static_facing",
+      "images_captured": false
+    }
+  },
+  "portrait_contact_path": "/Users/borgerding/workspace/Labyrinth.worktrees/art-03/tests/static_facing_portrait_contact.png",
+  "proof_for_design_owner": {
+    "windowed_commands": [
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/art-03 && python3 tools/visual_probe_runner.py --task-id art-03 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/bestiary_lineup_probe_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/art-03-lineup.json tests/bestiary_lineup_probe.gd",
+      "cd /Users/borgerding/workspace/Labyrinth.worktrees/art-03 && python3 tools/visual_probe_runner.py --task-id art-03 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/static_facing_probe_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/art-03-static-facing.json tests/static_facing_probe.gd"
+    ],
+    "expected_images": {
+      "lineup": [
+        "00_empty_board.png",
+        "01_lineup_normals.png",
+        "02_lineup_bosses.png"
+      ],
+      "static-facing": [
+        "arc_thrall_front.png",
+        "arc_thrall_front_mirrored.png",
+        "arc_thrall_rear.png",
+        "arc_thrall_rear_mirrored.png",
+        "slag_mortar_front.png",
+        "slag_mortar_front_mirrored.png",
+        "slag_mortar_rear.png",
+        "slag_mortar_rear_mirrored.png",
+        "arc_thrall_mid_move.png",
+        "slag_mortar_reduced_motion.png",
+        "turn_clock_three_portraits.png"
+      ]
+    },
+    "inspection_fixture": "Not applicable: both probes construct their own presentation fixtures."
+  },
+  "design_followups": {
+    "TODO_DESIGN_GLACIAL_MIRROR_REAR_CONSISTENCY": "The exact palette-match non-accent mask still gives chroma delta 0.038671424 vs the protected 0.03 maximum. Awaiting director clarification; approved pixels and bands unchanged."
+  },
+  "chosen_defaults": {
+    "headless_fixture": {
+      "board_tiles": 9,
+      "enemy_tile": [
+        4,
+        4
+      ],
+      "player_hp": 100,
+      "board_pixels": [
+        1920,
+        1080
+      ],
+      "idle_offsets": [
+        [
+          0,
+          2
+        ],
+        [
+          2,
+          0
+        ],
+        [
+          0,
+          -2
+        ],
+        [
+          -2,
+          0
+        ]
+      ]
+    },
+    "proof": {
+      "settle_frames": 8,
+      "move_phase": 0.5,
+      "clock_types": [
+        "arc_thrall",
+        "slag_mortar",
+        "hoarfrost_seer"
+      ],
+      "clock_seed": 73101,
+      "clock_hand_size": 5,
+      "clock_player_hp": 24,
+      "clock_first_time": 1,
+      "clock_time_step": 2
+    },
+    "portrait_contact": {
+      "width": 650,
+      "row_height": 290,
+      "column_offsets": [
+        0,
+        300
+      ],
+      "image_y": 25,
+      "background": "#242020"
+    },
+    "post_step_fixture": {
+      "seed": 103,
+      "side": 32,
+      "body_rgb_max": 120,
+      "pair_rear_tone": [
+        150,
+        150,
+        150
+      ]
+    },
+    "child_suite_timeout_seconds": 180,
+    "non_accent_fixture": {
+      "side": 32,
+      "body_rgba": [
+        60,
+        50,
+        40,
+        255
+      ],
+      "accent_rgba": [
+        0,
+        180,
+        255,
+        255
+      ],
+      "accent_rect": [
+        2,
+        2,
+        10,
+        10
+      ]
+    }
+  },
+  "open_issues": [
+    "Glacial Mirror non-accent chroma delta 0.038671424 exceeds unchanged 0.03 maximum. The requested mask excludes zero pixels; needs a revised approved source or clarified mask decision.",
+    "The production registry integration test correctly remains red for this pair; the assertion was preserved.",
+    "Windowed proof commands are prepared; no renderer capture was run in this sandbox."
+  ],
+  "feedback1": {
+    "implementation_files_changed": [
+      "tools/art_identity_gate.py",
+      "tests/test_art_identity_gate.py",
+      "tests/test_board_pixel_density.py",
+      "spec/art_identity/registry.json",
+      "spec/visual_identity_gate.md",
+      "tests/static_facing_results.json"
+    ],
+    "items": {
+      "1": "Committed kit/prompt records and registry snapshots own certification; ignored reference files are neither read nor regenerated.",
+      "2": "All 21 approved kit_version hashes exactly reconstructed from stored prompt preamble/view bytes (undoing K substitutions) and recorded reference digests; authorized recorded-field fallback documented and regression-tested.",
+      "3": "Exact non-accent mask implemented with unchanged bands. Glacial Mirror still fails: mask excludes zero pixels in both views. Awaiting director clarification.",
+      "4": "Director staging preserved byte for byte; all en01-en06 suites PASS.",
+      "5": "Density test reads authored enemy scale, including new rear IDs; 41 tests PASS.",
+      "6": "Previous registry-test failure was caused by ignored reference-file requirements, current-clause version recomputation and pair metrics. Provenance causes fixed; sole remaining failure is the genuine Glacial Mirror pair-band violation under the specified mask."
+    }
+  },
+  "director_owned_changes_preserved": {
+    "spec/peer_benchmark/staged/enemies/wave_e1.json": "3e2dc51afb6c43152dca6a4c7310b171e5276a2485fe1f3ba921cdc82184e51d",
+    "spec/peer_benchmark/staged/enemies/wave_e2.json": "29674e73983ba0882b208876b2dc0b6b12972de9cfc27aa363fb384f4e0ec8a2"
+  },
+  "kit_version_modes": {
+    "prompt_reconstructed": 21,
+    "recorded": 0
+  },
+  "glacial_mask_diagnostic": {
+    "front": {
+      "opaque_pixels": 31536,
+      "excluded_accent_pixels": 0,
+      "lab_chroma_p90": 17.41771885261302,
+      "accent_threshold": 32.41771885261302,
+      "max_lab_chroma": 31.282374717699177,
+      "non_accent_palette": {
+        "chroma": 0.08444292734851423,
+        "value": 0.21101038141283912
+      }
+    },
+    "rear": {
+      "opaque_pixels": 31974,
+      "excluded_accent_pixels": 0,
+      "lab_chroma_p90": 8.774368449424765,
+      "accent_threshold": 23.774368449424763,
+      "max_lab_chroma": 22.661971972030784,
+      "non_accent_palette": {
+        "chroma": 0.04577150307173598,
+        "value": 0.18255215058313312
+      }
+    },
+    "rear_consistency": {
+      "chroma_delta": 0.03867142427677825,
+      "value_delta": 0.028458230829706
+    }
+  }
+}

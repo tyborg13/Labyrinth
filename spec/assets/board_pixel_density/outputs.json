@@ -1,45 +1,101 @@
 {
   "assets/art/enemies/arc_thrall.png": {
-    "pixel_sha256": "fcfdcd6fd9c0cbec1b40b831e4429ee9effc73360565dab7ec58f5f4b5f0f3aa",
-    "source_pixel_sha256": "11563e768e40131a6dc20713c193786146f331fa1178d216cebdd720e4fbfd6a",
+    "pixel_sha256": "297bf5febcd0a1dbf60f9922879c96fb0f974d8c1b761914318f3846939ac365",
+    "source_pixel_sha256": "1041e98621fd44baf635eb71f99557d786db8bbf09fdb87d14123fa5dcc66c70",
     "id": "arc_thrall",
-    "mode": "regrid",
-    "grid": 1.5
+    "mode": "clean",
+    "grid": 1.0
+  },
+  "assets/art/enemies/arc_thrall_rear.png": {
+    "pixel_sha256": "3268d9ccbeaf634e942d2b925bcf06b2eb38129a75359c5f789480cc49851ec9",
+    "source_pixel_sha256": "b620e57e224e3d2cde2e34f3b762368f230b8faf4dd6e14d65959cca3ce1afc2",
+    "id": "arc_thrall_rear",
+    "mode": "clean",
+    "grid": 1.0
+  },
+  "assets/art/enemies/briar_weaver.png": {
+    "pixel_sha256": "7ca1422fafaffdb8edf00fb0ee58b62a1b2c5a6fb70897dcc59a4ce6f04ce483",
+    "source_pixel_sha256": "f7cc605603f64e07ee723d5821ebefb6319209c89756ed141817fe89320d075f",
+    "id": "briar_weaver",
+    "mode": "clean",
+    "grid": 1.08
+  },
+  "assets/art/enemies/briar_weaver_rear.png": {
+    "pixel_sha256": "3737f15e87b413ae0f6cb9dfe349409dad18ce6d35957cdfd39cb1413409a19e",
+    "source_pixel_sha256": "5fc8de33d7829cba537d95bea5940544787964d94a93b0dbf31ee0a2010d35d5",
+    "id": "briar_weaver_rear",
+    "mode": "clean",
+    "grid": 1.12
   },
   "assets/art/enemies/burrow_grub.png": {
-    "pixel_sha256": "3ca01648a194308ed14f95b236f0fdd739341e1c6d93f277f448a66ee3f3aa70",
-    "source_pixel_sha256": "9455daa32a54da8d889886a436ddbbb71e7a7d88e6ab39f201ae48364ff0bc6d",
+    "pixel_sha256": "96c3f7ef2b88e1f3689a47ad8877e3d174255b093b7c046a90f6e56f6f185c7e",
+    "source_pixel_sha256": "c0f5f90b702d2e52bdce622b2ea5d3449c1dded33d198d9b7029c830cff75920",
     "id": "burrow_grub",
-    "mode": "regrid",
-    "grid": 1.5
+    "mode": "clean",
+    "grid": 1.18
+  },
+  "assets/art/enemies/burrow_grub_rear.png": {
+    "pixel_sha256": "c7ea77ded7db88a44efb2e25edc6c5d73f9ab02c04ee5afcf736b6ed1cb1322e",
+    "source_pixel_sha256": "d286e491165016c1a14edb1421fc6d29d030358f962a9690663cb787699b3532",
+    "id": "burrow_grub_rear",
+    "mode": "clean",
+    "grid": 1.18
   },
   "assets/art/enemies/ember_tick.png": {
-    "pixel_sha256": "3921496cecd3a79b83be893e85d361b89cb6a57a31d2cb4cc734eb4bbbd116b5",
-    "source_pixel_sha256": "c81af1ab6c1845c64012996729d738a5cde35e231fdaccdfd01deb4eaa8cee55",
+    "pixel_sha256": "112df376bf1b36d6ba1855842b118e2946dbb631f38bac90b76c880ba832a797",
+    "source_pixel_sha256": "3ba949749753a8319d5c0ca6c19b87ed5a9a1bb26432e950dcbd2c71764591a0",
     "id": "ember_tick",
-    "mode": "regrid",
-    "grid": 1.5
+    "mode": "clean",
+    "grid": 1.16
+  },
+  "assets/art/enemies/ember_tick_rear.png": {
+    "pixel_sha256": "db4658df000aa6172a07d5f4bdaacdda2f4ae1b2421e5e47e759a444e22b6a99",
+    "source_pixel_sha256": "d1584f15a94a7cc628b1e603b280dd6ab8cc56d981d38e8f1aa8426bae452274",
+    "id": "ember_tick_rear",
+    "mode": "clean",
+    "grid": 1.16
   },
   "assets/art/enemies/gale_herald.png": {
-    "pixel_sha256": "7e708a9c09517c841878ebb0c0707c2dd8cc7f1026e6613521b779c9ce3a3dc1",
-    "source_pixel_sha256": "04bda877d1adecb2f146a551f6b85b051c1884efcacaa5246ba47b9ddac4746e",
+    "pixel_sha256": "feb174023de5d34817fd77cab833e26c73279cdfca940cb6dbed601ab62c9581",
+    "source_pixel_sha256": "d9fc28e04c457ba69d047f2b17641b153f4d9de450a22b5d3af5552fad69b958",
     "id": "gale_herald",
     "mode": "regrid",
-    "grid": 1.5
+    "grid": 1.42
+  },
+  "assets/art/enemies/gale_herald_rear.png": {
+    "pixel_sha256": "8edd012456c0a718350bf0cbfe3b36c9d22c8710387d55a3de04cdf16b37a6d3",
+    "source_pixel_sha256": "247752869cb0ef68b966a9355ad743bd4bcbdd76144fa9cd44d223829b708da5",
+    "id": "gale_herald_rear",
+    "mode": "clean",
+    "grid": 1.19
   },
   "assets/art/enemies/glacial_mirror.png": {
-    "pixel_sha256": "12b2acb979ada351963eddb16581a42327cca4924310e147c47cedd24ced506e",
-    "source_pixel_sha256": "08ed4a2793debb9f79c3109bae509206705889b9aa74882f0b46f37d89b6e4dc",
+    "pixel_sha256": "20cace8a96f5a6e5d72eb5c1b8ff245a420ca73ab05df9c60c40fcc8c19f7537",
+    "source_pixel_sha256": "b786300193bd8b76d344b1021773d0943bdf8e4e817320279770f5ed87157e38",
     "id": "glacial_mirror",
-    "mode": "regrid",
-    "grid": 1.5
+    "mode": "clean",
+    "grid": 1.0
+  },
+  "assets/art/enemies/glacial_mirror_rear.png": {
+    "pixel_sha256": "032374cc10ade9281c526e8c6eb131f2653235a46cbe1436389162306a602150",
+    "source_pixel_sha256": "fcf1539e14989e23fde782d8ef4622be29f840f631fb4a07a783f3e38ffcc72f",
+    "id": "glacial_mirror_rear",
+    "mode": "clean",
+    "grid": 1.0
   },
   "assets/art/enemies/gloam_stalker.png": {
-    "pixel_sha256": "b7439f856ffc1038ce634affcd311986100d493c719767285d79a64022111381",
-    "source_pixel_sha256": "546f0f39233766380d360b55479e8f4727df238864e5b1f3f8cfe447abe80033",
+    "pixel_sha256": "bf59c2ef7190d666d01f4de41f919c2c6384ef50bc531a4d9597cc613ae4c79e",
+    "source_pixel_sha256": "9bbd33421669f31df7a0dd1519164a13f97e8c3e9637ab1b43b2be390c91e604",
     "id": "gloam_stalker",
-    "mode": "regrid",
-    "grid": 1.5
+    "mode": "clean",
+    "grid": 1.0
+  },
+  "assets/art/enemies/gloam_stalker_rear.png": {
+    "pixel_sha256": "f94302632e567df99b01880ead53482b7db19a9197a091b03c6ee6892fc78e66",
+    "source_pixel_sha256": "7dcb4d6ba67ade6e6799372d65a52c99c40d73f556e3a992a6390f8e958b4386",
+    "id": "gloam_stalker_rear",
+    "mode": "clean",
+    "grid": 1.0
   },
   "assets/art/enemies/gust_shrike.png": {
     "pixel_sha256": "35aed58079a474e17b68c6c25b2d81623854db8a19088b18ad0931f8a4e1bab5",
@@ -49,25 +105,53 @@
     "grid": 1.5
   },
   "assets/art/enemies/hoarfrost_seer.png": {
-    "pixel_sha256": "aeca9120e648c9ac61ec9ca560b4bb1181638afeaac55e0c5ca629b5c3d3905d",
-    "source_pixel_sha256": "a5d237bcfcb2e353b50c5cc4cbde97c8778c1bced230fd194045e6c94eada294",
+    "pixel_sha256": "e30f5f90ad564aac409fcfd055fdfcca018912b345ebc5d2d17541d7b0243f9f",
+    "source_pixel_sha256": "3b0b233245621480e4cb774f16674d2689b4abab99d0d16d9d1923695e82e33a",
     "id": "hoarfrost_seer",
-    "mode": "regrid",
-    "grid": 1.5
+    "mode": "clean",
+    "grid": 1.0
+  },
+  "assets/art/enemies/hoarfrost_seer_rear.png": {
+    "pixel_sha256": "676ccca5de541c268691ecf801a405fa718ac58286cfb69716422c0b88927e60",
+    "source_pixel_sha256": "56213e9f5da3739377c32f6e36d545629c59e94e973f846efc365092a6ebc0a0",
+    "id": "hoarfrost_seer_rear",
+    "mode": "clean",
+    "grid": 1.0
   },
   "assets/art/enemies/hollow_mimic.png": {
-    "pixel_sha256": "364241a95014858182820efa0665d28e43f7a43e4001e2428cbe0183dd8a2d12",
-    "source_pixel_sha256": "f32e7c241a528fcfad059c2e1fdab384067f48cb255b97ef10e489f1f1ae4c1c",
+    "pixel_sha256": "35f875d15ce7226c12d8b6c148ca01409dcc774ecab707e4e291910139f3bded",
+    "source_pixel_sha256": "932293d01bfbc9b309d8ebea6d28ddf2623d2457017974e7074d673458a7c1a3",
     "id": "hollow_mimic",
-    "mode": "regrid",
-    "grid": 1.5
+    "mode": "clean",
+    "grid": 1.09
+  },
+  "assets/art/enemies/hollow_mimic_rear.png": {
+    "pixel_sha256": "0fcb7c62294104293449c87234594203be1173e03238d7a55d1fce95ccaa907f",
+    "source_pixel_sha256": "0c8d9d47ee79d24b47ebb3f1da6ae3aa75206047ce012e754956f7c76bc67eb5",
+    "id": "hollow_mimic_rear",
+    "mode": "clean",
+    "grid": 1.03
+  },
+  "assets/art/enemies/slag_mortar.png": {
+    "pixel_sha256": "180007b95eb75887d482915d526b3840485de3817fafb1dc2bffa3f56111c83e",
+    "source_pixel_sha256": "c49a02edf3c9026c74674a3432c60f94255fb2e22c6ccb5cfed503fe0a35ed2a",
+    "id": "slag_mortar",
+    "mode": "clean",
+    "grid": 1.02
+  },
+  "assets/art/enemies/slag_mortar_rear.png": {
+    "pixel_sha256": "7e9ed8b07b501e002e7413c7d09af6101527e32211ea7dac01cc6a16f8801934",
+    "source_pixel_sha256": "77bf56203be84a09d30a3d336ff76969a789de383c5675ecfce2adb3829a3b09",
+    "id": "slag_mortar_rear",
+    "mode": "clean",
+    "grid": 1.14
   },
   "assets/art/enemies/storm_capacitor.png": {
-    "pixel_sha256": "bac79241ecabbfaedb1a56ca0e596e18d67c485ad83bfaaf881c5b80384cab09",
-    "source_pixel_sha256": "57d2d353000743ae8379330af6e1a6e73c3453d321a83287799b480229f1128d",
+    "pixel_sha256": "2b289f3f7d5928cb77766e2f41acbd71ee21ae0cff3bcb5d3d4e8ebf69b3c32e",
+    "source_pixel_sha256": "5edb0c80bc3d2e1f33c4c0ff83362412f4a28d4abb8622eaeadc9c2cffd52f09",
     "id": "storm_capacitor",
-    "mode": "regrid",
-    "grid": 1.41
+    "mode": "clean",
+    "grid": 1.0
   },
   "assets/art/npcs/scavenger.png": {
     "pixel_sha256": "7de3e08b3df3f4a4a7111de756e3cfcbdef6a053298713a2538170824e1e1868",
@@ -786,6 +870,13 @@
     "id": "emaciated_man_idle",
     "mode": "regrid",
     "grid": 4.35
+  },
+  "assets/props/enemies/bramble_thicket.png": {
+    "pixel_sha256": "873b385c7dc5304ce834bde8216c72a50d7005aa0853e2a89aface2f4b786044",
+    "source_pixel_sha256": "4a36e552263f1172fd4578a7e93fdb9ada859cdf8591bf5a8be58e67dcd7596d",
+    "id": "bramble_thicket",
+    "mode": "regrid",
+    "grid": 1.5
   },
   "assets/props/guardians/watch_brazier_dark.png": {
     "pixel_sha256": "8522f39d7d083f5037bee278d1bf40a0f6fceb24793ffa6f2dd6cda97ea5a5ff",
@@ -8409,26 +8500,5 @@
     "mode": "clean",
     "grid": 0.78,
     "facing": "rear"
-  },
-  "assets/art/enemies/briar_weaver.png": {
-    "pixel_sha256": "ee17a7592ab6a72aff9b0eacc79f015c5ed5f009329067b8cb93e48af2ae6642",
-    "source_pixel_sha256": "b1dab4fed690d665f0123741979253bd96133d91cd2dcf7a5628e30c3455fc43",
-    "id": "briar_weaver",
-    "mode": "regrid",
-    "grid": 1.5
-  },
-  "assets/art/enemies/slag_mortar.png": {
-    "pixel_sha256": "2f3e4cc3839cd5d480478b7094bfa4daef325f55ca4cad33f503dbcdc69c0410",
-    "source_pixel_sha256": "f367f9a1612b708fbf491a37bbf50432c462640b4f0afab1cb99796373c99c5d",
-    "id": "slag_mortar",
-    "mode": "regrid",
-    "grid": 1.5
-  },
-  "assets/props/enemies/bramble_thicket.png": {
-    "pixel_sha256": "873b385c7dc5304ce834bde8216c72a50d7005aa0853e2a89aface2f4b786044",
-    "source_pixel_sha256": "4a36e552263f1172fd4578a7e93fdb9ada859cdf8591bf5a8be58e67dcd7596d",
-    "id": "bramble_thicket",
-    "mode": "regrid",
-    "grid": 1.5
   }
 }

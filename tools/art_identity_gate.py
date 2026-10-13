@@ -11,6 +11,7 @@ import hashlib
 import json
 import math
 import os
+import re
 from pathlib import Path
 import shlex
 import shutil
@@ -192,12 +193,106 @@ def measure(path: Path, art_scale: float = 1.0, kind: str = "creature", anatomy:
               "thin_rel": thin_share(mask, round(0.03 * height)),
               "feature_px": float(np.sqrt(mask.sum() / regions)), "regions": regions,
               "chroma": float((rgb.max(-1) - rgb.min(-1))[mask].mean()),
-              "value": float((rgb @ np.array([0.299, 0.587, 0.114]))[mask].mean())}
+              "value": float((rgb @ np.array([0.299, 0.587, 0.114]))[mask].mean()),
+              "edge_light_share": edge_light_share(np.asarray(image))}
     if kind == "object":
         fits = base_fits(mask)
         result.update(base_v_left=fits[0]["slope"], base_v_right=fits[1]["slope"])
     result.update(density_metrics(image))
     return result
+
+
+def silhouette_edge(mask: np.ndarray, clipped_border: bool = False) -> np.ndarray:
+    # Match clean_outline.py exactly, including its clipped border neighbourhood.
+    inner = mask.copy()
+    inner[1:] &= mask[:-1]; inner[:-1] &= mask[1:]
+    inner[:, 1:] &= mask[:, :-1]; inner[:, :-1] &= mask[:, 1:]
+    if not clipped_border:
+        inner[0] = False; inner[-1] = False; inner[:, 0] = False; inner[:, -1] = False
+    return mask & ~inner
+
+
+def edge_light_share(pixels: np.ndarray) -> float:
+    edge = silhouette_edge(pixels[..., 3] > 0)
+    luminance = (0.299 * pixels[..., 0] + 0.587 * pixels[..., 1] + 0.114 * pixels[..., 2]) / 255.0
+    return float((edge & (luminance > 0.2)).sum() / max(1, edge.sum()))
+
+
+# Exact prototype constants: changing them changes approved post-step pixels.
+LAB_MATRIX = np.array([[0.4124, 0.3576, 0.1805], [0.2126, 0.7152, 0.0722], [0.0193, 0.1192, 0.9505]])
+LAB_INVERSE = np.linalg.inv(LAB_MATRIX)
+LAB_WHITE = np.array([0.95047, 1.0, 1.08883])
+PALETTE_MATCH_PARAMETERS = {"space": "CIE Lab", "accent_percentile": 90, "accent_margin": 15,
+                            "std_floor": 1e-6, "green_residue_margin": 20}
+OUTLINE_PARAMETERS = {"tone": [20, 16, 21], "max_luminance": 0.2, "neighbours": 4,
+                      "remove_isolated": True}
+
+
+def to_lab(rgb: np.ndarray) -> np.ndarray:
+    c = rgb / 255.0
+    linear = np.where(c <= 0.04045, c / 12.92, ((c + 0.055) / 1.055) ** 2.4)
+    xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+    f = np.where(xyz > (6 / 29) ** 3, np.cbrt(xyz), xyz / (3 * (6 / 29) ** 2) + 4 / 29)
+    return np.stack([116 * f[..., 1] - 16, 500 * (f[..., 0] - f[..., 1]), 200 * (f[..., 1] - f[..., 2])], -1)
+
+
+def from_lab(lab: np.ndarray) -> np.ndarray:
+    fy = (lab[..., 0] + 16) / 116
+    f = np.stack([fy + lab[..., 1] / 500, fy, fy - lab[..., 2] / 200], -1)
+    xyz = np.where(f > 6 / 29, f ** 3, 3 * (6 / 29) ** 2 * (f - 4 / 29)) * LAB_WHITE
+    c = np.clip(xyz @ LAB_INVERSE.T, 0, 1)
+    return np.where(c <= 0.0031308, c * 12.92, 1.055 * c ** (1 / 2.4) - 0.055) * 255
+
+
+def non_accent_mask(lab: np.ndarray, alpha: np.ndarray) -> np.ndarray:
+    """One shared prototype mask for palette transfer and rear consistency."""
+    chroma = np.hypot(lab[..., 1], lab[..., 2])
+    opaque = alpha > 0
+    if not opaque.any():
+        raise ValueError("non-accent measurement needs opaque pixels")
+    return opaque & (chroma <= np.percentile(chroma[opaque], 90) + 15)
+
+
+def non_accent_palette(path: Path) -> dict:
+    pixels = np.asarray(rgba(path)).astype(float)
+    mask = non_accent_mask(to_lab(pixels[..., :3]), pixels[..., 3])
+    rgb = pixels[..., :3] / 255.0
+    return {"chroma": float((rgb.max(-1) - rgb.min(-1))[mask].mean()),
+            "value": float((rgb @ np.array([0.299, 0.587, 0.114]))[mask].mean())}
+
+
+def palette_match(front: Image.Image, rear: Image.Image) -> Image.Image:
+    F, R = np.asarray(front.convert("RGBA")).astype(float), np.asarray(rear.convert("RGBA")).astype(float)
+    Fl, Rl = to_lab(F[..., :3]), to_lab(R[..., :3])
+    fm, rm = non_accent_mask(Fl, F[..., 3]), non_accent_mask(Rl, R[..., 3])
+    res = Rl.copy()
+    for ch in range(3):
+        mu_f, sd_f = Fl[..., ch][fm].mean(), Fl[..., ch][fm].std()
+        mu_r, sd_r = Rl[..., ch][rm].mean(), Rl[..., ch][rm].std()
+        res[..., ch] = np.where(rm, (Rl[..., ch] - mu_r) * (sd_f / max(sd_r, 1e-6)) + mu_f, Rl[..., ch])
+    rgb = np.clip(np.rint(from_lab(res)), 0, 255)
+    rgb = np.where((R[..., 3:] > 0) & rm[..., None], rgb, R[..., :3])
+    green = (rgb[..., 1] > rgb[..., 0] + 20) & (rgb[..., 1] > rgb[..., 2] + 20) & (R[..., 3] > 0) & ~rm
+    rgb[green] = np.stack([rgb[green][:, [0, 2]].max(-1)] * 3, -1)
+    return Image.fromarray(np.dstack([rgb, R[..., 3]]).astype(np.uint8))
+
+
+def clean_outline(image: Image.Image) -> Image.Image:
+    a = np.asarray(image.convert("RGBA")).copy()
+    mask = a[..., 3] > 0
+    neighbours = np.zeros_like(mask, dtype=int)
+    neighbours[1:] += mask[:-1]; neighbours[:-1] += mask[1:]
+    neighbours[:, 1:] += mask[:, :-1]; neighbours[:, :-1] += mask[:, 1:]
+    a[mask & (neighbours == 0), 3] = 0
+    edge = silhouette_edge(a[..., 3] > 0, clipped_border=True)
+    luminance = (0.299 * a[..., 0] + 0.587 * a[..., 1] + 0.114 * a[..., 2]) / 255.0
+    a[edge & (luminance > 0.2), :3] = (20, 16, 21)
+    return Image.fromarray(a)
+
+
+def rear_consistency(front: Path, rear: Path) -> dict:
+    a, b = non_accent_palette(front), non_accent_palette(rear)
+    return {"chroma_delta": abs(a["chroma"] - b["chroma"]), "value_delta": abs(a["value"] - b["value"])}
 
 
 def view_body(root: Path, view: str) -> bytes:
@@ -211,6 +306,35 @@ def view_body(root: Path, view: str) -> bytes:
 def kit_version(root: Path, view: str, digests: list) -> str:
     return sha((root / IDENTITY / "preamble.md").read_bytes() + view_body(root, view)
                + "".join(sorted(digests)).encode("ascii"))
+
+
+def prompt_kit_version(kit: dict, prompt: bytes):
+    """Reconstruct the generation hash using only the job's captured inputs.
+
+    Generation hashes the preamble before {K} substitution, the view clause,
+    and sorted reference digests. Undo that substitution in its known contexts;
+    never read today's preamble/views or regenerable reference PNGs. Historical
+    custom prompts may not retain this exact serialization: for those the
+    prompt hash and registry bindings still verify the recorded version field.
+    """
+    preamble, view_marker, remainder = prompt.partition(b"\n## View\n")
+    view, subject_marker, _ = remainder.partition(b"\n## Subject")
+    if not view_marker or not subject_marker:
+        return None
+    factor = str(kit["K"]).encode("ascii")
+    # Numeric boundaries preserve the literal 1024x1024 canvas dimensions.
+    pattern = rb"(?<![0-9])" + factor + rb"(?=x|-pixel| pixels)|(?<=x)" + factor + rb"(?= block)"
+    preamble = re.sub(pattern, b"{K}", preamble)
+    digests = "".join(sorted(ref["pixel_sha256"] for ref in kit["refs"])).encode("ascii")
+    return sha(preamble + view + digests)
+
+
+def recorded_ref_digests(kit: dict) -> dict:
+    return {ref["file"]: ref["pixel_sha256"] for ref in kit["refs"]}
+
+
+def kit_version_verification(kit: dict, prompt: bytes) -> str:
+    return "prompt_reconstructed" if prompt_kit_version(kit, prompt) == kit["kit_version"] else "recorded"
 
 
 def canon_entries(root: Path) -> dict:
@@ -275,7 +399,13 @@ def make_kit(args: argparse.Namespace, root: Path = ROOT) -> dict:
     if len(factors) != 1 or height <= 0 or (args.target_w is not None and args.target_w <= 0):
         raise ValueError("target size is outside the director kit-factor bands")
     factor = factors[0]
-    subject = Path(args.subject).read_text(encoding="utf-8")
+    subject_path = Path(args.subject)
+    subject_rear = getattr(args, "subject_rear", None)
+    if subject_rear is not None:
+        if not rear:
+            raise ValueError("--subject-rear requires a rear view")
+        subject_path = Path(subject_rear)
+    subject = subject_path.read_text(encoding="utf-8")
     out = Path(args.out_dir)
     refs_dir = out / "refs"
     if refs_dir.exists() and any(refs_dir.glob("*.png")):
@@ -303,13 +433,17 @@ def make_kit(args: argparse.Namespace, root: Path = ROOT) -> dict:
     size = ("The whole subject is about %s pixels tall (%s game pixels)%s and centred horizontally, "
             "its lowest point about 60 pixels above the bottom edge. It is shown at its natural size, not a miniature."
             % (height * factor, height, width_text))
-    prompt = preamble + "\n## View\n" + body + "\n## Subject\n" + subject + "\n## Size\n" + size + "\n"
+    subject_heading = "\n## Subject\n" if subject_rear is None else "\n## Subject (rear: %s)\n" % subject_rear
+    prompt = preamble + "\n## View\n" + body + subject_heading + subject + "\n## Size\n" + size + "\n"
     (out / "prompt.md").write_bytes(prompt.encode("utf-8"))
     kit = {"id": args.id, "job_id": "id-%s-%s" % (args.id, args.view), "view": args.view,
            "kind": kind, "anatomy": args.anatomy, "size_class": args.size_class, "K": factor,
            "target_h": height, "target_w": args.target_w, "peers": list(args.peers), "refs": references,
            "prompt_path": "prompt.md", "prompt_sha256": sha(prompt.encode("utf-8")),
            "kit_version": kit_version(root, args.view, [ref["pixel_sha256"] for ref in references])}
+    if subject_rear is not None:
+        kit["subject_rear"] = str(subject_rear)
+        kit["subject_rear_sha256"] = sha(subject_path.read_bytes())
     write_json(out / "kit.json", kit)
     return kit
 
@@ -336,7 +470,7 @@ def fit_sprite(sprite: Image.Image) -> tuple:
     return sprite, fit_scale
 
 
-def process_raw(raw: Path, kit_path: Path, out: Path, root: Path = ROOT) -> dict:
+def process_raw(raw: Path, kit_path: Path, out: Path, root: Path = ROOT, match_front: Path = None, outline: bool = False) -> dict:
     kit = read_json(kit_path)
     factor = kit["K"]
     if not isinstance(factor, int) or isinstance(factor, bool) or factor <= 0:
@@ -394,6 +528,17 @@ def process_raw(raw: Path, kit_path: Path, out: Path, root: Path = ROOT) -> dict
     placed_x, placed_y = min(x, size - sprite.width), min(y, size - sprite.height)
     canvas = Image.new("RGBA", (size, size))
     canvas.alpha_composite(sprite, (placed_x, placed_y))
+    post_steps = []
+    if match_front is not None:
+        reference = rgba(match_front)
+        post_steps.append({"step": "palette_match", "parameters": PALETTE_MATCH_PARAMETERS,
+                           "reference": str(match_front), "reference_pixel_sha256": pixel_digest(reference),
+                           "pre_step_pixel_sha256": pixel_digest(canvas)})
+        canvas = palette_match(reference, canvas)
+    if outline:
+        post_steps.append({"step": "clean_outline", "parameters": OUTLINE_PARAMETERS,
+                           "pre_step_pixel_sha256": pixel_digest(canvas)})
+        canvas = clean_outline(canvas)
     out.parent.mkdir(parents=True, exist_ok=True)
     canvas.save(out)
     record = {"raw_sha256": sha(raw.read_bytes()), "pixel_sha256": pixel_digest(canvas), "K": factor,
@@ -401,6 +546,8 @@ def process_raw(raw: Path, kit_path: Path, out: Path, root: Path = ROOT) -> dict
               "drawn_size": list(sprite.size), "placement": [placed_x, placed_y],
               "shift": [placed_x - x, placed_y - y],
               "metrics": measure(out, kind=kit.get("kind", "creature"), anatomy=kit.get("anatomy", ""))}
+    if post_steps:
+        record["post_steps"] = post_steps
     write_json(out.with_suffix(".json"), record)
     return record
 
@@ -411,6 +558,7 @@ def metric_bands(entry: dict, bands: dict) -> dict:
         creature = bands["creature"]
         result.update(symmetry=(None, creature["symmetry_max"]), thin_abs=(None, creature["thin_abs_max"]),
                       thin_rel=(None, creature["thin_rel_max"]),
+                      edge_light_share=(None, creature["edge_light_share_max"]),
                       feature_px=(creature["feature_px_min_small"] if entry["size_class"] == "small"
                                   else creature["feature_px_min"], None))
         # Rear feet mix the lateral axis with the stride toward the upper-right, so the angle gates front views only;
@@ -462,9 +610,12 @@ def coverage(root: Path) -> dict:
     by_path = {e["path"]: e for e in canon.values()}
     paths = {}
     for enemy_id, enemy in enemies.items():
-        path = enemy["art_path"].removeprefix("res://")
-        paths[path] = {"id": enemy_id, "kind": "creature", "anatomy": "",
-                       "art_scale": enemy.get("art_scale", 1.0), "boss": bool(enemy.get("boss_bar", False))}
+        for field, facing in (("art_path", "front"), ("art_rear_path", "rear")):
+            if not enemy.get(field):
+                continue
+            path = enemy[field].removeprefix("res://")
+            paths[path] = {"id": enemy_id, "kind": "creature", "anatomy": "", "facing": facing,
+                           "art_scale": enemy.get("art_scale", 1.0), "boss": bool(enemy.get("boss_bar", False))}
     density = read_json(root / "spec/assets/board_pixel_density/registry.json")
     for rig in density["entries"]:
         if rig["kind"] != "rig" or rig["id"] not in enemies:
@@ -545,29 +696,34 @@ def validate_kit_entry(entry: dict, root: Path, bands: dict, metadata: dict) -> 
         failures.append("kit factor does not match target height")
     if rear and (not refs or refs[0]["file"] != "refs/01_front_ref.png"):
         failures.append("rear job requires unchanged first front reference")
-    digests = []
+    # refs/*.png are intentionally git-ignored and regenerable. Certification
+    # binds the committed job's recorded digests, never those files or today's paint.
+    ref_files = [ref["file"] for ref in refs]
+    if len(set(ref_files)) != len(ref_files):
+        failures.append("kit has duplicate reference paths")
     for ref in refs:
-        path = repo_path(kit_path.parent, ref["file"])
-        digest = pixel_digest(rgba(path))
-        digests.append(digest)
-        if ref["pixel_sha256"] != digest:
-            failures.append("kit reference digest changed: " + ref["file"])
+        if Path(ref["file"]).is_absolute() or ".." in Path(ref["file"]).parts:
+            failures.append("kit reference path must be repository-relative")
+        if not is_digest(ref.get("pixel_sha256")):
+            failures.append("recorded reference pixel digest missing or invalid: " + ref["file"])
         if ref.get("canon_id"):
             reference = canon.get(ref["canon_id"])
             if reference is None or reference["view"] != ("rear" if rear else "front"):
                 failures.append("reference is not matching-view canon: " + ref["canon_id"])
-            elif pixel_digest(enlarged_ref(repo_path(root, reference["path"]), kit["K"])) != digest:
-                failures.append("reference pixels do not match canon: " + ref["canon_id"])
-        if ref["file"] == "refs/footprint_guide.png" and pixel_digest(footprint_guide(kit["K"])) != digest:
-            failures.append("footprint guide differs from director geometry")
-    version = kit_version(root, kit["view"], digests)
-    if entry.get("kit_version") != kit.get("kit_version") or kit.get("kit_version") != version:
+    if entry.get("ref_pixel_sha256") != recorded_ref_digests(kit):
+        failures.append("recorded reference pixel digests differ from registry")
+    if not is_digest(kit.get("kit_version")) or entry.get("kit_version") != kit.get("kit_version"):
         failures.append("kit_version missing or changed")
     prompt = repo_path(root, entry["prompt_path"])
     if prompt.resolve() != repo_path(kit_path.parent, kit["prompt_path"]).resolve():
         failures.append("prompt path is not the job prompt")
-    if sha(prompt.read_bytes()) != kit["prompt_sha256"]:
+    prompt_bytes = prompt.read_bytes()
+    if sha(prompt_bytes) != kit.get("prompt_sha256"):
         failures.append("prompt digest changed")
+    if entry.get("prompt_sha256") != kit.get("prompt_sha256"):
+        failures.append("recorded prompt digest differs from registry")
+    # If prompt serialization cannot reproduce the original hash exactly, the
+    # director authorizes the recorded field. Both modes retain all bindings above.
     if not is_digest(entry.get("raw_sha256")):
         failures.append("raw sha256 missing or invalid")
     if entry.get("raw_path") and sha(repo_path(root, entry["raw_path"]).read_bytes()) != entry.get("raw_sha256"):
@@ -583,6 +739,18 @@ def validate_kit_entry(entry: dict, root: Path, bands: dict, metadata: dict) -> 
     if metadata:
         actual["art_scale"] = metadata["art_scale"]
         actual["boss"] = metadata["boss"]
+    source = repo_path(root, entry.get("source_path", str(kit_path.parent.resolve().relative_to(root.resolve())) + "/processed.png"))
+    if source.resolve() != (kit_path.parent / "processed.png").resolve():
+        failures.append("source path is not the job processed sprite")
+    source_digest = pixel_digest(rgba(source))
+    if source_digest != entry.get("source_pixel_sha256"):
+        failures.append("source pixel digest changed")
+    processed = read_json(source.with_suffix(".json"))
+    if processed.get("pixel_sha256") != source_digest or processed.get("raw_sha256") != entry.get("raw_sha256"):
+        failures.append("processed sidecar digest mismatched")
+    if entry.get("post_steps", []) != processed.get("post_steps", []):
+        failures.append("processed post_steps mismatched")
+    actual["view"] = kit["view"]
     measured = measure(repo_path(root, entry["path"]), actual.get("art_scale", 1.0), entry["kind"], entry["anatomy"])
     failures.extend(metric_failures(actual, measured, bands))
     return failures
@@ -624,6 +792,20 @@ def check_registry(root: Path = ROOT, entry_id: str = None, strict: bool = False
                     errors.append("pixel digest changed")
                 if state == "kit":
                     errors.extend(validate_kit_entry(entry, root, bands, covered.get(path, {})))
+                    if entry.get("kind") == "creature":
+                        pair = [e for e in entries if e.get("id") == entry.get("id") and e.get("entry_kind") == "kit"
+                                and e.get("kind") == "creature"]
+                        front = next((e for e in pair if e.get("facing") == "front"), None)
+                        rear = next((e for e in pair if e.get("facing") == "rear"), None)
+                        if front and rear:
+                            deltas = rear_consistency(repo_path(root, front["source_path"]), repo_path(root, rear["source_path"]))
+                            for metric, value in deltas.items():
+                                limit = bands["rear_consistency"][metric + "_max"]
+                                excused = any(e.get("metric") == "rear_consistency." + metric and isinstance(e.get("reason"), str)
+                                              and e["reason"].strip() and abs(float(e.get("value", -1)) - round(value, 6)) < 1e-6
+                                              for e in entry.get("exceptions", []))
+                                if value > limit and not excused:
+                                    errors.append("rear_consistency.%s=%.6f outside [0, %s]" % (metric, value, limit))
             else:
                 errors.append("unknown entry_kind: " + str(state))
         except (OSError, ValueError, KeyError, TypeError, IndexError) as exc:
@@ -632,7 +814,12 @@ def check_registry(root: Path = ROOT, entry_id: str = None, strict: bool = False
             failures += 1
             reports.append("FAIL " + path + ": " + "; ".join(errors))
         else:
-            reports.append("PASS " + path + " (" + entry["entry_kind"] + ")")
+            detail = entry["entry_kind"]
+            if detail == "kit":
+                kit_path = repo_path(root, entry["kit_path"])
+                kit = read_json(kit_path)
+                detail += "; kit_version " + kit_version_verification(kit, repo_path(root, entry["prompt_path"]).read_bytes())
+            reports.append("PASS " + path + " (" + detail + ")")
     reports.append("ART IDENTITY CHECK: %s (%d failures, %d pending_reart warnings)" %
                    ("FAIL" if failures else "PASS", failures, warnings))
     return reports, failures
@@ -791,6 +978,11 @@ def make_sheet(front: Path, rear: Path, kit_path: Path, out: Path, art_scale: fl
         metric_rows.append((facing + ".fit_scale", "%0.4f" % fit_scale if fit_scale is not None else "N/A", "unbanded", "INFO"))
         if "lateral_axis" in limits and not annotation:
             metric_rows.append((facing + ".lateral_axis", "MISSING", str(limits["lateral_axis"]), "FAIL"))
+    if rear is not None and kit["kind"] == "creature":
+        for metric, value in rear_consistency(front, rear).items():
+            limit = bands["rear_consistency"][metric + "_max"]
+            metric_rows.append(("rear_consistency." + metric, "%0.4f" % value, str((0, limit)),
+                                "PASS" if value <= limit else "FAIL"))
     line_height = SHEET_DEFAULTS["table_line_height"]
     provenance = ["kit_version " + kit["kit_version"], "front pixels " + pixel_digest(candidate),
                   "rear pixels " + (pixel_digest(rear_image) if rear_image else "absent"),
@@ -845,12 +1037,15 @@ def parser() -> argparse.ArgumentParser:
     kit.add_argument("--size-class", required=True, choices=DEFAULT_HEIGHTS)
     kit.add_argument("--peers", nargs=2, required=True)
     kit.add_argument("--front-ref", type=Path)
+    kit.add_argument("--subject-rear", type=Path)
     kit.add_argument("--target-h", type=int)
     kit.add_argument("--target-w", type=int)
     process_cmd = commands.add_parser("process")
     process_cmd.add_argument("raw", type=Path)
     process_cmd.add_argument("--kit", required=True, type=Path)
     process_cmd.add_argument("--out", required=True, type=Path)
+    process_cmd.add_argument("--match-front", type=Path)
+    process_cmd.add_argument("--clean-outline", action="store_true")
     sheet = commands.add_parser("sheet")
     sheet.add_argument("--front", required=True, type=Path)
     sheet.add_argument("--rear", type=Path)
@@ -880,7 +1075,7 @@ def main() -> int:
                   (cu, shlex.quote(kit["job_id"]), shlex.quote(str(Path(args.out_dir) / "prompt.md")),
                    shlex.quote(str(Path(args.out_dir) / "refs"))))
         elif args.command == "process":
-            print(json.dumps(process_raw(args.raw, args.kit, args.out), indent=2, sort_keys=True))
+            print(json.dumps(process_raw(args.raw, args.kit, args.out, match_front=args.match_front, outline=args.clean_outline), indent=2, sort_keys=True))
         elif args.command == "sheet":
             make_sheet(args.front, args.rear, args.kit, args.out, args.art_scale,
                        read_json(args.landmarks) if args.landmarks else None)

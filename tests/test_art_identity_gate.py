@@ -4,6 +4,7 @@ import argparse
 import ast
 import copy
 import json
+import runpy
 from pathlib import Path
 import shutil
 import sys
@@ -19,6 +20,14 @@ sys.path.insert(0, str(ROOT / "tools"))
 import art_identity_gate as gate
 
 FIXTURES = ROOT / "tests/fixtures/art_identity"
+POST_STEP_FIXTURE_SEED = 103
+POST_STEP_FIXTURE_SIDE = 32
+POST_STEP_FIXTURE_RGB_MAX = 120
+PAIR_FIXTURE_REAR_TONE = (150, 150, 150)
+NON_ACCENT_FIXTURE_SIDE = 32
+NON_ACCENT_FIXTURE_BODY = (60, 50, 40, 255)
+NON_ACCENT_FIXTURE_ACCENT = (0, 180, 255, 255)
+NON_ACCENT_FIXTURE_ACCENT_RECT = (2, 2, 10, 10)
 
 
 def prototype_functions(filename, namespace):
@@ -49,6 +58,119 @@ class GateTests(unittest.TestCase):
                     out_dir=str(self.temp / folder))
         args.update(overrides)
         return argparse.Namespace(**args)
+
+    def test_palette_match_and_outline_are_pixel_identical_to_prototypes(self):
+        # Proof-only synthetic accents, green key residue, opaque islands and borders.
+        rng = np.random.default_rng(POST_STEP_FIXTURE_SEED)
+        pixels = rng.integers(0, POST_STEP_FIXTURE_RGB_MAX, (POST_STEP_FIXTURE_SIDE, POST_STEP_FIXTURE_SIDE, 4), dtype=np.uint8)
+        pixels[..., 3] = 0
+        pixels[3:29, 3:29, 3] = 255
+        pixels[4:8, 4:8, :3] = [230, 0, 230]
+        pixels[8:10, 8:10, :3] = [0, 80, 0]
+        pixels[0, 0] = [200, 200, 200, 255]
+        rear = self.temp / "rear.png"
+        Image.fromarray(pixels).save(rear)
+        front = FIXTURES / "hero_front.png"
+        match = runpy.run_path(str(ROOT / "spec/art_identity/prototype/match_palette.py"))["match"]
+        clean = runpy.run_path(str(ROOT / "spec/art_identity/prototype/clean_outline.py"))["clean"]
+        match(front, rear, self.temp / "match.png")
+        actual = gate.palette_match(gate.rgba(front), gate.rgba(rear))
+        self.assertEqual(actual.tobytes(), gate.rgba(self.temp / "match.png").tobytes())
+        clean(rear, self.temp / "clean.png")
+        self.assertEqual(gate.clean_outline(gate.rgba(rear)).tobytes(), gate.rgba(self.temp / "clean.png").tobytes())
+
+    def test_post_steps_order_parameters_and_pre_step_digests(self):
+        image = Image.new("RGB", (1024, 1024), "#00ff00")
+        ImageDraw.Draw(image).rectangle((320, 240, 700, 920), fill=(100, 90, 70))
+        raw, kit = self.temp / "raw.png", self.temp / "kit.json"
+        image.save(raw)
+        gate.write_json(kit, {"K": 4})
+        gate.process_raw(raw, kit, self.temp / "before.png")
+        front = FIXTURES / "hero_front.png"
+        record = gate.process_raw(raw, kit, self.temp / "after.png", match_front=front, outline=True)
+        steps = record["post_steps"]
+        self.assertEqual([s["step"] for s in steps], ["palette_match", "clean_outline"])
+        self.assertEqual(steps[0]["parameters"], gate.PALETTE_MATCH_PARAMETERS)
+        self.assertEqual(steps[1]["parameters"], gate.OUTLINE_PARAMETERS)
+        before = gate.rgba(self.temp / "before.png")
+        matched = gate.palette_match(gate.rgba(front), before)
+        self.assertEqual(steps[0]["pre_step_pixel_sha256"], gate.pixel_digest(before))
+        self.assertEqual(steps[1]["pre_step_pixel_sha256"], gate.pixel_digest(matched))
+        self.assertEqual(steps[0]["reference_pixel_sha256"], gate.pixel_digest(gate.rgba(front)))
+        self.assertEqual(gate.rgba(self.temp / "after.png").tobytes(), gate.clean_outline(matched).tobytes())
+        self.assertEqual(record["pixel_sha256"], gate.pixel_digest(gate.rgba(self.temp / "after.png")))
+
+    def test_edge_light_and_rear_consistency_bands(self):
+        pixels = np.zeros((8, 8, 4), dtype=np.uint8)
+        pixels[2:6, 2:6] = [20, 16, 21, 255]
+        pixels[2, 2:5] = [255, 255, 255, 255]
+        self.assertEqual(gate.edge_light_share(pixels), 3 / 12)
+        border = np.full((4, 4, 4), 255, dtype=np.uint8)
+        self.assertEqual(gate.edge_light_share(border), 1.0)
+        front = self.temp / "front.png"
+        Image.fromarray(pixels).save(front)
+        rear = self.temp / "rear.png"
+        pixels[2:6, 2:6, :3] = [100, 100, 100]
+        Image.fromarray(pixels).save(rear)
+        delta = gate.rear_consistency(front, rear)
+        self.assertGreater(delta["value_delta"], 0.03)
+        bands = gate.read_json(ROOT / gate.IDENTITY / "bands.json")
+        limits = gate.metric_bands({"kind": "creature", "size_class": "medium", "facing": "rear"}, bands)
+        self.assertEqual(limits["edge_light_share"], (None, 0.06))
+        self.assertNotIn("lateral_axis", limits)
+
+    def test_subject_rear_is_used_and_recorded_without_changing_front_subject(self):
+        subject = self.temp / "rear_subject.md"
+        subject.write_text("Rear-only fixture equipment side.\n")
+        args = self.kit_args(view="creature_rear", front_ref=FIXTURES / "hero_front.png", subject_rear=subject)
+        kit = gate.make_kit(args)
+        self.assertEqual(kit["subject_rear"], str(subject))
+        self.assertEqual(kit["subject_rear_sha256"], gate.sha(subject.read_bytes()))
+        self.assertIn(subject.read_text(), (Path(args.out_dir) / "prompt.md").read_text())
+        self.assertNotIn("Test fixture subject.", (Path(args.out_dir) / "prompt.md").read_text())
+        with self.assertRaisesRegex(ValueError, "rear view"):
+            gate.make_kit(self.kit_args("front", subject_rear=subject))
+
+    def test_source_digest_and_post_steps_are_verified_separately_from_production(self):
+        root, registry, entry = self.kit_registry()
+        source = root / entry["source_path"]
+        image = gate.rgba(source)
+        image.putpixel((0, 0), (1, 2, 3, 0))
+        image.save(source)
+        report, failures = gate.check_registry(root)
+        self.assertGreater(failures, 0)
+        self.assertTrue(any("source pixel digest changed" in line for line in report))
+        shutil.copyfile(root / entry["path"], source)
+        entry["post_steps"] = [{"step": "invented"}]
+        gate.write_json(root / gate.IDENTITY / "registry.json", registry)
+        report, failures = gate.check_registry(root)
+        self.assertTrue(any("post_steps mismatched" in line for line in report))
+
+    def test_source_cannot_be_redirected_to_another_job(self):
+        root, registry, entry = self.kit_registry()
+        target = root / "jobs/substituted.png"
+        shutil.copyfile(root / entry["source_path"], target)
+        shutil.copyfile((root / entry["source_path"]).with_suffix(".json"), target.with_suffix(".json"))
+        entry["source_path"] = "jobs/substituted.png"
+        gate.write_json(root / gate.IDENTITY / "registry.json", registry)
+        report, failures = gate.check_registry(root)
+        self.assertTrue(any("source path is not the job" in line for line in report))
+
+    def test_pair_consistency_is_enforced_for_each_registered_view(self):
+        root, registry, entry = self.kit_registry()
+        rear = dict(entry, path="assets/rear.png", source_path="jobs/rear/processed.png", facing="rear")
+        (root / "jobs/rear").mkdir()
+        image = gate.rgba(root / entry["path"])
+        pixels = np.asarray(image).copy()
+        pixels[pixels[..., 3] > 0, :3] = PAIR_FIXTURE_REAR_TONE
+        Image.fromarray(pixels).save(root / rear["source_path"])
+        shutil.copyfile(root / rear["source_path"], root / rear["path"])
+        rear["pixel_sha256"] = rear["source_pixel_sha256"] = gate.pixel_digest(gate.rgba(root / rear["path"]))
+        gate.write_json(root / "jobs/rear/processed.json", {"raw_sha256": rear["raw_sha256"], "pixel_sha256": rear["source_pixel_sha256"]})
+        registry["entries"].append(rear)
+        gate.write_json(root / gate.IDENTITY / "registry.json", registry)
+        report, failures = gate.check_registry(root, entry_id=entry["path"])
+        self.assertTrue(any("rear_consistency.value_delta" in line for line in report))
 
     def test_disk_symmetry_and_border_safe_opening(self):
         ys, xs = np.ogrid[:81, :81]
@@ -302,12 +424,74 @@ class GateTests(unittest.TestCase):
         shutil.copyfile(FIXTURES / "hero_front.png", root / "assets/hero.png")
         return root
 
+    def test_rear_consistency_uses_the_palette_match_non_accent_mask(self):
+        front = Image.new("RGBA", (NON_ACCENT_FIXTURE_SIDE, NON_ACCENT_FIXTURE_SIDE), NON_ACCENT_FIXTURE_BODY)
+        pixels = np.asarray(front).copy()
+        x0, y0, x1, y1 = NON_ACCENT_FIXTURE_ACCENT_RECT
+        pixels[y0:y1, x0:x1] = NON_ACCENT_FIXTURE_ACCENT
+        front = Image.fromarray(pixels)
+        rear = Image.new("RGBA", front.size, NON_ACCENT_FIXTURE_BODY)
+        front_path, rear_path = self.temp / "accent_front.png", self.temp / "plain_rear.png"
+        front.save(front_path)
+        rear.save(rear_path)
+        lab = gate.to_lab(pixels[..., :3].astype(float))
+        mask = gate.non_accent_mask(lab, pixels[..., 3])
+        prototype = runpy.run_path(str(ROOT / "spec/art_identity/prototype/match_palette.py"))["body_mask"]
+        np.testing.assert_array_equal(mask, prototype(lab, pixels[..., 3]))
+        self.assertFalse(mask[y0:y1, x0:x1].any())
+        values = gate.rear_consistency(front_path, rear_path)
+        self.assertAlmostEqual(values["chroma_delta"], 0.0)
+        self.assertAlmostEqual(values["value_delta"], 0.0)
+        rgb = pixels[..., :3] / 255.0
+        whole_chroma = float((rgb.max(-1) - rgb.min(-1)).mean())
+        self.assertGreater(whole_chroma - gate.non_accent_palette(front_path)["chroma"], 0.03)
+
+    def test_prompt_reconstructs_generation_version_for_both_factors(self):
+        for size_class in ("medium", "large"):
+            args = self.kit_args(size_class, size_class=size_class)
+            kit = gate.make_kit(args)
+            prompt = (Path(args.out_dir) / "prompt.md").read_bytes()
+            self.assertEqual(gate.prompt_kit_version(kit, prompt), kit["kit_version"])
+            self.assertEqual(gate.kit_version_verification(kit, prompt), "prompt_reconstructed")
+            self.assertIn(b"1024x1024", prompt)
+
+    def test_job_certification_ignores_regenerable_reference_files_and_current_clauses(self):
+        root, registry, entry = self.kit_registry()
+        shutil.rmtree(root / "jobs/fixture/refs")
+        (root / gate.IDENTITY / "preamble.md").write_text("A later legitimate preamble revision.\n")
+        (root / gate.IDENTITY / "views.md").write_text("Later view clauses.\n")
+        with patch.object(gate, "enlarged_ref", side_effect=AssertionError("Check must not regenerate references")), \
+             patch.object(gate, "view_body", side_effect=AssertionError("Check must not read current clauses")):
+            report, failures = gate.check_registry(root)
+        self.assertEqual(failures, 0, "\n".join(report))
+        self.assertTrue(any("kit_version prompt_reconstructed" in line for line in report))
+        # Even corrupt files in the ignored directory do not own provenance.
+        path = root / "jobs/fixture/refs/01_hero_front.png"
+        path.parent.mkdir()
+        path.write_bytes(b"Ignored regenerable file")
+        self.assertEqual(gate.check_registry(root)[1], 0)
+
+    def test_irrecoverable_historical_version_uses_bound_recorded_field(self):
+        root, registry, entry = self.kit_registry()
+        path = root / entry["kit_path"]
+        kit = gate.read_json(path)
+        kit["kit_version"] = entry["kit_version"] = "c" * 64
+        gate.write_json(path, kit)
+        gate.write_json(root / gate.IDENTITY / "registry.json", registry)
+        report, failures = gate.check_registry(root)
+        self.assertEqual(failures, 0, "\n".join(report))
+        self.assertTrue(any("kit_version recorded" in line for line in report))
+        (root / entry["prompt_path"]).write_text("Changed stored prompt")
+        report, failures = gate.check_registry(root)
+        self.assertGreater(failures, 0)
+        self.assertTrue(any("prompt digest changed" in line for line in report))
+
     def test_committed_registry_and_strict_pending_warnings(self):
         report, failures = gate.check_registry()
         self.assertEqual(failures, 0, "\n".join(report))
-        self.assertEqual(sum(line.startswith("WARN ") for line in report), 12)
+        self.assertEqual(sum(line.startswith("WARN ") for line in report), 1)
         report, failures = gate.check_registry(strict=True)
-        self.assertEqual(failures, 12)
+        self.assertEqual(failures, 1)
 
     def test_changed_legacy_pixels_fail_and_readoption_refused(self):
         root = self.minimal_root()
@@ -334,10 +518,15 @@ class GateTests(unittest.TestCase):
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / reference["path"], target)
         shutil.copyfile(FIXTURES / "hero_front.png", root / "jobs/fixture/sheet.png")
+        shutil.copyfile(root / "assets/hero.png", root / "jobs/fixture/processed.png")
+        source_digest = gate.pixel_digest(gate.rgba(root / "assets/hero.png"))
+        gate.write_json(root / "jobs/fixture/processed.json", {"raw_sha256": "a" * 64, "pixel_sha256": source_digest})
         measured = gate.measure(root / "assets/hero.png")
         entry = dict(id="fixture", path="assets/hero.png", entry_kind="kit", kind="creature", anatomy="biped", size_class="medium",
                      kit_path="jobs/fixture/kit.json", job_id=kit["job_id"], kit_version=kit["kit_version"],
-                     prompt_path="jobs/fixture/prompt.md", raw_sha256="a" * 64, sheet_path="jobs/fixture/sheet.png",
+                     prompt_path="jobs/fixture/prompt.md", prompt_sha256=kit["prompt_sha256"],
+                     ref_pixel_sha256=gate.recorded_ref_digests(kit), raw_sha256="a" * 64, sheet_path="jobs/fixture/sheet.png",
+                     source_path="jobs/fixture/processed.png", source_pixel_sha256=source_digest, facing="front",
                      pixel_sha256=gate.pixel_digest(gate.rgba(root / "assets/hero.png")), judge={"verdict": "PASS", "date": "2026-10-12"},
                      owner_approval="Test-only approval", landmarks={"far": [106, 209], "near": [160, 222]}, exceptions=[])
         bands = gate.read_json(root / gate.IDENTITY / "bands.json")
@@ -369,17 +558,17 @@ class GateTests(unittest.TestCase):
         self.assertTrue(any("thin_rel" in line for line in gate.metric_failures(entry, {"thin_rel": 0.21}, gate.read_json(root / gate.IDENTITY / "bands.json"))))
 
     def test_kit_provenance_rejects_changed_prompt_refs_and_version(self):
-        for change in ("prompt", "refs", "version"):
+        for change in ("prompt", "ref_record", "version"):
             with self.subTest(change=change):
                 # Use isolated roots for each provenance failure.
                 root, registry, entry = self.kit_registry()
                 if change == "prompt":
                     (root / entry["prompt_path"]).write_text("Changed prompt")
-                elif change == "refs":
-                    path = next((root / "jobs/fixture/refs").glob("*.png"))
-                    image = gate.rgba(path)
-                    image.putpixel((0, 0), (0, 0, 0, 255))
-                    image.save(path)
+                elif change == "ref_record":
+                    path = root / entry["kit_path"]
+                    kit = gate.read_json(path)
+                    kit["refs"][0]["pixel_sha256"] = "b" * 64
+                    gate.write_json(path, kit)
                 else:
                     entry["kit_version"] = "b" * 64
                     gate.write_json(root / gate.IDENTITY / "registry.json", registry)

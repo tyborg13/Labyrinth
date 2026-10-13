@@ -2799,7 +2799,9 @@
           }
         ]
       }
-    ]
+    ],
+    "art_scale": 1.0,
+    "art_rear_path": "res://assets/art/enemies/hoarfrost_seer_rear.png"
   },
   "gale_herald": {
     "name": "Gale Herald",
@@ -2857,7 +2859,9 @@
           }
         ]
       }
-    ]
+    ],
+    "art_scale": 1.0,
+    "art_rear_path": "res://assets/art/enemies/gale_herald_rear.png"
   },
   "arc_thrall": {
     "name": "Arc Thrall",
@@ -2910,7 +2914,9 @@
           }
         ]
       }
-    ]
+    ],
+    "art_scale": 1.0,
+    "art_rear_path": "res://assets/art/enemies/arc_thrall_rear.png"
   },
   "gloam_stalker": {
     "name": "Gloam Stalker",
@@ -2973,7 +2979,9 @@
           }
         ]
       }
-    ]
+    ],
+    "art_scale": 1.0,
+    "art_rear_path": "res://assets/art/enemies/gloam_stalker_rear.png"
   },
   "burrow_grub": {
     "name": "Burrow Grub",
@@ -3036,7 +3044,9 @@
           }
         ]
       }
-    ]
+    ],
+    "art_scale": 0.85,
+    "art_rear_path": "res://assets/art/enemies/burrow_grub_rear.png"
   },
   "ember_tick": {
     "name": "Ember Tick",
@@ -3089,7 +3099,9 @@
           }
         ]
       }
-    ]
+    ],
+    "art_scale": 0.86,
+    "art_rear_path": "res://assets/art/enemies/ember_tick_rear.png"
   },
   "storm_capacitor": {
     "name": "Storm Capacitor",
@@ -3143,7 +3155,8 @@
           }
         ]
       }
-    ]
+    ],
+    "art_scale": 1.0
   },
   "hollow_mimic": {
     "name": "Hollow Mimic",
@@ -3202,7 +3215,9 @@
           }
         ]
       }
-    ]
+    ],
+    "art_scale": 1.0,
+    "art_rear_path": "res://assets/art/enemies/hollow_mimic_rear.png"
   },
   "briar_weaver": {
     "name": "Briar Weaver",
@@ -3262,7 +3277,9 @@
           }
         ]
       }
-    ]
+    ],
+    "art_scale": 1.0,
+    "art_rear_path": "res://assets/art/enemies/briar_weaver_rear.png"
   },
   "slag_mortar": {
     "name": "Slag Mortar",
@@ -3341,7 +3358,9 @@
           }
         ]
       }
-    ]
+    ],
+    "art_scale": 1.04,
+    "art_rear_path": "res://assets/art/enemies/slag_mortar_rear.png"
   },
   "glacial_mirror": {
     "name": "Glacial Mirror",
@@ -3405,7 +3424,9 @@
         ]
       }
     ],
-    "construct": true
+    "construct": true,
+    "art_scale": 1.0,
+    "art_rear_path": "res://assets/art/enemies/glacial_mirror_rear.png"
   },
   "gust_shrike": {
     "name": "Gust Shrike",

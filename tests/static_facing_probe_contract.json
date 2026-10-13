@@ -1,0 +1,195 @@
+{
+  "min_images": 11,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*arc_thrall_front.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "*arc_thrall_front_mirrored.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "*arc_thrall_rear.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "*arc_thrall_rear_mirrored.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "*slag_mortar_front.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "*slag_mortar_front_mirrored.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "*slag_mortar_rear.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "*slag_mortar_rear_mirrored.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "*arc_thrall_mid_move.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "*slag_mortar_reduced_motion.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 5
+        }
+      ]
+    },
+    {
+      "pattern": "*turn_clock_three_portraits.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "min_luma_range": 50,
+          "min_luma_stdev": 5
+        }
+      ]
+    }
+  ]
+}
