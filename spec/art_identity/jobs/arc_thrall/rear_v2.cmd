@@ -1,0 +1,1 @@
+python3 ~/.claude/skills/orchestrate-codex/scripts/codex_unit.py imagegen id-arc_thrall-creature_rear --prompt-file spec/art_identity/jobs/arc_thrall/rear_v2/prompt.md --ref spec/art_identity/jobs/arc_thrall/rear_v2/refs/*.png

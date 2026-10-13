@@ -1,0 +1,39 @@
+{
+  "K": 3,
+  "anatomy": "biped",
+  "id": "slag_mortar",
+  "job_id": "id-slag_mortar-creature_rear",
+  "kind": "creature",
+  "kit_version": "c96713f9f474c5f92142279dafa985fe5f2a0f88890259f6352cd723a968915f",
+  "peers": [
+    "stone_warden_front",
+    "frostglass_lancer_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "4a5920de384832f669bb91be9cd4f52f948a8f82815e7f24d5bc69126483facc",
+  "refs": [
+    {
+      "file": "refs/01_front_ref.png",
+      "pixel_sha256": "f1fafeeb36d6babb73b41773f3891a270b933cbf03694721866a158ba4359cee"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/02_hero_rear.png",
+      "pixel_sha256": "aab8f4166183017913bf2fd295accd95a546044aa90149e05cbc934e640f1c02"
+    },
+    {
+      "canon_id": "stone_warden_rear",
+      "file": "refs/03_stone_warden_rear.png",
+      "pixel_sha256": "376df56189b8434c82e9196e0b3675cd2d0397557d994b341d5ef25cb3232cb8"
+    },
+    {
+      "canon_id": "frostglass_lancer_rear",
+      "file": "refs/04_frostglass_lancer_rear.png",
+      "pixel_sha256": "2696061ec5af90b33b9b5ddd878808e384701db0aae12b853caf970d095e228b"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 235,
+  "target_w": null,
+  "view": "creature_rear"
+}

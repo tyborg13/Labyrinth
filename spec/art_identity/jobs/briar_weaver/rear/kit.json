@@ -1,0 +1,39 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "briar_weaver",
+  "job_id": "id-briar_weaver-creature_rear",
+  "kind": "creature",
+  "kit_version": "fc0352c691e782d6d2585507f5f78dcc90373c93b89730ddd75bd8a40e85eabc",
+  "peers": [
+    "grave_surgeon_front",
+    "harrier_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "538d49de50173fa823e51c262cfb0d713db7de9ee3009f3eddfdf1aa1274be6d",
+  "refs": [
+    {
+      "file": "refs/01_front_ref.png",
+      "pixel_sha256": "6b62a7f055eaa901a861e43310026fc75098b6abc4a983568a3fbbd6e5b5abbc"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/02_hero_rear.png",
+      "pixel_sha256": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af"
+    },
+    {
+      "canon_id": "grave_surgeon_rear",
+      "file": "refs/03_grave_surgeon_rear.png",
+      "pixel_sha256": "fb9b0f4d55ebdc02bc64221bd2a5dbe3a830e5cdfe32d4935b4d929dc5f12d4a"
+    },
+    {
+      "canon_id": "harrier_rear",
+      "file": "refs/04_harrier_rear.png",
+      "pixel_sha256": "69422081034043b2ff1f5a4b7a2e7ac779aff75bf5df81fd7704ac5f458719b9"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 205,
+  "target_w": null,
+  "view": "creature_rear"
+}

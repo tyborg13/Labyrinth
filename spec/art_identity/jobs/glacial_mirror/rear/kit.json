@@ -1,0 +1,39 @@
+{
+  "K": 3,
+  "anatomy": "biped",
+  "id": "glacial_mirror",
+  "job_id": "id-glacial_mirror-creature_rear",
+  "kind": "creature",
+  "kit_version": "2d1cd5a25f04deba5684804a591e6416ca1be5ae146a099cf876cf7a03951247",
+  "peers": [
+    "stone_warden_front",
+    "frostglass_lancer_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "dd8d6fa577d901fa470f2bdc27654651629c09c4831532748edfc5cff5d74c23",
+  "refs": [
+    {
+      "file": "refs/01_front_ref.png",
+      "pixel_sha256": "e7826a5a6b9aec2b79ee775d9509ea2cbf4bd0e8d5c6a135ed2a31479437802c"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/02_hero_rear.png",
+      "pixel_sha256": "aab8f4166183017913bf2fd295accd95a546044aa90149e05cbc934e640f1c02"
+    },
+    {
+      "canon_id": "stone_warden_rear",
+      "file": "refs/03_stone_warden_rear.png",
+      "pixel_sha256": "376df56189b8434c82e9196e0b3675cd2d0397557d994b341d5ef25cb3232cb8"
+    },
+    {
+      "canon_id": "frostglass_lancer_rear",
+      "file": "refs/04_frostglass_lancer_rear.png",
+      "pixel_sha256": "2696061ec5af90b33b9b5ddd878808e384701db0aae12b853caf970d095e228b"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 240,
+  "target_w": null,
+  "view": "creature_rear"
+}

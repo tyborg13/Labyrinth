@@ -14,6 +14,9 @@ The same creature, same camera, turned to face the image's UPPER-RIGHT: we see i
 the hero rear reference. Its body on the viewer's right is still nearer the camera and lower in the image, so the
 shoulder and foot lines still slope DOWN toward the right at about 1 in 2. Identical proportions, colours and
 equipment to the approved front image (the first reference). Limbs separated from the torso by background.
+Left and right swap on screen when the creature turns around: anything held or worn on the viewer's RIGHT in the front
+image is on the viewer's LEFT here, and vice versa (exactly like the hero's sword: viewer-left in front, viewer-right
+from behind). Every item stays on the same side of the creature's own body.
 
 ## beast_front
 A high three-quarter view seen from above (camera about 35 degrees above the floor), the same camera as the references.
@@ -25,7 +28,8 @@ It must NOT face the viewer head-on and must NOT be symmetrical. Legs separated 
 ## beast_rear
 The same creature, same camera, turned so its head points toward the image's UPPER-RIGHT and its hindquarters toward
 the LOWER-LEFT; we see its back and rump. The legs on the viewer's right are still nearer the camera and lower in the
-image. Identical proportions and colours to the approved front image (the first reference).
+image. Identical proportions and colours to the approved front image (the first reference). Any one-sided feature swaps screen
+sides as the body turns, staying on the same side of the creature's own body.
 
 ## object_plinth
 A high three-quarter view seen from above (camera about 35 degrees above the floor), the same camera as the brazier

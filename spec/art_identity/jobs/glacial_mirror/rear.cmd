@@ -1,0 +1,1 @@
+python3 ~/.claude/skills/orchestrate-codex/scripts/codex_unit.py imagegen id-glacial_mirror-creature_rear --prompt-file spec/art_identity/jobs/glacial_mirror/rear/prompt.md --ref spec/art_identity/jobs/glacial_mirror/rear/refs/*.png
