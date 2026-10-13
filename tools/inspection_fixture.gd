@@ -494,7 +494,15 @@ func _run_state_at_depth(initial_state: Dictionary, target_depth: int) -> Dictio
 		if current_depth == target_depth and moves.size() >= required_move_count:
 			return state
 		var destination: Vector2i = INVALID_COORD
+		# Revision-4 maps can lead the first lane past every choice at the
+		# requested depth. Follow a generated route to an actual choice instead.
+		for candidate: Vector2i in moves:
+			if preload("res://tools/inspection_route_rules.gd").reaches_choice(state, candidate, target_depth):
+				destination = candidate
+				break
 		for outward_candidate: Vector2i in moves:
+			if destination != INVALID_COORD:
+				break
 			var destination_depth: int = int(_run_engine.room_metadata(state, outward_candidate).get("depth", 0))
 			if current_depth < target_depth and destination_depth > current_depth:
 				destination = outward_candidate
@@ -531,7 +539,8 @@ func _resolve_route_room(run_state: Dictionary) -> Dictionary:
 			"combat":
 				state = _run_engine.finish_combat(state, _victory_combat_state(state.get("combat_state", {}) as Dictionary))
 			"reward":
-				state = _run_engine.skip_reward_for_heal(state)
+				# Milestone receipts require Continue; healing cannot dismiss them.
+				state = _run_engine.continue_dragon_reward(state) if _run_engine.is_dragon_reward(state) else _run_engine.skip_reward_for_heal(state)
 			RunEngine.MODE_ESCAPE:
 				state = _run_engine.continue_pending_escape(state)
 			"treasure":
@@ -541,6 +550,8 @@ func _resolve_route_room(run_state: Dictionary) -> Dictionary:
 				state = _run_engine.resolve_map_event(state, "continue" if str(state.get("event_state", {}).get("page", "choices")) == "result" else EventRules.first_available_choice_id(state))
 			"campfire":
 				state = _run_engine.leave_campfire(state)
+			"graftwright":
+				state = _run_engine.leave_graftwright(state)
 			_:
 				return state
 	return state
