@@ -1,0 +1,60 @@
+{
+ "doc": "Turn-order portrait crops on the approved front processed.png (255 canvas px): [centre_x, centre_y, square side]. Director data; adjust here after reviewing the portrait contact sheet.",
+ "crops": {
+  "burrow_grub": [
+   66,
+   183,
+   66
+  ],
+  "ember_tick": [
+   88,
+   178,
+   90
+  ],
+  "briar_weaver": [
+   108,
+   95,
+   72
+  ],
+  "slag_mortar": [
+   80,
+   75,
+   84
+  ],
+  "hoarfrost_seer": [
+   125,
+   73,
+   80
+  ],
+  "glacial_mirror": [
+   128,
+   45,
+   90
+  ],
+  "gale_herald": [
+   112,
+   62,
+   72
+  ],
+  "arc_thrall": [
+   95,
+   76,
+   72
+  ],
+  "storm_capacitor": [
+   125,
+   110,
+   100
+  ],
+  "gloam_stalker": [
+   102,
+   80,
+   76
+  ],
+  "hollow_mimic": [
+   127,
+   72,
+   76
+  ]
+ }
+}

@@ -1,0 +1,59 @@
+{
+ "doc": "Approved art-02 sources for art-03 (owner approval 2026-10-13). gust_shrike excluded: its views are being rebuilt from a 3D maquette.",
+ "enemies": {
+  "burrow_grub": {
+   "front": "spec/art_identity/jobs/burrow_grub/front",
+   "art_scale": 0.85,
+   "rear": "spec/art_identity/jobs/burrow_grub/rear"
+  },
+  "ember_tick": {
+   "front": "spec/art_identity/jobs/ember_tick/front",
+   "art_scale": 0.86,
+   "rear": "spec/art_identity/jobs/ember_tick/rear"
+  },
+  "briar_weaver": {
+   "front": "spec/art_identity/jobs/briar_weaver/front",
+   "art_scale": 1.0,
+   "rear": "spec/art_identity/jobs/briar_weaver/rear"
+  },
+  "slag_mortar": {
+   "front": "spec/art_identity/jobs/slag_mortar/front",
+   "art_scale": 1.04,
+   "rear": "spec/art_identity/jobs/slag_mortar/rear_v3"
+  },
+  "hoarfrost_seer": {
+   "front": "spec/art_identity/jobs/hoarfrost_seer/front",
+   "art_scale": 1.0,
+   "rear": "spec/art_identity/jobs/hoarfrost_seer/rear"
+  },
+  "glacial_mirror": {
+   "front": "spec/art_identity/jobs/glacial_mirror/front",
+   "art_scale": 1.0,
+   "rear": "spec/art_identity/jobs/glacial_mirror/rear"
+  },
+  "gale_herald": {
+   "front": "spec/art_identity/jobs/gale_herald/front",
+   "art_scale": 1.0,
+   "rear": "spec/art_identity/jobs/gale_herald/rear"
+  },
+  "arc_thrall": {
+   "front": "spec/art_identity/jobs/arc_thrall/front",
+   "art_scale": 1.0,
+   "rear": "spec/art_identity/jobs/arc_thrall/rear_v2"
+  },
+  "storm_capacitor": {
+   "front": "spec/art_identity/jobs/storm_capacitor/front",
+   "art_scale": 1.0
+  },
+  "gloam_stalker": {
+   "front": "spec/art_identity/jobs/gloam_stalker/front",
+   "art_scale": 1.0,
+   "rear": "spec/art_identity/jobs/gloam_stalker/rear"
+  },
+  "hollow_mimic": {
+   "front": "spec/art_identity/jobs/hollow_mimic/front",
+   "art_scale": 1.0,
+   "rear": "spec/art_identity/jobs/hollow_mimic/rear"
+  }
+ }
+}

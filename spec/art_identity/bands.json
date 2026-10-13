@@ -11,7 +11,8 @@
   "lateral_axis_deg": [
    8,
    40
-  ]
+  ],
+  "edge_light_share_max": 0.06
  },
  "object_plinth": {
   "base_v_left": [
@@ -98,7 +99,12 @@
   "value_normal": [
    0.148,
    0.386
-  ]
+  ],
+  "edge_light_share": [
+   0.0,
+   0.24
+  ],
+  "edge_light_share_note": "median 0.021; glowing-edge canon (brazier flames 0.24, lancer ice 0.12) are objects/legacy"
  },
  "landmarks": {
   "convention": "Canvas px, y down. lateral_axis = [far, near]: the lowest painted pixel under the far-side and near-side foot of the same pair (bipeds: both feet; beasts: the front pair; legged objects: far-left and near-right feet). Annotated by the director on the review sheet.",
@@ -122,5 +128,10 @@
    }
   },
   "facing_rule": "lateral_axis gates FRONT views (and legged objects). Rear feet mix the lateral axis with the stride toward the upper-right (hoarfrost seer rear measures -10 deg while correct), so rear views are judged visually against their approved front."
+ },
+ "rear_consistency": {
+  "chroma_delta_max": 0.03,
+  "value_delta_max": 0.03,
+  "note": "front vs rear of the same creature, processed sprites"
  }
 }
