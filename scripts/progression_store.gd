@@ -1,12 +1,16 @@
 extends RefCounted
 class_name ProgressionStore
 
+const DepthRules = preload("res://scripts/depth_rules.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const ContextualCombatTutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const LegacyCardGrowthRefunds = preload("res://scripts/legacy_card_growth_refunds.gd")
 const RunScoreRules = preload("res://scripts/run_score_rules.gd")
 const BEST_SCORE_KEY: String = "best_score"
+const UMBRA_DEPTH_UNLOCKED_KEY: String = "umbra_depth_unlocked"
+const UMBRA_DEPTH_SELECTED_KEY: String = "umbra_depth_selected"
+const UMBRA_DEPTH_BESTS_KEY: String = "umbra_depth_best_scores"
 
 const SURFACE_RULES_VERSION: int = 5
 
@@ -46,6 +50,8 @@ const BEST_ELIGIBLE_STAT_IDS := [
 	"bosses_defeated"
 ]
 
+static var _session_umbra_depth: int = -1
+static var _session_depth_save_failed: bool = false
 static var _storage_path: String = DEFAULT_STORAGE_PATH
 static var _run_storage_path: String = DEFAULT_RUN_STORAGE_PATH
 
@@ -186,6 +192,10 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 	if not data.has("recovery_marker"):
 		data["recovery_marker"] = {}
 	data[BEST_SCORE_KEY] = maxi(0, int(data.get(BEST_SCORE_KEY, 0)))
+	# Missing Depth fields are zero/empty, preserving legacy state hashes.
+	if data.has(UMBRA_DEPTH_UNLOCKED_KEY): data[UMBRA_DEPTH_UNLOCKED_KEY] = unlocked_umbra_depth(data)
+	if data.has(UMBRA_DEPTH_SELECTED_KEY): data[UMBRA_DEPTH_SELECTED_KEY] = selected_umbra_depth(data)
+	if data.has(UMBRA_DEPTH_BESTS_KEY): data[UMBRA_DEPTH_BESTS_KEY] = depth_best_scores(data)
 	data[RUN_BESTS_KEY] = _normalized_run_metric_map(data.get(RUN_BESTS_KEY, {}), BEST_ELIGIBLE_STAT_IDS)
 	data[LAST_RUN_RESULT_KEY] = _normalized_last_run_result(data.get(LAST_RUN_RESULT_KEY, {}))
 	var completed_results: Array[Dictionary] = _normalized_run_result_ledger(data.get(RUN_RESULT_LEDGER_KEY, []))
@@ -659,7 +669,7 @@ static func record_run_result(data: Dictionary, result_id: String, stats_value: 
 		score_input = (stats_value as Dictionary).get("_score_result", {}) as Dictionary
 	if not run_state.is_empty():
 		var location: Dictionary = RunScoreRules.location(run_state)
-		score_input = {"scored": RunScoreRules.score(run_state, outcome), "killer": RunScoreRules.normalized_stats(run_state.get("run_stats", {}))["killer"], "section": location["section"], "biome": location["biome"], "outcome": outcome, "context": RunScoreRules.analytics_context(run_state)}
+		score_input = {"scored": RunScoreRules.score(run_state, outcome), "killer": RunScoreRules.normalized_stats(run_state.get("run_stats", {}))["killer"], "section": location["section"], "biome": location["biome"], "outcome": outcome, "context": RunScoreRules.analytics_context(run_state), "escaped_noctyrax": RunScoreRules.string_ids(run_state.get("run_stats", {}).get("dragons_slain", [])).has("noctyrax")}
 	if not score_input.is_empty():
 		var scored: Dictionary = score_input["scored"]
 		result["score"] = int(scored["total"])
@@ -671,6 +681,15 @@ static func record_run_result(data: Dictionary, result_id: String, stats_value: 
 		result["outcome"] = score_input["outcome"]
 		result["new_best_score"] = int(result["score"]) > int(next_data[BEST_SCORE_KEY])
 		next_data[BEST_SCORE_KEY] = maxi(int(next_data[BEST_SCORE_KEY]), int(result["score"]))
+		var completed_depth: int = clampi(int(score_input.get("context", {}).get("depth", 0)), 0, DepthRules.MAX_DEPTH)
+		if completed_depth > 0: result[DepthRules.STATE_KEY] = completed_depth
+		var depth_bests: Dictionary = depth_best_scores(next_data)
+		depth_bests[str(completed_depth)] = maxi(int(depth_bests.get(str(completed_depth), 0)), int(result["score"]))
+		next_data[UMBRA_DEPTH_BESTS_KEY] = depth_bests
+		if str(score_input["outcome"]) == "victory" and bool(score_input.get("escaped_noctyrax", false)) and completed_depth == unlocked_umbra_depth(next_data):
+			next_data[UMBRA_DEPTH_UNLOCKED_KEY] = mini(DepthRules.MAX_DEPTH, completed_depth + 1)
+		if completed_depth == DepthRules.MAX_DEPTH and str(score_input["outcome"]) == "victory" and bool(score_input.get("escaped_noctyrax", false)):
+			next_data["umbra_depth_twenty_escaped"] = true
 		# Durable, idempotent outbox follows the existing local JSONL delivery path.
 		next_data = queue_progression_analytics_event(next_data, "run_scored", "%s:run_scored" % safe_result_id, score_input.get("context", {"run_id": safe_result_id}), scored)
 	next_data[RUN_BESTS_KEY] = bests
@@ -683,6 +702,53 @@ static func record_run_result(data: Dictionary, result_id: String, stats_value: 
 
 static func run_bests(data: Dictionary) -> Dictionary:
 	return _normalized_run_metric_map(data.get(RUN_BESTS_KEY, {}), BEST_ELIGIBLE_STAT_IDS)
+
+static func unlocked_umbra_depth(data: Dictionary) -> int:
+	return clampi(int(data.get(UMBRA_DEPTH_UNLOCKED_KEY, 0)), 0, DepthRules.MAX_DEPTH)
+
+static func selected_umbra_depth(data: Dictionary) -> int:
+	return clampi(int(data.get(UMBRA_DEPTH_SELECTED_KEY, 0)), 0, unlocked_umbra_depth(data))
+
+static func session_umbra_depth(data: Dictionary) -> int:
+	return clampi(_session_umbra_depth, 0, unlocked_umbra_depth(data)) if _session_umbra_depth >= 0 else selected_umbra_depth(data)
+
+static func remember_umbra_depth(data: Dictionary, selected: int) -> Dictionary:
+	var next: Dictionary = select_umbra_depth(data, selected)
+	_session_umbra_depth = selected_umbra_depth(next)
+	var saved: bool = save_data(next)
+	if not saved and not _session_depth_save_failed:
+		push_error("Failed to save Umbra Depth selection; keeping it for this session.")
+	_session_depth_save_failed = not saved
+	return next
+
+static func save_new_descent_profile(data: Dictionary) -> bool:
+	var saved: bool = save_data(data)
+	if saved: _session_depth_save_failed = false
+	# Selection persistence is optional; the new run still must be saved by
+	# RunScene before replacing the previous descent.
+	return saved or _session_depth_save_failed
+
+static func select_umbra_depth(data: Dictionary, selected: int) -> Dictionary:
+	var next: Dictionary = normalized_data(data)
+	next[UMBRA_DEPTH_SELECTED_KEY] = clampi(selected, 0, unlocked_umbra_depth(next))
+	return next
+
+static func depth_best_scores(data: Dictionary) -> Dictionary:
+	var result: Dictionary = {}
+	var value: Variant = data.get(UMBRA_DEPTH_BESTS_KEY, {})
+	if value is Dictionary:
+		for key: Variant in value:
+			var id: String = str(key)
+			if id.is_valid_int() and int(id) >= 0 and int(id) <= DepthRules.MAX_DEPTH:
+				result[str(int(id))] = maxi(0, int(value[key]))
+	return result
+
+static func deepest_umbra_escape(data: Dictionary) -> int:
+	# Every unlock is an escape at the immediately preceding maximum.
+	return unlocked_umbra_depth(data) - 1 if unlocked_umbra_depth(data) < DepthRules.MAX_DEPTH else (DepthRules.MAX_DEPTH if _escaped_depth_twenty(data) else DepthRules.MAX_DEPTH - 1)
+
+static func _escaped_depth_twenty(data: Dictionary) -> bool:
+	return bool(data.get("umbra_depth_twenty_escaped", false))
 
 static func last_run_result(data: Dictionary) -> Dictionary:
 	return _normalized_last_run_result(data.get(LAST_RUN_RESULT_KEY, {}))
@@ -718,7 +784,7 @@ static func _normalized_last_run_result(value: Variant) -> Dictionary:
 		var stat_id: String = str(stat_id_var)
 		if BEST_ELIGIBLE_STAT_IDS.has(stat_id) and not new_bests.has(stat_id):
 			new_bests.append(stat_id)
-	return {
+	var result: Dictionary = {
 		"result_id": result_id,
 		"stats": _normalized_run_metric_map(source.get("stats", {}), RUN_RESULT_STAT_IDS),
 		"new_bests": new_bests,
@@ -731,6 +797,8 @@ static func _normalized_last_run_result(value: Variant) -> Dictionary:
 		"outcome": str(source.get("outcome", "")),
 		"new_best_score": bool(source.get("new_best_score", false))
 	}
+	if source.has(DepthRules.STATE_KEY): result[DepthRules.STATE_KEY] = DepthRules.depth(source)
+	return result
 
 static func _score_rows(value: Variant) -> Array[Dictionary]:
 	var result: Array[Dictionary]
@@ -1135,6 +1203,7 @@ static func mark_umbra_warning_seen(data: Dictionary) -> Dictionary:
 
 static func prepare_for_new_run(data: Dictionary) -> Dictionary:
 	var next_data: Dictionary = _normalized_data(data.duplicate(true))
+	if _session_umbra_depth >= 0: next_data[UMBRA_DEPTH_SELECTED_KEY] = session_umbra_depth(next_data)
 	# Tutorial milestones describe one authored encounter. If that run was
 	# abandoned before completion or dismissal, restart the active guide so the
 	# replacement run receives the complete deterministic scenario instead of an

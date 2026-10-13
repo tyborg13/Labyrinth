@@ -3,6 +3,7 @@ class_name SectionMapGraph
 
 # Coordinates retain the existing four-depth difficulty bands. Screen placement
 # and connectivity are authored independently; a coordinate is a persistent id.
+const DepthRules = preload("res://scripts/depth_rules.gd")
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
 const Elements = preload("res://scripts/element_data.gd")
 const VERSION: int = 1
@@ -72,7 +73,7 @@ static func initialize(state: Dictionary) -> void:
 			layout = _walk_layout(rng, count)
 			_prepare_types(layout, seed_value, index, count)
 			var repair: Dictionary = {"remaining": TYPE_REPAIR_LIMIT}
-			if _repair_types(layout, rng, count, FIGHT_COUNTS[index] - 1, 0, repair): break
+			if _repair_types(layout, rng, count, FIGHT_COUNTS[index] - 1, 0, repair, state): break
 			layout = {}
 		if layout.is_empty():
 			layout = _fallback_layout(count, FIGHT_COUNTS[index] - 1)
@@ -231,7 +232,7 @@ static func _prepare_types(layout: Dictionary, seed_value: int, index: int, coun
 
 # Weighted first rolls, then weighted re-rolls of offending assignments. Prefix
 # bounds summarize EVERY incoming route, including paths created by merges.
-static func _repair_types(layout: Dictionary, rng: RandomNumberGenerator, count: int, fights: int, position: int, budget: Dictionary) -> bool:
+static func _repair_types(layout: Dictionary, rng: RandomNumberGenerator, count: int, fights: int, position: int, budget: Dictionary, depth_state: Dictionary = {}) -> bool:
 	if int(budget["remaining"]) <= 0: return false
 	if position == layout["order"].size(): return _complete_types_legal(layout, count, fights)
 	var cell: Vector2i = layout["order"][position]
@@ -241,6 +242,7 @@ static func _repair_types(layout: Dictionary, rng: RandomNumberGenerator, count:
 		candidates.append(node["type"])
 	else:
 		var weights: Dictionary = TYPE_WEIGHTS.duplicate()
+		weights["guardian"] = DepthRules.guardian_weight(depth_state, int(weights["guardian"]))
 		while not weights.is_empty():
 			var type: String = _weighted_roll(rng, weights)
 			candidates.append(type)
@@ -249,7 +251,7 @@ static func _repair_types(layout: Dictionary, rng: RandomNumberGenerator, count:
 		budget["remaining"] = int(budget["remaining"]) - 1
 		node["type"] = type
 		_prefix_bounds(layout, cell)
-		if _prefix_type_legal(layout, cell, count, fights) and _repair_types(layout, rng, count, fights, position + 1, budget): return true
+		if _prefix_type_legal(layout, cell, count, fights) and _repair_types(layout, rng, count, fights, position + 1, budget, depth_state): return true
 		if int(budget["remaining"]) <= 0: break
 	if not bool(node["fixed"]): node["type"] = ""
 	return false

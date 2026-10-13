@@ -8,6 +8,7 @@ signal controller_context_changed
 signal item_hovered(merchant_kind: String, item_id: String, source: Control)
 signal item_unhovered(merchant_kind: String, item_id: String, source: Control)
 
+const DepthRules = preload("res://scripts/depth_rules.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const Glyphs = preload("res://scripts/ui_glyph_preparation.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
@@ -245,7 +246,7 @@ func present_sale(item_id: String, origin: Rect2) -> void:
 
 func _present_trade(item_id: String, origin: Rect2, selling: bool) -> void:
 	if not visible or _purchase_effects == null or origin.size.x <= 0.0 or origin.size.y <= 0.0: return
-	var amount: int = int(_run_engine.call("merchant_sell_value" if selling else "merchant_buy_cost", MERCHANT_KIND, item_id))
+	var amount: int = _item_price(item_id, selling)
 	_show_receipt(item_id, amount, selling)
 	var effect := ScavengerTradeEffect.new()
 	effect.name = ("MerchantSale_" if selling else "MerchantAcquisition_") + item_id
@@ -806,7 +807,7 @@ func _refresh_offer_price(source: Control, item_id: String, selling: bool) -> vo
 	source.tooltip_text = _offer_tooltip(item_id, selling, affordable)
 	source.set_meta("shop_affordable", affordable)
 	var old: Control = source.find_child("ScavengerPriceTag", true, false) as Control
-	var amount: int = int(_run_engine.call("merchant_sell_value" if selling else "merchant_buy_cost", MERCHANT_KIND, item_id))
+	var amount: int = _item_price(item_id, selling)
 	if old != null and (old.get("amount") != amount or old.get("affordable") != affordable or old.get("selling") != selling):
 		var parent: Node = old.get_parent()
 		var index: int = old.get_index()
@@ -1109,12 +1110,16 @@ func _add_centered_button_content(button: Button, content: Control) -> void:
 	button.add_child(center)
 	center.add_child(content)
 
+func _item_price(item_id: String, selling: bool) -> int:
+	if selling: return int(_run_engine.call("merchant_sell_value", MERCHANT_KIND, item_id))
+	return DepthRules.shop_price(_run_state, int(_run_engine.call("merchant_buy_cost", MERCHANT_KIND, item_id)))
+
 func _price_tag(item_id: String, selling: bool) -> Control:
 	var tag := PriceTag.new()
 	tag.name = "ScavengerPriceTag"
 	tag.custom_minimum_size = Vector2(118.0, 60.0)
 	tag.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	tag.amount = int(_run_engine.call("merchant_sell_value" if selling else "merchant_buy_cost", MERCHANT_KIND, item_id))
+	tag.amount = _item_price(item_id, selling)
 	tag.selling = selling
 	tag.affordable = _offer_is_affordable(item_id, selling)
 	return tag
@@ -1122,11 +1127,11 @@ func _price_tag(item_id: String, selling: bool) -> Control:
 func _offer_is_affordable(item_id: String, selling: bool) -> bool:
 	if selling or _run_engine == null:
 		return true
-	var cost: int = int(_run_engine.call("merchant_buy_cost", MERCHANT_KIND, item_id))
+	var cost: int = _item_price(item_id, false)
 	return int(_run_engine.call("held_embers", _run_state)) >= cost
 
 func _offer_tooltip(item_id: String, selling: bool, affordable: bool) -> String:
-	var amount: int = int(_run_engine.call("merchant_sell_value", MERCHANT_KIND, item_id) if selling else _run_engine.call("merchant_buy_cost", MERCHANT_KIND, item_id))
+	var amount: int = _item_price(item_id, selling)
 	if selling:
 		return "%s\nSell value: %d embers" % [_item_name(item_id), amount]
 	if affordable:
@@ -1232,7 +1237,7 @@ func _sync_detail() -> void:
 	_detail_panel.show()
 	var item_id: String = _selected_item_id
 	var kind: String = str(_run_engine.call("merchant_item_kind", item_id))
-	var amount: int = int(_run_engine.call("merchant_sell_value", MERCHANT_KIND, item_id) if _selected_is_sell else _run_engine.call("merchant_buy_cost", MERCHANT_KIND, item_id))
+	var amount: int = _item_price(item_id, _selected_is_sell)
 	var held: int = int(_run_engine.call("held_embers", _run_state))
 	var affordable: bool = _selected_is_sell or held >= amount
 	_detail_title.text = _item_name(item_id)

@@ -1,6 +1,7 @@
 extends RefCounted
 class_name CombatEngine
 
+const DepthRules = preload("res://scripts/depth_rules.gd")
 const OmenRules = preload("res://scripts/omen_rules.gd")
 
 const DragonTrophyRules = preload("res://scripts/dragon_trophy_rules.gd")
@@ -296,7 +297,7 @@ func effective_umbra_radius(state: Dictionary) -> int:
 	if base_radius >= UMBRA_UNLIMITED_RADIUS:
 		return UMBRA_UNLIMITED_RADIUS
 	var umbra: Dictionary = state.get("umbra", {}) as Dictionary
-	return base_radius + maxi(0, int(umbra.get("vision_bonus", 0)))
+	return DepthRules.sight_radius(state, stage_id, int(state.get("section_index", (maxi(1, int(state.get("room_depth", 1))) - 1) / DEPTHS_PER_SEQUENCE)), base_radius + maxi(0, int(umbra.get("vision_bonus", 0))))
 
 func umbra_visible_tiles(state: Dictionary) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
@@ -910,6 +911,10 @@ func begin_combat_creation(run_seed: int, room_layout: Dictionary, player_snapsh
 		"rng_state": rng.state,
 		"log": []
 	}
+	if DepthRules.depth(room_layout) > 0:
+		state[DepthRules.STATE_KEY] = DepthRules.depth(room_layout)
+		state["section_index"] = int(room_layout.get("section_index", (maxi(1, int(room_layout.get("depth", 1))) - 1) / DEPTHS_PER_SEQUENCE))
+		state["deck"]["fatigue_base"] = FATIGUE_BASE_DAMAGE + DepthRules.amount(state, "fatigue_base_delta")
 	SurfaceRelicRules.configure(state)
 	state = _apply_start_combat_relic_effects(state, player_snapshot)
 	state = CommonRelicRules.start_combat(self, state)
@@ -4594,6 +4599,7 @@ func _damage_enemy(state: Dictionary, enemy_index: int, damage: int, apply_freez
 		var bonus_card_plays: int = 1 if credit and not bool(enemy.get("summoned", false)) else 0
 		BoardSurfaceRules.record_event(next_state, {"kind": "actor_death", "actor_kind": "enemy", "id": int(enemy.get("id", -1)), "actor_key": _enemy_key(enemy), "source_kind": str(context.get("source_kind", "direct_attack")), "unit": enemy.duplicate(true), "player_card": credit, "source": context.duplicate(true)})
 		reward_embers = OmenRules.ember_drop(next_state, reward_embers)
+		if DepthRules.enemy_class(enemy) == "dragon": reward_embers = DepthRules.dragon_embers(next_state, reward_embers)
 		next_state["room_embers"] = int(next_state.get("room_embers", 0)) + reward_embers
 		_record_score_wallet_max(next_state)
 		next_state["death_bonus_card_plays_this_turn"] = int(next_state.get("death_bonus_card_plays_this_turn", 0)) + bonus_card_plays
@@ -5273,6 +5279,7 @@ func _turn_order_projection_context(state: Dictionary, visible_lookup: Dictionar
 			ENEMY_MIN_INITIATIVE,
 			_enemy_definition_base_initiative(state, definition) - depth_bonus
 		)
+		base_initiative = DepthRules.enemy_initiative(state, enemy, base_initiative)
 		var visible: bool = int(enemy.get("hp", 0)) > 0 and (
 			bool(definition.get("boss_bar", false))
 			or player_has_truesight
@@ -5707,7 +5714,7 @@ func _enemy_base_initiative(state: Dictionary, enemy: Dictionary) -> int:
 	var base: int = _enemy_definition_base_initiative(state, definition)
 	var depth: int = maxi(1, int(state.get("room_depth", 1)))
 	var depth_bonus: int = mini(4, int((depth - 1) / 3))
-	return maxi(ENEMY_MIN_INITIATIVE, base - depth_bonus)
+	return DepthRules.enemy_initiative(state, enemy, maxi(ENEMY_MIN_INITIATIVE, base - depth_bonus))
 
 func _enemy_intent_time_cost(intent: Dictionary) -> int:
 	if intent.has("time"):
@@ -8073,6 +8080,11 @@ func _spawned_enemy_entry(state: Dictionary, enemy_type: String, enemy_id: int, 
 		"block": 0,
 		"stoneskin": 0
 	}
+	if DepthRules.depth(state) > 0:
+		var guardian: Dictionary = preload("res://scripts/guardian_library.gd").for_guardian(str(state.get("guardian_id", "")))
+		if summoned and (guardian.get("helpers", []) as Array).has(enemy_type): spawned["guardian_helper"] = true
+		spawned["max_hp"] = DepthRules.enemy_hp(state, spawned, max_hp)
+		spawned["hp"] = spawned["max_hp"]
 	return _normalized_enemy(spawned)
 
 func _schedule_enemy_after_spawn(state: Dictionary, enemy: Dictionary, spawn_order: int, wait_for_player: bool = false) -> void:
@@ -8438,7 +8450,7 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		return
 	var intents: Array = _scaled_enemy_intents(
 		definition.get("intents", []),
-		int(state.get("room_depth", 1))
+		int(state.get("room_depth", 1)), state, enemy
 	)
 	if bool(definition.get("dragon_cycle", false)) and not intents.is_empty():
 		enemies[enemy_index] = enemy
@@ -8523,7 +8535,7 @@ func enemy_tactical_intent_options(state: Dictionary, enemy_index: int) -> Array
 	var definition: Dictionary = GameData.enemy_def(str(enemy.get("type", "")))
 	var intents: Array = _scaled_enemy_intents(
 		definition.get("intents", []),
-		int(state.get("room_depth", 1))
+		int(state.get("room_depth", 1)), state, enemy
 	)
 	var available: Array = []
 	for intent_var: Variant in intents:
@@ -8862,22 +8874,22 @@ func _dragon_intent_available(state: Dictionary, enemy: Dictionary, intent: Dict
 			return int((state.get("umbra", {}) as Dictionary).get("boss_eclipse_activations", 0)) <= 0
 	return true
 
-func _scaled_enemy_intents(base_intents: Array, room_depth: int) -> Array:
+func _scaled_enemy_intents(base_intents: Array, room_depth: int, depth_state: Dictionary = {}, enemy: Dictionary = {}) -> Array:
 	var intents: Array = []
 	for intent_var: Variant in base_intents:
 		if typeof(intent_var) != TYPE_DICTIONARY:
 			continue
-		intents.append(_scale_enemy_intent(intent_var as Dictionary, room_depth))
+		intents.append(_scale_enemy_intent(intent_var as Dictionary, room_depth, depth_state, enemy))
 	return intents
 
-func _scale_enemy_intent(base_intent: Dictionary, room_depth: int) -> Dictionary:
+func _scale_enemy_intent(base_intent: Dictionary, room_depth: int, depth_state: Dictionary = {}, enemy: Dictionary = {}) -> Dictionary:
 	var intent: Dictionary = base_intent.duplicate(true)
 	var actions: Array = []
 	for action_var: Variant in base_intent.get("actions", []):
 		if typeof(action_var) != TYPE_DICTIONARY:
 			continue
 		var action: Dictionary = (action_var as Dictionary).duplicate(true)
-		actions.append(_scale_enemy_action_for_depth(action, room_depth))
+		actions.append(DepthRules.damaging_action(depth_state, enemy, _scale_enemy_action_for_depth(action, room_depth)))
 	intent["actions"] = actions
 	return intent
 
@@ -12025,7 +12037,7 @@ func refresh_surface_enemy_definitions(state: Dictionary) -> Dictionary:
 	var enemies: Array = state.get("enemies", [])
 	for index: int in range(enemies.size()):
 		var enemy: Dictionary = _normalized_enemy(enemies[index] as Dictionary)
-		var intents: Array = _scaled_enemy_intents(GameData.enemy_def(str(enemy.get("type", ""))).get("intents", []), int(state.get("room_depth", 1)))
+		var intents: Array = _scaled_enemy_intents(GameData.enemy_def(str(enemy.get("type", ""))).get("intents", []), int(state.get("room_depth", 1)), state, enemy)
 		var refreshed: Dictionary = _intent_by_id(intents, str((enemy.get("intent", {}) as Dictionary).get("id", "")))
 		if refreshed.is_empty() and not intents.is_empty():
 			refreshed = intents[0]
