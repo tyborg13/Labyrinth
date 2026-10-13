@@ -19,17 +19,14 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
 ## In flight (2026-10-13 11:45)
-- rr-01 (crawler rig recolour): committed b0bcbcb88 + sync 4c7ff2d1a after the director's windowed rebake/probes (all PASS).
-- rr-02 gaoler maquette pilot: judge PASS (rounds 3–4) on front v3 (edited raw + oxblood tabard, region-masked tone)
-  + rear v5 (materials edit → helm-only edit → polish edit); sheet `jobs/chainbound_gaoler/sheet_pair_mq_v5.png`; owner
-  comparison `output/peer-benchmark-2026-10-12/identity_gate/chainbound_gaoler_maquette_compare.png` — awaiting owner.
-  Known residue for rr-02 implementation: rear boots pinker/lighter, rear belt + chain-arm wraps more orange than the
-  front → fix deterministically with a per-part palette match driven by the maquette label maps (not by re-prompting).
-- rr-01 fix round 2 running (peer review: test-enforced replay check + in-place refusal, README rewrite, density
-  report regen, registry derivation/metrics notes, calibration fixtures instead of git history, portrait from builder,
-  shadow cache cleanup). Feedback: spec/peer_benchmark/feedback/rr-01_feedback_2.md.
-- Gust shrike perched repaint (mq2): judge PASS round 2; owner comparison
-  `output/peer-benchmark-2026-10-12/identity_gate/gust_shrike_perched_compare.png` — awaiting owner verdict.
+- rr-01 merged 7c770a7ec (+ fa0351491); integration suite PASS (694 s), Python 388 OK. Follow-up noted: 17 other enemy
+  turn-order portraits are crops of pre-density art (`build_turn_order_assets.gd --verify-only` fails on them) — a
+  portrait rebuild unit after the roster waves.
+- rr-02 gaoler: owner 2026-10-13 "quite boxy" (angle/proportions/style approved). Maquette r3 (rounded tapered helm,
+  hunch, sloped shoulders, flared coat, rounded boots; framed at drawn size K=4, art_scale 1.0) → front r3 painted
+  (`jobs/chainbound_gaoler/mq3_front`), scoped edit (shadow-side coat tail, boots) running; process with
+  `--match-front mq_front_v3/processed.png --clean-outline` (pulls palette to the approved ash), judge, then rear.
+- art-04 running: integrate the owner-approved perched shrike + canon flyer reference.
 - Watchdog: `scratchpad/watch_loop2.sh` (tracked background job).
 
 ## Next actions
