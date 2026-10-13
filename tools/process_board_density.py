@@ -9,7 +9,6 @@ import json
 import math
 import shutil
 import struct
-import subprocess
 import sys
 from pathlib import Path
 
@@ -58,10 +57,12 @@ def recorded_calibration(entry: dict) -> dict | None:
     """Only the director-approved crawler exception may use historical paint.
 
     Palette treatment changes RGB-distance orphan metrics, not the October 7
-    density decision. Bind its original measurement sources to a fixed Git
-    commit and decoded digests; a note alone must not bypass the grid rule.
+    density decision. Bind its original measurement fixtures to decoded digests;
+    the commit is provenance text, not a dependency on historical Git objects.
     """
     if not any(field in entry for field in CALIBRATION_FIELDS):
+        if entry.get("id") == "crawler" and entry.get("kind") == "rig":
+            raise ValueError("crawler calibration fixtures and annotation are required")
         return None
     if entry["id"] != "crawler" or entry.get("kind") != "rig":
         raise ValueError("pre-recolour calibration is reserved for the rr-01 crawler")
@@ -71,8 +72,8 @@ def recorded_calibration(entry: dict) -> dict | None:
     if not isinstance(note, str) or not note.strip():
         raise ValueError("crawler calibration_note must record the director decision")
     baseline = entry.get("calibration_baseline")
-    if not isinstance(baseline, dict) or set(baseline) != {"commit", "pixel_sha256"}:
-        raise ValueError("crawler calibration requires a fixed baseline and measurement digests")
+    if not isinstance(baseline, dict) or set(baseline) != {"commit", "paths", "pixel_sha256"}:
+        raise ValueError("crawler calibration requires fixture paths and measurement digests")
     commit, digests = baseline["commit"], baseline["pixel_sha256"]
     if not isinstance(commit, str) or len(commit) != 40 or any(c not in "0123456789abcdef" for c in commit):
         raise ValueError("crawler calibration baseline must be a full Git commit")
@@ -82,8 +83,14 @@ def recorded_calibration(entry: dict) -> dict | None:
     measurements = {settings["measurement_path"] for settings in facings.values()}
     if not isinstance(digests, dict) or set(digests) != measurements:
         raise ValueError("crawler calibration digests must cover exactly its measurement paths")
+    paths = baseline["paths"]
+    if not isinstance(paths, dict) or set(paths) != measurements:
+        raise ValueError("crawler calibration fixtures must cover exactly its measurement paths")
     for path, digest in digests.items():
         repo_path(path)
+        if not isinstance(paths[path], str):
+            raise ValueError("invalid crawler calibration fixture path: " + path)
+        repo_path(paths[path])
         if not isinstance(digest, str) or len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
             raise ValueError("invalid crawler calibration pixel digest: " + path)
     return baseline
@@ -94,14 +101,10 @@ def calibration_sample(entry: dict, settings: dict) -> Image.Image:
     path = settings["measurement_path"]
     if baseline is None:
         return sample(SOURCES / path, entry["frames"])
-    source_path = (SOURCES / path).relative_to(ROOT).as_posix()
-    repo_path(source_path)
-    try:
-        result = subprocess.run(["git", "show", baseline["commit"] + ":" + source_path],
-                                cwd=ROOT, check=True, capture_output=True)
-    except subprocess.CalledProcessError as exc:
-        raise ValueError("cannot read crawler calibration baseline: " + source_path) from exc
-    with Image.open(io.BytesIO(result.stdout)) as original:
+    fixture = repo_path(baseline["paths"][path])
+    if not fixture.is_file():
+        raise ValueError("crawler calibration fixture missing: " + str(fixture))
+    with Image.open(fixture) as original:
         if pixel_digest(original) != baseline["pixel_sha256"].get(path):
             raise ValueError("crawler calibration baseline pixel digest changed: " + path)
         image = original.convert("RGBA")

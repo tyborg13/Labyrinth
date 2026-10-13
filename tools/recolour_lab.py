@@ -11,6 +11,7 @@ import argparse
 import io
 import json
 import math
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -25,6 +26,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CRAWLER_L_SCALE = 0.76
 CRAWLER_AB_SCALE = 0.85
 CRAWLER_REASON = "legacy audit 2026-10-13: palette"
+CRAWLER_METRICS_NOTE = "Adoption metrics are pre-recolour by design."
 CRAWLER_DIRECT_PATHS = (
     "assets/placeholders/units/crawler_anime_trial.png",
     "assets/placeholders/units/crawler_anime_trial_idle.png",
@@ -75,9 +77,20 @@ def palette(image: Image.Image) -> dict:
             "chroma": float((rgb.max(-1) - rgb.min(-1)).mean())}
 
 
-def process_files(paths: list[Path], l_scale: float, ab_scale: float, in_place: bool) -> None:
+def protected_crawler_path(path: Path) -> bool:
+    resolved = path.resolve()
+    return (resolved in {(ROOT / p).resolve() for p in CRAWLER_DIRECT_PATHS}
+            or resolved.is_relative_to((density.SOURCES / "assets/units/crawler_cutout").resolve()))
+
+
+def process_files(paths: list[Path], l_scale: float, ab_scale: float, in_place: bool,
+                  force_rerecolour: bool = False) -> None:
     if len(set(path.resolve() for path in paths)) != len(paths):
         raise ValueError("duplicate input file (would apply the transform twice)")
+    if in_place and not force_rerecolour:
+        for path in paths:
+            if protected_crawler_path(path):
+                raise ValueError("already recoloured crawler path; refusing a second pass without --force-rerecolour: " + str(path))
     # Validate the complete batch before overwriting any file. Process one image
     # at a time afterwards so large idle sheets do not multiply peak memory.
     for path in paths:
@@ -116,6 +129,32 @@ def crawler_step() -> dict:
             "ab_scale": CRAWLER_AB_SCALE, "reason": CRAWLER_REASON}
 
 
+def crawler_derivation() -> list[dict]:
+    return [dict(crawler_step(), target="crawler density sources"),
+            {"step": "density_regrid", "grid": 1.73},
+            {"step": "native_rest_rebake", "tool": "tools/rebake_cutout_rests.gd"}]
+
+
+def crawler_portrait_crop() -> Image.Image:
+    """Read the director-owned size/focus from the builder, then replay its blit.
+
+    This is a 1:1 crop with transparent padding, not a rescale or another Lab
+    pass. The builder remains the authority for source, focus and canvas size.
+    """
+    code = (ROOT / "tools/build_turn_order_assets.gd").read_text()
+    size_match = re.search(r"const PORTRAIT_SIZE\s*:=\s*(\d+)", code)
+    row_match = re.search(r'\{\s*"key"\s*:\s*"crawler"[^}]+\}', code)
+    if size_match is None or row_match is None:
+        raise ValueError("cannot read crawler portrait crop from the builder")
+    source_match = re.search(r'"source"\s*:\s*"res://([^"]+)"', row_match[0])
+    focus_match = re.search(r'"focus"\s*:\s*Vector2i\(\s*(-?\d+)\s*,\s*(-?\d+)\s*\)', row_match[0])
+    if source_match is None or focus_match is None:
+        raise ValueError("cannot read crawler portrait source/focus from the builder")
+    size = int(size_match[1])
+    x, y = int(focus_match[1]) - size // 2, int(focus_match[2]) - size // 2
+    return read_rgba(gate.repo_path(ROOT, source_match[1])).crop((x, y, x + size, y + size))
+
+
 def crawler_inputs(commit: str) -> tuple[dict, dict]:
     registry_path = "spec/assets/board_pixel_density/registry.json"
     registry = density.load_registry()
@@ -139,6 +178,10 @@ def crawler_inputs(commit: str) -> tuple[dict, dict]:
         if not density.same_pixels(ROOT / source_path, expected):
             raise ValueError("source does not replay recolour_lab: " + source_path)
     for path in CRAWLER_DIRECT_PATHS:
+        if path == CRAWLER_DIRECT_PATHS[2]:
+            if not density.same_pixels(ROOT / path, crawler_portrait_crop()):
+                raise ValueError("crawler portrait differs from the builder's current-rest crop")
+            continue
         if not (ROOT / path).exists() and path.endswith("_idle.png"):
             if subprocess.run(["git", "cat-file", "-e", commit + ":" + path], cwd=ROOT,
                               capture_output=True).returncode != 0:
@@ -192,21 +235,33 @@ def crawler_registry(commit: str, paint_only: bool, record: bool) -> None:
         old_digest = gate.pixel_digest(baseline_image(commit, path))
         if old_digest != previous["pixel_sha256"] or previous["entry_kind"] != "legacy":
             raise ValueError("previous legacy digest does not bind its baseline source: " + path)
-        protected = {k: v for k, v in current.items() if k not in ("pixel_sha256", "post_steps", "recolour_baseline")}
+        protected = {k: v for k, v in current.items() if k not in (
+            "pixel_sha256", "post_steps", "derivation", "metrics_note", "recolour_baseline")}
         if protected != {k: v for k, v in previous.items() if k != "pixel_sha256"}:
             raise ValueError("legacy adoption fields changed: " + path)
         provenance = {"commit": commit, "pixel_sha256": old_digest}
         digest = gate.pixel_digest(read_rgba(ROOT / path))
         if record:
-            current.update(pixel_sha256=digest, post_steps=[crawler_step()], recolour_baseline=provenance)
-        elif (current.get("post_steps") != [crawler_step()] or current.get("recolour_baseline") != provenance
-              or current["pixel_sha256"] != digest):
-            raise ValueError("legacy recolour provenance/digest mismatch: " + path)
+            current.update(pixel_sha256=digest, recolour_baseline=provenance, metrics_note=CRAWLER_METRICS_NOTE)
+            if path in rests:
+                current.pop("post_steps", None)
+                current["derivation"] = crawler_derivation()
+            else:
+                current.pop("derivation", None)
+                current["post_steps"] = [crawler_step()]
+        else:
+            if path in rests:
+                valid_chain = current.get("derivation") == crawler_derivation() and "post_steps" not in current
+            else:
+                valid_chain = current.get("post_steps") == [crawler_step()] and "derivation" not in current
+            if (not valid_chain or current.get("metrics_note") != CRAWLER_METRICS_NOTE
+                    or current.get("recolour_baseline") != provenance or current["pixel_sha256"] != digest):
+                raise ValueError("legacy recolour provenance/digest mismatch: " + path)
     if record:
         # Preserve every other enemy and the original adoption metrics byte values.
-        (ROOT / registry_path).write_text(json.dumps(registry, indent=2) + "\n")
+        gate.write_json(ROOT / registry_path, registry)
     print("CRAWLER RECOLOUR %s: PASS (%s; baseline %s)" %
-          ("RECORD" if record else "CHECK", "paint only; native rests pending" if paint_only else "paint and native rest records", commit))
+          ("RECORD" if record else "CHECK", "paint only; native rests unchecked" if paint_only else "paint and native rest records", commit))
 
 
 def prepare_proof(commit: str) -> None:
@@ -219,8 +274,6 @@ def prepare_proof(commit: str) -> None:
     proof = {"baseline_commit": commit, "paths": list(paths), "before_dir": PROOF_BEFORE_DIR,
              "before_pixels": {p: gate.pixel_digest(baseline_image(commit, p)) for p in paths}}
     (ROOT / PROOF_BEFORE_DIR / "manifest.json").write_text(json.dumps(proof, indent=2) + "\n")
-    (ROOT / PROOF_BEFORE_DIR / "unit_shadow_cache.res").write_bytes(
-        baseline_bytes(commit, "assets/generated/unit_shadow_cache.res"))
     print("CRAWLER RECOLOUR PROOF BASELINES: " + PROOF_BEFORE_DIR)
 
 
@@ -229,17 +282,19 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--l-scale", type=float)
     parser.add_argument("--ab-scale", type=float)
     parser.add_argument("--in-place", action="store_true")
+    parser.add_argument("--force-rerecolour", action="store_true", help="explicitly allow another pass on protected crawler paint")
     action = parser.add_mutually_exclusive_group()
     action.add_argument("--check-crawler", action="store_true")
     action.add_argument("--record-crawler", action="store_true")
     action.add_argument("--prepare-proof", action="store_true")
     parser.add_argument("--baseline-ref", help="fixed previous commit; never infer a new adoption baseline")
-    parser.add_argument("--paint-only", action="store_true", help="check/register paint while native rests are pending")
+    parser.add_argument("--paint-only", action="store_true", help="check/register paint without native rest verification")
     parser.add_argument("files", nargs="*", type=Path)
     args = parser.parse_args(argv)
     pipeline = args.check_crawler or args.record_crawler or args.prepare_proof
     if pipeline:
-        if not args.baseline_ref or args.files or args.in_place or args.l_scale is not None or args.ab_scale is not None:
+        if (not args.baseline_ref or args.files or args.in_place or args.force_rerecolour
+                or args.l_scale is not None or args.ab_scale is not None):
             parser.error("crawler actions require --baseline-ref and do not accept file-transform options")
         if args.prepare_proof and args.paint_only:
             parser.error("--paint-only is for crawler check/record")
@@ -253,7 +308,9 @@ def main(argv: list[str] | None = None) -> int:
             parser.error("supply --l-scale, --ab-scale and FILES (dry run unless --in-place)")
         if args.baseline_ref or args.paint_only:
             parser.error("--baseline-ref / --paint-only require a crawler action")
-        process_files(args.files, args.l_scale, args.ab_scale, args.in_place)
+        if args.force_rerecolour and not args.in_place:
+            parser.error("--force-rerecolour requires --in-place")
+        process_files(args.files, args.l_scale, args.ab_scale, args.in_place, args.force_rerecolour)
     return 0
 
 

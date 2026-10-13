@@ -6,6 +6,7 @@ import io
 import json
 from pathlib import Path
 import runpy
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -24,6 +25,7 @@ FIXTURE_SIDE = 23
 FIXTURE_COMMIT = "a" * 40
 FIXTURE_PIXELS = ((181, 142, 110, 255), (140, 110, 83, 128), (4, 250, 90, 1), (11, 221, 39, 0))
 FIXTURE_RECOLOURED_PIXEL = (137, 105, 80, 255)
+CRAWLER_BASELINE = "2cf00ab4ece2f27a590f0bde5d5fb2fecacbd283"
 
 
 class RecolourLabTests(unittest.TestCase):
@@ -100,6 +102,33 @@ class RecolourLabTests(unittest.TestCase):
             self.assertEqual(tool.main(["--in-place", *args]), 0)
         self.assertEqual(tool.read_rgba(path).getpixel((0, 0)), FIXTURE_RECOLOURED_PIXEL)
 
+    def test_real_repo_crawler_replay(self):
+        result = subprocess.run([sys.executable, str(ROOT / "tools/recolour_lab.py"), "--check-crawler",
+                                 "--baseline-ref", CRAWLER_BASELINE], cwd=ROOT, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("CRAWLER RECOLOUR CHECK: PASS", result.stdout)
+
+    def test_real_crawler_direct_and_source_paths_refuse_second_pass(self):
+        paths = [ROOT / p for p in tool.CRAWLER_DIRECT_PATHS]
+        paths.append(tool.density.SOURCES / "assets/units/crawler_cutout/front/body.png")
+        for path in paths:
+            with self.subTest(path=path):
+                before = path.read_bytes()
+                with self.assertRaisesRegex(ValueError, "already recoloured crawler path"):
+                    tool.main(["--in-place", "--l-scale", "0.76", "--ab-scale", "0.85", str(path)])
+                self.assertEqual(path.read_bytes(), before)
+
+    def test_force_override_is_explicit_and_only_exercised_on_fixture(self):
+        path = self.temp / tool.CRAWLER_DIRECT_PATHS[0]
+        path.parent.mkdir(parents=True)
+        Image.new("RGBA", (2, 2), FIXTURE_PIXELS[0]).save(path)
+        args = ["--in-place", "--l-scale", "0.76", "--ab-scale", "0.85", str(path)]
+        with patch.object(tool, "ROOT", self.temp), contextlib.redirect_stdout(io.StringIO()):
+            with self.assertRaisesRegex(ValueError, "already recoloured"):
+                tool.main(args)
+            self.assertEqual(tool.main(["--force-rerecolour", *args]), 0)
+        self.assertEqual(tool.read_rgba(path).getpixel((0, 0)), FIXTURE_RECOLOURED_PIXEL)
+
     def test_source_replay_and_density_derivation_reject_unrecorded_edits(self):
         entry = {"id": "crawler", "paths": ["paint/body.png"], "mode": "regrid", "grid": 1.73,
                  "frames": None, "measurement_path": "paint/rest.png",
@@ -121,6 +150,7 @@ class RecolourLabTests(unittest.TestCase):
              patch.multiple(tool.density, ROOT=self.temp, SOURCES=sources, MANIFEST=manifest_path), \
              patch.object(tool.density, "load_registry", return_value=registry), \
              patch.object(tool, "baseline_bytes", return_value=json.dumps(registry).encode()), \
+             patch.object(tool, "crawler_portrait_crop", return_value=tool.recolour(before, 0.76, 0.85)), \
              patch.object(tool, "baseline_image", return_value=before):
             output, record = tool.density.derive(entry, entry["paths"][0])
             path = self.temp / entry["paths"][0]
@@ -184,15 +214,27 @@ class RecolourLabTests(unittest.TestCase):
             self.assertEqual(recorded["entries"][-1], old["entries"][-1])
             self.assertEqual(recorded["entries"][0]["metrics"], old["entries"][0]["metrics"])
             for current in recorded["entries"][:-1]:
-                self.assertEqual(current["post_steps"], [tool.crawler_step()])
+                if current["path"] == tool.CRAWLER_DIRECT_PATHS[0]:
+                    self.assertEqual(current["post_steps"], [tool.crawler_step()])
+                    self.assertNotIn("derivation", current)
+                else:
+                    self.assertEqual(current["derivation"], tool.crawler_derivation())
+                    self.assertNotIn("post_steps", current)
+                self.assertEqual(current["metrics_note"], tool.CRAWLER_METRICS_NOTE)
                 self.assertEqual(current["recolour_baseline"]["pixel_sha256"], tool.gate.pixel_digest(before))
             for field, value in (("post_steps", []), ("pixel_sha256", "invented"),
-                                 ("recolour_baseline", {"commit": "other"}), ("metrics", {"value": 1})):
+                                 ("recolour_baseline", {"commit": "other"}), ("metrics", {"value": 1}),
+                                 ("metrics_note", "invented"), ("derivation", [])):
                 modified = copy.deepcopy(recorded)
                 modified["entries"][0][field] = value
                 path.write_text(json.dumps(modified))
                 with self.assertRaises(ValueError):
                     tool.crawler_registry(FIXTURE_COMMIT, False, False)
+            modified = copy.deepcopy(recorded)
+            modified["entries"][1]["post_steps"] = [tool.crawler_step()]
+            path.write_text(json.dumps(modified))
+            with self.assertRaisesRegex(ValueError, "provenance/digest mismatch"):
+                tool.crawler_registry(FIXTURE_COMMIT, False, False)
 
     def test_record_refuses_stale_rests_before_registry_write(self):
         path, old, before, entry = self.registry_fixture()

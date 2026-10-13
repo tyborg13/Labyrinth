@@ -1,6 +1,7 @@
 # Board pixel-density report
 
 Native calibration uses each facing's untouched rest or the first prop frame.
+Recorded pre-recolour calibration uses its bound historical source; paint metrics use current sources.
 Before/after are means over the first frame of each registered paint path.
 After derives from sources in memory; native rest/visual proof is separate.
 Screen-pixel ratios are relative to the hero on each axis: r_axis/scale_axis = 1.0;
@@ -11,8 +12,8 @@ integer frame-size rounding can differ slightly from that ideal ratio.
 | Hero front (untouched reference) | 1 | — | — | reference | 1.000 → 1.000 | 1.000 → 1.000 | 7.30% / 2.321 | 7.30% / 2.321 | 7.30% / 2.321 | 2.321 → 2.321 |
 | warden / front | 1.180000 | 1.5000 | 1.27 | regrid | 1.180 → 1.180 | 1.180 → 1.180 | 17.25% / 1.613 | 23.83% / 1.507 | 8.03% / 1.999 | 1.779 → 2.359 |
 | warden / rear | 1.180000 | 1.5000 | 1.27 | regrid | 1.180 → 1.180 | 1.180 → 1.180 | 18.06% / 1.716 | 22.38% / 1.604 | 5.50% / 2.152 | 1.893 → 2.539 |
-| crawler / front | 0.640000 | 1.1068 | 1.73 | regrid | 0.640 → 0.640 | 0.640 → 0.640 | 7.14% / 2.110 | 10.93% / 2.264 | 7.59% / 2.779 | 1.449 → 1.778 |
-| crawler / rear | 0.640000 | 1.1102 | 1.73 | regrid | 0.640 → 0.640 | 0.640 → 0.640 | 7.20% / 2.084 | 8.55% / 2.192 | 2.98% / 2.898 | 1.403 → 1.855 |
+| crawler / front | 0.640000 | 1.1068 | 1.73 | regrid | 0.640 → 0.640 | 0.640 → 0.640 | 7.14% / 2.110 | 7.93% / 2.584 | 6.28% / 3.228 | 1.654 → 2.066 |
+| crawler / rear | 0.640000 | 1.1102 | 1.73 | regrid | 0.640 → 0.640 | 0.640 → 0.640 | 7.20% / 2.084 | 6.14% / 2.492 | 2.26% / 3.346 | 1.595 → 2.141 |
 | acolyte / front | 1.000000 | 1.0005 | 1.00 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 5.01% / 2.359 | 11.10% / 2.271 | 7.01% / 2.378 | 2.271 → 2.378 |
 | acolyte / rear | 1.000000 | 1.0000 | 1.00 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 2.54% / 2.542 | 5.61% / 2.496 | 3.46% / 2.567 | 2.496 → 2.567 |
 | bile_bloomer / front | 0.860000 | 1.5000 | 1.74 | regrid | 0.860 → 0.860 | 0.860 → 0.860 | 35.69% / 1.334 | 38.15% / 1.293 | 6.20% / 2.304 | 1.112 → 1.981 |

@@ -542,6 +542,10 @@
         "pixel_sha256": {
           "assets/units/crawler_cutout/front/rest.png": "d4ee90e15fe3a39866a79bbc2bb3c2cb01dca78e3eeb350d6333c26baa36a15c",
           "assets/units/crawler_cutout/rear/rest.png": "9eec2a123bf45fa2317fb51180e40d1fb09b2fe63fcd4751088939d816f9f034"
+        },
+        "paths": {
+          "assets/units/crawler_cutout/front/rest.png": "spec/assets/board_pixel_density/calibration/crawler_front_pre_recolour.png",
+          "assets/units/crawler_cutout/rear/rest.png": "spec/assets/board_pixel_density/calibration/crawler_rear_pre_recolour.png"
         }
       }
     },

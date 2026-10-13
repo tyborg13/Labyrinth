@@ -290,9 +290,20 @@ class BoardPixelDensityTest(unittest.TestCase):
             invalid = copy.deepcopy(entry)
             del invalid[field]
             self.assertTrue(tool.calibration_errors([invalid]), field)
+        invalid = {k: v for k, v in entry.items() if k not in tool.CALIBRATION_FIELDS}
+        self.assertTrue(tool.calibration_errors([invalid]))
         invalid = copy.deepcopy(entry)
         invalid["id"] = "other"
         self.assertTrue(tool.calibration_errors([invalid]))
+
+    def test_calibration_fixtures_fail_closed_without_git_history(self) -> None:
+        entry = copy.deepcopy(self.entries["crawler"])
+        entry["calibration_baseline"]["commit"] = "f" * 40 # Provenance only; no historical object is needed.
+        with mock.patch("subprocess.run", side_effect=AssertionError("density calibration must not call Git")):
+            self.assertEqual(tool.calibration_errors([entry]), [])
+        front = entry["facings"]["front"]["measurement_path"]
+        entry["calibration_baseline"]["paths"][front] += ".missing"
+        self.assertIn("fixture missing", "\n".join(tool.calibration_errors([entry])))
 
     def test_density_check_refuses_incorrect_calibration_evidence(self) -> None:
         registry = copy.deepcopy(self.registry)
