@@ -18,6 +18,11 @@ Beasts and objects likewise use heavy, simple masses. Thin, realistic anatomy re
 Muted, dark, desaturated dark-fantasy palette like the references. Values are mostly dark and mid-dark: no large area is
 lighter than the hero's face; skin, bone and cloth are dusky, never pale, tan or bright. Light from the upper left.
 Exactly ONE clear accent colour, used sparingly.
+Paint like the references, not flat cartoon shading: every big mass has three or four value steps with warm brown-tinted
+shadows, a little worn texture and grime inside the big shapes. Avoid flat neutral grey as a main colour (grey skin is
+grey-brown and mottled); cool colours belong only to ice, steel or the accent.
+Gaunt or wretched creatures stay gaunt in character, but are still drawn with bold shapes: big head, big hands and
+feet, limbs at least 3 blocks thick. Chunky does not mean muscular.
 
 ## Background
 Perfectly flat opaque chroma green #00FF00 (RGB 0,255,0) on every background pixel, including gaps between limbs.
