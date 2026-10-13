@@ -1,0 +1,45 @@
+{
+  "K": 3,
+  "anatomy": "biped",
+  "id": "chainbound_gaoler",
+  "job_id": "mq-gaoler-rear",
+  "kind": "creature",
+  "kit_version": "d81394b630032720e2c06e9da405386c80dd2fbaae450b0f231085780f171263",
+  "method": "maquette paint-over (rr-02 pilot): spec/art_identity/maquettes/humanoid.py + chainbound_gaoler/spec.json r2",
+  "peers": [
+    "slag_mortar_front",
+    "glacial_mirror_front"
+  ],
+  "prompt_path": "../../../maquettes/chainbound_gaoler/prompt_rear.md",
+  "prompt_sha256": "e08c4cfbf5d09a9f5f4b372a645d691251819e7aa9e3e591ec5aa53af2b9eef8",
+  "refs": [
+    {
+      "canon_id": "maquette_rear_parts",
+      "file": "/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/020b9ac4-7b92-4113-a7d2-bc6e802828dd/scratchpad/maquette/gaoler/r2/rear_parts_green.png",
+      "pixel_sha256": "70aa5b598c2be4ca58ac36f70068d88538e70a8d36b5ba354ce6d934c223a99c"
+    },
+    {
+      "canon_id": "maquette_rear_clay",
+      "file": "/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/020b9ac4-7b92-4113-a7d2-bc6e802828dd/scratchpad/maquette/gaoler/r2/rear_clay_green.png",
+      "pixel_sha256": "8d6f5ea806227525dcf76075a4b06384ddcc61ad6d477c1557e82539b1e7fe21"
+    },
+    {
+      "canon_id": "identity_old_gaoler_front",
+      "file": "/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/020b9ac4-7b92-4113-a7d2-bc6e802828dd/scratchpad/maquette/gaoler/r2/identity_old_gaoler_front_x3.png",
+      "pixel_sha256": "eab81f51d024ba5e15bf36aa6b2b82f208b890628170ccd38641f7a0b1fff88c"
+    },
+    {
+      "canon_id": "slag_mortar_front",
+      "file": "/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/020b9ac4-7b92-4113-a7d2-bc6e802828dd/scratchpad/maquette/gaoler/r2/peer_slag_mortar_x3.png",
+      "pixel_sha256": "8e54da7e93a228bc39bd87d57fb83ae4eb7617d0c595820e599f59ca8966b71b"
+    },
+    {
+      "canon_id": "hero_front",
+      "file": "/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/020b9ac4-7b92-4113-a7d2-bc6e802828dd/scratchpad/maquette/gaoler/r2/hero_x3.png",
+      "pixel_sha256": "2200c5a6ec962369292f32359fd7ed11f2ae7055d5dec74eae971ba4e7526317"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 241,
+  "view": "creature_rear"
+}
