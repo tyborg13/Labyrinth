@@ -23,10 +23,12 @@
 | en-02 | Hoarfrost Seer + Gale Herald | merged (merge after e5c36d24d~1; commit 00d710d9f + sync 494e73676); encounters ba3dcd2d1 | codex/peer-benchmark@8290eb183 | |
 | en-03 | Arc Thrall + Gloam Stalker | merged bc63d4b36 (commit 7a74e6d6b + sync 872f9647a); encounters 96926ac30 | codex/peer-benchmark@8290eb183 | |
 | en-04..06 | Wave E2 mechanics (briar weaver, slag mortar, glacial mirror, gust shrike, storm capacitor, hollow mimic) | design (data staged/enemies/wave_e2.json; art approved except briar weaver r1) | — | briefs after E1 lands |
-| qa-01 | Program test wiring + native combat-feel determinism | merged 5d0419efc (commit 1e5cdbe47); r1 running: combat-feel probe SubViewport capture + native timings | — | reviewer nits; native heavy-hit offsets failure |
+| qa-01 | Program test wiring + native combat-feel determinism | merged 5d0419efc (commit 1e5cdbe47); r1 merged 325ace5ca (commit 4761ff859; 3/3 native passes, measurements recorded) | — | reviewer nits; native heavy-hit offsets failure |
 | fix-02 | run_seconds out of combat state (combat_feel regression from meta-01) | merged 0d54a5970 (commit 13ffa4a8a; director adapted live-clock test) | codex/peer-benchmark | brief briefs/fix-02.md |
 | ux-01 | Owner UX backlog (start room → map, threats-at-rest redesign, SFX limiter) | merged a0855abec (commit 5f80cf506; r1 hint placement) | — | backlog_ux.md |
 | en-04 | Briar Weaver + Slag Mortar | fixing r1 (painted bramble prop) | — | briefs/en-04.md |
-| en-05 | Glacial Mirror + Gust Shrike | ready (after en-02 merges) | — | briefs/en-05.md |
-| en-06 | Storm Capacitor + Hollow Mimic | fixing r1 (integer numbers + 4 decisions) | — | briefs/en-06.md |
-| itb-03 | Threats at rest v2 (owner direction) | running | codex/peer-benchmark | brief briefs/itb-03.md |
+| en-05 | Glacial Mirror + Gust Shrike | review (r0 done; 5 TODO_DESIGN decided: dive right-hand push, hero not pushed, blocked landing stops short, two tooltips) | — | briefs/en-05.md |
+| en-06 | Storm Capacitor + Hollow Mimic | review (r1 done; probe pending) | — | briefs/en-06.md |
+| itb-03 | Threats at rest v2 (owner direction) | review (r0 done; probe pending) | codex/peer-benchmark | brief briefs/itb-03.md |
+| art-01 | Visual identity gate tooling (measure/kit/process/sheet/check, registry, bestiary lineup probe) | running | codex/peer-benchmark@f7773b175 | spec/visual_identity_gate.md, briefs/art-01.md |
+| art-02 | Re-art of the 12 section enemies through the identity kit (front+rear, judge, owner sheets) | design (pilots running; subjects staged/reart/) | — | staged/reart/plan.json |
