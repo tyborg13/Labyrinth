@@ -1,0 +1,63 @@
+{
+  "K": 3,
+  "drawn_size": [
+    173,
+    240
+  ],
+  "fit_scale": 0.963855421686747,
+  "k_eff": 3.0,
+  "metrics": {
+    "chroma": 0.1155157458710237,
+    "edge_light_share": 0.0,
+    "feature_px": 5.853010503899928,
+    "height": 240,
+    "height_drawn": 240.0,
+    "orphan_share": 0.07001705286387802,
+    "regions": 582,
+    "run_length": 2.4746183442968848,
+    "symmetry": 0.5259439707673569,
+    "thin_abs": 0.007423011335138896,
+    "thin_rel": 0.08742100511585915,
+    "value": 0.17192326958669915,
+    "width": 173
+  },
+  "pixel_sha256": "0c74e303caab05baf884b38fdf1c78797aed4135171fc601b8acfef69ca7f05d",
+  "placement": [
+    42,
+    6
+  ],
+  "post_steps": [
+    {
+      "parameters": {
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "green_residue_margin": 20,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "fbddbcbc9bcbb1b077b316d53b1299f6c30c277084f07033b9c9f95b567fbf21",
+      "reference": "spec/art_identity/jobs/chainbound_gaoler/mq_front_v3/processed.png",
+      "reference_pixel_sha256": "b7b04decbdc6a435f7d761104d7867642ec12431b107dc9ed355b469f70fd6f4",
+      "step": "palette_match"
+    },
+    {
+      "parameters": {
+        "max_luminance": 0.2,
+        "neighbours": 4,
+        "remove_isolated": true,
+        "tone": [
+          20,
+          16,
+          21
+        ]
+      },
+      "pre_step_pixel_sha256": "7907afec511adadf691a57da0e27ac98ae2599440575b953e0e031dc7b502120",
+      "step": "clean_outline"
+    }
+  ],
+  "raw_sha256": "c50b8aab0d53101143cb9f0130a503cb45065e301995514d9165fe4995d2268b",
+  "shift": [
+    0,
+    0
+  ]
+}
