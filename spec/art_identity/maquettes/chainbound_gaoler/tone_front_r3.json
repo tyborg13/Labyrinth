@@ -1,0 +1,6 @@
+[
+ {"name": "tabard sigil -> muted bone (judge r5 blocking fix)", "box": [410, 555, 480, 690], "seed": null,
+  "min_lum": 0.38, "max_lum": 1.0, "min_chroma": 0.0, "hue_deg": null, "lab_scale": [0.5, 0.8, 0.8]},
+ {"name": "chain links -> dark iron (judge r5 polish: links echoed the hook)", "box": [80, 280, 215, 566], "seed": null,
+  "min_lum": 0.0, "max_lum": 1.0, "min_chroma": 0.0, "hue_deg": null, "lab_scale": [0.82, 0.6, 0.6]}
+]

@@ -2161,112 +2161,112 @@
     "facing": "rear"
   },
   "assets/units/crawler_cutout/front/arm_far.png": {
-    "pixel_sha256": "e5883d178adaa47912faf178bb490575359a18a156b084b9dfd4399833145c57",
-    "source_pixel_sha256": "1a3f77327dbc9cd3a58efd32dfdd5775c14fcb8a0f8d8b5113fb40814e870244",
+    "pixel_sha256": "7cb7d89be1969df9e4152af5587a5fc5073bb17c21def3880fc15cd796548cc0",
+    "source_pixel_sha256": "023252d8ae1bed1f0df1b07b1fc0fc0e8def8e2dfd482f1d92dde20d8acd9c2b",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "front"
   },
   "assets/units/crawler_cutout/front/arm_fill_far.png": {
-    "pixel_sha256": "53385ae3f3da62655bf7cf2e5235b1e875dd361b420dfb31bebb024808fc5a1c",
-    "source_pixel_sha256": "468a11e25b082464503b2ca0bd238d9a34ce3cd47fa25ccb9666940d60fa46e7",
+    "pixel_sha256": "922f143c726dd009138aca5659044db59ccb0fdf7ee9dd99e99d3017d6fbd2c1",
+    "source_pixel_sha256": "4874d0cc2802a00d5e7b5b5e70d4838f18b93018a16ce112357d6edc273fbc6f",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "front"
   },
   "assets/units/crawler_cutout/front/arm_fill_near.png": {
-    "pixel_sha256": "3509754fa687a7c98033e4f3ec6d209654d66bbc3f6d8dfaaa878e48b4291bcb",
-    "source_pixel_sha256": "cc6cc08e0285ceaf1da1bb9b5f1d2f1c0615e571acb4ed817263b564668d892f",
+    "pixel_sha256": "99c97502ee932d41111781da9dab3bbfe6f48959afba8edee05ab7f1a723c254",
+    "source_pixel_sha256": "d9d2f6aa51437e2327065b019f55de3667859b087a3dd593b4522fc6c7ce29f1",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "front"
   },
   "assets/units/crawler_cutout/front/arm_near.png": {
-    "pixel_sha256": "67f6939e1a26d4d50daf708629ba3561fc1e57118e9a39209799bbc300be9a9d",
-    "source_pixel_sha256": "5dc8688310678f6ef56a68203241e0102eb9ccd02f809d5b89d6aa67b9e422e8",
+    "pixel_sha256": "251b6e40a64aff91e568fb70022a7017562e3b8afb09fb2be3fc06be91130739",
+    "source_pixel_sha256": "ccf810e70acd39270b5dc52f372fa1dede63b69e42a35a1fbaadcbe93787b7d8",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "front"
   },
   "assets/units/crawler_cutout/front/body.png": {
-    "pixel_sha256": "5d3d0bc6e444691460e488c013dd2e8d4b892454bb08052a5a8213917ce37720",
-    "source_pixel_sha256": "c8aa978926ecaadfe383a7e162729c5e13999e3c3db272ed89b7326cf2951c0c",
+    "pixel_sha256": "d8e09972b6f3c00337a27b12672747c6055ae032dd61b86ebe2918a0f7e34aed",
+    "source_pixel_sha256": "75f997e06a457a10b4f8d8ce48ec5c304672913e2afa57e37febeacf9becd4ad",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "front"
   },
   "assets/units/crawler_cutout/front/claw_far.png": {
-    "pixel_sha256": "eabec4c1142631eeec0d3bd4cc7722da04b066ffb63200cfe06b8eefbd347246",
-    "source_pixel_sha256": "2e699fef76d5dff4c74e32ad77ebd27a6bd49d3cba1a32509123b3dae899df9d",
+    "pixel_sha256": "dbe5d19e5029594edb80955bf32fd143255ebdde3ff3ee52128c8f3215490887",
+    "source_pixel_sha256": "24f9e4146b42323ad553579edda83315bcd8419a9269a0f6d1ca9bddc715bc61",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "front"
   },
   "assets/units/crawler_cutout/front/claw_near.png": {
-    "pixel_sha256": "e62fe705f0f020f07acc12108c085b0b4ac78f040f8bad1e7f1e5498d5237ea8",
-    "source_pixel_sha256": "61b848c466aa8a47f453abb89695d960a0698adf1d57b0ae891c9f5dece2e49a",
+    "pixel_sha256": "fbbaf89301dc74f907dffebba98f2fb45ac2c9247f6e35a05d268d67f07ae584",
+    "source_pixel_sha256": "87cae69dbf396e36a84758a1f774148a53a7833db4bdbcb853337ca8a99d16ed",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "front"
   },
   "assets/units/crawler_cutout/front/foot_far.png": {
-    "pixel_sha256": "2f649295e2e94f1fd8a83a8463b1f818644b8354f990d3a21a4ddf3c1cc26147",
-    "source_pixel_sha256": "3be6a1fe0e3ed1127b5331f4a8e0397068606fb44a1f531130ae549c3563c9f1",
+    "pixel_sha256": "ad341425b8771274f904ce535d97d1a98d0fe49b0a63d44c122bd1c463639918",
+    "source_pixel_sha256": "51408123f42cb482a420f86f0aa5964629ccd923538e9a57aa8a4f457bbd436f",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "front"
   },
   "assets/units/crawler_cutout/front/foot_near.png": {
-    "pixel_sha256": "3a3b02b939df1b305a727ed1220818dd174051469ae41f8b17d49b6dc2f4712d",
-    "source_pixel_sha256": "c5144dda32a6ed550ae7d85624e875c85c765ae779871c9b33ffb8a3058de07d",
+    "pixel_sha256": "51bc2e8b44a7c624137d95ba67994724a0569c1c2073720b69ec16e78d98951b",
+    "source_pixel_sha256": "52e5c47861d60092db92208518dc8b6d0d0ab64efd307ba9d1c706e007b06469",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "front"
   },
   "assets/units/crawler_cutout/front/head.png": {
-    "pixel_sha256": "6ae23d3528f577949c14d2a3191de88f6055c9615f4b86fd57dc399bf2185a63",
-    "source_pixel_sha256": "073364a6e2c25cf7a990155a84bd4c155f452e4ee32f6c1c4af1849cadd93e94",
+    "pixel_sha256": "ba6b16f704cf63c45d15feb494aef0c55e6dcee3e6fb6c5e08de251f1c5ae87c",
+    "source_pixel_sha256": "1a4708e0b2e676b5eb6f0a766d6244e1c878d4e7e827415271b9b5d05b70184d",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "front"
   },
   "assets/units/crawler_cutout/front/leg_far.png": {
-    "pixel_sha256": "9026275efda1475b39724d47dc38642dfb9ec271a39d8a4669c193996f31dd90",
-    "source_pixel_sha256": "53918bf12f2546946b19d79231dc4249f36e223e0d1a169658cce986103c93b6",
+    "pixel_sha256": "09ae9ef90af928c8ab0ae60d8f28c201a01d26c89ff81796199761bf558cbba0",
+    "source_pixel_sha256": "8dcb5536be84be7105976da53255549a433fb4c68b8df11e52cb932e1470236c",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "front"
   },
   "assets/units/crawler_cutout/front/leg_fill_far.png": {
-    "pixel_sha256": "c03875ddad9f81529b5460b049c784df22658a9e2f18f74a8b0ddb6b0f1e96ec",
-    "source_pixel_sha256": "639c9ef70e742928fa54e2d70da439cee18d751db1678ec167038b96e664e687",
+    "pixel_sha256": "58d3eb122d15a4a10152fede4d6aa814b6b42e179ca7c3dc3294be05ce6c4981",
+    "source_pixel_sha256": "abf0bf2baf80d9f19b5e4d15cd2bae4dc2dbd67a9d4bb88b2825a4e21b4785a7",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "front"
   },
   "assets/units/crawler_cutout/front/leg_fill_near.png": {
-    "pixel_sha256": "68b042db991821e9db63530018ad318a0de11ad599e2a35f2e40aa2c3afead35",
-    "source_pixel_sha256": "11c0de2546971657e2da1253f2f4720d4fd642eb7253397b9c6bdf49256b7993",
+    "pixel_sha256": "7e9e02c6a5e0f2435c33d5d95511aed45c6b8f1565c935899e9ba716d3fe192a",
+    "source_pixel_sha256": "03319c68f933fd21119c19f8a8e4acefe35d4ff082c187e5bce4b59d23b208f9",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "front"
   },
   "assets/units/crawler_cutout/front/leg_near.png": {
-    "pixel_sha256": "1c65031fcf5ce7e1af07704aef04c873f6e9f0288e927e25e153ee25f7e8875f",
-    "source_pixel_sha256": "f3411760049a4552eed945f6c8a5d0b3706ecc95bd3f19a6aa258f7ccaa0857c",
+    "pixel_sha256": "0441ce3d7fc713feb07de5a2d05827dc706ab92fac908e7cc0d83e8db3875747",
+    "source_pixel_sha256": "4ec373423358e5ad18f72b0e5bdccb756bfad33effb29d58ef193bba37efc723",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
@@ -2275,124 +2275,124 @@
   "assets/units/crawler_cutout/front/rest.png": {
     "kind": "rest",
     "id": "crawler",
-    "pixel_sha256": "9b8184e88f7ac621b3609c24111cf22d79e9c2af49b0a6c7f7b4a9665fe0f14a",
-    "parts_pixel_sha256": "c3dba3bbd06bddb6813ad4a4997e690c6a85984718e643d4998e15677c16bcce"
+    "pixel_sha256": "eb9eb2f34ceea96607f142cf00b88d322307451dc156f11d733c2daf4a406e2f",
+    "parts_pixel_sha256": "2b4643c08e0e70d00e8539824f025558efd8c0b533ce91f87bfe6411ea947b72"
   },
   "assets/units/crawler_cutout/front/shoulder_pocket.png": {
-    "pixel_sha256": "2c3735ff4e09a33a0cf9399cfe80f65fcf9ae681c6bbd90a42b52ed241687935",
-    "source_pixel_sha256": "289a390fbe00d31e6659dfcf9235d932048bb790173ddf3c4979371084fcff7b",
+    "pixel_sha256": "e5eaca5473facdf23c9f18d279e5687d15ff439be2839872b8ba07829f77ee03",
+    "source_pixel_sha256": "a237ae68f2298734bdb9e297599f63988e5380d3a21c8c1fe3cd1668831c2e6e",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "front"
   },
   "assets/units/crawler_cutout/rear/arm_far.png": {
-    "pixel_sha256": "6fb43f05e73e5b7d58ffe8fb0115af1b1bde6184b4cbca3b3f0ed7baf7d72124",
-    "source_pixel_sha256": "2a47104b343592ba9a9c90208b3c0a00c99449c57baeb35847b8367037895647",
+    "pixel_sha256": "3c4c8a1fd7283060d9d4083e226f5aef03fcb7fe74c027b4c3c6582d8f777e27",
+    "source_pixel_sha256": "a9195d9e702289803e5cfe514adace910563412d8e235b45302fd2ead9568575",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "rear"
   },
   "assets/units/crawler_cutout/rear/arm_fill_far.png": {
-    "pixel_sha256": "c590a7953d9644d28a2dc721b777fefaee812f389bb924d76399ccf3e6b7af3b",
-    "source_pixel_sha256": "e9114e8259a61557437ac70dcd039efb1173d2fd6c9fb5eb1910b8ab28d9cd8a",
+    "pixel_sha256": "8a9127c6e0c50c9fbdab0e3c27b23e464eb7a442ad32ba26b353f633b89c5aa8",
+    "source_pixel_sha256": "f7b637e30eec2a103640cd09bbed6dedcad22c2752d6334b0180429dd0a82eca",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "rear"
   },
   "assets/units/crawler_cutout/rear/arm_fill_near.png": {
-    "pixel_sha256": "d5dca830ab849094d26bae0bc2ead4cd92d376b14c7171c8b6f770445ee0ccc3",
-    "source_pixel_sha256": "87056b4eaa8699f34fcc51f530d0295ea5b90ef230a80dfccf6056c679d0a9e0",
+    "pixel_sha256": "3463fd2d7a9b8f9b90f72b3dfcf1807c2ae734061065b49944d24042b5d59a43",
+    "source_pixel_sha256": "a8ef364cbf16d81bf06e27ff355e159bc064f35755132454baae4092365ba041",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "rear"
   },
   "assets/units/crawler_cutout/rear/arm_near.png": {
-    "pixel_sha256": "5376a683c6f79c28c4159cc8085452bc6adde7604edcd460e875db8d2dccf4ce",
-    "source_pixel_sha256": "71d9e81b45f326aa961f61ac7f6a889f3ec94c626a2508946f0f1034a446ddbc",
+    "pixel_sha256": "a94459dcf8861c5335f293fbdfcdba46761ec68ffb80690d4ea3f17a4698af18",
+    "source_pixel_sha256": "042eeab0c887a2937ca97461e0d48bf92861ce44ea62c3d7a9764193202984b7",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "rear"
   },
   "assets/units/crawler_cutout/rear/body.png": {
-    "pixel_sha256": "588058a360df101d2ec4cd9b46070b7f51abfa786310cd180eb3b546ffc6a9a7",
-    "source_pixel_sha256": "0b1135141a3f8d226b91cef6ade98d6abb4c1a410e92dca0826a6a6d2833164f",
+    "pixel_sha256": "59cf987a3e9530fd6774d34230db5efd4b569c324b0a4bb6dae3004945bc3225",
+    "source_pixel_sha256": "2f10c73faf95524a03e04041cc0b69f8839c145386b632f995d5be0e8440c7b3",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "rear"
   },
   "assets/units/crawler_cutout/rear/claw_far.png": {
-    "pixel_sha256": "a8dc78ee90b14a5082288e8dec2fbb4fe6cfd92bc40bf28e64bbe2aca88ecd9d",
-    "source_pixel_sha256": "2e9bec296ae908a1dd6da5b6a9ee55cefdd684488026ee4fe09377b92be73207",
+    "pixel_sha256": "564528b95f8dd5dc6a466b94f18af25b2bc250e0b163970feef8c29a0ca7ed3f",
+    "source_pixel_sha256": "95d20c7f7e8bec05aebc598d8b16444a5f4c4e626f7a2dd0414b45a0cec0a70d",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "rear"
   },
   "assets/units/crawler_cutout/rear/claw_near.png": {
-    "pixel_sha256": "8b5023832d1917bc43a9aa07aac275cb63e3a7b28f20cada3849d5410989b09d",
-    "source_pixel_sha256": "f4be14f657f31a03304f5338b5f5dc1b5263bbd21edbaecb6ad075959446d86b",
+    "pixel_sha256": "b6180d2c9d435ad3083576cb17cdd7da8c92615002c5ef00d9bc41a25b6c0ef2",
+    "source_pixel_sha256": "92aadfdd9009e3a9d212a955971a99ded9926d65f627726cc7648e09385dd0a6",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "rear"
   },
   "assets/units/crawler_cutout/rear/foot_far.png": {
-    "pixel_sha256": "6b482cc5db54fce8fc22a0adb3f92afe2423b51be5eadeda4301ae449c975aa9",
-    "source_pixel_sha256": "6efd9dbc1fe9c0f8d08b7569e7ab80e714f18a4d373701586d48b0d7fac6c52c",
+    "pixel_sha256": "e1f1b0d60b6b51ccb9a868cad0abed9a6eaaaabfa7e3f18e888c06aea3f629fc",
+    "source_pixel_sha256": "e608d54362361dd05762137fd8dafc3c122a34b32e98a11a49be96d8f25b85bf",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "rear"
   },
   "assets/units/crawler_cutout/rear/foot_near.png": {
-    "pixel_sha256": "1a8fd3c2ddbb931570c8b629351766bc446bda13992e691e0676d228e78dc3e9",
-    "source_pixel_sha256": "33753b96dd45b3f65d37907d48702031eb040cefbc47f860c0d8549cfd23f207",
+    "pixel_sha256": "1f1fdb958e97ec80e904b509ee4e15133b5e4129ee512a9021a9148ec3641732",
+    "source_pixel_sha256": "36faca399551690a076e20fe62f31d7f84b90678c012ec2e5dd73981abffee55",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "rear"
   },
   "assets/units/crawler_cutout/rear/head.png": {
-    "pixel_sha256": "c6512dd6927de1c9be4665c8df657eb497a01f124334415e46cbd4652677a247",
-    "source_pixel_sha256": "fc41ffc3c00dc9bc58d9cdd0538361e77f605250282cf6a57d8125569d6e5281",
+    "pixel_sha256": "750e505e08067b243c4b083e119c70184a6cf30b7c6b1e5fca9d14f9ee42890f",
+    "source_pixel_sha256": "691645b69d508df1eed26c2be10b3a9c54ed4c0583ff19156a97141037e09bd0",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "rear"
   },
   "assets/units/crawler_cutout/rear/leg_far.png": {
-    "pixel_sha256": "195984b2a499df9b58a1db8fc9a278e202a2b98b5a3a202c70ae8281d23fefc2",
-    "source_pixel_sha256": "1c9b074e6fc13d8646809d13e5b04c3a25b7e2b1254444f4469ffd5eb00b4f5a",
+    "pixel_sha256": "226e4194e4bbed8a4378fa97d0b0d24502b083c1503b8a3bca3b4393300ed298",
+    "source_pixel_sha256": "6072cffc66c112c7d4df2a8b43c3fd16afeafe67a9ab09cd574d8131dec0ea14",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "rear"
   },
   "assets/units/crawler_cutout/rear/leg_fill_far.png": {
-    "pixel_sha256": "35082332989a73544a16a072073a5059677c24639dd87f0f7565338844c79ad7",
-    "source_pixel_sha256": "aa91c8f5b875207ae4a8d54630f6c1ca2936419804763d2769557d69a14db09a",
+    "pixel_sha256": "c8935aa76e4b683aec2ebe399be5c22c493bd6075c1830714e4f6efb77ac9d5e",
+    "source_pixel_sha256": "6f1221a4b9da63d970a54003b429690b92dfeb56121b5c9448e2b3f7f66dd28e",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "rear"
   },
   "assets/units/crawler_cutout/rear/leg_fill_near.png": {
-    "pixel_sha256": "f8540dc96d3911b06478a34d7e5c2b13142d682b77862a306763fab7f35f6937",
-    "source_pixel_sha256": "4d1ef3b596e913b55cadf82df77bf1315cb2a71e39ba527c736c6fcb0607f4ba",
+    "pixel_sha256": "c1a15678e0a9d1f8b0341a2d9876db1d80122cdd8fb5d3e0246d52bae940319e",
+    "source_pixel_sha256": "e3c107b78a0c5755d3a70ab23abef5286016e09c87e77f587ad7047f4e36fc2e",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
     "facing": "rear"
   },
   "assets/units/crawler_cutout/rear/leg_near.png": {
-    "pixel_sha256": "4a84f00afba34e8fc128a1489cd094399f654d21deb49872b12aca4c5700e8b1",
-    "source_pixel_sha256": "9d95d840c487ecbe1e3678d3df28105af08c816f2dda0aab2b6ebbbddd282cb5",
+    "pixel_sha256": "b5b7a706420e5ffdb93b99a9cb04003135a197a5bd723e748397dd6a988bf01c",
+    "source_pixel_sha256": "9b5e3b7ff8090f3ce64d3ff54949dc411b66009fce430b8e52c63628074d671d",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,
@@ -2401,12 +2401,12 @@
   "assets/units/crawler_cutout/rear/rest.png": {
     "kind": "rest",
     "id": "crawler",
-    "pixel_sha256": "121d28ed57bc907634edd9af6086f9e3220693c7820a6cf2af2777661fc9614b",
-    "parts_pixel_sha256": "c3dba3bbd06bddb6813ad4a4997e690c6a85984718e643d4998e15677c16bcce"
+    "pixel_sha256": "93a15338f642d7fca1479584b5d7ef5062d337a58bdec23c680f3365d122f39a",
+    "parts_pixel_sha256": "2b4643c08e0e70d00e8539824f025558efd8c0b533ce91f87bfe6411ea947b72"
   },
   "assets/units/crawler_cutout/rear/shoulder_pocket.png": {
-    "pixel_sha256": "e8a381890196828cff49adac6b222a464bc09ea692cacc5058c01f606b16ff02",
-    "source_pixel_sha256": "62cd7d65d5ac9e97c5bbcfd57ecb647e2b8bb0c645484f3c7fb0d34c487a379e",
+    "pixel_sha256": "f6934a472512099e2cf4d31ceebe9e083f3e7ef1fef0dee6e6b6c157d7908c93",
+    "source_pixel_sha256": "de7703abb535211aa9801168d4cbedebff9739de691b4edca0eae9ba35ea9b77",
     "id": "crawler",
     "mode": "regrid",
     "grid": 1.73,

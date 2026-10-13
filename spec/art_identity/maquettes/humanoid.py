@@ -29,10 +29,12 @@ def capsule(part, a, b, r1, r2=None):
         bpy.ops.mesh.primitive_uv_sphere_add(segments=20, ring_count=10, radius=r, location=p); own(bpy.context.object, part)
 def ellipsoid(part, c, s, rot=(0, 0, 0)):
     bpy.ops.mesh.primitive_uv_sphere_add(segments=24, ring_count=12, location=c, rotation=rot); o = bpy.context.object; o.scale = s; own(o, part)
-def box(part, c, s, rot=(0, 0, 0), bevel=0.0):
+def box(part, c, s, rot=(0, 0, 0), bevel=0.0, taper=1.0):
     bpy.ops.mesh.primitive_cube_add(location=c, rotation=rot); o = bpy.context.object; o.scale = [v / 2 for v in s]
+    for v in o.data.vertices:  # taper < 1 narrows the top face (a bucket helm instead of a cube)
+        if v.co.z > 0: v.co.x *= taper; v.co.y *= taper
     if bevel:
-        m = o.modifiers.new('b', 'BEVEL'); m.width = bevel; m.segments = 2
+        m = o.modifiers.new('b', 'BEVEL'); m.width = bevel; m.segments = 4  # width is in the unit cube's local units (before scale)
     own(o, part)
 def plate(part, pts, thick=0.04):
     me = bpy.data.meshes.new(part); o = bpy.data.objects.new(part, me); scene.collection.objects.link(o)
@@ -48,7 +50,7 @@ for s in spec['shapes']:
     kind = s['type']; part = s['part']
     if kind == 'capsule': capsule(part, J.get(s['a'], s['a']) if isinstance(s['a'], str) else s['a'], J[s['b']] if isinstance(s['b'], str) else s['b'], s['r1'], s.get('r2'))
     elif kind == 'ellipsoid': ellipsoid(part, J[s['at']] + Vector(s.get('offset', (0, 0, 0))) if 'at' in s else s['c'], s['s'], s.get('rot', (0, 0, 0)))
-    elif kind == 'box': box(part, (J[s['at']] + Vector(s.get('offset', (0, 0, 0)))) if 'at' in s else s['c'], s['s'], s.get('rot', (0, 0, 0)), s.get('bevel', 0))
+    elif kind == 'box': box(part, (J[s['at']] + Vector(s.get('offset', (0, 0, 0)))) if 'at' in s else s['c'], s['s'], s.get('rot', (0, 0, 0)), s.get('bevel', 0), s.get('taper', 1.0))
     elif kind == 'plate': plate(part, [Vector(p) for p in s['pts']], s.get('thick', 0.04))
     elif kind == 'chain': chain(part, J[s['a']] if isinstance(s['a'], str) else s['a'], J[s['b']] if isinstance(s['b'], str) else s['b'], s['links'], s['r'])
 cam_data = bpy.data.cameras.new('cam'); cam_data.type = 'ORTHO'; cam_data.ortho_scale = spec.get('ortho_scale', 3.4)

@@ -9,6 +9,8 @@ description. Judge only what you see. For each criterion answer PASS or FAIL wit
    near side is lower-right; not head-on, not symmetrical. Objects: base seen corner-on as a 2:1 diamond, top visible.
 2. Proportions: stylized and chunky like the hero/canon (big head, thick limbs, big hands/feet, heavy masses); not
    realistic, lanky or spindly. It must not read as a miniature beside the hero.
+   Boxy is a FAIL (owner 2026-10-13, gaoler pilot): a creature whose silhouette is built from long straight parallel
+   edges and right-angle corners (cube head, slab torso, column legs, brick boots) reads as a toy, even when chunky.
 3. Detail: the same amount of detail per body part as canon at the same draw size; no filigree, thin strands, tiny
    repeated detail or noisy texture.
 4. Palette and value: dark, muted, desaturated like canon; no large pale or bright area; exactly one accent colour.

@@ -1,0 +1,57 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "chainbound_gaoler",
+  "job_id": "mq-gaoler-rear-r3",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "a0eba5a1fc1f147750a526e17fd279a9c663c07e85678c1d94ae64feba5b9ac1",
+  "method": "maquette paint-over r3 (rear from the approved-candidate front mq3_front_v3), painted at the drawn size (K=4, art_scale 1.0)",
+  "peers": [
+    "slag_mortar_rear",
+    "grave_surgeon_rear"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "56171947d5a8a2245eee3b9e7162d4cd6aacd1de223dbcd7fd9e577287df5d20",
+  "prompt_source": "spec/art_identity/maquettes/chainbound_gaoler/prompt_rear_r3.md",
+  "refs": [
+    {
+      "canon_id": "maquette_rear_parts",
+      "file": "refs/01_maquette_rear_parts.png",
+      "pixel_sha256": "8a88e39b5ebd642602caa0d59f473295ef72b48db52863bea7563564e10dbd7f",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gaoler-rear-r3/refs/rear_parts_green.png"
+    },
+    {
+      "canon_id": "maquette_rear_clay",
+      "file": "refs/02_maquette_rear_clay.png",
+      "pixel_sha256": "6ca5b56d0b9ad29e4cd7478f7bd1c61afcaa97b75fcc78b6539258eb99cd8b27",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gaoler-rear-r3/refs/rear_clay_green.png"
+    },
+    {
+      "canon_id": "approved_gaoler_mq3_front_v3",
+      "file": "refs/03_approved_gaoler_mq3_front_v3.png",
+      "pixel_sha256": "0abe5897bbc408d63860c49f90f8ba0b8f6c9a713b59e80a6b93d29fd67ad138",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gaoler-rear-r3/refs/approved_gaoler_front_r3.png"
+    },
+    {
+      "canon_id": "slag_mortar_rear",
+      "file": "refs/04_slag_mortar_rear.png",
+      "pixel_sha256": "9b1fbb247858a1e046700f20cb800e7a6b54398b9b390484119c4ca3f1d69ca1",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gaoler-rear-r3/refs/peer_slag_mortar_rear_x4.png"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/05_hero_rear.png",
+      "pixel_sha256": "734da8ebe42a649cb88b237a3403ec7403082ba918b85e16a29533dd5b832acf",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-gaoler-rear-r3/refs/hero_rear_x4.png"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 216,
+  "view": "creature_rear"
+}

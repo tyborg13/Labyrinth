@@ -26,7 +26,9 @@ Paint like the references, not flat cartoon shading: every big mass has three or
 shadows, a little worn texture and grime inside the big shapes. Avoid flat neutral grey as a main colour (grey skin is
 grey-brown and mottled); cool colours belong only to ice, steel or the accent.
 Gaunt or wretched creatures stay gaunt in character, but are still drawn with bold shapes: big head, big hands and
-feet, limbs at least 3 blocks thick. Chunky does not mean muscular.
+feet, limbs at least 3 blocks thick. Chunky does not mean muscular, and it does not mean boxy: masses are rounded
+and organic (tapering limbs, sloped shoulders, curved planes), with no long straight parallel edges or right-angle
+corners in the silhouette unless the subject is a built object.
 
 ## Background
 Perfectly flat opaque chroma green #00FF00 (RGB 0,255,0) on every background pixel, including gaps between limbs.

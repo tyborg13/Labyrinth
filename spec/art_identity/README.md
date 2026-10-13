@@ -1,7 +1,42 @@
 # Art identity command reference
 
 Run from the repository root with Python 3.9 or later, numpy and Pillow. These commands read the director-owned
-canon, bands, preamble and view clauses. They do not generate art or change game data.
+canon, bands, preamble and view clauses. Measurement commands are read-only; explicit asset maintenance
+commands write their stated outputs.
+
+## Crawler recolour (rr-01)
+
+The applied 2026-10-13 correction uses Lab L* × 0.76, a*/b* × 0.85 and `np.rint`.
+RGBA alpha and transparent pixels are retained. Grid 1.73 remains calibrated on
+repository pre-recolour fixtures, bound by decoded digests; Git provenance is informational.
+Sources replay through Lab recolour, density regrid and native rest rebake. Rest registry
+entries record that `derivation`; only the static fallback records direct `post_steps`.
+All three retain pre-recolour adoption metrics by design. The portrait is the builder's
+exact 128×128 crop of the current front rest; runtime shadows use only the front rest.
+
+The following is an **applied historical record, not runnable maintenance**. Do not
+re-run it: the tool now refuses another in-place pass on these crawler paths.
+```sh
+python3 tools/recolour_lab.py --l-scale 0.76 --ab-scale 0.85 --in-place spec/assets/board_pixel_density/sources/assets/units/crawler_cutout/{front,rear}/*.png
+python3 tools/recolour_lab.py --l-scale 0.76 --ab-scale 0.85 --in-place assets/placeholders/units/crawler_anime_trial{,_idle}.png
+```
+
+Verification and deterministic maintenance, from the repository root:
+```sh
+python3 tests/test_recolour_lab.py
+python3 tools/recolour_lab.py --check-crawler --baseline-ref 2cf00ab4ece2f27a590f0bde5d5fb2fecacbd283
+python3 tools/process_board_density.py --check
+python3 tools/art_identity_gate.py check
+python3 tools/godot_task_runner.py --task-id rr-01 --stream -- godot --headless --path . --script tools/build_turn_order_assets.gd -- --only crawler
+python3 tools/godot_task_runner.py --task-id rr-01 --stream -- godot --headless --path . --script tools/generate_unit_shadow_cache.gd
+python3 tools/recolour_lab.py --prepare-proof --baseline-ref 2cf00ab4ece2f27a590f0bde5d5fb2fecacbd283
+python3 tools/visual_probe_runner.py --task-id rr-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/crawler_recolour_probe_contract.json --result-manifest output/rr-01/contact-manifest.json tests/crawler_recolour_probe.gd
+python3 tools/visual_probe_runner.py --task-id rr-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/bestiary_lineup_probe_contract.json --result-manifest output/rr-01/lineup-manifest.json tests/bestiary_lineup_probe.gd
+```
+The probes use 100% UI scale and print their isolated capture directories.
+These presentation galleries need no saved-run inspection fixture.
+
+## Existing gate commands
 
 ```sh
 python3 tools/art_identity_gate.py measure assets/units/protagonist_cutout/front/front_assembled_rest.png
