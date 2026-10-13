@@ -82,3 +82,6 @@ The owner's playtest runs from a FROZEN detached worktree (`../Labyrinth.worktre
 verified commit), never from the integration worktree: the game reads data files at runtime, so merging mid-session
 mixed old enemies.json with new encounters.json and blanked the board. Refresh the playtest worktree only between
 sessions (`git -C <wt> checkout --detach <commit>` + headless `--import`), after the suite passes at that commit.
+- Playtest builds: `peer-benchmark-playtest` (5ab3b59cc, session 2); `peer-benchmark-playtest-3` (95bf93536: SFX mix
+  pass, fix-02, en-01 enemies, run-end screen). New sessions get a NEW frozen worktree; old ones are removed only after
+  the owner confirms they're done.
