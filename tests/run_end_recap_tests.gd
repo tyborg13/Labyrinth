@@ -11,6 +11,13 @@ const UiSkin = preload("res://scripts/ui_skin.gd")
 const DISPLAY_FONT = preload("res://fonts/LabyrinthCrumble-Display.tres")
 const RUN_SCENE = preload("res://scenes/run_scene.tscn")
 
+# The baseline uses a skeletal protagonist; keep the historical 16-frame
+# assertions on the existing sprite fallback instead of removing that coverage.
+class CombatBoardLegacyDeathFixture:
+	extends "res://scripts/combat_board_view.gd"
+	func _uses_protagonist_cutout() -> bool: return false
+	func unit_cutout_renderer(_unit: Dictionary) -> Node: return null
+
 var _failures: Array[String] = []
 
 func _initialize() -> void:
@@ -139,7 +146,7 @@ func _test_combat_stat_sources_and_snapshot_exactly_once() -> void:
 	_assert((checkpoint_once.get("run_stats", {}) as Dictionary) == (checkpoint_twice.get("run_stats", {}) as Dictionary), "Applying the same committed combat snapshot twice must overwrite, never add, run stats")
 	_assert(ProgressionStore.save_run_state(checkpoint_once), "Run-stat checkpoint fixture should save")
 	var repaired: Dictionary = engine.repair_loaded_run_state(ProgressionStore.load_saved_run())
-	_assert((repaired.get("run_stats", {}) as Dictionary) == stats, "Save/resume should preserve the exact cumulative stat snapshot")
+	_assert((repaired.get("run_stats", {}) as Dictionary) == checkpoint_once["run_stats"], "Save/resume should preserve the exact committed cumulative stat snapshot, including the run clock")
 	var terminal_once: Dictionary = engine.finish_combat(run_state, combat_state)
 	var terminal_again: Dictionary = engine.finish_combat(run_state, combat_state)
 	_assert((terminal_once.get("run_stats", {}) as Dictionary) == (terminal_again.get("run_stats", {}) as Dictionary), "Replaying a terminal transition from the same committed input must produce identical, not doubled, stats")
@@ -230,7 +237,7 @@ func _test_overlay_action_signals() -> void:
 	overlay.main_menu_pressed.connect(func() -> void: action_counts["main_menu"] = int(action_counts["main_menu"]) + 1)
 	var new_run_button: Button = overlay.find_child("NewRunButton", true, false) as Button
 	var main_menu_button: Button = overlay.find_child("MainMenuButton", true, false) as Button
-	_assert(new_run_button != null and new_run_button.text == "New Run", "Recap should expose a clear New Run action")
+	_assert(new_run_button != null and new_run_button.text == "Rise Again", "Recap should expose the meta-01 Rise Again action")
 	_assert(main_menu_button != null and main_menu_button.text == "Main Menu", "Recap should expose a clear Main Menu action")
 	if new_run_button != null:
 		new_run_button.pressed.emit()
@@ -288,31 +295,22 @@ func _test_shroud_animation_and_reduced_motion() -> void:
 	_assert(not overlay.has_decorative_edge_strokes(), "Defeat presentation must not draw arbitrary red edge strokes or decorative noise")
 	_assert(overlay.find_child("BuildRecap", true, false) == null, "Defeat recap should omit the prose build inventory")
 	_assert(overlay.find_child("RunStatGrid", true, false) == null, "Defeat recap should not regress to a default UI stat grid")
-	var stat_ledger: Control = overlay.find_child("DefeatStatLedger", true, false) as Control
-	_assert(stat_ledger != null and stat_ledger.get_child_count() == 6, "Defeat recap should expose one asymmetric contoured stat narrative")
 	_assert(overlay.find_child("OutcomeSummary", true, false) == null, "Defeat layout should not recreate the removed summary tagline")
 	_assert(overlay.find_child("DefeatCornerTop", true, false) == null and overlay.find_child("RecoveryRailRaster", true, false) == null, "Defeat UI should not repurpose unrelated frame-kit fragments")
-	var defeat_title: Label = overlay.find_child("OutcomeTitle", true, false) as Label
-	_assert(defeat_title != null and defeat_title.text == "RUN ENDED" and defeat_title.get_theme_font("font") == DISPLAY_FONT, "RUN ENDED should use the standard bold Labyrinth Crumble display face")
 	_assert(overlay.find_child("DefeatTitleRaster", true, false) == null and overlay.find_child("DefeatTitleGlow", true, false) == null, "RUN ENDED should no longer use the obsidian raster treatment")
-	if stat_ledger != null:
-		var expected_metrics: Array[String] = ["EnemiesKilledMetric", "DamageDealtMetric", "DamageReceivedMetric", "DepthMetric", "RoomsClearedMetric", "BossesDefeatedMetric"]
-		for index: int in range(expected_metrics.size()):
-			_assert(stat_ledger.get_child(index).name == expected_metrics[index], "Stats should flow in the concept's single vertical reading order")
-		var first_row: Control = stat_ledger.get_child(0) as Control
-		var middle_row: Control = stat_ledger.get_child(3) as Control
-		var last_row: Control = stat_ledger.get_child(5) as Control
-		_assert(first_row.position.x < middle_row.position.x and last_row.position.x < middle_row.position.x, "Stat origins should arc around the Last Light window instead of sharing one left edge")
-		var contour_scale: float = minf(overlay.size.x / 1920.0, overlay.size.y / 1080.0)
-		_assert(is_equal_approx((middle_row.position.x - first_row.position.x) / contour_scale, 60.0) and is_equal_approx((middle_row.position.x - last_row.position.x) / contour_scale, 38.0), "The stat contour should use approximately half the prior horizontal excursion")
-		var ember_result: Control = overlay.find_child("EmberResult", true, false) as Control
-		_assert(ember_result != null and ember_result.position.y - last_row.position.y < 90.0, "The separate ember consequence should remain visually connected to the stat arc")
-	var kills_best: Label = overlay.find_child("EnemiesKilledBest", true, false) as Label
-	var received_best: Label = overlay.find_child("DamageReceivedBest", true, false) as Label
-	var kills_heading: Label = overlay.find_child("EnemiesKilledHeading", true, false) as Label
-	_assert(kills_best != null and kills_best.visible and kills_best.text == "NEW BEST", "Strict eligible improvements should show the restrained NEW BEST badge")
-	_assert(received_best != null and not received_best.visible, "Damage taken should remain a neutral reported stat")
-	_assert(kills_heading != null and kills_heading.text == "ENEMIES KILLED", "Kill count should use an unambiguous player-facing label")
+	# meta-01 replaces the old six-metric contour with the authored score ledger,
+	# seeded title and a score-only best badge. Legacy best persistence is still
+	# covered by _test_personal_best_restart_persistence_and_policy above.
+	var ledger: Control = overlay.find_child("ScoreRows", true, false) as Control
+	var scored: Dictionary = model["score"]
+	_assert(ledger != null and ledger.get_child_count() == (scored["lines"] as Array).size() + (scored["feats"] as Array).size(), "Recap displays every approved score line and feat")
+	var defeat_title: Label = overlay.find_child("OutcomeTitle", true, false) as Label
+	_assert(defeat_title != null and defeat_title.text == str(model["title"]) and defeat_title.get_theme_font("font") == DISPLAY_FONT, "Recap uses its seeded meta-01 title in the approved display face")
+	var best: Label = overlay.find_child("NewBestTag", true, false) as Label
+	_assert(best != null and best.text == "NEW BEST" and best.visible == bool(model["new_best_score"]), "Score badge matches the committed best-score decision")
+	var total: Label = overlay.find_child("ScoreValue", true, false) as Label
+	_assert(total != null and total.text == str(scored["total"]), "Recap displays the exact completed score")
+	_assert(not bool(model["new_best_score"]), "Legacy metric improvements do not claim a new best score")
 
 	var recap_layout: Control = overlay.find_child("LastLightRecap", true, false) as Control
 	overlay.size = Vector2(1920.0, 1080.0)
@@ -454,20 +452,24 @@ func _test_run_scene_progression_and_actions() -> void:
 		"death_frame": 7,
 		"death_progress": 0.5,
 	}
-	var player_death_frames: Array = board.call("_unit_death_frames", player_death_unit) as Array
+	var legacy_board := CombatBoardLegacyDeathFixture.new()
+	legacy_board.call("_load_assets")
+	legacy_board.set("combat_state", board.get("combat_state"))
+	var player_death_frames: Array = legacy_board.call("_unit_death_frames", player_death_unit) as Array
 	_assert(player_death_frames.size() == 16, "Player death should load all 16 authored collapse frames")
 	if player_death_frames.size() == 16:
 		_assert((player_death_frames[0] as Texture2D).get_size() == Vector2(1020.0, 1020.0), "Player death frames should preserve the downloaded 1020px native canvas")
-		_assert(board.call("_texture_for_unit", player_death_unit) == player_death_frames[7], "Player death rendering should select the requested authored frame")
+		_assert(legacy_board.call("_texture_for_unit", player_death_unit) == player_death_frames[7], "Player death rendering should select the requested authored frame")
 		player_death_unit["death_frame"] = 15
-		_assert(board.call("_texture_for_unit", player_death_unit) == player_death_frames[15] and player_death_frames[15] != player_death_frames[7], "Player death rendering should advance to distinct authored frames")
+		_assert(legacy_board.call("_texture_for_unit", player_death_unit) == player_death_frames[15] and player_death_frames[15] != player_death_frames[7], "Player death rendering should advance to distinct authored frames")
 		var native_rect := Rect2(Vector2(120.0, 80.0), Vector2(255.0, 255.0))
-		_assert((board.call("_death_animation_render_rect", player_death_unit, native_rect) as Rect2).is_equal_approx(native_rect), "Authored player death frames must bypass the procedural squash/stretch")
-		_assert((board.call("_death_animation_render_tint", player_death_unit) as Color).is_equal_approx(Color.WHITE), "Authored player death frames must retain their source colors")
-		_assert(is_equal_approx(float(board.call("_unit_shadow_alpha_scale", player_death_unit)), 1.0), "Authored player death silhouettes should retain their grounded shadow through the final frame")
+		_assert((legacy_board.call("_death_animation_render_rect", player_death_unit, native_rect) as Rect2).is_equal_approx(native_rect), "Authored player death frames must bypass the procedural squash/stretch")
+		_assert((legacy_board.call("_death_animation_render_tint", player_death_unit) as Color).is_equal_approx(Color.WHITE), "Authored player death frames must retain their source colors")
+		_assert(is_equal_approx(float(legacy_board.call("_unit_shadow_alpha_scale", player_death_unit)), 1.0), "Authored player death silhouettes should retain their grounded shadow through the final frame")
 		for frame_var: Variant in player_death_frames:
 			var frame_texture: Texture2D = frame_var as Texture2D
-			_assert(not (board.call("_unit_shadow_polygons_for_texture", frame_texture) as Array).is_empty(), "Every authored player death frame should produce a silhouette shadow")
+			_assert(not (legacy_board.call("_unit_shadow_polygons_for_texture", frame_texture) as Array).is_empty(), "Every authored player death frame should produce a silhouette shadow")
+	legacy_board.free()
 	var ember_snapshot: Dictionary = board.call("death_site_embers_snapshot") as Dictionary
 	_assert(ember_snapshot.get("tile", Vector2i(-1, -1)) == death_tile and ember_snapshot.get("texture", null) is Texture2D, "Death embers should be raster art owned by the exact terminal board tile")
 	var ember_rect: Rect2 = ember_snapshot.get("rect", Rect2()) as Rect2
@@ -522,7 +524,7 @@ func _test_run_scene_progression_and_actions() -> void:
 	await process_frame
 	var recovery_run: Dictionary = instance.get("_run_state") as Dictionary
 	_assert(str(recovery_run.get("mode", "")) == "room" and engine.held_embers(recovery_run) == 0, "Defeat New Run should begin fresh without lost embers")
-	var recovery_room: Dictionary = engine.room_metadata(recovery_run, Vector2i(2, 0))
+	var recovery_room: Dictionary = engine.room_metadata(recovery_run, recovery_run.get("map_recovery_coord", Vector2i(2, 0)))
 	_assert(bool(recovery_room.get("recovery_marker", false)) and int(recovery_room.get("recovery_amount", 0)) == 41, "Defeat New Run should stage the committed recovery marker")
 
 	var menu_state: Dictionary = _terminal_state(engine, recovery_run.get("progression", {}) as Dictionary, Vector2i(1, 0), "defeat", 0)

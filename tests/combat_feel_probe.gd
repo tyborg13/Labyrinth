@@ -16,12 +16,28 @@ const ROUND_TIMEOUT_MS: int = 18000
 const HEAVY_PROOF_DAMAGE: int = 12
 const HEAVY_PROOF_RANGE: int = 10
 const PROBE_SETTLE_FRAMES: int = 30
+const SLOW_DRAW_REGRESSION_FPS: int = 5
+const HEAVY_CAPTURE_TIMEOUT_MS: int = 3000
+const PEAK_OPACITY_TOLERANCE: float = 0.025
+
+# Dummy-renderer boundary after normal animation and hit-stop node processing.
+# Unlike process_frame/call_deferred, this ordering exposes late release peaks.
+class HeadlessPostProcessDraw:
+	extends Node
+	const DRAW_PROCESS_PRIORITY: int = 100000
+	var draw: Callable
+	func _ready() -> void:
+		process_priority = DRAW_PROCESS_PRIORITY
+		process_mode = Node.PROCESS_MODE_ALWAYS
+	func _process(_delta: float) -> void:
+		draw.call()
 
 var seed: int = 126065
 var run_engine = RunEngine.new()
 var combat_engine = CombatEngine.new()
 var run_scene: Node
 var _failures: Array[String]
+var _heavy_timing_only: bool = false
 var _timeline_only: bool = false
 var _baseline: bool = false
 var _capture_reduced: bool = false
@@ -30,6 +46,10 @@ var _capture_heavy: bool = false
 var _last_frame: Image
 var _peak_pending: bool = false
 var _peak_captured: bool = false
+var _heavy_images: Dictionary = {}
+var _heavy_offsets: Array[int]
+var _heavy_trace: Array[Dictionary]
+var _heavy_events: Array[Dictionary]
 
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
@@ -38,13 +58,21 @@ func _initialize() -> void:
 	SettingsStore.set_storage_path("user://feel_probe_settings.json")
 	preload("res://scripts/analytics_store.gd").set_storage_dir("user://feel_probe_analytics")
 	SettingsStore.save_settings(SettingsStore.default_settings())
-	_timeline_only = "--timeline-only" in OS.get_cmdline_user_args()
+	_heavy_timing_only = "--heavy-timing-only" in OS.get_cmdline_user_args()
+	_timeline_only = "--timeline-only" in OS.get_cmdline_user_args() or _heavy_timing_only
+	if _heavy_timing_only: Engine.max_fps = SLOW_DRAW_REGRESSION_FPS
 	_baseline = "--baseline" in OS.get_cmdline_user_args()
 	if DisplayServer.get_name() == "headless" and not _timeline_only:
 		push_error("COMBAT FEEL PROBE needs a windowed renderer, or --timeline-only for scheduling proof")
 		quit(1)
 		return
-	if _timeline_only: process_frame.connect(_headless_draw_tick)
+	if _timeline_only:
+		if _heavy_timing_only:
+			var draw_boundary := HeadlessPostProcessDraw.new()
+			draw_boundary.draw = _headless_draw_tick
+			root.add_child(draw_boundary)
+		else:
+			process_frame.connect(_headless_draw_tick)
 	root.size = Vector2i(1920,1080)
 	root.content_scale_factor = 1.0
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_DIR))
@@ -56,6 +84,11 @@ func _initialize() -> void:
 	root.add_child(run_scene)
 	if _baseline: run_scene.get("_combat_pacing").debug_baseline = true
 	await _settle_frames(PROBE_SETTLE_FRAMES)
+	if _heavy_timing_only:
+		await _heavy_hit(false)
+		await _heavy_hit(true)
+		_finish()
+		return
 	var generated: Dictionary = _enter_generated_combat()
 	if not check(not generated.is_empty(),"Approved generated fire room exists"):
 		_finish()
@@ -317,7 +350,8 @@ func check(condition: bool, message: String) -> bool:
 	return condition
 
 func _headless_draw_tick() -> void:
-	# Same explicit dummy-renderer clock used by the turn-clock banner suite.
+	# Heavy-hit scheduling uses a late-process boundary; round timing retains the
+	# existing turn-clock suite's explicit dummy-renderer completion signal.
 	RenderingServer.frame_post_draw.emit()
 
 func _settle_frames(count: int) -> void:
@@ -340,6 +374,10 @@ func _heavy_hit(reduced: bool) -> void:
 	_heavy_frame = -1
 	_peak_pending = false
 	_peak_captured = false
+	_heavy_images.clear()
+	_heavy_offsets.clear()
+	_heavy_trace.clear()
+	_heavy_events.clear()
 	_last_frame = await _image()
 	var stop: Node = pacing.hit_stop
 	if not stop.stop_started.is_connected(_impact_started): stop.stop_started.connect(_impact_started)
@@ -347,10 +385,29 @@ func _heavy_hit(reduced: bool) -> void:
 	RenderingServer.frame_post_draw.connect(_heavy_draw)
 	var done: Dictionary = {"done":false}
 	_present_heavy(before,after,action,target,done)
-	while not done["done"]: await process_frame
+	var action_deadline: int = Time.get_ticks_msec() + ROUND_TIMEOUT_MS
+	while not done["done"] and Time.get_ticks_msec() < action_deadline: await process_frame
+	check(done["done"], "Heavy action completes within its watchdog")
+	var action_done_offset: int = _heavy_frame
+	# Animation completion is measured in elapsed time; proof offsets are measured
+	# in rendered frames. Readback/slow rendering can finish the action before +8.
+	# Retain the fixture/scope until every requested draw has actually occurred.
+	var capture_deadline: int = Time.get_ticks_msec() + HEAVY_CAPTURE_TIMEOUT_MS
+	while (_heavy_frame <= 8 if not reduced else not _peak_captured) and Time.get_ticks_msec() < capture_deadline:
+		await process_frame
 	RenderingServer.frame_post_draw.disconnect(_heavy_draw)
 	check(not reduced or _peak_captured,"Reduced-motion impact captured after its half-duration stop")
 	check(reduced or (_heavy_frame>8 and _peak_captured),"Heavy-hit frame offsets and post-stop peak captured")
+	if not reduced:
+		check(_heavy_offsets == [0, 1, 4, 8], "All exact heavy-hit offsets observed in order")
+	for filename: String in _heavy_images:
+		check((_heavy_images[filename] as Image).save_png(OUTPUT_DIR + "/" + filename) == OK, "Heavy capture writes: " + filename)
+	var trace: Dictionary = {"renderer": DisplayServer.get_name(), "headless_scheduling": _timeline_only, "reduced_motion": reduced, "action_done_offset": action_done_offset, "captured_offsets": _heavy_offsets, "events": _heavy_events, "draws": _heavy_trace}
+	var trace_path: String = OUTPUT_DIR + ("/reduced_hit_trace.json" if reduced else "/heavy_hit_trace.json")
+	var file: FileAccess = FileAccess.open(trace_path, FileAccess.WRITE)
+	check(file != null, "Heavy frame trace writes")
+	if file != null: file.store_string(JSON.stringify(trace, "\t"))
+	print("COMBAT FEEL HEAVY: reduced=%s action_done_offset=%d final_offset=%d offsets=%s peak=%s" % [reduced, action_done_offset, _heavy_frame, _heavy_offsets, _peak_captured])
 	run_scene.set("_animation_lock",false)
 	pacing.end_scope()
 	_capture_heavy = false
@@ -360,29 +417,41 @@ func _present_heavy(before: Dictionary, after: Dictionary, action: Dictionary, t
 	await run_scene.call("_animate_player_action_step",before,after,"lantern_shot",action,target,[])
 	done["done"] = true
 
-func _impact_started(_duration: float) -> void:
+func _impact_started(duration: float) -> void:
+	_heavy_events.append({"kind": "stop_started", "duration_ms": duration, "usec": Time.get_ticks_usec(), "process_frame": Engine.get_process_frames(), "scale": Engine.time_scale})
 	if _capture_heavy:
-		if _last_frame != null: _last_frame.save_png(OUTPUT_DIR+"/heavy_hit_minus_1.png")
+		if _last_frame != null: _heavy_images["heavy_hit_minus_1.png"] = _last_frame
 		_heavy_frame = 0
 
 func _impact_ended() -> void:
+	_heavy_events.append({"kind": "stop_ended", "usec": Time.get_ticks_usec(), "process_frame": Engine.get_process_frames(), "scale": Engine.time_scale})
 	if _capture_heavy or _capture_reduced: _peak_pending = true
 
 func _heavy_draw() -> void:
-	var current: Image = root.get_texture().get_image()
-	if _capture_heavy and _heavy_frame>=0:
-		if _heavy_frame in [0,1,4,8]:
-			current.save_png(OUTPUT_DIR+"/heavy_hit_%s.png" % ("0" if _heavy_frame==0 else "plus_%d" % _heavy_frame))
-		if _peak_pending:
-			current.save_png(OUTPUT_DIR+"/heavy_hit_post_stop_peak.png")
-			_peak_pending = false
-			_peak_captured = true
+	var pacing: Node = run_scene.get("_combat_pacing")
+	var flash: Dictionary = (board().get("presentation") as Dictionary).get("combat_feel_flash", {})
+	var sample: Dictionary = {"offset": _heavy_frame, "usec": Time.get_ticks_usec(), "process_frame": Engine.get_process_frames(), "stop_active": pacing.hit_stop.active, "scale": Engine.time_scale, "flash": flash.duplicate()}
+	if _heavy_frame >= 0 or _peak_pending: _heavy_trace.append(sample)
+	# Keep the preceding frame until impact; afterwards read back only requested
+	# samples. PNG encoding happens after disconnect, outside the timing callback.
+	var needs_image: bool = _heavy_frame < 0 or _heavy_frame in [0, 1, 4, 8] or _peak_pending
+	var current: Image = root.get_texture().get_image() if needs_image and not _timeline_only else null
+	if _capture_heavy and _heavy_frame >= 0:
+		if _heavy_frame in [0, 1, 4, 8]:
+			_heavy_offsets.append(_heavy_frame)
+			if current != null:
+				_heavy_images["heavy_hit_%s.png" % ("0" if _heavy_frame == 0 else "plus_%d" % _heavy_frame)] = current
 		_heavy_frame += 1
-	if _capture_reduced and _peak_pending:
-		current.save_png(OUTPUT_DIR+"/reduced_motion_hit.png")
+	if (_capture_heavy or _capture_reduced) and _peak_pending:
+		check(not pacing.hit_stop.active and Engine.time_scale > 0.0, "Post-stop capture has restored positive time scale")
+		var maximum: float = 0.0
+		for opacity: float in flash.values(): maximum = maxf(maximum, opacity)
+		check(absf(maximum - preload("res://scripts/combat_pacing.gd").flash_opacity(0.0)) <= PEAK_OPACITY_TOLERANCE, "First post-stop draw contains the approved enemy white peak")
+		if current != null:
+			_heavy_images["reduced_motion_hit.png" if _capture_reduced else "heavy_hit_post_stop_peak.png"] = current
 		_peak_pending = false
 		_peak_captured = true
-	_last_frame = current
+	if current != null: _last_frame = current
 
 func _settings_capture() -> void:
 	run_scene.call("_open_menu_overlay")
@@ -398,7 +467,7 @@ func _settings_capture() -> void:
 
 func _image() -> Image:
 	await RenderingServer.frame_post_draw
-	return root.get_texture().get_image()
+	return null if _timeline_only else root.get_texture().get_image()
 
 func _capture(filename: String) -> void:
 	var current: Image = await _image()
