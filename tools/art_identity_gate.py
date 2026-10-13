@@ -679,6 +679,10 @@ def validate_maquette_refs(kit: dict, kit_path: Path, canon: dict, rear: bool) -
     failures = []
     roles = set()
     refs_root = (kit_path.parent / "refs").resolve()
+    if not kit_path.parent.name.startswith("mq"):
+        failures.append("maquette job folder must be named mq* (its refs/ is committed only there)")
+    if not str(kit.get("prompt_source", "")).startswith("spec/art_identity/maquettes/"):
+        failures.append("maquette prompt_source must name a prompt under spec/art_identity/maquettes/")
     for ref in kit["refs"]:
         role = ref.get("role")
         if role not in MAQUETTE_REF_ROLES:
@@ -691,6 +695,9 @@ def validate_maquette_refs(kit: dict, kit_path: Path, canon: dict, rear: bool) -
         elif role != "canon" and canon_id in canon:
             failures.append("non-canon maquette reference reuses canon id: " + str(canon_id))
         file = ref.get("file", "")
+        if not isinstance(file, str):
+            failures.append("maquette reference file must be a string: " + repr(file))
+            continue
         try:
             path = repo_path(kit_path.parent, file)
             if not file.startswith("refs/") or refs_root not in path.parents:

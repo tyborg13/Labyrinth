@@ -568,9 +568,14 @@ class GateTests(unittest.TestCase):
 
     def maquette_registry(self, rear=False):
         root, registry, entry = self.kit_registry()
+        # Maquette jobs live in mq* folders (their refs/ is committed only there).
+        shutil.move(str(root / "jobs/fixture"), str(root / "jobs/mq_fixture"))
+        for key in ("kit_path", "prompt_path", "sheet_path", "source_path"):
+            entry[key] = entry[key].replace("jobs/fixture/", "jobs/mq_fixture/")
         path = root / entry["kit_path"]
         kit = gate.read_json(path)
         kit["kit_kind"] = "maquette"
+        kit["prompt_source"] = "spec/art_identity/maquettes/fixture_prompt.md"
         kit["job_id"] = entry["job_id"] = MAQUETTE_FIXTURE_JOB_ID
         kit.pop("peers")  # Maquette references have roles, not standard peer ordering.
         for ref, role, label in zip(kit["refs"], ("maquette_parts", "identity"), MAQUETTE_FIXTURE_REF_LABELS):
@@ -593,6 +598,25 @@ class GateTests(unittest.TestCase):
         gate.write_json(path, kit)
         gate.write_json(root / gate.IDENTITY / "registry.json", registry)
         return root, registry, entry, kit
+
+    def test_maquette_requires_mq_folder_prompt_source_and_string_ref_files(self):
+        root, registry, entry, kit = self.maquette_registry()
+        kit_path = root / entry["kit_path"]
+        report = lambda: "\n".join(gate.check_registry(root)[0])
+        source, file = kit["prompt_source"], kit["refs"][0]["file"]
+        kit["prompt_source"] = "elsewhere/prompt.md"
+        gate.write_json(kit_path, kit)
+        self.assertIn("maquette prompt_source must name a prompt under spec/art_identity/maquettes/", report())
+        kit["prompt_source"], kit["refs"][0]["file"] = source, None
+        gate.write_json(kit_path, kit)
+        self.assertIn("FAIL assets/hero.png", report())  # reported per entry, never a crash
+        kit["refs"][0]["file"] = file
+        gate.write_json(kit_path, kit)
+        shutil.move(str(root / "jobs/mq_fixture"), str(root / "jobs/maquette_fixture"))
+        for key in ("kit_path", "prompt_path", "sheet_path", "source_path"):
+            entry[key] = entry[key].replace("jobs/mq_fixture/", "jobs/maquette_fixture/")
+        gate.write_json(root / gate.IDENTITY / "registry.json", registry)
+        self.assertIn("maquette job folder must be named mq*", report())
 
     def test_valid_maquette_front_and_rear_allow_active_and_retired_hand_references(self):
         for rear in (False, True):

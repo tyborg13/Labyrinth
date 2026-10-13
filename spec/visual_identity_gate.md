@@ -111,8 +111,9 @@ but must not reuse a canon id. At least one `maquette_parts` reference is requir
 `identity` reference. Standard peer ordering, matching-view canon, and first-front-reference rules do not apply.
 Prompt hashes, registry reference bindings, processed sidecars, post-steps, source/production pixel hashes, metric
 bands, landmarks, judge verdict and owner approval retain the same checks as standard kits.
-Include the maquette reference PNGs with the job records when publishing. Certification requires these files even
-though their `refs/` directory is git-ignored.
+Maquette reference PNGs are committed with the job records: maquette job folders are named `mq*` (the gate checks
+this) and `.gitignore` re-includes `spec/art_identity/jobs/*/mq*/refs/`; `prompt_source` names the original prompt
+under `spec/art_identity/maquettes/`.
 
 Certification commands (read-only):
 

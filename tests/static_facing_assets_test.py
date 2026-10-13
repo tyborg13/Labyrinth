@@ -49,8 +49,7 @@ class ApprovedArtTests(unittest.TestCase):
                 self.assertEqual(record['pixel_sha256'], manifest['pixel_sha256'])
                 self.assertEqual(record['post_steps'], json.loads(source.with_suffix('.json').read_text()).get('post_steps', []))
                 count += 1
-        self.assertEqual(count, sum('front' in source for source in APPROVED.values()) +
-                         sum('rear' in source for source in APPROVED.values()))
+        self.assertEqual(count, 23)  # 12 fronts (11 art-03 + gust_shrike) + 11 rears (storm_capacitor has none)
 
     def test_portraits_follow_protected_crops_and_existing_processor(self):
         with Image.open(ROOT / 'tests/static_facing_portrait_contact.png') as image:

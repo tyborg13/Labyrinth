@@ -70,17 +70,14 @@ class En05Assets(unittest.TestCase):
                             bounds = source.getchannel('A').getbbox()
                             height = kit['target_h']
                             if name == 'gust_shrike':
-                                # The approved perched maquette's processed height is
-                                # 235; its kit target was 238 before outline cleanup.
-                                height = json.loads((ROOT / entry['source_path']).with_suffix('.json').read_text())['drawn_size'][1]
+                                height = 235  # approved perched maquette front (mq2_front processed.json drawn_size)
                             self.assertEqual(bounds[3] - bounds[1], height)
                             cx, cy, side = crops[name]
                             left, top = cx - side // 2, cy - side // 2
                             expected_portrait = resize(source.crop((left, top, left + side, top + side)), portrait.size)
                         self.assertEqual(portrait.tobytes(), expected_portrait.tobytes())
                     else:
-                        # Gust Shrike retains its en-05 registration pending re-art.
-                        self.assertEqual(entry['entry_kind'], 'pending_reart')
+                        self.fail(name + ' must be a kit entry after art-04')
                         self.assertEqual(portrait.getchannel('A').getbbox()[1], PORTRAIT_TOP)
 
     def test_density_registry_additions(self):
