@@ -13,14 +13,14 @@
   "symmetry": 0.44883164957199045,
   "thin_abs": 0.007917454155386472,
   "thin_rel": 0.0291668795014558,
-  "feature_px": 6.739604868380828,
-  "regions": 431,
-  "chroma": 0.1090395191636444,
-  "value": 0.2622029658653061,
-  "orphan_share": 0.019819175563160853,
-  "run_length": 3.6415550595238093
+  "feature_px": 6.8600361627214586,
+  "regions": 416,
+  "chroma": 0.07918375604826391,
+  "value": 0.21129122249298146,
+  "orphan_share": 0.00858149869745109,
+  "run_length": 4.4533666969972705
  },
- "pixel_sha256": "5910981d8b237a402d4908dc175c112bd8427b2818bd205994ad631cef654bd9",
+ "pixel_sha256": "2dccd1b3ca2b3c4e9dfac2fa617690ee705242f9dd1d9ebb355c723e849f07e2",
  "placement": [
   21,
   45
@@ -39,6 +39,12 @@
   {
    "step": "clean_outline",
    "script": "spec/art_identity/prototype/clean_outline.py"
+  },
+  {
+   "step": "palette_match",
+   "script": "spec/art_identity/prototype/match_palette.py",
+   "reference": "mq_front/processed.png",
+   "reason": "judge: plumage lighter/rosier than the approved front"
   }
  ]
 }
