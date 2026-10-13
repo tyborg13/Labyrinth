@@ -1,0 +1,1 @@
+{"step": "palette_match", "method": "Reinhard mean/std transfer in CIE Lab over opaque non-accent pixels (accent = chroma > p90 + 15); alpha untouched; near-black green key residue stripped", "script": "spec/art_identity/prototype/match_palette.py", "reference": "front/processed.png", "reason": "rear warmer than front (dC +0.063)"}

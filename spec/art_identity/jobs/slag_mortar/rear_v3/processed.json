@@ -1,0 +1,43 @@
+{
+ "K": 3,
+ "drawn_size": [
+  176,
+  223
+ ],
+ "fit_scale": 1.0,
+ "k_eff": 3.673828125,
+ "metrics": {
+  "height": 223,
+  "width": 176,
+  "height_drawn": 223.0,
+  "symmetry": 0.6799215527152228,
+  "thin_abs": 0.00444797458300239,
+  "thin_rel": 0.01080222398729147,
+  "feature_px": 5.737162424033205,
+  "regions": 765,
+  "chroma": 0.18113722375367938,
+  "value": 0.2048074963011416,
+  "orphan_share": 0.08792692613185067,
+  "run_length": 2.322449732521675
+ },
+ "pixel_sha256": "77bf56203be84a09d30a3d336ff76969a789de383c5675ecfce2adb3829a3b09",
+ "placement": [
+  40,
+  23
+ ],
+ "raw_sha256": "262b3c066cfb1c11286efc23b62f536e616f9e45ce044cc202eb5621232fefc5",
+ "shift": [
+  0,
+  0
+ ],
+ "pre_match_pixel_sha256": "bc5f61d1dd235c4a3c14d899b3f0823531a88993d49a0f45f21d5216a5f2019c",
+ "post_steps": [
+  {
+   "step": "palette_match",
+   "method": "Reinhard mean/std transfer in CIE Lab over opaque non-accent pixels (accent = chroma > p90 + 15); alpha untouched; near-black green key residue stripped",
+   "script": "spec/art_identity/prototype/match_palette.py",
+   "reference": "front/processed.png",
+   "reason": "rear warmer than front (dC +0.063)"
+  }
+ ]
+}
