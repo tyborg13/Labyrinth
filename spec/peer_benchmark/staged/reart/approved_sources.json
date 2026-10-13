@@ -1,5 +1,5 @@
 {
- "doc": "Approved art-02 sources for art-03 (owner approval 2026-10-13). gust_shrike excluded: its views are being rebuilt from a 3D maquette.",
+ "doc": "Approved art-02 sources for art-03 (owner approval 2026-10-13) and the maquette-painted gust_shrike for art-04 (owner approval 2026-10-13, perched pose; the raised-wing pose may be revisited later).",
  "enemies": {
   "burrow_grub": {
    "front": "spec/art_identity/jobs/burrow_grub/front",
@@ -54,6 +54,12 @@
    "front": "spec/art_identity/jobs/hollow_mimic/front",
    "art_scale": 1.0,
    "rear": "spec/art_identity/jobs/hollow_mimic/rear"
+  },
+  "gust_shrike": {
+   "front": "spec/art_identity/jobs/gust_shrike/mq2_front",
+   "rear": "spec/art_identity/jobs/gust_shrike/mq2_rear",
+   "art_scale": 0.75,
+   "sheet": "spec/art_identity/jobs/gust_shrike/sheet_pair_mq2.png"
   }
  }
 }

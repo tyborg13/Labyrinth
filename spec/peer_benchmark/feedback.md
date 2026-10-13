@@ -41,3 +41,12 @@
   for other bird and bird-like characters who have goofed up wings in their rear views."
 - Director: shrike re-posed perched (body nose-up ~32°, legs under the centre of mass, tail angled down); maquette is
   the baseline route for anatomy image generation cannot infer; rocs' rears move to the front of wave 2.
+
+## 2026-10-13 — perched shrike + gaoler maquette pilot (owner)
+- Gust shrike (perched mq2): "The shrike looks good. I'm not *certain* that I'm sold on the wings straight up, but it
+  looks good enough to go with for now." → integrate (art-04); the wing pose stays an open question (half-raised /
+  mantling is the alternative to try when birds are revisited).
+- Chainbound gaoler (maquette pilot): "he looks quite boxy now, probably a bit too much so. Otherwise, he's definitely
+  looking better than before. More consistent with our intended style and his proportions and angle make sense." →
+  angle, proportions and style approved; revise the maquette to soften the boxiness (tapered rounded helm, sloped
+  rounded shoulders, hunch/weight shift, flared coat, rounded boots), repaint front then rear.

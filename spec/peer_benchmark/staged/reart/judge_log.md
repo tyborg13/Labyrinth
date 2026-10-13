@@ -21,3 +21,11 @@ Lesson (b5): when an edit changes the design, update the subject file before gen
 Family check (b7): the 12 read as one family (same camera, dark earthy values, one accent, one-block outline); glacial mirror is the coolest/brightest, gust shrike the finest-grained (art_scale 0.75).
 
 Result 2026-10-13: all 12 enemies judge-PASS (fronts + rears; capacitor is an object with no rear). Awaiting owner review.
+
+## gust_shrike — maquette paint-over (2026-10-13)
+- Perched maquette (`spec/art_identity/maquettes/gust_shrike.py`) after the owner asked for an upright, tail-down
+  stance. mq2 round 1 FAIL (front identity drift: no mask, small beak, stilt legs; rear trailing-edge ticks); round 2
+  PASS on all 9 criteria (front pixel e4f14ec8…, rear 24aa4143…; drawn 176 px at art_scale 0.75). Sheet
+  `spec/art_identity/jobs/gust_shrike/sheet_pair_mq2.png`.
+- Owner 2026-10-13: approved ("looks good"); not certain about the straight-up wings — good enough for now, may be
+  revisited (half-raised / mantling pose is the alternative).

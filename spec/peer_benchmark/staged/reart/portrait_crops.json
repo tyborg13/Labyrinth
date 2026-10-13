@@ -55,9 +55,15 @@
    127,
    72,
    76
+  ],
+  "gust_shrike": [
+   70,
+   158,
+   84
   ]
  },
  "revisions": [
-  "2026-10-13 review of the art-03 contact sheet: tick shows shell + head, mortar includes the kiln rim, mirror keeps its head"
+  "2026-10-13 review of the art-03 contact sheet: tick shows shell + head, mortar includes the kiln rim, mirror keeps its head",
+  "2026-10-13 gust_shrike (art-04): [70,158,84] = head plus wing root on the perched mq2 front"
  ]
 }

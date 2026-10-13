@@ -39,3 +39,4 @@
 | rr-01 | Roster wave 1a: crawler rig recolour (Lab L×0.76, ab×0.85) | review: commit b0bcbcb88 + sync 4c7ff2d1a; director rebake/records/probes PASS; grid 1.73 held (pre-recolour calibration); peer review running | codex/peer-benchmark | briefs/rr-01.md |
 | qa-03 | Python test hygiene (en05 asset pins, cutout seed, deepest route, optional modules) | merged (e66df1e67) | codex/peer-benchmark | briefs/qa-03.md |
 | rr-02 | Roster wave 1b pilot: chainbound gaoler re-pose via maquette → paint → segment → re-rig | art: judge r2 FAIL (unprocessed front edit); front v3 (edit + oxblood tabard) + rear v3 edits in progress | — | |
+| art-04 | Integrate the owner-approved perched gust shrike (art-03 pipeline) + canon flyer reference | ready | codex/peer-benchmark | briefs/art-04.md |
