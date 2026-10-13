@@ -1,0 +1,1 @@
+python3 ~/.claude/skills/orchestrate-codex/scripts/codex_unit.py imagegen id-hollow_mimic-creature_rear --prompt-file spec/art_identity/jobs/hollow_mimic/rear/prompt.md --ref spec/art_identity/jobs/hollow_mimic/rear/refs/*.png

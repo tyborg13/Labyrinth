@@ -1,4 +1,7 @@
-Hollow Mimic: a faceless figure of dark, glossy black glass standing in the same stance and with the same chunky
-proportions as the hero reference (big head, thick limbs, big hands and boots), like a hollow cast of the hero without
-gear; where its face should be is one cracked mirror plate. A few broad highlight facets on the glass. Accent: dusky
-violet (#8a6bd6) in the cracks of the mirror face and a few glints only.
+Hollow Mimic: a hollow copy of the hero reference cast in rough obsidian, with the same stance and the same chunky
+proportions (big head, thick limbs, big hands and boots) but no gear. Matte, very dark charcoal-grey volcanic glass with
+chipped facets, a few bold cracks and a few sharp chipped mid-grey highlights on the upper-left, painted in the hero's
+gritty clustered hand (never glossy, never plastic, no panel seams). Its head has the hero's spiky hair silhouette cast in
+the same glass. Its face is an old, tarnished, darkened silver mirror plate flush with the head, holding a dusky violet
+crack (#8a6bd6 is the one accent: in the crack and one or two glints only). Grim dungeon fantasy, never a sci-fi
+android, bodysuit or helmet.

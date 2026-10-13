@@ -16,3 +16,4 @@
 | hollow_mimic | PASS (b5, v4 obsidian + hero hair) | generating next | sci-fi flag cleared |
 
 Lesson (b4): rear prompts must name equipment by body side; views.md creature_rear/beast_rear now state the left/right screen swap.
+Lesson (b5): when an edit changes the design, update the subject file before generating its rear (the mimic rear kit still described glossy glass).

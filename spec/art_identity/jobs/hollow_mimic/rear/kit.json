@@ -1,0 +1,39 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "hollow_mimic",
+  "job_id": "id-hollow_mimic-creature_rear",
+  "kind": "creature",
+  "kit_version": "b49c10b82796838dc905de9f5ecfe847ddeca5899425ada34bf6cebab37f9776",
+  "peers": [
+    "hero_front",
+    "harrier_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "e84ce1169edc20becf7e724a796d30f4e3157bc377db7f8bc15f5084e2eb972c",
+  "refs": [
+    {
+      "file": "refs/01_front_ref.png",
+      "pixel_sha256": "7641afc158423fa5fb3f64e6dc4729a24eb400e9a8bbaf02e20df87714a79e43"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/02_hero_rear.png",
+      "pixel_sha256": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/03_hero_rear.png",
+      "pixel_sha256": "6bcc2695769d79aeca008d5ac33701460d26e4a460d4685a4b4129146a0c80af"
+    },
+    {
+      "canon_id": "harrier_rear",
+      "file": "refs/04_harrier_rear.png",
+      "pixel_sha256": "69422081034043b2ff1f5a4b7a2e7ac779aff75bf5df81fd7704ac5f458719b9"
+    }
+  ],
+  "size_class": "medium",
+  "target_h": 205,
+  "target_w": null,
+  "view": "creature_rear"
+}
