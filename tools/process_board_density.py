@@ -6,14 +6,16 @@ import argparse
 import hashlib
 import io
 import json
+import math
 import shutil
 import struct
+import subprocess
 import sys
 from pathlib import Path
 
 from PIL import Image
 
-from pixel_density import classify_alpha, frame_rects, metrics, process, scale_axes
+from pixel_density import classify_alpha, frame_rects, metrics, process, scale_axes, strength
 
 ROOT = Path(__file__).resolve().parents[1]
 ASSETS = ROOT / "spec/assets/board_pixel_density"
@@ -21,6 +23,10 @@ REGISTRY = ASSETS / "registry.json"
 SOURCES = ASSETS / "sources"
 MANIFEST = ASSETS / "outputs.json"
 REPORT = ASSETS / "report.md"
+CALIBRATION_FIELDS = ("calibration_source", "calibration_note", "calibration_baseline")
+PRE_RECOLOUR_CALIBRATION = "pre-recolour source, 2026-10-07"
+# Verification-only float tolerance, matching the existing seven-place tests.
+CALIBRATION_METRIC_TOLERANCE = 1e-7
 
 
 def repo_path(path: str) -> Path:
@@ -44,7 +50,84 @@ def load_registry() -> dict:
             paths.add(path)
     for entry in registry["entries"]:
         alpha_source_entry(entry, registry)
+        recorded_calibration(entry)
     return registry
+
+
+def recorded_calibration(entry: dict) -> dict | None:
+    """Only the director-approved crawler exception may use historical paint.
+
+    Palette treatment changes RGB-distance orphan metrics, not the October 7
+    density decision. Bind its original measurement sources to a fixed Git
+    commit and decoded digests; a note alone must not bypass the grid rule.
+    """
+    if not any(field in entry for field in CALIBRATION_FIELDS):
+        return None
+    if entry["id"] != "crawler" or entry.get("kind") != "rig":
+        raise ValueError("pre-recolour calibration is reserved for the rr-01 crawler")
+    if entry.get("calibration_source") != PRE_RECOLOUR_CALIBRATION:
+        raise ValueError("crawler calibration_source must name the pre-recolour source")
+    note = entry.get("calibration_note")
+    if not isinstance(note, str) or not note.strip():
+        raise ValueError("crawler calibration_note must record the director decision")
+    baseline = entry.get("calibration_baseline")
+    if not isinstance(baseline, dict) or set(baseline) != {"commit", "pixel_sha256"}:
+        raise ValueError("crawler calibration requires a fixed baseline and measurement digests")
+    commit, digests = baseline["commit"], baseline["pixel_sha256"]
+    if not isinstance(commit, str) or len(commit) != 40 or any(c not in "0123456789abcdef" for c in commit):
+        raise ValueError("crawler calibration baseline must be a full Git commit")
+    facings = entry.get("facings")
+    if not isinstance(facings, dict) or not facings:
+        raise ValueError("crawler calibration requires its facing measurements")
+    measurements = {settings["measurement_path"] for settings in facings.values()}
+    if not isinstance(digests, dict) or set(digests) != measurements:
+        raise ValueError("crawler calibration digests must cover exactly its measurement paths")
+    for path, digest in digests.items():
+        repo_path(path)
+        if not isinstance(digest, str) or len(digest) != 64 or any(c not in "0123456789abcdef" for c in digest):
+            raise ValueError("invalid crawler calibration pixel digest: " + path)
+    return baseline
+
+
+def calibration_sample(entry: dict, settings: dict) -> Image.Image:
+    baseline = recorded_calibration(entry)
+    path = settings["measurement_path"]
+    if baseline is None:
+        return sample(SOURCES / path, entry["frames"])
+    source_path = (SOURCES / path).relative_to(ROOT).as_posix()
+    repo_path(source_path)
+    try:
+        result = subprocess.run(["git", "show", baseline["commit"] + ":" + source_path],
+                                cwd=ROOT, check=True, capture_output=True)
+    except subprocess.CalledProcessError as exc:
+        raise ValueError("cannot read crawler calibration baseline: " + source_path) from exc
+    with Image.open(io.BytesIO(result.stdout)) as original:
+        if pixel_digest(original) != baseline["pixel_sha256"].get(path):
+            raise ValueError("crawler calibration baseline pixel digest changed: " + path)
+        image = original.convert("RGBA")
+    x, y, w, h = frame_rects(image.size, entry["frames"])[0]
+    return image.crop((x, y, x + w, y + h))
+
+
+def calibration_errors(entries: list[dict]) -> list[str]:
+    errors = []
+    for entry in entries:
+        try:
+            if recorded_calibration(entry) is None:
+                continue
+            for facing, settings in entry["facings"].items():
+                share = metrics(calibration_sample(entry, settings))["orphan_share"]
+                t = strength(share)
+                grid = round(t / entry["r"], 2)
+                mode = "regrid" if grid >= 1.2 else "clean"
+                if (not math.isclose(share, settings["orphan_share"], abs_tol=CALIBRATION_METRIC_TOLERANCE)
+                        or not math.isclose(t, settings["t"], abs_tol=CALIBRATION_METRIC_TOLERANCE)
+                        or settings["grid"] != grid or settings["mode"] != mode):
+                    errors.append("calibration mismatch: %s/%s: recorded values do not derive from the bound pre-recolour source" %
+                                  (entry["id"], facing))
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            errors.append("calibration invalid: %s: %s" % (entry["id"], exc))
+    return errors
 
 
 def alpha_source_entry(entry: dict, registry: dict) -> dict:
@@ -228,6 +311,7 @@ def sample(path: Path, frames: dict | None) -> Image.Image:
 def report(registry: dict) -> None:
     lines = ["# Board pixel-density report", "",
              "Native calibration uses each facing's untouched rest or the first prop frame.",
+             "Recorded pre-recolour calibration uses its bound historical source; paint metrics use current sources.",
              "Before/after are means over the first frame of each registered paint path.",
              "After derives from sources in memory; native rest/visual proof is separate.",
              "Screen-pixel ratios are relative to the hero on each axis: r_axis/scale_axis = 1.0;",
@@ -241,7 +325,7 @@ def report(registry: dict) -> None:
         for facing, settings in entry.get("facings", {"": entry}).items():
             alpha = alpha_settings(entry, registry) if settings["mode"] == "resample" else {}
             paths = [p for p in entry["paths"] if not facing or Path(p).parent.name == facing]
-            native = metrics(sample(SOURCES / settings["measurement_path"], entry["frames"]))
+            native = metrics(calibration_sample(entry, settings))
             before, after = [], []
             for path in paths:
                 im = sample(SOURCES / path, entry["frames"])
@@ -314,6 +398,9 @@ def main() -> int:
     missing = [path for path in needed if not (SOURCES / path).is_file()]
     if missing:
         raise ValueError("missing sources; use --adopt <path> (or --adopt-all initially):\n" + "\n".join(missing))
+    calibration_failures = calibration_errors(entries)
+    if calibration_failures and not args.check:
+        raise ValueError("\n".join(calibration_failures))
     if args.write_originals:
         # Restore rest baselines too, after a native rebake, for truthful A/B
         # captures. Default processing + native rebake restores the treated view.
@@ -334,7 +421,7 @@ def main() -> int:
     expected_paint = {path for entry in registry["entries"] for path in entry["paths"]}
     expected_rests = {path for entry in registry["entries"] for path in rest_paths(entry)}
     if args.check:
-        stale = paint_errors(entries, manifest) + rest_errors(entries, manifest)
+        stale = calibration_failures + paint_errors(entries, manifest) + rest_errors(entries, manifest)
         if not args.only:
             stale.extend(f"outputs.json: unregistered {path}" for path in sorted(set(manifest) - expected_paint - expected_rests))
         for path in stale:

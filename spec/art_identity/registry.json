@@ -309,8 +309,20 @@
         "width": 165
       },
       "path": "assets/placeholders/units/crawler_anime_trial.png",
-      "pixel_sha256": "95cc6f0161ecbabb10e93da147e1580d442b74fa0b9975fa51d004e3607b9838",
-      "size_class": "outside_reference_bands"
+      "pixel_sha256": "1a09124c3e7079edf8b9af427cbe6237791801a43a9b9dd8f563d572a5c5510f",
+      "size_class": "outside_reference_bands",
+      "post_steps": [
+        {
+          "step": "recolour_lab",
+          "l_scale": 0.76,
+          "ab_scale": 0.85,
+          "reason": "legacy audit 2026-10-13: palette"
+        }
+      ],
+      "recolour_baseline": {
+        "commit": "2cf00ab4ece2f27a590f0bde5d5fb2fecacbd283",
+        "pixel_sha256": "95cc6f0161ecbabb10e93da147e1580d442b74fa0b9975fa51d004e3607b9838"
+      }
     },
     {
       "anatomy": "",
@@ -815,8 +827,20 @@
         "width": 165
       },
       "path": "assets/units/crawler_cutout/front/rest.png",
-      "pixel_sha256": "9b8184e88f7ac621b3609c24111cf22d79e9c2af49b0a6c7f7b4a9665fe0f14a",
-      "size_class": "small"
+      "pixel_sha256": "eb9eb2f34ceea96607f142cf00b88d322307451dc156f11d733c2daf4a406e2f",
+      "size_class": "small",
+      "post_steps": [
+        {
+          "step": "recolour_lab",
+          "l_scale": 0.76,
+          "ab_scale": 0.85,
+          "reason": "legacy audit 2026-10-13: palette"
+        }
+      ],
+      "recolour_baseline": {
+        "commit": "2cf00ab4ece2f27a590f0bde5d5fb2fecacbd283",
+        "pixel_sha256": "9b8184e88f7ac621b3609c24111cf22d79e9c2af49b0a6c7f7b4a9665fe0f14a"
+      }
     },
     {
       "anatomy": "crawler",
@@ -840,8 +864,20 @@
         "width": 184
       },
       "path": "assets/units/crawler_cutout/rear/rest.png",
-      "pixel_sha256": "121d28ed57bc907634edd9af6086f9e3220693c7820a6cf2af2777661fc9614b",
-      "size_class": "small"
+      "pixel_sha256": "93a15338f642d7fca1479584b5d7ef5062d337a58bdec23c680f3365d122f39a",
+      "size_class": "small",
+      "post_steps": [
+        {
+          "step": "recolour_lab",
+          "l_scale": 0.76,
+          "ab_scale": 0.85,
+          "reason": "legacy audit 2026-10-13: palette"
+        }
+      ],
+      "recolour_baseline": {
+        "commit": "2cf00ab4ece2f27a590f0bde5d5fb2fecacbd283",
+        "pixel_sha256": "121d28ed57bc907634edd9af6086f9e3220693c7820a6cf2af2777661fc9614b"
+      }
     },
     {
       "anatomy": "biped",
