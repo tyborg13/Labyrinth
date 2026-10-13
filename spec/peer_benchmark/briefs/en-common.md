@@ -56,6 +56,11 @@ number, text and visual from this brief, never from your own judgement.
 - After enc-01 lands, add each enemy to `data/encounters.json` `biome_groups` exactly as your brief says. If enc-01 has
   not landed in your base, add nothing to pools and report it (the director adds the data entries).
 
+## Known red on the base (do not touch)
+- `depth_rules_suite` "Depth zero … pinned integration state" and `encounter_tables_suite` "64-seed … byte-identical"
+  pin whole-state hashes that move with any merge; qa-01 owns replacing them. Report them as pre-existing; never edit
+  those tests.
+
 ## Proof (each unit)
 - Windowed probes capture a 1920×1080 `SubViewport` (`UPDATE_ALWAYS`) exactly like `tests/movement_undo_probe.gd`;
   never `root.get_texture()`.
