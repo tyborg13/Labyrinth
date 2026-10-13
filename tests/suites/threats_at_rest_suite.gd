@@ -29,6 +29,7 @@ const WAVE_E2_ROSTER: Array = [
 ]
 
 static func run(expect: Callable) -> void:
+	expect.call(Badges.Icons.token_value_text({"icon": "chilled", "value": true}).is_empty(), "flag riders render no number (was \"true\" on the glacial mirror chip)")
 	_test_order_and_tiles(expect)
 	_test_projection_repeats_and_inactive(expect)
 	_test_previews_and_privacy(expect)

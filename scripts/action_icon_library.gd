@@ -762,8 +762,8 @@ static func token_value_text(token: Dictionary) -> String:
 	if not token.has("value"):
 		return ""
 	var value: Variant = token.get("value", "")
-	if value == null:
-		return ""
+	if value == null or typeof(value) == TYPE_BOOL:
+		return ""  # Flag riders (e.g. Chilled) show their icon only, never "true".
 	return str(int(value)) if typeof(value) in [TYPE_INT, TYPE_FLOAT] else str(value)
 
 static func token_for(icon_key: String, value: Variant = null, tone: String = "neutral", tooltip_override: String = "", modifiers: Array = [], base_value: Variant = null) -> Dictionary:
