@@ -16,11 +16,13 @@ const WEIGHT_PICKS: int = 10000
 const WEIGHT_RELATIVE_TOLERANCE: float = 0.02
 const PLACEMENT_SEEDS: int = 32
 const LEGACY_SEEDS: int = 64
-const LEGACY_LAYOUT_SHA256: String = "dbdc515cc8b36127e2d0f913b508e70c886eb07588cb68636261b203164c3618"
-const LEGACY_POOL_SHA256: String = "effa730618ac9f8acdc67de0198d8eb5682af2708e22b8f12c2da7cb0c2c8b59"
-# Run states compared without meta-01's additive score fields (verified identical before/after meta-01).
-const LEGACY_STATE_SHA256: String = "8e0570de89565aca43d026782b3b0985324cface7334c2627f87f5b9dd77137a"
-const SCORE_FIELDS: Array[String] = ["run_stats", "score_wallet_base", "score_health_loss_at_start", "best_score"]
+# Bypass table selection through the existing legacy generator, without changing
+# the protected data. Non-section and revision-3 saves must match this path byte
+# for byte in the current build, including new unrelated run/combat fields.
+class LegacyGenerator:
+	extends "res://scripts/room_generator.gd"
+	func _uses_encounter_tables(_room: Dictionary) -> bool:
+		return false
 
 # Force each authored entry through the actual generator/placement path without
 # replacing the protected table or introducing a gameplay override.
@@ -32,6 +34,7 @@ class EntryGenerator:
 
 static func run(expect: Callable) -> void:
 	_test_validation(expect)
+	_test_invalid_fallback(expect)
 	_test_tokens_and_trim(expect)
 	_test_weights(expect)
 	_test_history(expect)
@@ -60,6 +63,32 @@ static func _test_validation(expect: Callable) -> void:
 			"missing_biome": bad["biome_groups"].erase("shadow")
 		expect.call(not Tables.validate(bad).is_empty(), "Malformed table fails validation: " + mutation)
 	expect.call(Tables.validate({}).size() > 0, "Missing schema fails validation")
+
+static func _test_invalid_fallback(expect: Callable) -> void:
+	var bad: Dictionary = Tables.load().duplicate(true)
+	bad["tiers"]["1"][0]["units"][0] = "missing_enemy"
+	Tables.install_table_for_tests(bad)
+	var generator := Generator.new()
+	var legacy := LegacyGenerator.new()
+	for tier: int in range(1, 4):
+		for biome: String in Tables.BIOMES:
+			var room: Dictionary = {"coord": Vector2i(tier, 0), "depth": tier, "type": "combat", "element": biome if biome != "shadow" else "none", "encounter_biome": biome, "section_map_layout_revision": 4, "section_index": 0}
+			expect.call(generator._uses_encounter_tables(room), "Invalid-table fixture exercises the table-driven room path")
+			var layout: Dictionary = generator.generate_room(FIXTURE_SEED, room, Vector2i(1, 0))
+			expect.call(not (layout["enemies"] as Array).is_empty(), "Invalid encounter table still populates room: %d/%s" % [tier, biome])
+			expect.call(layout == legacy.generate_room(FIXTURE_SEED, room, Vector2i(1, 0)), "Invalid encounter table uses exact legacy composition/placement/RNG: %d/%s" % [tier, biome])
+			expect.call(Tables.load().is_empty(), "Failed table load remains cached across rooms")
+	var engine := RunEngineScript.new()
+	var legacy_engine := RunEngineScript.new()
+	legacy_engine._room_generator = legacy
+	var state: Dictionary = engine.create_new_run(FIXTURE_SEED, Progression.default_data())
+	var destination: Vector2i = Graph.room(state, Vector2i.ZERO)["connections"][0]["coord"]
+	var started: Dictionary = engine.move_to_room(state, destination)
+	expect.call(not (started["combat_state"]["enemies"] as Array).is_empty(), "Invalid table still starts a populated combat through RunEngine")
+	expect.call(started == legacy_engine.move_to_room(state, destination), "Invalid-table runtime entry equals complete legacy state/RNG")
+	expect.call(started["encounter_history"].is_empty() and not Graph.room(started, destination).has("encounter_id"), "Legacy fallback does not record an empty table pick")
+	Tables.clear_table_cache()
+	print("Encounter invalid-table fallback: 18 populated legacy rooms; one expected validation error")
 
 static func _test_tokens_and_trim(expect: Callable) -> void:
 	var rng := RandomNumberGenerator.new()
@@ -199,51 +228,35 @@ static func _test_run_history(expect: Callable) -> void:
 			break
 	Progression.set_run_storage_path("")
 
-# Baselines captured before implementation on 79b1c6ba, using var_to_bytes.
 static func _test_legacy(expect: Callable) -> void:
-	var layouts: Array = []
-	var pools: Array = []
-	var states: Array = []
 	var generator := Generator.new()
+	var legacy_generator := LegacyGenerator.new()
 	for seed: int in range(LEGACY_SEEDS):
 		for depth: int in range(1, 5):
 			for element: String in ["none", "fire", "earth", "ice", "air", "lightning"]:
 				var room: Dictionary = {"coord": Vector2i(depth, 0), "depth": depth, "type": "boss" if depth == 4 else "combat", "element": element, "connections": [{"door_dir": Vector2i(0, -1), "coord": Vector2i(depth + 1, 0)}]}
-				layouts.append(generator.generate_room(seed, room, Vector2i(1, 0)))
+				expect.call(generator.generate_room(seed, room, Vector2i(1, 0)) == legacy_generator.generate_room(seed, room, Vector2i(1, 0)), "Legacy room equals table-disabled generator: %d/%d/%s" % [seed, depth, element])
 				var rng := RandomNumberGenerator.new()
+				var reference := RandomNumberGenerator.new()
 				rng.seed = seed
-				pools.append(generator._encounter_enemy_types("combat", depth, rng, element))
+				reference.seed = seed
+				expect.call(generator._encounter_enemy_types("combat", depth, rng, element) == legacy_generator._encounter_enemy_types("combat", depth, reference, element) and rng.state == reference.state, "Legacy pools and RNG match: %d/%d/%s" % [seed, depth, element])
 		for type: String in ["guardian", "boss", "start"]:
-			layouts.append(generator.generate_room(seed, {"coord": Vector2i(4, 0), "depth": 4, "type": type, "element":"fire", "boss_id":"vyraketh"}, Vector2i(1, 0)))
+			var room: Dictionary = {"coord": Vector2i(4, 0), "depth": 4, "type": type, "element": "fire", "boss_id": "vyraketh"}
+			expect.call(generator.generate_room(seed, room, Vector2i(1, 0)) == legacy_generator.generate_room(seed, room, Vector2i(1, 0)), "Legacy special layout matches: %d/%s" % [seed, type])
 		var engine := RunEngineScript.new()
+		var legacy_engine := RunEngineScript.new()
+		legacy_engine._room_generator = legacy_generator
 		var state: Dictionary = engine.create_new_run(seed, Progression.default_data(), false)
-		states.append(_without_score_fields(state))
-		states.append(_without_score_fields(engine.move_to_room(state, state["rooms"]["0,0"]["connections"][0]["coord"])))
-		Graph._initialize_revision_3(state)
-		states.append(_without_score_fields(state))
-		states.append(_without_score_fields(engine.move_to_room(state, Graph.room(state, Vector2i.ZERO)["connections"][0]["coord"])))
-	expect.call(hash_bytes(layouts) == LEGACY_LAYOUT_SHA256, "64-seed legacy room layouts remain byte-identical")
-	expect.call(hash_bytes(pools) == LEGACY_POOL_SHA256, "64-seed legacy pool outputs remain byte-identical")
-	expect.call(hash_bytes(states) == LEGACY_STATE_SHA256, "64-seed non-section and revision-3 run states remain byte-identical")
-	print("Encounter legacy SHA256: layouts=%s pools=%s states=%s" % [hash_bytes(layouts), hash_bytes(pools), hash_bytes(states)])
-
-static func _without_score_fields(value: Variant) -> Variant:
-	if typeof(value) == TYPE_DICTIONARY:
-		var out: Dictionary = {}
-		for key: Variant in (value as Dictionary).keys():
-			if not SCORE_FIELDS.has(str(key)): out[key] = _without_score_fields(value[key])
-		return out
-	if typeof(value) == TYPE_ARRAY:
-		var items: Array = []
-		for item: Variant in value: items.append(_without_score_fields(item))
-		return items
-	return value
-
-static func hash_bytes(value: Variant) -> String:
-	var digest := HashingContext.new()
-	digest.start(HashingContext.HASH_SHA256)
-	digest.update(var_to_bytes(value))
-	return digest.finish().hex_encode()
+		var legacy: Dictionary = legacy_engine.create_new_run(seed, Progression.default_data(), false)
+		for revision: int in [0, 3]:
+			if revision == 3:
+				Graph._initialize_revision_3(state)
+				Graph._initialize_revision_3(legacy)
+			expect.call(state == legacy, "Legacy run matches table-disabled path: %d/revision %d" % [seed, revision])
+			var destination: Vector2i = Graph.room(state, Vector2i.ZERO)["connections"][0]["coord"]
+			expect.call(engine.move_to_room(state, destination) == legacy_engine.move_to_room(legacy, destination), "Legacy entry state and RNG match: %d/revision %d" % [seed, revision])
+	print("Encounter legacy differential: 64 seeds; layouts, pools/RNG, non-section and revision-3 entry states checked")
 
 static func _test_placement(expect: Callable) -> void:
 	var generator := EntryGenerator.new()
