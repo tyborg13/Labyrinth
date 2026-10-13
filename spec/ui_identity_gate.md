@@ -49,3 +49,43 @@ socket ring, painted frame or ink-glass surface — is a FAIL even when every co
 Hotspots (run_scene.gd 537 literals, combat_board_view.gd 343, labyrinth_map_view.gd 67, …) are migrated to tokens and
 helpers by dedicated cleanup units; each tightens the baseline. No cleanup changes how anything looks unless the
 director says so (re-typed palette hexes become their tokens; near-palette hexes need a director decision).
+
+## Commands
+
+Run from the task worktree with Python 3.9 or newer (standard library only):
+
+```bash
+python3 tools/ui_identity_lint.py scan --json
+python3 tools/ui_identity_lint.py check
+python3 tests/test_ui_identity_lint.py
+python3 tools/ui_identity_lint.py --tighten
+```
+
+The JSON scan includes every `file`/`line`/`rule` site, per-file counts, rule totals, the top 15 files per rule
+(count descending, path ascending for ties), and separate informational `palette_matches` with token names.
+Comments and strings are masked before matching code; literal arguments of colour constructors and font loads
+are inspected separately. Multiline calls are reported at their first line. R1 also counts serialized
+`StyleBoxFlat` definitions (`sub_resource` in scenes and `gd_resource` in themes); external references do not count.
+Resource comments beginning with `;` are ignored as well as `#` comments.
+
+`baseline.json` contains `version: 1` and a `counts` object keyed by repository-relative path, then rule.
+Only nonzero counts are generated. Bootstrap it once with:
+
+```bash
+python3 tools/ui_identity_lint.py --write-baseline
+```
+
+This refuses to replace an existing file; `--force` explicitly replaces it. Ordinary cleanup uses `--tighten`,
+which removes zero entries and takes the smaller of each baseline and current count. It never adds a new file,
+rule or larger count. The initial ui-01 baseline uses the scanned files from `6e214d7a4` (identical to the task's
+starting tree).
+
+Each director-signed exception is an object with `file`, `rule`, positive integer `count`, and nonempty `reason`.
+Exception counts add to the baseline allowance for that file and rule. `check` exits 1 for a count increase,
+0 for a pass, and 2 for invalid policy or I/O errors. Because the baseline stores counts, an increase reports
+every current site in the offending file/rule pair so additions at any position are visible, with the required
+shared helper. Dropped counts pass with a reminder to tighten. `--root <copy>` lets the same commands inspect
+a temporary repository copy; the synthetic-new-box regression test exercises this without modifying game code.
+
+This tooling-only unit does not change a rendered surface, so renderer captures and a playable inspection fixture
+are not applicable. UI implementation units still require the visual review above.

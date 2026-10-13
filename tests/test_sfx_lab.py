@@ -4,8 +4,10 @@ from __future__ import annotations
 import argparse
 import copy
 from html.parser import HTMLParser
+import importlib.util
 import json
 from pathlib import Path
+import runpy
 import shutil
 import subprocess
 import sys
@@ -16,18 +18,27 @@ from unittest.mock import patch
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from tools.sfx_lab.common import (LabError, TakeLibrary, decode, encode, fade_in, fade_out,
-    read_json, safe_path, sha256, normalize, db, write_json, write_jsonl, workers, SHORT_PEAK_TARGETS,
-    FADE_IN_MS, FADE_CURVE)
-from tools.sfx_lab.index import create_index, query
-from tools.sfx_lab.slice import create_slices, slice_audio
-from tools.sfx_lab.features import create_features, measure
-from tools.sfx_lab.audition import audition, PAGE_SCRIPT, PAGE_TITLE, AUDITION_CSS, KEYBOARD_SHORTCUTS
-from tools.sfx_lab.build import build, process, encode_verified, CATEGORY_TARGETS, choose_channels, crossfade_loop
-from tools.sfx_lab.design import design, render_entry, render_layer, LAYER_DEFAULTS, MASTER_DEFAULTS
-import numpy as np
-import soundfile as sf
-from scipy import signal
+MISSING_MODULES = tuple(name for name in ("numpy", "soundfile", "scipy", "pyloudnorm")
+                        if importlib.util.find_spec(name) is None)
+SFX_TEST_PYTHON = "/Users/borgerding/.cache/umbra-sfx/venv/bin/python"
+OPTIONAL_MODULE_REASON = (
+    f"Missing optional modules: {', '.join(MISSING_MODULES)}; run with {SFX_TEST_PYTHON}."
+)
+if not MISSING_MODULES:
+    from tools.sfx_lab.common import (LabError, TakeLibrary, decode, encode, fade_in, fade_out,
+        read_json, safe_path, sha256, normalize, db, write_json, write_jsonl, workers, SHORT_PEAK_TARGETS,
+        FADE_IN_MS, FADE_CURVE)
+    from tools.sfx_lab.index import create_index, query
+    from tools.sfx_lab.slice import create_slices, slice_audio
+    from tools.sfx_lab.features import create_features, measure
+    from tools.sfx_lab.audition import audition, PAGE_SCRIPT, PAGE_TITLE, AUDITION_CSS, KEYBOARD_SHORTCUTS
+    from tools.sfx_lab.build import (build, process, encode_verified, CATEGORY_TARGETS, choose_channels,
+        crossfade_loop, peak_limiter, ENCODE_CORRECTION_TOLERANCE)
+    from tools.sfx_lab.design import design, render_entry, render_layer, LAYER_DEFAULTS, MASTER_DEFAULTS
+    import numpy as np
+    import pyloudnorm as pyln
+    import soundfile as sf
+    from scipy import signal
 
 
 # Debug-only proof defaults, not production design or approved cue choices.
@@ -46,6 +57,16 @@ DESIGN_FIXTURE = {"seconds": .6, "trim": [.05, .35], "offset_ms": 7.35,
                   "peak_dbfs": -6, "pitch": 2, "native_rate": 44100,
                   "highpass_hz": 700, "lowpass_hz": 2000,
                   "frequencies_hz": [100, 1000, 7000], "fade_ms": 10}
+LIMITER_FIXTURE = {"input_gain_db": 0.0, "ceiling_dbfs": -1.0,
+                   "lookahead_ms": 2.0, "release_ms": 60.0}
+LIMITER_SIGNAL_FIXTURE = {"seconds": .15, "baseline": .1, "pulse_seconds": .02,
+                          "pulse_amplitude": 2.0, "random_amplitude": 2.0,
+                          "build_input_gain_db": 20.0, "overflow_input_gain_db": 10000.0}
+WINDOW_MEASURE_FIXTURE = {"burst_seconds": .1, "tail_seconds": .6,
+                          "burst_amplitude": .4, "tail_amplitude": .02,
+                          "cue_volume_db": -2.0, "short_seconds": .05}
+MEASURE_MIX_SCRIPT = ROOT / "spec/peer_benchmark/staged/sfx/measure_mix.py"
+MIX_MEASURE = runpy.run_path(str(MEASURE_MIX_SCRIPT)) if not MISSING_MODULES else {}
 
 
 def sine(seconds: float, frequency: float = 1000, amplitude: float = 0.2) -> np.ndarray:
@@ -82,6 +103,132 @@ class PageParser(HTMLParser):
             self.reading_data = False
 
 
+@unittest.skipUnless(not MISSING_MODULES, OPTIONAL_MODULE_REASON)
+class WindowMeasureTests(unittest.TestCase):
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory(prefix="sfx-window-tests-")
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.path = self.root / "burst.wav"
+        fixture = WINDOW_MEASURE_FIXTURE
+        self.data = np.concatenate((sine(fixture["burst_seconds"], amplitude=fixture["burst_amplitude"]),
+                                    sine(fixture["tail_seconds"], amplitude=fixture["tail_amplitude"])))
+        sf.write(self.path, self.data, FIXTURE_RATE, subtype="FLOAT")
+
+    def test_default_400ms_matches_director_measure_and_100ms_uses_25ms_hops(self):
+        data, rate = sf.read(self.path, always_2d=True)
+        for window, hop in ((.4, .1), (.1, .025)):
+            meter = pyln.Meter(rate, block_size=window)
+            count, step = int(window * rate), int(hop * rate)
+            expected = max(meter.integrated_loudness(data[start:start + count])
+                           for start in range(0, len(data) - count + 1, step))
+            self.assertAlmostEqual(expected, MIX_MEASURE["mmax"](self.path, window), places=12)
+        self.assertEqual(MIX_MEASURE["mmax"](self.path, .4), MIX_MEASURE["mmax"](self.path))
+        self.assertGreater(MIX_MEASURE["mmax"](self.path, .1), MIX_MEASURE["mmax"](self.path, .4))
+
+    def test_short_padding_and_window_validation(self):
+        short = self.root / "short.wav"
+        sf.write(short, sine(WINDOW_MEASURE_FIXTURE["short_seconds"]), FIXTURE_RATE, subtype="FLOAT")
+        for window in (.1, .4):
+            self.assertTrue(np.isfinite(MIX_MEASURE["mmax"](short, window)))
+        for value in (0, -1, "invalid", float("nan"), float("inf")):
+            with self.subTest(value=value), self.assertRaises(argparse.ArgumentTypeError):
+                MIX_MEASURE["window_seconds"](value)
+
+    def test_cli_default_explicit_and_short_windows_preserve_cue_gain_and_inheritance(self):
+        (self.root / "data").mkdir()
+        volume = WINDOW_MEASURE_FIXTURE["cue_volume_db"]
+        write_json(self.root / "data/sfx_cues.json", {"cues": {
+            "base": {"variants": ["res://burst.wav"], "volume_db": volume},
+            "inherited": {"variants_from": "base", "volume_db": 0}}})
+        outputs = []
+        for label, extra in (("default", []), ("explicit", ["--window", "0.4"]),
+                             ("short", ["--window", "0.1"])):
+            destination = self.root / (label + ".json")
+            result = subprocess.run([sys.executable, str(MEASURE_MIX_SCRIPT), str(self.root),
+                                     str(destination), *extra], capture_output=True, text=True, timeout=30)
+            self.assertEqual(0, result.returncode, result.stderr)
+            rows = read_json(destination)
+            self.assertEqual(volume, rows["base"]["volume_db"])
+            self.assertEqual(rows["base"]["file"], rows["inherited"]["file"])
+            outputs.append(rows)
+        self.assertEqual(outputs[0], outputs[1])
+        self.assertGreater(outputs[2]["base"]["eff"], outputs[0]["base"]["eff"])
+        print("WINDOW_MEASURE_PROOF default_400ms=PASS short_100ms_25ms_hops=PASS cue_gain=PASS inheritance=PASS CLI=PASS")
+
+
+@unittest.skipUnless(not MISSING_MODULES, OPTIONAL_MODULE_REASON)
+class LimiterTests(unittest.TestCase):
+    def pulse(self):
+        fixture = LIMITER_SIGNAL_FIXTURE
+        data = np.full((round(fixture["seconds"] * FIXTURE_RATE), 1), fixture["baseline"])
+        pulse = round(fixture["pulse_seconds"] * FIXTURE_RATE)
+        data[pulse] = fixture["pulse_amplitude"]
+        return data, pulse
+
+    def test_ceiling_linked_channels_boundary_peaks_and_input_gain(self):
+        data = np.random.default_rng(FIXTURE_RANDOM_SEED).normal(
+            0, LIMITER_SIGNAL_FIXTURE["random_amplitude"], (FIXTURE_RATE, 2))
+        data[0, 0] = data[-1, 1] = LIMITER_SIGNAL_FIXTURE["pulse_amplitude"]
+        settings = {**LIMITER_FIXTURE, "input_gain_db": 7.0}
+        original = data.copy()
+        result, parameters = peak_limiter(data, FIXTURE_RATE, settings)
+        ceiling = 10 ** (settings["ceiling_dbfs"] / 20)
+        self.assertLessEqual(np.max(np.abs(result)), ceiling)
+        np.testing.assert_array_equal(original, data)
+        np.testing.assert_allclose(result[:, 0] / data[:, 0], result[:, 1] / data[:, 1])
+        self.assertAlmostEqual(parameters["pre_peak_dbfs"], db(np.max(np.abs(data))) + 7)
+        self.assertGreater(parameters["max_gain_reduction_db"], 0)
+        quiet = sine(1, amplitude=LIMITER_SIGNAL_FIXTURE["baseline"])
+        raised, parameters = peak_limiter(quiet, FIXTURE_RATE, settings)
+        np.testing.assert_allclose(raised, quiet * 10 ** (7 / 20), atol=1e-12)
+        self.assertAlmostEqual(parameters["max_gain_reduction_db"], 0, places=9)
+
+    def test_lookahead_attack_starts_early_and_is_linear(self):
+        data, pulse = self.pulse()
+        result, parameters = peak_limiter(data, FIXTURE_RATE, LIMITER_FIXTURE)
+        gain = (result / data)[:, 0]
+        samples = round(LIMITER_FIXTURE["lookahead_ms"] * FIXTURE_RATE / 1000)
+        first = pulse - samples
+        self.assertEqual(samples, parameters["lookahead_samples"])
+        np.testing.assert_allclose(gain[:first], 1, atol=1e-12)
+        self.assertLess(gain[first], 1)
+        required = 10 ** (LIMITER_FIXTURE["ceiling_dbfs"] / 20) / data[pulse, 0]
+        expected = 1 - (1 - required) * np.arange(1, samples + 2) / (samples + 1)
+        np.testing.assert_allclose(gain[first:pulse + 1], expected, atol=1e-12)
+        self.assertAlmostEqual(gain[pulse], required, places=12)
+
+    def test_release_is_one_pole_exponential(self):
+        data, pulse = self.pulse()
+        result, _parameters = peak_limiter(data, FIXTURE_RATE, LIMITER_FIXTURE)
+        gain = (result / data)[:, 0]
+        elapsed = np.arange(1, len(data) - pulse)
+        tau_samples = FIXTURE_RATE * LIMITER_FIXTURE["release_ms"] / 1000
+        expected = 1 - (1 - gain[pulse]) * np.exp(-elapsed / tau_samples)
+        np.testing.assert_allclose(gain[pulse + 1:], expected, atol=1e-12)
+        self.assertTrue(np.all(np.diff(gain[pulse:]) > 0))
+
+    def test_determinism_silence_and_short_file(self):
+        for data in (self.pulse()[0], np.zeros((1, 2)), np.full((1, 1), 2.0)):
+            first, parameters = peak_limiter(data, FIXTURE_RATE, LIMITER_FIXTURE)
+            second, repeated = peak_limiter(data, FIXTURE_RATE, LIMITER_FIXTURE)
+            np.testing.assert_array_equal(first, second)
+            self.assertEqual(parameters, repeated)
+            self.assertLessEqual(np.max(np.abs(first)), 10 ** (-1 / 20))
+            json.dumps(parameters, allow_nan=False)
+
+    def test_invalid_limiter_settings_fail(self):
+        data, _pulse = self.pulse()
+        for settings in (None, {}, {**LIMITER_FIXTURE, "ceiling_dbfs": 1},
+                         {**LIMITER_FIXTURE, "lookahead_ms": 0},
+                         {**LIMITER_FIXTURE, "release_ms": -1},
+                         {**LIMITER_FIXTURE, "input_gain_db": float("nan")},
+                         {**LIMITER_FIXTURE, "input_gain_db": LIMITER_SIGNAL_FIXTURE["overflow_input_gain_db"]}):
+            with self.subTest(settings=settings), self.assertRaises(LabError):
+                peak_limiter(data, FIXTURE_RATE, settings)
+
+
+@unittest.skipUnless(not MISSING_MODULES, OPTIONAL_MODULE_REASON)
 class SfxLabTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -422,6 +569,40 @@ function assert(value,message){if(!value) throw Error(message);}
             shutil.copyfile(manifest, PROOF_OUT / "manifest.json")
             write_json(PROOF_OUT / "approved.json", approved)
 
+    def test_limiter_build_stage_manifest_encoded_ceiling_and_determinism(self):
+        settings = {**LIMITER_FIXTURE, "input_gain_db": LIMITER_SIGNAL_FIXTURE["build_input_gain_db"]}
+        variants = [{"take": row["take_id"], "limiter": settings} for row in (self.long, self.short)]
+        approved = self.write("limiter-approved.json", {"limited": {"category": "impact", "variants": variants}})
+        library = TakeLibrary(self.features)
+        raw, rate, _parameters = library.excerpt(self.long, variants[0])
+        expected, limiting = peak_limiter(fade_out(fade_in(raw, rate), rate, 30), rate, settings)
+        with patch("tools.sfx_lab.build.normalize", side_effect=AssertionError("limiter must skip normalization")):
+            actual, _, parameters = process(library, self.long, variants[0], "impact", False, {})
+            first = build(approved, self.root / "limiter-build", self.root / "limiter-manifest.json", self.features)
+            second = build(approved, self.root / "limiter-again", self.root / "limiter-again.json", self.features)
+        np.testing.assert_array_equal(expected, actual)
+        self.assertEqual(limiting, parameters["limiter"])
+        self.assertEqual(first, second)
+        self.assertEqual((self.root / "limiter-manifest.json").read_bytes(),
+                         (self.root / "limiter-again.json").read_bytes())
+        for row in first["outputs"]:
+            parameters = row["processing"]
+            self.assertEqual("limiter", parameters["normalization"])
+            self.assertIsNone(parameters["target_lufs"])
+            self.assertEqual(settings["ceiling_dbfs"], parameters["peak_target_dbfs"])
+            for name, value in settings.items():
+                self.assertEqual(value, parameters["limiter"][name])
+            for name in ("max_gain_reduction_db", "input_peak_dbfs", "pre_peak_dbfs", "post_peak_dbfs"):
+                self.assertIn(name, parameters["limiter"])
+            self.assertLessEqual(parameters["limiter"]["post_peak_dbfs"], settings["ceiling_dbfs"])
+            self.assertLessEqual(parameters["output_peak_dbfs"],
+                                 settings["ceiling_dbfs"] + ENCODE_CORRECTION_TOLERANCE)
+            path = self.root / "limiter-build" / row["path"]
+            decoded, _rate = decode(path)
+            self.assertAlmostEqual(parameters["output_peak_dbfs"], db(np.max(np.abs(decoded))))
+            self.assertEqual(sha256(path), sha256(self.root / "limiter-again" / row["path"]))
+        print("LIMITER_PROOF float_ceiling=PASS encoded_ceiling=PASS normalization_skipped=PASS stage=PASS manifest=PASS deterministic=PASS")
+
     def test_short_peak_caps_and_processing_parameters(self):
         expected_targets = {"impact": -3, "body": -4, "vocal": -6, "ui": -12,
                             "card": -10, "spell": -4, "movement": -14, "status": -8,
@@ -653,6 +834,7 @@ function assert(value,message){if(!value) throw Error(message);}
             self.assertTrue(result.stdout.strip())
 
 
+@unittest.skipUnless(not MISSING_MODULES, OPTIONAL_MODULE_REASON)
 class LayeredDesignTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

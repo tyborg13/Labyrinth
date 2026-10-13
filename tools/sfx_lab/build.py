@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import argparse
+from collections import deque
 from pathlib import Path
 import shutil
 import sys
@@ -27,6 +28,66 @@ ENCODE_MEASURE_ATTEMPTS = 16
 LOUDNESS_TOLERANCE_LU = 0.5
 ENCODE_CORRECTION_TOLERANCE = 0.05
 NON_AMBIENCE_LOOP = True
+
+
+def peak_limiter(data: np.ndarray, rate: int, settings: dict) -> tuple[np.ndarray, dict]:
+    """Linked-channel lookahead peak limiting, without shifting or trimming audio."""
+    if not isinstance(settings, dict):
+        raise LabError("limiter must be an object")
+    names = ("input_gain_db", "ceiling_dbfs", "lookahead_ms", "release_ms")
+    if set(settings) != set(names):
+        raise LabError("limiter requires input_gain_db, ceiling_dbfs, lookahead_ms and release_ms")
+    values = {name: finite(settings[name], "limiter." + name) for name in names}
+    if values["ceiling_dbfs"] > 0 or values["lookahead_ms"] <= 0 or values["release_ms"] <= 0:
+        raise LabError("limiter requires ceiling_dbfs <= 0 and positive lookahead_ms/release_ms")
+    if data.ndim != 2 or not data.size or not np.isfinite(data).all() or rate <= 0:
+        raise LabError("limiter requires finite nonempty audio and a positive sample rate")
+    samples = round(values["lookahead_ms"] * rate / 1000)
+    if samples < 1:
+        raise LabError("limiter lookahead_ms must span at least one sample")
+    input_peak = db(float(np.max(np.abs(data))))
+    with np.errstate(over="ignore", invalid="ignore"):
+        boosted = data * np.power(10.0, values["input_gain_db"] / 20)
+    if not np.isfinite(boosted).all():
+        raise LabError("limiter input_gain_db overflows the float signal")
+    ceiling = 10 ** (values["ceiling_dbfs"] / 20)
+    if ceiling == 0:
+        raise LabError("limiter ceiling_dbfs underflows the float signal")
+    peaks = np.max(np.abs(boosted), axis=1)
+    computer = np.ones(len(data))
+    # One representable step below the ceiling prevents multiplication rounding
+    # above it. This is a numerical guard, not an additional level adjustment.
+    np.divide(np.nextafter(ceiling, 0), peaks, out=computer, where=peaks > ceiling)
+    future_min = np.empty(len(data))
+    pending = deque()
+    for index in range(len(data) - 1, -1, -1):
+        while pending and pending[0] > index + samples:
+            pending.popleft()
+        while pending and computer[pending[-1]] >= computer[index]:
+            pending.pop()
+        pending.append(index)
+        future_min[index] = computer[pending[0]]
+    # A trailing box average turns each future-minimum drop into a linear
+    # attack across the lookahead window. Every contributing minimum includes
+    # the current sample, so the ramp cannot exceed its gain-computer limit.
+    # Unity padding allows an attack at the file boundary without added silence.
+    count = samples + 1
+    sums = np.concatenate(([0.0], np.cumsum(np.concatenate((np.ones(samples), future_min)))))
+    attack = np.minimum((sums[count:] - sums[:-count]) / count, computer)
+    release = np.exp(-1 / (rate * values["release_ms"] / 1000))
+    gains = np.empty(len(data))
+    previous = 1.0
+    for index, target in enumerate(attack):
+        previous = min(float(target), 1 + release * (previous - 1))
+        gains[index] = previous
+    result = boosted * gains[:, None]
+    post_peak = float(np.max(np.abs(result)))
+    if post_peak > ceiling:
+        raise LabError("limiter float signal exceeds ceiling")
+    return result, {**values, "lookahead_samples": samples,
+                    "input_peak_dbfs": input_peak, "pre_peak_dbfs": db(float(np.max(peaks))),
+                    "post_peak_dbfs": db(post_peak),
+                    "max_gain_reduction_db": -db(float(np.min(gains)))}
 
 
 def choose_channels(data: np.ndarray, category: str, design: dict) -> tuple[np.ndarray, dict]:
@@ -103,6 +164,19 @@ def process(library: TakeLibrary, row: dict, variant: dict, category: str,
         data = fade_out(data, rate, milliseconds, design)
         parameters.update({"fade_out_ms": milliseconds,
                            "fade_curve": design_value(design, "fade_curve") if milliseconds else None})
+    if "limiter" in variant:
+        level, _method = loudness(data, rate)
+        data, limiting = peak_limiter(data, rate, variant["limiter"])
+        parameters.update({"limiter": limiting, "normalization": "limiter",
+                           "limiter_stage": "after_loop_crossfade" if loop else "after_fade_out",
+                           "target_lufs": None, "peak_target_dbfs": limiting["ceiling_dbfs"],
+                           "input_level": level, "input_peak_dbfs": limiting["input_peak_dbfs"],
+                           "applied_gain_db": limiting["input_gain_db"],
+                           "peak_cap_applied": limiting["max_gain_reduction_db"] > 0})
+        if not loop:
+            parameters["fade_in_stage"] = "before_limiter"
+        parameters["pitch_mode"] = PITCH_MODE
+        return data, rate, parameters
     peak_target = PEAK_TARGETS.get(category)
     if len(data) / rate < SHORT_SECONDS:
         if category == "ambience":
@@ -121,7 +195,8 @@ def encode_verified(path: Path, data: np.ndarray, rate: int, parameters: dict,
     """Correct codec level drift; measure the actual deliverable, never a WAV proxy."""
     path = safe_path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    target = (db(float(np.max(np.abs(data)))) if parameters["normalization"] == "short_peak_dbfs"
+    peak_control = parameters["normalization"] in {"short_peak_dbfs", "limiter"}
+    target = (db(float(np.max(np.abs(data)))) if peak_control
               else loudness(data, rate)[0])
     cumulative, lower_gain, upper_gain = 0.0, None, None
     cap = parameters["peak_target_dbfs"]
@@ -134,7 +209,7 @@ def encode_verified(path: Path, data: np.ndarray, rate: int, parameters: dict,
             decoded, decoded_rate = decode(encoded)
             level, method = loudness(decoded, decoded_rate)
             peak = db(float(np.max(np.abs(decoded))))
-            actual = peak if parameters["normalization"] == "short_peak_dbfs" else level
+            actual = peak if peak_control else level
             if actual is None or peak is None:
                 raise LabError(f"Encoder produced silent output: {path}")
             error = abs(actual - target)

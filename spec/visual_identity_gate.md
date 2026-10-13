@@ -89,6 +89,14 @@ measured metrics, so it cannot change silently. `python3 tests/test_art_identity
 used by `data/enemies.json` (art path or cutout rests) or a standing prop has no entry, an entry's hash does not
 match, or a metric leaves its band without a recorded exception.
 
+## 7b. Maquettes (baseline for anatomy image generation cannot infer)
+
+Owner decision 2026-10-13. For wings, rear views of complex creatures and rigs that need part masks, the structure is
+decided in 3D and image generation only paints over it: `spec/art_identity/maquettes/` (Blender, headless) renders a
+posed proxy from the board camera — front (yaw 0) and rear (yaw 180) — as part-label colours plus a clay pass (and, for
+rigs, per-part solo renders and projected joints). Prompts say the label colours are part labels and keep silhouette,
+overlap and camera. Front and rear agree by construction. Birds stand perched (upright on two legs, tail down).
+
 ## 8. In-engine lineup
 
 `tests/bestiary_lineup_probe.gd` captures every enemy and the hero on a board at in-game scale (1920×1080

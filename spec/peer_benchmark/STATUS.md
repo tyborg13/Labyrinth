@@ -16,20 +16,31 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 - Research: `Labyrinth/output/benchmark-research-2026-10-12/` (StS, ITB, Umbra inventory).
 
 ## Milestone
-M0 — research + gap audit (in progress).
+M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
-## In flight
-- Codex: ev-01 (event engine), map-01 (map v2). Watchdog: `cu watch` background.
-- Research agents: StS, ITB (pending); SFX sourcing agent → output/sfx-sources-2026-10-12/ (owner approved CC0/free-commercial downloads).
-- Done: Umbra inventory (spec/peer_benchmark/umbra_inventory.md).
+## In flight (2026-10-13 11:45)
+- rr-01 (crawler rig recolour) fix round 1: calibration decided (grid 1.73 held, pre-recolour calibration note). Next:
+  director windowed rest rebake → record-rests/cache/registry → crawler_recolour + bestiary lineup probes → review.
+- rr-02 gaoler maquette pilot: judge round 2 FAILED — the sheet used the unedited front (edit never processed) and
+  the rear (copper riveted helm, pale chain, grey-tan coat, orange arm wraps) did not match the edited front. Fixed:
+  front edit processed (`mq_front_v2`), tabard toned to oxblood (`mq_front_v3`, tone_tabard.py); rear repaint from
+  front v3 running as image job `mq-gaoler-rear-v3` (prompt `maquettes/chainbound_gaoler/resume_rear3.md`). Then
+  process with `--match-front mq_front_v3/processed.png --clean-outline`, rebuild the sheet, fresh judge.
+- Gust shrike perched repaint (mq2): judge PASS round 2; owner comparison
+  `output/peer-benchmark-2026-10-12/identity_gate/gust_shrike_perched_compare.png` — awaiting owner verdict.
+- Watchdog: `scratchpad/watch_loop2.sh` (tracked background job).
 
 ## Next actions
-1. Event art: 27 image runs (pixel-painterly like card art, ragged dark vignette; native ~480x320 shown 2x).
-2. ev-02: illustrated event view + omen HUD (needs mockup).
-3. feel-01: hit-stop, impact flash, enemy-turn pacing, combat speed setting.
-4. sfx-01: data-driven SFX cue bank + call sites (after sourcing).
-5. Gap audit artifact for the owner (after research lands).
-6. Follow-up after ev-01+map-01 merge: reveal effect = scout mystery rooms in layout rev 4.
+1. Owner verdict on the perched shrike → integrate (art_scale 0.75, directional art, portrait, registry kit entry
+   replacing pending_reart) and add to canon as the flyer reference.
+2. Gaoler judge → owner → brief rr-02 implementation (maquette label maps → segmentation, solo renders → hidden
+   material, joints_px.json → rig joints, reuse gaoler_motion).
+3. Roster wave 1b after the pilot: acolyte (+ veilbound), frostglass lancer, bile bloomer, harrier, lightning wisp,
+   warden (front), cinder ooze (front). Wave 2: roc fledgling + gallows roc via perched-bird maquettes. Wave 3: dragons.
+4. Cut playtest 7 from integration after rr-01 lands (frozen worktree + import + start fixture).
+5. Known environment-only test noise (not regressions, 2026-10-13): `test_chopin_death_music` fails when a Godot import
+   leaves untracked `output/classical_soundtracks/**/preview.ogg.import` sidecars (delete them); the task-queue
+   handoff test failed once under full-suite load and passes on rerun ×3.
 - Plan page (artifact): https://claude.ai/artifact/N1G8qgbt58t6CbufwQxq5d — source output/peer-benchmark-2026-10-12/plan_page/ (plan_template.html → index.html via inline-font build snippet)
 
 ## Update 2026-10-12 evening
@@ -121,3 +132,9 @@ Adds en-04 (briar weaver, slag mortar) and en-05 (glacial mirror, gust shrike) +
 
 ## Playtest 6 (frozen worktree ../peer-benchmark-playtest-6 at 74965c9a1; import + start fixture verified)
 Adds art-03: the 11 approved section enemies with new front/rear art, four-direction facing, new portraits. Gust shrike still old art (maquette pending owner).
+
+## Update (integration 6786edf5d, 2026-10-13)
+- Merged sfx-03 (lookahead limiter; hit.blade.light +7 dB, status.shatter +6, status.freeze +5; 100 ms short-window
+  measure). Sync conflict in tests/test_sfx_lab.py resolved keeping qa-03's optional-module guards on every class.
+  Sound-lab venv: 39 tests OK; system Python: 39 skipped cleanly; SFX bank PASS.
+- Integration full Godot suite PASS (685 s) at the qa-03 merge; Python discovery's 2 failures are environmental (above).

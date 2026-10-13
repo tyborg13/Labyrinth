@@ -43,12 +43,12 @@ def wing(part, side):
     bm = bmesh.new()
     n = 16
     def lead(t):  # shoulder (0.25, 0.75) -> tip (-0.85, 2.15), bowed forward
-        x = 0.25 - 1.10 * t - 0.25 * math.sin(math.pi * t) * 0.0
-        z = 0.75 + 1.40 * (1 - (1 - t) ** 1.6)
+        x = 0.32 - 1.05 * t
+        z = 0.92 + 1.30 * (1 - (1 - t) ** 1.6)
         return x + 0.18 * math.sin(math.pi * t), z
     def trail(t):  # hip (-0.45, 0.62) -> tip, sagging, with primaries notches near the tip
-        x = -0.45 - 0.40 * t
-        z = 0.62 + 1.53 * t ** 1.4
+        x = -0.32 - 0.41 * t
+        z = 0.58 + 1.64 * t ** 1.4
         notch = 0.10 * (1 if (int(t * n) % 2) else 0) * t
         return x - notch, z - notch * 0.6
     rows = []
@@ -66,17 +66,17 @@ def wing(part, side):
     return add(o, part)
 
 # Body: low, nearly horizontal, pointing +X (forward)
-ellipsoid('body', (0, 0, 0.55), (0.75, 0.33, 0.30), (0, math.radians(8), 0))
-ellipsoid('head', (0.78, 0, 0.72), (0.24, 0.21, 0.21))
-cone('beak', (1.03, 0, 0.66), 0.09, 0.0, 0.26, (0, math.radians(100), 0))
-ellipsoid('mask', (0.86, 0, 0.76), (0.12, 0.215, 0.06))
+ellipsoid('body', (0.0, 0, 0.62), (0.66, 0.34, 0.31), (0, math.radians(-32), 0))
+ellipsoid('head', (0.58, 0, 1.12), (0.24, 0.21, 0.21))
+cone('beak', (0.83, 0, 1.06), 0.09, 0.0, 0.26, (0, math.radians(105), 0))
+ellipsoid('mask', (0.66, 0, 1.16), (0.12, 0.215, 0.06))
 # Tail fan: several flat blades behind
 for k in range(-3, 4):
     a = math.radians(k * 11)
     import bmesh
     me = bpy.data.meshes.new('tail'); o = bpy.data.objects.new('tail', me); scene.collection.objects.link(o)
     bm = bmesh.new()
-    base = Vector((-0.65, 0, 0.55)); tip = base + Vector((-0.95 * math.cos(a), 0.95 * math.sin(a), -0.08))
+    base = Vector((-0.5, 0, 0.36)); tip = base + Vector((-0.78 * math.cos(a), 0.78 * math.sin(a), -0.34))
     side = Vector((0.0, 0.07, 0)) if abs(k) < 3 else Vector((0, 0.06, 0))
     v = [bm.verts.new(base - side), bm.verts.new(base + side), bm.verts.new(tip + side * 1.8), bm.verts.new(tip - side * 1.8)]
     bm.faces.new(v); bm.to_mesh(me); bm.free()
@@ -84,11 +84,11 @@ for k in range(-3, 4):
     add(o, 'tail')
 # Legs and talons
 for s in (1, -1):
-    cyl('legs', (0.25, s * 0.14, 0.4), (0.32, s * 0.16, 0.0), 0.05)
+    cyl('legs', (0.05, s * 0.14, 0.42), (0.12, s * 0.16, 0.0), 0.05)
     for t in (-25, 0, 25):
         a = math.radians(t)
-        cyl('legs', (0.32, s * 0.16, 0.02), (0.32 + 0.18 * math.cos(a), s * 0.16 + 0.18 * math.sin(a), -0.02), 0.025)
-    cyl('legs', (0.32, s * 0.16, 0.02), (0.18, s * 0.16, 0.0), 0.022)
+        cyl('legs', (0.12, s * 0.16, 0.02), (0.12 + 0.18 * math.cos(a), s * 0.16 + 0.18 * math.sin(a), -0.02), 0.025)
+    cyl('legs', (0.12, s * 0.16, 0.02), (-0.02, s * 0.16, 0.0), 0.022)
 wing('wing_near', 1)
 wing('wing_far', -1)
 

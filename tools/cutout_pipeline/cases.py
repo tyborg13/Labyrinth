@@ -134,7 +134,11 @@ def seed_protagonist(output: Path, character: str) -> Path:
     tick = re.search(r"^const MELEE_FRAME_SECONDS: float = 1\.0 / ([0-9.]+)$", renderer, re.MULTILINE)
     if "static func attack_pose_phase(" not in renderer:
         raise CutoutError("Cannot snapshot the current attack playback mapping")
-    phase_function = renderer.split("static func attack_pose_phase(", 1)[1].split("static func ", 1)[0]
+    # Instance methods also end this function. Their pose vectors are not
+    # playback keys (the production _attack_pose adapter follows this mapping).
+    phase_function = re.split(r"^(?:static )?func ",
+                              renderer.split("static func attack_pose_phase(", 1)[1],
+                              maxsplit=1, flags=re.MULTILINE)[0]
     curve = [[float(a), float(b)] for a, b in re.findall(r"Vector2\(([0-9.]+), ([0-9.]+)\)", phase_function)]
     if tick is None or len(curve) < 2:
         raise CutoutError("Cannot snapshot the current attack playback mapping")

@@ -2,15 +2,19 @@
 from pathlib import Path
 import hashlib
 import json
+import sys
 import unittest
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'tools'))
+from process_board_density import derive, pixel_digest
+from process_en03_enemy_assets import resize
+from process_en05_enemy_assets import PORTRAIT_CANVAS, PORTRAIT_TOP
+
 RAW = Path('/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/raw_art')
 ENEMIES = ('glacial_mirror', 'gust_shrike')
 ICONS = ('reflect', 'dive', 'flying')
-HEIGHT_RATIOS = {'glacial_mirror': 1.15, 'gust_shrike': .85}
-ROUNDING_TOLERANCE_PIXELS = 1 # Integer raster registration only.
 
 
 class En05Assets(unittest.TestCase):
@@ -32,16 +36,41 @@ class En05Assets(unittest.TestCase):
                 self.assertEqual(image.mode, 'RGBA')
                 self.assertIsNotNone(image.getchannel('A').getbbox())
 
-    def test_baseline_height_and_portraits(self):
-        baseline = Image.open(ROOT / 'assets/art/enemies/chainbound_gaoler.png').getchannel('A').getbbox()[3]
-        hero = Image.open(ROOT / 'assets/units/protagonist_cutout/front/front_assembled_rest_v9.png').getchannel('A').getbbox()
+    def test_registered_art_and_portraits(self):
+        density = json.loads((ROOT / 'spec/assets/board_pixel_density/registry.json').read_text())
+        density_entries = {entry['id']: entry for entry in density['entries']}
+        identity = json.loads((ROOT / 'spec/art_identity/registry.json').read_text())
+        identity_entries = {entry['path']: entry for entry in identity['entries']}
+        crops = json.loads((ROOT / 'spec/peer_benchmark/staged/reart/portrait_crops.json').read_text())['crops']
         for name in ENEMIES:
-            bounds = Image.open(ROOT / f'assets/art/enemies/{name}.png').getchannel('A').getbbox()
-            self.assertEqual(bounds[3], baseline)
-            self.assertLessEqual(abs(bounds[3] - bounds[1] - round((hero[3] - hero[1]) * HEIGHT_RATIOS[name])), ROUNDING_TOLERANCE_PIXELS)
-            portrait = Image.open(ROOT / f'assets/art/portraits/{name}.png')
-            self.assertEqual(portrait.size, (128, 128))
-            self.assertEqual(portrait.getchannel('A').getbbox()[1], 8)
+            with self.subTest(enemy=name):
+                path = f'assets/art/enemies/{name}.png'
+                expected, record = derive(density_entries[name], path)
+                with Image.open(ROOT / path) as board:
+                    self.assertEqual(pixel_digest(board), record['pixel_sha256'])
+                    self.assertEqual(board.convert('RGBA').tobytes(), expected.tobytes())
+                entry = identity_entries[path]
+                self.assertEqual(entry['id'], name)
+                with Image.open(ROOT / f'assets/art/portraits/{name}.png') as portrait:
+                    self.assertEqual(portrait.size, (PORTRAIT_CANVAS, PORTRAIT_CANVAS))
+                    self.assertEqual(portrait.mode, 'RGBA')
+                    self.assertIsNotNone(portrait.getchannel('A').getbbox())
+                    if entry['entry_kind'] == 'kit':
+                        self.assertEqual(entry['pixel_sha256'], record['pixel_sha256'])
+                        kit = json.loads((ROOT / entry['kit_path']).read_text())
+                        self.assertEqual(entry['kit_version'], kit['kit_version'])
+                        with Image.open(ROOT / entry['source_path']) as source:
+                            self.assertEqual(pixel_digest(source), entry['source_pixel_sha256'])
+                            bounds = source.getchannel('A').getbbox()
+                            self.assertEqual(bounds[3] - bounds[1], kit['target_h'])
+                            cx, cy, side = crops[name]
+                            left, top = cx - side // 2, cy - side // 2
+                            expected_portrait = resize(source.crop((left, top, left + side, top + side)), portrait.size)
+                        self.assertEqual(portrait.tobytes(), expected_portrait.tobytes())
+                    else:
+                        # Gust Shrike retains its en-05 registration pending re-art.
+                        self.assertEqual(entry['entry_kind'], 'pending_reart')
+                        self.assertEqual(portrait.getchannel('A').getbbox()[1], PORTRAIT_TOP)
 
     def test_density_registry_additions(self):
         registry = json.loads((ROOT / 'spec/assets/board_pixel_density/registry.json').read_text())

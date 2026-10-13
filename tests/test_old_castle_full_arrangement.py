@@ -12,6 +12,13 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 TRACK_ROOT = REPO_ROOT / "output" / "classical_soundtracks" / "mussorgsky_pictures_old_castle"
 BUILDER_PATH = TRACK_ROOT / "scripts" / "build_full_arrangement.py"
 CONFIG_PATH = TRACK_ROOT / "track.v02.json"
+MISSING_MODULES = tuple(name for name in ("mido", "music21")
+                        if importlib.util.find_spec(name) is None)
+OPTIONAL_MODULE_REASON = (
+    f"Missing optional modules: {', '.join(MISSING_MODULES)}; "
+    "run with .venv-classical-soundtrack/bin/python "
+    "(tools/classical_soundtrack_requirements.txt)."
+)
 
 
 def load_builder():
@@ -24,6 +31,7 @@ def load_builder():
     return module
 
 
+@unittest.skipUnless(not MISSING_MODULES, OPTIONAL_MODULE_REASON)
 class OldCastleFullArrangementTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
