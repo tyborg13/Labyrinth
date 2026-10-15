@@ -1410,7 +1410,8 @@ class GateTests(unittest.TestCase):
         reports, failures = gate.check_registry(root)
         self.assertEqual(failures, 0, "\n".join(reports))
         self.assertIn("WARN assets/hero.png: SKIP raw_steps replay: inputs absent", reports)
-        for change in ("reason", "share", "missing_share", "missing_body_share", "override", "reference_opacity"):
+        for change in ("reason", "share", "missing_share", "missing_body_share", "override", "body_reason",
+                       "unmarked", "reference_opacity"):
             with self.subTest(change=change):
                 changed = copy.deepcopy(record)
                 step = changed["post_steps"][0]
@@ -1419,6 +1420,12 @@ class GateTests(unittest.TestCase):
                 elif change == "missing_share": step.pop("protected_share")
                 elif change == "missing_body_share": step.pop("protected_body_share")
                 elif change == "override": step["parameters"]["allow_protected_share"] = False
+                elif change == "body_reason":
+                    step.update(skipped="empty body", protected_share={"front": 1.0, "rear": 0.0},
+                                protected_body_share={"front": 1.0, "rear": 0.0})
+                elif change == "unmarked":
+                    for field in ("kind", "skipped", "protected_share", "protected_body_share"):
+                        step.pop(field)
                 else:
                     config = kit_path.parent / "refs/full-mask.json"
                     gate.write_json(config, [])
@@ -1433,7 +1440,7 @@ class GateTests(unittest.TestCase):
                 gate.write_json(root / gate.IDENTITY / "registry.json", registry)
                 reports, failures = gate.check_registry(root)
                 self.assertEqual(failures, 1, "\n".join(reports))
-                error = ("reason differs from reference opacity" if change in ("reason", "reference_opacity")
+                error = ("reason differs from reference opacity" if change in ("reason", "body_reason", "unmarked", "reference_opacity")
                          else "record invalid")
                 self.assertTrue(any("recipe: palette_match empty-body skip " + error in line for line in reports), "\n".join(reports))
 

@@ -1058,8 +1058,10 @@ def verify_job_recipe(kit_path: Path, root: Path = ROOT, require_inputs: bool = 
                 raise ValueError("palette_match reference pixel digest changed")
         else:
             reference = None
-        if step.get("skipped") in ("empty reference", "empty rear"):
-            if reference is None or bool(np.asarray(reference)[..., 3].any()) != (step["skipped"] == "empty rear"):
+        # A fully transparent bound reference requires an explicit skip even without raw replay.
+        empty_reference = reference is not None and not np.asarray(reference)[..., 3].any()
+        if empty_reference or step.get("skipped") in ("empty reference", "empty rear"):
+            if reference is None or empty_reference != (step.get("skipped") == "empty reference"):
                 raise ValueError("palette_match empty-body skip reason differs from reference opacity")
     if processed.get("raw_steps") != kit.get("raw_steps"):
         raise ValueError("processed raw_steps mismatched")

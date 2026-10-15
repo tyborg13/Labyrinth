@@ -187,7 +187,9 @@ inputs. Without the flag an empty body remains an error before any output is wri
 Zero opaque samples are detected before body masks or percentiles are calculated. This includes a valid derived
 mask that excludes the entire front. With the override, these cases record `skipped: "empty reference"` (front)
 or `skipped: "empty rear"`; both share fields are `null` because no body statistics were measured. Verification
-also checks the reason against the bound reference's opacity, including when raw replay inputs are unavailable.
+derives the required reason from the bound reference's opacity, including when raw replay inputs are unavailable.
+A fully transparent reference requires `empty reference`, the enabled override, and both explicit null shares;
+changing the recorded reason or removing the skip fields cannot bypass this requirement.
 The rear-consistency metric retains its original non-accent mask and bands. `--clean-outline`
 then removes isolated pixels and replaces silhouette edges above Rec.601 luminance 0.2 with RGB (20,16,21).
 
