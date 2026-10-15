@@ -2,6 +2,7 @@
 """Observable registration, ownership, hidden-material and approved-rest contracts."""
 import argparse
 import json
+import math
 from pathlib import Path
 import shutil
 import subprocess
@@ -21,7 +22,7 @@ from maquette_cutout import (FILL_DEFAULTS, MAGENTA, Registration, build, camera
                             fill_donors, fill_hidden, fill_pixels, part_palette, same_material_donors,
                             hidden_region, material_neighbours, nearest_labels, projected,
                             registration, request_image, label_core, clean_ownership, components8, material_reference, array_digest,
-                            occlusion_shadow_ownership)
+                            occlusion_shadow_ownership, build_view)
 
 CASE = PROJECT / "experiments/cutouts/chainbound_gaoler/mq3"
 
@@ -299,48 +300,79 @@ class OwnershipCleanupTests(unittest.TestCase):
 
 
 class SyntheticMaquetteTests(unittest.TestCase):
-    def test_complete_synthetic_case_is_repeatable_and_keeps_all_source_bytes(self):
+    def test_complete_wing_tail_case_uses_explicit_views_and_keeps_all_source_bytes(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
             spec = {"target": [0, 0, 0], "ortho_scale": 4,
-                    "joints": {"root": [0, 0, 0], "head": [0, 0, 0.4]},
-                    "labels": {"body": [1, 0, 0], "head": [0, 0, 1]},
+                    "joints": {"root": [0, 0, 0], "head": [0.6, 0, 0.4], "wing": [0, 1, 0.2], "tail": [-0.7, -0.2, 0.1]},
+                    "labels": {"body": [1, 0, 0], "head": [0, 0, 1], "wing": [1, 1, 0], "tail": [0, 1, 1]},
                     "shapes": [{"type": "ellipsoid", "part": "body", "at": "root"},
-                               {"type": "ellipsoid", "part": "head", "at": "head"}]}
+                               {"type": "ellipsoid", "part": "head", "at": "head"},
+                               {"type": "ellipsoid", "part": "wing", "at": "wing"},
+                               {"type": "ellipsoid", "part": "tail", "at": "tail"}]}
             write_json(root / "spec.json", spec)
             recipe = {"character_id": "synthetic", "joints": {"root": {"joint": "root", "parent": None},
-                       "head": {"joint": "head", "parent": "root"}}, "parts": {"body": "root", "head": "head"},
+                       "head": {"joint": "head", "parent": "root"}, "wing": {"joint": "wing", "parent": "root"},
+                       "tail": {"joint": "tail", "parent": "root"}}, "parts": {"body": "root", "head": "head", "wing": "wing", "tail": "tail"},
                       "motion": "motion.gd", "clips": {"idle": {"frames": 2, "duration": 1, "loop": True}},
                       "rigid_bones": [], "contact_feet": []}
             write_json(root / "rig.json", recipe)
-            write_json(root / "palette.json", {"body": [255, 0, 0], "head": [0, 0, 255]})
+            colors = {"body": [255, 0, 0], "head": [0, 0, 255], "wing": [255, 255, 0], "tail": [0, 255, 255]}
+            write_json(root / "palette.json", colors)
             cache = root / "renders"
             cache.mkdir()
-            joints = {}
-            for view in ["front", "rear"]:
+            joints, transforms = {}, {}
+            for view, degrees in [("front", 135), ("rear", 315)]:
+                # Independent Blender-equivalent exporter: rotate the object,
+                # then dot camera right/up/forward. Do not use projected().
+                yaw = math.radians(degrees)
+                c, s = math.cos(yaw), math.sin(yaw)
+                transforms[view] = {"object_to_world": [[c, -s, 0, 0], [s, c, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]],
+                    "target": [0, 0, 0.9], "azimuth_deg": 45, "elevation_deg": 30, "ortho_scale": 3.6, "distance": 20}
+                joints[view] = {}
+                expected_depths = {}
+                for name, (x, y, z) in spec["joints"].items():
+                    wx, wy, wz = c*x - s*y, s*x + c*y, z - 0.9
+                    joints[view][name] = [512 + (-wx + wy) / math.sqrt(2) * 1024/3.6,
+                        512 - (-(wx + wy) / math.sqrt(8) + wz * math.sqrt(3)/2) * 1024/3.6]
+                    expected_depths["body" if name == "root" else name] = 20 - ((wx + wy)*math.sqrt(3/8) + wz/2)
+                configured = dict(spec, view_transforms=transforms)
+                self.assertGreater(np.linalg.norm(np.array(projected(spec, spec["joints"]["head"], view)) - joints[view]["head"]), 100)
+                for name, point in spec["joints"].items():
+                    np.testing.assert_allclose(projected(configured, point, view), joints[view][name], atol=1e-10)
+                actual_depths = camera_depths(configured, view)
+                for name, expected in expected_depths.items():
+                    self.assertAlmostEqual(actual_depths[name], expected)
+                self.assertEqual(actual_depths["wing"] > actual_depths["tail"], view == "front")
                 job = root / view
                 job.mkdir()
                 raw = Image.new("RGB", (1024, 1024), (0, 255, 0))
                 raw.paste((90, 50, 30), (480, 480, 544, 560))
                 raw.paste((140, 90, 70), (488, 444, 536, 500))
+                raw.paste((110, 80, 50), (440, 480, 480, 496))
+                raw.paste((100, 60, 40), (500, 560, 516, 584))
                 raw.save(job / "raw.png")
                 write_json(job / "kit.json", {"K": 4, "kind": "creature", "anatomy": "biped"})
                 process_raw(job / "raw.png", job / "kit.json", job / "processed.png")
                 labels = Image.new("RGBA", (1024, 1024))
                 labels.paste((255, 0, 0, 255), (480, 480, 544, 560))
                 labels.paste((0, 0, 255, 255), (488, 444, 536, 500))
+                labels.paste((255, 255, 0, 255), (440, 480, 480, 496))
+                labels.paste((0, 255, 255, 255), (500, 560, 516, 584))
                 labels.save(cache / f"{view}_parts.png")
                 labels.save(cache / f"{view}_clay.png")
-                for name, rect in [("body", (480, 480, 544, 560)), ("head", (488, 444, 536, 500))]:
+                for name, rect in [("body", (480, 480, 544, 560)), ("head", (488, 444, 536, 500)),
+                                   ("wing", (440, 480, 480, 496)), ("tail", (500, 560, 516, 584))]:
                     solo = Image.new("RGBA", (1024, 1024))
                     solo.paste((255, 255, 255, 255), rect)
                     solo.save(cache / f"{view}_solo_{name}.png")
-                joints[view] = {n: projected(spec, p, view) for n, p in spec["joints"].items()}
+            write_json(root / "views.json", transforms)
             write_json(cache / "joints_px.json", joints)
             inputs = {p: digest(p) for p in root.rglob("*") if p.is_file()}
             args = argparse.Namespace(spec=root / "spec.json", front_job=root / "front", rear_job=root / "rear",
                                       front_raw=None, rear_raw=None, renders=cache, palette=root / "palette.json",
                                       rig_recipe=root / "rig.json", color_config=None, blender="unused",
+                                      view_transforms=root / "views.json",
                                       resume_scaffold=False, allow_incomplete_renders=False)
             for case in ["a", "b"]:
                 args.case = root / case
@@ -355,7 +387,16 @@ class SyntheticMaquetteTests(unittest.TestCase):
                 self.assertTrue(manifest["complete"])
                 self.assertEqual(manifest["files"], {p.name: digest(p) for p in cache.iterdir()})
             self.assertEqual(case_hashes(root / "a"), case_hashes(root / "b"))
+            self.assertEqual(read_json(root / "a/source/view_transforms.json"), transforms)
+            for view in transforms:
+                layout = read_json(root / f"a/layouts/{view}.json")
+                self.assertEqual(set(layout["joints"]), {"root", "head", "wing", "tail"})
+                self.assertEqual(layout["maquette_depths"], camera_depths(dict(spec, view_transforms=transforms), view))
             self.assertTrue(all(digest(path) == value for path, value in inputs.items()))
+            args.case = root / "wrong_camera"
+            args.view_transforms = None
+            with self.assertRaisesRegex(CutoutError, "Cached joints do not match"):
+                build(args)
             # Normal operation fails closed when a solo is missing.
             (cache / "rear_solo_head.png").unlink()
             args.case = root / "missing"
@@ -468,6 +509,122 @@ class SyntheticMaquetteTests(unittest.TestCase):
 
 
 class GaolerCaseTests(unittest.TestCase):
+    @unittest.skipUnless(shutil.which("godot"), "Godot unavailable for complete gaoler rebuild")
+    def test_complete_gaoler_rebuild_and_authored_motion_parameters(self):
+        import importlib.util
+        module = importlib.util.spec_from_file_location("gaoler_rebuild", CASE / "probes/rebuild.py")
+        rebuild_probe = importlib.util.module_from_spec(module)
+        module.loader.exec_module(rebuild_probe)
+        with tempfile.TemporaryDirectory(prefix="rr02-rebuild-test-") as folder:
+            fresh = Path(folder).resolve() / "case"
+            rebuild_probe.rebuild(CASE, fresh)
+            report = rebuild_probe.compare(CASE, fresh)
+            self.assertTrue(report["ok"], report["different_files"])
+            print(f"GAOLER REBUILD: PASS ({report['compared_files']} files)", flush=True)
+            # The review's three omitted artifacts must each fail comparison.
+            for name in ["recipes/front_ownership.json", "recipes/rear_ownership.json", "build_report.json", "baseline.sha256.json"]:
+                path = fresh / name
+                original = path.read_bytes()
+                path.write_bytes(original + b"\n")
+                self.assertIn(name, rebuild_probe.compare(CASE, fresh)["different_files"])
+                path.write_bytes(original)
+            (fresh / "hidden/rear/orphan.png").write_bytes(b"orphan")
+            self.assertIn("hidden/rear/orphan.png", rebuild_probe.compare(fresh, CASE)["different_files"])
+            (fresh / "hidden/rear/orphan.png").unlink()
+            # Change authored recipe data, run the actual layout generator, then
+            # evaluate the generated GDScript sampler headlessly. Constraints
+            # are absent in both layouts to isolate these two director values.
+            recipe = read_json(fresh / "recipes/rig.json")
+            spec, palette = read_json(fresh / "source/spec.json"), read_json(fresh / "source/label_palette.json")
+            shutil.rmtree(fresh / "segmented/rear")
+            build_view(fresh, spec, "rear", palette, recipe, False)
+            before = read_json(fresh / "layouts/rear.json")
+            write_json(fresh / "before.json", before)
+            recipe["rear_torso_lean"]["rotation_rad_per_hit"] = 0.14
+            recipe["rear_torso_lean"]["shoulder_offset_per_prep"] = [2, -6]
+            write_json(fresh / "recipes/rig.json", recipe)
+            shutil.rmtree(fresh / "segmented/rear")
+            build_view(fresh, spec, "rear", palette, read_json(fresh / "recipes/rig.json"), False)
+            after = read_json(fresh / "layouts/rear.json")
+            self.assertEqual(after["rear_torso_lean"], recipe["rear_torso_lean"])
+            script = fresh / "check_lean.gd"
+            script.write_text('''extends SceneTree
+func _initialize() -> void:
+\tpreload("res://scripts/parallel_runtime.gd").apply_from_environment()
+\tvar sampler = load(%s)
+\tvar before: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(%s))
+\tvar after: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(%s))
+\tfor clip: String in ["strike", "manacle_pin"]:
+\t\tfor phase: float in [0.08, 0.22, 0.42, 0.56]:
+\t\t\tvar old: Dictionary = sampler.sample_pose(clip, phase, before, "rear")
+\t\t\tvar changed: Dictionary = sampler.sample_pose(clip, phase, after, "rear")
+\t\t\tvar envelopes: Vector2 = sampler._punch_envelopes(clip, phase)
+\t\t\tassert(is_equal_approx(changed["torso"]["rotation"] - old["torso"]["rotation"], 0.07 * envelopes.y))
+\t\t\tassert((changed["upper_fist"]["position"] - old["upper_fist"]["position"]).is_equal_approx(Vector2(2, -3) * envelopes.x))
+\t\t\tassert(sampler.sample_pose(clip, phase, before, "front") == sampler.sample_pose(clip, phase, after, "front"))
+\tassert(sampler.sample_pose("walk", 0.5, before, "rear") == sampler.sample_pose("walk", 0.5, after, "rear"))
+\tprint("RECIPE_MOTION_PARAMETERS: PASS")
+\tquit(0)
+''' % (json.dumps(str(fresh / "motion.gd")), json.dumps(str(fresh / "before.json")), json.dumps(str(fresh / "layouts/rear.json"))))
+            command = [sys.executable, str(PROJECT / "tools/godot_task_runner.py"), "--task-id", "rr-02", "--stream", "--",
+                "godot", "--headless", "--path", str(PROJECT), "--script", str(script)]
+            result = subprocess.run(command, cwd=PROJECT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=150)
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertNotIn("SCRIPT ERROR:", result.stdout)
+            self.assertIn("RECIPE_MOTION_PARAMETERS: PASS", result.stdout)
+
+    def test_value_gate_measures_runtime_hidden_pixels_and_rejects_stale_previews(self):
+        import importlib.util
+        module = importlib.util.spec_from_file_location("runtime_value_gate", CASE / "probes/motion_gates.py")
+        gates = importlib.util.module_from_spec(module)
+        module.loader.exec_module(gates)
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            for name in ["source", "recipes", "layouts", "registered", "hidden", "hidden_fills"]:
+                shutil.copytree(CASE / name, root / name)
+            shutil.copyfile(CASE / "cutout.json", root / "cutout.json")
+            self.assertTrue(all(row["ok"] for row in gates.value_counts(root)))
+            path = root / "hidden/rear/thigh_far.png"
+            pixels = np.array(Image.open(path).convert("RGBA"))
+            pixels[pixels[..., 3] > 128, :3] = 220
+            Image.fromarray(pixels).save(path)
+            row = next(r for r in gates.value_counts(root) if (r["view"], r["part"]) == ("rear", "thigh_far"))
+            self.assertFalse(row["ok"])
+            self.assertAlmostEqual(row["hidden_median_l"], 87.7609, places=3)
+            self.assertAlmostEqual(row["preview_median_l"], 15.9564, places=3)
+            self.assertEqual(row["preview_runtime_different_pixels"], row["hidden_pixels"])
+            self.assertEqual(row["runtime_coverage_errors"], 0)
+            # Updating a preview to conceal the mismatch still fails L* limits.
+            preview_path = root / "hidden_fills/rear_thigh_far.png"
+            preview = np.array(Image.open(preview_path))
+            mask = np.load(root / "registered/rear_hidden_thigh_far.npy")
+            preview[mask, :3] = 220
+            Image.fromarray(preview).save(preview_path)
+            row = next(r for r in gates.value_counts(root) if (r["view"], r["part"]) == ("rear", "thigh_far"))
+            self.assertFalse(row["ok"])
+            self.assertEqual(row["preview_runtime_different_pixels"], 0)
+            pixels[pixels[..., 3] > 128, 3] = 0
+            Image.fromarray(pixels).save(path)
+            row = next(r for r in gates.value_counts(root) if (r["view"], r["part"]) == ("rear", "thigh_far"))
+            self.assertFalse(row["ok"])
+            self.assertEqual(row["runtime_coverage_errors"], row["hidden_pixels"])
+
+    def test_rendered_hidden_owners_measure_pixels_and_reject_runtime_palette_mismatch(self):
+        import importlib.util
+        module = importlib.util.spec_from_file_location("rendered_value_gate", CASE / "probes/motion_gates.py")
+        gates = importlib.util.module_from_spec(module)
+        module.loader.exec_module(gates)
+        pixels = np.zeros((20, 20, 4), dtype=np.uint8)
+        pixels[2:18, 2:18] = [220, 220, 220, 255]
+        owners = np.full((20, 20), -1)
+        owners[2:18, 2:18] = 0
+        parts = [{"name": "hidden_thigh", "logical_part": "thigh_far", "bone": "thigh", "hidden_material": True}]
+        empty = np.zeros((20, 20), dtype=bool)
+        palette = {"hidden_thigh": gates.rgba_codes(np.array([[40, 35, 30, 255]], dtype=np.uint8))}
+        report = gates.frame_counts(pixels, owners, parts, empty, empty, "rear", "walk", np.array([50, 70, 30]), runtime_palettes=palette)
+        self.assertEqual(report["hidden_runtime_mismatch_pixels"], 256)
+        self.assertAlmostEqual(report["rendered_hidden_values"][0]["rendered_median_l"], 87.7609, places=3)
+
     def test_registered_rest_is_exact_rgba_including_hidden_underlays(self):
         config = read_json(CASE / "cutout.json")
         for view, path in config["layouts"].items():

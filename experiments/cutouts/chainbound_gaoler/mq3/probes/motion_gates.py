@@ -211,7 +211,21 @@ def bake_rear_arm(root):
     return report
 
 
-def frame_counts(pixels, owners, parts, arm, body, view, clip, tabard_lab, rest_dark_owners=None):
+def rgba_codes(pixels):
+    return pixels.astype(np.uint32) @ np.array([1, 256, 65536, 16777216], dtype=np.uint32)
+
+
+def hidden_palettes(root, layout):
+    """Read actual runtime nodes, keyed by physical owner, never previews."""
+    result = {}
+    for part in layout["parts"]:
+        if part.get("hidden_material"):
+            pixels = np.array(Image.open(root / part["file"]).convert("RGBA"))
+            result[part["name"]] = np.unique(rgba_codes(pixels[pixels[..., 3] > 128]))
+    return result
+
+
+def frame_counts(pixels, owners, parts, arm, body, view, clip, tabard_lab, rest_dark_owners=None, runtime_palettes=None):
     """Count strict DeltaE76<12 on the director's complete logical owner list."""
     opaque = pixels[..., 3] > 128
     distances = np.full(opaque.shape, np.inf)
@@ -234,7 +248,21 @@ def frame_counts(pixels, owners, parts, arm, body, view, clip, tabard_lab, rest_
         introduced = near_black & np.isin(owners, part_ids) & ~known
         dark_regions[name] = [{"pixels": int(c.sum()), "bbox": bbox(c)} for c in components8(introduced) if c.sum() > 12]
     arm_ids = [i for i, part in enumerate(parts) if part.get("bone") in ["upper_fist", "fore_fist", "hand_fist"]]
+    hidden_values = []
+    for i, part in enumerate(parts):
+        if not part.get("hidden_material"):
+            continue
+        selected = opaque & (owners == i)
+        if not selected.any():
+            continue
+        colors = pixels[selected]
+        mismatch = int((~np.isin(rgba_codes(colors), runtime_palettes[part["name"]])).sum()) if runtime_palettes is not None else 0
+        hidden_values.append({"node": part["name"], "part": part.get("logical_part", part["name"]),
+            "visible_hidden_pixels": len(colors), "rendered_median_l": float(np.median(to_lab(colors[:, :3])[:, 0])),
+            "runtime_palette_mismatch_pixels": mismatch})
     return {"tabard_non_tabard_pixels": sum(by_part.values()), "tabard_collisions_by_part": by_part,
+        "hidden_runtime_mismatch_pixels": sum(r["runtime_palette_mismatch_pixels"] for r in hidden_values),
+        "rendered_hidden_values": hidden_values,
         "detached_small_components": [{"pixels": int(c.sum()), "bbox": bbox(c)} for c in fragments],
         "detached_small_pixels": sum(int(c.sum()) for c in fragments),
         "new_leg_dark_pixels": sum(c["pixels"] for regions in dark_regions.values() for c in regions),
@@ -245,16 +273,40 @@ def frame_counts(pixels, owners, parts, arm, body, view, clip, tabard_lab, rest_
 
 
 def value_counts(root):
-    """Independently inspect filled PNGs against current visible source owners."""
+    """Measure actual runtime fill over registered hidden provenance.
+
+    Preview agreement is a separate gate. Per-frame values are also reported by
+    physical hidden owner; partial exposure must not replace the full-region
+    median with a visibility-biased median.
+    """
     config = read_json(root / "recipes/rig.json")
+    layouts = read_json(root / "cutout.json")["layouts"]
     names = list(read_json(root / "source/spec.json")["labels"])
     records = []
     for view in ["front", "rear"]:
+        layout = read_json(root / layouts[view])
         paint = rgba(str(root / f"source/{view}/processed.png"))
         owners = np.load(root / f"registered/{view}_owners.npy", allow_pickle=False)
         for part in config["hidden_value_distribution"]["parts"]:
             hidden = np.load(root / f"registered/{view}_hidden_{part}.npy", allow_pickle=False)
-            filled = rgba(str(root / f"hidden_fills/{view}_{part}.png"))
+            preview = np.array(Image.open(root / f"hidden_fills/{view}_{part}.png").convert("RGBA"))
+            filled = np.zeros_like(preview)
+            coverage = np.zeros(hidden.shape, dtype=np.uint16)
+            nodes = []
+            for node in layout["parts"]:
+                if not node.get("hidden_material") or node.get("logical_part", node["name"]) != part:
+                    continue
+                pixels = np.array(Image.open(root / node["file"]).convert("RGBA"))
+                x, y = node["offset"]
+                h, w = pixels.shape[:2]
+                if x < 0 or y < 0 or x + w > hidden.shape[1] or y + h > hidden.shape[0]:
+                    raise CutoutError("Runtime hidden node exceeds provenance canvas: " + node["name"])
+                mask = pixels[..., 3] > 128
+                filled[y:y+h, x:x+w][mask] = pixels[mask]
+                coverage[y:y+h, x:x+w] += mask
+                nodes.append(node["file"])
+            coverage_errors = int((coverage != hidden.astype(np.uint16)).sum())
+            preview_errors = int(np.any(filled[hidden] != preview[hidden], axis=-1).sum())
             own_l = to_lab(paint[owners == names.index(part), :3])[:, 0]
             reference_l = own_l
             substitution = None
@@ -281,12 +333,16 @@ def value_counts(root):
             midtones = int(((fill_l >= effective_q25) & (fill_l <= effective_q75)).sum())
             records.append({"view": view, "part": part, "visible_pixels": len(own_l),
                 "visible_median_l": float(np.median(own_l)) if len(own_l) else None, "hidden_median_l": float(np.median(fill_l)),
+                "measurement_basis": "Runtime hidden-material nodes at layout offsets intersected with registered hidden provenance",
+                "runtime_nodes": nodes, "hidden_pixels": int(hidden.sum()), "runtime_coverage_errors": coverage_errors,
+                "preview_runtime_different_pixels": preview_errors,
+                "preview_median_l": float(np.median(to_lab(preview[hidden, :3])[:, 0])),
                 "reference_median_l": float(np.median(reference_l)), "substitution": substitution,
                 "difference_l": delta, "midtones_range_l": [float(q25), float(q75)],
                 "effective_midtones_range_l": [float(effective_q25), float(effective_q75)],
                 "midtones_substitution": midtone_substitution,
                 "hidden_original_midtones_pixels": int(((fill_l >= q25) & (fill_l <= q75)).sum()),
-                "hidden_midtones_pixels": midtones, "ok": delta <= 8 and midtones > 0})
+                "hidden_midtones_pixels": midtones, "ok": delta <= 8 and midtones > 0 and coverage_errors == 0 and preview_errors == 0})
     return records
 
 
@@ -303,7 +359,7 @@ def finish_report(root, records, basis, output):
             by_clip_part.append({"view": view, "clip": clip, "part": part,
                 "frames": len(frames), "total_pixels": sum(counts), "max_frame_pixels": max(counts)})
     totals = {name: sum(r[name] for r in records) for name in
-              ["tabard_non_tabard_pixels", "detached_small_pixels", "new_leg_dark_pixels", "rear_arm_outside_pixels", "rear_visible_arm_pixels", "magenta_pixels"]}
+              ["tabard_non_tabard_pixels", "detached_small_pixels", "new_leg_dark_pixels", "rear_arm_outside_pixels", "rear_visible_arm_pixels", "magenta_pixels", "hidden_runtime_mismatch_pixels"]}
     report = {"ok": not any(totals.values()) and all(r["ok"] for r in values), "basis": basis,
         "frames": len(records), "totals": totals, "value_distribution": values,
         "colour_gate": gate, "colour_counts_per_part_and_clip": by_clip_part,
@@ -325,13 +381,14 @@ def cpu_gates(root, output):
     if len(actual) != len(expected) or set(actual) != expected:
         raise CutoutError("Motion sample frame coverage is incomplete or duplicated")
     layouts = {v: read_json(root / p) for v, p in config["layouts"].items()}
+    palettes = {v: hidden_palettes(root, layout) for v, layout in layouts.items()}
     tabard_lab = read_json(root / "proof/front_ownership_cleanup.json")["materials"]["tabard_cloth"]["median_lab"]
     records = []
     for sample in samples["samples"]:
         layout = layouts[sample["view"]]
         pixels, owners, _, arm, body = rasterize(root, layout, sample)
         rest_dark = rasterize_rest_dark(root, layout, sample)
-        records.append({k: sample[k] for k in ["view", "clip", "frame"]} | frame_counts(pixels, owners, layout["parts"], arm, body, sample["view"], sample["clip"], tabard_lab, rest_dark))
+        records.append({k: sample[k] for k in ["view", "clip", "frame"]} | frame_counts(pixels, owners, layout["parts"], arm, body, sample["view"], sample["clip"], tabard_lab, rest_dark, palettes[sample["view"]]))
     return finish_report(root, records, "CPU nearest raster diagnostic; NOT native proof", output)
 
 
@@ -429,6 +486,8 @@ def native_gates(root, output):
     if len(actual) != len(expected) or set(actual) != expected:
         raise CutoutError("Native frame coverage is incomplete or duplicated")
     tabard_lab = read_json(root / "proof/front_ownership_cleanup.json")["materials"]["tabard_cloth"]["median_lab"]
+    layouts = {v: read_json(root / p) for v, p in config["layouts"].items()}
+    palettes = {v: hidden_palettes(root, layout) for v, layout in layouts.items()}
     records = []
     for sample in manifest["frames"]:
         view, clip, frame = sample["view"], sample["clip"], sample["frame"]
@@ -439,7 +498,12 @@ def native_gates(root, output):
         names = read_json(root / config["layouts"][view])["logical_parts"]
         if not np.array_equal(encoded[..., 3], pixels[..., 3]) or any(str(i) not in lookup for i in np.unique(ids) if i):
             raise CutoutError("Native owner IDs/alpha failed validation")
-        parts = [{"name": lookup[str(i)]["node"], "logical_part": lookup[str(i)]["logical_part"], "bone": lookup[str(i)]["bone"]} for i in range(1, len(lookup) + 1)]
+        parts = [{"name": lookup[str(i)]["node"], "logical_part": lookup[str(i)]["logical_part"], "bone": lookup[str(i)]["bone"],
+                  "hidden_material": lookup[str(i)]["hidden"]} for i in range(1, len(lookup) + 1)]
+        expected_nodes = {p["name"]: (p.get("logical_part", p["name"]), p["bone"], p.get("hidden_material", False)) for p in layouts[view]["parts"]}
+        actual_nodes = {p["name"]: (p["logical_part"], p["bone"], p["hidden_material"]) for p in parts}
+        if len(parts) != len(expected_nodes) or actual_nodes != expected_nodes:
+            raise CutoutError("Native physical owner/hidden provenance differs from runtime layout: " + view)
         dark_ids = dark_encoded[..., 0].astype(np.int32) + 256 * dark_encoded[..., 1].astype(np.int32)
         dark_ids[dark_encoded[..., 3] <= 128] = 0
         if any(str(i) not in lookup or lookup[str(i)]["logical_part"] not in LEG_PARTS for i in np.unique(dark_ids) if i):
@@ -465,7 +529,7 @@ def native_gates(root, output):
             continue
         if not np.array_equal(pixels, rgba(str(output / f"{view}_{clip}/pose_{frame:04d}.png"))):
             raise CutoutError(f"Ownership probe RGBA differs from primary reel: {view}/{clip}/{frame}")
-        records.append({"view": view, "clip": clip, "frame": frame} | frame_counts(pixels, ids - 1, parts, arm[..., 3] > 128, body[..., 3] > 128, view, clip, tabard_lab, dark_ids - 1))
+        records.append({"view": view, "clip": clip, "frame": frame} | frame_counts(pixels, ids - 1, parts, arm[..., 3] > 128, body[..., 3] > 128, view, clip, tabard_lab, dark_ids - 1, palettes[view]))
     report = finish_report(root, records, "Native renderer pixels, calibrated native IDs, complete seven-clip frame set", output / "motion_gates.json")
     write_json(root / "proof/native_motion_gates.json", report)
     return report

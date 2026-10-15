@@ -1,10 +1,95 @@
-# Chainbound gaoler mq3 — round 8
+# Chainbound gaoler mq3 — round 9
 
-Round7 is committed at `83c3a65fa`; the director reports that the v07 reel looks
-right, with clean walk motion in both views. Round8 changes only the native proof
-transport, its timeout and regression coverage. Runtime paint, layouts and motion
-remain unchanged. These changes are uncommitted; no windowed run, commit, peer
-review or delegation was attempted. Native v08 proof remains pending.
+Round9 addresses the peer review on top of the director's round8 commit
+`dc06de8b7`. Changes remain uncommitted. No windowed capture, peer review or
+agent delegation was attempted. Native v09 proof is reserved for the director.
+
+## Round9 review fixes
+
+1. **Runtime values:** the value gate assembles the actual hidden-material PNGs
+   using layout offsets and registered hidden masks. It checks exact coverage,
+   measures runtime L*, and independently requires preview/runtime RGBA agreement.
+   Native frames use physical hidden-owner IDs to report visible hidden L* and
+   reject colors outside that runtime node's palette. The full-region median
+   remains the threshold basis because per-frame exposure biases the distribution.
+   RGB 220 now reports runtime L* **87.76**, preview L* **15.96**, and fails;
+   changing both runtime and preview to RGB 220 also fails.
+2. **Round8 retained:** categorical masks remain external data, all 504 real
+   screenshots retain normal validation, and the configurable capture timeout is
+   900 seconds by default. The headless writer/collector/timeout regressions remain.
+3. **Complete rebuild:** all clean build/fill outputs were promoted together,
+   including both ownership recipes (532 front / 227 rear corrected assignments),
+   `build_report.json` and the baseline. The
+   report now agrees with the actual **83 front / 62 rear** paint nodes. The new
+   `probes/rebuild.py` compares every generated file and the exact inventory in
+   `proof/derived_files.json`; no image, recipe or JSON is excluded. Its only
+   exclusions are three execution transcripts with runner IDs/paths. The focused
+   regression performs a clean rebuild and proves corruption of either ownership
+   recipe, the report or baseline fails comparison; orphaned assets also fail.
+4. **Actual camera transforms:** `--view-transforms` accepts per-facing object and
+   orthographic camera metadata without rewriting the source spec. Projection
+   and depth use the same transform. A wing/tail fixture exports joints
+   independently at **135°/315°**, checks projection and reversed depth, builds
+   twice identically, and rejects the legacy camera for those exported joints.
+5. **Authored motion data:** `rear_torso_lean` is carried from the recipe into
+   generated layouts. The sampler reads the authored 0.07 rad × hit and
+   [0,−3] px × prep values. Changing that recipe and regenerating a layout is
+   tested through Godot; front/walk behavior stays fixed. With the director's
+   unchanged values, all **458 sampled poses remain exactly identical**.
+6. **Headless command:** `--case` now uses the absolute `$PWD/.../cutout.json` path.
+
+All approved source files and all runtime images are byte-identical to round8.
+The rebuild changes provenance and generated metadata, not the approved paint.
+No new `TODO_DESIGN` remains. Chosen defaults: explicit affine/camera metadata
+schema, three named transcript exclusions, and regression-only mutations. No
+new player-visible values, timing, paint or production integration were added.
+
+## Round9 verification
+
+- Focused: `Ran 43 tests in 94.957s` / `OK`.
+- Art gate: `Ran 49 tests in 18.792s` / `OK`.
+- Visual runner: `Ran 16 tests in 0.323s` / `OK`.
+- Python full: `Ran 440 tests in 383.720s` / `OK (skipped=61)`.
+- Godot full: `FULL SUITE RUNTIME: 830.349 seconds (budget 900 seconds)` /
+  `TEST RESULT: PASS`.
+- Clean rebuild: `GAOLER REBUILD: PASS (882 files)`; every generated artifact
+  matches. `proof/round9_rebuild.json` records all hashes and exclusions.
+- Protected case validation: `ok: true`, no errors; rest assembly differs
+  by **0 pixels** in each view. CPU gates: **458 frames**, seven pixel totals
+  all **0**, value failures **0**.
+- Runtime mutation: `RUNTIME FILL MUTATION: REJECTED (458 refreshed poses; exact
+  rest; one runtime value failure)`. All **2,070** hidden rear-thigh pixels
+  disagree with the stale preview. Runtime L* **87.760888**, preview **15.956441**.
+  See `proof/round9_runtime_fill_mutation.json`; the mutation was confined to an
+  isolated temporary fixture.
+- Historical v07 renderer diagnostic: **458 frames**, **3,741** hidden-owner
+  measurements covering **172,198** visible hidden pixels; all seven totals and
+  value failures **0**, with both exact rest/owner/provenance calibrations.
+  All **504** real screenshots validate; **1,840** masks are data. See
+  `proof/round9_v07_runtime_fill_diagnostic.json`. This uses saved v07 pixels;
+  it cannot satisfy the fresh v09 capture/input-binding requirements.
+
+The initial focused failure was a test fixture attempting to segment into an
+existing temporary output directory. It is retained in
+`proof/focused_round9_initial.log` and fixed by recreating that fixture directory.
+It was not a failure of the complete rebuild comparison. The immutable source,
+runtime image, sampled pose, baseline and scope audit is recorded in
+`proof/round9_audit.json`. All 113 source files, all 145 runtime paint nodes
+and all 458 sampled poses are unchanged; the protected baseline is exact.
+`git diff --check` passes. Existing NumPy Lab warnings and Godot certificate/
+resource-exit diagnostics remain in the logs; no assertion was weakened.
+
+Complete rebuild check (run from the repository root):
+
+```sh
+python3 experiments/cutouts/chainbound_gaoler/mq3/probes/rebuild.py --case "$PWD/experiments/cutouts/chainbound_gaoler/mq3" --report "$PWD/experiments/cutouts/chainbound_gaoler/mq3/proof/round9_rebuild.json"
+```
+
+## Round8 history
+
+Round8 changed native proof transport and timeout; it preserved runtime paint,
+layouts and motion from the director-approved v07 reel. The following results
+are historical and do not claim current native v09 proof.
 
 ## Round8 director requirements
 
@@ -185,7 +270,7 @@ python3 -m unittest discover -s tests -p 'test_*.py' -v
 python3 tools/godot_task_runner.py --task-id rr-02 --stream --timeout 900 -- godot --headless --path . --script tests/run_tests.gd
 python3 tools/cutout_workflow.py validate experiments/cutouts/chainbound_gaoler/mq3 --protect all
 python3 experiments/cutouts/chainbound_gaoler/mq3/probes/motion_gates.py --case experiments/cutouts/chainbound_gaoler/mq3 --cpu
-python3 tools/godot_task_runner.py --task-id rr-02 --stream -- godot --headless --path . --script experiments/cutouts/chainbound_gaoler/mq3/probes/native_motion.gd -- --case experiments/cutouts/chainbound_gaoler/mq3/cutout.json --check-poses
+python3 tools/godot_task_runner.py --task-id rr-02 --stream -- godot --headless --path . --script experiments/cutouts/chainbound_gaoler/mq3/probes/native_motion.gd -- --case "$PWD/experiments/cutouts/chainbound_gaoler/mq3/cutout.json" --check-poses
 ```
 
 ## Windowed proof for the director
@@ -203,9 +288,9 @@ Run each command only after the preceding command succeeds.
 ```sh
 cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-02
 case_dir="$PWD/experiments/cutouts/chainbound_gaoler/mq3"
-capture_dir=/private/tmp/rr-02-mq3-render-v08
+capture_dir=/private/tmp/rr-02-mq3-render-v09
 native_timeout=900
-python3 tools/visual_probe_runner.py "$case_dir/probes/native_rest.gd" --task-id rr-02 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --expect-size 255x255 --proof-contract "$case_dir/probes/rest_contract.json" --result-manifest "$case_dir/proof/native_rest_round8_result.json" -- --case "$case_dir/cutout.json"
+python3 tools/visual_probe_runner.py "$case_dir/probes/native_rest.gd" --task-id rr-02 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --expect-size 255x255 --proof-contract "$case_dir/probes/rest_contract.json" --result-manifest "$case_dir/proof/native_rest_round9_result.json" -- --case "$case_dir/cutout.json"
 python3 tools/cutout_workflow.py render "$case_dir" --output "$capture_dir" --task-id rr-02
 python3 tools/cutout_workflow.py verify-render "$case_dir" --output "$capture_dir"
 python3 "$case_dir/probes/motion_gates.py" --case "$case_dir" --capture-native "$capture_dir" --task-id rr-02 --native-timeout "$native_timeout"
@@ -219,11 +304,11 @@ MOTION GATES: PASS (... Native renderer pixels ...)
 MAQUETTE_PROOF: PASS (... native rest RGBA identical; motion gates passed)
 ```
 
-Reel: `/private/tmp/rr-02-mq3-render-v08/videos/cutout_review.mp4`.
-Native counts: `/private/tmp/rr-02-mq3-render-v08/motion_gates.json`.
-Ownership/masks: `/private/tmp/rr-02-mq3-render-v08/motion_gate_capture/`.
+Reel: `/private/tmp/rr-02-mq3-render-v09/videos/cutout_review.mp4`.
+Native counts: `/private/tmp/rr-02-mq3-render-v09/motion_gates.json`.
+Ownership/masks: `/private/tmp/rr-02-mq3-render-v09/motion_gate_capture/`.
 The collector writes accepted eight-frame clip/view sheets under
 `proof/native_keyframes/` only after the gates pass; `proof/native_motion_gates.json`
-records the actual native gate result, including failure. Native v08 capture and
+records the actual native gate result, including failure. Native v09 capture and
 its successful gate/collector markers remain outstanding. The successful markers
-above are expected output, not an observed native v08 result.
+above are expected output, not an observed native v09 result.

@@ -95,7 +95,7 @@ Offsets and band positions are explicit registration inputs, not recommended def
 
 ## From a maquette
 
-`tools/maquette_cutout.py` registers a `humanoid.py` maquette to approved paint.
+`tools/maquette_cutout.py` registers an orthographic maquette to approved paint.
 It uses the existing `init`, `segment`, `skin` and `validate` implementations;
 the builder produces hidden-material requests without filling them. The
 [chainbound gaoler mq3 case](../experiments/cutouts/chainbound_gaoler/mq3/README.md)
@@ -134,6 +134,23 @@ and joints. Solos are not individually fitted or cropped to the painted bbox.
 Display-referred label colors come from Blender's installed AgX OCIO matrix/LUT
 (or an explicit `--palette` JSON); linear material RGB is not mistaken for PNG
 RGB. `--color-config` supplies another installation's OCIO config.
+
+For a different maquette orientation, supply `--view-transforms views.json`
+alongside the matching cached renders. This preserves the original spec bytes
+and copies the metadata to `source/view_transforms.json`; a spec may instead
+contain the same object under `view_transforms`. Explicit CLI metadata takes
+precedence. Every facing must provide a row-major affine `object_to_world`
+4×4 matrix (column-vector convention), world-space `target` (three numbers),
+`azimuth_deg`, `elevation_deg`, positive `ortho_scale`, and positive `distance`.
+Projection and mean-primitive depth both use this transform. All values must be
+finite and the object matrix invertible. Exported joints still must agree within
+the recorded rounding tolerance; supplying metadata never bypasses that check.
+For Gust Shrike, export its actual root yaw 135°/315° matrices, target [0,0,0.9],
+camera azimuth 45°, elevation 30°, scale 3.6 and distance 20. The wing/tail fixture
+tests these cameras against an independent exporter, including depth reversal.
+Absent explicit metadata, the existing humanoid 0°/180° view transform and
+camera remain byte-compatible. The built-in Blender invocation remains the
+humanoid exporter; other exporters supply their own renders and metadata.
 
 Every nontransparent painted pixel takes its nearest registered label pixel
 under squared Euclidean distance. Equal distances choose the label whose mean
@@ -274,6 +291,12 @@ its hit envelope `cast`. Front motion and pelvis forward drive remain unchanged.
 Tests compare every unconstrained bone matrix against archived round5 samples,
 including inherited torso rotation and the shoulder offset, then independently
 verify that constraint projection changes only the three fist-arm transforms.
+The director values live in `recipes/rig.json.rear_torso_lean`; the builder copies
+that object into each layout, and the generated sampler reads its `clips`,
+`rotation_rad_per_hit` and `shoulder_offset_per_prep` fields. There are no duplicate
+numeric defaults in the sampler. A regression changes the recipe, regenerates
+the layout and checks changed rear motion through Godot while front/walk remain
+identical.
 
 ### Deterministic hidden fill
 
@@ -364,6 +387,29 @@ The command refreshes rest identity, validation, motion samples, exposure and
 the case baseline. These numerical checks do not approve art or replace a fresh
 native reel and director inspection. Regenerate the reel in a fresh output
 directory; captures made before filling are historical proof only.
+
+The independent value gate assembles actual runtime hidden-material PNGs at
+their layout offsets and checks exact single coverage of each registered hidden
+mask. It measures median/IQR counts from those runtime pixels, and separately
+requires exact RGBA agreement with the preview on the same mask. Per-frame
+native physical-owner IDs identify visible hidden pixels; the gate reports their
+L* median and rejects colors absent from that physical runtime node's palette.
+Native node identity, bone, logical owner and hidden flag must match the current
+layout. A partially visible region's median is diagnostic, since visibility
+biases its distribution; the full runtime region remains the value-limit basis.
+Regression mutations cover RGB 220 with a stale preview, RGB 220 with a matching
+preview, missing runtime alpha, and rendered pixels outside the runtime palette.
+
+The gaoler's `probes/rebuild.py --case <absolute-case>` performs a complete fresh
+build/fill using the recorded fill method, then compares **every** generated
+artifact byte-for-byte with `proof/derived_files.json`, including ownership
+recipes, build/validation reports, samples, PNGs, import sidecars and the protected
+baseline. It detects missing and orphaned files in generated asset directories.
+Only three execution transcripts (motion_samples.log, exposure.log and
+motion_constraints.log) are excluded: they contain invocation paths and runner
+IDs. Authored inputs, historical proofs and native captures are not generated
+outputs. Promote the whole successful clean output together; selective copying
+previously left ownership recipes and build_report.json stale.
 
 Run `python3 tests/test_maquette_cutout.py`, `cutout_workflow.py validate`, and
 the case's headless motion sampler. Native proof still requires `render` and

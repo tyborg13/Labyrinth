@@ -1,0 +1,6 @@
+.............................process.py:22: DeprecationWarning: 'mode' parameter is deprecated and will be removed in Pillow 13 (2026-10-15)
+....................
+----------------------------------------------------------------------
+Ran 49 tests in 18.792s
+
+OK

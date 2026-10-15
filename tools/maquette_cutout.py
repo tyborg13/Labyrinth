@@ -127,15 +127,45 @@ def registration(raw: Path, record: dict) -> Registration:
                                        "final_trim": list(final_trim), "placement": record["placement"]})
 
 
+def camera_view(spec: dict, view: str):
+    """Explicit exported object/camera transform, or the legacy humanoid views.
+
+    Matrices are row-major affine object-to-world transforms acting on column
+    vectors. Camera angles are degrees; target and distance are world-space.
+    The same transform drives projection and depth, including asymmetric rigs.
+    """
+    views = spec.get("view_transforms")
+    if views is None:
+        matrix = np.diag([1, 1, 1, 1] if view == "front" else [-1, -1, 1, 1])
+        return matrix, np.asarray(spec.get("target", [0, 0, 1.2])), math.pi / 4, math.pi / 6, spec.get("ortho_scale", 3.4), 30
+    if view not in views:
+        raise CutoutError("Missing explicit view transform: " + view)
+    data = views[view]
+    matrix = np.asarray(data["object_to_world"], dtype=float)
+    target = np.asarray(data["target"], dtype=float)
+    parameters = np.array([data[k] for k in ["azimuth_deg", "elevation_deg", "ortho_scale", "distance"]], dtype=float)
+    if (matrix.shape != (4, 4) or target.shape != (3,) or not np.isfinite(matrix).all()
+            or not np.isfinite(target).all() or not np.isfinite(parameters).all()
+            or not np.array_equal(matrix[3], [0, 0, 0, 1]) or abs(np.linalg.det(matrix[:3, :3])) < 1e-12
+            or parameters[2] <= 0 or parameters[3] <= 0):
+        raise CutoutError("Invalid orthographic view transform: " + view)
+    return matrix, target, math.radians(parameters[0]), math.radians(parameters[1]), parameters[2], parameters[3]
+
+
+def case_spec(root: Path) -> dict:
+    spec = read_json(root / "source/spec.json")
+    transforms = root / "source/view_transforms.json"
+    if transforms.is_file():
+        spec["view_transforms"] = read_json(transforms)
+    return spec
+
+
 def projected(spec: dict, point, view: str, size: int = 1024) -> list[float]:
-    """humanoid.py's orthographic camera, without a renderer dependency."""
-    p = np.asarray(point, dtype=float).copy()
-    p[:2] *= 1 if view == "front" else -1
-    p -= np.asarray(spec.get("target", [0, 0, 1.2]))
-    a, e = math.pi / 4, math.pi / 6
+    matrix, target, a, e, ortho_scale, _ = camera_view(spec, view)
+    p = (matrix @ np.append(point, 1))[:3] - target
     right = np.array([-math.sin(a), math.cos(a), 0])
     up = np.array([-math.sin(e) * math.cos(a), -math.sin(e) * math.sin(a), math.cos(e)])
-    scale = size / spec.get("ortho_scale", 3.4)
+    scale = size / ortho_scale
     return [size / 2 + float(p @ right) * scale, size / 2 - float(p @ up) * scale]
 
 
@@ -155,15 +185,16 @@ def camera_depths(spec: dict, view: str) -> dict[str, float]:
     A total order cannot represent intersecting 3D surfaces. Exact per-pixel
     visible ownership comes from the rendered map, not this scalar layer order.
     """
-    direction = np.array([math.sqrt(3 / 8), math.sqrt(3 / 8), 0.5])
+    matrix, target, a, e, _, distance = camera_view(spec, view)
+    direction = (np.array([math.cos(e) * math.cos(a), math.cos(e) * math.sin(a), math.sin(e)])
+                 if "view_transforms" in spec else np.array([math.sqrt(3 / 8), math.sqrt(3 / 8), 0.5]))
     result = {}
     for name in spec["labels"]:
         centers = [shape_center(s, spec["joints"]) for s in spec["shapes"] if s["part"] == name]
         if not centers:
             raise CutoutError("Label has no geometry: " + name)
-        p = np.mean(centers, axis=0)
-        p[:2] *= 1 if view == "front" else -1
-        result[name] = 30 - float((p - np.asarray(spec.get("target", [0, 0, 1.2]))) @ direction)
+        p = (matrix @ np.append(np.mean(centers, axis=0), 1))[:3]
+        result[name] = distance - float((p - target) @ direction)
     return result
 
 
@@ -870,6 +901,8 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
     if recipe.get("occlusion_shadow"):
         layout["visible_dark_baselines"] = {name: f"registered/{view}_visible_dark_{name}.png" for name in recipe["occlusion_shadow"]["parts"]}
     layout["maquette_depths"] = depths
+    if recipe.get("rear_torso_lean"):
+        layout["rear_torso_lean"] = recipe["rear_torso_lean"]
     compatibility_path = root / f"source/production/{view}.json"
     rigid_mapping = {}
     if recipe.get("rigid_cloth"):
@@ -914,6 +947,11 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
 def build(args) -> dict:
     root = args.case.resolve()
     spec = read_json(args.spec)
+    transforms = getattr(args, "view_transforms", None)
+    if transforms:
+        spec["view_transforms"] = read_json(transforms)
+    for view in ["front", "rear"]:
+        camera_view(spec, view)  # Fail before creating a case on malformed metadata.
     recipe_path = args.rig_recipe or (GAOLER_RECIPE if args.spec.parent.name == "chainbound_gaoler" else None)
     if recipe_path is None:
         raise CutoutError("Supply --rig-recipe for this anatomy; joint parents/cloth weights are not inferred")
@@ -934,6 +972,8 @@ def build(args) -> dict:
         if source.resolve() != destination.resolve():
             shutil.copyfile(source, destination)
     copy(args.spec, root / "source/spec.json")
+    if transforms:
+        copy(transforms, root / "source/view_transforms.json")
     copy(recipe_path, root / "recipes/rig.json")
     for source in recipe.get("copy_files", []):
         copy(recipe_path.parent / source["from"], root / source["to"])
@@ -989,7 +1029,7 @@ def build(args) -> dict:
     write_json(config_path, config)
     report = {"views": views, "missing_solos": [f"{r['view']}_{r['part']}" for r in requests if r["status"] != "measured"],
               "hidden_layer_policy": "Camera-depth-ordered hidden underlays sit below the complete visible partition. This preserves 3D per-pixel occlusion at rest despite intersecting proxy parts; all underlays move with their own bones.",
-              "depth_basis": "Mean primitive centre distance along humanoid.py camera axis; smaller is nearer",
+              "depth_basis": "Mean primitive centre distance along the explicit view camera (legacy humanoid camera when unspecified); smaller is nearer",
               "chosen_defaults": PROOF_DEFAULTS, "rest_identity": rest_identity(root), "validation": validate(root)}
     report["ok"] = report["rest_identity"]["ok"] and report["validation"]["ok"]
     report["complete"] = report["ok"] and not report["missing_solos"] and not config["design_placeholders"]
@@ -1288,7 +1328,7 @@ def fill_hidden(args) -> dict:
                  read_json(local_path(root, p))) for v, p in config["layouts"].items()}
     material_references = {}
     if rig_recipe.get("ownership_cleanup"):
-        spec = read_json(root / "source/spec.json")
+        spec = case_spec(root)
         palette = read_json(root / "source/label_palette.json")
         for view, (paint, owners, _) in views.items():
             depths = camera_depths(spec, view)
@@ -1551,7 +1591,7 @@ def main() -> int:
 def build_arguments(parser):
     for name in ["spec", "front-job", "rear-job", "case"]:
         parser.add_argument("--" + name, type=Path, required=True)
-    for name in ["front-raw", "rear-raw", "renders", "palette", "rig-recipe", "color-config"]:
+    for name in ["front-raw", "rear-raw", "renders", "palette", "rig-recipe", "color-config", "view-transforms"]:
         parser.add_argument("--" + name, type=Path)
     parser.add_argument("--blender", default=BLENDER)
     parser.add_argument("--task-id", help="Headless sampler runner isolation; defaults to the current codex branch id")

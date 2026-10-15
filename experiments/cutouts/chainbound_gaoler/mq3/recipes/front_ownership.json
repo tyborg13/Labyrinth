@@ -171,6 +171,23 @@
       ]
     ],
     [
+      "belt_from_coat_near",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
       "belt_from_shin_far",
       [
         [
@@ -274,6 +291,23 @@
     ],
     [
       "tabard_from_coat_near",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "tabard_from_coat_far",
       [
         [
           0,
@@ -478,6 +512,23 @@
     ],
     [
       "coat_far_from_shin_far",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "upper_near_from_coat_near",
       [
         [
           0,
@@ -749,40 +800,6 @@
       ]
     ],
     [
-      "thigh_near_from_shin_near",
-      [
-        [
-          0,
-          0
-        ],
-        [
-          0,
-          0
-        ],
-        [
-          0,
-          0
-        ]
-      ]
-    ],
-    [
-      "thigh_near_from_shin_far",
-      [
-        [
-          0,
-          0
-        ],
-        [
-          0,
-          0
-        ],
-        [
-          0,
-          0
-        ]
-      ]
-    ],
-    [
       "thigh_near_from_foot_far",
       [
         [
@@ -834,6 +851,23 @@
       ]
     ],
     [
+      "foot_near_from_shin_near",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
       "foot_near",
       [
         [
@@ -852,6 +886,23 @@
     ],
     [
       "thigh_far",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "shin_far_from_shin_near",
       [
         [
           0,
@@ -954,6 +1005,74 @@
     ],
     [
       "hook",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "under_shadow_from_thigh_near",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "under_shadow_from_shin_near",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "under_shadow_from_thigh_far",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "under_shadow_from_shin_far",
       [
         [
           0,
@@ -53686,7 +53805,7 @@
         192,
         124
       ],
-      "name": "coat_near"
+      "name": "belt_from_coat_near"
     },
     {
       "point": [
@@ -54365,21 +54484,21 @@
         191,
         125
       ],
-      "name": "coat_near"
+      "name": "tabard_from_coat_near"
     },
     {
       "point": [
         192,
         125
       ],
-      "name": "coat_near"
+      "name": "tabard_from_coat_near"
     },
     {
       "point": [
         193,
         125
       ],
-      "name": "coat_near"
+      "name": "tabard_from_coat_near"
     },
     {
       "point": [
@@ -55058,21 +55177,21 @@
         191,
         126
       ],
-      "name": "coat_near"
+      "name": "tabard_from_coat_near"
     },
     {
       "point": [
         192,
         126
       ],
-      "name": "coat_near"
+      "name": "tabard_from_coat_near"
     },
     {
       "point": [
         193,
         126
       ],
-      "name": "coat_near"
+      "name": "tabard_from_coat_near"
     },
     {
       "point": [
@@ -55730,21 +55849,21 @@
         191,
         127
       ],
-      "name": "coat_near"
+      "name": "tabard_from_coat_near"
     },
     {
       "point": [
         192,
         127
       ],
-      "name": "coat_near"
+      "name": "tabard_from_coat_near"
     },
     {
       "point": [
         193,
         127
       ],
-      "name": "coat_near"
+      "name": "tabard_from_coat_near"
     },
     {
       "point": [
@@ -56381,14 +56500,14 @@
         192,
         128
       ],
-      "name": "coat_near"
+      "name": "tabard_from_coat_near"
     },
     {
       "point": [
         193,
         128
       ],
-      "name": "coat_near"
+      "name": "tabard_from_coat_near"
     },
     {
       "point": [
@@ -57011,14 +57130,14 @@
         192,
         129
       ],
-      "name": "coat_near"
+      "name": "tabard_from_coat_near"
     },
     {
       "point": [
         193,
         129
       ],
-      "name": "coat_near"
+      "name": "tabard_from_coat_near"
     },
     {
       "point": [
@@ -58208,7 +58327,7 @@
         188,
         131
       ],
-      "name": "coat_near"
+      "name": "upper_near_from_coat_near"
     },
     {
       "point": [
@@ -71270,28 +71389,28 @@
         155,
         150
       ],
-      "name": "thigh_near_from_shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         156,
         150
       ],
-      "name": "thigh_near_from_shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         157,
         150
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         158,
         150
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -71963,35 +72082,35 @@
         154,
         151
       ],
-      "name": "thigh_near_from_shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         155,
         151
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         156,
         151
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         157,
         151
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         158,
         151
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -72677,35 +72796,35 @@
         154,
         152
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         155,
         152
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         156,
         152
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         157,
         152
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         158,
         152
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -73384,42 +73503,42 @@
         153,
         153
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         154,
         153
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         155,
         153
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         156,
         153
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         157,
         153
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         158,
         153
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -74091,49 +74210,49 @@
         152,
         154
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         153,
         154
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         154,
         154
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         155,
         154
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         156,
         154
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         157,
         154
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         158,
         154
       ],
-      "name": "thigh_near_from_shin_near"
+      "name": "under_shadow_from_shin_near"
     },
     {
       "point": [
@@ -74805,49 +74924,49 @@
         150,
         155
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         151,
         155
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         152,
         155
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         153,
         155
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         154,
         155
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         155,
         155
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         156,
         155
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -75512,70 +75631,70 @@
         145,
         156
       ],
-      "name": "coat_far"
+      "name": "tabard_from_coat_far"
     },
     {
       "point": [
         146,
         156
       ],
-      "name": "coat_far"
+      "name": "tabard_from_coat_far"
     },
     {
       "point": [
         147,
         156
       ],
-      "name": "thigh_near_from_shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         148,
         156
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         149,
         156
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         150,
         156
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         151,
         156
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         152,
         156
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         153,
         156
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         154,
         156
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -76268,70 +76387,70 @@
         145,
         157
       ],
-      "name": "coat_far"
+      "name": "tabard_from_coat_far"
     },
     {
       "point": [
         146,
         157
       ],
-      "name": "coat_far"
+      "name": "tabard_from_coat_far"
     },
     {
       "point": [
         147,
         157
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         148,
         157
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         149,
         157
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         150,
         157
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         151,
         157
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         152,
         157
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         153,
         157
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         154,
         157
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -77038,63 +77157,63 @@
         145,
         158
       ],
-      "name": "coat_far"
+      "name": "tabard_from_coat_far"
     },
     {
       "point": [
         146,
         158
       ],
-      "name": "coat_far"
+      "name": "tabard_from_coat_far"
     },
     {
       "point": [
         147,
         158
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         148,
         158
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         149,
         158
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         150,
         158
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         151,
         158
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         152,
         158
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         153,
         158
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -77808,56 +77927,56 @@
         144,
         159
       ],
-      "name": "coat_far"
+      "name": "tabard_from_coat_far"
     },
     {
       "point": [
         145,
         159
       ],
-      "name": "coat_far"
+      "name": "tabard_from_coat_far"
     },
     {
       "point": [
         146,
         159
       ],
-      "name": "coat_far"
+      "name": "tabard_from_coat_far"
     },
     {
       "point": [
         147,
         159
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         148,
         159
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         149,
         159
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         150,
         159
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         151,
         159
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -78592,14 +78711,14 @@
         144,
         160
       ],
-      "name": "coat_far"
+      "name": "tabard_from_coat_far"
     },
     {
       "point": [
         145,
         160
       ],
-      "name": "coat_far"
+      "name": "tabard_from_coat_far"
     },
     {
       "point": [
@@ -78613,35 +78732,35 @@
         147,
         160
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         148,
         160
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         149,
         160
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         150,
         160
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         151,
         160
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -79418,14 +79537,14 @@
         147,
         161
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         148,
         161
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -80216,14 +80335,14 @@
         147,
         162
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         148,
         162
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -81007,14 +81126,14 @@
         147,
         163
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         148,
         163
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -81574,7 +81693,7 @@
         111,
         164
       ],
-      "name": "thigh_far"
+      "name": "under_shadow_from_thigh_far"
     },
     {
       "point": [
@@ -81826,7 +81945,7 @@
         147,
         164
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -82393,7 +82512,7 @@
         111,
         165
       ],
-      "name": "thigh_far"
+      "name": "under_shadow_from_thigh_far"
     },
     {
       "point": [
@@ -82645,7 +82764,7 @@
         147,
         165
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -83233,7 +83352,7 @@
         111,
         166
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -83485,7 +83604,7 @@
         147,
         166
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -84052,7 +84171,7 @@
         110,
         167
       ],
-      "name": "thigh_far"
+      "name": "under_shadow_from_thigh_far"
     },
     {
       "point": [
@@ -84304,7 +84423,7 @@
         146,
         167
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -84892,7 +85011,7 @@
         110,
         168
       ],
-      "name": "thigh_far"
+      "name": "under_shadow_from_thigh_far"
     },
     {
       "point": [
@@ -85144,7 +85263,7 @@
         146,
         168
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -92340,7 +92459,7 @@
         134,
         177
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -92361,42 +92480,42 @@
         137,
         177
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         177
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         177
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         177
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         177
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         177
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -93131,42 +93250,42 @@
         137,
         178
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         178
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         178
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         178
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         178
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         178
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -93887,56 +94006,56 @@
         135,
         179
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         136,
         179
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         179
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         179
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         179
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         179
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         179
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         179
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -94622,63 +94741,63 @@
         134,
         180
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         135,
         180
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         136,
         180
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         180
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         180
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         180
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         180
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         180
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         180
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -95336,70 +95455,70 @@
         134,
         181
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         135,
         181
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         136,
         181
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         181
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         181
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         181
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         181
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         181
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         181
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         181
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -96050,70 +96169,70 @@
         134,
         182
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         135,
         182
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         136,
         182
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         182
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         182
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         182
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         182
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         182
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         182
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         182
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -96708,70 +96827,70 @@
         134,
         183
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         135,
         183
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         136,
         183
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         183
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         183
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         183
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         183
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         183
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         183
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         183
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -97359,70 +97478,70 @@
         134,
         184
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         135,
         184
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         136,
         184
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         184
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         184
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         184
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         184
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         184
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         184
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         184
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -98017,77 +98136,77 @@
         133,
         185
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         134,
         185
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         135,
         185
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         136,
         185
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         185
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         185
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         185
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         185
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         185
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         185
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         185
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -98675,77 +98794,77 @@
         133,
         186
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         134,
         186
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         135,
         186
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         136,
         186
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         186
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         186
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         186
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         186
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         186
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         186
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         186
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -99333,77 +99452,77 @@
         133,
         187
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         134,
         187
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         135,
         187
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         136,
         187
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         187
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         187
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         187
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         187
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         187
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         187
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         187
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -99991,70 +100110,70 @@
         133,
         188
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         134,
         188
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         135,
         188
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         136,
         188
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         188
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         188
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         188
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         188
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         188
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         188
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -100649,77 +100768,77 @@
         133,
         189
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         134,
         189
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         135,
         189
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         136,
         189
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         189
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         189
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         189
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         189
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         189
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         189
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         189
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -101314,77 +101433,77 @@
         133,
         190
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         134,
         190
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         135,
         190
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         136,
         190
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         190
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         190
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         190
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         190
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         190
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         190
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         190
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -101972,77 +102091,77 @@
         133,
         191
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         134,
         191
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         135,
         191
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         136,
         191
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         191
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         191
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         191
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         191
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         191
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         191
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         191
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -102623,98 +102742,98 @@
         132,
         192
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         133,
         192
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         134,
         192
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         135,
         192
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         136,
         192
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         192
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         192
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         192
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         192
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         192
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         192
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         192
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         144,
         192
       ],
-      "name": "thigh_near"
+      "name": "tabard_from_thigh_near"
     },
     {
       "point": [
         145,
         192
       ],
-      "name": "thigh_near"
+      "name": "tabard_from_thigh_near"
     },
     {
       "point": [
@@ -103267,98 +103386,98 @@
         132,
         193
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         133,
         193
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         134,
         193
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         135,
         193
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         136,
         193
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         193
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         193
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         193
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         193
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         193
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         193
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         193
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         144,
         193
       ],
-      "name": "shin_near"
+      "name": "shin_far_from_shin_near"
     },
     {
       "point": [
         145,
         193
       ],
-      "name": "shin_near"
+      "name": "under_shadow_from_shin_near"
     },
     {
       "point": [
@@ -103869,98 +103988,98 @@
         132,
         194
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         133,
         194
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         134,
         194
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         135,
         194
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         136,
         194
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         194
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         194
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         194
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         194
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         194
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         194
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         194
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         144,
         194
       ],
-      "name": "shin_near"
+      "name": "shin_far_from_shin_near"
     },
     {
       "point": [
         145,
         194
       ],
-      "name": "shin_near"
+      "name": "shin_far_from_shin_near"
     },
     {
       "point": [
@@ -104345,14 +104464,14 @@
         114,
         195
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         115,
         195
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -104471,98 +104590,98 @@
         132,
         195
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         133,
         195
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         134,
         195
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         135,
         195
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         136,
         195
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         195
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         195
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         195
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         195
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         195
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         195
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         195
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         144,
         195
       ],
-      "name": "shin_near"
+      "name": "shin_far_from_shin_near"
     },
     {
       "point": [
         145,
         195
       ],
-      "name": "shin_near"
+      "name": "shin_far_from_shin_near"
     },
     {
       "point": [
@@ -104933,21 +105052,21 @@
         115,
         196
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         116,
         196
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         117,
         196
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -105052,98 +105171,98 @@
         132,
         196
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         133,
         196
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         134,
         196
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         135,
         196
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         136,
         196
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         196
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         196
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         196
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         196
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         196
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         196
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         196
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         144,
         196
       ],
-      "name": "shin_near"
+      "name": "shin_far_from_shin_near"
     },
     {
       "point": [
         145,
         196
       ],
-      "name": "shin_near"
+      "name": "shin_far_from_shin_near"
     },
     {
       "point": [
@@ -105500,28 +105619,28 @@
         115,
         197
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         116,
         197
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         117,
         197
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         118,
         197
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -105619,84 +105738,84 @@
         132,
         197
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         133,
         197
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         134,
         197
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         135,
         197
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         136,
         197
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         137,
         197
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         138,
         197
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         197
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         197
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         197
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         197
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         197
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -105710,7 +105829,7 @@
         145,
         197
       ],
-      "name": "shin_near"
+      "name": "shin_far_from_shin_near"
     },
     {
       "point": [
@@ -106067,35 +106186,35 @@
         115,
         198
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         116,
         198
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         117,
         198
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         118,
         198
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         119,
         198
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -106109,7 +106228,7 @@
         121,
         198
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -106186,84 +106305,84 @@
         132,
         198
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         133,
         198
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         134,
         198
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         135,
         198
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         136,
         198
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         137,
         198
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         138,
         198
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         139,
         198
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         140,
         198
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         198
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         198
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         198
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -106277,7 +106396,7 @@
         145,
         198
       ],
-      "name": "shin_near"
+      "name": "shin_far_from_shin_near"
     },
     {
       "point": [
@@ -106599,21 +106718,21 @@
         115,
         199
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         116,
         199
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         117,
         199
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -106627,35 +106746,35 @@
         119,
         199
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         120,
         199
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         121,
         199
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         122,
         199
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         123,
         199
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -106718,35 +106837,35 @@
         132,
         199
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         133,
         199
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         134,
         199
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         135,
         199
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         136,
         199
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -106760,7 +106879,7 @@
         138,
         199
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -106774,28 +106893,28 @@
         140,
         199
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         199
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         199
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         199
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -106809,7 +106928,7 @@
         145,
         199
       ],
-      "name": "shin_near"
+      "name": "shin_far_from_shin_near"
     },
     {
       "point": [
@@ -107131,21 +107250,21 @@
         115,
         200
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         116,
         200
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         117,
         200
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -107159,28 +107278,28 @@
         119,
         200
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         120,
         200
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         121,
         200
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         122,
         200
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -107194,14 +107313,14 @@
         124,
         200
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         125,
         200
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -107243,42 +107362,42 @@
         131,
         200
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         132,
         200
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         133,
         200
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         134,
         200
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         135,
         200
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         136,
         200
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -107306,28 +107425,28 @@
         140,
         200
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         200
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         200
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         200
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -107341,7 +107460,7 @@
         145,
         200
       ],
-      "name": "shin_near"
+      "name": "shin_far_from_shin_near"
     },
     {
       "point": [
@@ -107635,21 +107754,21 @@
         115,
         201
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         116,
         201
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         117,
         201
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -107670,21 +107789,21 @@
         120,
         201
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         121,
         201
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         122,
         201
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -107698,28 +107817,28 @@
         124,
         201
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         125,
         201
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         126,
         201
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         127,
         201
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -107747,42 +107866,42 @@
         131,
         201
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         132,
         201
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         133,
         201
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         134,
         201
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         135,
         201
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         136,
         201
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -107810,28 +107929,28 @@
         140,
         201
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         141,
         201
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         201
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         201
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -107845,7 +107964,7 @@
         145,
         201
       ],
-      "name": "shin_near"
+      "name": "shin_far_from_shin_near"
     },
     {
       "point": [
@@ -108146,21 +108265,21 @@
         117,
         202
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         118,
         202
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         119,
         202
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -108174,105 +108293,105 @@
         121,
         202
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         122,
         202
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         123,
         202
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         124,
         202
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         125,
         202
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         126,
         202
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         127,
         202
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         128,
         202
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         129,
         202
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         130,
         202
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         131,
         202
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         132,
         202
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         133,
         202
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         134,
         202
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         135,
         202
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -108314,21 +108433,21 @@
         141,
         202
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         142,
         202
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         202
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -108342,7 +108461,7 @@
         145,
         202
       ],
-      "name": "shin_near"
+      "name": "shin_far_from_shin_near"
     },
     {
       "point": [
@@ -108643,7 +108762,7 @@
         119,
         203
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -108664,98 +108783,98 @@
         122,
         203
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         123,
         203
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         124,
         203
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         125,
         203
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         126,
         203
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         127,
         203
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         128,
         203
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         129,
         203
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         130,
         203
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         131,
         203
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         132,
         203
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         133,
         203
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         134,
         203
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         135,
         203
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -108797,14 +108916,14 @@
         142,
         203
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         143,
         203
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -108818,7 +108937,7 @@
         145,
         203
       ],
-      "name": "shin_near"
+      "name": "shin_far_from_shin_near"
     },
     {
       "point": [
@@ -109133,21 +109252,21 @@
         121,
         204
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         122,
         204
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         123,
         204
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -109168,63 +109287,63 @@
         126,
         204
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
         127,
         204
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         128,
         204
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         129,
         204
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         130,
         204
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         131,
         204
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         132,
         204
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         133,
         204
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         134,
         204
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -109280,7 +109399,7 @@
         143,
         204
       ],
-      "name": "shin_far"
+      "name": "tabard_from_shin_far"
     },
     {
       "point": [
@@ -109595,77 +109714,77 @@
         123,
         205
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         124,
         205
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         125,
         205
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         126,
         205
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         127,
         205
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         128,
         205
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         129,
         205
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         130,
         205
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         131,
         205
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         132,
         205
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         133,
         205
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -110008,56 +110127,56 @@
         125,
         206
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         126,
         206
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         127,
         206
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         128,
         206
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         129,
         206
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         130,
         206
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         131,
         206
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         132,
         206
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -110414,14 +110533,14 @@
         128,
         207
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
         129,
         207
       ],
-      "name": "shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -112199,7 +112318,7 @@
         164,
         211
       ],
-      "name": "shin_near"
+      "name": "foot_near_from_shin_near"
     },
     {
       "point": [
@@ -112640,7 +112759,7 @@
         163,
         212
       ],
-      "name": "shin_near"
+      "name": "foot_near_from_shin_near"
     },
     {
       "point": [
@@ -113088,7 +113207,7 @@
         163,
         213
       ],
-      "name": "shin_near"
+      "name": "foot_near_from_shin_near"
     },
     {
       "point": [
@@ -113543,7 +113662,7 @@
         163,
         214
       ],
-      "name": "shin_near"
+      "name": "foot_near_from_shin_near"
     },
     {
       "point": [
@@ -113998,7 +114117,7 @@
         163,
         215
       ],
-      "name": "shin_near"
+      "name": "foot_near_from_shin_near"
     },
     {
       "point": [
@@ -114467,7 +114586,7 @@
         163,
         216
       ],
-      "name": "shin_near"
+      "name": "foot_near_from_shin_near"
     },
     {
       "point": [
@@ -114950,7 +115069,7 @@
         164,
         217
       ],
-      "name": "shin_near"
+      "name": "foot_near_from_shin_near"
     },
     {
       "point": [
@@ -115419,7 +115538,7 @@
         165,
         218
       ],
-      "name": "shin_near"
+      "name": "foot_near_from_shin_near"
     },
     {
       "point": [
@@ -115881,7 +116000,7 @@
         165,
         219
       ],
-      "name": "shin_near"
+      "name": "foot_near_from_shin_near"
     },
     {
       "point": [
@@ -116336,7 +116455,7 @@
         166,
         220
       ],
-      "name": "shin_near"
+      "name": "foot_near_from_shin_near"
     },
     {
       "point": [
@@ -116784,7 +116903,7 @@
         167,
         221
       ],
-      "name": "shin_near"
+      "name": "foot_near_from_shin_near"
     },
     {
       "point": [
@@ -116959,7 +117078,7 @@
         192,
         221
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
@@ -117211,7 +117330,7 @@
         168,
         222
       ],
-      "name": "shin_near"
+      "name": "foot_near_from_shin_near"
     },
     {
       "point": [
@@ -117358,35 +117477,35 @@
         189,
         222
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         190,
         222
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         191,
         222
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         192,
         222
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         193,
         222
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
@@ -117610,7 +117729,7 @@
         169,
         223
       ],
-      "name": "shin_near"
+      "name": "foot_near_from_shin_near"
     },
     {
       "point": [
@@ -117743,42 +117862,42 @@
         188,
         223
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         189,
         223
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         190,
         223
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         191,
         223
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         192,
         223
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         193,
         223
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
@@ -118100,49 +118219,49 @@
         187,
         224
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         188,
         224
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         189,
         224
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         190,
         224
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         191,
         224
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         192,
         224
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         193,
         224
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [

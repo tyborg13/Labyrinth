@@ -426,7 +426,7 @@
       ]
     ],
     [
-      "thigh_near_from_shin_far",
+      "thigh_near_from_foot_far",
       [
         [
           0,
@@ -443,7 +443,7 @@
       ]
     ],
     [
-      "thigh_near_from_foot_far",
+      "shin_near_from_coat_far",
       [
         [
           0,
@@ -494,7 +494,7 @@
       ]
     ],
     [
-      "foot_near",
+      "foot_near_from_coat_far",
       [
         [
           0,
@@ -511,7 +511,7 @@
       ]
     ],
     [
-      "thigh_far",
+      "foot_near",
       [
         [
           0,
@@ -631,6 +631,74 @@
     ],
     [
       "hook",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "under_shadow_from_thigh_near",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "under_shadow_from_thigh_far",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "under_shadow_from_shin_far",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "under_shadow_from_foot_far",
       [
         [
           0,
@@ -57353,14 +57421,14 @@
         75,
         135
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         76,
         135
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -58123,14 +58191,14 @@
         75,
         136
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         76,
         136
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -58858,14 +58926,14 @@
         75,
         137
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         76,
         137
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -59544,14 +59612,14 @@
         75,
         138
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         76,
         138
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -60244,14 +60312,14 @@
         75,
         139
       ],
-      "name": "thigh_near_from_foot_far"
+      "name": "under_shadow_from_foot_far"
     },
     {
       "point": [
         76,
         139
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -60895,21 +60963,21 @@
         75,
         140
       ],
-      "name": "thigh_near_from_foot_far"
+      "name": "under_shadow_from_foot_far"
     },
     {
       "point": [
         76,
         140
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         77,
         140
       ],
-      "name": "thigh_near_from_shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -61553,14 +61621,14 @@
         75,
         141
       ],
-      "name": "thigh_near_from_foot_far"
+      "name": "under_shadow_from_foot_far"
     },
     {
       "point": [
         76,
         141
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -62232,14 +62300,14 @@
         75,
         142
       ],
-      "name": "thigh_near_from_foot_far"
+      "name": "under_shadow_from_foot_far"
     },
     {
       "point": [
         76,
         142
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -62911,14 +62979,14 @@
         75,
         143
       ],
-      "name": "thigh_near_from_foot_far"
+      "name": "under_shadow_from_foot_far"
     },
     {
       "point": [
         76,
         143
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -63611,7 +63679,7 @@
         76,
         144
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -64311,7 +64379,7 @@
         76,
         145
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -64332,7 +64400,7 @@
         79,
         145
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -64990,7 +65058,7 @@
         76,
         146
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -65011,7 +65079,7 @@
         79,
         146
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -65690,14 +65758,14 @@
         79,
         147
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         80,
         147
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -66383,21 +66451,21 @@
         79,
         148
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         80,
         148
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         81,
         148
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -67069,28 +67137,28 @@
         78,
         149
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         79,
         149
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         80,
         149
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         81,
         149
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -67762,35 +67830,35 @@
         78,
         150
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         79,
         150
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         80,
         150
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         81,
         150
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         82,
         150
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -68490,35 +68558,35 @@
         78,
         151
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         79,
         151
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         80,
         151
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         81,
         151
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         82,
         151
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -69239,35 +69307,35 @@
         78,
         152
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         79,
         152
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         80,
         152
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         81,
         152
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         82,
         152
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -69974,42 +70042,42 @@
         79,
         153
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         80,
         153
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         81,
         153
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         82,
         153
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         83,
         153
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         84,
         153
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -70709,35 +70777,35 @@
         80,
         154
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         81,
         154
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         82,
         154
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         83,
         154
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         84,
         154
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -71444,28 +71512,28 @@
         81,
         155
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         82,
         155
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         83,
         155
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         84,
         155
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -72165,21 +72233,21 @@
         82,
         156
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         83,
         156
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         84,
         156
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -72886,14 +72954,14 @@
         83,
         157
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         84,
         157
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -73677,7 +73745,7 @@
         94,
         158
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -74405,28 +74473,28 @@
         94,
         159
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         95,
         159
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         96,
         159
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         97,
         159
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -75140,56 +75208,56 @@
         95,
         160
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         96,
         160
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         97,
         160
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         98,
         160
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         99,
         160
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         100,
         160
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         101,
         160
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         102,
         160
       ],
-      "name": "thigh_near_from_shin_far"
+      "name": "under_shadow_from_shin_far"
     },
     {
       "point": [
@@ -75224,7 +75292,7 @@
         107,
         160
       ],
-      "name": "thigh_far"
+      "name": "under_shadow_from_thigh_far"
     },
     {
       "point": [
@@ -75868,91 +75936,91 @@
         95,
         161
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         96,
         161
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         97,
         161
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         98,
         161
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         99,
         161
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         100,
         161
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         101,
         161
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         102,
         161
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         103,
         161
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         104,
         161
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         105,
         161
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         106,
         161
       ],
-      "name": "thigh_far"
+      "name": "under_shadow_from_thigh_far"
     },
     {
       "point": [
         107,
         161
       ],
-      "name": "thigh_far"
+      "name": "under_shadow_from_thigh_far"
     },
     {
       "point": [
@@ -76617,77 +76685,77 @@
         97,
         162
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         98,
         162
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         99,
         162
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         100,
         162
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         101,
         162
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         102,
         162
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         103,
         162
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         104,
         162
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         105,
         162
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         106,
         162
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         107,
         162
       ],
-      "name": "thigh_far"
+      "name": "under_shadow_from_thigh_far"
     },
     {
       "point": [
@@ -77366,70 +77434,70 @@
         98,
         163
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         99,
         163
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         100,
         163
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         101,
         163
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         102,
         163
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         103,
         163
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         104,
         163
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         105,
         163
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         106,
         163
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         107,
         163
       ],
-      "name": "thigh_far"
+      "name": "under_shadow_from_thigh_far"
     },
     {
       "point": [
@@ -78136,70 +78204,70 @@
         98,
         164
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         99,
         164
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         100,
         164
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         101,
         164
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         102,
         164
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         103,
         164
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         104,
         164
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         105,
         164
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         106,
         164
       ],
-      "name": "thigh_far"
+      "name": "under_shadow_from_thigh_far"
     },
     {
       "point": [
         107,
         164
       ],
-      "name": "thigh_far"
+      "name": "under_shadow_from_thigh_far"
     },
     {
       "point": [
@@ -78927,56 +78995,56 @@
         99,
         165
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         100,
         165
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         101,
         165
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         102,
         165
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         103,
         165
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         104,
         165
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         105,
         165
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         106,
         165
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -79732,35 +79800,35 @@
         102,
         166
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         103,
         166
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         104,
         166
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         105,
         166
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         106,
         166
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -80537,35 +80605,35 @@
         102,
         167
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         103,
         167
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         104,
         167
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         105,
         167
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         106,
         167
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -81363,28 +81431,28 @@
         103,
         168
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         104,
         168
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         105,
         168
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         106,
         168
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -82189,21 +82257,21 @@
         104,
         169
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         105,
         169
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
         106,
         169
       ],
-      "name": "thigh_near"
+      "name": "under_shadow_from_thigh_near"
     },
     {
       "point": [
@@ -85367,7 +85435,7 @@
         106,
         173
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
@@ -86207,7 +86275,7 @@
         106,
         174
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
@@ -87040,7 +87108,7 @@
         106,
         175
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
@@ -87866,21 +87934,21 @@
         106,
         176
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
         107,
         176
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
         108,
         176
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
@@ -88692,21 +88760,21 @@
         106,
         177
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
         107,
         177
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
         108,
         177
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
@@ -89518,21 +89586,21 @@
         106,
         178
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
         107,
         178
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
         108,
         178
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
@@ -90344,21 +90412,21 @@
         106,
         179
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
         107,
         179
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
         108,
         179
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
@@ -91156,7 +91224,7 @@
         106,
         180
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
@@ -91912,7 +91980,7 @@
         106,
         181
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
@@ -92675,7 +92743,7 @@
         106,
         182
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
@@ -93410,14 +93478,14 @@
         105,
         183
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
         106,
         183
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
@@ -94152,14 +94220,14 @@
         105,
         184
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
         106,
         184
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
@@ -94901,14 +94969,14 @@
         105,
         185
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
         106,
         185
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
@@ -95650,14 +95718,14 @@
         105,
         186
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
         106,
         186
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
@@ -96413,14 +96481,14 @@
         105,
         187
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
         106,
         187
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
@@ -97148,7 +97216,7 @@
         105,
         188
       ],
-      "name": "coat_far"
+      "name": "shin_near_from_coat_far"
     },
     {
       "point": [
@@ -107207,56 +107275,56 @@
         96,
         204
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         97,
         204
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         98,
         204
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         99,
         204
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         100,
         204
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         101,
         204
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         102,
         204
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         103,
         204
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
@@ -107830,56 +107898,56 @@
         96,
         205
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         97,
         205
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         98,
         205
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         99,
         205
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         100,
         205
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         101,
         205
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         102,
         205
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         103,
         205
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
@@ -108467,14 +108535,14 @@
         98,
         206
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         99,
         206
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
@@ -108502,21 +108570,21 @@
         103,
         206
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
         104,
         206
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
         105,
         206
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
@@ -109146,14 +109214,14 @@
         104,
         207
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
         105,
         207
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
@@ -109811,21 +109879,21 @@
         104,
         208
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
         105,
         208
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
         106,
         208
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
@@ -110483,21 +110551,21 @@
         104,
         209
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
         105,
         209
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
         106,
         209
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
@@ -111155,21 +111223,21 @@
         104,
         210
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
         105,
         210
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
         106,
         210
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
@@ -111862,14 +111930,14 @@
         105,
         211
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
         106,
         211
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
@@ -112555,14 +112623,14 @@
         105,
         212
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
         106,
         212
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
@@ -113248,14 +113316,14 @@
         105,
         213
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
         106,
         213
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
@@ -113927,14 +113995,14 @@
         105,
         214
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
         106,
         214
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
@@ -114620,14 +114688,14 @@
         105,
         215
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
         106,
         215
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
@@ -115320,14 +115388,14 @@
         105,
         216
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
         106,
         216
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
@@ -116013,7 +116081,7 @@
         105,
         217
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
@@ -116664,14 +116732,14 @@
         104,
         218
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [
         105,
         218
       ],
-      "name": "coat_far"
+      "name": "foot_near_from_coat_far"
     },
     {
       "point": [

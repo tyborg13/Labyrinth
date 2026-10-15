@@ -1244,6 +1244,19 @@
     "chain": 29.688927301364725,
     "hook": 29.952803577007767
   },
+  "rear_torso_lean": {
+    "clips": [
+      "strike",
+      "manacle_pin"
+    ],
+    "rotation_rad_per_hit": 0.07,
+    "shoulder_offset_per_prep": [
+      0,
+      -3
+    ],
+    "pin_hit_envelope": "production cast",
+    "basis": "Director round6; same production timing, inherited by head and both arms; pelvis unchanged"
+  },
   "motion_compatibility": {
     "joints": {
       "drape_a": {

@@ -1,0 +1,540 @@
+{
+  "ok": true,
+  "head_unchanged": "dc06de8b77299331c26a1adbbe90533b7f0dc58c",
+  "source_files_unchanged": 63,
+  "tracked_source_files_including_import_sidecars_unchanged": 113,
+  "runtime_and_reconstruction_pngs_unchanged": 149,
+  "runtime_paint_nodes": 145,
+  "director_recipe_unchanged": true,
+  "all_sampled_poses_identical": 458,
+  "complete_rebuild_files_identical": 882,
+  "rebuild_transcript_exclusions": [
+    "proof/exposure.log",
+    "proof/motion_constraints.log",
+    "proof/motion_samples.log"
+  ],
+  "baseline_matches_current_inputs": true,
+  "segmentation_recipe_hashes_match": true,
+  "ownership_recipe_corrected_pixels": {
+    "front": 532,
+    "rear": 227
+  },
+  "build_report_matches_actual_layouts": true,
+  "validation": {
+    "ok": true,
+    "character_id": "chainbound_gaoler",
+    "layouts": {
+      "front": {
+        "joints": 23,
+        "parts": 83,
+        "meshes": 0,
+        "vertices": 0
+      },
+      "rear": {
+        "joints": 23,
+        "parts": 62,
+        "meshes": 0,
+        "vertices": 0
+      }
+    },
+    "errors": []
+  },
+  "rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "394e5284cdf9dfe72e85508b269c2562612401e7fcb19ee99c27ac1facef37bc"
+    },
+    "rear": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "ebe6bcc1c4d77b8e4fa5a89e57f5118725414f75715578d9307dbb7408aac4ae"
+    },
+    "ok": true
+  },
+  "cpu_totals": {
+    "tabard_non_tabard_pixels": 0,
+    "detached_small_pixels": 0,
+    "new_leg_dark_pixels": 0,
+    "rear_arm_outside_pixels": 0,
+    "rear_visible_arm_pixels": 0,
+    "magenta_pixels": 0,
+    "hidden_runtime_mismatch_pixels": 0
+  },
+  "runtime_values": [
+    {
+      "view": "front",
+      "part": "pelvis",
+      "visible_pixels": 42,
+      "visible_median_l": 1.102893310824756,
+      "hidden_median_l": 4.025722654860257,
+      "measurement_basis": "Runtime hidden-material nodes at layout offsets intersected with registered hidden provenance",
+      "runtime_nodes": [
+        "hidden/front/pelvis.png"
+      ],
+      "hidden_pixels": 2051,
+      "runtime_coverage_errors": 0,
+      "preview_runtime_different_pixels": 0,
+      "preview_median_l": 4.025722654860257,
+      "reference_median_l": 1.102893310824756,
+      "substitution": null,
+      "difference_l": 2.9228293440355007,
+      "midtones_range_l": [
+        0.0,
+        5.825639659207562
+      ],
+      "effective_midtones_range_l": [
+        0.0,
+        5.825639659207562
+      ],
+      "midtones_substitution": null,
+      "hidden_original_midtones_pixels": 1367,
+      "hidden_midtones_pixels": 1367,
+      "ok": true
+    },
+    {
+      "view": "front",
+      "part": "thigh_far",
+      "visible_pixels": 10,
+      "visible_median_l": 37.830318597236214,
+      "hidden_median_l": 15.745765939705638,
+      "measurement_basis": "Runtime hidden-material nodes at layout offsets intersected with registered hidden provenance",
+      "runtime_nodes": [
+        "hidden/front/thigh_far.png"
+      ],
+      "hidden_pixels": 2190,
+      "runtime_coverage_errors": 0,
+      "preview_runtime_different_pixels": 0,
+      "preview_median_l": 15.745765939705638,
+      "reference_median_l": 11.84018949787665,
+      "substitution": {
+        "view": "front",
+        "part": "thigh_near",
+        "visible_pixels": 405,
+        "source_median_l": 17.84018949787665,
+        "l_shift": -6,
+        "rule": "sparse"
+      },
+      "difference_l": 3.9055764418289876,
+      "midtones_range_l": [
+        0.0,
+        19.18733746141418
+      ],
+      "effective_midtones_range_l": [
+        0.0,
+        19.18733746141418
+      ],
+      "midtones_substitution": null,
+      "hidden_original_midtones_pixels": 1676,
+      "hidden_midtones_pixels": 1676,
+      "ok": true
+    },
+    {
+      "view": "front",
+      "part": "thigh_near",
+      "visible_pixels": 405,
+      "visible_median_l": 17.84018949787665,
+      "hidden_median_l": 16.687673672496928,
+      "measurement_basis": "Runtime hidden-material nodes at layout offsets intersected with registered hidden provenance",
+      "runtime_nodes": [
+        "hidden/front/thigh_near.png"
+      ],
+      "hidden_pixels": 1704,
+      "runtime_coverage_errors": 0,
+      "preview_runtime_different_pixels": 0,
+      "preview_median_l": 16.687673672496928,
+      "reference_median_l": 17.84018949787665,
+      "substitution": null,
+      "difference_l": 1.152515825379723,
+      "midtones_range_l": [
+        0.49115673683760974,
+        25.18733746141418
+      ],
+      "effective_midtones_range_l": [
+        0.49115673683760974,
+        25.18733746141418
+      ],
+      "midtones_substitution": null,
+      "hidden_original_midtones_pixels": 1304,
+      "hidden_midtones_pixels": 1304,
+      "ok": true
+    },
+    {
+      "view": "front",
+      "part": "shin_far",
+      "visible_pixels": 448,
+      "visible_median_l": 4.967387270150784,
+      "hidden_median_l": 16.687673672496928,
+      "measurement_basis": "Runtime hidden-material nodes at layout offsets intersected with registered hidden provenance",
+      "runtime_nodes": [
+        "hidden/front/shin_far.png"
+      ],
+      "hidden_pixels": 1143,
+      "runtime_coverage_errors": 0,
+      "preview_runtime_different_pixels": 0,
+      "preview_median_l": 16.687673672496928,
+      "reference_median_l": 17.84018949787665,
+      "substitution": {
+        "view": "front",
+        "part": "thigh_near",
+        "visible_pixels": 405,
+        "source_median_l": 17.84018949787665,
+        "l_shift": 0,
+        "rule": "trousers_material"
+      },
+      "difference_l": 1.152515825379723,
+      "midtones_range_l": [
+        0.49115673683760974,
+        25.18733746141418
+      ],
+      "effective_midtones_range_l": [
+        0.49115673683760974,
+        25.18733746141418
+      ],
+      "midtones_substitution": null,
+      "hidden_original_midtones_pixels": 875,
+      "hidden_midtones_pixels": 875,
+      "ok": true
+    },
+    {
+      "view": "front",
+      "part": "shin_near",
+      "visible_pixels": 909,
+      "visible_median_l": 6.760672815405883,
+      "hidden_median_l": 16.687673672496928,
+      "measurement_basis": "Runtime hidden-material nodes at layout offsets intersected with registered hidden provenance",
+      "runtime_nodes": [
+        "hidden/front/shin_near.png"
+      ],
+      "hidden_pixels": 761,
+      "runtime_coverage_errors": 0,
+      "preview_runtime_different_pixels": 0,
+      "preview_median_l": 16.687673672496928,
+      "reference_median_l": 17.84018949787665,
+      "substitution": {
+        "view": "front",
+        "part": "thigh_near",
+        "visible_pixels": 405,
+        "source_median_l": 17.84018949787665,
+        "l_shift": 0,
+        "rule": "trousers_material"
+      },
+      "difference_l": 1.152515825379723,
+      "midtones_range_l": [
+        0.49115673683760974,
+        25.18733746141418
+      ],
+      "effective_midtones_range_l": [
+        0.49115673683760974,
+        25.18733746141418
+      ],
+      "midtones_substitution": null,
+      "hidden_original_midtones_pixels": 582,
+      "hidden_midtones_pixels": 582,
+      "ok": true
+    },
+    {
+      "view": "rear",
+      "part": "pelvis",
+      "visible_pixels": 375,
+      "visible_median_l": 13.053370505586333,
+      "hidden_median_l": 12.700101102520094,
+      "measurement_basis": "Runtime hidden-material nodes at layout offsets intersected with registered hidden provenance",
+      "runtime_nodes": [
+        "hidden/rear/pelvis.png"
+      ],
+      "hidden_pixels": 1720,
+      "runtime_coverage_errors": 0,
+      "preview_runtime_different_pixels": 0,
+      "preview_median_l": 12.700101102520094,
+      "reference_median_l": 13.053370505586333,
+      "substitution": null,
+      "difference_l": 0.3532694030662391,
+      "midtones_range_l": [
+        6.014639773829888,
+        18.40057917598076
+      ],
+      "effective_midtones_range_l": [
+        6.014639773829888,
+        18.40057917598076
+      ],
+      "midtones_substitution": null,
+      "hidden_original_midtones_pixels": 1082,
+      "hidden_midtones_pixels": 1082,
+      "ok": true
+    },
+    {
+      "view": "rear",
+      "part": "thigh_far",
+      "visible_pixels": 0,
+      "visible_median_l": null,
+      "hidden_median_l": 15.956441187956749,
+      "measurement_basis": "Runtime hidden-material nodes at layout offsets intersected with registered hidden provenance",
+      "runtime_nodes": [
+        "hidden/rear/thigh_far.png"
+      ],
+      "hidden_pixels": 2070,
+      "runtime_coverage_errors": 0,
+      "preview_runtime_different_pixels": 0,
+      "preview_median_l": 15.956441187956749,
+      "reference_median_l": 11.216118691101187,
+      "substitution": {
+        "view": "rear",
+        "part": "thigh_near",
+        "visible_pixels": 615,
+        "source_median_l": 17.216118691101187,
+        "l_shift": -6,
+        "rule": "sparse"
+      },
+      "difference_l": 4.740322496855562,
+      "midtones_range_l": [
+        3.679248496984851,
+        13.795648769003865
+      ],
+      "effective_midtones_range_l": [
+        21.190248272781638,
+        22.529830895775632
+      ],
+      "midtones_substitution": "Original reference IQR lies below round7 shadow cutoff; non-shadow reference tail IQR replaces it, nominal median unchanged",
+      "hidden_original_midtones_pixels": 0,
+      "hidden_midtones_pixels": 128,
+      "ok": true
+    },
+    {
+      "view": "rear",
+      "part": "thigh_near",
+      "visible_pixels": 615,
+      "visible_median_l": 17.216118691101187,
+      "hidden_median_l": 16.717293466949187,
+      "measurement_basis": "Runtime hidden-material nodes at layout offsets intersected with registered hidden provenance",
+      "runtime_nodes": [
+        "hidden/rear/thigh_near.png"
+      ],
+      "hidden_pixels": 1427,
+      "runtime_coverage_errors": 0,
+      "preview_runtime_different_pixels": 0,
+      "preview_median_l": 16.717293466949187,
+      "reference_median_l": 17.216118691101187,
+      "substitution": null,
+      "difference_l": 0.49882522415200015,
+      "midtones_range_l": [
+        9.679248496984851,
+        19.795648769003865
+      ],
+      "effective_midtones_range_l": [
+        9.679248496984851,
+        19.795648769003865
+      ],
+      "midtones_substitution": null,
+      "hidden_original_midtones_pixels": 1046,
+      "hidden_midtones_pixels": 1046,
+      "ok": true
+    },
+    {
+      "view": "rear",
+      "part": "shin_far",
+      "visible_pixels": 792,
+      "visible_median_l": 6.532290546589319,
+      "hidden_median_l": 16.717293466949187,
+      "measurement_basis": "Runtime hidden-material nodes at layout offsets intersected with registered hidden provenance",
+      "runtime_nodes": [
+        "hidden/rear/shin_far.png"
+      ],
+      "hidden_pixels": 1054,
+      "runtime_coverage_errors": 0,
+      "preview_runtime_different_pixels": 0,
+      "preview_median_l": 16.717293466949187,
+      "reference_median_l": 17.216118691101187,
+      "substitution": {
+        "view": "rear",
+        "part": "thigh_near",
+        "visible_pixels": 615,
+        "source_median_l": 17.216118691101187,
+        "l_shift": 0,
+        "rule": "trousers_material"
+      },
+      "difference_l": 0.49882522415200015,
+      "midtones_range_l": [
+        9.679248496984851,
+        19.795648769003865
+      ],
+      "effective_midtones_range_l": [
+        9.679248496984851,
+        19.795648769003865
+      ],
+      "midtones_substitution": null,
+      "hidden_original_midtones_pixels": 773,
+      "hidden_midtones_pixels": 773,
+      "ok": true
+    },
+    {
+      "view": "rear",
+      "part": "shin_near",
+      "visible_pixels": 1455,
+      "visible_median_l": 11.030603456378685,
+      "hidden_median_l": 16.717293466949187,
+      "measurement_basis": "Runtime hidden-material nodes at layout offsets intersected with registered hidden provenance",
+      "runtime_nodes": [
+        "hidden/rear/shin_near.png"
+      ],
+      "hidden_pixels": 487,
+      "runtime_coverage_errors": 0,
+      "preview_runtime_different_pixels": 0,
+      "preview_median_l": 16.717293466949187,
+      "reference_median_l": 17.216118691101187,
+      "substitution": {
+        "view": "rear",
+        "part": "thigh_near",
+        "visible_pixels": 615,
+        "source_median_l": 17.216118691101187,
+        "l_shift": 0,
+        "rule": "trousers_material"
+      },
+      "difference_l": 0.49882522415200015,
+      "midtones_range_l": [
+        9.679248496984851,
+        19.795648769003865
+      ],
+      "effective_midtones_range_l": [
+        9.679248496984851,
+        19.795648769003865
+      ],
+      "midtones_substitution": null,
+      "hidden_original_midtones_pixels": 357,
+      "hidden_midtones_pixels": 357,
+      "ok": true
+    }
+  ],
+  "mutation_rejected": {
+    "view": "rear",
+    "part": "thigh_far",
+    "visible_pixels": 0,
+    "visible_median_l": null,
+    "hidden_median_l": 87.76088811005116,
+    "measurement_basis": "Runtime hidden-material nodes at layout offsets intersected with registered hidden provenance",
+    "runtime_nodes": [
+      "hidden/rear/thigh_far.png"
+    ],
+    "hidden_pixels": 2070,
+    "runtime_coverage_errors": 0,
+    "preview_runtime_different_pixels": 2070,
+    "preview_median_l": 15.956441187956749,
+    "reference_median_l": 11.216118691101187,
+    "substitution": {
+      "view": "rear",
+      "part": "thigh_near",
+      "visible_pixels": 615,
+      "source_median_l": 17.216118691101187,
+      "l_shift": -6,
+      "rule": "sparse"
+    },
+    "difference_l": 76.54476941894997,
+    "midtones_range_l": [
+      3.679248496984851,
+      13.795648769003865
+    ],
+    "effective_midtones_range_l": [
+      21.190248272781638,
+      22.529830895775632
+    ],
+    "midtones_substitution": "Original reference IQR lies below round7 shadow cutoff; non-shadow reference tail IQR replaces it, nominal median unchanged",
+    "hidden_original_midtones_pixels": 0,
+    "hidden_midtones_pixels": 0,
+    "ok": false
+  },
+  "mutation_refreshed_frames": 458,
+  "historical_native_diagnostic": {
+    "basis": "HISTORICAL v07 director renderer pixels, read-only diagnostic; NOT current v09 native proof",
+    "frames": 458,
+    "totals": {
+      "tabard_non_tabard_pixels": 0,
+      "detached_small_pixels": 0,
+      "new_leg_dark_pixels": 0,
+      "rear_arm_outside_pixels": 0,
+      "rear_visible_arm_pixels": 0,
+      "magenta_pixels": 0,
+      "hidden_runtime_mismatch_pixels": 0
+    },
+    "value_failures": 0,
+    "rest_calibrations": {
+      "front": {
+        "rgba_equal": true,
+        "owners_equal": true,
+        "rest_dark_equal": true
+      },
+      "rear": {
+        "rgba_equal": true,
+        "owners_equal": true,
+        "rest_dark_equal": true
+      }
+    },
+    "visible_hidden_measurements": 3741
+  },
+  "fresh_v09_native_proof": "Pending director window-server run; no current native success claimed",
+  "scope_only_owned_paths": true,
+  "no_commit_or_windowed_run": true,
+  "proofs": {
+    "focused_round9.log": {
+      "result": [
+        "Ran 43 tests in 94.957s",
+        "OK"
+      ],
+      "sha256": "de134fd4644ea1d825af37bc645f4edbbaf0d286e6f9564a7e010f79caa847e2"
+    },
+    "art_gate_round9.log": {
+      "result": [
+        "Ran 49 tests in 18.792s",
+        "OK"
+      ],
+      "sha256": "bc4bf1f2278f339babd4ecd88fabbc5531abddf77d3b7643d80ea81db82cdf19"
+    },
+    "visual_runner_round9.log": {
+      "result": [
+        "Ran 16 tests in 0.323s",
+        "OK"
+      ],
+      "sha256": "73b0f54ee4e023a01fab4f20f72a188fb2c38bbbf8350998a6c5c617b2c53506"
+    },
+    "python_suite_round9.log": {
+      "result": [
+        "Ran 440 tests in 383.720s",
+        "OK (skipped=61)"
+      ],
+      "sha256": "57a81ced09d7aa2aeadc30f46a73bf6458a28f1265e7b0b537511ddb62c9ec5e"
+    },
+    "godot_suite_round9.log": {
+      "result": [
+        "FULL SUITE RUNTIME: 830.349 seconds (budget 900 seconds)",
+        "TEST RESULT: PASS"
+      ],
+      "sha256": "90cbb20f8dc1a1a2b6561f5f70818025d3db91df8fa7ceeade2bcd396498f033"
+    },
+    "rebuild_round9.log": {
+      "sha256": "fbe4c9b618ae83eb489ad4bee53de2d87b7f9eecb53657558df4a129c7d830c4"
+    },
+    "round9_rebuild.json": {
+      "sha256": "926426c99c523dc3ebc7812bd80f3a26737d7cbc967eedbd5d91e30c5e57eb53"
+    },
+    "cpu_motion_gates_round9.log": {
+      "sha256": "31a6436ab26114226c9b02ed409d1d944880f7113c0465ee2f479eb2c3671dff"
+    },
+    "cpu_motion_gates.json": {
+      "sha256": "e9eab4f56e8a3cb464124f03c31bc6ccc037a7c4c6ab8d74b979f567b809b1f8"
+    },
+    "round9_runtime_fill_mutation.json": {
+      "sha256": "5925365da7d4380c5e1830e5b6b819e36d27508f4c5f63d5f214fd20854b39ff"
+    },
+    "round9_runtime_fill_mutation.log": {
+      "sha256": "b0e51de134f4744c49d924181a24500df6130a910a5cff4425595ad5e07b2813"
+    },
+    "round9_v07_runtime_fill_diagnostic.json": {
+      "sha256": "867d1047c3e45ec2cf95c147b16a6d641c177733d1c23400149f8911eb6b6472"
+    },
+    "round9_v07_runtime_fill_diagnostic.log": {
+      "sha256": "641ead794653c8e520e319b7a961cbb325777020cf11d95e718c54e149654317"
+    },
+    "validation_round9.json": {
+      "sha256": "b7bef6aeac117184b906f1a67660495cfd0d0d0f448020049367debfeafda5f6"
+    }
+  }
+}

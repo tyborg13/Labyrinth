@@ -24,10 +24,13 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 	assert(clip in ["rest", "idle", "walk", "strike", "hit", "death", "chain_reel", "manacle_pin"], "Unknown gaoler clip")
 	var compatible: Dictionary = _sampler_layout(layout)
 	var sampled: Dictionary = Gaoler.sample_pose(clip, phase, compatible, facing)
-	if facing == "rear" and clip in ["strike", "manacle_pin"]:
+	var lean: Dictionary = layout.get("rear_torso_lean", {})
+	if facing == "rear" and clip in lean.get("clips", []):
 		var envelopes: Vector2 = _punch_envelopes(clip, phase)
-		sampled["torso"]["rotation"] += 0.07 * envelopes.y
-		sampled["upper_fist"]["position"] += Vector2(0, -3) * envelopes.x
+		var shoulder: Array = lean["shoulder_offset_per_prep"]
+		sampled["torso"]["rotation"] += float(lean["rotation_rad_per_hit"]) * envelopes.y
+		sampled["upper_fist"]["position"] += Vector2(float(shoulder[0]), float(shoulder[1])) * envelopes.x
+	if facing == "rear" and clip in ["strike", "manacle_pin"]:
 		var curve: Array = layout.get("rear_fist_constraint", {}).get("clips", {}).get(clip, [])
 		if not curve.is_empty():
 			var offset: Vector2 = _constraint_offset(curve, phase)

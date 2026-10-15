@@ -1,9 +1,9 @@
 Running task-local command:
   task: rr-02
-  run: rr-02-1792095446533549000-40583
-  HOME: /private/tmp/labyrinth-godot-home/rr-02-1792095446533549000-40583
+  run: rr-02-1792099437695304000-58584
+  HOME: /private/tmp/labyrinth-godot-home/rr-02-1792099437695304000-58584
   Steam: disabled
-  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-02-1792095446533549000-40583/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02 --script /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/probes/motion_samples.gd -- --case /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/cutout.json --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/proof/motion_samples.json
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-02-1792099437695304000-58584/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02 --script /private/tmp/rr02-round9-stage/probes/motion_samples.gd -- --case /private/tmp/rr02-round9-stage/cutout.json --output /private/tmp/rr02-round9-stage/proof/motion_samples.json
   timeout: 300s
   stream: enabled
 Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org

@@ -17,7 +17,7 @@
     "diffusion_max_iterations": 4096,
     "diffusion_residual_tolerance": 1e-06
   },
-  "implementation_sha256": "7bced9ca7588c2111fbf40f6af213f9d7081c8916c506c218e6df32701dd8d86",
+  "implementation_sha256": "a7a2f878309a7a6d1186af5113a027a19249e31e44d678a5fe7ae6782793e27e",
   "recipe_sha256": "d0199e6a697b8b9e743207c6480452acf3ed7b5f64505ad3021b135e6ece399d",
   "protected_inputs": {
     "hidden_requests/contact_sheet.png": "a5ef3a28e220abeacf228fa8d53c03276bdfbf88d7656039f2bf6b8a9f2d734f",
@@ -105,8 +105,8 @@
     "hidden_requests/rear_upper_far_4x.png": "6ebf6b3af77ee9419c69df0ae895a211d3a372261719cf2a163cbce84fc11846",
     "hidden_requests/rear_upper_near.png": "71f53f8b0b74c975db864f3e2838e2c0afc171f961a5e4112939e7362b791b76",
     "hidden_requests/rear_upper_near_4x.png": "867cf9f62a482f5ce3228ab084d1b31e7f9423f27b89af87ccbb3ff875d72790",
-    "layouts/front.json": "22b125433e1d0b3bfec6ed429b8e9dae2def1bb06235802bf083c20eaad567c9",
-    "layouts/rear.json": "47cd5293fee3eecc5cef57560a323fe8a9eb11a17bddafab4a273e2db02cebb7",
+    "layouts/front.json": "09145bf7c0b6be2da4ee70c1623b6fbb2026e28391b68ba75713d423ba4bf311",
+    "layouts/rear.json": "9bb750a8088b7cb7fb7c67ab6205773ced3e70915fd2bcb357c6de1f8df10c0d",
     "recipes/rig.json": "50f9d2bb34a7b1cfdbadd47ec82481cfaacef18aa430ae949ee433e0bfa42f4b",
     "registered/front_clay.png": "19b77fc959830eac694eda3b273aa12eb77d663d477c0242deefce400f7b02dd",
     "registered/front_hidden_belt.npy": "f0f8aef416f2a75d46f36d65ed9a3b758a4caca94d07f64559c5778f610b7bf0",
