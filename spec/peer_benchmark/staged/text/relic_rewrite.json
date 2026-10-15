@@ -1,0 +1,4073 @@
+[
+ {
+  "id": "iron_lung",
+  "current_name": "Iron Lung",
+  "current_description": "Every @icon(health_cost), including an @icon(empower) cost, is paid from your @icon(stoneskin) first, at 2 @icon(stoneskin) per @icon(health).",
+  "name": "Iron Lung",
+  "description": "Every @term(health_cost|Health Cost), including an @kw(empower) cost, is paid from your @term(stoneskin) first, at 2 @kw(stoneskin) per @term(health).",
+  "description_read_aloud": "Every Health Cost, including an Empower cost, is paid from your Stoneskin first, at 2 Stoneskin per Health.",
+  "words": 17,
+  "current_words": 17,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/defense_relic_rules.gd:69-81",
+   "scripts/combat_engine.gd:2003-2008",
+   "data/relics.json:2-20"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Every Health Cost, including an Empower cost, is paid from your Stoneskin first, at 2 Stoneskin per Health.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "health_cost": {
+    "name": "Health Cost",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "empower": {
+    "name": "Empower",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "stoneskin": {
+    "name": "Stoneskin",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "health": {
+    "name": "Health",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Accurate: card Health Costs and Empower Health costs both route through pay_health_cost; only whole Health units are covered (stoneskin / 2)."
+ },
+ {
+  "id": "ember_lens",
+  "current_name": "Brightglass Lens",
+  "current_description": "@icon(ranged) attacks against enemies in @icon(illuminate) gain @icon(chain) +{amount}.",
+  "name": "Brightglass Lens",
+  "description": "Your @kw(ranged) attacks against enemies in @term(light) gain +1 @kw(chain).",
+  "description_read_aloud": "Your Ranged attacks against enemies in Light gain +1 Chain.",
+  "words": 10,
+  "current_words": 9,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/combat_engine.gd:6011-6025",
+   "scripts/combat_engine.gd:6040-6047",
+   "scripts/combat_engine.gd:6658-6668",
+   "data/relics.json:22-46"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Ranged attacks against enemies in Illuminate gain Chain +1.",
+  "current_uses_placeholders": true,
+  "token_plan": {
+   "ranged": {
+    "name": "Ranged",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "light": {
+    "name": "Light",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "missing: new concept"
+   },
+   "chain": {
+    "name": "Chain",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Current text uses the Illuminate icon as a noun ('enemies in Illuminate'); the lit area is Light. Any Light counts (braziers included), and +1 adds to existing Chain."
+ },
+ {
+  "id": "pilgrim_boots",
+  "current_name": "Pilgrim Boots",
+  "current_description": "Gain @icon(move) +{0.value} each turn. Your movement creates @icon(illuminate) {1.radius} @icon(time) {1.duration} along its path; @icon(blink) covers both endpoints.",
+  "name": "Pilgrim Boots",
+  "description": "Gain 1 more movement each turn. Moving leaves radius-1 @term(light) for 2 turns on tiles you enter, unless the card attacks. @kw(blink) lights both ends.",
+  "description_read_aloud": "Gain 1 more movement each turn. Moving leaves radius-1 Light for 2 turns on tiles you enter, unless the card attacks. Blink lights both ends.",
+  "words": 25,
+  "current_words": 19,
+  "changed": true,
+  "reason": "accuracy",
+  "evidence": [
+   "scripts/combat_engine.gd:889-890",
+   "scripts/combat_engine.gd:1838-1850",
+   "scripts/combat_engine.gd:1864-1870",
+   "scripts/combat_engine.gd:6139-6146",
+   "data/relics.json:48-86"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Gain Move +1 each turn. Your movement creates Illuminate 1 Time 2 along its path; Blink covers both endpoints.",
+  "current_uses_placeholders": true,
+  "token_plan": {
+   "light": {
+    "name": "Light",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "missing: new concept"
+   },
+   "blink": {
+    "name": "Blink",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "movement"
+  ],
+  "notes": "Current text uses the Time icon for a 2-turn duration ('Illuminate 1 Time 2') and omits the exclusion: movement on cards that also attack, Push, Pull or Detonate leaves no Light (excludes_card_action_types)."
+ },
+ {
+  "id": "mirror_shard",
+  "current_name": "Mirror Shard",
+  "current_description": "When your @icon(illusion) is destroyed, it shatters, dealing 3 damage to each enemy next to it.",
+  "name": "Mirror Shard",
+  "description": "When your @term(illusion) is destroyed, it shatters, dealing 3 damage to each enemy next to it.",
+  "description_read_aloud": "When your Illusion is destroyed, it shatters, dealing 3 damage to each enemy next to it.",
+  "words": 16,
+  "current_words": 16,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/illusion_relic_rules.gd:21-28",
+   "scripts/illusion_card_rules.gd:434-438"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "When your Illusion is destroyed, it shatters, dealing 3 damage to each enemy next to it.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "illusion": {
+    "name": "Illusion",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "coffin_nails",
+  "current_name": "Coffin Nails",
+  "current_description": "When your @icon(block) stops all of an enemy attack's damage, the attacker gains @icon(bleed) 1.",
+  "name": "Coffin Nails",
+  "description": "When an enemy attack hits your @term(block) and deals no @term(health) damage, the attacker gains @term(bleed) 1.",
+  "description_read_aloud": "When an enemy attack hits your Block and deals no Health damage, the attacker gains Bleed 1.",
+  "words": 17,
+  "current_words": 15,
+  "changed": true,
+  "reason": "accuracy",
+  "evidence": [
+   "scripts/common_relic_rules.gd:120-130",
+   "scripts/combat_engine.gd:11982-11984"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "When your Block stops all of an enemy attack's damage, the attacker gains Bleed 1.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "block": {
+    "name": "Block",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "health": {
+    "name": "Health",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "bleed": {
+    "name": "Bleed",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Code triggers on health_loss == 0 and block_loss >= 1, so it also fires when Block and Stoneskin together absorb the hit; 'Block stops all of the damage' was narrower than the rule."
+ },
+ {
+  "id": "reinforced_shield",
+  "current_name": "Reinforced Shield",
+  "current_description": "While you have @icon(stoneskin), @icon(block) actions grant +{amount}.",
+  "name": "Reinforced Shield",
+  "description": "While you have @term(stoneskin), cards that grant @term(block) grant 3 more.",
+  "description_read_aloud": "While you have Stoneskin, cards that grant Block grant 3 more.",
+  "words": 11,
+  "current_words": 8,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/combat_engine.gd:5953-5980",
+   "scripts/combat_engine.gd:5990",
+   "data/relics.json:131-154"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "While you have Stoneskin, Block actions grant +3.",
+  "current_uses_placeholders": true,
+  "token_plan": {
+   "stoneskin": {
+    "name": "Stoneskin",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "block": {
+    "name": "Block",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "'Block actions grant +3' is engine jargon. +3 applies to each card Block action."
+ },
+ {
+  "id": "iron_buckler",
+  "current_name": "Iron Buckler",
+  "current_description": "At the start of your turn, keep up to 3 of your @icon(block).",
+  "name": "Iron Buckler",
+  "description": "At the start of your turn, keep up to 3 of your @term(block).",
+  "description_read_aloud": "At the start of your turn, keep up to 3 of your Block.",
+  "words": 13,
+  "current_words": 13,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/common_relic_rules.gd:50-55",
+   "scripts/combat_engine.gd:2862"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "At the start of your turn, keep up to 3 of your Block.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "block": {
+    "name": "Block",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "flint_edge",
+  "current_name": "Flint Edge",
+  "current_description": "Your @icon(melee) attacks consume the @icon(surface_fire), @icon(surface_ice) or @icon(surface_electrified) under their target to deal 3 more damage.",
+  "name": "Flint Edge",
+  "description": "Your @kw(melee) attacks consume the @term(surface_fire), @term(surface_ice) or @term(surface_electrified) under their target to deal 3 more damage.",
+  "description_read_aloud": "Your Melee attacks consume the Fire, Ice or Electrified under their target to deal 3 more damage.",
+  "words": 17,
+  "current_words": 17,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/common_relic_rules.gd:86-118"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your Melee attacks consume the Fire, Ice or Electrified under their target to deal 3 more damage.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "melee": {
+    "name": "Melee",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_fire": {
+    "name": "Fire",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_ice": {
+    "name": "Ice",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_electrified": {
+    "name": "Electrified",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "consume (surface sense)"
+  ],
+  "notes": null
+ },
+ {
+  "id": "static_soles",
+  "current_name": "Static Soles",
+  "current_description": "Your first @icon(move) or @icon(blink) each turn leaves @icon(surface_electrified) at its origin and grants @icon(vision) 1 for 2 turns.",
+  "name": "Static Soles",
+  "description": "Your first @kw(move) or @kw(blink) each turn leaves @term(surface_electrified) at its origin and grants @term(vision) 1 for 2 turns.",
+  "description_read_aloud": "Your first Move or Blink each turn leaves Electrified at its origin and grants Vision 1 for 2 turns.",
+  "words": 19,
+  "current_words": 19,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/surface_relic_rules.gd:337-345",
+   "scripts/surface_relic_rules.gd:424-433",
+   "scripts/combat_engine.gd:11043-11047",
+   "scripts/combat_engine.gd:11612"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your first Move or Blink each turn leaves Electrified at its origin and grants Vision 1 for 2 turns.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "move": {
+    "name": "Move",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "blink": {
+    "name": "Blink",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_electrified": {
+    "name": "Electrified",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "vision": {
+    "name": "Vision",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "mossbound_wraps",
+  "current_name": "Mossbound Wraps",
+  "current_description": "The first Earth card you play while you have @icon(block) each turn grants @icon(stoneskin) {0.reward0.amount}.",
+  "name": "Mossbound Wraps",
+  "description": "The first Earth card you play while you have @icon(block) each turn grants @icon(stoneskin) {0.reward0.amount}.",
+  "description_read_aloud": "The first Earth card you play while you have Block each turn grants Stoneskin 3.",
+  "words": 15,
+  "current_words": 15,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "data/relics.json:259-260",
+   "scripts/game_data.gd:178-183",
+   "scripts/game_data.gd:405-413"
+  ],
+  "director_decision_needed": null,
+  "retired_redirect_to": "rubblewalker_greaves",
+  "token_plan": {},
+  "plain_word_concepts": [],
+  "notes": "Retired (data/relics.json retired: true). GameData.resolve_relic_id (scripts/game_data.gd:405-413) redirects to rubblewalker_greaves (Rubblewalker Greaves), so this text is never displayed. No rewrite proposed."
+ },
+ {
+  "id": "tailwind_fletching",
+  "current_name": "Tailwind Fletching",
+  "current_description": "Air @icon(push) and @icon(pull) actions deal +{0.amount} damage and force enemies {1.amount} farther.",
+  "name": "Tailwind Fletching",
+  "description": "Your @kw(element_air|Air) @kw(push) and @kw(pull) deal 1 more damage and move targets 1 tile farther.",
+  "description_read_aloud": "Your Air Push and Pull deal 1 more damage and move targets 1 tile farther.",
+  "words": 15,
+  "current_words": 13,
+  "changed": true,
+  "reason": "consistency",
+  "evidence": [
+   "data/relics.json:262-310",
+   "scripts/game_data.gd:1216-1240"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Air Push and Pull actions deal +1 damage and force enemies 1 farther.",
+  "current_uses_placeholders": true,
+  "token_plan": {
+   "element_air": {
+    "name": "Air",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "push": {
+    "name": "Push",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "pull": {
+    "name": "Pull",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Matches Anchor Chain phrasing; 'actions' and 'force enemies' were inconsistent. Damage applies to Push/Pull actions; distance also extends Push/Pull riders on any Air card."
+ },
+ {
+  "id": "frost_prism",
+  "current_name": "Shatterglass Prism",
+  "current_description": "Enemies you kill with attacks while @icon(freeze) leave @icon(surface_rubble) beneath and beside them.",
+  "name": "Shatterglass Prism",
+  "description": "When you kill a @term(freeze|Frozen) enemy with an attack, leave @term(surface_rubble) on its tile and each tile next to it.",
+  "description_read_aloud": "When you kill a Frozen enemy with an attack, leave Rubble on its tile and each tile next to it.",
+  "words": 20,
+  "current_words": 13,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/surface_relic_rules.gd:229-252"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Enemies you kill with attacks while Freeze leave Rubble beneath and beside them.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "freeze": {
+    "name": "Freeze",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_rubble": {
+    "name": "Rubble",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Current 'while Freeze' reads wrongly aloud and leaves the subject ambiguous. Direct attacks and Detonate kills by your cards count."
+ },
+ {
+  "id": "storm_capacitor",
+  "current_name": "Storm Capacitor",
+  "current_description": "Your Lightning @icon(ranged) attacks with @icon(chain) gain @icon(chain) +{amount}.",
+  "name": "Storm Capacitor",
+  "description": "Your @kw(element_lightning|Lightning) @kw(ranged) attacks with @kw(chain) gain +1 @kw(chain).",
+  "description_read_aloud": "Your Lightning Ranged attacks with Chain gain +1 Chain.",
+  "words": 9,
+  "current_words": 9,
+  "changed": true,
+  "reason": "consistency",
+  "evidence": [
+   "scripts/game_data.gd:1216-1240",
+   "scripts/game_data.gd:1364-1372",
+   "data/relics.json:339-363",
+   "data/enemies.json:3107"
+  ],
+  "director_decision_needed": "Name collides exactly with the enemy 'Storm Capacitor' (data/enemies.json:3107). Rename the relic (candidate: 'Arc Capacitor') or keep?",
+  "current_read_aloud": "Your Lightning Ranged attacks with Chain gain Chain +1.",
+  "current_uses_placeholders": true,
+  "token_plan": {
+   "element_lightning": {
+    "name": "Lightning",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "ranged": {
+    "name": "Ranged",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "chain": {
+    "name": "Chain",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "gale_tabi",
+  "current_name": "Gale Tabi",
+  "current_description": "After you @icon(blink), your next attack this turn deals 1 more damage for each tile that @icon(blink) spanned (max 4 more).",
+  "name": "Gale Tabi",
+  "description": "After you @kw(blink), your next attack this turn deals 1 more damage per tile blinked, up to 4 more. A later @kw(blink) replaces it.",
+  "description_read_aloud": "After you Blink, your next attack this turn deals 1 more damage per tile blinked, up to 4 more. A later Blink replaces it.",
+  "words": 24,
+  "current_words": 21,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/surface_variety_relic_rules.gd:130-139"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "After you Blink, your next attack this turn deals 1 more damage for each tile that Blink spanned (max 4 more).",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "blink": {
+    "name": "Blink",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Removes parentheses; adds the rule that a second Blink replaces (does not stack) the bonus (lines 133-136)."
+ },
+ {
+  "id": "anchor_chain",
+  "current_name": "Anchor Chain",
+  "current_description": "While you have @icon(block), @icon(push) and @icon(pull) deal +{0.amount} damage and send targets {1.amount} tile farther.",
+  "name": "Anchor Chain",
+  "description": "While you have @term(block), your @kw(push) and @kw(pull) deal 2 more damage and move targets 1 tile farther.",
+  "description_read_aloud": "While you have Block, your Push and Pull deal 2 more damage and move targets 1 tile farther.",
+  "words": 18,
+  "current_words": 16,
+  "changed": true,
+  "reason": "consistency",
+  "evidence": [
+   "scripts/combat_engine.gd:5953-5988",
+   "data/relics.json:386-434"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "While you have Block, Push and Pull deal +2 damage and send targets 1 tile farther.",
+  "current_uses_placeholders": true,
+  "token_plan": {
+   "block": {
+    "name": "Block",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "push": {
+    "name": "Push",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "pull": {
+    "name": "Pull",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "venom_signet",
+  "current_name": "Quarry Signet",
+  "current_description": "Enemies standing on @icon(surface_rubble) take 1 more damage from everything: attacks, @icon(collision), @icon(surface_fire) and @icon(retaliate).",
+  "name": "Quarry Signet",
+  "description": "Enemies standing on @term(surface_rubble) take 1 more damage from everything: attacks, @kw(collision), @term(surface_fire) and @kw(retaliate).",
+  "description_read_aloud": "Enemies standing on Rubble take 1 more damage from everything: attacks, Collision, Fire and Retaliate.",
+  "words": 15,
+  "current_words": 15,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/forced_relic_rules.gd:16-23",
+   "scripts/combat_engine.gd:4621-4623"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Enemies standing on Rubble take 1 more damage from everything: attacks, Collision, Fire and Retaliate.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "surface_rubble": {
+    "name": "Rubble",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "collision": {
+    "name": "Collision",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_fire": {
+    "name": "Fire",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "retaliate": {
+    "name": "Retaliate",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Storm Crown rebound hits skip the bonus (illusion_relic_rules.gd:328 passes apply_relic_bonus=false); documented in spec as intended."
+ },
+ {
+  "id": "thawing_charm",
+  "current_name": "Thawing Charm",
+  "current_description": "Excess @icon(heal) becomes @icon(stoneskin), up to {cap} each turn. The first conversion each turn creates @icon(illuminate) 1 @icon(time) 2 at you.",
+  "name": "Thawing Charm",
+  "description": "Excess @kw(heal|healing) becomes @term(stoneskin), up to 8 each turn. It also creates radius-1 @term(light) on you for 2 turns, once per turn.",
+  "description_read_aloud": "Excess healing becomes Stoneskin, up to 8 each turn. It also creates radius-1 Light on you for 2 turns, once per turn.",
+  "words": 22,
+  "current_words": 21,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/combat_engine.gd:11143-11170",
+   "data/relics.json:459-487"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Excess Heal becomes Stoneskin, up to 8 each turn. The first conversion each turn creates Illuminate 1 Time 2 at you.",
+  "current_uses_placeholders": true,
+  "token_plan": {
+   "heal": {
+    "name": "Heal",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "stoneskin": {
+    "name": "Stoneskin",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "light": {
+    "name": "Light",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "missing: new concept"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Current 'Illuminate 1 Time 2' uses the Time icon for a duration."
+ },
+ {
+  "id": "ember_siphon",
+  "current_name": "Ember Siphon",
+  "current_description": "When an enemy dies while standing on @icon(surface_fire), @icon(surface_fire) spreads to each empty tile next to where it fell.",
+  "name": "Ember Siphon",
+  "description": "When an enemy dies on @term(surface_fire), @kw(surface_fire) spreads to each tile next to it without @kw(surface_fire), @term(surface_ice) or @term(surface_electrified).",
+  "description_read_aloud": "When an enemy dies on Fire, Fire spreads to each tile next to it without Fire, Ice or Electrified.",
+  "words": 19,
+  "current_words": 19,
+  "changed": true,
+  "reason": "accuracy",
+  "evidence": [
+   "scripts/surface_variety_relic_rules.gd:141-149",
+   "scripts/combat_engine.gd:12130"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "When an enemy dies while standing on Fire, Fire spreads to each empty tile next to where it fell.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "surface_fire": {
+    "name": "Fire",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_ice": {
+    "name": "Ice",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_electrified": {
+    "name": "Electrified",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "'each empty tile' was wrong: Fire is placed on every adjacent tile with no elemental surface, whether or not a unit stands there."
+ },
+ {
+  "id": "bloodglass_knife",
+  "current_name": "Bloodglass Knife",
+  "current_description": "While at @icon(health) 50% or less with no @icon(block) or @icon(stoneskin), your attacks deal +{value} damage.",
+  "name": "Bloodglass Knife",
+  "description": "While you are at half @term(health) or less with no @term(block) or @term(stoneskin), your attacks deal 7 more damage.",
+  "description_read_aloud": "While you are at half Health or less with no Block or Stoneskin, your attacks deal 7 more damage.",
+  "words": 19,
+  "current_words": 16,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/combat_engine.gd:10389-10395"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "While at Health 50% or less with no Block or Stoneskin, your attacks deal +7 damage.",
+  "current_uses_placeholders": true,
+  "token_plan": {
+   "health": {
+    "name": "Health",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "block": {
+    "name": "Block",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "stoneskin": {
+    "name": "Stoneskin",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "'While at Health 50% or less' reads awkwardly; rule is hp*2 <= max_hp."
+ },
+ {
+  "id": "cold_mirror",
+  "current_name": "Cold Mirror",
+  "current_description": "When you @icon(freeze) an enemy while you have 4 or more @icon(block), your @icon(block) hardens: lose all your @icon(block) and gain 1 @icon(frost_armor) layer for every 4 lost (max 2).",
+  "name": "Cold Mirror",
+  "description": "When you @term(freeze) an enemy while you have 4 or more @term(block), trade all your @kw(block) for 1 @term(frost_armor) layer per 4, up to 2.",
+  "description_read_aloud": "When you Freeze an enemy while you have 4 or more Block, trade all your Block for 1 Crystal Mantle layer per 4, up to 2.",
+  "words": 25,
+  "current_words": 30,
+  "changed": true,
+  "reason": "length",
+  "evidence": [
+   "scripts/combat_engine.gd:10835-10838",
+   "scripts/combat_engine.gd:11025-11032",
+   "scripts/combat_engine.gd:5988"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "When you Freeze an enemy while you have 4 or more Block, your Block hardens: lose all your Block and gain 1 Crystal Mantle layer for every 4 lost (max 2).",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "freeze": {
+    "name": "Freeze",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "block": {
+    "name": "Block",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "frost_armor": {
+    "name": "Crystal Mantle",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "thunder_relay",
+  "current_name": "Thunder Relay",
+  "current_description": "Your @icon(chain) attacks can swap their first and last enemy targets if both survive.",
+  "name": "Thunder Relay",
+  "description": "Your @kw(chain) attacks can swap their first and last enemy targets if both survive.",
+  "description_read_aloud": "Your Chain attacks can swap their first and last enemy targets if both survive.",
+  "words": 14,
+  "current_words": 14,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/surface_relic_rules.gd:68-69",
+   "scripts/surface_relic_rules.gd:264-299"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your Chain attacks can swap their first and last enemy targets if both survive.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "chain": {
+    "name": "Chain",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Code also skips the swap if either enemy is displacement-immune or a landing tile is blocked; acceptable omission."
+ },
+ {
+  "id": "thornmail_brooch",
+  "current_name": "Faultline Brooch",
+  "current_description": "You may spend @icon(stoneskin) {cost} to turn a single-target @icon(melee) into a cross that leaves @icon(surface_rubble).",
+  "name": "Faultline Brooch",
+  "description": "Your single-target @kw(melee) can spend 4 @term(stoneskin) to strike a cross instead, leaving @term(surface_rubble) on it.",
+  "description_read_aloud": "Your single-target Melee can spend 4 Stoneskin to strike a cross instead, leaving Rubble on it.",
+  "words": 16,
+  "current_words": 16,
+  "changed": true,
+  "reason": "consistency",
+  "evidence": [
+   "scripts/surface_relic_rules.gd:62-65",
+   "scripts/surface_relic_rules.gd:82-90",
+   "scripts/surface_relic_rules.gd:160-163",
+   "scripts/surface_relic_rules.gd:181-183"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "You may spend Stoneskin 4 to turn a single-target Melee into a cross that leaves Rubble.",
+  "current_uses_placeholders": true,
+  "token_plan": {
+   "melee": {
+    "name": "Melee",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "stoneskin": {
+    "name": "Stoneskin",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_rubble": {
+    "name": "Rubble",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Replaces banned 'You may' and the value-after form 'Stoneskin 4' for a cost."
+ },
+ {
+  "id": "vaulting_sigil",
+  "current_name": "Vaulting Sigil",
+  "current_description": "Your @icon(move) can pass through enemies (you can't stop on one). Each enemy you pass through suffers @icon(stagger) 2.",
+  "name": "Vaulting Sigil",
+  "description": "Your @kw(move) can pass through enemies, but not end on one. Each enemy you pass through suffers @kw(stagger) 2.",
+  "description_read_aloud": "Your Move can pass through enemies, but not end on one. Each enemy you pass through suffers Stagger 2.",
+  "words": 19,
+  "current_words": 19,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/combat_engine.gd:7139-7146",
+   "scripts/surface_variety_relic_rules.gd:213-214"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your Move can pass through enemies (you can't stop on one). Each enemy you pass through suffers Stagger 2.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "move": {
+    "name": "Move",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "stagger": {
+    "name": "Stagger",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Removes the rules parenthesis."
+ },
+ {
+  "id": "obsidian_heart",
+  "current_name": "Obsidian Heart",
+  "current_description": "Opening @icon(draw) {0.value}. At turn end, convert all remaining @icon(block) into @icon(stoneskin).",
+  "name": "Obsidian Heart",
+  "description": "At the start of combat, @kw(draw) 1 fewer card. At the end of your turn, convert all your @term(block) into @term(stoneskin).",
+  "description_read_aloud": "At the start of combat, Draw 1 fewer card. At the end of your turn, convert all your Block into Stoneskin.",
+  "words": 21,
+  "current_words": 12,
+  "changed": true,
+  "reason": "consistency",
+  "evidence": [
+   "scripts/combat_engine.gd:961",
+   "scripts/combat_engine.gd:10728-10742",
+   "data/relics.json:647-669"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Opening Draw -1. At turn end, convert all remaining Block into Stoneskin.",
+  "current_uses_placeholders": true,
+  "token_plan": {
+   "draw": {
+    "name": "Draw",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "block": {
+    "name": "Block",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "stoneskin": {
+    "name": "Stoneskin",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "'Opening Draw -1' renders the -1 template and is not a sentence; uses fixed trigger phrases."
+ },
+ {
+  "id": "storm_crown",
+  "current_name": "Storm Crown",
+  "current_description": "Your @icon(chain) attacks rebound: after the last hop, the bolt travels back along its route, hitting each enemy again for half damage (rounded down).",
+  "name": "Storm Crown",
+  "description": "Your @kw(chain) attacks rebound: after the last hop, the bolt travels back along its route, hitting each enemy again for half damage, rounded down.",
+  "description_read_aloud": "Your Chain attacks rebound: after the last hop, the bolt travels back along its route, hitting each enemy again for half damage, rounded down.",
+  "words": 24,
+  "current_words": 24,
+  "changed": true,
+  "reason": "consistency",
+  "evidence": [
+   "scripts/illusion_relic_rules.gd:283-284",
+   "scripts/illusion_relic_rules.gd:313-334"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your Chain attacks rebound: after the last hop, the bolt travels back along its route, hitting each enemy again for half damage (rounded down).",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "chain": {
+    "name": "Chain",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Removes the rules parenthesis."
+ },
+ {
+  "id": "phoenix_ember",
+  "current_name": "Phoenix Ember",
+  "current_description": "Gain @icon(defiance) {0.value} this run. When it triggers, @icon(dispel_umbra) {1.reward0.amount}, place @icon(surface_fire) beneath all enemies, @icon(draw) {1.reward2.amount}, and @icon(card_play) {1.reward3.amount}.",
+  "name": "Phoenix Ember",
+  "description": "Gain 1 @term(defiance). When @kw(defiance) saves you, @kw(dispel_umbra) 2, place @term(surface_fire) under every enemy, @kw(draw) 3 and gain 3 @term(card_play|Card Plays).",
+  "description_read_aloud": "Gain 1 Defiance. When Defiance saves you, Dispel Umbra 2, place Fire under every enemy, Draw 3 and gain 3 Card Plays.",
+  "words": 20,
+  "current_words": 20,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/run_engine.gd:2417-2422",
+   "scripts/combat_engine.gd:10925-10961",
+   "scripts/combat_engine.gd:10999-11008",
+   "data/relics.json:692-733"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Gain Defiance 1 this run. When it triggers, Dispel Umbra 2, place Fire beneath all enemies, Draw 3, and Card Play 3.",
+  "current_uses_placeholders": true,
+  "token_plan": {
+   "defiance": {
+    "name": "Defiance",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "dispel_umbra": {
+    "name": "Dispel Umbra",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_fire": {
+    "name": "Fire",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "draw": {
+    "name": "Draw",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "card_play": {
+    "name": "Card Play",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "'When it triggers' was ambiguous; any Defiance trigger pays out, not only the charge this relic adds."
+ },
+ {
+  "id": "worldroot_idol",
+  "current_name": "Worldroot Idol",
+  "current_description": "While on @icon(surface_rubble), you may launch a single-target @icon(melee) or @icon(ranged) attack from another connected @icon(surface_rubble) tile, consuming it. The origin is chosen automatically.",
+  "name": "Worldroot Idol",
+  "description": "While you stand on @term(surface_rubble), your @kw(melee) and @kw(ranged) attacks can strike from any connected @kw(surface_rubble) tile, consuming it. The game picks the tile.",
+  "description_read_aloud": "While you stand on Rubble, your Melee and Ranged attacks can strike from any connected Rubble tile, consuming it. The game picks the tile.",
+  "words": 24,
+  "current_words": 24,
+  "changed": true,
+  "reason": "consistency",
+  "evidence": [
+   "scripts/surface_relic_rules.gd:70-71",
+   "scripts/surface_relic_rules.gd:97-118",
+   "scripts/surface_relic_rules.gd:167-168",
+   "scripts/combat_engine.gd:1361-1372"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "While on Rubble, you may launch a single-target Melee or Ranged attack from another connected Rubble tile, consuming it. The origin is chosen automatically.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "surface_rubble": {
+    "name": "Rubble",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "melee": {
+    "name": "Melee",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "ranged": {
+    "name": "Ranged",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Replaces banned 'you may'; trims to budget."
+ },
+ {
+  "id": "cinderbrand_tongs",
+  "current_name": "Cinderbrand Tongs",
+  "current_description": "Your first card each turn to create new @icon(surface_fire) also creates @icon(illuminate) 1 @icon(time) 2 at its target.",
+  "name": "Cinderbrand Tongs",
+  "description": "Your first card each turn to create new @icon(surface_fire) also creates @icon(illuminate) 1 @icon(time) 2 at its target.",
+  "description_read_aloud": "Your first card each turn to create new Fire also creates Illuminate 1 Time 2 at its target.",
+  "words": 18,
+  "current_words": 18,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "data/relics.json:793-794",
+   "scripts/game_data.gd:178-183",
+   "scripts/game_data.gd:405-413"
+  ],
+  "director_decision_needed": null,
+  "retired_redirect_to": "pitch_gloves",
+  "token_plan": {},
+  "plain_word_concepts": [],
+  "notes": "Retired (data/relics.json retired: true). GameData.resolve_relic_id (scripts/game_data.gd:405-413) redirects to pitch_gloves (Pitch Gloves), so this text is never displayed. No rewrite proposed."
+ },
+ {
+  "id": "rimecatcher_vial",
+  "current_name": "Rimecatcher Vial",
+  "current_description": "When your attack applies @icon(freeze), you may @icon(surface_relocate) one consumed @icon(surface_ice) tile beside the target.",
+  "name": "Rimecatcher Vial",
+  "description": "When your @kw(element_ice|Ice) attack @term(freeze|Freezes) an enemy on @term(surface_ice), you can spill that @kw(surface_ice) onto a tile next to it.",
+  "description_read_aloud": "When your Ice attack Freezes an enemy on Ice, you can spill that Ice onto a tile next to it.",
+  "words": 20,
+  "current_words": 15,
+  "changed": true,
+  "reason": "accuracy",
+  "evidence": [
+   "scripts/surface_relic_rules.gd:72-77",
+   "scripts/surface_relic_rules.gd:136-137",
+   "scripts/surface_relic_rules.gd:253-262"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "When your attack applies Freeze, you may Relocate Ground one consumed Ice tile beside the target.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "element_ice": {
+    "name": "Ice",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "freeze": {
+    "name": "Freeze",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_ice": {
+    "name": "Ice",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Current text omits both conditions (Ice-element Melee/Ranged/area attack; target was standing on Ice) and reads 'you may Relocate Ground one consumed Ice tile'. The variant is labelled 'Spill Ice' in the UI."
+ },
+ {
+  "id": "ion_spool",
+  "current_name": "Ion Spool",
+  "current_description": "The first @icon(element_lightning) attack each turn to conduct through {threshold}+ surface tiles grants @icon(draw) {0.reward0.amount}.",
+  "name": "Ion Spool",
+  "description": "The first @icon(element_lightning) attack each turn to conduct through {threshold}+ surface tiles grants @icon(draw) {0.reward0.amount}.",
+  "description_read_aloud": "The first Lightning attack each turn to conduct through 2+ surface tiles grants Draw 1.",
+  "words": 15,
+  "current_words": 15,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "data/relics.json:850-851",
+   "scripts/game_data.gd:178-183",
+   "scripts/game_data.gd:405-413"
+  ],
+  "director_decision_needed": null,
+  "retired_redirect_to": "grounding_pin",
+  "token_plan": {},
+  "plain_word_concepts": [],
+  "notes": "Retired (data/relics.json retired: true). GameData.resolve_relic_id (scripts/game_data.gd:405-413) redirects to grounding_pin (Grounding Pin), so this text is never displayed. No rewrite proposed."
+ },
+ {
+  "id": "updraft_bottle",
+  "current_name": "Updraft Bottle",
+  "current_description": "Your @icon(push) and @icon(pull) can carry the elemental surface beneath the target to its destination.",
+  "name": "Updraft Bottle",
+  "description": "Your @kw(push) and @kw(pull) can carry the @term(surface_fire), @term(surface_ice) or @term(surface_electrified) under the target along with it.",
+  "description_read_aloud": "Your Push and Pull can carry the Fire, Ice or Electrified under the target along with it.",
+  "words": 17,
+  "current_words": 15,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/surface_relic_rules.gd:57-59",
+   "scripts/surface_relic_rules.gd:195-227"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your Push and Pull can carry the elemental surface beneath the target to its destination.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "push": {
+    "name": "Push",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "pull": {
+    "name": "Pull",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_fire": {
+    "name": "Fire",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_ice": {
+    "name": "Ice",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_electrified": {
+    "name": "Electrified",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "'elemental surface' has no glossary entry; names the three surfaces."
+ },
+ {
+  "id": "basalt_calendar",
+  "current_name": "Basalt Kiln",
+  "current_description": "Your @icon(detonate) can consume @icon(surface_rubble) instead of @icon(surface_fire), leaving @icon(surface_fire) on the consumed tiles.",
+  "name": "Basalt Kiln",
+  "description": "Your @kw(detonate) can consume @term(surface_rubble) instead of @term(surface_fire), leaving @kw(surface_fire) on the consumed tiles.",
+  "description_read_aloud": "Your Detonate can consume Rubble instead of Fire, leaving Fire on the consumed tiles.",
+  "words": 14,
+  "current_words": 14,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/surface_relic_rules.gd:66-67",
+   "scripts/surface_relic_rules.gd:93-94",
+   "scripts/surface_relic_rules.gd:184-187"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your Detonate can consume Rubble instead of Fire, leaving Fire on the consumed tiles.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "detonate": {
+    "name": "Detonate",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_rubble": {
+    "name": "Rubble",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_fire": {
+    "name": "Fire",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "consume (surface sense)"
+  ],
+  "notes": null
+ },
+ {
+  "id": "coalheart_crucible",
+  "current_name": "Stormcoal Crucible",
+  "current_description": "@icon(surface_fire) tiles also conduct @icon(element_lightning). Attacks conducted through them consume them.",
+  "name": "Stormcoal Crucible",
+  "description": "@term(surface_fire) also conducts @kw(element_lightning|Lightning). @kw(element_lightning|Lightning) that conducts through @kw(surface_fire) consumes it.",
+  "description_read_aloud": "Fire also conducts Lightning. Lightning that conducts through Fire consumes it.",
+  "words": 11,
+  "current_words": 11,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/board_surface_rules.gd:38-40",
+   "scripts/combat_engine.gd:11821-11829",
+   "scripts/surface_relic_rules.gd:14"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Fire tiles also conduct Lightning. Attacks conducted through them consume them.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "surface_fire": {
+    "name": "Fire",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "element_lightning": {
+    "name": "Lightning",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "consume (surface sense)"
+  ],
+  "notes": "'Attacks conducted through them consume them' had two unclear antecedents."
+ },
+ {
+  "id": "voltaic_tuning_fork",
+  "current_name": "Stormglass Beacon",
+  "current_description": "The first @icon(chain) attack each turn creates @icon(illuminate) {radius} @icon(time) {duration} beneath every enemy it hits.",
+  "name": "Stormglass Beacon",
+  "description": "The first @icon(chain) attack each turn creates @icon(illuminate) {radius} @icon(time) {duration} beneath every enemy it hits.",
+  "description_read_aloud": "The first Chain attack each turn creates Illuminate 1 Time 2 beneath every enemy it hits.",
+  "words": 16,
+  "current_words": 16,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "data/relics.json:956-957",
+   "scripts/game_data.gd:178-183",
+   "scripts/game_data.gd:405-413"
+  ],
+  "director_decision_needed": null,
+  "retired_redirect_to": "copper_shod_staff",
+  "token_plan": {},
+  "plain_word_concepts": [],
+  "notes": "Retired (data/relics.json retired: true). GameData.resolve_relic_id (scripts/game_data.gd:405-413) redirects to copper_shod_staff (Copper-Shod Staff), so this text is never displayed. No rewrite proposed."
+ },
+ {
+  "id": "tectonic_abacus",
+  "current_name": "Captured Noon",
+  "current_description": "While you have 3 active @icon(illuminate) sources, lower @icon(umbra) by 1 stage; with 6 sources, lower it by 2.",
+  "name": "Captured Noon",
+  "description": "While 3 or more @term(light|Lights) are active, @kw(umbra|the Umbra) is 1 stage lower; with 6 or more, 2 stages lower.",
+  "description_read_aloud": "While 3 or more Lights are active, the Umbra is 1 stage lower; with 6 or more, 2 stages lower.",
+  "words": 19,
+  "current_words": 19,
+  "changed": true,
+  "reason": "accuracy",
+  "evidence": [
+   "scripts/combat_engine.gd:395-420",
+   "scripts/combat_engine.gd:476-488"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "While you have 3 active Illuminate sources, lower The Umbra by 1 stage; with 6 sources, lower it by 2.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "light": {
+    "name": "Light",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "missing: new concept"
+   },
+   "umbra": {
+    "name": "The Umbra",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "'While you have 3 active Illuminate sources' was wrong: the count includes every Light on the board (lit braziers, Illusion and relic auras), not only yours, and any count of 3 or more qualifies."
+ },
+ {
+  "id": "overflow_censer",
+  "current_name": "Overflow Censer",
+  "current_description": "When you place @icon(surface_fire), @icon(surface_ice) or @icon(surface_electrified) on a tile holding a different one of them, it also spreads to each empty tile next to it.",
+  "name": "Overflow Censer",
+  "description": "When you place @term(surface_fire), @term(surface_ice) or @term(surface_electrified) over a different one, it also spreads to each tile next to it that has none.",
+  "description_read_aloud": "When you place Fire, Ice or Electrified over a different one, it also spreads to each tile next to it that has none.",
+  "words": 23,
+  "current_words": 26,
+  "changed": true,
+  "reason": "length",
+  "evidence": [
+   "scripts/board_surface_rules.gd:94-99"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "When you place Fire, Ice or Electrified on a tile holding a different one of them, it also spreads to each empty tile next to it.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "surface_fire": {
+    "name": "Fire",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_ice": {
+    "name": "Ice",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_electrified": {
+    "name": "Electrified",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "26 -> 22 words. Also clarity: 'each empty tile' meant tiles with no elemental surface; units do not block the spread."
+ },
+ {
+  "id": "black_sun_dial",
+  "current_name": "Black Sun Dial",
+  "current_description": "Consuming a surface stores it (max 3). Your next attack deals 2 more damage per stored surface, and its target gets each one's effect: @icon(surface_fire) beneath it, @icon(chilled), @icon(shock), @icon(stagger) 2.",
+  "name": "Black Sun Dial",
+  "description": "Store up to 3 consumed surfaces. Your next attack deals 2 more damage per surface. @term(surface_fire): @kw(surface_fire) beneath. @term(surface_ice): @term(chilled). @term(surface_electrified): @term(shock). @term(surface_rubble): @kw(stagger) 2.",
+  "description_read_aloud": "Store up to 3 consumed surfaces. Your next attack deals 2 more damage per surface. Fire: Fire beneath. Ice: Chilled. Electrified: Shock. Rubble: Stagger 2.",
+  "words": 25,
+  "current_words": 31,
+  "changed": true,
+  "reason": "length",
+  "evidence": [
+   "scripts/surface_variety_relic_rules.gd:92-96",
+   "scripts/surface_variety_relic_rules.gd:101-127"
+  ],
+  "director_decision_needed": "'Store up to 3 surfaces you consume' is exact but makes it 26 words (1 over). Accept 'consumed surfaces' (25) or allow 26?",
+  "current_read_aloud": "Consuming a surface stores it (max 3). Your next attack deals 2 more damage per stored surface, and its target gets each one's effect: Fire beneath it, Chilled, Shock, Stagger 2.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "surface_fire": {
+    "name": "Fire",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_ice": {
+    "name": "Ice",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "chilled": {
+    "name": "Chilled",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_electrified": {
+    "name": "Electrified",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "shock": {
+    "name": "Shock",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_rubble": {
+    "name": "Rubble",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "stagger": {
+    "name": "Stagger",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "surface (generic)"
+  ],
+  "notes": "31 -> 25 words, and the surface-to-effect mapping is now explicit instead of implied by list order. Only surfaces your own actions consume are stored (line 108 skips non-player sources)."
+ },
+ {
+  "id": "duelist_whetstone",
+  "current_name": "Duelist Whetstone",
+  "current_description": "Attacks on cards that also @icon(move) or @icon(blink) deal 1 more damage for each tile you've traveled this turn (max 3 more).",
+  "name": "Duelist Whetstone",
+  "description": "Attacks on cards that also @kw(move) or @kw(blink) deal 1 more damage per tile you moved this turn, up to 3 more.",
+  "description_read_aloud": "Attacks on cards that also Move or Blink deal 1 more damage per tile you moved this turn, up to 3 more.",
+  "words": 22,
+  "current_words": 22,
+  "changed": true,
+  "reason": "consistency",
+  "evidence": [
+   "scripts/common_relic_rules.gd:77-82",
+   "scripts/combat_engine.gd:10403-10404"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Attacks on cards that also Move or Blink deal 1 more damage for each tile you've traveled this turn (max 3 more).",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "move": {
+    "name": "Move",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "blink": {
+    "name": "Blink",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Removes the rules parenthesis. Blink distance counts as tiles moved (combat_engine.gd:1576)."
+ },
+ {
+  "id": "hollow_die",
+  "current_name": "Open-Eyed Pin",
+  "current_description": "When a card grants @icon(vision) or @icon(truesight), create @icon(illuminate) {0.reward0.radius} at you matching that effect's @icon(time).",
+  "name": "Open-Eyed Pin",
+  "description": "When a card grants @icon(vision) or @icon(truesight), create @icon(illuminate) {0.reward0.radius} at you matching that effect's @icon(time).",
+  "description_read_aloud": "When a card grants Vision or Truesight, create Illuminate 1 at you matching that effect's Time.",
+  "words": 16,
+  "current_words": 16,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "data/relics.json:1091-1092",
+   "scripts/game_data.gd:178-183",
+   "scripts/game_data.gd:405-413"
+  ],
+  "director_decision_needed": null,
+  "retired_redirect_to": "tallow_candle",
+  "token_plan": {},
+  "plain_word_concepts": [],
+  "notes": "Retired (data/relics.json retired: true). GameData.resolve_relic_id (scripts/game_data.gd:405-413) redirects to tallow_candle (Tallow Candle), so this text is never displayed. No rewrite proposed."
+ },
+ {
+  "id": "chorus_mask",
+  "current_name": "Chorus Mask",
+  "current_description": "A card whose element differs from the last card you played this turn deals 2 more damage and grants 2 more @icon(block).",
+  "name": "Chorus Mask",
+  "description": "A card whose element differs from the last card you played this turn deals 2 more damage and grants 2 more @term(block).",
+  "description_read_aloud": "A card whose element differs from the last card you played this turn deals 2 more damage and grants 2 more Block.",
+  "words": 22,
+  "current_words": 22,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/surface_variety_relic_rules.gd:33-37",
+   "scripts/surface_variety_relic_rules.gd:56-57",
+   "scripts/surface_variety_relic_rules.gd:74-76"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "A card whose element differs from the last card you played this turn deals 2 more damage and grants 2 more Block.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "block": {
+    "name": "Block",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Accurate: both cards need an element; a no-element card breaks the sequence; +2 Block is added even to cards without a Block action."
+ },
+ {
+  "id": "hourglass_splinter",
+  "current_name": "Hourglass Splinter",
+  "current_description": "When you play a card that costs 6 or more @icon(time), @icon(quicken) 2.",
+  "name": "Hourglass Splinter",
+  "description": "When you play a card that costs 6 or more @term(time), @kw(quicken) 2.",
+  "description_read_aloud": "When you play a card that costs 6 or more Time, Quicken 2.",
+  "words": 13,
+  "current_words": 13,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/tempo_relic_rules.gd:86-91"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "When you play a card that costs 6 or more Time, Quicken 2.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "time": {
+    "name": "Time",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "quicken": {
+    "name": "Quicken",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "widow_thread",
+  "current_name": "Widow Thread",
+  "current_description": "While @icon(illusion) exists, your attacks inflict @icon(expose) +{amount}.",
+  "name": "Widow Thread",
+  "description": "While you have an @term(illusion), your attacks apply +1 @term(expose).",
+  "description_read_aloud": "While you have an Illusion, your attacks apply +1 Expose.",
+  "words": 10,
+  "current_words": 8,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/combat_engine.gd:5996",
+   "scripts/combat_engine.gd:5953-5980",
+   "data/relics.json:1136-1165"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "While Illusion exists, your attacks inflict Expose +1.",
+  "current_uses_placeholders": true,
+  "token_plan": {
+   "illusion": {
+    "name": "Illusion",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "expose": {
+    "name": "Expose",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "'While Illusion exists' reads as a fragment aloud."
+ },
+ {
+  "id": "funeral_bell",
+  "current_name": "Funeral Bell",
+  "current_description": "When an enemy dies with 2 or more different statuses, such as @icon(bleed) and @icon(expose), each enemy next to it gains them.",
+  "name": "Funeral Bell",
+  "description": "When an enemy dies with 2 or more different statuses, such as @term(bleed) and @term(expose), each enemy next to it gains them.",
+  "description_read_aloud": "When an enemy dies with 2 or more different statuses, such as Bleed and Expose, each enemy next to it gains them.",
+  "words": 22,
+  "current_words": 22,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/surface_variety_relic_rules.gd:150-170"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "When an enemy dies with 2 or more different statuses, such as Bleed and Expose, each enemy next to it gains them.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "bleed": {
+    "name": "Bleed",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "expose": {
+    "name": "Expose",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Counted statuses: Bleed, Expose, Shock, Freeze, Chilled, Immobilize, Petrify (line 13)."
+ },
+ {
+  "id": "bloodmoon_chalice",
+  "current_name": "Bloodmoon Chalice",
+  "current_description": "When you lose @icon(health) during your turn, your next attack this turn deals 2 more damage per @icon(health) lost (max 8 more).",
+  "name": "Bloodmoon Chalice",
+  "description": "When you lose @term(health) during your turn, your next attack this turn deals 2 more damage per @kw(health) lost, up to 8 more.",
+  "description_read_aloud": "When you lose Health during your turn, your next attack this turn deals 2 more damage per Health lost, up to 8 more.",
+  "words": 23,
+  "current_words": 22,
+  "changed": true,
+  "reason": "consistency",
+  "evidence": [
+   "scripts/defense_relic_rules.gd:90-109",
+   "scripts/combat_engine.gd:1541-1547"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "When you lose Health during your turn, your next attack this turn deals 2 more damage per Health lost (max 8 more).",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "health": {
+    "name": "Health",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Removes the rules parenthesis."
+ },
+ {
+  "id": "moonless_compass",
+  "current_name": "Moonless Compass",
+  "current_description": "Once per combat, play separate @icon(move)/@icon(blink) and @icon(illuminate)/@icon(vision)/@icon(truesight) cards in one turn to gain @icon(stoneskin) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}.",
+  "name": "Moonless Compass",
+  "description": "Once per combat, play separate @icon(move)/@icon(blink) and @icon(illuminate)/@icon(vision)/@icon(truesight) cards in one turn to gain @icon(stoneskin) {0.reward0.amount} and @icon(card_play) {0.reward1.amount}.",
+  "description_read_aloud": "Once per combat, play separate Move/Blink and Illuminate/Vision/Truesight cards in one turn to gain Stoneskin 6 and Card Play 2.",
+  "words": 19,
+  "current_words": 19,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "data/relics.json:1249-1250",
+   "scripts/game_data.gd:178-183",
+   "scripts/game_data.gd:405-413"
+  ],
+  "director_decision_needed": null,
+  "retired_redirect_to": "echoing_blade",
+  "token_plan": {},
+  "plain_word_concepts": [],
+  "notes": "Retired (data/relics.json retired: true). GameData.resolve_relic_id (scripts/game_data.gd:405-413) redirects to echoing_blade (Echoing Blade), so this text is never displayed. No rewrite proposed."
+ },
+ {
+  "id": "fivefold_knot",
+  "current_name": "Fivefold Knot",
+  "current_description": "Each element you play ties its knot for this combat. With 3 of the 5 knots, your attacks @icon(pierce); with 4, they also gain @icon(chain) 1; with all 5, every card you play also grants 3 @icon(block).",
+  "name": "Fivefold Knot",
+  "description": "Each element you play this combat ties a knot. 3 knots: your attacks @kw(pierce). 4: also @kw(chain) 1. 5: every card grants 3 @term(block).",
+  "description_read_aloud": "Each element you play this combat ties a knot. 3 knots: your attacks Pierce. 4: also Chain 1. 5: every card grants 3 Block.",
+  "words": 24,
+  "current_words": 37,
+  "changed": true,
+  "reason": "length",
+  "evidence": [
+   "scripts/surface_variety_relic_rules.gd:49-59",
+   "scripts/surface_variety_relic_rules.gd:63-69",
+   "scripts/surface_variety_relic_rules.gd:74-91"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Each element you play ties its knot for this combat. With 3 of the 5 knots, your attacks Pierce; with 4, they also gain Chain 1; with all 5, every card you play also grants 3 Block.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "pierce": {
+    "name": "Pierce",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "chain": {
+    "name": "Chain",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "block": {
+    "name": "Block",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "37 -> 24 words (the audit's longest relic text). At 4 knots attacks get at least Chain 1 (max, not +1)."
+ },
+ {
+  "id": "borrowed_hourglass",
+  "current_name": "Borrowed Hourglass",
+  "current_description": "Once per combat, when you end your turn with a @icon(card_play) unused, take another turn at once. Everything it costs is added to your next turn's @icon(time).",
+  "name": "Borrowed Hourglass",
+  "description": "The first time each combat you end your turn with a @term(card_play) unused, take another turn at once. This turn's @term(time) is added to it.",
+  "description_read_aloud": "The first time each combat you end your turn with a Card Play unused, take another turn at once. This turn's Time is added to it.",
+  "words": 25,
+  "current_words": 27,
+  "changed": true,
+  "reason": "length",
+  "evidence": [
+   "scripts/tempo_relic_rules.gd:17-19",
+   "scripts/tempo_relic_rules.gd:25-42"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Once per combat, when you end your turn with a Card Play unused, take another turn at once. Everything it costs is added to your next turn's Time.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "card_play": {
+    "name": "Card Play",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "time": {
+    "name": "Time",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "27 -> 25 words. Uses the fixed phrase 'The first time each combat'. 'Everything it costs' was ambiguous: the ending turn's Time (including Wait) is deferred onto the extra turn, which is then paid in full."
+ },
+ {
+  "id": "dawnbrand_filament",
+  "current_name": "Dawnbrand Filament",
+  "current_description": "The first direct attack each turn creates @icon(illuminate) {radius} @icon(time) {duration} at its target.",
+  "name": "Dawnbrand Filament",
+  "description": "The first direct attack each turn creates @icon(illuminate) {radius} @icon(time) {duration} at its target.",
+  "description_read_aloud": "The first direct attack each turn creates Illuminate 1 Time 2 at its target.",
+  "words": 14,
+  "current_words": 14,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "data/relics.json:1326-1327",
+   "scripts/game_data.gd:178-183",
+   "scripts/game_data.gd:405-413"
+  ],
+  "director_decision_needed": null,
+  "retired_redirect_to": "fencers_gloves",
+  "token_plan": {},
+  "plain_word_concepts": [],
+  "notes": "Retired (data/relics.json retired: true). GameData.resolve_relic_id (scripts/game_data.gd:405-413) redirects to fencers_gloves (Fencer's Gloves), so this text is never displayed. No rewrite proposed."
+ },
+ {
+  "id": "glowstone_matrix",
+  "current_name": "Glowstone Matrix",
+  "current_description": "Cards that grant @icon(stoneskin) also grant @icon(vision) {action.amount} @icon(time) {action.duration}.",
+  "name": "Glowstone Matrix",
+  "description": "Cards that grant @icon(stoneskin) also grant @icon(vision) {action.amount} @icon(time) {action.duration}.",
+  "description_read_aloud": "Cards that grant Stoneskin also grant Vision 1 Time 2.",
+  "words": 10,
+  "current_words": 10,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "data/relics.json:1354-1355",
+   "scripts/game_data.gd:178-183",
+   "scripts/game_data.gd:405-413"
+  ],
+  "director_decision_needed": null,
+  "retired_redirect_to": "grave_dirt",
+  "token_plan": {},
+  "plain_word_concepts": [],
+  "notes": "Retired (data/relics.json retired: true). GameData.resolve_relic_id (scripts/game_data.gd:405-413) redirects to grave_dirt (Grave Dirt), so this text is never displayed. No rewrite proposed."
+ },
+ {
+  "id": "briar_winch",
+  "current_name": "Quarry Winch",
+  "current_description": "Consume @icon(surface_rubble) beneath a target to aim @icon(push) or @icon(pull) in any cardinal direction.",
+  "name": "Quarry Winch",
+  "description": "Your @kw(push) and @kw(pull) can consume @term(surface_rubble) under the target to force it in any direction.",
+  "description_read_aloud": "Your Push and Pull can consume Rubble under the target to force it in any direction.",
+  "words": 16,
+  "current_words": 14,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/surface_relic_rules.gd:60-61",
+   "scripts/surface_relic_rules.gd:91-92",
+   "scripts/surface_relic_rules.gd:141-144",
+   "scripts/surface_relic_rules.gd:164-166"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Consume Rubble beneath a target to aim Push or Pull in any cardinal direction.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "push": {
+    "name": "Push",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "pull": {
+    "name": "Pull",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_rubble": {
+    "name": "Rubble",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "consume (surface sense)"
+  ],
+  "notes": "Current sentence had no subject ('Consume Rubble beneath a target to aim ...')."
+ },
+ {
+  "id": "hourglass_awl",
+  "current_name": "Hourglass Awl",
+  "current_description": "Attacks on cards that cost 6 or more @icon(time) gain @icon(pierce).",
+  "name": "Hourglass Awl",
+  "description": "Attacks on cards that cost 6 or more @term(time) gain @kw(pierce).",
+  "description_read_aloud": "Attacks on cards that cost 6 or more Time gain Pierce.",
+  "words": 11,
+  "current_words": 11,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/game_data.gd:1335-1337",
+   "scripts/game_data.gd:1231-1232"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Attacks on cards that cost 6 or more Time gain Pierce.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "time": {
+    "name": "Time",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "pierce": {
+    "name": "Pierce",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "beaconrunner_spurs",
+  "current_name": "Beaconrunner Spurs",
+  "current_description": "Each tile of your @icon(illuminate) you enter during a @icon(move) refunds 1 movement (max 2 each turn).",
+  "name": "Beaconrunner Spurs",
+  "description": "Each tile in your @term(light) you enter during a @kw(move) refunds 1 movement, up to 2 each turn.",
+  "description_read_aloud": "Each tile in your Light you enter during a Move refunds 1 movement, up to 2 each turn.",
+  "words": 18,
+  "current_words": 17,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/surface_variety_relic_rules.gd:173-176",
+   "scripts/surface_variety_relic_rules.gd:194-203",
+   "scripts/combat_engine.gd:7133-7136"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Each tile of your Illuminate you enter during a Move refunds 1 movement (max 2 each turn).",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "light": {
+    "name": "Light",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "missing: new concept"
+   },
+   "move": {
+    "name": "Move",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "movement"
+  ],
+  "notes": "Only your own Light counts (owner == player, line 175)."
+ },
+ {
+  "id": "true_north",
+  "current_name": "True North",
+  "current_description": "While you have @icon(truesight), @icon(ranged) actions gain @icon(range) +{amount}.",
+  "name": "True North",
+  "description": "While you have @icon(truesight), @icon(ranged) actions gain @icon(range) +{amount}.",
+  "description_read_aloud": "While you have Truesight, Ranged actions gain Range +1.",
+  "words": 9,
+  "current_words": 9,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "data/relics.json:1457-1458",
+   "scripts/game_data.gd:178-183",
+   "scripts/game_data.gd:405-413"
+  ],
+  "director_decision_needed": null,
+  "retired_redirect_to": "bonded_set",
+  "token_plan": {},
+  "plain_word_concepts": [],
+  "notes": "Retired (data/relics.json retired: true). GameData.resolve_relic_id (scripts/game_data.gd:405-413) redirects to bonded_set (Bonded Set), so this text is never displayed. No rewrite proposed."
+ },
+ {
+  "id": "dawnstitch_cord",
+  "current_name": "Dawnstitch Cord",
+  "current_description": "The first card each turn that creates @icon(illuminate), grants @icon(vision) or @icon(truesight), or uses @icon(dispel_umbra) grants @icon(block) {0.reward0.amount}.",
+  "name": "Dawnstitch Cord",
+  "description": "The first card each turn that creates @icon(illuminate), grants @icon(vision) or @icon(truesight), or uses @icon(dispel_umbra) grants @icon(block) {0.reward0.amount}.",
+  "description_read_aloud": "The first card each turn that creates Illuminate, grants Vision or Truesight, or uses Dispel Umbra grants Block 4.",
+  "words": 18,
+  "current_words": 18,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "data/relics.json:1491-1492",
+   "scripts/game_data.gd:178-183",
+   "scripts/game_data.gd:405-413"
+  ],
+  "director_decision_needed": null,
+  "retired_redirect_to": "martyrs_gorget",
+  "token_plan": {},
+  "plain_word_concepts": [],
+  "notes": "Retired (data/relics.json retired: true). GameData.resolve_relic_id (scripts/game_data.gd:405-413) redirects to martyrs_gorget (Martyr's Gorget), so this text is never displayed. No rewrite proposed."
+ },
+ {
+  "id": "starless_astrolabe",
+  "current_name": "Starless Astrolabe",
+  "current_description": "While you have @icon(truesight), applying @icon(freeze) or @icon(shock) creates @icon(illuminate) {radius} @icon(time) {duration} beneath that enemy.",
+  "name": "Starless Astrolabe",
+  "description": "While you have @icon(truesight), applying @icon(freeze) or @icon(shock) creates @icon(illuminate) {radius} @icon(time) {duration} beneath that enemy.",
+  "description_read_aloud": "While you have Truesight, applying Freeze or Shock creates Illuminate 1 Time 2 beneath that enemy.",
+  "words": 16,
+  "current_words": 16,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "data/relics.json:1522-1523",
+   "scripts/game_data.gd:178-183",
+   "scripts/game_data.gd:405-413"
+  ],
+  "director_decision_needed": null,
+  "retired_redirect_to": "changelings_rattle",
+  "token_plan": {},
+  "plain_word_concepts": [],
+  "notes": "Retired (data/relics.json retired: true). GameData.resolve_relic_id (scripts/game_data.gd:405-413) redirects to changelings_rattle (Changeling's Rattle), so this text is never displayed. No rewrite proposed."
+ },
+ {
+  "id": "witchglass_carapace",
+  "current_name": "Witchglass Carapace",
+  "current_description": "Enemy @icon(ranged) attacks deal at most {max_damage} damage to @icon(illusion).",
+  "name": "Witchglass Carapace",
+  "description": "Enemy @kw(ranged) attacks deal at most 1 damage to your @term(illusion|Illusions).",
+  "description_read_aloud": "Enemy Ranged attacks deal at most 1 damage to your Illusions.",
+  "words": 11,
+  "current_words": 10,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/combat_engine.gd:4346-4351"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Enemy Ranged attacks deal at most 1 damage to Illusion.",
+  "current_uses_placeholders": true,
+  "token_plan": {
+   "ranged": {
+    "name": "Ranged",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "illusion": {
+    "name": "Illusion",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Plural fix ('to Illusion')."
+ },
+ {
+  "id": "witchglass_lantern",
+  "current_name": "Witchglass Lantern",
+  "current_description": "Your @icon(illusion) have +{radius} @icon(illuminate) radius while they last.",
+  "name": "Witchglass Lantern",
+  "description": "Your @icon(illusion) have +{radius} @icon(illuminate) radius while they last.",
+  "description_read_aloud": "Your Illusion have +2 Illuminate radius while they last.",
+  "words": 9,
+  "current_words": 9,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "data/relics.json:1570-1571",
+   "scripts/game_data.gd:178-183",
+   "scripts/game_data.gd:405-413"
+  ],
+  "director_decision_needed": null,
+  "retired_redirect_to": "hollow_puppet",
+  "token_plan": {},
+  "plain_word_concepts": [],
+  "notes": "Retired (data/relics.json retired: true). GameData.resolve_relic_id (scripts/game_data.gd:405-413) redirects to hollow_puppet (Hollow Puppet), so this text is never displayed. No rewrite proposed."
+ },
+ {
+  "id": "sunlit_edge",
+  "current_name": "Sunlit Edge",
+  "current_description": "While you stand in @icon(illuminate), your attacks gain @icon(pierce).",
+  "name": "Sunlit Edge",
+  "description": "While you stand in @term(light), your attacks gain @kw(pierce).",
+  "description_read_aloud": "While you stand in Light, your attacks gain Pierce.",
+  "words": 9,
+  "current_words": 9,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/combat_engine.gd:6000",
+   "scripts/combat_engine.gd:6658-6668"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "While you stand in Illuminate, your attacks gain Pierce.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "light": {
+    "name": "Light",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "missing: new concept"
+   },
+   "pierce": {
+    "name": "Pierce",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "glassway_compass",
+  "current_name": "Glassway Compass",
+  "current_description": "Your @icon(move) and @icon(blink) can end on your @icon(illusion): you trade places with it instantly, skipping the tiles between.",
+  "name": "Glassway Compass",
+  "description": "Your @kw(move) and @kw(blink) can end on one of your @term(illusion|Illusions): you trade places with it, skipping the tiles between.",
+  "description_read_aloud": "Your Move and Blink can end on one of your Illusions: you trade places with it, skipping the tiles between.",
+  "words": 20,
+  "current_words": 19,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/illusion_relic_rules.gd:41-88",
+   "scripts/combat_engine.gd:1572",
+   "scripts/combat_engine.gd:7087"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your Move and Blink can end on your Illusion: you trade places with it instantly, skipping the tiles between.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "move": {
+    "name": "Move",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "blink": {
+    "name": "Blink",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "illusion": {
+    "name": "Illusion",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "unclouded_sun",
+  "current_name": "Unclouded Sun",
+  "current_description": "Your @icon(illuminate) sources are relay points: when you @icon(move), each of them counts as next to every other.",
+  "name": "Unclouded Sun",
+  "description": "When you @kw(move), the centers of your @term(light|Lights) count as next to each other.",
+  "description_read_aloud": "When you Move, the centers of your Lights count as next to each other.",
+  "words": 14,
+  "current_words": 18,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/surface_variety_relic_rules.gd:178-192",
+   "scripts/combat_engine.gd:11509-11511"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your Illuminate sources are relay points: when you Move, each of them counts as next to every other.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "move": {
+    "name": "Move",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "light": {
+    "name": "Light",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "missing: new concept"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "'Illuminate sources are relay points' was jargon. Straight-line Move cards cannot use the links (surface_variety_relic_rules.gd:253)."
+ },
+ {
+  "id": "ashen_brand",
+  "current_name": "Ashen Brand",
+  "current_description": "@icon(detonate) consumes the entire connected @icon(surface_fire) cluster. Each extra overlapping blast cross adds 25% base damage.",
+  "name": "Ashen Brand",
+  "description": "Your @kw(detonate) consumes every connected @term(surface_fire) tile. A target hit by several blast crosses takes 25% more damage per extra cross.",
+  "description_read_aloud": "Your Detonate consumes every connected Fire tile. A target hit by several blast crosses takes 25% more damage per extra cross.",
+  "words": 21,
+  "current_words": 16,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/combat_engine.gd:12027-12037",
+   "scripts/combat_engine.gd:12072",
+   "scripts/guardian_relic_rules.gd:17-36"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Detonate consumes the entire connected Fire cluster. Each extra overlapping blast cross adds 25% base damage.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "detonate": {
+    "name": "Detonate",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_fire": {
+    "name": "Fire",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "consume (surface sense)"
+  ],
+  "notes": "The bonus is 25% of the card's base damage per overlapping cross, rounded to nearest."
+ },
+ {
+  "id": "winters_spur",
+  "current_name": "Winter’s Spur",
+  "current_description": "Each straight stretch of @icon(surface_ice) costs 1 base @icon(move) per movement action. Turns start a new stretch.",
+  "name": "Winter's Spur",
+  "description": "Each straight line of @term(surface_ice) you move across costs only 1 movement. Turning starts a new line.",
+  "description_read_aloud": "Each straight line of Ice you move across costs only 1 movement. Turning starts a new line.",
+  "words": 17,
+  "current_words": 17,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/guardian_relic_rules.gd:38-44",
+   "scripts/surface_variety_relic_rules.gd:218-220",
+   "scripts/surface_variety_relic_rules.gd:279-280"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Each straight stretch of Ice costs 1 base Move per movement action. Turns start a new stretch.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "surface_ice": {
+    "name": "Ice",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "movement"
+  ],
+  "notes": "'1 base Move per movement action' was jargon. Name typography: the only relic name with a curly apostrophe (Winter’s Spur) vs straight in Winter's Hourglass and all others."
+ },
+ {
+  "id": "resonant_clapper",
+  "current_name": "Resonant Clapper",
+  "current_description": "@icon(chain) gains 25% base damage per successive enemy hop. Empty relays and conduction-only hits neither advance nor receive this bonus.",
+  "name": "Resonant Clapper",
+  "description": "Your @kw(chain) deals 25% more damage per enemy it already hit. Empty relays and conduction-only hits neither count nor gain this bonus.",
+  "description_read_aloud": "Your Chain deals 25% more damage per enemy it already hit. Empty relays and conduction-only hits neither count nor gain this bonus.",
+  "words": 22,
+  "current_words": 20,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/combat_engine.gd:11687-11717",
+   "scripts/combat_engine.gd:11874-11876",
+   "scripts/guardian_relic_rules.gd:17-18"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Chain gains 25% base damage per successive enemy hop. Empty relays and conduction-only hits neither advance nor receive this bonus.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "chain": {
+    "name": "Chain",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "galehook_talon",
+  "current_name": "Galehook Talon",
+  "current_description": "@icon(push) and @icon(pull) displace a contiguous line of enemies together along the force axis. The group stops at an obstruction.",
+  "name": "Galehook Talon",
+  "description": "Your @kw(push) and @kw(pull) move the target together with every enemy touching it in a line along that direction. Only the front one collides.",
+  "description_read_aloud": "Your Push and Pull move the target together with every enemy touching it in a line along that direction. Only the front one collides.",
+  "words": 24,
+  "current_words": 20,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/guardian_relic_rules.gd:87-169",
+   "scripts/combat_engine.gd:11773"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Push and Pull displace a contiguous line of enemies together along the force axis. The group stops at an obstruction.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "push": {
+    "name": "Push",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "pull": {
+    "name": "Pull",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "'contiguous line ... along the force axis' was jargon. Anchored enemies are left out (lines 91, 111)."
+ },
+ {
+  "id": "cragbound_gauntlet",
+  "current_name": "Cragbound Gauntlet",
+  "current_description": "@icon(ranged) Earth spells raise a 3 @icon(health) outcrop at an empty ground target.",
+  "name": "Cragbound Gauntlet",
+  "description": "Your @kw(element_earth|Earth) @kw(ranged) and area attacks also raise a 3-@term(health) outcrop on an empty floor target.",
+  "description_read_aloud": "Your Earth Ranged and area attacks also raise a 3-Health outcrop on an empty floor target.",
+  "words": 16,
+  "current_words": 13,
+  "changed": true,
+  "reason": "accuracy",
+  "evidence": [
+   "scripts/game_data.gd:1364-1369",
+   "scripts/combat_engine.gd:11781",
+   "scripts/combat_engine.gd:11981",
+   "data/relics.json:1732-1760"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Ranged Earth spells raise a 3 Health outcrop at an empty ground target.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "element_earth": {
+    "name": "Earth",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "ranged": {
+    "name": "Ranged",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "health": {
+    "name": "Health",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "outcrop"
+  ],
+  "notes": "Code applies to Earth Ranged and area (aoe) actions with range 1 or more; 'Ranged Earth spells' excluded area attacks and 'spells' is not a game term. Self-centred (range 0) areas do not qualify."
+ },
+ {
+  "id": "procession_lantern",
+  "current_name": "Procession Lantern",
+  "current_description": "@icon(illusion) can use your independent @icon(move).",
+  "name": "Procession Lantern",
+  "description": "Your @term(illusion|Illusions) can move by spending your movement.",
+  "description_read_aloud": "Your Illusions can move by spending your movement.",
+  "words": 8,
+  "current_words": 6,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/guardian_relic_rules.gd:171-203"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Illusion can use your independent Move.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "illusion": {
+    "name": "Illusion",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "movement"
+  ],
+  "notes": "'Illusion can use your independent Move' read as a fragment."
+ },
+ {
+  "id": "crowncoal_heart",
+  "current_name": "Crowncoal Heart",
+  "current_description": "Each turn, your first single-target hit on ground without an elemental surface adds @icon(surface_fire). Your first @icon(detonate) consuming 2+ @icon(surface_fire) grants @icon(stoneskin) 6 after the blast.",
+  "name": "Crowncoal Heart",
+  "description": "Once per turn, your single-target hit on a tile without @term(surface_fire), @term(surface_ice) or @term(surface_electrified) places @kw(surface_fire). @kw(detonate|Detonating) 2+ @kw(surface_fire) grants 6 @term(stoneskin), once per turn.",
+  "description_read_aloud": "Once per turn, your single-target hit on a tile without Fire, Ice or Electrified places Fire. Detonating 2+ Fire grants 6 Stoneskin, once per turn.",
+  "words": 25,
+  "current_words": 26,
+  "changed": true,
+  "reason": "length",
+  "evidence": [
+   "scripts/combat_engine.gd:12007-12020",
+   "scripts/surface_relic_rules.gd:380-387",
+   "scripts/surface_relic_rules.gd:424-433"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Each turn, your first single-target hit on ground without an elemental surface adds Fire. Your first Detonate consuming 2+ Fire grants Stoneskin 6 after the blast.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "surface_fire": {
+    "name": "Fire",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_ice": {
+    "name": "Ice",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_electrified": {
+    "name": "Electrified",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "detonate": {
+    "name": "Detonate",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "stoneskin": {
+    "name": "Stoneskin",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "26 -> 25 words. A blocked placement does not spend the turn's trigger (combat_engine.gd:12017)."
+ },
+ {
+  "id": "worldheart",
+  "current_name": "Worldheart",
+  "current_description": "At turn end, convert up to 2 remaining @icon(block) into @icon(stoneskin). Whenever you gain @icon(stoneskin), deal half that amount, rounded down, to adjacent enemies (maximum 4).",
+  "name": "Worldheart",
+  "description": "At the end of your turn, convert up to 2 @term(block) to @term(stoneskin). Gaining @kw(stoneskin) deals half, rounded down, to adjacent enemies, up to 4.",
+  "description_read_aloud": "At the end of your turn, convert up to 2 Block to Stoneskin. Gaining Stoneskin deals half, rounded down, to adjacent enemies, up to 4.",
+  "words": 25,
+  "current_words": 26,
+  "changed": true,
+  "reason": "length",
+  "evidence": [
+   "scripts/combat_engine.gd:10728-10742",
+   "scripts/combat_engine.gd:10780-10795",
+   "scripts/combat_engine.gd:11582-11600"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "At turn end, convert up to 2 remaining Block into Stoneskin. Whenever you gain Stoneskin, deal half that amount, rounded down, to adjacent enemies (maximum 4).",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "block": {
+    "name": "Block",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "stoneskin": {
+    "name": "Stoneskin",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "26 -> 25 words; uses the fixed phrase 'At the end of your turn'. The pulse hits enemies next to you (cross pattern at your tile)."
+ },
+ {
+  "id": "unbound_pinion",
+  "current_name": "Unbound Pinion",
+  "current_description": "The first card action each turn that sends an enemy 2 or more tiles, or makes it collide, refills your movement and you @icon(draw) 1.",
+  "name": "Unbound Pinion",
+  "description": "Once per turn, when your @kw(push) or @kw(pull) moves an enemy 2 or more tiles or makes it collide, refill your movement and @kw(draw) 1.",
+  "description_read_aloud": "Once per turn, when your Push or Pull moves an enemy 2 or more tiles or makes it collide, refill your movement and Draw 1.",
+  "words": 25,
+  "current_words": 25,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/surface_relic_rules.gd:361-379",
+   "scripts/surface_relic_rules.gd:424-433",
+   "scripts/combat_engine.gd:11008-11009"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "The first card action each turn that sends an enemy 2 or more tiles, or makes it collide, refills your movement and you Draw 1.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "push": {
+    "name": "Push",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "pull": {
+    "name": "Pull",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "draw": {
+    "name": "Draw",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "movement"
+  ],
+  "notes": "Fixes 'refills your movement and you Draw 1'. Any card action with Push or Pull (including area forces) counts."
+ },
+ {
+  "id": "winters_hour",
+  "current_name": "Winter's Hourglass",
+  "current_description": "Your first @icon(element_ice) card each turn stores @icon(time) 3 (maximum 3). Non-@icon(element_ice) cards spend stored @icon(time) to reduce their cost, to a minimum of @icon(time) 1. Stored @icon(time) lasts this combat.",
+  "name": "Winter's Hourglass",
+  "description": "Your first @kw(element_ice|Ice) card each turn refills a 3-@term(time) store that lasts all combat. Other cards spend it to cost less, down to 1.",
+  "description_read_aloud": "Your first Ice card each turn refills a 3-Time store that lasts all combat. Other cards spend it to cost less, down to 1.",
+  "words": 24,
+  "current_words": 31,
+  "changed": true,
+  "reason": "length",
+  "evidence": [
+   "scripts/dragon_trophy_rules.gd:11-28",
+   "scripts/dragon_trophy_rules.gd:33-53"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your first Ice card each turn stores Time 3 (maximum 3). Non-Ice cards spend stored Time to reduce their cost, to a minimum of Time 1. Stored Time lasts this combat.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "element_ice": {
+    "name": "Ice",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "time": {
+    "name": "Time",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "31 -> 24 words. Ice cards never spend the store; others spend down to a 1-Time minimum."
+ },
+ {
+  "id": "stormroad_coil",
+  "current_name": "Stormroad Coil",
+  "current_description": "Single-target @icon(ranged) attacks can relay once through @icon(surface_electrified), with normal @icon(range) on each leg.",
+  "name": "Stormroad Coil",
+  "description": "Your single-target @kw(ranged) attacks can relay once through an @term(surface_electrified) tile, with normal @kw(range) on each leg.",
+  "description_read_aloud": "Your single-target Ranged attacks can relay once through an Electrified tile, with normal Range on each leg.",
+  "words": 17,
+  "current_words": 14,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/dragon_trophy_rules.gd:56-82"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Single-target Ranged attacks can relay once through Electrified, with normal Range on each leg.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "ranged": {
+    "name": "Ranged",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_electrified": {
+    "name": "Electrified",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "range": {
+    "name": "Range",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Adds the missing subject and 'tile'."
+ },
+ {
+  "id": "eclipse_mantle",
+  "current_name": "Eclipse Mantle",
+  "current_description": "Your first @icon(blink) each turn leaves @icon(illusion) 2 at its origin. Your @icon(illusion) radiate @icon(illuminate) 2 while they last.",
+  "name": "Eclipse Mantle",
+  "description": "Your first @kw(blink) each turn leaves a 2-@term(health) @term(illusion) where you started. Your @kw(illusion|Illusions) shed radius-2 @term(light).",
+  "description_read_aloud": "Your first Blink each turn leaves a 2-Health Illusion where you started. Your Illusions shed radius-2 Light.",
+  "words": 17,
+  "current_words": 19,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/combat_engine.gd:1881-1895",
+   "scripts/combat_engine.gd:438-448"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your first Blink each turn leaves Illusion 2 at its origin. Your Illusion radiate Illuminate 2 while they last.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "blink": {
+    "name": "Blink",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "health": {
+    "name": "Health",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "illusion": {
+    "name": "Illusion",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "light": {
+    "name": "Light",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "missing: new concept"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "'leaves Illusion 2 at its origin' and 'radiate Illuminate 2' read badly aloud."
+ },
+ {
+  "id": "recoil_plates",
+  "current_name": "Recoil Plates",
+  "current_description": "You take 1 @icon(collision) damage per lost tile instead of 2. Whenever you are part of a @icon(collision), gain 3 @icon(block).",
+  "name": "Recoil Plates",
+  "description": "You take 1 @kw(collision) damage per lost tile instead of 2. Whenever you are part of a @kw(collision), gain 3 @term(block).",
+  "description_read_aloud": "You take 1 Collision damage per lost tile instead of 2. Whenever you are part of a Collision, gain 3 Block.",
+  "words": 21,
+  "current_words": 21,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/forced_relic_rules.gd:45-48",
+   "scripts/forced_relic_rules.gd:132-134"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "You take 1 Collision damage per lost tile instead of 2. Whenever you are part of a Collision, gain 3 Block.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "collision": {
+    "name": "Collision",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "block": {
+    "name": "Block",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "millstone_fob",
+  "current_name": "Millstone Fob",
+  "current_description": "When an enemy you @icon(push) or @icon(pull) collides, the tile it stopped on becomes @icon(surface_rubble).",
+  "name": "Millstone Fob",
+  "description": "When an enemy you @kw(push) or @kw(pull) collides, the tile it stopped on becomes @term(surface_rubble).",
+  "description_read_aloud": "When an enemy you Push or Pull collides, the tile it stopped on becomes Rubble.",
+  "words": 15,
+  "current_words": 15,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/forced_relic_rules.gd:127-131"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "When an enemy you Push or Pull collides, the tile it stopped on becomes Rubble.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "push": {
+    "name": "Push",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "pull": {
+    "name": "Pull",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_rubble": {
+    "name": "Rubble",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "tallow_candle",
+  "current_name": "Tallow Candle",
+  "current_description": "At the start of each combat, create radius-2 @icon(illuminate) on your tile for 3 turns.",
+  "name": "Tallow Candle",
+  "description": "At the start of combat, create radius-2 @term(light) on your tile for 3 turns.",
+  "description_read_aloud": "At the start of combat, create radius-2 Light on your tile for 3 turns.",
+  "words": 14,
+  "current_words": 15,
+  "changed": true,
+  "reason": "consistency",
+  "evidence": [
+   "scripts/common_relic_rules.gd:11-15"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "At the start of each combat, create radius-2 Illuminate on your tile for 3 turns.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "light": {
+    "name": "Light",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "missing: new concept"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Fixed phrase 'At the start of combat'; Light noun instead of Illuminate."
+ },
+ {
+  "id": "pocket_sundial",
+  "current_name": "Pocket Sundial",
+  "current_description": "If you use both @icon(card_play) in a turn, your next turn comes 2 @icon(time) sooner.",
+  "name": "Pocket Sundial",
+  "description": "If you don't @kw(wait) this turn, your next turn comes 2 @term(time) sooner.",
+  "description_read_aloud": "If you don't Wait this turn, your next turn comes 2 Time sooner.",
+  "words": 13,
+  "current_words": 15,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/tempo_relic_rules.gd:21-23",
+   "scripts/combat_engine.gd:3007-3016"
+  ],
+  "director_decision_needed": "Uses the 'Wait' keyword, which has no glossary entry or icon yet. Approve adding Wait to the glossary, or fall back to 'If you use both base Card Plays this turn, ...' (14 words)?",
+  "current_read_aloud": "If you use both Card Play in a turn, your next turn comes 2 Time sooner.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "wait": {
+    "name": "Wait",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "missing: new concept"
+   },
+   "time": {
+    "name": "Time",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Code condition is base_plays_waited == 0 (exactly 'no Wait cost'). 'use both Card Play' was ungrammatical and ambiguous with a third Card Play (Whirling Sash) or Freeze-forfeited plays."
+ },
+ {
+  "id": "leaden_pommel",
+  "current_name": "Leaden Pommel",
+  "current_description": "Attacks on cards that cost 5 or more @icon(time) @icon(stagger) 1.",
+  "name": "Leaden Pommel",
+  "description": "Attacks on cards that cost 5 or more @term(time) gain +1 @kw(stagger).",
+  "description_read_aloud": "Attacks on cards that cost 5 or more Time gain +1 Stagger.",
+  "words": 12,
+  "current_words": 11,
+  "changed": true,
+  "reason": "accuracy",
+  "evidence": [
+   "scripts/game_data.gd:1231-1239",
+   "scripts/game_data.gd:1335-1337",
+   "data/relics.json:2040-2068"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Attacks on cards that cost 5 or more Time Stagger 1.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "time": {
+    "name": "Time",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "stagger": {
+    "name": "Stagger",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Code adds 1 to the attack's existing Stagger (field += 1); 'Stagger 1' read as a flat Stagger 1."
+ },
+ {
+  "id": "pitch_gloves",
+  "current_name": "Pitch Gloves",
+  "current_description": "@icon(surface_fire) deals you 1 less damage. @icon(surface_fire) you create deals enemies 1 more.",
+  "name": "Pitch Gloves",
+  "description": "@term(surface_fire) deals you 1 less damage. @kw(surface_fire) you create deals enemies 1 more.",
+  "description_read_aloud": "Fire deals you 1 less damage. Fire you create deals enemies 1 more.",
+  "words": 13,
+  "current_words": 13,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/rite_rules.gd:138-153"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Fire deals you 1 less damage. Fire you create deals enemies 1 more.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "surface_fire": {
+    "name": "Fire",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "hobnail_cleats",
+  "current_name": "Hobnail Cleats",
+  "current_description": "@icon(surface_ice) doesn't make you @icon(chilled). While you stand on @icon(surface_ice), your @icon(element_ice) attacks deal 2 more damage.",
+  "name": "Hobnail Cleats",
+  "description": "@term(surface_ice) doesn't make you @term(chilled). While you stand on @kw(surface_ice), your @kw(element_ice|Ice) attacks deal 2 more damage.",
+  "description_read_aloud": "Ice doesn't make you Chilled. While you stand on Ice, your Ice attacks deal 2 more damage.",
+  "words": 17,
+  "current_words": 17,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/combat_engine.gd:11461-11462",
+   "scripts/combat_engine.gd:5986",
+   "data/relics.json:2099-2131"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Ice doesn't make you Chilled. While you stand on Ice, your Ice attacks deal 2 more damage.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "surface_ice": {
+    "name": "Ice",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "chilled": {
+    "name": "Chilled",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "element_ice": {
+    "name": "Ice",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "grounding_pin",
+  "current_name": "Grounding Pin",
+  "current_description": "Your single-target attacks against an enemy standing on @icon(surface_electrified) gain @icon(chain) 1.",
+  "name": "Grounding Pin",
+  "description": "Your single-target attacks against enemies on @term(surface_electrified) gain +1 @kw(chain).",
+  "description_read_aloud": "Your single-target attacks against enemies on Electrified gain +1 Chain.",
+  "words": 10,
+  "current_words": 12,
+  "changed": true,
+  "reason": "consistency",
+  "evidence": [
+   "scripts/combat_engine.gd:6011-6047",
+   "data/relics.json:2133-2160"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your single-target attacks against an enemy standing on Electrified gain Chain 1.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "surface_electrified": {
+    "name": "Electrified",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "chain": {
+    "name": "Chain",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Code adds 1 to existing Chain; '+1 Chain' matches Brightglass Lens and Storm Capacitor."
+ },
+ {
+  "id": "rubblewalker_greaves",
+  "current_name": "Rubblewalker Greaves",
+  "current_description": "@icon(surface_rubble) doesn't slow you. Start each turn standing on @icon(surface_rubble) with 1 @icon(stoneskin).",
+  "name": "Rubblewalker Greaves",
+  "description": "@term(surface_rubble) doesn't slow you. At the start of your turn, if you stand on @kw(surface_rubble), gain 1 @term(stoneskin).",
+  "description_read_aloud": "Rubble doesn't slow you. At the start of your turn, if you stand on Rubble, gain 1 Stoneskin.",
+  "words": 18,
+  "current_words": 13,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/surface_relic_rules.gd:15",
+   "scripts/common_relic_rules.gd:57-63"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Rubble doesn't slow you. Start each turn standing on Rubble with 1 Stoneskin.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "surface_rubble": {
+    "name": "Rubble",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "stoneskin": {
+    "name": "Stoneskin",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "'Start each turn standing on Rubble with 1 Stoneskin' read as a placement instruction."
+ },
+ {
+  "id": "grave_dirt",
+  "current_name": "Grave Dirt",
+  "current_description": "Start each combat with 4 @icon(stoneskin).",
+  "name": "Grave Dirt",
+  "description": "At the start of combat, gain 4 @term(stoneskin).",
+  "description_read_aloud": "At the start of combat, gain 4 Stoneskin.",
+  "words": 8,
+  "current_words": 6,
+  "changed": true,
+  "reason": "consistency",
+  "evidence": [
+   "scripts/combat_engine.gd:833"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Start each combat with 4 Stoneskin.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "stoneskin": {
+    "name": "Stoneskin",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "waxen_effigy",
+  "current_name": "Waxen Effigy",
+  "current_description": "At the start of each combat, create a 2-@icon(health) @icon(illusion) on the empty tile next to you nearest an enemy.",
+  "name": "Waxen Effigy",
+  "description": "At the start of combat, create a 2-@term(health) @term(illusion) on the empty tile next to you nearest an enemy.",
+  "description_read_aloud": "At the start of combat, create a 2-Health Illusion on the empty tile next to you nearest an enemy.",
+  "words": 19,
+  "current_words": 20,
+  "changed": true,
+  "reason": "consistency",
+  "evidence": [
+   "scripts/common_relic_rules.gd:16-47"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "At the start of each combat, create a 2-Health Illusion on the empty tile next to you nearest an enemy.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "health": {
+    "name": "Health",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "illusion": {
+    "name": "Illusion",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Fixed phrase. Nearest a visible enemy; with none visible, nearest the board centre."
+ },
+ {
+  "id": "quick_draw_bandolier",
+  "current_name": "Quick-Draw Bandolier",
+  "current_description": "Your items don't use a @icon(card_play), but cost 1 more @icon(time).",
+  "name": "Quick-Draw Bandolier",
+  "description": "Your items don't use a @term(card_play), but cost 1 more @term(time).",
+  "description_read_aloud": "Your items don't use a Card Play, but cost 1 more Time.",
+  "words": 11,
+  "current_words": 11,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/item_relic_rules.gd:15-27",
+   "scripts/combat_engine.gd:1995"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your items don't use a Card Play, but cost 1 more Time.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "card_play": {
+    "name": "Card Play",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "time": {
+    "name": "Time",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "item"
+  ],
+  "notes": null
+ },
+ {
+  "id": "briar_vambrace",
+  "current_name": "Briar Vambrace",
+  "current_description": "When a card gives you @icon(block), also gain @icon(retaliate) 1 until your next turn.",
+  "name": "Briar Vambrace",
+  "description": "When a card gives you @term(block), also gain @kw(retaliate) 1, once per card.",
+  "description_read_aloud": "When a card gives you Block, also gain Retaliate 1, once per card.",
+  "words": 13,
+  "current_words": 14,
+  "changed": true,
+  "reason": "accuracy",
+  "evidence": [
+   "scripts/common_relic_rules.gd:65-75",
+   "scripts/retaliate_rules.gd:34-36"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "When a card gives you Block, also gain Retaliate 1 until your next turn.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "block": {
+    "name": "Block",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "retaliate": {
+    "name": "Retaliate",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "'until your next turn' re-explained the keyword and is false with Briar Throne (Retaliate persists). Code grants once per card, not per Block action."
+ },
+ {
+  "id": "fencers_gloves",
+  "current_name": "Fencer's Gloves",
+  "current_description": "Your second card each turn costs 1 less @icon(time).",
+  "name": "Fencer's Gloves",
+  "description": "Your second card each turn costs 1 less @term(time).",
+  "description_read_aloud": "Your second card each turn costs 1 less Time.",
+  "words": 9,
+  "current_words": 9,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/tempo_rules.gd:52-75"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your second card each turn costs 1 less Time.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "time": {
+    "name": "Time",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "feint_ribbon",
+  "current_name": "Feint Ribbon",
+  "current_description": "If you've traveled 2 or more tiles this turn, your first card counts as a @icon(follow_up).",
+  "name": "Feint Ribbon",
+  "description": "If you've traveled 2 or more tiles this turn, your first card counts as a @kw(follow_up).",
+  "description_read_aloud": "If you've traveled 2 or more tiles this turn, your first card counts as a Follow-up.",
+  "words": 16,
+  "current_words": 16,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/tempo_relic_rules.gd:65-67"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "If you've traveled 2 or more tiles this turn, your first card counts as a Follow-up.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "follow_up": {
+    "name": "Follow-up",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "battering_yoke",
+  "current_name": "Battering Yoke",
+  "current_description": "When an enemy you @icon(push) or @icon(pull) collides with another enemy, that enemy is knocked 1 tile in the same direction, colliding normally if it can't @icon(move).",
+  "name": "Battering Yoke",
+  "description": "When your @kw(push) or @kw(pull) slams an enemy into another, that one is knocked 1 tile the same way and can collide too.",
+  "description_read_aloud": "When your Push or Pull slams an enemy into another, that one is knocked 1 tile the same way and can collide too.",
+  "words": 23,
+  "current_words": 27,
+  "changed": true,
+  "reason": "length",
+  "evidence": [
+   "scripts/forced_relic_rules.gd:138-139",
+   "scripts/forced_relic_rules.gd:166-181"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "When an enemy you Push or Pull collides with another enemy, that enemy is knocked 1 tile in the same direction, colliding normally if it can't Move.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "push": {
+    "name": "Push",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "pull": {
+    "name": "Pull",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "27 -> 23 words. Each enemy is knocked at most once per action."
+ },
+ {
+  "id": "pendulum_weight",
+  "current_name": "Pendulum Weight",
+  "current_description": "@icon(stagger) beyond an enemy's per-turn limit is dealt to it as damage instead.",
+  "name": "Pendulum Weight",
+  "description": "@kw(stagger) beyond an enemy's per-turn limit is dealt to it as damage instead.",
+  "description_read_aloud": "Stagger beyond an enemy's per-turn limit is dealt to it as damage instead.",
+  "words": 13,
+  "current_words": 13,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/card_keyword_rules.gd:212-225",
+   "scripts/tempo_relic_rules.gd:103-110"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Stagger beyond an enemy's per-turn limit is dealt to it as damage instead.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "stagger": {
+    "name": "Stagger",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "martyrs_gorget",
+  "current_name": "Martyr's Gorget",
+  "current_description": "When your @icon(retaliate) damages an attacker, gain that much @icon(block).",
+  "name": "Martyr's Gorget",
+  "description": "When your @kw(retaliate) damages an attacker, gain that much @term(block).",
+  "description_read_aloud": "When your Retaliate damages an attacker, gain that much Block.",
+  "words": 10,
+  "current_words": 10,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/defense_relic_rules.gd:111-115",
+   "scripts/retaliate_rules.gd:90-92"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "When your Retaliate damages an attacker, gain that much Block.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "retaliate": {
+    "name": "Retaliate",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "block": {
+    "name": "Block",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Counts Health the attacker actually lost."
+ },
+ {
+  "id": "reliquary_box",
+  "current_name": "Reliquary Box",
+  "current_description": "Your opening hand includes a @icon(rite) from your deck, if you have one. Each @icon(rite) costs 1 less @icon(time).",
+  "name": "Reliquary Box",
+  "description": "Your opening hand includes a @kw(rite) from your deck, if you have one. Each @kw(rite) costs 1 less @term(time).",
+  "description_read_aloud": "Your opening hand includes a Rite from your deck, if you have one. Each Rite costs 1 less Time.",
+  "words": 19,
+  "current_words": 19,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/defense_relic_rules.gd:117-136",
+   "scripts/rite_rules.gd:172-178"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your opening hand includes a Rite from your deck, if you have one. Each Rite costs 1 less Time.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "rite": {
+    "name": "Rite",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "time": {
+    "name": "Time",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "changelings_rattle",
+  "current_name": "Changeling's Rattle",
+  "current_description": "When an enemy destroys your @icon(illusion), that enemy suffers @icon(stagger) 3 and @icon(expose) 2.",
+  "name": "Changeling's Rattle",
+  "description": "When an enemy destroys your @term(illusion), that enemy suffers @kw(stagger) 3 and @term(expose) 2.",
+  "description_read_aloud": "When an enemy destroys your Illusion, that enemy suffers Stagger 3 and Expose 2.",
+  "words": 14,
+  "current_words": 14,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/illusion_relic_rules.gd:29-36"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "When an enemy destroys your Illusion, that enemy suffers Stagger 3 and Expose 2.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "illusion": {
+    "name": "Illusion",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "stagger": {
+    "name": "Stagger",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "expose": {
+    "name": "Expose",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "copper_shod_staff",
+  "current_name": "Copper-Shod Staff",
+  "current_description": "Your outcrops and @icon(illusion) count as @icon(surface_electrified) for your @icon(element_lightning): they conduct and carry @icon(chain), and take no damage from it.",
+  "name": "Copper-Shod Staff",
+  "description": "For your @kw(element_lightning|Lightning), your outcrops and @term(illusion|Illusions) count as @term(surface_electrified) tiles and take no damage from it.",
+  "description_read_aloud": "For your Lightning, your outcrops and Illusions count as Electrified tiles and take no damage from it.",
+  "words": 17,
+  "current_words": 21,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/illusion_relic_rules.gd:146-175",
+   "scripts/combat_engine.gd:11824-11826",
+   "scripts/combat_engine.gd:11962-11963"
+  ],
+  "director_decision_needed": "'Your outcrops' here (and in Mason's Plumb) also covers your Worldspines and Powder Kegs (illusion_relic_rules.gd:147). Define 'outcrop' in the glossary to include them, or name them in the text?",
+  "current_read_aloud": "Your outcrops and Illusion count as Electrified for your Lightning: they conduct and carry Chain, and take no damage from it.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "element_lightning": {
+    "name": "Lightning",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "illusion": {
+    "name": "Illusion",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_electrified": {
+    "name": "Electrified",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "outcrop"
+  ],
+  "notes": "Plural fix; 'conduct and carry Chain' is what Electrified already means."
+ },
+ {
+  "id": "ashen_phylactery",
+  "current_name": "Ashen Phylactery",
+  "current_description": "When you @icon(exhaust) a card, gain @icon(stoneskin) equal to the @icon(time) you paid for it (max 5).",
+  "name": "Ashen Phylactery",
+  "description": "When you @kw(exhaust) a non-item card, gain @term(stoneskin) equal to the @term(time) you paid for it, up to 5.",
+  "description_read_aloud": "When you Exhaust a non-item card, gain Stoneskin equal to the Time you paid for it, up to 5.",
+  "words": 19,
+  "current_words": 17,
+  "changed": true,
+  "reason": "accuracy",
+  "evidence": [
+   "scripts/combat_engine.gd:2021-2022",
+   "scripts/defense_relic_rules.gd:138-144",
+   "scripts/item_relic_rules.gd:33-40"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "When you Exhaust a card, gain Stoneskin equal to the Time you paid for it (max 5).",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "exhaust": {
+    "name": "Exhaust",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "stoneskin": {
+    "name": "Stoneskin",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "time": {
+    "name": "Time",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "item"
+  ],
+  "notes": "Items are excluded (combat_engine.gd:2021), which matters with Quartermaster's Ledger, whose items Exhaust."
+ },
+ {
+  "id": "bonded_set",
+  "current_name": "Bonded Set",
+  "current_description": "Cards from an equipment piece that shares its element with another equipped piece deal 1 more damage and grant 1 more @icon(block).",
+  "name": "Bonded Set",
+  "description": "Cards from an equipment piece that shares its element with another equipped piece deal 1 more damage and grant 1 more @term(block).",
+  "description_read_aloud": "Cards from an equipment piece that shares its element with another equipped piece deal 1 more damage and grant 1 more Block.",
+  "words": 22,
+  "current_words": 22,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/surface_variety_relic_rules.gd:38-48",
+   "scripts/game_data.gd:163-167"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Cards from an equipment piece that shares its element with another equipped piece deal 1 more damage and grant 1 more Block.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "block": {
+    "name": "Block",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "overclock_coil",
+  "current_name": "Overclock Coil",
+  "current_description": "When you @icon(empower) a card, @icon(quicken) 2.",
+  "name": "Overclock Coil",
+  "description": "When you @kw(empower) a card, @kw(quicken) 2.",
+  "description_read_aloud": "When you Empower a card, Quicken 2.",
+  "words": 7,
+  "current_words": 7,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/tempo_relic_rules.gd:92-94"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "When you Empower a card, Quicken 2.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "empower": {
+    "name": "Empower",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "quicken": {
+    "name": "Quicken",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "fetter_spikes",
+  "current_name": "Fetter Spikes",
+  "current_description": "Enemies with @icon(immobilize) take double @icon(collision) damage.",
+  "name": "Fetter Spikes",
+  "description": "Enemies with @term(immobilize) take double @kw(collision) damage.",
+  "description_read_aloud": "Enemies with Immobilize take double Collision damage.",
+  "words": 7,
+  "current_words": 7,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/forced_relic_rules.gd:49-54"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Enemies with Immobilize take double Collision damage.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "immobilize": {
+    "name": "Immobilize",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "collision": {
+    "name": "Collision",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "masons_plumb",
+  "current_name": "Mason's Plumb",
+  "current_description": "Your outcrops have 2 more @icon(health). An enemy that collides with one of your outcrops takes 2 more damage, and the outcrop takes none.",
+  "name": "Mason's Plumb",
+  "description": "Your outcrops have 2 more @term(health). An enemy that collides with one of your outcrops takes 2 more damage, and the outcrop takes none.",
+  "description_read_aloud": "Your outcrops have 2 more Health. An enemy that collides with one of your outcrops takes 2 more damage, and the outcrop takes none.",
+  "words": 24,
+  "current_words": 24,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/forced_relic_rules.gd:25-43",
+   "scripts/forced_relic_rules.gd:83-86",
+   "scripts/forced_relic_rules.gd:100",
+   "data/relics.json:2520-2545"
+  ],
+  "director_decision_needed": "'Your outcrops' includes your Worldspines and Powder Kegs (terrain_kinds). Naming them pushes this to 27 words; prefer a glossary definition of 'outcrop' that includes them?",
+  "current_read_aloud": "Your outcrops have 2 more Health. An enemy that collides with one of your outcrops takes 2 more damage, and the outcrop takes none.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "health": {
+    "name": "Health",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "outcrop"
+  ],
+  "notes": null
+ },
+ {
+  "id": "breaking_wheel",
+  "current_name": "The Breaking Wheel",
+  "current_description": "An enemy colliding on a surface breaks it: @icon(surface_fire) deals 3 more damage, @icon(surface_ice) gives @icon(freeze), @icon(surface_electrified) gives @icon(shock) to it and its blocker, @icon(surface_rubble) gives @icon(stagger) 3.",
+  "name": "The Breaking Wheel",
+  "description": "An enemy that collides on a surface breaks it. @term(surface_fire): 3 more damage. @term(surface_ice): @term(freeze). @term(surface_electrified): @term(shock) it and enemy blockers. @term(surface_rubble): @kw(stagger) 3.",
+  "description_read_aloud": "An enemy that collides on a surface breaks it. Fire: 3 more damage. Ice: Freeze. Electrified: Shock it and enemy blockers. Rubble: Stagger 3.",
+  "words": 24,
+  "current_words": 28,
+  "changed": true,
+  "reason": "length",
+  "evidence": [
+   "scripts/forced_relic_rules.gd:78-82",
+   "scripts/forced_relic_rules.gd:146-164"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "An enemy colliding on a surface breaks it: Fire deals 3 more damage, Ice gives Freeze, Electrified gives Shock to it and its blocker, Rubble gives Stagger 3.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "surface_fire": {
+    "name": "Fire",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_ice": {
+    "name": "Ice",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "freeze": {
+    "name": "Freeze",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_electrified": {
+    "name": "Electrified",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "shock": {
+    "name": "Shock",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "surface_rubble": {
+    "name": "Rubble",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "stagger": {
+    "name": "Stagger",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "surface (generic)"
+  ],
+  "notes": "28 -> 24 words; same 'Surface: effect.' form as Black Sun Dial. Applies to any enemy collision, not only yours."
+ },
+ {
+  "id": "hollow_puppet",
+  "current_name": "Hollow Puppet",
+  "current_description": "Your @icon(push) and @icon(pull) can target your @icon(illusion) without damaging it. An @icon(illusion) that collides with an enemy shatters, dealing its remaining @icon(health) to that enemy instead of @icon(collision) damage.",
+  "name": "Hollow Puppet",
+  "description": "Your @kw(push) and @kw(pull) can target your @term(illusion|Illusions) harmlessly. An @kw(illusion) that collides with an enemy shatters and deals its remaining @term(health) to it instead.",
+  "description_read_aloud": "Your Push and Pull can target your Illusions harmlessly. An Illusion that collides with an enemy shatters and deals its remaining Health to it instead.",
+  "words": 25,
+  "current_words": 30,
+  "changed": true,
+  "reason": "length",
+  "evidence": [
+   "scripts/illusion_relic_rules.gd:91-143"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your Push and Pull can target your Illusion without damaging it. An Illusion that collides with an enemy shatters, dealing its remaining Health to that enemy instead of Collision damage.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "push": {
+    "name": "Push",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "pull": {
+    "name": "Pull",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "illusion": {
+    "name": "Illusion",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "health": {
+    "name": "Health",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "30 -> 25 words. Includes Melee/Ranged attacks with a Push or Pull rider."
+ },
+ {
+  "id": "toll_late_bell",
+  "current_name": "Toll of the Late Bell",
+  "current_description": "Enemies set to act after your next turn on the @icon(turn_clock) are late: your attacks deal them 3 more damage.",
+  "name": "Toll of the Late Bell",
+  "description": "Enemies set to act after your next turn on the @kw(turn_clock) are late: your attacks deal them 3 more damage.",
+  "description_read_aloud": "Enemies set to act after your next turn on the Turn Clock are late: your attacks deal them 3 more damage.",
+  "words": 20,
+  "current_words": 20,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/tempo_relic_rules.gd:44-63",
+   "scripts/combat_engine.gd:2152-2156"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Enemies set to act after your next turn on the Turn Clock are late: your attacks deal them 3 more damage.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "turn_clock": {
+    "name": "Turn Clock",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "rosary_of_vows",
+  "current_name": "Rosary of Vows",
+  "current_description": "At the start of your turn, gain 2 @icon(block) for each active @icon(rite) you have.",
+  "name": "Rosary of Vows",
+  "description": "At the start of your turn, gain 2 @term(block) for each active @kw(rite) you have.",
+  "description_read_aloud": "At the start of your turn, gain 2 Block for each active Rite you have.",
+  "words": 15,
+  "current_words": 15,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/defense_relic_rules.gd:164-169"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "At the start of your turn, gain 2 Block for each active Rite you have.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "block": {
+    "name": "Block",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "rite": {
+    "name": "Rite",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "siege_ram_totem",
+  "current_name": "Siege Ram Totem",
+  "current_description": "Any enemy that takes @icon(collision) damage suffers that much @icon(stagger) (within the normal limit).",
+  "name": "Siege Ram Totem",
+  "description": "When an enemy takes @kw(collision) damage, it also suffers that much @kw(stagger).",
+  "description_read_aloud": "When an enemy takes Collision damage, it also suffers that much Stagger.",
+  "words": 12,
+  "current_words": 14,
+  "changed": true,
+  "reason": "consistency",
+  "evidence": [
+   "scripts/forced_relic_rules.gd:56-63"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Any enemy that takes Collision damage suffers that much Stagger (within the normal limit).",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "collision": {
+    "name": "Collision",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "stagger": {
+    "name": "Stagger",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "'(within the normal limit)' re-explained the Stagger keyword in a parenthesis."
+ },
+ {
+  "id": "echoing_blade",
+  "current_name": "Echoing Blade",
+  "current_description": "When a @icon(follow_up) bonus applies, your next card this turn costs 1 less @icon(time) and deals 2 more damage.",
+  "name": "Echoing Blade",
+  "description": "When a @kw(follow_up) bonus applies, @kw(quicken) 1. Your next card this turn deals 2 more damage.",
+  "description_read_aloud": "When a Follow-up bonus applies, Quicken 1. Your next card this turn deals 2 more damage.",
+  "words": 16,
+  "current_words": 19,
+  "changed": true,
+  "reason": "consistency",
+  "evidence": [
+   "scripts/tempo_relic_rules.gd:95-101",
+   "scripts/tempo_rules.gd:94-98"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "When a Follow-up bonus applies, your next card this turn costs 1 less Time and deals 2 more damage.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "follow_up": {
+    "name": "Follow-up",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "quicken": {
+    "name": "Quicken",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "Code grants Quicken 1, so the keyword replaces the inline paraphrase ('costs 1 less Time'). The +2 lasts through the next card only."
+ },
+ {
+  "id": "alchemists_retort",
+  "current_name": "Alchemist's Retort",
+  "current_description": "Your items' damage, @icon(block), @icon(heal) and @icon(stoneskin) are increased by half, rounded up.",
+  "name": "Alchemist's Retort",
+  "description": "Your items' damage, @term(block), @kw(heal) and @term(stoneskin) are increased by half, rounded up.",
+  "description_read_aloud": "Your items' damage, Block, Heal and Stoneskin are increased by half, rounded up.",
+  "words": 13,
+  "current_words": 13,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/item_relic_rules.gd:28-31",
+   "scripts/item_relic_rules.gd:43-62"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your items' damage, Block, Heal and Stoneskin are increased by half, rounded up.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "block": {
+    "name": "Block",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "heal": {
+    "name": "Heal",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "stoneskin": {
+    "name": "Stoneskin",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "item"
+  ],
+  "notes": null
+ },
+ {
+  "id": "crown_of_surplus",
+  "current_name": "Crown of Surplus",
+  "current_description": "Cards without their own @icon(empower) gain one: @icon(empower) (+3 @icon(time)): repeat the card's first action. @icon(rite) cards, items and @icon(flurry) cards are excluded.",
+  "name": "Crown of Surplus",
+  "description": "Cards without @kw(empower) gain one: pay 3 @term(time) to repeat the card's first action. @kw(rite|Rites), items and @kw(flurry) cards are excluded.",
+  "description_read_aloud": "Cards without Empower gain one: pay 3 Time to repeat the card's first action. Rites, items and Flurry cards are excluded.",
+  "words": 21,
+  "current_words": 23,
+  "changed": true,
+  "reason": "consistency",
+  "evidence": [
+   "scripts/tempo_relic_rules.gd:81-83"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Cards without their own Empower gain one: Empower (+3 Time): repeat the card's first action. Rite cards, items and Flurry cards are excluded.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "empower": {
+    "name": "Empower",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "time": {
+    "name": "Time",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "rite": {
+    "name": "Rite",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "flurry": {
+    "name": "Flurry",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "item"
+  ],
+  "notes": "Removes the rules parenthesis '(+3 Time)'."
+ },
+ {
+  "id": "mirror_triptych",
+  "current_name": "Mirror Triptych",
+  "current_description": "Your first attack card each turn is echoed by up to 3 @icon(illusion) at half damage (rounded down). Each hits the nearest enemy it can reach and loses 1 @icon(health).",
+  "name": "Mirror Triptych",
+  "description": "Up to 3 @term(illusion|Illusions) repeat your first attack each turn for half damage, rounded down. Each hits the nearest reachable enemy and loses 1 @term(health).",
+  "description_read_aloud": "Up to 3 Illusions repeat your first attack each turn for half damage, rounded down. Each hits the nearest reachable enemy and loses 1 Health.",
+  "words": 25,
+  "current_words": 30,
+  "changed": true,
+  "reason": "length",
+  "evidence": [
+   "scripts/illusion_relic_rules.gd:178-232",
+   "scripts/illusion_relic_rules.gd:259-303",
+   "scripts/combat_engine.gd:11902-11904"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your first attack card each turn is echoed by up to 3 Illusion at half damage (rounded down). Each hits the nearest enemy it can reach and loses 1 Health.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "illusion": {
+    "name": "Illusion",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "health": {
+    "name": "Health",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "30 -> 25 words. Echoing illusions are the 3 nearest you; only illusions that actually echo lose Health."
+ },
+ {
+  "id": "liturgy_of_ash",
+  "current_name": "Liturgy of Ash",
+  "current_description": "@icon(rite) cards don't use a @icon(card_play).",
+  "name": "Liturgy of Ash",
+  "description": "@kw(rite) cards don't use a @term(card_play).",
+  "description_read_aloud": "Rite cards don't use a Card Play.",
+  "words": 6,
+  "current_words": 6,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/defense_relic_rules.gd:16-17",
+   "scripts/combat_engine.gd:1995"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Rite cards don't use a Card Play.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "rite": {
+    "name": "Rite",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "card_play": {
+    "name": "Card Play",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "pyre_keepers_urn",
+  "current_name": "Pyre-Keeper's Urn",
+  "current_description": "At the start of your turn, the last card you sent to @icon(exhaust) returns to your hand, unless it is a @icon(rite) or has @icon(heal).",
+  "name": "Pyre-Keeper's Urn",
+  "description": "At the start of your turn, return your last @kw(exhaust|Exhausted) card to your hand, unless it is a @kw(rite) or heals.",
+  "description_read_aloud": "At the start of your turn, return your last Exhausted card to your hand, unless it is a Rite or heals.",
+  "words": 21,
+  "current_words": 25,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/defense_relic_rules.gd:138-140",
+   "scripts/defense_relic_rules.gd:146-162",
+   "scripts/defense_relic_rules.gd:170-194"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "At the start of your turn, the last card you sent to Exhaust returns to your hand, unless it is a Rite or has Heal.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "exhaust": {
+    "name": "Exhaust",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "rite": {
+    "name": "Rite",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": "'sent to Exhaust' and 'has Heal' read oddly. Each card returns once; with a full hand it goes to the draw pile."
+ },
+ {
+  "id": "briar_throne",
+  "current_name": "Briar Throne",
+  "current_description": "Your @icon(retaliate) no longer expires, and grows by 1 each time it triggers. Cards can't give you @icon(block).",
+  "name": "Briar Throne",
+  "description": "Your @kw(retaliate) no longer expires, and grows by 1 each time it triggers. Cards can't give you @term(block).",
+  "description_read_aloud": "Your Retaliate no longer expires, and grows by 1 each time it triggers. Cards can't give you Block.",
+  "words": 18,
+  "current_words": 18,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/retaliate_rules.gd:34-36",
+   "scripts/retaliate_rules.gd:93-95",
+   "scripts/defense_relic_rules.gd:19-67"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your Retaliate no longer expires, and grows by 1 each time it triggers. Cards can't give you Block.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "retaliate": {
+    "name": "Retaliate",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "block": {
+    "name": "Block",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "whirling_sash",
+  "current_name": "Whirling Sash",
+  "current_description": "Gain 1 extra @icon(card_play) each turn. Each card after your second each turn costs 2 more @icon(time).",
+  "name": "Whirling Sash",
+  "description": "Gain 1 extra @term(card_play) each turn. Each card after your second each turn costs 2 more @term(time).",
+  "description_read_aloud": "Gain 1 extra Card Play each turn. Each card after your second each turn costs 2 more Time.",
+  "words": 17,
+  "current_words": 17,
+  "changed": false,
+  "reason": "unchanged",
+  "evidence": [
+   "scripts/combat_engine.gd:885",
+   "scripts/tempo_relic_rules.gd:69-80"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Gain 1 extra Card Play each turn. Each card after your second each turn costs 2 more Time.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "card_play": {
+    "name": "Card Play",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "time": {
+    "name": "Time",
+    "first_mention": "icon + word",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [],
+  "notes": null
+ },
+ {
+  "id": "quartermasters_ledger",
+  "current_name": "Quartermaster's Ledger",
+  "current_description": "Your items lose @icon(consume), except items that @icon(heal). Each item can be used once per combat.",
+  "name": "Quartermaster's Ledger",
+  "description": "Your items @kw(exhaust) instead of @kw(consume) unless they heal, so each can be used once per combat.",
+  "description_read_aloud": "Your items Exhaust instead of Consume unless they heal, so each can be used once per combat.",
+  "words": 17,
+  "current_words": 16,
+  "changed": true,
+  "reason": "clarity",
+  "evidence": [
+   "scripts/item_relic_rules.gd:33-40"
+  ],
+  "director_decision_needed": null,
+  "current_read_aloud": "Your items lose Consume, except items that Heal. Each item can be used once per combat.",
+  "current_uses_placeholders": false,
+  "token_plan": {
+   "exhaust": {
+    "name": "Exhaust",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   },
+   "consume": {
+    "name": "Consume",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists"
+   }
+  },
+  "plain_word_concepts": [
+   "item"
+  ],
+  "notes": "Says what replaces Consume (the card face switches to Exhaust, line 40)."
+ }
+]
