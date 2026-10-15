@@ -83,7 +83,7 @@ sends the art back. The verdict is stored with the provenance.
 ## 7. Registry, provenance and CI
 
 [`art_identity/registry.json`](art_identity/registry.json) has one entry per board art file adopted on or after
-2026-10-13: kit job and `kit_version`, prompt and references, raw and production SHA-256, review sheet path, judge
+2026-10-13: kit job and `kit_version`, prompt and references, raw binding and production pixel SHA-256, review sheet path, judge
 verdict, landmarks, exceptions with reasons, owner approval note. Existing art is grandfathered as `legacy` with its
 measured metrics, so it cannot change silently. `python3 tests/test_art_identity_gate.py` fails when a board art path
 used by `data/enemies.json` (art path or cutout rests) or a standing prop has no entry, an entry's hash does not
@@ -173,14 +173,17 @@ Each deterministic step records parameters and the pre-step decoded digest in `p
 binds its reference digest. Both run after canvas placement. `--subject-rear` uses and records the supplied rear
 subject in the kit and prompt, while retaining the usual front reference requirement.
 
-### Replayable director steps (art-05)
+### Replayable director steps (art-05; pixel bindings hardened in art-06)
 
 `raw_steps` is an ordered, non-empty list in `kit.json`. `process` reads it automatically before the ordinary green
 key, BOX reduction and canvas placement. Omit the positional RAW; if supplied, it must hash to the first step's raw
-input. Each input binding is `{ "path": "refs/FILE", "sha256": "<file-byte SHA-256>" }`, relative to the job folder.
+input. Each director input binding is `{ "path": "refs/FILE", "sha256": "<file-byte SHA-256>" }`, relative to the job folder.
 Absolute paths, traversal and symlinks escaping that folder are rejected. Maquette inputs must be in `refs/` or
 `raw_inputs/`; use `refs/` in `mq*` jobs to inherit the existing Git inclusion rule. Copy inputs byte-for-byte,
-including intermediate raws and JSON configs. A later step's raw input digest must equal the preceding output digest.
+including the first raw, edits and JSON configs. Later steps consume the previous output in memory: their raw binding
+is exactly `{ "previous_output_pixel_sha256": "<preceding output pixel digest>" }`. Intermediate raw PNGs are not inputs
+and need not be committed. Every output uses `pixel_digest` (decoded RGBA bytes plus image size), independent of the
+PNG encoder. The art-05 `output_raw_sha256` field is rejected; re-record it as `output_raw_pixel_sha256` once.
 
 ```json
 {
@@ -192,16 +195,16 @@ including intermediate raws and JSON configs. A later step's raw input digest mu
         "edit": {"path": "refs/raw_chain_edit.png", "sha256": "<SHA-256>"}
       },
       "parameters": {"box": [60, 255, 300, 720], "resample": "LANCZOS"},
-      "output_raw_sha256": "<SHA-256 of the resulting PNG bytes>"
+      "output_raw_pixel_sha256": "<pixel digest of the resulting raw>"
     },
     {
       "kind": "tone_region",
       "inputs": {
-        "raw": {"path": "refs/raw_chain_composite.png", "sha256": "<preceding output SHA-256>"},
+        "raw": {"previous_output_pixel_sha256": "<preceding output pixel digest>"},
         "config": {"path": "refs/tone_front_r3.json", "sha256": "<SHA-256>"}
       },
       "parameters": {"space": "CIE Lab"},
-      "output_raw_sha256": "<SHA-256 of the resulting PNG bytes>"
+      "output_raw_pixel_sha256": "<pixel digest of the resulting raw>"
     }
   ]
 }
@@ -213,39 +216,62 @@ raw's size with LANCZOS, then pastes the half-open box. `tone_region` preserves 
 zero), `exclude_green` (default true), and `lab_scale`. The prototype tone/mask scripts and gaoler composite script
 remain thin CLI wrappers around these library functions, with the same arguments and output bytes.
 
-`match_reference` in the kit is either a processed-front input binding, or a derived reference:
+`match_reference` in the kit is either a job-local processed-front binding
+`{ "path": "refs/palette_front.png", "pixel_sha256": "<decoded digest>" }`, or a derived reference:
 
 ```json
 {
   "match_reference": {
-    "derived_from": {"path": "refs/palette_front.png", "sha256": "<SHA-256>"},
+    "derived_from": {
+      "job_path": "spec/art_identity/jobs/chainbound_gaoler/mq3_front_v4/kit.json",
+      "pixel_sha256": "<pixel digest of that front job's processed.png>"
+    },
     "mask_config": {"path": "refs/match_exclude_front_r3.json", "sha256": "<SHA-256>"}
   }
 }
 ```
 
+The derived source names a repository-relative front **job**, whose `processed.png` must match the recorded pixel
+digest. A changed front fails the rear's check, even when the rear's raw inputs are absent; recompressing the front
+does not. The mask config remains a job-local file-byte binding. No palette copy or prebuilt masked PNG is required.
 The mask uses the same region selectors, ignores `lab_scale`, and sets only selected opaque pixels' alpha to zero.
-It never overwrites the approved front or requires a prebuilt masked PNG. `--match-front FRONT.png` remains supported;
+It never overwrites the approved front. `--match-front FRONT.png` remains supported;
 `--match-front REFERENCE.json` accepts the binding/derived object above (without the outer `match_reference` key),
-with input paths relative to `--kit`'s job folder. An explicit reference must agree with a kit's recorded reference.
-The sidecar's `palette_match` post-step binds the source/config file digests, the derived PNG byte digest
-(`reference_sha256`) and decoded digest (`reference_pixel_sha256`), plus its existing parameters and pre-step digest.
-A direct PNG records its file-byte and decoded digests. The sidecar also copies `raw_steps`; `raw_sha256` is the final
-replayed raw's file digest. Historical informal gaoler commands/rationale remain under `raw_steps_provenance` for
+with input paths relative to `--kit`'s job folder and `job_path` relative to the repository. A legacy direct PNG
+argument must be repository-relative and, for maquettes, resolve inside the job folder. These constraints also apply
+when checking digest-bound direct references. An explicit reference must agree with the kit's recorded reference.
+The sidecar's `palette_match` post-step binds the reference descriptor, the decoded `reference_pixel_sha256`,
+and its existing parameters and pre-step digest. Derived references no longer record `reference_sha256`.
+Direct PNGs also record only their decoded digest. The sidecar copies `raw_steps`; `raw_pixel_sha256` binds the final
+replayed raw's pixels. A registry entry for such a job must use the same `raw_pixel_sha256` field (and, if it supplies
+`raw_path`, that file is checked by pixels). Jobs without `raw_steps` retain `raw_sha256` for their director-supplied
+raw file. Historical informal gaoler commands/rationale remain under `raw_steps_provenance` for
 audit only; execution uses `raw_steps` and `match_reference`.
 
 Registry `check` retains all standard/maquette certification checks and additionally verifies these recipes. It
 validates every present input, every intermediate output, the final raw, sidecar bindings, post-step parameters and
-digests, and the processed PNG's exact bytes. Missing raw-step inputs fail for maquettes; historical standard kits
-can lack raw inputs, but any present input must still match. `check --kit` requires every input and prints matching
-raw, processed-file and decoded-pixel digests. It certifies replay only, without registry/metric/judge approval.
-Neither check writes into the job. Art-05 adds no gaoler registry entries.
+digests, and the processed PNG's decoded pixels. Re-encoded PNG byte equality is an INFO diagnostic only.
+Missing raw-step inputs fail for maquettes; historical standard kits can lack raw inputs, but any present input must
+still match. Registry checks report `WARN <entry>: SKIP raw_steps replay: inputs absent` in this case; reference,
+final-raw, kit/sidecar and source-pixel bindings still run. A recipe exception adds an entry failure without dropping
+its other provenance or metric failures. `check --kit` requires every director input and prints matching raw and
+processed pixel digests, plus the byte diagnostic. It certifies replay only, without registry/metric/judge approval.
+Neither check writes into the job. Art-05/art-06 add no gaoler registry entries.
+
+Art-06 re-records only the three existing recipes (`mq3_front_v4`, `mq3_rear_v3`, and lancer `mq1_front_v2`). Their
+processed PNGs, prompts, reference records and director configs are unchanged. The gaoler rear links to the current
+`mq3_front_v4` job; its redundant palette copy, the front's unused `match_reference_no_tabard.png`, and the three
+intermediate raws are removed. The gate tests also re-encode a processed PNG with zlib compression level 0 and
+require both standalone replay and registry `check` to pass.
 
 Proof for the design owner (headless Python; no capture or saved-run fixture is applicable):
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/art-05 && python3 tools/art_identity_gate.py check --kit spec/art_identity/jobs/chainbound_gaoler/mq3_front_v4/kit.json
-cd /Users/borgerding/workspace/Labyrinth.worktrees/art-05 && python3 tools/art_identity_gate.py check --kit spec/art_identity/jobs/chainbound_gaoler/mq3_rear_v3/kit.json
+python3 tests/test_art_identity_gate.py
+python3 tools/art_identity_gate.py check
+python3 tools/art_identity_gate.py check --kit spec/art_identity/jobs/chainbound_gaoler/mq3_front_v4/kit.json
+python3 tools/art_identity_gate.py check --kit spec/art_identity/jobs/chainbound_gaoler/mq3_rear_v3/kit.json
+python3 tools/art_identity_gate.py check --kit spec/art_identity/jobs/frostglass_lancer/mq1_front_v2/kit.json
 ```
 
 Creature sheets and kit checks enforce `edge_light_share` ≤ `creature.edge_light_share_max`. Pair sheets show
@@ -290,14 +316,14 @@ python3 tools/godot_task_runner.py --task-id art-03 --stream -- godot --headless
 The design owner runs the following windowed proof at 1920×1080, 100% UI scale and inspects the fresh captures:
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/art-03 && python3 tools/visual_probe_runner.py \
+python3 tools/visual_probe_runner.py \
   --task-id art-03 --no-headless --display-driver macos --audio-driver Dummy \
   --expect-size 1920x1080 --proof-contract tests/bestiary_lineup_probe_contract.json \
-  --result-manifest /private/tmp/labyrinth-inspection-manifests/art-03-lineup.json tests/bestiary_lineup_probe.gd
-cd /Users/borgerding/workspace/Labyrinth.worktrees/art-03 && python3 tools/visual_probe_runner.py \
+  --result-manifest output/art-03-lineup.json tests/bestiary_lineup_probe.gd
+python3 tools/visual_probe_runner.py \
   --task-id art-03 --no-headless --display-driver macos --audio-driver Dummy \
   --expect-size 1920x1080 --proof-contract tests/static_facing_probe_contract.json \
-  --result-manifest /private/tmp/labyrinth-inspection-manifests/art-03-static-facing.json tests/static_facing_probe.gd
+  --result-manifest output/art-03-static-facing.json tests/static_facing_probe.gd
 ```
 
 The first probe writes the empty board and normal/boss lineups; the second writes eight idle facing captures

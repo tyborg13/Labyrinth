@@ -30,7 +30,7 @@
     {
       "match_reference": {
         "path": "refs/palette_front.png",
-        "sha256": "211723e5a16e7765105657a72e6c119b994518f8e3129bdf4dec9b580f1e21c0"
+        "pixel_sha256": "8661431b833aa10c3b32715c957f932d11016326a68e5c0911fa9aa3853665d7"
       },
       "parameters": {
         "accent_margin": 15,
@@ -41,7 +41,6 @@
       },
       "pre_step_pixel_sha256": "d0128104621444857a047ffcf83962d615666ed491e5e7ec4dbf7fb14e713d7c",
       "reference_pixel_sha256": "8661431b833aa10c3b32715c957f932d11016326a68e5c0911fa9aa3853665d7",
-      "reference_sha256": "211723e5a16e7765105657a72e6c119b994518f8e3129bdf4dec9b580f1e21c0",
       "step": "palette_match"
     },
     {
@@ -59,7 +58,7 @@
       "step": "clean_outline"
     }
   ],
-  "raw_sha256": "d8cfa95f1171dfcab9da4124423234849cc58fc18ad81f882bc531de81ad7dca",
+  "raw_pixel_sha256": "ebe0ea6270503c3dda6d108d7999ed01b9faf660d637818978ec41478e727b66",
   "raw_steps": [
     {
       "inputs": {
@@ -73,7 +72,7 @@
         }
       },
       "kind": "composite_region",
-      "output_raw_sha256": "1dba736ac83cd3d38d4d2e789e5e08804929249a62864d0be750f52360960560",
+      "output_raw_pixel_sha256": "e46627e19f20c58cef5d87abff79b42a0cb88333cb1a4f6b9bc49f56c2ff7818",
       "parameters": {
         "box": [
           60,
@@ -91,12 +90,11 @@
           "sha256": "ae5d1fc72c990ba97d04cfdee6a7dfa6b8cd0bf4dc449123702d2cfc55f6876b"
         },
         "raw": {
-          "path": "refs/raw_chain_composite.png",
-          "sha256": "1dba736ac83cd3d38d4d2e789e5e08804929249a62864d0be750f52360960560"
+          "previous_output_pixel_sha256": "e46627e19f20c58cef5d87abff79b42a0cb88333cb1a4f6b9bc49f56c2ff7818"
         }
       },
       "kind": "tone_region",
-      "output_raw_sha256": "74f5a2786b08a48890b0a0bfc0fb93c458b22f61b08920291882968bb952d40d",
+      "output_raw_pixel_sha256": "2e833ed0234410cacf1bac35cbbbb647ea24db2c12eca344c20d0df05ae4c9b9",
       "parameters": {
         "space": "CIE Lab"
       }
@@ -108,12 +106,11 @@
           "sha256": "1cc3d9f4bd605ac7e59d3871109d36451b9f3a4d905eb416e794d63b04920516"
         },
         "raw": {
-          "path": "refs/raw_tone_0.png",
-          "sha256": "74f5a2786b08a48890b0a0bfc0fb93c458b22f61b08920291882968bb952d40d"
+          "previous_output_pixel_sha256": "2e833ed0234410cacf1bac35cbbbb647ea24db2c12eca344c20d0df05ae4c9b9"
         }
       },
       "kind": "tone_region",
-      "output_raw_sha256": "d8cfa95f1171dfcab9da4124423234849cc58fc18ad81f882bc531de81ad7dca",
+      "output_raw_pixel_sha256": "ebe0ea6270503c3dda6d108d7999ed01b9faf660d637818978ec41478e727b66",
       "parameters": {
         "space": "CIE Lab"
       }
