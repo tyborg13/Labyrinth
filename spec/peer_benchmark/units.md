@@ -55,6 +55,6 @@
 | art-06 | Identity gate robustness (pixel digests not PNG bytes, SKIP as WARN, dedupe inputs, rear→front job link, mutant tests) | merged bf3ed130a (signoff 16881db9a) | codex/peer-benchmark | briefs/art-06.md |
 | art-07 | Tone max_chroma filter + palette_match keeps bright/accent-hue pixels (lancer blade, wisp cores greyed) + art-06 leftovers | merged (Codex signoff 66018ccab) | codex/peer-benchmark | briefs/art-07.md |
 | anim-02 | Static idle review fixes (jitter-safe lanes, sticky lanes + in-place sync, glow redraw test, instrumentation out of runtime) — continues anim-01 (session stuck replaying) | running (gpt-6-astra) | codex/anim-01 | briefs/anim-02.md |
-| rr-03 | Gust Shrike cutout rig from its maquette (idle/move/dive/talon rake/hover/hit/death) | ready (after rr-02 merges) | codex/peer-benchmark | briefs/rr-03.md |
+| rr-03 | Gust Shrike cutout rig from its maquette (idle/move/dive/talon rake/hover/hit/death) | running (gpt-6-astra) | codex/peer-benchmark | briefs/rr-03.md |
 | anim-01/anim-02 | Static enemy mesh-warp idle | shelved (owner: ripple + bird bounce rejected) | — | feedback.md 2026-10-15 |
 | fix-04 | Briar Weaver loses turn + intent after Thornwall (owner playtest 8) | running (gpt-6-astra) | codex/peer-benchmark | briefs/fix-04.md |
