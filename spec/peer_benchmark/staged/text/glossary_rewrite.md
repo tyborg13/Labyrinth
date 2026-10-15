@@ -1,37 +1,61 @@
-# Glossary rewrite proposal (ux-04 input)
+# Glossary rewrite (FINAL)
 
-Proposal only. No game file, data or code was changed. The full proposal is in [glossary_rewrite.json](glossary_rewrite.json), one object per entry. Each object has `current_*`, `name`, `definition`, `words`, `reason`, `evidence` (file:line), `aliases`, `merge_into`, `director_decision_needed` and an optional `note`.
+This is final: every Glossary decision in [decisions.md](decisions.md#glossary) has been applied. No game file, data or code was changed.
 
-- **Source:** the 142 entries of `Labyrinth.worktrees/ux-03/data/glossary.json`.
-- **Rules:** checked against `peer-benchmark` HEAD `6fa01cbc3`. Its `scripts/` and `data/` are identical to the audit commit `0e3273caf`, so the line numbers hold.
-- **Style guide:** `spec/text_style_guide.md`.
+**Data file:** [glossary_rewrite.json](glossary_rewrite.json).
+- It is a top-level wrapper: `{"final": true, "decisions": …, "source": …, "rules_head": "6fa01cbc3", "entries": [...]}`.
+- Each object in `entries` keeps the same row schema: `id`, `current_name`, `current_definition`, `name`, `definition`, `words`, `changed`, `reason`, `evidence` (file:line), `aliases`, `merge_into`, `director_decision_needed`, plus an optional `note`.
+- Deleted rows stay in the file, marked `"deleted": true`.
+- New rows carry `"new_entry": true` and `"icon": null` (text-only).
+
+**Sources:**
+- Entries: `Labyrinth.worktrees/ux-03/data/glossary.json` (142 entries).
+- Rules: checked at `peer-benchmark` HEAD `6fa01cbc3`. Its `scripts/` and `data/` are identical to the audit commit `0e3273caf`.
 
 ## Counts
 
 | | |
 | --- | ---: |
-| Entries proposed | 143 (142 existing + 1 new: `wait`) |
-| Changed | 128 |
-| Unchanged | 15 |
-| By reason | accuracy 47 · clarity 50 · consistency 20 · length 11 · unchanged 15 |
-| Renamed | 7 (below) |
-| Merges proposed | 1 (`illusion_swap` → `swap`, needs your decision) |
-| Deletions proposed | 3 (`raise_cover`, `reclaim_cover`, `skill_layaway`) |
-| Open director questions | 10 (on 11 entries) |
+| Rows | 148: 142 existing + 6 new (`wait`, `turns`, `ice_pillar`, `movement`, `item`, `outcrop`) |
+| Live entries | 145 (148 − 3 deleted) |
+| Changed | 136 (including 3 deletions and 6 new rows) |
+| Unchanged | 12 |
+| By reason | accuracy 50 (3 are the deletions) · clarity 55 · consistency 20 · length 11 · unchanged 12 |
+| Entry renames | 7 (below), plus one enemy-intent rename: Discharge → Arc Burst |
+| Merges | 0: Swap Illusion is kept separate (Q4) |
+| Deleted | 3: `raise_cover`, `reclaim_cover` (Q7) and `skill_layaway` (Q8) |
+| Open director questions | 1: Outcrop vs Worldbreak, a code contradiction |
 
 - Every definition is 20 words or fewer; the longest is 20.
 - Word counting follows the audit: icons and numbers count as words, BBCode does not.
-- Definitions no longer hard-code numbers that vary with section or depth scaling (G1/G3: `combat_engine.gd:101-102, 9032-9057`; `depth_rules.gd:66-71`). They say "the shown damage" and leave the number to the token or live line.
+- Definitions avoid numbers that vary with section or depth scaling (`combat_engine.gd:101-102, 9032-9057`; `depth_rules.gd:66-71`). They say "the shown damage" instead.
 
-### Conventions used in every definition
+### Conventions (accepted)
 
 - **"next to"** means the 4 orthogonal tiles.
-- **"attack"** means a direct hit; ground, Bleed, Collision and traps are not attacks (`combat_engine.gd:4617, 6998-7001`).
+- **"attack"** means a direct hit; ground, Bleed, Collision and traps are not attacks.
 - **"ground"** is the single noun for Fire, Ice, Electrified and Rubble.
-- **Durations** are written in words ("for 2 turns"), never with the Time icon.
+- **Durations** are written in words, and their chips use the Turns entry.
 - **Keyword names** are capitalized and referenced, never re-explained.
+- **Fire and Ice** keep their shared element/ground names (Q2).
 
-## Accuracy fixes
+## New entries (decisions Q3, Q9 and the new-entry list)
+
+| id | Name | Definition | Key evidence |
+| --- | --- | --- | --- |
+| wait | Wait | Each of your first 2 Card Plays left unused adds 5 Time to your next turn. | combat_engine.gd:54, 60, 3007-3016; tempo_relic_rules.gd:25-30; run_scene.gd:14190 |
+| turns | Turns | Counts down at the start of each of your turns. The effect ends at 0; ∞ lasts all combat. | combat_engine.gd:2860, 5124-5156; action_icon_library.gd:1418, 1422, 1614, 1882-1890 |
+| ice_pillar | Ice Pillar | Blocks movement and sight for 3 enemy turns. A unit forced into it takes 2 damage and shatters it. | enemy_mechanics/icefall.gd:11-12, 68-72, 80-103; data/enemies.json:2765-2766 |
+| movement | Movement | Tiles you can walk each turn without a card or Time. Refills at the start of your turn; base 2. | combat_engine.gd:56, 2019, 2871-2872, 2905-2950, 2964-2985 |
+| item | Item | A card equipped in one of your 2 item slots. It joins your deck and has Consume. | game_data.gd:70, 303-305; run_engine.gd:2364-2370; combat_engine.gd:1955-1970 |
+| outcrop | Outcrop | Attackable terrain that blocks movement. Worldspines and Powder Kegs count as Outcrops. Plain ones also block sight and leave Rubble. | combat_terrain_rules.gd:18-29; terrain_card_rules.gd:20-41; combat_engine.gd:1663-1665; illusion_relic_rules.gd:146-147 |
+
+- **Turns.** Code counts the hero's turns for every chip that exists today: Light, Vision, Truesight and Eclipse all tick in `_tick_umbra_player_activation`. So the definition says "your turns", not your draft's "the bearer's turns". A duration of N ends when your Nth turn from now starts.
+- **Outcrop.** Powder Keg (data/cards.json:8162-8168) and Worldspine (data/cards.json:8766) raise through the same `outcrop` action. Mason's Plumb and Copper-Shod Staff already treat both as outcrops.
+- **Movement.** The Movement HUD meter borrows the Move icon (`run_scene.gd:9847`). Like the Turns icon, a distinct icon is an art task.
+- **Alias moved.** The `outcrop` alias moves from Raise Terrain to Outcrop. The action-to-icon map at `action_icon_library.gd:492` is unchanged.
+
+## Accuracy fixes (all accepted)
 
 The full old text is in the JSON; each row below says what was wrong.
 
@@ -57,7 +81,7 @@ The full old text is in the JSON; each row below says what was wrong.
 | reflect | Chain, Push/Pull and splash ranged hits are not reflected | Single-target ranged hits from more than 1 tile away bounce back to the attacker. Melee, area and Chain hits land. | enemy_mechanics/reflect.gd:13-16; combat_engine.gd:11895 |
 | dive | Base numbers were baked into %d; the push goes to its right; the strike can miss | Flies straight at you, giving each unit it passes Push 1 to its right. Strikes if it lands beside you. | enemy_mechanics/dive.gd:79-121, 147 |
 | flying | Collision immunity missing | Moves over Bramble and Ice Pillars. Ignores traps, ground and Collision damage. Push, Pull and Wind still move it. | combat_engine.gd:11399, 11470, 7003-7005 |
-| charge | It declares at 3 and fires next turn; Shock removes 1; literal `<n>` | Builds 1 Charge per use. At 3, its next turn fires lightning that jumps between nearby units. Shock removes 1. | enemy_mechanics/capacitor.gd:6, 23-33, 115-116 |
+| charge | It declares at 3 and fires next turn; Shock removes 1; literal `<n>` | Gains Charge each use. At 3, its next intent is Arc Burst: lightning jumping between nearby units. Shock removes 1. | enemy_mechanics/capacitor.gd:6, 23-33, 115-116 |
 | mirror | Uses base damage, first damaging action only, no riders; literal placeholders | Copies your last damaging card at base damage, without its effects. The copy is fixed when declared. | enemy_mechanics/mimic.gd:22-72, 136-139 |
 | icefall | Omitted the damage and Ice Pillars | Marks 3 tiles across your tile. Next turn they take the shown damage; empty ones become Ice Pillars. | enemy_mechanics/icefall.gd:17-27, 50-72 |
 | wind | Many units are immune without being Anchored; duration missing | After each of the next 2 enemy turns, Push every unit 1 tile downwind. Anchored units and bosses are immune. | enemy_mechanics/wind.gd:58-110 |
@@ -67,7 +91,7 @@ The full old text is in the JSON; each row below says what was wrong.
 | burst | Hits all 8 surrounding tiles, not "next to"; leaves Fire | When it dies, it deals the shown damage to every unit in the 8 tiles around it, then leaves Fire. | enemy_mechanics/death_burst.gd:6-65 |
 | terrain_burst | Faultline and Rockburst/Worldbreak destroy the terrain | Hits units around terrain pieces for the shown damage. Some uses destroy the terrain too. | combat_engine.gd:6514-6545; action_icon_library.gd:1397-1410 |
 | detonate_cinders | Uses only its own marked Fire; the dragon can hit itself | Detonate the Fire on its last Cinder Marks. Everyone caught is hit once, the dragon included. | combat_engine.gd:6547-6620, 12088 |
-| gale_force | Described the dead `gale_force` action, not the live Hollow Gale | Blasts everything within 2 tiles of the dragon with Push 2, then erupts along its last Razor Dive path. | data/enemies.json:1275-1299; combat_engine.gd:6626-6642 |
+| gale_force | Described the dead `gale_force` action, not the live Hollow Gale (implementation wires that intent to this icon) | Strikes everywhere within 2 tiles of the dragon with Push 2, then erupts along its last Razor Dive path. | data/enemies.json:1275-1299; combat_engine.gd:6626-6642 |
 | guard_ally / heal_ally | "Another enemy" is wrong: the Surgeon and the Mirror can target themselves; Warden guards all | Gives the shown Block to one or more enemies, sometimes including itself. / Restores the shown Health to a wounded enemy, possibly itself. | combat_engine.gd:4081-4108, 4477-4503 |
 | worldspines | The player raises them too | Attackable stone spires that block movement, not sight. Destroyed ones leave Rubble. Damage pulses out around them. | combat_engine.gd:6463-6513; data/cards.json:8732 |
 | ember | Omitted the Scavenger and the death drop; "run currency" is wrong because the bank persists | Earned from kills and victories. Spend them on wares and levels. Dying drops them; recover them next run. | run_engine.gd:1282-1284, 1741-1744, 3608-3614; run_scene.gd:28789-28799 |
@@ -84,11 +108,19 @@ The full old text is in the JSON; each row below says what was wrong.
 | skill_prismatic_instinct | Missing the visible-tile requirement | Once per combat, place any ground on a visible tile within @icon(range) 4. Costs no @icon(card_play) or @icon(time). | combat_engine.gd:11620 |
 | skill_discerning_eye / skill_deferred_choice | Boss rewards are excluded | …non-boss combat reward… / …next non-boss card reward. | run_engine.gd:1318, 1848 |
 
+## Decision-driven definition changes
+
+- **Charge (Q10):** "Gains Charge each use. At 3, its next intent is Arc Burst: lightning jumping between nearby units. Shock removes 1."
+- **Swap Illusion (Q4):** kept separate with its own icon, defined by reference to Swap: "Swap with one of your visible illusions, anywhere unless a Range is shown." It needs no line of sight (`illusion_card_rules.gd:316-357`).
+- **Sure-Footed (Q5):** the Air clause is dropped. "Once per combat, take no damage from the first @icon(traps) that hits you."
+- **Hollow Gale (Q6):** defined from Vaeloryx's live intent (data/enemies.json:1275-1299): "Strikes everywhere within 2 tiles of the dragon with Push 2, then erupts along its last Razor Dive path." The implementation wires that intent to the `gale_force` icon. The dormant resolver (`combat_engine.gd:6626-6642`) is not described.
+- **Expend (Q1):** confirmed. Spend stays for points and currency.
+
 ## Renames and blast radius
 
 Each of these places must change to the new name.
 
-1. **Thornwall → Bramble** (`bramble`). The board object is Bramble; "Thornwall" stays only as the Briar Weaver intent's name.
+1. **Thornwall → Bramble** (`bramble`). The Briar Weaver intent keeps the name Thornwall.
    - `action_icon_library.gd:14` (label)
    - `pre_battle_threat_tags.gd:46`
    - Definition copies: `enemy_mechanics/bramble.gd:97`, `bramble_view.gd:14`.
@@ -101,42 +133,59 @@ Each of these places must change to the new name.
    - cards.json descriptions: `dust_devil:7337`, `flashsteam:7518`, `frost_heave:7587`, `magma_vent:8047`, `plasma_arc:8128`, `pyroclasm:8177`, `spike_mantle:2250`
    - relics.json descriptions: `flint_edge:179`, `worldroot_idol:738`, `rimecatcher_vial:799`, `basalt_calendar:882`, `coalheart_crucible:906`, `black_sun_dial:1011`, `briar_winch:1360`, `ashen_brand:1647`, `crowncoal_heart:1786`
    - grimoire.json:683, 701, 924, 970, 979, 985 (title), 988, 1003 (title → "Ground Techniques"), 1006
-   - Avoid the verb for other concepts too: `grimoire.json:842` (Mantle layers → "breaks"), `graftwright_view.gd:513` (gear "consumed").
-3. **Illuminate → Light** (`illuminate`). Cards, selectors and conditions already say Light.
+   - Keep the verb off other concepts: `grimoire.json:842` (Mantle layers → "breaks"), `graftwright_view.gd:513`.
+   - Delete `ux-03/scripts/glossary.gd:10, 43` (`TODO_DESIGN_GLOSSARY_CONSUME_PROSE`).
+3. **Illuminate → Light** (`illuminate`)
    - `action_icon_library.gd:115`
-   - grimoire.json:604 (title), 598 (body)
+   - grimoire.json:604 (title), 598
 4. **Summon Minions → Summon** (`summon_minions`)
    - `action_icon_library.gd:242`
-   - grimoire.json:231 ("Summons")
-5. **Kindle Ground → Cinder Marks** (`cinder_marks`). This frees "Kindle" for the Ember Tick.
+   - grimoire.json:231
+5. **Kindle Ground → Cinder Marks** (`cinder_marks`)
    - `action_icon_library.gd:257`
-   - `run_scene.gd:14469`, `14480` ("Meteorfall" step label for the same icon)
+   - `run_scene.gd:14469`, `14480`
 6. **The Last Eclipse → Last Eclipse** (`umbra_eclipse`)
    - `action_icon_library.gd:287`
-   - `pre_battle_threat_tags.gd:63` ("Eclipse" is the stage name)
-7. **Character and Loadout / Character Loadout → Character** (`loadout`). This matches the menu title and the Skill Point text.
+   - `pre_battle_threat_tags.gd:63`
+7. **Character and Loadout / Character Loadout → Character** (`loadout`)
    - `action_icon_library.gd:313`
    - `run_scene.gd:3971`
    - `scenes/run_scene.tscn:132`
    - grimoire.json:70
+8. **Storm Capacitor intent Discharge → Arc Burst** (Q10). Discharge stays the card keyword.
+   - Player-visible:
+     - data/enemies.json:3140 (intent name)
+     - `enemy_mechanics/capacitor.gd:131` (step label "Discharge")
+     - `enemy_mechanics/capacitor_view.gd:16` (badge "discharges chain lightning"; replace with the Charge glossary text)
+   - Docs: `spec/enemies/storm_capacitor.md:13-14`. The historical handoff `spec/enemies/en06_implementation_handoff.md:12, 24-25` is optional.
+   - Internal only, so optional:
+     - intent id `"discharge"` at data/enemies.json:3139 and `capacitor.gd:24`
+     - test messages `tests/en06_enemies_probe.gd:74, 87` and `tests/suites/en06_enemies_suite.gd:92, 127, 139, 145, 296` (no copy assertions)
+     - capture names in `tests/en06_enemies_probe_contract.json:25, 59`.
+   - Not this concept, so do not change: "Mirror: Discharge" (`en06_enemies_suite.gd:244`, the player card) and the card Discharge (`action_icon_library.gd:181`; card_mechanics_surfaces suite).
+   - The `chain_discharge` alias moves from Chain to Charge, and `action_icon_library.gd:439` should map `chain_discharge` → `charge`.
+9. **Duration chips → Turns** (Q3; text-only entry). These are the panels that currently resolve to Time:
+   - `action_icon_library.gd:1418, 1422, 1614, 1882-1890`
+   - relics.json @icon(time) used as a duration at lines 51, 462, 765, 927, 1059, 1300, 1332, 1497 (owned by the relic rewrite)
+   - skills.json:583, 604, 683 (already reworded in this file).
 
-### Text-only name fixes (no entry rename)
+### Spelling unifications (accepted)
 
 - **Rooted → Immobilize/Immobilized:**
   - `action_icon_library.gd:1529`
   - `maneuver_rules.gd:34, 111`
   - `run_scene.gd:12631`
   - grimoire.json:809
-  - The card names Rooted Kick and Rooted Stance can stay.
+  - The card names Rooted Kick and Rooted Stance stay.
 - **Boss status row** (`run_scene.gd:12631`): "Guard" → Stoneskin and "Mantle" → Crystal Mantle.
 - **True Sight / truesight → Truesight:**
   - `combat_board_view.gd:16675`
   - cards.json:403, 1447
-- **Hollow Gale:** "The Hollow Gale" at grimoire.json:774 and "Arena Gale" at `pre_battle_threat_tags.gd:61` both become Hollow Gale. The dragon epithet and the room name keep "the Hollow Gale".
+- **Hollow Gale:** "The Hollow Gale" at grimoire.json:774 and "Arena Gale" at `pre_battle_threat_tags.gd:61` become Hollow Gale. The dragon epithet and the room name keep "the Hollow Gale".
 - **Sweeping Strikes → Sweeping Strike:** grimoire.json:1015.
 - **Card Play, always Title Case:**
-  - grimoire.json:132 ("Card Plays" title), 141, 142, 349, 359, 445
-  - lowercase "card play(s)" in cards.json:39, 476, 2854, 3706, 3816, 4355, 4385, 4407, 4430, 4478, 4503, 4545, 5841, 6464, 7612, 7809
+  - grimoire.json:132 (title), 141, 142, 349, 359, 445
+  - cards.json:39, 476, 2854, 3706, 3816, 4355, 4385, 4407, 4430, 4478, 4503, 4545, 5841, 6464, 7612, 7809
   - `action_icon_library.gd:93, 98, 1085`
   - `combat_engine.gd:1641`
   - `contextual_combat_tutorial.gd:265-266, 308-309, 337-338`
@@ -152,56 +201,30 @@ Each of these places must change to the new name.
   - `scavenger_shop_view.gd:678, 1136, 1138, 1140, 1251`
   - grimoire.json:53
 - **Shard → Moltshard:** `dialogue_engine.gd:65, 128`.
-- **"surface(s)" → "ground" in player text:**
+- **"surface(s)" → "ground":**
   - `action_icon_library.gd:13, 27, 35, 180, 1308, 1315, 1329, 1364, 1491, 1603, 1606, 1650, 1967`
   - `burrow_view.gd:98, 106`
-  - `game_data.gd:568` ("Surface Range")
-  - grimoire.json:204, 299, 720, 799, 921 ("Board Surfaces" → "Ground"), 930/939/948 ("Fire/Ice/Electrified Tiles" → bare names), 994 ("Relocate Surface"), 997, 1009
+  - `game_data.gd:568`
+  - grimoire.json:204, 299, 720, 799, 921 (→ "Ground"), 930/939/948 (→ bare names), 994, 997, 1009
   - relics.json: `breaking_wheel:2550`, `ion_spool:823`, `updraft_bottle:856`, `black_sun_dial:1011`, `crowncoal_heart:1786`
-- **Step-tracker and threat-tag labels:** these hard-code words that differ from the glossary. Read the glossary name instead.
-  - `run_scene.gd:14439` "Area", `14461` "Lightning", `14465` "Raise Worldspines", `14467` "Rupture Worldspines", `14471` "Detonate Cinders"
-  - `pre_battle_threat_tags.gd:50` "Area" (also used for Lightning Strikes), `51` "Guard", `53` "Heal" (heal_ally), `59` "Outcrops"/"Worldspines", `60` "Cinder Marks" (also used for Crownfire)
-- **Dead data:** `element_data.gd:29, 41, 53, 65, 77` `short_label` ("LGT", "AIR", …) has no consumer, so the audit's "LGT" naming candidate is not player-visible. Delete the field.
+- **Step-tracker and threat-tag labels:** read the glossary names instead of hard-coding them.
+  - `run_scene.gd:14439, 14461, 14465, 14467, 14471`
+  - `pre_battle_threat_tags.gd:50, 51, 53, 59, 60`
+- **Ice Pillar copy** follows the new entry: `icefall_view.gd:13`, `icefall.gd:102`.
+- **Dead data:** delete `element_data.gd:29, 41, 53, 65, 77` (`short_label`; not player-visible).
 
-## Merges, alias moves and deletions
+## Gaps
 
-- **`illusion_swap` → `swap`.** Swap Illusion is Swap limited to your illusions (`illusion_card_rules.gd:335-357` vs `maneuver_rules.gd:434-470`). This needs your decision (icon identity).
-- **Kept separate on purpose:**
-  - `detonate_cinders` uses the same code as Detonate, but its fuel is restricted; its definition references Detonate.
-  - `eclipse` (the Umbra stage) vs `umbra_eclipse` (the attack).
-  - `health` vs `health_defense`.
-- **Alias moves:**
-  - `chain_discharge`: chain → charge. The Capacitor's discharge ignores Electrified tiles (`enemy_mechanics/capacitor.gd:37-95`), so it also needs `action_icon_library.gd:439`.
-  - `Rooted` and `True Sight` are dropped as aliases (old names).
-  - Added: Expends/Expended/Expending, Card Plays, Area Attacks, Immobilized, Moltshard.
-- **Delete:**
-  - `raise_cover` and `reclaim_cover`: no live mechanic (`action_icon_library.gd:25-26` only).
-  - `skill_layaway`: retired (`run_engine.gd:782-787`).
-  - Text is left unchanged pending your decision.
+- **Skill Point:** your text is kept and verified (`progression_store.gd:995-997`; `run_scene.gd:29664`).
+- **Quarry Winch** (id `briar_winch`): "Your @icon(push) and @icon(pull) can Expend @icon(surface_rubble) under an enemy to move it in any of the 4 directions." (19 words). Rules:
+  - `surface_relic_rules.gd:59-61` (the optional redirect variant)
+  - `surface_relic_rules.gd:141-145` (the target enemy must stand on Rubble)
+  - `surface_relic_rules.gd:164-166` (the Rubble under it is removed)
+  - `combat_engine.gd:6788-6791` (any of the 4 cardinal directions)
 
-## Gap 1: Skill Point
+## Implementation notes (unchanged; the code fixes belong to a separate unit per decisions.md)
 
-Your text is kept: "Earned as you level up. Spend them on skills in the Character menu."
-
-- **Verified:** level N grants N−1 points (`progression_store.gd:995-997`); points are spent in Character → Skills (`run_scene.gd:29664`; `progression_store.gd:1035`).
-
-## Gap 2: Briar Winch "Consume" (relic now named Quarry Winch, id `briar_winch`)
-
-- **Token:** ground removal becomes the keyword **Expend**. It is the renamed `surface_consume` entry: "Remove the shown ground from its tile to power the listed effect."
-  - **Consume** stays the item keyword: "After use, this item is gone for the rest of the run."
-  - The code already treats every rules removal of ground as one concept (`surface_variety_relic_rules.gd:109`).
-- **Relic text (19 words):** "Your @icon(push) and @icon(pull) can Expend @icon(surface_rubble) under an enemy to move it in any of the 4 directions."
-  - **Rules:**
-    - optional variant (`surface_relic_rules.gd:59-61`);
-    - the target enemy must stand on Rubble (`141-145`);
-    - the Rubble under its footprint is removed (`164-166`);
-    - the move can go in any of the 4 cardinal directions (`combat_engine.gd:6788-6791`).
-  - **Glossary loader:** the prose word "Expend" now resolves to its own entry, so `ux-03/scripts/glossary.gd:10, 43` (`TODO_DESIGN_GLOSSARY_CONSUME_PROSE`) can be removed.
-- **Alternative: "Spend".** The existing label `surface_relic_rules.gd:61` already says "Spend Rubble · redirect". But "Spend" also covers Stoneskin, Time and skill points, so the sentence-start ambiguity would return.
-
-## Implementation notes
-
-**Copy that must follow these definitions.** These strings duplicate the old glossary text and are pinned by tests (en01–en06 suites):
+**Copy that must follow these definitions.** These strings are pinned by the en01–en06 test suites:
 - `reflect.gd:7`
 - `bramble.gd:97` and `bramble_view.gd:14`
 - `capacitor_view.gd:16`
@@ -213,28 +236,10 @@ Your text is kept: "Earned as you level up. Spend them on skills in the Characte
 - `lob_view.gd:33-34`
 - `burrow_view.gd:82, 98`
 - `run_scene.gd:12637`
-- `card_widget.gd:1365` (Time)
+- `card_widget.gd:1365`
 
 **Dive formatting.** `action_icon_library.gd:654-662` must stop %-formatting the Dive definition.
 
-**Code issues found in passing (not text):**
-- `text_token` receives an icon key as its tone (`action_icon_library.gd:1226-1230`; `capacitor_view.gd:41`), so those tokens have no icon.
-- The Lightning Strikes count chip uses the Shock icon, but no Shock is applied (`action_icon_library.gd:1430`).
-- Fatigue is amplified by Expose, Chilled and Frozen (`combat_engine.gd:7773` passes `apply_freeze_multiplier=true`).
-- The Sunpath and Dawnbrand HUD never shows SPENT: it reads `skill_flags`, but the flag is set in `turn_flags` (`run_scene.gd:11937-11940`).
-- `spec/meta_leveling.md:29-30, 150` are stale.
+## Open director question (code contradicts a decision)
 
-## Open director questions
-
-1. **Expend vs Spend** for removing ground (`surface_consume`).
-2. **Fire and Ice** each name a ground and an element. Keep the shared names (proposed; use @icon tokens where both matter) or rename the grounds?
-3. **Wait:** add it as a new keyword (proposed). Its HUD chip "WAIT +N" exists at `run_scene.gd:14190`.
-   - Should it be text-only, or get an icon?
-   - Should duration chips get their own "Turns" icon and entry? The Time icon is reused for turns remaining (`action_icon_library.gd:1418, 1422, 1614, 1868`), so a card hover can show two different "Time" panels.
-4. **Merge Swap Illusion into Swap?** This affects icon identity.
-5. **Sure-Footed:** drop the Air-push clause (proposed), or implement `protect_air_push`?
-6. **Hollow Gale:** wire Vaeloryx's live Hollow Gale intent to the `gale_force` icon, or drop the entry?
-7. **Delete `raise_cover` and `reclaim_cover`** (no mechanic)?
-8. **Delete `skill_layaway`** (retired)?
-9. **Ice Pillar** (Icefall terrain, also named in the Flying definition) has no entry or icon. Add one?
-10. **Storm Capacitor intent name.** It is also called "Discharge", which collides with the Discharge card keyword. Rename the intent (e.g. "Chain Burst")?
+1. **Outcrop vs Worldbreak.** The decision says Powder Kegs count as Outcrops. Mason's Plumb and Copper-Shod Staff already count them, but Worldbreak's "outcrop you raised" (`owned_outcrop_only`) cannot target a Powder Keg: `OWNED_OUTCROP_KINDS` is crag_outcrop + worldspine (`terrain_card_rules.gd:26, 178-179`). Either add powder_keg to that list in code, or word Worldbreak's token to exclude kegs.

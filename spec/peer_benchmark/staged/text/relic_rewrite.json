@@ -4,7 +4,7 @@
   "current_name": "Iron Lung",
   "current_description": "Every @icon(health_cost), including an @icon(empower) cost, is paid from your @icon(stoneskin) first, at 2 @icon(stoneskin) per @icon(health).",
   "name": "Iron Lung",
-  "description": "Every @term(health_cost|Health Cost), including an @kw(empower) cost, is paid from your @term(stoneskin) first, at 2 @kw(stoneskin) per @term(health).",
+  "description": "Every @term(health_cost), including an @kw(empower) cost, is paid from your @term(stoneskin) first, at 2 @kw(stoneskin) per @term(health).",
   "description_read_aloud": "Every Health Cost, including an Empower cost, is paid from your Stoneskin first, at 2 Stoneskin per Health.",
   "words": 17,
   "current_words": 17,
@@ -23,25 +23,25 @@
     "name": "Health Cost",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "empower": {
     "name": "Empower",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "stoneskin": {
     "name": "Stoneskin",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "health": {
     "name": "Health",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -52,7 +52,7 @@
   "current_name": "Brightglass Lens",
   "current_description": "@icon(ranged) attacks against enemies in @icon(illuminate) gain @icon(chain) +{amount}.",
   "name": "Brightglass Lens",
-  "description": "Your @kw(ranged) attacks against enemies in @term(light) gain +1 @kw(chain).",
+  "description": "Your @kw(ranged) attacks against enemies in @term(illuminate) gain +1 @kw(chain).",
   "description_read_aloud": "Your Ranged attacks against enemies in Light gain +1 Chain.",
   "words": 10,
   "current_words": 9,
@@ -72,19 +72,19 @@
     "name": "Ranged",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
-   "light": {
+   "illuminate": {
     "name": "Light",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "missing: new concept"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "chain": {
     "name": "Chain",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -95,8 +95,8 @@
   "current_name": "Pilgrim Boots",
   "current_description": "Gain @icon(move) +{0.value} each turn. Your movement creates @icon(illuminate) {1.radius} @icon(time) {1.duration} along its path; @icon(blink) covers both endpoints.",
   "name": "Pilgrim Boots",
-  "description": "Gain 1 more movement each turn. Moving leaves radius-1 @term(light) for 2 turns on tiles you enter, unless the card attacks. @kw(blink) lights both ends.",
-  "description_read_aloud": "Gain 1 more movement each turn. Moving leaves radius-1 Light for 2 turns on tiles you enter, unless the card attacks. Blink lights both ends.",
+  "description": "Gain 1 more @kw(movement) each turn. Moving leaves radius-1 @term(illuminate) for 2 turns on tiles you enter, unless the card attacks. @kw(blink) lights both ends.",
+  "description_read_aloud": "Gain 1 more Movement each turn. Moving leaves radius-1 Light for 2 turns on tiles you enter, unless the card attacks. Blink lights both ends.",
   "words": 25,
   "current_words": 19,
   "changed": true,
@@ -112,22 +112,26 @@
   "current_read_aloud": "Gain Move +1 each turn. Your movement creates Illuminate 1 Time 2 along its path; Blink covers both endpoints.",
   "current_uses_placeholders": true,
   "token_plan": {
-   "light": {
+   "movement": {
+    "name": "Movement",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json"
+   },
+   "illuminate": {
     "name": "Light",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "missing: new concept"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "blink": {
     "name": "Blink",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "movement"
-  ],
+  "plain_word_concepts": [],
   "notes": "Current text uses the Time icon for a 2-turn duration ('Illuminate 1 Time 2') and omits the exclusion: movement on cards that also attack, Push, Pull or Detonate leaves no Light (excludes_card_action_types)."
  },
  {
@@ -153,7 +157,7 @@
     "name": "Illusion",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -182,19 +186,19 @@
     "name": "Block",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "health": {
     "name": "Health",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "bleed": {
     "name": "Bleed",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -224,13 +228,13 @@
     "name": "Stoneskin",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "block": {
     "name": "Block",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -259,7 +263,7 @@
     "name": "Block",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -270,12 +274,12 @@
   "current_name": "Flint Edge",
   "current_description": "Your @icon(melee) attacks consume the @icon(surface_fire), @icon(surface_ice) or @icon(surface_electrified) under their target to deal 3 more damage.",
   "name": "Flint Edge",
-  "description": "Your @kw(melee) attacks consume the @term(surface_fire), @term(surface_ice) or @term(surface_electrified) under their target to deal 3 more damage.",
-  "description_read_aloud": "Your Melee attacks consume the Fire, Ice or Electrified under their target to deal 3 more damage.",
+  "description": "Your @kw(melee) attacks @kw(surface_consume) the @term(surface_fire), @term(surface_ice) or @term(surface_electrified) under their target to deal 3 more damage.",
+  "description_read_aloud": "Your Melee attacks Expend the Fire, Ice or Electrified under their target to deal 3 more damage.",
   "words": 17,
   "current_words": 17,
-  "changed": false,
-  "reason": "unchanged",
+  "changed": true,
+  "reason": "consistency",
   "evidence": [
    "scripts/common_relic_rules.gd:86-118"
   ],
@@ -287,31 +291,35 @@
     "name": "Melee",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
+   },
+   "surface_consume": {
+    "name": "Expend",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_fire": {
     "name": "Fire",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_ice": {
     "name": "Ice",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_electrified": {
     "name": "Electrified",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "consume (surface sense)"
-  ],
-  "notes": null
+  "plain_word_concepts": [],
+  "notes": "Ground removal uses the Expend keyword (decisions.md: Consume Ground -> Expend)."
  },
  {
   "id": "static_soles",
@@ -338,25 +346,25 @@
     "name": "Move",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "blink": {
     "name": "Blink",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_electrified": {
     "name": "Electrified",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "vision": {
     "name": "Vision",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -389,7 +397,7 @@
   "current_name": "Tailwind Fletching",
   "current_description": "Air @icon(push) and @icon(pull) actions deal +{0.amount} damage and force enemies {1.amount} farther.",
   "name": "Tailwind Fletching",
-  "description": "Your @kw(element_air|Air) @kw(push) and @kw(pull) deal 1 more damage and move targets 1 tile farther.",
+  "description": "Your @kw(element_air) @kw(push) and @kw(pull) deal 1 more damage and move targets 1 tile farther.",
   "description_read_aloud": "Your Air Push and Pull deal 1 more damage and move targets 1 tile farther.",
   "words": 15,
   "current_words": 13,
@@ -407,19 +415,19 @@
     "name": "Air",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "push": {
     "name": "Push",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "pull": {
     "name": "Pull",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -447,13 +455,16 @@
     "name": "Freeze",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Frozen"
+    ]
    },
    "surface_rubble": {
     "name": "Rubble",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -464,7 +475,7 @@
   "current_name": "Storm Capacitor",
   "current_description": "Your Lightning @icon(ranged) attacks with @icon(chain) gain @icon(chain) +{amount}.",
   "name": "Storm Capacitor",
-  "description": "Your @kw(element_lightning|Lightning) @kw(ranged) attacks with @kw(chain) gain +1 @kw(chain).",
+  "description": "Your @kw(element_lightning) @kw(ranged) attacks with @kw(chain) gain +1 @kw(chain).",
   "description_read_aloud": "Your Lightning Ranged attacks with Chain gain +1 Chain.",
   "words": 9,
   "current_words": 9,
@@ -476,7 +487,7 @@
    "data/relics.json:339-363",
    "data/enemies.json:3107"
   ],
-  "director_decision_needed": "Name collides exactly with the enemy 'Storm Capacitor' (data/enemies.json:3107). Rename the relic (candidate: 'Arc Capacitor') or keep?",
+  "director_decision_needed": "Rename required (decisions.md): 'Storm Capacitor' is also an enemy (data/enemies.json:3107). Pick one: (1) 'Widegap Cell' (recommended: the art shows a spark leaping between two terminals, and +1 Chain makes each jump reach 1 tile farther); (2) 'Leyden Cell' (matches the art: a brass coil cell with spark terminals); (3) 'Fulgurite Rod' (lightning-fused glass rod; fits the longer reach, less the art). None of the words Leyden, Widegap, Cell, Fulgurite or Rod appears in any card, enemy, relic, equipment, skill, event, NPC, upgrade, biome, grimoire or glossary name (data/*.json, glossary_rewrite.json, action_icon_library.gd labels). Avoided: Capacitor, Coil, Spark, Arc (Arc Burst intent), Bolt, Static, Relay, Jar, Charge.",
   "current_read_aloud": "Your Lightning Ranged attacks with Chain gain Chain +1.",
   "current_uses_placeholders": true,
   "token_plan": {
@@ -484,23 +495,23 @@
     "name": "Lightning",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "ranged": {
     "name": "Ranged",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "chain": {
     "name": "Chain",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
-  "notes": null
+  "notes": "'+1 Chain' form (decisions.md). +1 adds to existing Chain jump distance."
  },
  {
   "id": "gale_tabi",
@@ -524,7 +535,7 @@
     "name": "Blink",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -553,19 +564,19 @@
     "name": "Block",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "push": {
     "name": "Push",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "pull": {
     "name": "Pull",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -594,25 +605,25 @@
     "name": "Rubble",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "collision": {
     "name": "Collision",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_fire": {
     "name": "Fire",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "retaliate": {
     "name": "Retaliate",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -623,7 +634,7 @@
   "current_name": "Thawing Charm",
   "current_description": "Excess @icon(heal) becomes @icon(stoneskin), up to {cap} each turn. The first conversion each turn creates @icon(illuminate) 1 @icon(time) 2 at you.",
   "name": "Thawing Charm",
-  "description": "Excess @kw(heal|healing) becomes @term(stoneskin), up to 8 each turn. It also creates radius-1 @term(light) on you for 2 turns, once per turn.",
+  "description": "Excess @kw(heal|healing) becomes @term(stoneskin), up to 8 each turn. It also creates radius-1 @term(illuminate) on you for 2 turns, once per turn.",
   "description_read_aloud": "Excess healing becomes Stoneskin, up to 8 each turn. It also creates radius-1 Light on you for 2 turns, once per turn.",
   "words": 22,
   "current_words": 21,
@@ -641,19 +652,22 @@
     "name": "Heal",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "healing"
+    ]
    },
    "stoneskin": {
     "name": "Stoneskin",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
-   "light": {
+   "illuminate": {
     "name": "Light",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "missing: new concept"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -682,19 +696,19 @@
     "name": "Fire",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_ice": {
     "name": "Ice",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_electrified": {
     "name": "Electrified",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -722,19 +736,19 @@
     "name": "Health",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "block": {
     "name": "Block",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "stoneskin": {
     "name": "Stoneskin",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -764,19 +778,19 @@
     "name": "Freeze",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "block": {
     "name": "Block",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "frost_armor": {
     "name": "Crystal Mantle",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -805,7 +819,7 @@
     "name": "Chain",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -836,19 +850,19 @@
     "name": "Melee",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "stoneskin": {
     "name": "Stoneskin",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_rubble": {
     "name": "Rubble",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -877,13 +891,13 @@
     "name": "Move",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "stagger": {
     "name": "Stagger",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -913,19 +927,19 @@
     "name": "Draw",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "block": {
     "name": "Block",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "stoneskin": {
     "name": "Stoneskin",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -954,7 +968,7 @@
     "name": "Chain",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -985,31 +999,34 @@
     "name": "Defiance",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "dispel_umbra": {
     "name": "Dispel Umbra",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_fire": {
     "name": "Fire",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "draw": {
     "name": "Draw",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "card_play": {
     "name": "Card Play",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Card Plays"
+    ]
    }
   },
   "plain_word_concepts": [],
@@ -1020,8 +1037,8 @@
   "current_name": "Worldroot Idol",
   "current_description": "While on @icon(surface_rubble), you may launch a single-target @icon(melee) or @icon(ranged) attack from another connected @icon(surface_rubble) tile, consuming it. The origin is chosen automatically.",
   "name": "Worldroot Idol",
-  "description": "While you stand on @term(surface_rubble), your @kw(melee) and @kw(ranged) attacks can strike from any connected @kw(surface_rubble) tile, consuming it. The game picks the tile.",
-  "description_read_aloud": "While you stand on Rubble, your Melee and Ranged attacks can strike from any connected Rubble tile, consuming it. The game picks the tile.",
+  "description": "While you stand on @term(surface_rubble), your @kw(melee) and @kw(ranged) attacks can strike from any connected @kw(surface_rubble) tile, @kw(surface_consume|Expending) it. The game picks the tile.",
+  "description_read_aloud": "While you stand on Rubble, your Melee and Ranged attacks can strike from any connected Rubble tile, Expending it. The game picks the tile.",
   "words": 24,
   "current_words": 24,
   "changed": true,
@@ -1040,23 +1057,32 @@
     "name": "Rubble",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "melee": {
     "name": "Melee",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "ranged": {
     "name": "Ranged",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
+   },
+   "surface_consume": {
+    "name": "Expend",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Expending"
+    ]
    }
   },
   "plain_word_concepts": [],
-  "notes": "Replaces banned 'you may'; trims to budget."
+  "notes": "Replaces banned 'you may'; Expend for the Rubble removal."
  },
  {
   "id": "cinderbrand_tongs",
@@ -1085,7 +1111,7 @@
   "current_name": "Rimecatcher Vial",
   "current_description": "When your attack applies @icon(freeze), you may @icon(surface_relocate) one consumed @icon(surface_ice) tile beside the target.",
   "name": "Rimecatcher Vial",
-  "description": "When your @kw(element_ice|Ice) attack @term(freeze|Freezes) an enemy on @term(surface_ice), you can spill that @kw(surface_ice) onto a tile next to it.",
+  "description": "When your @term(element_ice) attack @term(freeze|Freezes) an enemy on @term(surface_ice), you can spill that @term(surface_ice) onto a tile next to it.",
   "description_read_aloud": "When your Ice attack Freezes an enemy on Ice, you can spill that Ice onto a tile next to it.",
   "words": 20,
   "current_words": 15,
@@ -1102,25 +1128,28 @@
   "token_plan": {
    "element_ice": {
     "name": "Ice",
-    "first_mention": "word (keyword style)",
-    "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "first_mention": "icon + word",
+    "later_mentions": "icon + word (Ice element/ground disambiguation)",
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "freeze": {
     "name": "Freeze",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Freezes"
+    ]
    },
    "surface_ice": {
     "name": "Ice",
     "first_mention": "icon + word",
-    "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "later_mentions": "icon + word (Ice element/ground disambiguation)",
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
-  "notes": "Current text omits both conditions (Ice-element Melee/Ranged/area attack; target was standing on Ice) and reads 'you may Relocate Ground one consumed Ice tile'. The variant is labelled 'Spill Ice' in the UI."
+  "notes": "Current text omits both conditions (Ice-element Melee/Ranged/Area Attack; target was standing on Ice) and reads 'you may Relocate Ground one consumed Ice tile'. 'spill' matches the UI variant label 'Spill Ice' (surface_relic_rules.gd:76). Element and ground Ice both carry their icons (decision Q2)."
  },
  {
   "id": "ion_spool",
@@ -1167,31 +1196,31 @@
     "name": "Push",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "pull": {
     "name": "Pull",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_fire": {
     "name": "Fire",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_ice": {
     "name": "Ice",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_electrified": {
     "name": "Electrified",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -1202,12 +1231,12 @@
   "current_name": "Basalt Kiln",
   "current_description": "Your @icon(detonate) can consume @icon(surface_rubble) instead of @icon(surface_fire), leaving @icon(surface_fire) on the consumed tiles.",
   "name": "Basalt Kiln",
-  "description": "Your @kw(detonate) can consume @term(surface_rubble) instead of @term(surface_fire), leaving @kw(surface_fire) on the consumed tiles.",
-  "description_read_aloud": "Your Detonate can consume Rubble instead of Fire, leaving Fire on the consumed tiles.",
+  "description": "Your @kw(detonate) can @kw(surface_consume) @term(surface_rubble) instead of @term(surface_fire), leaving @kw(surface_fire) on the @kw(surface_consume|Expended) tiles.",
+  "description_read_aloud": "Your Detonate can Expend Rubble instead of Fire, leaving Fire on the Expended tiles.",
   "words": 14,
   "current_words": 14,
-  "changed": false,
-  "reason": "unchanged",
+  "changed": true,
+  "reason": "consistency",
   "evidence": [
    "scripts/surface_relic_rules.gd:66-67",
    "scripts/surface_relic_rules.gd:93-94",
@@ -1221,33 +1250,40 @@
     "name": "Detonate",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
+   },
+   "surface_consume": {
+    "name": "Expend",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Expended"
+    ]
    },
    "surface_rubble": {
     "name": "Rubble",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_fire": {
     "name": "Fire",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "consume (surface sense)"
-  ],
-  "notes": null
+  "plain_word_concepts": [],
+  "notes": "Expend replaces 'consume' (decisions.md)."
  },
  {
   "id": "coalheart_crucible",
   "current_name": "Stormcoal Crucible",
   "current_description": "@icon(surface_fire) tiles also conduct @icon(element_lightning). Attacks conducted through them consume them.",
   "name": "Stormcoal Crucible",
-  "description": "@term(surface_fire) also conducts @kw(element_lightning|Lightning). @kw(element_lightning|Lightning) that conducts through @kw(surface_fire) consumes it.",
-  "description_read_aloud": "Fire also conducts Lightning. Lightning that conducts through Fire consumes it.",
+  "description": "@term(surface_fire) also conducts @kw(element_lightning). @kw(element_lightning) that conducts through @kw(surface_fire) @kw(surface_consume|Expends) it.",
+  "description_read_aloud": "Fire also conducts Lightning. Lightning that conducts through Fire Expends it.",
   "words": 11,
   "current_words": 11,
   "changed": true,
@@ -1265,19 +1301,26 @@
     "name": "Fire",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "element_lightning": {
     "name": "Lightning",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
+   },
+   "surface_consume": {
+    "name": "Expend",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Expends"
+    ]
    }
   },
-  "plain_word_concepts": [
-   "consume (surface sense)"
-  ],
-  "notes": "'Attacks conducted through them consume them' had two unclear antecedents."
+  "plain_word_concepts": [],
+  "notes": "'Attacks conducted through them consume them' had two unclear antecedents; Expend replaces 'consume'."
  },
  {
   "id": "voltaic_tuning_fork",
@@ -1306,7 +1349,7 @@
   "current_name": "Captured Noon",
   "current_description": "While you have 3 active @icon(illuminate) sources, lower @icon(umbra) by 1 stage; with 6 sources, lower it by 2.",
   "name": "Captured Noon",
-  "description": "While 3 or more @term(light|Lights) are active, @kw(umbra|the Umbra) is 1 stage lower; with 6 or more, 2 stages lower.",
+  "description": "While 3 or more @term(illuminate|Lights) are active, @kw(umbra|the Umbra) is 1 stage lower; with 6 or more, 2 stages lower.",
   "description_read_aloud": "While 3 or more Lights are active, the Umbra is 1 stage lower; with 6 or more, 2 stages lower.",
   "words": 19,
   "current_words": 19,
@@ -1320,17 +1363,23 @@
   "current_read_aloud": "While you have 3 active Illuminate sources, lower The Umbra by 1 stage; with 6 sources, lower it by 2.",
   "current_uses_placeholders": false,
   "token_plan": {
-   "light": {
+   "illuminate": {
     "name": "Light",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "missing: new concept"
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Lights"
+    ]
    },
    "umbra": {
     "name": "The Umbra",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "the Umbra"
+    ]
    }
   },
   "plain_word_concepts": [],
@@ -1358,19 +1407,19 @@
     "name": "Fire",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_ice": {
     "name": "Ice",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_electrified": {
     "name": "Electrified",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -1381,8 +1430,8 @@
   "current_name": "Black Sun Dial",
   "current_description": "Consuming a surface stores it (max 3). Your next attack deals 2 more damage per stored surface, and its target gets each one's effect: @icon(surface_fire) beneath it, @icon(chilled), @icon(shock), @icon(stagger) 2.",
   "name": "Black Sun Dial",
-  "description": "Store up to 3 consumed surfaces. Your next attack deals 2 more damage per surface. @term(surface_fire): @kw(surface_fire) beneath. @term(surface_ice): @term(chilled). @term(surface_electrified): @term(shock). @term(surface_rubble): @kw(stagger) 2.",
-  "description_read_aloud": "Store up to 3 consumed surfaces. Your next attack deals 2 more damage per surface. Fire: Fire beneath. Ice: Chilled. Electrified: Shock. Rubble: Stagger 2.",
+  "description": "Store up to 3 ground you @kw(surface_consume). Your next attack releases them: +2 damage each. @term(surface_fire): @kw(surface_fire) beneath. @term(surface_ice): @term(chilled). @term(surface_electrified): @term(shock). @term(surface_rubble): @kw(stagger) 2.",
+  "description_read_aloud": "Store up to 3 ground you Expend. Your next attack releases them: +2 damage each. Fire: Fire beneath. Ice: Chilled. Electrified: Shock. Rubble: Stagger 2.",
   "words": 25,
   "current_words": 31,
   "changed": true,
@@ -1391,57 +1440,61 @@
    "scripts/surface_variety_relic_rules.gd:92-96",
    "scripts/surface_variety_relic_rules.gd:101-127"
   ],
-  "director_decision_needed": "'Store up to 3 surfaces you consume' is exact but makes it 26 words (1 over). Accept 'consumed surfaces' (25) or allow 26?",
+  "director_decision_needed": null,
   "current_read_aloud": "Consuming a surface stores it (max 3). Your next attack deals 2 more damage per stored surface, and its target gets each one's effect: Fire beneath it, Chilled, Shock, Stagger 2.",
   "current_uses_placeholders": false,
   "token_plan": {
+   "surface_consume": {
+    "name": "Expend",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json"
+   },
    "surface_fire": {
     "name": "Fire",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_ice": {
     "name": "Ice",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "chilled": {
     "name": "Chilled",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_electrified": {
     "name": "Electrified",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "shock": {
     "name": "Shock",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_rubble": {
     "name": "Rubble",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "stagger": {
     "name": "Stagger",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "surface (generic)"
-  ],
-  "notes": "31 -> 25 words, and the surface-to-effect mapping is now explicit instead of implied by list order. Only surfaces your own actions consume are stored (line 108 skips non-player sources)."
+  "plain_word_concepts": [],
+  "notes": "31 -> 25 words. Says 'ground you Expend' exactly: only removals your own actions cause are stored (line 108), and every rules removal reason counts (line 109), matching the Expend keyword. The ground-to-effect mapping is explicit instead of implied by list order. 'ground' is the glossary's family noun."
  },
  {
   "id": "duelist_whetstone",
@@ -1466,13 +1519,13 @@
     "name": "Move",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "blink": {
     "name": "Blink",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -1524,7 +1577,7 @@
     "name": "Block",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -1552,13 +1605,13 @@
     "name": "Time",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "quicken": {
     "name": "Quicken",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -1588,13 +1641,13 @@
     "name": "Illusion",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "expose": {
     "name": "Expose",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -1622,13 +1675,13 @@
     "name": "Bleed",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "expose": {
     "name": "Expose",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -1657,7 +1710,7 @@
     "name": "Health",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -1709,19 +1762,19 @@
     "name": "Pierce",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "chain": {
     "name": "Chain",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "block": {
     "name": "Block",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -1750,13 +1803,13 @@
     "name": "Card Play",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "time": {
     "name": "Time",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -1811,17 +1864,17 @@
   "current_name": "Quarry Winch",
   "current_description": "Consume @icon(surface_rubble) beneath a target to aim @icon(push) or @icon(pull) in any cardinal direction.",
   "name": "Quarry Winch",
-  "description": "Your @kw(push) and @kw(pull) can consume @term(surface_rubble) under the target to force it in any direction.",
-  "description_read_aloud": "Your Push and Pull can consume Rubble under the target to force it in any direction.",
-  "words": 16,
+  "description": "Your @kw(push) and @kw(pull) can @kw(surface_consume) @term(surface_rubble) under an enemy to move it in any of the 4 directions.",
+  "description_read_aloud": "Your Push and Pull can Expend Rubble under an enemy to move it in any of the 4 directions.",
+  "words": 19,
   "current_words": 14,
   "changed": true,
   "reason": "clarity",
   "evidence": [
-   "scripts/surface_relic_rules.gd:60-61",
-   "scripts/surface_relic_rules.gd:91-92",
-   "scripts/surface_relic_rules.gd:141-144",
-   "scripts/surface_relic_rules.gd:164-166"
+   "scripts/surface_relic_rules.gd:59-61",
+   "scripts/surface_relic_rules.gd:141-145",
+   "scripts/surface_relic_rules.gd:164-166",
+   "scripts/combat_engine.gd:6788-6791"
   ],
   "director_decision_needed": null,
   "current_read_aloud": "Consume Rubble beneath a target to aim Push or Pull in any cardinal direction.",
@@ -1831,25 +1884,29 @@
     "name": "Push",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "pull": {
     "name": "Pull",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
+   },
+   "surface_consume": {
+    "name": "Expend",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_rubble": {
     "name": "Rubble",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "consume (surface sense)"
-  ],
-  "notes": "Current sentence had no subject ('Consume Rubble beneath a target to aim ...')."
+  "plain_word_concepts": [],
+  "notes": "Current sentence had no subject. Wording matches the glossary draft's Gap 2 proposal for this relic (glossary_rewrite.md)."
  },
  {
   "id": "hourglass_awl",
@@ -1874,13 +1931,13 @@
     "name": "Time",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "pierce": {
     "name": "Pierce",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -1891,8 +1948,8 @@
   "current_name": "Beaconrunner Spurs",
   "current_description": "Each tile of your @icon(illuminate) you enter during a @icon(move) refunds 1 movement (max 2 each turn).",
   "name": "Beaconrunner Spurs",
-  "description": "Each tile in your @term(light) you enter during a @kw(move) refunds 1 movement, up to 2 each turn.",
-  "description_read_aloud": "Each tile in your Light you enter during a Move refunds 1 movement, up to 2 each turn.",
+  "description": "Each tile in your @term(illuminate) you enter during a @kw(move) refunds 1 @kw(movement), up to 2 each turn.",
+  "description_read_aloud": "Each tile in your Light you enter during a Move refunds 1 Movement, up to 2 each turn.",
   "words": 18,
   "current_words": 17,
   "changed": true,
@@ -1906,22 +1963,26 @@
   "current_read_aloud": "Each tile of your Illuminate you enter during a Move refunds 1 movement (max 2 each turn).",
   "current_uses_placeholders": false,
   "token_plan": {
-   "light": {
+   "illuminate": {
     "name": "Light",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "missing: new concept"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "move": {
     "name": "Move",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
+   },
+   "movement": {
+    "name": "Movement",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "movement"
-  ],
+  "plain_word_concepts": [],
   "notes": "Only your own Light counts (owner == player, line 175)."
  },
  {
@@ -2012,13 +2073,16 @@
     "name": "Ranged",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "illusion": {
     "name": "Illusion",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Illusions"
+    ]
    }
   },
   "plain_word_concepts": [],
@@ -2051,7 +2115,7 @@
   "current_name": "Sunlit Edge",
   "current_description": "While you stand in @icon(illuminate), your attacks gain @icon(pierce).",
   "name": "Sunlit Edge",
-  "description": "While you stand in @term(light), your attacks gain @kw(pierce).",
+  "description": "While you stand in @term(illuminate), your attacks gain @kw(pierce).",
   "description_read_aloud": "While you stand in Light, your attacks gain Pierce.",
   "words": 9,
   "current_words": 9,
@@ -2065,17 +2129,17 @@
   "current_read_aloud": "While you stand in Illuminate, your attacks gain Pierce.",
   "current_uses_placeholders": false,
   "token_plan": {
-   "light": {
+   "illuminate": {
     "name": "Light",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "missing: new concept"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "pierce": {
     "name": "Pierce",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -2086,9 +2150,9 @@
   "current_name": "Glassway Compass",
   "current_description": "Your @icon(move) and @icon(blink) can end on your @icon(illusion): you trade places with it instantly, skipping the tiles between.",
   "name": "Glassway Compass",
-  "description": "Your @kw(move) and @kw(blink) can end on one of your @term(illusion|Illusions): you trade places with it, skipping the tiles between.",
-  "description_read_aloud": "Your Move and Blink can end on one of your Illusions: you trade places with it, skipping the tiles between.",
-  "words": 20,
+  "description": "Your @kw(move) and @kw(blink) can end on one of your @term(illusion|Illusions) to @kw(swap) with it, skipping the tiles between.",
+  "description_read_aloud": "Your Move and Blink can end on one of your Illusions to Swap with it, skipping the tiles between.",
+  "words": 19,
   "current_words": 19,
   "changed": true,
   "reason": "clarity",
@@ -2105,30 +2169,39 @@
     "name": "Move",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "blink": {
     "name": "Blink",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "illusion": {
     "name": "Illusion",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Illusions"
+    ]
+   },
+   "swap": {
+    "name": "Swap",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
-  "notes": null
+  "notes": "Uses the Swap keyword instead of re-explaining it ('trade places'); like Swap, both arrivals trigger ground (illusion_relic_rules.gd:85-88). Only visible illusions qualify (line 54), matching Swap."
  },
  {
   "id": "unclouded_sun",
   "current_name": "Unclouded Sun",
   "current_description": "Your @icon(illuminate) sources are relay points: when you @icon(move), each of them counts as next to every other.",
   "name": "Unclouded Sun",
-  "description": "When you @kw(move), the centers of your @term(light|Lights) count as next to each other.",
+  "description": "When you @kw(move), the centers of your @term(illuminate|Lights) count as next to each other.",
   "description_read_aloud": "When you Move, the centers of your Lights count as next to each other.",
   "words": 14,
   "current_words": 18,
@@ -2146,13 +2219,16 @@
     "name": "Move",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
-   "light": {
+   "illuminate": {
     "name": "Light",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "missing: new concept"
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Lights"
+    ]
    }
   },
   "plain_word_concepts": [],
@@ -2163,9 +2239,9 @@
   "current_name": "Ashen Brand",
   "current_description": "@icon(detonate) consumes the entire connected @icon(surface_fire) cluster. Each extra overlapping blast cross adds 25% base damage.",
   "name": "Ashen Brand",
-  "description": "Your @kw(detonate) consumes every connected @term(surface_fire) tile. A target hit by several blast crosses takes 25% more damage per extra cross.",
-  "description_read_aloud": "Your Detonate consumes every connected Fire tile. A target hit by several blast crosses takes 25% more damage per extra cross.",
-  "words": 21,
+  "description": "Your @kw(detonate) @kw(surface_consume|Expends) all connected @term(surface_fire). A target hit by several blast crosses takes 25% more damage per extra cross.",
+  "description_read_aloud": "Your Detonate Expends all connected Fire. A target hit by several blast crosses takes 25% more damage per extra cross.",
+  "words": 20,
   "current_words": 16,
   "changed": true,
   "reason": "clarity",
@@ -2182,27 +2258,34 @@
     "name": "Detonate",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
+   },
+   "surface_consume": {
+    "name": "Expend",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Expends"
+    ]
    },
    "surface_fire": {
     "name": "Fire",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "consume (surface sense)"
-  ],
-  "notes": "The bonus is 25% of the card's base damage per overlapping cross, rounded to nearest."
+  "plain_word_concepts": [],
+  "notes": "The bonus is 25% of the card's base damage per overlapping cross, rounded to nearest. Expend replaces 'consume'."
  },
  {
   "id": "winters_spur",
   "current_name": "Winter’s Spur",
   "current_description": "Each straight stretch of @icon(surface_ice) costs 1 base @icon(move) per movement action. Turns start a new stretch.",
   "name": "Winter's Spur",
-  "description": "Each straight line of @term(surface_ice) you move across costs only 1 movement. Turning starts a new line.",
-  "description_read_aloud": "Each straight line of Ice you move across costs only 1 movement. Turning starts a new line.",
+  "description": "Each straight line of @term(surface_ice) you move across costs only 1 @kw(movement). Turning starts a new line.",
+  "description_read_aloud": "Each straight line of Ice you move across costs only 1 Movement. Turning starts a new line.",
   "words": 17,
   "current_words": 17,
   "changed": true,
@@ -2220,13 +2303,17 @@
     "name": "Ice",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
+   },
+   "movement": {
+    "name": "Movement",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "movement"
-  ],
-  "notes": "'1 base Move per movement action' was jargon. Name typography: the only relic name with a curly apostrophe (Winter’s Spur) vs straight in Winter's Hourglass and all others."
+  "plain_word_concepts": [],
+  "notes": "'1 base Move per movement action' was jargon. Name typography: the only relic name with a curly apostrophe (Winter’s Spur); fix accepted in decisions.md."
  },
  {
   "id": "resonant_clapper",
@@ -2252,7 +2339,7 @@
     "name": "Chain",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -2281,13 +2368,13 @@
     "name": "Push",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "pull": {
     "name": "Pull",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -2298,8 +2385,8 @@
   "current_name": "Cragbound Gauntlet",
   "current_description": "@icon(ranged) Earth spells raise a 3 @icon(health) outcrop at an empty ground target.",
   "name": "Cragbound Gauntlet",
-  "description": "Your @kw(element_earth|Earth) @kw(ranged) and area attacks also raise a 3-@term(health) outcrop on an empty floor target.",
-  "description_read_aloud": "Your Earth Ranged and area attacks also raise a 3-Health outcrop on an empty floor target.",
+  "description": "Your @kw(element_earth) @kw(ranged) attacks and @kw(aoe|Area Attacks) also raise a 3-@term(health) @kw(outcrop) on an empty floor target.",
+  "description_read_aloud": "Your Earth Ranged attacks and Area Attacks also raise a 3-Health Outcrop on an empty floor target.",
   "words": 16,
   "current_words": 13,
   "changed": true,
@@ -2318,33 +2405,46 @@
     "name": "Earth",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "ranged": {
     "name": "Ranged",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
+   },
+   "aoe": {
+    "name": "Area Attack",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Area Attacks"
+    ]
    },
    "health": {
     "name": "Health",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
+   },
+   "outcrop": {
+    "name": "Outcrop",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "outcrop"
-  ],
-  "notes": "Code applies to Earth Ranged and area (aoe) actions with range 1 or more; 'Ranged Earth spells' excluded area attacks and 'spells' is not a game term. Self-centred (range 0) areas do not qualify."
+  "plain_word_concepts": [],
+  "notes": "Code applies to Earth Ranged and Area Attack actions with range 1 or more; 'Ranged Earth spells' excluded Area Attacks and 'spells' is not a game term. Self-centred (range 0) Area Attacks do not qualify; left unstated."
  },
  {
   "id": "procession_lantern",
   "current_name": "Procession Lantern",
   "current_description": "@icon(illusion) can use your independent @icon(move).",
   "name": "Procession Lantern",
-  "description": "Your @term(illusion|Illusions) can move by spending your movement.",
-  "description_read_aloud": "Your Illusions can move by spending your movement.",
+  "description": "Your @term(illusion|Illusions) can move by spending your @kw(movement).",
+  "description_read_aloud": "Your Illusions can move by spending your Movement.",
   "words": 8,
   "current_words": 6,
   "changed": true,
@@ -2360,12 +2460,19 @@
     "name": "Illusion",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Illusions"
+    ]
+   },
+   "movement": {
+    "name": "Movement",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "movement"
-  ],
+  "plain_word_concepts": [],
   "notes": "'Illusion can use your independent Move' read as a fragment."
  },
  {
@@ -2392,31 +2499,34 @@
     "name": "Fire",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_ice": {
     "name": "Ice",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_electrified": {
     "name": "Electrified",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "detonate": {
     "name": "Detonate",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Detonating"
+    ]
    },
    "stoneskin": {
     "name": "Stoneskin",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -2427,8 +2537,8 @@
   "current_name": "Worldheart",
   "current_description": "At turn end, convert up to 2 remaining @icon(block) into @icon(stoneskin). Whenever you gain @icon(stoneskin), deal half that amount, rounded down, to adjacent enemies (maximum 4).",
   "name": "Worldheart",
-  "description": "At the end of your turn, convert up to 2 @term(block) to @term(stoneskin). Gaining @kw(stoneskin) deals half, rounded down, to adjacent enemies, up to 4.",
-  "description_read_aloud": "At the end of your turn, convert up to 2 Block to Stoneskin. Gaining Stoneskin deals half, rounded down, to adjacent enemies, up to 4.",
+  "description": "At the end of your turn, up to 2 @term(block) becomes @term(stoneskin). Gaining @kw(stoneskin) deals half, rounded down, to enemies next to you, max 4.",
+  "description_read_aloud": "At the end of your turn, up to 2 Block becomes Stoneskin. Gaining Stoneskin deals half, rounded down, to enemies next to you, max 4.",
   "words": 25,
   "current_words": 26,
   "changed": true,
@@ -2446,25 +2556,25 @@
     "name": "Block",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "stoneskin": {
     "name": "Stoneskin",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
-  "notes": "26 -> 25 words; uses the fixed phrase 'At the end of your turn'. The pulse hits enemies next to you (cross pattern at your tile)."
+  "notes": "26 -> 25 words; uses the fixed phrase 'At the end of your turn' and the glossary's 'next to' (the pulse uses the cross pattern at your tile)."
  },
  {
   "id": "unbound_pinion",
   "current_name": "Unbound Pinion",
   "current_description": "The first card action each turn that sends an enemy 2 or more tiles, or makes it collide, refills your movement and you @icon(draw) 1.",
   "name": "Unbound Pinion",
-  "description": "Once per turn, when your @kw(push) or @kw(pull) moves an enemy 2 or more tiles or makes it collide, refill your movement and @kw(draw) 1.",
-  "description_read_aloud": "Once per turn, when your Push or Pull moves an enemy 2 or more tiles or makes it collide, refill your movement and Draw 1.",
+  "description": "Once per turn, when your @kw(push) or @kw(pull) moves an enemy 2 or more tiles or makes it collide, refill your @kw(movement) and @kw(draw) 1.",
+  "description_read_aloud": "Once per turn, when your Push or Pull moves an enemy 2 or more tiles or makes it collide, refill your Movement and Draw 1.",
   "words": 25,
   "current_words": 25,
   "changed": true,
@@ -2482,24 +2592,28 @@
     "name": "Push",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "pull": {
     "name": "Pull",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
+   },
+   "movement": {
+    "name": "Movement",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "draw": {
     "name": "Draw",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "movement"
-  ],
+  "plain_word_concepts": [],
   "notes": "Fixes 'refills your movement and you Draw 1'. Any card action with Push or Pull (including area forces) counts."
  },
  {
@@ -2507,7 +2621,7 @@
   "current_name": "Winter's Hourglass",
   "current_description": "Your first @icon(element_ice) card each turn stores @icon(time) 3 (maximum 3). Non-@icon(element_ice) cards spend stored @icon(time) to reduce their cost, to a minimum of @icon(time) 1. Stored @icon(time) lasts this combat.",
   "name": "Winter's Hourglass",
-  "description": "Your first @kw(element_ice|Ice) card each turn refills a 3-@term(time) store that lasts all combat. Other cards spend it to cost less, down to 1.",
+  "description": "Your first @kw(element_ice) card each turn refills a 3-@term(time) store that lasts all combat. Other cards spend it to cost less, down to 1.",
   "description_read_aloud": "Your first Ice card each turn refills a 3-Time store that lasts all combat. Other cards spend it to cost less, down to 1.",
   "words": 24,
   "current_words": 31,
@@ -2525,13 +2639,13 @@
     "name": "Ice",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "time": {
     "name": "Time",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -2559,19 +2673,19 @@
     "name": "Ranged",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_electrified": {
     "name": "Electrified",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "range": {
     "name": "Range",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -2582,7 +2696,7 @@
   "current_name": "Eclipse Mantle",
   "current_description": "Your first @icon(blink) each turn leaves @icon(illusion) 2 at its origin. Your @icon(illusion) radiate @icon(illuminate) 2 while they last.",
   "name": "Eclipse Mantle",
-  "description": "Your first @kw(blink) each turn leaves a 2-@term(health) @term(illusion) where you started. Your @kw(illusion|Illusions) shed radius-2 @term(light).",
+  "description": "Your first @kw(blink) each turn leaves a 2-@term(health) @term(illusion) where you started. Your @kw(illusion|Illusions) shed radius-2 @term(illuminate).",
   "description_read_aloud": "Your first Blink each turn leaves a 2-Health Illusion where you started. Your Illusions shed radius-2 Light.",
   "words": 17,
   "current_words": 19,
@@ -2600,25 +2714,28 @@
     "name": "Blink",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "health": {
     "name": "Health",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "illusion": {
     "name": "Illusion",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Illusions"
+    ]
    },
-   "light": {
+   "illuminate": {
     "name": "Light",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "missing: new concept"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -2647,13 +2764,13 @@
     "name": "Collision",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "block": {
     "name": "Block",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -2681,19 +2798,19 @@
     "name": "Push",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "pull": {
     "name": "Pull",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_rubble": {
     "name": "Rubble",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -2704,7 +2821,7 @@
   "current_name": "Tallow Candle",
   "current_description": "At the start of each combat, create radius-2 @icon(illuminate) on your tile for 3 turns.",
   "name": "Tallow Candle",
-  "description": "At the start of combat, create radius-2 @term(light) on your tile for 3 turns.",
+  "description": "At the start of combat, create radius-2 @term(illuminate) on your tile for 3 turns.",
   "description_read_aloud": "At the start of combat, create radius-2 Light on your tile for 3 turns.",
   "words": 14,
   "current_words": 15,
@@ -2717,11 +2834,11 @@
   "current_read_aloud": "At the start of each combat, create radius-2 Illuminate on your tile for 3 turns.",
   "current_uses_placeholders": false,
   "token_plan": {
-   "light": {
+   "illuminate": {
     "name": "Light",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "missing: new concept"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -2732,9 +2849,9 @@
   "current_name": "Pocket Sundial",
   "current_description": "If you use both @icon(card_play) in a turn, your next turn comes 2 @icon(time) sooner.",
   "name": "Pocket Sundial",
-  "description": "If you don't @kw(wait) this turn, your next turn comes 2 @term(time) sooner.",
-  "description_read_aloud": "If you don't Wait this turn, your next turn comes 2 Time sooner.",
-  "words": 13,
+  "description": "If your turn ends with no @kw(wait), your next turn comes 2 @term(time) sooner.",
+  "description_read_aloud": "If your turn ends with no Wait, your next turn comes 2 Time sooner.",
+  "words": 14,
   "current_words": 15,
   "changed": true,
   "reason": "clarity",
@@ -2742,7 +2859,7 @@
    "scripts/tempo_relic_rules.gd:21-23",
    "scripts/combat_engine.gd:3007-3016"
   ],
-  "director_decision_needed": "Uses the 'Wait' keyword, which has no glossary entry or icon yet. Approve adding Wait to the glossary, or fall back to 'If you use both base Card Plays this turn, ...' (14 words)?",
+  "director_decision_needed": null,
   "current_read_aloud": "If you use both Card Play in a turn, your next turn comes 2 Time sooner.",
   "current_uses_placeholders": false,
   "token_plan": {
@@ -2750,17 +2867,17 @@
     "name": "Wait",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "missing: new concept"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "time": {
     "name": "Time",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
-  "notes": "Code condition is base_plays_waited == 0 (exactly 'no Wait cost'). 'use both Card Play' was ungrammatical and ambiguous with a third Card Play (Whirling Sash) or Freeze-forfeited plays."
+  "notes": "Code condition is base_plays_waited == 0, exactly 'no Wait' as the glossary defines it (first 2 Card Plays used; Freeze-forfeited plays still add Wait). 'use both Card Play' was ungrammatical and ambiguous with a third Card Play (Whirling Sash)."
  },
  {
   "id": "leaden_pommel",
@@ -2786,13 +2903,13 @@
     "name": "Time",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "stagger": {
     "name": "Stagger",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -2820,7 +2937,7 @@
     "name": "Fire",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -2831,7 +2948,7 @@
   "current_name": "Hobnail Cleats",
   "current_description": "@icon(surface_ice) doesn't make you @icon(chilled). While you stand on @icon(surface_ice), your @icon(element_ice) attacks deal 2 more damage.",
   "name": "Hobnail Cleats",
-  "description": "@term(surface_ice) doesn't make you @term(chilled). While you stand on @kw(surface_ice), your @kw(element_ice|Ice) attacks deal 2 more damage.",
+  "description": "@term(surface_ice) doesn't make you @term(chilled). While you stand on @term(surface_ice), your @term(element_ice) attacks deal 2 more damage.",
   "description_read_aloud": "Ice doesn't make you Chilled. While you stand on Ice, your Ice attacks deal 2 more damage.",
   "words": 17,
   "current_words": 17,
@@ -2849,24 +2966,24 @@
    "surface_ice": {
     "name": "Ice",
     "first_mention": "icon + word",
-    "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "later_mentions": "icon + word (Ice element/ground disambiguation)",
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "chilled": {
     "name": "Chilled",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "element_ice": {
     "name": "Ice",
-    "first_mention": "word (keyword style)",
-    "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "first_mention": "icon + word",
+    "later_mentions": "icon + word (Ice element/ground disambiguation)",
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
-  "notes": null
+  "notes": "Element and ground Ice both carry their icons on every mention (decision Q2)."
  },
  {
   "id": "grounding_pin",
@@ -2891,13 +3008,13 @@
     "name": "Electrified",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "chain": {
     "name": "Chain",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -2926,13 +3043,13 @@
     "name": "Rubble",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "stoneskin": {
     "name": "Stoneskin",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -2960,7 +3077,7 @@
     "name": "Stoneskin",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -2988,13 +3105,13 @@
     "name": "Health",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "illusion": {
     "name": "Illusion",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3005,12 +3122,12 @@
   "current_name": "Quick-Draw Bandolier",
   "current_description": "Your items don't use a @icon(card_play), but cost 1 more @icon(time).",
   "name": "Quick-Draw Bandolier",
-  "description": "Your items don't use a @term(card_play), but cost 1 more @term(time).",
-  "description_read_aloud": "Your items don't use a Card Play, but cost 1 more Time.",
+  "description": "Your @kw(item|Items) don't use a @term(card_play), but cost 1 more @term(time).",
+  "description_read_aloud": "Your Items don't use a Card Play, but cost 1 more Time.",
   "words": 11,
   "current_words": 11,
-  "changed": false,
-  "reason": "unchanged",
+  "changed": true,
+  "reason": "consistency",
   "evidence": [
    "scripts/item_relic_rules.gd:15-27",
    "scripts/combat_engine.gd:1995"
@@ -3019,23 +3136,30 @@
   "current_read_aloud": "Your items don't use a Card Play, but cost 1 more Time.",
   "current_uses_placeholders": false,
   "token_plan": {
+   "item": {
+    "name": "Item",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Items"
+    ]
+   },
    "card_play": {
     "name": "Card Play",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "time": {
     "name": "Time",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "item"
-  ],
-  "notes": null
+  "plain_word_concepts": [],
+  "notes": "Item is a glossary keyword (decisions.md), so it is capitalized."
  },
  {
   "id": "briar_vambrace",
@@ -3060,13 +3184,13 @@
     "name": "Block",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "retaliate": {
     "name": "Retaliate",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3094,7 +3218,7 @@
     "name": "Time",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3122,7 +3246,7 @@
     "name": "Follow-up",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3151,13 +3275,13 @@
     "name": "Push",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "pull": {
     "name": "Pull",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3186,7 +3310,7 @@
     "name": "Stagger",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3215,13 +3339,13 @@
     "name": "Retaliate",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "block": {
     "name": "Block",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3250,13 +3374,13 @@
     "name": "Rite",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "time": {
     "name": "Time",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3284,19 +3408,19 @@
     "name": "Illusion",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "stagger": {
     "name": "Stagger",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "expose": {
     "name": "Expose",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3307,9 +3431,9 @@
   "current_name": "Copper-Shod Staff",
   "current_description": "Your outcrops and @icon(illusion) count as @icon(surface_electrified) for your @icon(element_lightning): they conduct and carry @icon(chain), and take no damage from it.",
   "name": "Copper-Shod Staff",
-  "description": "For your @kw(element_lightning|Lightning), your outcrops and @term(illusion|Illusions) count as @term(surface_electrified) tiles and take no damage from it.",
-  "description_read_aloud": "For your Lightning, your outcrops and Illusions count as Electrified tiles and take no damage from it.",
-  "words": 17,
+  "description": "For your @kw(element_lightning), your @kw(outcrop|Outcrops) and @term(illusion|Illusions) count as @term(surface_electrified) and take no damage from it.",
+  "description_read_aloud": "For your Lightning, your Outcrops and Illusions count as Electrified and take no damage from it.",
+  "words": 16,
   "current_words": 21,
   "changed": true,
   "reason": "clarity",
@@ -3318,7 +3442,7 @@
    "scripts/combat_engine.gd:11824-11826",
    "scripts/combat_engine.gd:11962-11963"
   ],
-  "director_decision_needed": "'Your outcrops' here (and in Mason's Plumb) also covers your Worldspines and Powder Kegs (illusion_relic_rules.gd:147). Define 'outcrop' in the glossary to include them, or name them in the text?",
+  "director_decision_needed": null,
   "current_read_aloud": "Your outcrops and Illusion count as Electrified for your Lightning: they conduct and carry Chain, and take no damage from it.",
   "current_uses_placeholders": false,
   "token_plan": {
@@ -3326,33 +3450,43 @@
     "name": "Lightning",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
+   },
+   "outcrop": {
+    "name": "Outcrop",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Outcrops"
+    ]
    },
    "illusion": {
     "name": "Illusion",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Illusions"
+    ]
    },
    "surface_electrified": {
     "name": "Electrified",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "outcrop"
-  ],
-  "notes": "Plural fix; 'conduct and carry Chain' is what Electrified already means."
+  "plain_word_concepts": [],
+  "notes": "Plural fix; 'conduct and carry Chain' is what Electrified already means. 'Outcrops' includes your Worldspines and Powder Kegs (illusion_relic_rules.gd:147), as the glossary's Outcrop entry states."
  },
  {
   "id": "ashen_phylactery",
   "current_name": "Ashen Phylactery",
   "current_description": "When you @icon(exhaust) a card, gain @icon(stoneskin) equal to the @icon(time) you paid for it (max 5).",
   "name": "Ashen Phylactery",
-  "description": "When you @kw(exhaust) a non-item card, gain @term(stoneskin) equal to the @term(time) you paid for it, up to 5.",
-  "description_read_aloud": "When you Exhaust a non-item card, gain Stoneskin equal to the Time you paid for it, up to 5.",
+  "description": "When you @kw(exhaust) a non-@kw(item) card, gain @term(stoneskin) equal to the @term(time) you paid for it, up to 5.",
+  "description_read_aloud": "When you Exhaust a non-Item card, gain Stoneskin equal to the Time you paid for it, up to 5.",
   "words": 19,
   "current_words": 17,
   "changed": true,
@@ -3370,25 +3504,29 @@
     "name": "Exhaust",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
+   },
+   "item": {
+    "name": "Item",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "stoneskin": {
     "name": "Stoneskin",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "time": {
     "name": "Time",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "item"
-  ],
-  "notes": "Items are excluded (combat_engine.gd:2021), which matters with Quartermaster's Ledger, whose items Exhaust."
+  "plain_word_concepts": [],
+  "notes": "Items are excluded (combat_engine.gd:2021), which matters with Quartermaster's Ledger, whose Items Exhaust."
  },
  {
   "id": "bonded_set",
@@ -3413,7 +3551,7 @@
     "name": "Block",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3441,13 +3579,13 @@
     "name": "Empower",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "quicken": {
     "name": "Quicken",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3475,13 +3613,13 @@
     "name": "Immobilize",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "collision": {
     "name": "Collision",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3492,42 +3630,49 @@
   "current_name": "Mason's Plumb",
   "current_description": "Your outcrops have 2 more @icon(health). An enemy that collides with one of your outcrops takes 2 more damage, and the outcrop takes none.",
   "name": "Mason's Plumb",
-  "description": "Your outcrops have 2 more @term(health). An enemy that collides with one of your outcrops takes 2 more damage, and the outcrop takes none.",
-  "description_read_aloud": "Your outcrops have 2 more Health. An enemy that collides with one of your outcrops takes 2 more damage, and the outcrop takes none.",
+  "description": "Your @kw(outcrop|Outcrops) have 2 more @term(health). An enemy that collides with one of your @kw(outcrop|Outcrops) takes 2 more damage, and the @kw(outcrop) takes none.",
+  "description_read_aloud": "Your Outcrops have 2 more Health. An enemy that collides with one of your Outcrops takes 2 more damage, and the Outcrop takes none.",
   "words": 24,
   "current_words": 24,
-  "changed": false,
-  "reason": "unchanged",
+  "changed": true,
+  "reason": "consistency",
   "evidence": [
    "scripts/forced_relic_rules.gd:25-43",
    "scripts/forced_relic_rules.gd:83-86",
    "scripts/forced_relic_rules.gd:100",
    "data/relics.json:2520-2545"
   ],
-  "director_decision_needed": "'Your outcrops' includes your Worldspines and Powder Kegs (terrain_kinds). Naming them pushes this to 27 words; prefer a glossary definition of 'outcrop' that includes them?",
+  "director_decision_needed": null,
   "current_read_aloud": "Your outcrops have 2 more Health. An enemy that collides with one of your outcrops takes 2 more damage, and the outcrop takes none.",
   "current_uses_placeholders": false,
   "token_plan": {
+   "outcrop": {
+    "name": "Outcrop",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Outcrops"
+    ]
+   },
    "health": {
     "name": "Health",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "outcrop"
-  ],
-  "notes": null
+  "plain_word_concepts": [],
+  "notes": "'Outcrops' as a keyword; it covers your Worldspines and Powder Kegs (terrain_kinds), as the glossary's Outcrop entry states."
  },
  {
   "id": "breaking_wheel",
   "current_name": "The Breaking Wheel",
   "current_description": "An enemy colliding on a surface breaks it: @icon(surface_fire) deals 3 more damage, @icon(surface_ice) gives @icon(freeze), @icon(surface_electrified) gives @icon(shock) to it and its blocker, @icon(surface_rubble) gives @icon(stagger) 3.",
   "name": "The Breaking Wheel",
-  "description": "An enemy that collides on a surface breaks it. @term(surface_fire): 3 more damage. @term(surface_ice): @term(freeze). @term(surface_electrified): @term(shock) it and enemy blockers. @term(surface_rubble): @kw(stagger) 3.",
-  "description_read_aloud": "An enemy that collides on a surface breaks it. Fire: 3 more damage. Ice: Freeze. Electrified: Shock it and enemy blockers. Rubble: Stagger 3.",
-  "words": 24,
+  "description": "When an enemy collides on ground, @kw(surface_consume) it. @term(surface_fire): 3 more damage. @term(surface_ice): @term(freeze). @term(surface_electrified): @term(shock) it and enemy blockers. @term(surface_rubble): @kw(stagger) 3.",
+  "description_read_aloud": "When an enemy collides on ground, Expend it. Fire: 3 more damage. Ice: Freeze. Electrified: Shock it and enemy blockers. Rubble: Stagger 3.",
+  "words": 23,
   "current_words": 28,
   "changed": true,
   "reason": "length",
@@ -3539,53 +3684,57 @@
   "current_read_aloud": "An enemy colliding on a surface breaks it: Fire deals 3 more damage, Ice gives Freeze, Electrified gives Shock to it and its blocker, Rubble gives Stagger 3.",
   "current_uses_placeholders": false,
   "token_plan": {
+   "surface_consume": {
+    "name": "Expend",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json"
+   },
    "surface_fire": {
     "name": "Fire",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_ice": {
     "name": "Ice",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "freeze": {
     "name": "Freeze",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_electrified": {
     "name": "Electrified",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "shock": {
     "name": "Shock",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "surface_rubble": {
     "name": "Rubble",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "stagger": {
     "name": "Stagger",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "surface (generic)"
-  ],
-  "notes": "28 -> 24 words; same 'Surface: effect.' form as Black Sun Dial. Applies to any enemy collision, not only yours."
+  "plain_word_concepts": [],
+  "notes": "28 -> 23 words; same 'Ground: effect.' form as Black Sun Dial. The collision tile's ground is removed (line 163), so Expend. Applies to any enemy collision, not only yours."
  },
  {
   "id": "hollow_puppet",
@@ -3609,25 +3758,28 @@
     "name": "Push",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "pull": {
     "name": "Pull",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "illusion": {
     "name": "Illusion",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Illusions"
+    ]
    },
    "health": {
     "name": "Health",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3656,7 +3808,7 @@
     "name": "Turn Clock",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3684,13 +3836,13 @@
     "name": "Block",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "rite": {
     "name": "Rite",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3718,13 +3870,13 @@
     "name": "Collision",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "stagger": {
     "name": "Stagger",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3753,13 +3905,13 @@
     "name": "Follow-up",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "quicken": {
     "name": "Quicken",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3770,12 +3922,12 @@
   "current_name": "Alchemist's Retort",
   "current_description": "Your items' damage, @icon(block), @icon(heal) and @icon(stoneskin) are increased by half, rounded up.",
   "name": "Alchemist's Retort",
-  "description": "Your items' damage, @term(block), @kw(heal) and @term(stoneskin) are increased by half, rounded up.",
-  "description_read_aloud": "Your items' damage, Block, Heal and Stoneskin are increased by half, rounded up.",
+  "description": "Your @kw(item|Items)' damage, @term(block), @kw(heal) and @term(stoneskin) are increased by half, rounded up.",
+  "description_read_aloud": "Your Items' damage, Block, Heal and Stoneskin are increased by half, rounded up.",
   "words": 13,
   "current_words": 13,
-  "changed": false,
-  "reason": "unchanged",
+  "changed": true,
+  "reason": "consistency",
   "evidence": [
    "scripts/item_relic_rules.gd:28-31",
    "scripts/item_relic_rules.gd:43-62"
@@ -3784,37 +3936,44 @@
   "current_read_aloud": "Your items' damage, Block, Heal and Stoneskin are increased by half, rounded up.",
   "current_uses_placeholders": false,
   "token_plan": {
+   "item": {
+    "name": "Item",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Items"
+    ]
+   },
    "block": {
     "name": "Block",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "heal": {
     "name": "Heal",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "stoneskin": {
     "name": "Stoneskin",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "item"
-  ],
-  "notes": null
+  "plain_word_concepts": [],
+  "notes": "Item is a glossary keyword (decisions.md), so it is capitalized."
  },
  {
   "id": "crown_of_surplus",
   "current_name": "Crown of Surplus",
   "current_description": "Cards without their own @icon(empower) gain one: @icon(empower) (+3 @icon(time)): repeat the card's first action. @icon(rite) cards, items and @icon(flurry) cards are excluded.",
   "name": "Crown of Surplus",
-  "description": "Cards without @kw(empower) gain one: pay 3 @term(time) to repeat the card's first action. @kw(rite|Rites), items and @kw(flurry) cards are excluded.",
-  "description_read_aloud": "Cards without Empower gain one: pay 3 Time to repeat the card's first action. Rites, items and Flurry cards are excluded.",
+  "description": "Cards without @kw(empower) gain one: pay 3 @term(time) to repeat the card's first action. @kw(rite|Rites), @kw(item|Items) and @kw(flurry) cards are excluded.",
+  "description_read_aloud": "Cards without Empower gain one: pay 3 Time to repeat the card's first action. Rites, Items and Flurry cards are excluded.",
   "words": 21,
   "current_words": 23,
   "changed": true,
@@ -3830,30 +3989,40 @@
     "name": "Empower",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "time": {
     "name": "Time",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "rite": {
     "name": "Rite",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Rites"
+    ]
+   },
+   "item": {
+    "name": "Item",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Items"
+    ]
    },
    "flurry": {
     "name": "Flurry",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "item"
-  ],
+  "plain_word_concepts": [],
   "notes": "Removes the rules parenthesis '(+3 Time)'."
  },
  {
@@ -3880,13 +4049,16 @@
     "name": "Illusion",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Illusions"
+    ]
    },
    "health": {
     "name": "Health",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3915,13 +4087,13 @@
     "name": "Rite",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "card_play": {
     "name": "Card Play",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3951,13 +4123,16 @@
     "name": "Exhaust",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Exhausted"
+    ]
    },
    "rite": {
     "name": "Rite",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -3987,13 +4162,13 @@
     "name": "Retaliate",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "block": {
     "name": "Block",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -4022,13 +4197,13 @@
     "name": "Card Play",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "time": {
     "name": "Time",
     "first_mention": "icon + word",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
   "plain_word_concepts": [],
@@ -4039,8 +4214,8 @@
   "current_name": "Quartermaster's Ledger",
   "current_description": "Your items lose @icon(consume), except items that @icon(heal). Each item can be used once per combat.",
   "name": "Quartermaster's Ledger",
-  "description": "Your items @kw(exhaust) instead of @kw(consume) unless they heal, so each can be used once per combat.",
-  "description_read_aloud": "Your items Exhaust instead of Consume unless they heal, so each can be used once per combat.",
+  "description": "Your @kw(item|Items) @kw(exhaust) instead of @kw(consume) unless they heal, so each can be used once per combat.",
+  "description_read_aloud": "Your Items Exhaust instead of Consume unless they heal, so each can be used once per combat.",
   "words": 17,
   "current_words": 16,
   "changed": true,
@@ -4052,22 +4227,29 @@
   "current_read_aloud": "Your items lose Consume, except items that Heal. Each item can be used once per combat.",
   "current_uses_placeholders": false,
   "token_plan": {
+   "item": {
+    "name": "Item",
+    "first_mention": "word (keyword style)",
+    "later_mentions": "word (keyword style)",
+    "glossary_entry": "exists in glossary_rewrite.json",
+    "forms": [
+     "Items"
+    ]
+   },
    "exhaust": {
     "name": "Exhaust",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    },
    "consume": {
     "name": "Consume",
     "first_mention": "word (keyword style)",
     "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists"
+    "glossary_entry": "exists in glossary_rewrite.json"
    }
   },
-  "plain_word_concepts": [
-   "item"
-  ],
-  "notes": "Says what replaces Consume (the card face switches to Exhaust, line 40)."
+  "plain_word_concepts": [],
+  "notes": "Says what replaces Consume (the card face switches to Exhaust, line 40). Consume stays the item keyword (decisions.md)."
  }
 ]

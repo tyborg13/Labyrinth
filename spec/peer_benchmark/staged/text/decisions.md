@@ -41,3 +41,8 @@ Sunpath/Dawnbrand HUD never shows SPENT (wrong flag); `text_token` callers passi
 missing); Lightning Strikes count chip uses the Shock icon; enemy-view copies of definitions pinned by tests (move to the
 glossary). Fatigue amplified by Expose/Chilled/Frozen (`combat_engine.gd:7773`) is a rules question for the owner — no
 change without approval.
+
+## Follow-up (2026-10-15)
+- **Outcrop / Worldbreak**: no rules change. Worldbreak's text names its real targets ("an Outcrop or Worldspine you
+  raised" — not Powder Kegs); the Outcrop glossary entry stays as drafted.
+- Glossary draft is final (`glossary_rewrite.json`, `"final": true`, 145 live entries).
