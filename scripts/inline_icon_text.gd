@@ -45,10 +45,10 @@ static func invalid_icon_keys(markup: String) -> Array[String]:
 	return result
 
 
-static func apply_to(label: RichTextLabel, markup: String, icon_scale: float = DEFAULT_ICON_SCALE) -> void:
+static func apply_to(label: RichTextLabel, markup: String, icon_scale: float = DEFAULT_ICON_SCALE, install_glossary_tooltip: bool = false) -> void:
 	if label == null:
 		return
-	if label.mouse_filter != Control.MOUSE_FILTER_IGNORE and label.get_script() == null:
+	if install_glossary_tooltip and label.get_script() == null:
 		label.set_script(GlossaryRichLabel)
 	label.clear()
 	var font_size: int = label.get_theme_font_size("normal_font_size")
@@ -83,10 +83,10 @@ static func apply_to(label: RichTextLabel, markup: String, icon_scale: float = D
 				Rect2(),
 				null,
 				false,
-				icon_label,
+				ActionIcons.tooltip(icon_key),
 				0,
 				0,
-				ActionIcons.tooltip(icon_key)
+				icon_label
 			)
 		cursor = token_end + TOKEN_SUFFIX.length()
 

@@ -13,6 +13,7 @@ static var _entries: Dictionary = {}
 static var _aliases: Dictionary = {}
 static var _terms: Array[Dictionary]
 static var _loaded: bool = false
+static var _missing_definitions: Dictionary = {}
 
 static func _ensure_loaded() -> void:
 	if _loaded:
@@ -65,8 +66,20 @@ static func all_entries() -> Array:
 	_ensure_loaded()
 	return _entries.values().duplicate(true)
 
-static func definition(id: String) -> String:
-	return str(lookup(id).get("definition", ""))
+static func definition(id: String, fallback_label: String = "") -> String:
+	var entry: Dictionary = lookup(id)
+	var text: String = str(entry.get("definition", "")).strip_edges()
+	if not text.is_empty():
+		return text
+	var key: String = str(entry.get("id", id)).to_lower()
+	if not _missing_definitions.has(key):
+		_missing_definitions[key] = true
+		push_warning("Missing glossary definition: " + key)
+	return name_for(id, fallback_label)
+
+static func name_for(id: String, fallback_label: String = "") -> String:
+	var label: String = str(lookup(id).get("name", "")).strip_edges()
+	return label if not label.is_empty() else (fallback_label if not fallback_label.is_empty() else id.capitalize())
 
 ## Merge explicit icon tokens and written keywords in first appearance order.
 ## Longer phrases win at the same position (Health Cost before Health).
@@ -78,8 +91,7 @@ static func ids_in_text(text: String, limit: int = 0) -> Array[String]:
 	var plain: String = text
 	for found: RegExMatch in tokens.search_all(text):
 		var entry: Dictionary = lookup(found.get_string(1))
-		if not entry.is_empty():
-			matches.append({"id": entry["id"], "start": found.get_start(), "end": found.get_end()})
+		matches.append({"id": entry.get("id", found.get_string(1)), "start": found.get_start(), "end": found.get_end()})
 		plain = plain.substr(0, found.get_start()) + " ".repeat(found.get_end() - found.get_start()) + plain.substr(found.get_end())
 	# BBCode metadata is not player-visible prose.
 	var tags := RegEx.new()

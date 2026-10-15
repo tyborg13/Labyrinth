@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Glossary = preload("res://scripts/glossary.gd")
+
 const EngineScript = preload("res://scripts/combat_engine.gd")
 const Data = preload("res://scripts/game_data.gd")
 const Icefall = preload("res://scripts/enemy_mechanics/icefall.gd")
@@ -388,5 +390,5 @@ static func _director_feedback(engine: RefCounted, expect: Callable) -> void:
 		expect.call(WindView.direction_name(axis) == "toward the " + quadrant, "Wind direction words match the isometric screen quadrant for %s" % axis)
 	expect.call(WindView.CHEVRON_HEAD_WIDTH == 14.0 and WindView.CHEVRON_STROKE == 2.0 and WindView.DRIFT_PIXELS_PER_SECOND == 40.0, "Wind chevrons use approved dimensions and drift speed")
 	expect.call(WindView.status_badges({"type": "gale_herald"})[0]["tooltip"] == "Anchored: the wind does not move it.", "Herald Anchored tooltip uses exact approved wording")
-	expect.call(Icons.KEYWORDS["icefall"]["description"] == "Icefall: icicles fall on the marked tiles on the Seer's next turn.", "Icefall icon description uses approved wording")
-	expect.call(Icons.KEYWORDS["wind"]["description"] == "Wind: at the end of each enemy turn, everything not anchored is pushed one tile with the wind.", "Wind icon description uses approved wording")
+	expect.call(Glossary.definition("icefall") == "Icefall: icicles fall on the marked tiles on the Seer's next turn.", "Icefall icon description uses approved wording")
+	expect.call(Glossary.definition("wind") == "Wind: at the end of each enemy turn, everything not anchored is pushed one tile with the wind.", "Wind icon description uses approved wording")

@@ -107,23 +107,6 @@
       ]
     },
     {
-      "pattern": "*card_keywords_before.png",
-      "width": 1920,
-      "height": 1080,
-      "regions": [
-        {
-          "rect": [
-            18,
-            18,
-            1884,
-            1044
-          ],
-          "min_luma_range": 16,
-          "min_luma_stdev": 3
-        }
-      ]
-    },
-    {
       "pattern": "*card_keywords_after.png",
       "width": 1920,
       "height": 1080,
@@ -193,6 +176,23 @@
     },
     {
       "pattern": "*relic_choice_outer_flow.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*owned_relic_flow.png",
       "width": 1920,
       "height": 1080,
       "regions": [

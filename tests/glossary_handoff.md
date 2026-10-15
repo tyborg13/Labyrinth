@@ -1,89 +1,83 @@
-# ux-03 implementation handoff
+# ux-03 implementation handoff — director feedback 3
 
-Changes are uncommitted on `codex/ux-03`. No branches, task queue, protected design data, art, audio, fonts, gameplay values, analytics or saves were changed. No peer review or windowed execution was performed.
+Uncommitted changes on top of `36db709a4`, in the supplied `codex/ux-03` checkout. Per the director's split, this worker performed implementation and headless verification only. Commits, peer review, real-renderer inspection and publication remain with the design owner. No windowed execution was attempted.
 
-## Acceptance / proof contract
+Risk: **high**, because the changes touch shared UI input and tooltip rendering. No glossary copy, gameplay values, art, fonts, audio, analytics or save formats changed in this pass.
 
-Risk: **high** (shared runtime UI). Task metadata, commits, peer review, inspection fixture and publication belong to the design owner under the supplied workflow split.
+## Acceptance and implementation
 
-1. **Glossary data:** 142 entries with `id`, `name`, `icon`, `definition`, and `aliases`. The 110 original icon/keyword definitions are copied verbatim from `ActionIconLibrary.KEYWORDS`; 30 skill definitions come from `data/skills.json`. Moltshards uses the existing no-shard tooltip from `scripts/dialogue_engine.gd`. Skill Point now uses the name and exact definition supplied in director feedback 1: “Earned as you level up. Spend them on skills in the Character menu.” Aliases preserve existing action aliases and status spellings. Plain-text matching uses authored keyword spelling so ordinary verbs do not become unrelated mechanic panels. Element and surface identities remain distinct; ambiguous plain `Fire`/`Ice` names require explicit icon tokens (current relic descriptions already use them).
-2. **Card definitions:** `ActionIconLibrary.description()` and its formatted Dive path now load canonical keyword copy from the glossary. Contextual token overrides and modifier explanations remain intact. The brief's `card_keyword_rules.gd` contains mechanics, not tooltip definitions, so it is untouched. The immutable before-copy and before-stack fixtures are taken from base `847a2d750`; the old stack's empty typed-array initializers were normalized for Windows without changing rendering. The probe compares whole native RGBA images of a focused Quick Stab card and the old/new stacks.
-3. **Relics:** the existing stack binds to both production treasure choices and owned HUD badges, with distinct concepts in first appearance order. Treasure choices show glossary panels only; owned badges retain the name/description panel first. The explicit “all if ≤ 6, otherwise first 6” clause governs the contradictory four/six wording. No more-count text is added. The unmarked word “Consume” in Briar Winch is ambiguous between item consumption and surface removal; `TODO_DESIGN_GLOSSARY_CONSUME_PROSE` leaves that word unresolved rather than showing the wrong item definition. Its explicit Rubble, Push and Pull tokens still resolve. Hover, keyboard focus and controller candidate focus use the same stack. Live counters remain in the description; native duplicate popups are suppressed without deleting `tooltip_text` used for controller discovery. Choice stacks top-align on the outer side with a 12 px gap when there is panel-width + 24 px of room and the column fits above the 24 px bottom margin. Middle choices and side fallbacks flow below the whole card row with a 12 px gap. Flow uses up to three panels per row, natural panel widths, 12 px gaps in both directions, first appearance order, and horizontal centering clamped to 24 px screen margins. When that block crosses the bottom margin, it uses up to four panels per row. Owned stacks start 8 px below the icon and align left, clamped horizontally. All current owned relics fit at 1920×1080 in headless layout checks. The exhaustive production-card probe checks all 112 relics at all three positions, including all panel bounds and order. All 336 cases fit on screen; two final four-column cases have a fractional bottom-margin shortfall documented below. Card placement remains its original behavior in the pixel fixture.
-4. **Inline hover:** the actual renderer is `scripts/inline_icon_text.gd`, not the brief's filename. Its existing image hit testing now supplies the definition and `UiTooltipPanel` for labels already accepting mouse input. Noninteractive labels stay noninteractive; their relic owner supplies the stack. Existing nested card/board token hover also reads the glossary through `ActionIconLibrary`. Glossary panel bodies support BBCode and inline images using the existing type sizes and panel styling.
-5. **Coverage:** the focused runner checks every icon registry entry, aliases, all card token rows, recursive card/relic/skill/enemy/grimoire text, and literal icon tokens across production status/intent scripts. It prints unresolved-definition TODO count. It also tests verbatim card copy, live glossary sourcing, semantic overrides, deduplication/order/cap, owner lifetime, input routing, BBCode, and current relic bounds.
+1. **Inline image hit testing.** `InlineIconText` puts the full glossary tooltip in `RichTextLabel.add_image` argument 9 and the label in argument 12 (`alt_text`). The focused test adds the label to the viewport, waits for layout, and calls `get_tooltip(point)` across its image area. Custom tooltip script installation now requires the fourth `apply_to` argument; the two interactive skill-description callers opt in explicitly. Existing scripts are preserved.
+2. **Focus origin.** Pointer clicks clear persistent relic focus. Keyboard/controller navigation can retain it, including controller navigation back to an already focused badge. Both tests and the production-scene probe deliver mouse button events, then move away and require the stack to close. Hand-hover `hide_stack()` preserves an actively hovered/focused relic; explicit owner removal or modal opening can force dismissal.
+3. **Choice placement.** Eligible outer columns still use their 12 px gap and existing side-clearance rule. Otherwise the stack tries three, then four panels per row below the tallest card. If the four-column block crosses the 24 px bottom margin, it moves above the entire card row, ending 12 px before its top edge, centered on the owner and clamped horizontally to 24 px margins. Only this final fallback may overlap the banner. All card/owner intersections remain forbidden. Placement is cached until owner/row rectangles, viewport or panel minimum sizes change; a new set of panels invalidates it.
+4. **Owned placement.** The preferred anchor remains 8 px below the icon. A column that would cross the bottom margin flows its remaining glossary panels to a second column, 12 px to the right and top-aligned; the name/description stays first. The resulting block clamps horizontally and vertically using the existing 18 px safe margin. Panels retain the shared tooltip component, typography and spacing.
+5. **Controller callout.** Real `_controller_candidate_for_control` candidates have empty `detail` for glossary owners. The probe routes them through `_controller_set_focus_candidate(candidate, true)`. Its owned fixture uses a connected starting room with dialogue/map closed, asserts a visible analog cursor, and requires empty detail text and no visible detail panel.
+6. **Canonical definitions and titles.** Removed all dead `KEYWORDS.description` copies. Action/skill definitions and canonical card titles read the glossary. The three named legacy suites now read definitions from `Glossary`. Focused tests mutate a glossary entry and verify its live card title/body, without comparing current copy to the frozen migration JSON. Missing/blank definitions emit one warning per concept and fall back to a readable label. Unknown explicit icon tokens retain a fallback panel instead of disappearing.
+7. **Coverage.** Raw definitions must be nonempty for every glossary/registry entry, rendered card token, authored data token and literal production status/intent icon. This deliberately checks raw data rather than the runtime fallback. Tests also cover missing/blank entries, warning deduplication, mixed card heights, layout cache invalidation, above-row fallback, owned vertical clamping, explicit script opt-in and owner lifetime.
 
-## Files
+The exhaustive probe rebuilds each of the 112 relics in all three production choice positions and all three owned-tray positions. It runs at **1920×1080**, **1670×1043**, and **1536×864**: **2,016 placement cases** total. Each block/panel must remain on screen, retain panel order/gaps, and satisfy the applicable margin and overlap rules. The old fractional bottom-margin exception is removed.
 
-- `data/glossary.json`: canonical seed data.
-- `scripts/glossary.gd`: cached loader, aliases, text lookup and ordering.
-- `scripts/action_icon_library.gd`: canonical definition lookup, retaining the compatibility registry and its legacy source assertions.
-- `scripts/card_focus_tooltip_stack.gd`: owner binding, relic panels, shared positioning and BBCode body support.
-- `scripts/inline_icon_text.gd`: existing inline hover definition/panel hookup and BBCode-aware appending.
-- `scripts/run_scene.gd`: **exactly four changed/added lines in the final file**: 11062 (owned badge constructor), 11152 (bind owned badge), 16373 (choice constructor), 16391 (bind choice). No other run-scene lines were edited.
-- `tests/glossary_card_copy_before.json`, `tests/glossary_card_stack_before.gd`: immutable pre-change pixel/copy oracle.
-- `tests/glossary_fixture.gd`: deterministic treasure fixture shared by tests and probe.
-- `tests/glossary_test.gd`: focused coverage and live integration tests.
-- `tests/glossary_tooltip_probe.gd`, `tests/glossary_tooltip_probe_contract.json`: real input capture scenarios and semantic/image contract.
-- `tests/glossary_handoff.md`: this contract and handoff.
+The 1536×864 case is the logical viewport equivalent of 1920×1080 at 1.25 UI scale. The probe uses that actual SubViewport size with `ui_scale = 1.0`; it does not apply scale a second time. All captures use `UPDATE_ALWAYS` and wait for `RenderingServer.frame_post_draw`.
 
-## Verification commands
+## Changed files in this pass
 
-All Godot runs use the required task runner. Logs are under `/private/tmp/ux-03-*.log`.
+- `scripts/inline_icon_text.gd`, `scripts/glossary.gd`, `scripts/action_icon_library.gd`, `scripts/card_focus_tooltip_stack.gd`: tooltip arguments, canonical copy/fallback, input origin and placement.
+- `scripts/run_scene.gd`: controller detail suppression, navigation focus preparation, explicit skill-detail opt-in and forced modal dismissal. `scripts/skill_tree_view.gd`: explicit opt-in for its interactive detail label.
+- `tests/suites/en02_enemies_suite.gd`, `tests/suites/en03_enemies_suite.gd`, `tests/suites/turn_clock_copy_suite.gd`: glossary access in the requested existing assertions.
+- `tests/glossary_test.gd`, `tests/glossary_tooltip_probe.gd`, the three resolution-specific probe contracts, and this handoff.
 
-```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/ux-03 && python3 tools/godot_task_runner.py --task-id ux-03 --stream -- godot --headless --path . --script tests/glossary_test.gd
-cd /Users/borgerding/workspace/Labyrinth.worktrees/ux-03 && python3 tools/godot_task_runner.py --task-id ux-03 --stream -- godot --headless --path . --script tests/glossary_tooltip_probe.gd -- --verify-logic
-cd /Users/borgerding/workspace/Labyrinth.worktrees/ux-03 && python3 tests/test_ui_identity_lint.py
-cd /Users/borgerding/workspace/Labyrinth.worktrees/ux-03 && python3 tests/test_icon_identity_policy.py
-cd /Users/borgerding/workspace/Labyrinth.worktrees/ux-03 && python3 tools/godot_task_runner.py --task-id ux-03 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd
-cd /Users/borgerding/workspace/Labyrinth.worktrees/ux-03 && python3 -m unittest discover -s tests -p 'test_*.py' -v
-```
+`tests/glossary_card_copy_before.json` and `tests/glossary_card_stack_before.gd` remain unchanged as migration artifacts from `847a2d750`. The before/after pixel comparison runs **only with `--compare-original-card`**. Default tests/probes do not pin their old text, allowing ux-04 copy changes.
 
-## Current results (director feedback 2)
+## Verification
 
-- `/private/tmp/ux-03-flow-glossary.log`: `GLOSSARY TEST RESULT: PASS (3069 checks, 0 failures)`; `GLOSSARY COVERAGE: 142 entries, 438 tokens checked`; `GLOSSARY TODO_DESIGN: 0 []` plus the known Consume prose TODO.
-- `/private/tmp/ux-03-flow-logic-final.log`: `GLOSSARY ALL-RELIC CHOICE FIT: PASS (112 relics, 336 positions, 1920x1080)`; `GLOSSARY CHOICE LAYOUTS: column=222, three=109, four=5`; `GLOSSARY PROBE LOGIC RESULT: PASS`. Exit 0; headless mode creates no images.
-- `/private/tmp/ux-03-flow-ui.log`: `Ran 25 tests in 2.567s`; `OK`.
-- `/private/tmp/ux-03-flow-full-godot.log`: `FULL SUITE RUNTIME: 702.587 seconds (budget 900 seconds)`; `TEST RESULT: PASS`. Exit 0.
-- Most recent full Python run (before feedback 2): `/private/tmp/ux-03-feedback-python.log`, `Ran 397 tests in 248.183s`; `OK (skipped=61)`. Icon identity also passed: 7 tests, `OK`. Feedback 2 changes no identities, assets, Python tools or dependencies.
-- `git diff --check`: exit 0.
-
-The layout TODO is resolved by director feedback 2 and removed from runtime and coverage. Tests force the four-column fallback using unequal panel heights, verify its return to an outer column, and cover the exact side-clearance threshold. The probe builds each relic's actual production card three times, then validates every slot. It asserts all panels remain on screen, natural panel sizes, row gaps/order, outer-column eligibility, four-column fallback eligibility, and no card/banner/owner overlap. Owned-tray checks and card pixel comparison remain intact.
-
-**Fractional margin observation:** Witchglass Lantern and Hollow Puppet in the middle slot use the prescribed four-column fallback, ending at y=1056.6288 and leaving **23.3712 px** below. Both are fully on screen. Their normal panel heights plus the required 12 px gap cannot yield a full 24 px bottom margin with the current fractional card-row position. The probe reports this exact clearance explicitly; it retains the final fallback's on-screen assertion. Panel dimensions, card-row placement and gaps are unchanged.
-
-The Godot logs include the existing macOS CA-certificate diagnostics and scene-teardown warnings. No existing master assertions were rewritten. No windowed execution, peer review or Git publication was performed.
-
-## Proof for the design owner
-
-The sandbox has no window-server access. No windowed execution was attempted by this worker. The director reviewed the initial captures and confirmed card pixel identity, but those captures failed native size checks. The revised probe renders and captures a fixed 1920×1080 SubViewport with `UPDATE_ALWAYS`, after `frame_post_draw`; fresh windowed proof remains pending. Run:
+Commands run from this worktree:
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/ux-03 && python3 tools/visual_probe_runner.py --timeout 120 --no-headless --display-driver macos --audio-driver Dummy tests/glossary_tooltip_probe.gd --task-id ux-03 --expect-size 1920x1080 --proof-contract tests/glossary_tooltip_probe_contract.json --result-manifest /private/tmp/ux-03-glossary-visual-proof.json
+for size in 1920x1080 1670x1043 1536x864; do
+  python3 tools/godot_task_runner.py --task-id ux-03 --stream -- godot --headless --path . --script tests/glossary_test.gd -- --size="$size"
+  python3 tools/godot_task_runner.py --task-id ux-03 --stream -- godot --headless --path . --script tests/glossary_tooltip_probe.gd -- --verify-logic --size="$size"
+done
+python3 tests/test_ui_identity_lint.py
+python3 tests/test_icon_identity_policy.py
+python3 tools/godot_task_runner.py --task-id ux-03 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd
+python3 -m unittest discover -s tests -p 'test_*.py' -v
+git diff --check
 ```
 
-The runner uses an isolated `user://`; the script prints its absolute `GLOSSARY_PROOF_DIR` and each `GLOSSARY_CAPTURE` path. Under that directory expect:
+Current results:
 
-- `relic_choice_hover.png`, `relic_choice_keyboard.png`, `relic_choice_controller.png`
-- `relic_choice_middle.png`, `relic_choice_right.png`
-- `relic_choice_flow_four.png`, `relic_choice_outer_flow.png`
-- `owned_relic_hover.png`, `owned_relic_keyboard.png`, `owned_relic_controller.png`
-- `card_keywords_before.png`, `card_keywords_after.png`
+- Final focused tests: **PASS (3,291 checks, 0 failures)** at each resolution, covering 142 entries and 438 tokens; logs `/private/tmp/ux-03-f3-glossary-{1920,1670,1536}.log`.
+- All three production-scene logic probes: **PASS**, including all 2,016 placements and actual pointer/keyboard/controller routes. Logs `/private/tmp/ux-03-f3-probe-{1920,1670,1536}.log`. Native probe also ran the optional before-stack construction path headlessly; no pixel comparison is claimed from a headless run.
+- Choice layouts (column / three / four): **222 / 109 / 5** at 1920×1080; **218 / 109 / 9** at 1670×1043; **0 / 294 / 42** at 1536×864. Four-column counts include above-row placements.
+- Owned second-column cases: **0 / 0 / 9**, respectively.
+- UI lint: **25 tests, PASS** (`/private/tmp/ux-03-f3-ui.log`). Icon identity: **7 tests, PASS** (`/private/tmp/ux-03-f3-icons.log`).
+- Python suite: **397 tests, PASS (61 skipped)** in 246.756 seconds (`/private/tmp/ux-03-f3-python.log`).
+- Final full Godot suite: **PASS** in **746.906 seconds** (900-second budget), exit 0 (`/private/tmp/ux-03-f3-full-godot-final.log`).
+- `git diff --check`: PASS.
 
-The twelve captures must be native 1920×1080 at 100% scale. The card pair must print `CARD KEYWORD PIXEL IDENTITY: PASS (exact RGBA equality)`. The probe refuses ordinary headless capture and never fabricates/resizes images. `--verify-logic` checks all scenarios headlessly and produces no images. The design owner still needs to inspect the actual images and arrange independent UI identity review. The brief delegates inspection-fixture preparation to the design owner and does not request a fixture command for this unit.
+The focused tests intentionally emit one warning for each injected missing-definition fixture. Existing full-suite calls for retired `burn`/`poison` keys also exercise the new fallback warning. The usual macOS certificate diagnostics and teardown warnings remain visible in the logs.
 
-## TODO_DESIGN
+## Windowed proof commands for the design owner
 
+Run from `/Users/borgerding/workspace/Labyrinth.worktrees/ux-03`. These commands have **not** been run by this worker. The original 1920×1080 card identity proof is explicitly opt-in here; omit that flag for future glossary-copy work.
 
-- `TODO_DESIGN_GLOSSARY_CONSUME_PROSE` — the capitalized, unmarked “Consume” in Briar Winch requires a design-owned concept token to distinguish surface removal from the Consume item keyword. The script excludes this ambiguous prose word; explicit `@icon(consume)` still resolves.
+```bash
+python3 tools/visual_probe_runner.py --timeout 120 --no-headless --display-driver macos --audio-driver Dummy tests/glossary_tooltip_probe.gd --task-id ux-03 --expect-size 1920x1080 --proof-contract tests/glossary_tooltip_probe_contract.json --result-manifest /private/tmp/ux-03-f3-visual-1920.json -- --size=1920x1080 --compare-original-card
 
-## Chosen defaults
+python3 tools/visual_probe_runner.py --timeout 120 --no-headless --display-driver macos --audio-driver Dummy tests/glossary_tooltip_probe.gd --task-id ux-03 --expect-size 1670x1043 --proof-contract tests/glossary_tooltip_probe_contract_1670x1043.json --result-manifest /private/tmp/ux-03-f3-visual-1670.json -- --size=1670x1043
 
-Only test/proof values were chosen:
+python3 tools/visual_probe_runner.py --timeout 120 --no-headless --display-driver macos --audio-driver Dummy tests/glossary_tooltip_probe.gd --task-id ux-03 --expect-size 1536x864 --proof-contract tests/glossary_tooltip_probe_contract_1536x864.json --result-manifest /private/tmp/ux-03-f3-visual-1536.json -- --size=1536x864
+```
 
-- `Fixture.SEED = 7321`; proof offers/owned relics are Iron Lung, Brightglass Lens and Pilgrim Boots; focused card is Quick Stab. All reuse production data/art.
-- `REVEAL_STEPS = 160`, `REVEAL_POLL_SECONDS = 0.025`; card settling `CARD_SETTLE_SECONDS = 0.5` seconds. Frame settling uses two frames for tests and three for proof. The exhaustive 336-case native probe uses a 120-second process timeout for its production-scene rebuilds and frame settling; the startup watchdog is unchanged.
-- Proof card position `(700,320)` and size `(250,352)`; parked pointer `(8,8)`; headless tray owner position `(1800,80)`, size `(60,60)`; synthetic choice cards at x=`400,800,1200`, y=`200`, size `(100,100)`. The side-clearance test moves the left card to exactly panel-width + 24 px, then 1 px inward. The four-column test uses y=600 and two 200 px minimum-height panels. Fallback captures use Witchglass Lantern and Breaking Wheel.
-- Isolated progression/run/settings filenames and `user://glossary_tooltip_probe` output directory. Frozen card presentation prevents animation time from changing the before/after comparison. The 1920×1080 resolution, 100% scale, six-panel limit, styles, margins, and spacing come from the brief, director feedback 1/2, or existing components.
-- Debug strings/tokens for lookup-source, overlap, seven-concept cap and BBCode tests; semantic capture region `(18,18,1884,1044)` with minimum luma range 16 and standard deviation 3.
-- The full-suite timeout is 900 seconds, matching the repository's documented suite budget.
+The isolated output directory is printed as `GLOSSARY_PROOF_DIR`; each image path is printed as `GLOSSARY_CAPTURE`. Expect twelve normal captures:
+
+- `relic_choice_hover`, `relic_choice_keyboard`, `relic_choice_controller`, `relic_choice_middle`, `relic_choice_right`, `relic_choice_flow_four`, `relic_choice_outer_flow`.
+- `owned_relic_hover`, `owned_relic_keyboard`, `owned_relic_controller`, `owned_relic_flow`.
+- `card_keywords_after`.
+
+Each filename ends in `.png`. `--compare-original-card` adds `card_keywords_before.png` and requires `CARD KEYWORD PIXEL IDENTITY: PASS (exact RGBA equality)`. The panel named `relic_choice_flow_four` can sit above the row under the new final fallback; `owned_relic_flow` captures Breaking Wheel, which uses two columns at 1536×864. Captures must match the requested native dimensions. No images are fabricated or resized. Fresh image inspection and independent UI identity review remain with the design owner.
+
+## Known design item and proof defaults
+
+`TODO_DESIGN_GLOSSARY_CONSUME_PROSE` remains: the unmarked “Consume” in Briar Winch is ambiguous between surface removal and the item keyword. The script does not attach the item definition to that prose; explicit `@icon(consume)` still resolves.
+
+The existing deterministic seed (7321), Iron Lung/Brightglass Lens/Pilgrim Boots input fixtures, Quick Stab card, shared UI styles, six-concept cap and reveal polling remain. Proof-only fixtures choose card/owner positions, unequal panel/card heights, synthetic sentinel text and the three required viewport sizes. The 120-second visual timeout accommodates all 672 placement checks per invocation; the startup watchdog is unchanged. The full-suite budget remains 900 seconds.

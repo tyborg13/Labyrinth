@@ -27,8 +27,11 @@ const OWNED_RELIC_GAP: float = 8.0
 var _follow_target: Control
 var _entries: Array[Dictionary]
 var _relic_layout: bool = false
-var _choice_host: Control
-var _choice_panels: Array[Control]
+var _panel_host: Control
+var _panels: Array[Control]
+var _pointer_focus_input: bool = false
+var _layout_signature: Array = []
+var _layout_passes: int = 0
 
 func bind_relic(owner: Control, relic: Dictionary, choice_row: Control = null) -> void:
 	owner.set_meta("glossary_relic", relic.duplicate(true))
@@ -38,13 +41,14 @@ func bind_relic(owner: Control, relic: Dictionary, choice_row: Control = null) -
 	owner.mouse_exited.connect(_owner_interaction.bind(owner, "glossary_hovered", false))
 	owner.focus_entered.connect(_owner_interaction.bind(owner, "glossary_focused", true))
 	owner.focus_exited.connect(_owner_interaction.bind(owner, "glossary_focused", false))
+	owner.gui_input.connect(_owner_gui_input.bind(owner))
 	owner.tree_exiting.connect(hide_for.bind(owner))
 
 func _owner_interaction(owner: Control, key: String, active: bool) -> void:
 	if not is_inside_tree() or is_queued_for_deletion():
 		return
-	owner.set_meta(key, active)
-	if bool(owner.get_meta("glossary_hovered", false)) or bool(owner.get_meta("glossary_focused", false)):
+	owner.set_meta(key, active and not _pointer_focus_input if key == "glossary_focused" else active)
+	if _owner_active(owner):
 		if _follow_target != owner or not visible:
 			show_relic(owner, owner.get_meta("glossary_relic", {}) as Dictionary)
 	else:
@@ -53,8 +57,32 @@ func _owner_interaction(owner: Control, key: String, active: bool) -> void:
 		# Pointer inspection can temporarily replace a keyboard/controller owner.
 		# Returning from it must restore the still-focused relic's explanation.
 		var focused: Control = get_viewport().gui_get_focus_owner()
-		if was_current and focused != null and focused != owner and focused.has_meta("glossary_relic"):
+		if was_current and focused != null and focused != owner and focused.has_meta("glossary_relic") and _owner_active(focused):
 			show_relic(focused, focused.get_meta("glossary_relic", {}) as Dictionary)
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		_pointer_focus_input = true
+		var focused: Control = get_viewport().gui_get_focus_owner()
+		if focused != null and focused.has_meta("glossary_relic"):
+			_owner_interaction(focused, "glossary_focused", false)
+	elif (event is InputEventKey or event is InputEventJoypadButton) and event.pressed:
+		_pointer_focus_input = false
+	elif event is InputEventJoypadMotion and absf(event.axis_value) > 0.0:
+		_pointer_focus_input = false
+
+func _owner_gui_input(event: InputEvent, owner: Control) -> void:
+	if event is InputEventMouseButton and event.pressed:
+		_pointer_focus_input = true
+		_owner_interaction(owner, "glossary_focused", false)
+
+func prepare_navigation_focus(owner: Control) -> void:
+	_pointer_focus_input = false
+	if owner.has_focus():
+		_owner_interaction(owner, "glossary_focused", true)
+
+static func _owner_active(owner: Control) -> bool:
+	return bool(owner.get_meta("glossary_hovered", false)) or bool(owner.get_meta("glossary_focused", false))
 
 func show_relic(owner: Control, relic: Dictionary) -> void:
 	var description: String = str(relic.get("description", ""))
@@ -72,17 +100,18 @@ func show_relic(owner: Control, relic: Dictionary) -> void:
 		})
 	for id: String in Glossary.ids_in_text(description, Glossary.MAX_RELIC_PANELS):
 		var entry: Dictionary = Glossary.lookup(id)
-		var icon: String = str(entry.get("icon", ""))
+		var icon: String = str(entry.get("icon", id))
+		var title: String = ActionIcons.label(id)
 		entries.append({
-			"icon": icon, "title": entry["name"],
-			"description": entry["definition"], "semantic_key": id,
+			"icon": icon, "title": title,
+			"description": Glossary.definition(id, title), "semantic_key": id,
 			"texture": AssetLoader.load_texture(icon) if icon.begins_with("res://") else ActionIcons.icon_texture(icon),
 		})
 	show_for(owner, entries, true)
 
 func hide_for(owner: Control) -> void:
 	if _follow_target == owner:
-		hide_stack()
+		hide_stack(true)
 
 func _ready() -> void:
 	name = "CardFocusTooltipStack"
@@ -95,18 +124,17 @@ func _ready() -> void:
 	set_process(false)
 
 func show_for(target: Control, entries: Array, relic_layout: bool = false) -> void:
-	hide_stack()
+	hide_stack(true)
 	_relic_layout = relic_layout
 	if target == null or entries.is_empty():
 		return
 	_follow_target = target
-	if _relic_layout and target.has_meta("glossary_choice_row"):
-		# Keep the card/owned VBox tree intact. Choice panels alone use natural
-		# widths in a measured flow that can switch between side and below-row.
-		_choice_host = Control.new()
-		_choice_host.name = "RelicGlossaryFlow"
-		_choice_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		add_child(_choice_host)
+	if _relic_layout:
+		# Relics can flow across columns; card stacks retain their original VBox.
+		_panel_host = Control.new()
+		_panel_host.name = "RelicGlossaryFlow"
+		_panel_host.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_panel_host)
 	for entry_var: Variant in entries:
 		if typeof(entry_var) != TYPE_DICTIONARY:
 			continue
@@ -131,9 +159,9 @@ func show_for(target: Control, entries: Array, relic_layout: bool = false) -> vo
 		]
 		panel.set_meta("icon_key", str(entry.get("icon", "")))
 		panel.set_meta("semantic_key", str(entry.get("semantic_key", "")))
-		if _choice_host != null:
-			_choice_host.add_child(panel)
-			_choice_panels.append(panel)
+		if _panel_host != null:
+			_panel_host.add_child(panel)
+			_panels.append(panel)
 		else:
 			add_child(panel)
 		_entries.append(entry)
@@ -160,13 +188,16 @@ static func _apply_definition_bbcode(panel: PanelContainer, description: String,
 	body.queue_free()
 	text_box.add_child(rich)
 
-func hide_stack() -> void:
+func hide_stack(force: bool = false) -> void:
+	if not force and _relic_layout and is_instance_valid(_follow_target) and _follow_target.is_inside_tree() and _follow_target.is_visible_in_tree() and _owner_active(_follow_target):
+		return
 	visible = false
 	set_process(false)
 	_follow_target = null
 	_entries.clear()
-	_choice_panels.clear()
-	_choice_host = null
+	_panels.clear()
+	_layout_signature.clear()
+	_panel_host = null
 	for child: Node in get_children():
 		remove_child(child)
 		child.queue_free()
@@ -185,25 +216,24 @@ func _process(_delta: float) -> void:
 
 func _follow_target_now() -> void:
 	if not visible or _follow_target == null or not is_instance_valid(_follow_target):
-		hide_stack()
+		hide_stack(true)
 		return
 	if not _follow_target.is_inside_tree() or _follow_target.is_queued_for_deletion():
-		hide_stack()
+		hide_stack(true)
 		return
 	if not _follow_target.is_visible_in_tree():
-		hide_stack()
+		hide_stack(true)
 		return
 	var card_rect: Rect2 = _visual_global_rect(_follow_target)
 	var viewport_rect: Rect2 = get_viewport().get_visible_rect()
-	if _choice_host != null:
-		_layout_choice(card_rect, viewport_rect)
+	if _panel_host != null:
+		if _follow_target.has_meta("glossary_choice_row"):
+			_layout_choice(card_rect, viewport_rect)
+		else:
+			_layout_owned(card_rect, viewport_rect)
 		return
 	var stack_size: Vector2 = get_combined_minimum_size()
 	size = stack_size
-	if _relic_layout:
-		var left: float = clampf(card_rect.position.x, viewport_rect.position.x + SAFE_MARGIN, maxf(viewport_rect.position.x + SAFE_MARGIN, viewport_rect.end.x - SAFE_MARGIN - stack_size.x))
-		global_position = Vector2(left, card_rect.end.y + OWNED_RELIC_GAP)
-		return
 	var target_position := Vector2(
 		card_rect.end.x + CARD_GAP,
 		card_rect.get_center().y - stack_size.y * 0.5
@@ -223,8 +253,16 @@ func _layout_choice(owner_rect: Rect2, viewport_rect: Rect2) -> void:
 		if child is Control and child.has_meta("glossary_relic") and (child as Control).is_visible_in_tree():
 			choices.append(child as Control)
 	var row_bottom: float = owner_rect.end.y
+	var row_top: float = owner_rect.position.y
+	var row_rects: Array = []
 	for choice: Control in choices:
-		row_bottom = maxf(row_bottom, _visual_global_rect(choice).end.y)
+		var rect: Rect2 = _visual_global_rect(choice)
+		row_rects.append(rect)
+		row_bottom = maxf(row_bottom, rect.end.y)
+		row_top = minf(row_top, rect.position.y)
+	if _layout_unchanged(owner_rect, viewport_rect, row_rects):
+		return
+	set_meta("glossary_choice_above", false)
 	var column_size: Vector2 = _measure_choice(1, STACK_SEPARATION)
 	var column_fits: bool = owner_rect.position.y + column_size.y <= viewport_rect.end.y - RELIC_CHOICE_SCREEN_MARGIN
 	# Only outer cards with both horizontal and vertical space keep a column.
@@ -243,16 +281,80 @@ func _layout_choice(owner_rect: Rect2, viewport_rect: Rect2) -> void:
 	if top + flow_size.y > viewport_rect.end.y - RELIC_CHOICE_SCREEN_MARGIN:
 		columns = RELIC_CHOICE_FALLBACK_COLUMNS
 		flow_size = _measure_choice(columns, RELIC_CHOICE_GAP)
+	if top + flow_size.y > viewport_rect.end.y - RELIC_CHOICE_SCREEN_MARGIN:
+		top = maxf(viewport_rect.position.y + RELIC_CHOICE_SCREEN_MARGIN, row_top - RELIC_CHOICE_GAP - flow_size.y)
+		set_meta("glossary_choice_above", true)
 	_arrange_choice(columns, RELIC_CHOICE_GAP)
 	var left: float = clampf(owner_rect.get_center().x - flow_size.x * 0.5, viewport_rect.position.x + RELIC_CHOICE_SCREEN_MARGIN, maxf(viewport_rect.position.x + RELIC_CHOICE_SCREEN_MARGIN, viewport_rect.end.x - RELIC_CHOICE_SCREEN_MARGIN - flow_size.x))
 	global_position = Vector2(left, top)
 
+# Include all row rectangles and measured panel sizes: neighbour height, font,
+# content or viewport changes invalidate placement; idle frames do no arranging.
+func _layout_unchanged(owner_rect: Rect2, viewport_rect: Rect2, row_rects: Array) -> bool:
+	var signature: Array = [owner_rect, viewport_rect, row_rects]
+	for panel: Control in _panels:
+		signature.append(panel.get_combined_minimum_size())
+	if signature == _layout_signature:
+		return true
+	_layout_signature = signature
+	_layout_passes += 1
+	return false
+
+func _owned_column_size(start: int, end: int) -> Vector2:
+	var bounds := Vector2.ZERO
+	for index: int in range(start, end):
+		var minimum: Vector2 = _panels[index].get_combined_minimum_size()
+		bounds.x = maxf(bounds.x, minimum.x)
+		bounds.y += minimum.y + (STACK_SEPARATION if index > start else 0)
+	return bounds
+
+func _layout_owned(owner_rect: Rect2, viewport_rect: Rect2) -> void:
+	if _layout_unchanged(owner_rect, viewport_rect, []):
+		return
+	var top: float = owner_rect.end.y + OWNED_RELIC_GAP
+	var available: float = viewport_rect.end.y - SAFE_MARGIN - top
+	var split: int = _panels.size()
+	var first: Vector2 = _owned_column_size(0, split)
+	var second := Vector2.ZERO
+	if first.y > available and _panels.size() > 1:
+		# Keep the relic description first and fill downwards before overflowing
+		# glossary panels to the right. If neither column fits below the owner,
+		# choose the shortest block before clamping it vertically.
+		var best_height: float = INF
+		for candidate: int in range(1, _panels.size()):
+			var left: Vector2 = _owned_column_size(0, candidate)
+			var right: Vector2 = _owned_column_size(candidate, _panels.size())
+			var height: float = maxf(left.y, right.y)
+			if height <= available or (best_height > available and height < best_height):
+				split = candidate
+				first = left
+				second = right
+				best_height = height
+	var bounds := Vector2(first.x + (RELIC_CHOICE_GAP + second.x if second.x > 0.0 else 0.0), maxf(first.y, second.y))
+	for start: int in [0, split]:
+		var end: int = split if start == 0 else _panels.size()
+		var y: float = 0.0
+		for index: int in range(start, end):
+			var panel: Control = _panels[index]
+			panel.size = Vector2(first.x if start == 0 else second.x, panel.get_combined_minimum_size().y)
+			panel.position = Vector2(0.0 if start == 0 else first.x + RELIC_CHOICE_GAP, y)
+			y += panel.size.y + STACK_SEPARATION
+	_panel_host.custom_minimum_size = bounds
+	_panel_host.size = bounds
+	update_minimum_size()
+	size = bounds
+	set_meta("glossary_owned_split", split)
+	global_position = Vector2(
+		clampf(owner_rect.position.x, viewport_rect.position.x + SAFE_MARGIN, viewport_rect.end.x - SAFE_MARGIN - bounds.x),
+		clampf(top, viewport_rect.position.y + SAFE_MARGIN, viewport_rect.end.y - SAFE_MARGIN - bounds.y)
+	)
+
 func _measure_choice(columns: int, gap: float) -> Vector2:
 	var bounds := Vector2.ZERO
-	for start: int in range(0, _choice_panels.size(), columns):
+	for start: int in range(0, _panels.size(), columns):
 		var row_size := Vector2.ZERO
-		for index: int in range(start, mini(start + columns, _choice_panels.size())):
-			var panel_size: Vector2 = _choice_panels[index].get_combined_minimum_size()
+		for index: int in range(start, mini(start + columns, _panels.size())):
+			var panel_size: Vector2 = _panels[index].get_combined_minimum_size()
 			row_size.x += panel_size.x + (gap if index > start else 0.0)
 			row_size.y = maxf(row_size.y, panel_size.y)
 		bounds.x = maxf(bounds.x, row_size.x)
@@ -261,19 +363,19 @@ func _measure_choice(columns: int, gap: float) -> Vector2:
 
 func _arrange_choice(columns: int, gap: float) -> void:
 	var top: float = 0.0
-	for start: int in range(0, _choice_panels.size(), columns):
+	for start: int in range(0, _panels.size(), columns):
 		var left: float = 0.0
 		var row_height: float = 0.0
-		for index: int in range(start, mini(start + columns, _choice_panels.size())):
-			var panel: Control = _choice_panels[index]
+		for index: int in range(start, mini(start + columns, _panels.size())):
+			var panel: Control = _panels[index]
 			panel.size = panel.get_combined_minimum_size()
 			panel.position = Vector2(left, top)
 			left += panel.size.x + gap
 			row_height = maxf(row_height, panel.size.y)
 		top += row_height + gap
 	var bounds: Vector2 = _measure_choice(columns, gap)
-	_choice_host.custom_minimum_size = bounds
-	_choice_host.size = bounds
+	_panel_host.custom_minimum_size = bounds
+	_panel_host.size = bounds
 	update_minimum_size()
 	size = bounds
 	set_meta("glossary_choice_columns", columns)

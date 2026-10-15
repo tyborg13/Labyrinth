@@ -3041,7 +3041,7 @@ func _controller_candidate_for_control(control: Control) -> Dictionary:
 		"kind": kind,
 		"control": control,
 		"point": rect.get_center(),
-		"detail": control.tooltip_text,
+		"detail": "" if control.has_meta("glossary_relic") else control.tooltip_text,
 		"snap_radius": CONTROLLER_CONTROL_CURSOR_MAGNET_RADIUS,
 	}
 
@@ -3109,6 +3109,8 @@ func _controller_set_focus_candidate(candidate: Dictionary, sync_virtual_cursor:
 	_controller_clear_board_hover_presentation()
 	if control.focus_mode == Control.FOCUS_NONE:
 		control.focus_mode = Control.FOCUS_ALL
+	if control.has_meta("glossary_relic"):
+		_card_focus_tooltip_stack.prepare_navigation_focus(control)
 	control.grab_focus()
 	_refresh_controller_prompts()
 	if sync_virtual_cursor:
@@ -11844,7 +11846,7 @@ func _refresh_skill_status_detail(previous_selected_id: String = "") -> void:
 		_skill_status_detail_status.add_theme_color_override("font_color", accent)
 	performance_phase_started = _record_runtime_performance_phase("ability_detail_heading", performance_phase_started)
 	if _skill_status_detail_description != null:
-		InlineIconText.apply_to(_skill_status_detail_description, SkillTreeLibrary.description(_skill_status_selected_id))
+		InlineIconText.apply_to(_skill_status_detail_description, SkillTreeLibrary.description(_skill_status_selected_id), InlineIconText.DEFAULT_ICON_SCALE, true)
 	performance_phase_started = _record_runtime_performance_phase("ability_detail_description", performance_phase_started)
 	var style_skill_ids: Array[String]
 	if not previous_selected_id.is_empty():
@@ -22090,7 +22092,7 @@ func _open_large_map(from_toolbar: bool = false) -> void:
 	_controller_clear_hand_hover()
 	_controller_clear_board_focus()
 	if _card_focus_tooltip_stack != null:
-		_card_focus_tooltip_stack.hide_stack()
+		_card_focus_tooltip_stack.hide_stack(true)
 	_close_menu_overlay()
 	_close_pile_view()
 	_close_card_upgrade_overlay()

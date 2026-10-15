@@ -12,7 +12,7 @@ const BeforeStack = preload("res://tests/glossary_card_stack_before.gd")
 const Glossary = preload("res://scripts/glossary.gd")
 
 const OUTPUT_DIR: String = "user://glossary_tooltip_probe"
-const VIEWPORT_SIZE := Vector2i(1920, 1080)
+var VIEWPORT_SIZE := Vector2i(1920, 1080)
 const CARD_POSITION := Vector2(700, 320)
 const CARD_SIZE := Vector2(250, 352)
 const POINTER_PARK := Vector2(8, 8)
@@ -21,6 +21,7 @@ const FOUR_COLUMN_PROOF_RELIC: String = "witchglass_lantern"
 const OUTER_FLOW_PROOF_RELIC: String = "breaking_wheel"
 var _failures: Array[String]
 var _logic_only: bool = false
+var _compare_original_card: bool = false
 var _viewport: SubViewport
 
 func _initialize() -> void:
@@ -29,6 +30,11 @@ func _initialize() -> void:
 func _run() -> void:
 	ParallelRuntime.apply_from_environment()
 	_logic_only = OS.get_cmdline_user_args().has("--verify-logic")
+	_compare_original_card = OS.get_cmdline_user_args().has("--compare-original-card")
+	for arg: String in OS.get_cmdline_user_args():
+		if arg.begins_with("--size="):
+			var dimensions: PackedStringArray = arg.trim_prefix("--size=").split("x")
+			VIEWPORT_SIZE = Vector2i(int(dimensions[0]), int(dimensions[1]))
 	if DisplayServer.get_name() == "headless" and not _logic_only:
 		push_error("Glossary capture requires a real renderer")
 		quit(1)
@@ -90,10 +96,13 @@ func _relics() -> void:
 			await _validate_and_capture(scene, other, "relic_choice_" + ("middle" if id == "ember_lens" else "right"))
 	await _pointer(POINTER_PARK)
 	await _all_relic_choice_positions(scene)
-	state["mode"] = "room"
+	# Start from a connected room so controller board navigation is active.
+	state = Fixture.RunEngine.new().create_new_run(Fixture.SEED, ProgressionStore.default_data())
 	state["pending_relics"] = []
 	state["relics"] = ["iron_lung", "ember_lens", "pilgrim_boots"]
 	scene.call("_load_run_state", state)
+	await _settle()
+	scene.call("_close_dialogue")
 	await _settle()
 	scene.call("_close_large_map")
 	await _settle()
@@ -102,12 +111,20 @@ func _relics() -> void:
 	if badge != null:
 		await _pointer(badge.get_global_rect().get_center())
 		await _validate_and_capture(scene, badge, "owned_relic_hover")
+		await _click(badge.get_global_rect().get_center())
+		_expect(badge.has_focus(), "Actual mouse click focuses the owned badge")
+		await _pointer(Vector2(VIEWPORT_SIZE) * 0.5)
+		_expect(not (scene.get("_card_focus_tooltip_stack") as Control).visible, "Click badge then move to board hides stack")
+		_viewport.gui_release_focus()
 		await _pointer(POINTER_PARK)
 		await _focus_next_to(badge)
 		await _validate_and_capture(scene, badge, "owned_relic_keyboard")
 		_viewport.gui_release_focus()
 		await _controller_focus(scene, badge)
 		await _validate_and_capture(scene, badge, "owned_relic_controller")
+	_viewport.gui_release_focus()
+	await _pointer(POINTER_PARK)
+	await _all_owned_relic_positions(scene)
 	scene.queue_free()
 	await _settle()
 
@@ -119,6 +136,7 @@ func _validate_and_capture(scene: Node, owner: Control, name: String) -> void:
 func _validate_stack(scene: Node, owner: Control, name: String) -> void:
 	var stack: Control = scene.get("_card_focus_tooltip_stack") as Control
 	_expect(stack.visible and stack._follow_target == owner, name + " uses live owner")
+	if not stack.visible or stack._follow_target != owner: return
 	var expected_keys: Array[String]
 	var is_choice: bool = owner.has_meta("glossary_choice_row")
 	if not is_choice: expected_keys.append("relic")
@@ -134,14 +152,17 @@ func _validate_stack(scene: Node, owner: Control, name: String) -> void:
 		var row: Control = scene.get("_relic_choice_bar") as Control
 		var choices: Array[Control]
 		var row_bottom: float = owner_rect.end.y
+		var row_top: float = owner_rect.position.y
 		for child: Node in row.get_children():
 			if child is Control and child.has_meta("glossary_relic"):
 				choices.append(child as Control)
 				var card_rect: Rect2 = Stack._visual_global_rect(child as Control)
 				row_bottom = maxf(row_bottom, card_rect.end.y)
+				row_top = minf(row_top, card_rect.position.y)
 				_expect(not bounds.intersects(card_rect), name + " avoids relic card " + str(child.name))
 		var banner: Control = scene.get("_relic_choice_banner") as Control
-		_expect(not bounds.intersects(Stack._visual_global_rect(banner)), name + " avoids Claim your treasure banner")
+		var above: bool = bool(stack.get_meta("glossary_choice_above", false))
+		_expect(above or not bounds.intersects(Stack._visual_global_rect(banner)), name + " only above fallback may cover Claim your treasure banner")
 		var panel_nodes: Array[Node] = stack.find_children("CardFocusTooltip_*", "PanelContainer", true, false)
 		var column_height: float = 0.0
 		var column_width: float = 0.0
@@ -159,38 +180,42 @@ func _validate_stack(scene: Node, owner: Control, name: String) -> void:
 		var left_fits: bool = owner == choices.front() and owner_rect.position.x >= column_width + Stack.RELIC_CHOICE_SIDE_CLEARANCE
 		var right_fits: bool = owner == choices.back() and VIEWPORT_SIZE.x - owner_rect.end.x >= column_width + Stack.RELIC_CHOICE_SIDE_CLEARANCE
 		var columns: int = int(stack.get_meta("glossary_choice_columns"))
-		if columns < Stack.RELIC_CHOICE_FALLBACK_COLUMNS:
-			_expect(bounds.end.y <= VIEWPORT_SIZE.y - Stack.RELIC_CHOICE_SCREEN_MARGIN, name + " respects 24 px bottom margin " + str(bounds))
-		else:
-			# Four columns are the director's final fallback. Require every
-			# panel on screen; report fractional margin shortfalls explicitly.
-			var first_row_height: float = 0.0
-			var second_row_height: float = 0.0
-			for index: int in range(panel_nodes.size()):
-				var height: float = (panel_nodes[index] as Control).get_combined_minimum_size().y
-				if index < Stack.RELIC_CHOICE_FLOW_COLUMNS:
-					first_row_height = maxf(first_row_height, height)
-				else:
-					second_row_height = maxf(second_row_height, height)
-			var three_column_height: float = first_row_height + second_row_height + (Stack.RELIC_CHOICE_GAP if second_row_height > 0.0 else 0.0)
-			_expect(row_bottom + Stack.RELIC_CHOICE_GAP + three_column_height > VIEWPORT_SIZE.y - Stack.RELIC_CHOICE_SCREEN_MARGIN, name + " four columns only when three exceed bottom margin")
-			var clearance: float = VIEWPORT_SIZE.y - bounds.end.y
-			if clearance < Stack.RELIC_CHOICE_SCREEN_MARGIN:
-				print("GLOSSARY FOUR-COLUMN BOTTOM CLEARANCE: %s %.4f px" % [name, clearance])
+		_expect(bounds.end.y <= VIEWPORT_SIZE.y - Stack.RELIC_CHOICE_SCREEN_MARGIN and bounds.position.y >= Stack.RELIC_CHOICE_SCREEN_MARGIN, name + " respects vertical 24 px margins " + str(bounds))
+		if columns == 4:
+			_expect(row_bottom + Stack.RELIC_CHOICE_GAP + stack._measure_choice(3, Stack.RELIC_CHOICE_GAP).y > VIEWPORT_SIZE.y - Stack.RELIC_CHOICE_SCREEN_MARGIN, name + " four columns only after three exceed bottom margin")
+		if above:
+			_expect(columns == 4 and row_bottom + Stack.RELIC_CHOICE_GAP + bounds.size.y > VIEWPORT_SIZE.y - Stack.RELIC_CHOICE_SCREEN_MARGIN, name + " above only after four exceed bottom margin")
 		if column_fits and (left_fits or right_fits):
 			_expect(columns == 1, name + " fitting outer stack stays a column")
 			_expect(is_equal_approx(bounds.position.y, owner_rect.position.y), name + " outer column top aligns")
 			_expect(is_equal_approx(bounds.end.x, owner_rect.position.x - Stack.RELIC_CHOICE_GAP) if left_fits else is_equal_approx(bounds.position.x, owner_rect.end.x + Stack.RELIC_CHOICE_GAP), name + " outer column gap")
 		else:
 			_expect(columns in [3, 4], name + " below-row flow uses three or four columns")
-			_expect(is_equal_approx(bounds.position.y, row_bottom + Stack.RELIC_CHOICE_GAP), name + " below entire row")
+			_expect(is_equal_approx(bounds.end.y, row_top - Stack.RELIC_CHOICE_GAP) if above else is_equal_approx(bounds.position.y, row_bottom + Stack.RELIC_CHOICE_GAP), name + " anchors outside entire row")
 			var expected_left: float = clampf(owner_rect.get_center().x - bounds.size.x * 0.5, Stack.RELIC_CHOICE_SCREEN_MARGIN, VIEWPORT_SIZE.x - Stack.RELIC_CHOICE_SCREEN_MARGIN - bounds.size.x)
 			_expect(is_equal_approx(bounds.position.x, expected_left), name + " flow centered and clamped")
 			_expect(bounds.position.x >= Stack.RELIC_CHOICE_SCREEN_MARGIN and bounds.end.x <= VIEWPORT_SIZE.x - Stack.RELIC_CHOICE_SCREEN_MARGIN, name + " flow respects horizontal margin")
 		_validate_panel_order(panel_nodes, columns, name)
 
 	else:
-		_expect(is_equal_approx(bounds.position.y, owner_rect.end.y + Stack.OWNED_RELIC_GAP), name + " eight pixels below owned icon")
+		var expected_top: float = clampf(owner_rect.end.y + Stack.OWNED_RELIC_GAP, Stack.SAFE_MARGIN, VIEWPORT_SIZE.y - Stack.SAFE_MARGIN - bounds.size.y)
+		_expect(is_equal_approx(bounds.position.y, expected_top), name + " owned eight pixel gap or vertical clamp")
+		_expect(bounds.position.y >= Stack.SAFE_MARGIN and bounds.end.y <= VIEWPORT_SIZE.y - Stack.SAFE_MARGIN, name + " owned vertical margins")
+		var panels: Array[Node] = stack.find_children("CardFocusTooltip_*", "PanelContainer", true, false)
+		var split: int = int(stack.get_meta("glossary_owned_split"))
+		var column_height: float = 0.0
+		for panel: Control in panels:
+			column_height += panel.get_combined_minimum_size().y + (Stack.STACK_SEPARATION if column_height > 0.0 else 0.0)
+			_expect(bounds.encloses(panel.get_global_rect()), name + " owned panel fits block")
+		_expect((split < panels.size()) == (owner_rect.end.y + Stack.OWNED_RELIC_GAP + column_height > VIEWPORT_SIZE.y - Stack.SAFE_MARGIN and panels.size() > 1), name + " owned overflow uses second column")
+		for index: int in range(panels.size()):
+			var panel: Control = panels[index] as Control
+			if index == split:
+				_expect(is_equal_approx(panel.global_position.y, bounds.position.y) and is_equal_approx(panel.global_position.x, (panels[0] as Control).get_global_rect().end.x + Stack.RELIC_CHOICE_GAP), name + " owned second column top alignment and gap")
+			elif index > 0:
+				_expect(is_equal_approx(panel.global_position.y, (panels[index - 1] as Control).get_global_rect().end.y + Stack.STACK_SEPARATION), name + " owned column order and gap")
+			for previous: int in range(index):
+				_expect(not panel.get_global_rect().intersects((panels[previous] as Control).get_global_rect()), name + " owned panels never overlap")
 		var expected_left: float = clampf(owner_rect.position.x, Stack.SAFE_MARGIN, VIEWPORT_SIZE.x - Stack.SAFE_MARGIN - bounds.size.x)
 		_expect(is_equal_approx(bounds.position.x, expected_left), name + " owned left alignment and screen clamp")
 		var tray: Control = scene.get("relic_bar") as Control
@@ -226,7 +251,7 @@ func _all_relic_choice_positions(scene: Node) -> void:
 	var layouts: Dictionary = {1: 0, 3: 0, 4: 0}
 	var before_failures: int = _failures.size()
 	for id: String in GameData.relics():
-		stack.hide_stack()
+		stack.hide_stack(true)
 		for child: Node in row.get_children():
 			row.remove_child(child)
 			child.queue_free()
@@ -250,10 +275,54 @@ func _all_relic_choice_positions(scene: Node) -> void:
 				await _save("relic_choice_outer_flow")
 			owner.mouse_exited.emit()
 			cases += 1
-	print("GLOSSARY ALL-RELIC CHOICE FIT: %s (%d relics, %d positions, 1920x1080)" % ["PASS" if _failures.size() == before_failures else "FAIL", GameData.relics().size(), cases])
+	print("GLOSSARY ALL-RELIC CHOICE FIT: %s (%d relics, %d positions, %dx%d)" % ["PASS" if _failures.size() == before_failures else "FAIL", GameData.relics().size(), cases, VIEWPORT_SIZE.x, VIEWPORT_SIZE.y])
 	print("GLOSSARY CHOICE LAYOUTS: column=%d, three=%d, four=%d" % [layouts[1], layouts[3], layouts[4]])
 
+func _all_owned_relic_positions(scene: Node) -> void:
+	var before_failures: int = _failures.size()
+	var cases: int = 0
+	var two_columns: int = 0
+	var captured: bool = false
+	for id: String in GameData.relics():
+		var state: Dictionary = scene.get("_run_state") as Dictionary
+		state["relics"] = [id, id, id]
+		scene.call("_refresh_relic_bar")
+		await _settle()
+		var grid: Control = scene.get("_relic_icon_grid") as Control
+		var position: int = 0
+		for owner: Control in grid.get_children():
+			if not owner.has_meta("glossary_relic"): continue
+			owner.mouse_entered.emit()
+			await _settle()
+			_validate_stack(scene, owner, "%s owned position %d" % [id, position])
+			var stack: Control = scene.get("_card_focus_tooltip_stack") as Control
+			if int(stack.get_meta("glossary_owned_split")) < stack.entry_count():
+				two_columns += 1
+			if not captured and id == OUTER_FLOW_PROOF_RELIC:
+				await _save("owned_relic_flow")
+				captured = true
+			owner.mouse_exited.emit()
+			position += 1
+			cases += 1
+		_expect(position == 3, "All three owned positions exercised: " + id)
+	print("GLOSSARY ALL-RELIC OWNED FIT: %s (%d relics, %d positions, %dx%d; %d two-column cases)" % ["PASS" if _failures.size() == before_failures else "FAIL", GameData.relics().size(), cases, VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, two_columns])
+
+func _click(point: Vector2) -> void:
+	var event := InputEventMouseButton.new()
+	event.position = point
+	event.global_position = point
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = true
+	_viewport.push_input(event, true)
+	event = event.duplicate()
+	event.pressed = false
+	_viewport.push_input(event, true)
+	await _settle()
+
 func _pointer(point: Vector2) -> void:
+	var router: Node = root.get_node("InputRouter")
+	router.call("clear_forced_state_for_test")
+	router.call("set_modality", "pointer")
 	var motion := InputEventMouseMotion.new()
 	motion.position = point
 	motion.global_position = point
@@ -281,9 +350,21 @@ func _focus_next_to(target: Control) -> void:
 	_expect(target.has_focus(), "Keyboard navigation reaches relic")
 
 func _controller_focus(scene: Node, target: Control) -> void:
-	scene.call("_controller_set_focus_candidate", {"kind": "relic", "key": str(target.get_path()), "control": target}, false)
+	var router: Node = root.get_node("InputRouter")
+	router.call("set_forced_state_for_test", "controller", "xbox")
+	scene.set("_controller_region", "board")
+	var candidate: Dictionary = scene.call("_controller_candidate_for_control", target)
+	_expect(not candidate.is_empty() and str(candidate.get("detail", "missing")).is_empty(), "Production glossary candidate suppresses detail callout")
+	scene.call("_controller_set_focus_candidate", candidate, true)
 	await _settle()
-	_expect(target.has_focus(), "Controller candidate routing reaches relic")
+	_expect(target.has_focus(), "Controller candidate routing reaches relic with virtual cursor sync")
+	var cursor: Control = scene.get("_controller_analog_cursor") as Control
+	var snapshot: Dictionary = cursor.call("cursor_snapshot")
+	_expect(str(snapshot["detail_text"]).is_empty(), "Analog cursor has no duplicate relic detail")
+	var detail: Control = cursor.get("_detail_panel") as Control
+	_expect(detail == null or not detail.visible, "Analog detail panel remains hidden")
+	if not target.has_meta("glossary_choice_row"):
+		_expect(cursor.visible, "Owned relic probe exercises visible analog cursor path")
 
 func _card_identity() -> void:
 	# Same focused card and frame for both renders. The legacy stack is frozen
@@ -305,29 +386,31 @@ func _card_identity() -> void:
 	var rows: Array = ActionIcons.rows_for_card(definition)
 	var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(rows, ["time"])
 	_expect(entries.any(func(entry: Dictionary) -> bool: return entry["icon"] == "follow_up"), "Focused card includes Follow-up keyword")
-	var before_copy: Dictionary = {}
-	for entry: Dictionary in JSON.parse_string(FileAccess.get_file_as_string("res://tests/glossary_card_copy_before.json")):
-		before_copy[str(entry["id"])] = entry
-	var legacy_entries: Array = entries.duplicate(true)
-	for entry: Dictionary in legacy_entries:
-		var copy: Dictionary = before_copy.get(str(entry["icon"]), {}) as Dictionary
-		if not copy.is_empty() and str(entry["tooltip"]) == ActionIcons.tooltip(str(entry["icon"])):
-			entry["title"] = copy["name"]
-			entry["description"] = copy["definition"]
-	var before := BeforeStack.new()
-	surface.add_child(before)
-	before.show_for(card, legacy_entries)
-	await _settle()
-	var before_image: Image = await _save("card_keywords_before")
-	before.hide_stack()
-	before.queue_free()
-	await _settle()
+	var before_image: Image
+	if _compare_original_card:
+		var before_copy: Dictionary = {}
+		for entry: Dictionary in JSON.parse_string(FileAccess.get_file_as_string("res://tests/glossary_card_copy_before.json")):
+			before_copy[str(entry["id"])] = entry
+		var legacy_entries: Array = entries.duplicate(true)
+		for entry: Dictionary in legacy_entries:
+			var copy: Dictionary = before_copy.get(str(entry["icon"]), {}) as Dictionary
+			if not copy.is_empty() and str(entry["tooltip"]) == ActionIcons.tooltip(str(entry["icon"])):
+				entry["title"] = copy["name"]
+				entry["description"] = copy["definition"]
+		var before := BeforeStack.new()
+		surface.add_child(before)
+		before.show_for(card, legacy_entries)
+		await _settle()
+		before_image = await _save("card_keywords_before")
+		before.hide_stack()
+		before.queue_free()
+		await _settle()
 	var after := Stack.new()
 	surface.add_child(after)
 	after.show_for(card, entries)
 	await _settle()
 	var after_image: Image = await _save("card_keywords_after")
-	if not _logic_only and before_image != null and after_image != null:
+	if _compare_original_card and not _logic_only and before_image != null and after_image != null:
 		var equal: bool = before_image.get_data() == after_image.get_data()
 		_expect(equal, "Card keyword before/after pixels are identical")
 		print("CARD KEYWORD PIXEL IDENTITY: %s" % ("PASS (exact RGBA equality)" if equal else "FAIL"))
@@ -343,7 +426,7 @@ func _save(name: String) -> Image:
 	if _logic_only: return null
 	await RenderingServer.frame_post_draw
 	var image: Image = _viewport.get_texture().get_image()
-	_expect(image != null and image.get_size() == VIEWPORT_SIZE, "Native 1920x1080 capture: " + name)
+	_expect(image != null and image.get_size() == VIEWPORT_SIZE, "Native %dx%d capture: %s" % [VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, name])
 	if image != null:
 		var path: String = ProjectSettings.globalize_path(OUTPUT_DIR.path_join(name + ".png"))
 		_expect(image.save_png(path) == OK, "Capture saved: " + name)
