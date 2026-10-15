@@ -1,0 +1,11 @@
+{
+  "min_images": 5,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*01_solo_after_thornwall.png", "width": 1920, "height": 1080, "regions": [{"rect": [250, 220, 1350, 670], "min_luma_range": 70, "min_luma_stdev": 12}]},
+    {"pattern": "*02_solo_later_rounds.png", "width": 1920, "height": 1080, "regions": [{"rect": [250, 220, 1350, 670], "min_luma_range": 70, "min_luma_stdev": 12}]},
+    {"pattern": "*03_squad_after_thornwall.png", "width": 1920, "height": 1080, "regions": [{"rect": [250, 220, 1350, 670], "min_luma_range": 70, "min_luma_stdev": 12}]},
+    {"pattern": "*04_squad_later_rounds.png", "width": 1920, "height": 1080, "regions": [{"rect": [250, 220, 1350, 670], "min_luma_range": 70, "min_luma_stdev": 12}]},
+    {"pattern": "*05_lash_reachable.png", "width": 1920, "height": 1080, "regions": [{"rect": [250, 220, 1350, 670], "min_luma_range": 70, "min_luma_stdev": 12}]}
+  ]
+}

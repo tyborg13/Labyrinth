@@ -318,6 +318,13 @@ authored tactical role and the revealed intent that produced the action. This
 allows playtest analysis to compare realized range closure, retreat, healing,
 guarding, and route efficiency by decision policy; authored bosses retain an
 empty `ai_role` while still recording their enemy and intent ids.
+When immediate range/line-of-sight filtering leaves no useful intent, the
+ordinary authored fallback remains selected (for example, Briar Weaver's Lash
+after Thornwall when no ally needs healing). Its printed Time still applies.
+Resolved fallback actions keep the existing `enemy_action_resolved` actor,
+`intent_id`, and realized-outcome fields; an unreachable shot emits no fabricated
+hit or action event, matching the existing no-op action policy.
+Intent selection and cancelled badges do not add events or rewrite history.
 Group support actions include additive `support_targets` entries with each
 recipient's actor key, display name, tile, and realized amount; this lets Warden
 Bulwark record every protected ally without splitting one intent into misleading

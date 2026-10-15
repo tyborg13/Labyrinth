@@ -253,6 +253,7 @@ def encounter_assumptions() -> dict[str, Any]:
         "enemy_tactical_ai": {
             "roles": ENEMY_TACTICAL_ROLES,
             "selection": "reject tactically dead intents, then retain seeded weighted variation among near-best legal choices",
+            "fallback": "when no immediately useful option remains, retain an available authored intent at printed Time; blocked/out-of-range Briar Weaver Lash stays visible with a cancelled attack badge instead of an empty intent",
             "path_tie_break": "true total cost first; equal routes prefer strongest immediate current-activation progress",
             "score_policy": "raises realized encounter pressure without changing intrinsic printed-card coefficients",
         },
