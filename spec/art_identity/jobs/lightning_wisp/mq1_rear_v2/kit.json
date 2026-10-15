@@ -1,0 +1,53 @@
+{
+  "K": 4,
+  "anatomy": "floating",
+  "id": "lightning_wisp",
+  "job_id": "mq-wisp-rear-r1-edit",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "d3dc4e6e4b70bb613fbb43a6c902042f2266c86d8ef8e4b9222d8c9a7b20bcf8",
+  "method": "maquette paint-over (wave 1b): lightning-only edit of mq1_rear to match the approved front v2 + judge tone G; processed without palette match (it greys the lightning cores)",
+  "peers": [],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "12cea70bb36dafacdd348fa24d8ee1cdce61025019c5f717e744d7af5089003f",
+  "prompt_source": "spec/art_identity/maquettes/lightning_wisp/edit_rear_lightning_r1.md",
+  "raw_steps": [
+    {
+      "inputs": {
+        "config": {
+          "path": "refs/tone_rear_G.json",
+          "sha256": "574925c3324f2326a96e503316ef415ff7c53e47f02ae476e62a0b1633b7e6b4"
+        },
+        "raw": {
+          "path": "refs/raw_approved.png",
+          "sha256": "53435e17108a57deacf25e4fbbcbc38c4086c2843cea836358017e692fae1746"
+        }
+      },
+      "kind": "tone_region",
+      "output_raw_sha256": "06e20345554380fd2d582911e0c8c87b71ec56b1e01adaf46c358b9de319ef0c",
+      "parameters": {
+        "space": "CIE Lab"
+      }
+    }
+  ],
+  "raw_steps_provenance": "judge pair r1 (2026-10-15): palette_match greyed the lavender-white cores (pale low-chroma pixels never count as accents), so the rear is NOT palette-matched; tone G darkens the cloud to the front's value and near-black share and restores the violet fringe. Rear consistency passes without the match (judge: dchroma .004, dvalue .009)",
+  "refs": [
+    {
+      "canon_id": "wisp_mq1_rear_raw",
+      "file": "refs/01_wisp_mq1_rear_raw.png",
+      "pixel_sha256": "e47f940bed11cdca2f11aba7ac1b1814f68db2e6f1b04814e672a99e308a8f45",
+      "role": "edit_source",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-wisp-rear-r1-edit/refs/01_edit_source.png"
+    },
+    {
+      "canon_id": "approved_wisp_front_raw",
+      "file": "refs/02_approved_wisp_front_raw.png",
+      "pixel_sha256": "9954ba5df648864670cfb17b86154167b94607a92ff84af61cacad13a4dbef04",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-wisp-rear-r1-edit/refs/02_approved_front_raw.png"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 210,
+  "view": "creature_rear"
+}

@@ -1,0 +1,69 @@
+{
+  "K": 4,
+  "drawn_size": [
+    198,
+    194
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.11503257097830395,
+    "edge_light_share": 0.0,
+    "feature_px": 6.5517173321198765,
+    "height": 194,
+    "height_drawn": 194.0,
+    "orphan_share": 0.04476245943922123,
+    "regions": 280,
+    "run_length": 3.7831287378029588,
+    "symmetry": 0.6181818181818182,
+    "thin_abs": 0.019469173808137064,
+    "thin_rel": 0.1507612946168566,
+    "value": 0.2616002597194964,
+    "width": 198
+  },
+  "pixel_sha256": "863723be89dfed88e8d080880e45c90dbe77a06f22595c521fd8ea3719a8ded1",
+  "placement": [
+    29,
+    52
+  ],
+  "post_steps": [
+    {
+      "parameters": {
+        "max_luminance": 0.2,
+        "neighbours": 4,
+        "remove_isolated": true,
+        "tone": [
+          20,
+          16,
+          21
+        ]
+      },
+      "pre_step_pixel_sha256": "59738d513f10edc2251b8fd8ca1736730ce6095c2b7ec9de0b944b3df0483df6",
+      "step": "clean_outline"
+    }
+  ],
+  "raw_sha256": "06e20345554380fd2d582911e0c8c87b71ec56b1e01adaf46c358b9de319ef0c",
+  "raw_steps": [
+    {
+      "inputs": {
+        "config": {
+          "path": "refs/tone_rear_G.json",
+          "sha256": "574925c3324f2326a96e503316ef415ff7c53e47f02ae476e62a0b1633b7e6b4"
+        },
+        "raw": {
+          "path": "refs/raw_approved.png",
+          "sha256": "53435e17108a57deacf25e4fbbcbc38c4086c2843cea836358017e692fae1746"
+        }
+      },
+      "kind": "tone_region",
+      "output_raw_sha256": "06e20345554380fd2d582911e0c8c87b71ec56b1e01adaf46c358b9de319ef0c",
+      "parameters": {
+        "space": "CIE Lab"
+      }
+    }
+  ],
+  "shift": [
+    0,
+    0
+  ]
+}
