@@ -342,6 +342,14 @@ def palette_match(front: Image.Image, rear: Image.Image, parameters: dict = None
     if not valid_palette_parameters(parameters):
         raise ValueError("unsupported palette_match parameters")
     F, R = np.asarray(front.convert("RGBA")).astype(float), np.asarray(rear.convert("RGBA")).astype(float)
+    for label, pixels, reason in (("front", F, "empty reference"), ("rear", R, "empty rear")):
+        if not (pixels[..., 3] > 0).any():
+            if not parameters.get("allow_protected_share", False):
+                raise ValueError("palette_match %s body is empty (no opaque samples); pass --allow-protected-share to override" % label)
+            if report is not None:
+                # No body statistics were measured: null is distinct from a measured zero protected share.
+                report.update(kind="palette_match", skipped=reason, protected_share=None, protected_body_share=None)
+            return rear.convert("RGBA").copy()
     Fl, Rl, fm, rm, protected, shares = palette_body_masks(F, R, parameters)
     if report is not None:
         report.update(protected_body_share=shares)
@@ -1003,12 +1011,15 @@ def validate_palette_skip(step: dict) -> None:
     """Validate explicit skip records even when archived raw inputs cannot be replayed."""
     if not any(key in step for key in ("kind", "skipped", "protected_share")):
         return
-    parameters, shares = step.get("parameters"), step.get("protected_share")
+    parameters, shares, reason = step.get("parameters"), step.get("protected_share"), step.get("skipped")
+    empty_samples = reason in ("empty reference", "empty rear")
+    valid_shares = (("protected_share" in step and "protected_body_share" in step
+                     and shares is None and step["protected_body_share"] is None) if empty_samples else
+                    (reason == "empty body" and isinstance(shares, dict) and set(shares) == {"front", "rear"}
+                     and all(in_band(value, (0.0, 1.0)) for value in shares.values())
+                     and shares == step.get("protected_body_share") and 1.0 in shares.values()))
     if (not valid_palette_parameters(parameters) or parameters.get("allow_protected_share") is not True
-            or step.get("kind") != "palette_match" or step.get("skipped") != "empty body"
-            or not isinstance(shares, dict) or set(shares) != {"front", "rear"}
-            or any(not in_band(value, (0.0, 1.0)) for value in shares.values())
-            or shares != step.get("protected_body_share") or 1.0 not in shares.values()):
+            or step.get("kind") != "palette_match" or not valid_shares):
         raise ValueError("palette_match empty-body skip record invalid")
 
 
@@ -1038,13 +1049,18 @@ def verify_job_recipe(kit_path: Path, root: Path = ROOT, require_inputs: bool = 
         if "reference_sha256" in step and ("raw_steps" in kit or "match_reference" in step):
             raise ValueError("palette_match requires reference_pixel_sha256, not reference_sha256")
         if "match_reference" in step:
-            _, binding = derive_match_reference(step["match_reference"], kit_path, root)
+            reference, binding = derive_match_reference(step["match_reference"], kit_path, root)
             if any(step.get(key) != value for key, value in binding.items()):
                 raise ValueError("palette_match reference digest changed")
         elif "reference_pixel_sha256" in step or "reference_sha256" in step or "raw_steps" in kit:
-            reference = direct_match_path(Path(step["reference"]), kit_path, root)
-            if pixel_digest(rgba(reference)) != step.get("reference_pixel_sha256"):
+            reference = rgba(direct_match_path(Path(step["reference"]), kit_path, root))
+            if pixel_digest(reference) != step.get("reference_pixel_sha256"):
                 raise ValueError("palette_match reference pixel digest changed")
+        else:
+            reference = None
+        if step.get("skipped") in ("empty reference", "empty rear"):
+            if reference is None or bool(np.asarray(reference)[..., 3].any()) != (step["skipped"] == "empty rear"):
+                raise ValueError("palette_match empty-body skip reason differs from reference opacity")
     if processed.get("raw_steps") != kit.get("raw_steps"):
         raise ValueError("processed raw_steps mismatched")
     if "raw_steps" not in kit:

@@ -184,6 +184,10 @@ is skipped and the post-step additionally records `{"kind": "palette_match", "sk
 binding and pre-step digest. The skip leaves the input pixels unchanged; subsequent steps, including outline cleanup,
 still run. Replay reproduces the skip and its shares, and `check` validates the skip record and replays available
 inputs. Without the flag an empty body remains an error before any output is written.
+Zero opaque samples are detected before body masks or percentiles are calculated. This includes a valid derived
+mask that excludes the entire front. With the override, these cases record `skipped: "empty reference"` (front)
+or `skipped: "empty rear"`; both share fields are `null` because no body statistics were measured. Verification
+also checks the reason against the bound reference's opacity, including when raw replay inputs are unavailable.
 The rear-consistency metric retains its original non-accent mask and bands. `--clean-outline`
 then removes isolated pixels and replaces silhouette edges above Rec.601 luminance 0.2 with RGB (20,16,21).
 
