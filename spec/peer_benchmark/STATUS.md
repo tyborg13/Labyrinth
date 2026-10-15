@@ -22,7 +22,7 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - Running: sfx-04 (A/V sync audit + fixes), ux-02 (text/tooltip audit), ux-03 (glossary tooltips for icons/relics),
   anim-01 (pixel-true idle for static enemies), por-01 (17 stale portraits), vfx-01 (pixel-art elemental FX).
 - Queued (slot cap 6): chr-02 (chronicle spells as card tiles), rr-02 (maquette → cutout pipeline phase 1, gaoler).
-- Awaiting owner: rounded gaoler (mq3 pair, judge PASS). Shrike approved and in game (art-04).
+- Rounded gaoler owner-approved 2026-10-15 ("decent enough for now ... go ahead and rig it"); rr-02 rigs it. Shrike in game (art-04).
 - Director next: rewrite text per `spec/text_style_guide.md` once ux-02's inventory lands (→ ux-04); paint hidden
   material from rr-02's requests; review each unit's captures.
 - Disk cleanup 2026-10-15 (owner-approved): removed 51 merged/old worktrees (branches kept; detached capture heads tagged

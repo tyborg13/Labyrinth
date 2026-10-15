@@ -50,3 +50,8 @@
   looking better than before. More consistent with our intended style and his proportions and angle make sense." →
   angle, proportions and style approved; revise the maquette to soften the boxiness (tapered rounded helm, sloped
   rounded shoulders, hunch/weight shift, flared coat, rounded boots), repaint front then rear.
+
+## 2026-10-15 — rounded gaoler (owner)
+- "It looks decent enough for now. We may tweak later, but let's go ahead and rig it." → owner-approved 2026-10-15:
+  front `spec/art_identity/jobs/chainbound_gaoler/mq3_front_v3`, rear `mq3_rear_v2` (sheet `sheet_pair_mq3_v2.png`).
+  rr-02 (maquette → cutout) proceeds on this pair; later tweaks re-run the same pipeline.
