@@ -4,6 +4,10 @@
   "requests": 42,
   "filled_requests": 39,
   "pending_design": [],
+  "review_decisions": {
+    "TODO_DESIGN_sparse_value_reference_front_thigh_far": "Literal same-view reference has fewer than 40 pixels; brighter core fallback needs director's decision",
+    "TODO_DESIGN_sparse_value_reference_rear_thigh_far": "Literal same-view reference has fewer than 40 pixels; brighter core fallback needs director's decision"
+  },
   "cross_view_requests": 3,
   "remaining_magenta_pixels": 0,
   "rest_identity": {
@@ -25,13 +29,13 @@
     "layouts": {
       "front": {
         "joints": 23,
-        "parts": 76,
+        "parts": 79,
         "meshes": 0,
         "vertices": 0
       },
       "rear": {
         "joints": 23,
-        "parts": 58,
+        "parts": 60,
         "meshes": 0,
         "vertices": 0
       }

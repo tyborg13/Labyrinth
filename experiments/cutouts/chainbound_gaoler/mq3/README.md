@@ -1,223 +1,162 @@
-# Chainbound gaoler mq3 — round 4
+# Chainbound gaoler mq3 — round 5
 
-Round 4 applies the director's material ownership, detached-island and rear-arm
-layer corrections and adds `chain_reel` / `manacle_pin` to both views. The case
-uses the unchanged final approved `mq3_front_v4` / `mq3_rear_v3` pair and all 42
-provided solo renders. All changes remain uncommitted on top of `addd470bd`.
-The complete change list is `proof/changed_files_round4.txt`.
-No production files, gameplay timing, commits, peer review or publication are
-part of this round. The director owns the new native reel and art judgment.
+The motion repairs and deterministic value matching are implemented. The literal
+global colour gate still fails: the approved helmet, leather, hook and leg paint
+share the tabard's colour range. The rear far-thigh dark-column issue also remains
+unresolved: its seven visible reference pixels are nearly black. Additional torso
+lean has no supplied curve. These are explicit design decisions below, not passes.
 
-The v03 reel and native proof passed before this round, per director review.
-They are historical evidence after these changes. A fresh v04 reel is required;
-no windowed process was launched in this sandbox. `proof/native_rest_result.json`
-and preceding proof logs remain untouched. Pre-round4 request PNGs, 4× copies,
-request sheet and provenance are preserved byte-for-byte in `provenance/round3/`
-(182 archived files verified by its manifest).
+Changes remain uncommitted in the rr-02 worktree. Production assets, the copied
+production motion, approved input pixels and game timing are unchanged. The
+director owns windowed capture, review and publication. No windowed run, commit,
+peer review or delegation was attempted. Gameplay inspection is not applicable
+before production integration.
 
 ## Requirement status
 
-| Requirement | Result | Evidence |
-| --- | --- | --- |
-| Material ownership | Front pelvis 71, far thigh 174 and near thigh 67 tabard-like pixels reassigned; all three rear counts are zero, with no rear material reassignment | `proof/*_ownership_cleanup.json` |
-| Trouser fill | Six pelvis/thigh regions use only view-specific trousers core and remaining original own-visible donors; every hidden-region median is within DeltaE76 12 | `hidden_fills/index.json`, table below |
-| Exact rest and order | Both views differ by 0 RGBA pixels; all 35,381 visible pixels retain their original rest draw depth | `proof/rest_identity.json`, `proof/round4_audit.json` |
-| Detached islands | 98 front and 76 rear component pixels moved; no deletion or forced retention; no remaining detached component below 12px in a complete logical part | Per-part table and cleanup reports |
-| Rear strike/pin layers | All upper/fore/hand fist paint behind torso and head, with internal arm order preserved; front and other clips retain default depths | Actual node depths in `proof/motion_samples.json` |
-| Complete motion scope | Seven clips in both views, 458 sampled poses and 294 per-request clip exposure records | `cutout.json`, motion samples, paint plan |
-| Hidden paint | 39 filled requests / 34,254 pixels; three empty requests; zero magenta in all 134 runtime images | `hidden_fills/contact_sheet.png`, round4 audit |
-| Native art proof | Ready for director capture and judgment | v04 commands below |
+1. **Tabard ownership:** all seven named front parts participate in material
+   classification, with the 6px Euclidean tabard-solo dilation recorded. The
+   explicit part list selects whole owners; dilation overlap does not crop the
+   transfer. Initial candidate counts are pelvis 71, far thigh 174, near thigh 67,
+   far shin 303, near shin 104, far coat 11 and near coat 20. After topology repairs,
+   final tabard-owned pixels originating from those parts are respectively
+   **71, 174, 69, 267, 0, 11 and 16**. Scattered matching colours on the shins must
+   stay with the adjacent leg to avoid floating paint. No visible RGB is changed.
+   The literal global gate reports **707,665** matching non-tabard sample
+   pixels over 458 frames. This count includes repeated pixels across frames.
+   At rest alone, front head 367, torso 171, belt 195 and hook 139 pixels qualify.
+2. **Specks:** v04 native alpha/RGBA identified the supplied front/rear defects;
+   ownership was traced through matching CPU pixels, explicitly labelled as CPU
+   attribution. Six source repairs address the foot, coat and thigh-tip islands.
+   A further 119 source pixels from newly separated 23/27/29/40px shin fragments
+   return to adjacent leg owners. The full CPU sweep has **0** disconnected opaque
+   8-connected components below 12px. The selected inspection frames have no
+   detached components of any size. Native ownership-map capture is provided.
+3. **Leg values:** pelvis, thighs and shins use same-view same-part visible RGB
+   for a seeded k=6 palette and empirical L* quantiles. Diffusion determines spatial
+   rank, then quantile matching restores the visible value distribution. Outlines
+   remain unchanged and count in the gate. All ten median differences are below
+   8, and all contain values in their visible part's interquartile range. Sparse
+   references are reported rather than silently replaced. The rear far thigh
+   remains nearly black; the numerical check does not resolve that visual defect.
+4. **Rear punch:** the entire rigid fist arm is translated into the torso/head/coat
+   union at all 70 strike/pin phases, using the shortest fitting integer offset.
+   Every arm layer also draws behind that union. CPU counts are **0** outside-arm
+   pixels and **0** visible-arm pixels. Compared with v04, only rear upper/fore/hand
+   fist transforms in those two clips change; front transforms and pelvis drive
+   are exact. No independent torso/shoulder lean curve was invented.
 
-There are 23 joints per view, 76 front and 58 rear paint/support nodes, zero
-meshes and no unmaterialized logical parts. Additional nodes preserve original
-rest depth after ownership transfers and articulate the existing chain paint.
-Rigid cloth remains `tabard → tabard`, `coat_near → coat_fist`,
-`coat_far → coat_hook`, with all three bones parented to pelvis as in production.
-No design TODOs remain. Art status is `hidden_filled_pending_director_review`.
+## Per-part value report
 
-## Material and ownership recipe
+L* is measured per pixel before taking its median. Mid-tone counts are hidden
+pixels within the visible part's 25th–75th percentile L* range. The full ranges,
+source masks, palette, donor provenance and output digests are recorded in
+`hidden_fills/index.json` and independently recomputed in the motion-gate report.
 
-`recipes/rig.json.ownership_cleanup` records the director's material thresholds.
-The front tabard reference uses pixels at least 4px inside its registered
-maquette label. Each view's trousers reference uses the near-thigh core after
-excluding pixels within DeltaE76 20 of the tabard median. Medians are RGB medians
-converted using the art gate's D65 sRGB-to-Lab function. Measured references:
-front tabard `(84,28,24)`, front trousers `(69,54,49.5)`, rear trousers `(53,40,37)`.
-The tabard is front-only, so both views use the front reference for classification.
+| Region | Visible pixels | Visible median L* | Hidden median L* | Difference | Hidden mid-tones |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| front/pelvis | 42 | 1.103 | 4.026 | 2.923 | 1367 |
+| front/thigh_far | 14 | 37.133 | 37.187 | 0.054 | 1093 |
+| front/thigh_near | 483 | 13.377 | 11.694 | 1.683 | 1313 |
+| front/shin_far | 562 | 2.801 | 3.619 | 0.818 | 811 |
+| front/shin_near | 922 | 6.761 | 5.502 | 1.258 | 373 |
+| rear/pelvis | 375 | 13.053 | 12.700 | 0.353 | 1082 |
+| rear/thigh_far | 7 | 0.099 | 0.119 | 0.020 | 1312 |
+| rear/thigh_near | 759 | 15.232 | 17.498 | 2.265 | 649 |
+| rear/shin_far | 792 | 6.532 | 8.640 | 2.108 | 712 |
+| rear/shin_near | 1455 | 11.031 | 14.372 | 3.342 | 392 |
 
-The material transfer precedes component cleanup and hidden fill. Each visible
-piece keeps its original depth in `rest_depth_source`, while its new logical
-owner determines its bone. `registered/*_original_owners.npy` retains the original
-partition; current owners, hidden masks and trousers masks are separately saved.
-Fill recomputes cleanup from the source and rejects inconsistent stored masks.
+The 14-pixel front far-thigh reference is unusually bright; the 7-pixel rear
+reference contains no useful brighter mid-tones. Both carry named design TODOs.
+The requested same-part calculation is implemented literally until a replacement
+reference is authorized. Front candidate-part palettes exclude centroids within
+DeltaE76 15 of tabard, since averaging other colours can recreate that hue.
 
-Pelvis/thigh donor pixels exclude coat, tabard and cross-view sources. The
-remaining original own-visible pixels and trousers core form the seeded k=6
-palette. Hidden interiors use only sampled palette centroids within DeltaE76 12
-of the reference. The one-pixel outline remains `(20,16,21)`; its pixels are
-included in the final median check. Visible RGBA never changes.
+## Proof and provenance
 
-| Filled region | Hidden pixels | Hidden RGB median | DeltaE76 to trousers |
-| --- | ---: | --- | ---: |
-| `front/thigh_near` | 1,626 | `(47.0, 38.0, 36.0)` | 8.621 |
-| `front/thigh_far` | 2,186 | `(58.0, 46.0, 42.0)` | 4.195 |
-| `rear/thigh_far` | 2,063 | `(36.0, 26.0, 27.0)` | 7.650 |
-| `rear/thigh_near` | 1,283 | `(38.0, 27.0, 27.0)` | 6.764 |
-| `rear/pelvis` | 1,720 | `(35.0, 25.0, 26.0)` | 8.101 |
-| `front/pelvis` | 2,051 | `(48.0, 34.0, 32.0)` | 9.387 |
+- Focused: `Ran 31 tests in 14.546s` / `OK` (`proof/focused_round5.log`).
+- Art gate: `Ran 49 tests in 13.668s` / `OK`, exit 0 (`proof/art_gate_round5.log`).
+- Python full suite: `Ran 428 tests in 265.181s` / `OK (skipped=61)` (`proof/python_suite_round5.log`).
+- Godot full suite: `FULL SUITE RUNTIME: 750.855 seconds (budget 900 seconds)` /
+  `TEST RESULT: PASS`, exit 0 (`proof/godot_suite_round5.log`).
+- `validate --protect all`: `ok: true`, `errors: []`; 79 front / 60 rear nodes,
+  23 joints each, zero meshes (`proof/validation_round5.json`).
+- Fresh headless sampling: `MAQUETTE_MOTION_SAMPLES: PASS (458 poses)`;
+  `MAQUETTE_EXPOSURE: PASS (42 requests; 0 unknown solos)`.
+- Rest identity: front **0** and rear **0** different RGBA pixels. All 113 tracked
+  source files remain byte-identical to v04. Archive `provenance/round4/` contains
+  239 verified prior derived files, including requests and fill provenance.
+- Hidden paint: 39 filled requests / 34,374 pixels, three empty
+  requests, **0 magenta** in all 139 runtime images and all 458 CPU frames.
+- CPU motion gates: **FAIL**, solely the literal colour count above. Other counts:
+  small disconnected pixels **0**, arm outside **0**, visible rear arm **0**,
+  magenta **0**, value failures **0** (`proof/cpu_motion_gates.json`).
+- Native motion probe parser: exit 0; this is a parser check, not renderer proof.
+- Fresh v05 `verify-render`: fails because `capture_input_sha256.json` does not
+  exist yet. No native v05 counts are claimed.
 
-## Detached-component report
+`proof/cpu_round5_keyframes.png` was visually inspected as a CPU diagnostic,
+including the supplied walk/strike problem poses. The filled rear far-thigh
+preview was inspected and confirms the unresolved dark reference. The owner
+traces and `proof/round5_audit.json` retain per-fragment and transform evidence.
+Earlier test runs during regeneration and the rejected semantic-priority
+experiment remain labelled separately; only the final logs above are the handoff.
+The logs retain NumPy Lab warnings and Godot certificate/resource-exit diagnostics.
 
-The complete part mask combines visible pixels and hidden support. Components
-use 8-connectivity; the largest is exempt and only components below 12px are
-considered. A component moves to the rest-painted neighbour with the most
-shared four-connected boundary edges; ties use label order. Moves are computed
-from one snapshot. Unattached hidden-only islands may be deleted if the complete
-visible partition still covers rest; unattached visible islands stay and are
-reported. Neither exceptional case occurred here. Counts below include visible
-and hidden pixels; component bounds, targets and visible counts are in the
-per-view cleanup JSON files.
+## Native motion-gate contract
 
-| Part | Front pixels moved | Rear pixels moved |
-| --- | ---: | ---: |
-| `head` | 8 | 5 |
-| `torso` | 1 | 3 |
-| `pelvis` | 0 | 0 |
-| `belt` | 5 | 3 |
-| `tabard` | 11 | 1 |
-| `coat_near` | 16 | 12 |
-| `coat_far` | 0 | 1 |
-| `upper_near` | 0 | 0 |
-| `fore_near` | 1 | 0 |
-| `hand_near` | 0 | 0 |
-| `upper_far` | 1 | 0 |
-| `fore_far` | 7 | 3 |
-| `hand_far` | 0 | 0 |
-| `thigh_near` | 0 | 0 |
-| `shin_near` | 4 | 0 |
-| `foot_near` | 3 | 0 |
-| `thigh_far` | 0 | 0 |
-| `shin_far` | 13 | 5 |
-| `foot_far` | 27 | 35 |
-| `chain` | 1 | 8 |
-| `hook` | 0 | 0 |
+The extra probe captures every authored frame in seven clips and both views,
+plus one rest calibration per view: 460 poses, each with 512×512 RGBA, physical
+paint-node IDs, unoccluded arm mask and torso/head/coat mask. Its overview is
+1920×1080 at 100% UI scale. IDs encode the physical node index in RG bytes and
+must reproduce the exact rest logical ownership before motion counts are trusted.
 
-After cleanup, the front far-foot sole is `(113.5,229)` instead of
-`(188.5,238)`: the old bottommost measurement selected a detached speck near the
-other boot. The cleaned foot contour now supplies the production walk sampler.
-Other sole landmarks are unchanged. Fresh planted-support and foot-target
-checks pass; the v04 front walk is a relevant director inspection point.
+The Python collector verifies all input/output hashes, rejects incomplete or
+duplicate frame sets, and requires every RGBA frame to match the main verified
+reel byte-for-byte. It then evaluates the literal colour, silhouette, arm and
+magenta gates. No CPU diagnostic can satisfy this contract. Overall exit status
+remains failure when any gate fails; no metal/leather exceptions are hidden.
 
-## Motion and layer behavior
+## TODO_DESIGN and chosen defaults
 
-The copied production `gaoler_motion.gd` remains byte-identical. The case adapter
-maps the maquette chain to production `chain_a`, and adds real `chain_b/c` joints
-at production link fractions mapped onto the registered chain-to-hook axis.
-The existing visible and hidden chain paint is partitioned at those fractions.
-The hook retains its registered endpoint. No motion curves or poses are invented.
+- `TODO_DESIGN_tabard_global_colour_gate`: choose a material/provenance scope or
+  retain the literal global failures. Exact rest paint and cloth-only ownership
+  cannot distinguish the shared helmet/leather/hook/blood colours by DeltaE alone.
+- `TODO_DESIGN_sparse_value_reference_front_thigh_far` and
+  `TODO_DESIGN_sparse_value_reference_rear_thigh_far`: authorize a useful reference
+  for the 14/7-pixel samples. The established same-view trousers core is available
+  but has not been substituted without a decision.
+- `TODO_DESIGN_rear_torso_lean`: supply the lean curve, or accept the existing
+  production body/pelvis motion with the concealed arm constraint.
 
-Rear `strike` and `manacle_pin` shift the entire fist-arm layer group below the
-lowest torso/head paint layer. The same shift applies to every arm piece,
-preserving its internal order. Front and other clips retain their prior static
-depths. Samples read actual Sprite2D depths, assert these contracts and use the
-same order for exposure. Exposure sums all support pieces of a logical part.
+New procedural defaults: closest integer arm translation, y then x tie break,
+1px interior raster margin, linear interpolation between authored sample phases;
+240s native-probe timeout for four surfaces over 460 poses; RG-byte node IDs;
+empirical L* quantiles in stable diffusion order. The diagnostic contact sheet
+uses 340px crops and four columns. Existing seed 0, k=6, radius 3, 40-pixel sparse
+threshold, outline `(20,16,21)`, 8-connected component traversal and four-edge
+adjacency voting remain recorded. Director thresholds are dilation 6px,
+DeltaE76 15, disconnected component cutoff 12px and median L* difference 8.
 
-| Clip | Duration | Diagnostic frames per view |
-| --- | ---: | ---: |
-| idle | 1.6 s | 24 |
-| walk | 0.64 s | 48 |
-| strike | 0.24 s | 31 |
-| hit | 0.36 s | 24 |
-| death | 1.036 s, settlement at 62% | 32 |
-| chain_reel | 0.24 s | 31 |
-| manacle_pin | 0.57 s | 39 |
+## Proof for the design owner
 
-Reel timing uses the existing RunScene 6 × 0.04s attack clock. Pin uses
-AttackFxLibrary's 38 × 0.015s air clock. Its 39 endpoint-inclusive samples capture
-release at 4/38 and contact at 12/38 exactly. These frame counts are proof defaults.
-All seven clips will appear in each view of `cutout_review.mp4`.
-
-## Fill provenance and checks
-
-The unchanged deterministic diffusion defaults are radius 3, palette k=6,
-seed 0, k-means cap 256, diffusion cap 4,096, residual tolerance 1e-6,
-four-neighbour harmonic diffusion with reflecting borders, 40 own pixels for
-the generic palette fallback, and outline `(20,16,21)`. Material thresholds
-4px / DeltaE20 / DeltaE12 and component cutoff 12px come from round4 director data.
-Border counting, tie order, chain pixel-centre partitioning and new diagnostic
-frame counts are recorded procedural choices. Other proof defaults remain
-five sheet columns, 28px captions, alpha threshold 128, 0.02px joint tolerance,
-512px pose canvas and eight native keyframes per clip. Headless tolerances remain
-0.001 rigid basis, 0.2px foot target and 0.02px planted support.
-
-Generic parts still use own visible paint and listed exact same-material
-neighbours. The previously approved same-part cross-view fallback applies when
-own count is below 40 and no local matching neighbour remains after cleanup:
-
-| Request | Own visible pixels | Paired donor | Donor pixels |
-| --- | ---: | --- | ---: |
-| `rear/fore_near` | 0 | `front/fore_near` | 508 |
-| `rear/hand_near` | 0 | `front/hand_near` | 455 |
-| `rear/tabard` | 9 | `front/tabard` | 1713 |
-
-The two hooks and front tabard now have no hidden pixels. Every request retains
-an explicit measured record. Current request images deliberately show magenta
-as the fill masks; runtime images contain none. `hidden_fills/index.json` records
-all palettes, eligible quantization colors, donors, conditioning masks, counts,
-solver results and per-output digests, including split chain outputs. Reruns are
-identical and refuse to overwrite later manual paint. Original source files are
-unchanged (`proof/round4_source_audit.json`).
-
-- Focused tests: 28 tests, 9.889s, OK (`proof/focused_round4.log`).
-- Art gate: 49 tests, 13.790s, OK (`proof/art_gate_round4.log`).
-- Python full suite: 425 tests in 242.496s, OK (skipped=61), exit 0 (`proof/python_suite_round4.log`).
-- Godot full suite: `FULL SUITE RUNTIME: 672.734 seconds (budget 900 seconds)`, `TEST RESULT: PASS`, exit 0 (`proof/godot_suite_round4.log`). Logs retain macOS certificate, scene-tree/resource diagnostics and the ObjectDB exit warning; all program sub-suites pass.
-- Fresh self-contained rebuild: all 369 derived files, 458 pose records and 42 request/fill records match exactly (`proof/rebuild_round4.json`).
-- Motion: `MAQUETTE_MOTION_SAMPLES: PASS (458 poses)`.
-- Exposure: 42 measured requests, zero unknown solos, seven clips per request.
-- Validation with `--protect all`: `ok: true`, no errors.
-- Rest: front 0, rear 0 differing pixels; audit zero magenta and exact rest depth.
-- New full fill sheet inspected as a diagnostic at native presentation size;
-  native v04 motion inspection remains the director's step.
-
-## Rebuild and headless verification
-
-Use a fresh case path; the build command deliberately does not overwrite a
-completed case. These commands use the exact self-contained source copies:
-
-```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-02
-python3 tools/maquette_cutout.py --spec experiments/cutouts/chainbound_gaoler/mq3/source/spec.json --front-job experiments/cutouts/chainbound_gaoler/mq3/source/front --rear-job experiments/cutouts/chainbound_gaoler/mq3/source/rear --renders experiments/cutouts/chainbound_gaoler/mq3/source/maquette --palette experiments/cutouts/chainbound_gaoler/mq3/source/label_palette.json --rig-recipe experiments/cutouts/chainbound_gaoler/mq3/recipes/rig.json --case /private/tmp/rr-02-mq3-rebuild-v04 --task-id rr-02
-python3 tools/maquette_cutout.py fill-hidden --case /private/tmp/rr-02-mq3-rebuild-v04 --task-id rr-02 --cross-view-fallback
-```
-
-For the current case:
-
-```sh
-python3 tests/test_maquette_cutout.py
-python3 tests/test_art_identity_gate.py
-python3 tools/cutout_workflow.py validate experiments/cutouts/chainbound_gaoler/mq3 --protect all
-python3 tools/maquette_cutout.py fill-hidden --case experiments/cutouts/chainbound_gaoler/mq3 --task-id rr-02
-```
-
-## Windowed v04 capture and director review
-
-Run from the worktree in a window-server session. The new native-rest manifest
-preserves all previous director-supplied results; the v04 directory must be fresh.
+Run in a window-server session from this worktree. The new directory must be
+fresh. The colour gate will currently return failure and write its counts; the
+other gates must still be inspected. Do not treat the entire result as approved.
 
 ```sh
 cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-02
 case_dir="$PWD/experiments/cutouts/chainbound_gaoler/mq3"
-capture_dir=/private/tmp/rr-02-mq3-render-v04
-python3 tools/visual_probe_runner.py "$case_dir/probes/native_rest.gd" --task-id rr-02 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --expect-size 255x255 --proof-contract "$case_dir/probes/rest_contract.json" --result-manifest "$case_dir/proof/native_rest_round4_result.json" -- --case "$case_dir/cutout.json"
+capture_dir=/private/tmp/rr-02-mq3-render-v05
+python3 tools/visual_probe_runner.py "$case_dir/probes/native_rest.gd" --task-id rr-02 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --expect-size 255x255 --proof-contract "$case_dir/probes/rest_contract.json" --result-manifest "$case_dir/proof/native_rest_round5_result.json" -- --case "$case_dir/cutout.json"
 python3 tools/cutout_workflow.py render "$case_dir" --output "$capture_dir" --task-id rr-02
 python3 tools/cutout_workflow.py verify-render "$case_dir" --output "$capture_dir"
+python3 "$case_dir/probes/motion_gates.py" --case "$case_dir" --capture-native "$capture_dir" --task-id rr-02
 python3 "$case_dir/probes/proof.py" --case "$case_dir" --native-output "$capture_dir"
 ```
 
-Expected reel: `/private/tmp/rr-02-mq3-render-v04/videos/cutout_review.mp4`.
-The collector requires byte-identical native rest and produces eight-frame
-sheets for every rendered clip/view. Inspect the front/rear walk for red smears
-and detached specks, rear strike/pin for shoulder occlusion, and the two added
-clips for complete scope. Numerical proof is not a substitute for this art
-judgment. A gameplay inspection fixture is not applicable before integration.
+Reel: `/private/tmp/rr-02-mq3-render-v05/videos/cutout_review.mp4`.
+Native gate counts: `/private/tmp/rr-02-mq3-render-v05/motion_gates.json`.
+Native ownership/masks: `/private/tmp/rr-02-mq3-render-v05/motion_gate_capture/`.
+The collector also writes eight-frame sheets per clip/view under
+`proof/native_keyframes/` and `proof/native_motion_gates.json`.

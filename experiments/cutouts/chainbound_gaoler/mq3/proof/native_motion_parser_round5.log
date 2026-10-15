@@ -1,0 +1,10 @@
+Running task-local command:
+  task: rr-02
+  run: rr-02-1792091349084836000-21009
+  HOME: /private/tmp/labyrinth-godot-home/rr-02-1792091349084836000-21009
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-02-1792091349084836000-21009/godot.log --headless --path . --script experiments/cutouts/chainbound_gaoler/mq3/probes/native_motion.gd --check-only
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+

@@ -1,0 +1,81 @@
+{
+  "changed_bones": {
+    "rear/strike": [
+      "fore_fist",
+      "hand_fist",
+      "upper_fist"
+    ],
+    "rear/manacle_pin": [
+      "fore_fist",
+      "hand_fist",
+      "upper_fist"
+    ]
+  },
+  "selected_frame_components": [
+    {
+      "pose": [
+        "front",
+        "walk",
+        0
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "front",
+        "walk",
+        7
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "front",
+        "walk",
+        47
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "front",
+        "strike",
+        2
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "walk",
+        28
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "strike",
+        2
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "strike",
+        3
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "manacle_pin",
+        12
+      ],
+      "non_main_components": []
+    }
+  ],
+  "source_files_unchanged": 113
+}

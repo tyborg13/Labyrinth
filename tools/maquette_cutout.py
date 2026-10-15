@@ -362,9 +362,25 @@ def clean_ownership(owners, paint, names, solos, view, material, policy):
     if material:
         lab = to_lab(paint[..., :3])
         red = np.linalg.norm(lab - material["tabard_cloth"]["median_lab"], axis=-1) < np.linalg.norm(lab - material["trousers"]["median_lab"], axis=-1)
-        for name in policy["trouser_parts"]:
+        transfer_parts = policy.get("tabard_transfer_parts", policy["trouser_parts"])
+        delta = np.linalg.norm(lab - material["tabard_cloth"]["median_lab"], axis=-1)
+        if "tabard_gate_delta_e" in policy:
+            red |= delta <= policy["tabard_gate_delta_e"]
+        radius = policy.get("tabard_dilation_px", 0)
+        tabard_silhouette = solos["tabard"]
+        padded = np.pad(tabard_silhouette, radius)
+        dilated = np.zeros_like(tabard_silhouette)
+        h, w = dilated.shape
+        for dy in range(-radius, radius + 1):
+            for dx in range(-radius, radius + 1):
+                if dx * dx + dy * dy <= radius * radius:
+                    dilated |= padded[radius + dy:radius + dy + h, radius + dx:radius + dx + w]
+        report["tabard_dilation"] = {"radius_px": radius, "pixels": int(dilated.sum()),
+            "basis": "Director's explicit part list selects complete owners; silhouette overlap is recorded, not used to crop paint transfers"}
+        for name in transfer_parts:
             selected = (owners == names.index(name)) & red
             report["material_transfers"][name] = {"tabard_like_pixels": int(selected.sum()),
+                "within_dilated_silhouette": int((selected & dilated).sum()),
                 "moved_to_tabard": int(selected.sum()) if view == "front" else 0,
                 "rear_unchanged": int(selected.sum()) if view == "rear" else 0}
             if view == "front":
@@ -398,6 +414,26 @@ def clean_ownership(owners, paint, names, solos, view, material, policy):
             records.append(record)
         report["specks"][name] = {"components": len(components), "small_components": records,
             **{action + "_pixels": sum(r["pixels"] for r in records if r["action"] == action) for action in ["move", "delete", "keep"]}}
+    report["motion_islands"] = []
+    for item in policy.get("motion_islands", []):
+        if item["view"] != view:
+            continue
+        part = names.index(item["part"])
+        selected = np.zeros(owners.shape, dtype=bool)
+        for x, y in item["points"]:
+            selected[y, x] = owners[y, x] == part
+        for component in components8(selected):
+            border = _adjacent(component.astype(np.int16))
+            border[component] = 0
+            neighbours = [(int(border[owners == i].sum()), i) for i in range(len(names)) if i != part]
+            shared, target = max(neighbours, key=lambda value: (value[0], -value[1]))
+            if not shared:
+                raise CutoutError("Motion island has no rest-adjacent owner: " + view + "/" + item["part"])
+            owners[component] = target
+            hidden[part][component] = False
+            report["motion_islands"].append({"part": item["part"], "target": names[target],
+                "pixels": int(component.sum()), "bbox": bbox(component), "shared_border_edges": shared,
+                "evidence": item["evidence"], "reason": item["reason"]})
     for i in range(len(names)):
         hidden[i] &= (owners >= 0) & (owners != i)
     return owners, hidden, report
@@ -783,6 +819,9 @@ def build(args) -> dict:
     if palette_path:
         palette = read_json(palette_path)
         copy(palette_path, root / "source/label_palette.json")
+        provenance = palette_path.with_name(palette_path.stem + "_provenance.json")
+        if provenance.is_file():
+            copy(provenance, root / "source/label_palette_provenance.json")
     else:
         configs = sorted((Path(args.blender).resolve().parents[1] / "Resources").glob("*/datafiles/colormanagement/config.ocio"))
         config_path = args.color_config or (configs[-1] if configs else None)
@@ -818,6 +857,14 @@ def build(args) -> dict:
     contact_sheet([(f"{r['view']}/{r['part']}\n" + (f"hidden={r['hidden_pixel_count']}" if r["status"] == "measured" else "UNKNOWN: MISSING SOLO"), Image.open(root / r["image"]).convert("RGBA")) for r in requests], root / "hidden_requests/contact_sheet.png")
     if report["ok"]:
         sample_exposure(root, recipe, getattr(args, "task_id", None))
+        if recipe.get("motion_constraints_tool"):
+            process = subprocess.run([sys.executable, str(root / recipe["motion_constraints_tool"]),
+                "--case", str(root), "--bake-rear-arm"], cwd=PROJECT, text=True,
+                stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            (root / "proof/motion_constraints.log").write_text(process.stdout)
+            if process.returncode:
+                raise CutoutError("Motion constraint bake failed; see proof/motion_constraints.log")
+            sample_exposure(root, recipe, getattr(args, "task_id", None))
     write_json(root / "build_report.json", report)
     for path in root.rglob("*.png"):
         Path(str(path) + ".import").write_text('[remap]\n\nimporter="keep"\n')
@@ -913,7 +960,7 @@ def diffuse_rgb(rgb: np.ndarray, known: np.ndarray, target: np.ndarray) -> tuple
 
 
 def fill_pixels(paint: np.ndarray, visible: np.ndarray, hidden: np.ndarray,
-                donor_rgb: np.ndarray, donor_mask: np.ndarray, method: str, palette_pixels=None, palette_reference=None, conditioning_visible=None) -> tuple[np.ndarray, dict]:
+                donor_rgb: np.ndarray, donor_mask: np.ndarray, method: str, palette_pixels=None, palette_reference=None, conditioning_visible=None, value_pixels=None, excluded_material=None) -> tuple[np.ndarray, dict]:
     own_count = int(visible.sum())
     if palette_pixels is None:
         palette_pixels = paint[visible, :3] if own_count >= FILL_DEFAULTS["palette_min_own_pixels"] else donor_rgb[donor_mask]
@@ -926,6 +973,11 @@ def fill_pixels(paint: np.ndarray, visible: np.ndarray, hidden: np.ndarray,
         quantization_palette = palette[distance <= palette_reference["max_delta_e"]]
         if not len(quantization_palette):
             raise CutoutError("No sampled palette centroid satisfies the material gate")
+    if excluded_material:
+        distances = np.linalg.norm(to_lab(quantization_palette) - excluded_material["median_lab"], axis=-1)
+        quantization_palette = quantization_palette[distances > excluded_material["delta_e"]]
+        if not len(quantization_palette):
+            raise CutoutError("All sampled palette centroids collide with the excluded material")
     seed = np.where(donor_mask[..., None], donor_rgb, 0).astype(np.uint8)
     conditioning_visible = visible if conditioning_visible is None else conditioning_visible
     seed[conditioning_visible] = paint[conditioning_visible, :3]
@@ -953,6 +1005,25 @@ def fill_pixels(paint: np.ndarray, visible: np.ndarray, hidden: np.ndarray,
     # recoloring of visible paint. The edge is of the WHOLE part, not the hole.
     outline = hidden & silhouette_edge(visible | hidden, clipped_border=True)
     result[outline, :3] = FILL_DEFAULTS["outline_tone"]
+    if value_pixels is not None and hidden.any():
+        # Match the complete empirical same-part value distribution, not just
+        # the diffusion's shadow-biased cluster. Keep diffuse spatial ranking.
+        interior = hidden & ~outline
+        target_l = np.sort(to_lab(value_pixels)[:, 0])
+        positions = np.flatnonzero(interior)
+        order = np.argsort(to_lab(filled[interior])[:, 0], kind="stable")
+        quantiles = (np.arange(len(positions)) + int(outline.sum()) + 0.5) / int(hidden.sum())
+        targets = target_l[np.minimum((quantiles * len(target_l)).astype(int), len(target_l) - 1)]
+        choices = abs(targets[:, None] - to_lab(quantization_palette)[None, :, 0]).argmin(axis=1)
+        result.reshape(-1, 4)[positions[order], :3] = quantization_palette[choices]
+        actual_l = to_lab(result[hidden, :3])[:, 0]
+        q25, q75 = np.percentile(target_l, [25, 75])
+        metrics["value_distribution"] = {"basis": "same-view same-part visible RGBA; L* empirical quantiles, outlines included in gate",
+            "visible_pixels": len(target_l), "visible_median_l": float(np.median(target_l)),
+            "hidden_median_l": float(np.median(actual_l)),
+            "median_difference_l": float(abs(np.median(actual_l) - np.median(target_l))),
+            "visible_midtones_l": [float(q25), float(q75)],
+            "hidden_midtones_pixels": int(((actual_l >= q25) & (actual_l <= q75)).sum())}
     return result, {"method": method if hidden.any() else "no_hidden_pixels", "diffusion": metrics,
                     "palette": palette.tolist(), "quantization_palette": quantization_palette.tolist(), "palette_iterations": iterations,
                     "palette_source": "own_visible" if own_count >= FILL_DEFAULTS["palette_min_own_pixels"] else "same_material_neighbours",
@@ -1041,6 +1112,10 @@ def fill_hidden(args) -> dict:
             "donors": "view trousers core plus own still-owned original visible pixels; no coat, tabard or cross-view source",
             "quantization": "k6 sampled palette; hidden interiors use only centroids within the director's material DeltaE limit; outlines retain their tone",
             "max_delta_e": rig_recipe["ownership_cleanup"]["fill_median_max_delta_e"]}
+    if rig_recipe.get("hidden_value_distribution"):
+        recipe["value_distribution_policy"] = rig_recipe["hidden_value_distribution"]
+        recipe["value_distribution_policy"]["quantization"] = "Empirical same-part visible L* quantiles assigned in diffusion L* order; nearest sampled k6 palette centroid; include unchanged outline in median gate"
+        recipe["trousers_policy"]["superseded_parts"] = rig_recipe["hidden_value_distribution"]["parts"]
     requests = read_json(root / "hidden_requests/index.json")["requests"]
     if {(r["view"], r["part"]) for r in requests} != {(v, n) for v in config["layouts"] for n in names}:
         raise CutoutError("Hidden requests must cover every view and label")
@@ -1096,7 +1171,20 @@ def fill_hidden(args) -> dict:
                 raise CutoutError(f"Request neighbours differ from approved ownership: {view}/{part}")
         donors, donor_rgb, donor_mask, donor_view = fill_donors(request, names, views, recipe.get("cross_view_fallback") == "same_part")
         palette_pixels, trousers_reference, conditioning_visible = None, None, visible
-        if part in rig_recipe.get("ownership_cleanup", {}).get("trouser_parts", []):
+        value_pixels = None
+        excluded_material = None
+        cleanup_policy = rig_recipe.get("ownership_cleanup", {})
+        if view == "front" and part in cleanup_policy.get("tabard_transfer_parts", []):
+            excluded_material = dict(material_references[view]["tabard_cloth"], delta_e=cleanup_policy["tabard_gate_delta_e"])
+        value_policy = rig_recipe.get("hidden_value_distribution", {})
+        if part in value_policy.get("parts", []):
+            if not visible.any():
+                raise CutoutError("No visible same-part value reference: " + view + "/" + part)
+            donors, donor_view = [part], None
+            donor_rgb, donor_mask = paint[..., :3], visible.copy()
+            palette_pixels = paint[visible, :3]
+            value_pixels = palette_pixels
+        elif part in rig_recipe.get("ownership_cleanup", {}).get("trouser_parts", []):
             donors, donor_view = ["trousers_core"], None
             donor_rgb = paint[..., :3]
             donor_mask = np.load(root / f"registered/{view}_trousers.npy", allow_pickle=False)
@@ -1134,10 +1222,18 @@ def fill_hidden(args) -> dict:
             result[hidden] = MAGENTA
         else:
             result, metrics = fill_pixels(paint, visible, hidden, donor_rgb, donor_mask, recipe["method"], palette_pixels,
-                dict(trousers_reference, max_delta_e=rig_recipe["ownership_cleanup"]["fill_median_max_delta_e"]) if trousers_reference else None, conditioning_visible)
+                dict(trousers_reference, max_delta_e=rig_recipe["ownership_cleanup"]["fill_median_max_delta_e"]) if trousers_reference else None, conditioning_visible, value_pixels, excluded_material)
             record.update(metrics, status="filled" if hidden.any() else "no_hidden_pixels")
+            if excluded_material:
+                record["excluded_tabard_reference"] = excluded_material
             if donor_view:
                 record["palette_source"] = "same_part_other_view"
+        if value_pixels is not None:
+            record["palette_source"] = "same_view_same_part_visible_value_distribution"
+            record["value_distribution"] = record["diffusion"].pop("value_distribution", {})
+            if len(value_pixels) < FILL_DEFAULTS["palette_min_own_pixels"]:
+                record["design_placeholder"] = "TODO_DESIGN_sparse_value_reference_" + view + "_" + part
+                record["design_reason"] = "Literal same-view reference has fewer than 40 pixels; brighter core fallback needs director's decision"
         if trousers_reference and hidden.any():
             median = np.median(result[hidden, :3], axis=0)
             delta = float(np.linalg.norm(to_lab(median) - trousers_reference["median_lab"]))
@@ -1202,7 +1298,10 @@ def fill_hidden(args) -> dict:
         record["preview_sha256"] = digest(root / record["preview"])
     contact_sheet([(f"{r['view']}/{r['part']}\n{r['status']} {r['hidden_pixels']} px", preview)
                    for r, _, preview in prepared], root / "hidden_fills/contact_sheet.png")
+    review_decisions = {r["design_placeholder"]: r["design_reason"] for r in records if "design_reason" in r}
+    config.setdefault("design_placeholders", {}).update(review_decisions)
     manifest = {"schema_version": 1, "complete": not pending, "method": recipe["method"],
+                "review_decisions": review_decisions,
                 "parameters": FILL_DEFAULTS, "implementation_sha256": digest(Path(__file__)),
                 "recipe_sha256": digest(recipe_path), "protected_inputs": protected_inputs,
                 "pending_design": pending, "requests": records}
@@ -1212,7 +1311,7 @@ def fill_hidden(args) -> dict:
     config["source_baseline"]["art_status"] = "hidden_material_incomplete" if pending else "hidden_filled_pending_director_review"
     write_json(config_path, config)
     report = {"complete": not pending, "method": recipe["method"], "requests": len(records),
-              "filled_requests": sum(r["status"] == "filled" for r in records), "pending_design": pending,
+              "filled_requests": sum(r["status"] == "filled" for r in records), "pending_design": pending, "review_decisions": review_decisions,
               "cross_view_requests": sum("cross_view_donor" in r for r in records),
               "remaining_magenta_pixels": sum(r.get("remaining_magenta_pixels", 0) for r in records),
               "rest_identity": rest_identity(root), "validation": validate(root)}

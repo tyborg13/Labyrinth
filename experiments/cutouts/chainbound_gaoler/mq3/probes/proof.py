@@ -66,7 +66,9 @@ def exposure(root, samples_path):
         # Final painted ownership after the SAME ordered layers used by the rig.
         size = PROOF_DEFAULTS["pose_canvas"]
         visible = np.full((size, size), -1, dtype=np.int16)
-        parts = sorted(layout["parts"], key=lambda p: sample["draw_order"][p["name"]])
+        from motion_gates import tree_order
+        order = tree_order(layout)
+        parts = sorted(layout["parts"], key=lambda p: (sample["draw_order"][p["name"]], order.index(p["name"])))
         for number, part in enumerate(parts):
             visible[transform_mask(root, part, layout, sample["bones"], meshes.get(part["name"]))] = number
         counts = np.bincount(visible[visible >= 0], minlength=len(parts))
@@ -155,6 +157,10 @@ def native(root, output):
         contact_sheet(items, root / "proof/native_keyframes" / f"{clip['folder']}_8frames.png", columns=4)
     write_json(root / "proof/native_keyframes/verification.json", {"ok": True, "capture": str(output), "render_verification": result,
                "rest_identity": "both approved RGBA paintings equal native rest", "proof_manifest_sha256": digest(output / "proof_sha256.json")})
+    from motion_gates import native_gates
+    motion = native_gates(root, output)
+    if not motion["ok"]:
+        raise CutoutError("Native motion gates failed; inspect " + str(output / "motion_gates.json"))
     print(f"MAQUETTE_NATIVE_PROOF: PASS ({len(manifest['clips'])} eight-frame sheets; native rest RGBA identical)")
 
 

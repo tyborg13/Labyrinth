@@ -195,8 +195,14 @@ core pixels with CIE Lab DeltaE76 greater than 20 from the tabard median.
 Reference medians are RGB medians converted through the gate's D65 sRGB-to-Lab
 function. The front tabard reference is shared because the tabard is front-only.
 
-Front pelvis/thigh pixels closer to the tabard median than the trouser median
-move to tabard ownership without recoloring. The corresponding rear counts are
+The round5 gaoler transfer covers the director's explicit front part list:
+pelvis, both thighs, both shins and both coat panels. Pixels closer to the tabard
+median than the trouser median, or within DeltaE76 15 of tabard, move to tabard
+without recoloring. A 6px Euclidean dilation of the registered tabard solo is
+recorded for overlap diagnostics; the explicit part list selects whole owners.
+Component edge voting follows the material transfer. Scattered colour matches
+can return to adjacent parts when needed to prevent detached motion specks; the
+literal colour gate reports them, without claiming a material exemption. The corresponding rear counts are
 reported without a material reassignment. Each logical part's complete mask
 (visible paint plus hidden support) then receives the director's 8-connected
 component cleanup: components smaller than 12px, except the largest, move to
@@ -204,7 +210,12 @@ the rest-painted neighbour sharing the most four-connected boundary edges.
 Moves use one snapshot; ties use label order. An unattached hidden-only island
 can be deleted under the exact visible partition; an unattached visible island
 is retained and reported. The largest-component tie uses top/left bbox order.
-Reports contain per-part counts, bounds, destinations and reasons.
+Reports contain per-part counts, bounds, destinations and reasons. Explicit
+`motion_islands` store source pixels traced from detached motion fragments and
+move them to the adjacent owner with the most shared boundary. This also covers
+islands over 12px and tips connected to their own part at rest but detached in
+motion. Trace provenance distinguishes native frame evidence from CPU ownership
+attribution; it never describes a CPU map as a rendered ownership capture.
 
 `registered/*_original_owners.npy` retains source depth ownership. Visible
 segments are split by their new logical owner and original draw depth; thus
@@ -213,7 +224,7 @@ order. Cleaned hidden masks and material masks are saved separately. Fill
 recomputes this source-derived cleanup and rejects mismatching masks or reports.
 Rest RGBA equality remains mandatory. When rebuilding an existing case, preserve
 the preceding immutable requests and their provenance before replacing derived
-outputs; the gaoler's pre-round4 requests are in `provenance/round3/`.
+outputs; the gaoler archives round3 and round4 under `provenance/`.
 
 The gaoler's three-link chain uses production `chain_b`/`chain_c` fractions along
 `chain_a` to `hook`, mapped onto the registered maquette chain axis. Existing
@@ -222,7 +233,14 @@ or motion curves are invented. The case adapter includes all seven production
 clips. Rear strike/pin shifts the entire fist-arm layer group behind head and
 torso while preserving internal order; other clip/view layer orders stay fixed.
 Headless samples record actual painted-node depths, and CPU exposure uses those
-depths, summing all support pieces of each logical part.
+depths and actual scene-tree order for equal depths, summing all support pieces
+of each logical part. The round5 adapter also constrains rear strike/pin by
+translating the whole fist arm into the torso/head/coat union. Each sampled phase
+uses the shortest integer translation into a one-pixel interior margin, with
+deterministic y/x ties; curves interpolate between those phases. The bake saves
+unconstrained transforms, verifies no arm pixels are clipped, then resamples.
+Front and non-arm transforms, including pelvis drive, remain unchanged. Additional
+torso lean needs director data; no lean curve is invented.
 
 ### Deterministic hidden fill
 
@@ -267,16 +285,21 @@ four-connected edge definition is reused without deleting alpha or darkening
 visible pixels. All visible paint, part alpha, offsets, bones and motion remain
 unchanged.
 
-For the gaoler's pelvis and thighs, the round4 material recipe overrides the
-generic donor/palette policy. Donors are that view's trousers core plus the same
-part's remaining original visible pixels; reassigned coat/tabard pixels and
-cross-view donors are excluded. Seeded k-means still derives six palette colors
-from these samples. Hidden interiors quantize only to those sampled centroids
-within DeltaE76 12 of the trouser reference; the outline retains its recorded
-tone. Each complete hidden region must also have a median within DeltaE76 12,
-including the outline. Both the full palette and allowed quantization palette,
-conditioning masks/counts and measured gate result are recorded. Visible paint
-is preserved even when it is excluded as a fill donor.
+The round5 `hidden_value_distribution` recipe supersedes the prior trousers-core
+color gate for pelvis, thighs and shins. Each region uses its own same-view visible
+pixels for a k=6 palette and empirical L* distribution. Hidden interior pixels
+retain diffusion's spatial value ranking and take the nearest palette L* to
+successive target quantiles, accounting for the unchanged outline. Report each
+region's visible/hidden median L*, their difference (maximum 8), visible interquartile
+L* range and the number of hidden pixels in that range. Front transfer parts also
+exclude palette centroids within DeltaE76 15 of tabard: averaging two non-tabard
+colors can otherwise recreate the tabard hue. Visible RGBA stays exact.
+
+Sparse references under 40 pixels produce explicit `review_decisions` rather
+than silently borrowing a brighter donor. In the current approved pair the rear
+far thigh has seven nearly black visible pixels. A literal same-part median check
+can pass while that fill remains dark; director authorization is required for a
+different reference. These review decisions do not imply magenta or missing paint.
 
 `recipes/hidden_fill.json` records the method and parameters;
 `hidden_fills/index.json` records each request's status, palette, counts, donor
@@ -293,7 +316,16 @@ Run `python3 tests/test_maquette_cutout.py`, `cutout_workflow.py validate`, and
 the case's headless motion sampler. Native proof still requires `render` and
 `verify-render`; the case provides an additional 1920×1080, 100% scale rest
 identity probe and a collector for eight native frames per clip. See its
-README for exact commands. No production inspection fixture is appropriate
+README for exact commands. `probes/native_motion.gd` additionally captures RGBA,
+physical paint-node IDs, the complete fist-arm mask, and the torso/head/coat mask
+at every frame, plus rest ID calibration. `motion_gates.py --capture-native`
+launches it through the visual runner and binds all output hashes. `--native`
+requires every frame, current source hashes, exact rest ownership calibration,
+and RGBA equality with the primary verified reel before evaluating the literal
+colour, detached-component, arm-containment and magenta gates. The native collector
+requires these gates; `--cpu` is a separate diagnostic and cannot satisfy them.
+The global colour gate deliberately reports protected helmet/leather/etc. matches;
+there are no implicit material exemptions. No production inspection fixture is appropriate
 until phase two integrates the case into gameplay.
 
 ## Starting a new task

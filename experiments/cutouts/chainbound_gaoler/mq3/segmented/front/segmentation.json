@@ -1,7 +1,7 @@
 {
   "ok": true,
   "source_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
-  "ownership_sha256": "e9b4292510b426c22061410d4fedef89d1adf9d8fc934587e4eb166726faf3b5",
+  "ownership_sha256": "a0d36218b542eba117fafdacc649386c9b43dbd809baa4764690e2d4918c9498",
   "parts": [
     {
       "name": "head",
@@ -144,6 +144,20 @@
       ]
     },
     {
+      "name": "belt_from_coat_near",
+      "file": "belt_from_coat_near.png",
+      "offset": [
+        192,
+        124
+      ],
+      "bbox": [
+        192,
+        124,
+        193,
+        125
+      ]
+    },
+    {
       "name": "belt_from_shin_far",
       "file": "belt_from_shin_far.png",
       "offset": [
@@ -232,13 +246,27 @@
       "file": "tabard_from_coat_near.png",
       "offset": [
         112,
-        147
+        125
       ],
       "bbox": [
         112,
-        147,
-        113,
+        125,
+        194,
         150
+      ]
+    },
+    {
+      "name": "tabard_from_coat_far",
+      "file": "tabard_from_coat_far.png",
+      "offset": [
+        144,
+        156
+      ],
+      "bbox": [
+        144,
+        156,
+        147,
+        161
       ]
     },
     {
@@ -252,7 +280,7 @@
         143,
         160,
         147,
-        192
+        193
       ]
     },
     {
@@ -273,14 +301,14 @@
       "name": "tabard_from_shin_far",
       "file": "tabard_from_shin_far.png",
       "offset": [
-        136,
+        116,
         155
       ],
       "bbox": [
-        136,
+        116,
         155,
         145,
-        164
+        205
       ]
     },
     {
@@ -330,11 +358,11 @@
       "file": "coat_near.png",
       "offset": [
         169,
-        124
+        125
       ],
       "bbox": [
         169,
-        124,
+        125,
         216,
         210
       ]
@@ -391,7 +419,7 @@
       "bbox": [
         102,
         139,
-        147,
+        113,
         174
       ]
     },
@@ -609,11 +637,11 @@
       "name": "thigh_near",
       "file": "thigh_near.png",
       "offset": [
-        144,
+        146,
         150
       ],
       "bbox": [
-        144,
+        146,
         150,
         170,
         197
@@ -665,12 +693,12 @@
       "name": "shin_near",
       "file": "shin_near.png",
       "offset": [
-        144,
-        193
+        157,
+        195
       ],
       "bbox": [
-        144,
-        193,
+        157,
+        195,
         194,
         243
       ]
@@ -685,7 +713,7 @@
       "bbox": [
         170,
         198,
-        191,
+        194,
         238
       ]
     },
@@ -718,6 +746,20 @@
       ]
     },
     {
+      "name": "shin_far_from_shin_near",
+      "file": "shin_far_from_shin_near.png",
+      "offset": [
+        144,
+        193
+      ],
+      "bbox": [
+        144,
+        193,
+        146,
+        204
+      ]
+    },
+    {
       "name": "shin_far",
       "file": "shin_far.png",
       "offset": [
@@ -741,7 +783,7 @@
       "bbox": [
         102,
         211,
-        194,
+        128,
         229
       ]
     },

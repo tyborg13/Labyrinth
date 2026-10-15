@@ -1,0 +1,42 @@
+test_all_labels_have_measured_requests_and_seven_clip_exposure (__main__.GaolerCaseTests) ... ok
+test_chain_reel_has_three_painted_links_at_production_fractions (__main__.GaolerCaseTests) ... ok
+test_complete_render_manifest_matches_every_provided_input (__main__.GaolerCaseTests) ... ok
+test_joint_registration_uses_cached_projection_without_manual_refitting (__main__.GaolerCaseTests) ... ok
+test_material_and_speck_cleanup_is_reproducible_and_preserves_rest_depth (__main__.GaolerCaseTests) ... ok
+test_motion_gate_counts_real_frame_pixels_without_material_exemptions (__main__.GaolerCaseTests) ... ok
+test_production_motion_and_approved_paint_are_untouched_copies (__main__.GaolerCaseTests) ... ok
+test_rear_arm_constraint_preserves_front_and_non_arm_motion (__main__.GaolerCaseTests) ... ok
+test_registered_rest_is_exact_rgba_including_hidden_underlays (__main__.GaolerCaseTests) ... ok
+test_rigid_cloth_matches_production_bones_and_parenting (__main__.GaolerCaseTests) ... ok
+test_trouser_fill_gate_and_rear_arm_draw_order_in_all_samples (__main__.GaolerCaseTests) ... /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/tools/art_identity_gate.py:235: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/tools/art_identity_gate.py:235: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/tools/art_identity_gate.py:235: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+ok
+test_case_fill_is_idempotent_and_refuses_to_erase_artist_changes (__main__.HiddenFillTests) ... ok
+test_cross_view_fallback_preserves_local_donor_precedence_and_threshold (__main__.HiddenFillTests) ... ok
+test_cross_view_fallback_uses_only_same_part_visible_paint (__main__.HiddenFillTests) ... ok
+test_diffusion_is_repeatable_palette_limited_and_preserves_visible_rgba (__main__.HiddenFillTests) ... ok
+test_palette_preserves_frequency_and_is_independent_of_input_order (__main__.HiddenFillTests) ... ok
+test_small_part_palette_uses_only_same_material_neighbours (__main__.HiddenFillTests) ... ok
+test_value_matching_contains_visible_midtones_and_preserves_outline (__main__.HiddenFillTests) ... ok
+test_core_uses_euclidean_distance_and_excludes_border (__main__.OwnershipCleanupTests) ... ok
+test_material_constrained_fill_uses_sampled_colors_and_preserves_visible (__main__.OwnershipCleanupTests) ... ok
+test_specks_use_eight_connectivity_largest_exemption_and_shared_edges (__main__.OwnershipCleanupTests) ... ok
+test_unattached_hidden_only_speck_is_deleted_without_changing_visible_partition (__main__.OwnershipCleanupTests) ... ok
+test_camera_depth_and_projection_reverse_on_rear (__main__.SyntheticMaquetteTests) ... ok
+test_complete_synthetic_case_is_repeatable_and_keeps_all_source_bytes (__main__.SyntheticMaquetteTests) ... ok
+test_decode_uses_registered_palette_and_keeps_background_unowned (__main__.SyntheticMaquetteTests) ... ok
+test_hidden_neighbours_report_occluders_and_four_connected_border (__main__.SyntheticMaquetteTests) ... ok
+test_hidden_requires_another_painted_owner_not_empty_canvas (__main__.SyntheticMaquetteTests) ... ok
+test_nearest_is_euclidean_and_depth_breaks_diagonal_ties (__main__.SyntheticMaquetteTests) ... ok
+test_noninteger_reduction_and_fit_match_gate_alpha_bounds (__main__.SyntheticMaquetteTests) ... ok
+test_reassignment_limit_is_strictly_above_fifteen_percent (__main__.SyntheticMaquetteTests) ... ok
+test_registration_recovers_crop_and_placement_from_gate (__main__.SyntheticMaquetteTests) ... ok
+
+----------------------------------------------------------------------
+Ran 31 tests in 14.546s
+
+OK

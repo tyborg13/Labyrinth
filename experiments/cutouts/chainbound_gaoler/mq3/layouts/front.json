@@ -350,6 +350,24 @@
       "rest_depth_source": "belt"
     },
     {
+      "name": "belt_from_coat_near",
+      "file": "segmented/front/belt_from_coat_near.png",
+      "offset": [
+        192,
+        124
+      ],
+      "bbox": [
+        192,
+        124,
+        193,
+        125
+      ],
+      "logical_part": "belt",
+      "bone": "pelvis",
+      "z_index": 14,
+      "rest_depth_source": "coat_near"
+    },
+    {
       "name": "belt_from_shin_far",
       "file": "segmented/front/belt_from_shin_far.png",
       "offset": [
@@ -466,18 +484,37 @@
       "file": "segmented/front/tabard_from_coat_near.png",
       "offset": [
         112,
-        147
+        125
       ],
       "bbox": [
         112,
-        147,
-        113,
+        125,
+        194,
         150
       ],
       "logical_part": "tabard",
       "bone": "tabard",
       "z_index": 14,
       "rest_depth_source": "coat_near",
+      "equipment_slot": "cloak"
+    },
+    {
+      "name": "tabard_from_coat_far",
+      "file": "segmented/front/tabard_from_coat_far.png",
+      "offset": [
+        144,
+        156
+      ],
+      "bbox": [
+        144,
+        156,
+        147,
+        161
+      ],
+      "logical_part": "tabard",
+      "bone": "tabard",
+      "z_index": 3,
+      "rest_depth_source": "coat_far",
       "equipment_slot": "cloak"
     },
     {
@@ -491,7 +528,7 @@
         143,
         160,
         147,
-        192
+        193
       ],
       "logical_part": "tabard",
       "bone": "tabard",
@@ -522,14 +559,14 @@
       "name": "tabard_from_shin_far",
       "file": "segmented/front/tabard_from_shin_far.png",
       "offset": [
-        136,
+        116,
         155
       ],
       "bbox": [
-        136,
+        116,
         155,
         145,
-        164
+        205
       ],
       "logical_part": "tabard",
       "bone": "tabard",
@@ -599,11 +636,11 @@
       "file": "segmented/front/coat_near.png",
       "offset": [
         169,
-        124
+        125
       ],
       "bbox": [
         169,
-        124,
+        125,
         216,
         210
       ],
@@ -680,7 +717,7 @@
       "bbox": [
         102,
         139,
-        147,
+        113,
         174
       ],
       "logical_part": "coat_far",
@@ -964,11 +1001,11 @@
       "name": "thigh_near",
       "file": "segmented/front/thigh_near.png",
       "offset": [
-        144,
+        146,
         150
       ],
       "bbox": [
-        144,
+        146,
         150,
         170,
         197
@@ -1036,12 +1073,12 @@
       "name": "shin_near",
       "file": "segmented/front/shin_near.png",
       "offset": [
-        144,
-        193
+        157,
+        195
       ],
       "bbox": [
-        144,
-        193,
+        157,
+        195,
         194,
         243
       ],
@@ -1060,7 +1097,7 @@
       "bbox": [
         170,
         198,
-        191,
+        194,
         238
       ],
       "logical_part": "shin_near",
@@ -1105,6 +1142,24 @@
       "rest_depth_source": "thigh_far"
     },
     {
+      "name": "shin_far_from_shin_near",
+      "file": "segmented/front/shin_far_from_shin_near.png",
+      "offset": [
+        144,
+        193
+      ],
+      "bbox": [
+        144,
+        193,
+        146,
+        204
+      ],
+      "logical_part": "shin_far",
+      "bone": "shin_hook",
+      "z_index": 5,
+      "rest_depth_source": "shin_near"
+    },
+    {
       "name": "shin_far",
       "file": "segmented/front/shin_far.png",
       "offset": [
@@ -1132,7 +1187,7 @@
       "bbox": [
         102,
         211,
-        194,
+        128,
         229
       ],
       "logical_part": "foot_far",
@@ -1267,7 +1322,7 @@
       "file": "hidden/front/coat_near.png",
       "offset": [
         165,
-        127
+        126
       ],
       "bone": "coat_fist",
       "z_index": -7,

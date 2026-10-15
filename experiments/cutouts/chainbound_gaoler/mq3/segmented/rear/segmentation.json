@@ -1,7 +1,7 @@
 {
   "ok": true,
   "source_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
-  "ownership_sha256": "368b1eb33eee257096c9a6b35f368dd8586fa94b8dbde6ad53d028a6e4997495",
+  "ownership_sha256": "411eaeab86d4fea6841950623e79cdbcf3e8e4604eaed2c823d2f7aaa8403810",
   "parts": [
     {
       "name": "head",
@@ -245,11 +245,11 @@
       "name": "coat_far",
       "file": "coat_far.png",
       "offset": [
-        103,
+        107,
         140
       ],
       "bbox": [
-        103,
+        107,
         140,
         158,
         226
@@ -382,6 +382,20 @@
       ]
     },
     {
+      "name": "shin_near_from_coat_far",
+      "file": "shin_near_from_coat_far.png",
+      "offset": [
+        105,
+        173
+      ],
+      "bbox": [
+        105,
+        173,
+        109,
+        189
+      ]
+    },
+    {
       "name": "shin_near",
       "file": "shin_near.png",
       "offset": [
@@ -399,14 +413,28 @@
       "name": "shin_near_from_foot_far",
       "file": "shin_near_from_foot_far.png",
       "offset": [
-        98,
+        96,
         178
       ],
       "bbox": [
-        98,
+        96,
         178,
         106,
-        199
+        207
+      ]
+    },
+    {
+      "name": "foot_near_from_coat_far",
+      "file": "foot_near_from_coat_far.png",
+      "offset": [
+        103,
+        204
+      ],
+      "bbox": [
+        103,
+        204,
+        107,
+        219
       ]
     },
     {
@@ -455,12 +483,12 @@
       "name": "foot_far",
       "file": "foot_far.png",
       "offset": [
-        96,
-        204
+        140,
+        220
       ],
       "bbox": [
-        96,
-        204,
+        140,
+        220,
         160,
         244
       ]

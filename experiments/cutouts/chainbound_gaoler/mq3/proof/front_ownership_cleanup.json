@@ -2,17 +2,44 @@
   "material_transfers": {
     "pelvis": {
       "tabard_like_pixels": 71,
+      "within_dilated_silhouette": 46,
       "moved_to_tabard": 71,
       "rear_unchanged": 0
     },
     "thigh_far": {
       "tabard_like_pixels": 174,
+      "within_dilated_silhouette": 125,
       "moved_to_tabard": 174,
       "rear_unchanged": 0
     },
     "thigh_near": {
       "tabard_like_pixels": 67,
+      "within_dilated_silhouette": 0,
       "moved_to_tabard": 67,
+      "rear_unchanged": 0
+    },
+    "shin_far": {
+      "tabard_like_pixels": 303,
+      "within_dilated_silhouette": 145,
+      "moved_to_tabard": 303,
+      "rear_unchanged": 0
+    },
+    "shin_near": {
+      "tabard_like_pixels": 104,
+      "within_dilated_silhouette": 0,
+      "moved_to_tabard": 104,
+      "rear_unchanged": 0
+    },
+    "coat_far": {
+      "tabard_like_pixels": 11,
+      "within_dilated_silhouette": 0,
+      "moved_to_tabard": 11,
+      "rear_unchanged": 0
+    },
+    "coat_near": {
+      "tabard_like_pixels": 20,
+      "within_dilated_silhouette": 0,
+      "moved_to_tabard": 20,
       "rear_unchanged": 0
     }
   },
@@ -195,7 +222,7 @@
             145,
             159
           ],
-          "shared_border_edges": 2,
+          "shared_border_edges": 4,
           "action": "move",
           "target": "tabard"
         },
@@ -231,8 +258,60 @@
       "keep_pixels": 0
     },
     "tabard": {
-      "components": 10,
+      "components": 30,
       "small_components": [
+        {
+          "pixels": 6,
+          "visible_pixels": 6,
+          "bbox": [
+            122,
+            208,
+            126,
+            211
+          ],
+          "shared_border_edges": 14,
+          "action": "move",
+          "target": "shin_far"
+        },
+        {
+          "pixels": 5,
+          "visible_pixels": 5,
+          "bbox": [
+            163,
+            209,
+            167,
+            212
+          ],
+          "shared_border_edges": 14,
+          "action": "move",
+          "target": "shin_near"
+        },
+        {
+          "pixels": 2,
+          "visible_pixels": 2,
+          "bbox": [
+            139,
+            83,
+            141,
+            85
+          ],
+          "shared_border_edges": 4,
+          "action": "move",
+          "target": "head"
+        },
+        {
+          "pixels": 2,
+          "visible_pixels": 2,
+          "bbox": [
+            188,
+            131,
+            189,
+            133
+          ],
+          "shared_border_edges": 4,
+          "action": "move",
+          "target": "coat_near"
+        },
         {
           "pixels": 2,
           "visible_pixels": 2,
@@ -250,6 +329,32 @@
           "pixels": 2,
           "visible_pixels": 2,
           "bbox": [
+            116,
+            200,
+            117,
+            202
+          ],
+          "shared_border_edges": 6,
+          "action": "move",
+          "target": "shin_far"
+        },
+        {
+          "pixels": 2,
+          "visible_pixels": 2,
+          "bbox": [
+            126,
+            203,
+            127,
+            205
+          ],
+          "shared_border_edges": 6,
+          "action": "move",
+          "target": "shin_far"
+        },
+        {
+          "pixels": 2,
+          "visible_pixels": 2,
+          "bbox": [
             182,
             206,
             184,
@@ -260,6 +365,32 @@
           "target": "coat_near"
         },
         {
+          "pixels": 2,
+          "visible_pixels": 2,
+          "bbox": [
+            119,
+            207,
+            121,
+            208
+          ],
+          "shared_border_edges": 6,
+          "action": "move",
+          "target": "shin_far"
+        },
+        {
+          "pixels": 2,
+          "visible_pixels": 2,
+          "bbox": [
+            176,
+            217,
+            178,
+            218
+          ],
+          "shared_border_edges": 6,
+          "action": "move",
+          "target": "shin_near"
+        },
+        {
           "pixels": 1,
           "visible_pixels": 1,
           "bbox": [
@@ -267,6 +398,32 @@
             59,
             119,
             60
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "head"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            120,
+            78,
+            121,
+            79
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "head"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            137,
+            85,
+            138,
+            86
           ],
           "shared_border_edges": 2,
           "action": "move",
@@ -315,6 +472,19 @@
           "pixels": 1,
           "visible_pixels": 1,
           "bbox": [
+            182,
+            166,
+            183,
+            167
+          ],
+          "shared_border_edges": 3,
+          "action": "move",
+          "target": "coat_near"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
             173,
             176,
             174,
@@ -341,6 +511,45 @@
           "pixels": 1,
           "visible_pixels": 1,
           "bbox": [
+            129,
+            204,
+            130,
+            205
+          ],
+          "shared_border_edges": 4,
+          "action": "move",
+          "target": "shin_far"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            116,
+            205,
+            117,
+            206
+          ],
+          "shared_border_edges": 4,
+          "action": "move",
+          "target": "shin_far"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            123,
+            206,
+            124,
+            207
+          ],
+          "shared_border_edges": 4,
+          "action": "move",
+          "target": "shin_far"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
             175,
             209,
             176,
@@ -349,14 +558,27 @@
           "shared_border_edges": 2,
           "action": "move",
           "target": "coat_near"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            173,
+            212,
+            174,
+            213
+          ],
+          "shared_border_edges": 4,
+          "action": "move",
+          "target": "shin_near"
         }
       ],
-      "move_pixels": 11,
+      "move_pixels": 41,
       "delete_pixels": 0,
       "keep_pixels": 0
     },
     "coat_near": {
-      "components": 11,
+      "components": 9,
       "small_components": [
         {
           "pixels": 3,
@@ -394,19 +616,6 @@
             68
           ],
           "shared_border_edges": 3,
-          "action": "move",
-          "target": "head"
-        },
-        {
-          "pixels": 2,
-          "visible_pixels": 2,
-          "bbox": [
-            139,
-            83,
-            141,
-            85
-          ],
-          "shared_border_edges": 4,
           "action": "move",
           "target": "head"
         },
@@ -466,30 +675,17 @@
           "pixels": 1,
           "visible_pixels": 1,
           "bbox": [
-            120,
-            78,
-            121,
-            79
+            192,
+            124,
+            193,
+            125
           ],
           "shared_border_edges": 2,
           "action": "move",
-          "target": "head"
-        },
-        {
-          "pixels": 1,
-          "visible_pixels": 1,
-          "bbox": [
-            137,
-            85,
-            138,
-            86
-          ],
-          "shared_border_edges": 2,
-          "action": "move",
-          "target": "head"
+          "target": "belt"
         }
       ],
-      "move_pixels": 16,
+      "move_pixels": 13,
       "delete_pixels": 0,
       "keep_pixels": 0
     },
@@ -771,7 +967,7 @@
       "keep_pixels": 0
     },
     "shin_far": {
-      "components": 10,
+      "components": 8,
       "small_components": [
         {
           "pixels": 3,
@@ -796,19 +992,6 @@
             157
           ],
           "shared_border_edges": 5,
-          "action": "move",
-          "target": "tabard"
-        },
-        {
-          "pixels": 2,
-          "visible_pixels": 2,
-          "bbox": [
-            143,
-            160,
-            145,
-            162
-          ],
-          "shared_border_edges": 6,
           "action": "move",
           "target": "tabard"
         },
@@ -876,22 +1059,9 @@
           "shared_border_edges": 2,
           "action": "move",
           "target": "coat_far"
-        },
-        {
-          "pixels": 1,
-          "visible_pixels": 1,
-          "bbox": [
-            136,
-            163,
-            137,
-            164
-          ],
-          "shared_border_edges": 3,
-          "action": "move",
-          "target": "tabard"
         }
       ],
-      "move_pixels": 13,
+      "move_pixels": 10,
       "delete_pixels": 0,
       "keep_pixels": 0
     },
@@ -1011,7 +1181,7 @@
             137,
             163
           ],
-          "shared_border_edges": 3,
+          "shared_border_edges": 4,
           "action": "move",
           "target": "tabard"
         },
@@ -1024,7 +1194,7 @@
             134,
             185
           ],
-          "shared_border_edges": 2,
+          "shared_border_edges": 4,
           "action": "move",
           "target": "tabard"
         },
@@ -1170,5 +1340,988 @@
         5.3581571113685555
       ]
     }
-  }
+  },
+  "tabard_dilation": {
+    "radius_px": 6,
+    "pixels": 2533,
+    "basis": "Director's explicit part list selects complete owners; silhouette overlap is recorded, not used to crop paint transfers"
+  },
+  "motion_islands": [
+    {
+      "part": "foot_far",
+      "target": "shin_near",
+      "pixels": 19,
+      "bbox": [
+        187,
+        221,
+        194,
+        225
+      ],
+      "shared_border_edges": 17,
+      "evidence": [
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 0,
+          "native_pixels": 19,
+          "bbox": [
+            287,
+            371,
+            294,
+            375
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 1,
+          "native_pixels": 19,
+          "bbox": [
+            290,
+            369,
+            297,
+            373
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 2,
+          "native_pixels": 19,
+          "bbox": [
+            293,
+            368,
+            300,
+            372
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 3,
+          "native_pixels": 19,
+          "bbox": [
+            296,
+            367,
+            303,
+            371
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 4,
+          "native_pixels": 19,
+          "bbox": [
+            298,
+            365,
+            305,
+            369
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 5,
+          "native_pixels": 19,
+          "bbox": [
+            301,
+            364,
+            308,
+            368
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 6,
+          "native_pixels": 19,
+          "bbox": [
+            304,
+            362,
+            311,
+            366
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 7,
+          "native_pixels": 19,
+          "bbox": [
+            307,
+            361,
+            314,
+            365
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 8,
+          "native_pixels": 19,
+          "bbox": [
+            310,
+            359,
+            317,
+            363
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 9,
+          "native_pixels": 19,
+          "bbox": [
+            313,
+            358,
+            320,
+            362
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 10,
+          "native_pixels": 19,
+          "bbox": [
+            316,
+            357,
+            323,
+            361
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 11,
+          "native_pixels": 19,
+          "bbox": [
+            318,
+            355,
+            325,
+            359
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 12,
+          "native_pixels": 19,
+          "bbox": [
+            321,
+            354,
+            328,
+            358
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 13,
+          "native_pixels": 19,
+          "bbox": [
+            324,
+            352,
+            331,
+            356
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 14,
+          "native_pixels": 19,
+          "bbox": [
+            327,
+            351,
+            334,
+            355
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 15,
+          "native_pixels": 19,
+          "bbox": [
+            330,
+            349,
+            337,
+            353
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 16,
+          "native_pixels": 19,
+          "bbox": [
+            333,
+            348,
+            340,
+            352
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 17,
+          "native_pixels": 19,
+          "bbox": [
+            336,
+            347,
+            343,
+            351
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 18,
+          "native_pixels": 19,
+          "bbox": [
+            339,
+            345,
+            346,
+            349
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 19,
+          "native_pixels": 19,
+          "bbox": [
+            341,
+            344,
+            348,
+            348
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 20,
+          "native_pixels": 19,
+          "bbox": [
+            344,
+            342,
+            351,
+            346
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 21,
+          "native_pixels": 19,
+          "bbox": [
+            347,
+            341,
+            354,
+            345
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 22,
+          "native_pixels": 19,
+          "bbox": [
+            350,
+            339,
+            357,
+            343
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 23,
+          "native_pixels": 19,
+          "bbox": [
+            353,
+            338,
+            360,
+            342
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 24,
+          "native_pixels": 19,
+          "bbox": [
+            356,
+            336,
+            363,
+            340
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 25,
+          "native_pixels": 19,
+          "bbox": [
+            359,
+            335,
+            366,
+            339
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 26,
+          "native_pixels": 19,
+          "bbox": [
+            361,
+            334,
+            368,
+            338
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 27,
+          "native_pixels": 19,
+          "bbox": [
+            364,
+            332,
+            371,
+            336
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 28,
+          "native_pixels": 19,
+          "bbox": [
+            367,
+            331,
+            374,
+            335
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 29,
+          "native_pixels": 19,
+          "bbox": [
+            370,
+            329,
+            377,
+            333
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 30,
+          "native_pixels": 19,
+          "bbox": [
+            371,
+            328,
+            378,
+            332
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 31,
+          "native_pixels": 19,
+          "bbox": [
+            371,
+            327,
+            378,
+            331
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 32,
+          "native_pixels": 19,
+          "bbox": [
+            368,
+            328,
+            375,
+            332
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 33,
+          "native_pixels": 19,
+          "bbox": [
+            365,
+            328,
+            372,
+            332
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 34,
+          "native_pixels": 19,
+          "bbox": [
+            360,
+            330,
+            367,
+            334
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 35,
+          "native_pixels": 19,
+          "bbox": [
+            353,
+            332,
+            360,
+            336
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 36,
+          "native_pixels": 19,
+          "bbox": [
+            347,
+            335,
+            354,
+            339
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 37,
+          "native_pixels": 19,
+          "bbox": [
+            339,
+            338,
+            346,
+            342
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 38,
+          "native_pixels": 19,
+          "bbox": [
+            331,
+            342,
+            338,
+            346
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 39,
+          "native_pixels": 19,
+          "bbox": [
+            323,
+            346,
+            330,
+            350
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 40,
+          "native_pixels": 19,
+          "bbox": [
+            316,
+            350,
+            323,
+            354
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 44,
+          "native_pixels": 19,
+          "bbox": [
+            291,
+            366,
+            298,
+            370
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 45,
+          "native_pixels": 19,
+          "bbox": [
+            287,
+            368,
+            294,
+            372
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 46,
+          "native_pixels": 19,
+          "bbox": [
+            285,
+            370,
+            292,
+            374
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 47,
+          "native_pixels": 19,
+          "bbox": [
+            285,
+            371,
+            292,
+            375
+          ]
+        }
+      ],
+      "reason": "Detached visible ownership component observed in native v04 motion; exceeds the old <12px source threshold or loses its attachment during motion. Reassign to the rest-adjacent part sharing most border."
+    },
+    {
+      "part": "shin_near",
+      "target": "shin_far",
+      "pixels": 15,
+      "bbox": [
+        144,
+        193,
+        146,
+        204
+      ],
+      "shared_border_edges": 9,
+      "evidence": [
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 0,
+          "native_pixels": 14,
+          "bbox": [
+            281,
+            316,
+            285,
+            327
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 1,
+          "native_pixels": 16,
+          "bbox": [
+            282,
+            316,
+            287,
+            327
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 2,
+          "native_pixels": 15,
+          "bbox": [
+            284,
+            316,
+            289,
+            327
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 4,
+          "native_pixels": 13,
+          "bbox": [
+            289,
+            317,
+            294,
+            326
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 5,
+          "native_pixels": 16,
+          "bbox": [
+            290,
+            315,
+            296,
+            326
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 8,
+          "native_pixels": 16,
+          "bbox": [
+            289,
+            313,
+            295,
+            323
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 45,
+          "native_pixels": 14,
+          "bbox": [
+            276,
+            317,
+            278,
+            327
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 46,
+          "native_pixels": 13,
+          "bbox": [
+            277,
+            317,
+            280,
+            327
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "walk",
+          "frame": 47,
+          "native_pixels": 14,
+          "bbox": [
+            279,
+            316,
+            283,
+            327
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 13,
+          "native_pixels": 12,
+          "bbox": [
+            271,
+            335,
+            273,
+            344
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 14,
+          "native_pixels": 13,
+          "bbox": [
+            271,
+            336,
+            274,
+            345
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 15,
+          "native_pixels": 11,
+          "bbox": [
+            271,
+            336,
+            273,
+            344
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 16,
+          "native_pixels": 11,
+          "bbox": [
+            271,
+            336,
+            273,
+            344
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 17,
+          "native_pixels": 11,
+          "bbox": [
+            271,
+            336,
+            273,
+            344
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 18,
+          "native_pixels": 11,
+          "bbox": [
+            271,
+            336,
+            273,
+            344
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 19,
+          "native_pixels": 11,
+          "bbox": [
+            271,
+            336,
+            273,
+            344
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 20,
+          "native_pixels": 11,
+          "bbox": [
+            271,
+            336,
+            273,
+            344
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 21,
+          "native_pixels": 11,
+          "bbox": [
+            271,
+            336,
+            273,
+            344
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 22,
+          "native_pixels": 11,
+          "bbox": [
+            271,
+            336,
+            273,
+            344
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 23,
+          "native_pixels": 11,
+          "bbox": [
+            271,
+            336,
+            273,
+            344
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 24,
+          "native_pixels": 11,
+          "bbox": [
+            271,
+            336,
+            273,
+            344
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 25,
+          "native_pixels": 11,
+          "bbox": [
+            271,
+            336,
+            273,
+            344
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 26,
+          "native_pixels": 11,
+          "bbox": [
+            271,
+            336,
+            273,
+            344
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 27,
+          "native_pixels": 11,
+          "bbox": [
+            271,
+            336,
+            273,
+            344
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 28,
+          "native_pixels": 11,
+          "bbox": [
+            271,
+            336,
+            273,
+            344
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 29,
+          "native_pixels": 11,
+          "bbox": [
+            271,
+            336,
+            273,
+            344
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 30,
+          "native_pixels": 11,
+          "bbox": [
+            271,
+            336,
+            273,
+            344
+          ]
+        },
+        {
+          "view": "front",
+          "clip": "death",
+          "frame": 31,
+          "native_pixels": 11,
+          "bbox": [
+            271,
+            336,
+            273,
+            344
+          ]
+        }
+      ],
+      "reason": "Detached visible ownership component observed in native v04 motion; exceeds the old <12px source threshold or loses its attachment during motion. Reassign to the rest-adjacent part sharing most border."
+    },
+    {
+      "part": "thigh_near",
+      "target": "tabard",
+      "pixels": 2,
+      "bbox": [
+        144,
+        192,
+        146,
+        193
+      ],
+      "shared_border_edges": 3,
+      "evidence": "round5 CPU diagnostic walk frames 0,1,2,5,8,47; v04 native trace already identifies the same source tip",
+      "reason": "The two-pixel thigh tip separates after the adjacent shin ownership correction; attach it to the rest-adjacent lower-leg owner"
+    },
+    {
+      "part": "tabard",
+      "target": "shin_near",
+      "pixels": 40,
+      "bbox": [
+        167,
+        212,
+        178,
+        220
+      ],
+      "shared_border_edges": 76,
+      "evidence": "round5 CPU walk ownership sweep: 119 source pixels in detached 23/27/29/40-pixel shin fragments; proof/round5_tabard_scatter_trace.json",
+      "reason": "Shared tabard-like colours on shins create large detached fragments when moved with cloth; retain these traced fragments with their rest-adjacent leg owner instead of hiding a colour-gate conflict"
+    },
+    {
+      "part": "tabard",
+      "target": "shin_near",
+      "pixels": 29,
+      "bbox": [
+        167,
+        226,
+        178,
+        233
+      ],
+      "shared_border_edges": 48,
+      "evidence": "round5 CPU walk ownership sweep: 119 source pixels in detached 23/27/29/40-pixel shin fragments; proof/round5_tabard_scatter_trace.json",
+      "reason": "Shared tabard-like colours on shins create large detached fragments when moved with cloth; retain these traced fragments with their rest-adjacent leg owner instead of hiding a colour-gate conflict"
+    },
+    {
+      "part": "tabard",
+      "target": "shin_near",
+      "pixels": 27,
+      "bbox": [
+        169,
+        221,
+        182,
+        227
+      ],
+      "shared_border_edges": 46,
+      "evidence": "round5 CPU walk ownership sweep: 119 source pixels in detached 23/27/29/40-pixel shin fragments; proof/round5_tabard_scatter_trace.json",
+      "reason": "Shared tabard-like colours on shins create large detached fragments when moved with cloth; retain these traced fragments with their rest-adjacent leg owner instead of hiding a colour-gate conflict"
+    },
+    {
+      "part": "tabard",
+      "target": "shin_far",
+      "pixels": 23,
+      "bbox": [
+        112,
+        209,
+        122,
+        216
+      ],
+      "shared_border_edges": 43,
+      "evidence": "round5 CPU walk ownership sweep: 119 source pixels in detached 23/27/29/40-pixel shin fragments; proof/round5_tabard_scatter_trace.json",
+      "reason": "Shared tabard-like colours on shins create large detached fragments when moved with cloth; retain these traced fragments with their rest-adjacent leg owner instead of hiding a colour-gate conflict"
+    }
+  ]
 }
