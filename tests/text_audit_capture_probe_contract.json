@@ -1,0 +1,484 @@
+{
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "min_images": 28,
+  "required_images": [
+    {
+      "height": 1080,
+      "pattern": "*01_card_hand.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*02_card_reward.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*03_relic_choice.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*04_owned_relic.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*05_status.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*06_intent.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*07_map_node.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*08_event.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*09_shop.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*10_chronicle.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*11_run_end.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*12_settings.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*13_keyword.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*14_enemy.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*15_equipment.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*16_grimoire.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*17_tutorial.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*18_confirmation.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*19_empty_chronicle.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*20_main_menu.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*21_omen.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*22_event_disabled.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*23_skill_tree.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*24_character.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*25_campfire.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*26_pre_battle.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*27_pause.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "pattern": "*28_item.png",
+      "regions": [
+        {
+          "min_luma_range": 8,
+          "min_luma_stdev": 2,
+          "rect": [
+            0,
+            0,
+            1920,
+            1080
+          ]
+        }
+      ],
+      "width": 1920
+    }
+  ]
+}
