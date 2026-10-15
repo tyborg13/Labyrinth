@@ -52,5 +52,5 @@
 | fix-03 | Fatigue never amplified (owner); SPENT HUD flag; token icons; Lightning Strikes chip | merged (signoff 64d34965f); audit: Reflect, Ember Tick burst, Icefall/Lob/Tether, Meteorfall/Detonate self-hits still amplified — owner question pending on the self-hits | codex/peer-benchmark | briefs/fix-03.md |
 | ux-04 | Apply approved glossary + relic text, renames, @term/@kw token convention, budgets | ready (after ux-03 merges) | codex/peer-benchmark | briefs/ux-04.md |
 | ui-02 | UI ratchet cleanup (map, skill tree, section map) | merged (pixel-identical; baseline −4; 152 bespoke colours inventoried in staged/ui/near_palette_ui02.md — median ΔE76 8.5, needs a palette review, not a ratchet) | codex/peer-benchmark | briefs/ui-02.md |
-| art-06 | Identity gate robustness (pixel digests not PNG bytes, SKIP as WARN, dedupe inputs, rear→front job link, mutant tests) | running (gpt-6-astra) | codex/peer-benchmark | briefs/art-06.md |
-| art-07 | Tone max_chroma filter + palette_match keeps bright/accent-hue pixels (lancer blade, wisp cores greyed) | ready (after art-06 merge) | codex/peer-benchmark | briefs/art-07.md |
+| art-06 | Identity gate robustness (pixel digests not PNG bytes, SKIP as WARN, dedupe inputs, rear→front job link, mutant tests) | merged bf3ed130a (signoff 16881db9a) | codex/peer-benchmark | briefs/art-06.md |
+| art-07 | Tone max_chroma filter + palette_match keeps bright/accent-hue pixels (lancer blade, wisp cores greyed) + art-06 leftovers | running (gpt-6-astra) | codex/peer-benchmark | briefs/art-07.md |

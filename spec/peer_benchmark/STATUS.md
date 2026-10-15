@@ -20,7 +20,7 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 
 ## In flight (2026-10-15 late, playtest 7 follow-ups; Codex model gpt-6-astra + max_running 6 for today — revert the Labyrinth profile after)
 - Merged today: sfx-03, rr-01, art-04 (shrike), por-01, ux-02, art-05, ui-02, qa-04, fix-03. Playtest 7 = 7901c37f0.
-- Merged into integration: chr-02 (9d711ceb5; peer signoff 99d872fa5, r5 tests-only).
+- Merged into integration: chr-02 (9d711ceb5; peer signoff 99d872fa5, r5 tests-only), art-06 (bf3ed130a; signoff 16881db9a).
 - Running (6): vfx-01 r2, rr-02 r5 (motion-frame gates), anim-01 r5 (re-send of r4), ux-03 r4 (peer CHANGES: stray
   keyword-tooltip line on 9 cards, TopBar overlap at 1.25x, wrapped owned tray, opt-in callers, one click guard, skills
   read skills.json), art-06 r2 (peer CHANGES: 5 surviving mutants, record-steps INPUT CHANGED, resolved paths, job-link
@@ -34,8 +34,8 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
     edit running (img-mq-wisp-rear-r1-edit), then tone G (`tone_rear_G_draft.json`) WITHOUT --match-front; re-test G.
   - Shale bloomer: front judge PASS = `jobs/shale_bloomer/mq3_front_v2` (judge edit: tilted corolla, honeycomb, r9 roots; tone R7).
     Optional polish: honeycomb rows → hex clusters. Rear generating (img-mq-bloomer-rear-r1, prompt_rear_r1, maquette r9).
-  - After art-06 merges: art-06 removes `png_bytes`, so director kit scripts must use `tools/art_identity_gate.py record-steps`;
-    run it on every raw_steps kit created in integration after art-06 branched (bloomer mq2_front, mq3_front_v2).
+  - art-06 merged: new raw_steps kits are recorded with `tools/art_identity_gate.py record-steps --kit …` then re-processed
+    (sidecar); bloomer mq2_front, mq3_front_v2, wisp mq1_rear_v2 migrated, registry check PASS.
 - Lancer pair: judge PASS r2; director tone r2 restored the frost read (front/rear `mq1_front_v3`/`mq1_rear_v3`,
   sheet `sheet_pair_mq1_v3.png`, 50e1b836c). Shown to owner; awaiting verdict before rigging.
   These two kits use the art-05 field names: re-record them with art-06's migration when art-06 merges.

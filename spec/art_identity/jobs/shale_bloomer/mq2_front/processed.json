@@ -42,7 +42,7 @@
       "step": "clean_outline"
     }
   ],
-  "raw_sha256": "e641b6537574febb34e5c594052bfda8e644736bc6a3168be6b23457f2f1a070",
+  "raw_pixel_sha256": "6394c6be570fea929a3ede4d899cb22d952fa7a007ed0b9442da91d88e956bdf",
   "raw_steps": [
     {
       "inputs": {
@@ -56,7 +56,7 @@
         }
       },
       "kind": "tone_region",
-      "output_raw_sha256": "e641b6537574febb34e5c594052bfda8e644736bc6a3168be6b23457f2f1a070",
+      "output_raw_pixel_sha256": "6394c6be570fea929a3ede4d899cb22d952fa7a007ed0b9442da91d88e956bdf",
       "parameters": {
         "space": "CIE Lab"
       }

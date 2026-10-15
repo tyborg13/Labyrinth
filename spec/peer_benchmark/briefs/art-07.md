@@ -8,7 +8,7 @@
      distribution, so pale cores never qualify.
   2. `tone_region` has no maximum-chroma filter, so a pass that dulls a body also catches the accent (amber, violet
      fringe) and every config needs paired inverse "restore" passes (bloomer tone B: 13 passes).
-- Base: `codex/peer-benchmark` **after art-06 merges**. Owned: `tools/art_identity_gate.py` (palette_match,
+- Base: `codex/peer-benchmark` (art-06 merged at bf3ed130a). Owned: `tools/art_identity_gate.py` (palette_match,
   tone_region, region_mask), `tests/test_art_identity_gate.py`, `spec/visual_identity_gate.md`,
   `spec/art_identity/prototype/tone_region.py` docstring.
 
@@ -20,7 +20,11 @@
    ±25° of an accent hue present in the reference front (accent pixels of the reference by the existing rule). Record the
    new parameters in the post-step (`accent_lightness`, `accent_hue_window_deg`); existing sidecars keep their recorded
    parameters and still verify (replay uses the recorded parameters).
-3. Tests: a synthetic sprite with a pale low-chroma core stays unchanged by the match; max_chroma excludes an amber patch
+3. art-06 review leftovers (low): print `->` instead of `→` everywhere the tool prints (a non-UTF-8 stdout on
+   Windows lost the INPUT CHANGED line after writing kit.json; also `sys.stdout.reconfigure(errors="backslashreplace")`);
+   front-job `job_path` relative to `jobs/` must be exactly `<id>/<job>/kit.json` and never the referencing kit itself;
+   a non-object front `kit.json` gives a clean error, not a traceback.
+4. Tests: a synthetic sprite with a pale low-chroma core stays unchanged by the match; max_chroma excludes an amber patch
    while toning a brown body; all recorded raw_steps kits replay unchanged; registry `check` PASS.
 
 ## Proof
