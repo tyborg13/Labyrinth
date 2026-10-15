@@ -30,9 +30,10 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   below; compact audit/provenance).
 - Wave 1b art (judge adb5256b83138e82d):
   - Lightning wisp: front v2 judge PASS (`jobs/lightning_wisp/mq1_front_v2`; cloud texture softest approved, note for
-    owner). Rear generating (img-mq-wisp-rear-r1, prompt_rear_r1, refs = maquette r3 rear + approved front).
-  - Shale bloomer: mq2_front FAIL (r7 maquette head-on/symmetric 0.954, arm-like stubs, low deep shadow, honeycomb lost)
-    → maquette r8 + prompt r3 → `jobs/shale_bloomer/mq3_front` (symmetry 0.741) at the judge.
+    owner). Rear mq1_rear judge FAIL (palette match greyed the cores; heavier crackle) → lightning-only
+    edit running (img-mq-wisp-rear-r1-edit), then tone G (`tone_rear_G_draft.json`) WITHOUT --match-front; re-test G.
+  - Shale bloomer: front judge PASS = `jobs/shale_bloomer/mq3_front_v2` (judge edit: tilted corolla, honeycomb, r9 roots; tone R7).
+    Optional polish: honeycomb rows → hex clusters. Rear generating (img-mq-bloomer-rear-r1, prompt_rear_r1, maquette r9).
   - After art-06 merges: art-06 removes `png_bytes`, so director kit scripts must use `tools/art_identity_gate.py record-steps`;
     run it on every raw_steps kit created in integration after art-06 branched (bloomer mq2_front, mq3_front_v2).
 - Lancer pair: judge PASS r2; director tone r2 restored the frost read (front/rear `mq1_front_v3`/`mq1_rear_v3`,

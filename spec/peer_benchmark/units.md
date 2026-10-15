@@ -53,3 +53,4 @@
 | ux-04 | Apply approved glossary + relic text, renames, @term/@kw token convention, budgets | ready (after ux-03 merges) | codex/peer-benchmark | briefs/ux-04.md |
 | ui-02 | UI ratchet cleanup (map, skill tree, section map) | merged (pixel-identical; baseline −4; 152 bespoke colours inventoried in staged/ui/near_palette_ui02.md — median ΔE76 8.5, needs a palette review, not a ratchet) | codex/peer-benchmark | briefs/ui-02.md |
 | art-06 | Identity gate robustness (pixel digests not PNG bytes, SKIP as WARN, dedupe inputs, rear→front job link, mutant tests) | running (gpt-6-astra) | codex/peer-benchmark | briefs/art-06.md |
+| art-07 | Tone max_chroma filter + palette_match keeps bright/accent-hue pixels (lancer blade, wisp cores greyed) | ready (after art-06 merge) | codex/peer-benchmark | briefs/art-07.md |

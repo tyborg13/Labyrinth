@@ -7,21 +7,21 @@
   "fit_scale": 1.0,
   "k_eff": 4.0,
   "metrics": {
-    "chroma": 0.1654323739125455,
+    "chroma": 0.16933444148833263,
     "edge_light_share": 0.0,
-    "feature_px": 5.9488039265405765,
+    "feature_px": 5.879415846474104,
     "height": 226,
     "height_drawn": 226.0,
-    "orphan_share": 0.04807009235140895,
-    "regions": 716,
-    "run_length": 2.5666531604538085,
+    "orphan_share": 0.047675428210592785,
+    "regions": 733,
+    "run_length": 2.56769355492501,
     "symmetry": 0.7274432244424742,
     "thin_abs": 0.004893835346120423,
     "thin_rel": 0.03646696661141369,
-    "value": 0.22403125925719566,
+    "value": 0.2231846947698489,
     "width": 181
   },
-  "pixel_sha256": "7937f8114edaeedaf9b9d5c2d7ea534b24ba94086530a9fe4582dec496352810",
+  "pixel_sha256": "66d9548fb755091dd48926d5834fee1448338e25e836417971610abcea2c2d95",
   "placement": [
     38,
     20
@@ -38,17 +38,17 @@
           21
         ]
       },
-      "pre_step_pixel_sha256": "e9cdd05f2b0e14f06cb48948f32e2cd1e684747d07854478ae17a0f6e0c7f8a8",
+      "pre_step_pixel_sha256": "eac23d94ea3f7b2a834ee906aadbb513fe0bb1d452c3e717a01f5ba207797841",
       "step": "clean_outline"
     }
   ],
-  "raw_sha256": "581b5d1708c6a410d2eaf6849c4ef20a635e34d10d00bd3ba9b1363b718f847c",
+  "raw_sha256": "26e0b8243fe38df9e9d2d1ee37d9d371ef81d3dafeda5f59287249b1e8d4b787",
   "raw_steps": [
     {
       "inputs": {
         "config": {
-          "path": "refs/tone_front_r3.json",
-          "sha256": "c5ab76fedc5fb5db7ed004bcc65424a74a012d5e675502b9b53a3484825d7492"
+          "path": "refs/tone_front_r3b.json",
+          "sha256": "ac7d0a421979c5d398220fd8cf115bf8abb6d2bdb30258714909ef168900de45"
         },
         "raw": {
           "path": "refs/raw_approved.png",
@@ -56,7 +56,7 @@
         }
       },
       "kind": "tone_region",
-      "output_raw_sha256": "581b5d1708c6a410d2eaf6849c4ef20a635e34d10d00bd3ba9b1363b718f847c",
+      "output_raw_sha256": "26e0b8243fe38df9e9d2d1ee37d9d371ef81d3dafeda5f59287249b1e8d4b787",
       "parameters": {
         "space": "CIE Lab"
       }

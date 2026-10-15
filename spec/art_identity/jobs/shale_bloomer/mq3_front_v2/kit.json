@@ -17,8 +17,8 @@
     {
       "inputs": {
         "config": {
-          "path": "refs/tone_front_r3.json",
-          "sha256": "c5ab76fedc5fb5db7ed004bcc65424a74a012d5e675502b9b53a3484825d7492"
+          "path": "refs/tone_front_r3b.json",
+          "sha256": "ac7d0a421979c5d398220fd8cf115bf8abb6d2bdb30258714909ef168900de45"
         },
         "raw": {
           "path": "refs/raw_approved.png",
@@ -26,13 +26,13 @@
         }
       },
       "kind": "tone_region",
-      "output_raw_sha256": "581b5d1708c6a410d2eaf6849c4ef20a635e34d10d00bd3ba9b1363b718f847c",
+      "output_raw_sha256": "26e0b8243fe38df9e9d2d1ee37d9d371ef81d3dafeda5f59287249b1e8d4b787",
       "parameters": {
         "space": "CIE Lab"
       }
     }
   ],
-  "raw_steps_provenance": "judge mq3 (2026-10-15) tone B: petals to dark slate, trunk less orange, deep crevices darker; amber restored by paired inverse passes",
+  "raw_steps_provenance": "judge mq3 tone B retargeted to the 1024-px edit raw (judge r3 config R7, 13 passes): petals to dark slate, trunk less orange, deep crevices darker; amber restored by paired inverse passes. Judge PASS 2026-10-15",
   "refs": [
     {
       "canon_id": "bloomer_mq3_front_raw",
