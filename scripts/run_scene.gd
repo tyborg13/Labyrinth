@@ -11059,7 +11059,7 @@ func _refresh_relic_bar() -> void:
 			var relic: Dictionary = GameData.relic_def(relic_id)
 			if relic.is_empty():
 				continue
-			var frame := TooltipPanelContainer.new()
+			var frame := CardFocusTooltipStack.RelicOwner.new()
 			frame.custom_minimum_size = RELIC_BADGE_SIZE
 			frame.set_meta("relic_id", relic_id)
 			frame.focus_mode = Control.FOCUS_ALL
@@ -11149,6 +11149,7 @@ func _refresh_relic_bar() -> void:
 					_add_relic_counter(frame, "RelicKnots", tied.size())
 					frame.tooltip_text += _relic_knots_tooltip(effect, tied)
 			_relic_icon_grid.add_child(frame)
+			_card_focus_tooltip_stack.bind_relic(frame, relic)
 		for rite_index: int in range(rite_entries.size()):
 			_relic_icon_grid.add_child(_build_active_rite_badge(rite_entries[rite_index], rite_index))
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_relic_icons", performance_phase_started)
@@ -16369,7 +16370,7 @@ func _relic_choice_title_accent(text: String) -> Color:
 func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	if _relic_choice_bar == null:
 		return
-	var panel := TooltipPanelContainer.new()
+	var panel := CardFocusTooltipStack.RelicOwner.new()
 	panel.name = "RelicChoice_%s" % relic_id
 	panel.custom_minimum_size = RELIC_OFFER_CARD_SIZE
 	panel.clip_contents = false
@@ -16387,6 +16388,7 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	panel.focus_entered.connect(_set_relic_choice_focused.bind(panel, relic, true))
 	panel.focus_exited.connect(_set_relic_choice_focused.bind(panel, relic, false))
 	_relic_choice_bar.add_child(panel)
+	_card_focus_tooltip_stack.bind_relic(panel, relic, _relic_choice_bar)
 
 	_ui_skin.apply_choice_finish(panel, Color(GameData.relic_accent(relic_id)))
 	_add_relic_choice_sparkles(panel, Color(GameData.relic_accent(relic_id)))

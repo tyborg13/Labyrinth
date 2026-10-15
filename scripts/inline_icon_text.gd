@@ -7,6 +7,13 @@ const TOKEN_PREFIX: String = "@icon("
 const TOKEN_SUFFIX: String = ")"
 const DEFAULT_ICON_SCALE: float = 1.15
 
+# RichTextLabel already hit-tests inline image tooltips. Only labels that were
+# hoverable opt in; the containing relic stack explains noninteractive labels.
+class GlossaryRichLabel extends RichTextLabel:
+	func _make_custom_tooltip(for_text: String) -> Object:
+		# Runtime load avoids UiTooltipPanel -> InlineIconText -> UiTooltipPanel.
+		return load("res://scripts/ui_tooltip_panel.gd").make_text(for_text)
+
 
 static func has_icons(markup: String) -> bool:
 	return markup.find(TOKEN_PREFIX) >= 0
@@ -41,6 +48,8 @@ static func invalid_icon_keys(markup: String) -> Array[String]:
 static func apply_to(label: RichTextLabel, markup: String, icon_scale: float = DEFAULT_ICON_SCALE) -> void:
 	if label == null:
 		return
+	if label.mouse_filter != Control.MOUSE_FILTER_IGNORE and label.get_script() == null:
+		label.set_script(GlossaryRichLabel)
 	label.clear()
 	var font_size: int = label.get_theme_font_size("normal_font_size")
 	var icon_size: float = maxf(12.0, float(font_size) * icon_scale)
@@ -51,18 +60,18 @@ static func apply_to(label: RichTextLabel, markup: String, icon_scale: float = D
 	while cursor < markup.length():
 		var token_start: int = markup.find(TOKEN_PREFIX, cursor)
 		if token_start < 0:
-			label.add_text(markup.substr(cursor))
+			_append_text(label, markup.substr(cursor))
 			break
-		label.add_text(markup.substr(cursor, token_start - cursor))
+		_append_text(label, markup.substr(cursor, token_start - cursor))
 		var key_start: int = token_start + TOKEN_PREFIX.length()
 		var token_end: int = markup.find(TOKEN_SUFFIX, key_start)
 		if token_end < 0:
-			label.add_text(markup.substr(token_start))
+			_append_text(label, markup.substr(token_start))
 			break
 		var icon_key: String = markup.substr(key_start, token_end - key_start)
 		var texture: Texture2D = ActionIcons.icon_texture(icon_key)
 		if texture == null:
-			label.add_text(markup.substr(token_start, token_end + 1 - token_start))
+			_append_text(label, markup.substr(token_start, token_end + 1 - token_start))
 		else:
 			var icon_label: String = ActionIcons.label(icon_key)
 			label.add_image(
@@ -77,7 +86,7 @@ static func apply_to(label: RichTextLabel, markup: String, icon_scale: float = D
 				icon_label,
 				0,
 				0,
-				icon_label
+				ActionIcons.tooltip(icon_key)
 			)
 		cursor = token_end + TOKEN_SUFFIX.length()
 
@@ -100,3 +109,10 @@ static func plain_text(markup: String) -> String:
 		result += ActionIcons.label(icon_key) if not ActionIcons.icon_path(icon_key).is_empty() else markup.substr(token_start, token_end + 1 - token_start)
 		cursor = token_end + TOKEN_SUFFIX.length()
 	return result
+
+
+static func _append_text(label: RichTextLabel, text: String) -> void:
+	if label.bbcode_enabled:
+		label.append_text(text)
+	else:
+		label.add_text(text)

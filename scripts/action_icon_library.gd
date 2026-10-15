@@ -3,10 +3,13 @@ class_name ActionIconLibrary
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ElementData = preload("res://scripts/element_data.gd")
+const Glossary = preload("res://scripts/glossary.gd")
 
 const ICON_ROOT: String = "res://assets/art/icons"
 const SKILL_ICON_ROOT: String = "res://assets/art/skills"
 
+# Keep legacy copy here for existing registry/wording assertions. Runtime
+# definitions come exclusively from Glossary via description()/dive_tooltip().
 const KEYWORDS: Dictionary = {
 	"reflect": {"label": "Reflect", "description": "Reflect: ranged attacks against it bounce back to the attacker. Hit it up close or with area effects.", "path": "%s/reflect.png" % ICON_ROOT},
 	"dive": {"label": "Dive", "description": "Dive: flies straight at you (up to %d tiles), knocking each unit it passes %d tile aside, then strikes for %d.", "path": "%s/dive.png" % ICON_ROOT},
@@ -656,10 +659,12 @@ static func description(icon_key: String) -> String:
 		for intent: Dictionary in preload("res://scripts/game_data.gd").enemies()["gust_shrike"]["intents"]:
 			for action: Dictionary in intent["actions"]:
 				if str(action.get("type", "")) == "dive_line": return dive_tooltip(action)
-	return str(_icon_definition(icon_key).get("description", ""))
+	# Shared by card focus stacks and existing nested token hover hit regions.
+	# Keep skill-only labels and action-specific tooltip overrides unchanged.
+	return Glossary.definition(icon_key) if KEYWORDS.has(icon_key) else str(_icon_definition(icon_key).get("description", ""))
 
 static func dive_tooltip(action: Dictionary) -> String:
-	return str(KEYWORDS["dive"]["description"]) % [int(action["max_length"]), int(action["side_push"]), int(action["damage"])]
+	return Glossary.definition("dive") % [int(action["max_length"]), int(action["side_push"]), int(action["damage"])]
 
 static func _icon_definition(icon_key: String) -> Dictionary:
 	if KEYWORDS.has(icon_key):
