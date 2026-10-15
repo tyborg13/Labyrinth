@@ -50,3 +50,4 @@
 | art-05 | Replayable director raw steps in the identity gate (tone_region, composite_region, mask reference) | queued (gpt-6-astra) | codex/peer-benchmark | briefs/art-05.md |
 | qa-04 | Godot .import noise under output/ (.gdignore), Chopin check ignores sidecars, stale en-05 sync test | queued (gpt-6-astra) | codex/peer-benchmark | briefs/qa-04.md |
 | fix-03 | Fatigue never amplified by Expose/Chilled/Frozen (owner); SPENT HUD flag; text_token icon callers; Lightning Strikes chip icon | queued (gpt-6-astra) | codex/peer-benchmark | briefs/fix-03.md |
+| ux-04 | Apply approved glossary + relic text, renames, @term/@kw token convention, budgets | ready (after ux-03 merges) | codex/peer-benchmark | briefs/ux-04.md |
