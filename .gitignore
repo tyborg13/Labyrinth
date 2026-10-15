@@ -27,6 +27,9 @@ Thumbs.db
 /playtest/board_surface_20260906_*/
 /playtest/board_surface_v5_*/
 
+# Reproducible qa-04 repeated-suite logs and import inventories.
+/output/qa-04/
+
 # Generated cutout evidence is archived outside Git; retain editable v*/ cases.
 # See spec/enemy_cutout_roster_integration.md for the verified evidence archive.
 /experiments/cutouts/*/runtime*/

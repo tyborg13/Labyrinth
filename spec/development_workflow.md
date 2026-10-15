@@ -51,6 +51,36 @@ The full `tests/run_tests.gd` runner also executes isolated program sub-suites: 
 
 Run Python checks from the task worktree with `python3 -m unittest discover -s tests -p 'test_*.py' -v`; verbose output lists every skip and its reason. Optional audio tests use `unittest.skipUnless` when their Python modules are absent, while dependency import errors remain failures when those modules are installed. Run the sound-lab checks with `/Users/borgerding/.cache/umbra-sfx/venv/bin/python -m unittest discover -s tests -p 'test_sfx_lab.py' -v`; run the classical arrangement checks with `.venv-classical-soundtrack/bin/python -m unittest discover -s tests -p 'test_*arrangement.py' -v` after preparing that environment with `tools/classical_soundtrack_requirements.txt`. The Chopin approved-artifact checks (`-p 'test_chopin_death_music.py'`) need no optional music modules. Python discovery includes headless fixture checks through the task runners; it does not replace the full Godot suite required for runtime changes.
 
+Before suites/probes, run `python3 tools/output_gdignore.py` from the task worktree.
+Repeat after creating new output folders; `--check` reports missing or conflicting
+markers without writing. The helper scans tracked and non-ignored untracked source
+files for `res://output/` literals, including dynamic suffixes, and keeps each
+referenced top-level subtree importable. Known write-only capture/contract paths
+are audited exceptions in the helper. Unknown references keep importing; a new
+reference into an already ignored folder fails for manual reconciliation. Do not
+hide all of `output/` or globally ignore Godot sidecars.
+
+The current resource inputs are `output/contextual-animation-polish/creatures/cases/`
+(crawler asset, creature keypose and creature motion probes/tests) and
+`output/rr-01/before` (crawler recolour baseline manifest and source PNGs). Keep
+their entire subtrees available for relative rig/texture dependencies. The en03,
+en06, health-ghost, relic-u2, section-map and combat-feel references only write
+captures/contracts. Proposed card JSON inside `output/buildaround_cards_100` is
+an offline artifact, not loaded game data. All 12 currently tracked output
+subfolders therefore carry a top-level `.gdignore`; descendants inherit it.
+For local/untracked output folders the helper creates local markers: commit only
+markers whose folders already contain tracked artifacts. It never deletes or
+moves output artifacts, removes markers, or changes source import settings.
+
+`tests/en05_integration_sync_test.gd` remains a standalone headless check (the
+en05 suite does not cover its cache preservation assertions). Run it with
+`python3 tools/godot_task_runner.py --task-id <task-id> --stream -- godot --headless --path . --script tests/en05_integration_sync_test.gd`.
+It regenerates and reloads `user://en05_integration_shadow_base.res` in the
+runner's isolated home from the registered source images, excluding only the
+two en05 front sprites. It checks every baseline geometry/hash, the two added
+geometries, and the exact six merged enemy records including art-04's approved
+gust-shrike presentation. No manually copied fixture under `output/` is needed.
+
 ## Visual Proof
 
 `tools/visual_probe_runner.py` provides:

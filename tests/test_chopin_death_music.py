@@ -4,8 +4,11 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import shutil
 import sys
+import tempfile
 import unittest
+from unittest.mock import patch
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -65,6 +68,27 @@ class ChopinDeathMusicApprovedIntegrationTests(unittest.TestCase):
         )
         self.assertTrue(report["musical_content"]["midi_byte_for_byte_equal_to_v04"])
         self.assertEqual("none", report["musical_content"]["musical_changes_from_v04"])
+
+    def test_v04_immutability_ignores_only_import_sidecars(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            version = Path(temporary) / "v04"
+            shutil.copytree(self.builder.V04_VERSION_DIR, version)
+            (version / "preview.ogg.import").write_text("Godot-generated metadata\n")
+            with patch.object(self.builder, "V04_VERSION_DIR", version):
+                self.assertEqual(
+                    self.builder.EXPECTED_V04_VERSION_HASHES,
+                    self.builder._verify_v04_is_untouched(),
+                )
+                for name in ("unexpected.txt", "preview.ogg.uid", "preview.ogg.import.bak"):
+                    with self.subTest(added_file=name):
+                        added = version / name
+                        added.write_text("Not import metadata\n")
+                        with self.assertRaisesRegex(RuntimeError, "artifact tree"):
+                            self.builder._verify_v04_is_untouched()
+                        added.unlink()
+                (version / "preview.ogg").write_bytes(b"changed audio")
+                with self.assertRaisesRegex(RuntimeError, "preserve owner-approved"):
+                    self.builder._verify_v04_is_untouched()
 
 
 if __name__ == "__main__":
