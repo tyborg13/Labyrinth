@@ -1,0 +1,13 @@
+Running task-local command:
+  task: rr-02
+  run: rr-02-1792093840592201000-34399
+  HOME: /private/tmp/labyrinth-godot-home/rr-02-1792093840592201000-34399
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-02-1792093840592201000-34399/godot.log --headless --path . --script experiments/cutouts/chainbound_gaoler/mq3/probes/native_motion.gd -- --case /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/cutout.json --check-poses
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+MAQUETTE_NATIVE_POSES: PASS (460 poses; four surfaces; GPU readback not exercised)

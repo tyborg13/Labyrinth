@@ -351,6 +351,45 @@ def components8(mask: np.ndarray) -> list[np.ndarray]:
     return sorted(result, key=lambda c: (-int(c.sum()), bbox(c)[1], bbox(c)[0]))
 
 
+def occlusion_shadow_ownership(owners, hidden, paint, labels, names, solos, policy):
+    """Move measured inter-leg shadows to a separate pelvis-owned paint layer.
+
+    A colour-decoded label is eligible only inside its own supplied solo render;
+    antialias/colour-management fringe IDs elsewhere are not anatomical boundaries.
+    Replacement support retains the vacated leg footprint, including painted
+    pixels extending beyond the proxy solo. Source RGBA itself is never changed.
+    """
+    result = owners.copy()
+    support = [mask.copy() for mask in hidden]
+    valid = {name: (labels == i) & solos[name] for i, name in enumerate(names)}
+    dark = to_lab(paint[..., :3])[..., 0] < policy["max_l_exclusive"]
+    radius = policy["boundary_distance_px"]
+    report = {"logical_part": "under_shadow", "bone": "pelvis", "parts": {},
+        "discarded_label_fringe_pixels": {name: int(((labels == i) & ~solos[name]).sum()) for i, name in enumerate(names)},
+        "basis": "L*<15 inside owned thigh/shin paint, within 6px Euclidean distance of opposite thigh/shin/foot or pelvis label, or tabard label boundary; labels clipped to supplied solos"}
+    for name in policy["parts"]:
+        side = "near" if name.endswith("far") else "far"
+        references = ["thigh_" + side, "shin_" + side, "foot_" + side, "pelvis"]
+        boundary = silhouette_edge(valid["tabard"], clipped_border=True)
+        for other in references:
+            boundary |= valid[other]
+        padded = np.pad(boundary, radius)
+        near = np.zeros_like(boundary)
+        height, width = near.shape
+        for dy in range(-radius, radius + 1):
+            for dx in range(-radius, radius + 1):
+                if dx * dx + dy * dy <= radius * radius:
+                    near |= padded[radius + dy:radius + dy + height, radius + dx:radius + dx + width]
+        index = names.index(name)
+        shadow = (owners == index) & dark & near
+        result[shadow] = len(names)
+        support[index] |= shadow
+        report["parts"][name] = {"pixels": int(shadow.sum()), "bbox": bbox(shadow),
+            "source_mask_sha256": array_digest(shadow), "boundary_mask_sha256": array_digest(boundary),
+            "reference_parts": references, "tabard_reference": "visible label boundary"}
+    return result, support, report
+
+
 def clean_ownership(owners, paint, names, solos, view, material, policy):
     """Simultaneous speck moves on complete parts (visible plus hidden support).
 
@@ -704,6 +743,22 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
         np.save(registered / f"{view}_trousers.npy", trousers, allow_pickle=False)
         np.save(registered / f"{view}_original_owners.npy", original_owners, allow_pickle=False)
         write_json(root / f"proof/{view}_ownership_cleanup.json", cleanup)
+    logical_names = names
+    if recipe.get("occlusion_shadow"):
+        before_shadow = owners.copy()
+        owners, hidden_masks, shadows = occlusion_shadow_ownership(owners, hidden_masks, np.asarray(paint), labels, names, solos, recipe["occlusion_shadow"])
+        logical_names = names + ["under_shadow"]
+        np.save(registered / f"{view}_pre_shadow_owners.npy", before_shadow, allow_pickle=False)
+        for name in recipe["occlusion_shadow"]["parts"]:
+            mask = (before_shadow == names.index(name)) & (owners == len(names))
+            np.save(registered / f"{view}_occlusion_shadow_{name}.npy", mask, allow_pickle=False)
+            # Native probe projects this exact visible-rest dark provenance as
+            # a separate ID surface; it does not approximate native pixel maps.
+            dark = (owners == names.index(name)) & (to_lab(np.asarray(paint)[..., :3])[..., 0] < recipe["occlusion_shadow"]["max_l_exclusive"])
+            image = np.zeros((*owners.shape, 4), dtype=np.uint8)
+            image[dark] = [255, 255, 255, 255]
+            save_image(registered / f"{view}_visible_dark_{name}.png", Image.fromarray(image))
+        write_json(root / f"proof/{view}_occlusion_shadow.json", shadows)
     for i, name in enumerate(names):
         np.save(registered / f"{view}_hidden_{name}.npy", hidden_masks[i], allow_pickle=False)
     owner_image = Image.new("RGBA", paint.size)
@@ -711,6 +766,10 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
         values = np.asarray(owner_image).copy()
         values[owners == i] = [*np.rint(np.asarray(spec["labels"][name]) * 255).astype(int), 255]
         owner_image = Image.fromarray(values.astype(np.uint8))
+    if recipe.get("occlusion_shadow"):
+        values = np.asarray(owner_image).copy()
+        values[owners == len(names)] = [64, 64, 64, 255]
+        owner_image = Image.fromarray(values)
     save_image(root / "proof" / f"{view}_ownership_3x.png", owner_image.resize((765, 765), Image.Resampling.NEAREST))
     np.save(registered / f"{view}_owners.npy", owners, allow_pickle=False)
     joints, mapping = bind_layout(spec, view, transform, joints, recipe)
@@ -729,6 +788,15 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
                 pieces[mask] = len(piece_map)
                 piece_map[piece] = {"logical_part": name, "bone": ["chain", "chain_b", "chain_c"][link] if link is not None else mapping[name],
                                     "z_index": order.index(names[original]), "rest_depth_source": names[original]}
+    if recipe.get("occlusion_shadow"):
+        for original in range(len(names)):
+            mask = (owners == len(names)) & (original_owners == original)
+            if not mask.any():
+                continue
+            piece = "under_shadow_from_" + names[original]
+            pieces[mask] = len(piece_map)
+            piece_map[piece] = {"logical_part": "under_shadow", "bone": "pelvis", "z_index": -1,
+                "occlusion_shadow": True, "rest_depth_source": names[original]}
     piece_names = list(piece_map)
     ownership = {"priority_polygons": [[name, [[0, 0], [0, 0], [0, 0]]] for name in piece_names],
                  "pixel_overrides": [{"point": [int(x), int(y)], "name": piece_names[int(pieces[y, x])]}
@@ -764,7 +832,7 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
                  "hidden_pixel_count": int(hidden.sum()) if available else None, "bounding_box": bbox(hidden),
                  "solo_outside_paint_pixels": int(outside.sum()) if available else None,
                  "motions": [], "exposure_status": "pending_motion_samples" if available else "unknown"}
-        entry.update(material_neighbours(hidden, owners, i, names))
+        entry.update(material_neighbours(hidden, owners, i, logical_names))
         entry["material"] = recipe.get("materials", {}).get(name, name + " approved paint")
         for relation in ["occluding_parts", "bordering_parts"]:
             for neighbour in entry[relation]:
@@ -785,7 +853,7 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
                 layout["parts"].append({"name": hidden_name, "logical_part": name, "hidden_material": True,
                                         "file": hidden_file, "offset": bounds[:2],
                                         "bone": mapping[name] if link is None else ["chain", "chain_b", "chain_c"][link],
-                                        "z_index": order.index(name) - len(names)})
+                                        "z_index": order.index(name) - len(names) - int(bool(recipe.get("occlusion_shadow")))})
                 entry["paint_nodes"].append(hidden_name)
         elif name not in present:
             layout["unmaterialized_parts"].append({"part": name, "reason": entry["status"] if not available else "no_visible_or_occluded_pixels"})
@@ -798,7 +866,9 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
             raise CutoutError("Cannot obtain the existing foot-contact contour: " + label)
         bottom = ys.max()
         layout["landmarks"]["sole_" + side] = [float(np.median(xs[ys == bottom])), float(bottom + 1)]
-    layout["logical_parts"] = names
+    layout["logical_parts"] = logical_names
+    if recipe.get("occlusion_shadow"):
+        layout["visible_dark_baselines"] = {name: f"registered/{view}_visible_dark_{name}.png" for name in recipe["occlusion_shadow"]["parts"]}
     layout["maquette_depths"] = depths
     compatibility_path = root / f"source/production/{view}.json"
     rigid_mapping = {}
@@ -1029,17 +1099,23 @@ def diffuse_rgb(rgb: np.ndarray, known: np.ndarray, target: np.ndarray) -> tuple
 
 
 def fill_pixels(paint: np.ndarray, visible: np.ndarray, hidden: np.ndarray,
-                donor_rgb: np.ndarray, donor_mask: np.ndarray, method: str, palette_pixels=None, palette_reference=None, conditioning_visible=None, value_pixels=None, excluded_material=None) -> tuple[np.ndarray, dict]:
+                donor_rgb: np.ndarray, donor_mask: np.ndarray, method: str, palette_pixels=None, palette_reference=None, conditioning_visible=None, value_pixels=None, excluded_material=None, minimum_hidden_l=None) -> tuple[np.ndarray, dict]:
     own_count = int(visible.sum())
     if palette_pixels is None:
         palette_pixels = paint[visible, :3] if own_count >= FILL_DEFAULTS["palette_min_own_pixels"] else donor_rgb[donor_mask]
+    if minimum_hidden_l is not None:
+        palette_pixels = palette_pixels[to_lab(palette_pixels)[:, 0] >= minimum_hidden_l]
     if not len(palette_pixels):
         raise CutoutError("No same-material palette fallback for a part with fewer than 40 visible pixels")
     palette, iterations = part_palette(palette_pixels)
     quantization_palette = palette
+    if minimum_hidden_l is not None:
+        quantization_palette = quantization_palette[to_lab(quantization_palette)[:, 0] >= minimum_hidden_l]
+        if not len(quantization_palette):
+            raise CutoutError("No sampled trouser palette centroid meets the new-shadow value floor")
     if palette_reference:
-        distance = np.linalg.norm(to_lab(palette) - palette_reference["median_lab"], axis=-1)
-        quantization_palette = palette[distance <= palette_reference["max_delta_e"]]
+        distance = np.linalg.norm(to_lab(quantization_palette) - palette_reference["median_lab"], axis=-1)
+        quantization_palette = quantization_palette[distance <= palette_reference["max_delta_e"]]
         if not len(quantization_palette):
             raise CutoutError("No sampled palette centroid satisfies the material gate")
     if excluded_material:
@@ -1073,7 +1149,8 @@ def fill_pixels(paint: np.ndarray, visible: np.ndarray, hidden: np.ndarray,
     # Use the gate's edge definition/tone, without its alpha deletion or any
     # recoloring of visible paint. The edge is of the WHOLE part, not the hole.
     outline = hidden & silhouette_edge(visible | hidden, clipped_border=True)
-    result[outline, :3] = FILL_DEFAULTS["outline_tone"]
+    outline_tone = FILL_DEFAULTS["outline_tone"] if minimum_hidden_l is None else quantization_palette[to_lab(quantization_palette)[:, 0].argmin()].tolist()
+    result[outline, :3] = outline_tone
     if value_pixels is not None and hidden.any():
         # Match the complete empirical same-part value distribution, not just
         # the diffusion's shadow-biased cluster. Keep diffuse spatial ranking.
@@ -1087,12 +1164,23 @@ def fill_pixels(paint: np.ndarray, visible: np.ndarray, hidden: np.ndarray,
         result.reshape(-1, 4)[positions[order], :3] = quantization_palette[choices]
         actual_l = to_lab(result[hidden, :3])[:, 0]
         q25, q75 = np.percentile(target_l, [25, 75])
+        effective_q25, effective_q75 = q25, q75
+        midtones_reference = "complete reference interquartile range"
+        if minimum_hidden_l is not None and q75 < minimum_hidden_l:
+            eligible_l = target_l[target_l >= minimum_hidden_l]
+            if not len(eligible_l):
+                raise CutoutError("No non-shadow reference values for the new leg fill")
+            effective_q25, effective_q75 = np.percentile(eligible_l, [25, 75])
+            midtones_reference = "Reference IQR lies below round7 shadow cutoff; use non-shadow reference tail IQR, retaining nominal median target"
         metrics["value_distribution"] = {"basis": "same-view same-part visible RGBA; L* empirical quantiles, outlines included in gate",
             "visible_pixels": len(target_l), "visible_median_l": float(np.median(target_l)),
             "hidden_median_l": float(np.median(actual_l)),
             "median_difference_l": float(abs(np.median(actual_l) - np.median(target_l))),
             "visible_midtones_l": [float(q25), float(q75)],
-            "hidden_midtones_pixels": int(((actual_l >= q25) & (actual_l <= q75)).sum())}
+            "effective_midtones_l": [float(effective_q25), float(effective_q75)],
+            "midtones_reference": midtones_reference,
+            "hidden_original_midtones_pixels": int(((actual_l >= q25) & (actual_l <= q75)).sum()),
+            "hidden_midtones_pixels": int(((actual_l >= effective_q25) & (actual_l <= effective_q75)).sum())}
     return result, {"method": method if hidden.any() else "no_hidden_pixels", "diffusion": metrics,
                     "palette": palette.tolist(), "quantization_palette": quantization_palette.tolist(), "palette_iterations": iterations,
                     "palette_source": "own_visible" if own_count >= FILL_DEFAULTS["palette_min_own_pixels"] else "same_material_neighbours",
@@ -1100,7 +1188,8 @@ def fill_pixels(paint: np.ndarray, visible: np.ndarray, hidden: np.ndarray,
                     "donor_visible_pixels": int(donor_mask.sum()),
                     "own_conditioning_pixels": int(conditioning_visible.sum()),
                     "conditioning_pixels_in_hidden_region": int((donor_mask & hidden).sum()),
-                    "hidden_pixels": int(hidden.sum()), "outline_pixels": int(outline.sum())}
+                    "hidden_pixels": int(hidden.sum()), "outline_pixels": int(outline.sum()),
+                    "outline_tone": outline_tone, "minimum_hidden_l": minimum_hidden_l}
 
 
 def same_material_donors(request: dict, names: list[str], owners: np.ndarray) -> tuple[list[str], np.ndarray]:
@@ -1208,6 +1297,10 @@ def fill_hidden(args) -> dict:
             trousers, reference = material_reference(root, spec, palette, view, rig_recipe["ownership_cleanup"])
             solos = {n: np.asarray(Image.open(root / f"registered/{view}_solo_{n}.png"))[..., 3] > PROOF_DEFAULTS["mask_alpha_threshold"] for n in names}
             expected, masks, cleanup = clean_ownership(original, paint, names, solos, view, reference, rig_recipe["ownership_cleanup"])
+            if rig_recipe.get("occlusion_shadow"):
+                expected, masks, shadow_report = occlusion_shadow_ownership(expected, masks, paint, labels, names, solos, rig_recipe["occlusion_shadow"])
+                if shadow_report != read_json(root / f"proof/{view}_occlusion_shadow.json"):
+                    raise CutoutError("Occlusion shadow ownership differs from source-derived recipe: " + view)
             if (not np.array_equal(original, np.load(root / f"registered/{view}_original_owners.npy", allow_pickle=False))
                     or not np.array_equal(expected, owners)
                     or not np.array_equal(trousers, np.load(root / f"registered/{view}_trousers.npy", allow_pickle=False))
@@ -1234,7 +1327,8 @@ def fill_hidden(args) -> dict:
         materials = rig_recipe.get("materials", {})
         if request["material"] != materials.get(part, part + " approved paint"):
             raise CutoutError(f"Request material differs from rig recipe: {view}/{part}")
-        for relation, neighbours in material_neighbours(hidden, owners, names.index(part), names).items():
+        logical_names = names + (["under_shadow"] if rig_recipe.get("occlusion_shadow") else [])
+        for relation, neighbours in material_neighbours(hidden, owners, names.index(part), logical_names).items():
             expected = [dict(n, material=materials.get(n["part"], n["part"] + " approved paint")) for n in neighbours]
             if request[relation] != expected:
                 raise CutoutError(f"Request neighbours differ from approved ownership: {view}/{part}")
@@ -1242,6 +1336,8 @@ def fill_hidden(args) -> dict:
         palette_pixels, trousers_reference, conditioning_visible = None, None, visible
         value_pixels = None
         value_substitution = None
+        shadow_policy = rig_recipe.get("occlusion_shadow", {})
+        minimum_hidden_l = shadow_policy.get("minimum_hidden_l") if part in shadow_policy.get("parts", []) else None
         excluded_material = None
         cleanup_policy = rig_recipe.get("ownership_cleanup", {})
         colour_gate = cleanup_policy.get("tabard_gate", {})
@@ -1249,21 +1345,24 @@ def fill_hidden(args) -> dict:
             excluded_material = dict(material_references[view]["tabard_cloth"], delta_e=colour_gate["delta_e"])
         value_policy = rig_recipe.get("hidden_value_distribution", {})
         if part in value_policy.get("parts", []):
-            if not visible.any():
+            if not visible.any() and not value_policy.get("sparse_reference"):
                 raise CutoutError("No visible same-part value reference: " + view + "/" + part)
             donors, donor_view = [part], None
             donor_rgb, donor_mask = paint[..., :3], visible.copy()
             palette_pixels = paint[visible, :3]
             value_pixels = palette_pixels
             fallback = value_policy.get("sparse_reference")
-            if fallback and int(visible.sum()) < fallback["min_visible_pixels"]:
-                reference_part = fallback["part"]
+            sparse = fallback and int(visible.sum()) < fallback["min_visible_pixels"]
+            material_substitution = part in shadow_policy.get("replacement_trousers_reference_parts", [])
+            if sparse or material_substitution:
+                reference_part = fallback["part"] if sparse else shadow_policy["trousers_reference_part"]
+                l_shift = fallback["l_shift"] if sparse else 0
                 donor_mask = owners == names.index(reference_part)
                 if not donor_mask.any():
                     raise CutoutError("Empty same-view sparse value reference: " + view)
                 reference_lab = to_lab(paint[donor_mask, :3])
                 shifted_lab = reference_lab.copy()
-                shifted_lab[:, 0] = np.clip(shifted_lab[:, 0] + fallback["l_shift"], 0, 100)
+                shifted_lab[:, 0] = np.clip(shifted_lab[:, 0] + l_shift, 0, 100)
                 value_pixels = np.rint(from_lab(shifted_lab)).clip(0, 255).astype(np.uint8)
                 palette_pixels = value_pixels
                 donor_rgb = paint[..., :3].copy()
@@ -1271,11 +1370,12 @@ def fill_hidden(args) -> dict:
                 donors = [reference_part]
                 conditioning_visible = np.zeros_like(visible)
                 value_substitution = {"view": view, "part": reference_part,
-                    "reason": "Own visible pixels below director's 40-pixel threshold",
+                    "reason": "Own visible pixels below director's 40-pixel threshold" if sparse else "Round7 replacement support is trousers; visible shin/boot-cuff shadows are not trouser donors",
+                    "rule": "sparse" if sparse else "trousers_material",
                     "visible_pixels": int(donor_mask.sum()), "mask_sha256": array_digest(donor_mask),
                     "source_rgb_sha256": array_digest(paint[donor_mask, :3]),
                     "source_median_l": float(np.median(reference_lab[:, 0])),
-                    "l_shift": fallback["l_shift"],
+                    "l_shift": l_shift,
                     "target_median_l": float(np.median(shifted_lab[:, 0])),
                     "encoded_median_l": float(np.median(to_lab(value_pixels)[:, 0])),
                     "chroma_hue": "Same-view near-thigh trousers a*/b*, unchanged before sRGB gamut/8-bit encoding"}
@@ -1317,7 +1417,7 @@ def fill_hidden(args) -> dict:
             result[hidden] = MAGENTA
         else:
             result, metrics = fill_pixels(paint, visible, hidden, donor_rgb, donor_mask, recipe["method"], palette_pixels,
-                dict(trousers_reference, max_delta_e=rig_recipe["ownership_cleanup"]["fill_median_max_delta_e"]) if trousers_reference else None, conditioning_visible, value_pixels, excluded_material)
+                dict(trousers_reference, max_delta_e=rig_recipe["ownership_cleanup"]["fill_median_max_delta_e"]) if trousers_reference else None, conditioning_visible, value_pixels, excluded_material, minimum_hidden_l)
             record.update(metrics, status="filled" if hidden.any() else "no_hidden_pixels")
             if excluded_material:
                 record["excluded_tabard_reference"] = excluded_material
@@ -1327,9 +1427,9 @@ def fill_hidden(args) -> dict:
             record["palette_source"] = "same_view_same_part_visible_value_distribution"
             record["value_distribution"] = record["diffusion"].pop("value_distribution", {})
             if value_substitution:
-                record["palette_source"] = "same_view_near_thigh_shadow_value_distribution"
+                record["palette_source"] = "same_view_near_thigh_shadow_value_distribution" if value_substitution["rule"] == "sparse" else "same_view_trousers_material_value_distribution"
                 record["value_reference_substitution"] = value_substitution
-                record["value_distribution"]["basis"] = "Same-view near-thigh visible trousers; L* lowered 6; source a*/b* retained"
+                record["value_distribution"]["basis"] = "Same-view near-thigh visible trousers; L* shift " + str(value_substitution["l_shift"]) + "; source a*/b* retained"
             elif len(value_pixels) < FILL_DEFAULTS["palette_min_own_pixels"]:
                 record["design_placeholder"] = "TODO_DESIGN_sparse_value_reference_" + view + "_" + part
                 record["design_reason"] = "Literal same-view reference has fewer than 40 pixels; brighter core fallback needs director's decision"

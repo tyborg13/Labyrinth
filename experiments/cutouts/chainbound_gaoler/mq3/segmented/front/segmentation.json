@@ -1,7 +1,7 @@
 {
   "ok": true,
   "source_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
-  "ownership_sha256": "4667db3a9e536fb6ed7e6861573ab1e658ff970e2a4ddf13d1c51f73f58881a6",
+  "ownership_sha256": "b5d19e4eeb9f39171dab88a6d8be4435f9b51d88c04e09d711fbaf5310efceba",
   "parts": [
     {
       "name": "head",
@@ -652,41 +652,13 @@
       "file": "thigh_near.png",
       "offset": [
         146,
-        150
+        156
       ],
       "bbox": [
         146,
-        150,
+        156,
         170,
         197
-      ]
-    },
-    {
-      "name": "thigh_near_from_shin_near",
-      "file": "thigh_near_from_shin_near.png",
-      "offset": [
-        158,
-        154
-      ],
-      "bbox": [
-        158,
-        154,
-        159,
-        155
-      ]
-    },
-    {
-      "name": "thigh_near_from_shin_far",
-      "file": "thigh_near_from_shin_far.png",
-      "offset": [
-        147,
-        150
-      ],
-      "bbox": [
-        147,
-        150,
-        157,
-        157
       ]
     },
     {
@@ -763,11 +735,11 @@
       "name": "thigh_far",
       "file": "thigh_far.png",
       "offset": [
-        110,
+        111,
         157
       ],
       "bbox": [
-        110,
+        111,
         157,
         138,
         172
@@ -792,11 +764,11 @@
       "file": "shin_far.png",
       "offset": [
         110,
-        166
+        170
       ],
       "bbox": [
         110,
-        166,
+        170,
         146,
         226
       ]
@@ -869,6 +841,62 @@
         150,
         65,
         183
+      ]
+    },
+    {
+      "name": "under_shadow_from_thigh_near",
+      "file": "under_shadow_from_thigh_near.png",
+      "offset": [
+        146,
+        150
+      ],
+      "bbox": [
+        146,
+        150,
+        159,
+        169
+      ]
+    },
+    {
+      "name": "under_shadow_from_shin_near",
+      "file": "under_shadow_from_shin_near.png",
+      "offset": [
+        145,
+        154
+      ],
+      "bbox": [
+        145,
+        154,
+        159,
+        194
+      ]
+    },
+    {
+      "name": "under_shadow_from_thigh_far",
+      "file": "under_shadow_from_thigh_far.png",
+      "offset": [
+        110,
+        164
+      ],
+      "bbox": [
+        110,
+        164,
+        112,
+        169
+      ]
+    },
+    {
+      "name": "under_shadow_from_shin_far",
+      "file": "under_shadow_from_shin_far.png",
+      "offset": [
+        111,
+        150
+      ],
+      "bbox": [
+        111,
+        150,
+        157,
+        208
       ]
     }
   ],

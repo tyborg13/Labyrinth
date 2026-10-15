@@ -180,7 +180,7 @@
       "view": "front",
       "image": "hidden_requests/front_thigh_near.png",
       "status": "measured",
-      "hidden_pixel_count": 1626,
+      "hidden_pixel_count": 1704,
       "bounding_box": [
         146,
         126,
@@ -191,14 +191,14 @@
       "motions": [
         {
           "clip": "walk",
-          "max_exposed_pixels": 574,
+          "max_exposed_pixels": 577,
           "frames_exposed": 46,
-          "peak_frame": 23,
+          "peak_frame": 18,
           "sampled_frames": 48
         },
         {
           "clip": "strike",
-          "max_exposed_pixels": 337,
+          "max_exposed_pixels": 335,
           "frames_exposed": 28,
           "peak_frame": 5,
           "sampled_frames": 31
@@ -212,28 +212,28 @@
         },
         {
           "clip": "death",
-          "max_exposed_pixels": 105,
+          "max_exposed_pixels": 107,
           "frames_exposed": 31,
           "peak_frame": 13,
           "sampled_frames": 32
         },
         {
           "clip": "chain_reel",
-          "max_exposed_pixels": 74,
+          "max_exposed_pixels": 72,
           "frames_exposed": 18,
-          "peak_frame": 23,
+          "peak_frame": 21,
           "sampled_frames": 31
         },
         {
           "clip": "hit",
-          "max_exposed_pixels": 36,
+          "max_exposed_pixels": 35,
           "frames_exposed": 17,
           "peak_frame": 6,
           "sampled_frames": 24
         },
         {
           "clip": "idle",
-          "max_exposed_pixels": 28,
+          "max_exposed_pixels": 27,
           "frames_exposed": 13,
           "peak_frame": 6,
           "sampled_frames": 24
@@ -285,6 +285,11 @@
           "part": "shin_near",
           "pixels": 71,
           "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "under_shadow",
+          "pixels": 78,
+          "material": "occlusion shadow"
         }
       ],
       "bordering_parts": [
@@ -300,7 +305,7 @@
         },
         {
           "part": "tabard",
-          "pixels": 8,
+          "pixels": 21,
           "material": "red-brown tabard with its approved insignia"
         },
         {
@@ -336,44 +341,44 @@
       "clip_exposure": [
         {
           "clip": "idle",
-          "max_exposed_pixels": 28,
+          "max_exposed_pixels": 27,
           "frames_exposed": 13,
           "peak_frame": 6,
           "sampled_frames": 24
         },
         {
           "clip": "walk",
-          "max_exposed_pixels": 574,
+          "max_exposed_pixels": 577,
           "frames_exposed": 46,
-          "peak_frame": 23,
+          "peak_frame": 18,
           "sampled_frames": 48
         },
         {
           "clip": "strike",
-          "max_exposed_pixels": 337,
+          "max_exposed_pixels": 335,
           "frames_exposed": 28,
           "peak_frame": 5,
           "sampled_frames": 31
         },
         {
           "clip": "hit",
-          "max_exposed_pixels": 36,
+          "max_exposed_pixels": 35,
           "frames_exposed": 17,
           "peak_frame": 6,
           "sampled_frames": 24
         },
         {
           "clip": "death",
-          "max_exposed_pixels": 105,
+          "max_exposed_pixels": 107,
           "frames_exposed": 31,
           "peak_frame": 13,
           "sampled_frames": 32
         },
         {
           "clip": "chain_reel",
-          "max_exposed_pixels": 74,
+          "max_exposed_pixels": 72,
           "frames_exposed": 18,
-          "peak_frame": 23,
+          "peak_frame": 21,
           "sampled_frames": 31
         },
         {
@@ -384,16 +389,16 @@
           "sampled_frames": 39
         }
       ],
-      "max_exposed_pixels": 574
+      "max_exposed_pixels": 577
     },
     {
       "part": "thigh_far",
       "view": "front",
       "image": "hidden_requests/front_thigh_far.png",
       "status": "measured",
-      "hidden_pixel_count": 2186,
+      "hidden_pixel_count": 2190,
       "bounding_box": [
-        111,
+        110,
         113,
         154,
         188
@@ -402,42 +407,42 @@
       "motions": [
         {
           "clip": "walk",
-          "max_exposed_pixels": 573,
+          "max_exposed_pixels": 569,
           "frames_exposed": 48,
           "peak_frame": 47,
           "sampled_frames": 48
         },
         {
           "clip": "chain_reel",
-          "max_exposed_pixels": 44,
+          "max_exposed_pixels": 39,
           "frames_exposed": 20,
           "peak_frame": 23,
           "sampled_frames": 31
         },
         {
           "clip": "death",
-          "max_exposed_pixels": 38,
+          "max_exposed_pixels": 33,
           "frames_exposed": 31,
           "peak_frame": 2,
           "sampled_frames": 32
         },
         {
           "clip": "hit",
-          "max_exposed_pixels": 35,
+          "max_exposed_pixels": 32,
           "frames_exposed": 17,
           "peak_frame": 6,
           "sampled_frames": 24
         },
         {
           "clip": "strike",
-          "max_exposed_pixels": 28,
+          "max_exposed_pixels": 23,
           "frames_exposed": 25,
           "peak_frame": 6,
           "sampled_frames": 31
         },
         {
           "clip": "idle",
-          "max_exposed_pixels": 7,
+          "max_exposed_pixels": 8,
           "frames_exposed": 13,
           "peak_frame": 6,
           "sampled_frames": 24
@@ -479,8 +484,13 @@
         },
         {
           "part": "shin_far",
-          "pixels": 2,
+          "pixels": 1,
           "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "under_shadow",
+          "pixels": 5,
+          "material": "occlusion shadow"
         }
       ],
       "bordering_parts": [
@@ -506,7 +516,7 @@
         },
         {
           "part": "coat_far",
-          "pixels": 6,
+          "pixels": 10,
           "material": "dark ash-grey ragged coat tail"
         }
       ],
@@ -517,42 +527,42 @@
       "clip_exposure": [
         {
           "clip": "idle",
-          "max_exposed_pixels": 7,
+          "max_exposed_pixels": 8,
           "frames_exposed": 13,
           "peak_frame": 6,
           "sampled_frames": 24
         },
         {
           "clip": "walk",
-          "max_exposed_pixels": 573,
+          "max_exposed_pixels": 569,
           "frames_exposed": 48,
           "peak_frame": 47,
           "sampled_frames": 48
         },
         {
           "clip": "strike",
-          "max_exposed_pixels": 28,
+          "max_exposed_pixels": 23,
           "frames_exposed": 25,
           "peak_frame": 6,
           "sampled_frames": 31
         },
         {
           "clip": "hit",
-          "max_exposed_pixels": 35,
+          "max_exposed_pixels": 32,
           "frames_exposed": 17,
           "peak_frame": 6,
           "sampled_frames": 24
         },
         {
           "clip": "death",
-          "max_exposed_pixels": 38,
+          "max_exposed_pixels": 33,
           "frames_exposed": 31,
           "peak_frame": 2,
           "sampled_frames": 32
         },
         {
           "clip": "chain_reel",
-          "max_exposed_pixels": 44,
+          "max_exposed_pixels": 39,
           "frames_exposed": 20,
           "peak_frame": 23,
           "sampled_frames": 31
@@ -565,7 +575,7 @@
           "sampled_frames": 39
         }
       ],
-      "max_exposed_pixels": 573
+      "max_exposed_pixels": 569
     },
     {
       "part": "shin_far",
@@ -714,11 +724,182 @@
       "max_exposed_pixels": 567
     },
     {
+      "part": "shin_far",
+      "view": "front",
+      "image": "hidden_requests/front_shin_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 1143,
+      "bounding_box": [
+        110,
+        160,
+        146,
+        227
+      ],
+      "solo_outside_paint_pixels": 137,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 558,
+          "frames_exposed": 47,
+          "peak_frame": 46,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "chain_reel",
+          "max_exposed_pixels": 77,
+          "frames_exposed": 20,
+          "peak_frame": 23,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 66,
+          "frames_exposed": 25,
+          "peak_frame": 5,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 46,
+          "frames_exposed": 31,
+          "peak_frame": 2,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 45,
+          "frames_exposed": 17,
+          "peak_frame": 3,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 35,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "manacle_pin",
+          "max_exposed_pixels": 20,
+          "frames_exposed": 28,
+          "peak_frame": 28,
+          "sampled_frames": 39
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "tabard",
+          "pixels": 917,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 4,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 114,
+          "material": "dull dark brown boot"
+        },
+        {
+          "part": "under_shadow",
+          "pixels": 108,
+          "material": "occlusion shadow"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "tabard",
+          "pixels": 54,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "coat_far",
+          "pixels": 2,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 4,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 17,
+          "material": "dull dark brown boot"
+        },
+        {
+          "part": "under_shadow",
+          "pixels": 2,
+          "material": "occlusion shadow"
+        }
+      ],
+      "material": "dark lower leg and boot cuff",
+      "paint_nodes": [
+        "hidden_shin_far"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 35,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 558,
+          "frames_exposed": 47,
+          "peak_frame": 46,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 66,
+          "frames_exposed": 25,
+          "peak_frame": 5,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 45,
+          "frames_exposed": 17,
+          "peak_frame": 3,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 46,
+          "frames_exposed": 31,
+          "peak_frame": 2,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "chain_reel",
+          "max_exposed_pixels": 77,
+          "frames_exposed": 20,
+          "peak_frame": 23,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "manacle_pin",
+          "max_exposed_pixels": 20,
+          "frames_exposed": 28,
+          "peak_frame": 28,
+          "sampled_frames": 39
+        }
+      ],
+      "max_exposed_pixels": 558
+    },
+    {
       "part": "thigh_far",
       "view": "rear",
       "image": "hidden_requests/rear_thigh_far.png",
       "status": "measured",
-      "hidden_pixel_count": 2063,
+      "hidden_pixel_count": 2070,
       "bounding_box": [
         102,
         130,
@@ -730,48 +911,48 @@
         {
           "clip": "walk",
           "max_exposed_pixels": 459,
-          "frames_exposed": 36,
+          "frames_exposed": 42,
           "peak_frame": 27,
           "sampled_frames": 48
         },
         {
           "clip": "strike",
-          "max_exposed_pixels": 11,
+          "max_exposed_pixels": 7,
           "frames_exposed": 16,
           "peak_frame": 12,
           "sampled_frames": 31
         },
         {
           "clip": "chain_reel",
-          "max_exposed_pixels": 8,
+          "max_exposed_pixels": 4,
           "frames_exposed": 12,
           "peak_frame": 7,
           "sampled_frames": 31
         },
         {
           "clip": "manacle_pin",
-          "max_exposed_pixels": 8,
+          "max_exposed_pixels": 4,
           "frames_exposed": 17,
-          "peak_frame": 16,
+          "peak_frame": 4,
           "sampled_frames": 39
         },
         {
           "clip": "death",
-          "max_exposed_pixels": 4,
-          "frames_exposed": 5,
-          "peak_frame": 9,
+          "max_exposed_pixels": 1,
+          "frames_exposed": 2,
+          "peak_frame": 3,
           "sampled_frames": 32
         },
         {
           "clip": "hit",
-          "max_exposed_pixels": 2,
+          "max_exposed_pixels": 1,
           "frames_exposed": 2,
-          "peak_frame": 16,
+          "peak_frame": 7,
           "sampled_frames": 24
         },
         {
           "clip": "idle",
-          "max_exposed_pixels": 2,
+          "max_exposed_pixels": 1,
           "frames_exposed": 13,
           "peak_frame": 6,
           "sampled_frames": 24
@@ -798,6 +979,11 @@
           "part": "coat_far",
           "pixels": 1540,
           "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "under_shadow",
+          "pixels": 7,
+          "material": "occlusion shadow"
         }
       ],
       "bordering_parts": [
@@ -820,16 +1006,21 @@
           "part": "coat_far",
           "pixels": 103,
           "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "under_shadow",
+          "pixels": 5,
+          "material": "occlusion shadow"
         }
       ],
       "material": "dark cloth trouser leg",
       "paint_nodes": [
-        "hidden_thigh_far"
+        "thigh_far"
       ],
       "clip_exposure": [
         {
           "clip": "idle",
-          "max_exposed_pixels": 2,
+          "max_exposed_pixels": 1,
           "frames_exposed": 13,
           "peak_frame": 6,
           "sampled_frames": 24
@@ -837,208 +1028,47 @@
         {
           "clip": "walk",
           "max_exposed_pixels": 459,
-          "frames_exposed": 36,
+          "frames_exposed": 42,
           "peak_frame": 27,
           "sampled_frames": 48
         },
         {
           "clip": "strike",
-          "max_exposed_pixels": 11,
+          "max_exposed_pixels": 7,
           "frames_exposed": 16,
           "peak_frame": 12,
           "sampled_frames": 31
         },
         {
           "clip": "hit",
-          "max_exposed_pixels": 2,
+          "max_exposed_pixels": 1,
           "frames_exposed": 2,
-          "peak_frame": 16,
+          "peak_frame": 7,
           "sampled_frames": 24
         },
         {
           "clip": "death",
-          "max_exposed_pixels": 4,
-          "frames_exposed": 5,
-          "peak_frame": 9,
+          "max_exposed_pixels": 1,
+          "frames_exposed": 2,
+          "peak_frame": 3,
           "sampled_frames": 32
         },
         {
           "clip": "chain_reel",
-          "max_exposed_pixels": 8,
+          "max_exposed_pixels": 4,
           "frames_exposed": 12,
           "peak_frame": 7,
           "sampled_frames": 31
         },
         {
           "clip": "manacle_pin",
-          "max_exposed_pixels": 8,
+          "max_exposed_pixels": 4,
           "frames_exposed": 17,
-          "peak_frame": 16,
+          "peak_frame": 4,
           "sampled_frames": 39
         }
       ],
       "max_exposed_pixels": 459
-    },
-    {
-      "part": "shin_far",
-      "view": "front",
-      "image": "hidden_requests/front_shin_far.png",
-      "status": "measured",
-      "hidden_pixel_count": 1036,
-      "bounding_box": [
-        110,
-        160,
-        138,
-        227
-      ],
-      "solo_outside_paint_pixels": 137,
-      "motions": [
-        {
-          "clip": "walk",
-          "max_exposed_pixels": 431,
-          "frames_exposed": 47,
-          "peak_frame": 46,
-          "sampled_frames": 48
-        },
-        {
-          "clip": "chain_reel",
-          "max_exposed_pixels": 73,
-          "frames_exposed": 20,
-          "peak_frame": 20,
-          "sampled_frames": 31
-        },
-        {
-          "clip": "strike",
-          "max_exposed_pixels": 67,
-          "frames_exposed": 25,
-          "peak_frame": 5,
-          "sampled_frames": 31
-        },
-        {
-          "clip": "hit",
-          "max_exposed_pixels": 37,
-          "frames_exposed": 17,
-          "peak_frame": 1,
-          "sampled_frames": 24
-        },
-        {
-          "clip": "death",
-          "max_exposed_pixels": 36,
-          "frames_exposed": 31,
-          "peak_frame": 2,
-          "sampled_frames": 32
-        },
-        {
-          "clip": "idle",
-          "max_exposed_pixels": 36,
-          "frames_exposed": 13,
-          "peak_frame": 6,
-          "sampled_frames": 24
-        },
-        {
-          "clip": "manacle_pin",
-          "max_exposed_pixels": 25,
-          "frames_exposed": 28,
-          "peak_frame": 4,
-          "sampled_frames": 39
-        }
-      ],
-      "exposure_status": "sampled_cpu_visibility",
-      "occluding_parts": [
-        {
-          "part": "tabard",
-          "pixels": 917,
-          "material": "red-brown tabard with its approved insignia"
-        },
-        {
-          "part": "thigh_far",
-          "pixels": 5,
-          "material": "dark cloth trouser leg"
-        },
-        {
-          "part": "foot_far",
-          "pixels": 114,
-          "material": "dull dark brown boot"
-        }
-      ],
-      "bordering_parts": [
-        {
-          "part": "tabard",
-          "pixels": 52,
-          "material": "red-brown tabard with its approved insignia"
-        },
-        {
-          "part": "coat_far",
-          "pixels": 1,
-          "material": "dark ash-grey ragged coat tail"
-        },
-        {
-          "part": "thigh_far",
-          "pixels": 6,
-          "material": "dark cloth trouser leg"
-        },
-        {
-          "part": "foot_far",
-          "pixels": 17,
-          "material": "dull dark brown boot"
-        }
-      ],
-      "material": "dark lower leg and boot cuff",
-      "paint_nodes": [
-        "hidden_shin_far"
-      ],
-      "clip_exposure": [
-        {
-          "clip": "idle",
-          "max_exposed_pixels": 36,
-          "frames_exposed": 13,
-          "peak_frame": 6,
-          "sampled_frames": 24
-        },
-        {
-          "clip": "walk",
-          "max_exposed_pixels": 431,
-          "frames_exposed": 47,
-          "peak_frame": 46,
-          "sampled_frames": 48
-        },
-        {
-          "clip": "strike",
-          "max_exposed_pixels": 67,
-          "frames_exposed": 25,
-          "peak_frame": 5,
-          "sampled_frames": 31
-        },
-        {
-          "clip": "hit",
-          "max_exposed_pixels": 37,
-          "frames_exposed": 17,
-          "peak_frame": 1,
-          "sampled_frames": 24
-        },
-        {
-          "clip": "death",
-          "max_exposed_pixels": 36,
-          "frames_exposed": 31,
-          "peak_frame": 2,
-          "sampled_frames": 32
-        },
-        {
-          "clip": "chain_reel",
-          "max_exposed_pixels": 73,
-          "frames_exposed": 20,
-          "peak_frame": 20,
-          "sampled_frames": 31
-        },
-        {
-          "clip": "manacle_pin",
-          "max_exposed_pixels": 25,
-          "frames_exposed": 28,
-          "peak_frame": 4,
-          "sampled_frames": 39
-        }
-      ],
-      "max_exposed_pixels": 431
     },
     {
       "part": "torso",
@@ -1209,7 +1239,7 @@
       "view": "rear",
       "image": "hidden_requests/rear_thigh_near.png",
       "status": "measured",
-      "hidden_pixel_count": 1283,
+      "hidden_pixel_count": 1427,
       "bounding_box": [
         75,
         117,
@@ -1220,51 +1250,51 @@
       "motions": [
         {
           "clip": "walk",
-          "max_exposed_pixels": 339,
+          "max_exposed_pixels": 369,
           "frames_exposed": 48,
           "peak_frame": 7,
           "sampled_frames": 48
         },
         {
           "clip": "strike",
-          "max_exposed_pixels": 53,
-          "frames_exposed": 19,
+          "max_exposed_pixels": 77,
+          "frames_exposed": 24,
           "peak_frame": 12,
           "sampled_frames": 31
         },
         {
           "clip": "manacle_pin",
-          "max_exposed_pixels": 39,
+          "max_exposed_pixels": 54,
           "frames_exposed": 28,
           "peak_frame": 18,
           "sampled_frames": 39
         },
         {
           "clip": "chain_reel",
-          "max_exposed_pixels": 33,
-          "frames_exposed": 18,
+          "max_exposed_pixels": 51,
+          "frames_exposed": 19,
           "peak_frame": 9,
           "sampled_frames": 31
         },
         {
           "clip": "idle",
-          "max_exposed_pixels": 30,
+          "max_exposed_pixels": 34,
           "frames_exposed": 13,
           "peak_frame": 6,
           "sampled_frames": 24
         },
         {
           "clip": "death",
-          "max_exposed_pixels": 24,
+          "max_exposed_pixels": 27,
           "frames_exposed": 30,
           "peak_frame": 15,
           "sampled_frames": 32
         },
         {
           "clip": "hit",
-          "max_exposed_pixels": 11,
-          "frames_exposed": 11,
-          "peak_frame": 3,
+          "max_exposed_pixels": 15,
+          "frames_exposed": 12,
+          "peak_frame": 5,
           "sampled_frames": 24
         }
       ],
@@ -1291,9 +1321,9 @@
           "material": "dark lower leg and boot cuff"
         },
         {
-          "part": "thigh_far",
-          "pixels": 1,
-          "material": "dark cloth trouser leg"
+          "part": "under_shadow",
+          "pixels": 145,
+          "material": "occlusion shadow"
         }
       ],
       "bordering_parts": [
@@ -1314,12 +1344,12 @@
         },
         {
           "part": "coat_near",
-          "pixels": 1,
+          "pixels": 13,
           "material": "dark ash-grey ragged coat tail"
         },
         {
           "part": "coat_far",
-          "pixels": 6,
+          "pixels": 11,
           "material": "dark ash-grey ragged coat tail"
         },
         {
@@ -1328,9 +1358,9 @@
           "material": "dark lower leg and boot cuff"
         },
         {
-          "part": "thigh_far",
-          "pixels": 2,
-          "material": "dark cloth trouser leg"
+          "part": "under_shadow",
+          "pixels": 5,
+          "material": "occlusion shadow"
         }
       ],
       "material": "dark cloth trouser leg",
@@ -1340,55 +1370,55 @@
       "clip_exposure": [
         {
           "clip": "idle",
-          "max_exposed_pixels": 30,
+          "max_exposed_pixels": 34,
           "frames_exposed": 13,
           "peak_frame": 6,
           "sampled_frames": 24
         },
         {
           "clip": "walk",
-          "max_exposed_pixels": 339,
+          "max_exposed_pixels": 369,
           "frames_exposed": 48,
           "peak_frame": 7,
           "sampled_frames": 48
         },
         {
           "clip": "strike",
-          "max_exposed_pixels": 53,
-          "frames_exposed": 19,
+          "max_exposed_pixels": 77,
+          "frames_exposed": 24,
           "peak_frame": 12,
           "sampled_frames": 31
         },
         {
           "clip": "hit",
-          "max_exposed_pixels": 11,
-          "frames_exposed": 11,
-          "peak_frame": 3,
+          "max_exposed_pixels": 15,
+          "frames_exposed": 12,
+          "peak_frame": 5,
           "sampled_frames": 24
         },
         {
           "clip": "death",
-          "max_exposed_pixels": 24,
+          "max_exposed_pixels": 27,
           "frames_exposed": 30,
           "peak_frame": 15,
           "sampled_frames": 32
         },
         {
           "clip": "chain_reel",
-          "max_exposed_pixels": 33,
-          "frames_exposed": 18,
+          "max_exposed_pixels": 51,
+          "frames_exposed": 19,
           "peak_frame": 9,
           "sampled_frames": 31
         },
         {
           "clip": "manacle_pin",
-          "max_exposed_pixels": 39,
+          "max_exposed_pixels": 54,
           "frames_exposed": 28,
           "peak_frame": 18,
           "sampled_frames": 39
         }
       ],
-      "max_exposed_pixels": 339
+      "max_exposed_pixels": 369
     },
     {
       "part": "upper_near",
@@ -1711,165 +1741,6 @@
       "max_exposed_pixels": 216
     },
     {
-      "part": "coat_near",
-      "view": "rear",
-      "image": "hidden_requests/rear_coat_near.png",
-      "status": "measured",
-      "hidden_pixel_count": 736,
-      "bounding_box": [
-        67,
-        109,
-        91,
-        168
-      ],
-      "solo_outside_paint_pixels": 280,
-      "motions": [
-        {
-          "clip": "walk",
-          "max_exposed_pixels": 199,
-          "frames_exposed": 34,
-          "peak_frame": 29,
-          "sampled_frames": 48
-        },
-        {
-          "clip": "death",
-          "max_exposed_pixels": 32,
-          "frames_exposed": 30,
-          "peak_frame": 5,
-          "sampled_frames": 32
-        },
-        {
-          "clip": "chain_reel",
-          "max_exposed_pixels": 31,
-          "frames_exposed": 9,
-          "peak_frame": 21,
-          "sampled_frames": 31
-        },
-        {
-          "clip": "hit",
-          "max_exposed_pixels": 28,
-          "frames_exposed": 11,
-          "peak_frame": 9,
-          "sampled_frames": 24
-        },
-        {
-          "clip": "strike",
-          "max_exposed_pixels": 25,
-          "frames_exposed": 8,
-          "peak_frame": 5,
-          "sampled_frames": 31
-        },
-        {
-          "clip": "manacle_pin",
-          "max_exposed_pixels": 1,
-          "frames_exposed": 2,
-          "peak_frame": 28,
-          "sampled_frames": 39
-        }
-      ],
-      "exposure_status": "sampled_cpu_visibility",
-      "occluding_parts": [
-        {
-          "part": "torso",
-          "pixels": 196,
-          "material": "dark ash-grey cowl and tunic"
-        },
-        {
-          "part": "pelvis",
-          "pixels": 95,
-          "material": "dark cloth at hips"
-        },
-        {
-          "part": "belt",
-          "pixels": 256,
-          "material": "broad brown belt"
-        },
-        {
-          "part": "thigh_near",
-          "pixels": 189,
-          "material": "dark cloth trouser leg"
-        }
-      ],
-      "bordering_parts": [
-        {
-          "part": "torso",
-          "pixels": 34,
-          "material": "dark ash-grey cowl and tunic"
-        },
-        {
-          "part": "pelvis",
-          "pixels": 12,
-          "material": "dark cloth at hips"
-        },
-        {
-          "part": "belt",
-          "pixels": 11,
-          "material": "broad brown belt"
-        },
-        {
-          "part": "thigh_near",
-          "pixels": 19,
-          "material": "dark cloth trouser leg"
-        }
-      ],
-      "material": "dark ash-grey ragged coat tail",
-      "paint_nodes": [
-        "hidden_coat_near"
-      ],
-      "clip_exposure": [
-        {
-          "clip": "idle",
-          "max_exposed_pixels": 0,
-          "frames_exposed": 0,
-          "peak_frame": null,
-          "sampled_frames": 24
-        },
-        {
-          "clip": "walk",
-          "max_exposed_pixels": 199,
-          "frames_exposed": 34,
-          "peak_frame": 29,
-          "sampled_frames": 48
-        },
-        {
-          "clip": "strike",
-          "max_exposed_pixels": 25,
-          "frames_exposed": 8,
-          "peak_frame": 5,
-          "sampled_frames": 31
-        },
-        {
-          "clip": "hit",
-          "max_exposed_pixels": 28,
-          "frames_exposed": 11,
-          "peak_frame": 9,
-          "sampled_frames": 24
-        },
-        {
-          "clip": "death",
-          "max_exposed_pixels": 32,
-          "frames_exposed": 30,
-          "peak_frame": 5,
-          "sampled_frames": 32
-        },
-        {
-          "clip": "chain_reel",
-          "max_exposed_pixels": 31,
-          "frames_exposed": 9,
-          "peak_frame": 21,
-          "sampled_frames": 31
-        },
-        {
-          "clip": "manacle_pin",
-          "max_exposed_pixels": 1,
-          "frames_exposed": 2,
-          "peak_frame": 28,
-          "sampled_frames": 39
-        }
-      ],
-      "max_exposed_pixels": 199
-    },
-    {
       "part": "belt",
       "view": "front",
       "image": "hidden_requests/front_belt.png",
@@ -2169,6 +2040,163 @@
       "max_exposed_pixels": 165
     },
     {
+      "part": "coat_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_coat_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 736,
+      "bounding_box": [
+        67,
+        109,
+        91,
+        168
+      ],
+      "solo_outside_paint_pixels": 280,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 148,
+          "frames_exposed": 34,
+          "peak_frame": 33,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "chain_reel",
+          "max_exposed_pixels": 30,
+          "frames_exposed": 9,
+          "peak_frame": 21,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 22,
+          "frames_exposed": 28,
+          "peak_frame": 2,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 21,
+          "frames_exposed": 11,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 21,
+          "frames_exposed": 7,
+          "peak_frame": 5,
+          "sampled_frames": 31
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 196,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "pelvis",
+          "pixels": 95,
+          "material": "dark cloth at hips"
+        },
+        {
+          "part": "belt",
+          "pixels": 256,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 121,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "under_shadow",
+          "pixels": 68,
+          "material": "occlusion shadow"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 34,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "pelvis",
+          "pixels": 12,
+          "material": "dark cloth at hips"
+        },
+        {
+          "part": "belt",
+          "pixels": 11,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 19,
+          "material": "dark cloth trouser leg"
+        }
+      ],
+      "material": "dark ash-grey ragged coat tail",
+      "paint_nodes": [
+        "hidden_coat_near"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 148,
+          "frames_exposed": 34,
+          "peak_frame": 33,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 21,
+          "frames_exposed": 7,
+          "peak_frame": 5,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 21,
+          "frames_exposed": 11,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 22,
+          "frames_exposed": 28,
+          "peak_frame": 2,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "chain_reel",
+          "max_exposed_pixels": 30,
+          "frames_exposed": 9,
+          "peak_frame": 21,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "manacle_pin",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 39
+        }
+      ],
+      "max_exposed_pixels": 148
+    },
+    {
       "part": "coat_far",
       "view": "front",
       "image": "hidden_requests/front_coat_far.png",
@@ -2184,52 +2212,38 @@
       "motions": [
         {
           "clip": "walk",
-          "max_exposed_pixels": 86,
-          "frames_exposed": 38,
+          "max_exposed_pixels": 81,
+          "frames_exposed": 36,
           "peak_frame": 12,
           "sampled_frames": 48
         },
         {
           "clip": "chain_reel",
-          "max_exposed_pixels": 6,
-          "frames_exposed": 11,
+          "max_exposed_pixels": 1,
+          "frames_exposed": 8,
           "peak_frame": 7,
           "sampled_frames": 31
         },
         {
           "clip": "death",
-          "max_exposed_pixels": 6,
-          "frames_exposed": 30,
+          "max_exposed_pixels": 1,
+          "frames_exposed": 24,
           "peak_frame": 8,
           "sampled_frames": 32
         },
         {
           "clip": "manacle_pin",
-          "max_exposed_pixels": 6,
-          "frames_exposed": 26,
+          "max_exposed_pixels": 1,
+          "frames_exposed": 18,
           "peak_frame": 4,
           "sampled_frames": 39
         },
         {
           "clip": "strike",
-          "max_exposed_pixels": 6,
-          "frames_exposed": 16,
+          "max_exposed_pixels": 1,
+          "frames_exposed": 14,
           "peak_frame": 12,
           "sampled_frames": 31
-        },
-        {
-          "clip": "hit",
-          "max_exposed_pixels": 2,
-          "frames_exposed": 14,
-          "peak_frame": 3,
-          "sampled_frames": 24
-        },
-        {
-          "clip": "idle",
-          "max_exposed_pixels": 1,
-          "frames_exposed": 13,
-          "peak_frame": 6,
-          "sampled_frames": 24
         }
       ],
       "exposure_status": "sampled_cpu_visibility",
@@ -2256,13 +2270,13 @@
         },
         {
           "part": "thigh_far",
-          "pixels": 6,
+          "pixels": 2,
           "material": "dark cloth trouser leg"
         },
         {
-          "part": "shin_far",
-          "pixels": 1,
-          "material": "dark lower leg and boot cuff"
+          "part": "under_shadow",
+          "pixels": 5,
+          "material": "occlusion shadow"
         }
       ],
       "bordering_parts": [
@@ -2287,9 +2301,9 @@
           "material": "red-brown tabard with its approved insignia"
         },
         {
-          "part": "thigh_near",
+          "part": "under_shadow",
           "pixels": 4,
-          "material": "dark cloth trouser leg"
+          "material": "occlusion shadow"
         }
       ],
       "material": "dark ash-grey ragged coat tail",
@@ -2299,55 +2313,55 @@
       "clip_exposure": [
         {
           "clip": "idle",
-          "max_exposed_pixels": 1,
-          "frames_exposed": 13,
-          "peak_frame": 6,
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
           "sampled_frames": 24
         },
         {
           "clip": "walk",
-          "max_exposed_pixels": 86,
-          "frames_exposed": 38,
+          "max_exposed_pixels": 81,
+          "frames_exposed": 36,
           "peak_frame": 12,
           "sampled_frames": 48
         },
         {
           "clip": "strike",
-          "max_exposed_pixels": 6,
-          "frames_exposed": 16,
+          "max_exposed_pixels": 1,
+          "frames_exposed": 14,
           "peak_frame": 12,
           "sampled_frames": 31
         },
         {
           "clip": "hit",
-          "max_exposed_pixels": 2,
-          "frames_exposed": 14,
-          "peak_frame": 3,
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
           "sampled_frames": 24
         },
         {
           "clip": "death",
-          "max_exposed_pixels": 6,
-          "frames_exposed": 30,
+          "max_exposed_pixels": 1,
+          "frames_exposed": 24,
           "peak_frame": 8,
           "sampled_frames": 32
         },
         {
           "clip": "chain_reel",
-          "max_exposed_pixels": 6,
-          "frames_exposed": 11,
+          "max_exposed_pixels": 1,
+          "frames_exposed": 8,
           "peak_frame": 7,
           "sampled_frames": 31
         },
         {
           "clip": "manacle_pin",
-          "max_exposed_pixels": 6,
-          "frames_exposed": 26,
+          "max_exposed_pixels": 1,
+          "frames_exposed": 18,
           "peak_frame": 4,
           "sampled_frames": 39
         }
       ],
-      "max_exposed_pixels": 86
+      "max_exposed_pixels": 81
     },
     {
       "part": "fore_near",
@@ -3887,14 +3901,14 @@
         {
           "clip": "strike",
           "max_exposed_pixels": 18,
-          "frames_exposed": 26,
+          "frames_exposed": 25,
           "peak_frame": 5,
           "sampled_frames": 31
         },
         {
           "clip": "walk",
           "max_exposed_pixels": 7,
-          "frames_exposed": 38,
+          "frames_exposed": 41,
           "peak_frame": 30,
           "sampled_frames": 48
         },
@@ -3945,9 +3959,9 @@
           "material": "dark cloth sleeve with broad brown leather bands"
         },
         {
-          "part": "thigh_near",
+          "part": "under_shadow",
           "pixels": 1,
-          "material": "dark cloth trouser leg"
+          "material": "occlusion shadow"
         }
       ],
       "material": "dark brown leather glove",
@@ -3965,14 +3979,14 @@
         {
           "clip": "walk",
           "max_exposed_pixels": 7,
-          "frames_exposed": 38,
+          "frames_exposed": 41,
           "peak_frame": 30,
           "sampled_frames": 48
         },
         {
           "clip": "strike",
           "max_exposed_pixels": 18,
-          "frames_exposed": 26,
+          "frames_exposed": 25,
           "peak_frame": 5,
           "sampled_frames": 31
         },
@@ -4689,52 +4703,10 @@
       "motions": [
         {
           "clip": "walk",
-          "max_exposed_pixels": 9,
-          "frames_exposed": 30,
-          "peak_frame": 39,
-          "sampled_frames": 48
-        },
-        {
-          "clip": "chain_reel",
-          "max_exposed_pixels": 2,
-          "frames_exposed": 16,
-          "peak_frame": 7,
-          "sampled_frames": 31
-        },
-        {
-          "clip": "idle",
-          "max_exposed_pixels": 2,
+          "max_exposed_pixels": 8,
           "frames_exposed": 13,
-          "peak_frame": 6,
-          "sampled_frames": 24
-        },
-        {
-          "clip": "manacle_pin",
-          "max_exposed_pixels": 2,
-          "frames_exposed": 26,
-          "peak_frame": 16,
-          "sampled_frames": 39
-        },
-        {
-          "clip": "strike",
-          "max_exposed_pixels": 2,
-          "frames_exposed": 19,
-          "peak_frame": 12,
-          "sampled_frames": 31
-        },
-        {
-          "clip": "death",
-          "max_exposed_pixels": 1,
-          "frames_exposed": 3,
-          "peak_frame": 3,
-          "sampled_frames": 32
-        },
-        {
-          "clip": "hit",
-          "max_exposed_pixels": 1,
-          "frames_exposed": 6,
-          "peak_frame": 1,
-          "sampled_frames": 24
+          "peak_frame": 36,
+          "sampled_frames": 48
         }
       ],
       "exposure_status": "sampled_cpu_visibility",
@@ -4755,14 +4727,9 @@
           "material": "dark ash-grey ragged coat tail"
         },
         {
-          "part": "thigh_near",
-          "pixels": 1,
-          "material": "dark cloth trouser leg"
-        },
-        {
-          "part": "thigh_far",
-          "pixels": 1,
-          "material": "dark cloth trouser leg"
+          "part": "under_shadow",
+          "pixels": 2,
+          "material": "occlusion shadow"
         }
       ],
       "bordering_parts": [
@@ -4782,14 +4749,9 @@
           "material": "dark ash-grey ragged coat tail"
         },
         {
-          "part": "thigh_near",
-          "pixels": 3,
-          "material": "dark cloth trouser leg"
-        },
-        {
-          "part": "thigh_far",
-          "pixels": 1,
-          "material": "dark cloth trouser leg"
+          "part": "under_shadow",
+          "pixels": 4,
+          "material": "occlusion shadow"
         }
       ],
       "material": "dark cloth at hips",
@@ -4799,55 +4761,209 @@
       "clip_exposure": [
         {
           "clip": "idle",
-          "max_exposed_pixels": 2,
-          "frames_exposed": 13,
-          "peak_frame": 6,
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
           "sampled_frames": 24
         },
         {
           "clip": "walk",
-          "max_exposed_pixels": 9,
-          "frames_exposed": 30,
-          "peak_frame": 39,
+          "max_exposed_pixels": 8,
+          "frames_exposed": 13,
+          "peak_frame": 36,
           "sampled_frames": 48
         },
         {
           "clip": "strike",
-          "max_exposed_pixels": 2,
-          "frames_exposed": 19,
-          "peak_frame": 12,
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
           "sampled_frames": 31
         },
         {
           "clip": "hit",
-          "max_exposed_pixels": 1,
-          "frames_exposed": 6,
-          "peak_frame": 1,
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
           "sampled_frames": 24
         },
         {
           "clip": "death",
-          "max_exposed_pixels": 1,
-          "frames_exposed": 3,
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "chain_reel",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "manacle_pin",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 39
+        }
+      ],
+      "max_exposed_pixels": 8
+    },
+    {
+      "part": "shin_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_shin_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 487,
+      "bounding_box": [
+        77,
+        159,
+        105,
+        224
+      ],
+      "solo_outside_paint_pixels": 22,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 8,
+          "frames_exposed": 31,
+          "peak_frame": 47,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "manacle_pin",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 4,
+          "peak_frame": 19,
+          "sampled_frames": 39
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 10,
+          "peak_frame": 11,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "chain_reel",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 2,
+          "peak_frame": 16,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 22,
+          "peak_frame": 3,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 5,
+          "peak_frame": 10,
+          "sampled_frames": 24
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "thigh_near",
+          "pixels": 453,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "foot_near",
+          "pixels": 2,
+          "material": "dull dark brown boot"
+        },
+        {
+          "part": "under_shadow",
+          "pixels": 32,
+          "material": "occlusion shadow"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "pelvis",
+          "pixels": 1,
+          "material": "dark cloth at hips"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 31,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "foot_near",
+          "pixels": 4,
+          "material": "dull dark brown boot"
+        },
+        {
+          "part": "under_shadow",
+          "pixels": 14,
+          "material": "occlusion shadow"
+        }
+      ],
+      "material": "dark lower leg and boot cuff",
+      "paint_nodes": [
+        "hidden_shin_near"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 8,
+          "frames_exposed": 31,
+          "peak_frame": 47,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 10,
+          "peak_frame": 11,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 5,
+          "peak_frame": 10,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 22,
           "peak_frame": 3,
           "sampled_frames": 32
         },
         {
           "clip": "chain_reel",
           "max_exposed_pixels": 2,
-          "frames_exposed": 16,
-          "peak_frame": 7,
+          "frames_exposed": 2,
+          "peak_frame": 16,
           "sampled_frames": 31
         },
         {
           "clip": "manacle_pin",
-          "max_exposed_pixels": 2,
-          "frames_exposed": 26,
-          "peak_frame": 16,
+          "max_exposed_pixels": 3,
+          "frames_exposed": 4,
+          "peak_frame": 19,
           "sampled_frames": 39
         }
       ],
-      "max_exposed_pixels": 9
+      "max_exposed_pixels": 8
     },
     {
       "part": "foot_far",
@@ -4865,9 +4981,9 @@
       "motions": [
         {
           "clip": "death",
-          "max_exposed_pixels": 9,
-          "frames_exposed": 26,
-          "peak_frame": 12,
+          "max_exposed_pixels": 7,
+          "frames_exposed": 5,
+          "peak_frame": 9,
           "sampled_frames": 32
         },
         {
@@ -4928,171 +5044,27 @@
         },
         {
           "clip": "death",
-          "max_exposed_pixels": 9,
-          "frames_exposed": 26,
-          "peak_frame": 12,
-          "sampled_frames": 32
-        },
-        {
-          "clip": "chain_reel",
-          "max_exposed_pixels": 0,
-          "frames_exposed": 0,
-          "peak_frame": null,
-          "sampled_frames": 31
-        },
-        {
-          "clip": "manacle_pin",
-          "max_exposed_pixels": 0,
-          "frames_exposed": 0,
-          "peak_frame": null,
-          "sampled_frames": 39
-        }
-      ],
-      "max_exposed_pixels": 9
-    },
-    {
-      "part": "shin_near",
-      "view": "rear",
-      "image": "hidden_requests/rear_shin_near.png",
-      "status": "measured",
-      "hidden_pixel_count": 487,
-      "bounding_box": [
-        77,
-        159,
-        105,
-        224
-      ],
-      "solo_outside_paint_pixels": 22,
-      "motions": [
-        {
-          "clip": "walk",
-          "max_exposed_pixels": 8,
-          "frames_exposed": 31,
-          "peak_frame": 47,
-          "sampled_frames": 48
-        },
-        {
-          "clip": "manacle_pin",
-          "max_exposed_pixels": 3,
-          "frames_exposed": 4,
-          "peak_frame": 19,
-          "sampled_frames": 39
-        },
-        {
-          "clip": "strike",
-          "max_exposed_pixels": 3,
-          "frames_exposed": 10,
-          "peak_frame": 11,
-          "sampled_frames": 31
-        },
-        {
-          "clip": "chain_reel",
-          "max_exposed_pixels": 2,
-          "frames_exposed": 2,
-          "peak_frame": 16,
-          "sampled_frames": 31
-        },
-        {
-          "clip": "death",
-          "max_exposed_pixels": 2,
-          "frames_exposed": 23,
-          "peak_frame": 3,
-          "sampled_frames": 32
-        },
-        {
-          "clip": "hit",
-          "max_exposed_pixels": 2,
+          "max_exposed_pixels": 7,
           "frames_exposed": 5,
-          "peak_frame": 10,
-          "sampled_frames": 24
-        }
-      ],
-      "exposure_status": "sampled_cpu_visibility",
-      "occluding_parts": [
-        {
-          "part": "thigh_near",
-          "pixels": 485,
-          "material": "dark cloth trouser leg"
-        },
-        {
-          "part": "foot_near",
-          "pixels": 2,
-          "material": "dull dark brown boot"
-        }
-      ],
-      "bordering_parts": [
-        {
-          "part": "pelvis",
-          "pixels": 1,
-          "material": "dark cloth at hips"
-        },
-        {
-          "part": "thigh_near",
-          "pixels": 45,
-          "material": "dark cloth trouser leg"
-        },
-        {
-          "part": "foot_near",
-          "pixels": 4,
-          "material": "dull dark brown boot"
-        }
-      ],
-      "material": "dark lower leg and boot cuff",
-      "paint_nodes": [
-        "hidden_shin_near"
-      ],
-      "clip_exposure": [
-        {
-          "clip": "idle",
-          "max_exposed_pixels": 0,
-          "frames_exposed": 0,
-          "peak_frame": null,
-          "sampled_frames": 24
-        },
-        {
-          "clip": "walk",
-          "max_exposed_pixels": 8,
-          "frames_exposed": 31,
-          "peak_frame": 47,
-          "sampled_frames": 48
-        },
-        {
-          "clip": "strike",
-          "max_exposed_pixels": 3,
-          "frames_exposed": 10,
-          "peak_frame": 11,
-          "sampled_frames": 31
-        },
-        {
-          "clip": "hit",
-          "max_exposed_pixels": 2,
-          "frames_exposed": 5,
-          "peak_frame": 10,
-          "sampled_frames": 24
-        },
-        {
-          "clip": "death",
-          "max_exposed_pixels": 2,
-          "frames_exposed": 23,
-          "peak_frame": 3,
+          "peak_frame": 9,
           "sampled_frames": 32
         },
         {
           "clip": "chain_reel",
-          "max_exposed_pixels": 2,
-          "frames_exposed": 2,
-          "peak_frame": 16,
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
           "sampled_frames": 31
         },
         {
           "clip": "manacle_pin",
-          "max_exposed_pixels": 3,
-          "frames_exposed": 4,
-          "peak_frame": 19,
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
           "sampled_frames": 39
         }
       ],
-      "max_exposed_pixels": 8
+      "max_exposed_pixels": 7
     },
     {
       "part": "foot_near",
@@ -5201,188 +5173,6 @@
         }
       ],
       "max_exposed_pixels": 6
-    },
-    {
-      "part": "pelvis",
-      "view": "front",
-      "image": "hidden_requests/front_pelvis.png",
-      "status": "measured",
-      "hidden_pixel_count": 2051,
-      "bounding_box": [
-        121,
-        111,
-        179,
-        157
-      ],
-      "solo_outside_paint_pixels": 0,
-      "motions": [
-        {
-          "clip": "walk",
-          "max_exposed_pixels": 4,
-          "frames_exposed": 16,
-          "peak_frame": 9,
-          "sampled_frames": 48
-        },
-        {
-          "clip": "chain_reel",
-          "max_exposed_pixels": 1,
-          "frames_exposed": 2,
-          "peak_frame": 7,
-          "sampled_frames": 31
-        },
-        {
-          "clip": "death",
-          "max_exposed_pixels": 1,
-          "frames_exposed": 21,
-          "peak_frame": 9,
-          "sampled_frames": 32
-        },
-        {
-          "clip": "manacle_pin",
-          "max_exposed_pixels": 1,
-          "frames_exposed": 2,
-          "peak_frame": 17,
-          "sampled_frames": 39
-        },
-        {
-          "clip": "strike",
-          "max_exposed_pixels": 1,
-          "frames_exposed": 9,
-          "peak_frame": 12,
-          "sampled_frames": 31
-        }
-      ],
-      "exposure_status": "sampled_cpu_visibility",
-      "occluding_parts": [
-        {
-          "part": "torso",
-          "pixels": 789,
-          "material": "dark ash-grey cowl and tunic"
-        },
-        {
-          "part": "belt",
-          "pixels": 443,
-          "material": "broad brown belt"
-        },
-        {
-          "part": "tabard",
-          "pixels": 208,
-          "material": "red-brown tabard with its approved insignia"
-        },
-        {
-          "part": "upper_near",
-          "pixels": 288,
-          "material": "dark cloth sleeve"
-        },
-        {
-          "part": "fore_near",
-          "pixels": 271,
-          "material": "dark cloth sleeve with broad brown leather bands"
-        },
-        {
-          "part": "hand_near",
-          "pixels": 8,
-          "material": "dark brown leather glove"
-        },
-        {
-          "part": "thigh_near",
-          "pixels": 44,
-          "material": "dark cloth trouser leg"
-        }
-      ],
-      "bordering_parts": [
-        {
-          "part": "torso",
-          "pixels": 44,
-          "material": "dark ash-grey cowl and tunic"
-        },
-        {
-          "part": "belt",
-          "pixels": 10,
-          "material": "broad brown belt"
-        },
-        {
-          "part": "tabard",
-          "pixels": 32,
-          "material": "red-brown tabard with its approved insignia"
-        },
-        {
-          "part": "upper_near",
-          "pixels": 26,
-          "material": "dark cloth sleeve"
-        },
-        {
-          "part": "fore_near",
-          "pixels": 22,
-          "material": "dark cloth sleeve with broad brown leather bands"
-        },
-        {
-          "part": "hand_near",
-          "pixels": 8,
-          "material": "dark brown leather glove"
-        },
-        {
-          "part": "thigh_near",
-          "pixels": 9,
-          "material": "dark cloth trouser leg"
-        }
-      ],
-      "material": "dark cloth at hips",
-      "paint_nodes": [
-        "hidden_pelvis"
-      ],
-      "clip_exposure": [
-        {
-          "clip": "idle",
-          "max_exposed_pixels": 0,
-          "frames_exposed": 0,
-          "peak_frame": null,
-          "sampled_frames": 24
-        },
-        {
-          "clip": "walk",
-          "max_exposed_pixels": 4,
-          "frames_exposed": 16,
-          "peak_frame": 9,
-          "sampled_frames": 48
-        },
-        {
-          "clip": "strike",
-          "max_exposed_pixels": 1,
-          "frames_exposed": 9,
-          "peak_frame": 12,
-          "sampled_frames": 31
-        },
-        {
-          "clip": "hit",
-          "max_exposed_pixels": 0,
-          "frames_exposed": 0,
-          "peak_frame": null,
-          "sampled_frames": 24
-        },
-        {
-          "clip": "death",
-          "max_exposed_pixels": 1,
-          "frames_exposed": 21,
-          "peak_frame": 9,
-          "sampled_frames": 32
-        },
-        {
-          "clip": "chain_reel",
-          "max_exposed_pixels": 1,
-          "frames_exposed": 2,
-          "peak_frame": 7,
-          "sampled_frames": 31
-        },
-        {
-          "clip": "manacle_pin",
-          "max_exposed_pixels": 1,
-          "frames_exposed": 2,
-          "peak_frame": 17,
-          "sampled_frames": 39
-        }
-      ],
-      "max_exposed_pixels": 4
     },
     {
       "part": "tabard",
@@ -5504,6 +5294,162 @@
         }
       ],
       "max_exposed_pixels": 3
+    },
+    {
+      "part": "pelvis",
+      "view": "front",
+      "image": "hidden_requests/front_pelvis.png",
+      "status": "measured",
+      "hidden_pixel_count": 2051,
+      "bounding_box": [
+        121,
+        111,
+        179,
+        157
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 789,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "belt",
+          "pixels": 443,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "tabard",
+          "pixels": 208,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 288,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 271,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 8,
+          "material": "dark brown leather glove"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 2,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "under_shadow",
+          "pixels": 42,
+          "material": "occlusion shadow"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 44,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "belt",
+          "pixels": 10,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "tabard",
+          "pixels": 32,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 26,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 22,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 8,
+          "material": "dark brown leather glove"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 1,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "under_shadow",
+          "pixels": 8,
+          "material": "occlusion shadow"
+        }
+      ],
+      "material": "dark cloth at hips",
+      "paint_nodes": [
+        "hidden_pelvis"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "chain_reel",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "manacle_pin",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 39
+        }
+      ],
+      "max_exposed_pixels": 0
     },
     {
       "part": "hook",
@@ -5704,5 +5650,5 @@
       "max_exposed_pixels": 0
     }
   ],
-  "samples_sha256": "7303d5f174e58c1876dd06a7922a41394d5bdcb1c25b2f12f662148d1dbfc57b"
+  "samples_sha256": "7121d80e73ee0dae9fd37899d99584106fdf1bc95f65151ee3fc3a6f11ad1c96"
 }

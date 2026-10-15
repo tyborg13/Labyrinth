@@ -20,6 +20,7 @@ TABARD_GATE_PARTS = {
     "front": ["pelvis", "thigh_far", "thigh_near", "shin_far", "shin_near", "coat_far", "coat_near"],
     "rear": ["pelvis", "thigh_far", "thigh_near"],
 }
+LEG_PARTS = ["thigh_far", "thigh_near", "shin_far", "shin_near"]
 
 
 @lru_cache(maxsize=512)
@@ -86,6 +87,38 @@ def rasterize(root, layout, sample, include_sources=False):
             mapping = transformed(source_ids, part, layout, sample["bones"])
             sources[mask] = mapping[mask]
     return output, owners, sources, arm, body
+
+
+@lru_cache(maxsize=32)
+def visible_rest_dark(root_path, view, name):
+    root = Path(root_path)
+    names = list(read_json(root / "source/spec.json")["labels"])
+    paint = rgba(str(root / f"source/{view}/processed.png"))
+    owners = np.load(root / f"registered/{view}_owners.npy", allow_pickle=False)
+    mask = (owners == names.index(name)) & (to_lab(paint[..., :3])[..., 0] < 15)
+    if not np.array_equal(mask, rgba(str(root / f"registered/{view}_visible_dark_{name}.png"))[..., 3] > 128):
+        raise CutoutError("Visible-rest dark provenance differs from source ownership: " + view + "/" + name)
+    return mask
+
+
+def rasterize_rest_dark(root, layout, sample):
+    """CPU diagnostic counterpart of the native fifth provenance-ID surface."""
+    owners = np.full((CANVAS_SIZE, CANVAS_SIZE), -1, dtype=np.int16)
+    order = sample.get("paint_tree_order", tree_order(layout))
+    parts = layout["parts"]
+    for number in sorted(range(len(parts)), key=lambda i: (sample["draw_order"][parts[i]["name"]], order.index(parts[i]["name"]))):
+        part = parts[number]
+        name = part.get("logical_part", part["name"])
+        if name not in LEG_PARTS:
+            continue
+        pixels = rgba(str(root / part["file"]))
+        x, y = part["offset"]
+        baseline = visible_rest_dark(str(root), sample["view"], name)[y:y+pixels.shape[0], x:x+pixels.shape[1]]
+        mask = baseline & (pixels[..., 3] > 128)
+        if mask.any():
+            projected = transformed(mask.astype(np.uint8) * 255, part, layout, sample["bones"]) > 128
+            owners[projected] = number
+    return owners
 
 
 def small_components(pixels, limit=12):
@@ -176,7 +209,7 @@ def bake_rear_arm(root):
     return report
 
 
-def frame_counts(pixels, owners, parts, arm, body, view, clip, tabard_lab):
+def frame_counts(pixels, owners, parts, arm, body, view, clip, tabard_lab, rest_dark_owners=None):
     """Count strict DeltaE76<12 on the director's complete logical owner list."""
     opaque = pixels[..., 3] > 128
     distances = np.full(opaque.shape, np.inf)
@@ -190,10 +223,20 @@ def frame_counts(pixels, owners, parts, arm, body, view, clip, tabard_lab):
         if name in by_part:
             by_part[name] += int((red & (owners == i)).sum())
     fragments = small_components(pixels)
+    near_black = np.zeros(opaque.shape, dtype=bool)
+    near_black[opaque] = to_lab(pixels[opaque, :3])[:, 0] < 15
+    dark_regions = {}
+    for name in LEG_PARTS:
+        part_ids = [i for i, part in enumerate(parts) if part.get("logical_part", part["name"]) == name]
+        known = np.isin(rest_dark_owners, part_ids) if rest_dark_owners is not None else np.zeros_like(opaque)
+        introduced = near_black & np.isin(owners, part_ids) & ~known
+        dark_regions[name] = [{"pixels": int(c.sum()), "bbox": bbox(c)} for c in components8(introduced) if c.sum() > 12]
     arm_ids = [i for i, part in enumerate(parts) if part.get("bone") in ["upper_fist", "fore_fist", "hand_fist"]]
     return {"tabard_non_tabard_pixels": sum(by_part.values()), "tabard_collisions_by_part": by_part,
         "detached_small_components": [{"pixels": int(c.sum()), "bbox": bbox(c)} for c in fragments],
         "detached_small_pixels": sum(int(c.sum()) for c in fragments),
+        "new_leg_dark_pixels": sum(c["pixels"] for regions in dark_regions.values() for c in regions),
+        "new_leg_dark_regions_by_part": dark_regions,
         "rear_arm_outside_pixels": int((arm & ~body).sum()) if view == "rear" and clip in ["strike", "manacle_pin"] else 0,
         "rear_visible_arm_pixels": int((opaque & np.isin(owners, arm_ids)).sum()) if view == "rear" and clip in ["strike", "manacle_pin"] else 0,
         "magenta_pixels": int((opaque & np.all(pixels[..., :3] == MAGENTA[:3], axis=-1)).sum())}
@@ -213,19 +256,34 @@ def value_counts(root):
             own_l = to_lab(paint[owners == names.index(part), :3])[:, 0]
             reference_l = own_l
             substitution = None
-            if len(own_l) < 40:
+            material_substitution = part in config.get("occlusion_shadow", {}).get("replacement_trousers_reference_parts", [])
+            if len(own_l) < 40 or material_substitution:
                 near_l = to_lab(paint[owners == names.index("thigh_near"), :3])[:, 0]
-                reference_l = np.clip(near_l - 6, 0, 100)
+                shift = -6 if len(own_l) < 40 else 0
+                reference_l = np.clip(near_l + shift, 0, 100)
                 substitution = {"view": view, "part": "thigh_near", "visible_pixels": len(near_l),
-                    "source_median_l": float(np.median(near_l)), "l_shift": -6}
+                    "source_median_l": float(np.median(near_l)), "l_shift": shift,
+                    "rule": "sparse" if len(own_l) < 40 else "trousers_material"}
             fill_l = to_lab(filled[hidden, :3])[:, 0]
             q25, q75 = np.percentile(reference_l, [25, 75])
+            effective_q25, effective_q75 = q25, q75
+            midtone_substitution = None
+            minimum_l = config.get("occlusion_shadow", {}).get("minimum_hidden_l") if part in LEG_PARTS else None
+            if minimum_l is not None and q75 < minimum_l:
+                eligible_l = reference_l[reference_l >= minimum_l]
+                if not len(eligible_l):
+                    raise CutoutError("No non-shadow reference midtones: " + view + "/" + part)
+                effective_q25, effective_q75 = np.percentile(eligible_l, [25, 75])
+                midtone_substitution = "Original reference IQR lies below round7 shadow cutoff; non-shadow reference tail IQR replaces it, nominal median unchanged"
             delta = float(abs(np.median(fill_l) - np.median(reference_l)))
-            midtones = int(((fill_l >= q25) & (fill_l <= q75)).sum())
+            midtones = int(((fill_l >= effective_q25) & (fill_l <= effective_q75)).sum())
             records.append({"view": view, "part": part, "visible_pixels": len(own_l),
-                "visible_median_l": float(np.median(own_l)), "hidden_median_l": float(np.median(fill_l)),
+                "visible_median_l": float(np.median(own_l)) if len(own_l) else None, "hidden_median_l": float(np.median(fill_l)),
                 "reference_median_l": float(np.median(reference_l)), "substitution": substitution,
                 "difference_l": delta, "midtones_range_l": [float(q25), float(q75)],
+                "effective_midtones_range_l": [float(effective_q25), float(effective_q75)],
+                "midtones_substitution": midtone_substitution,
+                "hidden_original_midtones_pixels": int(((fill_l >= q25) & (fill_l <= q75)).sum()),
                 "hidden_midtones_pixels": midtones, "ok": delta <= 8 and midtones > 0})
     return records
 
@@ -243,7 +301,7 @@ def finish_report(root, records, basis, output):
             by_clip_part.append({"view": view, "clip": clip, "part": part,
                 "frames": len(frames), "total_pixels": sum(counts), "max_frame_pixels": max(counts)})
     totals = {name: sum(r[name] for r in records) for name in
-              ["tabard_non_tabard_pixels", "detached_small_pixels", "rear_arm_outside_pixels", "rear_visible_arm_pixels", "magenta_pixels"]}
+              ["tabard_non_tabard_pixels", "detached_small_pixels", "new_leg_dark_pixels", "rear_arm_outside_pixels", "rear_visible_arm_pixels", "magenta_pixels"]}
     report = {"ok": not any(totals.values()) and all(r["ok"] for r in values), "basis": basis,
         "frames": len(records), "totals": totals, "value_distribution": values,
         "colour_gate": gate, "colour_counts_per_part_and_clip": by_clip_part,
@@ -270,7 +328,8 @@ def cpu_gates(root, output):
     for sample in samples["samples"]:
         layout = layouts[sample["view"]]
         pixels, owners, _, arm, body = rasterize(root, layout, sample)
-        records.append({k: sample[k] for k in ["view", "clip", "frame"]} | frame_counts(pixels, owners, layout["parts"], arm, body, sample["view"], sample["clip"], tabard_lab))
+        rest_dark = rasterize_rest_dark(root, layout, sample)
+        records.append({k: sample[k] for k in ["view", "clip", "frame"]} | frame_counts(pixels, owners, layout["parts"], arm, body, sample["view"], sample["clip"], tabard_lab, rest_dark))
     return finish_report(root, records, "CPU nearest raster diagnostic; NOT native proof", output)
 
 
@@ -288,7 +347,7 @@ def capture_native(root, output, task_id):
     result_path = output / "native_motion_result.json"
     command = [sys.executable, "tools/visual_probe_runner.py", str(root / "probes/native_motion.gd"),
         "--task-id", task_id, "--no-headless", "--display-driver", "macos", "--audio-driver", "Dummy",
-        "--expect-size", "1920x1080", "--expect-size", "512x512", "--timeout", "240",
+        "--expect-size", "1920x1080", "--expect-size", "512x512", "--timeout", "300",
         "--result-manifest", str(result_path), "--", "--case", str(root / "cutout.json")]
     completed = subprocess.run(command, check=False)
     if completed.returncode:
@@ -329,18 +388,22 @@ def native_gates(root, output):
     actual = [(s["view"], s["clip"], s["frame"]) for s in manifest["frames"]]
     if len(actual) != len(expected) or set(actual) != expected:
         raise CutoutError("Native frame coverage is incomplete or duplicated")
-    names = list(read_json(root / "source/spec.json")["labels"])
     tabard_lab = read_json(root / "proof/front_ownership_cleanup.json")["materials"]["tabard_cloth"]["median_lab"]
     records = []
     for sample in manifest["frames"]:
         view, clip, frame = sample["view"], sample["clip"], sample["frame"]
-        pixels, encoded, arm, body = [rgba(str(capture / sample["files"][key])) for key in ["rgba", "owners", "arm", "body"]]
+        pixels, encoded, arm, body, dark_encoded = [rgba(str(capture / sample["files"][key])) for key in ["rgba", "owners", "arm", "body", "rest_dark"]]
         ids = encoded[..., 0].astype(np.int32) + 256 * encoded[..., 1].astype(np.int32)
         ids[encoded[..., 3] <= 128] = 0
         lookup = manifest["views"][view]
+        names = read_json(root / config["layouts"][view])["logical_parts"]
         if not np.array_equal(encoded[..., 3], pixels[..., 3]) or any(str(i) not in lookup for i in np.unique(ids) if i):
             raise CutoutError("Native owner IDs/alpha failed validation")
         parts = [{"name": lookup[str(i)]["node"], "logical_part": lookup[str(i)]["logical_part"], "bone": lookup[str(i)]["bone"]} for i in range(1, len(lookup) + 1)]
+        dark_ids = dark_encoded[..., 0].astype(np.int32) + 256 * dark_encoded[..., 1].astype(np.int32)
+        dark_ids[dark_encoded[..., 3] <= 128] = 0
+        if any(str(i) not in lookup or lookup[str(i)]["logical_part"] not in LEG_PARTS for i in np.unique(dark_ids) if i):
+            raise CutoutError("Native visible-rest dark provenance IDs failed validation")
         if clip == "rest":
             expected_paint = rgba(str(root / f"source/{view}/processed.png"))
             actual_paint = pixels[POSE_OFFSET:POSE_OFFSET+255, POSE_OFFSET:POSE_OFFSET+255]
@@ -351,10 +414,18 @@ def native_gates(root, output):
                 logical[ids == i] = names.index(part["logical_part"])
             if not np.array_equal(logical[POSE_OFFSET:POSE_OFFSET+255, POSE_OFFSET:POSE_OFFSET+255], np.load(root / f"registered/{view}_owners.npy")):
                 raise CutoutError("Native owner ID calibration differs from exact rest partition: " + view)
+            expected_dark = np.full((255, 255), -1, dtype=np.int16)
+            actual_dark = np.full(ids.shape, -1, dtype=np.int16)
+            for name in LEG_PARTS:
+                expected_dark[visible_rest_dark(str(root), view, name)] = names.index(name)
+            for i, part in enumerate(parts, 1):
+                actual_dark[dark_ids == i] = names.index(part["logical_part"])
+            if not np.array_equal(actual_dark[POSE_OFFSET:POSE_OFFSET+255, POSE_OFFSET:POSE_OFFSET+255], expected_dark):
+                raise CutoutError("Native visible-rest dark provenance calibration differs: " + view)
             continue
         if not np.array_equal(pixels, rgba(str(output / f"{view}_{clip}/pose_{frame:04d}.png"))):
             raise CutoutError(f"Ownership probe RGBA differs from primary reel: {view}/{clip}/{frame}")
-        records.append({"view": view, "clip": clip, "frame": frame} | frame_counts(pixels, ids - 1, parts, arm[..., 3] > 128, body[..., 3] > 128, view, clip, tabard_lab))
+        records.append({"view": view, "clip": clip, "frame": frame} | frame_counts(pixels, ids - 1, parts, arm[..., 3] > 128, body[..., 3] > 128, view, clip, tabard_lab, dark_ids - 1))
     report = finish_report(root, records, "Native renderer pixels, calibrated native IDs, complete seven-clip frame set", output / "motion_gates.json")
     write_json(root / "proof/native_motion_gates.json", report)
     return report

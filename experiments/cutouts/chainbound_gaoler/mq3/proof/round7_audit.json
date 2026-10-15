@@ -1,0 +1,237 @@
+{
+  "rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "394e5284cdf9dfe72e85508b269c2562612401e7fcb19ee99c27ac1facef37bc"
+    },
+    "rear": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "ebe6bcc1c4d77b8e4fa5a89e57f5118725414f75715578d9307dbb7408aac4ae"
+    },
+    "ok": true
+  },
+  "runtime_images": 145,
+  "magenta_pixels": 0,
+  "hidden_pixels": 34735,
+  "filled_requests": 39,
+  "approved_source_files_unchanged": 113,
+  "archived_round6_files": 449,
+  "all_bone_matrices_max_difference_from_round6": 0.0,
+  "shadow_nodes": [
+    {
+      "view": "front",
+      "node": "under_shadow_from_thigh_near",
+      "bone": "pelvis",
+      "z_index": -1,
+      "source_pixels": 73
+    },
+    {
+      "view": "front",
+      "node": "under_shadow_from_shin_near",
+      "bone": "pelvis",
+      "z_index": -1,
+      "source_pixels": 2
+    },
+    {
+      "view": "front",
+      "node": "under_shadow_from_thigh_far",
+      "bone": "pelvis",
+      "z_index": -1,
+      "source_pixels": 4
+    },
+    {
+      "view": "front",
+      "node": "under_shadow_from_shin_far",
+      "bone": "pelvis",
+      "z_index": -1,
+      "source_pixels": 110
+    },
+    {
+      "view": "rear",
+      "node": "under_shadow_from_thigh_near",
+      "bone": "pelvis",
+      "z_index": -1,
+      "source_pixels": 137
+    },
+    {
+      "view": "rear",
+      "node": "under_shadow_from_thigh_far",
+      "bone": "pelvis",
+      "z_index": -1,
+      "source_pixels": 7
+    },
+    {
+      "view": "rear",
+      "node": "under_shadow_from_shin_far",
+      "bone": "pelvis",
+      "z_index": -1,
+      "source_pixels": 2
+    },
+    {
+      "view": "rear",
+      "node": "under_shadow_from_foot_far",
+      "bone": "pelvis",
+      "z_index": -1,
+      "source_pixels": 5
+    }
+  ],
+  "shadow_pixels": 340,
+  "inspected_cpu_frames": [
+    {
+      "pose": [
+        "front",
+        "walk",
+        0
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "front",
+        "walk",
+        47
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "front",
+        "strike",
+        2
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "front",
+        "chain_reel",
+        15
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "walk",
+        27
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "walk",
+        34
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "strike",
+        3
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "manacle_pin",
+        12
+      ],
+      "non_main_components": []
+    }
+  ],
+  "native_v07": "pending director windowed capture; no windowed command attempted",
+  "head": "b3bb9f84692117ebfae71118dc0cfe5ed7999a4e",
+  "uncommitted": true,
+  "native_v06_working_files_preserved": [
+    "proof/native_keyframes/front_chain_reel_8frames.png",
+    "proof/native_keyframes/front_death_8frames.png",
+    "proof/native_keyframes/front_hit_8frames.png",
+    "proof/native_keyframes/front_idle_8frames.png",
+    "proof/native_keyframes/front_manacle_pin_8frames.png",
+    "proof/native_keyframes/front_strike_8frames.png",
+    "proof/native_keyframes/front_walk_8frames.png",
+    "proof/native_keyframes/rear_chain_reel_8frames.png",
+    "proof/native_keyframes/rear_death_8frames.png",
+    "proof/native_keyframes/rear_hit_8frames.png",
+    "proof/native_keyframes/rear_idle_8frames.png",
+    "proof/native_keyframes/rear_manacle_pin_8frames.png",
+    "proof/native_keyframes/rear_strike_8frames.png",
+    "proof/native_keyframes/rear_walk_8frames.png",
+    "proof/native_keyframes/verification.json",
+    "proof/native_rest_round6_result.json"
+  ],
+  "scope_check": {
+    "ok": true,
+    "tracked_changes": 92,
+    "untracked_files": 521
+  },
+  "cpu_gates": {
+    "ok": true,
+    "basis": "CPU nearest raster diagnostic; NOT native proof",
+    "frames": 458,
+    "totals": {
+      "tabard_non_tabard_pixels": 0,
+      "detached_small_pixels": 0,
+      "new_leg_dark_pixels": 0,
+      "rear_arm_outside_pixels": 0,
+      "rear_visible_arm_pixels": 0,
+      "magenta_pixels": 0
+    },
+    "value_failures": 0
+  },
+  "tests": {
+    "focused": {
+      "exit": 0,
+      "result": "Ran 37 tests in 19.144s / OK"
+    },
+    "art_gate": {
+      "exit": 0,
+      "result": "Ran 49 tests in 15.585s / OK"
+    },
+    "python_suite": {
+      "exit": 0,
+      "result": "Ran 434 tests in 276.122s / OK (skipped=61)"
+    },
+    "godot_suite": {
+      "exit": 0,
+      "result": "FULL SUITE RUNTIME: 731.835 seconds (budget 900 seconds) / TEST RESULT: PASS"
+    },
+    "native_pose_check": {
+      "exit": 0,
+      "result": "MAQUETTE_NATIVE_POSES: PASS (460 poses; five surfaces; GPU readback not exercised)"
+    },
+    "validation": {
+      "exit": 0,
+      "result": "ok: true; no errors"
+    },
+    "cpu_motion_gates": {
+      "exit": 0,
+      "result": "MOTION GATES: PASS; six totals zero; value failures=0; NOT native proof"
+    }
+  },
+  "proof_sha256": {
+    "proof/focused_round7.log": "c4a189ef9003a0b2cfa84785b2892a59373a28bd627d80e500b1a3e9385d6a04",
+    "proof/art_gate_round7.log": "71925301ee2d91906720b0cca981d1cdd3b501a3650252166f11287fbe45226b",
+    "proof/python_suite_round7.log": "b9b96cd003af6a12ed4499573f35eef202689b1e27dc87cdeeca1818993d855a",
+    "proof/godot_suite_round7.log": "b5c8a08e6ee63fb103bcc8aff267e787cd49d2f8ce58da1742d581c72a05ef28",
+    "proof/native_pose_check_round7.log": "0fe594c1f2e6e63e32b0402c729529d0881553b8bb6abf40e18c6a5a95f7fed7",
+    "proof/validation_round7.json": "b7bef6aeac117184b906f1a67660495cfd0d0d0f448020049367debfeafda5f6",
+    "proof/cpu_motion_gates.json": "529d9ded018691c00b4b3b104009c8a4059bd57efa26a4c2bc6a486841845ad2",
+    "proof/cpu_motion_gates_round7.log": "d27a38eed3bb2592f6b9c4c42363ade3cc6829d63fd1570d5d1c4626335cc4f6"
+  },
+  "implementation_choices": {
+    "shadow_depth": "Behind visible leg paint, above hidden replacement fill to preserve exact rest",
+    "trousers_floor": "Hidden legs and outline use sampled L*>=15 trousers",
+    "shin_reference": "Same-view near-thigh trousers, L* shift 0; supersedes mixed boot-cuff/shadow reference",
+    "rear_far_midtone": "Original reference IQR has 0 hidden pixels; effective IQR uses non-shadow tail with 128 pixels, original nominal median retained"
+  },
+  "inspected_diagnostics": [
+    "proof/cpu_round7_keyframes.png",
+    "proof/round7_occlusion_shadow_masks.png"
+  ]
+}

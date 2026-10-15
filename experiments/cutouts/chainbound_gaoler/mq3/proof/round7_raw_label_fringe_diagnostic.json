@@ -1,0 +1,295 @@
+{
+  "front": {
+    "thigh_far": {
+      "shadow_pixels": 4,
+      "components": [
+        [
+          2,
+          [
+            111,
+            164,
+            112,
+            166
+          ]
+        ],
+        [
+          2,
+          [
+            110,
+            167,
+            111,
+            169
+          ]
+        ]
+      ],
+      "remaining_visible_pixels": 10,
+      "remaining_median_l": 37.830318597236214
+    },
+    "thigh_near": {
+      "shadow_pixels": 131,
+      "components": [
+        [
+          80,
+          [
+            146,
+            150,
+            159,
+            169
+          ]
+        ],
+        [
+          27,
+          [
+            163,
+            177,
+            169,
+            185
+          ]
+        ],
+        [
+          20,
+          [
+            159,
+            193,
+            167,
+            197
+          ]
+        ],
+        [
+          4,
+          [
+            168,
+            193,
+            170,
+            196
+          ]
+        ]
+      ],
+      "remaining_visible_pixels": 352,
+      "remaining_median_l": 19.69530240893866
+    },
+    "shin_far": {
+      "shadow_pixels": 107,
+      "components": [
+        [
+          86,
+          [
+            122,
+            195,
+            138,
+            208
+          ]
+        ],
+        [
+          18,
+          [
+            114,
+            195,
+            120,
+            204
+          ]
+        ],
+        [
+          1,
+          [
+            111,
+            166,
+            112,
+            167
+          ]
+        ],
+        [
+          1,
+          [
+            145,
+            193,
+            146,
+            194
+          ]
+        ],
+        [
+          1,
+          [
+            121,
+            204,
+            122,
+            205
+          ]
+        ]
+      ],
+      "remaining_visible_pixels": 448,
+      "remaining_median_l": 4.967387270150784
+    },
+    "shin_near": {
+      "shadow_pixels": 320,
+      "components": [
+        [
+          204,
+          [
+            180,
+            218,
+            194,
+            241
+          ]
+        ],
+        [
+          63,
+          [
+            165,
+            206,
+            182,
+            215
+          ]
+        ],
+        [
+          47,
+          [
+            160,
+            195,
+            171,
+            202
+          ]
+        ],
+        [
+          6,
+          [
+            184,
+            208,
+            188,
+            212
+          ]
+        ]
+      ],
+      "remaining_visible_pixels": 589,
+      "remaining_median_l": 10.925539028255834
+    }
+  },
+  "rear": {
+    "thigh_far": {
+      "shadow_pixels": 7,
+      "components": [
+        [
+          7,
+          [
+            106,
+            160,
+            108,
+            165
+          ]
+        ]
+      ],
+      "remaining_visible_pixels": 0,
+      "remaining_median_l": null
+    },
+    "thigh_near": {
+      "shadow_pixels": 289,
+      "components": [
+        [
+          89,
+          [
+            75,
+            157,
+            85,
+            177
+          ]
+        ],
+        [
+          77,
+          [
+            94,
+            158,
+            107,
+            170
+          ]
+        ],
+        [
+          55,
+          [
+            92,
+            172,
+            106,
+            181
+          ]
+        ],
+        [
+          46,
+          [
+            78,
+            145,
+            85,
+            158
+          ]
+        ],
+        [
+          22,
+          [
+            75,
+            135,
+            78,
+            147
+          ]
+        ]
+      ],
+      "remaining_visible_pixels": 470,
+      "remaining_median_l": 18.119051891388843
+    },
+    "shin_far": {
+      "shadow_pixels": 0,
+      "components": [],
+      "remaining_visible_pixels": 792,
+      "remaining_median_l": 6.532290546589319
+    },
+    "shin_near": {
+      "shadow_pixels": 286,
+      "components": [
+        [
+          267,
+          [
+            90,
+            174,
+            109,
+            210
+          ]
+        ],
+        [
+          11,
+          [
+            75,
+            176,
+            79,
+            181
+          ]
+        ],
+        [
+          6,
+          [
+            73,
+            173,
+            76,
+            177
+          ]
+        ],
+        [
+          1,
+          [
+            96,
+            180,
+            97,
+            181
+          ]
+        ],
+        [
+          1,
+          [
+            95,
+            185,
+            96,
+            186
+          ]
+        ]
+      ],
+      "remaining_visible_pixels": 1169,
+      "remaining_median_l": 15.21386688688898
+    }
+  }
+}

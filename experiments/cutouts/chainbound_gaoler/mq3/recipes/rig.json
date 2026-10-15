@@ -285,7 +285,8 @@
     "hand_far": "dark brown leather glove",
     "thigh_far": "dark cloth trouser leg",
     "shin_far": "dark lower leg and boot cuff",
-    "foot_far": "dull dark brown boot"
+    "foot_far": "dull dark brown boot",
+    "under_shadow": "occlusion shadow"
   },
   "ownership_cleanup": {
     "core_distance_px": 4,
@@ -5536,5 +5537,26 @@
     ],
     "pin_hit_envelope": "production cast",
     "basis": "Director round6; same production timing, inherited by head and both arms; pelvis unchanged"
+  },
+  "occlusion_shadow": {
+    "parts": [
+      "thigh_far",
+      "thigh_near",
+      "shin_far",
+      "shin_near"
+    ],
+    "max_l_exclusive": 15,
+    "boundary_distance_px": 6,
+    "max_new_dark_component_pixels": 12,
+    "layer": "pelvis-attached under_shadow behind visible leg paint and above hidden replacement fills",
+    "boundary_labels": "Color-decoded visible labels intersect their supplied solo silhouettes; opposite thigh,shin,foot,pelvis and tabard boundary",
+    "fill_policy": "Round7 new-region gate takes precedence: hidden leg palette and outlines use sampled same-view trousers at L*>=15; sparse target still near-thigh minus6. Shins use same-view near-thigh trousers instead of their mixed boot-cuff/shadow visible-value target; original medians remain reported.",
+    "minimum_hidden_l": 15,
+    "replacement_trousers_reference_parts": [
+      "shin_far",
+      "shin_near"
+    ],
+    "trousers_reference_part": "thigh_near",
+    "midtone_policy": "When the reference IQR is wholly below L*15, report that original range/count and assess midtones against the same reference pixels with L*>=15; keep the nominal sparse median target unchanged."
   }
 }

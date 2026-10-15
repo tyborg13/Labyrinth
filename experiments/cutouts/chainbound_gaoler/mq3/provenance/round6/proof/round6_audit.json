@@ -1,0 +1,182 @@
+{
+  "rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "394e5284cdf9dfe72e85508b269c2562612401e7fcb19ee99c27ac1facef37bc"
+    },
+    "rear": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "ebe6bcc1c4d77b8e4fa5a89e57f5118725414f75715578d9307dbb7408aac4ae"
+    },
+    "ok": true
+  },
+  "runtime_images": 141,
+  "magenta_pixels": 0,
+  "hidden_pixels": 34395,
+  "filled_requests": 39,
+  "approved_source_files_unchanged": 113,
+  "archived_v05_files": 243,
+  "changed_bones_from_v05": {
+    "rear/strike": [
+      "chain",
+      "chain_b",
+      "chain_c",
+      "fore_fist",
+      "fore_hook",
+      "hand_fist",
+      "hand_hook",
+      "head",
+      "hook",
+      "torso",
+      "upper_fist",
+      "upper_hook"
+    ],
+    "rear/manacle_pin": [
+      "chain",
+      "chain_b",
+      "chain_c",
+      "fore_fist",
+      "fore_hook",
+      "hand_fist",
+      "hand_hook",
+      "head",
+      "hook",
+      "torso",
+      "upper_fist",
+      "upper_hook"
+    ]
+  },
+  "inspected_cpu_frames": [
+    {
+      "pose": [
+        "front",
+        "walk",
+        0
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "front",
+        "walk",
+        7
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "front",
+        "walk",
+        47
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "front",
+        "strike",
+        2
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "walk",
+        28
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "strike",
+        2
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "strike",
+        3
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "manacle_pin",
+        12
+      ],
+      "non_main_components": []
+    }
+  ],
+  "native_v06": "pending director windowed capture; no windowed command attempted",
+  "motion_gate_report_sha256": "048921355d81ea07f940952b5befd4c3077f86b4117b724efdf6d34b4ffb3f20",
+  "runtime_scoped_colour_counts": [
+    {
+      "view": "front",
+      "counts": {
+        "pelvis": 0,
+        "thigh_far": 0,
+        "thigh_near": 0,
+        "shin_far": 0,
+        "shin_near": 0,
+        "coat_far": 0,
+        "coat_near": 0
+      }
+    },
+    {
+      "view": "rear",
+      "counts": {
+        "pelvis": 0,
+        "thigh_far": 0,
+        "thigh_near": 0
+      }
+    }
+  ],
+  "runtime_scoped_colour_pixels": 0,
+  "visual_inspection": "CPU 8-frame sheet and rear far-thigh fill inspected; no detached selected-pose components; native v06 still pending",
+  "front_matrix_max_difference_from_round5": 0.0,
+  "pelvis_matrix_max_difference_from_round5": 0.0,
+  "final_tests": {
+    "focused": {
+      "tests": 32,
+      "seconds": 16.566,
+      "exit_code": 0
+    },
+    "art_gate": {
+      "tests": 49,
+      "seconds": 15.061,
+      "exit_code": 0
+    },
+    "python_full": {
+      "tests": 429,
+      "skipped": 61,
+      "seconds": 309.165,
+      "exit_code": 0
+    },
+    "godot_full": {
+      "result": "PASS",
+      "seconds": 784.57,
+      "budget_seconds": 900,
+      "exit_code": 0
+    },
+    "native_motion_parser": {
+      "exit_code": 0
+    }
+  },
+  "head": "9c336d777e8409e07527e8709d59874f9043e91f",
+  "committed": false,
+  "proof_log_sha256": {
+    "focused_round6.log": "ffbb01aed10f040e827dec94b9d5b99c796caba406e98d43653d19f28a8657ef",
+    "art_gate_round6.log": "79382bfa88b6055888d48152fab870ece3b3a91f0ae2325469a87879c4b9feb6",
+    "python_suite_round6.log": "252c9c1913514d555a7c02e73efcc577402523af72c22167f601f7a36b0d09e2",
+    "godot_suite_round6.log": "65e04530b1b406af0fb7ec25450f460ab943f5dfa47bfe57f9b633998304379a",
+    "cpu_motion_gates_round6.log": "1b37489ee6237e5c23bd77fe9dafe153307751e278b4f2bfb5aea7d5cfe0f622",
+    "native_motion_parser_round6.log": "443119f66d10a04af697b11edc029134283bbb2edac9449caab4cb3ed15d504c"
+  }
+}

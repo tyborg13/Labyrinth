@@ -1,9 +1,9 @@
 Running task-local command:
   task: rr-02
-  run: rr-02-1792092522953324000-26629
-  HOME: /private/tmp/labyrinth-godot-home/rr-02-1792092522953324000-26629
+  run: rr-02-1792095446533549000-40583
+  HOME: /private/tmp/labyrinth-godot-home/rr-02-1792095446533549000-40583
   Steam: disabled
-  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-02-1792092522953324000-26629/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02 --script /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/probes/motion_samples.gd -- --case /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/cutout.json --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/proof/motion_samples.json
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-02-1792095446533549000-40583/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02 --script /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/probes/motion_samples.gd -- --case /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/cutout.json --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/proof/motion_samples.json
   timeout: 300s
   stream: enabled
 Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org

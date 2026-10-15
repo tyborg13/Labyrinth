@@ -234,7 +234,25 @@ order. Cleaned hidden masks and material masks are saved separately. Fill
 recomputes this source-derived cleanup and rejects mismatching masks or reports.
 Rest RGBA equality remains mandatory. When rebuilding an existing case, preserve
 the preceding immutable requests and their provenance before replacing derived
-outputs; the gaoler archives round3, round4 and round5 under `provenance/`.
+outputs; the gaoler archives preceding rounds under `provenance/`.
+
+Round7's explicit `occlusion_shadow` recipe runs after material/component cleanup.
+Within each owned thigh/shin, source pixels with L* < 15 and Euclidean distance
+at most 6px from the opposite leg's thigh/shin/foot label, the pelvis label, or
+the tabard label boundary move to logical owner `under_shadow`. Each decoded
+reference label is intersected with its own registered solo: antialiased label
+fringes must not create false distant limbs. The source RGBA is unchanged, and
+the vacated pixels become hidden trouser support even outside the original solo.
+The recipe records masks/counts and fill independently rederives them. The added
+logical owner has no hidden-paint request; visible-dark rest masks for all four
+leg parts exclude transferred pixels and are saved for motion provenance.
+
+The pelvis owns the shadow nodes. To preserve exact rest identity, their depth
+is below both legs' visible paint but above hidden replacement underlays. This
+is an explicit exception to retaining original visible draw depth: placing opaque
+replacement fill above these shadows would erase the approved rest shadows.
+Hidden underlays retain their relative order below the shadow. No source pixels,
+leg bones, pose curves or pelvis motion change.
 
 The gaoler's three-link chain uses production `chain_b`/`chain_c` fractions along
 `chain_a` to `hook`, mapped onto the registered maquette chain axis. Existing
@@ -298,7 +316,8 @@ guesses a new material. The one-pixel outline is `(20,16,21)` on filled pixels
 touching transparency in the union of visible and hidden masks. The gate's
 four-connected edge definition is reused without deleting alpha or darkening
 visible pixels. All visible paint, part alpha, offsets, bones and motion remain
-unchanged.
+unchanged. An explicit `occlusion_shadow.minimum_hidden_l` overrides the default
+outline for the affected leg parts as described below.
 
 The round5 `hidden_value_distribution` recipe supersedes the prior trousers-core
 color gate for pelvis, thighs and shins. Each region uses its own same-view visible
@@ -319,6 +338,22 @@ shift and reason. The independent gate compares against the nominal shifted
 distribution. This resolves both far-thigh reference decisions; other explicit
 cross-view fallbacks remain unchanged.
 
+Round7 fills thigh/shin support with trousers at L* >= 15, including its outline,
+to prevent newly invented near-black leg regions. Eligible source colours and
+k-means centroids must meet that floor; the outline uses the darkest eligible
+centroid. Sparse far thighs keep the same-view near-thigh reference and -6 L*
+shift. Both shins explicitly use the same-view near-thigh trousers with zero
+shift, replacing the earlier mixed boot-cuff/shadow reference. Near thighs and
+pelvis keep their own reference. Visible source paint is never recoloured.
+
+The nominal reference median and maximum difference of 8 remain unchanged. If
+the entire reference interquartile range is below the new floor, the reported
+effective mid-tone range uses the same reference's L* >= 15 tail instead. The
+original range and its actual hidden-pixel count remain in the report. This is
+an explicit change to the earlier mid-tone condition, needed for the rear far
+thigh: its original range contains zero hidden pixels. The recipe records the
+substitution; the independent motion gate recomputes both ranges from source.
+
 `recipes/hidden_fill.json` records the method and parameters;
 `hidden_fills/index.json` records each request's status, palette, counts, donor
 parts, mask/pixel/source/output digests and solver metrics. Native fill previews
@@ -335,13 +370,25 @@ the case's headless motion sampler. Native proof still requires `render` and
 `verify-render`; the case provides an additional 1920×1080, 100% scale rest
 identity probe and a collector for eight native frames per clip. See its
 README for exact commands. `probes/native_motion.gd` additionally captures RGBA,
-physical paint-node IDs, the complete fist-arm mask, and the torso/head/coat mask
-at every frame, plus rest ID calibration. `motion_gates.py --capture-native`
+physical paint-node IDs, the complete fist-arm mask, the torso/head/coat mask,
+and transformed visible-rest-dark provenance IDs at every frame, plus two rest
+calibrations. Rest uses `apply_pose("rest", 0.0)`; `show_frame` is reserved for
+configured animation clips. `--check-poses` exercises this same pose and mask
+setup headlessly across all 460 poses and five rigs, including rest after strike
+and bone/layer resets. This catches probe runtime failures without GPU readback.
+The five-surface native capture timeout is 300 seconds.
+`motion_gates.py --capture-native`
 launches it through the visual runner and binds all output hashes. `--native`
 requires every frame, current source hashes, exact rest ownership calibration,
 and RGBA equality with the primary verified reel before evaluating the scoped
-colour, detached-component, arm-containment and magenta gates. The native collector
-requires these gates; `--cpu` is a separate diagnostic and cannot satisfy them.
+colour, detached-component, new-leg-dark, arm-containment and magenta gates.
+The new-leg-dark gate removes pixels originating from the same logical part's
+visible near-black rest paint, then rejects remaining 8-connected L* < 15 regions
+larger than 12px inside each thigh/shin. Its native provenance surface follows
+the same physical nodes and is calibrated against source-derived masks at rest.
+The native collector runs these gates before writing accepted keyframes or
+verification, and prints `MAQUETTE_PROOF: PASS` only after `MOTION GATES: PASS`.
+`--cpu` is a separate diagnostic and cannot satisfy native proof.
 The colour report includes explicit zero entries per scoped part and frame, plus
 per-part/per-clip totals and maxima. No production inspection fixture is appropriate
 until phase two integrates the case into gameplay.

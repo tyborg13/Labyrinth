@@ -150,18 +150,19 @@ def native(root, output):
         if actual.size != expected.size or actual.tobytes() != expected.tobytes():
             raise CutoutError(f"Native {view} rest does not equal the approved painting")
     manifest = read_json(output / "render_manifest.json")
+    from motion_gates import native_gates
+    motion = native_gates(root, output)
+    if not motion["ok"]:
+        raise CutoutError("Native motion gates failed; inspect " + str(output / "motion_gates.json"))
     for clip in manifest["clips"]:
         count = clip["cycle_frames"]
         indices = np.rint(np.linspace(0, count - 1, PROOF_DEFAULTS["keyframes_per_clip"])).astype(int)
         items = [(f"{clip['facing']}/{clip['clip']} frame {i}", Image.open(output / clip["folder"] / f"pose_{i:04d}.png").convert("RGBA")) for i in indices]
         contact_sheet(items, root / "proof/native_keyframes" / f"{clip['folder']}_8frames.png", columns=4)
     write_json(root / "proof/native_keyframes/verification.json", {"ok": True, "capture": str(output), "render_verification": result,
-               "rest_identity": "both approved RGBA paintings equal native rest", "proof_manifest_sha256": digest(output / "proof_sha256.json")})
-    from motion_gates import native_gates
-    motion = native_gates(root, output)
-    if not motion["ok"]:
-        raise CutoutError("Native motion gates failed; inspect " + str(output / "motion_gates.json"))
-    print(f"MAQUETTE_NATIVE_PROOF: PASS ({len(manifest['clips'])} eight-frame sheets; native rest RGBA identical)")
+               "rest_identity": "both approved RGBA paintings equal native rest", "proof_manifest_sha256": digest(output / "proof_sha256.json"),
+               "native_motion_gates": "PASS"})
+    print(f"MAQUETTE_PROOF: PASS ({len(manifest['clips'])} native eight-frame sheets; native rest RGBA identical; motion gates passed)")
 
 
 def main():

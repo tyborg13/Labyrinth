@@ -4,6 +4,7 @@ import argparse
 import json
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -19,12 +20,32 @@ from cutout_pipeline.validation import validate
 from maquette_cutout import (FILL_DEFAULTS, MAGENTA, Registration, build, camera_depths, decode_labels, depth_order,
                             fill_donors, fill_hidden, fill_pixels, part_palette, same_material_donors,
                             hidden_region, material_neighbours, nearest_labels, projected,
-                            registration, request_image, label_core, clean_ownership, components8, material_reference, array_digest)
+                            registration, request_image, label_core, clean_ownership, components8, material_reference, array_digest,
+                            occlusion_shadow_ownership)
 
 CASE = PROJECT / "experiments/cutouts/chainbound_gaoler/mq3"
 
 
 class HiddenFillTests(unittest.TestCase):
+    def test_new_shadow_floor_preserves_rest_and_discloses_unusable_midtones(self):
+        paint = np.zeros((12, 12, 4), dtype=np.uint8)
+        visible = np.zeros((12, 12), dtype=bool)
+        visible[:3, :4] = True
+        paint[visible] = [30, 30, 30, 255]
+        paint[2, 1:4] = [42, 42, 42, 255]
+        hidden = np.zeros_like(visible)
+        hidden[3:9, :4] = True
+        result, metrics = fill_pixels(paint, visible, hidden, paint[..., :3], visible, "diffusion",
+            value_pixels=paint[visible, :3], minimum_hidden_l=15)
+        np.testing.assert_array_equal(result[visible], paint[visible])
+        self.assertGreaterEqual(float(to_lab(result[hidden, :3])[:, 0].min()), 15)
+        values = metrics["diffusion"]["value_distribution"]
+        self.assertLess(values["visible_midtones_l"][1], 15)
+        self.assertEqual(values["hidden_original_midtones_pixels"], 0)
+        self.assertGreater(values["hidden_midtones_pixels"], 0)
+        self.assertGreaterEqual(values["effective_midtones_l"][0], 15)
+        self.assertLessEqual(values["median_difference_l"], 8)
+
     def test_diffusion_is_repeatable_palette_limited_and_preserves_visible_rgba(self):
         paint = np.zeros((16, 16, 4), dtype=np.uint8)
         visible = np.zeros((16, 16), dtype=bool)
@@ -191,6 +212,30 @@ class HiddenFillTests(unittest.TestCase):
 
 
 class OwnershipCleanupTests(unittest.TestCase):
+    def test_occlusion_shadow_uses_six_pixel_geometry_and_preserves_paint(self):
+        names = ["thigh_far", "thigh_near", "shin_near", "foot_near", "pelvis", "tabard"]
+        owners = np.full((16, 16), -1, dtype=np.int16)
+        for x, y in [(4, 8), (3, 8), (0, 8), (4, 9)]:
+            owners[y, x] = 0
+        paint = np.zeros((16, 16, 4), dtype=np.uint8)
+        paint[owners == 0] = [10, 10, 10, 255]
+        paint[9, 4] = [90, 80, 70, 255]
+        original = paint.copy()
+        labels = np.full_like(owners, -1)
+        labels[8, 10] = labels[8, 1] = 1
+        solos = {name: np.zeros_like(owners, dtype=bool) for name in names}
+        solos["thigh_near"][8, 10] = True
+        result, hidden, report = occlusion_shadow_ownership(owners, [np.zeros_like(owners, dtype=bool) for _ in names],
+            paint, labels, names, solos, {"parts": ["thigh_far"], "max_l_exclusive": 15, "boundary_distance_px": 6})
+        self.assertEqual(result[8, 4], len(names))
+        self.assertEqual(result[8, 3], 0)  # Seven pixels from the real label.
+        self.assertEqual(result[8, 0], 0)  # Invalid colour fringe is not a boundary.
+        self.assertEqual(result[9, 4], 0)  # Bright source paint is never transferred.
+        self.assertEqual(int(hidden[0].sum()), 1)
+        self.assertTrue(hidden[0][8, 4])
+        self.assertEqual(report["discarded_label_fringe_pixels"]["thigh_near"], 1)
+        np.testing.assert_array_equal(paint, original)
+
     def test_core_uses_euclidean_distance_and_excludes_border(self):
         mask = np.ones((13, 13), dtype=bool)
         core = label_core(mask, 4)
@@ -502,6 +547,9 @@ class GaolerCaseTests(unittest.TestCase):
             trousers, material = material_reference(CASE, spec, palette, view, recipe["ownership_cleanup"])
             solos = {n: np.array(Image.open(CASE / f"registered/{view}_solo_{n}.png"))[..., 3] > 128 for n in names}
             expected, hidden, report = clean_ownership(original, paint, names, solos, view, material, recipe["ownership_cleanup"])
+            labels = decode_labels(Image.open(CASE / f"registered/{view}_parts.png"), palette, names, camera_depths(spec, view))
+            expected, hidden, shadow_report = occlusion_shadow_ownership(expected, hidden, paint, labels, names, solos, recipe["occlusion_shadow"])
+            self.assertEqual(shadow_report, read_json(CASE / f"proof/{view}_occlusion_shadow.json"))
             np.testing.assert_array_equal(expected, owners)
             np.testing.assert_array_equal(trousers, np.load(CASE / f"registered/{view}_trousers.npy"))
             self.assertEqual(report, read_json(CASE / f"proof/{view}_ownership_cleanup.json"))
@@ -522,23 +570,30 @@ class GaolerCaseTests(unittest.TestCase):
                 x, y = part["offset"]
                 original_crop = original[y:y+image.shape[0], x:x+image.shape[1]]
                 self.assertTrue(np.all(original_crop[image[..., 3] > 0] == names.index(part["rest_depth_source"])))
-                self.assertEqual(part["z_index"], order.index(part["rest_depth_source"]))
+                if part.get("occlusion_shadow"):
+                    self.assertEqual(part["bone"], "pelvis")
+                    self.assertEqual(part["z_index"], -1)
+                else:
+                    self.assertEqual(part["z_index"], order.index(part["rest_depth_source"]))
 
     def test_trouser_fill_gate_and_rear_arm_draw_order_in_all_samples(self):
-        # Round5 supersedes the round4 global trousers-color target with each
-        # visible part's measured value distribution; no rest pixel may change.
+        # Round7 fills newly exposed leg support with trousers, using the sparse
+        # near-thigh shadow reference where needed; visible rest RGBA stays exact.
         manifest = read_json(CASE / "hidden_fills/index.json")
         for request in manifest["requests"]:
             if request["part"] in ["pelvis", "thigh_far", "thigh_near", "shin_far", "shin_near"]:
                 sparse = request["own_visible_pixels"] < 40
-                self.assertEqual(request["donor_parts"], ["thigh_near" if sparse else request["part"]])
+                material = request["part"] in ["shin_far", "shin_near"]
+                self.assertEqual(request["donor_parts"], ["thigh_near" if sparse or material else request["part"]])
                 self.assertNotIn("cross_view_donor", request)
-                if sparse:
+                if sparse or material:
                     reference = request["value_reference_substitution"]
                     self.assertEqual(reference["view"], request["view"])
                     self.assertEqual(reference["part"], "thigh_near")
-                    self.assertEqual(reference["l_shift"], -6)
-                    self.assertAlmostEqual(reference["source_median_l"] - 6, reference["target_median_l"])
+                    shift = -6 if sparse else 0
+                    self.assertEqual(reference["l_shift"], shift)
+                    self.assertEqual(reference["rule"], "sparse" if sparse else "trousers_material")
+                    self.assertAlmostEqual(reference["source_median_l"] + shift, reference["target_median_l"])
                     paint = np.array(Image.open(CASE / f"source/{request['view']}/processed.png"))
                     owners = np.load(CASE / f"registered/{request['view']}_owners.npy")
                     names = list(read_json(CASE / "source/spec.json")["labels"])
@@ -553,6 +608,8 @@ class GaolerCaseTests(unittest.TestCase):
                 mask = np.load(CASE / f"registered/{request['view']}_hidden_{request['part']}.npy")
                 actual = float(np.median(to_lab(pixels[mask, :3])[:, 0]))
                 self.assertAlmostEqual(actual, value["hidden_median_l"])
+                if request["part"] != "pelvis":
+                    self.assertGreaterEqual(float(to_lab(pixels[mask, :3])[:, 0].min()), 15)
         layouts = {v: read_json(CASE / f"layouts/{v}.json") for v in ["front", "rear"]}
         samples = read_json(CASE / "proof/motion_samples.json")["samples"]
         self.assertEqual(len(samples), 458)
@@ -663,6 +720,74 @@ class GaolerCaseTests(unittest.TestCase):
         pixels[11, 11] = pixels[12, 12]
         owners[11, 11] = 0
         self.assertEqual(gates.frame_counts(pixels, owners, [{"name": "metal"}], arm, body, "rear", "strike", to_lab(np.array([84, 28, 24])))["detached_small_pixels"], 2)
+
+    def test_new_dark_region_gate_requires_same_part_rest_provenance(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("rr02_dark_gate", CASE / "probes/motion_gates.py")
+        gates = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(gates)
+        pixels = np.zeros((16, 16, 4), dtype=np.uint8)
+        pixels[3:7, 3:7] = [5, 5, 5, 255]
+        owners = np.full((16, 16), -1)
+        owners[pixels[..., 3] > 0] = 0
+        parts = [{"name": "thigh_near"}, {"name": "thigh_far"}]
+        empty = np.zeros((16, 16), dtype=bool)
+        baseline = np.full((16, 16), -1)
+        def count():
+            return gates.frame_counts(pixels, owners, parts, empty, empty, "front", "walk", np.array([50, 50, 50]), baseline)["new_leg_dark_pixels"]
+        self.assertEqual(count(), 16)
+        baseline[3:7, 3:7] = 1
+        self.assertEqual(count(), 16)  # Darkness on the other leg does not exempt it.
+        baseline[3:7, 3:7] = 0
+        self.assertEqual(count(), 0)
+        baseline[:] = -1
+        pixels[6, 3:7] = 0
+        self.assertEqual(count(), 0)  # Exactly 12 new dark pixels is allowed.
+        pixels[6, 7] = [5, 5, 5, 255]
+        owners[6, 7] = 0
+        self.assertEqual(count(), 13)  # Diagonal connection counts (8-connected).
+
+    @unittest.skipUnless(shutil.which("godot"), "Godot unavailable for native-probe pose regression")
+    def test_native_capture_pose_path_includes_rest_headlessly(self):
+        command = [sys.executable, str(PROJECT / "tools/godot_task_runner.py"), "--task-id", "rr-02", "--stream", "--",
+            "godot", "--headless", "--path", str(PROJECT), "--script", str(CASE / "probes/native_motion.gd"),
+            "--", "--case", str(CASE / "cutout.json"), "--check-poses"]
+        result = subprocess.run(command, cwd=PROJECT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=150)
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertNotIn("SCRIPT ERROR:", result.stdout)
+        self.assertIn("MAQUETTE_NATIVE_POSES: PASS (460 poses; five surfaces; GPU readback not exercised)", result.stdout)
+
+    def test_native_collector_publishes_success_only_after_motion_gates(self):
+        import contextlib
+        import importlib.util
+        import io
+        from types import SimpleNamespace
+        spec = importlib.util.spec_from_file_location("rr02_native_collector", CASE / "probes/proof.py")
+        collector = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(collector)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "case"
+            output = Path(directory) / "capture"
+            (root / "source/front").mkdir(parents=True)
+            (output / "front_walk").mkdir(parents=True)
+            frame = Image.new("RGBA", (4, 4), (50, 40, 30, 255))
+            for path in [root / "source/front/processed.png", output / "front_rest.png", output / "front_walk/pose_0000.png"]:
+                frame.save(path)
+            write_json(root / "cutout.json", {"layouts": {"front": "unused"}})
+            write_json(output / "render_manifest.json", {"clips": [{"cycle_frames": 1, "facing": "front", "clip": "walk", "folder": "front_walk"}]})
+            write_json(output / "proof_sha256.json", {})
+            verification = root / "proof/native_keyframes/verification.json"
+            with patch.object(collector, "verify_render", return_value={"ok": True}), patch.object(collector, "contact_sheet") as sheets:
+                with patch.dict(sys.modules, {"motion_gates": SimpleNamespace(native_gates=lambda *args: {"ok": False})}):
+                    with self.assertRaisesRegex(CutoutError, "Native motion gates failed"):
+                        collector.native(root, output)
+                sheets.assert_not_called()
+                self.assertFalse(verification.exists())
+                stdout = io.StringIO()
+                with patch.dict(sys.modules, {"motion_gates": SimpleNamespace(native_gates=lambda *args: {"ok": True})}), contextlib.redirect_stdout(stdout):
+                    collector.native(root, output)
+                self.assertIn("MAQUETTE_PROOF: PASS", stdout.getvalue())
+                self.assertEqual(read_json(verification)["native_motion_gates"], "PASS")
 
     def test_chain_reel_has_three_painted_links_at_production_fractions(self):
         for view in ["front", "rear"]:
