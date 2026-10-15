@@ -25,12 +25,14 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   keyword-tooltip line on 9 cards, TopBar overlap at 1.25x, wrapped owned tray, opt-in callers, one click guard, skills
   read skills.json), art-06 r2 (peer CHANGES: 5 surviving mutants, record-steps INPUT CHANGED, resolved paths, job-link
   scope). Image: img-mq-bloomer-front-r3.
-- Peer review running: sfx-04 6eca206c0 (a413aa86cb12b885c; also: 115k-line sync_audit.json should shrink).
+- sfx-04 r4 running (peer CHANGES on 6eca206c0: combat speed 1.5x/2x breaks alignment, shop.sell_02 malformed, restore
+  gain over peak caps, bank test not in suite; director rule: align to the earliest local max within 2 dB, cut ≥20 dB
+  below; compact audit/provenance).
 - Wave 1b art (judge adb5256b83138e82d):
-  - Lightning wisp: mq1_front FAIL (comic yellow zigzag lightning, 15.9% bright) → maquette r3 + lightning-only edit →
-    `jobs/lightning_wisp/mq1_front_v2` (bright 8.3%, value .253) at the judge.
+  - Lightning wisp: front v2 judge PASS (`jobs/lightning_wisp/mq1_front_v2`; cloud texture softest approved, note for
+    owner). Rear generating (img-mq-wisp-rear-r1, prompt_rear_r1, refs = maquette r3 rear + approved front).
   - Shale bloomer: mq2_front FAIL (r7 maquette head-on/symmetric 0.954, arm-like stubs, low deep shadow, honeycomb lost)
-    → maquette r8 (lean, tilted corolla, varied thorn tendrils, splayed roots) + prompt r3 → paint-over running.
+    → maquette r8 + prompt r3 → `jobs/shale_bloomer/mq3_front` (symmetry 0.741) at the judge.
   - After art-06 merges: run `record-steps` on the new raw_steps kits (bloomer mq2_front, lancer v3 are migrated by art-06).
 - Lancer pair: judge PASS r2; director tone r2 restored the frost read (front/rear `mq1_front_v3`/`mq1_rear_v3`,
   sheet `sheet_pair_mq1_v3.png`, 50e1b836c). Shown to owner; awaiting verdict before rigging.
