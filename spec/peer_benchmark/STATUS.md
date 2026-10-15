@@ -22,7 +22,9 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - Merged today: sfx-03, rr-01, art-04 (shrike), por-01, ux-02, art-05, ui-02, qa-04, fix-03. Playtest 7 = 7901c37f0.
 - Running fix rounds: sfx-04 r2 (A/V sync), ux-03 r3 (glossary tooltips), vfx-01 r1 (pixel FX), anim-01 r3 (static idle),
   rr-02 r3 (gaoler cutout: cross-view donors for 3 hidden regions). New: art-06 (gate pixel digests, follow-ups).
-- chr-02 (Chronicle tiles) committed 526e3c6cc, awaiting peer re-review (a5cd14b257a1dd01f) → merge.
+- chr-02 (Chronicle tiles) 526e3c6cc: re-review CHANGES REQUESTED (normalize rebuilt card deltas: 85 ms with relic-heavy
+  history) → fix round 4 queued (feedback/chr-02_feedback_4.md: keep stored deltas, perf test); then reviewer signoff → merge.
+  Known layout limit: 14+ relics or a wrapped subtitle overflows the 718 px viewport (scroll still works).
 - Lancer pair: judge PASS r2; director tone r2 restored the frost read (front/rear `mq1_front_v3`/`mq1_rear_v3`,
   sheet `sheet_pair_mq1_v3.png`, 50e1b836c). Shown to owner; awaiting verdict before rigging.
   These two kits use the art-05 field names: re-record them with art-06's migration when art-06 merges.
