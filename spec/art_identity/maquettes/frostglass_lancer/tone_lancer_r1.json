@@ -1,0 +1,112 @@
+[
+ {
+  "name": "cape + tabard: deep desaturated slate-teal",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.04,
+  "hue_deg": [
+   175,
+   215
+  ],
+  "lab_scale": [
+   0.85,
+   0.5,
+   0.5
+  ],
+  "box": [
+   397,
+   590,
+   613,
+   1040
+  ],
+  "seed": null
+ },
+ {
+  "name": "near cape: deep desaturated slate-teal",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.04,
+  "hue_deg": [
+   175,
+   215
+  ],
+  "lab_scale": [
+   0.85,
+   0.5,
+   0.5
+  ],
+  "box": [
+   721,
+   355,
+   1063,
+   1217
+  ],
+  "seed": null
+ },
+ {
+  "name": "armour (cool/violet greys): blackened steel",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.0,
+  "hue_deg": [
+   215,
+   360
+  ],
+  "lab_scale": [
+   0.7,
+   0.5,
+   0.5
+  ],
+  "box": [
+   280,
+   90,
+   1059,
+   1217
+  ],
+  "seed": null
+ },
+ {
+  "name": "armour (warm greys) above the belt: blackened steel",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.0,
+  "hue_deg": [
+   0,
+   60
+  ],
+  "lab_scale": [
+   0.7,
+   0.7,
+   0.7
+  ],
+  "box": [
+   338,
+   90,
+   965,
+   560
+  ],
+  "seed": null
+ },
+ {
+  "name": "armour (warm greys) legs below the strap: blackened steel",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.0,
+  "hue_deg": [
+   0,
+   60
+  ],
+  "lab_scale": [
+   0.7,
+   0.7,
+   0.7
+  ],
+  "box": [
+   451,
+   727,
+   867,
+   1217
+  ],
+  "seed": null
+ }
+]
