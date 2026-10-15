@@ -161,8 +161,7 @@
     },
     "scripts/labyrinth_map_view.gd": {
       "R2": 61,
-      "R3": 1,
-      "R5": 3
+      "R3": 1
     },
     "scripts/main_menu.gd": {
       "R1": 2,
@@ -257,7 +256,6 @@
       "R5": 2
     },
     "scripts/skill_tree_view.gd": {
-      "R1": 1,
       "R2": 48,
       "R3": 2
     },
