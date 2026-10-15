@@ -63,3 +63,10 @@
 ## 2026-10-15 — Fatigue amplification (owner)
 - Q: "Fatigue damage is currently amplified by Expose, Chilled and Frozen (combat_engine.gd:7773). Is that intended?"
   Owner: "No, definitely not. Good catch" → fix-03 (Fatigue never amplified; other non-attack sources audited, unchanged).
+
+## 2026-10-15 — static enemy idle (owner)
+- "The animations are doing a weird rippling thing I rejected from codex a few times now. They need their various cutout
+  parts to bob or sway independently like you'd see from a typical idle animation."
+- "the bird is just kind of bouncing up and down but not in a realistic way as if it were actually jumping."
+- Director: anim-01/anim-02 (row-weighted mesh warp + whole-body bob) shelved; idle comes from rigid cutout parts.
+

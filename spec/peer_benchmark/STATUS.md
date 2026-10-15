@@ -28,9 +28,10 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - vfx-01 r4 running: peer found the r3 CPU win was a held-frame benchmark artifact (real frames: lightning +5.35 ms);
   director: rasterize line cores on the GPU (non-AA polylines in the low-res layer), sample CPU on unique frames.
 - Running: rr-02 r7 (inter-leg painted shadow; native motion probe error), anim-02, art-07 r2 (empty-body override rule).
-- anim-01 → anim-02: the anim-01 Codex session replayed old results twice on resume (r4, r6: no file changes), so the
-  peer-review fixes (jitter-safe lanes, sticky lanes + in-place sync, glow-redraw test, instrumentation out of runtime,
-  prep budget +30 ms) run as anim-02 from codex/anim-01 17424aa19 in a fresh session. Merge anim-02 (it contains anim-01).
+- anim-01/anim-02 SHELVED (owner 2026-10-15): the mesh-warp idle reads as the "weird rippling" the owner rejected before,
+  and the shrike's whole-body bob reads as an unrealistic bounce. Not merged. Replacement: real cutout parts with
+  independent rigid bob/sway (typical idle). Pilot: gust_shrike via rr-02's maquette tool (its art was painted over the
+  shrike maquette, so part labels exist) once rr-02 lands; other static enemies stay static until rigged.
 - art-07 r1 running (peer CHANGES on b40c9fd70: hue protection swallowed 64-93% of real rear bodies; re-processing must
   reproduce recorded pixels; green residue; filter validation). Approved art unaffected (processed with the pre-art-07 tool).
 - sfx-04 r4 running (peer CHANGES on 6eca206c0: combat speed 1.5x/2x breaks alignment, shop.sell_02 malformed, restore
