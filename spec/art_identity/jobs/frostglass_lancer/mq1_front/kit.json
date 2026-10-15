@@ -1,0 +1,57 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "frostglass_lancer",
+  "job_id": "mq-lancer-front-r1",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "98b494619551b162ebd9b19c2d29891f39371b145a8a7a23f1dfa13e8584920f",
+  "method": "maquette paint-over (wave 1b): humanoid.py + frostglass_lancer/spec.json r1b, painted at drawn size K=4",
+  "peers": [
+    "glacial_mirror_front",
+    "hero_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "d3fb6b5a3ab13f4a25909f6d327879a1963aab3cf04090195fdb7fa6ddfdae03",
+  "prompt_source": "spec/art_identity/maquettes/frostglass_lancer/prompt_front_r1.md",
+  "refs": [
+    {
+      "canon_id": "maquette_front_parts",
+      "file": "refs/01_maquette_front_parts.png",
+      "pixel_sha256": "7234d248aacd8dea42303ee7138759db4f4476ffc8b381d107f2038594223cff",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-lancer-front-r1/refs/front_parts_green.png"
+    },
+    {
+      "canon_id": "maquette_front_clay",
+      "file": "refs/02_maquette_front_clay.png",
+      "pixel_sha256": "e4ecd641e56534ae3020bb3ae32185813fae9a976aed37e82d901d2b2201cc74",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-lancer-front-r1/refs/front_clay_green.png"
+    },
+    {
+      "canon_id": "identity_lancer_current",
+      "file": "refs/03_identity_lancer_current.png",
+      "pixel_sha256": "0d4a86a3b0c885ded68b785b023b64c1bb82fed48d3041a068c0a302f9e80f3c",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-lancer-front-r1/refs/identity_lancer_current_x4.png"
+    },
+    {
+      "canon_id": "glacial_mirror_front",
+      "file": "refs/04_glacial_mirror_front.png",
+      "pixel_sha256": "b57dee458ac72df023fd5b4f1f2ce9d43505043121ec0ffeed52f3f5ee7f71c7",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-lancer-front-r1/refs/peer_glacial_mirror_x4.png"
+    },
+    {
+      "canon_id": "hero_front",
+      "file": "refs/05_hero_front.png",
+      "pixel_sha256": "b267e751ef5c67f1fe2fcfacda5312dcbdaff928caceef8f682421b41e4dfd82",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-lancer-front-r1/refs/hero_x4.png"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 240,
+  "view": "creature_front"
+}
