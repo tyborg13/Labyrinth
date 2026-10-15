@@ -45,7 +45,7 @@
 | ux-03 | Glossary tooltips for icons and relics (data/glossary.json; card keyword stack reused for relics) | running (gpt-6-astra) | codex/peer-benchmark | briefs/ux-03.md |
 | anim-01 | Pixel-true idle life for static directional enemies (data/static_enemy_idle.json) | running (gpt-6-astra) | codex/peer-benchmark | briefs/anim-01.md |
 | por-01 | Rebuild 17 stale turn-order portraits from post-density art | merged (builder verify test; clock probe PASS, director-reviewed) | codex/peer-benchmark | briefs/por-01.md |
-| vfx-01 | Pixel-art look for procedural elemental effects (low-res layer, element ramps, Bayer alpha) | running (gpt-6-astra) | codex/peer-benchmark | briefs/vfx-01.md |
+| vfx-01 | Pixel-art look for procedural elemental effects (low-res layer, element ramps, Bayer alpha) | merged 693209518 (Codex signoff 44eb4ce5f) | codex/peer-benchmark | briefs/vfx-01.md |
 | chr-02 | Chronicle spells as card tiles with counts; tooltips on every tile | running (gpt-6-astra) | codex/peer-benchmark | briefs/chr-02.md |
 | art-05 | Replayable director raw steps in the identity gate | merged 2eb5b4d17 (signoff 55bc9b8f3); follow-up: chain on decoded-pixel digests not PNG bytes, report SKIP as WARN, dedupe committed inputs, repo-relative doc commands | codex/peer-benchmark | briefs/art-05.md |
 | qa-04 | Godot .import noise under output/, Chopin sidecar tolerance, en-05 sync test | merged bf7eca61f (review fixes 7f7cc8d7e) | codex/peer-benchmark | briefs/qa-04.md |

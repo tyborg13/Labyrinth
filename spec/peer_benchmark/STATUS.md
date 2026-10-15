@@ -20,8 +20,7 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 
 ## In flight (2026-10-15 late, playtest 7 follow-ups; Codex model gpt-6-astra + max_running 6 for today — revert the Labyrinth profile after)
 - Merged today: sfx-03, rr-01, art-04 (shrike), por-01, ux-02, art-05, ui-02, qa-04, fix-03. Playtest 7 = 7901c37f0.
-- Merged into integration: chr-02 (9d711ceb5), art-06 (bf3ed130a), ux-03 (a98d3683f; Codex signoff aaf2b48ff, windowed probes
-  PASS at 1920/1670/1536). Full suite running on integration (no merges until it finishes). ux-04 (text rewrite) launched.
+- Merged into integration: chr-02 (9d711ceb5), art-06 (bf3ed130a), ux-03 (a98d3683f), art-07 (af5163220), vfx-01 (693209518). Full suite running on integration (no merges until it finishes). ux-04 (text rewrite) launched.
 - REVIEW POLICY (owner 2026-10-15, Claude usage): peer reviews run on Codex via `scratchpad/codex_review.sh UNIT REF PROMPT`
   (detached scratch worktree under /private/tmp/labyrinth_codex/review/, output REF.md there); art judging is done by Claude
   directly, no judge/review subagents.
