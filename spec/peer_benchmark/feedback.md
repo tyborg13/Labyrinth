@@ -70,3 +70,8 @@
 - "the bird is just kind of bouncing up and down but not in a realistic way as if it were actually jumping."
 - Director: anim-01/anim-02 (row-weighted mesh warp + whole-body bob) shelved; idle comes from rigid cutout parts.
 
+## 2026-10-15 — playtest 8 (owner)
+- Briar Weaver: after Thornwall it got no further turn and showed no intent (tooltip or board threat). → fix-04.
+- Lightning trap: the electricity sound is "multiple seconds long ... outrageously long" (surface.electric_01 is 9.1 s,
+  status.shock_01 3.6 s). → sfx-04 round 7: one-shot cue length caps.
+

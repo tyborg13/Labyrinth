@@ -57,3 +57,4 @@
 | anim-02 | Static idle review fixes (jitter-safe lanes, sticky lanes + in-place sync, glow redraw test, instrumentation out of runtime) — continues anim-01 (session stuck replaying) | running (gpt-6-astra) | codex/anim-01 | briefs/anim-02.md |
 | rr-03 | Gust Shrike cutout rig from its maquette (idle/move/dive/talon rake/hover/hit/death) | ready (after rr-02 merges) | codex/peer-benchmark | briefs/rr-03.md |
 | anim-01/anim-02 | Static enemy mesh-warp idle | shelved (owner: ripple + bird bounce rejected) | — | feedback.md 2026-10-15 |
+| fix-04 | Briar Weaver loses turn + intent after Thornwall (owner playtest 8) | running (gpt-6-astra) | codex/peer-benchmark | briefs/fix-04.md |
