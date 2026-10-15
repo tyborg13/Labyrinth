@@ -25,7 +25,9 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   kits + `record-steps` helper; r0 d3e7bb82c, integration merged in), chr-02 r4 (normalize perf).
 - Peer review: vfx-01 b1ff413f7 (a5cd14b257a1dd01f), ux-03 723f52579 (a7ba8bb418000b8d4).
 - anim-01 r3: windowed probe + native benchmark running (warmup-frame >2 ms misses accepted: steady mean ≤0.27 ms).
-- chr-02: see below.
+- chr-02 (Chronicle tiles) 526e3c6cc: re-review CHANGES REQUESTED (normalize rebuilt card deltas: 85 ms with relic-heavy
+  history) → r4 running (keep stored deltas, perf test); then reviewer signoff → merge. Known layout limit: 14+ relics or
+  a wrapped subtitle overflows the 718 px viewport (scroll still works).
 - Lancer pair: judge PASS r2; director tone r2 restored the frost read (front/rear `mq1_front_v3`/`mq1_rear_v3`,
   sheet `sheet_pair_mq1_v3.png`, 50e1b836c). Shown to owner; awaiting verdict before rigging.
   These two kits use the art-05 field names: re-record them with art-06's migration when art-06 merges.
