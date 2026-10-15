@@ -45,7 +45,13 @@
       "shin_near"
     ],
     "max_median_l_difference": 8,
-    "basis": "Same-view same-part visible pixels; sparse references reported explicitly pending design decision",
-    "quantization": "Empirical same-part visible L* quantiles assigned in diffusion L* order; nearest sampled k6 palette centroid; include unchanged outline in median gate"
+    "basis": "Same-view same-part visible pixels; sparse parts use same-view near thigh with L* lowered 6",
+    "sparse_reference": {
+      "min_visible_pixels": 40,
+      "part": "thigh_near",
+      "l_shift": -6,
+      "chroma_hue": "same-view near-thigh trousers"
+    },
+    "quantization": "Empirical reference L* quantiles assigned in diffusion L* order; nearest sampled k6 palette centroid; include unchanged outline in median gate"
   }
 }

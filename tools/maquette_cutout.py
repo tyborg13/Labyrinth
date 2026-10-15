@@ -8,6 +8,7 @@ See spec/cutout_workflow.md, 'From a maquette'.
 from __future__ import annotations
 
 import argparse
+from collections import deque
 from dataclasses import asdict, dataclass
 import hashlib
 import math
@@ -20,7 +21,7 @@ import sys
 import numpy as np
 from PIL import Image, ImageDraw
 
-from art_identity_gate import alpha_bbox, box_binary_sprite, fit_sprite, pixel_digest, silhouette_edge, to_lab
+from art_identity_gate import alpha_bbox, box_binary_sprite, fit_sprite, pixel_digest, silhouette_edge, to_lab, from_lab
 from cutout_pipeline.assets import apply_skin, segment
 from cutout_pipeline.cases import (CutoutError, PROJECT, baseline, digest, init_case,
                                    load_case, local_path, read_json, write_json)
@@ -364,8 +365,8 @@ def clean_ownership(owners, paint, names, solos, view, material, policy):
         red = np.linalg.norm(lab - material["tabard_cloth"]["median_lab"], axis=-1) < np.linalg.norm(lab - material["trousers"]["median_lab"], axis=-1)
         transfer_parts = policy.get("tabard_transfer_parts", policy["trouser_parts"])
         delta = np.linalg.norm(lab - material["tabard_cloth"]["median_lab"], axis=-1)
-        if "tabard_gate_delta_e" in policy:
-            red |= delta <= policy["tabard_gate_delta_e"]
+        if "tabard_transfer_delta_e" in policy:
+            red |= delta <= policy["tabard_transfer_delta_e"]
         radius = policy.get("tabard_dilation_px", 0)
         tabard_silhouette = solos["tabard"]
         padded = np.pad(tabard_silhouette, radius)
@@ -434,6 +435,74 @@ def clean_ownership(owners, paint, names, solos, view, material, policy):
             report["motion_islands"].append({"part": item["part"], "target": names[target],
                 "pixels": int(component.sum()), "bbox": bbox(component), "shared_border_edges": shared,
                 "evidence": item["evidence"], "reason": item["reason"]})
+    # Speck repairs can return cloth-coloured paint to a gated owner. Resolve
+    # these final collisions by geometry, preserving source RGBA/rest depth.
+    gate = policy.get("tabard_gate", {})
+    scoped = gate.get("parts", {}).get(view, [])
+    report["scoped_colour_repairs"] = []
+    if scoped:
+        collisions = np.isin(owners, [names.index(n) for n in scoped]) & (delta < gate["delta_e"])
+        protected = (owners >= 0) & ~np.isin(owners, [names.index(n) for n in scoped] + [names.index("tabard")])
+        py, px = np.nonzero(protected)
+        for y, x in zip(*np.nonzero(collisions)):
+            previous = int(owners[y, x])
+            if view == "front" and dilated[y, x]:
+                target = names.index("tabard")
+                basis = "within 6px dilated front cloth silhouette"
+            else:
+                distances = (py - y) ** 2 + (px - x) ** 2
+                nearest = distances == distances.min()
+                target = int(owners[py[nearest], px[nearest]].min())
+                basis = "outside cloth silhouette; nearest protected rest-painted material, label-order tie"
+            owners[y, x] = target
+            hidden[previous][y, x] = bool(solos[names[previous]][y, x])
+            report["scoped_colour_repairs"].append({"point": [int(x), int(y)],
+                "from": names[previous], "to": names[target], "basis": basis})
+        # A one-pixel material repair must not become a floating speck. Join
+        # each newly detached small island through existing opaque source paint
+        # to its owner's largest complete component. No alpha/RGB is invented.
+        report["scoped_connectivity_repairs"] = []
+        targets = {names.index(r["to"]) for r in report["scoped_colour_repairs"]}
+        for target in sorted(targets):
+            complete = (owners == target) | hidden[target]
+            pieces = components8(complete)
+            for piece in pieces[1:]:
+                if int(piece.sum()) >= policy["speck_max_exclusive_px"]:
+                    continue
+                allowed = owners >= 0
+                if names[target] == "tabard":
+                    allowed &= dilated
+                queue = deque(sorted(zip(*np.nonzero(piece))))
+                parents = {point: None for point in queue}
+                end = None
+                while queue and end is None:
+                    y, x = queue.popleft()
+                    for dy, dx in [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]:
+                        point = (y + dy, x + dx)
+                        if not (0 <= point[0] < owners.shape[0] and 0 <= point[1] < owners.shape[1]):
+                            continue
+                        if point in parents or not allowed[point]:
+                            continue
+                        parents[point] = (y, x)
+                        if pieces[0][point]:
+                            end = point
+                            break
+                        queue.append(point)
+                if end is None:
+                    raise CutoutError("Scoped material repair cannot connect through source paint: " + names[target])
+                path = []
+                point = parents[end]
+                while point is not None:
+                    y, x = point
+                    previous = int(owners[y, x])
+                    if previous != target:
+                        owners[y, x] = target
+                        hidden[previous][y, x] = bool(solos[names[previous]][y, x])
+                        path.append([int(x), int(y)])
+                    point = parents[point]
+                report["scoped_connectivity_repairs"].append({"part": names[target],
+                    "island_pixels": int(piece.sum()), "transferred_points": path,
+                    "basis": "Shortest 8-connected path through opaque source paint to largest complete component; y/x traversal ties"})
     for i in range(len(names)):
         hidden[i] &= (owners >= 0) & (owners != i)
     return owners, hidden, report
@@ -1114,7 +1183,7 @@ def fill_hidden(args) -> dict:
             "max_delta_e": rig_recipe["ownership_cleanup"]["fill_median_max_delta_e"]}
     if rig_recipe.get("hidden_value_distribution"):
         recipe["value_distribution_policy"] = rig_recipe["hidden_value_distribution"]
-        recipe["value_distribution_policy"]["quantization"] = "Empirical same-part visible L* quantiles assigned in diffusion L* order; nearest sampled k6 palette centroid; include unchanged outline in median gate"
+        recipe["value_distribution_policy"]["quantization"] = "Empirical reference L* quantiles assigned in diffusion L* order; nearest sampled k6 palette centroid; include unchanged outline in median gate"
         recipe["trousers_policy"]["superseded_parts"] = rig_recipe["hidden_value_distribution"]["parts"]
     requests = read_json(root / "hidden_requests/index.json")["requests"]
     if {(r["view"], r["part"]) for r in requests} != {(v, n) for v in config["layouts"] for n in names}:
@@ -1172,10 +1241,12 @@ def fill_hidden(args) -> dict:
         donors, donor_rgb, donor_mask, donor_view = fill_donors(request, names, views, recipe.get("cross_view_fallback") == "same_part")
         palette_pixels, trousers_reference, conditioning_visible = None, None, visible
         value_pixels = None
+        value_substitution = None
         excluded_material = None
         cleanup_policy = rig_recipe.get("ownership_cleanup", {})
-        if view == "front" and part in cleanup_policy.get("tabard_transfer_parts", []):
-            excluded_material = dict(material_references[view]["tabard_cloth"], delta_e=cleanup_policy["tabard_gate_delta_e"])
+        colour_gate = cleanup_policy.get("tabard_gate", {})
+        if part in colour_gate.get("parts", {}).get(view, []):
+            excluded_material = dict(material_references[view]["tabard_cloth"], delta_e=colour_gate["delta_e"])
         value_policy = rig_recipe.get("hidden_value_distribution", {})
         if part in value_policy.get("parts", []):
             if not visible.any():
@@ -1184,6 +1255,30 @@ def fill_hidden(args) -> dict:
             donor_rgb, donor_mask = paint[..., :3], visible.copy()
             palette_pixels = paint[visible, :3]
             value_pixels = palette_pixels
+            fallback = value_policy.get("sparse_reference")
+            if fallback and int(visible.sum()) < fallback["min_visible_pixels"]:
+                reference_part = fallback["part"]
+                donor_mask = owners == names.index(reference_part)
+                if not donor_mask.any():
+                    raise CutoutError("Empty same-view sparse value reference: " + view)
+                reference_lab = to_lab(paint[donor_mask, :3])
+                shifted_lab = reference_lab.copy()
+                shifted_lab[:, 0] = np.clip(shifted_lab[:, 0] + fallback["l_shift"], 0, 100)
+                value_pixels = np.rint(from_lab(shifted_lab)).clip(0, 255).astype(np.uint8)
+                palette_pixels = value_pixels
+                donor_rgb = paint[..., :3].copy()
+                donor_rgb[donor_mask] = value_pixels
+                donors = [reference_part]
+                conditioning_visible = np.zeros_like(visible)
+                value_substitution = {"view": view, "part": reference_part,
+                    "reason": "Own visible pixels below director's 40-pixel threshold",
+                    "visible_pixels": int(donor_mask.sum()), "mask_sha256": array_digest(donor_mask),
+                    "source_rgb_sha256": array_digest(paint[donor_mask, :3]),
+                    "source_median_l": float(np.median(reference_lab[:, 0])),
+                    "l_shift": fallback["l_shift"],
+                    "target_median_l": float(np.median(shifted_lab[:, 0])),
+                    "encoded_median_l": float(np.median(to_lab(value_pixels)[:, 0])),
+                    "chroma_hue": "Same-view near-thigh trousers a*/b*, unchanged before sRGB gamut/8-bit encoding"}
         elif part in rig_recipe.get("ownership_cleanup", {}).get("trouser_parts", []):
             donors, donor_view = ["trousers_core"], None
             donor_rgb = paint[..., :3]
@@ -1231,7 +1326,11 @@ def fill_hidden(args) -> dict:
         if value_pixels is not None:
             record["palette_source"] = "same_view_same_part_visible_value_distribution"
             record["value_distribution"] = record["diffusion"].pop("value_distribution", {})
-            if len(value_pixels) < FILL_DEFAULTS["palette_min_own_pixels"]:
+            if value_substitution:
+                record["palette_source"] = "same_view_near_thigh_shadow_value_distribution"
+                record["value_reference_substitution"] = value_substitution
+                record["value_distribution"]["basis"] = "Same-view near-thigh visible trousers; L* lowered 6; source a*/b* retained"
+            elif len(value_pixels) < FILL_DEFAULTS["palette_min_own_pixels"]:
                 record["design_placeholder"] = "TODO_DESIGN_sparse_value_reference_" + view + "_" + part
                 record["design_reason"] = "Literal same-view reference has fewer than 40 pixels; brighter core fallback needs director's decision"
         if trousers_reference and hidden.any():

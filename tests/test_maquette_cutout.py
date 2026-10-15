@@ -19,7 +19,7 @@ from cutout_pipeline.validation import validate
 from maquette_cutout import (FILL_DEFAULTS, MAGENTA, Registration, build, camera_depths, decode_labels, depth_order,
                             fill_donors, fill_hidden, fill_pixels, part_palette, same_material_donors,
                             hidden_region, material_neighbours, nearest_labels, projected,
-                            registration, request_image, label_core, clean_ownership, components8, material_reference)
+                            registration, request_image, label_core, clean_ownership, components8, material_reference, array_digest)
 
 CASE = PROJECT / "experiments/cutouts/chainbound_gaoler/mq3"
 
@@ -477,7 +477,7 @@ class GaolerCaseTests(unittest.TestCase):
 
     def test_rigid_cloth_matches_production_bones_and_parenting(self):
         config = read_json(CASE / "cutout.json")
-        self.assertEqual(set(config["design_placeholders"]), {"TODO_DESIGN_tabard_global_colour_gate", "TODO_DESIGN_rear_torso_lean", "TODO_DESIGN_sparse_value_reference_front_thigh_far", "TODO_DESIGN_sparse_value_reference_rear_thigh_far"})
+        self.assertEqual(config["design_placeholders"], {})
         for view, path in config["layouts"].items():
             layout = read_json(CASE / path)
             production = read_json(PROJECT / f"assets/units/chainbound_gaoler_cutout/{view}.json")
@@ -530,8 +530,22 @@ class GaolerCaseTests(unittest.TestCase):
         manifest = read_json(CASE / "hidden_fills/index.json")
         for request in manifest["requests"]:
             if request["part"] in ["pelvis", "thigh_far", "thigh_near", "shin_far", "shin_near"]:
-                self.assertEqual(request["donor_parts"], [request["part"]])
+                sparse = request["own_visible_pixels"] < 40
+                self.assertEqual(request["donor_parts"], ["thigh_near" if sparse else request["part"]])
                 self.assertNotIn("cross_view_donor", request)
+                if sparse:
+                    reference = request["value_reference_substitution"]
+                    self.assertEqual(reference["view"], request["view"])
+                    self.assertEqual(reference["part"], "thigh_near")
+                    self.assertEqual(reference["l_shift"], -6)
+                    self.assertAlmostEqual(reference["source_median_l"] - 6, reference["target_median_l"])
+                    paint = np.array(Image.open(CASE / f"source/{request['view']}/processed.png"))
+                    owners = np.load(CASE / f"registered/{request['view']}_owners.npy")
+                    names = list(read_json(CASE / "source/spec.json")["labels"])
+                    near = paint[owners == names.index("thigh_near"), :3]
+                    self.assertEqual(reference["source_rgb_sha256"], array_digest(near))
+                    self.assertAlmostEqual(reference["source_median_l"], np.median(to_lab(near)[:, 0]))
+                    self.assertNotIn("design_placeholder", request)
                 value = request["value_distribution"]
                 self.assertLessEqual(value["median_difference_l"], 8)
                 self.assertGreater(value["hidden_midtones_pixels"], 0)
@@ -575,7 +589,53 @@ class GaolerCaseTests(unittest.TestCase):
                 checked += 1
         self.assertEqual(checked, 70)
 
-    def test_motion_gate_counts_real_frame_pixels_without_material_exemptions(self):
+    def test_rear_lean_and_shoulder_follow_authorized_envelopes(self):
+        before = read_json(CASE / "provenance/round5/proof/motion_samples_unconstrained.json")["samples"]
+        after = read_json(CASE / "proof/motion_samples_unconstrained.json")["samples"]
+        joints = read_json(CASE / "layouts/rear.json")["joints"]
+        def matrix(values):
+            a, b, c, d, x, y = values
+            return np.array([[a, c, x], [b, d, y], [0, 0, 1.]])
+        def curve(t, keys):
+            for (a, va), (b, vb) in zip(keys, keys[1:]):
+                if t <= b:
+                    u = (t - a) / (b - a)
+                    return va + (vb - va) * u * u * (3 - 2 * u)
+            return keys[-1][1]
+        def descendant(name, parent):
+            while name is not None:
+                if name == parent:
+                    return True
+                name = joints[name]["parent"]
+            return False
+        for old, new in zip(before, after):
+            self.assertEqual([old[k] for k in ["view", "clip", "frame"]], [new[k] for k in ["view", "clip", "frame"]])
+            changed = new["view"] == "rear" and new["clip"] in ["strike", "manacle_pin"]
+            if changed:
+                t = new["phase"]
+                if new["clip"] == "strike":
+                    prep = curve(t, [(0, 0), (.22, 1), (.30, 1), (.42, 0), (1, 0)])
+                    hit = curve(t, [(0, 0), (.30, 0), (.42, 1), (.56, 1), (1, 0)])
+                else:
+                    prep = curve(t, [(0, 0), (.08, 1), (4/38, 0), (1, 0)])
+                    hit = curve(t, [(0, 0), (.08, 0), (4/38, 1), (12/38, 1), (.65, .55), (1, 0)])
+                theta = .07 * hit
+                rotation = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]])
+                pivot = matrix(old["bones"]["torso"])[:2, 2]
+                transform = np.eye(3)
+                transform[:2, :2] = rotation
+                transform[:2, 2] = pivot - rotation @ pivot
+                shoulder = matrix(new["bones"]["torso"])[:2, :2] @ np.array([0, -3 * prep])
+            for name, values in old["bones"].items():
+                expected = matrix(values)
+                if changed and descendant(name, "torso"):
+                    expected = transform @ expected
+                    if descendant(name, "upper_fist"):
+                        expected[:2, 2] += shoulder
+                np.testing.assert_allclose(matrix(new["bones"][name]), expected, rtol=0, atol=.0001,
+                    err_msg=str((new["view"], new["clip"], new["frame"], name)))
+
+    def test_motion_gate_scopes_logical_owners_and_uses_strict_threshold(self):
         import importlib.util
         spec = importlib.util.spec_from_file_location("rr02_motion_gate_counts", CASE / "probes/motion_gates.py")
         gates = importlib.util.module_from_spec(spec)
@@ -588,7 +648,16 @@ class GaolerCaseTests(unittest.TestCase):
         arm, body = np.zeros((16, 16), bool), np.zeros((16, 16), bool)
         arm[10, 10] = True
         report = gates.frame_counts(pixels, owners, [{"name": "metal"}], arm, body, "rear", "strike", to_lab(np.array([84, 28, 24])))
-        self.assertEqual(report["tabard_non_tabard_pixels"], 25)
+        self.assertEqual(report["tabard_non_tabard_pixels"], 0)
+        for view, part, count in [("rear", "thigh_far", 25), ("rear", "shin_far", 0), ("front", "shin_far", 25)]:
+            result = gates.frame_counts(pixels, owners, [{"name": "physical", "logical_part": part}], arm, body, view, "strike", to_lab(np.array([84, 28, 24])))
+            self.assertEqual(result["tabard_non_tabard_pixels"], count)
+            self.assertEqual(set(result["tabard_collisions_by_part"]), set(gates.TABARD_GATE_PARTS[view]))
+        reference = to_lab(np.array([84, 28, 24]))
+        for distance, expected in [(12, 0), (11.999, 25)]:
+            shifted = reference + np.array([distance, 0, 0])
+            result = gates.frame_counts(pixels, owners, [{"name": "pelvis"}], arm, body, "front", "strike", shifted)
+            self.assertEqual(result["tabard_non_tabard_pixels"], expected)
         self.assertEqual(report["detached_small_pixels"], 1)
         self.assertEqual(report["rear_arm_outside_pixels"], 1)
         pixels[11, 11] = pixels[12, 12]

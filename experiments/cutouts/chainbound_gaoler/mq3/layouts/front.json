@@ -559,11 +559,11 @@
       "name": "tabard_from_shin_far",
       "file": "segmented/front/tabard_from_shin_far.png",
       "offset": [
-        116,
+        115,
         155
       ],
       "bbox": [
-        116,
+        115,
         155,
         145,
         205
@@ -744,6 +744,24 @@
       "z_index": 2,
       "rest_depth_source": "shin_far",
       "equipment_slot": "cloak"
+    },
+    {
+      "name": "upper_near_from_coat_near",
+      "file": "segmented/front/upper_near_from_coat_near.png",
+      "offset": [
+        188,
+        131
+      ],
+      "bbox": [
+        188,
+        131,
+        189,
+        132
+      ],
+      "logical_part": "upper_near",
+      "bone": "upper_fist",
+      "z_index": 14,
+      "rest_depth_source": "coat_near"
     },
     {
       "name": "upper_near",
@@ -1104,6 +1122,24 @@
       "bone": "shin_fist",
       "z_index": 0,
       "rest_depth_source": "foot_far"
+    },
+    {
+      "name": "foot_near_from_shin_near",
+      "file": "segmented/front/foot_near_from_shin_near.png",
+      "offset": [
+        163,
+        211
+      ],
+      "bbox": [
+        163,
+        211,
+        170,
+        224
+      ],
+      "logical_part": "foot_near",
+      "bone": "foot_fist",
+      "z_index": 5,
+      "rest_depth_source": "shin_near"
     },
     {
       "name": "foot_near",

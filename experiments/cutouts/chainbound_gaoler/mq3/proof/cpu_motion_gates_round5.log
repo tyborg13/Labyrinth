@@ -1,0 +1,7 @@
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/tools/art_identity_gate.py:235: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/tools/art_identity_gate.py:235: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/tools/art_identity_gate.py:235: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+MOTION GATES: FAIL (458 frames; {'tabard_non_tabard_pixels': 707665, 'detached_small_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0}; value failures=0; CPU nearest raster diagnostic; NOT native proof)

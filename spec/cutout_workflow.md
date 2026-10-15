@@ -201,9 +201,19 @@ median than the trouser median, or within DeltaE76 15 of tabard, move to tabard
 without recoloring. A 6px Euclidean dilation of the registered tabard solo is
 recorded for overlap diagnostics; the explicit part list selects whole owners.
 Component edge voting follows the material transfer. Scattered colour matches
-can return to adjacent parts when needed to prevent detached motion specks; the
-literal colour gate reports them, without claiming a material exemption. The corresponding rear counts are
-reported without a material reassignment. Each logical part's complete mask
+can return to adjacent parts when needed to prevent detached motion specks.
+Round6 scopes the final colour gate to the seven front parts above and rear
+pelvis/thighs, with strict DeltaE76 < 12. Other owners' protected rust/copper is
+excluded. The explicit list selects complete logical owners, not a per-frame
+screen-space crop. A final geometric repair resolves remaining scoped collisions:
+inside the dilated front silhouette they belong to tabard; outside it they belong
+to the nearest protected rest-painted owner (label-order ties). Newly detached
+small islands connect to that owner's largest complete component along the
+shortest 8-connected path through existing opaque source paint, with y/x traversal
+ties; cloth paths stay inside the dilation. This transfers ownership and restores
+the old owner's solo-backed hidden support without inventing visible RGBA or alpha.
+All transfers are recorded and the complete motion silhouette gate remains mandatory.
+Each logical part's complete mask
 (visible paint plus hidden support) then receives the director's 8-connected
 component cleanup: components smaller than 12px, except the largest, move to
 the rest-painted neighbour sharing the most four-connected boundary edges.
@@ -224,7 +234,7 @@ order. Cleaned hidden masks and material masks are saved separately. Fill
 recomputes this source-derived cleanup and rejects mismatching masks or reports.
 Rest RGBA equality remains mandatory. When rebuilding an existing case, preserve
 the preceding immutable requests and their provenance before replacing derived
-outputs; the gaoler archives round3 and round4 under `provenance/`.
+outputs; the gaoler archives round3, round4 and round5 under `provenance/`.
 
 The gaoler's three-link chain uses production `chain_b`/`chain_c` fractions along
 `chain_a` to `hook`, mapped onto the registered maquette chain axis. Existing
@@ -239,8 +249,13 @@ translating the whole fist arm into the torso/head/coat union. Each sampled phas
 uses the shortest integer translation into a one-pixel interior margin, with
 deterministic y/x ties; curves interpolate between those phases. The bake saves
 unconstrained transforms, verifies no arm pixels are clipped, then resamples.
-Front and non-arm transforms, including pelvis drive, remain unchanged. Additional
-torso lean needs director data; no lean curve is invented.
+Round6 adds rear-only torso rotation `0.07 * hit` and fist-side shoulder offset
+`Vector2(0,-3) * prep` before baking the arm constraint. Head and both arms inherit
+the torso rotation. Both envelopes reuse production timing; `manacle_pin` calls
+its hit envelope `cast`. Front motion and pelvis forward drive remain unchanged.
+Tests compare every unconstrained bone matrix against archived round5 samples,
+including inherited torso rotation and the shoulder offset, then independently
+verify that constraint projection changes only the three fist-arm transforms.
 
 ### Deterministic hidden fill
 
@@ -290,16 +305,19 @@ color gate for pelvis, thighs and shins. Each region uses its own same-view visi
 pixels for a k=6 palette and empirical L* distribution. Hidden interior pixels
 retain diffusion's spatial value ranking and take the nearest palette L* to
 successive target quantiles, accounting for the unchanged outline. Report each
-region's visible/hidden median L*, their difference (maximum 8), visible interquartile
-L* range and the number of hidden pixels in that range. Front transfer parts also
-exclude palette centroids within DeltaE76 15 of tabard: averaging two non-tabard
-colors can otherwise recreate the tabard hue. Visible RGBA stays exact.
+region's reference/hidden median L*, their difference (maximum 8), reference
+interquartile L* range and the number of hidden pixels in that range. Scoped gate
+parts also exclude palette centroids within DeltaE76 12 of tabard: averaging two
+non-tabard colors can otherwise recreate the tabard hue. Visible RGBA stays exact.
 
-Sparse references under 40 pixels produce explicit `review_decisions` rather
-than silently borrowing a brighter donor. In the current approved pair the rear
-far thigh has seven nearly black visible pixels. A literal same-part median check
-can pass while that fill remains dark; director authorization is required for a
-different reference. These review decisions do not imply magenta or missing paint.
+Round6 authorizes sparse references under 40 pixels to use the same view's near
+thigh visible trousers. Subtract 6 from its per-pixel L* distribution (clamped to
+0..100), retaining its a*/b* before sRGB gamut clipping and 8-bit encoding. Use the
+shifted pixels for both palette and diffusion donors. The provenance records the
+source part/view, pixel count, mask and RGB digests, original/target/encoded medians,
+shift and reason. The independent gate compares against the nominal shifted
+distribution. This resolves both far-thigh reference decisions; other explicit
+cross-view fallbacks remain unchanged.
 
 `recipes/hidden_fill.json` records the method and parameters;
 `hidden_fills/index.json` records each request's status, palette, counts, donor
@@ -321,11 +339,11 @@ physical paint-node IDs, the complete fist-arm mask, and the torso/head/coat mas
 at every frame, plus rest ID calibration. `motion_gates.py --capture-native`
 launches it through the visual runner and binds all output hashes. `--native`
 requires every frame, current source hashes, exact rest ownership calibration,
-and RGBA equality with the primary verified reel before evaluating the literal
+and RGBA equality with the primary verified reel before evaluating the scoped
 colour, detached-component, arm-containment and magenta gates. The native collector
 requires these gates; `--cpu` is a separate diagnostic and cannot satisfy them.
-The global colour gate deliberately reports protected helmet/leather/etc. matches;
-there are no implicit material exemptions. No production inspection fixture is appropriate
+The colour report includes explicit zero entries per scoped part and frame, plus
+per-part/per-clip totals and maxima. No production inspection fixture is appropriate
 until phase two integrates the case into gameplay.
 
 ## Starting a new task

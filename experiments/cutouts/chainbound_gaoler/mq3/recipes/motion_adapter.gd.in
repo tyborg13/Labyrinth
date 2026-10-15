@@ -25,6 +25,9 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 	var compatible: Dictionary = _sampler_layout(layout)
 	var sampled: Dictionary = Gaoler.sample_pose(clip, phase, compatible, facing)
 	if facing == "rear" and clip in ["strike", "manacle_pin"]:
+		var envelopes: Vector2 = _punch_envelopes(clip, phase)
+		sampled["torso"]["rotation"] += 0.07 * envelopes.y
+		sampled["upper_fist"]["position"] += Vector2(0, -3) * envelopes.x
 		var curve: Array = layout.get("rear_fist_constraint", {}).get("clips", {}).get(clip, [])
 		if not curve.is_empty():
 			var offset: Vector2 = _constraint_offset(curve, phase)
@@ -34,6 +37,16 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 	for name: String in layout["joints"]:
 		pose[name] = sampled["chain_a" if name == "chain" else name]
 	return pose
+
+static func _punch_envelopes(clip: String, phase: float) -> Vector2:
+	# Reuse production timing. Pin calls its punch envelope "cast".
+	if clip == "strike":
+		return Vector2(
+			Gaoler._curve(phase, PackedVector2Array([Vector2(0,0),Vector2(0.22,1),Vector2(0.30,1),Vector2(0.42,0),Vector2(1,0)])),
+			Gaoler._curve(phase, PackedVector2Array([Vector2(0,0),Vector2(0.30,0),Vector2(0.42,1),Vector2(0.56,1),Vector2(1,0)])))
+	return Vector2(
+		Gaoler._curve(phase, PackedVector2Array([Vector2(0,0),Vector2(0.08,1),Vector2(4.0/38.0,0),Vector2(1,0)])),
+		Gaoler._curve(phase, PackedVector2Array([Vector2(0,0),Vector2(0.08,0),Vector2(4.0/38.0,1),Vector2(12.0/38.0,1),Vector2(0.65,0.55),Vector2(1,0)])))
 
 static func walk_cycle_info(layout: Dictionary, facing: String) -> Dictionary:
 	return Gaoler.walk_cycle_info(layout, facing)

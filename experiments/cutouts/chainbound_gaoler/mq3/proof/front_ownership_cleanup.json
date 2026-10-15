@@ -2323,5 +2323,144 @@
       "evidence": "round5 CPU walk ownership sweep: 119 source pixels in detached 23/27/29/40-pixel shin fragments; proof/round5_tabard_scatter_trace.json",
       "reason": "Shared tabard-like colours on shins create large detached fragments when moved with cloth; retain these traced fragments with their rest-adjacent leg owner instead of hiding a colour-gate conflict"
     }
+  ],
+  "scoped_colour_repairs": [
+    {
+      "point": [
+        188,
+        131
+      ],
+      "from": "coat_near",
+      "to": "upper_near",
+      "basis": "outside cloth silhouette; nearest protected rest-painted material, label-order tie"
+    },
+    {
+      "point": [
+        116,
+        200
+      ],
+      "from": "shin_far",
+      "to": "tabard",
+      "basis": "within 6px dilated front cloth silhouette"
+    },
+    {
+      "point": [
+        116,
+        201
+      ],
+      "from": "shin_far",
+      "to": "tabard",
+      "basis": "within 6px dilated front cloth silhouette"
+    },
+    {
+      "point": [
+        126,
+        203
+      ],
+      "from": "shin_far",
+      "to": "tabard",
+      "basis": "within 6px dilated front cloth silhouette"
+    },
+    {
+      "point": [
+        126,
+        204
+      ],
+      "from": "shin_far",
+      "to": "tabard",
+      "basis": "within 6px dilated front cloth silhouette"
+    },
+    {
+      "point": [
+        164,
+        211
+      ],
+      "from": "shin_near",
+      "to": "foot_near",
+      "basis": "outside cloth silhouette; nearest protected rest-painted material, label-order tie"
+    }
+  ],
+  "scoped_connectivity_repairs": [
+    {
+      "part": "tabard",
+      "island_pixels": 2,
+      "transferred_points": [
+        [
+          116,
+          198
+        ],
+        [
+          115,
+          199
+        ]
+      ],
+      "basis": "Shortest 8-connected path through opaque source paint to largest complete component; y/x traversal ties"
+    },
+    {
+      "part": "tabard",
+      "island_pixels": 2,
+      "transferred_points": [
+        [
+          125,
+          202
+        ]
+      ],
+      "basis": "Shortest 8-connected path through opaque source paint to largest complete component; y/x traversal ties"
+    },
+    {
+      "part": "foot_near",
+      "island_pixels": 1,
+      "transferred_points": [
+        [
+          169,
+          223
+        ],
+        [
+          168,
+          222
+        ],
+        [
+          167,
+          221
+        ],
+        [
+          166,
+          220
+        ],
+        [
+          165,
+          219
+        ],
+        [
+          165,
+          218
+        ],
+        [
+          164,
+          217
+        ],
+        [
+          163,
+          216
+        ],
+        [
+          163,
+          215
+        ],
+        [
+          163,
+          214
+        ],
+        [
+          163,
+          213
+        ],
+        [
+          163,
+          212
+        ]
+      ],
+      "basis": "Shortest 8-connected path through opaque source paint to largest complete component; y/x traversal ties"
+    }
   ]
 }

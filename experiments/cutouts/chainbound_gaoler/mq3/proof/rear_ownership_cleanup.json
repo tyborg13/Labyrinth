@@ -4092,5 +4092,7 @@
       ],
       "reason": "Detached visible ownership component observed in native v04 motion; exceeds the old <12px source threshold or loses its attachment during motion. Reassign to the rest-adjacent part sharing most border."
     }
-  ]
+  ],
+  "scoped_colour_repairs": [],
+  "scoped_connectivity_repairs": []
 }

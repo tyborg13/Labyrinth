@@ -1,7 +1,7 @@
 {
   "ok": true,
   "source_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
-  "ownership_sha256": "a0d36218b542eba117fafdacc649386c9b43dbd809baa4764690e2d4918c9498",
+  "ownership_sha256": "4667db3a9e536fb6ed7e6861573ab1e658ff970e2a4ddf13d1c51f73f58881a6",
   "parts": [
     {
       "name": "head",
@@ -301,11 +301,11 @@
       "name": "tabard_from_shin_far",
       "file": "tabard_from_shin_far.png",
       "offset": [
-        116,
+        115,
         155
       ],
       "bbox": [
-        116,
+        115,
         155,
         145,
         205
@@ -435,6 +435,20 @@
         162,
         112,
         163
+      ]
+    },
+    {
+      "name": "upper_near_from_coat_near",
+      "file": "upper_near_from_coat_near.png",
+      "offset": [
+        188,
+        131
+      ],
+      "bbox": [
+        188,
+        131,
+        189,
+        132
       ]
     },
     {
@@ -715,6 +729,20 @@
         198,
         194,
         238
+      ]
+    },
+    {
+      "name": "foot_near_from_shin_near",
+      "file": "foot_near_from_shin_near.png",
+      "offset": [
+        163,
+        211
+      ],
+      "bbox": [
+        163,
+        211,
+        170,
+        224
       ]
     },
     {

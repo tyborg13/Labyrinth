@@ -266,12 +266,7 @@
     "art_status": "hidden_filled_pending_director_review",
     "production_integration": false
   },
-  "design_placeholders": {
-    "TODO_DESIGN_tabard_global_colour_gate": "The global DeltaE76<=15 test includes protected metal/leather/blood; report literal failures pending scope decision",
-    "TODO_DESIGN_rear_torso_lean": "Production has pelvis drive but no independent torso lean curve; preserve it until director supplies lean data",
-    "TODO_DESIGN_sparse_value_reference_front_thigh_far": "Literal same-view reference has fewer than 40 pixels; brighter core fallback needs director's decision",
-    "TODO_DESIGN_sparse_value_reference_rear_thigh_far": "Literal same-view reference has fewer than 40 pixels; brighter core fallback needs director's decision"
-  },
+  "design_placeholders": {},
   "draw_order_parts": {
     "rear": [
       "upper_near",

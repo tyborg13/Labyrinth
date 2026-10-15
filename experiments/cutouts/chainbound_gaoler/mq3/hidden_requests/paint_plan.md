@@ -14,13 +14,22 @@ from the approved pair and its supplied identity/material brief.
 ## 1. front / coat_near
 
 - Material: dark ash-grey ragged coat tail.
-- Hidden area: 722 px; peak sampled exposure: 709 px.
+- Hidden area: 723 px; peak sampled exposure: 710 px.
 - Hidden bounds (left, top, right, bottom; exclusive): `[165, 126, 194, 178]`.
-- Motions that expose it: strike: peak 709 px at frame 22, 29/31 frames exposed; manacle_pin: peak 708 px at frame 4, 36/39 frames exposed; chain_reel: peak 239 px at frame 16, 15/31 frames exposed; walk: peak 234 px at frame 37, 39/48 frames exposed; death: peak 73 px at frame 2, 28/32 frames exposed; hit: peak 71 px at frame 6, 17/24 frames exposed.
-- Neighbouring materials: `belt` — broad brown belt (3 px covered, 4 px border); `tabard` — red-brown tabard with its approved insignia (10 px covered, 3 px border); `upper_near` — dark cloth sleeve (92 px covered, 17 px border); `fore_near` — dark cloth sleeve with broad brown leather bands (394 px covered, 22 px border); `hand_near` — dark brown leather glove (223 px covered, 21 px border); `thigh_near` — dark cloth trouser leg (1 px border).
+- Motions that expose it: strike: peak 710 px at frame 22, 29/31 frames exposed; manacle_pin: peak 709 px at frame 4, 36/39 frames exposed; chain_reel: peak 239 px at frame 16, 15/31 frames exposed; walk: peak 234 px at frame 37, 39/48 frames exposed; death: peak 73 px at frame 2, 28/32 frames exposed; hit: peak 71 px at frame 6, 18/24 frames exposed.
+- Neighbouring materials: `belt` — broad brown belt (3 px covered, 4 px border); `tabard` — red-brown tabard with its approved insignia (10 px covered, 3 px border); `upper_near` — dark cloth sleeve (93 px covered, 17 px border); `fore_near` — dark cloth sleeve with broad brown leather bands (394 px covered, 22 px border); `hand_near` — dark brown leather glove (223 px covered, 21 px border); `thigh_near` — dark cloth trouser leg (1 px border).
 - Request: [native](front_coat_near.png) / [4× nearest](front_coat_near_4x.png).
 
-## 2. front / thigh_far
+## 2. front / thigh_near
+
+- Material: dark cloth trouser leg.
+- Hidden area: 1626 px; peak sampled exposure: 574 px.
+- Hidden bounds (left, top, right, bottom; exclusive): `[146, 126, 181, 203]`.
+- Motions that expose it: walk: peak 574 px at frame 23, 46/48 frames exposed; strike: peak 337 px at frame 5, 28/31 frames exposed; manacle_pin: peak 281 px at frame 3, 36/39 frames exposed; death: peak 105 px at frame 13, 31/32 frames exposed; chain_reel: peak 74 px at frame 23, 18/31 frames exposed; hit: peak 36 px at frame 6, 17/24 frames exposed; idle: peak 28 px at frame 6, 13/24 frames exposed.
+- Neighbouring materials: `torso` — dark ash-grey cowl and tunic (93 px covered, 16 px border); `pelvis` — dark cloth at hips (37 px covered); `belt` — broad brown belt (192 px covered, 12 px border); `tabard` — red-brown tabard with its approved insignia (5 px covered, 8 px border); `coat_near` — dark ash-grey ragged coat tail (209 px covered, 34 px border); `upper_near` — dark cloth sleeve (155 px covered, 24 px border); `fore_near` — dark cloth sleeve with broad brown leather bands (426 px covered, 20 px border); `hand_near` — dark brown leather glove (438 px covered, 9 px border); `shin_near` — dark lower leg and boot cuff (71 px covered, 12 px border).
+- Request: [native](front_thigh_near.png) / [4× nearest](front_thigh_near_4x.png).
+
+## 3. front / thigh_far
 
 - Material: dark cloth trouser leg.
 - Hidden area: 2186 px; peak sampled exposure: 573 px.
@@ -28,15 +37,6 @@ from the approved pair and its supplied identity/material brief.
 - Motions that expose it: walk: peak 573 px at frame 47, 48/48 frames exposed; chain_reel: peak 44 px at frame 23, 20/31 frames exposed; death: peak 38 px at frame 2, 31/32 frames exposed; hit: peak 35 px at frame 6, 17/24 frames exposed; strike: peak 28 px at frame 6, 25/31 frames exposed; idle: peak 7 px at frame 6, 13/24 frames exposed; manacle_pin: peak 6 px at frame 4, 28/39 frames exposed.
 - Neighbouring materials: `torso` — dark ash-grey cowl and tunic (548 px covered, 51 px border); `pelvis` — dark cloth at hips (6 px covered, 4 px border); `belt` — broad brown belt (331 px covered, 22 px border); `tabard` — red-brown tabard with its approved insignia (1298 px covered, 77 px border); `coat_far` — dark ash-grey ragged coat tail (1 px covered, 6 px border); `shin_far` — dark lower leg and boot cuff (2 px covered).
 - Request: [native](front_thigh_far.png) / [4× nearest](front_thigh_far_4x.png).
-
-## 3. front / thigh_near
-
-- Material: dark cloth trouser leg.
-- Hidden area: 1626 px; peak sampled exposure: 572 px.
-- Hidden bounds (left, top, right, bottom; exclusive): `[146, 126, 181, 203]`.
-- Motions that expose it: walk: peak 572 px at frame 23, 46/48 frames exposed; strike: peak 337 px at frame 5, 28/31 frames exposed; manacle_pin: peak 281 px at frame 3, 36/39 frames exposed; death: peak 105 px at frame 13, 31/32 frames exposed; chain_reel: peak 74 px at frame 23, 18/31 frames exposed; hit: peak 36 px at frame 6, 17/24 frames exposed; idle: peak 28 px at frame 6, 13/24 frames exposed.
-- Neighbouring materials: `torso` — dark ash-grey cowl and tunic (93 px covered, 16 px border); `pelvis` — dark cloth at hips (37 px covered); `belt` — broad brown belt (192 px covered, 12 px border); `tabard` — red-brown tabard with its approved insignia (5 px covered, 8 px border); `coat_near` — dark ash-grey ragged coat tail (209 px covered, 34 px border); `upper_near` — dark cloth sleeve (155 px covered, 24 px border); `fore_near` — dark cloth sleeve with broad brown leather bands (426 px covered, 20 px border); `hand_near` — dark brown leather glove (438 px covered, 9 px border); `shin_near` — dark lower leg and boot cuff (71 px covered, 12 px border).
-- Request: [native](front_thigh_near.png) / [4× nearest](front_thigh_near_4x.png).
 
 ## 4. rear / shin_far
 
@@ -59,10 +59,10 @@ from the approved pair and its supplied identity/material brief.
 ## 6. front / shin_far
 
 - Material: dark lower leg and boot cuff.
-- Hidden area: 1029 px; peak sampled exposure: 426 px.
+- Hidden area: 1036 px; peak sampled exposure: 431 px.
 - Hidden bounds (left, top, right, bottom; exclusive): `[110, 160, 138, 227]`.
-- Motions that expose it: walk: peak 426 px at frame 46, 46/48 frames exposed; chain_reel: peak 70 px at frame 23, 20/31 frames exposed; strike: peak 61 px at frame 5, 25/31 frames exposed; death: peak 33 px at frame 2, 31/32 frames exposed; hit: peak 32 px at frame 3, 17/24 frames exposed; idle: peak 31 px at frame 6, 13/24 frames exposed; manacle_pin: peak 19 px at frame 4, 28/39 frames exposed.
-- Neighbouring materials: `tabard` — red-brown tabard with its approved insignia (910 px covered, 52 px border); `thigh_far` — dark cloth trouser leg (5 px covered, 6 px border); `foot_far` — dull dark brown boot (114 px covered, 17 px border); `coat_far` — dark ash-grey ragged coat tail (1 px border).
+- Motions that expose it: walk: peak 431 px at frame 46, 47/48 frames exposed; chain_reel: peak 73 px at frame 20, 20/31 frames exposed; strike: peak 67 px at frame 5, 25/31 frames exposed; hit: peak 37 px at frame 1, 17/24 frames exposed; death: peak 36 px at frame 2, 31/32 frames exposed; idle: peak 36 px at frame 6, 13/24 frames exposed; manacle_pin: peak 25 px at frame 4, 28/39 frames exposed.
+- Neighbouring materials: `tabard` — red-brown tabard with its approved insignia (917 px covered, 52 px border); `thigh_far` — dark cloth trouser leg (5 px covered, 6 px border); `foot_far` — dull dark brown boot (114 px covered, 17 px border); `coat_far` — dark ash-grey ragged coat tail (1 px border).
 - Request: [native](front_shin_far.png) / [4× nearest](front_shin_far_4x.png).
 
 ## 7. front / torso
@@ -70,7 +70,7 @@ from the approved pair and its supplied identity/material brief.
 - Material: dark ash-grey cowl and tunic.
 - Hidden area: 1946 px; peak sampled exposure: 396 px.
 - Hidden bounds (left, top, right, bottom; exclusive): `[117, 57, 186, 138]`.
-- Motions that expose it: strike: peak 396 px at frame 13, 26/31 frames exposed; manacle_pin: peak 231 px at frame 4, 35/39 frames exposed; walk: peak 86 px at frame 12, 44/48 frames exposed; death: peak 38 px at frame 14, 30/32 frames exposed; hit: peak 8 px at frame 6, 11/24 frames exposed; chain_reel: peak 7 px at frame 17, 13/31 frames exposed.
+- Motions that expose it: strike: peak 396 px at frame 13, 26/31 frames exposed; manacle_pin: peak 230 px at frame 4, 35/39 frames exposed; walk: peak 86 px at frame 12, 44/48 frames exposed; death: peak 38 px at frame 14, 30/32 frames exposed; hit: peak 8 px at frame 6, 11/24 frames exposed; chain_reel: peak 7 px at frame 17, 13/31 frames exposed.
 - Neighbouring materials: `head` — rusted dark-iron bucket helm (857 px covered, 43 px border); `belt` — broad brown belt (38 px covered, 29 px border); `upper_near` — dark cloth sleeve (1047 px covered, 57 px border); `fore_near` — dark cloth sleeve with broad brown leather bands (4 px covered, 4 px border); `upper_far` — dark cloth sleeve (1 px border).
 - Request: [native](front_torso.png) / [4× nearest](front_torso_4x.png).
 
@@ -95,10 +95,10 @@ from the approved pair and its supplied identity/material brief.
 ## 10. front / shin_near
 
 - Material: dark lower leg and boot cuff.
-- Hidden area: 748 px; peak sampled exposure: 204 px.
+- Hidden area: 761 px; peak sampled exposure: 216 px.
 - Hidden bounds (left, top, right, bottom; exclusive): `[154, 174, 183, 241]`.
-- Motions that expose it: walk: peak 204 px at frame 25, 48/48 frames exposed; chain_reel: peak 24 px at frame 21, 11/31 frames exposed; hit: peak 19 px at frame 3, 17/24 frames exposed; strike: peak 19 px at frame 5, 17/31 frames exposed; death: peak 17 px at frame 3, 31/32 frames exposed; idle: peak 12 px at frame 6, 13/24 frames exposed; manacle_pin: peak 3 px at frame 28, 6/39 frames exposed.
-- Neighbouring materials: `coat_near` — dark ash-grey ragged coat tail (312 px covered, 31 px border); `hand_near` — dark brown leather glove (29 px covered, 14 px border); `thigh_near` — dark cloth trouser leg (290 px covered, 5 px border); `foot_near` — dull dark brown boot (117 px covered, 21 px border).
+- Motions that expose it: walk: peak 216 px at frame 25, 48/48 frames exposed; chain_reel: peak 30 px at frame 21, 11/31 frames exposed; hit: peak 25 px at frame 3, 17/24 frames exposed; death: peak 24 px at frame 3, 31/32 frames exposed; strike: peak 19 px at frame 5, 22/31 frames exposed; idle: peak 12 px at frame 6, 13/24 frames exposed; manacle_pin: peak 3 px at frame 28, 6/39 frames exposed.
+- Neighbouring materials: `coat_near` — dark ash-grey ragged coat tail (312 px covered, 31 px border); `hand_near` — dark brown leather glove (29 px covered, 14 px border); `thigh_near` — dark cloth trouser leg (290 px covered, 5 px border); `foot_near` — dull dark brown boot (130 px covered, 21 px border).
 - Request: [native](front_shin_near.png) / [4× nearest](front_shin_near_4x.png).
 
 ## 11. rear / coat_near
@@ -116,7 +116,7 @@ from the approved pair and its supplied identity/material brief.
 - Hidden area: 2068 px; peak sampled exposure: 184 px.
 - Hidden bounds (left, top, right, bottom; exclusive): `[114, 98, 191, 149]`.
 - Motions that expose it: manacle_pin: peak 184 px at frame 4, 30/39 frames exposed; strike: peak 184 px at frame 12, 25/31 frames exposed; death: peak 77 px at frame 14, 31/32 frames exposed; walk: peak 63 px at frame 10, 46/48 frames exposed; chain_reel: peak 55 px at frame 11, 14/31 frames exposed; hit: peak 20 px at frame 15, 16/24 frames exposed.
-- Neighbouring materials: `torso` — dark ash-grey cowl and tunic (1298 px covered, 47 px border); `coat_near` — dark ash-grey ragged coat tail (9 px covered, 5 px border); `upper_near` — dark cloth sleeve (642 px covered, 36 px border); `fore_near` — dark cloth sleeve with broad brown leather bands (119 px covered, 19 px border); `tabard` — red-brown tabard with its approved insignia (1 px border).
+- Neighbouring materials: `torso` — dark ash-grey cowl and tunic (1298 px covered, 47 px border); `coat_near` — dark ash-grey ragged coat tail (8 px covered, 5 px border); `upper_near` — dark cloth sleeve (643 px covered, 36 px border); `fore_near` — dark cloth sleeve with broad brown leather bands (119 px covered, 19 px border); `tabard` — red-brown tabard with its approved insignia (1 px border).
 - Request: [native](front_belt.png) / [4× nearest](front_belt_4x.png).
 
 ## 13. front / upper_far
@@ -151,7 +151,7 @@ from the approved pair and its supplied identity/material brief.
 - Material: dark cloth sleeve with broad brown leather bands.
 - Hidden area: 607 px; peak sampled exposure: 56 px.
 - Hidden bounds (left, top, right, bottom; exclusive): `[150, 92, 198, 134]`.
-- Motions that expose it: chain_reel: peak 56 px at frame 21, 29/31 frames exposed; walk: peak 23 px at frame 31, 42/48 frames exposed; strike: peak 12 px at frame 13, 13/31 frames exposed; death: peak 10 px at frame 9, 29/32 frames exposed; hit: peak 7 px at frame 9, 11/24 frames exposed.
+- Motions that expose it: chain_reel: peak 56 px at frame 21, 29/31 frames exposed; walk: peak 23 px at frame 31, 42/48 frames exposed; strike: peak 12 px at frame 18, 17/31 frames exposed; death: peak 10 px at frame 9, 29/32 frames exposed; hit: peak 7 px at frame 9, 11/24 frames exposed.
 - Neighbouring materials: `upper_far` — dark cloth sleeve (288 px covered, 47 px border); `hand_far` — dark brown leather glove (319 px covered, 13 px border); `chain` — chunky dark-iron chain (1 px border).
 - Request: [native](rear_fore_far.png) / [4× nearest](rear_fore_far_4x.png).
 
@@ -160,7 +160,7 @@ from the approved pair and its supplied identity/material brief.
 - Material: dark ash-grey cowl and tunic.
 - Hidden area: 1416 px; peak sampled exposure: 50 px.
 - Hidden bounds (left, top, right, bottom; exclusive): `[72, 53, 151, 140]`.
-- Motions that expose it: chain_reel: peak 50 px at frame 11, 26/31 frames exposed; death: peak 31 px at frame 2, 31/32 frames exposed; hit: peak 28 px at frame 6, 17/24 frames exposed; strike: peak 23 px at frame 12, 31/31 frames exposed; manacle_pin: peak 14 px at frame 0, 39/39 frames exposed; walk: peak 14 px at frame 9, 29/48 frames exposed.
+- Motions that expose it: chain_reel: peak 50 px at frame 11, 26/31 frames exposed; death: peak 31 px at frame 2, 31/32 frames exposed; manacle_pin: peak 31 px at frame 28, 39/39 frames exposed; strike: peak 31 px at frame 26, 31/31 frames exposed; hit: peak 28 px at frame 6, 17/24 frames exposed; walk: peak 14 px at frame 9, 29/48 frames exposed.
 - Neighbouring materials: `head` — rusted dark-iron bucket helm (476 px covered, 39 px border); `belt` — broad brown belt (146 px covered, 53 px border); `upper_near` — dark cloth sleeve (14 px covered, 15 px border); `upper_far` — dark cloth sleeve (780 px covered, 34 px border).
 - Request: [native](rear_torso.png) / [4× nearest](rear_torso_4x.png).
 
@@ -187,7 +187,7 @@ from the approved pair and its supplied identity/material brief.
 - Material: dark cloth sleeve.
 - Hidden area: 405 px; peak sampled exposure: 38 px.
 - Hidden bounds (left, top, right, bottom; exclusive): `[119, 81, 176, 132]`.
-- Motions that expose it: chain_reel: peak 38 px at frame 22, 27/31 frames exposed; strike: peak 15 px at frame 11, 15/31 frames exposed; walk: peak 13 px at frame 7, 27/48 frames exposed.
+- Motions that expose it: chain_reel: peak 38 px at frame 22, 27/31 frames exposed; walk: peak 13 px at frame 7, 27/48 frames exposed; strike: peak 8 px at frame 19, 16/31 frames exposed.
 - Neighbouring materials: `torso` — dark ash-grey cowl and tunic (141 px covered, 50 px border); `fore_far` — dark cloth sleeve with broad brown leather bands (264 px covered, 28 px border).
 - Request: [native](rear_upper_far.png) / [4× nearest](rear_upper_far_4x.png).
 
@@ -272,7 +272,16 @@ from the approved pair and its supplied identity/material brief.
 - Neighbouring materials: `belt` — broad brown belt (193 px covered, 39 px border).
 - Request: [native](rear_coat_far.png) / [4× nearest](rear_coat_far_4x.png).
 
-## 30. front / head
+## 30. rear / belt
+
+- Material: broad brown belt.
+- Hidden area: 1307 px; peak sampled exposure: 14 px.
+- Hidden bounds (left, top, right, bottom; exclusive): `[76, 106, 142, 151]`.
+- Motions that expose it: strike: peak 14 px at frame 26, 14/31 frames exposed; death: peak 12 px at frame 1, 30/32 frames exposed; hit: peak 12 px at frame 11, 17/24 frames exposed; manacle_pin: peak 10 px at frame 30, 23/39 frames exposed; walk: peak 1 px at frame 3, 11/48 frames exposed.
+- Neighbouring materials: `torso` — dark ash-grey cowl and tunic (1294 px covered, 65 px border); `coat_far` — dark ash-grey ragged coat tail (13 px covered, 15 px border); `tabard` — red-brown tabard with its approved insignia (1 px border).
+- Request: [native](rear_belt.png) / [4× nearest](rear_belt_4x.png).
+
+## 31. front / head
 
 - Material: rusted dark-iron bucket helm.
 - Hidden area: 291 px; peak sampled exposure: 14 px.
@@ -281,23 +290,14 @@ from the approved pair and its supplied identity/material brief.
 - Neighbouring materials: `torso` — dark ash-grey cowl and tunic (291 px covered, 58 px border).
 - Request: [native](front_head.png) / [4× nearest](front_head_4x.png).
 
-## 31. rear / hand_far
+## 32. rear / hand_far
 
 - Material: dark brown leather glove.
 - Hidden area: 56 px; peak sampled exposure: 14 px.
 - Hidden bounds (left, top, right, bottom; exclusive): `[177, 99, 189, 116]`.
-- Motions that expose it: chain_reel: peak 14 px at frame 6, 24/31 frames exposed; walk: peak 12 px at frame 2, 30/48 frames exposed; strike: peak 10 px at frame 23, 3/31 frames exposed; death: peak 9 px at frame 13, 24/32 frames exposed; hit: peak 5 px at frame 9, 4/24 frames exposed.
+- Motions that expose it: chain_reel: peak 14 px at frame 6, 24/31 frames exposed; walk: peak 12 px at frame 2, 30/48 frames exposed; death: peak 9 px at frame 13, 24/32 frames exposed; hit: peak 5 px at frame 9, 4/24 frames exposed; strike: peak 4 px at frame 20, 4/31 frames exposed.
 - Neighbouring materials: `fore_far` — dark cloth sleeve with broad brown leather bands (56 px covered, 22 px border).
 - Request: [native](rear_hand_far.png) / [4× nearest](rear_hand_far_4x.png).
-
-## 32. rear / belt
-
-- Material: broad brown belt.
-- Hidden area: 1307 px; peak sampled exposure: 12 px.
-- Hidden bounds (left, top, right, bottom; exclusive): `[76, 106, 142, 151]`.
-- Motions that expose it: death: peak 12 px at frame 1, 30/32 frames exposed; hit: peak 12 px at frame 11, 17/24 frames exposed; walk: peak 1 px at frame 3, 11/48 frames exposed.
-- Neighbouring materials: `torso` — dark ash-grey cowl and tunic (1294 px covered, 65 px border); `coat_far` — dark ash-grey ragged coat tail (13 px covered, 15 px border); `tabard` — red-brown tabard with its approved insignia (1 px border).
-- Request: [native](rear_belt.png) / [4× nearest](rear_belt_4x.png).
 
 ## 33. front / chain
 

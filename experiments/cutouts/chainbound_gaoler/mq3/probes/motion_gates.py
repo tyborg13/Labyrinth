@@ -16,6 +16,10 @@ from maquette_cutout import MAGENTA, bbox, components8, to_lab, label_core
 
 CANVAS_SIZE = 512
 POSE_OFFSET = 128
+TABARD_GATE_PARTS = {
+    "front": ["pelvis", "thigh_far", "thigh_near", "shin_far", "shin_near", "coat_far", "coat_near"],
+    "rear": ["pelvis", "thigh_far", "thigh_near"],
+}
 
 
 @lru_cache(maxsize=512)
@@ -173,18 +177,18 @@ def bake_rear_arm(root):
 
 
 def frame_counts(pixels, owners, parts, arm, body, view, clip, tabard_lab):
-    """Literal director gates, including material collisions outside the tabard."""
+    """Count strict DeltaE76<12 on the director's complete logical owner list."""
     opaque = pixels[..., 3] > 128
     distances = np.full(opaque.shape, np.inf)
     distances[opaque] = np.linalg.norm(to_lab(pixels[opaque, :3]) - tabard_lab, axis=-1)
-    red = opaque & (distances <= 15)
-    by_part = {}
+    red = opaque & (distances < 12)
+    by_part = dict.fromkeys(TABARD_GATE_PARTS[view], 0)
     for i in np.unique(owners[red]):
         if i < 0 or i >= len(parts):
             raise CutoutError("Opaque material pixel has no valid owner")
         name = parts[i].get("logical_part", parts[i]["name"])
-        if name != "tabard":
-            by_part[name] = by_part.get(name, 0) + int((red & (owners == i)).sum())
+        if name in by_part:
+            by_part[name] += int((red & (owners == i)).sum())
     fragments = small_components(pixels)
     arm_ids = [i for i, part in enumerate(parts) if part.get("bone") in ["upper_fist", "fore_fist", "hand_fist"]]
     return {"tabard_non_tabard_pixels": sum(by_part.values()), "tabard_collisions_by_part": by_part,
@@ -207,12 +211,20 @@ def value_counts(root):
             hidden = np.load(root / f"registered/{view}_hidden_{part}.npy", allow_pickle=False)
             filled = rgba(str(root / f"hidden_fills/{view}_{part}.png"))
             own_l = to_lab(paint[owners == names.index(part), :3])[:, 0]
+            reference_l = own_l
+            substitution = None
+            if len(own_l) < 40:
+                near_l = to_lab(paint[owners == names.index("thigh_near"), :3])[:, 0]
+                reference_l = np.clip(near_l - 6, 0, 100)
+                substitution = {"view": view, "part": "thigh_near", "visible_pixels": len(near_l),
+                    "source_median_l": float(np.median(near_l)), "l_shift": -6}
             fill_l = to_lab(filled[hidden, :3])[:, 0]
-            q25, q75 = np.percentile(own_l, [25, 75])
-            delta = float(abs(np.median(fill_l) - np.median(own_l)))
+            q25, q75 = np.percentile(reference_l, [25, 75])
+            delta = float(abs(np.median(fill_l) - np.median(reference_l)))
             midtones = int(((fill_l >= q25) & (fill_l <= q75)).sum())
             records.append({"view": view, "part": part, "visible_pixels": len(own_l),
                 "visible_median_l": float(np.median(own_l)), "hidden_median_l": float(np.median(fill_l)),
+                "reference_median_l": float(np.median(reference_l)), "substitution": substitution,
                 "difference_l": delta, "midtones_range_l": [float(q25), float(q75)],
                 "hidden_midtones_pixels": midtones, "ok": delta <= 8 and midtones > 0})
     return records
@@ -220,10 +232,21 @@ def value_counts(root):
 
 def finish_report(root, records, basis, output):
     values = value_counts(root)
+    gate = read_json(root / "recipes/rig.json")["ownership_cleanup"]["tabard_gate"]
+    if gate["parts"] != TABARD_GATE_PARTS or gate["delta_e"] != 12 or gate["comparison"] != "strict_less":
+        raise CutoutError("Motion gate scope differs from the director's round6 contract")
+    by_clip_part = []
+    for view, clip in sorted({(r["view"], r["clip"]) for r in records}):
+        frames = [r for r in records if (r["view"], r["clip"]) == (view, clip)]
+        for part in TABARD_GATE_PARTS[view]:
+            counts = [r["tabard_collisions_by_part"][part] for r in frames]
+            by_clip_part.append({"view": view, "clip": clip, "part": part,
+                "frames": len(frames), "total_pixels": sum(counts), "max_frame_pixels": max(counts)})
     totals = {name: sum(r[name] for r in records) for name in
               ["tabard_non_tabard_pixels", "detached_small_pixels", "rear_arm_outside_pixels", "rear_visible_arm_pixels", "magenta_pixels"]}
     report = {"ok": not any(totals.values()) and all(r["ok"] for r in values), "basis": basis,
         "frames": len(records), "totals": totals, "value_distribution": values,
+        "colour_gate": gate, "colour_counts_per_part_and_clip": by_clip_part,
         "value_failures": sum(not r["ok"] for r in values), "records": records,
         "design_placeholders": read_json(root / "recipes/rig.json").get("design_placeholders", {})}
     write_json(output, report)

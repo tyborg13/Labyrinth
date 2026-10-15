@@ -114,10 +114,7 @@
     "hook": "foot_far",
     "fist": "foot_near"
   },
-  "design_placeholders": {
-    "TODO_DESIGN_tabard_global_colour_gate": "The global DeltaE76<=15 test includes protected metal/leather/blood; report literal failures pending scope decision",
-    "TODO_DESIGN_rear_torso_lean": "Production has pelvis drive but no independent torso lean curve; preserve it until director supplies lean data"
-  },
+  "design_placeholders": {},
   "proof_defaults": {
     "clip_frames": {
       "idle": 24,
@@ -5468,7 +5465,28 @@
       "coat_near"
     ],
     "tabard_dilation_px": 6,
-    "tabard_gate_delta_e": 15
+    "tabard_transfer_delta_e": 15,
+    "tabard_gate": {
+      "delta_e": 12,
+      "comparison": "strict_less",
+      "parts": {
+        "front": [
+          "pelvis",
+          "thigh_far",
+          "thigh_near",
+          "shin_far",
+          "shin_near",
+          "coat_far",
+          "coat_near"
+        ],
+        "rear": [
+          "pelvis",
+          "thigh_far",
+          "thigh_near"
+        ]
+      },
+      "basis": "Director round6 complete logical owner list under 6px-dilated front cloth; rust/copper on other owners protected"
+    }
   },
   "articulated_chain": {
     "basis": "production chain_a to hook projected-axis fractions for chain_b/chain_c, mapped to registered maquette chain to hook; partition existing paint by pixel-centre projection"
@@ -5498,6 +5516,25 @@
       "shin_near"
     ],
     "max_median_l_difference": 8,
-    "basis": "Same-view same-part visible pixels; sparse references reported explicitly pending design decision"
+    "basis": "Same-view same-part visible pixels; sparse parts use same-view near thigh with L* lowered 6",
+    "sparse_reference": {
+      "min_visible_pixels": 40,
+      "part": "thigh_near",
+      "l_shift": -6,
+      "chroma_hue": "same-view near-thigh trousers"
+    }
+  },
+  "rear_torso_lean": {
+    "clips": [
+      "strike",
+      "manacle_pin"
+    ],
+    "rotation_rad_per_hit": 0.07,
+    "shoulder_offset_per_prep": [
+      0,
+      -3
+    ],
+    "pin_hit_envelope": "production cast",
+    "basis": "Director round6; same production timing, inherited by head and both arms; pelvis unchanged"
   }
 }
