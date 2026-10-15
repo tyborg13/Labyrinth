@@ -11,6 +11,8 @@ and gallows roc rears). For such subjects the structure is decided in 3D and ima
   approved painting. Front and rear come from one pose, so they agree by construction.
 - The part-label renders double as ownership masks for a future cutout rig.
 
+Use [From a maquette](../../cutout_workflow.md#from-a-maquette) for registered ownership, cutout cases and hidden-material requests.
+
 ## Primitives: rounded by default (owner 2026-10-13)
 The gaoler pilot's cube helm, slab coat panels, straight column legs and brick boots made the paint-over read "quite
 boxy". Build creatures from ellipsoids and tapered capsules; use `box` only for built objects, and then with a large

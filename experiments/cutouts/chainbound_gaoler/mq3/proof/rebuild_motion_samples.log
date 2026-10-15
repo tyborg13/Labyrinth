@@ -1,0 +1,13 @@
+Running task-local command:
+  task: rr-02
+  run: rr-02-1792075996447686000-63274
+  HOME: /private/tmp/labyrinth-godot-home/rr-02-1792075996447686000-63274
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-02-1792075996447686000-63274/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02 --script /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/proof/rebuild_fixture/probes/motion_samples.gd -- --case /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/proof/rebuild_fixture/cutout.json --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/proof/rebuild_fixture/proof/motion_samples.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+MAQUETTE_MOTION_SAMPLES: PASS (318 poses)

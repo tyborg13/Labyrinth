@@ -1,0 +1,591 @@
+#!/usr/bin/env python3
+"""Register maquette labels to approved paint without inventing hidden artwork.
+
+Only Pillow/numpy (already used by art_identity_gate) are required. Blender owns
+geometry; this tool never substitutes estimated silhouettes for missing solos.
+See spec/cutout_workflow.md, 'From a maquette'.
+"""
+from __future__ import annotations
+
+import argparse
+from dataclasses import asdict, dataclass
+import math
+from pathlib import Path
+import re
+import shutil
+import subprocess
+import sys
+
+import numpy as np
+from PIL import Image, ImageDraw
+
+from art_identity_gate import alpha_bbox, box_binary_sprite, fit_sprite, pixel_digest
+from cutout_pipeline.assets import apply_skin, segment
+from cutout_pipeline.cases import (CutoutError, PROJECT, baseline, digest, init_case,
+                                   load_case, read_json, write_json)
+from cutout_pipeline.validation import validate
+
+NATIVE_SIZE = 255
+REASSIGNMENT_LIMIT = 0.15
+MAGENTA = (255, 0, 255, 255)
+GREEN = (0, 255, 0, 255)
+# Proof/algorithm defaults, not player-facing tuning.
+PROOF_DEFAULTS = {"sheet_columns": 5, "sheet_label_height": 28,
+                  "keyframes_per_clip": 8, "mask_alpha_threshold": 128,
+                  "pose_canvas": 512, "pose_offset": 128,
+                  "joint_rounding_tolerance": 0.02}
+BLENDER = "/Applications/Blender.app/Contents/MacOS/Blender"
+GAOLER_RECIPE = PROJECT / "experiments/cutouts/chainbound_gaoler/mq3/recipes/rig.json"
+
+
+@dataclass
+class Registration:
+    """Pixel-edge affine map; joints and nearest-sampled images share this map."""
+    scale: list[float]
+    offset: list[float]
+    trace: dict
+
+    def point(self, point) -> list[float]:
+        return [float(point[i]) * self.scale[i] + self.offset[i] for i in range(2)]
+
+    def image(self, image: Image.Image) -> Image.Image:
+        sx, sy = self.scale
+        ox, oy = self.offset
+        # Do not crop solos to the painting bbox: their occluded material can
+        # extend beyond it. Only the common final 255px canvas clips anything.
+        return image.transform((NATIVE_SIZE, NATIVE_SIZE), Image.Transform.AFFINE,
+                               (1 / sx, 0, -ox / sx, 0, 1 / sy, -oy / sy),
+                               resample=Image.Resampling.NEAREST)
+
+
+def registration(raw: Path, record: dict) -> Registration:
+    """Recover process_raw's crop/trim/fit, including nonintegral K and fit rounding.
+
+    The record alone lacks the keyed bbox and two alpha trims. Recompute those
+    from the digest-checked raw, using the actual gate's reducers. Palette and
+    outline postprocessing cannot change this coordinate transform.
+    """
+    if digest(raw) != record["raw_sha256"]:
+        raise CutoutError("Raw painting digest differs from processed.json")
+    image = Image.open(raw).convert("RGBA")
+    if image.width != image.height:
+        raise CutoutError("process_raw requires square raw paint")
+    k = record["K"] * image.width / 1024
+    if not math.isclose(k, record["k_eff"]):
+        raise CutoutError("Raw size/K do not match the approved registration")
+    rgb = np.asarray(image.convert("RGB"), dtype=float)
+    alpha = np.clip((np.abs(rgb - [0, 255, 0]).max(-1) - 40) / 40, 0, 1)
+    background = alpha <= 0.5
+    ring = background.copy()
+    for _ in range(math.ceil(k) + 1):
+        grown = ring.copy()
+        grown[1:] |= ring[:-1]
+        grown[:-1] |= ring[1:]
+        grown[:, 1:] |= ring[:, :-1]
+        grown[:, :-1] |= ring[:, 1:]
+        ring = grown
+    spill = (alpha < 1) | (ring & ~background)
+    other = rgb[..., [0, 2]].max(-1)
+    green = np.where(spill, np.clip((rgb[..., 1] - other) / np.maximum(255 - other, 1), 0, 0.95), 0)
+    alpha = np.minimum(alpha, 1 - green)
+    ys, xs = np.nonzero(alpha > 0.5)
+    if not len(xs):
+        raise CutoutError("Raw painting has no keyed subject")
+    left, bottom = int(xs.min()), int(ys.max()) + 1
+    height = math.ceil(math.ceil((bottom - int(ys.min())) / k) * k)
+    width = math.ceil(math.ceil((int(xs.max()) + 1 - left) / k) * k)
+    top = bottom - height
+    padded = np.zeros((height, width))
+    sub = alpha[max(0, top):bottom, left:left + width]
+    padded[height - sub.shape[0]:, :sub.shape[1]] = sub
+    reduced_size = (max(1, round(width / k)), max(1, round(height / k)))
+    # Only alpha determines either trim; zero RGB intentionally avoids palette work.
+    sprite = box_binary_sprite(np.zeros((height, width, 3)), padded, reduced_size)
+    trim = alpha_bbox(sprite)
+    sprite = sprite.crop(trim)
+    before_fit = sprite.size
+    sprite, fit = fit_sprite(sprite)
+    after_fit = sprite.size
+    final_trim = alpha_bbox(sprite)
+    sprite = sprite.crop(final_trim)
+    if list(sprite.size) != record["drawn_size"] or not math.isclose(fit, record["fit_scale"]):
+        raise CutoutError("Recovered transform differs from approved process_raw record")
+    scale = [reduced_size[i] / (width, height)[i] * after_fit[i] / before_fit[i] for i in range(2)]
+    offset = [record["placement"][i] - final_trim[i] - trim[i] * after_fit[i] / before_fit[i]
+              - (left, top)[i] * scale[i] for i in range(2)]
+    return Registration(scale, offset, {"raw_size": list(image.size), "raw_crop": [left, top, left + width, bottom],
+                                       "reduced_size": list(reduced_size), "trim": list(trim),
+                                       "before_fit": list(before_fit), "after_fit": list(after_fit),
+                                       "final_trim": list(final_trim), "placement": record["placement"]})
+
+
+def projected(spec: dict, point, view: str, size: int = 1024) -> list[float]:
+    """humanoid.py's orthographic camera, without a renderer dependency."""
+    p = np.asarray(point, dtype=float).copy()
+    p[:2] *= 1 if view == "front" else -1
+    p -= np.asarray(spec.get("target", [0, 0, 1.2]))
+    a, e = math.pi / 4, math.pi / 6
+    right = np.array([-math.sin(a), math.cos(a), 0])
+    up = np.array([-math.sin(e) * math.cos(a), -math.sin(e) * math.sin(a), math.cos(e)])
+    scale = size / spec.get("ortho_scale", 3.4)
+    return [size / 2 + float(p @ right) * scale, size / 2 - float(p @ up) * scale]
+
+
+def shape_center(shape: dict, joints: dict) -> np.ndarray:
+    def point(value):
+        return np.asarray(joints[value] if isinstance(value, str) else value, dtype=float)
+    if "a" in shape:
+        return (point(shape["a"]) + point(shape["b"])) / 2
+    if "pts" in shape:
+        return np.asarray(shape["pts"]).mean(axis=0)
+    return point(shape.get("at", shape.get("c"))) + np.asarray(shape.get("offset", [0, 0, 0]))
+
+
+def camera_depths(spec: dict, view: str) -> dict[str, float]:
+    """Distance along the camera axis to the mean primitive centre per label.
+
+    A total order cannot represent intersecting 3D surfaces. Exact per-pixel
+    visible ownership comes from the rendered map, not this scalar layer order.
+    """
+    direction = np.array([math.sqrt(3 / 8), math.sqrt(3 / 8), 0.5])
+    result = {}
+    for name in spec["labels"]:
+        centers = [shape_center(s, spec["joints"]) for s in spec["shapes"] if s["part"] == name]
+        if not centers:
+            raise CutoutError("Label has no geometry: " + name)
+        p = np.mean(centers, axis=0)
+        p[:2] *= 1 if view == "front" else -1
+        result[name] = 30 - float((p - np.asarray(spec.get("target", [0, 0, 1.2]))) @ direction)
+    return result
+
+
+def depth_order(depths: dict[str, float]) -> list[str]:
+    return sorted(depths, key=lambda name: (-depths[name], name))
+
+
+def display_palette(spec: dict, config_path: Path) -> dict:
+    """Evaluate Blender's supplied AgX label transform, not an approximate RGB fit.
+
+    Workbench material values are linear Rec.709; the PNG is AgX/sRGB. Its
+    installed config and tetrahedral LUT provide the transform without adding
+    an OpenColorIO Python dependency. These are diagnostic label colors only.
+    """
+    config = config_path.read_text()
+    def matrix(name):
+        section = config.split("name: " + name + "\n", 1)[1]
+        values = section.split("matrix: [", 1)[1].split("]", 1)[0]
+        return np.array([float(v) for v in values.split(",")]).reshape(4, 4)[:3, :3]
+    conversion = matrix("Linear FilmLight E-Gamut") @ np.linalg.inv(matrix("Linear Rec.709"))
+    section = config.split("name: AgX Base Rec.1886\n", 1)[1].split("- !<ViewTransform>", 1)[0]
+    limits = [float(x) for x in re.search(r"allocation: lg2, vars: \[([^]]+)\]", section)[1].split(",")]
+    filename = re.search(r"src: (AgX_[^,]+\.cube)", section)[1]
+    lines = (config_path.parent / "luts" / filename).read_text().splitlines()
+    size = int(next(l for l in lines if l.startswith("LUT_3D_SIZE")).split()[-1])
+    lut = np.array([[float(x) for x in l.split()] for l in lines if l and l[0] in "-.0123456789"]).reshape(size, size, size, 3)
+    result = {}
+    for name, color in spec["labels"].items():
+        log = np.log2(np.maximum(conversion @ color, np.finfo(float).tiny))
+        coordinate = np.clip((log - limits[0]) / (limits[1] - limits[0]), 0, 1) * (size - 1)
+        low = np.minimum(np.floor(coordinate).astype(int), size - 2)
+        fraction = coordinate - low
+        corner = low.copy()
+        value = lut[corner[2], corner[1], corner[0]].copy()
+        previous = value.copy()
+        for axis in np.argsort(-fraction):
+            corner[axis] += 1
+            next_value = lut[corner[2], corner[1], corner[0]]
+            value += fraction[axis] * (next_value - previous)
+            previous = next_value
+        # Rec.1886 (gamma 2.4) -> display-linear -> sRGB, as the OCIO view specifies.
+        linear = np.maximum(value, 0) ** 2.4
+        srgb = np.where(linear <= 0.0031308, 12.92 * linear, 1.055 * linear ** (1 / 2.4) - 0.055)
+        result[name] = np.rint(srgb * 255).astype(int).tolist()
+    return result
+
+
+def decode_labels(image: Image.Image, palette: dict, names: list[str], depths: dict) -> np.ndarray:
+    rgba = np.asarray(image.convert("RGBA"))
+    result = np.full(rgba.shape[:2], -1, dtype=np.int16)
+    # Antialiased and color-managed maps are categorical, never blend label IDs.
+    order = sorted(range(len(names)), key=lambda i: (depths[names[i]], names[i]))
+    colors = np.asarray([palette[names[i]] for i in order], dtype=float)
+    mask = rgba[..., 3] > PROOF_DEFAULTS["mask_alpha_threshold"]
+    rgb = rgba[mask, :3].astype(float)
+    distances = ((rgb[:, None, :] - colors[None, :, :]) ** 2).sum(axis=2)
+    result[mask] = np.asarray(order)[distances.argmin(axis=1)]
+    return result
+
+
+def nearest_labels(labels: np.ndarray, opaque: np.ndarray, names: list[str], depths: dict) -> tuple[np.ndarray, dict]:
+    """Exact squared-Euclidean Voronoi assignment; depth wins ALL distance ties.
+
+    A separable min-plus transform encodes depth rank below the integer squared
+    distance. Unlike propagation/chamfer or unspecified EDT tie behavior, this
+    also handles diagonal ties deterministically, with no scipy dependency.
+    """
+    if labels.shape != opaque.shape or not np.any(labels >= 0):
+        raise CutoutError("Label map must match paint dimensions and contain labels")
+    h, w = labels.shape
+    order = sorted(range(len(names)), key=lambda i: (depths[names[i]], names[i]))
+    rank = np.empty(len(names), dtype=np.int64)
+    rank[order] = np.arange(len(names))
+    base = len(names) + 1
+    infinity = (h * h + w * w + 1) * base
+    horizontal = np.full((h, w), infinity, dtype=np.int64)
+    xcost = (np.arange(w)[:, None] - np.arange(w)[None, :]) ** 2 * base
+    for y in range(h):
+        seeds = np.flatnonzero(labels[y] >= 0)
+        if len(seeds):
+            horizontal[y] = (xcost[:, seeds] + rank[labels[y, seeds]][None, :]).min(axis=1)
+    ycost = (np.arange(h)[:, None] - np.arange(h)[None, :]) ** 2 * base
+    assigned = np.full_like(labels, -1)
+    for x in range(w):
+        values = (ycost + horizontal[:, x][None, :]).min(axis=1)
+        assigned[:, x] = np.asarray(order)[values % base]
+    assigned[~opaque] = -1
+    report = {}
+    for i, name in enumerate(names):
+        owned = assigned == i
+        count = int(owned.sum())
+        changed = int((owned & (labels != i)).sum())
+        share = changed / count if count else 0
+        report[name] = {"painted_pixels": count, "reassigned_pixels": changed,
+                        "reassigned_share": share, "above_15_percent": share > REASSIGNMENT_LIMIT}
+    return assigned, report
+
+
+def hidden_region(solo: np.ndarray, owners: np.ndarray, part: int) -> tuple[np.ndarray, np.ndarray]:
+    # A solo outside ALL paint is a registration/silhouette disagreement, not
+    # evidence of occlusion by another painted part. Report it separately.
+    return solo & (owners >= 0) & (owners != part), solo & (owners < 0)
+
+
+def bbox(mask: np.ndarray):
+    ys, xs = np.nonzero(mask)
+    return [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1] if len(xs) else None
+
+
+def save_image(path: Path, image: Image.Image) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    image.save(path)
+    Path(str(path) + ".import").write_text('[remap]\n\nimporter="keep"\n')
+
+
+def request_image(paint: Image.Image, owners: np.ndarray, part: int, hidden: np.ndarray) -> Image.Image:
+    pixels = np.empty((*owners.shape, 4), dtype=np.uint8)
+    pixels[:] = GREEN
+    pixels[hidden] = MAGENTA
+    pixels[owners == part] = np.asarray(paint)[owners == part]
+    return Image.fromarray(pixels)
+
+
+def contact_sheet(items: list[tuple[str, Image.Image]], output: Path, columns: int | None = None) -> None:
+    columns = columns or PROOF_DEFAULTS["sheet_columns"]
+    width = max(i.width for _, i in items)
+    height = max(i.height for _, i in items)
+    label = PROOF_DEFAULTS["sheet_label_height"]
+    sheet = Image.new("RGBA", (columns * width, math.ceil(len(items) / columns) * (height + label)), GREEN)
+    draw = ImageDraw.Draw(sheet)
+    for i, (text, image) in enumerate(items):
+        x, y = i % columns * width, i // columns * (height + label)
+        draw.text((x + 2, y + 2), text, fill=(0, 0, 0, 255))
+        sheet.alpha_composite(image, (x, y + label))
+    save_image(output, sheet)
+
+
+def rest_identity(root: Path) -> dict:
+    _, config = load_case(root)
+    result = {}
+    for view, path in config["layouts"].items():
+        layout = read_json(root / path)
+        image = Image.new("RGBA", (NATIVE_SIZE, NATIVE_SIZE))
+        for p in sorted(layout["parts"], key=lambda p: p["z_index"]):
+            image.alpha_composite(Image.open(root / p["file"]).convert("RGBA"), tuple(p["offset"]))
+        approved = Image.open(root / "source" / view / "processed.png").convert("RGBA")
+        difference = np.asarray(image) != np.asarray(approved)
+        result[view] = {"pixel_identical": not bool(difference.any()),
+                        "different_pixels": int(difference.any(axis=2).sum()),
+                        "rgba_sha256": pixel_digest(image)}
+        save_image(root / "proof" / f"{view}_rest.png", image)
+        save_image(root / "proof" / f"{view}_rest_3x.png", image.resize((765, 765), Image.Resampling.NEAREST))
+    result["ok"] = all(r["pixel_identical"] for r in result.values())
+    write_json(root / "proof/rest_identity.json", result)
+    return result
+
+
+def render_maquette(spec_path: Path, target: Path, blender: str) -> None:
+    """Keep the protected spec intact; request every label in a derived copy."""
+    spec = read_json(spec_path)
+    spec["solo"] = list(spec["labels"])
+    render_spec = target.parent / "render_spec.json"
+    write_json(render_spec, spec)
+    command = [blender, "-b", "--factory-startup", "-P", str(PROJECT / "spec/art_identity/maquettes/humanoid.py"),
+               "--", str(render_spec.resolve()), str(target.resolve())]
+    process = subprocess.run(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    (target.parent / "blender.log").write_text(process.stdout)
+    if process.returncode:
+        raise CutoutError(f"Blender exited {process.returncode}; see {target.parent / 'blender.log'}. No render was substituted.")
+
+
+def raw_for_job(job: Path, explicit: Path | None) -> Path:
+    if explicit:
+        return explicit
+    raw = job / "raw.png"
+    if raw.is_file():
+        return raw
+    raise CutoutError(f"Missing {raw}; use --front-raw/--rear-raw (the processed record alone cannot recover registration)")
+
+
+def sample_exposure(root: Path, recipe: dict, task_id: str | None) -> None:
+    if not recipe.get("motion_probe"):
+        return
+    if not task_id:
+        branch = subprocess.check_output(["git", "branch", "--show-current"], cwd=PROJECT, text=True).strip()
+        if not branch.startswith("codex/"):
+            raise CutoutError("Pass --task-id for runner isolation outside a codex task branch")
+        task_id = branch.removeprefix("codex/")
+    samples = root / "proof/motion_samples.json"
+    commands = [
+        [sys.executable, str(PROJECT / "tools/godot_task_runner.py"), "--task-id", task_id, "--stream", "--", "godot",
+         "--headless", "--path", str(PROJECT), "--script", str(root / recipe["motion_probe"]), "--", "--case", str(root / "cutout.json"), "--output", str(samples)],
+        [sys.executable, str(root / recipe["exposure_tool"]), "--case", str(root), "--samples", str(samples)],
+    ]
+    for name, command in zip(["motion_samples", "exposure"], commands):
+        process = subprocess.run(command, cwd=PROJECT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        (root / "proof" / f"{name}.log").write_text(process.stdout)
+        if process.returncode:
+            raise CutoutError(f"{name} failed; see {root / 'proof' / (name + '.log')}")
+
+
+def bind_layout(spec: dict, view: str, transform: Registration, projected_joints: dict, recipe: dict) -> tuple[dict, dict]:
+    bones = {}
+    for name, item in recipe["joints"].items():
+        if "joint" in item:
+            point = projected_joints[item["joint"]]
+        else:
+            shape = next(s for s in spec["shapes"] if s["part"] == item["plate"])
+            point = projected(spec, np.mean(shape["pts"][:2], axis=0), view)
+        bones[name] = {"position": transform.point(point), "parent": item["parent"]}
+    mapping = {name: recipe["parts"][name] for name in spec["labels"]}
+    return bones, mapping
+
+
+def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, allow_incomplete: bool) -> dict:
+    source = root / "source" / view
+    record = read_json(source / "processed.json")
+    paint = Image.open(source / "processed.png").convert("RGBA")
+    if paint.size != (NATIVE_SIZE, NATIVE_SIZE) or pixel_digest(paint) != record["pixel_sha256"]:
+        raise CutoutError("Approved processed paint size/digest differs from its record")
+    if set(np.unique(np.asarray(paint)[..., 3])) - {0, 255}:
+        raise CutoutError("Hidden underlays require process_raw's binary alpha")
+    transform = registration(source / "raw.png", record)
+    maquette = root / "source/maquette"
+    names = list(spec["labels"])
+    depths = camera_depths(spec, view)
+    order = depth_order(depths)
+    joints = read_json(maquette / "joints_px.json")[view]
+    for name, point in spec["joints"].items():
+        if not np.allclose(projected(spec, point, view), joints[name], atol=PROOF_DEFAULTS["joint_rounding_tolerance"]):
+            raise CutoutError(f"Cached joints do not match the spec camera: {view}/{name}")
+    registered = root / "registered"
+    for kind in ["parts", "clay"]:
+        save_image(registered / f"{view}_{kind}.png", transform.image(Image.open(maquette / f"{view}_{kind}.png").convert("RGBA")))
+    label_image = Image.open(registered / f"{view}_parts.png")
+    labels = decode_labels(label_image, palette, names, depths)
+    owners, reassigned = nearest_labels(labels, np.asarray(paint)[..., 3] > 0, names, depths)
+    owner_image = Image.new("RGBA", paint.size)
+    for i, name in enumerate(names):
+        values = np.asarray(owner_image).copy()
+        values[owners == i] = [*np.rint(np.asarray(spec["labels"][name]) * 255).astype(int), 255]
+        owner_image = Image.fromarray(values.astype(np.uint8))
+    save_image(root / "proof" / f"{view}_ownership_3x.png", owner_image.resize((765, 765), Image.Resampling.NEAREST))
+    np.save(registered / f"{view}_owners.npy", owners, allow_pickle=False)
+    present = [name for i, name in enumerate(names) if np.any(owners == i)]
+    ownership = {"priority_polygons": [[name, [[0, 0], [0, 0], [0, 0]]] for name in present],
+                 "pixel_overrides": [{"point": [int(x), int(y)], "name": names[int(owners[y, x])]}
+                                     for y, x in zip(*np.nonzero(owners >= 0))]}
+    ownership_path = root / "recipes" / f"{view}_ownership.json"
+    write_json(ownership_path, ownership)
+    segmented = root / "segmented" / view
+    split = segment(source / "processed.png", ownership_path, segmented)
+    if not split["ok"] or Image.open(segmented / "reconstructed.png").tobytes() != paint.tobytes():
+        raise CutoutError("Segmentation did not preserve all approved RGBA bytes")
+    joints, mapping = bind_layout(spec, view, transform, joints, recipe)
+    layout = {"version": 1, "facing": view, "canvas_size": [255, 255], "joints": joints,
+              "parts": [], "rest_source": f"source/{view}/processed.png", "unmaterialized_parts": []}
+    for p in split["parts"]:
+        name = p["name"]
+        p.update(file=f"segmented/{view}/{name}.png", bone=mapping[name], z_index=order.index(name))
+        layout["parts"].append(p)
+    requests = []
+    for i, name in enumerate(names):
+        solo_path = maquette / f"{view}_solo_{name}.png"
+        hidden = np.zeros(owners.shape, dtype=bool)
+        outside = hidden.copy()
+        available = solo_path.is_file()
+        if available:
+            solo = transform.image(Image.open(solo_path).convert("RGBA"))
+            save_image(registered / solo_path.name, solo)
+            hidden, outside = hidden_region(np.asarray(solo)[..., 3] > PROOF_DEFAULTS["mask_alpha_threshold"], owners, i)
+        elif not allow_incomplete:
+            raise CutoutError("Missing solo render: " + str(solo_path))
+        request = request_image(paint, owners, i, hidden)
+        relative = f"hidden_requests/{view}_{name}.png"
+        save_image(root / relative, request)
+        save_image(root / relative.replace(".png", "_4x.png"), request.resize((1020, 1020), Image.Resampling.NEAREST))
+        entry = {"part": name, "view": view, "image": relative, "status": "measured" if available else "missing_solo_render",
+                 "hidden_pixel_count": int(hidden.sum()) if available else None, "bounding_box": bbox(hidden),
+                 "solo_outside_paint_pixels": int(outside.sum()) if available else None,
+                 "motions": [], "exposure_status": "pending_motion_samples" if available else "unknown"}
+        if hidden.any():
+            hidden_name = "hidden_" + name if name in present else name
+            pixels = np.zeros((*owners.shape, 4), dtype=np.uint8)
+            pixels[hidden] = MAGENTA
+            bounds = bbox(hidden)
+            hidden_file = f"hidden/{view}/{name}.png"
+            save_image(root / hidden_file, Image.fromarray(pixels).crop(bounds))
+            layout["parts"].append({"name": hidden_name, "logical_part": name, "hidden_material": True,
+                                    "file": hidden_file, "offset": bounds[:2], "bone": mapping[name],
+                                    "z_index": order.index(name) - len(names)})
+            entry["paint_node"] = hidden_name
+        elif name not in present:
+            layout["unmaterialized_parts"].append({"part": name, "reason": entry["status"] if not available else "no_visible_or_occluded_pixels"})
+        requests.append(entry)
+    layout["landmarks"] = {}
+    for side, label in recipe.get("sole_parts", {}).items():
+        mask = owners == names.index(label)
+        ys, xs = np.nonzero(mask)
+        if not len(xs):
+            raise CutoutError("Cannot obtain the existing foot-contact contour: " + label)
+        bottom = ys.max()
+        layout["landmarks"]["sole_" + side] = [float(np.median(xs[ys == bottom])), float(bottom + 1)]
+    layout["logical_parts"] = names
+    layout["maquette_depths"] = depths
+    compatibility_path = root / f"source/production/{view}.json"
+    if recipe["character_id"] == "chainbound_gaoler":
+        original = read_json(compatibility_path)
+        layout["motion_compatibility"] = {
+            "joints": {n: j for n, j in original["joints"].items() if n.startswith("drape_")},
+            "drape_end": original["landmarks"]["drape_end"],
+            "basis": "Unpainted compatibility bones only; production restraint-chain solver has no output paint in this case"}
+    write_json(root / f"layouts/{view}.json", layout)
+    write_json(registered / f"{view}_registration.json", asdict(transform))
+    write_json(registered / f"{view}_joints_px.json", {k: transform.point(v) for k, v in read_json(maquette / "joints_px.json")[view].items()})
+    # The production coat/tabard are rigid. A missing design weight field is
+    # represented as a skin using that SAME controlling bone, never invented weights.
+    fields = []
+    for name, item in recipe.get("cloth", {}).items():
+        parts = [p["name"] for p in layout["parts"] if p.get("logical_part", p["name"]) == name]
+        if parts:
+            fields.append({"name": name, "parts": parts, "bones": item["bones"], "bands": item["bands"], "grid": recipe["proof_defaults"]["mesh_grid"]})
+    if fields:
+        skin = {"facing": view, "input_layout": f"layouts/{view}.json", "output_layout": f"layouts/{view}_skinned.json", "fields": fields}
+        skin_path = root / "recipes" / f"{view}_skinned.skin.json"
+        write_json(skin_path, skin)
+        apply_skin(root, skin_path)
+    return {"requests": requests, "reassignment": reassigned, "depth_order": order,
+            "bone_mapping": mapping, "unmaterialized_parts": layout["unmaterialized_parts"]}
+
+
+def build(args) -> dict:
+    root = args.case.resolve()
+    spec = read_json(args.spec)
+    recipe_path = args.rig_recipe or (GAOLER_RECIPE if args.spec.parent.name == "chainbound_gaoler" else None)
+    if recipe_path is None:
+        raise CutoutError("Supply --rig-recipe for this anatomy; joint parents/cloth weights are not inferred")
+    recipe = read_json(recipe_path)
+    if set(recipe["parts"]) != set(spec["labels"]):
+        raise CutoutError("Rig recipe must bind every maquette label, with no extra parts")
+    if root.exists():
+        if not args.resume_scaffold or read_json(root / "cutout.json")["source_baseline"].get("art_status") != "unbuilt":
+            raise CutoutError("Choose a new case; --resume-scaffold accepts only an unbuilt init scaffold")
+    else:
+        init_case(root, recipe["character_id"], ["front", "rear"])
+    (root / "source").mkdir(exist_ok=True)
+    def copy(source, destination):
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        if source.resolve() != destination.resolve():
+            shutil.copyfile(source, destination)
+    copy(args.spec, root / "source/spec.json")
+    copy(recipe_path, root / "recipes/rig.json")
+    for source in recipe.get("copy_files", []):
+        copy(recipe_path.parent / source["from"], root / source["to"])
+    for view, job, explicit in [("front", args.front_job, args.front_raw), ("rear", args.rear_job, args.rear_raw)]:
+        for name in ["processed.png", "processed.json", "kit.json"]:
+            copy(job / name, root / "source" / view / name)
+        copy(raw_for_job(job, explicit), root / "source" / view / "raw.png")
+    target = root / "source/maquette"
+    if args.renders:
+        target.mkdir(exist_ok=True)
+        for source in args.renders.iterdir():
+            if source.name == "joints_px.json" or source.suffix == ".png" and "_green" not in source.name:
+                copy(source, target / source.name)
+    else:
+        render_maquette(args.spec, target, args.blender)
+    # The display transform belongs to the renderer. Requiring a recorded
+    # palette avoids mistaking linear material RGB for color-managed PNG RGB.
+    palette_path = args.palette
+    if palette_path:
+        palette = read_json(palette_path)
+        copy(palette_path, root / "source/label_palette.json")
+    else:
+        configs = sorted((Path(args.blender).resolve().parents[1] / "Resources").glob("*/datafiles/colormanagement/config.ocio"))
+        config_path = args.color_config or (configs[-1] if configs else None)
+        if config_path is None:
+            raise CutoutError("Supply --palette or --color-config for this Blender installation")
+        palette = display_palette(spec, config_path)
+        write_json(root / "source/label_palette.json", palette)
+        write_json(root / "source/label_palette_provenance.json", {"config": str(config_path), "sha256": digest(config_path),
+                   "transform": "Linear Rec.709 -> Linear FilmLight E-Gamut -> AgX Base Rec.1886 tetrahedral LUT -> sRGB"})
+    config_path, config = load_case(root)
+    config.update({k: recipe[k] for k in ["motion", "clips", "rigid_bones", "contact_feet"]})
+    config["design_placeholders"] = recipe.get("design_placeholders", {})
+    write_json(config_path, config)
+    views = {view: build_view(root, spec, view, palette, recipe, args.allow_incomplete_renders) for view in ["front", "rear"]}
+    requests = [r for value in views.values() for r in value.pop("requests")]
+    write_json(root / "hidden_requests/index.json", {"exposure_basis": "pending headless sampler measurement; unknown solos are not zero-sized requests", "requests": requests})
+    config_path, config = load_case(root)
+    config["source_baseline"] = {"kind": "maquette_registered_paint", "spec_sha256": digest(args.spec),
+                                 "art_status": "hidden_material_incomplete", "production_integration": False}
+    config["sources"] = sorted(str(p.relative_to(root)) for folder in ["source", "recipes", "registered", "probes"]
+                                for p in (root / folder).rglob("*") if p.is_file() and p.suffix != ".import")
+    write_json(config_path, config)
+    report = {"views": views, "missing_solos": [f"{r['view']}_{r['part']}" for r in requests if r["status"] != "measured"],
+              "hidden_layer_policy": "Camera-depth-ordered hidden underlays sit below the complete visible partition. This preserves 3D per-pixel occlusion at rest despite intersecting proxy parts; all underlays move with their own bones.",
+              "depth_basis": "Mean primitive centre distance along humanoid.py camera axis; smaller is nearer",
+              "chosen_defaults": PROOF_DEFAULTS, "rest_identity": rest_identity(root), "validation": validate(root)}
+    report["ok"] = report["rest_identity"]["ok"] and report["validation"]["ok"]
+    report["complete"] = report["ok"] and not report["missing_solos"] and not config["design_placeholders"]
+    contact_sheet([(f"{r['view']}/{r['part']}\n" + (f"hidden={r['hidden_pixel_count']}" if r["status"] == "measured" else "UNKNOWN: MISSING SOLO"), Image.open(root / r["image"]).convert("RGBA")) for r in requests], root / "hidden_requests/contact_sheet.png")
+    if report["ok"]:
+        sample_exposure(root, recipe, getattr(args, "task_id", None))
+    write_json(root / "build_report.json", report)
+    for path in root.rglob("*.png"):
+        Path(str(path) + ".import").write_text('[remap]\n\nimporter="keep"\n')
+    baseline(root)
+    return {k: report[k] for k in ["ok", "complete", "missing_solos", "rest_identity", "validation"]}
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    for name in ["spec", "front-job", "rear-job", "case"]:
+        parser.add_argument("--" + name, type=Path, required=True)
+    for name in ["front-raw", "rear-raw", "renders", "palette", "rig-recipe", "color-config"]:
+        parser.add_argument("--" + name, type=Path)
+    parser.add_argument("--blender", default=BLENDER)
+    parser.add_argument("--task-id", help="Headless sampler runner isolation; defaults to the current codex branch id")
+    parser.add_argument("--resume-scaffold", action="store_true")
+    parser.add_argument("--allow-incomplete-renders", action="store_true", help="Explicit diagnostic build; unknown solos stay unknown")
+    args = parser.parse_args()
+    try:
+        import json
+        report = build(args)
+        print(json.dumps(report, indent=2))
+        return 0 if report["ok"] else 1
+    except (CutoutError, OSError, ValueError, KeyError, subprocess.CalledProcessError) as error:
+        print(f"MAQUETTE_CUTOUT: FAIL: {error}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

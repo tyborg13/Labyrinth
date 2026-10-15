@@ -1,0 +1,17 @@
+test_all_labels_have_requests_and_unavailable_solos_are_unknown (__main__.GaolerCaseTests) ... ok
+test_joint_registration_uses_cached_projection_without_manual_refitting (__main__.GaolerCaseTests) ... ok
+test_production_motion_and_approved_paint_are_untouched_copies (__main__.GaolerCaseTests) ... ok
+test_registered_rest_is_exact_rgba_including_hidden_underlays (__main__.GaolerCaseTests) ... ok
+test_camera_depth_and_projection_reverse_on_rear (__main__.SyntheticMaquetteTests) ... ok
+test_complete_synthetic_case_is_repeatable_and_keeps_all_source_bytes (__main__.SyntheticMaquetteTests) ... ok
+test_decode_uses_registered_palette_and_keeps_background_unowned (__main__.SyntheticMaquetteTests) ... ok
+test_hidden_requires_another_painted_owner_not_empty_canvas (__main__.SyntheticMaquetteTests) ... ok
+test_nearest_is_euclidean_and_depth_breaks_diagonal_ties (__main__.SyntheticMaquetteTests) ... ok
+test_noninteger_reduction_and_fit_match_gate_alpha_bounds (__main__.SyntheticMaquetteTests) ... ok
+test_reassignment_limit_is_strictly_above_fifteen_percent (__main__.SyntheticMaquetteTests) ... ok
+test_registration_recovers_crop_and_placement_from_gate (__main__.SyntheticMaquetteTests) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 1.828s
+
+OK

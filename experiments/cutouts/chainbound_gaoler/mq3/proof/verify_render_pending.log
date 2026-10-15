@@ -1,0 +1,4 @@
+{
+  "ok": false,
+  "error": "Cannot read JSON /private/tmp/rr-02-mq3-render-v01/capture_input_sha256.json: [Errno 2] No such file or directory: '/private/tmp/rr-02-mq3-render-v01/capture_input_sha256.json'"
+}

@@ -93,6 +93,93 @@ python3 tools/cutout_workflow.py replace-part experiments/cutouts/protagonist_gu
 
 Offsets and band positions are explicit registration inputs, not recommended defaults. `skin` updates that case's facing to the new layout and retains its input/recipe in `sources`. It replaces existing meshes for the named parts rather than stacking duplicate skins. `replace-part` accepts rigid parts only; for a skinned replacement, register the new crop and rebuild UVs/weights. A replacement invalidates the old assembled-rest record, which the next render rebakes.
 
+## From a maquette
+
+`tools/maquette_cutout.py` registers a `humanoid.py` maquette to approved paint.
+It uses the existing `init`, `segment`, `skin` and `validate` implementations;
+it does not paint, infer missing anatomy or write production assets. The
+[chainbound gaoler mq3 case](../experiments/cutouts/chainbound_gaoler/mq3/README.md)
+is the phase-one example, including the explicitly incomplete renderer inputs.
+
+```sh
+python3 tools/maquette_cutout.py \
+  --spec spec/art_identity/maquettes/chainbound_gaoler/spec.json \
+  --front-job spec/art_identity/jobs/chainbound_gaoler/mq3_front_v3 \
+  --rear-job spec/art_identity/jobs/chainbound_gaoler/mq3_rear_v2 \
+  --front-raw experiments/cutouts/chainbound_gaoler/mq3/source/front/raw.png \
+  --rear-raw experiments/cutouts/chainbound_gaoler/mq3/source/rear/raw.png \
+  --case experiments/cutouts/chainbound_gaoler/mq3_complete \
+  --task-id rr-02
+```
+
+Run this command on a machine where Blender can initialize its renderer. It
+copies the protected spec and changes only the derived copy's `solo` selection
+to include every label. `--renders DIR` reuses existing `{view}_parts.png`,
+`{view}_clay.png`, `{view}_solo_<part>.png` and `joints_px.json`; missing solos
+normally fail. `--allow-incomplete-renders` explicitly creates a diagnostic
+case with unknown counts, never silently empty hidden regions. `--resume-scaffold`
+accepts only an unbuilt `cutout_workflow.py init` case; completed cases are never
+overwritten. The raw images must be supplied through `--front-raw`/`--rear-raw`
+or stored as `raw.png` in each job. Their digests must match `processed.json`.
+
+Registration replays the exact green-key alpha, outward block padding, two
+alpha trims and rounded fit dimensions used by `art_identity_gate.process_raw`.
+It records the resulting affine transform and applies it to all maps, solos
+and joints. Solos are not individually fitted or cropped to the painted bbox.
+Display-referred label colors come from Blender's installed AgX OCIO matrix/LUT
+(or an explicit `--palette` JSON); linear material RGB is not mistaken for PNG
+RGB. `--color-config` supplies another installation's OCIO config.
+
+Every nontransparent painted pixel takes its nearest registered label pixel
+under squared Euclidean distance. Equal distances choose the label whose mean
+primitive centre is nearer the maquette camera, then label name for an exact
+depth tie. Per-part reassignment is the number of owned painted pixels that
+had no matching label at that coordinate divided by all owned painted pixels;
+shares strictly above 15% are flagged in `build_report.json`. The same camera
+depth orders the painted parts in each facing. Ownership remains categorical;
+RGB/alpha of the approved painting is copied byte-for-byte.
+
+Hidden material is the registered solo silhouette covered by another painted
+owner. Solo pixels outside the entire painting are reported separately as
+silhouette/registration disagreements: they cannot establish occlusion by a
+painted part. Each request contains visible paint, magenta hidden material,
+green background, a native image and a 4× nearest image. Requests for missing
+solos carry `hidden_pixel_count: null` and `status: missing_solo_render`.
+The index and contact sheet sort by maximum sampled visible hidden pixels;
+unknowns follow measured requests. This CPU mask measurement uses actual
+headless Skeleton2D transforms and is labeled as numerical prediction, not
+real-renderer evidence. A later deforming cloth field requires native exposure
+measurement; the numerical helper refuses to approximate it as rigid.
+
+Intersecting 3D proxies cannot always be represented by one sprite depth per
+part. The case keeps the exact visible partition plus camera-depth-ordered
+magenta support underlays below it. Underlays follow their own bones; moving
+occluders expose them honestly. This preserves native rest identity without
+inventing hidden paint. `logical_parts` retains every maquette label; supporting
+nodes use `hidden_<part>`. Parts with neither visible paint nor an available
+solo are explicitly listed as `unmaterialized_parts`.
+
+For another anatomy, supply `--rig-recipe` with its explicit `joints` (projected
+joint or plate-top attachment and parent), `parts` (label-to-bone mapping),
+`motion`, `clips`, `rigid_bones`, `contact_feet`, optional `cloth` skin fields,
+and optional case-relative `copy_files`, `motion_probe` and `exposure_tool`.
+The gaoler recipe is in `mq3/recipes/rig.json`; no humanoid topology or motion
+is silently assigned to other creatures. Recipe motion probes run only through
+`godot_task_runner.py`, using `--task-id` or the current `codex/` branch id.
+
+The gaoler production cloth has no pelvis/thigh weight recipe: its coat panels
+and tabard are rigid, and `drape_a..d` articulate the restraint chain. The case
+records `TODO_DESIGN_cloth_weights` and uses single-bone skin scaffolds that
+preserve those production attachments. A design owner must supply the missing
+fields before claiming the requested cloth deformation is complete.
+
+Run `python3 tests/test_maquette_cutout.py`, `cutout_workflow.py validate`, and
+the case's headless motion sampler. Native proof still requires `render` and
+`verify-render`; the case provides an additional 1920×1080, 100% scale rest
+identity probe and a collector for eight native frames per clip. See its
+README for exact commands. No production inspection fixture is appropriate
+until phase two integrates the case into gameplay.
+
 ## Starting a new task
 
 Useful prompts:

@@ -1,0 +1,68 @@
+{
+  "ok": true,
+  "complete": false,
+  "missing_solos": [
+    "front_head",
+    "front_belt",
+    "front_tabard",
+    "front_coat_near",
+    "front_coat_far",
+    "front_fore_near",
+    "front_hand_near",
+    "front_fore_far",
+    "front_hand_far",
+    "front_shin_near",
+    "front_foot_near",
+    "front_shin_far",
+    "front_foot_far",
+    "front_chain",
+    "front_hook",
+    "rear_head",
+    "rear_belt",
+    "rear_tabard",
+    "rear_coat_near",
+    "rear_coat_far",
+    "rear_fore_near",
+    "rear_hand_near",
+    "rear_fore_far",
+    "rear_hand_far",
+    "rear_shin_near",
+    "rear_foot_near",
+    "rear_shin_far",
+    "rear_foot_far",
+    "rear_chain",
+    "rear_hook"
+  ],
+  "rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "771bcd10c633968185bd7ed845a2a7d22ac966ac9bf77d216beaed945bd0b2a7"
+    },
+    "rear": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "acb82145d9607b749a18082e234cff3921cc317d540ce1e51b2e9f4cf7f6ef54"
+    },
+    "ok": true
+  },
+  "validation": {
+    "ok": true,
+    "character_id": "chainbound_gaoler",
+    "layouts": {
+      "front": {
+        "joints": 21,
+        "parts": 27,
+        "meshes": 3,
+        "vertices": 14477
+      },
+      "rear": {
+        "joints": 21,
+        "parts": 25,
+        "meshes": 3,
+        "vertices": 14403
+      }
+    },
+    "errors": []
+  }
+}

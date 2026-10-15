@@ -1,0 +1,18 @@
+# Blender 5.2.1, Commit date: 2026-08-24 16:50, Hash 9e2066aef7ef
+
+# backtrace
+0   Blender                             0x0000000104de0878 _ZN7blender33BLI_system_backtrace_with_os_infoEP7__sFILEPKv + 56
+1   Blender                             0x00000001044df170 _ZNSt3__117__call_once_proxyB8ne200100INS_5tupleIJRZN7blenderL19sig_handle_crash_fnEiE3$_0EEEEEvPv + 376
+2   libc++.1.dylib                      0x000000018b23a4e4 _ZNSt3__111__call_onceERVmPvPFvS2_E + 196
+3   Blender                             0x00000001044def6c _ZN7blenderL19sig_handle_crash_fnEi + 84
+4   libsystem_platform.dylib            0x000000018b329764 _sigtramp + 56
+5   libsystem_platform.dylib            0x000000018b327584 _platform_strstr + 48
+6   Blender                             0x00000001051cce0c _ZN7blender3gpu30supports_barycentric_whitelistEPU19objcproto9MTLDevice11objc_object + 64
+7   Blender                             0x00000001051cd044 _ZN7blender3gpu10MTLBackend18metal_is_supportedEv + 364
+8   Blender                             0x0000000104f5e6dc _ZN7blender33GPU_backend_type_selection_detectEv + 476
+9   Blender                             0x00000001052c56c8 _ZN7blender19wm_homefile_read_exEPNS_8bContextEPKNS_21wmHomeFileRead_ParamsEPNS_10ReportListEPPNS_21wmFileReadPost_ParamsE + 1812
+10  Blender                             0x00000001052d49d4 _ZN7blender7WM_initEPNS_8bContextEiPPKc + 304
+11  Blender                             0x00000001044d972c main + 908
+12  dyld                                0x000000018af55d54 start + 7184
+
+# Python backtrace

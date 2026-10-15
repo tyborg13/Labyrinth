@@ -1,0 +1,160 @@
+{
+  "schema_version": 1,
+  "character_id": "chainbound_gaoler",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front_skinned.json",
+    "rear": "layouts/rear_skinned.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 24,
+      "duration": 1.6,
+      "loop": true
+    },
+    "walk": {
+      "frames": 48,
+      "duration": 0.64,
+      "loop": true,
+      "travel": "motion"
+    },
+    "strike": {
+      "frames": 31,
+      "duration": 0.24,
+      "loop": false
+    },
+    "hit": {
+      "frames": 24,
+      "duration": 0.36,
+      "loop": false
+    },
+    "death": {
+      "frames": 32,
+      "duration": 1.036,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.62,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    }
+  },
+  "rigid_bones": [
+    "head",
+    "hand_hook",
+    "hand_fist",
+    "foot_hook",
+    "foot_fist",
+    "hook"
+  ],
+  "contact_feet": [
+    "foot_hook",
+    "foot_fist"
+  ],
+  "sources": [
+    "probes/motion_samples.gd",
+    "probes/native_rest.gd",
+    "probes/proof.py",
+    "probes/rest_contract.json",
+    "recipes/front_ownership.json",
+    "recipes/front_skinned.skin.json",
+    "recipes/motion_adapter.gd.in",
+    "recipes/rear_ownership.json",
+    "recipes/rear_skinned.skin.json",
+    "recipes/rig.json",
+    "registered/front_clay.png",
+    "registered/front_joints_px.json",
+    "registered/front_owners.npy",
+    "registered/front_parts.png",
+    "registered/front_registration.json",
+    "registered/front_solo_pelvis.png",
+    "registered/front_solo_thigh_far.png",
+    "registered/front_solo_thigh_near.png",
+    "registered/front_solo_torso.png",
+    "registered/front_solo_upper_far.png",
+    "registered/front_solo_upper_near.png",
+    "registered/rear_clay.png",
+    "registered/rear_joints_px.json",
+    "registered/rear_owners.npy",
+    "registered/rear_parts.png",
+    "registered/rear_registration.json",
+    "registered/rear_solo_pelvis.png",
+    "registered/rear_solo_thigh_far.png",
+    "registered/rear_solo_thigh_near.png",
+    "registered/rear_solo_torso.png",
+    "registered/rear_solo_upper_far.png",
+    "registered/rear_solo_upper_near.png",
+    "source/blender_crash.txt",
+    "source/cache_provenance.json",
+    "source/front/kit.json",
+    "source/front/processed.json",
+    "source/front/processed.png",
+    "source/front/raw.png",
+    "source/label_palette.json",
+    "source/label_palette_provenance.json",
+    "source/maquette/approved_gaoler_front_r3.png",
+    "source/maquette/approved_gaoler_front_v3.png",
+    "source/maquette/front_clay.png",
+    "source/maquette/front_parts.png",
+    "source/maquette/front_solo_pelvis.png",
+    "source/maquette/front_solo_thigh_far.png",
+    "source/maquette/front_solo_thigh_near.png",
+    "source/maquette/front_solo_torso.png",
+    "source/maquette/front_solo_upper_far.png",
+    "source/maquette/front_solo_upper_near.png",
+    "source/maquette/hero_rear_x4.png",
+    "source/maquette/hero_x4.png",
+    "source/maquette/joints_px.json",
+    "source/maquette/peer_slag_mortar_rear_x4.png",
+    "source/maquette/peer_slag_mortar_x4.png",
+    "source/maquette/rear_clay.png",
+    "source/maquette/rear_parts.png",
+    "source/maquette/rear_solo_pelvis.png",
+    "source/maquette/rear_solo_thigh_far.png",
+    "source/maquette/rear_solo_thigh_near.png",
+    "source/maquette/rear_solo_torso.png",
+    "source/maquette/rear_solo_upper_far.png",
+    "source/maquette/rear_solo_upper_near.png",
+    "source/production/front.json",
+    "source/production/motion.gd",
+    "source/production/rear.json",
+    "source/production/renderer.gd",
+    "source/rear/kit.json",
+    "source/rear/processed.json",
+    "source/rear/processed.png",
+    "source/rear/raw.png",
+    "source/render_spec.json",
+    "source/spec.json"
+  ],
+  "source_baseline": {
+    "kind": "maquette_registered_paint",
+    "spec_sha256": "e9cb1589e26c5eed9213e66448f5a82c2e66fc80f25a286169a711950f94d049",
+    "art_status": "hidden_material_incomplete",
+    "production_integration": false
+  },
+  "design_placeholders": {
+    "TODO_DESIGN_cloth_weights": "Production tabard/coat_hook/coat_fist are rigid; drape_a..d are restraint-chain bones, not cloth skins. Supply pelvis/thigh weight fields. Skin scaffolds preserve the existing single controlling bone until then."
+  }
+}

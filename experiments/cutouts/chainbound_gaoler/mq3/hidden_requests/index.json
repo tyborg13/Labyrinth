@@ -1,0 +1,906 @@
+{
+  "exposure_basis": "Maximum visible hidden pixels over the actual headless sampler frames; Pillow nearest mask rasterization, not renderer proof. Missing solos sort last, never as known zero exposure. All five requested clips sampled.",
+  "requests": [
+    {
+      "part": "thigh_far",
+      "view": "front",
+      "image": "hidden_requests/front_thigh_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 2075,
+      "bounding_box": [
+        111,
+        113,
+        154,
+        188
+      ],
+      "solo_outside_paint_pixels": 33,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 1061,
+          "frames_exposed": 48,
+          "peak_frame": 47
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 59,
+          "frames_exposed": 25,
+          "peak_frame": 12
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 35,
+          "frames_exposed": 31,
+          "peak_frame": 2
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 34,
+          "frames_exposed": 17,
+          "peak_frame": 6
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 13,
+          "frames_exposed": 13,
+          "peak_frame": 6
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "paint_node": "hidden_thigh_far",
+      "max_exposed_pixels": 1061
+    },
+    {
+      "part": "thigh_near",
+      "view": "front",
+      "image": "hidden_requests/front_thigh_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 1634,
+      "bounding_box": [
+        146,
+        126,
+        181,
+        203
+      ],
+      "solo_outside_paint_pixels": 146,
+      "motions": [
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 914,
+          "frames_exposed": 29,
+          "peak_frame": 22
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 659,
+          "frames_exposed": 48,
+          "peak_frame": 21
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 178,
+          "frames_exposed": 31,
+          "peak_frame": 13
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 58,
+          "frames_exposed": 17,
+          "peak_frame": 6
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 31,
+          "frames_exposed": 13,
+          "peak_frame": 6
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "paint_node": "hidden_thigh_near",
+      "max_exposed_pixels": 914
+    },
+    {
+      "part": "upper_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_upper_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 1110,
+      "bounding_box": [
+        70,
+        62,
+        102,
+        111
+      ],
+      "solo_outside_paint_pixels": 238,
+      "motions": [
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 541,
+          "frames_exposed": 29,
+          "peak_frame": 7
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 19,
+          "frames_exposed": 46,
+          "peak_frame": 5
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "paint_node": "hidden_upper_near",
+      "max_exposed_pixels": 541
+    },
+    {
+      "part": "thigh_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_thigh_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 2063,
+      "bounding_box": [
+        102,
+        130,
+        146,
+        200
+      ],
+      "solo_outside_paint_pixels": 2,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 442,
+          "frames_exposed": 40,
+          "peak_frame": 27
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 11,
+          "frames_exposed": 16,
+          "peak_frame": 12
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 4,
+          "frames_exposed": 5,
+          "peak_frame": 9
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 2,
+          "peak_frame": 16
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 13,
+          "peak_frame": 6
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "paint_node": "hidden_thigh_far",
+      "max_exposed_pixels": 442
+    },
+    {
+      "part": "torso",
+      "view": "front",
+      "image": "hidden_requests/front_torso.png",
+      "status": "measured",
+      "hidden_pixel_count": 1954,
+      "bounding_box": [
+        117,
+        57,
+        186,
+        138
+      ],
+      "solo_outside_paint_pixels": 61,
+      "motions": [
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 396,
+          "frames_exposed": 26,
+          "peak_frame": 13
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 98,
+          "frames_exposed": 44,
+          "peak_frame": 12
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 58,
+          "frames_exposed": 31,
+          "peak_frame": 14
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 20,
+          "frames_exposed": 18,
+          "peak_frame": 6
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "paint_node": "hidden_torso",
+      "max_exposed_pixels": 396
+    },
+    {
+      "part": "thigh_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_thigh_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 1293,
+      "bounding_box": [
+        75,
+        117,
+        110,
+        187
+      ],
+      "solo_outside_paint_pixels": 6,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 339,
+          "frames_exposed": 48,
+          "peak_frame": 7
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 56,
+          "frames_exposed": 25,
+          "peak_frame": 12
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 29,
+          "frames_exposed": 13,
+          "peak_frame": 6
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 28,
+          "frames_exposed": 31,
+          "peak_frame": 15
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 19,
+          "frames_exposed": 18,
+          "peak_frame": 5
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "paint_node": "hidden_thigh_near",
+      "max_exposed_pixels": 339
+    },
+    {
+      "part": "upper_near",
+      "view": "front",
+      "image": "hidden_requests/front_upper_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 430,
+      "bounding_box": [
+        154,
+        82,
+        188,
+        147
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 255,
+          "frames_exposed": 29,
+          "peak_frame": 6
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 78,
+          "frames_exposed": 48,
+          "peak_frame": 10
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 4,
+          "frames_exposed": 18,
+          "peak_frame": 9
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 7,
+          "peak_frame": 2
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 13,
+          "peak_frame": 6
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "paint_node": "hidden_upper_near",
+      "max_exposed_pixels": 255
+    },
+    {
+      "part": "upper_far",
+      "view": "front",
+      "image": "hidden_requests/front_upper_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 936,
+      "bounding_box": [
+        79,
+        57,
+        137,
+        95
+      ],
+      "solo_outside_paint_pixels": 13,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 44,
+          "frames_exposed": 42,
+          "peak_frame": 34
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 28,
+          "frames_exposed": 17,
+          "peak_frame": 11
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 29,
+          "peak_frame": 8
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 15,
+          "peak_frame": 2
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "paint_node": "hidden_upper_far",
+      "max_exposed_pixels": 44
+    },
+    {
+      "part": "torso",
+      "view": "rear",
+      "image": "hidden_requests/rear_torso.png",
+      "status": "measured",
+      "hidden_pixel_count": 1423,
+      "bounding_box": [
+        71,
+        53,
+        151,
+        140
+      ],
+      "solo_outside_paint_pixels": 123,
+      "motions": [
+        {
+          "clip": "death",
+          "max_exposed_pixels": 42,
+          "frames_exposed": 31,
+          "peak_frame": 14
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 38,
+          "frames_exposed": 18,
+          "peak_frame": 6
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 25,
+          "frames_exposed": 29,
+          "peak_frame": 12
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 24,
+          "frames_exposed": 48,
+          "peak_frame": 15
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 13,
+          "peak_frame": 6
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "paint_node": "hidden_torso",
+      "max_exposed_pixels": 42
+    },
+    {
+      "part": "upper_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_upper_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 405,
+      "bounding_box": [
+        119,
+        81,
+        176,
+        132
+      ],
+      "solo_outside_paint_pixels": 34,
+      "motions": [
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 25,
+          "frames_exposed": 15,
+          "peak_frame": 11
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 25,
+          "frames_exposed": 38,
+          "peak_frame": 7
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 1,
+          "peak_frame": 8
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "paint_node": "hidden_upper_far",
+      "max_exposed_pixels": 25
+    },
+    {
+      "part": "pelvis",
+      "view": "rear",
+      "image": "hidden_requests/rear_pelvis.png",
+      "status": "measured",
+      "hidden_pixel_count": 1727,
+      "bounding_box": [
+        77,
+        115,
+        135,
+        161
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 24,
+          "frames_exposed": 36,
+          "peak_frame": 41
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 6,
+          "frames_exposed": 17,
+          "peak_frame": 16
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 4,
+          "frames_exposed": 12,
+          "peak_frame": 1
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 13,
+          "peak_frame": 6
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 18,
+          "peak_frame": 3
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "paint_node": "hidden_pelvis",
+      "max_exposed_pixels": 24
+    },
+    {
+      "part": "pelvis",
+      "view": "front",
+      "image": "hidden_requests/front_pelvis.png",
+      "status": "measured",
+      "hidden_pixel_count": 1982,
+      "bounding_box": [
+        121,
+        111,
+        179,
+        157
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 17,
+          "frames_exposed": 19,
+          "peak_frame": 11
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 13,
+          "frames_exposed": 30,
+          "peak_frame": 1
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 13,
+          "frames_exposed": 17,
+          "peak_frame": 15
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 8,
+          "frames_exposed": 28,
+          "peak_frame": 5
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "paint_node": "hidden_pelvis",
+      "max_exposed_pixels": 17
+    },
+    {
+      "part": "belt",
+      "view": "front",
+      "image": "hidden_requests/front_belt.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "chain",
+      "view": "front",
+      "image": "hidden_requests/front_chain.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "coat_far",
+      "view": "front",
+      "image": "hidden_requests/front_coat_far.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "coat_near",
+      "view": "front",
+      "image": "hidden_requests/front_coat_near.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "foot_far",
+      "view": "front",
+      "image": "hidden_requests/front_foot_far.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "foot_near",
+      "view": "front",
+      "image": "hidden_requests/front_foot_near.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "fore_far",
+      "view": "front",
+      "image": "hidden_requests/front_fore_far.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "fore_near",
+      "view": "front",
+      "image": "hidden_requests/front_fore_near.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "hand_far",
+      "view": "front",
+      "image": "hidden_requests/front_hand_far.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "hand_near",
+      "view": "front",
+      "image": "hidden_requests/front_hand_near.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "head",
+      "view": "front",
+      "image": "hidden_requests/front_head.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "hook",
+      "view": "front",
+      "image": "hidden_requests/front_hook.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "shin_far",
+      "view": "front",
+      "image": "hidden_requests/front_shin_far.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "shin_near",
+      "view": "front",
+      "image": "hidden_requests/front_shin_near.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "tabard",
+      "view": "front",
+      "image": "hidden_requests/front_tabard.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "belt",
+      "view": "rear",
+      "image": "hidden_requests/rear_belt.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "chain",
+      "view": "rear",
+      "image": "hidden_requests/rear_chain.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "coat_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_coat_far.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "coat_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_coat_near.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "foot_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_foot_far.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "foot_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_foot_near.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "fore_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_fore_far.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "fore_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_fore_near.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "hand_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_hand_far.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "hand_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_hand_near.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "head",
+      "view": "rear",
+      "image": "hidden_requests/rear_head.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "hook",
+      "view": "rear",
+      "image": "hidden_requests/rear_hook.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "shin_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_shin_far.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "shin_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_shin_near.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    },
+    {
+      "part": "tabard",
+      "view": "rear",
+      "image": "hidden_requests/rear_tabard.png",
+      "status": "missing_solo_render",
+      "hidden_pixel_count": null,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": null,
+      "motions": [],
+      "exposure_status": "unknown",
+      "max_exposed_pixels": null
+    }
+  ],
+  "samples_sha256": "66cca21b3f6ecea99ae2d67072f2443fcbbfb51d963b80267f1af6bca899421e"
+}

@@ -1,0 +1,541 @@
+{
+  "ortho_scale": 2.33,
+  "target": [
+    0.0,
+    0.0,
+    1.0
+  ],
+  "joints": {
+    "root": [
+      0,
+      0,
+      0
+    ],
+    "pelvis": [
+      0,
+      0,
+      1.03
+    ],
+    "torso": [
+      0.04,
+      0,
+      1.4
+    ],
+    "head": [
+      0.14,
+      0,
+      1.84
+    ],
+    "shoulder_far": [
+      0.06,
+      -0.32,
+      1.57
+    ],
+    "elbow_far": [
+      0.16,
+      -0.58,
+      1.38
+    ],
+    "hand_far": [
+      0.34,
+      -0.74,
+      1.56
+    ],
+    "shoulder_near": [
+      0.06,
+      0.32,
+      1.57
+    ],
+    "elbow_near": [
+      0.1,
+      0.42,
+      1.24
+    ],
+    "hand_near": [
+      0.2,
+      0.44,
+      0.98
+    ],
+    "hip_far": [
+      0,
+      -0.17,
+      1.0
+    ],
+    "knee_far": [
+      0.12,
+      -0.22,
+      0.57
+    ],
+    "ankle_far": [
+      0.06,
+      -0.26,
+      0.1
+    ],
+    "hip_near": [
+      0,
+      0.17,
+      1.0
+    ],
+    "knee_near": [
+      0.03,
+      0.22,
+      0.56
+    ],
+    "ankle_near": [
+      -0.08,
+      0.26,
+      0.1
+    ],
+    "chain_end": [
+      0.46,
+      -0.88,
+      0.68
+    ]
+  },
+  "labels": {
+    "head": [
+      1.0,
+      0.85,
+      0.1
+    ],
+    "torso": [
+      0.85,
+      0.15,
+      0.15
+    ],
+    "pelvis": [
+      0.55,
+      0.1,
+      0.1
+    ],
+    "belt": [
+      0.35,
+      0.22,
+      0.1
+    ],
+    "tabard": [
+      0.95,
+      0.5,
+      0.6
+    ],
+    "coat_near": [
+      0.95,
+      0.55,
+      0.1
+    ],
+    "coat_far": [
+      0.6,
+      0.35,
+      0.05
+    ],
+    "upper_near": [
+      0.2,
+      0.4,
+      1.0
+    ],
+    "fore_near": [
+      0.45,
+      0.62,
+      1.0
+    ],
+    "hand_near": [
+      0.75,
+      0.82,
+      1.0
+    ],
+    "upper_far": [
+      0.5,
+      0.1,
+      0.8
+    ],
+    "fore_far": [
+      0.72,
+      0.3,
+      0.9
+    ],
+    "hand_far": [
+      0.92,
+      0.62,
+      1.0
+    ],
+    "thigh_near": [
+      0.1,
+      0.7,
+      0.7
+    ],
+    "shin_near": [
+      0.3,
+      0.85,
+      0.85
+    ],
+    "foot_near": [
+      0.6,
+      0.95,
+      0.95
+    ],
+    "thigh_far": [
+      0.05,
+      0.4,
+      0.4
+    ],
+    "shin_far": [
+      0.15,
+      0.55,
+      0.55
+    ],
+    "foot_far": [
+      0.3,
+      0.65,
+      0.65
+    ],
+    "chain": [
+      0.8,
+      0.8,
+      0.8
+    ],
+    "hook": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "shapes": [
+    {
+      "type": "ellipsoid",
+      "part": "torso",
+      "at": "torso",
+      "offset": [
+        0.02,
+        0,
+        0.04
+      ],
+      "s": [
+        0.31,
+        0.42,
+        0.4
+      ],
+      "rot": [
+        0,
+        0.3,
+        0
+      ]
+    },
+    {
+      "type": "ellipsoid",
+      "part": "pelvis",
+      "at": "pelvis",
+      "s": [
+        0.24,
+        0.29,
+        0.19
+      ]
+    },
+    {
+      "type": "box",
+      "part": "belt",
+      "at": "pelvis",
+      "offset": [
+        0,
+        0,
+        0.1
+      ],
+      "s": [
+        0.52,
+        0.64,
+        0.1
+      ],
+      "bevel": 0.3,
+      "rot": [
+        0,
+        0.1,
+        0
+      ]
+    },
+    {
+      "type": "box",
+      "part": "head",
+      "at": "head",
+      "s": [
+        0.36,
+        0.34,
+        0.4
+      ],
+      "bevel": 0.45,
+      "taper": 0.8
+    },
+    {
+      "type": "plate",
+      "part": "tabard",
+      "pts": [
+        [
+          0.29,
+          -0.15,
+          1.1
+        ],
+        [
+          0.29,
+          0.15,
+          1.1
+        ],
+        [
+          0.36,
+          0.12,
+          0.52
+        ],
+        [
+          0.36,
+          -0.12,
+          0.52
+        ]
+      ],
+      "thick": 0.03
+    },
+    {
+      "type": "plate",
+      "part": "coat_near",
+      "pts": [
+        [
+          0.12,
+          0.31,
+          1.14
+        ],
+        [
+          -0.24,
+          0.3,
+          1.14
+        ],
+        [
+          -0.36,
+          0.44,
+          0.46
+        ],
+        [
+          0.18,
+          0.46,
+          0.5
+        ]
+      ],
+      "thick": 0.04
+    },
+    {
+      "type": "plate",
+      "part": "coat_far",
+      "pts": [
+        [
+          0.12,
+          -0.31,
+          1.14
+        ],
+        [
+          -0.24,
+          -0.3,
+          1.14
+        ],
+        [
+          -0.36,
+          -0.44,
+          0.46
+        ],
+        [
+          0.18,
+          -0.46,
+          0.5
+        ]
+      ],
+      "thick": 0.04
+    },
+    {
+      "type": "capsule",
+      "part": "upper_far",
+      "a": "shoulder_far",
+      "b": "elbow_far",
+      "r1": 0.14,
+      "r2": 0.12
+    },
+    {
+      "type": "ellipsoid",
+      "part": "upper_far",
+      "at": "shoulder_far",
+      "s": [
+        0.15,
+        0.15,
+        0.13
+      ]
+    },
+    {
+      "type": "capsule",
+      "part": "fore_far",
+      "a": "elbow_far",
+      "b": "hand_far",
+      "r1": 0.12,
+      "r2": 0.1
+    },
+    {
+      "type": "ellipsoid",
+      "part": "hand_far",
+      "at": "hand_far",
+      "s": [
+        0.12,
+        0.11,
+        0.12
+      ]
+    },
+    {
+      "type": "capsule",
+      "part": "upper_near",
+      "a": "shoulder_near",
+      "b": "elbow_near",
+      "r1": 0.14,
+      "r2": 0.12
+    },
+    {
+      "type": "ellipsoid",
+      "part": "upper_near",
+      "at": "shoulder_near",
+      "s": [
+        0.15,
+        0.15,
+        0.13
+      ]
+    },
+    {
+      "type": "capsule",
+      "part": "fore_near",
+      "a": "elbow_near",
+      "b": "hand_near",
+      "r1": 0.12,
+      "r2": 0.1
+    },
+    {
+      "type": "ellipsoid",
+      "part": "hand_near",
+      "at": "hand_near",
+      "s": [
+        0.13,
+        0.12,
+        0.13
+      ]
+    },
+    {
+      "type": "capsule",
+      "part": "thigh_far",
+      "a": "hip_far",
+      "b": "knee_far",
+      "r1": 0.16,
+      "r2": 0.13
+    },
+    {
+      "type": "capsule",
+      "part": "shin_far",
+      "a": "knee_far",
+      "b": "ankle_far",
+      "r1": 0.13,
+      "r2": 0.11
+    },
+    {
+      "type": "ellipsoid",
+      "part": "foot_far",
+      "at": "ankle_far",
+      "offset": [
+        0.08,
+        0,
+        -0.02
+      ],
+      "s": [
+        0.17,
+        0.095,
+        0.08
+      ]
+    },
+    {
+      "type": "capsule",
+      "part": "thigh_near",
+      "a": "hip_near",
+      "b": "knee_near",
+      "r1": 0.16,
+      "r2": 0.13
+    },
+    {
+      "type": "capsule",
+      "part": "shin_near",
+      "a": "knee_near",
+      "b": "ankle_near",
+      "r1": 0.13,
+      "r2": 0.11
+    },
+    {
+      "type": "ellipsoid",
+      "part": "foot_near",
+      "at": "ankle_near",
+      "offset": [
+        0.08,
+        0,
+        -0.02
+      ],
+      "s": [
+        0.17,
+        0.095,
+        0.08
+      ]
+    },
+    {
+      "type": "chain",
+      "part": "chain",
+      "a": "hand_far",
+      "b": "chain_end",
+      "links": 7,
+      "r": 0.05
+    },
+    {
+      "type": "box",
+      "part": "hook",
+      "at": "chain_end",
+      "offset": [
+        0,
+        0,
+        -0.1
+      ],
+      "s": [
+        0.06,
+        0.06,
+        0.2
+      ],
+      "bevel": 0.01
+    }
+  ],
+  "solo": [
+    "head",
+    "torso",
+    "pelvis",
+    "belt",
+    "tabard",
+    "coat_near",
+    "coat_far",
+    "upper_near",
+    "fore_near",
+    "hand_near",
+    "upper_far",
+    "fore_far",
+    "hand_far",
+    "thigh_near",
+    "shin_near",
+    "foot_near",
+    "thigh_far",
+    "shin_far",
+    "foot_far",
+    "chain",
+    "hook"
+  ],
+  "revisions": [
+    {
+      "date": "2026-10-13",
+      "rev": "r3",
+      "why": "owner: \"looks quite boxy\" \u2014 tapered rounded helm (taper 0.8, bevel 0.45 local), forward hunch (torso pitch 17 deg, head forward/down), sloped shoulders with rounded deltoids, bent elbows and knees with a weight shift, coat flared at the hem, rounded boots"
+    },
+    {
+      "date": "2026-10-13",
+      "rev": "r3 framing",
+      "why": "paint at the drawn size: ortho 2.33 frames the figure ~864 px tall = 216 game px at K=4, art_scale 1.0"
+    }
+  ]
+}

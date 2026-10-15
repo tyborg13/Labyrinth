@@ -1,0 +1,22 @@
+{
+  "cache_origin": "/private/tmp/claude-501/-Users-borgerding-workspace-Labyrinth/020b9ac4-7b92-4113-a7d2-bc6e802828dd/scratchpad/maquette/gaoler/r4",
+  "framing": "r3 geometry, ortho_scale 2.33 (cache directory r4 is the r3 drawn-size framing)",
+  "front_green_pixel_sha256": "66dc821787f54ef44a31d31ec18af88880ff6f5c8aa78d4a632df93e81c64851",
+  "front_matches_approved_kit": true,
+  "rear_matches_approved_reference_rgba": true,
+  "rear_green_pixel_sha256": "8a88e39b5ebd642602caa0d59f473295ef72b48db52863bea7563564e10dbd7f",
+  "projection_check": "Every cached joint matches humanoid.py camera applied to protected spec within its 0.01px recording precision (0.02px check tolerance).",
+  "render_limit": "Blender -b --factory-startup crashed before executing Python in Metal GPU capability detection (exit 139). Only installed GPU backend is metal; geometry-only opengl startup also exited 139. No windowed launch was attempted.",
+  "raw_painting_origin": "/Users/borgerding/workspace/Labyrinth/output/peer-benchmark-2026-10-12/identity_gate/raw/chainbound_gaoler_mq3_{front_v3,rear_v2}.png",
+  "solo_coverage": {
+    "per_view": 6,
+    "required_per_view": 21,
+    "missing_total": 30
+  },
+  "copied_production_files": {
+    "rear.json": "32c81bffc1a4f15d8af652aa68f74a5d3db4510db1813b2cf8fb6bbd3fb80acc",
+    "motion.gd": "bf996a7c14de51a0df60684781631dbee761220575726c3d326a7b5c5036708d",
+    "front.json": "7dac3071aac4fb9a3c932c161507d31bac219fe6bd739c2278f6a2ab9e0e250c",
+    "renderer.gd": "0eb72d17139f94b0000c7ca504aa1be0190db23887f7bee4bd4347d9567cb49d"
+  }
+}

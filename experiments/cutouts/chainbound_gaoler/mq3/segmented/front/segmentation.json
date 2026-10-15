@@ -1,0 +1,304 @@
+{
+  "ok": true,
+  "source_sha256": "f4526b40bfa915e8b63c1132628344668276be385918ed028c087fdba65eb1ce",
+  "ownership_sha256": "799198aeae043927bf3a311514a8a72d081f646ce302360b6753fe704eef09fb",
+  "parts": [
+    {
+      "name": "head",
+      "file": "head.png",
+      "offset": [
+        117,
+        30
+      ],
+      "bbox": [
+        117,
+        30,
+        188,
+        208
+      ]
+    },
+    {
+      "name": "torso",
+      "file": "torso.png",
+      "offset": [
+        104,
+        62
+      ],
+      "bbox": [
+        104,
+        62,
+        180,
+        149
+      ]
+    },
+    {
+      "name": "pelvis",
+      "file": "pelvis.png",
+      "offset": [
+        138,
+        145
+      ],
+      "bbox": [
+        138,
+        145,
+        154,
+        156
+      ]
+    },
+    {
+      "name": "belt",
+      "file": "belt.png",
+      "offset": [
+        109,
+        116
+      ],
+      "bbox": [
+        109,
+        116,
+        193,
+        172
+      ]
+    },
+    {
+      "name": "tabard",
+      "file": "tabard.png",
+      "offset": [
+        112,
+        59
+      ],
+      "bbox": [
+        112,
+        59,
+        187,
+        210
+      ]
+    },
+    {
+      "name": "coat_near",
+      "file": "coat_near.png",
+      "offset": [
+        112,
+        66
+      ],
+      "bbox": [
+        112,
+        66,
+        216,
+        210
+      ]
+    },
+    {
+      "name": "coat_far",
+      "file": "coat_far.png",
+      "offset": [
+        102,
+        139
+      ],
+      "bbox": [
+        102,
+        139,
+        147,
+        174
+      ]
+    },
+    {
+      "name": "upper_near",
+      "file": "upper_near.png",
+      "offset": [
+        160,
+        82
+      ],
+      "bbox": [
+        160,
+        82,
+        190,
+        140
+      ]
+    },
+    {
+      "name": "fore_near",
+      "file": "fore_near.png",
+      "offset": [
+        159,
+        135
+      ],
+      "bbox": [
+        159,
+        135,
+        187,
+        178
+      ]
+    },
+    {
+      "name": "hand_near",
+      "file": "hand_near.png",
+      "offset": [
+        155,
+        155
+      ],
+      "bbox": [
+        155,
+        155,
+        182,
+        178
+      ]
+    },
+    {
+      "name": "upper_far",
+      "file": "upper_far.png",
+      "offset": [
+        87,
+        56
+      ],
+      "bbox": [
+        87,
+        56,
+        161,
+        129
+      ]
+    },
+    {
+      "name": "fore_far",
+      "file": "fore_far.png",
+      "offset": [
+        66,
+        58
+      ],
+      "bbox": [
+        66,
+        58,
+        174,
+        128
+      ]
+    },
+    {
+      "name": "hand_far",
+      "file": "hand_far.png",
+      "offset": [
+        56,
+        53
+      ],
+      "bbox": [
+        56,
+        53,
+        80,
+        81
+      ]
+    },
+    {
+      "name": "thigh_near",
+      "file": "thigh_near.png",
+      "offset": [
+        143,
+        150
+      ],
+      "bbox": [
+        143,
+        150,
+        170,
+        197
+      ]
+    },
+    {
+      "name": "shin_near",
+      "file": "shin_near.png",
+      "offset": [
+        144,
+        154
+      ],
+      "bbox": [
+        144,
+        154,
+        194,
+        243
+      ]
+    },
+    {
+      "name": "foot_near",
+      "file": "foot_near.png",
+      "offset": [
+        157,
+        158
+      ],
+      "bbox": [
+        157,
+        158,
+        180,
+        246
+      ]
+    },
+    {
+      "name": "thigh_far",
+      "file": "thigh_far.png",
+      "offset": [
+        110,
+        154
+      ],
+      "bbox": [
+        110,
+        154,
+        145,
+        180
+      ]
+    },
+    {
+      "name": "shin_far",
+      "file": "shin_far.png",
+      "offset": [
+        110,
+        128
+      ],
+      "bbox": [
+        110,
+        128,
+        188,
+        226
+      ]
+    },
+    {
+      "name": "foot_far",
+      "file": "foot_far.png",
+      "offset": [
+        102,
+        129
+      ],
+      "bbox": [
+        102,
+        129,
+        194,
+        238
+      ]
+    },
+    {
+      "name": "chain",
+      "file": "chain.png",
+      "offset": [
+        43,
+        80
+      ],
+      "bbox": [
+        43,
+        80,
+        181,
+        170
+      ]
+    },
+    {
+      "name": "hook",
+      "file": "hook.png",
+      "offset": [
+        40,
+        149
+      ],
+      "bbox": [
+        40,
+        149,
+        65,
+        183
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

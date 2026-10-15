@@ -1,0 +1,276 @@
+{
+  "ok": true,
+  "source_sha256": "e9bdb8dea06b395002d4aabd64b9e7ed9724df047f781698f7f592b5c34df2b5",
+  "ownership_sha256": "b92e8fca1ad15734d6a6db05e718663e34ef525dd789957e1958ca259108b12b",
+  "parts": [
+    {
+      "name": "head",
+      "file": "head.png",
+      "offset": [
+        75,
+        31
+      ],
+      "bbox": [
+        75,
+        31,
+        140,
+        169
+      ]
+    },
+    {
+      "name": "torso",
+      "file": "torso.png",
+      "offset": [
+        70,
+        62
+      ],
+      "bbox": [
+        70,
+        62,
+        152,
+        161
+      ]
+    },
+    {
+      "name": "pelvis",
+      "file": "pelvis.png",
+      "offset": [
+        77,
+        136
+      ],
+      "bbox": [
+        77,
+        136,
+        108,
+        161
+      ]
+    },
+    {
+      "name": "belt",
+      "file": "belt.png",
+      "offset": [
+        67,
+        117
+      ],
+      "bbox": [
+        67,
+        117,
+        153,
+        153
+      ]
+    },
+    {
+      "name": "tabard",
+      "file": "tabard.png",
+      "offset": [
+        71,
+        106
+      ],
+      "bbox": [
+        71,
+        106,
+        145,
+        152
+      ]
+    },
+    {
+      "name": "coat_near",
+      "file": "coat_near.png",
+      "offset": [
+        41,
+        62
+      ],
+      "bbox": [
+        41,
+        62,
+        141,
+        219
+      ]
+    },
+    {
+      "name": "coat_far",
+      "file": "coat_far.png",
+      "offset": [
+        67,
+        130
+      ],
+      "bbox": [
+        67,
+        130,
+        158,
+        226
+      ]
+    },
+    {
+      "name": "upper_near",
+      "file": "upper_near.png",
+      "offset": [
+        70,
+        64
+      ],
+      "bbox": [
+        70,
+        64,
+        82,
+        105
+      ]
+    },
+    {
+      "name": "upper_far",
+      "file": "upper_far.png",
+      "offset": [
+        123,
+        82
+      ],
+      "bbox": [
+        123,
+        82,
+        172,
+        139
+      ]
+    },
+    {
+      "name": "fore_far",
+      "file": "fore_far.png",
+      "offset": [
+        70,
+        66
+      ],
+      "bbox": [
+        70,
+        66,
+        190,
+        132
+      ]
+    },
+    {
+      "name": "hand_far",
+      "file": "hand_far.png",
+      "offset": [
+        175,
+        91
+      ],
+      "bbox": [
+        175,
+        91,
+        198,
+        117
+      ]
+    },
+    {
+      "name": "thigh_near",
+      "file": "thigh_near.png",
+      "offset": [
+        75,
+        135
+      ],
+      "bbox": [
+        75,
+        135,
+        107,
+        181
+      ]
+    },
+    {
+      "name": "shin_near",
+      "file": "shin_near.png",
+      "offset": [
+        67,
+        173
+      ],
+      "bbox": [
+        67,
+        173,
+        106,
+        231
+      ]
+    },
+    {
+      "name": "foot_near",
+      "file": "foot_near.png",
+      "offset": [
+        89,
+        206
+      ],
+      "bbox": [
+        89,
+        206,
+        105,
+        227
+      ]
+    },
+    {
+      "name": "thigh_far",
+      "file": "thigh_far.png",
+      "offset": [
+        106,
+        160
+      ],
+      "bbox": [
+        106,
+        160,
+        108,
+        165
+      ]
+    },
+    {
+      "name": "shin_far",
+      "file": "shin_far.png",
+      "offset": [
+        77,
+        140
+      ],
+      "bbox": [
+        77,
+        140,
+        148,
+        246
+      ]
+    },
+    {
+      "name": "foot_far",
+      "file": "foot_far.png",
+      "offset": [
+        75,
+        71
+      ],
+      "bbox": [
+        75,
+        71,
+        160,
+        244
+      ]
+    },
+    {
+      "name": "chain",
+      "file": "chain.png",
+      "offset": [
+        184,
+        116
+      ],
+      "bbox": [
+        184,
+        116,
+        216,
+        211
+      ]
+    },
+    {
+      "name": "hook",
+      "file": "hook.png",
+      "offset": [
+        189,
+        186
+      ],
+      "bbox": [
+        189,
+        186,
+        216,
+        222
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}
