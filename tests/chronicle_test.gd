@@ -28,6 +28,7 @@ func _run() -> void:
 	Suite.run(_check)
 	_test_fixture_cards()
 	_test_definition_deltas()
+	_test_definition_cache_distinct_records()
 	_test_relic_definition_round_trip()
 	_test_tooltip_placement()
 	var canvas: SubViewport = Probe.create_capture_viewport(root)
@@ -210,6 +211,17 @@ func _test_definition_deltas() -> void:
 	var history: Array[Dictionary] = Rules.normalized_records([record, next])
 	history[0]["deck_card_definitions"]["retired_snapshot_only"]["actions"][0]["amount"] = 99.0
 	_check(history[1]["deck_card_definitions"]["retired_snapshot_only"]["actions"][0]["amount"] == 2.0 and record["deck_card_definitions"]["retired_snapshot_only"]["actions"][0]["amount"] == 2, "Repeated deltas normalize into independent copies without changing the input")
+
+func _test_definition_cache_distinct_records() -> void:
+	var first: Dictionary = Probe.seeded_profile()[Store.CHRONICLE_RECORDS_KEY][0].duplicate(true)
+	first["deck"] = [["pale_spark", 1]]
+	first["deck_card_definitions"] = {"pale_spark": {"actions": [{"type": "ranged", "damage": 2.0}]}}
+	var second: Dictionary = first.duplicate(true)
+	second["run_id"] += "-different-delta"
+	second["deck_card_definitions"]["pale_spark"]["actions"][0]["damage"] = 9.0
+	var history: Array[Dictionary] = Rules.normalized_records([first, second])
+	_check(history[0]["deck_card_definitions"] == first["deck_card_definitions"], "First record retains its stored changes for a shared card id")
+	_check(history[1]["deck_card_definitions"] == second["deck_card_definitions"], "Second record retains different stored changes for the same card id")
 
 func _test_relic_definition_round_trip() -> void:
 	var deck: Array = GameData.cards().keys().slice(0, 45)
