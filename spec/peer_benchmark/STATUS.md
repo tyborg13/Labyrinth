@@ -21,13 +21,17 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 ## In flight (2026-10-15 late, playtest 7 follow-ups; Codex model gpt-6-astra + max_running 6 for today — revert the Labyrinth profile after)
 - Merged today: sfx-03, rr-01, art-04 (shrike), por-01, ux-02, art-05, ui-02, qa-04, fix-03. Playtest 7 = 7901c37f0.
 - Merged into integration: chr-02 (9d711ceb5; peer signoff 99d872fa5, r5 tests-only).
-- Running: vfx-01 r2 (surface element fallback, continuous thin-line cores, Vulkan GPU benchmark, lazy layer nodes),
-  rr-02 r5 (motion-frame gates: tabard paint on shins, specks, rear leg fill value, rear fist occluded; checkpoint
-  235040084), anim-01 r5 (re-send of r4: stagger 12 Hz ticks, prebuild next state; r4 restated r3 with no changes;
-  checkpoint f2e79adcb). Image jobs: img-mq-bloomer-front-r1, img-mq-wisp-front-r1.
-- Peer review running: ux-03 723f52579, sfx-04 6eca206c0 (also: 115k-line sync_audit.json should shrink),
-  art-06 b7d71316f.
-- Wave 1b maquettes: shale bloomer r5b (daisy over braided root cage), lightning wisp r2; front prompts committed.
+- Running (6): vfx-01 r2, rr-02 r5 (motion-frame gates), anim-01 r5 (re-send of r4), ux-03 r4 (peer CHANGES: stray
+  keyword-tooltip line on 9 cards, TopBar overlap at 1.25x, wrapped owned tray, opt-in callers, one click guard, skills
+  read skills.json), art-06 r2 (peer CHANGES: 5 surviving mutants, record-steps INPUT CHANGED, resolved paths, job-link
+  scope). Image: img-mq-bloomer-front-r3.
+- Peer review running: sfx-04 6eca206c0 (a413aa86cb12b885c; also: 115k-line sync_audit.json should shrink).
+- Wave 1b art (judge adb5256b83138e82d):
+  - Lightning wisp: mq1_front FAIL (comic yellow zigzag lightning, 15.9% bright) → maquette r3 + lightning-only edit →
+    `jobs/lightning_wisp/mq1_front_v2` (bright 8.3%, value .253) at the judge.
+  - Shale bloomer: mq2_front FAIL (r7 maquette head-on/symmetric 0.954, arm-like stubs, low deep shadow, honeycomb lost)
+    → maquette r8 (lean, tilted corolla, varied thorn tendrils, splayed roots) + prompt r3 → paint-over running.
+  - After art-06 merges: run `record-steps` on the new raw_steps kits (bloomer mq2_front, lancer v3 are migrated by art-06).
 - Lancer pair: judge PASS r2; director tone r2 restored the frost read (front/rear `mq1_front_v3`/`mq1_rear_v3`,
   sheet `sheet_pair_mq1_v3.png`, 50e1b836c). Shown to owner; awaiting verdict before rigging.
   These two kits use the art-05 field names: re-record them with art-06's migration when art-06 merges.

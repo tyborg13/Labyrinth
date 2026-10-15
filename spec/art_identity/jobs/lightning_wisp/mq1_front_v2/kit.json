@@ -1,0 +1,50 @@
+{
+  "K": 4,
+  "anatomy": "floating",
+  "id": "lightning_wisp",
+  "job_id": "mq-wisp-front-r1-edit",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "81faf9fad8c2fcfacde8adde493de778b283cda951d602e54c984271d706b11d",
+  "method": "maquette paint-over (wave 1b): lightning repaint edit of mq1_front per judge r1 (maquette r3 arcs/crown, lavender-white crackle)",
+  "peers": [
+    "arc_thrall_front",
+    "hero_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "1af819072ee1679c47aa874b623e34fe9122791536821675914da5b5aa6f3c3b",
+  "prompt_source": "spec/art_identity/maquettes/lightning_wisp/edit_front_lightning_r1.md",
+  "refs": [
+    {
+      "canon_id": "approved_wisp_mq1_front",
+      "file": "refs/01_approved_wisp_mq1_front.png",
+      "pixel_sha256": "9d47cffb87dcd10fa0a0589926b2e1ff2c7b745ace78d946093346fc2fc00813",
+      "role": "edit_source",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-wisp-front-r1-edit/refs/01_edit_source.png"
+    },
+    {
+      "canon_id": "maquette_front_parts_r3",
+      "file": "refs/02_maquette_front_parts_r3.png",
+      "pixel_sha256": "a75b097e2bb4eded67c8d6f127cdb40668b726e16281d4f2d6f56e75e085eae8",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-wisp-front-r1-edit/refs/02_front_parts_r3_green.png"
+    },
+    {
+      "canon_id": "arc_thrall_front",
+      "file": "refs/03_arc_thrall_front.png",
+      "pixel_sha256": "7dfe0f5203afb0d7b7bceb675fa7ccf23f2445397e81d0ea917664669a50080e",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-wisp-front-r1-edit/refs/03_arc_thrall_x4.png"
+    },
+    {
+      "canon_id": "hero_front",
+      "file": "refs/04_hero_front.png",
+      "pixel_sha256": "b267e751ef5c67f1fe2fcfacda5312dcbdaff928caceef8f682421b41e4dfd82",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-wisp-front-r1-edit/refs/04_hero_x4.png"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 210,
+  "view": "creature_front"
+}
