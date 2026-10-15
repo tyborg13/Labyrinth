@@ -7,21 +7,21 @@
   "fit_scale": 1.0,
   "k_eff": 4.0,
   "metrics": {
-    "chroma": 0.10866813843636845,
+    "chroma": 0.10747429466449725,
     "edge_light_share": 0.0,
-    "feature_px": 5.766777712972791,
+    "feature_px": 5.755803815848828,
     "height": 216,
     "height_drawn": 216.0,
-    "orphan_share": 0.067370595661655,
-    "regions": 524,
-    "run_length": 2.262529213191379,
+    "orphan_share": 0.06679674050269711,
+    "regions": 526,
+    "run_length": 2.265176134147927,
     "symmetry": 0.5172987974098058,
     "thin_abs": 0.006197635716745142,
     "thin_rel": 0.07758521749110525,
-    "value": 0.16903724747559987,
+    "value": 0.16879195095001157,
     "width": 176
   },
-  "pixel_sha256": "39a8906ae18c39ba362403a7eb6603c9b1919afc0e3fa5375113f3434b0e6c44",
+  "pixel_sha256": "394e5284cdf9dfe72e85508b269c2562612401e7fcb19ee99c27ac1facef37bc",
   "placement": [
     40,
     30
@@ -35,7 +35,7 @@
         "space": "CIE Lab",
         "std_floor": 1e-06
       },
-      "pre_step_pixel_sha256": "26d91d98864e91ba951e1f314e398a46053a5da1a0078f6aa1453a1fa597b064",
+      "pre_step_pixel_sha256": "d0128104621444857a047ffcf83962d615666ed491e5e7ec4dbf7fb14e713d7c",
       "reference": "spec/art_identity/jobs/chainbound_gaoler/mq_front_v3/processed.png",
       "reference_pixel_sha256": "8661431b833aa10c3b32715c957f932d11016326a68e5c0911fa9aa3853665d7",
       "step": "palette_match"
@@ -51,11 +51,11 @@
           21
         ]
       },
-      "pre_step_pixel_sha256": "0e9aa6864e395248a55af5b3f1370654adb996a1d472f3e1171f812e3f627106",
+      "pre_step_pixel_sha256": "4681cc8f4f7e2ac276307bb2916c5c46dfa19e04e5fbeefd5dc2af0225849111",
       "step": "clean_outline"
     }
   ],
-  "raw_sha256": "74f5a2786b08a48890b0a0bfc0fb93c458b22f61b08920291882968bb952d40d",
+  "raw_sha256": "d8cfa95f1171dfcab9da4124423234849cc58fc18ad81f882bc531de81ad7dca",
   "shift": [
     0,
     0
