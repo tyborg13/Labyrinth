@@ -54,3 +54,4 @@
 | ui-02 | UI ratchet cleanup (map, skill tree, section map) | merged (pixel-identical; baseline −4; 152 bespoke colours inventoried in staged/ui/near_palette_ui02.md — median ΔE76 8.5, needs a palette review, not a ratchet) | codex/peer-benchmark | briefs/ui-02.md |
 | art-06 | Identity gate robustness (pixel digests not PNG bytes, SKIP as WARN, dedupe inputs, rear→front job link, mutant tests) | merged bf3ed130a (signoff 16881db9a) | codex/peer-benchmark | briefs/art-06.md |
 | art-07 | Tone max_chroma filter + palette_match keeps bright/accent-hue pixels (lancer blade, wisp cores greyed) + art-06 leftovers | running (gpt-6-astra) | codex/peer-benchmark | briefs/art-07.md |
+| anim-02 | Static idle review fixes (jitter-safe lanes, sticky lanes + in-place sync, glow redraw test, instrumentation out of runtime) — continues anim-01 (session stuck replaying) | running (gpt-6-astra) | codex/anim-01 | briefs/anim-02.md |
