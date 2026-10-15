@@ -48,3 +48,7 @@
 - Under the restored peak caps (impacts ≤ −3 dBFS, all ≤ −1 dBTP), two re-trimmed cues fall below the −1.0 LU window:
   `hit.blade.light_01` −2.131 LU and `hurt.hero_01` −1.255 LU. Accepted: both are light/secondary impacts where a slightly
   softer hit reads correctly; revisit only if a listening pass flags them.
+
+## 2026-10-15 — ux-04 text decisions (director)
+- Keyword/term tokens render in `UiPalette.GOLD_BRIGHT`, same font/weight, no underline, everywhere (one named constant).
+- Graftwright donor result: "<Item> destroyed" ("consumed" stays reserved for the item Consume keyword).
