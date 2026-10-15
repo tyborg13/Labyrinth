@@ -1,0 +1,57 @@
+{
+  "K": 4,
+  "anatomy": "floating",
+  "id": "lightning_wisp",
+  "job_id": "mq-wisp-front-r1",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "30bbced3bd840dc98e0a3b55fd6998f6c86306f1efefafd87e24e77d7a198af1",
+  "method": "maquette paint-over (wave 1b): humanoid.py + lightning_wisp/spec.json r2, painted at drawn size K=4",
+  "peers": [
+    "arc_thrall_front",
+    "hero_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "3913b0abb8d090965af9cfa28c188135bb663a5b52384faa76e8034e128279e0",
+  "prompt_source": "spec/art_identity/maquettes/lightning_wisp/prompt_front_r1.md",
+  "refs": [
+    {
+      "canon_id": "maquette_front_parts",
+      "file": "refs/01_maquette_front_parts.png",
+      "pixel_sha256": "6d6a8d3c6463dde92da72c0d2b3b30af8100e5af49a9a597fa645fb4737a48f6",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-wisp-front-r1/refs/01_front_parts_green.png"
+    },
+    {
+      "canon_id": "maquette_front_clay",
+      "file": "refs/02_maquette_front_clay.png",
+      "pixel_sha256": "688da457f3850a3f40d35b0c2ee4b7dd7eb8cefa1a6c14b22ceea7b1a46dc409",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-wisp-front-r1/refs/02_front_clay_green.png"
+    },
+    {
+      "canon_id": "identity_wisp_current",
+      "file": "refs/03_identity_wisp_current.png",
+      "pixel_sha256": "75275b47ba771299dbc2ccbb69e97ea87e09cf8586a5af24d13d0b820537a688",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-wisp-front-r1/refs/03_identity_current_x4.png"
+    },
+    {
+      "canon_id": "arc_thrall_front",
+      "file": "refs/04_arc_thrall_front.png",
+      "pixel_sha256": "7dfe0f5203afb0d7b7bceb675fa7ccf23f2445397e81d0ea917664669a50080e",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-wisp-front-r1/refs/04_peer_x4.png"
+    },
+    {
+      "canon_id": "hero_front",
+      "file": "refs/05_hero_front.png",
+      "pixel_sha256": "b267e751ef5c67f1fe2fcfacda5312dcbdaff928caceef8f682421b41e4dfd82",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-wisp-front-r1/refs/05_hero_x4.png"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 210,
+  "view": "creature_front"
+}
