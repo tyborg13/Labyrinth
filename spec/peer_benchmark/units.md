@@ -58,3 +58,4 @@
 | rr-03 | Gust Shrike cutout rig from its maquette (idle/move/dive/talon rake/hover/hit/death) | running (gpt-6-astra) | codex/peer-benchmark | briefs/rr-03.md |
 | anim-01/anim-02 | Static enemy mesh-warp idle | shelved (owner: ripple + bird bounce rejected) | — | feedback.md 2026-10-15 |
 | fix-04 | Briar Weaver loses turn + intent after Thornwall (owner playtest 8) | merged 81e7f0dc9 (Codex signoff 6e3caa464) | codex/peer-benchmark | briefs/fix-04.md |
+| qa-05 | Integration: sfx sync suites fail after sfx-04 merge (interaction) | running (gpt-6-astra) | codex/peer-benchmark | briefs/qa-05.md |
