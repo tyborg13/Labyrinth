@@ -1,0 +1,77 @@
+{
+  "K": 4,
+  "anatomy": "rooted",
+  "id": "bile_bloomer",
+  "job_id": "mq-bloomer-front-r2",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "ed8f4181a18cb14b99930acdbfdc51c6ffc21de05b070f898be79d24e116cec5",
+  "method": "maquette paint-over (wave 1b): humanoid.py + shale_bloomer/spec.json r7, painted at drawn size K=4; director tone r2 (petals to slate shale)",
+  "peers": [
+    "briar_weaver_front",
+    "hero_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "943d554cbd61d0f8fa8cce4c0dca9d297b654241c861a0ffa7aadbb5b3b49495",
+  "prompt_source": "spec/art_identity/maquettes/shale_bloomer/prompt_front_r2.md",
+  "raw_steps": [
+    {
+      "inputs": {
+        "config": {
+          "path": "refs/tone_front_r2.json",
+          "sha256": "797f3974e4045a747815c0c19b0611d740bfb93db0cdf5ccf716ee3283b26f10"
+        },
+        "raw": {
+          "path": "refs/raw_approved.png",
+          "sha256": "4f3ad9b472c77a728f590b98c2529f3f5bb83432bcfa9c98d518c67c6ab36871"
+        }
+      },
+      "kind": "tone_region",
+      "output_raw_sha256": "e641b6537574febb34e5c594052bfda8e644736bc6a3168be6b23457f2f1a070",
+      "parameters": {
+        "space": "CIE Lab"
+      }
+    }
+  ],
+  "raw_steps_provenance": "director 2026-10-15: paint-over r2 painted the petals as brown wood leaves; tone them to slate shale grey (a,b x0.28) in four boxes around the amber heart so the heart keeps its colour",
+  "refs": [
+    {
+      "canon_id": "maquette_front_parts",
+      "file": "refs/01_maquette_front_parts.png",
+      "pixel_sha256": "7cf2a6448fff896111baa3185a41761f763f966526dab6d6c511333c840dfbfc",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-bloomer-front-r2/refs/01_front_parts_green.png"
+    },
+    {
+      "canon_id": "maquette_front_clay",
+      "file": "refs/02_maquette_front_clay.png",
+      "pixel_sha256": "5b3c259bc0c3749f8ce71354738abb815d369efadcf5d81bd95075597cd150df",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-bloomer-front-r2/refs/02_front_clay_green.png"
+    },
+    {
+      "canon_id": "identity_bloomer_current",
+      "file": "refs/03_identity_bloomer_current.png",
+      "pixel_sha256": "94439bf26af4be9b85c10e9693f80c555f8ee3e90eaec09b8e6e5ad2c049ceb3",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-bloomer-front-r2/refs/03_identity_current_x4.png"
+    },
+    {
+      "canon_id": "briar_weaver_front",
+      "file": "refs/04_briar_weaver_front.png",
+      "pixel_sha256": "5ce3fbf35980aff7f41b243f28ea61763e84e85e5ef3735aa320254eae63c8f4",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-bloomer-front-r2/refs/04_peer_x4.png"
+    },
+    {
+      "canon_id": "hero_front",
+      "file": "refs/05_hero_front.png",
+      "pixel_sha256": "b267e751ef5c67f1fe2fcfacda5312dcbdaff928caceef8f682421b41e4dfd82",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-bloomer-front-r2/refs/05_hero_x4.png"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 220,
+  "view": "creature_front"
+}

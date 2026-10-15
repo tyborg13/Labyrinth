@@ -1,0 +1,90 @@
+[
+ {
+  "seed": null,
+  "min_lum": 0.0,
+  "max_lum": 0.75,
+  "min_chroma": 0.0,
+  "hue_deg": [
+   0,
+   60
+  ],
+  "lab_scale": [
+   1.0,
+   0.28,
+   0.28
+  ],
+  "name": "petals (top of the amber heart): brown wood -> slate shale grey",
+  "box": [
+   330,
+   60,
+   960,
+   236
+  ]
+ },
+ {
+  "seed": null,
+  "min_lum": 0.0,
+  "max_lum": 0.75,
+  "min_chroma": 0.0,
+  "hue_deg": [
+   0,
+   60
+  ],
+  "lab_scale": [
+   1.0,
+   0.28,
+   0.28
+  ],
+  "name": "petals (bottom of the amber heart): brown wood -> slate shale grey",
+  "box": [
+   330,
+   424,
+   960,
+   470
+  ]
+ },
+ {
+  "seed": null,
+  "min_lum": 0.0,
+  "max_lum": 0.75,
+  "min_chroma": 0.0,
+  "hue_deg": [
+   0,
+   60
+  ],
+  "lab_scale": [
+   1.0,
+   0.28,
+   0.28
+  ],
+  "name": "petals (left of the amber heart): brown wood -> slate shale grey",
+  "box": [
+   330,
+   236,
+   526,
+   424
+  ]
+ },
+ {
+  "seed": null,
+  "min_lum": 0.0,
+  "max_lum": 0.75,
+  "min_chroma": 0.0,
+  "hue_deg": [
+   0,
+   60
+  ],
+  "lab_scale": [
+   1.0,
+   0.28,
+   0.28
+  ],
+  "name": "petals (right of the amber heart): brown wood -> slate shale grey",
+  "box": [
+   714,
+   236,
+   960,
+   424
+  ]
+ }
+]
