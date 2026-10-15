@@ -4,13 +4,12 @@ The image edits redrew the chain correctly but also disturbed pixels elsewhere; 
 outside BOX. Usage: python3 composite_chain.py APPROVED_RAW EDIT OUT x0 y0 x1 y1   (box in 1024-px raw coordinates)
 """
 import sys
+from pathlib import Path
 
-from PIL import Image
+sys.path.insert(0, str(Path(__file__).resolve().parents[4] / "tools"))
+from art_identity_gate import composite_region, rgba  # noqa: E402
 
-approved = Image.open(sys.argv[1]).convert("RGB")
-edit = Image.open(sys.argv[2]).convert("RGB")
-if edit.size != approved.size:
-    edit = edit.resize(approved.size, Image.LANCZOS)  # the front edit came back at 1254 px
-x0, y0, x1, y1 = (int(v) for v in sys.argv[4:8])
-approved.paste(edit.crop((x0, y0, x1, y1)), (x0, y0))
-approved.save(sys.argv[3])
+
+if __name__ == "__main__":
+    composite_region(rgba(Path(sys.argv[1])), rgba(Path(sys.argv[2])),
+                     [int(v) for v in sys.argv[4:8]]).save(sys.argv[3])

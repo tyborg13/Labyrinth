@@ -9,21 +9,12 @@ import json
 import sys
 from pathlib import Path
 
-import numpy as np
-from PIL import Image
-
-sys.path.insert(0, str(Path(__file__).resolve().parent))
-from tone_region import region_mask  # noqa: E402
+sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "tools"))
+from art_identity_gate import mask_reference, rgba  # noqa: E402
 
 
 def mask(src: Path, out: Path, regions: list) -> None:
-    pixels = np.asarray(Image.open(src).convert("RGBA")).copy()
-    rgb = pixels[..., :3].astype(float)
-    for region in regions:
-        hit = region_mask(rgb, region) & (pixels[..., 3] > 0)
-        pixels[hit, 3] = 0
-        print(f"{region['name']}: {int(hit.sum())} pixels excluded")
-    Image.fromarray(pixels).save(out)
+    mask_reference(rgba(src), regions, report=print).save(out)
 
 
 if __name__ == "__main__":

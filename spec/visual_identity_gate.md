@@ -140,6 +140,10 @@ python3 tools/art_identity_gate.py kit --id ID --subject SUBJECT.md --view creat
 python3 tools/art_identity_gate.py process RAW.png --kit JOB_DIR/kit.json --out OUT.png
 python3 tools/art_identity_gate.py process REAR_RAW.png --kit REAR_JOB/kit.json --out REAR_OUT.png \
   --match-front FRONT_PROCESSED.png --clean-outline
+# A kit with raw_steps supplies its own initial raw and match_reference:
+python3 tools/art_identity_gate.py process --kit JOB_DIR/kit.json --out OUT.png --clean-outline
+# Read-only recipe proof for a job which is not registered yet:
+python3 tools/art_identity_gate.py check --kit JOB_DIR/kit.json
 python3 tools/art_identity_gate.py kit --id ID --subject SUBJECT.md --subject-rear REAR_SUBJECT.md \
   --view creature_rear --size-class medium --anatomy biped --peers harrier_rear grave_surgeon_rear \
   --front-ref FRONT_RAW.png --out-dir REAR_JOB
@@ -168,6 +172,81 @@ then removes isolated pixels and replaces silhouette edges above Rec.601 luminan
 Each deterministic step records parameters and the pre-step decoded digest in `post_steps`; palette matching also
 binds its reference digest. Both run after canvas placement. `--subject-rear` uses and records the supplied rear
 subject in the kit and prompt, while retaining the usual front reference requirement.
+
+### Replayable director steps (art-05)
+
+`raw_steps` is an ordered, non-empty list in `kit.json`. `process` reads it automatically before the ordinary green
+key, BOX reduction and canvas placement. Omit the positional RAW; if supplied, it must hash to the first step's raw
+input. Each input binding is `{ "path": "refs/FILE", "sha256": "<file-byte SHA-256>" }`, relative to the job folder.
+Absolute paths, traversal and symlinks escaping that folder are rejected. Maquette inputs must be in `refs/` or
+`raw_inputs/`; use `refs/` in `mq*` jobs to inherit the existing Git inclusion rule. Copy inputs byte-for-byte,
+including intermediate raws and JSON configs. A later step's raw input digest must equal the preceding output digest.
+
+```json
+{
+  "raw_steps": [
+    {
+      "kind": "composite_region",
+      "inputs": {
+        "raw": {"path": "refs/raw_approved.png", "sha256": "<SHA-256>"},
+        "edit": {"path": "refs/raw_chain_edit.png", "sha256": "<SHA-256>"}
+      },
+      "parameters": {"box": [60, 255, 300, 720], "resample": "LANCZOS"},
+      "output_raw_sha256": "<SHA-256 of the resulting PNG bytes>"
+    },
+    {
+      "kind": "tone_region",
+      "inputs": {
+        "raw": {"path": "refs/raw_chain_composite.png", "sha256": "<preceding output SHA-256>"},
+        "config": {"path": "refs/tone_front_r3.json", "sha256": "<SHA-256>"}
+      },
+      "parameters": {"space": "CIE Lab"},
+      "output_raw_sha256": "<SHA-256 of the resulting PNG bytes>"
+    }
+  ]
+}
+```
+
+`composite_region` preserves the original script's RGB conversion, resizes a differently sized edit to the approved
+raw's size with LANCZOS, then pastes the half-open box. `tone_region` preserves the original ordered region config:
+`name`, `box`, optional eight-way `seed`, `min_lum`/`max_lum`, `min_chroma`, optional `hue_deg` (lo > hi wraps across
+zero), `exclude_green` (default true), and `lab_scale`. The prototype tone/mask scripts and gaoler composite script
+remain thin CLI wrappers around these library functions, with the same arguments and output bytes.
+
+`match_reference` in the kit is either a processed-front input binding, or a derived reference:
+
+```json
+{
+  "match_reference": {
+    "derived_from": {"path": "refs/palette_front.png", "sha256": "<SHA-256>"},
+    "mask_config": {"path": "refs/match_exclude_front_r3.json", "sha256": "<SHA-256>"}
+  }
+}
+```
+
+The mask uses the same region selectors, ignores `lab_scale`, and sets only selected opaque pixels' alpha to zero.
+It never overwrites the approved front or requires a prebuilt masked PNG. `--match-front FRONT.png` remains supported;
+`--match-front REFERENCE.json` accepts the binding/derived object above (without the outer `match_reference` key),
+with input paths relative to `--kit`'s job folder. An explicit reference must agree with a kit's recorded reference.
+The sidecar's `palette_match` post-step binds the source/config file digests, the derived PNG byte digest
+(`reference_sha256`) and decoded digest (`reference_pixel_sha256`), plus its existing parameters and pre-step digest.
+A direct PNG records its file-byte and decoded digests. The sidecar also copies `raw_steps`; `raw_sha256` is the final
+replayed raw's file digest. Historical informal gaoler commands/rationale remain under `raw_steps_provenance` for
+audit only; execution uses `raw_steps` and `match_reference`.
+
+Registry `check` retains all standard/maquette certification checks and additionally verifies these recipes. It
+validates every present input, every intermediate output, the final raw, sidecar bindings, post-step parameters and
+digests, and the processed PNG's exact bytes. Missing raw-step inputs fail for maquettes; historical standard kits
+can lack raw inputs, but any present input must still match. `check --kit` requires every input and prints matching
+raw, processed-file and decoded-pixel digests. It certifies replay only, without registry/metric/judge approval.
+Neither check writes into the job. Art-05 adds no gaoler registry entries.
+
+Proof for the design owner (headless Python; no capture or saved-run fixture is applicable):
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/art-05 && python3 tools/art_identity_gate.py check --kit spec/art_identity/jobs/chainbound_gaoler/mq3_front_v4/kit.json
+cd /Users/borgerding/workspace/Labyrinth.worktrees/art-05 && python3 tools/art_identity_gate.py check --kit spec/art_identity/jobs/chainbound_gaoler/mq3_rear_v3/kit.json
+```
 
 Creature sheets and kit checks enforce `edge_light_share` ≤ `creature.edge_light_share_max`. Pair sheets show
 absolute front/rear chroma and value differences over non-accent pixels only. Both views use the exact palette-match

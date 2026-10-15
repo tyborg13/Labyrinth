@@ -1,0 +1,4 @@
+[
+ {"name": "tabard cloth (front only)", "box": [119, 131, 150, 206], "seed": null, "min_lum": 0.0, "max_lum": 1.0, "min_chroma": 0.12, "hue_deg": [340, 12], "exclude_green": false, "lab_scale": [1, 1, 1]},
+ {"name": "tabard sigil (front only)", "box": [125, 143, 144, 178], "seed": null, "min_lum": 0.22, "max_lum": 1.0, "min_chroma": 0.08, "hue_deg": [0, 45], "exclude_green": false, "lab_scale": [1, 1, 1]}
+]

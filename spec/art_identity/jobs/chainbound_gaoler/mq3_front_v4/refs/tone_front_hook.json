@@ -1,0 +1,3 @@
+[
+ {"name": "front hook: match rear hook saturation (judge r7 polish)", "box": [56, 566, 192, 724], "seed": null, "min_lum": 0.0, "max_lum": 1.0, "min_chroma": 0.2, "hue_deg": [0, 45], "lab_scale": [0.94, 0.9, 0.8]}
+]

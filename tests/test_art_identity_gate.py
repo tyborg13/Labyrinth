@@ -7,6 +7,7 @@ import json
 import runpy
 from pathlib import Path
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -31,6 +32,21 @@ NON_ACCENT_FIXTURE_ACCENT_RECT = (2, 2, 10, 10)
 MAQUETTE_FIXTURE_JOB_ID = "fixture-maquette-job"
 MAQUETTE_FIXTURE_REF_LABELS = ("fixture_parts", "fixture_identity")
 MAQUETTE_INVALID_ROLE = "unknown_role"
+RAW_STEP_FIXTURE_SEED = 105
+RAW_STEP_FIXTURE_SIDE = 64
+RAW_STEP_FIXTURE_EDIT_SIDE = 80
+RAW_STEP_FIXTURE_BOX = [18, 12, 28, 36]
+RAW_STEP_FIXTURE_REGION = {"name": "fixture wrap", "box": [16, 8, 48, 56], "seed": None,
+                           "min_chroma": 0.1, "hue_deg": [340, 20], "lab_scale": [0.8, 0.7, 0.6]}
+# File-byte goldens captured from the three original director scripts before porting them (2026-10-15).
+# These stay independent of the thin wrappers and exercise RGB conversion, LANCZOS and hue wrap.
+RAW_STEP_LEGACY_SHA256 = {
+    "raw": "e463ffe5165ba6146a0fbd511e83d692ee81d9c91c6f992db58dce5685965ec9",
+    "edit": "f2f51f46f7ec6b3110edfcf324779e85d8bf42a3d8de7fd2f5ed7d9499cf74d7",
+    "composite": "0be76d83ea2a7f98a1501ee5fa76b8e89d57fcecb7757ea1a2d96218031c9f3d",
+    "tone": "2cc768c3af964a58b3a48b8eb1bc2c4a0494514c8a7c765d455164ef77cdb526",
+    "mask": "feadf93231688a74720ff53798e7224aa3d6d2766b4e300745276b6c5120854f",
+}
 
 
 def prototype_functions(filename, namespace):
@@ -61,6 +77,239 @@ class GateTests(unittest.TestCase):
                     out_dir=str(self.temp / folder))
         args.update(overrides)
         return argparse.Namespace(**args)
+
+    def raw_step_kit(self, folder=None):
+        folder = folder or self.temp / "mq_recipe"
+        refs = folder / "refs"
+        refs.mkdir(parents=True, exist_ok=True)
+        rng = np.random.default_rng(RAW_STEP_FIXTURE_SEED)
+        pixels = np.zeros((RAW_STEP_FIXTURE_SIDE, RAW_STEP_FIXTURE_SIDE, 3), dtype=np.uint8)
+        pixels[:] = [0, 255, 0]
+        pixels[8:56, 16:48] = rng.integers(20, 150, (48, 32, 3), dtype=np.uint8)
+        edit = Image.fromarray(rng.integers(0, 220, (RAW_STEP_FIXTURE_EDIT_SIDE, RAW_STEP_FIXTURE_EDIT_SIDE, 4), dtype=np.uint8))
+        raw = Image.fromarray(pixels)
+        composite = gate.composite_region(raw, edit, RAW_STEP_FIXTURE_BOX)
+        tone = gate.tone_region(composite, [RAW_STEP_FIXTURE_REGION])
+        for name, image in (("raw", raw), ("edit", edit), ("composite", composite), ("tone", tone)):
+            image.save(refs / (name + ".png"))
+        for name in ("tone", "mask"):
+            gate.write_json(refs / (name + ".json"), [RAW_STEP_FIXTURE_REGION])
+
+        def binding(name):
+            return {"path": "refs/" + name, "sha256": gate.sha((refs / name).read_bytes())}
+
+        kit_path = folder / "kit.json"
+        kit = gate.read_json(kit_path) if kit_path.exists() else {"K": 4, "kit_kind": "maquette"}
+        kit["raw_steps"] = [
+            {"kind": "composite_region", "inputs": {"raw": binding("raw.png"), "edit": binding("edit.png")},
+             "parameters": {"box": RAW_STEP_FIXTURE_BOX, "resample": "LANCZOS"},
+             "output_raw_sha256": binding("composite.png")["sha256"]},
+            {"kind": "tone_region", "inputs": {"raw": binding("composite.png"), "config": binding("tone.json")},
+             "parameters": {"space": "CIE Lab"}, "output_raw_sha256": binding("tone.png")["sha256"]},
+        ]
+        kit["match_reference"] = {"derived_from": binding("tone.png"), "mask_config": binding("mask.json")}
+        gate.write_json(kit_path, kit)
+        return kit_path
+
+    def test_raw_step_bytes_match_legacy_scripts_and_wrappers(self):
+        kit_path = self.raw_step_kit()
+        refs = kit_path.parent / "refs"
+        for name in ("raw", "edit", "composite", "tone"):
+            self.assertEqual(gate.sha((refs / (name + ".png")).read_bytes()), RAW_STEP_LEGACY_SHA256[name])
+        masked = gate.mask_reference(gate.rgba(refs / "tone.png"), [RAW_STEP_FIXTURE_REGION])
+        self.assertEqual(gate.sha(gate.png_bytes(masked)), RAW_STEP_LEGACY_SHA256["mask"])
+        wrappers = [
+            ("maquettes/chainbound_gaoler/composite_chain.py", [refs / "raw.png", refs / "edit.png"],
+             "composite", list(map(str, RAW_STEP_FIXTURE_BOX))),
+            ("prototype/tone_region.py", [refs / "composite.png"], "tone", [refs / "tone.json"]),
+            ("prototype/mask_reference.py", [refs / "tone.png"], "mask", [refs / "mask.json"]),
+        ]
+        for script, inputs, name, suffix in wrappers:
+            out = self.temp / (name + ".png")
+            result = subprocess.run([sys.executable, str(ROOT / gate.IDENTITY / script),
+                                     *map(str, inputs), str(out), *map(str, suffix)], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(gate.sha(out.read_bytes()), RAW_STEP_LEGACY_SHA256[name])
+
+    def test_composite_resizes_edit_and_preserves_outside_box(self):
+        kit_path = self.raw_step_kit()
+        refs = kit_path.parent / "refs"
+        raw, edit = gate.rgba(refs / "raw.png"), gate.rgba(refs / "edit.png")
+        actual = gate.composite_region(raw, edit, RAW_STEP_FIXTURE_BOX)
+        self.assertEqual(actual.mode, "RGB")
+        x0, y0, x1, y1 = RAW_STEP_FIXTURE_BOX
+        expected_edit = edit.convert("RGB").resize(raw.size, gate.RESAMPLE.LANCZOS)
+        self.assertEqual(actual.crop((x0, y0, x1, y1)).tobytes(), expected_edit.crop((x0, y0, x1, y1)).tobytes())
+        outside = np.ones((raw.height, raw.width), dtype=bool)
+        outside[y0:y1, x0:x1] = False
+        np.testing.assert_array_equal(np.asarray(actual)[outside], np.asarray(raw.convert("RGB"))[outside])
+
+    def test_region_hue_wrap_and_seed_connectivity(self):
+        colors = np.array([[[200, 20, 30], [200, 30, 20], [20, 200, 20], [20, 20, 200]]], dtype=float)
+        region = dict(RAW_STEP_FIXTURE_REGION, box=[0, 0, 4, 1])
+        np.testing.assert_array_equal(gate.region_mask(colors, region), [[True, True, False, False]])
+        colors = np.full((5, 5, 3), [0, 255, 0], dtype=float)
+        colors[1, 1] = colors[2, 2] = colors[4, 4] = [200, 20, 30]
+        region.update(box=[0, 0, 5, 5], seed=[1, 1])
+        hits = gate.region_mask(colors, region)
+        self.assertEqual(np.argwhere(hits).tolist(), [[1, 1], [2, 2]])
+        region["seed"] = [0, 0]
+        with self.assertRaisesRegex(ValueError, "not a matching pixel"):
+            gate.region_mask(colors, region)
+
+    def test_raw_steps_replay_process_and_check_are_deterministic_and_read_only(self):
+        kit_path = self.raw_step_kit()
+        self.assertEqual(gate.replay_raw_steps(kit_path), (kit_path.parent / "refs/tone.png").read_bytes())
+        out = kit_path.parent / "processed.png"
+        one = gate.process_raw(None, kit_path, out, outline=True)
+        two = gate.process_raw(None, kit_path, self.temp / "repeat.png", outline=True)
+        self.assertEqual(one, two)
+        self.assertEqual(out.read_bytes(), (self.temp / "repeat.png").read_bytes())
+        before = {p: p.read_bytes() for p in kit_path.parent.rglob("*") if p.is_file()}
+        self.assertEqual(len(gate.verify_job_recipe(kit_path)), 3)
+        self.assertEqual(before, {p: p.read_bytes() for p in before})
+        with self.assertRaisesRegex(ValueError, "supplied raw differs"):
+            gate.process_raw(kit_path.parent / "refs/edit.png", kit_path, out)
+
+    def test_raw_steps_reject_changed_file_bytes_for_every_input_kind(self):
+        kit_path = self.raw_step_kit()
+        for name in ("raw.png", "edit.png", "composite.png", "tone.json"):
+            with self.subTest(input=name):
+                path = kit_path.parent / "refs" / name
+                original = path.read_bytes()
+                path.write_bytes(original + b"\n")  # Valid PNG/JSON, identical decoded data, changed file digest.
+                with self.assertRaisesRegex(ValueError, "input sha256 changed"):
+                    gate.replay_raw_steps(kit_path)
+                path.write_bytes(original)
+
+    def test_raw_steps_reject_output_chain_and_parameter_tampering(self):
+        kit_path = self.raw_step_kit()
+        original = gate.read_json(kit_path)
+        for change, error in (("output", "output_raw_sha256 changed"), ("chain", "previous output"),
+                              ("kind", "unknown kind"), ("parameters", "invalid composite_region parameters")):
+            with self.subTest(change=change):
+                kit = copy.deepcopy(original)
+                if change == "output": kit["raw_steps"][-1]["output_raw_sha256"] = "0" * 64
+                elif change == "chain": kit["raw_steps"][0]["output_raw_sha256"] = "0" * 64
+                elif change == "kind": kit["raw_steps"][0]["kind"] = "unknown"
+                else: kit["raw_steps"][0]["parameters"]["resample"] = "NEAREST"
+                gate.write_json(kit_path, kit)
+                with self.assertRaisesRegex(ValueError, error):
+                    gate.replay_raw_steps(kit_path)
+
+    def test_missing_maquette_inputs_fail_and_standard_still_checks_present_inputs(self):
+        kit_path = self.raw_step_kit()
+        kit = gate.read_json(kit_path)
+        for name in ("raw.png", "edit.png", "composite.png", "tone.json"):
+            path = kit_path.parent / "refs" / name
+            original = path.read_bytes()
+            path.unlink()
+            with self.subTest(input=name), self.assertRaisesRegex(ValueError, "input missing"):
+                gate.replay_raw_steps(kit_path, allow_missing=True)
+            path.write_bytes(original)
+        kit.pop("kit_kind")
+        gate.write_json(kit_path, kit)
+        (kit_path.parent / "refs/raw.png").unlink()
+        self.assertIsNone(gate.replay_raw_steps(kit_path, allow_missing=True))
+        (kit_path.parent / "refs/tone.json").write_text("[]")
+        with self.assertRaisesRegex(ValueError, "input sha256 changed"):
+            gate.replay_raw_steps(kit_path, allow_missing=True)
+
+    def test_recipe_paths_cannot_escape_job_or_maquette_input_folders(self):
+        kit_path = self.raw_step_kit()
+        original = gate.read_json(kit_path)
+        for path in ("../raw.png", str(self.temp / "raw.png"), "processed.png"):
+            kit = copy.deepcopy(original)
+            kit["raw_steps"][0]["inputs"]["raw"]["path"] = path
+            gate.write_json(kit_path, kit)
+            with self.subTest(path=path), self.assertRaises(ValueError):
+                gate.replay_raw_steps(kit_path)
+
+    def test_derived_match_reference_binds_source_config_and_output_digests(self):
+        kit_path = self.raw_step_kit()
+        kit = gate.read_json(kit_path)
+        image, binding = gate.derive_match_reference(kit["match_reference"], kit_path)
+        self.assertEqual(binding["reference_sha256"], RAW_STEP_LEGACY_SHA256["mask"])
+        source = gate.rgba(kit_path.parent / "refs/tone.png")
+        np.testing.assert_array_equal(np.asarray(image)[..., :3], np.asarray(source)[..., :3])
+        self.assertGreater((np.asarray(image)[..., 3] == 0).sum(), 0)
+        out = kit_path.parent / "processed.png"
+        record = gate.process_raw(None, kit_path, out, outline=True)
+        self.assertEqual(record["post_steps"][0]["match_reference"], kit["match_reference"])
+        for name in ("tone.png", "mask.json"):
+            path = kit_path.parent / "refs" / name
+            original = path.read_bytes()
+            path.write_bytes(original + b"\n")
+            with self.subTest(input=name), self.assertRaisesRegex(ValueError, "input sha256 changed"):
+                gate.verify_job_recipe(kit_path)
+            path.write_bytes(original)
+        for field in ("reference_sha256", "reference_pixel_sha256", "pre_step_pixel_sha256"):
+            changed = copy.deepcopy(record)
+            changed["post_steps"][0][field] = "0" * 64
+            gate.write_json(out.with_suffix(".json"), changed)
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, "digest changed|post_steps mismatched"):
+                gate.verify_job_recipe(kit_path)
+
+    def test_direct_match_reference_and_json_descriptor_cli(self):
+        kit_path = self.raw_step_kit()
+        kit = gate.read_json(kit_path)
+        kit["match_reference"] = kit["match_reference"]["derived_from"]
+        gate.write_json(kit_path, kit)
+        out = kit_path.parent / "processed.png"
+        gate.process_raw(None, kit_path, out)
+        self.assertEqual(len(gate.verify_job_recipe(kit_path)), 3)
+        descriptor = kit_path.parent / "match.json"
+        gate.write_json(descriptor, kit.pop("match_reference"))
+        gate.write_json(kit_path, kit)
+        command = [sys.executable, str(ROOT / "tools/art_identity_gate.py")]
+        result = subprocess.run(command + ["process", "--kit", str(kit_path), "--out", str(out),
+                                           "--match-front", str(descriptor)], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        result = subprocess.run(command + ["check", "--kit", str(kit_path)], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("ART IDENTITY REPLAY: PASS", result.stdout)
+        (kit_path.parent / "refs/tone.png").write_bytes(b"changed")
+        result = subprocess.run(command + ["check", "--kit", str(kit_path)], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("input sha256 changed", result.stderr)
+
+    def test_replay_detects_processed_png_reencoding_and_recipe_sidecar_changes(self):
+        kit_path = self.raw_step_kit()
+        out = kit_path.parent / "processed.png"
+        record = gate.process_raw(None, kit_path, out, outline=True)
+        original = out.read_bytes()
+        gate.rgba(out).save(out, compress_level=0)
+        with self.assertRaisesRegex(ValueError, "processed.png bytes mismatched"):
+            gate.verify_job_recipe(kit_path)
+        out.write_bytes(original)
+        record["raw_steps"] = []
+        gate.write_json(out.with_suffix(".json"), record)
+        with self.assertRaisesRegex(ValueError, "processed raw_steps mismatched"):
+            gate.verify_job_recipe(kit_path)
+
+    def test_registry_check_replays_recipe_in_addition_to_existing_certification(self):
+        root, registry, entry = self.kit_registry()
+        kit_path = self.raw_step_kit(root / "jobs/fixture")
+        out = kit_path.parent / "processed.png"
+        record = gate.process_raw(None, kit_path, out, root, outline=True)
+        entry.update(raw_sha256=record["raw_sha256"], source_pixel_sha256=record["pixel_sha256"], post_steps=record["post_steps"])
+        gate.write_json(root / gate.IDENTITY / "registry.json", registry)
+        reports, failures = gate.check_registry(root)
+        self.assertEqual(failures, 0, "\n".join(reports))
+        (kit_path.parent / "refs/edit.png").write_bytes(b"changed")
+        reports, failures = gate.check_registry(root)
+        self.assertEqual(failures, 1)
+        self.assertTrue(any("raw_steps[0].edit input sha256 changed" in line for line in reports))
+
+    def test_gaoler_jobs_replay_approved_bytes_without_external_inputs(self):
+        for job in ("mq3_front_v4", "mq3_rear_v3"):
+            source = ROOT / gate.IDENTITY / "jobs/chainbound_gaoler" / job
+            local = self.temp / job
+            shutil.copytree(source, local)
+            self.assertEqual(len(gate.verify_job_recipe(local / "kit.json")), 3)
+            kit = gate.read_json(local / "kit.json")
+            self.assertEqual(kit["kit_kind"], "maquette")
+            self.assertEqual(gate.prompt_kit_version(kit, (local / "prompt.md").read_bytes()), kit["kit_version"])
 
     def test_palette_match_and_outline_are_pixel_identical_to_prototypes(self):
         # Proof-only synthetic accents, green key residue, opaque islands and borders.
