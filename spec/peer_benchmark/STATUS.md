@@ -20,25 +20,19 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 
 ## In flight (2026-10-15 late, playtest 7 follow-ups; Codex model gpt-6-astra + max_running 6 for today — revert the Labyrinth profile after)
 - Merged today: sfx-03, rr-01, art-04 (shrike), por-01, ux-02, art-05, ui-02, qa-04, fix-03. Playtest 7 = 7901c37f0.
-- Running: sfx-04 r3 (per-call peak alignment decision; feedback_3), rr-02 r4 (material-correct ownership, specks, rear
-  strike draw order, reel adds chain_reel/manacle_pin; feedback_4; checkpoint addd470bd), art-06 r1 (migrate lancer v3
-  kits + `record-steps` helper; r0 d3e7bb82c, integration merged in), chr-02 r4 (normalize perf).
-- Peer review: vfx-01 b1ff413f7 (a5cd14b257a1dd01f), ux-03 723f52579 (a7ba8bb418000b8d4).
-- anim-01 r3: windowed probe + native benchmark running (warmup-frame >2 ms misses accepted: steady mean ≤0.27 ms).
-- chr-02 (Chronicle tiles) 526e3c6cc: re-review CHANGES REQUESTED (normalize rebuilt card deltas: 85 ms with relic-heavy
-  history) → r4 running (keep stored deltas, perf test); then reviewer signoff → merge. Known layout limit: 14+ relics or
-  a wrapped subtitle overflows the 718 px viewport (scroll still works).
+- Merged into integration: chr-02 (9d711ceb5; peer signoff 99d872fa5, r5 tests-only).
+- Running: vfx-01 r2 (surface element fallback, continuous thin-line cores, Vulkan GPU benchmark, lazy layer nodes),
+  rr-02 r5 (motion-frame gates: tabard paint on shins, specks, rear leg fill value, rear fist occluded; checkpoint
+  235040084), anim-01 r5 (re-send of r4: stagger 12 Hz ticks, prebuild next state; r4 restated r3 with no changes;
+  checkpoint f2e79adcb). Image jobs: img-mq-bloomer-front-r1, img-mq-wisp-front-r1.
+- Peer review running: ux-03 723f52579, sfx-04 6eca206c0 (also: 115k-line sync_audit.json should shrink),
+  art-06 b7d71316f.
+- Wave 1b maquettes: shale bloomer r5b (daisy over braided root cage), lightning wisp r2; front prompts committed.
 - Lancer pair: judge PASS r2; director tone r2 restored the frost read (front/rear `mq1_front_v3`/`mq1_rear_v3`,
   sheet `sheet_pair_mq1_v3.png`, 50e1b836c). Shown to owner; awaiting verdict before rigging.
   These two kits use the art-05 field names: re-record them with art-06's migration when art-06 merges.
 - Gaoler: owner-approved rounded pair `mq3_front_v4` + `mq3_rear_v3`; rr-02 rigs it; phase 3 = production integration.
 - ux-04 (text rewrite) launches after ux-03 merges. Owner question open: self-hit amplification (Meteorfall/Detonate).
-- Wave 1b maquettes (WIP, unreviewed): `maquettes/shale_bloomer/spec.json` r4 (daisy disc + trunk hooks; r1–r3 read as a
-  bug) and `maquettes/lightning_wisp/spec.json` r2 (cumulus core, short arcs, curled tail). Renders in scratchpad
-  `maquette/{bloomer,wisp}/rN`; review r4 render next, then prompts (lancer prompt_front_r1.md as template) → imagegen.
-- anim-01 native probe + benchmark finished (output in task bv36eb1y9; unreviewed) → review captures, commit, peer review.
-- Session paused 2026-10-15 at the usage limit: on resume, re-arm the watchdog and process pending FINISHED events
-  (sfx-04 r3, rr-02 r4, art-06 r1) and the two peer-review reports.
 - Watchdog: `scratchpad/watch_loop2.sh` (tracked background job).
 
 ## Next actions
