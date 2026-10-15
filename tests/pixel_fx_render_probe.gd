@@ -3,12 +3,14 @@ extends SceneTree
 ## GPU oracle: actual ViewportTexture -> quantizer -> 1920x1080 SubViewport.
 ## Headless parsing is useful; it is explicitly not accepted as pixel proof.
 const Pixel = preload("res://scripts/pixel_fx_layer.gd")
+const Spell = preload("res://scripts/elemental_spell_fx.gd")
 const Fixture = preload("res://tests/pixel_fx_fixture.gd")
 const Board = preload("res://scripts/combat_board_view.gd")
 const Chain = preload("res://scripts/chain_attack_fx.gd")
 const Tether = preload("res://scripts/enemy_mechanics/tether_view.gd")
 const SurfaceDependencies = preload("res://scripts/board_surface_render_dependencies.gd")
 const Runtime = preload("res://scripts/parallel_runtime.gd")
+const LineReference = preload("res://tests/pixel_fx_line_reference.gd")
 const OUTPUT: String = "user://probes/pixel_fx_render"
 const SETTLE_FRAMES: int = 3
 const SAMPLE_STRIDE: int = 7
@@ -20,7 +22,9 @@ const CROP_ALPHA_OFFSET: float = 0.1
 const BELOW_FLOOR_CELL := Vector2i(100, 180)
 const ABOVE_FLOOR_CELL := Vector2i(100, 272)
 const LINE_PROGRESS: float = 0.52
-const LINE_FIXTURE: Dictionary = {"start": Vector2(300, 500), "end": Vector2(900, 300), "width": 180.0, "key": "pixel-proof"}
+const LINE_FIXTURE: Dictionary = {"start": Vector2(300, 500), "end": Vector2(900, 300), "width": 180.0, "key": "pixel-proof",
+	"lightning_center": Vector2(600, 400),
+	"lightning_zigzag": [Vector2(300, 500), Vector2(450, 320), Vector2(550, 390), Vector2(900, 300)]}
 const UNIT_COLOR := Color(0.125, 0.25, 0.375, 1.0)
 var _alphas := PackedFloat32Array()
 
@@ -51,7 +55,7 @@ func _run() -> void:
 	for element: String in Pixel.style()["ramps"]:
 		await _gradient(element)
 	await _cropped_dither()
-	for kind: String in ["conduction", "chain", "tether"]:
+	for kind: String in ["conduction", "chain", "tether", "lightning"]:
 		await _line_core(kind)
 	for element: String in Fixture.ELEMENTS:
 		await _depth_and_blend(element)
@@ -224,9 +228,13 @@ func _line_core(kind: String) -> void:
 		pixel.submit("lightning", _draw_conduction, [board, sample["presentation"]], Transform2D.IDENTITY)
 	elif kind == "chain":
 		pixel.submit("lightning", Chain.draw_hop, [LINE_FIXTURE["start"], LINE_FIXTURE["end"], LINE_FIXTURE["width"], LINE_PROGRESS, false], Transform2D.IDENTITY)
-	else:
+	elif kind == "tether":
 		var points: PackedVector2Array = Tether.beam_points(LINE_FIXTURE["start"], LINE_FIXTURE["end"], LINE_FIXTURE["key"], 0)
 		pixel.submit("lightning", Pixel.draw_line_command, [points, Color(0.94, 0.96, 1.0, 1.0), Color(Tether.COLOR, 0.82)], Transform2D.IDENTITY)
+	else:
+		pixel.submit("lightning", Pixel.draw_line_command, [PackedVector2Array(LINE_FIXTURE["lightning_zigzag"]), Color(0.94, 0.96, 1.0, 0.72), Color(0.72, 0.65, 1.0, 0.82)], Transform2D.IDENTITY)
+		pixel.submit("lightning", Spell.impact, ["lightning", LINE_FIXTURE["lightning_center"], LINE_FIXTURE["width"], LINE_PROGRESS, 1.0, false, false], Transform2D.IDENTITY)
+		pixel.submit("lightning", Spell.impact, ["lightning", LINE_FIXTURE["lightning_center"], LINE_FIXTURE["width"], LINE_PROGRESS, 1.0, false, true], Transform2D.IDENTITY)
 	pixel.finish()
 	await _settle()
 	var image: Image = _viewport.get_texture().get_image()
@@ -281,6 +289,17 @@ func _line_core(kind: String) -> void:
 					halo_off += int(expected.a == 0.0)
 		_expect(bad_halo == 0 and halo_on > 0 and halo_off > 0, "Tether has exactly a one-cell Bayer-dithered halo and no farther pixels")
 	_expect(image.save_png(OUTPUT.path_join(kind + "_solid_core.png")) == OK, "Save solid line fixture")
+	# Same canvas slot and unchanged underlying primitives: only replace the
+	# optimized core/halo mesh with the frozen round-2 per-cell drawing.
+	var reference := LineReference.new()
+	reference.strokes.assign(strokes)
+	reference.transform = lines.transform
+	lines.get_parent().add_child(reference)
+	lines.hide()
+	await _settle()
+	var before: Image = _viewport.get_texture().get_image()
+	_expect(before.get_data() == image.get_data(), "%s rendered RGBA bytes are identical before/after batching" % kind)
+	_expect(before.save_png(OUTPUT.path_join(kind + "_legacy_cells.png")) == OK, "Save pre-batching reference")
 	source.queue_free()
 	board.queue_free()
 	await process_frame

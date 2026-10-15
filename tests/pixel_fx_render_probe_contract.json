@@ -1,5 +1,5 @@
 {
-  "min_images": 15,
+  "min_images": 20,
   "expected_sizes": [
     "1920x1080"
   ],
@@ -76,6 +76,31 @@
     },
     {
       "pattern": "tether_solid_core.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_solid_core.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "conduction_legacy_cells.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "chain_legacy_cells.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "tether_legacy_cells.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_legacy_cells.png",
       "width": 1920,
       "height": 1080
     }

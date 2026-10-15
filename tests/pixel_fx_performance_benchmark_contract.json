@@ -1,5 +1,5 @@
 {
-  "min_images": 16,
+  "min_images": 20,
   "expected_sizes": [
     "1920x1080",
     "3840x2160"
@@ -82,6 +82,26 @@
     },
     {
       "pattern": "dragon_fan_2160p_on.png",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "pattern": "chain_1080p_on.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "tether_1080p_on.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "chain_2160p_on.png",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "pattern": "tether_2160p_on.png",
       "width": 3840,
       "height": 2160
     }

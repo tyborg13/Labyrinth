@@ -6,6 +6,8 @@ const SurfaceDependencies = preload("res://scripts/board_surface_render_dependen
 const Board = preload("res://scripts/combat_board_view.gd")
 const Fixture = preload("res://tests/pixel_fx_fixture.gd")
 const Runtime = preload("res://scripts/parallel_runtime.gd")
+const LineReference = preload("res://tests/pixel_fx_line_reference.gd")
+const Metrics = preload("res://tests/pixel_fx_benchmark_metrics.gd")
 const TRANSFORM_FIXTURE: Dictionary = {
 	"position": Vector2(37.25, 19.75), "scale": Vector2(1.17, 1.17),
 	"point": Vector2(200, 200), "size": 100.0, "progress": 0.38,
@@ -25,6 +27,8 @@ func _initialize() -> void:
 
 func _run() -> void:
 	_data_and_quantizer()
+	_benchmark_verdict()
+	_line_batch_identity()
 	await _board_integration()
 	await _blend_and_transforms()
 	await _geometry_bounds()
@@ -366,15 +370,18 @@ func _surface_ramps(board: Control, state: Dictionary) -> void:
 		_expect(runs.size() == 1 and runs[0]["element"] == mapping[surface], "Covered %s glow uses its data-mapped surface ramp" % surface)
 
 func _line_paths(board: Control) -> void:
-	for kind: String in ["conduction", "chain", "tether"]:
+	for kind: String in ["conduction", "chain", "tether", "lightning"]:
 		var sample: Dictionary = Fixture.surface_sample("conduction")
-		if kind != "conduction":
+		if kind == "lightning":
+			sample = {"state": Fixture.combat_state(), "presentation": Fixture.presentation("lightning", 0.62)}
+		elif kind != "conduction":
 			sample = Fixture.line_sample(kind)
 		board.call("set_combat_state", sample["state"], [], [], Vector2i(-1, -1), "", "", {}, {}, sample["presentation"])
 		await _settle()
 		var strokes: int = 0
 		var all_cells: Dictionary = {}
 		for node: Node in board.find_children("LineCells", "", true, false):
+			_verify_mesh(node.get("mesh"), node.get("strokes"), kind)
 			for run: Dictionary in node.get_parent().get_parent().get("_runs"):
 				var drawing: Pixel.Drawing = run["drawing"]
 				if drawing.line_canvas == node and not drawing.line_canvas.strokes.is_empty():
@@ -414,3 +421,75 @@ func _line_paths(board: Control) -> void:
 							reached[neighbour] = true
 							frontier.append(neighbour)
 			_expect(reached.has(end) and reached.size() == all_cells.size(), "%s complete core is one 8-connected component, including tile joins/tributaries" % kind)
+
+func _verify_mesh(mesh: ArrayMesh, strokes: Array[Dictionary], label: String) -> void:
+	if strokes.is_empty():
+		_expect(mesh == null, "%s empty batch has no draw" % label)
+		return
+	_expect(mesh != null and mesh.get_surface_count() == 1, "%s all cores/halos share one draw surface" % label)
+	if mesh == null: return
+	var arrays: Array = mesh.surface_get_arrays(0)
+	var vertices: PackedVector2Array = arrays[Mesh.ARRAY_VERTEX]
+	var colors: PackedColorArray = arrays[Mesh.ARRAY_COLOR]
+	var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
+	var actual: Dictionary = {}
+	var valid_quads: bool = vertices.size() % 4 == 0 and indices.size() == vertices.size() / 4 * 6
+	for first: int in range(0, vertices.size(), 4):
+		var p: Vector2 = vertices[first]
+		var color: Color = colors[first]
+		valid_quads = valid_quads and p == p.floor() and color.a == 1.0
+		valid_quads = valid_quads and vertices[first + 1] == p + Vector2.RIGHT and vertices[first + 2] == p + Vector2.ONE and vertices[first + 3] == p + Vector2.DOWN
+		valid_quads = valid_quads and colors[first + 1] == color and colors[first + 2] == color and colors[first + 3] == color
+		var offset: int = first / 4 * 6
+		valid_quads = valid_quads and indices.slice(offset, offset + 6) == PackedInt32Array([first, first + 1, first + 2, first, first + 2, first + 3])
+		actual[Vector2i(p)] = color.to_rgba32()
+	_expect(valid_quads, "%s exact one-cell flat-colour quads, without interpolation or gaps" % label)
+	_expect(actual == LineReference.cells_before_batching(strokes), "%s every rendered cell/color/order equals the round-2 renderer" % label)
+
+func _line_batch_identity() -> void:
+	var cache := Pixel.LineBatch.new(Pixel.line_cells, Pixel.quantize)
+	var points := PackedVector2Array([Vector2(-8.25, 11.75), Vector2(25.9, 4.2), Vector2(18.3, -7.1), Vector2(52.5, 17.9)])
+	var transform := Transform2D(0.0, Vector2(0.5, 0.5), 0.0, Vector2(11.25, -2.75))
+	for element: String in Pixel.style()["ramps"]:
+		for alpha: float in [0.01, 0.3, 0.5, 0.82, 1.0]:
+			var strokes: Array[Dictionary]
+			strokes.append(cache.stroke(points, transform, Color(0.94, 0.96, 1.0, alpha), Color(0.72, 0.65, 1.0, alpha), element))
+			# Crossing stroke pins painter order as well as negative Bayer cells.
+			strokes.append(cache.stroke(PackedVector2Array([Vector2(0, -4), Vector2(40, 18)]), transform, Color(0.5, 0.4, 0.6, alpha), Color(0.6, 0.5, 0.8, alpha), element))
+			var mesh: ArrayMesh = cache.batch(strokes)
+			_verify_mesh(mesh, strokes, "%s alpha=%s" % [element, alpha])
+			_expect(cache.batch(strokes) == mesh, "Unchanged complete batch reuses its mesh")
+	_expect(cache.rasterizations == 2, "Colour/fade changes reuse the rasterized arc shape")
+	var count: int = cache.rasterizations
+	cache.stroke(points, transform, Color.WHITE, Color.WHITE, "lightning")
+	_expect(cache.rasterizations == count, "Repeated authored arc skips rasterization")
+	cache.stroke(points, Transform2D.IDENTITY, Color.WHITE, Color.WHITE, "lightning")
+	_expect(cache.rasterizations == count + 1, "Changed screen transform invalidates rasterization")
+	var retained: ArrayMesh
+	for index: int in range(cache.MAX_BATCHES + 2):
+		var strokes: Array[Dictionary]
+		strokes.append(cache.stroke(points, transform, Color.WHITE, Color(1.0, 1.0, 1.0, float(index + 1) / 100.0), "lightning"))
+		var mesh: ArrayMesh = cache.batch(strokes)
+		if index == 0: retained = mesh
+	_expect(retained.get_surface_count() == 1, "Evicting a cached mesh keeps already-submitted resources alive")
+	_expect((cache.get("_batches") as Dictionary).size() <= cache.MAX_BATCHES and int(cache.get("_cached_quads")) <= cache.MAX_CACHED_QUADS, "Batch cache stays within both bounds")
+
+func _benchmark_verdict() -> void:
+	var samples: Dictionary = {"off": [], "on": []}
+	for index: int in range(180):
+		samples["off"].append({"gpu": 2.0})
+		samples["on"].append({"gpu": 2.45})
+	var gpu: Dictionary = Metrics.summarize(samples, "gpu")
+	_expect(Metrics.gpu_verdict(gpu, 180, 1.0, true)["passed"], "180/180 valid summed GPU samples pass despite zero-cost child targets")
+	for index: int in range(18): samples["on"][index]["gpu"] = 0.0
+	gpu = Metrics.summarize(samples, "gpu")
+	_expect(Metrics.gpu_verdict(gpu, 180, 1.0, true)["passed"], "Exactly 90% nonzero samples pass")
+	_expect(gpu["paired_delta"]["samples"] == 162 and is_equal_approx(gpu["paired_delta"]["median_ms"], 0.45), "Missing samples cannot skew the paired median")
+	samples["on"][18]["gpu"] = 0.0
+	_expect(not Metrics.gpu_verdict(Metrics.summarize(samples, "gpu"), 180, 1.0, true)["valid_samples"], "Fewer than 90% nonzero samples fail")
+	for index: int in range(180): samples["on"][index]["gpu"] = 0.0
+	_expect(not Metrics.gpu_verdict(Metrics.summarize(samples, "gpu"), 180, 1.0, true)["passed"], "Completely missing queries fail without an empty-stats error")
+	for index: int in range(180): samples["on"][index]["gpu"] = 3.01
+	gpu = Metrics.summarize(samples, "gpu")
+	_expect(not Metrics.gpu_verdict(gpu, 180, 1.0, true)["passed"], "Valid timestamps still fail a >1 ms 1080p paired median")
+	_expect(Metrics.gpu_verdict(gpu, 180, 1.0, false)["passed"], "4K remains report-only")

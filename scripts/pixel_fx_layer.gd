@@ -6,6 +6,7 @@ extends Node2D
 ## also keeps overlapping effects of different elements in submission order.
 const STYLE_PATH: String = "res://data/vfx_pixel_style.json"
 const QUANTIZE: Shader = preload("res://shaders/pixel_fx_quantize.gdshader")
+const LineBatch = preload("res://scripts/pixel_fx_line_batch.gd")
 const BAYER: PackedInt32Array = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]
 const LUMA := Vector3(0.299, 0.587, 0.114)
 static var _style: Dictionary = {}
@@ -21,6 +22,7 @@ var _last_key: Variant = null
 var _pixel_transform := Transform2D.IDENTITY
 var _grid: int = 1
 var _resolution := Vector2i.ONE
+var _line_cache: RefCounted
 
 class Drawing extends Node2D:
 	var commands: Array[Dictionary]
@@ -49,49 +51,21 @@ class Drawing extends Node2D:
 		if line_canvas == null:
 			return false
 		if core.a > 0.0:
-			line_canvas.strokes.append({"cells": line_canvas.rasterize.call(points, cell_transform * command_transform), "vertices": cell_transform * command_transform * points, "core": core, "halo": halo, "element": element})
+			line_canvas.strokes.append(line_canvas.cache.stroke(points, cell_transform * command_transform, core, halo, element))
 		return true
 
 class LineCanvas extends Node2D:
-	var rasterize: Callable
-	var quantizer: Callable
+	var cache: RefCounted
 	var strokes: Array[Dictionary]
 	var drawn_frame: int = -1
+	# Canvas commands retain the RID, so keep this resource alive even if another
+	# run evicts its cache entry before this retained CanvasItem draws again.
+	var mesh: ArrayMesh
 
 	func _draw() -> void:
 		drawn_frame = Engine.get_process_frames()
-		# A run has one element. Cache its sixteen Bayer outcomes per halo
-		# colour instead of redoing ramp lookup/luminance for every path cell.
-		var halo_palettes: Dictionary = {}
-		for stroke: Dictionary in strokes:
-			var cells: Array[Vector2i] = stroke["cells"]
-			var halo: Color = stroke["halo"]
-			if not halo_palettes.has(halo):
-				var palette := PackedColorArray()
-				for index: int in range(16):
-					palette.append(quantizer.call(halo, Vector2i(index % 4, index / 4), stroke["element"]))
-				halo_palettes[halo] = palette
-			var palette: PackedColorArray = halo_palettes[halo]
-			# Cell zero has Bayer's lowest threshold. If it fails, no halo cell
-			# can survive the floor/dither, so skip even the neighbourhood work.
-			if palette[0].a > 0.0:
-				var core_set: Dictionary = {}
-				var halo_set: Dictionary = {}
-				for cell: Vector2i in cells:
-					core_set[cell] = true
-				for cell: Vector2i in cells:
-					for y: int in range(-1, 2):
-						for x: int in range(-1, 2):
-							var neighbour := cell + Vector2i(x, y)
-							if not core_set.has(neighbour): halo_set[neighbour] = true
-				for cell: Vector2i in halo_set:
-					var color: Color = palette[posmod(cell.y, 4) * 4 + posmod(cell.x, 4)]
-					if color.a > 0.0: draw_rect(Rect2(Vector2(cell), Vector2.ONE), color)
-			# Only the solid core bypasses alpha quantization.
-			var color: Color = quantizer.call(stroke["core"], Vector2i.ZERO, stroke["element"])
-			color.a = 1.0
-			for cell: Vector2i in cells:
-				draw_rect(Rect2(Vector2(cell), Vector2.ONE), color)
+		mesh = cache.batch(strokes)
+		if mesh != null: draw_mesh(mesh, null)
 
 ## One-cell Bresenham path through every authored vertex, including endpoints.
 ## Floor in screen-cell coordinates keeps adjacent tile owners on the same grid.
@@ -308,8 +282,8 @@ func _make_run() -> Dictionary:
 	add_child(composite)
 	var lines := LineCanvas.new()
 	lines.name = "LineCells"
-	lines.rasterize = line_cells
-	lines.quantizer = quantize
+	if _line_cache == null: _line_cache = LineBatch.new(line_cells, quantize)
+	lines.cache = _line_cache
 	composite.add_child(lines)
 	drawing.line_canvas = lines
 	return {"viewport": viewport, "drawing": drawing, "composite": composite}
