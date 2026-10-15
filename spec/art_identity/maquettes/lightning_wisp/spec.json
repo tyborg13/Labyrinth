@@ -1,0 +1,372 @@
+{
+ "ortho_scale": 2.0,
+ "target": [
+  0,
+  0,
+  1.08
+ ],
+ "joints": {
+  "root": [
+   0,
+   0,
+   0
+  ],
+  "core": [
+   0,
+   0,
+   1.25
+  ],
+  "crown": [
+   0,
+   0,
+   1.62
+  ],
+  "tail": [
+   0,
+   0,
+   0.85
+  ]
+ },
+ "labels": {
+  "core": [
+   0.85,
+   0.15,
+   0.15
+  ],
+  "crown": [
+   1.0,
+   0.85,
+   0.1
+  ],
+  "tail": [
+   0.1,
+   0.7,
+   0.7
+  ],
+  "arc_left": [
+   0.2,
+   0.4,
+   1.0
+  ],
+  "arc_right": [
+   0.95,
+   0.55,
+   0.1
+  ]
+ },
+ "shapes": [
+  {
+   "type": "ellipsoid",
+   "part": "core",
+   "c": [
+    0,
+    0,
+    1.25
+   ],
+   "s": [
+    0.34,
+    0.34,
+    0.3
+   ]
+  },
+  {
+   "type": "ellipsoid",
+   "part": "core",
+   "c": [
+    0.14,
+    0.2,
+    1.42
+   ],
+   "s": [
+    0.22,
+    0.22,
+    0.19
+   ]
+  },
+  {
+   "type": "ellipsoid",
+   "part": "core",
+   "c": [
+    -0.18,
+    -0.06,
+    1.4
+   ],
+   "s": [
+    0.24,
+    0.24,
+    0.2
+   ]
+  },
+  {
+   "type": "ellipsoid",
+   "part": "core",
+   "c": [
+    0.22,
+    -0.18,
+    1.2
+   ],
+   "s": [
+    0.2,
+    0.2,
+    0.18
+   ]
+  },
+  {
+   "type": "ellipsoid",
+   "part": "core",
+   "c": [
+    -0.1,
+    0.26,
+    1.16
+   ],
+   "s": [
+    0.2,
+    0.2,
+    0.17
+   ]
+  },
+  {
+   "type": "capsule",
+   "part": "crown",
+   "a": [
+    0.05,
+    0.0,
+    1.52
+   ],
+   "b": [
+    0.12,
+    0.04,
+    1.84
+   ],
+   "r1": 0.07,
+   "r2": 0.02
+  },
+  {
+   "type": "capsule",
+   "part": "crown",
+   "a": [
+    -0.14,
+    0.1,
+    1.52
+   ],
+   "b": [
+    -0.22,
+    0.2,
+    1.76
+   ],
+   "r1": 0.07,
+   "r2": 0.02
+  },
+  {
+   "type": "capsule",
+   "part": "crown",
+   "a": [
+    0.12,
+    -0.14,
+    1.48
+   ],
+   "b": [
+    0.22,
+    -0.24,
+    1.72
+   ],
+   "r1": 0.07,
+   "r2": 0.02
+  },
+  {
+   "type": "capsule",
+   "part": "crown",
+   "a": [
+    -0.04,
+    -0.2,
+    1.5
+   ],
+   "b": [
+    -0.06,
+    -0.3,
+    1.76
+   ],
+   "r1": 0.07,
+   "r2": 0.02
+  },
+  {
+   "type": "capsule",
+   "part": "tail",
+   "a": [
+    0,
+    0.02,
+    1.02
+   ],
+   "b": [
+    0.14,
+    0.14,
+    0.78
+   ],
+   "r1": 0.22,
+   "r2": 0.15
+  },
+  {
+   "type": "capsule",
+   "part": "tail",
+   "a": [
+    0.14,
+    0.14,
+    0.78
+   ],
+   "b": [
+    0.08,
+    0.3,
+    0.56
+   ],
+   "r1": 0.15,
+   "r2": 0.1
+  },
+  {
+   "type": "capsule",
+   "part": "tail",
+   "a": [
+    0.08,
+    0.3,
+    0.56
+   ],
+   "b": [
+    -0.08,
+    0.34,
+    0.4
+   ],
+   "r1": 0.1,
+   "r2": 0.06
+  },
+  {
+   "type": "capsule",
+   "part": "tail",
+   "a": [
+    -0.08,
+    0.34,
+    0.4
+   ],
+   "b": [
+    -0.16,
+    0.26,
+    0.3
+   ],
+   "r1": 0.06,
+   "r2": 0.025
+  },
+  {
+   "type": "capsule",
+   "part": "arc_left",
+   "a": [
+    0.26,
+    -0.26,
+    1.24
+   ],
+   "b": [
+    0.4,
+    -0.38,
+    1.4
+   ],
+   "r1": 0.07,
+   "r2": 0.058
+  },
+  {
+   "type": "capsule",
+   "part": "arc_left",
+   "a": [
+    0.4,
+    -0.38,
+    1.4
+   ],
+   "b": [
+    0.5,
+    -0.52,
+    1.22
+   ],
+   "r1": 0.058,
+   "r2": 0.047
+  },
+  {
+   "type": "capsule",
+   "part": "arc_left",
+   "a": [
+    0.5,
+    -0.52,
+    1.22
+   ],
+   "b": [
+    0.62,
+    -0.62,
+    1.32
+   ],
+   "r1": 0.047,
+   "r2": 0.035
+  },
+  {
+   "type": "capsule",
+   "part": "arc_right",
+   "a": [
+    -0.26,
+    0.26,
+    1.2
+   ],
+   "b": [
+    -0.38,
+    0.42,
+    1.04
+   ],
+   "r1": 0.07,
+   "r2": 0.058
+  },
+  {
+   "type": "capsule",
+   "part": "arc_right",
+   "a": [
+    -0.38,
+    0.42,
+    1.04
+   ],
+   "b": [
+    -0.52,
+    0.5,
+    1.22
+   ],
+   "r1": 0.058,
+   "r2": 0.047
+  },
+  {
+   "type": "capsule",
+   "part": "arc_right",
+   "a": [
+    -0.52,
+    0.5,
+    1.22
+   ],
+   "b": [
+    -0.62,
+    0.62,
+    1.08
+   ],
+   "r1": 0.047,
+   "r2": 0.035
+  }
+ ],
+ "solo": [
+  "core",
+  "crown",
+  "tail",
+  "arc_left",
+  "arc_right"
+ ],
+ "revisions": [
+  {
+   "date": "2026-10-15",
+   "rev": "r1",
+   "why": "wave 1b: lightning wisp gets a core mass (lumpy storm-cloud body), a crown of short discharge spikes, a tapering curled tail, two zig-zag arcs; floats (tail tip at z 0.3)"
+  },
+  {
+   "date": "2026-10-15",
+   "rev": "r2",
+   "why": "r1 arcs ran off the frame and read as chains; spiked-ball body read as a mace: cumulus core of five lumps, short thick tapering arcs (3 zigs), a curling smoke tail"
+  }
+ ]
+}

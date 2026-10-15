@@ -33,6 +33,12 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   These two kits use the art-05 field names: re-record them with art-06's migration when art-06 merges.
 - Gaoler: owner-approved rounded pair `mq3_front_v4` + `mq3_rear_v3`; rr-02 rigs it; phase 3 = production integration.
 - ux-04 (text rewrite) launches after ux-03 merges. Owner question open: self-hit amplification (Meteorfall/Detonate).
+- Wave 1b maquettes (WIP, unreviewed): `maquettes/shale_bloomer/spec.json` r4 (daisy disc + trunk hooks; r1–r3 read as a
+  bug) and `maquettes/lightning_wisp/spec.json` r2 (cumulus core, short arcs, curled tail). Renders in scratchpad
+  `maquette/{bloomer,wisp}/rN`; review r4 render next, then prompts (lancer prompt_front_r1.md as template) → imagegen.
+- anim-01 native probe + benchmark finished (output in task bv36eb1y9; unreviewed) → review captures, commit, peer review.
+- Session paused 2026-10-15 at the usage limit: on resume, re-arm the watchdog and process pending FINISHED events
+  (sfx-04 r3, rr-02 r4, art-06 r1) and the two peer-review reports.
 - Watchdog: `scratchpad/watch_loop2.sh` (tracked background job).
 
 ## Next actions
