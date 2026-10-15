@@ -97,9 +97,10 @@ Offsets and band positions are explicit registration inputs, not recommended def
 
 `tools/maquette_cutout.py` registers a `humanoid.py` maquette to approved paint.
 It uses the existing `init`, `segment`, `skin` and `validate` implementations;
-it does not paint, infer missing anatomy or write production assets. The
+the builder produces hidden-material requests without filling them. The
 [chainbound gaoler mq3 case](../experiments/cutouts/chainbound_gaoler/mq3/README.md)
-is the phase-2a example, using the final approved pair and all 42 supplied solos.
+uses the final approved pair and all 42 supplied solos. Its separately requested
+phase-2b fill is described below; neither command writes production assets.
 
 ```sh
 python3 tools/maquette_cutout.py \
@@ -183,6 +184,60 @@ All three parent to `pelvis` in both views. The builder checks those bindings
 against the copied production layouts and records the per-view mapping in
 `build_report.json`; it creates no skin meshes. The production `drape_a..d`
 bones articulate restraint chains and are not cloth weight sources.
+
+### Deterministic hidden fill
+
+When explicitly requested, fill only the hidden runtime underlays:
+
+```sh
+python3 tools/maquette_cutout.py fill-hidden \
+  --case experiments/cutouts/chainbound_gaoler/mq3 --task-id rr-02
+```
+
+The immutable request image supplies the native hidden mask, cross-checked
+against ownership and the registered solo. Donors are the part's own visible
+paint and visible paint from the listed neighbours whose material description
+exactly matches the part's; material names are checked against `recipes/rig.json`.
+The command never imports pixels from unrelated materials. Cross-view borrowing
+requires the explicit `--cross-view-fallback` option, which records the approved
+policy in the case recipe for subsequent runs. It applies only when the target
+part has fewer than 40 visible pixels and no listed same-material neighbour in
+its view. It uses only the same part's visible pixels in the paired view, for
+both palette and inpainting. The registered native coordinates are kept without
+resizing or mirroring; the target mask is unchanged and its own visible paint
+takes precedence. Each affected request records `cross_view_donor`, including
+the view, part, source/ownership digests, visible count and registration policy.
+
+The first call records OpenCV Telea (radius 3) when available; otherwise it
+records deterministic four-neighbour harmonic diffusion. The latter solves the
+discrete Laplace equation with reflecting boundaries, with only approved donor
+pixels fixed. Its domain is the donor/target bounds padded by 3 native pixels.
+Background and other materials are unknown values, not black boundary colors.
+Subsequent calls reuse the recorded method, even if OpenCV availability changes.
+
+Hidden RGB is quantized to seeded weighted RGB k-means (`k=6`, seed `0`) over
+the part's visible pixels. Parts with fewer than 40 visible pixels use their
+same-material neighbours' pixels for the palette, or the explicitly enabled
+same-part cross-view fallback when no local donor exists. Fewer than six distinct input
+colors produce a smaller palette. If no fallback donor exists, a named
+`TODO_DESIGN_hidden_donor_<view>_<part>` remains in the manifest and case config;
+the tool continues other requests and reports `complete: false`. It never
+guesses a new material. The one-pixel outline is `(20,16,21)` on filled pixels
+touching transparency in the union of visible and hidden masks. The gate's
+four-connected edge definition is reused without deleting alpha or darkening
+visible pixels. All visible paint, part alpha, offsets, bones and motion remain
+unchanged.
+
+`recipes/hidden_fill.json` records the method and parameters;
+`hidden_fills/index.json` records each request's status, palette, counts, donor
+parts, mask/pixel/source/output digests and solver metrics. Native fill previews
+and a contact sheet live beside it. Original native/4× requests and their sheet
+remain byte-identical. A rerun first checks all protected sources and generated
+output hashes, then refuses to overwrite any manually changed hidden paint.
+The command refreshes rest identity, validation, motion samples, exposure and
+the case baseline. These numerical checks do not approve art or replace a fresh
+native reel and director inspection. Regenerate the reel in a fresh output
+directory; captures made before filling are historical proof only.
 
 Run `python3 tests/test_maquette_cutout.py`, `cutout_workflow.py validate`, and
 the case's headless motion sampler. Native proof still requires `render` and

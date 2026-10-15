@@ -1,0 +1,24 @@
+test_all_labels_have_measured_requests_and_five_clip_exposure (__main__.GaolerCaseTests) ... ok
+test_complete_render_manifest_matches_every_provided_input (__main__.GaolerCaseTests) ... ok
+test_joint_registration_uses_cached_projection_without_manual_refitting (__main__.GaolerCaseTests) ... ok
+test_production_motion_and_approved_paint_are_untouched_copies (__main__.GaolerCaseTests) ... ok
+test_registered_rest_is_exact_rgba_including_hidden_underlays (__main__.GaolerCaseTests) ... ok
+test_rigid_cloth_matches_production_bones_and_parenting (__main__.GaolerCaseTests) ... ok
+test_case_fill_is_idempotent_and_refuses_to_erase_artist_changes (__main__.HiddenFillTests) ... ok
+test_diffusion_is_repeatable_palette_limited_and_preserves_visible_rgba (__main__.HiddenFillTests) ... ok
+test_palette_preserves_frequency_and_is_independent_of_input_order (__main__.HiddenFillTests) ... ok
+test_small_part_palette_uses_only_same_material_neighbours (__main__.HiddenFillTests) ... ok
+test_camera_depth_and_projection_reverse_on_rear (__main__.SyntheticMaquetteTests) ... ok
+test_complete_synthetic_case_is_repeatable_and_keeps_all_source_bytes (__main__.SyntheticMaquetteTests) ... ok
+test_decode_uses_registered_palette_and_keeps_background_unowned (__main__.SyntheticMaquetteTests) ... ok
+test_hidden_neighbours_report_occluders_and_four_connected_border (__main__.SyntheticMaquetteTests) ... ok
+test_hidden_requires_another_painted_owner_not_empty_canvas (__main__.SyntheticMaquetteTests) ... ok
+test_nearest_is_euclidean_and_depth_breaks_diagonal_ties (__main__.SyntheticMaquetteTests) ... ok
+test_noninteger_reduction_and_fit_match_gate_alpha_bounds (__main__.SyntheticMaquetteTests) ... ok
+test_reassignment_limit_is_strictly_above_fifteen_percent (__main__.SyntheticMaquetteTests) ... ok
+test_registration_recovers_crop_and_placement_from_gate (__main__.SyntheticMaquetteTests) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 16.431s
+
+OK

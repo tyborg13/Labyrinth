@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Register maquette labels to approved paint without inventing hidden artwork.
+"""Register maquette labels, then fill explicitly requested hidden support paint.
 
 Only Pillow/numpy (already used by art_identity_gate) are required. Blender owns
 geometry; this tool never substitutes estimated silhouettes for missing solos.
@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import asdict, dataclass
+import hashlib
 import math
 from pathlib import Path
 import re
@@ -19,10 +20,10 @@ import sys
 import numpy as np
 from PIL import Image, ImageDraw
 
-from art_identity_gate import alpha_bbox, box_binary_sprite, fit_sprite, pixel_digest
+from art_identity_gate import alpha_bbox, box_binary_sprite, fit_sprite, pixel_digest, silhouette_edge
 from cutout_pipeline.assets import apply_skin, segment
 from cutout_pipeline.cases import (CutoutError, PROJECT, baseline, digest, init_case,
-                                   load_case, read_json, write_json)
+                                   load_case, local_path, read_json, write_json)
 from cutout_pipeline.validation import validate
 
 NATIVE_SIZE = 255
@@ -37,6 +38,11 @@ PROOF_DEFAULTS = {"sheet_columns": 5, "sheet_label_height": 28,
                   "neighbour_connectivity": 4}
 BLENDER = "/Applications/Blender.app/Contents/MacOS/Blender"
 GAOLER_RECIPE = PROJECT / "experiments/cutouts/chainbound_gaoler/mq3/recipes/rig.json"
+# Director-specified fill values; solver/seed choices are recorded, not motion tuning.
+FILL_DEFAULTS = {"radius": 3, "palette_k": 6, "palette_min_own_pixels": 40,
+                 "outline_tone": [20, 16, 21], "seed": 0,
+                 "kmeans_max_iterations": 256, "diffusion_max_iterations": 4096,
+                 "diffusion_residual_tolerance": 1e-6}
 
 
 @dataclass
@@ -639,8 +645,367 @@ def build(args) -> dict:
     return {k: report[k] for k in ["ok", "complete", "missing_solos", "rest_identity", "validation"]}
 
 
+def part_palette(pixels: np.ndarray) -> tuple[np.ndarray, int]:
+    """Seeded weighted RGB k-means; unique-color weights preserve pixel frequency."""
+    colors, weights = np.unique(pixels.reshape(-1, 3), axis=0, return_counts=True)
+    if not len(colors):
+        raise CutoutError("Cannot derive a palette without approved donor pixels")
+    colors = colors.astype(float)
+    k = min(FILL_DEFAULTS["palette_k"], len(colors))
+    rng = np.random.RandomState(FILL_DEFAULTS["seed"])
+    centers = [colors[rng.choice(len(colors), p=weights / weights.sum())]]
+    while len(centers) < k:
+        distance = ((colors[:, None] - np.asarray(centers)[None]) ** 2).sum(-1).min(-1)
+        probability = distance * weights
+        centers.append(colors[rng.choice(len(colors), p=probability / probability.sum())])
+    centers = np.asarray(centers)
+    previous = None
+    for iteration in range(FILL_DEFAULTS["kmeans_max_iterations"]):
+        distances = ((colors[:, None] - centers[None]) ** 2).sum(-1)
+        labels = distances.argmin(-1)
+        if previous is not None and np.array_equal(previous, labels):
+            palette = np.unique(np.rint(centers).clip(0, 255).astype(np.uint8), axis=0)
+            return palette, iteration
+        previous = labels
+        for cluster in range(k):
+            selected = labels == cluster
+            centers[cluster] = (np.average(colors[selected], weights=weights[selected], axis=0)
+                                if selected.any() else colors[(distances.min(-1) * weights).argmax()])
+    raise CutoutError("Palette k-means did not converge")
+
+
+def _adjacent(values: np.ndarray) -> np.ndarray:
+    result = np.zeros_like(values)
+    result[1:] += values[:-1]
+    result[:-1] += values[1:]
+    result[:, 1:] += values[:, :-1]
+    result[:, :-1] += values[:, 1:]
+    return result
+
+
+def diffuse_rgb(rgb: np.ndarray, known: np.ndarray, target: np.ndarray) -> tuple[np.ndarray, dict]:
+    """Harmonic diffusion with only approved fixed pixels and reflecting borders.
+
+    Solve the four-neighbour discrete Laplace equation with diagonal-preconditioned
+    conjugate gradients. Background/other materials are unknown, never black seeds.
+    No random texture, new color source or extrapolated anatomy is introduced.
+    """
+    if not known.any():
+        raise CutoutError("Diffusion needs approved source pixels")
+    bounds = bbox(known | target)
+    radius = FILL_DEFAULTS["radius"]
+    left, top = max(0, bounds[0] - radius), max(0, bounds[1] - radius)
+    right, bottom = min(known.shape[1], bounds[2] + radius), min(known.shape[0], bounds[3] + radius)
+    crop = np.s_[top:bottom, left:right]
+    fixed_mask = known[crop]
+    unknown = (~fixed_mask)[..., None]
+    fixed = np.where(fixed_mask[..., None], rgb[crop], 0.0)
+    degree = _adjacent(np.ones(fixed_mask.shape))[..., None]
+    def operator(values):
+        return (degree * values - _adjacent(values)) * unknown
+    x = np.broadcast_to(rgb[known].mean(0), fixed.shape).copy() * unknown
+    residual = _adjacent(fixed) * unknown - operator(x)
+    inverse_diagonal = 1 / np.maximum(degree, 1)
+    z = residual * inverse_diagonal
+    direction = z.copy()
+    rz = (residual * z).sum((0, 1))
+    tolerance = FILL_DEFAULTS["diffusion_residual_tolerance"]
+    for iteration in range(FILL_DEFAULTS["diffusion_max_iterations"] + 1):
+        error = np.abs(residual).max((0, 1))
+        if error.max() <= tolerance:
+            output = rgb.astype(float).copy()
+            output[crop] = x + fixed
+            return output, {"iterations": iteration, "max_residual": float(error.max()),
+                            "domain": [left, top, right, bottom], "boundary": "reflecting",
+                            "stencil": "four_neighbour", "solver": "diagonal_preconditioned_CG"}
+        applied = operator(direction)
+        denominator = (direction * applied).sum((0, 1))
+        active = (error > tolerance) & (denominator > 0)
+        alpha = np.divide(rz, denominator, out=np.zeros(3), where=active)
+        x += direction * alpha
+        residual -= applied * alpha
+        z = residual * inverse_diagonal
+        updated = (residual * z).sum((0, 1))
+        beta = np.divide(updated, rz, out=np.zeros(3), where=active & (rz > 0))
+        direction = z + direction * beta
+        rz = updated
+    raise CutoutError("Hidden-material diffusion did not converge")
+
+
+def fill_pixels(paint: np.ndarray, visible: np.ndarray, hidden: np.ndarray,
+                donor_rgb: np.ndarray, donor_mask: np.ndarray, method: str) -> tuple[np.ndarray, dict]:
+    own_count = int(visible.sum())
+    palette_pixels = paint[visible, :3] if own_count >= FILL_DEFAULTS["palette_min_own_pixels"] else donor_rgb[donor_mask]
+    if not len(palette_pixels):
+        raise CutoutError("No same-material palette fallback for a part with fewer than 40 visible pixels")
+    palette, iterations = part_palette(palette_pixels)
+    seed = np.where(donor_mask[..., None], donor_rgb, 0).astype(np.uint8)
+    seed[visible] = paint[visible, :3]
+    known = visible | donor_mask
+    metrics = {}
+    if hidden.any():
+        if method == "telea":
+            import cv2
+            # Only same-material donors and this part are known; all other RGB
+            # is masked out. A neighbour may legitimately cover a hidden pixel.
+            filled = cv2.inpaint(seed, (~known).astype(np.uint8) * 255,
+                                 FILL_DEFAULTS["radius"], cv2.INPAINT_TELEA)
+        elif method == "diffusion":
+            filled, metrics = diffuse_rgb(seed, known, hidden)
+        else:
+            raise CutoutError("Unknown hidden-fill method: " + method)
+    else:
+        filled = seed
+    result = np.zeros_like(paint)
+    result[visible] = paint[visible]
+    choices = ((filled[hidden, None, :].astype(float) - palette[None].astype(float)) ** 2).sum(-1).argmin(-1)
+    result[hidden, :3] = palette[choices]
+    result[hidden, 3] = 255
+    # Use the gate's edge definition/tone, without its alpha deletion or any
+    # recoloring of visible paint. The edge is of the WHOLE part, not the hole.
+    outline = hidden & silhouette_edge(visible | hidden, clipped_border=True)
+    result[outline, :3] = FILL_DEFAULTS["outline_tone"]
+    return result, {"method": method if hidden.any() else "no_hidden_pixels", "diffusion": metrics,
+                    "palette": palette.tolist(), "palette_iterations": iterations,
+                    "palette_source": "own_visible" if own_count >= FILL_DEFAULTS["palette_min_own_pixels"] else "same_material_neighbours",
+                    "palette_sample_pixels": len(palette_pixels), "own_visible_pixels": own_count,
+                    "donor_visible_pixels": int(donor_mask.sum()),
+                    "conditioning_pixels_in_hidden_region": int((donor_mask & hidden).sum()),
+                    "hidden_pixels": int(hidden.sum()), "outline_pixels": int(outline.sum())}
+
+
+def same_material_donors(request: dict, names: list[str], owners: np.ndarray) -> tuple[list[str], np.ndarray]:
+    """Allow only explicitly listed neighbours with the exact recorded material."""
+    donors = sorted({n["part"] for relation in ["occluding_parts", "bordering_parts"]
+                     for n in request[relation] if n["material"] == request["material"]
+                     and n["part"] != request["part"]})
+    return donors, np.isin(owners, [names.index(n) for n in donors])
+
+
+def fill_donors(request: dict, names: list[str], views: dict, cross_view_enabled: bool):
+    """Keep local donors first; sparse parts may use the approved paired view.
+
+    Both paintings already share the registered native canvas. Borrow only the
+    same label's visible RGB at those coordinates, without fitting or mirroring
+    it. This conditions the diffusion; it never changes the target part mask.
+    """
+    paint, owners, _ = views[request["view"]]
+    donors, mask = same_material_donors(request, names, owners)
+    rgb, cross_view = paint[..., :3], None
+    label = names.index(request["part"])
+    if cross_view_enabled and int((owners == label).sum()) < FILL_DEFAULTS["palette_min_own_pixels"] and not mask.any():
+        other_views = [(view, source, source_owners) for view, (source, source_owners, _) in views.items()
+                       if view != request["view"] and np.any(source_owners == label)]
+        if len(other_views) == 1:
+            cross_view, source, source_owners = other_views[0]
+            rgb, mask = source[..., :3], source_owners == label
+    return donors, rgb, mask, cross_view
+
+
+def array_digest(values: np.ndarray) -> str:
+    return hashlib.sha256(np.ascontiguousarray(values).tobytes()).hexdigest()
+
+
+def fill_hidden(args) -> dict:
+    """Fill runtime underlays only; immutable requests remain the mask authority.
+
+    Prepare every result before touching files. Subsequent calls accept only the
+    previous generated bytes, so a director's later manual paint is never erased.
+    """
+    config_path, config = load_case(args.case)
+    root = config_path.parent
+    if not validate(root)["ok"] or not rest_identity(root)["ok"]:
+        raise CutoutError("Validate the case and exact approved rest before filling")
+    recipe_path = root / "recipes/hidden_fill.json"
+    if recipe_path.exists():
+        recipe = read_json(recipe_path)
+        if recipe["parameters"] != FILL_DEFAULTS:
+            raise CutoutError("Recorded fill parameters differ from this implementation")
+    else:
+        try:
+            import cv2
+            method = "telea"
+        except ImportError:
+            method = "diffusion"
+        recipe = {"schema_version": 1, "method": method, "parameters": FILL_DEFAULTS,
+                  "donor_policy": "Own visible paint and listed exact same-material neighbours only; no cross-view borrowing",
+                  "palette_policy": "Own visible RGB when >=40 pixels; otherwise same-material neighbours; seeded weighted RGB k-means",
+                  "outline_policy": "Filled pixels on the four-connected boundary of the whole part only; alpha unchanged"}
+    if getattr(args, "cross_view_fallback", False):
+        recipe["cross_view_fallback"] = "same_part"
+        recipe["donor_policy"] = "Own visible paint and listed exact same-material neighbours; when own count <40 and no local neighbour, use the same part's visible paint in the paired view"
+        recipe["palette_policy"] = "Own visible RGB when >=40 pixels; otherwise local same-material neighbours, then the approved same-part cross-view fallback; seeded weighted RGB k-means"
+    if recipe.get("cross_view_fallback") not in [None, "same_part"]:
+        raise CutoutError("Unknown recorded cross-view donor policy")
+    if recipe["method"] not in ["telea", "diffusion"]:
+        raise CutoutError("Unknown recorded fill method")
+    old_path = root / "hidden_fills/index.json"
+    old = read_json(old_path) if old_path.exists() else {}
+    for relative, expected in old.get("protected_inputs", {}).items():
+        if digest(local_path(root, relative)) != expected:
+            raise CutoutError("Fill source/provenance changed: " + relative)
+    old_records = {(r["view"], r["part"]): r for r in old.get("requests", [])}
+    names = list(read_json(root / "source/spec.json")["labels"])
+    rig_recipe = read_json(root / "recipes/rig.json")
+    requests = read_json(root / "hidden_requests/index.json")["requests"]
+    if {(r["view"], r["part"]) for r in requests} != {(v, n) for v in config["layouts"] for n in names}:
+        raise CutoutError("Hidden requests must cover every view and label")
+    protected = {p for folder in ["source", "registered", "segmented"] for p in (root / folder).rglob("*")
+                 if p.is_file() and p.suffix != ".import"}
+    protected.update((root / "hidden_requests").glob("*.png"))
+    protected.update(local_path(root, p) for p in config["layouts"].values())
+    protected.add(root / "recipes/rig.json")
+    protected_inputs = {str(p.relative_to(root)): digest(p) for p in sorted(protected)}
+    views = {v: (np.array(Image.open(root / f"source/{v}/processed.png").convert("RGBA")),
+                 np.load(root / f"registered/{v}_owners.npy", allow_pickle=False),
+                 read_json(local_path(root, p))) for v, p in config["layouts"].items()}
+    prepared, records, pending = [], [], []
+    for request in requests:
+        view, part = request["view"], request["part"]
+        paint, owners, layout = views[view]
+        visible = owners == names.index(part)
+        image_path = local_path(root, request["image"])
+        request_pixels = np.array(Image.open(image_path).convert("RGBA"))
+        hidden = np.all(request_pixels == MAGENTA, axis=-1)
+        solo = np.asarray(Image.open(root / f"registered/{view}_solo_{part}.png").convert("RGBA"))[..., 3] > PROOF_DEFAULTS["mask_alpha_threshold"]
+        expected_hidden, _ = hidden_region(solo, owners, names.index(part))
+        if (request["status"] != "measured" or int(hidden.sum()) != request["hidden_pixel_count"]
+                or not np.array_equal(hidden, expected_hidden)
+                or not np.array_equal(request_pixels, np.asarray(request_image(Image.fromarray(paint), owners, names.index(part), hidden)))):
+            raise CutoutError(f"Hidden request does not match approved ownership/solo: {view}/{part}")
+        materials = rig_recipe.get("materials", {})
+        if request["material"] != materials.get(part, part + " approved paint"):
+            raise CutoutError(f"Request material differs from rig recipe: {view}/{part}")
+        for relation, neighbours in material_neighbours(hidden, owners, names.index(part), names).items():
+            expected = [dict(n, material=materials.get(n["part"], n["part"] + " approved paint")) for n in neighbours]
+            if request[relation] != expected:
+                raise CutoutError(f"Request neighbours differ from approved ownership: {view}/{part}")
+        donors, donor_rgb, donor_mask, donor_view = fill_donors(request, names, views, recipe.get("cross_view_fallback") == "same_part")
+        record = {"view": view, "part": part, "material": request["material"],
+                  "request": request["image"], "request_sha256": digest(image_path),
+                  "visible_mask_sha256": array_digest(visible), "hidden_mask_sha256": array_digest(hidden),
+                  "donor_mask_sha256": array_digest(donor_mask), "donor_parts": donors,
+                  "source_paint_sha256": digest(root / f"source/{view}/processed.png"),
+                  "visible_rgba_sha256": array_digest(paint[visible]),
+                  "donor_rgb_sha256": array_digest(donor_rgb[donor_mask]),
+                  "own_visible_pixels": int(visible.sum()), "donor_visible_pixels": int(donor_mask.sum()),
+                  "hidden_pixels": int(hidden.sum()), "seed": FILL_DEFAULTS["seed"]}
+        if donor_view:
+            record["cross_view_donor"] = {"view": donor_view, "part": part,
+                "source": f"source/{donor_view}/processed.png",
+                "source_sha256": digest(root / f"source/{donor_view}/processed.png"),
+                "owners": f"registered/{donor_view}_owners.npy",
+                "owners_sha256": digest(root / f"registered/{donor_view}_owners.npy"),
+                "visible_pixels": int(donor_mask.sum()),
+                "registration": "native_canvas_coordinates_untransformed",
+                "reason": "Own visible count <40 and no listed same-material neighbour in this view"}
+        missing = int(visible.sum()) < FILL_DEFAULTS["palette_min_own_pixels"] and not donor_mask.any()
+        if missing:
+            todo = f"TODO_DESIGN_hidden_donor_{view}_{part}"
+            pending.append(todo)
+            record.update(status="pending_design", method="unfilled", palette=[], outline_pixels=0,
+                          design_placeholder=todo, reason="Fewer than 40 own visible pixels and no eligible palette donor")
+            result = np.zeros_like(paint)
+            result[visible] = paint[visible]
+            result[hidden] = MAGENTA
+        else:
+            result, metrics = fill_pixels(paint, visible, hidden, donor_rgb, donor_mask, recipe["method"])
+            record.update(metrics, status="filled" if hidden.any() else "no_hidden_pixels")
+            if donor_view:
+                record["palette_source"] = "same_part_other_view"
+        if not np.array_equal(result[visible], paint[visible]):
+            raise CutoutError(f"Rest-visible paint changed: {view}/{part}")
+        runtime_image = None
+        if hidden.any():
+            matches = [p for p in layout["parts"] if p.get("hidden_material") and p.get("logical_part") == part]
+            if len(matches) != 1:
+                raise CutoutError(f"Expected exactly one hidden underlay: {view}/{part}")
+            node = matches[0]
+            runtime_path = local_path(root, node["file"])
+            before = np.array(Image.open(runtime_path).convert("RGBA"))
+            x, y = node["offset"]
+            crop = np.s_[y:y + before.shape[0], x:x + before.shape[1]]
+            if not np.array_equal(before[..., 3] == 255, hidden[crop]) or int(hidden[crop].sum()) != int(hidden.sum()):
+                raise CutoutError(f"Underlay alpha/offset differs from request: {view}/{part}")
+            previous = old_records.get((view, part))
+            current_digest = digest(runtime_path)
+            if previous:
+                if current_digest != previous["output_sha256"]:
+                    raise CutoutError("Preserve manually changed hidden paint: " + node["file"])
+            elif not np.all(before[hidden[crop]] == MAGENTA):
+                raise CutoutError("Underlay already contains unrecorded paint: " + node["file"])
+            after = before.copy()
+            after[hidden[crop], :3] = result[crop][hidden[crop], :3]
+            runtime_image = Image.fromarray(after)
+            record.update(output=node["file"], original_sha256=previous["original_sha256"] if previous else current_digest,
+                          output_rgba_sha256=array_digest(after), alpha_sha256=array_digest(after[..., 3]),
+                          remaining_magenta_pixels=int(np.all(after == MAGENTA, axis=-1).sum()))
+            if not missing and record["remaining_magenta_pixels"]:
+                raise CutoutError(f"Filled underlay still contains magenta: {view}/{part}")
+        preview = np.full_like(paint, GREEN)
+        preview[visible | hidden] = result[visible | hidden]
+        record["preview"] = f"hidden_fills/{view}_{part}.png"
+        records.append(record)
+        prepared.append((record, runtime_image, Image.fromarray(preview)))
+    # No source/runtime changes have been made before the complete preflight above.
+    write_json(recipe_path, recipe)
+    for record, runtime_image, preview in prepared:
+        if runtime_image is not None:
+            save_image(root / record["output"], runtime_image)
+            record["output_sha256"] = digest(root / record["output"])
+        save_image(root / record["preview"], preview)
+        record["preview_sha256"] = digest(root / record["preview"])
+    contact_sheet([(f"{r['view']}/{r['part']}\n{r['status']} {r['hidden_pixels']} px", preview)
+                   for r, _, preview in prepared], root / "hidden_fills/contact_sheet.png")
+    manifest = {"schema_version": 1, "complete": not pending, "method": recipe["method"],
+                "parameters": FILL_DEFAULTS, "implementation_sha256": digest(Path(__file__)),
+                "recipe_sha256": digest(recipe_path), "protected_inputs": protected_inputs,
+                "pending_design": pending, "requests": records}
+    write_json(old_path, manifest)
+    config["hidden_fill"] = {"recipe": "recipes/hidden_fill.json", "manifest": "hidden_fills/index.json", "pending_design": pending}
+    config["sources"] = sorted(set(config["sources"]) | {"recipes/hidden_fill.json", "hidden_fills/index.json"})
+    config["source_baseline"]["art_status"] = "hidden_material_incomplete" if pending else "hidden_filled_pending_director_review"
+    write_json(config_path, config)
+    report = {"complete": not pending, "method": recipe["method"], "requests": len(records),
+              "filled_requests": sum(r["status"] == "filled" for r in records), "pending_design": pending,
+              "cross_view_requests": sum("cross_view_donor" in r for r in records),
+              "remaining_magenta_pixels": sum(r.get("remaining_magenta_pixels", 0) for r in records),
+              "rest_identity": rest_identity(root), "validation": validate(root)}
+    report["ok"] = report["rest_identity"]["ok"] and report["validation"]["ok"]
+    if not all(digest(root / p) == value for p, value in protected_inputs.items()):
+        raise CutoutError("Protected source/request/visible bytes changed")
+    if report["ok"]:
+        sample_exposure(root, rig_recipe, getattr(args, "task_id", None))
+    if not all(digest(root / p) == value for p, value in protected_inputs.items()):
+        raise CutoutError("Protected source/request/visible bytes changed during sampling")
+    write_json(root / "proof/hidden_fill_report.json", report)
+    baseline(root)
+    return report
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    if sys.argv[1:2] == ["fill-hidden"]:
+        parser.add_argument("command", choices=["fill-hidden"])
+        parser.add_argument("--case", type=Path, required=True)
+        parser.add_argument("--task-id")
+        parser.add_argument("--cross-view-fallback", action="store_true", help="Record explicit same-part donor fallback for sparse parts without local same-material neighbours")
+        args = parser.parse_args()
+        action = fill_hidden
+    else:
+        args = build_arguments(parser)
+        action = build
+    try:
+        import json
+        report = action(args)
+        print(json.dumps(report, indent=2))
+        return 0 if report["ok"] else 1
+    except (CutoutError, OSError, ValueError, KeyError, ImportError, subprocess.CalledProcessError) as error:
+        print(f"MAQUETTE_CUTOUT: FAIL: {error}", file=sys.stderr)
+        return 1
+
+
+def build_arguments(parser):
     for name in ["spec", "front-job", "rear-job", "case"]:
         parser.add_argument("--" + name, type=Path, required=True)
     for name in ["front-raw", "rear-raw", "renders", "palette", "rig-recipe", "color-config"]:
@@ -649,15 +1014,7 @@ def main() -> int:
     parser.add_argument("--task-id", help="Headless sampler runner isolation; defaults to the current codex branch id")
     parser.add_argument("--resume-scaffold", action="store_true")
     parser.add_argument("--allow-incomplete-renders", action="store_true", help="Explicit diagnostic build; unknown solos stay unknown")
-    args = parser.parse_args()
-    try:
-        import json
-        report = build(args)
-        print(json.dumps(report, indent=2))
-        return 0 if report["ok"] else 1
-    except (CutoutError, OSError, ValueError, KeyError, subprocess.CalledProcessError) as error:
-        print(f"MAQUETTE_CUTOUT: FAIL: {error}", file=sys.stderr)
-        return 1
+    return parser.parse_args()
 
 
 if __name__ == "__main__":

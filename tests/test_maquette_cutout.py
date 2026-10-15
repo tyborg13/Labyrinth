@@ -3,6 +3,7 @@
 import argparse
 import json
 from pathlib import Path
+import shutil
 import sys
 import tempfile
 import unittest
@@ -12,14 +13,162 @@ import numpy as np
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
-from art_identity_gate import process_raw
+from art_identity_gate import process_raw, silhouette_edge
 from cutout_pipeline.cases import CutoutError, PROJECT, case_hashes, digest, read_json, write_json
 from cutout_pipeline.validation import validate
-from maquette_cutout import (Registration, build, camera_depths, decode_labels, depth_order,
+from maquette_cutout import (FILL_DEFAULTS, MAGENTA, Registration, build, camera_depths, decode_labels, depth_order,
+                            fill_donors, fill_hidden, fill_pixels, part_palette, same_material_donors,
                             hidden_region, material_neighbours, nearest_labels, projected,
                             registration, request_image)
 
 CASE = PROJECT / "experiments/cutouts/chainbound_gaoler/mq3"
+
+
+class HiddenFillTests(unittest.TestCase):
+    def test_diffusion_is_repeatable_palette_limited_and_preserves_visible_rgba(self):
+        paint = np.zeros((16, 16, 4), dtype=np.uint8)
+        visible = np.zeros((16, 16), dtype=bool)
+        visible[2:12, 2:7] = True
+        yy, xx = np.indices(visible.shape)
+        paint[visible, :3] = np.stack([40 + 3 * yy, 22 + xx, 29 + yy], axis=-1)[visible]
+        paint[visible, 3] = 255
+        hidden = np.zeros_like(visible)
+        hidden[2:12, 7:12] = True
+        donor = np.zeros_like(visible)
+        a, report = fill_pixels(paint, visible, hidden, paint[..., :3], donor, "diffusion")
+        b, again = fill_pixels(paint, visible, hidden, paint[..., :3], donor, "diffusion")
+        np.testing.assert_array_equal(a, b)
+        self.assertEqual(report, again)
+        self.assertEqual(report["palette_source"], "own_visible")
+        self.assertEqual(len(report["palette"]), 6)
+        np.testing.assert_array_equal(a[visible], paint[visible])
+        np.testing.assert_array_equal(a[..., 3] > 0, visible | hidden)
+        edge = hidden & silhouette_edge(visible | hidden, clipped_border=True)
+        self.assertTrue(np.all(a[edge, :3] == FILL_DEFAULTS["outline_tone"]))
+        allowed = {tuple(color) for color in report["palette"]}
+        self.assertTrue({tuple(color) for color in a[hidden & ~edge, :3]} <= allowed)
+        self.assertFalse(edge[5, 7], "A seam with visible paint is not an alpha edge")
+        self.assertFalse(np.any(np.all(a == MAGENTA, axis=-1)))
+
+    def test_small_part_palette_uses_only_same_material_neighbours(self):
+        owners = np.array([[0, 1, 2, 3, 4], [1, 1, 2, 3, 4]])
+        request = {"part": "self", "material": "coat", "occluding_parts": [
+            {"part": "coat", "material": "coat"}, {"part": "helm", "material": "metal"},
+            {"part": "belt", "material": "leather"}], "bordering_parts": [
+            {"part": "coat", "material": "coat"}, {"part": "tabard", "material": "red cloth"}]}
+        names, donors = same_material_donors(request, ["self", "coat", "helm", "belt", "tabard"], owners)
+        self.assertEqual(names, ["coat"])
+        np.testing.assert_array_equal(donors, owners == 1)
+        paint = np.zeros((2, 5, 4), dtype=np.uint8)
+        paint[owners == 0] = [200, 10, 10, 255]
+        paint[donors] = [35, 31, 37, 255]
+        paint[owners >= 2] = [255, 245, 0, 255]
+        hidden = owners == 2
+        _, record = fill_pixels(paint, owners == 0, hidden, paint[..., :3], donors, "diffusion")
+        self.assertEqual(record["palette"], [[35, 31, 37]])
+        self.assertEqual(record["palette_source"], "same_material_neighbours")
+        with self.assertRaisesRegex(CutoutError, "No same-material palette fallback"):
+            fill_pixels(paint, owners == 0, hidden, paint[..., :3], np.zeros_like(donors), "diffusion")
+
+    def test_palette_preserves_frequency_and_is_independent_of_input_order(self):
+        pixels = np.array([[12, 15, 18]] * 60 + [[44, 43, 42]] * 30 + [[99, 88, 77]] * 10, dtype=np.uint8)
+        a, _ = part_palette(pixels)
+        b, _ = part_palette(pixels[::-1])
+        np.testing.assert_array_equal(a, b)
+        self.assertEqual(a.tolist(), [[12, 15, 18], [44, 43, 42], [99, 88, 77]])
+
+    def test_cross_view_fallback_uses_only_same_part_visible_paint(self):
+        owners = np.full((8, 8), -1, dtype=np.int16)
+        other_owners = np.ones_like(owners)
+        other_owners[:, :4] = 0
+        paint = np.zeros((8, 8, 4), dtype=np.uint8)
+        other_paint = np.full_like(paint, [255, 0, 255, 255])
+        other_paint[other_owners == 0] = [70, 40, 20, 255]
+        views = {"rear": (paint, owners, {}), "front": (other_paint, other_owners, {})}
+        request = {"view": "rear", "part": "glove", "material": "leather",
+                   "occluding_parts": [], "bordering_parts": []}
+        names = ["glove", "unrelated"]
+        _, _, mask, view = fill_donors(request, names, views, False)
+        self.assertIsNone(view)
+        self.assertFalse(mask.any(), "Unrequested cross-view borrowing stays disabled")
+        donors, rgb, mask, view = fill_donors(request, names, views, True)
+        self.assertEqual(donors, [])
+        self.assertEqual(view, "front")
+        np.testing.assert_array_equal(mask, other_owners == 0)
+        hidden = np.zeros_like(mask)
+        hidden[2:6, 2:6] = True
+        result, record = fill_pixels(paint, owners == 0, hidden, rgb, mask, "diffusion")
+        self.assertEqual(record["palette"], [[70, 40, 20]])
+        self.assertTrue(np.all(result[3:5, 3:5, :3] == [70, 40, 20]))
+        self.assertFalse(np.any(np.all(result == MAGENTA, axis=-1)))
+        np.testing.assert_array_equal(result[..., 3] > 0, hidden)
+
+    def test_cross_view_fallback_preserves_local_donor_precedence_and_threshold(self):
+        owners = np.full((8, 8), -1, dtype=np.int16)
+        paint = np.full((8, 8, 4), [35, 31, 37, 255], dtype=np.uint8)
+        views = {"rear": (paint, owners, {}), "front": (paint, np.zeros_like(owners), {})}
+        request = {"view": "rear", "part": "self", "material": "coat",
+                   "occluding_parts": [], "bordering_parts": []}
+        owners[:5] = 0  # Exactly 40 own pixels: no cross-view fallback.
+        _, _, mask, view = fill_donors(request, ["self", "coat"], views, True)
+        self.assertIsNone(view)
+        self.assertFalse(mask.any())
+        owners[:] = -1
+        owners[0, 0] = 1
+        request["occluding_parts"] = [{"part": "coat", "material": "coat"}]
+        donors, _, mask, view = fill_donors(request, ["self", "coat"], views, True)
+        self.assertEqual(donors, ["coat"])
+        self.assertIsNone(view)
+        np.testing.assert_array_equal(mask, owners == 1)
+
+    def test_case_fill_is_idempotent_and_refuses_to_erase_artist_changes(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder) / "case"
+            shutil.copytree(CASE, root)
+            # This exercises the real case, including completely hidden parts.
+            args = argparse.Namespace(case=root, task_id="rr-02", cross_view_fallback=True)
+            before = {p.relative_to(root): digest(p) for p in (root / "hidden").rglob("*.png")}
+            protected = {p.relative_to(root): digest(p) for d in ["source", "segmented", "hidden_requests"]
+                         for p in (root / d).rglob("*.png")}
+            with patch("maquette_cutout.sample_exposure"):
+                first = fill_hidden(args)
+                hashes = case_hashes(root)
+                args.cross_view_fallback = False  # Recorded authorization survives reruns.
+                again = fill_hidden(args)
+            self.assertTrue(first["ok"], first)
+            self.assertTrue(first["complete"], first)
+            self.assertEqual(first["pending_design"], [])
+            self.assertEqual(first["remaining_magenta_pixels"], 0)
+            self.assertEqual(first, again)
+            self.assertEqual(hashes, case_hashes(root))
+            self.assertTrue(all(digest(root / p) == value for p, value in protected.items()))
+            manifest = read_json(root / "hidden_fills/index.json")
+            self.assertEqual(len(manifest["requests"]), 42)
+            cross_view = [r for r in manifest["requests"] if "cross_view_donor" in r]
+            expected_parts = {"thigh_far", "hand_near", "tabard"}
+            self.assertEqual({r["part"] for r in cross_view}, expected_parts)
+            for r in cross_view:
+                self.assertEqual(r["view"], "rear")
+                self.assertEqual(r["cross_view_donor"]["view"], "front")
+                self.assertEqual(r["cross_view_donor"]["part"], r["part"])
+                self.assertEqual(r["palette_source"], "same_part_other_view")
+                self.assertEqual(r["cross_view_donor"]["source_sha256"], digest(root / "source/front/processed.png"))
+            for path, expected in before.items():
+                if str(path) not in {f"hidden/rear/{part}.png" for part in expected_parts}:
+                    self.assertEqual(digest(root / path), expected)
+            for path in (root / "hidden").rglob("*.png"):
+                self.assertFalse(np.any(np.all(np.array(Image.open(path).convert("RGBA")) == MAGENTA, axis=-1)))
+            record = next(r for r in manifest["requests"] if r["status"] == "filled")
+            path = root / record["output"]
+            pixels = np.array(Image.open(path).convert("RGBA"))
+            y, x = np.argwhere(pixels[..., 3] > 0)[0]
+            pixels[y, x, :3] = [77, 55, 33]
+            Image.fromarray(pixels).save(path)
+            edited = digest(path)
+            with patch("maquette_cutout.sample_exposure"), self.assertRaisesRegex(CutoutError, "manually changed"):
+                fill_hidden(args)
+            self.assertEqual(digest(path), edited)
+            self.assertEqual(digest(root / "hidden_fills/index.json"), hashes["hidden_fills/index.json"])
 
 
 class SyntheticMaquetteTests(unittest.TestCase):

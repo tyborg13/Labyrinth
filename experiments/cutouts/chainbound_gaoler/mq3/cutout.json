@@ -75,12 +75,14 @@
   ],
   "sources": [
     "gaoler_motion.gd",
+    "hidden_fills/index.json",
     "motion.gd",
     "probes/motion_samples.gd",
     "probes/native_rest.gd",
     "probes/proof.py",
     "probes/rest_contract.json",
     "recipes/front_ownership.json",
+    "recipes/hidden_fill.json",
     "recipes/motion_adapter.gd.in",
     "recipes/rear_ownership.json",
     "recipes/rig.json",
@@ -203,8 +205,13 @@
   "source_baseline": {
     "kind": "maquette_registered_paint",
     "spec_sha256": "e00aa303ac32d350afeb016868466140f1e700eb7ccdf3905b67bf9616a49905",
-    "art_status": "hidden_material_incomplete",
+    "art_status": "hidden_filled_pending_director_review",
     "production_integration": false
   },
-  "design_placeholders": {}
+  "design_placeholders": {},
+  "hidden_fill": {
+    "recipe": "recipes/hidden_fill.json",
+    "manifest": "hidden_fills/index.json",
+    "pending_design": []
+  }
 }
