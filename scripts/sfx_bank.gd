@@ -7,8 +7,10 @@ const Attacks = preload("res://scripts/attack_sfx_library.gd")
 const Runs = preload("res://scripts/run_sfx_library.gd")
 const DATA_PATH: String = "res://data/sfx_cues.json"
 const CROSSFADE_SECONDS: float = 0.6
-# Internal queue capacity, independent of audible tuning.
-const SCHEDULE_CAPACITY: int = 64
+# A fresh primary contact outranks its optional attenuated area layers. Equal
+# priority voices steal the oldest; saturation never shifts an onset in time.
+const PRIMARY_PRIORITY: int = 0
+const AREA_PRIORITY: int = -1
 const LEGACY_WARM_VOICES: int = 8
 signal cue_requested(cue_id: String, result: String)
 
@@ -23,7 +25,6 @@ var _fade_elapsed: float = CROSSFADE_SECONDS
 var _loop_cursor: int = 0
 var _serial: int = 0
 var _clock_ms: int = -1
-var _schedule: Array = []
 var _host: Node
 var _legacy_options: Dictionary = {"gain_db": 0.0, "duration": -1.0}
 const EMPTY_OPTIONS: Dictionary = {}
@@ -42,8 +43,6 @@ func warm_up(host: Node = null, source: Dictionary = {}, seed_value: int = -1) -
 		_loops.append(player)
 		_loop_targets.append(0.0)
 		_loop_starts.append(0.0)
-	for index: int in range(SCHEDULE_CAPACITY):
-		_schedule.append({"cue": "", "due": 0, "gain_db": 0.0, "area_instance": true})
 
 func _source_entry(cue_id: String, visited: Dictionary = {}) -> Dictionary:
 	if visited.has(cue_id): return {}
@@ -78,6 +77,7 @@ func _compile(cue_id: String, entry: Dictionary, seed_value: int) -> void:
 			player.set_meta("play_generation", 0)
 			player.set_meta("serial", -1)
 			player.set_meta("until", 0)
+			player.set_meta("priority", PRIMARY_PRIORITY)
 			_host.add_child(player)
 			players.append(player)
 			voices.append(player)
@@ -130,11 +130,15 @@ func play(cue_id: String, opts: Dictionary = EMPTY_OPTIONS) -> float:
 	var rng: RandomNumberGenerator = state["rng"]
 	var jitter: float = float(entry.get("pitch_jitter", 0.0))
 	var pitch: float = float(entry.get("pitch_scale", 1.0)) * (1.0 + rng.randf_range(-jitter, jitter))
-	state["played"] += 1
 	if bool(entry.get("loop", false)):
 		_start_loop(cue_id, resource, gain, pitch)
 	else:
-		var player: AudioStreamPlayer = _voice(state["voices"], now)
+		var priority: int = AREA_PRIORITY if bool(opts.get("area_instance", false)) else PRIMARY_PRIORITY
+		var player: AudioStreamPlayer = _voice(state["voices"], now, priority)
+		if player == null:
+			state["suppressed"] += 1
+			cue_requested.emit(cue_id, "priority")
+			return 0.0
 		player.stop()
 		player.stream = resource
 		player.bus = bus_for(str(entry.get("bus", "World")))
@@ -142,12 +146,14 @@ func play(cue_id: String, opts: Dictionary = EMPTY_OPTIONS) -> float:
 		player.pitch_scale = pitch
 		_serial += 1
 		player.set_meta("serial", _serial)
+		player.set_meta("priority", priority)
 		var stop_seconds: float = float(opts.get("duration", entry.get("duration", -1.0)))
 		if stop_seconds < 0.0: stop_seconds = resource.get_length() / pitch
 		player.set_meta("until", now + int(stop_seconds * 1000.0))
 		player.set_meta("sfx_id", cue_id)
 		player.set_meta("play_generation", int(player.get_meta("play_generation", 0)) + 1)
 		if player.is_inside_tree(): player.play()
+	state["played"] += 1
 	cue_requested.emit(cue_id, "played")
 	return resource.get_length() / pitch
 
@@ -156,11 +162,14 @@ static func bus_for(bus: String) -> String:
 	if bus == "UI": return Settings.UI_SFX_BUS
 	return bus
 
-func _voice(voices: Array, now: int) -> AudioStreamPlayer:
+func _voice(voices: Array, now: int, priority: int = PRIMARY_PRIORITY) -> AudioStreamPlayer:
 	var oldest: AudioStreamPlayer = voices[0]
 	for player: AudioStreamPlayer in voices:
 		if int(player.get_meta("until", 0)) <= now: return player
-		if int(player.get_meta("serial", -1)) < int(oldest.get_meta("serial", -1)): oldest = player
+		var player_priority: int = int(player.get_meta("priority", PRIMARY_PRIORITY))
+		var oldest_priority: int = int(oldest.get_meta("priority", PRIMARY_PRIORITY))
+		if player_priority < oldest_priority or (player_priority == oldest_priority and int(player.get_meta("serial", -1)) < int(oldest.get_meta("serial", -1))): oldest = player
+	if int(oldest.get_meta("priority", PRIMARY_PRIORITY)) > priority: return null
 	return oldest
 
 func prepare_legacy(entries: Array) -> void:
@@ -195,22 +204,15 @@ func play_entry(entry: Dictionary) -> float:
 	_legacy_options["duration"] = float(entry.get("duration", -1.0))
 	return play(cue_id, _legacy_options)
 
-func schedule_area(cue_id: String, delay_ms: int, gain_db: float) -> void:
-	for slot: Dictionary in _schedule:
-		if str(slot["cue"]).is_empty():
-			slot["cue"] = cue_id
-			slot["due"] = now_ms() + delay_ms
-			slot["gain_db"] = gain_db
-			return
+func schedule_area(cue_id: String, _delay_ms: int, gain_db: float) -> void:
+	# Compatibility entry point. An area contact owns its visual frame; the old
+	# 35/70 ms queue violated sfx-04 even when every target flashed together.
+	play(cue_id, {"gain_db": gain_db, "area_instance": true})
 
 func _process(delta: float) -> void:
 	advance(delta)
 
 func advance(delta: float) -> void:
-	for slot: Dictionary in _schedule:
-		if not str(slot["cue"]).is_empty() and now_ms() >= int(slot["due"]):
-			play(str(slot["cue"]), slot)
-			slot["cue"] = ""
 	for player: AudioStreamPlayer in players:
 		if player.stream != null and now_ms() >= int(player.get_meta("until", 0)):
 			player.stop()

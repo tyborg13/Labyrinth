@@ -23845,7 +23845,6 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 	if await preload("res://scripts/enemy_mechanics/reflect_view.gd").animate_player(self, before_state, after_state, action, target_tile, card_id): return
 	var action_type: String = str(action.get("type", ""))
 	if action_type in ["push", "pull", "force_area"]: _sfx_router.push()
-	if action_type in ["swap", "blink", "illusion_swap"]: _sfx_router.blink()
 	if _combat_engine.player_action_needs_target(action) and target_tile.x < 0:
 		return
 	var player_before: Dictionary = before_state.get("player", {})
@@ -24473,9 +24472,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 		if str(step.get("kind", "")) == "commit":
 			continue
 		_ensure_sfx_bank()
+		await _combat_pacing.before_step(step)
+		# Preparation can wait for a banner or a visual dependency. Start cues on
+		# the action's first presentation frame, after that wait (sfx-04).
 		_sfx_router.begin_enemy_action(animated_state, step, dragon_actor)
 		if str(step.get("kind", "")) in ["push", "pull"]: _sfx_router.push()
-		await _combat_pacing.before_step(step)
 		if bool(step.get("hidden_by_umbra", false)) and str(step.get("kind", "")) not in ["burrow", "erupt"]:
 			await _animate_hidden_umbra_enemy_step(animated_state, step)
 			_combat_pacing.after_step(step)
@@ -25155,7 +25156,6 @@ static func player_move_segments(state: Dictionary, path: Array[Vector2i], excha
 
 func _animate_player_blink_step(display_state: Dictionary, from: Vector2i, to: Vector2i, exchange: Dictionary, base_presentation: Dictionary) -> void:
 	_ensure_sfx_bank()
-	_sfx_router.blink()
 	var player: Dictionary = _animation_actor_unit(display_state, "player")
 	var frame_base: Dictionary = _movement_actor_frame_presentation(
 		base_presentation,
@@ -25237,8 +25237,11 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 		distance += length
 		total_frame_count += frames
 	frame_seconds = _combat_pacing.walk_frame_seconds(actor_key, segment_frame_counts, frame_seconds)
-	var sound_arrival: Dictionary = {"tile": -1}
+	var sound_arrival: Dictionary = {"tile": -1, "departed": false}
 	await _play_timed_animation_frames(total_frame_count, frame_seconds, func(frame_number: int) -> void:
+		if not bool(sound_arrival["departed"]):
+			_sfx_router.walk_start(actor_unit)
+			sound_arrival["departed"] = true
 		var zero_based_frame: int = frame_number - 1
 		var path_index: int = 0
 		while path_index + 1 < segment_count and zero_based_frame >= segment_start_frames[path_index + 1]:

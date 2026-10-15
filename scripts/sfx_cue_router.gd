@@ -48,7 +48,6 @@ const WEAPON_FAMILIES: Dictionary = {
 }
 const HEAVY_TYPES: Array[String] = ["warden", "craghide", "ashen_reaver", "rimejaw", "storm_cantor", "gallows_roc", "last_lamplighter", "tharokh", "vyraketh", "vaeloryx", "iskaldra", "noctyrax", "zekarion"]
 const EQUIPMENT_FAMILIES: Dictionary = {"phoenix_brand": "blade", "worldbreaker": "blunt", "dawnlight_censer": "blunt", "galewhip": "blade"}
-const AREA_STAGGER_MS: int = 35
 const AREA_GAIN_DB: float = -6.0
 const CHAIN_GAIN_DB: float = -5.0
 const BEAST_VOCAL_CHANCE: float = 0.30
@@ -64,6 +63,8 @@ var _deaths: Dictionary = {}
 var _dragons: Dictionary = {}
 var _resolved: bool = false
 var _released: bool = false
+var _blink_signature: String = ""
+var _blink_progress: float = -1.0
 var _impact_count: int = 0
 var _action_serial: int = 0
 var _fight_key: String = ""
@@ -169,12 +170,16 @@ func begin_action(before: Dictionary, action: Dictionary, actor: Dictionary, wea
 	_trap_impact_pending = false
 	_radiance_played = false
 	baseline(before)
+	_blink_signature = ""
+	_blink_progress = -1.0
 	var family: String = DEATH_FAMILIES.get(str(actor.get("type", "")), "")
 	var actor_key: String = str(action.get("actor_key", actor.get("id", "player")))
-	if family == "dragon" and not _dragons.has(actor_key):
+	var kind: String = str(action.get("type", action.get("kind", "")))
+	# A big-area roar accompanies its wind-up, including empty-ground attacks.
+	# Waiting for a damage/impact snapshot put this layer after the cast visual.
+	if family == "dragon" and (not _dragons.has(actor_key) or kind in ["aoe", "lightning_strikes"]):
 		_dragons[actor_key] = true
 		request("dragon.roar")
-	var kind: String = str(action.get("type", action.get("kind", "")))
 	if kind == "umbra_eclipse": request("spell.shadow")
 	if kind not in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "detonate", "all_enemies", "burst_terrain", "destroy_illusion"]: return
 	if family in ["beast", "avian"]:
@@ -192,15 +197,20 @@ func wind_up(action: Dictionary, actor: Dictionary = {}, weapon: String = "") ->
 		request("swing.heavy" if attack_family(action, actor, weapon) == "blunt" or int(action.get("damage", action.get("amount", 0))) >= 6 else "swing.light")
 
 func release(action: Dictionary, actor: Dictionary = {}, weapon: String = "") -> void:
+	var cue: String = release_cue(action, actor, weapon)
+	if not cue.is_empty(): request(cue)
+
+func release_cue(action: Dictionary, actor: Dictionary = {}, weapon: String = "") -> String:
 	var kind: String = str(action.get("type", action.get("kind", "")))
 	var element: String = str(action.get("element", action.get("_card_element", "none")))
-	if element not in ["", "none"]: return
+	if element not in ["", "none"]: return ""
 	if kind in ["ranged", "aoe", "all_enemies"]:
 		var name: String = weapon.to_lower()
-		if name.contains("crossbow") or name.contains("repeater") or bool(action.get("thrown", false)): request("shot.crossbow")
-		elif name.contains("bow") or name.contains("sling"): request("shot.bow")
-		elif attack_family(action, actor, weapon) == "arcane" or str(actor.get("type", "")) in ["acolyte", "veilbound_acolyte"]: request("cast.arcane")
-		elif attack_family(action, actor, weapon) == "pierce": request("shot.crossbow")
+		if name.contains("crossbow") or name.contains("repeater") or bool(action.get("thrown", false)): return "shot.crossbow"
+		if name.contains("bow") or name.contains("sling"): return "shot.bow"
+		if attack_family(action, actor, weapon) == "arcane" or str(actor.get("type", "")) in ["acolyte", "veilbound_acolyte"]: return "cast.arcane"
+		if attack_family(action, actor, weapon) == "pierce": return "shot.crossbow"
+	return ""
 
 func hit(action: Dictionary, actor: Dictionary, weapon: String, target_before: Dictionary, target_after: Dictionary, gain_db: float = 0.0) -> void:
 	var hp_loss: int = maxi(0, int(target_before.get("hp", 0)) - int(target_after.get("hp", 0)))
@@ -214,7 +224,7 @@ func hit(action: Dictionary, actor: Dictionary, weapon: String, target_before: D
 	if _impact_count == 0:
 		request(cue, {"gain_db": gain_db})
 	elif _impact_count <= 2 and bank != null:
-		bank.schedule_area(cue, _impact_count * AREA_STAGGER_MS, gain_db + AREA_GAIN_DB)
+		request(cue, {"gain_db": gain_db + AREA_GAIN_DB, "area_instance": true})
 	_impact_count += 1
 	if hp_loss > 0 and int(target_before.get("block", 0)) > 0 and int(target_after.get("block", 0)) == 0: request("block.break")
 	if hp_loss >= 5 and str(target_before.get("type", "player")) == "player": request("hurt.hero")
@@ -231,7 +241,9 @@ func walk_tile(unit: Dictionary) -> void:
 		var footprint: Variant = unit.get("footprint", [1, 1])
 		var large: bool = HEAVY_TYPES.has(str(unit.get("type", ""))) or (footprint is Vector2i and footprint.x * footprint.y > 1) or (footprint is Array and int(footprint[0]) * int(footprint[1]) > 1)
 		request("step.enemy.heavy" if large else "step.enemy.light")
-		if DEATH_FAMILIES.get(str(unit.get("type", "")), "") == "dragon": request("dragon.wings")
+
+func walk_start(unit: Dictionary) -> void:
+	if DEATH_FAMILIES.get(str(unit.get("type", "")), "") == "dragon": request("dragon.wings")
 
 func blink() -> void: request("move.blink")
 func push() -> void: request("push.slide")
@@ -278,9 +290,21 @@ func baseline(state: Dictionary) -> void:
 
 func presentation(state: Dictionary, shown: Dictionary) -> void:
 	var effect: Dictionary = shown.get("effect", {})
+	if str(effect.get("kind", "")) == "blink" and not bool(effect.get("preview", false)):
+		var signature: String = str(effect)
+		var progress: float = float(shown.get("effect_progress", 0.0))
+		if signature != _blink_signature or progress < _blink_progress: blink()
+		_blink_signature = signature
+		_blink_progress = progress
+	else:
+		_blink_signature = ""
+		_blink_progress = -1.0
 	if not effect.is_empty() and not _released and str(effect.get("kind", "")) in ["ranged", "aoe"]:
 		var style: String = Fx.style_for_effect(effect)
 		var release_progress: float = 0.18 if style == Fx.STYLE_DEFAULT else Fx.anticipation_end_progress(style)
+		# Arcane audio belongs to the first cast visual; physical shots still
+		# accompany their projectile's existing release frame.
+		if release_cue(_action, _actor, _weapon) == "cast.arcane": release_progress = 0.0
 		if float(shown.get("effect_progress", 0.0)) >= release_progress:
 			release(_action, _actor, _weapon)
 			_released = true
@@ -301,7 +325,6 @@ func presentation(state: Dictionary, shown: Dictionary) -> void:
 			if _trap_impact_pending and loss >= 5 and key == "player": request("hurt.hero")
 			if not _resolved:
 				_resolved = true
-				if DEATH_FAMILIES.get(str(_actor.get("type", "")), "") == "dragon" and str(_action.get("kind", "")) in ["aoe", "lightning_strikes"]: request("dragon.roar")
 		if loss < 0: heal()
 		for field: String in ["block", "stoneskin"]:
 			if int(after.get(field, 0)) > int(before.get(field, 0)): request(field + ".gain")
@@ -311,7 +334,6 @@ func presentation(state: Dictionary, shown: Dictionary) -> void:
 		light()
 		_radiance_played = true
 	if not _resolved and shown.has("impact_actor_keys"):
-		if DEATH_FAMILIES.get(str(_actor.get("type", "")), "") == "dragon" and str(_action.get("kind", "")) in ["aoe", "lightning_strikes"]: request("dragon.roar")
 		var element: String = str(_action.get("element", _action.get("_card_element", "none")))
 		if element not in ["", "none"] and _impact_count == 0 and not _trap_impact_pending: request(impact_cue(_action, _actor, _weapon))
 		_resolved = true
