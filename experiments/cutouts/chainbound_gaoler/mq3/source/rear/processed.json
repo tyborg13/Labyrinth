@@ -7,21 +7,21 @@
   "fit_scale": 1.0,
   "k_eff": 4.0,
   "metrics": {
-    "chroma": 0.0970308619654319,
+    "chroma": 0.0979730371680836,
     "edge_light_share": 0.0,
-    "feature_px": 6.172109583348368,
+    "feature_px": 6.193979707375914,
     "height": 215,
     "height_drawn": 215.0,
-    "orphan_share": 0.023481198427202747,
-    "regions": 474,
-    "run_length": 3.0115076717811875,
-    "symmetry": 0.5503031408123262,
-    "thin_abs": 0.01041147477432569,
-    "thin_rel": 0.08988204020601431,
-    "value": 0.1697150404981176,
+    "orphan_share": 0.029406850459482037,
+    "regions": 468,
+    "run_length": 2.9497289305076393,
+    "symmetry": 0.5528738264254637,
+    "thin_abs": 0.00974658869395717,
+    "thin_rel": 0.07808409913673076,
+    "value": 0.16986490692963344,
     "width": 175
   },
-  "pixel_sha256": "acb82145d9607b749a18082e234cff3921cc317d540ce1e51b2e9f4cf7f6ef54",
+  "pixel_sha256": "ebe6bcc1c4d77b8e4fa5a89e57f5118725414f75715578d9307dbb7408aac4ae",
   "placement": [
     41,
     31
@@ -35,9 +35,9 @@
         "space": "CIE Lab",
         "std_floor": 1e-06
       },
-      "pre_step_pixel_sha256": "000ff7add6bf963301a9a144b4d4d46f823389e2b88cc4a2573896b18a673d3b",
-      "reference": "spec/art_identity/jobs/chainbound_gaoler/mq3_front_v3/match_reference_no_tabard.png",
-      "reference_pixel_sha256": "5f909a5538a26f78670e09b6cadca61b5aa3930a5e1ad305976d804fef0201d2",
+      "pre_step_pixel_sha256": "565cd4a3a5a548e0f54d3c659af7dcff63017b886c76f0386776e81c6f3c03d3",
+      "reference": "spec/art_identity/jobs/chainbound_gaoler/mq3_front_v4/match_reference_no_tabard.png",
+      "reference_pixel_sha256": "d3d3a383d365333ae46c2050cc5d1aa7241af7ce45b0b2702fd71045b1a413b8",
       "step": "palette_match"
     },
     {
@@ -51,11 +51,11 @@
           21
         ]
       },
-      "pre_step_pixel_sha256": "92f7a28ac51c2b467caaca0709a8301c0f6fae9ae40282a3b98bdb84407343c1",
+      "pre_step_pixel_sha256": "3a447172dfa3b2ea3fb811e271c47748aa7299cd805825e4bffef42ccd22dcfa",
       "step": "clean_outline"
     }
   ],
-  "raw_sha256": "ee5fa409be2f2899767899f610bedd2f6ec6a200750ad7dbf9404986a3e3196e",
+  "raw_sha256": "d3430bce59e949b1c6475def5eddb50b9913cb1eed65dc13cc820cf2f5cfb6af",
   "shift": [
     0,
     0

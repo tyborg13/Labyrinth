@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import numpy as np
 from PIL import Image
@@ -15,7 +16,8 @@ from art_identity_gate import process_raw
 from cutout_pipeline.cases import CutoutError, PROJECT, case_hashes, digest, read_json, write_json
 from cutout_pipeline.validation import validate
 from maquette_cutout import (Registration, build, camera_depths, decode_labels, depth_order,
-                            hidden_region, nearest_labels, projected, registration, request_image)
+                            hidden_region, material_neighbours, nearest_labels, projected,
+                            registration, request_image)
 
 CASE = PROJECT / "experiments/cutouts/chainbound_gaoler/mq3"
 
@@ -66,11 +68,16 @@ class SyntheticMaquetteTests(unittest.TestCase):
                                       resume_scaffold=False, allow_incomplete_renders=False)
             for case in ["a", "b"]:
                 args.case = root / case
-                report = build(args)
+                with patch("maquette_cutout.render_maquette") as blender:
+                    report = build(args)
+                blender.assert_not_called()
                 self.assertTrue(report["complete"], report)
                 self.assertTrue(report["rest_identity"]["ok"])
                 requests = read_json(args.case / "hidden_requests/index.json")["requests"]
                 self.assertEqual([r["hidden_pixel_count"] for r in requests if r["part"] == "body"], [60, 60])
+                manifest = read_json(args.case / "source/maquette_manifest.json")
+                self.assertTrue(manifest["complete"])
+                self.assertEqual(manifest["files"], {p.name: digest(p) for p in cache.iterdir()})
             self.assertEqual(case_hashes(root / "a"), case_hashes(root / "b"))
             self.assertTrue(all(digest(path) == value for path, value in inputs.items()))
             # Normal operation fails closed when a solo is missing.
@@ -78,6 +85,14 @@ class SyntheticMaquetteTests(unittest.TestCase):
             args.case = root / "missing"
             with self.assertRaisesRegex(CutoutError, "Missing solo"):
                 build(args)
+            self.assertFalse(args.case.exists(), "Reject incomplete inputs before creating a case")
+
+    def test_hidden_neighbours_report_occluders_and_four_connected_border(self):
+        hidden = np.array([[False, False, False], [False, True, False], [False, False, False]])
+        owners = np.array([[3, 1, 3], [2, 1, 0], [3, -1, 3]])
+        actual = material_neighbours(hidden, owners, 0, ["self", "cloth", "belt", "diagonal"])
+        self.assertEqual(actual["occluding_parts"], [{"part": "cloth", "pixels": 1}])
+        self.assertEqual(actual["bordering_parts"], [{"part": "cloth", "pixels": 1}, {"part": "belt", "pixels": 1}])
 
     def test_registration_recovers_crop_and_placement_from_gate(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -187,25 +202,62 @@ class GaolerCaseTests(unittest.TestCase):
                     rest.alpha_composite(Image.open(CASE / part["file"]).convert("RGBA"), tuple(part["offset"]))
                 approved = Image.open(CASE / "source" / view / "processed.png").convert("RGBA")
                 self.assertEqual(rest.tobytes(), approved.tobytes())
-                for mesh in layout["joint_meshes"]:
-                    np.testing.assert_array_equal(np.array(mesh["vertices"]) - mesh["uvs"], np.tile(mesh["offset"], (len(mesh["vertices"]), 1)))
+                self.assertFalse(layout.get("joint_meshes"), "Director requires rigid cloth, no skins")
         self.assertTrue(validate(CASE)["ok"])
 
     def test_production_motion_and_approved_paint_are_untouched_copies(self):
+        self.assertIn("gaoler_motion.gd", read_json(CASE / "cutout.json")["sources"])
         self.assertEqual(digest(CASE / "gaoler_motion.gd"), digest(PROJECT / "scripts/chainbound_gaoler_cutout/motion.gd"))
-        for view, job in [("front", "mq3_front_v3"), ("rear", "mq3_rear_v2")]:
+        for view, job in [("front", "mq3_front_v4"), ("rear", "mq3_rear_v3")]:
             self.assertEqual(digest(CASE / "source" / view / "processed.png"), digest(PROJECT / "spec/art_identity/jobs/chainbound_gaoler" / job / "processed.png"))
 
-    def test_all_labels_have_requests_and_unavailable_solos_are_unknown(self):
+    def test_all_labels_have_measured_requests_and_five_clip_exposure(self):
         names = read_json(CASE / "source/spec.json")["labels"]
-        requests = read_json(CASE / "hidden_requests/index.json")["requests"]
+        index = read_json(CASE / "hidden_requests/index.json")
+        requests = index["requests"]
+        self.assertEqual(index["samples_sha256"], digest(CASE / "proof/motion_samples.json"))
+        for path, expected in read_json(CASE / "proof/motion_samples.json")["inputs"].items():
+            self.assertFalse(Path(path).is_absolute(), "Motion proof must remain portable with the case")
+            self.assertEqual(digest(CASE / path), expected)
         self.assertEqual({(r["view"], r["part"]) for r in requests}, {(v, n) for v in ["front", "rear"] for n in names})
+        self.assertEqual([r["max_exposed_pixels"] for r in requests], sorted([r["max_exposed_pixels"] for r in requests], reverse=True))
+        plan = (CASE / "hidden_requests/paint_plan.md").read_text()
         for request in requests:
-            if request["status"] == "missing_solo_render":
-                self.assertIsNone(request["hidden_pixel_count"])
+            self.assertEqual(request["status"], "measured")
+            self.assertEqual(request["exposure_status"], "sampled_cpu_visibility")
+            self.assertIsInstance(request["hidden_pixel_count"], int)
+            self.assertEqual({m["clip"] for m in request["clip_exposure"]}, {"idle", "walk", "strike", "hit", "death"})
+            self.assertTrue(all(m["sampled_frames"] > 0 for m in request["clip_exposure"]))
+            self.assertIn(f"{request['view']} / {request['part']}", plan)
+            self.assertIn(request["material"], plan)
             path = CASE / request["image"]
             with Image.open(path) as native, Image.open(path.with_name(path.stem + "_4x.png")) as enlarged:
                 self.assertEqual(enlarged.tobytes(), native.resize((1020, 1020), Image.Resampling.NEAREST).tobytes())
+
+    def test_complete_render_manifest_matches_every_provided_input(self):
+        manifest = read_json(CASE / "source/maquette_manifest.json")
+        self.assertTrue(manifest["complete"])
+        self.assertEqual(manifest["missing"], [])
+        self.assertEqual(len(manifest["files"]), 47)
+        supplied = PROJECT / "spec/art_identity/jobs/chainbound_gaoler/mq3_maquette_renders"
+        for name, expected in manifest["files"].items():
+            self.assertEqual(digest(CASE / "source/maquette" / name), expected)
+            self.assertEqual(digest(supplied / name), expected)
+
+    def test_rigid_cloth_matches_production_bones_and_parenting(self):
+        config = read_json(CASE / "cutout.json")
+        self.assertEqual(config["design_placeholders"], {})
+        for view, path in config["layouts"].items():
+            layout = read_json(CASE / path)
+            production = read_json(PROJECT / f"assets/units/chainbound_gaoler_cutout/{view}.json")
+            for label, counterpart in [("tabard", "tabard"), ("coat_near", "coat_fist"), ("coat_far", "coat_hook")]:
+                original = next(p for p in production["parts"] if p["name"] == counterpart)
+                parts = [p for p in layout["parts"] if p.get("logical_part", p["name"]) == label]
+                self.assertTrue(parts, (view, label))
+                for part in parts:
+                    self.assertEqual(part["bone"], original["bone"])
+                    self.assertEqual(layout["joints"][part["bone"]]["parent"], production["joints"][original["bone"]]["parent"])
+                    self.assertEqual(part.get("equipment_slot"), original.get("equipment_slot"))
 
     def test_joint_registration_uses_cached_projection_without_manual_refitting(self):
         original = read_json(CASE / "source/maquette/joints_px.json")

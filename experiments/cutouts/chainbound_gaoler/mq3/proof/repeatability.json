@@ -1,6 +1,6 @@
 {
   "ok": true,
-  "compared_derived_files": 168,
-  "differences": [],
-  "basis": "Full CLI rebuilt the gaoler from copied approved jobs and cached renders in a fresh nested fixture, including automatic runner-backed motion sampling and exposure measurement."
+  "runtime_and_source_closure_identical": true,
+  "derived_files_compared": 231,
+  "different_files": []
 }

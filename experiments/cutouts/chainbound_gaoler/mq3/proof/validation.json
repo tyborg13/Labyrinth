@@ -4,15 +4,15 @@
   "layouts": {
     "front": {
       "joints": 21,
-      "parts": 27,
-      "meshes": 3,
-      "vertices": 14477
+      "parts": 41,
+      "meshes": 0,
+      "vertices": 0
     },
     "rear": {
       "joints": 21,
-      "parts": 25,
-      "meshes": 3,
-      "vertices": 14403
+      "parts": 40,
+      "meshes": 0,
+      "vertices": 0
     }
   },
   "errors": []

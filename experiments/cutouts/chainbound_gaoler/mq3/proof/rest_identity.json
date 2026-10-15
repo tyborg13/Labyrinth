@@ -2,12 +2,12 @@
   "front": {
     "pixel_identical": true,
     "different_pixels": 0,
-    "rgba_sha256": "771bcd10c633968185bd7ed845a2a7d22ac966ac9bf77d216beaed945bd0b2a7"
+    "rgba_sha256": "394e5284cdf9dfe72e85508b269c2562612401e7fcb19ee99c27ac1facef37bc"
   },
   "rear": {
     "pixel_identical": true,
     "different_pixels": 0,
-    "rgba_sha256": "acb82145d9607b749a18082e234cff3921cc317d540ce1e51b2e9f4cf7f6ef54"
+    "rgba_sha256": "ebe6bcc1c4d77b8e4fa5a89e57f5118725414f75715578d9307dbb7408aac4ae"
   },
   "ok": true
 }

@@ -69,15 +69,15 @@
           "above_15_percent": false
         },
         "fore_far": {
-          "painted_pixels": 533,
-          "reassigned_pixels": 70,
-          "reassigned_share": 0.13133208255159476,
+          "painted_pixels": 531,
+          "reassigned_pixels": 71,
+          "reassigned_share": 0.1337099811676083,
           "above_15_percent": false
         },
         "hand_far": {
-          "painted_pixels": 432,
+          "painted_pixels": 431,
           "reassigned_pixels": 46,
-          "reassigned_share": 0.10648148148148148,
+          "reassigned_share": 0.10672853828306264,
           "above_15_percent": false
         },
         "thigh_near": {
@@ -117,15 +117,15 @@
           "above_15_percent": true
         },
         "chain": {
-          "painted_pixels": 780,
-          "reassigned_pixels": 441,
-          "reassigned_share": 0.5653846153846154,
+          "painted_pixels": 835,
+          "reassigned_pixels": 476,
+          "reassigned_share": 0.5700598802395209,
           "above_15_percent": true
         },
         "hook": {
-          "painted_pixels": 468,
-          "reassigned_pixels": 325,
-          "reassigned_share": 0.6944444444444444,
+          "painted_pixels": 456,
+          "reassigned_pixels": 324,
+          "reassigned_share": 0.7105263157894737,
           "above_15_percent": true
         }
       },
@@ -174,6 +174,26 @@
         "foot_far": "foot_hook",
         "chain": "chain",
         "hook": "hook"
+      },
+      "rigid_cloth_mapping": {
+        "tabard": {
+          "production_part": "tabard",
+          "bone": "tabard",
+          "parent": "pelvis",
+          "attachment": "rigid_segment"
+        },
+        "coat_near": {
+          "production_part": "coat_fist",
+          "bone": "coat_fist",
+          "parent": "pelvis",
+          "attachment": "rigid_segment"
+        },
+        "coat_far": {
+          "production_part": "coat_hook",
+          "bone": "coat_hook",
+          "parent": "pelvis",
+          "attachment": "rigid_segment"
+        }
       },
       "unmaterialized_parts": []
     },
@@ -246,9 +266,9 @@
           "above_15_percent": false
         },
         "fore_far": {
-          "painted_pixels": 635,
-          "reassigned_pixels": 71,
-          "reassigned_share": 0.11181102362204724,
+          "painted_pixels": 641,
+          "reassigned_pixels": 76,
+          "reassigned_share": 0.11856474258970359,
           "above_15_percent": false
         },
         "hand_far": {
@@ -294,15 +314,15 @@
           "above_15_percent": true
         },
         "chain": {
-          "painted_pixels": 939,
-          "reassigned_pixels": 598,
-          "reassigned_share": 0.6368477103301384,
+          "painted_pixels": 821,
+          "reassigned_pixels": 561,
+          "reassigned_share": 0.6833130328867235,
           "above_15_percent": true
         },
         "hook": {
-          "painted_pixels": 539,
-          "reassigned_pixels": 399,
-          "reassigned_share": 0.7402597402597403,
+          "painted_pixels": 549,
+          "reassigned_pixels": 417,
+          "reassigned_share": 0.7595628415300546,
           "above_15_percent": true
         }
       },
@@ -352,50 +372,30 @@
         "chain": "chain",
         "hook": "hook"
       },
-      "unmaterialized_parts": [
-        {
-          "part": "fore_near",
-          "reason": "missing_solo_render"
+      "rigid_cloth_mapping": {
+        "tabard": {
+          "production_part": "tabard",
+          "bone": "tabard",
+          "parent": "pelvis",
+          "attachment": "rigid_segment"
         },
-        {
-          "part": "hand_near",
-          "reason": "missing_solo_render"
+        "coat_near": {
+          "production_part": "coat_fist",
+          "bone": "coat_fist",
+          "parent": "pelvis",
+          "attachment": "rigid_segment"
+        },
+        "coat_far": {
+          "production_part": "coat_hook",
+          "bone": "coat_hook",
+          "parent": "pelvis",
+          "attachment": "rigid_segment"
         }
-      ]
+      },
+      "unmaterialized_parts": []
     }
   },
-  "missing_solos": [
-    "front_head",
-    "front_belt",
-    "front_tabard",
-    "front_coat_near",
-    "front_coat_far",
-    "front_fore_near",
-    "front_hand_near",
-    "front_fore_far",
-    "front_hand_far",
-    "front_shin_near",
-    "front_foot_near",
-    "front_shin_far",
-    "front_foot_far",
-    "front_chain",
-    "front_hook",
-    "rear_head",
-    "rear_belt",
-    "rear_tabard",
-    "rear_coat_near",
-    "rear_coat_far",
-    "rear_fore_near",
-    "rear_hand_near",
-    "rear_fore_far",
-    "rear_hand_far",
-    "rear_shin_near",
-    "rear_foot_near",
-    "rear_shin_far",
-    "rear_foot_far",
-    "rear_chain",
-    "rear_hook"
-  ],
+  "missing_solos": [],
   "hidden_layer_policy": "Camera-depth-ordered hidden underlays sit below the complete visible partition. This preserves 3D per-pixel occlusion at rest despite intersecting proxy parts; all underlays move with their own bones.",
   "depth_basis": "Mean primitive centre distance along humanoid.py camera axis; smaller is nearer",
   "chosen_defaults": {
@@ -405,18 +405,19 @@
     "mask_alpha_threshold": 128,
     "pose_canvas": 512,
     "pose_offset": 128,
-    "joint_rounding_tolerance": 0.02
+    "joint_rounding_tolerance": 0.02,
+    "neighbour_connectivity": 4
   },
   "rest_identity": {
     "front": {
       "pixel_identical": true,
       "different_pixels": 0,
-      "rgba_sha256": "771bcd10c633968185bd7ed845a2a7d22ac966ac9bf77d216beaed945bd0b2a7"
+      "rgba_sha256": "394e5284cdf9dfe72e85508b269c2562612401e7fcb19ee99c27ac1facef37bc"
     },
     "rear": {
       "pixel_identical": true,
       "different_pixels": 0,
-      "rgba_sha256": "acb82145d9607b749a18082e234cff3921cc317d540ce1e51b2e9f4cf7f6ef54"
+      "rgba_sha256": "ebe6bcc1c4d77b8e4fa5a89e57f5118725414f75715578d9307dbb7408aac4ae"
     },
     "ok": true
   },
@@ -426,19 +427,19 @@
     "layouts": {
       "front": {
         "joints": 21,
-        "parts": 27,
-        "meshes": 3,
-        "vertices": 14477
+        "parts": 41,
+        "meshes": 0,
+        "vertices": 0
       },
       "rear": {
         "joints": 21,
-        "parts": 25,
-        "meshes": 3,
-        "vertices": 14403
+        "parts": 40,
+        "meshes": 0,
+        "vertices": 0
       }
     },
     "errors": []
   },
   "ok": true,
-  "complete": false
+  "complete": true
 }

@@ -19,36 +19,322 @@
           "clip": "walk",
           "max_exposed_pixels": 1061,
           "frames_exposed": 48,
-          "peak_frame": 47
+          "peak_frame": 47,
+          "sampled_frames": 48
         },
         {
           "clip": "strike",
-          "max_exposed_pixels": 59,
+          "max_exposed_pixels": 58,
           "frames_exposed": 25,
-          "peak_frame": 12
+          "peak_frame": 12,
+          "sampled_frames": 31
         },
         {
           "clip": "death",
           "max_exposed_pixels": 35,
           "frames_exposed": 31,
-          "peak_frame": 2
+          "peak_frame": 2,
+          "sampled_frames": 32
         },
         {
           "clip": "hit",
           "max_exposed_pixels": 34,
           "frames_exposed": 17,
-          "peak_frame": 6
+          "peak_frame": 6,
+          "sampled_frames": 24
         },
         {
           "clip": "idle",
-          "max_exposed_pixels": 13,
+          "max_exposed_pixels": 11,
           "frames_exposed": 13,
-          "peak_frame": 6
+          "peak_frame": 6,
+          "sampled_frames": 24
         }
       ],
       "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 549,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "pelvis",
+          "pixels": 74,
+          "material": "dark cloth at hips"
+        },
+        {
+          "part": "belt",
+          "pixels": 333,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "tabard",
+          "pixels": 1103,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 13,
+          "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 3,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 51,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "pelvis",
+          "pixels": 7,
+          "material": "dark cloth at hips"
+        },
+        {
+          "part": "belt",
+          "pixels": 23,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "tabard",
+          "pixels": 45,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "coat_far",
+          "pixels": 7,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 5,
+          "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 1,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "material": "dark cloth trouser leg",
       "paint_node": "hidden_thigh_far",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 11,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 1061,
+          "frames_exposed": 48,
+          "peak_frame": 47,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 58,
+          "frames_exposed": 25,
+          "peak_frame": 12,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 34,
+          "frames_exposed": 17,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 35,
+          "frames_exposed": 31,
+          "peak_frame": 2,
+          "sampled_frames": 32
+        }
+      ],
       "max_exposed_pixels": 1061
+    },
+    {
+      "part": "coat_near",
+      "view": "front",
+      "image": "hidden_requests/front_coat_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 729,
+      "bounding_box": [
+        165,
+        127,
+        190,
+        210
+      ],
+      "solo_outside_paint_pixels": 10,
+      "motions": [
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 709,
+          "frames_exposed": 29,
+          "peak_frame": 22,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 244,
+          "frames_exposed": 44,
+          "peak_frame": 35,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 76,
+          "frames_exposed": 28,
+          "peak_frame": 2,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 73,
+          "frames_exposed": 17,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 8,
+          "material": "rusted dark-iron bucket helm"
+        },
+        {
+          "part": "belt",
+          "pixels": 2,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "tabard",
+          "pixels": 9,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 90,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 392,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 223,
+          "material": "dark brown leather glove"
+        },
+        {
+          "part": "foot_near",
+          "pixels": 1,
+          "material": "dull dark brown boot"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 1,
+          "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 2,
+          "material": "dull dark brown boot"
+        },
+        {
+          "part": "chain",
+          "pixels": 1,
+          "material": "chunky dark-iron chain"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "belt",
+          "pixels": 3,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "tabard",
+          "pixels": 1,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 17,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 22,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 21,
+          "material": "dark brown leather glove"
+        },
+        {
+          "part": "shin_near",
+          "pixels": 5,
+          "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 3,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "material": "dark ash-grey ragged coat tail",
+      "paint_node": "hidden_coat_near",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 244,
+          "frames_exposed": 44,
+          "peak_frame": 35,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 709,
+          "frames_exposed": 29,
+          "peak_frame": 22,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 73,
+          "frames_exposed": 17,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 76,
+          "frames_exposed": 28,
+          "peak_frame": 2,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 709
     },
     {
       "part": "thigh_near",
@@ -65,39 +351,332 @@
       "solo_outside_paint_pixels": 146,
       "motions": [
         {
-          "clip": "strike",
-          "max_exposed_pixels": 914,
-          "frames_exposed": 29,
-          "peak_frame": 22
+          "clip": "walk",
+          "max_exposed_pixels": 616,
+          "frames_exposed": 48,
+          "peak_frame": 21,
+          "sampled_frames": 48
         },
         {
-          "clip": "walk",
-          "max_exposed_pixels": 659,
-          "frames_exposed": 48,
-          "peak_frame": 21
+          "clip": "strike",
+          "max_exposed_pixels": 340,
+          "frames_exposed": 28,
+          "peak_frame": 5,
+          "sampled_frames": 31
         },
         {
           "clip": "death",
-          "max_exposed_pixels": 178,
+          "max_exposed_pixels": 110,
           "frames_exposed": 31,
-          "peak_frame": 13
+          "peak_frame": 13,
+          "sampled_frames": 32
         },
         {
           "clip": "hit",
-          "max_exposed_pixels": 58,
+          "max_exposed_pixels": 40,
           "frames_exposed": 17,
-          "peak_frame": 6
+          "peak_frame": 6,
+          "sampled_frames": 24
         },
         {
           "clip": "idle",
-          "max_exposed_pixels": 31,
+          "max_exposed_pixels": 26,
           "frames_exposed": 13,
-          "peak_frame": 6
+          "peak_frame": 6,
+          "sampled_frames": 24
         }
       ],
       "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 2,
+          "material": "rusted dark-iron bucket helm"
+        },
+        {
+          "part": "torso",
+          "pixels": 92,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "pelvis",
+          "pixels": 40,
+          "material": "dark cloth at hips"
+        },
+        {
+          "part": "belt",
+          "pixels": 189,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "tabard",
+          "pixels": 4,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 202,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 154,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 426,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 431,
+          "material": "dark brown leather glove"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 1,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 1,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "shin_near",
+          "pixels": 74,
+          "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "foot_near",
+          "pixels": 3,
+          "material": "dull dark brown boot"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 6,
+          "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 9,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 16,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "pelvis",
+          "pixels": 8,
+          "material": "dark cloth at hips"
+        },
+        {
+          "part": "belt",
+          "pixels": 12,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 33,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "coat_far",
+          "pixels": 1,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 24,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 20,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 9,
+          "material": "dark brown leather glove"
+        },
+        {
+          "part": "shin_near",
+          "pixels": 12,
+          "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "chain",
+          "pixels": 1,
+          "material": "chunky dark-iron chain"
+        }
+      ],
+      "material": "dark cloth trouser leg",
       "paint_node": "hidden_thigh_near",
-      "max_exposed_pixels": 914
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 26,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 616,
+          "frames_exposed": 48,
+          "peak_frame": 21,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 340,
+          "frames_exposed": 28,
+          "peak_frame": 5,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 40,
+          "frames_exposed": 17,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 110,
+          "frames_exposed": 31,
+          "peak_frame": 13,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 616
+    },
+    {
+      "part": "shin_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_shin_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 1054,
+      "bounding_box": [
+        118,
+        172,
+        146,
+        236
+      ],
+      "solo_outside_paint_pixels": 10,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 559,
+          "frames_exposed": 41,
+          "peak_frame": 29,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 24,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 17,
+          "frames_exposed": 16,
+          "peak_frame": 21,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 13,
+          "frames_exposed": 8,
+          "peak_frame": 1,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 2,
+          "peak_frame": 2,
+          "sampled_frames": 32
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "coat_near",
+          "pixels": 3,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "coat_far",
+          "pixels": 1046,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 5,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "coat_far",
+          "pixels": 94,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 4,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "material": "dark lower leg and boot cuff",
+      "paint_node": "hidden_shin_far",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 24,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 559,
+          "frames_exposed": 41,
+          "peak_frame": 29,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 17,
+          "frames_exposed": 16,
+          "peak_frame": 21,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 13,
+          "frames_exposed": 8,
+          "peak_frame": 1,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 2,
+          "peak_frame": 2,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 559
     },
     {
       "part": "upper_near",
@@ -117,17 +696,101 @@
           "clip": "strike",
           "max_exposed_pixels": 541,
           "frames_exposed": 29,
-          "peak_frame": 7
+          "peak_frame": 7,
+          "sampled_frames": 31
         },
         {
           "clip": "walk",
           "max_exposed_pixels": 19,
           "frames_exposed": 46,
-          "peak_frame": 5
+          "peak_frame": 5,
+          "sampled_frames": 48
         }
       ],
       "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 4,
+          "material": "rusted dark-iron bucket helm"
+        },
+        {
+          "part": "torso",
+          "pixels": 1100,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "tabard",
+          "pixels": 1,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 1,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 3,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 1,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 4,
+          "material": "rusted dark-iron bucket helm"
+        },
+        {
+          "part": "torso",
+          "pixels": 60,
+          "material": "dark ash-grey cowl and tunic"
+        }
+      ],
+      "material": "dark cloth sleeve",
       "paint_node": "hidden_upper_near",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 19,
+          "frames_exposed": 46,
+          "peak_frame": 5,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 541,
+          "frames_exposed": 29,
+          "peak_frame": 7,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 32
+        }
+      ],
       "max_exposed_pixels": 541
     },
     {
@@ -147,36 +810,123 @@
         {
           "clip": "walk",
           "max_exposed_pixels": 442,
-          "frames_exposed": 40,
-          "peak_frame": 27
+          "frames_exposed": 38,
+          "peak_frame": 27,
+          "sampled_frames": 48
         },
         {
           "clip": "strike",
           "max_exposed_pixels": 11,
           "frames_exposed": 16,
-          "peak_frame": 12
+          "peak_frame": 12,
+          "sampled_frames": 31
         },
         {
           "clip": "death",
           "max_exposed_pixels": 4,
           "frames_exposed": 5,
-          "peak_frame": 9
+          "peak_frame": 9,
+          "sampled_frames": 32
         },
         {
           "clip": "hit",
           "max_exposed_pixels": 2,
           "frames_exposed": 2,
-          "peak_frame": 16
+          "peak_frame": 16,
+          "sampled_frames": 24
         },
         {
           "clip": "idle",
           "max_exposed_pixels": 2,
           "frames_exposed": 13,
-          "peak_frame": 6
+          "peak_frame": 6,
+          "sampled_frames": 24
         }
       ],
       "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 125,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "pelvis",
+          "pixels": 52,
+          "material": "dark cloth at hips"
+        },
+        {
+          "part": "belt",
+          "pixels": 346,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "coat_far",
+          "pixels": 1540,
+          "material": "dark ash-grey ragged coat tail"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 27,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "pelvis",
+          "pixels": 13,
+          "material": "dark cloth at hips"
+        },
+        {
+          "part": "belt",
+          "pixels": 19,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "coat_far",
+          "pixels": 103,
+          "material": "dark ash-grey ragged coat tail"
+        }
+      ],
+      "material": "dark cloth trouser leg",
       "paint_node": "hidden_thigh_far",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 442,
+          "frames_exposed": 38,
+          "peak_frame": 27,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 11,
+          "frames_exposed": 16,
+          "peak_frame": 12,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 2,
+          "peak_frame": 16,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 4,
+          "frames_exposed": 5,
+          "peak_frame": 9,
+          "sampled_frames": 32
+        }
+      ],
       "max_exposed_pixels": 442
     },
     {
@@ -197,29 +947,135 @@
           "clip": "strike",
           "max_exposed_pixels": 396,
           "frames_exposed": 26,
-          "peak_frame": 13
+          "peak_frame": 13,
+          "sampled_frames": 31
         },
         {
           "clip": "walk",
-          "max_exposed_pixels": 98,
+          "max_exposed_pixels": 88,
           "frames_exposed": 44,
-          "peak_frame": 12
+          "peak_frame": 12,
+          "sampled_frames": 48
         },
         {
           "clip": "death",
-          "max_exposed_pixels": 58,
+          "max_exposed_pixels": 40,
           "frames_exposed": 31,
-          "peak_frame": 14
+          "peak_frame": 14,
+          "sampled_frames": 32
         },
         {
           "clip": "hit",
-          "max_exposed_pixels": 20,
-          "frames_exposed": 18,
-          "peak_frame": 6
+          "max_exposed_pixels": 9,
+          "frames_exposed": 17,
+          "peak_frame": 6,
+          "sampled_frames": 24
         }
       ],
       "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 845,
+          "material": "rusted dark-iron bucket helm"
+        },
+        {
+          "part": "belt",
+          "pixels": 38,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 13,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 1046,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 4,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 1,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 7,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 43,
+          "material": "rusted dark-iron bucket helm"
+        },
+        {
+          "part": "belt",
+          "pixels": 29,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 57,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 4,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 1,
+          "material": "dark cloth sleeve"
+        }
+      ],
+      "material": "dark ash-grey cowl and tunic",
       "paint_node": "hidden_torso",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 88,
+          "frames_exposed": 44,
+          "peak_frame": 12,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 396,
+          "frames_exposed": 26,
+          "peak_frame": 13,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 17,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 40,
+          "frames_exposed": 31,
+          "peak_frame": 14,
+          "sampled_frames": 32
+        }
+      ],
       "max_exposed_pixels": 396
     },
     {
@@ -240,36 +1096,289 @@
           "clip": "walk",
           "max_exposed_pixels": 339,
           "frames_exposed": 48,
-          "peak_frame": 7
+          "peak_frame": 7,
+          "sampled_frames": 48
         },
         {
           "clip": "strike",
           "max_exposed_pixels": 56,
           "frames_exposed": 25,
-          "peak_frame": 12
+          "peak_frame": 12,
+          "sampled_frames": 31
         },
         {
           "clip": "idle",
           "max_exposed_pixels": 29,
           "frames_exposed": 13,
-          "peak_frame": 6
+          "peak_frame": 6,
+          "sampled_frames": 24
         },
         {
           "clip": "death",
           "max_exposed_pixels": 28,
           "frames_exposed": 31,
-          "peak_frame": 15
+          "peak_frame": 15,
+          "sampled_frames": 32
         },
         {
           "clip": "hit",
           "max_exposed_pixels": 19,
           "frames_exposed": 18,
-          "peak_frame": 5
+          "peak_frame": 5,
+          "sampled_frames": 24
         }
       ],
       "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 366,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "pelvis",
+          "pixels": 362,
+          "material": "dark cloth at hips"
+        },
+        {
+          "part": "belt",
+          "pixels": 413,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "shin_near",
+          "pixels": 136,
+          "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 1,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 5,
+          "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 10,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 41,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "pelvis",
+          "pixels": 4,
+          "material": "dark cloth at hips"
+        },
+        {
+          "part": "belt",
+          "pixels": 25,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 7,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "coat_far",
+          "pixels": 6,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "shin_near",
+          "pixels": 32,
+          "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 2,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 3,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "material": "dark cloth trouser leg",
       "paint_node": "hidden_thigh_near",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 29,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 339,
+          "frames_exposed": 48,
+          "peak_frame": 7,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 56,
+          "frames_exposed": 25,
+          "peak_frame": 12,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 19,
+          "frames_exposed": 18,
+          "peak_frame": 5,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 28,
+          "frames_exposed": 31,
+          "peak_frame": 15,
+          "sampled_frames": 32
+        }
+      ],
       "max_exposed_pixels": 339
+    },
+    {
+      "part": "shin_far",
+      "view": "front",
+      "image": "hidden_requests/front_shin_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 926,
+      "bounding_box": [
+        110,
+        160,
+        138,
+        227
+      ],
+      "solo_outside_paint_pixels": 137,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 336,
+          "frames_exposed": 48,
+          "peak_frame": 46,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 50,
+          "frames_exposed": 25,
+          "peak_frame": 13,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 21,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 20,
+          "frames_exposed": 17,
+          "peak_frame": 3,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 19,
+          "frames_exposed": 30,
+          "peak_frame": 2,
+          "sampled_frames": 32
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "tabard",
+          "pixels": 780,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 27,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 119,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "tabard",
+          "pixels": 25,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "coat_far",
+          "pixels": 1,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 12,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 17,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "material": "dark lower leg and boot cuff",
+      "paint_node": "hidden_shin_far",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 21,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 336,
+          "frames_exposed": 48,
+          "peak_frame": 46,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 50,
+          "frames_exposed": 25,
+          "peak_frame": 13,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 20,
+          "frames_exposed": 17,
+          "peak_frame": 3,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 19,
+          "frames_exposed": 30,
+          "peak_frame": 2,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 336
     },
     {
       "part": "upper_near",
@@ -289,36 +1398,1167 @@
           "clip": "strike",
           "max_exposed_pixels": 255,
           "frames_exposed": 29,
-          "peak_frame": 6
+          "peak_frame": 6,
+          "sampled_frames": 31
         },
         {
           "clip": "walk",
           "max_exposed_pixels": 78,
           "frames_exposed": 48,
-          "peak_frame": 10
+          "peak_frame": 10,
+          "sampled_frames": 48
         },
         {
           "clip": "hit",
           "max_exposed_pixels": 4,
           "frames_exposed": 18,
-          "peak_frame": 9
+          "peak_frame": 9,
+          "sampled_frames": 24
         },
         {
           "clip": "death",
           "max_exposed_pixels": 3,
           "frames_exposed": 7,
-          "peak_frame": 2
+          "peak_frame": 2,
+          "sampled_frames": 32
         },
         {
           "clip": "idle",
           "max_exposed_pixels": 2,
           "frames_exposed": 13,
-          "peak_frame": 6
+          "peak_frame": 6,
+          "sampled_frames": 24
         }
       ],
       "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 238,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 181,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 1,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 7,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 1,
+          "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 2,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 1,
+          "material": "rusted dark-iron bucket helm"
+        },
+        {
+          "part": "torso",
+          "pixels": 57,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "belt",
+          "pixels": 2,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "tabard",
+          "pixels": 1,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 4,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 30,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        }
+      ],
+      "material": "dark cloth sleeve",
       "paint_node": "hidden_upper_near",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 78,
+          "frames_exposed": 48,
+          "peak_frame": 10,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 255,
+          "frames_exposed": 29,
+          "peak_frame": 6,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 4,
+          "frames_exposed": 18,
+          "peak_frame": 9,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 7,
+          "peak_frame": 2,
+          "sampled_frames": 32
+        }
+      ],
       "max_exposed_pixels": 255
+    },
+    {
+      "part": "shin_near",
+      "view": "front",
+      "image": "hidden_requests/front_shin_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 752,
+      "bounding_box": [
+        154,
+        174,
+        188,
+        241
+      ],
+      "solo_outside_paint_pixels": 200,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 199,
+          "frames_exposed": 48,
+          "peak_frame": 23,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 19,
+          "frames_exposed": 17,
+          "peak_frame": 3,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 19,
+          "frames_exposed": 18,
+          "peak_frame": 5,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 18,
+          "frames_exposed": 31,
+          "peak_frame": 3,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 2,
+          "material": "rusted dark-iron bucket helm"
+        },
+        {
+          "part": "tabard",
+          "pixels": 3,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 306,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 1,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 28,
+          "material": "dark brown leather glove"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 287,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "foot_near",
+          "pixels": 117,
+          "material": "dull dark brown boot"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 8,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "tabard",
+          "pixels": 1,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 30,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 13,
+          "material": "dark brown leather glove"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 5,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "foot_near",
+          "pixels": 22,
+          "material": "dull dark brown boot"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 2,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "material": "dark lower leg and boot cuff",
+      "paint_node": "hidden_shin_near",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 199,
+          "frames_exposed": 48,
+          "peak_frame": 23,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 19,
+          "frames_exposed": 18,
+          "peak_frame": 5,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 19,
+          "frames_exposed": 17,
+          "peak_frame": 3,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 18,
+          "frames_exposed": 31,
+          "peak_frame": 3,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 199
+    },
+    {
+      "part": "coat_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_coat_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 738,
+      "bounding_box": [
+        67,
+        109,
+        91,
+        168
+      ],
+      "solo_outside_paint_pixels": 280,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 198,
+          "frames_exposed": 40,
+          "peak_frame": 29,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 35,
+          "frames_exposed": 31,
+          "peak_frame": 2,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 32,
+          "frames_exposed": 17,
+          "peak_frame": 9,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 27,
+          "frames_exposed": 20,
+          "peak_frame": 5,
+          "sampled_frames": 31
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 4,
+          "material": "rusted dark-iron bucket helm"
+        },
+        {
+          "part": "torso",
+          "pixels": 198,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "pelvis",
+          "pixels": 90,
+          "material": "dark cloth at hips"
+        },
+        {
+          "part": "belt",
+          "pixels": 258,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "coat_far",
+          "pixels": 1,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 178,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 1,
+          "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 8,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 1,
+          "material": "rusted dark-iron bucket helm"
+        },
+        {
+          "part": "torso",
+          "pixels": 34,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "pelvis",
+          "pixels": 12,
+          "material": "dark cloth at hips"
+        },
+        {
+          "part": "belt",
+          "pixels": 11,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 18,
+          "material": "dark cloth trouser leg"
+        }
+      ],
+      "material": "dark ash-grey ragged coat tail",
+      "paint_node": "hidden_coat_near",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 198,
+          "frames_exposed": 40,
+          "peak_frame": 29,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 27,
+          "frames_exposed": 20,
+          "peak_frame": 5,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 32,
+          "frames_exposed": 17,
+          "peak_frame": 9,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 35,
+          "frames_exposed": 31,
+          "peak_frame": 2,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 198
+    },
+    {
+      "part": "belt",
+      "view": "front",
+      "image": "hidden_requests/front_belt.png",
+      "status": "measured",
+      "hidden_pixel_count": 2072,
+      "bounding_box": [
+        114,
+        98,
+        191,
+        149
+      ],
+      "solo_outside_paint_pixels": 48,
+      "motions": [
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 184,
+          "frames_exposed": 25,
+          "peak_frame": 12,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 79,
+          "frames_exposed": 31,
+          "peak_frame": 14,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 66,
+          "frames_exposed": 48,
+          "peak_frame": 10,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 21,
+          "frames_exposed": 16,
+          "peak_frame": 15,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 1295,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 9,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 640,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 119,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 1,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 3,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 1,
+          "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 4,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 47,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 6,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 36,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 20,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        }
+      ],
+      "material": "broad brown belt",
+      "paint_node": "hidden_belt",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 66,
+          "frames_exposed": 48,
+          "peak_frame": 10,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 184,
+          "frames_exposed": 25,
+          "peak_frame": 12,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 21,
+          "frames_exposed": 16,
+          "peak_frame": 15,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 79,
+          "frames_exposed": 31,
+          "peak_frame": 14,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 184
+    },
+    {
+      "part": "fore_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_fore_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 901,
+      "bounding_box": [
+        70,
+        85,
+        98,
+        129
+      ],
+      "solo_outside_paint_pixels": 59,
+      "motions": [
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 73,
+          "frames_exposed": 16,
+          "peak_frame": 6,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 34,
+          "frames_exposed": 46,
+          "peak_frame": 10,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 27,
+          "peak_frame": 11,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 1,
+          "peak_frame": 11,
+          "sampled_frames": 24
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 875,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "belt",
+          "pixels": 20,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "tabard",
+          "pixels": 1,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 4,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 1,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 62,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "belt",
+          "pixels": 17,
+          "material": "broad brown belt"
+        }
+      ],
+      "material": "dark cloth sleeve with broad brown leather bands",
+      "paint_node": "fore_near",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 34,
+          "frames_exposed": 46,
+          "peak_frame": 10,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 73,
+          "frames_exposed": 16,
+          "peak_frame": 6,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 1,
+          "peak_frame": 11,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 27,
+          "peak_frame": 11,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 73
+    },
+    {
+      "part": "coat_far",
+      "view": "front",
+      "image": "hidden_requests/front_coat_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 1919,
+      "bounding_box": [
+        109,
+        103,
+        148,
+        172
+      ],
+      "solo_outside_paint_pixels": 115,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 64,
+          "frames_exposed": 48,
+          "peak_frame": 18,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 31,
+          "peak_frame": 7,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 22,
+          "peak_frame": 12,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 7,
+          "frames_exposed": 16,
+          "peak_frame": 3,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 676,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "pelvis",
+          "pixels": 76,
+          "material": "dark cloth at hips"
+        },
+        {
+          "part": "belt",
+          "pixels": 351,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "tabard",
+          "pixels": 754,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 3,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 51,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 5,
+          "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 3,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 66,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "pelvis",
+          "pixels": 7,
+          "material": "dark cloth at hips"
+        },
+        {
+          "part": "belt",
+          "pixels": 22,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "tabard",
+          "pixels": 23,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 7,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 1,
+          "material": "dark lower leg and boot cuff"
+        }
+      ],
+      "material": "dark ash-grey ragged coat tail",
+      "paint_node": "hidden_coat_far",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 64,
+          "frames_exposed": 48,
+          "peak_frame": 18,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 22,
+          "peak_frame": 12,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 7,
+          "frames_exposed": 16,
+          "peak_frame": 3,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 31,
+          "peak_frame": 7,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 64
+    },
+    {
+      "part": "fore_near",
+      "view": "front",
+      "image": "hidden_requests/front_fore_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 676,
+      "bounding_box": [
+        158,
+        121,
+        188,
+        175
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 55,
+          "frames_exposed": 27,
+          "peak_frame": 7,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 15,
+          "frames_exposed": 48,
+          "peak_frame": 36,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 31,
+          "peak_frame": 4,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 11,
+          "frames_exposed": 17,
+          "peak_frame": 5,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "tabard",
+          "pixels": 3,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 354,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 316,
+          "material": "dark brown leather glove"
+        },
+        {
+          "part": "foot_near",
+          "pixels": 1,
+          "material": "dull dark brown boot"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 2,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 1,
+          "material": "rusted dark-iron bucket helm"
+        },
+        {
+          "part": "torso",
+          "pixels": 1,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "belt",
+          "pixels": 1,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 11,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 34,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 44,
+          "material": "dark brown leather glove"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 2,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "material": "dark cloth sleeve with broad brown leather bands",
+      "paint_node": "hidden_fore_near",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 15,
+          "frames_exposed": 48,
+          "peak_frame": 36,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 55,
+          "frames_exposed": 27,
+          "peak_frame": 7,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 11,
+          "frames_exposed": 17,
+          "peak_frame": 5,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 31,
+          "peak_frame": 4,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 55
+    },
+    {
+      "part": "hand_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_hand_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 594,
+      "bounding_box": [
+        74,
+        104,
+        101,
+        132
+      ],
+      "solo_outside_paint_pixels": 12,
+      "motions": [
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 45,
+          "frames_exposed": 17,
+          "peak_frame": 7,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 25,
+          "frames_exposed": 25,
+          "peak_frame": 9,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 17,
+          "frames_exposed": 26,
+          "peak_frame": 15,
+          "sampled_frames": 32
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 509,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "belt",
+          "pixels": 85,
+          "material": "broad brown belt"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 49,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "belt",
+          "pixels": 24,
+          "material": "broad brown belt"
+        }
+      ],
+      "material": "dark brown leather glove",
+      "paint_node": "hand_near",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 25,
+          "frames_exposed": 25,
+          "peak_frame": 9,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 45,
+          "frames_exposed": 17,
+          "peak_frame": 7,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 17,
+          "frames_exposed": 26,
+          "peak_frame": 15,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 45
     },
     {
       "part": "upper_far",
@@ -338,30 +2578,201 @@
           "clip": "walk",
           "max_exposed_pixels": 44,
           "frames_exposed": 42,
-          "peak_frame": 34
+          "peak_frame": 34,
+          "sampled_frames": 48
         },
         {
           "clip": "strike",
           "max_exposed_pixels": 28,
           "frames_exposed": 17,
-          "peak_frame": 11
+          "peak_frame": 11,
+          "sampled_frames": 31
         },
         {
           "clip": "death",
           "max_exposed_pixels": 2,
           "frames_exposed": 29,
-          "peak_frame": 8
+          "peak_frame": 8,
+          "sampled_frames": 32
         },
         {
           "clip": "hit",
           "max_exposed_pixels": 1,
           "frames_exposed": 15,
-          "peak_frame": 2
+          "peak_frame": 2,
+          "sampled_frames": 24
         }
       ],
       "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 376,
+          "material": "rusted dark-iron bucket helm"
+        },
+        {
+          "part": "torso",
+          "pixels": 372,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "tabard",
+          "pixels": 1,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 3,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 184,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 35,
+          "material": "rusted dark-iron bucket helm"
+        },
+        {
+          "part": "torso",
+          "pixels": 25,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 23,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        }
+      ],
+      "material": "dark cloth sleeve",
       "paint_node": "hidden_upper_far",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 44,
+          "frames_exposed": 42,
+          "peak_frame": 34,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 28,
+          "frames_exposed": 17,
+          "peak_frame": 11,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 15,
+          "peak_frame": 2,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 29,
+          "peak_frame": 8,
+          "sampled_frames": 32
+        }
+      ],
       "max_exposed_pixels": 44
+    },
+    {
+      "part": "foot_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_foot_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 346,
+      "bounding_box": [
+        122,
+        222,
+        144,
+        244
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 39,
+          "frames_exposed": 30,
+          "peak_frame": 46,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 7,
+          "frames_exposed": 22,
+          "peak_frame": 14,
+          "sampled_frames": 32
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "shin_far",
+          "pixels": 346,
+          "material": "dark lower leg and boot cuff"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "shin_far",
+          "pixels": 47,
+          "material": "dark lower leg and boot cuff"
+        }
+      ],
+      "material": "dull dark brown boot",
+      "paint_node": "hidden_foot_far",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 39,
+          "frames_exposed": 30,
+          "peak_frame": 46,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 7,
+          "frames_exposed": 22,
+          "peak_frame": 14,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 39
     },
     {
       "part": "torso",
@@ -379,38 +2790,815 @@
       "motions": [
         {
           "clip": "death",
-          "max_exposed_pixels": 42,
+          "max_exposed_pixels": 33,
           "frames_exposed": 31,
-          "peak_frame": 14
+          "peak_frame": 2,
+          "sampled_frames": 32
         },
         {
           "clip": "hit",
-          "max_exposed_pixels": 38,
+          "max_exposed_pixels": 30,
           "frames_exposed": 18,
-          "peak_frame": 6
+          "peak_frame": 6,
+          "sampled_frames": 24
         },
         {
           "clip": "strike",
           "max_exposed_pixels": 25,
           "frames_exposed": 29,
-          "peak_frame": 12
+          "peak_frame": 12,
+          "sampled_frames": 31
         },
         {
           "clip": "walk",
-          "max_exposed_pixels": 24,
+          "max_exposed_pixels": 16,
           "frames_exposed": 48,
-          "peak_frame": 15
+          "peak_frame": 15,
+          "sampled_frames": 48
         },
         {
           "clip": "idle",
           "max_exposed_pixels": 1,
           "frames_exposed": 13,
-          "peak_frame": 6
+          "peak_frame": 6,
+          "sampled_frames": 24
         }
       ],
       "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 471,
+          "material": "rusted dark-iron bucket helm"
+        },
+        {
+          "part": "belt",
+          "pixels": 146,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "tabard",
+          "pixels": 1,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 8,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 14,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 780,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 2,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 1,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 39,
+          "material": "rusted dark-iron bucket helm"
+        },
+        {
+          "part": "belt",
+          "pixels": 53,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 1,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 15,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 34,
+          "material": "dark cloth sleeve"
+        }
+      ],
+      "material": "dark ash-grey cowl and tunic",
       "paint_node": "hidden_torso",
-      "max_exposed_pixels": 42
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 16,
+          "frames_exposed": 48,
+          "peak_frame": 15,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 25,
+          "frames_exposed": 29,
+          "peak_frame": 12,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 30,
+          "frames_exposed": 18,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 33,
+          "frames_exposed": 31,
+          "peak_frame": 2,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 33
+    },
+    {
+      "part": "fore_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_fore_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 607,
+      "bounding_box": [
+        150,
+        92,
+        198,
+        134
+      ],
+      "solo_outside_paint_pixels": 57,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 23,
+          "frames_exposed": 42,
+          "peak_frame": 31,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 13,
+          "peak_frame": 13,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 10,
+          "frames_exposed": 29,
+          "peak_frame": 9,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 7,
+          "frames_exposed": 11,
+          "peak_frame": 9,
+          "sampled_frames": 24
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "upper_far",
+          "pixels": 288,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "hand_far",
+          "pixels": 319,
+          "material": "dark brown leather glove"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "upper_far",
+          "pixels": 47,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "hand_far",
+          "pixels": 13,
+          "material": "dark brown leather glove"
+        },
+        {
+          "part": "chain",
+          "pixels": 1,
+          "material": "chunky dark-iron chain"
+        }
+      ],
+      "material": "dark cloth sleeve with broad brown leather bands",
+      "paint_node": "hidden_fore_far",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 23,
+          "frames_exposed": 42,
+          "peak_frame": 31,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 13,
+          "peak_frame": 13,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 7,
+          "frames_exposed": 11,
+          "peak_frame": 9,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 10,
+          "frames_exposed": 29,
+          "peak_frame": 9,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 23
+    },
+    {
+      "part": "head",
+      "view": "rear",
+      "image": "hidden_requests/rear_head.png",
+      "status": "measured",
+      "hidden_pixel_count": 479,
+      "bounding_box": [
+        94,
+        62,
+        139,
+        83
+      ],
+      "solo_outside_paint_pixels": 261,
+      "motions": [
+        {
+          "clip": "death",
+          "max_exposed_pixels": 21,
+          "frames_exposed": 30,
+          "peak_frame": 15,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 8,
+          "frames_exposed": 17,
+          "peak_frame": 2,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 8,
+          "frames_exposed": 42,
+          "peak_frame": 2,
+          "sampled_frames": 48
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 471,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 8,
+          "material": "dark ash-grey ragged coat tail"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 58,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 1,
+          "material": "dark ash-grey ragged coat tail"
+        }
+      ],
+      "material": "rusted dark-iron bucket helm",
+      "paint_node": "hidden_head",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 8,
+          "frames_exposed": 42,
+          "peak_frame": 2,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 8,
+          "frames_exposed": 17,
+          "peak_frame": 2,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 21,
+          "frames_exposed": 30,
+          "peak_frame": 15,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 21
+    },
+    {
+      "part": "hand_near",
+      "view": "front",
+      "image": "hidden_requests/front_hand_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 152,
+      "bounding_box": [
+        158,
+        150,
+        181,
+        178
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 21,
+          "frames_exposed": 25,
+          "peak_frame": 5,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 8,
+          "frames_exposed": 48,
+          "peak_frame": 25,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 5,
+          "frames_exposed": 29,
+          "peak_frame": 1,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 5,
+          "frames_exposed": 18,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "tabard",
+          "pixels": 4,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 144,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "foot_near",
+          "pixels": 3,
+          "material": "dull dark brown boot"
+        },
+        {
+          "part": "chain",
+          "pixels": 1,
+          "material": "chunky dark-iron chain"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 1,
+          "material": "rusted dark-iron bucket helm"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 9,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 24,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 5,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "shin_near",
+          "pixels": 1,
+          "material": "dark lower leg and boot cuff"
+        }
+      ],
+      "material": "dark brown leather glove",
+      "paint_node": "hidden_hand_near",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 8,
+          "frames_exposed": 48,
+          "peak_frame": 25,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 21,
+          "frames_exposed": 25,
+          "peak_frame": 5,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 5,
+          "frames_exposed": 18,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 5,
+          "frames_exposed": 29,
+          "peak_frame": 1,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 21
+    },
+    {
+      "part": "head",
+      "view": "front",
+      "image": "hidden_requests/front_head.png",
+      "status": "measured",
+      "hidden_pixel_count": 302,
+      "bounding_box": [
+        117,
+        67,
+        161,
+        90
+      ],
+      "solo_outside_paint_pixels": 29,
+      "motions": [
+        {
+          "clip": "death",
+          "max_exposed_pixels": 20,
+          "frames_exposed": 30,
+          "peak_frame": 7,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 17,
+          "peak_frame": 2,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 42,
+          "peak_frame": 2,
+          "sampled_frames": 48
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 290,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 12,
+          "material": "dark ash-grey ragged coat tail"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 59,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 1,
+          "material": "dark ash-grey ragged coat tail"
+        }
+      ],
+      "material": "rusted dark-iron bucket helm",
+      "paint_node": "hidden_head",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 42,
+          "peak_frame": 2,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 17,
+          "peak_frame": 2,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 20,
+          "frames_exposed": 30,
+          "peak_frame": 7,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 20
+    },
+    {
+      "part": "coat_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_coat_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 199,
+      "bounding_box": [
+        108,
+        134,
+        143,
+        219
+      ],
+      "solo_outside_paint_pixels": 44,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 19,
+          "frames_exposed": 48,
+          "peak_frame": 31,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 11,
+          "peak_frame": 1,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 20,
+          "peak_frame": 3,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 2,
+          "peak_frame": 2,
+          "sampled_frames": 32
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "belt",
+          "pixels": 193,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "coat_near",
+          "pixels": 3,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 3,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "belt",
+          "pixels": 39,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 12,
+          "material": "dark lower leg and boot cuff"
+        }
+      ],
+      "material": "dark ash-grey ragged coat tail",
+      "paint_node": "hidden_coat_far",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 19,
+          "frames_exposed": 48,
+          "peak_frame": 31,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 20,
+          "peak_frame": 3,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 11,
+          "peak_frame": 1,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 2,
+          "peak_frame": 2,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 19
+    },
+    {
+      "part": "foot_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_foot_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 363,
+      "bounding_box": [
+        71,
+        208,
+        95,
+        229
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 17,
+          "frames_exposed": 25,
+          "peak_frame": 40,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 6,
+          "frames_exposed": 21,
+          "peak_frame": 13,
+          "sampled_frames": 32
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "shin_near",
+          "pixels": 363,
+          "material": "dark lower leg and boot cuff"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "shin_near",
+          "pixels": 48,
+          "material": "dark lower leg and boot cuff"
+        }
+      ],
+      "material": "dull dark brown boot",
+      "paint_node": "hidden_foot_near",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 17,
+          "frames_exposed": 25,
+          "peak_frame": 40,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 6,
+          "frames_exposed": 21,
+          "peak_frame": 13,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 17
     },
     {
       "part": "upper_far",
@@ -428,26 +3616,637 @@
       "motions": [
         {
           "clip": "strike",
-          "max_exposed_pixels": 25,
+          "max_exposed_pixels": 15,
           "frames_exposed": 15,
-          "peak_frame": 11
+          "peak_frame": 11,
+          "sampled_frames": 31
         },
         {
           "clip": "walk",
-          "max_exposed_pixels": 25,
-          "frames_exposed": 38,
-          "peak_frame": 7
-        },
-        {
-          "clip": "hit",
-          "max_exposed_pixels": 1,
-          "frames_exposed": 1,
-          "peak_frame": 8
+          "max_exposed_pixels": 13,
+          "frames_exposed": 27,
+          "peak_frame": 7,
+          "sampled_frames": 48
         }
       ],
       "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 141,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 264,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 50,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 28,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        }
+      ],
+      "material": "dark cloth sleeve",
       "paint_node": "hidden_upper_far",
-      "max_exposed_pixels": 25
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 13,
+          "frames_exposed": 27,
+          "peak_frame": 7,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 15,
+          "frames_exposed": 15,
+          "peak_frame": 11,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 15
+    },
+    {
+      "part": "shin_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_shin_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 493,
+      "bounding_box": [
+        77,
+        159,
+        105,
+        224
+      ],
+      "solo_outside_paint_pixels": 22,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 13,
+          "frames_exposed": 34,
+          "peak_frame": 47,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 7,
+          "frames_exposed": 30,
+          "peak_frame": 3,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 5,
+          "frames_exposed": 12,
+          "peak_frame": 4,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 15,
+          "peak_frame": 11,
+          "sampled_frames": 31
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "thigh_near",
+          "pixels": 483,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "foot_near",
+          "pixels": 2,
+          "material": "dull dark brown boot"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 8,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "thigh_near",
+          "pixels": 45,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "foot_near",
+          "pixels": 4,
+          "material": "dull dark brown boot"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 1,
+          "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 9,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "material": "dark lower leg and boot cuff",
+      "paint_node": "hidden_shin_near",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 13,
+          "frames_exposed": 34,
+          "peak_frame": 47,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 15,
+          "peak_frame": 11,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 5,
+          "frames_exposed": 12,
+          "peak_frame": 4,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 7,
+          "frames_exposed": 30,
+          "peak_frame": 3,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 13
+    },
+    {
+      "part": "belt",
+      "view": "rear",
+      "image": "hidden_requests/rear_belt.png",
+      "status": "measured",
+      "hidden_pixel_count": 1307,
+      "bounding_box": [
+        76,
+        106,
+        142,
+        151
+      ],
+      "solo_outside_paint_pixels": 101,
+      "motions": [
+        {
+          "clip": "death",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 30,
+          "peak_frame": 1,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 17,
+          "peak_frame": 11,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 11,
+          "peak_frame": 3,
+          "sampled_frames": 48
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 1294,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "coat_far",
+          "pixels": 13,
+          "material": "dark ash-grey ragged coat tail"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 65,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "tabard",
+          "pixels": 1,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "coat_far",
+          "pixels": 15,
+          "material": "dark ash-grey ragged coat tail"
+        }
+      ],
+      "material": "broad brown belt",
+      "paint_node": "hidden_belt",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 11,
+          "peak_frame": 3,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 17,
+          "peak_frame": 11,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 30,
+          "peak_frame": 1,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 12
+    },
+    {
+      "part": "fore_far",
+      "view": "front",
+      "image": "hidden_requests/front_fore_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 689,
+      "bounding_box": [
+        56,
+        57,
+        105,
+        97
+      ],
+      "solo_outside_paint_pixels": 61,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 40,
+          "peak_frame": 2,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 9,
+          "peak_frame": 3,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 17,
+          "peak_frame": 11,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 8,
+          "frames_exposed": 26,
+          "peak_frame": 11,
+          "sampled_frames": 32
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 1,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 342,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "hand_far",
+          "pixels": 346,
+          "material": "dark brown leather glove"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 8,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 31,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "hand_far",
+          "pixels": 22,
+          "material": "dark brown leather glove"
+        },
+        {
+          "part": "chain",
+          "pixels": 1,
+          "material": "chunky dark-iron chain"
+        }
+      ],
+      "material": "dark cloth sleeve with broad brown leather bands",
+      "paint_node": "hidden_fore_far",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 40,
+          "peak_frame": 2,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 17,
+          "peak_frame": 11,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 9,
+          "peak_frame": 3,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 8,
+          "frames_exposed": 26,
+          "peak_frame": 11,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 12
+    },
+    {
+      "part": "hand_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_hand_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 56,
+      "bounding_box": [
+        177,
+        99,
+        189,
+        116
+      ],
+      "solo_outside_paint_pixels": 119,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 30,
+          "peak_frame": 2,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 10,
+          "frames_exposed": 3,
+          "peak_frame": 23,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 24,
+          "peak_frame": 13,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 5,
+          "frames_exposed": 4,
+          "peak_frame": 9,
+          "sampled_frames": 24
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "fore_far",
+          "pixels": 56,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "fore_far",
+          "pixels": 22,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        }
+      ],
+      "material": "dark brown leather glove",
+      "paint_node": "hidden_hand_far",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 30,
+          "peak_frame": 2,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 10,
+          "frames_exposed": 3,
+          "peak_frame": 23,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 5,
+          "frames_exposed": 4,
+          "peak_frame": 9,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 24,
+          "peak_frame": 13,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 12
+    },
+    {
+      "part": "hand_far",
+      "view": "front",
+      "image": "hidden_requests/front_hand_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 67,
+      "bounding_box": [
+        67,
+        63,
+        79,
+        81
+      ],
+      "solo_outside_paint_pixels": 59,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 11,
+          "frames_exposed": 26,
+          "peak_frame": 26,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 24,
+          "peak_frame": 10,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 14,
+          "peak_frame": 24,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 8,
+          "frames_exposed": 4,
+          "peak_frame": 9,
+          "sampled_frames": 24
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "fore_far",
+          "pixels": 67,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "fore_far",
+          "pixels": 23,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        }
+      ],
+      "material": "dark brown leather glove",
+      "paint_node": "hidden_hand_far",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 11,
+          "frames_exposed": 26,
+          "peak_frame": 26,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 14,
+          "peak_frame": 24,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 8,
+          "frames_exposed": 4,
+          "peak_frame": 9,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 24,
+          "peak_frame": 10,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 11
     },
     {
       "part": "pelvis",
@@ -465,38 +4264,225 @@
       "motions": [
         {
           "clip": "walk",
-          "max_exposed_pixels": 24,
-          "frames_exposed": 36,
-          "peak_frame": 41
+          "max_exposed_pixels": 10,
+          "frames_exposed": 30,
+          "peak_frame": 39,
+          "sampled_frames": 48
         },
         {
           "clip": "hit",
           "max_exposed_pixels": 6,
-          "frames_exposed": 17,
-          "peak_frame": 16
+          "frames_exposed": 12,
+          "peak_frame": 16,
+          "sampled_frames": 24
         },
         {
           "clip": "death",
-          "max_exposed_pixels": 4,
-          "frames_exposed": 12,
-          "peak_frame": 1
+          "max_exposed_pixels": 3,
+          "frames_exposed": 8,
+          "peak_frame": 3,
+          "sampled_frames": 32
         },
         {
           "clip": "idle",
           "max_exposed_pixels": 3,
           "frames_exposed": 13,
-          "peak_frame": 6
+          "peak_frame": 6,
+          "sampled_frames": 24
         },
         {
           "clip": "strike",
           "max_exposed_pixels": 3,
           "frames_exposed": 18,
-          "peak_frame": 3
+          "peak_frame": 3,
+          "sampled_frames": 31
         }
       ],
       "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 796,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "belt",
+          "pixels": 661,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "coat_far",
+          "pixels": 267,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 1,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 2,
+          "material": "dark lower leg and boot cuff"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 57,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "belt",
+          "pixels": 19,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "coat_far",
+          "pixels": 34,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 12,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 1,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 1,
+          "material": "dark lower leg and boot cuff"
+        }
+      ],
+      "material": "dark cloth at hips",
       "paint_node": "hidden_pelvis",
-      "max_exposed_pixels": 24
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 10,
+          "frames_exposed": 30,
+          "peak_frame": 39,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 18,
+          "peak_frame": 3,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 6,
+          "frames_exposed": 12,
+          "peak_frame": 16,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 8,
+          "peak_frame": 3,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 10
+    },
+    {
+      "part": "foot_far",
+      "view": "front",
+      "image": "hidden_requests/front_foot_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 168,
+      "bounding_box": [
+        113,
+        209,
+        134,
+        224
+      ],
+      "solo_outside_paint_pixels": 26,
+      "motions": [
+        {
+          "clip": "death",
+          "max_exposed_pixels": 10,
+          "frames_exposed": 26,
+          "peak_frame": 15,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 9,
+          "peak_frame": 19,
+          "sampled_frames": 48
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "shin_far",
+          "pixels": 168,
+          "material": "dark lower leg and boot cuff"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "shin_far",
+          "pixels": 31,
+          "material": "dark lower leg and boot cuff"
+        }
+      ],
+      "material": "dull dark brown boot",
+      "paint_node": "hidden_foot_far",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 9,
+          "peak_frame": 19,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 10,
+          "frames_exposed": 26,
+          "peak_frame": 15,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 10
     },
     {
       "part": "pelvis",
@@ -513,394 +4499,796 @@
       "solo_outside_paint_pixels": 0,
       "motions": [
         {
-          "clip": "strike",
-          "max_exposed_pixels": 17,
-          "frames_exposed": 19,
-          "peak_frame": 11
+          "clip": "walk",
+          "max_exposed_pixels": 8,
+          "frames_exposed": 28,
+          "peak_frame": 5,
+          "sampled_frames": 48
         },
         {
           "clip": "death",
-          "max_exposed_pixels": 13,
+          "max_exposed_pixels": 2,
           "frames_exposed": 30,
-          "peak_frame": 1
+          "peak_frame": 9,
+          "sampled_frames": 32
         },
         {
           "clip": "hit",
-          "max_exposed_pixels": 13,
-          "frames_exposed": 17,
-          "peak_frame": 15
+          "max_exposed_pixels": 1,
+          "frames_exposed": 13,
+          "peak_frame": 1,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 9,
+          "peak_frame": 12,
+          "sampled_frames": 31
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 788,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "belt",
+          "pixels": 441,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "tabard",
+          "pixels": 134,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "coat_far",
+          "pixels": 1,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 287,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 271,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 7,
+          "material": "dark brown leather glove"
+        },
+        {
+          "part": "upper_far",
+          "pixels": 1,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_far",
+          "pixels": 2,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 39,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "shin_near",
+          "pixels": 1,
+          "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 6,
+          "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "foot_far",
+          "pixels": 4,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 44,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "belt",
+          "pixels": 10,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "tabard",
+          "pixels": 23,
+          "material": "red-brown tabard with its approved insignia"
+        },
+        {
+          "part": "coat_far",
+          "pixels": 2,
+          "material": "dark ash-grey ragged coat tail"
+        },
+        {
+          "part": "upper_near",
+          "pixels": 26,
+          "material": "dark cloth sleeve"
+        },
+        {
+          "part": "fore_near",
+          "pixels": 22,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "hand_near",
+          "pixels": 7,
+          "material": "dark brown leather glove"
+        },
+        {
+          "part": "thigh_near",
+          "pixels": 9,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "shin_near",
+          "pixels": 1,
+          "material": "dark lower leg and boot cuff"
+        },
+        {
+          "part": "thigh_far",
+          "pixels": 2,
+          "material": "dark cloth trouser leg"
+        }
+      ],
+      "material": "dark cloth at hips",
+      "paint_node": "hidden_pelvis",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
         },
         {
           "clip": "walk",
           "max_exposed_pixels": 8,
           "frames_exposed": 28,
-          "peak_frame": 5
+          "peak_frame": 5,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 9,
+          "peak_frame": 12,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 13,
+          "peak_frame": 1,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 30,
+          "peak_frame": 9,
+          "sampled_frames": 32
         }
       ],
-      "exposure_status": "sampled_cpu_visibility",
-      "paint_node": "hidden_pelvis",
-      "max_exposed_pixels": 17
-    },
-    {
-      "part": "belt",
-      "view": "front",
-      "image": "hidden_requests/front_belt.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "chain",
-      "view": "front",
-      "image": "hidden_requests/front_chain.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "coat_far",
-      "view": "front",
-      "image": "hidden_requests/front_coat_far.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "coat_near",
-      "view": "front",
-      "image": "hidden_requests/front_coat_near.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "foot_far",
-      "view": "front",
-      "image": "hidden_requests/front_foot_far.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
+      "max_exposed_pixels": 8
     },
     {
       "part": "foot_near",
       "view": "front",
       "image": "hidden_requests/front_foot_near.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "fore_far",
-      "view": "front",
-      "image": "hidden_requests/front_fore_far.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "fore_near",
-      "view": "front",
-      "image": "hidden_requests/front_fore_near.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "hand_far",
-      "view": "front",
-      "image": "hidden_requests/front_hand_far.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "hand_near",
-      "view": "front",
-      "image": "hidden_requests/front_hand_near.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "head",
-      "view": "front",
-      "image": "hidden_requests/front_head.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "hook",
-      "view": "front",
-      "image": "hidden_requests/front_hook.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "shin_far",
-      "view": "front",
-      "image": "hidden_requests/front_shin_far.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "shin_near",
-      "view": "front",
-      "image": "hidden_requests/front_shin_near.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "tabard",
-      "view": "front",
-      "image": "hidden_requests/front_tabard.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "belt",
-      "view": "rear",
-      "image": "hidden_requests/rear_belt.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
+      "status": "measured",
+      "hidden_pixel_count": 168,
+      "bounding_box": [
+        163,
+        224,
+        185,
+        240
+      ],
+      "solo_outside_paint_pixels": 20,
+      "motions": [
+        {
+          "clip": "death",
+          "max_exposed_pixels": 6,
+          "frames_exposed": 26,
+          "peak_frame": 15,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 4,
+          "frames_exposed": 31,
+          "peak_frame": 14,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 10,
+          "peak_frame": 12,
+          "sampled_frames": 31
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "shin_near",
+          "pixels": 168,
+          "material": "dark lower leg and boot cuff"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "shin_near",
+          "pixels": 33,
+          "material": "dark lower leg and boot cuff"
+        }
+      ],
+      "material": "dull dark brown boot",
+      "paint_node": "hidden_foot_near",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 4,
+          "frames_exposed": 31,
+          "peak_frame": 14,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 10,
+          "peak_frame": 12,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 6,
+          "frames_exposed": 26,
+          "peak_frame": 15,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 6
     },
     {
       "part": "chain",
-      "view": "rear",
-      "image": "hidden_requests/rear_chain.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "coat_far",
-      "view": "rear",
-      "image": "hidden_requests/rear_coat_far.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "coat_near",
-      "view": "rear",
-      "image": "hidden_requests/rear_coat_near.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "foot_far",
-      "view": "rear",
-      "image": "hidden_requests/rear_foot_far.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "foot_near",
-      "view": "rear",
-      "image": "hidden_requests/rear_foot_near.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "fore_far",
-      "view": "rear",
-      "image": "hidden_requests/rear_fore_far.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "fore_near",
-      "view": "rear",
-      "image": "hidden_requests/rear_fore_near.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "hand_far",
-      "view": "rear",
-      "image": "hidden_requests/rear_hand_far.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "hand_near",
-      "view": "rear",
-      "image": "hidden_requests/rear_hand_near.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "head",
-      "view": "rear",
-      "image": "hidden_requests/rear_head.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "hook",
-      "view": "rear",
-      "image": "hidden_requests/rear_hook.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "shin_far",
-      "view": "rear",
-      "image": "hidden_requests/rear_shin_far.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
-    },
-    {
-      "part": "shin_near",
-      "view": "rear",
-      "image": "hidden_requests/rear_shin_near.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
-      "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
+      "view": "front",
+      "image": "hidden_requests/front_chain.png",
+      "status": "measured",
+      "hidden_pixel_count": 95,
+      "bounding_box": [
+        57,
+        69,
+        72,
+        82
+      ],
+      "solo_outside_paint_pixels": 205,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 5,
+          "frames_exposed": 20,
+          "peak_frame": 21,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 23,
+          "peak_frame": 9,
+          "sampled_frames": 32
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "fore_far",
+          "pixels": 3,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "hand_far",
+          "pixels": 92,
+          "material": "dark brown leather glove"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "fore_far",
+          "pixels": 7,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "hand_far",
+          "pixels": 36,
+          "material": "dark brown leather glove"
+        }
+      ],
+      "material": "chunky dark-iron chain",
+      "paint_node": "hidden_chain",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 5,
+          "frames_exposed": 20,
+          "peak_frame": 21,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 23,
+          "peak_frame": 9,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 5
     },
     {
       "part": "tabard",
       "view": "rear",
       "image": "hidden_requests/rear_tabard.png",
-      "status": "missing_solo_render",
-      "hidden_pixel_count": null,
-      "bounding_box": null,
-      "solo_outside_paint_pixels": null,
+      "status": "measured",
+      "hidden_pixel_count": 1206,
+      "bounding_box": [
+        117,
+        113,
+        145,
+        177
+      ],
+      "solo_outside_paint_pixels": 15,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 48
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "torso",
+          "pixels": 381,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "belt",
+          "pixels": 220,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "coat_far",
+          "pixels": 605,
+          "material": "dark ash-grey ragged coat tail"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "torso",
+          "pixels": 49,
+          "material": "dark ash-grey cowl and tunic"
+        },
+        {
+          "part": "belt",
+          "pixels": 15,
+          "material": "broad brown belt"
+        },
+        {
+          "part": "coat_far",
+          "pixels": 65,
+          "material": "dark ash-grey ragged coat tail"
+        }
+      ],
+      "material": "red-brown tabard with its approved insignia",
+      "paint_node": "hidden_tabard",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 3
+    },
+    {
+      "part": "chain",
+      "view": "rear",
+      "image": "hidden_requests/rear_chain.png",
+      "status": "measured",
+      "hidden_pixel_count": 87,
+      "bounding_box": [
+        184,
+        105,
+        198,
+        116
+      ],
+      "solo_outside_paint_pixels": 320,
+      "motions": [
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 14,
+          "peak_frame": 45,
+          "sampled_frames": 48
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "hand_far",
+          "pixels": 87,
+          "material": "dark brown leather glove"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "fore_far",
+          "pixels": 4,
+          "material": "dark cloth sleeve with broad brown leather bands"
+        },
+        {
+          "part": "hand_far",
+          "pixels": 36,
+          "material": "dark brown leather glove"
+        }
+      ],
+      "material": "chunky dark-iron chain",
+      "paint_node": "hidden_chain",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 3,
+          "frames_exposed": 14,
+          "peak_frame": 45,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 3
+    },
+    {
+      "part": "tabard",
+      "view": "front",
+      "image": "hidden_requests/front_tabard.png",
+      "status": "measured",
+      "hidden_pixel_count": 2,
+      "bounding_box": [
+        133,
+        162,
+        137,
+        185
+      ],
+      "solo_outside_paint_pixels": 57,
+      "motions": [
+        {
+          "clip": "death",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 25,
+          "peak_frame": 9,
+          "sampled_frames": 32
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 19,
+          "peak_frame": 12,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 40,
+          "peak_frame": 0,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 6,
+          "peak_frame": 10,
+          "sampled_frames": 24
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "foot_far",
+          "pixels": 2,
+          "material": "dull dark brown boot"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "thigh_far",
+          "pixels": 1,
+          "material": "dark cloth trouser leg"
+        },
+        {
+          "part": "shin_far",
+          "pixels": 3,
+          "material": "dark lower leg and boot cuff"
+        }
+      ],
+      "material": "red-brown tabard with its approved insignia",
+      "paint_node": "hidden_tabard",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 13,
+          "peak_frame": 6,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 40,
+          "peak_frame": 0,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 19,
+          "peak_frame": 12,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 6,
+          "peak_frame": 10,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 25,
+          "peak_frame": 9,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 2
+    },
+    {
+      "part": "hook",
+      "view": "rear",
+      "image": "hidden_requests/rear_hook.png",
+      "status": "measured",
+      "hidden_pixel_count": 1,
+      "bounding_box": [
+        214,
+        206,
+        215,
+        207
+      ],
+      "solo_outside_paint_pixels": 77,
       "motions": [],
-      "exposure_status": "unknown",
-      "max_exposed_pixels": null
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "chain",
+          "pixels": 1,
+          "material": "chunky dark-iron chain"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "chain",
+          "pixels": 2,
+          "material": "chunky dark-iron chain"
+        }
+      ],
+      "material": "barbed rusted-iron hook",
+      "paint_node": "hidden_hook",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 0
+    },
+    {
+      "part": "hook",
+      "view": "front",
+      "image": "hidden_requests/front_hook.png",
+      "status": "measured",
+      "hidden_pixel_count": 0,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": 59,
+      "motions": [],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [],
+      "bordering_parts": [],
+      "material": "barbed rusted-iron hook",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "walk",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 48
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 31
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 24
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 32
+        }
+      ],
+      "max_exposed_pixels": 0
     }
   ],
-  "samples_sha256": "66cca21b3f6ecea99ae2d67072f2443fcbbfb51d963b80267f1af6bca899421e"
+  "samples_sha256": "0f70068d61a7b911e6bab4a9c7178bc3f006c09638c68d98b16a2cfab873452e"
 }

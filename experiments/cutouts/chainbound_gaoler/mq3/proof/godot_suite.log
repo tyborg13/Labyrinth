@@ -1,16 +1,16 @@
 Running task-local command:
   task: rr-02
-  run: rr-02-1792075040891428000-52278
-  HOME: /private/tmp/labyrinth-godot-home/rr-02-1792075040891428000-52278
+  run: rr-02-1792077848329216000-71879
+  HOME: /private/tmp/labyrinth-godot-home/rr-02-1792077848329216000-71879
   Steam: disabled
-  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-02-1792075040891428000-52278/godot.log --headless --path . --script tests/run_tests.gd
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-02-1792077848329216000-71879/godot.log --headless --path . --script tests/run_tests.gd
   timeout: 900s
   stream: enabled
 Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
 
 ERROR: Condition "ret != noErr" is true. Returning: ""
    at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
-ENEMY TACTICAL AI RESOURCE PROOF: plans=14 future_searches=11 total_ms=15.65
+ENEMY TACTICAL AI RESOURCE PROOF: plans=14 future_searches=11 total_ms=14.81
 Guardian relic contracts exercised
 Guardian exercised: Ashen Reaver
 Guardian exercised: Rimejaw
@@ -33,7 +33,7 @@ Depth rules contracts: 20 level gates; depth-zero same-build run/combat comparis
 Depth feedback contracts: all Guardian helpers; 30 px rows / 40 px columns / 17 px hint; session save failure; all Scavenger buy prices checked
 SPIRE ROUTE ENTRY: player=(1, 4) boss=(4, 3) held=[(2, 3), (1, 2), (1, 6), (2, 5)]
 SPIRE ROUTE RESOLVED: player=(3, 4) spires=[(2, 3), (1, 2), (1, 6), (2, 5)] clock=19
-R1 dense-Light navigation best of 3: 3.379 ms
+R1 dense-Light navigation best of 3: 3.171 ms
 WARNING: Conflicting legacy combat-unit evidence; preserving serialized values rather than risking destructive conversion.
      at: push_warning (core/variant/variant_utility.cpp:1034)
      GDScript backtrace (most recent call first):
@@ -239,11 +239,11 @@ TURN CLOCK BANNER SEQUENCE: pass_enemy_first: ["ENEMY TURN", "YOUR TURN"]
 TURN CLOCK BANNER SEQUENCE: fast_back_to_back: ["YOUR TURN"]
 TURN CLOCK BANNER SEQUENCE: hourglass_immediate: ["YOUR TURN"]
 TURN CLOCK BANNER SEQUENCE: enemy_then_hero: ["ENEMY TURN", "YOUR TURN"]
-CARD TARGETING AUDIT: 309 cards, 699 upgrades; /private/tmp/labyrinth-godot-home/rr-02-1792075040891428000-52278/Library/Application Support/Escape the Umbra Parallel rr-02-1792075040891428000-52278/card_targeting_audit.json
+CARD TARGETING AUDIT: 309 cards, 699 upgrades; /private/tmp/labyrinth-godot-home/rr-02-1792077848329216000-71879/Library/Application Support/Escape the Umbra Parallel rr-02-1792077848329216000-71879/card_targeting_audit.json
 Running task-local command:
   task: art-03
-  run: art-03-1792075506179429000-58363
-  HOME: /private/tmp/labyrinth-godot-home/art-03-1792075506179429000-58363
+  run: art-03-1792078321535205000-75688
+  HOME: /private/tmp/labyrinth-godot-home/art-03-1792078321535205000-75688
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/en04_enemies_test.gd
   timeout: 180s
@@ -257,8 +257,8 @@ EN04 ENEMIES TEST RESULT: PASS (454 checks, 0 failures)
 PROGRAM SUITE en04_enemies_test: PASS
 Running task-local command:
   task: art-03
-  run: art-03-1792075509984168000-58430
-  HOME: /private/tmp/labyrinth-godot-home/art-03-1792075509984168000-58430
+  run: art-03-1792078325433479000-75701
+  HOME: /private/tmp/labyrinth-godot-home/art-03-1792078325433479000-75701
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/en05_enemies_test.gd
   timeout: 180s
@@ -272,8 +272,8 @@ EN05 ENEMIES TEST RESULT: PASS (179 checks, 0 failures)
 PROGRAM SUITE en05_enemies_test: PASS
 Running task-local command:
   task: art-03
-  run: art-03-1792075513199260000-58465
-  HOME: /private/tmp/labyrinth-godot-home/art-03-1792075513199260000-58465
+  run: art-03-1792078328897521000-75716
+  HOME: /private/tmp/labyrinth-godot-home/art-03-1792078328897521000-75716
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/en06_enemies_test.gd
   timeout: 180s
@@ -289,8 +289,8 @@ WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
 PROGRAM SUITE en06_enemies_test: PASS
 Running task-local command:
   task: art-03
-  run: art-03-1792075520551912000-58526
-  HOME: /private/tmp/labyrinth-godot-home/art-03-1792075520551912000-58526
+  run: art-03-1792078337000619000-75741
+  HOME: /private/tmp/labyrinth-godot-home/art-03-1792078337000619000-75741
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/static_facing_test.gd
   timeout: 180s
@@ -304,8 +304,8 @@ STATIC FACING TEST RESULT: PASS (74 checks, 0 failures)
 PROGRAM SUITE static_facing_test: PASS
 Running task-local command:
   task: qa-01
-  run: qa-01-1792075522766959000-58540
-  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792075522766959000-58540
+  run: qa-01-1792078339351056000-75754
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792078339351056000-75754
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/combat_feel_test.gd
   timeout: 180s
@@ -323,17 +323,17 @@ COMBAT FEEL SCOPES: clock/menu/drag/pause/director/card/end checked
 RUN SCORE LIVE CLOCK: physics/menu/settings/tree pause/visibility/save/resume/run end checked
 COMBAT FEEL INTEGRATION: committed card/state/RNG/settings row checked
 COMBAT PACING VICTORY card kill: samples=125 stale=0 sped_up=0 lost_scope=0
-COMBAT PACING VICTORY enemy phase: samples=126 stale=0 sped_up=0 lost_scope=0
-COMBAT PACING LAST ACTION dissolve: death_end=1481984 popup_end=0 scope_end=1503902 final_frame=27/27
-COMBAT PACING LAST ACTION damage numbers: death_end=0 popup_end=1176741 scope_end=1189067 final_frame=-1/-1
+COMBAT PACING VICTORY enemy phase: samples=127 stale=0 sped_up=0 lost_scope=0
+COMBAT PACING LAST ACTION dissolve: death_end=1482395 popup_end=0 scope_end=1503258 final_frame=27/27
+COMBAT PACING LAST ACTION damage numbers: death_end=0 popup_end=1152135 scope_end=1164215 final_frame=-1/-1
 FLOATING COMBAT TEXT TEST RESULT: PASS
 COMBAT FEEL TEST RESULT: PASS
 
 PROGRAM SUITE combat_feel_test: PASS
 Running task-local command:
   task: qa-01
-  run: qa-01-1792075546322791000-58913
-  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792075546322791000-58913
+  run: qa-01-1792078363584969000-75856
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792078363584969000-75856
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/event_view_test.gd
   timeout: 180s
@@ -350,8 +350,8 @@ WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
 PROGRAM SUITE event_view_test: PASS
 Running task-local command:
   task: qa-01
-  run: qa-01-1792075582904846000-59310
-  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792075582904846000-59310
+  run: qa-01-1792078396644239000-75935
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792078396644239000-75935
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/event_rules_test.gd
   timeout: 180s
@@ -362,14 +362,12 @@ ERROR: Condition "ret != noErr" is true. Returning: ""
    at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
 HERO EXPOSE PREVIEW: first_hp_loss=4 second_hp_loss=5 projected_hp=0
 Event rules suite: 0 failures
-WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
-     at: cleanup (core/object/object.cpp:2641)
 
 PROGRAM SUITE event_rules_test: PASS
 Running task-local command:
   task: qa-01
-  run: qa-01-1792075601815764000-59500
-  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792075601815764000-59500
+  run: qa-01-1792078414868798000-75975
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792078414868798000-75975
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/biome_test.gd
   timeout: 180s
@@ -447,8 +445,8 @@ BIOME RESULT: PASS (503 checks, 0 failures)
 PROGRAM SUITE biome_test: PASS
 Running task-local command:
   task: qa-01
-  run: qa-01-1792075603929359000-59516
-  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792075603929359000-59516
+  run: qa-01-1792078417099047000-75988
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792078417099047000-75988
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/health_ghost_test.gd
   timeout: 180s
@@ -467,8 +465,8 @@ WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
 PROGRAM SUITE health_ghost_test: PASS
 Running task-local command:
   task: qa-01
-  run: qa-01-1792075608970313000-59579
-  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792075608970313000-59579
+  run: qa-01-1792078422434377000-75995
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792078422434377000-75995
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/movement_undo_test.gd
   timeout: 180s
@@ -481,12 +479,14 @@ MOVEMENT UNDO RULES: completed
 MOVEMENT UNDO INTEGRATION: initial walk
 MOVEMENT UNDO INTEGRATION: completed
 MOVEMENT UNDO RESULT: 0 failures
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
 
 PROGRAM SUITE movement_undo_test: PASS
 Running task-local command:
   task: qa-01
-  run: qa-01-1792075624693031000-59743
-  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792075624693031000-59743
+  run: qa-01-1792078438403325000-76049
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792078438403325000-76049
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/threats_at_rest_test.gd
   timeout: 180s
@@ -501,8 +501,8 @@ THREATS AT REST TEST RESULT: PASS (612 assertions; includes compass suite)
 PROGRAM SUITE threats_at_rest_test: PASS
 Running task-local command:
   task: qa-01
-  run: qa-01-1792075633710111000-59834
-  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792075633710111000-59834
+  run: qa-01-1792078447468442000-76085
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792078447468442000-76085
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/encounter_tables_test.gd
   timeout: 180s
@@ -560,8 +560,8 @@ Encounter tables suite: 0 failures
 PROGRAM SUITE encounter_tables_test: PASS
 Running task-local command:
   task: qa-01
-  run: qa-01-1792075729770360000-60904
-  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792075729770360000-60904
+  run: qa-01-1792078543109790000-76268
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792078543109790000-76268
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/run_score_test.gd
   timeout: 180s
@@ -580,8 +580,8 @@ ERROR: 1 resources still in use at exit (run with --verbose for details).
 PROGRAM SUITE run_score_test: PASS
 Running task-local command:
   task: qa-01
-  run: qa-01-1792075736923964000-60978
-  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792075736923964000-60978
+  run: qa-01-1792078550328865000-76278
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792078550328865000-76278
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/sfx_bank_test.gd
   timeout: 180s
@@ -591,14 +591,12 @@ Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
 ERROR: Condition "ret != noErr" is true. Returning: ""
    at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
 SFX BANK TEST RESULT: PASS (0 failures)
-WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
-     at: cleanup (core/object/object.cpp:2641)
 
 PROGRAM SUITE sfx_bank_test: PASS
 Running task-local command:
   task: qa-01
-  run: qa-01-1792075746078418000-61034
-  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792075746078418000-61034
+  run: qa-01-1792078560176639000-76517
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792078560176639000-76517
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/section_map_v2_test.gd
   timeout: 180s
@@ -613,11 +611,11 @@ Section map v2 suite: 0 failures (64 seeds x 6 sections)
 PROGRAM SUITE section_map_v2_test: PASS
 Running task-local command:
   task: qa-01
-  run: qa-01-1792075779583880000-61337
-  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792075779583880000-61337
+  run: qa-01-1792078594717232000-76699
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792078594717232000-76699
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/en01_enemies_test.gd
-  timeout: 168s
+  timeout: 160s
   stream: enabled
 Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
 
@@ -629,11 +627,11 @@ EN01 ENEMIES TEST RESULT: PASS
 PROGRAM SUITE en01_enemies_test: PASS
 Running task-local command:
   task: qa-01
-  run: qa-01-1792075783193656000-61379
-  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792075783193656000-61379
+  run: qa-01-1792078598415923000-76711
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792078598415923000-76711
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/en02_enemies_test.gd
-  timeout: 164s
+  timeout: 157s
   stream: enabled
 Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
 
@@ -644,28 +642,26 @@ EN02 ENEMIES TEST RESULT: PASS (235 checks, 0 failures)
 PROGRAM SUITE en02_enemies_test: PASS
 Running task-local command:
   task: qa-01
-  run: qa-01-1792075786156577000-61401
-  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792075786156577000-61401
+  run: qa-01-1792078601555815000-76737
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792078601555815000-76737
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/en03_enemies_test.gd
-  timeout: 161s
+  timeout: 153s
   stream: enabled
 Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
 
 ERROR: Condition "ret != noErr" is true. Returning: ""
    at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
 EN03 ENEMIES TEST RESULT: PASS (210 checks, 0 failures)
-WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
-     at: cleanup (core/object/object.cpp:2641)
 
 PROGRAM SUITE en03_enemies_test: PASS
 Running task-local command:
   task: qa-01
-  run: qa-01-1792075791330116000-61432
-  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792075791330116000-61432
+  run: qa-01-1792078606815555000-76778
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792078606815555000-76778
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/run_end_recap_tests.gd
-  timeout: 156s
+  timeout: 148s
   stream: enabled
 Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
 
@@ -706,11 +702,11 @@ RUN END RECAP TEST RESULT: PASS
 PROGRAM SUITE run_end_recap_tests: PASS
 Running task-local command:
   task: qa-01
-  run: qa-01-1792075797699808000-61490
-  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792075797699808000-61490
+  run: qa-01-1792078613219058000-76850
+  HOME: /private/tmp/labyrinth-godot-home/qa-01-1792078613219058000-76850
   Steam: disabled
   command: /Applications/Godot.app/Contents/MacOS/Godot --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/ --script res://tests/main_menu_resume_test.gd
-  timeout: 150s
+  timeout: 142s
   stream: enabled
 Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
 
@@ -719,7 +715,7 @@ ERROR: Condition "ret != noErr" is true. Returning: ""
 TEST RESULT: PASS — main menu resume safety
 
 PROGRAM SUITE main_menu_resume_test: PASS
-FULL SUITE RUNTIME: 756.265 seconds (budget 900 seconds)
+FULL SUITE RUNTIME: 765.339 seconds (budget 900 seconds)
 TEST RESULT: PASS
 WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
      at: cleanup (core/object/object.cpp:2641)

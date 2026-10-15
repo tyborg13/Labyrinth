@@ -28,14 +28,17 @@ func _run() -> void:
 	var records: Array[Dictionary]
 	var inputs: Dictionary = {"cutout.json": FileAccess.get_sha256(args[ci + 1]),
 		str(rig.config["motion"]): FileAccess.get_sha256(rig.case_directory.path_join(str(rig.config["motion"]))),
-		"gaoler_motion.gd": FileAccess.get_sha256(rig.case_directory.path_join("gaoler_motion.gd"))}
+		"gaoler_motion.gd": FileAccess.get_sha256(rig.case_directory.path_join("gaoler_motion.gd")),
+		"probes/motion_samples.gd": FileAccess.get_sha256(rig.case_directory.path_join("probes/motion_samples.gd")),
+		"probes/proof.py": FileAccess.get_sha256(rig.case_directory.path_join("probes/proof.py"))}
 	for facing: String in rig.config["layouts"]:
 		_check(rig.set_facing(facing), "Load facing " + facing)
 		var layout_path: String = str(rig.config["layouts"][facing])
 		inputs[layout_path] = FileAccess.get_sha256(rig.case_directory.path_join(layout_path))
 		for part: Dictionary in rig.layout["parts"]:
 			var path: String = str(part["file"])
-			inputs[path] = FileAccess.get_sha256(path if path.is_absolute_path() else rig.case_directory.path_join(path))
+			var relative: String = path.trim_prefix(rig.case_directory + "/")
+			inputs[relative] = FileAccess.get_sha256(path if path.is_absolute_path() else rig.case_directory.path_join(path))
 		for clip: String in rig.config["clips"]:
 			var definition: Dictionary = rig.config["clips"][clip]
 			var count: int = int(definition["frames"])

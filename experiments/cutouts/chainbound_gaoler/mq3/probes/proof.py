@@ -18,8 +18,8 @@ def transform_mask(root, part, layout, bones, mesh=None):
     mask = Image.open(root / part["file"]).convert("RGBA").getchannel("A")
     weighted = {part["bone"]: 1.0}
     if mesh:
-        # A TODO cloth skin has exactly the original rigid attachment. Reject
-        # an updated deforming field rather than report a rigid approximation.
+        # Constant single-bone fields are rigid. Reject a deforming field
+        # rather than report a rigid approximation. The gaoler uses no meshes.
         weighted = {}
         for bone, weights in mesh["weights"].items():
             if not np.allclose(weights, weights[0]):
@@ -54,6 +54,7 @@ def exposure(root, samples_path):
     lookup = {(r["view"], r["part"]): r for r in index["requests"]}
     for request in index["requests"]:
         request["motions"] = []
+        request["clip_exposure"] = []
         request["max_exposed_pixels"] = 0 if request["status"] == "measured" else None
         request["exposure_status"] = "sampled_cpu_visibility" if request["status"] == "measured" else "unknown"
     layouts = {view: read_json(root / path) for view, path in config["layouts"].items()}
@@ -79,12 +80,19 @@ def exposure(root, samples_path):
             if count > record["max_exposed_pixels"]:
                 record.update(max_exposed_pixels=count, peak_frame=sample["frame"])
             record["frames_exposed"] += int(count > 0)
-    for (view, name, _), measure in measures.items():
-        request = lookup[(view, name)]
-        if measure["max_exposed_pixels"]:
-            request["motions"].append(measure)
-            request["max_exposed_pixels"] = max(request["max_exposed_pixels"], measure["max_exposed_pixels"])
     for request in index["requests"]:
+        view, name = request["view"], request["part"]
+        for clip in config["clips"]:
+            frames = sum(s["view"] == view and s["clip"] == clip for s in samples["samples"])
+            if not frames:
+                raise CutoutError(f"No motion samples for {view}/{clip}")
+            if request["status"] == "measured":
+                measure = dict(measures.get((view, name, clip), {"clip": clip, "max_exposed_pixels": 0,
+                               "frames_exposed": 0, "peak_frame": None}), sampled_frames=frames)
+                request["clip_exposure"].append(measure)
+                if measure["max_exposed_pixels"]:
+                    request["motions"].append(measure)
+                    request["max_exposed_pixels"] = max(request["max_exposed_pixels"], measure["max_exposed_pixels"])
         request["motions"].sort(key=lambda m: (-m["max_exposed_pixels"], m["clip"]))
     index["requests"].sort(key=lambda r: (r["max_exposed_pixels"] is None, -(r["max_exposed_pixels"] or 0),
                                          -(r["hidden_pixel_count"] or 0), r["view"], r["part"]))
@@ -93,7 +101,40 @@ def exposure(root, samples_path):
     write_json(root / "hidden_requests/index.json", index)
     contact_sheet([(f"{r['view']}/{r['part']}\n" + (f"hidden={r['hidden_pixel_count']} peak={r['max_exposed_pixels']}" if r["status"] == "measured" else "UNKNOWN: MISSING SOLO"),
                     Image.open(root / r["image"]).convert("RGBA")) for r in index["requests"]], root / "hidden_requests/contact_sheet.png")
+    paint_plan(root, index)
     print(f"MAQUETTE_EXPOSURE: PASS ({len(index['requests'])} requests; {sum(r['status'] != 'measured' for r in index['requests'])} unknown solos)")
+
+
+def paint_plan(root, index):
+    lines = ["# Hidden-material paint plan", "",
+             "Sorted by maximum sampled exposure, then hidden area. All five production clips",
+             "are sampled in each view; a zero means no exposed pixels in those sampled poses.",
+             "Exposure uses actual headless Skeleton2D transforms and nearest CPU masks.",
+             "It is a painting priority estimate; the native reel remains separate proof.", "",
+             "Magenta #FF00FF marks hidden material; green #00FF00 is background.",
+             "Neighbour names refer to the approved painted ownership, not new anatomy.",
+             "Covered counts measure the part currently hiding this request; border counts",
+             "measure its four-connected painted neighbours. Material descriptions come",
+             "from the approved pair and its supplied identity/material brief.", ""]
+    for rank, request in enumerate(index["requests"], 1):
+        lines += [f"## {rank}. {request['view']} / {request['part']}", "",
+                  f"- Material: {request['material']}.",
+                  f"- Hidden area: {request['hidden_pixel_count']} px; peak sampled exposure: {request['max_exposed_pixels']} px.",
+                  f"- Hidden bounds (left, top, right, bottom; exclusive): `{request['bounding_box']}`."]
+        motions = "; ".join(f"{m['clip']}: peak {m['max_exposed_pixels']} px at frame {m['peak_frame']}, "
+                            f"{m['frames_exposed']}/{m['sampled_frames']} frames exposed" for m in request["motions"])
+        lines.append("- Motions that expose it: " + (motions or "none in the sampled clips") + ".")
+        neighbours = {}
+        for key, label in [("occluding_parts", "covered"), ("bordering_parts", "border")]:
+            for item in request[key]:
+                entry = neighbours.setdefault(item["part"], {"material": item["material"], "counts": []})
+                entry["counts"].append(f"{item['pixels']} px {label}")
+        lines.append("- Neighbouring materials: " + ("; ".join(
+            f"`{name}` — {item['material']} ({', '.join(item['counts'])})" for name, item in neighbours.items())
+            or "none; no hidden region") + ".")
+        image = Path(request["image"]).name
+        lines += [f"- Request: [native]({image}) / [4× nearest]({Path(image).stem}_4x.png).", ""]
+    (root / "hidden_requests/paint_plan.md").write_text("\n".join(lines))
 
 
 def native(root, output):

@@ -99,24 +99,28 @@ Offsets and band positions are explicit registration inputs, not recommended def
 It uses the existing `init`, `segment`, `skin` and `validate` implementations;
 it does not paint, infer missing anatomy or write production assets. The
 [chainbound gaoler mq3 case](../experiments/cutouts/chainbound_gaoler/mq3/README.md)
-is the phase-one example, including the explicitly incomplete renderer inputs.
+is the phase-2a example, using the final approved pair and all 42 supplied solos.
 
 ```sh
 python3 tools/maquette_cutout.py \
   --spec spec/art_identity/maquettes/chainbound_gaoler/spec.json \
-  --front-job spec/art_identity/jobs/chainbound_gaoler/mq3_front_v3 \
-  --rear-job spec/art_identity/jobs/chainbound_gaoler/mq3_rear_v2 \
+  --front-job spec/art_identity/jobs/chainbound_gaoler/mq3_front_v4 \
+  --rear-job spec/art_identity/jobs/chainbound_gaoler/mq3_rear_v3 \
   --front-raw experiments/cutouts/chainbound_gaoler/mq3/source/front/raw.png \
   --rear-raw experiments/cutouts/chainbound_gaoler/mq3/source/rear/raw.png \
+  --renders spec/art_identity/jobs/chainbound_gaoler/mq3_maquette_renders \
   --case experiments/cutouts/chainbound_gaoler/mq3_complete \
   --task-id rr-02
 ```
 
-Run this command on a machine where Blender can initialize its renderer. It
-copies the protected spec and changes only the derived copy's `solo` selection
-to include every label. `--renders DIR` reuses existing `{view}_parts.png`,
-`{view}_clay.png`, `{view}_solo_<part>.png` and `joints_px.json`; missing solos
-normally fail. `--allow-incomplete-renders` explicitly creates a diagnostic
+`--renders DIR` uses existing `{view}_parts.png`, `{view}_clay.png`,
+`{view}_solo_<part>.png` and `joints_px.json` without invoking Blender. The tool
+checks every expected file, image dimensions and joint names before creating
+the case; `source/maquette_manifest.json` records their SHA-256 digests and
+completeness. The gaoler has 47 required files: 42 solos, four shared maps and
+one joint record. Without `--renders`, run on a machine where Blender can
+initialize its renderer; the tool requests every solo in a derived spec copy.
+`--allow-incomplete-renders` explicitly creates a diagnostic
 case with unknown counts, never silently empty hidden regions. `--resume-scaffold`
 accepts only an unbuilt `cutout_workflow.py init` case; completed cases are never
 overwritten. The raw images must be supplied through `--front-raw`/`--rear-raw`
@@ -148,7 +152,12 @@ solos carry `hidden_pixel_count: null` and `status: missing_solo_render`.
 The index and contact sheet sort by maximum sampled visible hidden pixels;
 unknowns follow measured requests. This CPU mask measurement uses actual
 headless Skeleton2D transforms and is labeled as numerical prediction, not
-real-renderer evidence. A later deforming cloth field requires native exposure
+real-renderer evidence. Every measured request records every sampled clip,
+including zero exposure; `motions` lists the clips that actually expose it.
+`hidden_requests/paint_plan.md` follows the same priority order and lists each
+request's hidden area, exposing motions, occluding painted parts and
+four-connected boundary neighbours, with material names from the rig recipe's
+approved-paint descriptions. A later deforming cloth field requires native exposure
 measurement; the numerical helper refuses to approximate it as rigid.
 
 Intersecting 3D proxies cannot always be represented by one sprite depth per
@@ -162,16 +171,18 @@ solo are explicitly listed as `unmaterialized_parts`.
 For another anatomy, supply `--rig-recipe` with its explicit `joints` (projected
 joint or plate-top attachment and parent), `parts` (label-to-bone mapping),
 `motion`, `clips`, `rigid_bones`, `contact_feet`, optional `cloth` skin fields,
+optional `rigid_cloth` production counterparts and `materials` descriptions,
 and optional case-relative `copy_files`, `motion_probe` and `exposure_tool`.
 The gaoler recipe is in `mq3/recipes/rig.json`; no humanoid topology or motion
 is silently assigned to other creatures. Recipe motion probes run only through
 `godot_task_runner.py`, using `--task-id` or the current `codex/` branch id.
 
-The gaoler production cloth has no pelvis/thigh weight recipe: its coat panels
-and tabard are rigid, and `drape_a..d` articulate the restraint chain. The case
-records `TODO_DESIGN_cloth_weights` and uses single-bone skin scaffolds that
-preserve those production attachments. A design owner must supply the missing
-fields before claiming the requested cloth deformation is complete.
+The director's phase-2a decision keeps the gaoler cloth rigid, matching
+production: `tabard → tabard`, `coat_near → coat_fist`, `coat_far → coat_hook`.
+All three parent to `pelvis` in both views. The builder checks those bindings
+against the copied production layouts and records the per-view mapping in
+`build_report.json`; it creates no skin meshes. The production `drape_a..d`
+bones articulate restraint chains and are not cloth weight sources.
 
 Run `python3 tests/test_maquette_cutout.py`, `cutout_workflow.py validate`, and
 the case's headless motion sampler. Native proof still requires `render` and

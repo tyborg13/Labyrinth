@@ -33,7 +33,8 @@ GREEN = (0, 255, 0, 255)
 PROOF_DEFAULTS = {"sheet_columns": 5, "sheet_label_height": 28,
                   "keyframes_per_clip": 8, "mask_alpha_threshold": 128,
                   "pose_canvas": 512, "pose_offset": 128,
-                  "joint_rounding_tolerance": 0.02}
+                  "joint_rounding_tolerance": 0.02,
+                  "neighbour_connectivity": 4}
 BLENDER = "/Applications/Blender.app/Contents/MacOS/Blender"
 GAOLER_RECIPE = PROJECT / "experiments/cutouts/chainbound_gaoler/mq3/recipes/rig.json"
 
@@ -260,6 +261,25 @@ def hidden_region(solo: np.ndarray, owners: np.ndarray, part: int) -> tuple[np.n
     return solo & (owners >= 0) & (owners != part), solo & (owners < 0)
 
 
+def material_neighbours(hidden: np.ndarray, owners: np.ndarray, part: int, names: list[str]) -> dict:
+    """Report painted occluders and the four-connected boundary, by source label.
+
+    Material appearance comes from those approved paint swatches; anatomy labels
+    are retained instead of guessing which metal, skin or fabric to paint.
+    """
+    border = np.zeros_like(hidden)
+    border[1:] |= hidden[:-1]
+    border[:-1] |= hidden[1:]
+    border[:, 1:] |= hidden[:, :-1]
+    border[:, :-1] |= hidden[:, 1:]
+    border &= ~hidden
+    def counts(mask):
+        return [{"part": names[i], "pixels": int(count)} for i, count in
+                enumerate(np.bincount(owners[mask & (owners >= 0)], minlength=len(names)))
+                if count and i != part]
+    return {"occluding_parts": counts(hidden), "bordering_parts": counts(border)}
+
+
 def bbox(mask: np.ndarray):
     ys, xs = np.nonzero(mask)
     return [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1] if len(xs) else None
@@ -325,6 +345,32 @@ def render_maquette(spec_path: Path, target: Path, blender: str) -> None:
     (target.parent / "blender.log").write_text(process.stdout)
     if process.returncode:
         raise CutoutError(f"Blender exited {process.returncode}; see {target.parent / 'blender.log'}. No render was substituted.")
+
+
+def render_manifest(directory: Path, spec: dict, allow_incomplete: bool = False) -> dict:
+    """Validate the complete maquette input set before creating a case."""
+    required = ["joints_px.json"] + [f"{view}_{kind}.png" for view in ["front", "rear"]
+                for kind in ["parts", "clay", *["solo_" + name for name in spec["labels"]]]]
+    missing = [name for name in required if not (directory / name).is_file()]
+    if missing and (not allow_incomplete or any("_solo_" not in name for name in missing)):
+        kind = "solo" if all("_solo_" in name for name in missing) else "maquette"
+        raise CutoutError(f"Missing {kind} render(s) in {directory}: {', '.join(missing)}")
+    files = {}
+    for name in required:
+        path = directory / name
+        if name in missing:
+            continue
+        if path.suffix == ".png":
+            with Image.open(path) as image:
+                if image.size != (1024, 1024):
+                    raise CutoutError(f"Maquette render must be 1024x1024: {path}")
+                image.verify()
+        files[name] = digest(path)
+    joints = read_json(directory / "joints_px.json")
+    for view in ["front", "rear"]:
+        if set(joints.get(view, {})) != set(spec["joints"]):
+            raise CutoutError("Maquette projected joint names differ from the spec: " + view)
+    return {"files": files, "missing": missing, "complete": not missing}
 
 
 def raw_for_job(job: Path, explicit: Path | None) -> Path:
@@ -437,6 +483,11 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
                  "hidden_pixel_count": int(hidden.sum()) if available else None, "bounding_box": bbox(hidden),
                  "solo_outside_paint_pixels": int(outside.sum()) if available else None,
                  "motions": [], "exposure_status": "pending_motion_samples" if available else "unknown"}
+        entry.update(material_neighbours(hidden, owners, i, names))
+        entry["material"] = recipe.get("materials", {}).get(name, name + " approved paint")
+        for relation in ["occluding_parts", "bordering_parts"]:
+            for neighbour in entry[relation]:
+                neighbour["material"] = recipe.get("materials", {}).get(neighbour["part"], neighbour["part"] + " approved paint")
         if hidden.any():
             hidden_name = "hidden_" + name if name in present else name
             pixels = np.zeros((*owners.shape, 4), dtype=np.uint8)
@@ -462,6 +513,20 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
     layout["logical_parts"] = names
     layout["maquette_depths"] = depths
     compatibility_path = root / f"source/production/{view}.json"
+    rigid_mapping = {}
+    if recipe.get("rigid_cloth"):
+        original = read_json(compatibility_path)
+        for name, item in recipe["rigid_cloth"].items():
+            source_part = next(p for p in original["parts"] if p["name"] == item["production_part"])
+            bone = source_part["bone"]
+            parent = original["joints"][bone]["parent"]
+            if mapping[name] != bone or joints[bone]["parent"] != parent:
+                raise CutoutError(f"Rigid cloth must preserve production parenting: {view}/{name}")
+            rigid_mapping[name] = {"production_part": source_part["name"], "bone": bone,
+                                   "parent": parent, "attachment": "rigid_segment"}
+            for part in layout["parts"]:
+                if part.get("logical_part", part["name"]) == name and "equipment_slot" in source_part:
+                    part["equipment_slot"] = source_part["equipment_slot"]
     if recipe["character_id"] == "chainbound_gaoler":
         original = read_json(compatibility_path)
         layout["motion_compatibility"] = {
@@ -471,8 +536,8 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
     write_json(root / f"layouts/{view}.json", layout)
     write_json(registered / f"{view}_registration.json", asdict(transform))
     write_json(registered / f"{view}_joints_px.json", {k: transform.point(v) for k, v in read_json(maquette / "joints_px.json")[view].items()})
-    # The production coat/tabard are rigid. A missing design weight field is
-    # represented as a skin using that SAME controlling bone, never invented weights.
+    # Other anatomies may explicitly supply skin fields. The gaoler's approved
+    # rigid_cloth recipe deliberately has none.
     fields = []
     for name, item in recipe.get("cloth", {}).items():
         parts = [p["name"] for p in layout["parts"] if p.get("logical_part", p["name"]) == name]
@@ -484,7 +549,8 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
         write_json(skin_path, skin)
         apply_skin(root, skin_path)
     return {"requests": requests, "reassignment": reassigned, "depth_order": order,
-            "bone_mapping": mapping, "unmaterialized_parts": layout["unmaterialized_parts"]}
+            "bone_mapping": mapping, "rigid_cloth_mapping": rigid_mapping,
+            "unmaterialized_parts": layout["unmaterialized_parts"]}
 
 
 def build(args) -> dict:
@@ -496,6 +562,9 @@ def build(args) -> dict:
     recipe = read_json(recipe_path)
     if set(recipe["parts"]) != set(spec["labels"]):
         raise CutoutError("Rig recipe must bind every maquette label, with no extra parts")
+    if set(recipe.get("cloth", {})) & set(recipe.get("rigid_cloth", {})):
+        raise CutoutError("A cloth part cannot be both rigid and skinned")
+    renders = render_manifest(args.renders, spec, args.allow_incomplete_renders) if args.renders else None
     if root.exists():
         if not args.resume_scaffold or read_json(root / "cutout.json")["source_baseline"].get("art_status") != "unbuilt":
             raise CutoutError("Choose a new case; --resume-scaffold accepts only an unbuilt init scaffold")
@@ -517,11 +586,14 @@ def build(args) -> dict:
     target = root / "source/maquette"
     if args.renders:
         target.mkdir(exist_ok=True)
-        for source in args.renders.iterdir():
-            if source.name == "joints_px.json" or source.suffix == ".png" and "_green" not in source.name:
-                copy(source, target / source.name)
+        for name, expected in renders["files"].items():
+            copy(args.renders / name, target / name)
+            if digest(target / name) != expected:
+                raise CutoutError("Maquette render changed while copying: " + name)
     else:
         render_maquette(args.spec, target, args.blender)
+        renders = render_manifest(target, spec, args.allow_incomplete_renders)
+    write_json(root / "source/maquette_manifest.json", renders)
     # The display transform belongs to the renderer. Requiring a recorded
     # palette avoids mistaking linear material RGB for color-managed PNG RGB.
     palette_path = args.palette
@@ -547,8 +619,9 @@ def build(args) -> dict:
     config_path, config = load_case(root)
     config["source_baseline"] = {"kind": "maquette_registered_paint", "spec_sha256": digest(args.spec),
                                  "art_status": "hidden_material_incomplete", "production_integration": False}
-    config["sources"] = sorted(str(p.relative_to(root)) for folder in ["source", "recipes", "registered", "probes"]
-                                for p in (root / folder).rglob("*") if p.is_file() and p.suffix != ".import")
+    config["sources"] = sorted({str(p.relative_to(root)) for folder in ["source", "recipes", "registered", "probes"]
+                                for p in (root / folder).rglob("*") if p.is_file() and p.suffix != ".import"}
+                               | {item["to"] for item in recipe.get("copy_files", [])})
     write_json(config_path, config)
     report = {"views": views, "missing_solos": [f"{r['view']}_{r['part']}" for r in requests if r["status"] != "measured"],
               "hidden_layer_policy": "Camera-depth-ordered hidden underlays sit below the complete visible partition. This preserves 3D per-pixel occlusion at rest despite intersecting proxy parts; all underlays move with their own bones.",

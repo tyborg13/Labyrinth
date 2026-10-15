@@ -1,8 +1,21 @@
 {
   "K": 4,
   "anatomy": "biped",
+  "chain_fix": {
+    "composite": "spec/art_identity/maquettes/chainbound_gaoler/composite_chain.py",
+    "composite_box": [
+      800,
+      395,
+      1010,
+      940
+    ],
+    "composite_sha256": "198bd35b08c0b3b251d8c98acdd99a17d6ce7a3eef288e10a0cb23966d3dee62",
+    "edit_prompt": "spec/art_identity/maquettes/chainbound_gaoler/chain_fix_rear.md",
+    "edit_prompt_sha256": "ad38c447aa4e8bb595c9f2192a6136f72178571050707a37baf8259e8bec46f0",
+    "why": "owner 2026-10-15: \"His chain doesn't actually link up.\""
+  },
   "id": "chainbound_gaoler",
-  "job_id": "mq-gaoler-rear-r3",
+  "job_id": "mq-gaoler-rear-r3 + chain fix",
   "kind": "creature",
   "kit_kind": "maquette",
   "kit_version": "a0eba5a1fc1f147750a526e17fd279a9c663c07e85678c1d94ae64feba5b9ac1",

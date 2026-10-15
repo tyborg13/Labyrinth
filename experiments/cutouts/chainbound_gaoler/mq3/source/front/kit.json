@@ -1,11 +1,34 @@
 {
   "K": 4,
   "anatomy": "biped",
+  "chain_fix": {
+    "composite": "spec/art_identity/maquettes/chainbound_gaoler/composite_chain.py",
+    "composite_box": [
+      60,
+      255,
+      300,
+      720
+    ],
+    "composite_sha256": "198bd35b08c0b3b251d8c98acdd99a17d6ce7a3eef288e10a0cb23966d3dee62",
+    "edit_prompt": "spec/art_identity/maquettes/chainbound_gaoler/chain_fix_front.md",
+    "edit_prompt_sha256": "dc2b7adeb3de43e7ef1c22fd27b4d00ffb5abac54c8afcb393c678ca7c02a587",
+    "tone_after": [
+      {
+        "config": "spec/art_identity/maquettes/chainbound_gaoler/tone_front_r3.json"
+      },
+      {
+        "config": "spec/art_identity/maquettes/chainbound_gaoler/tone_front_hook.json",
+        "config_sha256": "1cc3d9f4bd605ac7e59d3871109d36451b9f3a4d905eb416e794d63b04920516",
+        "why": "judge r7 polish: front hook matched to the rear hook saturation"
+      }
+    ],
+    "why": "owner 2026-10-15: \"His chain doesn't actually link up.\""
+  },
   "edit_of_raw_sha256": "3571b76a4ed970144ebfc1b455e434b581d6628121e493bc04bfdffc4d573f04",
   "edit_prompt_path": "../../../maquettes/chainbound_gaoler/resume_front_r3_1.md",
   "edit_prompt_sha256": "a02f8a86b395a27931d741bca0b7ec1946b1dfaee394e587157e5f5c1b6f960e",
   "id": "chainbound_gaoler",
-  "job_id": "mq-gaoler-front-r3 (resume 1 + director region tone)",
+  "job_id": "mq-gaoler-front-r3 (resume 1 + director region tone) + chain fix",
   "kind": "creature",
   "kit_version": "530a15a89de6a4ad6f4fac25573f67fb2834418ec0b055e788a8d60bfed87873",
   "method": "maquette paint-over r3 (owner: less boxy): humanoid.py + chainbound_gaoler/spec.json r3, painted at the drawn size (K=4, art_scale 1.0)",

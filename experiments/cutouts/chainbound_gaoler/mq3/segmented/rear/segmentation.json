@@ -1,7 +1,7 @@
 {
   "ok": true,
-  "source_sha256": "e9bdb8dea06b395002d4aabd64b9e7ed9724df047f781698f7f592b5c34df2b5",
-  "ownership_sha256": "b92e8fca1ad15734d6a6db05e718663e34ef525dd789957e1958ca259108b12b",
+  "source_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+  "ownership_sha256": "6d8f87e0aaaeb4446aebdb4aaa57752eac3ef6b4ce4ab74e05cc71681d49a925",
   "parts": [
     {
       "name": "head",
@@ -260,11 +260,11 @@
       "file": "hook.png",
       "offset": [
         189,
-        186
+        187
       ],
       "bbox": [
         189,
-        186,
+        187,
         216,
         222
       ]

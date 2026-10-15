@@ -114,34 +114,8 @@
     "hook": "foot_far",
     "fist": "foot_near"
   },
-  "cloth": {
-    "tabard": {
-      "bones": [
-        "tabard"
-      ],
-      "bands": []
-    },
-    "coat_near": {
-      "bones": [
-        "coat_fist"
-      ],
-      "bands": []
-    },
-    "coat_far": {
-      "bones": [
-        "coat_hook"
-      ],
-      "bands": []
-    }
-  },
-  "design_placeholders": {
-    "TODO_DESIGN_cloth_weights": "Production tabard/coat_hook/coat_fist are rigid; drape_a..d are restraint-chain bones, not cloth skins. Supply pelvis/thigh weight fields. Skin scaffolds preserve the existing single controlling bone until then."
-  },
+  "design_placeholders": {},
   "proof_defaults": {
-    "mesh_grid": [
-      2,
-      1
-    ],
     "clip_frames": {
       "idle": 24,
       "walk": 48,
@@ -211,6 +185,10 @@
       "to": "motion.gd"
     },
     {
+      "from": "motion_adapter.gd.in",
+      "to": "recipes/motion_adapter.gd.in"
+    },
+    {
       "from": "../source/production/motion.gd",
       "to": "gaoler_motion.gd"
     },
@@ -250,8 +228,44 @@
   "provenance": {
     "bone_mapping": "far = hook arm/leg, near = fist arm/leg in both views; chain is the single maquette label, driven by production chain_a for walk; hook retains chain_end registration. Cloth pivots use the provided plate top edge midpoints.",
     "clips": "idle/walk/strike: current production renderer IDLE_CYCLE_SECONDS, WALK_CYCLE_SECONDS, ATTACK_FRAMES * ATTACK_FRAME_SECONDS. hit: cutout_context.HIT_SECONDS. death: combat_board_view ENEMY_SHADOW_DISSOLVE_FRAME_COUNT 28 * ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS .037, cutout_context.DEATH_SETTLE_PROGRESS .62.",
-    "unsupported_clips": "chain_reel/manacle_pin not added: this unit requests idle, move, attack, hurt, death; chain_reel additionally requires the unprovided three-segment chain paint topology."
+    "unsupported_clips": "chain_reel/manacle_pin not added: this unit requests idle, move, attack, hurt, death; chain_reel additionally requires the unprovided three-segment chain paint topology.",
+    "cloth": "Director phase 2a: rigid segments, tabard -> tabard, coat_near -> coat_fist, coat_far -> coat_hook; all parent to pelvis in both production views. No skinning.",
+    "materials": "Descriptions of approved mq3_front_v4/mq3_rear_v3 paint, with Identity and materials from mq3_rear_v3/prompt.md; neighbouring regions come from registered ownership, not inferred hidden paint."
   },
   "motion_probe": "probes/motion_samples.gd",
-  "exposure_tool": "probes/proof.py"
+  "exposure_tool": "probes/proof.py",
+  "rigid_cloth": {
+    "tabard": {
+      "production_part": "tabard"
+    },
+    "coat_near": {
+      "production_part": "coat_fist"
+    },
+    "coat_far": {
+      "production_part": "coat_hook"
+    }
+  },
+  "materials": {
+    "head": "rusted dark-iron bucket helm",
+    "torso": "dark ash-grey cowl and tunic",
+    "pelvis": "dark cloth at hips",
+    "belt": "broad brown belt",
+    "tabard": "red-brown tabard with its approved insignia",
+    "coat_near": "dark ash-grey ragged coat tail",
+    "coat_far": "dark ash-grey ragged coat tail",
+    "chain": "chunky dark-iron chain",
+    "hook": "barbed rusted-iron hook",
+    "upper_near": "dark cloth sleeve",
+    "fore_near": "dark cloth sleeve with broad brown leather bands",
+    "hand_near": "dark brown leather glove",
+    "thigh_near": "dark cloth trouser leg",
+    "shin_near": "dark lower leg and boot cuff",
+    "foot_near": "dull dark brown boot",
+    "upper_far": "dark cloth sleeve",
+    "fore_far": "dark cloth sleeve with broad brown leather bands",
+    "hand_far": "dark brown leather glove",
+    "thigh_far": "dark cloth trouser leg",
+    "shin_far": "dark lower leg and boot cuff",
+    "foot_far": "dull dark brown boot"
+  }
 }

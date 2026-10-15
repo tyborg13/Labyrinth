@@ -1,7 +1,7 @@
 {
   "ok": true,
-  "source_sha256": "f4526b40bfa915e8b63c1132628344668276be385918ed028c087fdba65eb1ce",
-  "ownership_sha256": "799198aeae043927bf3a311514a8a72d081f646ce302360b6753fe704eef09fb",
+  "source_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+  "ownership_sha256": "0da0e35d3ce09c7e7c1a955dc35b6c1abd0eea375873bf2142859d573cfc566a",
   "parts": [
     {
       "name": "head",
@@ -273,11 +273,11 @@
       "name": "chain",
       "file": "chain.png",
       "offset": [
-        43,
+        45,
         80
       ],
       "bbox": [
-        43,
+        45,
         80,
         181,
         170
@@ -288,11 +288,11 @@
       "file": "hook.png",
       "offset": [
         40,
-        149
+        150
       ],
       "bbox": [
         40,
-        149,
+        150,
         65,
         183
       ]
