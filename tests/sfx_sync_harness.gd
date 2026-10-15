@@ -417,6 +417,7 @@ func _anchor(cue: String, before: Dictionary, event: Dictionary = {}, occurrence
 			if shown.has("surface_feedback_events") or shown.has("trap_effects"): return frame
 		elif cue in ["radiance.light", "relic.trigger", "card.exhaust", "deck.shuffle"]: return frame
 		elif cue.begins_with("step.") or cue == "dragon.wings":
+			if str(shown.get("effect", {}).get("kind", "")) == "blink": continue
 			if shown.has("unit_world_positions"):
 				var tile: Variant = shown.get("unit_draw_tiles", {}).get(walk_actor)
 				if tile != previous_tile:

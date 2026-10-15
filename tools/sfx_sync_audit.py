@@ -489,7 +489,9 @@ def markdown(result: dict, provenance: dict) -> str:
               "```", "", "The first command is idempotent. A changed source requires the approved local sound library in .godot/sfx_lab; "
               "use --features and --sources to relocate it. Full traces, PCM copies, and reports stay under gitignored output/sfx/. "
               "Use --refresh-baseline only after inspecting the current measurements and coverage. "
-              "The harness exercises every scenario at 1×, 1.5×, and 2×. It observes production state submissions with a deterministic 60 Hz clock; "
+              "The harness exercises every scenario at 1×, 1.5×, and 2× with fixed 60 Hz, periodic 33 ms spikes, steady 30 fps, 144 Hz and seeded ±4 ms jitter. "
+              "Composite walk/relay cases observe the first post-rift destination submission independently of logical player state. "
+              "It observes production presentation submissions with deterministic clocks; "
               "it does not claim audio-device or speaker latency measurements.", ""]
     if result.get("verification"):
         lines += ["Verification", ""] + ["- " + item for item in result["verification"]] + [""]

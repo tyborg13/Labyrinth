@@ -23,15 +23,24 @@ static func climax(cue: String, frames: Array[Dictionary], anchor: Dictionary) -
 			return {"applicable": false, "kind": "first-action intent response; no animated release"}
 		return {}
 	if cue == "move.blink":
-		var origin: Variant = anchor.get("shown", {}).get("effect", {}).get("from")
+		var rift: Dictionary = anchor.get("shown", {}).get("effect", {})
+		if rift.is_empty() and not anchor.is_empty(): return _at(anchor, "swap destination state")
+		var reached_rift: bool = false
 		for frame: Dictionary in frames:
-			if float(frame["time_ms"]) < float(anchor.get("time_ms", INF)): continue
+			# A walk's last frame and the first rift frame can share a tick.
+			# Preserve submission order instead of comparing timestamps alone.
+			if frame == anchor: reached_rift = true
+			if not reached_rift: continue
 			var player: Dictionary = frame["state"].get("player", {})
-			# The production blink keeps the hero at the origin while drawing the
-			# rift. Its caller then submits the destination state. Observe that
-			# state change, not the rift's midpoint or an assumed vanish fraction.
-			if not player.is_empty() and player.get("pos") != origin and not frame["shown"].get("unit_world_positions", {}).has("player"):
-				return _at(frame, "hero leaves blink origin / destination state")
+			var shown: Dictionary = frame["shown"]
+			if not shown.get("unit_world_positions", {}).has("player"):
+				if not player.is_empty() and player.get("pos") == rift.get("to"):
+					return _at(frame, "blink destination state")
+			elif shown.get("effect", {}) != rift:
+				# Independently observe the end of this rift's submissions. A
+				# following walk first shows the hero at/beyond the relay exit;
+				# its logical state still contains the action's original position.
+				return _at(frame, "first post-rift position submission")
 		return {}
 	if cue == "cast.arcane":
 		for frame: Dictionary in frames:

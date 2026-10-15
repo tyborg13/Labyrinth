@@ -12,7 +12,6 @@ var frames: Array[Dictionary]
 var observing: bool = false
 var frame_profile: String = "fixed_60"
 var frame_index: int = 0
-var last_frame_usec: int = FRAME_USEC
 var frame_rng := RandomNumberGenerator.new()
 
 func configure(profile: String) -> void:
@@ -41,7 +40,6 @@ func create_timer(seconds: float, _always: bool = true, _physics: bool = false, 
 func step(tree: SceneTree, amount_usec: int = -1) -> void:
 	if amount_usec < 0:
 		amount_usec = next_frame_usec()
-		last_frame_usec = amount_usec
 	usec += amount_usec
 	var visual_delta: float = float(amount_usec) * Engine.time_scale if not tree.paused else 0.0
 	visual_usec += visual_delta

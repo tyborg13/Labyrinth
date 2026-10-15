@@ -19,6 +19,40 @@ static func run(h: SceneTree) -> void:
 	_run_contexts(h)
 	_ambience(h)
 	_branches(h)
+	_composite_relays(h)
+
+static func _composite_relays(h: SceneTree) -> void:
+	for variant: String in ["walk_then_blink", "blink_then_walk", "walk_blink_walk"]:
+		MotionFixture._install_fixture(h.scene, false)
+		h._begin("movement/" + variant)
+		var before: Dictionary = h._state()
+		before["enemies"].clear()
+		before["relics"] = ["unclouded_sun"]
+		var source: Vector2i = Vector2i(2, 4) if variant == "blink_then_walk" else Vector2i(3, 4)
+		var destination: Vector2i = Vector2i(6, 4) if variant == "walk_then_blink" else Vector2i(5, 4)
+		before["umbra"]["light_sources"] = [{"owner": "player", "pos": source, "radius": 0, "remaining_activations": 2}, {"owner": "player", "pos": destination, "radius": 0, "remaining_activations": 2}]
+		var after: Dictionary = before.duplicate(true)
+		after["player"]["pos"] = Vector2i(6, 4)
+		var action: Dictionary = {"type": "move", "range": 5, "amount": 5}
+		var path: Array[Vector2i]
+		path.assign(h.scene.get("_combat_engine").path_for_player_action(before, action, Vector2i(6, 4)))
+		var segments: Array = h.scene.player_move_segments(before, path, {})
+		var kinds: Array[String]
+		h.walk_actor = "player"
+		var rendered_unit: Dictionary = h.scene.call("_animation_actor_unit", before, "player")
+		for segment: Dictionary in segments:
+			kinds.append("walk" if segment.has("walk") else "blink")
+			for tile: Vector2i in segment.get("walk", []).slice(1):
+				h.walk_goals[h.scene.get("board_view").draw_tile_for_unit_origin(rendered_unit, tile)] = h.scene.get("board_view").world_position_for_unit_origin(rendered_unit, tile)
+		if "_".join(kinds) != variant.replace("_then_", "_"):
+			h.failures.append("Composite relay fixture has the wrong movement segments: " + variant)
+		h._invoke("_animate_player_action_step", [before, after, "step", action, Vector2i(6, 4)])
+		var blinks: Array = h.events.filter(func(event: Dictionary) -> bool: return event["cue"] == "move.blink" and event["result"] == "played")
+		if blinks.size() != 1:
+			h.failures.append("Composite relay must play exactly one blink: " + variant)
+		# The climax observer finds the first post-rift submission, including
+		# the next walk's position override while logical player.pos is stale.
+		h._finish(before)
 
 static func _projectiles(h: SceneTree) -> void:
 	for weapon: String in ["bow", "crossbow", "spear", ""]:

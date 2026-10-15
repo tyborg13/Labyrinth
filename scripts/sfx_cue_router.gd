@@ -66,6 +66,8 @@ var _roar_pending: bool = false
 var _resolved: bool = false
 var _released: bool = false
 var _blink_origin: Variant = null
+var _blink_origin_world: Variant = null
+var _blink_effect: Dictionary = {}
 var _impact_count: int = 0
 var _impact_frame: int = -1
 var _impact_cues: Dictionary = {}
@@ -177,6 +179,8 @@ func begin_action(before: Dictionary, action: Dictionary, actor: Dictionary, wea
 	_radiance_played = false
 	baseline(before)
 	_blink_origin = null
+	_blink_origin_world = null
+	_blink_effect.clear()
 	var family: String = DEATH_FAMILIES.get(str(actor.get("type", "")), "")
 	var actor_key: String = str(action.get("actor_key", actor.get("id", "player")))
 	var kind: String = str(action.get("type", action.get("kind", "")))
@@ -320,14 +324,27 @@ func presentation(state: Dictionary, shown: Dictionary) -> void:
 		if float(shown.get("effect_progress", 0.0)) >= release:
 			_roar_pending = false
 			request("dragon.roar", {"peak_deadline_ms": bank.presentation_ms()} if bank != null else {})
-	# This callback runs at board submission. The first destination state is
-	# the blink climax, even when process frames skip authored animation frames.
-	if _blink_origin != null and state.get("player", {}).get("pos") != _blink_origin and not shown.get("unit_world_positions", {}).has("player"):
-		_blink_origin = null
-		blink()
+	# Composite moves retain the action's original logical state. A relay's
+	# first destination submission can instead be the next walk's position
+	# override. Compare the presented position with this rift's actual origin.
+	var positions: Dictionary = shown.get("unit_world_positions", {})
+	if _blink_origin != null:
+		var departed: bool = not positions.has("player") and state.get("player", {}).get("pos") != _blink_origin
+		if positions.has("player") and _blink_origin_world != null:
+			departed = not (positions["player"] as Vector2).is_equal_approx(_blink_origin_world)
+		if departed:
+			_blink_origin = null
+			_blink_origin_world = null
+			blink()
 	if str(effect.get("kind", "")) == "blink" and str(effect.get("actor_key", "player")) == "player" and not bool(effect.get("preview", false)):
-		if state.get("player", {}).get("pos") == effect.get("from"):
+		# The arrival can retain the same effect at progress 1. Do not re-arm
+		# it; a later relay has its own effect and its own presented origin.
+		if effect != _blink_effect:
+			_blink_effect = effect.duplicate()
 			_blink_origin = effect.get("from")
+			_blink_origin_world = positions.get("player")
+	else:
+		_blink_effect.clear()
 	if not effect.is_empty() and not _released and str(effect.get("kind", "")) in ["ranged", "aoe"]:
 		var style: String = Fx.style_for_effect(effect)
 		var release_progress: float = 0.18 if style == Fx.STYLE_DEFAULT else Fx.anticipation_end_progress(style)

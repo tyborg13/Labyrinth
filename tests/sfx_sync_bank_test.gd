@@ -104,6 +104,7 @@ func _run() -> void:
 		bank.advance(float(ceili(remaining)) / 1000.0)
 		_expect(starts.size() == 2 and starts.back()["cue"] == "move.blink", "Remaining active time releases the queued call")
 	_absolute_deadline_cases(bank)
+	_due_while_frozen(bank)
 	bank.free()
 	var limited := Bank.new()
 	root.add_child(limited)
@@ -195,4 +196,24 @@ func _absolute_deadline_cases(bank: Node) -> void:
 	_expect(played["alignment"]["requested_skip_ms"] > played["alignment"]["skip_ms"], "Lateness increases the requested head skip")
 	var peak: float = played["alignment"]["metrics"]["peak_ms"] / played["selected"]["pitch"]
 	_expect(peak >= 15.0 and peak + 7.0 <= 30.0, "Lateness compensation preserves the minimum pre-peak lead")
+	bank.presentation_clock = Callable()
+
+func _due_while_frozen(bank: Node) -> void:
+	var clock: Dictionary = {"usec": 10000000}
+	bank.presentation_clock = func() -> int: return int(clock["usec"])
+	for mode: String in ["pause", "hit-stop"]:
+		bank.set_test_clock(bank.now_ms() + 5000)
+		var before: int = bank.cues["move.blink"]["played"]
+		paused = mode == "pause"
+		Engine.time_scale = 0.0 if mode == "hit-stop" else 1.0
+		bank.play("move.blink", {"peak_deadline_ms": bank.presentation_ms()})
+		_expect(bank.cues["move.blink"]["played"] == before and bank._peak_pending.size() == 1, "Already-due submission stays queued during " + mode)
+		bank.advance(0.0)
+		_expect(bank.cues["move.blink"]["played"] == before, "Manual dispatch stays frozen during " + mode)
+		paused = false
+		Engine.time_scale = 1.0
+		bank.advance(0.0)
+		_expect(bank.cues["move.blink"]["played"] == before + 1 and bank._peak_pending.is_empty(), "Unfreeze dispatches the queued cue exactly once")
+		bank.advance(0.0)
+		_expect(bank.cues["move.blink"]["played"] == before + 1, "Another resumed tick cannot replay the cue")
 	bank.presentation_clock = Callable()

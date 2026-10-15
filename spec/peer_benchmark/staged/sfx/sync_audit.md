@@ -12,7 +12,7 @@ Gain restoration respects the original build's category/sample cap and −1 dBTP
 
 Current results
 
-`{"cue_call_site_rows": 136, "cues": 81, "loudness_exceptions": 2, "observations": 3845, "registry_cues": 81, "uncovered_call_sites": 0, "uncovered_cue_call_site_pairs": 0, "unmeasured": 0, "violations": 0}`
+`{"cue_call_site_rows": 136, "cues": 81, "loudness_exceptions": 2, "observations": 3950, "registry_cues": 81, "uncovered_call_sites": 0, "uncovered_cue_call_site_pairs": 0, "unmeasured": 0, "violations": 0}`
 
 | Cue | Call site | Onset ms | Perceived ms | Peak − climax ms | Result |
 |---|---|---:|---:|---:|---|
@@ -87,7 +87,7 @@ Current results
 | map.select | scripts/run_scene.gd::_on_map_view_room_selected | 2.363 | 19.652 | 21.561…22.895 | pass |
 | map.select | scripts/sfx_cue_router.gd::map_select | 2.363 | 19.652 | 21.561…22.895 | pass |
 | move.blink | scripts/run_scene.gd::_animate_player_action_step | 0.139 | 5.348 | 15.002…15.002 | pass |
-| move.blink | scripts/sfx_cue_router.gd::blink | 266.888 | 5.886 | 15.002…15.020 | pass |
+| move.blink | scripts/sfx_cue_router.gd::blink | 266.996 | 5.886 | 15.002…15.020 | pass |
 | omen.bane | scripts/run_scene.gd::_update_ambient_sfx_for_context | 0.167 | 3.854 | 16.958…16.958 | pass |
 | omen.bane | scripts/sfx_cue_router.gd::omen | 0.167 | 3.854 | 16.958…16.958 | pass |
 | omen.blessing | scripts/run_scene.gd::_update_ambient_sfx_for_context | 0.188 | 1.938 | 15.958…15.958 | pass |
@@ -307,19 +307,19 @@ python tools/sfx_sync_audit.py --report output/sfx/sync_audit.json --check
 python3 tools/godot_task_runner.py --task-id sfx-04 --stream -- godot --headless --path . --script tests/sfx_sync_bank_test.gd
 ```
 
-The first command is idempotent. A changed source requires the approved local sound library in .godot/sfx_lab; use --features and --sources to relocate it. Full traces, PCM copies, and reports stay under gitignored output/sfx/. Use --refresh-baseline only after inspecting the current measurements and coverage. The harness exercises every scenario at 1×, 1.5×, and 2×. It observes production state submissions with a deterministic 60 Hz clock; it does not claim audio-device or speaker latency measurements.
+The first command is idempotent. A changed source requires the approved local sound library in .godot/sfx_lab; use --features and --sources to relocate it. Full traces, PCM copies, and reports stay under gitignored output/sfx/. Use --refresh-baseline only after inspecting the current measurements and coverage. The harness exercises every scenario at 1×, 1.5×, and 2× with fixed 60 Hz, periodic 33 ms spikes, steady 30 fps, 144 Hz and seeded ±4 ms jitter. Composite walk/relay cases observe the first post-rift destination submission independently of logical player state. It observes production presentation submissions with deterministic clocks; it does not claim audio-device or speaker latency measurements.
 
 Verification
 
-- Round 5, based on 39141f2a3; all changes remain uncommitted.
-- Full Godot suite: TEST RESULT: PASS; FULL SUITE RUNTIME: 801.118 seconds (budget 900 seconds). Both SFX bank suites and the complete sync harness passed as program sub-suites. Log: output/sfx/round5-full-godot.log.
-- Production harness: PASS, 3,845 requests, zero failures; every scenario at 1×/1.5×/2× under fixed 60 Hz, periodic 33 ms spikes, steady 30 fps, 144 Hz and seeded ±4 ms jitter. All 270 aligned plays measure +15.002…+15.020 ms after their independently observed climax; actual PCM fade and complete tail verified.
-- Playback coverage: 2,742 successful primaries and 600 successful optional layers; 473 valid primary cooldown drops and 30 optional-layer priority drops explicitly classified. Request and successful-play counts are baselined separately for all 15 runs.
-- Primary-drop mutant: expected FAIL, four assertions. Rejecting primary hit.pierce as priority preserves three requests in each spear fixture but reduces required primary plays from one to zero; both the required-primary checks and successful-play counts fail. Log: output/sfx/round5-primary-mutant.log.
-- Strict repeat audit: PASS; identical measured report to the refreshed audit. --check left the tracked baseline and Markdown hashes unchanged. Log: output/sfx/round5-check.log.
-- SFX sync bank: PASS, zero failures; absolute deadlines never fire early, pause/hit-stop freeze, due submissions dispatch in the same tick, lateness increases head skip without violating the minimum lead, actual pitch bounds apply, and immediate/dropped calls return their actual/zero duration. All 83 Godot lengths match decoded PCM within 1 ms. Log: output/sfx/round5-bank.log.
-- Cue coverage: PASS, 81/81 cues, one intentionally removed cue, zero failures. Log: output/sfx/round5-cue-coverage.log.
-- Sync Python: 13 tests, PASS. Sound lab: 39 tests, PASS (33.224 seconds). Logs: output/sfx/round5-sync-python.log and output/sfx/round5-sound-lab.log.
-- Full Python discovery: 397 tests, PASS (61 documented optional skips), 277.010 seconds. Log: output/sfx/round5-full-python.log.
-- Obsolete trim_onset and its unused constants removed. Lossless rebuild reproduced all 82 asset hashes exactly; only the builder fingerprint changed in provenance. The next plain rebuild passed with zero rebuilt files and 82 verified hashes. Log: output/sfx/round5-idempotence.log.
-- Git contract/preflight writes were denied by the sandbox at worktree metadata/index.lock. The acceptance/proof contract is recorded in output/sfx/round5-contract.json; no Git mutation was performed. Headless proof only, as directed.
+- Round 6: uncommitted changes on df41875b4. Audio assets, provenance and sync rules are unchanged; the two inherited cap-limited loudness exceptions remain listed above.
+- Fresh production harness and independent PCM audit: PASS, 3,950 observations, 315 aligned calls, 81/81 cues and 136 cue × call-site rows; no timing, playback, coverage, PCM or decoded-length failures. Log: output/sfx/round6-final-audit.log.
+- Every scenario ran at 1×, 1.5× and 2× with fixed 60 Hz, periodic 33 ms spikes, steady 30 fps, 144 Hz and seeded ±4 ms jitter. All 315 aligned peaks were +15.002303…+15.019923 ms after the independently observed presentation climax.
+- Walk → blink, blink → walk and walk → blink → walk each played exactly one blink in all 15 combinations: 45 composite relay peaks at +15.005132…+15.013382 ms. Arrival is observed from the destination state or first post-rift position submission, in submission order even when two submissions share a timestamp.
+- Strict check of the fresh current-source trace: PASS; independently decoded PCM and the complete measured report matched the refreshed audit exactly. --check left the tracked baseline and Markdown hashes unchanged. Logs: output/sfx/round6-check.log and output/sfx/round6-before-check.sha256.
+- Baseline changes only add the three composite scenarios and their request/primary-play counts. Existing counts, call-site identities, sample measurements and allowed-drop counts are preserved.
+- Sync bank: PASS, 0 failures, including already-due cues queued during pause/hit-stop and played exactly once after resume; 83 Godot stream lengths match decoded PCM. Log: output/sfx/round6-bank.log.
+- Dispatch-guard mutation: removing only the presentation-active guard causes the four expected pause/hit-stop failures. Production source is unchanged by the mutation. Evidence: output/sfx/round6-freeze-mutant/result.json and result.log.
+- Relay-trigger mutation: restoring logical-position-only behavior fails the final fixtures with two missing blink sounds, one +531.682 ms late peak, two missing-request count failures and two missing-primary-play count failures. Log: output/sfx/round6-relay-mutant.log.
+- Focused sync Python: 13 tests, PASS (2.370 seconds). Full Python discovery: 397 tests, PASS (61 optional skips), 331.552 seconds. Logs: output/sfx/round6-sync-python.log and output/sfx/round6-full-python.log.
+- Full Godot suite: PASS, 852.702 seconds within the unchanged 900-second budget. Includes the sync bank and all 15 timing/coverage assertion combinations (3,950 observations, 0 failures). Log: output/sfx/round6-full-godot.log.
+- Runtime, test and tool source hashes stayed unchanged through the full Godot run. Input hashes: output/sfx/round6-tested-inputs.json. No commit, push, external reviewer or windowed capture was performed in this revision.
