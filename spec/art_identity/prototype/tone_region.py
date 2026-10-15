@@ -11,8 +11,9 @@ CONFIG is a list of regions applied in order; each region:
    "exclude_green": true,                           never touch key-green background
    "lab_scale": [L, a, b]}                          CIE Lab multipliers (prototype/match_palette.py conversion)
 Prints the changed pixel count per region.
-Omitting max_chroma/max_value preserves existing recipes exactly. Both must be finite numbers in 0..1;
-selectors combine before seed filling and Lab scaling. The shared reference-mask selector supports them too.
+Omitting max_chroma/max_value preserves existing recipes exactly. All luminance/chroma/value limits must be
+finite numbers in 0..1, not booleans, and each minimum must be <= its maximum. Selectors combine before seed
+filling and Lab scaling. The shared reference-mask selector supports them too.
 """
 import json
 import sys

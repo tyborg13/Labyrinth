@@ -167,19 +167,36 @@ INFO. Use `canon-sheet` (front or rear) beside each candidate sheet for the inde
 
 
 `--match-front` applies Reinhard mean/std transfer in CIE Lab over opaque non-accent pixels. The original accent
-rule is Lab chroma > the image's opaque-pixel p90 + 15. New matches additionally protect L* >= 80 and hues within
-25 degrees (inclusive, circular Lab a/b angle) of any reference-front accent selected by the original rule.
-These protected pixels are excluded from both body distributions and retain their exact RGBA, including during
-green-residue cleanup. If either image has no body samples, the rear is returned unchanged. Other green key
-residue is stripped as before. The rear-consistency metric retains its original non-accent mask and bands.
-`--clean-outline`
+rule is Lab chroma > the image's opaque-pixel p90 + 15. Current matches additionally protect L* >= 80. Hue protection
+uses the centres of the reference front's dominant 15-degree Lab a/b hue bins: each must contain at least 5% of
+the front's accent pixels selected by the original rule. A rear pixel within 25 degrees of a dominant bin centre
+is protected only if its Lab chroma is at least `max(rear opaque-pixel p90 chroma, 30)`. The same chroma floor uses
+the front's own p90 when selecting its body statistics. Circular hue distances and all thresholds are inclusive.
+Green-dominant RGB pixels (`G > R` and `G > B`) are never protected by either the lightness or hue rule; green
+key residue therefore still reaches the original cleanup. Other protected pixels retain their exact RGBA.
+
+The protected body share is the newly protected count divided by the original chroma-only body count, separately
+for front and rear. Processing fails before writing outputs if either exceeds 25% or a body becomes empty.
+`--allow-protected-share` explicitly overrides the share limit and is recorded with the parameters; current steps
+also record `protected_body_share` for both images. If either body is empty with the flag enabled, the palette match
+is skipped and the post-step additionally records `{"kind": "palette_match", "skipped": "empty body",
+"protected_share": {"front": <share>, "rear": <share>}}`. It retains the existing `step`, parameters, reference
+binding and pre-step digest. The skip leaves the input pixels unchanged; subsequent steps, including outline cleanup,
+still run. Replay reproduces the skip and its shares, and `check` validates the skip record and replays available
+inputs. Without the flag an empty body remains an error before any output is written.
+The rear-consistency metric retains its original non-accent mask and bands. `--clean-outline`
 then removes isolated pixels and replaces silhouette edges above Rec.601 luminance 0.2 with RGB (20,16,21).
+
 Each deterministic step records parameters and the pre-step decoded digest in `post_steps`; palette matching also
-binds its reference digest. New palette steps record `accent_lightness: 80` and `accent_hue_window_deg: 25`.
-Replay uses the recorded parameters: sidecars with neither key retain the original chroma-only behavior and
-their original pixel digests. Partial or unsupported parameter sets fail verification. Both steps run after canvas
-placement. `--subject-rear` uses and records the supplied rear
-subject in the kit and prompt, while retaining the usual front reference requirement.
+binds its reference digest. Current parameters include the lightness, hue window, chroma floor, bin width/minimum
+share, maximum body share, green exclusion and override flag. `process` defaults to the recorded `palette_match`
+parameters in the kit folder's `processed.json`, even when `--out` names a different folder. A new match without a
+recorded palette step uses current parameters. Use `--palette-parameters current` to explicitly upgrade a recorded
+job, or `--palette-parameters legacy` for the original chroma-only algorithm. Missing/unsupported recorded parameters
+fail with an explicit-selection error instead of silently adopting current settings. Replay retains the original
+chroma-only and art-07 v1 algorithms exactly; their sidecars are not rewritten. Both steps run after canvas placement.
+`--subject-rear` uses and records the supplied rear subject in the kit and prompt, while retaining the usual front
+reference requirement.
 
 ### Replayable director steps (art-05; pixel bindings hardened in art-06)
 
@@ -223,7 +240,9 @@ raw's size with LANCZOS, then pastes the half-open box. `tone_region` preserves 
 `name`, `box`, optional eight-way `seed`, `min_lum`/`max_lum`, `min_chroma`, optional `max_chroma` and `max_value`,
 optional `hue_deg` (lo > hi wraps across zero), `exclude_green` (default true), and `lab_scale`.
 `max_chroma` caps `(max(R,G,B) - min(R,G,B)) / 255`, the same measure as `min_chroma`; `max_value` caps
-`max(R,G,B) / 255` (HSV value, distinct from Rec.601 luminance). Both caps are inclusive finite numbers in 0..1,
+`max(R,G,B) / 255` (HSV value, distinct from Rec.601 luminance). All five limits (`min_lum`, `max_lum`, `min_chroma`,
+`max_chroma`, `max_value`) must be finite numbers in 0..1; booleans are rejected. Minimum luminance/chroma must not
+exceed their corresponding maximum. Bounds are inclusive,
 combine with the other selectors before seed filling, and are optional: omitting them leaves all existing configs
 and recorded raw-step pixels unchanged. They also apply to reference masks through the shared region selector.
 The prototype tone/mask scripts and gaoler composite script
@@ -302,26 +321,34 @@ CLI stdout uses `backslashreplace` for unencodable characters so these diagnosti
 
 Art-07's headless comparison proof uses only copies of the recorded lancer/wisp rear recipes. It writes
 `front.png`, `before.png` (before palette/outline), `legacy.png`, `after.png` and `results.json`, including bright-core
-pixel counts and before/after RGB samples, without changing approved jobs. From the task worktree:
+pixel counts, body coverage and before/after RGB samples, without changing approved jobs. A separate coverage table
+uses the processed gaoler/lancer/wisp rears and two bloomer front-as-rear stand-ins (there is no approved bloomer rear).
+The tests require at least 90% of both original bodies to remain transfer samples, while lancer/wisp bright cores
+remain byte-identical. The director's desired protection range is 2–10%; measurements below 2% are reported rather
+than increasing protection beyond the specified rules. From the task worktree:
 
 ```bash
 python3 - <<'PY'
 import json, runpy
 from pathlib import Path
-proof = runpy.run_path('tests/test_art_identity_gate.py')['rear_palette_proof']
-print(json.dumps(proof(Path('output/art-07/palette-proof')), indent=2))
+proofs = runpy.run_path('tests/test_art_identity_gate.py')
+out = Path('output/art-07/review-r1-proof')
+print(json.dumps(proofs['rear_palette_proof'](out), indent=2))
+print(json.dumps(proofs['protected_share_proof'](out), indent=2))
 PY
 ```
 
 No renderer probe or playable inspection fixture applies to this offline processing-tool change.
 
-After recording, use `process` with the job's existing post-step flags to regenerate its processing sidecar. To
-preserve an approved PNG during a metadata migration, process into a temporary folder, check its pixel digest
-against the approved `processed.json`, and copy back only the regenerated JSON. For example, from the repository root:
+After recording, use `process` with the job's existing post-step flags to regenerate its processing sidecar.
+The existing kit-side `processed.json` must remain present so the default retains its recorded palette parameters.
+For a known chroma-only legacy job, explicitly selecting `legacy` also makes the metadata-only intent clear. Never
+select `current` for a metadata-only migration. Process into a temporary folder, check its pixel digest against
+the approved `processed.json`, and copy back only the regenerated JSON after an exact match. For example:
 
 ```sh
 python3 tools/art_identity_gate.py record-steps --kit spec/art_identity/jobs/frostglass_lancer/mq1_rear_v3/kit.json
-python3 tools/art_identity_gate.py process --kit spec/art_identity/jobs/frostglass_lancer/mq1_rear_v3/kit.json --clean-outline --out "<temporary-output-directory>/processed.png"
+python3 tools/art_identity_gate.py process --kit spec/art_identity/jobs/frostglass_lancer/mq1_rear_v3/kit.json --palette-parameters legacy --clean-outline --out "<temporary-output-directory>/processed.png"
 ```
 
 Art-06 re-records all five recipes: gaoler `mq3_front_v4` and `mq3_rear_v3`, and lancer `mq1_front_v2`,

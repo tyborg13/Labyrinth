@@ -57,18 +57,41 @@ TONE_LIMIT_FIXTURE_COLORS = ((110, 85, 65, 255), (240, 150, 30, 255), (240, 235,
 TONE_LIMIT_FIXTURE_REGION = {"name": "brown body", "box": [0, 0, 3, 1], "max_chroma": 0.3,
                              "max_value": 0.8, "lab_scale": [0.7, 0.6, 0.6]}
 CORE_FIXTURE_FRONT_BODY = (55, 50, 45, 255)
-CORE_FIXTURE_REAR_BODY = (100, 80, 60, 255)
+CORE_FIXTURE_REAR_BODY = (120, 80, 60, 255)
 CORE_FIXTURE_PALE = (226, 201, 253, 255)
 CORE_FIXTURE_ACCENT = (160, 30, 230, 255)
 CORE_FIXTURE_DIM = (120, 100, 140, 255)
+CORE_FIXTURE_SATURATED = (140, 100, 150, 255)
+CORE_FIXTURE_GREEN = (90, 250, 90, 255)
 CORE_FIXTURE_SIDE = 16
 CORE_FIXTURE_XY = (2, 2)
 CORE_FIXTURE_DIM_XY = (3, 2)
+CORE_FIXTURE_SATURATED_XY = (4, 2)
+CORE_FIXTURE_GREEN_XY = (5, 2)
 HUE_FIXTURE_DEGREES = (335, 336, 0, 24, 25, 26, 334, 180)
+DOMINANT_HUE_FIXTURE_COUNTS = {5: 40, 20: 5, 70: 4, 140: 51}
+DOMINANT_HUE_FIXTURE_LAB = {"lightness": 50, "chroma": 80}
+BODY_SHARE_FIXTURE_SIZE = (20, 1)
+BODY_SHARE_FIXTURE_LIMIT_COUNT = 5
+BODY_COVERAGE_PROOF_MAX_SHARE = 0.10
 ASCII_STDOUT_FIXTURE_RAW = "r\u00e4w.png"
 REAR_PALETTE_PROOF_JOBS = (
     ("frostglass_lancer", "mq1_front_v3", "mq1_rear_v3"),
     ("lightning_wisp", "mq1_front_v2", "mq1_rear_v2"),
+)
+BODY_COVERAGE_PROOF_JOBS = (
+    ("chainbound_gaoler", "mq3_front_v4", "mq3_rear_v3"),
+    ("frostglass_lancer", "mq1_front_v3", "mq1_rear_v3"),
+    ("lightning_wisp", "mq1_front_v2", "mq1_rear"),
+    ("lightning_wisp", "mq1_front_v2", "mq1_rear_v2"),
+    # No approved bloomer rear exists: these are the review's front-as-rear stand-ins.
+    ("shale_bloomer", "mq2_front", "mq2_front"),
+    ("shale_bloomer", "mq3_front_v2", "mq3_front_v2"),
+)
+HISTORICAL_REPROCESS_INPUTS = (
+    ("chainbound_gaoler", "mq3_rear", "mq3_rear_v3/refs/raw_approved.png"),
+    ("frostglass_lancer", "mq1_rear", "mq1_rear_v3/refs/raw_approved.png"),
+    ("lightning_wisp", "mq1_rear", "mq1_rear_v2/refs/01_wisp_mq1_rear_raw.png"),
 )
 
 
@@ -90,7 +113,8 @@ def rear_palette_proof(out: Path) -> list:
         front.save(folder / "front.png")
         before = gate.rgba(folder / "before.png")
         legacy = gate.palette_match(front, before, gate.LEGACY_PALETTE_MATCH_PARAMETERS)
-        after = gate.palette_match(front, before)
+        coverage = {}
+        after = gate.palette_match(front, before, report=coverage)
         legacy.save(folder / "legacy.png")
         after.save(folder / "after.png")
         pixels, old, new = map(np.asarray, (before, legacy, after))
@@ -108,8 +132,25 @@ def rear_palette_proof(out: Path) -> list:
                         "legacy_rgb": old[y, x, :3].tolist(), "after_rgb": new[y, x, :3].tolist(),
                         "max_legacy_channel_change": int(delta[y, x]),
                         "max_legacy_lightness_loss": float(loss[core].max()),
-                        "parameters": gate.PALETTE_MATCH_PARAMETERS})
+                        "parameters": gate.PALETTE_MATCH_PARAMETERS, **coverage})
     gate.write_json(out / "results.json", reports)
+    return reports
+
+
+def protected_share_proof(out: Path) -> list:
+    reports = []
+    for identity, front_job, rear_job in BODY_COVERAGE_PROOF_JOBS:
+        jobs = ROOT / gate.IDENTITY / "jobs" / identity
+        front, rear = (gate.rgba(jobs / job / "processed.png") for job in (front_job, rear_job))
+        kit_path = jobs / rear_job / "kit.json"
+        binding = gate.read_json(kit_path).get("match_reference")
+        if binding is not None:
+            front, _ = gate.derive_match_reference(binding, kit_path)
+        report = {"id": identity, "front_job": front_job, "rear_job": rear_job,
+                  "stand_in": front_job == rear_job, "front_masked": binding is not None and "derived_from" in binding}
+        gate.palette_match(front, rear, report=report)
+        reports.append(report)
+    gate.write_json(out / "body-coverage.json", reports)
     return reports
 
 
@@ -263,23 +304,39 @@ class GateTests(unittest.TestCase):
         np.testing.assert_array_equal(gate.region_mask(colors, base),
                                       gate.region_mask(colors, dict(base, max_chroma=1, max_value=1)))
 
+    def test_region_all_limits_are_finite_unit_numbers_and_ordered(self):
+        colors = np.array([TONE_LIMIT_FIXTURE_COLORS], dtype=float)[..., :3]
+        base = {"name": "validated limits", "box": [0, 0, 3, 1]}
+        for key in ("min_lum", "max_lum", "min_chroma", "max_chroma", "max_value"):
+            for invalid in (-0.1, 1.1, float("nan"), float("inf"), -float("inf"), None, True, False, "0.3"):
+                with self.subTest(key=key, invalid=invalid), self.assertRaisesRegex(ValueError, key):
+                    gate.region_mask(colors, dict(base, **{key: invalid}))
+            for valid in (0, 0.5, 1):
+                gate.region_mask(colors, dict(base, **{key: valid}))
+        for lower, upper in (("min_lum", "max_lum"), ("min_chroma", "max_chroma")):
+            with self.subTest(lower=lower), self.assertRaisesRegex(ValueError, lower + " must not exceed " + upper):
+                gate.region_mask(colors, dict(base, **{lower: 0.6, upper: 0.5}))
+            gate.region_mask(colors, dict(base, **{lower: 0.5, upper: 0.5}))
+
     def test_palette_match_preserves_pale_cores_and_reference_accent_hues(self):
         front = Image.new("RGBA", (CORE_FIXTURE_SIDE, CORE_FIXTURE_SIDE), CORE_FIXTURE_FRONT_BODY)
         rear = Image.new("RGBA", front.size, CORE_FIXTURE_REAR_BODY)
         front.putpixel(CORE_FIXTURE_XY, CORE_FIXTURE_ACCENT)
         rear.putpixel(CORE_FIXTURE_XY, CORE_FIXTURE_PALE)
         rear.putpixel(CORE_FIXTURE_DIM_XY, CORE_FIXTURE_DIM)
+        rear.putpixel(CORE_FIXTURE_SATURATED_XY, CORE_FIXTURE_SATURATED)
         pixels = np.asarray(rear).astype(float)
         lab = gate.to_lab(pixels[..., :3])
         body = gate.non_accent_mask(lab, pixels[..., 3])
-        for x, y in (CORE_FIXTURE_XY, CORE_FIXTURE_DIM_XY):
-            self.assertTrue(body[y, x])  # Both were transferred by the old rule.
+        for x, y in (CORE_FIXTURE_XY, CORE_FIXTURE_DIM_XY, CORE_FIXTURE_SATURATED_XY):
+            self.assertTrue(body[y, x])  # These were transferred by the old rule.
         self.assertLess(lab[CORE_FIXTURE_DIM_XY[1], CORE_FIXTURE_DIM_XY[0], 0], 80)
         legacy = gate.palette_match(front, rear, gate.LEGACY_PALETTE_MATCH_PARAMETERS)
         actual = gate.palette_match(front, rear)
-        for xy in (CORE_FIXTURE_XY, CORE_FIXTURE_DIM_XY):
+        for xy in (CORE_FIXTURE_XY, CORE_FIXTURE_SATURATED_XY):
             self.assertNotEqual(legacy.getpixel(xy), rear.getpixel(xy))
             self.assertEqual(actual.getpixel(xy), rear.getpixel(xy))
+        self.assertNotEqual(actual.getpixel(CORE_FIXTURE_DIM_XY), CORE_FIXTURE_DIM)
         self.assertNotEqual(actual.getpixel((0, 0)), rear.getpixel((0, 0)))
         # Bright protection also works with no chromatic accents in the reference.
         front.putpixel(CORE_FIXTURE_XY, CORE_FIXTURE_FRONT_BODY)
@@ -301,8 +358,63 @@ class GateTests(unittest.TestCase):
     def test_palette_match_all_bright_pixels_has_no_body_to_transfer(self):
         bright = Image.new("RGBA", (CORE_FIXTURE_SIDE, CORE_FIXTURE_SIDE), CORE_FIXTURE_PALE)
         body = Image.new("RGBA", bright.size, CORE_FIXTURE_REAR_BODY)
-        for front, rear in ((bright, body), (body, bright)):
-            self.assertEqual(gate.palette_match(front, rear).tobytes(), rear.tobytes())
+        for front, rear, shares in ((bright, body, {"front": 1.0, "rear": 0.0}),
+                                    (body, bright, {"front": 0.0, "rear": 1.0}),
+                                    (bright, bright, {"front": 1.0, "rear": 1.0})):
+            with self.assertRaisesRegex(ValueError, "body is empty.*--allow-protected-share"):
+                gate.palette_match(front, rear)
+            report = {}
+            actual = gate.palette_match(front, rear, dict(gate.PALETTE_MATCH_PARAMETERS, allow_protected_share=True), report)
+            self.assertEqual(actual.tobytes(), rear.tobytes())
+            self.assertEqual(report, {"kind": "palette_match", "skipped": "empty body",
+                                      "protected_share": shares, "protected_body_share": shares})
+            # The old recorded v1 algorithm remains available for exact historical replay.
+            self.assertEqual(gate.palette_match(front, rear, gate.ART07_V1_PALETTE_MATCH_PARAMETERS).tobytes(), rear.tobytes())
+
+    def test_dominant_accent_hues_use_pixel_weighted_bins_with_inclusive_five_percent(self):
+        hues = np.array([hue for hue, count in DOMINANT_HUE_FIXTURE_COUNTS.items() for _ in range(count)])
+        radians = np.radians(hues)
+        lab = np.stack((np.full_like(radians, DOMINANT_HUE_FIXTURE_LAB["lightness"]),
+                        np.cos(radians) * DOMINANT_HUE_FIXTURE_LAB["chroma"],
+                        np.sin(radians) * DOMINANT_HUE_FIXTURE_LAB["chroma"]), -1)
+        actual = gate.dominant_accent_hues(lab, np.ones(hues.shape, dtype=bool), gate.PALETTE_MATCH_PARAMETERS)
+        np.testing.assert_array_equal(actual, [7.5, 22.5, 142.5])
+        self.assertEqual(gate.dominant_accent_hues(lab, np.zeros(hues.shape, dtype=bool), gate.PALETTE_MATCH_PARAMETERS).size, 0)
+
+    def test_hue_protection_requires_absolute_chroma_floor_and_own_percentile(self):
+        parameters = gate.PALETTE_MATCH_PARAMETERS
+        for chroma, expected in (([10.0] * 18 + [30.0, 29.999], [False] * 18 + [True, False]),
+                                 ([60.0] * 19 + [55.0], [True] * 19 + [False])):
+            lab = np.stack((np.full(len(chroma), 50.0), chroma, np.zeros(len(chroma))), -1)
+            rgb = np.full(lab.shape, 100.0)  # Neutral RGB isolates the Lab hue/chroma rule.
+            result = gate.bounded_accent_protection(rgb, lab, np.ones(len(chroma), bool), np.array([0.0]), parameters)
+            np.testing.assert_array_equal(result, expected)
+
+    def test_bright_green_key_residue_is_not_protected(self):
+        front = Image.new("RGBA", (CORE_FIXTURE_SIDE, CORE_FIXTURE_SIDE), CORE_FIXTURE_FRONT_BODY)
+        rear = Image.new("RGBA", front.size, CORE_FIXTURE_REAR_BODY)
+        front.putpixel(CORE_FIXTURE_GREEN_XY, CORE_FIXTURE_GREEN)
+        rear.putpixel(CORE_FIXTURE_GREEN_XY, CORE_FIXTURE_GREEN)
+        self.assertGreater(gate.to_lab(np.array(CORE_FIXTURE_GREEN[:3], dtype=float))[0], 80)
+        actual = gate.palette_match(front, rear)
+        self.assertEqual(actual.getpixel(CORE_FIXTURE_GREEN_XY), (90, 90, 90, 255))
+        # This assertion catches M6: allowing bright green to skip residue cleanup.
+        self.assertNotEqual(actual.getpixel(CORE_FIXTURE_GREEN_XY), CORE_FIXTURE_GREEN)
+
+    def test_protected_body_guard_is_inclusive_and_applies_to_both_images(self):
+        body = Image.new("RGBA", BODY_SHARE_FIXTURE_SIZE, CORE_FIXTURE_REAR_BODY)
+        for count in (BODY_SHARE_FIXTURE_LIMIT_COUNT, BODY_SHARE_FIXTURE_LIMIT_COUNT + 1):
+            protected = body.copy()
+            for x in range(count):
+                protected.putpixel((x, 0), CORE_FIXTURE_PALE)
+            for front, rear, label in ((protected, body, "front"), (body, protected, "rear")):
+                with self.subTest(count=count, label=label):
+                    if count == BODY_SHARE_FIXTURE_LIMIT_COUNT:
+                        gate.palette_match(front, rear)
+                    else:
+                        with self.assertRaisesRegex(ValueError, label + " body: 30.0% protected.*--allow-protected-share"):
+                            gate.palette_match(front, rear)
+                        gate.palette_match(front, rear, dict(gate.PALETTE_MATCH_PARAMETERS, allow_protected_share=True))
 
     def test_lancer_and_wisp_rear_match_preserves_bright_cores_on_copies(self):
         for report in rear_palette_proof(self.temp / "proof"):
@@ -312,6 +424,15 @@ class GateTests(unittest.TestCase):
                 self.assertEqual(report["new_changed_core_pixels"], 0)
                 self.assertEqual(report["after_rgb"], report["before_rgb"])
                 self.assertNotEqual(report["legacy_rgb"], report["before_rgb"])
+                for share in report["protected_body_share"].values():
+                    self.assertLessEqual(share, BODY_COVERAGE_PROOF_MAX_SHARE)
+
+    def test_real_bodies_keep_at_least_ninety_percent_of_transfer_samples(self):
+        for report in protected_share_proof(self.temp):
+            with self.subTest(identity=report["id"], rear=report["rear_job"]):
+                for share in report["protected_body_share"].values():
+                    self.assertGreater(share, 0)
+                    self.assertLessEqual(share, BODY_COVERAGE_PROOF_MAX_SHARE)
 
     def test_raw_steps_reject_changed_file_bytes_for_every_input_kind(self):
         kit_path = self.raw_step_kit()
@@ -990,11 +1111,19 @@ class GateTests(unittest.TestCase):
                 kit = gate.read_json(local / "kit.json")
                 self.assertEqual(kit["kit_kind"], "maquette")
                 self.assertEqual(gate.prompt_kit_version(kit, (local / "prompt.md").read_bytes()), kit["kit_version"])
+                approved = gate.read_json(local / "processed.json")
+                output = self.temp / "reprocessed" / job / "processed.png"
+                rebuilt = gate.process_raw(None, local / "kit.json", output, self.temp,
+                                           outline=any(step["step"] == "clean_outline" for step in approved.get("post_steps", [])))
+                self.assertEqual(rebuilt["pixel_sha256"], approved["pixel_sha256"])
+                self.assertEqual(rebuilt.get("post_steps"), approved.get("post_steps"))
+                self.assertEqual(output.read_bytes(), (local / "processed.png").read_bytes())
 
     def test_recipe_replay_uses_recorded_palette_parameters(self):
         kit_path = self.raw_step_kit()
         out = kit_path.parent / "processed.png"
-        for parameters in (gate.LEGACY_PALETTE_MATCH_PARAMETERS, gate.PALETTE_MATCH_PARAMETERS):
+        for parameters in (gate.LEGACY_PALETTE_MATCH_PARAMETERS, gate.ART07_V1_PALETTE_MATCH_PARAMETERS,
+                           gate.PALETTE_MATCH_PARAMETERS):
             with self.subTest(parameters=parameters):
                 record = gate.process_raw(None, kit_path, out, outline=True, palette_parameters=parameters)
                 self.assertEqual(record["post_steps"][0]["parameters"], parameters)
@@ -1005,6 +1134,200 @@ class GateTests(unittest.TestCase):
             gate.write_json(out.with_suffix(".json"), changed)
             with self.subTest(key=key), self.assertRaisesRegex(ValueError, "parameters or pre-step digest invalid"):
                 gate.verify_job_recipe(kit_path, require_inputs=True)
+
+    def test_existing_rear_palette_parameter_defaults_are_all_preserved(self):
+        checked = []
+        for kit_path in sorted((ROOT / gate.IDENTITY / "jobs").rglob("kit.json")):
+            if not gate.read_json(kit_path).get("view", "").endswith("_rear"):
+                continue
+            sidecar = kit_path.parent / "processed.json"
+            if not sidecar.is_file():
+                continue
+            steps = [s for s in gate.read_json(sidecar).get("post_steps", []) if s.get("step") == "palette_match"]
+            if len(steps) == 1 and gate.valid_palette_parameters(steps[0].get("parameters")):
+                with self.subTest(kit=str(kit_path)):
+                    self.assertEqual(gate.processing_palette_parameters(kit_path), steps[0]["parameters"])
+                checked.append(kit_path)
+        self.assertTrue(checked)
+
+    def test_historical_rears_with_retained_raws_reprocess_to_approved_pixels(self):
+        gate.write_json(self.temp / gate.IDENTITY / "bands.json", gate.read_json(ROOT / gate.IDENTITY / "bands.json"))
+        for identity, job, raw_path in HISTORICAL_REPROCESS_INPUTS:
+            source = ROOT / gate.IDENTITY / "jobs" / identity / job
+            approved = gate.read_json(source / "processed.json")
+            raw = source.parent / raw_path
+            self.assertEqual(gate.sha(raw.read_bytes()), approved["raw_sha256"])
+            local = self.temp / gate.IDENTITY / "jobs" / identity / job
+            shutil.copytree(source, local)
+            palette = next(s for s in approved["post_steps"] if s["step"] == "palette_match")
+            # Historical direct references predate job-local path guards. Copy the exact reference pixels
+            # into the disposable job without weakening those guards or changing approved metadata.
+            reference = local / "refs/reprocess_reference.png"
+            reference.parent.mkdir(exist_ok=True)
+            shutil.copyfile(ROOT / palette["reference"], reference)
+            out = self.temp / "historical-reprocessed" / identity / "processed.png"
+            actual = gate.process_raw(raw, local / "kit.json", out, self.temp,
+                                      match_front=reference.relative_to(self.temp), outline=True)
+            with self.subTest(identity=identity, job=job):
+                self.assertEqual(actual["post_steps"][0]["parameters"], palette["parameters"])
+                self.assertEqual(actual["pixel_sha256"], approved["pixel_sha256"])
+                self.assertEqual(out.read_bytes(), (source / "processed.png").read_bytes())
+
+    def test_process_cli_defaults_to_recorded_palette_and_requires_explicit_upgrade(self):
+        kit_path = self.raw_step_kit()
+        approved = gate.process_raw(None, kit_path, kit_path.parent / "processed.png", outline=True, palette_parameters="legacy")
+        for selection in (None, "legacy", "current"):
+            output = self.temp / (str(selection) + ".png")
+            args = [sys.executable, str(ROOT / "tools/art_identity_gate.py"), "process", "--kit", str(kit_path),
+                    "--out", str(output), "--clean-outline"]
+            if selection is not None:
+                args += ["--palette-parameters", selection]
+            result = subprocess.run(args, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            record = gate.read_json(output.with_suffix(".json"))
+            expected = gate.PALETTE_MATCH_PARAMETERS if selection == "current" else gate.LEGACY_PALETTE_MATCH_PARAMETERS
+            self.assertEqual(record["post_steps"][0]["parameters"], expected)
+            if selection != "current":
+                self.assertEqual(record["pixel_sha256"], approved["pixel_sha256"])
+        # A future default change must not replace a recorded current opt-in either.
+        gate.process_raw(None, kit_path, kit_path.parent / "processed.png", palette_parameters="current", allow_protected_share=True)
+        replayed = gate.process_raw(None, kit_path, self.temp / "recorded-current.png")
+        self.assertTrue(replayed["post_steps"][0]["parameters"]["allow_protected_share"])
+        self.assertEqual(len(gate.verify_job_recipe(kit_path, require_inputs=True)), 3)
+
+    def test_process_coverage_failure_is_atomic_and_override_is_recorded(self):
+        kit_path = self.raw_step_kit()
+        reference = Image.new("RGBA", (CORE_FIXTURE_SIDE, CORE_FIXTURE_SIDE), CORE_FIXTURE_FRONT_BODY)
+        pixels = np.asarray(reference).copy()
+        pixels[:CORE_FIXTURE_SIDE // 2] = CORE_FIXTURE_PALE
+        reference = Image.fromarray(pixels)
+        image_path = kit_path.parent / "refs/palette-guard.png"
+        reference.save(image_path)
+        kit = gate.read_json(kit_path)
+        kit["match_reference"] = {"path": "refs/palette-guard.png", "pixel_sha256": gate.pixel_digest(reference)}
+        gate.write_json(kit_path, kit)
+        out = kit_path.parent / "processed.png"
+        legacy = gate.process_raw(None, kit_path, out, palette_parameters="legacy")
+        previous = (out.read_bytes(), out.with_suffix(".json").read_bytes())
+        args = [sys.executable, str(ROOT / "tools/art_identity_gate.py"), "process", "--kit", str(kit_path),
+                "--out", str(out), "--palette-parameters", "current"]
+        rejected = subprocess.run(args, capture_output=True, text=True)
+        self.assertEqual(rejected.returncode, 1)
+        self.assertIn("front body: 50.0% protected", rejected.stderr)
+        self.assertNotIn("Traceback", rejected.stderr)
+        self.assertEqual((out.read_bytes(), out.with_suffix(".json").read_bytes()), previous)
+        approved = subprocess.run(args + ["--allow-protected-share"], capture_output=True, text=True)
+        self.assertEqual(approved.returncode, 0, approved.stderr)
+        record = gate.read_json(out.with_suffix(".json"))
+        self.assertTrue(record["post_steps"][0]["parameters"]["allow_protected_share"])
+        self.assertEqual(record["post_steps"][0]["protected_body_share"]["front"], 0.5)
+        self.assertEqual(len(gate.verify_job_recipe(kit_path, require_inputs=True)), 3)
+        self.assertNotEqual(record["pixel_sha256"], legacy["pixel_sha256"])
+
+    def empty_body_reference(self, kit_path):
+        reference = Image.new("RGBA", (CORE_FIXTURE_SIDE, CORE_FIXTURE_SIDE), CORE_FIXTURE_PALE)
+        reference.save(kit_path.parent / "refs/empty-body-front.png")
+        kit = gate.read_json(kit_path)
+        kit["match_reference"] = {"path": "refs/empty-body-front.png", "pixel_sha256": gate.pixel_digest(reference)}
+        gate.write_json(kit_path, kit)
+
+    def test_process_empty_body_requires_override_and_records_replayable_skip(self):
+        kit_path = self.raw_step_kit()
+        self.empty_body_reference(kit_path)
+        out = kit_path.parent / "processed.png"
+        args = [sys.executable, str(ROOT / "tools/art_identity_gate.py"), "process", "--kit", str(kit_path),
+                "--out", str(out), "--palette-parameters", "current"]
+        rejected = subprocess.run(args, capture_output=True, text=True)
+        self.assertEqual(rejected.returncode, 1)
+        self.assertIn("body is empty", rejected.stderr)
+        self.assertIn("--allow-protected-share", rejected.stderr)
+        self.assertNotIn("Traceback", rejected.stderr)
+        self.assertFalse(out.exists())
+        self.assertFalse(out.with_suffix(".json").exists())
+        gate.process_raw(None, kit_path, out, palette_parameters="legacy")
+        previous = (out.read_bytes(), out.with_suffix(".json").read_bytes())
+        rejected = subprocess.run(args, capture_output=True, text=True)
+        self.assertEqual(rejected.returncode, 1)
+        self.assertEqual((out.read_bytes(), out.with_suffix(".json").read_bytes()), previous)
+        approved = subprocess.run(args + ["--allow-protected-share"], capture_output=True, text=True)
+        self.assertEqual(approved.returncode, 0, approved.stderr)
+        record = gate.read_json(out.with_suffix(".json"))
+        step = record["post_steps"][0]
+        self.assertEqual(step["kind"], "palette_match")
+        self.assertEqual(step["skipped"], "empty body")
+        self.assertEqual(step["protected_share"], step["protected_body_share"])
+        self.assertEqual(step["protected_share"]["front"], 1.0)
+        self.assertTrue(step["parameters"]["allow_protected_share"])
+        self.assertEqual(step["pre_step_pixel_sha256"], record["pixel_sha256"])
+        self.assertEqual(len(gate.verify_job_recipe(kit_path, require_inputs=True)), 3)
+        skipped = gate.rgba(out)
+        # Recorded override survives default reprocessing; skipping match must not skip the next step.
+        outlined = gate.process_raw(None, kit_path, out, outline=True)
+        self.assertEqual(outlined["post_steps"][0], step)
+        self.assertEqual(outlined["post_steps"][1]["pre_step_pixel_sha256"], record["pixel_sha256"])
+        self.assertEqual(gate.rgba(out).tobytes(), gate.clean_outline(skipped).tobytes())
+        self.assertEqual(len(gate.verify_job_recipe(kit_path, require_inputs=True)), 3)
+
+    def test_registry_check_verifies_empty_body_skip_and_rejects_tampering(self):
+        root, registry, entry, kit_path, record = self.recipe_registry()
+        self.empty_body_reference(kit_path)
+        out = kit_path.parent / "processed.png"
+        record = gate.process_raw(None, kit_path, out, root, outline=True, allow_protected_share=True)
+        entry.update(source_pixel_sha256=record["pixel_sha256"], post_steps=record["post_steps"])
+        gate.write_json(root / gate.IDENTITY / "registry.json", registry)
+        reports, failures = gate.check_registry(root)
+        self.assertEqual(failures, 0, "\n".join(reports))
+        for change in ("kind", "reason", "override", "shares", "unmarked"):
+            with self.subTest(change=change):
+                changed = copy.deepcopy(record)
+                step = changed["post_steps"][0]
+                if change == "kind": step["kind"] = "unknown"
+                elif change == "reason": step["skipped"] = "unknown"
+                elif change == "override": step["parameters"]["allow_protected_share"] = False
+                elif change == "shares":
+                    step["protected_share"]["rear"] = 0.5
+                    step["protected_body_share"]["rear"] = 0.5
+                else:
+                    for field in ("kind", "skipped", "protected_share"):
+                        step.pop(field)
+                gate.write_json(out.with_suffix(".json"), changed)
+                entry["post_steps"] = changed["post_steps"]
+                gate.write_json(root / gate.IDENTITY / "registry.json", registry)
+                reports, failures = gate.check_registry(root)
+                self.assertEqual(failures, 1, "\n".join(reports))
+                error = ("replayed processed post_steps mismatched" if change in ("shares", "unmarked")
+                         else "palette_match empty-body skip record invalid")
+                self.assertTrue(any("recipe: " + error in line for line in reports), "\n".join(reports))
+
+    def test_missing_inputs_do_not_bypass_empty_body_skip_record_validation(self):
+        root, registry, entry, kit_path, record = self.recipe_registry()
+        self.empty_body_reference(kit_path)
+        record = gate.process_raw(None, kit_path, kit_path.parent / "processed.png", root, allow_protected_share=True)
+        (kit_path.parent / "refs/raw.png").unlink()
+        self.assertEqual(gate.verify_job_recipe(kit_path, root), ["SKIP raw_steps replay: inputs absent"])
+        for change in ("missing", "bool", "nonfinite", "negative", "above_one", "not_empty", "mismatch"):
+            with self.subTest(change=change):
+                changed = copy.deepcopy(record)
+                step = changed["post_steps"][0]
+                if change == "missing": step.pop("protected_share")
+                elif change == "mismatch": step["protected_body_share"] = {"front": 0.0, "rear": 0.0}
+                else:
+                    value = {"bool": True, "nonfinite": float("inf"), "negative": -1.0,
+                             "above_one": 2.0, "not_empty": 0.5}[change]
+                    step["protected_share"] = {"front": value, "rear": 0.0}
+                    step["protected_body_share"] = dict(step["protected_share"])
+                # Deliberately malformed JSON number is input to the verifier, not tool output.
+                (kit_path.parent / "processed.json").write_text(json.dumps(changed))
+                with self.assertRaisesRegex(ValueError, "palette_match empty-body skip record invalid"):
+                    gate.verify_job_recipe(kit_path, root)
+
+    def test_unknown_recorded_parameters_fail_instead_of_silently_using_current(self):
+        kit_path = self.raw_step_kit()
+        for parameters in (None, {}, dict(gate.PALETTE_MATCH_PARAMETERS, allow_protected_share=1)):
+            gate.write_json(kit_path.parent / "processed.json", {"post_steps": [{"step": "palette_match", "parameters": parameters}]})
+            with self.subTest(parameters=parameters), self.assertRaisesRegex(ValueError, "recorded palette_match parameters"):
+                gate.process_raw(None, kit_path, self.temp / "should-not-write.png")
+            self.assertFalse((self.temp / "should-not-write.png").exists())
 
     def test_palette_match_and_outline_are_pixel_identical_to_prototypes(self):
         # Proof-only synthetic accents, green key residue, opaque islands and borders.

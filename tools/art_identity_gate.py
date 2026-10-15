@@ -228,8 +228,12 @@ LAB_INVERSE = np.linalg.inv(LAB_MATRIX)
 LAB_WHITE = np.array([0.95047, 1.0, 1.08883])
 LEGACY_PALETTE_MATCH_PARAMETERS = {"space": "CIE Lab", "accent_percentile": 90, "accent_margin": 15,
                                    "std_floor": 1e-6, "green_residue_margin": 20}
-PALETTE_MATCH_PARAMETERS = {**LEGACY_PALETTE_MATCH_PARAMETERS,
-                            "accent_lightness": 80, "accent_hue_window_deg": 25}
+ART07_V1_PALETTE_MATCH_PARAMETERS = {**LEGACY_PALETTE_MATCH_PARAMETERS,
+                                     "accent_lightness": 80, "accent_hue_window_deg": 25}
+PALETTE_MATCH_PARAMETERS = {**ART07_V1_PALETTE_MATCH_PARAMETERS,
+                            "accent_hue_chroma_floor": 30, "accent_hue_bin_deg": 15,
+                            "accent_hue_bin_min_share": 0.05, "max_protected_body_share": 0.25,
+                            "exclude_green_from_protection": True, "allow_protected_share": False}
 OUTLINE_PARAMETERS = {"tone": [20, 16, 21], "max_luminance": 0.2, "neighbours": 4,
                       "remove_isolated": True}
 
@@ -268,7 +272,7 @@ def non_accent_palette(path: Path) -> dict:
 
 
 def palette_accent_protection(lab: np.ndarray, reference_hues: np.ndarray, parameters: dict) -> np.ndarray:
-    """Bright cores and circular Lab a/b hues from the front's original chroma accents."""
+    """Unbounded v1 mask; current matching additionally gates these hits by chroma and green."""
     protected = lab[..., 0] >= parameters["accent_lightness"]
     if reference_hues.size:
         hues = np.unique(reference_hues % 360)
@@ -280,21 +284,80 @@ def palette_accent_protection(lab: np.ndarray, reference_hues: np.ndarray, param
     return protected
 
 
-def palette_match(front: Image.Image, rear: Image.Image, parameters: dict = None) -> Image.Image:
+def valid_palette_parameters(parameters: dict) -> bool:
+    if parameters in (LEGACY_PALETTE_MATCH_PARAMETERS, ART07_V1_PALETTE_MATCH_PARAMETERS):
+        return True
+    return (isinstance(parameters, dict) and type(parameters.get("allow_protected_share")) is bool
+            and parameters == dict(PALETTE_MATCH_PARAMETERS, allow_protected_share=parameters["allow_protected_share"]))
+
+
+def dominant_accent_hues(lab: np.ndarray, accents: np.ndarray, parameters: dict) -> np.ndarray:
+    """Use centres of occupied 15-degree bins, weighted by reference accent pixel count."""
+    hue = np.degrees(np.arctan2(lab[..., 2][accents], lab[..., 1][accents])) % 360
+    if not hue.size:
+        return np.array([], dtype=float)
+    width = parameters["accent_hue_bin_deg"]
+    counts = np.bincount(np.floor(hue / width).astype(int), minlength=round(360 / width))
+    dominant = (counts > 0) & (counts / hue.size >= parameters["accent_hue_bin_min_share"])
+    return (np.flatnonzero(dominant) + 0.5) * width
+
+
+def bounded_accent_protection(rgb: np.ndarray, lab: np.ndarray, opaque: np.ndarray,
+                              reference_hues: np.ndarray, parameters: dict) -> np.ndarray:
+    chroma = np.hypot(lab[..., 1], lab[..., 2])
+    floor = max(float(np.percentile(chroma[opaque], parameters["accent_percentile"])),
+                parameters["accent_hue_chroma_floor"])
+    light = lab[..., 0] >= parameters["accent_lightness"]
+    hue = palette_accent_protection(lab, reference_hues, parameters) & (chroma >= floor)
+    green = (rgb[..., 1] > rgb[..., 0]) & (rgb[..., 1] > rgb[..., 2])
+    return opaque & (light | hue) & ~green
+
+
+def palette_body_masks(front: np.ndarray, rear: np.ndarray, parameters: dict) -> tuple:
+    """Return Lab values, transfer masks, protection and auditable original-body coverage."""
+    Fl, Rl = to_lab(front[..., :3]), to_lab(rear[..., :3])
+    fm, rm = non_accent_mask(Fl, front[..., 3]), non_accent_mask(Rl, rear[..., 3])
+    original = (fm.copy(), rm.copy())
+    protected = np.zeros(rm.shape, dtype=bool)
+    shares = {"front": 0.0, "rear": 0.0}
+    if "accent_lightness" in parameters:
+        accents = (front[..., 3] > 0) & ~fm
+        if "accent_hue_bin_deg" in parameters:
+            reference_hues = dominant_accent_hues(Fl, accents, parameters)
+            front_protected = bounded_accent_protection(front[..., :3], Fl, front[..., 3] > 0, reference_hues, parameters)
+            protected = bounded_accent_protection(rear[..., :3], Rl, rear[..., 3] > 0, reference_hues, parameters)
+        else:
+            reference_hues = np.degrees(np.arctan2(Fl[..., 2][accents], Fl[..., 1][accents]))
+            front_protected = palette_accent_protection(Fl, reference_hues, parameters)
+            protected = palette_accent_protection(Rl, reference_hues, parameters)
+        fm &= ~front_protected
+        rm &= ~protected
+        shares = {"front": float((original[0] & front_protected).sum() / max(1, original[0].sum())),
+                  "rear": float((original[1] & protected).sum() / max(1, original[1].sum()))}
+    return Fl, Rl, fm, rm, protected, shares
+
+
+def palette_match(front: Image.Image, rear: Image.Image, parameters: dict = None, report: dict = None) -> Image.Image:
     parameters = PALETTE_MATCH_PARAMETERS if parameters is None else parameters
-    if parameters not in (LEGACY_PALETTE_MATCH_PARAMETERS, PALETTE_MATCH_PARAMETERS):
+    if not valid_palette_parameters(parameters):
         raise ValueError("unsupported palette_match parameters")
     F, R = np.asarray(front.convert("RGBA")).astype(float), np.asarray(rear.convert("RGBA")).astype(float)
-    Fl, Rl = to_lab(F[..., :3]), to_lab(R[..., :3])
-    fm, rm = non_accent_mask(Fl, F[..., 3]), non_accent_mask(Rl, R[..., 3])
-    protected = np.zeros(rm.shape, dtype=bool)
-    if "accent_lightness" in parameters:
-        accents = (F[..., 3] > 0) & ~fm
-        reference_hues = np.degrees(np.arctan2(Fl[..., 2][accents], Fl[..., 1][accents]))
-        fm &= ~palette_accent_protection(Fl, reference_hues, parameters)
-        protected = palette_accent_protection(Rl, reference_hues, parameters)
-        rm &= ~protected
-        # There is no body distribution to transfer when either sprite is entirely accents.
+    Fl, Rl, fm, rm, protected, shares = palette_body_masks(F, R, parameters)
+    if report is not None:
+        report.update(protected_body_share=shares)
+    if "max_protected_body_share" in parameters:
+        if not parameters["allow_protected_share"]:
+            for label, mask in (("front", fm), ("rear", rm)):
+                if not mask.any() or shares[label] > parameters["max_protected_body_share"]:
+                    raise ValueError("palette_match %s body: %.1f%% protected%s; pass --allow-protected-share to override" %
+                                     (label, shares[label] * 100, "; body is empty" if not mask.any() else ""))
+        if not fm.any() or not rm.any():
+            # The director's explicit override skips this step; retain its reason and coverage for replay.
+            if report is not None:
+                report.update(kind="palette_match", skipped="empty body", protected_share=shares)
+            return rear.convert("RGBA").copy()
+    elif "accent_lightness" in parameters:
+        # Historical v1 replay only; current processing must never silently skip the transfer.
         if not fm.any() or not rm.any():
             return rear.convert("RGBA").copy()
     res = Rl.copy()
@@ -325,6 +388,14 @@ def clean_outline(image: Image.Image) -> Image.Image:
 
 def region_mask(rgb: np.ndarray, region: dict) -> np.ndarray:
     """Director prototype semantics, including hue wrap and the eight-way flood fill."""
+    for key in ("min_lum", "max_lum", "min_chroma", "max_chroma", "max_value"):
+        if key in region:
+            limit = region[key]
+            if type(limit) not in (int, float) or not math.isfinite(limit) or not 0 <= limit <= 1:
+                raise ValueError(key + " must be a finite number in 0..1")
+    for lower, upper in (("min_lum", "max_lum"), ("min_chroma", "max_chroma")):
+        if region.get(lower, 0.0) > region.get(upper, 1.0):
+            raise ValueError(lower + " must not exceed " + upper)
     r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
     lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255.0
     chroma = (rgb.max(-1) - rgb.min(-1)) / 255.0
@@ -335,10 +406,7 @@ def region_mask(rgb: np.ndarray, region: dict) -> np.ndarray:
     candidate &= chroma >= region.get("min_chroma", 0.0)
     for key, values in (("max_chroma", chroma), ("max_value", rgb.max(-1) / 255.0)):
         if key in region:
-            limit = region[key]
-            if type(limit) not in (int, float) or not math.isfinite(limit) or not 0 <= limit <= 1:
-                raise ValueError(key + " must be a finite number in 0..1")
-            candidate &= values <= limit
+            candidate &= values <= region[key]
     if region.get("hue_deg"):
         hue = np.degrees(np.arctan2(np.sqrt(3) * (g - b), 2 * r - g - b)) % 360
         lo, hi = region["hue_deg"]
@@ -787,8 +855,38 @@ def fit_sprite(sprite: Image.Image) -> tuple:
     return sprite, fit_scale
 
 
+def processing_palette_parameters(kit_path: Path, selection=None, allow_protected_share=None) -> dict:
+    """A kit's recorded processing parameters take precedence over today's defaults."""
+    if selection is None:
+        sidecar = kit_path.parent / "processed.json"
+        if sidecar.is_file():
+            processed = read_json(sidecar)
+            if not isinstance(processed, dict) or not isinstance(processed.get("post_steps", []), list):
+                raise ValueError("recorded processed.json must contain an object with post_steps")
+            steps = [step for step in processed.get("post_steps", [])
+                     if isinstance(step, dict) and step.get("step") == "palette_match"]
+            if steps:
+                if len(steps) != 1 or not valid_palette_parameters(steps[0].get("parameters")):
+                    raise ValueError("recorded palette_match parameters are missing or unsupported; choose --palette-parameters legacy or current explicitly")
+                selection = steps[0]["parameters"]
+        if selection is None:
+            selection = PALETTE_MATCH_PARAMETERS
+    elif isinstance(selection, str):
+        if selection not in ("current", "legacy"):
+            raise ValueError("palette parameters must be current or legacy")
+        selection = PALETTE_MATCH_PARAMETERS if selection == "current" else LEGACY_PALETTE_MATCH_PARAMETERS
+    if not valid_palette_parameters(selection):
+        raise ValueError("unsupported palette_match parameters")
+    parameters = dict(selection)
+    if allow_protected_share is not None:
+        if type(allow_protected_share) is not bool or "allow_protected_share" not in parameters:
+            raise ValueError("--allow-protected-share requires current palette parameters")
+        parameters["allow_protected_share"] = allow_protected_share
+    return parameters
+
+
 def process_raw(raw: Path, kit_path: Path, out: Path, root: Path = ROOT, match_front: Path = None,
-                outline: bool = False, palette_parameters: dict = None) -> dict:
+                outline: bool = False, palette_parameters=None, allow_protected_share=None) -> dict:
     kit = read_json(kit_path)
     factor = kit["K"]
     if not isinstance(factor, int) or isinstance(factor, bool) or factor <= 0:
@@ -874,10 +972,14 @@ def process_raw(raw: Path, kit_path: Path, out: Path, root: Path = ROOT, match_f
         else:
             reference = rgba(direct_path)
             binding = {"reference": str(match_front), "reference_pixel_sha256": pixel_digest(reference)}
-        parameters = PALETTE_MATCH_PARAMETERS if palette_parameters is None else palette_parameters
-        post_steps.append({"step": "palette_match", "parameters": dict(parameters), **binding,
-                           "pre_step_pixel_sha256": pixel_digest(canvas)})
-        canvas = palette_match(reference, canvas, parameters)
+        parameters = processing_palette_parameters(kit_path, palette_parameters, allow_protected_share)
+        step = {"step": "palette_match", "parameters": parameters, **binding,
+                "pre_step_pixel_sha256": pixel_digest(canvas)}
+        coverage = {}
+        canvas = palette_match(reference, canvas, parameters, report=coverage)
+        if "max_protected_body_share" in parameters:
+            step.update(coverage)
+        post_steps.append(step)
     if outline:
         post_steps.append({"step": "clean_outline", "parameters": OUTLINE_PARAMETERS,
                            "pre_step_pixel_sha256": pixel_digest(canvas)})
@@ -897,6 +999,19 @@ def process_raw(raw: Path, kit_path: Path, out: Path, root: Path = ROOT, match_f
     return record
 
 
+def validate_palette_skip(step: dict) -> None:
+    """Validate explicit skip records even when archived raw inputs cannot be replayed."""
+    if not any(key in step for key in ("kind", "skipped", "protected_share")):
+        return
+    parameters, shares = step.get("parameters"), step.get("protected_share")
+    if (not valid_palette_parameters(parameters) or parameters.get("allow_protected_share") is not True
+            or step.get("kind") != "palette_match" or step.get("skipped") != "empty body"
+            or not isinstance(shares, dict) or set(shares) != {"front", "rear"}
+            or any(not in_band(value, (0.0, 1.0)) for value in shares.values())
+            or shares != step.get("protected_body_share") or 1.0 not in shares.values()):
+        raise ValueError("palette_match empty-body skip record invalid")
+
+
 def verify_job_recipe(kit_path: Path, root: Path = ROOT, require_inputs: bool = False) -> list:
     """Read-only certification shared by registry checks and unregistered-job proof."""
     kit = read_json(kit_path)
@@ -911,14 +1026,15 @@ def verify_job_recipe(kit_path: Path, root: Path = ROOT, require_inputs: bool = 
         if names not in ([], ["palette_match"], ["clean_outline"], ["palette_match", "clean_outline"]):
             raise ValueError("unsupported post_steps order for replay")
         for step in steps:
-            supported = ((LEGACY_PALETTE_MATCH_PARAMETERS, PALETTE_MATCH_PARAMETERS)
-                         if step["step"] == "palette_match" else (OUTLINE_PARAMETERS,))
-            if step.get("parameters") not in supported or not is_digest(step.get("pre_step_pixel_sha256")):
+            valid = (valid_palette_parameters(step.get("parameters")) if step["step"] == "palette_match"
+                     else step.get("parameters") == OUTLINE_PARAMETERS)
+            if not valid or not is_digest(step.get("pre_step_pixel_sha256")):
                 raise ValueError("processed post_steps parameters or pre-step digest invalid")
     if "match_reference" in kit:
         if len(palette) != 1 or palette[0].get("match_reference") != kit["match_reference"]:
             raise ValueError("processed match_reference mismatched")
     for step in palette:
+        validate_palette_skip(step)
         if "reference_sha256" in step and ("raw_steps" in kit or "match_reference" in step):
             raise ValueError("palette_match requires reference_pixel_sha256, not reference_sha256")
         if "match_reference" in step:
@@ -1518,6 +1634,10 @@ def parser() -> argparse.ArgumentParser:
     process_cmd.add_argument("--out", required=True, type=Path)
     process_cmd.add_argument("--match-front", type=Path)
     process_cmd.add_argument("--clean-outline", action="store_true")
+    process_cmd.add_argument("--palette-parameters", choices=("current", "legacy"),
+                             help="default: recorded kit parameters, or current for a new match")
+    process_cmd.add_argument("--allow-protected-share", action="store_true", default=None,
+                             help="allow protection above 25%%; skip an empty-body match with a recorded reason and shares")
     record_cmd = commands.add_parser("record-steps", help="recompute digests for an already-listed raw_steps recipe")
     record_cmd.add_argument("--kit", required=True, type=Path)
     sheet = commands.add_parser("sheet")
@@ -1553,7 +1673,9 @@ def main() -> int:
                   (cu, shlex.quote(kit["job_id"]), shlex.quote(str(Path(args.out_dir) / "prompt.md")),
                    shlex.quote(str(Path(args.out_dir) / "refs"))))
         elif args.command == "process":
-            print(json.dumps(process_raw(args.raw, args.kit, args.out, match_front=args.match_front, outline=args.clean_outline), indent=2, sort_keys=True))
+            print(json.dumps(process_raw(args.raw, args.kit, args.out, match_front=args.match_front, outline=args.clean_outline,
+                                         palette_parameters=args.palette_parameters, allow_protected_share=args.allow_protected_share),
+                             indent=2, sort_keys=True))
         elif args.command == "record-steps":
             print("\n".join(record_steps(args.kit)))
         elif args.command == "sheet":
