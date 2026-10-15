@@ -38,12 +38,12 @@
 | ui-01 | UI identity lint (gate phase 2, ratchet) | merged fceb55376 (1617 baseline sites) | codex/peer-benchmark | briefs/ui-01.md, spec/ui_identity_gate.md |
 | rr-01 | Roster wave 1a: crawler rig recolour (Lab L×0.76, ab×0.85) | merged 7c770a7ec (signoff 3fe284a60; follow-up fa0351491); integration suite PASS 694 s, Python 388 OK | codex/peer-benchmark | briefs/rr-01.md |
 | qa-03 | Python test hygiene (en05 asset pins, cutout seed, deepest route, optional modules) | merged (e66df1e67) | codex/peer-benchmark | briefs/qa-03.md |
-| rr-02 | Maquette → cutout pipeline phase 1 (gaoler mq3): registration, case, rest identity, hidden-material requests, first motion reel | queued (gpt-6-astra) | codex/peer-benchmark | briefs/rr-02.md |
+| rr-02 | Maquette → cutout pipeline phase 1 (gaoler mq3): registration, case, rest identity, hidden-material requests, first motion reel | running (gpt-6-astra) | codex/peer-benchmark | briefs/rr-02.md |
 | art-04 | Integrate the owner-approved perched gust shrike (art-03 pipeline) + canon flyer reference; gate support for maquette kits | merged 576717eae (signoff dc9de2dc3; follow-ups d9929d446) | codex/peer-benchmark | briefs/art-04.md |
 | sfx-04 | Audio/visual sync audit + fixes (owner playtest 7: blink sound late, cues delayed by sequencing) | running (gpt-6-astra) | codex/peer-benchmark | briefs/sfx-04.md |
 | ux-02 | Player-facing text and tooltip audit (inventory, icons without tooltips, glossary seed, captures) | running (gpt-6-astra) | codex/peer-benchmark | briefs/ux-02.md |
 | ux-03 | Glossary tooltips for icons and relics (data/glossary.json; card keyword stack reused for relics) | running (gpt-6-astra) | codex/peer-benchmark | briefs/ux-03.md |
 | anim-01 | Pixel-true idle life for static directional enemies (data/static_enemy_idle.json) | running (gpt-6-astra) | codex/peer-benchmark | briefs/anim-01.md |
-| por-01 | Rebuild 17 stale turn-order portraits from post-density art | running (gpt-6-astra) | codex/peer-benchmark | briefs/por-01.md |
+| por-01 | Rebuild 17 stale turn-order portraits from post-density art | merged (builder verify test; clock probe PASS, director-reviewed) | codex/peer-benchmark | briefs/por-01.md |
 | vfx-01 | Pixel-art look for procedural elemental effects (low-res layer, element ramps, Bayer alpha) | running (gpt-6-astra) | codex/peer-benchmark | briefs/vfx-01.md |
 | chr-02 | Chronicle spells as card tiles with counts; tooltips on every tile | running (gpt-6-astra) | codex/peer-benchmark | briefs/chr-02.md |
