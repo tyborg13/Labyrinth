@@ -1,0 +1,16 @@
+Running task-local command:
+  task: ux-02
+  run: ux-02-1792074685568013000-49559
+  HOME: /private/tmp/labyrinth-godot-home/ux-02-1792074685568013000-49559
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/ux-02-1792074685568013000-49559/godot.log --headless --path . --script tests/text_audit_capture_probe.gd -- --validate-only
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+/private/tmp/labyrinth-godot-home/ux-02-1792074685568013000-49559/Library/Application Support/Escape the Umbra Parallel ux-02-1792074685568013000-49559/probes/text_audit/1920x1080
+TEXT AUDIT CAPTURE HEADLESS VALIDATION RESULT: PASS (28 fixtures)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)

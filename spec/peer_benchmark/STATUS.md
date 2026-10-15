@@ -18,18 +18,18 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 ## Milestone
 M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
-## In flight (2026-10-13 11:45)
-- rr-01 merged 7c770a7ec (+ fa0351491); integration suite PASS (694 s), Python 388 OK. Follow-up noted: 17 other enemy
-  turn-order portraits are crops of pre-density art (`build_turn_order_assets.gd --verify-only` fails on them) — a
-  portrait rebuild unit after the roster waves.
-- rr-02 gaoler rounded repaint: judge PASS r6 on front `jobs/chainbound_gaoler/mq3_front_v3` + rear `mq3_rear_v2`
-  (sheet `sheet_pair_mq3_v2.png`, K=4, art_scale 1.0); owner comparison
-  `output/peer-benchmark-2026-10-12/identity_gate/chainbound_gaoler_rounded_compare.png` — awaiting owner. New director
-  steps: `prototype/tone_region.py` (region tone), `prototype/mask_reference.py` (palette reference without front-only
-  parts — the tabard skewed the rear match red; a gate `--match-exclude` option is a follow-up). Earlier gaoler jobs
-  (mq_*, mq3_front*) still reference scratchpad paths → convert to the maquette-kit format (refs in the job) at rr-02.
-- art-04 merged 576717eae (+ follow-ups d9929d446): perched shrike in game, canon flyer reference, maquette-kit gate support
-  (maquette job folders `mq*`, refs committed). `check`: 0 failures, 0 pending_reart warnings.
+## In flight (2026-10-15, owner playtest 7 feedback; Codex model gpt-6-astra for today — revert the Labyrinth profile "model" after)
+- Running: sfx-04 (A/V sync audit + fixes), ux-02 (text/tooltip audit), ux-03 (glossary tooltips for icons/relics),
+  anim-01 (pixel-true idle for static enemies), por-01 (17 stale portraits), vfx-01 (pixel-art elemental FX).
+- Queued (slot cap 6): chr-02 (chronicle spells as card tiles), rr-02 (maquette → cutout pipeline phase 1, gaoler).
+- Rounded gaoler owner-approved 2026-10-15 ("decent enough for now ... go ahead and rig it"); rr-02 rigs it. Shrike in game (art-04).
+  Chain fix (owner: "doesn't actually link up") judge PASS r7: final pair `mq3_front_v4` + `mq3_rear_v3`
+  (`sheet_pair_mq3_v3.png`); rr-02 phase 2 must rerun `tools/maquette_cutout.py` on this pair (only `chain`/`hook` differ).
+- Director next: rewrite text per `spec/text_style_guide.md` once ux-02's inventory lands (→ ux-04); paint hidden
+  material from rr-02's requests; review each unit's captures.
+- Disk cleanup 2026-10-15 (owner-approved): removed 51 merged/old worktrees (branches kept; detached capture heads tagged
+  `archive/peer-benchmark-capture`, `archive/trailer-capture-integration`) and day-old probe homes; 250 GB free. Kept:
+  output/ captures, Labyrinth-archives, gear-devlog-capture (uncommitted changes).
 - Watchdog: `scratchpad/watch_loop2.sh` (tracked background job).
 
 ## Next actions

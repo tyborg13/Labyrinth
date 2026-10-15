@@ -504,12 +504,27 @@
   }
  ],
  "solo": [
+  "head",
   "torso",
   "pelvis",
+  "belt",
+  "tabard",
+  "coat_near",
+  "coat_far",
   "upper_near",
+  "fore_near",
+  "hand_near",
   "upper_far",
+  "fore_far",
+  "hand_far",
   "thigh_near",
-  "thigh_far"
+  "shin_near",
+  "foot_near",
+  "thigh_far",
+  "shin_far",
+  "foot_far",
+  "chain",
+  "hook"
  ],
  "revisions": [
   {
@@ -521,6 +536,11 @@
    "date": "2026-10-13",
    "rev": "r3 framing",
    "why": "paint at the drawn size: ortho 2.33 frames the figure ~864 px tall = 216 game px at K=4, art_scale 1.0"
+  },
+  {
+   "date": "2026-10-15",
+   "rev": "r3 solos",
+   "why": "rr-02 needs every part solo-rendered for hidden-material requests"
   }
  ]
 }

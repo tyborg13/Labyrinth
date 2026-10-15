@@ -1,0 +1,2892 @@
+{
+  "final": true,
+  "decisions": "spec/peer_benchmark/staged/text/decisions.md#glossary",
+  "source": "Labyrinth.worktrees/ux-03/data/glossary.json",
+  "rules_head": "6fa01cbc3",
+  "entries": [
+    {
+      "id": "reflect",
+      "current_name": "Reflect",
+      "current_definition": "Reflect: ranged attacks against it bounce back to the attacker. Hit it up close or with area effects.",
+      "name": "Reflect",
+      "definition": "Single-target ranged hits from more than 1 tile away bounce back to the attacker. Melee, area and Chain hits land.",
+      "words": 20,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/enemy_mechanics/reflect.gd:13-16",
+        "scripts/enemy_mechanics/reflect.gd:22-37",
+        "scripts/combat_engine.gd:11895-11898",
+        "data/enemies.json:3378"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "'Ranged attacks' was too broad: Chain, Push/Pull and splash ranged hits are never reflected. Badge copy at reflect.gd:7 must change with it."
+    },
+    {
+      "id": "dive",
+      "current_name": "Dive",
+      "current_definition": "Dive: flies straight at you (up to %d tiles), knocking each unit it passes %d tile aside, then strikes for %d.",
+      "name": "Dive",
+      "definition": "Flies straight at you, giving each unit it passes Push 1 to its right. Strikes if it lands beside you.",
+      "words": 20,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/enemy_mechanics/dive.gd:52-61",
+        "scripts/enemy_mechanics/dive.gd:79-80",
+        "scripts/enemy_mechanics/dive.gd:102-121",
+        "scripts/enemy_mechanics/dive.gd:147",
+        "scripts/action_icon_library.gd:654-662",
+        "data/enemies.json:3453"
+      ],
+      "aliases": [
+        "dive_line"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Old text baked base data into %d slots (wrong once section/depth scaling applies) and said 'aside'. The damage now comes only from the intent token; ActionIconLibrary.description/dive_tooltip must stop %-formatting this entry."
+    },
+    {
+      "id": "flying",
+      "current_name": "Flying",
+      "current_definition": "Flying: moves over traps, surfaces, Bramble and Ice Pillars and takes no surface damage. Can still be pushed.",
+      "name": "Flying",
+      "definition": "Moves over Bramble and Ice Pillars. Ignores traps, ground and Collision damage. Push, Pull and Wind still move it.",
+      "words": 19,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/enemy_mechanics/dive.gd:21-50",
+        "scripts/combat_engine.gd:11399",
+        "scripts/combat_engine.gd:11416",
+        "scripts/combat_engine.gd:11470",
+        "scripts/combat_engine.gd:7003-7005",
+        "scripts/enemy_mechanics/wind.gd:74-81"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Collision immunity was missing (Bramble still Bleeds it)."
+    },
+    {
+      "id": "bramble",
+      "current_name": "Thornwall",
+      "current_definition": "Bramble: blocks movement for 3 more round(s). A unit pushed into it takes 2 damage and Bleeds.",
+      "name": "Bramble",
+      "definition": "Blocks movement, not sight, for 3 enemy turns. A unit forced into it takes 2 damage and Bleed 1.",
+      "words": 19,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/enemy_mechanics/bramble.gd:61-66",
+        "scripts/enemy_mechanics/bramble.gd:68-83",
+        "scripts/enemy_mechanics/bramble.gd:85-98",
+        "data/enemies.json:3237-3247",
+        "spec/enemies/briar_weaver.md:16-17"
+      ],
+      "aliases": [
+        "grow_bramble"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Label 'Thornwall' was the intent name; the board object is Bramble. Lifetime counts enemy turns (every enemy, including the grow turn), not rounds; 'pushed' also covers Pull. Copies at bramble_view.gd:14 and bramble.gd:97 must follow."
+    },
+    {
+      "id": "lob",
+      "current_name": "Lob Slag",
+      "current_definition": "Lob Slag",
+      "name": "Lob Slag",
+      "definition": "Marks your tile and the 4 around it. On its next turn, they take the shown damage and become Fire.",
+      "words": 20,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/enemy_mechanics/lob.gd:9-24",
+        "scripts/enemy_mechanics/lob.gd:51-88",
+        "scripts/combat_engine.gd:8544-8547",
+        "data/enemies.json:3306-3321"
+      ],
+      "aliases": [
+        "lob_mark",
+        "lob_land"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Old entry had no definition (tooltip read 'Lob Slag / Lob Slag'). Centre tile takes more than the arms; the token shows both."
+    },
+    {
+      "id": "charge",
+      "current_name": "Charge",
+      "current_definition": "Charge <n>/3: at 3 it discharges chain lightning.",
+      "name": "Charge",
+      "definition": "Gains Charge each use. At 3, its next intent is Arc Burst: lightning jumping between nearby units. Shock removes 1.",
+      "words": 20,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/enemy_mechanics/capacitor.gd:6",
+        "scripts/enemy_mechanics/capacitor.gd:23-33",
+        "scripts/enemy_mechanics/capacitor.gd:37-95",
+        "scripts/enemy_mechanics/capacitor.gd:115-116",
+        "scripts/combat_engine.gd:8540-8543"
+      ],
+      "aliases": [
+        "gain_charge",
+        "reset_charge",
+        "chain_discharge"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "It declares at 3 and fires next turn; a fresh Shock removes 1 Charge and cancels a declared discharge. The <n> placeholder is gone (the badge live line shows n/3). Decision Q10: the capacitor's intent is renamed Discharge -> Arc Burst (Discharge stays the card keyword); blast radius in the .md."
+    },
+    {
+      "id": "mirror",
+      "current_name": "Mirror",
+      "current_definition": "Mirror: it copies the last attack you played — <card>: <damage> damage.",
+      "name": "Mirror",
+      "definition": "Copies your last damaging card at base damage, without its effects. The copy is fixed when declared.",
+      "words": 17,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/enemy_mechanics/mimic.gd:22-51",
+        "scripts/enemy_mechanics/mimic.gd:58-72",
+        "scripts/enemy_mechanics/mimic.gd:136-139",
+        "scripts/combat_engine.gd:12149-12150"
+      ],
+      "aliases": [
+        "mirror_last_attack"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Literal <card>/<damage> placeholders removed (the intent name already shows 'Mirror: <card>')."
+    },
+    {
+      "id": "icefall",
+      "current_name": "Icefall",
+      "current_definition": "Icefall: icicles fall on the marked tiles on the Seer's next turn.",
+      "name": "Icefall",
+      "definition": "Marks 3 tiles across your tile. Next turn they take the shown damage; empty ones become Ice Pillars.",
+      "words": 18,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/enemy_mechanics/icefall.gd:17-27",
+        "scripts/enemy_mechanics/icefall.gd:50-72",
+        "scripts/enemy_mechanics/icefall.gd:80-103",
+        "scripts/combat_engine.gd:8544-8546"
+      ],
+      "aliases": [
+        "icefall_mark",
+        "icefall_land"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Old text omitted the damage and the Ice Pillars. Ice Pillars block movement and sight; a unit forced into one takes 2 and shatters it. Chilled targets Freeze (Ice hit). Ice Pillar now has its own entry."
+    },
+    {
+      "id": "wind",
+      "current_name": "Wind",
+      "current_definition": "Wind: at the end of each enemy turn, everything not anchored is pushed one tile with the wind.",
+      "name": "Wind",
+      "definition": "After each of the next 2 enemy turns, Push every unit 1 tile downwind. Anchored units and bosses are immune.",
+      "words": 20,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/enemy_mechanics/wind.gd:17-47",
+        "scripts/enemy_mechanics/wind.gd:58-72",
+        "scripts/enemy_mechanics/wind.gd:74-110",
+        "data/enemies.json:2827"
+      ],
+      "aliases": [
+        "call_wind"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "'Not anchored' was misleading: bosses, guardians, constructs, objective leaders and burrowed units are immune too. Also wind_view.gd:172."
+    },
+    {
+      "id": "tether",
+      "current_name": "Tether",
+      "current_definition": "Tether: lightning strikes every tile between the two Arc Thralls for 4 and Shocks. Break the line to stop it.",
+      "name": "Tether",
+      "definition": "Every unit between two aligned Arc Thralls takes the shown damage and Shock. Terrain between them stops it.",
+      "words": 18,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/enemy_mechanics/tether.gd:14-26",
+        "scripts/enemy_mechanics/tether.gd:28-60",
+        "scripts/enemy_mechanics/tether.gd:85-133",
+        "data/enemies.json:2888"
+      ],
+      "aliases": [
+        "tether_beam"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "'for 4' was hard-coded (depth scaling adds damage). Standing in the line does not break it; only killing/moving a Thrall or terrain between them does."
+    },
+    {
+      "id": "veil",
+      "current_name": "Veiled",
+      "current_definition": "Veiled: only attacks from an adjacent tile, or area effects, can hit it.",
+      "name": "Veiled",
+      "definition": "You can target it only from an adjacent tile. Untargeted hits, like Area Attacks and Chain, still land.",
+      "words": 18,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/enemy_mechanics/veil.gd:20-27",
+        "scripts/combat_engine.gd:1376-1381",
+        "scripts/combat_engine.gd:1523"
+      ],
+      "aliases": [
+        "veil_blink"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Old text missed that Chain, conduction and Sweeping Strike also hit, and that reach melee from 2 tiles is blocked."
+    },
+    {
+      "id": "burrow",
+      "current_name": "Burrow",
+      "current_definition": "Burrowed; marks your current tile. Erupt is its next intent.",
+      "name": "Burrow",
+      "definition": "Burrows and marks your tile; Erupt comes next. Burrowed, it can't be targeted or moved, but Area Attacks hit it.",
+      "words": 20,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/enemy_mechanics/burrow.gd:14-39",
+        "scripts/combat_engine.gd:8548",
+        "scripts/combat_engine.gd:7858",
+        "scripts/combat_engine.gd:6977",
+        "scripts/enemy_mechanics/burrow_view.gd:98"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "erupt",
+      "current_name": "Erupt",
+      "current_definition": "Surfaces at the mark, displaces its occupant, pushes adjacent units, leaves Rubble and gains Expose 2.",
+      "name": "Erupt",
+      "definition": "Emerges at the mark, hitting and displacing its occupant. Neighbors get Push 1. Leaves Rubble; gains Expose 2.",
+      "words": 18,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/enemy_mechanics/burrow.gd:50-102",
+        "scripts/enemy_mechanics/burrow.gd:131-155",
+        "data/enemies.json:3020"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Old text omitted the damage on the marked tile; 'Surfaces' clashed with the ground noun. Falls back to the nearest free tile if the mark is blocked."
+    },
+    {
+      "id": "burst",
+      "current_name": "Bursts",
+      "current_definition": "When this dies, it deals the shown damage to everything next to it.",
+      "name": "Bursts",
+      "definition": "When it dies, it deals the shown damage to every unit in the 8 tiles around it, then leaves Fire.",
+      "words": 20,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/enemy_mechanics/death_burst.gd:6-65",
+        "scripts/enemy_mechanics/kindle.gd:3-11",
+        "data/enemies.json:3064",
+        "scripts/combat_engine.gd:12137"
+      ],
+      "aliases": [
+        "kindle"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "'Next to it' means the 4 orthogonal tiles everywhere else, but Burst hits all 8; the Fire it leaves was missing. Badge copy at death_burst_view.gd:22."
+    },
+    {
+      "id": "raise_cover",
+      "current_name": "Raise Cover",
+      "current_definition": "Spend 1 independent Move and all Stoneskin. Place cover within 2 with that much HP.",
+      "name": "Raise Cover",
+      "definition": "Spend 1 independent Move and all Stoneskin. Place cover within 2 with that much HP.",
+      "words": 15,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/action_icon_library.gd:25",
+        "spec/guardian_combats/approved_rewards.md:56-58",
+        "data/relics.json:1732-1760"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Deleted (decision Q7): no action maps to this icon; the mechanic does not exist (the relic it was designed for now raises an outcrop).",
+      "deleted": true
+    },
+    {
+      "id": "reclaim_cover",
+      "current_name": "Reclaim Cover",
+      "current_definition": "Spend 1 independent Move to remove adjacent owned cover and recover its surviving HP as Stoneskin.",
+      "name": "Reclaim Cover",
+      "definition": "Spend 1 independent Move to remove adjacent owned cover and recover its surviving HP as Stoneskin.",
+      "words": 16,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/action_icon_library.gd:26",
+        "spec/guardian_combats/approved_rewards.md:56-58"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Deleted (decision Q7): no live mechanic.",
+      "deleted": true
+    },
+    {
+      "id": "surface",
+      "current_name": "Shape Ground",
+      "current_definition": "Creates a surface in the shown area.",
+      "name": "Shape Ground",
+      "definition": "Place the shown ground on the shown tiles. A tile holds Rubble plus one other ground.",
+      "words": 16,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/board_surface_rules.gd:74-100",
+        "scripts/board_surface_rules.gd:5",
+        "scripts/combat_engine.gd:1613-1614"
+      ],
+      "aliases": [
+        "surface_adjacent_enemies"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Current 'Creates a surface in the shown area' uses 'surface'; family noun is now 'ground'. Rubble is a separate layer; Fire/Ice/Electrified replace each other."
+    },
+    {
+      "id": "surface_fire",
+      "current_name": "Fire",
+      "current_definition": "Deals 3 damage on turn start and 2 damage when entered.",
+      "name": "Fire",
+      "definition": "A unit that enters takes 2 damage. One that starts its turn here takes 3.",
+      "words": 15,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/board_surface_rules.gd:7-8",
+        "scripts/combat_engine.gd:11431",
+        "scripts/combat_engine.gd:7561",
+        "scripts/combat_engine.gd:7591",
+        "scripts/combat_engine.gd:11399",
+        "scripts/combat_engine.gd:11415"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Says whose turn start; Flying units are exempt (Flying entry)."
+    },
+    {
+      "id": "surface_ice",
+      "current_name": "Ice",
+      "current_definition": "Entering or starting a turn on Ice applies Chilled.",
+      "name": "Ice",
+      "definition": "A unit that enters or starts its turn here is Chilled until it leaves.",
+      "words": 14,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:11427-11428",
+        "scripts/combat_engine.gd:11463-11465",
+        "scripts/board_surface_rules.gd:153-160"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Adds the duration (sync_chilled clears ground Chill off Ice)."
+    },
+    {
+      "id": "surface_electrified",
+      "current_name": "Electrified",
+      "current_definition": "Lightning spreads through connected Electrified tiles. Chain can jump through these tiles to reach other targets.",
+      "name": "Electrified",
+      "definition": "A Lightning hit that touches it spreads to every foe on connected Electrified tiles. Chain relays through it.",
+      "words": 18,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:11670",
+        "scripts/combat_engine.gd:11728-11757",
+        "scripts/board_surface_rules.gd:38-40",
+        "scripts/board_surface_rules.gd:172-196",
+        "scripts/combat_engine.gd:12348-12364"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Conduction needs a damaging Lightning hit; it hits the attacker's foes only."
+    },
+    {
+      "id": "surface_rubble",
+      "current_name": "Rubble",
+      "current_definition": "Costs 2 movement to leave.",
+      "name": "Rubble",
+      "definition": "Costs 2 movement to leave.",
+      "words": 5,
+      "changed": false,
+      "reason": "unchanged",
+      "evidence": [
+        "scripts/board_surface_rules.gd:162-170"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "chilled",
+      "current_name": "Chilled",
+      "current_definition": "Takes +2 attack damage. An Ice hit Freezes this character and consumes the Ice beneath them.",
+      "name": "Chilled",
+      "definition": "Takes 2 more damage from attacks. An Ice attack Freezes it and Expends the Ice beneath.",
+      "words": 16,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/board_surface_rules.gd:9",
+        "scripts/combat_engine.gd:4617-4621",
+        "scripts/combat_engine.gd:4765-4769",
+        "scripts/combat_engine.gd:11488-11505"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Uses Expend for ground removal. Glossary text is correct; the Grimoire copy (data/grimoire.json entries/88) wrongly says 'while on Ice' (relic Chill persists off Ice, surface_variety_relic_rules.gd:123-125) and must change."
+    },
+    {
+      "id": "detonate",
+      "current_name": "Detonate",
+      "current_definition": "Consumes Fire tiles to damage targets on them and their four neighboring tiles.",
+      "name": "Detonate",
+      "definition": "Expend the chosen Fire, or the shown ground. Hit everyone on those tiles and next to them once, including you.",
+      "words": 20,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:12022-12063",
+        "scripts/combat_engine.gd:12044-12046",
+        "scripts/combat_engine.gd:12057-12061",
+        "scripts/action_icon_library.gd:1316-1317"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Old text said 'targets' and 'Fire tiles'; the blast hits every unit, you and your illusions included, unless the card shows 'spares you' (only Immolation), and Magma Vent / Basalt Kiln detonate Rubble."
+    },
+    {
+      "id": "surface_consume",
+      "current_name": "Consume Ground",
+      "current_definition": "Consumes the shown surface to gain its reward.",
+      "name": "Expend",
+      "definition": "Remove the shown ground from its tile to power the listed effect.",
+      "words": 12,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/combat_engine.gd:12106-12121",
+        "scripts/surface_variety_relic_rules.gd:109",
+        "scripts/surface_card_rules.gd:139-143"
+      ],
+      "aliases": [
+        "consume_surface",
+        "Expends",
+        "Expended",
+        "Expending"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Renamed from 'Consume Ground' so removing ground never shares a word with the item keyword Consume. Quarry Winch (id briar_winch, data/relics.json:1360) proposed text: 'Your @icon(push) and @icon(pull) can Expend @icon(surface_rubble) under an enemy to move it in any of the 4 directions.' (19 words; rules: surface_relic_rules.gd:59-61, 91-92, 141-145, 164-166; combat_engine.gd:6788-6791). The prose word Expend then resolves to this entry, so glossary.gd TODO_DESIGN_GLOSSARY_CONSUME_PROSE can be deleted. Decision Q1: Expend (Spend stays for points and currency)."
+    },
+    {
+      "id": "surface_relocate",
+      "current_name": "Relocate Ground",
+      "current_definition": "Moves a surface to another tile.",
+      "name": "Relocate Ground",
+      "definition": "Move one ground tile to another open tile.",
+      "words": 8,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/combat_engine.gd:11614-11628",
+        "scripts/board_surface_rules.gd:55-61"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "melee",
+      "current_name": "Melee",
+      "current_definition": "Deals damage up close.",
+      "name": "Melee",
+      "definition": "Deal that much damage to an adjacent target, or one within the shown Range.",
+      "words": 14,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:1209-1229",
+        "scripts/action_icon_library.gd:1250-1255"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "ranged",
+      "current_name": "Ranged",
+      "current_definition": "Deals damage from a distance.",
+      "name": "Ranged",
+      "definition": "Deal that much damage to a target within Range and line of sight.",
+      "words": 13,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:1230-1252",
+        "scripts/combat_engine.gd:12405-12411",
+        "scripts/action_icon_library.gd:1264-1266"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "pierce",
+      "current_name": "Pierce",
+      "current_definition": "Deals damage straight through block and stoneskin.",
+      "name": "Pierce",
+      "definition": "This damage ignores Block and Stoneskin.",
+      "words": 6,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/combat_engine.gd:5924-5925",
+        "scripts/combat_engine.gd:4632-4644"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "move",
+      "current_name": "Move",
+      "current_definition": "Moves across board tiles.",
+      "name": "Move",
+      "definition": "Walk up to that many tiles around obstacles. Ground and traps you enter take effect.",
+      "words": 15,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:1136-1147",
+        "scripts/combat_engine.gd:11469-11486",
+        "scripts/board_surface_rules.gd:162-170"
+      ],
+      "aliases": [
+        "move_toward"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "retreat",
+      "current_name": "Retreat",
+      "current_definition": "Moves away from the target.",
+      "name": "Retreat",
+      "definition": "Moves up to that many tiles away from its target.",
+      "words": 10,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:4421-4430",
+        "scripts/action_icon_library.gd:1245-1246"
+      ],
+      "aliases": [
+        "move_away"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "blink",
+      "current_name": "Blink",
+      "current_definition": "Teleports to another tile.",
+      "name": "Blink",
+      "definition": "Teleport to a visible open tile within that many tiles, ignoring anything between.",
+      "words": 13,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:1148-1162"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "range",
+      "current_name": "Range",
+      "current_definition": "Maximum target distance in tiles.",
+      "name": "Range",
+      "definition": "Maximum distance in tiles, counted without diagonals.",
+      "words": 7,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:1133",
+        "scripts/combat_engine.gd:1151",
+        "scripts/combat_engine.gd:1216"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "block",
+      "current_name": "Block",
+      "current_definition": "Absorbs damage until your next turn.",
+      "name": "Block",
+      "definition": "Absorbs damage before Health. Lost at the start of its holder's next turn.",
+      "words": 13,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:2861-2862",
+        "scripts/combat_engine.gd:2515-2516",
+        "scripts/combat_engine.gd:4776-4781",
+        "scripts/maneuver_rules.gd:599-602"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "'until your next turn' is wrong for enemy Block, which ends at the enemy's own turn start (Petrify Block survives the skipped turn)."
+    },
+    {
+      "id": "stoneskin",
+      "current_name": "Stoneskin",
+      "current_definition": "Persistent armor that absorbs damage across turns.",
+      "name": "Stoneskin",
+      "definition": "Absorbs damage after Block. Lasts until used up or combat ends.",
+      "words": 11,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:4782-4786",
+        "scripts/combat_engine.gd:4637-4644",
+        "scripts/combat_engine.gd:824-830"
+      ],
+      "aliases": [
+        "convert_block_to_stoneskin"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "heal",
+      "current_name": "Heal",
+      "current_definition": "Restores health.",
+      "name": "Heal",
+      "definition": "Restore that much Health, up to the maximum.",
+      "words": 8,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:11134-11141"
+      ],
+      "aliases": [
+        "heal_self"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "draw",
+      "current_name": "Draw",
+      "current_definition": "Adds cards to your hand.",
+      "name": "Draw",
+      "definition": "Draw that many cards. Your hand holds at most 7.",
+      "words": 10,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:7757-7762",
+        "scripts/battlefield_item_rules.gd:3"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "card_play",
+      "current_name": "Card Play",
+      "current_definition": "Adds card plays for this turn.",
+      "name": "Card Play",
+      "definition": "Playing a card spends 1. Refills each turn. Killing an enemy on your turn grants 1 more, except summons.",
+      "words": 19,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:54",
+        "scripts/combat_engine.gd:2868",
+        "scripts/combat_engine.gd:2047-2053",
+        "scripts/combat_engine.gd:4666-4669",
+        "scripts/combat_engine.gd:1637-1641"
+      ],
+      "aliases": [
+        "Card Plays"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Old text described only the +N token. Kill refund: not summoned, credited on your turn."
+    },
+    {
+      "id": "flurry",
+      "current_name": "Flurry",
+      "current_definition": "Repeats this card once per remaining card play, spending them all. Pays Time once.",
+      "name": "Flurry",
+      "definition": "Repeat this card once per Card Play left, spending them all, on the same target. Pay its Time once.",
+      "words": 19,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:1029-1038",
+        "scripts/combat_engine.gd:1013-1027",
+        "scripts/combat_engine.gd:2012",
+        "scripts/combat_engine.gd:2003"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "follow_up",
+      "current_name": "Follow-up",
+      "current_definition": "Gains the listed bonus if you already played a card this turn.",
+      "name": "Follow-up",
+      "definition": "If you already played a card this turn: gain the listed bonus.",
+      "words": 12,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/card_keyword_rules.gd:48-52",
+        "scripts/card_keyword_rules.gd:78-84"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "empower",
+      "current_name": "Empower",
+      "current_definition": "Optional: pay the listed extra cost while playing this card to gain the listed bonus.",
+      "name": "Empower",
+      "definition": "You can pay the listed extra cost as you play this card to gain the listed bonus.",
+      "words": 17,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/card_keyword_rules.gd:83-84",
+        "scripts/card_keyword_rules.gd:169-180",
+        "spec/card_keywords.md:57-66"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "stagger",
+      "current_name": "Stagger",
+      "current_definition": "Delays the target's next turn by this much Time. Dragons take half. At most 6 per enemy each turn.",
+      "name": "Stagger",
+      "definition": "Delays the target's next turn by this much Time. Dragons take half. At most 6 per enemy each turn.",
+      "words": 19,
+      "changed": false,
+      "reason": "unchanged",
+      "evidence": [
+        "scripts/card_keyword_rules.gd:17",
+        "scripts/card_keyword_rules.gd:199-203",
+        "scripts/card_keyword_rules.gd:212-233"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "time",
+      "current_name": "Time",
+      "current_definition": "Delays your next turn. Each unused play takes 5.",
+      "name": "Time",
+      "definition": "Cards cost Time; the more you spend, the later your next turn. Playing under 2 cards adds Wait.",
+      "words": 18,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:2089-2095",
+        "scripts/combat_engine.gd:3007-3016",
+        "scripts/combat_engine.gd:54",
+        "scripts/combat_engine.gd:60",
+        "scripts/tempo_relic_rules.gd:25-30",
+        "spec/turn_clock.md:12-31"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Audit finding: 'each unused play takes 5' ignores the cap; Wait counts only the 2 base plays (bonus and banked plays never add Wait). The Wait rule moves to its own new entry. The Time icon is also reused as a duration chip (light, Vision, Truesight, Eclipse turns); see director question on the wait/turns entries."
+    },
+    {
+      "id": "illusion",
+      "current_name": "Illusion",
+      "current_definition": "Creates a stationary copy that enemies can target.",
+      "name": "Illusion",
+      "definition": "Create a decoy with that much Health. Enemies attack it when it's at least as close as you.",
+      "words": 18,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:4921-4941",
+        "scripts/combat_engine.gd:4065-4068"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "illuminate",
+      "current_name": "Illuminate",
+      "current_definition": "Creates a light that reveals nearby Umbra tiles.",
+      "name": "Light",
+      "definition": "Reveals tiles within its radius through the Umbra for the shown number of your turns.",
+      "words": 15,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/combat_engine.gd:1199-1206",
+        "scripts/combat_engine.gd:5017-5070",
+        "scripts/combat_engine.gd:5124-5158",
+        "scripts/combat_engine.gd:6658-6670",
+        "scripts/action_icon_library.gd:1104",
+        "scripts/action_icon_library.gd:1510"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Cards, selectors and conditions all say 'Light' (create Light, in Light); only the icon label and Grimoire title say 'Illuminate'."
+    },
+    {
+      "id": "vision",
+      "current_name": "Vision",
+      "current_definition": "Expands the light centered on you.",
+      "name": "Vision",
+      "definition": "Widen your sight radius by that much for the shown turns. It creates no Light.",
+      "words": 15,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:5072-5088",
+        "scripts/combat_engine.gd:5126-5131",
+        "scripts/combat_engine.gd:316-318",
+        "scripts/combat_engine.gd:6658-6670"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Old text 'Expands the light centered on you' is wrong: Vision adds sight radius and is never a light source (Light checks ignore it). Grimoire entry repeats the error."
+    },
+    {
+      "id": "truesight",
+      "current_name": "Truesight",
+      "current_definition": "Reveals and permits targeting enemies through the Umbra.",
+      "name": "Truesight",
+      "definition": "For the shown turns, every enemy counts as visible: you see its intent and can target it.",
+      "words": 17,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:375-376",
+        "scripts/combat_engine.gd:5093-5106"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Range and line of sight still apply; tiles stay dark."
+    },
+    {
+      "id": "dispel_umbra",
+      "current_name": "Dispel Umbra",
+      "current_definition": "Reduces this combat's Umbra stage.",
+      "name": "Dispel Umbra",
+      "definition": "Lower the Umbra by that many stages for the rest of this combat.",
+      "words": 13,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:5108-5122",
+        "scripts/combat_engine.gd:303-310"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "eclipse",
+      "current_name": "Eclipse",
+      "current_definition": "Forces the arena into absolute Umbra. Radiance and light offer protection.",
+      "name": "Eclipse",
+      "definition": "The darkest Umbra stage: you see only 1 tile around you. Light still reveals; Dispel Umbra lowers it.",
+      "words": 18,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:91-99",
+        "scripts/combat_engine.gd:228-231",
+        "scripts/combat_engine.gd:265-266",
+        "scripts/combat_engine.gd:304-310",
+        "scripts/action_icon_library.gd:1477"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "The Umbra stage, distinct from the Last Eclipse attack that forces it."
+    },
+    {
+      "id": "bleed",
+      "current_name": "Bleed",
+      "current_definition": "Deals damage before moving or attacking. Lasts through the next turn.",
+      "name": "Bleed",
+      "definition": "Before each move or attack, it takes damage equal to its Bleed. Clears when its turn ends.",
+      "words": 17,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:125-126",
+        "scripts/combat_engine.gd:7472-7482",
+        "scripts/combat_engine.gd:6194-6196",
+        "scripts/combat_engine.gd:7531-7551",
+        "scripts/combat_engine.gd:2224",
+        "scripts/combat_engine.gd:2622"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Old 'Deals damage' hid that the amount equals the Bleed value; 'lasts through the next turn' is wrong when Bleed lands during the bearer's own turn (Retaliate), since it clears at that turn's end."
+    },
+    {
+      "id": "expose",
+      "current_name": "Expose",
+      "current_definition": "The next hit against this target deals extra damage.",
+      "name": "Expose",
+      "definition": "The next attack that damages it deals that much more damage. Then Expose ends.",
+      "words": 14,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:6198-6199",
+        "scripts/combat_engine.gd:10361",
+        "scripts/combat_engine.gd:11909-11911",
+        "scripts/combat_engine.gd:4762-4764"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "sunder",
+      "current_name": "Sunder",
+      "current_definition": "Breaks block and stoneskin before damage lands.",
+      "name": "Sunder",
+      "definition": "Before damage, remove up to that much Block, then Stoneskin, from the target.",
+      "words": 13,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:4704-4720",
+        "scripts/combat_engine.gd:11899"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Old text implied all Block and Stoneskin break; Sunder N removes at most N."
+    },
+    {
+      "id": "exhaust",
+      "current_name": "Exhaust",
+      "current_definition": "Removes this card from the deck for the rest of combat.",
+      "name": "Exhaust",
+      "definition": "After use, this card leaves your deck until combat ends.",
+      "words": 10,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:1972-1986"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "consume",
+      "current_name": "Consume",
+      "current_definition": "Uses this item card once, then removes it from the run.",
+      "name": "Consume",
+      "definition": "After use, this item is gone for the rest of the run.",
+      "words": 12,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:1955-1970",
+        "scripts/battlefield_item_rules.gd:56-61"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "retaliate",
+      "current_name": "Retaliate",
+      "current_definition": "Until your next turn, an enemy that hits you in melee takes this much damage (Block and Stoneskin absorb it) and any listed riders. Several Retaliates add up.",
+      "name": "Retaliate",
+      "definition": "Until your next turn, each enemy that hits you up close takes that much damage and the listed effects.",
+      "words": 19,
+      "changed": true,
+      "reason": "length",
+      "evidence": [
+        "scripts/retaliate_rules.gd:4-9",
+        "scripts/retaliate_rules.gd:21-26",
+        "scripts/retaliate_rules.gd:34-36",
+        "scripts/retaliate_rules.gd:62-70"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "'up close' = a melee action or any attack from an adjacent tile."
+    },
+    {
+      "id": "quicken",
+      "current_name": "Quicken",
+      "current_definition": "Your next card this turn costs this much less Time (minimum 1). Several Quickens add up; unused Quicken ends with your turn.",
+      "name": "Quicken",
+      "definition": "Your next card this turn costs that much less Time, minimum 1. Unused Quicken ends with your turn.",
+      "words": 18,
+      "changed": true,
+      "reason": "length",
+      "evidence": [
+        "scripts/tempo_rules.gd:43-46",
+        "scripts/tempo_rules.gd:55-75",
+        "scripts/tempo_rules.gd:99-102",
+        "scripts/tempo_rules.gd:112-117"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "rite",
+      "current_name": "Rite",
+      "current_definition": "Rite: Exhaust. Lasts for the rest of this combat.",
+      "name": "Rite",
+      "definition": "Its effect lasts for the rest of this combat. Exhaust.",
+      "words": 10,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/rite_rules.gd:4-7",
+        "scripts/rite_rules.gd:30-43",
+        "scripts/combat_engine.gd:2025-2027"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "next_attack",
+      "current_name": "Next Attack",
+      "current_definition": "Your next attack on a later card this turn gains the shown bonus, then the bonus is spent. Unused bonuses end with your turn.",
+      "name": "Next Attack",
+      "definition": "Your next attack on a later card this turn gets the shown bonus. Unused bonuses end with your turn.",
+      "words": 19,
+      "changed": true,
+      "reason": "length",
+      "evidence": [
+        "scripts/tempo_rules.gd:149-170",
+        "scripts/tempo_rules.gd:194-210",
+        "scripts/tempo_rules.gd:112-117"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "swap",
+      "current_name": "Swap",
+      "current_definition": "Swap places with a visible one-tile enemy or one of your illusions. Both of you arrive normally; nothing collides, and Anchored does not stop it.",
+      "name": "Swap",
+      "definition": "Trade places with a visible one-tile enemy or your illusion. Both trigger the ground where they land.",
+      "words": 17,
+      "changed": true,
+      "reason": "length",
+      "evidence": [
+        "scripts/maneuver_rules.gd:404-432",
+        "scripts/maneuver_rules.gd:434-470"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "petrify",
+      "current_name": "Petrify",
+      "current_definition": "The enemy skips its next turn (the skipped turn still costs its Time) and gains Block that lasts through your next turn. Not Freeze: no extra damage. Dragons are immune.",
+      "name": "Petrify",
+      "definition": "Skips its next turn, still paying its Time. Gains the shown Block, kept through that turn. Dragons are immune.",
+      "words": 19,
+      "changed": true,
+      "reason": "length",
+      "evidence": [
+        "scripts/maneuver_rules.gd:557-561",
+        "scripts/maneuver_rules.gd:583-602",
+        "scripts/combat_engine.gd:2550-2551",
+        "scripts/combat_engine.gd:7557-7573"
+      ],
+      "aliases": [
+        "Petrified"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "cleanse",
+      "current_name": "Cleanse",
+      "current_definition": "Removes the listed statuses from you: Bleed, Immobilize, Chilled or Shock.",
+      "name": "Cleanse",
+      "definition": "Remove the listed statuses from yourself.",
+      "words": 6,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/maneuver_rules.gd:485-511",
+        "scripts/action_icon_library.gd:1556-1564"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "skate",
+      "current_name": "Skate",
+      "current_definition": "This turn, moving onto Ice costs no movement and Ice doesn't Chill you.",
+      "name": "Skate",
+      "definition": "This turn, stepping onto Ice costs no movement, and Ice doesn't make you Chilled.",
+      "words": 14,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/maneuver_rules.gd:32-33",
+        "scripts/maneuver_rules.gd:118-122",
+        "scripts/combat_engine.gd:11458-11459"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "anchored",
+      "current_name": "Anchored",
+      "current_definition": "Until your next turn, you can't be pushed or pulled: Push and Pull move you 0 tiles and never collide.",
+      "name": "Anchored",
+      "definition": "Push, Pull and Wind don't move it or cause a Collision. Yours lasts until your next turn.",
+      "words": 17,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/maneuver_rules.gd:36-37",
+        "scripts/enemy_mechanics/wind.gd:66-72",
+        "scripts/combat_engine.gd:7031-7032",
+        "scripts/combat_engine.gd:6970"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Enemies can be Anchored too (enemy data 'anchored'), and Anchored also stops Wind."
+    },
+    {
+      "id": "fireproof",
+      "current_name": "Fireproof",
+      "current_definition": "Fire doesn't damage you this turn.",
+      "name": "Fireproof",
+      "definition": "This turn, Fire ground doesn't damage you.",
+      "words": 7,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/maneuver_rules.gd:38-39",
+        "scripts/maneuver_rules.gd:96-97",
+        "scripts/combat_engine.gd:11441-11442"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Only ground Fire; Fire-element attacks still hit."
+    },
+    {
+      "id": "surface_convert",
+      "current_name": "Convert Ground",
+      "current_definition": "Turns the chosen surface tile, and every tile of it connected to it when shown, into another surface. Each enemy on a converted tile takes the damage.",
+      "name": "Convert Ground",
+      "definition": "Turn the chosen ground tile, and its connected tiles when shown, into another ground. Hit each enemy on them.",
+      "words": 19,
+      "changed": true,
+      "reason": "length",
+      "evidence": [
+        "scripts/surface_card_rules.gd:361-380",
+        "scripts/surface_card_rules.gd:338-359",
+        "scripts/surface_card_rules.gd:415-440"
+      ],
+      "aliases": [
+        "convert_surface"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "discharge",
+      "current_name": "Discharge",
+      "current_definition": "Removes a connected Electrified network. Each enemy on it or next to it takes the damage once.",
+      "name": "Discharge",
+      "definition": "Remove a connected Electrified network. Hit each enemy on it or next to it once.",
+      "words": 15,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/surface_card_rules.gd:382-402"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "all_enemies",
+      "current_name": "Sweeping Strike",
+      "current_definition": "Hits every enemy you can see that meets the shown condition. There is no target to choose, and enemies hidden by the Umbra are never hit.",
+      "name": "Sweeping Strike",
+      "definition": "Hit every enemy you can see that meets the shown condition, within Range if shown. No target to choose.",
+      "words": 19,
+      "changed": true,
+      "reason": "length",
+      "evidence": [
+        "scripts/surface_card_rules.gd:456-483"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "illusion_swap",
+      "current_name": "Swap Illusion",
+      "current_definition": "You and one of your illusions trade tiles. Both of you trigger the ground and traps where you land. Immobilize prevents it.",
+      "name": "Swap Illusion",
+      "definition": "Swap with one of your visible illusions, anywhere unless a Range is shown.",
+      "words": 13,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/illusion_card_rules.gd:316-357",
+        "scripts/combat_engine.gd:1090-1091"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Kept separate with its own icon (decision Q4); defined by reference to Swap. Unlike Swap it needs no line of sight."
+    },
+    {
+      "id": "shatter_illusion",
+      "current_name": "Shatter Illusion",
+      "current_definition": "Destroys one of your illusions to blast each enemy next to it.",
+      "name": "Shatter Illusion",
+      "definition": "Destroy one of your illusions in range. Hit each enemy next to it.",
+      "words": 13,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/illusion_card_rules.gd:359-374"
+      ],
+      "aliases": [
+        "destroy_illusion"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "freeze",
+      "current_name": "Freeze",
+      "current_definition": "Skips the next turn and takes triple attack damage.",
+      "name": "Freeze",
+      "definition": "Skips its next turn. Takes triple damage from attacks until then.",
+      "words": 11,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:7556-7584",
+        "scripts/combat_engine.gd:4617-4619",
+        "scripts/board_surface_rules.gd:10",
+        "scripts/combat_engine.gd:1086"
+      ],
+      "aliases": [
+        "Frozen"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "shock",
+      "current_name": "Shock",
+      "current_definition": "Cancels the next non-movement action.",
+      "name": "Shock",
+      "definition": "On its next turn, it can only Move or Blink.",
+      "words": 10,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:1087-1089",
+        "scripts/combat_engine.gd:2569",
+        "scripts/combat_engine.gd:7565-7570",
+        "scripts/combat_engine.gd:6201-6203"
+      ],
+      "aliases": [
+        "Shocked"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Old text said it cancels the next non-movement action; code cancels every non-movement action of the whole next turn."
+    },
+    {
+      "id": "immobilize",
+      "current_name": "Immobilize",
+      "current_definition": "Prevents movement and Blink next turn.",
+      "name": "Immobilize",
+      "definition": "Can't Move, Blink or Swap during its next turn.",
+      "words": 9,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:1090-1091",
+        "scripts/combat_engine.gd:2571-2572",
+        "scripts/combat_engine.gd:7566-7574",
+        "scripts/maneuver_rules.gd:106-107"
+      ],
+      "aliases": [
+        "Immobilized"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Old text omitted Swap. 'Rooted' (self-applied, this turn) is renamed to Immobilize; its token keeps a 'this turn' override."
+    },
+    {
+      "id": "chain",
+      "current_name": "Chain",
+      "current_definition": "Jumps between targets within the shown range. Electrified tiles extend its reach.",
+      "name": "Chain",
+      "definition": "Jump to a new target within that many tiles, repeating from each one. Electrified tiles relay the jump.",
+      "words": 18,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:11669",
+        "scripts/combat_engine.gd:11687-11718",
+        "scripts/combat_engine.gd:12298-12366"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "The value is jump distance, not a jump count; jumps continue while a new target is in reach. The Storm Capacitor's discharge (chain_discharge) ignores Electrified tiles, so its alias moves to Charge."
+    },
+    {
+      "id": "push",
+      "current_name": "Push",
+      "current_definition": "Forces the target away in one straight line. If it's stopped early, it collides.",
+      "name": "Push",
+      "definition": "Move the target that many tiles straight away from the source. If blocked: Collision.",
+      "words": 14,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/combat_engine.gd:6744-6749",
+        "scripts/combat_engine.gd:6998-7012"
+      ],
+      "aliases": [
+        "force_area"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "pull",
+      "current_name": "Pull",
+      "current_definition": "Forces the target closer in one straight line. If it's stopped early, it collides.",
+      "name": "Pull",
+      "definition": "Move the target that many tiles straight toward the source. If blocked before reaching it: Collision.",
+      "words": 16,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:6744-6749",
+        "scripts/combat_engine.gd:6757-6765"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "A Pull that reaches its source stops without colliding."
+    },
+    {
+      "id": "collision",
+      "current_name": "Collision",
+      "current_definition": "A stopped Push or Pull deals 2 damage per tile not moved to the target and to whatever stopped it. Walls take nothing. Block and Stoneskin absorb it.",
+      "name": "Collision",
+      "definition": "A stopped Push or Pull deals 2 damage per lost tile to the target and to its blocker.",
+      "words": 18,
+      "changed": true,
+      "reason": "length",
+      "evidence": [
+        "scripts/combat_engine.gd:132",
+        "scripts/combat_engine.gd:6744-6749",
+        "scripts/forced_relic_rules.gd:65-105",
+        "scripts/combat_engine.gd:6998-7004"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "health",
+      "current_name": "Health",
+      "current_definition": "Health paid or restored.",
+      "name": "Health",
+      "definition": "At 0 Health a unit is defeated or terrain breaks. Your Health carries over between rooms.",
+      "words": 16,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:4787-4795",
+        "scripts/combat_engine.gd:4892-4910",
+        "scripts/combat_engine.gd:824-827",
+        "scripts/action_icon_library.gd:1456"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Icon also marks max Health and terrain Health, not only 'paid or restored'."
+    },
+    {
+      "id": "health_cost",
+      "current_name": "Health Cost",
+      "current_definition": "Health paid to play this card.",
+      "name": "Health Cost",
+      "definition": "Lose that much Health when the card finishes. Block and Stoneskin don't prevent it.",
+      "words": 14,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:2003-2005",
+        "scripts/defense_relic_rules.gd:69-81"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Paid after the card resolves, bypassing Block (old text implied a cost paid up front)."
+    },
+    {
+      "id": "aoe",
+      "current_name": "Area Attack",
+      "current_definition": "Affects a pattern of board tiles.",
+      "name": "Area Attack",
+      "definition": "Hits each foe on the pattern's red tiles, seen or unseen.",
+      "words": 11,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:11655-11666",
+        "scripts/action_icon_library.gd:1817-1838",
+        "scripts/combat_engine.gd:7985-7999"
+      ],
+      "aliases": [
+        "Area Attacks"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "lightning_strikes",
+      "current_name": "Lightning Strikes",
+      "current_definition": "Calls down lightning across several marked tiles.",
+      "name": "Lightning Strikes",
+      "definition": "Strikes the marked tiles for the shown damage, then turns them Electrified, replacing its old field.",
+      "words": 16,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/dragon_pressure_fields.gd:13-39",
+        "scripts/dragon_pressure_fields.gd:74-85",
+        "scripts/combat_engine.gd:6374-6381",
+        "data/enemies.json:1641-1653"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "The count chip uses the Shock icon though no Shock is applied (AIL:1430)."
+    },
+    {
+      "id": "summon_minions",
+      "current_name": "Summon Minions",
+      "current_definition": "Adds new enemy units to the battle.",
+      "name": "Summon",
+      "definition": "Calls the shown enemy, up to a limit of living ones. Killing a summon grants no Card Play.",
+      "words": 18,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/action_icon_library.gd:1432-1438",
+        "scripts/combat_engine.gd:8221-8227",
+        "scripts/combat_engine.gd:4662-4666",
+        "scripts/guardian_combat_rules.gd:277-285"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "raise_terrain",
+      "current_name": "Raise Terrain",
+      "current_definition": "Creates attackable terrain on the board.",
+      "name": "Raise Terrain",
+      "definition": "Raises attackable terrain with the shown Health. It blocks movement; some kinds also block sight.",
+      "words": 15,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/dragon_combat_rules.gd:105-162",
+        "scripts/guardian_combat_rules.gd:315-321",
+        "scripts/action_icon_library.gd:1439-1453",
+        "scripts/combat_engine.gd:12405-12411"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Alias outcrop moves to the new Outcrop entry (the action-to-icon map in action_icon_library.gd:493 is unchanged)."
+    },
+    {
+      "id": "terrain_burst",
+      "current_name": "Terrain Burst",
+      "current_definition": "Ruptures the arena around surviving terrain.",
+      "name": "Terrain Burst",
+      "definition": "Hits units around terrain pieces for the shown damage. Some uses destroy the terrain too.",
+      "words": 15,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:6514-6545",
+        "scripts/combat_engine.gd:3991-4009",
+        "scripts/guardian_combat_rules.gd:31-36",
+        "scripts/action_icon_library.gd:1397-1410"
+      ],
+      "aliases": [
+        "burst_terrain"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "'Around surviving terrain' was wrong for Faultline and the player's Rockburst/Worldbreak, which destroy the terrain."
+    },
+    {
+      "id": "cinder_marks",
+      "current_name": "Kindle Ground",
+      "current_definition": "Creates Fire on the marked tiles.",
+      "name": "Cinder Marks",
+      "definition": "Marks the shown tiles. When it lands, they take the shown damage and become Fire.",
+      "words": 15,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/combat_engine.gd:6582-6596",
+        "scripts/dragon_pressure_fields.gd:74-85",
+        "scripts/action_icon_library.gd:1356-1358",
+        "scripts/dragon_combat_rules.gd:23-24"
+      ],
+      "aliases": [
+        "meteor_marks"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Renamed from 'Kindle Ground' (clashed with the Ember Tick's Kindle); matches code id and the pre-battle tag. The player card Meteorfall lands at the start of your next turn and can hit you."
+    },
+    {
+      "id": "detonate_cinders",
+      "current_name": "Crownfire",
+      "current_definition": "Consumes Fire to damage targets on it and its four neighboring tiles.",
+      "name": "Crownfire",
+      "definition": "Detonate the Fire on its last Cinder Marks. Everyone caught is hit once, the dragon included.",
+      "words": 16,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:6547-6556",
+        "scripts/combat_engine.gd:6611-6620",
+        "scripts/combat_engine.gd:12022-12088"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Same code as Detonate; kept separate because the fuel is only its own marked Fire. Definition references Detonate instead of re-explaining it."
+    },
+    {
+      "id": "gale_force",
+      "current_name": "Hollow Gale",
+      "current_definition": "Sweeps the target through the arena.",
+      "name": "Hollow Gale",
+      "definition": "Strikes everywhere within 2 tiles of the dragon with Push 2, then erupts along its last Razor Dive path.",
+      "words": 19,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "data/enemies.json:1275-1299",
+        "scripts/committed_pattern_shapes.gd:53-66",
+        "scripts/combat_engine.gd:11926-11929",
+        "scripts/combat_engine.gd:6626-6642"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Defined from Vaeloryx's live Hollow Gale intent (two aoe actions: ring range 2 around the 2x2 body with line of sight, Push 2; then the stored Razor Dive wake, consumed). Decision Q6: the implementation wires that intent to the gale_force icon; the dormant gale_force resolver (combat_engine.gd:6626-6642) is not what this describes. Hits only you and your illusions."
+    },
+    {
+      "id": "frost_armor",
+      "current_name": "Crystal Mantle",
+      "current_definition": "Each layer prevents one direct damaging hit, then breaks.",
+      "name": "Crystal Mantle",
+      "definition": "Each layer cancels 1 direct hit, then breaks. Ground damage, Bleed, Collision and traps bypass it.",
+      "words": 16,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:4624-4629",
+        "scripts/maneuver_rules.gd:526-552",
+        "scripts/combat_engine.gd:4770-4774",
+        "scripts/retaliate_rules.gd:90"
+      ],
+      "aliases": [
+        "mantle"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "guard_ally",
+      "current_name": "Guard Ally",
+      "current_definition": "Grants block to another enemy.",
+      "name": "Guard Ally",
+      "definition": "Gives the shown Block to one or more enemies, sometimes including itself.",
+      "words": 12,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:4477-4503",
+        "scripts/combat_engine.gd:4081-4083",
+        "scripts/enemy_mechanics/reflect.gd:41-48",
+        "data/enemies.json:289-291"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "'Another enemy' was wrong: Grave Surgeon and Glacial Mirror can guard themselves; Stone Warden guards all others at once."
+    },
+    {
+      "id": "heal_ally",
+      "current_name": "Heal Ally",
+      "current_definition": "Restores another enemy's health.",
+      "name": "Heal Ally",
+      "definition": "Restores the shown Health to a wounded enemy, possibly itself.",
+      "words": 10,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:4083",
+        "scripts/combat_engine.gd:4103-4108",
+        "scripts/combat_engine.gd:4467",
+        "scripts/enemy_mechanics/bramble.gd:27-50"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "'Another enemy's health' was wrong: Grave Surgeon can heal itself; only wounded enemies are targeted."
+    },
+    {
+      "id": "umbra_eclipse",
+      "current_name": "The Last Eclipse",
+      "current_definition": "Forces the arena into absolute Umbra.",
+      "name": "Last Eclipse",
+      "definition": "Unprotected targets take the shown damage, then the Umbra becomes Eclipse for 2 turns. Light, Vision and Truesight protect you.",
+      "words": 20,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:6699-6726",
+        "scripts/combat_engine.gd:6658-6687",
+        "scripts/combat_engine.gd:5137-5142",
+        "data/enemies.json:1526-1547"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Old text omitted the damage and duration; 'absolute Umbra' overstated it. Dispel Umbra also protects."
+    },
+    {
+      "id": "radiance",
+      "current_name": "Radiance",
+      "current_definition": "Carries protective light into the Umbra.",
+      "name": "Radiance",
+      "definition": "Cards and skills that counter the Umbra with Light, Vision, Truesight and Dispel Umbra.",
+      "words": 14,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/grimoire_library.gd:651-652",
+        "scripts/game_data.gd:251",
+        "scripts/skill_tree_library.gd:7",
+        "scripts/combat_engine.gd:6680-6687"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "'Carries protective light' is wrong for Radiance cards that make no light; it is a card school and skill branch."
+    },
+    {
+      "id": "ember",
+      "current_name": "Embers",
+      "current_definition": "Run currency used to gain permanent levels.",
+      "name": "Embers",
+      "definition": "Earned from kills and victories. Spend them on wares and levels. Dying drops them; recover them next run.",
+      "words": 18,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:4659-4666",
+        "scripts/run_engine.gd:1282-1284",
+        "scripts/run_engine.gd:1741-1744",
+        "scripts/progression_store.gd:1050-1057",
+        "scripts/run_scene.gd:28789-28799",
+        "scripts/run_engine.gd:3608-3614",
+        "scripts/run_engine.gd:125"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Old 'Run currency used to gain permanent levels' omits the Scavenger and the death drop, and the bank carries between runs."
+    },
+    {
+      "id": "run",
+      "current_name": "The Run",
+      "current_definition": "The full journey from entry to victory or defeat.",
+      "name": "The Run",
+      "definition": "One attempt through 6 sections, each ending in a dragon. Ends at the last dragon, at defeat or by Embrace.",
+      "words": 20,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "spec/section_map.md:3-12",
+        "scripts/run_engine.gd:27-28",
+        "scripts/run_engine.gd:2603-2604",
+        "scripts/run_engine.gd:1446-1453",
+        "scripts/run_scene.gd:1106",
+        "scripts/run_scene.gd:28843-28856"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "map_rooms",
+      "current_name": "Map and Rooms",
+      "current_definition": "Routes and room types across the labyrinth.",
+      "name": "Map and Rooms",
+      "definition": "Each section is a map of rooms. Pick a forward route through combat, Relic, Scavenger, Ember Hearth and other rooms.",
+      "words": 20,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/section_map_graph.gd:540-545",
+        "spec/section_map.md:24-27",
+        "scripts/section_map_panel.gd:672"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Grimoire basics (entries/3-4 region, G:63-64) still describe the old circular map and 'merchant'/'treasure' rooms; fix there."
+    },
+    {
+      "id": "loadout",
+      "current_name": "Character and Loadout",
+      "current_definition": "Equipment, attuned magic, items, relics, and skills.",
+      "name": "Character",
+      "definition": "The menu for your gear, attuned magic, items and skills. Your gear, magic and items make up your deck.",
+      "words": 19,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/run_engine.gd:2364-2370",
+        "scripts/game_data.gd:68-70",
+        "scripts/run_scene.gd:29662-29664",
+        "scripts/character_menu_view.gd:83"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Relics are not part of the loadout (they live in the top HUD). Name matches the menu title and the Skill Point text."
+    },
+    {
+      "id": "rewards",
+      "current_name": "Rewards",
+      "current_definition": "Cards, healing, and other prizes claimed during a run.",
+      "name": "Rewards",
+      "definition": "After a combat, choose 1 of 3 magic cards, or skip to heal 3. Dragons and Guardians also give relics.",
+      "words": 20,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/run_engine.gd:2708-2721",
+        "scripts/run_engine.gd:34",
+        "scripts/run_engine.gd:1866-1885",
+        "scripts/run_engine.gd:1285-1313",
+        "scripts/run_engine.gd:1320-1325"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "relics",
+      "current_name": "Relics",
+      "current_definition": "Passive run modifiers collected during exploration.",
+      "name": "Relics",
+      "definition": "Passive effects that last the whole run. Found in Relic rooms and won from dragons and Guardians.",
+      "words": 17,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/run_engine.gd:959-977",
+        "scripts/run_engine.gd:1300-1305",
+        "scripts/run_engine.gd:1320-1325",
+        "scripts/run_engine.gd:168"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "combat_board",
+      "current_name": "Combat Board",
+      "current_definition": "The tactical tile grid where actions resolve.",
+      "name": "Combat Board",
+      "definition": "The 9×9 tile grid where combat happens.",
+      "words": 7,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/room_generator.gd:12-13"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "turn_clock",
+      "current_name": "Turn Clock",
+      "current_definition": "Orders the next actor by current initiative delay.",
+      "name": "Turn Clock",
+      "definition": "Each unit has a next-turn time; the lowest acts next, and you win ties. Spending Time pushes yours later.",
+      "words": 19,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:5561-5583",
+        "scripts/tempo_relic_rules.gd:25-30",
+        "scripts/combat_engine.gd:5691-5693"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Grimoire turn-clock text (G:125-126) is stale: no base 9 and no Wait rule."
+    },
+    {
+      "id": "health_defense",
+      "current_name": "Health and Defenses",
+      "current_definition": "Health protected by block and stoneskin.",
+      "name": "Health and Defenses",
+      "definition": "Damage hits Block first, then Stoneskin, then Health. Pierce skips Block and Stoneskin.",
+      "words": 13,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:4776-4786",
+        "scripts/combat_engine.gd:5924-5925"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "defiance",
+      "current_name": "Defiance",
+      "current_definition": "A per-run rescue that restores health after lethal loss.",
+      "name": "Defiance",
+      "definition": "Each charge turns lethal damage into 25% Health. You get 1 per 4 levels, refilled each run.",
+      "words": 17,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:68",
+        "scripts/combat_engine.gd:4792-4795",
+        "scripts/combat_engine.gd:10926-10938",
+        "scripts/progression_store.gd:998-1000",
+        "scripts/run_engine.gd:171-172",
+        "scripts/run_engine.gd:2417-2422"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Old 'A per-run rescue' implies one; charges are floor(level/4) plus relic/event charges."
+    },
+    {
+      "id": "targeting",
+      "current_name": "Targeting",
+      "current_definition": "Range, line of sight, patterns, and legal targets.",
+      "name": "Targeting",
+      "definition": "Targets must be visible and within Range. Ranged attacks also need line of sight; walls and outcrops block it.",
+      "words": 19,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:12405-12411",
+        "scripts/path_utils.gd:99-107",
+        "scripts/combat_engine.gd:1209-1252",
+        "scripts/dragon_trophy_rules.gd:62-67"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "fatigue",
+      "current_name": "Fatigue",
+      "current_definition": "Direct health loss caused by reshuffling an empty deck.",
+      "name": "Fatigue",
+      "definition": "When you must draw from an empty draw pile, reshuffle your discard and lose 2 Health, +1 each time.",
+      "words": 19,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:53",
+        "scripts/combat_engine.gd:7765-7773",
+        "scripts/combat_engine.gd:903"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Amount and escalation were missing. Code note: CE:7773 passes apply_freeze_multiplier=true, so Expose/Chilled/Frozen amplify Fatigue, unlike the health-cost path; confirm intent."
+    },
+    {
+      "id": "traps",
+      "current_name": "Traps",
+      "current_definition": "Board hazards triggered by movement or attacks.",
+      "name": "Traps",
+      "definition": "Trigger once when entered or hit. They damage their tile and spread their element to the 4 tiles around.",
+      "words": 19,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:7334-7373",
+        "scripts/combat_engine.gd:11469-11486",
+        "scripts/room_generator.gd:1159-1169"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Air traps 'spread' as a Push 1 outward (CE:7359-7369); Flying units never trigger traps."
+    },
+    {
+      "id": "umbra",
+      "current_name": "The Umbra",
+      "current_definition": "Darkness that conceals tiles, enemies, and threats.",
+      "name": "The Umbra",
+      "definition": "Darkness that limits your sight. Hidden enemies show no intent and can't be targeted, but Area Attacks still hit them.",
+      "words": 20,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:90-98",
+        "scripts/combat_engine.gd:2185-2195",
+        "scripts/combat_engine.gd:1212",
+        "scripts/combat_engine.gd:11655-11666"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "worldspines",
+      "current_name": "Worldspines",
+      "current_definition": "Tharokh's attackable stone spires.",
+      "name": "Worldspines",
+      "definition": "Attackable stone spires that block movement, not sight. Destroyed ones leave Rubble. Damage pulses out around them.",
+      "words": 17,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:6463-6513",
+        "scripts/combat_engine.gd:12405-12411",
+        "scripts/dragon_combat_rules.gd:18-20",
+        "data/cards.json:8732"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Not only Tharokh's: the Worldspine card raises them for the player."
+    },
+    {
+      "id": "element_fire",
+      "current_name": "Fire",
+      "current_definition": "Shapes dangerous ground and consumes it in powerful blasts.",
+      "name": "Fire",
+      "definition": "Card element. Fire cards mostly place Fire ground and Detonate it.",
+      "words": 11,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/element_data.gd:26-37",
+        "data/cards.json element=fire: 22 of 35 cards place Fire, 8 Detonate",
+        "scripts/run_engine.gd:2718"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "element_ice",
+      "current_name": "Ice",
+      "current_definition": "Prepares Ice, Chills exposed units and Freezes with a later Ice hit.",
+      "name": "Ice",
+      "definition": "Card element. Ice cards place Ice ground, and an Ice attack Freezes a Chilled target.",
+      "words": 15,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:11488-11505",
+        "data/cards.json element=ice: 16 of 35 cards place Ice"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Old 'Chills exposed units' collided with Expose; ground Ice Chills, not the card."
+    },
+    {
+      "id": "element_lightning",
+      "current_name": "Lightning",
+      "current_definition": "Conducts through Electrified ground and rewards connected targets.",
+      "name": "Lightning",
+      "definition": "Card element. Lightning cards place Electrified ground; a damaging Lightning attack spreads through it.",
+      "words": 14,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:11670",
+        "scripts/combat_engine.gd:11728-11757",
+        "data/cards.json element=lightning: 17 of 34 cards place Electrified"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "element_air",
+      "current_name": "Air",
+      "current_definition": "Controls positioning with movement, Push and Pull.",
+      "name": "Air",
+      "definition": "Card element. Air cards move units with Push and Pull, and move you.",
+      "words": 13,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/element_data.gd:62-73",
+        "data/cards.json element=air: Push/Pull/force_area on 22 of 30 action rows, Move 6"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "element_earth",
+      "current_name": "Earth",
+      "current_definition": "Creates Rubble and persistent Stoneskin defense.",
+      "name": "Earth",
+      "definition": "Card element. Earth cards leave Rubble, raise terrain and grant Stoneskin.",
+      "words": 11,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/element_data.gd:74-85",
+        "data/cards.json element=earth: 20 of 34 cards leave Rubble, 12 Stoneskin, 6 outcrops"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "skill_quick_wits",
+      "current_name": "Quick Wits",
+      "current_definition": "Once per combat, discard a card to gain @icon(draw) 1. Costs no @icon(card_play) or @icon(time).",
+      "name": "Quick Wits",
+      "definition": "Once per combat, discard a card to gain @icon(draw) 1. Costs no @icon(card_play) or @icon(time).",
+      "words": 15,
+      "changed": false,
+      "reason": "unchanged",
+      "evidence": [
+        "scripts/combat_engine.gd:541-543",
+        "scripts/combat_engine.gd:595-623",
+        "data/skills.json:2"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "skill_measured_breath",
+      "current_name": "Measured Breath",
+      "current_definition": "At turn end, bank up to one unused @icon(card_play) for your next turn.",
+      "name": "Measured Breath",
+      "definition": "At the end of your turn, bank 1 unused @icon(card_play) for your next turn. Wait still applies.",
+      "words": 17,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/combat_engine.gd:2202-2207",
+        "scripts/combat_engine.gd:2857",
+        "scripts/combat_engine.gd:3007-3013"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Fixed trigger phrase; banking does not waive Wait."
+    },
+    {
+      "id": "skill_ghost_stride",
+      "current_name": "Ghost Stride",
+      "current_definition": "Once per combat, activate to turn your next movement into @icon(blink) 2.",
+      "name": "Ghost Stride",
+      "definition": "Once per combat, activate to make your next free move a @icon(blink) of up to 2 tiles.",
+      "words": 17,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:567-579",
+        "scripts/combat_engine.gd:2928-2942",
+        "scripts/combat_engine.gd:2981-2997",
+        "scripts/combat_engine.gd:1591-1593"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Only the free per-turn movement converts; card Moves never do."
+    },
+    {
+      "id": "skill_discerning_eye",
+      "current_name": "Discerning Eye",
+      "current_definition": "Once between bosses, replace every card in a combat reward.",
+      "name": "Discerning Eye",
+      "definition": "Once between bosses, replace every card in a non-boss combat reward with new ones.",
+      "words": 14,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/run_engine.gd:1847-1864",
+        "scripts/run_engine.gd:28",
+        "scripts/run_engine.gd:792-802"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Refused for dragon and event rewards."
+    },
+    {
+      "id": "skill_rehearsed_escape",
+      "current_name": "Rehearsed Escape",
+      "current_definition": "Once per combat, activate to discard your next non-item @icon(exhaust) card after use.",
+      "name": "Rehearsed Escape",
+      "definition": "Once per combat, activate to send your next non-item @icon(exhaust) card to your discard instead.",
+      "words": 15,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:548-553",
+        "scripts/combat_engine.gd:664-671",
+        "scripts/combat_engine.gd:1970-1985"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "skill_makeshift_tool",
+      "current_name": "Makeshift Tool",
+      "current_definition": "Once per combat, activate to discard your next item after use instead of @icon(consume).",
+      "name": "Makeshift Tool",
+      "definition": "Once per combat, activate to send your next item to your discard instead of @icon(consume).",
+      "words": 15,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/combat_engine.gd:554-559",
+        "scripts/combat_engine.gd:673-680",
+        "scripts/combat_engine.gd:1955-1969"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "skill_carry_the_guard",
+      "current_name": "Carry the Guard",
+      "current_definition": "Once per combat, activate while you have @icon(block) to convert your remaining @icon(block) into @icon(stoneskin) at turn end.",
+      "name": "Carry the Guard",
+      "definition": "Once per combat, activate while you have @icon(block): at the end of your turn, it becomes @icon(stoneskin).",
+      "words": 17,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/combat_engine.gd:560-565",
+        "scripts/combat_engine.gd:691-698",
+        "scripts/combat_engine.gd:2209-2220"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "skill_pain_remembers",
+      "current_name": "Pain Remembers",
+      "current_definition": "After you first lose @icon(health) each combat, the next non-item card discarded while your hand has room returns to it.",
+      "name": "Pain Remembers",
+      "definition": "The first time each combat you lose @icon(health), the next non-item card put in your discard returns to your hand.",
+      "words": 20,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:4800-4804",
+        "scripts/combat_engine.gd:794-808"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Waits while your hand is full or the card is an item."
+    },
+    {
+      "id": "skill_sure_footed",
+      "current_name": "Sure-Footed",
+      "current_definition": "Once per combat, ignore the first @icon(traps) hit or Air @icon(traps) @icon(push) against you.",
+      "name": "Sure-Footed",
+      "definition": "Once per combat, take no damage from the first @icon(traps) that hits you.",
+      "words": 13,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:7299-7309",
+        "scripts/combat_engine.gd:7349-7356",
+        "scripts/combat_engine.gd:7359-7370",
+        "data/skills.json:201-202"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Old 'or Air Traps Push against you' is false: the Air push has no Sure-Footed check and skills.json protect_air_push/preserve_wake are read nowhere. spec/meta_leveling.md:150 repeats the claim. Decision Q5: drop the clause."
+    },
+    {
+      "id": "skill_afterimage",
+      "current_name": "Afterimage",
+      "current_definition": "Once per combat, your first @icon(blink) leaves an @icon(illusion) 2 at its origin.",
+      "name": "Afterimage",
+      "definition": "The first time each combat you @icon(blink), leave an @icon(illusion) 2 where you started.",
+      "words": 14,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/combat_engine.gd:1583-1588"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "skill_deferred_choice",
+      "current_name": "Deferred Choice",
+      "current_definition": "Skip a card reward to save one offered card. It replaces one card in your next reward.",
+      "name": "Deferred Choice",
+      "definition": "Skip a card reward to save 1 offered card. It replaces 1 card in your next non-boss card reward.",
+      "words": 19,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/run_scene.gd:27518-27536",
+        "scripts/run_engine.gd:1318-1334",
+        "scripts/run_engine.gd:2726-2734"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Boss rewards skip the saved card."
+    },
+    {
+      "id": "skill_salvager",
+      "current_name": "Salvager",
+      "current_definition": "Once between bosses, recover the first equipment drop left uncollected after victory.",
+      "name": "Salvager",
+      "definition": "Once between bosses, recover the first equipment drop left uncollected after victory.",
+      "words": 12,
+      "changed": false,
+      "reason": "unchanged",
+      "evidence": [
+        "scripts/run_engine.gd:1232-1242",
+        "scripts/combat_engine.gd:3324-3344"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "skill_borrowed_time",
+      "current_name": "Borrowed Time",
+      "current_definition": "The first card paid for with a banked @icon(card_play) each combat adds no @icon(time).",
+      "name": "Borrowed Time",
+      "definition": "The first card paid for with a banked @icon(card_play) each combat adds no @icon(time).",
+      "words": 14,
+      "changed": false,
+      "reason": "unchanged",
+      "evidence": [
+        "scripts/combat_engine.gd:2013-2018",
+        "scripts/combat_engine.gd:2067-2073"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "An Empower Time surcharge is still paid."
+    },
+    {
+      "id": "skill_last_reserve",
+      "current_name": "Last Reserve",
+      "current_definition": "Once per combat, lethal @icon(fatigue) leaves you at @icon(health) 1.",
+      "name": "Last Reserve",
+      "definition": "Once per combat, lethal @icon(fatigue) leaves you at @icon(health) 1.",
+      "words": 10,
+      "changed": false,
+      "reason": "unchanged",
+      "evidence": [
+        "scripts/combat_engine.gd:7774-7782"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "skill_plunderers_step",
+      "current_name": "Plunderer's Step",
+      "current_definition": "The first @icon(move) or @icon(blink) to collect loot each combat refunds its @icon(card_play).",
+      "name": "Plunderer's Step",
+      "definition": "The first time each combat a card's @icon(move) or @icon(blink) collects loot, gain 1 @icon(card_play).",
+      "words": 15,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:7844-7853",
+        "scripts/combat_engine.gd:1594-1595",
+        "scripts/combat_engine.gd:1796-1797"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Free movement never triggers it; 'refunds its card play' is a +1 card play this turn."
+    },
+    {
+      "id": "skill_prismatic_instinct",
+      "current_name": "Prismatic Instinct",
+      "current_definition": "Once per combat, place @icon(surface_fire), @icon(surface_ice), @icon(surface_electrified) or @icon(surface_rubble) within @icon(range) 4. Costs no @icon(card_play) or @icon(time).",
+      "name": "Prismatic Instinct",
+      "definition": "Once per combat, place any ground on a visible tile within @icon(range) 4. Costs no @icon(card_play) or @icon(time).",
+      "words": 18,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:11614-11630",
+        "scripts/combat_engine.gd:11620",
+        "scripts/board_surface_rules.gd:55-61"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Adds the visible-tile requirement; 'any ground' replaces four icons to stay within 20 words."
+    },
+    {
+      "id": "skill_curators_patience",
+      "current_name": "Curator's Patience",
+      "current_definition": "After choosing a relic, save one unchosen relic for your next relic offer.",
+      "name": "Curator's Patience",
+      "definition": "After choosing a relic, save 1 unchosen relic for your next relic offer.",
+      "words": 13,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/run_scene.gd:27736-27756",
+        "scripts/run_engine.gd:1918-1924",
+        "scripts/run_engine.gd:966-975"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "skill_living_shadow",
+      "current_name": "Living Shadow",
+      "current_definition": "Once between your turns, when @icon(illusion) is destroyed or dispelled, return your most recently discarded non-item card to hand—or put it atop your draw pile if your hand is full.",
+      "name": "Living Shadow",
+      "definition": "Once per turn, when an @icon(illusion) is removed, return your latest non-item discard to hand.",
+      "words": 15,
+      "changed": true,
+      "reason": "length",
+      "evidence": [
+        "scripts/combat_engine.gd:4844-4889",
+        "scripts/combat_engine.gd:4875-4881",
+        "scripts/combat_engine.gd:770-792",
+        "scripts/combat_engine.gd:2866"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "31 words cut to 15. Full-hand fallback (top of draw pile) dropped for length."
+    },
+    {
+      "id": "skill_true_bearing",
+      "current_name": "True Bearing",
+      "current_definition": "Before combat, choose an open starting tile within @icon(range) 2 of the entrance.",
+      "name": "True Bearing",
+      "definition": "Before combat, choose an open starting tile within @icon(range) 2 of the entrance.",
+      "words": 13,
+      "changed": false,
+      "reason": "unchanged",
+      "evidence": [
+        "scripts/run_engine.gd:1126-1157",
+        "scripts/run_scene.gd:5327-5339"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "skill_layaway",
+      "current_name": "Layaway",
+      "current_definition": "Once between bosses, hold one ware for the next Scavenger visit. A pending hold blocks future uses until it returns.",
+      "name": "Layaway",
+      "definition": "Once between bosses, hold one ware for the next Scavenger visit. A pending hold blocks future uses until it returns.",
+      "words": 20,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/run_engine.gd:782-787",
+        "spec/meta_leveling.md:166-170"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Deleted (decision Q8): retired skill, excluded from run_skill_ids, never shown.",
+      "deleted": true
+    },
+    {
+      "id": "skill_encore",
+      "current_name": "Encore",
+      "current_definition": "Once per combat, return a non-item card from discard to your hand. Costs no @icon(card_play) or @icon(time).",
+      "name": "Encore",
+      "definition": "Once per combat, return a non-item card from discard to your hand. Costs no @icon(card_play) or @icon(time).",
+      "words": 17,
+      "changed": false,
+      "reason": "unchanged",
+      "evidence": [
+        "scripts/combat_engine.gd:544-547",
+        "scripts/combat_engine.gd:625-644"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "skill_open_arsenal",
+      "current_name": "Open Arsenal",
+      "current_definition": "Equip any equipment in your trinket slot.",
+      "name": "Open Arsenal",
+      "definition": "Equip any equipment in your trinket slot.",
+      "words": 7,
+      "changed": false,
+      "reason": "unchanged",
+      "evidence": [
+        "scripts/run_engine.gd:1522-1553"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "skill_confluence",
+      "current_name": "Confluence",
+      "current_definition": "Once per combat, @icon(surface_relocate) one surface up to @icon(range) 4. Both tiles must be visible and within @icon(range) 4 of you.",
+      "name": "Confluence",
+      "definition": "Once per combat, @icon(surface_relocate) 1 ground tile. Both tiles must be visible, within @icon(range) 4 of you and each other.",
+      "words": 20,
+      "changed": true,
+      "reason": "length",
+      "evidence": [
+        "scripts/combat_engine.gd:11620-11628",
+        "scripts/surface_aim_flow.gd:36-63"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Was 21 words; now states the source-to-destination limit too."
+    },
+    {
+      "id": "skill_last_door",
+      "current_name": "Last Door",
+      "current_definition": "Once between bosses, a non-boss defeat returns you to the previous room at @icon(health) 1.",
+      "name": "Last Door",
+      "definition": "Once between bosses, a non-boss defeat returns you to the previous room at @icon(health) 1.",
+      "words": 15,
+      "changed": false,
+      "reason": "unchanged",
+      "evidence": [
+        "scripts/run_engine.gd:1262-1263",
+        "scripts/run_engine.gd:1383-1439"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "skill_long_dawn",
+      "current_name": "Long Dawn",
+      "current_definition": "Temporary @icon(illuminate), @icon(vision), and @icon(truesight) you create last @icon(time) +1.",
+      "name": "Long Dawn",
+      "definition": "Temporary @icon(illuminate), @icon(vision) and @icon(truesight) you create last 1 more turn.",
+      "words": 11,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:5160-5166",
+        "scripts/combat_engine.gd:5124-5156"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "'@icon(time) +1' read as +1 Time on the turn clock; the unit is your turns."
+    },
+    {
+      "id": "skill_sunpath",
+      "current_name": "Sunpath",
+      "current_definition": "The first @icon(move) or @icon(blink) 3+ each turn leaves @icon(illuminate) 1 @icon(time) 2 on every tile entered. @icon(blink) also covers its origin and destination.",
+      "name": "Sunpath",
+      "definition": "Once per turn, when you @icon(move) or @icon(blink) 3+ tiles, leave @icon(illuminate) 1 for 2 turns on your path.",
+      "words": 19,
+      "changed": true,
+      "reason": "length",
+      "evidence": [
+        "scripts/combat_engine.gd:1821",
+        "scripts/combat_engine.gd:1852-1879",
+        "scripts/combat_engine.gd:2880"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "28 words cut to 19; Time icon no longer used as a duration. A Blink lights only its start and end tiles. HUD bug: RS:11937-11940 reads the wrong flag, so SPENT never shows."
+    },
+    {
+      "id": "skill_witchlight",
+      "current_name": "Witchlight",
+      "current_definition": "Your @icon(illusion) have +1 @icon(illuminate) radius while they last.",
+      "name": "Witchlight",
+      "definition": "Your @icon(illusion) give off @icon(illuminate) 1 while they last.",
+      "words": 9,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/combat_engine.gd:395-421",
+        "scripts/combat_engine.gd:438-448"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "'+1 radius' implied a base light; illusions have none without this skill or a relic."
+    },
+    {
+      "id": "skill_dawnbrand",
+      "current_name": "Dawnbrand",
+      "current_definition": "The first direct attack each turn against an enemy in @icon(illuminate) inflicts @icon(expose) 1.",
+      "name": "Dawnbrand",
+      "definition": "Your first @icon(melee), @icon(ranged), @icon(push) or @icon(pull) hit each turn on an enemy in @icon(illuminate) applies @icon(expose) 1.",
+      "words": 18,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:6050-6084",
+        "scripts/combat_engine.gd:2880"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "'direct attack' was undefined; Area and Detonate hits don't count."
+    },
+    {
+      "id": "skill_afterglow",
+      "current_name": "Afterglow",
+      "current_definition": "When @icon(illusion) is removed during combat, it leaves @icon(illuminate) 1 @icon(time) 2 at its final tile.",
+      "name": "Afterglow",
+      "definition": "When an @icon(illusion) is removed, leave @icon(illuminate) 1 for 2 turns on its tile.",
+      "words": 14,
+      "changed": true,
+      "reason": "consistency",
+      "evidence": [
+        "scripts/combat_engine.gd:4870",
+        "scripts/combat_engine.gd:4944-4958"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "skill_open_sky",
+      "current_name": "Open Sky",
+      "current_definition": "While you stand in @icon(illuminate), you have @icon(truesight).",
+      "name": "Open Sky",
+      "definition": "While you stand in @icon(illuminate), you have @icon(truesight).",
+      "words": 8,
+      "changed": false,
+      "reason": "unchanged",
+      "evidence": [
+        "scripts/combat_engine.gd:375-390"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null
+    },
+    {
+      "id": "skill_point",
+      "current_name": "Skill Point",
+      "current_definition": "Earned as you level up. Spend them on skills in the Character menu.",
+      "name": "Skill Point",
+      "definition": "Earned as you level up. Spend them on skills in the Character menu.",
+      "words": 13,
+      "changed": false,
+      "reason": "unchanged",
+      "evidence": [
+        "scripts/progression_store.gd:995-997",
+        "scripts/run_scene.gd:29664",
+        "scripts/progression_store.gd:1035"
+      ],
+      "aliases": [
+        "Skill Points"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Director-decided text (ux-03 feedback 1); verified: level N has N-1 points, spent in Character > Skills."
+    },
+    {
+      "id": "moltshard",
+      "current_name": "Moltshards",
+      "current_definition": "You need 1 Moltshard. The first dragon defeated each run grants one.",
+      "name": "Moltshards",
+      "definition": "Won from your first dragon each run. Trade 1 for 250 Embers, or spend 1 to reset your skills.",
+      "words": 19,
+      "changed": true,
+      "reason": "accuracy",
+      "evidence": [
+        "scripts/run_engine.gd:1285-1292",
+        "scripts/progression_store.gd:36",
+        "scripts/progression_store.gd:918-921",
+        "scripts/run_scene.gd:30109",
+        "scripts/progression_store.gd:1183-1192"
+      ],
+      "aliases": [
+        "Moltshard"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "note": "Old text was the disabled-button requirement message (dialogue_engine.gd:128), not a definition."
+    },
+    {
+      "id": "wait",
+      "current_name": null,
+      "current_definition": null,
+      "name": "Wait",
+      "definition": "Each of your first 2 Card Plays left unused adds 5 Time to your next turn.",
+      "words": 16,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:54",
+        "scripts/combat_engine.gd:60",
+        "scripts/combat_engine.gd:3007-3016",
+        "scripts/tempo_relic_rules.gd:25-30",
+        "scripts/run_scene.gd:14190",
+        "spec/turn_clock.md:12-31"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "new_entry": true,
+      "icon": null,
+      "note": "Text-only keyword (decision Q3); the HUD chip already reads 'WAIT +N' (run_scene.gd:14190). Bonus, refunded and banked plays never add Wait; Freeze-forfeited plays do (combat_engine.gd:3002-3013)."
+    },
+    {
+      "id": "turns",
+      "current_name": null,
+      "current_definition": null,
+      "name": "Turns",
+      "definition": "Counts down at the start of each of your turns. The effect ends at 0; ∞ lasts all combat.",
+      "words": 19,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:5124-5156",
+        "scripts/combat_engine.gd:2860",
+        "scripts/action_icon_library.gd:1418",
+        "scripts/action_icon_library.gd:1422",
+        "scripts/action_icon_library.gd:1614",
+        "scripts/action_icon_library.gd:1882-1890"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "new_entry": true,
+      "icon": null,
+      "note": "Text-only entry for the duration chips that borrow the Time icon (decision Q3); those chips' panels switch to this entry. Code counts the hero's turns for every current chip (Light, Vision, Truesight, Eclipse all tick in _tick_umbra_player_activation), so 'your turns', not 'the bearer's'. Duration N lasts until your Nth turn from now starts; -1 shows as ∞."
+    },
+    {
+      "id": "ice_pillar",
+      "current_name": null,
+      "current_definition": null,
+      "name": "Ice Pillar",
+      "definition": "Blocks movement and sight for 3 enemy turns. A unit forced into it takes 2 damage and shatters it.",
+      "words": 19,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/enemy_mechanics/icefall.gd:11-12",
+        "scripts/enemy_mechanics/icefall.gd:68-72",
+        "scripts/enemy_mechanics/icefall.gd:80-92",
+        "scripts/enemy_mechanics/icefall.gd:94-103",
+        "scripts/enemy_mechanics/wind.gd:11-15",
+        "scripts/enemy_mechanics/bramble.gd:68-71",
+        "data/enemies.json:2765-2766"
+      ],
+      "aliases": [
+        "Ice Pillars"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "new_entry": true,
+      "icon": null,
+      "note": "Text-only (decision Q9). Raised by Icefall on each empty marked tile; can't be attacked; lifetime ticks after every enemy turn (terrain_rounds 3); collision damage is flat shatter_damage 2. Flying units pass over it."
+    },
+    {
+      "id": "movement",
+      "current_name": null,
+      "current_definition": null,
+      "name": "Movement",
+      "definition": "Tiles you can walk each turn without a card or Time. Refills at the start of your turn; base 2.",
+      "words": 20,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_engine.gd:56",
+        "scripts/combat_engine.gd:889-890",
+        "scripts/combat_engine.gd:2871-2872",
+        "scripts/combat_engine.gd:2905-2915",
+        "scripts/combat_engine.gd:2928-2950",
+        "scripts/combat_engine.gd:2964-2985",
+        "scripts/combat_engine.gd:2019",
+        "scripts/run_scene.gd:9816"
+      ],
+      "aliases": [],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "new_entry": true,
+      "icon": null,
+      "note": "The per-turn movement pool, distinct from the Move keyword (card action). Not paid with a Card Play and adds no Time (Time is only added in finish_player_card, combat_engine.gd:2019). Relics and Omens can raise the base. Its HUD meter (run_scene.gd:9812-9847, tooltip 'Movement remaining') currently borrows the Move icon; a distinct icon is an art task."
+    },
+    {
+      "id": "item",
+      "current_name": null,
+      "current_definition": null,
+      "name": "Item",
+      "definition": "A card equipped in one of your 2 item slots. It joins your deck and has Consume.",
+      "words": 17,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/game_data.gd:70",
+        "scripts/game_data.gd:303-305",
+        "scripts/run_engine.gd:2364-2370",
+        "scripts/combat_engine.gd:1955-1970",
+        "data/cards.json: all 24 item cards have consume_on_play"
+      ],
+      "aliases": [
+        "Items"
+      ],
+      "merge_into": null,
+      "director_decision_needed": null,
+      "new_entry": true,
+      "icon": null,
+      "note": "Items are found as board loot or bought from the Scavenger; Quartermaster's Ledger removes Consume from non-healing items."
+    },
+    {
+      "id": "outcrop",
+      "current_name": null,
+      "current_definition": null,
+      "name": "Outcrop",
+      "definition": "Attackable terrain that blocks movement. Worldspines and Powder Kegs count as Outcrops. Plain ones also block sight and leave Rubble.",
+      "words": 20,
+      "changed": true,
+      "reason": "clarity",
+      "evidence": [
+        "scripts/combat_terrain_rules.gd:18-29",
+        "scripts/terrain_card_rules.gd:20-41",
+        "scripts/combat_engine.gd:1663-1665",
+        "data/cards.json:8162-8168",
+        "data/cards.json:8766",
+        "scripts/illusion_relic_rules.gd:146-147",
+        "data/relics.json:masons_plumb terrain_kinds [crag_outcrop, worldspine, powder_keg]"
+      ],
+      "aliases": [
+        "Outcrops"
+      ],
+      "merge_into": null,
+      "director_decision_needed": "Code contradiction: Worldbreak's 'outcrop you raised' (owned_outcrop_only) uses OWNED_OUTCROP_KINDS = crag_outcrop + worldspine only (terrain_card_rules.gd:26, 178-179), so it cannot target a Powder Keg, while Mason's Plumb and Copper-Shod Staff do include kegs. Add powder_keg to OWNED_OUTCROP_KINDS (code) or keep the exclusion and word Worldbreak's token differently?",
+      "new_entry": true,
+      "icon": null,
+      "note": "All three player kinds come from the same 'outcrop' action (crag_outcrop default, powder_keg, worldspine). Plain outcrops block sight and leave Rubble; kegs block neither sight nor leave Rubble, they burst; Worldspines leave Rubble but don't block sight. Craghide's crag outcrops are the same kind (owner enemy)."
+    }
+  ]
+}
