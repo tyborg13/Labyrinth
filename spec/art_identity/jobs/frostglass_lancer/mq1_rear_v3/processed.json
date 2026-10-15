@@ -1,0 +1,86 @@
+{
+  "K": 4,
+  "drawn_size": [
+    173,
+    219
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.8984375,
+  "metrics": {
+    "chroma": 0.09484597350645944,
+    "edge_light_share": 0.0,
+    "feature_px": 6.230201908566127,
+    "height": 219,
+    "height_drawn": 219.0,
+    "orphan_share": 0.042433110367892976,
+    "regions": 493,
+    "run_length": 2.5302128784873728,
+    "symmetry": 0.5674351828392872,
+    "thin_abs": 0.007002508361203974,
+    "thin_rel": 0.09678093645484953,
+    "value": 0.19208155596268606,
+    "width": 173
+  },
+  "pixel_sha256": "bd7f0519a8a82c1491a6ba64365eb6804bbfb787d41141aaa1d58c42d13957e4",
+  "placement": [
+    42,
+    27
+  ],
+  "post_steps": [
+    {
+      "match_reference": {
+        "path": "refs/palette_front.png",
+        "sha256": "b263530ddccf2a5fba617600ba5efb2377b3023aa4bf331d7f10acc59ff0bfec"
+      },
+      "parameters": {
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "green_residue_margin": 20,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "57d24683e838bde8f3c03ef9abd0b98322856348130c4ff684be95aa21ce8405",
+      "reference_pixel_sha256": "4b2035daa3458cb64a7be72013b8c8515e84bdba21f3883c0f30e2c8414ca200",
+      "reference_sha256": "b263530ddccf2a5fba617600ba5efb2377b3023aa4bf331d7f10acc59ff0bfec",
+      "step": "palette_match"
+    },
+    {
+      "parameters": {
+        "max_luminance": 0.2,
+        "neighbours": 4,
+        "remove_isolated": true,
+        "tone": [
+          20,
+          16,
+          21
+        ]
+      },
+      "pre_step_pixel_sha256": "e5dbda6da0fbf34e6631b11976f41cbdce0e2d556fb510ec400540edb2b03f06",
+      "step": "clean_outline"
+    }
+  ],
+  "raw_sha256": "eed7a87d230422d2f61120f48785835e89a229a4843bb24993b74bce4204e9dc",
+  "raw_steps": [
+    {
+      "inputs": {
+        "config": {
+          "path": "refs/tone_rear_r2.json",
+          "sha256": "7ed941cbb3d7ae72871201d235d164824791b0f2b8744ddfa3c659bf4883fa44"
+        },
+        "raw": {
+          "path": "refs/raw_approved.png",
+          "sha256": "b7ea3b300515e73474a41cba5f227730f8f2d7c9e5298970b2c90fb3b099c228"
+        }
+      },
+      "kind": "tone_region",
+      "output_raw_sha256": "eed7a87d230422d2f61120f48785835e89a229a4843bb24993b74bce4204e9dc",
+      "parameters": {
+        "space": "CIE Lab"
+      }
+    }
+  ],
+  "shift": [
+    0,
+    0
+  ]
+}
