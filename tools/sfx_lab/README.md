@@ -3,7 +3,7 @@
 Local-only tools for the director's measured shortlist, the owner's audition,
 and rendering approved variants. No source downloads, cue selection, game wiring
 or packages are installed. Run from the repository root using the existing
-`/Users/borgerding/.cache/umbra-sfx/venv/bin/python` environment.
+sound-lab Python environment (`SFX_PYTHON` in the examples below).
 
 The [pipeline specification](../../spec/sfx_pipeline.md) contains exact commands,
 formats, measurement definitions, approved rendering decisions and licence restrictions.
@@ -16,6 +16,7 @@ formats, measurement definitions, approved rendering decisions and licence restr
 | `features.py --index … --takes … --out …` | Index and take boundaries | `features.jsonl` |
 | `index.py query --features …` | Measured takes | Sorted TSV shortlist |
 | `audition.py --picks … --out … --features …` | Owner candidates | Relative MP3s, `index.html`, `audition.json` |
+| `sync.py` | Parent manifest plus per-path sync provenance | Verified lossless head trims; unchanged bytes on a repeated run |
 | `build.py --approved … --out-dir … --manifest … --features …` | Owner approval | Relative Ogg variants and manifest |
 
 Each module can also be run as `python -m tools.sfx_lab.<module>`. The package
@@ -28,7 +29,7 @@ Focused behavioral proof, with temporary synthesized fixtures and retained
 owner inspection artifacts:
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-00 && /Users/borgerding/.cache/umbra-sfx/venv/bin/python tests/test_sfx_lab.py --proof-out /private/tmp/labyrinth_codex/sfx_lab/proof -v
+cd "$TASK_WORKTREE" && "$SFX_PYTHON" tests/test_sfx_lab.py --proof-out output/sfx/lab-proof -v
 ```
 
 The two-cue proof page is `proof/audition/index.html`. Its tones and cue names
@@ -58,3 +59,12 @@ parent of `designed/`); index order follows argument order and then the existing
 file sort. Per-file sidecars determine the designed source's licence. Existing
 audition/build `--sources` can relocate either root, with untouched roots kept
 from the index, or use a combined tree containing both approved folder sets.
+
+Sync rebuilds read constraints from `assets/audio/sfx/sfx-04-provenance.json` and timing rules from `data/sfx_cues.json`. They verify the parent manifest hash, source hashes, toolchain and output hashes. The default catalogue is `.godot/sfx_lab/features.jsonl`; `--features` and `--sources` can relocate the approved lossless library. Ogg output preserves libsndfile's end-of-stream granules while normalizing the stream serial and repairing page checksums. The rebuild never remuxes short streams through packet timestamps.
+
+```sh
+cd "$TASK_WORKTREE" && "$SFX_PYTHON" tools/sfx_lab/sync.py
+cd "$TASK_WORKTREE" && "$SFX_PYTHON" tools/sfx_sync_audit.py --report output/sfx/sync_audit.json --check
+```
+
+The tracked baseline is compact. Full measurements, scene traces and actual playback PCM stay in `output/sfx/`. Refresh the baseline explicitly with `--refresh-baseline` after reviewing the measured changes. Cap-limited loudness exceptions remain visible in the report.

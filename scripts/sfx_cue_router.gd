@@ -1,6 +1,7 @@
 extends RefCounted
 class_name SfxCueRouter
 
+const Dragon = preload("res://scripts/dragon_presentation.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const Attacks = preload("res://scripts/attack_sfx_library.gd")
 const Fx = preload("res://scripts/attack_fx_library.gd")
@@ -48,7 +49,6 @@ const WEAPON_FAMILIES: Dictionary = {
 }
 const HEAVY_TYPES: Array[String] = ["warden", "craghide", "ashen_reaver", "rimejaw", "storm_cantor", "gallows_roc", "last_lamplighter", "tharokh", "vyraketh", "vaeloryx", "iskaldra", "noctyrax", "zekarion"]
 const EQUIPMENT_FAMILIES: Dictionary = {"phoenix_brand": "blade", "worldbreaker": "blunt", "dawnlight_censer": "blunt", "galewhip": "blade"}
-const AREA_STAGGER_MS: int = 35
 const AREA_GAIN_DB: float = -6.0
 const CHAIN_GAIN_DB: float = -5.0
 const BEAST_VOCAL_CHANCE: float = 0.30
@@ -62,9 +62,15 @@ var _terrain: Dictionary = {}
 var _illusions: Dictionary = {}
 var _deaths: Dictionary = {}
 var _dragons: Dictionary = {}
+var _roar_pending: bool = false
 var _resolved: bool = false
 var _released: bool = false
+var _blink_origin: Variant = null
+var _blink_origin_world: Variant = null
+var _blink_effect: Dictionary = {}
 var _impact_count: int = 0
+var _impact_frame: int = -1
+var _impact_cues: Dictionary = {}
 var _action_serial: int = 0
 var _fight_key: String = ""
 var _deck: Dictionary = {}
@@ -157,11 +163,14 @@ func begin_enemy_action(before: Dictionary, action: Dictionary, actor: Dictionar
 	begin_action(before, action, actor)
 
 func begin_action(before: Dictionary, action: Dictionary, actor: Dictionary, weapon: String = "") -> void:
+	_roar_pending = false
 	_action = action
 	_actor = actor
 	_weapon = weapon
 	_action_serial += 1
 	_impact_count = 0
+	_impact_frame = -1
+	_impact_cues.clear()
 	_collisions.clear()
 	_merged_hits.clear()
 	_resolved = false
@@ -169,12 +178,18 @@ func begin_action(before: Dictionary, action: Dictionary, actor: Dictionary, wea
 	_trap_impact_pending = false
 	_radiance_played = false
 	baseline(before)
+	_blink_origin = null
+	_blink_origin_world = null
+	_blink_effect.clear()
 	var family: String = DEATH_FAMILIES.get(str(actor.get("type", "")), "")
 	var actor_key: String = str(action.get("actor_key", actor.get("id", "player")))
-	if family == "dragon" and not _dragons.has(actor_key):
-		_dragons[actor_key] = true
-		request("dragon.roar")
 	var kind: String = str(action.get("type", action.get("kind", "")))
+	# A big-area roar accompanies its wind-up, including empty-ground attacks.
+	# Waiting for a damage/impact snapshot put this layer after the cast visual.
+	if family == "dragon" and (not _dragons.has(actor_key) or kind in ["aoe", "lightning_strikes"]):
+		_dragons[actor_key] = true
+		_roar_pending = _has_profiled_presentation(action)
+		if not _roar_pending: request("dragon.roar")
 	if kind == "umbra_eclipse": request("spell.shadow")
 	if kind not in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "detonate", "all_enemies", "burst_terrain", "destroy_illusion"]: return
 	if family in ["beast", "avian"]:
@@ -184,6 +199,16 @@ func begin_action(before: Dictionary, action: Dictionary, actor: Dictionary, wea
 	wind_up(action, actor, weapon)
 	if int(action.get("push", 0)) > 0 or int(action.get("pull", 0)) > 0: push()
 
+# These paths return through dedicated views without submitting a profiled
+# effect. Their first-action roar remains attached to the action start.
+func _has_profiled_presentation(action: Dictionary) -> bool:
+	if Dragon.profile(action).is_empty() or bool(action.get("hidden_by_umbra", false)): return false
+	for key: String in ["en05_after", "en04_mechanic", "en02_mechanic", "guardian_board_after"]:
+		if action.has(key): return false
+	if bool(action.get("en03_veil", false)) or bool(action.get("en06_mirror", false)): return false
+	if str(action.get("action_type", "")) in ["chain_discharge", "tether_beam"]: return false
+	return str(action.get("kind", action.get("type", ""))) in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "umbra_eclipse", "summon", "block", "heal", "stoneskin", "status"]
+
 func wind_up(action: Dictionary, actor: Dictionary = {}, weapon: String = "") -> void:
 	var kind: String = str(action.get("type", action.get("kind", "")))
 	var element: String = str(action.get("element", action.get("_card_element", "none")))
@@ -192,15 +217,20 @@ func wind_up(action: Dictionary, actor: Dictionary = {}, weapon: String = "") ->
 		request("swing.heavy" if attack_family(action, actor, weapon) == "blunt" or int(action.get("damage", action.get("amount", 0))) >= 6 else "swing.light")
 
 func release(action: Dictionary, actor: Dictionary = {}, weapon: String = "") -> void:
+	var cue: String = release_cue(action, actor, weapon)
+	if not cue.is_empty(): request(cue, {"peak_deadline_ms": bank.presentation_ms()} if cue == "cast.arcane" and bank != null else {})
+
+func release_cue(action: Dictionary, actor: Dictionary = {}, weapon: String = "") -> String:
 	var kind: String = str(action.get("type", action.get("kind", "")))
 	var element: String = str(action.get("element", action.get("_card_element", "none")))
-	if element not in ["", "none"]: return
+	if element not in ["", "none"]: return ""
 	if kind in ["ranged", "aoe", "all_enemies"]:
 		var name: String = weapon.to_lower()
-		if name.contains("crossbow") or name.contains("repeater") or bool(action.get("thrown", false)): request("shot.crossbow")
-		elif name.contains("bow") or name.contains("sling"): request("shot.bow")
-		elif attack_family(action, actor, weapon) == "arcane" or str(actor.get("type", "")) in ["acolyte", "veilbound_acolyte"]: request("cast.arcane")
-		elif attack_family(action, actor, weapon) == "pierce": request("shot.crossbow")
+		if name.contains("crossbow") or name.contains("repeater") or bool(action.get("thrown", false)): return "shot.crossbow"
+		if name.contains("bow") or name.contains("sling"): return "shot.bow"
+		if attack_family(action, actor, weapon) == "arcane" or str(actor.get("type", "")) in ["acolyte", "veilbound_acolyte"]: return "cast.arcane"
+		if attack_family(action, actor, weapon) == "pierce": return "shot.crossbow"
+	return ""
 
 func hit(action: Dictionary, actor: Dictionary, weapon: String, target_before: Dictionary, target_after: Dictionary, gain_db: float = 0.0) -> void:
 	var hp_loss: int = maxi(0, int(target_before.get("hp", 0)) - int(target_after.get("hp", 0)))
@@ -211,11 +241,19 @@ func hit(action: Dictionary, actor: Dictionary, weapon: String, target_before: D
 	if _merged_hits.has(key) and now - int(_merged_hits[key]) < merge_ms: return
 	_merged_hits[key] = now
 	var cue: String = impact_cue(action, actor, weapon, target_before, hp_loss, absorbed, _collisions.has(key))
-	if _impact_count == 0:
-		request(cue, {"gain_db": gain_db})
-	elif _impact_count <= 2 and bank != null:
-		bank.schedule_area(cue, _impact_count * AREA_STAGGER_MS, gain_db + AREA_GAIN_DB)
-	_impact_count += 1
+	var frame: int = bank.frame_id() if bank != null else Engine.get_process_frames()
+	# Collapse identical cues on one frame; a blocked and a damaging contact
+	# remain audible together. Additional distinct contacts retain -6 dB layering.
+	if frame != _impact_frame:
+		_impact_cues.clear()
+		_impact_frame = frame
+	if not _impact_cues.has(cue):
+		_impact_cues[cue] = true
+		if _impact_count == 0:
+			request(cue, {"gain_db": gain_db})
+		elif _impact_count <= 2 and bank != null:
+			request(cue, {"gain_db": gain_db + AREA_GAIN_DB, "area_instance": true})
+		_impact_count += 1
 	if hp_loss > 0 and int(target_before.get("block", 0)) > 0 and int(target_after.get("block", 0)) == 0: request("block.break")
 	if hp_loss >= 5 and str(target_before.get("type", "player")) == "player": request("hurt.hero")
 
@@ -231,9 +269,12 @@ func walk_tile(unit: Dictionary) -> void:
 		var footprint: Variant = unit.get("footprint", [1, 1])
 		var large: bool = HEAVY_TYPES.has(str(unit.get("type", ""))) or (footprint is Vector2i and footprint.x * footprint.y > 1) or (footprint is Array and int(footprint[0]) * int(footprint[1]) > 1)
 		request("step.enemy.heavy" if large else "step.enemy.light")
-		if DEATH_FAMILIES.get(str(unit.get("type", "")), "") == "dragon": request("dragon.wings")
 
-func blink() -> void: request("move.blink")
+func walk_start(unit: Dictionary) -> void:
+	if DEATH_FAMILIES.get(str(unit.get("type", "")), "") == "dragon": request("dragon.wings")
+
+func blink() -> void:
+	request("move.blink", {"peak_deadline_ms": bank.presentation_ms()} if bank != null else {})
 func push() -> void: request("push.slide")
 func trap(traps: Array) -> void:
 	_trap_impact_pending = not traps.is_empty()
@@ -278,6 +319,32 @@ func baseline(state: Dictionary) -> void:
 
 func presentation(state: Dictionary, shown: Dictionary) -> void:
 	var effect: Dictionary = shown.get("effect", {})
+	if _roar_pending and not Dragon.profile(effect).is_empty():
+		var release: float = Dragon.RELEASE if str(Dragon.profile(effect).get("geometry", "")) == "breath" else Dragon.CONTACT
+		if float(shown.get("effect_progress", 0.0)) >= release:
+			_roar_pending = false
+			request("dragon.roar", {"peak_deadline_ms": bank.presentation_ms()} if bank != null else {})
+	# Composite moves retain the action's original logical state. A relay's
+	# first destination submission can instead be the next walk's position
+	# override. Compare the presented position with this rift's actual origin.
+	var positions: Dictionary = shown.get("unit_world_positions", {})
+	if _blink_origin != null:
+		var departed: bool = not positions.has("player") and state.get("player", {}).get("pos") != _blink_origin
+		if positions.has("player") and _blink_origin_world != null:
+			departed = not (positions["player"] as Vector2).is_equal_approx(_blink_origin_world)
+		if departed:
+			_blink_origin = null
+			_blink_origin_world = null
+			blink()
+	if str(effect.get("kind", "")) == "blink" and str(effect.get("actor_key", "player")) == "player" and not bool(effect.get("preview", false)):
+		# The arrival can retain the same effect at progress 1. Do not re-arm
+		# it; a later relay has its own effect and its own presented origin.
+		if effect != _blink_effect:
+			_blink_effect = effect.duplicate()
+			_blink_origin = effect.get("from")
+			_blink_origin_world = positions.get("player")
+	else:
+		_blink_effect.clear()
 	if not effect.is_empty() and not _released and str(effect.get("kind", "")) in ["ranged", "aoe"]:
 		var style: String = Fx.style_for_effect(effect)
 		var release_progress: float = 0.18 if style == Fx.STYLE_DEFAULT else Fx.anticipation_end_progress(style)
@@ -301,7 +368,6 @@ func presentation(state: Dictionary, shown: Dictionary) -> void:
 			if _trap_impact_pending and loss >= 5 and key == "player": request("hurt.hero")
 			if not _resolved:
 				_resolved = true
-				if DEATH_FAMILIES.get(str(_actor.get("type", "")), "") == "dragon" and str(_action.get("kind", "")) in ["aoe", "lightning_strikes"]: request("dragon.roar")
 		if loss < 0: heal()
 		for field: String in ["block", "stoneskin"]:
 			if int(after.get(field, 0)) > int(before.get(field, 0)): request(field + ".gain")
@@ -311,7 +377,6 @@ func presentation(state: Dictionary, shown: Dictionary) -> void:
 		light()
 		_radiance_played = true
 	if not _resolved and shown.has("impact_actor_keys"):
-		if DEATH_FAMILIES.get(str(_actor.get("type", "")), "") == "dragon" and str(_action.get("kind", "")) in ["aoe", "lightning_strikes"]: request("dragon.roar")
 		var element: String = str(_action.get("element", _action.get("_card_element", "none")))
 		if element not in ["", "none"] and _impact_count == 0 and not _trap_impact_pending: request(impact_cue(_action, _actor, _weapon))
 		_resolved = true

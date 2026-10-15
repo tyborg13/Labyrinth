@@ -135,20 +135,33 @@ Shale Bloomer is the current `bile_bloomer` id and has the director's stone deat
   adds the one body layer `hurt.hero`. Last Block lost with HP loss adds
   `block.break` as the explicit director-authored exception.
 - Repeated contact notifications for one target in the same action merge inside
-  the data's 60 ms window. Area actions request one full impact and at most two
-  extra impacts at −6 dB after 35/70 ms. Those authorized area instances bypass
-  cue cooldown (some elemental cooldowns exceed 35 ms). Chain-hop contact instead
-  uses its shown lightning element at −5 dB, at that hop's contact time.
+  the data's 60 ms window. Same-frame area contacts play one primary impact,
+  with no stacked copies. Up to two later contact frames each request one
+  additional impact at −6 dB on that frame, bypassing cue cooldown. There is
+  no stagger queue. Chain-hop contact uses its shown lightning element at
+  −5 dB, at that hop's contact time.
 - Beast/avian wind-up vocals use a deterministic presentation seed per action
   with a 30% branch; the bank enforces the authored 900 ms cooldown. Dragon first
-  action requests a roar once per fight. Big area roar requests occur at
-  resolution per the brief (the protected data's wording says start; the brief
-  takes precedence); the data's 4000 ms cooldown still applies. Dragon travel
-  requests wings alongside each large-enemy tile arrival.
+  action requests a roar once per fight. Big area roars align their RMS peak to the wind-up release;
+  the per-call rule below handles each release duration. The data's 4000 ms
+  cooldown still applies. Dragon travel requests wings on the first frame of
+  each tile's movement segment; heavy footsteps remain at tile arrival.
 - A trap spring uses only `trap.trigger`; it never adds an element spell impact.
   If the trap creates a surface, that creation uses the separate `surface.*` cue.
 - Expose is deliberately removed. Its card/intent provides the signal. Pass
   continues to produce only the shared click. Card cues apply only to cards.
+
+Sync policy lives in `data/sfx_cues.json` under `rules.sync`. The alignment peak is the earliest local maximum within 2 dB of the strongest centered 5 ms RMS peak. Lossless asset rebuilds move the cut back to an instantaneous max-channel amplitude at least 20 dB below that selected RMS peak, retain at least 15 ms before it, and apply a 3 ms linear fade. This quiet-point interpretation applies to asset trims; runtime head skips use the separate minimum-pre-peak and fade rule. Already-short source heads stay whole. Restoration gain must obey the build's category/sample peak cap and −1 dBTP. The maximum 100 ms BS.1770 loudness (25 ms hop) may change by −1.0…+0.5 LU; any cap-limited exceptions are listed in the current audit.
+
+One-shot decoded file lengths are capped by `rules.sync.duration`: status, surface, impact, hit, UI and trap cues at 1.2 seconds; spell/cast cues at 1.8 seconds; death, roar and other signature cues at 2.5 seconds. Block/Stoneskin, hurt, crate, footfall, push-collision and fatigue effects use the short impact/status cap. Registry loops and ambience are exempt. The sound lab pins each approved head cut, rebuilds from its lossless parent recipe, and shortens only overlong tails, including a final 150 ms equal-power fade inside the cap. Already-short files retain their whole tail. Playback pitch, gain, cooldowns and routing do not change. The duration audit and Godot bank tests resolve inherited variants and active fallbacks exactly like `SfxBank`; inactive historical fallbacks are not loaded while variants exist. The audit lists every shortened file with its old and new decoded length, fade and loudness delta.
+
+Per-call alignment targets the observed climax +15 ms at the actual selected pitch. The submitted climax frame sets an absolute deadline in the presentation clock; due calls dispatch in that same process tick, even if the bank's process callback ran earlier. No future frame interval is predicted. On a late tick, the PCM head skip increases by the pitch-adjusted wall-time lateness, bounded by the minimum 15 ms before the peak, with a verified 3 ms fade and the whole tail preserved. Presentation deadlines freeze during pause and hit-stop. The onset cap starts at playback. Blink, relay, illusion swap, swap, cast.arcane and animated dragon roars use this rule at 1×, 1.5× and 2×. The same rule handles hit.blunt.heavy and illusion.spawn because their quiet asset cuts retain too much pre-peak time for an immediate contact. Cues opt into decoding at warm-up through `sync_warm_up`; immediate contact alignment uses `sync_contact_alignment`.
+
+Each relay uses its presented rift origin and fires on the first destination submission, including a following walk's world-position override. Composite moves keep the action's original logical `player.pos` while animating, so that field alone cannot identify relay arrival. Permanent walk → blink, blink → walk and walk → blink → walk fixtures independently observe the first post-rift submission at every speed and frame profile. The bank tests also submit already-due cues during pause and hit-stop, requiring them to remain queued until resume and then play exactly once.
+
+Same-frame impacts collapse only identical cues. A blocked and an unblocked contact both play; additional contacts keep the −6 dB layer and the existing three-contact action limit. First-action roars fall back to action start for hidden steps, special views and effects that lack a dragon profile. Meteor and utility releases are covered alongside breath and ground attacks.
+
+The compact [sync baseline](peer_benchmark/staged/sfx/sync_baseline.json) binds sample measurements to hashes and keeps cue/call-site identities, separate request and successful-primary/optional-layer counts, explicit cooldown/optional-priority drops, silent visuals and area loudness. Counts are recorded for every speed and frame profile: fixed 60 Hz, periodic 33 ms spikes, steady 30 fps, 144 Hz and seeded ±4 ms jitter. All aligned rows must remain 0–30 ms after the observed climax, targeting +15 ±2 ms where frame timing allows; the current harness retains the stricter +15 ±1 ms assertion. Primary priority drops fail independently of request coverage; cooldown drops must prove a preceding success within the authored cooldown. Coverage identity is file + function + normalized statement, excluding neighboring lines. The [current audit](peer_benchmark/staged/sfx/sync_audit.md) holds the policy, results, complete re-trim list, listening checklist and exceptions. Full reports regenerate under gitignored `output/sfx/` with `tools/sfx_sync_audit.py --report`; `tools/sfx_lab/sync.py` rebuilds from compact per-path provenance and is idempotent. The full Godot suite includes the bank's forced-pitch, absolute-deadline, pause/hit-stop and decoded-length checks, plus all 15 production-harness combinations.
 
 ## Adding variants and proof
 
@@ -198,10 +211,10 @@ preserve their established capture/input checks. The inspection fixture remains
 owned by the design owner under the workflow split.
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-01 && python3 tools/visual_probe_runner.py --task-id sfx-01 --no-headless --display-driver macos --audio-driver CoreAudio --expect-size 1920x1080 --proof-contract tests/sfx_cue_coverage_probe_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/sfx-01-coverage.json tests/sfx_cue_coverage_probe.gd -- --visual
-cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-01 && python3 tools/visual_probe_runner.py --task-id sfx-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 tests/run_sfx_probe.gd
-cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-01 && python3 tools/visual_probe_runner.py --task-id sfx-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 tests/ui_feedback_sfx_probe.gd
-cd /Users/borgerding/workspace/Labyrinth.worktrees/sfx-01 && python3 tools/visual_probe_runner.py --task-id sfx-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/ui_hover_sfx_probe_contract.json tests/ui_hover_sfx_probe.gd
+cd "$TASK_WORKTREE" && python3 tools/visual_probe_runner.py --task-id sfx-01 --no-headless --display-driver macos --audio-driver CoreAudio --expect-size 1920x1080 --proof-contract tests/sfx_cue_coverage_probe_contract.json --result-manifest "$INSPECTION_MANIFESTS/sfx-01-coverage.json" tests/sfx_cue_coverage_probe.gd -- --visual
+cd "$TASK_WORKTREE" && python3 tools/visual_probe_runner.py --task-id sfx-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 tests/run_sfx_probe.gd
+cd "$TASK_WORKTREE" && python3 tools/visual_probe_runner.py --task-id sfx-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 tests/ui_feedback_sfx_probe.gd
+cd "$TASK_WORKTREE" && python3 tools/visual_probe_runner.py --task-id sfx-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/ui_hover_sfx_probe_contract.json tests/ui_hover_sfx_probe.gd
 ```
 
 Capture paths are `user://sfx_cue_coverage/1920x1080_ui100/01_melee_contact.png`

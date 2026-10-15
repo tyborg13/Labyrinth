@@ -1,14 +1,17 @@
 extends Node
 class_name SfxBank
 
+const PeakAlignment = preload("res://scripts/sfx_peak_alignment.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Attacks = preload("res://scripts/attack_sfx_library.gd")
 const Runs = preload("res://scripts/run_sfx_library.gd")
 const DATA_PATH: String = "res://data/sfx_cues.json"
 const CROSSFADE_SECONDS: float = 0.6
-# Internal queue capacity, independent of audible tuning.
-const SCHEDULE_CAPACITY: int = 64
+# A fresh primary contact outranks its optional attenuated area layers. Equal
+# priority voices steal the oldest; saturation never shifts an onset in time.
+const PRIMARY_PRIORITY: int = 0
+const AREA_PRIORITY: int = -1
 const LEGACY_WARM_VOICES: int = 8
 signal cue_requested(cue_id: String, result: String)
 
@@ -22,8 +25,11 @@ var _loop_starts: Array[float] = []
 var _fade_elapsed: float = CROSSFADE_SECONDS
 var _loop_cursor: int = 0
 var _serial: int = 0
-var _clock_ms: int = -1
-var _schedule: Array = []
+var _peak_pending: Array[Dictionary]
+var last_play: Dictionary = {}
+var last_request: Dictionary = {}
+var _clock_ms: float = -1.0
+var presentation_clock: Callable
 var _host: Node
 var _legacy_options: Dictionary = {"gain_db": 0.0, "duration": -1.0}
 const EMPTY_OPTIONS: Dictionary = {}
@@ -35,6 +41,9 @@ func warm_up(host: Node = null, source: Dictionary = {}, seed_value: int = -1) -
 	data = source if not source.is_empty() else JSON.parse_string(FileAccess.get_file_as_string(DATA_PATH))
 	for cue_id: String in data.get("cues", {}):
 		_compile(cue_id, data["cues"][cue_id], seed_value)
+	for cue: String in cues:
+		if bool(cues[cue]["entry"].get("sync_warm_up", false)):
+			for stream: AudioStream in cues[cue]["streams"]: PeakAlignment.decoded(stream)
 	for index: int in range(2):
 		var player := AudioStreamPlayer.new()
 		player.name = "AmbientSfxPlayer" if index == 0 else "AmbientSfxCrossfadePlayer"
@@ -42,8 +51,6 @@ func warm_up(host: Node = null, source: Dictionary = {}, seed_value: int = -1) -
 		_loops.append(player)
 		_loop_targets.append(0.0)
 		_loop_starts.append(0.0)
-	for index: int in range(SCHEDULE_CAPACITY):
-		_schedule.append({"cue": "", "due": 0, "gain_db": 0.0, "area_instance": true})
 
 func _source_entry(cue_id: String, visited: Dictionary = {}) -> Dictionary:
 	if visited.has(cue_id): return {}
@@ -78,6 +85,7 @@ func _compile(cue_id: String, entry: Dictionary, seed_value: int) -> void:
 			player.set_meta("play_generation", 0)
 			player.set_meta("serial", -1)
 			player.set_meta("until", 0)
+			player.set_meta("priority", PRIMARY_PRIORITY)
 			_host.add_child(player)
 			players.append(player)
 			voices.append(player)
@@ -97,31 +105,45 @@ func _legacy_volume(path: String, default_db: float) -> float:
 	if path == "res://assets/audio/sfx/item_equip.wav": return -1.0
 	return default_db
 
-func set_test_clock(milliseconds: int) -> void:
+func set_test_clock(milliseconds: float) -> void:
 	_clock_ms = milliseconds
 
 func now_ms() -> int:
-	return _clock_ms if _clock_ms >= 0 else Time.get_ticks_msec()
+	return int(_clock_ms) if _clock_ms >= 0 else Time.get_ticks_msec()
+
+func _precise_ms() -> float:
+	return _clock_ms if _clock_ms >= 0 else float(Time.get_ticks_usec()) / 1000.0
+
+func presentation_ms() -> float:
+	return float(presentation_clock.call()) / 1000.0 if presentation_clock.is_valid() else _precise_ms()
+
+func _presentation_active() -> bool:
+	return Engine.time_scale > 0.0 and (not is_inside_tree() or not get_tree().paused)
+
+func frame_id() -> int:
+	return int(_clock_ms) if _clock_ms >= 0 else Engine.get_process_frames()
 
 func play(cue_id: String, opts: Dictionary = EMPTY_OPTIONS) -> float:
 	if cues.is_empty(): warm_up()
 	cue_id = Attacks.CUE_ALIASES.get(cue_id, Runs.CUE_ALIASES.get(cue_id, cue_id))
 	if not cues.has(cue_id):
-		cue_requested.emit(cue_id, "unknown")
+		_report_request(cue_id, opts, "unknown")
 		return 0.0
 	var state: Dictionary = cues[cue_id]
 	var entry: Dictionary = state["entry"]
+	if bool(entry.get("sync_contact_alignment", false)) and not opts.has("peak_climax_ms") and not opts.has("peak_deadline_ms"):
+		opts = opts.duplicate()
+		opts["peak_deadline_ms"] = presentation_ms()
 	state["requests"] += 1
 	var now: int = now_ms()
 	if not bool(opts.get("area_instance", false)) and now - int(state["last_ms"]) < int(entry.get("cooldown_ms", 0)):
 		state["suppressed"] += 1
-		cue_requested.emit(cue_id, "cooldown")
+		_report_request(cue_id, opts, "cooldown")
 		return 0.0
-	state["last_ms"] = now
 	var streams: Array = state["streams"]
 	if streams.is_empty():
 		state["silent"] += 1
-		cue_requested.emit(cue_id, "silent")
+		_report_request(cue_id, opts, "silent")
 		if bool(entry.get("loop", false)): stop_loop()
 		return 0.0
 	var resource: AudioStream = streams[int(state["next"])]
@@ -130,11 +152,64 @@ func play(cue_id: String, opts: Dictionary = EMPTY_OPTIONS) -> float:
 	var rng: RandomNumberGenerator = state["rng"]
 	var jitter: float = float(entry.get("pitch_jitter", 0.0))
 	var pitch: float = float(entry.get("pitch_scale", 1.0)) * (1.0 + rng.randf_range(-jitter, jitter))
-	state["played"] += 1
+	var selected: Dictionary = {"resource": resource, "pitch": pitch, "gain": gain, "sample_index": posmod(int(state["next"]) - 1, streams.size())}
+	if opts.has("peak_deadline_ms"):
+		# Set by the actual climax submission, never an estimated future frame.
+		# Dispatch in this same process tick when already due: deferring to this
+		# node's next callback could add a full 30 fps frame to the minimum lead.
+		selected["alignment"] = PeakAlignment.plan(resource, pitch, 0.0)
+		selected["presentation_deadline_ms"] = float(opts["peak_deadline_ms"])
+		_peak_pending.append({"cue": cue_id, "selected": selected, "opts": opts.duplicate()})
+		_dispatch_presentation_deadlines()
+		return float(selected.get("played_duration", resource.get_length() / pitch))
+	if opts.has("peak_climax_ms"):
+		var alignment: Dictionary = PeakAlignment.plan(resource, pitch, float(opts["peak_climax_ms"]))
+		selected["alignment"] = alignment
+		selected["due_ms"] = now + float(alignment["delay_ms"])
+		selected["remaining_ms"] = float(alignment["delay_ms"])
+		selected["last_advance_ms"] = _precise_ms()
+		if float(alignment["delay_ms"]) > 0.0:
+			_peak_pending.append({"cue": cue_id, "selected": selected, "opts": opts.duplicate()})
+			return resource.get_length() / pitch + float(alignment["delay_ms"]) / 1000.0
+	return _start_selected(cue_id, selected, opts)
+
+func _report_request(cue_id: String, opts: Dictionary, result: String) -> void:
+	var state: Dictionary = cues.get(cue_id, {})
+	last_request = {"role": "optional_layer" if bool(opts.get("area_instance", false)) else "primary",
+		"cooldown_ms": int(state.get("entry", {}).get("cooldown_ms", 0)),
+		"since_success_ms": now_ms() - int(state.get("last_ms", -1000000))}
+	cue_requested.emit(cue_id, result)
+
+func _start_selected(cue_id: String, selected: Dictionary, opts: Dictionary) -> float:
+	var state: Dictionary = cues[cue_id]
+	var entry: Dictionary = state["entry"]
+	var now: int = now_ms()
+	if (selected.has("due_ms") or selected.has("presentation_deadline_ms")) and not bool(opts.get("area_instance", false)) and now - int(state["last_ms"]) < int(entry.get("cooldown_ms", 0)):
+		state["suppressed"] += 1
+		_report_request(cue_id, opts, "cooldown")
+		return 0.0
+	var resource: AudioStream = selected["resource"]
+	var pitch: float = selected["pitch"]
+	var gain: float = selected["gain"]
+	var alignment: Dictionary = selected.get("alignment", {}).duplicate()
 	if bool(entry.get("loop", false)):
 		_start_loop(cue_id, resource, gain, pitch)
 	else:
-		var player: AudioStreamPlayer = _voice(state["voices"], now)
+		var priority: int = AREA_PRIORITY if bool(opts.get("area_instance", false)) else PRIMARY_PRIORITY
+		var player: AudioStreamPlayer = _voice(state["voices"], now, priority)
+		if player == null:
+			state["suppressed"] += 1
+			_report_request(cue_id, opts, "priority")
+			return 0.0
+		if not alignment.is_empty():
+			# Compensate a scheduler tick's overshoot without moving the target peak.
+			var skip: float = float(alignment["skip_ms"]) + float(selected.get("late_ms", 0.0)) * pitch
+			var trimmed: Dictionary = PeakAlignment.trimmed(resource, pitch, skip)
+			resource = trimmed["stream"]
+			alignment.merge(trimmed)
+			alignment["late_ms"] = float(selected.get("late_ms", 0.0))
+			alignment["requested_skip_ms"] = skip
+			alignment.erase("stream")
 		player.stop()
 		player.stream = resource
 		player.bus = bus_for(str(entry.get("bus", "World")))
@@ -142,13 +217,17 @@ func play(cue_id: String, opts: Dictionary = EMPTY_OPTIONS) -> float:
 		player.pitch_scale = pitch
 		_serial += 1
 		player.set_meta("serial", _serial)
+		player.set_meta("priority", priority)
 		var stop_seconds: float = float(opts.get("duration", entry.get("duration", -1.0)))
 		if stop_seconds < 0.0: stop_seconds = resource.get_length() / pitch
 		player.set_meta("until", now + int(stop_seconds * 1000.0))
 		player.set_meta("sfx_id", cue_id)
 		player.set_meta("play_generation", int(player.get_meta("play_generation", 0)) + 1)
 		if player.is_inside_tree(): player.play()
-	cue_requested.emit(cue_id, "played")
+	last_play = {"cue": cue_id, "selected": selected, "alignment": alignment, "stream": resource}
+	state["last_ms"] = now
+	state["played"] += 1
+	_report_request(cue_id, opts, "played")
 	return resource.get_length() / pitch
 
 static func bus_for(bus: String) -> String:
@@ -156,11 +235,14 @@ static func bus_for(bus: String) -> String:
 	if bus == "UI": return Settings.UI_SFX_BUS
 	return bus
 
-func _voice(voices: Array, now: int) -> AudioStreamPlayer:
+func _voice(voices: Array, now: int, priority: int = PRIMARY_PRIORITY) -> AudioStreamPlayer:
 	var oldest: AudioStreamPlayer = voices[0]
 	for player: AudioStreamPlayer in voices:
 		if int(player.get_meta("until", 0)) <= now: return player
-		if int(player.get_meta("serial", -1)) < int(oldest.get_meta("serial", -1)): oldest = player
+		var player_priority: int = int(player.get_meta("priority", PRIMARY_PRIORITY))
+		var oldest_priority: int = int(oldest.get_meta("priority", PRIMARY_PRIORITY))
+		if player_priority < oldest_priority or (player_priority == oldest_priority and int(player.get_meta("serial", -1)) < int(oldest.get_meta("serial", -1))): oldest = player
+	if int(oldest.get_meta("priority", PRIMARY_PRIORITY)) > priority: return null
 	return oldest
 
 func prepare_legacy(entries: Array) -> void:
@@ -195,22 +277,50 @@ func play_entry(entry: Dictionary) -> float:
 	_legacy_options["duration"] = float(entry.get("duration", -1.0))
 	return play(cue_id, _legacy_options)
 
-func schedule_area(cue_id: String, delay_ms: int, gain_db: float) -> void:
-	for slot: Dictionary in _schedule:
-		if str(slot["cue"]).is_empty():
-			slot["cue"] = cue_id
-			slot["due"] = now_ms() + delay_ms
-			slot["gain_db"] = gain_db
-			return
+func schedule_area(cue_id: String, _delay_ms: int, gain_db: float) -> void:
+	# Compatibility entry point. An area contact owns its visual frame; the old
+	# 35/70 ms queue violated sfx-04 even when every target flashed together.
+	play(cue_id, {"gain_db": gain_db, "area_instance": true})
 
 func _process(delta: float) -> void:
 	advance(delta)
 
+func _dispatch_presentation_deadlines() -> void:
+	if not _presentation_active(): return
+	var now: float = presentation_ms()
+	var due: Array[Dictionary]
+	for pending: Dictionary in _peak_pending:
+		var selected: Dictionary = pending["selected"]
+		if selected.has("presentation_deadline_ms") and now >= float(selected["presentation_deadline_ms"]):
+			selected["late_ms"] = (now - float(selected["presentation_deadline_ms"])) / Engine.time_scale
+			due.append(pending)
+	for pending: Dictionary in due:
+		_peak_pending.erase(pending)
+		pending["selected"]["played_duration"] = _start_selected(pending["cue"], pending["selected"], pending["opts"])
+
 func advance(delta: float) -> void:
-	for slot: Dictionary in _schedule:
-		if not str(slot["cue"]).is_empty() and now_ms() >= int(slot["due"]):
-			play(str(slot["cue"]), slot)
-			slot["cue"] = ""
+	_dispatch_presentation_deadlines()
+	var due: Array[Dictionary]
+	# _process is paused with the scene. Hit-stop supplies zero visual delta;
+	# neither case consumes the active wall-time delay or catches up on resume.
+	var active: bool = Engine.time_scale > 0.0 and (not is_inside_tree() or not get_tree().paused)
+	var clock: float = _precise_ms()
+	for pending: Dictionary in _peak_pending:
+		var selected: Dictionary = pending["selected"]
+		if selected.has("presentation_deadline_ms"): continue
+		if active:
+			# A request can arrive before this node's process callback. Do not
+			# charge it time from the preceding frame. Clamp resumed wall time
+			# to the active delta so a paused interval cannot release the cue.
+			var elapsed: float = minf(maxf(0.0, clock - float(selected["last_advance_ms"])), delta * 1000.0 / Engine.time_scale)
+			selected["remaining_ms"] -= elapsed
+			if float(selected["remaining_ms"]) <= 0.0:
+				selected["late_ms"] = -float(selected["remaining_ms"])
+				due.append(pending)
+		selected["last_advance_ms"] = clock
+	for pending: Dictionary in due:
+		_peak_pending.erase(pending)
+		_start_selected(pending["cue"], pending["selected"], pending["opts"])
 	for player: AudioStreamPlayer in players:
 		if player.stream != null and now_ms() >= int(player.get_meta("until", 0)):
 			player.stop()
