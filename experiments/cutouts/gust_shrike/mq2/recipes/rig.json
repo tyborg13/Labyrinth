@@ -1,0 +1,191 @@
+{
+  "character_id": "gust_shrike",
+  "joints": {
+    "root": {
+      "joint": "root",
+      "parent": null
+    },
+    "body": {
+      "joint": "body",
+      "parent": "root"
+    },
+    "head": {
+      "joint": "head",
+      "parent": "root"
+    },
+    "wing_near": {
+      "joint": "wing_near",
+      "parent": "root"
+    },
+    "wing_far": {
+      "joint": "wing_far",
+      "parent": "root"
+    },
+    "tail": {
+      "joint": "tail",
+      "parent": "root"
+    },
+    "legs": {
+      "joint": "legs",
+      "parent": "root"
+    }
+  },
+  "parts": {
+    "body": "body",
+    "head": "head",
+    "beak": "head",
+    "mask": "head",
+    "wing_near": "wing_near",
+    "wing_far": "wing_far",
+    "tail": "tail",
+    "legs": "legs"
+  },
+  "motion": "motion.gd",
+  "rigid_bones": [
+    "head",
+    "tail",
+    "legs"
+  ],
+  "contact_feet": [
+    "legs"
+  ],
+  "materials": {
+    "body": "dusky storm-grey, grey-tan and dark brown plumage",
+    "head": "dusky storm-grey, grey-tan and dark brown plumage",
+    "beak": "heavy hooked iron-grey beak",
+    "mask": "bold dark mask band",
+    "wing_near": "dark brown plumage with pale storm grey-blue leading edge",
+    "wing_far": "dark brown plumage with pale storm grey-blue leading edge",
+    "tail": "dusky storm-grey, grey-tan and dark brown plumage",
+    "legs": "grey-brown scaled legs with big talons"
+  },
+  "motion_probe": "probes/motion_samples.gd",
+  "exposure_tool": "probes/proof.py",
+  "clips": {
+    "idle": {
+      "frames": 144,
+      "duration": 2.4,
+      "loop": true
+    },
+    "move": {
+      "frames": 49,
+      "duration": 0.36,
+      "loop": false
+    },
+    "dive": {
+      "frames": 61,
+      "duration": 0.55,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.636363636363636,
+          0.636363636363636
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "talon_rake": {
+      "frames": 49,
+      "duration": 0.24,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.42,
+          0.5
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "hover": {
+      "frames": 49,
+      "duration": 0.48,
+      "loop": false
+    },
+    "hit": {
+      "frames": 37,
+      "duration": 0.36,
+      "loop": false
+    },
+    "death": {
+      "frames": 63,
+      "duration": 1.036,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.62,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    }
+  },
+  "design_placeholders": {
+    "TODO_DESIGN_head_snap_clock": "Specify step2 FPS and start/finish placement in motion_interpretation.json"
+  },
+  "copy_files": [
+    {
+      "from": "../motion.gd",
+      "to": "motion.gd"
+    },
+    {
+      "from": "../motion_data.gd",
+      "to": "motion_data.gd"
+    },
+    {
+      "from": "../probes/motion_samples.gd",
+      "to": "probes/motion_samples.gd"
+    },
+    {
+      "from": "../probes/proof.py",
+      "to": "probes/proof.py"
+    },
+    {
+      "from": "../probes/motion_gates.py",
+      "to": "probes/motion_gates.py"
+    },
+    {
+      "from": "../probes/native_rest.gd",
+      "to": "probes/native_rest.gd"
+    },
+    {
+      "from": "../probes/rest_contract.json",
+      "to": "probes/rest_contract.json"
+    },
+    {
+      "from": "../probes/native_motion.gd",
+      "to": "probes/native_motion.gd"
+    }
+  ],
+  "proof_defaults": {
+    "sample_frames_are_diagnostic_only": true,
+    "support_tolerance_px": 0.02,
+    "rigid_tolerance": 0.001,
+    "native_timeout_seconds": 900
+  },
+  "provenance": {
+    "parts": "Eight original maquette labels, six independently controlled painted groups; beak/mask bind to head. Sibling bones avoid breath-scale distortion.",
+    "camera": "Export actual root matrices; approved mq2 source README command uses FRONT_YAW=0 (front/rear 0/180). Preserve exporter default and do not substitute humanoid transforms.",
+    "durations": "Existing RunScene 8*.045 board step, 6*.04 melee; DiveView .35 flight; FloatingCombatText .48 popup; CutoutContext .36 hit; board dissolve 28*.037 death. Dive recovery cadence is explicitly unresolved."
+  }
+}

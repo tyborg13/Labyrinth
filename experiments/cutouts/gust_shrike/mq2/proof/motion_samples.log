@@ -1,0 +1,13 @@
+Running task-local command:
+  task: rr-03
+  run: rr-03-1792105642619997000-79047
+  HOME: /private/tmp/labyrinth-godot-home/rr-03-1792105642619997000-79047
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-03-1792105642619997000-79047/godot.log --headless --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-03 --script /Users/borgerding/workspace/Labyrinth.worktrees/rr-03/experiments/cutouts/gust_shrike/mq2/probes/motion_samples.gd -- --case /Users/borgerding/workspace/Labyrinth.worktrees/rr-03/experiments/cutouts/gust_shrike/mq2/cutout.json --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-03/experiments/cutouts/gust_shrike/mq2/proof/motion_samples.json
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+SHRIKE MOTION SAMPLES: PASS (904 poses; design complete=false)

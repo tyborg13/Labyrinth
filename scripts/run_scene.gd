@@ -17,6 +17,7 @@ const GuardianCutout = preload("res://scripts/guardian_cutout/renderer.gd")
 const BileBloomerCutout = preload("res://scripts/bile_bloomer_cutout/renderer.gd")
 const ActorPresentation = preload("res://scripts/actor_presentation.gd")
 const GaolerCutout = preload("res://scripts/chainbound_gaoler_cutout/renderer.gd")
+const GustShrikeAction = preload("res://scripts/gust_shrike_cutout/action.gd")
 const CinderDropletCutout = preload("res://scripts/cinder_droplet_cutout/renderer.gd")
 const CinderOozeCutout = preload("res://scripts/cinder_ooze_cutout/renderer.gd")
 const FrostglassCutout = preload("res://scripts/frostglass_lancer_cutout/renderer.gd")
@@ -24618,6 +24619,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				if bloomer_attack and str(step.get("kind", "")) == "ranged" and not _reduced_motion_enabled():
 					await _animate_bile_bloomer_preparation(animated_state, step, step_actor_key)
 				var gaoler_attack: bool = GaolerCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
+				var gust_shrike_attack: bool = GustShrikeAction.Renderer.available() and not GustShrikeAction.action_for_effect(step, _animation_actor_unit(animated_state, step_actor_key)).is_empty()
 				var cinder_droplet_attack: bool = CinderDropletCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
 				var cinder_ooze_attack: bool = CinderOozeCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
 				var surgeon_attack: bool = GraveSurgeonCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
@@ -24685,9 +24687,10 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 						"focus_tiles": focus_tiles,
 						"focus_color": Color(0.95, 0.62, 0.37, 0.18),
 						"effect": step,
+						"effect_frame_count": attack_frame_count,
 						"effect_progress": t
 					}
-					if str(step.get("kind", "")) == "melee" and not warden_attack and not crawler_attack and not gaoler_attack and not cinder_droplet_attack and not cinder_ooze_attack and not surgeon_attack and not harrier_attack and not iskaldra_attack and not wisp_attack and not noctyrax_attack and not tharokh_attack and not vaeloryx_attack and not veilbound_attack and not vyraketh_attack and not zekarion_attack and not guardian_attack:
+					if str(step.get("kind", "")) == "melee" and not warden_attack and not crawler_attack and not gaoler_attack and not gust_shrike_attack and not cinder_droplet_attack and not cinder_ooze_attack and not surgeon_attack and not harrier_attack and not iskaldra_attack and not wisp_attack and not noctyrax_attack and not tharokh_attack and not vaeloryx_attack and not veilbound_attack and not vyraketh_attack and not zekarion_attack and not guardian_attack:
 						presentation["unit_world_positions"] = {
 							step_actor_key: from_point.lerp(to_point, 0.08 + sin(t * PI) * 0.22)
 						}
@@ -25293,7 +25296,9 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 			draw_tile,
 			segment_to
 		)
-		if player_walk:
+		if actor_type == "gust_shrike" and GustShrikeAction.Renderer.available():
+			presentation["gust_shrike_motion"] = {actor_key: {"clip": "move", "direction": segment_to - segment_from, "phase": t}}
+		elif player_walk:
 			# The accepted gait travels along the 2:1 projected lane. Distance
 			# drives phase so planted feet counter the actual root translation.
 			presentation["protagonist_motion"] = {"clip": "walk", "direction": segment_to - segment_from,
@@ -25978,6 +25983,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 			rendered_presentation["floating_texts"] = merged_floating_texts
 	_combat_pacing.decorate(display_state, rendered_presentation)
 	preload("res://scripts/cutout_context.gd").apply_to_presentation(display_state, rendered_presentation)
+	GustShrikeAction.decorate(display_state, rendered_presentation)
 	rendered_presentation["equipped_equipment"] = _equipped_equipment_for_board()
 	call_deferred("_sync_board_view_rect")
 	board_view.set_combat_state(

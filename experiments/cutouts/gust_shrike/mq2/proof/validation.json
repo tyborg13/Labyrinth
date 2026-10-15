@@ -1,0 +1,9 @@
+{
+  "ok": false,
+  "character_id": "gust_shrike",
+  "layouts": {},
+  "errors": [
+    "front: Declared motion-check bone is missing: head",
+    "rear: Declared motion-check bone is missing: head"
+  ]
+}

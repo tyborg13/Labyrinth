@@ -1,0 +1,467 @@
+{
+ "_channels": {
+  "body.lift_px": "+ up (screen pixels at 1080p board scale)",
+  "body.forward_px": "+ toward the facing direction",
+  "body.pitch_deg": "+ nose down",
+  "body.roll_deg": "+ toward the bird's far-wing side",
+  "body.squash": "vertical scale multiplier, pivot at the feet",
+  "head.tilt_deg": "+ beak down/forward",
+  "head.turn_px": "+ toward the facing direction",
+  "head.lift_px": "+ up",
+  "wing_near.raise_deg": "+ up about the shoulder",
+  "wing_far.raise_deg": "+ up about the shoulder",
+  "wings.span": "rigid width scale for folding (1 = rest)",
+  "tail.lift_deg": "+ up",
+  "legs.reach_deg": "+ forward (talons lead)",
+  "_rules": "Codex maps each semantic channel to per-view rigid transforms with the exported view transforms (front 135\u00b0, rear 315\u00b0); never mirror one view's anatomy into the other. Default interpolation 'smooth' (cubic ease in-out) between keys; 'step2' = linear over exactly 2 frames then hold. Feet stay planted (no body lift) in idle, hit and hover entry unless a key says otherwise."
+ },
+ "idle": {
+  "loop": true,
+  "seconds": 2.4,
+  "keys": {
+   "body.squash": [
+    {
+     "t": 0,
+     "v": 1.0
+    },
+    {
+     "t": 0.25,
+     "v": 1.02
+    },
+    {
+     "t": 0.5,
+     "v": 1.0
+    },
+    {
+     "t": 0.75,
+     "v": 1.02
+    },
+    {
+     "t": 1,
+     "v": 1.0
+    }
+   ],
+   "head": {
+    "interp": "step2",
+    "note": "each interval includes its 2-frame snap: 0.65/0.60/0.60/0.55 s",
+    "keys": [
+     {
+      "t": 0,
+      "tilt_deg": 0,
+      "turn_px": 0
+     },
+     {
+      "t": 0.271,
+      "tilt_deg": -6,
+      "turn_px": -1
+     },
+     {
+      "t": 0.521,
+      "tilt_deg": 4,
+      "turn_px": 1,
+      "lift_px": 1
+     },
+     {
+      "t": 0.771,
+      "tilt_deg": -2,
+      "turn_px": 0
+     },
+     {
+      "t": 1,
+      "tilt_deg": 0,
+      "turn_px": 0
+     }
+    ]
+   },
+   "tail.lift_deg": [
+    {
+     "t": 0,
+     "v": 0
+    },
+    {
+     "t": 0.4,
+     "v": 0
+    },
+    {
+     "t": 0.45,
+     "v": 4
+    },
+    {
+     "t": 0.55,
+     "v": 0
+    },
+    {
+     "t": 1,
+     "v": 0
+    }
+   ],
+   "wing_near.raise_deg": [
+    {
+     "t": 0,
+     "v": 0
+    },
+    {
+     "t": 0.25,
+     "v": 2
+    },
+    {
+     "t": 0.5,
+     "v": 0
+    },
+    {
+     "t": 0.75,
+     "v": -2
+    },
+    {
+     "t": 1,
+     "v": 0
+    }
+   ],
+   "wing_far.raise_deg": [
+    {
+     "t": 0,
+     "v": -2
+    },
+    {
+     "t": 0.25,
+     "v": 0
+    },
+    {
+     "t": 0.5,
+     "v": 2
+    },
+    {
+     "t": 0.75,
+     "v": 0
+    },
+    {
+     "t": 1,
+     "v": -2
+    }
+   ]
+  }
+ },
+ "move": {
+  "note": "keep the existing eight-frame board step; travel along the board is the existing tween, these are on top",
+  "keys": [
+   {
+    "t": 0,
+    "lift_px": 0,
+    "wings_raise": 0,
+    "tail": 0,
+    "legs": 0,
+    "pitch": 0,
+    "squash": 1
+   },
+   {
+    "t": 0.15,
+    "lift_px": -3,
+    "wings_raise": 6,
+    "tail": 4,
+    "legs": 0,
+    "pitch": 0,
+    "squash": 1
+   },
+   {
+    "t": 0.3,
+    "lift_px": 8,
+    "wings_raise": -35,
+    "tail": 0,
+    "legs": -10,
+    "pitch": -4,
+    "squash": 1
+   },
+   {
+    "t": 0.5,
+    "lift_px": 24,
+    "wings_raise": 5,
+    "tail": 2,
+    "legs": -10,
+    "pitch": 0,
+    "squash": 1
+   },
+   {
+    "t": 0.8,
+    "lift_px": 6,
+    "wings_raise": 20,
+    "tail": -10,
+    "legs": 25,
+    "pitch": -8,
+    "squash": 1
+   },
+   {
+    "t": 0.9,
+    "lift_px": -2,
+    "wings_raise": 8,
+    "tail": -4,
+    "legs": 0,
+    "pitch": 0,
+    "squash": 0.97
+   },
+   {
+    "t": 1.0,
+    "lift_px": 0,
+    "wings_raise": 0,
+    "tail": 0,
+    "legs": 0,
+    "pitch": 0,
+    "squash": 1
+   }
+  ],
+  "map": {
+   "lift_px": "body.lift_px",
+   "wings_raise": "wing_near.raise_deg and wing_far.raise_deg",
+   "tail": "tail.lift_deg",
+   "legs": "legs.reach_deg",
+   "pitch": "body.pitch_deg",
+   "squash": "body.squash"
+  }
+ },
+ "dive": {
+  "note": "phases over the existing 0.35 s flight; impact at flight end (contact phase 1.0); then 6 recovery frames at 1/30 s",
+  "flight": [
+   {
+    "t": 0,
+    "wings_raise": 0,
+    "span": 1,
+    "pitch": 0,
+    "head_tilt": 0,
+    "forward": 0,
+    "lift": 0
+   },
+   {
+    "t": 0.15,
+    "wings_raise": 10,
+    "span": 1,
+    "pitch": -5,
+    "head_tilt": 0,
+    "forward": 0,
+    "lift": 2
+   },
+   {
+    "t": 0.35,
+    "wings_raise": -30,
+    "span": 0.7,
+    "pitch": 20,
+    "head_tilt": 8,
+    "forward": 6,
+    "lift": 0
+   },
+   {
+    "t": 1.0,
+    "wings_raise": -30,
+    "span": 0.7,
+    "pitch": 20,
+    "head_tilt": 8,
+    "forward": 6,
+    "lift": 0
+   }
+  ],
+  "recovery_frames": [
+   {
+    "frame": 1,
+    "wings_raise": 25,
+    "span": 1,
+    "pitch": -10,
+    "head_tilt": -4,
+    "forward": 4
+   },
+   {
+    "frame": 3,
+    "wings_raise": 10,
+    "span": 1,
+    "pitch": -3,
+    "head_tilt": 0,
+    "forward": 2
+   },
+   {
+    "frame": 6,
+    "wings_raise": 0,
+    "span": 1,
+    "pitch": 0,
+    "head_tilt": 0,
+    "forward": 0
+   }
+  ],
+  "map": {
+   "span": "wings.span",
+   "head_tilt": "head.tilt_deg",
+   "forward": "body.forward_px",
+   "lift": "body.lift_px"
+  }
+ },
+ "talon_rake": {
+  "contact_phase": 0.5,
+  "note": "preserve the existing effect impact boundary at the contact phase",
+  "keys": [
+   {
+    "t": 0,
+    "wings_raise": 0,
+    "lift": 0,
+    "legs": 0,
+    "forward": 0
+   },
+   {
+    "t": 0.25,
+    "wings_raise": -30,
+    "lift": 6,
+    "legs": 0,
+    "forward": 0
+   },
+   {
+    "t": 0.45,
+    "wings_raise": 15,
+    "lift": 6,
+    "legs": 25,
+    "forward": 4
+   },
+   {
+    "t": 0.5,
+    "wings_raise": 15,
+    "lift": 5,
+    "legs": 25,
+    "forward": 4
+   },
+   {
+    "t": 0.65,
+    "wings_raise": 5,
+    "lift": 2,
+    "legs": 5,
+    "forward": -3
+   },
+   {
+    "t": 1.0,
+    "wings_raise": 0,
+    "lift": 0,
+    "legs": 0,
+    "forward": 0
+   }
+  ]
+ },
+ "hover": {
+  "note": "inside the existing Block popup timing",
+  "keys": [
+   {
+    "t": 0,
+    "lift": 0,
+    "wings_raise": 0,
+    "tail": 0
+   },
+   {
+    "t": 0.15,
+    "lift": 4,
+    "wings_raise": 30,
+    "tail": 3
+   },
+   {
+    "t": 0.35,
+    "lift": 4,
+    "wings_raise": -30,
+    "tail": 3
+   },
+   {
+    "t": 0.55,
+    "lift": 4,
+    "wings_raise": 30,
+    "tail": 3
+   },
+   {
+    "t": 0.75,
+    "lift": 4,
+    "wings_raise": -30,
+    "tail": 3
+   },
+   {
+    "t": 0.85,
+    "lift": 4,
+    "wings_raise": 0,
+    "tail": 2
+   },
+   {
+    "t": 1.0,
+    "lift": 0,
+    "wings_raise": 0,
+    "tail": 0
+   }
+  ]
+ },
+ "hit": {
+  "note": "recoil vector from the resolved attacker (away from it), 3 px at the peak",
+  "keys": [
+   {
+    "t": 0,
+    "recoil_px": 0,
+    "head_tilt": 0,
+    "wings_raise": 0
+   },
+   {
+    "t": 0.15,
+    "recoil_px": 3,
+    "head_tilt": -8,
+    "wings_raise": 10
+   },
+   {
+    "t": 0.45,
+    "recoil_px": 1,
+    "head_tilt": -3,
+    "wings_raise": 4
+   },
+   {
+    "t": 1.0,
+    "recoil_px": 0,
+    "head_tilt": 0,
+    "wings_raise": 0
+   }
+  ]
+ },
+ "death": {
+  "note": "terminal pose held; roll toward the far-wing side in each view; lift = drop to the ground",
+  "keys": [
+   {
+    "t": 0,
+    "wings_raise": 0,
+    "head_tilt": 0,
+    "roll": 0,
+    "lift": 0,
+    "tail": 0,
+    "legs": 0
+   },
+   {
+    "t": 0.3,
+    "wings_raise": -30,
+    "head_tilt": 10,
+    "roll": 5,
+    "lift": 0,
+    "tail": 0,
+    "legs": 0
+   },
+   {
+    "t": 0.6,
+    "wings_raise": -30,
+    "head_tilt": 14,
+    "roll": 25,
+    "lift": -6,
+    "tail": -6,
+    "legs": 5
+   },
+   {
+    "t": 0.85,
+    "wings_raise": -30,
+    "head_tilt": 14,
+    "roll": 25,
+    "lift": -6,
+    "tail": -15,
+    "legs": 10
+   },
+   {
+    "t": 1.0,
+    "wings_raise": -30,
+    "head_tilt": 14,
+    "roll": 25,
+    "lift": -6,
+    "tail": -15,
+    "legs": 10
+   }
+  ]
+ }
+}

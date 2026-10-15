@@ -1,0 +1,73 @@
+{
+	"clips": {
+		"death": {
+			"duration": 1.036,
+			"phase_curve": [
+				[
+					0,
+					0
+				],
+				[
+					0.62,
+					1
+				],
+				[
+					1,
+					1
+				]
+			]
+		},
+		"dive": {
+			"duration": 0.55,
+			"phase_curve": [
+				[
+					0,
+					0
+				],
+				[
+					0.636363636363636,
+					0.636363636363636
+				],
+				[
+					1,
+					1
+				]
+			]
+		},
+		"hit": {
+			"duration": 0.36
+		},
+		"hover": {
+			"duration": 0.48
+		},
+		"idle": {
+			"duration": 2.4
+		},
+		"move": {
+			"duration": 0.36
+		},
+		"talon_rake": {
+			"duration": 0.24,
+			"phase_curve": [
+				[
+					0,
+					0
+				],
+				[
+					0.5,
+					0.5
+				],
+				[
+					1,
+					1
+				]
+			]
+		}
+	},
+	"design_complete": false,
+	"design_errors": [
+		"TODO_DESIGN_head_snap_clock"
+	],
+	"scale_basis": "RunScene EN05 shrike fixture; 1920x1080, UI scale 100%; headless geometry",
+	"screen_pixel_scale": 0.452636090446921
+}

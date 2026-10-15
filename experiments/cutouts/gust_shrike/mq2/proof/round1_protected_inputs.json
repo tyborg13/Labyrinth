@@ -1,0 +1,31 @@
+{
+  "ok": true,
+  "sha256": {
+    "experiments/cutouts/gust_shrike/inputs/front_raw.png": "a43816b7191b78e13e8f25604fc625b586079b5faa7ab3583ba18f9d9b11bd43",
+    "experiments/cutouts/gust_shrike/inputs/rear_raw.png": "b236be7b28e3529b79b0ee19fb495d042b3805d9c6938b0597e60c73b4f417ac",
+    "experiments/cutouts/gust_shrike/motion_tracks_director.json": "c714f4c691abce13b5b1fbd6653af4cdfd4414a3d621f214faef936f2f31e6a0",
+    "experiments/cutouts/gust_shrike/maquette/joints_px.json": "ca359cd5755c0464d989807110cf9db676a88f66a1efc8db8f92feb324789269",
+    "experiments/cutouts/gust_shrike/maquette/front_parts.png": "40c9f7a3d5f57ebdbf3587d699ab8befe3582a9517e9ef255b9283c78cbf69de",
+    "experiments/cutouts/gust_shrike/maquette/front_clay.png": "ed285f5d051a6ead80cfa9e2c9322a2ad1661009227c0a48ade11c228c9837f7",
+    "experiments/cutouts/gust_shrike/maquette/front_solo_body.png": "57b55ea6b854bfb2d86b365312021b485d6bc1999d6917bfe1080e0e532e2b2d",
+    "experiments/cutouts/gust_shrike/maquette/front_solo_head.png": "bd56aea9bc8f1e0f6bc82333d0e8e1361906cb1ec06ea7469bd4b3476bc65c7d",
+    "experiments/cutouts/gust_shrike/maquette/front_solo_beak.png": "c00007fcae6a71f6f535f93ed2f28e22a283e01fd3b728973536e501e639624e",
+    "experiments/cutouts/gust_shrike/maquette/front_solo_mask.png": "cf7ac604280b6c4d9e12ab5045d1ed422a596b0c793bc588b6f30b865897cab8",
+    "experiments/cutouts/gust_shrike/maquette/front_solo_wing_near.png": "581ed485fe2df7dbf7c02dc0080cabd1e77ea377e9fc1d42cc0110ff0a41f792",
+    "experiments/cutouts/gust_shrike/maquette/front_solo_wing_far.png": "b8827ddf6d1c0f798ff9e3ab6df31b1bb846aa07175cbadf449b598c40b345c3",
+    "experiments/cutouts/gust_shrike/maquette/front_solo_tail.png": "31afa2f59a13a752468c23baf6635549ece1ede48e1aff72f6d49382e7a6a820",
+    "experiments/cutouts/gust_shrike/maquette/front_solo_legs.png": "880473d78c36f1bee8ea002aa7f2e5ff30884321ae3ae8d59949d4d427195701",
+    "experiments/cutouts/gust_shrike/maquette/rear_parts.png": "f3ee749d829889ded3936d6e31cd70496b864088b70204143a66304ac93c53f4",
+    "experiments/cutouts/gust_shrike/maquette/rear_clay.png": "19a27fdcb59e9fdbc5e23ab583bfdb6c89f60b4612525708311a9765e71082da",
+    "experiments/cutouts/gust_shrike/maquette/rear_solo_body.png": "66637478c5a8cadee209e110fc8b15ddd0afe1b3d660cbba7d13ee3cd82e84bf",
+    "experiments/cutouts/gust_shrike/maquette/rear_solo_head.png": "6467939cfc29c6032d9fe75a81b32254158264861fa0ba70f6219e2d0a785e02",
+    "experiments/cutouts/gust_shrike/maquette/rear_solo_beak.png": "e8ba2887d788053f110eed81f4e17468fd511dce03d28b4d9b38b55e9c619e9c",
+    "experiments/cutouts/gust_shrike/maquette/rear_solo_mask.png": "7593baf66ff1951af339096de5cf300cd9f722738f76f0832432535f2066facc",
+    "experiments/cutouts/gust_shrike/maquette/rear_solo_wing_near.png": "21ac5e41a03a289968f15e2e72b051a0e708737ad0b32676888e8f6391dc69a2",
+    "experiments/cutouts/gust_shrike/maquette/rear_solo_wing_far.png": "30c279ef178cc9e3ddaa5b72d6d0fa92a64f4f8ac632b04d3963fac0fc434cf6",
+    "experiments/cutouts/gust_shrike/maquette/rear_solo_tail.png": "644551575dd957088775a798501d1fe5ab63bbd16aff7df76ec5b9a87bb39752",
+    "experiments/cutouts/gust_shrike/maquette/rear_solo_legs.png": "8e30dfcc0335e0f7a0cfd8e644c0ffcd28e75e560a22414e00184bcc4ee6e91a",
+    "experiments/cutouts/gust_shrike/maquette/spec.json": "dabdc0d19004bbaa3eb8fb9938a877c7f67413c36c581899f6fad9d2234cf1d9",
+    "experiments/cutouts/gust_shrike/maquette/view_transforms.json": "06c7afcb4dac93824b4e6b6d434f6be485a2688c9cf183b6e4c72a63eec526c7"
+  }
+}

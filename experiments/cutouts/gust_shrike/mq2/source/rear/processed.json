@@ -1,0 +1,46 @@
+{
+ "K": 3,
+ "drawn_size": [
+  177,
+  234
+ ],
+ "fit_scale": 1.0,
+ "k_eff": 3.0,
+ "metrics": {
+  "height": 234,
+  "width": 177,
+  "height_drawn": 234.0,
+  "symmetry": 0.5168169973942673,
+  "thin_abs": 0.007764609726195304,
+  "thin_rel": 0.04168369431957497,
+  "feature_px": 6.655042656526026,
+  "regions": 442,
+  "chroma": 0.07830737117078133,
+  "value": 0.2112850731588099,
+  "edge_light_share": 0.0,
+  "orphan_share": 0.012464241928892521,
+  "run_length": 3.5126502781266824
+ },
+ "pixel_sha256": "24aa41439fff265698c24b2dec14aed1e4093c7a2db803ddeeead1902c5d1eff",
+ "placement": [
+  40,
+  12
+ ],
+ "raw_sha256": "b236be7b28e3529b79b0ee19fb495d042b3805d9c6938b0597e60c73b4f417ac",
+ "shift": [
+  0,
+  0
+ ],
+ "pre_post_pixel_sha256": "138d7d3dba3034aa0f5731c5c924eaf79e3cb29228364bc9179bf4a7c2c01ef7",
+ "post_steps": [
+  {
+   "step": "palette_match",
+   "reference": "mq2_front/processed.png",
+   "script": "spec/art_identity/prototype/match_palette.py"
+  },
+  {
+   "step": "clean_outline",
+   "script": "spec/art_identity/prototype/clean_outline.py"
+  }
+ ]
+}

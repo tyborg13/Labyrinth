@@ -42,7 +42,10 @@ static func run(expect: Callable) -> void:
 	expect.call(engine._scale_enemy_action_for_depth({"type": "dive_line", "damage": 4}, 5)["damage"] == engine._scale_enemy_action_for_depth({"type": "ranged", "damage": 4}, 5)["damage"], "Dive inherits existing later-sequence damage scaling")
 	expect.call(preload("res://scripts/enemy_intent_compass.gd").is_supported_action_type("dive_line"), "Dive has an explicit attack compass family")
 	for type: String in ["glacial_mirror", "gust_shrike"]:
-		expect.call(type in preload("res://scripts/cutout_context.gd").STATIC_ENEMY_TYPES, "%s retains explicit static hit feedback" % type)
+		if type == "gust_shrike" and preload("res://scripts/gust_shrike_cutout/renderer.gd").available():
+			expect.call(preload("res://scripts/cutout_context.gd").family_key(type) == "gust_shrike_motion", "Promoted shrike owns its cutout feedback")
+		else:
+			expect.call(type in preload("res://scripts/cutout_context.gd").STATIC_ENEMY_TYPES, "%s retains explicit static hit feedback until cutout promotion" % type)
 	var staged: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://spec/peer_benchmark/staged/enemies/wave_e2.json"))
 	var production: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/enemies.json"))
 	for id: String in ["glacial_mirror", "gust_shrike"]:

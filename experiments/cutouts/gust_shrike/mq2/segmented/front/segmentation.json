@@ -1,0 +1,122 @@
+{
+  "ok": true,
+  "source_sha256": "93502785484055320e47f8cdefc658e627a9d245a5c7c7da49b35e62eab762d0",
+  "ownership_sha256": "beb5a11b2308e12ddeda7afce68d9534d93060b43fe818625c6b6ee0b4cc0350",
+  "parts": [
+    {
+      "name": "body",
+      "file": "body.png",
+      "offset": [
+        51,
+        152
+      ],
+      "bbox": [
+        51,
+        152,
+        156,
+        217
+      ]
+    },
+    {
+      "name": "head",
+      "file": "head.png",
+      "offset": [
+        34,
+        123
+      ],
+      "bbox": [
+        34,
+        123,
+        123,
+        185
+      ]
+    },
+    {
+      "name": "beak",
+      "file": "beak.png",
+      "offset": [
+        32,
+        169
+      ],
+      "bbox": [
+        32,
+        169,
+        60,
+        192
+      ]
+    },
+    {
+      "name": "mask",
+      "file": "mask.png",
+      "offset": [
+        43,
+        148
+      ],
+      "bbox": [
+        43,
+        148,
+        81,
+        170
+      ]
+    },
+    {
+      "name": "wing_near",
+      "file": "wing_near.png",
+      "offset": [
+        50,
+        41
+      ],
+      "bbox": [
+        50,
+        41,
+        198,
+        187
+      ]
+    },
+    {
+      "name": "wing_far",
+      "file": "wing_far.png",
+      "offset": [
+        70,
+        11
+      ],
+      "bbox": [
+        70,
+        11,
+        137,
+        153
+      ]
+    },
+    {
+      "name": "tail",
+      "file": "tail.png",
+      "offset": [
+        106,
+        118
+      ],
+      "bbox": [
+        106,
+        118,
+        224,
+        215
+      ]
+    },
+    {
+      "name": "legs",
+      "file": "legs.png",
+      "offset": [
+        69,
+        130
+      ],
+      "bbox": [
+        69,
+        130,
+        128,
+        246
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

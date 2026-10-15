@@ -30,6 +30,8 @@ func _initialize() -> void:
 
 func _run() -> void:
 	for type: String in ["arc_thrall", "slag_mortar", "gust_shrike"]:
+		# Once promoted, rr-03's production probe owns articulated facing proof.
+		if type == "gust_shrike" and preload("res://scripts/gust_shrike_cutout/renderer.gd").available(): continue
 		var board: Control = Board.new()
 		board.size = FIXTURE_BOARD_PIXELS
 		board._ensure_unit_assets_for_type(type)
@@ -94,7 +96,7 @@ func _run() -> void:
 		dead["role"] = "enemy"
 		_expect(board._enemy_shadow_dissolve_source_texture(dead) == board._texture_for_unit(dead), "Death shader and body share facing texture")
 		board.free()
-	_expect(not Facing.handles("storm_capacitor") and Facing.handles("gust_shrike"), "Capacitor stays fixed; approved Gust Shrike enters directional path")
+	_expect(not Facing.handles("storm_capacitor") and Facing.handles("gust_shrike") != preload("res://scripts/gust_shrike_cutout/renderer.gd").available(), "Capacitor stays fixed; only a complete promoted shrike exits the directional-still path")
 	var capacitor: Control = Board.new()
 	capacitor._ensure_unit_assets_for_type("storm_capacitor")
 	_expect(capacitor._unit_art_scale({"type": "storm_capacitor"}) == Data.enemy_def("storm_capacitor")["art_scale"], "Explicit approved capacitor scale supersedes old canvas compensation")

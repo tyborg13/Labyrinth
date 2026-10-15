@@ -1,0 +1,33 @@
+{
+  "ok": false,
+  "errors": [
+    "TODO_DESIGN_approved_raw_front: /Users/borgerding/workspace/Labyrinth.worktrees/rr-03/experiments/cutouts/gust_shrike/inputs/front_raw.png",
+    "TODO_DESIGN_approved_raw_rear: /Users/borgerding/workspace/Labyrinth.worktrees/rr-03/experiments/cutouts/gust_shrike/inputs/rear_raw.png",
+    "Missing Blender export: spec.json",
+    "Missing Blender export: view_transforms.json",
+    "Missing Blender export: joints_px.json",
+    "Missing Blender export: front_parts.png",
+    "Missing Blender export: front_clay.png",
+    "Missing Blender export: front_solo_body.png",
+    "Missing Blender export: front_solo_head.png",
+    "Missing Blender export: front_solo_beak.png",
+    "Missing Blender export: front_solo_mask.png",
+    "Missing Blender export: front_solo_wing_near.png",
+    "Missing Blender export: front_solo_wing_far.png",
+    "Missing Blender export: front_solo_tail.png",
+    "Missing Blender export: front_solo_legs.png",
+    "Missing Blender export: rear_parts.png",
+    "Missing Blender export: rear_clay.png",
+    "Missing Blender export: rear_solo_body.png",
+    "Missing Blender export: rear_solo_head.png",
+    "Missing Blender export: rear_solo_beak.png",
+    "Missing Blender export: rear_solo_mask.png",
+    "Missing Blender export: rear_solo_wing_near.png",
+    "Missing Blender export: rear_solo_wing_far.png",
+    "Missing Blender export: rear_solo_tail.png",
+    "Missing Blender export: rear_solo_legs.png"
+  ],
+  "renders": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-03/experiments/cutouts/gust_shrike/maquette",
+  "raw_front": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-03/experiments/cutouts/gust_shrike/inputs/front_raw.png",
+  "raw_rear": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-03/experiments/cutouts/gust_shrike/inputs/rear_raw.png"
+}

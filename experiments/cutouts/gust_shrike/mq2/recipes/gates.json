@@ -1,0 +1,43 @@
+{
+  "max_rest_changed_pixels": 0,
+  "max_magenta_pixels": 0,
+  "speck_max_exclusive_px": 12,
+  "max_detached_specks": 0,
+  "max_material_mismatch_pixels": 0,
+  "semantic_masks": {
+    "front": "registered/front_semantic_classes.png",
+    "rear": "registered/rear_semantic_classes.png"
+  },
+  "occlusion_masks": {
+    "front": null,
+    "rear": null
+  },
+  "occlusion_not_applicable": {
+    "front": "Director rr-03 round 1: the bird painting has no between-part painted shadow comparable to the gaoler legs; review the native reel before adding any rule.",
+    "rear": "Director rr-03 round 1: the bird painting has no between-part painted shadow comparable to the gaoler legs; review the native reel before adding any rule."
+  },
+  "semantic_classes": {
+    "body": [
+      "body"
+    ],
+    "head": [
+      "head",
+      "beak",
+      "mask"
+    ],
+    "wing_near": [
+      "wing_near"
+    ],
+    "wing_far": [
+      "wing_far"
+    ],
+    "tail": [
+      "tail"
+    ],
+    "legs": [
+      "legs"
+    ]
+  },
+  "hidden_value_max_median_l_difference": 8,
+  "hidden_value_reference": "rr-02 value gate, evaluated on the six director semantic classes; no trouser/tabard predicates."
+}

@@ -1,0 +1,16 @@
+Running task-local command:
+  task: rr-03
+  run: rr-03-1792103917424127000-76777
+  HOME: /private/tmp/labyrinth-godot-home/rr-03-1792103917424127000-76777
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-03-1792103917424127000-76777/godot.log --headless --path . --script tests/gust_shrike_cutout_pack_test.gd -- build experiments/cutouts/gust_shrike/mq2/proof/shrike.pck
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+ERROR: SHRIKE PACK: BLOCKED: completed promoted rig required
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _initialize (res://tests/gust_shrike_cutout_pack_test.gd:17)

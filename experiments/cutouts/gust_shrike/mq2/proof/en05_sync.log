@@ -1,0 +1,178 @@
+Running task-local command:
+  task: rr-03
+  run: rr-03-1792103644590999000-75988
+  HOME: /private/tmp/labyrinth-godot-home/rr-03-1792103644590999000-75988
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-03-1792103644590999000-75988/godot.log --headless --path . --script tests/en05_integration_sync_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/protagonist_cutout/front/front_assembled_rest_v9.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/protagonist_cutout/front/front_default_gear_rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/acolyte_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/ash_hound/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/ashen_reaver/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/bell_tender/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/bile_bloomer_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/chainbound_gaoler_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/cinder_droplet_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/cinder_ooze_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/craghide/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/crawler_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/frostglass_lancer_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/gallows_roc/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/grave_surgeon_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/harrier_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/iskaldra_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/last_lamplighter/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/lightning_wisp_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/noctyrax_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/rime_spitter/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/rime_whelp/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/rimejaw/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/roc_fledgling/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/stoneback_mite/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/storm_cantor/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/tharokh_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/vaeloryx_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/veilbound_acolyte_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/vyraketh_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/stone_warden_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/guardians/wick_shade/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/zekarion_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _regenerate_base (res://tests/en05_integration_sync_test.gd:83)
+         [1] _initialize (res://tests/en05_integration_sync_test.gd:29)
+EN05 INTEGRATION SYNC: PASS (six protected enemy entries; integration shadows preserved; two en-05 additions)

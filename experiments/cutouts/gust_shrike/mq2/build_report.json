@@ -1,0 +1,201 @@
+{
+  "views": {
+    "front": {
+      "reassignment": {
+        "body": {
+          "painted_pixels": 2944,
+          "reassigned_pixels": 202,
+          "reassigned_share": 0.06861413043478261,
+          "above_15_percent": false
+        },
+        "head": {
+          "painted_pixels": 1511,
+          "reassigned_pixels": 269,
+          "reassigned_share": 0.17802779616148245,
+          "above_15_percent": true
+        },
+        "beak": {
+          "painted_pixels": 357,
+          "reassigned_pixels": 270,
+          "reassigned_share": 0.7563025210084033,
+          "above_15_percent": true
+        },
+        "mask": {
+          "painted_pixels": 131,
+          "reassigned_pixels": 71,
+          "reassigned_share": 0.5419847328244275,
+          "above_15_percent": true
+        },
+        "wing_near": {
+          "painted_pixels": 6767,
+          "reassigned_pixels": 419,
+          "reassigned_share": 0.061918132111718635,
+          "above_15_percent": false
+        },
+        "wing_far": {
+          "painted_pixels": 5507,
+          "reassigned_pixels": 423,
+          "reassigned_share": 0.07681133103323043,
+          "above_15_percent": false
+        },
+        "tail": {
+          "painted_pixels": 1330,
+          "reassigned_pixels": 254,
+          "reassigned_share": 0.19097744360902255,
+          "above_15_percent": true
+        },
+        "legs": {
+          "painted_pixels": 1167,
+          "reassigned_pixels": 679,
+          "reassigned_share": 0.5818337617823479,
+          "above_15_percent": true
+        }
+      },
+      "depth_order": [
+        "tail",
+        "legs",
+        "body",
+        "wing_far",
+        "wing_near",
+        "head",
+        "beak",
+        "mask"
+      ],
+      "bone_mapping": {
+        "body": "body",
+        "head": "head",
+        "beak": "head",
+        "mask": "head",
+        "wing_near": "wing_near",
+        "wing_far": "wing_far",
+        "tail": "tail",
+        "legs": "legs"
+      },
+      "rigid_cloth_mapping": {},
+      "ownership_cleanup": {},
+      "unmaterialized_parts": []
+    },
+    "rear": {
+      "reassignment": {
+        "body": {
+          "painted_pixels": 3755,
+          "reassigned_pixels": 322,
+          "reassigned_share": 0.08575233022636485,
+          "above_15_percent": false
+        },
+        "head": {
+          "painted_pixels": 885,
+          "reassigned_pixels": 38,
+          "reassigned_share": 0.04293785310734463,
+          "above_15_percent": false
+        },
+        "beak": {
+          "painted_pixels": 10,
+          "reassigned_pixels": 2,
+          "reassigned_share": 0.2,
+          "above_15_percent": true
+        },
+        "mask": {
+          "painted_pixels": 28,
+          "reassigned_pixels": 1,
+          "reassigned_share": 0.03571428571428571,
+          "above_15_percent": false
+        },
+        "wing_near": {
+          "painted_pixels": 5626,
+          "reassigned_pixels": 64,
+          "reassigned_share": 0.011375755421258443,
+          "above_15_percent": false
+        },
+        "wing_far": {
+          "painted_pixels": 4842,
+          "reassigned_pixels": 1,
+          "reassigned_share": 0.00020652622883106156,
+          "above_15_percent": false
+        },
+        "tail": {
+          "painted_pixels": 3802,
+          "reassigned_pixels": 795,
+          "reassigned_share": 0.20910047343503418,
+          "above_15_percent": true
+        },
+        "legs": {
+          "painted_pixels": 628,
+          "reassigned_pixels": 231,
+          "reassigned_share": 0.3678343949044586,
+          "above_15_percent": true
+        }
+      },
+      "depth_order": [
+        "legs",
+        "beak",
+        "mask",
+        "head",
+        "body",
+        "tail",
+        "wing_near",
+        "wing_far"
+      ],
+      "bone_mapping": {
+        "body": "body",
+        "head": "head",
+        "beak": "head",
+        "mask": "head",
+        "wing_near": "wing_near",
+        "wing_far": "wing_far",
+        "tail": "tail",
+        "legs": "legs"
+      },
+      "rigid_cloth_mapping": {},
+      "ownership_cleanup": {},
+      "unmaterialized_parts": []
+    }
+  },
+  "missing_solos": [],
+  "hidden_layer_policy": "Camera-depth-ordered hidden underlays sit below the complete visible partition. This preserves 3D per-pixel occlusion at rest despite intersecting proxy parts; all underlays move with their own bones.",
+  "depth_basis": "Mean primitive centre distance along the explicit view camera (legacy humanoid camera when unspecified); smaller is nearer",
+  "chosen_defaults": {
+    "sheet_columns": 5,
+    "sheet_label_height": 28,
+    "keyframes_per_clip": 8,
+    "mask_alpha_threshold": 128,
+    "pose_canvas": 512,
+    "pose_offset": 128,
+    "joint_rounding_tolerance": 0.02,
+    "neighbour_connectivity": 4
+  },
+  "rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "e4f14ec866fd3709dfe1a5969b3a0a3ec03246e13980ec7026eb10188e9ae27c"
+    },
+    "rear": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "24aa41439fff265698c24b2dec14aed1e4093c7a2db803ddeeead1902c5d1eff"
+    },
+    "ok": true
+  },
+  "validation": {
+    "ok": true,
+    "character_id": "gust_shrike",
+    "layouts": {
+      "front": {
+        "joints": 7,
+        "parts": 16,
+        "meshes": 0,
+        "vertices": 0
+      },
+      "rear": {
+        "joints": 7,
+        "parts": 16,
+        "meshes": 0,
+        "vertices": 0
+      }
+    },
+    "errors": []
+  },
+  "ok": true,
+  "complete": false
+}

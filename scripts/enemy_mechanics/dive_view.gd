@@ -124,5 +124,8 @@ static func animate(scene: Control, state: Dictionary, step: Dictionary) -> void
 			scene._render_board_state(state, flight_frame(scene.board_view, state, step, float(frame - 1) / frames), true)
 		)
 	scene._apply_animation_step(state, step)
+	# The resolver still applies impact at the original flight boundary. Only
+	# the shrike's articulated recovery follows it, before the existing popup.
+	await preload("res://scripts/gust_shrike_cutout/action.gd").recover_dive(scene, state, step)
 	scene._render_board_state(state, {})
 	await scene._animate_floating_text_presentation(state, {"floating_texts": scene._floating_texts_for_target_losses(step.get("target_losses", []))})

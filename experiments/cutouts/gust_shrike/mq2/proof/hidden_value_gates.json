@@ -1,0 +1,174 @@
+{
+  "ok": false,
+  "basis": "rr-02 L* median difference <=8 and reference-IQR midtones; same-view director semantic class; exact runtime hidden nodes",
+  "values": [
+    {
+      "view": "front",
+      "class": "body",
+      "hidden_pixels": 1490,
+      "visible_median_l": 24.713789273348063,
+      "hidden_median_l": 25.180689429397944,
+      "median_l_difference": 0.46690015604988133,
+      "reference_iqr_l": [
+        15.012391988886915,
+        31.2701133638975
+      ],
+      "hidden_midtones_pixels": 907,
+      "ok": true
+    },
+    {
+      "view": "front",
+      "class": "head",
+      "hidden_pixels": 649,
+      "visible_median_l": 24.01190831376053,
+      "hidden_median_l": 18.258238480958823,
+      "median_l_difference": 5.753669832801705,
+      "reference_iqr_l": [
+        10.43913729208046,
+        40.1000711532281
+      ],
+      "hidden_midtones_pixels": 498,
+      "ok": true
+    },
+    {
+      "view": "front",
+      "class": "wing_near",
+      "hidden_pixels": 21,
+      "visible_median_l": 19.25558921385847,
+      "hidden_median_l": 5.179930087278819,
+      "median_l_difference": 14.075659126579652,
+      "reference_iqr_l": [
+        13.78585797735725,
+        29.00684924250359
+      ],
+      "hidden_midtones_pixels": 0,
+      "ok": false
+    },
+    {
+      "view": "front",
+      "class": "wing_far",
+      "hidden_pixels": 850,
+      "visible_median_l": 16.426173296781116,
+      "hidden_median_l": 21.05161940973968,
+      "median_l_difference": 4.625446112958564,
+      "reference_iqr_l": [
+        11.527878262780803,
+        21.159314196570215
+      ],
+      "hidden_midtones_pixels": 451,
+      "ok": true
+    },
+    {
+      "view": "front",
+      "class": "tail",
+      "hidden_pixels": 194,
+      "visible_median_l": 18.514552506225,
+      "hidden_median_l": 12.74264426282976,
+      "median_l_difference": 5.7719082433952416,
+      "reference_iqr_l": [
+        11.35536791521565,
+        23.08796073792795
+      ],
+      "hidden_midtones_pixels": 152,
+      "ok": true
+    },
+    {
+      "view": "front",
+      "class": "legs",
+      "hidden_pixels": 208,
+      "visible_median_l": 15.296878377377688,
+      "hidden_median_l": 12.464762246904183,
+      "median_l_difference": 2.832116130473505,
+      "reference_iqr_l": [
+        6.3832751467777715,
+        28.241506383188764
+      ],
+      "hidden_midtones_pixels": 148,
+      "ok": true
+    },
+    {
+      "view": "rear",
+      "class": "body",
+      "hidden_pixels": 2455,
+      "visible_median_l": 21.825800366067647,
+      "hidden_median_l": 13.955644944111832,
+      "median_l_difference": 7.870155421955815,
+      "reference_iqr_l": [
+        12.784930231938855,
+        33.067475012471945
+      ],
+      "hidden_midtones_pixels": 2341,
+      "ok": true
+    },
+    {
+      "view": "rear",
+      "class": "head",
+      "hidden_pixels": 1105,
+      "visible_median_l": 30.08633193822316,
+      "hidden_median_l": 18.258238480958823,
+      "median_l_difference": 11.828093457264337,
+      "reference_iqr_l": [
+        11.69391778515358,
+        44.40453978266844
+      ],
+      "hidden_midtones_pixels": 887,
+      "ok": false
+    },
+    {
+      "view": "rear",
+      "class": "wing_near",
+      "hidden_pixels": 1312,
+      "visible_median_l": 17.156755227917053,
+      "hidden_median_l": 15.390298294844552,
+      "median_l_difference": 1.7664569330725008,
+      "reference_iqr_l": [
+        12.027831360970573,
+        23.574264691450697
+      ],
+      "hidden_midtones_pixels": 795,
+      "ok": true
+    },
+    {
+      "view": "rear",
+      "class": "wing_far",
+      "hidden_pixels": 119,
+      "visible_median_l": 16.55961901040562,
+      "hidden_median_l": 10.370020800547628,
+      "median_l_difference": 6.189598209857991,
+      "reference_iqr_l": [
+        12.39687235439392,
+        24.266918309784266
+      ],
+      "hidden_midtones_pixels": 36,
+      "ok": true
+    },
+    {
+      "view": "rear",
+      "class": "tail",
+      "hidden_pixels": 89,
+      "visible_median_l": 21.8514992828309,
+      "hidden_median_l": 14.435620881443995,
+      "median_l_difference": 7.415878401386905,
+      "reference_iqr_l": [
+        14.405510307240252,
+        31.54691244687561
+      ],
+      "hidden_midtones_pixels": 50,
+      "ok": true
+    },
+    {
+      "view": "rear",
+      "class": "legs",
+      "hidden_pixels": 494,
+      "visible_median_l": 17.93722144730981,
+      "hidden_median_l": 12.231750476407079,
+      "median_l_difference": 5.705470970902731,
+      "reference_iqr_l": [
+        7.071943117048625,
+        31.904224423440432
+      ],
+      "hidden_midtones_pixels": 359,
+      "ok": true
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "min_images": 4,
+  "expected_sizes": ["1920x1080", "255x255"],
+  "required_images": [
+    {"pattern": "front_rest_ownership.png", "width": 1920, "height": 1080,
+     "regions": [{"rect": [80, 160, 765, 765], "min_luma_range": 8, "min_luma_stdev": 2}, {"rect": [1000, 160, 765, 765], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "rear_rest_ownership.png", "width": 1920, "height": 1080,
+     "regions": [{"rect": [80, 160, 765, 765], "min_luma_range": 8, "min_luma_stdev": 2}, {"rect": [1000, 160, 765, 765], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "front_rest.png", "width": 255, "height": 255},
+    {"pattern": "rear_rest.png", "width": 255, "height": 255}
+  ]
+}

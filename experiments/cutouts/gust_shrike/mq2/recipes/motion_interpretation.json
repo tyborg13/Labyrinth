@@ -1,0 +1,8 @@
+{
+  "source": "Director rr-03 round 1; protected motion_tracks_director.json",
+  "head_snap_fps": 0,
+  "head_snap_placement": "",
+  "view_basis": "Actual exported object_to_world transforms supersede stale 135/315 prose in the protected file.",
+  "pixel_units": "Screen pixels converted by actual board draw scale; native proof uses a measured 1920x1080 RunScene fixture.",
+  "dive_recovery": "Frame 1 at impact starts the flare; frames 3 and 6 at +2/30 and +5/30 seconds; hold frame 6 through +6/30."
+}
