@@ -46,3 +46,6 @@ change without approval.
 - **Outcrop / Worldbreak**: no rules change. Worldbreak's text names its real targets ("an Outcrop or Worldspine you
   raised" — not Powder Kegs); the Outcrop glossary entry stays as drafted.
 - Glossary draft is final (`glossary_rewrite.json`, `"final": true`, 145 live entries).
+- **Storm Capacitor relic → Widegap Cell** (art: a spark across two terminals; effect: Chain reaches 1 tile farther).
+- Black Sun Dial: "Store up to 3 Expended ground tiles. …" (25 words). Other "ground"-as-noun phrasings get checked in the
+  1920×1080 capture review.

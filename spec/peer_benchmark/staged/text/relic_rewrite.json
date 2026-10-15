@@ -474,7 +474,7 @@
   "id": "storm_capacitor",
   "current_name": "Storm Capacitor",
   "current_description": "Your Lightning @icon(ranged) attacks with @icon(chain) gain @icon(chain) +{amount}.",
-  "name": "Storm Capacitor",
+  "name": "Widegap Cell",
   "description": "Your @kw(element_lightning) @kw(ranged) attacks with @kw(chain) gain +1 @kw(chain).",
   "description_read_aloud": "Your Lightning Ranged attacks with Chain gain +1 Chain.",
   "words": 9,
@@ -487,7 +487,7 @@
    "data/relics.json:339-363",
    "data/enemies.json:3107"
   ],
-  "director_decision_needed": "Rename required (decisions.md): 'Storm Capacitor' is also an enemy (data/enemies.json:3107). Pick one: (1) 'Widegap Cell' (recommended: the art shows a spark leaping between two terminals, and +1 Chain makes each jump reach 1 tile farther); (2) 'Leyden Cell' (matches the art: a brass coil cell with spark terminals); (3) 'Fulgurite Rod' (lightning-fused glass rod; fits the longer reach, less the art). None of the words Leyden, Widegap, Cell, Fulgurite or Rod appears in any card, enemy, relic, equipment, skill, event, NPC, upgrade, biome, grimoire or glossary name (data/*.json, glossary_rewrite.json, action_icon_library.gd labels). Avoided: Capacitor, Coil, Spark, Arc (Arc Burst intent), Bolt, Static, Relay, Jar, Charge.",
+  "director_decision_needed": null,
   "current_read_aloud": "Your Lightning Ranged attacks with Chain gain Chain +1.",
   "current_uses_placeholders": true,
   "token_plan": {
@@ -634,7 +634,7 @@
   "current_name": "Thawing Charm",
   "current_description": "Excess @icon(heal) becomes @icon(stoneskin), up to {cap} each turn. The first conversion each turn creates @icon(illuminate) 1 @icon(time) 2 at you.",
   "name": "Thawing Charm",
-  "description": "Excess @kw(heal|healing) becomes @term(stoneskin), up to 8 each turn. It also creates radius-1 @term(illuminate) on you for 2 turns, once per turn.",
+  "description": "Excess healing becomes @term(stoneskin), up to 8 each turn. It also creates radius-1 @term(illuminate) on you for 2 turns, once per turn.",
   "description_read_aloud": "Excess healing becomes Stoneskin, up to 8 each turn. It also creates radius-1 Light on you for 2 turns, once per turn.",
   "words": 22,
   "current_words": 21,
@@ -648,15 +648,6 @@
   "current_read_aloud": "Excess Heal becomes Stoneskin, up to 8 each turn. The first conversion each turn creates Illuminate 1 Time 2 at you.",
   "current_uses_placeholders": true,
   "token_plan": {
-   "heal": {
-    "name": "Heal",
-    "first_mention": "word (keyword style)",
-    "later_mentions": "word (keyword style)",
-    "glossary_entry": "exists in glossary_rewrite.json",
-    "forms": [
-     "healing"
-    ]
-   },
    "stoneskin": {
     "name": "Stoneskin",
     "first_mention": "icon + word",
