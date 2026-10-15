@@ -1,0 +1,138 @@
+{
+  "min_images": 26,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "fire_gradient.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "ice_gradient.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_gradient.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "air_gradient.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "earth_gradient.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "neutral_gradient.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "fire_depth_mix.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "ice_depth_mix.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_depth_mix.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "air_depth_mix.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "earth_depth_mix.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "fire_cropped_dither.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "conduction_solid_core.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "chain_solid_core.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "tether_solid_core.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_solid_core.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "conduction_legacy_cells.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "chain_legacy_cells.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "tether_legacy_cells.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_legacy_cells.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "conduction_core_mask.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "chain_core_mask.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "tether_core_mask.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_core_mask.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "line_alpha_floor.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "line_mixed_alpha.png",
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}

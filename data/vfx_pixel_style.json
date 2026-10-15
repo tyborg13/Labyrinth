@@ -1,0 +1,58 @@
+{
+ "doc": "vfx-01 pixel look for procedural elemental effects. Ramps are dark -> light; tune here, not in code.",
+ "pixel_style_enabled": true,
+ "grid_px_at_1080": 2,
+ "alpha_floor": 0.3,
+ "alpha_bias": 0.12,
+ "surface_ramps": {
+  "fire": "fire",
+  "ice": "ice",
+  "water": "neutral",
+  "electrified": "lightning",
+  "rubble": "earth"
+ },
+ "ramps": {
+  "fire": [
+   "#3a1208",
+   "#8a2a10",
+   "#d0581c",
+   "#f29a3a",
+   "#ffd98a"
+  ],
+  "ice": [
+   "#1c3346",
+   "#2f6f8f",
+   "#5fb0d0",
+   "#a8e0f0",
+   "#eefaff"
+  ],
+  "lightning": [
+   "#2a1a4a",
+   "#5a3a9a",
+   "#9a7ae0",
+   "#d0c0ff",
+   "#ffffff"
+  ],
+  "air": [
+   "#1e3a36",
+   "#3f7a6e",
+   "#79b8a6",
+   "#bfe6d6",
+   "#f2fff8"
+  ],
+  "earth": [
+   "#3a2614",
+   "#6e4a2a",
+   "#a0743e",
+   "#d0aa6a",
+   "#f0dca8"
+  ],
+  "neutral": [
+   "#211a17",
+   "#4a3c34",
+   "#7d6a5c",
+   "#b8a48e",
+   "#efe2cc"
+  ]
+ }
+}

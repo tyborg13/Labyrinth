@@ -27,9 +27,10 @@ static func draw_hop(canvas: CanvasItem, from_floor: Vector2, to_floor: Vector2,
 	SpellFx.prepare()
 	# The relay keeps a fine white filament inside a feathered violet corona.
 	# Match the primary spell's material without making another full-size cast.
-	SpellFx._ribbon(canvas, points, width * 3.8, Color(0.43, 0.30, 1.0, fade * 0.22), false)
-	SpellFx._ribbon(canvas, points, width * 1.45, Color(0.72, 0.65, 1.0, fade * 0.82), false)
-	canvas.draw_polyline(points, Color(0.94, 0.96, 1.0, fade), maxf(0.8, width * 0.43), true)
+	if not SpellFx.PixelFxLayer.line(canvas, points, Color(0.94, 0.96, 1.0, fade), Color(0.72, 0.65, 1.0, fade * 0.82)):
+		SpellFx._ribbon(canvas, points, width * 3.8, Color(0.43, 0.30, 1.0, fade * 0.22), false)
+		SpellFx._ribbon(canvas, points, width * 1.45, Color(0.72, 0.65, 1.0, fade * 0.82), false)
+		canvas.draw_polyline(points, Color(0.94, 0.96, 1.0, fade), maxf(0.8, width * 0.43), true)
 	# Two short tributaries stay behind the traveling tip. Stable geometry avoids
 	# high-frequency noise; reduced motion holds the exact same complete path.
 	for branch: int in range(2):
@@ -45,7 +46,8 @@ static func draw_hop(canvas: CanvasItem, from_floor: Vector2, to_floor: Vector2,
 			anchor + direction * tile_width * 0.018 + normal * tile_width * 0.060 * side,
 			anchor + direction * tile_width * 0.045 + normal * tile_width * 0.092 * side
 		])
-		SpellFx._ribbon(canvas, fork, width * 1.1, Color(0.69, 0.64, 1.0, fade * 0.58))
+		if not SpellFx.PixelFxLayer.line(canvas, fork, Color(0.69, 0.64, 1.0, fade * 0.58), Color(0.69, 0.64, 1.0, fade * 0.58)):
+			SpellFx._ribbon(canvas, fork, width * 1.1, Color(0.69, 0.64, 1.0, fade * 0.58))
 	var tip: Vector2 = points[points.size() - 1]
 	SpellFx._glow(canvas, tip, Vector2.ONE * tile_width * 0.17, Color(0.66, 0.58, 1.0, fade * 0.70))
 	SpellFx._glow(canvas, tip, Vector2.ONE * tile_width * 0.055, Color(0.94, 0.97, 1.0, fade * 0.90))

@@ -3,6 +3,7 @@ extends RefCounted
 ## Deterministic, spatial spell drawing. No whole-spell sprites, live clocks, nodes,
 ## per-frame images, or transform changes: the caller owns scene depth and scale.
 
+const PixelFxLayer = preload("res://scripts/pixel_fx_layer.gd")
 const SpriteBatch = preload("res://scripts/elemental_spell_sprite_batch.gd")
 
 static var _clouds: Array[Texture2D] = []
@@ -195,6 +196,8 @@ static func floor_light(
 	size: float,
 	alpha: float
 ) -> void:
+	if PixelFxLayer.route(c, element, floor_light, [element, p, size, alpha]):
+		return
 	var col := color_for(element)
 	_glow(c, p, Vector2(size * 1.8, size * 0.64), _tint(col, alpha * 0.34))
 	_glow(c, p, Vector2(size * 0.9, size * 0.30), _tint(col.lightened(0.45), alpha * 0.42))
@@ -208,6 +211,8 @@ static func ground(
 	t: float,
 	alpha: float
 ) -> void:
+	if PixelFxLayer.route(c, element, ground, [element, p, size, t, alpha]):
+		return
 	var e: float = envelope(t) * alpha
 	floor_light(c, element, p, size, e)
 	if e <= 0.001:
@@ -266,7 +271,9 @@ static func _ground_charge(c: CanvasItem, p: Vector2, s: float, t: float, alpha:
 			var u: float = float(k) / 5.0
 			var jag: float = (_hash(i * 13 + k + 621) - 0.5) * s * 0.075 * sin(u * PI)
 			points.append(p + direction * (s * 0.07 + reach * u) + cross * jag)
-		_ribbon(c, points, s * 0.018, Color(0.67, 0.58, 1.0, alpha * (1.0 - t) * 0.78))
+		var tint := Color(0.67, 0.58, 1.0, alpha * (1.0 - t) * 0.78)
+		if not PixelFxLayer.line(c, points, _tint(tint.lightened(0.72), tint.a * 0.72), tint):
+			_ribbon(c, points, s * 0.018, tint)
 
 
 static func _ground_pressure(c: CanvasItem, element: String, p: Vector2, s: float, t: float, alpha: float) -> void:
@@ -300,6 +307,8 @@ static func impact(
 	reduced: bool,
 	front: bool
 ) -> void:
+	if PixelFxLayer.route(c, element, impact, [element, p, size, progress, alpha, reduced, front]):
+		return
 	var t: float = 0.38 if reduced else clampf(progress, 0.0, 1.0)
 	if alpha <= 0.0 or envelope(t) <= 0.0:
 		return
@@ -611,7 +620,8 @@ static func _bolt(
 		var u: float = float(k) / 12.0
 		var jag: float = sin(float(k) * 7.3 + float(seed) * 3.1 + t * 17.0) * sin(u * PI)
 		points.append(a.lerp(b, u) + normal * jag * distance * 0.075)
-	_ribbon(c, points, width, tint)
+	if not PixelFxLayer.line(c, points, _tint(tint.lightened(0.72), tint.a * 0.72), tint):
+		_ribbon(c, points, width, tint)
 
 
 static func _storm(
@@ -685,6 +695,8 @@ static func release(
 	t: float,
 	alpha: float
 ) -> void:
+	if PixelFxLayer.route(c, element, release, [element, p, ground_point, s, t, alpha]):
+		return
 	var col := color_for(element)
 	var e: float = smoothstep(0.0, 0.22, t) * alpha
 	_glow(c, ground_point, Vector2(s * 0.9, s * 0.3), _tint(col, e * 0.24))
@@ -710,6 +722,8 @@ static func travel(
 	t: float,
 	alpha: float
 ) -> void:
+	if PixelFxLayer.route(c, element, travel, [element, start, end, floor_start, floor_end, s, t, alpha]):
+		return
 	if alpha <= 0.0:
 		return
 	var col := color_for(element)
@@ -749,3 +763,30 @@ static func travel(
 			_fragment(c, point, s * 0.024, direction.angle(), _tint(col, alpha * (1.0 - float(i) * 0.08)), true)
 	else:
 		_glow(c, head, Vector2.ONE * s * 0.22, _tint(col, alpha * 0.25))
+
+
+## Conservative bounds of the authored primitives, before pixelation. The
+## impact box contains rotated puff quads, fragments, bolts and spark trails.
+## Keep this separate from their geometry; the pixel regression checks every
+## phase against the renderer's actual command bounds.
+static func pixel_bounds(draw_call: Callable, args: Array) -> Rect2:
+	var method: String = draw_call.get_method()
+	if method == "draw_line_command": return PixelFxLayer.line_bounds(args[0])
+	if method == "draw_hop": return Rect2(args[0], Vector2.ZERO).expand(args[1]).grow(float(args[2]))
+	var p: Vector2 = args[1]
+	if method == "floor_light":
+		var size: float = args[2]
+		return Rect2(p - Vector2(size * 0.9, size * 0.32), Vector2(size * 1.8, size * 0.64))
+	if method == "ground" or method == "impact":
+		var size: float = args[2]
+		return Rect2(p - Vector2(size, size * 1.6), Vector2(size * 2.0, size * 2.3))
+	if method == "release":
+		var size: float = args[3]
+		return Rect2(p, Vector2.ZERO).expand(args[2]).grow(size * 0.5)
+	if method == "travel":
+		var size: float = args[5]
+		var box := Rect2(p, Vector2.ZERO)
+		for index: int in range(2, 5):
+			box = box.expand(args[index])
+		return box.grow(maxf(size * 0.5, p.distance_to(args[2]) * 0.075 + size * 0.055))
+	return Rect2()
