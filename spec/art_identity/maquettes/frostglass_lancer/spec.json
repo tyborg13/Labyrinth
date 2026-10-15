@@ -1,0 +1,569 @@
+{
+ "ortho_scale": 2.4,
+ "target": [
+  0.0,
+  0.0,
+  1.12
+ ],
+ "joints": {
+  "root": [
+   0,
+   0,
+   0
+  ],
+  "pelvis": [
+   0,
+   0,
+   1.03
+  ],
+  "torso": [
+   0.02,
+   0,
+   1.42
+  ],
+  "head": [
+   0.05,
+   0,
+   1.95
+  ],
+  "shoulder_far": [
+   0.04,
+   -0.34,
+   1.62
+  ],
+  "elbow_far": [
+   0.2,
+   -0.5,
+   1.35
+  ],
+  "hand_far": [
+   0.34,
+   -0.52,
+   1.18
+  ],
+  "shoulder_near": [
+   0.04,
+   0.34,
+   1.62
+  ],
+  "elbow_near": [
+   0.02,
+   0.46,
+   1.28
+  ],
+  "hand_near": [
+   0.12,
+   0.38,
+   1.06
+  ],
+  "hip_far": [
+   0,
+   -0.17,
+   1.0
+  ],
+  "knee_far": [
+   0.1,
+   -0.22,
+   0.56
+  ],
+  "ankle_far": [
+   0.06,
+   -0.25,
+   0.1
+  ],
+  "hip_near": [
+   0,
+   0.17,
+   1.0
+  ],
+  "knee_near": [
+   0.02,
+   0.23,
+   0.56
+  ],
+  "ankle_near": [
+   -0.08,
+   0.27,
+   0.1
+  ],
+  "spear_butt": [
+   0.1,
+   -0.5,
+   0.12
+  ],
+  "spear_top": [
+   0.55,
+   -0.55,
+   1.85
+  ],
+  "blade_tip": [
+   0.66,
+   -0.56,
+   2.25
+  ]
+ },
+ "labels": {
+  "head": [
+   1.0,
+   0.85,
+   0.1
+  ],
+  "torso": [
+   0.85,
+   0.15,
+   0.15
+  ],
+  "pelvis": [
+   0.55,
+   0.1,
+   0.1
+  ],
+  "belt": [
+   0.35,
+   0.22,
+   0.1
+  ],
+  "tabard": [
+   0.95,
+   0.5,
+   0.6
+  ],
+  "cape_near": [
+   0.95,
+   0.55,
+   0.1
+  ],
+  "cape_far": [
+   0.6,
+   0.35,
+   0.05
+  ],
+  "pauldron_near": [
+   0.1,
+   0.25,
+   0.75
+  ],
+  "upper_near": [
+   0.2,
+   0.4,
+   1.0
+  ],
+  "fore_near": [
+   0.45,
+   0.62,
+   1.0
+  ],
+  "hand_near": [
+   0.75,
+   0.82,
+   1.0
+  ],
+  "pauldron_far": [
+   0.35,
+   0.05,
+   0.6
+  ],
+  "upper_far": [
+   0.5,
+   0.1,
+   0.8
+  ],
+  "fore_far": [
+   0.72,
+   0.3,
+   0.9
+  ],
+  "hand_far": [
+   0.92,
+   0.62,
+   1.0
+  ],
+  "thigh_near": [
+   0.1,
+   0.7,
+   0.7
+  ],
+  "shin_near": [
+   0.3,
+   0.85,
+   0.85
+  ],
+  "foot_near": [
+   0.6,
+   0.95,
+   0.95
+  ],
+  "thigh_far": [
+   0.05,
+   0.4,
+   0.4
+  ],
+  "shin_far": [
+   0.15,
+   0.55,
+   0.55
+  ],
+  "foot_far": [
+   0.3,
+   0.65,
+   0.65
+  ],
+  "spear_shaft": [
+   0.8,
+   0.8,
+   0.8
+  ],
+  "spear_blade": [
+   1.0,
+   1.0,
+   1.0
+  ]
+ },
+ "shapes": [
+  {
+   "type": "ellipsoid",
+   "part": "torso",
+   "at": "torso",
+   "offset": [
+    0.02,
+    0,
+    0.04
+   ],
+   "s": [
+    0.3,
+    0.4,
+    0.42
+   ],
+   "rot": [
+    0,
+    0.12,
+    0
+   ]
+  },
+  {
+   "type": "ellipsoid",
+   "part": "pelvis",
+   "at": "pelvis",
+   "s": [
+    0.24,
+    0.29,
+    0.19
+   ]
+  },
+  {
+   "type": "box",
+   "part": "belt",
+   "at": "pelvis",
+   "offset": [
+    0,
+    0,
+    0.1
+   ],
+   "s": [
+    0.52,
+    0.64,
+    0.1
+   ],
+   "bevel": 0.3,
+   "rot": [
+    0,
+    0.06,
+    0
+   ]
+  },
+  {
+   "type": "capsule",
+   "part": "head",
+   "a": [
+    0.05,
+    0,
+    1.8
+   ],
+   "b": [
+    0.02,
+    0,
+    2.1
+   ],
+   "r1": 0.22,
+   "r2": 0.06
+  },
+  {
+   "type": "plate",
+   "part": "tabard",
+   "pts": [
+    [
+     0.28,
+     -0.14,
+     1.12
+    ],
+    [
+     0.28,
+     0.14,
+     1.12
+    ],
+    [
+     0.33,
+     0.12,
+     0.5
+    ],
+    [
+     0.33,
+     -0.12,
+     0.5
+    ]
+   ],
+   "thick": 0.03
+  },
+  {
+   "type": "plate",
+   "part": "cape_near",
+   "pts": [
+    [
+     -0.05,
+     0.36,
+     1.72
+    ],
+    [
+     -0.28,
+     0.3,
+     1.65
+    ],
+    [
+     -0.42,
+     0.52,
+     0.4
+    ],
+    [
+     0.05,
+     0.58,
+     0.45
+    ]
+   ],
+   "thick": 0.04
+  },
+  {
+   "type": "plate",
+   "part": "cape_far",
+   "pts": [
+    [
+     -0.05,
+     -0.36,
+     1.72
+    ],
+    [
+     -0.28,
+     -0.3,
+     1.65
+    ],
+    [
+     -0.42,
+     -0.52,
+     0.4
+    ],
+    [
+     0.05,
+     -0.58,
+     0.45
+    ]
+   ],
+   "thick": 0.04
+  },
+  {
+   "type": "ellipsoid",
+   "part": "pauldron_far",
+   "at": "shoulder_far",
+   "offset": [
+    0,
+    -0.03,
+    0.04
+   ],
+   "s": [
+    0.19,
+    0.19,
+    0.14
+   ]
+  },
+  {
+   "type": "capsule",
+   "part": "upper_far",
+   "a": "shoulder_far",
+   "b": "elbow_far",
+   "r1": 0.13,
+   "r2": 0.11
+  },
+  {
+   "type": "capsule",
+   "part": "fore_far",
+   "a": "elbow_far",
+   "b": "hand_far",
+   "r1": 0.11,
+   "r2": 0.1
+  },
+  {
+   "type": "ellipsoid",
+   "part": "hand_far",
+   "at": "hand_far",
+   "s": [
+    0.11,
+    0.1,
+    0.11
+   ]
+  },
+  {
+   "type": "ellipsoid",
+   "part": "pauldron_near",
+   "at": "shoulder_near",
+   "offset": [
+    0,
+    0.03,
+    0.04
+   ],
+   "s": [
+    0.19,
+    0.19,
+    0.14
+   ]
+  },
+  {
+   "type": "capsule",
+   "part": "upper_near",
+   "a": "shoulder_near",
+   "b": "elbow_near",
+   "r1": 0.13,
+   "r2": 0.11
+  },
+  {
+   "type": "capsule",
+   "part": "fore_near",
+   "a": "elbow_near",
+   "b": "hand_near",
+   "r1": 0.11,
+   "r2": 0.1
+  },
+  {
+   "type": "ellipsoid",
+   "part": "hand_near",
+   "at": "hand_near",
+   "s": [
+    0.12,
+    0.11,
+    0.12
+   ]
+  },
+  {
+   "type": "capsule",
+   "part": "thigh_far",
+   "a": "hip_far",
+   "b": "knee_far",
+   "r1": 0.15,
+   "r2": 0.12
+  },
+  {
+   "type": "capsule",
+   "part": "shin_far",
+   "a": "knee_far",
+   "b": "ankle_far",
+   "r1": 0.12,
+   "r2": 0.1
+  },
+  {
+   "type": "ellipsoid",
+   "part": "foot_far",
+   "at": "ankle_far",
+   "offset": [
+    0.08,
+    0,
+    -0.02
+   ],
+   "s": [
+    0.17,
+    0.095,
+    0.08
+   ]
+  },
+  {
+   "type": "capsule",
+   "part": "thigh_near",
+   "a": "hip_near",
+   "b": "knee_near",
+   "r1": 0.15,
+   "r2": 0.12
+  },
+  {
+   "type": "capsule",
+   "part": "shin_near",
+   "a": "knee_near",
+   "b": "ankle_near",
+   "r1": 0.12,
+   "r2": 0.1
+  },
+  {
+   "type": "ellipsoid",
+   "part": "foot_near",
+   "at": "ankle_near",
+   "offset": [
+    0.08,
+    0,
+    -0.02
+   ],
+   "s": [
+    0.17,
+    0.095,
+    0.08
+   ]
+  },
+  {
+   "type": "capsule",
+   "part": "spear_shaft",
+   "a": "spear_butt",
+   "b": "spear_top",
+   "r1": 0.035,
+   "r2": 0.035
+  },
+  {
+   "type": "capsule",
+   "part": "spear_blade",
+   "a": "spear_top",
+   "b": "blade_tip",
+   "r1": 0.075,
+   "r2": 0.012
+  }
+ ],
+ "solo": [
+  "head",
+  "torso",
+  "pelvis",
+  "belt",
+  "tabard",
+  "cape_near",
+  "cape_far",
+  "pauldron_near",
+  "upper_near",
+  "fore_near",
+  "hand_near",
+  "pauldron_far",
+  "upper_far",
+  "fore_far",
+  "hand_far",
+  "thigh_near",
+  "shin_near",
+  "foot_near",
+  "thigh_far",
+  "shin_far",
+  "foot_far",
+  "spear_shaft",
+  "spear_blade"
+ ],
+ "revisions": [
+  {
+   "date": "2026-10-15",
+   "rev": "r1",
+   "why": "wave 1b: frostglass lancer at the board three-quarter view, chunky and rounded (pointed cone helm, round pauldrons, planted spear in the right hand, left fist at the hip, ragged cape panels), framed at drawn size K=4"
+  },
+  {
+   "date": "2026-10-15",
+   "rev": "r1b",
+   "why": "bigger hooded cone helm (not a party hat); spear leaned forward and lowered to fit the canvas; ortho 2.4"
+  }
+ ]
+}
