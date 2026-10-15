@@ -11936,6 +11936,8 @@ func _skill_hud_status(skill_id: String) -> String:
 			return "AUTOMATIC" if activation == "automatic" else "PASSIVE"
 		if combat_scoped:
 			if effect.has("uses_per_turn"):
+				if effect_type in ["long_move_light_path", "light_target_expose"]:
+					return "SPENT" if _combat_engine._turn_flag(_combat_state, "skill_turn:%s" % skill_id) else "WAITING"
 				var turn_key: String = "turn:%s" % skill_id
 				return "SPENT" if int(flags.get(turn_key, -1)) == int(_combat_state.get("turn", 1)) else "WAITING"
 			if _combat_engine.skill_was_used(_combat_state, skill_id):

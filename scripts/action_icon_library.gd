@@ -795,6 +795,13 @@ static func text_token(text: String, tone: String = "neutral", tooltip_override:
 static func element_icon_key(element_id: String) -> String:
 	return "element_%s" % str(element_id)
 
+static func icon_text_token(icon_key: String, text: String, tooltip_override: String = "") -> Dictionary:
+	var token: Dictionary = token_for(icon_key, text, "neutral", tooltip_override)
+	# Keep authored text intact in summaries as well as beside the icon.
+	# Otherwise a caption such as "Burrow" becomes "Burrow Burrow" in plain text.
+	token["plain_text"] = text
+	return token
+
 static func token_is_modified(token: Dictionary) -> bool:
 	return bool(token.get("modified", false)) or not (token.get("modifiers", []) as Array).is_empty()
 
@@ -1223,11 +1230,11 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(token_for("veil"))
 			tokens.append(_token_for_action_field(action, "blink", "range", int(action.get("range", 4))))
 		"burrow":
-			tokens.append(text_token("Burrow", action_icon_key(action), "Burrowed; marks your current tile. Erupt is its next intent."))
+			tokens.append(icon_text_token(action_icon_key(action), "Burrow", "Burrowed; marks your current tile. Erupt is its next intent."))
 		"erupt":
-			tokens.append(text_token("Erupt %d" % int(action.get("damage", 0)), action_icon_key(action), "Surfaces at the mark, displaces its occupant, pushes adjacent units, leaves Rubble and gains Expose 2."))
+			tokens.append(icon_text_token(action_icon_key(action), "Erupt %d" % int(action.get("damage", 0)), "Surfaces at the mark, displaces its occupant, pushes adjacent units, leaves Rubble and gains Expose 2."))
 		"kindle":
-			tokens.append(text_token("Kindle +%d" % int(action.get("amount", 0)), action_icon_key(action), "Burst damage increases until death; stacks to max +4."))
+			tokens.append(icon_text_token(action_icon_key(action), "Kindle +%d" % int(action.get("amount", 0)), "Burst damage increases until death; stacks to max +4."))
 		"cost":
 			if bool(action.get("exhaust", false)):
 				tokens.append(token_for("exhaust"))
@@ -1427,7 +1434,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(_token_for_action_field(action, "dispel_umbra", "amount", int(action.get("amount", 1))))
 		"lightning_strikes":
 			_append_damage_token(tokens, "ranged", action, options)
-			tokens.append(_token_for_action_field(action, "shock", "count", int(action.get("count", 0)), "neutral", "Strikes the marked tiles. The marks stay fixed." if action.has("declared_tiles") else "Random lightning strikes."))
+			tokens.append(_token_for_action_field(action, "lightning_strikes", "count", int(action.get("count", 0)), "neutral", "Strikes the marked tiles. The marks stay fixed." if action.has("declared_tiles") else "Random lightning strikes."))
 			_append_keyword_tokens(tokens, action)
 		"summon_minions":
 			var minion_name: String = str(preload("res://scripts/game_data.gd").enemy_def(str(action.get("minion_type", "lightning_wisp"))).get("name", "Backup"))
@@ -1758,6 +1765,9 @@ static func plain_text_for_tokens(tokens: Array) -> String:
 		if typeof(token_var) != TYPE_DICTIONARY:
 			continue
 		var token: Dictionary = token_var
+		if token.has("plain_text"):
+			parts.append(str(token["plain_text"]))
+			continue
 		if str(token.get("kind", "")) == "aoe_pattern":
 			parts.append("Area")
 			continue

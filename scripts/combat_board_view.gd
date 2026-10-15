@@ -16482,7 +16482,7 @@ func _intent_rows_for_unit(unit: Dictionary, intent: Dictionary) -> Array:
 		if not bonus_row.is_empty():
 			rows.append(bonus_row)
 	if bool(intent.get("restore_braziers", false)):
-		rows.append([ActionIcons.text_token("Braziers relight afterward", "light", "Both fixed Light refuges return after this intent resolves, including a skipped turn.")])
+		rows.append([ActionIcons.icon_text_token(str(ActionIcons.state_condition_token("light")["icon"]), "Braziers relight afterward", "Both fixed Light refuges return after this intent resolves, including a skipped turn.")])
 	return rows
 
 

@@ -102,8 +102,8 @@ static func rows(intent: Dictionary) -> Array:
 	if (intent.get("actions", []) as Array).is_empty(): return []
 	var action: Dictionary = intent["actions"][0]
 	match str(action.get("type", "")):
-		"burrow": return [[Icons.text_token("Burrow", BURROW_ICON, "Burrowed; marks your current tile. Erupt is its next intent.")]]
-		"erupt": return [[Icons.text_token("Erupt %d" % int(action.get("damage", 0)), ERUPT_ICON, "Surfaces at the mark, displaces its occupant, pushes adjacent units, leaves Rubble and gains Expose 2.")]]
+		"burrow": return [[Icons.icon_text_token(BURROW_ICON, "Burrow", "Burrowed; marks your current tile. Erupt is its next intent.")]]
+		"erupt": return [[Icons.icon_text_token(ERUPT_ICON, "Erupt %d" % int(action.get("damage", 0)), "Surfaces at the mark, displaces its occupant, pushes adjacent units, leaves Rubble and gains Expose 2.")]]
 	return []
 
 static func descriptor(unit: Dictionary, fallback: Dictionary) -> Dictionary:

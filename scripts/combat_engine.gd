@@ -4750,7 +4750,7 @@ func _damage_player(
 	state: Dictionary,
 	damage: int,
 	bypass_block: bool,
-	apply_freeze_multiplier: bool = true,
+	apply_incoming_hit_effects: bool = true,
 	cause: String = "damage",
 	defer_defiance: bool = false
 ) -> Dictionary:
@@ -4759,15 +4759,17 @@ func _damage_player(
 	var hp_before: int = int(player.get("hp", 0))
 	var was_alive: bool = hp_before > 0
 	var remaining: int = damage
-	if apply_freeze_multiplier and damage > 0 and int(player.get("expose", 0)) > 0:
+	# This gate covers Expose, Chilled, Frozen and direct-hit absorption.
+	# Flat health loss (such as Fatigue) must not enter any of these paths.
+	if apply_incoming_hit_effects and damage > 0 and int(player.get("expose", 0)) > 0:
 		remaining += int(player["expose"])
 		player["expose"] = 0
-	if apply_freeze_multiplier and damage > 0:
+	if apply_incoming_hit_effects and damage > 0:
 		if int(player.get("freeze", 0)) > 0:
 			remaining *= BoardSurfaceRules.FROZEN_MULTIPLIER
 		elif bool(player.get("chilled", false)):
 			remaining += GameData.fixed_point_amount(BoardSurfaceRules.CHILLED_BONUS)
-	if apply_freeze_multiplier and ManeuverRules.absorb_player_hit(next_state, player, remaining, cause):
+	if apply_incoming_hit_effects and ManeuverRules.absorb_player_hit(next_state, player, remaining, cause):
 		# Crystal Mantle breaks a layer instead of the hit reaching Block or health.
 		next_state["player"] = player
 		_log(next_state, "Your Crystal Mantle shatters a blow.")
@@ -4835,11 +4837,11 @@ func _lose_player_health(
 	state: Dictionary,
 	amount: int,
 	bypass_block: bool,
-	apply_freeze_multiplier: bool = true,
+	apply_incoming_hit_effects: bool = true,
 	cause: String = "health_loss",
 	defer_defiance: bool = false
 ) -> Dictionary:
-	return _damage_player(state, amount, bypass_block, apply_freeze_multiplier, cause, defer_defiance)
+	return _damage_player(state, amount, bypass_block, apply_incoming_hit_effects, cause, defer_defiance)
 
 func _damage_illusion(state: Dictionary, illusion_id: int, damage: int) -> Dictionary:
 	var next_state: Dictionary = state
@@ -7770,7 +7772,7 @@ func _draw_cards_in_place(state: Dictionary, count: int) -> Dictionary:
 			var fatigue_damage: int = int(deck.get("fatigue_base", FATIGUE_BASE_DAMAGE)) + int(deck.get("cycles", 0)) - 1
 			var fatigue_hp_before: int = int((_normalized_player(next_state.get("player", {}))).get("hp", 0))
 			next_state["deck"] = deck
-			next_state = _lose_player_health(next_state, fatigue_damage, true, true, "fatigue", true)
+			next_state = _lose_player_health(next_state, fatigue_damage, true, false, "fatigue", true)
 			var reserve_id: String = SkillTreeLibrary.skill_id_for_effect("survive_fatigue")
 			var fatigue_player: Dictionary = _normalized_player(next_state.get("player", {}))
 			if int(fatigue_player.get("hp", 0)) <= 0 and has_skill(next_state, reserve_id) and not skill_was_used(next_state, reserve_id):
