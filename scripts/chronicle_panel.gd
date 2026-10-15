@@ -575,8 +575,8 @@ static func focus_tooltip_position(anchor: Rect2, extent: Vector2, bounds: Rect2
 	for at: Vector2 in candidates:
 		if bounds.encloses(Rect2(at, extent)):
 			return at
-	# Oversized previews still must not cover their source tile.
-	return candidates[2]
+	# If no side has room, keep the entire preview on screen.
+	return Vector2(x, y)
 
 func _clear_focus_tooltip() -> void:
 	if is_instance_valid(_focus_tooltip):

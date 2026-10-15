@@ -1,0 +1,33 @@
+ERROR: Native hover creates a custom tooltip: Spell_chain_bolt
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _require (res://tests/chronicle_probe.gd:289)
+       [1] _hover_capture (res://tests/chronicle_probe.gd:215)
+       [2] _settle (res://tests/chronicle_probe.gd:190)
+ERROR: Native hover creates a custom tooltip: Relic_iron_lung
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _require (res://tests/chronicle_probe.gd:289)
+       [1] _hover_capture (res://tests/chronicle_probe.gd:215)
+       [2] _settle (res://tests/chronicle_probe.gd:190)
+ERROR: Native hover creates a custom tooltip: ChronicleSpellsOverflow
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _require (res://tests/chronicle_probe.gd:289)
+       [1] _hover_capture (res://tests/chronicle_probe.gd:215)
+       [2] _settle (res://tests/chronicle_probe.gd:190)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
+visual probe attempt failed: Godot exited with code 1
+error: Godot exited with code 1
+Acquired GUI render lease: /private/tmp/labyrinth-gui-render.lock
+Running visual probe:
+  namespace: chr-02-1792075854451802000-62083-chronicle_probe-1
+  HOME: /private/tmp/labyrinth-godot-home/chr-02-1792075854451802000-62083-chronicle_probe-1
+  command: godot --log-file /private/tmp/labyrinth-godot-home/chr-02-1792075854451802000-62083-chronicle_probe-1/godot.log --display-driver macos --audio-driver Dummy --rendering-method mobile --rendering-driver metal --path /Users/borgerding/workspace/Labyrinth.worktrees/chr-02 --script tests/chronicle_probe.gd
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+Metal 4.0 - Forward Mobile - Using Device #0: Apple - Apple M5 Pro (Apple9)
+
+/private/tmp/labyrinth-godot-home/chr-02-1792075854451802000-62083-chronicle_probe-1/Library/Application Support/Escape the Umbra Visual Probe chr-02-1792075854451802000-62083-chronicle_probe-1/probes/chronicle/1920x1080
+CHRONICLE PROBE RESULT: FAIL
+Visual proof result manifest: /private/tmp/labyrinth-inspection-manifests/chr-02-chronicle.json

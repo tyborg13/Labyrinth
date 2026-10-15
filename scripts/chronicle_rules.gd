@@ -154,7 +154,7 @@ static func deck_card_definitions(state: Dictionary) -> Dictionary:
 # Save only changed public fields. Combat tags are transient, including tags
 # nested in actions; comparing tagged progression data with raw card data made
 # every unmodified card look different. Whole action arrays remain atomic so
-# both older full snapshots and these additive field deltas resolve identically.
+# resolving a delta preserves the run's complete printed action sequence.
 static func card_definition_delta(id: String, definition: Dictionary) -> Dictionary:
 	if GameData.card_def(id).is_empty():
 		return {}
@@ -169,6 +169,7 @@ static func card_definition_delta(id: String, definition: Dictionary) -> Diction
 static func card_definition(id: String, definitions: Dictionary) -> Dictionary:
 	var card: Dictionary = GameData.card_def(id)
 	if not card.is_empty():
+		card["id"] = id
 		card.merge(definitions.get(id, {}), true)
 	return card
 
@@ -191,11 +192,14 @@ static func _public_card_value(value: Variant) -> Variant:
 static func normalized_records(value: Variant) -> Array[Dictionary]:
 	var records: Array[Dictionary]
 	var seen: Dictionary = {}
+	# Runs commonly share identical relic deltas. Sanitize each distinct value
+	# once per load/save; records still receive independent deep copies.
+	var public_definitions: Dictionary = {}
 	if value is Array:
 		for raw: Variant in value:
 			if not raw is Dictionary:
 				continue
-			var record: Dictionary = normalized_record(raw)
+			var record: Dictionary = _normalized_record(raw, public_definitions)
 			if not record.is_empty() and not seen.has(record["run_id"]):
 				records.append(record)
 				seen[record["run_id"]] = true
@@ -204,9 +208,15 @@ static func normalized_records(value: Variant) -> Array[Dictionary]:
 	return records
 
 static func normalized_record(value: Dictionary) -> Dictionary:
+	return _normalized_record(value, {})
+
+static func _normalized_record(value: Dictionary, public_definitions: Dictionary) -> Dictionary:
 	if str(value.get("run_id", "")).is_empty() or str(value.get("outcome", "")) not in ["defeat", "victory", "embrace"]:
 		return {}
-	var record: Dictionary = value.duplicate(true)
+	# Definitions are copied by their sanitizer below, not twice per record.
+	var record: Dictionary = value.duplicate()
+	record.erase("deck_card_definitions")
+	record = record.duplicate(true)
 	for key: String in ["section_index", "room_index", "room_total", "score_total", "dragons_slain"]:
 		record[key] = maxi(0, int(record.get(key, 0)))
 	record["run_seconds"] = maxf(0, float(record.get("run_seconds", 0)))
@@ -232,16 +242,18 @@ static func normalized_record(value: Dictionary) -> Dictionary:
 			if pair is Array and pair.size() == 2:
 				deck.append([str(pair[0]), maxi(1, int(pair[1]))])
 	record["deck"] = deck
-	if record.has("deck_card_definitions"):
+	if value.has("deck_card_definitions"):
 		var definitions: Dictionary = {}
-		if record["deck_card_definitions"] is Dictionary:
+		if value["deck_card_definitions"] is Dictionary:
 			for pair: Array in deck:
-				var definition: Variant = record["deck_card_definitions"].get(pair[0])
+				var definition: Variant = value["deck_card_definitions"].get(pair[0])
 				if definition is Dictionary and not definition.is_empty():
-					var delta: Dictionary = card_definition_delta(pair[0], definition)
-					if not delta.is_empty():
-						definitions[pair[0]] = delta
-		record["deck_card_definitions"] = definitions
+					var public_value: Variant = public_definitions.get(definition)
+					if public_value == null:
+						public_value = _public_card_value(definition)
+						public_definitions[definition] = public_value
+					definitions[pair[0]] = public_value
+		record["deck_card_definitions"] = definitions.duplicate(true)
 	if record.has("umbra_depth"):
 		record["umbra_depth"] = maxi(0, int(record["umbra_depth"]))
 	return record

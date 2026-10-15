@@ -28,6 +28,7 @@ func _run() -> void:
 	Suite.run(_check)
 	_test_fixture_cards()
 	_test_definition_deltas()
+	_test_relic_definition_round_trip()
 	_test_tooltip_placement()
 	var canvas: SubViewport = Probe.create_capture_viewport(root)
 	_check(canvas.size == Vector2i(1920, 1080) and canvas.render_target_update_mode == SubViewport.UPDATE_ALWAYS, "Chronicle proof uses a fixed 1920x1080 render target updated every frame")
@@ -191,11 +192,37 @@ func _test_definition_deltas() -> void:
 	var expected := {"actions": upgraded["actions"], "base_card_id": "pale_spark", "upgraded": true, "upgrade_count": 1}
 	var delta: Dictionary = Rules.card_definition_delta("pale_spark", upgraded)
 	_check(delta == JSON.parse_string(JSON.stringify(expected)), "An upgraded card stores exactly its changed public fields")
+	upgraded["id"] = "pale_spark"
 	_check(JSON.parse_string(JSON.stringify(Rules.card_definition("pale_spark", {"pale_spark": delta}))) == JSON.parse_string(JSON.stringify(upgraded)), "Upgraded delta resolves to the complete printed card")
-	var legacy: Dictionary = Probe.seeded_profile()[Store.CHRONICLE_RECORDS_KEY][0].duplicate(true)
-	legacy["deck"] = [["pale_spark", 1], ["chain_bolt", 1]]
-	legacy["deck_card_definitions"] = {"pale_spark": GameData.card_def_for_progression("pale_spark", {}), "chain_bolt": GameData.card_def_for_progression("chain_bolt", state)}
-	_check(Rules.normalized_record(legacy)["deck_card_definitions"] == snapshots, "Normalization compacts old full snapshots and removes their internal tags")
+	var record: Dictionary = Probe.seeded_profile()[Store.CHRONICLE_RECORDS_KEY][0].duplicate(true)
+	record["deck"] = [["pale_spark", 1], ["retired_snapshot_only", 1], ["empty_definition", 1], ["invalid_definition", 1]]
+	record["deck_card_definitions"] = {
+		"pale_spark": {"name": GameData.card_def("pale_spark")["name"], "_card_element": "light"},
+		"retired_snapshot_only": {"actions": [{"amount": 2, "_card_action_types": ["melee"]}], "_runtime": true},
+		"empty_definition": {}, "invalid_definition": ["bad"], "not_in_deck": {"name": "Drop me"}
+	}
+	var normalized: Dictionary = Rules.normalized_record(record)["deck_card_definitions"]
+	_check(normalized == {"pale_spark": {"name": GameData.card_def("pale_spark")["name"]}, "retired_snapshot_only": {"actions": [{"amount": 2.0}]}}, "Normalization sanitizes stored deltas without rebuilding them or requiring live card ids")
+	_check(typeof(normalized.get("retired_snapshot_only", {}).get("actions", [{}])[0].get("amount")) == TYPE_FLOAT, "Normalization canonicalizes nested integers as floats")
+	_check(record["deck_card_definitions"]["retired_snapshot_only"].has("_runtime"), "Normalization leaves the supplied record unchanged")
+	var next: Dictionary = record.duplicate(true)
+	next["run_id"] += "-next"
+	var history: Array[Dictionary] = Rules.normalized_records([record, next])
+	history[0]["deck_card_definitions"]["retired_snapshot_only"]["actions"][0]["amount"] = 99.0
+	_check(history[1]["deck_card_definitions"]["retired_snapshot_only"]["actions"][0]["amount"] == 2.0 and record["deck_card_definitions"]["retired_snapshot_only"]["actions"][0]["amount"] == 2, "Repeated deltas normalize into independent copies without changing the input")
+
+func _test_relic_definition_round_trip() -> void:
+	var deck: Array = GameData.cards().keys().slice(0, 45)
+	var state := {"chronicle_path": [["combat"]], "deck_cards": deck, "relics": ["crown_of_surplus", "leaden_pommel"], "seed": 8821}
+	var record: Dictionary = Rules.build_record(state, "victory", {})
+	_check(record["deck_card_definitions"].size() >= 40, "Relic round-trip fixture stores modifications for at least 40 cards")
+	var restored: Dictionary = Rules.normalized_record(JSON.parse_string(JSON.stringify(record)))
+	_check(restored["deck_card_definitions"] == record["deck_card_definitions"], "Relic deltas survive save normalization unchanged")
+	for id: String in deck:
+		var resolved: Dictionary = Rules.card_definition(id, restored["deck_card_definitions"])
+		var printed: Dictionary = Rules._public_card_value(GameData.card_def_for_progression(id, state))
+		_check(not JSON.stringify(resolved).contains('"_'), "Resolved relic card contains no internal tags: %s" % id)
+		_check(JSON.parse_string(JSON.stringify(resolved)) == printed, "Normalized relic card matches its printed definition: %s" % id)
 
 func _test_tooltip_placement() -> void:
 	var bounds := Rect2(0, 0, 1920, 1080)
@@ -210,6 +237,11 @@ func _test_tooltip_placement() -> void:
 			1: _check(rect.end.y == anchor.position.y, "Focus preview falls back above")
 			2: _check(rect.position.x == anchor.end.x, "Focus preview falls back right")
 			3: _check(rect.end.x == anchor.position.x, "Focus preview falls back left")
+	var crowded_anchor := Rect2(950, 500, 48, 64)
+	var crowded_extent := Vector2(1200, 800)
+	_check(crowded_extent.x > maxf(crowded_anchor.position.x, bounds.end.x - crowded_anchor.end.x) and crowded_extent.y > maxf(crowded_anchor.position.y, bounds.end.y - crowded_anchor.end.y), "Last-resort preview cannot fit on any side of its tile")
+	var crowded_preview := Rect2(ChroniclePanel.focus_tooltip_position(crowded_anchor, crowded_extent, bounds), crowded_extent)
+	_check(bounds.encloses(crowded_preview), "Last-resort focus placement keeps the whole preview on screen")
 
 func _test_card_tiles(panel: Control, canvas: Viewport) -> void:
 	var profile: Dictionary = Probe.tile_fixture_profile()

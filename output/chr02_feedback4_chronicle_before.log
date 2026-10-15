@@ -1,0 +1,258 @@
+Running task-local command:
+  task: chr-02
+  run: chr-02-1792081494399416000-92953
+  HOME: /private/tmp/labyrinth-godot-home/chr-02-1792081494399416000-92953
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/chr-02-1792081494399416000-92953/godot.log --headless --audio-driver Dummy --path . --script tests/chronicle_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+CHRONICLE HOVER REGRESSION: unentered viewport reaches tile without a native popup
+CHRONICLE FIVE-SECTION LAYOUT: detail=[P: (670.0, 240.0), S: (1142.0, 718.0)] viewport=[P: (670.0, 240.0), S: (1142.0, 718.0)]
+ERROR: Normalization sanitizes stored deltas without rebuilding them or requiring live card ids
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalization canonicalizes nested integers as floats
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: quick_stab
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: guarded_step
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: shadow_step
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: bone_dart
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: pale_spark
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: dull_bolt
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: waning_pulse
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: sidestep_slash
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: whirlwind_slash
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: patch_up
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: bloody_lunge
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: brace
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: lantern_shot
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: guiding_flare
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: dawnstep
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: prism_sight
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: storm_beacon
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: glowstone_ward
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: daybreak
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: iron_wheel
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: ricochet_knife
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: needle_flurry
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: warded_advance
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: threaded_path
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: rallying_breath
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: battle_rhythm
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: reprise
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: blood_price
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: trapdoor
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: bodkin_arrow
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: hamstring_shot
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: hamstring_slice
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: ember_rain
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: shadow_gate
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: cyclone_seal
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: last_light
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: grave_sprint
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: firebrand_volley
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: cinder_bloom
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: hearth_rush
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: cinderline_tempo
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+CHRONICLE HOVER PROOF: 5 native popups; 5 pointer targets
+ERROR: Normalized relic card matches its printed definition: inferno_ritual
+CHRONICLE TEST RESULT: FAIL (48 failure(s))
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: molten_reach
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: wildfire_halo
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Normalized relic card matches its printed definition: frostbolt
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+ERROR: Last-resort focus placement keeps the whole preview on screen
+   at: push_error (core/variant/variant_utility.cpp:1024)
+   GDScript backtrace (most recent call first):
+       [0] _run (res://tests/chronicle_test.gd:144)
+       [1] _settle_tiles (res://tests/chronicle_test.gd:155)
+WARNING: ObjectDB instances leaked at exit (run with --verbose for details).
+     at: cleanup (core/object/object.cpp:2641)
