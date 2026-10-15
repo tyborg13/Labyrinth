@@ -45,3 +45,5 @@
 | ux-03 | Glossary tooltips for icons and relics (data/glossary.json; card keyword stack reused for relics) | running (gpt-6-astra) | codex/peer-benchmark | briefs/ux-03.md |
 | anim-01 | Pixel-true idle life for static directional enemies (data/static_enemy_idle.json) | running (gpt-6-astra) | codex/peer-benchmark | briefs/anim-01.md |
 | por-01 | Rebuild 17 stale turn-order portraits from post-density art | running (gpt-6-astra) | codex/peer-benchmark | briefs/por-01.md |
+| vfx-01 | Pixel-art look for procedural elemental effects (low-res layer, element ramps, Bayer alpha) | running (gpt-6-astra) | codex/peer-benchmark | briefs/vfx-01.md |
+| chr-02 | Chronicle spells as card tiles with counts; tooltips on every tile | running (gpt-6-astra) | codex/peer-benchmark | briefs/chr-02.md |
