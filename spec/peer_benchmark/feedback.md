@@ -59,3 +59,7 @@
   (`maquettes/chainbound_gaoler/chain_fix_{front,rear}.md`: alternating face-on rings and edge-on links passing through
   each other; top link around the fist, bottom link through the hook's eye). rr-02 phase 1 continues on the current pair;
   phase 2 reruns `tools/maquette_cutout.py` on the chain-fixed pair (only the `chain` part changes).
+
+## 2026-10-15 — Fatigue amplification (owner)
+- Q: "Fatigue damage is currently amplified by Expose, Chilled and Frozen (combat_engine.gd:7773). Is that intended?"
+  Owner: "No, definitely not. Good catch" → fix-03 (Fatigue never amplified; other non-attack sources audited, unchanged).
