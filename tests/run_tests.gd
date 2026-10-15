@@ -218,6 +218,7 @@ func _initialize() -> void:
 	_test_second_sequence_uses_scaled_zekarion_placeholder()
 	_test_start_room_spawns_emaciated_man()
 	_test_fatigue_draws_cost_health_and_burn_removes_card()
+	preload("res://tests/suites/fix_03_suite.gd").run(Callable(self, "_assert"))
 	_test_consumable_item_card_is_destroyed_after_play()
 	_test_two_card_turn_draw_flow()
 	_test_initiative_order_starts_with_active_player_and_fast_enemies()
