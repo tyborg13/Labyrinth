@@ -1,33 +1,20 @@
 {
   "K": 4,
   "anatomy": "biped",
-  "chain_fix": {
-    "composite": "spec/art_identity/maquettes/chainbound_gaoler/composite_chain.py",
-    "composite_box": [
-      800,
-      395,
-      1010,
-      940
-    ],
-    "composite_sha256": "198bd35b08c0b3b251d8c98acdd99a17d6ce7a3eef288e10a0cb23966d3dee62",
-    "edit_prompt": "spec/art_identity/maquettes/chainbound_gaoler/chain_fix_rear.md",
-    "edit_prompt_sha256": "ad38c447aa4e8bb595c9f2192a6136f72178571050707a37baf8259e8bec46f0",
-    "why": "owner 2026-10-15: \"His chain doesn't actually link up.\""
-  },
   "id": "chainbound_gaoler",
   "job_id": "mq-gaoler-rear-r3 + chain fix",
   "kind": "creature",
   "kit_kind": "maquette",
   "kit_version": "a0eba5a1fc1f147750a526e17fd279a9c663c07e85678c1d94ae64feba5b9ac1",
   "match_reference": {
-    "config": "spec/art_identity/maquettes/chainbound_gaoler/match_exclude_front_r3.json",
-    "config_sha256": "057a98d2331cc7f0970e9c21536a61eb127cd3ea48e25b528808a862813e0ebd",
-    "derived_from": "spec/art_identity/jobs/chainbound_gaoler/mq3_front_v3/processed.png",
-    "path": "spec/art_identity/jobs/chainbound_gaoler/mq3_front_v3/match_reference_no_tabard.png",
-    "pixel_sha256": "5f909a5538a26f78670e09b6cadca61b5aa3930a5e1ad305976d804fef0201d2",
-    "script": "spec/art_identity/prototype/mask_reference.py",
-    "script_sha256": "e70e541ce354fd26ca810550a1f4ea31a7577ff4e988727b534f2c1d9fe0ce62",
-    "why": "the front-only oxblood tabard skewed the rear palette match red"
+    "derived_from": {
+      "path": "refs/palette_front.png",
+      "sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2"
+    },
+    "mask_config": {
+      "path": "refs/match_exclude_front_r3.json",
+      "sha256": "057a98d2331cc7f0970e9c21536a61eb127cd3ea48e25b528808a862813e0ebd"
+    }
   },
   "method": "maquette paint-over r3 (rear from the approved-candidate front mq3_front_v3), painted at the drawn size (K=4, art_scale 1.0)",
   "peers": [
@@ -37,6 +24,81 @@
   "prompt_path": "prompt.md",
   "prompt_sha256": "56171947d5a8a2245eee3b9e7162d4cd6aacd1de223dbcd7fd9e577287df5d20",
   "prompt_source": "spec/art_identity/maquettes/chainbound_gaoler/prompt_rear_r3.md",
+  "raw_steps": [
+    {
+      "inputs": {
+        "edit": {
+          "path": "refs/raw_chain_edit.png",
+          "sha256": "68e79b6ea565625ed3e69426cabe0ad4d8df53f13cf3609a615678aca2ddd3bc"
+        },
+        "raw": {
+          "path": "refs/raw_approved.png",
+          "sha256": "986c89853400eb1cc8ec3f5e80a769b1886152ebe35de303f1e6adecbe03c9ad"
+        }
+      },
+      "kind": "composite_region",
+      "output_raw_sha256": "bb26e934bbe2043e1912d704a88acb24d7fd6bc9c5225b8adea429a1571bc371",
+      "parameters": {
+        "box": [
+          800,
+          395,
+          1010,
+          940
+        ],
+        "resample": "LANCZOS"
+      }
+    },
+    {
+      "inputs": {
+        "config": {
+          "path": "refs/tone_rear_r3.json",
+          "sha256": "8f73afcb826109090d175da821f30643a2b66fbf47079ecb64e10f84f26360ef"
+        },
+        "raw": {
+          "path": "refs/raw_chain_composite.png",
+          "sha256": "bb26e934bbe2043e1912d704a88acb24d7fd6bc9c5225b8adea429a1571bc371"
+        }
+      },
+      "kind": "tone_region",
+      "output_raw_sha256": "d3430bce59e949b1c6475def5eddb50b9913cb1eed65dc13cc820cf2f5cfb6af",
+      "parameters": {
+        "space": "CIE Lab"
+      }
+    }
+  ],
+  "raw_steps_provenance": {
+    "chain_fix": {
+      "composite": "spec/art_identity/maquettes/chainbound_gaoler/composite_chain.py",
+      "composite_box": [
+        800,
+        395,
+        1010,
+        940
+      ],
+      "composite_sha256": "198bd35b08c0b3b251d8c98acdd99a17d6ce7a3eef288e10a0cb23966d3dee62",
+      "edit_prompt": "spec/art_identity/maquettes/chainbound_gaoler/chain_fix_rear.md",
+      "edit_prompt_sha256": "ad38c447aa4e8bb595c9f2192a6136f72178571050707a37baf8259e8bec46f0",
+      "why": "owner 2026-10-15: \"His chain doesn't actually link up.\""
+    },
+    "match_reference": {
+      "config": "spec/art_identity/maquettes/chainbound_gaoler/match_exclude_front_r3.json",
+      "config_sha256": "057a98d2331cc7f0970e9c21536a61eb127cd3ea48e25b528808a862813e0ebd",
+      "derived_from": "spec/art_identity/jobs/chainbound_gaoler/mq3_front_v3/processed.png",
+      "path": "spec/art_identity/jobs/chainbound_gaoler/mq3_front_v3/match_reference_no_tabard.png",
+      "pixel_sha256": "5f909a5538a26f78670e09b6cadca61b5aa3930a5e1ad305976d804fef0201d2",
+      "script": "spec/art_identity/prototype/mask_reference.py",
+      "script_sha256": "e70e541ce354fd26ca810550a1f4ea31a7577ff4e988727b534f2c1d9fe0ce62",
+      "why": "the front-only oxblood tabard skewed the rear palette match red"
+    },
+    "tone_edit": {
+      "config": "spec/art_identity/maquettes/chainbound_gaoler/tone_rear_r3.json",
+      "config_sha256": "8f73afcb826109090d175da821f30643a2b66fbf47079ecb64e10f84f26360ef",
+      "input_raw_sha256": "986c89853400eb1cc8ec3f5e80a769b1886152ebe35de303f1e6adecbe03c9ad",
+      "script": "spec/art_identity/prototype/tone_region.py",
+      "script_sha256": "58613a822116f5ddf3726e3489e62b9a6e63d8cf3da02f027e9f6fb2035053bb",
+      "why": "judge r6: rear leathers/metal ran warmer than the front (boots, belt, chain-arm bands, hook)"
+    }
+  },
   "refs": [
     {
       "canon_id": "maquette_rear_parts",
@@ -76,13 +138,5 @@
   ],
   "size_class": "medium",
   "target_h": 216,
-  "tone_edit": {
-    "config": "spec/art_identity/maquettes/chainbound_gaoler/tone_rear_r3.json",
-    "config_sha256": "8f73afcb826109090d175da821f30643a2b66fbf47079ecb64e10f84f26360ef",
-    "input_raw_sha256": "986c89853400eb1cc8ec3f5e80a769b1886152ebe35de303f1e6adecbe03c9ad",
-    "script": "spec/art_identity/prototype/tone_region.py",
-    "script_sha256": "58613a822116f5ddf3726e3489e62b9a6e63d8cf3da02f027e9f6fb2035053bb",
-    "why": "judge r6: rear leathers/metal ran warmer than the front (boots, belt, chain-arm bands, hook)"
-  },
   "view": "creature_rear"
 }

@@ -28,6 +28,10 @@
   ],
   "post_steps": [
     {
+      "match_reference": {
+        "path": "refs/palette_front.png",
+        "sha256": "211723e5a16e7765105657a72e6c119b994518f8e3129bdf4dec9b580f1e21c0"
+      },
       "parameters": {
         "accent_margin": 15,
         "accent_percentile": 90,
@@ -36,8 +40,8 @@
         "std_floor": 1e-06
       },
       "pre_step_pixel_sha256": "d0128104621444857a047ffcf83962d615666ed491e5e7ec4dbf7fb14e713d7c",
-      "reference": "spec/art_identity/jobs/chainbound_gaoler/mq_front_v3/processed.png",
       "reference_pixel_sha256": "8661431b833aa10c3b32715c957f932d11016326a68e5c0911fa9aa3853665d7",
+      "reference_sha256": "211723e5a16e7765105657a72e6c119b994518f8e3129bdf4dec9b580f1e21c0",
       "step": "palette_match"
     },
     {
@@ -56,6 +60,65 @@
     }
   ],
   "raw_sha256": "d8cfa95f1171dfcab9da4124423234849cc58fc18ad81f882bc531de81ad7dca",
+  "raw_steps": [
+    {
+      "inputs": {
+        "edit": {
+          "path": "refs/raw_chain_edit.png",
+          "sha256": "d375c7aad36df544a25875ed838640fe84e8611bdb8d20c5114cf67545d9c7b9"
+        },
+        "raw": {
+          "path": "refs/raw_approved.png",
+          "sha256": "24e532bd4803c3a1a0c866afcdd916cd4ecfc663e5c5e7f0c62cefb9719f9279"
+        }
+      },
+      "kind": "composite_region",
+      "output_raw_sha256": "1dba736ac83cd3d38d4d2e789e5e08804929249a62864d0be750f52360960560",
+      "parameters": {
+        "box": [
+          60,
+          255,
+          300,
+          720
+        ],
+        "resample": "LANCZOS"
+      }
+    },
+    {
+      "inputs": {
+        "config": {
+          "path": "refs/tone_front_r3.json",
+          "sha256": "ae5d1fc72c990ba97d04cfdee6a7dfa6b8cd0bf4dc449123702d2cfc55f6876b"
+        },
+        "raw": {
+          "path": "refs/raw_chain_composite.png",
+          "sha256": "1dba736ac83cd3d38d4d2e789e5e08804929249a62864d0be750f52360960560"
+        }
+      },
+      "kind": "tone_region",
+      "output_raw_sha256": "74f5a2786b08a48890b0a0bfc0fb93c458b22f61b08920291882968bb952d40d",
+      "parameters": {
+        "space": "CIE Lab"
+      }
+    },
+    {
+      "inputs": {
+        "config": {
+          "path": "refs/tone_front_hook.json",
+          "sha256": "1cc3d9f4bd605ac7e59d3871109d36451b9f3a4d905eb416e794d63b04920516"
+        },
+        "raw": {
+          "path": "refs/raw_tone_0.png",
+          "sha256": "74f5a2786b08a48890b0a0bfc0fb93c458b22f61b08920291882968bb952d40d"
+        }
+      },
+      "kind": "tone_region",
+      "output_raw_sha256": "d8cfa95f1171dfcab9da4124423234849cc58fc18ad81f882bc531de81ad7dca",
+      "parameters": {
+        "space": "CIE Lab"
+      }
+    }
+  ],
   "shift": [
     0,
     0
