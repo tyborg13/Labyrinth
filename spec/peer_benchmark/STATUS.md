@@ -18,31 +18,25 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 ## Milestone
 M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
-## In flight (2026-10-15, owner playtest 7 feedback; Codex model gpt-6-astra for today — revert the Labyrinth profile "model" after)
-- Running: sfx-04 (A/V sync audit + fixes), ux-02 (text/tooltip audit), ux-03 (glossary tooltips for icons/relics),
-  anim-01 (pixel-true idle for static enemies), por-01 (17 stale portraits), vfx-01 (pixel-art elemental FX).
-- Queued (slot cap 6): chr-02 (chronicle spells as card tiles), rr-02 (maquette → cutout pipeline phase 1, gaoler).
-- Rounded gaoler owner-approved 2026-10-15 ("decent enough for now ... go ahead and rig it"); rr-02 rigs it. Shrike in game (art-04).
-  Chain fix (owner: "doesn't actually link up") judge PASS r7: final pair `mq3_front_v4` + `mq3_rear_v3`
-  (`sheet_pair_mq3_v3.png`); rr-02 phase 2 must rerun `tools/maquette_cutout.py` on this pair (only `chain`/`hook` differ).
-- Director next: rewrite text per `spec/text_style_guide.md` once ux-02's inventory lands (→ ux-04); paint hidden
-  material from rr-02's requests; review each unit's captures.
-- Disk cleanup 2026-10-15 (owner-approved): removed 51 merged/old worktrees (branches kept; detached capture heads tagged
-  `archive/peer-benchmark-capture`, `archive/trailer-capture-integration`) and day-old probe homes; 250 GB free. Kept:
-  output/ captures, Labyrinth-archives, gear-devlog-capture (uncommitted changes).
+## In flight (2026-10-15 late, playtest 7 follow-ups; Codex model gpt-6-astra + max_running 6 for today — revert the Labyrinth profile after)
+- Merged today: sfx-03, rr-01, art-04 (shrike), por-01, ux-02, art-05, ui-02, qa-04, fix-03. Playtest 7 = 7901c37f0.
+- Running fix rounds: sfx-04 r2 (A/V sync), ux-03 r3 (glossary tooltips), vfx-01 r1 (pixel FX), anim-01 r3 (static idle),
+  rr-02 r3 (gaoler cutout: cross-view donors for 3 hidden regions). New: art-06 (gate pixel digests, follow-ups).
+- chr-02 (Chronicle tiles) committed 526e3c6cc, awaiting peer re-review (a5cd14b257a1dd01f) → merge.
+- Lancer pair: judge PASS r2; director tone r2 restored the frost read (front/rear `mq1_front_v3`/`mq1_rear_v3`,
+  sheet `sheet_pair_mq1_v3.png`, 50e1b836c). Shown to owner; awaiting verdict before rigging.
+  These two kits use the art-05 field names: re-record them with art-06's migration when art-06 merges.
+- Gaoler: owner-approved rounded pair `mq3_front_v4` + `mq3_rear_v3`; rr-02 rigs it; phase 3 = production integration.
+- ux-04 (text rewrite) launches after ux-03 merges. Owner question open: self-hit amplification (Meteorfall/Detonate).
 - Watchdog: `scratchpad/watch_loop2.sh` (tracked background job).
 
 ## Next actions
-1. Owner verdict on the perched shrike → integrate (art_scale 0.75, directional art, portrait, registry kit entry
-   replacing pending_reart) and add to canon as the flyer reference.
-2. Gaoler judge → owner → brief rr-02 implementation (maquette label maps → segmentation, solo renders → hidden
-   material, joints_px.json → rig joints, reuse gaoler_motion).
-3. Roster wave 1b after the pilot: acolyte (+ veilbound), frostglass lancer, bile bloomer, harrier, lightning wisp,
-   warden (front), cinder ooze (front). Wave 2: roc fledgling + gallows roc via perched-bird maquettes. Wave 3: dragons.
-4. Cut playtest 7 from integration after rr-01 lands (frozen worktree + import + start fixture).
-5. Known environment-only test noise (not regressions, 2026-10-13): `test_chopin_death_music` fails when a Godot import
-   leaves untracked `output/classical_soundtracks/**/preview.ogg.import` sidecars (delete them); the task-queue
-   handoff test failed once under full-suite load and passes on rerun ×3.
+1. Process each fix round (windowed proofs yourself), peer review, merge; then cut playtest 8.
+2. rr-02: run the listed windowed commands (native_rest, render v03, verify-render, proof.py); review the reel.
+3. Owner verdict on the lancer → rig via rr-02's tool. Remaining wave 1b: bile bloomer, lightning wisp, acolyte/veilbound,
+   harrier, warden (front), cinder ooze (front). Wave 2: roc fledgling + gallows roc. Wave 3: dragons.
+4. Known environment-only test noise (2026-10-13): `test_chopin_death_music` fails when a Godot import leaves untracked
+   `output/classical_soundtracks/**/preview.ogg.import` sidecars (delete them); the task-queue handoff test flaked once.
 - Plan page (artifact): https://claude.ai/artifact/N1G8qgbt58t6CbufwQxq5d — source output/peer-benchmark-2026-10-12/plan_page/ (plan_template.html → index.html via inline-font build snippet)
 
 ## Update 2026-10-12 evening
