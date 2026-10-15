@@ -51,3 +51,4 @@
 | qa-04 | Godot .import noise under output/ (.gdignore), Chopin check ignores sidecars, stale en-05 sync test | queued (gpt-6-astra) | codex/peer-benchmark | briefs/qa-04.md |
 | fix-03 | Fatigue never amplified by Expose/Chilled/Frozen (owner); SPENT HUD flag; text_token icon callers; Lightning Strikes chip icon | queued (gpt-6-astra) | codex/peer-benchmark | briefs/fix-03.md |
 | ux-04 | Apply approved glossary + relic text, renames, @term/@kw token convention, budgets | ready (after ux-03 merges) | codex/peer-benchmark | briefs/ux-04.md |
+| ui-02 | UI ratchet cleanup: labyrinth_map_view, skill_tree_view, section_map_node → tokens (pixel-identical) | running (gpt-6-astra) | codex/peer-benchmark | briefs/ui-02.md |
