@@ -1918,9 +1918,9 @@ func _axis_segment_intersects_rect(start: Vector2, finish: Vector2, rect: Rect2)
 	return rect.intersects(Rect2(start, finish - start).abs())
 
 func _panel_style(border_color: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.055, 0.042, 0.052, 0.97)
-	style.border_color = border_color
+	# Preserve the authored panel: automatic margins and no card-style shadow.
+	var style: StyleBoxFlat = _ui_skin.make_plain_card_style(Color(0.055, 0.042, 0.052, 0.97), border_color, -1.0)
+	style.shadow_size = 0
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(8)
 	return style

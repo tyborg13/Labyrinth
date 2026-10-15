@@ -867,7 +867,7 @@ func _ring_intersects_map(radius: float) -> bool:
 func _draw_depth_ring_label(depth: int, radius: float) -> void:
 	var font: Font = UiTypography.body_font()
 	if font == null:
-		font = get_theme_default_font()
+		font = UiTypography.default_font(self)
 	if font == null:
 		return
 	var label: String = "DEPTH %d" % depth
@@ -1258,7 +1258,7 @@ func _draw_legend_room_badge(center: Vector2, room: Dictionary, side: float) -> 
 func _draw_map_legend() -> void:
 	var font: Font = UiTypography.body_font()
 	if font == null:
-		font = get_theme_default_font()
+		font = UiTypography.default_font(self)
 	if font == null:
 		return
 	var entries: Array[Dictionary] = _legend_entries_ref()
@@ -1362,7 +1362,7 @@ func _draw_hover_card() -> void:
 	var room: Dictionary = _room_ref_at(_hover_coord)
 	if room.is_empty() or not _room_visible_on_this_map(room) or not _room_is_onscreen(room):
 		return
-	var font: Font = get_theme_default_font()
+	var font: Font = UiTypography.default_font(self)
 	if font == null:
 		return
 	var card_data: Dictionary = _hover_card_data(room)
