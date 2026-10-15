@@ -2,6 +2,7 @@ extends SceneTree
 
 const Pixel = preload("res://scripts/pixel_fx_layer.gd")
 const Spell = preload("res://scripts/elemental_spell_fx.gd")
+const SurfaceDependencies = preload("res://scripts/board_surface_render_dependencies.gd")
 const Board = preload("res://scripts/combat_board_view.gd")
 const Fixture = preload("res://tests/pixel_fx_fixture.gd")
 const Runtime = preload("res://scripts/parallel_runtime.gd")
@@ -9,6 +10,12 @@ const TRANSFORM_FIXTURE: Dictionary = {
 	"position": Vector2(37.25, 19.75), "scale": Vector2(1.17, 1.17),
 	"point": Vector2(200, 200), "size": 100.0, "progress": 0.38,
 }
+const BOUNDS_FIXTURE: Dictionary = {
+	"point": Vector2(700, 600), "size": 200.0,
+	"phases": [0.0, 0.03, 0.18, 0.38, 0.58, 0.82, 0.96, 1.0],
+	"release_lift": Vector2(0, 80), "travel_offset": Vector2(300, 80), "floor_offset": Vector2(300, 0),
+}
+const FLOOR_EPSILON: float = 0.0001
 var _errors: Array[String]
 var _checks: int = 0
 
@@ -20,6 +27,7 @@ func _run() -> void:
 	_data_and_quantizer()
 	await _board_integration()
 	await _blend_and_transforms()
+	await _geometry_bounds()
 	Pixel.review_enabled_override = null
 	for error: String in _errors:
 		push_error(error)
@@ -29,7 +37,16 @@ func _run() -> void:
 func _data_and_quantizer() -> void:
 	var data: Dictionary = Pixel.style()
 	_expect(data["pixel_style_enabled"] == true, "Review style defaults on")
-	_expect(data["grid_px_at_1080"] == 2 and data["alpha_floor"] == 0.08 and data["alpha_bias"] == 0.0, "Director scalar data must be exact")
+	var authored: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(Pixel.STYLE_PATH))
+	var alpha_floor: float = authored["alpha_floor"]
+	var alpha_bias: float = authored["alpha_bias"]
+	_expect(data == authored, "Runtime style reads the director data without substitutions")
+	_expect(alpha_floor >= 0.0 and alpha_floor <= 1.0 and alpha_bias >= 0.0 and alpha_bias <= 1.0, "Valid director alpha parameters")
+	_expect(is_equal_approx(Pixel.luminance(Color.RED), 0.299) and is_equal_approx(Pixel.luminance(Color.GREEN), 0.587) and is_equal_approx(Pixel.luminance(Color.BLUE), 0.114), "CPU luminance pins Rec.601 weights")
+	_expect(Pixel.QUANTIZE.code.contains("vec3(0.299, 0.587, 0.114)"), "GPU luminance pins Rec.601 weights")
+	var expected_half: int = 0
+	for threshold: int in Pixel.BAYER:
+		expected_half += int(0.5 >= alpha_floor and 0.5 > float(threshold) / 16.0 + alpha_bias)
 	_expect((data["ramps"] as Dictionary).size() == 6, "Five elements plus neutral")
 	_expect(Pixel.grid_px(1080) == 2 and Pixel.grid_px(1440) == 3 and Pixel.grid_px(2160) == 4 and Pixel.grid_px(1) == 1, "Grid rounds and clamps at all required heights")
 	for element: String in data["ramps"]:
@@ -55,9 +72,11 @@ func _data_and_quantizer() -> void:
 				var output: Color = Pixel.quantize(Color(0.5, 0.5, 0.5, 0.5), cell, element)
 				opaque += int(output.a)
 				_expect(output == Pixel.quantize(Color(0.5, 0.5, 0.5, 0.5), cell + Vector2i(4, 4), element), "Bayer phase repeats without time dependence")
-				_expect(Pixel.quantize(Color(1, 1, 1, 0.079), cell, element).a == 0.0, "No alpha below the floor survives")
-		_expect(opaque == 8, "Half alpha produces exactly eight opaque Bayer cells")
-	_expect(Pixel.quantize(Color(1, 1, 1, 0.5), Vector2i(1, 0), "fire").a == 0.0, "Alpha comparison is strictly greater than threshold")
+				_expect(Pixel.quantize(Color(1, 1, 1, alpha_floor - FLOOR_EPSILON), cell, element).a == 0.0, "No alpha below the floor survives")
+		_expect(opaque == expected_half, "Half-alpha Bayer population is derived from director floor/bias")
+		_expect(Pixel.quantize(Color(1, 1, 1, alpha_floor - FLOOR_EPSILON), Vector2i.ZERO, element).a == 0.0, "Low-threshold cell just under the floor is transparent")
+		_expect(Pixel.quantize(Color(1, 1, 1, alpha_floor + FLOOR_EPSILON), Vector2i.ZERO, element).a == float(alpha_floor + FLOOR_EPSILON > alpha_bias), "Low-threshold cell just over the floor follows Bayer threshold")
+	_expect(Pixel.quantize(Color(1, 1, 1, 0.5 + alpha_bias), Vector2i(1, 0), "fire").a == 0.0, "Alpha comparison is strictly greater than threshold")
 	_expect(Pixel.ramp_for("") == Pixel.ramp_for("neutral"), "Missing element uses neutral")
 	var canvas := Node2D.new()
 	_expect(not Pixel.route(canvas, "fire", Spell.impact, []), "Unregistered geometry probes remain raw")
@@ -92,7 +111,7 @@ func _board_integration() -> void:
 					_expect(runs.size() == 1, "%s reduced=%s aoe=%s host=%s adjacent same-element commands share one layer: %s" % [element, reduced, aoe, host.name, runs])
 					for run: Dictionary in runs:
 						_expect(run["element"] == element and not run["additive"], "%s retains its original normal blend" % element)
-						_expect(run["grid"] == 2 and run["resolution"] == Vector2i(960, 540), "1080p creates half-resolution layer")
+						_expect(run["grid"] == 2 and run["resolution"].x < 960 and run["resolution"].y < 540, "1080p crops the half-resolution target to its geometry box")
 						_expect(run["commands"] > 0 and run["drawn_frame"] == run["submitted_frame"], "Routing must draw geometry in the same process frame")
 				Pixel.review_enabled_override = false
 				board._queue_dynamic_redraw()
@@ -117,7 +136,10 @@ func _board_integration() -> void:
 	await _settle()
 	_expect((rear.get("_pixel_fx_layer").snapshot() as Array)[0]["additive"], "Production routing detects the source's additive material")
 	rear.material = source_material
+	viewport.size = Fixture.SIZE
+	await _settle()
 	await _dragon_and_trap_integration(board, state)
+	await _surface_depth(board, state)
 	board.set_combat_state(state, [], [], Vector2i(-1, -1), "", "", {}, {}, {})
 	await _settle()
 	for host: Control in board._retained_render_layers():
@@ -173,7 +195,7 @@ func _blend_and_transforms() -> void:
 		pixel.begin(source)
 		for element: String in Fixture.ELEMENTS:
 			for additive: bool in [false, true]:
-				pixel.submit(element, Spell.impact, [element, TRANSFORM_FIXTURE["point"], TRANSFORM_FIXTURE["size"], TRANSFORM_FIXTURE["progress"], 1.0, false, false], Transform2D.IDENTITY, additive)
+				pixel.submit(element, Spell.impact, [element, TRANSFORM_FIXTURE["point"], TRANSFORM_FIXTURE["size"], TRANSFORM_FIXTURE["progress"], 1.0, false, false], Transform2D.IDENTITY, additive, Spell.pixel_bounds(Spell.impact, [element, TRANSFORM_FIXTURE["point"], TRANSFORM_FIXTURE["size"], TRANSFORM_FIXTURE["progress"], 1.0, false, false]))
 		pixel.finish()
 		await _settle()
 		var runs: Array[Dictionary] = pixel.snapshot()
@@ -183,11 +205,135 @@ func _blend_and_transforms() -> void:
 		for index: int in range(runs.size()):
 			_expect(runs[index]["element"] == Fixture.ELEMENTS[index / 2] and runs[index]["additive"] == bool(index % 2), "Mixed normal/additive source order retained")
 			_expect(runs[index]["grid"] == grid, "Resized host recomputes grid")
+			var run: Dictionary = (pixel.get("_runs") as Array)[index]
+			var origin: Vector2 = (run["composite"] as Sprite2D).position
+			_expect(origin == origin.floor(), "Crop starts on the screen cell grid")
+			_expect((run["composite"].material as ShaderMaterial).get_shader_parameter("cell_origin") == origin, "Bayer phase follows screen origin when crops move")
+			var screen: Transform2D = source.get_global_transform_with_canvas()
+			var composite_screen: Transform2D = screen * pixel.transform * run["composite"].transform
+			var raw_screen: Transform2D = run["viewport"].global_canvas_transform
+			_expect((composite_screen * raw_screen).is_equal_approx(screen), "Cropped drawing and composite reconstruct the original transform")
+	# A physical resize with a fixed logical size exercises viewport stretch,
+	# which a plain SubViewport.size test does not cover.
+	viewport.size_2d_override = Fixture.SIZE
+	viewport.size_2d_override_stretch = true
+	viewport.size = Vector2i(3840, 2160)
+	pixel.begin(source)
+	pixel.submit("fire", Spell.impact, ["fire", TRANSFORM_FIXTURE["point"], 100.0, 0.38, 1.0, false, false], Transform2D.IDENTITY, false, Spell.pixel_bounds(Spell.impact, ["fire", TRANSFORM_FIXTURE["point"], 100.0, 0.38, 1.0, false, false]))
+	pixel.finish()
+	await _settle()
+	var stretch: Transform2D = viewport.get_stretch_transform()
+	_expect(stretch.get_scale() == Vector2(2, 2) and pixel.snapshot()[0]["grid"] == 4, "size_2d_override stretch uses physical height")
+	_expect((stretch * source.get_global_transform_with_canvas() * pixel.transform).is_equal_approx(Transform2D(0.0, Vector2.ONE * 4, 0.0, Vector2.ZERO)), "Stretch, board zoom and pan cancel on the screen grid")
+	_expect(viewport.size_changed.is_connected(source.queue_redraw), "Resize hook invalidates source draw commands")
 	pixel.begin(source)
 	pixel.finish()
 	_expect(pixel.snapshot().is_empty(), "Unused targets are released")
 	viewport.queue_free()
 	await process_frame
+
+
+func _geometry_bounds() -> void:
+	# Only the editor/debug engine exposes command bounds. Production cropping
+	# uses the portable analytical boxes and never calls this debug API.
+	var viewport := SubViewport.new()
+	viewport.size = Fixture.SIZE
+	root.add_child(viewport)
+	var source := Node2D.new()
+	viewport.add_child(source)
+	var samples: Array[Dictionary]
+	var at: Vector2 = BOUNDS_FIXTURE["point"]
+	var size: float = BOUNDS_FIXTURE["size"]
+	for element: String in Fixture.ELEMENTS:
+		for reduced: bool in [false, true]:
+			for front: bool in [false, true]:
+				for phase: float in BOUNDS_FIXTURE["phases"]:
+					var cases: Array = [
+						[Spell.floor_light, [element, at, size, 1.0]],
+						[Spell.ground, [element, at, size, phase, 1.0]],
+						[Spell.impact, [element, at, size, phase, 1.0, reduced, front]],
+						[Spell.release, [element, at - BOUNDS_FIXTURE["release_lift"], at, size, phase, 1.0]],
+						[Spell.travel, [element, at - BOUNDS_FIXTURE["travel_offset"], at, at - BOUNDS_FIXTURE["floor_offset"], at, size, phase, 1.0]],
+					]
+					for sample: Array in cases:
+						var drawing := Pixel.Drawing.new()
+						source.add_child(drawing)
+						drawing.commands.append({"draw": sample[0], "args": sample[1], "transform": Transform2D.IDENTITY})
+						drawing.queue_redraw()
+						samples.append({"drawing": drawing, "bounds": Spell.pixel_bounds(sample[0], sample[1]), "label": "%s %s %.2f reduced=%s front=%s" % [element, (sample[0] as Callable).get_method(), phase, reduced, front]})
+	await _settle()
+	var nonempty: int = 0
+	for sample: Dictionary in samples:
+		var actual: Rect2 = RenderingServer.debug_canvas_item_get_rect(sample["drawing"].get_canvas_item())
+		if actual.has_area():
+			nonempty += 1
+			_expect((sample["bounds"] as Rect2).grow(0.001).encloses(actual), "Geometry bounds contain %s: actual=%s box=%s" % [sample["label"], actual, sample["bounds"]])
+	_expect(nonempty > 0, "Bounds regression inspected actual renderer command geometry")
+	viewport.queue_free()
+	await process_frame
+
+func _surface_depth(board: Control, state: Dictionary) -> void:
+	for kind: String in ["conduction", "ice_break", "painted", "rubble_break", "electrified_break"]:
+		var sample: Dictionary = Fixture.surface_sample(kind)
+		board.call("set_combat_state", sample["state"], [], [], Vector2i(-1, -1), "", "", {}, {}, sample["presentation"])
+		await _settle()
+		if kind == "conduction":
+			var expected: Array[Vector2i] = SurfaceDependencies.changed_tiles({}, sample["presentation"], {"effect": true})
+			for tile: Vector2i in board.get("_scene_render_layers_by_tile"):
+				var owner: Control = (board.get("_scene_render_layers_by_tile") as Dictionary)[tile]
+				var layer: Node2D = owner.get("_surface_feedback_pixel_layer")
+				_expect(layer.snapshot().is_empty() != expected.has(tile), "Conduction allocates pixel targets only on its exact floor-path owners")
+		var host: Control = (board.get("_scene_render_layers_by_tile") as Dictionary)[Fixture.TARGET]
+		var base: Node2D = host.get("_surface_base_drawing")
+		var feedback: Node2D = host.get("_surface_feedback_pixel_layer")
+		_expect(base.show_behind_parent and feedback.show_behind_parent and base.get_index() < feedback.get_index(), "%s ground < feedback < parent props/units" % kind)
+		var required_ground: String = "_surface_electric_layer" if kind == "conduction" or kind == "electrified_break" else "_surface_ice_layer"
+		_expect(is_instance_valid(host.get(required_ground)) and (host.get(required_ground) as CanvasItem).visible, "%s fixture includes visible retained ground" % kind)
+		_expect(not feedback.snapshot().is_empty(), "%s submits pixel-styled feedback" % kind)
+		for field: String in ["_surface_ice_layer", "_surface_fire_layer", "_surface_electric_layer", "_surface_rubble_layer"]:
+			var retained: CanvasItem = host.get(field)
+			if is_instance_valid(retained) and retained.visible:
+				_expect(retained.show_behind_parent and retained.get_index() < base.get_index(), "%s retained ground remains below feedback" % kind)
+	var fan: Dictionary = Fixture.dragon_fan_effect()
+	_expect((fan["tiles"] as Array).size() == 12, "Benchmark fan has twelve tiles")
+	board.call("set_combat_state", state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"effect": fan, "effect_progress": 0.62})
+	await _settle()
+	var pixels: int = 0
+	var layer_count: int = 0
+	for tile: Vector2i in fan["tiles"]:
+		for mapping: Dictionary in [board.get("_scene_back_effect_render_layers_by_tile"), board.get("_scene_front_effect_render_layers_by_tile")]:
+			var host: Control = mapping[tile]
+			var layer: Node2D = host.get("_pixel_fx_layer")
+			_expect(is_instance_valid(layer) and not layer.snapshot().is_empty(), "Twelve-tile fan reaches every tile's front/back pixel pass")
+			if not is_instance_valid(layer): continue
+			for run: Dictionary in layer.snapshot():
+				var resolution: Vector2i = run["resolution"]
+				pixels += resolution.x * resolution.y
+				layer_count += 1
+	_expect(layer_count >= 24 and pixels < layer_count * 960 * 540 / 2, "Fan cropped targets use less than half the former full-screen texels")
+	print("PIXEL FX FAN TARGETS: %d layers, %d cropped texels (%d full-screen texels)" % [layer_count, pixels, layer_count * 960 * 540])
+	var telegraphs: Control = board.get("_effects_telegraph_render_layer")
+	var effects: Control = board.get("_effects_render_layer")
+	_expect(telegraphs.get_index() < effects.get_index(), "Telegraphs precede effect composites and labels")
+	var action: Control = board.get("_action_floor_render_layer")
+	board.call("set_combat_state", state, [], [], Vector2i(-1, -1), "", "", {}, {}, {"trap_effects": [{"element": "fire", "pos": Fixture.TARGET}, {"element": "ice", "pos": Fixture.TARGET}], "effect_progress": 0.52})
+	await _settle()
+	# The headless board has no imported trap textures; inject a debug-only
+	# texture through the same production lookup to exercise native ordering.
+	var image := Image.create(2, 2, false, Image.FORMAT_RGBA8)
+	image.fill(Color.WHITE)
+	var textures: Array[Texture2D]
+	textures.append(ImageTexture.create_from_image(image))
+	(action.get("_trap_activation_frames") as Dictionary)["fire"] = textures
+	(action.get("_trap_activation_frames") as Dictionary)["ice"] = textures
+	action.queue_redraw()
+	await _settle()
+	var pixel: Node2D = action.get("_pixel_fx_layer")
+	var runs: Array = pixel.get("_runs")
+	var raw: Array = pixel.get("_raw_drawings")
+	_expect(pixel.show_behind_parent and raw.size() == 2 and runs.size() >= 2, "Trap activation textures retain native ordered slots")
+	if raw.size() == 2 and runs.size() >= 2:
+		_expect(runs[0]["composite"].get_index() < raw[0].get_index() and raw[0].get_index() < runs[1]["composite"].get_index() and runs[1]["composite"].get_index() < raw[1].get_index(), "Each trap activation follows its own pixels and precedes the next trap")
 
 func _settle() -> void:
 	await process_frame

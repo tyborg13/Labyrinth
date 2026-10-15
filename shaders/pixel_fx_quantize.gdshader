@@ -6,6 +6,8 @@ render_mode unshaded, blend_mix;
 uniform vec4 ramp[5];
 uniform float alpha_floor;
 uniform float alpha_bias;
+// Cropped targets keep the original screen-anchored Bayer phase.
+uniform vec2 cell_origin;
 const float BAYER[16] = float[16](
 	0.0, 8.0, 2.0, 10.0,
 	12.0, 4.0, 14.0, 6.0,
@@ -16,10 +18,10 @@ const vec3 LUMA = vec3(0.299, 0.587, 0.114);
 
 void fragment() {
 	vec4 source = texture(TEXTURE, UV);
-	ivec2 cell = ivec2(floor(UV / TEXTURE_PIXEL_SIZE));
+	ivec2 cell = ivec2(floor(UV / TEXTURE_PIXEL_SIZE) + cell_origin);
 	float threshold = BAYER[(cell.y % 4) * 4 + cell.x % 4] / 16.0 + alpha_bias;
 	float opacity = source.a >= alpha_floor && source.a > threshold ? 1.0 : 0.0;
-	// Most of a screen-sized layer is empty. Skip ramp work for discarded cells.
+	// Skip ramp work for discarded cells.
 	COLOR = vec4(0.0);
 	if (opacity > 0.0) {
 		float luminance = dot(source.rgb / source.a, LUMA);

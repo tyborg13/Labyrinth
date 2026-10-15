@@ -1,15 +1,89 @@
 {
-  "min_images": 7,
+  "min_images": 16,
   "expected_sizes": [
-    "1920x1080"
+    "1920x1080",
+    "3840x2160"
   ],
   "required_images": [
-    {"pattern": "idle_on.png", "width": 1920, "height": 1080},
-    {"pattern": "fire_on.png", "width": 1920, "height": 1080},
-    {"pattern": "ice_on.png", "width": 1920, "height": 1080},
-    {"pattern": "lightning_on.png", "width": 1920, "height": 1080},
-    {"pattern": "air_on.png", "width": 1920, "height": 1080},
-    {"pattern": "earth_on.png", "width": 1920, "height": 1080},
-    {"pattern": "fire_aoe_on.png", "width": 1920, "height": 1080}
+    {
+      "pattern": "idle_1080p_on.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "fire_1080p_on.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "ice_1080p_on.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "lightning_1080p_on.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "air_1080p_on.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "earth_1080p_on.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "fire_aoe_1080p_on.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "dragon_fan_1080p_on.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "idle_2160p_on.png",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "pattern": "fire_2160p_on.png",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "pattern": "ice_2160p_on.png",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "pattern": "lightning_2160p_on.png",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "pattern": "air_2160p_on.png",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "pattern": "earth_2160p_on.png",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "pattern": "fire_aoe_2160p_on.png",
+      "width": 3840,
+      "height": 2160
+    },
+    {
+      "pattern": "dragon_fan_2160p_on.png",
+      "width": 3840,
+      "height": 2160
+    }
   ]
 }

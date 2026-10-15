@@ -1,5 +1,5 @@
 {
-  "min_images": 213,
+  "min_images": 221,
   "expected_sizes": [
     "1920x1080",
     "1280x2880"
@@ -217,6 +217,14 @@
     {"pattern": "attack_aoe_20_travel_off.png", "width": 1920, "height": 1080, "regions": [{"rect": [240, 100, 1440, 720], "min_luma_range": 80, "min_luma_stdev": 10}]},
     {"pattern": "attack_aoe_20_travel_on.png", "width": 1920, "height": 1080, "regions": [{"rect": [240, 100, 1440, 720], "min_luma_range": 80, "min_luma_stdev": 10}]},
     {"pattern": "attack_aoe_40_peak_off.png", "width": 1920, "height": 1080, "regions": [{"rect": [240, 100, 1440, 720], "min_luma_range": 80, "min_luma_stdev": 10}]},
-    {"pattern": "attack_aoe_40_peak_on.png", "width": 1920, "height": 1080, "regions": [{"rect": [240, 100, 1440, 720], "min_luma_range": 80, "min_luma_stdev": 10}]}
+    {"pattern": "attack_aoe_40_peak_on.png", "width": 1920, "height": 1080, "regions": [{"rect": [240, 100, 1440, 720], "min_luma_range": 80, "min_luma_stdev": 10}]},
+    {"pattern": "surface_conduction_off.png", "width": 1920, "height": 1080},
+    {"pattern": "surface_conduction_off_crop3x.png", "width": 1920, "height": 1080},
+    {"pattern": "surface_conduction_on.png", "width": 1920, "height": 1080},
+    {"pattern": "surface_conduction_on_crop3x.png", "width": 1920, "height": 1080},
+    {"pattern": "surface_ice_break_off.png", "width": 1920, "height": 1080},
+    {"pattern": "surface_ice_break_off_crop3x.png", "width": 1920, "height": 1080},
+    {"pattern": "surface_ice_break_on.png", "width": 1920, "height": 1080},
+    {"pattern": "surface_ice_break_on_crop3x.png", "width": 1920, "height": 1080}
   ]
 }

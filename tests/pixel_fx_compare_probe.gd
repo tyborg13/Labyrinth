@@ -56,6 +56,11 @@ func _capture_element_sequence(instance: Node, combat_state: Dictionary, element
 	await super._capture_element_sequence(instance, combat_state, element_id)
 	if element_id != "fire":
 		return
+	for kind: String in ["conduction", "ice_break"]:
+		var sample: Dictionary = Fixture.surface_sample(kind)
+		var surface_state: Dictionary = combat_state.duplicate(true)
+		surface_state["surfaces"] = sample["state"]["surfaces"]
+		await _render_and_capture(instance, surface_state, sample["presentation"], "surface_%s.png" % kind)
 	for aoe: bool in [false, true]:
 		var effect: Dictionary = Fixture.effect(element_id, aoe)
 		var count: int = AttackFxLibrary.animation_frame_count(effect, 6, false)

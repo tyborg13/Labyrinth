@@ -11,8 +11,16 @@ const SAMPLE_STRIDE: int = 7
 const BACK_RECT := Rect2(100, 100, 600, 400)
 const UNIT_RECT := Rect2(300, 100, 500, 400)
 const FRONT_RECT := Rect2(500, 100, 200, 400)
+const CROP_RECT := Rect2(103.5, 105.25, 200, 120)
+const CROP_ALPHA_OFFSET: float = 0.1
+const BELOW_FLOOR_CELL := Vector2i(100, 180)
+const ABOVE_FLOOR_CELL := Vector2i(100, 272)
 const UNIT_COLOR := Color(0.125, 0.25, 0.375, 1.0)
-const ALPHAS: PackedFloat32Array = [0.0, 16.0 / 255.0, 20.0 / 255.0, 21.0 / 255.0, 128.0 / 255.0, 1.0]
+var _alphas := PackedFloat32Array()
+
+func _alpha_bands() -> PackedFloat32Array:
+	var floor_byte: int = floori(float(Pixel.style()["alpha_floor"]) * 255.0)
+	return PackedFloat32Array([0.0, float(maxi(0, floor_byte - 1)) / 255.0, float(floor_byte) / 255.0, float(mini(255, floor_byte + 1)) / 255.0, 128.0 / 255.0, 1.0])
 var _failures: Array[String]
 var _checks: int = 0
 var _viewport: SubViewport
@@ -26,6 +34,7 @@ func _run() -> void:
 		push_error("PIXEL FX RENDER PROBE requires a real renderer")
 		quit(1)
 		return
+	_alphas = _alpha_bands()
 	DirAccess.make_dir_recursive_absolute(OUTPUT)
 	_viewport = SubViewport.new()
 	_viewport.size = Fixture.SIZE
@@ -35,6 +44,7 @@ func _run() -> void:
 	root.add_child(_viewport)
 	for element: String in Pixel.style()["ramps"]:
 		await _gradient(element)
+	await _cropped_dither()
 	for element: String in Fixture.ELEMENTS:
 		for additive: bool in [false, true]:
 			await _depth_and_blend(element, additive)
@@ -58,6 +68,13 @@ func _gradient(element: String) -> void:
 	var raw: Image = raw_viewport.get_texture().get_image()
 	_expect(image.get_size() == Fixture.SIZE and raw.get_size() == Vector2i(960, 540), "Real renderer uses the required resolutions")
 	_expect(image.save_png(OUTPUT.path_join(element + "_gradient.png")) == OK, "Save gradient")
+	# Sample Bayer's lowest cell in the two adjacent RGBA8 alpha bands.
+	var below_cell: Vector2i = BELOW_FLOOR_CELL
+	var above_cell: Vector2i = ABOVE_FLOOR_CELL
+	_expect(raw.get_pixelv(below_cell).a < float(Pixel.style()["alpha_floor"]), "GPU fixture includes a just-below-floor band")
+	_expect(raw.get_pixelv(above_cell).a > float(Pixel.style()["alpha_floor"]), "GPU fixture includes a just-above-floor band")
+	_expect(image.get_pixelv(below_cell * 2).a == 0.0, "GPU discards below-floor alpha at a low-threshold cell")
+	_expect(image.get_pixelv(above_cell * 2).a == 1.0, "GPU retains above-floor alpha at a low-threshold cell")
 	var ramp: PackedColorArray = Pixel.ramp_for(element)
 	var seen: Dictionary = {}
 	var max_error: int = 0
@@ -93,10 +110,10 @@ func _gradient(element: String) -> void:
 
 func _draw_gradient(canvas: CanvasItem) -> void:
 	# Six alpha bands and a repeated full-luminance fixture; no authored art.
-	for band: int in range(ALPHAS.size()):
+	for band: int in range(_alphas.size()):
 		for x: int in range(960):
 			var value: float = float(x % 256) / 255.0
-			canvas.draw_rect(Rect2(x * 2, band * 180, 2, 180), Color(value, value, value, ALPHAS[band]))
+			canvas.draw_rect(Rect2(x * 2, band * 180, 2, 180), Color(value, value, value, _alphas[band]))
 
 func _depth_and_blend(element: String, additive: bool) -> void:
 	var stage := Node2D.new()
@@ -106,7 +123,7 @@ func _depth_and_blend(element: String, additive: bool) -> void:
 	var back_pixels := Pixel.new()
 	back.add_child(back_pixels)
 	back_pixels.begin(back)
-	back_pixels.submit(element, _draw_rect, [BACK_RECT], Transform2D.IDENTITY, additive)
+	back_pixels.submit(element, _draw_rect, [BACK_RECT], Transform2D.IDENTITY, additive, BACK_RECT)
 	back_pixels.finish()
 	var unit := ColorRect.new()
 	unit.position = UNIT_RECT.position
@@ -118,7 +135,7 @@ func _depth_and_blend(element: String, additive: bool) -> void:
 	var front_pixels := Pixel.new()
 	front.add_child(front_pixels)
 	front_pixels.begin(front)
-	front_pixels.submit(element, _draw_rect, [FRONT_RECT], Transform2D.IDENTITY, additive)
+	front_pixels.submit(element, _draw_rect, [FRONT_RECT], Transform2D.IDENTITY, additive, FRONT_RECT)
 	front_pixels.finish()
 	await _settle()
 	var image: Image = _viewport.get_texture().get_image()
@@ -132,6 +149,40 @@ func _depth_and_blend(element: String, additive: bool) -> void:
 	_expect(image.save_png(OUTPUT.path_join("%s_depth_%s.png" % [element, "add" if additive else "mix"])) == OK, "Save depth/blend fixture")
 	stage.queue_free()
 	await process_frame
+
+func _cropped_dither() -> void:
+	var source := Node2D.new()
+	_viewport.add_child(source)
+	var pixel := Pixel.new()
+	source.add_child(pixel)
+	var rect: Rect2 = CROP_RECT
+	pixel.begin(source)
+	pixel.submit("fire", _draw_alpha_rect, [rect], Transform2D.IDENTITY, false, rect)
+	pixel.finish()
+	await _settle()
+	var run: Dictionary = (pixel.get("_runs") as Array)[0]
+	var raw: Image = (run["viewport"] as SubViewport).get_texture().get_image()
+	var image: Image = _viewport.get_texture().get_image()
+	var origin: Vector2i = (pixel.snapshot()[0]["cell_rect"] as Rect2i).position
+	var maximum: int = 0
+	for y: int in range(raw.get_height()):
+		for x: int in range(raw.get_width()):
+			var cell := Vector2i(x, y)
+			var value: Color = raw.get_pixelv(cell)
+			if value.a > 0.0:
+				value.r /= value.a
+				value.g /= value.a
+				value.b /= value.a
+			var expected: Color = Pixel.quantize(value, origin + cell, "fire")
+			maximum = maxi(maximum, _color_error(image.get_pixelv((origin + cell) * 2), expected))
+	_expect(raw.get_size() == Vector2i(103, 63), "Fractional bounds round out with exactly one cell of margin")
+	_expect(origin == Vector2i(50, 51) and maximum <= 1, "Cropped GPU pixels retain the global Bayer phase")
+	_expect(image.save_png(OUTPUT.path_join("fire_cropped_dither.png")) == OK, "Save cropped Bayer fixture")
+	source.queue_free()
+	await process_frame
+
+func _draw_alpha_rect(canvas: CanvasItem, rect: Rect2) -> void:
+	canvas.draw_rect(rect, Color(0.6, 0.6, 0.6, float(Pixel.style()["alpha_floor"]) + CROP_ALPHA_OFFSET))
 
 func _draw_rect(canvas: CanvasItem, rect: Rect2) -> void:
 	canvas.draw_rect(rect, Color.WHITE)

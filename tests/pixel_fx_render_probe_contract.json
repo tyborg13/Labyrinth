@@ -1,5 +1,5 @@
 {
-  "min_images": 16,
+  "min_images": 17,
   "expected_sizes": [
     "1920x1080"
   ],
@@ -19,6 +19,7 @@
     {"pattern": "air_depth_add.png", "width": 1920, "height": 1080},
     {"pattern": "air_depth_mix.png", "width": 1920, "height": 1080},
     {"pattern": "earth_depth_add.png", "width": 1920, "height": 1080},
-    {"pattern": "earth_depth_mix.png", "width": 1920, "height": 1080}
+    {"pattern": "earth_depth_mix.png", "width": 1920, "height": 1080},
+    {"pattern": "fire_cropped_dither.png", "width": 1920, "height": 1080}
   ]
 }

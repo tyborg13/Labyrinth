@@ -44,3 +44,33 @@ static func key_frames(element: String) -> Dictionary:
 		"20_travel": roundi(lerpf(Fx.anticipation_end_progress(style), Fx.travel_end_progress(style), 0.42) * count),
 		"30_contact": contact, "35_burst": contact + roundi(span * 0.20),
 		"40_peak": contact + roundi(span * 0.52), "50_tail": contact + roundi(span * 0.82)}
+
+
+static func surface_sample(kind: String) -> Dictionary:
+	var state: Dictionary = combat_state()
+	state["surfaces"] = {"5,4": {"elemental": "electrified" if kind == "conduction" or kind == "electrified_break" else "ice", "rubble": true}}
+	if kind == "ice_break":
+		state["surfaces"]["5,4"].erase("elemental")
+	var event: Dictionary = {"tile": TARGET, "kind": "surface_removed"}
+	var view: Dictionary = {"surface_feedback_progress": 0.12 if kind == "ice_break" else 0.38, "ambient_time_seconds": 0.37}
+	match kind:
+		"conduction":
+			view["effect"] = {"kind": "chain", "element": "lightning", "path": [SOURCE, TARGET]}
+			view["effect_progress"] = 0.38
+		"painted":
+			event["kind"] = "surface_created"
+			event["feedback_element"] = "fire"
+		_:
+			event["break_surface"] = kind.trim_suffix("_break")
+	view["surface_feedback_events"] = [] if kind == "conduction" else [event]
+	return {"state": state, "presentation": view}
+
+
+static func dragon_fan_effect() -> Dictionary:
+	# The requested saved 2/4/6 fan: twelve cells, using the production breath
+	# presentation profile. This fixture does not alter the current combat fan.
+	var tiles: Array[Vector2i]
+	for distance: int in range(1, 4):
+		for offset: int in range(-distance + 1, distance + 1):
+			tiles.append(SOURCE + Vector2i(distance, offset))
+	return {"kind": "aoe", "action_type": "aoe", "enemy_type": "vyraketh", "intent_id": "cinderfall", "element": "fire", "from": SOURCE, "to": TARGET, "tiles": tiles, "center": TARGET}

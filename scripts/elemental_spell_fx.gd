@@ -760,3 +760,28 @@ static func travel(
 			_fragment(c, point, s * 0.024, direction.angle(), _tint(col, alpha * (1.0 - float(i) * 0.08)), true)
 	else:
 		_glow(c, head, Vector2.ONE * s * 0.22, _tint(col, alpha * 0.25))
+
+
+## Conservative bounds of the authored primitives, before pixelation. The
+## impact box contains rotated puff quads, fragments, bolts and spark trails.
+## Keep this separate from their geometry; the pixel regression checks every
+## phase against the renderer's actual command bounds.
+static func pixel_bounds(draw_call: Callable, args: Array) -> Rect2:
+	var method: String = draw_call.get_method()
+	var p: Vector2 = args[1]
+	if method == "floor_light":
+		var size: float = args[2]
+		return Rect2(p - Vector2(size * 0.9, size * 0.32), Vector2(size * 1.8, size * 0.64))
+	if method == "ground" or method == "impact":
+		var size: float = args[2]
+		return Rect2(p - Vector2(size, size * 1.6), Vector2(size * 2.0, size * 2.3))
+	if method == "release":
+		var size: float = args[3]
+		return Rect2(p, Vector2.ZERO).expand(args[2]).grow(size * 0.5)
+	if method == "travel":
+		var size: float = args[5]
+		var box := Rect2(p, Vector2.ZERO)
+		for index: int in range(2, 5):
+			box = box.expand(args[index])
+		return box.grow(maxf(size * 0.5, p.distance_to(args[2]) * 0.075 + size * 0.055))
+	return Rect2()
