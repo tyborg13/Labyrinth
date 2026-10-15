@@ -376,9 +376,29 @@ calibrations. Rest uses `apply_pose("rest", 0.0)`; `show_frame` is reserved for
 configured animation clips. `--check-poses` exercises this same pose and mask
 setup headlessly across all 460 poses and five rigs, including rest after strike
 and bone/layer resets. This catches probe runtime failures without GPU readback.
-The five-surface native capture timeout is 300 seconds.
-`motion_gates.py --capture-native`
-launches it through the visual runner and binds all output hashes. `--native`
+The five-surface native capture timeout defaults to 900 seconds for 460 poses
+under load and is configurable with `motion_gates.py --native-timeout <seconds>`
+(positive, finite). This leaves the runner's startup watchdog and GUI lease intact.
+`motion_gates.py --capture-native` launches it through the visual runner.
+Round8 separates mask data from screenshots: RGBA frames and 1920×1080 overviews
+stay under the isolated `user://` directory and receive normal variation/size
+validation, with a required screenshot count derived from the configured clips
+(460 RGBA frames plus 44 overviews for this case).
+Ownership, arm/body and visible-rest-dark PNGs go through `--data-output` to an
+external temporary directory, with a unique subdirectory per runner attempt.
+A `user://data` folder would still be recursively scanned as screenshots and
+is therefore insufficient. The runner itself has no weakened image checks.
+
+The accepted screenshot folder's transport sidecar identifies its matching mask
+directory. Collection checks every expected file before combining them under
+`motion_gate_capture/`, with masks in `data/`, and hashes all collected files.
+Transport-only absolute paths are excluded from this portable capture. The native
+gates still validate every mask's IDs, alpha, rest provenance and complete frame
+coverage; a uniform mask is valid data, never evidence of a good screenshot.
+The headless `--check-output <fixture-directory>` regression exercises the actual
+image writer, and the Python test runs real screenshot discovery/validation on
+its output, including rejection of a blank RGBA screenshot.
+`--native`
 requires every frame, current source hashes, exact rest ownership calibration,
 and RGBA equality with the primary verified reel before evaluating the scoped
 colour, detached-component, new-leg-dark, arm-containment and magenta gates.

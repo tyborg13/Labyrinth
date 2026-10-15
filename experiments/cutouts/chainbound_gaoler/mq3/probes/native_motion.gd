@@ -6,6 +6,7 @@ const SIZE := Vector2i(1920, 1080)
 const POSE_SIZE := Vector2i(512, 512)
 const SURFACE_COUNT: int = 5
 const OUTPUT: String = "user://probes/maquette_motion"
+const CAPTURE_KINDS = ["rgba", "owners", "arm", "body", "rest_dark"]
 const MASK_SHADER: String = "shader_type canvas_item; render_mode unshaded; uniform vec3 id_rgb; void fragment() { COLOR = vec4(id_rgb, texture(TEXTURE, UV).a); }"
 var rigs: Array[Node2D]
 var surfaces: Array[SubViewport]
@@ -29,6 +30,23 @@ func _run() -> void:
 	if args.has("--check-poses"):
 		_check_capture_poses(args[index + 1])
 		return
+	var output_check_index: int = args.find("--check-output")
+	if output_check_index >= 0 and output_check_index + 1 < args.size():
+		_check_capture_output(args[output_check_index + 1])
+		return
+	var data_index: int = args.find("--data-output")
+	if data_index < 0 or data_index + 1 >= args.size():
+		push_error("Use --data-output /absolute/directory outside user:// for mask data")
+		quit(1)
+		return
+	var data_root: String = args[data_index + 1].simplify_path()
+	var user_root: String = OS.get_user_data_dir().simplify_path()
+	if not data_root.is_absolute_path() or data_root == user_root or data_root.begins_with(user_root + "/"):
+		push_error("Mask data output must be absolute and outside user:// screenshot discovery")
+		quit(1)
+		return
+	# Each runner attempt gets a distinct user directory, including backend fallback.
+	var data_directory: String = data_root.path_join(user_root.get_file())
 	root.size = SIZE
 	root.content_scale_size = SIZE
 	root.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
@@ -75,7 +93,6 @@ func _run() -> void:
 		var relative: String = path.trim_prefix(directory + "/")
 		inputs[relative] = FileAccess.get_sha256(directory.path_join(relative))
 	var manifest: Dictionary = {"ok": false, "basis": "Native 512px RGBA, painted-node IDs, unoccluded fist-arm mask, torso/head/coat mask and visible-rest-dark provenance IDs; 1920x1080 overview, 100% UI scale", "inputs": inputs, "views": {}, "frames": [], "errors": []}
-	var kinds: PackedStringArray = PackedStringArray(["rgba", "owners", "arm", "body", "rest_dark"])
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
 	for facing: String in primary.config["layouts"]:
 		for rig: Node2D in rigs:
@@ -96,9 +113,7 @@ func _run() -> void:
 				for number: int in range(SURFACE_COUNT):
 					var image: Image = surfaces[number].get_texture().get_image()
 					image.convert(Image.FORMAT_RGBA8)
-					var file: String = folder.path_join("%s_%04d.png" % [kinds[number], frame])
-					_check(image.save_png(OUTPUT.path_join(file)) == OK, "Save " + file)
-					files[kinds[number]] = file
+					files[CAPTURE_KINDS[number]] = _save_capture_image(image, CAPTURE_KINDS[number], folder, frame, OUTPUT, data_directory)
 				manifest["frames"].append({"view": facing, "clip": clip, "frame": frame, "files": files})
 				if frame in [0, count / 2, count - 1]:
 					_check(overview.get_texture().get_image().save_png(OUTPUT.path_join(folder + "_%04d.png" % frame)) == OK, "Save overview")
@@ -109,8 +124,33 @@ func _run() -> void:
 	var file := FileAccess.open(OUTPUT.path_join("native_motion_manifest.json"), FileAccess.WRITE)
 	file.store_string(JSON.stringify(manifest, "\t"))
 	file.close()
+	# Transport metadata stays separate from the portable, relative-path manifest.
+	var transport := FileAccess.open(OUTPUT.path_join("native_motion_transport.json"), FileAccess.WRITE)
+	transport.store_string(JSON.stringify({"data_directory": data_directory}, "\t"))
+	transport.close()
 	print("Saved ", ProjectSettings.globalize_path(OUTPUT))
 	print("MAQUETTE_NATIVE_MOTION: " + ("PASS" if failures.is_empty() else "FAIL"))
+	quit(0 if failures.is_empty() else 1)
+
+func _save_capture_image(image: Image, kind: String, folder: String, frame: int, screenshot_directory: String, data_directory: String) -> String:
+	var relative: String = folder.path_join("%s_%04d.png" % [kind, frame])
+	var directory: String = screenshot_directory if kind == "rgba" else data_directory
+	_check(DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(directory.path_join(folder))) == OK, "Create capture directory " + folder)
+	_check(image.save_png(directory.path_join(relative)) == OK, "Save " + relative)
+	return relative if kind == "rgba" else "data/" + relative
+
+func _check_capture_output(fixture_directory: String) -> void:
+	# Exercise the production writer with test fixtures, without GPU readback.
+	var files: Dictionary = {}
+	for kind: String in CAPTURE_KINDS:
+		var fixture: Image = Image.load_from_file(fixture_directory.path_join(kind + ".png"))
+		_check(fixture != null, "Load output fixture " + kind)
+		if fixture != null:
+			files[kind] = _save_capture_image(fixture, kind, "front_rest", 0, fixture_directory.path_join("screenshots"), fixture_directory.path_join("data"))
+	var report := FileAccess.open(fixture_directory.path_join("output_contract.json"), FileAccess.WRITE)
+	report.store_string(JSON.stringify({"ok": failures.is_empty(), "files": files}, "\t"))
+	report.close()
+	print("MAQUETTE_NATIVE_OUTPUT: ", "PASS" if failures.is_empty() else "FAIL", " (data separated; GPU readback not exercised)")
 	quit(0 if failures.is_empty() else 1)
 
 func _show_capture_frame(clip: String, frame: int) -> void:

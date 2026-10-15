@@ -757,6 +757,117 @@ class GaolerCaseTests(unittest.TestCase):
         self.assertNotIn("SCRIPT ERROR:", result.stdout)
         self.assertIn("MAQUETTE_NATIVE_POSES: PASS (460 poses; five surfaces; GPU readback not exercised)", result.stdout)
 
+    @unittest.skipUnless(shutil.which("godot"), "Godot unavailable for native-probe output regression")
+    def test_native_mask_output_is_data_but_real_screenshots_still_validate(self):
+        import visual_probe_runner as visual
+        kinds = ["rgba", "owners", "arm", "body", "rest_dark"]
+        with tempfile.TemporaryDirectory() as directory:
+            fixture = Path(directory).resolve()
+            pixels = np.zeros((512, 512, 4), dtype=np.uint8)
+            pixels[..., :3] = ((np.indices((512, 512)).sum(axis=0) % 2) * 200 + 20)[..., None]
+            pixels[..., 3] = 255
+            Image.fromarray(pixels).save(fixture / "rgba.png")
+            for kind in kinds[1:]:
+                Image.new("RGBA", (512, 512)).save(fixture / (kind + ".png"))
+            command = [sys.executable, str(PROJECT / "tools/godot_task_runner.py"), "--task-id", "rr-02", "--stream", "--",
+                "godot", "--headless", "--path", str(PROJECT), "--script", str(CASE / "probes/native_motion.gd"),
+                "--", "--case", str(CASE / "cutout.json"), "--check-output", str(fixture)]
+            result = subprocess.run(command, cwd=PROJECT, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=150)
+            self.assertEqual(result.returncode, 0, result.stdout)
+            self.assertNotIn("SCRIPT ERROR:", result.stdout)
+            self.assertIn("MAQUETTE_NATIVE_OUTPUT: PASS", result.stdout)
+            report = read_json(fixture / "output_contract.json")
+            self.assertTrue(report["ok"])
+            screenshots = visual.collect_pngs(str(fixture / "screenshots"), "unused", fixture / "home")
+            self.assertEqual(screenshots, [fixture / "screenshots/front_rest/rgba_0000.png"])
+            visual.validate_pngs(screenshots, 1, [(512, 512)])
+            for kind in kinds[1:]:
+                path = fixture / report["files"][kind]
+                self.assertNotIn(path, screenshots)
+                self.assertEqual(Image.open(path).tobytes(), Image.open(fixture / (kind + ".png")).tobytes())
+                with self.assertRaises(visual.ProbeError):
+                    visual.validate_pngs([path], 1)  # Deliberately blank data is legitimate.
+            Image.new("RGBA", (512, 512)).save(screenshots[0])
+            with self.assertRaisesRegex(visual.ProbeError, "effectively black"):
+                visual.validate_pngs(screenshots, 1)  # No exemption for a bad real screenshot.
+
+    def test_native_capture_collects_only_accepted_data_and_forwards_timeout(self):
+        import importlib.util
+        from types import SimpleNamespace
+        spec = importlib.util.spec_from_file_location("rr02_capture_transport", CASE / "probes/motion_gates.py")
+        gates = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(gates)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "case"
+            output = Path(directory) / "reel"
+            output.mkdir()
+            write_json(root / "cutout.json", read_json(CASE / "cutout.json"))
+            screenshots = Path(directory) / "accepted_screenshots"
+            (screenshots / "front_rest").mkdir(parents=True)
+            captured = {}
+            def fake_runner(command, check):
+                self.assertFalse(check)
+                self.assertEqual(float(command[command.index("--timeout") + 1]), 1234)
+                self.assertEqual(command[command.index("--min-images") + 1], "504")
+                self.assertIn("1920x1080", command)
+                self.assertIn("512x512", command)
+                data_root = Path(command[command.index("--data-output") + 1])
+                captured["data_root"] = data_root
+                data = data_root / "accepted_attempt"
+                (data / "front_rest").mkdir(parents=True)
+                (data_root / "rejected_attempt").mkdir()
+                (data_root / "rejected_attempt/wrong.png").write_bytes(b"not the accepted attempt")
+                files = {}
+                for kind in ["rgba", "owners", "arm", "body", "rest_dark"]:
+                    relative = f"front_rest/{kind}_0000.png"
+                    path = (screenshots if kind == "rgba" else data) / relative
+                    Image.new("RGBA", (512, 512)).save(path)
+                    files[kind] = relative if kind == "rgba" else "data/" + relative
+                write_json(screenshots / "native_motion_manifest.json", {"frames": [{"view": "front", "clip": "rest", "frame": 0, "files": files}]})
+                write_json(screenshots / "native_motion_transport.json", {"data_directory": str(data)})
+                write_json(output / "native_motion_result.json", {"ok": True, "images": [{"path": str(screenshots / files["rgba"])}]})
+                return SimpleNamespace(returncode=0)
+            def inspect_collected(*args):
+                destination = output / "motion_gate_capture"
+                hashes = read_json(destination / "sha256.json")
+                self.assertEqual(len(hashes), 6)  # Five surfaces and the portable manifest.
+                self.assertEqual(sum(p.startswith("data/") for p in hashes), 4)
+                self.assertFalse((destination / "native_motion_transport.json").exists())
+                self.assertFalse((destination / "data/wrong.png").exists())
+                for relative, expected in hashes.items():
+                    self.assertEqual(digest(destination / relative), expected)
+                return {"ok": True}
+            with patch("cutout_pipeline.proof.verify_render", return_value={"ok": True}), patch("subprocess.run", side_effect=fake_runner), patch.object(gates, "native_gates", side_effect=inspect_collected):
+                self.assertTrue(gates.capture_native(root, output, "rr-02", 1234)["ok"])
+            self.assertFalse(captured["data_root"].exists())
+            # Missing mask data must fail before creating an apparently complete capture.
+            (screenshots / "native_motion_transport.json").write_text(json.dumps({"data_directory": str(screenshots)}))
+            missing = output / "incomplete"
+            with self.assertRaisesRegex(CutoutError, "Missing native capture data"):
+                gates.collect_native_output(screenshots, screenshots, missing)
+            self.assertFalse(missing.exists())
+
+    def test_native_capture_timeout_and_screenshot_contract(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("rr02_capture_options", CASE / "probes/motion_gates.py")
+        gates = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(gates)
+        self.assertEqual(gates.NATIVE_CAPTURE_TIMEOUT_SECONDS, 900)
+        self.assertEqual(gates.positive_seconds("1234.5"), 1234.5)
+        for value in ["0", "-1", "nan", "inf"]:
+            with self.assertRaises(argparse.ArgumentTypeError):
+                gates.positive_seconds(value)
+        config = read_json(CASE / "cutout.json")
+        count = len(config["layouts"]) * (1 + sum(c["frames"] for c in config["clips"].values()))
+        self.assertEqual(count, 460)
+        self.assertEqual(gates.native_screenshot_count(config), count + len(config["layouts"]) * (1 + 3 * len(config["clips"])))
+        self.assertEqual(gates.native_screenshot_count({"layouts": {"front": "unused"}, "clips": {"single": {"frames": 1}}}), 4)
+        with patch("subprocess.run") as process:
+            for timeout in [0, -1, float("nan"), float("inf")]:
+                with self.assertRaisesRegex(CutoutError, "positive and finite"):
+                    gates.capture_native(CASE, CASE, "rr-02", timeout)
+            process.assert_not_called()
+
     def test_native_collector_publishes_success_only_after_motion_gates(self):
         import contextlib
         import importlib.util

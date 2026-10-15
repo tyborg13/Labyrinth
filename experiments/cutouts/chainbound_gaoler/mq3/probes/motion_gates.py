@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 from functools import lru_cache
+import math
 from pathlib import Path
 import sys
 
@@ -16,6 +17,7 @@ from maquette_cutout import MAGENTA, bbox, components8, to_lab, label_core
 
 CANVAS_SIZE = 512
 POSE_OFFSET = 128
+NATIVE_CAPTURE_TIMEOUT_SECONDS = 900.0  # 460 five-surface poses under render-host load.
 TABARD_GATE_PARTS = {
     "front": ["pelvis", "thigh_far", "thigh_near", "shin_far", "shin_near", "coat_far", "coat_near"],
     "rear": ["pelvis", "thigh_far", "thigh_near"],
@@ -333,11 +335,20 @@ def cpu_gates(root, output):
     return finish_report(root, records, "CPU nearest raster diagnostic; NOT native proof", output)
 
 
-def capture_native(root, output, task_id):
+def native_screenshot_count(config):
+    # Each facing has one rest RGBA/overview, then every clip frame and three
+    # unique overview checkpoints (first, middle, last) for each clip.
+    return len(config["layouts"]) * (2 + sum(c["frames"] + len({0, c["frames"] // 2, c["frames"] - 1})
+        for c in config["clips"].values()))
+
+
+def capture_native(root, output, task_id, timeout=NATIVE_CAPTURE_TIMEOUT_SECONDS):
     """Explicit windowed director entry point; never invoked by headless gates."""
-    import shutil
     import subprocess
+    import tempfile
     from cutout_pipeline.proof import verify_render
+    if not math.isfinite(timeout) or timeout <= 0:
+        raise CutoutError("Native capture timeout must be positive and finite")
     verified = verify_render(root, output)
     if not verified["ok"]:
         raise CutoutError("Capture the fresh primary reel first: " + str(verified))
@@ -345,26 +356,53 @@ def capture_native(root, output, task_id):
     if destination.exists():
         raise CutoutError("Refusing to replace a motion capture: " + str(destination))
     result_path = output / "native_motion_result.json"
-    command = [sys.executable, "tools/visual_probe_runner.py", str(root / "probes/native_motion.gd"),
-        "--task-id", task_id, "--no-headless", "--display-driver", "macos", "--audio-driver", "Dummy",
-        "--expect-size", "1920x1080", "--expect-size", "512x512", "--timeout", "300",
-        "--result-manifest", str(result_path), "--", "--case", str(root / "cutout.json")]
-    completed = subprocess.run(command, check=False)
-    if completed.returncode:
-        raise CutoutError("Native ownership probe failed; inspect " + str(result_path))
-    result = read_json(result_path)
-    candidates = set()
-    for entry in result["images"]:
-        for parent in Path(entry["path"]).parents:
-            if (parent / "native_motion_manifest.json").is_file():
-                candidates.add(parent)
-                break
-    if not result["ok"] or len(candidates) != 1:
-        raise CutoutError("No unique accepted native motion capture")
-    shutil.copytree(candidates.pop(), destination)
+    screenshot_count = native_screenshot_count(read_json(root / "cutout.json"))
+    # The visual runner recursively scans user:// PNGs. Mask data must live
+    # outside that tree; a user://data subfolder would still be screenshots.
+    with tempfile.TemporaryDirectory(prefix=".motion-gate-data-", dir=output) as temporary:
+        data_root = Path(temporary).resolve()
+        command = [sys.executable, "tools/visual_probe_runner.py", str(root / "probes/native_motion.gd"),
+            "--task-id", task_id, "--no-headless", "--display-driver", "macos", "--audio-driver", "Dummy",
+            "--expect-size", "1920x1080", "--expect-size", "512x512", "--min-images", str(screenshot_count),
+            "--timeout", str(timeout),
+            "--result-manifest", str(result_path), "--", "--case", str(root / "cutout.json"),
+            "--data-output", str(data_root)]
+        completed = subprocess.run(command, check=False)
+        if completed.returncode:
+            raise CutoutError("Native ownership probe failed; inspect " + str(result_path))
+        result = read_json(result_path)
+        candidates = set()
+        for entry in result["images"]:
+            for parent in Path(entry["path"]).parents:
+                if (parent / "native_motion_manifest.json").is_file():
+                    candidates.add(parent)
+                    break
+        if not result["ok"] or len(candidates) != 1:
+            raise CutoutError("No unique accepted native motion capture")
+        collect_native_output(candidates.pop(), data_root, destination)
+    return native_gates(root, output)
+
+
+def collect_native_output(screenshots, data_root, destination):
+    """Collect only the accepted attempt's data beside its validated screenshots."""
+    import shutil
+    manifest = read_json(screenshots / "native_motion_manifest.json")
+    data = Path(read_json(screenshots / "native_motion_transport.json")["data_directory"]).resolve()
+    if not data.is_relative_to(data_root.resolve()) or not data.is_dir():
+        raise CutoutError("Native mask data is missing or outside this capture")
+    for frame in manifest["frames"]:
+        for kind in ["rgba", "owners", "arm", "body", "rest_dark"]:
+            relative = Path(frame["files"][kind])
+            expected = (Path("data") if kind != "rgba" else Path()) / f"{frame['view']}_{frame['clip']}" / f"{kind}_{frame['frame']:04d}.png"
+            if relative != expected:
+                raise CutoutError("Unexpected native capture path: " + str(relative))
+            source = screenshots / relative if kind == "rgba" else data / relative.relative_to("data")
+            if not source.is_file():
+                raise CutoutError("Missing native capture data: " + str(source))
+    shutil.copytree(screenshots, destination, ignore=shutil.ignore_patterns("native_motion_transport.json"))
+    shutil.copytree(data, destination / "data")
     write_json(destination / "sha256.json", {str(p.relative_to(destination)): digest(p)
         for p in sorted(destination.rglob("*")) if p.is_file()})
-    return native_gates(root, output)
 
 
 def native_gates(root, output):
@@ -373,6 +411,8 @@ def native_gates(root, output):
     if not verified["ok"]:
         raise CutoutError(str(verified))
     capture = output / "motion_gate_capture"
+    if not (capture / "sha256.json").is_file():
+        raise CutoutError("Native motion capture is incomplete; run --capture-native successfully before collecting proof")
     for path, expected in read_json(capture / "sha256.json").items():
         if digest(capture / path) != expected:
             raise CutoutError("Changed native output: " + path)
@@ -431,6 +471,13 @@ def native_gates(root, output):
     return report
 
 
+def positive_seconds(value):
+    seconds = float(value)
+    if not math.isfinite(seconds) or seconds <= 0:
+        raise argparse.ArgumentTypeError("timeout must be positive and finite")
+    return seconds
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--case", type=Path, required=True)
@@ -442,6 +489,8 @@ def main():
     action.add_argument("--native", type=Path)
     parser.add_argument("--output", type=Path)
     parser.add_argument("--task-id", default="rr-02")
+    parser.add_argument("--native-timeout", type=positive_seconds, default=NATIVE_CAPTURE_TIMEOUT_SECONDS,
+        help="Seconds allowed for the 460-pose native capture (default: %(default)s); startup watchdog unchanged.")
     args = parser.parse_args()
     root = args.case.resolve()
     try:
@@ -455,7 +504,7 @@ def main():
         elif args.cpu:
             report = cpu_gates(root, args.output or root / "proof/cpu_motion_gates.json")
         elif args.capture_native:
-            report = capture_native(root, args.capture_native, args.task_id)
+            report = capture_native(root, args.capture_native, args.task_id, args.native_timeout)
         else:
             report = native_gates(root, args.native)
         return 0 if report["ok"] else 1
