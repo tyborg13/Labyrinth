@@ -33,7 +33,8 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
     owner). Rear generating (img-mq-wisp-rear-r1, prompt_rear_r1, refs = maquette r3 rear + approved front).
   - Shale bloomer: mq2_front FAIL (r7 maquette head-on/symmetric 0.954, arm-like stubs, low deep shadow, honeycomb lost)
     → maquette r8 + prompt r3 → `jobs/shale_bloomer/mq3_front` (symmetry 0.741) at the judge.
-  - After art-06 merges: run `record-steps` on the new raw_steps kits (bloomer mq2_front, lancer v3 are migrated by art-06).
+  - After art-06 merges: art-06 removes `png_bytes`, so director kit scripts must use `tools/art_identity_gate.py record-steps`;
+    run it on every raw_steps kit created in integration after art-06 branched (bloomer mq2_front, mq3_front_v2).
 - Lancer pair: judge PASS r2; director tone r2 restored the frost read (front/rear `mq1_front_v3`/`mq1_rear_v3`,
   sheet `sheet_pair_mq1_v3.png`, 50e1b836c). Shown to owner; awaiting verdict before rigging.
   These two kits use the art-05 field names: re-record them with art-06's migration when art-06 merges.
