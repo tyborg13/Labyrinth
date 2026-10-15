@@ -216,8 +216,19 @@ raw's size with LANCZOS, then pastes the half-open box. `tone_region` preserves 
 zero), `exclude_green` (default true), and `lab_scale`. The prototype tone/mask scripts and gaoler composite script
 remain thin CLI wrappers around these library functions, with the same arguments and output bytes.
 
-`match_reference` in the kit is either a job-local processed-front binding
-`{ "path": "refs/palette_front.png", "pixel_sha256": "<decoded digest>" }`, or a derived reference:
+`match_reference` in the kit can name a processed front job directly:
+
+```json
+{
+  "match_reference": {
+    "job_path": "spec/art_identity/jobs/frostglass_lancer/mq1_front_v3/kit.json",
+    "pixel_sha256": "<pixel digest of that front job's processed.png>"
+  }
+}
+```
+
+A job-local processed-front binding
+`{ "path": "refs/palette_front.png", "pixel_sha256": "<decoded digest>" }` remains supported, as does a derived reference:
 
 ```json
 {
@@ -231,7 +242,7 @@ remain thin CLI wrappers around these library functions, with the same arguments
 }
 ```
 
-The derived source names a repository-relative front **job**, whose `processed.png` must match the recorded pixel
+Both job-link forms name a repository-relative front **job**, whose `processed.png` must match the recorded pixel
 digest. A changed front fails the rear's check, even when the rear's raw inputs are absent; recompressing the front
 does not. The mask config remains a job-local file-byte binding. No palette copy or prebuilt masked PNG is required.
 The mask uses the same region selectors, ignores `lab_scale`, and sets only selected opaque pixels' alpha to zero.
@@ -258,11 +269,30 @@ its other provenance or metric failures. `check --kit` requires every director i
 processed pixel digests, plus the byte diagnostic. It certifies replay only, without registry/metric/judge approval.
 Neither check writes into the job. Art-05/art-06 add no gaoler registry entries.
 
-Art-06 re-records only the three existing recipes (`mq3_front_v4`, `mq3_rear_v3`, and lancer `mq1_front_v2`). Their
-processed PNGs, prompts, reference records and director configs are unchanged. The gaoler rear links to the current
-`mq3_front_v4` job; its redundant palette copy, the front's unused `match_reference_no_tabard.png`, and the three
-intermediate raws are removed. The gate tests also re-encode a processed PNG with zlib compression level 0 and
-require both standalone replay and registry `check` to pass.
+Once a kit lists its recipe steps and input paths, `record-steps` computes every input file's `sha256`, each
+`output_raw_pixel_sha256`, the intervening `previous_output_pixel_sha256` links, and any match-reference pixel
+digest (including the front job and mask-config byte digest for a derived reference). It replaces legacy output
+byte fields and local reference byte fields with pixel fields. Legacy intermediate raw file bindings become
+previous-output links only after their decoded pixels match the preceding replayed step. It refuses missing
+inputs for both standard and maquette kits and validates the complete recipe/reference before writing. The command
+prints a diff, or `UNCHANGED` when already current. It writes only `kit.json`; prompts, generation reference records,
+configs and processed artifacts stay untouched. It uses the listed paths and never chooses a front job for the director.
+
+After recording, use `process` with the job's existing post-step flags to regenerate its processing sidecar. To
+preserve an approved PNG during a metadata migration, process into a temporary folder, check its pixel digest
+against the approved `processed.json`, and copy back only the regenerated JSON. For example, from the repository root:
+
+```sh
+python3 tools/art_identity_gate.py record-steps --kit spec/art_identity/jobs/frostglass_lancer/mq1_rear_v3/kit.json
+python3 tools/art_identity_gate.py process --kit spec/art_identity/jobs/frostglass_lancer/mq1_rear_v3/kit.json --clean-outline --out /tmp/lancer-rear-recording/processed.png
+```
+
+Art-06 re-records all five recipes: gaoler `mq3_front_v4` and `mq3_rear_v3`, and lancer `mq1_front_v2`,
+`mq1_front_v3` and `mq1_rear_v3`. Their processed PNGs, prompts, reference records and director configs are unchanged.
+The gaoler rear links to the current `mq3_front_v4` job; its redundant palette copy, the front's unused
+`match_reference_no_tabard.png`, and the three intermediate raws are removed. The lancer v3 rear links directly to
+`mq1_front_v3`; its redundant `refs/palette_front.png` is removed. The gate tests also re-encode a processed PNG with
+zlib compression level 0 and require both standalone replay and registry `check` to pass.
 
 Proof for the design owner (headless Python; no capture or saved-run fixture is applicable):
 
@@ -272,6 +302,8 @@ python3 tools/art_identity_gate.py check
 python3 tools/art_identity_gate.py check --kit spec/art_identity/jobs/chainbound_gaoler/mq3_front_v4/kit.json
 python3 tools/art_identity_gate.py check --kit spec/art_identity/jobs/chainbound_gaoler/mq3_rear_v3/kit.json
 python3 tools/art_identity_gate.py check --kit spec/art_identity/jobs/frostglass_lancer/mq1_front_v2/kit.json
+python3 tools/art_identity_gate.py check --kit spec/art_identity/jobs/frostglass_lancer/mq1_front_v3/kit.json
+python3 tools/art_identity_gate.py check --kit spec/art_identity/jobs/frostglass_lancer/mq1_rear_v3/kit.json
 ```
 
 Creature sheets and kit checks enforce `edge_light_share` ≤ `creature.edge_light_share_max`. Pair sheets show

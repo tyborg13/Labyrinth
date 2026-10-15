@@ -7,6 +7,7 @@ Pixel hashes and density metrics deliberately share the board-density functions.
 from __future__ import annotations
 
 import argparse
+import difflib
 import hashlib
 import io
 import json
@@ -367,9 +368,9 @@ def png_bytes(image: Image.Image) -> bytes:
 
 
 def recipe_input(binding: dict, kit_path: Path, label: str, maquette: bool = False,
-                 allow_missing: bool = False):
+                 allow_missing: bool = False, record: bool = False):
     """All recipe paths are job-relative; hashes bind file bytes, not just decoded pixels."""
-    if not isinstance(binding, dict) or not is_digest(binding.get("sha256")):
+    if not isinstance(binding, dict) or (not record and not is_digest(binding.get("sha256"))):
         raise ValueError(label + " input sha256 missing or invalid")
     path = binding.get("path")
     if not isinstance(path, str) or not path:
@@ -382,14 +383,20 @@ def recipe_input(binding: dict, kit_path: Path, label: str, maquette: bool = Fal
             return None
         raise ValueError(label + " input missing: " + path)
     data = resolved.read_bytes()
-    if sha(data) != binding["sha256"]:
+    if record:
+        binding["sha256"] = sha(data)
+    elif sha(data) != binding["sha256"]:
         raise ValueError(label + " input sha256 changed: " + path)
     return data
 
 
 def replay_raw_steps(kit_path: Path, allow_missing: bool = False):
     """Bind director files by bytes and gate outputs by decoded pixels, entirely in memory."""
-    kit = read_json(kit_path)
+    return raw_steps_image(read_json(kit_path), kit_path, allow_missing=allow_missing)
+
+
+def raw_steps_image(kit: dict, kit_path: Path, allow_missing: bool = False, record: bool = False):
+    """Share execution and validation between read-only replay and digest recording."""
     steps = kit.get("raw_steps")
     if not isinstance(steps, list) or not steps:
         raise ValueError("raw_steps must be a non-empty ordered list")
@@ -416,13 +423,20 @@ def replay_raw_steps(kit_path: Path, allow_missing: bool = False):
             raise ValueError(label + " unknown kind: " + str(kind))
         if set(bindings) != expected:
             raise ValueError(label + " input kinds mismatched")
-        if index and bindings["raw"] != {"previous_output_pixel_sha256": previous_digest}:
-            raise ValueError(label + " raw input does not bind the previous output pixels")
+        if index:
+            previous = bindings["raw"]
+            if record:
+                if not isinstance(previous, dict) or not (set(previous) == {"previous_output_pixel_sha256"}
+                                                         or "path" in previous):
+                    raise ValueError(label + " raw input must name a file or the previous output pixels")
+            elif previous != {"previous_output_pixel_sha256": previous_digest}:
+                raise ValueError(label + " raw input does not bind the previous output pixels")
         data = {name: recipe_input(binding, kit_path, label + "." + name,
-                                  kit.get("kit_kind") == "maquette", allow_missing)
-                for name, binding in bindings.items() if name != "raw" or not index}
+                                  kit.get("kit_kind") == "maquette", allow_missing, record)
+                for name, binding in bindings.items()
+                if name != "raw" or not index or (record and "path" in binding)}
         previous_digest = step.get("output_raw_pixel_sha256")
-        if not is_digest(previous_digest) or "output_raw_sha256" in step:
+        if not record and (not is_digest(previous_digest) or "output_raw_sha256" in step):
             raise ValueError(label + " requires output_raw_pixel_sha256 (re-record legacy byte digests)")
         inputs.append(data)
     # Missing standard-kit inputs may prevent replay, but never suppress validation of present files.
@@ -431,6 +445,10 @@ def replay_raw_steps(kit_path: Path, allow_missing: bool = False):
     output = None
     for index, (step, data) in enumerate(zip(steps, inputs)):
         raw = rgba(io.BytesIO(data["raw"])) if output is None else output
+        if record and index:
+            if "raw" in data and pixel_digest(rgba(io.BytesIO(data["raw"]))) != pixel_digest(raw):
+                raise ValueError("raw_steps[%d] legacy raw input differs from previous output pixels" % index)
+            step["inputs"]["raw"] = {"previous_output_pixel_sha256": pixel_digest(raw)}
         if step["kind"] == "composite_region":
             box = step["parameters"]["box"]
             if box[2] > raw.width or box[3] > raw.height:
@@ -439,39 +457,72 @@ def replay_raw_steps(kit_path: Path, allow_missing: bool = False):
         else:
             result = tone_region(raw, json.loads(data["config"]))
         output = result.convert("RGBA")
-        if pixel_digest(output) != step["output_raw_pixel_sha256"]:
+        if record:
+            step["output_raw_pixel_sha256"] = pixel_digest(output)
+            step.pop("output_raw_sha256", None)
+        elif pixel_digest(output) != step["output_raw_pixel_sha256"]:
             raise ValueError("raw_steps[%d] output_raw_pixel_sha256 changed" % index)
     return output
 
 
-def derive_match_reference(spec: dict, kit_path: Path, root: Path = ROOT) -> tuple:
-    """Bind processed references by pixels; derived references retain their front job link."""
+def front_job_reference(front: dict, root: Path, record: bool = False) -> Image.Image:
+    if (not isinstance(front, dict) or "job_path" not in front
+            or set(front) - {"job_path", "pixel_sha256"}
+            or (not record and not is_digest(front.get("pixel_sha256")))):
+        raise ValueError("match_reference front requires job_path and pixel_sha256")
+    front_kit = repo_path(root, front["job_path"])
+    if front_kit.name != "kit.json" or not read_json(front_kit).get("view", "").endswith("_front"):
+        raise ValueError("match_reference must name a front job kit.json")
+    image = rgba(repo_path(front_kit.parent, "processed.png"))
+    digest = pixel_digest(image)
+    if record:
+        front["pixel_sha256"] = digest
+    elif digest != front["pixel_sha256"]:
+        raise ValueError("match_reference front job processed pixel digest changed")
+    return image
+
+
+def derive_match_reference(spec: dict, kit_path: Path, root: Path = ROOT, record: bool = False) -> tuple:
+    """Bind processed references by pixels; plain and masked references can name a front job."""
     maquette = read_json(kit_path).get("kit_kind") == "maquette"
     if not isinstance(spec, dict):
         raise ValueError("match_reference must be an object")
-    if set(spec) == {"path", "pixel_sha256"}:
+    if (set(spec) == {"path", "pixel_sha256"}
+            or (record and "path" in spec and not set(spec) - {"path", "pixel_sha256", "sha256"})):
         path = repo_path(kit_path.parent, spec["path"])
         if maquette and Path(spec["path"]).parts[0] not in ("refs", "raw_inputs"):
             raise ValueError("match_reference maquette input must be inside refs/ or raw_inputs/")
         image = rgba(path)
-        if pixel_digest(image) != spec["pixel_sha256"]:
+        if record:
+            spec["pixel_sha256"] = pixel_digest(image)
+            spec.pop("sha256", None)
+        elif pixel_digest(image) != spec["pixel_sha256"]:
             raise ValueError("match_reference pixel digest changed")
+    elif "job_path" in spec:
+        image = front_job_reference(spec, root, record)
     elif set(spec) == {"derived_from", "mask_config"}:
-        front = spec["derived_from"]
-        if not isinstance(front, dict) or set(front) != {"job_path", "pixel_sha256"}:
-            raise ValueError("match_reference.derived_from requires job_path and pixel_sha256")
-        front_kit = repo_path(root, front["job_path"])
-        if front_kit.name != "kit.json" or not read_json(front_kit).get("view", "").endswith("_front"):
-            raise ValueError("match_reference.derived_from must name a front job kit.json")
-        source = repo_path(front_kit.parent, "processed.png")
-        front_image = rgba(source)
-        if pixel_digest(front_image) != front["pixel_sha256"]:
-            raise ValueError("match_reference front job processed pixel digest changed")
-        config = recipe_input(spec["mask_config"], kit_path, "match_reference.mask_config", maquette)
+        front_image = front_job_reference(spec["derived_from"], root, record)
+        config = recipe_input(spec["mask_config"], kit_path, "match_reference.mask_config", maquette, record=record)
         image = mask_reference(front_image, json.loads(config))
     else:
         raise ValueError("match_reference requires a processed front or derived_from and mask_config")
     return image, {"match_reference": spec, "reference_pixel_sha256": pixel_digest(image)}
+
+
+def record_steps(kit_path: Path, root: Path = ROOT) -> list:
+    """Rebind listed recipe inputs/outputs; write only after the entire recipe succeeds."""
+    original = kit_path.read_text(encoding="utf-8")
+    kit = json.loads(original)
+    raw_steps_image(kit, kit_path, record=True)
+    if "match_reference" in kit:
+        derive_match_reference(kit["match_reference"], kit_path, root, record=True)
+    if kit == json.loads(original):
+        return ["UNCHANGED " + str(kit_path)]
+    updated = json.dumps(kit, indent=2, sort_keys=True, allow_nan=False) + "\n"
+    changes = list(difflib.unified_diff(original.splitlines(), updated.splitlines(),
+                                      fromfile=str(kit_path), tofile=str(kit_path) + " (recorded)", lineterm=""))
+    kit_path.write_text(updated, encoding="utf-8")
+    return changes
 
 
 def direct_match_path(path: Path, kit_path: Path, root: Path) -> Path:
@@ -1395,6 +1446,8 @@ def parser() -> argparse.ArgumentParser:
     process_cmd.add_argument("--out", required=True, type=Path)
     process_cmd.add_argument("--match-front", type=Path)
     process_cmd.add_argument("--clean-outline", action="store_true")
+    record_cmd = commands.add_parser("record-steps", help="recompute digests for an already-listed raw_steps recipe")
+    record_cmd.add_argument("--kit", required=True, type=Path)
     sheet = commands.add_parser("sheet")
     sheet.add_argument("--front", required=True, type=Path)
     sheet.add_argument("--rear", type=Path)
@@ -1427,6 +1480,8 @@ def main() -> int:
                    shlex.quote(str(Path(args.out_dir) / "refs"))))
         elif args.command == "process":
             print(json.dumps(process_raw(args.raw, args.kit, args.out, match_front=args.match_front, outline=args.clean_outline), indent=2, sort_keys=True))
+        elif args.command == "record-steps":
+            print("\n".join(record_steps(args.kit)))
         elif args.command == "sheet":
             make_sheet(args.front, args.rear, args.kit, args.out, args.art_scale,
                        read_json(args.landmarks) if args.landmarks else None)
