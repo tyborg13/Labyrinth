@@ -361,30 +361,34 @@ def composite_region(approved: Image.Image, edit: Image.Image, box: list) -> Ima
     return result
 
 
-def png_bytes(image: Image.Image) -> bytes:
-    output = io.BytesIO()
-    image.save(output, format="PNG")
-    return output.getvalue()
+def recipe_input_path(path: str, kit_path: Path, label: str, maquette: bool = False) -> Path:
+    """Constrain the resolved file, including symlinks, to the job's allowed input folders."""
+    if not isinstance(path, str) or not path:
+        raise ValueError(label + " input path missing")
+    resolved = repo_path(kit_path.parent, path)
+    if maquette and not any((kit_path.parent / folder).resolve() in resolved.parents
+                            for folder in ("refs", "raw_inputs")):
+        raise ValueError(label + " maquette input must be inside refs/ or raw_inputs/")
+    return resolved
 
 
 def recipe_input(binding: dict, kit_path: Path, label: str, maquette: bool = False,
-                 allow_missing: bool = False, record: bool = False):
+                 allow_missing: bool = False, record: bool = False, input_changes: list = None):
     """All recipe paths are job-relative; hashes bind file bytes, not just decoded pixels."""
     if not isinstance(binding, dict) or (not record and not is_digest(binding.get("sha256"))):
         raise ValueError(label + " input sha256 missing or invalid")
     path = binding.get("path")
-    if not isinstance(path, str) or not path:
-        raise ValueError(label + " input path missing")
-    resolved = repo_path(kit_path.parent, path)
-    if maquette and Path(path).parts[0] not in ("refs", "raw_inputs"):
-        raise ValueError(label + " maquette input must be inside refs/ or raw_inputs/")
+    resolved = recipe_input_path(path, kit_path, label, maquette)
     if not resolved.is_file():
         if allow_missing and not maquette:
             return None
         raise ValueError(label + " input missing: " + path)
     data = resolved.read_bytes()
     if record:
+        old_digest = binding.get("sha256")
         binding["sha256"] = sha(data)
+        if input_changes is not None and is_digest(old_digest) and old_digest != binding["sha256"]:
+            input_changes.append("INPUT CHANGED %s %s→%s" % (path, old_digest, binding["sha256"]))
     elif sha(data) != binding["sha256"]:
         raise ValueError(label + " input sha256 changed: " + path)
     return data
@@ -395,7 +399,8 @@ def replay_raw_steps(kit_path: Path, allow_missing: bool = False):
     return raw_steps_image(read_json(kit_path), kit_path, allow_missing=allow_missing)
 
 
-def raw_steps_image(kit: dict, kit_path: Path, allow_missing: bool = False, record: bool = False):
+def raw_steps_image(kit: dict, kit_path: Path, allow_missing: bool = False, record: bool = False,
+                    input_changes: list = None):
     """Share execution and validation between read-only replay and digest recording."""
     steps = kit.get("raw_steps")
     if not isinstance(steps, list) or not steps:
@@ -432,7 +437,7 @@ def raw_steps_image(kit: dict, kit_path: Path, allow_missing: bool = False, reco
             elif previous != {"previous_output_pixel_sha256": previous_digest}:
                 raise ValueError(label + " raw input does not bind the previous output pixels")
         data = {name: recipe_input(binding, kit_path, label + "." + name,
-                                  kit.get("kit_kind") == "maquette", allow_missing, record)
+                                  kit.get("kit_kind") == "maquette", allow_missing, record, input_changes)
                 for name, binding in bindings.items()
                 if name != "raw" or not index or (record and "path" in binding)}
         previous_digest = step.get("output_raw_pixel_sha256")
@@ -465,14 +470,22 @@ def raw_steps_image(kit: dict, kit_path: Path, allow_missing: bool = False, reco
     return output
 
 
-def front_job_reference(front: dict, root: Path, record: bool = False) -> Image.Image:
-    if (not isinstance(front, dict) or "job_path" not in front
+def front_job_reference(front: dict, kit: dict, root: Path, record: bool = False) -> Image.Image:
+    if (not isinstance(front, dict) or not isinstance(front.get("job_path"), str) or not front["job_path"]
             or set(front) - {"job_path", "pixel_sha256"}
             or (not record and not is_digest(front.get("pixel_sha256")))):
         raise ValueError("match_reference front requires job_path and pixel_sha256")
     front_kit = repo_path(root, front["job_path"])
-    if front_kit.name != "kit.json" or not read_json(front_kit).get("view", "").endswith("_front"):
+    if (root / IDENTITY / "jobs").resolve() not in front_kit.parents:
+        raise ValueError("match_reference job_path must be inside spec/art_identity/jobs/")
+    if front_kit.name != "kit.json":
         raise ValueError("match_reference must name a front job kit.json")
+    front_metadata = read_json(front_kit)
+    view = front_metadata.get("view")
+    if not isinstance(view, str) or not view.endswith("_front"):
+        raise ValueError("match_reference must name a front job kit.json")
+    if not isinstance(kit.get("id"), str) or not kit["id"] or front_metadata.get("id") != kit["id"]:
+        raise ValueError("match_reference front job id must match the referencing kit id")
     image = rgba(repo_path(front_kit.parent, "processed.png"))
     digest = pixel_digest(image)
     if record:
@@ -482,27 +495,31 @@ def front_job_reference(front: dict, root: Path, record: bool = False) -> Image.
     return image
 
 
-def derive_match_reference(spec: dict, kit_path: Path, root: Path = ROOT, record: bool = False) -> tuple:
+def derive_match_reference(spec: dict, kit_path: Path, root: Path = ROOT, record: bool = False,
+                           input_changes: list = None) -> tuple:
     """Bind processed references by pixels; plain and masked references can name a front job."""
-    maquette = read_json(kit_path).get("kit_kind") == "maquette"
+    kit = read_json(kit_path)
+    maquette = kit.get("kit_kind") == "maquette"
     if not isinstance(spec, dict):
         raise ValueError("match_reference must be an object")
     if (set(spec) == {"path", "pixel_sha256"}
             or (record and "path" in spec and not set(spec) - {"path", "pixel_sha256", "sha256"})):
-        path = repo_path(kit_path.parent, spec["path"])
-        if maquette and Path(spec["path"]).parts[0] not in ("refs", "raw_inputs"):
-            raise ValueError("match_reference maquette input must be inside refs/ or raw_inputs/")
-        image = rgba(path)
+        path = recipe_input_path(spec["path"], kit_path, "match_reference", maquette)
+        # A legacy local reference may still have a director-recorded file digest to audit.
+        data = (recipe_input(spec, kit_path, "match_reference", maquette, record=True, input_changes=input_changes)
+                if record and "sha256" in spec else None)
+        image = rgba(io.BytesIO(data) if data is not None else path)
         if record:
             spec["pixel_sha256"] = pixel_digest(image)
             spec.pop("sha256", None)
         elif pixel_digest(image) != spec["pixel_sha256"]:
             raise ValueError("match_reference pixel digest changed")
     elif "job_path" in spec:
-        image = front_job_reference(spec, root, record)
+        image = front_job_reference(spec, kit, root, record)
     elif set(spec) == {"derived_from", "mask_config"}:
-        front_image = front_job_reference(spec["derived_from"], root, record)
-        config = recipe_input(spec["mask_config"], kit_path, "match_reference.mask_config", maquette, record=record)
+        front_image = front_job_reference(spec["derived_from"], kit, root, record)
+        config = recipe_input(spec["mask_config"], kit_path, "match_reference.mask_config", maquette,
+                              record=record, input_changes=input_changes)
         image = mask_reference(front_image, json.loads(config))
     else:
         raise ValueError("match_reference requires a processed front or derived_from and mask_config")
@@ -513,16 +530,17 @@ def record_steps(kit_path: Path, root: Path = ROOT) -> list:
     """Rebind listed recipe inputs/outputs; write only after the entire recipe succeeds."""
     original = kit_path.read_text(encoding="utf-8")
     kit = json.loads(original)
-    raw_steps_image(kit, kit_path, record=True)
+    input_changes = []
+    raw_steps_image(kit, kit_path, record=True, input_changes=input_changes)
     if "match_reference" in kit:
-        derive_match_reference(kit["match_reference"], kit_path, root, record=True)
+        derive_match_reference(kit["match_reference"], kit_path, root, record=True, input_changes=input_changes)
     if kit == json.loads(original):
         return ["UNCHANGED " + str(kit_path)]
     updated = json.dumps(kit, indent=2, sort_keys=True, allow_nan=False) + "\n"
     changes = list(difflib.unified_diff(original.splitlines(), updated.splitlines(),
                                       fromfile=str(kit_path), tofile=str(kit_path) + " (recorded)", lineterm=""))
-    kit_path.write_text(updated, encoding="utf-8")
-    return changes
+    kit_path.write_bytes(updated.encode("utf-8"))
+    return input_changes + changes
 
 
 def direct_match_path(path: Path, kit_path: Path, root: Path) -> Path:
@@ -1160,7 +1178,7 @@ def check_registry(root: Path = ROOT, entry_id: str = None, strict: bool = False
     covered = coverage(root)
     entries = registry["entries"]
     paths = [e["path"] for e in entries]
-    reports, failures, warnings = [], 0, 0
+    reports, failures, warnings, skips = [], 0, 0, 0
     for path in sorted(set(covered) - set(paths)):
         reports.append("FAIL " + path + ": missing registry entry")
         failures += 1
@@ -1192,6 +1210,10 @@ def check_registry(root: Path = ROOT, entry_id: str = None, strict: bool = False
                     kit_errors, kit_warnings = validate_kit_entry(entry, root, bands, covered.get(path, {}))
                     errors.extend(kit_errors)
                     reports.extend("WARN " + path + ": " + warning for warning in kit_warnings)
+                    skipped = [warning for warning in kit_warnings if warning.startswith("SKIP ")]
+                    skips += len(skipped)
+                    if strict:
+                        errors.extend("strict: " + warning for warning in skipped)
                     if entry.get("kind") == "creature":
                         pair = [e for e in entries if e.get("id") == entry.get("id") and e.get("entry_kind") == "kit"
                                 and e.get("kind") == "creature"]
@@ -1220,8 +1242,8 @@ def check_registry(root: Path = ROOT, entry_id: str = None, strict: bool = False
                 kit = read_json(kit_path)
                 detail += "; kit_version " + kit_version_verification(kit, repo_path(root, entry["prompt_path"]).read_bytes())
             reports.append("PASS " + path + " (" + detail + ")")
-    reports.append("ART IDENTITY CHECK: %s (%d failures, %d pending_reart warnings)" %
-                   ("FAIL" if failures else "PASS", failures, warnings))
+    reports.append("ART IDENTITY CHECK: %s (%d failures, %d pending_reart warnings, %d skipped replays)" %
+                   ("FAIL" if failures else "PASS", failures, warnings, skips))
     return reports, failures
 
 

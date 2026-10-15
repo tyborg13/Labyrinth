@@ -29,7 +29,7 @@
   "post_steps": [
     {
       "match_reference": {
-        "path": "refs/palette_front.png",
+        "job_path": "spec/art_identity/jobs/chainbound_gaoler/mq_front_v3/kit.json",
         "pixel_sha256": "8661431b833aa10c3b32715c957f932d11016326a68e5c0911fa9aa3853665d7"
       },
       "parameters": {

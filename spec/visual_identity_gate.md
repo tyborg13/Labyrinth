@@ -243,7 +243,9 @@ A job-local processed-front binding
 ```
 
 Both job-link forms name a repository-relative front **job**, whose `processed.png` must match the recorded pixel
-digest. A changed front fails the rear's check, even when the rear's raw inputs are absent; recompressing the front
+digest. Its resolved `job_path` must be under `spec/art_identity/jobs/`, and its kit `id` must match the referencing
+kit's `id`; the referenced view must be a front view. A front kit may also reference an earlier front of the same
+identity. A changed front fails the referencing kit's check, even when its raw inputs are absent; recompressing the front
 does not. The mask config remains a job-local file-byte binding. No palette copy or prebuilt masked PNG is required.
 The mask uses the same region selectors, ignores `lab_scale`, and sets only selected opaque pixels' alpha to zero.
 It never overwrites the approved front. `--match-front FRONT.png` remains supported;
@@ -265,7 +267,8 @@ digests, and the processed PNG's decoded pixels. Re-encoded PNG byte equality is
 Missing raw-step inputs fail for maquettes; historical standard kits can lack raw inputs, but any present input must
 still match. Registry checks report `WARN <entry>: SKIP raw_steps replay: inputs absent` in this case; reference,
 final-raw, kit/sidecar and source-pixel bindings still run. A recipe exception adds an entry failure without dropping
-its other provenance or metric failures. `check --kit` requires every director input and prints matching raw and
+its other provenance or metric failures. The summary counts skipped replays, and `--strict` fails on any skip.
+`check --kit` requires every director input and prints matching raw and
 processed pixel digests, plus the byte diagnostic. It certifies replay only, without registry/metric/judge approval.
 Neither check writes into the job. Art-05/art-06 add no gaoler registry entries.
 
@@ -277,6 +280,9 @@ previous-output links only after their decoded pixels match the preceding replay
 inputs for both standard and maquette kits and validates the complete recipe/reference before writing. The command
 prints a diff, or `UNCHANGED` when already current. It writes only `kit.json`; prompts, generation reference records,
 configs and processed artifacts stay untouched. It uses the listed paths and never chooses a front job for the director.
+`record-steps` is director-only: it re-binds current file bytes, so review every `INPUT CHANGED <path> old→new` sha256
+change; neither `check` nor CI may run it to refresh recorded digests. Maquette input paths are checked after resolving
+symlinks against the job's resolved `refs/` and `raw_inputs/` folders, including plain-path match references.
 
 After recording, use `process` with the job's existing post-step flags to regenerate its processing sidecar. To
 preserve an approved PNG during a metadata migration, process into a temporary folder, check its pixel digest
@@ -284,13 +290,14 @@ against the approved `processed.json`, and copy back only the regenerated JSON. 
 
 ```sh
 python3 tools/art_identity_gate.py record-steps --kit spec/art_identity/jobs/frostglass_lancer/mq1_rear_v3/kit.json
-python3 tools/art_identity_gate.py process --kit spec/art_identity/jobs/frostglass_lancer/mq1_rear_v3/kit.json --clean-outline --out /tmp/lancer-rear-recording/processed.png
+python3 tools/art_identity_gate.py process --kit spec/art_identity/jobs/frostglass_lancer/mq1_rear_v3/kit.json --clean-outline --out "<temporary-output-directory>/processed.png"
 ```
 
 Art-06 re-records all five recipes: gaoler `mq3_front_v4` and `mq3_rear_v3`, and lancer `mq1_front_v2`,
 `mq1_front_v3` and `mq1_rear_v3`. Their processed PNGs, prompts, reference records and director configs are unchanged.
 The gaoler rear links to the current `mq3_front_v4` job; its redundant palette copy, the front's unused
-`match_reference_no_tabard.png`, and the three intermediate raws are removed. The lancer v3 rear links directly to
+`match_reference_no_tabard.png`, and the three intermediate raws are removed. The gaoler `mq3_front_v4` front links
+to its earlier `mq_front_v3` palette source, removing its redundant `refs/palette_front.png`. The lancer v3 rear links directly to
 `mq1_front_v3`; its redundant `refs/palette_front.png` is removed. The gate tests also re-encode a processed PNG with
 zlib compression level 0 and require both standalone replay and registry `check` to pass.
 
