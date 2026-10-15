@@ -217,8 +217,19 @@ func _drive_actions() -> void:
 			before["enemies"][0]["pos"] = Vector2i(4, 4)
 			after["enemies"][0]["pos"] = before["player"]["pos"]
 		_invoke("_animate_player_action_step", [before, after, "shadow_step", {"type": kind, "range": 4}, Vector2i(4, 4)])
-		if supplied_sources.is_empty() and events.filter(func(e: Dictionary) -> bool: return e["cue"] == "move.blink" and e["result"] == "played").size() != 1:
-			failures.append("Player transition must play exactly one blink: " + kind)
+		# The card-resolution caller submits the final board after this helper.
+		# Wait past the authored cooldown so it cannot hide a re-armed blink,
+		# including at high frame rates or accelerated combat speeds.
+		var cooldown_usec: int = (int(bank.data["cues"]["move.blink"]["cooldown_ms"]) + 1) * 1000
+		clock.step(self, cooldown_usec)
+		scene.call("_render_board_state", after, {})
+		clock.step(self, cooldown_usec)
+		if supplied_sources.is_empty():
+			var blinks: Array = events.filter(func(e: Dictionary) -> bool: return e["cue"] == "move.blink")
+			if blinks.size() != 1:
+				failures.append("Player transition must request exactly one blink: " + kind)
+			if blinks.filter(func(e: Dictionary) -> bool: return e["result"] == "played").size() != 1:
+				failures.append("Player transition must play exactly one blink: " + kind)
 		_finish(before)
 	_begin("movement/relay_blink")
 	var state: Dictionary = _state()
