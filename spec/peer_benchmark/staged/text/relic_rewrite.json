@@ -1421,7 +1421,7 @@
   "current_name": "Black Sun Dial",
   "current_description": "Consuming a surface stores it (max 3). Your next attack deals 2 more damage per stored surface, and its target gets each one's effect: @icon(surface_fire) beneath it, @icon(chilled), @icon(shock), @icon(stagger) 2.",
   "name": "Black Sun Dial",
-  "description": "Store up to 3 ground you @kw(surface_consume). Your next attack releases them: +2 damage each. @term(surface_fire): @kw(surface_fire) beneath. @term(surface_ice): @term(chilled). @term(surface_electrified): @term(shock). @term(surface_rubble): @kw(stagger) 2.",
+  "description": "Store up to 3 @kw(surface_consume|Expended) ground tiles. Your next attack releases them: +2 damage each. @term(surface_fire): @kw(surface_fire) beneath. @term(surface_ice): @term(chilled). @term(surface_electrified): @term(shock). @term(surface_rubble): @kw(stagger) 2.",
   "description_read_aloud": "Store up to 3 ground you Expend. Your next attack releases them: +2 damage each. Fire: Fire beneath. Ice: Chilled. Electrified: Shock. Rubble: Stagger 2.",
   "words": 25,
   "current_words": 31,
