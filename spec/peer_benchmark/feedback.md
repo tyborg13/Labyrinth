@@ -55,3 +55,7 @@
 - "It looks decent enough for now. We may tweak later, but let's go ahead and rig it." → owner-approved 2026-10-15:
   front `spec/art_identity/jobs/chainbound_gaoler/mq3_front_v3`, rear `mq3_rear_v2` (sheet `sheet_pair_mq3_v2.png`).
   rr-02 (maquette → cutout) proceeds on this pair; later tweaks re-run the same pipeline.
+- Owner 2026-10-15: "His chain doesn't actually link up." → scoped chain-only edits of both views
+  (`maquettes/chainbound_gaoler/chain_fix_{front,rear}.md`: alternating face-on rings and edge-on links passing through
+  each other; top link around the fist, bottom link through the hook's eye). rr-02 phase 1 continues on the current pair;
+  phase 2 reruns `tools/maquette_cutout.py` on the chain-fixed pair (only the `chain` part changes).
