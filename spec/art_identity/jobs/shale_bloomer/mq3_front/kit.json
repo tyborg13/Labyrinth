@@ -1,0 +1,57 @@
+{
+  "K": 4,
+  "anatomy": "rooted",
+  "id": "bile_bloomer",
+  "job_id": "mq-bloomer-front-r3",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "18cbd50ec87ca9363d39307cb0656df3a3fede64833ef276d26369af0e2a5212",
+  "method": "maquette paint-over (wave 1b): humanoid.py + shale_bloomer/spec.json r8, painted at drawn size K=4",
+  "peers": [
+    "briar_weaver_front",
+    "hero_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "7f355d19a4273749050e23c8b63ad9fb94d12f7e4b13795b06bb887df800c692",
+  "prompt_source": "spec/art_identity/maquettes/shale_bloomer/prompt_front_r3.md",
+  "refs": [
+    {
+      "canon_id": "maquette_front_parts",
+      "file": "refs/01_maquette_front_parts.png",
+      "pixel_sha256": "f2eacbf24f488688e3b491eb788dddbbca510a4ecbbae01a41dcde01673d9866",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-bloomer-front-r3/refs/01_front_parts_green.png"
+    },
+    {
+      "canon_id": "maquette_front_clay",
+      "file": "refs/02_maquette_front_clay.png",
+      "pixel_sha256": "bc4697f7f2c324e40984ecbe65f3183b045bab6dad04b33838b51cb57cd3f61a",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-bloomer-front-r3/refs/02_front_clay_green.png"
+    },
+    {
+      "canon_id": "identity_bloomer_current",
+      "file": "refs/03_identity_bloomer_current.png",
+      "pixel_sha256": "94439bf26af4be9b85c10e9693f80c555f8ee3e90eaec09b8e6e5ad2c049ceb3",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-bloomer-front-r3/refs/03_identity_current_x4.png"
+    },
+    {
+      "canon_id": "briar_weaver_front",
+      "file": "refs/04_briar_weaver_front.png",
+      "pixel_sha256": "5ce3fbf35980aff7f41b243f28ea61763e84e85e5ef3735aa320254eae63c8f4",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-bloomer-front-r3/refs/04_peer_x4.png"
+    },
+    {
+      "canon_id": "hero_front",
+      "file": "refs/05_hero_front.png",
+      "pixel_sha256": "b267e751ef5c67f1fe2fcfacda5312dcbdaff928caceef8f682421b41e4dfd82",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-bloomer-front-r3/refs/05_hero_x4.png"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 220,
+  "view": "creature_front"
+}
