@@ -82,18 +82,32 @@ def site_identity(site: dict) -> tuple[str, str, str]:
 
 
 def coverage_regressions(result: dict, baseline: dict) -> list[str]:
-    errors = []
+    errors = playback_failures(result["observations"])
     current = compact_baseline(result)
-    for index, speed in enumerate(baseline["speeds"]):
-        for key, counts in baseline["observation_counts"].items():
-            current_index = current["speeds"].index(speed) if speed in current["speeds"] else -1
-            actual = current["observation_counts"].get(key, [0] * len(current["speeds"]))
-            if current_index < 0 or actual[current_index] < counts[index]:
-                errors.append(f"Observation coverage shrank: {speed}x / {key}")
+    for index, run in enumerate(baseline["runs"]):
+        for kind in ["request_counts", "primary_play_counts", "optional_play_counts"]:
+            for key, counts in baseline[kind].items():
+                current_index = current["runs"].index(run) if run in current["runs"] else -1
+                actual = current[kind].get(key, [0] * len(current["runs"]))
+                if current_index < 0 or actual[current_index] < counts[index]:
+                    errors.append(f"{kind} shrank: {run} / {key}")
     pairs = {tuple(row) for row in current["cue_site_pairs"]}
     for row in baseline["cue_site_pairs"]:
         if tuple(row) not in pairs:
             errors.append("Cue × call-site coverage shrank: " + " | ".join(row))
+    return errors
+
+
+def playback_failures(observations: list[dict]) -> list[str]:
+    errors = []
+    for event in observations:
+        result, request = event["result"], event.get("request", {})
+        if result == "played": continue
+        role = request.get("role", "primary")
+        if result == "priority" and role == "optional_layer": continue
+        if result == "cooldown" and 0 <= request.get("since_success_ms", -1) < request.get("cooldown_ms", 0): continue
+        if result == "silent" and event["cue"].startswith("ambience."): continue
+        errors.append(f"Required primary did not play: {event['scenario']} / {event['cue']} ({result}; {role})")
     return errors
 
 
@@ -199,7 +213,8 @@ def analyze(root: Path, trace: dict, cues: dict, samples: dict, sources: dict | 
         observed_sites.update(locations)
         observation = {**{key: event[key] for key in ("scenario", "cue", "result", "delay_ms", "pitch")},
                        **{key: event.get(key) for key in ("climax_applicable", "climax_kind", "climax_after_trigger_ms", "sample", "gain_db", "alignment")},
-                       "speed": event.get("speed", 1.0), "visual_climax": normalize_stack(event.get("climax_stack", [])),
+                       "speed": event.get("speed", 1.0), "frame_profile": event.get("frame_profile", "fixed_60"),
+                       "request": event.get("request", {}), "visual_climax": normalize_stack(event.get("climax_stack", [])),
                        "call_sites": matched, "visual_anchor": anchor, "route": stack}
         observations.append(observation)
         for site in matched:
@@ -340,7 +355,7 @@ def area_loudness_proof(root: Path, trace: dict) -> dict:
     result = {}
     with tempfile.TemporaryDirectory(prefix="sfx-04-area-") as directory:
         for scenario in ("area/single", "area/same_frame"):
-            voices = [row for row in trace["rows"] if row.get("speed", 1.0) == 1.0 and row["scenario"] == scenario
+            voices = [row for row in trace["rows"] if row.get("speed", 1.0) == 1.0 and row.get("frame_profile", "fixed_60") == "fixed_60" and row["scenario"] == scenario
                       and row["cue"] == "spell.fire" and row["result"] == "played"]
             if not voices:
                 return {"error": "Missing area loudness fixture: " + scenario}
@@ -398,18 +413,26 @@ def compact_text(document: dict) -> str:
 
 def compact_baseline(result: dict) -> dict:
     speeds = sorted({event.get("speed", 1.0) for event in result["observations"]})
-    counts = {}
+    runs = sorted({(event.get("frame_profile", "fixed_60"), event.get("speed", 1.0)) for event in result["observations"]})
+    counts = {kind: {} for kind in ["request_counts", "primary_play_counts", "optional_play_counts", "allowed_drop_counts"]}
     for event in result["observations"]:
         key = event["scenario"] + "|" + event["cue"]
-        values = counts.setdefault(key, [0] * len(speeds))
-        values[speeds.index(event.get("speed", 1.0))] += 1
+        index = runs.index((event.get("frame_profile", "fixed_60"), event.get("speed", 1.0)))
+        role = event.get("request", {}).get("role", "primary")
+        counts["request_counts"].setdefault(key, [0] * len(runs))[index] += 1
+        if event["result"] == "played":
+            kind = "primary_play_counts" if role == "primary" else "optional_play_counts"
+        else:
+            kind = "allowed_drop_counts"
+            key += "|" + role + "|" + event["result"]
+        counts[kind].setdefault(key, [0] * len(runs))[index] += 1
     silences = {row["scenario"]: row for row in result["silences"]}
     fields = {"sha256", "leading_ms", "perceived_onset_ms", "peak_ms", "short_loudness_lufs", "sample_rate",
               "duration_seconds", "peak_dbfs", "true_peak_dbtp", "peak_cap_dbfs", "reference_short_loudness_lufs", "peak_aligned"}
-    return rounded({"schema_version": 1, "speeds": speeds,
+    return rounded({"schema_version": 2, "speeds": speeds, "runs": runs,
             "samples": {path: {key: value for key, value in sample.items() if key in fields} for path, sample in result["samples"].items()},
             "cue_site_pairs": sorted({(row["cue"], *site_identity(row["call_site"])) for row in result["rows"]}),
-            "observation_counts": counts, "silences": list(silences.values()),
+            **counts, "silences": list(silences.values()),
             "area_loudness": result.get("area_loudness", {}), "summary": result["summary"],
             "loudness_exceptions": result.get("loudness_exceptions", [])})
 
@@ -422,11 +445,16 @@ def markdown(result: dict, provenance: dict) -> str:
              "Blink (including relay and swaps), cast.arcane, and animated roars plan each call at its actual selected pitch. "
              "The same per-call rule covers hit.blunt.heavy and illusion.spawn because their quiet asset cuts retain more pre-peak time than the contact window permits. "
              "Runtime head skips use the separate minimum-pre-peak and fade rule; the quiet-cut rule applies to lossless asset rebuilds. "
-             "Authored climax times convert to wall time at the effective combat speed, including the process-frame submission boundary. "
-             "Pending delays consume only active time and stop during pause or hit-stop. "
+             "The actual submitted climax sets an absolute presentation-clock deadline; due calls dispatch in that process tick, without extrapolating frame intervals. "
+             "Late dispatch skips the corresponding pitch-adjusted head, bounded by the 15 ms minimum pre-peak lead, with the 3 ms fade and whole tail preserved. "
+             "Presentation deadlines freeze during pause or hit-stop. "
              "Aligned peaks must land at climax +15 ±1 ms; their onset cap is measured from scheduled playback. "
              "Other one-shots retain the 0–20 ms first-sample, ≤10 ms leading-silence, and 40/60 ms perceived-onset limits. "
              "All tunables live in data/sfx_cues.json rules.sync.", "",
+             "Every scenario runs at 1×, 1.5× and 2× with fixed 60 Hz, periodic 33 ms spikes, steady 30 fps, 144 Hz and seeded ±4 ms jitter. "
+             "Coverage baselines requests, successful primaries and successful optional layers separately for each run. "
+             "Primary priority drops always fail; cooldown drops require a preceding successful play within the authored cooldown. "
+             "Optional-layer priority drops and intentionally empty ambient beds are recorded explicitly.", "",
              "Gain restoration respects the original build's category/sample cap and −1 dBTP. "
              "Maximum BS.1770 loudness over 100 ms windows at 25 ms hops may change by −1.0…+0.5 LU. "
              "Same-frame contacts collapse only identical cues; distinct contacts remain audible. Additional contacts retain −6 dB layering.", "",
@@ -513,6 +541,7 @@ def main() -> int:
         if trace.get("source_sha256", {}).get(path) != digest(ROOT / path):
             trace["failures"].append("Trace lacks current source provenance: " + path)
     result = analyze(ROOT, trace, cues, samples)
+    result["playback_failures"] = playback_failures(result["observations"])
     result["area_loudness"] = area_loudness_proof(ROOT, trace)
     baseline = json.loads((ROOT / BASELINE).read_text())
     result["coverage_regressions"] = coverage_regressions(result, baseline) if args.check else []
@@ -527,7 +556,7 @@ def main() -> int:
     report.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     provenance = json.loads((ROOT / "assets/audio/sfx/sfx-04-provenance.json").read_text())
     report.with_suffix(".md").write_text(markdown(result, provenance))
-    errors = any(result.get(key) for key in ["harness_failures", "coverage_regressions", "uncovered_cues", "uncovered_call_sites", "uncovered_cue_call_site_pairs", "length_failures", "peak_failures"])
+    errors = any(result.get(key) for key in ["harness_failures", "playback_failures", "coverage_regressions", "uncovered_cues", "uncovered_call_sites", "uncovered_cue_call_site_pairs", "length_failures", "peak_failures"])
     errors |= bool(result["summary"]["unmeasured"] or result["summary"]["violations"] or not result["area_loudness"].get("pass", False))
     if args.refresh_baseline:
         if errors: raise RuntimeError("Refusing to refresh a failing baseline; inspect the full report")

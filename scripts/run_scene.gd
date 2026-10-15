@@ -23353,7 +23353,6 @@ func _play_timed_animation_frames(frame_count: int, frame_seconds: float, render
 	var safe_frame_count: int = maxi(0, frame_count)
 	if safe_frame_count == 0 or not render_frame.is_valid():
 		return
-	if _sfx_router != null: _sfx_router.begin_animation(safe_frame_count, frame_seconds, _combat_pacing.current_scale(), get_process_delta_time() * 1000.0 / maxf(Engine.time_scale, 0.001))
 	var started_usec: int = Time.get_ticks_usec()
 	var presentation_started_usec: int = _combat_pacing.presentation_usec()
 	var rendered_frames: int = 0
@@ -24148,7 +24147,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			# beat flashes collisions and floats their damage on the result.
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			await _animate_surface_change(before_state, after_state, base_presentation, func() -> void:
-				if action_type == "swap": _sfx_router.blink(0.0)
+				if action_type == "swap": _sfx_router.blink()
 			)
 		"self_flag", "cleanse", "convert_block_to_stoneskin", "mantle", "petrify":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
@@ -25399,6 +25398,7 @@ func _ensure_sfx_bank() -> void:
 	if _sfx_bank != null: return
 	_sfx_bank = SfxBankScript.new()
 	_sfx_bank.name = "SfxBank"
+	_sfx_bank.presentation_clock = _combat_pacing.presentation_usec
 	add_child(_sfx_bank)
 	_sfx_bank.warm_up(self)
 	_sfx_bank.prepare_legacy([CARD_DRAW_SFX_ENTRY, CARD_PLAY_SFX_ENTRY, REWARD_CARD_FLIP_SFX_ENTRY, ITEM_EQUIP_SFX_ENTRY, RELIC_CHOICES_OPEN_SFX_ENTRY])

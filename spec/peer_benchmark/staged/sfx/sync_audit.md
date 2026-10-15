@@ -4,13 +4,15 @@ Current measurement policy
 
 Alignment uses the earliest local maximum within 2 dB of the strongest centered 5 ms RMS peak. Asset cuts measure instantaneous max-channel amplitude before fading and move to a point at least 20 dB below the selected RMS peak, retain at least 15 ms before it, and use a 3 ms linear fade. An already-short source head is kept whole rather than padded. The asset's complete tail is retained. The lossless parent recipe and its hash are recorded in the compact provenance.
 
-Blink (including relay and swaps), cast.arcane, and animated roars plan each call at its actual selected pitch. The same per-call rule covers hit.blunt.heavy and illusion.spawn because their quiet asset cuts retain more pre-peak time than the contact window permits. Runtime head skips use the separate minimum-pre-peak and fade rule; the quiet-cut rule applies to lossless asset rebuilds. Authored climax times convert to wall time at the effective combat speed, including the process-frame submission boundary. Pending delays consume only active time and stop during pause or hit-stop. Aligned peaks must land at climax +15 ±1 ms; their onset cap is measured from scheduled playback. Other one-shots retain the 0–20 ms first-sample, ≤10 ms leading-silence, and 40/60 ms perceived-onset limits. All tunables live in data/sfx_cues.json rules.sync.
+Blink (including relay and swaps), cast.arcane, and animated roars plan each call at its actual selected pitch. The same per-call rule covers hit.blunt.heavy and illusion.spawn because their quiet asset cuts retain more pre-peak time than the contact window permits. Runtime head skips use the separate minimum-pre-peak and fade rule; the quiet-cut rule applies to lossless asset rebuilds. The actual submitted climax sets an absolute presentation-clock deadline; due calls dispatch in that process tick, without extrapolating frame intervals. Late dispatch skips the corresponding pitch-adjusted head, bounded by the 15 ms minimum pre-peak lead, with the 3 ms fade and whole tail preserved. Presentation deadlines freeze during pause or hit-stop. Aligned peaks must land at climax +15 ±1 ms; their onset cap is measured from scheduled playback. Other one-shots retain the 0–20 ms first-sample, ≤10 ms leading-silence, and 40/60 ms perceived-onset limits. All tunables live in data/sfx_cues.json rules.sync.
+
+Every scenario runs at 1×, 1.5× and 2× with fixed 60 Hz, periodic 33 ms spikes, steady 30 fps, 144 Hz and seeded ±4 ms jitter. Coverage baselines requests, successful primaries and successful optional layers separately for each run. Primary priority drops always fail; cooldown drops require a preceding successful play within the authored cooldown. Optional-layer priority drops and intentionally empty ambient beds are recorded explicitly.
 
 Gain restoration respects the original build's category/sample cap and −1 dBTP. Maximum BS.1770 loudness over 100 ms windows at 25 ms hops may change by −1.0…+0.5 LU. Same-frame contacts collapse only identical cues; distinct contacts remain audible. Additional contacts retain −6 dB layering.
 
 Current results
 
-`{"cue_call_site_rows": 136, "cues": 81, "loudness_exceptions": 2, "observations": 757, "registry_cues": 81, "uncovered_call_sites": 0, "uncovered_cue_call_site_pairs": 0, "unmeasured": 0, "violations": 0}`
+`{"cue_call_site_rows": 136, "cues": 81, "loudness_exceptions": 2, "observations": 3845, "registry_cues": 81, "uncovered_call_sites": 0, "uncovered_cue_call_site_pairs": 0, "unmeasured": 0, "violations": 0}`
 
 | Cue | Call site | Onset ms | Perceived ms | Peak − climax ms | Result |
 |---|---|---:|---:|---:|---|
@@ -40,7 +42,7 @@ Current results
 | card.select | scripts/run_scene.gd::_on_card_drag_started | 0.760 | 0.586 | 3.726…4.036 | pass |
 | card.select | scripts/run_scene.gd::_begin_card_preview | 0.760 | 0.586 | 3.726…4.036 | pass |
 | card.select | scripts/sfx_cue_router.gd::card_select | 0.760 | 0.586 | 3.726…4.036 | pass |
-| cast.arcane | scripts/sfx_cue_router.gd::release | 50.196 | 1.494 | 15.003…15.010 | pass |
+| cast.arcane | scripts/sfx_cue_router.gd::release | 66.861 | 1.494 | 15.003…15.010 | pass |
 | crate.break | scripts/sfx_cue_router.gd::crate | 9.386 | 10.132 | 12.341…13.640 | pass |
 | crate.hit | scripts/sfx_cue_router.gd::crate | 0.133 | 15.559 | 19.163…21.609 | pass |
 | death.avian | scripts/sfx_cue_router.gd::death | 0.373 | 6.711 | 14.385…16.140 | pass |
@@ -57,7 +59,7 @@ Current results
 | defiance | scripts/run_scene.gd::_refresh_relic_bar | 0.333 | 4.208 | 19.125…19.125 | pass |
 | defiance | scripts/sfx_cue_router.gd::defiance | 0.333 | 4.208 | 19.125…19.125 | pass |
 | dragon.roar | scripts/sfx_cue_router.gd::begin_action | 0.623 | 57.925 | unmeasured…unmeasured | pass |
-| dragon.roar | scripts/sfx_cue_router.gd::presentation | 500.333 | 44.595 | 15.003…15.021 | pass |
+| dragon.roar | scripts/sfx_cue_router.gd::presentation | 600.340 | 2.708 | 15.006…15.020 | pass |
 | dragon.wings | scripts/run_scene.gd::_animate_actor_along_path | 2.300 | 59.896 | unmeasured…unmeasured | pass |
 | dragon.wings | scripts/sfx_cue_router.gd::walk_start | 2.300 | 59.896 | unmeasured…unmeasured | pass |
 | event.choose | scripts/run_scene.gd::_on_section_map_event | 1.181 | 7.023 | 24.717…26.246 | pass |
@@ -85,7 +87,7 @@ Current results
 | map.select | scripts/run_scene.gd::_on_map_view_room_selected | 2.363 | 19.652 | 21.561…22.895 | pass |
 | map.select | scripts/sfx_cue_router.gd::map_select | 2.363 | 19.652 | 21.561…22.895 | pass |
 | move.blink | scripts/run_scene.gd::_animate_player_action_step | 0.139 | 5.348 | 15.002…15.002 | pass |
-| move.blink | scripts/sfx_cue_router.gd::blink | 200.257 | 16.192 | 15.002…15.019 | pass |
+| move.blink | scripts/sfx_cue_router.gd::blink | 266.888 | 5.886 | 15.002…15.020 | pass |
 | omen.bane | scripts/run_scene.gd::_update_ambient_sfx_for_context | 0.167 | 3.854 | 16.958…16.958 | pass |
 | omen.bane | scripts/sfx_cue_router.gd::omen | 0.167 | 3.854 | 16.958…16.958 | pass |
 | omen.blessing | scripts/run_scene.gd::_update_ambient_sfx_for_context | 0.188 | 1.938 | 15.958…15.958 | pass |
@@ -309,14 +311,15 @@ The first command is idempotent. A changed source requires the approved local so
 
 Verification
 
-- Full Godot suite: PASS; 732.767 seconds against the 900-second budget. Includes sfx_sync_bank_test and the complete three-speed harness.
-- Full Python suite: PASS; 397 tests in 314.269 seconds, with 61 optional skips.
-- Sound-lab suite: PASS; 39 tests in 48.624 seconds. Focused sync Python suite: PASS; 11 tests in 2.889 seconds.
-- Cue coverage: PASS; 81/81 registered cues, one deliberately removed cue, zero failures.
-- Strict production harness: PASS; 757 observations at 1×/1.5×/2×, all 81 cues and all 134 normalized cue/call-site identities covered at each speed. All 54 aligned observations peak at climax +15.002…+15.021 ms.
-- Bank regression tests: PASS; actual bank.play calls at forced pitch bounds, pending-queue guards, first-frame timing, pause/hit-stop and distinct same-frame −6 dB layering.
-- All 83 registered stream lengths agree with decoded PCM within 1 ms. shop.sell_02 reports 0.328667 seconds. All 82 rebuilt assets meet their sample/category caps and −1 dBTP; maximum measured true peak is −1.004651 dBTP.
-- Two cap-limited loudness exceptions are disclosed above. No remaining timing, peak-cap, decoded-length or coverage failures.
-- Plain sync.py: PASS; zero rebuilt outputs, 82 verified hashes, no provenance writes or source-catalogue scan. Independent audit repeat: identical measured report.
-- 49 trim counts changed; every changed trim is listed above. The listening checklist includes all 82 rebuilt files. Listening boxes remain open for owner audition.
-- Uncommitted work on 6eca206c0ec4a4aed2f279f5841d13b8b7c067b5. No publication or new captures.
+- Round 5, based on 39141f2a3; all changes remain uncommitted.
+- Full Godot suite: TEST RESULT: PASS; FULL SUITE RUNTIME: 801.118 seconds (budget 900 seconds). Both SFX bank suites and the complete sync harness passed as program sub-suites. Log: output/sfx/round5-full-godot.log.
+- Production harness: PASS, 3,845 requests, zero failures; every scenario at 1×/1.5×/2× under fixed 60 Hz, periodic 33 ms spikes, steady 30 fps, 144 Hz and seeded ±4 ms jitter. All 270 aligned plays measure +15.002…+15.020 ms after their independently observed climax; actual PCM fade and complete tail verified.
+- Playback coverage: 2,742 successful primaries and 600 successful optional layers; 473 valid primary cooldown drops and 30 optional-layer priority drops explicitly classified. Request and successful-play counts are baselined separately for all 15 runs.
+- Primary-drop mutant: expected FAIL, four assertions. Rejecting primary hit.pierce as priority preserves three requests in each spear fixture but reduces required primary plays from one to zero; both the required-primary checks and successful-play counts fail. Log: output/sfx/round5-primary-mutant.log.
+- Strict repeat audit: PASS; identical measured report to the refreshed audit. --check left the tracked baseline and Markdown hashes unchanged. Log: output/sfx/round5-check.log.
+- SFX sync bank: PASS, zero failures; absolute deadlines never fire early, pause/hit-stop freeze, due submissions dispatch in the same tick, lateness increases head skip without violating the minimum lead, actual pitch bounds apply, and immediate/dropped calls return their actual/zero duration. All 83 Godot lengths match decoded PCM within 1 ms. Log: output/sfx/round5-bank.log.
+- Cue coverage: PASS, 81/81 cues, one intentionally removed cue, zero failures. Log: output/sfx/round5-cue-coverage.log.
+- Sync Python: 13 tests, PASS. Sound lab: 39 tests, PASS (33.224 seconds). Logs: output/sfx/round5-sync-python.log and output/sfx/round5-sound-lab.log.
+- Full Python discovery: 397 tests, PASS (61 documented optional skips), 277.010 seconds. Log: output/sfx/round5-full-python.log.
+- Obsolete trim_onset and its unused constants removed. Lossless rebuild reproduced all 82 asset hashes exactly; only the builder fingerprint changed in provenance. The next plain rebuild passed with zero rebuilt files and 82 verified hashes. Log: output/sfx/round5-idempotence.log.
+- Git contract/preflight writes were denied by the sandbox at worktree metadata/index.lock. The acceptance/proof contract is recorded in output/sfx/round5-contract.json; no Git mutation was performed. Headless proof only, as directed.

@@ -103,6 +103,7 @@ func _run() -> void:
 		bank.set_test_clock(bank.now_ms() + ceili(remaining))
 		bank.advance(float(ceili(remaining)) / 1000.0)
 		_expect(starts.size() == 2 and starts.back()["cue"] == "move.blink", "Remaining active time releases the queued call")
+	_absolute_deadline_cases(bank)
 	bank.free()
 	var limited := Bank.new()
 	root.add_child(limited)
@@ -118,6 +119,8 @@ func _run() -> void:
 	_expect(int(limited.cues["fixture"]["last_ms"]) == FIXTURE_CLOCK_MS, "A dropped request cannot move the last successful play time")
 	_expect(starts.back()["result"] == "priority", "An optional area layer drops immediately behind a primary voice")
 	_expect(primary.volume_db == FIXTURE_GAIN_DB and int(primary.get_meta("play_generation")) == generation, "Dropping an area layer preserves the audible primary's gain and start")
+	var dropped_duration: float = limited.play("fixture", {"area_instance": true, "peak_deadline_ms": limited.presentation_ms()})
+	_expect(is_zero_approx(dropped_duration) and starts.back()["result"] == "priority", "A dropped aligned layer returns zero playback duration")
 	limited.play("fixture")
 	_expect(starts.back()["result"] == "played" and int(primary.get_meta("play_generation")) == generation + 1, "An equal-priority fresh cue steals immediately instead of waiting")
 	limited.schedule_area("fixture", 1000, Router.AREA_GAIN_DB)
@@ -132,3 +135,64 @@ func _run() -> void:
 
 func _expect(condition: bool, message: String) -> void:
 	if not condition: failures.append(message)
+
+func _absolute_deadline_cases(bank: Node) -> void:
+	var clock: Dictionary = {"usec": 10000000}
+	bank.presentation_clock = func() -> int: return int(clock["usec"])
+	for scale: float in [1.0, 1.5, 2.0]:
+		Engine.time_scale = scale
+		for cue: String in ["move.blink", "dragon.roar", "cast.arcane", "hit.blunt.heavy", "illusion.spawn"]:
+			var entry: Dictionary = bank.cues[cue]["entry"]
+			var jitter: float = entry["pitch_jitter"]
+			var base: float = float(entry.get("pitch_scale", 1.0))
+			for pitch: float in [base * (1.0 - jitter), base, base * (1.0 + jitter)]:
+				entry["pitch_jitter"] = 0.0
+				entry["pitch_scale"] = pitch
+				bank.set_test_clock(bank.now_ms() + 5000)
+				var before: int = bank.cues[cue]["played"]
+				var deadline: float = bank.presentation_ms() + 100.0 * scale
+				bank.play(cue, {"peak_deadline_ms": deadline})
+				clock["usec"] = roundi(deadline * 1000.0) - 1
+				bank.advance(0.1 * scale)
+				_expect(bank.cues[cue]["played"] == before, "Absolute presentation deadline never fires early")
+				clock["usec"] += 1
+				bank.advance(0.0)
+				_expect(bank.cues[cue]["played"] == before + 1, "First tick at the absolute deadline plays the selected cue")
+				var played: Dictionary = bank.last_play
+				_expect(is_equal_approx(played["selected"]["pitch"], pitch), "Absolute deadline uses the actual forced pitch")
+				var peak: float = played["alignment"]["metrics"]["peak_ms"] / pitch
+				_expect(absf(peak - 15.0) <= 1.0, "Absolute deadline keeps +15 ms at every pitch and combat scale")
+				# A submission already due must dispatch in this process tick,
+				# even if this bank's _process callback ran earlier in the frame.
+				bank.set_test_clock(bank.now_ms() + 5000)
+				var duration: float = bank.play(cue, {"peak_deadline_ms": bank.presentation_ms()})
+				_expect(bank.cues[cue]["played"] == before + 2 and bank._peak_pending.is_empty(), "Submitted climax does not wait for another process frame")
+				_expect(is_equal_approx(duration, bank.last_play["stream"].get_length() / pitch), "Immediate aligned call returns its actual trimmed playback duration")
+			entry["pitch_jitter"] = jitter
+			entry["pitch_scale"] = base
+	Engine.time_scale = 1.0
+	bank.set_test_clock(bank.now_ms() + 5000)
+	var before: int = bank.cues["move.blink"]["played"]
+	var deadline: float = bank.presentation_ms() + 100.0
+	bank.play("move.blink", {"peak_deadline_ms": deadline})
+	paused = true
+	bank.set_test_clock(bank.now_ms() + 3000)
+	bank.advance(3.0)
+	_expect(bank.cues["move.blink"]["played"] == before, "Pause freezes the absolute presentation deadline")
+	paused = false
+	Engine.time_scale = 0.0
+	bank.set_test_clock(bank.now_ms() + 3000)
+	bank.advance(0.0)
+	_expect(bank.cues["move.blink"]["played"] == before, "Hit-stop freezes the absolute presentation deadline")
+	Engine.time_scale = 1.0
+	bank.advance(0.0)
+	_expect(bank.cues["move.blink"]["played"] == before, "Resume cannot consume paused wall time")
+	clock["usec"] = roundi((deadline + 7.0) * 1000.0)
+	bank.advance(0.107)
+	var played: Dictionary = bank.last_play
+	_expect(bank.cues["move.blink"]["played"] == before + 1, "Late tick releases the absolute deadline")
+	_expect(is_equal_approx(played["alignment"]["late_ms"], 7.0), "Absolute deadline measures lateness in wall time")
+	_expect(played["alignment"]["requested_skip_ms"] > played["alignment"]["skip_ms"], "Lateness increases the requested head skip")
+	var peak: float = played["alignment"]["metrics"]["peak_ms"] / played["selected"]["pitch"]
+	_expect(peak >= 15.0 and peak + 7.0 <= 30.0, "Lateness compensation preserves the minimum pre-peak lead")
+	bank.presentation_clock = Callable()

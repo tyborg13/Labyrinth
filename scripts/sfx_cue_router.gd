@@ -63,17 +63,12 @@ var _illusions: Dictionary = {}
 var _deaths: Dictionary = {}
 var _dragons: Dictionary = {}
 var _roar_pending: bool = false
-var _animation_frames: int = 1
-var _animation_frame_ms: float = 0.0
 var _resolved: bool = false
 var _released: bool = false
-var _blink_signature: String = ""
-var _blink_progress: float = -1.0
+var _blink_origin: Variant = null
 var _impact_count: int = 0
 var _impact_frame: int = -1
 var _impact_cues: Dictionary = {}
-var _animation_scale: float = 1.0
-var _animation_wall_frame_ms: float = 0.0
 var _action_serial: int = 0
 var _fight_key: String = ""
 var _deck: Dictionary = {}
@@ -181,8 +176,7 @@ func begin_action(before: Dictionary, action: Dictionary, actor: Dictionary, wea
 	_trap_impact_pending = false
 	_radiance_played = false
 	baseline(before)
-	_blink_signature = ""
-	_blink_progress = -1.0
+	_blink_origin = null
 	var family: String = DEATH_FAMILIES.get(str(actor.get("type", "")), "")
 	var actor_key: String = str(action.get("actor_key", actor.get("id", "player")))
 	var kind: String = str(action.get("type", action.get("kind", "")))
@@ -218,9 +212,9 @@ func wind_up(action: Dictionary, actor: Dictionary = {}, weapon: String = "") ->
 	if kind == "melee" or (kind == "aoe" and str(action.get("aim", "")) == "facing"):
 		request("swing.heavy" if attack_family(action, actor, weapon) == "blunt" or int(action.get("damage", action.get("amount", 0))) >= 6 else "swing.light")
 
-func release(action: Dictionary, actor: Dictionary = {}, weapon: String = "", climax_ms: float = -1.0) -> void:
+func release(action: Dictionary, actor: Dictionary = {}, weapon: String = "") -> void:
 	var cue: String = release_cue(action, actor, weapon)
-	if not cue.is_empty(): request(cue, {"peak_climax_ms": climax_ms} if cue == "cast.arcane" and climax_ms >= 0.0 else {})
+	if not cue.is_empty(): request(cue, {"peak_deadline_ms": bank.presentation_ms()} if cue == "cast.arcane" and bank != null else {})
 
 func release_cue(action: Dictionary, actor: Dictionary = {}, weapon: String = "") -> String:
 	var kind: String = str(action.get("type", action.get("kind", "")))
@@ -275,8 +269,8 @@ func walk_tile(unit: Dictionary) -> void:
 func walk_start(unit: Dictionary) -> void:
 	if DEATH_FAMILIES.get(str(unit.get("type", "")), "") == "dragon": request("dragon.wings")
 
-func blink(climax_ms: float = -1.0) -> void:
-	request("move.blink", {"peak_climax_ms": climax_ms} if climax_ms >= 0.0 else {})
+func blink() -> void:
+	request("move.blink", {"peak_deadline_ms": bank.presentation_ms()} if bank != null else {})
 func push() -> void: request("push.slide")
 func trap(traps: Array) -> void:
 	_trap_impact_pending = not traps.is_empty()
@@ -319,49 +313,25 @@ func baseline(state: Dictionary) -> void:
 		var name: String = str(GameData.relic_def(id).get("name", ""))
 		if not name.is_empty(): _relic_names.append(name)
 
-func begin_animation(frame_count: int, frame_seconds: float, effective_scale: float = 1.0, wall_frame_ms: float = 0.0) -> void:
-	_animation_wall_frame_ms = wall_frame_ms
-	_animation_scale = maxf(effective_scale, 0.001)
-	_animation_frames = frame_count
-	_animation_frame_ms = round(frame_seconds * 1000000.0) / 1000.0
-
-func _wall_climax_ms(visual_ms: float) -> float:
-	var wall_ms: float = visual_ms / _animation_scale
-	# Timed animations submit on process frames. Include that same final tick
-	# when converting the authored deadline; a raw division is early by up to
-	# one frame at 1.5x/2x. The observed frame interval supplies the prediction.
-	if _animation_wall_frame_ms > 0.0:
-		wall_ms = ceil(wall_ms / _animation_wall_frame_ms - 0.00001) * _animation_wall_frame_ms
-	return wall_ms
-
 func presentation(state: Dictionary, shown: Dictionary) -> void:
 	var effect: Dictionary = shown.get("effect", {})
 	if _roar_pending and not Dragon.profile(effect).is_empty():
-		_roar_pending = false
 		var release: float = Dragon.RELEASE if str(Dragon.profile(effect).get("geometry", "")) == "breath" else Dragon.CONTACT
-		var current_frame: int = roundi(float(shown.get("effect_progress", 0.0)) * _animation_frames)
-		var climax_ms: float = _wall_climax_ms(maxi(0, ceili(release * _animation_frames) - current_frame) * _animation_frame_ms)
-		request("dragon.roar", {"peak_climax_ms": climax_ms})
+		if float(shown.get("effect_progress", 0.0)) >= release:
+			_roar_pending = false
+			request("dragon.roar", {"peak_deadline_ms": bank.presentation_ms()} if bank != null else {})
+	# This callback runs at board submission. The first destination state is
+	# the blink climax, even when process frames skip authored animation frames.
+	if _blink_origin != null and state.get("player", {}).get("pos") != _blink_origin and not shown.get("unit_world_positions", {}).has("player"):
+		_blink_origin = null
+		blink()
 	if str(effect.get("kind", "")) == "blink" and str(effect.get("actor_key", "player")) == "player" and not bool(effect.get("preview", false)):
-		var signature: String = str(effect)
-		var progress: float = float(shown.get("effect_progress", 0.0))
-		if signature != _blink_signature or progress < _blink_progress:
-			# The destination appears after the final authored frame interval.
-			blink(_wall_climax_ms((_animation_frames + 1 - roundi(progress * _animation_frames)) * _animation_frame_ms))
-		_blink_signature = signature
-		_blink_progress = progress
-	else:
-		_blink_signature = ""
-		_blink_progress = -1.0
+		if state.get("player", {}).get("pos") == effect.get("from"):
+			_blink_origin = effect.get("from")
 	if not effect.is_empty() and not _released and str(effect.get("kind", "")) in ["ranged", "aoe"]:
 		var style: String = Fx.style_for_effect(effect)
 		var release_progress: float = 0.18 if style == Fx.STYLE_DEFAULT else Fx.anticipation_end_progress(style)
-		var current_frame: int = roundi(float(shown.get("effect_progress", 0.0)) * _animation_frames)
-		if release_cue(_action, _actor, _weapon) == "cast.arcane":
-			var climax_ms: float = _wall_climax_ms(maxi(0, ceili(release_progress * _animation_frames) - current_frame) * _animation_frame_ms)
-			release(_action, _actor, _weapon, climax_ms)
-			_released = true
-		elif float(shown.get("effect_progress", 0.0)) >= release_progress:
+		if float(shown.get("effect_progress", 0.0)) >= release_progress:
 			release(_action, _actor, _weapon)
 			_released = true
 	var chain_hop: bool = int(effect.get("chain_index", 0)) > 0

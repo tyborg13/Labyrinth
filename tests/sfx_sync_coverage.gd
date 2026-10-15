@@ -56,12 +56,25 @@ static func _location(frame: Dictionary) -> String:
 		file = "scripts/" + file.trim_prefix("tests/sfx_sync_instrumented_")
 	return file + ":" + str(frame["line"])
 
-static func _counts(rows: Array) -> Dictionary:
+static func _counts(rows: Array, kind: String = "request_counts") -> Dictionary:
 	var result: Dictionary = {}
 	for row: Dictionary in rows:
+		var role: String = str(row.get("request", {}).get("role", "primary"))
+		if kind == "primary_play_counts" and (row["result"] != "played" or role != "primary"): continue
+		if kind == "optional_play_counts" and (row["result"] != "played" or role != "optional_layer"): continue
 		var key: String = str(row["scenario"]) + "|" + str(row["cue"])
 		result[key] = int(result.get(key, 0)) + 1
 	return result
+
+static func verify_request(row: Dictionary, cues: Dictionary, failures: Array[String]) -> void:
+	var result: String = row["result"]
+	if result == "played": return
+	var request: Dictionary = row.get("request", {})
+	var role: String = str(request.get("role", "primary"))
+	if result == "priority" and role == "optional_layer": return
+	if result == "cooldown" and int(request.get("since_success_ms", -1)) >= 0 and int(request.get("since_success_ms", -1)) < int(request.get("cooldown_ms", 0)): return
+	if result == "silent" and bool(cues[row["cue"]].get("loop", false)): return
+	failures.append("Required primary did not play: %s / %s (%s; %s)" % [row.get("scenario", "fixture"), row["cue"], result, role])
 
 static func verify(rows: Array[Dictionary], silences: Array[Dictionary], cues: Dictionary, failures: Array[String]) -> void:
 	var report: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(REPORT))
@@ -86,14 +99,18 @@ static func verify(rows: Array[Dictionary], silences: Array[Dictionary], cues: D
 	for cue: String in cues:
 		if not covered.has(cue): failures.append("Uncovered registered cue: " + cue)
 	var speed: float = float(rows[0].get("speed", 1.0)) if not rows.is_empty() else 1.0
-	var speed_index: int = (report["speeds"] as Array).find(speed)
-	var actual: Dictionary = _counts(rows)
-	if speed_index < 0:
-		failures.append("Unbaselined combat speed: " + str(speed))
+	var profile: String = str(rows[0].get("frame_profile", "fixed_60")) if not rows.is_empty() else "fixed_60"
+	var run_index: int = -1
+	for index: int in range(report["runs"].size()):
+		if report["runs"][index][0] == profile and float(report["runs"][index][1]) == speed: run_index = index
+	if run_index < 0:
+		failures.append("Unbaselined frame profile / speed: %s / %s" % [profile, speed])
 	else:
-		for key: String in report["observation_counts"]:
-			if int(actual.get(key, 0)) < int(report["observation_counts"][key][speed_index]): failures.append("Observation coverage shrank: " + key)
+		for kind: String in ["request_counts", "primary_play_counts", "optional_play_counts"]:
+			var actual: Dictionary = _counts(rows, kind)
+			for key: String in report[kind]:
+				if int(actual.get(key, 0)) < int(report[kind][key][run_index]): failures.append("%s shrank: %s / %sx / %s" % [kind, profile, speed, key])
 	for old: Dictionary in report.get("silences", []):
 		if not silences.any(func(row: Dictionary) -> bool: return row["scenario"] == old["scenario"] and int(row["frames"]) > 0 and int(row["requests"]) == 0):
 			failures.append("Silent visual coverage shrank: " + str(old["scenario"]))
-	print("SFX SYNC COVERAGE: %d observations, %d cue × call-site pairs, %d silent visuals" % [rows.size(), pairs.size(), silences.size()])
+	print("SFX SYNC COVERAGE: %s / %sx: %d requests, %d primary plays, %d cue × call-site pairs, %d silent visuals" % [profile, speed, rows.size(), rows.filter(func(row: Dictionary) -> bool: return row["result"] == "played" and row["request"]["role"] == "primary").size(), pairs.size(), silences.size()])

@@ -37,6 +37,7 @@ var assert_onsets: bool = false
 var supplied_sources: Dictionary = {}
 var source_hashes: Dictionary = {}
 var combat_scale: float = 1.0
+var frame_profile: String = "fixed_60"
 var length_failures: Array[String]
 
 func _initialize() -> void:
@@ -46,11 +47,16 @@ func _initialize() -> void:
 func _run() -> void:
 	var scales: Array[float]
 	scales.assign([1.0, 1.5, 2.0])
+	var profiles: Array[String]
+	profiles.assign(["fixed_60", "spikes", "fixed_30", "fixed_144", "jitter"])
 	for argument: String in OS.get_cmdline_user_args():
 		if argument.begins_with("--speed="): scales.assign([float(argument.trim_prefix("--speed="))])
-	for speed: float in scales:
-		combat_scale = speed
-		await _run_scale()
+		if argument.begins_with("--frames="): profiles.assign([argument.trim_prefix("--frames=")])
+	for profile: String in profiles:
+		frame_profile = profile
+		for speed: float in scales:
+			combat_scale = speed
+			await _run_scale()
 	if not measured_samples.is_empty(): Lengths.verify(measured_samples, length_failures)
 	failures.append_array(length_failures)
 	_write_report()
@@ -60,6 +66,7 @@ func _run() -> void:
 
 func _run_scale() -> void:
 	clock = Clock.new()
+	clock.configure(frame_profile)
 	var first_row: int = rows.size()
 	for argument: String in OS.get_cmdline_user_args():
 		if argument.begins_with("--samples="):
@@ -81,7 +88,6 @@ func _run_scale() -> void:
 	var instrumented: String = source.replace("Time.get_ticks_usec()", "_sfx_sync_clock.usec").replace("Time.get_ticks_msec()", "int(_sfx_sync_clock.usec / 1000)")
 	instrumented = instrumented.replace('const SfxBankScript = preload("res://scripts/sfx_bank.gd")', 'var SfxBankScript: Script')
 	instrumented = instrumented.replace('const SfxCueRouterScript = preload("res://scripts/sfx_cue_router.gd")', 'var SfxCueRouterScript: Script')
-	instrumented = instrumented.replace("get_process_delta_time() * 1000.0 / maxf(Engine.time_scale, 0.001)", "float(_sfx_sync_clock.FRAME_USEC) / 1000.0")
 	instrumented = instrumented.replace("get_tree().create_timer(", "_sfx_sync_clock.create_timer(")
 	instrumented = instrumented.replace("\tboard_view.present_sound_snapshot(display_state, presentation)", "\t_sfx_sync_clock.render(display_state, presentation, get_stack()); board_view.present_sound_snapshot(display_state, presentation)")
 	instrumented += "\nvar _sfx_sync_clock: RefCounted\n"
@@ -151,13 +157,15 @@ func _record(cue: String, result: String) -> void:
 		if not aligned.is_empty():
 			_verify_faded_pcm(played)
 			aligned["fade_and_tail_verified"] = played["alignment"]["fade_and_tail_verified"]
-			var path: String = ProjectSettings.globalize_path(_report_path()).get_base_dir().path_join("sfx-sync-pcm-%d-%d.wav" % [rows.size(), events.size()])
+			var pcm_directory: String = ProjectSettings.globalize_path(_report_path()).get_basename() + "-pcm"
+			DirAccess.make_dir_recursive_absolute(pcm_directory)
+			var path: String = pcm_directory.path_join("%d-%d.wav" % [rows.size(), events.size()])
 			(played["stream"] as AudioStreamWAV).save_to_wav(path)
 			aligned["pcm_path"] = path.trim_prefix(ProjectSettings.globalize_path("res://"))
 			sample = str(paths[int(played["selected"]["sample_index"])])
 	var targets: Dictionary = router.get("_merged_hits")
 	var target_key: String = str(targets.keys().back()) if not targets.is_empty() else ""
-	events.append({"target_key": target_key, "cue": cue, "result": result, "play_ms": float(clock.usec) / 1000.0,
+	events.append({"target_key": target_key, "cue": cue, "result": result, "request": bank.last_request.duplicate(), "play_ms": float(clock.usec) / 1000.0,
 		"stack": bank.scheduled_stack if not bank.scheduled_stack.is_empty() else get_stack(), "pitch": voice.pitch_scale if voice != null else 1.0,
 		"gain_db": voice.volume_db if voice != null else 0.0, "sample": sample, "alignment": aligned})
 
@@ -314,7 +322,7 @@ func _finish(before: Dictionary) -> void:
 		occurrences[cue] = occurrence + 1
 		var anchor: Dictionary = _anchor(cue, before, event, occurrence)
 		var climax: Dictionary = Visuals.climax(str(event["cue"]), clock.frames, anchor)
-		rows.append({"speed": combat_scale, "scenario": scenario, "cue": event["cue"], "result": event["result"],
+		rows.append({"speed": combat_scale, "frame_profile": frame_profile, "scenario": scenario, "cue": event["cue"], "result": event["result"], "request": event["request"],
 			"play_ms": event["play_ms"], "anchor_ms": anchor.get("time_ms"),
 			"delay_ms": float(event["play_ms"]) - float(anchor["time_ms"]) if not anchor.is_empty() else null,
 			"stack": event["stack"], "anchor_stack": anchor.get("stack", []),
@@ -322,6 +330,7 @@ func _finish(before: Dictionary) -> void:
 			"climax_ms": climax.get("time_ms"), "climax_stack": climax.get("stack", []),
 			"climax_after_trigger_ms": float(climax["time_ms"]) - float(anchor["time_ms"]) if climax.has("time_ms") and not anchor.is_empty() else null,
 			"pitch": event["pitch"], "sample": event["sample"], "gain_db": event["gain_db"], "alignment": event.get("alignment", {})})
+		Coverage.verify_request(rows.back(), bank.data["cues"], failures)
 		if assert_onsets and event["result"] == "played":
 			_assert_onset(rows.back())
 	clock.observing = false

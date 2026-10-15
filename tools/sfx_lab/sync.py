@@ -10,15 +10,10 @@ if __package__ in (None, ""):
 
 import numpy as np
 
-from tools.sfx_lab.common import LabError, cli, fade_in
+from tools.sfx_lab.common import LabError, cli
 
-# All audible values below come from the sfx-04 director brief. Retaining a
-# 2 ms lead lets the mandated fade finish before the measured transient.
 from tools.sfx_lab.sync_metrics import RULES
 THRESHOLD_DBFS = RULES["first_sample_threshold_dbfs"]
-REBUILD_ABOVE_MS = 10.0
-MAX_LEAD_MS = 5.0
-FADE_IN_MS = 2.0
 
 
 def onset_sample(samples: np.ndarray) -> int:
@@ -30,18 +25,6 @@ def onset_sample(samples: np.ndarray) -> int:
 
 def leading_ms(samples: np.ndarray, rate: int) -> float:
     return onset_sample(samples) * 1000 / rate
-
-
-def trim_onset(samples: np.ndarray, rate: int) -> tuple[np.ndarray, dict]:
-    first = onset_sample(samples)
-    removed = max(0, first - round(FADE_IN_MS * rate / 1000))
-    result = fade_in(samples[removed:].copy(), rate, FADE_IN_MS)
-    if leading_ms(result, rate) > MAX_LEAD_MS:
-        raise LabError("The prescribed trim/fade did not meet the 5 ms onset bound")
-    return result, {"task": "sfx-04", "threshold_dbfs": THRESHOLD_DBFS,
-                    "removed_samples": removed, "removed_ms": removed * 1000 / rate,
-                    "fade_in_ms": FADE_IN_MS, "fade_in_curve": "linear",
-                    "float_leading_ms": leading_ms(result, rate)}
 
 
 def variant_from_provenance(entry: dict) -> dict:

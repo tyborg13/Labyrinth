@@ -18,7 +18,7 @@ import numpy as np
 from tools.sfx_lab.common import decode, encode, sha256
 from tools.sfx_lab.sync_align import quiet_cut, rebuild_aligned
 from tools.sfx_lab.sync_metrics import RULES, envelope_times
-from tools.sfx_sync_audit import analyze, source_sites, site_identity, coverage_regressions
+from tools.sfx_sync_audit import analyze, source_sites, site_identity, coverage_regressions, compact_baseline, playback_failures
 
 BASELINE = ROOT / "spec/peer_benchmark/staged/sfx/sync_baseline.json"
 PROVENANCE = ROOT / "assets/audio/sfx/sfx-04-provenance.json"
@@ -80,9 +80,31 @@ class EvidenceTests(unittest.TestCase):
                 self.assertEqual(sha256(ROOT / path.removeprefix("res://")), sample["sha256"])
                 self.assertGreater(sample["duration_seconds"], 0)
         self.assertEqual(self.baseline["speeds"], [1, 1.5, 2])
-        scenarios = [{key.rsplit("|", 1)[0] for key, counts in self.baseline["observation_counts"].items() if counts[index] > 0} for index in range(3)]
-        self.assertEqual(scenarios[0], scenarios[1])
-        self.assertEqual(scenarios[0], scenarios[2])
+        self.assertEqual(len(self.baseline["runs"]), 15)
+        self.assertEqual({run[0] for run in self.baseline["runs"]}, {"fixed_60", "spikes", "fixed_30", "fixed_144", "jitter"})
+        scenarios = [{key.rsplit("|", 1)[0] for key, counts in self.baseline["request_counts"].items() if counts[index] > 0} for index in range(15)]
+        self.assertTrue(all(scenarios[0] == value for value in scenarios))
+
+    def test_primary_priority_drop_cannot_pass_as_request_coverage(self):
+        event = {"scenario": "weapon/spear/3", "cue": "hit.pierce", "result": "played", "speed": 1,
+                 "frame_profile": "spikes", "request": {"role": "primary"}}
+        result = {"observations": [event], "silences": [], "samples": {}, "rows": [], "summary": {}}
+        baseline = compact_baseline(result)
+        self.assertEqual(coverage_regressions(result, baseline), [])
+        event["result"] = "priority"
+        errors = coverage_regressions(result, baseline)
+        self.assertTrue(any("Required primary did not play" in error for error in errors))
+        self.assertTrue(any("primary_play_counts shrank" in error for error in errors))
+        self.assertFalse(any("request_counts shrank" in error for error in errors))
+
+    def test_only_explicit_optional_and_valid_cooldown_drops_are_allowed(self):
+        event = {"scenario": "fixture", "cue": "hit.pierce", "result": "priority", "request": {"role": "optional_layer"}}
+        self.assertEqual(playback_failures([event]), [])
+        event.update(result="cooldown", request={"role": "primary", "since_success_ms": 12, "cooldown_ms": 30})
+        self.assertEqual(playback_failures([event]), [])
+        for elapsed in [-1, 30, 100]:
+            event["request"]["since_success_ms"] = elapsed
+            self.assertTrue(playback_failures([event]))
 
     def test_call_identity_ignores_neighbors_and_tracks_statement(self):
         path = "scripts/sfx_cue_router.gd"
