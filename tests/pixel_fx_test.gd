@@ -1,6 +1,7 @@
 extends SceneTree
 
 const Pixel = preload("res://scripts/pixel_fx_layer.gd")
+const Lines = preload("res://scripts/pixel_fx_lines.gd")
 const Spell = preload("res://scripts/elemental_spell_fx.gd")
 const SurfaceDependencies = preload("res://scripts/board_surface_render_dependencies.gd")
 const Board = preload("res://scripts/combat_board_view.gd")
@@ -17,8 +18,17 @@ const BOUNDS_FIXTURE: Dictionary = {
 	"release_lift": Vector2(0, 80), "travel_offset": Vector2(300, 80), "floor_offset": Vector2(300, 0),
 }
 const FLOOR_EPSILON: float = 0.0001
+const MIXED_HALO_ALPHA: float = 0.5
+const LINE_RELEASE_CYCLES: int = 8
 var _errors: Array[String]
 var _checks: int = 0
+
+class LineDrawRecorder extends Lines.StrokeDrawing:
+	var submitted: Array[Dictionary]
+	func _stroke(points: PackedVector2Array, color: Color, width: float) -> void:
+		# Intercept only the native draw boundary. The production _draw() must
+		# choose the core/halo passes, so its separate fade guard is exercised.
+		submitted.append({"points": points, "alpha": color.a, "width": width})
 
 func _initialize() -> void:
 	Runtime.apply_from_environment()
@@ -27,6 +37,7 @@ func _initialize() -> void:
 func _run() -> void:
 	_data_and_quantizer()
 	_benchmark_verdict()
+	_line_fade_submission()
 	await _line_submission_lifetime()
 	await _board_integration()
 	await _blend_and_transforms()
@@ -394,6 +405,36 @@ func _line_paths(board: Control) -> void:
 				_expect(node.get("viewport") != null, "%s reaches its low-resolution GPU target" % kind)
 		_expect(strokes > 0, "%s production path uses pixel line rendering" % kind)
 
+func _line_fade_submission() -> void:
+	var lines := Lines.new()
+	var drawing := LineDrawRecorder.new()
+	drawing.lines = lines
+	var floor_alpha: float = float(Pixel.style()["alpha_floor"])
+	lines.configure(Rect2i(0, 0, 200, 100), Pixel.ramp_for("lightning"), floor_alpha, float(Pixel.style()["alpha_bias"]))
+	var points := PackedVector2Array([Vector2(10, 20), Vector2(100, 20)])
+	_expect(MIXED_HALO_ALPHA > floor_alpha, "Mixed-alpha fixture keeps its halo above the floor")
+	for alpha: float in [floor_alpha - FLOOR_EPSILON, floor_alpha, floor_alpha + FLOOR_EPSILON]:
+		lines.strokes.clear()
+		drawing.submitted.clear()
+		lines.stroke(points, Transform2D.IDENTITY, Color(1, 1, 1, alpha), Color(1, 1, 1, MIXED_HALO_ALPHA), "lightning")
+		_expect(lines.strokes.size() == 1, "Visible halo keeps the mixed-alpha stroke past the early filter")
+		drawing._draw()
+		var halo_draws: int = 0
+		var core_draws: int = 0
+		for draw: Dictionary in drawing.submitted:
+			if draw["width"] == Lines.HALO_WIDTH:
+				halo_draws += 1
+				_expect(is_equal_approx(draw["alpha"], MIXED_HALO_ALPHA * Lines.HALO_ALPHA_ENCODING), "Mixed-alpha halo preserves its encoded alpha")
+			elif draw["width"] == Lines.CORE_WIDTH:
+				core_draws += 1
+				_expect(draw["alpha"] == 1.0, "Eligible core submits the opaque shader flag")
+			else:
+				_expect(false, "Line draw uses only the core and halo widths")
+		_expect(halo_draws == 1, "Mixed-alpha halo drawing survives independently of the core cutoff")
+		_expect(core_draws == int(alpha >= floor_alpha), "Draw-time core coverage is empty below alpha_floor even with a visible halo")
+	drawing.free()
+	lines.free()
+
 func _line_submission_lifetime() -> void:
 	# Current-frame vertices are the only per-layer storage. The removed LRU
 	# and _cached_quads accounting cannot silently retain idle geometry.
@@ -415,17 +456,31 @@ func _line_submission_lifetime() -> void:
 		var lines: Node2D = pixel.get_node("QuantizedPixels/LineCells")
 		_expect((lines.get("strokes") as Array).size() == int(alpha >= floor_alpha), "Core ends below alpha_floor, including before the animation's last frame")
 		_expect((lines.get("viewport") != null) == (alpha >= floor_alpha), "Invisible line strokes allocate no target")
-	# Retain a non-line run: finish/draw must release the previous line target.
-	pixel.begin(source)
-	pixel.submit("lightning", _draw_plain_pixel_fixture, [], Transform2D.IDENTITY)
-	pixel.finish()
-	await _settle()
-	var lines: Node2D = pixel.get_node("QuantizedPixels/LineCells")
-	_expect((lines.get("strokes") as Array).is_empty() and lines.get("viewport") == null and lines.get_child_count() == 0, "A non-line frame releases all old line vertices and GPU nodes")
-	pixel.begin(source)
-	pixel.finish()
-	await _settle()
-	_expect(pixel.snapshot().is_empty() and pixel.find_children("LinePixels", "", true, false).is_empty(), "Empty finish releases all line targets")
+	for cycle: int in range(LINE_RELEASE_CYCLES):
+		for transition: String in ["non-line", "empty"]:
+			pixel.begin(source)
+			pixel.submit("lightning", Pixel.draw_line_command, [points, Color.WHITE, Color(1, 1, 1, MIXED_HALO_ALPHA)], Transform2D.IDENTITY)
+			pixel.finish()
+			await _settle()
+			var lines: Node2D = pixel.get_node("QuantizedPixels/LineCells")
+			# Keep IDs, not just owner references: a detached viewport and its
+			# drawing can stay alive after the owner has nulled every field.
+			var retired: Dictionary = {}
+			for field: String in ["viewport", "_drawing", "_composite"]:
+				var target: Node = lines.get(field)
+				_expect(is_instance_valid(target), "Cycle %d %s starts with a live %s" % [cycle, transition, field])
+				if is_instance_valid(target): retired[field] = target.get_instance_id()
+			pixel.begin(source)
+			if transition == "non-line":
+				pixel.submit("lightning", _draw_plain_pixel_fixture, [], Transform2D.IDENTITY)
+			pixel.finish()
+			await _settle()
+			for field: String in retired:
+				_expect(not is_instance_id_valid(retired[field]), "Cycle %d line-to-%s destroys %s after deferred deletion" % [cycle, transition, field])
+			if transition == "non-line":
+				_expect((lines.get("strokes") as Array).is_empty() and lines.get("viewport") == null and lines.get_child_count() == 0, "A non-line frame releases all old line vertices and GPU nodes")
+			else:
+				_expect(pixel.snapshot().is_empty() and pixel.find_children("LinePixels", "", true, false).is_empty(), "Empty finish releases all line targets")
 	# Parsed ramps are shared globally, bounded by authored ramp identities.
 	for index: int in range(100): Pixel.ramp_for("unknown_%d" % index)
 	_expect((Pixel._ramps as Dictionary).size() <= (Pixel.style()["ramps"] as Dictionary).size(), "Fallback names cannot grow the shared parsed-ramp cache")

@@ -1,5 +1,5 @@
 {
-  "min_images": 25,
+  "min_images": 26,
   "expected_sizes": [
     "1920x1080"
   ],
@@ -126,6 +126,11 @@
     },
     {
       "pattern": "line_alpha_floor.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "line_mixed_alpha.png",
       "width": 1920,
       "height": 1080
     }

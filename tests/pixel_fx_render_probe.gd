@@ -19,6 +19,7 @@ const UNIT_RECT := Rect2(300, 100, 500, 400)
 const FRONT_RECT := Rect2(500, 100, 200, 400)
 const CROP_RECT := Rect2(103.5, 105.25, 200, 120)
 const CROP_ALPHA_OFFSET: float = 0.1
+const MIXED_HALO_ALPHA: float = 0.5
 const BELOW_FLOOR_CELL := Vector2i(100, 180)
 const ABOVE_FLOOR_CELL := Vector2i(100, 272)
 const LINE_PROGRESS: float = 0.52
@@ -391,6 +392,24 @@ func _line_fade_and_width() -> void:
 			_expect(used == Rect2i(200, 200, 282, 2), "GPU straight core is exactly one low-res cell wide and includes both endpoints")
 			for x: int in range(200, 482): _expect(image.get_pixel(x, 200).a == 1.0, "Opaque core never dithers, even at alpha_floor")
 	_expect(_viewport.get_texture().get_image().save_png(OUTPUT.path_join("line_alpha_floor.png")) == OK, "Save GPU width/fade fixture")
+	# The halo keeps this stroke past the early filter. Only the draw-time
+	# core cutoff can prevent an opaque core from appearing in this case.
+	_expect(MIXED_HALO_ALPHA > floor_alpha, "Mixed-alpha GPU fixture keeps its halo above the floor")
+	pixel.begin(source)
+	pixel.submit("lightning", Pixel.draw_line_command, [points, Color(1, 1, 1, floor_alpha - 0.0001), Color(1, 1, 1, MIXED_HALO_ALPHA)], Transform2D.IDENTITY)
+	pixel.finish()
+	await _settle()
+	var lines: Node2D = pixel.get_node("QuantizedPixels/LineCells")
+	var strokes: Array[Dictionary]
+	strokes.assign(lines.get("strokes"))
+	_expect(strokes.size() == 1, "Visible halo retains the mixed-alpha GPU stroke")
+	var core_mask: Image = await _line_mask(lines, strokes, 1)
+	_expect(not core_mask.get_used_rect().has_area(), "GPU core coverage is empty below alpha_floor even with a visible halo")
+	var halo_mask: Image = await _line_mask(lines, strokes, 2)
+	_expect(halo_mask.get_used_rect().has_area(), "GPU halo coverage survives the independent core cutoff")
+	var normal: Image = await _line_mask(lines, strokes, 0)
+	_expect(normal.get_used_rect().has_area(), "Mixed-alpha GPU halo survives normal Bayer drawing")
+	_expect(_viewport.get_texture().get_image().save_png(OUTPUT.path_join("line_mixed_alpha.png")) == OK, "Save GPU mixed-alpha halo fixture")
 	source.queue_free()
 	await process_frame
 
