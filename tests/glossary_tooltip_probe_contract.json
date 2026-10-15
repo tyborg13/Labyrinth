@@ -1,5 +1,5 @@
 {
-  "min_images": 20,
+  "min_images": 22,
   "expected_sizes": [
     "1920x1080"
   ],
@@ -329,6 +329,40 @@
     },
     {
       "pattern": "*relic_choice_hollow_puppet_right.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*card_keywords_before.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*card_keywords_same_copy.png",
       "width": 1920,
       "height": 1080,
       "regions": [

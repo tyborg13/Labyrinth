@@ -14,7 +14,6 @@ const ELEMENTS := {
 	NONE: {
 		"name": "Neutral",
 		"label": "Neutral",
-		"short_label": "",
 		"accent": "#8a6d49",
 		"card_background": "#efe4cf",
 		"card_selected_background": "#ddd0bb",
@@ -26,7 +25,6 @@ const ELEMENTS := {
 	FIRE: {
 		"name": "Fire",
 		"label": "Fire",
-		"short_label": "FIRE",
 		"accent": "#d9623f",
 		"card_background": "#f5dfd2",
 		"card_selected_background": "#e9c5b0",
@@ -38,7 +36,6 @@ const ELEMENTS := {
 	ICE: {
 		"name": "Ice",
 		"label": "Ice",
-		"short_label": "ICE",
 		"accent": "#5fa7d8",
 		"card_background": "#dcecf6",
 		"card_selected_background": "#c2ddf0",
@@ -50,7 +47,6 @@ const ELEMENTS := {
 	LIGHTNING: {
 		"name": "Lightning",
 		"label": "Lightning",
-		"short_label": "LGT",
 		"accent": "#cfb347",
 		"card_background": "#f4ebc8",
 		"card_selected_background": "#eadb9b",
@@ -62,7 +58,6 @@ const ELEMENTS := {
 	AIR: {
 		"name": "Air",
 		"label": "Air",
-		"short_label": "AIR",
 		"accent": "#72bea5",
 		"card_background": "#dff4ee",
 		"card_selected_background": "#c6e7dd",
@@ -74,7 +69,6 @@ const ELEMENTS := {
 	EARTH: {
 		"name": "Earth",
 		"label": "Earth",
-		"short_label": "EARTH",
 		"accent": "#89a15b",
 		"card_background": "#e5edd7",
 		"card_selected_background": "#d2dfbc",

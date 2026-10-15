@@ -4248,7 +4248,7 @@ func controller_tooltip_for_tile(tile: Vector2i) -> String:
 	return _surface_tooltip_for_tile(tile)
 
 func _make_custom_tooltip(for_text: String) -> Object:
-	if for_text.begins_with("Bramble:"): return UiTooltipPanel.make_icon_lines(ActionIcons.icon_texture("bramble"), "Bramble", PackedStringArray([for_text]))
+	if for_text.begins_with(ActionIcons.label("bramble") + "\n"): return UiTooltipPanel.make_icon_lines(ActionIcons.icon_texture("bramble"), ActionIcons.label("bramble"), PackedStringArray([for_text.substr(for_text.find("\n") + 1)]))
 	if for_text.strip_edges().is_empty():
 		return null
 	if for_text.begins_with("item:"):
@@ -8021,7 +8021,7 @@ func _loot_tooltip_text(loot: Dictionary) -> String:
 		"item":
 			return "item:%s" % str(loot.get("card_id", ""))
 		"dropped_embers":
-			return "Dropped embers: Reclaim %d" % int(loot.get("amount", 0))
+			return "Dropped Embers: Reclaim %d" % int(loot.get("amount", 0))
 		"equipment":
 			var equipment_id: String = str(loot.get("equipment_id", ""))
 			return "equipment:%s" % equipment_id
@@ -16672,7 +16672,7 @@ func _unit_status_badges(unit: Dictionary) -> Array[Dictionary]:
 			"fill": Color("3c285f"),
 			"border": Color("8eefff"),
 			"icon_tint": Color.WHITE,
-			"tooltip": "True Sight\nEnemies remain visible through Umbra and reveal their intents.\n%s" % duration_text
+			"tooltip": "Truesight\nEnemies remain visible through Umbra and reveal their intents.\n%s" % duration_text
 		})
 	if int(unit.get("bleed", 0)) > 0:
 		badges.append({

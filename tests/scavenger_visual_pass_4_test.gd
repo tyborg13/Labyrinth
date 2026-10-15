@@ -58,7 +58,7 @@ func _initialize() -> void:
 	_expect(currency is StatChip and (shop.get("_currency_label") as Label).text == "720", "Shared chip shows the held ember total")
 	_expect((shop.get("_dialogue_panel") as Control).size == Vector2(520, 170), "Leather dialogue fits the authored compact tray")
 	var body: Label = shop.get("_dialogue_words") as Label
-	_expect(body.text == "“Cards, steel, little miracles in bottles. Spend your embers, or show me what you've brought to sell.”", "Welcome preserves its exact words in quotes")
+	_expect(body.text == "“Cards, steel, little miracles in bottles. Spend your Embers, or show me what you've brought to sell.”", "Welcome preserves its exact words in quotes")
 	_expect(body.get_theme_font_size("font_size") == 23 and body.get_theme_color("font_color") == Palette.TEXT, "Welcome uses 23px body type")
 	for category: String in ["Magic", "Gear", "Items"]:
 		var plaque: TextureRect = shop.find_child(category + "Plaque", true, false) as TextureRect

@@ -157,7 +157,7 @@ func _assert_header() -> void:
 			_expect(absf(button.global_position.x - previous.get_global_rect().end.x - 8.0) < 1.0, "Header actions retain master's order and eight-pixel spacing")
 			_expect(Rect2(Vector2.ZERO, Vector2(SIZE)).encloses(button.get_global_rect()), "Header actions remain inside the viewport")
 			previous = button
-	_expect((_header_instance.get("loadout_button") as Button).tooltip_text == "Character Loadout" and (_header_instance.get("grimoire_button") as Button).tooltip_text == "Grimoire" and (_header_instance.get("menu_button") as Button).tooltip_text == "Menu" and (_header_instance.get("_section_map_hud_button") as Button).tooltip_text == "Map [M]", "Header actions retain exact tooltips and map binding")
+	_expect((_header_instance.get("loadout_button") as Button).tooltip_text == "Character" and (_header_instance.get("grimoire_button") as Button).tooltip_text == "Grimoire" and (_header_instance.get("menu_button") as Button).tooltip_text == "Menu" and (_header_instance.get("_section_map_hud_button") as Button).tooltip_text == "Map [M]", "Header actions retain exact tooltips and map binding")
 	for key: String in ["_grimoire_badge", "_loadout_badge"]:
 		var badge := _header_instance.get(key) as PanelContainer
 		_expect(badge != null and badge.custom_minimum_size == Vector2(18, 18) and badge.offset_left == -18.0 and badge.offset_top == -3.0 and badge.offset_right == 0.0 and badge.offset_bottom == 15.0, "Notification badges retain master's exact size and offsets")

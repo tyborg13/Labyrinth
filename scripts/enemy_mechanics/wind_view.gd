@@ -169,7 +169,7 @@ static func refresh_chip(scene: Control, display_state: Dictionary = {}) -> void
 	arrow.heading = screen_direction(value["direction"])
 	arrow.queue_redraw()
 	(chip.get_node("Contents/Title") as Label).text = "Wind · %d" % int(value["rounds_left"])
-	chip.tooltip_text = "At the end of each enemy turn, everything not anchored is pushed 1 tile %s." % direction_name(value["direction"])
+	chip.tooltip_text = Icons.tooltip("wind") + "\n" + direction_name(value["direction"]) + "."
 	chip.position = scene._turn_order_panel.position + Vector2(0, scene._turn_order_panel.size.y)
 	chip.reset_size()
 

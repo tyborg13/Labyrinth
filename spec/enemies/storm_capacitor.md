@@ -10,8 +10,8 @@ comparisons: Stone Warden's anchor and Lightning Wisp's electrical reach.
    the approved `charge` painting and exact tooltip. Three 8px diamonds sit
    above its health bar; empty outline `#3a2f4f`, fill `#a77bf0`, glow alpha 0.4.
    Edge gaps are 4px; the row centre is 10px above the health-frame top.
-   Charge and Discharge pills display integer `+1` and `6`.
-2. At 3, the next selected intent is Discharge. Manhattan first reach is 4;
+   Charge and Arc Burst pills display integer `+1` and `6`.
+2. At 3, the next selected intent is Arc Burst. Manhattan first reach is 4;
    nearest target wins; ties prefer the hero, then lowest current HP, then
    lowest tile y, then x. The source is
    excluded like ordinary Chain. Later hops use eight-neighbour adjacency,

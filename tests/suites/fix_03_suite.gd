@@ -112,7 +112,7 @@ static func _test_tokens(expect: Callable) -> void:
 				expect.call(Icons.icon_texture(entry["icon"]) != null, entry["name"] + " has a loadable approved icon")
 				expect.call(not Icons.token_tooltip(token).contains("<"), entry["name"] + " tooltip has no unfilled placeholder")
 				if str(entry["name"]).begins_with("intent_gain_charge") or str(entry["name"]).begins_with("intent_chain_discharge"):
-					expect.call(Icons.token_tooltip(token) == "", entry["name"] + " keeps its pre-fix empty tooltip")
+					expect.call(Icons.token_tooltip(token) == "Charge\nGains Charge each use. At 3, its next intent is Arc Burst: lightning jumping between nearby units. Shock removes 1.", entry["name"] + " uses the approved Charge definition")
 			if entry["name"] == "lightning_strikes":
 				expect.call(token.get("icon", "") != "shock", "Lightning Strikes count does not imply Shock")
 		expect.call(found, entry["name"] + " includes its concept icon")

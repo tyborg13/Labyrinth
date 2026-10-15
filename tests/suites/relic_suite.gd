@@ -6,6 +6,7 @@ const CombatBoardView = preload("res://scripts/combat_board_view.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const InlineText = preload("res://scripts/inline_icon_text.gd")
 const RunScene = preload("res://scripts/run_scene.gd")
 
 const NEW_RELIC_IDS := [
@@ -135,7 +136,7 @@ static func _test_complete_set_contract(expect: Callable) -> void:
 		expect.call(str(raw_relic.get("accent", "")) == GameData.relic_rarity_accent(rarity), "%s should use its rarity accent" % relic_id)
 		var description: String = str(relic.get("description", ""))
 		expect.call(not description.contains("{") and not description.contains("}"), "%s should resolve every rules-text placeholder" % relic_id)
-		expect.call(not description.is_empty() and description.length() <= 240, "%s should keep exact rules text within the relic choice copy budget" % relic_id)
+		expect.call(not description.is_empty() and InlineText.plain_text(description).length() <= 240, "%s should keep rendered rules text within the relic choice copy budget" % relic_id)
 		var icon_path: String = str(raw_relic.get("icon_path", ""))
 		var image := Image.new()
 		var load_error: Error = image.load(ProjectSettings.globalize_path(icon_path))

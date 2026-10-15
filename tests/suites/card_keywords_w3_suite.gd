@@ -513,7 +513,7 @@ static func _test_presentation_contracts(engine: CombatEngine, expect: Callable)
 	var thorn_rows: Array = ActionIcons.rows_for_card(thorn_card)
 	var thorn_cost_row: Array = thorn_rows[0] as Array if not thorn_rows.is_empty() else []
 	expect.call(thorn_rows.size() == 2 and thorn_cost_row.size() == 2 and str((thorn_cost_row[0] as Dictionary).get("icon", "")) == "rite" and str((thorn_cost_row[1] as Dictionary).get("icon", "")) == "health_cost" and str((thorn_cost_row[1] as Dictionary).get("value", "")) == "-2", "A Rite card leads with a labelled Rite keyword row and its health cost")
-	expect.call(ActionIcons.token_tooltip(thorn_cost_row[0] as Dictionary if not thorn_cost_row.is_empty() else {}).contains("Rite: Exhaust. Lasts for the rest of this combat."), "The Rite keyword token explains Exhaust and duration")
+	expect.call(ActionIcons.token_tooltip(thorn_cost_row[0] as Dictionary if not thorn_cost_row.is_empty() else {}) == "Rite\nIts effect lasts for the rest of this combat. Exhaust.", "The Rite keyword token explains Exhaust and duration")
 	var thorn_text: Dictionary = (thorn_rows[1] as Array)[0] as Dictionary if thorn_rows.size() > 1 else {}
 	expect.call(str(thorn_text.get("kind", "")) == "rules_text" and str(thorn_text.get("value", "")) == "Enemies that hit you in melee take 3 and Bleed\u00a01.", "The Rite's rules text follows its keyword row without repeating Rite or the cost, its last two words kept together")
 	expect.call(ActionIcons.tooltip_entries_for_rows(thorn_rows, ["rite"]).size() == 2, "Rite focus tooltips list Rite once plus the health cost")

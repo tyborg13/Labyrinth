@@ -76,7 +76,7 @@ func _test_recap_model_values() -> void:
 	_assert(int(defeat.get("rooms_cleared", -1)) == 3, "Rooms cleared should count committed non-start cleared rooms")
 	_assert(str(defeat.get("boss_result", "")) == "1 guardian defeated", "Defeat recap should derive prior boss clears")
 	_assert(str(defeat.get("ember_label", "")) == "EMBERS LOST" and int(defeat.get("ember_amount", -1)) == 37, "Defeat recap should show the committed lost ember amount")
-	_assert(str(defeat.get("recovery_status", "")) == "Recovery marker set · Depth 4 · 37 embers", "Defeat recap should match the committed recovery marker")
+	_assert(str(defeat.get("recovery_status", "")) == "Recovery marker set · Depth 4 · 37 Embers", "Defeat recap should match the committed recovery marker")
 	var stats: Dictionary = defeat.get("stats", {}) as Dictionary
 	_assert(int(stats.get("enemies_killed", -1)) == 11, "Defeat recap should reliably report enemies killed")
 	_assert(int(stats.get("damage_dealt", -1)) == 830, "Defeat recap should reliably report actual enemy HP damage")
@@ -92,7 +92,7 @@ func _test_recap_model_values() -> void:
 		"defeat",
 		0
 	)
-	_assert(str(zero_defeat.get("recovery_status", "")) == "No marker · no embers left behind", "Zero-ember defeat should not promise a recovery marker")
+	_assert(str(zero_defeat.get("recovery_status", "")) == "No marker · no Embers left behind", "Zero-ember defeat should not promise a recovery marker")
 	var victory: Dictionary = RunEndRecapOverlay.build_model(run_state, ProgressionStore.default_data(), "victory", 0)
 	_assert(str(victory.get("ember_label", "")) == "EMBERS BANKED" and int(victory.get("ember_amount", -1)) == 0, "Zero-ember victory should explicitly show a zero banked result")
 	_assert(str(victory.get("boss_result", "")) == "Final boss defeated", "Victory recap should report the final boss result")
@@ -104,7 +104,7 @@ func _test_recap_model_values() -> void:
 	)
 	expiring_marker_progression = ProgressionStore.prepare_for_new_run(expiring_marker_progression)
 	var marker_victory: Dictionary = RunEndRecapOverlay.build_model(run_state, expiring_marker_progression, "victory", 28)
-	_assert(str(marker_victory.get("recovery_status", "")) == "Marker expires · 19 embers unrecovered", "Victory recap should preview recovery-marker expiry on New Run")
+	_assert(str(marker_victory.get("recovery_status", "")) == "Marker expires · 19 Embers unrecovered", "Victory recap should preview recovery-marker expiry on New Run")
 
 func _test_combat_stat_sources_and_snapshot_exactly_once() -> void:
 	var combat := CombatEngine.new()
@@ -397,7 +397,7 @@ func _test_run_scene_progression_and_actions() -> void:
 	_assert(recap != null and recap.visible, "Victory should display the run recap over the board")
 	var victory_model: Dictionary = recap.call("recap_model") if recap != null else {}
 	_assert(int(victory_model.get("ember_amount", -1)) == 53, "Victory display should preserve the pre-clear carried amount")
-	_assert(str(victory_model.get("recovery_status", "")) == "Marker expires · 19 embers unrecovered", "Victory display should communicate the marker consequence of starting the next run")
+	_assert(str(victory_model.get("recovery_status", "")) == "Marker expires · 19 Embers unrecovered", "Victory display should communicate the marker consequence of starting the next run")
 	_assert(int(ProgressionStore.load_data().get("embers", -1)) == 53, "Victory should commit banked embers before displaying the recap")
 	_assert(engine.held_embers(instance.get("_run_state")) == 0, "Victory should clear embers from the ended run after banking")
 	var settled_victory: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)

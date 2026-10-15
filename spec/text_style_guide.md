@@ -56,7 +56,11 @@ the turn-clock resource: "costs 5 Time", "Wait" (capitalized keyword).
 5. Flavour, if any, last and visually quieter.
 
 ## 6. Formatting
-- Keywords use the existing keyword style (BBCode/colour token) everywhere, including inside glossary definitions.
+- Explicit keyword/term tokens (`@kw`, `@term`, including `|Form` inflections) use
+  `InlineIconText.KEYWORD_COLOR`, backed by `UiPalette.GOLD_BRIGHT` (`#f0cf8a`), on cards, relics, events and inside
+  glossary definitions. They inherit the host text's font, size and weight, with no underline. Existing glossary
+  hover behaviour is retained. This shared token is the "existing keyword style"; retune its named constant in
+  `scripts/inline_icon_text.gd`.
 - Numbers that change with upgrades or modifiers use the value style; modified values keep the existing modifier
   marker.
 - Element names are capitalized when they are keywords (Fire, Ice, Lightning, Air, Earth).

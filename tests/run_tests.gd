@@ -770,9 +770,9 @@ func _test_relic_data_rarity_and_offer_weights() -> void:
 		var icon_path: String = str(relic.get("icon_path", ""))
 		_assert(FileAccess.file_exists(icon_path), "%s relic icon should exist" % relic_id)
 	_assert(str(GameData.relic_def("thornmail_brooch").get("description", "")).contains("cross"), "Faultline Brooch should explain its optional melee footprint transformation")
-	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("all remaining @icon(block)"), "Obsidian Heart should explain its end-of-turn block conversion")
-	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("Opening @icon(draw) -1"), "Obsidian Heart should format its negative opening draw through the draw icon")
-	_assert(str(GameData.relic_def("black_sun_dial").get("description", "")).contains("stores it (max 3)"), "Black Sun Dial should describe its stored-element rule")
+	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")) == "At the start of combat, @kw(draw) 1 fewer card. At the end of your turn, convert all your @term(block) into @term(stoneskin).", "Obsidian Heart should explain its end-of-turn block conversion")
+	_assert(str(GameData.relic_def("obsidian_heart").get("description", "")).contains("At the start of combat, @kw(draw) 1 fewer card."), "Obsidian Heart should format its negative opening draw through the approved keyword")
+	_assert(str(GameData.relic_def("black_sun_dial").get("description", "")) == "Store up to 3 @kw(surface_consume|Expended) ground tiles. Your next attack releases them: +2 damage each. @term(surface_fire): @kw(surface_fire) beneath. @term(surface_ice): @term(chilled). @term(surface_electrified): @term(shock). @term(surface_rubble): @kw(stagger) 2.", "Black Sun Dial should describe its stored-element rule")
 	_assert(GameData.relic_offer_weight("pilgrim_boots") > GameData.relic_offer_weight("ember_lens"), "Common relics should be offered more often than rare relics")
 	_assert(GameData.relic_offer_weight("ember_lens") > GameData.relic_offer_weight("bloodglass_knife"), "Rare relics should be offered more often than epic relics")
 	_assert(GameData.relic_offer_weight("bloodglass_knife") > GameData.relic_offer_weight("storm_crown"), "Epic relics should be offered more often than legendary relics")
@@ -5086,7 +5086,7 @@ func _test_pickup_tooltips_describe_effects() -> void:
 		"Every item pickup should use its own card identity"
 	)
 	_assert(
-		str(board.call("_loot_tooltip_text", {"kind": "dropped_embers", "amount": 23})) == "Dropped embers: Reclaim 23",
+		str(board.call("_loot_tooltip_text", {"kind": "dropped_embers", "amount": 23})) == "Dropped Embers: Reclaim 23",
 		"Dropped ember tooltips should show the exact recoverable amount"
 	)
 	_assert(
@@ -6858,7 +6858,7 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	_assert(str((row[2] as Dictionary).get("icon", "")) == "shock", "Status keywords should use their shared icon token")
 	var immobilize_row: Array = ActionIcons.tokens_for_action({"type": "ranged", "damage": 3, "range": 5, "immobilize": true})
 	_assert(str((immobilize_row[2] as Dictionary).get("icon", "")) == "immobilize", "Immobilize should use its shared status icon token")
-	_assert(ActionIcons.tooltip("immobilize").contains("movement"), "Immobilize tooltip should explain the movement lock")
+	_assert(ActionIcons.tooltip("immobilize") == "Immobilize\nCan't Move, Blink or Swap during its next turn.", "Immobilize tooltip should explain the movement lock")
 	var shove_row: Array = ActionIcons.tokens_for_action({"type": "ranged", "damage": 4, "range": 4, "shock": 1, "push": 1})
 	_assert(str((shove_row[shove_row.size() - 1] as Dictionary).get("icon", "")) == "push", "Push riders should render after hit, range, and status tokens")
 	var direct_push_row: Array = ActionIcons.tokens_for_action({"type": "push", "damage": 5, "range": 4, "amount": 2})
@@ -6870,31 +6870,31 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	var pierce_row: Array = ActionIcons.tokens_for_action({"type": "ranged", "damage": 6, "range": 5, "pierce": true})
 	_assert(pierce_row.size() == 2, "Pierce should replace the ranged damage icon instead of adding another keyword token")
 	_assert(str((pierce_row[0] as Dictionary).get("icon", "")) == "pierce", "Pierce attacks should use the pierce damage icon")
-	_assert(ActionIcons.tooltip("pierce").contains("block"), "Pierce tooltip should explain defense bypass")
+	_assert(ActionIcons.tooltip("pierce") == "Pierce\nThis damage ignores Block and Stoneskin.", "Pierce tooltip should explain defense bypass")
 	var blood_row: Array = ActionIcons.tokens_for_action({"type": "melee", "damage": 3, "range": 1, "bleed": 2, "expose": 4, "sunder": 3})
 	_assert(str((blood_row[1] as Dictionary).get("icon", "")) == "bleed", "Bleed should render as an attack keyword token")
 	_assert(str((blood_row[2] as Dictionary).get("icon", "")) == "expose", "Expose should render as an attack keyword token")
 	_assert(str((blood_row[3] as Dictionary).get("icon", "")) == "sunder", "Sunder should render as an attack keyword token")
-	_assert(ActionIcons.tooltip("bleed").contains("before moving or attacking"), "Bleed tooltip should explain action-triggered wound damage")
-	_assert(ActionIcons.tooltip("expose").contains("next hit"), "Expose tooltip should explain the follow-up damage")
-	_assert(ActionIcons.tooltip("sunder").contains("stoneskin"), "Sunder tooltip should explain defense breaking")
+	_assert(ActionIcons.tooltip("bleed") == "Bleed\nBefore each move or attack, it takes damage equal to its Bleed. Clears when its turn ends.", "Bleed tooltip should explain action-triggered wound damage")
+	_assert(ActionIcons.tooltip("expose") == "Expose\nThe next attack that damages it deals that much more damage. Then Expose ends.", "Expose tooltip should explain the follow-up damage")
+	_assert(ActionIcons.tooltip("sunder") == "Sunder\nBefore damage, remove up to that much Block, then Stoneskin, from the target.", "Sunder tooltip should explain defense breaking")
 	var aoe_row: Array = ActionIcons.tokens_for_action({"type": "aoe", "damage": 5, "range": 0, "pattern": [[0, -1], [1, 0], [0, 1], [-1, 0]]})
 	_assert(str((aoe_row[1] as Dictionary).get("kind", "")) == "aoe_pattern", "AOE actions should surface a tile pattern token")
 	_assert(bool((aoe_row[1] as Dictionary).get("show_origin", false)), "Close AOE pattern tokens should include the player origin tile")
-	_assert(ActionIcons.tooltip("surface_fire").contains("when entered"), "Fire ground tooltips must explain entry timing")
+	_assert(ActionIcons.tooltip("surface_fire") == "Fire\nA unit that enters takes 2 damage. One that starts its turn here takes 3.", "Fire ground tooltips must explain entry timing")
 	var card_play_row: Array = ActionIcons.tokens_for_action({"type": "card_play", "amount": 1})
 	_assert(str((card_play_row[0] as Dictionary).get("icon", "")) == "card_play", "Card-play actions should use the play-meter icon")
-	_assert(ActionIcons.tooltip("card_play").contains("card plays"), "Card-play tooltip should explain the temporary play bonus")
+	_assert(ActionIcons.tooltip("card_play") == "Card Play\nPlaying a card spends 1. Refills each turn. Killing an enemy on your turn grants 1 more, except summons.", "Card-play tooltip should explain the temporary play bonus")
 	var flurry_cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("cinder_fusillade"))
 	_assert(flurry_cost_rows.size() == 1 and str(((flurry_cost_rows[0] as Array)[0] as Dictionary).get("icon", "")) == "flurry", "Flurry cards should show their dedicated cost icon")
-	_assert(ActionIcons.tooltip("flurry").to_lower().contains("pays time once"), "Flurry tooltip should distinguish repeated effects from its single time payment")
+	_assert(ActionIcons.tooltip("flurry") == "Flurry\nRepeat this card once per Card Play left, spending them all, on the same target. Pay its Time once.", "Flurry tooltip should distinguish repeated effects from its single time payment")
 	var flurry_icon := Image.new()
 	var flurry_icon_error: Error = flurry_icon.load(ActionIcons.icon_path("flurry"))
 	_assert(flurry_icon_error == OK and flurry_icon.get_width() == 112 and flurry_icon.get_height() == 64, "Flurry should ship its dedicated wide 112x64 action icon")
 	var illusion_row: Array = ActionIcons.tokens_for_action({"type": "illusion", "health": 4, "range": 3})
 	_assert(str((illusion_row[0] as Dictionary).get("icon", "")) == "illusion", "Illusion actions should use the illusion icon")
 	_assert(str((illusion_row[1] as Dictionary).get("icon", "")) == "range", "Illusion actions should show placement range")
-	_assert(ActionIcons.tooltip("illusion").contains("stationary copy"), "Illusion tooltip should explain the decoy")
+	_assert(ActionIcons.tooltip("illusion") == "Illusion\nCreate a decoy with that much Health. Enemies attack it when it's at least as close as you.", "Illusion tooltip should explain the decoy")
 	# Borrowed Spark exhausts and costs health (Gate Gambit was cut in the card pool overhaul).
 	var cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("borrowed_spark"))
 	_assert(cost_rows.size() == 1, "Card costs should render as one leading action row")
@@ -6904,8 +6904,8 @@ func _test_keyword_icon_library_surfaces_tooltips() -> void:
 	var consume_cost_rows: Array = ActionIcons.cost_rows_for_card(GameData.card_def("crimson_draught"))
 	_assert(consume_cost_rows.size() == 1 and str(((consume_cost_rows[0] as Array)[0] as Dictionary).get("icon", "")) == "consume", "Consumable item cards should show a one-use cost icon")
 	_assert(not ActionIcons.tooltip("burn").contains("card"), "Burn status tooltip should not describe card exhaust costs")
-	_assert(ActionIcons.tooltip("exhaust").contains("Removes this card"), "Exhaust cost tooltip should describe card removal")
-	_assert(ActionIcons.tooltip("consume").contains("once"), "Consume cost tooltip should describe one-time item use")
+	_assert(ActionIcons.tooltip("exhaust") == "Exhaust\nAfter use, this card leaves your deck until combat ends.", "Exhaust cost tooltip should describe card removal")
+	_assert(ActionIcons.tooltip("consume") == "Consume\nAfter use, this item is gone for the rest of the run.", "Consume cost tooltip should describe one-time item use")
 	var tooltip_panel: PanelContainer = UiTooltipPanel.make_text(ActionIcons.tooltip("poison"))
 	_assert(
 		tooltip_panel.get_node_or_null(UiSkin.PANEL_INSET_ORNAMENT_NAME) != null
@@ -9730,7 +9730,7 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	_assert(_label_with_text(relic_overlay, "END RUN") == null, "Campfire abandon choice should not duplicate end-run text in a chip")
 	_assert(_label_with_text(relic_overlay, "NEED 180") != null, "Campfire level-up choice should show the missing ember chip")
 	_assert(_label_with_text(relic_overlay, "HELD 0") != null, "Campfire level-up choice should show current held embers when disabled")
-	_assert(_label_with_text(relic_overlay, "Need 180 embers") != null, "Campfire level-up choice should be disabled when held embers are short")
+	_assert(_label_with_text(relic_overlay, "Need 180 Embers") != null, "Campfire level-up choice should be disabled when held embers are short")
 	var disabled_strength_panel: Control = null
 	if relic_bar != null and relic_bar.get_child_count() > 2:
 		disabled_strength_panel = relic_bar.get_child(2) as Control
@@ -10382,12 +10382,12 @@ func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
 	instance.call("_layout_combat_action_dock")
 	instance.call("_layout_choice_button_overlay")
 	var count_label: Label = instance.get("_play_meter_count") as Label
-	_assert(count_label != null and count_label.text == "2 card plays", "Card play meter should start from available combat plays")
+	_assert(count_label != null and count_label.text == "2 Card Plays", "Card play meter should start from available combat plays")
 	var banked_badge: Control = instance.get("_play_meter_banked_badge") as Control
 	_assert(banked_badge != null and not banked_badge.visible, "Card play meter should hide its banked-play badge when no play is stored")
 	_assert(count_label != null and absf(count_label.position.y) <= 1.0 and absf(count_label.size.y - 58.0) <= 1.0, "Default card-play copy should be vertically centered in the full 58px plaque")
 	instance.call("_begin_card_play_meter_spend_preview")
-	_assert(count_label != null and count_label.text == "1 card play", "Card play meter should spend the played card immediately")
+	_assert(count_label != null and count_label.text == "1 Card Play", "Card play meter should spend the played card immediately")
 	var rewarded_state: Dictionary = combat_state.duplicate(true)
 	rewarded_state["death_bonus_card_plays_this_turn"] = 1
 	_assert(int(instance.call("_card_play_count_for_resolution_state", rewarded_state)) == 2, "Death-reward play previews should add to the already-spent meter count")
@@ -10409,7 +10409,7 @@ func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
 		await process_frame
 	_assert(int(instance.get("_hand_layout_pending_revision")) != int(instance.get("_hand_layout_revision")), "Card-play dock coverage should wait for the bounded asynchronous hand-layout fit")
 	var banked_label: Label = instance.get("_play_meter_banked_label") as Label
-	_assert(count_label != null and count_label.text == "3 card plays", "The large card-play count should include the banked play available this turn")
+	_assert(count_label != null and count_label.text == "3 Card Plays", "The large card-play count should include the banked play available this turn")
 	_assert(banked_badge != null and banked_badge.visible and banked_label != null and banked_label.text == "1 BANKED • NO TIME", "A stored Borrowed Time play should have its own explicit badge")
 	_assert(count_label != null and count_label.position.y >= 3.0 and count_label.size.y <= 26.0, "Banked-play state should intentionally split the plaque into count and banked rows")
 	var play_meter: Control = instance.get("_play_meter") as Control
@@ -10418,7 +10418,7 @@ func _test_run_scene_card_play_meter_spends_before_resolution_rewards() -> void:
 	combat_state["cards_played_this_turn"] = 2
 	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.call("_refresh_card_play_meter")
-	_assert(count_label != null and count_label.text == "1 card play" and banked_label != null and banked_label.text == "1 BANKED • NO TIME", "A currently usable banked play must not look like an exhausted turn")
+	_assert(count_label != null and count_label.text == "1 Card Play" and banked_label != null and banked_label.text == "1 BANKED • NO TIME", "A currently usable banked play must not look like an exhausted turn")
 	combat_state["cards_played_this_turn"] = 0
 	_set_run_scene_combat_state_for_test(instance, combat_state)
 	instance.call("_begin_card_play_meter_spend_preview")
@@ -11448,7 +11448,7 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	var loadout_badge: PanelContainer = instance.get("_loadout_badge") as PanelContainer
 	var loadout_badge_label: Label = instance.get("_loadout_badge_label") as Label
 	_assert(loadout_button != null and loadout_button.icon != null, "The top-right HUD should expose an icon-only character loadout button")
-	_assert(loadout_button.tooltip_text == "Character Loadout", "The loadout header button should identify its destination")
+	_assert(loadout_button.tooltip_text == "Character", "The loadout header button should identify its destination")
 	run_state["equipment_inventory"] = ["ward_kite"]
 	var notification_collected_equipment: Array = (run_state.get("collected_equipment", []) as Array).duplicate()
 	if not notification_collected_equipment.has("ward_kite"):

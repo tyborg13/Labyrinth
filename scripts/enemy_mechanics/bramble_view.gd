@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Glossary = preload("res://scripts/glossary.gd")
+
 const Sfx = preload("res://scripts/attack_sfx_library.gd")
 const PROP_PATH: String = "res://assets/props/enemies/bramble_thicket.png"
 const BROWN := Color("3b2a1c")
@@ -11,7 +13,7 @@ const FLECK_COUNT: int = 3
 const FLECK_SIZE: float = 3.0 # Reuse the approved small leaf-fleck size.
 
 static func tooltip(terrain: Dictionary) -> String:
-	return "Bramble: blocks movement for %d more round(s). A unit pushed into it takes 2 damage and Bleeds." % int(terrain.get("rounds_left", 0))
+	return Glossary.name_for("bramble") + "\n" + Glossary.definition("bramble") + "\n%d turns left" % int(terrain.get("rounds_left", 0))
 
 static func full_rect(view: Control, tile: Vector2i, texture: Texture2D) -> Rect2:
 	var crate: Texture2D = view._terrain_textures.get("wooden_crate", null)

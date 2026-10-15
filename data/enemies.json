@@ -1279,6 +1279,7 @@
         "actions": [
           {
             "type": "aoe",
+            "glossary_key": "gale_force",
             "damage": 6,
             "range": 2,
             "element": "air",
@@ -1291,6 +1292,7 @@
           },
           {
             "type": "aoe",
+            "glossary_key": "gale_force",
             "damage": 5,
             "range": 0,
             "element": "air",
@@ -3137,7 +3139,7 @@
       },
       {
         "id": "discharge",
-        "name": "Discharge",
+        "name": "Arc Burst",
         "time": 5,
         "weight": 0,
         "when_charge_at_least": 3,

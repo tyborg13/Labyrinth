@@ -368,7 +368,7 @@ static func _save(engine: RefCounted, expect: Callable) -> void:
 
 static func _presentation(engine: RefCounted, expect: Callable) -> void:
 	expect.call(Icons.action_icon_key({"type": "grow_bramble"}) == "bramble" and Icons.action_icon_key({"type": "lob_mark"}) == "lob" and Icons.action_icon_key({"type": "lob_land"}) == "lob", "Intent and terrain/mark share concept identities")
-	expect.call(BrambleView.tooltip(terrain(Vector2i(6, 5), 2)) == "Bramble: blocks movement for 2 more round(s). A unit pushed into it takes 2 damage and Bleeds.", "Exact Bramble tooltip with remaining lifetime")
+	expect.call(BrambleView.tooltip(terrain(Vector2i(6, 5), 2)) == "Bramble\nBlocks movement, not sight, for 3 enemy turns. A unit forced into it takes 2 damage and Bleed 1.\n2 turns left", "Exact Bramble tooltip with remaining lifetime")
 	var state: Dictionary = fixture(engine, "slag_mortar")
 	state["enemies"][0]["intent"] = intent("slag_mortar", "lob_slag")
 	state = engine.resolve_enemy_turn_with_steps(state, 0)["state"]
@@ -376,7 +376,7 @@ static func _presentation(engine: RefCounted, expect: Callable) -> void:
 	board.combat_state = state
 	var marks: Dictionary = LobView.marks(board)
 	expect.call(marks.size() == 5 and int(marks[FIXTURE_HERO]["damage"]) == 5 and int(marks[FIXTURE_HERO + Vector2i.LEFT]["damage"]) == 3, "At-rest medallions expose real centre/arm values")
-	expect.call(LobView.mark_tooltip(state["enemies"][0], FIXTURE_HERO, 5, FIXTURE_HERO) == "Lob Slag\nOn Slag Mortar's next turn this tile takes 5 damage, and becomes Fire.\nYou are standing on it.", "Exact Lob delayed tooltip and standing warning")
+	expect.call(LobView.mark_tooltip(state["enemies"][0], FIXTURE_HERO, 5, FIXTURE_HERO) == "Lob Slag\nMarks your tile and the 4 around it. On its next turn, they take the shown damage and become Fire.\n5 damage.\nYou are standing on it.", "Exact Lob delayed tooltip and standing warning")
 	expect.call(Compass.descriptor_for_enemy(state["enemies"][0]["intent"])["value"] == 5, "Landing compass exposes centre damage")
 	expect.call(Compass.descriptor_for_enemy(intent("briar_weaver", "thornwall"))["family"] == Compass.FAMILY_SUPPORT, "Thornwall compass is terrain support")
 	expect.call(LobView.arc_point(Vector2.ZERO, Vector2(100, 0), 50, 0.5) == Vector2(50, -110), "Arc apex is exactly 2.2 tiles over midpoint")

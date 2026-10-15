@@ -39,7 +39,7 @@ static func tooltip(state: Dictionary, tile: Vector2i) -> String:
 			"fire":
 				lines.append("Deals 3 damage at turn start and 2 damage when entered.")
 				if Rules.is_conductive(state, tile):
-					lines.append("Stormcoal: also conducts Lightning. Attacks conducted through it consume it.")
+					lines.append("Stormcoal: also conducts Lightning. Attacks conducted through it Expend it.")
 			"ice":
 				lines.append("Entering or starting a turn on Ice applies Chilled.")
 			"electrified":

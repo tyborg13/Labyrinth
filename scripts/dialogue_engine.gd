@@ -62,7 +62,7 @@ func _emaciated_man_dialogue(npc: Dictionary, room: Dictionary, run_state: Dicti
 			"id": "emaciated_awakening", "npc_id": npc_id, "speaker": speaker,
 			"accent": str(npc_def.get("accent", "#b8aa90")), "marks_emaciated_awakening_seen": true,
 			"lines": [
-				{"speaker": speaker, "text": "A dragon has fallen. I felt it... and so did the Shard you carried away."},
+				{"speaker": speaker, "text": "A dragon has fallen. I felt it... and so did the Moltshard you carried away."},
 				{"speaker": speaker, "text": "That cast-off scale remembers the fire that made it. Let me wake it, and its power will kindle Embers of your own."},
 				{"speaker": speaker, "text": "When you are ready, ask me to awaken your power. I can trade your Moltshards for Embers, then use those Embers to strengthen you."}
 			]
@@ -125,7 +125,7 @@ func emaciated_service_dialogue(progression: Dictionary, notice: String = "") ->
 	return {"id":"emaciated_services", "npc_id":"emaciated_man", "speaker":"Emaciated Man", "accent":"#b8aa90", "lines":[{
 		"speaker":"Emaciated Man", "service":true, "text":"%s\n%s" % [speech, summary],
 		"options":[
-			{"label":"Trade 1 Shard → %d Embers" % ProgressionStore.MOLT_EXCHANGE_EMBERS, "action":"exchange_moltshard", "disabled":shards < 1, "tooltip":"Exchange one Moltshard for %d Embers." % ProgressionStore.MOLT_EXCHANGE_EMBERS if shards > 0 else "You need 1 Moltshard. The first dragon defeated each run grants one."},
+			{"label":"Trade 1 Moltshard → %d Embers" % ProgressionStore.MOLT_EXCHANGE_EMBERS, "action":"exchange_moltshard", "disabled":shards < 1, "tooltip":"Exchange one Moltshard for %d Embers." % ProgressionStore.MOLT_EXCHANGE_EMBERS if shards > 0 else "You need 1 Moltshard. The first dragon defeated each run grants one."},
 			{"label":"Maximum Level" if maximum else "Level Up · %d Embers" % cost, "action":"emaciated_level_up", "disabled":not ProgressionStore.can_level_up(progression), "tooltip":"Maximum level reached." if maximum else "Spend %d Embers to gain a level and a skill point." % cost},
 			{"label":"Leave", "action":"close"}
 		]

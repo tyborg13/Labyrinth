@@ -24,7 +24,7 @@ static func _projection(engine: CombatEngine, state: Dictionary, kind: String) -
 static func _test_projection_tooltips(scene: Node, engine: CombatEngine, fixture: Dictionary, expect: Callable) -> void:
 	var end_now: Dictionary = _projection(engine, fixture, "end_now")
 	var text: String = scene.call("_turn_order_tooltip", end_now, 0)
-	expect.call(not end_now.is_empty() and text.contains("Base 9 + cards 0 + unused plays 10") and not text.contains("Carried") and not text.contains("Relics"), "End-now tooltip describes only the current activation's actual costs")
+	expect.call(not end_now.is_empty() and text.contains("Base 9 + cards 0 + unused Card Plays 10") and not text.contains("Carried") and not text.contains("Relics"), "End-now tooltip describes only the current activation's actual costs")
 	var ended: Dictionary = engine.finish_player_activation(fixture)
 	var follow_up: Dictionary = _projection(engine, ended, "follow_up")
 	text = scene.call("_turn_order_tooltip", follow_up, 0)

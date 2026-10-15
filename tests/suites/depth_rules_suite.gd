@@ -286,7 +286,7 @@ static func _test_shop_prices(expect: Callable) -> void:
 			var bought: Dictionary = engine.buy_merchant_item(state, Run.MERCHANT_SCAVENGER, item_id)
 			var paid: int = engine.held_embers(state) - engine.held_embers(bought)
 			expect.call(int(tag.get("amount")) == paid and paid == expected, "Depth %d displayed and charged prices match for %s" % [depth, item_id])
-			expect.call(tooltip.contains("Price: %d embers" % paid), "Shop tooltip displays the charged buy price")
+			expect.call(tooltip.contains("Price: %d Embers" % paid), "Shop tooltip displays the charged buy price")
 			expect.call(shop._item_price(item_id, true) == engine.merchant_sell_value(Run.MERCHANT_SCAVENGER, item_id), "Depth modifiers never change shop sell prices")
 			if depth in [0, 13]: expect.call(paid == base_price, "Protected shop modifier remains gated below depth sixteen")
 			state = engine.set_held_embers(state, paid - 1)

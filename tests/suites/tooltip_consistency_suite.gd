@@ -141,7 +141,7 @@ static func _test_inline_description_tooltip(expect: Callable) -> void:
 
 static func _test_card_tooltip_entries(expect: Callable) -> void:
 	var rows: Array = [[
-		ActionIcons.token_for("time", 2, "neutral", "Player turns this light remains."),
+		ActionIcons.duration_token(2),
 		ActionIcons.token_for("ranged", 5),
 		ActionIcons.token_for("ranged", 3),
 		ActionIcons.token_for("ranged", 6, "bonus", "", [{
@@ -160,7 +160,7 @@ static func _test_card_tooltip_entries(expect: Callable) -> void:
 		keys.append(str(entry.get("icon", "")))
 		expect.call(entry.get("texture", null) is Texture2D, "Every card tooltip entry should carry its matching icon texture")
 	expect.call(keys == ["time", "time", "ranged", "ranged", "aoe", "range"], "Card tooltip entries should preserve reading order, keep distinct same-icon meanings, deduplicate identical semantics, map area patterns, and ignore text-only tokens")
-	expect.call(str(entries[1].get("description", "")).contains("Player turns this light remains"), "A repeated Time icon should retain its duration-specific explanation")
+	expect.call(entries[1]["title"] == "Turns" and entries[1]["description"] == ActionIcons.description("turns"), "A repeated Time icon should retain its duration-specific explanation")
 	expect.call(str(entries[3].get("description", "")).contains("Modified by") and str(entries[3].get("description", "")).contains("Stormstring Bow"), "Modified tokens should retain their modifier explanation")
 
 
@@ -174,9 +174,9 @@ static func _test_real_cards_preserve_repeated_icon_semantics(expect: Callable) 
 	for entry: Dictionary in lantern_entries:
 		if str(entry.get("icon", "")) == "time":
 			lantern_time_descriptions.append(str(entry.get("description", "")))
-	expect.call(lantern_time_descriptions.size() == 2, "Lantern Shot should keep card-cost Time and light-duration Time as separate tooltips")
-	expect.call(lantern_time_descriptions.has("Delays your next turn. Each unused play takes 5."), "Lantern Shot should retain the card-cost Time and Wait explanation")
-	expect.call(lantern_time_descriptions.any(func(text: String) -> bool: return text.to_lower().contains("turns") and text.to_lower().contains("light")), "Lantern Shot should retain the light-duration Time explanation")
+	expect.call(lantern_time_descriptions.size() == 2, "Lantern Shot should keep card-cost Time and light-duration Turns as separate tooltips")
+	expect.call(lantern_time_descriptions.has(ActionIcons.description("time")), "Lantern Shot should retain the card-cost Time and Wait explanation")
+	expect.call(lantern_time_descriptions.has(ActionIcons.description("turns")), "Lantern Shot should retain the light-duration Turns explanation")
 
 	var stormstring: Dictionary = GameData.card_def("stormstring_shot")
 	var storm_entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(

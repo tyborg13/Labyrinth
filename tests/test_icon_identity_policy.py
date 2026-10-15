@@ -54,7 +54,7 @@ EXPECTED_GRIMOIRE_TOPIC_ICONS = {
 # names. Every other shared action icon is rejected.
 ALLOWED_EXACT_ACTION_ALIAS_GROUPS = {
     # EN06 Charge gain/reset share the Charge concept.
-    frozenset({"gain_charge", "reset_charge"}),
+    frozenset({"gain_charge", "reset_charge", "chain_discharge"}),
     # Icefall marking and landing are the same delayed-icicle concept.
     frozenset({"icefall_mark", "icefall_land"}),
     frozenset({"lob_mark", "lob_land"}),
@@ -225,6 +225,10 @@ class IconIdentityPolicyTests(unittest.TestCase):
 
         skills = json.loads((REPO_ROOT / "data/skills.json").read_text(encoding="utf-8"))
         for skill_id, skill in skills.items():
+            if skill.get("retired"):
+                self.assertEqual(skill_id, "layaway", "Only the approved deleted skill is excluded")
+                self.assertNotIn("skill_layaway", registry)
+                continue
             icon_key = skill.get("icon", "")
             self.assertEqual(icon_key, f"skill_{skill_id}", f"{skill_id} must use its purpose-built skill icon key")
             self.assertIn(icon_key, registry, f"{skill_id} icon key must be registered")

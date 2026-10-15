@@ -675,7 +675,7 @@ func show_dialogue(_dialogue: Dictionary) -> void:
 
 func _sync_dialogue() -> void:
 	if _dialogue_words == null: return
-	_dialogue_words.text = "“Cards, steel, little miracles in bottles. Spend your embers, or show me what you've brought to sell.”"
+	_dialogue_words.text = "“Cards, steel, little miracles in bottles. Spend your Embers, or show me what you've brought to sell.”"
 
 
 func _set_pack_mode(selling: bool) -> void:
@@ -1133,11 +1133,11 @@ func _offer_is_affordable(item_id: String, selling: bool) -> bool:
 func _offer_tooltip(item_id: String, selling: bool, affordable: bool) -> String:
 	var amount: int = _item_price(item_id, selling)
 	if selling:
-		return "%s\nSell value: %d embers" % [_item_name(item_id), amount]
+		return "%s\nSell value: %d Embers" % [_item_name(item_id), amount]
 	if affordable:
-		return "%s\nPrice: %d embers" % [_item_name(item_id), amount]
+		return "%s\nPrice: %d Embers" % [_item_name(item_id), amount]
 	var held: int = int(_run_engine.call("held_embers", _run_state))
-	return "%s\nPrice: %d embers — need %d more" % [_item_name(item_id), amount, amount - held]
+	return "%s\nPrice: %d Embers — need %d more" % [_item_name(item_id), amount, amount - held]
 
 func _select_item(item_id: String, selling: bool, source: Control) -> void:
 	if _intro_open:
@@ -1248,7 +1248,7 @@ func _sync_detail() -> void:
 	else:
 		_detail_card_ids.append(item_id)
 	_render_detail_card()
-	_detail_action.text = "Sell · %d embers" % amount if _selected_is_sell else "Buy · %d embers" % amount
+	_detail_action.text = "Sell · %d Embers" % amount if _selected_is_sell else "Buy · %d Embers" % amount
 	_detail_action.disabled = not affordable
 	_detail_action.tooltip_text = "Sell the selected owned ware." if _selected_is_sell else ("Buy the selected ware." if affordable else "You cannot afford this ware.")
 	_configure_focus_neighbors()

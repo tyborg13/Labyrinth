@@ -237,7 +237,7 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 	var recovery_status: String
 	if marker.is_empty():
 		if normalized_outcome == "defeat":
-			recovery_status = "No marker · no embers left behind" if ember_amount <= 0 else "No recovery marker created"
+			recovery_status = "No marker · no Embers left behind" if ember_amount <= 0 else "No recovery marker created"
 		else:
 			recovery_status = "No recovery marker active"
 	else:
@@ -247,10 +247,10 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 		var next_progression: Dictionary = ProgressionStore.prepare_for_new_run(progression)
 		var next_marker: Dictionary = ProgressionStore.recovery_marker(next_progression)
 		if next_marker.is_empty():
-			recovery_status = "Marker expires · %d embers unrecovered" % marker_amount
+			recovery_status = "Marker expires · %d Embers unrecovered" % marker_amount
 		else:
 			var marker_verb: String = "set" if normalized_outcome == "defeat" and marker_amount == maxi(0, ember_amount) else "active"
-			recovery_status = "Recovery marker %s · Depth %d · %d embers" % [marker_verb, marker_depth, marker_amount]
+			recovery_status = "Recovery marker %s · Depth %d · %d Embers" % [marker_verb, marker_depth, marker_amount]
 
 	var run_result: Dictionary = run_state.get("run_result", {}) as Dictionary
 	var new_bests: Array[String] = []
@@ -262,7 +262,7 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 		"outcome": normalized_outcome,
 		"kicker": "THE LABYRINTH YIELDS" if normalized_outcome == "victory" else "THE UMBRA CLOSES IN",
 		"title": "ASCENT COMPLETE" if normalized_outcome == "victory" else "RUN ENDED",
-		"summary": "The ascent is complete. Carried embers are secure." if normalized_outcome == "victory" else "",
+		"summary": "The ascent is complete. Carried Embers are secure." if normalized_outcome == "victory" else "",
 		"stats": stats,
 		"new_bests": new_bests,
 		"depth": int(stats.get("depth", 0)),
@@ -290,7 +290,7 @@ static func build_model(run_state: Dictionary, progression: Dictionary, outcome:
 	model["new_best_score"] = bool(run_result.get("new_best_score", int(scored["total"]) > int(progression.get("best_score", 0))))
 	model["embers_text"] = "Embers carried %s." % RunScoreRules.grouped_number(ember_amount)
 	if normalized_outcome == "defeat":
-		model["embers_text"] = "Embers lost %s. They wait where you fell, in Section %s of your next run." % [RunScoreRules.grouped_number(ember_amount), RunScoreRules.roman(int(location["section"]))] if ember_amount > 0 else "No marker · no embers left behind"
+		model["embers_text"] = "Embers lost %s. They wait where you fell, in Section %s of your next run." % [RunScoreRules.grouped_number(ember_amount), RunScoreRules.roman(int(location["section"]))] if ember_amount > 0 else "No marker · no Embers left behind"
 		if int(location["section"]) <= 0 and ember_amount > 0:
 			model["embers_text"] = "%s %d\n%s" % [model["ember_label"], ember_amount, recovery_status]
 	return model

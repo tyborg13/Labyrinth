@@ -245,7 +245,7 @@ static func _presentation(engine: RefCounted, expect: Callable) -> void:
 	var chip: PanelContainer = scene.ui_root.get_node("En02WindChip")
 	expect.call(chip.visible and chip.get_node("Contents/Title").text == "Wind · 2", "Wind HUD shows exact approved rounds text")
 	expect.call((chip.get_node("Contents/Direction") as Control).custom_minimum_size == Vector2(12, 12) and chip.get_node("Contents/Direction").heading == WindView.screen_direction(Vector2i(1, 0)), "Wind HUD includes a 12-pixel screen-relative arrow")
-	expect.call(chip.tooltip_text == "At the end of each enemy turn, everything not anchored is pushed 1 tile toward the lower right.", "Wind HUD uses exact approved screen-relative direction wording")
+	expect.call(chip.tooltip_text == "Wind\nAfter each of the next 2 enemy turns, Push every unit 1 tile downwind. Anchored units and bosses are immune.\ntoward the lower right.", "Wind HUD uses exact approved screen-relative direction wording")
 	for type: String in ["hoarfrost_seer", "gale_herald"]:
 		expect.call(scene._turn_order_portrait_path({"kind": "enemy", "type": type}) == "res://assets/art/portraits/%s.png" % type, "%s actual turn-clock resolver uses explicit portrait" % type)
 	scene.free()
@@ -381,7 +381,7 @@ static func _director_feedback(engine: RefCounted, expect: Callable) -> void:
 	definitions.erase(fixture_id)
 	expect.call(IcefallView.PUFF_SECONDS == 0.30, "Frost puff uses approved 0.30 seconds after landing")
 	var board: Control = BoardScript.new()
-	expect.call(board._terrain_tooltip_text({"kind": "ice_pillar", "rounds_left": 2}) == "Ice Pillar: blocks movement and sight for 2 more round(s). A unit pushed into it shatters it and takes 2 damage.", "Pillar tooltip uses exact lifetime and shatter wording")
+	expect.call(board._terrain_tooltip_text({"kind": "ice_pillar", "rounds_left": 2}) == "Ice Pillar\nBlocks movement and sight for 3 enemy turns. A unit forced into it takes 2 damage and shatters it.\n2 turns left", "Pillar tooltip uses exact lifetime and shatter wording")
 	expect.call(not board._should_show_terrain_health_bar({"kind": "ice_pillar", "rounds_left": 2}), "Ice Pillars have no terrain health bar")
 	board.free()
 	for axis: Vector2i in engine.CARDINAL_DIRECTIONS:
@@ -390,5 +390,5 @@ static func _director_feedback(engine: RefCounted, expect: Callable) -> void:
 		expect.call(WindView.direction_name(axis) == "toward the " + quadrant, "Wind direction words match the isometric screen quadrant for %s" % axis)
 	expect.call(WindView.CHEVRON_HEAD_WIDTH == 14.0 and WindView.CHEVRON_STROKE == 2.0 and WindView.DRIFT_PIXELS_PER_SECOND == 40.0, "Wind chevrons use approved dimensions and drift speed")
 	expect.call(WindView.status_badges({"type": "gale_herald"})[0]["tooltip"] == "Anchored: the wind does not move it.", "Herald Anchored tooltip uses exact approved wording")
-	expect.call(Glossary.definition("icefall") == "Icefall: icicles fall on the marked tiles on the Seer's next turn.", "Icefall icon description uses approved wording")
-	expect.call(Glossary.definition("wind") == "Wind: at the end of each enemy turn, everything not anchored is pushed one tile with the wind.", "Wind icon description uses approved wording")
+	expect.call(Glossary.definition("icefall") == "Marks 3 tiles across your tile. Next turn they take the shown damage; empty ones become Ice Pillars.", "Icefall icon description uses approved wording")
+	expect.call(Glossary.definition("wind") == "After each of the next 2 enemy turns, Push every unit 1 tile downwind. Anchored units and bosses are immune.", "Wind icon description uses approved wording")

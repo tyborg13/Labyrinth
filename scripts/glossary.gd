@@ -4,10 +4,6 @@ extends RefCounted
 ## preload cycle and preserving contextual token explanations and card layout.
 const DATA_PATH: String = "res://data/glossary.json"
 const MAX_RELIC_PANELS: int = 6
-# The unmarked sentence "Consume [Rubble] ..." is surface removal, while the
-# named Consume keyword means using an item. Await an explicit design token;
-# never attach the item definition to an ambiguous prose verb.
-const TODO_DESIGN_GLOSSARY_CONSUME_PROSE: String = "Consume"
 
 static var _entries: Dictionary = {}
 static var _aliases: Dictionary = {}
@@ -41,8 +37,6 @@ static func _ensure_loaded() -> void:
 		if term.is_empty() or str(candidates[term]).is_empty():
 			continue
 		_aliases[term.to_lower()] = candidates[term]
-		if term == TODO_DESIGN_GLOSSARY_CONSUME_PROSE:
-			continue
 		var pattern := RegEx.new()
 		# Match authored keyword spelling. Ordinary "time", "swap", "consume"
 		# and "next attack" prose must not acquire unrelated mechanic panels.
@@ -91,7 +85,7 @@ static func ids_in_text(text: String, limit: int = 0) -> Array[String]:
 	_ensure_loaded()
 	var matches: Array[Dictionary]
 	var tokens := RegEx.new()
-	tokens.compile("@icon\\(([^)]+)\\)")
+	tokens.compile("@(?:icon|term|kw)\\(([^)|]*)(?:\\|[^)]*)?\\)")
 	var plain: String = text
 	for found: RegExMatch in tokens.search_all(text):
 		var entry: Dictionary = _entry(found.get_string(1))

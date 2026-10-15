@@ -31,7 +31,7 @@ const FLAG_ORDER: Array = [FLAG_NO_MOVE, FLAG_ANCHORED, FLAG_ICE_SKATE, FLAG_FIR
 const FLAG_INFO: Dictionary = {
 	"ice_skate": {"label": "Skate", "expires": "activation", "fill": "24506a", "border": "b9f3ff",
 		"description": "This turn, moving onto Ice costs no movement and Ice doesn't Chill you."},
-	"no_move": {"label": "Rooted", "expires": "activation", "fill": "4a3a22", "border": "e1c27a",
+	"no_move": {"label": "Immobilize", "expires": "activation", "fill": "4a3a22", "border": "e1c27a",
 		"description": "You can't Move, Blink or Swap for the rest of this turn."},
 	"anchored": {"label": "Anchored", "expires": "next_turn", "fill": "2f3d33", "border": "9fd9b4",
 		"description": "Until your next turn, you can't be pushed or pulled. Push and Pull against you move you 0 tiles and never collide."},
@@ -108,7 +108,7 @@ static func movement_blocked(state: Dictionary, action: Dictionary) -> bool:
 
 static func movement_block_reason(state: Dictionary) -> String:
 	if player_rooted(state):
-		return "Movement unavailable: you are Rooted until the end of this turn."
+		return "Movement unavailable: you are Immobilized until the end of this turn."
 	return ""
 
 ## A cleanse that removes Shock must be playable while Shocked.

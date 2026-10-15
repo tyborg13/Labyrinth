@@ -565,7 +565,7 @@ static func upgradeable_elements_for_card(card_id: String, progression: Dictiona
 				"label": "Damage"
 			})
 		if action.has("range") and int(action.get("range", 0)) > 0 and str(action.get("target", "")) != "previous_target":
-			var range_label: String = "Move Range" if action_type == "move" else "Blink Range" if action_type == "blink" else "Illusion Range" if action_type == "illusion" else "Surface Range" if action_type == "surface" else "Attack Range"
+			var range_label: String = "Move Range" if action_type == "move" else "Blink Range" if action_type == "blink" else "Illusion Range" if action_type == "illusion" else "Ground Range" if action_type == "surface" else "Attack Range"
 			_append_upgrade_element_if_available(elements, card_id, progression, {
 				"key": "stat:%d:range" % index,
 				"kind": "stat",

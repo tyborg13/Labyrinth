@@ -2,7 +2,7 @@
   "iron_lung": {
     "name": "Iron Lung",
     "rarity": "rare",
-    "description": "Every @icon(health_cost), including an @icon(empower) cost, is paid from your @icon(stoneskin) first, at 2 @icon(stoneskin) per @icon(health).",
+    "description": "Every @term(health_cost), including an @kw(empower) cost, is paid from your @term(stoneskin) first, at 2 @kw(stoneskin) per @term(health).",
     "icon_path": "res://assets/art/relics/iron_lung.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -22,7 +22,7 @@
   "ember_lens": {
     "name": "Brightglass Lens",
     "rarity": "rare",
-    "description": "@icon(ranged) attacks against enemies in @icon(illuminate) gain @icon(chain) +{amount}.",
+    "description": "Your @kw(ranged) attacks against enemies in @term(illuminate) gain +1 @kw(chain).",
     "icon_path": "res://assets/art/relics/brightglass_lens.png",
     "accent": "#4b84d8",
     "design_version": 3,
@@ -48,7 +48,7 @@
   "pilgrim_boots": {
     "name": "Pilgrim Boots",
     "rarity": "common",
-    "description": "Gain @icon(move) +{0.value} each turn. Your movement creates @icon(illuminate) {1.radius} @icon(time) {1.duration} along its path; @icon(blink) covers both endpoints.",
+    "description": "Gain 1 more @kw(movement) each turn. Moving leaves radius-1 @term(illuminate) for 2 turns on tiles you enter, unless the card attacks. @kw(blink) lights both ends.",
     "icon_path": "res://assets/art/relics/pilgrim_boots.png",
     "accent": "#8f9499",
     "design_version": 3,
@@ -88,7 +88,7 @@
   "mirror_shard": {
     "name": "Mirror Shard",
     "rarity": "rare",
-    "description": "When your @icon(illusion) is destroyed, it shatters, dealing 3 damage to each enemy next to it.",
+    "description": "When your @term(illusion) is destroyed, it shatters, dealing 3 damage to each enemy next to it.",
     "icon_path": "res://assets/art/relics/mirror_shard.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -110,7 +110,7 @@
   "coffin_nails": {
     "name": "Coffin Nails",
     "rarity": "common",
-    "description": "When your @icon(block) stops all of an enemy attack's damage, the attacker gains @icon(bleed) 1.",
+    "description": "When an enemy attack hits your @term(block) and deals no @term(health) damage, the attacker gains @term(bleed) 1.",
     "icon_path": "res://assets/art/relics/coffin_nails.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -131,7 +131,7 @@
   "reinforced_shield": {
     "name": "Reinforced Shield",
     "rarity": "common",
-    "description": "While you have @icon(stoneskin), @icon(block) actions grant +{amount}.",
+    "description": "While you have @term(stoneskin), cards that grant @term(block) grant 3 more.",
     "icon_path": "res://assets/art/relics/reinforced_shield.png",
     "accent": "#8f9499",
     "design_version": 3,
@@ -156,7 +156,7 @@
   "iron_buckler": {
     "name": "Iron Buckler",
     "rarity": "common",
-    "description": "At the start of your turn, keep up to 3 of your @icon(block).",
+    "description": "At the start of your turn, keep up to 3 of your @term(block).",
     "icon_path": "res://assets/art/relics/iron_buckler.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -176,7 +176,7 @@
   "flint_edge": {
     "name": "Flint Edge",
     "rarity": "common",
-    "description": "Your @icon(melee) attacks consume the @icon(surface_fire), @icon(surface_ice) or @icon(surface_electrified) under their target to deal 3 more damage.",
+    "description": "Your @kw(melee) attacks @kw(surface_consume) the @term(surface_fire), @term(surface_ice) or @term(surface_electrified) under their target to deal 3 more damage.",
     "icon_path": "res://assets/art/relics/flint_edge.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -197,7 +197,7 @@
   "static_soles": {
     "name": "Static Soles",
     "rarity": "common",
-    "description": "Your first @icon(move) or @icon(blink) each turn leaves @icon(surface_electrified) at its origin and grants @icon(vision) 1 for 2 turns.",
+    "description": "Your first @kw(move) or @kw(blink) each turn leaves @term(surface_electrified) at its origin and grants @term(vision) 1 for 2 turns.",
     "icon_path": "res://assets/art/relics/static_soles.png",
     "accent": "#8f9499",
     "design_version": 3,
@@ -262,7 +262,7 @@
   "tailwind_fletching": {
     "name": "Tailwind Fletching",
     "rarity": "common",
-    "description": "Air @icon(push) and @icon(pull) actions deal +{0.amount} damage and force enemies {1.amount} farther.",
+    "description": "Your @kw(element_air) @kw(push) and @kw(pull) deal 1 more damage and move targets 1 tile farther.",
     "icon_path": "res://assets/art/relics/tailwind_fletching.png",
     "accent": "#8f9499",
     "design_version": 3,
@@ -312,7 +312,7 @@
   "frost_prism": {
     "name": "Shatterglass Prism",
     "rarity": "rare",
-    "description": "Enemies you kill with attacks while @icon(freeze) leave @icon(surface_rubble) beneath and beside them.",
+    "description": "When you kill a @term(freeze|Frozen) enemy with an attack, leave @term(surface_rubble) on its tile and each tile next to it.",
     "icon_path": "res://assets/art/relics/frost_prism.png",
     "accent": "#4b84d8",
     "design_version": 3,
@@ -337,9 +337,9 @@
     ]
   },
   "storm_capacitor": {
-    "name": "Storm Capacitor",
+    "name": "Widegap Cell",
     "rarity": "rare",
-    "description": "Your Lightning @icon(ranged) attacks with @icon(chain) gain @icon(chain) +{amount}.",
+    "description": "Your @kw(element_lightning) @kw(ranged) attacks with @kw(chain) gain +1 @kw(chain).",
     "icon_path": "res://assets/art/relics/storm_capacitor.png",
     "accent": "#4b84d8",
     "design_version": 3,
@@ -365,7 +365,7 @@
   "gale_tabi": {
     "name": "Gale Tabi",
     "rarity": "rare",
-    "description": "After you @icon(blink), your next attack this turn deals 1 more damage for each tile that @icon(blink) spanned (max 4 more).",
+    "description": "After you @kw(blink), your next attack this turn deals 1 more damage per tile blinked, up to 4 more. A later @kw(blink) replaces it.",
     "icon_path": "res://assets/art/relics/gale_tabi.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -386,7 +386,7 @@
   "anchor_chain": {
     "name": "Anchor Chain",
     "rarity": "rare",
-    "description": "While you have @icon(block), @icon(push) and @icon(pull) deal +{0.amount} damage and send targets {1.amount} tile farther.",
+    "description": "While you have @term(block), your @kw(push) and @kw(pull) deal 2 more damage and move targets 1 tile farther.",
     "icon_path": "res://assets/art/relics/anchor_chain.png",
     "accent": "#4b84d8",
     "design_version": 3,
@@ -436,7 +436,7 @@
   "venom_signet": {
     "name": "Quarry Signet",
     "rarity": "rare",
-    "description": "Enemies standing on @icon(surface_rubble) take 1 more damage from everything: attacks, @icon(collision), @icon(surface_fire) and @icon(retaliate).",
+    "description": "Enemies standing on @term(surface_rubble) take 1 more damage from everything: attacks, @kw(collision), @term(surface_fire) and @kw(retaliate).",
     "icon_path": "res://assets/art/relics/venom_signet.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -459,7 +459,7 @@
   "thawing_charm": {
     "name": "Thawing Charm",
     "rarity": "rare",
-    "description": "Excess @icon(heal) becomes @icon(stoneskin), up to {cap} each turn. The first conversion each turn creates @icon(illuminate) 1 @icon(time) 2 at you.",
+    "description": "Excess healing becomes @term(stoneskin), up to 8 each turn. It also creates radius-1 @term(illuminate) on you for 2 turns, once per turn.",
     "icon_path": "res://assets/art/relics/thawing_charm.png",
     "accent": "#4b84d8",
     "design_version": 3,
@@ -489,7 +489,7 @@
   "ember_siphon": {
     "name": "Ember Siphon",
     "rarity": "rare",
-    "description": "When an enemy dies while standing on @icon(surface_fire), @icon(surface_fire) spreads to each empty tile next to where it fell.",
+    "description": "When an enemy dies on @term(surface_fire), @kw(surface_fire) spreads to each tile next to it without @kw(surface_fire), @term(surface_ice) or @term(surface_electrified).",
     "icon_path": "res://assets/art/relics/ember_siphon.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -511,7 +511,7 @@
   "bloodglass_knife": {
     "name": "Bloodglass Knife",
     "rarity": "epic",
-    "description": "While at @icon(health) 50% or less with no @icon(block) or @icon(stoneskin), your attacks deal +{value} damage.",
+    "description": "While you are at half @term(health) or less with no @term(block) or @term(stoneskin), your attacks deal 7 more damage.",
     "icon_path": "res://assets/art/relics/bloodglass_knife.png",
     "accent": "#9b62d6",
     "design_version": 3,
@@ -531,7 +531,7 @@
   "cold_mirror": {
     "name": "Cold Mirror",
     "rarity": "epic",
-    "description": "When you @icon(freeze) an enemy while you have 4 or more @icon(block), your @icon(block) hardens: lose all your @icon(block) and gain 1 @icon(frost_armor) layer for every 4 lost (max 2).",
+    "description": "When you @term(freeze) an enemy while you have 4 or more @term(block), trade all your @kw(block) for 1 @term(frost_armor) layer per 4, up to 2.",
     "icon_path": "res://assets/art/relics/cold_mirror.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -559,7 +559,7 @@
   "thunder_relay": {
     "name": "Thunder Relay",
     "rarity": "epic",
-    "description": "Your @icon(chain) attacks can swap their first and last enemy targets if both survive.",
+    "description": "Your @kw(chain) attacks can swap their first and last enemy targets if both survive.",
     "icon_path": "res://assets/art/relics/thunder_relay.png",
     "accent": "#9b62d6",
     "design_version": 3,
@@ -581,7 +581,7 @@
   "thornmail_brooch": {
     "name": "Faultline Brooch",
     "rarity": "epic",
-    "description": "You may spend @icon(stoneskin) {cost} to turn a single-target @icon(melee) into a cross that leaves @icon(surface_rubble).",
+    "description": "Your single-target @kw(melee) can spend 4 @term(stoneskin) to strike a cross instead, leaving @term(surface_rubble) on it.",
     "icon_path": "res://assets/art/relics/thornmail_brooch.png",
     "accent": "#9b62d6",
     "design_version": 3,
@@ -627,7 +627,7 @@
   "vaulting_sigil": {
     "name": "Vaulting Sigil",
     "rarity": "epic",
-    "description": "Your @icon(move) can pass through enemies (you can't stop on one). Each enemy you pass through suffers @icon(stagger) 2.",
+    "description": "Your @kw(move) can pass through enemies, but not end on one. Each enemy you pass through suffers @kw(stagger) 2.",
     "icon_path": "res://assets/art/relics/vaulting_sigil.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -647,7 +647,7 @@
   "obsidian_heart": {
     "name": "Obsidian Heart",
     "rarity": "epic",
-    "description": "Opening @icon(draw) {0.value}. At turn end, convert all remaining @icon(block) into @icon(stoneskin).",
+    "description": "At the start of combat, @kw(draw) 1 fewer card. At the end of your turn, convert all your @term(block) into @term(stoneskin).",
     "icon_path": "res://assets/art/relics/obsidian_heart.png",
     "accent": "#9b62d6",
     "design_version": 3,
@@ -671,7 +671,7 @@
   "storm_crown": {
     "name": "Storm Crown",
     "rarity": "legendary",
-    "description": "Your @icon(chain) attacks rebound: after the last hop, the bolt travels back along its route, hitting each enemy again for half damage (rounded down).",
+    "description": "Your @kw(chain) attacks rebound: after the last hop, the bolt travels back along its route, hitting each enemy again for half damage, rounded down.",
     "icon_path": "res://assets/art/relics/storm_crown.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -692,7 +692,7 @@
   "phoenix_ember": {
     "name": "Phoenix Ember",
     "rarity": "legendary",
-    "description": "Gain @icon(defiance) {0.value} this run. When it triggers, @icon(dispel_umbra) {1.reward0.amount}, place @icon(surface_fire) beneath all enemies, @icon(draw) {1.reward2.amount}, and @icon(card_play) {1.reward3.amount}.",
+    "description": "Gain 1 @term(defiance). When @kw(defiance) saves you, @kw(dispel_umbra) 2, place @term(surface_fire) under every enemy, @kw(draw) 3 and gain 3 @term(card_play|Card Plays).",
     "icon_path": "res://assets/art/relics/phoenix_ember.png",
     "accent": "#d9862f",
     "design_version": 3,
@@ -735,7 +735,7 @@
   "worldroot_idol": {
     "name": "Worldroot Idol",
     "rarity": "legendary",
-    "description": "While on @icon(surface_rubble), you may launch a single-target @icon(melee) or @icon(ranged) attack from another connected @icon(surface_rubble) tile, consuming it. The origin is chosen automatically.",
+    "description": "While you stand on @term(surface_rubble), your @kw(melee) and @kw(ranged) attacks can strike from any connected @kw(surface_rubble) tile, @kw(surface_consume|Expending) it. The game picks the tile.",
     "icon_path": "res://assets/art/relics/worldroot_idol.png",
     "accent": "#d9862f",
     "design_version": 3,
@@ -796,7 +796,7 @@
   "rimecatcher_vial": {
     "name": "Rimecatcher Vial",
     "rarity": "common",
-    "description": "When your attack applies @icon(freeze), you may @icon(surface_relocate) one consumed @icon(surface_ice) tile beside the target.",
+    "description": "When your @term(element_ice) attack @term(freeze|Freezes) an enemy on @term(surface_ice), you can spill that @term(surface_ice) onto a tile next to it.",
     "icon_path": "res://assets/art/relics/rimecatcher_vial.png",
     "accent": "#8f9499",
     "design_version": 3,
@@ -853,7 +853,7 @@
   "updraft_bottle": {
     "name": "Updraft Bottle",
     "rarity": "rare",
-    "description": "Your @icon(push) and @icon(pull) can carry the elemental surface beneath the target to its destination.",
+    "description": "Your @kw(push) and @kw(pull) can carry the @term(surface_fire), @term(surface_ice) or @term(surface_electrified) under the target along with it.",
     "icon_path": "res://assets/art/relics/updraft_bottle.png",
     "accent": "#4b84d8",
     "design_version": 3,
@@ -879,7 +879,7 @@
   "basalt_calendar": {
     "name": "Basalt Kiln",
     "rarity": "rare",
-    "description": "Your @icon(detonate) can consume @icon(surface_rubble) instead of @icon(surface_fire), leaving @icon(surface_fire) on the consumed tiles.",
+    "description": "Your @kw(detonate) can @kw(surface_consume) @term(surface_rubble) instead of @term(surface_fire), leaving @kw(surface_fire) on the @kw(surface_consume|Expended) tiles.",
     "icon_path": "res://assets/art/relics/basalt_calendar.png",
     "accent": "#4b84d8",
     "design_version": 3,
@@ -903,7 +903,7 @@
   "coalheart_crucible": {
     "name": "Stormcoal Crucible",
     "rarity": "rare",
-    "description": "@icon(surface_fire) tiles also conduct @icon(element_lightning). Attacks conducted through them consume them.",
+    "description": "@term(surface_fire) also conducts @kw(element_lightning). @kw(element_lightning) that conducts through @kw(surface_fire) @kw(surface_consume|Expends) it.",
     "icon_path": "res://assets/art/relics/coalheart_crucible.png",
     "accent": "#4b84d8",
     "design_version": 3,
@@ -959,7 +959,7 @@
   "tectonic_abacus": {
     "name": "Captured Noon",
     "rarity": "epic",
-    "description": "While you have 3 active @icon(illuminate) sources, lower @icon(umbra) by 1 stage; with 6 sources, lower it by 2.",
+    "description": "While 3 or more @term(illuminate|Lights) are active, @kw(umbra|the Umbra) is 1 stage lower; with 6 or more, 2 stages lower.",
     "icon_path": "res://assets/art/relics/captured_noon.png",
     "accent": "#9b62d6",
     "design_version": 3,
@@ -988,7 +988,7 @@
   "overflow_censer": {
     "name": "Overflow Censer",
     "rarity": "epic",
-    "description": "When you place @icon(surface_fire), @icon(surface_ice) or @icon(surface_electrified) on a tile holding a different one of them, it also spreads to each empty tile next to it.",
+    "description": "When you place @term(surface_fire), @term(surface_ice) or @term(surface_electrified) over a different one, it also spreads to each tile next to it that has none.",
     "icon_path": "res://assets/art/relics/overflow_censer.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -1008,7 +1008,7 @@
   "black_sun_dial": {
     "name": "Black Sun Dial",
     "rarity": "legendary",
-    "description": "Consuming a surface stores it (max 3). Your next attack deals 2 more damage per stored surface, and its target gets each one's effect: @icon(surface_fire) beneath it, @icon(chilled), @icon(shock), @icon(stagger) 2.",
+    "description": "Store up to 3 @kw(surface_consume|Expended) ground tiles. Your next attack releases them: +2 damage each. @term(surface_fire): @kw(surface_fire) beneath. @term(surface_ice): @term(chilled). @term(surface_electrified): @term(shock). @term(surface_rubble): @kw(stagger) 2.",
     "icon_path": "res://assets/art/relics/black_sun_dial.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -1031,7 +1031,7 @@
   "duelist_whetstone": {
     "name": "Duelist Whetstone",
     "rarity": "common",
-    "description": "Attacks on cards that also @icon(move) or @icon(blink) deal 1 more damage for each tile you've traveled this turn (max 3 more).",
+    "description": "Attacks on cards that also @kw(move) or @kw(blink) deal 1 more damage per tile you moved this turn, up to 3 more.",
     "icon_path": "res://assets/art/relics/duelist_whetstone.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -1094,7 +1094,7 @@
   "chorus_mask": {
     "name": "Chorus Mask",
     "rarity": "rare",
-    "description": "A card whose element differs from the last card you played this turn deals 2 more damage and grants 2 more @icon(block).",
+    "description": "A card whose element differs from the last card you played this turn deals 2 more damage and grants 2 more @term(block).",
     "icon_path": "res://assets/art/relics/chorus_mask.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -1115,7 +1115,7 @@
   "hourglass_splinter": {
     "name": "Hourglass Splinter",
     "rarity": "rare",
-    "description": "When you play a card that costs 6 or more @icon(time), @icon(quicken) 2.",
+    "description": "When you play a card that costs 6 or more @term(time), @kw(quicken) 2.",
     "icon_path": "res://assets/art/relics/hourglass_splinter.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -1136,7 +1136,7 @@
   "widow_thread": {
     "name": "Widow Thread",
     "rarity": "rare",
-    "description": "While @icon(illusion) exists, your attacks inflict @icon(expose) +{amount}.",
+    "description": "While you have an @term(illusion), your attacks apply +1 @term(expose).",
     "icon_path": "res://assets/art/relics/widow_thread.png",
     "accent": "#4b84d8",
     "design_version": 3,
@@ -1167,7 +1167,7 @@
   "funeral_bell": {
     "name": "Funeral Bell",
     "rarity": "epic",
-    "description": "When an enemy dies with 2 or more different statuses, such as @icon(bleed) and @icon(expose), each enemy next to it gains them.",
+    "description": "When an enemy dies with 2 or more different statuses, such as @term(bleed) and @term(expose), each enemy next to it gains them.",
     "icon_path": "res://assets/art/relics/funeral_bell.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -1187,7 +1187,7 @@
   "bloodmoon_chalice": {
     "name": "Bloodmoon Chalice",
     "rarity": "epic",
-    "description": "When you lose @icon(health) during your turn, your next attack this turn deals 2 more damage per @icon(health) lost (max 8 more).",
+    "description": "When you lose @term(health) during your turn, your next attack this turn deals 2 more damage per @kw(health) lost, up to 8 more.",
     "icon_path": "res://assets/art/relics/bloodmoon_chalice.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -1252,7 +1252,7 @@
   "fivefold_knot": {
     "name": "Fivefold Knot",
     "rarity": "legendary",
-    "description": "Each element you play ties its knot for this combat. With 3 of the 5 knots, your attacks @icon(pierce); with 4, they also gain @icon(chain) 1; with all 5, every card you play also grants 3 @icon(block).",
+    "description": "Each element you play this combat ties a knot. 3 knots: your attacks @kw(pierce). 4: also @kw(chain) 1. 5: every card grants 3 @term(block).",
     "icon_path": "res://assets/art/relics/fivefold_knot.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -1277,7 +1277,7 @@
   "borrowed_hourglass": {
     "name": "Borrowed Hourglass",
     "rarity": "legendary",
-    "description": "Once per combat, when you end your turn with a @icon(card_play) unused, take another turn at once. Everything it costs is added to your next turn's @icon(time).",
+    "description": "The first time each combat you end your turn with a @term(card_play) unused, take another turn at once. This turn's @term(time) is added to it.",
     "icon_path": "res://assets/art/relics/borrowed_hourglass.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -1357,7 +1357,7 @@
   "briar_winch": {
     "name": "Quarry Winch",
     "rarity": "common",
-    "description": "Consume @icon(surface_rubble) beneath a target to aim @icon(push) or @icon(pull) in any cardinal direction.",
+    "description": "Your @kw(push) and @kw(pull) can @kw(surface_consume) @term(surface_rubble) under an enemy to move it in any of the 4 directions.",
     "icon_path": "res://assets/art/relics/briar_winch.png",
     "accent": "#8f9499",
     "design_version": 3,
@@ -1380,7 +1380,7 @@
   "hourglass_awl": {
     "name": "Hourglass Awl",
     "rarity": "common",
-    "description": "Attacks on cards that cost 6 or more @icon(time) gain @icon(pierce).",
+    "description": "Attacks on cards that cost 6 or more @term(time) gain @kw(pierce).",
     "icon_path": "res://assets/art/relics/hourglass_awl.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -1410,7 +1410,7 @@
   "beaconrunner_spurs": {
     "name": "Beaconrunner Spurs",
     "rarity": "rare",
-    "description": "Each tile of your @icon(illuminate) you enter during a @icon(move) refunds 1 movement (max 2 each turn).",
+    "description": "Each tile in your @term(illuminate) you enter during a @kw(move) refunds 1 @kw(movement), up to 2 each turn.",
     "icon_path": "res://assets/art/relics/beaconrunner_spurs.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -1525,7 +1525,7 @@
   "witchglass_carapace": {
     "name": "Witchglass Carapace",
     "rarity": "epic",
-    "description": "Enemy @icon(ranged) attacks deal at most {max_damage} damage to @icon(illusion).",
+    "description": "Enemy @kw(ranged) attacks deal at most 1 damage to your @term(illusion|Illusions).",
     "icon_path": "res://assets/art/relics/witchglass_carapace.png",
     "accent": "#9b62d6",
     "design_version": 3,
@@ -1573,7 +1573,7 @@
   "sunlit_edge": {
     "name": "Sunlit Edge",
     "rarity": "epic",
-    "description": "While you stand in @icon(illuminate), your attacks gain @icon(pierce).",
+    "description": "While you stand in @term(illuminate), your attacks gain @kw(pierce).",
     "icon_path": "res://assets/art/relics/sunlit_edge.png",
     "accent": "#9b62d6",
     "design_version": 3,
@@ -1605,7 +1605,7 @@
   "glassway_compass": {
     "name": "Glassway Compass",
     "rarity": "epic",
-    "description": "Your @icon(move) and @icon(blink) can end on your @icon(illusion): you trade places with it instantly, skipping the tiles between.",
+    "description": "Your @kw(move) and @kw(blink) can end on one of your @term(illusion|Illusions) to @kw(swap) with it, skipping the tiles between.",
     "icon_path": "res://assets/art/relics/glassway_compass.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -1624,7 +1624,7 @@
   "unclouded_sun": {
     "name": "Unclouded Sun",
     "rarity": "legendary",
-    "description": "Your @icon(illuminate) sources are relay points: when you @icon(move), each of them counts as next to every other.",
+    "description": "When you @kw(move), the centers of your @term(illuminate|Lights) count as next to each other.",
     "icon_path": "res://assets/art/relics/unclouded_sun.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -1644,7 +1644,7 @@
   "ashen_brand": {
     "name": "Ashen Brand",
     "rarity": "legendary",
-    "description": "@icon(detonate) consumes the entire connected @icon(surface_fire) cluster. Each extra overlapping blast cross adds 25% base damage.",
+    "description": "Your @kw(detonate) @kw(surface_consume|Expends) all connected @term(surface_fire). A target hit by several blast crosses takes 25% more damage per extra cross.",
     "icon_path": "res://assets/art/relics/ashen_brand.png",
     "accent": "#d9862f",
     "design_version": 3,
@@ -1664,9 +1664,9 @@
     ]
   },
   "winters_spur": {
-    "name": "Winter\u2019s Spur",
+    "name": "Winter's Spur",
     "rarity": "legendary",
-    "description": "Each straight stretch of @icon(surface_ice) costs 1 base @icon(move) per movement action. Turns start a new stretch.",
+    "description": "Each straight line of @term(surface_ice) you move across costs only 1 @kw(movement). Turning starts a new line.",
     "icon_path": "res://assets/art/relics/winters_spur.png",
     "accent": "#d9862f",
     "design_version": 3,
@@ -1688,7 +1688,7 @@
   "resonant_clapper": {
     "name": "Resonant Clapper",
     "rarity": "legendary",
-    "description": "@icon(chain) gains 25% base damage per successive enemy hop. Empty relays and conduction-only hits neither advance nor receive this bonus.",
+    "description": "Your @kw(chain) deals 25% more damage per enemy it already hit. Empty relays and conduction-only hits neither count nor gain this bonus.",
     "icon_path": "res://assets/art/relics/resonant_clapper.png",
     "accent": "#d9862f",
     "design_version": 3,
@@ -1710,7 +1710,7 @@
   "galehook_talon": {
     "name": "Galehook Talon",
     "rarity": "legendary",
-    "description": "@icon(push) and @icon(pull) displace a contiguous line of enemies together along the force axis. The group stops at an obstruction.",
+    "description": "Your @kw(push) and @kw(pull) move the target together with every enemy touching it in a line along that direction. Only the front one collides.",
     "icon_path": "res://assets/art/relics/galehook_talon.png",
     "accent": "#d9862f",
     "design_version": 3,
@@ -1732,7 +1732,7 @@
   "cragbound_gauntlet": {
     "name": "Cragbound Gauntlet",
     "rarity": "legendary",
-    "description": "@icon(ranged) Earth spells raise a 3 @icon(health) outcrop at an empty ground target.",
+    "description": "Your @kw(element_earth) @kw(ranged) attacks and @kw(aoe|Area Attacks) also raise a 3-@term(health) @kw(outcrop) on an empty floor target.",
     "icon_path": "res://assets/art/relics/cragbound_gauntlet.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -1761,7 +1761,7 @@
   "procession_lantern": {
     "name": "Procession Lantern",
     "rarity": "legendary",
-    "description": "@icon(illusion) can use your independent @icon(move).",
+    "description": "Your @term(illusion|Illusions) can move by spending your @kw(movement).",
     "icon_path": "res://assets/art/relics/procession_lantern.png",
     "accent": "#d9862f",
     "design_version": 3,
@@ -1783,7 +1783,7 @@
   "crowncoal_heart": {
     "name": "Crowncoal Heart",
     "rarity": "legendary",
-    "description": "Each turn, your first single-target hit on ground without an elemental surface adds @icon(surface_fire). Your first @icon(detonate) consuming 2+ @icon(surface_fire) grants @icon(stoneskin) 6 after the blast.",
+    "description": "Once per turn, your single-target hit on a tile without @term(surface_fire), @term(surface_ice) or @term(surface_electrified) places @kw(surface_fire). @kw(detonate|Detonating) 2+ @kw(surface_fire) grants 6 @term(stoneskin), once per turn.",
     "icon_path": "res://assets/art/relics/crowncoal_heart.png",
     "accent": "#d9862f",
     "design_version": 3,
@@ -1822,7 +1822,7 @@
   "worldheart": {
     "name": "Worldheart",
     "rarity": "legendary",
-    "description": "At turn end, convert up to 2 remaining @icon(block) into @icon(stoneskin). Whenever you gain @icon(stoneskin), deal half that amount, rounded down, to adjacent enemies (maximum 4).",
+    "description": "At the end of your turn, up to 2 @term(block) becomes @term(stoneskin). Gaining @kw(stoneskin) deals half, rounded down, to enemies next to you, max 4.",
     "icon_path": "res://assets/art/relics/worldheart.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -1850,7 +1850,7 @@
   "unbound_pinion": {
     "name": "Unbound Pinion",
     "rarity": "legendary",
-    "description": "The first card action each turn that sends an enemy 2 or more tiles, or makes it collide, refills your movement and you @icon(draw) 1.",
+    "description": "Once per turn, when your @kw(push) or @kw(pull) moves an enemy 2 or more tiles or makes it collide, refill your @kw(movement) and @kw(draw) 1.",
     "icon_path": "res://assets/art/relics/unbound_pinion.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -1883,7 +1883,7 @@
   "winters_hour": {
     "name": "Winter's Hourglass",
     "rarity": "legendary",
-    "description": "Your first @icon(element_ice) card each turn stores @icon(time) 3 (maximum 3). Non-@icon(element_ice) cards spend stored @icon(time) to reduce their cost, to a minimum of @icon(time) 1. Stored @icon(time) lasts this combat.",
+    "description": "Your first @kw(element_ice) card each turn refills a 3-@term(time) store that lasts all combat. Other cards spend it to cost less, down to 1.",
     "icon_path": "res://assets/art/relics/winters_hour.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -1907,7 +1907,7 @@
   "stormroad_coil": {
     "name": "Stormroad Coil",
     "rarity": "legendary",
-    "description": "Single-target @icon(ranged) attacks can relay once through @icon(surface_electrified), with normal @icon(range) on each leg.",
+    "description": "Your single-target @kw(ranged) attacks can relay once through an @term(surface_electrified) tile, with normal @kw(range) on each leg.",
     "icon_path": "res://assets/art/relics/stormroad_coil.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -1929,7 +1929,7 @@
   "eclipse_mantle": {
     "name": "Eclipse Mantle",
     "rarity": "legendary",
-    "description": "Your first @icon(blink) each turn leaves @icon(illusion) 2 at its origin. Your @icon(illusion) radiate @icon(illuminate) 2 while they last.",
+    "description": "Your first @kw(blink) each turn leaves a 2-@term(health) @term(illusion) where you started. Your @kw(illusion|Illusions) shed radius-2 @term(illuminate).",
     "icon_path": "res://assets/art/relics/eclipse_mantle.png",
     "accent": "#d9862f",
     "design_version": 3,
@@ -1957,7 +1957,7 @@
   "recoil_plates": {
     "name": "Recoil Plates",
     "rarity": "common",
-    "description": "You take 1 @icon(collision) damage per lost tile instead of 2. Whenever you are part of a @icon(collision), gain 3 @icon(block).",
+    "description": "You take 1 @kw(collision) damage per lost tile instead of 2. Whenever you are part of a @kw(collision), gain 3 @term(block).",
     "icon_path": "res://assets/art/relics/recoil_plates.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -1979,7 +1979,7 @@
   "millstone_fob": {
     "name": "Millstone Fob",
     "rarity": "common",
-    "description": "When an enemy you @icon(push) or @icon(pull) collides, the tile it stopped on becomes @icon(surface_rubble).",
+    "description": "When an enemy you @kw(push) or @kw(pull) collides, the tile it stopped on becomes @term(surface_rubble).",
     "icon_path": "res://assets/art/relics/millstone_fob.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -1999,7 +1999,7 @@
   "tallow_candle": {
     "name": "Tallow Candle",
     "rarity": "common",
-    "description": "At the start of each combat, create radius-2 @icon(illuminate) on your tile for 3 turns.",
+    "description": "At the start of combat, create radius-2 @term(illuminate) on your tile for 3 turns.",
     "icon_path": "res://assets/art/relics/tallow_candle.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -2020,7 +2020,7 @@
   "pocket_sundial": {
     "name": "Pocket Sundial",
     "rarity": "common",
-    "description": "If you use both @icon(card_play) in a turn, your next turn comes 2 @icon(time) sooner.",
+    "description": "If your turn ends with no @kw(wait), your next turn comes 2 @term(time) sooner.",
     "icon_path": "res://assets/art/relics/pocket_sundial.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -2040,7 +2040,7 @@
   "leaden_pommel": {
     "name": "Leaden Pommel",
     "rarity": "common",
-    "description": "Attacks on cards that cost 5 or more @icon(time) @icon(stagger) 1.",
+    "description": "Attacks on cards that cost 5 or more @term(time) gain +1 @kw(stagger).",
     "icon_path": "res://assets/art/relics/leaden_pommel.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -2070,7 +2070,7 @@
   "pitch_gloves": {
     "name": "Pitch Gloves",
     "rarity": "common",
-    "description": "@icon(surface_fire) deals you 1 less damage. @icon(surface_fire) you create deals enemies 1 more.",
+    "description": "@term(surface_fire) deals you 1 less damage. @kw(surface_fire) you create deals enemies 1 more.",
     "icon_path": "res://assets/art/relics/pitch_gloves.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -2099,7 +2099,7 @@
   "hobnail_cleats": {
     "name": "Hobnail Cleats",
     "rarity": "common",
-    "description": "@icon(surface_ice) doesn't make you @icon(chilled). While you stand on @icon(surface_ice), your @icon(element_ice) attacks deal 2 more damage.",
+    "description": "@term(surface_ice) doesn't make you @term(chilled). While you stand on @term(surface_ice), your @term(element_ice) attacks deal 2 more damage.",
     "icon_path": "res://assets/art/relics/hobnail_cleats.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -2133,7 +2133,7 @@
   "grounding_pin": {
     "name": "Grounding Pin",
     "rarity": "common",
-    "description": "Your single-target attacks against an enemy standing on @icon(surface_electrified) gain @icon(chain) 1.",
+    "description": "Your single-target attacks against enemies on @term(surface_electrified) gain +1 @kw(chain).",
     "icon_path": "res://assets/art/relics/grounding_pin.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -2162,7 +2162,7 @@
   "rubblewalker_greaves": {
     "name": "Rubblewalker Greaves",
     "rarity": "common",
-    "description": "@icon(surface_rubble) doesn't slow you. Start each turn standing on @icon(surface_rubble) with 1 @icon(stoneskin).",
+    "description": "@term(surface_rubble) doesn't slow you. At the start of your turn, if you stand on @kw(surface_rubble), gain 1 @term(stoneskin).",
     "icon_path": "res://assets/art/relics/rubblewalker_greaves.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -2187,7 +2187,7 @@
   "grave_dirt": {
     "name": "Grave Dirt",
     "rarity": "common",
-    "description": "Start each combat with 4 @icon(stoneskin).",
+    "description": "At the start of combat, gain 4 @term(stoneskin).",
     "icon_path": "res://assets/art/relics/grave_dirt.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -2207,7 +2207,7 @@
   "waxen_effigy": {
     "name": "Waxen Effigy",
     "rarity": "common",
-    "description": "At the start of each combat, create a 2-@icon(health) @icon(illusion) on the empty tile next to you nearest an enemy.",
+    "description": "At the start of combat, create a 2-@term(health) @term(illusion) on the empty tile next to you nearest an enemy.",
     "icon_path": "res://assets/art/relics/waxen_effigy.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -2227,7 +2227,7 @@
   "quick_draw_bandolier": {
     "name": "Quick-Draw Bandolier",
     "rarity": "common",
-    "description": "Your items don't use a @icon(card_play), but cost 1 more @icon(time).",
+    "description": "Your @kw(item|Items) don't use a @term(card_play), but cost 1 more @term(time).",
     "icon_path": "res://assets/art/relics/quick_draw_bandolier.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -2247,7 +2247,7 @@
   "briar_vambrace": {
     "name": "Briar Vambrace",
     "rarity": "common",
-    "description": "When a card gives you @icon(block), also gain @icon(retaliate) 1 until your next turn.",
+    "description": "When a card gives you @term(block), also gain @kw(retaliate) 1, once per card.",
     "icon_path": "res://assets/art/relics/briar_vambrace.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -2267,7 +2267,7 @@
   "fencers_gloves": {
     "name": "Fencer's Gloves",
     "rarity": "common",
-    "description": "Your second card each turn costs 1 less @icon(time).",
+    "description": "Your second card each turn costs 1 less @term(time).",
     "icon_path": "res://assets/art/relics/fencers_gloves.png",
     "accent": "#8f9499",
     "design_version": 4,
@@ -2289,7 +2289,7 @@
   "feint_ribbon": {
     "name": "Feint Ribbon",
     "rarity": "rare",
-    "description": "If you've traveled 2 or more tiles this turn, your first card counts as a @icon(follow_up).",
+    "description": "If you've traveled 2 or more tiles this turn, your first card counts as a @kw(follow_up).",
     "icon_path": "res://assets/art/relics/feint_ribbon.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2310,7 +2310,7 @@
   "battering_yoke": {
     "name": "Battering Yoke",
     "rarity": "rare",
-    "description": "When an enemy you @icon(push) or @icon(pull) collides with another enemy, that enemy is knocked 1 tile in the same direction, colliding normally if it can't @icon(move).",
+    "description": "When your @kw(push) or @kw(pull) slams an enemy into another, that one is knocked 1 tile the same way and can collide too.",
     "icon_path": "res://assets/art/relics/battering_yoke.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2330,7 +2330,7 @@
   "pendulum_weight": {
     "name": "Pendulum Weight",
     "rarity": "rare",
-    "description": "@icon(stagger) beyond an enemy's per-turn limit is dealt to it as damage instead.",
+    "description": "@kw(stagger) beyond an enemy's per-turn limit is dealt to it as damage instead.",
     "icon_path": "res://assets/art/relics/pendulum_weight.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2349,7 +2349,7 @@
   "martyrs_gorget": {
     "name": "Martyr's Gorget",
     "rarity": "rare",
-    "description": "When your @icon(retaliate) damages an attacker, gain that much @icon(block).",
+    "description": "When your @kw(retaliate) damages an attacker, gain that much @term(block).",
     "icon_path": "res://assets/art/relics/martyrs_gorget.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2368,7 +2368,7 @@
   "reliquary_box": {
     "name": "Reliquary Box",
     "rarity": "rare",
-    "description": "Your opening hand includes a @icon(rite) from your deck, if you have one. Each @icon(rite) costs 1 less @icon(time).",
+    "description": "Your opening hand includes a @kw(rite) from your deck, if you have one. Each @kw(rite) costs 1 less @term(time).",
     "icon_path": "res://assets/art/relics/reliquary_box.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2392,7 +2392,7 @@
   "changelings_rattle": {
     "name": "Changeling's Rattle",
     "rarity": "rare",
-    "description": "When an enemy destroys your @icon(illusion), that enemy suffers @icon(stagger) 3 and @icon(expose) 2.",
+    "description": "When an enemy destroys your @term(illusion), that enemy suffers @kw(stagger) 3 and @term(expose) 2.",
     "icon_path": "res://assets/art/relics/changelings_rattle.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2414,7 +2414,7 @@
   "copper_shod_staff": {
     "name": "Copper-Shod Staff",
     "rarity": "rare",
-    "description": "Your outcrops and @icon(illusion) count as @icon(surface_electrified) for your @icon(element_lightning): they conduct and carry @icon(chain), and take no damage from it.",
+    "description": "For your @kw(element_lightning), your @kw(outcrop|Outcrops) and @term(illusion|Illusions) count as @term(surface_electrified) and take no damage from it.",
     "icon_path": "res://assets/art/relics/copper_shod_staff.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2435,7 +2435,7 @@
   "ashen_phylactery": {
     "name": "Ashen Phylactery",
     "rarity": "rare",
-    "description": "When you @icon(exhaust) a card, gain @icon(stoneskin) equal to the @icon(time) you paid for it (max 5).",
+    "description": "When you @kw(exhaust) a non-@kw(item) card, gain @term(stoneskin) equal to the @term(time) you paid for it, up to 5.",
     "icon_path": "res://assets/art/relics/ashen_phylactery.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2456,7 +2456,7 @@
   "bonded_set": {
     "name": "Bonded Set",
     "rarity": "rare",
-    "description": "Cards from an equipment piece that shares its element with another equipped piece deal 1 more damage and grant 1 more @icon(block).",
+    "description": "Cards from an equipment piece that shares its element with another equipped piece deal 1 more damage and grant 1 more @term(block).",
     "icon_path": "res://assets/art/relics/bonded_set.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2477,7 +2477,7 @@
   "overclock_coil": {
     "name": "Overclock Coil",
     "rarity": "rare",
-    "description": "When you @icon(empower) a card, @icon(quicken) 2.",
+    "description": "When you @kw(empower) a card, @kw(quicken) 2.",
     "icon_path": "res://assets/art/relics/overclock_coil.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2498,7 +2498,7 @@
   "fetter_spikes": {
     "name": "Fetter Spikes",
     "rarity": "rare",
-    "description": "Enemies with @icon(immobilize) take double @icon(collision) damage.",
+    "description": "Enemies with @term(immobilize) take double @kw(collision) damage.",
     "icon_path": "res://assets/art/relics/fetter_spikes.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2520,7 +2520,7 @@
   "masons_plumb": {
     "name": "Mason's Plumb",
     "rarity": "rare",
-    "description": "Your outcrops have 2 more @icon(health). An enemy that collides with one of your outcrops takes 2 more damage, and the outcrop takes none.",
+    "description": "Your @kw(outcrop|Outcrops) have 2 more @term(health). An enemy that collides with one of your @kw(outcrop|Outcrops) takes 2 more damage, and the @kw(outcrop) takes none.",
     "icon_path": "res://assets/art/relics/masons_plumb.png",
     "accent": "#4b84d8",
     "design_version": 4,
@@ -2547,7 +2547,7 @@
   "breaking_wheel": {
     "name": "The Breaking Wheel",
     "rarity": "epic",
-    "description": "An enemy colliding on a surface breaks it: @icon(surface_fire) deals 3 more damage, @icon(surface_ice) gives @icon(freeze), @icon(surface_electrified) gives @icon(shock) to it and its blocker, @icon(surface_rubble) gives @icon(stagger) 3.",
+    "description": "When an enemy collides on ground, @kw(surface_consume) it. @term(surface_fire): 3 more damage. @term(surface_ice): @term(freeze). @term(surface_electrified): @term(shock) it and enemy blockers. @term(surface_rubble): @kw(stagger) 3.",
     "icon_path": "res://assets/art/relics/breaking_wheel.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -2573,7 +2573,7 @@
   "hollow_puppet": {
     "name": "Hollow Puppet",
     "rarity": "epic",
-    "description": "Your @icon(push) and @icon(pull) can target your @icon(illusion) without damaging it. An @icon(illusion) that collides with an enemy shatters, dealing its remaining @icon(health) to that enemy instead of @icon(collision) damage.",
+    "description": "Your @kw(push) and @kw(pull) can target your @term(illusion|Illusions) harmlessly. An @kw(illusion) that collides with an enemy shatters and deals its remaining @term(health) to it instead.",
     "icon_path": "res://assets/art/relics/hollow_puppet.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -2593,7 +2593,7 @@
   "toll_late_bell": {
     "name": "Toll of the Late Bell",
     "rarity": "epic",
-    "description": "Enemies set to act after your next turn on the @icon(turn_clock) are late: your attacks deal them 3 more damage.",
+    "description": "Enemies set to act after your next turn on the @kw(turn_clock) are late: your attacks deal them 3 more damage.",
     "icon_path": "res://assets/art/relics/toll_late_bell.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -2613,7 +2613,7 @@
   "rosary_of_vows": {
     "name": "Rosary of Vows",
     "rarity": "epic",
-    "description": "At the start of your turn, gain 2 @icon(block) for each active @icon(rite) you have.",
+    "description": "At the start of your turn, gain 2 @term(block) for each active @kw(rite) you have.",
     "icon_path": "res://assets/art/relics/rosary_of_vows.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -2634,7 +2634,7 @@
   "siege_ram_totem": {
     "name": "Siege Ram Totem",
     "rarity": "epic",
-    "description": "Any enemy that takes @icon(collision) damage suffers that much @icon(stagger) (within the normal limit).",
+    "description": "When an enemy takes @kw(collision) damage, it also suffers that much @kw(stagger).",
     "icon_path": "res://assets/art/relics/siege_ram_totem.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -2654,7 +2654,7 @@
   "echoing_blade": {
     "name": "Echoing Blade",
     "rarity": "epic",
-    "description": "When a @icon(follow_up) bonus applies, your next card this turn costs 1 less @icon(time) and deals 2 more damage.",
+    "description": "When a @kw(follow_up) bonus applies, @kw(quicken) 1. Your next card this turn deals 2 more damage.",
     "icon_path": "res://assets/art/relics/echoing_blade.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -2675,7 +2675,7 @@
   "alchemists_retort": {
     "name": "Alchemist's Retort",
     "rarity": "epic",
-    "description": "Your items' damage, @icon(block), @icon(heal) and @icon(stoneskin) are increased by half, rounded up.",
+    "description": "Your @kw(item|Items)' damage, @term(block), @kw(heal) and @term(stoneskin) are increased by half, rounded up.",
     "icon_path": "res://assets/art/relics/alchemists_retort.png",
     "accent": "#9b62d6",
     "design_version": 4,
@@ -2696,7 +2696,7 @@
   "crown_of_surplus": {
     "name": "Crown of Surplus",
     "rarity": "legendary",
-    "description": "Cards without their own @icon(empower) gain one: @icon(empower) (+3 @icon(time)): repeat the card's first action. @icon(rite) cards, items and @icon(flurry) cards are excluded.",
+    "description": "Cards without @kw(empower) gain one: pay 3 @term(time) to repeat the card's first action. @kw(rite|Rites), @kw(item|Items) and @kw(flurry) cards are excluded.",
     "icon_path": "res://assets/art/relics/crown_of_surplus.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -2717,7 +2717,7 @@
   "mirror_triptych": {
     "name": "Mirror Triptych",
     "rarity": "legendary",
-    "description": "Your first attack card each turn is echoed by up to 3 @icon(illusion) at half damage (rounded down). Each hits the nearest enemy it can reach and loses 1 @icon(health).",
+    "description": "Up to 3 @term(illusion|Illusions) repeat your first attack each turn for half damage, rounded down. Each hits the nearest reachable enemy and loses 1 @term(health).",
     "icon_path": "res://assets/art/relics/mirror_triptych.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -2737,7 +2737,7 @@
   "liturgy_of_ash": {
     "name": "Liturgy of Ash",
     "rarity": "legendary",
-    "description": "@icon(rite) cards don't use a @icon(card_play).",
+    "description": "@kw(rite) cards don't use a @term(card_play).",
     "icon_path": "res://assets/art/relics/liturgy_of_ash.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -2756,7 +2756,7 @@
   "pyre_keepers_urn": {
     "name": "Pyre-Keeper's Urn",
     "rarity": "legendary",
-    "description": "At the start of your turn, the last card you sent to @icon(exhaust) returns to your hand, unless it is a @icon(rite) or has @icon(heal).",
+    "description": "At the start of your turn, return your last @kw(exhaust|Exhausted) card to your hand, unless it is a @kw(rite) or heals.",
     "icon_path": "res://assets/art/relics/pyre_keepers_urn.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -2776,7 +2776,7 @@
   "briar_throne": {
     "name": "Briar Throne",
     "rarity": "legendary",
-    "description": "Your @icon(retaliate) no longer expires, and grows by 1 each time it triggers. Cards can't give you @icon(block).",
+    "description": "Your @kw(retaliate) no longer expires, and grows by 1 each time it triggers. Cards can't give you @term(block).",
     "icon_path": "res://assets/art/relics/briar_throne.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -2799,7 +2799,7 @@
   "whirling_sash": {
     "name": "Whirling Sash",
     "rarity": "legendary",
-    "description": "Gain 1 extra @icon(card_play) each turn. Each card after your second each turn costs 2 more @icon(time).",
+    "description": "Gain 1 extra @term(card_play) each turn. Each card after your second each turn costs 2 more @term(time).",
     "icon_path": "res://assets/art/relics/whirling_sash.png",
     "accent": "#d9862f",
     "design_version": 4,
@@ -2825,7 +2825,7 @@
   "quartermasters_ledger": {
     "name": "Quartermaster's Ledger",
     "rarity": "legendary",
-    "description": "Your items lose @icon(consume), except items that @icon(heal). Each item can be used once per combat.",
+    "description": "Your @kw(item|Items) @kw(exhaust) instead of @kw(consume) unless they heal, so each can be used once per combat.",
     "icon_path": "res://assets/art/relics/quartermasters_ledger.png",
     "accent": "#d9862f",
     "design_version": 4,
