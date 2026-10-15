@@ -160,3 +160,10 @@ Adds art-03: the 11 approved section enemies with new front/rear art, four-direc
 
 ## Playtest 7 (frozen worktree ../peer-benchmark-playtest-7 at 7901c37f0; import + start fixture verified)
 Adds: perched gust shrike (maquette repaint, four facings, portrait); crawler rig recolour; sfx-03 limiter + louder blade/shatter/freeze cues. The gaoler still uses its old rig (rounded repaint awaiting owner, then rr-02 re-rig).
+
+## Playtest 8 (frozen worktree ../peer-benchmark-playtest-8 at 3782ea5d0; full suite PASS; import + start fixture verified)
+Adds since playtest 7: Chronicle spells as card tiles with hover previews (chr-02); glossary tooltip stacks on relic
+choices, owned relics and inline icons, data-driven glossary (ux-03); 17 rebuilt turn-order portraits (por-01); Fatigue
+no longer amplified by Expose/Chilled/Frozen + SPENT HUD + token icons (fix-03); pixel-identical UI cleanup (ui-02);
+tooling (art-05/06, qa-04). Not yet in: sound sync, pixel FX, gaoler rig, new lancer/wisp/bloomer art (await owner).
+
