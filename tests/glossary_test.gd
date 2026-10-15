@@ -11,7 +11,6 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const CoverageSuite = preload("res://tests/suites/glossary_coverage_suite.gd")
-const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const TooltipSuite = preload("res://tests/suites/tooltip_consistency_suite.gd")
 
 var VIEWPORT_SIZE := Vector2i(1920, 1080)

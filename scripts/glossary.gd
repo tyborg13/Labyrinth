@@ -4,6 +4,7 @@ extends RefCounted
 ## preload cycle and preserving contextual token explanations and card layout.
 const DATA_PATH: String = "res://data/glossary.json"
 const MAX_RELIC_PANELS: int = 6
+const TokenSyntax = preload("res://scripts/inline_token_syntax.gd")
 
 static var _entries: Dictionary = {}
 static var _aliases: Dictionary = {}
@@ -84,12 +85,10 @@ static func name_for(id: String, fallback_label: String = "") -> String:
 static func ids_in_text(text: String, limit: int = 0) -> Array[String]:
 	_ensure_loaded()
 	var matches: Array[Dictionary]
-	var tokens := RegEx.new()
-	tokens.compile("@(?:icon|term|kw)\\(([^)|]*)(?:\\|[^)]*)?\\)")
 	var plain: String = text
-	for found: RegExMatch in tokens.search_all(text):
-		var entry: Dictionary = _entry(found.get_string(1))
-		matches.append({"id": entry.get("id", found.get_string(1)), "start": found.get_start(), "end": found.get_end()})
+	for found: RegExMatch in TokenSyntax.tokens(text):
+		var entry: Dictionary = _entry(found.get_string(2))
+		matches.append({"id": entry.get("id", found.get_string(2)), "start": found.get_start(), "end": found.get_end()})
 		plain = plain.substr(0, found.get_start()) + " ".repeat(found.get_end() - found.get_start()) + plain.substr(found.get_end())
 	# BBCode metadata is not player-visible prose.
 	var tags := RegEx.new()

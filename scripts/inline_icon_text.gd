@@ -5,10 +5,10 @@ const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const Glossary = preload("res://scripts/glossary.gd")
 const UiPalette = preload("res://scripts/ui_palette.gd")
+const TokenSyntax = preload("res://scripts/inline_token_syntax.gd")
 const DEFAULT_ICON_SCALE: float = 1.15
 # All explicit concept words share this colour and inherit host typography.
 const KEYWORD_COLOR: Color = UiPalette.GOLD_BRIGHT
-const TOKEN_PATTERN: String = "@(icon|term|kw)\\(([^)|]*)(?:\\|([^)]*))?\\)"
 
 # RichTextLabel hit-tests both inline images and hint spans. Opt-in preserves
 # existing noninteractive labels and labels with their own custom scripts.
@@ -17,9 +17,7 @@ class GlossaryRichLabel extends RichTextLabel:
 		return load("res://scripts/ui_tooltip_panel.gd").make_text(for_text)
 
 static func _tokens(markup: String) -> Array[RegExMatch]:
-	var pattern := RegEx.new()
-	pattern.compile(TOKEN_PATTERN)
-	return pattern.search_all(markup)
+	return TokenSyntax.tokens(markup)
 
 # Historical name: callers use this to choose RichTextLabel over Label, so
 # word-only @kw markup must also take the rich-text path.

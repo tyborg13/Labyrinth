@@ -4,6 +4,8 @@ const Glossary = preload("res://scripts/glossary.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
+const InlineIconText = preload("res://scripts/inline_icon_text.gd")
+const TokenSyntax = preload("res://scripts/inline_token_syntax.gd")
 var _expect_callback: Callable
 var _tokens: int = 0
 var _checks: int = 0
@@ -14,6 +16,7 @@ static func run(expect: Callable) -> Dictionary:
 	suite._expect_callback = expect
 	suite._coverage()
 	suite._one_line_card_tooltips()
+	suite._token_validation_cases()
 	print("GLOSSARY COVERAGE: %d entries, %d skills, %d tokens checked; %d cards scanned, %d one-line contextual tooltips" % [Glossary.all_entries().size(), SkillTreeLibrary.definitions().size(), suite._tokens, GameData.cards().size(), suite._one_line_tooltips])
 	return {"checks": suite._checks, "tokens": suite._tokens}
 
@@ -96,11 +99,27 @@ func _walk(value: Variant) -> void:
 		_check_text(value)
 
 func _check_text(text: String) -> void:
-	var literal := RegEx.new()
-	literal.compile("@(?:icon|term|kw)\\(([A-Za-z0-9_-]*)(?:\\|[^)]*)?\\)")
-	for token: RegExMatch in literal.search_all(text):
+	for malformed: String in TokenSyntax.malformed_tokens(text):
+		_expect(false, "Malformed text token: " + malformed)
+	for key: String in InlineIconText.concept_keys(text):
 		_tokens += 1
-		_expect(not _raw_definition(token.get_string(1)).strip_edges().is_empty(), "Text token resolves: " + token.get_string(1))
+		_expect(not _raw_definition(key).strip_edges().is_empty(), "Text token resolves: " + key)
+	for key: String in InlineIconText.invalid_icon_keys(text):
+		_expect(false, "Invalid text token: " + key)
+
+func _token_validation_cases() -> void:
+	var cases: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/inline_token_cases.json"))
+	for category: String in cases:
+		for markup: String in cases[category]:
+			var failures: Array[String]
+			var mutation := new()
+			mutation._expect_callback = func(condition: bool, message: String) -> void:
+				if not condition: failures.append(message)
+			mutation._check_text(str(GameData.card_def("quick_stab").get("description", "")) + " " + markup)
+			_expect(failures.is_empty() == (category == "valid"), "Coverage rejects unknown/malformed card text: " + markup)
+			_expect(TokenSyntax.malformed_tokens(markup).is_empty() == (category != "malformed"), "Token syntax classifies malformed markup: " + markup)
+			if category == "unknown":
+				_expect(InlineIconText.concept_keys(markup).size() == 1 and not InlineIconText.invalid_icon_keys(markup).is_empty(), "Renderer and coverage retain punctuation/whitespace keys: " + markup)
 
 func _scan_scripts(path: String) -> void:
 	var dir := DirAccess.open(path)

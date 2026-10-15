@@ -4,7 +4,6 @@ class_name ActionIconLibrary
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const Glossary = preload("res://scripts/glossary.gd")
-const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 const ICON_ROOT: String = "res://assets/art/icons"
 const SKILL_ICON_ROOT: String = "res://assets/art/skills"

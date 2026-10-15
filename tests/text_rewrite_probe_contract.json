@@ -1,5 +1,5 @@
 {
-  "min_images": 11,
+  "min_images": 14,
   "expected_sizes": [
     "1920x1080"
   ],
@@ -176,6 +176,57 @@
     },
     {
       "pattern": "*graftwright_result.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*ability_long_dawn.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*ability_sunpath.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1884,
+            1044
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*ability_afterglow.png",
       "width": 1920,
       "height": 1080,
       "regions": [

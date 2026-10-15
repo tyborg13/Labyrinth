@@ -1,6 +1,6 @@
 # UX-04 implementation handoff
 
-Changes are uncommitted on `codex/ux-04`. The design owner owns commit, review, inspection fixture and publication. Protected staged text inputs were read, never edited.
+Round 2 changes are uncommitted on `codex/ux-04`, based on `66c75a74a`. Earlier-round results below are historical. The design owner owns commit, review, inspection fixture and publication. Protected staged text inputs were read, never edited.
 
 ## Requirement coverage
 
@@ -68,21 +68,57 @@ The round 1 changes are in `scripts/inline_icon_text.gd`, `scripts/event_view_te
 
 Round 1 logs are `/private/tmp/ux04-r1-*.log`. The same two windowed commands below now also capture gold keyword samples and the Graftwright result. No windowed run was attempted.
 
+## Round 2 review fixes and verification
+
+1. Long Dawn, Sunpath, and Afterglow now use the exact approved glossary definitions in `data/skills.json`. No duration icon remains in these descriptions, so their Abilities details cannot expose a Time tooltip for turns. The live text probe selects all three abilities, checks the rendered concepts, and hit-tests every remaining icon. Skill IDs, effects, numbers, and all other skill fields are unchanged.
+2. `scripts/inline_token_syntax.gd` owns the token grammar used by the renderer, glossary extraction, GDScript coverage, and Python coverage. Unknown keys containing punctuation or whitespace are validated instead of skipped. Malformed delimiters, empty keys/forms, padding, newlines, and nested tokens fail validation. Both coverage paths inject the shared cases into Quick Stab text; the renderer suite also verifies that unresolved keys remain visible and fail validation. Valid multiword names and inflected forms remain supported.
+3. The unused `SkillTreeLibrary` preloads were removed from `scripts/action_icon_library.gd` and `tests/glossary_test.gd`.
+
+Observed results on the round 2 working tree:
+
+- Budgets and regression cases: `Ran 6 tests in 0.082s` / `OK`.
+- Glossary and coverage: `GLOSSARY TEST RESULT: PASS (6974 checks, 0 failures)`.
+- Token rendering: `INLINE ICON DESCRIPTION TEST RESULT: PASS`.
+- Text probe logic: `TEXT REWRITE PROBE LOGIC: PASS (56 checks, 0 failures)`.
+- Glossary probe logic: `GLOSSARY PROBE LOGIC RESULT: PASS`; all 112 relics pass both 336-position layout sweeps, with zero reported overflow.
+- UI identity lint: `Ran 25 tests in 3.174s` / `OK`.
+- Full Python: `Ran 450 tests in 252.461s` / `OK (skipped=61)` (exit 0).
+- Full Godot: `FULL SUITE RUNTIME: 722.933 seconds (budget 900 seconds)` / `TEST RESULT: PASS` (exit 0).
+
+Logs are `/private/tmp/ux04-r2-*.log`. Protected approved text files and the Git index are unchanged. The only skill data differences are the three approved descriptions. No new TODO_DESIGN placeholders or production tuning values were introduced. The probe reuses the existing two-pixel hover grid, settling count, and viewport; its new fixture consists of the three reviewed ability IDs.
+
+Every round 2 changed file (including every test/probe):
+
+- `data/skills.json`
+- `scripts/action_icon_library.gd`
+- `scripts/glossary.gd`
+- `scripts/inline_icon_text.gd`
+- `scripts/inline_token_syntax.gd` (new shared parser)
+- `tests/fixtures/inline_token_cases.json` (new shared regression cases)
+- `tests/glossary_test.gd`
+- `tests/suites/glossary_coverage_suite.gd`
+- `tests/suites/inline_icon_description_suite.gd`
+- `tests/suites/skill_tree_suite.gd`
+- `tests/text_budget_test.py`
+- `tests/text_rewrite_probe.gd`
+- `tests/text_rewrite_probe_contract.json`
+- `tests/text_rewrite_handoff.md`
+
 ## Proof for the design owner
 
 Run from this task worktree. Both commands use 1920×1080 and 100% UI scale; neither was run windowed in the implementation sandbox. The 120-second glossary timeout is the established all-relic sweep budget.
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/ux-04 && python3 tools/visual_probe_runner.py --task-id ux-04 --timeout 120 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/glossary_tooltip_probe_contract.json --result-manifest /private/tmp/ux-04-r1-glossary-proof.json tests/glossary_tooltip_probe.gd -- --size=1920x1080 --compare-original-card
+cd /Users/borgerding/workspace/Labyrinth.worktrees/ux-04 && python3 tools/visual_probe_runner.py --task-id ux-04 --timeout 120 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/glossary_tooltip_probe_contract.json --result-manifest /private/tmp/ux-04-r2-glossary-proof.json tests/glossary_tooltip_probe.gd -- --size=1920x1080 --compare-original-card
 ```
 
 The probe captures relic choice and owned relic pointer/keyboard/controller states, all-relic layout cases, and card keyword comparisons. It prints `GLOSSARY_PROOF_DIR` with the isolated capture directory. Required files include `relic_choice_hover.png`, `owned_relic_hover.png`, `card_keywords_before.png`, `card_keywords_same_copy.png`, and `card_keywords_after.png`.
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/ux-04 && python3 tools/visual_probe_runner.py --task-id ux-04 --timeout 120 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/text_rewrite_probe_contract.json --result-manifest /private/tmp/ux-04-r1-text-proof.json tests/text_rewrite_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/ux-04 && python3 tools/visual_probe_runner.py --task-id ux-04 --timeout 120 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/text_rewrite_probe_contract.json --result-manifest /private/tmp/ux-04-r2-text-proof.json tests/text_rewrite_probe.gd
 ```
 
-This prints `TEXT_REWRITE_PROOF_DIR` and captures `status_charge.png`, `intent_arc_burst.png`, `movement_meter.png`, `card_time_and_turns.png`, five `grimoire_*.png` pages (Light, Expend, Chilled, Ground Techniques, Card Play), `token_styles.png` (card/relic/event/definition surfaces), and `graftwright_result.png`. Tooltip panels come from their real live owner's factory; their placement is probe-only. There are no new PNG captures from the headless sandbox. No inspection-fixture command was requested for this implementation unit; the owner prepares that fixture.
+This prints `TEXT_REWRITE_PROOF_DIR` and captures `status_charge.png`, `intent_arc_burst.png`, `movement_meter.png`, `card_time_and_turns.png`, five `grimoire_*.png` pages (Light, Expend, Chilled, Ground Techniques, Card Play), `token_styles.png` (card/relic/event/definition surfaces), `graftwright_result.png`, and the three live Abilities details (`ability_long_dawn.png`, `ability_sunpath.png`, `ability_afterglow.png`). Tooltip panels come from their real live owner's factory; their placement is probe-only. There are no new PNG captures from the headless sandbox. No inspection-fixture command was requested for this implementation unit; the owner prepares that fixture.
 
 ## Director decisions and chosen defaults
 
@@ -91,11 +127,11 @@ Both TODO_DESIGN placeholders are resolved by round 1: `InlineIconText.KEYWORD_C
 
 ## Workflow caveat
 
-Read-only `parallel_task.py status` reported an empty contract (`acceptance_criteria: []`, `required_proof: []`, empty inspection expectation), despite the brief saying the owner had recorded it. Workflow metadata was left to the design owner as instructed.
+During the initial implementation, read-only `parallel_task.py status` reported an empty contract (`acceptance_criteria: []`, `required_proof: []`, empty inspection expectation), despite the brief saying the owner had recorded it. Workflow metadata was left to the design owner as instructed.
 
-## Files changed
+## Initial implementation and round 1 file inventory
 
-Every changed or added test is included in this complete inventory.
+Every changed or added test from those rounds is included below. The round 2 inventory is listed separately above.
 
 - `data/cards.json`
 - `data/enemies.json`

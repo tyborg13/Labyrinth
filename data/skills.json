@@ -580,7 +580,7 @@
   "long_dawn": {
     "name": "Long Dawn",
     "icon": "skill_long_dawn",
-    "description": "Temporary @icon(illuminate), @icon(vision), and @icon(truesight) you create last @icon(time) +1.",
+    "description": "Temporary @icon(illuminate), @icon(vision) and @icon(truesight) you create last 1 more turn.",
     "branch": "radiance",
     "tier": "root",
     "position": [
@@ -601,7 +601,7 @@
   "sunpath": {
     "name": "Sunpath",
     "icon": "skill_sunpath",
-    "description": "The first @icon(move) or @icon(blink) 3+ each turn leaves @icon(illuminate) 1 @icon(time) 2 on every tile entered. @icon(blink) also covers its origin and destination.",
+    "description": "Once per turn, when you @icon(move) or @icon(blink) 3+ tiles, leave @icon(illuminate) 1 for 2 turns on your path.",
     "branch": "radiance",
     "tier": "branch",
     "position": [
@@ -680,7 +680,7 @@
   "afterglow": {
     "name": "Afterglow",
     "icon": "skill_afterglow",
-    "description": "When @icon(illusion) is removed during combat, it leaves @icon(illuminate) 1 @icon(time) 2 at its final tile.",
+    "description": "When an @icon(illusion) is removed, leave @icon(illuminate) 1 for 2 turns on its tile.",
     "branch": "radiance",
     "tier": "junction",
     "position": [

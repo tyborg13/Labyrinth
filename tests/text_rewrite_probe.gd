@@ -16,6 +16,7 @@ const EventText = preload("res://scripts/event_view_text.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
 const GraftFixture = preload("res://tests/suites/graftwright_suite.gd")
+const Skills = preload("res://scripts/skill_tree_library.gd")
 const VIEWPORT_SIZE := Vector2i(1920, 1080)
 const OUTPUT_DIR: String = "user://text_rewrite_probe"
 # Debug-only proof placement and settling; production layouts remain unchanged.
@@ -91,6 +92,7 @@ func _run() -> void:
 			_expect(Icons.action_icon_key(action) == "gale_force", "Every live Hollow Gale action uses its approved identity")
 			_expect(Icons.tokens_for_action(action)[0]["icon"] == "gale_force", "Hollow Gale damage chips expose the glossary icon")
 	await _duration_card(scene)
+	await _duration_skills(scene)
 	await _grimoire_pages(scene)
 	await _token_styles(scene)
 	await _graft_result(scene)
@@ -135,6 +137,32 @@ func _duration_card(scene: Control) -> void:
 	stack.queue_free()
 	card.queue_free()
 	scene.show()
+	await _settle()
+
+func _duration_skills(scene: Control) -> void:
+	var skill_ids: Array[String] = ["long_dawn", "sunpath", "afterglow"]
+	scene._toggle_skill_status_popover()
+	scene._refresh_skill_status_popover(skill_ids)
+	scene._layout_skill_status_popover()
+	await _settle()
+	for skill_id: String in skill_ids:
+		scene._show_skill_status_page_for_skill(skill_id)
+		await _settle()
+		var description: RichTextLabel = scene.get("_skill_status_detail_description") as RichTextLabel
+		var approved: String = Icons.description(Skills.icon_key(skill_id))
+		_expect(Skills.description(skill_id) == approved, skill_id + " detail uses exact approved glossary wording")
+		_expect(description.visible and description.get_meta("inline_concept_keys") == InlineText.concept_keys(approved), skill_id + " live Abilities detail renders approved concepts")
+		_expect(not description.get_meta("inline_concept_keys").has("time"), skill_id + " has no duration icon mapped to Time")
+		var hovered: Array[String]
+		for y: int in range(0, int(description.size.y), PROOF_HOVER_STEP):
+			for x: int in range(0, int(description.size.x), PROOF_HOVER_STEP):
+				var tooltip: String = description.get_tooltip(Vector2(x, y))
+				if not tooltip.is_empty() and not hovered.has(tooltip): hovered.append(tooltip)
+		_expect(not hovered.has(Icons.tooltip("time")), skill_id + " hit testing never returns the Time tooltip")
+		for key: String in InlineText.icon_keys(approved):
+			_expect(hovered.has(Icons.tooltip(key)), skill_id + " retains live glossary hover for " + key)
+		await _capture("ability_" + skill_id)
+	scene._close_skill_status_popover(false)
 	await _settle()
 
 func _grimoire_pages(scene: Control) -> void:

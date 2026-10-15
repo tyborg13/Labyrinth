@@ -1,0 +1,32 @@
+{
+  "valid": [
+    "Gain @kw(health).",
+    "@term(card_play|Card Plays)",
+    "@kw(Card Play)",
+    "@icon(health), @kw(block)!",
+    "@kw(health|Health's worth)"
+  ],
+  "unknown": [
+    "@kw(review.missing_key)",
+    "@term(review/missing_key)",
+    "@icon(review:missing_key)",
+    "@kw(review missing key)",
+    "@term(review\tmissing_key)",
+    "@kw(review.missing_key|Missing Words)"
+  ],
+  "malformed": [
+    "@kw(health",
+    "@term()",
+    "@icon( )",
+    "@kw( health)",
+    "@kw(health )",
+    "@kw (health)",
+    "@term\t(health)",
+    "@kw(health|)",
+    "@kw(health|  )",
+    "@term(health|Health|Again)",
+    "@kw(health\n)",
+    "@kw(health|Health\nAgain)",
+    "@kw(@kw(health))"
+  ]
+}

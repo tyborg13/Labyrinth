@@ -5,7 +5,17 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-TOKEN = re.compile(r"@(icon|term|kw)\(([A-Za-z0-9_-]*)(?:\|[^)]*)?\)")
+# Read the renderer's grammar rather than maintaining a narrower Python copy.
+SYNTAX = (ROOT / "scripts/inline_token_syntax.gd").read_text()
+
+
+def syntax_pattern(name):
+    literal = re.search(rf"^const {name}: String = (.+)$", SYNTAX, re.MULTILINE)[1]
+    return re.compile(json.loads(literal))
+
+
+TOKEN = syntax_pattern("TOKEN_PATTERN")
+TOKEN_START = syntax_pattern("TOKEN_START_PATTERN")
 TEXT_ONLY = {"wait", "turns", "ice_pillar", "movement", "item", "outcrop"}
 
 
@@ -26,6 +36,31 @@ def strings(value):
     elif isinstance(value, list):
         for child in value:
             yield from strings(child)
+
+
+def malformed_tokens(text):
+    complete = {
+        match.start() for match in TOKEN.finditer(text)
+        if match[2].strip() and match[2] == match[2].strip()
+        and (match[3] is None or match[3].strip())
+    }
+    return [text[match.start():] for match in TOKEN_START.finditer(text) if match.start() not in complete]
+
+
+def glossary_keys(glossary):
+    aliases = {alias.lower(): e["id"] for e in glossary.values() for alias in e["aliases"]}
+    candidates = {}
+    for entry in glossary.values():
+        for term in [entry["name"], *entry["aliases"]]:
+            candidates[term] = entry["id"] if term not in candidates or candidates[term] == entry["id"] else ""
+    aliases.update({term.lower(): key for term, key in candidates.items() if key})
+    return set(glossary) | set(aliases)
+
+
+def token_errors(text, keys):
+    errors = [f"malformed {token}" for token in malformed_tokens(text)]
+    errors += [f"unresolved {match[0]}" for match in TOKEN.finditer(text) if match[2].lower() not in keys]
+    return errors
 
 
 class TextBudgetTest(unittest.TestCase):
@@ -70,18 +105,36 @@ class TextBudgetTest(unittest.TestCase):
         self.assertEqual((active, retired), (100, 12))
 
     def test_every_explicit_concept_resolves(self):
-        aliases = {alias.lower(): e["id"] for e in self.glossary.values() for alias in e["aliases"]}
+        keys = glossary_keys(self.glossary)
         paths = [ROOT / "data" / f"{name}.json" for name in ("cards", "relics", "skills", "enemies", "grimoire", "glossary")]
         paths += list((ROOT / "scripts").rglob("*.gd"))
         checked = 0
         for path in paths:
             values = strings(json.loads(path.read_text())) if path.suffix == ".json" else [path.read_text()]
             for value in values:
-                for match in TOKEN.finditer(value):
-                    checked += 1
-                    key = match[2]
-                    self.assertTrue(aliases.get(key, key) in self.glossary, f"{path.relative_to(ROOT)}: unresolved {match[0]}")
+                checked += len(TOKEN.findall(value))
+                self.assertEqual(token_errors(value, keys), [], f"{path.relative_to(ROOT)}: invalid token")
         self.assertGreater(checked, 400)
+
+    def test_token_validation_rejects_punctuation_whitespace_and_malformed_cases(self):
+        cases = read("tests/fixtures/inline_token_cases.json")
+        keys = glossary_keys(self.glossary)
+        card_text = read("data/cards.json")["quick_stab"]["description"]
+        for category, examples in cases.items():
+            for markup in examples:
+                with self.subTest(category=category, markup=markup):
+                    errors = token_errors(card_text + " " + markup, keys)
+                    self.assertEqual(bool(errors), category != "valid", errors)
+                    self.assertEqual(bool(malformed_tokens(markup)), category == "malformed")
+                    if category == "unknown":
+                        self.assertEqual(len(TOKEN.findall(markup)), 1)
+
+    def test_duration_skills_match_the_approved_glossary(self):
+        skills = read("data/skills.json")
+        for key in ("long_dawn", "sunpath", "afterglow"):
+            with self.subTest(skill=key):
+                self.assertEqual(skills[key]["description"], self.glossary[f"skill_{key}"]["definition"])
+                self.assertNotIn("time", [match[2] for match in TOKEN.finditer(skills[key]["description"])])
 
     def test_token_word_count_includes_inflections_as_one_word(self):
         self.assertEqual(words("Store 3 @kw(surface_consume|Expended) ground tiles."), 5)

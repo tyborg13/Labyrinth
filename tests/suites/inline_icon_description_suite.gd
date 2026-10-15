@@ -86,6 +86,7 @@ static func run(expect: Callable) -> void:
 	expect.call(skill_icon_count >= 50, "The full ability audit should retain broad inline-icon coverage")
 
 	_test_concept_tokens(expect)
+	_test_token_syntax(expect)
 
 	var example: String = "Create @icon(illuminate) 2 for @icon(time) 2."
 	expect.call(InlineIconText.plain_text(example) == "Create Light 2 for Time 2.", "Inline icon rules should retain an accessible plain-text expansion")
@@ -112,7 +113,7 @@ static func _audit_description(expect: Callable, source: String, description: St
 
 static func _without_icon_tokens(markup: String) -> String:
 	var regex := RegEx.new()
-	if regex.compile("@(?:icon|term|kw)\\([a-z0-9_]+(?:\\|[^)]*)?\\)") != OK:
+	if regex.compile(InlineIconText.TokenSyntax.TOKEN_PATTERN) != OK:
 		return markup
 	return regex.sub(markup, "", true)
 
@@ -146,3 +147,16 @@ static func _test_concept_tokens(expect: Callable) -> void:
 		expect.call(not event_label.get_parsed_text().contains("@") and event_label.get_parsed_text().contains("Block."), "Event prose and toned outcomes expand explicit keyword tokens")
 		expect.call(not event_label.hint_underlined and event_label.mouse_filter == Control.MOUSE_FILTER_IGNORE, "Event concept style preserves existing input routing without underline")
 		event_label.free()
+
+static func _test_token_syntax(expect: Callable) -> void:
+	var cases: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://tests/fixtures/inline_token_cases.json"))
+	for category: String in cases:
+		for markup: String in cases[category]:
+			var malformed: Array[String] = InlineIconText.TokenSyntax.malformed_tokens(markup)
+			var unknown: Array[String] = InlineIconText.invalid_icon_keys(markup)
+			expect.call((malformed.is_empty() and unknown.is_empty()) == (category == "valid"), "Shared renderer syntax rejects invalid markup: " + markup)
+			if category == "unknown":
+				var label := RichTextLabel.new()
+				InlineIconText.apply_to(label, markup)
+				expect.call(label.get_parsed_text() == markup and InlineIconText.concept_keys(markup).size() == 1, "Unknown punctuation/whitespace keys stay visible and fail validation: " + markup)
+				label.free()
