@@ -7,21 +7,21 @@
   "fit_scale": 1.0,
   "k_eff": 4.0,
   "metrics": {
-    "chroma": 0.11384166211007034,
+    "chroma": 0.11200831331663856,
     "edge_light_share": 0.0,
-    "feature_px": 6.826656492485671,
+    "feature_px": 6.983637049609463,
     "height": 181,
     "height_drawn": 181.0,
-    "orphan_share": 0.06168013204760664,
-    "regions": 247,
-    "run_length": 3.7593076420640106,
-    "symmetry": 0.6458602381977329,
-    "thin_abs": 0.013899748067066287,
-    "thin_rel": 0.10329250282338631,
-    "value": 0.24291115028932259,
+    "orphan_share": 0.05925282363162467,
+    "regions": 236,
+    "run_length": 3.786184210526316,
+    "symmetry": 0.6459529276693455,
+    "thin_abs": 0.013814074717636848,
+    "thin_rel": 0.10321459600347527,
+    "value": 0.24640972726188648,
     "width": 183
   },
-  "pixel_sha256": "7b05581c2ada5815e49af537a08d4b6d2ca76d139d6bae58ac918d5fcff1ee87",
+  "pixel_sha256": "8af9638d602debbce2434a31fcd74b0c8a5b3a686c7ea8314608fc41d9b5dc5d",
   "placement": [
     37,
     65
@@ -38,17 +38,17 @@
           21
         ]
       },
-      "pre_step_pixel_sha256": "52643f481c7c10598eca4601f06232d9678516e1baace969a268e1bbd434d85d",
+      "pre_step_pixel_sha256": "fddafc283eaa5db389d954b45fdb705105dbf43a7c0b1ab8266cad7c2555954b",
       "step": "clean_outline"
     }
   ],
-  "raw_pixel_sha256": "2b068eac3278c5d0f0019883d44b14a9d82d64f7fcc73f89fd6a1378eb0046a2",
+  "raw_pixel_sha256": "f812874f34f4a065b71a9afd513d8794a929374967f4c45d002bf6263eec8b99",
   "raw_steps": [
     {
       "inputs": {
         "config": {
-          "path": "refs/tone_rear_G.json",
-          "sha256": "574925c3324f2326a96e503316ef415ff7c53e47f02ae476e62a0b1633b7e6b4"
+          "path": "refs/tone_rear_L.json",
+          "sha256": "47ee250f945a10bf8c6efc07b5db51afb94985b622c2848abbbb4f56f9d80090"
         },
         "raw": {
           "path": "refs/raw_approved.png",
@@ -56,7 +56,7 @@
         }
       },
       "kind": "tone_region",
-      "output_raw_pixel_sha256": "2b068eac3278c5d0f0019883d44b14a9d82d64f7fcc73f89fd6a1378eb0046a2",
+      "output_raw_pixel_sha256": "f812874f34f4a065b71a9afd513d8794a929374967f4c45d002bf6263eec8b99",
       "parameters": {
         "space": "CIE Lab"
       }

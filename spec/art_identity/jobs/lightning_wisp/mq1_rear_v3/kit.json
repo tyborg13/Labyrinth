@@ -18,8 +18,8 @@
     {
       "inputs": {
         "config": {
-          "path": "refs/tone_rear_G.json",
-          "sha256": "574925c3324f2326a96e503316ef415ff7c53e47f02ae476e62a0b1633b7e6b4"
+          "path": "refs/tone_rear_L.json",
+          "sha256": "47ee250f945a10bf8c6efc07b5db51afb94985b622c2848abbbb4f56f9d80090"
         },
         "raw": {
           "path": "refs/raw_approved.png",
@@ -27,13 +27,13 @@
         }
       },
       "kind": "tone_region",
-      "output_raw_pixel_sha256": "2b068eac3278c5d0f0019883d44b14a9d82d64f7fcc73f89fd6a1378eb0046a2",
+      "output_raw_pixel_sha256": "f812874f34f4a065b71a9afd513d8794a929374967f4c45d002bf6263eec8b99",
       "parameters": {
         "space": "CIE Lab"
       }
     }
   ],
-  "raw_steps_provenance": "judge pair r2 (2026-10-15): rear crackle trimmed to the front's amount (thin_rel), tone G unchanged; not palette-matched (greys pale cores until art-07)",
+  "raw_steps_provenance": "judge pair r2 (2026-10-15): rear crackle trimmed to the front's amount (thin_rel); judge r5 tone L (cloud darker, plum -> front slate-violet, milder fold darkening, fringe restored); not palette-matched (greys pale cores until art-07). Pair judge PASS.",
   "refs": [
     {
       "canon_id": "wisp_mq1_rear_v2_raw",
