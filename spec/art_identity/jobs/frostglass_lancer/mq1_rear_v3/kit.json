@@ -1,0 +1,81 @@
+{
+  "K": 4,
+  "anatomy": "biped",
+  "id": "frostglass_lancer",
+  "job_id": "mq-lancer-rear-r1 + tone r2",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "eae4a76d0c99d40c89fb61fa6404d71ef83e8f5d53342c8cf3041b69514542e8",
+  "match_reference": {
+    "path": "refs/palette_front.png",
+    "sha256": "b263530ddccf2a5fba617600ba5efb2377b3023aa4bf331d7f10acc59ff0bfec"
+  },
+  "method": "maquette paint-over (wave 1b) from the toned front v2 as identity reference; judge r2 copper fix + director tone r2 (neutral steel, frost-teal capes) to match front v3",
+  "peers": [
+    "glacial_mirror_rear",
+    "hero_rear"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "2e3bb7b2e316bda48223eedf789bfb068cd71f7ab316cab4a9481d937cf94f54",
+  "prompt_source": "spec/art_identity/maquettes/frostglass_lancer/prompt_rear_r1.md",
+  "raw_steps": [
+    {
+      "inputs": {
+        "config": {
+          "path": "refs/tone_rear_r2.json",
+          "sha256": "7ed941cbb3d7ae72871201d235d164824791b0f2b8744ddfa3c659bf4883fa44"
+        },
+        "raw": {
+          "path": "refs/raw_approved.png",
+          "sha256": "b7ea3b300515e73474a41cba5f227730f8f2d7c9e5298970b2c90fb3b099c228"
+        }
+      },
+      "kind": "tone_region",
+      "output_raw_sha256": "eed7a87d230422d2f61120f48785835e89a229a4843bb24993b74bce4204e9dc",
+      "parameters": {
+        "space": "CIE Lab"
+      }
+    }
+  ],
+  "raw_steps_provenance": "judge r2 (2026-10-15): palette_match greyed the ice blade because the rear's copper set a higher accent threshold; copper hoops/belt/wraps toned to the front's browns (tested). Director r2: rear armour to neutral steel and capes to frost teal, matching front v3",
+  "refs": [
+    {
+      "canon_id": "maquette_rear_parts",
+      "file": "refs/01_maquette_rear_parts.png",
+      "pixel_sha256": "33e8310316a8f9341c1852f96d9e3d1506fd4bc532968687dc6b36d51d40789c",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-lancer-rear-r1/refs/rear_parts_green.png"
+    },
+    {
+      "canon_id": "maquette_rear_clay",
+      "file": "refs/02_maquette_rear_clay.png",
+      "pixel_sha256": "ba9863db3de8c94548dadb06183b43547cbde0bc7e91df2ebecd51e5b3a6a813",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-lancer-rear-r1/refs/rear_clay_green.png"
+    },
+    {
+      "canon_id": "approved_lancer_mq1_front_v2",
+      "file": "refs/03_approved_lancer_mq1_front_v2.png",
+      "pixel_sha256": "b6224411a135327dee30d94a4eb1585a9c1cdc1abd97d2f87862b47eed1ea187",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-lancer-rear-r1/refs/approved_lancer_front_r1.png"
+    },
+    {
+      "canon_id": "glacial_mirror_rear",
+      "file": "refs/04_glacial_mirror_rear.png",
+      "pixel_sha256": "00f8011727f155d8f97a9ac174b49c5347a6b064fee872484f6926cd55dfcb87",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-lancer-rear-r1/refs/peer_glacial_mirror_rear_x4.png"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/05_hero_rear.png",
+      "pixel_sha256": "734da8ebe42a649cb88b237a3403ec7403082ba918b85e16a29533dd5b832acf",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-lancer-rear-r1/refs/hero_rear_x4.png"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 240,
+  "view": "creature_rear"
+}

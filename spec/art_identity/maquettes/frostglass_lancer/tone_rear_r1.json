@@ -1,0 +1,90 @@
+[
+ {
+  "name": "rear back/helm/pauldrons: copper hoop lines -> front's dull brown lines",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.1,
+  "hue_deg": [
+   0,
+   40
+  ],
+  "lab_scale": [
+   0.9,
+   0.55,
+   0.55
+  ],
+  "box": [
+   374,
+   133,
+   854,
+   544
+  ],
+  "seed": null
+ },
+ {
+  "name": "rear legs: copper lines -> dull brown",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.1,
+  "hue_deg": [
+   0,
+   40
+  ],
+  "lab_scale": [
+   0.9,
+   0.55,
+   0.55
+  ],
+  "box": [
+   423,
+   672,
+   668,
+   1157
+  ],
+  "seed": null
+ },
+ {
+  "name": "rear belt: front belt brown",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.12,
+  "hue_deg": [
+   0,
+   40
+  ],
+  "lab_scale": [
+   1.0,
+   0.72,
+   0.62
+  ],
+  "box": [
+   443,
+   530,
+   678,
+   686
+  ],
+  "seed": null
+ },
+ {
+  "name": "rear spear wraps: front shaft brown",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.12,
+  "hue_deg": [
+   0,
+   40
+  ],
+  "lab_scale": [
+   0.95,
+   0.72,
+   0.62
+  ],
+  "box": [
+   840,
+   417,
+   1031,
+   1157
+  ],
+  "seed": null
+ }
+]

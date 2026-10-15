@@ -1,0 +1,288 @@
+[
+ {
+  "name": "rear back/helm/pauldrons: copper hoop lines -> front's dull brown lines",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.1,
+  "hue_deg": [
+   0,
+   40
+  ],
+  "lab_scale": [
+   0.9,
+   0.55,
+   0.55
+  ],
+  "box": [
+   374,
+   133,
+   854,
+   544
+  ],
+  "seed": null
+ },
+ {
+  "name": "rear legs: copper lines -> dull brown",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.1,
+  "hue_deg": [
+   0,
+   40
+  ],
+  "lab_scale": [
+   0.9,
+   0.55,
+   0.55
+  ],
+  "box": [
+   423,
+   672,
+   668,
+   1157
+  ],
+  "seed": null
+ },
+ {
+  "name": "rear belt: front belt brown",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.12,
+  "hue_deg": [
+   0,
+   40
+  ],
+  "lab_scale": [
+   1.0,
+   0.72,
+   0.62
+  ],
+  "box": [
+   443,
+   530,
+   678,
+   686
+  ],
+  "seed": null
+ },
+ {
+  "name": "rear spear wraps: front shaft brown",
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.12,
+  "hue_deg": [
+   0,
+   40
+  ],
+  "lab_scale": [
+   0.95,
+   0.72,
+   0.62
+  ],
+  "box": [
+   840,
+   417,
+   1031,
+   1157
+  ],
+  "seed": null
+ },
+ {
+  "name": "rear armour: dark neutral steel (match front r2)",
+  "box": [
+   374,
+   133,
+   854,
+   544
+  ],
+  "seed": null,
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.0,
+  "hue_deg": [
+   215,
+   360
+  ],
+  "lab_scale": [
+   0.8,
+   0.2,
+   0.2
+  ]
+ },
+ {
+  "name": "rear armour: dark neutral steel (match front r2)",
+  "box": [
+   374,
+   133,
+   854,
+   544
+  ],
+  "seed": null,
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.0,
+  "hue_deg": [
+   0,
+   60
+  ],
+  "lab_scale": [
+   0.8,
+   0.2,
+   0.2
+  ]
+ },
+ {
+  "name": "rear armour: dark neutral steel (match front r2)",
+  "box": [
+   423,
+   672,
+   668,
+   1157
+  ],
+  "seed": null,
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.0,
+  "hue_deg": [
+   215,
+   360
+  ],
+  "lab_scale": [
+   0.8,
+   0.2,
+   0.2
+  ]
+ },
+ {
+  "name": "rear armour: dark neutral steel (match front r2)",
+  "box": [
+   423,
+   672,
+   668,
+   1157
+  ],
+  "seed": null,
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.0,
+  "hue_deg": [
+   0,
+   60
+  ],
+  "lab_scale": [
+   0.8,
+   0.2,
+   0.2
+  ]
+ },
+ {
+  "name": "rear armour: dark neutral steel (match front r2)",
+  "box": [
+   300,
+   133,
+   374,
+   700
+  ],
+  "seed": null,
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.0,
+  "hue_deg": [
+   215,
+   360
+  ],
+  "lab_scale": [
+   0.8,
+   0.2,
+   0.2
+  ]
+ },
+ {
+  "name": "rear armour: dark neutral steel (match front r2)",
+  "box": [
+   300,
+   133,
+   374,
+   700
+  ],
+  "seed": null,
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.0,
+  "hue_deg": [
+   0,
+   60
+  ],
+  "lab_scale": [
+   0.8,
+   0.2,
+   0.2
+  ]
+ },
+ {
+  "name": "rear near foot: dark neutral steel (match front r2)",
+  "box": [
+   668,
+   900,
+   835,
+   1200
+  ],
+  "seed": null,
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.0,
+  "hue_deg": [
+   215,
+   360
+  ],
+  "lab_scale": [
+   0.8,
+   0.2,
+   0.2
+  ]
+ },
+ {
+  "name": "rear near foot: dark neutral steel (match front r2)",
+  "box": [
+   668,
+   900,
+   835,
+   1200
+  ],
+  "seed": null,
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.0,
+  "hue_deg": [
+   0,
+   60
+  ],
+  "lab_scale": [
+   0.8,
+   0.2,
+   0.2
+  ]
+ },
+ {
+  "name": "rear capes: frost teal (match front r2)",
+  "box": [
+   250,
+   133,
+   1031,
+   1157
+  ],
+  "seed": null,
+  "min_lum": 0.0,
+  "max_lum": 1.0,
+  "min_chroma": 0.04,
+  "hue_deg": [
+   160,
+   215
+  ],
+  "lab_scale": [
+   0.9,
+   1.25,
+   1.25
+  ]
+ }
+]
