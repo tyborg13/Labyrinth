@@ -1,0 +1,847 @@
+[
+  {
+    "id": "reflect",
+    "name": "Reflect",
+    "icon": "reflect",
+    "definition": "Reflect: ranged attacks against it bounce back to the attacker. Hit it up close or with area effects.",
+    "aliases": []
+  },
+  {
+    "id": "dive",
+    "name": "Dive",
+    "icon": "dive",
+    "definition": "Dive: flies straight at you (up to %d tiles), knocking each unit it passes %d tile aside, then strikes for %d.",
+    "aliases": [
+      "dive_line"
+    ]
+  },
+  {
+    "id": "flying",
+    "name": "Flying",
+    "icon": "flying",
+    "definition": "Flying: moves over traps, surfaces, Bramble and Ice Pillars and takes no surface damage. Can still be pushed.",
+    "aliases": []
+  },
+  {
+    "id": "bramble",
+    "name": "Thornwall",
+    "icon": "bramble",
+    "definition": "Bramble: blocks movement for 3 more round(s). A unit pushed into it takes 2 damage and Bleeds.",
+    "aliases": [
+      "grow_bramble"
+    ]
+  },
+  {
+    "id": "lob",
+    "name": "Lob Slag",
+    "icon": "lob",
+    "definition": "Lob Slag",
+    "aliases": [
+      "lob_mark",
+      "lob_land"
+    ]
+  },
+  {
+    "id": "charge",
+    "name": "Charge",
+    "icon": "charge",
+    "definition": "Charge <n>/3: at 3 it discharges chain lightning.",
+    "aliases": [
+      "gain_charge",
+      "reset_charge"
+    ]
+  },
+  {
+    "id": "mirror",
+    "name": "Mirror",
+    "icon": "mirror",
+    "definition": "Mirror: it copies the last attack you played — <card>: <damage> damage.",
+    "aliases": [
+      "mirror_last_attack"
+    ]
+  },
+  {
+    "id": "icefall",
+    "name": "Icefall",
+    "icon": "icefall",
+    "definition": "Icefall: icicles fall on the marked tiles on the Seer's next turn.",
+    "aliases": [
+      "icefall_mark",
+      "icefall_land"
+    ]
+  },
+  {
+    "id": "wind",
+    "name": "Wind",
+    "icon": "wind",
+    "definition": "Wind: at the end of each enemy turn, everything not anchored is pushed one tile with the wind.",
+    "aliases": [
+      "call_wind"
+    ]
+  },
+  {
+    "id": "tether",
+    "name": "Tether",
+    "icon": "tether",
+    "definition": "Tether: lightning strikes every tile between the two Arc Thralls for 4 and Shocks. Break the line to stop it.",
+    "aliases": [
+      "tether_beam"
+    ]
+  },
+  {
+    "id": "veil",
+    "name": "Veiled",
+    "icon": "veil",
+    "definition": "Veiled: only attacks from an adjacent tile, or area effects, can hit it.",
+    "aliases": [
+      "veil_blink"
+    ]
+  },
+  {
+    "id": "burrow",
+    "name": "Burrow",
+    "icon": "burrow",
+    "definition": "Burrowed; marks your current tile. Erupt is its next intent.",
+    "aliases": []
+  },
+  {
+    "id": "erupt",
+    "name": "Erupt",
+    "icon": "erupt",
+    "definition": "Surfaces at the mark, displaces its occupant, pushes adjacent units, leaves Rubble and gains Expose 2.",
+    "aliases": []
+  },
+  {
+    "id": "burst",
+    "name": "Bursts",
+    "icon": "burst",
+    "definition": "When this dies, it deals the shown damage to everything next to it.",
+    "aliases": [
+      "kindle"
+    ]
+  },
+  {
+    "id": "raise_cover",
+    "name": "Raise Cover",
+    "icon": "raise_cover",
+    "definition": "Spend 1 independent Move and all Stoneskin. Place cover within 2 with that much HP.",
+    "aliases": []
+  },
+  {
+    "id": "reclaim_cover",
+    "name": "Reclaim Cover",
+    "icon": "reclaim_cover",
+    "definition": "Spend 1 independent Move to remove adjacent owned cover and recover its surviving HP as Stoneskin.",
+    "aliases": []
+  },
+  {
+    "id": "surface",
+    "name": "Shape Ground",
+    "icon": "surface",
+    "definition": "Creates a surface in the shown area.",
+    "aliases": [
+      "surface_adjacent_enemies"
+    ]
+  },
+  {
+    "id": "surface_fire",
+    "name": "Fire",
+    "icon": "surface_fire",
+    "definition": "Deals 3 damage on turn start and 2 damage when entered.",
+    "aliases": []
+  },
+  {
+    "id": "surface_ice",
+    "name": "Ice",
+    "icon": "surface_ice",
+    "definition": "Entering or starting a turn on Ice applies Chilled.",
+    "aliases": []
+  },
+  {
+    "id": "surface_electrified",
+    "name": "Electrified",
+    "icon": "surface_electrified",
+    "definition": "Lightning spreads through connected Electrified tiles. Chain can jump through these tiles to reach other targets.",
+    "aliases": []
+  },
+  {
+    "id": "surface_rubble",
+    "name": "Rubble",
+    "icon": "surface_rubble",
+    "definition": "Costs 2 movement to leave.",
+    "aliases": []
+  },
+  {
+    "id": "chilled",
+    "name": "Chilled",
+    "icon": "chilled",
+    "definition": "Takes +2 attack damage. An Ice hit Freezes this character and consumes the Ice beneath them.",
+    "aliases": []
+  },
+  {
+    "id": "detonate",
+    "name": "Detonate",
+    "icon": "detonate",
+    "definition": "Consumes Fire tiles to damage targets on them and their four neighboring tiles.",
+    "aliases": []
+  },
+  {
+    "id": "surface_consume",
+    "name": "Consume Ground",
+    "icon": "surface_consume",
+    "definition": "Consumes the shown surface to gain its reward.",
+    "aliases": [
+      "consume_surface"
+    ]
+  },
+  {
+    "id": "surface_relocate",
+    "name": "Relocate Ground",
+    "icon": "surface_relocate",
+    "definition": "Moves a surface to another tile.",
+    "aliases": []
+  },
+  {
+    "id": "melee",
+    "name": "Melee",
+    "icon": "melee",
+    "definition": "Deals damage up close.",
+    "aliases": []
+  },
+  {
+    "id": "ranged",
+    "name": "Ranged",
+    "icon": "ranged",
+    "definition": "Deals damage from a distance.",
+    "aliases": []
+  },
+  {
+    "id": "pierce",
+    "name": "Pierce",
+    "icon": "pierce",
+    "definition": "Deals damage straight through block and stoneskin.",
+    "aliases": []
+  },
+  {
+    "id": "move",
+    "name": "Move",
+    "icon": "move",
+    "definition": "Moves across board tiles.",
+    "aliases": [
+      "move_toward"
+    ]
+  },
+  {
+    "id": "retreat",
+    "name": "Retreat",
+    "icon": "retreat",
+    "definition": "Moves away from the target.",
+    "aliases": [
+      "move_away"
+    ]
+  },
+  {
+    "id": "blink",
+    "name": "Blink",
+    "icon": "blink",
+    "definition": "Teleports to another tile.",
+    "aliases": []
+  },
+  {
+    "id": "range",
+    "name": "Range",
+    "icon": "range",
+    "definition": "Maximum target distance in tiles.",
+    "aliases": []
+  },
+  {
+    "id": "block",
+    "name": "Block",
+    "icon": "block",
+    "definition": "Absorbs damage until your next turn.",
+    "aliases": []
+  },
+  {
+    "id": "stoneskin",
+    "name": "Stoneskin",
+    "icon": "stoneskin",
+    "definition": "Persistent armor that absorbs damage across turns.",
+    "aliases": [
+      "convert_block_to_stoneskin"
+    ]
+  },
+  {
+    "id": "heal",
+    "name": "Heal",
+    "icon": "heal",
+    "definition": "Restores health.",
+    "aliases": [
+      "heal_self"
+    ]
+  },
+  {
+    "id": "draw",
+    "name": "Draw",
+    "icon": "draw",
+    "definition": "Adds cards to your hand.",
+    "aliases": []
+  },
+  {
+    "id": "card_play",
+    "name": "Card Play",
+    "icon": "card_play",
+    "definition": "Adds card plays for this turn.",
+    "aliases": []
+  },
+  {
+    "id": "flurry",
+    "name": "Flurry",
+    "icon": "flurry",
+    "definition": "Repeats this card once per remaining card play, spending them all. Pays Time once.",
+    "aliases": []
+  },
+  {
+    "id": "follow_up",
+    "name": "Follow-up",
+    "icon": "follow_up",
+    "definition": "Gains the listed bonus if you already played a card this turn.",
+    "aliases": []
+  },
+  {
+    "id": "empower",
+    "name": "Empower",
+    "icon": "empower",
+    "definition": "Optional: pay the listed extra cost while playing this card to gain the listed bonus.",
+    "aliases": []
+  },
+  {
+    "id": "stagger",
+    "name": "Stagger",
+    "icon": "stagger",
+    "definition": "Delays the target's next turn by this much Time. Dragons take half. At most 6 per enemy each turn.",
+    "aliases": []
+  },
+  {
+    "id": "time",
+    "name": "Time",
+    "icon": "time",
+    "definition": "Delays your next turn. Each unused play takes 5.",
+    "aliases": []
+  },
+  {
+    "id": "illusion",
+    "name": "Illusion",
+    "icon": "illusion",
+    "definition": "Creates a stationary copy that enemies can target.",
+    "aliases": []
+  },
+  {
+    "id": "illuminate",
+    "name": "Illuminate",
+    "icon": "illuminate",
+    "definition": "Creates a light that reveals nearby Umbra tiles.",
+    "aliases": []
+  },
+  {
+    "id": "vision",
+    "name": "Vision",
+    "icon": "vision",
+    "definition": "Expands the light centered on you.",
+    "aliases": []
+  },
+  {
+    "id": "truesight",
+    "name": "Truesight",
+    "icon": "truesight",
+    "definition": "Reveals and permits targeting enemies through the Umbra.",
+    "aliases": [
+      "True Sight"
+    ]
+  },
+  {
+    "id": "dispel_umbra",
+    "name": "Dispel Umbra",
+    "icon": "dispel_umbra",
+    "definition": "Reduces this combat's Umbra stage.",
+    "aliases": []
+  },
+  {
+    "id": "eclipse",
+    "name": "Eclipse",
+    "icon": "eclipse",
+    "definition": "Forces the arena into absolute Umbra. Radiance and light offer protection.",
+    "aliases": []
+  },
+  {
+    "id": "bleed",
+    "name": "Bleed",
+    "icon": "bleed",
+    "definition": "Deals damage before moving or attacking. Lasts through the next turn.",
+    "aliases": []
+  },
+  {
+    "id": "expose",
+    "name": "Expose",
+    "icon": "expose",
+    "definition": "The next hit against this target deals extra damage.",
+    "aliases": []
+  },
+  {
+    "id": "sunder",
+    "name": "Sunder",
+    "icon": "sunder",
+    "definition": "Breaks block and stoneskin before damage lands.",
+    "aliases": []
+  },
+  {
+    "id": "exhaust",
+    "name": "Exhaust",
+    "icon": "exhaust",
+    "definition": "Removes this card from the deck for the rest of combat.",
+    "aliases": []
+  },
+  {
+    "id": "consume",
+    "name": "Consume",
+    "icon": "consume",
+    "definition": "Uses this item card once, then removes it from the run.",
+    "aliases": []
+  },
+  {
+    "id": "retaliate",
+    "name": "Retaliate",
+    "icon": "retaliate",
+    "definition": "Until your next turn, an enemy that hits you in melee takes this much damage (Block and Stoneskin absorb it) and any listed riders. Several Retaliates add up.",
+    "aliases": []
+  },
+  {
+    "id": "quicken",
+    "name": "Quicken",
+    "icon": "quicken",
+    "definition": "Your next card this turn costs this much less Time (minimum 1). Several Quickens add up; unused Quicken ends with your turn.",
+    "aliases": []
+  },
+  {
+    "id": "rite",
+    "name": "Rite",
+    "icon": "rite",
+    "definition": "Rite: Exhaust. Lasts for the rest of this combat.",
+    "aliases": []
+  },
+  {
+    "id": "next_attack",
+    "name": "Next Attack",
+    "icon": "next_attack",
+    "definition": "Your next attack on a later card this turn gains the shown bonus, then the bonus is spent. Unused bonuses end with your turn.",
+    "aliases": []
+  },
+  {
+    "id": "swap",
+    "name": "Swap",
+    "icon": "swap",
+    "definition": "Swap places with a visible one-tile enemy or one of your illusions. Both of you arrive normally; nothing collides, and Anchored does not stop it.",
+    "aliases": []
+  },
+  {
+    "id": "petrify",
+    "name": "Petrify",
+    "icon": "petrify",
+    "definition": "The enemy skips its next turn (the skipped turn still costs its Time) and gains Block that lasts through your next turn. Not Freeze: no extra damage. Dragons are immune.",
+    "aliases": [
+      "Petrified"
+    ]
+  },
+  {
+    "id": "cleanse",
+    "name": "Cleanse",
+    "icon": "cleanse",
+    "definition": "Removes the listed statuses from you: Bleed, Immobilize, Chilled or Shock.",
+    "aliases": []
+  },
+  {
+    "id": "skate",
+    "name": "Skate",
+    "icon": "skate",
+    "definition": "This turn, moving onto Ice costs no movement and Ice doesn't Chill you.",
+    "aliases": []
+  },
+  {
+    "id": "anchored",
+    "name": "Anchored",
+    "icon": "anchored",
+    "definition": "Until your next turn, you can't be pushed or pulled: Push and Pull move you 0 tiles and never collide.",
+    "aliases": []
+  },
+  {
+    "id": "fireproof",
+    "name": "Fireproof",
+    "icon": "fireproof",
+    "definition": "Fire doesn't damage you this turn.",
+    "aliases": []
+  },
+  {
+    "id": "surface_convert",
+    "name": "Convert Ground",
+    "icon": "surface_convert",
+    "definition": "Turns the chosen surface tile, and every tile of it connected to it when shown, into another surface. Each enemy on a converted tile takes the damage.",
+    "aliases": [
+      "convert_surface"
+    ]
+  },
+  {
+    "id": "discharge",
+    "name": "Discharge",
+    "icon": "discharge",
+    "definition": "Removes a connected Electrified network. Each enemy on it or next to it takes the damage once.",
+    "aliases": []
+  },
+  {
+    "id": "all_enemies",
+    "name": "Sweeping Strike",
+    "icon": "all_enemies",
+    "definition": "Hits every enemy you can see that meets the shown condition. There is no target to choose, and enemies hidden by the Umbra are never hit.",
+    "aliases": []
+  },
+  {
+    "id": "illusion_swap",
+    "name": "Swap Illusion",
+    "icon": "illusion_swap",
+    "definition": "You and one of your illusions trade tiles. Both of you trigger the ground and traps where you land. Immobilize prevents it.",
+    "aliases": []
+  },
+  {
+    "id": "shatter_illusion",
+    "name": "Shatter Illusion",
+    "icon": "shatter_illusion",
+    "definition": "Destroys one of your illusions to blast each enemy next to it.",
+    "aliases": [
+      "destroy_illusion"
+    ]
+  },
+  {
+    "id": "freeze",
+    "name": "Freeze",
+    "icon": "freeze",
+    "definition": "Skips the next turn and takes triple attack damage.",
+    "aliases": [
+      "Frozen"
+    ]
+  },
+  {
+    "id": "shock",
+    "name": "Shock",
+    "icon": "shock",
+    "definition": "Cancels the next non-movement action.",
+    "aliases": [
+      "Shocked"
+    ]
+  },
+  {
+    "id": "immobilize",
+    "name": "Immobilize",
+    "icon": "immobilize",
+    "definition": "Prevents movement and Blink next turn.",
+    "aliases": [
+      "Rooted"
+    ]
+  },
+  {
+    "id": "chain",
+    "name": "Chain",
+    "icon": "chain",
+    "definition": "Jumps between targets within the shown range. Electrified tiles extend its reach.",
+    "aliases": [
+      "chain_discharge"
+    ]
+  },
+  {
+    "id": "push",
+    "name": "Push",
+    "icon": "push",
+    "definition": "Forces the target away in one straight line. If it's stopped early, it collides.",
+    "aliases": [
+      "force_area"
+    ]
+  },
+  {
+    "id": "pull",
+    "name": "Pull",
+    "icon": "pull",
+    "definition": "Forces the target closer in one straight line. If it's stopped early, it collides.",
+    "aliases": []
+  },
+  {
+    "id": "collision",
+    "name": "Collision",
+    "icon": "collision",
+    "definition": "A stopped Push or Pull deals 2 damage per tile not moved to the target and to whatever stopped it. Walls take nothing. Block and Stoneskin absorb it.",
+    "aliases": []
+  },
+  {
+    "id": "health",
+    "name": "Health",
+    "icon": "health",
+    "definition": "Health paid or restored.",
+    "aliases": []
+  },
+  {
+    "id": "health_cost",
+    "name": "Health Cost",
+    "icon": "health_cost",
+    "definition": "Health paid to play this card.",
+    "aliases": []
+  },
+  {
+    "id": "aoe",
+    "name": "Area Attack",
+    "icon": "aoe",
+    "definition": "Affects a pattern of board tiles.",
+    "aliases": []
+  },
+  {
+    "id": "lightning_strikes",
+    "name": "Lightning Strikes",
+    "icon": "lightning_strikes",
+    "definition": "Calls down lightning across several marked tiles.",
+    "aliases": []
+  },
+  {
+    "id": "summon_minions",
+    "name": "Summon Minions",
+    "icon": "summon_minions",
+    "definition": "Adds new enemy units to the battle.",
+    "aliases": []
+  },
+  {
+    "id": "raise_terrain",
+    "name": "Raise Terrain",
+    "icon": "raise_terrain",
+    "definition": "Creates attackable terrain on the board.",
+    "aliases": [
+      "outcrop"
+    ]
+  },
+  {
+    "id": "terrain_burst",
+    "name": "Terrain Burst",
+    "icon": "terrain_burst",
+    "definition": "Ruptures the arena around surviving terrain.",
+    "aliases": [
+      "burst_terrain"
+    ]
+  },
+  {
+    "id": "cinder_marks",
+    "name": "Kindle Ground",
+    "icon": "cinder_marks",
+    "definition": "Creates Fire on the marked tiles.",
+    "aliases": [
+      "meteor_marks"
+    ]
+  },
+  {
+    "id": "detonate_cinders",
+    "name": "Crownfire",
+    "icon": "detonate_cinders",
+    "definition": "Consumes Fire to damage targets on it and its four neighboring tiles.",
+    "aliases": []
+  },
+  {
+    "id": "gale_force",
+    "name": "Hollow Gale",
+    "icon": "gale_force",
+    "definition": "Sweeps the target through the arena.",
+    "aliases": []
+  },
+  {
+    "id": "frost_armor",
+    "name": "Crystal Mantle",
+    "icon": "frost_armor",
+    "definition": "Each layer prevents one direct damaging hit, then breaks.",
+    "aliases": [
+      "mantle"
+    ]
+  },
+  {
+    "id": "guard_ally",
+    "name": "Guard Ally",
+    "icon": "guard_ally",
+    "definition": "Grants block to another enemy.",
+    "aliases": []
+  },
+  {
+    "id": "heal_ally",
+    "name": "Heal Ally",
+    "icon": "heal_ally",
+    "definition": "Restores another enemy's health.",
+    "aliases": []
+  },
+  {
+    "id": "umbra_eclipse",
+    "name": "The Last Eclipse",
+    "icon": "umbra_eclipse",
+    "definition": "Forces the arena into absolute Umbra.",
+    "aliases": []
+  },
+  {
+    "id": "radiance",
+    "name": "Radiance",
+    "icon": "radiance",
+    "definition": "Carries protective light into the Umbra.",
+    "aliases": []
+  },
+  {
+    "id": "ember",
+    "name": "Embers",
+    "icon": "ember",
+    "definition": "Run currency used to gain permanent levels.",
+    "aliases": []
+  },
+  {
+    "id": "run",
+    "name": "The Run",
+    "icon": "run",
+    "definition": "The full journey from entry to victory or defeat.",
+    "aliases": []
+  },
+  {
+    "id": "map_rooms",
+    "name": "Map and Rooms",
+    "icon": "map_rooms",
+    "definition": "Routes and room types across the labyrinth.",
+    "aliases": []
+  },
+  {
+    "id": "loadout",
+    "name": "Character and Loadout",
+    "icon": "loadout",
+    "definition": "Equipment, attuned magic, items, relics, and skills.",
+    "aliases": []
+  },
+  {
+    "id": "rewards",
+    "name": "Rewards",
+    "icon": "rewards",
+    "definition": "Cards, healing, and other prizes claimed during a run.",
+    "aliases": []
+  },
+  {
+    "id": "relics",
+    "name": "Relics",
+    "icon": "relics",
+    "definition": "Passive run modifiers collected during exploration.",
+    "aliases": []
+  },
+  {
+    "id": "combat_board",
+    "name": "Combat Board",
+    "icon": "combat_board",
+    "definition": "The tactical tile grid where actions resolve.",
+    "aliases": []
+  },
+  {
+    "id": "turn_clock",
+    "name": "Turn Clock",
+    "icon": "turn_clock",
+    "definition": "Orders the next actor by current initiative delay.",
+    "aliases": []
+  },
+  {
+    "id": "health_defense",
+    "name": "Health and Defenses",
+    "icon": "health_defense",
+    "definition": "Health protected by block and stoneskin.",
+    "aliases": []
+  },
+  {
+    "id": "defiance",
+    "name": "Defiance",
+    "icon": "defiance",
+    "definition": "A per-run rescue that restores health after lethal loss.",
+    "aliases": []
+  },
+  {
+    "id": "targeting",
+    "name": "Targeting",
+    "icon": "targeting",
+    "definition": "Range, line of sight, patterns, and legal targets.",
+    "aliases": []
+  },
+  {
+    "id": "fatigue",
+    "name": "Fatigue",
+    "icon": "fatigue",
+    "definition": "Direct health loss caused by reshuffling an empty deck.",
+    "aliases": []
+  },
+  {
+    "id": "traps",
+    "name": "Traps",
+    "icon": "traps",
+    "definition": "Board hazards triggered by movement or attacks.",
+    "aliases": []
+  },
+  {
+    "id": "umbra",
+    "name": "The Umbra",
+    "icon": "umbra",
+    "definition": "Darkness that conceals tiles, enemies, and threats.",
+    "aliases": []
+  },
+  {
+    "id": "worldspines",
+    "name": "Worldspines",
+    "icon": "worldspines",
+    "definition": "Tharokh's attackable stone spires.",
+    "aliases": []
+  },
+  {
+    "id": "element_fire",
+    "name": "Fire",
+    "icon": "element_fire",
+    "definition": "Shapes dangerous ground and consumes it in powerful blasts.",
+    "aliases": []
+  },
+  {
+    "id": "element_ice",
+    "name": "Ice",
+    "icon": "element_ice",
+    "definition": "Prepares Ice, Chills exposed units and Freezes with a later Ice hit.",
+    "aliases": []
+  },
+  {
+    "id": "element_lightning",
+    "name": "Lightning",
+    "icon": "element_lightning",
+    "definition": "Conducts through Electrified ground and rewards connected targets.",
+    "aliases": []
+  },
+  {
+    "id": "element_air",
+    "name": "Air",
+    "icon": "element_air",
+    "definition": "Controls positioning with movement, Push and Pull.",
+    "aliases": []
+  },
+  {
+    "id": "element_earth",
+    "name": "Earth",
+    "icon": "element_earth",
+    "definition": "Creates Rubble and persistent Stoneskin defense.",
+    "aliases": []
+  },
+  {
+    "id": "skill_point",
+    "name": "Skill Point",
+    "icon": "res://assets/art/icons/skill_point.png",
+    "definition": "Earned as you level up. Spend them on skills in the Character menu.",
+    "aliases": ["Skill Points"]
+  },
+  {
+    "id": "moltshard",
+    "name": "Moltshards",
+    "icon": "res://assets/art/icons/moltshard.png",
+    "definition": "You need 1 Moltshard. The first dragon defeated each run grants one.",
+    "aliases": []
+  }
+]

@@ -3,395 +3,330 @@ class_name ActionIconLibrary
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ElementData = preload("res://scripts/element_data.gd")
+const Glossary = preload("res://scripts/glossary.gd")
+const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 const ICON_ROOT: String = "res://assets/art/icons"
 const SKILL_ICON_ROOT: String = "res://assets/art/skills"
 
+# Icon identity and legacy labels only. Glossary owns names and definitions.
 const KEYWORDS: Dictionary = {
-	"reflect": {"label": "Reflect", "description": "Reflect: ranged attacks against it bounce back to the attacker. Hit it up close or with area effects.", "path": "%s/reflect.png" % ICON_ROOT},
-	"dive": {"label": "Dive", "description": "Dive: flies straight at you (up to %d tiles), knocking each unit it passes %d tile aside, then strikes for %d.", "path": "%s/dive.png" % ICON_ROOT},
-	"flying": {"label": "Flying", "description": "Flying: moves over traps, surfaces, Bramble and Ice Pillars and takes no surface damage. Can still be pushed.", "path": "%s/flying.png" % ICON_ROOT},
-	"bramble": {"label": "Thornwall", "description": "Bramble: blocks movement for 3 more round(s). A unit pushed into it takes 2 damage and Bleeds.", "path": "%s/bramble.png" % ICON_ROOT},
-	"lob": {"label": "Lob Slag", "description": "Lob Slag", "path": "%s/lob.png" % ICON_ROOT},
-	"charge": {"label": "Charge", "description": "Charge <n>/3: at 3 it discharges chain lightning.", "path": "%s/charge.png" % ICON_ROOT},
-	"mirror": {"label": "Mirror", "description": "Mirror: it copies the last attack you played — <card>: <damage> damage.", "path": "%s/mirror.png" % ICON_ROOT},
-	"icefall": {"label": "Icefall", "description": "Icefall: icicles fall on the marked tiles on the Seer's next turn.", "path": "%s/icefall.png" % ICON_ROOT},
-	"wind": {"label": "Wind", "description": "Wind: at the end of each enemy turn, everything not anchored is pushed one tile with the wind.", "path": "%s/wind.png" % ICON_ROOT},
-	"tether": {"label": "Tether", "description": "Tether: lightning strikes every tile between the two Arc Thralls for 4 and Shocks. Break the line to stop it.", "path": "%s/tether.png" % ICON_ROOT},
-	"veil": {"label": "Veiled", "description": "Veiled: only attacks from an adjacent tile, or area effects, can hit it.", "path": "%s/veil.png" % ICON_ROOT},
-	"burrow": {"label": "Burrow", "description": "Burrowed; marks your current tile. Erupt is its next intent.", "path": "%s/burrow.png" % ICON_ROOT},
-	"erupt": {"label": "Erupt", "description": "Surfaces at the mark, displaces its occupant, pushes adjacent units, leaves Rubble and gains Expose 2.", "path": "%s/erupt.png" % ICON_ROOT},
-	"burst": {"label": "Bursts", "description": "When this dies, it deals the shown damage to everything next to it.", "path": "%s/burst.png" % ICON_ROOT},
-	"raise_cover": {"label":"Raise Cover","description":"Spend 1 independent Move and all Stoneskin. Place cover within 2 with that much HP.","path":"res://assets/art/icons/guardians/raise_cover.png"},
-	"reclaim_cover": {"label":"Reclaim Cover","description":"Spend 1 independent Move to remove adjacent owned cover and recover its surviving HP as Stoneskin.","path":"res://assets/art/icons/guardians/reclaim_cover.png"},
-	"surface": {"label": "Shape Ground", "description": "Creates a surface in the shown area.", "path": "%s/surface.png" % ICON_ROOT},
-	"surface_fire": {"label": "Fire", "description": "Deals 3 damage on turn start and 2 damage when entered.", "path": "%s/surface_fire.png" % ICON_ROOT},
-	"surface_ice": {"label": "Ice", "description": "Entering or starting a turn on Ice applies Chilled.", "path": "%s/surface_ice.png" % ICON_ROOT},
-	"surface_electrified": {"label": "Electrified", "description": "Lightning spreads through connected Electrified tiles. Chain can jump through these tiles to reach other targets.", "path": "%s/surface_electrified.png" % ICON_ROOT},
-	"surface_rubble": {"label": "Rubble", "description": "Costs 2 movement to leave.", "path": "%s/surface_rubble.png" % ICON_ROOT},
-	"chilled": {"label": "Chilled", "description": "Takes +2 attack damage. An Ice hit Freezes this character and consumes the Ice beneath them.", "path": "%s/chilled.png" % ICON_ROOT},
-	"detonate": {"label": "Detonate", "description": "Consumes Fire tiles to damage targets on them and their four neighboring tiles.", "path": "%s/detonate.png" % ICON_ROOT},
-	"surface_consume": {"label": "Consume Ground", "description": "Consumes the shown surface to gain its reward.", "path": "%s/surface_consume.png" % ICON_ROOT},
-	"surface_relocate": {"label": "Relocate Ground", "description": "Moves a surface to another tile.", "path": "%s/surface_relocate.png" % ICON_ROOT},
+	"reflect": {"label": "Reflect", "path": "%s/reflect.png" % ICON_ROOT},
+	"dive": {"label": "Dive", "path": "%s/dive.png" % ICON_ROOT},
+	"flying": {"label": "Flying", "path": "%s/flying.png" % ICON_ROOT},
+	"bramble": {"label": "Thornwall", "path": "%s/bramble.png" % ICON_ROOT},
+	"lob": {"label": "Lob Slag", "path": "%s/lob.png" % ICON_ROOT},
+	"charge": {"label": "Charge", "path": "%s/charge.png" % ICON_ROOT},
+	"mirror": {"label": "Mirror", "path": "%s/mirror.png" % ICON_ROOT},
+	"icefall": {"label": "Icefall", "path": "%s/icefall.png" % ICON_ROOT},
+	"wind": {"label": "Wind", "path": "%s/wind.png" % ICON_ROOT},
+	"tether": {"label": "Tether", "path": "%s/tether.png" % ICON_ROOT},
+	"veil": {"label": "Veiled", "path": "%s/veil.png" % ICON_ROOT},
+	"burrow": {"label": "Burrow", "path": "%s/burrow.png" % ICON_ROOT},
+	"erupt": {"label": "Erupt", "path": "%s/erupt.png" % ICON_ROOT},
+	"burst": {"label": "Bursts", "path": "%s/burst.png" % ICON_ROOT},
+	"raise_cover": {"label":"Raise Cover","path":"res://assets/art/icons/guardians/raise_cover.png"},
+	"reclaim_cover": {"label":"Reclaim Cover","path":"res://assets/art/icons/guardians/reclaim_cover.png"},
+	"surface": {"label": "Shape Ground", "path": "%s/surface.png" % ICON_ROOT},
+	"surface_fire": {"label": "Fire", "path": "%s/surface_fire.png" % ICON_ROOT},
+	"surface_ice": {"label": "Ice", "path": "%s/surface_ice.png" % ICON_ROOT},
+	"surface_electrified": {"label": "Electrified", "path": "%s/surface_electrified.png" % ICON_ROOT},
+	"surface_rubble": {"label": "Rubble", "path": "%s/surface_rubble.png" % ICON_ROOT},
+	"chilled": {"label": "Chilled", "path": "%s/chilled.png" % ICON_ROOT},
+	"detonate": {"label": "Detonate", "path": "%s/detonate.png" % ICON_ROOT},
+	"surface_consume": {"label": "Consume Ground", "path": "%s/surface_consume.png" % ICON_ROOT},
+	"surface_relocate": {"label": "Relocate Ground", "path": "%s/surface_relocate.png" % ICON_ROOT},
 	"melee": {
 		"label": "Melee",
-		"description": "Deals damage up close.",
 		"path": "%s/melee.png" % ICON_ROOT
 	},
 	"ranged": {
 		"label": "Ranged",
-		"description": "Deals damage from a distance.",
 		"path": "%s/ranged.png" % ICON_ROOT
 	},
 	"pierce": {
 		"label": "Pierce",
-		"description": "Deals damage straight through block and stoneskin.",
 		"path": "%s/pierce.png" % ICON_ROOT
 	},
 	"move": {
 		"label": "Move",
-		"description": "Moves across board tiles.",
 		"path": "%s/move.png" % ICON_ROOT
 	},
 	"retreat": {
 		"label": "Retreat",
-		"description": "Moves away from the target.",
 		"path": "%s/retreat.png" % ICON_ROOT
 	},
 	"blink": {
 		"label": "Blink",
-		"description": "Teleports to another tile.",
 		"path": "%s/blink.png" % ICON_ROOT
 	},
 	"range": {
 		"label": "Range",
-		"description": "Maximum target distance in tiles.",
 		"path": "%s/range.png" % ICON_ROOT
 	},
 	"block": {
 		"label": "Block",
-		"description": "Absorbs damage until your next turn.",
 		"path": "%s/block.png" % ICON_ROOT
 	},
 	"stoneskin": {
 		"label": "Stoneskin",
-		"description": "Persistent armor that absorbs damage across turns.",
 		"path": "%s/stoneskin.png" % ICON_ROOT
 	},
 	"heal": {
 		"label": "Heal",
-		"description": "Restores health.",
 		"path": "%s/heal.png" % ICON_ROOT
 	},
 	"draw": {
 		"label": "Draw",
-		"description": "Adds cards to your hand.",
 		"path": "%s/draw.png" % ICON_ROOT
 	},
 	"card_play": {
 		"label": "Card Play",
-		"description": "Adds card plays for this turn.",
 		"path": "%s/card_play.png" % ICON_ROOT
 	},
 	"flurry": {
 		"label": "Flurry",
-		"description": "Repeats this card once per remaining card play, spending them all. Pays Time once.",
 		"path": "%s/flurry.png" % ICON_ROOT
 	},
-	"follow_up": {"label": "Follow-up", "description": "Gains the listed bonus if you already played a card this turn.", "path": "%s/follow_up.png" % ICON_ROOT},
-	"empower": {"label": "Empower", "description": "Optional: pay the listed extra cost while playing this card to gain the listed bonus.", "path": "%s/empower.png" % ICON_ROOT},
-	"stagger": {"label": "Stagger", "description": "Delays the target's next turn by this much Time. Dragons take half. At most 6 per enemy each turn.", "path": "%s/stagger.png" % ICON_ROOT},
+	"follow_up": {"label": "Follow-up", "path": "%s/follow_up.png" % ICON_ROOT},
+	"empower": {"label": "Empower", "path": "%s/empower.png" % ICON_ROOT},
+	"stagger": {"label": "Stagger", "path": "%s/stagger.png" % ICON_ROOT},
 	"time": {
 		"label": "Time",
-		"description": "Delays your next turn. Each unused play takes 5.",
 		"path": "%s/time.png" % ICON_ROOT
 	},
 	"illusion": {
 		"label": "Illusion",
-		"description": "Creates a stationary copy that enemies can target.",
 		"path": "%s/illusion.png" % ICON_ROOT
 	},
 	"illuminate": {
 		"label": "Illuminate",
-		"description": "Creates a light that reveals nearby Umbra tiles.",
 		"path": "%s/illuminate.png" % ICON_ROOT
 	},
 	"vision": {
 		"label": "Vision",
-		"description": "Expands the light centered on you.",
 		"path": "%s/vision.png" % ICON_ROOT
 	},
 	"truesight": {
 		"label": "Truesight",
-		"description": "Reveals and permits targeting enemies through the Umbra.",
 		"path": "%s/truesight.png" % ICON_ROOT
 	},
 	"dispel_umbra": {
 		"label": "Dispel Umbra",
-		"description": "Reduces this combat's Umbra stage.",
 		"path": "%s/dispel_umbra.png" % ICON_ROOT
 	},
 	"eclipse": {
 		"label": "Eclipse",
-		"description": "Forces the arena into absolute Umbra. Radiance and light offer protection.",
 		"path": "%s/eclipse.svg" % ICON_ROOT
 	},
 	"bleed": {
 		"label": "Bleed",
-		"description": "Deals damage before moving or attacking. Lasts through the next turn.",
 		"path": "%s/bleed.png" % ICON_ROOT
 	},
 	"expose": {
 		"label": "Expose",
-		"description": "The next hit against this target deals extra damage.",
 		"path": "%s/expose.png" % ICON_ROOT
 	},
 	"sunder": {
 		"label": "Sunder",
-		"description": "Breaks block and stoneskin before damage lands.",
 		"path": "%s/sunder.png" % ICON_ROOT
 	},
 	"exhaust": {
 		"label": "Exhaust",
-		"description": "Removes this card from the deck for the rest of combat.",
 		"path": "%s/exhaust.png" % ICON_ROOT
 	},
 	"consume": {
 		"label": "Consume",
-		"description": "Uses this item card once, then removes it from the run.",
 		"path": "%s/consume.png" % ICON_ROOT
 	},
-	"retaliate": {"label": "Retaliate", "description": "Until your next turn, an enemy that hits you in melee takes this much damage (Block and Stoneskin absorb it) and any listed riders. Several Retaliates add up.", "path": "%s/retaliate.png" % ICON_ROOT},
-	"quicken": {"label": "Quicken", "description": "Your next card this turn costs this much less Time (minimum 1). Several Quickens add up; unused Quicken ends with your turn.", "path": "%s/quicken.png" % ICON_ROOT},
-	"rite": {"label": "Rite", "description": "Rite: Exhaust. Lasts for the rest of this combat.", "path": "%s/rite.png" % ICON_ROOT},
+	"retaliate": {"label": "Retaliate", "path": "%s/retaliate.png" % ICON_ROOT},
+	"quicken": {"label": "Quicken", "path": "%s/quicken.png" % ICON_ROOT},
+	"rite": {"label": "Rite", "path": "%s/rite.png" % ICON_ROOT},
 	"next_attack": {
 		"label": "Next Attack",
-		"description": "Your next attack on a later card this turn gains the shown bonus, then the bonus is spent. Unused bonuses end with your turn.",
 		"path": "%s/next_attack.png" % ICON_ROOT
 	},
 	# Wave-4 maneuver family (spec/card_mechanics_maneuver.md).
-	"swap": {"label": "Swap", "description": "Swap places with a visible one-tile enemy or one of your illusions. Both of you arrive normally; nothing collides, and Anchored does not stop it.", "path": "%s/swap.png" % ICON_ROOT},
-	"petrify": {"label": "Petrify", "description": "The enemy skips its next turn (the skipped turn still costs its Time) and gains Block that lasts through your next turn. Not Freeze: no extra damage. Dragons are immune.", "path": "%s/petrify.png" % ICON_ROOT},
-	"cleanse": {"label": "Cleanse", "description": "Removes the listed statuses from you: Bleed, Immobilize, Chilled or Shock.", "path": "%s/cleanse.png" % ICON_ROOT},
-	"skate": {"label": "Skate", "description": "This turn, moving onto Ice costs no movement and Ice doesn't Chill you.", "path": "%s/skate.png" % ICON_ROOT},
-	"anchored": {"label": "Anchored", "description": "Until your next turn, you can't be pushed or pulled: Push and Pull move you 0 tiles and never collide.", "path": "%s/anchored.png" % ICON_ROOT},
-	"fireproof": {"label": "Fireproof", "description": "Fire doesn't damage you this turn.", "path": "%s/fireproof.png" % ICON_ROOT},
+	"swap": {"label": "Swap", "path": "%s/swap.png" % ICON_ROOT},
+	"petrify": {"label": "Petrify", "path": "%s/petrify.png" % ICON_ROOT},
+	"cleanse": {"label": "Cleanse", "path": "%s/cleanse.png" % ICON_ROOT},
+	"skate": {"label": "Skate", "path": "%s/skate.png" % ICON_ROOT},
+	"anchored": {"label": "Anchored", "path": "%s/anchored.png" % ICON_ROOT},
+	"fireproof": {"label": "Fireproof", "path": "%s/fireproof.png" % ICON_ROOT},
 	# Wave-4 surface family (spec/card_mechanics_surfaces.md).
-	"surface_convert": {"label": "Convert Ground", "description": "Turns the chosen surface tile, and every tile of it connected to it when shown, into another surface. Each enemy on a converted tile takes the damage.", "path": "%s/surface_convert.png" % ICON_ROOT},
-	"discharge": {"label": "Discharge", "description": "Removes a connected Electrified network. Each enemy on it or next to it takes the damage once.", "path": "%s/discharge.png" % ICON_ROOT},
-	"all_enemies": {"label": "Sweeping Strike", "description": "Hits every enemy you can see that meets the shown condition. There is no target to choose, and enemies hidden by the Umbra are never hit.", "path": "%s/all_enemies.png" % ICON_ROOT},
+	"surface_convert": {"label": "Convert Ground", "path": "%s/surface_convert.png" % ICON_ROOT},
+	"discharge": {"label": "Discharge", "path": "%s/discharge.png" % ICON_ROOT},
+	"all_enemies": {"label": "Sweeping Strike", "path": "%s/all_enemies.png" % ICON_ROOT},
 	# Wave-4 illusion family (spec/card_mechanics_illusions_terrain.md).
-	"illusion_swap": {"label": "Swap Illusion", "description": "You and one of your illusions trade tiles. Both of you trigger the ground and traps where you land. Immobilize prevents it.", "path": "%s/illusion_swap.png" % ICON_ROOT},
-	"shatter_illusion": {"label": "Shatter Illusion", "description": "Destroys one of your illusions to blast each enemy next to it.", "path": "%s/shatter_illusion.png" % ICON_ROOT},
+	"illusion_swap": {"label": "Swap Illusion", "path": "%s/illusion_swap.png" % ICON_ROOT},
+	"shatter_illusion": {"label": "Shatter Illusion", "path": "%s/shatter_illusion.png" % ICON_ROOT},
 	"freeze": {
 		"label": "Freeze",
-		"description": "Skips the next turn and takes triple attack damage.",
 		"path": "%s/freeze.png" % ICON_ROOT
 	},
 	"shock": {
 		"label": "Shock",
-		"description": "Cancels the next non-movement action.",
 		"path": "%s/shock.png" % ICON_ROOT
 	},
 	"immobilize": {
 		"label": "Immobilize",
-		"description": "Prevents movement and Blink next turn.",
 		"path": "%s/immobilize.png" % ICON_ROOT
 	},
 	"chain": {
 		"label": "Chain",
-		"description": "Jumps between targets within the shown range. Electrified tiles extend its reach.",
 		"path": "%s/chain.png" % ICON_ROOT
 	},
 	"push": {
 		"label": "Push",
-		"description": "Forces the target away in one straight line. If it's stopped early, it collides.",
 		"path": "%s/push.png" % ICON_ROOT
 	},
 	"pull": {
 		"label": "Pull",
-		"description": "Forces the target closer in one straight line. If it's stopped early, it collides.",
 		"path": "%s/pull.png" % ICON_ROOT
 	},
 	"collision": {
 		"label": "Collision",
-		"description": "A stopped Push or Pull deals 2 damage per tile not moved to the target and to whatever stopped it. Walls take nothing. Block and Stoneskin absorb it.",
 		"path": "%s/collision.png" % ICON_ROOT
 	},
 	"health": {
 		"label": "Health",
-		"description": "Health paid or restored.",
 		"path": "%s/health.png" % ICON_ROOT
 	},
 	"health_cost": {
 		"label": "Health Cost",
-		"description": "Health paid to play this card.",
 		"path": "%s/health_cost.png" % ICON_ROOT
 	},
 	"aoe": {
 		"label": "Area Attack",
-		"description": "Affects a pattern of board tiles.",
 		"path": "%s/aoe.png" % ICON_ROOT
 	},
 	"lightning_strikes": {
 		"label": "Lightning Strikes",
-		"description": "Calls down lightning across several marked tiles.",
 		"path": "%s/lightning_strikes.png" % ICON_ROOT
 	},
 	"summon_minions": {
 		"label": "Summon Minions",
-		"description": "Adds new enemy units to the battle.",
 		"path": "%s/summon_minions.png" % ICON_ROOT
 	},
 	"raise_terrain": {
 		"label": "Raise Terrain",
-		"description": "Creates attackable terrain on the board.",
 		"path": "%s/raise_terrain.png" % ICON_ROOT
 	},
 	"terrain_burst": {
 		"label": "Terrain Burst",
-		"description": "Ruptures the arena around surviving terrain.",
 		"path": "%s/terrain_burst.png" % ICON_ROOT
 	},
 	"cinder_marks": {
 		"label": "Kindle Ground",
-		"description": "Creates Fire on the marked tiles.",
 		"path": "%s/cinder_marks.png" % ICON_ROOT
 	},
 	"detonate_cinders": {
 		"label": "Crownfire",
-		"description": "Consumes Fire to damage targets on it and its four neighboring tiles.",
 		"path": "%s/detonate_cinders.png" % ICON_ROOT
 	},
 	"gale_force": {
 		"label": "Hollow Gale",
-		"description": "Sweeps the target through the arena.",
 		"path": "%s/gale_force.png" % ICON_ROOT
 	},
 	"frost_armor": {
 		"label": "Crystal Mantle",
-		"description": "Each layer prevents one direct damaging hit, then breaks.",
 		"path": "%s/frost_armor.png" % ICON_ROOT
 	},
 	"guard_ally": {
 		"label": "Guard Ally",
-		"description": "Grants block to another enemy.",
 		"path": "%s/guard_ally.png" % ICON_ROOT
 	},
 	"heal_ally": {
 		"label": "Heal Ally",
-		"description": "Restores another enemy's health.",
 		"path": "%s/heal_ally.png" % ICON_ROOT
 	},
 	"umbra_eclipse": {
 		"label": "The Last Eclipse",
-		"description": "Forces the arena into absolute Umbra.",
 		"path": "%s/umbra_eclipse.png" % ICON_ROOT
 	},
 	"radiance": {
 		"label": "Radiance",
-		"description": "Carries protective light into the Umbra.",
 		"path": "%s/radiance.png" % ICON_ROOT
 	},
 	"ember": {
 		"label": "Embers",
-		"description": "Run currency used to gain permanent levels.",
 		"path": "%s/ember.png" % ICON_ROOT
 	},
 	"run": {
 		"label": "The Run",
-		"description": "The full journey from entry to victory or defeat.",
 		"path": "%s/run.png" % ICON_ROOT
 	},
 	"map_rooms": {
 		"label": "Map and Rooms",
-		"description": "Routes and room types across the labyrinth.",
 		"path": "%s/map_rooms.png" % ICON_ROOT,
 		"toolbar_path": "%s/ui/map_toolbar.svg" % ICON_ROOT
 	},
 	"loadout": {
 		"label": "Character and Loadout",
-		"description": "Equipment, attuned magic, items, relics, and skills.",
 		"path": "%s/loadout.png" % ICON_ROOT
 	},
 	"rewards": {
 		"label": "Rewards",
-		"description": "Cards, healing, and other prizes claimed during a run.",
 		"path": "%s/rewards.png" % ICON_ROOT
 	},
 	"relics": {
 		"label": "Relics",
-		"description": "Passive run modifiers collected during exploration.",
 		"path": "%s/relics.png" % ICON_ROOT
 	},
 	"combat_board": {
 		"label": "Combat Board",
-		"description": "The tactical tile grid where actions resolve.",
 		"path": "%s/combat_board.png" % ICON_ROOT
 	},
 	"turn_clock": {
 		"label": "Turn Clock",
-		"description": "Orders the next actor by current initiative delay.",
 		"path": "%s/turn_clock.png" % ICON_ROOT
 	},
 	"health_defense": {
 		"label": "Health and Defenses",
-		"description": "Health protected by block and stoneskin.",
 		"path": "%s/health_defense.png" % ICON_ROOT
 	},
 	"defiance": {
 		"label": "Defiance",
-		"description": "A per-run rescue that restores health after lethal loss.",
 		"path": "%s/defiance.png" % ICON_ROOT
 	},
 	"targeting": {
 		"label": "Targeting",
-		"description": "Range, line of sight, patterns, and legal targets.",
 		"path": "%s/targeting.png" % ICON_ROOT
 	},
 	"fatigue": {
 		"label": "Fatigue",
-		"description": "Direct health loss caused by reshuffling an empty deck.",
 		"path": "%s/fatigue.png" % ICON_ROOT
 	},
 	"traps": {
 		"label": "Traps",
-		"description": "Board hazards triggered by movement or attacks.",
 		"path": "%s/traps.png" % ICON_ROOT
 	},
 	"umbra": {
 		"label": "The Umbra",
-		"description": "Darkness that conceals tiles, enemies, and threats.",
 		"path": "%s/umbra.png" % ICON_ROOT
 	},
 	"worldspines": {
 		"label": "Worldspines",
-		"description": "Tharokh's attackable stone spires.",
 		"path": "%s/worldspines.png" % ICON_ROOT
 	},
 	"element_fire": {
 		"label": "Fire",
-		"description": "Shapes dangerous ground and consumes it in powerful blasts.",
 		"path": "%s/element_fire.png" % ICON_ROOT
 	},
 	"element_ice": {
 		"label": "Ice",
-		"description": "Prepares Ice, Chills exposed units and Freezes with a later Ice hit.",
 		"path": "%s/element_ice.png" % ICON_ROOT
 	},
 	"element_lightning": {
 		"label": "Lightning",
-		"description": "Conducts through Electrified ground and rewards connected targets.",
 		"path": "%s/element_lightning.png" % ICON_ROOT
 	},
 	"element_air": {
 		"label": "Air",
-		"description": "Controls positioning with movement, Push and Pull.",
 		"path": "%s/element_air.png" % ICON_ROOT
 	},
 	"element_earth": {
 		"label": "Earth",
-		"description": "Creates Rubble and persistent Stoneskin defense.",
 		"path": "%s/element_earth.png" % ICON_ROOT
 	}
 }
@@ -649,17 +584,24 @@ static func icon_texture(icon_key: String, presentation: String = "default") -> 
 	return AssetLoader.load_texture(path)
 
 static func label(icon_key: String) -> String:
-	return str(_icon_definition(icon_key).get("label", icon_key.capitalize()))
+	if SKILL_ICONS.has(icon_key):
+		return SkillTreeLibrary.display_name(icon_key.trim_prefix("skill_"))
+	return Glossary.name_for(icon_key, str(_icon_definition(icon_key).get("label", icon_key.capitalize())))
 
 static func description(icon_key: String) -> String:
+	if SKILL_ICONS.has(icon_key):
+		return SkillTreeLibrary.description(icon_key.trim_prefix("skill_"))
 	if icon_key == "dive":
 		for intent: Dictionary in preload("res://scripts/game_data.gd").enemies()["gust_shrike"]["intents"]:
 			for action: Dictionary in intent["actions"]:
 				if str(action.get("type", "")) == "dive_line": return dive_tooltip(action)
-	return str(_icon_definition(icon_key).get("description", ""))
+	# Shared by card focus stacks and existing nested token hover hit regions.
+	# Keyword definitions are owned by the glossary; skills own their own copy.
+	return Glossary.definition(icon_key, label(icon_key))
 
 static func dive_tooltip(action: Dictionary) -> String:
-	return str(KEYWORDS["dive"]["description"]) % [int(action["max_length"]), int(action["side_push"]), int(action["damage"])]
+	var text: String = Glossary.definition("dive", label("dive"))
+	return text % [int(action["max_length"]), int(action["side_push"]), int(action["damage"])] if text.count("%d") == 3 else text
 
 static func _icon_definition(icon_key: String) -> Dictionary:
 	if KEYWORDS.has(icon_key):
@@ -752,7 +694,12 @@ static func _tooltip_entry_copy(icon_key: String, tooltip_text: String) -> Dicti
 	}
 
 static func token_tooltip(token: Dictionary) -> String:
-	var text: String = str(token.get("tooltip", tooltip(str(token.get("icon", "")))))
+	var icon_key: String = "aoe" if str(token.get("kind", "")) == "aoe_pattern" else str(token.get("icon", ""))
+	var text: String = ""
+	if token.has("tooltip"):
+		text = str(token["tooltip"])
+	elif not icon_key.is_empty():
+		text = tooltip(icon_key)
 	var modifier_lines: PackedStringArray = _modifier_tooltip_lines(token)
 	if modifier_lines.is_empty():
 		return text

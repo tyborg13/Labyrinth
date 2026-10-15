@@ -3044,7 +3044,7 @@ func _controller_candidate_for_control(control: Control) -> Dictionary:
 		"kind": kind,
 		"control": control,
 		"point": rect.get_center(),
-		"detail": control.tooltip_text,
+		"detail": "" if control.has_meta("glossary_relic") else control.tooltip_text,
 		"snap_radius": CONTROLLER_CONTROL_CURSOR_MAGNET_RADIUS,
 	}
 
@@ -3112,6 +3112,8 @@ func _controller_set_focus_candidate(candidate: Dictionary, sync_virtual_cursor:
 	_controller_clear_board_hover_presentation()
 	if control.focus_mode == Control.FOCUS_NONE:
 		control.focus_mode = Control.FOCUS_ALL
+	if control.has_meta("glossary_relic"):
+		_card_focus_tooltip_stack.prepare_navigation_focus(control)
 	control.grab_focus()
 	_refresh_controller_prompts()
 	if sync_virtual_cursor:
@@ -11062,7 +11064,7 @@ func _refresh_relic_bar() -> void:
 			var relic: Dictionary = GameData.relic_def(relic_id)
 			if relic.is_empty():
 				continue
-			var frame := TooltipPanelContainer.new()
+			var frame := CardFocusTooltipStack.RelicOwner.new()
 			frame.custom_minimum_size = RELIC_BADGE_SIZE
 			frame.set_meta("relic_id", relic_id)
 			frame.focus_mode = Control.FOCUS_ALL
@@ -11152,6 +11154,7 @@ func _refresh_relic_bar() -> void:
 					_add_relic_counter(frame, "RelicKnots", tied.size())
 					frame.tooltip_text += _relic_knots_tooltip(effect, tied)
 			_relic_icon_grid.add_child(frame)
+			_card_focus_tooltip_stack.bind_relic(frame, relic, null, relic_bar)
 		for rite_index: int in range(rite_entries.size()):
 			_relic_icon_grid.add_child(_build_active_rite_badge(rite_entries[rite_index], rite_index))
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_relic_icons", performance_phase_started)
@@ -11846,7 +11849,7 @@ func _refresh_skill_status_detail(previous_selected_id: String = "") -> void:
 		_skill_status_detail_status.add_theme_color_override("font_color", accent)
 	performance_phase_started = _record_runtime_performance_phase("ability_detail_heading", performance_phase_started)
 	if _skill_status_detail_description != null:
-		InlineIconText.apply_to(_skill_status_detail_description, SkillTreeLibrary.description(_skill_status_selected_id))
+		InlineIconText.apply_to(_skill_status_detail_description, SkillTreeLibrary.description(_skill_status_selected_id), InlineIconText.DEFAULT_ICON_SCALE, true)
 	performance_phase_started = _record_runtime_performance_phase("ability_detail_description", performance_phase_started)
 	var style_skill_ids: Array[String]
 	if not previous_selected_id.is_empty():
@@ -16022,7 +16025,7 @@ func _add_dragon_reward_stack() -> void:
 	rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiTypography.set_rich_text_size(rules, UiTypography.SIZE_BODY_LARGE)
 	rules.add_theme_color_override("default_color", Color("dec9a7"))
-	InlineIconText.apply_to(rules, str(relic.get("description", "")))
+	InlineIconText.apply_to(rules, str(relic.get("description", "")), InlineIconText.DEFAULT_ICON_SCALE, true)
 	content.add_child(rules)
 	if next_descent:
 		_dragon_reward_label(content, "DragonRewardGift", "Begin your next run with this relic. It lasts for that run.", UiTypography.SIZE_BODY, Color("cfc5dd"))
@@ -16374,7 +16377,7 @@ func _relic_choice_title_accent(text: String) -> Color:
 func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	if _relic_choice_bar == null:
 		return
-	var panel := TooltipPanelContainer.new()
+	var panel := CardFocusTooltipStack.RelicOwner.new()
 	panel.name = "RelicChoice_%s" % relic_id
 	panel.custom_minimum_size = RELIC_OFFER_CARD_SIZE
 	panel.clip_contents = false
@@ -16392,6 +16395,7 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	panel.focus_entered.connect(_set_relic_choice_focused.bind(panel, relic, true))
 	panel.focus_exited.connect(_set_relic_choice_focused.bind(panel, relic, false))
 	_relic_choice_bar.add_child(panel)
+	_card_focus_tooltip_stack.bind_relic(panel, relic, _relic_choice_bar, null, top_bar, _relic_choice_banner)
 
 	_ui_skin.apply_choice_finish(panel, Color(GameData.relic_accent(relic_id)))
 	_add_relic_choice_sparkles(panel, Color(GameData.relic_accent(relic_id)))
@@ -22093,7 +22097,7 @@ func _open_large_map(from_toolbar: bool = false) -> void:
 	_controller_clear_hand_hover()
 	_controller_clear_board_focus()
 	if _card_focus_tooltip_stack != null:
-		_card_focus_tooltip_stack.hide_stack()
+		_card_focus_tooltip_stack.hide_stack(true)
 	_close_menu_overlay()
 	_close_pile_view()
 	_close_card_upgrade_overlay()

@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Glossary = preload("res://scripts/glossary.gd")
+
 const Prompt = preload("res://scripts/contextual_combat_prompt.gd")
 const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
@@ -48,8 +50,7 @@ static func run(tree: SceneTree, expect: Callable, capture_dir: String = "") -> 
 				await RenderingServer.frame_post_draw
 				var path: String = "%s/%02d_%s.png" % [capture_dir, index, modality]
 				expect.call(viewport.get_texture().get_image().save_png(path) == OK, "Copy probe saves %s" % path)
-	var time_icon: Dictionary = ActionIcons.KEYWORDS.get("time", {}) as Dictionary
-	expect.call(time_icon.get("description", "") == "Delays your next turn. Each unused play takes 5.", "TIME keyword uses the exact Wait description")
+	expect.call(Glossary.definition("time") == "Delays your next turn. Each unused play takes 5.", "TIME keyword uses the exact Wait description")
 	router.call("set_modality", old_modality)
 	viewport.queue_free()
 	await tree.process_frame

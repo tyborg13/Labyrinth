@@ -1,0 +1,348 @@
+{
+  "min_images": 20,
+  "expected_sizes": [
+    "1536x864"
+  ],
+  "required_images": [
+    {
+      "pattern": "*relic_choice_hover.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*relic_choice_keyboard.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*relic_choice_controller.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*owned_relic_hover.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*owned_relic_keyboard.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*owned_relic_controller.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*card_keywords_after.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*relic_choice_middle.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*relic_choice_right.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*relic_choice_flow_four.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*relic_choice_outer_flow.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*owned_relic_flow.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*owned_relic_wrapped_0.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*owned_relic_wrapped_4.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*owned_relic_wrapped_9.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*owned_relic_wrapped_14.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*relic_choice_witchglass_lantern_left.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*relic_choice_witchglass_lantern_right.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*relic_choice_hollow_puppet_left.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*relic_choice_hollow_puppet_right.png",
+      "width": 1536,
+      "height": 864,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1500,
+            828
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    }
+  ]
+}
