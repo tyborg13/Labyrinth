@@ -4,6 +4,7 @@ class_name ActionIconLibrary
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const Glossary = preload("res://scripts/glossary.gd")
+const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 const ICON_ROOT: String = "res://assets/art/icons"
 const SKILL_ICON_ROOT: String = "res://assets/art/skills"
@@ -583,15 +584,19 @@ static func icon_texture(icon_key: String, presentation: String = "default") -> 
 	return AssetLoader.load_texture(path)
 
 static func label(icon_key: String) -> String:
+	if SKILL_ICONS.has(icon_key):
+		return SkillTreeLibrary.display_name(icon_key.trim_prefix("skill_"))
 	return Glossary.name_for(icon_key, str(_icon_definition(icon_key).get("label", icon_key.capitalize())))
 
 static func description(icon_key: String) -> String:
+	if SKILL_ICONS.has(icon_key):
+		return SkillTreeLibrary.description(icon_key.trim_prefix("skill_"))
 	if icon_key == "dive":
 		for intent: Dictionary in preload("res://scripts/game_data.gd").enemies()["gust_shrike"]["intents"]:
 			for action: Dictionary in intent["actions"]:
 				if str(action.get("type", "")) == "dive_line": return dive_tooltip(action)
 	# Shared by card focus stacks and existing nested token hover hit regions.
-	# Skill and keyword definitions share the same canonical copy.
+	# Keyword definitions are owned by the glossary; skills own their own copy.
 	return Glossary.definition(icon_key, label(icon_key))
 
 static func dive_tooltip(action: Dictionary) -> String:
@@ -685,7 +690,7 @@ static func _tooltip_entry_copy(icon_key: String, tooltip_text: String) -> Dicti
 			body_lines.append(body_line)
 	return {
 		"title": title_text,
-		"description": "\n".join(body_lines) if not body_lines.is_empty() else default_title,
+		"description": "\n".join(body_lines),
 	}
 
 static func token_tooltip(token: Dictionary) -> String:

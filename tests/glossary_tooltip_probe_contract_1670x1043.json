@@ -1,5 +1,5 @@
 {
-  "min_images": 12,
+  "min_images": 16,
   "expected_sizes": [
     "1670x1043"
   ],
@@ -193,6 +193,74 @@
     },
     {
       "pattern": "*owned_relic_flow.png",
+      "width": 1670,
+      "height": 1043,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1634,
+            1007
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*owned_relic_wrapped_0.png",
+      "width": 1670,
+      "height": 1043,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1634,
+            1007
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*owned_relic_wrapped_4.png",
+      "width": 1670,
+      "height": 1043,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1634,
+            1007
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*owned_relic_wrapped_9.png",
+      "width": 1670,
+      "height": 1043,
+      "regions": [
+        {
+          "rect": [
+            18,
+            18,
+            1634,
+            1007
+          ],
+          "min_luma_range": 16,
+          "min_luma_stdev": 3
+        }
+      ]
+    },
+    {
+      "pattern": "*owned_relic_wrapped_14.png",
       "width": 1670,
       "height": 1043,
       "regions": [

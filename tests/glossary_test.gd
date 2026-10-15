@@ -9,6 +9,8 @@ const InlineIconText = preload("res://scripts/inline_icon_text.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
+const CoverageSuite = preload("res://tests/suites/glossary_coverage_suite.gd")
+const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const TooltipSuite = preload("res://tests/suites/tooltip_consistency_suite.gd")
 
 var VIEWPORT_SIZE := Vector2i(1920, 1080)
@@ -19,7 +21,6 @@ const CHOICE_TEST_SIZE := Vector2(100, 100)
 const CHOICE_TALL_PANEL_HEIGHT: float = 200.0
 var _failures: Array[String]
 var _checks: int = 0
-var _tokens: int = 0
 
 func _initialize() -> void:
 	call_deferred("_run")
@@ -35,6 +36,7 @@ func _run() -> void:
 			VIEWPORT_SIZE = Vector2i(int(dimensions[0]), int(dimensions[1]))
 	root.size = VIEWPORT_SIZE
 	root.content_scale_size = VIEWPORT_SIZE
+	CoverageSuite.run(_expect)
 	_test_data()
 	TooltipSuite.run(_expect)
 	await _test_inline_hover()
@@ -43,39 +45,23 @@ func _run() -> void:
 	await _test_live_relic_hooks()
 	for failure: String in _failures:
 		push_error(failure)
-	print("GLOSSARY COVERAGE: %d entries, %d tokens checked" % [Glossary.all_entries().size(), _tokens])
 	print("GLOSSARY TEST RESULT: %s (%d checks, %d failures)" % ["PASS" if _failures.is_empty() else "FAIL", _checks, _failures.size()])
 	quit(0 if _failures.is_empty() else 1)
 
 func _test_data() -> void:
-	var ids: Dictionary = {}
-	var todos: Array[String]
-	var raw: Array = JSON.parse_string(FileAccess.get_file_as_string(Glossary.DATA_PATH)) as Array
-	_expect(raw.size() == Glossary.all_entries().size(), "Loader does not conceal duplicate ids")
-	for value: Variant in Glossary.all_entries():
-		var entry: Dictionary = value as Dictionary
-		var id: String = str(entry.get("id", ""))
-		_expect(not id.is_empty() and not ids.has(id), "Unique glossary id: " + id)
-		ids[id] = true
-		for field: String in ["name", "icon", "definition", "aliases"]:
-			_expect(entry.has(field), id + " has " + field)
-		_expect(not str(entry.get("definition", "")).strip_edges().is_empty(), "Nonempty raw definition: " + id)
-		for alias: String in entry.get("aliases", []):
-			_expect(str(Glossary.lookup(alias).get("id", "")) == id, "Alias resolves to its canonical concept: " + alias)
-		var icon: String = str(entry.get("icon", ""))
-		_expect(FileAccess.file_exists(icon) if icon.begins_with("res://") else not ActionIcons.icon_path(icon).is_empty(), "Approved icon exists: " + id)
-		if str(entry.get("definition", "")).begins_with("TODO_DESIGN_"):
-			todos.append(str(entry["definition"]))
-		_check_text(entry.get("definition", ""))
-	print("GLOSSARY TODO_DESIGN: %d [%s]" % [todos.size(), ", ".join(todos)])
-	print("GLOSSARY PROSE TODO_DESIGN: TODO_DESIGN_GLOSSARY_CONSUME_PROSE (unmarked Consume needs an explicit concept token)")
 	_expect(Glossary.lookup("Skill Points")["id"] == "skill_point", "Existing plural resource label remains an alias")
-	for key: String in ActionIcons.all_icon_keys():
-		_expect(not Glossary.lookup(key).is_empty(), "Registry keyword resolves: " + key)
-	for key: String in ActionIcons.all_icon_keys():
-		_expect(not str(Glossary.lookup(key).get("definition", "")).strip_edges().is_empty(), "Registry definition exists: " + key)
+	for key: String in ActionIcons.KEYWORDS:
 		if key != "dive":
 			_expect(ActionIcons.description(key) == Glossary.definition(key), "Card/nested token reads glossary: " + key)
+	var skill: Dictionary = SkillTreeLibrary.definitions()["quick_wits"]
+	var saved_skill: Dictionary = skill.duplicate(true)
+	skill["name"] = "live skill name"
+	skill["description"] = "live skill description"
+	_expect(ActionIcons.tooltip("skill_quick_wits") == "live skill name\nlive skill description", "Skill tooltip reads live SkillTreeLibrary name and description")
+	SkillTreeLibrary.definitions()["quick_wits"] = saved_skill
+	var public_copy: Dictionary = Glossary.lookup("health")
+	public_copy["definition"] = "must not escape"
+	_expect(Glossary.definition("health") != "must not escape", "Public glossary lookup retains copy isolation")
 	var warning_baseline: int = Glossary._missing_definitions.size()
 	_expect(ActionIcons.token_tooltip({"kind": "text", "text": "fixture"}).is_empty() and Glossary._missing_definitions.size() == warning_baseline, "Plain text without a concept needs no definition or warning")
 	# Prove the lookup is live, not still backed by the legacy dictionary.
@@ -98,20 +84,6 @@ func _test_data() -> void:
 	_expect(Glossary._missing_definitions.size() == warning_count + 1, "Missing entry with same id does not repeat warning")
 	Glossary._entries["follow_up"] = saved
 	Glossary._missing_definitions.erase("follow_up")
-	for path: String in ["res://data/cards.json", "res://data/relics.json", "res://data/skills.json", "res://data/enemies.json", "res://data/grimoire.json"]:
-		_walk(JSON.parse_string(FileAccess.get_file_as_string(path)))
-	for card_id: String in GameData.cards():
-		var card: Dictionary = GameData.card_def(card_id)
-		for row: Array in ActionIcons.rows_for_card(card):
-			for token: Dictionary in row:
-				var key: String = str(token.get("icon", ""))
-				if key == "aoe_pattern": key = "aoe"
-				if not key.is_empty():
-					_expect(not str(Glossary.lookup(key).get("definition", "")).strip_edges().is_empty(), card_id + " rendered token definition: " + key)
-				_check_text(str(token.get("tooltip", "")))
-	# Status/intent copy is generated by scripts as well as JSON; scan literal
-	# @icon tokens throughout production scripts, including all badge helpers.
-	_scan_scripts("res://scripts")
 	_expect(str(Glossary.lookup("Frozen").get("id")) == "freeze", "Existing status alias resolves")
 	_expect(Glossary.lookup("not_a_concept").is_empty(), "Unknown lookup is empty")
 	_expect(Glossary.ids_in_text("@icon(empower) Health Cost; @icon(empower) Follow-up; @icon(health)") == ["empower", "health_cost", "follow_up", "health"], "Token and keyword first appearance with overlap/dedup")
@@ -144,37 +116,6 @@ func _test_inline_hover() -> void:
 	_expect(label.get_script() == existing, "Opt-in preserves an existing label script")
 	label.queue_free()
 	await _settle()
-
-func _walk(value: Variant) -> void:
-	if value is Dictionary:
-		for child: Variant in (value as Dictionary).values(): _walk(child)
-	elif value is Array:
-		for child: Variant in value: _walk(child)
-	elif value is String:
-		_check_text(value)
-
-func _check_text(text: String) -> void:
-	var literal := RegEx.new()
-	literal.compile("@icon\\(([a-z_]+)\\)")
-	for token: RegExMatch in literal.search_all(text):
-		_tokens += 1
-		_expect(not str(Glossary.lookup(token.get_string(1)).get("definition", "")).strip_edges().is_empty(), "Text token resolves: " + token.get_string(1))
-
-func _scan_scripts(path: String) -> void:
-	var dir := DirAccess.open(path)
-	for directory: String in dir.get_directories():
-		_scan_scripts(path.path_join(directory))
-	for file: String in dir.get_files():
-		if not file.ends_with(".gd"):
-			continue
-		var source: String = FileAccess.get_file_as_string(path.path_join(file))
-		_check_text(source)
-		if source.contains("func player_badges") or source.contains("func badges") or source.contains("func status_badges") or source.contains("func _unit_status_badges"):
-			var icons := RegEx.new()
-			icons.compile('"icon"\\s*:\\s*"([a-z_]+)"')
-			for token: RegExMatch in icons.search_all(source):
-				_tokens += 1
-				_expect(not str(Glossary.lookup(token.get_string(1)).get("definition", "")).strip_edges().is_empty(), "Status badge icon resolves: " + file + ":" + token.get_string(1))
 
 func _test_stack() -> void:
 	var stack := Stack.new()
@@ -230,6 +171,20 @@ func _test_stack() -> void:
 	_expect(owner.has_focus() and stack.visible, "Real mouse click focuses badge and shows its hovered stack")
 	await _pointer(Vector2(8, 8))
 	_expect(not stack.visible, "Mouse-click focus does not pin the stack after exit")
+	# Navigation can pin an already mouse-focused badge through its public path.
+	stack.prepare_navigation_focus(owner)
+	owner.grab_focus()
+	await _settle()
+	_expect(stack.visible and bool(owner.get_meta("glossary_focused", false)), "prepare_navigation_focus pins an already focused badge")
+	for wheel: int in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN, MOUSE_BUTTON_WHEEL_LEFT, MOUSE_BUTTON_WHEEL_RIGHT]:
+		await _mouse_button(Vector2(8, 8), wheel)
+		_expect(stack.visible and bool(owner.get_meta("glossary_focused", false)), "Mouse wheel never dismisses keyboard/controller-pinned stack")
+	await _mouse_button(Vector2(8, 8), MOUSE_BUTTON_LEFT)
+	_expect(not stack.visible and not bool(owner.get_meta("glossary_focused", false)), "Click elsewhere unpins keyboard focus")
+	stack.prepare_navigation_focus(owner)
+	owner.grab_focus()
+	await _settle()
+	_expect(stack.visible, "Navigation repins after an outside click")
 	owner.release_focus()
 	owner.tooltip_text = ""
 	stack.show_relic(owner, {"name": relic["name"], "description": "@icon(health) @icon(block) @icon(stoneskin) @icon(time) @icon(move) @icon(draw) @icon(empower)"})
@@ -274,6 +229,10 @@ func _test_stack() -> void:
 	await _settle()
 
 func _test_choice_placement() -> void:
+	var top_bar := Control.new()
+	top_bar.size = Vector2(VIEWPORT_SIZE.x, 80.0)
+	top_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(top_bar)
 	var row := Control.new()
 	root.add_child(row)
 	var stack := Stack.new()
@@ -284,7 +243,7 @@ func _test_choice_placement() -> void:
 		choice.position = Vector2(left, CHOICE_TEST_TOP)
 		choice.size = CHOICE_TEST_SIZE
 		row.add_child(choice)
-		stack.bind_relic(choice, {"name": "debug owner title", "description": "@icon(health)"}, row)
+		stack.bind_relic(choice, {"name": "debug owner title", "description": "@icon(health)"}, row, null, top_bar)
 		choices.append(choice)
 	for index: int in range(choices.size()):
 		var choice: Control = choices[index]
@@ -344,12 +303,22 @@ func _test_choice_placement() -> void:
 	_expect(bool(stack.get_meta("glossary_choice_above")), "Four-column overflow moves above entire row")
 	_expect(is_equal_approx(stack.get_global_rect().end.y, middle.position.y - Stack.RELIC_CHOICE_GAP), "Above flow ends twelve pixels before row top")
 	_expect(stack.position.y >= Stack.RELIC_CHOICE_SCREEN_MARGIN, "Above flow respects top margin")
+	var natural_size: Vector2 = stack.size
+	# Force the HUD bound to displace an otherwise-valid above-row block. This
+	# fails if the TopBar clamp is removed; impossible fit is reported, not shrunk.
+	top_bar.size.y = stack.position.y + 30.0
+	await _settle()
+	_expect(is_equal_approx(stack.position.y, top_bar.get_global_rect().end.y + Stack.RELIC_CHOICE_GAP), "Above fallback clamps after TopBar plus twelve pixels")
+	_expect(not stack.get_global_rect().intersects(top_bar.get_global_rect()), "Clamped above fallback never covers TopBar")
+	_expect(stack.size.is_equal_approx(natural_size) and bool(stack.get_meta("glossary_choice_overflow")), "Impossible above-row fit reports overflow and shrinks nothing")
+	top_bar.size.y = 80.0
 	row.move_child(middle, 0)
 	middle.position.y = 24.0
 	await _settle()
 	_expect(int(stack.get_meta("glossary_choice_columns")) == 1, "Flow can return to fitting outer column")
 	_expect(is_equal_approx(stack.size.x, (panels[0] as Control).size.x), "Outer column releases previous flow width")
 	row.queue_free()
+	top_bar.queue_free()
 	stack.queue_free()
 	await _settle()
 
@@ -394,7 +363,25 @@ func _test_live_relic_hooks() -> void:
 	choice.mouse_exited.emit()
 	choice.grab_focus()
 	_expect(choice.has_focus() and stack.visible, "Production choice keyboard focus wired")
+	state["pending_reward"] = {"relic_id": "iron_lung", "boss_id": "dragon"}
+	scene.set("_run_state", state)
+	scene.call("_add_dragon_reward_stack")
+	await _settle()
+	var dragon_rules: RichTextLabel = bar.find_child("DragonRewardRules", true, false) as RichTextLabel
+	_expect(dragon_rules != null and dragon_rules.get_script() == InlineIconText.GlossaryRichLabel, "Interactive DragonRewardRules explicitly installs styled glossary tooltip")
 	scene.queue_free()
+	await _settle()
+
+func _mouse_button(point: Vector2, button: MouseButton) -> void:
+	var click := InputEventMouseButton.new()
+	click.position = point
+	click.global_position = point
+	click.button_index = button
+	click.pressed = true
+	root.push_input(click, true)
+	click = click.duplicate()
+	click.pressed = false
+	root.push_input(click, true)
 	await _settle()
 
 func _pointer(point: Vector2) -> void:

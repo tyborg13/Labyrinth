@@ -22,6 +22,7 @@ const RELIC_CHOICE_SIDE_CLEARANCE: float = 24.0
 const RELIC_CHOICE_SCREEN_MARGIN: float = 24.0
 const RELIC_CHOICE_FLOW_COLUMNS: int = 3
 const RELIC_CHOICE_FALLBACK_COLUMNS: int = 4
+const RELIC_CHOICE_WIDE_COLUMNS: int = 5
 const OWNED_RELIC_GAP: float = 8.0
 
 var _follow_target: Control
@@ -29,25 +30,28 @@ var _entries: Array[Dictionary]
 var _relic_layout: bool = false
 var _panel_host: Control
 var _panels: Array[Control]
-var _pointer_focus_input: bool = false
+var _mouse_focus_clear_pending: bool = false
 var _layout_signature: Array = []
 var _layout_passes: int = 0
 
-func bind_relic(owner: Control, relic: Dictionary, choice_row: Control = null) -> void:
+func bind_relic(owner: Control, relic: Dictionary, choice_row: Control = null, owned_tray: Control = null, choice_top_bar: Control = null) -> void:
 	owner.set_meta("glossary_relic", relic.duplicate(true))
 	if choice_row != null:
 		owner.set_meta("glossary_choice_row", choice_row)
+	if owned_tray != null:
+		owner.set_meta("glossary_owned_tray", owned_tray)
+	if choice_top_bar != null:
+		owner.set_meta("glossary_choice_top_bar", choice_top_bar)
 	owner.mouse_entered.connect(_owner_interaction.bind(owner, "glossary_hovered", true))
 	owner.mouse_exited.connect(_owner_interaction.bind(owner, "glossary_hovered", false))
 	owner.focus_entered.connect(_owner_interaction.bind(owner, "glossary_focused", true))
 	owner.focus_exited.connect(_owner_interaction.bind(owner, "glossary_focused", false))
-	owner.gui_input.connect(_owner_gui_input.bind(owner))
 	owner.tree_exiting.connect(hide_for.bind(owner))
 
 func _owner_interaction(owner: Control, key: String, active: bool) -> void:
 	if not is_inside_tree() or is_queued_for_deletion():
 		return
-	owner.set_meta(key, active and not _pointer_focus_input if key == "glossary_focused" else active)
+	owner.set_meta(key, active)
 	if _owner_active(owner):
 		if _follow_target != owner or not visible:
 			show_relic(owner, owner.get_meta("glossary_relic", {}) as Dictionary)
@@ -60,24 +64,28 @@ func _owner_interaction(owner: Control, key: String, active: bool) -> void:
 		if was_current and focused != null and focused != owner and focused.has_meta("glossary_relic") and _owner_active(focused):
 			show_relic(focused, focused.get_meta("glossary_relic", {}) as Dictionary)
 
+# One click guard, after GUI focus assignment. Leave native focus intact so Tab
+# navigation keeps its starting point; only the stack's persistent focus clears.
 func _input(event: InputEvent) -> void:
-	if event is InputEventMouseButton and event.pressed:
-		_pointer_focus_input = true
-		var focused: Control = get_viewport().gui_get_focus_owner()
-		if focused != null and focused.has_meta("glossary_relic"):
-			_owner_interaction(focused, "glossary_focused", false)
+	if event is InputEventMouseButton and event.pressed and event.button_index not in [MOUSE_BUTTON_WHEEL_UP, MOUSE_BUTTON_WHEEL_DOWN, MOUSE_BUTTON_WHEEL_LEFT, MOUSE_BUTTON_WHEEL_RIGHT]:
+		if not _mouse_focus_clear_pending:
+			_mouse_focus_clear_pending = true
+			call_deferred("_clear_mouse_focus")
 	elif (event is InputEventKey or event is InputEventJoypadButton) and event.pressed:
-		_pointer_focus_input = false
+		_mouse_focus_clear_pending = false
 	elif event is InputEventJoypadMotion and absf(event.axis_value) > 0.0:
-		_pointer_focus_input = false
+		_mouse_focus_clear_pending = false
 
-func _owner_gui_input(event: InputEvent, owner: Control) -> void:
-	if event is InputEventMouseButton and event.pressed:
-		_pointer_focus_input = true
-		_owner_interaction(owner, "glossary_focused", false)
+func _clear_mouse_focus() -> void:
+	if not _mouse_focus_clear_pending:
+		return
+	_mouse_focus_clear_pending = false
+	var focused: Control = get_viewport().gui_get_focus_owner()
+	if focused != null and focused.has_meta("glossary_relic"):
+		_owner_interaction(focused, "glossary_focused", false)
 
 func prepare_navigation_focus(owner: Control) -> void:
-	_pointer_focus_input = false
+	_mouse_focus_clear_pending = false
 	if owner.has_focus():
 		_owner_interaction(owner, "glossary_focused", true)
 
@@ -260,9 +268,12 @@ func _layout_choice(owner_rect: Rect2, viewport_rect: Rect2) -> void:
 		row_rects.append(rect)
 		row_bottom = maxf(row_bottom, rect.end.y)
 		row_top = minf(row_top, rect.position.y)
+	var top_bar_rect: Rect2 = _bound_rect("glossary_choice_top_bar")
+	row_rects.append(top_bar_rect)
 	if _layout_unchanged(owner_rect, viewport_rect, row_rects):
 		return
 	set_meta("glossary_choice_above", false)
+	set_meta("glossary_choice_overflow", false)
 	var column_size: Vector2 = _measure_choice(1, STACK_SEPARATION)
 	var column_fits: bool = owner_rect.position.y + column_size.y <= viewport_rect.end.y - RELIC_CHOICE_SCREEN_MARGIN
 	# Only outer cards with both horizontal and vertical space keep a column.
@@ -278,15 +289,32 @@ func _layout_choice(owner_rect: Rect2, viewport_rect: Rect2) -> void:
 	var columns: int = RELIC_CHOICE_FLOW_COLUMNS
 	var flow_size: Vector2 = _measure_choice(columns, RELIC_CHOICE_GAP)
 	var top: float = row_bottom + RELIC_CHOICE_GAP
+	var available_width: float = viewport_rect.size.x - 2.0 * RELIC_CHOICE_SCREEN_MARGIN
+	# Try each below-row flow in order. A wider flow must fit horizontally too.
+	for candidate: int in [RELIC_CHOICE_FALLBACK_COLUMNS, RELIC_CHOICE_WIDE_COLUMNS]:
+		if top + flow_size.y <= viewport_rect.end.y - RELIC_CHOICE_SCREEN_MARGIN:
+			break
+		var candidate_size: Vector2 = _measure_choice(candidate, RELIC_CHOICE_GAP)
+		if candidate_size.x <= available_width:
+			columns = candidate
+			flow_size = candidate_size
 	if top + flow_size.y > viewport_rect.end.y - RELIC_CHOICE_SCREEN_MARGIN:
-		columns = RELIC_CHOICE_FALLBACK_COLUMNS
-		flow_size = _measure_choice(columns, RELIC_CHOICE_GAP)
-	if top + flow_size.y > viewport_rect.end.y - RELIC_CHOICE_SCREEN_MARGIN:
-		top = maxf(viewport_rect.position.y + RELIC_CHOICE_SCREEN_MARGIN, row_top - RELIC_CHOICE_GAP - flow_size.y)
+		var minimum_top: float = maxf(viewport_rect.position.y + RELIC_CHOICE_SCREEN_MARGIN, top_bar_rect.end.y + RELIC_CHOICE_GAP)
+		top = maxf(minimum_top, row_top - RELIC_CHOICE_GAP - flow_size.y)
 		set_meta("glossary_choice_above", true)
+		var cannot_fit: bool = top + flow_size.y > row_top - RELIC_CHOICE_GAP or flow_size.x > available_width or top + flow_size.y > viewport_rect.end.y - RELIC_CHOICE_SCREEN_MARGIN
+		set_meta("glossary_choice_overflow", cannot_fit)
+		if cannot_fit:
+			push_warning("Relic glossary above-row overflow: %s, viewport=%s, block=%s, top=%s, row_top=%s" % [_follow_target.name, viewport_rect.size, flow_size, top, row_top])
 	_arrange_choice(columns, RELIC_CHOICE_GAP)
 	var left: float = clampf(owner_rect.get_center().x - flow_size.x * 0.5, viewport_rect.position.x + RELIC_CHOICE_SCREEN_MARGIN, maxf(viewport_rect.position.x + RELIC_CHOICE_SCREEN_MARGIN, viewport_rect.end.x - RELIC_CHOICE_SCREEN_MARGIN - flow_size.x))
 	global_position = Vector2(left, top)
+
+func _bound_rect(key: String) -> Rect2:
+	if not _follow_target.has_meta(key):
+		return Rect2()
+	var boundary: Control = _follow_target.get_meta(key, null) as Control
+	return _visual_global_rect(boundary) if is_instance_valid(boundary) and boundary.is_visible_in_tree() else Rect2()
 
 # Include all row rectangles and measured panel sizes: neighbour height, font,
 # content or viewport changes invalidate placement; idle frames do no arranging.
@@ -309,9 +337,10 @@ func _owned_column_size(start: int, end: int) -> Vector2:
 	return bounds
 
 func _layout_owned(owner_rect: Rect2, viewport_rect: Rect2) -> void:
-	if _layout_unchanged(owner_rect, viewport_rect, []):
+	var tray_rect: Rect2 = _bound_rect("glossary_owned_tray")
+	if _layout_unchanged(owner_rect, viewport_rect, [tray_rect]):
 		return
-	var top: float = owner_rect.end.y + OWNED_RELIC_GAP
+	var top: float = maxf(owner_rect.end.y, tray_rect.end.y) + OWNED_RELIC_GAP
 	var available: float = viewport_rect.end.y - SAFE_MARGIN - top
 	var split: int = _panels.size()
 	var first: Vector2 = _owned_column_size(0, split)

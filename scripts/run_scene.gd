@@ -11151,7 +11151,7 @@ func _refresh_relic_bar() -> void:
 					_add_relic_counter(frame, "RelicKnots", tied.size())
 					frame.tooltip_text += _relic_knots_tooltip(effect, tied)
 			_relic_icon_grid.add_child(frame)
-			_card_focus_tooltip_stack.bind_relic(frame, relic)
+			_card_focus_tooltip_stack.bind_relic(frame, relic, null, relic_bar)
 		for rite_index: int in range(rite_entries.size()):
 			_relic_icon_grid.add_child(_build_active_rite_badge(rite_entries[rite_index], rite_index))
 	performance_phase_started = _record_runtime_performance_phase("relic_bar_relic_icons", performance_phase_started)
@@ -16020,7 +16020,7 @@ func _add_dragon_reward_stack() -> void:
 	rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	UiTypography.set_rich_text_size(rules, UiTypography.SIZE_BODY_LARGE)
 	rules.add_theme_color_override("default_color", Color("dec9a7"))
-	InlineIconText.apply_to(rules, str(relic.get("description", "")))
+	InlineIconText.apply_to(rules, str(relic.get("description", "")), InlineIconText.DEFAULT_ICON_SCALE, true)
 	content.add_child(rules)
 	if next_descent:
 		_dragon_reward_label(content, "DragonRewardGift", "Begin your next run with this relic. It lasts for that run.", UiTypography.SIZE_BODY, Color("cfc5dd"))
@@ -16390,7 +16390,7 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	panel.focus_entered.connect(_set_relic_choice_focused.bind(panel, relic, true))
 	panel.focus_exited.connect(_set_relic_choice_focused.bind(panel, relic, false))
 	_relic_choice_bar.add_child(panel)
-	_card_focus_tooltip_stack.bind_relic(panel, relic, _relic_choice_bar)
+	_card_focus_tooltip_stack.bind_relic(panel, relic, _relic_choice_bar, null, top_bar)
 
 	_ui_skin.apply_choice_finish(panel, Color(GameData.relic_accent(relic_id)))
 	_add_relic_choice_sparkles(panel, Color(GameData.relic_accent(relic_id)))

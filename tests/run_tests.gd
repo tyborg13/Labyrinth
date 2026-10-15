@@ -132,6 +132,7 @@ func _initialize() -> void:
 	await PreBattleUiSuite.run(Callable(self, "_assert"))
 	CursorFeedbackSuite.run(Callable(self, "_assert"))
 	AudioRoutingSuite.run(Callable(self, "_assert"))
+	preload("res://tests/suites/glossary_coverage_suite.gd").run(Callable(self, "_assert"))
 	TooltipConsistencySuite.run(Callable(self, "_assert"))
 	InlineIconDescriptionSuite.run(Callable(self, "_assert"))
 	await DepthRulesSuite.run(Callable(self, "_assert"))

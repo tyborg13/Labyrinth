@@ -23,6 +23,7 @@ var _failures: Array[String]
 var _logic_only: bool = false
 var _compare_original_card: bool = false
 var _viewport: SubViewport
+var _choice_overflows: Array[String]
 
 func _initialize() -> void:
 	call_deferred("_run")
@@ -125,6 +126,7 @@ func _relics() -> void:
 	_viewport.gui_release_focus()
 	await _pointer(POINTER_PARK)
 	await _all_owned_relic_positions(scene)
+	await _wrapped_owned_tray(scene)
 	scene.queue_free()
 	await _settle()
 
@@ -146,8 +148,14 @@ func _validate_stack(scene: Node, owner: Control, name: String) -> void:
 	_expect(stack.entry_icon_keys() == expected_keys, name + " exact glossary order")
 	var bounds: Rect2 = stack.get_global_rect()
 	var owner_rect: Rect2 = Stack._visual_global_rect(owner)
-	_expect(Rect2(Vector2.ZERO, Vector2(VIEWPORT_SIZE)).encloses(bounds), name + " stack remains on screen " + str(bounds))
-	_expect(not bounds.intersects(owner_rect), name + " stack does not overlap its owner")
+	var reported_overflow: bool = is_choice and bool(stack.get_meta("glossary_choice_overflow", false))
+	if not reported_overflow:
+		_expect(Rect2(Vector2.ZERO, Vector2(VIEWPORT_SIZE)).encloses(bounds), name + " stack remains on screen " + str(bounds))
+		_expect(not bounds.intersects(owner_rect), name + " stack does not overlap its owner")
+	else:
+		var report: String = "%s at %dx%d: block=%s" % [name, VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, bounds]
+		_choice_overflows.append(report)
+		print("GLOSSARY CHOICE OVERFLOW: " + report)
 	if is_choice:
 		var row: Control = scene.get("_relic_choice_bar") as Control
 		var choices: Array[Control]
@@ -159,7 +167,9 @@ func _validate_stack(scene: Node, owner: Control, name: String) -> void:
 				var card_rect: Rect2 = Stack._visual_global_rect(child as Control)
 				row_bottom = maxf(row_bottom, card_rect.end.y)
 				row_top = minf(row_top, card_rect.position.y)
-				_expect(not bounds.intersects(card_rect), name + " avoids relic card " + str(child.name))
+				_expect(reported_overflow or not bounds.intersects(card_rect), name + " avoids relic card unless impossible above fit is reported " + str(child.name))
+		var top_bar_rect: Rect2 = Stack._visual_global_rect(scene.get("top_bar") as Control)
+		_expect(not bounds.intersects(top_bar_rect), name + " never overlaps TopBar")
 		var banner: Control = scene.get("_relic_choice_banner") as Control
 		var above: bool = bool(stack.get_meta("glossary_choice_above", false))
 		_expect(above or not bounds.intersects(Stack._visual_global_rect(banner)), name + " only above fallback may cover Claim your treasure banner")
@@ -180,25 +190,32 @@ func _validate_stack(scene: Node, owner: Control, name: String) -> void:
 		var left_fits: bool = owner == choices.front() and owner_rect.position.x >= column_width + Stack.RELIC_CHOICE_SIDE_CLEARANCE
 		var right_fits: bool = owner == choices.back() and VIEWPORT_SIZE.x - owner_rect.end.x >= column_width + Stack.RELIC_CHOICE_SIDE_CLEARANCE
 		var columns: int = int(stack.get_meta("glossary_choice_columns"))
-		_expect(bounds.end.y <= VIEWPORT_SIZE.y - Stack.RELIC_CHOICE_SCREEN_MARGIN and bounds.position.y >= Stack.RELIC_CHOICE_SCREEN_MARGIN, name + " respects vertical 24 px margins " + str(bounds))
-		if columns == 4:
+		_expect(reported_overflow or (bounds.end.y <= VIEWPORT_SIZE.y - Stack.RELIC_CHOICE_SCREEN_MARGIN and bounds.position.y >= Stack.RELIC_CHOICE_SCREEN_MARGIN), name + " respects vertical margins unless impossible fit is reported " + str(bounds))
+		if columns >= 4:
 			_expect(row_bottom + Stack.RELIC_CHOICE_GAP + stack._measure_choice(3, Stack.RELIC_CHOICE_GAP).y > VIEWPORT_SIZE.y - Stack.RELIC_CHOICE_SCREEN_MARGIN, name + " four columns only after three exceed bottom margin")
+		if columns == 5:
+			_expect(row_bottom + Stack.RELIC_CHOICE_GAP + stack._measure_choice(4, Stack.RELIC_CHOICE_GAP).y > VIEWPORT_SIZE.y - Stack.RELIC_CHOICE_SCREEN_MARGIN, name + " five columns only after four exceed bottom margin")
 		if above:
-			_expect(columns == 4 and row_bottom + Stack.RELIC_CHOICE_GAP + bounds.size.y > VIEWPORT_SIZE.y - Stack.RELIC_CHOICE_SCREEN_MARGIN, name + " above only after four exceed bottom margin")
+			var five: Vector2 = stack._measure_choice(5, Stack.RELIC_CHOICE_GAP)
+			_expect(row_bottom + Stack.RELIC_CHOICE_GAP + five.y > VIEWPORT_SIZE.y - Stack.RELIC_CHOICE_SCREEN_MARGIN or five.x > VIEWPORT_SIZE.x - 2 * Stack.RELIC_CHOICE_SCREEN_MARGIN, name + " above only after five below cannot fit")
+			_expect(bounds.position.y >= top_bar_rect.end.y + Stack.RELIC_CHOICE_GAP, name + " above respects TopBar bottom plus twelve pixels")
+			_expect(reported_overflow == (bounds.end.y > row_top - Stack.RELIC_CHOICE_GAP or bounds.end.y > VIEWPORT_SIZE.y - Stack.RELIC_CHOICE_SCREEN_MARGIN or bounds.size.x > VIEWPORT_SIZE.x - 2 * Stack.RELIC_CHOICE_SCREEN_MARGIN), name + " impossible above fit is reported precisely")
 		if column_fits and (left_fits or right_fits):
 			_expect(columns == 1, name + " fitting outer stack stays a column")
 			_expect(is_equal_approx(bounds.position.y, owner_rect.position.y), name + " outer column top aligns")
 			_expect(is_equal_approx(bounds.end.x, owner_rect.position.x - Stack.RELIC_CHOICE_GAP) if left_fits else is_equal_approx(bounds.position.x, owner_rect.end.x + Stack.RELIC_CHOICE_GAP), name + " outer column gap")
 		else:
-			_expect(columns in [3, 4], name + " below-row flow uses three or four columns")
-			_expect(is_equal_approx(bounds.end.y, row_top - Stack.RELIC_CHOICE_GAP) if above else is_equal_approx(bounds.position.y, row_bottom + Stack.RELIC_CHOICE_GAP), name + " anchors outside entire row")
+			_expect(columns in [3, 4, 5], name + " flow uses three, four or five columns")
+			_expect(is_equal_approx(bounds.position.y, maxf(maxf(Stack.RELIC_CHOICE_SCREEN_MARGIN, top_bar_rect.end.y + Stack.RELIC_CHOICE_GAP), row_top - Stack.RELIC_CHOICE_GAP - bounds.size.y)) if above else is_equal_approx(bounds.position.y, row_bottom + Stack.RELIC_CHOICE_GAP), name + " anchors to row and HUD boundary")
 			var expected_left: float = clampf(owner_rect.get_center().x - bounds.size.x * 0.5, Stack.RELIC_CHOICE_SCREEN_MARGIN, VIEWPORT_SIZE.x - Stack.RELIC_CHOICE_SCREEN_MARGIN - bounds.size.x)
 			_expect(is_equal_approx(bounds.position.x, expected_left), name + " flow centered and clamped")
 			_expect(bounds.position.x >= Stack.RELIC_CHOICE_SCREEN_MARGIN and bounds.end.x <= VIEWPORT_SIZE.x - Stack.RELIC_CHOICE_SCREEN_MARGIN, name + " flow respects horizontal margin")
 		_validate_panel_order(panel_nodes, columns, name)
 
 	else:
-		var expected_top: float = clampf(owner_rect.end.y + Stack.OWNED_RELIC_GAP, Stack.SAFE_MARGIN, VIEWPORT_SIZE.y - Stack.SAFE_MARGIN - bounds.size.y)
+		var tray: Control = scene.get("relic_bar") as Control
+		var anchor_bottom: float = maxf(owner_rect.end.y, Stack._visual_global_rect(tray).end.y)
+		var expected_top: float = clampf(anchor_bottom + Stack.OWNED_RELIC_GAP, Stack.SAFE_MARGIN, VIEWPORT_SIZE.y - Stack.SAFE_MARGIN - bounds.size.y)
 		_expect(is_equal_approx(bounds.position.y, expected_top), name + " owned eight pixel gap or vertical clamp")
 		_expect(bounds.position.y >= Stack.SAFE_MARGIN and bounds.end.y <= VIEWPORT_SIZE.y - Stack.SAFE_MARGIN, name + " owned vertical margins")
 		var panels: Array[Node] = stack.find_children("CardFocusTooltip_*", "PanelContainer", true, false)
@@ -207,7 +224,7 @@ func _validate_stack(scene: Node, owner: Control, name: String) -> void:
 		for panel: Control in panels:
 			column_height += panel.get_combined_minimum_size().y + (Stack.STACK_SEPARATION if column_height > 0.0 else 0.0)
 			_expect(bounds.encloses(panel.get_global_rect()), name + " owned panel fits block")
-		_expect((split < panels.size()) == (owner_rect.end.y + Stack.OWNED_RELIC_GAP + column_height > VIEWPORT_SIZE.y - Stack.SAFE_MARGIN and panels.size() > 1), name + " owned overflow uses second column")
+		_expect((split < panels.size()) == (anchor_bottom + Stack.OWNED_RELIC_GAP + column_height > VIEWPORT_SIZE.y - Stack.SAFE_MARGIN and panels.size() > 1), name + " owned overflow uses second column")
 		for index: int in range(panels.size()):
 			var panel: Control = panels[index] as Control
 			if index == split:
@@ -218,8 +235,9 @@ func _validate_stack(scene: Node, owner: Control, name: String) -> void:
 				_expect(not panel.get_global_rect().intersects((panels[previous] as Control).get_global_rect()), name + " owned panels never overlap")
 		var expected_left: float = clampf(owner_rect.position.x, Stack.SAFE_MARGIN, VIEWPORT_SIZE.x - Stack.SAFE_MARGIN - bounds.size.x)
 		_expect(is_equal_approx(bounds.position.x, expected_left), name + " owned left alignment and screen clamp")
-		var tray: Control = scene.get("relic_bar") as Control
 		_expect(not bounds.intersects(Stack._visual_global_rect(tray)), name + " avoids owned tray")
+		for badge: Control in (scene.get("_relic_icon_grid") as Control).get_children():
+			_expect(not bounds.intersects(Stack._visual_global_rect(badge)), name + " avoids every tray badge")
 		var room_title: Control = scene.get("room_title") as Control
 		_expect(not bounds.intersects(Stack._visual_global_rect(room_title)), name + " avoids room title")
 
@@ -248,7 +266,7 @@ func _all_relic_choice_positions(scene: Node) -> void:
 	var row: Control = scene.get("_relic_choice_bar") as Control
 	var stack: Control = scene.get("_card_focus_tooltip_stack") as Control
 	var cases: int = 0
-	var layouts: Dictionary = {1: 0, 3: 0, 4: 0}
+	var layouts: Dictionary = {1: 0, 3: 0, 4: 0, 5: 0}
 	var before_failures: int = _failures.size()
 	for id: String in GameData.relics():
 		stack.hide_stack(true)
@@ -275,8 +293,8 @@ func _all_relic_choice_positions(scene: Node) -> void:
 				await _save("relic_choice_outer_flow")
 			owner.mouse_exited.emit()
 			cases += 1
-	print("GLOSSARY ALL-RELIC CHOICE FIT: %s (%d relics, %d positions, %dx%d)" % ["PASS" if _failures.size() == before_failures else "FAIL", GameData.relics().size(), cases, VIEWPORT_SIZE.x, VIEWPORT_SIZE.y])
-	print("GLOSSARY CHOICE LAYOUTS: column=%d, three=%d, four=%d" % [layouts[1], layouts[3], layouts[4]])
+	print("GLOSSARY ALL-RELIC CHOICE LAYOUT: %s (%d relics, %d positions, %dx%d)" % ["PASS" if _failures.size() == before_failures else "FAIL", GameData.relics().size(), cases, VIEWPORT_SIZE.x, VIEWPORT_SIZE.y])
+	print("GLOSSARY CHOICE LAYOUTS: column=%d, three=%d, four=%d, five=%d; reported overflow=%d" % [layouts[1], layouts[3], layouts[4], layouts[5], _choice_overflows.size()])
 
 func _all_owned_relic_positions(scene: Node) -> void:
 	var before_failures: int = _failures.size()
@@ -306,6 +324,30 @@ func _all_owned_relic_positions(scene: Node) -> void:
 			cases += 1
 		_expect(position == 3, "All three owned positions exercised: " + id)
 	print("GLOSSARY ALL-RELIC OWNED FIT: %s (%d relics, %d positions, %dx%d; %d two-column cases)" % ["PASS" if _failures.size() == before_failures else "FAIL", GameData.relics().size(), cases, VIEWPORT_SIZE.x, VIEWPORT_SIZE.y, two_columns])
+
+func _wrapped_owned_tray(scene: Node) -> void:
+	var ids: Array[String]
+	for id: String in GameData.relics():
+		if id not in ["breaking_wheel", "witchglass_lantern", "hollow_puppet", "iron_lung"]:
+			ids.append(id)
+		if ids.size() == 15: break
+	ids[0] = "breaking_wheel"
+	ids[4] = "witchglass_lantern"
+	ids[9] = "hollow_puppet"
+	ids[14] = "iron_lung"
+	var state: Dictionary = scene.get("_run_state") as Dictionary
+	state["relics"] = ids
+	scene.call("_refresh_relic_bar")
+	await _settle()
+	var grid: GridContainer = scene.get("_relic_icon_grid") as GridContainer
+	_expect(grid.columns == 5 and grid.get_child_count() == 15, "Wrapped tray uses fifteen relics, five per row")
+	var before: int = _failures.size()
+	for index: int in [0, 4, 9, 14]:
+		var owner: Control = grid.get_child(index) as Control
+		await _pointer(owner.get_global_rect().get_center())
+		await _validate_and_capture(scene, owner, "owned_relic_wrapped_%d" % index)
+	await _pointer(POINTER_PARK)
+	print("GLOSSARY WRAPPED TRAY: %s (indices 0,4,9,14; %dx%d)" % ["PASS" if _failures.size() == before else "FAIL", VIEWPORT_SIZE.x, VIEWPORT_SIZE.y])
 
 func _click(point: Vector2) -> void:
 	var event := InputEventMouseButton.new()

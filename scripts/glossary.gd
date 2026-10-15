@@ -57,17 +57,21 @@ static func _escape_regex(text: String) -> String:
 		escaped += character
 	return escaped
 
-static func lookup(id_or_alias: String) -> Dictionary:
+# Internal read-only view: hot label/definition reads must not deep-copy entries.
+static func _entry(id_or_alias: String) -> Dictionary:
 	_ensure_loaded()
 	var key: String = id_or_alias.to_lower()
-	return (_entries.get(key if _entries.has(key) else str(_aliases.get(key, key)), {}) as Dictionary).duplicate(true)
+	return _entries.get(key if _entries.has(key) else str(_aliases.get(key, key)), {}) as Dictionary
+
+static func lookup(id_or_alias: String) -> Dictionary:
+	return _entry(id_or_alias).duplicate(true)
 
 static func all_entries() -> Array:
 	_ensure_loaded()
 	return _entries.values().duplicate(true)
 
 static func definition(id: String, fallback_label: String = "") -> String:
-	var entry: Dictionary = lookup(id)
+	var entry: Dictionary = _entry(id)
 	var text: String = str(entry.get("definition", "")).strip_edges()
 	if not text.is_empty():
 		return text
@@ -78,7 +82,7 @@ static func definition(id: String, fallback_label: String = "") -> String:
 	return name_for(id, fallback_label)
 
 static func name_for(id: String, fallback_label: String = "") -> String:
-	var label: String = str(lookup(id).get("name", "")).strip_edges()
+	var label: String = str(_entry(id).get("name", "")).strip_edges()
 	return label if not label.is_empty() else (fallback_label if not fallback_label.is_empty() else id.capitalize())
 
 ## Merge explicit icon tokens and written keywords in first appearance order.
@@ -90,7 +94,7 @@ static func ids_in_text(text: String, limit: int = 0) -> Array[String]:
 	tokens.compile("@icon\\(([^)]+)\\)")
 	var plain: String = text
 	for found: RegExMatch in tokens.search_all(text):
-		var entry: Dictionary = lookup(found.get_string(1))
+		var entry: Dictionary = _entry(found.get_string(1))
 		matches.append({"id": entry.get("id", found.get_string(1)), "start": found.get_start(), "end": found.get_end()})
 		plain = plain.substr(0, found.get_start()) + " ".repeat(found.get_end() - found.get_start()) + plain.substr(found.get_end())
 	# BBCode metadata is not player-visible prose.
