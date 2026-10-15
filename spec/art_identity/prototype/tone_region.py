@@ -5,10 +5,14 @@ CONFIG is a list of regions applied in order; each region:
   {"name": str, "box": [x0, y0, x1, y1],            raw-pixel box the edit may touch
    "seed": [x, y] | null,                           flood-fill (8-way) from here through matching pixels; null = whole box
    "min_lum": 0..1, "max_lum": 0..1,                Rec.601 luminance window of pixels that may change
-   "min_chroma": 0..1, "hue_deg": [lo, hi] | null,  RGB max-min chroma floor and optional hue window (lo > hi wraps)
+   "min_chroma": 0..1, "max_chroma": 0..1,         optional inclusive RGB (max-min)/255 chroma limits
+   "max_value": 0..1,                              optional inclusive max(R,G,B)/255 cap, not luminance
+   "hue_deg": [lo, hi] | null,                     optional hue window (lo > hi wraps)
    "exclude_green": true,                           never touch key-green background
    "lab_scale": [L, a, b]}                          CIE Lab multipliers (prototype/match_palette.py conversion)
 Prints the changed pixel count per region.
+Omitting max_chroma/max_value preserves existing recipes exactly. Both must be finite numbers in 0..1;
+selectors combine before seed filling and Lab scaling. The shared reference-mask selector supports them too.
 """
 import json
 import sys

@@ -4,6 +4,7 @@ import argparse
 import ast
 import copy
 import json
+import os
 import runpy
 from pathlib import Path
 import shutil
@@ -52,6 +53,64 @@ RAW_STEP_LEGACY_PIXEL_SHA256 = {
     "mask": "77208bb9ad762fe2ab0785f24e8efec319748d70a0c7c16cfe3774128ada0234",
 }
 REENCODE_COMPRESSION_LEVEL = 0  # Proof-only zlib setting deliberately unlike Pillow's default.
+TONE_LIMIT_FIXTURE_COLORS = ((110, 85, 65, 255), (240, 150, 30, 255), (240, 235, 230, 255))
+TONE_LIMIT_FIXTURE_REGION = {"name": "brown body", "box": [0, 0, 3, 1], "max_chroma": 0.3,
+                             "max_value": 0.8, "lab_scale": [0.7, 0.6, 0.6]}
+CORE_FIXTURE_FRONT_BODY = (55, 50, 45, 255)
+CORE_FIXTURE_REAR_BODY = (100, 80, 60, 255)
+CORE_FIXTURE_PALE = (226, 201, 253, 255)
+CORE_FIXTURE_ACCENT = (160, 30, 230, 255)
+CORE_FIXTURE_DIM = (120, 100, 140, 255)
+CORE_FIXTURE_SIDE = 16
+CORE_FIXTURE_XY = (2, 2)
+CORE_FIXTURE_DIM_XY = (3, 2)
+HUE_FIXTURE_DEGREES = (335, 336, 0, 24, 25, 26, 334, 180)
+ASCII_STDOUT_FIXTURE_RAW = "r\u00e4w.png"
+REAR_PALETTE_PROOF_JOBS = (
+    ("frostglass_lancer", "mq1_front_v3", "mq1_rear_v3"),
+    ("lightning_wisp", "mq1_front_v2", "mq1_rear_v2"),
+)
+
+
+def rear_palette_proof(out: Path) -> list:
+    """Headless art-07 proof using disposable recipe copies; approved files are read-only."""
+    reports = []
+    for identity, front_job, rear_job in REAR_PALETTE_PROOF_JOBS:
+        jobs = ROOT / gate.IDENTITY / "jobs" / identity
+        folder = out / identity
+        folder.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory() as scratch:
+            copied = Path(scratch) / "rear"
+            shutil.copytree(jobs / rear_job, copied)
+            kit = gate.read_json(copied / "kit.json")
+            kit.pop("match_reference", None)
+            gate.write_json(copied / "kit.json", kit)
+            gate.process_raw(None, copied / "kit.json", folder / "before.png")
+        front = gate.rgba(jobs / front_job / "processed.png")
+        front.save(folder / "front.png")
+        before = gate.rgba(folder / "before.png")
+        legacy = gate.palette_match(front, before, gate.LEGACY_PALETTE_MATCH_PARAMETERS)
+        after = gate.palette_match(front, before)
+        legacy.save(folder / "legacy.png")
+        after.save(folder / "after.png")
+        pixels, old, new = map(np.asarray, (before, legacy, after))
+        lab = gate.to_lab(pixels[..., :3].astype(float))
+        core = (pixels[..., 3] > 0) & (lab[..., 0] >= gate.PALETTE_MATCH_PARAMETERS["accent_lightness"])
+        changed = np.any(old != pixels, axis=-1) & core
+        # Sample the greatest RGB channel change among bright cores, with stable row-major ties.
+        loss = lab[..., 0] - gate.to_lab(old[..., :3].astype(float))[..., 0]
+        delta = np.abs(old[..., :3].astype(int) - pixels[..., :3].astype(int)).max(-1)
+        y, x = np.unravel_index(np.where(core, delta, -1).argmax(), core.shape)
+        reports.append({"id": identity, "bright_core_pixels": int(core.sum()),
+                        "legacy_changed_core_pixels": int(changed.sum()),
+                        "new_changed_core_pixels": int(np.any(new != pixels, axis=-1)[core].sum()),
+                        "sample_xy": [int(x), int(y)], "before_rgb": pixels[y, x, :3].tolist(),
+                        "legacy_rgb": old[y, x, :3].tolist(), "after_rgb": new[y, x, :3].tolist(),
+                        "max_legacy_channel_change": int(delta[y, x]),
+                        "max_legacy_lightness_loss": float(loss[core].max()),
+                        "parameters": gate.PALETTE_MATCH_PARAMETERS})
+    gate.write_json(out / "results.json", reports)
+    return reports
 
 
 def prototype_functions(filename, namespace):
@@ -178,6 +237,82 @@ class GateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "supplied raw differs"):
             gate.process_raw(kit_path.parent / "refs/edit.png", kit_path, out)
 
+    def test_tone_max_chroma_excludes_amber_while_toning_brown(self):
+        image = Image.fromarray(np.array([TONE_LIMIT_FIXTURE_COLORS], dtype=np.uint8))
+        region = dict(TONE_LIMIT_FIXTURE_REGION)
+        region.pop("max_value")
+        actual = np.asarray(gate.tone_region(image, [region]))
+        self.assertFalse(np.array_equal(actual[0, 0], np.asarray(image)[0, 0]))
+        np.testing.assert_array_equal(actual[0, 1], TONE_LIMIT_FIXTURE_COLORS[1])
+        # Bright neutral paint is low chroma; max_value independently excludes it.
+        self.assertFalse(np.array_equal(actual[0, 2], np.asarray(image)[0, 2]))
+        actual = np.asarray(gate.tone_region(image, [TONE_LIMIT_FIXTURE_REGION]))
+        np.testing.assert_array_equal(actual[0, 1:], np.asarray(image)[0, 1:])
+        np.testing.assert_array_equal(actual[..., 3], np.asarray(image)[..., 3])
+
+    def test_region_maximum_filters_are_inclusive_and_validate_limits(self):
+        colors = np.array([TONE_LIMIT_FIXTURE_COLORS], dtype=float)[..., :3]
+        base = {"name": "limit boundary", "box": [0, 0, 3, 1]}
+        for key, limit in (("max_chroma", (110 - 65) / 255), ("max_value", 110 / 255)):
+            with self.subTest(key=key):
+                self.assertTrue(gate.region_mask(colors, dict(base, **{key: limit}))[0, 0])
+                self.assertFalse(gate.region_mask(colors, dict(base, **{key: float(np.nextafter(limit, 0))}))[0, 0])
+                for invalid in (-0.1, 1.1, float("nan"), float("inf"), None, True, "0.3"):
+                    with self.subTest(invalid=invalid), self.assertRaisesRegex(ValueError, key):
+                        gate.region_mask(colors, dict(base, **{key: invalid}))
+        np.testing.assert_array_equal(gate.region_mask(colors, base),
+                                      gate.region_mask(colors, dict(base, max_chroma=1, max_value=1)))
+
+    def test_palette_match_preserves_pale_cores_and_reference_accent_hues(self):
+        front = Image.new("RGBA", (CORE_FIXTURE_SIDE, CORE_FIXTURE_SIDE), CORE_FIXTURE_FRONT_BODY)
+        rear = Image.new("RGBA", front.size, CORE_FIXTURE_REAR_BODY)
+        front.putpixel(CORE_FIXTURE_XY, CORE_FIXTURE_ACCENT)
+        rear.putpixel(CORE_FIXTURE_XY, CORE_FIXTURE_PALE)
+        rear.putpixel(CORE_FIXTURE_DIM_XY, CORE_FIXTURE_DIM)
+        pixels = np.asarray(rear).astype(float)
+        lab = gate.to_lab(pixels[..., :3])
+        body = gate.non_accent_mask(lab, pixels[..., 3])
+        for x, y in (CORE_FIXTURE_XY, CORE_FIXTURE_DIM_XY):
+            self.assertTrue(body[y, x])  # Both were transferred by the old rule.
+        self.assertLess(lab[CORE_FIXTURE_DIM_XY[1], CORE_FIXTURE_DIM_XY[0], 0], 80)
+        legacy = gate.palette_match(front, rear, gate.LEGACY_PALETTE_MATCH_PARAMETERS)
+        actual = gate.palette_match(front, rear)
+        for xy in (CORE_FIXTURE_XY, CORE_FIXTURE_DIM_XY):
+            self.assertNotEqual(legacy.getpixel(xy), rear.getpixel(xy))
+            self.assertEqual(actual.getpixel(xy), rear.getpixel(xy))
+        self.assertNotEqual(actual.getpixel((0, 0)), rear.getpixel((0, 0)))
+        # Bright protection also works with no chromatic accents in the reference.
+        front.putpixel(CORE_FIXTURE_XY, CORE_FIXTURE_FRONT_BODY)
+        self.assertEqual(gate.palette_match(front, rear).getpixel(CORE_FIXTURE_XY), CORE_FIXTURE_PALE)
+        front.putpixel(CORE_FIXTURE_XY, (*CORE_FIXTURE_ACCENT[:3], 0))
+        self.assertNotEqual(gate.palette_match(front, rear).getpixel(CORE_FIXTURE_DIM_XY), CORE_FIXTURE_DIM)
+        np.testing.assert_array_equal(np.asarray(actual)[..., 3], np.asarray(rear)[..., 3])
+
+    def test_palette_accent_hue_wrap_boundaries_and_lightness_boundary(self):
+        radians = np.radians(HUE_FIXTURE_DEGREES)
+        lab = np.stack((np.zeros_like(radians), np.cos(radians), np.sin(radians)), -1)
+        protected = gate.palette_accent_protection(lab, np.array([0.0]), gate.PALETTE_MATCH_PARAMETERS)
+        np.testing.assert_array_equal(protected, [True, True, True, True, True, False, False, False])
+        lab[:, 0] = 80
+        self.assertTrue(gate.palette_accent_protection(lab, np.array([]), gate.PALETTE_MATCH_PARAMETERS).all())
+        lab[:, 0] = np.nextafter(80.0, 0)
+        self.assertFalse(gate.palette_accent_protection(lab, np.array([]), gate.PALETTE_MATCH_PARAMETERS).any())
+
+    def test_palette_match_all_bright_pixels_has_no_body_to_transfer(self):
+        bright = Image.new("RGBA", (CORE_FIXTURE_SIDE, CORE_FIXTURE_SIDE), CORE_FIXTURE_PALE)
+        body = Image.new("RGBA", bright.size, CORE_FIXTURE_REAR_BODY)
+        for front, rear in ((bright, body), (body, bright)):
+            self.assertEqual(gate.palette_match(front, rear).tobytes(), rear.tobytes())
+
+    def test_lancer_and_wisp_rear_match_preserves_bright_cores_on_copies(self):
+        for report in rear_palette_proof(self.temp / "proof"):
+            with self.subTest(identity=report["id"]):
+                self.assertGreater(report["bright_core_pixels"], 0)
+                self.assertGreater(report["legacy_changed_core_pixels"], 0)
+                self.assertEqual(report["new_changed_core_pixels"], 0)
+                self.assertEqual(report["after_rgb"], report["before_rgb"])
+                self.assertNotEqual(report["legacy_rgb"], report["before_rgb"])
+
     def test_raw_steps_reject_changed_file_bytes_for_every_input_kind(self):
         kit_path = self.raw_step_kit()
         for name in ("raw.png", "edit.png", "tone.json"):
@@ -259,7 +394,7 @@ class GateTests(unittest.TestCase):
         self.assertIn('-      "output_raw_sha256"', result.stdout)
         self.assertIn('"sha256"', result.stdout)
         for name in ("composite.png", "tone.png"):
-            self.assertIn("INPUT CHANGED refs/%s %s→%s" % (name, "0" * 64, gate.sha((refs / name).read_bytes())), result.stdout)
+            self.assertIn("INPUT CHANGED refs/%s %s->%s" % (name, "0" * 64, gate.sha((refs / name).read_bytes())), result.stdout)
         self.assertEqual(gate.read_json(kit_path), expected)
         self.assertEqual(gate.pixel_digest(gate.replay_raw_steps(kit_path)), RAW_STEP_LEGACY_PIXEL_SHA256["tone"])
         self.assertEqual({path: path.read_bytes() for path in refs.iterdir()}, inputs)
@@ -311,7 +446,7 @@ class GateTests(unittest.TestCase):
                 gate.rgba(path).save(path, compress_level=REENCODE_COMPRESSION_LEVEL)
             else:
                 path.write_bytes(path.read_bytes() + b"\n")
-            expected.append("INPUT CHANGED %s %s→%s" % (binding["path"], old, gate.sha(path.read_bytes())))
+            expected.append("INPUT CHANGED %s %s->%s" % (binding["path"], old, gate.sha(path.read_bytes())))
         # An absent/invalid hash is migration, not a changed existing binding.
         kit["raw_steps"][0]["inputs"]["edit"].pop("sha256")
         gate.write_json(kit_path, kit)
@@ -573,6 +708,65 @@ class GateTests(unittest.TestCase):
             with self.subTest(path=path), self.assertRaisesRegex(ValueError, "inside spec/art_identity/jobs/"):
                 gate.derive_match_reference(spec, kit_path, self.temp)
 
+    def test_front_job_path_requires_exact_identity_job_shape_and_no_self_reference(self):
+        kit_path = self.raw_step_kit(self.temp / RAW_STEP_FRONT_JOB)
+        binding = {"pixel_sha256": RAW_STEP_LEGACY_PIXEL_SHA256["tone"]}
+        for path in ("fixture/kit.json", "fixture/nested/front/kit.json", "wrong_id/front/kit.json",
+                     "fixture/front/other.json"):
+            binding["job_path"] = str(gate.IDENTITY / "jobs" / path)
+            for record in (False, True):
+                with self.subTest(path=path, record=record), self.assertRaisesRegex(ValueError, "<id>/<job>/kit.json"):
+                    gate.derive_match_reference(binding, kit_path, self.temp, record=record)
+        alias = kit_path.parent.parent / "alias"
+        alias.symlink_to(kit_path.parent, target_is_directory=True)
+        for path in (kit_path, alias / "kit.json"):
+            binding["job_path"] = str(path.relative_to(self.temp))
+            for record in (False, True):
+                with self.subTest(path=path, record=record), self.assertRaisesRegex(ValueError, "referencing kit itself"):
+                    gate.derive_match_reference(binding, kit_path, self.temp, record=record)
+        nested_alias = kit_path.parent.parent / "nested/alias"
+        nested_alias.parent.mkdir()
+        nested_alias.symlink_to(kit_path.parent, target_is_directory=True)
+        binding["job_path"] = str((nested_alias / "kit.json").relative_to(self.temp))
+        with self.assertRaisesRegex(ValueError, "<id>/<job>/kit.json"):
+            gate.derive_match_reference(binding, kit_path, self.temp)
+
+    def test_non_object_front_kit_is_a_clean_cli_error(self):
+        kit_path = self.raw_step_kit()
+        front = self.temp / RAW_STEP_FRONT_JOB / "kit.json"
+        binding = {"job_path": str(RAW_STEP_FRONT_JOB / "kit.json"),
+                   "pixel_sha256": RAW_STEP_LEGACY_PIXEL_SHA256["tone"]}
+        for metadata in (None, [], "front", 1):
+            gate.write_json(front, metadata)
+            for record in (False, True):
+                with self.subTest(metadata=metadata, record=record), self.assertRaisesRegex(ValueError, "must be an object"):
+                    gate.derive_match_reference(binding, kit_path, self.temp, record=record)
+        kit = gate.read_json(kit_path)
+        kit["match_reference"] = binding
+        gate.write_json(kit_path, kit)
+        record_steps = gate.record_steps
+        with patch.object(gate, "record_steps", side_effect=lambda path: record_steps(path, self.temp)), \
+                patch.object(sys, "argv", ["art_identity_gate.py", "record-steps", "--kit", str(kit_path)]), \
+                patch("builtins.print") as output:
+            self.assertEqual(gate.main(), 1)
+        output.assert_called_once_with("ART IDENTITY ERROR: match_reference front kit.json must be an object", file=sys.stderr)
+
+    def test_record_steps_ascii_stdout_keeps_input_changed_line_and_escapes_paths(self):
+        kit_path = self.raw_step_kit()
+        kit = gate.read_json(kit_path)
+        refs = kit_path.parent / "refs"
+        (refs / "raw.png").rename(refs / ASCII_STDOUT_FIXTURE_RAW)
+        binding = kit["raw_steps"][0]["inputs"]["raw"]
+        binding.update(path="refs/" + ASCII_STDOUT_FIXTURE_RAW, sha256="0" * 64)
+        gate.write_json(kit_path, kit)
+        result = subprocess.run([sys.executable, str(ROOT / "tools/art_identity_gate.py"), "record-steps", "--kit", str(kit_path)],
+                                env=dict(os.environ, PYTHONIOENCODING="ascii:strict"), capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr.decode("ascii"))
+        digest = gate.sha((refs / ASCII_STDOUT_FIXTURE_RAW).read_bytes())
+        expected = "INPUT CHANGED refs/r\\xe4w.png %s->%s" % ("0" * 64, digest)
+        self.assertIn(expected, result.stdout.decode("ascii"))
+        self.assertEqual(gate.read_json(kit_path)["raw_steps"][0]["inputs"]["raw"]["sha256"], digest)
+
     def test_explicit_match_front_conflict_cannot_override_kit(self):
         kit_path = self.raw_step_kit()
         gate.write_json(self.temp / gate.IDENTITY / "bands.json", gate.read_json(ROOT / gate.IDENTITY / "bands.json"))
@@ -775,19 +969,42 @@ class GateTests(unittest.TestCase):
                 gate.verify_job_recipe(kit_path, root)
 
     def test_committed_jobs_replay_approved_pixels_without_external_inputs(self):
-        jobs = [gate.IDENTITY / "jobs" / job for job in (
-            "chainbound_gaoler/mq3_front_v4", "chainbound_gaoler/mq3_rear_v3", "frostglass_lancer/mq1_front_v2",
-            "frostglass_lancer/mq1_front_v3", "frostglass_lancer/mq1_rear_v3")]
-        # The gaoler front uses the approved earlier front job as its palette source.
-        for job in jobs + [gate.IDENTITY / "jobs/chainbound_gaoler/mq_front_v3"]:
+        jobs = [path.parent.relative_to(ROOT) for path in sorted((ROOT / gate.IDENTITY / "jobs").rglob("kit.json"))
+                if "raw_steps" in gate.read_json(path)]
+        self.assertTrue(jobs)
+        references = set()
+        for job in jobs:
+            binding = gate.read_json(ROOT / job / "kit.json").get("match_reference", {})
+            binding = binding.get("derived_from", binding)
+            if "job_path" in binding:
+                references.add(Path(binding["job_path"]).parent)
+        for job in set(jobs) | references:
             shutil.copytree(ROOT / job, self.temp / job)
         shutil.copyfile(ROOT / gate.IDENTITY / "bands.json", self.temp / gate.IDENTITY / "bands.json")
         for job in jobs:
             local = self.temp / job
-            self.assertEqual(len(gate.verify_job_recipe(local / "kit.json", self.temp, require_inputs=True)), 3)
-            kit = gate.read_json(local / "kit.json")
-            self.assertEqual(kit["kit_kind"], "maquette")
-            self.assertEqual(gate.prompt_kit_version(kit, (local / "prompt.md").read_bytes()), kit["kit_version"])
+            with self.subTest(job=str(job)):
+                before = {p: gate.sha(p.read_bytes()) for p in local.rglob("*") if p.is_file()}
+                self.assertEqual(len(gate.verify_job_recipe(local / "kit.json", self.temp, require_inputs=True)), 3)
+                self.assertEqual(before, {p: gate.sha(p.read_bytes()) for p in before})
+                kit = gate.read_json(local / "kit.json")
+                self.assertEqual(kit["kit_kind"], "maquette")
+                self.assertEqual(gate.prompt_kit_version(kit, (local / "prompt.md").read_bytes()), kit["kit_version"])
+
+    def test_recipe_replay_uses_recorded_palette_parameters(self):
+        kit_path = self.raw_step_kit()
+        out = kit_path.parent / "processed.png"
+        for parameters in (gate.LEGACY_PALETTE_MATCH_PARAMETERS, gate.PALETTE_MATCH_PARAMETERS):
+            with self.subTest(parameters=parameters):
+                record = gate.process_raw(None, kit_path, out, outline=True, palette_parameters=parameters)
+                self.assertEqual(record["post_steps"][0]["parameters"], parameters)
+                self.assertEqual(len(gate.verify_job_recipe(kit_path, require_inputs=True)), 3)
+        for key in ("accent_lightness", "accent_hue_window_deg"):
+            changed = copy.deepcopy(record)
+            changed["post_steps"][0]["parameters"].pop(key)
+            gate.write_json(out.with_suffix(".json"), changed)
+            with self.subTest(key=key), self.assertRaisesRegex(ValueError, "parameters or pre-step digest invalid"):
+                gate.verify_job_recipe(kit_path, require_inputs=True)
 
     def test_palette_match_and_outline_are_pixel_identical_to_prototypes(self):
         # Proof-only synthetic accents, green key residue, opaque islands and borders.
@@ -804,7 +1021,7 @@ class GateTests(unittest.TestCase):
         match = runpy.run_path(str(ROOT / "spec/art_identity/prototype/match_palette.py"))["match"]
         clean = runpy.run_path(str(ROOT / "spec/art_identity/prototype/clean_outline.py"))["clean"]
         match(front, rear, self.temp / "match.png")
-        actual = gate.palette_match(gate.rgba(front), gate.rgba(rear))
+        actual = gate.palette_match(gate.rgba(front), gate.rgba(rear), gate.LEGACY_PALETTE_MATCH_PARAMETERS)
         self.assertEqual(actual.tobytes(), gate.rgba(self.temp / "match.png").tobytes())
         clean(rear, self.temp / "clean.png")
         self.assertEqual(gate.clean_outline(gate.rgba(rear)).tobytes(), gate.rgba(self.temp / "clean.png").tobytes())
