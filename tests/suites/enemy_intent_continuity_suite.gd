@@ -10,6 +10,7 @@ const Scene = preload("res://scripts/run_scene.gd")
 const PLAYER_ROUNDS: int = 8
 const MAX_ACTIVATIONS_PER_ROUND: int = 32
 const FIXTURE_PLAYER_HP: int = 10000
+const FIXTURE_VIEWPORT_SIZE := Vector2(1920, 1080)
 const FAR_HERO := Vector2i(5, 7)
 const NEAR_HERO := Vector2i(5, 5)
 const SIGHT_BLOCKER := Vector2i(5, 3)
@@ -134,20 +135,41 @@ static func scheduled_time(state: Dictionary, id: int) -> int:
 
 static func display_state(engine: RefCounted, state: Dictionary, id: int) -> Dictionary:
 	var board: Control = Board.new()
+	board.size = FIXTURE_VIEWPORT_SIZE
 	board.combat_state = state
+	board.presentation = {"threats_at_rest": Badges.build(engine, state, state)}
+	hover_enemy(board, id)
+	# This is the production HUD layout builder, including the expansion gate
+	# and contour bounds, rather than the formatting helpers beneath that gate.
+	var built: Dictionary = board._build_hud_layout_data(board._hud_layout_units())
+	var layout: Dictionary = hud_layout(built["entries"], id)
 	var result: Dictionary = {"tooltip": false, "badge": false, "cancelled": false, "threat_tiles": 0}
 	var key: String = "enemy_%d" % id
-	for unit: Dictionary in board._visible_units():
-		if str(unit.get("key", "")) == key:
-			var intent: Dictionary = unit.get("intent", {})
-			result["tooltip"] = not board._intent_display_name(intent).is_empty() and not board._intent_rows(intent).is_empty()
-	for badge: Dictionary in Badges.build(engine, state, state)["badges"]:
+	var bounds: Rect2 = layout.get("intent_rect", Rect2())
+	result["tooltip"] = not str(layout.get("intent_name", "")).is_empty() and not (layout.get("rows", []) as Array).is_empty() and bounds.has_area() and (layout.get("line_rects", []) as Array).size() >= 2
+	for badge: Dictionary in board.presentation["threats_at_rest"]["badges"]:
 		if str(badge["key"]) == key:
 			result["badge"] = true
 			result["cancelled"] = badge["cancelled"]
 	result["threat_tiles"] = engine.enemy_threat_tiles(state, engine._enemy_index_for_id(state, id)).get("projected_attack", []).size()
 	board.free()
 	return result
+
+static func hover_enemy(board: Control, id: int) -> void:
+	# Re-enter even when successive proof states keep the actor on the same tile.
+	# The board owns hover state and emits the scene's tile_hovered signal.
+	board._clear_hover_for_navigation()
+	for enemy: Dictionary in board.combat_state.get("enemies", []):
+		if int(enemy.get("id", -1)) != id: continue
+		var motion := InputEventMouseMotion.new()
+		motion.position = board._tile_center(enemy["pos"])
+		board._gui_input(motion)
+		return
+
+static func hud_layout(entries: Array, id: int) -> Dictionary:
+	for entry: Dictionary in entries:
+		if str(entry.get("actor_key", "")) == "enemy_%d" % id: return entry.get("layout", {})
+	return {}
 
 static func _assert_continuity(engine: RefCounted, expect: Callable, state: Dictionary, id: int, label: String) -> void:
 	var enemy: Dictionary = state["enemies"][engine._enemy_index_for_id(state, id)]
