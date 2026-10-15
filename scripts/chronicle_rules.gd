@@ -89,6 +89,7 @@ static func build_record(state: Dictionary, outcome: String, scored: Dictionary,
 		"dragon_ids": state.get("chronicle_dragon_ids", []).duplicate(),
 		"section_names": state.get("chronicle_section_names", []).duplicate(),
 		"gear": gear, "deck": deck_counts(state.get("deck_cards", [])),
+		"deck_card_definitions": deck_card_definitions(state),
 		"relics": state.get("relics", []).duplicate(),
 		"dragons_slain": (stats["dragons_slain"] as Array).size()
 	}
@@ -138,6 +139,23 @@ static func deck_counts(value: Variant) -> Array:
 			result.append([id, 1])
 	return result
 
+# IDs/counts remain the save contract. Only run-specific printed definitions
+# need a snapshot (for example relic-modified rules); legacy records without
+# this additive field continue to resolve their IDs through GameData.
+static func deck_card_definitions(state: Dictionary) -> Dictionary:
+	var definitions: Dictionary = {}
+	for pair: Array in deck_counts(state.get("deck_cards", [])):
+		var id: String = str(pair[0])
+		var card: Dictionary = GameData.card_def_for_progression(id, state)
+		var base: Dictionary = GameData.card_def(id)
+		if not base.has("id"):
+			card.erase("id")
+		if card != base and not base.is_empty():
+			definitions[id] = card
+	# Profile persistence is JSON: canonicalize its number representation before
+	# comparing records, so a restart does not change nested int/float variants.
+	return JSON.parse_string(JSON.stringify(definitions)) as Dictionary
+
 static func normalized_records(value: Variant) -> Array[Dictionary]:
 	var records: Array[Dictionary]
 	var seen: Dictionary = {}
@@ -182,6 +200,14 @@ static func normalized_record(value: Dictionary) -> Dictionary:
 			if pair is Array and pair.size() == 2:
 				deck.append([str(pair[0]), maxi(1, int(pair[1]))])
 	record["deck"] = deck
+	if record.has("deck_card_definitions"):
+		var definitions: Dictionary = {}
+		if record["deck_card_definitions"] is Dictionary:
+			for pair: Array in deck:
+				var definition: Variant = record["deck_card_definitions"].get(pair[0])
+				if definition is Dictionary and not definition.is_empty():
+					definitions[pair[0]] = definition.duplicate(true)
+		record["deck_card_definitions"] = JSON.parse_string(JSON.stringify(definitions)) as Dictionary
 	if record.has("umbra_depth"):
 		record["umbra_depth"] = maxi(0, int(record["umbra_depth"]))
 	return record
