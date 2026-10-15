@@ -38,9 +38,14 @@ static func pip_centers(health_frame: Rect2) -> Array[Vector2]:
 static func rows(intent: Dictionary) -> Array:
 	if not Rules.handles_intent(intent): return []
 	var action: Dictionary = intent["actions"][0]
+	var token: Dictionary
 	if str(action["type"]) == "gain_charge":
-		return [[Icons.icon_text_token("charge", "+%d" % int(action.get("amount", 1)))]]
-	return [[Icons.icon_text_token("chain", str(int(action["damage"])))]]
+		token = Icons.icon_text_token("charge", "+%d" % int(action.get("amount", 1)))
+	else:
+		token = Icons.icon_text_token("chain", str(int(action["damage"])))
+	# These intents had no tooltip; the icon defaults describe other mechanics (ux-04 adds glossary text).
+	token["tooltip"] = ""
+	return [[token]]
 
 static func draw_telegraphs(board: Control) -> void:
 	for threat: Dictionary in board.presentation.get("enemy_threat_previews", []):
