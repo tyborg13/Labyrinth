@@ -1,0 +1,56 @@
+{
+  "K": 4,
+  "anatomy": "floating",
+  "id": "lightning_wisp",
+  "job_id": "mq-wisp-rear-r1-edit2",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "691969432eccbf9f420ca65d5be5a1d33f415cd0d03e1b529f074da5aa4d86ce",
+  "method": "maquette paint-over (wave 1b): crackle-trim edit of mq1_rear_v2 raw (one fork per arc) + judge tone G; processed without palette match",
+  "peers": [
+    "arc_thrall_rear",
+    "hero_rear"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "81f016d6fd0178b49029d3f5439e6ad449919a89c0e77974194139b85a098c1f",
+  "prompt_source": "spec/art_identity/maquettes/lightning_wisp/edit_rear_lightning_r2.md",
+  "raw_steps": [
+    {
+      "inputs": {
+        "config": {
+          "path": "refs/tone_rear_G.json",
+          "sha256": "574925c3324f2326a96e503316ef415ff7c53e47f02ae476e62a0b1633b7e6b4"
+        },
+        "raw": {
+          "path": "refs/raw_approved.png",
+          "sha256": "20384159b5b470469a1a6256472d42d78e85a46d8f6ad5c7128ec9e21cbb6c0f"
+        }
+      },
+      "kind": "tone_region",
+      "output_raw_pixel_sha256": "2b068eac3278c5d0f0019883d44b14a9d82d64f7fcc73f89fd6a1378eb0046a2",
+      "parameters": {
+        "space": "CIE Lab"
+      }
+    }
+  ],
+  "raw_steps_provenance": "judge pair r2 (2026-10-15): rear crackle trimmed to the front's amount (thin_rel), tone G unchanged; not palette-matched (greys pale cores until art-07)",
+  "refs": [
+    {
+      "canon_id": "wisp_mq1_rear_v2_raw",
+      "file": "refs/01_wisp_mq1_rear_v2_raw.png",
+      "pixel_sha256": "068c55277ead90499a87890590547acb933bb249297c9bd171d48e29557b129f",
+      "role": "edit_source",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-wisp-rear-r1-edit2/refs/01_edit_source.png"
+    },
+    {
+      "canon_id": "approved_wisp_front_raw",
+      "file": "refs/02_approved_wisp_front_raw.png",
+      "pixel_sha256": "9954ba5df648864670cfb17b86154167b94607a92ff84af61cacad13a4dbef04",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-wisp-rear-r1-edit2/refs/02_approved_front_raw.png"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 210,
+  "view": "creature_rear"
+}
