@@ -1,5 +1,7 @@
 extends Control
 
+const UiComponentSurface = preload("res://scripts/ui_component_surface.gd")
+
 const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
 const LightningWispCutout = preload("res://scripts/lightning_wisp_cutout/renderer.gd")
 const LightningWispAction = preload("res://scripts/lightning_wisp_cutout/action.gd")
@@ -126,6 +128,7 @@ const ControllerNavigationScript = preload("res://scripts/controller_navigation.
 const ControllerPromptBarScript = preload("res://scripts/controller_prompt_bar.gd")
 const ControllerAnalogCursorScript = preload("res://scripts/controller_analog_cursor.gd")
 const InputRouterScript = preload("res://scripts/input_router.gd")
+const ItemPreviewBuilders = preload("res://scripts/item_preview_builders.gd")
 const TOOLTIP_ONLY_CURSOR_SHAPE: int = Control.CURSOR_HELP
 const MOLTSHARD_GAIN_EVENT_TYPE: String = "progression_moltshard_gained"
 const COMBAT_SKILL_EVENT_STAGED_REVISION_KEY: String = "combat_skill_event_revision_staged"
@@ -154,12 +157,12 @@ const RUNTIME_PERFORMANCE_DIAGNOSTIC_PHASES: Dictionary = {
 
 class TooltipPanelContainer:
 	extends PanelContainer
-	const UiTooltipPanelScript = preload("res://scripts/ui_tooltip_panel.gd")
+	const PreviewBuilders = preload("res://scripts/item_preview_builders.gd")
 
 	func _make_custom_tooltip(for_text: String) -> Object:
 		if for_text.strip_edges().is_empty():
 			return null
-		return UiTooltipPanelScript.make_text(for_text)
+		return PreviewBuilders.text_tooltip(for_text, str(get_meta("relic_id", "")))
 
 class EquipmentTooltipPanelContainer:
 	extends TooltipPanelContainer
@@ -31739,105 +31742,28 @@ func _build_merchant_item_tooltip_panel(merchant_kind: String, item_id: String, 
 func _build_item_pickup_tooltip_panel(card_id: String) -> Control:
 	return _build_card_tooltip_panel(card_id, false, true)
 
+func _item_preview_builder() -> RefCounted:
+	var builder := ItemPreviewBuilders.new()
+	builder.definition_resolver = _card_def
+	builder.state = _run_state
+	builder.equipment_locked = not _equipment_overlay_can_change()
+	return builder
+
 func _build_card_tooltip_panel(card_id: String, interactive: bool = false, pickup: bool = false) -> Control:
-	var panel := PanelContainer.new()
-	panel.custom_minimum_size = CARD_TOOLTIP_SIZE + Vector2(18.0, 18.0)
-	panel.mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
-	panel.add_theme_stylebox_override("panel", _equipment_panel_style(ElementData.accent(GameData.card_element(card_id)), true))
-	var margin := MarginContainer.new()
-	margin.mouse_filter = Control.MOUSE_FILTER_PASS if interactive else Control.MOUSE_FILTER_IGNORE
-	margin.add_theme_constant_override("margin_left", 9)
-	margin.add_theme_constant_override("margin_top", 9)
-	margin.add_theme_constant_override("margin_right", 9)
-	margin.add_theme_constant_override("margin_bottom", 9)
-	panel.add_child(margin)
+	var destination: String = ""
 	if pickup:
-		panel.set_meta("item_pickup_tooltip_surface", true)
-		var column := VBoxContainer.new()
-		column.add_theme_constant_override("separation", 8)
-		margin.add_child(column)
-		column.add_child(_build_card_preview_widget(card_id, CARD_TOOLTIP_SIZE, interactive))
-		var destination := Label.new()
 		var items: Array = _combat_state.get("equipped_items", _run_state.get("equipped_items", []))
-		destination.text = "Item · Stored in inventory"
+		destination = "Item · Stored in inventory"
 		if items.size() < GameData.item_loadout_limit():
 			var hand: Array = (_combat_state.get("deck", {}) as Dictionary).get("hand", [])
-			destination.text = "Item · Ready in hand" if hand.size() < CombatEngineScript.MAX_HAND_SIZE else "Item · Top of draw pile"
-		UiTypography.set_label_size(destination, UiTypography.SIZE_CAPTION)
-		destination.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		destination.add_theme_color_override("font_color", Color("fff0ce"))
-		column.add_child(destination)
-	else:
-		margin.add_child(_build_card_preview_widget(card_id, CARD_TOOLTIP_SIZE, interactive))
-	return panel
+			destination = "Item · Ready in hand" if hand.size() < CombatEngineScript.MAX_HAND_SIZE else "Item · Top of draw pile"
+	return _item_preview_builder().card_tooltip(card_id, interactive, destination)
 
 func _build_equipment_tooltip_panel(equipment_id: String, interactive: bool = false) -> Control:
-	var item: Dictionary = GameData.equipment_def(equipment_id)
-	var accent := Color(GameData.equipment_accent(equipment_id))
-	var panel := PanelContainer.new()
-	panel.set_meta("equipment_tooltip_surface", true)
-	panel.mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
-	panel.add_theme_stylebox_override("panel", _equipment_panel_style(accent, true))
-	var margin := MarginContainer.new()
-	margin.mouse_filter = Control.MOUSE_FILTER_PASS if interactive else Control.MOUSE_FILTER_IGNORE
-	margin.add_theme_constant_override("margin_left", 12)
-	margin.add_theme_constant_override("margin_top", 10)
-	margin.add_theme_constant_override("margin_right", 12)
-	margin.add_theme_constant_override("margin_bottom", 12)
-	panel.add_child(margin)
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 9)
-	margin.add_child(vbox)
-
-	var header := HBoxContainer.new()
-	header.add_theme_constant_override("separation", 9)
-	vbox.add_child(header)
-	var icon := TextureRect.new()
-	icon.texture = AssetLoader.load_texture(str(item.get("icon_path", "")))
-	icon.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.custom_minimum_size = Vector2(42.0, 42.0)
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	header.add_child(icon)
-	var title_box := VBoxContainer.new()
-	title_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	title_box.add_theme_constant_override("separation", 0)
-	header.add_child(title_box)
-	var name_label := Label.new()
-	name_label.text = str(item.get("name", equipment_id))
-	UiTypography.set_label_size(name_label, UiTypography.SIZE_SMALL)
-	name_label.add_theme_color_override("font_color", Color("fff0ce"))
-	name_label.add_theme_color_override("font_outline_color", Color("1d1510"))
-	name_label.add_theme_constant_override("outline_size", 1)
-	title_box.add_child(name_label)
-	var meta_label := Label.new()
-	meta_label.text = "%s | %s" % [_equipment_slot_label(GameData.equipment_slot(equipment_id)), _equipment_rarity_label(GameData.equipment_rarity(equipment_id))]
-	UiTypography.set_label_size(meta_label, UiTypography.SIZE_CAPTION)
-	meta_label.add_theme_color_override("font_color", Color("d7c6aa"))
-	title_box.add_child(meta_label)
-
-	var card_row := HBoxContainer.new()
-	card_row.add_theme_constant_override("separation", 8)
-	card_row.mouse_filter = Control.MOUSE_FILTER_PASS if interactive else Control.MOUSE_FILTER_IGNORE
-	vbox.add_child(card_row)
-	for card_id_var: Variant in GameData.equipment_cards(equipment_id, _run_state):
-		card_row.add_child(_build_card_preview_widget(str(card_id_var), EQUIPMENT_TOOLTIP_CARD_SIZE, interactive))
-	if not _equipment_overlay_can_change():
-		var locked_label := Label.new()
-		locked_label.text = "Locked in combat"
-		UiTypography.set_label_size(locked_label, UiTypography.SIZE_CAPTION)
-		locked_label.add_theme_color_override("font_color", Color("d8a06a"))
-		vbox.add_child(locked_label)
-	return panel
+	return _item_preview_builder().equipment_tooltip(equipment_id, interactive)
 
 func _build_card_preview_widget(card_id: String, card_size: Vector2, interactive: bool = false) -> Control:
-	card_size = _normalized_card_size(card_size)
-	var widget := CardWidgetScene.instantiate() as CardWidget
-	widget.focus_mode = Control.FOCUS_NONE
-	widget.mouse_filter = Control.MOUSE_FILTER_STOP if interactive else Control.MOUSE_FILTER_IGNORE
-	widget.configure(card_id, false, false, true, false, interactive, true, _card_def(card_id))
-	return _scaled_card_slot(widget, card_size, interactive)
+	return _item_preview_builder().card_preview(card_id, _normalized_card_size(card_size), interactive)
 
 func _cancel_equipment_factory_preparation() -> void:
 	_equipment_factory_preparation_generation += 1
@@ -32012,23 +31938,7 @@ func _equipment_rarity_rank(rarity: String) -> int:
 	return 0
 
 func _equipment_panel_style(accent: Color, active: bool = false) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.085, 0.060, 0.045, 0.96).lightened(0.06 if active else 0.0)
-	style.border_color = accent.lightened(0.22 if active else 0.04)
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-	style.corner_radius_top_left = 8
-	style.corner_radius_top_right = 8
-	style.corner_radius_bottom_right = 8
-	style.corner_radius_bottom_left = 8
-	# Quiet contact depth; margins, radii and state/rarity accents stay native.
-	style.border_blend = true
-	style.shadow_color = Color(0.008, 0.006, 0.009, 0.34)
-	style.shadow_size = 5
-	style.shadow_offset = Vector2(0.0, 2.0)
-	return style
+	return UiComponentSurface.equipment_panel_style(accent, active)
 
 func _equipment_drag_ghost_style(accent: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()

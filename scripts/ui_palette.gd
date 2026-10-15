@@ -32,3 +32,11 @@ const EVENT_COST := Color("e07a6c")
 const EVENT_GAIN := Color("e9cf8f")
 const EVENT_BANE := Color("c58cf0")
 const EVENT_BLESSING := Color("f2d27a")
+
+# Existing equipment/card preview tones, shared without changing their colour.
+const PREVIEW_TITLE := Color("fff0ce")
+const PREVIEW_OUTLINE := Color("1d1510")
+const PREVIEW_META := Color("d7c6aa")
+const PREVIEW_LOCKED := Color("d8a06a")
+const PREVIEW_INK := Color(0.085, 0.060, 0.045, 0.96)
+const PREVIEW_SHADOW := Color(0.008, 0.006, 0.009, 0.34)

@@ -18,12 +18,18 @@ const PromptBar = preload("res://scripts/controller_prompt_bar.gd")
 const Analytics = preload("res://scripts/analytics_store.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const RunSfx = preload("res://scripts/run_sfx_library.gd")
-const CardWidgetScene = preload("res://scenes/card_widget.tscn")
+const CardTile = preload("res://scripts/chronicle_card_tile.gd")
+const PreviewBuilders = preload("res://scripts/item_preview_builders.gd")
 const PANEL_SIZE := Vector2(1800, 860)
 const ROW_HEIGHT: float = 68.0
 const DETAIL_WIDTH: float = 1142.0
+const DETAIL_HEIGHT: float = 718.0 # Fits five path sections and two spell rows, including badge overhang.
 const COLUMN_WIDTH: float = 358.0
-const SPELL_LINE_HEIGHT: float = 1.6
+const DETAIL_ROW_GAP: float = 28.0
+const PATH_COLUMN_WIDTH: float = 740.0
+const BUILD_COLUMN_GAP: float = 40.0
+const TILE_INK := Color("0f0c09")
+const TILE_EDGE := Color("5a4630")
 const RESULT_COLORS := {"defeat": Color("d07a6c"), "victory": Palette.GOLD_BRIGHT, "embrace": Palette.TEXT_2}
 
 class HistoryRow extends Button:
@@ -43,19 +49,20 @@ class RecordIcon extends Button:
 	const ICON_CLIP_INSET: float = 2.0
 	var texture: Texture2D
 	var round_room: bool = false
-	var ring: Color = Color("5a4630")
+	var ring: Color = TILE_EDGE
 	var terminal_defeat: bool = false
 	var tooltip_title: String = ""
 	var tooltip_body := PackedStringArray()
 	var equipment_id: String = ""
+	var tooltip_builder: Callable
 	func _draw() -> void:
 		var center: Vector2 = size * 0.5
 		var border: Color = Palette.GOLD if has_focus() or is_hovered() else ring
 		if round_room:
-			draw_circle(center, size.x * 0.5 - 1, Color("0f0c09"))
+			draw_circle(center, size.x * 0.5 - 1, TILE_INK)
 			draw_arc(center, size.x * 0.5 - RING_INSET, 0, TAU, CIRCLE_SEGMENTS, border, 1, true)
 		else:
-			draw_rect(Rect2(Vector2.ZERO, size), Color("0f0c09"))
+			draw_rect(Rect2(Vector2.ZERO, size), TILE_INK)
 			draw_rect(Rect2(Vector2.ONE * 0.5, size - Vector2.ONE), border, false, 1)
 		if terminal_defeat:
 			var delta: float = size.x * 0.22
@@ -88,33 +95,7 @@ class RecordIcon extends Button:
 	func _make_custom_tooltip(_for_text: String) -> Object:
 		if round_room:
 			return Tooltip.make_text(tooltip_title + "\nAlready visited")
-		var panel := Tooltip.make_icon_lines(texture, tooltip_title, tooltip_body)
-		if not equipment_id.is_empty():
-			# The established equipment tooltip shows its granted cards, using the
-			# production card widget at the existing 180 px preview width.
-			var header: Node = panel.get_child(0)
-			panel.remove_child(header)
-			var column := VBoxContainer.new()
-			column.add_theme_constant_override("separation", 9)
-			column.add_child(header)
-			var cards := HBoxContainer.new()
-			cards.add_theme_constant_override("separation", 8)
-			column.add_child(cards)
-			for card_id: String in GameData.equipment_cards(equipment_id):
-				var widget: Control = CardWidgetScene.instantiate()
-				widget.focus_mode = Control.FOCUS_NONE
-				widget.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				widget.configure(card_id, false, false, true, false, false)
-				var slot := Control.new()
-				slot.custom_minimum_size = Vector2(180, 180 * 352.0 / 250.0)
-				slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-				slot.add_child(widget)
-				widget.custom_minimum_size = Vector2(250, 352)
-				widget.size = Vector2(250, 352)
-				widget.scale = Vector2.ONE * 180.0 / 250.0
-				cards.add_child(slot)
-			panel.add_child(column)
-		return panel
+		return tooltip_builder.call() if tooltip_builder.is_valid() else Tooltip.make_icon_lines(texture, tooltip_title, tooltip_body)
 
 var records: Array[Dictionary]
 var selected_index: int = -1
@@ -131,6 +112,10 @@ var _stick_direction: int = 0
 var _analytics := Analytics.new()
 var _prompt_bar: PanelContainer
 var _page_sound: AudioStreamPlayer
+var _tooltip_host: RefCounted
+var _spell_grid: GridContainer
+var _spell_groups: Array[Dictionary]
+var _detail_tiles: Array[Control]
 
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -174,7 +159,7 @@ func _ready() -> void:
 	_list.add_child(_rows)
 	_detail_scroll = ScrollContainer.new()
 	_detail_scroll.position = Vector2(610, 130)
-	_detail_scroll.size = Vector2(DETAIL_WIDTH, 690)
+	_detail_scroll.size = Vector2(DETAIL_WIDTH, DETAIL_HEIGHT)
 	_detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_detail_scroll.follow_focus = true
 	_panel.add_child(_detail_scroll)
@@ -183,6 +168,8 @@ func _ready() -> void:
 	_detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_detail.add_theme_constant_override("separation", 0)
 	_detail_scroll.add_child(_detail)
+	_detail.resized.connect(_refresh_spell_tiles)
+	_detail_scroll.get_v_scroll_bar().value_changed.connect(func(_value: float) -> void: _position_focus_tooltip())
 	_prompt_bar = PromptBar.new()
 	_prompt_bar.name = "ChronicleControllerPrompts"
 	add_child(_prompt_bar)
@@ -260,6 +247,9 @@ func close() -> void:
 	visible = false
 	closed.emit()
 
+func _exit_tree() -> void:
+	_tooltip_host = null
+
 func _add_row(index: int) -> void:
 	var record: Dictionary = records[index]
 	var row := HistoryRow.new()
@@ -308,7 +298,14 @@ func select_record(index: int, focus: bool = false) -> void:
 			feedback.call("play_focus_feedback", row)
 
 func _build_detail(record: Dictionary) -> void:
+	_detail_tiles.clear()
+	_spell_grid = null
 	_clear(_detail)
+	if not is_instance_valid(_tooltip_host):
+		_tooltip_host = PreviewBuilders.new()
+	_tooltip_host.definitions = {}
+	for pair: Array in record["deck"]:
+		_tooltip_host.definitions[pair[0]] = Rules.card_definition(pair[0], record.get("deck_card_definitions", {}))
 	_detail_scroll.scroll_vertical = 0
 	var title_row := HBoxContainer.new()
 	title_row.custom_minimum_size.y = 70
@@ -347,21 +344,19 @@ func _build_detail(record: Dictionary) -> void:
 		Frame.draw_diamond(rule, Vector2(4, 21), 6, Palette.GOLD)
 	)
 	_detail.add_child(rule)
-	_detail.add_child(_heading("THE PATH"))
-	_build_path(record)
-	_spacer(_detail, 22)
-	var columns := HBoxContainer.new()
-	columns.add_theme_constant_override("separation", 34)
-	_detail.add_child(columns)
-	var gear_column := _column(columns, "GEAR")
-	_build_items(gear_column, record["gear"], false)
-	var spells_column := _column(columns, "SPELLS")
-	var spells := _label(Rules.spells_text(record["deck"], Typography.text_font(), COLUMN_WIDTH), 17, Palette.TEXT)
-	spells.name = "ChronicleSpells"
-	spells.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	spells.add_theme_constant_override("line_spacing", roundi(17 * SPELL_LINE_HEIGHT - Typography.text_font().get_height(17)))
-	spells_column.add_child(spells)
-	var feats_column := _column(columns, "FEATS")
+	var path_row := HBoxContainer.new()
+	path_row.name = "ChroniclePathRow"
+	path_row.add_theme_constant_override("separation", BUILD_COLUMN_GAP)
+	_detail.add_child(path_row)
+	var path_column := VBoxContainer.new()
+	path_column.name = "ChroniclePath"
+	path_column.custom_minimum_size.x = PATH_COLUMN_WIDTH
+	path_column.add_theme_constant_override("separation", 0)
+	path_row.add_child(path_column)
+	path_column.add_child(_heading("THE PATH"))
+	_build_path(record, path_column)
+	var feats_column := _column(path_row, "FEATS")
+	feats_column.name = "ChronicleFeats"
 	if (record["feats"] as Array).is_empty():
 		feats_column.add_child(_label("No feats this time.", 17, Palette.TEXT_3))
 	else:
@@ -373,16 +368,118 @@ func _build_detail(record: Dictionary) -> void:
 			text.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 			feat_row.add_child(text)
 			feats_column.add_child(feat_row)
-	_spacer(_detail, 22)
-	_detail.add_child(_heading("RELICS"))
-	_build_items(_detail, record["relics"], true)
+	_spacer(_detail, DETAIL_ROW_GAP)
+	var build_row := HBoxContainer.new()
+	build_row.name = "ChronicleBuildRow"
+	build_row.add_theme_constant_override("separation", BUILD_COLUMN_GAP)
+	_detail.add_child(build_row)
+	var gear_column := _column(build_row, "GEAR")
+	gear_column.name = "ChronicleGear"
+	gear_column.custom_minimum_size.x = maxi(0, record["gear"].size() * 60 - 8)
+	gear_column.size_flags_horizontal = Control.SIZE_FILL
+	_build_items(gear_column, record["gear"], false)
+	var relic_column := _column(build_row, "RELICS")
+	relic_column.name = "ChronicleRelics"
+	relic_column.custom_minimum_size.x = 0
+	_build_items(relic_column, record["relics"], true)
+	_spacer(_detail, DETAIL_ROW_GAP)
+	_detail.add_child(_heading("SPELLS"))
+	_spell_groups = CardTile.grouped_deck(record["deck"], _tooltip_host.definitions)
+	_spell_grid = GridContainer.new()
+	_spell_grid.name = "ChronicleSpells"
+	_spell_grid.add_theme_constant_override("h_separation", CardTile.TILE_GAP)
+	_spell_grid.add_theme_constant_override("v_separation", CardTile.TILE_GAP)
+	_detail.add_child(_spell_grid)
+	_refresh_spell_tiles()
+	# The count pill extends below the last tile row; include that overhang in
+	# scrollable content so a bottom-row count is never clipped by the viewport.
+	_spacer(_detail, CardTile.BADGE_OVERLAP)
+	_link_tile_focus()
 
-func _build_path(record: Dictionary) -> void:
+func _refresh_spell_tiles() -> void:
+	if not is_instance_valid(_spell_grid):
+		return
+	var columns: int = CardTile.columns_for_width(_detail.size.x if _detail.size.x > 0 else DETAIL_WIDTH)
+	if _spell_grid.columns == columns and _spell_grid.get_child_count() > 0:
+		return
+	var focused_id: String = ""
+	var focus: Control = get_viewport().gui_get_focus_owner()
+	if focus is CardTile:
+		focused_id = focus.name
+		_clear_focus_tooltip()
+	_clear(_spell_grid)
+	_spell_grid.columns = columns
+	var shown: int = CardTile.shown_count(_spell_groups.size(), columns)
+	for index: int in range(shown):
+		var group: Dictionary = _spell_groups[index]
+		var tile := CardTile.new()
+		tile.name = "Spell_" + str(group["id"])
+		tile.configure(group["id"], group["count"], group["definition"])
+		_tooltip_host.definitions[group["id"]] = tile.card_definition
+		tile.tooltip_builder = _tooltip_host.card_tooltip
+		_add_spell_tile(tile)
+	if shown < _spell_groups.size():
+		var overflow := CardTile.new()
+		overflow.name = "ChronicleSpellsOverflow"
+		overflow.configure_overflow(_spell_groups.slice(shown))
+		_add_spell_tile(overflow)
+	_link_tile_focus()
+	if not focused_id.is_empty():
+		var replacement: Control = _spell_grid.get_node_or_null(NodePath(focused_id))
+		if replacement == null:
+			replacement = _spell_grid.get_child(_spell_grid.get_child_count() - 1)
+		replacement.grab_focus()
+
+func _add_spell_tile(tile: Control) -> void:
+	tile.socket_ink = TILE_INK
+	tile.socket_edge = TILE_EDGE
+	tile.focus_entered.connect(_show_focus_tooltip.bind(tile))
+	tile.focus_exited.connect(_clear_focus_tooltip)
+	_spell_grid.add_child(tile)
+
+func _link_tile_focus() -> void:
+	_detail_tiles.clear()
+	var path_tiles: Array[Node] = _detail.find_children("PathSection*Room*", "Button", true, false)
+	for prefix: String in ["Gear_", "Relic_", "Spell_", "ChronicleSpellsOverflow"]:
+		for tile: Node in _detail.find_children(prefix + "*", "Button", true, false):
+			_detail_tiles.append(tile as Control)
+	for index: int in range(_detail_tiles.size()):
+		var tile: Control = _detail_tiles[index]
+		var before: Control = _detail_tiles[index - 1] if index > 0 else _rows.get_child(selected_index)
+		if index == 0 and not path_tiles.is_empty():
+			before = path_tiles.back() as Control
+		var after: Control = _detail_tiles[index + 1] if index + 1 < _detail_tiles.size() else _close
+		tile.focus_previous = tile.get_path_to(before)
+		tile.focus_next = tile.get_path_to(after)
+		tile.focus_neighbor_left = tile.focus_previous
+		tile.focus_neighbor_right = tile.focus_next
+		tile.focus_neighbor_top = tile.focus_previous
+		tile.focus_neighbor_bottom = tile.focus_next
+	if not _detail_tiles.is_empty() or not path_tiles.is_empty():
+		var row: Control = _rows.get_child(selected_index)
+		var first: Control = _detail_tiles[0] if not _detail_tiles.is_empty() else path_tiles[0] as Control
+		row.focus_neighbor_right = row.get_path_to(first)
+		row.focus_next = row.focus_neighbor_right
+		# Path icons remain keyboard/controller reachable before the build chain.
+		for index: int in range(path_tiles.size()):
+			var tile: Control = path_tiles[index] as Control
+			var before: Control = path_tiles[index - 1] as Control if index > 0 else row
+			var after: Control = path_tiles[index + 1] as Control if index + 1 < path_tiles.size() else (_detail_tiles[0] if not _detail_tiles.is_empty() else _close)
+			tile.focus_previous = tile.get_path_to(before)
+			tile.focus_next = tile.get_path_to(after)
+			tile.focus_neighbor_left = tile.focus_previous
+			tile.focus_neighbor_right = tile.focus_next
+			tile.focus_neighbor_top = tile.focus_previous
+			tile.focus_neighbor_bottom = tile.focus_next
+		if not path_tiles.is_empty():
+			row.focus_next = row.get_path_to(path_tiles[0])
+
+func _build_path(record: Dictionary, parent: VBoxContainer) -> void:
 	var path: Array = record["path"]
 	for index: int in range(path.size()):
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 0)
-		_detail.add_child(row)
+		parent.add_child(row)
 		var section_name: String = str(record["section_names"][index]) if index < record["section_names"].size() else Rules.TODO_DESIGN_SECTION_NAME
 		var section := _label("%s · %s" % [Rules.Score.roman(index + 1), section_name], 16, Palette.TEXT_2)
 		section.custom_minimum_size.x = 150
@@ -402,7 +499,7 @@ func _build_path(record: Dictionary) -> void:
 			icon.name = "PathSection%dRoom%d" % [index, step]
 			icon.round_room = true
 			icon.terminal_defeat = ended_here and record["outcome"] == "defeat"
-			icon.ring = Palette.DANGER if icon.terminal_defeat else (Palette.GOLD if dragon or (ended_here and record["outcome"] == "embrace") else Color("5a4630"))
+			icon.ring = Palette.DANGER if icon.terminal_defeat else (Palette.GOLD if dragon or (ended_here and record["outcome"] == "embrace") else TILE_EDGE)
 			var boss_id: String = str(record["dragon_ids"][index]) if index < record["dragon_ids"].size() else ""
 			var icon_id: String = "boss_" + boss_id if dragon else str({"hearth": "campfire", "relic": "treasure", "mystery": "event"}.get(kind, kind))
 			var guardian: Dictionary = Guardians.for_boss(boss_id) if kind == "guardian" else {}
@@ -414,7 +511,7 @@ func _build_path(record: Dictionary) -> void:
 				icon.tooltip_title = "%s · Guardian combat" % str(guardian["name"])
 			_configure_icon(icon, 34 if icon.terminal_defeat or not dragon else 44)
 			steps.add_child(icon)
-		_spacer(_detail, 8)
+		_spacer(parent, 8)
 
 func _build_items(parent: Node, ids: Array, relics: bool) -> void:
 	var flow := HFlowContainer.new()
@@ -429,11 +526,16 @@ func _build_items(parent: Node, ids: Array, relics: bool) -> void:
 		icon.tooltip_title = str(data.get("name", id))
 		if relics:
 			icon.tooltip_body.append(str(data.get("description", "")))
+			icon.tooltip_builder = _relic_tooltip.bind(id)
 		else:
 			icon.equipment_id = id
 			icon.tooltip_body.append("%s | %s" % [GameData.equipment_slot(id).capitalize(), GameData.equipment_rarity(id).capitalize()])
+			icon.tooltip_builder = _tooltip_host.equipment_tooltip.bind(id)
 		_configure_icon(icon, 52)
 		flow.add_child(icon)
+
+func _relic_tooltip(id: String) -> Control:
+	return PreviewBuilders.relic_tooltip(id)
 
 func _configure_icon(icon: RecordIcon, extent: int) -> void:
 	icon.custom_minimum_size = Vector2.ONE * extent
@@ -450,9 +552,11 @@ func _configure_icon(icon: RecordIcon, extent: int) -> void:
 	icon.focus_entered.connect(icon.queue_redraw)
 	icon.focus_exited.connect(icon.queue_redraw)
 
-func _show_focus_tooltip(icon: RecordIcon) -> void:
+func _show_focus_tooltip(icon: Control) -> void:
 	_clear_focus_tooltip()
 	_focus_tooltip = icon._make_custom_tooltip(icon.tooltip_text) as Control
+	if _focus_tooltip == null:
+		return
 	_focus_tooltip.z_index = 100
 	_focus_tooltip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_focus_anchor = icon
@@ -460,10 +564,19 @@ func _show_focus_tooltip(icon: RecordIcon) -> void:
 	call_deferred("_position_focus_tooltip")
 
 func _position_focus_tooltip() -> void:
-	if _focus_tooltip == null or not is_instance_valid(_focus_anchor):
+	if not is_instance_valid(_focus_tooltip) or not is_instance_valid(_focus_anchor):
 		return
-	var at: Vector2 = _focus_anchor.global_position + Vector2(0, _focus_anchor.size.y)
-	_focus_tooltip.position = Vector2(clampf(at.x, 0, size.x - _focus_tooltip.size.x), clampf(at.y, 0, size.y - _focus_tooltip.size.y))
+	_focus_tooltip.global_position = focus_tooltip_position(_focus_anchor.get_global_rect(), _focus_tooltip.size, get_global_rect())
+
+static func focus_tooltip_position(anchor: Rect2, extent: Vector2, bounds: Rect2) -> Vector2:
+	var x: float = clampf(anchor.position.x, bounds.position.x, bounds.end.x - extent.x)
+	var y: float = clampf(anchor.position.y, bounds.position.y, bounds.end.y - extent.y)
+	var candidates: Array[Vector2] = [Vector2(x, anchor.end.y), Vector2(x, anchor.position.y - extent.y), Vector2(anchor.end.x, y), Vector2(anchor.position.x - extent.x, y)]
+	for at: Vector2 in candidates:
+		if bounds.encloses(Rect2(at, extent)):
+			return at
+	# If no side has room, keep the entire preview on screen.
+	return Vector2(x, y)
 
 func _clear_focus_tooltip() -> void:
 	if is_instance_valid(_focus_tooltip):
@@ -480,6 +593,20 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed(Router.ACTION_CANCEL) or event.is_action_pressed("ui_cancel"):
 		close()
 		get_viewport().set_input_as_handled()
+		return
+	var focused: Control = get_viewport().gui_get_focus_owner()
+	# Let native keyboard/D-pad focus traverse the detail controls. History
+	# selection and bumper paging stay on the list; analog movement uses the
+	# same explicit neighbor paths as the native actions.
+	if focused != null and _detail.is_ancestor_of(focused):
+		if event is InputEventJoypadMotion and event.axis in [JOY_AXIS_LEFT_X, JOY_AXIS_LEFT_Y]:
+			var next: int = int(signf(event.axis_value)) if absf(event.axis_value) >= Router.JOYSTICK_ACTIVITY_THRESHOLD else 0
+			if next != 0 and next != _stick_direction:
+				var target: NodePath = focused.focus_next if next > 0 else focused.focus_previous
+				if not target.is_empty():
+					(focused.get_node(target) as Control).grab_focus()
+			_stick_direction = next
+			get_viewport().set_input_as_handled()
 		return
 	var direction: int = 0
 	if event.is_action_pressed("ui_up", true):
