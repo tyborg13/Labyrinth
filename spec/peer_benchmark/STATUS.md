@@ -22,10 +22,11 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - Merged today: sfx-03, rr-01, art-04 (shrike), por-01, ux-02, art-05, ui-02, qa-04, fix-03. Playtest 7 = 7901c37f0.
 - Merged into integration: chr-02 (9d711ceb5; peer signoff 99d872fa5, r5 tests-only), art-06 (bf3ed130a; signoff 16881db9a).
 - Running: vfx-01 r3 (82cd1dd99: visuals + GPU approved; CPU line-core regression +1.2 ms, benchmark false negative),
-  rr-02 r6 (9c336d777: director decisions for 4 TODO_DESIGN: scoped tabard gate, sparse value refs, rear torso lean),
+  rr-02 r7 (b3bb9f846: inter-leg painted shadow swings with the leg; native motion probe script error),
   ux-03 r5 (db82e2cfb: overflow must not cover hovered card; card-structure check out of the suite), sfx-04 r4.
-- anim-01 r6 running (peer CHANGES on 17424aa19: jitter-safe lane phase, sticky lanes + in-place sync, glow-redraw test;
-  benchmark instrumentation out of runtime; prep budget +30 ms accepted).
+- anim-01 → anim-02: the anim-01 Codex session replayed old results twice on resume (r4, r6: no file changes), so the
+  peer-review fixes (jitter-safe lanes, sticky lanes + in-place sync, glow-redraw test, instrumentation out of runtime,
+  prep budget +30 ms) run as anim-02 from codex/anim-01 17424aa19 in a fresh session. Merge anim-02 (it contains anim-01).
 - art-07 r1 running (peer CHANGES on b40c9fd70: hue protection swallowed 64-93% of real rear bodies; re-processing must
   reproduce recorded pixels; green residue; filter validation). Approved art unaffected (processed with the pre-art-07 tool).
 - sfx-04 r4 running (peer CHANGES on 6eca206c0: combat speed 1.5x/2x breaks alignment, shop.sell_02 malformed, restore
