@@ -1,6 +1,7 @@
 extends SceneTree
 
 const Fixture = preload("res://tests/glossary_fixture.gd")
+const STRUCTURE_PATH: String = "res://tests/glossary_card_structure_before.json"
 const Glossary = preload("res://scripts/glossary.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const Stack = preload("res://scripts/card_focus_tooltip_stack.gd")
@@ -37,6 +38,7 @@ func _run() -> void:
 	root.size = VIEWPORT_SIZE
 	root.content_scale_size = VIEWPORT_SIZE
 	CoverageSuite.run(_expect)
+	_card_structure()
 	_test_data()
 	TooltipSuite.run(_expect)
 	await _test_inline_hover()
@@ -47,6 +49,27 @@ func _run() -> void:
 		push_error(failure)
 	print("GLOSSARY TEST RESULT: %s (%d checks, %d failures)" % ["PASS" if _failures.is_empty() else "FAIL", _checks, _failures.size()])
 	quit(0 if _failures.is_empty() else 1)
+
+# Compare structure only with the actual pre-glossary ActionIconLibrary output.
+# No title or definition text is stored in the migration fixture.
+func _card_structure() -> void:
+	var baseline: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(STRUCTURE_PATH)) as Dictionary
+	var before: Dictionary = baseline["cards"]
+	_expect(before.size() == GameData.cards().size(), "Structural comparison covers every card")
+	for id: String in GameData.cards():
+		_expect(before.has(id), "Card has base structural capture: " + id)
+		if not before.has(id): continue
+		var card: Dictionary = GameData.card_def(id)
+		var leading: Array = []
+		if int(card.get("time", 0)) > 0: leading.append("time")
+		if ActionIcons.card_is_rite(card): leading.append("rite")
+		var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(ActionIcons.rows_for_card(card), leading)
+		var expected: Array = before[id]
+		_expect(entries.size() == expected.size(), "Keyword panel count unchanged: " + id)
+		for index: int in range(mini(entries.size(), expected.size())):
+			_expect(entries[index]["icon"] == expected[index]["icon"], "Keyword panel order unchanged: %s/%d" % [id, index])
+			var lines: int = str(entries[index]["description"]).split("\n", false).size()
+			_expect(lines == int(expected[index]["body_lines"]), "Keyword body-line count unchanged: %s/%d (%s): base=%d current=%d" % [id, index, entries[index]["icon"], expected[index]["body_lines"], lines])
 
 func _test_data() -> void:
 	_expect(Glossary.lookup("Skill Points")["id"] == "skill_point", "Existing plural resource label remains an alias")
@@ -233,6 +256,11 @@ func _test_choice_placement() -> void:
 	top_bar.size = Vector2(VIEWPORT_SIZE.x, 80.0)
 	top_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(top_bar)
+	var banner := Control.new()
+	banner.size = Vector2(VIEWPORT_SIZE.x, 80.0)
+	banner.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	banner.hide()
+	root.add_child(banner)
 	var row := Control.new()
 	root.add_child(row)
 	var stack := Stack.new()
@@ -243,7 +271,7 @@ func _test_choice_placement() -> void:
 		choice.position = Vector2(left, CHOICE_TEST_TOP)
 		choice.size = CHOICE_TEST_SIZE
 		row.add_child(choice)
-		stack.bind_relic(choice, {"name": "debug owner title", "description": "@icon(health)"}, row, null, top_bar)
+		stack.bind_relic(choice, {"name": "debug owner title", "description": "@icon(health)"}, row, null, top_bar, banner)
 		choices.append(choice)
 	for index: int in range(choices.size()):
 		var choice: Control = choices[index]
@@ -304,6 +332,15 @@ func _test_choice_placement() -> void:
 	_expect(is_equal_approx(stack.get_global_rect().end.y, middle.position.y - Stack.RELIC_CHOICE_GAP), "Above flow ends twelve pixels before row top")
 	_expect(stack.position.y >= Stack.RELIC_CHOICE_SCREEN_MARGIN, "Above flow respects top margin")
 	var natural_size: Vector2 = stack.size
+	# A banner collision is not automatically an impossible fit: use the
+	# available region above it when the unchanged block fits there.
+	banner.position.y = middle.position.y - 120.0
+	banner.show()
+	await _settle()
+	_expect(is_equal_approx(stack.get_global_rect().end.y, banner.position.y - Stack.RELIC_CHOICE_GAP), "Above fallback uses available space above the banner")
+	_expect(not stack.get_global_rect().intersects(banner.get_global_rect()) and not bool(stack.get_meta("glossary_choice_overflow")), "Avoidable banner intersection is not reported as impossible")
+	banner.hide()
+	await _settle()
 	# Force the HUD bound to displace an otherwise-valid above-row block. This
 	# fails if the TopBar clamp is removed; impossible fit is reported, not shrunk.
 	top_bar.size.y = stack.position.y + 30.0
@@ -319,6 +356,7 @@ func _test_choice_placement() -> void:
 	_expect(is_equal_approx(stack.size.x, (panels[0] as Control).size.x), "Outer column releases previous flow width")
 	row.queue_free()
 	top_bar.queue_free()
+	banner.queue_free()
 	stack.queue_free()
 	await _settle()
 
@@ -343,6 +381,15 @@ func _test_live_relic_hooks() -> void:
 		# Controller calls grab_focus through its existing candidate routing.
 		scene.call("_controller_set_focus_candidate", {"kind": "relic", "key": "glossary-test", "control": badge}, false)
 		_expect(badge.has_focus() and stack.visible, "Production controller focus opens same stack")
+		# A click elsewhere clears persistent glossary focus but preserves native
+		# focus. Controller routing must re-pin it even without focus_entered.
+		await _pointer(Vector2(8, 8))
+		await _mouse_button(Vector2(8, 8), MOUSE_BUTTON_LEFT)
+		_expect(badge.has_focus() and not stack.visible, "Controller reentry fixture retains unpinned native badge focus")
+		var candidate: Dictionary = scene.call("_controller_candidate_for_control", badge)
+		scene.call("_controller_set_focus_candidate", candidate, true)
+		await _settle()
+		_expect(badge.has_focus() and stack.visible and stack._follow_target == badge and bool(badge.get_meta("glossary_focused", false)), "Production controller routing re-pins an already focused badge")
 		badge.release_focus()
 	state = Fixture.treasure_state()
 	scene.call("_load_run_state", state)

@@ -16390,7 +16390,7 @@ func _add_relic_choice(relic_id: String, relic: Dictionary) -> void:
 	panel.focus_entered.connect(_set_relic_choice_focused.bind(panel, relic, true))
 	panel.focus_exited.connect(_set_relic_choice_focused.bind(panel, relic, false))
 	_relic_choice_bar.add_child(panel)
-	_card_focus_tooltip_stack.bind_relic(panel, relic, _relic_choice_bar, null, top_bar)
+	_card_focus_tooltip_stack.bind_relic(panel, relic, _relic_choice_bar, null, top_bar, _relic_choice_banner)
 
 	_ui_skin.apply_choice_finish(panel, Color(GameData.relic_accent(relic_id)))
 	_add_relic_choice_sparkles(panel, Color(GameData.relic_accent(relic_id)))

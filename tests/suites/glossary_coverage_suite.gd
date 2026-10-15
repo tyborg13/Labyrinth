@@ -4,17 +4,17 @@ const Glossary = preload("res://scripts/glossary.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
-const STRUCTURE_PATH: String = "res://tests/glossary_card_structure_before.json"
 var _expect_callback: Callable
 var _tokens: int = 0
 var _checks: int = 0
+var _one_line_tooltips: int = 0
 
 static func run(expect: Callable) -> Dictionary:
 	var suite := new()
 	suite._expect_callback = expect
 	suite._coverage()
-	suite._card_structure()
-	print("GLOSSARY COVERAGE: %d entries, %d skills, %d tokens checked; %d cards compared to 847a2d750" % [Glossary.all_entries().size(), SkillTreeLibrary.definitions().size(), suite._tokens, GameData.cards().size()])
+	suite._one_line_card_tooltips()
+	print("GLOSSARY COVERAGE: %d entries, %d skills, %d tokens checked; %d cards scanned, %d one-line contextual tooltips" % [Glossary.all_entries().size(), SkillTreeLibrary.definitions().size(), suite._tokens, GameData.cards().size(), suite._one_line_tooltips])
 	return {"checks": suite._checks, "tokens": suite._tokens}
 
 func _coverage() -> void:
@@ -61,26 +61,23 @@ func _coverage() -> void:
 	# @icon tokens throughout production scripts, including all badge helpers.
 	_scan_scripts("res://scripts")
 
-# Compare structure only with the actual pre-glossary ActionIconLibrary output.
-# No title or definition text is stored in the migration fixture.
-func _card_structure() -> void:
-	var baseline: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(STRUCTURE_PATH)) as Dictionary
-	var before: Dictionary = baseline["cards"]
-	_expect(before.size() == GameData.cards().size(), "Structural comparison covers every card")
+# A contextual heading that already occupies the tooltip's only line must not
+# acquire a repeated glossary label beneath it. Scan current cards without a
+# frozen count, icon order or migration baseline.
+func _one_line_card_tooltips() -> void:
 	for id: String in GameData.cards():
-		_expect(before.has(id), "Card has base structural capture: " + id)
-		if not before.has(id): continue
 		var card: Dictionary = GameData.card_def(id)
 		var leading: Array = []
 		if int(card.get("time", 0)) > 0: leading.append("time")
 		if ActionIcons.card_is_rite(card): leading.append("rite")
-		var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(ActionIcons.rows_for_card(card), leading)
-		var expected: Array = before[id]
-		_expect(entries.size() == expected.size(), "Keyword panel count unchanged: " + id)
-		for index: int in range(mini(entries.size(), expected.size())):
-			_expect(entries[index]["icon"] == expected[index]["icon"], "Keyword panel order unchanged: %s/%d" % [id, index])
-			var lines: int = str(entries[index]["description"]).split("\n", false).size()
-			_expect(lines == int(expected[index]["body_lines"]), "Keyword body-line count unchanged: %s/%d (%s): base=%d current=%d" % [id, index, entries[index]["icon"], expected[index]["body_lines"], lines])
+		for entry: Dictionary in ActionIcons.tooltip_entries_for_rows(ActionIcons.rows_for_card(card), leading):
+			var lines: PackedStringArray = str(entry["tooltip"]).strip_edges().split("\n", false)
+			if lines.size() != 1: continue
+			var text: String = lines[0].strip_edges().to_lower()
+			var label: String = ActionIcons.label(str(entry["icon"])).to_lower()
+			if text == label or text.begins_with(label + " "):
+				_one_line_tooltips += 1
+				_expect(str(entry["description"]).is_empty(), "One-line contextual tooltip has zero body lines: %s (%s)" % [id, entry["icon"]])
 
 static func _raw_definition(key: String) -> String:
 	if ActionIcons.SKILL_ICONS.has(key):

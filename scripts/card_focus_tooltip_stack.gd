@@ -34,7 +34,7 @@ var _mouse_focus_clear_pending: bool = false
 var _layout_signature: Array = []
 var _layout_passes: int = 0
 
-func bind_relic(owner: Control, relic: Dictionary, choice_row: Control = null, owned_tray: Control = null, choice_top_bar: Control = null) -> void:
+func bind_relic(owner: Control, relic: Dictionary, choice_row: Control = null, owned_tray: Control = null, choice_top_bar: Control = null, choice_banner: Control = null) -> void:
 	owner.set_meta("glossary_relic", relic.duplicate(true))
 	if choice_row != null:
 		owner.set_meta("glossary_choice_row", choice_row)
@@ -42,6 +42,8 @@ func bind_relic(owner: Control, relic: Dictionary, choice_row: Control = null, o
 		owner.set_meta("glossary_owned_tray", owned_tray)
 	if choice_top_bar != null:
 		owner.set_meta("glossary_choice_top_bar", choice_top_bar)
+	if choice_banner != null:
+		owner.set_meta("glossary_choice_banner", choice_banner)
 	owner.mouse_entered.connect(_owner_interaction.bind(owner, "glossary_hovered", true))
 	owner.mouse_exited.connect(_owner_interaction.bind(owner, "glossary_hovered", false))
 	owner.focus_entered.connect(_owner_interaction.bind(owner, "glossary_focused", true))
@@ -270,6 +272,8 @@ func _layout_choice(owner_rect: Rect2, viewport_rect: Rect2) -> void:
 		row_top = minf(row_top, rect.position.y)
 	var top_bar_rect: Rect2 = _bound_rect("glossary_choice_top_bar")
 	row_rects.append(top_bar_rect)
+	var banner_rect: Rect2 = _bound_rect("glossary_choice_banner")
+	row_rects.append(banner_rect)
 	if _layout_unchanged(owner_rect, viewport_rect, row_rects):
 		return
 	set_meta("glossary_choice_above", false)
@@ -298,16 +302,31 @@ func _layout_choice(owner_rect: Rect2, viewport_rect: Rect2) -> void:
 		if candidate_size.x <= available_width:
 			columns = candidate
 			flow_size = candidate_size
+	var left: float = clampf(owner_rect.get_center().x - flow_size.x * 0.5, viewport_rect.position.x + RELIC_CHOICE_SCREEN_MARGIN, maxf(viewport_rect.position.x + RELIC_CHOICE_SCREEN_MARGIN, viewport_rect.end.x - RELIC_CHOICE_SCREEN_MARGIN - flow_size.x))
 	if top + flow_size.y > viewport_rect.end.y - RELIC_CHOICE_SCREEN_MARGIN:
 		var minimum_top: float = maxf(viewport_rect.position.y + RELIC_CHOICE_SCREEN_MARGIN, top_bar_rect.end.y + RELIC_CHOICE_GAP)
 		top = maxf(minimum_top, row_top - RELIC_CHOICE_GAP - flow_size.y)
 		set_meta("glossary_choice_above", true)
-		var cannot_fit: bool = top + flow_size.y > row_top - RELIC_CHOICE_GAP or flow_size.x > available_width or top + flow_size.y > viewport_rect.end.y - RELIC_CHOICE_SCREEN_MARGIN
+		# Banner overlap is reserved for an impossible fit. First try the two
+		# clear vertical regions between the HUD and the card row.
+		var banner_blocked: bool = false
+		if banner_rect.has_area() and Rect2(Vector2(left, top), flow_size).intersects(banner_rect):
+			var above_banner: float = banner_rect.position.y - RELIC_CHOICE_GAP - flow_size.y
+			var below_banner: float = maxf(minimum_top, banner_rect.end.y + RELIC_CHOICE_GAP)
+			if above_banner >= minimum_top:
+				top = above_banner
+			elif below_banner + flow_size.y <= row_top - RELIC_CHOICE_GAP:
+				top = below_banner
+			else:
+				banner_blocked = true
+		var cannot_fit: bool = banner_blocked or top + flow_size.y > row_top - RELIC_CHOICE_GAP or flow_size.x > available_width or top + flow_size.y > viewport_rect.end.y - RELIC_CHOICE_SCREEN_MARGIN
 		set_meta("glossary_choice_overflow", cannot_fit)
 		if cannot_fit:
 			push_warning("Relic glossary above-row overflow: %s, viewport=%s, block=%s, top=%s, row_top=%s" % [_follow_target.name, viewport_rect.size, flow_size, top, row_top])
-	_arrange_choice(columns, RELIC_CHOICE_GAP)
-	var left: float = clampf(owner_rect.get_center().x - flow_size.x * 0.5, viewport_rect.position.x + RELIC_CHOICE_SCREEN_MARGIN, maxf(viewport_rect.position.x + RELIC_CHOICE_SCREEN_MARGIN, viewport_rect.end.x - RELIC_CHOICE_SCREEN_MARGIN - flow_size.x))
+	# A short overflow row may enter the card row. Keep its panels on the far
+	# side of the block so the hovered card remains completely unobscured.
+	var align_last_row_right: bool = bool(get_meta("glossary_choice_overflow")) and owner_rect.get_center().x < left + flow_size.x * 0.5
+	_arrange_choice(columns, RELIC_CHOICE_GAP, align_last_row_right)
 	global_position = Vector2(left, top)
 
 func _bound_rect(key: String) -> Rect2:
@@ -390,10 +409,16 @@ func _measure_choice(columns: int, gap: float) -> Vector2:
 		bounds.y += row_size.y + (gap if start > 0 else 0.0)
 	return bounds
 
-func _arrange_choice(columns: int, gap: float) -> void:
+func _arrange_choice(columns: int, gap: float, align_last_row_right: bool = false) -> void:
+	var bounds: Vector2 = _measure_choice(columns, gap)
 	var top: float = 0.0
 	for start: int in range(0, _panels.size(), columns):
 		var left: float = 0.0
+		if align_last_row_right and start + columns > _panels.size():
+			var row_width: float = 0.0
+			for index: int in range(start, _panels.size()):
+				row_width += _panels[index].get_combined_minimum_size().x + (gap if index > start else 0.0)
+			left = bounds.x - row_width
 		var row_height: float = 0.0
 		for index: int in range(start, mini(start + columns, _panels.size())):
 			var panel: Control = _panels[index]
@@ -402,7 +427,6 @@ func _arrange_choice(columns: int, gap: float) -> void:
 			left += panel.size.x + gap
 			row_height = maxf(row_height, panel.size.y)
 		top += row_height + gap
-	var bounds: Vector2 = _measure_choice(columns, gap)
 	_panel_host.custom_minimum_size = bounds
 	_panel_host.size = bounds
 	update_minimum_size()
