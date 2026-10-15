@@ -259,6 +259,11 @@ Encounter calibration is also important:
   prioritize missing allied health and threatened allies without walking toward
   the player when a support target is already in range; protectors prefer group
   defense when a back-line ally is exposed and otherwise advance to screen it.
+  If no immediately useful option remains, selection retains an available
+  authored intent at its printed Time. In particular, a Briar Weaver with
+  occupied Thornwall tiles and no wounded ally retains Lash of Thorns even
+  outside range or line of sight; its existing cancelled attack badge shows
+  that it cannot currently hit. No empty-intent/default-Time turn is intended.
   This raises realized enemy pressure and support reliability relative to the
   old full-list weighted roulette without changing printed action coefficients.
   Advancing attack intents stop at the first reachable attack-enabling tile,

@@ -8594,9 +8594,15 @@ func _assign_enemy_intent(state: Dictionary, enemy_index: int, rng: RandomNumber
 		enemies[enemy_index] = enemy
 		return
 	if enemy_type in ["hoarfrost_seer", "gale_herald", "glacial_mirror", "gust_shrike", "briar_weaver", "slag_mortar"]:
-		enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, WindRules.choose_intent(self, state, enemy_index, intents, rng))
-		enemies[enemy_index] = enemy
-		return
+		var chosen: Dictionary = WindRules.choose_intent(self, state, enemy_index, intents, rng)
+		if not chosen.is_empty():
+			enemy["intent"] = _surface_prepare_enemy_intent(state, enemy, chosen)
+			enemies[enemy_index] = enemy
+			return
+		# Range/LOS can reject every immediate shot after Thornwall fills its
+		# tiles and no ally needs Root Mend. Keep the ordinary authored fallback
+		# below: an unreachable attack has a visible cancelled badge and retains
+		# its printed Time, while an empty intent silently loses both.
 	var tactical_options: Array[Dictionary] = _enemy_tactical_intent_options(
 		state,
 		enemy_index,
