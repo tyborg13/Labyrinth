@@ -441,6 +441,15 @@ directory. Collection checks every expected file before combining them under
 Transport-only absolute paths are excluded from this portable capture. The native
 gates still validate every mask's IDs, alpha, rest provenance and complete frame
 coverage; a uniform mask is valid data, never evidence of a good screenshot.
+Before any frame-array operations, all five native surfaces must be exactly
+512×512. This makes each categorical mask match its paired RGBA frame and rejects
+even a transparent 1×1 mask instead of allowing NumPy broadcasting. Owner and
+visible-rest-dark IDs must be nonzero and known wherever their alpha is nonzero;
+rest-dark IDs must also belong to a leg part. ID zero remains valid on transparent
+background. Each native replay reloads image bytes after checksum validation,
+so replacing a same-path file cannot reuse cached pixels. Regressions invoke
+`native_gates` with refreshed output checksums for undersized surfaces and zero
+or unknown opaque IDs; the unmodified fixture accepts blank full-size masks.
 The headless `--check-output <fixture-directory>` regression exercises the actual
 image writer, and the Python test runs real screenshot discovery/validation on
 its output, including rejection of a blank RGBA screenshot.

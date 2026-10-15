@@ -1025,6 +1025,120 @@ func _initialize() -> void:
                     gates.capture_native(CASE, CASE, "rr-02", timeout)
             process.assert_not_called()
 
+    def _native_gate_fixture(self, directory):
+        """Portable native_gates fixture; only renderer attestation is mocked.
+
+        Real PNG decoding, checksums, input binding, coverage, rest calibration,
+        owner lookup and pixel gates run. Owner 80 has eight opaque hidden-thigh
+        pixels; the rear strike arm has 1,718 pixels inside the body mask.
+        """
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("native_mask_regression", CASE / "probes/motion_gates.py")
+        gates = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(gates)
+        root, output = Path(directory) / "case", Path(directory) / "capture"
+        capture = output / "motion_gate_capture"
+        capture.mkdir(parents=True)
+        labels = ["torso"] + gates.LEG_PARTS
+        parts = [{"name": f"node_{i}", "logical_part": "thigh_far" if i == 80 else "torso",
+                  "bone": "leg", "hidden_material": i == 80, "file": "pixel.png"} for i in range(1, 81)]
+        config = {"layouts": {v: f"layouts/{v}.json" for v in ["front", "rear"]},
+                  "clips": {c: {"frames": 1} for c in ["idle", "strike"]}}
+        write_json(root / "cutout.json", config)
+        write_json(root / "source/spec.json", {"labels": dict.fromkeys(labels, [0, 0, 0])})
+        gate = read_json(CASE / "recipes/rig.json")["ownership_cleanup"]["tabard_gate"]
+        write_json(root / "recipes/rig.json", {"hidden_value_distribution": {"parts": []}, "ownership_cleanup": {"tabard_gate": gate}})
+        write_json(root / "proof/front_ownership_cleanup.json", {"materials": {"tabard_cloth": {"median_lab": [50, 70, 30]}}})
+        Image.new("RGBA", (1, 1), (100, 100, 100, 255)).save(root / "pixel.png")
+        frames, views = [], {}
+        for view in config["layouts"]:
+            write_json(root / config["layouts"][view], {"parts": parts, "logical_parts": labels})
+            (root / f"source/{view}").mkdir()
+            Image.new("RGBA", (255, 255)).save(root / f"source/{view}/processed.png")
+            (root / "registered").mkdir(exist_ok=True)
+            np.save(root / f"registered/{view}_owners.npy", np.full((255, 255), -1, dtype=np.int16))
+            for part in gates.LEG_PARTS:
+                Image.new("RGBA", (255, 255)).save(root / f"registered/{view}_visible_dark_{part}.png")
+            views[view] = {str(i): {"node": p["name"], "logical_part": p["logical_part"], "bone": p["bone"], "hidden": p["hidden_material"]}
+                           for i, p in enumerate(parts, 1)}
+            for clip in ["rest", "idle", "strike"]:
+                surfaces = {kind: np.zeros((512, 512, 4), dtype=np.uint8) for kind in ["rgba", "owners", "arm", "body", "rest_dark"]}
+                if (view, clip) == ("front", "idle"):
+                    surfaces["rgba"][200, 200:208] = [100, 100, 100, 255]
+                    surfaces["owners"][200, 200:208] = [80, 0, 0, 255]
+                if (view, clip) == ("rear", "strike"):
+                    for kind in ["arm", "body"]:
+                        surfaces[kind].reshape(-1, 4)[:1718] = [255, 255, 255, 255]
+                files = {}
+                for kind, pixels in surfaces.items():
+                    relative = ("" if kind == "rgba" else "data/") + f"{view}_{clip}/{kind}_0000.png"
+                    path = capture / relative
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    Image.fromarray(pixels).save(path)
+                    files[kind] = relative
+                if clip != "rest":
+                    (output / f"{view}_{clip}").mkdir()
+                    Image.fromarray(surfaces["rgba"]).save(output / f"{view}_{clip}/pose_0000.png")
+                frames.append({"view": view, "clip": clip, "frame": 0, "files": files})
+        write_json(capture / "native_motion_manifest.json", {"ok": True, "inputs": {"cutout.json": digest(root / "cutout.json")},
+                   "views": views, "frames": frames})
+        write_json(capture / "sha256.json", {str(p.relative_to(capture)): digest(p) for p in sorted(capture.rglob("*")) if p.is_file()})
+        return gates, root, output
+
+    def test_native_gates_rejects_checksum_refreshed_surface_size_mutations(self):
+        import contextlib
+        import io
+        with tempfile.TemporaryDirectory() as directory, patch("cutout_pipeline.proof.verify_render", return_value={"ok": True}), contextlib.redirect_stdout(io.StringIO()):
+            gates, root, output = self._native_gate_fixture(directory)
+            self.assertTrue(gates.native_gates(root, output)["ok"])  # Empty 512px masks are legitimate.
+            capture = output / "motion_gate_capture"
+            hashes = read_json(capture / "sha256.json")
+            for kind in ["rgba", "owners", "arm", "body", "rest_dark"]:
+                with self.subTest(surface=kind):
+                    relative = ("" if kind == "rgba" else "data/") + f"rear_strike/{kind}_0000.png"
+                    path = capture / relative
+                    before = path.read_bytes()
+                    if kind == "arm":
+                        self.assertEqual(int((np.array(Image.open(path))[..., 3] > 0).sum()), 1718)
+                    Image.new("RGBA", (1, 1)).save(path)
+                    hashes[relative] = digest(path)
+                    write_json(capture / "sha256.json", hashes)
+                    with self.assertRaisesRegex(CutoutError, f"Native surface dimensions failed: rear/strike/0/{kind}; expected 512x512, got 1x1"):
+                        gates.native_gates(root, output)
+                    path.write_bytes(before)
+                    hashes[relative] = digest(path)
+                    write_json(capture / "sha256.json", hashes)
+
+    def test_native_gates_rejects_checksum_refreshed_zero_and_unknown_opaque_ids(self):
+        import contextlib
+        import io
+        with tempfile.TemporaryDirectory() as directory, patch("cutout_pipeline.proof.verify_render", return_value={"ok": True}), contextlib.redirect_stdout(io.StringIO()):
+            gates, root, output = self._native_gate_fixture(directory)
+            control = gates.native_gates(root, output)
+            self.assertTrue(control["ok"])
+            idle = next(r for r in control["records"] if (r["view"], r["clip"]) == ("front", "idle"))
+            self.assertEqual(idle["rendered_hidden_values"][0]["visible_hidden_pixels"], 8)
+            capture = output / "motion_gate_capture"
+            hashes = read_json(capture / "sha256.json")
+            for kind, message in [("owners", "Native owner IDs/alpha failed validation"), ("rest_dark", "Native visible-rest dark provenance IDs failed validation")]:
+                for invalid_id in [0, 65535]:
+                    with self.subTest(surface=kind, invalid_id=invalid_id):
+                        relative = f"data/front_idle/{kind}_0000.png"
+                        path = capture / relative
+                        before = path.read_bytes()
+                        pixels = np.array(Image.open(path))
+                        if kind == "owners":
+                            self.assertTrue(np.all(pixels[200, 200:208] == [80, 0, 0, 255]))
+                        pixels[200, 200:208] = [invalid_id % 256, invalid_id // 256, 0, 255]
+                        Image.fromarray(pixels).save(path)
+                        hashes[relative] = digest(path)
+                        write_json(capture / "sha256.json", hashes)
+                        with self.assertRaisesRegex(CutoutError, message):
+                            gates.native_gates(root, output)
+                        path.write_bytes(before)
+                        hashes[relative] = digest(path)
+                        write_json(capture / "sha256.json", hashes)
+
     def test_native_collector_publishes_success_only_after_motion_gates(self):
         import contextlib
         import importlib.util

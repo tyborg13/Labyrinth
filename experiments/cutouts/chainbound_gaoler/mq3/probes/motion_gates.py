@@ -479,6 +479,9 @@ def native_gates(root, output):
     for path, expected in manifest["inputs"].items():
         if digest(root / path) != expected:
             raise CutoutError("Stale native motion input: " + path)
+    # A replay may replace a file at the same path and refresh its checksum.
+    # Validate those verified bytes, not pixels cached by an earlier evaluation.
+    rgba.cache_clear()
     config = read_json(root / "cutout.json")
     expected = {(v, c, f) for v in config["layouts"] for c, d in config["clips"].items() for f in range(d["frames"])}
     expected |= {(v, "rest", 0) for v in config["layouts"]}
@@ -491,13 +494,21 @@ def native_gates(root, output):
     records = []
     for sample in manifest["frames"]:
         view, clip, frame = sample["view"], sample["clip"], sample["frame"]
-        pixels, encoded, arm, body, dark_encoded = [rgba(str(capture / sample["files"][key])) for key in ["rgba", "owners", "arm", "body", "rest_dark"]]
+        surfaces = {key: rgba(str(capture / sample["files"][key])) for key in ["rgba", "owners", "arm", "body", "rest_dark"]}
+        # Check every paired surface before any NumPy operation can broadcast a
+        # truncated categorical mask (including an otherwise valid empty mask).
+        for kind, surface in surfaces.items():
+            if surface.shape != (CANVAS_SIZE, CANVAS_SIZE, 4):
+                raise CutoutError(f"Native surface dimensions failed: {view}/{clip}/{frame}/{kind}; "
+                                 f"expected {CANVAS_SIZE}x{CANVAS_SIZE}, got {surface.shape[1]}x{surface.shape[0]}")
+        pixels, encoded, arm, body, dark_encoded = [surfaces[key] for key in ["rgba", "owners", "arm", "body", "rest_dark"]]
         ids = encoded[..., 0].astype(np.int32) + 256 * encoded[..., 1].astype(np.int32)
-        ids[encoded[..., 3] <= 128] = 0
         lookup = manifest["views"][view]
         names = read_json(root / config["layouts"][view])["logical_parts"]
-        if not np.array_equal(encoded[..., 3], pixels[..., 3]) or any(str(i) not in lookup for i in np.unique(ids) if i):
-            raise CutoutError("Native owner IDs/alpha failed validation")
+        if (not np.array_equal(encoded[..., 3], pixels[..., 3])
+                or any(i == 0 or str(i) not in lookup for i in np.unique(ids[encoded[..., 3] != 0]))):
+            raise CutoutError(f"Native owner IDs/alpha failed validation: {view}/{clip}/{frame}; nontransparent pixels require a nonzero known owner")
+        ids[encoded[..., 3] <= 128] = 0
         parts = [{"name": lookup[str(i)]["node"], "logical_part": lookup[str(i)]["logical_part"], "bone": lookup[str(i)]["bone"],
                   "hidden_material": lookup[str(i)]["hidden"]} for i in range(1, len(lookup) + 1)]
         expected_nodes = {p["name"]: (p.get("logical_part", p["name"]), p["bone"], p.get("hidden_material", False)) for p in layouts[view]["parts"]}
@@ -505,9 +516,10 @@ def native_gates(root, output):
         if len(parts) != len(expected_nodes) or actual_nodes != expected_nodes:
             raise CutoutError("Native physical owner/hidden provenance differs from runtime layout: " + view)
         dark_ids = dark_encoded[..., 0].astype(np.int32) + 256 * dark_encoded[..., 1].astype(np.int32)
+        if any(i == 0 or str(i) not in lookup or lookup[str(i)]["logical_part"] not in LEG_PARTS
+               for i in np.unique(dark_ids[dark_encoded[..., 3] != 0])):
+            raise CutoutError(f"Native visible-rest dark provenance IDs failed validation: {view}/{clip}/{frame}; nontransparent pixels require a nonzero known leg owner")
         dark_ids[dark_encoded[..., 3] <= 128] = 0
-        if any(str(i) not in lookup or lookup[str(i)]["logical_part"] not in LEG_PARTS for i in np.unique(dark_ids) if i):
-            raise CutoutError("Native visible-rest dark provenance IDs failed validation")
         if clip == "rest":
             expected_paint = rgba(str(root / f"source/{view}/processed.png"))
             actual_paint = pixels[POSE_OFFSET:POSE_OFFSET+255, POSE_OFFSET:POSE_OFFSET+255]

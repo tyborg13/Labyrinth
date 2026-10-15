@@ -1,4 +1,65 @@
-# Chainbound gaoler mq3 — round 9
+# Chainbound gaoler mq3 — round 10
+
+Round10 fixes the categorical-mask validation finding on top of `4fe2e1fe6`.
+Changes remain uncommitted. Capture code, source paint, layouts and motion are
+unchanged; no new windowed run is needed. The director's 17 preexisting native
+proof files and the original `/private/tmp/rr-02-mq3-render-v09` capture are
+preserved.
+
+Before any array operations, `native_gates` requires all five surfaces to be
+exactly **512×512**, so every mask matches its paired RGBA frame without
+broadcasting. Owner and visible-rest-dark IDs must be nonzero and known wherever
+alpha is nonzero; dark provenance also requires a leg owner. Transparent ID-zero
+background remains valid. Replays clear cached image pixels after checksum/input
+validation so a replaced file at the same path is actually read again.
+
+Portable regressions invoke `native_gates`, including checksum and input binding,
+rest calibration, physical ownership and pixel gates. They accept the unchanged
+fixture, then reject refreshed-checksum mutations for all five surface sizes and
+both zero/unknown owner and rest-dark IDs. The two reported failures are represented
+by **1,718** arm pixels replaced with a transparent 1×1 mask and **eight** opaque
+hidden-thigh pixels changed from ID **80** to **0**. Only renderer attestation is
+mocked in this synthetic fixture; the saved-v09 replay uses the real verifier.
+
+## Round10 verification
+
+- Native mask regressions: `Ran 2 tests in 0.523s` / `OK`.
+- Focused: `Ran 45 tests in 62.587s` / `OK`; includes
+  `GAOLER REBUILD: PASS (882 files)`.
+- Protected validation: `ok: true`, no errors.
+- Saved-v09 replay: `MOTION GATES: PASS` (**458 frames**, all seven pixel totals
+  and value failures **0**), followed by rejection of both exact reviewed mutations:
+  `rear/strike/0/arm` fails **512×512 versus 1×1**; `front/idle/6` rejects the
+  **eight** opaque ID-zero pixels. See `proof/native_mutations_round10.json` and
+  `proof/native_replay_round10.json`.
+- Full Python suite: `Ran 442 tests in 327.869s` / `OK (skipped=61)`.
+- Final audit: `proof/round10_audit.json` confirms all **17** preexisting director
+  proof files and all **3,794** original v09 capture files are unchanged. Only the
+  validator changed among **341** protected case inputs; runtime art, layouts,
+  motion and capture code are unchanged. The baseline and **882-file** generated
+  inventory match, and `git diff --check` passes. No `TODO_DESIGN` or new visual default was
+introduced. The existing 512px capture contract and ID-zero background convention
+are enforced; screenshot separation and the configurable 900-second timeout remain.
+
+The replay uses `/private/tmp/rr02-round10-replay/captured_case`, an unchanged copy
+of the actual captured inputs, and `/private/tmp/rr02-round10-replay/capture`, a
+copy of v09. All 42 supplemental previews are verified against the captured
+fill manifest before copying. The current working-tree evaluator runs against that recorded case;
+its SHA and the captured evaluator SHA are recorded separately. No captured input
+hash is replaced or ignored, and no renderer is invoked. Each adversarial mutation
+changes only its copied PNG and output checksum, then restores both. Reproduce the
+clean replay with:
+
+```sh
+python3 experiments/cutouts/chainbound_gaoler/mq3/probes/motion_gates.py --case /private/tmp/rr02-round10-replay/captured_case --native /private/tmp/rr02-round10-replay/capture
+```
+
+The initial replay-copy attempt omitted the supplemental preview PNGs and failed
+with a missing-file error after frame evaluation. It is retained as
+`proof/native_replay_round10_initial_missing_preview.log`; the complete replay
+results are recorded separately. No validation was bypassed to resolve it.
+
+## Round9 history
 
 Round9 addresses the peer review on top of the director's round8 commit
 `dc06de8b7`. Changes remain uncommitted. No windowed capture, peer review or
@@ -309,6 +370,7 @@ Native counts: `/private/tmp/rr-02-mq3-render-v09/motion_gates.json`.
 Ownership/masks: `/private/tmp/rr-02-mq3-render-v09/motion_gate_capture/`.
 The collector writes accepted eight-frame clip/view sheets under
 `proof/native_keyframes/` only after the gates pass; `proof/native_motion_gates.json`
-records the actual native gate result, including failure. Native v09 capture and
-its successful gate/collector markers remain outstanding. The successful markers
-above are expected output, not an observed native v09 result.
+records the actual native gate result, including failure. These commands are the
+round9 capture recipe. The director subsequently supplied v09 and its native proof
+files; round10 replays that saved capture with the corrected validator as recorded
+above. No new windowed capture was run or required for the validation-only fix.
