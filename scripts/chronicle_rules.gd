@@ -146,15 +146,47 @@ static func deck_card_definitions(state: Dictionary) -> Dictionary:
 	var definitions: Dictionary = {}
 	for pair: Array in deck_counts(state.get("deck_cards", [])):
 		var id: String = str(pair[0])
-		var card: Dictionary = GameData.card_def_for_progression(id, state)
-		var base: Dictionary = GameData.card_def(id)
-		if not base.has("id"):
-			card.erase("id")
-		if card != base and not base.is_empty():
-			definitions[id] = card
-	# Profile persistence is JSON: canonicalize its number representation before
-	# comparing records, so a restart does not change nested int/float variants.
-	return JSON.parse_string(JSON.stringify(definitions)) as Dictionary
+		var delta: Dictionary = card_definition_delta(id, GameData.card_def_for_progression(id, state))
+		if not delta.is_empty():
+			definitions[id] = delta
+	return definitions
+
+# Save only changed public fields. Combat tags are transient, including tags
+# nested in actions; comparing tagged progression data with raw card data made
+# every unmodified card look different. Whole action arrays remain atomic so
+# both older full snapshots and these additive field deltas resolve identically.
+static func card_definition_delta(id: String, definition: Dictionary) -> Dictionary:
+	if GameData.card_def(id).is_empty():
+		return {}
+	var base: Dictionary = _public_card_value(GameData.card_def_for_progression(id, {}))
+	var printed: Dictionary = _public_card_value(definition)
+	var delta: Dictionary = {}
+	for key: String in printed:
+		if not base.has(key) or printed[key] != base[key]:
+			delta[key] = printed[key]
+	return delta
+
+static func card_definition(id: String, definitions: Dictionary) -> Dictionary:
+	var card: Dictionary = GameData.card_def(id)
+	if not card.is_empty():
+		card.merge(definitions.get(id, {}), true)
+	return card
+
+static func _public_card_value(value: Variant) -> Variant:
+	if value is Dictionary:
+		var result: Dictionary = {}
+		for key: Variant in value:
+			if not str(key).begins_with("_"):
+				result[key] = _public_card_value(value[key])
+		return result
+	if value is Array:
+		var result: Array = []
+		for entry: Variant in value:
+			result.append(_public_card_value(entry))
+		return result
+	# JSON round-trips numbers as floats. Canonicalize only scalar numbers,
+	# avoiding an encode/decode of every nested definition on every profile load.
+	return float(value) if value is int else value
 
 static func normalized_records(value: Variant) -> Array[Dictionary]:
 	var records: Array[Dictionary]
@@ -206,8 +238,10 @@ static func normalized_record(value: Dictionary) -> Dictionary:
 			for pair: Array in deck:
 				var definition: Variant = record["deck_card_definitions"].get(pair[0])
 				if definition is Dictionary and not definition.is_empty():
-					definitions[pair[0]] = definition.duplicate(true)
-		record["deck_card_definitions"] = JSON.parse_string(JSON.stringify(definitions)) as Dictionary
+					var delta: Dictionary = card_definition_delta(pair[0], definition)
+					if not delta.is_empty():
+						definitions[pair[0]] = delta
+		record["deck_card_definitions"] = definitions
 	if record.has("umbra_depth"):
 		record["umbra_depth"] = maxi(0, int(record["umbra_depth"]))
 	return record

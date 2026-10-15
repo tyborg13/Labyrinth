@@ -10,6 +10,8 @@ const CAPTURE_SIZE := Vector2i(1920, 1080)
 const CAPTURE_SETTLE_FRAMES: int = 4
 const CLICK_HOVER_SETTLE_FRAMES: int = 1
 const OVERFLOW_SPELL_COUNT: int = 45
+const BOTTOM_ROW_DUPLICATE_INDEX: int = 38
+const BOTTOM_ROW_DUPLICATE_COUNT: int = 3
 const TILE_FIXTURE_DECK := ["chain_bolt", "pale_spark", "quick_stab", "pale_spark", "waning_pulse", "pale_spark"]
 const TILE_FIXTURE_UPGRADE_MOD := {"action_index": 0, "field": "damage", "amount": 1}
 const CardTile = preload("res://scripts/chronicle_card_tile.gd")
@@ -101,6 +103,17 @@ static func tile_fixture_profile() -> Dictionary:
 	profile[Store.CHRONICLE_RECORDS_KEY][0] = Rules.normalized_record(record)
 	return profile
 
+static func five_section_overflow_profile() -> Dictionary:
+	var profile: Dictionary = seeded_profile()
+	var record: Dictionary = profile[Store.CHRONICLE_RECORDS_KEY][2].duplicate(true)
+	record["run_id"] = "chronicle-five-section-overflow"
+	record["killer_text"] = Rules.killer_text({"cause": "fatigue"}, "defeat")
+	record["deck"] = overflow_deck()
+	# Include a duplicate on the final visible row to prove its pill is unclipped.
+	record["deck"][BOTTOM_ROW_DUPLICATE_INDEX][1] = BOTTOM_ROW_DUPLICATE_COUNT
+	profile[Store.CHRONICLE_RECORDS_KEY][0] = record
+	return profile
+
 func _run() -> void:
 	_canvas = create_capture_viewport(root)
 	_menu = preload("res://scenes/main_menu.tscn").instantiate()
@@ -139,7 +152,19 @@ func _run() -> void:
 	_require(spells.get_child_count() == spells.columns * 2 and overflow_tile.get_node("OverflowCount").text == "+%d" % (OVERFLOW_SPELL_COUNT - spells.get_child_count() + 1), "45 distinct spells fill two rows with an exact overflow count")
 	await _capture("spells_overflow")
 	await _hover_capture(panel, "ChronicleSpellsOverflow", "hovered_overflow")
+	panel.open(five_section_overflow_profile(), false)
+	await _settle()
+	var detail: Control = panel.find_child("DescentDetail", true, false)
+	var scroller: ScrollContainer = panel.get("_detail_scroll")
+	_require(scroller.scroll_vertical == 0 and scroller.get_global_rect().encloses(detail.get_global_rect()), "Five-section path and 45-card overflow show all sections without scrolling")
+	var last_badge: Label = (panel.find_child("ChronicleSpells", true, false) as GridContainer).get_child(BOTTOM_ROW_DUPLICATE_INDEX).get_node("Badge")
+	_require(last_badge.visible and scroller.get_global_rect().encloses(last_badge.get_global_rect()), "Bottom-row duplicate badge is fully visible at rest")
+	await _capture("five_section_overflow")
 	panel.open(tile_fixture_profile(), false)
+	await _settle()
+	var duplicate: Control = panel.find_child("Spell_pale_spark", true, false)
+	_require(duplicate.get_node("Badge").visible and duplicate.get_node("Badge").text == "×3", "Duplicate badge is visible in the capture")
+	await _capture("duplicate_badge")
 	var router: Node = root.get_node("InputRouter")
 	router.call("set_forced_state_for_test", "controller", "xbox")
 	var down := InputEventJoypadButton.new()
@@ -161,6 +186,7 @@ func _run() -> void:
 	await _settle()
 	_require(_canvas.gui_get_focus_owner() == panel.find_child("Spell_pale_spark", true, false) and panel.selected_index == 0, "Controller D-pad focuses an upgraded spell without changing history")
 	_require(panel.get("_focus_tooltip") != null, "Controller spell focus shows the full card preview")
+	_require(not (panel.get("_focus_tooltip") as Control).get_global_rect().intersects((panel.get("_focus_anchor") as Control).get_global_rect()), "Controller preview never covers its focused tile")
 	await _capture("controller_spell_focus")
 	var back := InputEventJoypadButton.new()
 	back.button_index = JOY_BUTTON_B

@@ -145,3 +145,22 @@ static func draw_plate(canvas: Control, rect: Rect2, top: Color, bottom: Color, 
 	outline.set_corner_radius_all(roundi(radius))
 	outline.anti_aliasing = true
 	canvas.draw_style_box(outline, rect)
+
+static func equipment_panel_style(accent: Color, active: bool = false) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Palette.PREVIEW_INK.lightened(0.06 if active else 0.0)
+	style.border_color = accent.lightened(0.22 if active else 0.04)
+	style.border_width_left = 2
+	style.border_width_top = 2
+	style.border_width_right = 2
+	style.border_width_bottom = 2
+	style.corner_radius_top_left = 8
+	style.corner_radius_top_right = 8
+	style.corner_radius_bottom_right = 8
+	style.corner_radius_bottom_left = 8
+	# Quiet contact depth; margins, radii and state/rarity accents stay native.
+	style.border_blend = true
+	style.shadow_color = Palette.PREVIEW_SHADOW
+	style.shadow_size = 5
+	style.shadow_offset = Vector2(0.0, 2.0)
+	return style

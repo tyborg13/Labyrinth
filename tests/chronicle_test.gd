@@ -11,6 +11,7 @@ const CardTile = preload("res://scripts/chronicle_card_tile.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const Rules = preload("res://scripts/chronicle_rules.gd")
 const Elements = preload("res://scripts/element_data.gd")
+const ChroniclePanel = preload("res://scripts/chronicle_panel.gd")
 const TILE_LAYOUT_SETTLE_FRAMES: int = 4
 const SCROLL_RECORD_COUNT: int = 15
 var failures: Array[String]
@@ -26,6 +27,8 @@ func _initialize() -> void:
 func _run() -> void:
 	Suite.run(_check)
 	_test_fixture_cards()
+	_test_definition_deltas()
+	_test_tooltip_placement()
 	var canvas: SubViewport = Probe.create_capture_viewport(root)
 	_check(canvas.size == Vector2i(1920, 1080) and canvas.render_target_update_mode == SubViewport.UPDATE_ALWAYS, "Chronicle proof uses a fixed 1920x1080 render target updated every frame")
 	var menu: Control = preload("res://scenes/main_menu.tscn").instantiate()
@@ -96,6 +99,9 @@ func _run() -> void:
 	await process_frame
 	await process_frame
 	await _test_overflow(panel)
+	await _test_five_section_layout(panel)
+	await _test_relic_wrap(panel)
+	await _test_deleted_cards_and_path_focus(panel)
 	var profile: Dictionary = Store.default_data()
 	for index: int in range(SCROLL_RECORD_COUNT):
 		profile = Store.record_chronicle(profile, {"run_id": "ui-%d" % index, "outcome": "defeat", "section_name": "Rime Hall", "section_index": 2, "score_total": 567, "path": [["combat"]], "section_names": ["Worldspine Roots"]})
@@ -174,6 +180,37 @@ func _test_viewport_hover_entry(panel: Control, tile: Control) -> void:
 	await _settle_tiles()
 	print("CHRONICLE HOVER REGRESSION: unentered viewport reaches tile without a native popup")
 
+func _test_definition_deltas() -> void:
+	var state := {"chronicle_path": [["combat"]], "deck_cards": ["pale_spark", "chain_bolt"], "relics": [], "seed": 8821}
+	_check(Rules.build_record(state, "victory", {})["deck_card_definitions"] == {}, "Unmodified build_record stores no card definitions")
+	state["relics"] = ["storm_capacitor"]
+	var snapshots: Dictionary = Rules.build_record(state, "victory", {})["deck_card_definitions"]
+	_check(snapshots.keys() == ["chain_bolt"], "Run relic stores only the card whose printed rules changed")
+	_check(not JSON.stringify(snapshots).contains('"_'), "Saved card deltas contain no internal combat or relic tags")
+	var upgraded: Dictionary = GameData.card_def_with_card_mods("pale_spark", {"pale_spark": [Probe.TILE_FIXTURE_UPGRADE_MOD]})
+	var expected := {"actions": upgraded["actions"], "base_card_id": "pale_spark", "upgraded": true, "upgrade_count": 1}
+	var delta: Dictionary = Rules.card_definition_delta("pale_spark", upgraded)
+	_check(delta == JSON.parse_string(JSON.stringify(expected)), "An upgraded card stores exactly its changed public fields")
+	_check(JSON.parse_string(JSON.stringify(Rules.card_definition("pale_spark", {"pale_spark": delta}))) == JSON.parse_string(JSON.stringify(upgraded)), "Upgraded delta resolves to the complete printed card")
+	var legacy: Dictionary = Probe.seeded_profile()[Store.CHRONICLE_RECORDS_KEY][0].duplicate(true)
+	legacy["deck"] = [["pale_spark", 1], ["chain_bolt", 1]]
+	legacy["deck_card_definitions"] = {"pale_spark": GameData.card_def_for_progression("pale_spark", {}), "chain_bolt": GameData.card_def_for_progression("chain_bolt", state)}
+	_check(Rules.normalized_record(legacy)["deck_card_definitions"] == snapshots, "Normalization compacts old full snapshots and removes their internal tags")
+
+func _test_tooltip_placement() -> void:
+	var bounds := Rect2(0, 0, 1920, 1080)
+	var extent := Vector2(300, 400)
+	var cases: Array[Rect2] = [Rect2(700, 200, 48, 64), Rect2(700, 900, 48, 64), Rect2(700, 350, 48, 400), Rect2(1800, 350, 48, 400)]
+	for index: int in range(cases.size()):
+		var anchor: Rect2 = cases[index]
+		var rect := Rect2(ChroniclePanel.focus_tooltip_position(anchor, extent, bounds), extent)
+		_check(bounds.encloses(rect) and not rect.intersects(anchor), "Focus placement stays visible without covering its tile: case %d" % index)
+		match index:
+			0: _check(rect.position.y == anchor.end.y, "Focus preview prefers below")
+			1: _check(rect.end.y == anchor.position.y, "Focus preview falls back above")
+			2: _check(rect.position.x == anchor.end.x, "Focus preview falls back right")
+			3: _check(rect.end.x == anchor.position.x, "Focus preview falls back left")
+
 func _test_card_tiles(panel: Control, canvas: Viewport) -> void:
 	var profile: Dictionary = Probe.tile_fixture_profile()
 	var record: Dictionary = profile[Store.CHRONICLE_RECORDS_KEY][0]
@@ -200,6 +237,8 @@ func _test_card_tiles(panel: Control, canvas: Viewport) -> void:
 		_check(tile.card_id == expected_ids[index], "Spell tiles retain recorded first-occurrence order %d" % index)
 		_check(tile.size == Vector2(48, 64), "Spell tile has the approved 48x64 portrait size")
 		_check(tile.get_node("CardArt").texture != null and tile.get_node("CardArt").stretch_mode == TextureRect.STRETCH_KEEP_ASPECT_COVERED, "Spell uses its own approved art with centre-crop fill")
+		_check(tile.get_node("CardArt").texture.get_size() == Vector2(CardTile.ART_SIZE), "Tile art is downscaled to its rendered size")
+		_check(tile.get_node("CardArt").texture == CardTile.tile_art(tile.card_definition["art_path"]), "Tile art reuses the cached high-quality crop")
 	var duplicate: Control = spells.get_child(1)
 	var badge: Label = duplicate.get_node("Badge")
 	_check(duplicate.count == 3 and badge.text == "×3" and badge.visible, "Duplicate count badge groups all three copies")
@@ -214,17 +253,18 @@ func _test_card_tiles(panel: Control, canvas: Viewport) -> void:
 	var widgets: Array[Control] = Probe.card_widgets(preview)
 	_check(widgets.size() == 1 and widgets[0].card_id == "pale_spark" and widgets[0]._display_card_def() == duplicate.card_definition, "Focused spell uses the complete production CardWidget and recorded upgraded rules")
 	_check(Rect2(Vector2.ZERO, Vector2(1920, 1080)).encloses(preview.get_global_rect()), "Card preview follows existing viewport-clamped placement")
+	_check(not preview.get_global_rect().intersects(duplicate.get_global_rect()), "Focused card preview never covers the spell tile")
 	var tiles: Array[Control] = panel.get("_detail_tiles")
 	var expected_names: Array[String]
 	for id: String in record["gear"]:
 		expected_names.append("Gear_" + id)
-	for id: String in expected_ids:
-		expected_names.append("Spell_" + id)
 	for id: String in record["relics"]:
 		expected_names.append("Relic_" + id)
+	for id: String in expected_ids:
+		expected_names.append("Spell_" + id)
 	_check(tiles.size() == expected_names.size(), "Focus chain contains gear, spells, and relics exactly once")
 	for index: int in range(tiles.size()):
-		_check(tiles[index].name == expected_names[index], "Focus order is gear, spells, relics in recorded order %d" % index)
+		_check(tiles[index].name == expected_names[index], "Focus order follows gear, relics, spells in visual order %d" % index)
 		if index + 1 < tiles.size():
 			_check(tiles[index].get_node(tiles[index].focus_next) == tiles[index + 1], "Tab focus links advance left-to-right through each tile")
 	var selected: int = panel.selected_index
@@ -259,12 +299,16 @@ func _test_card_tiles(panel: Control, canvas: Viewport) -> void:
 	await _test_hover(panel, path, false)
 	var selected_row: Control = panel.find_child("DescentRow0", true, false)
 	_check(selected_row.get_node(selected_row.focus_next) == path, "Path icons retain a keyboard route before the gear/spell/relic chain")
-	_check(is_equal_approx(spells.global_position.x, 670) and is_equal_approx((panel.find_child("ChronicleFeats", true, false) as Control).global_position.x, 1454), "SPELLS starts at x670 and FEATS keeps its existing x1454")
+	_check(is_equal_approx(spells.global_position.x, 670) and is_equal_approx((panel.find_child("ChronicleFeats", true, false) as Control).global_position.x, 1450), "SPELLS starts at x670 and FEATS moves to x1450")
 	var detail: VBoxContainer = panel.find_child("DescentDetail", true, false)
 	var spells_header: Control = detail.get_child(spells.get_index() - 1)
-	var row_a: Control = detail.get_child(spells.get_index() - 3)
-	var relics_header: Control = detail.get_child(spells.get_index() + 2)
-	_check(is_equal_approx(spells_header.position.y - row_a.get_rect().end.y, 28) and is_equal_approx(relics_header.position.y - spells.get_rect().end.y, 28), "Detail rows use 28px vertical gaps")
+	var build_row: Control = panel.find_child("ChronicleBuildRow", true, false)
+	var path_row: Control = panel.find_child("ChroniclePathRow", true, false)
+	_check(is_equal_approx(spells_header.position.y - build_row.get_rect().end.y, 28) and is_equal_approx(build_row.position.y - path_row.get_rect().end.y, 28), "Detail rows use 28px vertical gaps")
+	var gear: Control = panel.find_child("ChronicleGear", true, false)
+	var relics: Control = panel.find_child("ChronicleRelics", true, false)
+	_check(relics.global_position.x - gear.get_global_rect().end.x == 40 and relics.global_position.y == gear.global_position.y, "Gear and wrapping relics share one row with a 40px gap")
+	_check((panel.find_child("ChronicleFeats", true, false) as Control).global_position.y == (panel.find_child("ChroniclePath", true, false) as Control).global_position.y, "Feats and path headers are top-aligned")
 	panel.close()
 	await _settle_tiles()
 	_check(panel.get("_focus_tooltip") == null, "Closing Chronicle clears its preview")
@@ -293,6 +337,59 @@ func _test_overflow(panel: Control) -> void:
 	_check(labels.size() == 1 and labels[0].text == "\n".join(expected), "Overflow tooltip lists every omitted card and count on its own line")
 	await _test_hover(panel, overflow, false)
 	_check(CardTile.shown_count(40, 20) == 40 and CardTile.shown_count(41, 20) == 39 and CardTile.shown_count(45, 1) == 1, "Two-row boundaries reserve an overflow tile only when needed")
+
+func _test_five_section_layout(panel: Control) -> void:
+	panel.open(Probe.five_section_overflow_profile(), false)
+	await _settle_tiles()
+	var detail: Control = panel.find_child("DescentDetail", true, false)
+	var scroller: ScrollContainer = panel.get("_detail_scroll")
+	print("CHRONICLE FIVE-SECTION LAYOUT: detail=%s viewport=%s" % [detail.get_global_rect(), scroller.get_global_rect()])
+	_check(panel.records[0]["path"].size() == 5, "Overflow visibility fixture includes five path sections")
+	_check(scroller.scroll_vertical == 0 and scroller.get_global_rect().encloses(detail.get_global_rect()), "Five-section overflow record is fully visible at rest without scrolling")
+	var badge: Label = (panel.find_child("ChronicleSpells", true, false) as GridContainer).get_child(Probe.BOTTOM_ROW_DUPLICATE_INDEX).get_node("Badge")
+	_check(badge.text == "×3" and scroller.get_global_rect().encloses(badge.get_global_rect()), "Bottom-row count pill is fully visible at rest")
+	for tile: Control in panel.get("_detail_tiles"):
+		tile.grab_focus()
+		await _settle_tiles()
+		var tooltip: Control = panel.get("_focus_tooltip")
+		_check(tooltip != null and not tooltip.get_global_rect().intersects(tile.get_global_rect()), "Focus tooltip never covers %s" % tile.name)
+
+func _test_deleted_cards_and_path_focus(panel: Control) -> void:
+	var profile: Dictionary = Probe.seeded_profile()
+	var record: Dictionary = profile[Store.CHRONICLE_RECORDS_KEY][0]
+	record["gear"] = []
+	record["relics"] = []
+	record["deck"] = [["deleted_fire_spell", 2]]
+	record["deck_card_definitions"] = {"deleted_fire_spell": {"name": "Old name", "description": "Old rules"}}
+	panel.open(profile, false)
+	await _settle_tiles()
+	var tile: Control = panel.find_child("Spell_deleted_fire_spell", true, false)
+	_check(tile.get_node("CardArt").texture == CardTile.tile_art(CardTile.CARD_BACK_PATH), "Deleted card uses the existing card-back art")
+	tile.grab_focus()
+	await _settle_tiles()
+	var tooltip: Control = panel.get("_focus_tooltip")
+	var labels: Array[Node] = tooltip.find_children("*", "Label", true, false)
+	_check(labels.size() == 1 and labels[0].text == "Deleted Fire Spell", "Deleted card tooltip shows only its id in Title Case")
+	record["deck"] = []
+	panel.open(profile, false)
+	await _settle_tiles()
+	var row: Control = panel.find_child("DescentRow0", true, false)
+	var path: Array[Node] = panel.find_child("DescentDetail", true, false).find_children("PathSection*Room*", "Button", true, false)
+	_check(row.get_node(row.focus_next) == path[0] and row.get_node(row.focus_neighbor_right) == path[0], "A record without build tiles links list focus into its path")
+	for index: int in range(path.size() - 1):
+		_check(path[index].get_node(path[index].focus_next) == path[index + 1], "Path-only focus follows recorded room order")
+	_check(path.back().get_node(path.back().focus_next) == panel.get_node("ChronicleFrame/ChronicleClose"), "Path-only focus reaches Close after the final room")
+
+func _test_relic_wrap(panel: Control) -> void:
+	var profile: Dictionary = Probe.seeded_profile()
+	profile[Store.CHRONICLE_RECORDS_KEY][0]["relics"] = GameData.relics().keys().slice(0, 14)
+	panel.open(profile, false)
+	await _settle_tiles()
+	var relics: Control = panel.find_child("ChronicleRelics", true, false)
+	var flow: HFlowContainer = relics.get_child(1)
+	_check(flow.get_child(13).position.y > flow.get_child(0).position.y, "Relics wrap onto a second row within the remaining width")
+	for tile: Control in flow.get_children():
+		_check(relics.get_global_rect().encloses(tile.get_global_rect()), "Every wrapped relic stays inside its column")
 
 func _test_hover(panel: Control, tile: Control, has_cards: bool) -> void:
 	var viewport: Viewport = panel.get_viewport()

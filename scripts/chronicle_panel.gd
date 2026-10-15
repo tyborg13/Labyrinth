@@ -19,24 +19,18 @@ const Analytics = preload("res://scripts/analytics_store.gd")
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const RunSfx = preload("res://scripts/run_sfx_library.gd")
 const CardTile = preload("res://scripts/chronicle_card_tile.gd")
-const RunScene = preload("res://scripts/run_scene.gd")
+const PreviewBuilders = preload("res://scripts/item_preview_builders.gd")
 const PANEL_SIZE := Vector2(1800, 860)
 const ROW_HEIGHT: float = 68.0
 const DETAIL_WIDTH: float = 1142.0
+const DETAIL_HEIGHT: float = 718.0 # Fits five path sections and two spell rows, including badge overhang.
 const COLUMN_WIDTH: float = 358.0
 const DETAIL_ROW_GAP: float = 28.0
+const PATH_COLUMN_WIDTH: float = 740.0
+const BUILD_COLUMN_GAP: float = 40.0
 const TILE_INK := Color("0f0c09")
 const TILE_EDGE := Color("5a4630")
 const RESULT_COLORS := {"defeat": Color("d07a6c"), "victory": Palette.GOLD_BRIGHT, "embrace": Palette.TEXT_2}
-
-# Reuse the production builders without starting a run scene or reading the
-# current player's progression. This detached adapter only owns tooltip data.
-class RecordTooltipHost extends RunScene:
-	var definitions: Dictionary = {}
-	func _card_def(id: String, _state: Dictionary = {}) -> Dictionary:
-		return definitions.get(id, GameData.card_def(id))
-	func _equipment_overlay_can_change() -> bool:
-		return true
 
 class HistoryRow extends Button:
 	var selected: bool = false
@@ -118,7 +112,7 @@ var _stick_direction: int = 0
 var _analytics := Analytics.new()
 var _prompt_bar: PanelContainer
 var _page_sound: AudioStreamPlayer
-var _tooltip_host: RecordTooltipHost
+var _tooltip_host: RefCounted
 var _spell_grid: GridContainer
 var _spell_groups: Array[Dictionary]
 var _detail_tiles: Array[Control]
@@ -165,7 +159,7 @@ func _ready() -> void:
 	_list.add_child(_rows)
 	_detail_scroll = ScrollContainer.new()
 	_detail_scroll.position = Vector2(610, 130)
-	_detail_scroll.size = Vector2(DETAIL_WIDTH, 690)
+	_detail_scroll.size = Vector2(DETAIL_WIDTH, DETAIL_HEIGHT)
 	_detail_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	_detail_scroll.follow_focus = true
 	_panel.add_child(_detail_scroll)
@@ -254,8 +248,7 @@ func close() -> void:
 	closed.emit()
 
 func _exit_tree() -> void:
-	if is_instance_valid(_tooltip_host):
-		_tooltip_host.free()
+	_tooltip_host = null
 
 func _add_row(index: int) -> void:
 	var record: Dictionary = records[index]
@@ -308,9 +301,11 @@ func _build_detail(record: Dictionary) -> void:
 	_detail_tiles.clear()
 	_spell_grid = null
 	_clear(_detail)
-	if _tooltip_host == null:
-		_tooltip_host = RecordTooltipHost.new()
-	_tooltip_host.definitions = record.get("deck_card_definitions", {}).duplicate(true)
+	if not is_instance_valid(_tooltip_host):
+		_tooltip_host = PreviewBuilders.new()
+	_tooltip_host.definitions = {}
+	for pair: Array in record["deck"]:
+		_tooltip_host.definitions[pair[0]] = Rules.card_definition(pair[0], record.get("deck_card_definitions", {}))
 	_detail_scroll.scroll_vertical = 0
 	var title_row := HBoxContainer.new()
 	title_row.custom_minimum_size.y = 70
@@ -349,20 +344,18 @@ func _build_detail(record: Dictionary) -> void:
 		Frame.draw_diamond(rule, Vector2(4, 21), 6, Palette.GOLD)
 	)
 	_detail.add_child(rule)
-	_detail.add_child(_heading("THE PATH"))
-	_build_path(record)
-	_spacer(_detail, 22)
-	var columns := HBoxContainer.new()
-	columns.add_theme_constant_override("separation", 34)
-	_detail.add_child(columns)
-	var gear_column := _column(columns, "GEAR")
-	_build_items(gear_column, record["gear"], false)
-	# Keep the old middle column's width so FEATS stays at its approved x.
-	var former_spells_column := Control.new()
-	former_spells_column.custom_minimum_size.x = COLUMN_WIDTH
-	former_spells_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	columns.add_child(former_spells_column)
-	var feats_column := _column(columns, "FEATS")
+	var path_row := HBoxContainer.new()
+	path_row.name = "ChroniclePathRow"
+	path_row.add_theme_constant_override("separation", BUILD_COLUMN_GAP)
+	_detail.add_child(path_row)
+	var path_column := VBoxContainer.new()
+	path_column.name = "ChroniclePath"
+	path_column.custom_minimum_size.x = PATH_COLUMN_WIDTH
+	path_column.add_theme_constant_override("separation", 0)
+	path_row.add_child(path_column)
+	path_column.add_child(_heading("THE PATH"))
+	_build_path(record, path_column)
+	var feats_column := _column(path_row, "FEATS")
 	feats_column.name = "ChronicleFeats"
 	if (record["feats"] as Array).is_empty():
 		feats_column.add_child(_label("No feats this time.", 17, Palette.TEXT_3))
@@ -376,6 +369,20 @@ func _build_detail(record: Dictionary) -> void:
 			feat_row.add_child(text)
 			feats_column.add_child(feat_row)
 	_spacer(_detail, DETAIL_ROW_GAP)
+	var build_row := HBoxContainer.new()
+	build_row.name = "ChronicleBuildRow"
+	build_row.add_theme_constant_override("separation", BUILD_COLUMN_GAP)
+	_detail.add_child(build_row)
+	var gear_column := _column(build_row, "GEAR")
+	gear_column.name = "ChronicleGear"
+	gear_column.custom_minimum_size.x = maxi(0, record["gear"].size() * 60 - 8)
+	gear_column.size_flags_horizontal = Control.SIZE_FILL
+	_build_items(gear_column, record["gear"], false)
+	var relic_column := _column(build_row, "RELICS")
+	relic_column.name = "ChronicleRelics"
+	relic_column.custom_minimum_size.x = 0
+	_build_items(relic_column, record["relics"], true)
+	_spacer(_detail, DETAIL_ROW_GAP)
 	_detail.add_child(_heading("SPELLS"))
 	_spell_groups = CardTile.grouped_deck(record["deck"], _tooltip_host.definitions)
 	_spell_grid = GridContainer.new()
@@ -384,9 +391,9 @@ func _build_detail(record: Dictionary) -> void:
 	_spell_grid.add_theme_constant_override("v_separation", CardTile.TILE_GAP)
 	_detail.add_child(_spell_grid)
 	_refresh_spell_tiles()
-	_spacer(_detail, DETAIL_ROW_GAP)
-	_detail.add_child(_heading("RELICS"))
-	_build_items(_detail, record["relics"], true)
+	# The count pill extends below the last tile row; include that overhang in
+	# scrollable content so a bottom-row count is never clipped by the viewport.
+	_spacer(_detail, CardTile.BADGE_OVERLAP)
 	_link_tile_focus()
 
 func _refresh_spell_tiles() -> void:
@@ -409,7 +416,7 @@ func _refresh_spell_tiles() -> void:
 		tile.name = "Spell_" + str(group["id"])
 		tile.configure(group["id"], group["count"], group["definition"])
 		_tooltip_host.definitions[group["id"]] = tile.card_definition
-		tile.tooltip_builder = _tooltip_host._build_card_tooltip_panel
+		tile.tooltip_builder = _tooltip_host.card_tooltip
 		_add_spell_tile(tile)
 	if shown < _spell_groups.size():
 		var overflow := CardTile.new()
@@ -433,7 +440,7 @@ func _add_spell_tile(tile: Control) -> void:
 func _link_tile_focus() -> void:
 	_detail_tiles.clear()
 	var path_tiles: Array[Node] = _detail.find_children("PathSection*Room*", "Button", true, false)
-	for prefix: String in ["Gear_", "Spell_", "ChronicleSpellsOverflow", "Relic_"]:
+	for prefix: String in ["Gear_", "Relic_", "Spell_", "ChronicleSpellsOverflow"]:
 		for tile: Node in _detail.find_children(prefix + "*", "Button", true, false):
 			_detail_tiles.append(tile as Control)
 	for index: int in range(_detail_tiles.size()):
@@ -448,15 +455,16 @@ func _link_tile_focus() -> void:
 		tile.focus_neighbor_right = tile.focus_next
 		tile.focus_neighbor_top = tile.focus_previous
 		tile.focus_neighbor_bottom = tile.focus_next
-	if not _detail_tiles.is_empty():
+	if not _detail_tiles.is_empty() or not path_tiles.is_empty():
 		var row: Control = _rows.get_child(selected_index)
-		row.focus_neighbor_right = row.get_path_to(_detail_tiles[0])
+		var first: Control = _detail_tiles[0] if not _detail_tiles.is_empty() else path_tiles[0] as Control
+		row.focus_neighbor_right = row.get_path_to(first)
 		row.focus_next = row.focus_neighbor_right
 		# Path icons remain keyboard/controller reachable before the build chain.
 		for index: int in range(path_tiles.size()):
 			var tile: Control = path_tiles[index] as Control
 			var before: Control = path_tiles[index - 1] as Control if index > 0 else row
-			var after: Control = path_tiles[index + 1] as Control if index + 1 < path_tiles.size() else _detail_tiles[0]
+			var after: Control = path_tiles[index + 1] as Control if index + 1 < path_tiles.size() else (_detail_tiles[0] if not _detail_tiles.is_empty() else _close)
 			tile.focus_previous = tile.get_path_to(before)
 			tile.focus_next = tile.get_path_to(after)
 			tile.focus_neighbor_left = tile.focus_previous
@@ -466,12 +474,12 @@ func _link_tile_focus() -> void:
 		if not path_tiles.is_empty():
 			row.focus_next = row.get_path_to(path_tiles[0])
 
-func _build_path(record: Dictionary) -> void:
+func _build_path(record: Dictionary, parent: VBoxContainer) -> void:
 	var path: Array = record["path"]
 	for index: int in range(path.size()):
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 0)
-		_detail.add_child(row)
+		parent.add_child(row)
 		var section_name: String = str(record["section_names"][index]) if index < record["section_names"].size() else Rules.TODO_DESIGN_SECTION_NAME
 		var section := _label("%s · %s" % [Rules.Score.roman(index + 1), section_name], 16, Palette.TEXT_2)
 		section.custom_minimum_size.x = 150
@@ -503,7 +511,7 @@ func _build_path(record: Dictionary) -> void:
 				icon.tooltip_title = "%s · Guardian combat" % str(guardian["name"])
 			_configure_icon(icon, 34 if icon.terminal_defeat or not dragon else 44)
 			steps.add_child(icon)
-		_spacer(_detail, 8)
+		_spacer(parent, 8)
 
 func _build_items(parent: Node, ids: Array, relics: bool) -> void:
 	var flow := HFlowContainer.new()
@@ -522,19 +530,12 @@ func _build_items(parent: Node, ids: Array, relics: bool) -> void:
 		else:
 			icon.equipment_id = id
 			icon.tooltip_body.append("%s | %s" % [GameData.equipment_slot(id).capitalize(), GameData.equipment_rarity(id).capitalize()])
-			icon.tooltip_builder = _tooltip_host._build_equipment_tooltip_panel.bind(id)
+			icon.tooltip_builder = _tooltip_host.equipment_tooltip.bind(id)
 		_configure_icon(icon, 52)
 		flow.add_child(icon)
 
 func _relic_tooltip(id: String) -> Control:
-	# The run HUD uses this shared tooltip class. Its glossary implementation
-	# therefore also applies here when ux-03 changes the shared builder.
-	var source := RunScene.TooltipPanelContainer.new()
-	var relic: Dictionary = GameData.relic_def(id)
-	source.set_meta("relic_id", id)
-	var panel: Control = source._make_custom_tooltip("%s\n%s" % [relic.get("name", id), relic.get("description", "")])
-	source.free()
-	return panel
+	return PreviewBuilders.relic_tooltip(id)
 
 func _configure_icon(icon: RecordIcon, extent: int) -> void:
 	icon.custom_minimum_size = Vector2.ONE * extent
@@ -563,10 +564,19 @@ func _show_focus_tooltip(icon: Control) -> void:
 	call_deferred("_position_focus_tooltip")
 
 func _position_focus_tooltip() -> void:
-	if _focus_tooltip == null or not is_instance_valid(_focus_anchor):
+	if not is_instance_valid(_focus_tooltip) or not is_instance_valid(_focus_anchor):
 		return
-	var at: Vector2 = _focus_anchor.global_position + Vector2(0, _focus_anchor.size.y)
-	_focus_tooltip.position = Vector2(clampf(at.x, 0, size.x - _focus_tooltip.size.x), clampf(at.y, 0, size.y - _focus_tooltip.size.y))
+	_focus_tooltip.global_position = focus_tooltip_position(_focus_anchor.get_global_rect(), _focus_tooltip.size, get_global_rect())
+
+static func focus_tooltip_position(anchor: Rect2, extent: Vector2, bounds: Rect2) -> Vector2:
+	var x: float = clampf(anchor.position.x, bounds.position.x, bounds.end.x - extent.x)
+	var y: float = clampf(anchor.position.y, bounds.position.y, bounds.end.y - extent.y)
+	var candidates: Array[Vector2] = [Vector2(x, anchor.end.y), Vector2(x, anchor.position.y - extent.y), Vector2(anchor.end.x, y), Vector2(anchor.position.x - extent.x, y)]
+	for at: Vector2 in candidates:
+		if bounds.encloses(Rect2(at, extent)):
+			return at
+	# Oversized previews still must not cover their source tile.
+	return candidates[2]
 
 func _clear_focus_tooltip() -> void:
 	if is_instance_valid(_focus_tooltip):
