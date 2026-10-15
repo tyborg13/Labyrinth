@@ -23353,6 +23353,7 @@ func _play_timed_animation_frames(frame_count: int, frame_seconds: float, render
 	var safe_frame_count: int = maxi(0, frame_count)
 	if safe_frame_count == 0 or not render_frame.is_valid():
 		return
+	if _sfx_router != null: _sfx_router.begin_animation(safe_frame_count, frame_seconds)
 	var started_usec: int = Time.get_ticks_usec()
 	var presentation_started_usec: int = _combat_pacing.presentation_usec()
 	var rendered_frames: int = 0
@@ -24146,7 +24147,9 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 			# Area forces and swaps resolve through the shared mover; the surface
 			# beat flashes collisions and floats their damage on the result.
 			_set_action_banner(_player_action_label(card_id, action, before_state))
-			await _animate_surface_change(before_state, after_state, base_presentation)
+			await _animate_surface_change(before_state, after_state, base_presentation, func() -> void:
+				if action_type == "swap": _sfx_router.blink(0.0)
+			)
 		"self_flag", "cleanse", "convert_block_to_stoneskin", "mantle", "petrify":
 			_set_action_banner(_player_action_label(card_id, action, before_state))
 			var maneuver_tile: Vector2i = player_after_tile
@@ -25237,15 +25240,15 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 		distance += length
 		total_frame_count += frames
 	frame_seconds = _combat_pacing.walk_frame_seconds(actor_key, segment_frame_counts, frame_seconds)
-	var sound_arrival: Dictionary = {"tile": -1, "departed": false}
+	var sound_arrival: Dictionary = {"tile": -1, "segment": -1}
 	await _play_timed_animation_frames(total_frame_count, frame_seconds, func(frame_number: int) -> void:
-		if not bool(sound_arrival["departed"]):
-			_sfx_router.walk_start(actor_unit)
-			sound_arrival["departed"] = true
 		var zero_based_frame: int = frame_number - 1
 		var path_index: int = 0
 		while path_index + 1 < segment_count and zero_based_frame >= segment_start_frames[path_index + 1]:
 			path_index += 1
+		if path_index != int(sound_arrival["segment"]):
+			_sfx_router.walk_start(actor_unit)
+			sound_arrival["segment"] = path_index
 		if _combat_pacing.enemies_active: _combat_pacing.walk_tile(path_index)
 		var segment_frames: int = segment_frame_counts[path_index]
 		var segment_frame: int = zero_based_frame - segment_start_frames[path_index] + 1
@@ -34693,7 +34696,7 @@ func _friendly_damage_preview_chips(state: Dictionary, losses: Dictionary, movem
 				chips.append({"tile": tile, "actor_key": key, "label": "%s: −%d %s" % [name, int(loss[defense + "_loss"]), label], "kind": "danger"})
 	return chips
 
-func _animate_surface_change(before: Dictionary, after: Dictionary, base: Dictionary = {}) -> void:
+func _animate_surface_change(before: Dictionary, after: Dictionary, base: Dictionary = {}, first_frame: Callable = Callable()) -> void:
 	if _combat_pacing.overlap_surface(before, after, base): return
 	var events: Array[Dictionary] = _surface_events_between(before, after)
 	if events.is_empty(): events = _dictionary_array(base.get("surface_feedback_events", []))
@@ -34707,6 +34710,7 @@ func _animate_surface_change(before: Dictionary, after: Dictionary, base: Dictio
 		shown["surface_feedback_events"] = events
 		shown["surface_feedback_progress"] = t
 		shown["floating_texts"] = FloatingCombatText.animate_entries(texts, t * 0.36, _reduced_motion_enabled())
+		if frame == 1 and first_frame.is_valid(): first_frame.call()
 		# New ground lands on the first frame; any ground it replaces or
 		# consumes breaks and fades out in the same beat (break_surface).
 		_render_board_state(after, shown)

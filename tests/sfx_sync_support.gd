@@ -14,6 +14,7 @@ static func run(h: SceneTree) -> void:
 	_state_changes(h)
 	_ground(h)
 	_movement(h)
+	_veil(h)
 	_ui(h)
 	_run_contexts(h)
 	_ambience(h)
@@ -173,10 +174,15 @@ static func _movement(h: SceneTree) -> void:
 		unit["type"] = type
 		var path: Array[Vector2i]
 		path.assign([unit["pos"], unit["pos"] + Vector2i(0, 1)])
+		if type == "tharokh": path.append(unit["pos"] + Vector2i(1, 1))
 		h.walk_actor = key
 		var rendered_unit: Dictionary = h.scene.call("_animation_actor_unit", before, key)
 		h.walk_goal = h.scene.get("board_view").world_position_for_unit_origin(rendered_unit, path[1])
+		for destination: Vector2i in path.slice(1):
+			h.walk_goals[h.scene.get("board_view").draw_tile_for_unit_origin(rendered_unit, destination)] = h.scene.get("board_view").world_position_for_unit_origin(rendered_unit, destination)
 		h._invoke("_animate_actor_along_path", [before, key, path, {}])
+		if type == "tharokh" and h.events.filter(func(e: Dictionary) -> bool: return e["cue"] == "dragon.wings").size() != path.size() - 1:
+			h.failures.append("Dragon must request wings on each movement segment")
 		h._finish(before)
 	for kind: String in ["item", "equipment"]:
 		h._begin("pickup/" + kind)
@@ -261,19 +267,31 @@ static func _branches(h: SceneTree) -> void:
 		h._finish(state)
 	h._begin("enemy/eclipse")
 	var state: Dictionary = h._state()
-	h.router.begin_enemy_action(state, {"kind": "umbra_eclipse"}, {"type": "noctyrax", "id": 9})
-	h.scene.call("_render_board_state", state, {"effect": {"kind": "umbra_eclipse"}, "effect_progress": 0.1})
+	var eclipse: Dictionary = {"kind": "umbra_eclipse", "enemy_type": "noctyrax"}
+	h.router.begin_enemy_action(state, eclipse, {"type": "noctyrax", "id": 9})
+	h._invoke("_play_timed_animation_frames", [66, 1.0 / 60.0, func(frame: int) -> void:
+		h.scene.call("_render_board_state", state, {"effect": eclipse, "effect_progress": float(frame) / 66.0})
+	])
 	h._finish(state)
 	for loss: bool in [false, true]:
 		h._begin("dragon/area/" + str(loss))
 		state = h._state()
 		var after: Dictionary = state.duplicate(true)
 		if loss: after["player"]["hp"] -= 6
-		h.router.begin_enemy_action(state, {"kind": "aoe", "element": "fire"}, {"type": "tharokh", "id": 9})
-		h.scene.call("_render_board_state", state, {"effect": {"kind": "aoe"}, "effect_progress": 0.1})
-		h.clock.step(h)
-		h.scene.call("_render_board_state", after, {"effect": {"kind": "aoe"}, "effect_progress": 0.8, "impact_actor_keys": ["player"]})
-		h._finish(state)
+		state["enemies"][0]["type"] = "tharokh"
+		state["enemies"][0]["intent"] = {"id": "sync_fixture", "actions": []}
+		var step: Dictionary = {"kind": "aoe", "actor_key": "enemy_1", "actor_name": "Tharokh", "action_type": "terrain_burst", "element": "earth", "from": state["enemies"][0]["pos"], "to": state["player"]["pos"], "tiles": [state["player"]["pos"]], "hp_loss": 6 if loss else 0}
+		var original: Dictionary = state.duplicate(true)
+		h._invoke("_animate_enemy_phase_steps", [state, [step]])
+		h._finish(original)
+	h._begin("dragon/breath")
+	state = h._state()
+	state["enemies"][0]["type"] = "tharokh"
+	state["enemies"][0]["intent"] = {"id": "sync_fixture", "actions": []}
+	var breath: Dictionary = {"kind": "aoe", "action_type": "ranged", "intent_id": "bedrock_breath", "actor_key": "enemy_1", "actor_name": "Tharokh", "element": "earth", "from": state["enemies"][0]["pos"], "to": state["player"]["pos"], "tiles": [state["player"]["pos"]]}
+	var before_breath: Dictionary = state.duplicate(true)
+	h._invoke("_animate_enemy_phase_steps", [state, [breath]])
+	h._finish(before_breath)
 	h._begin("trap/hero_hurt")
 	state = h._state()
 	var after: Dictionary = state.duplicate(true)
@@ -297,3 +315,19 @@ static func _branches(h: SceneTree) -> void:
 	var step: Dictionary = {"kind": "push", "actor_key": "enemy_1", "from": Vector2i(5, 4), "to": Vector2i(2, 4), "damage": 0, "amount": 1}
 	h._invoke("_animate_enemy_phase_steps", [state, [step]])
 	h._finish(state)
+
+static func _veil(h: SceneTree) -> void:
+	for label: String in ["Fade", "Ambush"]:
+		h._begin("enemy/veil/" + label)
+		var state: Dictionary = h._state()
+		state["enemies"][0]["type"] = "veilbound_acolyte"
+		state["enemies"][0]["intent"] = {"id": "sync_fixture", "actions": []}
+		var after: Dictionary = state.duplicate(true)
+		after["enemies"][0]["pos"] += Vector2i(0, 1)
+		var step: Dictionary = {"kind": "melee" if label == "Ambush" else "move", "action_type": "melee" if label == "Ambush" else "veil_blink", "en03_veil": true, "actor_key": "enemy_1", "from": state["enemies"][0]["pos"], "to": after["enemies"][0]["pos"], "label": label, "blink_after": after, "en03_after": after}
+		h._invoke("_animate_enemy_phase_steps", [state, [step]])
+		var blink_frames: int = h.clock.frames.filter(func(f: Dictionary) -> bool: return f["shown"].get("effect", {}).get("kind", "") == "blink").size()
+		var blink_requests: int = h.events.filter(func(e: Dictionary) -> bool: return e["cue"] == "move.blink").size()
+		h.silence_rows.append({"scenario": h.scenario, "visual": "enemy Veil blink", "frames": blink_frames, "requests": blink_requests, "other_cues": h.events.map(func(e: Dictionary) -> String: return e["cue"])})
+		if blink_frames == 0 or blink_requests != 0: h.failures.append("Veil %s must render its blink without a blink cue" % label)
+		h._finish(state)

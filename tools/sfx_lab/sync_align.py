@@ -78,9 +78,9 @@ def trim_samples(samples: np.ndarray, rate: int, removed: int) -> np.ndarray:
     return fade_in(samples[removed:].copy(), rate, ALIGNMENT_FADE_MS)
 
 
-def rebuild_aligned(root: Path, manifest: Path, features: Path, provenance: Path, audit: Path) -> dict:
+def rebuild_aligned(root: Path, manifest: Path, features: Path, provenance: Path, audit: Path, phase_name: str = "feedback_1_before") -> dict:
     document = read_json(audit)
-    phase = document["feedback_1_before"]
+    phase = document[phase_name]
     phase_sha = hashlib.sha256(json.dumps(phase, sort_keys=True).encode()).hexdigest()
     cues = read_json(root / "data/sfx_cues.json")["cues"]
     bounds = constraints(phase, cues)
@@ -100,12 +100,15 @@ def rebuild_aligned(root: Path, manifest: Path, features: Path, provenance: Path
             continue
         previous = outputs.get(entry["path"], entry)
         alignment = previous["processing"].get("sfx_04_alignment", {})
-        if alignment.get("baseline_phase_sha256") == phase_sha and sha256(path) == previous["output_sha256"]:
+        ancestor = alignment
+        already_applied = False
+        while ancestor:
+            already_applied |= ancestor.get("baseline_phase_sha256") == phase_sha
+            ancestor = ancestor.get("previous_alignment", {})
+        if already_applied and sha256(path) == previous["output_sha256"]:
             continue
         if sha256(path) != before["sha256"] or sha256(path) != previous["output_sha256"]:
             raise LabError(f"Unrecognized pre-feedback audio revision: {path}")
-        if alignment:
-            raise LabError(f"Refusing to stack an alignment onto a different baseline: {path}")
         variant = variant_from_provenance(entry)
         samples, rate, parameters = process(library, library.get(variant), variant, entry["category"], entry["loop"], {})
         for key, value in parameters.items():
@@ -116,6 +119,12 @@ def rebuild_aligned(root: Path, manifest: Path, features: Path, provenance: Path
         lead_trim = previous["processing"].get("sfx_04")
         if lead_trim:
             samples = fade_in(samples[int(lead_trim["removed_samples"]):].copy(), rate, float(lead_trim["fade_in_ms"]))
+        previous_removed = int(alignment.get("removed_samples", 0))
+        previous_gain = float(alignment.get("loudness_restore_gain_db", 0))
+        if alignment:
+            # Reconstruct from lossless originals, retaining the earlier cut
+            # and restoring its gain. Never trim or re-encode an Ogg decode.
+            samples = trim_samples(samples, rate, previous_removed) * 10 ** (previous_gain / 20)
         floating = envelope_times(samples, rate)
         minimum_trim_ms = max(0.0, floating["perceived_onset_ms"] - bound["max_onset_ms"],
                               floating["peak_ms"] - bound["max_peak_ms"] if bound["max_peak_ms"] is not None else 0.0)
@@ -182,14 +191,16 @@ def rebuild_aligned(root: Path, manifest: Path, features: Path, provenance: Path
             output["parent_output_sha256"] = entry["output_sha256"]
             output["output_sha256"] = sha256(rebuilt)
             output["processing"]["sfx_04_alignment"] = {
-                "task": "sfx-04", "rule": "director-feedback-1", "baseline_phase_sha256": phase_sha,
-                "prior_output_sha256": before["sha256"], "removed_samples": removed,
-                "removed_ms": removed * 1000 / rate, "fade_in_ms": ALIGNMENT_FADE_MS,
+                "task": "sfx-04", "rule": "director-" + phase_name.removesuffix("_before").replace("_", "-"), "baseline_phase_sha256": phase_sha,
+                "prior_output_sha256": before["sha256"], "removed_samples": previous_removed + removed,
+                "additional_removed_samples": removed, "previous_alignment": alignment,
+                "removed_ms": (previous_removed + removed) * 1000 / rate, "fade_in_ms": ALIGNMENT_FADE_MS,
                 "retained_pre_peak_ms": floating["peak_ms"] - removed * 1000 / rate,
                 "fade_in_curve": "linear", "tail_preserved": True, "constraints": bound,
                 "before": before, "after": {**metrics, "short_loudness_lufs": measured_loudness,
                                             "leading_ms": leading_ms(actual, actual_rate)},
-                "loudness_restore_gain_db": restore_gain_db,
+                "loudness_restore_gain_db": previous_gain + restore_gain_db,
+                "additional_loudness_restore_gain_db": restore_gain_db,
                 "short_loudness_delta_lu": measured_loudness - target_loudness,
                 "loudness_window_ms": 100.0, "loudness_hop_ms": 25.0,
                 "encoder_passes": attempt + 1,

@@ -135,20 +135,23 @@ Shale Bloomer is the current `bile_bloomer` id and has the director's stone deat
   adds the one body layer `hurt.hero`. Last Block lost with HP loss adds
   `block.break` as the explicit director-authored exception.
 - Repeated contact notifications for one target in the same action merge inside
-  the data's 60 ms window. Area actions request one full impact and at most two
-  extra impacts at −6 dB after 35/70 ms. Those authorized area instances bypass
-  cue cooldown (some elemental cooldowns exceed 35 ms). Chain-hop contact instead
-  uses its shown lightning element at −5 dB, at that hop's contact time.
+  the data's 60 ms window. Same-frame area contacts play one primary impact,
+  with no stacked copies. Up to two later contact frames each request one
+  additional impact at −6 dB on that frame, bypassing cue cooldown. There is
+  no stagger queue. Chain-hop contact uses its shown lightning element at
+  −5 dB, at that hop's contact time.
 - Beast/avian wind-up vocals use a deterministic presentation seed per action
   with a 30% branch; the bank enforces the authored 900 ms cooldown. Dragon first
-  action requests a roar once per fight. Big area roar requests occur at
-  resolution per the brief (the protected data's wording says start; the brief
-  takes precedence); the data's 4000 ms cooldown still applies. Dragon travel
-  requests wings alongside each large-enemy tile arrival.
+  action requests a roar once per fight. Big area roars align their RMS peak to the wind-up release;
+  the per-call rule below handles each release duration. The data's 4000 ms
+  cooldown still applies. Dragon travel requests wings on the first frame of
+  each tile's movement segment; heavy footsteps remain at tile arrival.
 - A trap spring uses only `trap.trigger`; it never adds an element spell impact.
   If the trap creates a surface, that creation uses the separate `surface.*` cue.
 - Expose is deliberately removed. Its card/intent provides the signal. Pass
   continues to produce only the shared click. Card cues apply only to cards.
+
+Shared samples keep one verified asset. When calls have different visual climaxes, align each call's RMS peak (measured with a centered 5 ms envelope) using its actual selected pitch: target climax +15 ms and assert the 0…+30 ms window. Delay a nonnegative start; otherwise skip the head in memory, retaining at least 15 ms before the peak and the complete tail with a verified 3 ms linear fade-in. Peak-aligned calls use the peak window, with the perceived-onset cap measured from their scheduled start. Swap uses this rule at its first exchanged-position frame; ordinary blink keeps its existing playback. Dragon roar uses each animation's release frame. This is also the policy for future shared-sample conflicts; approved assets, gains and pitch ranges stay unchanged.
 
 ## Adding variants and proof
 

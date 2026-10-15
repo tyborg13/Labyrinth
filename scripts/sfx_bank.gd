@@ -1,6 +1,7 @@
 extends Node
 class_name SfxBank
 
+const PeakAlignment = preload("res://scripts/sfx_peak_alignment.gd")
 const Assets = preload("res://scripts/asset_loader.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Attacks = preload("res://scripts/attack_sfx_library.gd")
@@ -24,6 +25,8 @@ var _loop_starts: Array[float] = []
 var _fade_elapsed: float = CROSSFADE_SECONDS
 var _loop_cursor: int = 0
 var _serial: int = 0
+var _peak_pending: Array[Dictionary]
+var last_play: Dictionary = {}
 var _clock_ms: int = -1
 var _host: Node
 var _legacy_options: Dictionary = {"gain_db": 0.0, "duration": -1.0}
@@ -36,6 +39,9 @@ func warm_up(host: Node = null, source: Dictionary = {}, seed_value: int = -1) -
 	data = source if not source.is_empty() else JSON.parse_string(FileAccess.get_file_as_string(DATA_PATH))
 	for cue_id: String in data.get("cues", {}):
 		_compile(cue_id, data["cues"][cue_id], seed_value)
+	for cue: String in ["move.blink", "dragon.roar"]:
+		if cues.has(cue):
+			for stream: AudioStream in cues[cue]["streams"]: PeakAlignment.decoded(stream)
 	for index: int in range(2):
 		var player := AudioStreamPlayer.new()
 		player.name = "AmbientSfxPlayer" if index == 0 else "AmbientSfxCrossfadePlayer"
@@ -103,6 +109,9 @@ func set_test_clock(milliseconds: int) -> void:
 func now_ms() -> int:
 	return _clock_ms if _clock_ms >= 0 else Time.get_ticks_msec()
 
+func frame_id() -> int:
+	return _clock_ms if _clock_ms >= 0 else Engine.get_process_frames()
+
 func play(cue_id: String, opts: Dictionary = EMPTY_OPTIONS) -> float:
 	if cues.is_empty(): warm_up()
 	cue_id = Attacks.CUE_ALIASES.get(cue_id, Runs.CUE_ALIASES.get(cue_id, cue_id))
@@ -117,7 +126,6 @@ func play(cue_id: String, opts: Dictionary = EMPTY_OPTIONS) -> float:
 		state["suppressed"] += 1
 		cue_requested.emit(cue_id, "cooldown")
 		return 0.0
-	state["last_ms"] = now
 	var streams: Array = state["streams"]
 	if streams.is_empty():
 		state["silent"] += 1
@@ -130,6 +138,28 @@ func play(cue_id: String, opts: Dictionary = EMPTY_OPTIONS) -> float:
 	var rng: RandomNumberGenerator = state["rng"]
 	var jitter: float = float(entry.get("pitch_jitter", 0.0))
 	var pitch: float = float(entry.get("pitch_scale", 1.0)) * (1.0 + rng.randf_range(-jitter, jitter))
+	var selected: Dictionary = {"resource": resource, "pitch": pitch, "gain": gain, "sample_index": posmod(int(state["next"]) - 1, streams.size())}
+	if opts.has("peak_climax_ms"):
+		var alignment: Dictionary = PeakAlignment.plan(resource, pitch, float(opts["peak_climax_ms"]))
+		selected["alignment"] = alignment
+		selected["due_ms"] = now + float(alignment["delay_ms"])
+		if float(alignment["delay_ms"]) > 0.0:
+			_peak_pending.append({"cue": cue_id, "selected": selected, "opts": opts.duplicate()})
+			return resource.get_length() / pitch + float(alignment["delay_ms"]) / 1000.0
+	return _start_selected(cue_id, selected, opts)
+
+func _start_selected(cue_id: String, selected: Dictionary, opts: Dictionary) -> float:
+	var state: Dictionary = cues[cue_id]
+	var entry: Dictionary = state["entry"]
+	var now: int = now_ms()
+	if selected.has("due_ms") and not bool(opts.get("area_instance", false)) and now - int(state["last_ms"]) < int(entry.get("cooldown_ms", 0)):
+		state["suppressed"] += 1
+		cue_requested.emit(cue_id, "cooldown")
+		return 0.0
+	var resource: AudioStream = selected["resource"]
+	var pitch: float = selected["pitch"]
+	var gain: float = selected["gain"]
+	var alignment: Dictionary = selected.get("alignment", {}).duplicate()
 	if bool(entry.get("loop", false)):
 		_start_loop(cue_id, resource, gain, pitch)
 	else:
@@ -139,6 +169,13 @@ func play(cue_id: String, opts: Dictionary = EMPTY_OPTIONS) -> float:
 			state["suppressed"] += 1
 			cue_requested.emit(cue_id, "priority")
 			return 0.0
+		if not alignment.is_empty():
+			# Compensate a scheduler tick's overshoot without moving the target peak.
+			var skip: float = float(alignment["skip_ms"]) + maxf(0.0, now - float(selected["due_ms"])) * pitch
+			var trimmed: Dictionary = PeakAlignment.trimmed(resource, pitch, skip)
+			resource = trimmed["stream"]
+			alignment.merge(trimmed)
+			alignment.erase("stream")
 		player.stop()
 		player.stream = resource
 		player.bus = bus_for(str(entry.get("bus", "World")))
@@ -153,6 +190,8 @@ func play(cue_id: String, opts: Dictionary = EMPTY_OPTIONS) -> float:
 		player.set_meta("sfx_id", cue_id)
 		player.set_meta("play_generation", int(player.get_meta("play_generation", 0)) + 1)
 		if player.is_inside_tree(): player.play()
+	last_play = {"cue": cue_id, "selected": selected, "alignment": alignment, "stream": resource}
+	state["last_ms"] = now
 	state["played"] += 1
 	cue_requested.emit(cue_id, "played")
 	return resource.get_length() / pitch
@@ -213,6 +252,12 @@ func _process(delta: float) -> void:
 	advance(delta)
 
 func advance(delta: float) -> void:
+	var due: Array[Dictionary]
+	for pending: Dictionary in _peak_pending:
+		if now_ms() >= float(pending["selected"]["due_ms"]): due.append(pending)
+	for pending: Dictionary in due:
+		_peak_pending.erase(pending)
+		_start_selected(pending["cue"], pending["selected"], pending["opts"])
 	for player: AudioStreamPlayer in players:
 		if player.stream != null and now_ms() >= int(player.get_meta("until", 0)):
 			player.stop()

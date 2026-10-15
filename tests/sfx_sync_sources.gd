@@ -2,8 +2,8 @@ extends RefCounted
 
 # In-memory instrumentation only. No generated .gd/.uid files and no checkout
 # switching: a baseline revision can run beside the current full test suite.
-const SOURCE_PATHS: Array = ["scripts/run_scene.gd", "scripts/sfx_bank.gd", "scripts/sfx_cue_router.gd", "data/sfx_cues.json",
-	"tests/sfx_sync_harness.gd", "tests/sfx_sync_clock.gd", "tests/sfx_sync_pacing.gd", "tests/sfx_sync_sources.gd", "tests/sfx_sync_support.gd", "tests/sfx_sync_visuals.gd"]
+const SOURCE_PATHS: Array = ["scripts/sfx_peak_alignment.gd", "scripts/run_scene.gd", "scripts/sfx_bank.gd", "scripts/sfx_cue_router.gd", "data/sfx_cues.json",
+	"tests/sfx_sync_harness.gd", "tests/sfx_sync_clock.gd", "tests/sfx_sync_pacing.gd", "tests/sfx_sync_sources.gd", "tests/sfx_sync_support.gd", "tests/sfx_sync_visuals.gd", "tests/sfx_sync_coverage.gd"]
 
 static func read_source(path: String, supplied: Dictionary) -> String:
 	return str(supplied.get(path, FileAccess.get_file_as_string("res://" + path)))
@@ -21,6 +21,7 @@ static func compile_script(path: String, source: String) -> GDScript:
 
 static func bank(supplied: Dictionary) -> GDScript:
 	var source: String = read_source("scripts/sfx_bank.gd", supplied)
+	source = source.replace("cue_id = Attacks.CUE_ALIASES.get", "opts = opts.duplicate(); opts[\"sync_stack\"] = get_stack(); cue_id = Attacks.CUE_ALIASES.get")
 	source = source.replace("seed_value: int = -1", "seed_value: int = 410")
 	source = source.replace('slot["due"] = now_ms() + delay_ms', 'slot["sync_stack"] = get_stack(); slot["due"] = now_ms() + delay_ms')
 	source = source.replace("cue_requested.emit(", 'scheduled_stack = opts.get("sync_stack", []); cue_requested.emit(')

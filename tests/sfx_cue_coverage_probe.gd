@@ -158,12 +158,15 @@ func _drive() -> void:
 	for biome: String in ["stone", "tharokh", "vyraketh", "vaeloryx", "iskaldra", "zekarion", "noctyrax"]:
 		router.ambience(biome)
 		_check(["ambience." + biome], "biome bed " + biome)
-	# Area contacts retain full / -6 / -6 and the three-instance cap; every
-	# contact starts on its visual frame, with no stagger queue to drain later.
+	# Same-frame contacts have one primary; later frames may add two layers.
 	var area: Dictionary = {"type": "aoe", "element": "fire", "damage": 3}
 	router.begin_player_action(_state(), area)
 	for id: int in range(4): router.hit(area, {}, "", {"id": id, "hp": 12}, {"hp": 9})
-	_check(["spell.fire", "spell.fire", "spell.fire"], "three simultaneous area impacts")
+	_check(["spell.fire"], "one primary for simultaneous area impacts")
+	for id: int in range(4, 7):
+		bank.set_test_clock(bank.now_ms() + 17)
+		router.hit(area, {}, "", {"id": id, "hp": 12}, {"hp": 9})
+	_check(["spell.fire", "spell.fire"], "two later contact frames retain the area cap")
 	bank.advance(0.1)
 	_check([], "area impacts never wait in a stagger queue")
 	# The same contact arriving through two hooks merges inside the data window.

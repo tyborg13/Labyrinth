@@ -122,12 +122,13 @@ def main() -> None:
     parser.add_argument("--manifest", type=Path, default=Path("spec/assets/sfx/manifest.json"))
     parser.add_argument("--features", type=Path, required=True)
     parser.add_argument("--provenance", type=Path, default=Path("assets/audio/sfx/sfx-04-provenance.json"))
-    parser.add_argument("--align-audit", type=Path, help="Apply feedback-1 peak/onset constraints from the retained pre-feedback audit")
+    parser.add_argument("--align-audit", type=Path, help="Apply peak/onset constraints from a retained pre-feedback audit")
+    parser.add_argument("--alignment-phase", default="feedback_1_before")
     args = parser.parse_args()
     root = args.root.resolve()
     if args.align_audit:
         from tools.sfx_lab.sync_align import rebuild_aligned
-        rebuild_aligned(root, root / args.manifest, args.features, root / args.provenance, root / args.align_audit)
+        rebuild_aligned(root, root / args.manifest, args.features, root / args.provenance, root / args.align_audit, args.alignment_phase)
     else:
         rebuild(root, root / args.manifest, args.features, root / args.provenance)
 

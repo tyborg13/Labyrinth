@@ -1,5 +1,6 @@
 extends RefCounted
 
+const Dragon = preload("res://scripts/dragon_presentation.gd")
 const Fx = preload("res://scripts/attack_fx_library.gd")
 
 # The trigger is the first associated visual/input response. The climax is a
@@ -7,8 +8,19 @@ const Fx = preload("res://scripts/attack_fx_library.gd")
 static func climax(cue: String, frames: Array[Dictionary], anchor: Dictionary) -> Dictionary:
 	if cue.begins_with("ambience."):
 		return {"applicable": false, "kind": "ambient bed (exempt)"}
-	if cue.begins_with("swing.") or cue.begins_with("vocal.") or cue in ["dragon.roar", "dragon.wings", "push.slide"]:
+	if cue.begins_with("swing.") or cue.begins_with("vocal.") or cue in ["dragon.wings", "push.slide"]:
 		return {"applicable": false, "kind": "continuous movement or wind-up; no distinct burst/contact"}
+	if cue == "dragon.roar":
+		for frame: Dictionary in frames:
+			var effect: Dictionary = frame["shown"].get("effect", {})
+			if Dragon.profile(effect).is_empty(): continue
+			var release: float = Dragon.RELEASE if str(Dragon.profile(effect).get("geometry", "")) == "breath" else Dragon.CONTACT
+			if float(frame["shown"].get("effect_progress", 0.0)) >= release:
+				return _at(frame, "dragon wind-up release")
+		# A first-action intent banner has no wind-up animation or release.
+		if frames.all(func(frame: Dictionary) -> bool: return not frame["shown"].has("effect")):
+			return {"applicable": false, "kind": "first-action intent response; no animated release"}
+		return {}
 	if cue == "move.blink":
 		var origin: Variant = anchor.get("shown", {}).get("effect", {}).get("from")
 		for frame: Dictionary in frames:

@@ -4,7 +4,7 @@
   "rules": {
     "one_impact_per_hit": "A damaging hit plays exactly one impact cue (by attack kind) plus at most one body/hurt layer. Never stack two impacts for one hit.",
     "merge_window_ms": 60,
-    "area_hits": "An area or multi-target action plays its impact once at full volume and up to 2 more instances at -6 dB staggered 35 ms."
+    "area_hits": "An area or multi-target action plays one primary impact for same-frame contacts; up to 2 later contact frames each play one layer at -6 dB on that frame, without a stagger."
   },
   "cues": {
     "swing.light": {"bus": "World", "volume_db": -3.5, "pitch_jitter": 0.06, "cooldown_ms": 40, "max_voices": 3, "fallback": [], "trigger": "Wind-up of a light melee attack (blade/claw/pierce, damage <= 5), timed to the weapon's swing start.", "variants": ["res://assets/audio/sfx/cues/swing.light/swing.light_01.ogg", "res://assets/audio/sfx/cues/swing.light/swing.light_02.ogg", "res://assets/audio/sfx/cues/swing.light/swing.light_03.ogg"]},

@@ -1,6 +1,7 @@
 extends RefCounted
 class_name SfxCueRouter
 
+const Dragon = preload("res://scripts/dragon_presentation.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const Attacks = preload("res://scripts/attack_sfx_library.gd")
 const Fx = preload("res://scripts/attack_fx_library.gd")
@@ -61,11 +62,15 @@ var _terrain: Dictionary = {}
 var _illusions: Dictionary = {}
 var _deaths: Dictionary = {}
 var _dragons: Dictionary = {}
+var _roar_pending: bool = false
+var _animation_frames: int = 1
+var _animation_frame_ms: float = 0.0
 var _resolved: bool = false
 var _released: bool = false
 var _blink_signature: String = ""
 var _blink_progress: float = -1.0
 var _impact_count: int = 0
+var _impact_frame: int = -1
 var _action_serial: int = 0
 var _fight_key: String = ""
 var _deck: Dictionary = {}
@@ -158,11 +163,13 @@ func begin_enemy_action(before: Dictionary, action: Dictionary, actor: Dictionar
 	begin_action(before, action, actor)
 
 func begin_action(before: Dictionary, action: Dictionary, actor: Dictionary, weapon: String = "") -> void:
+	_roar_pending = false
 	_action = action
 	_actor = actor
 	_weapon = weapon
 	_action_serial += 1
 	_impact_count = 0
+	_impact_frame = -1
 	_collisions.clear()
 	_merged_hits.clear()
 	_resolved = false
@@ -179,7 +186,8 @@ func begin_action(before: Dictionary, action: Dictionary, actor: Dictionary, wea
 	# Waiting for a damage/impact snapshot put this layer after the cast visual.
 	if family == "dragon" and (not _dragons.has(actor_key) or kind in ["aoe", "lightning_strikes"]):
 		_dragons[actor_key] = true
-		request("dragon.roar")
+		_roar_pending = not Dragon.profile(action, actor).is_empty()
+		if not _roar_pending: request("dragon.roar")
 	if kind == "umbra_eclipse": request("spell.shadow")
 	if kind not in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "detonate", "all_enemies", "burst_terrain", "destroy_illusion"]: return
 	if family in ["beast", "avian"]:
@@ -221,11 +229,16 @@ func hit(action: Dictionary, actor: Dictionary, weapon: String, target_before: D
 	if _merged_hits.has(key) and now - int(_merged_hits[key]) < merge_ms: return
 	_merged_hits[key] = now
 	var cue: String = impact_cue(action, actor, weapon, target_before, hp_loss, absorbed, _collisions.has(key))
-	if _impact_count == 0:
-		request(cue, {"gain_db": gain_db})
-	elif _impact_count <= 2 and bank != null:
-		request(cue, {"gain_db": gain_db + AREA_GAIN_DB, "area_instance": true})
-	_impact_count += 1
+	var frame: int = bank.frame_id() if bank != null else Engine.get_process_frames()
+	# One contact voice per rendered frame. Later contact frames retain the
+	# authored optional -6 dB layers and three-voice cap, without a delay queue.
+	if frame != _impact_frame:
+		if _impact_count == 0:
+			request(cue, {"gain_db": gain_db})
+		elif _impact_count <= 2 and bank != null:
+			request(cue, {"gain_db": gain_db + AREA_GAIN_DB, "area_instance": true})
+		_impact_count += 1
+		_impact_frame = frame
 	if hp_loss > 0 and int(target_before.get("block", 0)) > 0 and int(target_after.get("block", 0)) == 0: request("block.break")
 	if hp_loss >= 5 and str(target_before.get("type", "player")) == "player": request("hurt.hero")
 
@@ -245,7 +258,8 @@ func walk_tile(unit: Dictionary) -> void:
 func walk_start(unit: Dictionary) -> void:
 	if DEATH_FAMILIES.get(str(unit.get("type", "")), "") == "dragon": request("dragon.wings")
 
-func blink() -> void: request("move.blink")
+func blink(climax_ms: float = -1.0) -> void:
+	request("move.blink", {"peak_climax_ms": climax_ms} if climax_ms >= 0.0 else {})
 func push() -> void: request("push.slide")
 func trap(traps: Array) -> void:
 	_trap_impact_pending = not traps.is_empty()
@@ -288,9 +302,19 @@ func baseline(state: Dictionary) -> void:
 		var name: String = str(GameData.relic_def(id).get("name", ""))
 		if not name.is_empty(): _relic_names.append(name)
 
+func begin_animation(frame_count: int, frame_seconds: float) -> void:
+	_animation_frames = frame_count
+	_animation_frame_ms = round(frame_seconds * 1000000.0) / 1000.0
+
 func presentation(state: Dictionary, shown: Dictionary) -> void:
 	var effect: Dictionary = shown.get("effect", {})
-	if str(effect.get("kind", "")) == "blink" and not bool(effect.get("preview", false)):
+	if _roar_pending and not Dragon.profile(effect).is_empty():
+		_roar_pending = false
+		var release: float = Dragon.RELEASE if str(Dragon.profile(effect).get("geometry", "")) == "breath" else Dragon.CONTACT
+		var current_frame: int = roundi(float(shown.get("effect_progress", 0.0)) * _animation_frames)
+		var climax_ms: float = maxi(0, ceili(release * _animation_frames) - current_frame) * _animation_frame_ms
+		request("dragon.roar", {"peak_climax_ms": climax_ms})
+	if str(effect.get("kind", "")) == "blink" and str(effect.get("actor_key", "player")) == "player" and not bool(effect.get("preview", false)):
 		var signature: String = str(effect)
 		var progress: float = float(shown.get("effect_progress", 0.0))
 		if signature != _blink_signature or progress < _blink_progress: blink()

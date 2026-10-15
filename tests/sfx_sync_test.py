@@ -16,7 +16,7 @@ from tools.sfx_lab.common import LabError, decode
 from tools.sfx_lab.sync import leading_ms, trim_onset, variant_from_provenance
 from tools.sfx_lab.sync_align import trim_samples, constraints
 from tools.sfx_lab.sync_metrics import envelope_times, short_loudness, onset_cap
-from tools.sfx_sync_audit import analyze, digest, source_sites
+from tools.sfx_sync_audit import analyze, digest, source_sites, site_identity, coverage_regressions
 
 
 class TimingTrimTests(unittest.TestCase):
@@ -122,9 +122,14 @@ class AuditTests(unittest.TestCase):
 
     @staticmethod
     def event(observation: dict) -> dict:
+        sites = {site_identity(site): site for site in source_sites(ROOT)}
+        # Reconstruct the synthetic test stack from stable statement identities,
+        # never from the saved report's line positions.
+        current = [sites[site_identity(site)] for site in observation["call_sites"]]
         return {"scenario": "regression", **{key: observation[key] for key in
                 ("cue", "result", "delay_ms", "pitch", "climax_applicable", "climax_kind", "climax_after_trigger_ms")},
-                "stack": [{"source": "res://" + frame["file"], "line": frame["line"], "function": frame["function"]} for frame in observation["route"]],
+                "alignment": copy.deepcopy(observation.get("alignment") or {}),
+                "stack": [{"source": "res://" + frame["file"], "line": frame["line"], "function": frame["function"]} for frame in current],
                 "anchor_stack": [{"source": "res://" + frame["file"], "line": frame["line"], "function": frame["function"]} for frame in observation["visual_anchor"]],
                 "climax_stack": [{"source": "res://" + frame["file"], "line": frame["line"], "function": frame["function"]} for frame in observation["visual_climax"]]}
 
@@ -137,9 +142,66 @@ class AuditTests(unittest.TestCase):
         self.assertEqual(after["summary"]["cues"], len(self.cues))
         self.assertEqual(after["summary"]["violations"], 0)
         self.assertEqual(after["summary"]["unmeasured"], 0)
-        self.assertEqual(after["call_site_inventory"], source_sites(ROOT))
-        for path, value in after["source_sha256"].items():
-            self.assertEqual(digest(ROOT / path), value, f"Stale audit: {path}")
+        self.assertEqual({site_identity(site) for site in after["call_site_inventory"]},
+                         {site_identity(site) for site in source_sites(ROOT)})
+
+    def test_per_call_alignment_uses_actual_pitch_and_preserves_verified_assets(self):
+        after = self.report["after"]
+        aligned = [event for event in after["observations"] if event.get("alignment")]
+        self.assertEqual({event["scenario"] for event in aligned}, {
+            "player/swap", "enemy/eclipse", "dragon/area/false", "dragon/area/true", "dragon/breath"})
+        for observation in aligned:
+            alignment = observation["alignment"]
+            self.assertTrue(alignment["fade_and_tail_verified"])
+            self.assertTrue(alignment["pcm_sha256"])
+            relative = observation["delay_ms"] + alignment["metrics"]["peak_ms"] / observation["pitch"] - observation["climax_after_trigger_ms"]
+            self.assertAlmostEqual(relative, 15, delta=0.1)
+            event = self.event(observation)
+            for mutation in ("peak_ms", "fade_and_tail_verified"):
+                broken = copy.deepcopy(event)
+                if mutation == "peak_ms": broken["alignment"]["metrics"][mutation] += 50
+                else: broken["alignment"][mutation] = False
+                result = analyze(ROOT, {"rows": [broken], "failures": [], "frame_usec": 16667}, self.cues, after["samples"])
+                self.assertGreater(result["summary"]["violations"], 0)
+        for path, sample in after["samples"].items():
+            self.assertEqual(sample["sha256"], self.report["feedback_2_before"]["samples"][path]["sha256"])
+
+    def test_same_frame_three_target_area_matches_single_hit_loudness(self):
+        proof = self.report["after"]["area_loudness"]
+        self.assertTrue(proof["pass"])
+        self.assertEqual(proof["area/same_frame"]["voices"], 1)
+        self.assertEqual(proof["area/single"]["voices"], 1)
+        self.assertLessEqual(abs(proof["delta_lu"]), 0.5)
+
+    def test_coverage_identity_ignores_unrelated_lines_but_detects_statement_changes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "scripts").mkdir()
+            (root / "data").mkdir()
+            (root / "data/sfx_cues.json").write_text(json.dumps({"cues": self.cues}))
+            names = {"sfx_cue_router.gd", "run_scene.gd", "sfx_bank.gd"}
+            expected = {site_identity(site) for site in source_sites(ROOT) if Path(site["file"]).name in names}
+            for name in names:
+                source = (ROOT / "scripts" / name).read_text()
+                source = "# Unrelated developer note\n\n" + source.replace("\nfunc ", "\n\n# Another unrelated note\nfunc ")
+                (root / "scripts" / name).write_text(source)
+            self.assertEqual(expected, {site_identity(site) for site in source_sites(root)})
+            changed = root / "scripts/sfx_cue_router.gd"
+            changed.write_text(changed.read_text().replace('request("move.blink",', 'request("move.blink" + "",'))
+            self.assertNotEqual(expected, {site_identity(site) for site in source_sites(root)})
+
+    def test_observation_and_cue_site_coverage_cannot_shrink(self):
+        after = self.report["after"]
+        fewer = copy.deepcopy(after)
+        fewer["observations"].pop()
+        self.assertTrue(coverage_regressions(fewer, after))
+        fewer = copy.deepcopy(after)
+        fewer["rows"].pop()
+        self.assertTrue(coverage_regressions(fewer, after))
+        shifted = copy.deepcopy(after)
+        for row in shifted["rows"]:
+            row["call_site"]["line"] += 100
+        self.assertFalse(coverage_regressions(shifted, after))
 
     def test_every_cue_call_site_meets_perceived_caps_peak_alignment_and_loudness(self):
         after = self.report["after"]

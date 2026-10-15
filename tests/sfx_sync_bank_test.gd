@@ -29,12 +29,46 @@ func _run() -> void:
 	starts.clear()
 	var router := Router.new(bank)
 	router.begin_player_action({}, {"type": "aoe", "element": "fire", "damage": 3})
-	for index: int in range(4):
+	for index: int in range(3):
 		router.hit({"type": "aoe", "element": "fire", "damage": 3}, {}, "", {"id": index, "hp": 10}, {"hp": 7})
-	_expect(starts.size() == 3 and starts.all(func(row: Dictionary) -> bool: return row["result"] == "played" and row["time"] == FIXTURE_CLOCK_MS), "Area impacts retain the three-instance cap and start on the same frame")
+	_expect(starts.size() == 1 and starts.all(func(row: Dictionary) -> bool: return row["result"] == "played" and row["time"] == FIXTURE_CLOCK_MS), "Three same-frame targets produce exactly one primary voice")
+	for index: int in range(3, 6):
+		bank.set_test_clock(FIXTURE_CLOCK_MS + (index - 2) * 17)
+		router.hit({"type": "aoe", "element": "fire", "damage": 3}, {}, "", {"id": index, "hp": 10}, {"hp": 7})
+	_expect(starts.size() == 3 and starts[1]["time"] == FIXTURE_CLOCK_MS + 17 and starts[2]["time"] == FIXTURE_CLOCK_MS + 34, "Only two later contact frames add immediate area layers")
+	var area_voices: Array = bank.cues["spell.fire"]["voices"]
+	_expect(area_voices.filter(func(player: AudioStreamPlayer) -> bool: return player.volume_db == float(bank.data["cues"]["spell.fire"]["volume_db"]) + Router.AREA_GAIN_DB).size() == 2, "Later area voices retain the authored -6 dB gain")
 	bank.set_test_clock(FIXTURE_CLOCK_MS + 1000)
 	bank.advance(1.0)
 	_expect(starts.size() == 3, "Advancing the clock cannot release delayed area voices")
+	# Shared-sample alignment uses the selected pitch, including both jitter bounds.
+	for cue: String in ["move.blink", "dragon.roar"]:
+		var stream: AudioStream = bank.cues[cue]["streams"][0]
+		var jitter: float = bank.cues[cue]["entry"]["pitch_jitter"]
+		for pitch: float in [1.0 - jitter, 1.0, 1.0 + jitter]:
+			for climax: float in [0.0, 316.673, 566.678]:
+				var plan: Dictionary = Bank.PeakAlignment.plan(stream, pitch, climax)
+				var trimmed: Dictionary = Bank.PeakAlignment.trimmed(stream, pitch, plan["skip_ms"])
+				var peak: float = float(trimmed["metrics"]["peak_ms"]) / pitch
+				_expect(peak >= 15.0 and absf(float(plan["delay_ms"]) + peak - climax - 15.0) < 0.1, "Per-call peak targets +15 ms at every approved pitch bound")
+	bank.set_test_clock(FIXTURE_CLOCK_MS + 5000)
+	starts.clear()
+	var previous: int = bank.cues["move.blink"]["last_ms"]
+	bank.play("move.blink", {"peak_climax_ms": 500.0})
+	_expect(starts.is_empty() and bank.cues["move.blink"]["last_ms"] == previous, "A future peak queues only that call and does not consume cooldown")
+	bank.play("status.freeze")
+	_expect(starts.size() == 1 and starts[0]["cue"] == "status.freeze", "An unrelated cue starts while a peak-aligned call waits")
+	var pending: Dictionary = bank._peak_pending[0]
+	var due: float = pending["selected"]["due_ms"]
+	bank.set_test_clock(floori(due))
+	bank.advance(0.0)
+	_expect(starts.size() == 1, "The aligned call cannot start before its due time")
+	bank.set_test_clock(ceili(due) + 16)
+	bank.advance(0.017)
+	_expect(starts.size() == 2 and starts.back()["cue"] == "move.blink", "The due call plays independently on the next scheduler tick")
+	var aligned: Dictionary = bank.last_play["alignment"]
+	var relative: float = bank.now_ms() - (FIXTURE_CLOCK_MS + 5000) + float(aligned["metrics"]["peak_ms"]) / float(bank.last_play["selected"]["pitch"]) - 500.0
+	_expect(relative >= 0.0 and relative <= 30.0, "Scheduler overshoot is compensated without shifting the target peak")
 	bank.free()
 	var limited := Bank.new()
 	root.add_child(limited)
@@ -45,7 +79,9 @@ func _run() -> void:
 	limited.play("fixture")
 	var primary: AudioStreamPlayer = limited.cues["fixture"]["voices"][0]
 	var generation: int = int(primary.get_meta("play_generation"))
+	limited.set_test_clock(FIXTURE_CLOCK_MS + 1)
 	limited.play("fixture", {"area_instance": true, "gain_db": Router.AREA_GAIN_DB})
+	_expect(int(limited.cues["fixture"]["last_ms"]) == FIXTURE_CLOCK_MS, "A dropped request cannot move the last successful play time")
 	_expect(starts.back()["result"] == "priority", "An optional area layer drops immediately behind a primary voice")
 	_expect(primary.volume_db == FIXTURE_GAIN_DB and int(primary.get_meta("play_generation")) == generation, "Dropping an area layer preserves the audible primary's gain and start")
 	limited.play("fixture")
