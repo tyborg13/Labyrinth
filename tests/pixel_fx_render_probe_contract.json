@@ -1,0 +1,24 @@
+{
+  "min_images": 16,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {"pattern": "fire_gradient.png", "width": 1920, "height": 1080},
+    {"pattern": "ice_gradient.png", "width": 1920, "height": 1080},
+    {"pattern": "lightning_gradient.png", "width": 1920, "height": 1080},
+    {"pattern": "air_gradient.png", "width": 1920, "height": 1080},
+    {"pattern": "earth_gradient.png", "width": 1920, "height": 1080},
+    {"pattern": "neutral_gradient.png", "width": 1920, "height": 1080},
+    {"pattern": "fire_depth_add.png", "width": 1920, "height": 1080},
+    {"pattern": "fire_depth_mix.png", "width": 1920, "height": 1080},
+    {"pattern": "ice_depth_add.png", "width": 1920, "height": 1080},
+    {"pattern": "ice_depth_mix.png", "width": 1920, "height": 1080},
+    {"pattern": "lightning_depth_add.png", "width": 1920, "height": 1080},
+    {"pattern": "lightning_depth_mix.png", "width": 1920, "height": 1080},
+    {"pattern": "air_depth_add.png", "width": 1920, "height": 1080},
+    {"pattern": "air_depth_mix.png", "width": 1920, "height": 1080},
+    {"pattern": "earth_depth_add.png", "width": 1920, "height": 1080},
+    {"pattern": "earth_depth_mix.png", "width": 1920, "height": 1080}
+  ]
+}

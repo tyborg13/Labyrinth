@@ -3,6 +3,7 @@ extends RefCounted
 ## Deterministic, spatial spell drawing. No whole-spell sprites, live clocks, nodes,
 ## per-frame images, or transform changes: the caller owns scene depth and scale.
 
+const PixelFxLayer = preload("res://scripts/pixel_fx_layer.gd")
 const SpriteBatch = preload("res://scripts/elemental_spell_sprite_batch.gd")
 
 static var _clouds: Array[Texture2D] = []
@@ -195,6 +196,8 @@ static func floor_light(
 	size: float,
 	alpha: float
 ) -> void:
+	if PixelFxLayer.route(c, element, floor_light, [element, p, size, alpha]):
+		return
 	var col := color_for(element)
 	_glow(c, p, Vector2(size * 1.8, size * 0.64), _tint(col, alpha * 0.34))
 	_glow(c, p, Vector2(size * 0.9, size * 0.30), _tint(col.lightened(0.45), alpha * 0.42))
@@ -208,6 +211,8 @@ static func ground(
 	t: float,
 	alpha: float
 ) -> void:
+	if PixelFxLayer.route(c, element, ground, [element, p, size, t, alpha]):
+		return
 	var e: float = envelope(t) * alpha
 	floor_light(c, element, p, size, e)
 	if e <= 0.001:
@@ -300,6 +305,8 @@ static func impact(
 	reduced: bool,
 	front: bool
 ) -> void:
+	if PixelFxLayer.route(c, element, impact, [element, p, size, progress, alpha, reduced, front]):
+		return
 	var t: float = 0.38 if reduced else clampf(progress, 0.0, 1.0)
 	if alpha <= 0.0 or envelope(t) <= 0.0:
 		return
@@ -685,6 +692,8 @@ static func release(
 	t: float,
 	alpha: float
 ) -> void:
+	if PixelFxLayer.route(c, element, release, [element, p, ground_point, s, t, alpha]):
+		return
 	var col := color_for(element)
 	var e: float = smoothstep(0.0, 0.22, t) * alpha
 	_glow(c, ground_point, Vector2(s * 0.9, s * 0.3), _tint(col, e * 0.24))
@@ -710,6 +719,8 @@ static func travel(
 	t: float,
 	alpha: float
 ) -> void:
+	if PixelFxLayer.route(c, element, travel, [element, start, end, floor_start, floor_end, s, t, alpha]):
+		return
 	if alpha <= 0.0:
 		return
 	var col := color_for(element)

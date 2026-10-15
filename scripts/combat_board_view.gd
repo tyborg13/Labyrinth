@@ -77,6 +77,7 @@ const Biomes = preload("res://scripts/biome_library.gd")
 const BiomeLighting = preload("res://scripts/combat_lighting_profiles.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const AttackFxLibrary = preload("res://scripts/attack_fx_library.gd")
+const PixelFxLayer = preload("res://scripts/pixel_fx_layer.gd")
 const ElementalSpellFx = preload("res://scripts/elemental_spell_fx.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const BoardSurfaceRules = preload("res://scripts/board_surface_rules.gd")
@@ -790,6 +791,8 @@ static var _path_crumble_cache: Dictionary = {}
 var _impact_floor_render_layer: Control = null
 var _dynamic_render_layer: Control = null
 var _action_floor_render_layer: Control = null
+var _pixel_fx_layer: Node2D
+var _pixel_fx_draw_transform := Transform2D.IDENTITY
 var _scene_render_layers_by_tile: Dictionary = {}
 var _scene_back_effect_render_layers_by_tile: Dictionary = {}
 var _scene_front_effect_render_layers_by_tile: Dictionary = {}
@@ -4263,7 +4266,27 @@ func _make_custom_tooltip(for_text: String) -> Object:
 		return UiTooltipPanel.make_text(_equipment_loot_fallback_tooltip(equipment_id))
 	return UiTooltipPanel.make_text(for_text)
 
+func _submit_pixel_fx(element: String, draw_call: Callable, args: Array) -> void:
+	if not is_instance_valid(_pixel_fx_layer):
+		_pixel_fx_layer = PixelFxLayer.new()
+		_pixel_fx_layer.name = "PixelFxLayer"
+		# Feedback/labels on the same retained canvas remain above the spell.
+		# Each host already occupies its authored floor, back or front depth.
+		_pixel_fx_layer.show_behind_parent = true
+		add_child(_pixel_fx_layer)
+		_pixel_fx_layer.begin(self)
+	var additive: bool = material is CanvasItemMaterial and (material as CanvasItemMaterial).blend_mode == CanvasItemMaterial.BLEND_MODE_ADD
+	_pixel_fx_layer.submit(element, draw_call, args, _pixel_fx_draw_transform, additive)
+
 func _draw() -> void:
+	_pixel_fx_draw_transform = Transform2D.IDENTITY
+	if is_instance_valid(_pixel_fx_layer):
+		_pixel_fx_layer.begin(self)
+	_draw_board_commands()
+	if is_instance_valid(_pixel_fx_layer):
+		_pixel_fx_layer.finish()
+
+func _draw_board_commands() -> void:
 	# Canvas draw commands retain RIDs, not the ArrayMesh resources. Shared cache
 	# invalidation must not free a shadow still submitted by an unchanged layer.
 	# Godot clears this CanvasItem's old commands before entering _draw().
@@ -11822,9 +11845,11 @@ func _trap_elemental_scale_ratio(style: String) -> float:
 
 func _draw_scaled_elemental_begin(ground_point: Vector2, scale_ratio: float) -> void:
 	var clamped_ratio: float = maxf(0.001, scale_ratio)
-	draw_set_transform(ground_point * (1.0 - clamped_ratio), 0.0, Vector2.ONE * clamped_ratio)
+	_pixel_fx_draw_transform = Transform2D(0.0, Vector2.ONE * clamped_ratio, 0.0, ground_point * (1.0 - clamped_ratio))
+	draw_set_transform_matrix(_pixel_fx_draw_transform)
 
 func _draw_scaled_elemental_end() -> void:
+	_pixel_fx_draw_transform = Transform2D.IDENTITY
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 func _draw_elemental_spell_scene(style: String, progress: float, target_ground: Vector2, reduced_motion: bool) -> void:
