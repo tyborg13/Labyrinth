@@ -18,6 +18,7 @@ import numpy as np
 from tools.sfx_lab.common import decode, encode, sha256
 from tools.sfx_lab.sync_align import quiet_cut, rebuild_aligned
 from tools.sfx_lab.sync_metrics import RULES, envelope_times
+from tools.sfx_lab.sync_duration import cue_paths, duration_cap, duration_audit, trim_tail, variant_limits
 from tools.sfx_sync_audit import analyze, source_sites, site_identity, coverage_regressions, compact_baseline, playback_failures
 
 BASELINE = ROOT / "spec/peer_benchmark/staged/sfx/sync_baseline.json"
@@ -25,6 +26,47 @@ PROVENANCE = ROOT / "assets/audio/sfx/sfx-04-provenance.json"
 
 
 class TransientTests(unittest.TestCase):
+    def test_tail_trim_preserves_head_and_has_exact_final_150_ms_fade(self):
+        rate = 48000
+        samples = np.random.default_rng(410).uniform(-.2, .2, (rate * 3, 2))
+        shortened = trim_tail(samples, rate, 1.2)
+        fade_frames = round(.150 * rate)
+        self.assertEqual(len(shortened), round(1.2 * rate))
+        np.testing.assert_array_equal(shortened[:-fade_frames], samples[:len(shortened) - fade_frames])
+        np.testing.assert_allclose(shortened[-fade_frames:], samples[len(shortened) - fade_frames:len(shortened)] *
+                                   np.sin(np.linspace(np.pi / 2, 0, fade_frames))[:, None], atol=0)
+        np.testing.assert_array_equal(shortened[-1], [0, 0])
+        short = samples[:rate]
+        self.assertIs(trim_tail(short, rate, 1.2), short)
+        self.assertIs(trim_tail(samples, rate, None), samples)
+
+    def test_duration_cap_fails_one_sample_over_and_exempts_only_registry_beds(self):
+        rate = 48000
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "overlong.ogg"
+            encode(path, np.full((round(1.2 * rate) + 1, 1), .01), rate, "ogg")
+            pcm, actual_rate = decode(path)
+            measured = {"fixture": {"duration_seconds": len(pcm) / actual_rate}}
+            cues = {"status.fixture": {"variants": ["fixture"]}}
+            self.assertEqual(len(duration_audit(cues, measured)[1]), 1)
+            measured["fixture"]["duration_seconds"] = 1.2
+            self.assertEqual(duration_audit(cues, measured)[1], [])
+            measured["fixture"]["duration_seconds"] = 48
+            cues["status.fixture"]["loop"] = True
+            self.assertEqual(duration_audit(cues, measured)[1], [])
+            self.assertEqual(duration_cap("ambience.fixture", {}), None)
+            self.assertEqual(duration_cap("unclassified.fixture", {}), 2.5)
+
+    def test_duration_caps_resolve_inheritance_and_the_active_fallback(self):
+        cues = {"spell.fixture": {"variants": ["main"], "fallback": ["inactive"]},
+                "card.fixture": {"bus": "UI", "variants_from": "spell.fixture"},
+                "trap.fixture": {"variants": [], "fallback": ["legacy"]}}
+        self.assertEqual(cue_paths("card.fixture", cues), ["main"])
+        self.assertEqual(cue_paths("trap.fixture", cues), ["legacy"])
+        self.assertEqual(variant_limits(cues), {"main": 1.2, "legacy": 1.2})
+        self.assertEqual(duration_cap("spell.fixture", cues["spell.fixture"]), 1.8)
+        self.assertEqual(duration_cap("death.fixture", {}), 2.5)
+
     def test_first_nearly_equal_transient_wins(self):
         rate = 48000
         times = np.arange(9600) / rate
@@ -84,6 +126,33 @@ class EvidenceTests(unittest.TestCase):
         self.assertEqual({run[0] for run in self.baseline["runs"]}, {"fixed_60", "spikes", "fixed_30", "fixed_144", "jitter"})
         scenarios = [{key.rsplit("|", 1)[0] for key, counts in self.baseline["request_counts"].items() if counts[index] > 0} for index in range(15)]
         self.assertTrue(all(scenarios[0] == value for value in scenarios))
+
+    def test_every_non_loop_variant_obeys_its_duration_cap(self):
+        samples = {}
+        for cue in self.cues:
+            for path in cue_paths(cue, self.cues):
+                if path not in samples:
+                    pcm, rate = decode(ROOT / path.removeprefix("res://"))
+                    samples[path] = {"duration_seconds": len(pcm) / rate}
+        rows, failures = duration_audit(self.cues, samples)
+        self.assertTrue(rows)
+        self.assertEqual(failures, [])
+
+    def test_duration_provenance_pins_heads_and_records_every_tail_trim(self):
+        for row in self.provenance["outputs"]:
+            with self.subTest(path=row["path"]):
+                cap = row["constraints"]["max_duration_seconds"]
+                if cap is not None:
+                    self.assertLessEqual(row["after"]["duration_seconds"], cap)
+                if "tail_trim" in row:
+                    self.assertEqual(row["removed_samples"], row["constraints"]["head_removed_samples"])
+                    tail = row["tail_trim"]
+                    self.assertGreater(tail["before_duration_seconds"], row["after"]["duration_seconds"])
+                    self.assertEqual(tail["fade_out_ms"], 150)
+                    self.assertEqual(tail["fade_out_frames"], round(.150 * row["sample_rate"]))
+                    self.assertEqual(tail["kept_frames"], round(row["after"]["duration_seconds"] * row["sample_rate"]))
+                    self.assertGreater(tail["removed_frames"], 0)
+                    self.assertFalse(row["constraint_exceptions"])
 
     def test_primary_priority_drop_cannot_pass_as_request_coverage(self):
         event = {"scenario": "weapon/spear/3", "cue": "hit.pierce", "result": "played", "speed": 1,

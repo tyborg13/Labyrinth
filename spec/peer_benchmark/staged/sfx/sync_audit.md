@@ -2,7 +2,9 @@
 
 Current measurement policy
 
-Alignment uses the earliest local maximum within 2 dB of the strongest centered 5 ms RMS peak. Asset cuts measure instantaneous max-channel amplitude before fading and move to a point at least 20 dB below the selected RMS peak, retain at least 15 ms before it, and use a 3 ms linear fade. An already-short source head is kept whole rather than padded. The asset's complete tail is retained. The lossless parent recipe and its hash are recorded in the compact provenance.
+Alignment uses the earliest local maximum within 2 dB of the strongest centered 5 ms RMS peak. Asset cuts measure instantaneous max-channel amplitude before fading and move to a point at least 20 dB below the selected RMS peak, retain at least 15 ms before it, and use a 3 ms linear fade. An already-short source head is kept whole rather than padded. Approved head cuts remain pinned when applying one-shot duration caps. The lossless parent recipe and its hash are recorded in the compact provenance.
+
+Decoded one-shot file lengths are capped at 1.2 s for status/surface/impact/hit/UI/trap cues, 1.8 s for spell/cast cues, and 2.5 s for death/roar/other signature cues. Only registry loops/ambience are exempt. Overlong files keep their existing head cut and end with a 150 ms equal-power fade-out; shorter files retain their complete tail. The audit resolves inherited variants and active fallbacks exactly as SfxBank does. Playback pitch, gain, routing and cooldown settings are unchanged.
 
 Blink (including relay and swaps), cast.arcane, and animated roars plan each call at its actual selected pitch. The same per-call rule covers hit.blunt.heavy and illusion.spawn because their quiet asset cuts retain more pre-peak time than the contact window permits. Runtime head skips use the separate minimum-pre-peak and fade rule; the quiet-cut rule applies to lossless asset rebuilds. The actual submitted climax sets an absolute presentation-clock deadline; due calls dispatch in that process tick, without extrapolating frame intervals. Late dispatch skips the corresponding pitch-adjusted head, bounded by the 15 ms minimum pre-peak lead, with the 3 ms fade and whole tail preserved. Presentation deadlines freeze during pause or hit-stop. Aligned peaks must land at climax +15 ±1 ms; their onset cap is measured from scheduled playback. Other one-shots retain the 0–20 ms first-sample, ≤10 ms leading-silence, and 40/60 ms perceived-onset limits. All tunables live in data/sfx_cues.json rules.sync.
 
@@ -12,7 +14,7 @@ Gain restoration respects the original build's category/sample cap and −1 dBTP
 
 Current results
 
-`{"cue_call_site_rows": 136, "cues": 81, "loudness_exceptions": 2, "observations": 3950, "registry_cues": 81, "uncovered_call_sites": 0, "uncovered_cue_call_site_pairs": 0, "unmeasured": 0, "violations": 0}`
+`{"cue_call_site_rows": 136, "cues": 81, "loudness_exceptions": 2, "observations": 3950, "overlong_variants": 0, "registry_cues": 81, "uncovered_call_sites": 0, "uncovered_cue_call_site_pairs": 0, "unmeasured": 0, "violations": 0}`
 
 | Cue | Call site | Onset ms | Perceived ms | Peak − climax ms | Result |
 |---|---|---:|---:|---:|---|
@@ -139,8 +141,8 @@ Current results
 | step.hero | scripts/run_scene.gd::_animate_actor_along_path | 7.580 | 7.048 | 6.053…11.436 | pass |
 | step.hero | scripts/sfx_cue_router.gd::walk_tile | 7.580 | 7.048 | 6.053…11.436 | pass |
 | stoneskin.gain | scripts/sfx_cue_router.gd::presentation | 1.072 | 19.531 | 22.837…24.740 | pass |
-| surface.electric | scripts/run_scene.gd::_play_outcome_sounds | 0.351 | 3.860 | 14.306…15.811 | pass |
-| surface.electric | scripts/sfx_cue_router.gd::surface | 0.351 | 3.860 | 14.306…15.811 | pass |
+| surface.electric | scripts/run_scene.gd::_play_outcome_sounds | 0.351 | 2.083 | 11.885…13.136 | pass |
+| surface.electric | scripts/sfx_cue_router.gd::surface | 0.351 | 2.083 | 11.885…13.136 | pass |
 | surface.fire | scripts/run_scene.gd::_play_outcome_sounds | 0.263 | 11.316 | 14.762…16.316 | pass |
 | surface.fire | scripts/sfx_cue_router.gd::surface | 0.263 | 11.316 | 14.762…16.316 | pass |
 | surface.ice | scripts/run_scene.gd::_play_outcome_sounds | 1.096 | 25.592 | 26.825…29.649 | pass |
@@ -152,6 +154,29 @@ Current results
 | trap.trigger | scripts/run_scene.gd::_play_trap_sfx | 0.543 | 4.036 | 7.933…8.594 | pass |
 | trap.trigger | scripts/sfx_cue_router.gd::trap | 0.543 | 4.036 | 7.933…8.594 | pass |
 | vocal.beast | scripts/sfx_cue_router.gd::begin_action | 0.739 | 42.428 | unmeasured…unmeasured | pass |
+
+Duration trims
+
+Every shortened file is listed below. Lengths are decoded PCM durations; the cap includes the final 150 ms fade.
+
+| File | Old → new length (s) | Cap (s) | Fade (ms) | Loudness Δ LU |
+|---|---:|---:|---:|---:|
+| death.dragon/death.dragon_01.ogg | 5.338417 → 2.500000 | 2.5 | 150 | -0.181 |
+| death.hero/death.hero_01.ogg | 5.006625 → 2.500000 | 2.5 | 150 | -0.475 |
+| death.stone/death.stone_01.ogg | 3.477688 → 2.500000 | 2.5 | 150 | -0.311 |
+| deck.shuffle/deck.shuffle_01.ogg | 1.636604 → 1.200000 | 1.2 | 150 | -0.961 |
+| defiance/defiance_01.ogg | 5.527938 → 2.500000 | 2.5 | 150 | -0.027 |
+| fatigue/fatigue_01.ogg | 2.615333 → 1.200000 | 1.2 | 150 | +0.082 |
+| illusion.spawn/illusion.spawn_01.ogg | 2.694396 → 2.500000 | 2.5 | 150 | -0.010 |
+| omen.bane/omen.bane_01.ogg | 4.104875 → 1.200000 | 1.2 | 150 | +0.065 |
+| omen.blessing/omen.blessing_01.ogg | 1.480729 → 1.200000 | 1.2 | 150 | +0.050 |
+| spell.lightning/spell.lightning_01.ogg | 2.790396 → 1.800000 | 1.8 | 150 | -0.018 |
+| spell.shadow/spell.shadow_01.ogg | 2.250812 → 1.800000 | 1.8 | 150 | -0.289 |
+| status.shatter/status.shatter_01.ogg | 1.600000 → 1.200000 | 1.2 | 150 | -0.549 |
+| status.shock/status.shock_01.ogg | 2.447708 → 1.200000 | 1.2 | 150 | +0.050 |
+| surface.electric/surface.electric_01.ogg | 9.023125 → 1.200000 | 1.2 | 150 | -0.613 |
+| surface.ice/surface.ice_01.ogg | 1.440417 → 1.200000 | 1.2 | 150 | -0.954 |
+| surface.rubble/surface.rubble_01.ogg | 3.227875 → 1.200000 | 1.2 | 150 | -0.462 |
 
 Re-trimmed files
 
@@ -168,7 +193,7 @@ Re-trimmed files
 | death.dragon/death.dragon_01.ogg | 4538 | 4876 | -0.181 |
 | death.hero/death.hero_01.ogg | 16 | 642 | -0.475 |
 | deck.shuffle/deck.shuffle_01.ogg | 7364 | 7363 | -0.961 |
-| defiance/defiance_01.ogg | 50074 | 2499 | 0.005 |
+| defiance/defiance_01.ogg | 50074 | 2499 | -0.027 |
 | dragon.roar/dragon.roar_01.ogg | 1539 | 1536 | -0.011 |
 | fatigue/fatigue_01.ogg | 10932 | 6464 | 0.082 |
 | heal/heal_01.ogg | 18394 | 10385 | -0.044 |
@@ -203,7 +228,7 @@ Re-trimmed files
 | status.shock/status.shock_01.ogg | 56040 | 54830 | 0.050 |
 | status.stagger/status.stagger_01.ogg | 2396 | 1656 | -0.089 |
 | step.enemy.heavy/step.enemy.heavy_01.ogg | 846 | 1490 | -0.022 |
-| surface.electric/surface.electric_01.ogg | 57570 | 4714 | 0.111 |
+| surface.electric/surface.electric_01.ogg | 57570 | 4714 | -0.613 |
 | surface.fire/surface.fire_01.ogg | 10018 | 4770 | 0.042 |
 | swing.heavy/swing.heavy_01.ogg | 3480 | 3476 | 0.000 |
 
@@ -311,15 +336,16 @@ The first command is idempotent. A changed source requires the approved local so
 
 Verification
 
-- Round 6: uncommitted changes on df41875b4. Audio assets, provenance and sync rules are unchanged; the two inherited cap-limited loudness exceptions remain listed above.
-- Fresh production harness and independent PCM audit: PASS, 3,950 observations, 315 aligned calls, 81/81 cues and 136 cue × call-site rows; no timing, playback, coverage, PCM or decoded-length failures. Log: output/sfx/round6-final-audit.log.
-- Every scenario ran at 1×, 1.5× and 2× with fixed 60 Hz, periodic 33 ms spikes, steady 30 fps, 144 Hz and seeded ±4 ms jitter. All 315 aligned peaks were +15.002303…+15.019923 ms after the independently observed presentation climax.
-- Walk → blink, blink → walk and walk → blink → walk each played exactly one blink in all 15 combinations: 45 composite relay peaks at +15.005132…+15.013382 ms. Arrival is observed from the destination state or first post-rift position submission, in submission order even when two submissions share a timestamp.
-- Strict check of the fresh current-source trace: PASS; independently decoded PCM and the complete measured report matched the refreshed audit exactly. --check left the tracked baseline and Markdown hashes unchanged. Logs: output/sfx/round6-check.log and output/sfx/round6-before-check.sha256.
-- Baseline changes only add the three composite scenarios and their request/primary-play counts. Existing counts, call-site identities, sample measurements and allowed-drop counts are preserved.
-- Sync bank: PASS, 0 failures, including already-due cues queued during pause/hit-stop and played exactly once after resume; 83 Godot stream lengths match decoded PCM. Log: output/sfx/round6-bank.log.
-- Dispatch-guard mutation: removing only the presentation-active guard causes the four expected pause/hit-stop failures. Production source is unchanged by the mutation. Evidence: output/sfx/round6-freeze-mutant/result.json and result.log.
-- Relay-trigger mutation: restoring logical-position-only behavior fails the final fixtures with two missing blink sounds, one +531.682 ms late peak, two missing-request count failures and two missing-primary-play count failures. Log: output/sfx/round6-relay-mutant.log.
-- Focused sync Python: 13 tests, PASS (2.370 seconds). Full Python discovery: 397 tests, PASS (61 optional skips), 331.552 seconds. Logs: output/sfx/round6-sync-python.log and output/sfx/round6-full-python.log.
-- Full Godot suite: PASS, 852.702 seconds within the unchanged 900-second budget. Includes the sync bank and all 15 timing/coverage assertion combinations (3,950 observations, 0 failures). Log: output/sfx/round6-full-godot.log.
-- Runtime, test and tool source hashes stayed unchanged through the full Godot run. Input hashes: output/sfx/round6-tested-inputs.json. No commit, push, external reviewer or windowed capture was performed in this revision.
+- Round 7: uncommitted changes on aa6e8a182. Sixteen overlong one-shot files were shortened; all 82 head-cut offsets and gain values are preserved. The other 66 one-shot files and the ambience bed are byte-for-byte unchanged.
+- Duration audit: PASS for 91 effective cue/variant uses across 83 files, including inherited variants and the active fallback. Zero overlong variants. Playback pitch, volume, cooldown, voice count and routing settings are unchanged; only duration rules were added to the registry.
+- Every shortened file is listed in Duration trims above. All use the original lossless recipe and a final 150 ms equal-power fade inside the cap. All 16 satisfy the existing sample-peak, true-peak and loudness limits. The two inherited loudness exceptions belong to unchanged files.
+- The electric surface tail fade reduces a later envelope maximum, moving the decoded earliest-within-2-dB metric from 15.020833 to 12.479167 ms. Its approved source head cut and gain remain unchanged; all onset and climax gates pass. Other shortened files retain their measured peak timestamps.
+- Before/after regression: the new decoded-variant test rejected all 16 original overlong files, then passed after rebuilding. A synthetic encoded cue just one decoded sample above 1.2 seconds also fails. Log: output/sfx/round7/duration-before-test.log.
+- Determinism: a forced lossless rebuild reproduced all 82 encoded asset hashes exactly and left canonical provenance unchanged. A plain repeat rebuilt zero files and verified all 82 hashes. Logs: output/sfx/round7/determinism.log and idempotence.log.
+- Fresh production timing/PCM audit: PASS, all 15 frame-profile/speed combinations, 3,950 observations, 315 aligned calls, 81/81 cues and 136 cue × call-site rows. All aligned peaks remain +15.002303…+15.019923 ms after the observed climax. Log: output/sfx/round7/audit.log.
+- Strict check of the fresh current-source trace: PASS; identical measurements, no coverage regressions, and no changes to tracked baseline/Markdown during --check. Log: output/sfx/round7/check.log.
+- Godot bank: PASS, 0 failures, including duration caps and 83 Godot/decoded stream-length comparisons. Log: output/sfx/round7/bank.log.
+- Focused sync Python: 18 tests, PASS (1.991 seconds). Sound lab: 39 tests, PASS (23.286 seconds). Full Python discovery: 397 tests, PASS (61 optional skips), 241.231 seconds. Logs: output/sfx/round7/sync-python.log, sound-lab.log and full-python.log.
+- Full Godot suite: PASS, 821.415 seconds within the unchanged 900-second budget, including the bank and all 15 timing/coverage combinations (3,950 observations, 0 failures). Log: output/sfx/round7/full-godot.log.
+- Owner audio inspection: output/sfx/round7/listen/index.html contains 16 before/after pairs. All 32 local copies match the recorded source/output hashes in its manifest.json. No autoplay, external reviewer, windowed capture, commit or push was performed.
+- Runtime, test, tool, registry, provenance and audio input hashes stayed unchanged through the full Godot run. Hashes: output/sfx/round7/tested-inputs.json.

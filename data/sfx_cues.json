@@ -32,7 +32,17 @@
         0.5
       ],
       "loudness_window_ms": 100.0,
-      "loudness_hop_ms": 25.0
+      "loudness_hop_ms": 25.0,
+      "duration": {
+        "caps_seconds": {"short": 1.2, "spell": 1.8, "signature": 2.5},
+        "tail_fade_ms": 150.0,
+        "tail_fade_curve": "equal_power",
+        "short_bus": "UI",
+        "short_prefixes": ["status.", "surface.", "impact.", "hit.", "trap.", "block.", "stoneskin.", "hurt.", "crate.", "step."],
+        "short_cues": ["push.collision", "fatigue"],
+        "spell_prefixes": ["spell.", "cast."],
+        "ambience_prefix": "ambience."
+      }
     },
     "area_hits": "An area or multi-target action plays one impact per distinct cue per frame; after the primary, up to 2 distinct-cue or later-frame contacts play at -6 dB, without a stagger."
   },

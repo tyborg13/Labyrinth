@@ -15,6 +15,7 @@ import soundfile as sf
 from tools.sfx_lab.build import process
 from tools.sfx_lab.common import LabError, TakeLibrary, decode, encode, fade_in, read_json, sha256
 from tools.sfx_lab.sync_metrics import RULES, envelope, envelope_times, peak_levels, short_loudness
+from tools.sfx_lab.sync_duration import bind_duration_constraints, trim_tail
 
 MAX_ENCODER_PASSES = 12
 MAX_HEAD_CANDIDATES = 64
@@ -33,7 +34,7 @@ def toolchain() -> dict:
 
 
 def builder_digest(root: Path) -> str:
-    paths = ["sync.py", "sync_align.py", "sync_metrics.py", "build.py", "common.py"]
+    paths = ["sync.py", "sync_align.py", "sync_metrics.py", "sync_duration.py", "build.py", "common.py"]
     return hashlib.sha256(b"".join((root / "tools/sfx_lab" / path).read_bytes() for path in paths)).hexdigest()
 
 
@@ -83,6 +84,7 @@ def rebuild_aligned(root: Path, manifest: Path, features: Path, provenance: Path
     if sha256(manifest) != prior["parent_manifest_sha256"]:
         raise LabError("Parent recipe manifest changed")
     original = {row["path"]: row for row in read_json(manifest)["outputs"]}
+    bind_duration_constraints(prior, read_json(root / "data/sfx_cues.json")["cues"])
     current_rules, current_builder, versions = rules_digest(), builder_digest(root), toolchain()
     build = {"rules_sha256": current_rules, "builder_sha256": current_builder, "toolchain": versions}
     build_id = hashlib.sha256(json.dumps(build, sort_keys=True).encode()).hexdigest()
@@ -126,6 +128,8 @@ def rebuild_aligned(root: Path, manifest: Path, features: Path, provenance: Path
         nearby = quiet[quiet >= earliest]
         candidates = list(dict.fromkeys([removed] + ([int(nearby[-1])] if len(nearby) else []) +
             ([int(nearby[index]) for index in np.linspace(len(nearby) - 1, 0, min(MAX_HEAD_CANDIDATES, len(nearby))).astype(int)] if len(nearby) else [])))
+        if "head_removed_samples" in bound:
+            candidates = [int(bound["head_removed_samples"])]
         # Codec quantization can change which near-equal local peak reaches the
         # 2 dB threshold. Search only source-safe quiet cuts, never later peaks.
         path = root / "assets/audio/sfx/cues" / row["path"]
@@ -138,6 +142,7 @@ def rebuild_aligned(root: Path, manifest: Path, features: Path, provenance: Path
                 gain = 0.0
                 for attempt in range(MAX_ENCODER_PASSES):
                     trimmed = fade_in(samples[removed:].copy(), rate, RULES["fade_ms"]) if removed else samples.copy()
+                    trimmed = trim_tail(trimmed, rate, bound.get("max_duration_seconds"))
                     encode(rebuilt, trimmed * 10 ** (gain / 20), rate, "ogg")
                     actual = measures(rebuilt)
                     desired_gain = bound["reference_loudness_lufs"] - actual["short_loudness_lufs"]
@@ -169,10 +174,22 @@ def rebuild_aligned(root: Path, manifest: Path, features: Path, provenance: Path
             violations = []
             if actual["peak_dbfs"] > bound["peak_cap_dbfs"] or actual["true_peak_dbtp"] > RULES["true_peak_ceiling_dbtp"]:
                 raise LabError("Peak cap not met: " + row["path"])
+            cap = bound.get("max_duration_seconds")
+            if cap is not None and actual["duration_seconds"] > cap:
+                raise LabError("One-shot duration cap not met: " + row["path"])
             if actual["perceived_onset_ms"] > bound["max_onset_ms"]: violations.append("perceived onset exceeds cap")
             if bound["max_peak_ms"] is not None and actual["peak_ms"] > bound["max_peak_ms"]: violations.append("quiet cut retains a late peak")
             if actual["leading_ms"] > RULES["leading_limit_ms"]: violations.append("leading silence exceeds cap")
             if not RULES["loudness_delta_lu"][0] <= actual["loudness_delta_lu"] <= RULES["loudness_delta_lu"][1]: violations.append("capped loudness outside allowed window")
+            if "tail_trim" in row:
+                if violations:
+                    raise LabError("Tail trim violates preserved constraints: " + row["path"] + "; " + "; ".join(violations))
+                row["tail_trim"].update({"after_duration_seconds": actual["duration_seconds"],
+                    "fade_out_ms": RULES["duration"]["tail_fade_ms"],
+                    "fade_out_frames": round(rate * RULES["duration"]["tail_fade_ms"] / 1000),
+                    "fade_curve": RULES["duration"]["tail_fade_curve"],
+                    "kept_frames": round(actual["duration_seconds"] * rate),
+                    "removed_frames": len(samples) - removed - round(actual["duration_seconds"] * rate)})
             row.update({"output_sha256": sha256(rebuilt), "removed_samples": removed, "sample_rate": rate,
                         "source_peak_ms": source_metrics["peak_ms"], "cut_relative_db": cut_db,
                         "fade_ms": RULES["fade_ms"], "gain_db": gain, "after": actual,

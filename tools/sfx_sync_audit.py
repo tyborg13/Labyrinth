@@ -16,6 +16,7 @@ import tempfile
 # Make direct CLI execution and module imports share the sound-lab measures.
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.sfx_lab.sync_metrics import envelope_times, onset_cap, short_loudness, PEAK_LATE_LIMIT_MS, RULES, peak_levels
+from tools.sfx_lab.sync_duration import cue_paths, duration_audit
 
 ROOT = Path(__file__).resolve().parents[1]
 BASELINE = Path("spec/peer_benchmark/staged/sfx/sync_baseline.json")
@@ -172,10 +173,7 @@ def sample_measurements(root: Path, cues: dict, revision: str | None = None, aud
 
 
 def cue_samples(cue_id: str, cues: dict) -> list[str]:
-    source = cues[cue_id]
-    while "variants_from" in source:
-        source = cues[source["variants_from"]]
-    return source.get("variants") or source.get("fallback", [])
+    return cue_paths(cue_id, cues)
 
 
 def expected_cues(site: dict, cues: dict) -> set[str]:
@@ -441,7 +439,10 @@ def markdown(result: dict, provenance: dict) -> str:
     lines = ["# SFX sync audit", "", "Current measurement policy", "",
              "Alignment uses the earliest local maximum within 2 dB of the strongest centered 5 ms RMS peak. "
              "Asset cuts measure instantaneous max-channel amplitude before fading and move to a point at least 20 dB below the selected RMS peak, retain at least 15 ms before it, and use a 3 ms linear fade. "
-             "An already-short source head is kept whole rather than padded. The asset's complete tail is retained. The lossless parent recipe and its hash are recorded in the compact provenance.", "",
+             "An already-short source head is kept whole rather than padded. Approved head cuts remain pinned when applying one-shot duration caps. The lossless parent recipe and its hash are recorded in the compact provenance.", "",
+             "Decoded one-shot file lengths are capped at 1.2 s for status/surface/impact/hit/UI/trap cues, 1.8 s for spell/cast cues, and 2.5 s for death/roar/other signature cues. "
+             "Only registry loops/ambience are exempt. Overlong files keep their existing head cut and end with a 150 ms equal-power fade-out; shorter files retain their complete tail. "
+             "The audit resolves inherited variants and active fallbacks exactly as SfxBank does. Playback pitch, gain, routing and cooldown settings are unchanged.", "",
              "Blink (including relay and swaps), cast.arcane, and animated roars plan each call at its actual selected pitch. "
              "The same per-call rule covers hit.blunt.heavy and illusion.spawn because their quiet asset cuts retain more pre-peak time than the contact window permits. "
              "Runtime head skips use the separate minimum-pre-peak and fade rule; the quiet-cut rule applies to lossless asset rebuilds. "
@@ -464,6 +465,12 @@ def markdown(result: dict, provenance: dict) -> str:
     for row in result["rows"]:
         site = row["call_site"]
         lines.append(f"| {row['cue']} | {site['file']}::{site['function']} | {number(row['onset_max_ms'])} | {number(row['perceived_onset_max_ms'])} | {number(row['peak_relative_climax_min_ms'])}…{number(row['peak_relative_climax_max_ms'])} | {row['verdict']} |")
+    lines += ["", "Duration trims", "", "Every shortened file is listed below. Lengths are decoded PCM durations; the cap includes the final 150 ms fade.", "",
+              "| File | Old → new length (s) | Cap (s) | Fade (ms) | Loudness Δ LU |", "|---|---:|---:|---:|---:|"]
+    for row in provenance["outputs"]:
+        tail = row.get("tail_trim")
+        if tail:
+            lines.append(f"| {row['path']} | {tail['before_duration_seconds']:.6f} → {row['after']['duration_seconds']:.6f} | {row['constraints']['max_duration_seconds']:.1f} | {tail['fade_out_ms']:.0f} | {row['after']['loudness_delta_lu']:+.3f} |")
     lines += ["", "Re-trimmed files", "", "| File | Previous removed samples | Current removed samples | Loudness Δ LU |", "|---|---:|---:|---:|"]
     for row in provenance["outputs"]:
         if row.get("previous_removed_samples") != row.get("removed_samples"):
@@ -543,6 +550,8 @@ def main() -> int:
         if trace.get("source_sha256", {}).get(path) != digest(ROOT / path):
             trace["failures"].append("Trace lacks current source provenance: " + path)
     result = analyze(ROOT, trace, cues, samples)
+    result["duration_checks"], result["duration_failures"] = duration_audit(cues, samples)
+    result["summary"]["overlong_variants"] = len(result["duration_failures"])
     result["playback_failures"] = playback_failures(result["observations"])
     result["area_loudness"] = area_loudness_proof(ROOT, trace)
     baseline = json.loads((ROOT / BASELINE).read_text())
@@ -558,7 +567,7 @@ def main() -> int:
     report.write_text(json.dumps(result, indent=2, sort_keys=True) + "\n")
     provenance = json.loads((ROOT / "assets/audio/sfx/sfx-04-provenance.json").read_text())
     report.with_suffix(".md").write_text(markdown(result, provenance))
-    errors = any(result.get(key) for key in ["harness_failures", "playback_failures", "coverage_regressions", "uncovered_cues", "uncovered_call_sites", "uncovered_cue_call_site_pairs", "length_failures", "peak_failures"])
+    errors = any(result.get(key) for key in ["harness_failures", "playback_failures", "coverage_regressions", "uncovered_cues", "uncovered_call_sites", "uncovered_cue_call_site_pairs", "length_failures", "duration_failures", "peak_failures"])
     errors |= bool(result["summary"]["unmeasured"] or result["summary"]["violations"] or not result["area_loudness"].get("pass", False))
     if args.refresh_baseline:
         if errors: raise RuntimeError("Refusing to refresh a failing baseline; inspect the full report")
