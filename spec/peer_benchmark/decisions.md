@@ -43,3 +43,8 @@
   four iterated as colour/detail/head edits of the same job.
 - Lesson: duplicate peers bias copying; when an anatomy has one canon member, the subject must spell out a distinct
   silhouette.
+
+## 2026-10-15 — sfx-04 loudness exceptions (director)
+- Under the restored peak caps (impacts ≤ −3 dBFS, all ≤ −1 dBTP), two re-trimmed cues fall below the −1.0 LU window:
+  `hit.blade.light_01` −2.131 LU and `hurt.hero_01` −1.255 LU. Accepted: both are light/secondary impacts where a slightly
+  softer hit reads correctly; revisit only if a listening pass flags them.
