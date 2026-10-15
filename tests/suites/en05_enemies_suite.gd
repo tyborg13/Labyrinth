@@ -227,10 +227,10 @@ static func _test_dive(expect: Callable, engine: RefCounted) -> void:
 		expect.call(far["enemies"][0]["intent"]["id"] != "dive", "Impossible Dive falls back to another authored intent")
 	var saved: Dictionary = save_round_trip(before)
 	expect.call(saved == before and Dive.plan(engine, saved, 0, saved["enemies"][0]["intent"]) == plan, "Dive forecast round-trips through saves")
-	expect.call(Icons.tooltip("dive") == "Dive: flies straight at you (up to 4 tiles), knocking each unit it passes 1 tile aside, then strikes for 4.", "Dive exact tooltip uses authored data numbers")
-	expect.call(Icons.tooltip("flying") == "Flying: moves over traps, surfaces, Bramble and Ice Pillars and takes no surface damage. Can still be pushed.", "Flying exact tooltip matches director copy")
+	expect.call(Icons.tooltip("dive") == "Dive\nFlies straight at you, giving each unit it passes Push 1 to its right. Strikes if it lands beside you.", "Dive exact tooltip uses approved glossary copy")
+	expect.call(Icons.tooltip("flying") == "Flying\nMoves over Bramble and Ice Pillars. Ignores traps, ground and Collision damage. Push, Pull and Wind still move it.", "Flying exact tooltip matches director copy")
 	var varied: Dictionary = action.duplicate(true); varied["max_length"] = 3; varied["damage"] = 7
-	expect.call(Icons.dive_tooltip(varied) == "Dive: flies straight at you (up to 3 tiles), knocking each unit it passes 1 tile aside, then strikes for 7.", "Dive tooltip formats range and damage from the actual action")
+	expect.call(Icons.dive_tooltip(varied) == "Dive\nFlies straight at you, giving each unit it passes Push 1 to its right. Strikes if it lands beside you.", "Dive definition stays canonical while action chips carry scaled values")
 	expect.call(Icons.tokens_for_action(varied)[0]["tooltip"] == Icons.dive_tooltip(varied), "Dive intent tooltip follows its action values")
 	var immobilized: Dictionary = before.duplicate(true); immobilized["enemies"][0]["immobilize"] = true
 	var immobilized_preview: Dictionary = DiveView.presentation_for(immobilized, {})

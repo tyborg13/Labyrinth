@@ -674,7 +674,7 @@ static func _test_run_scene_contracts(engine: CombatEngine, expect: Callable) ->
 	var hover_tiles: Array = scene.call("_aoe_tiles_for_action", state, aimed, Vector2i(4, 5))
 	var committed: Dictionary = engine.apply_player_action(state, aimed, Vector2i(4, 5))
 	expect.call(_typed_tiles(hover_tiles) == SurfaceCardRules.meteor_mark_tiles(engine, committed), "The hover footprint equals the committed marks")
-	expect.call(str(scene.call("_action_step_action_name", meteor)) == "Meteorfall" and str(scene.call("_action_step_action_name", _action(engine, "w4a_fx_discharge"))) == "Discharge", "Action context names the new steps")
+	expect.call(str(scene.call("_action_step_action_name", meteor)) == "Cinder Marks" and str(scene.call("_action_step_action_name", _action(engine, "w4a_fx_discharge"))) == "Discharge", "Action context names the new steps")
 	scene.free()
 
 static func _same_tiles(actual: Array, expected: Array) -> bool:

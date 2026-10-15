@@ -211,7 +211,7 @@ static func _test_previews_and_save(check: Callable) -> void:
 	check.call(bool(preview.get("enemy_1", {}).get("lethal", false)), "Lethal tick preview uses actual damage")
 	var board := Board.new()
 	var badges: Array[Dictionary] = board._unit_status_badges(state["enemies"][0])
-	check.call(badges.any(func(badge: Dictionary) -> bool: return str(badge.get("icon", "")) == "burst" and int(badge.get("count", 0)) == 4 and not badge.has("label") and str(badge.get("tooltip", "")) == "Bursts: when this dies, it deals 4 damage to everything next to it."), "Every living tick shows its total Burst badge")
+	check.call(badges.any(func(badge: Dictionary) -> bool: return str(badge.get("icon", "")) == "burst" and int(badge.get("count", 0)) == 4 and not badge.has("label") and str(badge.get("tooltip", "")) == "Bursts\nWhen it dies, it deals the shown damage to every unit in the 8 tiles around it, then leaves Fire.\n4 damage"), "Every living tick shows its total Burst badge")
 	check.call(not board._intent_rows_for_unit({}, Data.enemy_def("burrow_grub")["intents"][0]).is_empty(), "Burrow has visible intent rows")
 	check.call(not board._intent_rows_for_unit({}, Data.enemy_def("ember_tick")["intents"][1]).is_empty(), "Kindle has visible intent rows")
 	board.combat_state = state

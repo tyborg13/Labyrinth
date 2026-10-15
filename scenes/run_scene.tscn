@@ -129,7 +129,7 @@ text = "LV 1  EMBERS 0"
 [node name="LoadoutButton" type="Button" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar"]
 custom_minimum_size = Vector2(68, 56)
 layout_mode = 2
-tooltip_text = "Character Loadout"
+tooltip_text = "Character"
 script = ExtResource("5_tooltip_button")
 
 [node name="GrimoireButton" type="Button" parent="UiLayer/UiRoot/Backdrop/Margin/MainVBox/TopBar"]

@@ -4,10 +4,7 @@ extends RefCounted
 ## preload cycle and preserving contextual token explanations and card layout.
 const DATA_PATH: String = "res://data/glossary.json"
 const MAX_RELIC_PANELS: int = 6
-# The unmarked sentence "Consume [Rubble] ..." is surface removal, while the
-# named Consume keyword means using an item. Await an explicit design token;
-# never attach the item definition to an ambiguous prose verb.
-const TODO_DESIGN_GLOSSARY_CONSUME_PROSE: String = "Consume"
+const TokenSyntax = preload("res://scripts/inline_token_syntax.gd")
 
 static var _entries: Dictionary = {}
 static var _aliases: Dictionary = {}
@@ -41,8 +38,6 @@ static func _ensure_loaded() -> void:
 		if term.is_empty() or str(candidates[term]).is_empty():
 			continue
 		_aliases[term.to_lower()] = candidates[term]
-		if term == TODO_DESIGN_GLOSSARY_CONSUME_PROSE:
-			continue
 		var pattern := RegEx.new()
 		# Match authored keyword spelling. Ordinary "time", "swap", "consume"
 		# and "next attack" prose must not acquire unrelated mechanic panels.
@@ -90,12 +85,10 @@ static func name_for(id: String, fallback_label: String = "") -> String:
 static func ids_in_text(text: String, limit: int = 0) -> Array[String]:
 	_ensure_loaded()
 	var matches: Array[Dictionary]
-	var tokens := RegEx.new()
-	tokens.compile("@icon\\(([^)]+)\\)")
 	var plain: String = text
-	for found: RegExMatch in tokens.search_all(text):
-		var entry: Dictionary = _entry(found.get_string(1))
-		matches.append({"id": entry.get("id", found.get_string(1)), "start": found.get_start(), "end": found.get_end()})
+	for found: RegExMatch in TokenSyntax.tokens(text):
+		var entry: Dictionary = _entry(found.get_string(2))
+		matches.append({"id": entry.get("id", found.get_string(2)), "start": found.get_start(), "end": found.get_end()})
 		plain = plain.substr(0, found.get_start()) + " ".repeat(found.get_end() - found.get_start()) + plain.substr(found.get_end())
 	# BBCode metadata is not player-visible prose.
 	var tags := RegEx.new()

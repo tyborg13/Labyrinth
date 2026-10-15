@@ -134,7 +134,7 @@ static func _test_pills_and_tooltips(expect: Callable) -> void:
 	expect.call(str(scene.call("_turn_order_projection_badge_text", {"petrified": true})) == "Skips", "Petrified pill copy remains unchanged")
 	var entry: Dictionary = {"kind": "player", "projected": true, "projection_kind": "end_now", "name": "Reaver", "eta": 12, "base_initiative": 9, "turn_time_spent": 1, "projected_time_cost": 2, "projected_wait_time": 0, "projected_time_delta": -3, "projected_card_name": "Quick Stab"}
 	var tooltip: String = scene.call("_turn_order_tooltip", entry, 0)
-	expect.call(tooltip.contains("Preview: Quick Stab (−3 vs ending now)") and tooltip.contains("Base 9 + cards 3 + unused plays 0"), "Projected tooltip shows delta and full Time breakdown")
+	expect.call(tooltip.contains("Preview: Quick Stab (−3 vs ending now)") and tooltip.contains("Base 9 + cards 3 + unused Card Plays 0"), "Projected tooltip shows delta and full Time breakdown")
 	entry["eta"] = 17
 	expect.call(str(scene.call("_turn_order_tooltip", entry, 0)).contains("Carried +5"), "Projected tooltip exposes carried Time")
 	entry["eta"] = 10
@@ -145,7 +145,7 @@ static func _test_pills_and_tooltips(expect: Callable) -> void:
 	entry["turn_time_spent"] = 0
 	entry["eta"] = 19
 	tooltip = scene.call("_turn_order_tooltip", entry, 0)
-	expect.call(not tooltip.contains("Preview:") and tooltip.contains("Base 9 + cards 0 + unused plays 10"), "End-now tooltip keeps the breakdown without a preview line")
+	expect.call(not tooltip.contains("Preview:") and tooltip.contains("Base 9 + cards 0 + unused Card Plays 10"), "End-now tooltip keeps the breakdown without a preview line")
 	scene.free()
 
 static func _test_roles_and_placement(expect: Callable) -> void:
@@ -386,7 +386,7 @@ static func _assert_strip_art(strip: Control, expect: Callable, phase: String) -
 static func _assert_badge_tooltip(scene: Node, expect: Callable) -> void:
 	var card: Control = scene.call("_hand_card_control", 1)
 	var badge: Control = card.get("_time_badge") as Control
-	expect.call(badge.tooltip_text == "Time\nDelays your next turn by 2. An unused play takes 5.", "The Time badge uses the exact requested copy")
+	expect.call(badge.tooltip_text == "Time\nCards cost Time; the more you spend, the later your next turn. Playing under 2 cards adds Wait.", "The Time badge uses the exact requested copy")
 	var modified: Dictionary = GameData.card_def("quick_stab").duplicate(true)
 	modified["_quicken_discount"] = 1
 	card.call("_refresh_time_badge", modified)

@@ -1638,7 +1638,7 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 			var bonus_card_plays: int = maxi(0, int(resolved_action.get("amount", 0)))
 			next_state["card_play_bonus_this_turn"] = int(next_state.get("card_play_bonus_this_turn", 0)) + bonus_card_plays
 			if bonus_card_plays > 0:
-				_log(next_state, "Gained %d card play(s)." % bonus_card_plays)
+				_log(next_state, "Gained %d Card Play(s)." % bonus_card_plays)
 		"illuminate":
 			if target_is_valid:
 				next_state = _create_umbra_light_source(next_state, target_tile, resolved_action)
@@ -7825,7 +7825,7 @@ func _collect_loot_at_player(state: Dictionary) -> void:
 				state["recovered_embers_total"] = int(state.get("recovered_embers_total", 0)) + amount
 				state["recovery_marker_claimed"] = true
 				_record_score_wallet_max(state)
-				_log(state, "Recovered %d embers." % amount)
+				_log(state, "Recovered %d Embers." % amount)
 			"equipment":
 				var equipment_id: String = str(loot.get("equipment_id", ""))
 				if not equipment_id.is_empty():
@@ -12125,7 +12125,7 @@ func _resolve_surface_consumer(state: Dictionary, action: Dictionary, target: Ve
 		# Card fields have already been converted to runtime fixed point by GameData.
 		var raw_reward: Dictionary = SurfaceCardRules.scaled_consume_reward(reward, selected.size()).duplicate(true)
 		raw_reward["_runtime_amount"] = true
-		state = apply_surface_reward(state, raw_reward, {"source_name": "Consumed ground"})
+		state = apply_surface_reward(state, raw_reward, {"source_name": "Expended ground"})
 	return state
 
 func _flush_surface_deaths(state: Dictionary) -> Dictionary:

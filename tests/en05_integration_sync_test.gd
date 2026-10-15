@@ -21,6 +21,9 @@ func _initialize() -> void:
 			# Art-04's approved presentation delta; every other field stays exact.
 			expected["art_scale"] = 0.75
 			expected["art_rear_path"] = "res://assets/art/enemies/gust_shrike_rear.png"
+		if id == "storm_capacitor":
+			for intent: Dictionary in expected["intents"]:
+				if intent["id"] == "discharge": intent["name"] = "Arc Burst"
 		if production.get(id) != expected: _failures.append("Protected merged enemy data changed: " + id)
 	var cache: Resource = load(CACHE_PATH)
 	# Rebuild from registered source images, never by copying the cache under test.

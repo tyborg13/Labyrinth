@@ -510,7 +510,7 @@ func _build_result() -> void:
 		card.set_meta("graft_action_label", "Inspect")
 		card.pressed.connect(func() -> void: _open_inspection(card))
 		if selected: _ribbon(_content, "INHERITED", Rect2(card.position.x, 772, 200, 28), GREEN)
-	var consumed: Label = _label(_content, _item_name(str(result.get("donor", ""))) + " consumed", Rect2(810, 809, 740, 30), 18, MUTED, true)
+	var consumed: Label = _label(_content, _item_name(str(result.get("donor", ""))) + " destroyed", Rect2(810, 809, 740, 30), 18, MUTED, true)
 	consumed.name = "ConsumedEquipment"
 	_leave = _action(_content, "Continue", Rect2(997, 922, 365, 120), request_leave)
 	_leave.name = "GraftContinue"

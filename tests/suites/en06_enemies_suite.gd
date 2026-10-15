@@ -62,7 +62,11 @@ static func _schema(expect: Callable) -> void:
 	var production: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://data/enemies.json"))
 	var engine := Combat.new()
 	for id: String in ["storm_capacitor", "hollow_mimic"]:
-		expect.call(staged[id] == production[id], "%s equals the protected staged entry" % id)
+		var expected: Dictionary = staged[id].duplicate(true)
+		if id == "storm_capacitor":
+			for intent: Dictionary in expected["intents"]:
+				if intent["id"] == "discharge": intent["name"] = "Arc Burst"
+		expect.call(expected == production[id], "%s equals the protected staged entry plus the approved Arc Burst name" % id)
 		for field: String in ["name", "max_hp", "base_initiative", "reward_embers", "accent", "art_path", "intents"]:
 			expect.call(production[id].has(field), "%s has required field %s" % [id, field])
 		var sprite: Texture2D = Assets.load_texture(production[id]["art_path"])
@@ -126,7 +130,7 @@ static func _charge_and_grounded(expect: Callable) -> void:
 	var turn_result: Dictionary = engine.resolve_enemy_turn_with_steps(value, 0)
 	expect.call(turn_result["state"]["enemies"][0]["charge"] == 0 and turn_result["state"]["enemies"][0]["intent"]["id"] == "charge", "Discharge resets Charge and selects Charge afterward")
 	var badge: Dictionary = CapacitorView.badges(value["enemies"][0])[0]
-	expect.call(badge["icon"] == "charge" and badge["tooltip"] == "Charge 3/3: at 3 it discharges chain lightning.", "Charge status shares the intent icon and exact tooltip")
+	expect.call(badge["icon"] == "charge" and badge["tooltip"] == "Charge\nGains Charge each use. At 3, its next intent is Arc Burst: lightning jumping between nearby units. Shock removes 1.\n3/3", "Charge status shares the intent icon and exact tooltip")
 	var frozen: Dictionary = value.duplicate(true)
 	frozen["enemies"][0]["freeze"] = 1
 	expect.call(engine.resolve_enemy_turn_with_steps(frozen, 0)["state"]["enemies"][0]["charge"] == 3, "Skipped frozen activation preserves pips")
@@ -315,13 +319,13 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	scene._on_board_tile_hovered(value["enemies"][0]["pos"])
 	for frame: int in range(LIVE_SETTLE_FRAMES): await tree.process_frame
 	expect.call(scene.board_view._damage_preview_map().get("enemy_2", {}).get("hp", -1) == int(value["enemies"][1]["hp"]) - 6, "Live RunScene shows capacitor friendly-fire HP preview")
-	expect.call(scene.board_view._unit_status_badges(value["enemies"][0])[0]["tooltip"] == "Charge 3/3: at 3 it discharges chain lightning.", "Live board exposes exact Charge badge tooltip")
+	expect.call(scene.board_view._unit_status_badges(value["enemies"][0])[0]["tooltip"] == "Charge\nGains Charge each use. At 3, its next intent is Arc Burst: lightning jumping between nearby units. Shock removes 1.\n3/3", "Live board exposes exact Charge badge tooltip")
 	value = mirror()
 	Fixtures.install(scene, value)
 	for frame: int in range(LIVE_SETTLE_FRAMES): await tree.process_frame
 	scene._on_board_tile_hovered(value["enemies"][0]["pos"])
 	for frame: int in range(LIVE_SETTLE_FRAMES): await tree.process_frame
-	expect.call(scene.board_view.enemy_intent_tooltip("enemy_1").contains("Mirror: it copies the last attack you played — Whirlwind Slash: 8 damage."), "Live board exposes the exact copied-card tooltip")
+	expect.call(scene.board_view.enemy_intent_tooltip("enemy_1").contains("Mirror\nCopies your last damaging card at base damage, without its effects. The copy is fixed when declared.\nWhirlwind Slash: 8 damage."), "Live board exposes the exact copied-card tooltip")
 	var descriptor: Dictionary = Compass.descriptors_for_state(value, [1])["enemy_1"]
 	expect.call(descriptor["icon"] == "aoe" and descriptor["value"] == 8, "Copied area attack icon and base damage appear in the compass")
 	expect.call(scene.board_view._damage_preview_map().get("player", {}).get("hp", -1) == TEST_HERO_HP - 8, "Live Mirror preview shows its real moved-area outcome")

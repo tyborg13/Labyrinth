@@ -6,8 +6,8 @@ const Prompt = preload("res://scripts/contextual_combat_prompt.gd")
 const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
 const SIZE := Vector2i(1920, 1080)
-const CLOCK_TEXT := "Card Time places your next turn. An unused play still takes 5, so faster cards bring you back sooner."
-const PASS_TEXT := "Pass ends your turn. Each unused play still takes 5 Time. The preview shows what enemies do next."
+const CLOCK_TEXT := "Card Time places your next turn. An unused Card Play still takes 5, so faster cards bring you back sooner."
+const PASS_TEXT := "Pass ends your turn. Each unused Card Play still takes 5 Time. The preview shows what enemies do next."
 const SPENT_TEXT := "Your actions are spent. Pass so the crawler attacks into your Block."
 
 static func run(tree: SceneTree, expect: Callable, capture_dir: String = "") -> void:
@@ -50,7 +50,7 @@ static func run(tree: SceneTree, expect: Callable, capture_dir: String = "") -> 
 				await RenderingServer.frame_post_draw
 				var path: String = "%s/%02d_%s.png" % [capture_dir, index, modality]
 				expect.call(viewport.get_texture().get_image().save_png(path) == OK, "Copy probe saves %s" % path)
-	expect.call(Glossary.definition("time") == "Delays your next turn. Each unused play takes 5.", "TIME keyword uses the exact Wait description")
+	expect.call(Glossary.definition("time") == "Cards cost Time; the more you spend, the later your next turn. Playing under 2 cards adds Wait.", "Time keyword uses its exact approved definition")
 	router.call("set_modality", old_modality)
 	viewport.queue_free()
 	await tree.process_frame

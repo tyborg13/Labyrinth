@@ -4,7 +4,6 @@ extends RefCounted
 # markup are added here. The rules remain the source of every outcome value.
 const Palette = preload("res://scripts/ui_palette.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
-const Icons = preload("res://scripts/action_icon_library.gd")
 const Inline = preload("res://scripts/inline_icon_text.gd")
 
 static func tone(text: String) -> Color:
@@ -73,19 +72,4 @@ static func height(label: RichTextLabel) -> float:
 	return label.size.y
 
 static func _append_icons(label: RichTextLabel, text: String) -> void:
-	var cursor: int = 0
-	while cursor < text.length():
-		var start: int = text.find("@icon(", cursor)
-		if start < 0:
-			label.add_text(text.substr(cursor))
-			break
-		label.add_text(text.substr(cursor, start - cursor))
-		var end: int = text.find(")", start)
-		if end < 0:
-			label.add_text(text.substr(start))
-			break
-		var key: String = text.substr(start + 6, end - start - 6)
-		var texture: Texture2D = Icons.icon_texture(key)
-		if texture != null: label.add_image(texture, 20, 20, Color.WHITE, 5)
-		else: label.add_text(text.substr(start, end - start + 1))
-		cursor = end + 1
+	Inline.append_to(label, text, 20.0, false)

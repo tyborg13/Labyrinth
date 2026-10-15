@@ -11,7 +11,7 @@ static func rows(board: Control, unit: Dictionary, intent: Dictionary) -> Array:
 	var attack: Dictionary = current.get("attack_action", (intent["actions"][0] as Dictionary).get("copy", {}))
 	if not bool(current.get("copy_reachable", true)): return [Icons.tokens_for_action(attack)]
 	if attack.is_empty(): return []
-	var tooltip: String = "Mirror: it copies the last attack you played — %s: %d damage." % [str(intent.get("mirror_card_name", "")), int(attack["damage"])]
+	var tooltip: String = Icons.tooltip("mirror") + "\n%s: %d damage." % [str(intent.get("mirror_card_name", "")), int(attack["damage"])]
 	var row: Array = Icons.tokens_for_action(attack)
 	for token: Dictionary in row:
 		token["tooltip"] = tooltip

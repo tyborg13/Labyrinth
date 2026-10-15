@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Glossary = preload("res://scripts/glossary.gd")
+
 const Rules = preload("res://scripts/enemy_mechanics/death_burst.gd")
 const Data = preload("res://scripts/game_data.gd")
 const BURST_ICON: String = "burst"
@@ -19,7 +21,7 @@ static func badges(unit: Dictionary) -> Array[Dictionary]:
 	if int(unit.get("hp", 0)) > 0 and Data.enemy_def(str(unit.get("type", ""))).has("death_burst"):
 		var amount: int = Rules.damage(unit)
 		result.append({"icon": BURST_ICON, "count": amount, "icon_tint": Color.WHITE, "fill": FIRE, "border": FIRE,
-			"tooltip": "Bursts: when this dies, it deals %d damage to everything next to it." % amount})
+			"tooltip": Glossary.name_for("burst") + "\n" + Glossary.definition("burst") + "\n%d damage" % amount})
 	return result
 
 static func pre_battle_summary(enemy_type: String, fallback: String) -> String:

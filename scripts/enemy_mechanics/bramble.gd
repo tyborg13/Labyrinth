@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Glossary = preload("res://scripts/glossary.gd")
+
 # Protected design: spec/enemies/briar_weaver.md. No attack durability or LOS.
 const Paths = preload("res://scripts/path_utils.gd")
 const Surfaces = preload("res://scripts/board_surface_rules.gd")
@@ -94,7 +96,7 @@ static func collision(engine: RefCounted, state: Dictionary, kind: String, id: i
 			var status: Dictionary = {"bleed": int(entry["pushed_bleed"])}
 			if kind == "enemy": engine._apply_action_keywords_to_enemy(state, engine._enemy_index_for_id(state, id), status, contact["blocked_tile"], false)
 			else: engine._apply_action_keywords_to_target(state, {"kind": kind, "id": id}, status, contact["blocked_tile"])
-		Surfaces.record_event(state, {"kind": "force_collision", "actor_kind": kind, "id": id, "actor_key": engine._surface_actor_key(kind, id), "tile": contact["blocked_tile"] - direction, "blocked_tile": contact["blocked_tile"], "direction": direction, "force": "push" if pushing else "pull", "damage": damage, "target_damage": damage, "blocker_damage": 0, "total_damage": damage, "blocker_kind": "terrain", "terrain_kind": "bramble", "lost_tiles": lost, "tooltip_override": "Bramble: blocks movement for %d more round(s). A unit pushed into it takes 2 damage and Bleeds." % int(entry["rounds_left"]), "source": state.get("damage_context", {}).duplicate(true)})
+		Surfaces.record_event(state, {"kind": "force_collision", "actor_kind": kind, "id": id, "actor_key": engine._surface_actor_key(kind, id), "tile": contact["blocked_tile"] - direction, "blocked_tile": contact["blocked_tile"], "direction": direction, "force": "push" if pushing else "pull", "damage": damage, "target_damage": damage, "blocker_damage": 0, "total_damage": damage, "blocker_kind": "terrain", "terrain_kind": "bramble", "lost_tiles": lost, "tooltip_override": Glossary.name_for("bramble") + "\n" + Glossary.definition("bramble") + "\n%d turns left" % int(entry["rounds_left"]), "source": state.get("damage_context", {}).duplicate(true)})
 		return true
 	return false
 

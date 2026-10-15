@@ -31,7 +31,7 @@ static func marks(view: Control) -> Dictionary:
 	return result
 
 static func mark_tooltip(enemy: Dictionary, tile: Vector2i, damage: int, hero: Vector2i) -> String:
-	return "Lob Slag\nOn Slag Mortar's next turn this tile takes %d damage, and becomes Fire.%s" % [damage, "\nYou are standing on it." if tile == hero else ""]
+	return Icons.tooltip("lob") + "\n%d damage.%s" % [damage, "\nYou are standing on it." if tile == hero else ""]
 
 static func draw_tile(view: Control, tile: Vector2i) -> void:
 	if not marks(view).has(tile): return

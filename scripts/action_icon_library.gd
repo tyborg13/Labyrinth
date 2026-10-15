@@ -4,7 +4,6 @@ class_name ActionIconLibrary
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const Glossary = preload("res://scripts/glossary.gd")
-const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 
 const ICON_ROOT: String = "res://assets/art/icons"
 const SKILL_ICON_ROOT: String = "res://assets/art/skills"
@@ -14,7 +13,7 @@ const KEYWORDS: Dictionary = {
 	"reflect": {"label": "Reflect", "path": "%s/reflect.png" % ICON_ROOT},
 	"dive": {"label": "Dive", "path": "%s/dive.png" % ICON_ROOT},
 	"flying": {"label": "Flying", "path": "%s/flying.png" % ICON_ROOT},
-	"bramble": {"label": "Thornwall", "path": "%s/bramble.png" % ICON_ROOT},
+	"bramble": {"label": "Bramble", "path": "%s/bramble.png" % ICON_ROOT},
 	"lob": {"label": "Lob Slag", "path": "%s/lob.png" % ICON_ROOT},
 	"charge": {"label": "Charge", "path": "%s/charge.png" % ICON_ROOT},
 	"mirror": {"label": "Mirror", "path": "%s/mirror.png" % ICON_ROOT},
@@ -25,8 +24,6 @@ const KEYWORDS: Dictionary = {
 	"burrow": {"label": "Burrow", "path": "%s/burrow.png" % ICON_ROOT},
 	"erupt": {"label": "Erupt", "path": "%s/erupt.png" % ICON_ROOT},
 	"burst": {"label": "Bursts", "path": "%s/burst.png" % ICON_ROOT},
-	"raise_cover": {"label":"Raise Cover","path":"res://assets/art/icons/guardians/raise_cover.png"},
-	"reclaim_cover": {"label":"Reclaim Cover","path":"res://assets/art/icons/guardians/reclaim_cover.png"},
 	"surface": {"label": "Shape Ground", "path": "%s/surface.png" % ICON_ROOT},
 	"surface_fire": {"label": "Fire", "path": "%s/surface_fire.png" % ICON_ROOT},
 	"surface_ice": {"label": "Ice", "path": "%s/surface_ice.png" % ICON_ROOT},
@@ -34,7 +31,7 @@ const KEYWORDS: Dictionary = {
 	"surface_rubble": {"label": "Rubble", "path": "%s/surface_rubble.png" % ICON_ROOT},
 	"chilled": {"label": "Chilled", "path": "%s/chilled.png" % ICON_ROOT},
 	"detonate": {"label": "Detonate", "path": "%s/detonate.png" % ICON_ROOT},
-	"surface_consume": {"label": "Consume Ground", "path": "%s/surface_consume.png" % ICON_ROOT},
+	"surface_consume": {"label": "Expend", "path": "%s/surface_consume.png" % ICON_ROOT},
 	"surface_relocate": {"label": "Relocate Ground", "path": "%s/surface_relocate.png" % ICON_ROOT},
 	"melee": {
 		"label": "Melee",
@@ -100,7 +97,7 @@ const KEYWORDS: Dictionary = {
 		"path": "%s/illusion.png" % ICON_ROOT
 	},
 	"illuminate": {
-		"label": "Illuminate",
+		"label": "Light",
 		"path": "%s/illuminate.png" % ICON_ROOT
 	},
 	"vision": {
@@ -205,7 +202,7 @@ const KEYWORDS: Dictionary = {
 		"path": "%s/lightning_strikes.png" % ICON_ROOT
 	},
 	"summon_minions": {
-		"label": "Summon Minions",
+		"label": "Summon",
 		"path": "%s/summon_minions.png" % ICON_ROOT
 	},
 	"raise_terrain": {
@@ -217,7 +214,7 @@ const KEYWORDS: Dictionary = {
 		"path": "%s/terrain_burst.png" % ICON_ROOT
 	},
 	"cinder_marks": {
-		"label": "Kindle Ground",
+		"label": "Cinder Marks",
 		"path": "%s/cinder_marks.png" % ICON_ROOT
 	},
 	"detonate_cinders": {
@@ -241,7 +238,7 @@ const KEYWORDS: Dictionary = {
 		"path": "%s/heal_ally.png" % ICON_ROOT
 	},
 	"umbra_eclipse": {
-		"label": "The Last Eclipse",
+		"label": "Last Eclipse",
 		"path": "%s/umbra_eclipse.png" % ICON_ROOT
 	},
 	"radiance": {
@@ -262,7 +259,7 @@ const KEYWORDS: Dictionary = {
 		"toolbar_path": "%s/ui/map_toolbar.svg" % ICON_ROOT
 	},
 	"loadout": {
-		"label": "Character and Loadout",
+		"label": "Character",
 		"path": "%s/loadout.png" % ICON_ROOT
 	},
 	"rewards": {
@@ -357,7 +354,6 @@ const SKILL_ICONS: Dictionary = {
 	"skill_curators_patience": {"label": "Curator's Patience", "path": "%s/curators_patience.png" % SKILL_ICON_ROOT},
 	"skill_living_shadow": {"label": "Living Shadow", "path": "%s/living_shadow.png" % SKILL_ICON_ROOT},
 	"skill_true_bearing": {"label": "True Bearing", "path": "%s/true_bearing.png" % SKILL_ICON_ROOT},
-	"skill_layaway": {"label": "Layaway", "path": "%s/layaway.png" % SKILL_ICON_ROOT},
 	"skill_encore": {"label": "Encore", "path": "%s/encore.png" % SKILL_ICON_ROOT},
 	"skill_open_arsenal": {"label": "Open Arsenal", "path": "%s/open_arsenal.png" % SKILL_ICON_ROOT},
 	"skill_confluence": {"label": "Confluence", "path": "%s/confluence.png" % SKILL_ICON_ROOT},
@@ -371,7 +367,7 @@ const ACTION_ICON_ALIASES: Dictionary = {
 	"lob_mark": "lob",
 	"lob_land": "lob",
 	"gain_charge": "charge",
-	"chain_discharge": "chain",
+	"chain_discharge": "charge",
 	"reset_charge": "charge",
 	"mirror_last_attack": "mirror",
 	"icefall_mark": "icefall",
@@ -476,6 +472,7 @@ static func all_icon_keys() -> Array:
 
 static func action_icon_key(action: Dictionary) -> String:
 	if action.has("_copied_icon"): return str(action["_copied_icon"])
+	if action.has("glossary_key"): return str(action["glossary_key"])
 	var action_type: String = str(action.get("type", ""))
 	if action_type == "force_area" and int(action.get("pull", 0)) > 0 and int(action.get("push", 0)) <= 0:
 		return "pull"
@@ -584,24 +581,13 @@ static func icon_texture(icon_key: String, presentation: String = "default") -> 
 	return AssetLoader.load_texture(path)
 
 static func label(icon_key: String) -> String:
-	if SKILL_ICONS.has(icon_key):
-		return SkillTreeLibrary.display_name(icon_key.trim_prefix("skill_"))
 	return Glossary.name_for(icon_key, str(_icon_definition(icon_key).get("label", icon_key.capitalize())))
 
 static func description(icon_key: String) -> String:
-	if SKILL_ICONS.has(icon_key):
-		return SkillTreeLibrary.description(icon_key.trim_prefix("skill_"))
-	if icon_key == "dive":
-		for intent: Dictionary in preload("res://scripts/game_data.gd").enemies()["gust_shrike"]["intents"]:
-			for action: Dictionary in intent["actions"]:
-				if str(action.get("type", "")) == "dive_line": return dive_tooltip(action)
-	# Shared by card focus stacks and existing nested token hover hit regions.
-	# Keyword definitions are owned by the glossary; skills own their own copy.
 	return Glossary.definition(icon_key, label(icon_key))
 
-static func dive_tooltip(action: Dictionary) -> String:
-	var text: String = Glossary.definition("dive", label("dive"))
-	return text % [int(action["max_length"]), int(action["side_push"]), int(action["damage"])] if text.count("%d") == 3 else text
+static func dive_tooltip(_action: Dictionary) -> String:
+	return tooltip("dive")
 
 static func _icon_definition(icon_key: String) -> Dictionary:
 	if KEYWORDS.has(icon_key):
@@ -611,7 +597,6 @@ static func _icon_definition(icon_key: String) -> Dictionary:
 static func tooltip(icon_key: String) -> String:
 	var text: String = label(icon_key)
 	var detail: String = description(icon_key)
-	if icon_key in ["dive", "flying"]: return detail
 	if detail.is_empty():
 		return text
 	return "%s\n%s" % [text, detail]
@@ -642,14 +627,15 @@ static func tooltip_entries_for_rows(
 			var icon_key: String = str(token.get("icon", ""))
 			if str(token.get("kind", "")) == "aoe_pattern":
 				icon_key = "aoe"
-			_append_tooltip_entry(entries, seen, icon_key, token_tooltip(token))
+			_append_tooltip_entry(entries, seen, icon_key, token_tooltip(token), str(token.get("glossary_key", icon_key)))
 	return entries
 
 static func _append_tooltip_entry(
 	entries: Array[Dictionary],
 	seen: Dictionary,
 	icon_key: String,
-	tooltip_text: String
+	tooltip_text: String,
+	glossary_key: String = ""
 ) -> void:
 	var normalized_tooltip: String = tooltip_text.strip_edges()
 	if normalized_tooltip.is_empty():
@@ -661,7 +647,7 @@ static func _append_tooltip_entry(
 	if texture == null:
 		return
 	seen[semantic_key] = true
-	var copy: Dictionary = _tooltip_entry_copy(icon_key, normalized_tooltip)
+	var copy: Dictionary = _tooltip_entry_copy(glossary_key if not glossary_key.is_empty() else icon_key, normalized_tooltip)
 	entries.append({
 		"icon": icon_key,
 		"texture": texture,
@@ -727,6 +713,11 @@ static func token_for(icon_key: String, value: Variant = null, tone: String = "n
 		token["modified"] = true
 		if base_value != null:
 			token["base_value"] = base_value
+	return token
+
+static func duration_token(value: Variant) -> Dictionary:
+	var token: Dictionary = token_for("time", value, "neutral", tooltip("turns"))
+	token["glossary_key"] = "turns"
 	return token
 
 static func text_token(text: String, tone: String = "neutral", tooltip_override: String = "") -> Dictionary:
@@ -1030,13 +1021,13 @@ static func surface_family_rider_rows(action: Dictionary) -> Array:
 		if bonus != 0:
 			row.append(token_for(_damage_icon_for_action(action, _damage_bonus_fallback_icon(action)), "%+d" % bonus, "condition"))
 		var where: String = "on each pattern tile" if str(action.get("type", "")) == "aoe" else "beneath each enemy hit" if per_hit else "beneath the target"
-		row.append(token_for("surface_consume", null, "neutral", "Consume Surface\nRemoves the %s %s after the hit." % [label(surface_icon_key(kind)), where]))
+		row.append(token_for("surface_consume", null, "neutral", "Expend\nRemoves the %s %s after the hit." % [label(surface_icon_key(kind)), where]))
 		rows.append(row)
 	var result: Variant = action.get("on_result", null)
 	if typeof(result) == TYPE_DICTIONARY and not (result as Dictionary).is_empty():
 		var when: String = str((result as Dictionary).get("when", ""))
 		var result_text: String = "if it Freezes:" if when == "froze" else "if it kills:" if when == "killed" else "if %s:" % when
-		var result_tooltip: String = "If this hit Freezes the target (it was not Frozen before), also:" if when == "froze" else "If this hit defeats the target, also (on top of the usual card play for a kill):"
+		var result_tooltip: String = "If this hit Freezes the target (it was not Frozen before), also:" if when == "froze" else "If this hit defeats the target, also (on top of the usual Card Play for a kill):"
 		var result_row: Array = [text_token(result_text, "neutral", result_tooltip)]
 		for reward_var: Variant in (result as Dictionary).get("rewards", []):
 			if typeof(reward_var) != TYPE_DICTIONARY:
@@ -1177,9 +1168,9 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			tokens.append(token_for("veil"))
 			tokens.append(_token_for_action_field(action, "blink", "range", int(action.get("range", 4))))
 		"burrow":
-			tokens.append(icon_text_token(action_icon_key(action), "Burrow", "Burrowed; marks your current tile. Erupt is its next intent."))
+			tokens.append(icon_text_token(action_icon_key(action), "Burrow", tooltip("burrow")))
 		"erupt":
-			tokens.append(icon_text_token(action_icon_key(action), "Erupt %d" % int(action.get("damage", 0)), "Surfaces at the mark, displaces its occupant, pushes adjacent units, leaves Rubble and gains Expose 2."))
+			tokens.append(icon_text_token(action_icon_key(action), "Erupt %d" % int(action.get("damage", 0)), tooltip("erupt")))
 		"kindle":
 			tokens.append(icon_text_token(action_icon_key(action), "Kindle +%d" % int(action.get("amount", 0)), "Burst damage increases until death; stacks to max +4."))
 		"cost":
@@ -1259,14 +1250,14 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 		"detonate":
 			_append_damage_token(tokens, "detonate", action, options)
 			if action.has("detonate_surface") and str(action.get("detonate_surface", "fire")) != "fire":
-				tokens.append(surface_token(str(action.get("detonate_surface", "")), "Detonates this surface instead of Fire."))
+				tokens.append(surface_token(str(action.get("detonate_surface", "")), "Detonates this ground instead of Fire."))
 			if int(action.get("range", 0)) > 0:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0))))
 			if (action.get("pattern", []) as Array).size() > 1:
 				tokens.append(_aoe_pattern_token(action))
 			_append_keyword_tokens(tokens, action)
 			if not str(action.get("leave_surface", "")).is_empty():
-				tokens.append(surface_token(str(action.get("leave_surface", "")), "Leaves this surface on each detonated tile and its four neighbors."))
+				tokens.append(surface_token(str(action.get("leave_surface", "")), "Leaves this ground on each detonated tile and its four neighbors."))
 			if bool(action.get("spare_player", false)):
 				tokens.append(text_token("spares you", "neutral", "You take no damage from this Detonate."))
 		"consume_surface":
@@ -1280,7 +1271,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 						tokens.append(text_token("per tile" + (", max %d" % cap if cap > 0 else ""), "neutral", "Gains this for each tile removed%s." % (" (maximum %d)" % cap if cap > 0 else "")))
 		"surface_adjacent_enemies":
 			var self_too: bool = bool(action.get("include_self", false))
-			var adjacent_detail: String = "Leaves this surface under each adjacent enemy%s." % (" and on your tile" if self_too else "")
+			var adjacent_detail: String = "Leaves this ground under each adjacent enemy%s." % (" and on your tile" if self_too else "")
 			tokens.append(surface_token(str(action.get("surface", "")), adjacent_detail))
 			tokens.append(text_token("adjacent + you" if self_too else "adjacent", "neutral", adjacent_detail))
 		"convert_surface":
@@ -1315,7 +1306,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			if (action.get("pattern", []) as Array).size() > 1:
 				tokens.append(_aoe_pattern_token(action))
 			if not meteor_surface.is_empty():
-				tokens.append(surface_token(meteor_surface, "Each marked tile becomes this surface when the meteor lands."))
+				tokens.append(surface_token(meteor_surface, "Each marked tile becomes this ground when the meteor lands."))
 		"surface_relocate":
 			tokens.append(token_for("surface_relocate"))
 			if int(action.get("range", 0)) > 0:
@@ -1351,7 +1342,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 		"burst_terrain":
 			var owned_only: bool = bool(action.get("owned_outcrop_only", false))
 			var line_length: int = int(action.get("line_length", 0))
-			tokens.append(token_for("terrain_burst", null, "neutral", "Destroy an adjacent outcrop you raised." if owned_only else "Destroy an outcrop, crate or other terrain within range and sight."))
+			tokens.append(token_for("terrain_burst", null, "neutral", "Destroy an adjacent Outcrop or Worldspine you raised." if owned_only else "Destroy an outcrop, crate or other terrain within range and sight."))
 			var burst_action: Dictionary = action.duplicate(false)
 			burst_action["damage"] = int(action.get("line_damage", action.get("damage", 0))) if owned_only else int(action.get("damage", 0))
 			_append_damage_token(tokens, "aoe", burst_action, options)
@@ -1369,11 +1360,11 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			if light_range > 0:
 				tokens.append(_token_for_action_field(action, "range", "range", light_range, "neutral", "Light placement range."))
 			var light_duration: int = int(action.get("duration", 1))
-			tokens.append(token_for("time", "∞" if light_duration < 0 else light_duration, "neutral", "Player turns this light remains."))
+			tokens.append(duration_token("∞" if light_duration < 0 else light_duration))
 		"vision":
 			tokens.append(_token_for_action_field(action, "vision", "amount", int(action.get("amount", 0))))
 			var vision_duration: int = int(action.get("duration", 1))
-			tokens.append(token_for("time", "∞" if vision_duration < 0 else vision_duration, "neutral", "Player turns this vision remains."))
+			tokens.append(duration_token("∞" if vision_duration < 0 else vision_duration))
 		"truesight":
 			var truesight_duration: int = int(action.get("duration", action.get("amount", 1)))
 			tokens.append(token_for("truesight", "∞" if truesight_duration < 0 else truesight_duration))
@@ -1420,7 +1411,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 			if int(action.get("damage", 0)) > 0: _append_damage_token(tokens, "ranged", action, options)
 			_append_keyword_tokens(tokens, action)
 		"detonate_cinders":
-			tokens.append(_token_for_action_field(action, "detonate_cinders", "damage", int(action.get("damage", 0)), "warning", "Consumes Fire. Each affected actor, including the dragon, takes damage once on the Fire or its four neighboring tiles."))
+			tokens.append(_token_for_action_field(action, "detonate_cinders", "damage", int(action.get("damage", 0)), "warning", "Expends Fire. Each affected actor, including the dragon, takes damage once on the Fire or its four neighboring tiles."))
 		"gale_force":
 			_append_damage_token(tokens, "ranged", action, options)
 			tokens.append(_token_for_action_field(action, "push", "amount", int(action.get("amount", 0)), "neutral", "Pushes the player away from the dragon through arena hazards."))
@@ -1442,7 +1433,7 @@ static func tokens_for_action(action: Dictionary, options: Dictionary = {}) -> A
 	if int(action.get("outcrop_health", 0)) > 0:
 		tokens.append(token_for("raise_terrain", int(action["outcrop_health"]), "neutral", "Raises an outcrop with this much HP at an empty ground target."))
 	if action_type not in ["surface", "consume_surface", "surface_adjacent_enemies", "convert_surface", "meteor_marks"] and not str(action.get("surface", "")).is_empty():
-		tokens.append(surface_token(str(action.get("surface", "")), "Leaves this surface along your path." if bool(action.get("surface_path", false)) else "Leaves this surface in the affected area."))
+		tokens.append(surface_token(str(action.get("surface", "")), "Leaves this ground along your path." if bool(action.get("surface_path", false)) else "Leaves this ground in the affected area."))
 		if bool(action.get("surface_path", false)): tokens.append(text_token("trail"))
 		elif action.has("surface_tiles_limit"): tokens.append(text_token("%d nearest tile%s" % [int(action["surface_tiles_limit"]), "" if int(action["surface_tiles_limit"]) == 1 else "s"], "neutral", "Places ground on the nearest affected tiles, beginning at the dragon."))
 		if action.has("surface_pattern") and not _same_pattern(action.get("surface_pattern", []), action.get("pattern", [])):
@@ -1480,7 +1471,7 @@ static func selector_token(selector: String) -> Dictionary:
 
 const SELF_FLAG_TEXT: Dictionary = {
 	"ice_skate": ["Skate", "Skate\nThis turn, moving onto Ice costs no movement and Ice doesn't Chill you."],
-	"no_move": ["Rooted", "Rooted\nYou can't Move, Blink or Swap for the rest of this turn."],
+	"no_move": ["Immobilize", "Immobilize\nYou can't Move, Blink or Swap for the rest of this turn."],
 	"anchored": ["Anchored", "Anchored\nUntil your next turn, you can't be pushed or pulled."],
 	"fire_immune_turn": ["Fireproof", "Fireproof\nFire doesn't damage you this turn."],
 }
@@ -1497,7 +1488,7 @@ static func _append_maneuver_tokens(tokens: Array, action: Dictionary) -> void:
 			var where: String = "the chosen tile" if on_target else "you"
 			var verb: String = "Pull each enemy within %d of %s %d toward it." % [radius, where, amount] if pulling else "Push each enemy within %d of %s %d away from it." % [radius, where, amount]
 			if not str(action.get("consume_center", "")).is_empty():
-				tokens.append(token_for("surface_consume", null, "neutral", "Consumes this surface on the chosen tile first."))
+				tokens.append(token_for("surface_consume", null, "neutral", "Expends this ground on the chosen tile first."))
 				tokens.append(surface_token(str(action.get("consume_center", ""))))
 			if on_target:
 				tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Choose a tile within this range."))
@@ -1554,10 +1545,10 @@ static func _append_maneuver_rider_tokens(tokens: Array, action: Dictionary) -> 
 		tokens.append(text_token("straight line", "neutral", "Move along one clear straight line."))
 	if not str(action.get("trail_surface", "")).is_empty():
 		var moving_self: bool = str(action.get("type", "")) == "move"
-		tokens.append(surface_token(str(action.get("trail_surface", "")), "Leaves this surface on each tile you leave." if moving_self else "Leaves this surface on each tile the target passes through."))
+		tokens.append(surface_token(str(action.get("trail_surface", "")), "Leaves this ground on each tile you leave." if moving_self else "Leaves this ground on each tile the target passes through."))
 		tokens.append(text_token("trail"))
 	if not str(action.get("origin_surface", "")).is_empty():
-		tokens.append(surface_token(str(action.get("origin_surface", "")), "Leaves this surface on the tile you started on."))
+		tokens.append(surface_token(str(action.get("origin_surface", "")), "Leaves this ground on the tile you started on."))
 		tokens.append(text_token("start tile"))
 	if int(action.get("block_per_tile", 0)) > 0:
 		tokens.append(token_for("block", int(action.get("block_per_tile", 0)), "neutral", "Gain this much Block for each tile you move."))
@@ -1565,7 +1556,7 @@ static func _append_maneuver_rider_tokens(tokens: Array, action: Dictionary) -> 
 	var trail_light: Variant = action.get("trail_light", null)
 	if typeof(trail_light) == TYPE_DICTIONARY:
 		tokens.append(token_for("illuminate", int((trail_light as Dictionary).get("radius", 1)), "neutral", "Creates Light on each tile you enter. Radius in tiles."))
-		tokens.append(token_for("time", int((trail_light as Dictionary).get("duration", 2)), "neutral", "Turns this Light lasts."))
+		tokens.append(duration_token(int((trail_light as Dictionary).get("duration", 2))))
 	if bool(action.get("destination_requires_light", false)):
 		tokens.append(text_token("into Light", "neutral", "The destination must be in Light."))
 	var adjacent_to: Array = action.get("destination_adjacent_to", []) as Array
@@ -1601,7 +1592,7 @@ static func _append_illusion_placement_tokens(tokens: Array, action: Dictionary)
 			tokens.append(_token_for_action_field(action, "range", "range", int(action.get("range", 0)), "neutral", "Illusion placement range."))
 	var ring_surface: String = str(action.get("surface_ring", ""))
 	if not ring_surface.is_empty():
-		tokens.append(surface_token(ring_surface, "Leaves this surface on each empty tile next to the illusion."))
+		tokens.append(surface_token(ring_surface, "Leaves this ground on each empty tile next to the illusion."))
 		tokens.append(text_token("around it", "neutral", "Each empty tile next to the illusion."))
 
 static func _append_illusion_trait_tokens(tokens: Array, action: Dictionary) -> void:
@@ -1752,6 +1743,7 @@ static func _append_damage_token(tokens: Array, icon_key: String, action: Dictio
 	))
 
 static func _damage_icon_for_action(action: Dictionary, fallback_icon: String) -> String:
+	if action.has("glossary_key"): return str(action["glossary_key"])
 	return "pierce" if bool(action.get("pierce", false)) else fallback_icon
 
 static func _append_optional_hit_token(tokens: Array, action: Dictionary, options: Dictionary) -> void:
@@ -1822,10 +1814,10 @@ static func _append_illuminate_rider_tokens(tokens: Array, action: Dictionary) -
 		return
 	var action_type: String = str(action.get("type", ""))
 	var radius_tooltip: String = "Creates Light at the target. Radius in tiles."
-	var duration_tooltip: String = "Turns this Light lasts."
+	var duration_tooltip: String = tooltip("turns")
 	if action_type in ["move", "move_toward", "move_away", "blink"]:
 		radius_tooltip = "Creates Light where you land. Radius in tiles."
-		duration_tooltip = "Turns this Light lasts."
+		duration_tooltip = tooltip("turns")
 	tokens.append(_token_for_action_field(
 		action,
 		"illuminate",
@@ -1846,6 +1838,7 @@ static func _append_illuminate_rider_tokens(tokens: Array, action: Dictionary) -
 	))
 
 	(tokens[tokens.size() - 1] as Dictionary)["row_group"] = "light"
+	(tokens[tokens.size() - 1] as Dictionary)["glossary_key"] = "turns"
 
 static func _action_element(action: Dictionary) -> String:
 	var element_id: String = str(action.get("element", action.get("_card_element", ElementData.NONE)))
@@ -1877,7 +1870,7 @@ static func surface_condition_token(condition: Dictionary) -> Dictionary:
 		return text_token("Conducted hits:", "neutral", "Applies only to hits carried by a conductive connection.")
 	var placement: String = "on" if bool(condition.get("present", true)) else "off"
 	var prefix: String = "if" if subject in ["consumed", "conducted"] else "%s %s" % ["if" if subject == "player" else "Target", placement]
-	var suffix: String = "consumed:" if subject == "consumed" else "used:" if subject == "conducted" else ":"
+	var suffix: String = "Expended:" if subject == "consumed" else "used:" if subject == "conducted" else ":"
 	var condition_text: String = ("%s %s %s" % [prefix, label(surface_icon_key(kind)), suffix]).replace(" :", ":")
 	var token: Dictionary = text_token(condition_text, "neutral", condition_text)
 	token["kind"] = "surface_condition"
@@ -1920,8 +1913,8 @@ static func tokens_for_guardian_rule(action: Dictionary) -> Array:
 		row.append(surface_token(str(action.get("snapshot_surface","electrified"))))
 		var radius: int = int(action.get("snapshot_radius",0))
 		var label: String = "Marked + adjacent" if radius > 0 else "Marked tiles"
-		if action.has("consume_surface"): label += " · consumed"
-		row.append(text_token(label,"warning","Hits surviving marked ground%s. Replacing a marked surface removes its area; later ground is not added." % (" and its orthogonal neighbors" if radius > 0 else "")))
+		if action.has("consume_surface"): label += " · Expended"
+		row.append(text_token(label,"warning","Hits surviving marked ground%s. Replacing marked ground removes its area; later ground is not added." % (" and its orthogonal neighbors" if radius > 0 else "")))
 		_append_brazier_rule(row,action)
 		return row
 	if shape == "trail_snapshot":

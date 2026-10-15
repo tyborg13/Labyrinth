@@ -10,7 +10,7 @@ const FALL_SECONDS: float = 0.18
 const PUFF_SECONDS: float = 0.30
 
 static func pillar_tooltip(terrain: Dictionary) -> String:
-	return "Ice Pillar: blocks movement and sight for %d more round(s). A unit pushed into it shatters it and takes 2 damage." % int(terrain.get("rounds_left", 0))
+	return Icons.tooltip("ice_pillar") + "\n%d turns left" % int(terrain.get("rounds_left", 0))
 
 static func marks(view: Control) -> Dictionary:
 	var result: Dictionary = {}
@@ -39,7 +39,7 @@ static func draw_badges(view: Control) -> void:
 		view.draw_arc(center, radius - 1, 0, TAU, 32, TINT, 2, true)
 		var rect := Rect2(center - Vector2.ONE * size * 0.5, Vector2.ONE * size)
 		if icon != null: view.draw_texture_rect(icon, rect, false)
-		var tooltip: String = "Icefall\nOn Hoarfrost Seer's next turn this tile takes 5 damage.%s" % ["\nYou are standing on it." if tile == view.combat_state.get("player", {}).get("pos") else ""]
+		var tooltip: String = Icons.tooltip("icefall") + "\n5 damage.%s" % ["\nYou are standing on it." if tile == view.combat_state.get("player", {}).get("pos") else ""]
 		view._register_tooltip(rect, tooltip)
 		if font == null: continue
 		var font_size: int = int(round(clampf(size * 0.50, 14.0, 20.0)))

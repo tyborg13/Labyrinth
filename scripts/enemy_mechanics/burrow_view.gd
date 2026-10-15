@@ -79,7 +79,7 @@ static func draw_badges(view: Control) -> void:
 		var texture: Texture2D = Icons.icon_texture(ERUPT_ICON)
 		if texture != null: view.draw_texture_rect(texture, rect, false)
 		var amount: int = int(mark["damage"])
-		view._register_tooltip(rect, "Erupt\nOn Burrow Grub's next turn this tile takes %d damage, and becomes Rubble.%s" % [amount,
+		view._register_tooltip(rect, Icons.tooltip("erupt") + "\n%d damage.%s" % [amount,
 			"\nYou are standing on it." if tile == view.combat_state.get("player", {}).get("pos") else ""])
 		var font: Font = view.get_theme_default_font()
 		if font != null:
@@ -95,15 +95,15 @@ static func badges(unit: Dictionary) -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	if bool(unit.get("burrowed", false)):
 		result.append({"icon": BURROW_ICON, "count": 0, "icon_tint": Color.WHITE, "fill": EARTH, "border": EARTH,
-			"tooltip": "Burrowed\nCannot be targeted by single-target attacks; area effects and surfaces on its old tile still hit it. Does not block movement and cannot be pushed or pulled."})
+			"tooltip": Icons.tooltip("burrow")})
 	return result
 
 static func rows(intent: Dictionary) -> Array:
 	if (intent.get("actions", []) as Array).is_empty(): return []
 	var action: Dictionary = intent["actions"][0]
 	match str(action.get("type", "")):
-		"burrow": return [[Icons.icon_text_token(BURROW_ICON, "Burrow", "Burrowed; marks your current tile. Erupt is its next intent.")]]
-		"erupt": return [[Icons.icon_text_token(ERUPT_ICON, "Erupt %d" % int(action.get("damage", 0)), "Surfaces at the mark, displaces its occupant, pushes adjacent units, leaves Rubble and gains Expose 2.")]]
+		"burrow": return [[Icons.icon_text_token(BURROW_ICON, "Burrow", Icons.tooltip("burrow"))]]
+		"erupt": return [[Icons.icon_text_token(ERUPT_ICON, "Erupt %d" % int(action.get("damage", 0)), Icons.tooltip("erupt"))]]
 	return []
 
 static func descriptor(unit: Dictionary, fallback: Dictionary) -> Dictionary:

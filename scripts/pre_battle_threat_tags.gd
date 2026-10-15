@@ -18,9 +18,9 @@ static func from_intents(intents: Array) -> Array:
 			var action: Dictionary = action_var as Dictionary
 			_append(tags, seen, _word(action), ActionIcons.action_icon_key(action))
 			if bool(action.get("pierce", false)):
-				_append(tags, seen, "Pierce", "pierce")
+				_append(tags, seen, ActionIcons.label("pierce"), "pierce")
 			if int(action.get("bleed", 0)) > 0:
-				_append(tags, seen, "Bleed", "bleed")
+				_append(tags, seen, ActionIcons.label("bleed"), "bleed")
 	if tags.is_empty():
 		tags.append({"text": "Inspect known moves", "icon_key": ""})
 	return tags
@@ -42,24 +42,7 @@ static func _append(tags: Array, seen: Dictionary, word: String, icon_key: Strin
 	tags.append({"text": word, "icon_key": icon_key if not ActionIcons.icon_path(icon_key).is_empty() else ""})
 
 static func _word(action: Dictionary) -> String:
-	match str(action.get("type", "")):
-		"grow_bramble": return "Thornwall"
-		"lob_mark", "lob_land": return "Lob Slag"
-		"melee": return "Melee"
-		"ranged": return "Ranged"
-		"aoe", "lightning_strikes": return "Area"
-		"block", "guard_ally": return "Guard"
-		"stoneskin": return "Stoneskin"
-		"heal", "heal_self", "heal_ally": return "Heal"
-		"move_away": return "Retreat"
-		"pull": return "Pull"
-		"push": return "Push"
-		"summon_minions": return "Summon"
-		"raise_terrain", "terrain_burst":
-			return "Outcrops" if str(action.get("guardian_kind", "")) == "crag_outcrop" else "Worldspines"
-		"cinder_marks", "detonate_cinders": return "Cinder Marks"
-		"gale_force": return "Arena Gale"
-		"frost_armor": return "Crystal Mantle"
-		"umbra_eclipse": return "Eclipse"
-		"split": return "Split"
-	return ""
+	if str(action.get("type", "")) not in ["grow_bramble", "lob_mark", "lob_land", "melee", "ranged", "aoe", "lightning_strikes", "block", "guard_ally", "stoneskin", "heal", "heal_self", "heal_ally", "move_away", "pull", "push", "summon_minions", "raise_terrain", "terrain_burst", "cinder_marks", "detonate_cinders", "gale_force", "frost_armor", "umbra_eclipse", "split"]:
+		return ""
+	var icon_key: String = ActionIcons.action_icon_key(action)
+	return ActionIcons.label(icon_key) if not icon_key.is_empty() else str(action.get("type", "")).capitalize()

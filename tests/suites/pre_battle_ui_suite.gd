@@ -397,8 +397,8 @@ static func _labels_text(node: Node) -> String:
 static func _test_stage_tag_icons(host: Node, expect: Callable) -> void:
 	var roster_expectations: Array = [
 		["acolyte", "Heal", "heal"],
-		["warden", "Guard", "guard_ally"],
-		["zekarion", "Area", "lightning_strikes"]
+		["warden", "Guard Ally", "guard_ally"],
+		["zekarion", "Lightning Strikes", "lightning_strikes"]
 	]
 	for expectation_var: Variant in roster_expectations:
 		var expectation: Array = expectation_var as Array
@@ -408,14 +408,14 @@ static func _test_stage_tag_icons(host: Node, expect: Callable) -> void:
 		card.free()
 	var action_expectations: Array = [
 		[{"type": "heal_self"}, "Heal", "heal"],
-		[{"type": "heal_ally"}, "Heal", "heal_ally"],
-		[{"type": "guard_ally"}, "Guard", "guard_ally"],
-		[{"type": "block"}, "Guard", "block"],
-		[{"type": "lightning_strikes"}, "Area", "lightning_strikes"],
-		[{"type": "terrain_burst"}, "Worldspines", "terrain_burst"],
-		[{"type": "terrain_burst", "guardian_kind": "crag_outcrop"}, "Outcrops", "terrain_burst"],
-		[{"type": "raise_terrain"}, "Worldspines", "raise_terrain"],
-		[{"type": "detonate_cinders"}, "Cinder Marks", "detonate_cinders"],
+		[{"type": "heal_ally"}, "Heal Ally", "heal_ally"],
+		[{"type": "guard_ally"}, "Guard Ally", "guard_ally"],
+		[{"type": "block"}, "Block", "block"],
+		[{"type": "lightning_strikes"}, "Lightning Strikes", "lightning_strikes"],
+		[{"type": "terrain_burst"}, "Terrain Burst", "terrain_burst"],
+		[{"type": "terrain_burst", "guardian_kind": "crag_outcrop"}, "Terrain Burst", "terrain_burst"],
+		[{"type": "raise_terrain"}, "Raise Terrain", "raise_terrain"],
+		[{"type": "detonate_cinders"}, "Crownfire", "detonate_cinders"],
 		[{"type": "cinder_marks"}, "Cinder Marks", "cinder_marks"],
 		[{"type": "melee", "pierce": true, "bleed": 2}, "Pierce", "pierce"],
 		[{"type": "melee", "pierce": true, "bleed": 2}, "Bleed", "bleed"],
@@ -428,7 +428,7 @@ static func _test_stage_tag_icons(host: Node, expect: Callable) -> void:
 		var row: Control = PreBattleView.build_move_tags(host, tags)
 		_assert_tag_identity(row, str(expectation[1]), str(expectation[2]), expect, str((expectation[0] as Dictionary).get("type", "")))
 		row.free()
-	expect.call(ThreatTags.summary(ThreatTags.build("acolyte")) == "Ranged / Guard / Heal  +1", "Threat summaries should preserve established words, order, deduplication and overflow")
+	expect.call(ThreatTags.summary(ThreatTags.build("acolyte")) == "Ranged / Block / Heal  +1", "Threat summaries should use glossary words and preserve order, deduplication and overflow")
 
 static func _assert_tag_identity(row: Control, word: String, icon_key: String, expect: Callable, context: String) -> void:
 	var tag: Control = null

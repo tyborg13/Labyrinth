@@ -448,6 +448,7 @@ func _card_identity() -> void:
 	var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(rows, ["time"])
 	_expect(entries.any(func(entry: Dictionary) -> bool: return entry["icon"] == "follow_up"), "Focused card includes Follow-up keyword")
 	var before_image: Image
+	var same_copy_image: Image
 	if _compare_original_card:
 		var before_copy: Dictionary = {}
 		for entry: Dictionary in JSON.parse_string(FileAccess.get_file_as_string("res://tests/glossary_card_copy_before.json")):
@@ -463,6 +464,14 @@ func _card_identity() -> void:
 		before.show_for(card, legacy_entries)
 		await _settle()
 		before_image = await _save("card_keywords_before")
+		var changed_copy: Array[String]
+		for index: int in range(entries.size()):
+			if entries[index]["title"] != legacy_entries[index]["title"] or entries[index]["description"] != legacy_entries[index]["description"]:
+				changed_copy.append(str(entries[index]["icon"]))
+		print("CARD KEYWORD APPROVED TEXT CHANGES: " + ", ".join(changed_copy))
+		before.show_for(card, entries)
+		await _settle()
+		same_copy_image = await _save("card_keywords_same_copy")
 		before.hide_stack()
 		before.queue_free()
 		await _settle()
@@ -471,10 +480,10 @@ func _card_identity() -> void:
 	after.show_for(card, entries)
 	await _settle()
 	var after_image: Image = await _save("card_keywords_after")
-	if _compare_original_card and not _logic_only and before_image != null and after_image != null:
-		var equal: bool = before_image.get_data() == after_image.get_data()
-		_expect(equal, "Card keyword before/after pixels are identical")
-		print("CARD KEYWORD PIXEL IDENTITY: %s" % ("PASS (exact RGBA equality)" if equal else "FAIL"))
+	if _compare_original_card and not _logic_only and before_image != null and same_copy_image != null and after_image != null:
+		var equal: bool = same_copy_image.get_data() == after_image.get_data()
+		_expect(equal, "Legacy/current keyword layouts have identical pixels with the same approved copy")
+		print("CARD KEYWORD PIXEL IDENTITY: %s" % ("PASS (exact RGBA equality with approved copy on both renderers)" if equal else "FAIL"))
 	surface.queue_free()
 	await _settle()
 

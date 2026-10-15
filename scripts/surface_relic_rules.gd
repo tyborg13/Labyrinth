@@ -58,7 +58,7 @@ static func action_variants(state: Dictionary, action: Dictionary) -> Array[Dict
 		if has_effect(state, "transport_surface"):
 			result.append(_with_mode(action, "transport", "Carry elemental ground"))
 		if has_effect(state, "rubble_redirect"):
-			result.append(_with_mode(action, "redirect", "Spend Rubble · redirect"))
+			result.append(_with_mode(action, "redirect", "Expend Rubble · redirect"))
 	if action_type == "melee" and int(action.get("chain", 0)) <= 0 and has_effect(state, "stoneskin_melee_cross"):
 		var price: int = int(effect(state, "stoneskin_melee_cross").get("cost", 4))
 		if int((state.get("player", {}) as Dictionary).get("stoneskin", 0)) >= price:

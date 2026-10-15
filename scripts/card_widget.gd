@@ -6,6 +6,7 @@ signal drag_started
 
 const AssetLoader = preload("res://scripts/asset_loader.gd")
 const ActionIcons = preload("res://scripts/action_icon_library.gd")
+const InlineIconText = preload("res://scripts/inline_icon_text.gd")
 const ElementData = preload("res://scripts/element_data.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const UiTooltipPanel = preload("res://scripts/ui_tooltip_panel.gd")
@@ -52,6 +53,7 @@ const DAMAGE_BONUS_COLOR: String = "#4f8a43"
 const DAMAGE_PENALTY_COLOR: String = "#a34a42"
 const CONDITIONAL_TEXT_COLOR: String = "#fff7df"
 const CONDITIONAL_OUTLINE_COLOR: String = "#24160f"
+const RULES_TEXT_COLOR: Color = Color("503d2c")
 const CardPresentationCache = preload("res://scripts/card_presentation_cache.gd")
 const CARD_FRAME_PATH: String = "res://assets/art/ui/card_frame.png"
 const CARD_FRAME_STARTER_PATH: String = "res://assets/art/ui/card_frame_rarity_starter.png"
@@ -698,7 +700,7 @@ func _ready() -> void:
 		for property_name: String in ["normal_font", "bold_font", "italics_font", "bold_italics_font", "mono_font"]:
 			desc_label.add_theme_font_override(property_name, text_font)
 		footer_label.add_theme_font_override("font", text_font)
-	desc_label.add_theme_color_override("default_color", Color("503d2c"))
+	desc_label.add_theme_color_override("default_color", RULES_TEXT_COLOR)
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc_label.fit_content = true
 	desc_label.scroll_active = false
@@ -778,7 +780,8 @@ func _make_custom_tooltip(for_text: String) -> Object:
 	return UiTooltipPanel.make_text(for_text)
 
 func _tooltip_for_icon_at(global_point: Vector2) -> String:
-	return _tooltip_for_control_at(_summary_icon_box, global_point)
+	var summary_tooltip: String = _tooltip_for_control_at(_summary_icon_box, global_point)
+	return summary_tooltip if not summary_tooltip.is_empty() else _tooltip_for_control_at(desc_label, global_point)
 
 func _tooltip_for_control_at(node: Node, global_point: Vector2) -> String:
 	if node == null or not (node is Control):
@@ -790,6 +793,8 @@ func _tooltip_for_control_at(node: Node, global_point: Vector2) -> String:
 		var child_tooltip: String = _tooltip_for_control_at(child, global_point)
 		if not child_tooltip.is_empty():
 			return child_tooltip
+	if control is RichTextLabel:
+		return (control as RichTextLabel).get_tooltip(control.get_global_transform().affine_inverse() * global_point)
 	return str(control.tooltip_text)
 
 func set_native_tooltips_enabled(enabled: bool) -> void:
@@ -1362,7 +1367,7 @@ func _refresh_time_badge(card: Dictionary) -> void:
 	var total_surcharge: int = maxi(_time_surcharge, item_surcharge + tempo_surcharge)
 	var time_cost: int = printed_cost + total_surcharge
 	_time_badge.visible = time_cost > 0
-	var detail: String = "Time\nDelays your next turn by %d. An unused play takes 5." % time_cost
+	var detail: String = ActionIcons.tooltip("time")
 	var time_saved: int = maxi(0,int(card.get("_time_reserve_base",printed_cost)) - printed_cost)
 	if time_saved > 0: detail += "\nSpends %d stored Time." % time_saved
 	if int(card.get("_rite_time_discount", 0)) > 0: detail += "\nRite: -%d" % int(card["_rite_time_discount"])
@@ -1398,7 +1403,11 @@ func _refresh_summary_display(card: Dictionary) -> void:
 			_rules_text_face = false
 			_update_layout_metrics()
 		desc_label.visible = true
-		desc_label.text = _summary_bbcode if not _summary_bbcode.is_empty() else ActionIcons.card_rules_text(card)
+		var rules_text: String = _summary_bbcode if not _summary_bbcode.is_empty() else ActionIcons.card_rules_text(card)
+		if InlineIconText.has_icons(rules_text):
+			InlineIconText.apply_to(desc_label, rules_text)
+		else:
+			desc_label.text = rules_text
 		if _summary_icon_box != null:
 			_summary_icon_box.visible = false
 			_clear_children(_summary_icon_box)
@@ -1575,7 +1584,22 @@ func _summary_value_label(value_text: String, tooltip: String, label_size: int, 
 
 # Rules text under a Rite's keyword row: the card's text font and size, wrapped
 # inside the same parchment inset the plain description used.
-func _summary_rules_label(text: String) -> Label:
+func _summary_rules_label(text: String) -> Control:
+	if InlineIconText.has_icons(text):
+		var rich := RichTextLabel.new()
+		rich.name = "SummaryRulesText"
+		rich.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		rich.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		rich.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		rich.custom_minimum_size = Vector2(_rules_text_width(), 0.0)
+		rich.fit_content = true
+		rich.scroll_active = false
+		rich.add_theme_font_override("normal_font", UiTypography.text_font())
+		UiTypography.set_rich_text_size(rich, _rules_text_font_size())
+		rich.add_theme_color_override("default_color", RULES_TEXT_COLOR)
+		rich.set_meta("summary_rules_text", true)
+		InlineIconText.apply_to(rich, text)
+		return rich
 	var label := Label.new()
 	label.name = "SummaryRulesText"
 	label.text = text
@@ -1589,7 +1613,7 @@ func _summary_rules_label(text: String) -> Label:
 	UiTypography.set_label_size(label, _rules_text_font_size())
 	# RichTextLabel line rhythm (no extra Label line spacing), as before.
 	label.add_theme_constant_override("line_spacing", 0)
-	label.add_theme_color_override("font_color", Color("503d2c"))
+	label.add_theme_color_override("font_color", RULES_TEXT_COLOR)
 	label.set_meta("summary_rules_text", true)
 	return label
 
@@ -1606,6 +1630,7 @@ func _rules_text_width() -> float:
 	return maxf(_scaled_card_value(60.0, 30.0), width - 2.0 * _scaled_card_value(CARD_FRAME_MARGIN + RULES_TEXT_INSET, 16.0))
 
 func _rules_text_height(text: String) -> float:
+	text = InlineIconText.plain_text(text)
 	var font: Font = UiTypography.text_font()
 	var font_size: int = UiTypography.scaled_size(self, _rules_text_font_size())
 	if font == null:

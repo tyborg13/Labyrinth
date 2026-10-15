@@ -420,8 +420,8 @@ static func _test_control_surface_and_undo(expect: Callable) -> void:
 	run_scene.free()
 
 static func _test_presentation_design(expect: Callable) -> void:
-	expect.call(Glossary.definition("tether") == "Tether: lightning strikes every tile between the two Arc Thralls for 4 and Shocks. Break the line to stop it.", "Tether tooltip uses exact director copy")
-	expect.call(Glossary.definition("veil") == "Veiled: only attacks from an adjacent tile, or area effects, can hit it.", "Veil tooltip uses exact director copy")
+	expect.call(Glossary.definition("tether") == "Every unit between two aligned Arc Thralls takes the shown damage and Shock. Terrain between them stops it.", "Tether tooltip uses exact director copy")
+	expect.call(Glossary.definition("veil") == "You can target it only from an adjacent tile. Untargeted hits, like Area Attacks and Chain, still land.", "Veil tooltip uses exact director copy")
 	var stationary: Array[Vector2] = TetherView.dash_spans(40.0, 0.0, false)
 	expect.call(stationary[0] == Vector2(0.0, 10.0) and stationary[1] == Vector2(16.0, 26.0), "Tether dashes are 10 px with 6 px gaps")
 	expect.call(TetherView.dash_spans(40.0, 0.25, false)[0] == Vector2(6.0, 16.0), "Tether dashes scroll at 24 px/s")

@@ -13,7 +13,7 @@ const PIP_ROW_OFFSET: float = 10.0
 
 static func badges(unit: Dictionary) -> Array[Dictionary]:
 	var result: Array[Dictionary]
-	if Rules.is_capacitor(unit): result.append({"icon": "charge", "count": int(unit.get("charge", 0)), "fill": EMPTY_COLOR, "border": COLOR, "icon_tint": Color.WHITE, "tooltip": "Charge %d/3: at 3 it discharges chain lightning." % int(unit.get("charge", 0))})
+	if Rules.is_capacitor(unit): result.append({"icon": "charge", "count": int(unit.get("charge", 0)), "fill": EMPTY_COLOR, "border": COLOR, "icon_tint": Color.WHITE, "tooltip": Icons.tooltip("charge") + "\n%d/3" % int(unit.get("charge", 0))})
 	return result
 
 static func draw_pips(board: Control, unit: Dictionary, health: Rect2) -> void:
@@ -43,8 +43,9 @@ static func rows(intent: Dictionary) -> Array:
 		token = Icons.icon_text_token("charge", "+%d" % int(action.get("amount", 1)))
 	else:
 		token = Icons.icon_text_token("chain", str(int(action["damage"])))
-	# These intents had no tooltip; the icon defaults describe other mechanics (ux-04 adds glossary text).
-	token["tooltip"] = ""
+	# Arc Burst retains the approved Chain art, but explains Charge.
+	token["glossary_key"] = "charge"
+	token["tooltip"] = Icons.tooltip("charge")
 	return [[token]]
 
 static func draw_telegraphs(board: Control) -> void:

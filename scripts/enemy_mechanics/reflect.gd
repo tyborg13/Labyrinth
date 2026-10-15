@@ -1,10 +1,12 @@
 extends RefCounted
 
+const Glossary = preload("res://scripts/glossary.gd")
+
 const Data = preload("res://scripts/game_data.gd")
 const Paths = preload("res://scripts/path_utils.gd")
 const Surface = preload("res://scripts/board_surface_rules.gd")
 const Tether = preload("res://scripts/enemy_mechanics/tether.gd")
-const TOOLTIP: String = "Reflect: ranged attacks against it bounce back to the attacker. Hit it up close or with area effects."
+static var TOOLTIP: String = Glossary.name_for("reflect") + "\n" + Glossary.definition("reflect")
 const PREVIEW_TOOLTIP: String = "Reflected: you take this damage."
 
 static func reflects(engine: RefCounted, state: Dictionary, action: Dictionary, origin: Vector2i, index: int) -> bool:

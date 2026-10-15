@@ -1109,7 +1109,7 @@ const CAMPFIRE_CHOICE_LINGER_TEXT: String = "Linger"
 const CAMPFIRE_CHOICE_EMBRACE_TEXT: String = "Embrace"
 const CAMPFIRE_CHOICE_STRENGTH_TEXT: String = "Draw Strength"
 const CAMPFIRE_CHOICE_LINGER_DESCRIPTION: String = "Heal, continue"
-const CAMPFIRE_CHOICE_EMBRACE_DESCRIPTION: String = "Bank embers, end run"
+const CAMPFIRE_CHOICE_EMBRACE_DESCRIPTION: String = "Bank Embers, end run"
 const CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION: String = "Level up, continue"
 const CAMPFIRE_CHOICE_PANEL_SIZE: Vector2 = Vector2(300.0, 220.0)
 const CAMPFIRE_CHOICE_CHIP_SIZE: Vector2 = Vector2(108.0, 34.0)
@@ -3973,7 +3973,7 @@ func _apply_style() -> void:
 	action_banner.add_theme_constant_override("outline_size", 2)
 	choice_bar.alignment = BoxContainer.ALIGNMENT_BEGIN
 	_setup_header_icon_button(grimoire_button, "book", "Grimoire")
-	_setup_header_icon_button(loadout_button, "loadout", "Character Loadout")
+	_setup_header_icon_button(loadout_button, "loadout", ActionIcons.label("loadout"))
 	_setup_header_icon_button(menu_button, "gear", "Menu")
 	UiTypography.set_rich_text_size(log_label, UiTypography.SIZE_BODY_LARGE)
 	log_label.add_theme_color_override("default_color", Color("fff3dc"))
@@ -9735,7 +9735,7 @@ func _setup_play_meter() -> void:
 	_play_meter.size_flags_horizontal = Control.SIZE_SHRINK_END
 	_play_meter.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_play_meter.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_play_meter.tooltip_text = "Card plays remaining"
+	_play_meter.tooltip_text = "Card Plays remaining"
 	_play_meter.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 	var art_host := TextureRect.new()
 	art_host.name = "CardPlayFrameArtHost"
@@ -9814,11 +9814,11 @@ func _setup_play_meter() -> void:
 	_refresh_card_play_meter()
 
 func _setup_movement_meter() -> void:
-	_movement_meter = PanelContainer.new()
+	_movement_meter = TooltipPanelContainer.new()
 	_movement_meter.name = "PlayerMovementMeter"
 	_movement_meter.custom_minimum_size = Vector2(228.0, 58.0)
-	_movement_meter.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_movement_meter.tooltip_text = "Movement remaining"
+	_movement_meter.mouse_filter = Control.MOUSE_FILTER_PASS
+	_movement_meter.tooltip_text = ActionIcons.tooltip("movement")
 	_movement_meter.add_theme_stylebox_override("panel", StyleBoxEmpty.new())
 
 	var art_host := TextureRect.new()
@@ -12636,13 +12636,12 @@ func _boss_status_values(boss: Dictionary) -> Dictionary:
 	return result
 
 func _refresh_boss_status_row(boss: Dictionary) -> void:
-	var names: Dictionary = {"frost_armor":"Mantle","block":"Block","stoneskin":"Guard","chilled":"Chilled","freeze":"Freeze","shock":"Shock","bleed":"Bleed","expose":"Expose","immobilize":"Rooted"}
 	for key: String in _boss_status_cells:
 		var entry: Dictionary = _boss_status_cells[key]
 		var count: int = int(boss.get(key,0))
 		(entry["cell"] as Control).visible = count > 0
-		(entry["label"] as Label).text = str(names[key]) if key in ["chilled","immobilize"] else "%s %d" % [names[key],count]
-		(entry["cell"] as Control).tooltip_text = "Crystal Mantle: each direct damaging hit breaks one layer and prevents its damage. Ground and damage over time bypass it." if key == "frost_armor" else str(names[key])
+		(entry["label"] as Label).text = ActionIcons.label(key) if key in ["chilled","immobilize"] else "%s %d" % [ActionIcons.label(key),count]
+		(entry["cell"] as Control).tooltip_text = ActionIcons.tooltip(key)
 
 func _boss_unit_for_health_overlay(display_state: Dictionary) -> Dictionary:
 	if _boss_health_candidate_revision != _combat_preview_revision:
@@ -13046,7 +13045,7 @@ func _turn_order_tooltip(entry: Dictionary, _index: int) -> String:
 			if entry.has("projected_time_delta"):
 				var card_name: String = str(entry.get("projected_card_name", "")).strip_edges()
 				lines.append("Preview: %s (%s vs ending now)" % [card_name if not card_name.is_empty() else "Card", TurnOrderInk.delta_text(int(entry["projected_time_delta"]))])
-			lines.append("Base %d + cards %d + unused plays %d" % [base, cards, wait_time])
+			lines.append("Base %d + cards %d + unused Card Plays %d" % [base, cards, wait_time])
 			var adjustment: int = eta - base - cards - wait_time
 			if adjustment > 0:
 				lines.append("Carried +%d" % adjustment)
@@ -13550,21 +13549,21 @@ func _refresh_card_play_meter() -> void:
 	var ordinary_left: int = int(budget.get("ordinary_remaining", 0))
 	var banked_left: int = int(budget.get("banked_remaining", 0))
 	var cards_left: int = int(budget.get("total_remaining", ordinary_left + banked_left))
-	_play_meter_count.text = "%d card %s" % [cards_left, "play" if cards_left == 1 else "plays"]
+	_play_meter_count.text = "%d %s" % [cards_left, "Card Play" if cards_left == 1 else "Card Plays"]
 	# The default plaque is a single centered line. It only becomes a two-line
 	# layout when the banked-play state is actually present.
 	_play_meter_count.position = Vector2(50.0, 4.0) if banked_left > 0 else Vector2(50.0, 0.0)
 	_play_meter_count.size = Vector2(166.0, 25.0) if banked_left > 0 else Vector2(166.0, 58.0)
-	_play_meter.tooltip_text = "%d total card plays remain this turn: %d ordinary, %d banked." % [cards_left, ordinary_left, banked_left]
+	_play_meter.tooltip_text = "%d total Card Plays remain this turn: %d ordinary, %d banked." % [cards_left, ordinary_left, banked_left]
 	if _play_meter_banked_badge != null and _play_meter_banked_label != null:
 		_play_meter_banked_badge.visible = banked_left > 0
 		if banked_left > 0:
 			var borrowed_id: String = SkillTreeLibrary.skill_id_for_effect("banked_play_no_time")
 			var no_time: bool = _combat_engine.has_skill(_combat_state, borrowed_id) and not _combat_engine.skill_was_used(_combat_state, borrowed_id)
 			_play_meter_banked_label.text = ("%d BANKED" % banked_left) + (" • NO TIME" if no_time else "")
-			_play_meter.tooltip_text += " Ordinary plays are spent first."
+			_play_meter.tooltip_text += " Ordinary Card Plays are spent first."
 			if no_time:
-				_play_meter.tooltip_text += " The banked play adds no Time."
+				_play_meter.tooltip_text += " The banked Card Play adds no Time."
 	var meter_tint: Color = Color.WHITE if cards_left > 0 else Color(1.0, 1.0, 1.0, 0.42)
 	_play_meter.modulate = meter_tint
 	_sync_hand_side_widths()
@@ -13584,7 +13583,7 @@ func _refresh_player_movement_meter() -> void:
 	var capacity: int = _combat_engine.player_movement_capacity(_combat_state)
 	_movement_meter_count.text = "%d / %d movement" % [remaining, capacity]
 	_movement_meter.tooltip_text = (
-		"%d of %d movement remaining. Click your character, then a destination tile."
+		ActionIcons.tooltip("movement") + "\n%d of %d movement remaining. Click your character, then a destination tile."
 		% [remaining, capacity]
 	)
 	var enabled: bool = (
@@ -13594,7 +13593,7 @@ func _refresh_player_movement_meter() -> void:
 	)
 	if not enabled and remaining > 0 and _combat_engine.is_player_turn(_combat_state):
 		var rooted_reason: String = ManeuverRules.movement_block_reason(_combat_state)
-		_movement_meter.tooltip_text = rooted_reason if not rooted_reason.is_empty() else "Movement unavailable: there is no legal destination."
+		_movement_meter.tooltip_text += "\n" + (rooted_reason if not rooted_reason.is_empty() else "Movement unavailable: there is no legal destination.")
 	_movement_meter.modulate = Color.WHITE if enabled else Color(1.0, 1.0, 1.0, 0.42)
 	if _player_movement_selected:
 		_movement_meter.modulate = Color(0.70, 0.94, 1.0, 1.0)
@@ -14441,56 +14440,10 @@ func _action_step_tooltip(index: int, action: Dictionary, status: String) -> Str
 	return "%d. %s\n%s" % [index + 1, action_name, state_text]
 
 func _action_step_action_name(action: Dictionary) -> String:
-	var action_type: String = str(action.get("type", ""))
-	match action_type:
-		"aoe":
-			return "Area"
-		"move", "move_toward":
-			return "Move"
-		"move_away":
-			return "Retreat"
-		"blink":
-			return "Blink"
-		"melee":
-			return "Melee"
-		"ranged":
-			return "Ranged"
-		"push":
-			return "Push"
-		"pull":
-			return "Pull"
-		"card_play":
-			return "Card Play"
-		"health_cost":
-			return "Health Cost"
-		"heal", "heal_self":
-			return "Heal"
-		"lightning_strikes":
-			return "Lightning"
-		"summon_minions":
-			return "Summon"
-		"raise_terrain":
-			return "Raise Worldspines"
-		"terrain_burst":
-			return "Rupture Worldspines"
-		"cinder_marks":
-			return "Kindle Ground"
-		"detonate_cinders":
-			return "Detonate Cinders"
-		"gale_force":
-			return "Hollow Gale"
-		"frost_armor":
-			return "Crystal Mantle"
-		"umbra_eclipse":
-			return "Last Eclipse"
-		# The player's Meteorfall shares the dragon's mark icon (Kindle Ground).
-		"meteor_marks":
-			return "Meteorfall"
-		# Rooted is the Immobilize icon; name the stance, not the status.
-		"self_flag":
-			return ManeuverRules.flag_label(str(action.get("flag", "")))
+	if str(action.get("type", "")) == "self_flag":
+		return ManeuverRules.flag_label(str(action.get("flag", "")))
 	var icon_key: String = _action_step_icon_key(action)
-	return ActionIcons.label(icon_key) if not icon_key.is_empty() else action_type.capitalize()
+	return ActionIcons.label(icon_key) if not icon_key.is_empty() else str(action.get("type", "")).capitalize()
 
 func _action_step_icon_key(action: Dictionary) -> String:
 	var mapped_key: String = ActionIcons.action_icon_key(action)
@@ -16766,7 +16719,7 @@ func _campfire_strength_description() -> String:
 		return CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION
 	if ProgressionStore.can_level_up(_progression):
 		return CAMPFIRE_CHOICE_STRENGTH_DESCRIPTION
-	return "Need %d embers" % cost
+	return "Need %d Embers" % cost
 
 func _set_relic_choice_hovered(panel: PanelContainer, relic: Dictionary, hovered: bool) -> void:
 	if panel == null:
@@ -24251,7 +24204,7 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 				"focus_actor_color": PLAYER_PREVIEW_FOCUS,
 				"floating_texts": [{
 					"tile": player_after_tile,
-					"text": "+%d play" % maxi(1, card_plays_gained),
+					"text": "+%d Card Play" % maxi(1, card_plays_gained),
 					"color": Color("ffe27a"),
 					"offset": -6.0
 				}]
@@ -29341,7 +29294,7 @@ func _open_level_up_overlay(source: String = "campfire", present_feedback: bool 
 	if not ProgressionStore.save_data(candidate):
 		_return_to_emaciated_service = source == "emaciated_man"
 		_progression_overlay_mode = "skills"
-		_progression_overlay_notice = "The level could not be saved. No embers were spent; try again."
+		_progression_overlay_notice = "The level could not be saved. No Embers were spent; try again."
 		_progression_overlay_notice_is_error = true
 		_rebuild_progression_overlay()
 		_upgrade_scrim.visible = true
@@ -32075,7 +32028,7 @@ func _build_upgrade_option_row(option: Dictionary) -> Control:
 	info.add_child(title)
 
 	var cost_label := Label.new()
-	cost_label.text = "Cost %d embers" % int(option.get("cost", 0))
+	cost_label.text = "Cost %d Embers" % int(option.get("cost", 0))
 	UiTypography.set_label_size(cost_label, UiTypography.SIZE_CAPTION)
 	cost_label.add_theme_color_override("font_color", Color("cdbca2"))
 	info.add_child(cost_label)
@@ -34310,7 +34263,7 @@ func _add_surface_relic_commands() -> void:
 			var directions: Array[Vector2i] = _vector2i_array([Vector2i.UP, Vector2i.RIGHT, Vector2i.DOWN, Vector2i.LEFT])
 			var direction_index: int = directions.find(direction)
 			if direction_index >= 0: direction_name = ["north", "east", "south", "west"][direction_index]
-			_add_action_context_button("Spill Ice: %s" % direction_name, _cycle_surface_ice_spill, "Choose where to place the Ice consumed by Freeze.", true)
+			_add_action_context_button("Spill Ice: %s" % direction_name, _cycle_surface_ice_spill, "Choose where to place the Ice Expended by Freeze.", true)
 			continue
 		var current_modes: Array = action.get("_surface_relic_modes", []) as Array
 		var next_modes: Array = variant.get("_surface_relic_modes", []) as Array

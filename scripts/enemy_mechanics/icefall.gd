@@ -1,5 +1,7 @@
 extends RefCounted
 
+const Glossary = preload("res://scripts/glossary.gd")
+
 # Director contract: spec/enemies/hoarfrost_seer.md. State is plain Variant data.
 const Paths = preload("res://scripts/path_utils.gd")
 
@@ -99,7 +101,7 @@ static func collision(engine: RefCounted, state: Dictionary, kind: String, id: i
 		var damage: int = int(state["terrain"][index].get("shatter_damage", 2))
 		engine._force_collision_damage(state, kind, id, damage)
 		state["terrain"].remove_at(index)
-		Surfaces.record_event(state, {"kind": "force_collision", "actor_kind": kind, "id": id, "actor_key": engine._surface_actor_key(kind, id), "tile": contact["blocked_tile"] - direction, "blocked_tile": contact["blocked_tile"], "direction": direction, "force": "push" if pushing else "pull", "damage": damage, "target_damage": damage, "blocker_damage": 0, "total_damage": damage, "blocker_kind": "terrain", "terrain_kind": "ice_pillar", "lost_tiles": lost, "tooltip_override": "a unit pushed into a pillar takes 2 and the pillar shatters (removed).", "source": state.get("damage_context", {}).duplicate(true)})
+		Surfaces.record_event(state, {"kind": "force_collision", "actor_kind": kind, "id": id, "actor_key": engine._surface_actor_key(kind, id), "tile": contact["blocked_tile"] - direction, "blocked_tile": contact["blocked_tile"], "direction": direction, "force": "push" if pushing else "pull", "damage": damage, "target_damage": damage, "blocker_damage": 0, "total_damage": damage, "blocker_kind": "terrain", "terrain_kind": "ice_pillar", "lost_tiles": lost, "tooltip_override": Glossary.name_for("ice_pillar") + "\n" + Glossary.definition("ice_pillar"), "source": state.get("damage_context", {}).duplicate(true)})
 		return true
 	return false
 

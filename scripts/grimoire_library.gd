@@ -931,7 +931,7 @@ static func _card_entry_body(card: Dictionary) -> Array:
 	if bool(card.get("consume_on_play", false)):
 		notes.append("Consumed after use")
 	if bool(card.get("flurry", false)):
-		notes.append("Spends every current card play; repeats actions and health cost per play, but pays Time once")
+		notes.append("Spends every current Card Play; repeats actions and health cost per play, but pays Time once")
 	if typeof(card.get("follow_up", null)) == TYPE_DICTIONARY:
 		notes.append("Follow-up: gains its bonus when another card was already played this turn")
 	if typeof(card.get("empower", null)) == TYPE_DICTIONARY:

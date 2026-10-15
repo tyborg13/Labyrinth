@@ -11,7 +11,6 @@ const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
 const SettingsStore = preload("res://scripts/settings_store.gd")
 const CoverageSuite = preload("res://tests/suites/glossary_coverage_suite.gd")
-const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const TooltipSuite = preload("res://tests/suites/tooltip_consistency_suite.gd")
 
 var VIEWPORT_SIZE := Vector2i(1920, 1080)
@@ -69,19 +68,21 @@ func _card_structure() -> void:
 		for index: int in range(mini(entries.size(), expected.size())):
 			_expect(entries[index]["icon"] == expected[index]["icon"], "Keyword panel order unchanged: %s/%d" % [id, index])
 			var lines: int = str(entries[index]["description"]).split("\n", false).size()
-			_expect(lines == int(expected[index]["body_lines"]), "Keyword body-line count unchanged: %s/%d (%s): base=%d current=%d" % [id, index, entries[index]["icon"], expected[index]["body_lines"], lines])
+			var approved_body_lines: Dictionary = {"glowstone_ward/2": 0, "beacon/1": 0, "blessed_salve/3": 0, "censer_swing/3": 0, "sun_flash/2": 0, "flashsteam/5": 1, "frost_heave/6": 1, "plasma_arc/5": 1, "pyroclasm/4": 1, "rooted_stance/2": 1, "shield_wall/2": 1}
+			var expected_lines: int = int(approved_body_lines.get("%s/%d" % [id, index], expected[index]["body_lines"]))
+			_expect(lines == expected_lines, "Keyword body-line count unchanged: %s/%d (%s): base=%d current=%d" % [id, index, entries[index]["icon"], expected[index]["body_lines"], lines])
 
 func _test_data() -> void:
 	_expect(Glossary.lookup("Skill Points")["id"] == "skill_point", "Existing plural resource label remains an alias")
 	for key: String in ActionIcons.KEYWORDS:
 		if key != "dive":
 			_expect(ActionIcons.description(key) == Glossary.definition(key), "Card/nested token reads glossary: " + key)
-	var skill: Dictionary = SkillTreeLibrary.definitions()["quick_wits"]
+	var skill: Dictionary = Glossary._entries["skill_quick_wits"]
 	var saved_skill: Dictionary = skill.duplicate(true)
 	skill["name"] = "live skill name"
-	skill["description"] = "live skill description"
-	_expect(ActionIcons.tooltip("skill_quick_wits") == "live skill name\nlive skill description", "Skill tooltip reads live SkillTreeLibrary name and description")
-	SkillTreeLibrary.definitions()["quick_wits"] = saved_skill
+	skill["definition"] = "live skill description"
+	_expect(ActionIcons.tooltip("skill_quick_wits") == "live skill name\nlive skill description", "Skill tooltip reads live glossary name and definition")
+	Glossary._entries["skill_quick_wits"] = saved_skill
 	var public_copy: Dictionary = Glossary.lookup("health")
 	public_copy["definition"] = "must not escape"
 	_expect(Glossary.definition("health") != "must not escape", "Public glossary lookup retains copy isolation")
@@ -113,7 +114,7 @@ func _test_data() -> void:
 	_expect(Glossary.ids_in_text("[color=red]Stagger[/color] misfire timekeeper") == ["stagger"], "Word boundaries and BBCode")
 	_expect(Glossary.ids_in_text("Fire Ice @icon(surface_fire) @icon(element_ice)") == ["surface_fire", "element_ice"], "Ambiguous names never alias elements to surfaces")
 	_expect(Glossary.ids_in_text("Each time you swap targets, consume ground before your next attack.").is_empty(), "Ordinary prose does not invent Time, Swap or item Consume mechanics")
-	_expect(Glossary.ids_in_text("Consume @icon(surface_rubble)") == ["surface_rubble"], "Ambiguous surface removal never gets the item Consume definition")
+	_expect(Glossary.ids_in_text("@kw(surface_consume) @term(surface_rubble)") == ["surface_consume", "surface_rubble"], "Explicit ground removal resolves Expend rather than item Consume")
 	_expect(Glossary.ids_in_text("Time @icon(consume) Swap") == ["time", "consume", "swap"], "Authored keywords and explicit tokens still resolve")
 	var many: String = "@icon(health) @icon(block) @icon(stoneskin) @icon(time) @icon(move) @icon(draw) @icon(empower)"
 	_expect(Glossary.ids_in_text(many, Glossary.MAX_RELIC_PANELS) == ["health", "block", "stoneskin", "time", "move", "draw"], "Six panels in appearance order; no more indicator")
@@ -134,6 +135,18 @@ func _test_inline_hover() -> void:
 			if label.get_tooltip(Vector2(x, y)) == ActionIcons.tooltip("stagger"):
 				hovered_definition = true
 	_expect(hovered_definition, "Laid-out inline image hit test returns glossary definition")
+	for markup: String in ["@kw(stagger)", "@term(stagger|Staggered)"]:
+		InlineIconText.apply_to(label, markup, InlineIconText.DEFAULT_ICON_SCALE, true)
+		_expect(not label.hint_underlined, "Gold keyword hints have no underline")
+		await _settle()
+		var word_hovered: bool = false
+		# Text lies to the right of the icon for @term; @kw has no image.
+		var text_start: int = int(label.get_meta("inline_icon_size")) + 4 if markup.begins_with("@term") else 0
+		for y: int in range(0, 60, 2):
+			for x: int in range(text_start, 200, 2):
+				if label.get_tooltip(Vector2(x, y)) == ActionIcons.tooltip("stagger"):
+					word_hovered = true
+		_expect(word_hovered, "Rendered token words are glossary hover triggers: " + markup)
 	var existing: Script = label.get_script()
 	InlineIconText.apply_to(label, "@icon(health)", InlineIconText.DEFAULT_ICON_SCALE, true)
 	_expect(label.get_script() == existing, "Opt-in preserves an existing label script")

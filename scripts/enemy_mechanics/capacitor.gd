@@ -128,7 +128,7 @@ static func animation_step(engine: RefCounted, before: Dictionary, after: Dictio
 	losses.append_array(engine._enemy_target_losses(before, after))
 	return {"kind": "ranged" if str(action["type"]) == "chain_discharge" else "status", "action_type": action["type"],
 		"actor_key": engine._enemy_key(before["enemies"][index]), "actor_name": Data.enemy_def("storm_capacitor")["name"],
-		"label": "Discharge" if str(action["type"]) == "chain_discharge" else "Charge", "element": "lightning", "tile": after["enemies"][index]["pos"],
+		"label": "Arc Burst" if str(action["type"]) == "chain_discharge" else "Charge", "element": "lightning", "tile": after["enemies"][index]["pos"],
 		"chain_hits": context.get("chain_hits", []), "target_losses": losses, "enemy_after": after["enemies"][index].duplicate(true), "en06_after": Snapshots.snapshot(after)}
 
 static func grounded_targets(before: Dictionary, after: Dictionary) -> Array[Dictionary]:

@@ -1739,7 +1739,7 @@ func buy_merchant_item(run_state: Dictionary, merchant_kind: String, item_id: St
 	if cost <= 0:
 		return next_state
 	if held_embers(next_state) < cost:
-		next_state["notice"] = "Need %d embers." % cost
+		next_state["notice"] = "Need %d Embers." % cost
 		return next_state
 	next_state = spend_held_embers(next_state, cost)
 	match merchant_item_kind(item_id):
@@ -3731,7 +3731,7 @@ func _apply_recovered_embers_from_combat(run_state: Dictionary, combat_state: Di
 	next_state["recovered_embers_total"] = recovered_total
 	var progression: Dictionary = (next_state.get("progression", {}) as Dictionary).duplicate(true)
 	next_state["progression"] = ProgressionStore.clear_recovery_marker(progression)
-	next_state["notice"] = "Recovered %d embers." % delta
+	next_state["notice"] = "Recovered %d Embers." % delta
 	_clear_recovery_marker_on_current_room(next_state)
 	return next_state
 
