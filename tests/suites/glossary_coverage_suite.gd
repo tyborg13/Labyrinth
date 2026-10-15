@@ -117,7 +117,7 @@ func _token_validation_cases() -> void:
 				if not condition: failures.append(message)
 			mutation._check_text(str(GameData.card_def("quick_stab").get("description", "")) + " " + markup)
 			_expect(failures.is_empty() == (category == "valid"), "Coverage rejects unknown/malformed card text: " + markup)
-			_expect(TokenSyntax.malformed_tokens(markup).is_empty() == (category != "malformed"), "Token syntax classifies malformed markup: " + markup)
+			_expect(TokenSyntax.malformed_tokens(markup).is_empty() == (not category.begins_with("malformed")), "Token syntax classifies malformed markup: " + markup)
 			if category == "unknown":
 				_expect(InlineIconText.concept_keys(markup).size() == 1 and not InlineIconText.invalid_icon_keys(markup).is_empty(), "Renderer and coverage retain punctuation/whitespace keys: " + markup)
 

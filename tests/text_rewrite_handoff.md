@@ -1,6 +1,6 @@
 # UX-04 implementation handoff
 
-Round 2 changes are uncommitted on `codex/ux-04`, based on `66c75a74a`. Earlier-round results below are historical. The design owner owns commit, review, inspection fixture and publication. Protected staged text inputs were read, never edited.
+Round 3 changes are uncommitted on `codex/ux-04`, based on `4840e8503`. Earlier-round results below are historical. The design owner owns commit, review, inspection fixture and publication. Protected staged text inputs were read, never edited.
 
 ## Requirement coverage
 
@@ -104,18 +104,45 @@ Every round 2 changed file (including every test/probe):
 - `tests/text_rewrite_probe_contract.json`
 - `tests/text_rewrite_handoff.md`
 
+## Round 3 Unicode whitespace fix and verification
+
+The shared token regex now permits only printable ASCII inside tokens, with U+0020 as the only permitted space. Keys cannot have edge spaces; explicit forms must contain a nonspace. Both validators use this grammar directly, without `\s`, `strip_edges()`, or Python `strip()` to classify token whitespace. Token-start detection also catches non-ASCII separators between a token kind and its opening parenthesis.
+
+The shared fixture contains 193 cases. It covers 32 whitespace/invisible separator code points in the prefix, key, and form, including the two reported U+00A0 mutations. Python and GDScript inject these cases into Quick Stab text and reject every invalid case. The rendering suite separately checks that both reported NBSP inputs remain literal markup with zero concept spans, preventing a blank keyword. Unicode prose outside tokens remains valid. No approved copy, skill data, mechanics, IDs, or production tuning values changed.
+
+Observed results on the round 3 working tree:
+
+- Budgets and shared regression vectors: `Ran 6 tests in 0.081s` / `OK`.
+- Glossary and coverage: `GLOSSARY TEST RESULT: PASS (7311 checks, 0 failures)`.
+- Token rendering: `INLINE ICON DESCRIPTION TEST RESULT: PASS`.
+- Live text probe: `TEXT REWRITE PROBE LOGIC: PASS (56 checks, 0 failures)`.
+- UI identity lint: `Ran 25 tests in 3.960s` / `OK`.
+- Full Python: `Ran 450 tests in 310.195s` / `OK (skipped=61)` (exit 0).
+- Full Godot: `FULL SUITE RUNTIME: 774.177 seconds (budget 900 seconds)` / `TEST RESULT: PASS` (exit 0).
+
+Logs are `/private/tmp/ux04-r3-*.log`. Both reproduction cases contain actual U+00A0 characters after JSON decoding. Protected inputs and the Git index remain unchanged. No TODO_DESIGN placeholders or new production defaults were introduced. Windowed proof remains with the design owner; the capture set is unchanged.
+
+Every round 3 changed file, including every touched test:
+
+- `scripts/inline_token_syntax.gd`
+- `tests/fixtures/inline_token_cases.json`
+- `tests/suites/glossary_coverage_suite.gd`
+- `tests/suites/inline_icon_description_suite.gd`
+- `tests/text_budget_test.py`
+- `tests/text_rewrite_handoff.md`
+
 ## Proof for the design owner
 
 Run from this task worktree. Both commands use 1920×1080 and 100% UI scale; neither was run windowed in the implementation sandbox. The 120-second glossary timeout is the established all-relic sweep budget.
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/ux-04 && python3 tools/visual_probe_runner.py --task-id ux-04 --timeout 120 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/glossary_tooltip_probe_contract.json --result-manifest /private/tmp/ux-04-r2-glossary-proof.json tests/glossary_tooltip_probe.gd -- --size=1920x1080 --compare-original-card
+cd /Users/borgerding/workspace/Labyrinth.worktrees/ux-04 && python3 tools/visual_probe_runner.py --task-id ux-04 --timeout 120 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/glossary_tooltip_probe_contract.json --result-manifest /private/tmp/ux-04-r3-glossary-proof.json tests/glossary_tooltip_probe.gd -- --size=1920x1080 --compare-original-card
 ```
 
 The probe captures relic choice and owned relic pointer/keyboard/controller states, all-relic layout cases, and card keyword comparisons. It prints `GLOSSARY_PROOF_DIR` with the isolated capture directory. Required files include `relic_choice_hover.png`, `owned_relic_hover.png`, `card_keywords_before.png`, `card_keywords_same_copy.png`, and `card_keywords_after.png`.
 
 ```bash
-cd /Users/borgerding/workspace/Labyrinth.worktrees/ux-04 && python3 tools/visual_probe_runner.py --task-id ux-04 --timeout 120 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/text_rewrite_probe_contract.json --result-manifest /private/tmp/ux-04-r2-text-proof.json tests/text_rewrite_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/ux-04 && python3 tools/visual_probe_runner.py --task-id ux-04 --timeout 120 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/text_rewrite_probe_contract.json --result-manifest /private/tmp/ux-04-r3-text-proof.json tests/text_rewrite_probe.gd
 ```
 
 This prints `TEXT_REWRITE_PROOF_DIR` and captures `status_charge.png`, `intent_arc_burst.png`, `movement_meter.png`, `card_time_and_turns.png`, five `grimoire_*.png` pages (Light, Expend, Chilled, Ground Techniques, Card Play), `token_styles.png` (card/relic/event/definition surfaces), `graftwright_result.png`, and the three live Abilities details (`ability_long_dawn.png`, `ability_sunpath.png`, `ability_afterglow.png`). Tooltip panels come from their real live owner's factory; their placement is probe-only. There are no new PNG captures from the headless sandbox. No inspection-fixture command was requested for this implementation unit; the owner prepares that fixture.
@@ -131,7 +158,7 @@ During the initial implementation, read-only `parallel_task.py status` reported 
 
 ## Initial implementation and round 1 file inventory
 
-Every changed or added test from those rounds is included below. The round 2 inventory is listed separately above.
+Every changed or added test from those rounds is included below. The round 2 and round 3 inventories are listed separately above.
 
 - `data/cards.json`
 - `data/enemies.json`

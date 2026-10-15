@@ -39,11 +39,7 @@ def strings(value):
 
 
 def malformed_tokens(text):
-    complete = {
-        match.start() for match in TOKEN.finditer(text)
-        if match[2].strip() and match[2] == match[2].strip()
-        and (match[3] is None or match[3].strip())
-    }
+    complete = {match.start() for match in TOKEN.finditer(text)}
     return [text[match.start():] for match in TOKEN_START.finditer(text) if match.start() not in complete]
 
 
@@ -125,7 +121,7 @@ class TextBudgetTest(unittest.TestCase):
                 with self.subTest(category=category, markup=markup):
                     errors = token_errors(card_text + " " + markup, keys)
                     self.assertEqual(bool(errors), category != "valid", errors)
-                    self.assertEqual(bool(malformed_tokens(markup)), category == "malformed")
+                    self.assertEqual(bool(malformed_tokens(markup)), category.startswith("malformed"))
                     if category == "unknown":
                         self.assertEqual(len(TOKEN.findall(markup)), 1)
 

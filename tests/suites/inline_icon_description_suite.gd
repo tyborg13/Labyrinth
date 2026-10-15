@@ -155,8 +155,9 @@ static func _test_token_syntax(expect: Callable) -> void:
 			var malformed: Array[String] = InlineIconText.TokenSyntax.malformed_tokens(markup)
 			var unknown: Array[String] = InlineIconText.invalid_icon_keys(markup)
 			expect.call((malformed.is_empty() and unknown.is_empty()) == (category == "valid"), "Shared renderer syntax rejects invalid markup: " + markup)
-			if category == "unknown":
+			if category in ["unknown", "malformed_literal"]:
 				var label := RichTextLabel.new()
 				InlineIconText.apply_to(label, markup)
-				expect.call(label.get_parsed_text() == markup and InlineIconText.concept_keys(markup).size() == 1, "Unknown punctuation/whitespace keys stay visible and fail validation: " + markup)
+				var expected_concepts: int = 1 if category == "unknown" else 0
+				expect.call(label.get_parsed_text() == markup and InlineIconText.concept_keys(markup).size() == expected_concepts, "Invalid tokens stay literal and fail validation: " + markup)
 				label.free()
