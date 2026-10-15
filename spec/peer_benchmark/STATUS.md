@@ -24,7 +24,10 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - Running: vfx-01 r3 (82cd1dd99: visuals + GPU approved; CPU line-core regression +1.2 ms, benchmark false negative),
   rr-02 r6 (9c336d777: director decisions for 4 TODO_DESIGN: scoped tabard gate, sparse value refs, rear torso lean),
   ux-03 r5 (db82e2cfb: overflow must not cover hovered card; card-structure check out of the suite), sfx-04 r4.
-- Peer review: anim-01 17424aa19 (native p99 ≤0.63 ms, prep +19..27 ms accepted), art-07 b40c9fd70.
+- anim-01 r6 running (peer CHANGES on 17424aa19: jitter-safe lane phase, sticky lanes + in-place sync, glow-redraw test;
+  benchmark instrumentation out of runtime; prep budget +30 ms accepted).
+- art-07 r1 running (peer CHANGES on b40c9fd70: hue protection swallowed 64-93% of real rear bodies; re-processing must
+  reproduce recorded pixels; green residue; filter validation). Approved art unaffected (processed with the pre-art-07 tool).
 - sfx-04 r4 running (peer CHANGES on 6eca206c0: combat speed 1.5x/2x breaks alignment, shop.sell_02 malformed, restore
   gain over peak caps, bank test not in suite; director rule: align to the earliest local max within 2 dB, cut ≥20 dB
   below; compact audit/provenance).
