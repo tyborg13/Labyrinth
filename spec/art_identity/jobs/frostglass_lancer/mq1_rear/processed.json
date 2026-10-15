@@ -1,0 +1,64 @@
+{
+  "K": 4,
+  "drawn_size": [
+    173,
+    219
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.8984375,
+  "metrics": {
+    "chroma": 0.06728043642206047,
+    "edge_light_share": 0.0,
+    "feature_px": 6.521076939006658,
+    "height": 219,
+    "height_drawn": 219.0,
+    "orphan_share": 0.038461538461538464,
+    "regions": 450,
+    "run_length": 2.5779334500875657,
+    "symmetry": 0.5674351828392872,
+    "thin_abs": 0.007002508361203974,
+    "thin_rel": 0.09678093645484953,
+    "value": 0.1764037887730343,
+    "width": 173
+  },
+  "pixel_sha256": "ee590653b4d65c54bed6feb898076b6917530a7a791c767efc4fd7a210809386",
+  "placement": [
+    42,
+    27
+  ],
+  "post_steps": [
+    {
+      "parameters": {
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "green_residue_margin": 20,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "c3c28f057eaa1aea9e94af22c797d386fe422498db23b03207d94eca4518e393",
+      "reference": "spec/art_identity/jobs/frostglass_lancer/mq1_front_v2/processed.png",
+      "reference_pixel_sha256": "c364eb3a0ac516b16efb60281913ca9f7f89f18d57d444d21c283ff4bf30e07a",
+      "reference_sha256": "db5b3a6a2bec2196db9fac1bcb95ab3cdae6772689707893c53a34257ca5d299",
+      "step": "palette_match"
+    },
+    {
+      "parameters": {
+        "max_luminance": 0.2,
+        "neighbours": 4,
+        "remove_isolated": true,
+        "tone": [
+          20,
+          16,
+          21
+        ]
+      },
+      "pre_step_pixel_sha256": "48a90e930521a403ef96f69d2557f2a7c9825f18534c5e40e234d472f85437cf",
+      "step": "clean_outline"
+    }
+  ],
+  "raw_sha256": "b7ea3b300515e73474a41cba5f227730f8f2d7c9e5298970b2c90fb3b099c228",
+  "shift": [
+    0,
+    0
+  ]
+}
