@@ -1,0 +1,45 @@
+{
+  "K": 4,
+  "anatomy": "rooted",
+  "id": "bile_bloomer",
+  "job_id": "mq-bloomer-rear-r1-edit",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "1b1e4cccf17cda07c202dc6279ccd6effb60491f9508bd1512ea307c38faa9c3",
+  "match_reference": {
+    "job_path": "spec/art_identity/jobs/shale_bloomer/mq3_front_v2/kit.json",
+    "pixel_sha256": "66d9548fb755091dd48926d5834fee1448338e25e836417971610abcea2c2d95"
+  },
+  "method": "maquette paint-over (wave 1b): judge-prescribed trunk edit of mq3_rear (braided gnarled roots, no sawn top, dark grey-brown); palette-matched to the approved front",
+  "peers": [
+    "briar_weaver_rear",
+    "hero_rear"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "1b7c39b54d5844d093311496502989dc4adf8ecfe0383a9cef136d7619559145",
+  "prompt_source": "spec/art_identity/maquettes/shale_bloomer/edit_rear_r1.md",
+  "raw_provenance": {
+    "edit_raw": "imagegen/mq-bloomer-rear-r1-edit/shale-bloomer-rear-edited.png",
+    "edit_raw_sha256": "d95d152d71dbb8fc9728b4fef27ae6df2acc84e6689d8390acbee3b1292dd91f",
+    "pad": "centred on a 1092 px #00FF00 canvas (34 px each side) so k_eff 4.266 lands the sprite at the maquette-consistent 182x202 (judge bloomer r5: the edit re-framed the creature ~7% larger)"
+  },
+  "refs": [
+    {
+      "canon_id": "bloomer_mq3_rear_raw",
+      "file": "refs/01_bloomer_mq3_rear_raw.png",
+      "pixel_sha256": "dc01774eb60ad68114ad9eab222126836a854611f798d82d2d55b1cbd2848452",
+      "role": "edit_source",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-bloomer-rear-r1-edit/refs/01_edit_source.png"
+    },
+    {
+      "canon_id": "approved_bloomer_front_raw",
+      "file": "refs/02_approved_bloomer_front_raw.png",
+      "pixel_sha256": "c9a4b73a60ae15dbc64a6ffb6dd6fa21598c9aed44c8ded542cfd682787dbba8",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-bloomer-rear-r1-edit/refs/02_approved_front_raw.png"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 220,
+  "view": "creature_rear"
+}

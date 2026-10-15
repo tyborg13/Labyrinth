@@ -29,11 +29,11 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   gain over peak caps, bank test not in suite; director rule: align to the earliest local max within 2 dB, cut ≥20 dB
   below; compact audit/provenance).
 - Wave 1b art (judge adb5256b83138e82d):
-  - Lightning wisp: front v2 judge PASS (`jobs/lightning_wisp/mq1_front_v2`; cloud texture softest approved, note for
-    owner). Rear mq1_rear judge FAIL (palette match greyed the cores; heavier crackle) → lightning-only
-    edit running (img-mq-wisp-rear-r1-edit), then tone G (`tone_rear_G_draft.json`) WITHOUT --match-front; re-test G.
-  - Shale bloomer: front judge PASS = `jobs/shale_bloomer/mq3_front_v2` (judge edit: tilted corolla, honeycomb, r9 roots; tone R7).
-    Optional polish: honeycomb rows → hex clusters. Rear generating (img-mq-bloomer-rear-r1, prompt_rear_r1, maquette r9).
+  - Lightning wisp: pair judge PASS = `mq1_front_v2` + `mq1_rear_v3` (crackle-trim edit, tone L, no palette match).
+    Sheet `sheet_pair_mq1.png`, shown to owner. Cloud texture is the softest approved (owner may call it smooth).
+  - Shale bloomer: pair accepted = `mq3_front_v2` (judge PASS) + `mq3_rear_v2` (trunk edit, padded to 1092 for maquette scale,
+    palette-matched via front-job link; judge-tested fix for its only fail). Sheet `sheet_pair_mq3.png`. Shown to owner.
+    Optional polish: front honeycomb rows → hex clusters.
   - art-06 merged: new raw_steps kits are recorded with `tools/art_identity_gate.py record-steps --kit …` then re-processed
     (sidecar); bloomer mq2_front, mq3_front_v2, wisp mq1_rear_v2 migrated, registry check PASS.
 - Lancer pair: judge PASS r2; director tone r2 restored the frost read (front/rear `mq1_front_v3`/`mq1_rear_v3`,
