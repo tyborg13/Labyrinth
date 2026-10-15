@@ -38,7 +38,7 @@
 | ui-01 | UI identity lint (gate phase 2, ratchet) | merged fceb55376 (1617 baseline sites) | codex/peer-benchmark | briefs/ui-01.md, spec/ui_identity_gate.md |
 | rr-01 | Roster wave 1a: crawler rig recolour (Lab L×0.76, ab×0.85) | merged 7c770a7ec (signoff 3fe284a60; follow-up fa0351491); integration suite PASS 694 s, Python 388 OK | codex/peer-benchmark | briefs/rr-01.md |
 | qa-03 | Python test hygiene (en05 asset pins, cutout seed, deepest route, optional modules) | merged (e66df1e67) | codex/peer-benchmark | briefs/qa-03.md |
-| rr-02 | Maquette → cutout pipeline phase 1 (gaoler mq3): registration, case, rest identity, hidden-material requests, first motion reel | running (gpt-6-astra) | codex/peer-benchmark | briefs/rr-02.md |
+| rr-02 | Maquette → cutout pipeline phase 1 (gaoler mq3): registration, case, rest identity, hidden-material requests, first motion reel | merged 0d2975df1 (Codex signoff 89af23b6c) | codex/peer-benchmark | briefs/rr-02.md |
 | art-04 | Integrate the owner-approved perched gust shrike (art-03 pipeline) + canon flyer reference; gate support for maquette kits | merged 576717eae (signoff dc9de2dc3; follow-ups d9929d446) | codex/peer-benchmark | briefs/art-04.md |
 | sfx-04 | Audio/visual sync audit + fixes (owner playtest 7: blink sound late, cues delayed by sequencing) | running (gpt-6-astra) | codex/peer-benchmark | briefs/sfx-04.md |
 | ux-02 | Player-facing text and tooltip audit | merged 50bfcf2b7 (+ captures 0e3273caf); drafts: glossary_rewrite / relic_rewrite (Claude drafting, director review) | codex/peer-benchmark | briefs/ux-02.md |
@@ -50,7 +50,7 @@
 | art-05 | Replayable director raw steps in the identity gate | merged 2eb5b4d17 (signoff 55bc9b8f3); follow-up: chain on decoded-pixel digests not PNG bytes, report SKIP as WARN, dedupe committed inputs, repo-relative doc commands | codex/peer-benchmark | briefs/art-05.md |
 | qa-04 | Godot .import noise under output/, Chopin sidecar tolerance, en-05 sync test | merged bf7eca61f (review fixes 7f7cc8d7e) | codex/peer-benchmark | briefs/qa-04.md |
 | fix-03 | Fatigue never amplified (owner); SPENT HUD flag; token icons; Lightning Strikes chip | merged (signoff 64d34965f); audit: Reflect, Ember Tick burst, Icefall/Lob/Tether, Meteorfall/Detonate self-hits still amplified — owner question pending on the self-hits | codex/peer-benchmark | briefs/fix-03.md |
-| ux-04 | Apply approved glossary + relic text, renames, @term/@kw token convention, budgets | ready (after ux-03 merges) | codex/peer-benchmark | briefs/ux-04.md |
+| ux-04 | Apply approved glossary + relic text, renames, @term/@kw token convention, budgets | merged 1a9e585e7 (Codex signoff 1eaa7b490) | codex/peer-benchmark | briefs/ux-04.md |
 | ui-02 | UI ratchet cleanup (map, skill tree, section map) | merged (pixel-identical; baseline −4; 152 bespoke colours inventoried in staged/ui/near_palette_ui02.md — median ΔE76 8.5, needs a palette review, not a ratchet) | codex/peer-benchmark | briefs/ui-02.md |
 | art-06 | Identity gate robustness (pixel digests not PNG bytes, SKIP as WARN, dedupe inputs, rear→front job link, mutant tests) | merged bf3ed130a (signoff 16881db9a) | codex/peer-benchmark | briefs/art-06.md |
 | art-07 | Tone max_chroma filter + palette_match keeps bright/accent-hue pixels (lancer blade, wisp cores greyed) + art-06 leftovers | merged (Codex signoff 66018ccab) | codex/peer-benchmark | briefs/art-07.md |
