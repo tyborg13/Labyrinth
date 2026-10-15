@@ -27,7 +27,7 @@
         }
       },
       "kind": "tone_region",
-      "output_raw_sha256": "fa5b80d5338d926eeb24458e53e2ee94ed2b0f020bc57552526b5b9d0f5e02b6",
+      "output_raw_pixel_sha256": "859b26800bf2f12abc43bafa2e75a3980d37dc1b50a9c90b189ab7213cc5c6f7",
       "parameters": {
         "space": "CIE Lab"
       }

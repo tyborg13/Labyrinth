@@ -30,8 +30,8 @@
     {
       "match_reference": {
         "derived_from": {
-          "path": "refs/palette_front.png",
-          "sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2"
+          "job_path": "spec/art_identity/jobs/chainbound_gaoler/mq3_front_v4/kit.json",
+          "pixel_sha256": "394e5284cdf9dfe72e85508b269c2562612401e7fcb19ee99c27ac1facef37bc"
         },
         "mask_config": {
           "path": "refs/match_exclude_front_r3.json",
@@ -47,7 +47,6 @@
       },
       "pre_step_pixel_sha256": "565cd4a3a5a548e0f54d3c659af7dcff63017b886c76f0386776e81c6f3c03d3",
       "reference_pixel_sha256": "d3d3a383d365333ae46c2050cc5d1aa7241af7ce45b0b2702fd71045b1a413b8",
-      "reference_sha256": "34e8178cf1685c858371eebed3eebcd9baf9c64faaf6b88bce2d986052b08406",
       "step": "palette_match"
     },
     {
@@ -65,7 +64,7 @@
       "step": "clean_outline"
     }
   ],
-  "raw_sha256": "d3430bce59e949b1c6475def5eddb50b9913cb1eed65dc13cc820cf2f5cfb6af",
+  "raw_pixel_sha256": "68249ff9fcd4cc2e1bef86fe85824e56ed37fdfa173d774f9505b83d9e16262b",
   "raw_steps": [
     {
       "inputs": {
@@ -79,7 +78,7 @@
         }
       },
       "kind": "composite_region",
-      "output_raw_sha256": "bb26e934bbe2043e1912d704a88acb24d7fd6bc9c5225b8adea429a1571bc371",
+      "output_raw_pixel_sha256": "7a988ffe8a66d3ace3c83611e88f35b292cc5474c6cf7158fbe733ac82ae2e3e",
       "parameters": {
         "box": [
           800,
@@ -97,12 +96,11 @@
           "sha256": "8f73afcb826109090d175da821f30643a2b66fbf47079ecb64e10f84f26360ef"
         },
         "raw": {
-          "path": "refs/raw_chain_composite.png",
-          "sha256": "bb26e934bbe2043e1912d704a88acb24d7fd6bc9c5225b8adea429a1571bc371"
+          "previous_output_pixel_sha256": "7a988ffe8a66d3ace3c83611e88f35b292cc5474c6cf7158fbe733ac82ae2e3e"
         }
       },
       "kind": "tone_region",
-      "output_raw_sha256": "d3430bce59e949b1c6475def5eddb50b9913cb1eed65dc13cc820cf2f5cfb6af",
+      "output_raw_pixel_sha256": "68249ff9fcd4cc2e1bef86fe85824e56ed37fdfa173d774f9505b83d9e16262b",
       "parameters": {
         "space": "CIE Lab"
       }

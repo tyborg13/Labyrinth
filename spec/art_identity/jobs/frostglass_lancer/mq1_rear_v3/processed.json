@@ -29,8 +29,8 @@
   "post_steps": [
     {
       "match_reference": {
-        "path": "refs/palette_front.png",
-        "sha256": "b263530ddccf2a5fba617600ba5efb2377b3023aa4bf331d7f10acc59ff0bfec"
+        "job_path": "spec/art_identity/jobs/frostglass_lancer/mq1_front_v3/kit.json",
+        "pixel_sha256": "4b2035daa3458cb64a7be72013b8c8515e84bdba21f3883c0f30e2c8414ca200"
       },
       "parameters": {
         "accent_margin": 15,
@@ -41,7 +41,6 @@
       },
       "pre_step_pixel_sha256": "57d24683e838bde8f3c03ef9abd0b98322856348130c4ff684be95aa21ce8405",
       "reference_pixel_sha256": "4b2035daa3458cb64a7be72013b8c8515e84bdba21f3883c0f30e2c8414ca200",
-      "reference_sha256": "b263530ddccf2a5fba617600ba5efb2377b3023aa4bf331d7f10acc59ff0bfec",
       "step": "palette_match"
     },
     {
@@ -59,7 +58,7 @@
       "step": "clean_outline"
     }
   ],
-  "raw_sha256": "eed7a87d230422d2f61120f48785835e89a229a4843bb24993b74bce4204e9dc",
+  "raw_pixel_sha256": "662992d39cae223e147f6211ad5a2ee564f60ce6e4697e743ac00eb86d61a782",
   "raw_steps": [
     {
       "inputs": {
@@ -73,7 +72,7 @@
         }
       },
       "kind": "tone_region",
-      "output_raw_sha256": "eed7a87d230422d2f61120f48785835e89a229a4843bb24993b74bce4204e9dc",
+      "output_raw_pixel_sha256": "662992d39cae223e147f6211ad5a2ee564f60ce6e4697e743ac00eb86d61a782",
       "parameters": {
         "space": "CIE Lab"
       }

@@ -7,6 +7,7 @@ Pixel hashes and density metrics deliberately share the board-density functions.
 from __future__ import annotations
 
 import argparse
+import difflib
 import hashlib
 import io
 import json
@@ -360,36 +361,47 @@ def composite_region(approved: Image.Image, edit: Image.Image, box: list) -> Ima
     return result
 
 
-def png_bytes(image: Image.Image) -> bytes:
-    output = io.BytesIO()
-    image.save(output, format="PNG")
-    return output.getvalue()
-
-
-def recipe_input(binding: dict, kit_path: Path, label: str, maquette: bool = False,
-                 allow_missing: bool = False):
-    """All recipe paths are job-relative; hashes bind file bytes, not just decoded pixels."""
-    if not isinstance(binding, dict) or not is_digest(binding.get("sha256")):
-        raise ValueError(label + " input sha256 missing or invalid")
-    path = binding.get("path")
+def recipe_input_path(path: str, kit_path: Path, label: str, maquette: bool = False) -> Path:
+    """Constrain the resolved file, including symlinks, to the job's allowed input folders."""
     if not isinstance(path, str) or not path:
         raise ValueError(label + " input path missing")
     resolved = repo_path(kit_path.parent, path)
-    if maquette and Path(path).parts[0] not in ("refs", "raw_inputs"):
+    if maquette and not any((kit_path.parent / folder).resolve() in resolved.parents
+                            for folder in ("refs", "raw_inputs")):
         raise ValueError(label + " maquette input must be inside refs/ or raw_inputs/")
+    return resolved
+
+
+def recipe_input(binding: dict, kit_path: Path, label: str, maquette: bool = False,
+                 allow_missing: bool = False, record: bool = False, input_changes: list = None):
+    """All recipe paths are job-relative; hashes bind file bytes, not just decoded pixels."""
+    if not isinstance(binding, dict) or (not record and not is_digest(binding.get("sha256"))):
+        raise ValueError(label + " input sha256 missing or invalid")
+    path = binding.get("path")
+    resolved = recipe_input_path(path, kit_path, label, maquette)
     if not resolved.is_file():
         if allow_missing and not maquette:
             return None
         raise ValueError(label + " input missing: " + path)
     data = resolved.read_bytes()
-    if sha(data) != binding["sha256"]:
+    if record:
+        old_digest = binding.get("sha256")
+        binding["sha256"] = sha(data)
+        if input_changes is not None and is_digest(old_digest) and old_digest != binding["sha256"]:
+            input_changes.append("INPUT CHANGED %s %s→%s" % (path, old_digest, binding["sha256"]))
+    elif sha(data) != binding["sha256"]:
         raise ValueError(label + " input sha256 changed: " + path)
     return data
 
 
 def replay_raw_steps(kit_path: Path, allow_missing: bool = False):
-    """Validate all bindings first, then replay the ordered, byte-bound chain in memory."""
-    kit = read_json(kit_path)
+    """Bind director files by bytes and gate outputs by decoded pixels, entirely in memory."""
+    return raw_steps_image(read_json(kit_path), kit_path, allow_missing=allow_missing)
+
+
+def raw_steps_image(kit: dict, kit_path: Path, allow_missing: bool = False, record: bool = False,
+                    input_changes: list = None):
+    """Share execution and validation between read-only replay and digest recording."""
     steps = kit.get("raw_steps")
     if not isinstance(steps, list) or not steps:
         raise ValueError("raw_steps must be a non-empty ordered list")
@@ -416,21 +428,32 @@ def replay_raw_steps(kit_path: Path, allow_missing: bool = False):
             raise ValueError(label + " unknown kind: " + str(kind))
         if set(bindings) != expected:
             raise ValueError(label + " input kinds mismatched")
+        if index:
+            previous = bindings["raw"]
+            if record:
+                if not isinstance(previous, dict) or not (set(previous) == {"previous_output_pixel_sha256"}
+                                                         or "path" in previous):
+                    raise ValueError(label + " raw input must name a file or the previous output pixels")
+            elif previous != {"previous_output_pixel_sha256": previous_digest}:
+                raise ValueError(label + " raw input does not bind the previous output pixels")
         data = {name: recipe_input(binding, kit_path, label + "." + name,
-                                  kit.get("kit_kind") == "maquette", allow_missing)
-                for name, binding in bindings.items()}
-        if previous_digest is not None and bindings["raw"]["sha256"] != previous_digest:
-            raise ValueError(label + " raw input does not bind the previous output")
-        previous_digest = step.get("output_raw_sha256")
-        if not is_digest(previous_digest):
-            raise ValueError(label + " output_raw_sha256 missing or invalid")
+                                  kit.get("kit_kind") == "maquette", allow_missing, record, input_changes)
+                for name, binding in bindings.items()
+                if name != "raw" or not index or (record and "path" in binding)}
+        previous_digest = step.get("output_raw_pixel_sha256")
+        if not record and (not is_digest(previous_digest) or "output_raw_sha256" in step):
+            raise ValueError(label + " requires output_raw_pixel_sha256 (re-record legacy byte digests)")
         inputs.append(data)
     # Missing standard-kit inputs may prevent replay, but never suppress validation of present files.
     if any(value is None for data in inputs for value in data.values()):
         return None
     output = None
     for index, (step, data) in enumerate(zip(steps, inputs)):
-        raw = rgba(io.BytesIO(data["raw"] if output is None else output))
+        raw = rgba(io.BytesIO(data["raw"])) if output is None else output
+        if record and index:
+            if "raw" in data and pixel_digest(rgba(io.BytesIO(data["raw"]))) != pixel_digest(raw):
+                raise ValueError("raw_steps[%d] legacy raw input differs from previous output pixels" % index)
+            step["inputs"]["raw"] = {"previous_output_pixel_sha256": pixel_digest(raw)}
         if step["kind"] == "composite_region":
             box = step["parameters"]["box"]
             if box[2] > raw.width or box[3] > raw.height:
@@ -438,29 +461,94 @@ def replay_raw_steps(kit_path: Path, allow_missing: bool = False):
             result = composite_region(raw, rgba(io.BytesIO(data["edit"])), box)
         else:
             result = tone_region(raw, json.loads(data["config"]))
-        output = png_bytes(result)
-        if sha(output) != step["output_raw_sha256"]:
-            raise ValueError("raw_steps[%d] output_raw_sha256 changed" % index)
+        output = result.convert("RGBA")
+        if record:
+            step["output_raw_pixel_sha256"] = pixel_digest(output)
+            step.pop("output_raw_sha256", None)
+        elif pixel_digest(output) != step["output_raw_pixel_sha256"]:
+            raise ValueError("raw_steps[%d] output_raw_pixel_sha256 changed" % index)
     return output
 
 
-def derive_match_reference(spec: dict, kit_path: Path) -> tuple:
-    """A processed front, or a masked derivative with both source files bound."""
-    maquette = read_json(kit_path).get("kit_kind") == "maquette"
+def front_job_reference(front: dict, kit: dict, root: Path, record: bool = False) -> Image.Image:
+    if (not isinstance(front, dict) or not isinstance(front.get("job_path"), str) or not front["job_path"]
+            or set(front) - {"job_path", "pixel_sha256"}
+            or (not record and not is_digest(front.get("pixel_sha256")))):
+        raise ValueError("match_reference front requires job_path and pixel_sha256")
+    front_kit = repo_path(root, front["job_path"])
+    if (root / IDENTITY / "jobs").resolve() not in front_kit.parents:
+        raise ValueError("match_reference job_path must be inside spec/art_identity/jobs/")
+    if front_kit.name != "kit.json":
+        raise ValueError("match_reference must name a front job kit.json")
+    front_metadata = read_json(front_kit)
+    view = front_metadata.get("view")
+    if not isinstance(view, str) or not view.endswith("_front"):
+        raise ValueError("match_reference must name a front job kit.json")
+    if not isinstance(kit.get("id"), str) or not kit["id"] or front_metadata.get("id") != kit["id"]:
+        raise ValueError("match_reference front job id must match the referencing kit id")
+    image = rgba(repo_path(front_kit.parent, "processed.png"))
+    digest = pixel_digest(image)
+    if record:
+        front["pixel_sha256"] = digest
+    elif digest != front["pixel_sha256"]:
+        raise ValueError("match_reference front job processed pixel digest changed")
+    return image
+
+
+def derive_match_reference(spec: dict, kit_path: Path, root: Path = ROOT, record: bool = False,
+                           input_changes: list = None) -> tuple:
+    """Bind processed references by pixels; plain and masked references can name a front job."""
+    kit = read_json(kit_path)
+    maquette = kit.get("kit_kind") == "maquette"
     if not isinstance(spec, dict):
         raise ValueError("match_reference must be an object")
-    if set(spec) == {"path", "sha256"}:
-        data = recipe_input(spec, kit_path, "match_reference", maquette)
-        image = rgba(io.BytesIO(data))
+    if (set(spec) == {"path", "pixel_sha256"}
+            or (record and "path" in spec and not set(spec) - {"path", "pixel_sha256", "sha256"})):
+        path = recipe_input_path(spec["path"], kit_path, "match_reference", maquette)
+        # A legacy local reference may still have a director-recorded file digest to audit.
+        data = (recipe_input(spec, kit_path, "match_reference", maquette, record=True, input_changes=input_changes)
+                if record and "sha256" in spec else None)
+        image = rgba(io.BytesIO(data) if data is not None else path)
+        if record:
+            spec["pixel_sha256"] = pixel_digest(image)
+            spec.pop("sha256", None)
+        elif pixel_digest(image) != spec["pixel_sha256"]:
+            raise ValueError("match_reference pixel digest changed")
+    elif "job_path" in spec:
+        image = front_job_reference(spec, kit, root, record)
     elif set(spec) == {"derived_from", "mask_config"}:
-        front = recipe_input(spec["derived_from"], kit_path, "match_reference.derived_from", maquette)
-        config = recipe_input(spec["mask_config"], kit_path, "match_reference.mask_config", maquette)
-        image = mask_reference(rgba(io.BytesIO(front)), json.loads(config))
-        data = png_bytes(image)
+        front_image = front_job_reference(spec["derived_from"], kit, root, record)
+        config = recipe_input(spec["mask_config"], kit_path, "match_reference.mask_config", maquette,
+                              record=record, input_changes=input_changes)
+        image = mask_reference(front_image, json.loads(config))
     else:
         raise ValueError("match_reference requires a processed front or derived_from and mask_config")
-    return image, {"match_reference": spec, "reference_sha256": sha(data),
-                   "reference_pixel_sha256": pixel_digest(image)}
+    return image, {"match_reference": spec, "reference_pixel_sha256": pixel_digest(image)}
+
+
+def record_steps(kit_path: Path, root: Path = ROOT) -> list:
+    """Rebind listed recipe inputs/outputs; write only after the entire recipe succeeds."""
+    original = kit_path.read_text(encoding="utf-8")
+    kit = json.loads(original)
+    input_changes = []
+    raw_steps_image(kit, kit_path, record=True, input_changes=input_changes)
+    if "match_reference" in kit:
+        derive_match_reference(kit["match_reference"], kit_path, root, record=True, input_changes=input_changes)
+    if kit == json.loads(original):
+        return ["UNCHANGED " + str(kit_path)]
+    updated = json.dumps(kit, indent=2, sort_keys=True, allow_nan=False) + "\n"
+    changes = list(difflib.unified_diff(original.splitlines(), updated.splitlines(),
+                                      fromfile=str(kit_path), tofile=str(kit_path) + " (recorded)", lineterm=""))
+    kit_path.write_bytes(updated.encode("utf-8"))
+    return input_changes + changes
+
+
+def direct_match_path(path: Path, kit_path: Path, root: Path) -> Path:
+    """Legacy direct PNG arguments are repository-relative, and maquettes keep them job-local."""
+    reference = repo_path(root, str(path))
+    if read_json(kit_path).get("kit_kind") == "maquette" and kit_path.parent.resolve() not in reference.parents:
+        raise ValueError("--match-front PNG must be inside the maquette job folder")
+    return reference
 
 
 def rear_consistency(front: Path, rear: Path) -> dict:
@@ -659,14 +747,16 @@ def process_raw(raw: Path, kit_path: Path, out: Path, root: Path = ROOT, match_f
     if not isinstance(factor, int) or isinstance(factor, bool) or factor <= 0:
         raise ValueError("K must be a positive integer")
     if "raw_steps" in kit:
-        raw_bytes = replay_raw_steps(kit_path)
+        image = replay_raw_steps(kit_path)
+        raw_binding = {"raw_pixel_sha256": pixel_digest(image)}
         if raw is not None and sha(raw.read_bytes()) != kit["raw_steps"][0]["inputs"]["raw"]["sha256"]:
             raise ValueError("supplied raw differs from the first raw_steps input")
     elif raw is not None:
         raw_bytes = raw.read_bytes()
+        image = rgba(io.BytesIO(raw_bytes))
+        raw_binding = {"raw_sha256": sha(raw_bytes)}
     else:
         raise ValueError("process requires RAW or a kit with raw_steps")
-    image = rgba(io.BytesIO(raw_bytes))
     if image.width != image.height:
         raise ValueError("raw image must be square")
     k_eff = factor * image.width / RAW_CANVAS_WIDTH
@@ -721,21 +811,22 @@ def process_raw(raw: Path, kit_path: Path, out: Path, root: Path = ROOT, match_f
     canvas.alpha_composite(sprite, (placed_x, placed_y))
     post_steps = []
     if match_front is not None or "match_reference" in kit:
+        direct_path = (direct_match_path(match_front, kit_path, root)
+                       if match_front is not None and match_front.suffix.lower() != ".json" else None)
         if "match_reference" in kit:
             if match_front is not None:
                 supplied = (read_json(match_front) if match_front.suffix.lower() == ".json" else
-                            {"path": kit["match_reference"].get("path"), "sha256": sha(match_front.read_bytes())})
+                            {"path": kit["match_reference"].get("path"), "pixel_sha256": pixel_digest(rgba(direct_path))})
                 if supplied != kit["match_reference"]:
                     raise ValueError("explicit --match-front conflicts with kit match_reference")
-            reference, binding = derive_match_reference(kit["match_reference"], kit_path)
+            reference, binding = derive_match_reference(kit["match_reference"], kit_path, root)
         elif match_front.suffix.lower() == ".json":
             spec = read_json(match_front)
             # The descriptor is job-relative, just like the kit field; it is not another job.
-            reference, binding = derive_match_reference(spec, kit_path)
+            reference, binding = derive_match_reference(spec, kit_path, root)
         else:
-            reference = rgba(match_front)
-            binding = {"reference": str(match_front), "reference_sha256": sha(match_front.read_bytes()),
-                       "reference_pixel_sha256": pixel_digest(reference)}
+            reference = rgba(direct_path)
+            binding = {"reference": str(match_front), "reference_pixel_sha256": pixel_digest(reference)}
         post_steps.append({"step": "palette_match", "parameters": PALETTE_MATCH_PARAMETERS, **binding,
                            "pre_step_pixel_sha256": pixel_digest(canvas)})
         canvas = palette_match(reference, canvas)
@@ -745,7 +836,7 @@ def process_raw(raw: Path, kit_path: Path, out: Path, root: Path = ROOT, match_f
         canvas = clean_outline(canvas)
     out.parent.mkdir(parents=True, exist_ok=True)
     canvas.save(out)
-    record = {"raw_sha256": sha(raw_bytes), "pixel_sha256": pixel_digest(canvas), "K": factor,
+    record = {**raw_binding, "pixel_sha256": pixel_digest(canvas), "K": factor,
               "k_eff": k_eff, "fit_scale": fit_scale,
               "drawn_size": list(sprite.size), "placement": [placed_x, placed_y],
               "shift": [placed_x - x, placed_y - y],
@@ -765,19 +856,28 @@ def verify_job_recipe(kit_path: Path, root: Path = ROOT, require_inputs: bool = 
     processed = read_json(source.with_suffix(".json"))
     steps = processed.get("post_steps", [])
     palette = [step for step in steps if step.get("step") == "palette_match"]
+    if "raw_steps" in kit:
+        if "raw_sha256" in processed:
+            raise ValueError("processed raw_steps require raw_pixel_sha256, not raw_sha256")
+        names = [step.get("step") for step in steps]
+        if names not in ([], ["palette_match"], ["clean_outline"], ["palette_match", "clean_outline"]):
+            raise ValueError("unsupported post_steps order for replay")
+        for step in steps:
+            parameters = PALETTE_MATCH_PARAMETERS if step["step"] == "palette_match" else OUTLINE_PARAMETERS
+            if step.get("parameters") != parameters or not is_digest(step.get("pre_step_pixel_sha256")):
+                raise ValueError("processed post_steps parameters or pre-step digest invalid")
     if "match_reference" in kit:
         if len(palette) != 1 or palette[0].get("match_reference") != kit["match_reference"]:
             raise ValueError("processed match_reference mismatched")
     for step in palette:
+        if "reference_sha256" in step and ("raw_steps" in kit or "match_reference" in step):
+            raise ValueError("palette_match requires reference_pixel_sha256, not reference_sha256")
         if "match_reference" in step:
-            _, binding = derive_match_reference(step["match_reference"], kit_path)
+            _, binding = derive_match_reference(step["match_reference"], kit_path, root)
             if any(step.get(key) != value for key, value in binding.items()):
                 raise ValueError("palette_match reference digest changed")
-        elif "reference_sha256" in step:
-            reference = Path(step["reference"])
-            reference = reference if reference.is_absolute() else root / reference
-            if sha(reference.read_bytes()) != step["reference_sha256"]:
-                raise ValueError("palette_match reference sha256 changed")
+        elif "reference_pixel_sha256" in step or "reference_sha256" in step or "raw_steps" in kit:
+            reference = direct_match_path(Path(step["reference"]), kit_path, root)
             if pixel_digest(rgba(reference)) != step.get("reference_pixel_sha256"):
                 raise ValueError("palette_match reference pixel digest changed")
     if processed.get("raw_steps") != kit.get("raw_steps"):
@@ -785,13 +885,12 @@ def verify_job_recipe(kit_path: Path, root: Path = ROOT, require_inputs: bool = 
     if "raw_steps" not in kit:
         return []
     raw = replay_raw_steps(kit_path, allow_missing=not require_inputs)
-    if processed.get("raw_sha256") != kit["raw_steps"][-1]["output_raw_sha256"]:
-        raise ValueError("processed raw_sha256 differs from final raw_steps output")
+    if processed.get("raw_pixel_sha256") != kit["raw_steps"][-1]["output_raw_pixel_sha256"]:
+        raise ValueError("processed raw_pixel_sha256 differs from final raw_steps output")
+    if pixel_digest(rgba(source)) != processed.get("pixel_sha256"):
+        raise ValueError("processed.png pixel digest changed")
     if raw is None:
-        return ["SKIP raw_steps replay: standard-kit inputs absent"]
-    names = [step.get("step") for step in steps]
-    if names not in ([], ["palette_match"], ["clean_outline"], ["palette_match", "clean_outline"]):
-        raise ValueError("unsupported post_steps order for replay")
+        return ["SKIP raw_steps replay: inputs absent"]
     match_front = None
     with tempfile.TemporaryDirectory(prefix="art-identity-replay-") as folder:
         out = Path(folder) / "processed.png"
@@ -802,19 +901,13 @@ def verify_job_recipe(kit_path: Path, root: Path = ROOT, require_inputs: bool = 
                 write_json(match_front, palette[0]["match_reference"])
             else:
                 match_front = Path(palette[0]["reference"])
-                if not match_front.is_absolute():
-                    match_front = root / match_front
         replay = process_raw(None, kit_path, out, root, match_front, "clean_outline" in names)
-        # Legacy direct-reference paths may be relative; their spelling is provenance, not pixels.
-        if match_front is not None and palette and "reference" in palette[0]:
-            replay["post_steps"][0]["reference"] = palette[0]["reference"]
-        for key in ("raw_sha256", "pixel_sha256", "raw_steps", "post_steps", "K", "k_eff", "fit_scale", "drawn_size", "placement", "shift"):
+        for key in ("raw_pixel_sha256", "pixel_sha256", "raw_steps", "post_steps", "K", "k_eff", "fit_scale", "drawn_size", "placement", "shift"):
             if replay.get(key) != processed.get(key):
                 raise ValueError("replayed processed " + key + " mismatched")
-        if out.read_bytes() != source.read_bytes():
-            raise ValueError("replayed processed.png bytes mismatched")
-    return ["MATCH raw_sha256 " + sha(raw), "MATCH processed_sha256 " + sha(source.read_bytes()),
-            "MATCH pixel_sha256 " + processed["pixel_sha256"]]
+        byte_diagnostic = "identical" if out.read_bytes() == source.read_bytes() else "different (pixels match)"
+    return ["MATCH raw_pixel_sha256 " + pixel_digest(raw), "MATCH pixel_sha256 " + processed["pixel_sha256"],
+            "INFO processed.png encoded bytes " + byte_diagnostic]
 
 
 def metric_bands(entry: dict, bands: dict) -> dict:
@@ -970,8 +1063,8 @@ def validate_maquette_refs(kit: dict, kit_path: Path, canon: dict, rear: bool) -
     return failures
 
 
-def validate_kit_entry(entry: dict, root: Path, bands: dict, metadata: dict) -> list:
-    failures = []
+def validate_kit_entry(entry: dict, root: Path, bands: dict, metadata: dict) -> tuple:
+    failures, warnings = [], []
     kit_path = repo_path(root, entry["kit_path"])
     kit = read_json(kit_path)
     maquette = kit.get("kit_kind") == "maquette"
@@ -1036,10 +1129,16 @@ def validate_kit_entry(entry: dict, root: Path, bands: dict, metadata: dict) -> 
         failures.append("maquette kit_version does not reproduce from prompt and ordered reference digests")
     # Historical standard prompts may use the director-authorized recorded field.
     # Maquette versions must reproduce exactly; both retain all other bindings.
-    if not is_digest(entry.get("raw_sha256")):
-        failures.append("raw sha256 missing or invalid")
-    if entry.get("raw_path") and sha(repo_path(root, entry["raw_path"]).read_bytes()) != entry.get("raw_sha256"):
-        failures.append("raw sha256 changed")
+    raw_key = "raw_pixel_sha256" if "raw_steps" in kit else "raw_sha256"
+    if not is_digest(entry.get(raw_key)):
+        failures.append(raw_key + " missing or invalid")
+    if "raw_steps" in kit and "raw_sha256" in entry:
+        failures.append("raw_steps registry entry requires raw_pixel_sha256, not raw_sha256")
+    if entry.get("raw_path"):
+        raw_path = repo_path(root, entry["raw_path"])
+        raw_digest = pixel_digest(rgba(raw_path)) if "raw_steps" in kit else sha(raw_path.read_bytes())
+        if raw_digest != entry.get(raw_key):
+            failures.append(raw_key + " changed")
     if not repo_path(root, entry["sheet_path"]).is_file():
         failures.append("review sheet missing")
     judge = entry.get("judge", {})
@@ -1058,15 +1157,19 @@ def validate_kit_entry(entry: dict, root: Path, bands: dict, metadata: dict) -> 
     if source_digest != entry.get("source_pixel_sha256"):
         failures.append("source pixel digest changed")
     processed = read_json(source.with_suffix(".json"))
-    if processed.get("pixel_sha256") != source_digest or processed.get("raw_sha256") != entry.get("raw_sha256"):
+    if processed.get("pixel_sha256") != source_digest or processed.get(raw_key) != entry.get(raw_key):
         failures.append("processed sidecar digest mismatched")
     if entry.get("post_steps", []) != processed.get("post_steps", []):
         failures.append("processed post_steps mismatched")
-    verify_job_recipe(kit_path, root)
+    try:
+        warnings.extend(line for line in verify_job_recipe(kit_path, root) if line.startswith("SKIP "))
+    except Exception as exc:
+        # Recipe errors belong to this entry; retain provenance failures and still check its metrics.
+        failures.append("recipe: " + str(exc))
     actual["view"] = kit["view"]
     measured = measure(repo_path(root, entry["path"]), actual.get("art_scale", 1.0), entry["kind"], entry["anatomy"])
     failures.extend(metric_failures(actual, measured, bands))
-    return failures
+    return failures, warnings
 
 
 def check_registry(root: Path = ROOT, entry_id: str = None, strict: bool = False) -> tuple:
@@ -1075,7 +1178,7 @@ def check_registry(root: Path = ROOT, entry_id: str = None, strict: bool = False
     covered = coverage(root)
     entries = registry["entries"]
     paths = [e["path"] for e in entries]
-    reports, failures, warnings = [], 0, 0
+    reports, failures, warnings, skips = [], 0, 0, 0
     for path in sorted(set(covered) - set(paths)):
         reports.append("FAIL " + path + ": missing registry entry")
         failures += 1
@@ -1104,7 +1207,13 @@ def check_registry(root: Path = ROOT, entry_id: str = None, strict: bool = False
                 if pixel_digest(rgba(repo_path(root, path))) != entry.get("pixel_sha256"):
                     errors.append("pixel digest changed")
                 if state == "kit":
-                    errors.extend(validate_kit_entry(entry, root, bands, covered.get(path, {})))
+                    kit_errors, kit_warnings = validate_kit_entry(entry, root, bands, covered.get(path, {}))
+                    errors.extend(kit_errors)
+                    reports.extend("WARN " + path + ": " + warning for warning in kit_warnings)
+                    skipped = [warning for warning in kit_warnings if warning.startswith("SKIP ")]
+                    skips += len(skipped)
+                    if strict:
+                        errors.extend("strict: " + warning for warning in skipped)
                     if entry.get("kind") == "creature":
                         pair = [e for e in entries if e.get("id") == entry.get("id") and e.get("entry_kind") == "kit"
                                 and e.get("kind") == "creature"]
@@ -1133,8 +1242,8 @@ def check_registry(root: Path = ROOT, entry_id: str = None, strict: bool = False
                 kit = read_json(kit_path)
                 detail += "; kit_version " + kit_version_verification(kit, repo_path(root, entry["prompt_path"]).read_bytes())
             reports.append("PASS " + path + " (" + detail + ")")
-    reports.append("ART IDENTITY CHECK: %s (%d failures, %d pending_reart warnings)" %
-                   ("FAIL" if failures else "PASS", failures, warnings))
+    reports.append("ART IDENTITY CHECK: %s (%d failures, %d pending_reart warnings, %d skipped replays)" %
+                   ("FAIL" if failures else "PASS", failures, warnings, skips))
     return reports, failures
 
 
@@ -1359,6 +1468,8 @@ def parser() -> argparse.ArgumentParser:
     process_cmd.add_argument("--out", required=True, type=Path)
     process_cmd.add_argument("--match-front", type=Path)
     process_cmd.add_argument("--clean-outline", action="store_true")
+    record_cmd = commands.add_parser("record-steps", help="recompute digests for an already-listed raw_steps recipe")
+    record_cmd.add_argument("--kit", required=True, type=Path)
     sheet = commands.add_parser("sheet")
     sheet.add_argument("--front", required=True, type=Path)
     sheet.add_argument("--rear", type=Path)
@@ -1391,6 +1502,8 @@ def main() -> int:
                    shlex.quote(str(Path(args.out_dir) / "refs"))))
         elif args.command == "process":
             print(json.dumps(process_raw(args.raw, args.kit, args.out, match_front=args.match_front, outline=args.clean_outline), indent=2, sort_keys=True))
+        elif args.command == "record-steps":
+            print("\n".join(record_steps(args.kit)))
         elif args.command == "sheet":
             make_sheet(args.front, args.rear, args.kit, args.out, args.art_scale,
                        read_json(args.landmarks) if args.landmarks else None)
