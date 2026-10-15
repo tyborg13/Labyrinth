@@ -1,224 +1,191 @@
-"""Rebuild approved heads to the measured sfx-04 visual climax and onset caps."""
+"""Rebuild sync heads from lossless parent recipes and durable per-path constraints."""
 from __future__ import annotations
 
-import copy
 import hashlib
 import json
 from pathlib import Path
+import platform
+import subprocess
 import tempfile
 
 import numpy as np
+import scipy
+import soundfile as sf
 
 from tools.sfx_lab.build import process
-from tools.sfx_lab.common import LabError, TakeLibrary, decode, encode, fade_in, loudness, read_json, sha256, write_json
-from tools.sfx_lab.sync import leading_ms, variant_from_provenance
-from tools.sfx_lab.sync_metrics import (ALIGNMENT_FADE_MS, MIN_PRE_PEAK_MS, PEAK_LATE_LIMIT_MS,
-    LOUDNESS_TOLERANCE_LU, envelope_times, onset_cap, short_loudness)
+from tools.sfx_lab.common import LabError, TakeLibrary, decode, encode, fade_in, read_json, sha256
+from tools.sfx_lab.sync_metrics import RULES, envelope, envelope_times, peak_levels, short_loudness
 
-# Encoder correction budget only; never changes the director's timing bounds.
-MAX_ENCODER_PASSES = 256
+MAX_ENCODER_PASSES = 12
 MAX_HEAD_CANDIDATES = 64
+GAIN_MARGIN_DB = 0.08
 
 
-def resources(cue: str, cues: dict) -> list[str]:
-    entry = cues[cue]
-    while entry.get("variants_from"):
-        entry = cues[entry["variants_from"]]
-    return entry.get("variants") or entry.get("fallback", [])
+def rules_digest() -> str:
+    return hashlib.sha256(json.dumps(RULES, sort_keys=True).encode()).hexdigest()
 
 
-def constraints(phase: dict, cues: dict) -> dict:
-    result = {}
-    for event in phase["observations"]:
-        if event["result"] != "played":
-            continue
-        cue = event["cue"]
-        entry = cues[cue]
-        cap = onset_cap(cue, entry)
-        if cap is None:
-            continue
-        if event["delay_ms"] is None:
-            raise LabError(f"Missing trigger measurement: {cue}")
-        delay = event["delay_ms"]
-        pmin = float(entry.get("pitch_scale", 1)) * (1 - float(entry.get("pitch_jitter", 0)))
-        pmax = float(entry.get("pitch_scale", 1)) * (1 + float(entry.get("pitch_jitter", 0)))
-        for path in resources(cue, cues):
-            bound = result.setdefault(path, {"max_onset_ms": float("inf"), "max_peak_ms": None,
-                                            "min_peak_ms": MIN_PRE_PEAK_MS, "cues": set(), "climaxes_ms": set()})
-            bound["cues"].add(cue)
-            bound["max_onset_ms"] = min(bound["max_onset_ms"], (cap - delay) * pmin)
-            if event["climax_applicable"]:
-                climax = event["climax_after_trigger_ms"]
-                if climax is None:
-                    raise LabError(f"Missing climax measurement: {cue} / {event['scenario']}")
-                bound["climaxes_ms"].add(climax)
-                upper = (climax + PEAK_LATE_LIMIT_MS - delay) * pmin
-                bound["max_peak_ms"] = upper if bound["max_peak_ms"] is None else min(bound["max_peak_ms"], upper)
-                # The director's lower alignment bound applies when this peak
-                # was late and is being trimmed, not to an already early peak.
-                if phase["samples"][path]["peak_ms"] > upper:
-                    bound["min_peak_ms"] = max(bound["min_peak_ms"], (climax - delay) * pmax)
-    for path, bound in result.items():
-        bound["cues"] = sorted(bound["cues"])
-        bound["climaxes_ms"] = sorted(bound["climaxes_ms"])
-        if bound["max_peak_ms"] is not None and bound["max_peak_ms"] < bound["min_peak_ms"]:
-            raise LabError(f"incompatible_peak_windows (director decision required): {path}: {bound}")
-    return result
+def toolchain() -> dict:
+    return {"python": platform.python_version(), "numpy": np.__version__, "scipy": scipy.__version__,
+            "soundfile": sf.__version__, "libsndfile": sf.__libsndfile_version__,
+            "ffmpeg": subprocess.check_output(["ffmpeg", "-version"], text=True).splitlines()[0],
+            "encoder": "libsndfile Vorbis q6; Ogg serial=0 with page CRC repair; original granules"}
 
 
-def needs_trim(metrics: dict, bound: dict) -> bool:
-    return (metrics["perceived_onset_ms"] > bound["max_onset_ms"] or
-            (bound["max_peak_ms"] is not None and metrics["peak_ms"] > bound["max_peak_ms"]))
+def builder_digest(root: Path) -> str:
+    paths = ["sync.py", "sync_align.py", "sync_metrics.py", "build.py", "common.py"]
+    return hashlib.sha256(b"".join((root / "tools/sfx_lab" / path).read_bytes() for path in paths)).hexdigest()
 
 
-def trim_samples(samples: np.ndarray, rate: int, removed: int) -> np.ndarray:
-    peak = envelope_times(samples, rate)["peak_ms"]
-    if peak - removed * 1000 / rate < MIN_PRE_PEAK_MS:
-        raise LabError("Head trim would retain less than 15 ms of pre-peak build-up")
-    return fade_in(samples[removed:].copy(), rate, ALIGNMENT_FADE_MS)
+def quiet_cut(samples: np.ndarray, rate: int, latest: int, peak_index: int) -> tuple[int, float]:
+    """Walk backwards to a quiet sample, measuring both channels before fading.
+
+    The cut is instantaneous max-channel amplitude relative to the selected
+    RMS peak. Runtime PCM skips use their separate minimum-pre-peak/fade rule.
+    """
+    rms = envelope(samples, rate)
+    threshold = rms[peak_index] * 10 ** (-RULES["cut_below_peak_db"] / 20)
+    amplitude = np.max(np.abs(samples), axis=1)
+    legal = np.flatnonzero(amplitude[:max(0, latest) + 1] <= threshold)
+    if not len(legal): raise LabError("No quiet pre-peak sample exists")
+    removed = int(legal[-1])
+    below = float(20 * np.log10(max(1e-15, amplitude[removed]) / rms[peak_index]))
+    return removed, below
 
 
-def rebuild_aligned(root: Path, manifest: Path, features: Path, provenance: Path, audit: Path, phase_name: str = "feedback_1_before") -> dict:
-    document = read_json(audit)
-    phase = document[phase_name]
-    phase_sha = hashlib.sha256(json.dumps(phase, sort_keys=True).encode()).hexdigest()
-    cues = read_json(root / "data/sfx_cues.json")["cues"]
-    bounds = constraints(phase, cues)
-    original = read_json(manifest)
-    library = TakeLibrary(features)
-    prior = read_json(provenance) if provenance.exists() else {"outputs": []}
-    outputs = {entry["path"]: entry for entry in prior["outputs"]}
-    changed = []
-    for entry in original["outputs"]:
-        path = root / "assets/audio/sfx/cues" / entry["path"]
-        resource = "res://" + path.relative_to(root).as_posix()
-        if resource not in bounds:
-            continue
-        before = phase["samples"][resource]
-        bound = bounds[resource]
-        if not needs_trim(before, bound):
-            continue
-        previous = outputs.get(entry["path"], entry)
-        alignment = previous["processing"].get("sfx_04_alignment", {})
-        ancestor = alignment
-        already_applied = False
-        while ancestor:
-            already_applied |= ancestor.get("baseline_phase_sha256") == phase_sha
-            ancestor = ancestor.get("previous_alignment", {})
-        if already_applied and sha256(path) == previous["output_sha256"]:
-            continue
-        if sha256(path) != before["sha256"] or sha256(path) != previous["output_sha256"]:
-            raise LabError(f"Unrecognized pre-feedback audio revision: {path}")
-        variant = variant_from_provenance(entry)
-        samples, rate, parameters = process(library, library.get(variant), variant, entry["category"], entry["loop"], {})
+def measures(path: Path) -> dict:
+    from tools.sfx_lab.sync import leading_ms
+    audio, rate = decode(path)
+    return {**envelope_times(audio, rate), **peak_levels(audio),
+            "leading_ms": leading_ms(audio, rate), "short_loudness_lufs": short_loudness(path),
+            "sample_rate": rate, "duration_seconds": len(audio) / rate}
+
+
+def write_provenance(path: Path, document: dict) -> None:
+    def compact(value):
+        if isinstance(value, float): return round(value, 6)
+        if isinstance(value, list): return [compact(item) for item in value]
+        if isinstance(value, dict): return {key: compact(item) for key, item in value.items()}
+        return value
+    used = {row.get("build") for row in document["outputs"]}
+    document["builds"] = {key: value for key, value in document["builds"].items() if key in used}
+    dump = lambda value: json.dumps(compact(value), sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    lines = ["{"] + ["  " + json.dumps(key) + ":" + dump(value) + "," for key, value in sorted(document.items()) if key != "outputs"]
+    lines += ['  "outputs":[', ",\n".join("    " + dump(row) for row in document["outputs"]), "  ]", "}"]
+    path.write_text("\n".join(lines) + "\n")
+
+
+def rebuild_aligned(root: Path, manifest: Path, features: Path, provenance: Path, sources: Path | None = None) -> dict:
+    from tools.sfx_lab.sync import leading_ms, variant_from_provenance
+    prior = read_json(provenance)
+    if prior.get("schema_version") != 3:
+        raise LabError("Expected compact version 3 provenance with per-path constraints")
+    if sha256(manifest) != prior["parent_manifest_sha256"]:
+        raise LabError("Parent recipe manifest changed")
+    original = {row["path"]: row for row in read_json(manifest)["outputs"]}
+    current_rules, current_builder, versions = rules_digest(), builder_digest(root), toolchain()
+    build = {"rules_sha256": current_rules, "builder_sha256": current_builder, "toolchain": versions}
+    build_id = hashlib.sha256(json.dumps(build, sort_keys=True).encode()).hexdigest()
+    prior.setdefault("builds", {})[build_id] = build
+    def constraints_digest(row: dict) -> str:
+        return hashlib.sha256(json.dumps(row["constraints"], sort_keys=True).encode()).hexdigest()
+    # No source-catalogue scan or writes on an already verified rebuild.
+    pending = [row for row in prior["outputs"] if row.get("build") != build_id or
+               row.get("constraints_sha256") != constraints_digest(row) or
+               not (root / "assets/audio/sfx/cues" / row["path"]).exists() or
+               sha256(root / "assets/audio/sfx/cues" / row["path"]) != row["output_sha256"]]
+    if not pending:
+        print(f"SFX04 BUILD RESULT: PASS (0 rebuilt; {len(prior['outputs'])} verified hashes)")
+        return prior
+    (root / "output/sfx").mkdir(parents=True, exist_ok=True)
+    library = TakeLibrary(features, sources)
+    for row in pending:
+        parent = original[row["path"]]
+        if parent["output_sha256"] != row["parent_output_sha256"] or parent["source_sha256"] != row["source_sha256"]:
+            raise LabError("Parent recipe/source hash changed: " + row["path"])
+        variant = variant_from_provenance(parent)
+        samples, rate, parameters = process(library, library.get(variant), variant, parent["category"], parent["loop"], {})
         for key, value in parameters.items():
-            if entry["processing"].get(key) != value:
-                raise LabError(f"Original build parameter changed: {entry['cue_id']} {key}")
-        samples *= 10 ** (float(entry["processing"]["encoder_gain_correction_db"]) / 20)
-        # Preserve the first sfx-04 pass, including its exact approved lead trim.
-        lead_trim = previous["processing"].get("sfx_04")
-        if lead_trim:
-            samples = fade_in(samples[int(lead_trim["removed_samples"]):].copy(), rate, float(lead_trim["fade_in_ms"]))
-        previous_removed = int(alignment.get("removed_samples", 0))
-        previous_gain = float(alignment.get("loudness_restore_gain_db", 0))
-        if alignment:
-            # Reconstruct from lossless originals, retaining the earlier cut
-            # and restoring its gain. Never trim or re-encode an Ogg decode.
-            samples = trim_samples(samples, rate, previous_removed) * 10 ** (previous_gain / 20)
-        floating = envelope_times(samples, rate)
-        minimum_trim_ms = max(0.0, floating["perceived_onset_ms"] - bound["max_onset_ms"],
-                              floating["peak_ms"] - bound["max_peak_ms"] if bound["max_peak_ms"] is not None else 0.0)
-        removed = int(np.ceil(minimum_trim_ms * rate / 1000))
-        maximum_removed = int(np.floor((floating["peak_ms"] - bound["min_peak_ms"]) * rate / 1000))
-        if removed > maximum_removed:
-            raise LabError(f"Incompatible head trim (director decision required): {path}")
-        candidates = iter(np.unique(np.linspace(removed, maximum_removed, MAX_HEAD_CANDIDATES).astype(int)))
-        attempted_heads = set()
-        target_loudness = before["short_loudness_lufs"]
-        restore_gain_db = 0.0
-        with tempfile.TemporaryDirectory(prefix="sfx-04-align-", dir=path.parent) as temporary:
+            if parent["processing"].get(key) != value:
+                raise LabError(f"Original recipe changed: {row['path']} / {key}")
+        samples *= 10 ** (float(parent["processing"]["encoder_gain_correction_db"]) / 20)
+        source_metrics = envelope_times(samples, rate)
+        peak_index = round(source_metrics["peak_ms"] * rate / 1000)
+        bound = row["constraints"]
+        minimum = min(max(float(bound["min_peak_ms"]), RULES["minimum_pre_peak_ms"]), source_metrics["peak_ms"])
+        latest = max(0, int(np.floor((source_metrics["peak_ms"] - minimum) * rate / 1000)))
+        needed_ms = max(0.0, source_metrics["perceived_onset_ms"] - bound["max_onset_ms"],
+                        leading_ms(samples, rate) - RULES["leading_limit_ms"],
+                        source_metrics["peak_ms"] - bound["max_peak_ms"] if bound["max_peak_ms"] is not None else 0.0)
+        requested = min(latest, max(row["previous_removed_samples"], int(np.ceil(needed_ms * rate / 1000))))
+        removed, cut_db = quiet_cut(samples, rate, requested, peak_index)
+        rms = envelope(samples, rate)
+        quiet = np.flatnonzero(np.max(np.abs(samples[:latest + 1]), axis=1) <=
+                               rms[peak_index] * 10 ** (-RULES["cut_below_peak_db"] / 20))
+        earliest = max(0, int(np.ceil((source_metrics["peak_ms"] - bound["max_peak_ms"]) * rate / 1000))) if bound["max_peak_ms"] is not None else 0
+        nearby = quiet[quiet >= earliest]
+        candidates = list(dict.fromkeys([removed] + ([int(nearby[-1])] if len(nearby) else []) +
+            ([int(nearby[index]) for index in np.linspace(len(nearby) - 1, 0, min(MAX_HEAD_CANDIDATES, len(nearby))).astype(int)] if len(nearby) else [])))
+        # Codec quantization can change which near-equal local peak reaches the
+        # 2 dB threshold. Search only source-safe quiet cuts, never later peaks.
+        path = root / "assets/audio/sfx/cues" / row["path"]
+        best = None
+        with tempfile.TemporaryDirectory(prefix="sfx-sync-", dir=root / "output/sfx") as temporary:
             rebuilt = Path(temporary) / path.name
-            for attempt in range(MAX_ENCODER_PASSES):
-                attempted_heads.add(removed)
-                trimmed = trim_samples(samples, rate, removed)
-                encode(rebuilt, trimmed * 10 ** (restore_gain_db / 20), rate, "ogg")
-                actual, actual_rate = decode(rebuilt)
-                metrics = envelope_times(actual, actual_rate)
-                measured_loudness = short_loudness(rebuilt)
-                if needs_trim(metrics, bound):
-                    correction = max(0.0, metrics["perceived_onset_ms"] - bound["max_onset_ms"],
-                                     metrics["peak_ms"] - bound["max_peak_ms"] if bound["max_peak_ms"] is not None else 0.0)
-                    corrected = removed + max(1, int(np.ceil(correction * rate / 1000)))
-                    # Nearly equal peaks in a retained tail can exchange rank
-                    # after Vorbis encoding. Search only legal head positions;
-                    # never chase a later encoded peak by clipping the original
-                    # transient or shortening the tail.
-                    if corrected <= maximum_removed and corrected not in attempted_heads:
-                        removed = corrected
+            best_path = Path(temporary) / "best.ogg"
+            for candidate in candidates:
+                removed = candidate
+                gain = 0.0
+                for attempt in range(MAX_ENCODER_PASSES):
+                    trimmed = fade_in(samples[removed:].copy(), rate, RULES["fade_ms"]) if removed else samples.copy()
+                    encode(rebuilt, trimmed * 10 ** (gain / 20), rate, "ogg")
+                    actual = measures(rebuilt)
+                    desired_gain = bound["reference_loudness_lufs"] - actual["short_loudness_lufs"]
+                    allowed_gain = min(bound["peak_cap_dbfs"] - actual["peak_dbfs"],
+                                       RULES["true_peak_ceiling_dbtp"] - actual["true_peak_dbtp"])
+                    if allowed_gain >= 0 and (RULES["loudness_delta_lu"][0] <= -desired_gain <= RULES["loudness_delta_lu"][1] or 0 <= allowed_gain <= 0.1 < desired_gain):
+                        break
+                    # Once a cap was hit, only attenuate. Vorbis's quantized
+                    # scalefactors otherwise oscillate around the cap.
+                    if allowed_gain < 0:
+                        gain += allowed_gain - GAIN_MARGIN_DB
                     else:
-                        removed = next((int(candidate) for candidate in candidates if candidate not in attempted_heads), -1)
-                        if removed < 0:
-                            raise LabError(f"Encoded peak cannot align without clipping the transient: {path}")
-                    restore_gain_db = 0.0
+                        gain += min(desired_gain, allowed_gain - GAIN_MARGIN_DB)
+                else:
                     continue
-                if metrics["peak_ms"] < bound["min_peak_ms"]:
-                    removed = next((int(candidate) for candidate in candidates if candidate not in attempted_heads), -1)
-                    if removed < 0:
-                        raise LabError(f"Encoded peak precedes the climax: {path}: {metrics} / {bound}")
-                    restore_gain_db = 0.0
-                    continue
-                encoded_lead = leading_ms(actual, actual_rate)
-                lead_limit = 5.0 if lead_trim else 10.0
-                if encoded_lead > lead_limit:
-                    corrected = removed + max(1, int(np.ceil((encoded_lead - ALIGNMENT_FADE_MS) * rate / 1000)))
-                    if corrected > maximum_removed:
-                        raise LabError(f"Head trim cannot preserve both peak and leading-silence bounds: {path}")
-                    removed = corrected
-                    restore_gain_db = 0.0
-                    continue
-                if abs(measured_loudness - target_loudness) > LOUDNESS_TOLERANCE_LU:
-                    restore_gain_db += target_loudness - measured_loudness
-                    continue
-                if np.max(np.abs(actual)) >= 1:
-                    # Use the permitted ±0.5 LU restoration band to preserve
-                    # headroom; do not add a limiter or change the tail/EQ.
-                    restore_gain_db += float(20 * np.log10(np.nextafter(1.0, 0.0) / np.max(np.abs(actual))))
-                    continue
-                break
-            else:
-                raise LabError(f"Encoded alignment did not converge: {path}")
-            output = copy.deepcopy(previous)
-            output["parent_output_sha256"] = entry["output_sha256"]
-            output["output_sha256"] = sha256(rebuilt)
-            output["processing"]["sfx_04_alignment"] = {
-                "task": "sfx-04", "rule": "director-" + phase_name.removesuffix("_before").replace("_", "-"), "baseline_phase_sha256": phase_sha,
-                "prior_output_sha256": before["sha256"], "removed_samples": previous_removed + removed,
-                "additional_removed_samples": removed, "previous_alignment": alignment,
-                "removed_ms": (previous_removed + removed) * 1000 / rate, "fade_in_ms": ALIGNMENT_FADE_MS,
-                "retained_pre_peak_ms": floating["peak_ms"] - removed * 1000 / rate,
-                "fade_in_curve": "linear", "tail_preserved": True, "constraints": bound,
-                "before": before, "after": {**metrics, "short_loudness_lufs": measured_loudness,
-                                            "leading_ms": leading_ms(actual, actual_rate)},
-                "loudness_restore_gain_db": previous_gain + restore_gain_db,
-                "additional_loudness_restore_gain_db": restore_gain_db,
-                "short_loudness_delta_lu": measured_loudness - target_loudness,
-                "loudness_window_ms": 100.0, "loudness_hop_ms": 25.0,
-                "encoder_passes": attempt + 1,
-            }
-            output["processing"]["output_duration"] = len(actual) / actual_rate
-            output["processing"]["output_lufs"], output["processing"]["output_loudness_method"] = loudness(actual, actual_rate)
-            output["processing"]["output_peak_dbfs"] = float(20 * np.log10(np.max(np.abs(actual))))
-            # Persist provenance with each asset so an interrupted build resumes
-            # from verified records rather than silently accepting unknown audio.
+                score = max(0, minimum - actual["peak_ms"]) if removed else 0
+                score += max(0, actual["peak_ms"] - bound["max_peak_ms"]) if bound["max_peak_ms"] is not None else 0
+                score += max(0, actual["perceived_onset_ms"] - bound["max_onset_ms"])
+                score += max(0, actual["leading_ms"] - RULES["leading_limit_ms"])
+                if best is None or score < best[0]:
+                    cut_db = float(20 * np.log10(max(1e-15, np.max(np.abs(samples[removed]))) / rms[peak_index]))
+                    best = (score, removed, gain, actual, cut_db)
+                    best_path.write_bytes(rebuilt.read_bytes())
+                if score == 0: break
+            if best is None: raise LabError("Encoded peak cap did not converge: " + row["path"])
+            _, removed, gain, actual, cut_db = best
+            rebuilt.write_bytes(best_path.read_bytes())
+            actual["loudness_delta_lu"] = actual["short_loudness_lufs"] - bound["reference_loudness_lufs"]
+            violations = []
+            if actual["peak_dbfs"] > bound["peak_cap_dbfs"] or actual["true_peak_dbtp"] > RULES["true_peak_ceiling_dbtp"]:
+                raise LabError("Peak cap not met: " + row["path"])
+            if actual["perceived_onset_ms"] > bound["max_onset_ms"]: violations.append("perceived onset exceeds cap")
+            if bound["max_peak_ms"] is not None and actual["peak_ms"] > bound["max_peak_ms"]: violations.append("quiet cut retains a late peak")
+            if actual["leading_ms"] > RULES["leading_limit_ms"]: violations.append("leading silence exceeds cap")
+            if not RULES["loudness_delta_lu"][0] <= actual["loudness_delta_lu"] <= RULES["loudness_delta_lu"][1]: violations.append("capped loudness outside allowed window")
+            row.update({"output_sha256": sha256(rebuilt), "removed_samples": removed, "sample_rate": rate,
+                        "source_peak_ms": source_metrics["peak_ms"], "cut_relative_db": cut_db,
+                        "fade_ms": RULES["fade_ms"], "gain_db": gain, "after": actual,
+                        "build": build_id, "constraints_sha256": constraints_digest(row),
+                        "constraint_exceptions": violations})
+            for obsolete in ["rules_sha256", "builder_sha256", "toolchain"]: row.pop(obsolete, None)
             rebuilt.replace(path)
-        outputs[entry["path"]] = output
-        prior.update({"schema_version": 2, "task": "sfx-04", "parent_manifest": str(manifest.relative_to(root)),
-                      "parent_manifest_sha256": sha256(manifest),
-                      "note": "Original recipe and cue levels preserved; only head trims, fades and measured loudness restoration gain are added.",
-                      "outputs": [outputs[key] for key in sorted(outputs)]})
-        write_json(provenance, prior)
-        changed.append(entry["path"])
-        print(f"SFX04 ALIGN {entry['path']}: onset {before['perceived_onset_ms']:.3f} -> {metrics['perceived_onset_ms']:.3f} ms; "
-              f"peak {before['peak_ms']:.3f} -> {metrics['peak_ms']:.3f} ms; loudness delta {measured_loudness - target_loudness:+.3f} LU", flush=True)
-    print(f"SFX04 ALIGN RESULT: PASS ({len(changed)} rebuilt; {len(outputs)} provenance records)")
+        # Every completed asset is restartable; interrupted work never adopts
+        # unrecognized bytes as provenance. Original constraints remain intact.
+        write_provenance(provenance, prior)
+        print(f"SFX04 REBUILD {row['path']}: cut {row['previous_removed_samples']} -> {removed}; "
+              f"peak {actual['peak_ms']:.3f} ms; loudness {actual['loudness_delta_lu']:+.3f} LU; "
+              f"sample {actual['peak_dbfs']:.3f} dBFS / true {actual['true_peak_dbtp']:.3f} dBTP" +
+              ("; " + "; ".join(violations) if violations else ""), flush=True)
+    print(f"SFX04 BUILD RESULT: PASS ({len(pending)} rebuilt; peak caps verified; inspect constraint exceptions)")
     return prior

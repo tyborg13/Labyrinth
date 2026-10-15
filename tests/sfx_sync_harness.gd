@@ -1,5 +1,6 @@
 extends SceneTree
 
+const Lengths = preload("res://tests/sfx_sync_audio_lengths.gd")
 const Alignment = preload("res://scripts/sfx_peak_alignment.gd")
 const Clock = preload("res://tests/sfx_sync_clock.gd")
 const FixedPacing = preload("res://tests/sfx_sync_pacing.gd")
@@ -35,12 +36,31 @@ var measured_samples: Dictionary = {}
 var assert_onsets: bool = false
 var supplied_sources: Dictionary = {}
 var source_hashes: Dictionary = {}
+var combat_scale: float = 1.0
+var length_failures: Array[String]
 
 func _initialize() -> void:
 	ParallelRuntime.apply_from_environment()
 	call_deferred("_run")
 
 func _run() -> void:
+	var scales: Array[float]
+	scales.assign([1.0, 1.5, 2.0])
+	for argument: String in OS.get_cmdline_user_args():
+		if argument.begins_with("--speed="): scales.assign([float(argument.trim_prefix("--speed="))])
+	for speed: float in scales:
+		combat_scale = speed
+		await _run_scale()
+	if not measured_samples.is_empty(): Lengths.verify(measured_samples, length_failures)
+	failures.append_array(length_failures)
+	_write_report()
+	for failure: String in failures: push_error(failure)
+	print("SFX SYNC HARNESS RESULT: %s (%d observations, %d failures)" % ["PASS" if failures.is_empty() else "FAIL", rows.size(), failures.size()])
+	quit(0 if failures.is_empty() else 1)
+
+func _run_scale() -> void:
+	clock = Clock.new()
+	var first_row: int = rows.size()
 	for argument: String in OS.get_cmdline_user_args():
 		if argument.begins_with("--samples="):
 			measured_samples = JSON.parse_string(FileAccess.get_file_as_string(argument.trim_prefix("--samples=")))
@@ -61,6 +81,7 @@ func _run() -> void:
 	var instrumented: String = source.replace("Time.get_ticks_usec()", "_sfx_sync_clock.usec").replace("Time.get_ticks_msec()", "int(_sfx_sync_clock.usec / 1000)")
 	instrumented = instrumented.replace('const SfxBankScript = preload("res://scripts/sfx_bank.gd")', 'var SfxBankScript: Script')
 	instrumented = instrumented.replace('const SfxCueRouterScript = preload("res://scripts/sfx_cue_router.gd")', 'var SfxCueRouterScript: Script')
+	instrumented = instrumented.replace("get_process_delta_time() * 1000.0 / maxf(Engine.time_scale, 0.001)", "float(_sfx_sync_clock.FRAME_USEC) / 1000.0")
 	instrumented = instrumented.replace("get_tree().create_timer(", "_sfx_sync_clock.create_timer(")
 	instrumented = instrumented.replace("\tboard_view.present_sound_snapshot(display_state, presentation)", "\t_sfx_sync_clock.render(display_state, presentation, get_stack()); board_view.present_sound_snapshot(display_state, presentation)")
 	instrumented += "\nvar _sfx_sync_clock: RefCounted\n"
@@ -99,22 +120,20 @@ func _run() -> void:
 	scene.call("_ensure_sfx_bank")
 	bank = scene.get("_sfx_bank")
 	clock.bank = bank
-	bank.set_test_clock(clock.usec / 1000)
+	bank.set_test_clock(float(clock.usec) / 1000.0)
 	router = scene.get("_sfx_router")
 	bank.cue_requested.connect(_record)
+	Engine.time_scale = combat_scale
 	_drive_actions()
 	_drive_presentations()
 	_drive_support()
-	if assert_onsets: Coverage.verify(rows, silence_rows, bank.data["cues"], failures)
-	_write_report()
+	if assert_onsets: Coverage.verify(rows.slice(first_row), silence_rows, bank.data["cues"], failures)
 	clock.observing = false
 	clock.timers.clear()
 	bank.cue_requested.disconnect(_record)
 	scene.queue_free()
 	await process_frame
-	for failure: String in failures: push_error(failure)
-	print("SFX SYNC HARNESS RESULT: %s (%d observations, %d failures)" % ["PASS" if failures.is_empty() else "FAIL", rows.size(), failures.size()])
-	quit(0 if failures.is_empty() else 1)
+	Engine.time_scale = 1.0
 
 func _record(cue: String, result: String) -> void:
 	if not clock.observing or not bank.data["cues"].has(cue): return
@@ -134,7 +153,7 @@ func _record(cue: String, result: String) -> void:
 			aligned["fade_and_tail_verified"] = played["alignment"]["fade_and_tail_verified"]
 			var path: String = ProjectSettings.globalize_path(_report_path()).get_base_dir().path_join("sfx-sync-pcm-%d-%d.wav" % [rows.size(), events.size()])
 			(played["stream"] as AudioStreamWAV).save_to_wav(path)
-			aligned["pcm_path"] = path
+			aligned["pcm_path"] = path.trim_prefix(ProjectSettings.globalize_path("res://"))
 			sample = str(paths[int(played["selected"]["sample_index"])])
 	var targets: Dictionary = router.get("_merged_hits")
 	var target_key: String = str(targets.keys().back()) if not targets.is_empty() else ""
@@ -145,6 +164,8 @@ func _record(cue: String, result: String) -> void:
 func _begin(label: String) -> void:
 	clock.observing = false
 	scene.get("_combat_pacing").end_scope()
+	Engine.time_scale = combat_scale
+	scene.get("_combat_pacing").set("_base_scale", combat_scale)
 	scene.get("_intent_callouts").set("_announced", {})
 	clock.step(self, CASE_GAP_USEC)
 	scene.get("_intent_callouts").set("_announced", {})
@@ -293,7 +314,7 @@ func _finish(before: Dictionary) -> void:
 		occurrences[cue] = occurrence + 1
 		var anchor: Dictionary = _anchor(cue, before, event, occurrence)
 		var climax: Dictionary = Visuals.climax(str(event["cue"]), clock.frames, anchor)
-		rows.append({"scenario": scenario, "cue": event["cue"], "result": event["result"],
+		rows.append({"speed": combat_scale, "scenario": scenario, "cue": event["cue"], "result": event["result"],
 			"play_ms": event["play_ms"], "anchor_ms": anchor.get("time_ms"),
 			"delay_ms": float(event["play_ms"]) - float(anchor["time_ms"]) if not anchor.is_empty() else null,
 			"stack": event["stack"], "anchor_stack": anchor.get("stack", []),
@@ -323,7 +344,7 @@ func _assert_onset(row: Dictionary) -> void:
 			failures.append("Missing aligned visual climax: " + scenario)
 		else:
 			var relative: float = delay + peak - float(row["climax_after_trigger_ms"])
-			if relative < 0.0 or relative > 30.0: failures.append("Per-call RMS peak outside climax + 0..30 ms: %s / %s (%.3f)" % [scenario, cue, relative])
+			if absf(relative - float(Alignment.Rules.config()["target_lag_ms"])) > float(Alignment.Rules.config()["aligned_tolerance_ms"]): failures.append("Per-call RMS peak outside climax + 15 ±1 ms: %s / %s (%.3f)" % [scenario, cue, relative])
 		if peak < 15.0 - 1000.0 / float(aligned["rate"]) / pitch: failures.append("Head skip retained less than 15 ms before peak: " + scenario)
 		if float(aligned["metrics"]["perceived_onset_ms"]) / pitch > Visuals.onset_cap(cue): failures.append("Aligned perceived onset exceeds cap from scheduled start: " + scenario)
 		return
@@ -392,11 +413,14 @@ func _anchor(cue: String, before: Dictionary, event: Dictionary = {}, occurrence
 				if tile != previous_tile:
 					segment += 1
 					previous_tile = tile
+				# Faster playback may skip the exact waypoint frame. The first
+				# submission beyond that waypoint is the observed arrival.
+				if segment > occurrence and cue.begins_with("step."): return frame
 				if segment != occurrence: continue
 				var goal: Vector2 = walk_goals.get(tile, walk_goal)
 				if cue == "dragon.wings" or (shown["unit_world_positions"].get(walk_actor, Vector2.INF) as Vector2).is_equal_approx(goal): return frame
 		elif cue in ["vocal.beast", "dragon.roar", "push.slide"]:
-			if shown.has("effect") or shown.has("focus_actor_keys"): return frame
+			if shown.has("effect") or shown.has("focus_actor_keys") or (cue == "dragon.roar" and event.get("alignment", {}).is_empty()): return frame
 		elif cue.begins_with("pickup."):
 			if state.get("loot", []) != before.get("loot", []): return frame
 	return {}
@@ -410,7 +434,7 @@ func _report_path() -> String:
 func _write_report() -> void:
 	var path: String = _report_path()
 	var file := FileAccess.open(path, FileAccess.WRITE)
-	file.store_string(JSON.stringify({"rows": rows, "silences": silence_rows, "failures": failures, "frame_usec": Clock.FRAME_USEC, "source_sha256": source_hashes}, "\t"))
+	file.store_string(JSON.stringify({"rows": rows, "silences": silence_rows, "failures": failures, "length_failures": length_failures, "frame_usec": Clock.FRAME_USEC, "speed": combat_scale, "source_sha256": source_hashes}, "\t"))
 	print("SFX_SYNC_TRACE=" + ProjectSettings.globalize_path(path))
 
 func _verify_faded_pcm(played: Dictionary) -> void:

@@ -27,7 +27,7 @@ var _loop_cursor: int = 0
 var _serial: int = 0
 var _peak_pending: Array[Dictionary]
 var last_play: Dictionary = {}
-var _clock_ms: int = -1
+var _clock_ms: float = -1.0
 var _host: Node
 var _legacy_options: Dictionary = {"gain_db": 0.0, "duration": -1.0}
 const EMPTY_OPTIONS: Dictionary = {}
@@ -39,8 +39,8 @@ func warm_up(host: Node = null, source: Dictionary = {}, seed_value: int = -1) -
 	data = source if not source.is_empty() else JSON.parse_string(FileAccess.get_file_as_string(DATA_PATH))
 	for cue_id: String in data.get("cues", {}):
 		_compile(cue_id, data["cues"][cue_id], seed_value)
-	for cue: String in ["move.blink", "dragon.roar"]:
-		if cues.has(cue):
+	for cue: String in cues:
+		if bool(cues[cue]["entry"].get("sync_warm_up", false)):
 			for stream: AudioStream in cues[cue]["streams"]: PeakAlignment.decoded(stream)
 	for index: int in range(2):
 		var player := AudioStreamPlayer.new()
@@ -103,14 +103,17 @@ func _legacy_volume(path: String, default_db: float) -> float:
 	if path == "res://assets/audio/sfx/item_equip.wav": return -1.0
 	return default_db
 
-func set_test_clock(milliseconds: int) -> void:
+func set_test_clock(milliseconds: float) -> void:
 	_clock_ms = milliseconds
 
 func now_ms() -> int:
-	return _clock_ms if _clock_ms >= 0 else Time.get_ticks_msec()
+	return int(_clock_ms) if _clock_ms >= 0 else Time.get_ticks_msec()
+
+func _precise_ms() -> float:
+	return _clock_ms if _clock_ms >= 0 else float(Time.get_ticks_usec()) / 1000.0
 
 func frame_id() -> int:
-	return _clock_ms if _clock_ms >= 0 else Engine.get_process_frames()
+	return int(_clock_ms) if _clock_ms >= 0 else Engine.get_process_frames()
 
 func play(cue_id: String, opts: Dictionary = EMPTY_OPTIONS) -> float:
 	if cues.is_empty(): warm_up()
@@ -120,6 +123,9 @@ func play(cue_id: String, opts: Dictionary = EMPTY_OPTIONS) -> float:
 		return 0.0
 	var state: Dictionary = cues[cue_id]
 	var entry: Dictionary = state["entry"]
+	if bool(entry.get("sync_contact_alignment", false)) and not opts.has("peak_climax_ms"):
+		opts = opts.duplicate()
+		opts["peak_climax_ms"] = 0.0
 	state["requests"] += 1
 	var now: int = now_ms()
 	if not bool(opts.get("area_instance", false)) and now - int(state["last_ms"]) < int(entry.get("cooldown_ms", 0)):
@@ -143,6 +149,8 @@ func play(cue_id: String, opts: Dictionary = EMPTY_OPTIONS) -> float:
 		var alignment: Dictionary = PeakAlignment.plan(resource, pitch, float(opts["peak_climax_ms"]))
 		selected["alignment"] = alignment
 		selected["due_ms"] = now + float(alignment["delay_ms"])
+		selected["remaining_ms"] = float(alignment["delay_ms"])
+		selected["last_advance_ms"] = _precise_ms()
 		if float(alignment["delay_ms"]) > 0.0:
 			_peak_pending.append({"cue": cue_id, "selected": selected, "opts": opts.duplicate()})
 			return resource.get_length() / pitch + float(alignment["delay_ms"]) / 1000.0
@@ -171,7 +179,7 @@ func _start_selected(cue_id: String, selected: Dictionary, opts: Dictionary) -> 
 			return 0.0
 		if not alignment.is_empty():
 			# Compensate a scheduler tick's overshoot without moving the target peak.
-			var skip: float = float(alignment["skip_ms"]) + maxf(0.0, now - float(selected["due_ms"])) * pitch
+			var skip: float = float(alignment["skip_ms"]) + float(selected.get("late_ms", 0.0)) * pitch
 			var trimmed: Dictionary = PeakAlignment.trimmed(resource, pitch, skip)
 			resource = trimmed["stream"]
 			alignment.merge(trimmed)
@@ -253,8 +261,22 @@ func _process(delta: float) -> void:
 
 func advance(delta: float) -> void:
 	var due: Array[Dictionary]
+	# _process is paused with the scene. Hit-stop supplies zero visual delta;
+	# neither case consumes the active wall-time delay or catches up on resume.
+	var active: bool = Engine.time_scale > 0.0 and (not is_inside_tree() or not get_tree().paused)
+	var clock: float = _precise_ms()
 	for pending: Dictionary in _peak_pending:
-		if now_ms() >= float(pending["selected"]["due_ms"]): due.append(pending)
+		var selected: Dictionary = pending["selected"]
+		if active:
+			# A request can arrive before this node's process callback. Do not
+			# charge it time from the preceding frame. Clamp resumed wall time
+			# to the active delta so a paused interval cannot release the cue.
+			var elapsed: float = minf(maxf(0.0, clock - float(selected["last_advance_ms"])), delta * 1000.0 / Engine.time_scale)
+			selected["remaining_ms"] -= elapsed
+			if float(selected["remaining_ms"]) <= 0.0:
+				selected["late_ms"] = -float(selected["remaining_ms"])
+				due.append(pending)
+		selected["last_advance_ms"] = clock
 	for pending: Dictionary in due:
 		_peak_pending.erase(pending)
 		_start_selected(pending["cue"], pending["selected"], pending["opts"])

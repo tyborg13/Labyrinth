@@ -244,9 +244,9 @@ def encode_verified(path: Path, data: np.ndarray, rate: int, parameters: dict,
             "loudness_target_limited_by_peak_cap": parameters["peak_cap_applied"],
             "codec": "libvorbis" if codec == "ogg" else "libmp3lame",
             "encoder_backend": "libsndfile" if codec == "ogg" else "ffmpeg",
-            "muxer": "ffmpeg",
+            "muxer": "libsndfile + Ogg serial/CRC normalization" if codec == "ogg" else "ffmpeg",
             "quality": 6 if codec == "ogg" else 4, "sample_rate": OUTPUT_RATE,
-            "encoder_threads": 2, "bitexact": True,
+            "encoder_threads": 1 if codec == "ogg" else 2, "bitexact": True,
             "ogg_serial_offset": 0 if codec == "ogg" else None}
 
 

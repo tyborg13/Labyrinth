@@ -1,6 +1,7 @@
 extends RefCounted
 
 const Dragon = preload("res://scripts/dragon_presentation.gd")
+const Rules = preload("res://scripts/sfx_sync_rules.gd")
 const Fx = preload("res://scripts/attack_fx_library.gd")
 
 # The trigger is the first associated visual/input response. The climax is a
@@ -56,5 +57,5 @@ static func _at(frame: Dictionary, kind: String) -> Dictionary:
 
 static func onset_cap(cue: String) -> float:
 	if cue.begins_with("move.") or cue.begins_with("step.") or cue.begins_with("cast.") or cue.begins_with("spell.") or cue.begins_with("shot.") or cue.begins_with("swing.") or cue.begins_with("vocal.") or cue in ["dragon.roar", "dragon.wings", "push.slide", "illusion.spawn", "illusion.break", "radiance.light"]:
-		return 60.0
-	return 40.0
+		return float(Rules.config()["onset_caps_ms"]["motion"])
+	return float(Rules.config()["onset_caps_ms"]["fast"])

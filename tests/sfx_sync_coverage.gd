@@ -1,6 +1,6 @@
 extends RefCounted
 
-const REPORT: String = "res://spec/peer_benchmark/staged/sfx/sync_audit.json"
+const REPORT: String = "res://spec/peer_benchmark/staged/sfx/sync_baseline.json"
 const ROUTER: String = "scripts/sfx_cue_router.gd"
 const RUN: String = "scripts/run_scene.gd"
 
@@ -9,14 +9,14 @@ const RUN: String = "scripts/run_scene.gd"
 # function + statement, so comments and unrelated line shifts remain harmless.
 static func measured_samples(failures: Array[String]) -> Dictionary:
 	var report: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(REPORT))
-	var samples: Dictionary = report["after"]["samples"]
+	var samples: Dictionary = report["samples"]
 	for path: String in samples:
 		if FileAccess.get_sha256(path) != str(samples[path]["sha256"]):
 			failures.append("Audio changed; refresh sound-lab measurements: " + path)
 	return samples
 
 static func identity(site: Dictionary) -> String:
-	return "%s|%s|%s" % [site["file"], site["function"], str(site.get("snippet", site["code"])).strip_edges()]
+	return "%s|%s|%s" % [site["file"], site["function"], RegEx.create_from_string("\\s+").sub(str(site["code"]).strip_edges(), " ", true)]
 
 static func _scripts(directory: String, result: Array[String]) -> void:
 	for file: String in DirAccess.get_files_at(directory):
@@ -35,23 +35,19 @@ static func inventory(cues: Dictionary) -> Dictionary:
 	var result: Dictionary = {}
 	for path: String in paths:
 		var function: String = ""
-		var context: Array[String]
 		var lines: PackedStringArray = FileAccess.get_file_as_string(path).split("\n")
 		for index: int in range(lines.size()):
 			var found: RegExMatch = declaration.search(lines[index])
 			if found != null:
 				function = found.get_string(1)
-				context.clear()
 			var code: String = lines[index].get_slice("#", 0).strip_edges()
 			var file: String = path.trim_prefix("res://")
 			var relevant: bool = request.search(code) != null if file == ROUTER else trigger.search(code) != null
 			if file != ROUTER:
 				var call: RegExMatch = literal.search(code)
 				if call != null and cues.has(call.get_string(1)): relevant = true
-			var snippet: String = "\n".join(context.slice(maxi(0, context.size() - 2))) + ("\n" if not context.is_empty() else "") + code
-			if not code.is_empty(): context.append(code)
 			if not relevant or (file == RUN and function == "_play_sfx"): continue
-			result[file + ":" + str(index + 1)] = {"file": file, "function": function, "code": code, "snippet": snippet, "dormant": file == ROUTER and function == "ambience"}
+			result[file + ":" + str(index + 1)] = {"file": file, "function": function, "code": code, "dormant": file == ROUTER and function == "ambience"}
 	return result
 
 static func _location(frame: Dictionary) -> String:
@@ -68,7 +64,7 @@ static func _counts(rows: Array) -> Dictionary:
 	return result
 
 static func verify(rows: Array[Dictionary], silences: Array[Dictionary], cues: Dictionary, failures: Array[String]) -> void:
-	var report: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(REPORT))["after"]
+	var report: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(REPORT))
 	var sites: Dictionary = inventory(cues)
 	var visited: Dictionary = {}
 	var pairs: Dictionary = {}
@@ -84,15 +80,19 @@ static func verify(rows: Array[Dictionary], silences: Array[Dictionary], cues: D
 	for site: Dictionary in sites.values():
 		if not bool(site["dormant"]) and not visited.has(identity(site)):
 			failures.append("Uncovered live call site: " + identity(site))
-	for row: Dictionary in report["rows"]:
-		var key: String = str(row["cue"]) + "|" + identity(row["call_site"])
+	for row: Array in report["cue_site_pairs"]:
+		var key: String = "|".join(row)
 		if not pairs.has(key): failures.append("Cue × call-site coverage shrank: " + key)
 	for cue: String in cues:
 		if not covered.has(cue): failures.append("Uncovered registered cue: " + cue)
-	var expected: Dictionary = _counts(report["observations"])
+	var speed: float = float(rows[0].get("speed", 1.0)) if not rows.is_empty() else 1.0
+	var speed_index: int = (report["speeds"] as Array).find(speed)
 	var actual: Dictionary = _counts(rows)
-	for key: String in expected:
-		if int(actual.get(key, 0)) < int(expected[key]): failures.append("Observation coverage shrank: " + key)
+	if speed_index < 0:
+		failures.append("Unbaselined combat speed: " + str(speed))
+	else:
+		for key: String in report["observation_counts"]:
+			if int(actual.get(key, 0)) < int(report["observation_counts"][key][speed_index]): failures.append("Observation coverage shrank: " + key)
 	for old: Dictionary in report.get("silences", []):
 		if not silences.any(func(row: Dictionary) -> bool: return row["scenario"] == old["scenario"] and int(row["frames"]) > 0 and int(row["requests"]) == 0):
 			failures.append("Silent visual coverage shrank: " + str(old["scenario"]))

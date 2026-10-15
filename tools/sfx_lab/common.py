@@ -465,16 +465,47 @@ def normalize(data: np.ndarray, rate: int, target: float, peak_target: float | N
                     "input_peak_dbfs": peak, "peak_cap_applied": adjustment < requested_adjustment}
 
 
+def stable_ogg_serial(data: bytes) -> bytes:
+    """Set a deterministic serial without remuxing or changing EOS granules.
+
+    Some FFmpeg packet-copy remuxes wrap a negative short-stream timestamp into
+    a huge end granule. Ogg serials and their page CRC are the only random bytes
+    in libsndfile's Vorbis output, so preserve every audio packet and granule.
+    """
+    table = []
+    for index in range(256):
+        value = index << 24
+        for _ in range(8):
+            value = ((value << 1) ^ (0x04C11DB7 if value & 0x80000000 else 0)) & 0xFFFFFFFF
+        table.append(value)
+    result = bytearray(data)
+    offset = 0
+    while offset < len(result):
+        if result[offset:offset + 4] != b"OggS" or offset + 27 > len(result):
+            raise LabError("Malformed Ogg page header")
+        segments = result[offset + 26]
+        end = offset + 27 + segments + sum(result[offset + 27:offset + 27 + segments])
+        if end > len(result):
+            raise LabError("Truncated Ogg page")
+        result[offset + 14:offset + 18] = bytes(4)
+        result[offset + 22:offset + 26] = bytes(4)
+        checksum = 0
+        for byte in result[offset:end]:
+            checksum = ((checksum << 8) & 0xFFFFFFFF) ^ table[((checksum >> 24) ^ byte) & 255]
+        result[offset + 22:offset + 26] = checksum.to_bytes(4, "little")
+        offset = end
+    return bytes(result)
+
+
 def encode(path: Path, data: np.ndarray, rate: int, codec: str) -> None:
     path = safe_path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    # FFmpeg bitexact makes Ogg use a stable serial rather than random seeds.
-    # Both input and output threads are fixed, with no inherited metadata.
+    # Keep encoding deterministic without changing Vorbis end granules.
     with tempfile.NamedTemporaryFile(dir=path.parent, suffix="." + codec) as temporary:
         if codec == "ogg":
             # PATH's minimal FFmpeg lacks libvorbis. The approved soundfile
             # dependency already ships it through libsndfile; encode q6 here,
-            # then bitexact-remux to remove libsndfile's random Ogg serial.
+            # then rewrite only the Ogg serial and CRC; preserve EOS sample counts.
             with tempfile.NamedTemporaryFile(dir=path.parent, suffix=".ogg") as intermediate:
                 with sf.SoundFile(intermediate.name, mode="w", samplerate=rate,
                                   channels=data.shape[1], format="OGG", subtype="VORBIS") as audio:
@@ -484,9 +515,7 @@ def encode(path: Path, data: np.ndarray, rate: int, codec: str) -> None:
                     if result != sf._snd.SF_TRUE:
                         raise LabError("libsndfile cannot set Vorbis q6")
                     audio.write(data)
-                command(["ffmpeg", "-v", "error", "-y", "-threads", "2", "-i", intermediate.name,
-                         "-map_metadata", "-1", "-fflags", "+bitexact", "-flags:a", "+bitexact",
-                         "-threads", "2", "-c:a", "copy", "-serial_offset", "0", temporary.name])
+                Path(temporary.name).write_bytes(stable_ogg_serial(Path(intermediate.name).read_bytes()))
         elif codec == "mp3":
             command(["ffmpeg", "-v", "error", "-y", "-threads", "2", "-f", "f32le",
                      "-ar", str(rate), "-ac", str(data.shape[1]), "-i", "pipe:0",

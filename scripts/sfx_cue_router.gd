@@ -71,6 +71,9 @@ var _blink_signature: String = ""
 var _blink_progress: float = -1.0
 var _impact_count: int = 0
 var _impact_frame: int = -1
+var _impact_cues: Dictionary = {}
+var _animation_scale: float = 1.0
+var _animation_wall_frame_ms: float = 0.0
 var _action_serial: int = 0
 var _fight_key: String = ""
 var _deck: Dictionary = {}
@@ -170,6 +173,7 @@ func begin_action(before: Dictionary, action: Dictionary, actor: Dictionary, wea
 	_action_serial += 1
 	_impact_count = 0
 	_impact_frame = -1
+	_impact_cues.clear()
 	_collisions.clear()
 	_merged_hits.clear()
 	_resolved = false
@@ -186,7 +190,7 @@ func begin_action(before: Dictionary, action: Dictionary, actor: Dictionary, wea
 	# Waiting for a damage/impact snapshot put this layer after the cast visual.
 	if family == "dragon" and (not _dragons.has(actor_key) or kind in ["aoe", "lightning_strikes"]):
 		_dragons[actor_key] = true
-		_roar_pending = not Dragon.profile(action, actor).is_empty()
+		_roar_pending = _has_profiled_presentation(action)
 		if not _roar_pending: request("dragon.roar")
 	if kind == "umbra_eclipse": request("spell.shadow")
 	if kind not in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "detonate", "all_enemies", "burst_terrain", "destroy_illusion"]: return
@@ -197,6 +201,16 @@ func begin_action(before: Dictionary, action: Dictionary, actor: Dictionary, wea
 	wind_up(action, actor, weapon)
 	if int(action.get("push", 0)) > 0 or int(action.get("pull", 0)) > 0: push()
 
+# These paths return through dedicated views without submitting a profiled
+# effect. Their first-action roar remains attached to the action start.
+func _has_profiled_presentation(action: Dictionary) -> bool:
+	if Dragon.profile(action).is_empty() or bool(action.get("hidden_by_umbra", false)): return false
+	for key: String in ["en05_after", "en04_mechanic", "en02_mechanic", "guardian_board_after"]:
+		if action.has(key): return false
+	if bool(action.get("en03_veil", false)) or bool(action.get("en06_mirror", false)): return false
+	if str(action.get("action_type", "")) in ["chain_discharge", "tether_beam"]: return false
+	return str(action.get("kind", action.get("type", ""))) in ["melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "umbra_eclipse", "summon", "block", "heal", "stoneskin", "status"]
+
 func wind_up(action: Dictionary, actor: Dictionary = {}, weapon: String = "") -> void:
 	var kind: String = str(action.get("type", action.get("kind", "")))
 	var element: String = str(action.get("element", action.get("_card_element", "none")))
@@ -204,9 +218,9 @@ func wind_up(action: Dictionary, actor: Dictionary = {}, weapon: String = "") ->
 	if kind == "melee" or (kind == "aoe" and str(action.get("aim", "")) == "facing"):
 		request("swing.heavy" if attack_family(action, actor, weapon) == "blunt" or int(action.get("damage", action.get("amount", 0))) >= 6 else "swing.light")
 
-func release(action: Dictionary, actor: Dictionary = {}, weapon: String = "") -> void:
+func release(action: Dictionary, actor: Dictionary = {}, weapon: String = "", climax_ms: float = -1.0) -> void:
 	var cue: String = release_cue(action, actor, weapon)
-	if not cue.is_empty(): request(cue)
+	if not cue.is_empty(): request(cue, {"peak_climax_ms": climax_ms} if cue == "cast.arcane" and climax_ms >= 0.0 else {})
 
 func release_cue(action: Dictionary, actor: Dictionary = {}, weapon: String = "") -> String:
 	var kind: String = str(action.get("type", action.get("kind", "")))
@@ -230,15 +244,18 @@ func hit(action: Dictionary, actor: Dictionary, weapon: String, target_before: D
 	_merged_hits[key] = now
 	var cue: String = impact_cue(action, actor, weapon, target_before, hp_loss, absorbed, _collisions.has(key))
 	var frame: int = bank.frame_id() if bank != null else Engine.get_process_frames()
-	# One contact voice per rendered frame. Later contact frames retain the
-	# authored optional -6 dB layers and three-voice cap, without a delay queue.
+	# Collapse identical cues on one frame; a blocked and a damaging contact
+	# remain audible together. Additional distinct contacts retain -6 dB layering.
 	if frame != _impact_frame:
+		_impact_cues.clear()
+		_impact_frame = frame
+	if not _impact_cues.has(cue):
+		_impact_cues[cue] = true
 		if _impact_count == 0:
 			request(cue, {"gain_db": gain_db})
 		elif _impact_count <= 2 and bank != null:
 			request(cue, {"gain_db": gain_db + AREA_GAIN_DB, "area_instance": true})
 		_impact_count += 1
-		_impact_frame = frame
 	if hp_loss > 0 and int(target_before.get("block", 0)) > 0 and int(target_after.get("block", 0)) == 0: request("block.break")
 	if hp_loss >= 5 and str(target_before.get("type", "player")) == "player": request("hurt.hero")
 
@@ -302,9 +319,20 @@ func baseline(state: Dictionary) -> void:
 		var name: String = str(GameData.relic_def(id).get("name", ""))
 		if not name.is_empty(): _relic_names.append(name)
 
-func begin_animation(frame_count: int, frame_seconds: float) -> void:
+func begin_animation(frame_count: int, frame_seconds: float, effective_scale: float = 1.0, wall_frame_ms: float = 0.0) -> void:
+	_animation_wall_frame_ms = wall_frame_ms
+	_animation_scale = maxf(effective_scale, 0.001)
 	_animation_frames = frame_count
 	_animation_frame_ms = round(frame_seconds * 1000000.0) / 1000.0
+
+func _wall_climax_ms(visual_ms: float) -> float:
+	var wall_ms: float = visual_ms / _animation_scale
+	# Timed animations submit on process frames. Include that same final tick
+	# when converting the authored deadline; a raw division is early by up to
+	# one frame at 1.5x/2x. The observed frame interval supplies the prediction.
+	if _animation_wall_frame_ms > 0.0:
+		wall_ms = ceil(wall_ms / _animation_wall_frame_ms - 0.00001) * _animation_wall_frame_ms
+	return wall_ms
 
 func presentation(state: Dictionary, shown: Dictionary) -> void:
 	var effect: Dictionary = shown.get("effect", {})
@@ -312,12 +340,14 @@ func presentation(state: Dictionary, shown: Dictionary) -> void:
 		_roar_pending = false
 		var release: float = Dragon.RELEASE if str(Dragon.profile(effect).get("geometry", "")) == "breath" else Dragon.CONTACT
 		var current_frame: int = roundi(float(shown.get("effect_progress", 0.0)) * _animation_frames)
-		var climax_ms: float = maxi(0, ceili(release * _animation_frames) - current_frame) * _animation_frame_ms
+		var climax_ms: float = _wall_climax_ms(maxi(0, ceili(release * _animation_frames) - current_frame) * _animation_frame_ms)
 		request("dragon.roar", {"peak_climax_ms": climax_ms})
 	if str(effect.get("kind", "")) == "blink" and str(effect.get("actor_key", "player")) == "player" and not bool(effect.get("preview", false)):
 		var signature: String = str(effect)
 		var progress: float = float(shown.get("effect_progress", 0.0))
-		if signature != _blink_signature or progress < _blink_progress: blink()
+		if signature != _blink_signature or progress < _blink_progress:
+			# The destination appears after the final authored frame interval.
+			blink(_wall_climax_ms((_animation_frames + 1 - roundi(progress * _animation_frames)) * _animation_frame_ms))
 		_blink_signature = signature
 		_blink_progress = progress
 	else:
@@ -326,10 +356,12 @@ func presentation(state: Dictionary, shown: Dictionary) -> void:
 	if not effect.is_empty() and not _released and str(effect.get("kind", "")) in ["ranged", "aoe"]:
 		var style: String = Fx.style_for_effect(effect)
 		var release_progress: float = 0.18 if style == Fx.STYLE_DEFAULT else Fx.anticipation_end_progress(style)
-		# Arcane audio belongs to the first cast visual; physical shots still
-		# accompany their projectile's existing release frame.
-		if release_cue(_action, _actor, _weapon) == "cast.arcane": release_progress = 0.0
-		if float(shown.get("effect_progress", 0.0)) >= release_progress:
+		var current_frame: int = roundi(float(shown.get("effect_progress", 0.0)) * _animation_frames)
+		if release_cue(_action, _actor, _weapon) == "cast.arcane":
+			var climax_ms: float = _wall_climax_ms(maxi(0, ceili(release_progress * _animation_frames) - current_frame) * _animation_frame_ms)
+			release(_action, _actor, _weapon, climax_ms)
+			_released = true
+		elif float(shown.get("effect_progress", 0.0)) >= release_progress:
 			release(_action, _actor, _weapon)
 			_released = true
 	var chain_hop: bool = int(effect.get("chain_index", 0)) > 0

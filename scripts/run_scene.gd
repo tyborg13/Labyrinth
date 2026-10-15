@@ -23353,7 +23353,7 @@ func _play_timed_animation_frames(frame_count: int, frame_seconds: float, render
 	var safe_frame_count: int = maxi(0, frame_count)
 	if safe_frame_count == 0 or not render_frame.is_valid():
 		return
-	if _sfx_router != null: _sfx_router.begin_animation(safe_frame_count, frame_seconds)
+	if _sfx_router != null: _sfx_router.begin_animation(safe_frame_count, frame_seconds, _combat_pacing.current_scale(), get_process_delta_time() * 1000.0 / maxf(Engine.time_scale, 0.001))
 	var started_usec: int = Time.get_ticks_usec()
 	var presentation_started_usec: int = _combat_pacing.presentation_usec()
 	var rendered_frames: int = 0

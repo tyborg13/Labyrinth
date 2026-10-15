@@ -2,8 +2,7 @@ extends RefCounted
 
 # Decode each shared approved stream once. Per-call PCM copies preserve its tail;
 # they exist only in memory and live as long as the voice using them.
-const TARGET_MS: float = 15.0
-const FADE_MS: float = 3.0
+const Rules = preload("res://scripts/sfx_sync_rules.gd")
 static var _decoded: Dictionary = {}
 
 static func decoded(stream: AudioStream) -> Dictionary:
@@ -32,7 +31,7 @@ static func decoded(stream: AudioStream) -> Dictionary:
 	return result
 
 static func _window_frames(rate: int) -> int:
-	var exact_window: float = 0.005 * rate
+	var exact_window: float = float(Rules.config()["envelope_window_ms"]) * rate / 1000.0
 	var window: int = maxi(1, floori(exact_window))
 	# Match the audit's nearest-even window rounding (220 frames at 44.1 kHz).
 	if exact_window - window > 0.5 or (is_equal_approx(exact_window - window, 0.5) and window % 2 == 1): window += 1
@@ -51,13 +50,19 @@ static func metrics(pcm: PackedVector2Array, rate: int) -> Dictionary:
 	for index: int in range(pcm.size()):
 		powers[index] = (sums[mini(pcm.size(), index - half + window)] - sums[maxi(0, index - half)]) / window
 		if powers[index] > powers[peak]: peak = index
+	var strongest: int = peak
+	var minimum_power: float = powers[strongest] * pow(10.0, -float(Rules.config()["alignment_peak_within_db"]) / 10.0)
+	for index: int in range(1, powers.size() - 1):
+		if powers[index] >= minimum_power and powers[index] > powers[index - 1] and powers[index] >= powers[index + 1]:
+			peak = index
+			break
 	var onset: int = 0
-	while onset < peak and powers[onset] < powers[peak] * pow(10.0, -6.0 / 10.0): onset += 1
+	while onset < peak and powers[onset] < powers[peak] * pow(10.0, -float(Rules.config()["perceived_below_peak_db"]) / 10.0): onset += 1
 	return {"peak_ms": peak * 1000.0 / rate, "perceived_onset_ms": onset * 1000.0 / rate, "peak_power": powers[peak]}
 
 static func plan(stream: AudioStream, pitch: float, climax_ms: float) -> Dictionary:
 	var source: Dictionary = decoded(stream)
-	var start: float = climax_ms + TARGET_MS - float(source["metrics"]["peak_ms"]) / pitch
+	var start: float = climax_ms + float(Rules.config()["target_lag_ms"]) - float(source["metrics"]["peak_ms"]) / pitch
 	return {"delay_ms": maxf(0.0, start), "skip_ms": maxf(0.0, -start) * pitch,
 		"source_peak_ms": source["metrics"]["peak_ms"], "climax_ms": climax_ms}
 
@@ -66,9 +71,9 @@ static func trimmed(stream: AudioStream, pitch: float, skip_ms: float) -> Dictio
 	var pcm: PackedVector2Array = source["pcm"]
 	var rate: int = source["rate"]
 	# Flooring keeps at least the requested pre-peak interval.
-	var latest: float = maxf(0.0, float(source["metrics"]["peak_ms"]) - TARGET_MS * pitch)
+	var latest: float = maxf(0.0, float(source["metrics"]["peak_ms"]) - float(Rules.config()["minimum_pre_peak_ms"]) * pitch)
 	var offset: int = maxi(0, floori(minf(skip_ms, latest) * rate / 1000.0))
-	var fade: int = maxi(2, ceili(FADE_MS * rate * pitch / 1000.0))
+	var fade: int = maxi(2, ceili(float(Rules.config()["fade_ms"]) * rate * pitch / 1000.0))
 	# Slice the cached PCM in native code; only the 3 ms ramp is rebuilt. A
 	# whole-file GDScript conversion here would stall the presentation frame.
 	var data: PackedByteArray = (source["bytes"] as PackedByteArray).slice(offset * 4)
@@ -86,7 +91,7 @@ static func trimmed(stream: AudioStream, pitch: float, skip_ms: float) -> Dictio
 	# The peak lies >=15 ms beyond the cut, so the 3 ms fade cannot touch its
 	# 5 ms window. Locate onset from cached power sums plus the ramp correction.
 	var peak: int = roundi(float(source["metrics"]["peak_ms"]) * rate / 1000.0) - offset
-	var threshold: float = float(source["metrics"]["peak_power"]) * pow(10.0, -6.0 / 10.0)
+	var threshold: float = float(source["metrics"]["peak_power"]) * pow(10.0, -float(Rules.config()["perceived_below_peak_db"]) / 10.0)
 	var window: int = _window_frames(rate)
 	var onset: int = 0
 	while onset < peak:

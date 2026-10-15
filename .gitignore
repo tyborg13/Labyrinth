@@ -52,3 +52,6 @@ spec/art_identity/jobs/**/refs/
 # Maquette jobs (folders named mq*) keep their references: renders and identity paintings are provenance, not
 # reconstructible canon enlargements (spec/visual_identity_gate.md §7b).
 !spec/art_identity/jobs/*/mq*/refs/
+
+# Reproducible SFX measurements, traces, PCM proof and rebuild evidence.
+/output/sfx/

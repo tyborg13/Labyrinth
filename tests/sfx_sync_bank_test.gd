@@ -1,6 +1,8 @@
 extends SceneTree
 
 const Bank = preload("res://scripts/sfx_bank.gd")
+const Coverage = preload("res://tests/sfx_sync_coverage.gd")
+const Lengths = preload("res://tests/sfx_sync_audio_lengths.gd")
 const Router = preload("res://scripts/sfx_cue_router.gd")
 const ParallelRuntime = preload("res://scripts/parallel_runtime.gd")
 const FIXTURE_CLOCK_MS: int = 10000
@@ -13,6 +15,7 @@ func _initialize() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	Lengths.verify(Coverage.measured_samples(failures), failures)
 	var bank := Bank.new()
 	root.add_child(bank)
 	bank.warm_up(null, {}, FIXTURE_SEED)
@@ -41,34 +44,65 @@ func _run() -> void:
 	bank.set_test_clock(FIXTURE_CLOCK_MS + 1000)
 	bank.advance(1.0)
 	_expect(starts.size() == 3, "Advancing the clock cannot release delayed area voices")
-	# Shared-sample alignment uses the selected pitch, including both jitter bounds.
-	for cue: String in ["move.blink", "dragon.roar"]:
-		var stream: AudioStream = bank.cues[cue]["streams"][0]
-		var jitter: float = bank.cues[cue]["entry"]["pitch_jitter"]
-		for pitch: float in [1.0 - jitter, 1.0, 1.0 + jitter]:
+	starts.clear()
+	router.begin_player_action({}, {"type": "melee", "damage": 3})
+	starts.clear()
+	router.hit({"type": "melee", "damage": 3}, {}, "sword", {"id": 81, "hp": 10, "block": 3}, {"hp": 10, "block": 0})
+	router.hit({"type": "melee", "damage": 3}, {}, "sword", {"id": 82, "hp": 10}, {"hp": 7})
+	_expect(starts.size() == 2 and starts[0]["cue"] == "hit.blocked" and starts[1]["cue"] == "hit.blade.light", "Distinct blocked and unblocked cues both play on the same frame")
+	_expect(bank.last_play["selected"]["gain"] == float(bank.data["cues"]["hit.blade.light"]["volume_db"]) + Router.AREA_GAIN_DB, "Second distinct same-frame cue retains -6 dB layering")
+	# Force each approved pitch bound through the actual selection/play path.
+	# Fixing the entry's jitter at zero avoids replacing any planner or player.
+	for cue: String in ["move.blink", "dragon.roar", "cast.arcane", "hit.blunt.heavy", "illusion.spawn"]:
+		var entry: Dictionary = bank.cues[cue]["entry"]
+		var jitter: float = entry["pitch_jitter"]
+		var base: float = float(entry.get("pitch_scale", 1.0))
+		for pitch: float in [base * (1.0 - jitter), base, base * (1.0 + jitter)]:
+			entry["pitch_jitter"] = 0.0
+			entry["pitch_scale"] = pitch
 			for climax: float in [0.0, 316.673, 566.678]:
-				var plan: Dictionary = Bank.PeakAlignment.plan(stream, pitch, climax)
-				var trimmed: Dictionary = Bank.PeakAlignment.trimmed(stream, pitch, plan["skip_ms"])
-				var peak: float = float(trimmed["metrics"]["peak_ms"]) / pitch
-				_expect(peak >= 15.0 and absf(float(plan["delay_ms"]) + peak - climax - 15.0) < 0.1, "Per-call peak targets +15 ms at every approved pitch bound")
-	bank.set_test_clock(FIXTURE_CLOCK_MS + 5000)
+				bank.set_test_clock(bank.now_ms() + 5000)
+				var start: int = bank.now_ms()
+				bank.play(cue, {"peak_climax_ms": climax})
+				if not bank._peak_pending.is_empty():
+					var delay: float = bank._peak_pending[0]["selected"]["remaining_ms"]
+					bank.set_test_clock(start + ceili(delay))
+					bank.advance(float(ceili(delay)) / 1000.0)
+				var played: Dictionary = bank.last_play
+				_expect(played["cue"] == cue and not played["alignment"].is_empty(), "Aligned call reaches its actual voice")
+				if played["cue"] != cue or played["alignment"].is_empty(): continue
+				var peak: float = float(played["alignment"]["metrics"]["peak_ms"]) / float(played["selected"]["pitch"])
+				_expect(is_equal_approx(played["selected"]["pitch"], pitch), "Actual voice selects the forced pitch bound")
+				_expect(absf(bank.now_ms() - start + peak - climax - 15.0) <= 1.0, "Actual bank playback targets +15 ±1 ms at each pitch bound")
+		entry["pitch_jitter"] = jitter
+		entry["pitch_scale"] = base
+	bank.set_test_clock(bank.now_ms() + 5000)
 	starts.clear()
 	var previous: int = bank.cues["move.blink"]["last_ms"]
 	bank.play("move.blink", {"peak_climax_ms": 500.0})
-	_expect(starts.is_empty() and bank.cues["move.blink"]["last_ms"] == previous, "A future peak queues only that call and does not consume cooldown")
+	_expect(starts.is_empty() and bank.cues["move.blink"]["last_ms"] == previous, "Future peak does not consume cooldown")
 	bank.play("status.freeze")
-	_expect(starts.size() == 1 and starts[0]["cue"] == "status.freeze", "An unrelated cue starts while a peak-aligned call waits")
-	var pending: Dictionary = bank._peak_pending[0]
-	var due: float = pending["selected"]["due_ms"]
-	bank.set_test_clock(floori(due))
-	bank.advance(0.0)
-	_expect(starts.size() == 1, "The aligned call cannot start before its due time")
-	bank.set_test_clock(ceili(due) + 16)
-	bank.advance(0.017)
-	_expect(starts.size() == 2 and starts.back()["cue"] == "move.blink", "The due call plays independently on the next scheduler tick")
-	var aligned: Dictionary = bank.last_play["alignment"]
-	var relative: float = bank.now_ms() - (FIXTURE_CLOCK_MS + 5000) + float(aligned["metrics"]["peak_ms"]) / float(bank.last_play["selected"]["pitch"]) - 500.0
-	_expect(relative >= 0.0 and relative <= 30.0, "Scheduler overshoot is compensated without shifting the target peak")
+	_expect(starts.size() == 1 and starts[0]["cue"] == "status.freeze", "Unrelated cue starts while an aligned call waits")
+	_expect(not bank._peak_pending.is_empty(), "Future alignment creates a pending call")
+	if not bank._peak_pending.is_empty():
+		var remaining: float = bank._peak_pending[0]["selected"]["remaining_ms"]
+		bank.advance(1.0 / 60.0)
+		_expect(not bank._peak_pending.is_empty() and is_equal_approx(bank._peak_pending[0]["selected"]["remaining_ms"], remaining), "A new request cannot consume time before it was scheduled")
+		paused = true
+		bank.set_test_clock(bank.now_ms() + 2000)
+		bank.advance(2.0)
+		_expect(starts.size() == 1, "Pause cannot release a delayed call")
+		paused = false
+		Engine.time_scale = 0.0
+		bank.set_test_clock(bank.now_ms() + 2000)
+		bank.advance(0.0)
+		_expect(starts.size() == 1, "Hit-stop cannot release a delayed call")
+		Engine.time_scale = 1.0
+		bank.advance(0.001)
+		_expect(starts.size() == 1, "Resume does not catch up paused wall time")
+		bank.set_test_clock(bank.now_ms() + ceili(remaining))
+		bank.advance(float(ceili(remaining)) / 1000.0)
+		_expect(starts.size() == 2 and starts.back()["cue"] == "move.blink", "Remaining active time releases the queued call")
 	bank.free()
 	var limited := Bank.new()
 	root.add_child(limited)

@@ -261,7 +261,16 @@ static func _branches(h: SceneTree) -> void:
 	for index: int in range(12):
 		h._begin("enemy/vocal/%d" % index)
 		var state: Dictionary = h._state()
-		state["seed"] = index
+		# Choose an eligible input seed for this probabilistic branch. Preserve
+		# the production RNG and 30% rule; prior fixture action counts vary with
+		# combat speed and must not make a registered cue disappear from proof.
+		var seed_probe := RandomNumberGenerator.new()
+		var fixture_seed: int = index
+		while true:
+			seed_probe.seed = fixture_seed + int(h.router.get("_action_serial")) + 1 + "enemy_1".hash()
+			if seed_probe.randf() < h.router.BEAST_VOCAL_CHANCE: break
+			fixture_seed += 1
+		state["seed"] = fixture_seed
 		h.router.begin_enemy_action(state, {"kind": "melee", "damage": 3, "actor_key": "enemy_1"}, {"type": "crawler", "id": 1})
 		h.scene.call("_render_board_state", state, {"effect": {"kind": "melee"}, "effect_progress": 0.1})
 		h._finish(state)
@@ -292,6 +301,31 @@ static func _branches(h: SceneTree) -> void:
 	var before_breath: Dictionary = state.duplicate(true)
 	h._invoke("_animate_enemy_phase_steps", [state, [breath]])
 	h._finish(before_breath)
+	for geometry: String in ["meteor", "utility"]:
+		h._begin("dragon/" + geometry)
+		state = h._state()
+		h.router.set("_dragons", {})
+		state["enemies"][0]["type"] = "zekarion" if geometry == "meteor" else "vaeloryx"
+		state["enemies"][0]["intent"] = {"id": "sync_fixture", "actions": []}
+		var step: Dictionary = {"kind": "lightning_strikes" if geometry == "meteor" else "block", "actor_key": "enemy_1", "actor_name": "Dragon", "element": "lightning", "from": state["enemies"][0]["pos"], "to": state["player"]["pos"], "tiles": [state["player"]["pos"]], "amount": 3}
+		var original: Dictionary = state.duplicate(true)
+		h._invoke("_animate_enemy_phase_steps", [state, [step]])
+		if h.events.filter(func(e: Dictionary) -> bool: return e["cue"] == "dragon.roar" and e["result"] == "played").size() != 1:
+			h.failures.append("First-action " + geometry + " must present one roar")
+		h._finish(original)
+	for missing: String in ["hidden", "special", "enemy_type"]:
+		h._begin("dragon/fallback/" + missing)
+		state = h._state()
+		h.router.set("_dragons", {})
+		var step: Dictionary = {"kind": "aoe", "enemy_type": "tharokh", "action_type": "terrain_burst", "actor_key": "enemy_1"}
+		if missing == "hidden": step["hidden_by_umbra"] = true
+		elif missing == "special": step["en05_after"] = {}
+		else: step.erase("enemy_type")
+		h.router.begin_enemy_action(state, step, {"type": "tharokh", "id": 1})
+		h.scene.call("_render_board_state", state, {})
+		if h.events.filter(func(e: Dictionary) -> bool: return e["cue"] == "dragon.roar" and e["result"] == "played").size() != 1:
+			h.failures.append("First-action fallback must roar immediately: " + missing)
+		h._finish(state)
 	h._begin("trap/hero_hurt")
 	state = h._state()
 	var after: Dictionary = state.duplicate(true)

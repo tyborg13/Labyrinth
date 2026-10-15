@@ -3,21 +3,24 @@ from __future__ import annotations
 
 from pathlib import Path
 import runpy
+import json
+from scipy.signal import find_peaks, resample_poly
 
 import numpy as np
 
 from tools.sfx_lab.common import LabError
 
-ENVELOPE_MS = 5.0
-PERCEIVED_DB_BELOW_PEAK = 6.0
-PEAK_LATE_LIMIT_MS = 30.0
-MIN_PRE_PEAK_MS = 15.0
-ALIGNMENT_FADE_MS = 3.0
-LOUDNESS_WINDOW_SECONDS = 0.1
-LOUDNESS_TOLERANCE_LU = 0.5
-FAST_ONSET_CAP_MS = 40.0
-MOTION_ONSET_CAP_MS = 60.0
 ROOT = Path(__file__).resolve().parents[2]
+RULES = json.loads((ROOT / "data/sfx_cues.json").read_text())["rules"]["sync"]
+ENVELOPE_MS = RULES["envelope_window_ms"]
+PERCEIVED_DB_BELOW_PEAK = RULES["perceived_below_peak_db"]
+PEAK_LATE_LIMIT_MS = RULES["peak_window_ms"][1]
+MIN_PRE_PEAK_MS = RULES["minimum_pre_peak_ms"]
+ALIGNMENT_FADE_MS = RULES["fade_ms"]
+LOUDNESS_WINDOW_SECONDS = RULES["loudness_window_ms"] / 1000
+LOUDNESS_TOLERANCE_LU = RULES["loudness_delta_lu"][1]
+FAST_ONSET_CAP_MS = RULES["onset_caps_ms"]["fast"]
+MOTION_ONSET_CAP_MS = RULES["onset_caps_ms"]["motion"]
 _MIX_MEASURE = runpy.run_path(str(ROOT / "spec/peer_benchmark/staged/sfx/measure_mix.py"))
 
 
@@ -36,13 +39,17 @@ def envelope(samples: np.ndarray, rate: int) -> np.ndarray:
 
 def envelope_times(samples: np.ndarray, rate: int) -> dict:
     rms = envelope(samples, rate)
-    peak = int(np.argmax(rms))
+    strongest = int(np.argmax(rms))
+    peaks, _ = find_peaks(rms, height=rms[strongest] * 10 ** (-RULES["alignment_peak_within_db"] / 20))
+    peak = int(peaks[0]) if len(peaks) else strongest
     if rms[peak] <= 0:
         raise LabError("A silent file has no perceived onset or RMS peak")
     onset = int(np.flatnonzero(rms >= rms[peak] * 10 ** (-PERCEIVED_DB_BELOW_PEAK / 20))[0])
     return {"perceived_onset_ms": onset * 1000 / rate,
             "peak_ms": peak * 1000 / rate,
-            "envelope_peak_dbfs": float(20 * np.log10(rms[peak]))}
+            "envelope_peak_dbfs": float(20 * np.log10(rms[peak])),
+            "strongest_peak_ms": strongest * 1000 / rate,
+            "strongest_envelope_dbfs": float(20 * np.log10(rms[strongest]))}
 
 
 def short_loudness(path: Path) -> float:
@@ -59,3 +66,9 @@ def onset_cap(cue: str, entry: dict) -> float | None:
     }:
         return MOTION_ONSET_CAP_MS
     return FAST_ONSET_CAP_MS
+
+
+def peak_levels(samples: np.ndarray) -> dict:
+    """Sample peak and four-times oversampled true peak, before playback gain."""
+    return {"peak_dbfs": float(20 * np.log10(max(1e-15, np.max(np.abs(samples))))),
+            "true_peak_dbtp": float(20 * np.log10(max(1e-15, np.max(np.abs(resample_poly(samples, 4, 1, axis=0))))))}
