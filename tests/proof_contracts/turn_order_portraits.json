@@ -1,0 +1,14 @@
+{
+  "min_images": 1,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*turn_order_portraits.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {"rect": [1660, 80, 250, 850], "min_luma_range": 24, "min_luma_stdev": 4}
+      ]
+    }
+  ]
+}
