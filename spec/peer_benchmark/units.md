@@ -48,7 +48,7 @@
 | vfx-01 | Pixel-art look for procedural elemental effects (low-res layer, element ramps, Bayer alpha) | running (gpt-6-astra) | codex/peer-benchmark | briefs/vfx-01.md |
 | chr-02 | Chronicle spells as card tiles with counts; tooltips on every tile | running (gpt-6-astra) | codex/peer-benchmark | briefs/chr-02.md |
 | art-05 | Replayable director raw steps in the identity gate | merged 2eb5b4d17 (signoff 55bc9b8f3); follow-up: chain on decoded-pixel digests not PNG bytes, report SKIP as WARN, dedupe committed inputs, repo-relative doc commands | codex/peer-benchmark | briefs/art-05.md |
-| qa-04 | Godot .import noise under output/ (.gdignore), Chopin check ignores sidecars, stale en-05 sync test | queued (gpt-6-astra) | codex/peer-benchmark | briefs/qa-04.md |
+| qa-04 | Godot .import noise under output/, Chopin sidecar tolerance, en-05 sync test | merged bf7eca61f (review fixes 7f7cc8d7e) | codex/peer-benchmark | briefs/qa-04.md |
 | fix-03 | Fatigue never amplified by Expose/Chilled/Frozen (owner); SPENT HUD flag; text_token icon callers; Lightning Strikes chip icon | queued (gpt-6-astra) | codex/peer-benchmark | briefs/fix-03.md |
 | ux-04 | Apply approved glossary + relic text, renames, @term/@kw token convention, budgets | ready (after ux-03 merges) | codex/peer-benchmark | briefs/ux-04.md |
 | ui-02 | UI ratchet cleanup (map, skill tree, section map) | merged (pixel-identical; baseline −4; 152 bespoke colours inventoried in staged/ui/near_palette_ui02.md — median ΔE76 8.5, needs a palette review, not a ratchet) | codex/peer-benchmark | briefs/ui-02.md |
