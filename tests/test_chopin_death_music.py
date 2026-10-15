@@ -61,7 +61,7 @@ class ChopinDeathMusicApprovedIntegrationTests(unittest.TestCase):
         self.assertLessEqual(max(ratios), self.config["verification"]["max_loop_seam_to_p99_9_ratio"])
 
     def test_v05_builder_proves_v04_remains_immutable(self) -> None:
-        preserved = self.builder._verify_v04_is_untouched()
+        preserved = self._verify_v04_artifact_tree(self.builder.V04_VERSION_DIR)
         self.assertEqual(self.builder.EXPECTED_V04_VERSION_HASHES, preserved)
         report = json.loads(
             (TRACK_ROOT / "versions" / "v05" / "BUILD_REPORT.json").read_text(encoding="utf-8")
@@ -69,26 +69,46 @@ class ChopinDeathMusicApprovedIntegrationTests(unittest.TestCase):
         self.assertTrue(report["musical_content"]["midi_byte_for_byte_equal_to_v04"])
         self.assertEqual("none", report["musical_content"]["musical_changes_from_v04"])
 
+    def _verify_v04_artifact_tree(self, source: Path) -> dict[str, str]:
+        # Import metadata belongs to the local Godot checkout, not the approved
+        # artifact. Keep this adaptation outside the hash-pinned v05 builder.
+        with tempfile.TemporaryDirectory() as temporary:
+            artifact = Path(temporary) / "v04"
+            shutil.copytree(source, artifact, ignore=shutil.ignore_patterns("*.import"))
+            with patch.object(self.builder, "V04_VERSION_DIR", artifact):
+                return self.builder._verify_v04_is_untouched()
+
+    def test_v05_reproducibility_inputs_match_pinned_hashes(self) -> None:
+        from tools.classical_soundtrack_pipeline.common import verify_reproducibility
+
+        report = verify_reproducibility(self.config, V05_CONFIG_PATH)
+        approved = json.loads(
+            (TRACK_ROOT / "versions" / "v05" / "VERIFICATION.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            approved["reproducibility"]["build_script"]["sha256"],
+            report["build_script"]["sha256"],
+        )
+
     def test_v04_immutability_ignores_only_import_sidecars(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             version = Path(temporary) / "v04"
             shutil.copytree(self.builder.V04_VERSION_DIR, version)
             (version / "preview.ogg.import").write_text("Godot-generated metadata\n")
-            with patch.object(self.builder, "V04_VERSION_DIR", version):
-                self.assertEqual(
-                    self.builder.EXPECTED_V04_VERSION_HASHES,
-                    self.builder._verify_v04_is_untouched(),
-                )
-                for name in ("unexpected.txt", "preview.ogg.uid", "preview.ogg.import.bak"):
-                    with self.subTest(added_file=name):
-                        added = version / name
-                        added.write_text("Not import metadata\n")
-                        with self.assertRaisesRegex(RuntimeError, "artifact tree"):
-                            self.builder._verify_v04_is_untouched()
-                        added.unlink()
-                (version / "preview.ogg").write_bytes(b"changed audio")
-                with self.assertRaisesRegex(RuntimeError, "preserve owner-approved"):
-                    self.builder._verify_v04_is_untouched()
+            self.assertEqual(
+                self.builder.EXPECTED_V04_VERSION_HASHES,
+                self._verify_v04_artifact_tree(version),
+            )
+            for name in ("unexpected.txt", "preview.ogg.uid", "preview.ogg.import.bak"):
+                with self.subTest(added_file=name):
+                    added = version / name
+                    added.write_text("Not import metadata\n")
+                    with self.assertRaisesRegex(RuntimeError, "artifact tree"):
+                        self._verify_v04_artifact_tree(version)
+                    added.unlink()
+            (version / "preview.ogg").write_bytes(b"changed audio")
+            with self.assertRaisesRegex(RuntimeError, "preserve owner-approved"):
+                self._verify_v04_artifact_tree(version)
 
 
 if __name__ == "__main__":

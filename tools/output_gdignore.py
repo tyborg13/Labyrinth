@@ -4,6 +4,7 @@
 Run before suites/probes, and again after creating new output folders. Only add
 markers to Git when the folder already contains tracked artifacts. No artifacts
 or existing markers are removed; a newly referenced ignored folder is an error.
+The output root must not be a symlink or resolve outside the repository.
 """
 from __future__ import annotations
 
@@ -63,10 +64,13 @@ def scan_references(root: Path, files: list[str]) -> dict[str, list[str]]:
 
 
 def reconcile(root: Path, *, check: bool = False) -> int:
+    output = root / "output"
+    if output.is_symlink() or not output.resolve().is_relative_to(root.resolve()):
+        print("ERROR output must not be a symlink or resolve outside the repository")
+        return 1
     references = scan_references(root, git_files(root, include_untracked=True))
     tracked = {Path(name).parts[1] for name in git_files(root)
                if name.startswith("output/") and len(Path(name).parts) > 2}
-    output = root / "output"
     problems: list[str] = []
     for folder, sources in sorted(references.items()):
         print(f"KEEP output/{folder}: {'; '.join(sources)}")

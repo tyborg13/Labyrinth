@@ -50,8 +50,7 @@ def _verify_v04_is_untouched() -> dict[str, str]:
     actual_files = sorted(
         path.relative_to(V04_VERSION_DIR).as_posix()
         for path in V04_VERSION_DIR.rglob("*")
-        # Godot's adjacent import metadata is not part of the approved artifact.
-        if path.is_file() and path.suffix != ".import"
+        if path.is_file()
     )
     if actual_files != sorted(EXPECTED_V04_VERSION_HASHES):
         raise RuntimeError(f"v05 must not alter the v04 artifact tree: {actual_files}")

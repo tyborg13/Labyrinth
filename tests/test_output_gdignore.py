@@ -103,6 +103,36 @@ class OutputGdignoreTests(unittest.TestCase):
         self.assertEqual(1, self.reconcile())
         self.assertFalse((outside / ".gdignore").exists())
 
+    def test_symlinked_output_root_is_rejected_before_scanning(self):
+        with tempfile.TemporaryDirectory() as outside:
+            targets = (self.root / "inside", Path(outside) / "external", Path(outside) / "missing")
+            for target in targets:
+                with self.subTest(target=target.name):
+                    if target.name != "missing":
+                        (target / "captures").mkdir(parents=True)
+                    output = self.root / "output"
+                    output.symlink_to(target, target_is_directory=True)
+                    for check in (False, True):
+                        with patch.object(output_gdignore, "git_files", side_effect=AssertionError("Unsafe root must not be scanned")), redirect_stdout(io.StringIO()):
+                            self.assertEqual(1, output_gdignore.reconcile(self.root, check=check))
+                    self.assertFalse((target / "captures/.gdignore").exists())
+                    output.unlink()
+
+    def test_output_resolving_outside_repo_is_rejected_before_scanning(self):
+        self.folder("captures")
+        original_resolve = Path.resolve
+        outside = self.root.parent / "outside-output"
+
+        def resolve(path):
+            return outside if path == self.root / "output" else original_resolve(path)
+
+        # Also cover canonical path escapes that are not reported as symlinks,
+        # such as Windows junctions, without needing platform-specific fixtures.
+        with patch.object(Path, "resolve", resolve), patch.object(output_gdignore, "git_files", side_effect=AssertionError("Unsafe root must not be scanned")), redirect_stdout(io.StringIO()):
+            for check in (False, True):
+                self.assertEqual(1, output_gdignore.reconcile(self.root, check=check))
+        self.assertFalse((self.root / "output/captures/.gdignore").exists())
+
 
 if __name__ == "__main__":
     unittest.main()
