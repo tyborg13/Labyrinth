@@ -2,14 +2,13 @@ extends Node2D
 
 ## Presentation-only routing of the original procedural draw calls. One host per
 ## retained painter pass preserves the existing tile/back/unit/front ordering.
-## Adjacent calls share a viewport only when element and blend mode agree; this
+## Adjacent calls share a viewport only when element agrees; this
 ## also keeps overlapping effects of different elements in submission order.
 const STYLE_PATH: String = "res://data/vfx_pixel_style.json"
 const QUANTIZE: Shader = preload("res://shaders/pixel_fx_quantize.gdshader")
 const BAYER: PackedInt32Array = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]
 const LUMA := Vector3(0.299, 0.587, 0.114)
 static var _style: Dictionary = {}
-static var _add_shader: Shader
 # In-memory probe override; never changes the protected data or player settings.
 static var review_enabled_override: Variant = null
 
@@ -18,7 +17,7 @@ var _runs: Array[Dictionary]
 var _used: int = 0
 var _raw_drawings: Array[Drawing]
 var _raw_used: int = 0
-var _last_key: String = ""
+var _last_key: Variant = null
 var _pixel_transform := Transform2D.IDENTITY
 var _grid: int = 1
 var _resolution := Vector2i.ONE
@@ -27,15 +26,106 @@ class Drawing extends Node2D:
 	var commands: Array[Dictionary]
 	var submitted_frame: int = -1
 	var drawn_frame: int = -1
+	var line_canvas: LineCanvas
+	var cell_transform := Transform2D.IDENTITY
+	var command_transform := Transform2D.IDENTITY
+	var element: String = "neutral"
 
 	func _draw() -> void:
 		drawn_frame = Engine.get_process_frames()
+		if line_canvas != null:
+			line_canvas.strokes.clear()
 		for command: Dictionary in commands:
-			draw_set_transform_matrix(command["transform"])
+			command_transform = command["transform"]
+			draw_set_transform_matrix(command_transform)
 			var args: Array = [self]
 			args.append_array(command["args"])
 			(command["draw"] as Callable).callv(args)
 		draw_set_transform_matrix(Transform2D.IDENTITY)
+		if line_canvas != null:
+			line_canvas.queue_redraw()
+
+	func _pixel_line(points: PackedVector2Array, core: Color, halo: Color) -> bool:
+		if line_canvas == null:
+			return false
+		if core.a > 0.0:
+			line_canvas.strokes.append({"cells": line_canvas.rasterize.call(points, cell_transform * command_transform), "vertices": cell_transform * command_transform * points, "core": core, "halo": halo, "element": element})
+		return true
+
+class LineCanvas extends Node2D:
+	var rasterize: Callable
+	var quantizer: Callable
+	var strokes: Array[Dictionary]
+	var drawn_frame: int = -1
+
+	func _draw() -> void:
+		drawn_frame = Engine.get_process_frames()
+		# A run has one element. Cache its sixteen Bayer outcomes per halo
+		# colour instead of redoing ramp lookup/luminance for every path cell.
+		var halo_palettes: Dictionary = {}
+		for stroke: Dictionary in strokes:
+			var cells: Array[Vector2i] = stroke["cells"]
+			var halo: Color = stroke["halo"]
+			if not halo_palettes.has(halo):
+				var palette := PackedColorArray()
+				for index: int in range(16):
+					palette.append(quantizer.call(halo, Vector2i(index % 4, index / 4), stroke["element"]))
+				halo_palettes[halo] = palette
+			var palette: PackedColorArray = halo_palettes[halo]
+			# Cell zero has Bayer's lowest threshold. If it fails, no halo cell
+			# can survive the floor/dither, so skip even the neighbourhood work.
+			if palette[0].a > 0.0:
+				var core_set: Dictionary = {}
+				var halo_set: Dictionary = {}
+				for cell: Vector2i in cells:
+					core_set[cell] = true
+				for cell: Vector2i in cells:
+					for y: int in range(-1, 2):
+						for x: int in range(-1, 2):
+							var neighbour := cell + Vector2i(x, y)
+							if not core_set.has(neighbour): halo_set[neighbour] = true
+				for cell: Vector2i in halo_set:
+					var color: Color = palette[posmod(cell.y, 4) * 4 + posmod(cell.x, 4)]
+					if color.a > 0.0: draw_rect(Rect2(Vector2(cell), Vector2.ONE), color)
+			# Only the solid core bypasses alpha quantization.
+			var color: Color = quantizer.call(stroke["core"], Vector2i.ZERO, stroke["element"])
+			color.a = 1.0
+			for cell: Vector2i in cells:
+				draw_rect(Rect2(Vector2(cell), Vector2.ONE), color)
+
+## One-cell Bresenham path through every authored vertex, including endpoints.
+## Floor in screen-cell coordinates keeps adjacent tile owners on the same grid.
+static func line_cells(points: PackedVector2Array, to_cells: Transform2D) -> Array[Vector2i]:
+	var result: Array[Vector2i]
+	for index: int in range(1, points.size()):
+		var cell := Vector2i((to_cells * points[index - 1]).floor())
+		var end := Vector2i((to_cells * points[index]).floor())
+		var delta := Vector2i(absi(end.x - cell.x), -absi(end.y - cell.y))
+		var step := Vector2i(1 if cell.x < end.x else -1, 1 if cell.y < end.y else -1)
+		var error: int = delta.x + delta.y
+		while true:
+			if result.is_empty() or result[-1] != cell: result.append(cell)
+			if cell == end: break
+			var twice: int = error * 2
+			if twice >= delta.y:
+				error += delta.y
+				cell.x += step.x
+			if twice <= delta.x:
+				error += delta.x
+				cell.y += step.y
+	return result
+
+static func line(canvas: CanvasItem, points: PackedVector2Array, core: Color, halo: Color) -> bool:
+	return canvas != null and canvas.has_method("_pixel_line") and bool(canvas.call("_pixel_line", points, core, halo))
+
+static func draw_line_command(canvas: CanvasItem, points: PackedVector2Array, core: Color, halo: Color) -> void:
+	line(canvas, points, core, halo)
+
+static func line_bounds(points: PackedVector2Array) -> Rect2:
+	if points.is_empty(): return Rect2()
+	var bounds := Rect2(points[0], Vector2.ZERO)
+	for point: Vector2 in points: bounds = bounds.expand(point)
+	return bounds.grow(1.0)
 
 static func style() -> Dictionary:
 	if _style.is_empty():
@@ -58,7 +148,8 @@ static func ramp_for(element: String) -> PackedColorArray:
 static func luminance(color: Color) -> float:
 	return Vector3(color.r, color.g, color.b).dot(LUMA)
 
-## CPU oracle for fixtures; production quantization runs only in the shader.
+## Shared oracle for proof and the small line-cell canvas. Other procedural
+## primitives are quantized by the shader.
 static func quantize(color: Color, cell: Vector2i, element: String) -> Color:
 	# Color channels and shader uniforms are float32, including exact-threshold
 	# comparisons after the approved non-binary bias is uploaded.
@@ -94,7 +185,7 @@ func begin(source: CanvasItem) -> void:
 	_source = source
 	_used = 0
 	_raw_used = 0
-	_last_key = ""
+	_last_key = null
 	var viewport: Viewport = source.get_viewport()
 	var stretch: Transform2D = viewport.get_stretch_transform()
 	var pixels: Vector2 = viewport.get_visible_rect().size * stretch.get_scale()
@@ -105,8 +196,8 @@ func begin(source: CanvasItem) -> void:
 	# original drawing receives that exact transform inside the low-res canvas.
 	transform = _pixel_transform.affine_inverse() * Transform2D(0.0, Vector2.ONE * _grid, 0.0, Vector2.ZERO)
 
-func submit(element: String, draw_call: Callable, args: Array, drawing_transform: Transform2D, additive: bool = false, bounds: Rect2 = Rect2()) -> void:
-	var key: String = element + (":add" if additive else ":mix")
+func submit(element: String, draw_call: Callable, args: Array, drawing_transform: Transform2D, bounds: Rect2 = Rect2()) -> void:
+	var key: String = element
 	if key != _last_key:
 		if _used == _runs.size():
 			_runs.append(_make_run())
@@ -120,13 +211,13 @@ func submit(element: String, draw_call: Callable, args: Array, drawing_transform
 		composite.visible = true
 		move_child(composite, get_child_count() - 1)
 		var shader_material: ShaderMaterial = composite.material as ShaderMaterial
-		shader_material.shader = _shader_for(additive)
+		shader_material.shader = QUANTIZE
+		drawing.element = element
 		shader_material.set_shader_parameter("ramp", ramp_for(element))
 		shader_material.set_shader_parameter("alpha_floor", float(style()["alpha_floor"]))
 		shader_material.set_shader_parameter("alpha_bias", float(style()["alpha_bias"]))
 		run["bounds"] = Rect2()
 		run["element"] = element
-		run["additive"] = additive
 		_used += 1
 		_last_key = key
 	var active: Dictionary = _runs[_used - 1]
@@ -153,7 +244,7 @@ func submit_raw(draw_call: Callable, args: Array) -> void:
 	drawing.queue_redraw()
 	move_child(drawing, get_child_count() - 1)
 	_raw_used += 1
-	_last_key = ""
+	_last_key = null
 
 func finish() -> void:
 	while _raw_drawings.size() > _raw_used:
@@ -173,6 +264,9 @@ func finish() -> void:
 		composite.position = clipped.position
 		viewport.global_canvas_transform = Transform2D(0.0, Vector2.ONE / _grid, 0.0, -clipped.position) * _pixel_transform
 		(composite.material as ShaderMaterial).set_shader_parameter("cell_origin", clipped.position)
+		var drawing: Drawing = run["drawing"]
+		drawing.cell_transform = Transform2D(0.0, Vector2.ONE / _grid, 0.0, Vector2.ZERO) * _pixel_transform
+		drawing.line_canvas.position = -clipped.position
 		run["cell_rect"] = Rect2i(clipped)
 	# Release inactive render targets, including when a spell clears or moves to
 	# another tile. Empty tiles never allocate viewports or process every frame.
@@ -189,7 +283,7 @@ func snapshot() -> Array[Dictionary]:
 	var result: Array[Dictionary]
 	for run: Dictionary in _runs:
 		var drawing: Drawing = run["drawing"]
-		result.append({"element": run["element"], "additive": run["additive"], "grid": _grid,
+		result.append({"element": run["element"], "grid": _grid,
 			"resolution": (run["viewport"] as SubViewport).size, "cell_rect": run["cell_rect"], "bounds": run["bounds"], "commands": drawing.commands.size(),
 			"submitted_frame": drawing.submitted_frame, "drawn_frame": drawing.drawn_frame})
 	return result
@@ -212,12 +306,10 @@ func _make_run() -> Dictionary:
 	composite.texture = viewport.get_texture()
 	composite.material = ShaderMaterial.new()
 	add_child(composite)
+	var lines := LineCanvas.new()
+	lines.name = "LineCells"
+	lines.rasterize = line_cells
+	lines.quantizer = quantize
+	composite.add_child(lines)
+	drawing.line_canvas = lines
 	return {"viewport": viewport, "drawing": drawing, "composite": composite}
-
-static func _shader_for(additive: bool) -> Shader:
-	if not additive:
-		return QUANTIZE
-	if _add_shader == null:
-		_add_shader = Shader.new()
-		_add_shader.code = QUANTIZE.code.replace("blend_mix", "blend_add")
-	return _add_shader

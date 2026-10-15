@@ -57,6 +57,8 @@ static func surface_sample(kind: String) -> Dictionary:
 		"conduction":
 			view["effect"] = {"kind": "chain", "element": "lightning", "path": [SOURCE, TARGET]}
 			view["effect_progress"] = 0.38
+		"collision":
+			event["kind"] = "force_collision"
 		"painted":
 			event["kind"] = "surface_created"
 			event["feedback_element"] = "fire"
@@ -74,3 +76,7 @@ static func dragon_fan_effect() -> Dictionary:
 		for offset: int in range(-distance + 1, distance + 1):
 			tiles.append(SOURCE + Vector2i(distance, offset))
 	return {"kind": "aoe", "action_type": "aoe", "enemy_type": "vyraketh", "intent_id": "cinderfall", "element": "fire", "from": SOURCE, "to": TARGET, "tiles": tiles, "center": TARGET}
+
+static func line_sample(kind: String) -> Dictionary:
+	var effect: Dictionary = {"kind": "chain" if kind == "chain" else "ranged", "action_type": "tether_beam" if kind == "tether" else "chain", "element": "lightning", "from": SOURCE, "to": TARGET}
+	return {"state": combat_state(), "presentation": {"effect": effect, "effect_progress": 0.52, "ambient_time_seconds": 0.37}}

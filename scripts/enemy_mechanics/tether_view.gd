@@ -113,6 +113,7 @@ static func draw_effect(board: Control, effect: Dictionary, progress: float) -> 
 	var points: PackedVector2Array = beam_points(chest(board, from, str(effect.get("actor_key", ""))), chest(board, to), str(effect.get("actor_key", "")), int(frame["flicker"]))
 	var alpha: float = float(frame["alpha"])
 	var width: float = clampf(board._tile_width() * 0.025, 2.0, 4.5) # Existing Chain material widths.
+	if board.has_method("_submit_pixel_line") and board.call("_submit_pixel_line", points, Color(0.94, 0.96, 1.0, alpha), Color(COLOR, alpha * 0.82), "lightning"): return true
 	SpellFx.prepare()
 	SpellFx._ribbon(board, points, width * 3.8, Color(COLOR, alpha * 0.22), false)
 	SpellFx._ribbon(board, points, width * 1.45, Color(COLOR, alpha * 0.82), false)

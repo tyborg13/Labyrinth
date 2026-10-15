@@ -4282,8 +4282,12 @@ func _submit_pixel_fx(element: String, draw_call: Callable, args: Array) -> void
 		_pixel_fx_layer.show_behind_parent = true
 		add_child(_pixel_fx_layer)
 		_pixel_fx_layer.begin(self)
-	var additive: bool = material is CanvasItemMaterial and (material as CanvasItemMaterial).blend_mode == CanvasItemMaterial.BLEND_MODE_ADD
-	_pixel_fx_layer.submit(element, draw_call, args, _pixel_fx_draw_transform, additive, ElementalSpellFx.pixel_bounds(draw_call, args))
+	_pixel_fx_layer.submit(element, draw_call, args, _pixel_fx_draw_transform, ElementalSpellFx.pixel_bounds(draw_call, args))
+
+func _submit_pixel_line(points: PackedVector2Array, core: Color, halo: Color, element: String) -> bool:
+	if not PixelFxLayer.enabled(): return false
+	_submit_pixel_fx(element, PixelFxLayer.draw_line_command, [points, core, halo])
+	return true
 
 func _draw() -> void:
 	_pixel_fx_draw_transform = Transform2D.IDENTITY
@@ -16961,7 +16965,7 @@ func _draw_board_surface(tile: Vector2i) -> void:
 	elif _surface_rubble_layer != null:
 		_surface_rubble_layer.visible = false
 	if not visible_tile:
-		if _surface_base_drawing != null: _surface_base_drawing.visible = false
+		_release_surface_feedback_layers()
 		if _surface_ice_layer != null: _surface_ice_layer.visible = false
 		if _surface_fire_layer != null: _surface_fire_layer.visible = false
 		if _surface_electric_layer != null: _surface_electric_layer.visible = false
@@ -17025,6 +17029,19 @@ func _draw_board_surface(tile: Vector2i) -> void:
 		_draw_surface_conduction_floor(tile, self)
 		BoardSurfacePresentation.draw_feedback(self, tile, _tile_center(tile), _tile_width(), feedback_events, feedback_progress, reduced_motion)
 		return
+	var conduction: bool = str((presentation.get("effect", {}) as Dictionary).get("kind", "")) == "chain" and _surface_conduction_alpha() > 0.0 and BoardSurfaceRenderDependencies.changed_tiles({}, presentation, {"effect": true}).has(tile)
+	var tile_events: Array[Dictionary]
+	if feedback_progress < 1.0 or reduced_motion:
+		for event_var: Variant in feedback_events:
+			if not event_var is Dictionary: continue
+			var event: Dictionary = event_var
+			if event.get("tile", Vector2i(-1, -1)) == tile or (event.get("tiles", []) as Array).has(tile): tile_events.append(event)
+	if not conduction and tile_events.is_empty():
+		_release_surface_feedback_layers()
+		BoardSurfacePresentation.draw_tile(self, combat_state, tile, _tile_center(tile), _tile_width(), time, reduced_motion, not retained_rubble, not retained_ice and not retained_fire, not retained_electric)
+		BoardSurfacePresentation.draw_preview(self, tile, _tile_center(tile), _tile_width(), presentation.get("surface_preview_events", []) as Array)
+		_draw_surface_connection_preview(tile, self)
+		return
 	if not is_instance_valid(_surface_base_drawing):
 		_surface_base_drawing = PixelFxLayer.Drawing.new()
 		_surface_base_drawing.name = "SurfaceGround"
@@ -17049,30 +17066,36 @@ func _draw_board_surface(tile: Vector2i) -> void:
 	move_child(_surface_feedback_pixel_layer, get_child_count() - 1)
 	var width: float = _tile_width()
 	var bounds := Rect2(_tile_center(tile) - Vector2(width * 2.0, width * 2.0), Vector2.ONE * width * 4.0)
-	if str((presentation.get("effect", {}) as Dictionary).get("kind", "")) == "chain" and BoardSurfaceRenderDependencies.changed_tiles({}, presentation, {"effect": true}).has(tile):
+	if conduction:
 		_submit_surface_feedback("lightning", _draw_surface_conduction_on, [tile], bounds)
-	for event_var: Variant in feedback_events:
-		if feedback_progress >= 1.0 and not reduced_motion: break
-		if not event_var is Dictionary: continue
-		var event: Dictionary = event_var
-		if event.get("tile", Vector2i(-1, -1)) != tile and not (event.get("tiles", []) as Array).has(tile): continue
+	for original: Dictionary in tile_events:
+		var event: Dictionary = original
 		var broken: String = str(event.get("break_surface", ""))
 		if not broken.is_empty() and event.get("tile", Vector2i(-1, -1)) == tile:
 			_submit_surface_feedback(_surface_pixel_element(broken), BoardSurfacePresentation._draw_surface_break, [broken, _tile_center(tile), width, feedback_progress, reduced_motion], bounds)
 			event = event.duplicate()
 			event.erase("break_surface")
 			if str(event.get("feedback_element", "")).is_empty() and str(event.get("kind", "")) != "force_collision": continue
-		var feedback_element: String = str(event.get("feedback_element", event.get("surface", "neutral")))
+		var feedback_element: String = str(event.get("feedback_element", ""))
+		if feedback_element.is_empty(): feedback_element = str(event.get("surface", ""))
 		_submit_surface_feedback(_surface_pixel_element(feedback_element), BoardSurfacePresentation.draw_feedback, [tile, _tile_center(tile), width, [event], feedback_progress, reduced_motion], bounds)
+
+func _release_surface_feedback_layers() -> void:
+	for layer: Node2D in [_surface_base_drawing, _surface_feedback_pixel_layer]:
+		if is_instance_valid(layer):
+			layer.visible = false
+			layer.queue_free()
+	_surface_base_drawing = null
+	_surface_feedback_pixel_layer = null
 
 func _submit_surface_feedback(element: String, draw_call: Callable, args: Array, bounds: Rect2) -> void:
 	if PixelFxLayer.enabled():
-		_surface_feedback_pixel_layer.submit(element, draw_call, args, Transform2D.IDENTITY, false, bounds)
+		_surface_feedback_pixel_layer.submit(element, draw_call, args, Transform2D.IDENTITY, bounds)
 	else:
 		_surface_feedback_pixel_layer.submit_raw(draw_call, args)
 
 func _surface_pixel_element(surface: String) -> String:
-	return "earth" if surface == "rubble" else "lightning" if surface == "electrified" else surface
+	return str(PixelFxLayer.style()["surface_ramps"].get(surface, surface))
 
 func _draw_surface_connection_on(canvas: CanvasItem, tile: Vector2i) -> void:
 	_draw_surface_connection_preview(tile, canvas)
@@ -17101,14 +17124,18 @@ func _draw_surface_floor_line(tile: Vector2i, from: Vector2i, to: Vector2i, dash
 		else:
 			var middle: Vector2 = a.lerp(b, 0.5) + Vector2(0, sin(float(index) * 2.3) * _tile_width() * 0.015)
 			var bolt := PackedVector2Array([a, middle, b])
+			if PixelFxLayer.line(canvas, bolt, Color(0.83, 0.76, 1.0, alpha * 0.9), Color(0.55, 0.34, 1.0, alpha * 0.26)): continue
 			canvas.draw_polyline(bolt, Color(0.55, 0.34, 1.0, alpha * 0.26), _tile_width() * 0.046, true)
 			canvas.draw_polyline(bolt, Color(0.83, 0.76, 1.0, alpha * 0.9), maxf(1.0, _tile_width() * 0.011), true)
+
+func _surface_conduction_alpha() -> float:
+	var t: float = float(presentation.get("effect_progress", 0.0))
+	return sin(t / 0.8 * PI) if t > 0.0 and t < 0.8 else 0.0
 
 func _draw_surface_conduction_floor(tile: Vector2i, canvas: CanvasItem) -> void:
 	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
 	if str(effect.get("kind", "")) != "chain": return
-	var t: float = float(presentation.get("effect_progress", 0.0))
-	var alpha: float = sin(clampf(t / 0.8, 0.0, 1.0) * PI)
+	var alpha: float = _surface_conduction_alpha()
 	var branches: Array = effect.get("branches", []) as Array
 	if branches.is_empty(): branches = [effect]
 	for branch: Dictionary in branches:
@@ -17130,4 +17157,6 @@ func _draw_surface_chain_effect(effect: Dictionary, progress: float) -> void:
 			if from_tile.x < 0 or to_tile.x < 0: continue
 			var to: Vector2 = _tile_center(to_tile)
 			if bool(effect.get("relay", false)): to.y += _tile_width() * 0.23
-			preload("res://scripts/chain_attack_fx.gd").draw_hop(self, _tile_center(from_tile), to, _tile_width(), progress, bool(presentation.get("reduced_motion", false)))
+			var hop: Callable = preload("res://scripts/chain_attack_fx.gd").draw_hop
+			var args: Array = [_tile_center(from_tile), to, _tile_width(), progress, bool(presentation.get("reduced_motion", false))]
+			if not PixelFxLayer.route(self, "lightning", hop, args): hop.callv([self] + args)

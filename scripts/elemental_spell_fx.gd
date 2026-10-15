@@ -271,7 +271,9 @@ static func _ground_charge(c: CanvasItem, p: Vector2, s: float, t: float, alpha:
 			var u: float = float(k) / 5.0
 			var jag: float = (_hash(i * 13 + k + 621) - 0.5) * s * 0.075 * sin(u * PI)
 			points.append(p + direction * (s * 0.07 + reach * u) + cross * jag)
-		_ribbon(c, points, s * 0.018, Color(0.67, 0.58, 1.0, alpha * (1.0 - t) * 0.78))
+		var tint := Color(0.67, 0.58, 1.0, alpha * (1.0 - t) * 0.78)
+		if not PixelFxLayer.line(c, points, _tint(tint.lightened(0.72), tint.a * 0.72), tint):
+			_ribbon(c, points, s * 0.018, tint)
 
 
 static func _ground_pressure(c: CanvasItem, element: String, p: Vector2, s: float, t: float, alpha: float) -> void:
@@ -618,7 +620,8 @@ static func _bolt(
 		var u: float = float(k) / 12.0
 		var jag: float = sin(float(k) * 7.3 + float(seed) * 3.1 + t * 17.0) * sin(u * PI)
 		points.append(a.lerp(b, u) + normal * jag * distance * 0.075)
-	_ribbon(c, points, width, tint)
+	if not PixelFxLayer.line(c, points, _tint(tint.lightened(0.72), tint.a * 0.72), tint):
+		_ribbon(c, points, width, tint)
 
 
 static func _storm(
@@ -768,6 +771,8 @@ static func travel(
 ## phase against the renderer's actual command bounds.
 static func pixel_bounds(draw_call: Callable, args: Array) -> Rect2:
 	var method: String = draw_call.get_method()
+	if method == "draw_line_command": return PixelFxLayer.line_bounds(args[0])
+	if method == "draw_hop": return Rect2(args[0], Vector2.ZERO).expand(args[1]).grow(float(args[2]))
 	var p: Vector2 = args[1]
 	if method == "floor_light":
 		var size: float = args[2]

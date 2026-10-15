@@ -1,7 +1,6 @@
 shader_type canvas_item;
 render_mode unshaded, blend_mix;
 
-// The additive variant is compiled from this same source by PixelFxLayer.
 // ViewportTexture RGB is premultiplied. Compare straight RGB to the sRGB ramp.
 uniform vec4 ramp[5];
 uniform float alpha_floor;

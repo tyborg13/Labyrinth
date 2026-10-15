@@ -4,6 +4,13 @@
  "grid_px_at_1080": 2,
  "alpha_floor": 0.3,
  "alpha_bias": 0.12,
+ "surface_ramps": {
+  "fire": "fire",
+  "ice": "ice",
+  "water": "neutral",
+  "electrified": "lightning",
+  "rubble": "earth"
+ },
  "ramps": {
   "fire": [
    "#3a1208",

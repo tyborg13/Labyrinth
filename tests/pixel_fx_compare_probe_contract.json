@@ -1,5 +1,5 @@
 {
-  "min_images": 221,
+  "min_images": 229,
   "expected_sizes": [
     "1920x1080",
     "1280x2880"
@@ -225,6 +225,14 @@
     {"pattern": "surface_ice_break_off.png", "width": 1920, "height": 1080},
     {"pattern": "surface_ice_break_off_crop3x.png", "width": 1920, "height": 1080},
     {"pattern": "surface_ice_break_on.png", "width": 1920, "height": 1080},
-    {"pattern": "surface_ice_break_on_crop3x.png", "width": 1920, "height": 1080}
+    {"pattern": "surface_ice_break_on_crop3x.png", "width": 1920, "height": 1080},
+    {"pattern": "surface_chain_off.png", "width": 1920, "height": 1080},
+    {"pattern": "surface_chain_off_crop3x.png", "width": 1920, "height": 1080},
+    {"pattern": "surface_chain_on.png", "width": 1920, "height": 1080},
+    {"pattern": "surface_chain_on_crop3x.png", "width": 1920, "height": 1080},
+    {"pattern": "surface_tether_off.png", "width": 1920, "height": 1080},
+    {"pattern": "surface_tether_off_crop3x.png", "width": 1920, "height": 1080},
+    {"pattern": "surface_tether_on.png", "width": 1920, "height": 1080},
+    {"pattern": "surface_tether_on_crop3x.png", "width": 1920, "height": 1080}
   ]
 }

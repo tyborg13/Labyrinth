@@ -56,8 +56,8 @@ func _capture_element_sequence(instance: Node, combat_state: Dictionary, element
 	await super._capture_element_sequence(instance, combat_state, element_id)
 	if element_id != "fire":
 		return
-	for kind: String in ["conduction", "ice_break"]:
-		var sample: Dictionary = Fixture.surface_sample(kind)
+	for kind: String in ["conduction", "ice_break", "chain", "tether"]:
+		var sample: Dictionary = Fixture.line_sample(kind) if kind in ["chain", "tether"] else Fixture.surface_sample(kind)
 		var surface_state: Dictionary = combat_state.duplicate(true)
 		surface_state["surfaces"] = sample["state"]["surfaces"]
 		await _render_and_capture(instance, surface_state, sample["presentation"], "surface_%s.png" % kind)
@@ -95,7 +95,7 @@ func _save_screenshot(output_path: String) -> void:
 
 func _crop_rect(board: Control, basename: String) -> Rect2i:
 	var target: Vector2 = board.call("_tile_center", Fixture.TARGET)
-	if "preview" in basename or "release" in basename or "travel" in basename:
+	if "preview" in basename or "release" in basename or "travel" in basename or "chain" in basename or "tether" in basename:
 		target = target.lerp(board.call("_tile_center", Fixture.SOURCE), 0.5)
 	var center: Vector2 = board.get_global_transform_with_canvas() * target + CROP_LIFT
 	var top_left: Vector2i = Vector2i(center) - CROP_SIZE / 2

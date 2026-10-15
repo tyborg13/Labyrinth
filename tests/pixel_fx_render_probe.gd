@@ -4,6 +4,10 @@ extends SceneTree
 ## Headless parsing is useful; it is explicitly not accepted as pixel proof.
 const Pixel = preload("res://scripts/pixel_fx_layer.gd")
 const Fixture = preload("res://tests/pixel_fx_fixture.gd")
+const Board = preload("res://scripts/combat_board_view.gd")
+const Chain = preload("res://scripts/chain_attack_fx.gd")
+const Tether = preload("res://scripts/enemy_mechanics/tether_view.gd")
+const SurfaceDependencies = preload("res://scripts/board_surface_render_dependencies.gd")
 const Runtime = preload("res://scripts/parallel_runtime.gd")
 const OUTPUT: String = "user://probes/pixel_fx_render"
 const SETTLE_FRAMES: int = 3
@@ -15,6 +19,8 @@ const CROP_RECT := Rect2(103.5, 105.25, 200, 120)
 const CROP_ALPHA_OFFSET: float = 0.1
 const BELOW_FLOOR_CELL := Vector2i(100, 180)
 const ABOVE_FLOOR_CELL := Vector2i(100, 272)
+const LINE_PROGRESS: float = 0.52
+const LINE_FIXTURE: Dictionary = {"start": Vector2(300, 500), "end": Vector2(900, 300), "width": 180.0, "key": "pixel-proof"}
 const UNIT_COLOR := Color(0.125, 0.25, 0.375, 1.0)
 var _alphas := PackedFloat32Array()
 
@@ -45,9 +51,10 @@ func _run() -> void:
 	for element: String in Pixel.style()["ramps"]:
 		await _gradient(element)
 	await _cropped_dither()
+	for kind: String in ["conduction", "chain", "tether"]:
+		await _line_core(kind)
 	for element: String in Fixture.ELEMENTS:
-		for additive: bool in [false, true]:
-			await _depth_and_blend(element, additive)
+		await _depth_and_blend(element)
 	for error: String in _failures:
 		push_error(error)
 	print(ProjectSettings.globalize_path(OUTPUT))
@@ -115,7 +122,7 @@ func _draw_gradient(canvas: CanvasItem) -> void:
 			var value: float = float(x % 256) / 255.0
 			canvas.draw_rect(Rect2(x * 2, band * 180, 2, 180), Color(value, value, value, _alphas[band]))
 
-func _depth_and_blend(element: String, additive: bool) -> void:
+func _depth_and_blend(element: String) -> void:
 	var stage := Node2D.new()
 	_viewport.add_child(stage)
 	var back := Node2D.new()
@@ -123,7 +130,7 @@ func _depth_and_blend(element: String, additive: bool) -> void:
 	var back_pixels := Pixel.new()
 	back.add_child(back_pixels)
 	back_pixels.begin(back)
-	back_pixels.submit(element, _draw_rect, [BACK_RECT], Transform2D.IDENTITY, additive, BACK_RECT)
+	back_pixels.submit(element, _draw_rect, [BACK_RECT], Transform2D.IDENTITY, BACK_RECT)
 	back_pixels.finish()
 	var unit := ColorRect.new()
 	unit.position = UNIT_RECT.position
@@ -135,7 +142,7 @@ func _depth_and_blend(element: String, additive: bool) -> void:
 	var front_pixels := Pixel.new()
 	front.add_child(front_pixels)
 	front_pixels.begin(front)
-	front_pixels.submit(element, _draw_rect, [FRONT_RECT], Transform2D.IDENTITY, additive, FRONT_RECT)
+	front_pixels.submit(element, _draw_rect, [FRONT_RECT], Transform2D.IDENTITY, FRONT_RECT)
 	front_pixels.finish()
 	await _settle()
 	var image: Image = _viewport.get_texture().get_image()
@@ -143,10 +150,8 @@ func _depth_and_blend(element: String, additive: bool) -> void:
 	_expect(_color_error(image.get_pixel(200, 200), ramp_color) <= 1, "%s back layer visible outside unit" % element)
 	_expect(_color_error(image.get_pixel(400, 200), UNIT_COLOR) <= 1, "%s unit occludes back layer" % element)
 	var front_color: Color = ramp_color
-	if additive:
-		front_color = Color(minf(1.0, UNIT_COLOR.r + ramp_color.r), minf(1.0, UNIT_COLOR.g + ramp_color.g), minf(1.0, UNIT_COLOR.b + ramp_color.b), 1.0)
-	_expect(_color_error(image.get_pixel(600, 200), front_color) <= 1, "%s front layer preserves %s blending over unit" % [element, "additive" if additive else "normal"])
-	_expect(image.save_png(OUTPUT.path_join("%s_depth_%s.png" % [element, "add" if additive else "mix"])) == OK, "Save depth/blend fixture")
+	_expect(_color_error(image.get_pixel(600, 200), front_color) <= 1, "%s front layer preserves normal blending over unit" % element)
+	_expect(image.save_png(OUTPUT.path_join("%s_depth_mix.png" % element)) == OK, "Save depth fixture")
 	stage.queue_free()
 	await process_frame
 
@@ -157,7 +162,7 @@ func _cropped_dither() -> void:
 	source.add_child(pixel)
 	var rect: Rect2 = CROP_RECT
 	pixel.begin(source)
-	pixel.submit("fire", _draw_alpha_rect, [rect], Transform2D.IDENTITY, false, rect)
+	pixel.submit("fire", _draw_alpha_rect, [rect], Transform2D.IDENTITY, rect)
 	pixel.finish()
 	await _settle()
 	var run: Dictionary = (pixel.get("_runs") as Array)[0]
@@ -202,3 +207,84 @@ func _expect(condition: bool, message: String) -> void:
 	_checks += 1
 	if not condition:
 		_failures.append(message)
+
+func _line_core(kind: String) -> void:
+	var source := Node2D.new()
+	_viewport.add_child(source)
+	var pixel := Pixel.new()
+	source.add_child(pixel)
+	var board := Board.new()
+	board.size = Fixture.SIZE
+	board.visible = false
+	root.add_child(board)
+	var sample: Dictionary = Fixture.surface_sample("conduction")
+	board.set_combat_state(sample["state"], [], [], Vector2i(-1, -1), "", "", {}, {}, sample["presentation"])
+	pixel.begin(source)
+	if kind == "conduction":
+		pixel.submit("lightning", _draw_conduction, [board, sample["presentation"]], Transform2D.IDENTITY)
+	elif kind == "chain":
+		pixel.submit("lightning", Chain.draw_hop, [LINE_FIXTURE["start"], LINE_FIXTURE["end"], LINE_FIXTURE["width"], LINE_PROGRESS, false], Transform2D.IDENTITY)
+	else:
+		var points: PackedVector2Array = Tether.beam_points(LINE_FIXTURE["start"], LINE_FIXTURE["end"], LINE_FIXTURE["key"], 0)
+		pixel.submit("lightning", Pixel.draw_line_command, [points, Color(0.94, 0.96, 1.0, 1.0), Color(Tether.COLOR, 0.82)], Transform2D.IDENTITY)
+	pixel.finish()
+	await _settle()
+	var image: Image = _viewport.get_texture().get_image()
+	var lines: Node2D = pixel.get_node("QuantizedPixels/LineCells")
+	var strokes: Array = lines.get("strokes")
+	_expect(not strokes.is_empty(), "%s production renderer emits cores" % kind)
+	var bad_core: int = 0
+	var bad_clusters: int = 0
+	var core_set: Dictionary = {}
+	for stroke: Dictionary in strokes:
+		var cells: Array[Vector2i] = stroke["cells"]
+		var vertices: PackedVector2Array = stroke["vertices"]
+		_expect(cells[0] == Vector2i(vertices[0].floor()) and cells[-1] == Vector2i(vertices[-1].floor()), "%s core endpoints are unchanged" % kind)
+		for vertex: Vector2 in vertices:
+			_expect(cells.has(Vector2i(vertex.floor())), "%s preserves authored zigzag vertices" % kind)
+		for index: int in range(cells.size()):
+			var cell: Vector2i = cells[index]
+			core_set[cell] = true
+			if index > 0:
+				var step: Vector2i = cell - cells[index - 1]
+				_expect(maxi(absi(step.x), absi(step.y)) == 1, "%s rendered core path is 8-connected" % kind)
+			var color: Color = image.get_pixelv(cell * 2)
+			if color.a != 1.0: bad_core += 1
+			for offset: Vector2i in [Vector2i.RIGHT, Vector2i.DOWN, Vector2i.ONE]:
+				if image.get_pixelv(cell * 2 + offset) != color: bad_clusters += 1
+	_expect(bad_core == 0, "%s every core cell is fully opaque, including high Bayer thresholds" % kind)
+	_expect(bad_clusters == 0, "%s core cells are exact nearest 2x2 clusters" % kind)
+	if kind == "conduction":
+		# This authored halo is below the approved floor. Only its exact one-cell
+		# core may survive; a wider solid band would fail this count.
+		var opaque: int = 0
+		for y: int in range(0, image.get_height(), 2):
+			for x: int in range(0, image.get_width(), 2):
+				opaque += int(image.get_pixel(x, y).a > 0.0)
+		_expect(opaque == core_set.size(), "Conduction core is exactly one cell wide, without a solid halo")
+	if kind == "tether":
+		var halo: Color = strokes[0]["halo"]
+		var bad_halo: int = 0
+		var halo_on: int = 0
+		var halo_off: int = 0
+		for y: int in range(image.get_height() / 2):
+			for x: int in range(image.get_width() / 2):
+				var cell := Vector2i(x, y)
+				if core_set.has(cell): continue
+				var beside_core: bool = false
+				for offset: Vector2i in [Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1), Vector2i(-1, 0), Vector2i(1, 0), Vector2i(-1, 1), Vector2i(0, 1), Vector2i(1, 1)]:
+					if core_set.has(cell + offset): beside_core = true
+				var expected: Color = Pixel.quantize(halo, cell, "lightning") if beside_core else Color.TRANSPARENT
+				if _color_error(image.get_pixelv(cell * 2), expected) > 1: bad_halo += 1
+				if beside_core:
+					halo_on += int(expected.a == 1.0)
+					halo_off += int(expected.a == 0.0)
+		_expect(bad_halo == 0 and halo_on > 0 and halo_off > 0, "Tether has exactly a one-cell Bayer-dithered halo and no farther pixels")
+	_expect(image.save_png(OUTPUT.path_join(kind + "_solid_core.png")) == OK, "Save solid line fixture")
+	source.queue_free()
+	board.queue_free()
+	await process_frame
+
+func _draw_conduction(canvas: CanvasItem, board: Control, presentation: Dictionary) -> void:
+	for tile: Vector2i in SurfaceDependencies.changed_tiles({}, presentation, {"effect": true}):
+		board.call("_draw_surface_conduction_floor", tile, canvas)

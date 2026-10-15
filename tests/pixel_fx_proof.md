@@ -1,125 +1,131 @@
-# vfx-01 feedback 1 — implementation proof
+# vfx-01 round 2 — implementation proof
 
-These fixes are uncommitted on top of director commit `3c19f5e6f`. The approved `data/vfx_pixel_style.json` is unchanged (`alpha_floor: 0.3`, `alpha_bias: 0.12`). The design owner owns windowed proof, inspection, review, commits and publication. This worker did not run a windowed engine, commit or peer review.
+Uncommitted changes on `b1ff413f7`. The director's existing style values, including `alpha_floor: 0.3`, `alpha_bias: 0.12` and every ramp colour, are unchanged. Only the requested surface-to-ramp mapping was added to the data. No windowed run, commit, publication, or peer review was performed by this worker.
+
+## Requirement coverage
+
+1. **Surface colour fallback.** An empty prepared `feedback_element` now falls back to the event's surface before selecting the ramp. Tests call `CombatOutcomeFeedback.prepare` with a primary spell on the same tile, then check the actual retained run for fire, ice, water, electrified and rubble. Expectations come from the JSON mapping.
+2. **Connected line cores.** Conduction, chain hops and their tributaries, lightning bolts/ground discharges, and tether beams use one shared cell rasterizer. It passes through every original path vertex with a one-cell, 8-connected Bresenham core. The core uses the nearest Rec.601 ramp colour at full alpha; only its one-cell halo uses the existing alpha floor/Bayer rules. Both use the same physical screen grid, including cropped targets, board transforms and viewport stretch. A small cell canvas in the existing run's painter slot prevents the approved positive alpha bias from punching holes in even full-alpha cores. It adds no render target. Halo colours reuse sixteen Bayer outcomes per run/colour; fully discarded halos skip neighbourhood construction. The original procedural paths and the off-state drawing remain intact. Headless tests check production paths, endpoints, every zigzag vertex, same-frame submission and one connected component across tile joins/chain tributaries. The render probe additionally checks fully opaque 2×2 cores, exact conduction width and the tether's one-cell Bayer halo.
+3. **GPU benchmark.** The harness keeps a fixed logical board and explicitly sizes its SubViewport to 1920×1080 or 3840×2160. It records the actual native window size without resizing it or asserting equality. A real run requires Vulkan. GPU cost is the sum of `RenderingServer.viewport_get_measured_render_time_gpu` for the board and every nested pixel viewport, with timing enabled before drawing. Each off/on pair uses the same authored phase; pairs alternate AB/BA order. A sample holds its phase for `RenderingDevice.get_frame_delay() + 2` frames so queued GPU queries belong to that variant, and is read on the next process tick because Godot handles timestamps after `frame_post_draw`. Every pixel target is redrawn during these held frames. Missing GPU timestamps fail validation. Only the **paired GPU median increase ≤1.0 ms per 1080p workload** gates the benchmark. GPU p95 and all 4K numbers are reported; CPU submission (including all three deferred draw queues) and delivered frame intervals are secondary. Minimum-spec hardware is out of scope.
+4. **Lazy surface nodes.** A tile creates `SurfaceGround` and `SurfaceFeedbackPixels` only while it owns active surface feedback or a conduction segment. They are hidden and freed when feedback finishes, clears or becomes invisible. Idle ground returns to its original synchronous draw slot. Tests verify zero such nodes on an initial 9×9 idle board, after each feedback type expires, and after clearing effects. Active retained ground remains below feedback, and props/units remain above it.
+5. **Dead additive path removed.** The additive argument, runtime-generated shader, material detection, snapshot field and unreachable additive proof cases are removed. Production uses the existing normal-blend shader.
+6. **Mapping in data.** `surface_ramps` contains fire→fire, ice→ice, electrified→lightning, rubble→earth and water→neutral. Water preserves the previous neutral fallback because no water ramp exists. Runtime and test expectations both read the mapping. All pre-existing data values compare equal to HEAD.
+7. **Collision and generic glows.** Both remain pixel-styled. The new collision regression also covers an empty element; the run-key sentinel supports it correctly after removal of the additive suffix.
+
+The benchmark follows the [RenderingServer GPU timing contract](https://docs.godotengine.org/en/stable/classes/class_renderingserver.html#class-renderingserver-method-viewport-get-measured-render-time-gpu), [RenderingDevice frame-delay API](https://docs.godotengine.org/en/stable/classes/class_renderingdevice.html#class-renderingdevice-method-get-frame-delay), and the [4.6.1 timestamp processing order](https://github.com/godotengine/godot/blob/4.6.1-stable/servers/rendering/rendering_server_default.cpp#L119).
 
 ## Changed files
 
-- `scripts/pixel_fx_layer.gd`, `shaders/pixel_fx_quantize.gdshader`: cropped targets, global Bayer origin, native texture slots, CPU oracle precision.
-- `scripts/elemental_spell_fx.gd`: appended conservative geometry-bound helper; every existing drawing function is byte-for-byte unchanged from HEAD.
-- `scripts/combat_board_view.gd`: surface and telegraph painter slots, interleaved trap textures, crop plumbing.
-- `tests/pixel_fx_fixture.gd`, `tests/pixel_fx_test.gd`: approved-data assertions, depth, stretch, resize, bounds and fan coverage.
-- `tests/pixel_fx_compare_probe.gd`, `tests/pixel_fx_compare_probe_contract.json`: conduction and ice-break pairs.
-- `tests/pixel_fx_render_probe.gd`, `tests/pixel_fx_render_probe_contract.json`: floor boundaries and cropped Bayer semantics.
-- `tests/pixel_fx_performance_benchmark.gd`, `tests/pixel_fx_performance_benchmark_contract.json`: twelve-tile breath, 4K reporting and corrected on-state captures.
+- `data/vfx_pixel_style.json`: requested surface mapping; approved existing values preserved.
+- `scripts/pixel_fx_layer.gd`: connected core/halo cell canvas; normal-only runs; empty-element sentinel.
+- `shaders/pixel_fx_quantize.gdshader`: remove obsolete additive-variant comment.
+- `scripts/combat_board_view.gd`: fallback, lazy surface slots, conduction routing/lifetime, chain/tether submission.
+- `scripts/elemental_spell_fx.gd`: route lightning paths and supply chain/line bounds.
+- `scripts/chain_attack_fx.gd`: route the original main/fork paths through the shared cell renderer.
+- `scripts/enemy_mechanics/tether_view.gd`: route the existing beam path before the original off-state drawing.
+- `tests/pixel_fx_fixture.gd`: chain/tether/collision proof states.
+- `tests/pixel_fx_test.gd`: covered surface colours, idle/expired node counts, connected production paths, endpoint/zigzag/same-frame checks; remove additive-only expectations.
+- `tests/pixel_fx_compare_probe.gd`, `tests/pixel_fx_compare_probe_contract.json`: add chain/tether off/on frames and 3× nearest crops; preserve conduction and ice break.
+- `tests/pixel_fx_render_probe.gd`, `tests/pixel_fx_render_probe_contract.json`: add conduction/chain/tether core semantics and halo verification; remove additive-only cases.
+- `tests/pixel_fx_performance_benchmark.gd`: Vulkan viewport timing, paired sampling and fixed render-target sizes. The existing 16-image performance contract is unchanged.
 - `tests/pixel_fx_proof.md`: this handoff.
-
-## Feedback coverage
-
-1. **Tests read data.** The test reads the JSON independently, derives half-alpha Bayer population from its floor/bias and checks immediately below/above the floor at the lowest Bayer threshold. The CPU oracle rounds the uploaded bias and threshold to float32, matching Color/shader precision for exact-threshold comparisons. GPU alpha bands use adjacent RGBA8 values around the approved floor; the probe asserts both their raw alpha and resulting visibility.
-2. **Depth.** Each tile's retained ground stays below `SurfaceGround`; `SurfaceFeedbackPixels` follows it, below the original host's path, props and units. Both children deliberately use `show_behind_parent`; tests also check their sibling order against every visible retained ground layer. Surface feedback, conduction and breaks are pixel-styled; breaking and arriving elements keep separate ramps and original order. Telegraphs have a retained pass immediately before the effects host. Trap activation textures occupy native-resolution slots between their corresponding pixel runs. Existing tile hosts, IDs, scene maps, procedural geometry, timings, input, analytics and saves are preserved.
-3. **Cost.** Each run unions conservative local geometry bounds, transforms to screen coordinates, rounds outward to grid cells, adds one cell of margin and clips to the viewport. Composites retain nearest filtering; the shader receives the crop's screen-cell origin so Bayer phase cannot shift with a crop. Conduction allocates targets only for tiles owning floor-path segments; the other tiles retain no pixel targets. These are safe analytical bounds, not a GPU alpha readback or a tight per-frame raster trim. A test checks the boxes against actual command bounds over eight phases, both depth passes and motion modes. The 1080p twelve-tile fan uses **422,568** low-resolution texels across 24 layers versus **12,441,600** for full-screen targets (96.6% fewer). The benchmark measures both 1920×1080 and 3840×2160; only 1080p is gated at +1.0 ms median/p95, while 4K is reported.
-4. **Window scaling.** Tests use `size_2d_override` plus `size_2d_override_stretch` and verify physical grid size and transform cancellation with board zoom/fractional pan. The existing viewport-only resize test verifies that retained hosts redraw without changing board logical size.
-5. **Rec.601 / resize.** CPU red/green/blue impulses and the shader constants pin `(0.299, 0.587, 0.114)`. Tests cover the resize signal connection and its resulting grid refresh. The new cropped GPU fixture checks exact one-cell padding and screen-anchored dithering.
-
-The command-bounds API is test-only: Godot's [4.6.1 implementation](https://github.com/godotengine/godot/blob/4.6.1-stable/servers/rendering/rendering_server.cpp#L1675) returns empty bounds in exported builds. Production uses the portable analytical boxes.
 
 ## Observed validation
 
-- Pixel tests: `PIXEL FX TEST RESULT: PASS (10822 checks, 0 failures)`; includes 720 nonempty geometry-bound cases.
+- Pixel tests: `PIXEL FX TEST RESULT: PASS (11499 checks, 0 failures)`.
+- Fan allocation: `PIXEL FX FAN TARGETS: 24 layers, 422568 cropped texels (12441600 full-screen texels)`.
 - Elemental tests: `ELEMENTAL SPELL FX TEST RESULT: PASS`.
-- Hash equivalence: `TEST RESULT: PASS`, 4,230 equivalence cases.
-- UI lint: `Ran 25 tests in 3.164s` / `OK`.
-- All three pixel probe scripts passed headless `--check-only`. This does not execute their GPU assertions.
-- JSON proof contracts parse and contain unique required images: comparison 221, render semantics 17, performance 16.
-- `APPROVED DATA UNCHANGED: PASS`.
-- `EXISTING ELEMENTAL DRAWING SOURCE UNCHANGED: PASS (bounds helper appended)`.
-- Python discovery: `Ran 397 tests in 272.345s` / `OK (skipped=61)` (optional audio environments/modules).
-- Full Godot suite: `FULL SUITE RUNTIME: 730.711 seconds (budget 900 seconds)` / `TEST RESULT: PASS`; runner exit 0.
-- Isolated CPU benchmark: `PIXEL FX CPU BENCHMARK: PASS (GPU budget pending)`; runner exit 0. Maximum increases: 1080p +0.260 ms median / +0.844 ms p95; 4K +0.240 ms median / +0.693 ms p95.
+- Hash equivalence: `TEST RESULT: PASS`; 4,230 equivalence cases.
+- UI identity lint: `Ran 25 tests in 2.939s` / `OK`.
+- Python discovery: `Ran 397 tests in 243.733s` / `OK (skipped=61)`.
+- All three pixel probes passed headless `--check-only`; this does not execute their GPU assertions.
+- Contracts: 229 comparison images, 15 render-semantic images, 16 benchmark images; all required patterns are unique.
+- `APPROVED STYLE VALUES UNCHANGED: PASS`.
+- Final full Godot suite: `FULL SUITE RUNTIME: 769.604 seconds (budget 900 seconds)` / `TEST RESULT: PASS`; runner exit 0. This run includes the halo-cache optimization.
+- Isolated headless benchmark: `PIXEL FX CPU BENCHMARK: PASS (GPU budget pending; CPU report only)`; runner exit 0, 16 rows, 180 pairs per row, no harness errors. GPU values in this CPU-only JSON are zero placeholders, not measurements. Maximum CPU submission increases (lightning): 1080p +1.579 ms median / +2.799 ms p95; 4K +1.803 ms median / +2.946 ms p95.
 
-Logs use `/private/tmp/vfx-01-feedback-`: `pixel.log`, `elemental.log`, `hash.log`, `ui-lint.log`, `full-godot.log`, `python.log`, and the three `*-parse.log` files.
+Logs are `/private/tmp/vfx-01-round2-{pixel,elemental,hash,ui-lint,python,full-godot}.log`, plus `compare-parse.log`, `render-parse.log`, `performance-parse.log` and `performance-cpu.log` with the same prefix. One earlier full-suite run was stopped to fix the empty-element collision case; `full-godot-interrupted.log` is not final proof. No pre-existing assertions were rewritten to hide failures. The director’s prior `surface_conduction_off_crop3x.png` / `surface_conduction_on_crop3x.png` reference pair was inspected; it is not fresh proof of these changes.
 
-The first expanded CPU measurement reported `PIXEL FX CPU BENCHMARK: FAIL (GPU budget pending)`: earth at 1080p had +0.142 ms median / +3.536 ms p95. The run overlapped other checks; it is preserved in `performance.log`, not treated as a pass. Its largest 4K increases were +0.211 ms median / +0.793 ms p95 (air). The subsequent isolated run passed with no worker tests running alongside it; its complete measurements follow. An earlier full-suite run was intentionally interrupted to fix empty conduction allocations; the subsequent final run passed and is the full-suite proof. Headless CPU timings do not establish GPU/frame-budget compliance.
 
-| Viewport | Workload | Off median / p95 (ms) | On median / p95 (ms) | Delta median / p95 (ms) |
-|---|---|---:|---:|---:|
-| 1920×1080 | idle | 0.204 / 0.275 | 0.183 / 0.251 | -0.021 / -0.024 |
-| 1920×1080 | fire | 3.383 / 3.860 | 3.543 / 4.004 | +0.160 / +0.144 |
-| 1920×1080 | ice | 3.529 / 4.037 | 3.505 / 3.854 | -0.024 / -0.183 |
-| 1920×1080 | lightning | 3.522 / 4.335 | 3.648 / 4.161 | +0.126 / -0.174 |
-| 1920×1080 | air | 3.868 / 4.403 | 4.128 / 5.247 | +0.260 / +0.844 |
-| 1920×1080 | earth | 3.941 / 4.754 | 3.968 / 4.604 | +0.027 / -0.150 |
-| 1920×1080 | fire_aoe | 3.979 / 4.506 | 4.013 / 4.382 | +0.034 / -0.124 |
-| 1920×1080 | dragon_fan | 4.054 / 7.220 | 3.944 / 7.080 | -0.110 / -0.140 |
-| 3840×2160 | idle | 0.180 / 0.289 | 0.181 / 0.318 | +0.001 / +0.029 |
-| 3840×2160 | fire | 3.298 / 4.409 | 3.467 / 4.128 | +0.169 / -0.281 |
-| 3840×2160 | ice | 3.216 / 3.732 | 3.288 / 3.769 | +0.072 / +0.037 |
-| 3840×2160 | lightning | 3.091 / 3.578 | 3.216 / 4.271 | +0.125 / +0.693 |
-| 3840×2160 | air | 3.417 / 3.976 | 3.466 / 3.829 | +0.049 / -0.147 |
-| 3840×2160 | earth | 3.556 / 4.213 | 3.427 / 4.076 | -0.129 / -0.137 |
-| 3840×2160 | fire_aoe | 3.735 / 4.473 | 3.975 / 4.679 | +0.240 / +0.206 |
-| 3840×2160 | dragon_fan | 3.688 / 6.564 | 3.730 / 6.813 | +0.042 / +0.249 |
+Earlier diagnostic CPU runs (`performance-cpu-before-cache.log` and `performance-cpu-two-barriers.log`, with the same `/private/tmp/vfx-01-round2-` prefix) used two deferred barriers and did not consistently include the final cell-canvas draw. Their timings are superseded by this final report, which includes all three draw queues. Repeated per-cell halo colour calculations found during those runs were replaced by a sixteen-entry cache. The CPU-only report includes off/on allocation churn and is secondary evidence, not a GPU gate or a claim about real-renderer frame delivery.
 
-Final log: `/private/tmp/vfx-01-feedback-performance-isolated.log`. The isolated JSON report is printed under that run's `user://probes/pixel_fx_performance/performance.json`.
+| Viewport | Workload | CPU submission Δ median / p95 (ms) | Frame interval Δ median / p95 (ms) |
+|---|---|---:|---:|
+| 1920×1080 | idle | +0.012 / +0.449 | -0.046 / +1.177 |
+| 1920×1080 | fire | +0.086 / +0.829 | +0.034 / +0.795 |
+| 1920×1080 | ice | +0.100 / +1.032 | +0.055 / +1.009 |
+| 1920×1080 | lightning | +1.579 / +2.799 | +1.579 / +2.803 |
+| 1920×1080 | air | +0.124 / +0.763 | +0.092 / +0.745 |
+| 1920×1080 | earth | +0.063 / +0.859 | +0.067 / +0.852 |
+| 1920×1080 | fire_aoe | +0.177 / +1.229 | +0.136 / +1.200 |
+| 1920×1080 | dragon_fan | +0.155 / +0.966 | +0.086 / +0.788 |
+| 3840×2160 | idle | +0.035 / +0.700 | -0.049 / +1.866 |
+| 3840×2160 | fire | +0.120 / +1.892 | +0.095 / +1.994 |
+| 3840×2160 | ice | +0.120 / +0.782 | +0.062 / +0.789 |
+| 3840×2160 | lightning | +1.803 / +2.946 | +1.736 / +2.812 |
+| 3840×2160 | air | +0.113 / +0.945 | +0.111 / +0.986 |
+| 3840×2160 | earth | +0.124 / +0.665 | +0.108 / +0.636 |
+| 3840×2160 | fire_aoe | +0.039 / +0.851 | +0.010 / +0.844 |
+| 3840×2160 | dragon_fan | +0.300 / +1.575 | +0.147 / +1.453 |
+
+Complete off/on statistics and individual pairs are in `/private/tmp/vfx-01-round2-performance-cpu.log` and the isolated `user://probes/pixel_fx_performance/performance.json` path printed in that log.
 
 ## Proof for the design owner
 
-No windowed commands below were attempted. Use the required runner and keep its isolated output path/result manifest. Captures use 100% UI scale; comparison and semantics are 1920×1080. The performance command also requests the explicitly required 3840×2160 window and render target. Use a fresh manifest filename for a subsequent run.
+These commands have **not** been run by this worker: the sandbox has no macOS window-server access. Comparison and semantics use a real 1920×1080 SubViewport at 100% UI scale. The benchmark additionally renders a 3840×2160 SubViewport independently of the native window size. Keep the runner's result manifest and isolated capture directory.
 
-Comparison: all original elemental frames, off/on 3× nearest crops and contact sheets, ranged/AoE attacks, plus conduction and ice break:
-
-```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/vfx-01 && python3 tools/visual_probe_runner.py --task-id vfx-01 --no-headless --display-driver macos --audio-driver Dummy --timeout 180 --startup-timeout 45 --proof-contract tests/pixel_fx_compare_probe_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/vfx-01-feedback1-compare.json tests/pixel_fx_compare_probe.gd
-```
-
-Planned paths: `user://probes/pixel_fx_compare/`, including `surface_{conduction,ice_break}_{off,on}.png` and matching `_crop3x.png`; `comparison.json` records all pairs. Existing sheets are 1280×2880 with off on the left, on on the right.
-
-GPU semantics: ramp entries, alpha floor neighbors, Bayer stability, cropped screen phase, nearest clusters, and normal/additive depth:
+Comparison (229 required PNGs):
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/vfx-01 && python3 tools/visual_probe_runner.py --task-id vfx-01 --no-headless --display-driver macos --audio-driver Dummy --timeout 120 --proof-contract tests/pixel_fx_render_probe_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/vfx-01-feedback1-render.json tests/pixel_fx_render_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/vfx-01 && python3 tools/visual_probe_runner.py --task-id vfx-01 --no-headless --display-driver macos --audio-driver Dummy --timeout 240 --startup-timeout 45 --proof-contract tests/pixel_fx_compare_probe_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/vfx-01-round2-compare.json tests/pixel_fx_compare_probe.gd
 ```
 
-Planned paths: `user://probes/pixel_fx_render/<element>_gradient.png`, `<element>_depth_{mix,add}.png`, and `fire_cropped_dither.png`.
+Capture path: `user://probes/pixel_fx_compare/`. Includes `surface_{conduction,ice_break,chain,tether}_{off,on}.png` and `_crop3x.png`, every original elemental frame/crop/contact sheet, and ranged/AoE comparisons. `comparison.json` records the pairs and crops.
 
-Matched frame benchmark: idle, five elements, three-cell AoE and twelve-tile dragon fan, 1080p/4K, both ordering directions:
+Rendered semantics (15 required PNGs):
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/vfx-01 && python3 tools/visual_probe_runner.py --task-id vfx-01 --no-headless --display-driver macos --audio-driver Dummy --timeout 480 --startup-timeout 45 --proof-contract tests/pixel_fx_performance_benchmark_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/vfx-01-feedback1-performance.json tests/pixel_fx_performance_benchmark.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/vfx-01 && python3 tools/visual_probe_runner.py --task-id vfx-01 --no-headless --display-driver macos --audio-driver Dummy --timeout 120 --proof-contract tests/pixel_fx_render_probe_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/vfx-01-round2-render.json tests/pixel_fx_render_probe.gd
 ```
 
-Planned paths: `user://probes/pixel_fx_performance/<workload>_{1080,2160}p_on.png` and `performance.json`. Run focused without other benchmark processes. CPU-only reproduction:
+Capture path: `user://probes/pixel_fx_render/`, including `{conduction,chain,tether}_solid_core.png`, six gradients, five depth fixtures and cropped Bayer proof.
+
+Vulkan GPU benchmark, run without other benchmarks (16 required PNGs plus JSON):
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/vfx-01 && python3 tools/visual_probe_runner.py --task-id vfx-01 --no-headless --display-driver macos --audio-driver Dummy --rendering-method mobile --rendering-driver vulkan --timeout 960 --startup-timeout 45 --proof-contract tests/pixel_fx_performance_benchmark_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/vfx-01-round2-performance.json tests/pixel_fx_performance_benchmark.gd
+```
+
+Capture path: `user://probes/pixel_fx_performance/<workload>_{1080,2160}p_on.png` and `performance.json`. Workloads are idle, fire, ice, lightning, air, earth, fire AoE and the twelve-tile dragon fan. JSON retains each paired GPU/frame/submission sample, viewport count, aggregate median/p95, driver, actual window sizes and gate result.
+
+Headless harness reproduction (CPU report only):
 
 ```sh
 cd /Users/borgerding/workspace/Labyrinth.worktrees/vfx-01 && python3 tools/godot_task_runner.py --task-id vfx-01 --timeout 600 --stream -- godot --headless --path . --script tests/pixel_fx_performance_benchmark.gd -- --submission-only
 ```
 
-Unchanged pre-pixelation geometry proof and existing spell proof:
+The existing raw geometry equivalence proof remains available:
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/vfx-01 && python3 tools/visual_probe_runner.py --task-id vfx-01 --no-headless --display-driver macos --audio-driver Dummy --timeout 120 --min-images 32 --expect-size 1920x1080 --result-manifest /private/tmp/labyrinth-inspection-manifests/vfx-01-feedback1-geometry.json tests/elemental_spell_geometry_equivalence_probe.gd
-
-cd /Users/borgerding/workspace/Labyrinth.worktrees/vfx-01 && python3 tools/visual_probe_runner.py --task-id vfx-01 --no-headless --display-driver macos --audio-driver Dummy --timeout 180 --startup-timeout 45 --proof-contract tests/elemental_spell_effects_proof.json --result-manifest /private/tmp/labyrinth-inspection-manifests/vfx-01-feedback1-spells.json tests/elemental_spell_effects_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/vfx-01 && python3 tools/visual_probe_runner.py --task-id vfx-01 --no-headless --display-driver macos --audio-driver Dummy --timeout 120 --min-images 32 --expect-size 1920x1080 --result-manifest /private/tmp/labyrinth-inspection-manifests/vfx-01-round2-geometry.json tests/elemental_spell_geometry_equivalence_probe.gd
 ```
 
-Planned paths: `user://probes/elemental_geometry_equivalence/` and `user://probes/elemental_spell_effects_v1/`. No inspection-fixture command was requested; that phase remains assigned to the owner.
+No inspection-fixture command was requested; the owner retains that workflow phase.
 
-## TODO_DESIGN placeholders
+## TODO_DESIGN placeholders and chosen defaults
 
-None. No assets, ramps, authored geometry or gameplay values were designed or changed.
+No `TODO_DESIGN` placeholder was added. Existing surface fallback semantics were moved into data without inventing a water palette. No art, icons, audio, fonts, gameplay values, wording or animation timing were authored.
 
-## Chosen defaults (proof only)
+Proof-only defaults:
 
-- Surface fixture phases: ice break 0.12 to retain leaving ground; conduction and other feedback 0.38. Fixed ambient clock 0.37. Surface state and poses are named fixture fields.
-- Bounds fixture: point (700,600), size 200, eight named phases, release lift (0,80), travel offsets (300,80)/(300,0), both depth/motion modes. Floor epsilon 0.0001.
-- Cropped GPU fixture: (103.5,105.25,200,120), alpha floor +0.1; low-threshold floor samples at (100,180)/(100,272). Other rectangles and sample stride retain the initial probe values.
-- Benchmark screenshot phase 0.62 and three settle frames. Timing retains 45 warmup/180 sampled frames per round and two rounds. The twelve-cell saved fan is an explicit fixture, not a change to current combat targeting.
-- Existing comparison crop: 640×360, lift 110 pixels, 3× nearest; three settle frames. Existing transform fixture remains position (37.25,19.75), scale 1.17.
-- Performance timeout 480 seconds windowed / 600 seconds headless for the doubled resolution/workload coverage; other command timeouts remain 180/120 seconds.
+- Chain/tether comparison progress 0.52, fixed ambient clock 0.37; existing conduction/ice-break phases remain 0.38/0.12.
+- Rendered line fixture: start (300,500), end (900,300), tile width 180, phase 0.52, deterministic tether key `pixel-proof`. Colours come from the existing effect's core/halo values.
+- Benchmark: 45 warmup frames per variant, 180 paired samples per workload/resolution, alternating first variant, GPU queue delay plus two settling frames, screenshot progress 0.62 and three settle frames. CPU-only mode uses one submission frame and reports no GPU proof.
+- Comparison timeout 240 seconds for the additional line captures; benchmark timeout 960 seconds accommodates query settling across 5,760 variant samples; startup watchdog remains 45 seconds. Render semantics stays at 120 seconds, headless benchmark at 600 seconds.
+- Previous debug crops, grid/resize fixtures and floor-neighbour test constants are unchanged.
 
-## Open issues
+The passing full suite still emits the existing CA-certificate, save-fixture, ObjectDB, `1 resources still in use at exit`, and run-end recap `get_node()` outside-active-tree diagnostics. The latter two also appear in the preceding successful `/private/tmp/vfx-01-feedback-full-godot.log`. No assertion failed and the runner exited 0.
 
-- Fresh GPU semantics, windowed captures, visual inspection, and 1080p +1.0 ms frame-budget compliance remain unverified in this sandbox. The 4K GPU result is also pending.
-- The initial CPU p95 miss and the passing isolated rerun are both recorded above; real-renderer performance still needs verification.
+## Open proof
 
-The successful full suite emitted CA-certificate, intentional save/analytics fixture and ObjectDB diagnostics, including `ERROR: 1 resources still in use at exit` in the run-score child. The run-end recap `get_node()` outside-active-tree errors also occur in the earlier pre-feedback successful log (`/private/tmp/vfx-01-full-godot-final.log`). No existing assertions were changed.
+Fresh rendered line/halo semantics, screenshots, visual inspection and Vulkan median GPU numbers remain pending the owner's commands. The secondary headless CPU report shows the lightning overhead above; it is not subject to the requested GPU-only median gate. Neither headless parsing nor CPU timing establishes GPU budget compliance. Minimum-spec hardware validation is explicitly out of scope.
