@@ -7,7 +7,10 @@
   "kit_kind": "maquette",
   "kit_version": "d3dc4e6e4b70bb613fbb43a6c902042f2266c86d8ef8e4b9222d8c9a7b20bcf8",
   "method": "maquette paint-over (wave 1b): lightning-only edit of mq1_rear to match the approved front v2 + judge tone G; processed without palette match (it greys the lightning cores)",
-  "peers": [],
+  "peers": [
+    "arc_thrall_rear",
+    "hero_rear"
+  ],
   "prompt_path": "prompt.md",
   "prompt_sha256": "12cea70bb36dafacdd348fa24d8ee1cdce61025019c5f717e744d7af5089003f",
   "prompt_source": "spec/art_identity/maquettes/lightning_wisp/edit_rear_lightning_r1.md",
