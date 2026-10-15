@@ -22,6 +22,8 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 - Merged today: sfx-03, rr-01, art-04 (shrike), por-01, ux-02, art-05, ui-02, qa-04, fix-03. Playtest 7 = 7901c37f0.
 - Merged into integration: chr-02 (9d711ceb5), art-06 (bf3ed130a), ux-03 (a98d3683f), art-07 (af5163220), vfx-01 (693209518), rr-02 (0d2975df1),
   fix-04 (81e7f0dc9), ux-04 (1a9e585e7). Full suite running on integration (no merges until done). Playtest 9 after sfx-04. Full suite running on integration (no merges until it finishes). ux-04 (text rewrite) launched.
+- MERGE HYGIENE: after merging a unit that changes imported assets (audio/art), run `godot --headless --import` in the
+  integration worktree before the full suite (qa-05: stale audio imports made the sync suites fail).
 - REVIEW POLICY (owner 2026-10-15, Claude usage): peer reviews run on Codex via `scratchpad/codex_review.sh UNIT REF PROMPT`
   (detached scratch worktree under /private/tmp/labyrinth_codex/review/, output REF.md there); art judging is done by Claude
   directly, no judge/review subagents.
