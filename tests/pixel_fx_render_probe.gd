@@ -57,6 +57,7 @@ func _run() -> void:
 	await _cropped_dither()
 	for kind: String in ["conduction", "chain", "tether", "lightning"]:
 		await _line_core(kind)
+	await _line_fade_and_width()
 	for element: String in Fixture.ELEMENTS:
 		await _depth_and_blend(element)
 	for error: String in _failures:
@@ -239,69 +240,158 @@ func _line_core(kind: String) -> void:
 	await _settle()
 	var image: Image = _viewport.get_texture().get_image()
 	var lines: Node2D = pixel.get_node("QuantizedPixels/LineCells")
-	var strokes: Array = lines.get("strokes")
-	_expect(not strokes.is_empty(), "%s production renderer emits cores" % kind)
-	var bad_core: int = 0
-	var bad_clusters: int = 0
-	var core_set: Dictionary = {}
+	var strokes: Array[Dictionary]
+	strokes.assign(lines.get("strokes"))
+	_expect(not strokes.is_empty(), "%s production renderer emits visible strokes" % kind)
+	_expect(image.save_png(OUTPUT.path_join(kind + "_solid_core.png")) == OK, "Save GPU polyline fixture")
+	var all_core: Dictionary = {}
 	for stroke: Dictionary in strokes:
-		var cells: Array[Vector2i] = stroke["cells"]
-		var vertices: PackedVector2Array = stroke["vertices"]
-		_expect(cells[0] == Vector2i(vertices[0].floor()) and cells[-1] == Vector2i(vertices[-1].floor()), "%s core endpoints are unchanged" % kind)
-		for vertex: Vector2 in vertices:
-			_expect(cells.has(Vector2i(vertex.floor())), "%s preserves authored zigzag vertices" % kind)
-		for index: int in range(cells.size()):
-			var cell: Vector2i = cells[index]
-			core_set[cell] = true
-			if index > 0:
-				var step: Vector2i = cell - cells[index - 1]
-				_expect(maxi(absi(step.x), absi(step.y)) == 1, "%s rendered core path is 8-connected" % kind)
-			var color: Color = image.get_pixelv(cell * 2)
-			if color.a != 1.0: bad_core += 1
-			for offset: Vector2i in [Vector2i.RIGHT, Vector2i.DOWN, Vector2i.ONE]:
-				if image.get_pixelv(cell * 2 + offset) != color: bad_clusters += 1
-	_expect(bad_core == 0, "%s every core cell is fully opaque, including high Bayer thresholds" % kind)
-	_expect(bad_clusters == 0, "%s core cells are exact nearest 2x2 clusters" % kind)
-	if kind == "conduction":
-		# This authored halo is below the approved floor. Only its exact one-cell
-		# core may survive; a wider solid band would fail this count.
-		var opaque: int = 0
-		for y: int in range(0, image.get_height(), 2):
-			for x: int in range(0, image.get_width(), 2):
-				opaque += int(image.get_pixel(x, y).a > 0.0)
-		_expect(opaque == core_set.size(), "Conduction core is exactly one cell wide, without a solid halo")
+		if (stroke["core"] as Color).a < float(Pixel.style()["alpha_floor"]): continue
+		var isolated: Array[Dictionary]
+		isolated.append(stroke)
+		var mask: Image = await _line_mask(lines, isolated, 1)
+		var cells: Dictionary = _opaque_cells(mask, lines.get("cell_rect").position)
+		var points: PackedVector2Array = stroke["points"]
+		for point: Vector2 in points:
+			_expect(cells.has(Vector2i(point.floor())), "%s GPU core covers every zigzag vertex and both endpoints" % kind)
+		_expect(_connected(cells), "%s GPU-rendered core is one 8-connected component without gaps" % kind)
+		# Small native-vs-Bresenham differences are approved, not a wider band.
+		var old_cells: Array[Vector2i] = LineReference.line_cells(stroke["vertices"], Transform2D.IDENTITY)
+		var corridor: Dictionary = {}
+		for cell: Vector2i in old_cells:
+			for y: int in range(-1, 2):
+				for x: int in range(-1, 2): corridor[cell + Vector2i(x, y)] = true
+		var near_path: bool = true
+		for cell: Vector2i in cells:
+			near_path = near_path and corridor.has(cell)
+			all_core[cell] = true
+		_expect(near_path and cells.size() <= old_cells.size() * 2, "%s GPU core stays on the authored path within one cell of round 3" % kind)
+	var bad_clusters: int = 0
+	for cell: Vector2i in all_core:
+		for offset: Vector2i in [Vector2i.RIGHT, Vector2i.DOWN, Vector2i.ONE]:
+			if image.get_pixelv(cell * 2 + offset) != image.get_pixelv(cell * 2): bad_clusters += 1
+	_expect(bad_clusters == 0, "%s real composite has constant nearest 2x2 core clusters" % kind)
+	var core_image: Image = await _line_mask(lines, strokes, 1)
+	# Keep proof images at the requested 1920x1080 instead of exporting a
+	# generation-size mask; the screen-aligned crop origin is restored first.
+	var core_capture := Image.create(Fixture.SIZE.x, Fixture.SIZE.y, false, Image.FORMAT_RGBA8)
+	var scaled: Image = core_image.duplicate()
+	scaled.resize(core_image.get_width() * 2, core_image.get_height() * 2, Image.INTERPOLATE_NEAREST)
+	core_capture.blit_rect(scaled, Rect2i(Vector2i.ZERO, scaled.get_size()), lines.get("cell_rect").position * 2)
+	_expect(core_capture.save_png(OUTPUT.path_join(kind + "_core_mask.png")) == OK, "Save actual GPU core coverage")
+	if kind in ["conduction", "chain"]:
+		_expect(_connected(all_core), "%s GPU cores join across segments/tributaries" % kind)
 	if kind == "tether":
+		var halo_mask: Image = await _line_mask(lines, strokes, 2)
+		var halo_cells: Dictionary = _opaque_cells(halo_mask, lines.get("cell_rect").position)
+		var normal: Image = await _line_mask(lines, strokes, 0)
 		var halo: Color = strokes[0]["halo"]
-		var bad_halo: int = 0
-		var halo_on: int = 0
-		var halo_off: int = 0
-		for y: int in range(image.get_height() / 2):
-			for x: int in range(image.get_width() / 2):
-				var cell := Vector2i(x, y)
-				if core_set.has(cell): continue
-				var beside_core: bool = false
-				for offset: Vector2i in [Vector2i(-1, -1), Vector2i(0, -1), Vector2i(1, -1), Vector2i(-1, 0), Vector2i(1, 0), Vector2i(-1, 1), Vector2i(0, 1), Vector2i(1, 1)]:
-					if core_set.has(cell + offset): beside_core = true
-				var expected: Color = Pixel.quantize(halo, cell, "lightning") if beside_core else Color.TRANSPARENT
-				if _color_error(image.get_pixelv(cell * 2), expected) > 1: bad_halo += 1
-				if beside_core:
-					halo_on += int(expected.a == 1.0)
-					halo_off += int(expected.a == 0.0)
-		_expect(bad_halo == 0 and halo_on > 0 and halo_off > 0, "Tether has exactly a one-cell Bayer-dithered halo and no farther pixels")
-	_expect(image.save_png(OUTPUT.path_join(kind + "_solid_core.png")) == OK, "Save solid line fixture")
-	# Same canvas slot and unchanged underlying primitives: only replace the
-	# optimized core/halo mesh with the frozen round-2 per-cell drawing.
+		var bad: int = 0
+		var on_cells: int = 0
+		var off_cells: int = 0
+		for cell: Vector2i in halo_cells:
+			if all_core.has(cell): continue
+			var beside: bool = false
+			for y: int in range(-1, 2):
+				for x: int in range(-1, 2): beside = beside or all_core.has(cell + Vector2i(x, y))
+			var expected: Color = Pixel.quantize(halo, cell, "lightning")
+			if not beside or _color_error(normal.get_pixelv(cell - lines.get("cell_rect").position), expected) > 1: bad += 1
+			on_cells += int(expected.a > 0.0)
+			off_cells += int(expected.a == 0.0)
+		_expect(bad == 0 and on_cells > 0 and off_cells > 0, "GPU tether halo stays one cell wide with the original Bayer phase")
+	await _line_mask(lines, strokes, 0)
+	# Round-3 reference at the identical authored frame. Raster differences and
+	# the newly requested below-floor fade are reported, not exact-byte gated.
 	var reference := LineReference.new()
-	reference.strokes.assign(strokes)
-	reference.transform = lines.transform
+	reference.strokes.assign(await _round3_strokes(pixel))
+	reference.position = -Vector2(lines.get("cell_rect").position)
 	lines.get_parent().add_child(reference)
 	lines.hide()
 	await _settle()
 	var before: Image = _viewport.get_texture().get_image()
-	_expect(before.get_data() == image.get_data(), "%s rendered RGBA bytes are identical before/after batching" % kind)
-	_expect(before.save_png(OUTPUT.path_join(kind + "_legacy_cells.png")) == OK, "Save pre-batching reference")
+	_expect(before.save_png(OUTPUT.path_join(kind + "_legacy_cells.png")) == OK, "Save round-3 reference")
+	var differences: int = 0
+	for y: int in range(0, image.get_height(), 2):
+		for x: int in range(0, image.get_width(), 2):
+			differences += int(image.get_pixel(x, y) != before.get_pixel(x, y))
+	print("PIXEL FX GPU LINE COMPARE %s: %d changed screen cells vs round 3; continuity gated on GPU masks" % [kind, differences])
 	source.queue_free()
 	board.queue_free()
+	await process_frame
+
+func _round3_strokes(pixel: Node2D) -> Array[Dictionary]:
+	var capture_viewport := SubViewport.new()
+	capture_viewport.size = Fixture.SIZE / 2
+	capture_viewport.disable_3d = true
+	capture_viewport.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	root.add_child(capture_viewport)
+	var capture := LineReference.Capture.new()
+	var drawing: Pixel.Drawing = pixel.get("_runs")[0]["drawing"]
+	capture.commands.assign(drawing.commands)
+	capture.element = drawing.element
+	capture.cell_transform = drawing.cell_transform
+	capture_viewport.add_child(capture)
+	await _settle()
+	var result: Array[Dictionary]
+	result.assign(capture.strokes)
+	capture_viewport.queue_free()
+	return result
+
+func _line_mask(lines: Node2D, strokes: Array[Dictionary], mode: int) -> Image:
+	lines.get("strokes").assign(strokes)
+	lines.call("flush")
+	var drawing: Node2D = lines.get("_drawing")
+	(drawing.material as ShaderMaterial).set_shader_parameter("proof_pass", mode)
+	await _settle()
+	return (lines.get("viewport") as SubViewport).get_texture().get_image()
+
+func _opaque_cells(image: Image, origin: Vector2i) -> Dictionary:
+	var result: Dictionary = {}
+	var used: Rect2i = image.get_used_rect()
+	for y: int in range(used.position.y, used.end.y):
+		for x: int in range(used.position.x, used.end.x):
+			if image.get_pixel(x, y).a == 1.0: result[Vector2i(x, y) + origin] = true
+	return result
+
+func _connected(cells: Dictionary) -> bool:
+	if cells.is_empty(): return false
+	var reached: Dictionary = {}
+	var frontier: Array[Vector2i]
+	frontier.append(cells.keys()[0])
+	reached[frontier[0]] = true
+	var cursor: int = 0
+	while cursor < frontier.size():
+		var cell: Vector2i = frontier[cursor]
+		cursor += 1
+		for y: int in range(-1, 2):
+			for x: int in range(-1, 2):
+				var neighbour := cell + Vector2i(x, y)
+				if cells.has(neighbour) and not reached.has(neighbour):
+					reached[neighbour] = true
+					frontier.append(neighbour)
+	return reached.size() == cells.size()
+
+func _line_fade_and_width() -> void:
+	var source := Node2D.new()
+	_viewport.add_child(source)
+	var pixel := Pixel.new()
+	source.add_child(pixel)
+	var points := PackedVector2Array([Vector2(200, 200), Vector2(480, 200)])
+	var floor_alpha: float = float(Pixel.style()["alpha_floor"])
+	for alpha: float in [floor_alpha - 0.0001, floor_alpha, floor_alpha + 0.0001]:
+		pixel.begin(source)
+		pixel.submit("lightning", Pixel.draw_line_command, [points, Color(1, 1, 1, alpha), Color(1, 1, 1, 0)], Transform2D.IDENTITY)
+		pixel.finish()
+		await _settle()
+		var image: Image = _viewport.get_texture().get_image()
+		var used: Rect2i = image.get_used_rect()
+		if alpha < floor_alpha:
+			_expect(not used.has_area(), "GPU core disappears below the source alpha floor")
+		else:
+			_expect(used == Rect2i(200, 200, 282, 2), "GPU straight core is exactly one low-res cell wide and includes both endpoints")
+			for x: int in range(200, 482): _expect(image.get_pixel(x, 200).a == 1.0, "Opaque core never dithers, even at alpha_floor")
+	_expect(_viewport.get_texture().get_image().save_png(OUTPUT.path_join("line_alpha_floor.png")) == OK, "Save GPU width/fade fixture")
+	source.queue_free()
 	await process_frame
 
 func _draw_conduction(canvas: CanvasItem, board: Control, presentation: Dictionary) -> void:

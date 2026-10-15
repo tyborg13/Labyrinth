@@ -6,7 +6,6 @@ const SurfaceDependencies = preload("res://scripts/board_surface_render_dependen
 const Board = preload("res://scripts/combat_board_view.gd")
 const Fixture = preload("res://tests/pixel_fx_fixture.gd")
 const Runtime = preload("res://scripts/parallel_runtime.gd")
-const LineReference = preload("res://tests/pixel_fx_line_reference.gd")
 const Metrics = preload("res://tests/pixel_fx_benchmark_metrics.gd")
 const TRANSFORM_FIXTURE: Dictionary = {
 	"position": Vector2(37.25, 19.75), "scale": Vector2(1.17, 1.17),
@@ -28,7 +27,7 @@ func _initialize() -> void:
 func _run() -> void:
 	_data_and_quantizer()
 	_benchmark_verdict()
-	_line_batch_identity()
+	await _line_submission_lifetime()
 	await _board_integration()
 	await _blend_and_transforms()
 	await _geometry_bounds()
@@ -379,102 +378,74 @@ func _line_paths(board: Control) -> void:
 		board.call("set_combat_state", sample["state"], [], [], Vector2i(-1, -1), "", "", {}, {}, sample["presentation"])
 		await _settle()
 		var strokes: int = 0
-		var all_cells: Dictionary = {}
 		for node: Node in board.find_children("LineCells", "", true, false):
-			_verify_mesh(node.get("mesh"), node.get("strokes"), kind)
 			for run: Dictionary in node.get_parent().get_parent().get("_runs"):
 				var drawing: Pixel.Drawing = run["drawing"]
 				if drawing.line_canvas == node and not drawing.line_canvas.strokes.is_empty():
 					_expect(drawing.line_canvas.drawn_frame == drawing.drawn_frame, "%s core and original primitives submit in the same frame" % kind)
 			for stroke: Dictionary in node.get("strokes"):
 				strokes += 1
-				var cells: Array[Vector2i] = stroke["cells"]
-				for cell: Vector2i in cells: all_cells[cell] = true
+				var points: PackedVector2Array = stroke["points"]
 				var vertices: PackedVector2Array = stroke["vertices"]
-				_expect(cells[0] == Vector2i(vertices[0].floor()) and cells[-1] == Vector2i(vertices[-1].floor()), "%s core retains both endpoints" % kind)
-				for vertex: Vector2 in vertices:
-					_expect(cells.has(Vector2i(vertex.floor())), "%s core retains every authored zigzag vertex" % kind)
-				_expect(cells.size() > 1, "%s emits a nonempty pixel core" % kind)
-				for index: int in range(1, cells.size()):
-					var step: Vector2i = cells[index] - cells[index - 1]
-					_expect(maxi(absi(step.x), absi(step.y)) == 1, "%s core is one 8-connected path" % kind)
-				_expect(int(node.get("drawn_frame")) >= 0, "%s core reaches the renderer" % kind)
-		_expect(strokes > 0, "%s production path uses solid pixel line rendering" % kind)
-		if kind in ["conduction", "chain"]:
-			var lift: Vector2 = Vector2.ZERO if kind == "conduction" else Vector2(0.0, float(board.call("_tile_width")) * 0.26)
-			var grid: int = Pixel.grid_px(Fixture.SIZE.y)
-			var start := Vector2i(((board.call("_tile_center", Fixture.SOURCE) as Vector2 - lift) / grid).floor())
-			var end := Vector2i(((board.call("_tile_center", Fixture.TARGET) as Vector2 - lift) / grid).floor())
-			_expect(all_cells.has(start) and all_cells.has(end), "%s complete core includes both world endpoints" % kind)
-			var reached: Dictionary = {}
-			var frontier: Array[Vector2i]
-			frontier.append(start)
-			reached[start] = true
-			var cursor: int = 0
-			while cursor < frontier.size():
-				var cell: Vector2i = frontier[cursor]
-				cursor += 1
-				for y: int in range(-1, 2):
-					for x: int in range(-1, 2):
-						var neighbour := cell + Vector2i(x, y)
-						if all_cells.has(neighbour) and not reached.has(neighbour):
-							reached[neighbour] = true
-							frontier.append(neighbour)
-			_expect(reached.has(end) and reached.size() == all_cells.size(), "%s complete core is one 8-connected component, including tile joins/tributaries" % kind)
+				_expect(points.size() == vertices.size() and points.size() > 1, "%s sends authored vertices, not CPU-rasterized cells" % kind)
+				for index: int in range(points.size()):
+					_expect(points[index] == vertices[index].floor() + Vector2(0.5, 0.5), "%s retains every zigzag vertex on the screen cell grid" % kind)
+				_expect((stroke["core"] as Color).a >= float(Pixel.style()["alpha_floor"]) or (stroke["halo"] as Color).a >= float(Pixel.style()["alpha_floor"]), "%s retains only visible core/halo strokes" % kind)
+				_expect(node.get("viewport") != null, "%s reaches its low-resolution GPU target" % kind)
+		_expect(strokes > 0, "%s production path uses pixel line rendering" % kind)
 
-func _verify_mesh(mesh: ArrayMesh, strokes: Array[Dictionary], label: String) -> void:
-	if strokes.is_empty():
-		_expect(mesh == null, "%s empty batch has no draw" % label)
-		return
-	_expect(mesh != null and mesh.get_surface_count() == 1, "%s all cores/halos share one draw surface" % label)
-	if mesh == null: return
-	var arrays: Array = mesh.surface_get_arrays(0)
-	var vertices: PackedVector2Array = arrays[Mesh.ARRAY_VERTEX]
-	var colors: PackedColorArray = arrays[Mesh.ARRAY_COLOR]
-	var indices: PackedInt32Array = arrays[Mesh.ARRAY_INDEX]
-	var actual: Dictionary = {}
-	var valid_quads: bool = vertices.size() % 4 == 0 and indices.size() == vertices.size() / 4 * 6
-	for first: int in range(0, vertices.size(), 4):
-		var p: Vector2 = vertices[first]
-		var color: Color = colors[first]
-		valid_quads = valid_quads and p == p.floor() and color.a == 1.0
-		valid_quads = valid_quads and vertices[first + 1] == p + Vector2.RIGHT and vertices[first + 2] == p + Vector2.ONE and vertices[first + 3] == p + Vector2.DOWN
-		valid_quads = valid_quads and colors[first + 1] == color and colors[first + 2] == color and colors[first + 3] == color
-		var offset: int = first / 4 * 6
-		valid_quads = valid_quads and indices.slice(offset, offset + 6) == PackedInt32Array([first, first + 1, first + 2, first, first + 2, first + 3])
-		actual[Vector2i(p)] = color.to_rgba32()
-	_expect(valid_quads, "%s exact one-cell flat-colour quads, without interpolation or gaps" % label)
-	_expect(actual == LineReference.cells_before_batching(strokes), "%s every rendered cell/color/order equals the round-2 renderer" % label)
+func _line_submission_lifetime() -> void:
+	# Current-frame vertices are the only per-layer storage. The removed LRU
+	# and _cached_quads accounting cannot silently retain idle geometry.
+	_expect(not FileAccess.file_exists("res://scripts/pixel_fx_line_batch.gd"), "CPU mesh cache and its stale accounting are removed")
+	var viewport := SubViewport.new()
+	viewport.size = Fixture.SIZE
+	root.add_child(viewport)
+	var source := Node2D.new()
+	viewport.add_child(source)
+	var pixel := Pixel.new()
+	source.add_child(pixel)
+	var points := PackedVector2Array([Vector2(100.25, 200.75), Vector2(250.5, 180.25), Vector2(300.75, 220.5)])
+	var floor_alpha: float = float(Pixel.style()["alpha_floor"])
+	for alpha: float in [floor_alpha - FLOOR_EPSILON, floor_alpha, floor_alpha + FLOOR_EPSILON]:
+		pixel.begin(source)
+		pixel.submit("lightning", Pixel.draw_line_command, [points, Color(1, 1, 1, alpha), Color(1, 1, 1, 0)], Transform2D.IDENTITY)
+		pixel.finish()
+		await _settle()
+		var lines: Node2D = pixel.get_node("QuantizedPixels/LineCells")
+		_expect((lines.get("strokes") as Array).size() == int(alpha >= floor_alpha), "Core ends below alpha_floor, including before the animation's last frame")
+		_expect((lines.get("viewport") != null) == (alpha >= floor_alpha), "Invisible line strokes allocate no target")
+	# Retain a non-line run: finish/draw must release the previous line target.
+	pixel.begin(source)
+	pixel.submit("lightning", _draw_plain_pixel_fixture, [], Transform2D.IDENTITY)
+	pixel.finish()
+	await _settle()
+	var lines: Node2D = pixel.get_node("QuantizedPixels/LineCells")
+	_expect((lines.get("strokes") as Array).is_empty() and lines.get("viewport") == null and lines.get_child_count() == 0, "A non-line frame releases all old line vertices and GPU nodes")
+	pixel.begin(source)
+	pixel.finish()
+	await _settle()
+	_expect(pixel.snapshot().is_empty() and pixel.find_children("LinePixels", "", true, false).is_empty(), "Empty finish releases all line targets")
+	# Parsed ramps are shared globally, bounded by authored ramp identities.
+	for index: int in range(100): Pixel.ramp_for("unknown_%d" % index)
+	_expect((Pixel._ramps as Dictionary).size() <= (Pixel.style()["ramps"] as Dictionary).size(), "Fallback names cannot grow the shared parsed-ramp cache")
+	viewport.queue_free()
+	await process_frame
 
-func _line_batch_identity() -> void:
-	var cache := Pixel.LineBatch.new(Pixel.line_cells, Pixel.quantize)
-	var points := PackedVector2Array([Vector2(-8.25, 11.75), Vector2(25.9, 4.2), Vector2(18.3, -7.1), Vector2(52.5, 17.9)])
-	var transform := Transform2D(0.0, Vector2(0.5, 0.5), 0.0, Vector2(11.25, -2.75))
-	for element: String in Pixel.style()["ramps"]:
-		for alpha: float in [0.01, 0.3, 0.5, 0.82, 1.0]:
-			var strokes: Array[Dictionary]
-			strokes.append(cache.stroke(points, transform, Color(0.94, 0.96, 1.0, alpha), Color(0.72, 0.65, 1.0, alpha), element))
-			# Crossing stroke pins painter order as well as negative Bayer cells.
-			strokes.append(cache.stroke(PackedVector2Array([Vector2(0, -4), Vector2(40, 18)]), transform, Color(0.5, 0.4, 0.6, alpha), Color(0.6, 0.5, 0.8, alpha), element))
-			var mesh: ArrayMesh = cache.batch(strokes)
-			_verify_mesh(mesh, strokes, "%s alpha=%s" % [element, alpha])
-			_expect(cache.batch(strokes) == mesh, "Unchanged complete batch reuses its mesh")
-	_expect(cache.rasterizations == 2, "Colour/fade changes reuse the rasterized arc shape")
-	var count: int = cache.rasterizations
-	cache.stroke(points, transform, Color.WHITE, Color.WHITE, "lightning")
-	_expect(cache.rasterizations == count, "Repeated authored arc skips rasterization")
-	cache.stroke(points, Transform2D.IDENTITY, Color.WHITE, Color.WHITE, "lightning")
-	_expect(cache.rasterizations == count + 1, "Changed screen transform invalidates rasterization")
-	var retained: ArrayMesh
-	for index: int in range(cache.MAX_BATCHES + 2):
-		var strokes: Array[Dictionary]
-		strokes.append(cache.stroke(points, transform, Color.WHITE, Color(1.0, 1.0, 1.0, float(index + 1) / 100.0), "lightning"))
-		var mesh: ArrayMesh = cache.batch(strokes)
-		if index == 0: retained = mesh
-	_expect(retained.get_surface_count() == 1, "Evicting a cached mesh keeps already-submitted resources alive")
-	_expect((cache.get("_batches") as Dictionary).size() <= cache.MAX_BATCHES and int(cache.get("_cached_quads")) <= cache.MAX_CACHED_QUADS, "Batch cache stays within both bounds")
+func _draw_plain_pixel_fixture(canvas: CanvasItem) -> void:
+	canvas.draw_rect(Rect2(10, 10, 20, 20), Color.WHITE)
 
 func _benchmark_verdict() -> void:
+	var phases: Dictionary = {}
+	for index: int in range(180):
+		var phase: float = Metrics.unique_progress(index, 180)
+		_expect(phase > 0.0 and phase < 1.0 and not phases.has(phase), "CPU benchmark advances through unique live progress values")
+		phases[phase] = true
+	for index: int in range(45):
+		_expect(not phases.has((float(index) + 0.25) / 45), "CPU sample phases are disjoint from warmup")
+	_expect(Metrics.submission_verdict({"paired_delta": {"median_ms": 0.3, "p95_ms": 1.0}}, 0.3, 1.0)["passed"], "CPU median/p95 boundary passes")
+	_expect(not Metrics.submission_verdict({"paired_delta": {"median_ms": 0.2, "p95_ms": 1.01}}, 0.3, 1.0)["passed"], "CPU gate catches a tail regression even when the median passes")
+	_expect(not Metrics.submission_verdict({"paired_delta": {"median_ms": 0.31, "p95_ms": 0.7}}, 0.3, 1.0)["passed"], "CPU gate catches a median regression")
 	var samples: Dictionary = {"off": [], "on": []}
 	for index: int in range(180):
 		samples["off"].append({"gpu": 2.0})

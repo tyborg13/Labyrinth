@@ -6,10 +6,11 @@ extends Node2D
 ## also keeps overlapping effects of different elements in submission order.
 const STYLE_PATH: String = "res://data/vfx_pixel_style.json"
 const QUANTIZE: Shader = preload("res://shaders/pixel_fx_quantize.gdshader")
-const LineBatch = preload("res://scripts/pixel_fx_line_batch.gd")
+const Lines = preload("res://scripts/pixel_fx_lines.gd")
 const BAYER: PackedInt32Array = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5]
 const LUMA := Vector3(0.299, 0.587, 0.114)
 static var _style: Dictionary = {}
+static var _ramps: Dictionary = {}
 # In-memory probe override; never changes the protected data or player settings.
 static var review_enabled_override: Variant = null
 
@@ -22,13 +23,12 @@ var _last_key: Variant = null
 var _pixel_transform := Transform2D.IDENTITY
 var _grid: int = 1
 var _resolution := Vector2i.ONE
-var _line_cache: RefCounted
 
 class Drawing extends Node2D:
 	var commands: Array[Dictionary]
 	var submitted_frame: int = -1
 	var drawn_frame: int = -1
-	var line_canvas: LineCanvas
+	var line_canvas: Node2D
 	var cell_transform := Transform2D.IDENTITY
 	var command_transform := Transform2D.IDENTITY
 	var element: String = "neutral"
@@ -45,49 +45,13 @@ class Drawing extends Node2D:
 			(command["draw"] as Callable).callv(args)
 		draw_set_transform_matrix(Transform2D.IDENTITY)
 		if line_canvas != null:
-			line_canvas.queue_redraw()
+			line_canvas.flush()
 
 	func _pixel_line(points: PackedVector2Array, core: Color, halo: Color) -> bool:
 		if line_canvas == null:
 			return false
-		if core.a > 0.0:
-			line_canvas.strokes.append(line_canvas.cache.stroke(points, cell_transform * command_transform, core, halo, element))
+		line_canvas.stroke(points, cell_transform * command_transform, core, halo, element)
 		return true
-
-class LineCanvas extends Node2D:
-	var cache: RefCounted
-	var strokes: Array[Dictionary]
-	var drawn_frame: int = -1
-	# Canvas commands retain the RID, so keep this resource alive even if another
-	# run evicts its cache entry before this retained CanvasItem draws again.
-	var mesh: ArrayMesh
-
-	func _draw() -> void:
-		drawn_frame = Engine.get_process_frames()
-		mesh = cache.batch(strokes)
-		if mesh != null: draw_mesh(mesh, null)
-
-## One-cell Bresenham path through every authored vertex, including endpoints.
-## Floor in screen-cell coordinates keeps adjacent tile owners on the same grid.
-static func line_cells(points: PackedVector2Array, to_cells: Transform2D) -> Array[Vector2i]:
-	var result: Array[Vector2i]
-	for index: int in range(1, points.size()):
-		var cell := Vector2i((to_cells * points[index - 1]).floor())
-		var end := Vector2i((to_cells * points[index]).floor())
-		var delta := Vector2i(absi(end.x - cell.x), -absi(end.y - cell.y))
-		var step := Vector2i(1 if cell.x < end.x else -1, 1 if cell.y < end.y else -1)
-		var error: int = delta.x + delta.y
-		while true:
-			if result.is_empty() or result[-1] != cell: result.append(cell)
-			if cell == end: break
-			var twice: int = error * 2
-			if twice >= delta.y:
-				error += delta.y
-				cell.x += step.x
-			if twice <= delta.x:
-				error += delta.x
-				cell.y += step.y
-	return result
 
 static func line(canvas: CanvasItem, points: PackedVector2Array, core: Color, halo: Color) -> bool:
 	return canvas != null and canvas.has_method("_pixel_line") and bool(canvas.call("_pixel_line", points, core, halo))
@@ -114,16 +78,18 @@ static func grid_px(viewport_height: int) -> int:
 
 static func ramp_for(element: String) -> PackedColorArray:
 	var ramps: Dictionary = style()["ramps"]
+	var key: String = element if ramps.has(element) else "neutral"
+	if _ramps.has(key): return _ramps[key]
 	var result := PackedColorArray()
-	for value: String in ramps.get(element, ramps["neutral"]):
+	for value: String in ramps[key]:
 		result.append(Color(value))
+	_ramps[key] = result
 	return result
 
 static func luminance(color: Color) -> float:
 	return Vector3(color.r, color.g, color.b).dot(LUMA)
 
-## Shared oracle for proof and the small line-cell canvas. Other procedural
-## primitives are quantized by the shader.
+## CPU proof oracle; production primitives and lines are quantized on the GPU.
 static func quantize(color: Color, cell: Vector2i, element: String) -> Color:
 	# Color channels and shader uniforms are float32, including exact-threshold
 	# comparisons after the approved non-binary bias is uploaded.
@@ -240,7 +206,7 @@ func finish() -> void:
 		(composite.material as ShaderMaterial).set_shader_parameter("cell_origin", clipped.position)
 		var drawing: Drawing = run["drawing"]
 		drawing.cell_transform = Transform2D(0.0, Vector2.ONE / _grid, 0.0, Vector2.ZERO) * _pixel_transform
-		drawing.line_canvas.position = -clipped.position
+		drawing.line_canvas.configure(Rect2i(clipped), ramp_for(drawing.element), float(style()["alpha_floor"]), float(style()["alpha_bias"]))
 		run["cell_rect"] = Rect2i(clipped)
 	# Release inactive render targets, including when a spell clears or moves to
 	# another tile. Empty tiles never allocate viewports or process every frame.
@@ -280,10 +246,8 @@ func _make_run() -> Dictionary:
 	composite.texture = viewport.get_texture()
 	composite.material = ShaderMaterial.new()
 	add_child(composite)
-	var lines := LineCanvas.new()
+	var lines := Lines.new()
 	lines.name = "LineCells"
-	if _line_cache == null: _line_cache = LineBatch.new(line_cells, quantize)
-	lines.cache = _line_cache
 	composite.add_child(lines)
 	drawing.line_canvas = lines
 	return {"viewport": viewport, "drawing": drawing, "composite": composite}

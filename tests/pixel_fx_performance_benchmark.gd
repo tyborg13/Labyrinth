@@ -15,6 +15,7 @@ const CAPTURE_PROGRESS: float = 0.62
 const CAPTURE_SETTLE_FRAMES: int = 3
 const BUDGET_MS: float = 1.0
 const SUBMISSION_BUDGET_MS: float = 0.3
+const SUBMISSION_P95_BUDGET_MS: float = 1.0
 const VIEWPORTS: Array[Vector2i] = [Vector2i(1920, 1080), Vector2i(3840, 2160)]
 const OUTPUT: String = "user://probes/pixel_fx_performance"
 signal submission_flushed
@@ -60,7 +61,9 @@ func _run() -> void:
 	var gpu_passed: bool = true
 	var submission_passed: bool = true
 	var workloads := PackedStringArray(["idle", "fire", "ice", "lightning", "air", "earth", "fire_aoe", "dragon_fan", "chain", "tether"])
+	if "--line-workloads-only" in OS.get_cmdline_user_args(): workloads = PackedStringArray(["lightning", "chain", "tether"])
 	for resolution: Vector2i in VIEWPORTS:
+		if "--1080-only" in OS.get_cmdline_user_args() and resolution != Fixture.SIZE: continue
 		_viewport.size = resolution
 		_viewport.size_2d_override = Fixture.SIZE
 		_viewport.size_2d_override_stretch = true
@@ -81,10 +84,10 @@ func _run() -> void:
 					_failures.append("%s GPU median increase %.3f ms exceeds +%.1f ms" % [workload, row["gpu"]["paired_delta"]["median_ms"], BUDGET_MS])
 				print("PIXEL FX GPU GATE %dx%d %s: %s (nonzero off %d/%d, on %d/%d; paired median %.3f ms%s)" % [resolution.x, resolution.y, workload, "PASS" if row["gpu_gate"]["passed"] else "FAIL", row["gpu"]["off"]["samples"], SAMPLE_PAIRS, row["gpu"]["on"]["samples"], SAMPLE_PAIRS, row["gpu"]["paired_delta"]["median_ms"], " <= 1.0 ms" if resolution == Fixture.SIZE else "; 4K report only"])
 			if resolution == Fixture.SIZE and workload in ["lightning", "chain", "tether"]:
-				row["submission_gate"] = {"budget_ms": SUBMISSION_BUDGET_MS, "passed": float(row["submission"]["paired_delta"]["median_ms"]) <= SUBMISSION_BUDGET_MS}
+				row["submission_gate"] = Metrics.submission_verdict(row["submission"], SUBMISSION_BUDGET_MS, SUBMISSION_P95_BUDGET_MS)
 				submission_passed = submission_passed and bool(row["submission_gate"]["passed"])
 				if not row["submission_gate"]["passed"]:
-					_failures.append("%s CPU submission median increase %.3f ms exceeds +%.1f ms" % [workload, row["submission"]["paired_delta"]["median_ms"], SUBMISSION_BUDGET_MS])
+					_failures.append("%s unique-frame CPU submission median/p95 %.3f/%.3f ms exceeds +%.1f/+%.1f ms" % [workload, row["submission"]["paired_delta"]["median_ms"], row["submission"]["paired_delta"]["p95_ms"], SUBMISSION_BUDGET_MS, SUBMISSION_P95_BUDGET_MS])
 			for metric: String in ["gpu", "frame_interval", "submission"]:
 				var delta: Dictionary = row[metric]["paired_delta"]
 				print("PIXEL FX PERF %dx%d %s %s: paired median delta %.3f ms; p95 delta %.3f ms" % [resolution.x, resolution.y, workload, metric, delta["median_ms"], delta["p95_ms"]])
@@ -93,6 +96,7 @@ func _run() -> void:
 				_viewport.get_texture().get_image().save_png(OUTPUT.path_join("%s_%dp_on.png" % [workload, resolution.y]))
 	var report: Dictionary = {"cpu_only": _cpu_only, "gpu_budget_verified": not _cpu_only and gpu_passed, "budget_ms": BUDGET_MS,
 		"submission_budget_verified": submission_passed, "submission_budget_ms": SUBMISSION_BUDGET_MS, "submission_budget_workloads": ["lightning", "chain", "tether"],
+		"submission_p95_budget_ms": SUBMISSION_P95_BUDGET_MS, "cpu_sampling": "first submitted frame; unique progress per pair, disjoint from warmup; no held-frame cache-hit timing",
 		"gate": "paired GPU median increase per 1080p workload; p95 and 4K reported only", "min_spec_hardware": "out of scope",
 		"viewports": [[1920, 1080], [3840, 2160]], "budget_viewport": [1920, 1080], "warmup_frames_per_variant": WARMUP_FRAMES,
 		"sample_pairs": SAMPLE_PAIRS, "interleave": "off/on per pair, reversing first variant each pair at the same progress",
@@ -116,44 +120,38 @@ func _effect(workload: String) -> Dictionary:
 func _measure(workload: String) -> Dictionary:
 	var state: Dictionary = Fixture.combat_state()
 	var effect: Dictionary = _effect(workload)
-	var count: int = Fixture.Fx.animation_frame_count(effect, 6, false)
 	var samples: Dictionary = {"off": [], "on": []}
 	for enabled: bool in [false, true]:
 		for frame: int in range(WARMUP_FRAMES):
-			await _sample(state, effect, workload, float(frame % count + 1) / count, enabled, 1)
+			await _sample(state, effect, workload, (float(frame) + 0.25) / WARMUP_FRAMES, enabled, 1)
 	for pair: int in range(SAMPLE_PAIRS):
 		var order: Array[bool]
 		order.append_array([false, true] if pair % 2 == 0 else [true, false])
 		for enabled: bool in order:
-			var sample: Dictionary = await _sample(state, effect, workload, float(pair % count + 1) / count, enabled, _settle_frames)
+			var sample: Dictionary = await _sample(state, effect, workload, Metrics.unique_progress(pair, SAMPLE_PAIRS), enabled, _settle_frames)
 			(samples["on" if enabled else "off"] as Array).append(sample)
 	var result: Dictionary = {"samples": samples}
+	for variant: String in ["off", "on"]:
+		var seen: Dictionary = {}
+		for sample: Dictionary in samples[variant]:
+			if int(sample["submission_frame"]) != 0 or seen.has(sample["progress"]):
+				_failures.append("CPU benchmark must sample the first frame at unique progress")
+			seen[sample["progress"]] = true
 	for metric: String in ["gpu", "frame_interval", "submission"]:
 		result[metric] = Metrics.summarize(samples, metric)
-	# Outside all timed samples: report the memory/rebuild tradeoff and assert
-	# the production cache caps, including owners with no currently active run.
-	result["line_cache"] = _line_cache_counters()
+	# Current-frame storage only. No raster/mesh history is retained.
+	result["line_rendering"] = _line_counters()
 	return result
 
-func _line_cache_counters() -> Dictionary:
-	var result: Dictionary = {"owners": 0, "shapes": 0, "core_cells": 0, "halo_cells": 0, "batches": 0, "quads": 0, "rasterizations": 0, "mesh_builds": 0}
-	for node: Node in _board.find_children("*", "", true, false):
-		if node.get_script() != Pixel: continue
-		var cache: RefCounted = node.get("_line_cache")
-		if cache == null: continue
-		var shapes: Dictionary = cache.get("_shapes")
-		var batches: Dictionary = cache.get("_batches")
+func _line_counters() -> Dictionary:
+	var result: Dictionary = {"owners": 0, "viewports": 0, "strokes": 0, "vertices": 0}
+	for node: Node in _board.find_children("LineCells", "", true, false):
+		if node.is_queued_for_deletion(): continue
 		result["owners"] += 1
-		result["shapes"] += shapes.size()
-		result["batches"] += batches.size()
-		result["quads"] += int(cache.get("_cached_quads"))
-		result["rasterizations"] += int(cache.get("rasterizations"))
-		result["mesh_builds"] += int(cache.get("mesh_builds"))
-		for shape: Dictionary in shapes.values():
-			result["core_cells"] += shape["cells"].size()
-			result["halo_cells"] += shape.get("halo", []).size()
-		if shapes.size() > cache.MAX_SHAPES or batches.size() > cache.MAX_BATCHES or int(cache.get("_cached_quads")) > cache.MAX_CACHED_QUADS:
-			_failures.append("Line cache exceeded its production bounds")
+		result["viewports"] += int(node.get("viewport") != null)
+		for stroke: Dictionary in node.get("strokes"):
+			result["strokes"] += 1
+			result["vertices"] += stroke["points"].size()
 	return result
 
 func _sample(state: Dictionary, effect: Dictionary, workload: String, progress: float, enabled: bool, frames: int) -> Dictionary:
@@ -174,7 +172,9 @@ func _sample(state: Dictionary, effect: Dictionary, workload: String, progress: 
 		var submitted: int = Time.get_ticks_usec()
 		if not _cpu_only: await RenderingServer.frame_post_draw
 		var finished: int = Time.get_ticks_usec()
-		sample = {"gpu": 0.0, "frame_interval": float(finished - previous) / 1000.0, "submission": float(submitted - started) / 1000.0, "pixel_viewports": maxi(0, _measured.size() - 1)}
+		if frame == 0:
+			sample = {"gpu": 0.0, "progress": progress, "submission_frame": frame, "frame_interval": float(finished - previous) / 1000.0, "submission": float(submitted - started) / 1000.0, "pixel_viewports": maxi(0, _measured.size() - 1)}
+		sample["held_submission"] = float(submitted - started) / 1000.0
 		previous = finished
 	if not _cpu_only:
 		# frame_post_draw precedes Godot's timestamp handling. Read on the next

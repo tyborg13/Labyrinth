@@ -2,6 +2,14 @@ extends RefCounted
 
 const MIN_GPU_SAMPLE_RATIO: float = 0.9
 
+static func unique_progress(index: int, sample_pairs: int) -> float:
+	return (float(index) + 0.5) / sample_pairs
+
+static func submission_verdict(submission: Dictionary, median_budget: float, p95_budget: float) -> Dictionary:
+	var delta: Dictionary = submission["paired_delta"]
+	return {"budget_ms": median_budget, "p95_budget_ms": p95_budget,
+		"passed": float(delta["median_ms"]) <= median_budget and float(delta["p95_ms"]) <= p95_budget}
+
 static func stats(values: Array) -> Dictionary:
 	if values.is_empty(): return {"mean_ms": 0.0, "median_ms": 0.0, "p95_ms": 0.0, "samples": 0}
 	var sorted: Array = values.duplicate()

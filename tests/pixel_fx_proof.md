@@ -1,78 +1,92 @@
-# vfx-01 round 3 — line batching and benchmark validity
+# vfx-01 round 4 — GPU lines and unique-frame CPU sampling
 
-Uncommitted implementation on `82cd1dd99`. The director approved round-2 visuals and reported Vulkan paired GPU medians ≤0.45 ms for all 1080p workloads. This worker has no window-server access; the new rendered equivalence check and Vulkan rerun remain owner-run proof. All director data and production effect geometry/timing are unchanged.
+Uncommitted implementation on `70a477346`. The director approved round-3 correctness but found that held-frame CPU samples concealed the cost of rebuilding lines during gameplay. This worker has no window-server access. Fresh GPU rasterization, comparison captures and Vulkan timing remain owner-run proof; headless results below do not establish them. Protected style data and the original effect geometry/timing are unchanged.
 
 ## Requirements
 
-1. **Line CPU cost.** `LineCanvas` now submits one indexed `ArrayMesh` surface for every core and halo in its existing layer. It preserves the previous halo-then-core order within each stroke, stroke order, exact one-cell quads, ramp colours, opaque cores, and Bayer positions. There are no per-cell draw calls. A cache owned by `PixelFxLayer` retains rasterized arc shapes keyed by authored points plus their screen transform; fading/recolouring reuses geometry. Complete meshes are keyed by ordered shape IDs, original colours and element. Unchanged submissions reuse the mesh, including when the review toggle recreates viewports. Geometry changes invalidate the shape key. Cache limits are 1,024 shapes, 32 meshes and 65,536 mesh quads per owner, with LRU eviction; the active canvas keeps its submitted resource alive across eviction. No additional nodes, viewports, shader, or update throttling.
-2. **False timestamp failure.** An empty child viewport may report zero while the summed board/pixel sample is valid. Validation now happens per workload/resolution row: each off/on variant needs at least 162 of 180 finite, positive summed GPU samples. Missing samples are excluded from GPU statistics; paired deltas use pairs with two valid samples. Exactly 90% passes, fewer fails, and a row with no queries fails cleanly. The GPU verdict uses paired medians, with ≤1.0 ms at 1080p and report-only 4K/p95. Each row prints its verdict and valid counts. Window focus is recorded as secondary-report metadata. Lightning, chain and tether additionally gate on the requested ≤0.3 ms 1080p median CPU submission delta. GPU validity and CPU gate verdicts remain separate report fields.
+1. **GPU line rasterization.** `pixel_fx_lines.gd` submits each original zigzag with non-antialiased native `draw_polyline`, in a cropped low-resolution target. Core width is one cell; halo width is three cells. Vertices snap to cell centres, with square endpoint caps to include shared endpoints. The line shader maps colours to the element ramp using Rec.601. A shader-local alpha band identifies eligible opaque cores and bypasses Bayer; halos decode their original alpha and retain the global screen-cell Bayer phase. Nearest compositing keeps two-pixel clusters at 1080p. Production no longer builds raster cells, halo neighbourhood dictionaries or meshes. The only CPU geometry operation transforms and snaps the authored vertices into a preallocated packed array. Parsed ramps are shared and bounded to the six authored element identities, including unknown-element fallback.
+2. **CPU sampling.** Each of the 180 off/on pairs uses distinct progress, disjoint from the 45 warmup phases. CPU submission is recorded on the first frame of each held sample; later submissions are reported separately and cannot overwrite it. Off/on order reverses each pair. Existing GPU query settling and board-plus-all-pixel-target timing are preserved. The three 1080p line workloads gate on paired CPU submission deltas: median ≤0.3 ms and p95 ≤1.0 ms. The GPU gate remains ≤1.0 ms paired median at 1080p, with at least 90% positive finite samples per variant; p95 and 4K GPU results are report-only.
+3. **Cache memory.** The entire per-owner geometry/mesh cache and `_cached_quads` accounting were deleted with `pixel_fx_line_batch.gd`. There is no historical line cache to evict or account for. Current-frame strokes are cleared on every drawing pass. An empty/non-line pass releases the line viewport, drawing and sprite; an inactive run releases the whole owner. Tests cover both transitions and assert that the removed cache implementation cannot be reintroduced unnoticed. The requested non-decrement mutant no longer has an accounting variable to mutate.
+4. **Fading cores.** A source core below the data's `alpha_floor` is omitted before the shader's opaque-core flag is applied. Headless tests cover below/equal/above the floor. The windowed probe also checks actual GPU disappearance below it, full opacity at/above it, and exact one-cell width on a horizontal fixture.
 
-The benchmark adds chain and tether at both resolutions. Fixed SubViewport sizes, actual-window-size reporting, board-plus-pixel GPU sum, Vulkan requirement, 45-frame warmup, 180 interleaved pairs, query settling and three deferred submission barriers are preserved. Cache sizes/build counts are collected outside timed samples. Minimum-spec hardware remains out of scope.
+The render probe reads the actual GPU core mask per visible stroke for conduction, chain, tether and lightning. It asserts one 8-connected component, coverage of both endpoints and every zigzag vertex, and a narrow corridor around the round-3 path. Conduction and chain also require connected stroke unions. It checks nearest-scaled clusters and the tether's one-cell Bayer halo. Same-frame round-3 captures use the frozen cell renderer, including its old below-floor core behaviour. Differences are reported rather than byte-equality gated, as the director permits small rasterization changes and requests the new fade. The contract now requires 25 captures, all 1920×1080.
 
 ## Changed files
 
-- `scripts/pixel_fx_layer.gd`: replace immediate cell drawing with one cached mesh command per line canvas.
-- `scripts/pixel_fx_line_batch.gd`: bounded geometry/mesh caches and exact quad batching.
-- `tests/pixel_fx_test.gd`: independent old/new cell identity, production lightning/chain/tether/conduction coverage, cache reuse/invalidation/eviction, and GPU-verdict regression tests.
-- `tests/pixel_fx_line_reference.gd`: frozen round-2 cell-rendering oracle, used for headless cell maps and real-renderer A/B proof.
-- `tests/pixel_fx_benchmark_metrics.gd`: testable valid-sample filtering, paired statistics and row verdict.
-- `tests/pixel_fx_performance_benchmark.gd` and its contract: fixed validity check, explicit verdicts, CPU target and chain/tether workloads (20 required images).
-- `tests/pixel_fx_render_probe.gd` and its contract: exact rendered RGBA-byte comparisons of the legacy cell drawing and batch for conduction, chain, tether and lightning (20 required images).
+- `scripts/pixel_fx_layer.gd`: GPU line routing and shared parsed ramps; remove production CPU rasterization and cache ownership.
+- `scripts/pixel_fx_lines.gd` and `shaders/pixel_fx_lines.gdshader`: native low-resolution strokes, quantization, alpha-band core flag, lazy target lifecycle.
+- `scripts/pixel_fx_line_batch.gd`: deleted.
+- `tests/pixel_fx_test.gd`: current-frame submission, authored vertices, lazy release, floor boundaries, ramp bounds and benchmark gate coverage.
+- `tests/pixel_fx_line_reference.gd`: test-only round-3 raster/reference replay.
+- `tests/pixel_fx_benchmark_metrics.gd` and `tests/pixel_fx_performance_benchmark.gd`: unique first-frame sampling and median/p95 CPU gates.
+- `tests/pixel_fx_render_probe.gd` and its contract: GPU connectivity, core/halo masks, same-frame reference captures and fade/width proof.
 - `tests/pixel_fx_proof.md`: this handoff.
 
 ## Observed validation
 
-- Pixel tests: `PIXEL FX TEST RESULT: PASS (13297 checks, 0 failures)`, including eviction and zero-query regressions.
+- Pixel tests: `PIXEL FX TEST RESULT: PASS (11672 checks, 0 failures)`.
 - Elemental tests: `ELEMENTAL SPELL FX TEST RESULT: PASS`.
 - Hash equivalence: `TEST RESULT: PASS`; 4,230 equivalence cases.
-- UI identity lint: `Ran 25 tests in 3.020s` / `OK`.
-- Final render and benchmark scripts passed headless `--check-only`; this does not run their GPU assertions.
-- `APPROVED STYLE VALUES UNCHANGED: PASS`; both updated proof contracts have 20 unique required captures.
-- Replayed the director’s original Vulkan JSON through the new GDScript metrics helper: `RECORDED VULKAN VALIDITY RECHECK: PASS (16 rows, 0 failures)`; every variant has 180/180 valid samples. This validates the false-negative fix on actual recorded data, not new mesh GPU performance. Original report adapter: Apple M5 Pro / Vulkan. Recheck log: `/private/tmp/vfx-01-round3-gpu-report-recheck.log`.
-- Full Godot suite: `FULL SUITE RUNTIME: 714.086 seconds (budget 900 seconds)` / `TEST RESULT: PASS`; runner exit 0.
-- Final isolated headless benchmark: `PIXEL FX CPU BENCHMARK: PASS (GPU budget pending; CPU report only)`, runner exit 0, 20 rows ×180 pairs, no harness errors. `submission_budget_verified: true`; all three 1080p line workloads pass the ≤0.3 ms gate. Cache bounds pass for every owner.
+- UI identity lint: `Ran 25 tests in 2.979s` / `OK`.
+- Compare, render and benchmark scripts passed headless `--check-only`; this does not execute their GPU assertions.
+- `APPROVED STYLE VALUES UNCHANGED: PASS`; compare/render/benchmark contracts contain 229/25/20 unique required captures.
+- Full Godot suite: `FULL SUITE RUNTIME: 696.086 seconds (budget 900 seconds)` / `TEST RESULT: PASS`; runner exit 0.
+- Final isolated CPU benchmark: `PIXEL FX CPU BENCHMARK: PASS (GPU budget pending; CPU report only)`; runner exit 0. All three 1080p CPU gates pass, with `submission_budget_verified: true` and no harness errors.
+- `UNIQUE FIRST-FRAME AUDIT: PASS (20 rows, 180 pairs each)`; all recorded submissions use frame 0 and all 180 progress values are distinct within each variant.
 
-Logs: `/private/tmp/vfx-01-round3-{pixel,elemental,hash,ui-lint,render-parse,performance-parse,full-godot,baseline-cpu,performance-cpu}.log`. Baseline was captured from the clean round-2 HEAD before implementation. The baseline and final CPU runs used Godot 4.6.1 headless on this same machine, the same benchmark phases/warmup/pair counts and no other engine benchmark. These are submission timings, not real-renderer frame delivery or GPU timings.
+Logs: `/private/tmp/vfx-01-round4-{pixel,elemental,hash,ui-lint,compare-parse,render-parse,performance-parse,full-godot,baseline-cpu,candidate-cpu,performance-cpu}.log`. The baseline was measured from clean `70a477346` with the corrected unique-progress harness before production edits. The runs below use the same headless Godot 4.6.1 harness on this machine, 180 pairs and 45 warmup frames. No samples were removed as outliers. The final 20-row run started after the full suite exited, with no other worker-owned engine jobs running.
 
-| Workload / viewport | Baseline submission Δ median / p95 | Batched submission Δ median / p95 |
-|---|---:|---:|
-| Lightning / 1080p | +1.933 / +3.390 ms | +0.0825 / +0.466 ms |
-| Lightning / 4K | +2.549 / +5.078 ms | +0.0915 / +0.680 ms |
-| Chain / 1080p | — (new workload) | +0.0665 / +0.499 ms |
-| Chain / 4K | — (new workload) | +0.0360 / +0.441 ms |
-| Tether / 1080p | — (new workload) | +0.0265 / +0.561 ms |
-| Tether / 4K | — (new workload) | -0.0105 / +0.400 ms |
+| Workload / viewport | Round-3 unique-frame submission Δ median / p95 | First GPU-path CPU run Δ median / p95 | Final isolated run Δ median / p95 |
+|---|---:|---:|---:|
+| Lightning / 1080p | +4.236 / +5.744 ms | +0.0545 / +2.195 ms | +0.0955 / +0.406 ms |
+| Chain / 1080p | +0.444 / +1.188 ms | +0.0445 / +1.214 ms | +0.0275 / +0.525 ms |
+| Tether / 1080p | +0.119 / +0.697 ms | +0.0995 / +1.652 ms | +0.0660 / +0.428 ms |
+| Lightning / 4K | — | — | +0.0435 / +0.510 ms |
+| Chain / 4K | — | — | +0.0065 / +0.259 ms |
+| Tether / 4K | — | — | +0.0635 / +0.270 ms |
 
-The full report includes each paired sample and secondary frame-interval median/p95. Final lightning frame-interval deltas are +0.0705 / +0.468 ms at 1080p and +0.0530 / +0.756 ms at 4K. Across the entire board, the final cache holds 563 shapes (28,868 core cells and 62,456 halo cells) and 77 meshes (65,676 quads); all **per-owner** limits pass. Rasterization and mesh-build counts stop increasing after the first resolution because the logical cell shapes are unchanged. Scene node and viewport counts are unchanged by batching. These counters describe retained geometry; they are not a process-memory measurement.
+The first candidate passed medians but **failed all three p95 gates**. Its raw off-mode timings also contain substantial variation. This observation does not waive the gate; both runs remain above. The final isolated run passes without sampling/gate changes or discarded outliers. Headless GPU samples are zero and `gpu_budget_verified` is false, as required. These results establish CPU submission cost, not GPU performance or frame delivery on a real renderer.
 
-The final raw report is `/private/tmp/labyrinth-godot-home/vfx-01-1792093961134811000-34536/Library/Application Support/Escape the Umbra Parallel vfx-01-1792093961134811000-34536/probes/pixel_fx_performance/performance.json`. The first candidate run is retained as `/private/tmp/vfx-01-round3-performance-cpu-initial.log`; the table above uses the final run with CPU gates/cache counters. Both candidate runs meet the target. Headless GPU sample counts are correctly zero, and `gpu_budget_verified` remains false.
+The final raw report is `/private/tmp/labyrinth-godot-home/vfx-01-1792096476904908000-45782/Library/Application Support/Escape the Umbra Parallel vfx-01-1792096476904908000-45782/probes/pixel_fx_performance/performance.json`.
+
+The supplied `scratchpad/review_vfx_chr/v3/` directory was not present in this worktree or the other registered worktrees. The existing round-3 render manifest at `/private/tmp/labyrinth-inspection-manifests/vfx-01-round3-render.json` was available; its four core captures were inspected. They are prior proof, not round-4 output.
 
 ## Proof for the design owner
 
-Run the Vulkan benchmark without other benchmarks. Expected success line: `PIXEL FX GPU BENCHMARK: PASS`; the output also shows per-row GPU verdicts and the 1080p CPU submission target. The timeout is extended from 960 to 1200 seconds for 20 rather than 16 rows; it is not a launch retry.
+Run from this worktree. These windowed commands have **not** been run by this worker. Run the benchmark in isolation. The runners print absolute isolated output directories and write the named manifests.
+
+Full on/off comparison (229 images, including conduction and ice break):
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/vfx-01 && python3 tools/visual_probe_runner.py --task-id vfx-01 --no-headless --display-driver macos --audio-driver Dummy --rendering-method mobile --rendering-driver vulkan --timeout 1200 --startup-timeout 45 --proof-contract tests/pixel_fx_performance_benchmark_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/vfx-01-round3-performance.json tests/pixel_fx_performance_benchmark.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/vfx-01 && python3 tools/visual_probe_runner.py --task-id vfx-01 --no-headless --display-driver macos --audio-driver Dummy --rendering-method mobile --rendering-driver vulkan --timeout 240 --startup-timeout 45 --proof-contract tests/pixel_fx_compare_probe_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/vfx-01-round4-compare.json tests/pixel_fx_compare_probe.gd
 ```
 
-Captures/report: `user://probes/pixel_fx_performance/<workload>_{1080,2160}p_on.png` and `performance.json`; the runner prints the isolated absolute directory.
+Captures: `user://probes/pixel_fx_compare/` (on/off full frames, 3× crops, contact sheets).
 
-Exact rendered pixel identity (1920×1080, 100% UI scale):
+GPU line connectivity, ramp/Bayer/depth checks and round-3 reference comparison:
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/vfx-01 && python3 tools/visual_probe_runner.py --task-id vfx-01 --no-headless --display-driver macos --audio-driver Dummy --rendering-method mobile --rendering-driver vulkan --timeout 180 --startup-timeout 45 --proof-contract tests/pixel_fx_render_probe_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/vfx-01-round3-render.json tests/pixel_fx_render_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/vfx-01 && python3 tools/visual_probe_runner.py --task-id vfx-01 --no-headless --display-driver macos --audio-driver Dummy --rendering-method mobile --rendering-driver vulkan --timeout 240 --startup-timeout 45 --proof-contract tests/pixel_fx_render_probe_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/vfx-01-round4-render.json tests/pixel_fx_render_probe.gd
 ```
 
-Captures: `user://probes/pixel_fx_render/{conduction,chain,tether,lightning}_{solid_core,legacy_cells}.png`, plus the existing gradient/depth/Bayer fixtures. The probe asserts byte-for-byte equality of each legacy/batched image before passing, in addition to the original core/halo semantic checks. These commands were not run by this worker.
+Captures: `user://probes/pixel_fx_render/{conduction,chain,tether,lightning}_{solid_core,legacy_cells,core_mask}.png`, `line_alpha_floor.png`, plus existing gradient/depth/Bayer fixtures. Success: `PIXEL FX RENDER PROBE: PASS`.
 
-Headless timing reproduction:
+Vulkan benchmark (20 rows, 1080p and 4K, GPU queries plus first-submission CPU gates):
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/vfx-01 && python3 tools/visual_probe_runner.py --task-id vfx-01 --no-headless --display-driver macos --audio-driver Dummy --rendering-method mobile --rendering-driver vulkan --timeout 1200 --startup-timeout 45 --proof-contract tests/pixel_fx_performance_benchmark_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/vfx-01-round4-performance.json tests/pixel_fx_performance_benchmark.gd
+```
+
+Captures/report: `user://probes/pixel_fx_performance/<workload>_{1080,2160}p_on.png` and `performance.json`. Required success: `PIXEL FX GPU BENCHMARK: PASS`, with all three 1080p CPU gates also passing.
+
+Headless unique-frame timing reproduction (full 20-row report; append `--line-workloads-only --1080-only` for just the three requested CPU targets):
 
 ```sh
 cd /Users/borgerding/workspace/Labyrinth.worktrees/vfx-01 && python3 tools/godot_task_runner.py --task-id vfx-01 --timeout 600 --stream -- godot --headless --path . --script tests/pixel_fx_performance_benchmark.gd -- --submission-only
 ```
 
-## Defaults and open proof
+## Chosen defaults and open proof
 
-No `TODO_DESIGN` placeholders, assets, player-facing values, or timing changes. Implementation-only cache caps are listed above. New proof-only defaults: 0.3 ms submission threshold and 90% nonzero GPU coverage come directly from the director; chain/tether use their existing fixtures and benchmark progress sequence; lightning identity uses the existing 180-pixel fixture at progress 0.52, centered at (600,400), with `LINE_FIXTURE.lightning_zigzag` vertices (300,500), (450,320), (550,390), (900,300). Render timeout 180 seconds allows the old/new captures; benchmark timeout 1200 seconds allows the added rows.
+No `TODO_DESIGN` placeholders or new assets. One-/three-cell widths, the floor rule and CPU thresholds come from the director. Implementation-only alpha encoding uses halo alpha ×0.5 and a core flag at alpha 1 (threshold 0.75) in the dedicated line shader. Probe-only mask modes are 0/1/2 for normal/core/halo. Proof phases `(pair + 0.5)/180` and warmup phases `(frame + 0.25)/45` are disjoint; floor proof offsets are ±0.0001. The horizontal width fixture runs (200,200) → (480,200). Existing line fixture positions/progress are unchanged. Render timeout is 240 seconds for per-stroke readback checks; benchmark timeout stays 1200 seconds for the existing 20 rows. Minimum-spec hardware remains out of scope.
 
-Fresh rendered byte identity and Vulkan timings remain pending the owner commands. The owner retains commit, peer review, inspection and publication. This worker leaves all changes uncommitted.
+Fresh GPU continuity/halo/fade proof, director inspection and Vulkan budget verification remain pending the owner commands. The owner retains commit, peer review, inspection and publication. All changes remain uncommitted.
