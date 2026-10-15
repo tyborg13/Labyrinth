@@ -1,0 +1,43 @@
+{
+  "ok": true,
+  "basis": "Updated native_gates evaluates saved v09 renderer data; original captured case/input hashes remain intact. No renderer invocation and no input-hash rebinding.",
+  "source_capture": "/private/tmp/rr-02-mq3-render-v09",
+  "replay_case": "/private/tmp/rr02-round10-replay/captured_case",
+  "replay_capture": "/private/tmp/rr02-round10-replay/capture",
+  "evaluated_validator_sha256": "dfed08c5d9647376e441d37da6f06d2c94b490b493b0caaed26682984b6b6a6b",
+  "captured_validator_sha256": "1d2aaf0b26f47a130c8a672d0f1e59dcc35a1366b33cb03e819f7381cc42f838",
+  "native_motion_probe_sha256": "2245b11f7896c19ee296e4bb35cb6d8ceef63529595c1113cc130ea1dc18098c",
+  "control": {
+    "ok": true,
+    "frames": 458,
+    "totals": {
+      "tabard_non_tabard_pixels": 0,
+      "detached_small_pixels": 0,
+      "new_leg_dark_pixels": 0,
+      "rear_arm_outside_pixels": 0,
+      "rear_visible_arm_pixels": 0,
+      "magenta_pixels": 0,
+      "hidden_runtime_mismatch_pixels": 0
+    },
+    "value_failures": 0
+  },
+  "mutations": [
+    {
+      "mutation": "one_pixel_arm",
+      "file": "data/rear_strike/arm_0000.png",
+      "affected_pixels": 1718,
+      "refreshed_output_checksum": "c2153f77e11087fcb078ae38527fa83bef29791e3700e30cc87fec4405a66d0f",
+      "rejected": true,
+      "error": "Native surface dimensions failed: rear/strike/0/arm; expected 512x512, got 1x1"
+    },
+    {
+      "mutation": "opaque_owner_zero",
+      "file": "data/front_idle/owners_0006.png",
+      "affected_pixels": 8,
+      "refreshed_output_checksum": "e0330834d94ed04f2163cc3957cec5c8e40e143a5021dd51eeab20e100a2eeaf",
+      "rejected": true,
+      "error": "Native owner IDs/alpha failed validation: front/idle/6; nontransparent pixels require a nonzero known owner"
+    }
+  ],
+  "copied_capture_restored": true
+}

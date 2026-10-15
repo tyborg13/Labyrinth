@@ -1,0 +1,97 @@
+{
+  "logical_part": "under_shadow",
+  "bone": "pelvis",
+  "parts": {
+    "thigh_far": {
+      "pixels": 4,
+      "bbox": [
+        110,
+        164,
+        112,
+        169
+      ],
+      "source_mask_sha256": "608a91a7a711e7324c57a2b15dd5aaf99aca14acf07767162475dd9de97e8ead",
+      "boundary_mask_sha256": "d1a59444631d4ebb88633e2b2d7da0110925c5d6f4280b69ee7dfac8a8311adf",
+      "reference_parts": [
+        "thigh_near",
+        "shin_near",
+        "foot_near",
+        "pelvis"
+      ],
+      "tabard_reference": "visible label boundary"
+    },
+    "thigh_near": {
+      "pixels": 78,
+      "bbox": [
+        146,
+        150,
+        159,
+        169
+      ],
+      "source_mask_sha256": "77851148f3530da3477016ebd0217dc2cf41ee401f4ac5c66df212e6ff37f59e",
+      "boundary_mask_sha256": "b5d850cc9f8978b6800d8854d8032a7649df8fbade64b5320ebf900f9e6aa156",
+      "reference_parts": [
+        "thigh_far",
+        "shin_far",
+        "foot_far",
+        "pelvis"
+      ],
+      "tabard_reference": "visible label boundary"
+    },
+    "shin_far": {
+      "pixels": 107,
+      "bbox": [
+        111,
+        166,
+        146,
+        208
+      ],
+      "source_mask_sha256": "e30ea6d79e07fa1062198e8551370bb23388934026be12997d7a53fb7ca07b80",
+      "boundary_mask_sha256": "d1a59444631d4ebb88633e2b2d7da0110925c5d6f4280b69ee7dfac8a8311adf",
+      "reference_parts": [
+        "thigh_near",
+        "shin_near",
+        "foot_near",
+        "pelvis"
+      ],
+      "tabard_reference": "visible label boundary"
+    },
+    "shin_near": {
+      "pixels": 0,
+      "bbox": null,
+      "source_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "boundary_mask_sha256": "b5d850cc9f8978b6800d8854d8032a7649df8fbade64b5320ebf900f9e6aa156",
+      "reference_parts": [
+        "thigh_far",
+        "shin_far",
+        "foot_far",
+        "pelvis"
+      ],
+      "tabard_reference": "visible label boundary"
+    }
+  },
+  "discarded_label_fringe_pixels": {
+    "head": 8,
+    "torso": 1,
+    "pelvis": 0,
+    "belt": 5,
+    "tabard": 10,
+    "coat_near": 17,
+    "coat_far": 0,
+    "upper_near": 0,
+    "fore_near": 1,
+    "hand_near": 0,
+    "upper_far": 1,
+    "fore_far": 7,
+    "hand_far": 0,
+    "thigh_near": 0,
+    "shin_near": 4,
+    "foot_near": 3,
+    "thigh_far": 0,
+    "shin_far": 13,
+    "foot_far": 22,
+    "chain": 1,
+    "hook": 0
+  },
+  "basis": "L*<15 inside owned thigh/shin paint, within 6px Euclidean distance of opposite thigh/shin/foot or pelvis label, or tabard label boundary; labels clipped to supplied solos"
+}

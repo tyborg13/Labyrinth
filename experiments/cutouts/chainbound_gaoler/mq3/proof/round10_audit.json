@@ -1,0 +1,95 @@
+{
+  "ok": true,
+  "head_unchanged": "4fe2e1fe6002ff30064ebd80ce3b0cddd46bbbf3",
+  "preexisting_director_files_preserved": 17,
+  "original_v09_capture_files_unchanged": 3794,
+  "changed_case_inputs": [
+    "probes/motion_gates.py"
+  ],
+  "other_protected_case_inputs_unchanged": 340,
+  "capture_code_unchanged": true,
+  "runtime_paint_layout_motion_unchanged": true,
+  "baseline_matches_current_inputs": true,
+  "complete_generated_inventory_matches": 882,
+  "saved_v09_control": {
+    "ok": true,
+    "frames": 458,
+    "totals": {
+      "tabard_non_tabard_pixels": 0,
+      "detached_small_pixels": 0,
+      "new_leg_dark_pixels": 0,
+      "rear_arm_outside_pixels": 0,
+      "rear_visible_arm_pixels": 0,
+      "magenta_pixels": 0,
+      "hidden_runtime_mismatch_pixels": 0
+    },
+    "value_failures": 0
+  },
+  "native_mutations": [
+    {
+      "mutation": "one_pixel_arm",
+      "file": "data/rear_strike/arm_0000.png",
+      "affected_pixels": 1718,
+      "refreshed_output_checksum": "c2153f77e11087fcb078ae38527fa83bef29791e3700e30cc87fec4405a66d0f",
+      "rejected": true,
+      "error": "Native surface dimensions failed: rear/strike/0/arm; expected 512x512, got 1x1"
+    },
+    {
+      "mutation": "opaque_owner_zero",
+      "file": "data/front_idle/owners_0006.png",
+      "affected_pixels": 8,
+      "refreshed_output_checksum": "e0330834d94ed04f2163cc3957cec5c8e40e143a5021dd51eeab20e100a2eeaf",
+      "rejected": true,
+      "error": "Native owner IDs/alpha failed validation: front/idle/6; nontransparent pixels require a nonzero known owner"
+    }
+  ],
+  "replay_provenance": {
+    "recorded_case_inputs_match": true,
+    "captured_input_hashes_not_rebound": true,
+    "current_validator_sha256": "dfed08c5d9647376e441d37da6f06d2c94b490b493b0caaed26682984b6b6a6b",
+    "captured_validator_sha256": "1d2aaf0b26f47a130c8a672d0f1e59dcc35a1366b33cb03e819f7381cc42f838",
+    "replay_case": "/private/tmp/rr02-round10-replay/captured_case",
+    "replay_capture": "/private/tmp/rr02-round10-replay/capture",
+    "supplemental_previews_verified": 42
+  },
+  "no_windowed_run_or_commit": true,
+  "scope_only_owned_paths": true,
+  "proofs": {
+    "native_mask_regressions_round10.log": {
+      "result": [
+        "Ran 2 tests in 0.523s",
+        "OK"
+      ],
+      "sha256": "5793b63fd275dbaa7ce319d96356ad11828df97e94da8e8021456de0b999da7a"
+    },
+    "focused_round10.log": {
+      "result": [
+        "Ran 45 tests in 62.587s",
+        "OK"
+      ],
+      "sha256": "ca1109c01a2c1866569cf5048b2952a1b27c4a134fbc32461666548d62c42340"
+    },
+    "python_suite_round10.log": {
+      "result": [
+        "Ran 442 tests in 327.869s",
+        "OK (skipped=61)"
+      ],
+      "sha256": "7b1ddd0250be380aab1b4de0e577d7b2338b49ea19e3aabb9381a5a69c42b42f"
+    },
+    "native_replay_round10.log": {
+      "sha256": "dd3ecb7919066460cb5e460e5f10ca2d30b8d28e8438f40adf4bea7d34a6ee28"
+    },
+    "native_replay_round10.json": {
+      "sha256": "b9a9481f56705313712ae7e5c410b832d1ff0446f966a493deed38098cb3b7a0"
+    },
+    "native_mutations_round10.json": {
+      "sha256": "74d97b99462e028765075c1221d84b29601925bb604cf556e8d01ef48eb6dc7a"
+    },
+    "validation_round10.json": {
+      "sha256": "b7bef6aeac117184b906f1a67660495cfd0d0d0f448020049367debfeafda5f6"
+    },
+    "replay_preview_inputs_round10.json": {
+      "sha256": "645fde376b151025718c6f5d02e94b5a4dee253caa44c44bee0b4316eedba666"
+    }
+  }
+}

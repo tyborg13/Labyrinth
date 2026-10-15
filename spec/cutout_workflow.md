@@ -93,6 +93,381 @@ python3 tools/cutout_workflow.py replace-part experiments/cutouts/protagonist_gu
 
 Offsets and band positions are explicit registration inputs, not recommended defaults. `skin` updates that case's facing to the new layout and retains its input/recipe in `sources`. It replaces existing meshes for the named parts rather than stacking duplicate skins. `replace-part` accepts rigid parts only; for a skinned replacement, register the new crop and rebuild UVs/weights. A replacement invalidates the old assembled-rest record, which the next render rebakes.
 
+## From a maquette
+
+`tools/maquette_cutout.py` registers an orthographic maquette to approved paint.
+It uses the existing `init`, `segment`, `skin` and `validate` implementations;
+the builder produces hidden-material requests without filling them. The
+[chainbound gaoler mq3 case](../experiments/cutouts/chainbound_gaoler/mq3/README.md)
+uses the final approved pair and all 42 supplied solos. Its separately requested
+phase-2b fill is described below; neither command writes production assets.
+
+```sh
+python3 tools/maquette_cutout.py \
+  --spec spec/art_identity/maquettes/chainbound_gaoler/spec.json \
+  --front-job spec/art_identity/jobs/chainbound_gaoler/mq3_front_v4 \
+  --rear-job spec/art_identity/jobs/chainbound_gaoler/mq3_rear_v3 \
+  --front-raw experiments/cutouts/chainbound_gaoler/mq3/source/front/raw.png \
+  --rear-raw experiments/cutouts/chainbound_gaoler/mq3/source/rear/raw.png \
+  --renders spec/art_identity/jobs/chainbound_gaoler/mq3_maquette_renders \
+  --case experiments/cutouts/chainbound_gaoler/mq3_complete \
+  --task-id rr-02
+```
+
+`--renders DIR` uses existing `{view}_parts.png`, `{view}_clay.png`,
+`{view}_solo_<part>.png` and `joints_px.json` without invoking Blender. The tool
+checks every expected file, image dimensions and joint names before creating
+the case; `source/maquette_manifest.json` records their SHA-256 digests and
+completeness. The gaoler has 47 required files: 42 solos, four shared maps and
+one joint record. Without `--renders`, run on a machine where Blender can
+initialize its renderer; the tool requests every solo in a derived spec copy.
+`--allow-incomplete-renders` explicitly creates a diagnostic
+case with unknown counts, never silently empty hidden regions. `--resume-scaffold`
+accepts only an unbuilt `cutout_workflow.py init` case; completed cases are never
+overwritten. The raw images must be supplied through `--front-raw`/`--rear-raw`
+or stored as `raw.png` in each job. Their digests must match `processed.json`.
+
+Registration replays the exact green-key alpha, outward block padding, two
+alpha trims and rounded fit dimensions used by `art_identity_gate.process_raw`.
+It records the resulting affine transform and applies it to all maps, solos
+and joints. Solos are not individually fitted or cropped to the painted bbox.
+Display-referred label colors come from Blender's installed AgX OCIO matrix/LUT
+(or an explicit `--palette` JSON); linear material RGB is not mistaken for PNG
+RGB. `--color-config` supplies another installation's OCIO config.
+
+For a different maquette orientation, supply `--view-transforms views.json`
+alongside the matching cached renders. This preserves the original spec bytes
+and copies the metadata to `source/view_transforms.json`; a spec may instead
+contain the same object under `view_transforms`. Explicit CLI metadata takes
+precedence. Every facing must provide a row-major affine `object_to_world`
+4×4 matrix (column-vector convention), world-space `target` (three numbers),
+`azimuth_deg`, `elevation_deg`, positive `ortho_scale`, and positive `distance`.
+Projection and mean-primitive depth both use this transform. All values must be
+finite and the object matrix invertible. Exported joints still must agree within
+the recorded rounding tolerance; supplying metadata never bypasses that check.
+For Gust Shrike, export its actual root yaw 135°/315° matrices, target [0,0,0.9],
+camera azimuth 45°, elevation 30°, scale 3.6 and distance 20. The wing/tail fixture
+tests these cameras against an independent exporter, including depth reversal.
+Absent explicit metadata, the existing humanoid 0°/180° view transform and
+camera remain byte-compatible. The built-in Blender invocation remains the
+humanoid exporter; other exporters supply their own renders and metadata.
+
+Every nontransparent painted pixel takes its nearest registered label pixel
+under squared Euclidean distance. Equal distances choose the label whose mean
+primitive centre is nearer the maquette camera, then label name for an exact
+depth tie. Per-part reassignment is the number of owned painted pixels that
+had no matching label at that coordinate divided by all owned painted pixels;
+shares strictly above 15% are flagged in `build_report.json`. The same camera
+depth orders the painted parts in each facing. Ownership remains categorical;
+RGB/alpha of the approved painting is copied byte-for-byte.
+
+Hidden material is the registered solo silhouette covered by another painted
+owner. Solo pixels outside the entire painting are reported separately as
+silhouette/registration disagreements: they cannot establish occlusion by a
+painted part. Each request contains visible paint, magenta hidden material,
+green background, a native image and a 4× nearest image. Requests for missing
+solos carry `hidden_pixel_count: null` and `status: missing_solo_render`.
+The index and contact sheet sort by maximum sampled visible hidden pixels;
+unknowns follow measured requests. This CPU mask measurement uses actual
+headless Skeleton2D transforms and is labeled as numerical prediction, not
+real-renderer evidence. Every measured request records every sampled clip,
+including zero exposure; `motions` lists the clips that actually expose it.
+`hidden_requests/paint_plan.md` follows the same priority order and lists each
+request's hidden area, exposing motions, occluding painted parts and
+four-connected boundary neighbours, with material names from the rig recipe's
+approved-paint descriptions. A later deforming cloth field requires native exposure
+measurement; the numerical helper refuses to approximate it as rigid.
+
+Intersecting 3D proxies cannot always be represented by one sprite depth per
+part. The case keeps the exact visible partition plus camera-depth-ordered
+magenta support underlays below it. Underlays follow their own bones; moving
+occluders expose them honestly. This preserves native rest identity without
+inventing hidden paint. `logical_parts` retains every maquette label; supporting
+nodes use `hidden_<part>`. Parts with neither visible paint nor an available
+solo are explicitly listed as `unmaterialized_parts`.
+
+For another anatomy, supply `--rig-recipe` with its explicit `joints` (projected
+joint or plate-top attachment and parent), `parts` (label-to-bone mapping),
+`motion`, `clips`, `rigid_bones`, `contact_feet`, optional `cloth` skin fields,
+optional `rigid_cloth` production counterparts and `materials` descriptions,
+and optional case-relative `copy_files`, `motion_probe` and `exposure_tool`.
+The gaoler recipe is in `mq3/recipes/rig.json`; no humanoid topology or motion
+is silently assigned to other creatures. Recipe motion probes run only through
+`godot_task_runner.py`, using `--task-id` or the current `codex/` branch id.
+
+The director's phase-2a decision keeps the gaoler cloth rigid, matching
+production: `tabard → tabard`, `coat_near → coat_fist`, `coat_far → coat_hook`.
+All three parent to `pelvis` in both views. The builder checks those bindings
+against the copied production layouts and records the per-view mapping in
+`build_report.json`; it creates no skin meshes. The production `drape_a..d`
+bones articulate restraint chains and are not cloth weight sources.
+
+### Material ownership and detached islands
+
+An explicit `recipes/rig.json.ownership_cleanup` step runs before segmentation
+and fill. In the gaoler case the director supplied these rules: `tabard_cloth`
+is the approved front tabard's core (Euclidean distance at least 4px inside the
+registered maquette label); each view's `trousers` reference uses `thigh_near`
+core pixels with CIE Lab DeltaE76 greater than 20 from the tabard median.
+Reference medians are RGB medians converted through the gate's D65 sRGB-to-Lab
+function. The front tabard reference is shared because the tabard is front-only.
+
+The round5 gaoler transfer covers the director's explicit front part list:
+pelvis, both thighs, both shins and both coat panels. Pixels closer to the tabard
+median than the trouser median, or within DeltaE76 15 of tabard, move to tabard
+without recoloring. A 6px Euclidean dilation of the registered tabard solo is
+recorded for overlap diagnostics; the explicit part list selects whole owners.
+Component edge voting follows the material transfer. Scattered colour matches
+can return to adjacent parts when needed to prevent detached motion specks.
+Round6 scopes the final colour gate to the seven front parts above and rear
+pelvis/thighs, with strict DeltaE76 < 12. Other owners' protected rust/copper is
+excluded. The explicit list selects complete logical owners, not a per-frame
+screen-space crop. A final geometric repair resolves remaining scoped collisions:
+inside the dilated front silhouette they belong to tabard; outside it they belong
+to the nearest protected rest-painted owner (label-order ties). Newly detached
+small islands connect to that owner's largest complete component along the
+shortest 8-connected path through existing opaque source paint, with y/x traversal
+ties; cloth paths stay inside the dilation. This transfers ownership and restores
+the old owner's solo-backed hidden support without inventing visible RGBA or alpha.
+All transfers are recorded and the complete motion silhouette gate remains mandatory.
+Each logical part's complete mask
+(visible paint plus hidden support) then receives the director's 8-connected
+component cleanup: components smaller than 12px, except the largest, move to
+the rest-painted neighbour sharing the most four-connected boundary edges.
+Moves use one snapshot; ties use label order. An unattached hidden-only island
+can be deleted under the exact visible partition; an unattached visible island
+is retained and reported. The largest-component tie uses top/left bbox order.
+Reports contain per-part counts, bounds, destinations and reasons. Explicit
+`motion_islands` store source pixels traced from detached motion fragments and
+move them to the adjacent owner with the most shared boundary. This also covers
+islands over 12px and tips connected to their own part at rest but detached in
+motion. Trace provenance distinguishes native frame evidence from CPU ownership
+attribution; it never describes a CPU map as a rendered ownership capture.
+
+`registered/*_original_owners.npy` retains source depth ownership. Visible
+segments are split by their new logical owner and original draw depth; thus
+transferred pixels follow the corrected bone while retaining their precise rest
+order. Cleaned hidden masks and material masks are saved separately. Fill
+recomputes this source-derived cleanup and rejects mismatching masks or reports.
+Rest RGBA equality remains mandatory. When rebuilding an existing case, preserve
+the preceding immutable requests and their provenance before replacing derived
+outputs; the gaoler archives preceding rounds under `provenance/`.
+
+Round7's explicit `occlusion_shadow` recipe runs after material/component cleanup.
+Within each owned thigh/shin, source pixels with L* < 15 and Euclidean distance
+at most 6px from the opposite leg's thigh/shin/foot label, the pelvis label, or
+the tabard label boundary move to logical owner `under_shadow`. Each decoded
+reference label is intersected with its own registered solo: antialiased label
+fringes must not create false distant limbs. The source RGBA is unchanged, and
+the vacated pixels become hidden trouser support even outside the original solo.
+The recipe records masks/counts and fill independently rederives them. The added
+logical owner has no hidden-paint request; visible-dark rest masks for all four
+leg parts exclude transferred pixels and are saved for motion provenance.
+
+The pelvis owns the shadow nodes. To preserve exact rest identity, their depth
+is below both legs' visible paint but above hidden replacement underlays. This
+is an explicit exception to retaining original visible draw depth: placing opaque
+replacement fill above these shadows would erase the approved rest shadows.
+Hidden underlays retain their relative order below the shadow. No source pixels,
+leg bones, pose curves or pelvis motion change.
+
+The gaoler's three-link chain uses production `chain_b`/`chain_c` fractions along
+`chain_a` to `hook`, mapped onto the registered maquette chain axis. Existing
+visible and hidden chain paint is partitioned at those fractions; no new paint
+or motion curves are invented. The case adapter includes all seven production
+clips. Rear strike/pin shifts the entire fist-arm layer group behind head and
+torso while preserving internal order; other clip/view layer orders stay fixed.
+Headless samples record actual painted-node depths, and CPU exposure uses those
+depths and actual scene-tree order for equal depths, summing all support pieces
+of each logical part. The round5 adapter also constrains rear strike/pin by
+translating the whole fist arm into the torso/head/coat union. Each sampled phase
+uses the shortest integer translation into a one-pixel interior margin, with
+deterministic y/x ties; curves interpolate between those phases. The bake saves
+unconstrained transforms, verifies no arm pixels are clipped, then resamples.
+Round6 adds rear-only torso rotation `0.07 * hit` and fist-side shoulder offset
+`Vector2(0,-3) * prep` before baking the arm constraint. Head and both arms inherit
+the torso rotation. Both envelopes reuse production timing; `manacle_pin` calls
+its hit envelope `cast`. Front motion and pelvis forward drive remain unchanged.
+Tests compare every unconstrained bone matrix against archived round5 samples,
+including inherited torso rotation and the shoulder offset, then independently
+verify that constraint projection changes only the three fist-arm transforms.
+The director values live in `recipes/rig.json.rear_torso_lean`; the builder copies
+that object into each layout, and the generated sampler reads its `clips`,
+`rotation_rad_per_hit` and `shoulder_offset_per_prep` fields. There are no duplicate
+numeric defaults in the sampler. A regression changes the recipe, regenerates
+the layout and checks changed rear motion through Godot while front/walk remain
+identical.
+
+### Deterministic hidden fill
+
+When explicitly requested, fill only the hidden runtime underlays:
+
+```sh
+python3 tools/maquette_cutout.py fill-hidden \
+  --case experiments/cutouts/chainbound_gaoler/mq3 --task-id rr-02
+```
+
+The immutable request image supplies the native hidden mask, cross-checked
+against ownership and the registered solo. Donors are the part's own visible
+paint and visible paint from the listed neighbours whose material description
+exactly matches the part's; material names are checked against `recipes/rig.json`.
+The command never imports pixels from unrelated materials. Cross-view borrowing
+requires the explicit `--cross-view-fallback` option, which records the approved
+policy in the case recipe for subsequent runs. It applies only when the target
+part has fewer than 40 visible pixels and no listed same-material neighbour in
+its view. It uses only the same part's visible pixels in the paired view, for
+both palette and inpainting. The registered native coordinates are kept without
+resizing or mirroring; the target mask is unchanged and its own visible paint
+takes precedence. Each affected request records `cross_view_donor`, including
+the view, part, source/ownership digests, visible count and registration policy.
+
+The first call records OpenCV Telea (radius 3) when available; otherwise it
+records deterministic four-neighbour harmonic diffusion. The latter solves the
+discrete Laplace equation with reflecting boundaries, with only approved donor
+pixels fixed. Its domain is the donor/target bounds padded by 3 native pixels.
+Background and other materials are unknown values, not black boundary colors.
+Subsequent calls reuse the recorded method, even if OpenCV availability changes.
+
+Hidden RGB is quantized to seeded weighted RGB k-means (`k=6`, seed `0`) over
+the part's visible pixels. Parts with fewer than 40 visible pixels use their
+same-material neighbours' pixels for the palette, or the explicitly enabled
+same-part cross-view fallback when no local donor exists. Fewer than six distinct input
+colors produce a smaller palette. If no fallback donor exists, a named
+`TODO_DESIGN_hidden_donor_<view>_<part>` remains in the manifest and case config;
+the tool continues other requests and reports `complete: false`. It never
+guesses a new material. The one-pixel outline is `(20,16,21)` on filled pixels
+touching transparency in the union of visible and hidden masks. The gate's
+four-connected edge definition is reused without deleting alpha or darkening
+visible pixels. All visible paint, part alpha, offsets, bones and motion remain
+unchanged. An explicit `occlusion_shadow.minimum_hidden_l` overrides the default
+outline for the affected leg parts as described below.
+
+The round5 `hidden_value_distribution` recipe supersedes the prior trousers-core
+color gate for pelvis, thighs and shins. Each region uses its own same-view visible
+pixels for a k=6 palette and empirical L* distribution. Hidden interior pixels
+retain diffusion's spatial value ranking and take the nearest palette L* to
+successive target quantiles, accounting for the unchanged outline. Report each
+region's reference/hidden median L*, their difference (maximum 8), reference
+interquartile L* range and the number of hidden pixels in that range. Scoped gate
+parts also exclude palette centroids within DeltaE76 12 of tabard: averaging two
+non-tabard colors can otherwise recreate the tabard hue. Visible RGBA stays exact.
+
+Round6 authorizes sparse references under 40 pixels to use the same view's near
+thigh visible trousers. Subtract 6 from its per-pixel L* distribution (clamped to
+0..100), retaining its a*/b* before sRGB gamut clipping and 8-bit encoding. Use the
+shifted pixels for both palette and diffusion donors. The provenance records the
+source part/view, pixel count, mask and RGB digests, original/target/encoded medians,
+shift and reason. The independent gate compares against the nominal shifted
+distribution. This resolves both far-thigh reference decisions; other explicit
+cross-view fallbacks remain unchanged.
+
+Round7 fills thigh/shin support with trousers at L* >= 15, including its outline,
+to prevent newly invented near-black leg regions. Eligible source colours and
+k-means centroids must meet that floor; the outline uses the darkest eligible
+centroid. Sparse far thighs keep the same-view near-thigh reference and -6 L*
+shift. Both shins explicitly use the same-view near-thigh trousers with zero
+shift, replacing the earlier mixed boot-cuff/shadow reference. Near thighs and
+pelvis keep their own reference. Visible source paint is never recoloured.
+
+The nominal reference median and maximum difference of 8 remain unchanged. If
+the entire reference interquartile range is below the new floor, the reported
+effective mid-tone range uses the same reference's L* >= 15 tail instead. The
+original range and its actual hidden-pixel count remain in the report. This is
+an explicit change to the earlier mid-tone condition, needed for the rear far
+thigh: its original range contains zero hidden pixels. The recipe records the
+substitution; the independent motion gate recomputes both ranges from source.
+
+`recipes/hidden_fill.json` records the method and parameters;
+`hidden_fills/index.json` records each request's status, palette, counts, donor
+parts, mask/pixel/source/output digests and solver metrics. Native fill previews
+and a contact sheet live beside it. Original native/4× requests and their sheet
+remain byte-identical. A rerun first checks all protected sources and generated
+output hashes, then refuses to overwrite any manually changed hidden paint.
+The command refreshes rest identity, validation, motion samples, exposure and
+the case baseline. These numerical checks do not approve art or replace a fresh
+native reel and director inspection. Regenerate the reel in a fresh output
+directory; captures made before filling are historical proof only.
+
+The independent value gate assembles actual runtime hidden-material PNGs at
+their layout offsets and checks exact single coverage of each registered hidden
+mask. It measures median/IQR counts from those runtime pixels, and separately
+requires exact RGBA agreement with the preview on the same mask. Per-frame
+native physical-owner IDs identify visible hidden pixels; the gate reports their
+L* median and rejects colors absent from that physical runtime node's palette.
+Native node identity, bone, logical owner and hidden flag must match the current
+layout. A partially visible region's median is diagnostic, since visibility
+biases its distribution; the full runtime region remains the value-limit basis.
+Regression mutations cover RGB 220 with a stale preview, RGB 220 with a matching
+preview, missing runtime alpha, and rendered pixels outside the runtime palette.
+
+The gaoler's `probes/rebuild.py --case <absolute-case>` performs a complete fresh
+build/fill using the recorded fill method, then compares **every** generated
+artifact byte-for-byte with `proof/derived_files.json`, including ownership
+recipes, build/validation reports, samples, PNGs, import sidecars and the protected
+baseline. It detects missing and orphaned files in generated asset directories.
+Only three execution transcripts (motion_samples.log, exposure.log and
+motion_constraints.log) are excluded: they contain invocation paths and runner
+IDs. Authored inputs, historical proofs and native captures are not generated
+outputs. Promote the whole successful clean output together; selective copying
+previously left ownership recipes and build_report.json stale.
+
+Run `python3 tests/test_maquette_cutout.py`, `cutout_workflow.py validate`, and
+the case's headless motion sampler. Native proof still requires `render` and
+`verify-render`; the case provides an additional 1920×1080, 100% scale rest
+identity probe and a collector for eight native frames per clip. See its
+README for exact commands. `probes/native_motion.gd` additionally captures RGBA,
+physical paint-node IDs, the complete fist-arm mask, the torso/head/coat mask,
+and transformed visible-rest-dark provenance IDs at every frame, plus two rest
+calibrations. Rest uses `apply_pose("rest", 0.0)`; `show_frame` is reserved for
+configured animation clips. `--check-poses` exercises this same pose and mask
+setup headlessly across all 460 poses and five rigs, including rest after strike
+and bone/layer resets. This catches probe runtime failures without GPU readback.
+The five-surface native capture timeout defaults to 900 seconds for 460 poses
+under load and is configurable with `motion_gates.py --native-timeout <seconds>`
+(positive, finite). This leaves the runner's startup watchdog and GUI lease intact.
+`motion_gates.py --capture-native` launches it through the visual runner.
+Round8 separates mask data from screenshots: RGBA frames and 1920×1080 overviews
+stay under the isolated `user://` directory and receive normal variation/size
+validation, with a required screenshot count derived from the configured clips
+(460 RGBA frames plus 44 overviews for this case).
+Ownership, arm/body and visible-rest-dark PNGs go through `--data-output` to an
+external temporary directory, with a unique subdirectory per runner attempt.
+A `user://data` folder would still be recursively scanned as screenshots and
+is therefore insufficient. The runner itself has no weakened image checks.
+
+The accepted screenshot folder's transport sidecar identifies its matching mask
+directory. Collection checks every expected file before combining them under
+`motion_gate_capture/`, with masks in `data/`, and hashes all collected files.
+Transport-only absolute paths are excluded from this portable capture. The native
+gates still validate every mask's IDs, alpha, rest provenance and complete frame
+coverage; a uniform mask is valid data, never evidence of a good screenshot.
+Before any frame-array operations, all five native surfaces must be exactly
+512×512. This makes each categorical mask match its paired RGBA frame and rejects
+even a transparent 1×1 mask instead of allowing NumPy broadcasting. Owner and
+visible-rest-dark IDs must be nonzero and known wherever their alpha is nonzero;
+rest-dark IDs must also belong to a leg part. ID zero remains valid on transparent
+background. Each native replay reloads image bytes after checksum validation,
+so replacing a same-path file cannot reuse cached pixels. Regressions invoke
+`native_gates` with refreshed output checksums for undersized surfaces and zero
+or unknown opaque IDs; the unmodified fixture accepts blank full-size masks.
+The headless `--check-output <fixture-directory>` regression exercises the actual
+image writer, and the Python test runs real screenshot discovery/validation on
+its output, including rejection of a blank RGBA screenshot.
+`--native`
+requires every frame, current source hashes, exact rest ownership calibration,
+and RGBA equality with the primary verified reel before evaluating the scoped
+colour, detached-component, new-leg-dark, arm-containment and magenta gates.
+The new-leg-dark gate removes pixels originating from the same logical part's
+visible near-black rest paint, then rejects remaining 8-connected L* < 15 regions
+larger than 12px inside each thigh/shin. Its native provenance surface follows
+the same physical nodes and is calibrated against source-derived masks at rest.
+The native collector runs these gates before writing accepted keyframes or
+verification, and prints `MAQUETTE_PROOF: PASS` only after `MOTION GATES: PASS`.
+`--cpu` is a separate diagnostic and cannot satisfy native proof.
+The colour report includes explicit zero entries per scoped part and frame, plus
+per-part/per-clip totals and maxima. No production inspection fixture is appropriate
+until phase two integrates the case into gameplay.
+
 ## Starting a new task
 
 Useful prompts:

@@ -1,0 +1,101 @@
+{
+  "rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "394e5284cdf9dfe72e85508b269c2562612401e7fcb19ee99c27ac1facef37bc"
+    },
+    "rear": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "ebe6bcc1c4d77b8e4fa5a89e57f5118725414f75715578d9307dbb7408aac4ae"
+    },
+    "ok": true
+  },
+  "runtime_images": 139,
+  "magenta_pixels": 0,
+  "hidden_pixels": 34374,
+  "filled_requests": 39,
+  "approved_source_files_unchanged": 113,
+  "archived_v04_files": 239,
+  "changed_bones_from_v04": {
+    "rear/strike": [
+      "fore_fist",
+      "hand_fist",
+      "upper_fist"
+    ],
+    "rear/manacle_pin": [
+      "fore_fist",
+      "hand_fist",
+      "upper_fist"
+    ]
+  },
+  "inspected_cpu_frames": [
+    {
+      "pose": [
+        "front",
+        "walk",
+        0
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "front",
+        "walk",
+        7
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "front",
+        "walk",
+        47
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "front",
+        "strike",
+        2
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "walk",
+        28
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "strike",
+        2
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "strike",
+        3
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "manacle_pin",
+        12
+      ],
+      "non_main_components": []
+    }
+  ],
+  "native_v05": "pending director windowed capture; no windowed command attempted",
+  "motion_gate_report_sha256": "95910d476a7a4ae1824d03b64dcb1bf2a70cecf6ae365c86d3453c59a3c5b9e6"
+}

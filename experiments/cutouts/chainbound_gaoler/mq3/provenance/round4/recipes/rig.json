@@ -1,0 +1,318 @@
+{
+  "character_id": "chainbound_gaoler",
+  "joints": {
+    "root": {
+      "joint": "root",
+      "parent": null
+    },
+    "pelvis": {
+      "joint": "pelvis",
+      "parent": "root"
+    },
+    "torso": {
+      "joint": "torso",
+      "parent": "pelvis"
+    },
+    "head": {
+      "joint": "head",
+      "parent": "torso"
+    },
+    "upper_fist": {
+      "joint": "shoulder_near",
+      "parent": "torso"
+    },
+    "fore_fist": {
+      "joint": "elbow_near",
+      "parent": "upper_fist"
+    },
+    "hand_fist": {
+      "joint": "hand_near",
+      "parent": "fore_fist"
+    },
+    "thigh_fist": {
+      "joint": "hip_near",
+      "parent": "pelvis"
+    },
+    "shin_fist": {
+      "joint": "knee_near",
+      "parent": "thigh_fist"
+    },
+    "foot_fist": {
+      "joint": "ankle_near",
+      "parent": "shin_fist"
+    },
+    "coat_fist": {
+      "plate": "coat_near",
+      "parent": "pelvis"
+    },
+    "upper_hook": {
+      "joint": "shoulder_far",
+      "parent": "torso"
+    },
+    "fore_hook": {
+      "joint": "elbow_far",
+      "parent": "upper_hook"
+    },
+    "hand_hook": {
+      "joint": "hand_far",
+      "parent": "fore_hook"
+    },
+    "thigh_hook": {
+      "joint": "hip_far",
+      "parent": "pelvis"
+    },
+    "shin_hook": {
+      "joint": "knee_far",
+      "parent": "thigh_hook"
+    },
+    "foot_hook": {
+      "joint": "ankle_far",
+      "parent": "shin_hook"
+    },
+    "coat_hook": {
+      "plate": "coat_far",
+      "parent": "pelvis"
+    },
+    "tabard": {
+      "plate": "tabard",
+      "parent": "pelvis"
+    },
+    "chain": {
+      "joint": "hand_far",
+      "parent": "hand_hook"
+    },
+    "hook": {
+      "joint": "chain_end",
+      "parent": "chain"
+    }
+  },
+  "parts": {
+    "head": "head",
+    "torso": "torso",
+    "pelvis": "pelvis",
+    "belt": "pelvis",
+    "tabard": "tabard",
+    "upper_near": "upper_fist",
+    "fore_near": "fore_fist",
+    "hand_near": "hand_fist",
+    "thigh_near": "thigh_fist",
+    "shin_near": "shin_fist",
+    "foot_near": "foot_fist",
+    "coat_near": "coat_fist",
+    "upper_far": "upper_hook",
+    "fore_far": "fore_hook",
+    "hand_far": "hand_hook",
+    "thigh_far": "thigh_hook",
+    "shin_far": "shin_hook",
+    "foot_far": "foot_hook",
+    "coat_far": "coat_hook",
+    "chain": "chain",
+    "hook": "hook"
+  },
+  "motion": "motion.gd",
+  "sole_parts": {
+    "hook": "foot_far",
+    "fist": "foot_near"
+  },
+  "design_placeholders": {},
+  "proof_defaults": {
+    "clip_frames": {
+      "idle": 24,
+      "walk": 48,
+      "strike": 31,
+      "hit": 24,
+      "death": 32,
+      "chain_reel": 31,
+      "manacle_pin": 39
+    },
+    "preview_cycles": 1
+  },
+  "clips": {
+    "idle": {
+      "frames": 24,
+      "duration": 1.6,
+      "loop": true
+    },
+    "walk": {
+      "frames": 48,
+      "duration": 0.64,
+      "loop": true,
+      "travel": "motion"
+    },
+    "strike": {
+      "frames": 31,
+      "duration": 0.24,
+      "loop": false
+    },
+    "hit": {
+      "frames": 24,
+      "duration": 0.36,
+      "loop": false
+    },
+    "death": {
+      "frames": 32,
+      "duration": 1.036,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.62,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "chain_reel": {
+      "frames": 31,
+      "duration": 0.24,
+      "loop": false
+    },
+    "manacle_pin": {
+      "frames": 39,
+      "duration": 0.57,
+      "loop": false
+    }
+  },
+  "rigid_bones": [
+    "head",
+    "hand_hook",
+    "hand_fist",
+    "foot_hook",
+    "foot_fist",
+    "hook"
+  ],
+  "contact_feet": [
+    "foot_hook",
+    "foot_fist"
+  ],
+  "copy_files": [
+    {
+      "from": "motion_adapter.gd.in",
+      "to": "motion.gd"
+    },
+    {
+      "from": "motion_adapter.gd.in",
+      "to": "recipes/motion_adapter.gd.in"
+    },
+    {
+      "from": "../source/production/motion.gd",
+      "to": "gaoler_motion.gd"
+    },
+    {
+      "from": "../source/production/front.json",
+      "to": "source/production/front.json"
+    },
+    {
+      "from": "../source/production/rear.json",
+      "to": "source/production/rear.json"
+    },
+    {
+      "from": "../source/production/motion.gd",
+      "to": "source/production/motion.gd"
+    },
+    {
+      "from": "../source/production/renderer.gd",
+      "to": "source/production/renderer.gd"
+    },
+    {
+      "from": "../probes/motion_samples.gd",
+      "to": "probes/motion_samples.gd"
+    },
+    {
+      "from": "../probes/proof.py",
+      "to": "probes/proof.py"
+    },
+    {
+      "from": "../probes/native_rest.gd",
+      "to": "probes/native_rest.gd"
+    },
+    {
+      "from": "../probes/rest_contract.json",
+      "to": "probes/rest_contract.json"
+    }
+  ],
+  "provenance": {
+    "bone_mapping": "far = hook arm/leg, near = fist arm/leg in both views. chain -> production chain_a, chain_b/c use production fractions; hook retains maquette chain_end registration. Cloth pivots use plate top edge midpoints.",
+    "clips": "idle/walk/strike: current production renderer IDLE_CYCLE_SECONDS, WALK_CYCLE_SECONDS, ATTACK_FRAMES * ATTACK_FRAME_SECONDS. hit: cutout_context.HIT_SECONDS. death: combat_board_view ENEMY_SHADOW_DISSOLVE_FRAME_COUNT 28 * ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS .037, cutout_context.DEATH_SETTLE_PROGRESS .62. chain_reel: RunScene ATTACK_FRAMES 6 * ATTACK_FRAME_SECONDS .04. manacle_pin: AttackFxLibrary AIR_ANIMATION_FRAMES 38 * AIR_FRAME_SECONDS .015. Diagnostic samples: 31 endpoint-inclusive for reel, 39 endpoint-inclusive for pin (captures exact 4/38 release and 12/38 contact).",
+    "cloth": "Director phase 2a: rigid segments, tabard -> tabard, coat_near -> coat_fist, coat_far -> coat_hook; all parent to pelvis in both production views. No skinning.",
+    "materials": "Descriptions of approved mq3_front_v4/mq3_rear_v3 paint, with Identity and materials from mq3_rear_v3/prompt.md; neighbouring regions come from registered ownership, not inferred hidden paint."
+  },
+  "motion_probe": "probes/motion_samples.gd",
+  "exposure_tool": "probes/proof.py",
+  "rigid_cloth": {
+    "tabard": {
+      "production_part": "tabard"
+    },
+    "coat_near": {
+      "production_part": "coat_fist"
+    },
+    "coat_far": {
+      "production_part": "coat_hook"
+    }
+  },
+  "materials": {
+    "head": "rusted dark-iron bucket helm",
+    "torso": "dark ash-grey cowl and tunic",
+    "pelvis": "dark cloth at hips",
+    "belt": "broad brown belt",
+    "tabard": "red-brown tabard with its approved insignia",
+    "coat_near": "dark ash-grey ragged coat tail",
+    "coat_far": "dark ash-grey ragged coat tail",
+    "chain": "chunky dark-iron chain",
+    "hook": "barbed rusted-iron hook",
+    "upper_near": "dark cloth sleeve",
+    "fore_near": "dark cloth sleeve with broad brown leather bands",
+    "hand_near": "dark brown leather glove",
+    "thigh_near": "dark cloth trouser leg",
+    "shin_near": "dark lower leg and boot cuff",
+    "foot_near": "dull dark brown boot",
+    "upper_far": "dark cloth sleeve",
+    "fore_far": "dark cloth sleeve with broad brown leather bands",
+    "hand_far": "dark brown leather glove",
+    "thigh_far": "dark cloth trouser leg",
+    "shin_far": "dark lower leg and boot cuff",
+    "foot_far": "dull dark brown boot"
+  },
+  "ownership_cleanup": {
+    "core_distance_px": 4,
+    "trousers_min_tabard_delta_e": 20,
+    "fill_median_max_delta_e": 12,
+    "speck_max_exclusive_px": 12,
+    "trouser_parts": [
+      "pelvis",
+      "thigh_far",
+      "thigh_near"
+    ],
+    "tabard_reference_view": "front",
+    "material_distance": "CIE Lab DeltaE76, D65 sRGB; median RGB converted to Lab",
+    "speck_connectivity": 8,
+    "border_connectivity": 4,
+    "border_tie": "source label order",
+    "rest_depth": "retain original owner depth for every visible pixel",
+    "speck_basis": "complete logical part: visible paint plus hidden support; simultaneous moves from snapshot"
+  },
+  "articulated_chain": {
+    "basis": "production chain_a to hook projected-axis fractions for chain_b/chain_c, mapped to registered maquette chain to hook; partition existing paint by pixel-centre projection"
+  },
+  "rear_fist_behind": {
+    "clips": [
+      "strike",
+      "manacle_pin"
+    ],
+    "bones": [
+      "upper_fist",
+      "fore_fist",
+      "hand_fist"
+    ],
+    "occluders": [
+      "torso",
+      "head"
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "capture": "/private/tmp/rr-02-mq3-render-v09",
+  "render_verification": {
+    "ok": true,
+    "inputs": 3323,
+    "outputs": 1445,
+    "errors": []
+  },
+  "rest_identity": "both approved RGBA paintings equal native rest",
+  "proof_manifest_sha256": "9648e154444f0efdfd429e760be9d461aa5eed51b85791c95aba0b81d215ada0",
+  "native_motion_gates": "PASS"
+}

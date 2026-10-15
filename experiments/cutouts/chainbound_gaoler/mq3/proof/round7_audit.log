@@ -1,0 +1,77 @@
+{
+  "runtime_images": 145,
+  "magenta_pixels": 0,
+  "hidden_pixels": 34735,
+  "filled_requests": 39,
+  "approved_source_files_unchanged": 113,
+  "archived_round6_files": 449,
+  "all_bone_matrices_max_difference_from_round6": 0.0,
+  "shadow_pixels": 340,
+  "inspected_cpu_frames": [
+    {
+      "pose": [
+        "front",
+        "walk",
+        0
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "front",
+        "walk",
+        47
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "front",
+        "strike",
+        2
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "front",
+        "chain_reel",
+        15
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "walk",
+        27
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "walk",
+        34
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "strike",
+        3
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "manacle_pin",
+        12
+      ],
+      "non_main_components": []
+    }
+  ],
+  "native_v07": "pending director windowed capture; no windowed command attempted"
+}

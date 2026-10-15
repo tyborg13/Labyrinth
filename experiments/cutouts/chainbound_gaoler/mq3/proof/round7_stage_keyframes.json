@@ -1,0 +1,110 @@
+[
+  {
+    "pose": [
+      "front",
+      "walk",
+      0
+    ],
+    "tabard_non_tabard_pixels": 0,
+    "tabard_collisions_by_part": {
+      "pelvis": 0,
+      "thigh_far": 0,
+      "thigh_near": 0,
+      "shin_far": 0,
+      "shin_near": 0,
+      "coat_far": 0,
+      "coat_near": 0
+    },
+    "detached_small_components": [],
+    "detached_small_pixels": 0,
+    "new_leg_dark_pixels": 0,
+    "new_leg_dark_regions_by_part": {
+      "thigh_far": [],
+      "thigh_near": [],
+      "shin_far": [],
+      "shin_near": []
+    },
+    "rear_arm_outside_pixels": 0,
+    "rear_visible_arm_pixels": 0,
+    "magenta_pixels": 0
+  },
+  {
+    "pose": [
+      "front",
+      "walk",
+      47
+    ],
+    "tabard_non_tabard_pixels": 0,
+    "tabard_collisions_by_part": {
+      "pelvis": 0,
+      "thigh_far": 0,
+      "thigh_near": 0,
+      "shin_far": 0,
+      "shin_near": 0,
+      "coat_far": 0,
+      "coat_near": 0
+    },
+    "detached_small_components": [],
+    "detached_small_pixels": 0,
+    "new_leg_dark_pixels": 0,
+    "new_leg_dark_regions_by_part": {
+      "thigh_far": [],
+      "thigh_near": [],
+      "shin_far": [],
+      "shin_near": []
+    },
+    "rear_arm_outside_pixels": 0,
+    "rear_visible_arm_pixels": 0,
+    "magenta_pixels": 0
+  },
+  {
+    "pose": [
+      "rear",
+      "walk",
+      27
+    ],
+    "tabard_non_tabard_pixels": 0,
+    "tabard_collisions_by_part": {
+      "pelvis": 0,
+      "thigh_far": 0,
+      "thigh_near": 0
+    },
+    "detached_small_components": [],
+    "detached_small_pixels": 0,
+    "new_leg_dark_pixels": 0,
+    "new_leg_dark_regions_by_part": {
+      "thigh_far": [],
+      "thigh_near": [],
+      "shin_far": [],
+      "shin_near": []
+    },
+    "rear_arm_outside_pixels": 0,
+    "rear_visible_arm_pixels": 0,
+    "magenta_pixels": 0
+  },
+  {
+    "pose": [
+      "rear",
+      "walk",
+      34
+    ],
+    "tabard_non_tabard_pixels": 0,
+    "tabard_collisions_by_part": {
+      "pelvis": 0,
+      "thigh_far": 0,
+      "thigh_near": 0
+    },
+    "detached_small_components": [],
+    "detached_small_pixels": 0,
+    "new_leg_dark_pixels": 0,
+    "new_leg_dark_regions_by_part": {
+      "thigh_far": [],
+      "thigh_near": [],
+      "shin_far": [],
+      "shin_near": []
+    },
+    "rear_arm_outside_pixels": 0,
+    "rear_visible_arm_pixels": 0,
+    "magenta_pixels": 0
+  }
+]

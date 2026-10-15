@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "character_id": "chainbound_gaoler",
+  "layouts": {
+    "front": {
+      "joints": 23,
+      "parts": 81,
+      "meshes": 0,
+      "vertices": 0
+    },
+    "rear": {
+      "joints": 23,
+      "parts": 60,
+      "meshes": 0,
+      "vertices": 0
+    }
+  },
+  "errors": []
+}

@@ -1,0 +1,52 @@
+test_all_labels_have_measured_requests_and_five_clip_exposure (__main__.GaolerCaseTests) ... ok
+test_complete_render_manifest_matches_every_provided_input (__main__.GaolerCaseTests) ... ERROR
+test_joint_registration_uses_cached_projection_without_manual_refitting (__main__.GaolerCaseTests) ... ok
+test_production_motion_and_approved_paint_are_untouched_copies (__main__.GaolerCaseTests) ... ERROR
+test_registered_rest_is_exact_rgba_including_hidden_underlays (__main__.GaolerCaseTests) ... ok
+test_rigid_cloth_matches_production_bones_and_parenting (__main__.GaolerCaseTests) ... ok
+test_camera_depth_and_projection_reverse_on_rear (__main__.SyntheticMaquetteTests) ... ok
+test_complete_synthetic_case_is_repeatable_and_keeps_all_source_bytes (__main__.SyntheticMaquetteTests) ... ok
+test_decode_uses_registered_palette_and_keeps_background_unowned (__main__.SyntheticMaquetteTests) ... ok
+test_hidden_neighbours_report_occluders_and_four_connected_border (__main__.SyntheticMaquetteTests) ... ok
+test_hidden_requires_another_painted_owner_not_empty_canvas (__main__.SyntheticMaquetteTests) ... ok
+test_nearest_is_euclidean_and_depth_breaks_diagonal_ties (__main__.SyntheticMaquetteTests) ... ok
+test_noninteger_reduction_and_fit_match_gate_alpha_bounds (__main__.SyntheticMaquetteTests) ... ok
+test_reassignment_limit_is_strictly_above_fifteen_percent (__main__.SyntheticMaquetteTests) ... ok
+test_registration_recovers_crop_and_placement_from_gate (__main__.SyntheticMaquetteTests) ... ok
+
+======================================================================
+ERROR: test_complete_render_manifest_matches_every_provided_input (__main__.GaolerCaseTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/tests/test_maquette_cutout.py", line 245, in test_complete_render_manifest_matches_every_provided_input
+    self.assertEqual(digest(supplied / name), expected)
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/tools/cutout_pipeline/cases.py", line 31, in digest
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1249, in read_bytes
+    with self.open(mode='rb') as f:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1242, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1110, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/spec/art_identity/jobs/chainbound_gaoler/mq3_maquette_renders/joints_px.json'
+
+======================================================================
+ERROR: test_production_motion_and_approved_paint_are_untouched_copies (__main__.GaolerCaseTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/tests/test_maquette_cutout.py", line 212, in test_production_motion_and_approved_paint_are_untouched_copies
+    self.assertEqual(digest(CASE / "source" / view / "processed.png"), digest(PROJECT / "spec/art_identity/jobs/chainbound_gaoler" / job / "processed.png"))
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/tools/cutout_pipeline/cases.py", line 31, in digest
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1249, in read_bytes
+    with self.open(mode='rb') as f:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1242, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1110, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/spec/art_identity/jobs/chainbound_gaoler/mq3_front_v4/processed.png'
+
+----------------------------------------------------------------------
+Ran 15 tests in 1.221s
+
+FAILED (errors=2)

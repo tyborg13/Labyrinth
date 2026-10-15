@@ -1,0 +1,906 @@
+{
+  "ok": true,
+  "source_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+  "ownership_sha256": "b5d19e4eeb9f39171dab88a6d8be4435f9b51d88c04e09d711fbaf5310efceba",
+  "parts": [
+    {
+      "name": "head",
+      "file": "head.png",
+      "offset": [
+        117,
+        30
+      ],
+      "bbox": [
+        117,
+        30,
+        161,
+        86
+      ]
+    },
+    {
+      "name": "head_from_tabard",
+      "file": "head_from_tabard.png",
+      "offset": [
+        118,
+        59
+      ],
+      "bbox": [
+        118,
+        59,
+        119,
+        60
+      ]
+    },
+    {
+      "name": "head_from_coat_near",
+      "file": "head_from_coat_near.png",
+      "offset": [
+        117,
+        66
+      ],
+      "bbox": [
+        117,
+        66,
+        157,
+        86
+      ]
+    },
+    {
+      "name": "torso",
+      "file": "torso.png",
+      "offset": [
+        104,
+        62
+      ],
+      "bbox": [
+        104,
+        62,
+        180,
+        137
+      ]
+    },
+    {
+      "name": "torso_from_coat_near",
+      "file": "torso_from_coat_near.png",
+      "offset": [
+        160,
+        67
+      ],
+      "bbox": [
+        160,
+        67,
+        161,
+        68
+      ]
+    },
+    {
+      "name": "torso_from_upper_far",
+      "file": "torso_from_upper_far.png",
+      "offset": [
+        160,
+        128
+      ],
+      "bbox": [
+        160,
+        128,
+        161,
+        129
+      ]
+    },
+    {
+      "name": "torso_from_fore_far",
+      "file": "torso_from_fore_far.png",
+      "offset": [
+        161,
+        82
+      ],
+      "bbox": [
+        161,
+        82,
+        174,
+        115
+      ]
+    },
+    {
+      "name": "pelvis",
+      "file": "pelvis.png",
+      "offset": [
+        141,
+        147
+      ],
+      "bbox": [
+        141,
+        147,
+        154,
+        156
+      ]
+    },
+    {
+      "name": "pelvis_from_shin_far",
+      "file": "pelvis_from_shin_far.png",
+      "offset": [
+        149,
+        154
+      ],
+      "bbox": [
+        149,
+        154,
+        152,
+        156
+      ]
+    },
+    {
+      "name": "belt",
+      "file": "belt.png",
+      "offset": [
+        112,
+        116
+      ],
+      "bbox": [
+        112,
+        116,
+        193,
+        151
+      ]
+    },
+    {
+      "name": "belt_from_coat_near",
+      "file": "belt_from_coat_near.png",
+      "offset": [
+        192,
+        124
+      ],
+      "bbox": [
+        192,
+        124,
+        193,
+        125
+      ]
+    },
+    {
+      "name": "belt_from_shin_far",
+      "file": "belt_from_shin_far.png",
+      "offset": [
+        187,
+        128
+      ],
+      "bbox": [
+        187,
+        128,
+        188,
+        129
+      ]
+    },
+    {
+      "name": "belt_from_foot_far",
+      "file": "belt_from_foot_far.png",
+      "offset": [
+        159,
+        140
+      ],
+      "bbox": [
+        159,
+        140,
+        161,
+        149
+      ]
+    },
+    {
+      "name": "tabard_from_torso",
+      "file": "tabard_from_torso.png",
+      "offset": [
+        138,
+        148
+      ],
+      "bbox": [
+        138,
+        148,
+        139,
+        149
+      ]
+    },
+    {
+      "name": "tabard_from_pelvis",
+      "file": "tabard_from_pelvis.png",
+      "offset": [
+        138,
+        145
+      ],
+      "bbox": [
+        138,
+        145,
+        147,
+        156
+      ]
+    },
+    {
+      "name": "tabard_from_belt",
+      "file": "tabard_from_belt.png",
+      "offset": [
+        139,
+        154
+      ],
+      "bbox": [
+        139,
+        154,
+        145,
+        159
+      ]
+    },
+    {
+      "name": "tabard",
+      "file": "tabard.png",
+      "offset": [
+        112,
+        133
+      ],
+      "bbox": [
+        112,
+        133,
+        139,
+        202
+      ]
+    },
+    {
+      "name": "tabard_from_coat_near",
+      "file": "tabard_from_coat_near.png",
+      "offset": [
+        112,
+        125
+      ],
+      "bbox": [
+        112,
+        125,
+        194,
+        150
+      ]
+    },
+    {
+      "name": "tabard_from_coat_far",
+      "file": "tabard_from_coat_far.png",
+      "offset": [
+        144,
+        156
+      ],
+      "bbox": [
+        144,
+        156,
+        147,
+        161
+      ]
+    },
+    {
+      "name": "tabard_from_thigh_near",
+      "file": "tabard_from_thigh_near.png",
+      "offset": [
+        143,
+        160
+      ],
+      "bbox": [
+        143,
+        160,
+        147,
+        193
+      ]
+    },
+    {
+      "name": "tabard_from_thigh_far",
+      "file": "tabard_from_thigh_far.png",
+      "offset": [
+        134,
+        154
+      ],
+      "bbox": [
+        134,
+        154,
+        145,
+        180
+      ]
+    },
+    {
+      "name": "tabard_from_shin_far",
+      "file": "tabard_from_shin_far.png",
+      "offset": [
+        115,
+        155
+      ],
+      "bbox": [
+        115,
+        155,
+        145,
+        205
+      ]
+    },
+    {
+      "name": "tabard_from_foot_far",
+      "file": "tabard_from_foot_far.png",
+      "offset": [
+        111,
+        162
+      ],
+      "bbox": [
+        111,
+        162,
+        137,
+        202
+      ]
+    },
+    {
+      "name": "coat_near_from_head",
+      "file": "coat_near_from_head.png",
+      "offset": [
+        170,
+        137
+      ],
+      "bbox": [
+        170,
+        137,
+        188,
+        208
+      ]
+    },
+    {
+      "name": "coat_near_from_tabard",
+      "file": "coat_near_from_tabard.png",
+      "offset": [
+        170,
+        140
+      ],
+      "bbox": [
+        170,
+        140,
+        187,
+        210
+      ]
+    },
+    {
+      "name": "coat_near",
+      "file": "coat_near.png",
+      "offset": [
+        169,
+        125
+      ],
+      "bbox": [
+        169,
+        125,
+        216,
+        210
+      ]
+    },
+    {
+      "name": "coat_near_from_foot_far",
+      "file": "coat_near_from_foot_far.png",
+      "offset": [
+        169,
+        188
+      ],
+      "bbox": [
+        169,
+        188,
+        170,
+        189
+      ]
+    },
+    {
+      "name": "coat_near_from_chain",
+      "file": "coat_near_from_chain.png",
+      "offset": [
+        180,
+        169
+      ],
+      "bbox": [
+        180,
+        169,
+        181,
+        170
+      ]
+    },
+    {
+      "name": "coat_far_from_belt",
+      "file": "coat_far_from_belt.png",
+      "offset": [
+        109,
+        166
+      ],
+      "bbox": [
+        109,
+        166,
+        111,
+        172
+      ]
+    },
+    {
+      "name": "coat_far",
+      "file": "coat_far.png",
+      "offset": [
+        102,
+        139
+      ],
+      "bbox": [
+        102,
+        139,
+        113,
+        174
+      ]
+    },
+    {
+      "name": "coat_far_from_shin_far",
+      "file": "coat_far_from_shin_far.png",
+      "offset": [
+        111,
+        162
+      ],
+      "bbox": [
+        111,
+        162,
+        112,
+        163
+      ]
+    },
+    {
+      "name": "upper_near_from_coat_near",
+      "file": "upper_near_from_coat_near.png",
+      "offset": [
+        188,
+        131
+      ],
+      "bbox": [
+        188,
+        131,
+        189,
+        132
+      ]
+    },
+    {
+      "name": "upper_near",
+      "file": "upper_near.png",
+      "offset": [
+        160,
+        82
+      ],
+      "bbox": [
+        160,
+        82,
+        190,
+        140
+      ]
+    },
+    {
+      "name": "upper_near_from_fore_far",
+      "file": "upper_near_from_fore_far.png",
+      "offset": [
+        160,
+        127
+      ],
+      "bbox": [
+        160,
+        127,
+        161,
+        128
+      ]
+    },
+    {
+      "name": "upper_near_from_foot_far",
+      "file": "upper_near_from_foot_far.png",
+      "offset": [
+        187,
+        129
+      ],
+      "bbox": [
+        187,
+        129,
+        188,
+        137
+      ]
+    },
+    {
+      "name": "fore_near_from_head",
+      "file": "fore_near_from_head.png",
+      "offset": [
+        181,
+        158
+      ],
+      "bbox": [
+        181,
+        158,
+        182,
+        159
+      ]
+    },
+    {
+      "name": "fore_near",
+      "file": "fore_near.png",
+      "offset": [
+        159,
+        135
+      ],
+      "bbox": [
+        159,
+        135,
+        187,
+        160
+      ]
+    },
+    {
+      "name": "fore_near_from_foot_near",
+      "file": "fore_near_from_foot_near.png",
+      "offset": [
+        169,
+        158
+      ],
+      "bbox": [
+        169,
+        158,
+        170,
+        159
+      ]
+    },
+    {
+      "name": "hand_near_from_fore_near",
+      "file": "hand_near_from_fore_near.png",
+      "offset": [
+        165,
+        177
+      ],
+      "bbox": [
+        165,
+        177,
+        166,
+        178
+      ]
+    },
+    {
+      "name": "hand_near",
+      "file": "hand_near.png",
+      "offset": [
+        155,
+        155
+      ],
+      "bbox": [
+        155,
+        155,
+        182,
+        178
+      ]
+    },
+    {
+      "name": "hand_near_from_shin_near",
+      "file": "hand_near_from_shin_near.png",
+      "offset": [
+        155,
+        157
+      ],
+      "bbox": [
+        155,
+        157,
+        157,
+        169
+      ]
+    },
+    {
+      "name": "hand_near_from_foot_near",
+      "file": "hand_near_from_foot_near.png",
+      "offset": [
+        158,
+        173
+      ],
+      "bbox": [
+        158,
+        173,
+        160,
+        175
+      ]
+    },
+    {
+      "name": "hand_near_from_foot_far",
+      "file": "hand_near_from_foot_far.png",
+      "offset": [
+        157,
+        155
+      ],
+      "bbox": [
+        157,
+        155,
+        158,
+        156
+      ]
+    },
+    {
+      "name": "upper_far",
+      "file": "upper_far.png",
+      "offset": [
+        87,
+        56
+      ],
+      "bbox": [
+        87,
+        56,
+        119,
+        98
+      ]
+    },
+    {
+      "name": "fore_far",
+      "file": "fore_far.png",
+      "offset": [
+        66,
+        58
+      ],
+      "bbox": [
+        66,
+        58,
+        92,
+        95
+      ]
+    },
+    {
+      "name": "hand_far",
+      "file": "hand_far.png",
+      "offset": [
+        56,
+        53
+      ],
+      "bbox": [
+        56,
+        53,
+        80,
+        81
+      ]
+    },
+    {
+      "name": "thigh_near",
+      "file": "thigh_near.png",
+      "offset": [
+        146,
+        156
+      ],
+      "bbox": [
+        146,
+        156,
+        170,
+        197
+      ]
+    },
+    {
+      "name": "thigh_near_from_foot_far",
+      "file": "thigh_near_from_foot_far.png",
+      "offset": [
+        165,
+        178
+      ],
+      "bbox": [
+        165,
+        178,
+        169,
+        197
+      ]
+    },
+    {
+      "name": "shin_near",
+      "file": "shin_near.png",
+      "offset": [
+        157,
+        195
+      ],
+      "bbox": [
+        157,
+        195,
+        194,
+        243
+      ]
+    },
+    {
+      "name": "shin_near_from_foot_far",
+      "file": "shin_near_from_foot_far.png",
+      "offset": [
+        170,
+        198
+      ],
+      "bbox": [
+        170,
+        198,
+        194,
+        238
+      ]
+    },
+    {
+      "name": "foot_near_from_shin_near",
+      "file": "foot_near_from_shin_near.png",
+      "offset": [
+        163,
+        211
+      ],
+      "bbox": [
+        163,
+        211,
+        170,
+        224
+      ]
+    },
+    {
+      "name": "foot_near",
+      "file": "foot_near.png",
+      "offset": [
+        157,
+        228
+      ],
+      "bbox": [
+        157,
+        228,
+        180,
+        246
+      ]
+    },
+    {
+      "name": "thigh_far",
+      "file": "thigh_far.png",
+      "offset": [
+        111,
+        157
+      ],
+      "bbox": [
+        111,
+        157,
+        138,
+        172
+      ]
+    },
+    {
+      "name": "shin_far_from_shin_near",
+      "file": "shin_far_from_shin_near.png",
+      "offset": [
+        144,
+        193
+      ],
+      "bbox": [
+        144,
+        193,
+        146,
+        204
+      ]
+    },
+    {
+      "name": "shin_far",
+      "file": "shin_far.png",
+      "offset": [
+        110,
+        170
+      ],
+      "bbox": [
+        110,
+        170,
+        146,
+        226
+      ]
+    },
+    {
+      "name": "foot_far",
+      "file": "foot_far.png",
+      "offset": [
+        102,
+        211
+      ],
+      "bbox": [
+        102,
+        211,
+        128,
+        229
+      ]
+    },
+    {
+      "name": "chain_link_0",
+      "file": "chain_link_0.png",
+      "offset": [
+        55,
+        80
+      ],
+      "bbox": [
+        55,
+        80,
+        70,
+        98
+      ]
+    },
+    {
+      "name": "chain_link_1",
+      "file": "chain_link_1.png",
+      "offset": [
+        49,
+        96
+      ],
+      "bbox": [
+        49,
+        96,
+        69,
+        127
+      ]
+    },
+    {
+      "name": "chain_link_2",
+      "file": "chain_link_2.png",
+      "offset": [
+        45,
+        124
+      ],
+      "bbox": [
+        45,
+        124,
+        64,
+        153
+      ]
+    },
+    {
+      "name": "hook",
+      "file": "hook.png",
+      "offset": [
+        40,
+        150
+      ],
+      "bbox": [
+        40,
+        150,
+        65,
+        183
+      ]
+    },
+    {
+      "name": "under_shadow_from_thigh_near",
+      "file": "under_shadow_from_thigh_near.png",
+      "offset": [
+        146,
+        150
+      ],
+      "bbox": [
+        146,
+        150,
+        159,
+        169
+      ]
+    },
+    {
+      "name": "under_shadow_from_shin_near",
+      "file": "under_shadow_from_shin_near.png",
+      "offset": [
+        145,
+        154
+      ],
+      "bbox": [
+        145,
+        154,
+        159,
+        194
+      ]
+    },
+    {
+      "name": "under_shadow_from_thigh_far",
+      "file": "under_shadow_from_thigh_far.png",
+      "offset": [
+        110,
+        164
+      ],
+      "bbox": [
+        110,
+        164,
+        112,
+        169
+      ]
+    },
+    {
+      "name": "under_shadow_from_shin_far",
+      "file": "under_shadow_from_shin_far.png",
+      "offset": [
+        111,
+        150
+      ],
+      "bbox": [
+        111,
+        150,
+        157,
+        208
+      ]
+    }
+  ],
+  "unassigned_pixels": 0,
+  "unassigned_coordinates": [],
+  "coordinate_space": "unchanged registered source pixels"
+}

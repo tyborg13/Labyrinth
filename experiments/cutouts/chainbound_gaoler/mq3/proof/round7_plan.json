@@ -1,0 +1,20 @@
+{
+  "scope": [
+    "tools/maquette_cutout.py",
+    "tests/test_maquette_cutout.py",
+    "spec/cutout_workflow.md",
+    "experiments/cutouts/chainbound_gaoler/mq3/**"
+  ],
+  "head": "b3bb9f84692117ebfae71118dc0cfe5ed7999a4e",
+  "acceptance": [
+    "pelvis-attached occlusion shadows from L*<15 leg paint within 6px of other-leg/pelvis/tabard labels",
+    "trousers replace vacated leg pixels with recorded near-thigh sparse fallback",
+    "exact rest identity both views",
+    "zero new near-black regions >12px on moving legs relative to visible-rest provenance",
+    "native rest calibration uses supported rest pose API; headless regression exercises capture pose path",
+    "focused, art gate, Python full, Godot full, validation, existing motion gates pass"
+  ],
+  "proof": "Headless verification plus director-owned native v07 capture at /private/tmp/rr-02-mq3-render-v07",
+  "risk": "medium: pixel ownership, hidden fill, native proof orchestration",
+  "publication": "No commit or windowed run; preserve director native v06 artifacts"
+}

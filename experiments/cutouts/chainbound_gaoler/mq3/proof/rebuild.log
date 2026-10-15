@@ -1,0 +1,37 @@
+{
+  "ok": true,
+  "complete": true,
+  "missing_solos": [],
+  "rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "394e5284cdf9dfe72e85508b269c2562612401e7fcb19ee99c27ac1facef37bc"
+    },
+    "rear": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "ebe6bcc1c4d77b8e4fa5a89e57f5118725414f75715578d9307dbb7408aac4ae"
+    },
+    "ok": true
+  },
+  "validation": {
+    "ok": true,
+    "character_id": "chainbound_gaoler",
+    "layouts": {
+      "front": {
+        "joints": 21,
+        "parts": 41,
+        "meshes": 0,
+        "vertices": 0
+      },
+      "rear": {
+        "joints": 21,
+        "parts": 40,
+        "meshes": 0,
+        "vertices": 0
+      }
+    },
+    "errors": []
+  }
+}

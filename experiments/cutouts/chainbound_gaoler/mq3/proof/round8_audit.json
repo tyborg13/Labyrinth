@@ -1,0 +1,94 @@
+{
+  "ok": true,
+  "head": "83c3a65fa752d62489746f7f70d758ec5b9cd4f0",
+  "uncommitted": true,
+  "authorized_protected_probe_updates": [
+    "probes/motion_gates.py",
+    "probes/native_motion.gd"
+  ],
+  "unchanged_other_protected_files": 339,
+  "unchanged_runtime_paint_nodes": 145,
+  "unchanged_tracked_source_files": 113,
+  "fill_protected_inputs_unchanged": true,
+  "director_native_rest_v07_preserved_sha256": "eed658241872207ba189173bc58d95581c177b451bdee100ea43160bff46ef10",
+  "tests": {
+    "focused": {
+      "exit": 0,
+      "result": "Ran 40 tests in 17.901s",
+      "status": "OK"
+    },
+    "visual_runner": {
+      "exit": 0,
+      "result": "Ran 16 tests in 0.300s",
+      "status": "OK"
+    },
+    "python_suite": {
+      "exit": 0,
+      "result": "Ran 437 tests in 298.914s",
+      "status": "OK (skipped=61)"
+    },
+    "godot_suite": {
+      "exit": 0,
+      "result": "FULL SUITE RUNTIME: 747.999 seconds (budget 900 seconds)",
+      "status": "TEST RESULT: PASS"
+    }
+  },
+  "validation": "ok: true, no errors",
+  "historical_v07_diagnostic": {
+    "basis": "HISTORICAL v07 director renderer pixels, read-only diagnostic; NOT current v08 native proof",
+    "ok": true,
+    "frames": 458,
+    "totals": {
+      "tabard_non_tabard_pixels": 0,
+      "detached_small_pixels": 0,
+      "new_leg_dark_pixels": 0,
+      "rear_arm_outside_pixels": 0,
+      "rear_visible_arm_pixels": 0,
+      "magenta_pixels": 0
+    },
+    "value_failures": 0,
+    "real_screenshots_validated": 504,
+    "data_pngs_not_screenshots": 1840,
+    "rest_calibrations": {
+      "front": {
+        "rgba_equal": true,
+        "owners_equal": true,
+        "rest_dark_equal": true
+      },
+      "rear": {
+        "rgba_equal": true,
+        "owners_equal": true,
+        "rest_dark_equal": true
+      }
+    },
+    "provenance_limit": "No renderer invocation and no current input binding; original v07 probe differs from round8. This report cannot satisfy native_gates or proof.py for v08."
+  },
+  "native_v08": "Not run by worker; pending director windowed capture",
+  "chosen_default": {
+    "native_capture_timeout_seconds": 900,
+    "configurable_option": "--native-timeout",
+    "startup_watchdog": "unchanged",
+    "gui_lease": "unchanged"
+  },
+  "scope_check": {
+    "ok": true,
+    "tracked_changes": [
+      "experiments/cutouts/chainbound_gaoler/mq3/README.md",
+      "experiments/cutouts/chainbound_gaoler/mq3/baseline.sha256.json",
+      "experiments/cutouts/chainbound_gaoler/mq3/probes/motion_gates.py",
+      "experiments/cutouts/chainbound_gaoler/mq3/probes/native_motion.gd",
+      "spec/cutout_workflow.md",
+      "tests/test_maquette_cutout.py"
+    ],
+    "untracked_count": 12
+  },
+  "proof_sha256": {
+    "proof/focused_round8.log": "2a6255ab617d533416b375460fc7201ffcdaf4aba1ac636fefbe8e93d058942b",
+    "proof/visual_runner_round8.log": "ffe6e40b6254029eebb015f5badd347a553d8474b677ef60c5b1c58b3e74f61f",
+    "proof/python_suite_round8.log": "6ff771c7391e7d5d4d090e27d2bcb4025474464771238853abcb47ec8c3c5f70",
+    "proof/godot_suite_round8.log": "a3d84614113ac876e4027a8df3c857f823444b49f2308b081023f03fdb1e5eaf",
+    "proof/validation_round8.json": "b7bef6aeac117184b906f1a67660495cfd0d0d0f448020049367debfeafda5f6",
+    "proof/round8_v07_raw_native_diagnostic.json": "de07abffb999a782ec970e9c6c29a74df5f1bb0d8e30e0b28b321aafdd64f8bd",
+    "proof/round8_v07_raw_native_diagnostic.log": "bfbac68571aa27bb2254266e9ec50e4c71baa095d76c1fe45eabd9f4934332dc"
+  }
+}

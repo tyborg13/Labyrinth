@@ -1,0 +1,17 @@
+.............................process.py:22: DeprecationWarning: 'mode' parameter is deprecated and will be removed in Pillow 13 (2026-10-15)
+...................................................................................................................................s.sssss..........................................................................................................ssssssssssssssss..................................................sssssssssssssssssssssssssssssssssssssss...............................................
+----------------------------------------------------------------------
+Ran 425 tests in 242.496s
+
+OK (skipped=61)
+ADOPTED 1 source file(s)
+ADOPTED 1 source file(s)
+ADOPTED 3 source file(s)
+PROCESSED 2 file(s)
+CHECK-OK
+WROTE-ORIGINALS 1 file(s)
+stale: paint/a.png
+PROCESSED 1 file(s)
+CHECK-OK
+stale: paint/b.png
+Visual proof result manifest: /private/var/folders/mt/zw23t_350jx9n9xh4bhryqrr0000gn/T/tmp0itldtru/report.json

@@ -1,0 +1,99 @@
+{
+  "changed_bones": {
+    "rear/strike": [
+      "chain",
+      "chain_b",
+      "chain_c",
+      "fore_fist",
+      "fore_hook",
+      "hand_fist",
+      "hand_hook",
+      "head",
+      "hook",
+      "torso",
+      "upper_fist",
+      "upper_hook"
+    ],
+    "rear/manacle_pin": [
+      "chain",
+      "chain_b",
+      "chain_c",
+      "fore_fist",
+      "fore_hook",
+      "hand_fist",
+      "hand_hook",
+      "head",
+      "hook",
+      "torso",
+      "upper_fist",
+      "upper_hook"
+    ]
+  },
+  "selected_frame_components": [
+    {
+      "pose": [
+        "front",
+        "walk",
+        0
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "front",
+        "walk",
+        7
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "front",
+        "walk",
+        47
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "front",
+        "strike",
+        2
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "walk",
+        28
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "strike",
+        2
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "strike",
+        3
+      ],
+      "non_main_components": []
+    },
+    {
+      "pose": [
+        "rear",
+        "manacle_pin",
+        12
+      ],
+      "non_main_components": []
+    }
+  ],
+  "source_files_unchanged": 113
+}

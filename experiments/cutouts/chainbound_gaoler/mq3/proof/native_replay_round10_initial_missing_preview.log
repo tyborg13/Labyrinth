@@ -1,0 +1,19 @@
+Saved-v09 replay: original captured case/input checksums, current evaluator dfed08c5d9647376e441d37da6f06d2c94b490b493b0caaed26682984b6b6a6b
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/tools/art_identity_gate.py:235: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/tools/art_identity_gate.py:235: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/tools/art_identity_gate.py:235: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+Traceback (most recent call last):
+  File "/private/tmp/rr02_round10_native_replay.py", line 12, in <module>
+    control=gates.native_gates(root,output)
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/probes/motion_gates.py", line 545, in native_gates
+    report = finish_report(root, records, "Native renderer pixels, calibrated native IDs, complete seven-clip frame set", output / "motion_gates.json")
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/probes/motion_gates.py", line 350, in finish_report
+    values = value_counts(root)
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/probes/motion_gates.py", line 292, in value_counts
+    preview = np.array(Image.open(root / f"hidden_fills/{view}_{part}.png").convert("RGBA"))
+  File "/Users/borgerding/Library/Python/3.9/lib/python/site-packages/PIL/Image.py", line 3513, in open
+    fp = builtins.open(filename, "rb")
+FileNotFoundError: [Errno 2] No such file or directory: '/private/tmp/rr02-round10-replay/captured_case/hidden_fills/front_pelvis.png'

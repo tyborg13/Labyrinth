@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "method": "diffusion",
+  "parameters": {
+    "radius": 3,
+    "palette_k": 6,
+    "palette_min_own_pixels": 40,
+    "outline_tone": [
+      20,
+      16,
+      21
+    ],
+    "seed": 0,
+    "kmeans_max_iterations": 256,
+    "diffusion_max_iterations": 4096,
+    "diffusion_residual_tolerance": 1e-06
+  },
+  "donor_policy": "Own visible paint and listed exact same-material neighbours; when own count <40 and no local neighbour, use the same part's visible paint in the paired view",
+  "palette_policy": "Own visible RGB when >=40 pixels; otherwise local same-material neighbours, then the approved same-part cross-view fallback; seeded weighted RGB k-means",
+  "outline_policy": "Filled pixels on the four-connected boundary of the whole part only; alpha unchanged",
+  "cross_view_fallback": "same_part",
+  "trousers_policy": {
+    "parts": [
+      "pelvis",
+      "thigh_far",
+      "thigh_near"
+    ],
+    "donors": "view trousers core plus own still-owned original visible pixels; no coat, tabard or cross-view source",
+    "quantization": "k6 sampled palette; hidden interiors use only centroids within the director's material DeltaE limit; outlines retain their tone",
+    "max_delta_e": 12,
+    "superseded_parts": [
+      "pelvis",
+      "thigh_far",
+      "thigh_near",
+      "shin_far",
+      "shin_near"
+    ]
+  },
+  "value_distribution_policy": {
+    "parts": [
+      "pelvis",
+      "thigh_far",
+      "thigh_near",
+      "shin_far",
+      "shin_near"
+    ],
+    "max_median_l_difference": 8,
+    "basis": "Same-view same-part visible pixels; sparse parts use same-view near thigh with L* lowered 6",
+    "sparse_reference": {
+      "min_visible_pixels": 40,
+      "part": "thigh_near",
+      "l_shift": -6,
+      "chroma_hue": "same-view near-thigh trousers"
+    },
+    "quantization": "Empirical reference L* quantiles assigned in diffusion L* order; nearest sampled k6 palette centroid; include unchanged outline in median gate"
+  }
+}

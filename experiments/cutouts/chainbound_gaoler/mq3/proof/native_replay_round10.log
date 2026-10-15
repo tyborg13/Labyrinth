@@ -1,0 +1,11 @@
+Saved-v09 replay: original captured case/input checksums, current evaluator dfed08c5d9647376e441d37da6f06d2c94b490b493b0caaed26682984b6b6a6b
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/tools/art_identity_gate.py:235: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/tools/art_identity_gate.py:235: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-02/tools/art_identity_gate.py:235: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+MOTION GATES: PASS (458 frames; {'tabard_non_tabard_pixels': 0, 'detached_small_pixels': 0, 'new_leg_dark_pixels': 0, 'rear_arm_outside_pixels': 0, 'rear_visible_arm_pixels': 0, 'magenta_pixels': 0, 'hidden_runtime_mismatch_pixels': 0}; value failures=0; Native renderer pixels, calibrated native IDs, complete seven-clip frame set)
+NATIVE MUTATION REJECTED: one_pixel_arm (1718 pixels): Native surface dimensions failed: rear/strike/0/arm; expected 512x512, got 1x1
+NATIVE MUTATION REJECTED: opaque_owner_zero (8 pixels): Native owner IDs/alpha failed validation: front/idle/6; nontransparent pixels require a nonzero known owner
+SAVED V09 NATIVE REPLAY: PASS (458 frames; both checksum-refreshed mutations rejected)

@@ -1,0 +1,9 @@
+{
+  "ok": true,
+  "derived_files": 369,
+  "differences": [],
+  "motion_samples_identical": 458,
+  "request_and_fill_records_identical": 42,
+  "case": "/private/tmp/rr-02-mq3-rebuild-v04-verification",
+  "binding_difference": "Config source closure includes the original label-palette provenance file only in the retained case; source/input hash envelopes may therefore differ."
+}
