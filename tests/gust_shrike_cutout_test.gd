@@ -38,6 +38,15 @@ func _run() -> void:
 	var snap: Array = [{"at": 0, "value": -6}, {"at": 0.5, "value": 6, "interpolation": "hold"}, {"at": 1, "value": -6, "interpolation": "linear"}]
 	_expect(Motion.track_value(snap, 0.49) == -6 and Motion.track_value(snap, 0.5) == 6, "Hold keys do not drift between look poses")
 	_expect(Motion.track_value(snap, 2) == -6, "Terminal key remains held")
+	_expect(Data.HEAD_SNAP_FPS == 30 and Data.HEAD_SNAP_PLACEMENT == "start" and is_equal_approx(Data.HEAD_SNAP_SECONDS, 2.0 / 30.0), "Director's explicit 30fps two-frame start clock is retained in motion data")
+	var head_keys: Array
+	for track: Dictionary in Motion.tracks_for("idle", "front"):
+		if track["channel"] == "head_angle": head_keys = track["keys"]
+	var snap_start: float = float(head_keys[2]["at"])
+	var snap_end: float = float(head_keys[3]["at"])
+	_expect(is_equal_approx((snap_end - snap_start) * Data.IDLE_SECONDS, 2.0 / 30.0), "Authored idle snap takes exactly two frames")
+	_expect(is_equal_approx(Motion.track_value(head_keys, snap_start), float(head_keys[2]["value"])) and is_equal_approx(Motion.track_value(head_keys, (snap_start + snap_end) / 2), (float(head_keys[2]["value"]) + float(head_keys[3]["value"])) / 2), "Head begins moving at the key and reaches midpoint one frame later")
+	_expect(is_equal_approx(Motion.track_value(head_keys, snap_end + 0.01), float(head_keys[3]["value"])), "Completed head snap holds until the next key")
 	_expect(not Motion.track_errors([{"channel": "body_y", "keys": [{"at": null, "value": 3}]}]).is_empty(), "Unresolved key times cannot become zero-time poses")
 	_expect(not Motion.track_errors([{"channel": "wing_near_span", "keys": [{"at": 0, "value": 0}]}]).is_empty(), "Singular wing transforms are rejected")
 	var actor: Dictionary = {"type": "gust_shrike", "pos": Vector2i(2, 2)}

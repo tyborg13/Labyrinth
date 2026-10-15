@@ -1,20 +1,62 @@
 {
   "ok": true,
   "source_sha256": "93502785484055320e47f8cdefc658e627a9d245a5c7c7da49b35e62eab762d0",
-  "ownership_sha256": "beb5a11b2308e12ddeda7afce68d9534d93060b43fe818625c6b6ee0b4cc0350",
+  "ownership_sha256": "45caf2b4c258dff460630066c0fcd129240f412b8d9de1e2992c7516f33167aa",
   "parts": [
     {
       "name": "body",
       "file": "body.png",
       "offset": [
-        51,
+        63,
         152
       ],
       "bbox": [
-        51,
+        63,
         152,
         156,
         217
+      ]
+    },
+    {
+      "name": "body_from_wing_near",
+      "file": "body_from_wing_near.png",
+      "offset": [
+        67,
+        155
+      ],
+      "bbox": [
+        67,
+        155,
+        92,
+        182
+      ]
+    },
+    {
+      "name": "body_from_tail",
+      "file": "body_from_tail.png",
+      "offset": [
+        106,
+        152
+      ],
+      "bbox": [
+        106,
+        152,
+        117,
+        213
+      ]
+    },
+    {
+      "name": "head_from_body",
+      "file": "head_from_body.png",
+      "offset": [
+        51,
+        153
+      ],
+      "bbox": [
+        51,
+        153,
+        52,
+        154
       ]
     },
     {
@@ -22,13 +64,41 @@
       "file": "head.png",
       "offset": [
         34,
-        123
+        137
       ],
       "bbox": [
         34,
-        123,
-        123,
+        137,
+        92,
         185
+      ]
+    },
+    {
+      "name": "head_from_wing_near",
+      "file": "head_from_wing_near.png",
+      "offset": [
+        50,
+        150
+      ],
+      "bbox": [
+        50,
+        150,
+        82,
+        170
+      ]
+    },
+    {
+      "name": "head_from_legs",
+      "file": "head_from_legs.png",
+      "offset": [
+        76,
+        141
+      ],
+      "bbox": [
+        76,
+        141,
+        91,
+        153
       ]
     },
     {
@@ -60,17 +130,59 @@
       ]
     },
     {
+      "name": "wing_near_from_head",
+      "file": "wing_near_from_head.png",
+      "offset": [
+        113,
+        123
+      ],
+      "bbox": [
+        113,
+        123,
+        123,
+        150
+      ]
+    },
+    {
       "name": "wing_near",
       "file": "wing_near.png",
       "offset": [
-        50,
+        106,
         41
       ],
       "bbox": [
-        50,
+        106,
         41,
         198,
         187
+      ]
+    },
+    {
+      "name": "wing_near_from_tail",
+      "file": "wing_near_from_tail.png",
+      "offset": [
+        112,
+        118
+      ],
+      "bbox": [
+        112,
+        118,
+        125,
+        153
+      ]
+    },
+    {
+      "name": "wing_near_from_legs",
+      "file": "wing_near_from_legs.png",
+      "offset": [
+        114,
+        130
+      ],
+      "bbox": [
+        114,
+        130,
+        120,
+        146
       ]
     },
     {
@@ -91,12 +203,12 @@
       "name": "tail",
       "file": "tail.png",
       "offset": [
-        106,
-        118
+        153,
+        178
       ],
       "bbox": [
-        106,
-        118,
+        153,
+        178,
         224,
         215
       ]
@@ -106,11 +218,11 @@
       "file": "legs.png",
       "offset": [
         69,
-        130
+        207
       ],
       "bbox": [
         69,
-        130,
+        207,
         128,
         246
       ]

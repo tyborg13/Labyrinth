@@ -1,0 +1,42 @@
+{
+  "source": "Director rr-03 round 2; rr-02 traced ownership repair",
+  "speck_max_exclusive_px": 12,
+  "traced_moves": [],
+  "rest_depth": "Preserve original source owner depth for all visible paint",
+  "connectivity": 8,
+  "border_connectivity": 4,
+  "border_tie": "source label order",
+  "remove_fully_occluded_same_bone_underlays": true,
+  "rigid_groups": {
+    "body": "body",
+    "head": "head",
+    "beak": "head",
+    "mask": "head",
+    "wing_near": "wing_near",
+    "wing_far": "wing_far",
+    "tail": "tail",
+    "legs": "legs"
+  },
+  "depth_order": {
+    "front": [
+      "tail",
+      "legs",
+      "body",
+      "wing_far",
+      "wing_near",
+      "head",
+      "beak",
+      "mask"
+    ],
+    "rear": [
+      "legs",
+      "beak",
+      "mask",
+      "head",
+      "body",
+      "tail",
+      "wing_near",
+      "wing_far"
+    ]
+  }
+}

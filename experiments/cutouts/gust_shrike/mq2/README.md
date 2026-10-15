@@ -1,7 +1,8 @@
 # rr-03 implementation handoff — incomplete, uncommitted
 
-**This is the round-0 record. See [ROUND1.md](ROUND1.md) for the built rig,
-director inputs, current gate results and updated proof commands.**
+**This is the round-0 record. See [ROUND2.md](ROUND2.md) for current status,
+gate results and exact proof commands. [ROUND1.md](ROUND1.md)
+records the original build.**
 
 No art was generated, painted, downloaded or changed. No Blender/windowed run,
 commit, publication, peer review or sign-off was performed. The approved mq2

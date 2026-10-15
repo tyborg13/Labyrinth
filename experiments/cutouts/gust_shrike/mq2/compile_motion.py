@@ -164,7 +164,10 @@ def compile_data(case: Path, output: Path, interpretation: dict, proof_scale: fl
                             "Translations are board pixels, converted by the actual draw scale; positive Y points down.")
     if "const IDLE_SECONDS" not in prefix: raise CutoutError("Missing numeric brief constants")
     content = prefix + "# Generated director mapping; edit the protected input only through its owner.\n"
-    constants = {"DIVE_RECOVERY_FRAME_SECONDS": RECOVERY_FRAME_SECONDS,
+    constants = {"HEAD_SNAP_FPS": interpretation.get("head_snap_fps", 0),
+                 "HEAD_SNAP_PLACEMENT": interpretation.get("head_snap_placement", ""),
+                 "HEAD_SNAP_SECONDS": 2 / interpretation["head_snap_fps"] if interpretation.get("head_snap_fps", 0) > 0 else -1,
+                 "DIVE_RECOVERY_FRAME_SECONDS": RECOVERY_FRAME_SECONDS,
                  "CONTACT_PHASES": {"dive": CONTACT, "talon_rake": data["talon_rake"]["contact_phase"]},
                  "DIRECTOR_SHA256": hashlib.sha256(source.read_bytes()).hexdigest(),
                  "PROOF_PIXEL_SCALE": proof_scale, "PROJECTION": axes,

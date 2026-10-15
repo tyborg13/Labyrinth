@@ -66,7 +66,13 @@ def source_gates(root):
     fill = read_json(root / "hidden_fills/index.json")
     if not fill["complete"] or fill.get("pending_design"): errors.append("Hidden fill incomplete")
     bound_inputs(root, fill["protected_inputs"])
+    if fill["implementation_sha256"] != digest(root / "repair_fills.py"):
+        errors.append("Hidden fill implementation changed; regenerate fills")
+    sys.path.insert(0, str(root))
+    from repair_ownership import verify_ownership
+    errors += verify_ownership(root)
     values = []
+    active_value_references = 0
     for view, layout_path in config["layouts"].items():
         layout = read_json(root / layout_path)
         if layout.get("joint_meshes") or layout.get("cape_mesh"): errors.append("Shrike must use rigid parts")
@@ -91,25 +97,36 @@ def source_gates(root):
             hidden_colors[name] = assembled[hidden, :3]
         paint = rgba(str(root / f"source/{view}/processed.png"))
         owners = np.load(root / f"registered/{view}_owners.npy", allow_pickle=False)
-        for semantic, names in policy["semantic_classes"].items():
-            colors = np.concatenate([hidden_colors[n] for n in names])
+        # Different head materials have different visible/hidden proportions.
+        # Compare every paint label with its own distribution (or the explicit
+        # same-view sparse rule), rather than pooling beak/mask with feathers.
+        sys.path.insert(0, str(root))
+        from repair_fills import value_reference
+        material_policy = read_json(root / "recipes/value_reference.json")
+        materials = read_json(root / "recipes/rig.json")["materials"]
+        for name in PART_NAMES:
+            colors = hidden_colors[name]
             if not len(colors): continue
-            own = paint[np.isin(owners, [PART_NAMES.index(n) for n in names]), :3]
-            if not len(own):
-                errors.append("No visible value reference: " + view + "/" + semantic)
+            active_value_references += 1
+            try:
+                reference, reference_rule = value_reference(paint, owners, PART_NAMES, name, materials, material_policy, view)
+            except CutoutError as error:
+                errors.append(str(error))
                 continue
+            own = paint[reference, :3]
             reference_l, hidden_l = to_lab(own)[:, 0], to_lab(colors)[:, 0]
             low, high = np.percentile(reference_l, [25, 75])
             difference = float(abs(np.median(hidden_l) - np.median(reference_l)))
             midtones = int(((hidden_l >= low) & (hidden_l <= high)).sum())
             passed = difference <= policy["hidden_value_max_median_l_difference"] and midtones > 0
-            values.append({"view": view, "class": semantic, "hidden_pixels": len(colors),
-                "visible_median_l": float(np.median(reference_l)), "hidden_median_l": float(np.median(hidden_l)),
-                "median_l_difference": difference, "reference_iqr_l": [float(low), float(high)],
-                "hidden_midtones_pixels": midtones, "ok": passed})
-            if not passed: errors.append("Hidden fill value: " + view + "/" + semantic)
-    write_json(root / "proof/hidden_value_gates.json", {"ok": all(v["ok"] for v in values),
-        "basis": "rr-02 L* median difference <=8 and reference-IQR midtones; same-view director semantic class; exact runtime hidden nodes", "values": values})
+            semantic = next(k for k, labels in policy["semantic_classes"].items() if name in labels)
+            values.append({"view": view, "class": semantic, "part": name, "hidden_pixels": len(colors),
+                "reference": reference_rule, "visible_median_l": float(np.median(reference_l)),
+                "hidden_median_l": float(np.median(hidden_l)), "median_l_difference": difference,
+                "reference_iqr_l": [float(low), float(high)], "hidden_midtones_pixels": midtones, "ok": passed})
+            if not passed: errors.append("Hidden fill value: " + view + "/" + name)
+    write_json(root / "proof/hidden_value_gates.json", {"ok": len(values) == active_value_references and all(v["ok"] for v in values),
+        "basis": "rr-02 L* median difference <=8 and reference-IQR midtones; each painted material uses its own same-view visible reference or the director sparse rule; all six semantic groups retained", "values": values})
     return errors
 
 

@@ -1,5 +1,9 @@
 {
-  "schema_version": 1,
+  "source": "Director rr-03 round 2",
+  "parts": "Each part uses its own visible source RGB, including midtones",
+  "sparse": "Below rr-02 40-pixel minimum, same view, same material, nearest part; source label order breaks equal distances",
+  "median_l_limit": 8,
+  "sparse_overrides": {},
   "method": "diffusion",
   "parameters": {
     "radius": 3,
@@ -14,9 +18,5 @@
     "kmeans_max_iterations": 256,
     "diffusion_max_iterations": 4096,
     "diffusion_residual_tolerance": 1e-06
-  },
-  "donor_policy": "Own visible paint and listed exact same-material neighbours; when own count <40 and no local neighbour, use the same part's visible paint in the paired view",
-  "palette_policy": "Own visible RGB when >=40 pixels; otherwise local same-material neighbours, then the approved same-part cross-view fallback; seeded weighted RGB k-means",
-  "outline_policy": "Filled pixels on the four-connected boundary of the whole part only; alpha unchanged",
-  "cross_view_fallback": "same_part"
+  }
 }

@@ -39,5 +39,5 @@
     ]
   },
   "hidden_value_max_median_l_difference": 8,
-  "hidden_value_reference": "rr-02 value gate, evaluated on the six director semantic classes; no trouser/tabard predicates."
+  "hidden_value_reference": "Director round 2: every painted label uses its own visible pixels or explicit same-view/same-material nearest-part sparse reference. The six semantic ownership classes are unchanged; head feather/beak/mask values are checked separately to avoid mixing unequal visible/hidden material proportions."
 }

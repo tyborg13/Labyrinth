@@ -122,12 +122,16 @@
     "probes/production_contract.json",
     "probes/proof.py",
     "probes/rest_contract.json",
+    "proof/front_ownership_cleanup.json",
+    "proof/rear_ownership_cleanup.json",
     "recipes/front_ownership.json",
     "recipes/gates.json",
     "recipes/hidden_fill.json",
     "recipes/motion_interpretation.json",
+    "recipes/ownership_repair.json",
     "recipes/rear_ownership.json",
     "recipes/rig.json",
+    "recipes/value_reference.json",
     "registered/front_clay.png",
     "registered/front_hidden_beak.npy",
     "registered/front_hidden_body.npy",
@@ -172,6 +176,8 @@
     "registered/rear_solo_tail.png",
     "registered/rear_solo_wing_far.png",
     "registered/rear_solo_wing_near.png",
+    "repair_fills.py",
+    "repair_ownership.py",
     "source/front/kit.json",
     "source/front/processed.json",
     "source/front/processed.png",
@@ -213,9 +219,7 @@
     "art_status": "hidden_filled_pending_director_review",
     "production_integration": false
   },
-  "design_placeholders": {
-    "TODO_DESIGN_head_snap_clock": "Specify step2 FPS and start/finish placement in motion_interpretation.json"
-  },
+  "design_placeholders": {},
   "hidden_fill": {
     "recipe": "recipes/hidden_fill.json",
     "manifest": "hidden_fills/index.json",

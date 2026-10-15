@@ -1,12 +1,7 @@
 {
-  "complete": true,
-  "method": "diffusion",
+  "ok": true,
   "requests": 16,
-  "filled_requests": 16,
   "pending_design": [],
-  "review_decisions": {},
-  "cross_view_requests": 2,
-  "remaining_magenta_pixels": 0,
   "rest_identity": {
     "front": {
       "pixel_identical": true,
@@ -19,25 +14,5 @@
       "rgba_sha256": "24aa41439fff265698c24b2dec14aed1e4093c7a2db803ddeeead1902c5d1eff"
     },
     "ok": true
-  },
-  "validation": {
-    "ok": true,
-    "character_id": "gust_shrike",
-    "layouts": {
-      "front": {
-        "joints": 7,
-        "parts": 16,
-        "meshes": 0,
-        "vertices": 0
-      },
-      "rear": {
-        "joints": 7,
-        "parts": 16,
-        "meshes": 0,
-        "vertices": 0
-      }
-    },
-    "errors": []
-  },
-  "ok": true
+  }
 }

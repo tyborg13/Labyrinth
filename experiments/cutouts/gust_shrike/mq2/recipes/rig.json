@@ -101,7 +101,7 @@
           0
         ],
         [
-          0.42,
+          0.5,
           0.5
         ],
         [
@@ -140,9 +140,7 @@
       ]
     }
   },
-  "design_placeholders": {
-    "TODO_DESIGN_head_snap_clock": "Specify step2 FPS and start/finish placement in motion_interpretation.json"
-  },
+  "design_placeholders": {},
   "copy_files": [
     {
       "from": "../motion.gd",
@@ -186,6 +184,6 @@
   "provenance": {
     "parts": "Eight original maquette labels, six independently controlled painted groups; beak/mask bind to head. Sibling bones avoid breath-scale distortion.",
     "camera": "Export actual root matrices; approved mq2 source README command uses FRONT_YAW=0 (front/rear 0/180). Preserve exporter default and do not substitute humanoid transforms.",
-    "durations": "Existing RunScene 8*.045 board step, 6*.04 melee; DiveView .35 flight; FloatingCombatText .48 popup; CutoutContext .36 hit; board dissolve 28*.037 death. Dive recovery cadence is explicitly unresolved."
+    "durations": "Existing RunScene 8*.045 board step, 6*.04 melee; DiveView .35 flight plus six 1/30-second recovery frames; FloatingCombatText .48 popup; CutoutContext .36 hit; board dissolve 28*.037 death. Idle snaps start at keys and complete after 2/30 seconds (director round 2)."
   }
 }

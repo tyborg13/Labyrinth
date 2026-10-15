@@ -64,10 +64,8 @@
 			]
 		}
 	},
-	"design_complete": false,
-	"design_errors": [
-		"TODO_DESIGN_head_snap_clock"
-	],
+	"design_complete": true,
+	"design_errors": [],
 	"scale_basis": "RunScene EN05 shrike fixture; 1920x1080, UI scale 100%; headless geometry",
 	"screen_pixel_scale": 0.452636090446921
 }

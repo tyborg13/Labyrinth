@@ -1,0 +1,527 @@
+{
+  "material_transfers": {},
+  "specks": {
+    "body": {
+      "components": 2,
+      "small_components": [
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            51,
+            153,
+            52,
+            154
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "head"
+        }
+      ],
+      "move_pixels": 1,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "head": {
+      "components": 6,
+      "small_components": [
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            122,
+            123,
+            123,
+            124
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "wing_near"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            120,
+            128,
+            121,
+            129
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "wing_near"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            117,
+            137,
+            118,
+            138
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "wing_near"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            116,
+            140,
+            117,
+            141
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "wing_near"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            113,
+            149,
+            114,
+            150
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "wing_near"
+        }
+      ],
+      "move_pixels": 5,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "beak": {
+      "components": 1,
+      "small_components": [],
+      "move_pixels": 0,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "mask": {
+      "components": 1,
+      "small_components": [],
+      "move_pixels": 0,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "wing_near": {
+      "components": 17,
+      "small_components": [
+        {
+          "pixels": 5,
+          "visible_pixels": 5,
+          "bbox": [
+            67,
+            181,
+            72,
+            182
+          ],
+          "shared_border_edges": 7,
+          "action": "move",
+          "target": "body"
+        },
+        {
+          "pixels": 4,
+          "visible_pixels": 4,
+          "bbox": [
+            50,
+            150,
+            53,
+            153
+          ],
+          "shared_border_edges": 7,
+          "action": "move",
+          "target": "head"
+        },
+        {
+          "pixels": 2,
+          "visible_pixels": 2,
+          "bbox": [
+            75,
+            164,
+            77,
+            165
+          ],
+          "shared_border_edges": 3,
+          "action": "move",
+          "target": "head"
+        },
+        {
+          "pixels": 2,
+          "visible_pixels": 2,
+          "bbox": [
+            82,
+            176,
+            84,
+            178
+          ],
+          "shared_border_edges": 4,
+          "action": "move",
+          "target": "body"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            91,
+            155,
+            92,
+            156
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "body"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            50,
+            156,
+            51,
+            157
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "head"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            91,
+            164,
+            92,
+            165
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "body"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            71,
+            165,
+            72,
+            166
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "head"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            69,
+            166,
+            70,
+            167
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "head"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            81,
+            166,
+            82,
+            167
+          ],
+          "shared_border_edges": 3,
+          "action": "move",
+          "target": "head"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            90,
+            167,
+            91,
+            168
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "body"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            78,
+            169,
+            79,
+            170
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "head"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            89,
+            169,
+            90,
+            170
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "body"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            87,
+            172,
+            88,
+            173
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "body"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            80,
+            178,
+            81,
+            179
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "body"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            78,
+            179,
+            79,
+            180
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "body"
+        }
+      ],
+      "move_pixels": 25,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "wing_far": {
+      "components": 1,
+      "small_components": [],
+      "move_pixels": 0,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "tail": {
+      "components": 7,
+      "small_components": [
+        {
+          "pixels": 3,
+          "visible_pixels": 3,
+          "bbox": [
+            114,
+            212,
+            117,
+            213
+          ],
+          "shared_border_edges": 5,
+          "action": "move",
+          "target": "body"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            124,
+            118,
+            125,
+            119
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "wing_near"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            121,
+            125,
+            122,
+            126
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "wing_near"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            118,
+            133,
+            119,
+            134
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "wing_near"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            106,
+            152,
+            107,
+            153
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "body"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            112,
+            152,
+            113,
+            153
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "wing_near"
+        }
+      ],
+      "move_pixels": 8,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "legs": {
+      "components": 8,
+      "small_components": [
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            119,
+            130,
+            120,
+            131
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "wing_near"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            76,
+            141,
+            77,
+            142
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "head"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            115,
+            142,
+            116,
+            143
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "wing_near"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            114,
+            145,
+            115,
+            146
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "wing_near"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            89,
+            150,
+            90,
+            151
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "head"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            90,
+            152,
+            91,
+            153
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "head"
+        }
+      ],
+      "move_pixels": 6,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    }
+  },
+  "materials": null,
+  "motion_islands": [],
+  "scoped_colour_repairs": [],
+  "traced_motion_repairs": [],
+  "redundant_hidden_layers": [
+    {
+      "part": "beak",
+      "pixels": 152,
+      "hidden_sha256": "196426890692ef9c4d206593a2ddb746e860762989096e43ae11566bb73421cf",
+      "coverage_sha256": "e9ddc278f91c7d5a4eb415ddca703006ad8894be62993c83fd097494e6659993",
+      "bone": "head",
+      "same_bone_parts": [
+        "head",
+        "beak",
+        "mask"
+      ],
+      "reason": "Entire underlay is covered by visible paint or a strictly higher underlay on the identical rigid bone; no pose can expose it"
+    }
+  ]
+}

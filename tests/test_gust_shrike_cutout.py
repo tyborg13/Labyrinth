@@ -22,6 +22,8 @@ def module(name, path):
 
 Pipeline = module("rr03_pipeline", CASE / "pipeline.py")
 Gates = module("rr03_motion_gates", CASE / "probes/motion_gates.py")
+Ownership = module("rr03_ownership", CASE / "repair_ownership.py")
+Fills = module("rr03_fills", CASE / "repair_fills.py")
 Compiler = module("rr03_compile_motion", CASE / "compile_motion.py")
 
 
@@ -122,6 +124,89 @@ class ShrikeCutoutTests(unittest.TestCase):
         self.assertEqual(head[1]["interpolation"], "hold")
         self.assertEqual(head[2]["interpolation"], "linear")
         self.assertEqual(source.read_bytes(), before)
+
+    def test_director_round2_snap_starts_at_key_then_holds(self):
+        data = Pipeline.read_json(Compiler.source_path(CASE))
+        interpretation = Pipeline.read_json(CASE / "recipes/motion_interpretation.json")
+        self.assertEqual(interpretation["head_snap_fps"], 30)
+        self.assertEqual(interpretation["head_snap_placement"], "start")
+        tracks, todos = Compiler.semantic_tracks(data, interpretation)
+        self.assertFalse(todos)
+        head = tracks["idle"]["head.tilt_deg"]
+        poses = data["idle"]["keys"]["head"]["keys"]
+        for previous, current in zip(poses, poses[1:-1]):
+            start = next(k for k in head if k["at"] == current["t"])
+            end = next(k for k in head if abs(k["at"] - current["t"] - 2 / 30 / 2.4) < 1e-10)
+            self.assertEqual(start["value"], previous["tilt_deg"])
+            self.assertEqual(start["interpolation"], "hold")
+            self.assertEqual(end["value"], current["tilt_deg"])
+            self.assertEqual(end["interpolation"], "linear")
+        self.assertEqual(head[0]["value"], head[-1]["value"])
+
+    def test_island_rest_bridge_does_not_keep_wrong_moving_owner(self):
+        owners = np.full((8, 8), -1, dtype=np.int16)
+        owners[1:4, 1:4] = 0
+        owners[2:4, 4:7] = 1
+        owners[4, 6] = 0  # Connected to whole rest only through part 1.
+        paint = np.zeros((8, 8, 4), dtype=np.uint8)
+        paint[owners >= 0] = [70, 60, 50, 255]
+        before = paint.copy()
+        names = ["head", "body"]
+        solos = {n: owners == i for i, n in enumerate(names)}
+        repaired, hidden, report = Ownership.cleanup(owners, paint, names, solos, "front", None,
+            {"speck_max_exclusive_px": 12, "traced_moves": []})
+        self.assertEqual(repaired[4, 6], 1)
+        self.assertTrue(np.array_equal(paint, before))
+        self.assertEqual(report["specks"]["head"]["move_pixels"], 1)
+
+    def test_sparse_reference_stays_in_view_and_material_and_uses_nearest(self):
+        owners = np.full((10, 15), -1, dtype=np.int16)
+        owners[1, 1] = 0
+        owners[2:10, 0:5] = 1
+        owners[2:10, 10:15] = 2
+        names = ["sparse", "near", "far"]
+        reference, rule = Fills.value_reference(np.zeros((10, 15, 4), dtype=np.uint8), owners,
+            names, "sparse", {n: "one material" for n in names}, {}, "rear")
+        self.assertEqual(rule["part"], "near")
+        self.assertTrue(np.array_equal(reference, owners == 1))
+        with self.assertRaises(Pipeline.CutoutError):
+            Fills.value_reference(np.zeros((10, 15, 4), dtype=np.uint8), owners,
+                names, "sparse", {n: n for n in names}, {}, "rear")
+
+    def test_thin_hidden_fill_keeps_midtones_without_changing_visible_pixels(self):
+        # Reproduce the wing's 15 outline pixels out of a 16-pixel hidden region.
+        pixels = np.full((5, 5, 4), [20, 16, 21, 255], dtype=np.uint8)
+        pixels[4] = [90, 80, 70, 255]
+        before = pixels.copy()
+        hidden = np.zeros((5, 5), dtype=bool); hidden[:4, :4] = True
+        reference = np.repeat(np.array([[40, 35, 30], [70, 60, 50], [100, 90, 80]], dtype=np.uint8), [10, 30, 10], axis=0)
+        after = Fills.match_values(pixels, hidden, reference)
+        self.assertTrue(np.array_equal(after[~hidden], before[~hidden]))
+        self.assertTrue(np.array_equal(after[..., 3], before[..., 3]))
+        source_l = Pipeline.maquette.to_lab(reference)[:, 0]
+        actual_l = Pipeline.maquette.to_lab(after[hidden, :3])[:, 0]
+        self.assertLessEqual(abs(np.median(actual_l) - np.median(source_l)), 8)
+        low, high = np.percentile(source_l, [25, 75])
+        self.assertTrue(((actual_l >= low) & (actual_l <= high)).any())
+
+    def test_redundant_underlay_requires_identical_rigid_bone_and_complete_cover(self):
+        owners = np.zeros((5, 5), dtype=np.int16)
+        names = ["head", "beak"]
+        hidden = [np.zeros((5, 5), dtype=bool), np.zeros((5, 5), dtype=bool)]
+        hidden[1][1:4, 1:4] = True
+        initial = [h.copy() for h in hidden]
+        records = Ownership.remove_redundant_hidden(owners, hidden, names,
+            {"head": "head", "beak": "head"}, names)
+        self.assertEqual(records[0]["pixels"], 9)
+        self.assertFalse(hidden[1].any())
+        hidden = [h.copy() for h in initial]
+        self.assertEqual(Ownership.remove_redundant_hidden(owners, hidden, names,
+            {"head": "head", "beak": "different_bone"}, names), [])
+        self.assertTrue(np.array_equal(hidden[1], initial[1]))
+        owners[2, 2] = -1
+        hidden = [h.copy() for h in initial]
+        self.assertEqual(Ownership.remove_redundant_hidden(owners, hidden, names,
+            {"head": "head", "beak": "head"}, names), [])
 
 
 if __name__ == "__main__":

@@ -1,0 +1,8 @@
+{
+  "ok": true,
+  "frames_compared": 904,
+  "different_frames": [],
+  "before_sha256": "82739e6ef195504fc19a2585efec92399d0bc4e0738999db6e1e7c1c9e6550e4",
+  "after_samples_sha256": "b8653a2ad0b22793df4e7e231465397ce80199fc51497142465a576c374e3df6",
+  "basis": "Exact CPU RGBA equality at all 904 poses, plus source same-bone/higher-depth coverage proof; native proof remains required"
+}

@@ -18,7 +18,75 @@
       ]
     ],
     [
+      "body_from_wing_near",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "body_from_tail",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
       "head",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "head_from_wing_near",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "head_from_legs",
       [
         [
           0,
@@ -52,7 +120,58 @@
       ]
     ],
     [
+      "beak_from_tail",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
       "mask",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "mask_from_wing_near",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "wing_near_from_head",
       [
         [
           0,
@@ -86,7 +205,41 @@
       ]
     ],
     [
+      "wing_near_from_tail",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
       "wing_far",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "wing_far_from_tail",
       [
         [
           0,
@@ -11651,7 +11804,7 @@
         134,
         44
       ],
-      "name": "head"
+      "name": "wing_near_from_head"
     },
     {
       "point": [
@@ -13380,7 +13533,7 @@
         131,
         47
       ],
-      "name": "tail"
+      "name": "wing_near_from_tail"
     },
     {
       "point": [
@@ -15319,7 +15472,7 @@
         130,
         50
       ],
-      "name": "head"
+      "name": "wing_near_from_head"
     },
     {
       "point": [
@@ -18042,7 +18195,7 @@
         129,
         54
       ],
-      "name": "tail"
+      "name": "wing_near_from_tail"
     },
     {
       "point": [
@@ -20121,7 +20274,7 @@
         128,
         57
       ],
-      "name": "head"
+      "name": "wing_near_from_head"
     },
     {
       "point": [
@@ -24748,7 +24901,7 @@
         127,
         63
       ],
-      "name": "head"
+      "name": "wing_near_from_head"
     },
     {
       "point": [
@@ -29312,7 +29465,7 @@
         133,
         68
       ],
-      "name": "tail"
+      "name": "wing_near_from_tail"
     },
     {
       "point": [
@@ -32091,7 +32244,7 @@
         132,
         71
       ],
-      "name": "head"
+      "name": "wing_near_from_head"
     },
     {
       "point": [
@@ -32455,7 +32608,7 @@
         184,
         71
       ],
-      "name": "legs"
+      "name": "head_from_legs"
     },
     {
       "point": [
@@ -33610,7 +33763,7 @@
         212,
         72
       ],
-      "name": "wing_near"
+      "name": "head_from_wing_near"
     },
     {
       "point": [
@@ -34576,7 +34729,7 @@
         213,
         73
       ],
-      "name": "tail"
+      "name": "beak_from_tail"
     },
     {
       "point": [
@@ -35353,7 +35506,7 @@
         185,
         74
       ],
-      "name": "legs"
+      "name": "head_from_legs"
     },
     {
       "point": [
@@ -35934,7 +36087,7 @@
         131,
         75
       ],
-      "name": "tail"
+      "name": "wing_near_from_tail"
     },
     {
       "point": [
@@ -36487,7 +36640,7 @@
         210,
         75
       ],
-      "name": "wing_near"
+      "name": "head_from_wing_near"
     },
     {
       "point": [
@@ -38685,7 +38838,7 @@
         130,
         78
       ],
-      "name": "head"
+      "name": "wing_near_from_head"
     },
     {
       "point": [
@@ -41044,7 +41197,7 @@
         211,
         80
       ],
-      "name": "wing_near"
+      "name": "mask_from_wing_near"
     },
     {
       "point": [
@@ -45860,7 +46013,7 @@
         135,
         86
       ],
-      "name": "head"
+      "name": "wing_near_from_head"
     },
     {
       "point": [
@@ -46231,7 +46384,7 @@
         188,
         86
       ],
-      "name": "legs"
+      "name": "head_from_legs"
     },
     {
       "point": [
@@ -49395,7 +49548,7 @@
         134,
         90
       ],
-      "name": "head"
+      "name": "wing_near_from_head"
     },
     {
       "point": [
@@ -50648,7 +50801,7 @@
         189,
         91
       ],
-      "name": "legs"
+      "name": "head_from_legs"
     },
     {
       "point": [
@@ -52790,7 +52943,7 @@
         133,
         94
       ],
-      "name": "tail"
+      "name": "wing_near_from_tail"
     },
     {
       "point": [
@@ -54820,7 +54973,7 @@
         191,
         96
       ],
-      "name": "wing_near"
+      "name": "body_from_wing_near"
     },
     {
       "point": [
@@ -55653,7 +55806,7 @@
         195,
         97
       ],
-      "name": "wing_near"
+      "name": "body_from_wing_near"
     },
     {
       "point": [
@@ -58341,7 +58494,7 @@
         135,
         101
       ],
-      "name": "tail"
+      "name": "wing_near_from_tail"
     },
     {
       "point": [
@@ -59867,7 +60020,7 @@
         137,
         103
       ],
-      "name": "tail"
+      "name": "wing_far_from_tail"
     },
     {
       "point": [
@@ -62891,7 +63044,7 @@
         136,
         107
       ],
-      "name": "head"
+      "name": "wing_near_from_head"
     },
     {
       "point": [
@@ -65873,7 +66026,7 @@
         135,
         111
       ],
-      "name": "head"
+      "name": "wing_near_from_head"
     },
     {
       "point": [
@@ -68813,7 +68966,7 @@
         135,
         115
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -69191,7 +69344,7 @@
         189,
         115
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -71368,7 +71521,7 @@
         185,
         118
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -72096,7 +72249,7 @@
         184,
         119
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -73937,7 +74090,7 @@
         138,
         122
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -77437,7 +77590,7 @@
         137,
         127
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -81728,7 +81881,7 @@
         170,
         133
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -82358,7 +82511,7 @@
         169,
         134
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -83401,7 +83554,7 @@
         140,
         136
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -86019,7 +86172,7 @@
         164,
         140
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -88700,7 +88853,7 @@
         142,
         145
       ],
-      "name": "tail"
+      "name": "wing_far_from_tail"
     },
     {
       "point": [
@@ -88826,7 +88979,7 @@
         160,
         145
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -89239,7 +89392,7 @@
         142,
         146
       ],
-      "name": "tail"
+      "name": "wing_far_from_tail"
     },
     {
       "point": [
@@ -89778,7 +89931,7 @@
         142,
         147
       ],
-      "name": "tail"
+      "name": "wing_far_from_tail"
     },
     {
       "point": [
@@ -90961,7 +91114,7 @@
         157,
         149
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -92564,7 +92717,7 @@
         155,
         152
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -94601,7 +94754,7 @@
         144,
         156
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -103659,7 +103812,7 @@
         161,
         174
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -105759,7 +105912,7 @@
         156,
         178
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -106935,7 +107088,7 @@
         153,
         180
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -108195,7 +108348,7 @@
         150,
         182
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -108923,7 +109076,7 @@
         150,
         183
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [
@@ -109644,7 +109797,7 @@
         150,
         184
       ],
-      "name": "tail"
+      "name": "body_from_tail"
     },
     {
       "point": [

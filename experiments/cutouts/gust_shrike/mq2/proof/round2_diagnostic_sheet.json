@@ -1,0 +1,14 @@
+{
+  "basis": "CPU diagnostic only, not native proof",
+  "samples_sha256": "b8653a2ad0b22793df4e7e231465397ce80199fc51497142465a576c374e3df6",
+  "sheet_sha256": "4cbf8aadbbc33a5a84c09e97493efbe1f5e72fbe72715a2f037e8ef575c446d7",
+  "columns": 5,
+  "frame_selection": {
+    "clips": "middle sample",
+    "death": "last sample"
+  },
+  "canvas_size": [
+    512,
+    512
+  ]
+}

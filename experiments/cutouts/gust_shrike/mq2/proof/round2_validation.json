@@ -1,0 +1,19 @@
+{
+  "ok": true,
+  "character_id": "gust_shrike",
+  "layouts": {
+    "front": {
+      "joints": 7,
+      "parts": 23,
+      "meshes": 0,
+      "vertices": 0
+    },
+    "rear": {
+      "joints": 7,
+      "parts": 23,
+      "meshes": 0,
+      "vertices": 0
+    }
+  },
+  "errors": []
+}
