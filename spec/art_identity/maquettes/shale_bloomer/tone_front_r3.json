@@ -1,0 +1,109 @@
+[
+ {
+  "name": "petals: brown dun -> dark slate shale (pass 1, also catches the heart)",
+  "min_lum": 0.0,
+  "max_lum": 0.58,
+  "min_chroma": 0.0,
+  "hue_deg": [
+   0,
+   60
+  ],
+  "lab_scale": [
+   0.85,
+   0.45,
+   0.45
+  ],
+  "box": [
+   220,
+   62,
+   906,
+   567
+  ],
+  "seed": null
+ },
+ {
+  "name": "restore the amber heart/sacs caught by pass 1 (chroma >= .17 after pass 1)",
+  "min_lum": 0.0,
+  "max_lum": 0.5129999999999999,
+  "min_chroma": 0.17,
+  "hue_deg": [
+   0,
+   60
+  ],
+  "box": [
+   220,
+   62,
+   906,
+   567
+  ],
+  "seed": null,
+  "lab_scale": [
+   1.176471,
+   2.222222,
+   2.222222
+  ]
+ },
+ {
+  "name": "trunk/roots: less orange, a touch darker (pass 1, also catches the sacs)",
+  "min_lum": 0.0,
+  "max_lum": 0.6,
+  "min_chroma": 0.0,
+  "hue_deg": [
+   0,
+   60
+  ],
+  "lab_scale": [
+   0.9,
+   0.7,
+   0.7
+  ],
+  "box": [
+   132,
+   547,
+   1073,
+   1150
+  ],
+  "seed": null
+ },
+ {
+  "name": "restore the amber sacs caught by pass 3 (chroma >= .30 after pass 3)",
+  "min_lum": 0.0,
+  "max_lum": 0.56,
+  "min_chroma": 0.3,
+  "hue_deg": [
+   0,
+   60
+  ],
+  "box": [
+   132,
+   547,
+   1073,
+   1150
+  ],
+  "seed": null,
+  "lab_scale": [
+   1.111111,
+   1.428571,
+   1.428571
+  ]
+ },
+ {
+  "name": "deep crevices between the roots: darker",
+  "min_lum": 0.0,
+  "max_lum": 0.2,
+  "min_chroma": 0.0,
+  "hue_deg": null,
+  "lab_scale": [
+   0.7,
+   1.0,
+   1.0
+  ],
+  "box": [
+   132,
+   479,
+   1073,
+   1150
+  ],
+  "seed": null
+ }
+]

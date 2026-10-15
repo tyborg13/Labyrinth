@@ -1,0 +1,57 @@
+{
+  "K": 4,
+  "anatomy": "floating",
+  "id": "lightning_wisp",
+  "job_id": "mq-wisp-rear-r1",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "227cec29b79e1ccf6e7679e712c3f77758f34d0f2afd84cf808a82337a8035bf",
+  "method": "maquette paint-over (wave 1b): rear from the approved front mq1_front_v2, maquette r3",
+  "peers": [
+    "arc_thrall_rear",
+    "hero_rear"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "5fe7ce22e792bff70f3dd82f7434358257af8247485571bd6e73efd1301add55",
+  "prompt_source": "spec/art_identity/maquettes/lightning_wisp/prompt_rear_r1.md",
+  "refs": [
+    {
+      "canon_id": "maquette_rear_parts",
+      "file": "refs/01_maquette_rear_parts.png",
+      "pixel_sha256": "b170a47385313fc5b6ce1d636c814b5a07edb2965fc8b92f4da98197fda93fbd",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-wisp-rear-r1/refs/01_rear_parts_green.png"
+    },
+    {
+      "canon_id": "maquette_rear_clay",
+      "file": "refs/02_maquette_rear_clay.png",
+      "pixel_sha256": "fcd7fca94b7b970d700510fcef4ed02e374e676a08e28daf56743471c0bf3331",
+      "role": "maquette_clay",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-wisp-rear-r1/refs/02_rear_clay_green.png"
+    },
+    {
+      "canon_id": "approved_wisp_mq1_front_v2",
+      "file": "refs/03_approved_wisp_mq1_front_v2.png",
+      "pixel_sha256": "751c8eb578da79d7fd28df4de86a62bbbc09c0fb09e414c01d57176856ed5c25",
+      "role": "identity",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-wisp-rear-r1/refs/03_approved_front_x4.png"
+    },
+    {
+      "canon_id": "arc_thrall_rear",
+      "file": "refs/04_arc_thrall_rear.png",
+      "pixel_sha256": "ebe98dc297c5b418aaddbbaccc707bf25b265744f5bebef5b628d99d91488f51",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-wisp-rear-r1/refs/04_peer_rear_x4.png"
+    },
+    {
+      "canon_id": "hero_rear",
+      "file": "refs/05_hero_rear.png",
+      "pixel_sha256": "734da8ebe42a649cb88b237a3403ec7403082ba918b85e16a29533dd5b832acf",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-wisp-rear-r1/refs/05_hero_rear_x4.png"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 210,
+  "view": "creature_rear"
+}

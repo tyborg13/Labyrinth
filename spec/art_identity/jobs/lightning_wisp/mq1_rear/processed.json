@@ -1,0 +1,64 @@
+{
+  "K": 4,
+  "drawn_size": [
+    199,
+    194
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.1126787820548112,
+    "edge_light_share": 0.0,
+    "feature_px": 6.573397814184793,
+    "height": 194,
+    "height_drawn": 194.0,
+    "orphan_share": 0.018888794350378626,
+    "regions": 272,
+    "run_length": 3.6889516635279347,
+    "symmetry": 0.6242047026279391,
+    "thin_abs": 0.016676593210244173,
+    "thin_rel": 0.12141580872968605,
+    "value": 0.24179143080698628,
+    "width": 199
+  },
+  "pixel_sha256": "87a8f91f37e1538da7a51a698d8ce2c172821b2e29d48c30568f7f7149e2ac13",
+  "placement": [
+    29,
+    52
+  ],
+  "post_steps": [
+    {
+      "parameters": {
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "green_residue_margin": 20,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "b1390069259d8e9786005ff89d5ce75bcdc558bc8034317b8dfbbc4aeaa9b986",
+      "reference": "spec/art_identity/jobs/lightning_wisp/mq1_front_v2/processed.png",
+      "reference_pixel_sha256": "28475b54cc92668fd8a6e4707c29cf248ec62f1aff55a6bb095388e27f5a7349",
+      "reference_sha256": "c259de444a573a2dbc5f454e650e770272efb6dfa8845807657eddddfabff021",
+      "step": "palette_match"
+    },
+    {
+      "parameters": {
+        "max_luminance": 0.2,
+        "neighbours": 4,
+        "remove_isolated": true,
+        "tone": [
+          20,
+          16,
+          21
+        ]
+      },
+      "pre_step_pixel_sha256": "1bc0240959789dcd1c57f64573467e442c13d3b33681480ad98eb0f1c6768ea4",
+      "step": "clean_outline"
+    }
+  ],
+  "raw_sha256": "f893a91309c2b31ae75f37ab9bbd61866a91a30ae4b926325a67314938fe02c2",
+  "shift": [
+    0,
+    0
+  ]
+}

@@ -1719,13 +1719,13 @@
    "type": "capsule",
    "part": "root_stem_c",
    "a": [
-    0.31,
-    -0.078,
+    0.314,
+    -0.063,
     0.16
    ],
    "b": [
-    0.535,
-    -0.134,
+    0.508,
+    -0.102,
     0.07
    ],
    "r1": 0.15,
@@ -1735,13 +1735,13 @@
    "type": "capsule",
    "part": "root_tip_c",
    "a": [
-    0.535,
-    -0.134,
+    0.508,
+    -0.102,
     0.07
    ],
    "b": [
-    0.718,
-    -0.179,
+    0.667,
+    -0.133,
     0.03
    ],
    "r1": 0.1,
@@ -1751,14 +1751,14 @@
    "type": "capsule",
    "part": "root_tip_c",
    "a": [
-    0.718,
-    -0.179,
+    0.667,
+    -0.133,
     0.03
    ],
    "b": [
-    0.759,
-    -0.19,
-    -0.02
+    0.702,
+    -0.14,
+    -0.01
    ],
    "r1": 0.05,
    "r2": 0.02
@@ -1767,13 +1767,13 @@
    "type": "capsule",
    "part": "root_stem_r",
    "a": [
-    -0.184,
-    0.262,
+    0.047,
+    0.316,
     0.16
    ],
    "b": [
-    -0.266,
-    0.379,
+    0.085,
+    0.567,
     0.07
    ],
    "r1": 0.15,
@@ -1783,14 +1783,14 @@
    "type": "capsule",
    "part": "root_tip_r",
    "a": [
-    -0.266,
-    0.379,
+    0.085,
+    0.567,
     0.07
    ],
    "b": [
-    -0.333,
-    0.475,
-    0.03
+    0.116,
+    0.771,
+    0.01
    ],
    "r1": 0.1,
    "r2": 0.05
@@ -1799,14 +1799,14 @@
    "type": "capsule",
    "part": "root_tip_r",
    "a": [
-    -0.333,
-    0.475,
-    0.03
+    0.116,
+    0.771,
+    0.01
    ],
    "b": [
-    -0.348,
-    0.496,
-    -0.02
+    0.123,
+    0.817,
+    -0.03
    ],
    "r1": 0.05,
    "r2": 0.02
@@ -1815,13 +1815,13 @@
    "type": "capsule",
    "part": "root_stem_l",
    "a": [
-    -0.302,
-    -0.106,
+    -0.047,
+    -0.316,
     0.16
    ],
    "b": [
-    -0.427,
-    -0.149,
+    -0.065,
+    -0.436,
     0.07
    ],
    "r1": 0.15,
@@ -1831,14 +1831,14 @@
    "type": "capsule",
    "part": "root_tip_l",
    "a": [
-    -0.427,
-    -0.149,
+    -0.065,
+    -0.436,
     0.07
    ],
    "b": [
-    -0.529,
-    -0.185,
-    0.03
+    -0.08,
+    -0.534,
+    0.07
    ],
    "r1": 0.1,
    "r2": 0.05
@@ -1847,14 +1847,14 @@
    "type": "capsule",
    "part": "root_tip_l",
    "a": [
-    -0.529,
-    -0.185,
-    0.03
+    -0.08,
+    -0.534,
+    0.07
    ],
    "b": [
-    -0.551,
-    -0.193,
-    -0.02
+    -0.083,
+    -0.556,
+    0.03
    ],
    "r1": 0.05,
    "r2": 0.02
@@ -1924,6 +1924,11 @@
    "date": "2026-10-15",
    "rev": "r8",
    "why": "judge mq2 FAIL: r7 was head-on and mirror-symmetric (symmetry 0.954, lateral axis 0), raised stubs read as arms, a root pointed at the viewer. Trunk leans ~9 deg toward the lower-left, corolla tilted 25 deg to the lower-left (foreshortened), five varied tendrils (none raised) ending in pointed thorn hooks, ground roots splayed along the floor diamond (long lower-left, short right, back-right), uneven ridges/sacs/petals"
+  },
+  {
+   "date": "2026-10-15",
+   "rev": "r9",
+   "why": "judge mq3: r8 root layout made the forward lower-left root the lowest point (lateral axis -12.5 deg). Roots now forward lower-left, near lower-right (longest, lowest tip), far back-left (short, higher)"
   }
  ]
 }
