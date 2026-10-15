@@ -20,8 +20,10 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
 
 ## In flight (2026-10-15 late, playtest 7 follow-ups; Codex model gpt-6-astra + max_running 6 for today — revert the Labyrinth profile after)
 - Merged today: sfx-03, rr-01, art-04 (shrike), por-01, ux-02, art-05, ui-02, qa-04, fix-03. Playtest 7 = 7901c37f0.
-- Running fix rounds: sfx-04 r2 (A/V sync), ux-03 r3 (glossary tooltips), vfx-01 r1 (pixel FX), anim-01 r3 (static idle),
-  rr-02 r3 (gaoler cutout: cross-view donors for 3 hidden regions). New: art-06 (gate pixel digests, follow-ups).
+- Running: sfx-04 r2 (A/V sync), anim-01 r3 (static idle), art-06 (gate pixel digests), chr-02 r4.
+- In director review: ux-03 r3 (windowed probes at 1920/1670/1536), rr-02 r3 (zero magenta; native rest + reel render).
+- vfx-01 committed b1ff413f7 (captures look right; perf medians ≤0.37 ms, harness FAIL only from window clamp to
+  3024x1898) → peer review (a5cd14b257a1dd01f) → merge.
 - chr-02 (Chronicle tiles) 526e3c6cc: re-review CHANGES REQUESTED (normalize rebuilt card deltas: 85 ms with relic-heavy
   history) → fix round 4 queued (feedback/chr-02_feedback_4.md: keep stored deltas, perf test); then reviewer signoff → merge.
   Known layout limit: 14+ relics or a wrapped subtitle overflows the 718 px viewport (scroll still works).
