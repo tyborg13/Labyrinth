@@ -18,7 +18,109 @@
       ]
     ],
     [
+      "head_from_coat_near",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
       "torso",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "torso_from_tabard",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "torso_from_coat_near",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "torso_from_fore_far",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "torso_from_foot_far",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "pelvis_from_torso",
       [
         [
           0,
@@ -52,7 +154,58 @@
       ]
     ],
     [
+      "pelvis_from_belt",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "pelvis_from_shin_far",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
       "belt",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "belt_from_coat_far",
       [
         [
           0,
@@ -86,6 +239,23 @@
       ]
     ],
     [
+      "coat_near_from_head",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
       "coat_near",
       [
         [
@@ -103,7 +273,41 @@
       ]
     ],
     [
+      "coat_far_from_coat_near",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
       "coat_far",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "coat_far_from_foot_far",
       [
         [
           0,
@@ -188,6 +392,23 @@
       ]
     ],
     [
+      "thigh_near_from_head",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
       "thigh_near",
       [
         [
@@ -205,7 +426,58 @@
       ]
     ],
     [
+      "thigh_near_from_shin_far",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "thigh_near_from_foot_far",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
       "shin_near",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "shin_near_from_foot_far",
       [
         [
           0,
@@ -290,7 +562,58 @@
       ]
     ],
     [
-      "chain",
+      "chain_link_0",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "chain_link_1",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "chain_link_2",
+      [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    ],
+    [
+      "hook_from_chain",
       [
         [
           0,
@@ -6308,7 +6631,7 @@
         95,
         62
       ],
-      "name": "coat_near"
+      "name": "torso_from_coat_near"
     },
     {
       "point": [
@@ -7764,7 +8087,7 @@
         129,
         65
       ],
-      "name": "coat_near"
+      "name": "head_from_coat_near"
     },
     {
       "point": [
@@ -7862,7 +8185,7 @@
         80,
         66
       ],
-      "name": "fore_far"
+      "name": "torso_from_fore_far"
     },
     {
       "point": [
@@ -8030,7 +8353,7 @@
         104,
         66
       ],
-      "name": "coat_near"
+      "name": "head_from_coat_near"
     },
     {
       "point": [
@@ -8184,7 +8507,7 @@
         126,
         66
       ],
-      "name": "coat_near"
+      "name": "head_from_coat_near"
     },
     {
       "point": [
@@ -8268,14 +8591,14 @@
         138,
         66
       ],
-      "name": "coat_near"
+      "name": "torso_from_coat_near"
     },
     {
       "point": [
         139,
         66
       ],
-      "name": "coat_near"
+      "name": "torso_from_coat_near"
     },
     {
       "point": [
@@ -8625,7 +8948,7 @@
         124,
         67
       ],
-      "name": "coat_near"
+      "name": "head_from_coat_near"
     },
     {
       "point": [
@@ -9066,7 +9389,7 @@
         122,
         68
       ],
-      "name": "coat_near"
+      "name": "head_from_coat_near"
     },
     {
       "point": [
@@ -10186,7 +10509,7 @@
         77,
         71
       ],
-      "name": "foot_far"
+      "name": "torso_from_foot_far"
     },
     {
       "point": [
@@ -10459,7 +10782,7 @@
         116,
         71
       ],
-      "name": "coat_near"
+      "name": "torso_from_coat_near"
     },
     {
       "point": [
@@ -11642,7 +11965,7 @@
         75,
         74
       ],
-      "name": "fore_far"
+      "name": "torso_from_fore_far"
     },
     {
       "point": [
@@ -27357,7 +27680,7 @@
         70,
         100
       ],
-      "name": "fore_far"
+      "name": "torso_from_fore_far"
     },
     {
       "point": [
@@ -32390,7 +32713,7 @@
         71,
         106
       ],
-      "name": "tabard"
+      "name": "torso_from_tabard"
     },
     {
       "point": [
@@ -41672,28 +41995,28 @@
         191,
         116
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         192,
         116
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         193,
         116
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         194,
         116
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
@@ -42505,49 +42828,49 @@
         190,
         117
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         191,
         117
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         192,
         117
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         193,
         117
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         194,
         117
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         195,
         117
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         196,
         117
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
@@ -43352,56 +43675,56 @@
         189,
         118
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         190,
         118
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         191,
         118
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         192,
         118
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         193,
         118
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         194,
         118
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         195,
         118
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         196,
         118
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
@@ -44213,70 +44536,70 @@
         188,
         119
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         189,
         119
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         190,
         119
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         191,
         119
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         192,
         119
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         193,
         119
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         194,
         119
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         195,
         119
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         196,
         119
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         197,
         119
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
@@ -45095,70 +45418,70 @@
         188,
         120
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         189,
         120
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         190,
         120
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         191,
         120
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         192,
         120
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         193,
         120
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         194,
         120
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         195,
         120
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         196,
         120
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         197,
         120
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
@@ -45970,56 +46293,56 @@
         187,
         121
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         188,
         121
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         192,
         121
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         193,
         121
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         194,
         121
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         195,
         121
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         196,
         121
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         197,
         121
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
@@ -46845,42 +47168,42 @@
         187,
         122
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         193,
         122
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         194,
         122
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         195,
         122
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         196,
         122
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         197,
         122
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
@@ -47692,49 +48015,49 @@
         186,
         123
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         187,
         123
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         193,
         123
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         194,
         123
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         195,
         123
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         196,
         123
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         197,
         123
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
@@ -48560,49 +48883,49 @@
         186,
         124
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         187,
         124
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         193,
         124
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         194,
         124
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         195,
         124
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         196,
         124
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         197,
         124
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
@@ -49407,56 +49730,56 @@
         185,
         125
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         186,
         125
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         187,
         125
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         193,
         125
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         194,
         125
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         195,
         125
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         196,
         125
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         197,
         125
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
@@ -50261,84 +50584,84 @@
         185,
         126
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         186,
         126
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         187,
         126
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         189,
         126
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         190,
         126
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         191,
         126
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         192,
         126
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         193,
         126
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         194,
         126
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         195,
         126
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         196,
         126
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         197,
         126
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
@@ -51129,98 +51452,98 @@
         184,
         127
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         185,
         127
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         186,
         127
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         187,
         127
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         188,
         127
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         189,
         127
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         190,
         127
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         191,
         127
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         192,
         127
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         193,
         127
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         194,
         127
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         195,
         127
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         196,
         127
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         197,
         127
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
@@ -51997,98 +52320,98 @@
         184,
         128
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         185,
         128
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         186,
         128
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         187,
         128
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         188,
         128
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         189,
         128
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         190,
         128
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         191,
         128
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         192,
         128
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         193,
         128
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         194,
         128
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         195,
         128
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         196,
         128
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         197,
         128
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
@@ -52844,91 +53167,91 @@
         184,
         129
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         185,
         129
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         186,
         129
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         187,
         129
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         188,
         129
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         189,
         129
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         190,
         129
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         191,
         129
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         192,
         129
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         193,
         129
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         194,
         129
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         195,
         129
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         196,
         129
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
@@ -52949,7 +53272,7 @@
         67,
         130
       ],
-      "name": "coat_far"
+      "name": "belt_from_coat_far"
     },
     {
       "point": [
@@ -53691,91 +54014,91 @@
         184,
         130
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         185,
         130
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         186,
         130
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         187,
         130
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         188,
         130
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         189,
         130
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         190,
         130
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         191,
         130
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         192,
         130
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         193,
         130
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         194,
         130
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         195,
         130
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         196,
         130
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
@@ -54531,84 +54854,84 @@
         184,
         131
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         185,
         131
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         186,
         131
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         187,
         131
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         188,
         131
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         189,
         131
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         190,
         131
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         191,
         131
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         192,
         131
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         193,
         131
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         194,
         131
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         195,
         131
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
@@ -55329,70 +55652,70 @@
         186,
         132
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         187,
         132
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         188,
         132
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         189,
         132
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         190,
         132
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         191,
         132
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         192,
         132
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         193,
         132
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         194,
         132
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         132
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -56127,63 +56450,63 @@
         187,
         133
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         188,
         133
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         189,
         133
       ],
-      "name": "chain"
+      "name": "chain_link_0"
     },
     {
       "point": [
         190,
         133
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         133
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         133
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         133
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         133
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         133
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -56890,56 +57213,56 @@
         188,
         134
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         134
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         134
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         134
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         134
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         134
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         134
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         134
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -57646,56 +57969,56 @@
         188,
         135
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         135
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         135
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         135
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         135
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         135
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         135
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         135
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -58381,56 +58704,56 @@
         188,
         136
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         136
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         136
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         136
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         136
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         136
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         136
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         136
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -59067,56 +59390,56 @@
         188,
         137
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         137
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         137
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         137
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         137
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         137
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         137
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         137
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -59753,70 +60076,70 @@
         188,
         138
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         138
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         138
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         138
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         138
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         138
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         138
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         138
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         138
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         138
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -59921,7 +60244,7 @@
         75,
         139
       ],
-      "name": "foot_far"
+      "name": "thigh_near_from_foot_far"
     },
     {
       "point": [
@@ -59935,7 +60258,7 @@
         77,
         139
       ],
-      "name": "torso"
+      "name": "pelvis_from_torso"
     },
     {
       "point": [
@@ -60397,77 +60720,77 @@
         189,
         139
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         139
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         139
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         139
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         139
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         139
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         139
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         139
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         139
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         139
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         139
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -60572,7 +60895,7 @@
         75,
         140
       ],
-      "name": "foot_far"
+      "name": "thigh_near_from_foot_far"
     },
     {
       "point": [
@@ -60586,7 +60909,7 @@
         77,
         140
       ],
-      "name": "shin_far"
+      "name": "thigh_near_from_shin_far"
     },
     {
       "point": [
@@ -61041,84 +61364,84 @@
         188,
         140
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         140
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         140
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         140
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         140
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         140
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         140
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         140
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         140
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         140
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         140
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         140
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -61230,7 +61553,7 @@
         75,
         141
       ],
-      "name": "foot_far"
+      "name": "thigh_near_from_foot_far"
     },
     {
       "point": [
@@ -61699,105 +62022,105 @@
         187,
         141
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         188,
         141
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         141
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         141
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         141
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         141
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         141
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         141
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         141
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         141
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         141
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         141
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         141
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         141
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         201,
         141
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -61909,7 +62232,7 @@
         75,
         142
       ],
-      "name": "foot_far"
+      "name": "thigh_near_from_foot_far"
     },
     {
       "point": [
@@ -62378,105 +62701,105 @@
         187,
         142
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         188,
         142
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         142
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         142
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         142
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         142
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         142
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         142
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         142
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         142
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         142
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         142
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         142
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         142
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         201,
         142
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -62588,7 +62911,7 @@
         75,
         143
       ],
-      "name": "foot_far"
+      "name": "thigh_near_from_foot_far"
     },
     {
       "point": [
@@ -63057,119 +63380,119 @@
         186,
         143
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         187,
         143
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         188,
         143
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         143
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         143
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         143
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         143
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         143
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         143
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         143
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         143
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         143
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         143
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         143
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         143
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         201,
         143
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         202,
         143
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -63281,7 +63604,7 @@
         75,
         144
       ],
-      "name": "head"
+      "name": "coat_near_from_head"
     },
     {
       "point": [
@@ -63750,112 +64073,112 @@
         186,
         144
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         187,
         144
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         188,
         144
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         144
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         144
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         144
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         144
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         144
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         144
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         144
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         144
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         144
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         144
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         144
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         201,
         144
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         202,
         144
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -63981,7 +64304,7 @@
         75,
         145
       ],
-      "name": "head"
+      "name": "coat_near_from_head"
     },
     {
       "point": [
@@ -64457,84 +64780,84 @@
         186,
         145
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         187,
         145
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         188,
         145
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         145
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         145
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         145
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         145
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         145
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         145
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         145
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         201,
         145
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         202,
         145
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -65136,84 +65459,84 @@
         186,
         146
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         187,
         146
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         188,
         146
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         146
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         146
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         146
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         146
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         146
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         146
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         146
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         201,
         146
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         202,
         146
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -65815,84 +66138,84 @@
         186,
         147
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         187,
         147
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         188,
         147
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         147
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         147
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         147
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         147
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         147
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         147
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         147
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         201,
         147
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         202,
         147
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -66508,84 +66831,84 @@
         186,
         148
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         187,
         148
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         188,
         148
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         148
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         148
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         148
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         148
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         148
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         148
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         148
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         201,
         148
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         202,
         148
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -66774,7 +67097,7 @@
         82,
         149
       ],
-      "name": "torso"
+      "name": "pelvis_from_torso"
     },
     {
       "point": [
@@ -67201,84 +67524,84 @@
         186,
         149
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         187,
         149
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         188,
         149
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         149
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         149
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         149
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         149
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         149
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         149
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         149
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         201,
         149
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         202,
         149
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -67474,7 +67797,7 @@
         83,
         150
       ],
-      "name": "belt"
+      "name": "pelvis_from_belt"
     },
     {
       "point": [
@@ -67894,119 +68217,119 @@
         186,
         150
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         187,
         150
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         188,
         150
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         150
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         150
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         150
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         150
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         150
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         150
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         150
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         150
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         150
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         150
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         150
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         150
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         201,
         150
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         202,
         150
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -68209,7 +68532,7 @@
         84,
         151
       ],
-      "name": "belt"
+      "name": "pelvis_from_belt"
     },
     {
       "point": [
@@ -68636,119 +68959,119 @@
         186,
         151
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         187,
         151
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         188,
         151
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         151
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         151
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         151
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         151
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         151
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         151
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         151
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         151
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         151
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         151
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         151
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         151
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         201,
         151
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         202,
         151
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -68965,7 +69288,7 @@
         85,
         152
       ],
-      "name": "belt"
+      "name": "pelvis_from_belt"
     },
     {
       "point": [
@@ -69385,98 +69708,98 @@
         188,
         152
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         152
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         152
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         152
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         152
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         152
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         152
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         152
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         152
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         152
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         152
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         152
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         152
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         201,
         152
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -70113,98 +70436,98 @@
         188,
         153
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         189,
         153
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         153
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         153
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         153
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         153
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         153
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         153
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         153
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         153
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         153
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         153
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         153
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         201,
         153
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -70841,84 +71164,84 @@
         189,
         154
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         190,
         154
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         154
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         154
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         154
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         154
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         154
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         154
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         154
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         154
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         154
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         154
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -71177,7 +71500,7 @@
         89,
         155
       ],
-      "name": "shin_far"
+      "name": "pelvis_from_shin_far"
     },
     {
       "point": [
@@ -71569,70 +71892,70 @@
         190,
         155
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         191,
         155
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         155
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         155
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         155
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         155
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         155
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         155
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         155
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         155
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -72283,70 +72606,70 @@
         191,
         156
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         192,
         156
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         156
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         156
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         156
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         156
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         156
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         156
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         156
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         156
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -73011,56 +73334,56 @@
         193,
         157
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         157
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         157
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         157
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         157
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         157
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         157
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         157
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -73361,7 +73684,7 @@
         95,
         158
       ],
-      "name": "shin_far"
+      "name": "pelvis_from_shin_far"
     },
     {
       "point": [
@@ -73725,56 +74048,56 @@
         193,
         158
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         158
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         158
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         158
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         158
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         158
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         158
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         158
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -74110,7 +74433,7 @@
         98,
         159
       ],
-      "name": "shin_far"
+      "name": "pelvis_from_shin_far"
     },
     {
       "point": [
@@ -74453,56 +74776,56 @@
         193,
         159
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         159
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         159
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         159
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         159
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         159
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         159
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         159
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -74866,14 +75189,14 @@
         102,
         160
       ],
-      "name": "shin_far"
+      "name": "thigh_near_from_shin_far"
     },
     {
       "point": [
         103,
         160
       ],
-      "name": "torso"
+      "name": "pelvis_from_torso"
     },
     {
       "point": [
@@ -75181,56 +75504,56 @@
         193,
         160
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         160
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         160
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         160
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         160
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         160
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         160
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         160
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -75909,63 +76232,63 @@
         193,
         161
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         161
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         161
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         161
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         161
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         161
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         161
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         161
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         201,
         161
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
@@ -76644,63 +76967,63 @@
         194,
         162
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         162
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         162
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         162
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         162
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         199,
         162
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         200,
         162
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         201,
         162
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         202,
         162
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -76889,7 +77212,7 @@
         76,
         163
       ],
-      "name": "foot_far"
+      "name": "thigh_near_from_foot_far"
     },
     {
       "point": [
@@ -77393,84 +77716,84 @@
         193,
         163
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         194,
         163
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         195,
         163
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         196,
         163
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         197,
         163
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         198,
         163
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         163
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         163
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         163
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         163
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         163
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         163
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -77659,7 +77982,7 @@
         76,
         164
       ],
-      "name": "foot_far"
+      "name": "thigh_near_from_foot_far"
     },
     {
       "point": [
@@ -78163,98 +78486,98 @@
         192,
         164
       ],
-      "name": "chain"
+      "name": "chain_link_1"
     },
     {
       "point": [
         193,
         164
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         194,
         164
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         195,
         164
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         196,
         164
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         197,
         164
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         164
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         164
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         164
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         164
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         164
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         164
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         164
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         205,
         164
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -78443,7 +78766,7 @@
         76,
         165
       ],
-      "name": "foot_far"
+      "name": "thigh_near_from_foot_far"
     },
     {
       "point": [
@@ -78947,98 +79270,98 @@
         192,
         165
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         193,
         165
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         194,
         165
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         195,
         165
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         196,
         165
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         197,
         165
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         165
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         165
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         165
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         165
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         165
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         165
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         165
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         205,
         165
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -79227,7 +79550,7 @@
         76,
         166
       ],
-      "name": "head"
+      "name": "thigh_near_from_head"
     },
     {
       "point": [
@@ -79731,105 +80054,105 @@
         191,
         166
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         192,
         166
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         193,
         166
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         194,
         166
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         195,
         166
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         196,
         166
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         197,
         166
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         166
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         166
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         166
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         166
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         166
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         166
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         166
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         205,
         166
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -80032,7 +80355,7 @@
         76,
         167
       ],
-      "name": "head"
+      "name": "thigh_near_from_head"
     },
     {
       "point": [
@@ -80529,126 +80852,126 @@
         190,
         167
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         191,
         167
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         192,
         167
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         193,
         167
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         194,
         167
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         195,
         167
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         196,
         167
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         197,
         167
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         167
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         167
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         167
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         167
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         167
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         167
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         167
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         205,
         167
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         206,
         167
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         207,
         167
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -80851,7 +81174,7 @@
         76,
         168
       ],
-      "name": "head"
+      "name": "thigh_near_from_head"
     },
     {
       "point": [
@@ -81362,112 +81685,112 @@
         190,
         168
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         191,
         168
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         192,
         168
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         193,
         168
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         194,
         168
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         195,
         168
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         196,
         168
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         197,
         168
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         168
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         168
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         168
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         168
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         168
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         205,
         168
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         206,
         168
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         207,
         168
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -82181,84 +82504,84 @@
         190,
         169
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         191,
         169
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         192,
         169
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         193,
         169
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         194,
         169
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         195,
         169
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         169
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         169
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         169
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         205,
         169
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         206,
         169
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         207,
         169
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -82986,84 +83309,84 @@
         190,
         170
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         191,
         170
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         192,
         170
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         193,
         170
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         194,
         170
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         195,
         170
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         170
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         170
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         170
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         205,
         170
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         206,
         170
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         207,
         170
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -83777,77 +84100,77 @@
         191,
         171
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         192,
         171
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         193,
         171
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         194,
         171
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         195,
         171
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         171
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         171
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         171
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         205,
         171
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         206,
         171
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         207,
         171
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -84547,77 +84870,77 @@
         191,
         172
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         192,
         172
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         193,
         172
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         194,
         172
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         195,
         172
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         172
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         172
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         172
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         205,
         172
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         206,
         172
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         207,
         172
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -85345,126 +85668,126 @@
         190,
         173
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         191,
         173
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         192,
         173
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         193,
         173
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         194,
         173
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         195,
         173
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         196,
         173
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         197,
         173
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         173
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         173
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         173
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         173
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         173
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         173
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         173
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         205,
         173
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         206,
         173
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         207,
         173
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -86185,119 +86508,119 @@
         191,
         174
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         192,
         174
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         193,
         174
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         194,
         174
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         195,
         174
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         196,
         174
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         197,
         174
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         174
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         174
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         174
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         174
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         174
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         174
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         174
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         205,
         174
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         206,
         174
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         207,
         174
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -86521,7 +86844,7 @@
         78,
         175
       ],
-      "name": "foot_far"
+      "name": "thigh_near_from_foot_far"
     },
     {
       "point": [
@@ -87018,98 +87341,98 @@
         192,
         175
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         193,
         175
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         194,
         175
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         195,
         175
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         196,
         175
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         197,
         175
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         175
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         175
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         175
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         175
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         175
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         175
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         175
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         205,
         175
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -87858,98 +88181,98 @@
         192,
         176
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         193,
         176
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         194,
         176
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         195,
         176
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         196,
         176
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         197,
         176
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         176
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         176
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         176
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         176
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         176
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         176
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         176
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         205,
         176
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -88684,98 +89007,98 @@
         192,
         177
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         193,
         177
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         194,
         177
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         195,
         177
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         196,
         177
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         197,
         177
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         177
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         177
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         177
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         177
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         177
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         177
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         177
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         205,
         177
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -89167,7 +89490,7 @@
         102,
         178
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
@@ -89517,84 +89840,84 @@
         193,
         178
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         194,
         178
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         195,
         178
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         196,
         178
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         197,
         178
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         178
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         178
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         178
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         178
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         178
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         178
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         178
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -90000,21 +90323,21 @@
         103,
         179
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         104,
         179
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         105,
         179
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
@@ -90343,70 +90666,70 @@
         194,
         179
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         195,
         179
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         196,
         179
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         197,
         179
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         179
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         179
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         179
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         179
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         179
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         179
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -90777,7 +91100,7 @@
         98,
         180
       ],
-      "name": "foot_far"
+      "name": "thigh_near_from_foot_far"
     },
     {
       "point": [
@@ -91141,49 +91464,49 @@
         197,
         180
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         180
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         180
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         180
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         180
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         180
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         180
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -91897,49 +92220,49 @@
         197,
         181
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         181
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         181
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         181
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         181
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         181
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         181
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -92667,49 +92990,49 @@
         197,
         182
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         182
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         182
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         182
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         182
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         182
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         182
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -93423,49 +93746,49 @@
         197,
         183
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         183
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         183
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         183
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         183
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         183
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         183
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -93808,21 +94131,21 @@
         102,
         184
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         103,
         184
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         104,
         184
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
@@ -94165,56 +94488,56 @@
         197,
         184
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         184
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         184
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         184
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         184
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         184
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         184
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         184
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -94557,21 +94880,21 @@
         102,
         185
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         103,
         185
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         104,
         185
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
@@ -94914,63 +95237,63 @@
         197,
         185
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         185
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         185
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         185
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         185
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         185
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         185
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         185
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         205,
         185
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -95320,7 +95643,7 @@
         104,
         186
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
@@ -95663,84 +95986,84 @@
         196,
         186
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         197,
         186
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         186
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         186
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         186
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         186
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         186
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         203,
         186
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         204,
         186
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         205,
         186
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         206,
         186
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         207,
         186
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -96426,56 +96749,56 @@
         195,
         187
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         196,
         187
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         197,
         187
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         187
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         187
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         187
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         201,
         187
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         202,
         187
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -97168,42 +97491,42 @@
         195,
         188
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         196,
         188
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         197,
         188
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         198,
         188
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         199,
         188
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         200,
         188
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -97910,21 +98233,21 @@
         195,
         189
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         196,
         189
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
         197,
         189
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -98610,7 +98933,7 @@
         195,
         190
       ],
-      "name": "chain"
+      "name": "chain_link_2"
     },
     {
       "point": [
@@ -100857,14 +101180,14 @@
         99,
         194
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         100,
         194
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
@@ -101487,14 +101810,14 @@
         99,
         195
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         100,
         195
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
@@ -102698,21 +103021,21 @@
         98,
         197
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         99,
         197
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         100,
         197
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
@@ -103307,21 +103630,21 @@
         98,
         198
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         99,
         198
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
         100,
         198
       ],
-      "name": "foot_far"
+      "name": "shin_near_from_foot_far"
     },
     {
       "point": [
@@ -108431,7 +108754,7 @@
         142,
         206
       ],
-      "name": "foot_far"
+      "name": "coat_far_from_foot_far"
     },
     {
       "point": [
@@ -108557,14 +108880,14 @@
         214,
         206
       ],
-      "name": "chain"
+      "name": "hook_from_chain"
     },
     {
       "point": [
         215,
         206
       ],
-      "name": "chain"
+      "name": "hook_from_chain"
     },
     {
       "point": [
@@ -109054,7 +109377,7 @@
         140,
         207
       ],
-      "name": "coat_near"
+      "name": "coat_far_from_coat_near"
     },
     {
       "point": [
@@ -109222,14 +109545,14 @@
         214,
         207
       ],
-      "name": "chain"
+      "name": "hook_from_chain"
     },
     {
       "point": [
         215,
         207
       ],
-      "name": "chain"
+      "name": "hook_from_chain"
     },
     {
       "point": [
@@ -109894,14 +110217,14 @@
         214,
         208
       ],
-      "name": "chain"
+      "name": "hook_from_chain"
     },
     {
       "point": [
         215,
         208
       ],
-      "name": "chain"
+      "name": "hook_from_chain"
     },
     {
       "point": [
@@ -110587,7 +110910,7 @@
         215,
         209
       ],
-      "name": "chain"
+      "name": "hook_from_chain"
     },
     {
       "point": [
@@ -111287,7 +111610,7 @@
         215,
         210
       ],
-      "name": "chain"
+      "name": "hook_from_chain"
     },
     {
       "point": [
@@ -111714,7 +112037,7 @@
         133,
         211
       ],
-      "name": "foot_far"
+      "name": "coat_far_from_foot_far"
     },
     {
       "point": [
@@ -112393,7 +112716,7 @@
         131,
         212
       ],
-      "name": "coat_near"
+      "name": "coat_far_from_coat_near"
     },
     {
       "point": [
@@ -115788,7 +116111,7 @@
         122,
         217
       ],
-      "name": "foot_far"
+      "name": "coat_far_from_foot_far"
     },
     {
       "point": [
@@ -116432,7 +116755,7 @@
         120,
         218
       ],
-      "name": "coat_near"
+      "name": "coat_far_from_coat_near"
     },
     {
       "point": [

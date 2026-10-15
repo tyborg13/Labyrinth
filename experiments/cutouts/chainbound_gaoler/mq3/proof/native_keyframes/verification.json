@@ -1,12 +1,12 @@
 {
   "ok": true,
-  "capture": "/private/tmp/rr-02-mq3-render-v03",
+  "capture": "/private/tmp/rr-02-mq3-render-v04",
   "render_verification": {
     "ok": true,
-    "inputs": 3193,
-    "outputs": 1009,
+    "inputs": 3292,
+    "outputs": 1445,
     "errors": []
   },
   "rest_identity": "both approved RGBA paintings equal native rest",
-  "proof_manifest_sha256": "693484ae3ae5ec7f70d7069f2d31daf4dbd4643e5e63f58cf7d5f92d873d20ff"
+  "proof_manifest_sha256": "685d822822bc08b03eabff94b1e537f1b9c33bc4bcfa6051d6bb8ec2b85d90f4"
 }

@@ -1,205 +1,223 @@
-# Chainbound gaoler mq3 — phase 2b
+# Chainbound gaoler mq3 — round 4
 
-The case uses the final approved `mq3_front_v4` / `mq3_rear_v3` pair and all
-42 director-rendered solos. The requested deterministic fill is implemented
-and applied to all 41 hidden regions (34,180 pixels). One request has no hidden
-pixels. Feedback 3 resolves the three sparse rear parts with the same parts
-from the approved front view. No magenta remains in any of the 81 runtime
-images. Rest assemblies remain exact RGBA; no design placeholders remain.
+Round 4 applies the director's material ownership, detached-island and rear-arm
+layer corrections and adds `chain_reel` / `manacle_pin` to both views. The case
+uses the unchanged final approved `mq3_front_v4` / `mq3_rear_v3` pair and all 42
+provided solo renders. All changes remain uncommitted on top of `addd470bd`.
+The complete change list is `proof/changed_files_round4.txt`.
+No production files, gameplay timing, commits, peer review or publication are
+part of this round. The director owns the new native reel and art judgment.
 
-The director merged phase 2a externally; all canonical supplied inputs are now
-present. The director's native rest probe passed and reel
-`/private/tmp/rr-02-mq3-render-v02` was reviewed for correct motion/mapping.
-Its hashes independently verified before this fill. Those captures are now
-historical evidence; phase 2b needs a fresh reel. The provided
-`proof/native_rest_result.json` is preserved unchanged.
-
-All phase-2b changes remain uncommitted at HEAD `528518258`.
-The complete file list is `proof/changed_files_phase2b.txt`.
-No production integration, motion change, commit, peer review or publication
-was performed in phase 2b. The director owns art acceptance and may replace
-individual generated fills with painted material later.
+The v03 reel and native proof passed before this round, per director review.
+They are historical evidence after these changes. A fresh v04 reel is required;
+no windowed process was launched in this sandbox. `proof/native_rest_result.json`
+and preceding proof logs remain untouched. Pre-round4 request PNGs, 4× copies,
+request sheet and provenance are preserved byte-for-byte in `provenance/round3/`
+(182 archived files verified by its manifest).
 
 ## Requirement status
 
-| Feedback | Implementation and evidence | Remaining work |
+| Requirement | Result | Evidence |
 | --- | --- | --- |
-| 1. Deterministic hidden fill | `maquette_cutout.py fill-hidden`; recorded harmonic diffusion, seeded k-means and one-pixel outline; all 41 hidden regions filled, including three recorded cross-view donors; all rest-visible RGBA and part alpha unchanged | Director judges the native reel |
-| 2. Provenance | 42 per-request records in `hidden_fills/index.json`, method recipe, palette/counts/digests, native previews and contact sheet; original request PNGs remain byte-identical | None |
-| 3. Fresh proof | Rest identity, validation and all 318 motion samples refreshed; all five clip exposures remain measured for every request | Windowed v03 reel and director judgment |
+| Material ownership | Front pelvis 71, far thigh 174 and near thigh 67 tabard-like pixels reassigned; all three rear counts are zero, with no rear material reassignment | `proof/*_ownership_cleanup.json` |
+| Trouser fill | Six pelvis/thigh regions use only view-specific trousers core and remaining original own-visible donors; every hidden-region median is within DeltaE76 12 | `hidden_fills/index.json`, table below |
+| Exact rest and order | Both views differ by 0 RGBA pixels; all 35,381 visible pixels retain their original rest draw depth | `proof/rest_identity.json`, `proof/round4_audit.json` |
+| Detached islands | 98 front and 76 rear component pixels moved; no deletion or forced retention; no remaining detached component below 12px in a complete logical part | Per-part table and cleanup reports |
+| Rear strike/pin layers | All upper/fore/hand fist paint behind torso and head, with internal arm order preserved; front and other clips retain default depths | Actual node depths in `proof/motion_samples.json` |
+| Complete motion scope | Seven clips in both views, 458 sampled poses and 294 per-request clip exposure records | `cutout.json`, motion samples, paint plan |
+| Hidden paint | 39 filled requests / 34,254 pixels; three empty requests; zero magenta in all 134 runtime images | `hidden_fills/contact_sheet.png`, round4 audit |
+| Native art proof | Ready for director capture and judgment | v04 commands below |
 
-| Maquette cloth | Production part/bone | Parent, both views |
-| --- | --- | --- |
-| `tabard` | `tabard` | `pelvis` |
-| `coat_near` | `coat_fist` | `pelvis` |
-| `coat_far` | `coat_hook` | `pelvis` |
+There are 23 joints per view, 76 front and 58 rear paint/support nodes, zero
+meshes and no unmaterialized logical parts. Additional nodes preserve original
+rest depth after ownership transfers and articulate the existing chain paint.
+Rigid cloth remains `tabard → tabard`, `coat_near → coat_fist`,
+`coat_far → coat_hook`, with all three bones parented to pelvis as in production.
+No design TODOs remain. Art status is `hidden_filled_pending_director_review`.
 
-The case has 21 joints per view, 41 painted/support nodes in front and 40 in
-rear, zero meshes, and no unmaterialized logical parts. Support nodes are
-camera-depth-ordered underlays below the exact visible partition;
-intersecting proxy surfaces cannot be represented by one depth per whole part.
-Their motion exposes the filled material without changing rest ownership.
+## Material and ownership recipe
 
-## Artifacts
+`recipes/rig.json.ownership_cleanup` records the director's material thresholds.
+The front tabard reference uses pixels at least 4px inside its registered
+maquette label. Each view's trousers reference uses the near-thigh core after
+excluding pixels within DeltaE76 20 of the tabard median. Medians are RGB medians
+converted using the art gate's D65 sRGB-to-Lab function. Measured references:
+front tabard `(84,28,24)`, front trousers `(69,54,49.5)`, rear trousers `(53,40,37)`.
+The tabard is front-only, so both views use the front reference for classification.
 
-- `source/maquette_manifest.json`: all expected renders and their digests.
-- `registered/`: maps, all solos, joints and exact processing transforms.
-- `proof/front_rest_3x.png`, `proof/rear_rest_3x.png`,
-  `proof/front_ownership_3x.png`, `proof/rear_ownership_3x.png`: rest assemblies
-  and flat part ownership at 3× nearest; inspected as diagnostic images.
-- `proof/front_registered_inputs.png`, `proof/rear_registered_inputs.png`:
-  inspected contact sheets containing every supplied map and solo at registration size.
-- `hidden_requests/contact_sheet.png`: all 42 requests in exposure order.
-- `hidden_requests/paint_plan.md`: the same order, with native/4× links,
-  hidden area, bounds, exposure per motion and neighbouring materials.
-- `hidden_requests/index.json`: measured counts and all five clip records for
-  every part. Two requests have zero peak exposure (both hooks); these are
-  measured zeros. The front hook has zero hidden pixels; rear has one.
-- `proof/motion_samples.json`: actual Skeleton2D matrices, bound to input
-  digests. Exposure uses nearest CPU mask rasterization, not native captures.
+The material transfer precedes component cleanup and hidden fill. Each visible
+piece keeps its original depth in `rest_depth_source`, while its new logical
+owner determines its bone. `registered/*_original_owners.npy` retains the original
+partition; current owners, hidden masks and trousers masks are separately saved.
+Fill recomputes cleanup from the source and rejects inconsistent stored masks.
 
-Ownership still flags seven front parts above 15% reassignment: thigh_near
-19.1%, shin_near 21.7%, thigh_far 33.5%, shin_far 31.9%, foot_far 20.5%, chain
-57.0%, hook 71.1%. Five rear parts are flagged: coat_near 16.8%, foot_near
-47.7%, foot_far 61.7%, chain 68.3%, hook 76.0%. No manual ownership correction
-of the approved rest paint was made. Small neighbouring-region counts are retained faithfully
-from that categorical ownership; the paint plan does not invent hidden anatomy.
+Pelvis/thigh donor pixels exclude coat, tabard and cross-view sources. The
+remaining original own-visible pixels and trousers core form the seeded k=6
+palette. Hidden interiors use only sampled palette centroids within DeltaE76 12
+of the reference. The one-pixel outline remains `(20,16,21)`; its pixels are
+included in the final median check. Visible RGBA never changes.
 
-## Hidden fill and provenance
+| Filled region | Hidden pixels | Hidden RGB median | DeltaE76 to trousers |
+| --- | ---: | --- | ---: |
+| `front/thigh_near` | 1,626 | `(47.0, 38.0, 36.0)` | 8.621 |
+| `front/thigh_far` | 2,186 | `(58.0, 46.0, 42.0)` | 4.195 |
+| `rear/thigh_far` | 2,063 | `(36.0, 26.0, 27.0)` | 7.650 |
+| `rear/thigh_near` | 1,283 | `(38.0, 27.0, 27.0)` | 6.764 |
+| `rear/pelvis` | 1,720 | `(35.0, 25.0, 26.0)` | 8.101 |
+| `front/pelvis` | 2,051 | `(48.0, 34.0, 32.0)` | 9.387 |
 
-`recipes/hidden_fill.json` records the method and algorithm parameters.
-`hidden_fills/index.json` records each part's material, palette, palette source,
-visible/hidden/donor/outline counts, donor IDs, solver metrics, source/request/
-mask/pixel/output digests and status. `hidden_fills/contact_sheet.png` shows all
-42 results at native resolution. The original requests, 4× images, paint plan
-and request sheet remain provenance; they deliberately still show magenta.
+## Detached-component report
 
-Same-material means an exact match to the material descriptions in the paint
-plan and rig recipe. Diffusion fixes the part's own visible RGB and listed
-matching neighbours' visible RGB. Feedback 3 enables `--cross-view-fallback`:
-when a part has fewer than 40 visible pixels and no matching local neighbour,
-use the same part's visible RGB in the paired view for palette and diffusion.
-This decision is recorded in `recipes/hidden_fill.json`; reruns retain it.
-Cross-view donor pixels keep their registered native coordinates without
-resizing or mirroring, and target-visible paint takes priority. Unrelated
-materials and background remain unknown values. Six clusters
-are requested (or fewer if fewer distinct input colors exist). The outline is
-applied only to hidden pixels on the four-connected edge of the whole part.
-It does not outline the seam between visible and hidden paint or delete alpha.
+The complete part mask combines visible pixels and hidden support. Components
+use 8-connectivity; the largest is exempt and only components below 12px are
+considered. A component moves to the rest-painted neighbour with the most
+shared four-connected boundary edges; ties use label order. Moves are computed
+from one snapshot. Unattached hidden-only islands may be deleted if the complete
+visible partition still covers rest; unattached visible islands stay and are
+reported. Neither exceptional case occurred here. Counts below include visible
+and hidden pixels; component bounds, targets and visible counts are in the
+per-view cleanup JSON files.
 
-Rerunning the command produces identical outputs. All inputs are checked before
-writing fills, and the tool refuses to overwrite hidden files that differ from
-the previous generated output digest, protecting later manual replacements.
-Art status is `hidden_filled_pending_director_review`; numerical completion
-does not approve the art. `proof/feedback3_audit.json` confirms that only the
-three approved rear underlays changed from the previous fill, all 249 protected
-files remain byte-identical, and all 81 runtime images contain zero magenta.
+| Part | Front pixels moved | Rear pixels moved |
+| --- | ---: | ---: |
+| `head` | 8 | 5 |
+| `torso` | 1 | 3 |
+| `pelvis` | 0 | 0 |
+| `belt` | 5 | 3 |
+| `tabard` | 11 | 1 |
+| `coat_near` | 16 | 12 |
+| `coat_far` | 0 | 1 |
+| `upper_near` | 0 | 0 |
+| `fore_near` | 1 | 0 |
+| `hand_near` | 0 | 0 |
+| `upper_far` | 1 | 0 |
+| `fore_far` | 7 | 3 |
+| `hand_far` | 0 | 0 |
+| `thigh_near` | 0 | 0 |
+| `shin_near` | 4 | 0 |
+| `foot_near` | 3 | 0 |
+| `thigh_far` | 0 | 0 |
+| `shin_far` | 13 | 5 |
+| `foot_far` | 27 | 35 |
+| `chain` | 1 | 8 |
+| `hook` | 0 | 0 |
 
-## Checks
+After cleanup, the front far-foot sole is `(113.5,229)` instead of
+`(188.5,238)`: the old bottommost measurement selected a detached speck near the
+other boot. The cleaned foot contour now supplies the production walk sampler.
+Other sole landmarks are unchanged. Fresh planted-support and foot-target
+checks pass; the v04 front walk is a relevant director inspection point.
 
-Current results are recorded in `proof/*feedback3.log`,
-`proof/hidden_fill_report.json` and `proof/feedback3_audit.json`. Earlier
-phase-2a and initial phase-2b logs remain historical evidence.
+## Motion and layer behavior
 
-- Focused: `Ran 21 tests in 17.596s`, `OK`.
-- Python full suite: `Ran 418 tests in 265.527s`, `OK (skipped=61)`; includes
-  the art identity gate tests.
-- Godot full suite: `FULL SUITE RUNTIME: 752.065 seconds (budget 900 seconds)`,
-  `TEST RESULT: PASS`, exit 0. Logs retain macOS certificate and scene-tree
-  diagnostics plus the ObjectDB exit warning; all program sub-suites pass.
-- Motion: `MAQUETTE_MOTION_SAMPLES: PASS (318 poses)`.
-- Exposure: `MAQUETTE_EXPOSURE: PASS (42 requests; 0 unknown solos)`.
-- Rest identity: `different_pixels: 0`, `pixel_identical: true` for both views.
-- Fill: `ok: true`, `complete: true`; 41 filled requests, one empty request,
-  zero pending requests. Filled hidden pixels: 34,180; outlines: 3,333.
-- Validation with `--protect all`: `"ok": true`, `"errors": []`.
-- `FEEDBACK3_AUDIT: PASS (only 3 approved underlays changed; 249 protected files unchanged; 0 magenta pixels across 81 runtime images)`.
-- `FEEDBACK3_PRESERVATION: PASS (41 hidden alpha masks, all motion transforms and all exposure records unchanged)`.
-- Historical v02 proof is stale after filling. No phase-2b native capture or
-  reel is claimed; use the fresh v03 commands below.
+The copied production `gaoler_motion.gd` remains byte-identical. The case adapter
+maps the maquette chain to production `chain_a`, and adds real `chain_b/c` joints
+at production link fractions mapped onto the registered chain-to-hook axis.
+The existing visible and hidden chain paint is partitioned at those fractions.
+The hook retains its registered endpoint. No motion curves or poses are invented.
 
-## Resolved donor decisions
+Rear `strike` and `manacle_pin` shift the entire fist-arm layer group below the
+lowest torso/head paint layer. The same shift applies to every arm piece,
+preserving its internal order. Front and other clips retain their prior static
+depths. Samples read actual Sprite2D depths, assert these contracts and use the
+same order for exposure. Exposure sums all support pieces of a logical part.
 
-No `TODO_DESIGN` placeholders remain in the current case. The director's
-feedback 3 approves this fallback only for sparse parts without local
-same-material neighbours. Both palette and inpaint donors are recorded per
-request under `cross_view_donor`, with source/ownership digests and pixel counts.
+| Clip | Duration | Diagnostic frames per view |
+| --- | ---: | ---: |
+| idle | 1.6 s | 24 |
+| walk | 0.64 s | 48 |
+| strike | 0.24 s | 31 |
+| hit | 0.36 s | 24 |
+| death | 1.036 s, settlement at 62% | 32 |
+| chain_reel | 0.24 s | 31 |
+| manacle_pin | 0.57 s | 39 |
 
-| Target | Own visible pixels | Hidden pixels | Cross-view donor | Donor visible pixels |
-| --- | ---: | ---: | --- | ---: |
-| `rear/thigh_far` | 7 | 2,063 | `front/thigh_far` | 188 |
-| `rear/hand_near` | 0 | 594 | `front/hand_near` | 448 |
-| `rear/tabard` | 10 | 1,206 | `front/tabard` | 1,394 |
+Reel timing uses the existing RunScene 6 × 0.04s attack clock. Pin uses
+AttackFxLibrary's 38 × 0.015s air clock. Its 39 endpoint-inclusive samples capture
+release at 4/38 and contact at 12/38 exactly. These frame counts are proof defaults.
+All seven clips will appear in each view of `cutout_review.mp4`.
 
-The other 38 filled underlay PNGs are byte-identical to the preceding fill.
-Original request images retain magenta for provenance. Rigid cloth, visible
-paint, source assets, alpha masks, skeletons and motion timing are unchanged.
+## Fill provenance and checks
 
-## Chosen defaults
+The unchanged deterministic diffusion defaults are radius 3, palette k=6,
+seed 0, k-means cap 256, diffusion cap 4,096, residual tolerance 1e-6,
+four-neighbour harmonic diffusion with reflecting borders, 40 own pixels for
+the generic palette fallback, and outline `(20,16,21)`. Material thresholds
+4px / DeltaE20 / DeltaE12 and component cutoff 12px come from round4 director data.
+Border counting, tie order, chain pixel-centre partitioning and new diagnostic
+frame counts are recorded procedural choices. Other proof defaults remain
+five sheet columns, 28px captions, alpha threshold 128, 0.02px joint tolerance,
+512px pose canvas and eight native keyframes per clip. Headless tolerances remain
+0.001 rigid basis, 0.2px foot target and 0.02px planted support.
 
-Feedback 3 introduces no new numeric defaults; it uses the recorded fill values
-and the existing registered native coordinates. Gameplay and motion timing remain production-derived.
+Generic parts still use own visible paint and listed exact same-material
+neighbours. The previously approved same-part cross-view fallback applies when
+own count is below 40 and no local matching neighbour remains after cleanup:
 
-- `PROOF_DEFAULTS`: five sheet columns, 28px captions, alpha threshold 128,
-  joint rounding tolerance 0.02px and four-connected material neighbours.
-  Native 255px registration, 3×/4× images, 512px action canvas and eight
-  keyframes per clip come from the brief/workflow.
-- `recipes/rig.json.proof_defaults`: sample counts idle 24, walk 48, strike 31,
-  hit 24, death 32, one proof cycle. The obsolete skin grid was removed.
-- `FILL_DEFAULTS`: fixed seed 0, k-means iteration cap 256; diffusion iteration
-  cap 4,096 and absolute residual tolerance 1e-6. Deterministic weighted RGB
-  k-means++ initialization, four-neighbour harmonic diffusion, reflecting
-  boundaries and a donor/target domain padded by 3px. The director specified
-  radius 3, palette k=6, the 40px fallback threshold and outline `(20,16,21)`.
-- Native diagnostic origins `(80,160)` and `(1000,160)` on 1920×1080; existing
-  default font for contact-sheet captions. Only the expressly requested hidden pixels were filled; fonts/audio are unchanged.
-- Headless tolerances: rigid basis 0.001, foot target 0.2px, planted support
-  0.02px. Default runner timeouts; documented 900 seconds for the full suite.
+| Request | Own visible pixels | Paired donor | Donor pixels |
+| --- | ---: | --- | ---: |
+| `rear/fore_near` | 0 | `front/fore_near` | 508 |
+| `rear/hand_near` | 0 | `front/hand_near` | 455 |
+| `rear/tabard` | 9 | `front/tabard` | 1713 |
 
-Playback: idle 1.6s, walk 0.64s, strike 6×0.04s, hit 0.36s; death 28×0.037s
-with settlement at 62% of the existing dissolve clock. Move/attack/hurt use the
-existing clip names walk/strike/hit. Chain Reel/Manacle Pin remain outside the
-requested five-clip proof; no extra chain topology or timing was invented.
+The two hooks and front tabard now have no hidden pixels. Every request retains
+an explicit measured record. Current request images deliberately show magenta
+as the fill masks; runtime images contain none. `hidden_fills/index.json` records
+all palettes, eligible quantization colors, donors, conditioning masks, counts,
+solver results and per-output digests, including split chain outputs. Reruns are
+identical and refuse to overwrite later manual paint. Original source files are
+unchanged (`proof/round4_source_audit.json`).
 
-## Repeat and verify headlessly
+- Focused tests: 28 tests, 9.889s, OK (`proof/focused_round4.log`).
+- Art gate: 49 tests, 13.790s, OK (`proof/art_gate_round4.log`).
+- Python full suite: 425 tests in 242.496s, OK (skipped=61), exit 0 (`proof/python_suite_round4.log`).
+- Godot full suite: `FULL SUITE RUNTIME: 672.734 seconds (budget 900 seconds)`, `TEST RESULT: PASS`, exit 0 (`proof/godot_suite_round4.log`). Logs retain macOS certificate, scene-tree/resource diagnostics and the ObjectDB exit warning; all program sub-suites pass.
+- Fresh self-contained rebuild: all 369 derived files, 458 pose records and 42 request/fill records match exactly (`proof/rebuild_round4.json`).
+- Motion: `MAQUETTE_MOTION_SAMPLES: PASS (458 poses)`.
+- Exposure: 42 measured requests, zero unknown solos, seven clips per request.
+- Validation with `--protect all`: `ok: true`, no errors.
+- Rest: front 0, rear 0 differing pixels; audit zero magenta and exact rest depth.
+- New full fill sheet inspected as a diagnostic at native presentation size;
+  native v04 motion inspection remains the director's step.
 
-All commands start from this worktree. Use a fresh output case for regeneration;
-completed cases are deliberately not overwritten by the build CLI. The
-[From a maquette command](../../../../spec/cutout_workflow.md#from-a-maquette)
-uses the canonical supplied inputs. The following rebuild uses the exact
-self-contained copies and does not need Blender:
+## Rebuild and headless verification
+
+Use a fresh case path; the build command deliberately does not overwrite a
+completed case. These commands use the exact self-contained source copies:
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-02 && python3 tools/maquette_cutout.py --spec experiments/cutouts/chainbound_gaoler/mq3/source/spec.json --front-job experiments/cutouts/chainbound_gaoler/mq3/source/front --rear-job experiments/cutouts/chainbound_gaoler/mq3/source/rear --renders experiments/cutouts/chainbound_gaoler/mq3/source/maquette --rig-recipe experiments/cutouts/chainbound_gaoler/mq3/recipes/rig.json --case experiments/cutouts/chainbound_gaoler/mq3_repeat --task-id rr-02
-cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-02 && python3 tools/maquette_cutout.py fill-hidden --case experiments/cutouts/chainbound_gaoler/mq3_repeat --task-id rr-02 --cross-view-fallback
+cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-02
+python3 tools/maquette_cutout.py --spec experiments/cutouts/chainbound_gaoler/mq3/source/spec.json --front-job experiments/cutouts/chainbound_gaoler/mq3/source/front --rear-job experiments/cutouts/chainbound_gaoler/mq3/source/rear --renders experiments/cutouts/chainbound_gaoler/mq3/source/maquette --palette experiments/cutouts/chainbound_gaoler/mq3/source/label_palette.json --rig-recipe experiments/cutouts/chainbound_gaoler/mq3/recipes/rig.json --case /private/tmp/rr-02-mq3-rebuild-v04 --task-id rr-02
+python3 tools/maquette_cutout.py fill-hidden --case /private/tmp/rr-02-mq3-rebuild-v04 --task-id rr-02 --cross-view-fallback
 ```
 
-To reapply or verify the current case:
+For the current case:
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-02 && python3 tools/maquette_cutout.py fill-hidden --case experiments/cutouts/chainbound_gaoler/mq3 --task-id rr-02
-cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-02 && python3 tests/test_maquette_cutout.py
-cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-02 && python3 tools/cutout_workflow.py validate experiments/cutouts/chainbound_gaoler/mq3 --protect all
-cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-02 && python3 tools/godot_task_runner.py --task-id rr-02 --stream -- godot --headless --path . --script experiments/cutouts/chainbound_gaoler/mq3/probes/motion_samples.gd -- --case /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/cutout.json --output /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/proof/motion_samples.json
-cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-02 && python3 experiments/cutouts/chainbound_gaoler/mq3/probes/proof.py --case experiments/cutouts/chainbound_gaoler/mq3 --samples experiments/cutouts/chainbound_gaoler/mq3/proof/motion_samples.json
+python3 tests/test_maquette_cutout.py
+python3 tests/test_art_identity_gate.py
+python3 tools/cutout_workflow.py validate experiments/cutouts/chainbound_gaoler/mq3 --protect all
+python3 tools/maquette_cutout.py fill-hidden --case experiments/cutouts/chainbound_gaoler/mq3 --task-id rr-02
 ```
 
-## Proof for the design owner
+## Windowed v04 capture and director review
 
-These phase-2b windowed commands were **not run**; the sandbox has no window-server access. They use the required runners at
-1920×1080, 100% UI scale. Use a fresh output name on subsequent runs.
+Run from the worktree in a window-server session. The new native-rest manifest
+preserves all previous director-supplied results; the v04 directory must be fresh.
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-02 && python3 tools/visual_probe_runner.py experiments/cutouts/chainbound_gaoler/mq3/probes/native_rest.gd --task-id rr-02 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --expect-size 255x255 --proof-contract experiments/cutouts/chainbound_gaoler/mq3/probes/rest_contract.json --result-manifest experiments/cutouts/chainbound_gaoler/mq3/proof/native_rest_phase2b_result.json -- --case /Users/borgerding/workspace/Labyrinth.worktrees/rr-02/experiments/cutouts/chainbound_gaoler/mq3/cutout.json
-cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-02 && python3 tools/cutout_workflow.py render experiments/cutouts/chainbound_gaoler/mq3 --output /private/tmp/rr-02-mq3-render-v03 --task-id rr-02
-cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-02 && python3 tools/cutout_workflow.py verify-render experiments/cutouts/chainbound_gaoler/mq3 --output /private/tmp/rr-02-mq3-render-v03
-cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-02 && python3 experiments/cutouts/chainbound_gaoler/mq3/probes/proof.py --case experiments/cutouts/chainbound_gaoler/mq3 --native-output /private/tmp/rr-02-mq3-render-v03
+cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-02
+case_dir="$PWD/experiments/cutouts/chainbound_gaoler/mq3"
+capture_dir=/private/tmp/rr-02-mq3-render-v04
+python3 tools/visual_probe_runner.py "$case_dir/probes/native_rest.gd" --task-id rr-02 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --expect-size 255x255 --proof-contract "$case_dir/probes/rest_contract.json" --result-manifest "$case_dir/proof/native_rest_round4_result.json" -- --case "$case_dir/cutout.json"
+python3 tools/cutout_workflow.py render "$case_dir" --output "$capture_dir" --task-id rr-02
+python3 tools/cutout_workflow.py verify-render "$case_dir" --output "$capture_dir"
+python3 "$case_dir/probes/proof.py" --case "$case_dir" --native-output "$capture_dir"
 ```
 
-Expected reel: `/private/tmp/rr-02-mq3-render-v03/videos/cutout_review.mp4`.
-Expected eight-frame sheets: `proof/native_keyframes/<view>_<clip>_8frames.png`.
-The rest probe writes native rests and rest/ownership captures under isolated
-`user://probes/maquette_rest`; its result manifest lists the exact paths.
-The collector verifies hashes and native RGBA equality before writing sheets.
-`inspection_fixture.py` is not applicable until production integration: a
-playable game fixture would still show the production rig.
+Expected reel: `/private/tmp/rr-02-mq3-render-v04/videos/cutout_review.mp4`.
+The collector requires byte-identical native rest and produces eight-frame
+sheets for every rendered clip/view. Inspect the front/rear walk for red smears
+and detached specks, rear strike/pin for shoulder occlusion, and the two added
+clips for complete scope. Numerical proof is not a substitute for this art
+judgment. A gameplay inspection fixture is not applicable before integration.

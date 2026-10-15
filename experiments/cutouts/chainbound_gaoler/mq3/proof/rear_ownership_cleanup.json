@@ -1,0 +1,729 @@
+{
+  "material_transfers": {
+    "pelvis": {
+      "tabard_like_pixels": 0,
+      "moved_to_tabard": 0,
+      "rear_unchanged": 0
+    },
+    "thigh_far": {
+      "tabard_like_pixels": 0,
+      "moved_to_tabard": 0,
+      "rear_unchanged": 0
+    },
+    "thigh_near": {
+      "tabard_like_pixels": 0,
+      "moved_to_tabard": 0,
+      "rear_unchanged": 0
+    }
+  },
+  "specks": {
+    "head": {
+      "components": 3,
+      "small_components": [
+        {
+          "pixels": 3,
+          "visible_pixels": 3,
+          "bbox": [
+            76,
+            166,
+            77,
+            169
+          ],
+          "shared_border_edges": 4,
+          "action": "move",
+          "target": "thigh_near"
+        },
+        {
+          "pixels": 2,
+          "visible_pixels": 2,
+          "bbox": [
+            75,
+            144,
+            76,
+            146
+          ],
+          "shared_border_edges": 3,
+          "action": "move",
+          "target": "coat_near"
+        }
+      ],
+      "move_pixels": 5,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "torso": {
+      "components": 4,
+      "small_components": [
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            77,
+            139,
+            78,
+            140
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "pelvis"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            82,
+            149,
+            83,
+            150
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "pelvis"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            103,
+            160,
+            104,
+            161
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "pelvis"
+        }
+      ],
+      "move_pixels": 3,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "pelvis": {
+      "components": 1,
+      "small_components": [],
+      "move_pixels": 0,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "belt": {
+      "components": 2,
+      "small_components": [
+        {
+          "pixels": 3,
+          "visible_pixels": 3,
+          "bbox": [
+            83,
+            150,
+            86,
+            153
+          ],
+          "shared_border_edges": 6,
+          "action": "move",
+          "target": "pelvis"
+        }
+      ],
+      "move_pixels": 3,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "tabard": {
+      "components": 2,
+      "small_components": [
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            71,
+            106,
+            72,
+            107
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "torso"
+        }
+      ],
+      "move_pixels": 1,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "coat_near": {
+      "components": 12,
+      "small_components": [
+        {
+          "pixels": 2,
+          "visible_pixels": 2,
+          "bbox": [
+            138,
+            66,
+            140,
+            67
+          ],
+          "shared_border_edges": 3,
+          "action": "move",
+          "target": "torso"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            95,
+            62,
+            96,
+            63
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "torso"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            129,
+            65,
+            130,
+            66
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "head"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            104,
+            66,
+            105,
+            67
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "head"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            126,
+            66,
+            127,
+            67
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "head"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            124,
+            67,
+            125,
+            68
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "head"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            122,
+            68,
+            123,
+            69
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "head"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            116,
+            71,
+            117,
+            72
+          ],
+          "shared_border_edges": 3,
+          "action": "move",
+          "target": "torso"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            140,
+            207,
+            141,
+            208
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "coat_far"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            131,
+            212,
+            132,
+            213
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "coat_far"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            120,
+            218,
+            121,
+            219
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "coat_far"
+        }
+      ],
+      "move_pixels": 12,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "coat_far": {
+      "components": 4,
+      "small_components": [
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            67,
+            130,
+            68,
+            131
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "belt"
+        }
+      ],
+      "move_pixels": 1,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "upper_near": {
+      "components": 1,
+      "small_components": [],
+      "move_pixels": 0,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "fore_near": {
+      "components": 1,
+      "small_components": [],
+      "move_pixels": 0,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "hand_near": {
+      "components": 1,
+      "small_components": [],
+      "move_pixels": 0,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "upper_far": {
+      "components": 1,
+      "small_components": [],
+      "move_pixels": 0,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "fore_far": {
+      "components": 4,
+      "small_components": [
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            80,
+            66,
+            81,
+            67
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "torso"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            75,
+            74,
+            76,
+            75
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "torso"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            70,
+            100,
+            71,
+            101
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "torso"
+        }
+      ],
+      "move_pixels": 3,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "hand_far": {
+      "components": 1,
+      "small_components": [],
+      "move_pixels": 0,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "thigh_near": {
+      "components": 1,
+      "small_components": [],
+      "move_pixels": 0,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "shin_near": {
+      "components": 2,
+      "small_components": [],
+      "move_pixels": 0,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "foot_near": {
+      "components": 1,
+      "small_components": [],
+      "move_pixels": 0,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "thigh_far": {
+      "components": 1,
+      "small_components": [],
+      "move_pixels": 0,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "shin_far": {
+      "components": 6,
+      "small_components": [
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            77,
+            140,
+            78,
+            141
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "thigh_near"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            89,
+            155,
+            90,
+            156
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "pelvis"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            95,
+            158,
+            96,
+            159
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "pelvis"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            98,
+            159,
+            99,
+            160
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "pelvis"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            102,
+            160,
+            103,
+            161
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "thigh_near"
+        }
+      ],
+      "move_pixels": 5,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "foot_far": {
+      "components": 14,
+      "small_components": [
+        {
+          "pixels": 7,
+          "visible_pixels": 7,
+          "bbox": [
+            102,
+            184,
+            105,
+            187
+          ],
+          "shared_border_edges": 9,
+          "action": "move",
+          "target": "shin_near"
+        },
+        {
+          "pixels": 6,
+          "visible_pixels": 6,
+          "bbox": [
+            98,
+            197,
+            101,
+            199
+          ],
+          "shared_border_edges": 6,
+          "action": "move",
+          "target": "shin_near"
+        },
+        {
+          "pixels": 5,
+          "visible_pixels": 5,
+          "bbox": [
+            75,
+            139,
+            76,
+            144
+          ],
+          "shared_border_edges": 6,
+          "action": "move",
+          "target": "thigh_near"
+        },
+        {
+          "pixels": 4,
+          "visible_pixels": 4,
+          "bbox": [
+            102,
+            178,
+            106,
+            180
+          ],
+          "shared_border_edges": 9,
+          "action": "move",
+          "target": "shin_near"
+        },
+        {
+          "pixels": 4,
+          "visible_pixels": 4,
+          "bbox": [
+            99,
+            194,
+            101,
+            196
+          ],
+          "shared_border_edges": 6,
+          "action": "move",
+          "target": "shin_near"
+        },
+        {
+          "pixels": 3,
+          "visible_pixels": 3,
+          "bbox": [
+            76,
+            163,
+            77,
+            166
+          ],
+          "shared_border_edges": 4,
+          "action": "move",
+          "target": "thigh_near"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            77,
+            71,
+            78,
+            72
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "torso"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            78,
+            175,
+            79,
+            176
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "thigh_near"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            98,
+            180,
+            99,
+            181
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "thigh_near"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            142,
+            206,
+            143,
+            207
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "coat_far"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            133,
+            211,
+            134,
+            212
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "coat_far"
+        },
+        {
+          "pixels": 1,
+          "visible_pixels": 1,
+          "bbox": [
+            122,
+            217,
+            123,
+            218
+          ],
+          "shared_border_edges": 2,
+          "action": "move",
+          "target": "coat_far"
+        }
+      ],
+      "move_pixels": 35,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "chain": {
+      "components": 3,
+      "small_components": [
+        {
+          "pixels": 8,
+          "visible_pixels": 8,
+          "bbox": [
+            214,
+            206,
+            216,
+            211
+          ],
+          "shared_border_edges": 9,
+          "action": "move",
+          "target": "hook"
+        }
+      ],
+      "move_pixels": 8,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    },
+    "hook": {
+      "components": 1,
+      "small_components": [],
+      "move_pixels": 0,
+      "delete_pixels": 0,
+      "keep_pixels": 0
+    }
+  },
+  "materials": {
+    "tabard_cloth": {
+      "view": "front",
+      "core_pixels": 925,
+      "median_rgb": [
+        84.0,
+        28.0,
+        24.0
+      ],
+      "median_lab": [
+        19.145728697838358,
+        25.78666468777341,
+        16.365422306468417
+      ]
+    },
+    "trousers": {
+      "view": "rear",
+      "core_pixels": 374,
+      "mask_sha256": "4fb75cafa5f48b6d2fa4740e0f3490bcd87bd679f09950422d11d0af3fc2e9c3",
+      "median_rgb": [
+        53.0,
+        40.0,
+        37.0
+      ],
+      "median_lab": [
+        17.497508395737036,
+        5.509878692019354,
+        4.289213673519832
+      ]
+    }
+  }
+}

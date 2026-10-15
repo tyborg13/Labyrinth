@@ -59,6 +59,16 @@
           1
         ]
       ]
+    },
+    "chain_reel": {
+      "frames": 31,
+      "duration": 0.24,
+      "loop": false
+    },
+    "manacle_pin": {
+      "frames": 39,
+      "duration": 0.57,
+      "loop": false
     }
   },
   "rigid_bones": [
@@ -87,7 +97,29 @@
     "recipes/rear_ownership.json",
     "recipes/rig.json",
     "registered/front_clay.png",
+    "registered/front_hidden_belt.npy",
+    "registered/front_hidden_chain.npy",
+    "registered/front_hidden_coat_far.npy",
+    "registered/front_hidden_coat_near.npy",
+    "registered/front_hidden_foot_far.npy",
+    "registered/front_hidden_foot_near.npy",
+    "registered/front_hidden_fore_far.npy",
+    "registered/front_hidden_fore_near.npy",
+    "registered/front_hidden_hand_far.npy",
+    "registered/front_hidden_hand_near.npy",
+    "registered/front_hidden_head.npy",
+    "registered/front_hidden_hook.npy",
+    "registered/front_hidden_pelvis.npy",
+    "registered/front_hidden_shin_far.npy",
+    "registered/front_hidden_shin_near.npy",
+    "registered/front_hidden_tabard.npy",
+    "registered/front_hidden_thigh_far.npy",
+    "registered/front_hidden_thigh_near.npy",
+    "registered/front_hidden_torso.npy",
+    "registered/front_hidden_upper_far.npy",
+    "registered/front_hidden_upper_near.npy",
     "registered/front_joints_px.json",
+    "registered/front_original_owners.npy",
     "registered/front_owners.npy",
     "registered/front_parts.png",
     "registered/front_registration.json",
@@ -112,8 +144,31 @@
     "registered/front_solo_torso.png",
     "registered/front_solo_upper_far.png",
     "registered/front_solo_upper_near.png",
+    "registered/front_trousers.npy",
     "registered/rear_clay.png",
+    "registered/rear_hidden_belt.npy",
+    "registered/rear_hidden_chain.npy",
+    "registered/rear_hidden_coat_far.npy",
+    "registered/rear_hidden_coat_near.npy",
+    "registered/rear_hidden_foot_far.npy",
+    "registered/rear_hidden_foot_near.npy",
+    "registered/rear_hidden_fore_far.npy",
+    "registered/rear_hidden_fore_near.npy",
+    "registered/rear_hidden_hand_far.npy",
+    "registered/rear_hidden_hand_near.npy",
+    "registered/rear_hidden_head.npy",
+    "registered/rear_hidden_hook.npy",
+    "registered/rear_hidden_pelvis.npy",
+    "registered/rear_hidden_shin_far.npy",
+    "registered/rear_hidden_shin_near.npy",
+    "registered/rear_hidden_tabard.npy",
+    "registered/rear_hidden_thigh_far.npy",
+    "registered/rear_hidden_thigh_near.npy",
+    "registered/rear_hidden_torso.npy",
+    "registered/rear_hidden_upper_far.npy",
+    "registered/rear_hidden_upper_near.npy",
     "registered/rear_joints_px.json",
+    "registered/rear_original_owners.npy",
     "registered/rear_owners.npy",
     "registered/rear_parts.png",
     "registered/rear_registration.json",
@@ -138,6 +193,7 @@
     "registered/rear_solo_torso.png",
     "registered/rear_solo_upper_far.png",
     "registered/rear_solo_upper_near.png",
+    "registered/rear_trousers.npy",
     "source/front/kit.json",
     "source/front/processed.json",
     "source/front/processed.png",
@@ -209,6 +265,14 @@
     "production_integration": false
   },
   "design_placeholders": {},
+  "draw_order_parts": {
+    "rear": [
+      "upper_near",
+      "hidden_upper_near",
+      "fore_near",
+      "hand_near"
+    ]
+  },
   "hidden_fill": {
     "recipe": "recipes/hidden_fill.json",
     "manifest": "hidden_fills/index.json",

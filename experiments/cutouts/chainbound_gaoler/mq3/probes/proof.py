@@ -66,15 +66,16 @@ def exposure(root, samples_path):
         # Final painted ownership after the SAME ordered layers used by the rig.
         size = PROOF_DEFAULTS["pose_canvas"]
         visible = np.full((size, size), -1, dtype=np.int16)
-        parts = sorted(layout["parts"], key=lambda p: p["z_index"])
+        parts = sorted(layout["parts"], key=lambda p: sample["draw_order"][p["name"]])
         for number, part in enumerate(parts):
             visible[transform_mask(root, part, layout, sample["bones"], meshes.get(part["name"]))] = number
         counts = np.bincount(visible[visible >= 0], minlength=len(parts))
+        logical_counts = {}
         for number, part in enumerate(parts):
-            if not part.get("hidden_material"):
-                continue
-            count = int(counts[number])
-            name = part.get("logical_part", part["name"])
+            if part.get("hidden_material"):
+                name = part.get("logical_part", part["name"])
+                logical_counts[name] = logical_counts.get(name, 0) + int(counts[number])
+        for name, count in logical_counts.items():
             record = measures.setdefault((view, name, clip), {"clip": clip, "max_exposed_pixels": 0,
                                                              "frames_exposed": 0, "peak_frame": None})
             if count > record["max_exposed_pixels"]:
@@ -96,7 +97,7 @@ def exposure(root, samples_path):
         request["motions"].sort(key=lambda m: (-m["max_exposed_pixels"], m["clip"]))
     index["requests"].sort(key=lambda r: (r["max_exposed_pixels"] is None, -(r["max_exposed_pixels"] or 0),
                                          -(r["hidden_pixel_count"] or 0), r["view"], r["part"]))
-    index["exposure_basis"] = "Maximum visible hidden pixels over the actual headless sampler frames; Pillow nearest mask rasterization, not renderer proof. Missing solos sort last, never as known zero exposure. All five requested clips sampled."
+    index["exposure_basis"] = "Maximum visible hidden pixels over the actual headless sampler frames; Pillow nearest mask rasterization, not renderer proof. Missing solos sort last, never as known zero exposure. All seven requested clips sampled."
     index["samples_sha256"] = digest(samples_path)
     write_json(root / "hidden_requests/index.json", index)
     contact_sheet([(f"{r['view']}/{r['part']}\n" + (f"hidden={r['hidden_pixel_count']} peak={r['max_exposed_pixels']}" if r["status"] == "measured" else "UNKNOWN: MISSING SOLO"),
@@ -107,7 +108,7 @@ def exposure(root, samples_path):
 
 def paint_plan(root, index):
     lines = ["# Hidden-material paint plan", "",
-             "Sorted by maximum sampled exposure, then hidden area. All five production clips",
+             "Sorted by maximum sampled exposure, then hidden area. All seven production clips",
              "are sampled in each view; a zero means no exposed pixels in those sampled poses.",
              "Exposure uses actual headless Skeleton2D transforms and nearest CPU masks.",
              "It is a painting priority estimate; the native reel remains separate proof.", "",

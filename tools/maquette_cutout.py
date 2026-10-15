@@ -20,7 +20,7 @@ import sys
 import numpy as np
 from PIL import Image, ImageDraw
 
-from art_identity_gate import alpha_bbox, box_binary_sprite, fit_sprite, pixel_digest, silhouette_edge
+from art_identity_gate import alpha_bbox, box_binary_sprite, fit_sprite, pixel_digest, silhouette_edge, to_lab
 from cutout_pipeline.assets import apply_skin, segment
 from cutout_pipeline.cases import (CutoutError, PROJECT, baseline, digest, init_case,
                                    load_case, local_path, read_json, write_json)
@@ -286,6 +286,141 @@ def material_neighbours(hidden: np.ndarray, owners: np.ndarray, part: int, names
     return {"occluding_parts": counts(hidden), "bordering_parts": counts(border)}
 
 
+def label_core(mask: np.ndarray, distance: int) -> np.ndarray:
+    """Euclidean distance to non-label pixels >= distance (pixel centres)."""
+    result = mask.copy()
+    padded = np.pad(mask, distance)
+    h, w = mask.shape
+    for dy in range(-distance + 1, distance):
+        for dx in range(-distance + 1, distance):
+            if dx * dx + dy * dy < distance * distance:
+                result &= padded[distance + dy:distance + dy + h, distance + dx:distance + dx + w]
+    return result
+
+
+def material_reference(root: Path, spec: dict, palette: dict, view: str, policy: dict):
+    names = list(spec["labels"])
+    def source(which):
+        directory = root / "source" / which
+        transform = registration(directory / "raw.png", read_json(directory / "processed.json"))
+        labels = decode_labels(transform.image(Image.open(root / f"source/maquette/{which}_parts.png")),
+                               palette, names, camera_depths(spec, which))
+        paint = np.array(Image.open(directory / "processed.png").convert("RGBA"))
+        return paint, labels
+    # Tabard is front-only: the same front material reference classifies both views.
+    front, front_labels = source("front")
+    tabard = label_core(front_labels == names.index("tabard"), policy["core_distance_px"]) & (front[..., 3] > 0)
+    if not tabard.any():
+        raise CutoutError("Tabard material core is empty")
+    tabard_rgb = np.median(front[tabard, :3], axis=0)
+    tabard_lab = to_lab(tabard_rgb)
+    paint, labels = source(view)
+    trousers = label_core(labels == names.index("thigh_near"), policy["core_distance_px"]) & (paint[..., 3] > 0)
+    trousers &= np.linalg.norm(to_lab(paint[..., :3]) - tabard_lab, axis=-1) > policy["trousers_min_tabard_delta_e"]
+    if not trousers.any():
+        raise CutoutError("Trouser material core is empty: " + view)
+    trousers_rgb = np.median(paint[trousers, :3], axis=0)
+    return trousers, {"tabard_cloth": {"view": "front", "core_pixels": int(tabard.sum()),
+            "median_rgb": tabard_rgb.tolist(), "median_lab": tabard_lab.tolist()},
+        "trousers": {"view": view, "core_pixels": int(trousers.sum()),
+            "mask_sha256": array_digest(trousers), "median_rgb": trousers_rgb.tolist(),
+            "median_lab": to_lab(trousers_rgb).tolist()}}
+
+
+def components8(mask: np.ndarray) -> list[np.ndarray]:
+    remaining = set(zip(*np.nonzero(mask)))
+    result = []
+    while remaining:
+        first = min(remaining)
+        remaining.remove(first)
+        pending, pixels = [first], []
+        while pending:
+            y, x = pending.pop()
+            pixels.append((y, x))
+            for dy in [-1, 0, 1]:
+                for dx in [-1, 0, 1]:
+                    neighbour = (y + dy, x + dx)
+                    if neighbour in remaining:
+                        remaining.remove(neighbour)
+                        pending.append(neighbour)
+        component = np.zeros_like(mask)
+        yy, xx = zip(*pixels)
+        component[yy, xx] = True
+        result.append(component)
+    return sorted(result, key=lambda c: (-int(c.sum()), bbox(c)[1], bbox(c)[0]))
+
+
+def clean_ownership(owners, paint, names, solos, view, material, policy):
+    """Simultaneous speck moves on complete parts (visible plus hidden support).
+
+    Four-connected edge counts select the adjacent rest-painted part. Ties use
+    label order. Unattached hidden-only islands may disappear; visible ones stay.
+    Original ownership is retained separately to preserve every rest draw depth.
+    """
+    owners = owners.copy()
+    report = {"material_transfers": {}, "specks": {}, "materials": material}
+    if material:
+        lab = to_lab(paint[..., :3])
+        red = np.linalg.norm(lab - material["tabard_cloth"]["median_lab"], axis=-1) < np.linalg.norm(lab - material["trousers"]["median_lab"], axis=-1)
+        for name in policy["trouser_parts"]:
+            selected = (owners == names.index(name)) & red
+            report["material_transfers"][name] = {"tabard_like_pixels": int(selected.sum()),
+                "moved_to_tabard": int(selected.sum()) if view == "front" else 0,
+                "rear_unchanged": int(selected.sum()) if view == "rear" else 0}
+            if view == "front":
+                owners[selected] = names.index("tabard")
+    hidden = [hidden_region(solos[name], owners, i)[0] for i, name in enumerate(names)]
+    original, original_hidden = owners.copy(), [m.copy() for m in hidden]
+    for i, name in enumerate(names):
+        complete = (original == i) | original_hidden[i]
+        components = components8(complete)
+        records = []
+        for component in components[1:]:
+            count = int(component.sum())
+            if count >= policy["speck_max_exclusive_px"]:
+                continue
+            border = _adjacent(component.astype(np.int16))
+            border[component] = 0
+            neighbours = [(int(border[original == n].sum()), n) for n in range(len(names)) if n != i]
+            shared, target = max(neighbours, key=lambda value: (value[0], -value[1]))
+            visible = component & (original == i)
+            record = {"pixels": count, "visible_pixels": int(visible.sum()), "bbox": bbox(component), "shared_border_edges": shared}
+            if shared:
+                owners[visible] = target
+                hidden[i][component] = False
+                hidden[target] |= component & (owners != target)
+                record.update(action="move", target=names[target])
+            elif not visible.any():
+                hidden[i][component] = False
+                record.update(action="delete", reason="Hidden-only island; complete visible partition still covers it at rest")
+            else:
+                record.update(action="keep", reason="No adjacent rest-painted part; deleting visible RGBA would break exact rest identity")
+            records.append(record)
+        report["specks"][name] = {"components": len(components), "small_components": records,
+            **{action + "_pixels": sum(r["pixels"] for r in records if r["action"] == action) for action in ["move", "delete", "keep"]}}
+    for i in range(len(names)):
+        hidden[i] &= (owners >= 0) & (owners != i)
+    return owners, hidden, report
+
+
+def chain_partition(root: Path, view: str, bones: dict, recipe: dict):
+    """Map production link fractions onto the registered maquette chain axis."""
+    if not recipe.get("articulated_chain"):
+        return None
+    original = read_json(root / f"source/production/{view}.json")["joints"]
+    origin = np.asarray(original["chain_a"]["position"])
+    axis = np.asarray(original["hook"]["position"]) - origin
+    fractions = [float((np.asarray(original[name]["position"]) - origin) @ axis / (axis @ axis)) for name in ["chain_b", "chain_c"]]
+    start = np.asarray(bones["chain"]["position"])
+    delta = np.asarray(bones["hook"]["position"]) - start
+    for name, fraction, parent in zip(["chain_b", "chain_c"], fractions, ["chain", "chain_b"]):
+        bones[name] = {"position": (start + fraction * delta).tolist(), "parent": parent}
+    bones["hook"]["parent"] = "chain_c"
+    yy, xx = np.indices((NATIVE_SIZE, NATIVE_SIZE))
+    along = (np.stack([xx + .5, yy + .5], axis=-1) - start) @ delta / (delta @ delta)
+    return np.searchsorted(fractions, along, side="right")
+
+
 def bbox(mask: np.ndarray):
     ys, xs = np.nonzero(mask)
     return [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1] if len(xs) else None
@@ -445,6 +580,27 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
     label_image = Image.open(registered / f"{view}_parts.png")
     labels = decode_labels(label_image, palette, names, depths)
     owners, reassigned = nearest_labels(labels, np.asarray(paint)[..., 3] > 0, names, depths)
+    original_owners = owners.copy()
+    solos = {}
+    for name in names:
+        path = maquette / f"{view}_solo_{name}.png"
+        if path.is_file():
+            solo = transform.image(Image.open(path).convert("RGBA"))
+            save_image(registered / path.name, solo)
+            solos[name] = np.asarray(solo)[..., 3] > PROOF_DEFAULTS["mask_alpha_threshold"]
+        else:
+            solos[name] = np.zeros(owners.shape, dtype=bool)
+    cleanup = {}
+    hidden_masks = [hidden_region(solos[name], owners, i)[0] for i, name in enumerate(names)]
+    if recipe.get("ownership_cleanup"):
+        policy = recipe["ownership_cleanup"]
+        trousers, material = material_reference(root, spec, palette, view, policy)
+        owners, hidden_masks, cleanup = clean_ownership(owners, np.asarray(paint), names, solos, view, material, policy)
+        np.save(registered / f"{view}_trousers.npy", trousers, allow_pickle=False)
+        np.save(registered / f"{view}_original_owners.npy", original_owners, allow_pickle=False)
+        write_json(root / f"proof/{view}_ownership_cleanup.json", cleanup)
+    for i, name in enumerate(names):
+        np.save(registered / f"{view}_hidden_{name}.npy", hidden_masks[i], allow_pickle=False)
     owner_image = Image.new("RGBA", paint.size)
     for i, name in enumerate(names):
         values = np.asarray(owner_image).copy()
@@ -452,22 +608,37 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
         owner_image = Image.fromarray(values.astype(np.uint8))
     save_image(root / "proof" / f"{view}_ownership_3x.png", owner_image.resize((765, 765), Image.Resampling.NEAREST))
     np.save(registered / f"{view}_owners.npy", owners, allow_pickle=False)
+    joints, mapping = bind_layout(spec, view, transform, joints, recipe)
+    chain_regions = chain_partition(root, view, joints, recipe)
     present = [name for i, name in enumerate(names) if np.any(owners == i)]
-    ownership = {"priority_polygons": [[name, [[0, 0], [0, 0], [0, 0]]] for name in present],
-                 "pixel_overrides": [{"point": [int(x), int(y)], "name": names[int(owners[y, x])]}
-                                     for y, x in zip(*np.nonzero(owners >= 0))]}
+    pieces, piece_map = np.full(owners.shape, -1, dtype=np.int16), {}
+    for i, name in enumerate(names):
+        for original in range(len(names)):
+            for link in (range(3) if name == "chain" and chain_regions is not None else [None]):
+                mask = (owners == i) & (original_owners == original)
+                if link is not None:
+                    mask &= chain_regions == link
+                if not mask.any():
+                    continue
+                piece = name + ("_from_" + names[original] if original != i else "") + ("_link_" + str(link) if link is not None else "")
+                pieces[mask] = len(piece_map)
+                piece_map[piece] = {"logical_part": name, "bone": ["chain", "chain_b", "chain_c"][link] if link is not None else mapping[name],
+                                    "z_index": order.index(names[original]), "rest_depth_source": names[original]}
+    piece_names = list(piece_map)
+    ownership = {"priority_polygons": [[name, [[0, 0], [0, 0], [0, 0]]] for name in piece_names],
+                 "pixel_overrides": [{"point": [int(x), int(y)], "name": piece_names[int(pieces[y, x])]}
+                                     for y, x in zip(*np.nonzero(pieces >= 0))]}
     ownership_path = root / "recipes" / f"{view}_ownership.json"
     write_json(ownership_path, ownership)
     segmented = root / "segmented" / view
     split = segment(source / "processed.png", ownership_path, segmented)
     if not split["ok"] or Image.open(segmented / "reconstructed.png").tobytes() != paint.tobytes():
         raise CutoutError("Segmentation did not preserve all approved RGBA bytes")
-    joints, mapping = bind_layout(spec, view, transform, joints, recipe)
     layout = {"version": 1, "facing": view, "canvas_size": [255, 255], "joints": joints,
               "parts": [], "rest_source": f"source/{view}/processed.png", "unmaterialized_parts": []}
     for p in split["parts"]:
         name = p["name"]
-        p.update(file=f"segmented/{view}/{name}.png", bone=mapping[name], z_index=order.index(name))
+        p.update(file=f"segmented/{view}/{name}.png", **piece_map[name])
         layout["parts"].append(p)
     requests = []
     for i, name in enumerate(names):
@@ -476,9 +647,8 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
         outside = hidden.copy()
         available = solo_path.is_file()
         if available:
-            solo = transform.image(Image.open(solo_path).convert("RGBA"))
-            save_image(registered / solo_path.name, solo)
-            hidden, outside = hidden_region(np.asarray(solo)[..., 3] > PROOF_DEFAULTS["mask_alpha_threshold"], owners, i)
+            hidden = hidden_masks[i]
+            outside = solos[name] & (owners < 0)
         elif not allow_incomplete:
             raise CutoutError("Missing solo render: " + str(solo_path))
         request = request_image(paint, owners, i, hidden)
@@ -495,16 +665,23 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
             for neighbour in entry[relation]:
                 neighbour["material"] = recipe.get("materials", {}).get(neighbour["part"], neighbour["part"] + " approved paint")
         if hidden.any():
-            hidden_name = "hidden_" + name if name in present else name
-            pixels = np.zeros((*owners.shape, 4), dtype=np.uint8)
-            pixels[hidden] = MAGENTA
-            bounds = bbox(hidden)
-            hidden_file = f"hidden/{view}/{name}.png"
-            save_image(root / hidden_file, Image.fromarray(pixels).crop(bounds))
-            layout["parts"].append({"name": hidden_name, "logical_part": name, "hidden_material": True,
-                                    "file": hidden_file, "offset": bounds[:2], "bone": mapping[name],
-                                    "z_index": order.index(name) - len(names)})
-            entry["paint_node"] = hidden_name
+            entry["paint_nodes"] = []
+            for link in (range(3) if name == "chain" and chain_regions is not None else [None]):
+                mask = hidden if link is None else hidden & (chain_regions == link)
+                if not mask.any():
+                    continue
+                suffix = "" if link is None else "_link_" + str(link)
+                hidden_name = ("hidden_" + name if name in present else name) + suffix
+                pixels = np.zeros((*owners.shape, 4), dtype=np.uint8)
+                pixels[mask] = MAGENTA
+                bounds = bbox(mask)
+                hidden_file = f"hidden/{view}/{name}{suffix}.png"
+                save_image(root / hidden_file, Image.fromarray(pixels).crop(bounds))
+                layout["parts"].append({"name": hidden_name, "logical_part": name, "hidden_material": True,
+                                        "file": hidden_file, "offset": bounds[:2],
+                                        "bone": mapping[name] if link is None else ["chain", "chain_b", "chain_c"][link],
+                                        "z_index": order.index(name) - len(names)})
+                entry["paint_nodes"].append(hidden_name)
         elif name not in present:
             layout["unmaterialized_parts"].append({"part": name, "reason": entry["status"] if not available else "no_visible_or_occluded_pixels"})
         requests.append(entry)
@@ -555,7 +732,7 @@ def build_view(root: Path, spec: dict, view: str, palette: dict, recipe: dict, a
         write_json(skin_path, skin)
         apply_skin(root, skin_path)
     return {"requests": requests, "reassignment": reassigned, "depth_order": order,
-            "bone_mapping": mapping, "rigid_cloth_mapping": rigid_mapping,
+            "bone_mapping": mapping, "rigid_cloth_mapping": rigid_mapping, "ownership_cleanup": cleanup,
             "unmaterialized_parts": layout["unmaterialized_parts"]}
 
 
@@ -623,6 +800,9 @@ def build(args) -> dict:
     requests = [r for value in views.values() for r in value.pop("requests")]
     write_json(root / "hidden_requests/index.json", {"exposure_basis": "pending headless sampler measurement; unknown solos are not zero-sized requests", "requests": requests})
     config_path, config = load_case(root)
+    if recipe.get("rear_fist_behind"):
+        rear = read_json(root / config["layouts"]["rear"])
+        config["draw_order_parts"] = {"rear": [p["name"] for p in rear["parts"] if p["bone"] in ["upper_fist", "fore_fist", "hand_fist"]]}
     config["source_baseline"] = {"kind": "maquette_registered_paint", "spec_sha256": digest(args.spec),
                                  "art_status": "hidden_material_incomplete", "production_integration": False}
     config["sources"] = sorted({str(p.relative_to(root)) for folder in ["source", "recipes", "registered", "probes"]
@@ -733,15 +913,23 @@ def diffuse_rgb(rgb: np.ndarray, known: np.ndarray, target: np.ndarray) -> tuple
 
 
 def fill_pixels(paint: np.ndarray, visible: np.ndarray, hidden: np.ndarray,
-                donor_rgb: np.ndarray, donor_mask: np.ndarray, method: str) -> tuple[np.ndarray, dict]:
+                donor_rgb: np.ndarray, donor_mask: np.ndarray, method: str, palette_pixels=None, palette_reference=None, conditioning_visible=None) -> tuple[np.ndarray, dict]:
     own_count = int(visible.sum())
-    palette_pixels = paint[visible, :3] if own_count >= FILL_DEFAULTS["palette_min_own_pixels"] else donor_rgb[donor_mask]
+    if palette_pixels is None:
+        palette_pixels = paint[visible, :3] if own_count >= FILL_DEFAULTS["palette_min_own_pixels"] else donor_rgb[donor_mask]
     if not len(palette_pixels):
         raise CutoutError("No same-material palette fallback for a part with fewer than 40 visible pixels")
     palette, iterations = part_palette(palette_pixels)
+    quantization_palette = palette
+    if palette_reference:
+        distance = np.linalg.norm(to_lab(palette) - palette_reference["median_lab"], axis=-1)
+        quantization_palette = palette[distance <= palette_reference["max_delta_e"]]
+        if not len(quantization_palette):
+            raise CutoutError("No sampled palette centroid satisfies the material gate")
     seed = np.where(donor_mask[..., None], donor_rgb, 0).astype(np.uint8)
-    seed[visible] = paint[visible, :3]
-    known = visible | donor_mask
+    conditioning_visible = visible if conditioning_visible is None else conditioning_visible
+    seed[conditioning_visible] = paint[conditioning_visible, :3]
+    known = conditioning_visible | donor_mask
     metrics = {}
     if hidden.any():
         if method == "telea":
@@ -758,18 +946,19 @@ def fill_pixels(paint: np.ndarray, visible: np.ndarray, hidden: np.ndarray,
         filled = seed
     result = np.zeros_like(paint)
     result[visible] = paint[visible]
-    choices = ((filled[hidden, None, :].astype(float) - palette[None].astype(float)) ** 2).sum(-1).argmin(-1)
-    result[hidden, :3] = palette[choices]
+    choices = ((filled[hidden, None, :].astype(float) - quantization_palette[None].astype(float)) ** 2).sum(-1).argmin(-1)
+    result[hidden, :3] = quantization_palette[choices]
     result[hidden, 3] = 255
     # Use the gate's edge definition/tone, without its alpha deletion or any
     # recoloring of visible paint. The edge is of the WHOLE part, not the hole.
     outline = hidden & silhouette_edge(visible | hidden, clipped_border=True)
     result[outline, :3] = FILL_DEFAULTS["outline_tone"]
     return result, {"method": method if hidden.any() else "no_hidden_pixels", "diffusion": metrics,
-                    "palette": palette.tolist(), "palette_iterations": iterations,
+                    "palette": palette.tolist(), "quantization_palette": quantization_palette.tolist(), "palette_iterations": iterations,
                     "palette_source": "own_visible" if own_count >= FILL_DEFAULTS["palette_min_own_pixels"] else "same_material_neighbours",
                     "palette_sample_pixels": len(palette_pixels), "own_visible_pixels": own_count,
                     "donor_visible_pixels": int(donor_mask.sum()),
+                    "own_conditioning_pixels": int(conditioning_visible.sum()),
                     "conditioning_pixels_in_hidden_region": int((donor_mask & hidden).sum()),
                     "hidden_pixels": int(hidden.sum()), "outline_pixels": int(outline.sum())}
 
@@ -847,6 +1036,11 @@ def fill_hidden(args) -> dict:
     old_records = {(r["view"], r["part"]): r for r in old.get("requests", [])}
     names = list(read_json(root / "source/spec.json")["labels"])
     rig_recipe = read_json(root / "recipes/rig.json")
+    if rig_recipe.get("ownership_cleanup"):
+        recipe["trousers_policy"] = {"parts": rig_recipe["ownership_cleanup"]["trouser_parts"],
+            "donors": "view trousers core plus own still-owned original visible pixels; no coat, tabard or cross-view source",
+            "quantization": "k6 sampled palette; hidden interiors use only centroids within the director's material DeltaE limit; outlines retain their tone",
+            "max_delta_e": rig_recipe["ownership_cleanup"]["fill_median_max_delta_e"]}
     requests = read_json(root / "hidden_requests/index.json")["requests"]
     if {(r["view"], r["part"]) for r in requests} != {(v, n) for v in config["layouts"] for n in names}:
         raise CutoutError("Hidden requests must cover every view and label")
@@ -859,6 +1053,24 @@ def fill_hidden(args) -> dict:
     views = {v: (np.array(Image.open(root / f"source/{v}/processed.png").convert("RGBA")),
                  np.load(root / f"registered/{v}_owners.npy", allow_pickle=False),
                  read_json(local_path(root, p))) for v, p in config["layouts"].items()}
+    material_references = {}
+    if rig_recipe.get("ownership_cleanup"):
+        spec = read_json(root / "source/spec.json")
+        palette = read_json(root / "source/label_palette.json")
+        for view, (paint, owners, _) in views.items():
+            depths = camera_depths(spec, view)
+            labels = decode_labels(Image.open(root / f"registered/{view}_parts.png"), palette, names, depths)
+            original, _ = nearest_labels(labels, paint[..., 3] > 0, names, depths)
+            trousers, reference = material_reference(root, spec, palette, view, rig_recipe["ownership_cleanup"])
+            solos = {n: np.asarray(Image.open(root / f"registered/{view}_solo_{n}.png"))[..., 3] > PROOF_DEFAULTS["mask_alpha_threshold"] for n in names}
+            expected, masks, cleanup = clean_ownership(original, paint, names, solos, view, reference, rig_recipe["ownership_cleanup"])
+            if (not np.array_equal(original, np.load(root / f"registered/{view}_original_owners.npy", allow_pickle=False))
+                    or not np.array_equal(expected, owners)
+                    or not np.array_equal(trousers, np.load(root / f"registered/{view}_trousers.npy", allow_pickle=False))
+                    or cleanup != read_json(root / f"proof/{view}_ownership_cleanup.json")
+                    or any(not np.array_equal(mask, np.load(root / f"registered/{view}_hidden_{name}.npy", allow_pickle=False)) for name, mask in zip(names, masks))):
+                raise CutoutError("Ownership cleanup differs from source-derived recipe: " + view)
+            material_references[view] = reference
     prepared, records, pending = [], [], []
     for request in requests:
         view, part = request["view"], request["part"]
@@ -869,6 +1081,8 @@ def fill_hidden(args) -> dict:
         hidden = np.all(request_pixels == MAGENTA, axis=-1)
         solo = np.asarray(Image.open(root / f"registered/{view}_solo_{part}.png").convert("RGBA"))[..., 3] > PROOF_DEFAULTS["mask_alpha_threshold"]
         expected_hidden, _ = hidden_region(solo, owners, names.index(part))
+        if rig_recipe.get("ownership_cleanup"):
+            expected_hidden = np.load(root / f"registered/{view}_hidden_{part}.npy", allow_pickle=False)
         if (request["status"] != "measured" or int(hidden.sum()) != request["hidden_pixel_count"]
                 or not np.array_equal(hidden, expected_hidden)
                 or not np.array_equal(request_pixels, np.asarray(request_image(Image.fromarray(paint), owners, names.index(part), hidden)))):
@@ -881,10 +1095,20 @@ def fill_hidden(args) -> dict:
             if request[relation] != expected:
                 raise CutoutError(f"Request neighbours differ from approved ownership: {view}/{part}")
         donors, donor_rgb, donor_mask, donor_view = fill_donors(request, names, views, recipe.get("cross_view_fallback") == "same_part")
+        palette_pixels, trousers_reference, conditioning_visible = None, None, visible
+        if part in rig_recipe.get("ownership_cleanup", {}).get("trouser_parts", []):
+            donors, donor_view = ["trousers_core"], None
+            donor_rgb = paint[..., :3]
+            donor_mask = np.load(root / f"registered/{view}_trousers.npy", allow_pickle=False)
+            original_owners = np.load(root / f"registered/{view}_original_owners.npy", allow_pickle=False)
+            conditioning_visible = visible & (original_owners == names.index(part))
+            palette_pixels = np.concatenate([donor_rgb[donor_mask], paint[conditioning_visible, :3]])
+            trousers_reference = material_references[view]["trousers"]
         record = {"view": view, "part": part, "material": request["material"],
                   "request": request["image"], "request_sha256": digest(image_path),
                   "visible_mask_sha256": array_digest(visible), "hidden_mask_sha256": array_digest(hidden),
                   "donor_mask_sha256": array_digest(donor_mask), "donor_parts": donors,
+                  "own_conditioning_mask_sha256": array_digest(conditioning_visible),
                   "source_paint_sha256": digest(root / f"source/{view}/processed.png"),
                   "visible_rgba_sha256": array_digest(paint[visible]),
                   "donor_rgb_sha256": array_digest(donor_rgb[donor_mask]),
@@ -909,50 +1133,71 @@ def fill_hidden(args) -> dict:
             result[visible] = paint[visible]
             result[hidden] = MAGENTA
         else:
-            result, metrics = fill_pixels(paint, visible, hidden, donor_rgb, donor_mask, recipe["method"])
+            result, metrics = fill_pixels(paint, visible, hidden, donor_rgb, donor_mask, recipe["method"], palette_pixels,
+                dict(trousers_reference, max_delta_e=rig_recipe["ownership_cleanup"]["fill_median_max_delta_e"]) if trousers_reference else None, conditioning_visible)
             record.update(metrics, status="filled" if hidden.any() else "no_hidden_pixels")
             if donor_view:
                 record["palette_source"] = "same_part_other_view"
+        if trousers_reference and hidden.any():
+            median = np.median(result[hidden, :3], axis=0)
+            delta = float(np.linalg.norm(to_lab(median) - trousers_reference["median_lab"]))
+            record.update(palette_source="trousers_core_and_remaining_own_visible", material_median_rgb=median.tolist(),
+                          trousers_median_delta_e=delta, trousers_reference=trousers_reference)
+            if delta > rig_recipe["ownership_cleanup"]["fill_median_max_delta_e"]:
+                raise CutoutError(f"Trouser fill median exceeds material gate: {view}/{part}: {delta}")
         if not np.array_equal(result[visible], paint[visible]):
             raise CutoutError(f"Rest-visible paint changed: {view}/{part}")
-        runtime_image = None
+        runtime_images = []
         if hidden.any():
             matches = [p for p in layout["parts"] if p.get("hidden_material") and p.get("logical_part") == part]
-            if len(matches) != 1:
-                raise CutoutError(f"Expected exactly one hidden underlay: {view}/{part}")
-            node = matches[0]
-            runtime_path = local_path(root, node["file"])
-            before = np.array(Image.open(runtime_path).convert("RGBA"))
-            x, y = node["offset"]
-            crop = np.s_[y:y + before.shape[0], x:x + before.shape[1]]
-            if not np.array_equal(before[..., 3] == 255, hidden[crop]) or int(hidden[crop].sum()) != int(hidden.sum()):
-                raise CutoutError(f"Underlay alpha/offset differs from request: {view}/{part}")
+            covered = np.zeros_like(hidden)
             previous = old_records.get((view, part))
-            current_digest = digest(runtime_path)
-            if previous:
-                if current_digest != previous["output_sha256"]:
-                    raise CutoutError("Preserve manually changed hidden paint: " + node["file"])
-            elif not np.all(before[hidden[crop]] == MAGENTA):
-                raise CutoutError("Underlay already contains unrecorded paint: " + node["file"])
-            after = before.copy()
-            after[hidden[crop], :3] = result[crop][hidden[crop], :3]
-            runtime_image = Image.fromarray(after)
-            record.update(output=node["file"], original_sha256=previous["original_sha256"] if previous else current_digest,
-                          output_rgba_sha256=array_digest(after), alpha_sha256=array_digest(after[..., 3]),
-                          remaining_magenta_pixels=int(np.all(after == MAGENTA, axis=-1).sum()))
+            previous_outputs = {r["output"]: r for r in previous.get("outputs", [previous])} if previous else {}
+            outputs = []
+            for node in matches:
+                runtime_path = local_path(root, node["file"])
+                before = np.array(Image.open(runtime_path).convert("RGBA"))
+                x, y = node["offset"]
+                crop = np.s_[y:y + before.shape[0], x:x + before.shape[1]]
+                mask = before[..., 3] == 255
+                if np.any(mask & ~hidden[crop]) or np.any(covered[crop] & mask):
+                    raise CutoutError(f"Underlay alpha/offset differs from request: {view}/{part}")
+                covered[crop] |= mask
+                old_output = previous_outputs.get(node["file"])
+                current_digest = digest(runtime_path)
+                if old_output:
+                    if current_digest != old_output["output_sha256"]:
+                        raise CutoutError("Preserve manually changed hidden paint: " + node["file"])
+                elif not np.all(before[mask] == MAGENTA):
+                    raise CutoutError("Underlay already contains unrecorded paint: " + node["file"])
+                after = before.copy()
+                after[mask, :3] = result[crop][mask, :3]
+                output = {"output": node["file"], "original_sha256": old_output["original_sha256"] if old_output else current_digest,
+                          "output_rgba_sha256": array_digest(after), "alpha_sha256": array_digest(after[..., 3]),
+                          "remaining_magenta_pixels": int(np.all(after == MAGENTA, axis=-1).sum())}
+                outputs.append(output)
+                runtime_images.append((output, Image.fromarray(after)))
+            if not np.array_equal(covered, hidden):
+                raise CutoutError(f"Hidden underlays do not cover request: {view}/{part}")
+            record["outputs"] = outputs
+            record["remaining_magenta_pixels"] = sum(r["remaining_magenta_pixels"] for r in outputs)
+            if len(outputs) == 1:
+                record.update(outputs[0])
             if not missing and record["remaining_magenta_pixels"]:
                 raise CutoutError(f"Filled underlay still contains magenta: {view}/{part}")
         preview = np.full_like(paint, GREEN)
         preview[visible | hidden] = result[visible | hidden]
         record["preview"] = f"hidden_fills/{view}_{part}.png"
         records.append(record)
-        prepared.append((record, runtime_image, Image.fromarray(preview)))
+        prepared.append((record, runtime_images, Image.fromarray(preview)))
     # No source/runtime changes have been made before the complete preflight above.
     write_json(recipe_path, recipe)
-    for record, runtime_image, preview in prepared:
-        if runtime_image is not None:
-            save_image(root / record["output"], runtime_image)
-            record["output_sha256"] = digest(root / record["output"])
+    for record, runtime_images, preview in prepared:
+        for output, runtime_image in runtime_images:
+            save_image(root / output["output"], runtime_image)
+            output["output_sha256"] = digest(root / output["output"])
+        if len(runtime_images) == 1:
+            record.update(runtime_images[0][0])
         save_image(root / record["preview"], preview)
         record["preview_sha256"] = digest(root / record["preview"])
     contact_sheet([(f"{r['view']}/{r['part']}\n{r['status']} {r['hidden_pixels']} px", preview)

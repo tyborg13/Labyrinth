@@ -9,11 +9,8 @@ static func _sampler_layout(layout: Dictionary) -> Dictionary:
 	var joints: Dictionary = result["joints"]
 	var chain: Vector2 = _point(layout, "chain")
 	joints["chain_a"] = {"position": [chain.x, chain.y], "parent": "hand_hook"}
-	# The requested clips only rotate chain_a. The two unpainted compatibility
-	# joints may coincide with it; their length does not affect these five clips.
-	# No three-link chain-reel animation is claimed for the one-piece maquette.
-	joints["chain_b"] = {"position": [chain.x, chain.y], "parent": "chain_a"}
-	joints["chain_c"] = {"position": [chain.x, chain.y], "parent": "chain_b"}
+	# The registered chain is partitioned at production link fractions.
+	joints["chain_b"]["parent"] = "chain_a"
 	joints["hook"]["parent"] = "chain_c"
 	# Production's restraint drape is absent from this painting. Keep the
 	# unmodified solver well-defined using its original (unpainted) landmarks.
@@ -24,7 +21,7 @@ static func _sampler_layout(layout: Dictionary) -> Dictionary:
 	return result
 
 static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
-	assert(clip in ["rest", "idle", "walk", "strike", "hit", "death"], "This case has no painted topology for the other gaoler actions")
+	assert(clip in ["rest", "idle", "walk", "strike", "hit", "death", "chain_reel", "manacle_pin"], "Unknown gaoler clip")
 	var compatible: Dictionary = _sampler_layout(layout)
 	var sampled: Dictionary = Gaoler.sample_pose(clip, phase, compatible, facing)
 	var pose: Dictionary = {}
@@ -41,3 +38,21 @@ static func walk_foot_state(phase: float, foot: String, layout: Dictionary, faci
 static func _point(layout: Dictionary, name: String) -> Vector2:
 	var point: Array = layout["joints"][name]["position"]
 	return Vector2(float(point[0]), float(point[1]))
+
+static func sample_draw_order(clip: String, _phase: float, layout: Dictionary, facing: String) -> Dictionary:
+	var result: Dictionary = {}
+	if facing != "rear" or clip not in ["strike", "manacle_pin"]:
+		return result
+	# All fist-arm paint, including hidden support, passes behind both occluders.
+	var behind: int = 4095
+	var arm_front: int = -4096
+	for part: Dictionary in layout["parts"]:
+		if part["bone"] in ["torso", "head"]:
+			behind = mini(behind, int(part["z_index"]) - 1)
+		if part["bone"] in ["upper_fist", "fore_fist", "hand_fist"]:
+			arm_front = maxi(arm_front, int(part["z_index"]))
+	var shift: int = maxi(0, arm_front - behind)
+	for part: Dictionary in layout["parts"]:
+		if part["bone"] in ["upper_fist", "fore_fist", "hand_fist"]:
+			result[str(part["name"])] = int(part["z_index"]) - shift
+	return result

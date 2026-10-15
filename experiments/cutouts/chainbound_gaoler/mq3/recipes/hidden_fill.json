@@ -18,5 +18,15 @@
   "donor_policy": "Own visible paint and listed exact same-material neighbours; when own count <40 and no local neighbour, use the same part's visible paint in the paired view",
   "palette_policy": "Own visible RGB when >=40 pixels; otherwise local same-material neighbours, then the approved same-part cross-view fallback; seeded weighted RGB k-means",
   "outline_policy": "Filled pixels on the four-connected boundary of the whole part only; alpha unchanged",
-  "cross_view_fallback": "same_part"
+  "cross_view_fallback": "same_part",
+  "trousers_policy": {
+    "parts": [
+      "pelvis",
+      "thigh_far",
+      "thigh_near"
+    ],
+    "donors": "view trousers core plus own still-owned original visible pixels; no coat, tabard or cross-view source",
+    "quantization": "k6 sampled palette; hidden interiors use only centroids within the director's material DeltaE limit; outlines retain their tone",
+    "max_delta_e": 12
+  }
 }

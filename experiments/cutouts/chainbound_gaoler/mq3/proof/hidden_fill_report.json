@@ -2,7 +2,7 @@
   "complete": true,
   "method": "diffusion",
   "requests": 42,
-  "filled_requests": 41,
+  "filled_requests": 39,
   "pending_design": [],
   "cross_view_requests": 3,
   "remaining_magenta_pixels": 0,
@@ -24,14 +24,14 @@
     "character_id": "chainbound_gaoler",
     "layouts": {
       "front": {
-        "joints": 21,
-        "parts": 41,
+        "joints": 23,
+        "parts": 76,
         "meshes": 0,
         "vertices": 0
       },
       "rear": {
-        "joints": 21,
-        "parts": 40,
+        "joints": 23,
+        "parts": 58,
         "meshes": 0,
         "vertices": 0
       }

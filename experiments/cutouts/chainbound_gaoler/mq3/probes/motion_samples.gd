@@ -67,8 +67,25 @@ func _run() -> void:
 							anchors[foot]["phase"] = state["cycle_phase"]
 						else:
 							anchors.erase(foot)
+				var draw_order: Dictionary = {}
+				var occluder_depth: int = 4095
+				for part: Dictionary in rig.layout["parts"]:
+					var nodes: Array[Node] = rig.find_children(str(part["name"]), "Sprite2D", true, false)
+					_check(nodes.size() == 1, "Unique paint node " + str(part["name"]))
+					if nodes.size() != 1:
+						continue
+					var depth: int = (nodes[0] as Sprite2D).z_index
+					draw_order[str(part["name"])] = depth
+					if part["bone"] in ["torso", "head"]:
+						occluder_depth = mini(occluder_depth, depth)
+					if facing == "front" or clip not in ["strike", "manacle_pin"]:
+						_check(depth == int(part["z_index"]), "Unchanged default draw order " + str(part["name"]))
+				if facing == "rear" and clip in ["strike", "manacle_pin"]:
+					for part: Dictionary in rig.layout["parts"]:
+						if part["bone"] in ["upper_fist", "fore_fist", "hand_fist"]:
+							_check(int(draw_order[part["name"]]) < occluder_depth, "Rear fist arm behind torso/head " + str(part["name"]))
 				_check(rig.load_errors.is_empty(), "Rig errors: " + str(rig.load_errors))
-				records.append({"view": facing, "clip": clip, "frame": index, "phase": phase, "bones": matrices})
+				records.append({"view": facing, "clip": clip, "frame": index, "phase": phase, "bones": matrices, "draw_order": draw_order})
 	var report: Dictionary = {"ok": failures.is_empty(), "basis": "Headless production sampler and actual Skeleton2D transforms; no rendered proof", "inputs": inputs, "samples": records, "errors": failures}
 	var file := FileAccess.open(args[oi + 1], FileAccess.WRITE)
 	if file == null:

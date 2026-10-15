@@ -185,6 +185,45 @@ against the copied production layouts and records the per-view mapping in
 `build_report.json`; it creates no skin meshes. The production `drape_a..d`
 bones articulate restraint chains and are not cloth weight sources.
 
+### Material ownership and detached islands
+
+An explicit `recipes/rig.json.ownership_cleanup` step runs before segmentation
+and fill. In the gaoler case the director supplied these rules: `tabard_cloth`
+is the approved front tabard's core (Euclidean distance at least 4px inside the
+registered maquette label); each view's `trousers` reference uses `thigh_near`
+core pixels with CIE Lab DeltaE76 greater than 20 from the tabard median.
+Reference medians are RGB medians converted through the gate's D65 sRGB-to-Lab
+function. The front tabard reference is shared because the tabard is front-only.
+
+Front pelvis/thigh pixels closer to the tabard median than the trouser median
+move to tabard ownership without recoloring. The corresponding rear counts are
+reported without a material reassignment. Each logical part's complete mask
+(visible paint plus hidden support) then receives the director's 8-connected
+component cleanup: components smaller than 12px, except the largest, move to
+the rest-painted neighbour sharing the most four-connected boundary edges.
+Moves use one snapshot; ties use label order. An unattached hidden-only island
+can be deleted under the exact visible partition; an unattached visible island
+is retained and reported. The largest-component tie uses top/left bbox order.
+Reports contain per-part counts, bounds, destinations and reasons.
+
+`registered/*_original_owners.npy` retains source depth ownership. Visible
+segments are split by their new logical owner and original draw depth; thus
+transferred pixels follow the corrected bone while retaining their precise rest
+order. Cleaned hidden masks and material masks are saved separately. Fill
+recomputes this source-derived cleanup and rejects mismatching masks or reports.
+Rest RGBA equality remains mandatory. When rebuilding an existing case, preserve
+the preceding immutable requests and their provenance before replacing derived
+outputs; the gaoler's pre-round4 requests are in `provenance/round3/`.
+
+The gaoler's three-link chain uses production `chain_b`/`chain_c` fractions along
+`chain_a` to `hook`, mapped onto the registered maquette chain axis. Existing
+visible and hidden chain paint is partitioned at those fractions; no new paint
+or motion curves are invented. The case adapter includes all seven production
+clips. Rear strike/pin shifts the entire fist-arm layer group behind head and
+torso while preserving internal order; other clip/view layer orders stay fixed.
+Headless samples record actual painted-node depths, and CPU exposure uses those
+depths, summing all support pieces of each logical part.
+
 ### Deterministic hidden fill
 
 When explicitly requested, fill only the hidden runtime underlays:
@@ -227,6 +266,17 @@ touching transparency in the union of visible and hidden masks. The gate's
 four-connected edge definition is reused without deleting alpha or darkening
 visible pixels. All visible paint, part alpha, offsets, bones and motion remain
 unchanged.
+
+For the gaoler's pelvis and thighs, the round4 material recipe overrides the
+generic donor/palette policy. Donors are that view's trousers core plus the same
+part's remaining original visible pixels; reassigned coat/tabard pixels and
+cross-view donors are excluded. Seeded k-means still derives six palette colors
+from these samples. Hidden interiors quantize only to those sampled centroids
+within DeltaE76 12 of the trouser reference; the outline retains its recorded
+tone. Each complete hidden region must also have a median within DeltaE76 12,
+including the outline. Both the full palette and allowed quantization palette,
+conditioning masks/counts and measured gate result are recorded. Visible paint
+is preserved even when it is excluded as a fill donor.
 
 `recipes/hidden_fill.json` records the method and parameters;
 `hidden_fills/index.json` records each request's status, palette, counts, donor

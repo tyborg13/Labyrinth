@@ -121,7 +121,9 @@
       "walk": 48,
       "strike": 31,
       "hit": 24,
-      "death": 32
+      "death": 32,
+      "chain_reel": 31,
+      "manacle_pin": 39
     },
     "preview_cycles": 1
   },
@@ -165,6 +167,16 @@
           1
         ]
       ]
+    },
+    "chain_reel": {
+      "frames": 31,
+      "duration": 0.24,
+      "loop": false
+    },
+    "manacle_pin": {
+      "frames": 39,
+      "duration": 0.57,
+      "loop": false
     }
   },
   "rigid_bones": [
@@ -226,9 +238,8 @@
     }
   ],
   "provenance": {
-    "bone_mapping": "far = hook arm/leg, near = fist arm/leg in both views; chain is the single maquette label, driven by production chain_a for walk; hook retains chain_end registration. Cloth pivots use the provided plate top edge midpoints.",
-    "clips": "idle/walk/strike: current production renderer IDLE_CYCLE_SECONDS, WALK_CYCLE_SECONDS, ATTACK_FRAMES * ATTACK_FRAME_SECONDS. hit: cutout_context.HIT_SECONDS. death: combat_board_view ENEMY_SHADOW_DISSOLVE_FRAME_COUNT 28 * ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS .037, cutout_context.DEATH_SETTLE_PROGRESS .62.",
-    "unsupported_clips": "chain_reel/manacle_pin not added: this unit requests idle, move, attack, hurt, death; chain_reel additionally requires the unprovided three-segment chain paint topology.",
+    "bone_mapping": "far = hook arm/leg, near = fist arm/leg in both views. chain -> production chain_a, chain_b/c use production fractions; hook retains maquette chain_end registration. Cloth pivots use plate top edge midpoints.",
+    "clips": "idle/walk/strike: current production renderer IDLE_CYCLE_SECONDS, WALK_CYCLE_SECONDS, ATTACK_FRAMES * ATTACK_FRAME_SECONDS. hit: cutout_context.HIT_SECONDS. death: combat_board_view ENEMY_SHADOW_DISSOLVE_FRAME_COUNT 28 * ENEMY_SHADOW_DISSOLVE_FRAME_SECONDS .037, cutout_context.DEATH_SETTLE_PROGRESS .62. chain_reel: RunScene ATTACK_FRAMES 6 * ATTACK_FRAME_SECONDS .04. manacle_pin: AttackFxLibrary AIR_ANIMATION_FRAMES 38 * AIR_FRAME_SECONDS .015. Diagnostic samples: 31 endpoint-inclusive for reel, 39 endpoint-inclusive for pin (captures exact 4/38 release and 12/38 contact).",
     "cloth": "Director phase 2a: rigid segments, tabard -> tabard, coat_near -> coat_fist, coat_far -> coat_hook; all parent to pelvis in both production views. No skinning.",
     "materials": "Descriptions of approved mq3_front_v4/mq3_rear_v3 paint, with Identity and materials from mq3_rear_v3/prompt.md; neighbouring regions come from registered ownership, not inferred hidden paint."
   },
@@ -267,5 +278,41 @@
     "thigh_far": "dark cloth trouser leg",
     "shin_far": "dark lower leg and boot cuff",
     "foot_far": "dull dark brown boot"
+  },
+  "ownership_cleanup": {
+    "core_distance_px": 4,
+    "trousers_min_tabard_delta_e": 20,
+    "fill_median_max_delta_e": 12,
+    "speck_max_exclusive_px": 12,
+    "trouser_parts": [
+      "pelvis",
+      "thigh_far",
+      "thigh_near"
+    ],
+    "tabard_reference_view": "front",
+    "material_distance": "CIE Lab DeltaE76, D65 sRGB; median RGB converted to Lab",
+    "speck_connectivity": 8,
+    "border_connectivity": 4,
+    "border_tie": "source label order",
+    "rest_depth": "retain original owner depth for every visible pixel",
+    "speck_basis": "complete logical part: visible paint plus hidden support; simultaneous moves from snapshot"
+  },
+  "articulated_chain": {
+    "basis": "production chain_a to hook projected-axis fractions for chain_b/chain_c, mapped to registered maquette chain to hook; partition existing paint by pixel-centre projection"
+  },
+  "rear_fist_behind": {
+    "clips": [
+      "strike",
+      "manacle_pin"
+    ],
+    "bones": [
+      "upper_fist",
+      "fore_fist",
+      "hand_fist"
+    ],
+    "occluders": [
+      "torso",
+      "head"
+    ]
   }
 }

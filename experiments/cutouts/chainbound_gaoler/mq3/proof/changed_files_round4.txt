@@ -1,0 +1,563 @@
+ M experiments/cutouts/chainbound_gaoler/mq3/README.md
+ M experiments/cutouts/chainbound_gaoler/mq3/baseline.sha256.json
+ M experiments/cutouts/chainbound_gaoler/mq3/build_report.json
+ M experiments/cutouts/chainbound_gaoler/mq3/cutout.json
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/front/belt.png
+ D experiments/cutouts/chainbound_gaoler/mq3/hidden/front/chain.png
+ D experiments/cutouts/chainbound_gaoler/mq3/hidden/front/chain.png.import
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/front/coat_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/front/coat_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/front/foot_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/front/foot_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/front/fore_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/front/fore_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/front/hand_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/front/head.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/front/pelvis.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/front/shin_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/front/shin_near.png
+ D experiments/cutouts/chainbound_gaoler/mq3/hidden/front/tabard.png
+ D experiments/cutouts/chainbound_gaoler/mq3/hidden/front/tabard.png.import
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/front/thigh_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/front/thigh_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/front/torso.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/front/upper_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/front/upper_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/belt.png
+ D experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/chain.png
+ D experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/chain.png.import
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/coat_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/coat_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/foot_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/fore_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/fore_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/hand_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/head.png
+ D experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/hook.png
+ D experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/hook.png.import
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/pelvis.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/shin_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/shin_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/tabard.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/thigh_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/thigh_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/torso.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/contact_sheet.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_belt.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_chain.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_coat_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_coat_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_foot_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_foot_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_fore_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_fore_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_hand_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_head.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_pelvis.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_shin_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_shin_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_tabard.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_thigh_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_thigh_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_torso.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_upper_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/front_upper_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/index.json
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/rear_belt.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/rear_chain.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/rear_coat_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/rear_coat_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/rear_foot_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/rear_fore_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/rear_fore_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/rear_hand_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/rear_head.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/rear_hook.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/rear_pelvis.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/rear_shin_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/rear_shin_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/rear_tabard.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/rear_thigh_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/rear_thigh_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_fills/rear_torso.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/contact_sheet.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_belt.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_belt_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_chain.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_chain_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_coat_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_coat_far_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_coat_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_coat_near_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_foot_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_foot_far_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_foot_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_foot_near_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_fore_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_fore_far_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_fore_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_fore_near_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_hand_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_hand_near_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_head.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_head_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_pelvis.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_pelvis_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_shin_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_shin_far_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_shin_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_shin_near_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_tabard.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_tabard_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_thigh_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_thigh_far_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_thigh_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_thigh_near_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_torso.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_torso_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_upper_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_upper_far_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_upper_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/front_upper_near_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/index.json
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/paint_plan.md
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_belt.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_belt_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_chain.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_chain_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_coat_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_coat_far_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_coat_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_coat_near_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_foot_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_foot_far_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_fore_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_fore_far_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_head.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_head_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_hook.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_hook_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_pelvis.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_pelvis_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_shin_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_shin_far_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_shin_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_shin_near_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_tabard.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_tabard_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_thigh_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_thigh_near_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_torso.png
+ M experiments/cutouts/chainbound_gaoler/mq3/hidden_requests/rear_torso_4x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/layouts/front.json
+ M experiments/cutouts/chainbound_gaoler/mq3/layouts/rear.json
+ M experiments/cutouts/chainbound_gaoler/mq3/motion.gd
+ M experiments/cutouts/chainbound_gaoler/mq3/probes/motion_samples.gd
+ M experiments/cutouts/chainbound_gaoler/mq3/probes/proof.py
+ M experiments/cutouts/chainbound_gaoler/mq3/proof/front_ownership_3x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/proof/hidden_fill_report.json
+ M experiments/cutouts/chainbound_gaoler/mq3/proof/motion_samples.json
+ M experiments/cutouts/chainbound_gaoler/mq3/proof/motion_samples.log
+ M experiments/cutouts/chainbound_gaoler/mq3/proof/rear_ownership_3x.png
+ M experiments/cutouts/chainbound_gaoler/mq3/recipes/front_ownership.json
+ M experiments/cutouts/chainbound_gaoler/mq3/recipes/hidden_fill.json
+ M experiments/cutouts/chainbound_gaoler/mq3/recipes/motion_adapter.gd.in
+ M experiments/cutouts/chainbound_gaoler/mq3/recipes/rear_ownership.json
+ M experiments/cutouts/chainbound_gaoler/mq3/recipes/rig.json
+ M experiments/cutouts/chainbound_gaoler/mq3/registered/front_owners.npy
+ M experiments/cutouts/chainbound_gaoler/mq3/registered/rear_owners.npy
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/front/belt.png
+ D experiments/cutouts/chainbound_gaoler/mq3/segmented/front/chain.png
+ D experiments/cutouts/chainbound_gaoler/mq3/segmented/front/chain.png.import
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/front/coat_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/front/foot_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/front/foot_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/front/fore_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/front/fore_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/front/head.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/front/ownership.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/front/pelvis.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/front/segmentation.json
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/front/shin_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/front/shin_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/front/tabard.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/front/thigh_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/front/thigh_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/front/torso.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/front/upper_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/belt.png
+ D experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/chain.png
+ D experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/chain.png.import
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/coat_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/coat_near.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/foot_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/fore_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/head.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/ownership.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/segmentation.json
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/shin_far.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/tabard.png
+ M experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/torso.png
+ M spec/cutout_workflow.md
+ M tests/test_maquette_cutout.py
+ M tools/maquette_cutout.py
+?? experiments/cutouts/chainbound_gaoler/mq3/hidden/front/chain_link_0.png
+?? experiments/cutouts/chainbound_gaoler/mq3/hidden/front/chain_link_0.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/chain_link_0.png
+?? experiments/cutouts/chainbound_gaoler/mq3/hidden/rear/chain_link_0.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/proof/art_gate_round4.log
+?? experiments/cutouts/chainbound_gaoler/mq3/proof/changed_files_round4.txt
+?? experiments/cutouts/chainbound_gaoler/mq3/proof/fill_round4.log
+?? experiments/cutouts/chainbound_gaoler/mq3/proof/focused_round4.log
+?? experiments/cutouts/chainbound_gaoler/mq3/proof/front_ownership_cleanup.json
+?? experiments/cutouts/chainbound_gaoler/mq3/proof/godot_suite_round4.log
+?? experiments/cutouts/chainbound_gaoler/mq3/proof/python_suite_round4.log
+?? experiments/cutouts/chainbound_gaoler/mq3/proof/rear_ownership_cleanup.json
+?? experiments/cutouts/chainbound_gaoler/mq3/proof/rebuild_round4.json
+?? experiments/cutouts/chainbound_gaoler/mq3/proof/rebuild_round4.log
+?? experiments/cutouts/chainbound_gaoler/mq3/proof/round4_audit.json
+?? experiments/cutouts/chainbound_gaoler/mq3/proof/round4_source_audit.json
+?? experiments/cutouts/chainbound_gaoler/mq3/proof/validation_round4.json
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/README.md
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/cutout.json
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_fills/index.json
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/contact_sheet.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/contact_sheet.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_belt.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_belt.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_belt_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_belt_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_chain.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_chain.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_chain_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_chain_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_coat_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_coat_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_coat_far_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_coat_far_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_coat_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_coat_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_coat_near_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_coat_near_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_foot_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_foot_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_foot_far_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_foot_far_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_foot_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_foot_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_foot_near_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_foot_near_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_fore_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_fore_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_fore_far_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_fore_far_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_fore_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_fore_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_fore_near_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_fore_near_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_hand_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_hand_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_hand_far_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_hand_far_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_hand_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_hand_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_hand_near_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_hand_near_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_head.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_head.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_head_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_head_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_hook.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_hook.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_hook_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_hook_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_pelvis.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_pelvis.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_pelvis_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_pelvis_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_shin_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_shin_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_shin_far_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_shin_far_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_shin_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_shin_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_shin_near_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_shin_near_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_tabard.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_tabard.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_tabard_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_tabard_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_thigh_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_thigh_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_thigh_far_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_thigh_far_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_thigh_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_thigh_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_thigh_near_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_thigh_near_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_torso.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_torso.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_torso_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_torso_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_upper_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_upper_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_upper_far_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_upper_far_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_upper_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_upper_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_upper_near_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/front_upper_near_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/index.json
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/paint_plan.md
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_belt.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_belt.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_belt_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_belt_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_chain.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_chain.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_chain_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_chain_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_coat_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_coat_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_coat_far_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_coat_far_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_coat_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_coat_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_coat_near_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_coat_near_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_foot_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_foot_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_foot_far_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_foot_far_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_foot_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_foot_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_foot_near_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_foot_near_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_fore_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_fore_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_fore_far_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_fore_far_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_fore_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_fore_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_fore_near_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_fore_near_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_hand_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_hand_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_hand_far_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_hand_far_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_hand_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_hand_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_hand_near_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_hand_near_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_head.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_head.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_head_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_head_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_hook.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_hook.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_hook_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_hook_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_pelvis.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_pelvis.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_pelvis_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_pelvis_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_shin_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_shin_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_shin_far_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_shin_far_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_shin_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_shin_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_shin_near_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_shin_near_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_tabard.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_tabard.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_tabard_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_tabard_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_thigh_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_thigh_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_thigh_far_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_thigh_far_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_thigh_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_thigh_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_thigh_near_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_thigh_near_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_torso.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_torso.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_torso_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_torso_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_upper_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_upper_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_upper_far_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_upper_far_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_upper_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_upper_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_upper_near_4x.png
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/hidden_requests/rear_upper_near_4x.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/layouts/front.json
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/layouts/rear.json
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/manifest.json
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/proof/motion_samples.json
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/proof/rest_identity.json
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/recipes/front_ownership.json
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/recipes/hidden_fill.json
+?? experiments/cutouts/chainbound_gaoler/mq3/provenance/round3/recipes/rear_ownership.json
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_belt.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_chain.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_coat_far.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_coat_near.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_foot_far.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_foot_near.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_fore_far.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_fore_near.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_hand_far.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_hand_near.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_head.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_hook.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_pelvis.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_shin_far.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_shin_near.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_tabard.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_thigh_far.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_thigh_near.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_torso.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_upper_far.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_hidden_upper_near.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_original_owners.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/front_trousers.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_belt.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_chain.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_coat_far.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_coat_near.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_foot_far.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_foot_near.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_fore_far.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_fore_near.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_hand_far.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_hand_near.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_head.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_hook.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_pelvis.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_shin_far.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_shin_near.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_tabard.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_thigh_far.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_thigh_near.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_torso.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_upper_far.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_hidden_upper_near.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_original_owners.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/registered/rear_trousers.npy
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/belt_from_foot_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/belt_from_foot_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/belt_from_shin_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/belt_from_shin_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/chain_link_0.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/chain_link_0.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/chain_link_1.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/chain_link_1.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/chain_link_2.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/chain_link_2.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/coat_far_from_belt.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/coat_far_from_belt.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/coat_far_from_shin_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/coat_far_from_shin_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/coat_near_from_chain.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/coat_near_from_chain.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/coat_near_from_foot_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/coat_near_from_foot_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/coat_near_from_head.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/coat_near_from_head.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/coat_near_from_tabard.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/coat_near_from_tabard.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/fore_near_from_foot_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/fore_near_from_foot_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/fore_near_from_head.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/fore_near_from_head.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/hand_near_from_foot_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/hand_near_from_foot_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/hand_near_from_foot_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/hand_near_from_foot_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/hand_near_from_fore_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/hand_near_from_fore_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/hand_near_from_shin_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/hand_near_from_shin_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/head_from_coat_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/head_from_coat_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/head_from_tabard.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/head_from_tabard.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/pelvis_from_shin_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/pelvis_from_shin_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/shin_near_from_foot_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/shin_near_from_foot_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/tabard_from_belt.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/tabard_from_belt.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/tabard_from_coat_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/tabard_from_coat_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/tabard_from_foot_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/tabard_from_foot_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/tabard_from_pelvis.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/tabard_from_pelvis.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/tabard_from_shin_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/tabard_from_shin_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/tabard_from_thigh_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/tabard_from_thigh_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/tabard_from_thigh_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/tabard_from_thigh_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/tabard_from_torso.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/tabard_from_torso.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/thigh_near_from_foot_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/thigh_near_from_foot_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/thigh_near_from_shin_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/thigh_near_from_shin_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/thigh_near_from_shin_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/thigh_near_from_shin_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/torso_from_coat_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/torso_from_coat_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/torso_from_fore_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/torso_from_fore_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/torso_from_upper_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/torso_from_upper_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/upper_near_from_foot_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/upper_near_from_foot_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/upper_near_from_fore_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/front/upper_near_from_fore_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/belt_from_coat_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/belt_from_coat_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/chain_link_0.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/chain_link_0.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/chain_link_1.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/chain_link_1.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/chain_link_2.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/chain_link_2.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/coat_far_from_coat_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/coat_far_from_coat_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/coat_far_from_foot_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/coat_far_from_foot_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/coat_near_from_head.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/coat_near_from_head.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/head_from_coat_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/head_from_coat_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/hook_from_chain.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/hook_from_chain.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/pelvis_from_belt.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/pelvis_from_belt.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/pelvis_from_shin_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/pelvis_from_shin_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/pelvis_from_torso.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/pelvis_from_torso.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/shin_near_from_foot_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/shin_near_from_foot_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/thigh_near_from_foot_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/thigh_near_from_foot_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/thigh_near_from_head.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/thigh_near_from_head.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/thigh_near_from_shin_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/thigh_near_from_shin_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/torso_from_coat_near.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/torso_from_coat_near.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/torso_from_foot_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/torso_from_foot_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/torso_from_fore_far.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/torso_from_fore_far.png.import
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/torso_from_tabard.png
+?? experiments/cutouts/chainbound_gaoler/mq3/segmented/rear/torso_from_tabard.png.import

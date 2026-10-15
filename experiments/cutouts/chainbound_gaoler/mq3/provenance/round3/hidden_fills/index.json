@@ -1,0 +1,3580 @@
+{
+  "schema_version": 1,
+  "complete": true,
+  "method": "diffusion",
+  "parameters": {
+    "radius": 3,
+    "palette_k": 6,
+    "palette_min_own_pixels": 40,
+    "outline_tone": [
+      20,
+      16,
+      21
+    ],
+    "seed": 0,
+    "kmeans_max_iterations": 256,
+    "diffusion_max_iterations": 4096,
+    "diffusion_residual_tolerance": 1e-06
+  },
+  "implementation_sha256": "5139a4c5aaa913086288b24b4626e44c26999eefd4a4fb0bf25870dc26b84280",
+  "recipe_sha256": "500081bed329fd114495ae944a0f24ab65358f26659d435c217ca8fb82917d7c",
+  "protected_inputs": {
+    "hidden_requests/contact_sheet.png": "1ae867632e22389a55c82040410e2d7faa55a14b806ae27355e9bf8359276096",
+    "hidden_requests/front_belt.png": "803f108852a165120cf26f489600ed3b8e2fc7899cd2e63c50f80c1cfa9c6e13",
+    "hidden_requests/front_belt_4x.png": "18745ac6096bbd692b5ea9f29b2d97178cc7a94e924865cffe0139ce6b84ac13",
+    "hidden_requests/front_chain.png": "48a208460fc91012a494a212704da3567dfae485f77c8d622860e1a18394b44a",
+    "hidden_requests/front_chain_4x.png": "8c5ae44a63c4cbd1e69c3675e326163e4fbca16c73c629913720e9fb84133a3c",
+    "hidden_requests/front_coat_far.png": "d9bb701eaf273c2219121702b1c6ecb5b8047ddad36c980c820d0fa8e4758013",
+    "hidden_requests/front_coat_far_4x.png": "2ab556322f44424847f810bcfb227898b99610b963762eb8e75a777818bbb7b9",
+    "hidden_requests/front_coat_near.png": "4e2746dfefd458edaaa36eb7bcf651d73ba2efaceb597a3eafdb9d28952b7fea",
+    "hidden_requests/front_coat_near_4x.png": "b1bb4c55a082b7e6bd37c2e855310c2677899102499c547ca71a90c9c13e5cdc",
+    "hidden_requests/front_foot_far.png": "068523f38738fd83a5483d6bc7d2874a3bb7100e7e6445ba78267a14008e5a5e",
+    "hidden_requests/front_foot_far_4x.png": "55d720b8cacb41f831c9503baa7a96f997748d9faf41fce9aab7900fcaf1779a",
+    "hidden_requests/front_foot_near.png": "1992135a6423b49e33d806f15981d32f976d724f991171cc4458b3492e2de945",
+    "hidden_requests/front_foot_near_4x.png": "9fde85cfba816e1261f3912bd591c69a7f45d56062f28c02e6e8d86be46749d0",
+    "hidden_requests/front_fore_far.png": "7d3219ad779af710a7ac158c601d1f793e119c2f80dfe0bc762ebcbbfc4601e9",
+    "hidden_requests/front_fore_far_4x.png": "ce65ef56354b052ebc17151b598a072202635962f4b4f72590289a445e6d125e",
+    "hidden_requests/front_fore_near.png": "1b1a932a3505bd596605ca6ab8c63bb9e2940e1e743964eb4789539c8131f0f5",
+    "hidden_requests/front_fore_near_4x.png": "b812ccf4e0863628d188b29004c98ad932605abeb8b2a033654048af125f5f85",
+    "hidden_requests/front_hand_far.png": "2c012717a04dc55cbbfd405bfd804572c6c7ed35e62b7263fdfc694ad9366a51",
+    "hidden_requests/front_hand_far_4x.png": "28daafae51596cd4b3b529897c8ba5ab7fbb78dfcb923277dc807fd31e1019da",
+    "hidden_requests/front_hand_near.png": "a8befd06f13df0efc38d5a17507857ac6962266b452adb9cebfee7deea2edc19",
+    "hidden_requests/front_hand_near_4x.png": "5ee9c9b82f074202543b6076a7b7ebafd3f62f66fe8f201da83b2b2f97d06a9c",
+    "hidden_requests/front_head.png": "047ab94dab9fb31bfbbee8d9471f3b370011a9beddf15bccd12fed2e63519978",
+    "hidden_requests/front_head_4x.png": "92ddbb3df2d70136760a09f51fd2809ee9bf7d63c48be12a7f9439a1d381df20",
+    "hidden_requests/front_hook.png": "990ebbf6881fcfcda16d702e8f418ea425ea3dd9fb0144f3529f0f46833d5757",
+    "hidden_requests/front_hook_4x.png": "0e217a59e2ca400bac5f5f748e5b7225e0740fe7b3c5e814d2f1577b7e68def1",
+    "hidden_requests/front_pelvis.png": "8ee03f6db2cd576eb6683444e1de8914c9eaae2d114e68dc9c18a9a7a56b777b",
+    "hidden_requests/front_pelvis_4x.png": "2da292ee0a889363ff8bbac5efc3fb603e3e74a3fff3d995a03c0f8393232fa2",
+    "hidden_requests/front_shin_far.png": "899abae7df9630c04a53161d868c3537dfaa909093952b2ce39923722d8871a3",
+    "hidden_requests/front_shin_far_4x.png": "c5392b0f6eed548cd8d93279e31bcdf223e8912f1eb1f94e0eff29f6c73eabbc",
+    "hidden_requests/front_shin_near.png": "448b40abce75e3c386716f79644ba2a3d08287bd2c0bed5fde71b1e56604d47e",
+    "hidden_requests/front_shin_near_4x.png": "18b0f3445c63f6c0ff31f4c76ceec3fc8370fa47219c1b0200decf08591bd0e9",
+    "hidden_requests/front_tabard.png": "c1197120863c708f1525b3c1057d5a92c9bd0247eddf5f71c3a3c553914c1c4b",
+    "hidden_requests/front_tabard_4x.png": "a3f2988c7cbd8cb1c2f89fc35d4470ad0fd5e83c9d4af6b3c16e04ecbe8ffe94",
+    "hidden_requests/front_thigh_far.png": "da37a21d3bd3e085d79cb6192c36c3879d53f723aafcd13b49774de498edb07c",
+    "hidden_requests/front_thigh_far_4x.png": "b0ff9d2d6e282921f6482741c1c38d1017458fa34d27ed3022cd1d2d9e007b1c",
+    "hidden_requests/front_thigh_near.png": "ed08bd48e83f72b9a954964d7255eaa1be0a92e4d27428ffa0ab5cc6a8e41593",
+    "hidden_requests/front_thigh_near_4x.png": "a7d3e247e15a20e64cb8a6e9076f5549bfd66a0840c504d85dd47095d2979a18",
+    "hidden_requests/front_torso.png": "aa2ed74cd4b8219d567c893ed9f9680093f3ebae77439e614030e410ea5ba829",
+    "hidden_requests/front_torso_4x.png": "f5adfeca7e847a0179464ead06eb8e2c545e2baed54c461b67a3b9ef615e8da7",
+    "hidden_requests/front_upper_far.png": "7367c33fda69c5fd51617ba4563928b87a13b79a77cb49139b951d651eaa1bb5",
+    "hidden_requests/front_upper_far_4x.png": "0fbafd4393a687c77da12733b1a8aa7afad1033df73d7affb2ebcdb4d1c08d71",
+    "hidden_requests/front_upper_near.png": "290a1ae5d752aeb0c572d12785903127b8d02132e6aff9a7184403ed3ec568e7",
+    "hidden_requests/front_upper_near_4x.png": "f362cff09e73d5bd88ff122bc9ca05050368849fd4df8cf5dddc7a1d6c99d0bd",
+    "hidden_requests/rear_belt.png": "5896d10825ab1d927825102b33503587a1fe1cc1629c20ec3a38af195ccdb727",
+    "hidden_requests/rear_belt_4x.png": "125de1a717ecddb3efd13551d2ccae75c32679955cc28db5587f437c2a69e330",
+    "hidden_requests/rear_chain.png": "292f66ae0f81d9631ec0bcb6402933fac63920ac8c43d1289f631590c236d51f",
+    "hidden_requests/rear_chain_4x.png": "fffa64d715dd388dd52c187d5a911c068327de468c801c7fc726028bb9edafd0",
+    "hidden_requests/rear_coat_far.png": "b1510eca871fbf77d6bf1ff994dc7b8b4dc85f5f028735395b5561aae082f1c7",
+    "hidden_requests/rear_coat_far_4x.png": "616d9ca5b7fa161949a7eb8562f1b426591a725bdf4c391453679e817fec9cbc",
+    "hidden_requests/rear_coat_near.png": "f4c9510d14d10a01d1a344b35956f4af02bf79b9e8c64b67a994458232483cfa",
+    "hidden_requests/rear_coat_near_4x.png": "cfbb39c10367a9bb2ec9e9d0d48f406cb9c585109c872ce6594ace7f476e049a",
+    "hidden_requests/rear_foot_far.png": "7902fcf1161ad9719ce0f4d84ebf7719c64473d93cfa3153f73b8c7b3dfbf27b",
+    "hidden_requests/rear_foot_far_4x.png": "f401560b97cde54b47d847bb1ca78e1291e19a53967ed58ff564b72316c1919e",
+    "hidden_requests/rear_foot_near.png": "4788b405caa26c35bdecc77a7e3fbcdc48b3c607f7ce5b36d92c978ecd888b46",
+    "hidden_requests/rear_foot_near_4x.png": "73a542c090a9f5ee73d5e7b48ec5091a1f1922b38d17debdb55e521c068d7e2d",
+    "hidden_requests/rear_fore_far.png": "364af191e907b0c1e76e6ad03d70a6f055e8b115123fb80dad6cd508db920a27",
+    "hidden_requests/rear_fore_far_4x.png": "a5a5fa301c2c0c3c94f44e2197f015775f2699c86ec2786d751d2446b300789f",
+    "hidden_requests/rear_fore_near.png": "f739380209dd6afb8aab58e44d1c1cd54571a4fbebc9b9e6295e95212f39a9bf",
+    "hidden_requests/rear_fore_near_4x.png": "5e440a13148ee608c72ae076c55c57656d12198225bc1781fd9883f0dee31e94",
+    "hidden_requests/rear_hand_far.png": "802ae6a769ec9a15e3ab8e1942512c6f0a8a7168ce5d304fa90359791fd628dc",
+    "hidden_requests/rear_hand_far_4x.png": "7a12fd511b69b470abc6f7815784d00eb00bb713f5c821d7e8781f21c9c04a2b",
+    "hidden_requests/rear_hand_near.png": "1398523b174ff8fc66f710fd77d933a0f78f2c2e7d08d751b76d8bf0219f3c52",
+    "hidden_requests/rear_hand_near_4x.png": "d279a3e79d469ed8092ac351f6b004efed23e42b3729a47a4ae28c6afaba1df3",
+    "hidden_requests/rear_head.png": "9280243a7312e1cb38f275055c952bfd36f885c0ff29aed1de39d0253b8746cc",
+    "hidden_requests/rear_head_4x.png": "9b305e4ad5bccc68b4a288ebb20f6b32e1e70b3a011610c4aee79fc75a870552",
+    "hidden_requests/rear_hook.png": "c68abb6b2a941d1f594628f61871c0bb69952b8cb8a81ce08d8f1083395c9acc",
+    "hidden_requests/rear_hook_4x.png": "d7976a5c0dba0257bb3362a51bba84440dfbda8232b6e762ea3eae7711202427",
+    "hidden_requests/rear_pelvis.png": "896fa40608ae61c07e840638b7735c432b00cf7f3a3eb60c71aefe7d68f704a8",
+    "hidden_requests/rear_pelvis_4x.png": "f4d5ecceba7724cb4f6b4e27b14a48e087b802ba074ce174836f3e86aa6f59ac",
+    "hidden_requests/rear_shin_far.png": "c90596a9b8519796fd7437624c866c385eecc718db598789930590a42e3a8e68",
+    "hidden_requests/rear_shin_far_4x.png": "4a12b556c4aefd5948171baab2848c742792c2d359527f83aa0fddb8364910c6",
+    "hidden_requests/rear_shin_near.png": "68d93c60fd5ce83b192e000718d581888c8876658b2d03f72276f6c0e0bd73ac",
+    "hidden_requests/rear_shin_near_4x.png": "302dc757095987b7f44061788e1ae31ee03337d173b500b0b98d6f174852c454",
+    "hidden_requests/rear_tabard.png": "6ceaf8c7963a31df54b0114d3d56c404b00acb1c69968f151d83b53eb473ca84",
+    "hidden_requests/rear_tabard_4x.png": "f1d0c160662f2a2e5c511d452d51687f29aaf6b1376985911fe3231110765f47",
+    "hidden_requests/rear_thigh_far.png": "6dadf25b728a95f95fb7efa78ed2aa8f864f8baeb77296b5cb99247cae83b364",
+    "hidden_requests/rear_thigh_far_4x.png": "2589d6d87e88609966aecd804ea3562a58e53e1a5e51591b31021eec7feea4bf",
+    "hidden_requests/rear_thigh_near.png": "aa8ff7b74652911d7a2e68459a4de32256f8b7dede571d57916ae26b80c383df",
+    "hidden_requests/rear_thigh_near_4x.png": "7988960b111fe5e7d0c174380d3bc222e55c64b9412b3d941faa98e7ea6c5bbc",
+    "hidden_requests/rear_torso.png": "e84ba74d18290a339cf04a33447b98edc637428da9934cad15cc1bf59b42e73d",
+    "hidden_requests/rear_torso_4x.png": "df4f56cbce3f2db30df06e9c2b1d804da9891cd5c0857aec87e391011defe79a",
+    "hidden_requests/rear_upper_far.png": "7275d7103a74001f7966bbeb634a0fd5c154eb9479931c55c947f5e0fdd2c243",
+    "hidden_requests/rear_upper_far_4x.png": "6ebf6b3af77ee9419c69df0ae895a211d3a372261719cf2a163cbce84fc11846",
+    "hidden_requests/rear_upper_near.png": "71f53f8b0b74c975db864f3e2838e2c0afc171f961a5e4112939e7362b791b76",
+    "hidden_requests/rear_upper_near_4x.png": "867cf9f62a482f5ce3228ab084d1b31e7f9423f27b89af87ccbb3ff875d72790",
+    "layouts/front.json": "1f0faf91cbb60ec87397cbcb3e5af0e55b77e7323aad8f72a6dd2aac9781010b",
+    "layouts/rear.json": "144b23ca5756b7afb907c069c9fbe507009800bf4b5e2eafe00d312f4452da24",
+    "recipes/rig.json": "48135195e774e5300157c06a6b5ae707a379014112f16c4c462a1f793d28cb32",
+    "registered/front_clay.png": "19b77fc959830eac694eda3b273aa12eb77d663d477c0242deefce400f7b02dd",
+    "registered/front_joints_px.json": "639726b1403847df01d32c0e6b7b1e14c2ae01f18d898c2849d8d915d992dc89",
+    "registered/front_owners.npy": "ea0c51332d5b77a7128c0bae046703912b7c19d42ff4730721135172599ab160",
+    "registered/front_parts.png": "9d78c10f8286bf8b9bf483eec5ef316e845a3aa21c4979b65b3bc39522a4b967",
+    "registered/front_registration.json": "5bac6148678d6d23534913b89514b1c58c2c4578faa0f233ec569091cd640774",
+    "registered/front_solo_belt.png": "412ba35de805062ad0938b02b5476355507c4634f1d35a110857982c7e54a0e0",
+    "registered/front_solo_chain.png": "af67aa9c0eb3adcb3dab3f82a9c6b998493cfe0dfcc655aafda440196bfd3720",
+    "registered/front_solo_coat_far.png": "407a4fcc50805051905a188b0a0d3987c5f83ac25dd1271b5865a04f31898639",
+    "registered/front_solo_coat_near.png": "656e90c8ba6f60b46390d3f87f7d295a4aa38b5770cf5bcffa634a30ab7db664",
+    "registered/front_solo_foot_far.png": "cbdc4223a585a35fadbb7de3f7464e7de34f4203ed663fd2d72a44c7897be4ff",
+    "registered/front_solo_foot_near.png": "4118a5959c9fab457caf45c86619fe1d32518dad7150de69207dbeccc001fcc5",
+    "registered/front_solo_fore_far.png": "3f8d6839dcb85b96c949293be8bfcaef0960885fe68c949839764884ac108396",
+    "registered/front_solo_fore_near.png": "8af4d758ecc6456d7af50f1e83b36dde76c3395e913c0ee53e486eece7d7209e",
+    "registered/front_solo_hand_far.png": "534ab5c5a575e0d5b5e414ff19235cff0aef628965403c707abe70417834cfa5",
+    "registered/front_solo_hand_near.png": "2fe4f35f184c804ee53d0fc7fd7c8583449c09e8c81b799ef8d6bb275ff385cb",
+    "registered/front_solo_head.png": "72de7e204af52b0dc1c0cca1615ee545844292ef9f54c4ba0bdffaa402435691",
+    "registered/front_solo_hook.png": "0494e8b5c47e5c0dc6eb7aac17023051aa350593c6997013592a8f0db221b486",
+    "registered/front_solo_pelvis.png": "0aea703fb23552f1cdb67ea98dbdc3ff7dc3246d2fa0ade5a98393f3cacb1cac",
+    "registered/front_solo_shin_far.png": "3f1d335049ef4a6227bda5525d08b44065ec59f3b751b29f1a9659f688823a86",
+    "registered/front_solo_shin_near.png": "ea96d9af95dad7ae2170156ff6f71aa9edd118e66a9a07be66d4ff5d9224db53",
+    "registered/front_solo_tabard.png": "c87a350da13a4a4c7e0629d8f395bbcf79b463beaf92777680f6d81127237c6e",
+    "registered/front_solo_thigh_far.png": "0a05a13e0a9b1df67c1de5af199f924612233d97a1aed0aceb79cfbd79197897",
+    "registered/front_solo_thigh_near.png": "b14c7d45cbb4b500a5e746d1d6fee2b8b484866f39bec3f713d28d008a8e55a1",
+    "registered/front_solo_torso.png": "5e3438a1c8888bd2c5a35418defe28346a2f8a5e779e1b2bba3ae64af5f194f3",
+    "registered/front_solo_upper_far.png": "aa860d36d738520ad34367c01d5a09e646b38e966131dc56df51c26faeaabb7d",
+    "registered/front_solo_upper_near.png": "2b70497c4f025d94c3866163eff3a78142076167f493c8cc66c0ed257f3ab9b1",
+    "registered/rear_clay.png": "0267e14c003fadb88f3a78018c03a65482cfbba45516cfdcde4174c129e1b4c5",
+    "registered/rear_joints_px.json": "e306781da710c31c0035b39ef9b31984c96016e6bb28f7a7f7c912791fe442f9",
+    "registered/rear_owners.npy": "f807b462f05baeef9b3ba9fc61939ed9871ef9225cb51d5a81950a34412d7514",
+    "registered/rear_parts.png": "8d0ff0093c80be96770eaae5a3dcb86c61c8d7f7305060bf5f805a92dd15d525",
+    "registered/rear_registration.json": "6bda2ff108966676aa66d55191516cb7ae2a46b4f0105ac2c1399898250d300f",
+    "registered/rear_solo_belt.png": "8761a66e60ac5528176914a97c56f5b65ad0cbe9c42cebe1c36d6ff9f9da03b5",
+    "registered/rear_solo_chain.png": "50d17c698f26baac2e8020b392b6bc8a008c9be87b01e5b31257d3bd2fc75913",
+    "registered/rear_solo_coat_far.png": "60701cc2457496716b3ea0275e3b14b88e02347d56244c46f0d3e48a78494fd1",
+    "registered/rear_solo_coat_near.png": "f8e4decc9255621ebe80fcb4f827053674d5dfc2ed4f91c32a59f8928de60742",
+    "registered/rear_solo_foot_far.png": "1019cb30da440750cb923080d17ecda96cffd550e90ba64a415f92e04d4db6fa",
+    "registered/rear_solo_foot_near.png": "e755ef4d4fe59904ed0a951c435ee0a16f76b712184f5858fa16890312a4e4f0",
+    "registered/rear_solo_fore_far.png": "9535bcf0850a66480b335590a67667f10cd61b3d15bef931dc0c8f3ac2c34a22",
+    "registered/rear_solo_fore_near.png": "a558ce574b49bd480c4a1bce1febcdd23c75c1bb3df71e2b40a47134383741e2",
+    "registered/rear_solo_hand_far.png": "33a611b776bd82ab5b6f0eb7bfc2b9d35b49c3ee5cc0c8a950f5e0d3fab3aff5",
+    "registered/rear_solo_hand_near.png": "966064ef523e399867900114e7579e0a989f9535ca9576ade65065da8886b257",
+    "registered/rear_solo_head.png": "68f2efa40daf22948e0608dfca1cf53825bd6517d539ca9572dbb8f09566f300",
+    "registered/rear_solo_hook.png": "1e7d683df250df86e78eb1ec78cdb497de6bb0338b4ddf508c74b2ceb48f890b",
+    "registered/rear_solo_pelvis.png": "950062c2c85e3491d16785f586d724c800ca25d2f7f5455789c11b8546e131ee",
+    "registered/rear_solo_shin_far.png": "524aaf33de116436ce3c21a13c63777ccc397bfed1ca160c9034fb6c4fd27ee8",
+    "registered/rear_solo_shin_near.png": "597605eabd3cb7a128e7405ec0debf2dc3f459123a747a8a2da5da4f266f9bfe",
+    "registered/rear_solo_tabard.png": "29e295ff919b79424ab05c4db49f8411b8d1475574f43efe03a488c1828db380",
+    "registered/rear_solo_thigh_far.png": "7182363a6b10316c2938bc70afb9512e6486f88980fa129301bb453d119c5c89",
+    "registered/rear_solo_thigh_near.png": "7e1ae645dad15596920d3eaca659a56f693eb28225ce07c5a90c7abf2c891b79",
+    "registered/rear_solo_torso.png": "e43cbcede3aff17330e092d9aa893aa2a930272861f44412742320f1fc23c116",
+    "registered/rear_solo_upper_far.png": "3533e7ebf67d22b45ee6a3b2e081e80528efc936dae0df2890e81c8e63865a93",
+    "registered/rear_solo_upper_near.png": "ec810a6a8bd40b8fad4f1befff698368cbf69acdd953a81ce0ebe118ca0739d7",
+    "segmented/front/belt.png": "96b4f92710c02c47f80180cdc12fa2587b183b6a6fe1de7bb7287858b743fef9",
+    "segmented/front/chain.png": "ac98be09e63eb6ae32bdf2d0c353edd0c50dcd80e1c35b6056d2039b60c403b6",
+    "segmented/front/coat_far.png": "5858ef624758507962f54a9a7c81536cefe1f61d909f9466dc2dfc2c26d18a45",
+    "segmented/front/coat_near.png": "b26db1dd4ab74479bfc26ddc4352a55619de503f04c4afb9f901d6cf0f5c1e7a",
+    "segmented/front/foot_far.png": "9f80e69c07ddb485a16654ca91807d7b465c9b537550df8f66c4be10958122d6",
+    "segmented/front/foot_near.png": "55484bca9dacbf47be6fdbc14753b56d1ba07631f6f912cf778cfd51dfee3ffe",
+    "segmented/front/fore_far.png": "101004817d0dde0aed0e48b479586d92425cdf56a4272af44aa8039abd5531f5",
+    "segmented/front/fore_near.png": "922b0aae8b947872f0ed7493c1cf613c87de0e1a2888eb17e64dc5198904468a",
+    "segmented/front/hand_far.png": "730aba6aac3cb49d1506985241a12a9bb5b02c1d9f5b2261f001e694413722e5",
+    "segmented/front/hand_near.png": "6a41cfd662eebb501b493025c496709df19e1b1b7e9b96742d7b061fe0f5414c",
+    "segmented/front/head.png": "20d9fed436a0e28f502fad82f3a69f3c16594a7e383d0a19f3d023130bdc3dde",
+    "segmented/front/hook.png": "896b30428a2a1c7b651f2ba0d3de8d2dfe120d907f28d7ebc1bb76d73c0883e5",
+    "segmented/front/ownership.png": "75e2009ad9e85abffcc8c9271bdec4489f62cc7eaaacf7810531968546327a0f",
+    "segmented/front/pelvis.png": "576b0f0e6ffd7a64659a0047e7bfd4a1f392b45e322886f1e97bde8ce0d7a234",
+    "segmented/front/reconstructed.png": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+    "segmented/front/segmentation.json": "6d415b2613842d5730e9d97c37f752470316ecf365ce6a1ec8926a91e60e9f27",
+    "segmented/front/shin_far.png": "b18616cda7c05f87c3873e4525487c2bccf21aa9a3d49a8ece884a5d8512c862",
+    "segmented/front/shin_near.png": "3e748c6f8347e053f3361406f42fb79a0dc96e168a42d24ff4ac761a12079879",
+    "segmented/front/tabard.png": "c698f7b419e725d0956dff32790c85d522ee61dcd08ee7b803bb01bb347c4864",
+    "segmented/front/thigh_far.png": "21f8a987868b5d4e912f34be9936cf812363c788b24704fc519272db717a73e6",
+    "segmented/front/thigh_near.png": "e96c7677a070473a1509b9fa5fb3d1bc044d7da4085f7235b5a740d4843a42e1",
+    "segmented/front/torso.png": "3c69067a20a0082bb78cbf4cfa8367a520f4b2cfc179c38a4776d0db05f1babb",
+    "segmented/front/upper_far.png": "ed1084f16cf3a942d5020549ca9ef4ec65b611674664b7c2800454dc03c2f992",
+    "segmented/front/upper_near.png": "fae06cde1657907a85203a0e769a6f0329f0e2782a258a51e0dfd7a8734f8ffd",
+    "segmented/rear/belt.png": "4031e5135d778287da4e27cefec76fb98b0a7054292a5a6557baa8c8d6cb02a3",
+    "segmented/rear/chain.png": "ca8569d73cf7c76f798afcb9634483c75583cb24a6ab0712be0511cb2f5b7ddc",
+    "segmented/rear/coat_far.png": "9c94d1890c3af1728b0f4cb1063950d2507415654149cbdbe65430bc528eb12f",
+    "segmented/rear/coat_near.png": "988335972073617e65043f5b6651b4711581c8f498d0b232015be5a2d4c7b44f",
+    "segmented/rear/foot_far.png": "0de3c3518370aea7cf756a1c629d40d83b4eea8afc88408ec192b7b33c713355",
+    "segmented/rear/foot_near.png": "edae76e7e691d024aac6710eada786e90dd23a7da63097f7d3126b00a40147c5",
+    "segmented/rear/fore_far.png": "73d182ba4cbc5366cd55781db29c4ac11abc69376a4e0fe44434b6fda586802d",
+    "segmented/rear/hand_far.png": "3612b52dcc9a5ec2de02ffb8f43913e4b33b85c0c33a203a6f512f18dfe9832b",
+    "segmented/rear/head.png": "13a793b6ad7032ba86dafda60dd476079e3a7cc99d8a1153afea0a31c9813cc1",
+    "segmented/rear/hook.png": "b072fa9a604dfc21ab5c1dca9db465a1c98d74579e18e1f8e16a8cab8cd62487",
+    "segmented/rear/ownership.png": "d051b7dfafeb0638e7ede3e1897c76a302fb32ce38bc8cdb96c93e146cf29944",
+    "segmented/rear/pelvis.png": "99f7675ad57a475eaa01ad42e19896b35e1126e22b33995a985e62e932e2541b",
+    "segmented/rear/reconstructed.png": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+    "segmented/rear/segmentation.json": "c028d2a21208fb32d31ff36c8142d8787143767b1d40d212cac81f17c22ba060",
+    "segmented/rear/shin_far.png": "c057c7dd3e7652697c7c652bce5be6e1100b29adf5bf7a968b6095fd028f2dbd",
+    "segmented/rear/shin_near.png": "eda60b6e306783ef9a79ae8d13e99f8c95eae99fae79c3ff4213311c5bd9d0ca",
+    "segmented/rear/tabard.png": "7556e8113dabac76e01d5e6efc1f97fac19c9fc3ae845046814ec7bcfecf82cc",
+    "segmented/rear/thigh_far.png": "0f19829dd879212de931b16beff674ac408e327e5be99d87c771f178bb52f56f",
+    "segmented/rear/thigh_near.png": "3482aed20aad4f9a003ac1b82372b18bc741925ff09f46d20cf564408908a51f",
+    "segmented/rear/torso.png": "743f21d793da721147c8d9d6aac9db1407f896b5d901e6a40896c4410fb5e51b",
+    "segmented/rear/upper_far.png": "3771bb5b7399d1ad916e89733fb94390c7c8dea333560d8167e88d3159e18fae",
+    "segmented/rear/upper_near.png": "a85baa17d13b10f734ed96c8d4fc8a7c09f6b7c26fd572168dca23ff71abcd0e",
+    "source/front/kit.json": "0aebb7fa74237373959e03352be379b68d45ac98fedb40763faaed7c08687329",
+    "source/front/processed.json": "fe425a884dfa9b7757da3c3d4f6e8ded51c3483e1f710236bc7b582b309423c1",
+    "source/front/processed.png": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+    "source/front/raw.png": "d8cfa95f1171dfcab9da4124423234849cc58fc18ad81f882bc531de81ad7dca",
+    "source/label_palette.json": "c8caad5303829be4fa56100b0de2ae58e152f28858cc61eaa58c42aea818bb0f",
+    "source/label_palette_provenance.json": "22f8a8e39e004dbec0bf1cad4b6959e0d931078e42af780ddf8be8a989051852",
+    "source/maquette/front_clay.png": "3d44eed73f168726aa4338def80da51ef1b1eff260e99ce39efab79d22b4de5e",
+    "source/maquette/front_parts.png": "dc3f4743edce98e8438adfed19f24629d24646208d454b358190686eb6e228b3",
+    "source/maquette/front_solo_belt.png": "3fbe33c3c276e63b459599b4448e7ffac4db91e78f5cb1286859b2ac2af1987e",
+    "source/maquette/front_solo_chain.png": "1ae2cc4b872aeda694073954ab97c47958da109008010a0192eb63068546cc7a",
+    "source/maquette/front_solo_coat_far.png": "cb168a957eb40fb86becc75db39cf669914bb85b4086e7e44e19945a24d9a0c4",
+    "source/maquette/front_solo_coat_near.png": "451b80502f90319feeddba6035fa03b7f32c6892c0ee54d9470e02ef56c246f4",
+    "source/maquette/front_solo_foot_far.png": "ebdcd94ce564a4db42d6f67968f4e4ee7de8d4419db518baf214c7536dda68a8",
+    "source/maquette/front_solo_foot_near.png": "42037fc1e83d35e9473eb1e055e41372512d406a02427eb7974b248ad15d94b8",
+    "source/maquette/front_solo_fore_far.png": "79ce555ae4cb72a0ecb748aab8707fadd0e1a37f3c34fd24185e1b9997c18df0",
+    "source/maquette/front_solo_fore_near.png": "fdf58f2cce58ceb395ddbddf3a1b731a91bfe7ed639779c3015cdeccca004a0a",
+    "source/maquette/front_solo_hand_far.png": "8b6e15a8c51dd2f750b1bac38c7408189fc209d17541436209c998acf4eeb518",
+    "source/maquette/front_solo_hand_near.png": "3b8f14332c08d5effabf6442654d4894908beef78725d03a22c437249e8c49a5",
+    "source/maquette/front_solo_head.png": "936f7b6cd365e271df9afb34504aad8c6a6ac245b8a163471295052e640a16c4",
+    "source/maquette/front_solo_hook.png": "705fcc3a2d4aa610874f516542c8217ed2e0f51c9191c46e6b0d99a982413110",
+    "source/maquette/front_solo_pelvis.png": "0cc9e4aeff0c149f3383f962d34fc3208f6d7c6d37b2577fb2b050276069fba8",
+    "source/maquette/front_solo_shin_far.png": "49beb99da2efe833ec53b6b2ec04a03ebcbf1cb81a85fc2446ad80855856a348",
+    "source/maquette/front_solo_shin_near.png": "d9c341715c88a8752cc4a0163d6b8892180144a239f7adb8be0f527a8abdd429",
+    "source/maquette/front_solo_tabard.png": "dbc4850720e36c22b4cdbd4370fb1007f316b7a11ba6b86463b890bdbe260ca6",
+    "source/maquette/front_solo_thigh_far.png": "cf0149fc3571ec03454abcf85823aec090098f1eb60b2c05178a79622bde8aa4",
+    "source/maquette/front_solo_thigh_near.png": "d0430bacf39662c25056243def714606e7aabb8b855752a822d5e4a75ebea972",
+    "source/maquette/front_solo_torso.png": "01ffaa6eb86cd99818f93fe018adce72b45af016efd729793742dd9beadcdec1",
+    "source/maquette/front_solo_upper_far.png": "095e7f51ba6a11495c9275e5409fbd7a5882e0e1207a8d4bca41780771318300",
+    "source/maquette/front_solo_upper_near.png": "6d7021af651ceb272d6d2606a24e02f87d761e42be97caf1f71314898a096119",
+    "source/maquette/joints_px.json": "0858fae3a6249008294dc6ec6d8874a3e1624470fdaa8eba21ca1996170f82fa",
+    "source/maquette/rear_clay.png": "3d14f2b3bf4b00b01178d52f083d93271213b1561506e9576fe3e3208eab9938",
+    "source/maquette/rear_parts.png": "d9b443ff3c42ba954a9bb745e54b26e85d6055310e337b1b6ed1c90cf99ef7f0",
+    "source/maquette/rear_solo_belt.png": "d77522c115c893097a61820608d2902daa4c96690eb97bf225e10b4d394edf58",
+    "source/maquette/rear_solo_chain.png": "8582c5af9611f725c28d35292e1630e1ffce64c0d84898a9ddb6769e00762a17",
+    "source/maquette/rear_solo_coat_far.png": "993627c4ef3434ff651d2d8b4a48d98d75fbcff6c1840a52930eed9e3cb5a9a5",
+    "source/maquette/rear_solo_coat_near.png": "4146eb6395d4a00e56deff105cc950199542106d51c26ca4b9768cd59d31728d",
+    "source/maquette/rear_solo_foot_far.png": "6a9eade500ccc281158d6cea72ec6253f27fdd90473a986b8fbcdb60c052eaf4",
+    "source/maquette/rear_solo_foot_near.png": "dd55062257018d72d6476bb6f983f0070ffcd995f1a970ba6689e522068fe23c",
+    "source/maquette/rear_solo_fore_far.png": "69d4c45006b965933d46f2cd859cb32402056c59e08856c0feaab02e5abf6243",
+    "source/maquette/rear_solo_fore_near.png": "768faff3299eedddc4670e05f5d8a7efc725c859f6013e97b632032d00daebdc",
+    "source/maquette/rear_solo_hand_far.png": "0027120efa60b8076ea23977dbb0ce5b44637ce89d5f85de5b026ede9666dcd3",
+    "source/maquette/rear_solo_hand_near.png": "52382c3db29eb2b4ba92be2588e70191ea76b1f18840286f7655e2901dce0bdc",
+    "source/maquette/rear_solo_head.png": "21aeb91e3345f2146ac407913647a5ada71aaa35ef07e1ce2f02562e63cd016d",
+    "source/maquette/rear_solo_hook.png": "36e79689801400290336bc8dd19087f843260e04bec86386393ff7336f1155ab",
+    "source/maquette/rear_solo_pelvis.png": "2cef2c76e965ce18dbf76d528f86666a5cc143f91721fc842f051c3dadf036bb",
+    "source/maquette/rear_solo_shin_far.png": "ffa8f924a734e7e11b842f18b6b346784e180b98cdd3fed70ee74d797aed0323",
+    "source/maquette/rear_solo_shin_near.png": "b06cf21f39631bf5bfc4713435481f26b1c0f93fd05bef31f93b51bd94a7ed8e",
+    "source/maquette/rear_solo_tabard.png": "7ecebfaf7730fd95d42203a0730a1783c2597ddf562b64e52b555b09321e30d0",
+    "source/maquette/rear_solo_thigh_far.png": "66098f065324ffff424c481128e82503d433b07d04cb9d19b58a31e9e16e69b9",
+    "source/maquette/rear_solo_thigh_near.png": "f22a2f1ad8f1f833890e41812453b4330a6623d45e180f19c8c788425a361654",
+    "source/maquette/rear_solo_torso.png": "322dcb6c032aad1caa9d1018be99c4f4ba8e60c6f7c948896d83c929aefde97d",
+    "source/maquette/rear_solo_upper_far.png": "c176f7a854125b28b2451a5ca197c43e1e426c28cddf3cc39e1b906863fe49df",
+    "source/maquette/rear_solo_upper_near.png": "39d33b4a8a4d89707e61a5b7dc62425b83de32680b9059a8611a527e3e3f6aca",
+    "source/maquette_manifest.json": "132742f001fab9d5cd47ce91b70700d2ae9e3b386e4a12f62ed18dbe4b8fee31",
+    "source/production/front.json": "7dac3071aac4fb9a3c932c161507d31bac219fe6bd739c2278f6a2ab9e0e250c",
+    "source/production/motion.gd": "bf996a7c14de51a0df60684781631dbee761220575726c3d326a7b5c5036708d",
+    "source/production/rear.json": "32c81bffc1a4f15d8af652aa68f74a5d3db4510db1813b2cf8fb6bbd3fb80acc",
+    "source/production/renderer.gd": "0eb72d17139f94b0000c7ca504aa1be0190db23887f7bee4bd4347d9567cb49d",
+    "source/rear/kit.json": "2e6d4f95901138f867b69139a947875a97f1696529d0485a109e69c448bfa3b7",
+    "source/rear/processed.json": "7af4d17afdef927660fc3915463ff7cb54eeace3033c8dfb5c459aa14af7cab9",
+    "source/rear/processed.png": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+    "source/rear/raw.png": "d3430bce59e949b1c6475def5eddb50b9913cb1eed65dc13cc820cf2f5cfb6af",
+    "source/spec.json": "e00aa303ac32d350afeb016868466140f1e700eb7ccdf3905b67bf9616a49905"
+  },
+  "pending_design": [],
+  "requests": [
+    {
+      "view": "front",
+      "part": "thigh_far",
+      "material": "dark cloth trouser leg",
+      "request": "hidden_requests/front_thigh_far.png",
+      "request_sha256": "da37a21d3bd3e085d79cb6192c36c3879d53f723aafcd13b49774de498edb07c",
+      "visible_mask_sha256": "5394148a0db4fd8939f96cdd5383f5c1280d1a989357aa4ce07a0a1a9c19ca4c",
+      "hidden_mask_sha256": "e6251b54e4b854765510b1ebfec191323d471e56d2a296d3553f257d3ba95a0a",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "7ef5e33475218b09eceb8b771d01b5bc4ca1d975fd895fe8536c4cb47b00c0bd",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 188,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 2075,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 311,
+        "max_residual": 9.376132763582579e-07,
+        "domain": [
+          107,
+          110,
+          157,
+          191
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          8,
+          4,
+          7
+        ],
+        [
+          52,
+          9,
+          10
+        ],
+        [
+          68,
+          47,
+          42
+        ],
+        [
+          80,
+          26,
+          22
+        ],
+        [
+          107,
+          35,
+          27
+        ],
+        [
+          118,
+          79,
+          52
+        ]
+      ],
+      "palette_iterations": 1,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 188,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 149,
+      "status": "filled",
+      "output": "hidden/front/thigh_far.png",
+      "original_sha256": "1baeb8871baf9af97455a57f912ef84b76f03935ef6f70024ca6cd9af84aa901",
+      "output_rgba_sha256": "631caefe900dfc90ae1a3b059f9ea96a485c33b0b50d0ce3ed9094d49550f6c0",
+      "alpha_sha256": "102e3426b128f08c2129a9ef1606344ad659bdca21691b06d51a5546d94b260a",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_thigh_far.png",
+      "output_sha256": "d6c072cee2a5c298b4e7bbb0e31dc18308f701d213ad210fd1422432ccaf3b78",
+      "preview_sha256": "2e75cf51eb64a99b15ba9f321743e857a4644df29efedbe8818743aa3c3ec818"
+    },
+    {
+      "view": "front",
+      "part": "coat_near",
+      "material": "dark ash-grey ragged coat tail",
+      "request": "hidden_requests/front_coat_near.png",
+      "request_sha256": "4e2746dfefd458edaaa36eb7bcf651d73ba2efaceb597a3eafdb9d28952b7fea",
+      "visible_mask_sha256": "4c69d4d4e688bb13036640a80671ab884429991f5db7f83fb72e2683f4e51fba",
+      "hidden_mask_sha256": "072af0ef2e91f4ea35c3f13ff06cf55b36b2956e23b97fb15a70f680a821cfb1",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "6f59ea4cc93eaefe0afd62cded732ff8a3db5a3a231bbc5057661cd3ea2f8bf9",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 2160,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 729,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 495,
+        "max_residual": 9.998208317607347e-07,
+        "domain": [
+          109,
+          63,
+          219,
+          213
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          23,
+          15,
+          16
+        ],
+        [
+          40,
+          31,
+          32
+        ],
+        [
+          58,
+          44,
+          43
+        ],
+        [
+          64,
+          50,
+          49
+        ],
+        [
+          85,
+          64,
+          60
+        ]
+      ],
+      "palette_iterations": 8,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 2160,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 66,
+      "status": "filled",
+      "output": "hidden/front/coat_near.png",
+      "original_sha256": "d354cf6c6843ea9051b813246230ba5ac550b82feb5fbf16694e885a2dcfef00",
+      "output_rgba_sha256": "527c63bbfaed2905575fb0609599f5251745cf47038022239471c882ba035200",
+      "alpha_sha256": "18ed0979b6896d4ae8a51d08f2d85047285a1b58b5bdbe9377f21447cf13bb57",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_coat_near.png",
+      "output_sha256": "32279d332ea2fba983e9db33d38cd2e1c9db922d62f0b38e62a288ff413bf620",
+      "preview_sha256": "e6cf56f39b6934e23724f20ef84dbb0f4a4f7294656aa9ce59f8ce6ad24ee053"
+    },
+    {
+      "view": "front",
+      "part": "thigh_near",
+      "material": "dark cloth trouser leg",
+      "request": "hidden_requests/front_thigh_near.png",
+      "request_sha256": "ed08bd48e83f72b9a954964d7255eaa1be0a92e4d27428ffa0ab5cc6a8e41593",
+      "visible_mask_sha256": "0272055c323c114265547e1a63b6f8008bcb014f76d257c5236b91c458906999",
+      "hidden_mask_sha256": "3a8e879f7b4ac7a95f514c36f96916c6c07594ac8288e649f02ab7fee6296d59",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "3fb4797325e85817f85e5b9605fa6753a520db8507ed9f84f2b477c6be1b0ae0",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 544,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 1634,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 263,
+        "max_residual": 9.663869384843409e-07,
+        "domain": [
+          140,
+          123,
+          184,
+          206
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          3,
+          2,
+          3
+        ],
+        [
+          35,
+          27,
+          28
+        ],
+        [
+          57,
+          45,
+          42
+        ],
+        [
+          76,
+          25,
+          20
+        ],
+        [
+          79,
+          61,
+          56
+        ],
+        [
+          115,
+          35,
+          26
+        ]
+      ],
+      "palette_iterations": 3,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 544,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 137,
+      "status": "filled",
+      "output": "hidden/front/thigh_near.png",
+      "original_sha256": "36949b1323d0be461f64718d48d41de8a74b3c0ad3f00a3ed7f7365780fd1bae",
+      "output_rgba_sha256": "603e3b71b131a6283076885b684c70576b86f29fb08953cc405bbe35e5b1344e",
+      "alpha_sha256": "e355f49560a69c464fde156a6e671e2344318279f5f4266827e22f3f70a3d9f8",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_thigh_near.png",
+      "output_sha256": "d0e780b2b237f3ab094fe060cff636503ab9b0b912a2df5e94c0ff7cf7e28bbb",
+      "preview_sha256": "4be8e010f500274049d3bf6e925f63ea3a646b9139d695d4a071417817fa057e"
+    },
+    {
+      "view": "rear",
+      "part": "shin_far",
+      "material": "dark lower leg and boot cuff",
+      "request": "hidden_requests/rear_shin_far.png",
+      "request_sha256": "c90596a9b8519796fd7437624c866c385eecc718db598789930590a42e3a8e68",
+      "visible_mask_sha256": "675ab733c47e9836e09632b205cecb06cbc3e83ceface4b903b7e2fee6d69de5",
+      "hidden_mask_sha256": "8bf80e36c81b67e437c2870ebbf5213b6efcda6b8a3018343a5eb84a73c6b30d",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "24d3e6a246ee1eb313ad98a9f198e3efa8fcd46bb117b8f41da0170d4351cdd4",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 797,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 1054,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 411,
+        "max_residual": 9.717968573515291e-07,
+        "domain": [
+          74,
+          137,
+          151,
+          249
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          2,
+          0,
+          1
+        ],
+        [
+          26,
+          12,
+          14
+        ],
+        [
+          41,
+          25,
+          21
+        ],
+        [
+          64,
+          38,
+          31
+        ],
+        [
+          92,
+          58,
+          47
+        ],
+        [
+          125,
+          82,
+          66
+        ]
+      ],
+      "palette_iterations": 14,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 797,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 95,
+      "status": "filled",
+      "output": "hidden/rear/shin_far.png",
+      "original_sha256": "0034914c751f70c1a6445225170c8043a7a3a78edd4ada75f6d05ede68379132",
+      "output_rgba_sha256": "a0e69975c37dd83d0ad4e3b6d9e86053cf7582d6f1e5d0bbc12a0133a9a4b7be",
+      "alpha_sha256": "233651bde05ed68717a44755bae1ec09344c9f144d0025f8d18a139f716abf99",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_shin_far.png",
+      "output_sha256": "da00713406b3a34954ef04b7a3b811f789be484b8e545fc15b9b5532e8647676",
+      "preview_sha256": "cf71c040caf9c3633c21a583c17707215ddabd5e91623f8c336140aa2eebad68"
+    },
+    {
+      "view": "rear",
+      "part": "upper_near",
+      "material": "dark cloth sleeve",
+      "request": "hidden_requests/rear_upper_near.png",
+      "request_sha256": "71f53f8b0b74c975db864f3e2838e2c0afc171f961a5e4112939e7362b791b76",
+      "visible_mask_sha256": "44149fa812d40c8e935bdd82fa8af518d6debc068ac85fe2ad1b8216af199300",
+      "hidden_mask_sha256": "4d8a1584cef3796028e17533bfb68dce25ac697173a015322b1f479f29f41cc6",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "e71e3ecef1e8295096589f4200034dad0366d47aceb214bbce54894a62bdfff3",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 67,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 1110,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 222,
+        "max_residual": 9.960890956039409e-07,
+        "domain": [
+          67,
+          59,
+          105,
+          114
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          4,
+          5,
+          6
+        ],
+        [
+          44,
+          32,
+          32
+        ],
+        [
+          61,
+          45,
+          42
+        ],
+        [
+          76,
+          58,
+          52
+        ],
+        [
+          97,
+          75,
+          67
+        ]
+      ],
+      "palette_iterations": 1,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 67,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 103,
+      "status": "filled",
+      "output": "hidden/rear/upper_near.png",
+      "original_sha256": "5590a5c526e1ac83c0a52f201256a4134dd6a24a471d39e445d8b79dc411955d",
+      "output_rgba_sha256": "a05ca50787defc639daa33cb3a1210cf0394941e30236159e6c7d9fe50b5a419",
+      "alpha_sha256": "65f4ef33f54a6f00067b0e0ddf1be909eec18c1b7ef1b75944be61774a62552d",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_upper_near.png",
+      "output_sha256": "a550c2970a83a9da88840096f41f8c6d2e61890a6a707eef44677f39bf2d4cd4",
+      "preview_sha256": "ef947ecf2e46db4959753bccf78054678597b220ef28a5607c5c291e68a5deff"
+    },
+    {
+      "view": "rear",
+      "part": "thigh_far",
+      "material": "dark cloth trouser leg",
+      "request": "hidden_requests/rear_thigh_far.png",
+      "request_sha256": "6dadf25b728a95f95fb7efa78ed2aa8f864f8baeb77296b5cb99247cae83b364",
+      "visible_mask_sha256": "a605ab7a9da5b4920326b3f57a2e7797c3cfd8aad5a90db873dcac595f54b9a0",
+      "hidden_mask_sha256": "9e94f2fbd6697ed206f9e9d89e0b981058f3900ad83f4d0a36afdd20b505436c",
+      "donor_mask_sha256": "5394148a0db4fd8939f96cdd5383f5c1280d1a989357aa4ce07a0a1a9c19ca4c",
+      "donor_parts": [],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "47adf01e83e568395fa7b69b738f45f5780ca1500494a42655d3cf1df9826a11",
+      "donor_rgb_sha256": "1705a8b9ad740f757f725b921ee277261bc1ed7ab66d510433c2d36c3268877a",
+      "own_visible_pixels": 7,
+      "donor_visible_pixels": 188,
+      "hidden_pixels": 2063,
+      "seed": 0,
+      "cross_view_donor": {
+        "view": "front",
+        "part": "thigh_far",
+        "source": "source/front/processed.png",
+        "source_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+        "owners": "registered/front_owners.npy",
+        "owners_sha256": "ea0c51332d5b77a7128c0bae046703912b7c19d42ff4730721135172599ab160",
+        "visible_pixels": 188,
+        "registration": "native_canvas_coordinates_untransformed",
+        "reason": "Own visible count <40 and no listed same-material neighbour in this view"
+      },
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 289,
+        "max_residual": 9.760107919734358e-07,
+        "domain": [
+          99,
+          127,
+          149,
+          203
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          8,
+          4,
+          7
+        ],
+        [
+          52,
+          9,
+          10
+        ],
+        [
+          68,
+          47,
+          42
+        ],
+        [
+          80,
+          26,
+          22
+        ],
+        [
+          107,
+          35,
+          27
+        ],
+        [
+          118,
+          79,
+          52
+        ]
+      ],
+      "palette_iterations": 1,
+      "palette_source": "same_part_other_view",
+      "palette_sample_pixels": 188,
+      "conditioning_pixels_in_hidden_region": 133,
+      "outline_pixels": 162,
+      "status": "filled",
+      "output": "hidden/rear/thigh_far.png",
+      "original_sha256": "4eb60fe89a5f36d49ac0bb24371a4839af88c240a29a5cfcd63725bd268d784a",
+      "output_rgba_sha256": "fbd57c3fd7129ba34a39c2304b939ebea4d2d4afe088430da4405b2e86d3695e",
+      "alpha_sha256": "e63cefabe6401c9d3ac4fe72cdbca2f82c9c42825aacff9ea3d38c5ab3bd3799",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_thigh_far.png",
+      "output_sha256": "bed13ac7b952b05468cf0f9acd518418f17ad2ebe566f53a8ebab23ababcecae",
+      "preview_sha256": "31d70b027c95e66ce6253dcca4af41501d561745747f4e33f526d1212399769b"
+    },
+    {
+      "view": "front",
+      "part": "torso",
+      "material": "dark ash-grey cowl and tunic",
+      "request": "hidden_requests/front_torso.png",
+      "request_sha256": "aa2ed74cd4b8219d567c893ed9f9680093f3ebae77439e614030e410ea5ba829",
+      "visible_mask_sha256": "5e881fd7cd7a783794bf56feee0286976570ce3fbcb933e7c4fed3d4fcbb0886",
+      "hidden_mask_sha256": "deb92cedc1267117844d0cecf72360837268b45521954afdac03f51a24e4282f",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "5308233c667a4a2c38cdbb748e656f50338019d837e47abf57c3e49d6201bfd1",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 3072,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 1954,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 306,
+        "max_residual": 9.482140017907196e-07,
+        "domain": [
+          101,
+          54,
+          189,
+          152
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          3,
+          2,
+          4
+        ],
+        [
+          35,
+          25,
+          24
+        ],
+        [
+          59,
+          42,
+          38
+        ],
+        [
+          82,
+          61,
+          55
+        ],
+        [
+          117,
+          84,
+          72
+        ],
+        [
+          233,
+          189,
+          165
+        ]
+      ],
+      "palette_iterations": 13,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 3072,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 129,
+      "status": "filled",
+      "output": "hidden/front/torso.png",
+      "original_sha256": "99083b172286399c2262908ce3b63d61a5595a8120d9f618d41fa36fbc674387",
+      "output_rgba_sha256": "2a260ae93dd5492114cc3f81af604d6f653a6bf7e954745cfa5295d5a7c9bd76",
+      "alpha_sha256": "58acfa008792ab94af13388f8db0f356bd0337561906f05f8f6171c1f96ea263",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_torso.png",
+      "output_sha256": "97656782fba5dec5e7ea10becb4fa097736975b3966832f4d6c3f9b100b469e1",
+      "preview_sha256": "06334e40c8dcd4d8d7f254aac7d9970566139bb1151b4c5d41f5995e86640cd0"
+    },
+    {
+      "view": "rear",
+      "part": "thigh_near",
+      "material": "dark cloth trouser leg",
+      "request": "hidden_requests/rear_thigh_near.png",
+      "request_sha256": "aa8ff7b74652911d7a2e68459a4de32256f8b7dede571d57916ae26b80c383df",
+      "visible_mask_sha256": "fea85adc7a497f43aca2e202fb8db197bc1a02f36315aaf28421d75796e3c0fe",
+      "hidden_mask_sha256": "c599055fbcb93dc3e92875f1fe510dad926cbdd78b9f6a55251b44c16cb396ea",
+      "donor_mask_sha256": "a605ab7a9da5b4920326b3f57a2e7797c3cfd8aad5a90db873dcac595f54b9a0",
+      "donor_parts": [
+        "thigh_far"
+      ],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "2d929a0e12e1a64c53e8846ac2f7d3ff2e60767331133237b5f4b5ec27586823",
+      "donor_rgb_sha256": "f5e37fbcb3d3cebfb309037a5c5533a7b7b07d53f23da5de2b10f953de6c6047",
+      "own_visible_pixels": 744,
+      "donor_visible_pixels": 7,
+      "hidden_pixels": 1293,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 226,
+        "max_residual": 9.444315921814884e-07,
+        "domain": [
+          72,
+          114,
+          113,
+          190
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          1,
+          1,
+          3
+        ],
+        [
+          19,
+          11,
+          15
+        ],
+        [
+          38,
+          27,
+          27
+        ],
+        [
+          53,
+          40,
+          37
+        ],
+        [
+          61,
+          45,
+          41
+        ],
+        [
+          81,
+          62,
+          57
+        ]
+      ],
+      "palette_iterations": 11,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 744,
+      "conditioning_pixels_in_hidden_region": 1,
+      "outline_pixels": 116,
+      "status": "filled",
+      "output": "hidden/rear/thigh_near.png",
+      "original_sha256": "1b52d951ad3c2aeae744a5b784b5bc82669ca4070a57674e58c41648c52fafae",
+      "output_rgba_sha256": "979a60bf9c1eef30d5befd1e25f1cfc4f810f7d80d25d4d88a91a7e30bf85efb",
+      "alpha_sha256": "7126a372e54455a9d60442e667e6531376587f8dea5444d46f35450f840aa6ea",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_thigh_near.png",
+      "output_sha256": "266254cd67dd7a7107449c9b844529982d4232f9c6be5d8dcc9db9d2d70db144",
+      "preview_sha256": "58a3e43955c94770997035442ee3bbf3dbb80b151451c934800555b6e10ec3ae"
+    },
+    {
+      "view": "front",
+      "part": "shin_far",
+      "material": "dark lower leg and boot cuff",
+      "request": "hidden_requests/front_shin_far.png",
+      "request_sha256": "899abae7df9630c04a53161d868c3537dfaa909093952b2ce39923722d8871a3",
+      "visible_mask_sha256": "1a96d8aa23ca843bf4c5a3e69748863af56ee74db165683533270513ca7c4c42",
+      "hidden_mask_sha256": "61312069bd1646df75f594c45afa6e946569255a646cde7768e046e7d6c6cdea",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "b79f32514bbe4d7b82a0cc685c5569a4081337addd2db1c81f31d030327407f9",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 822,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 926,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 381,
+        "max_residual": 9.694266555933324e-07,
+        "domain": [
+          107,
+          125,
+          191,
+          230
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          6,
+          2,
+          3
+        ],
+        [
+          33,
+          18,
+          17
+        ],
+        [
+          59,
+          32,
+          32
+        ],
+        [
+          81,
+          47,
+          44
+        ],
+        [
+          84,
+          29,
+          23
+        ],
+        [
+          109,
+          38,
+          28
+        ]
+      ],
+      "palette_iterations": 4,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 822,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 84,
+      "status": "filled",
+      "output": "hidden/front/shin_far.png",
+      "original_sha256": "f96c49f42ce8dd1eb1a120426616315dd485c3fcd028026f404a15b54767bec3",
+      "output_rgba_sha256": "c89104f426ce9c150bb706d2a6d6707f8041962dfdd98b729c7afa16725df75d",
+      "alpha_sha256": "8036c37569bf10e1a4c567e5b40a84c495bea63404654e737df640e856cec34e",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_shin_far.png",
+      "output_sha256": "27f21a420896bd6f6377577ba6631e8a180101e96b52f2e09bea81bdd8e77458",
+      "preview_sha256": "465c10908e849ea3bcd4e592a874eb71ad5eba811762a1cedb3c12f3eb565346"
+    },
+    {
+      "view": "front",
+      "part": "upper_near",
+      "material": "dark cloth sleeve",
+      "request": "hidden_requests/front_upper_near.png",
+      "request_sha256": "290a1ae5d752aeb0c572d12785903127b8d02132e6aff9a7184403ed3ec568e7",
+      "visible_mask_sha256": "7796f0c2f22f800e54dddd45174ae9ed9601c793e2ae9899514754e19cc24001",
+      "hidden_mask_sha256": "651898ecf5424a16b640039fc6f321655332a798a2aed286812319af074fee41",
+      "donor_mask_sha256": "0ba16cfbaf00f3540a27806f5cef8c12094fd945f647b3107d838a3e87027885",
+      "donor_parts": [
+        "upper_far"
+      ],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "30cd7eaf95fc653279a4890dfcfe630ec758ff2ec9a7799bd7c8fddc72dea797",
+      "donor_rgb_sha256": "df2c82ca1c2da0f4a00cde7cfad40927bdd1855676dea8b29ad27ba166b5b3b1",
+      "own_visible_pixels": 1335,
+      "donor_visible_pixels": 607,
+      "hidden_pixels": 430,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 399,
+        "max_residual": 9.956491072404606e-07,
+        "domain": [
+          84,
+          53,
+          193,
+          150
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          2,
+          1,
+          1
+        ],
+        [
+          47,
+          34,
+          33
+        ],
+        [
+          79,
+          37,
+          26
+        ],
+        [
+          83,
+          62,
+          56
+        ],
+        [
+          120,
+          94,
+          85
+        ],
+        [
+          151,
+          83,
+          57
+        ]
+      ],
+      "palette_iterations": 11,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 1335,
+      "conditioning_pixels_in_hidden_region": 1,
+      "outline_pixels": 88,
+      "status": "filled",
+      "output": "hidden/front/upper_near.png",
+      "original_sha256": "9193d6babeb31c144217cc3657948281bab7affb431d48ca87e66e305f6ce7dc",
+      "output_rgba_sha256": "6698df34f42640084364db15690fc753baddf1fcc29543557e78aff1c657edb9",
+      "alpha_sha256": "67270f47a8f46c8e8bef8b2dac939daeae553adf28db5de69daeb8807b990157",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_upper_near.png",
+      "output_sha256": "4e5ba59939790de0445868a950d3047f9bb24ab8a6be8010b44d9f775667785c",
+      "preview_sha256": "182d39ac4d3bcd0f730728308877837c94b5c25485bc8eca372bb7f8bd3167d4"
+    },
+    {
+      "view": "front",
+      "part": "shin_near",
+      "material": "dark lower leg and boot cuff",
+      "request": "hidden_requests/front_shin_near.png",
+      "request_sha256": "448b40abce75e3c386716f79644ba2a3d08287bd2c0bed5fde71b1e56604d47e",
+      "visible_mask_sha256": "4bd3e7e7d8a75342a6f3a1dc46e94bfbb004f5461ac2ee5cd1578d2cb4a558ca",
+      "hidden_mask_sha256": "ea424690eaeb82b918ae9d26aace31adf2df13de2dce270618f5ff71574c57ed",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "5b96f4c15e968c01f832138eddaa5c21203ca5b782a29b22115913f88fadafdf",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 911,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 752,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 288,
+        "max_residual": 9.912820475190562e-07,
+        "domain": [
+          141,
+          151,
+          197,
+          246
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          3,
+          1,
+          2
+        ],
+        [
+          27,
+          15,
+          15
+        ],
+        [
+          48,
+          27,
+          26
+        ],
+        [
+          66,
+          40,
+          37
+        ],
+        [
+          94,
+          58,
+          54
+        ],
+        [
+          167,
+          106,
+          84
+        ]
+      ],
+      "palette_iterations": 6,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 911,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 90,
+      "status": "filled",
+      "output": "hidden/front/shin_near.png",
+      "original_sha256": "45482f5048cae083c95d78c3b3448749566da948ef2b1c53fcd5747ddf8cb063",
+      "output_rgba_sha256": "bc12d20c7de2399958aa20a43026a172a5eb01ffd8caaa1ff3fb71404fa8ae83",
+      "alpha_sha256": "e59ba13f065ca25f38289d614cae17ce51c887a225f6f8ca43d0063d5b5d11d2",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_shin_near.png",
+      "output_sha256": "61cdbf9ee9b98c0b494d9490ddd895b258af2d4263a136fe843d0f183d4230a3",
+      "preview_sha256": "369a5cf91c43c5e6f11bd599284250ea7cce75ec5df3a39a169df23d4ad06052"
+    },
+    {
+      "view": "rear",
+      "part": "coat_near",
+      "material": "dark ash-grey ragged coat tail",
+      "request": "hidden_requests/rear_coat_near.png",
+      "request_sha256": "f4c9510d14d10a01d1a344b35956f4af02bf79b9e8c64b67a994458232483cfa",
+      "visible_mask_sha256": "ac599d5fa048528c1dd048aedee2e81758e8eac501e1c90153519e3dd1fa36a2",
+      "hidden_mask_sha256": "a4ec5e9d8f08809a20c8d629412b1e807d03b953e8670a6094128826854e687c",
+      "donor_mask_sha256": "6973cfa54a513b16f0e47984a594a0e5b7e7f303b3b53a438c915753475e5180",
+      "donor_parts": [
+        "coat_far"
+      ],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "7060b971d37e4171dcb69679cf7217bb4c1a94b47a20265ae3446c1f8efbb1f0",
+      "donor_rgb_sha256": "fcbc86fd3f19f2ff7b02b7e320101e3142e9a7e652c94fa51c21e47a75117afb",
+      "own_visible_pixels": 1260,
+      "donor_visible_pixels": 2888,
+      "hidden_pixels": 738,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 505,
+        "max_residual": 9.808152871941076e-07,
+        "domain": [
+          38,
+          59,
+          161,
+          229
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          42,
+          29,
+          27
+        ],
+        [
+          63,
+          46,
+          40
+        ],
+        [
+          81,
+          58,
+          50
+        ],
+        [
+          92,
+          67,
+          58
+        ],
+        [
+          115,
+          86,
+          73
+        ]
+      ],
+      "palette_iterations": 14,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 1260,
+      "conditioning_pixels_in_hidden_region": 1,
+      "outline_pixels": 93,
+      "status": "filled",
+      "output": "hidden/rear/coat_near.png",
+      "original_sha256": "7b566378233de2616b7faa01f4b8dc72120f2ed4bdf621e1c0461b659fcedec3",
+      "output_rgba_sha256": "ab4a0320dffb8ac0ec6e46da214398439493a1154c2abd3223637f19a0b356b0",
+      "alpha_sha256": "57e89d8fd5afc730a50971fe58812f5e22db10cfea1408cbb6ad92a4e9063e26",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_coat_near.png",
+      "output_sha256": "f0c907a3bc1d1a7ae3f8bf510b988c405d06c65e8ef0f9a433d9b70fd7208d78",
+      "preview_sha256": "69e8f3d92eedd4a09b4b90458de50d3db5922c6219cac36427ac6080c1a0dffd"
+    },
+    {
+      "view": "front",
+      "part": "belt",
+      "material": "broad brown belt",
+      "request": "hidden_requests/front_belt.png",
+      "request_sha256": "803f108852a165120cf26f489600ed3b8e2fc7899cd2e63c50f80c1cfa9c6e13",
+      "visible_mask_sha256": "d0699cfcae32c98700dd364c1542dbfb203be7e52f2b2c6b8413becaaccdf464",
+      "hidden_mask_sha256": "c75081b896648b54fcb25b2df85fe286917b91cecae4278c007f832e41526987",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "d35750d66112a8cb07014d66a593742f964909bbc603a03d0227816ef1c95ca4",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 602,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 2072,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 361,
+        "max_residual": 9.693511592991766e-07,
+        "domain": [
+          106,
+          95,
+          196,
+          175
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          3,
+          1,
+          1
+        ],
+        [
+          33,
+          14,
+          14
+        ],
+        [
+          65,
+          32,
+          24
+        ],
+        [
+          79,
+          41,
+          31
+        ],
+        [
+          122,
+          85,
+          71
+        ],
+        [
+          185,
+          148,
+          127
+        ]
+      ],
+      "palette_iterations": 14,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 602,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 107,
+      "status": "filled",
+      "output": "hidden/front/belt.png",
+      "original_sha256": "4855113f01a138c032becd3a5a1a37fb597a433e3e004934f8c3dffb5cd4d99d",
+      "output_rgba_sha256": "0fbeea61b41bb7f247a67e5d66c5ef30725cd06bdf212de9f64182bbab12beed",
+      "alpha_sha256": "7498df4956efbb11b2051b26b889f98e6e4eb86cb3d078d3dad1a42516be19f0",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_belt.png",
+      "output_sha256": "4a290939fbb9e44c3ef36c275f572efdb87dce4f12ee867628a4e1b62574b639",
+      "preview_sha256": "4fc1d10765537e984a920539ae0d6d7338f1ec482c9297dab0e07200af54518a"
+    },
+    {
+      "view": "rear",
+      "part": "fore_near",
+      "material": "dark cloth sleeve with broad brown leather bands",
+      "request": "hidden_requests/rear_fore_near.png",
+      "request_sha256": "f739380209dd6afb8aab58e44d1c1cd54571a4fbebc9b9e6295e95212f39a9bf",
+      "visible_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "hidden_mask_sha256": "621e2ef784ca71abab954936f1ec12eea2818574fc3518ef7d92b47a977a524d",
+      "donor_mask_sha256": "a138311d3c183eaff412da8816f20fcba23bbb0fb2ccac9be00ddea612f80f82",
+      "donor_parts": [
+        "fore_far"
+      ],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "donor_rgb_sha256": "c33e321a9a2f674ddcb5cf90b65abe64348e784f2651eadbfb22106d5f1c7a06",
+      "own_visible_pixels": 0,
+      "donor_visible_pixels": 641,
+      "hidden_pixels": 901,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 431,
+        "max_residual": 9.98879241885683e-07,
+        "domain": [
+          67,
+          63,
+          193,
+          135
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          1,
+          0,
+          1
+        ],
+        [
+          38,
+          17,
+          15
+        ],
+        [
+          63,
+          33,
+          29
+        ],
+        [
+          88,
+          50,
+          41
+        ],
+        [
+          120,
+          65,
+          51
+        ],
+        [
+          153,
+          91,
+          73
+        ]
+      ],
+      "palette_iterations": 6,
+      "palette_source": "same_material_neighbours",
+      "palette_sample_pixels": 641,
+      "conditioning_pixels_in_hidden_region": 1,
+      "outline_pixels": 110,
+      "status": "filled",
+      "output": "hidden/rear/fore_near.png",
+      "original_sha256": "d3b382c1c1b53b91b4ab1075ec8aed7bc50cda6f22f8f8c28f35113f3b77b197",
+      "output_rgba_sha256": "eb616549ecf1ac04931a660ac446f7d881bf2319f99c5ec25e3b9c995f75005a",
+      "alpha_sha256": "b5800da4c520c712117c4dc99892bfb8979a920254a55d26cd5aaafc37e9f6e8",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_fore_near.png",
+      "output_sha256": "b7926217cf7c44bcd1077883de15ff0b08a8ddfb28bf421e1786d537db7a0ce2",
+      "preview_sha256": "5ffa2adb6888264e753a15a3c165f6649bba91990d5f0c6ac1fdf81563e3b098"
+    },
+    {
+      "view": "front",
+      "part": "coat_far",
+      "material": "dark ash-grey ragged coat tail",
+      "request": "hidden_requests/front_coat_far.png",
+      "request_sha256": "d9bb701eaf273c2219121702b1c6ecb5b8047ddad36c980c820d0fa8e4758013",
+      "visible_mask_sha256": "af51df03a6e4ec2c4c9cc683ac389e1992e76cea57b0a1d788e9e6e141862218",
+      "hidden_mask_sha256": "2d47d9609ebbd8e3209f5e0526ce0bd2e85d783ed0ef67f11a4240ba8dd01081",
+      "donor_mask_sha256": "4c69d4d4e688bb13036640a80671ab884429991f5db7f83fb72e2683f4e51fba",
+      "donor_parts": [
+        "coat_near"
+      ],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "87e4862e733ff4d8338f09b1b7fd29ce8d2aeb9bd86356f988603da644a56356",
+      "donor_rgb_sha256": "23cc9fc802e5877b4a69115981f69438b958d04031ef18d57078a47fc000b880",
+      "own_visible_pixels": 177,
+      "donor_visible_pixels": 2160,
+      "hidden_pixels": 1919,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 480,
+        "max_residual": 9.658367304137652e-07,
+        "domain": [
+          99,
+          63,
+          219,
+          213
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          58,
+          42,
+          35
+        ],
+        [
+          83,
+          61,
+          53
+        ],
+        [
+          100,
+          72,
+          62
+        ],
+        [
+          107,
+          34,
+          26
+        ],
+        [
+          109,
+          79,
+          67
+        ]
+      ],
+      "palette_iterations": 3,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 177,
+      "conditioning_pixels_in_hidden_region": 3,
+      "outline_pixels": 142,
+      "status": "filled",
+      "output": "hidden/front/coat_far.png",
+      "original_sha256": "7c57efa4e8f906f5f40f517cb9df3688ceb2b026f59bd9d8ce691eee93cc8a57",
+      "output_rgba_sha256": "196ba22e532379cebf90c21e357a2bae4a6e4ddc2adc7d4ebc1a461936596798",
+      "alpha_sha256": "435097961157019eddd11d7b2965a8d3f26846db9c18bd770f8e166d1e432634",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_coat_far.png",
+      "output_sha256": "308e9120a1c7021a3b9c14a635b79c209efc44482eef6f5091c87fb1d6ebbbef",
+      "preview_sha256": "b387ab9aee8aca9530d4ddb5adad99a5b2cf0a5f99011063a8ca53a4fb26b34b"
+    },
+    {
+      "view": "front",
+      "part": "fore_near",
+      "material": "dark cloth sleeve with broad brown leather bands",
+      "request": "hidden_requests/front_fore_near.png",
+      "request_sha256": "1b1a932a3505bd596605ca6ab8c63bb9e2940e1e743964eb4789539c8131f0f5",
+      "visible_mask_sha256": "f11f8d7f349af70ddde877c78ba79f6ec094e9fe8cfffbbab6958ea3934d5455",
+      "hidden_mask_sha256": "017dfa0299b5120c8895f91c4816b8e7caf17e2722d9a672c4454eda6f664f04",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "16f47381b18ab50d2291b78fca7bf75bb118bdbab8ea176a3df6164d85df864a",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 507,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 676,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 192,
+        "max_residual": 9.940360671663704e-07,
+        "domain": [
+          155,
+          118,
+          191,
+          181
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          3,
+          2,
+          2
+        ],
+        [
+          38,
+          28,
+          27
+        ],
+        [
+          67,
+          51,
+          47
+        ],
+        [
+          82,
+          38,
+          28
+        ],
+        [
+          90,
+          69,
+          63
+        ],
+        [
+          118,
+          91,
+          82
+        ]
+      ],
+      "palette_iterations": 9,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 507,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 86,
+      "status": "filled",
+      "output": "hidden/front/fore_near.png",
+      "original_sha256": "c27321c7bbc8280ef1cb5c054e7a8b02050e6fe1a37e9184208ada0e93356692",
+      "output_rgba_sha256": "eb210a375ca3d94438c8986225d7e602f423357c26936b71aa163ca87988407e",
+      "alpha_sha256": "bf835a8f5313c060cdd86f5004035a4219caff64adb2df31fc086aa46ec0de97",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_fore_near.png",
+      "output_sha256": "b2dd643530b4ca4f1ca23ca57de4a248a0ac36f7e514cab866d8c2496fd084d8",
+      "preview_sha256": "7a4b6d5d64c02ed4755f2ace027dea04666053d8e782b951d9e30f980852100a"
+    },
+    {
+      "view": "rear",
+      "part": "hand_near",
+      "material": "dark brown leather glove",
+      "request": "hidden_requests/rear_hand_near.png",
+      "request_sha256": "1398523b174ff8fc66f710fd77d933a0f78f2c2e7d08d751b76d8bf0219f3c52",
+      "visible_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "hidden_mask_sha256": "baaf6e0ddf0322681bb58c4fb49bdd272990530ae9e9e748863bc1670baf4dfd",
+      "donor_mask_sha256": "aa64e22743dd4910943ef3004fc59a974998b1a9e20a65882b0861636c96ff61",
+      "donor_parts": [],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "donor_rgb_sha256": "8742c6f19f68f2f4ecb9c440504e8aead66ce16a64c7ae25b08cc91decc301f1",
+      "own_visible_pixels": 0,
+      "donor_visible_pixels": 448,
+      "hidden_pixels": 594,
+      "seed": 0,
+      "cross_view_donor": {
+        "view": "front",
+        "part": "hand_near",
+        "source": "source/front/processed.png",
+        "source_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+        "owners": "registered/front_owners.npy",
+        "owners_sha256": "ea0c51332d5b77a7128c0bae046703912b7c19d42ff4730721135172599ab160",
+        "visible_pixels": 448,
+        "registration": "native_canvas_coordinates_untransformed",
+        "reason": "Own visible count <40 and no listed same-material neighbour in this view"
+      },
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 479,
+        "max_residual": 9.791216786103871e-07,
+        "domain": [
+          71,
+          101,
+          185,
+          181
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          3,
+          1,
+          2
+        ],
+        [
+          31,
+          17,
+          16
+        ],
+        [
+          54,
+          33,
+          28
+        ],
+        [
+          80,
+          49,
+          40
+        ],
+        [
+          110,
+          64,
+          48
+        ],
+        [
+          159,
+          87,
+          58
+        ]
+      ],
+      "palette_iterations": 33,
+      "palette_source": "same_part_other_view",
+      "palette_sample_pixels": 448,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 79,
+      "status": "filled",
+      "output": "hidden/rear/hand_near.png",
+      "original_sha256": "674d7726e66c931472be53cbba3409d04157137099ae4c584675779888fb930b",
+      "output_rgba_sha256": "35746aa5f12d3ace1c888d0d95da06b9b3ea76532e21d11f6f2bf03aa3a4cd82",
+      "alpha_sha256": "1a17e1db25902ff7522d42bb19123c696e23abbf92508f0eaa03b6d95582944f",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_hand_near.png",
+      "output_sha256": "0f0e58916e511ba930412fc204146c63de83b823c421a4a8d52994526a07e328",
+      "preview_sha256": "0a3c286a98b6268a863e2fbf05cdcd1db18c7a73fdb2142fbd92d4b27944451b"
+    },
+    {
+      "view": "front",
+      "part": "upper_far",
+      "material": "dark cloth sleeve",
+      "request": "hidden_requests/front_upper_far.png",
+      "request_sha256": "7367c33fda69c5fd51617ba4563928b87a13b79a77cb49139b951d651eaa1bb5",
+      "visible_mask_sha256": "0ba16cfbaf00f3540a27806f5cef8c12094fd945f647b3107d838a3e87027885",
+      "hidden_mask_sha256": "5d4824a8ef7aeb73e9528f01b40acbc940f05b29a4a342b1f7c430a6410658f8",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "b3035eb698a8def2ca9b55f99ec4d5d7c4106c0e0d4e13e99cb1a6839621a85a",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 607,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 936,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 379,
+        "max_residual": 9.827451356391637e-07,
+        "domain": [
+          76,
+          53,
+          164,
+          132
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          5,
+          4,
+          5
+        ],
+        [
+          37,
+          25,
+          24
+        ],
+        [
+          67,
+          42,
+          36
+        ],
+        [
+          83,
+          64,
+          59
+        ],
+        [
+          114,
+          88,
+          79
+        ],
+        [
+          126,
+          62,
+          41
+        ]
+      ],
+      "palette_iterations": 11,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 607,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 89,
+      "status": "filled",
+      "output": "hidden/front/upper_far.png",
+      "original_sha256": "bfa786b980e06e400be002bf20d49ab1263b181ad2f7cbafbb86d755bbbda79f",
+      "output_rgba_sha256": "dd925a7e5ba700c6dacceeff2c07db0c563056b535b3035cc3bb3bc54cf7cde8",
+      "alpha_sha256": "3d327b9874d1634e80d0f263e75adbc5fd1e0f484bc4034b5160e2e95bad971c",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_upper_far.png",
+      "output_sha256": "e25e55a2e4617b5b8c771fabffe68ef79eeea0acbe93d087c2d43a834eb38104",
+      "preview_sha256": "b1c89e6ad53ca5fcac01b9d995be081cce50d1f162a1d9662ec08414eccde258"
+    },
+    {
+      "view": "rear",
+      "part": "foot_far",
+      "material": "dull dark brown boot",
+      "request": "hidden_requests/rear_foot_far.png",
+      "request_sha256": "7902fcf1161ad9719ce0f4d84ebf7719c64473d93cfa3153f73b8c7b3dfbf27b",
+      "visible_mask_sha256": "8a2e088e55edf1951e8961797dc454bec86a0269cd7ed779b8c47a208e7b419f",
+      "hidden_mask_sha256": "9c64859c8d415c0b6a622c8d65e8c99176169a77082019c13d50ac442a9bc25c",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "89c73974f946e4db433cd35c76db5fae9ff3109068fd737a3ec93fa45c2c322a",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 379,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 346,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 553,
+        "max_residual": 9.945632743779348e-07,
+        "domain": [
+          72,
+          68,
+          163,
+          247
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          2,
+          0,
+          1
+        ],
+        [
+          29,
+          13,
+          13
+        ],
+        [
+          46,
+          26,
+          22
+        ],
+        [
+          63,
+          37,
+          29
+        ],
+        [
+          86,
+          53,
+          43
+        ],
+        [
+          113,
+          74,
+          60
+        ]
+      ],
+      "palette_iterations": 10,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 379,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 45,
+      "status": "filled",
+      "output": "hidden/rear/foot_far.png",
+      "original_sha256": "8dfa115eab28c5f5e0edc4b8aeb61881ce498258bc042dd721622279d88ebe13",
+      "output_rgba_sha256": "f9874820686c3d84c17aa951c8d98aa41da4a4d94ccc9e486988a7127958e5a0",
+      "alpha_sha256": "f522a3896eb910c6d505156cd755ed7183c295851fc759653a4199768ca50834",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_foot_far.png",
+      "output_sha256": "a57bd2c93834b83384e990c335d5f3001c54c155719a9dae42c947fb388c27a8",
+      "preview_sha256": "4989bece2265c26a1f810407a9aaebc0de5f6cf6ea50a42a46b71b654a7a8326"
+    },
+    {
+      "view": "rear",
+      "part": "torso",
+      "material": "dark ash-grey cowl and tunic",
+      "request": "hidden_requests/rear_torso.png",
+      "request_sha256": "e84ba74d18290a339cf04a33447b98edc637428da9934cad15cc1bf59b42e73d",
+      "visible_mask_sha256": "cf4c1054e99fb4f261f65c022c1fbdace74f8d0881330aaf6d79e500ead43099",
+      "hidden_mask_sha256": "216db62e5ef1b085a9eb5dd4e393ab118d540e6a6801be78a5331d22e18944c2",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "964703e0b2154c090c4ccc210d79ed706063a85720730913fc75f852fcf59293",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 4075,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 1423,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 303,
+        "max_residual": 9.367724494221542e-07,
+        "domain": [
+          67,
+          50,
+          155,
+          164
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          3,
+          1,
+          2
+        ],
+        [
+          31,
+          21,
+          22
+        ],
+        [
+          54,
+          40,
+          37
+        ],
+        [
+          86,
+          67,
+          61
+        ],
+        [
+          103,
+          47,
+          34
+        ],
+        [
+          164,
+          87,
+          64
+        ]
+      ],
+      "palette_iterations": 12,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 4075,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 147,
+      "status": "filled",
+      "output": "hidden/rear/torso.png",
+      "original_sha256": "7f33e050f76377b2e518defbcab7309d952d1cb495bcfac4f669e4d661502ac2",
+      "output_rgba_sha256": "ad70d6d30ff6cb8330ba6a2ede87dcb7511bc1b10429dc96752769e85f7eff73",
+      "alpha_sha256": "5a74ee68f99f9c553d3b9edecf6116d547498d6bc7e1a5ef2fcbbc76e5744caa",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_torso.png",
+      "output_sha256": "94f9dee0fb0cf5de12fbb2fc7ad45b23f31e42a75a54f533a2033c5c1a111249",
+      "preview_sha256": "51821ca20f2103b8532eaf24fafed8ea4d94f046ffdd92a031b5ff9f5809931e"
+    },
+    {
+      "view": "rear",
+      "part": "fore_far",
+      "material": "dark cloth sleeve with broad brown leather bands",
+      "request": "hidden_requests/rear_fore_far.png",
+      "request_sha256": "364af191e907b0c1e76e6ad03d70a6f055e8b115123fb80dad6cd508db920a27",
+      "visible_mask_sha256": "a138311d3c183eaff412da8816f20fcba23bbb0fb2ccac9be00ddea612f80f82",
+      "hidden_mask_sha256": "92cfea64a7258ec1ad3d84b46a07d7cc454a88b50703687fe38cd66917120eed",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "aa027767ed0850d42b09b5efe1421579bc8d681ba64cdf29eca29822602a6d18",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 641,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 607,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 449,
+        "max_residual": 9.717914401081462e-07,
+        "domain": [
+          67,
+          63,
+          201,
+          137
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          1,
+          0,
+          1
+        ],
+        [
+          38,
+          17,
+          15
+        ],
+        [
+          63,
+          33,
+          29
+        ],
+        [
+          88,
+          50,
+          41
+        ],
+        [
+          120,
+          65,
+          51
+        ],
+        [
+          153,
+          91,
+          73
+        ]
+      ],
+      "palette_iterations": 6,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 641,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 84,
+      "status": "filled",
+      "output": "hidden/rear/fore_far.png",
+      "original_sha256": "8e6068d04061e6940d542a5065e1067c5a622f68d99247ffc2f288cce40d0960",
+      "output_rgba_sha256": "147667fba931305efcb5afe15a78592a016d4b09d827fac0a19cc18ddd16197d",
+      "alpha_sha256": "239dc563bff972dae2410d62a75d08b6104a21008a4d7507e52c7a616c4cf136",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_fore_far.png",
+      "output_sha256": "14fc3cd90ecf32eaa62cc3ba769daf459ce487aa61a9c6ab3a7270f3b01b7720",
+      "preview_sha256": "2315eebdfb5256be0e0b53c0353d953b8006e2fd6947e50fc7c6b06013c271cd"
+    },
+    {
+      "view": "rear",
+      "part": "head",
+      "material": "rusted dark-iron bucket helm",
+      "request": "hidden_requests/rear_head.png",
+      "request_sha256": "9280243a7312e1cb38f275055c952bfd36f885c0ff29aed1de39d0253b8746cc",
+      "visible_mask_sha256": "ff824caa9979cf472dad5d2029274911ee2ac3291205318d4e12d899822beebd",
+      "hidden_mask_sha256": "6cd7c31682b4fbf5b7d415ab0154cbe6f5b393657bbbcc870a6bc26ffd64f88a",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "49ea7e2fac569ac5dbabfa006bf725cb37c83dd3a877df02c1855dfb92b9f6ba",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 1083,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 479,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 460,
+        "max_residual": 9.308636662148348e-07,
+        "domain": [
+          72,
+          28,
+          143,
+          172
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          6,
+          1,
+          2
+        ],
+        [
+          52,
+          22,
+          17
+        ],
+        [
+          91,
+          38,
+          25
+        ],
+        [
+          132,
+          55,
+          30
+        ],
+        [
+          171,
+          77,
+          44
+        ],
+        [
+          210,
+          154,
+          127
+        ]
+      ],
+      "palette_iterations": 8,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 1083,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 57,
+      "status": "filled",
+      "output": "hidden/rear/head.png",
+      "original_sha256": "8bd046b868027bfc21df4f51f43227ecd1d5ed5d4e1f64ef63c54dafeccdd10f",
+      "output_rgba_sha256": "32cd22a1419cc7a6981c054f644f1fd10aa1b94c76725e7f07a0280e9c47021c",
+      "alpha_sha256": "adb4db424937710a0418d365194a7a0c4f360a95beb8a6d9ba60d8e6933924bb",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_head.png",
+      "output_sha256": "46e5ef57437d0c296e4281620fae95846367080a4bb43bb0cfef4295be1b31db",
+      "preview_sha256": "6cf4f071ea4fa12d2b270cf9d8ccd2f8021650f0cb36a835832ecff35943911a"
+    },
+    {
+      "view": "front",
+      "part": "hand_near",
+      "material": "dark brown leather glove",
+      "request": "hidden_requests/front_hand_near.png",
+      "request_sha256": "a8befd06f13df0efc38d5a17507857ac6962266b452adb9cebfee7deea2edc19",
+      "visible_mask_sha256": "aa64e22743dd4910943ef3004fc59a974998b1a9e20a65882b0861636c96ff61",
+      "hidden_mask_sha256": "86265712705689181fc2182ff38d2983d91a7a83673d40cc035e9d610e261a55",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "c9e8a8964464df3d12f4fc36736db3ea843e14c45883e7f3f707f8d92bf764ba",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 448,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 152,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 119,
+        "max_residual": 9.68519686864082e-07,
+        "domain": [
+          152,
+          147,
+          185,
+          181
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          3,
+          1,
+          2
+        ],
+        [
+          31,
+          17,
+          16
+        ],
+        [
+          54,
+          33,
+          28
+        ],
+        [
+          80,
+          49,
+          40
+        ],
+        [
+          110,
+          64,
+          48
+        ],
+        [
+          159,
+          87,
+          58
+        ]
+      ],
+      "palette_iterations": 33,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 448,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 32,
+      "status": "filled",
+      "output": "hidden/front/hand_near.png",
+      "original_sha256": "3309ddeee9c0c45d2313c16c28bb2b9afa7b9666979e20f4a4627804614d9cbe",
+      "output_rgba_sha256": "3e5e7754db4bdba7a0a145bbeeea6629734faff89dbf6d8941b84b6603c981db",
+      "alpha_sha256": "c9037f685f1b08961e7274f604d0849b2e0dabdd9c04c16451685d32d1002c83",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_hand_near.png",
+      "output_sha256": "da4937db06a1eb2da3fa78d5a006d4f270c3f02c5d2ae1b49d4ddb2f3e23eef6",
+      "preview_sha256": "c260df009240b7059e27773855e314d3dca927fd2ab0fe6668035b6596c5737d"
+    },
+    {
+      "view": "front",
+      "part": "head",
+      "material": "rusted dark-iron bucket helm",
+      "request": "hidden_requests/front_head.png",
+      "request_sha256": "047ab94dab9fb31bfbbee8d9471f3b370011a9beddf15bccd12fed2e63519978",
+      "visible_mask_sha256": "e34fdd34f02b3ebd71e97118b593f2bea042b67f97eaacb42c03a5fde2e59b22",
+      "hidden_mask_sha256": "b08aa008c7ffa66129f7bd5a434cbeb831853f5d633671b8129b218e121702e9",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "9a436114c6fd1a43393f7752dc4f0eb0683380c6036f54a2e9c60f15ac38b376",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 1615,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 302,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 506,
+        "max_residual": 9.649936024387016e-07,
+        "domain": [
+          114,
+          27,
+          191,
+          211
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          11,
+          6,
+          6
+        ],
+        [
+          55,
+          32,
+          26
+        ],
+        [
+          93,
+          52,
+          39
+        ],
+        [
+          141,
+          63,
+          33
+        ],
+        [
+          172,
+          104,
+          75
+        ],
+        [
+          249,
+          207,
+          170
+        ]
+      ],
+      "palette_iterations": 13,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 1615,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 56,
+      "status": "filled",
+      "output": "hidden/front/head.png",
+      "original_sha256": "ccf5ccf959e225b72d80e68801e72b1864f11a1eb934fd19024155b1ad3ad25b",
+      "output_rgba_sha256": "7cc0826515d963134466bf480521c9a2b9e96370f1bd58454c483516f0a29395",
+      "alpha_sha256": "e237f7b81ce2078ce59637d34e68a5c660ccfbc62ae27aabc78ce89ce21a5bc0",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_head.png",
+      "output_sha256": "a80d8d91035ed65267283a4f8a8b1060da07b6ed9d22d6523fab75583db04505",
+      "preview_sha256": "017d548700e290e935ee871fda705fbee7f3dd11d28250b92f72c8cfb8506aa0"
+    },
+    {
+      "view": "rear",
+      "part": "coat_far",
+      "material": "dark ash-grey ragged coat tail",
+      "request": "hidden_requests/rear_coat_far.png",
+      "request_sha256": "b1510eca871fbf77d6bf1ff994dc7b8b4dc85f5f028735395b5561aae082f1c7",
+      "visible_mask_sha256": "6973cfa54a513b16f0e47984a594a0e5b7e7f303b3b53a438c915753475e5180",
+      "hidden_mask_sha256": "b52b0dae3056c886cb36869b5c81f89d3228b886e50b1e0514e5f57b9e45c6fc",
+      "donor_mask_sha256": "ac599d5fa048528c1dd048aedee2e81758e8eac501e1c90153519e3dd1fa36a2",
+      "donor_parts": [
+        "coat_near"
+      ],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "9a3894ff7259eb4b2d0814fd94b39c62f6a9f2265efed944ec5ebb46657d0cd8",
+      "donor_rgb_sha256": "d12206a42d227ef40419b90a93043dac1e5b7c94ae5fa2ae26bcaab9144434c0",
+      "own_visible_pixels": 2888,
+      "donor_visible_pixels": 1260,
+      "hidden_pixels": 199,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 505,
+        "max_residual": 9.808152871941076e-07,
+        "domain": [
+          38,
+          59,
+          161,
+          229
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          1,
+          0,
+          1
+        ],
+        [
+          49,
+          35,
+          32
+        ],
+        [
+          75,
+          55,
+          47
+        ],
+        [
+          94,
+          68,
+          59
+        ],
+        [
+          104,
+          77,
+          65
+        ],
+        [
+          117,
+          86,
+          73
+        ]
+      ],
+      "palette_iterations": 4,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 2888,
+      "conditioning_pixels_in_hidden_region": 3,
+      "outline_pixels": 43,
+      "status": "filled",
+      "output": "hidden/rear/coat_far.png",
+      "original_sha256": "bc01a1aefbb95df756e7b88ccec0b2d74f6c5bebad041e1cff9b42974034756d",
+      "output_rgba_sha256": "419b33a3970a5a42bb30e2a74a54e11a181b661ce6722f8748d8132068dcada3",
+      "alpha_sha256": "a3a0b54ea47c75b2674f00deb3604b048c4f7965270b8cb93fcecb81e31c3320",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_coat_far.png",
+      "output_sha256": "d9ef98126de451555eb52dd2b65b1096ab2476cc9052a60adfc194f0a223c85e",
+      "preview_sha256": "6e99da7c4bb8a3b0b637bc382ff69f35c6cc4029bc0e08db5e7b6a5d0a1321be"
+    },
+    {
+      "view": "rear",
+      "part": "foot_near",
+      "material": "dull dark brown boot",
+      "request": "hidden_requests/rear_foot_near.png",
+      "request_sha256": "4788b405caa26c35bdecc77a7e3fbcdc48b3c607f7ce5b36d92c978ecd888b46",
+      "visible_mask_sha256": "7c5c81898ca277b891dfea4f433445ca18deeb0ee40562e16381d3bc244ac4f3",
+      "hidden_mask_sha256": "d84afab4d9915cbcc85458188285f1ec8e750556d14ba9af122ca21dfa5be1e8",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "9c9233d7471a39c87a91740a73933f1815f7842e820b179da6f876be025919c6",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 193,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 363,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 150,
+        "max_residual": 9.937111588643816e-07,
+        "domain": [
+          68,
+          203,
+          108,
+          232
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          1,
+          0,
+          1
+        ],
+        [
+          28,
+          9,
+          11
+        ],
+        [
+          41,
+          23,
+          19
+        ],
+        [
+          58,
+          34,
+          28
+        ],
+        [
+          86,
+          53,
+          43
+        ],
+        [
+          120,
+          78,
+          62
+        ]
+      ],
+      "palette_iterations": 4,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 193,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 47,
+      "status": "filled",
+      "output": "hidden/rear/foot_near.png",
+      "original_sha256": "07a1681499fb876815108e3dacc971afcccc5e00bf1986bf3ca824a0d3b22f19",
+      "output_rgba_sha256": "1fa1edf3368f24052bf93ceba0f3f5b408bf995c4512c24b0fd1c8d2691c1a4c",
+      "alpha_sha256": "42c0ab50fada9b1b025b0f2a25e43807a26e103cdf08f5dd67468f52e34850da",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_foot_near.png",
+      "output_sha256": "d63775bc513390f04bb8a006256f88baf2fbfcdbdf7bf3fa9cbd7f2f8f34b3cf",
+      "preview_sha256": "3506fd38364869b94a0666078a5f796ac1c78eac2980339d2db7b240f9639a4b"
+    },
+    {
+      "view": "rear",
+      "part": "upper_far",
+      "material": "dark cloth sleeve",
+      "request": "hidden_requests/rear_upper_far.png",
+      "request_sha256": "7275d7103a74001f7966bbeb634a0fd5c154eb9479931c55c947f5e0fdd2c243",
+      "visible_mask_sha256": "5828e9259f8c0c6ec093cec9fb0b8b83e849142a800e1d801a0142fa420bbf6c",
+      "hidden_mask_sha256": "bea5ca71cc1d98c4b55600222ca7f5ee2b39db16f62a911fd056d3a0e95eaf21",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "a805448db5d8df16f54f65a1e8a61db66b3e2e9b970e3198200829108736a46b",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 1389,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 405,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 226,
+        "max_residual": 9.593582374608493e-07,
+        "domain": [
+          116,
+          78,
+          179,
+          142
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          0,
+          0,
+          0
+        ],
+        [
+          24,
+          15,
+          17
+        ],
+        [
+          37,
+          26,
+          26
+        ],
+        [
+          55,
+          41,
+          39
+        ],
+        [
+          87,
+          67,
+          61
+        ],
+        [
+          118,
+          91,
+          79
+        ]
+      ],
+      "palette_iterations": 7,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 1389,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 72,
+      "status": "filled",
+      "output": "hidden/rear/upper_far.png",
+      "original_sha256": "61dbc91f16026014dc1888c487929863d2588f7df01acf9e3ae85f4498774d13",
+      "output_rgba_sha256": "a1a3c9c992d02d9bcae08dcdd3e32ac991d94bd0b55547b50e1b4edcfad515b2",
+      "alpha_sha256": "123a8e8e7c16215b1ed9602de3272dfa928583852a5622c550a8514ffc13c473",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_upper_far.png",
+      "output_sha256": "6d37760f7208e33a8580d9a185c92723584fb55719baf425366f28299755e4aa",
+      "preview_sha256": "5d1e853efac624a63225b681ea693ef8e2b6567346ad85eed8a245d3b023b9a2"
+    },
+    {
+      "view": "rear",
+      "part": "shin_near",
+      "material": "dark lower leg and boot cuff",
+      "request": "hidden_requests/rear_shin_near.png",
+      "request_sha256": "68d93c60fd5ce83b192e000718d581888c8876658b2d03f72276f6c0e0bd73ac",
+      "visible_mask_sha256": "3c00adc20004949c7be2a693092bce4b35a8e7ab544d1f4144a3ac7b9d4390c6",
+      "hidden_mask_sha256": "6199c08987184d72a57e02810647bf59313c5d895a27c2244d614c71e7cf03d8",
+      "donor_mask_sha256": "675ab733c47e9836e09632b205cecb06cbc3e83ceface4b903b7e2fee6d69de5",
+      "donor_parts": [
+        "shin_far"
+      ],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "11cc136919a9617b4413a097f1a0e5309b27e873ef896cdb821a62bfee8707b7",
+      "donor_rgb_sha256": "2a2e5d6a9a5929527c649b632f91ebbbea8aeab68c02da50d98ed431a5b38bd6",
+      "own_visible_pixels": 1389,
+      "donor_visible_pixels": 797,
+      "hidden_pixels": 493,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 346,
+        "max_residual": 9.646134482440792e-07,
+        "domain": [
+          64,
+          137,
+          151,
+          249
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          2,
+          1,
+          1
+        ],
+        [
+          29,
+          16,
+          17
+        ],
+        [
+          50,
+          32,
+          28
+        ],
+        [
+          69,
+          45,
+          37
+        ],
+        [
+          87,
+          62,
+          55
+        ],
+        [
+          124,
+          81,
+          65
+        ]
+      ],
+      "palette_iterations": 12,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 1389,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 58,
+      "status": "filled",
+      "output": "hidden/rear/shin_near.png",
+      "original_sha256": "4eef96d8925a1dc9113eea12c1b6c54ea2fb7c079346d01701f125f7d45f4867",
+      "output_rgba_sha256": "7f968056db728d86c7cc631b61c8139e7ac309bfa8e1c21e0eafb274421197f6",
+      "alpha_sha256": "316916b28ecf990dbf617a15a2d3e0d0183fe4e881dbc8391442e0e16e513f00",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_shin_near.png",
+      "output_sha256": "b5dfe258b8264bce259ebc2ab1c989c60196a40b1f4bc299bbcb5a9422de4044",
+      "preview_sha256": "f72d50729368cb76bf5271918aed2fb6571224ec8f9dae28f197049d636e91b7"
+    },
+    {
+      "view": "rear",
+      "part": "belt",
+      "material": "broad brown belt",
+      "request": "hidden_requests/rear_belt.png",
+      "request_sha256": "5896d10825ab1d927825102b33503587a1fe1cc1629c20ec3a38af195ccdb727",
+      "visible_mask_sha256": "7452734de55634815fcc3cfd90a8b8f44e8f962ba5b7f73699f8841c1063abbc",
+      "hidden_mask_sha256": "fd2a57331d9933455df7af3b83842e8d5d7a38721b9b71ee9723c24590669aa6",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "078461829b9dd4631d6cee8844ccfadeeeb7b0ecb254ce262e3f4126170d5bab",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 936,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 1307,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 258,
+        "max_residual": 9.537735853893254e-07,
+        "domain": [
+          64,
+          103,
+          156,
+          156
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          42,
+          20,
+          18
+        ],
+        [
+          72,
+          35,
+          29
+        ],
+        [
+          88,
+          44,
+          36
+        ],
+        [
+          116,
+          62,
+          51
+        ],
+        [
+          150,
+          97,
+          80
+        ]
+      ],
+      "palette_iterations": 7,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 936,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 78,
+      "status": "filled",
+      "output": "hidden/rear/belt.png",
+      "original_sha256": "c596eed1355b3a736616f890ec16ffded3cf5e46fe1ba36b36b35c527b481d87",
+      "output_rgba_sha256": "9f8acb9b271bc8d5870b121f89f22a8aa101e0530f7032c3f59de15738b8af50",
+      "alpha_sha256": "b5ae65927db1c00f16931f0ab26b3a1cbb7f897493c13e4e93ad46e277e3c4d2",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_belt.png",
+      "output_sha256": "b0d6f13150bcc6ce1c186025dc6601436d05b3b862e713c71623586e74313d07",
+      "preview_sha256": "007ab8aaf2a84ef777669eb52d267f59abdb529d476b5afb418ca99bdea65327"
+    },
+    {
+      "view": "front",
+      "part": "fore_far",
+      "material": "dark cloth sleeve with broad brown leather bands",
+      "request": "hidden_requests/front_fore_far.png",
+      "request_sha256": "7d3219ad779af710a7ac158c601d1f793e119c2f80dfe0bc762ebcbbfc4601e9",
+      "visible_mask_sha256": "9602d67e5fce29ba2a485cf30c370a168fd8ee8098c27c6cdc517c207dfef5e0",
+      "hidden_mask_sha256": "c027b7c65480d32bf73acca5bb7da85da54e6f218de593b1e95cd879b7c2aa07",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "9a833b1f0822dcd0f33c1615690c0f275cd6480a2807cb6fe68e9b0919700241",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 531,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 689,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 427,
+        "max_residual": 9.413083724727571e-07,
+        "domain": [
+          53,
+          54,
+          177,
+          131
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          1,
+          1,
+          1
+        ],
+        [
+          29,
+          15,
+          15
+        ],
+        [
+          52,
+          26,
+          21
+        ],
+        [
+          84,
+          41,
+          29
+        ],
+        [
+          118,
+          59,
+          39
+        ],
+        [
+          162,
+          85,
+          53
+        ]
+      ],
+      "palette_iterations": 6,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 531,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 83,
+      "status": "filled",
+      "output": "hidden/front/fore_far.png",
+      "original_sha256": "a5d206f67b67d58983301da25a8d754dd01051669611ada5f3fd6266df0f3451",
+      "output_rgba_sha256": "4549dd101000252090a3d797001713730f85af6d4053d6b1d23b9253281727bd",
+      "alpha_sha256": "a69ad53c5b81aeb890264619a8bea0cfde96985662d7fb35de3e41b45cbfd232",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_fore_far.png",
+      "output_sha256": "affdfa8918ec9adca8485d198a12705c463dd09d0d69e617a09f4736219303f5",
+      "preview_sha256": "8fe44025f6fa35751c875a31f6ad55e9e2dd2a86bf6fee81e777c6aaa56b67c6"
+    },
+    {
+      "view": "rear",
+      "part": "hand_far",
+      "material": "dark brown leather glove",
+      "request": "hidden_requests/rear_hand_far.png",
+      "request_sha256": "802ae6a769ec9a15e3ab8e1942512c6f0a8a7168ce5d304fa90359791fd628dc",
+      "visible_mask_sha256": "9ba7f8c6049d1a3c6dc005380d9298d775af73a27a32ae42dbeafd6165b252a0",
+      "hidden_mask_sha256": "dc6f9e4bb7eecc1e476f71af358e62f4f2ba6dd2f93581db30fe4c1defdef9c5",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "9171205c64c5f5972549d1f41aa85b4e487a496e475720898a361578efe3f813",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 361,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 56,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 110,
+        "max_residual": 9.174339790689578e-07,
+        "domain": [
+          172,
+          88,
+          201,
+          120
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          2,
+          0,
+          1
+        ],
+        [
+          29,
+          14,
+          14
+        ],
+        [
+          48,
+          27,
+          23
+        ],
+        [
+          66,
+          38,
+          31
+        ],
+        [
+          80,
+          46,
+          36
+        ],
+        [
+          93,
+          54,
+          41
+        ]
+      ],
+      "palette_iterations": 5,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 361,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 20,
+      "status": "filled",
+      "output": "hidden/rear/hand_far.png",
+      "original_sha256": "7b64bc2b0b31a38cfb7235bf19f6ea528fd45af2b04e4a33a23b812c213fe7f2",
+      "output_rgba_sha256": "33b631e2d49ec06b1a89f07db142bbe7fb60ddf8c33832db80bf7f927526fe67",
+      "alpha_sha256": "344f035490ee241cd807f26a493380f5ab3d8f357a2ef48899dc5d91d19ba2e1",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_hand_far.png",
+      "output_sha256": "77df4779bf92a5d4c858b81d7a3698beb3b8222b6b0e667a97ef1eba6aa51b03",
+      "preview_sha256": "d642b3576eefb08babdec3981d5e367fa2ff2202739f372b9c132f9324f1ef78"
+    },
+    {
+      "view": "front",
+      "part": "hand_far",
+      "material": "dark brown leather glove",
+      "request": "hidden_requests/front_hand_far.png",
+      "request_sha256": "2c012717a04dc55cbbfd405bfd804572c6c7ed35e62b7263fdfc694ad9366a51",
+      "visible_mask_sha256": "0ed2b19e319ecf9f32340a51c2fd33fe20fd52bec145d1c0f5a7c696445e0493",
+      "hidden_mask_sha256": "3cfdf05c37615d1d5218baad363e6c0bd8298e16993e2cd107e62fc6a9f5b9b3",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "948d71aaa778675d730fc1ccc8c893f4ea48c4f17707668b32ae9dde9153622c",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 431,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 67,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 111,
+        "max_residual": 9.756445513899079e-07,
+        "domain": [
+          53,
+          50,
+          83,
+          84
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          2,
+          1,
+          2
+        ],
+        [
+          31,
+          19,
+          18
+        ],
+        [
+          53,
+          34,
+          29
+        ],
+        [
+          71,
+          47,
+          38
+        ],
+        [
+          89,
+          60,
+          49
+        ],
+        [
+          110,
+          76,
+          62
+        ]
+      ],
+      "palette_iterations": 3,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 431,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 21,
+      "status": "filled",
+      "output": "hidden/front/hand_far.png",
+      "original_sha256": "e8e335c666c8851e37ba7eeeb57a0e9e3ee08ba354e7999be4b60fd61cd048ba",
+      "output_rgba_sha256": "5018a962a9b0afb52e309f05b3e9986db96bdb93da67f5cc1210abed0a67b9bc",
+      "alpha_sha256": "6709edc1647282163e7bb11c5922b3c7b9f33cb9967cadad2ea0608c56aa4b24",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_hand_far.png",
+      "output_sha256": "dc594f495ca4b09ce2b7fa481aed7f95ebef925d34e7c6bafb216b4af58a3131",
+      "preview_sha256": "cd80c879d0605f64d5d3bcc891aa3aac70aa2ba9384418ae58606fdebfa2de11"
+    },
+    {
+      "view": "rear",
+      "part": "pelvis",
+      "material": "dark cloth at hips",
+      "request": "hidden_requests/rear_pelvis.png",
+      "request_sha256": "896fa40608ae61c07e840638b7735c432b00cf7f3a3eb60c71aefe7d68f704a8",
+      "visible_mask_sha256": "5b154f76bc65536de015cb79aafeb346d7aafb742a9bce57c3a50d5a71e17986",
+      "hidden_mask_sha256": "438374d8e275a8f5c8f465416380d6975390959a4e468a604708e276444ea36f",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "ea7e2df5102a32320fc685c5d1171d25efe146b8300a0c8e9bbcb9e76bf8ec21",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 366,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 1727,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 264,
+        "max_residual": 9.922268405746614e-07,
+        "domain": [
+          74,
+          112,
+          138,
+          164
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          0,
+          0,
+          1
+        ],
+        [
+          17,
+          9,
+          13
+        ],
+        [
+          30,
+          21,
+          22
+        ],
+        [
+          42,
+          30,
+          30
+        ],
+        [
+          55,
+          41,
+          38
+        ],
+        [
+          78,
+          60,
+          55
+        ]
+      ],
+      "palette_iterations": 16,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 366,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 117,
+      "status": "filled",
+      "output": "hidden/rear/pelvis.png",
+      "original_sha256": "a30b6715fc1f54ddb07ff3f4c809f522dd3db9b3007ae6628cb8fff49cb27076",
+      "output_rgba_sha256": "354f985e982dc15465e7804dc7ec0a869d451c84b3354db9d9cba606cdc1f93c",
+      "alpha_sha256": "fef2ff01f0aabe7cbfb6f50658f7bd48a91066b6864899df19d38bc000f2a706",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_pelvis.png",
+      "output_sha256": "fcbe45e49ac170bfc0385843fce0364ae331e92bd751eaa99ae2a92f3b00d3c0",
+      "preview_sha256": "7503b7dcf0f26a73dc3f3b1d40546b245ba7cd9f2d22ec9e2972bc6998ea291a"
+    },
+    {
+      "view": "front",
+      "part": "foot_far",
+      "material": "dull dark brown boot",
+      "request": "hidden_requests/front_foot_far.png",
+      "request_sha256": "068523f38738fd83a5483d6bc7d2874a3bb7100e7e6445ba78267a14008e5a5e",
+      "visible_mask_sha256": "7bba6393871ed55fa3acb0ce15757051ec2015f23414be3d9f3cb03c94058e03",
+      "hidden_mask_sha256": "42dcf1a05fbeafb25ad764a566805363bafcd87396d023ad8d3865e061cfc6bb",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "2b1cff1131de3662897aca4a794a62119f98cee2b23e14b8e252ab6bb256db9d",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 370,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 168,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 386,
+        "max_residual": 9.392591669223551e-07,
+        "domain": [
+          99,
+          126,
+          197,
+          241
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          6,
+          2,
+          3
+        ],
+        [
+          33,
+          18,
+          18
+        ],
+        [
+          57,
+          31,
+          31
+        ],
+        [
+          81,
+          47,
+          44
+        ],
+        [
+          103,
+          61,
+          57
+        ],
+        [
+          141,
+          92,
+          84
+        ]
+      ],
+      "palette_iterations": 2,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 370,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 32,
+      "status": "filled",
+      "output": "hidden/front/foot_far.png",
+      "original_sha256": "96e202d493a883c2dbfed6c5c7f887759442c0c38f53fa1355b06c7dc3126c9c",
+      "output_rgba_sha256": "851bb5a80866ad3ea943006cdd654fccd6aa272aa6fc8b5a3112c9bdaf365fb0",
+      "alpha_sha256": "fe68dae6431e6a347a1856c0371515736059be39fcaa9b94ea11608f29f0e162",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_foot_far.png",
+      "output_sha256": "4017f3567e3d450917876e70c8758248f8e0da5e4f4015e11873d1cc04b945ee",
+      "preview_sha256": "013517de319d770e8e7db819b0cc143066d48d007fcf9e8e2771540d4a9f002e"
+    },
+    {
+      "view": "front",
+      "part": "pelvis",
+      "material": "dark cloth at hips",
+      "request": "hidden_requests/front_pelvis.png",
+      "request_sha256": "8ee03f6db2cd576eb6683444e1de8914c9eaae2d114e68dc9c18a9a7a56b777b",
+      "visible_mask_sha256": "f8d518de054d7ab031613f2fa4316789467debcd8ae34217bfb11237d1c2f694",
+      "hidden_mask_sha256": "d51f86ba69b64bf5cde25bb9bb8de1aa22cb17d0ebd5dc404e7f1dc6fc0b21eb",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "879b7670bcc93d9424cdefa937cf624991dcc868e28a58ee05da307b92ede118",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 111,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 1982,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 297,
+        "max_residual": 9.9147386665196e-07,
+        "domain": [
+          118,
+          108,
+          182,
+          160
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          2,
+          0,
+          0
+        ],
+        [
+          33,
+          11,
+          11
+        ],
+        [
+          50,
+          29,
+          24
+        ],
+        [
+          53,
+          16,
+          15
+        ],
+        [
+          78,
+          24,
+          21
+        ],
+        [
+          104,
+          32,
+          25
+        ]
+      ],
+      "palette_iterations": 3,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 111,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 140,
+      "status": "filled",
+      "output": "hidden/front/pelvis.png",
+      "original_sha256": "b1358d7a3de1cc464f3c627081777e33fdf948e65170856a8633ee9145e40d8c",
+      "output_rgba_sha256": "16eb7232901c8f3bff1dd55ecf497adab617cfe43de03e09e814976d9861cf74",
+      "alpha_sha256": "a8f0aa1f293d4e6d66c53070832adcc1cea3484e5b604c07dda80e2e4ba66ba5",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_pelvis.png",
+      "output_sha256": "cd642dfe9589e2c19b3834bb1ad3fe87f0d5a824508a3459b9ba0b6d23bfaa6a",
+      "preview_sha256": "7b8b74de4daf7c3d1320aa9743271057d93f07ff93b62fe907ffcf46ae9bce3c"
+    },
+    {
+      "view": "front",
+      "part": "foot_near",
+      "material": "dull dark brown boot",
+      "request": "hidden_requests/front_foot_near.png",
+      "request_sha256": "1992135a6423b49e33d806f15981d32f976d724f991171cc4458b3492e2de945",
+      "visible_mask_sha256": "0c3a0611ab6dc9d8eaa89b096bd8dcd82f8fe4812825d5d8a9c357d8da7e7f8e",
+      "hidden_mask_sha256": "effcba64015aae2095bc6bd298dce5c0106ce19ac588ff5aea0ec0072594471f",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "073972cca1502b5ddca3c6c6c724ab3f86ee7216712426b165d44adbeb6a6923",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 310,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 168,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 262,
+        "max_residual": 9.694422839325186e-07,
+        "domain": [
+          154,
+          155,
+          188,
+          249
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          3,
+          1,
+          2
+        ],
+        [
+          25,
+          13,
+          14
+        ],
+        [
+          51,
+          29,
+          27
+        ],
+        [
+          78,
+          45,
+          42
+        ],
+        [
+          105,
+          62,
+          58
+        ],
+        [
+          148,
+          97,
+          88
+        ]
+      ],
+      "palette_iterations": 4,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 310,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 33,
+      "status": "filled",
+      "output": "hidden/front/foot_near.png",
+      "original_sha256": "465b6de24a0690b7868252bd2fe8b6e3210cd3a247096a2c2291a5b196acd9c7",
+      "output_rgba_sha256": "683ef76c1a53f19e2a9dc2cfe7cd13270365976eb6f5bf953bee850eaea1cc60",
+      "alpha_sha256": "946c2461e2bd112004c9c6a5817a3b5155139d761384780b808c00b38b854bb5",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_foot_near.png",
+      "output_sha256": "604a3b33c22a10953055d1017268093f7119e78fb726343f1abedc887e50b4f9",
+      "preview_sha256": "0a3cf63a956ede64ee244bad7f9f8d744ce8dbf07149a67889fd5a1de4fe8664"
+    },
+    {
+      "view": "front",
+      "part": "chain",
+      "material": "chunky dark-iron chain",
+      "request": "hidden_requests/front_chain.png",
+      "request_sha256": "48a208460fc91012a494a212704da3567dfae485f77c8d622860e1a18394b44a",
+      "visible_mask_sha256": "824b9ea06bf966891df6abb6f9324c5aa2496c560fff94259d4f61e3c9b87d29",
+      "hidden_mask_sha256": "236ac8358d8d1b29f0bcefd9329cbd18d2aea3af5be0d510d031cdb3f1b959dd",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "11a46d8d76c0368b09e26debd6e618a2e722775b0b275ab58b18c9c5762363ce",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 835,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 95,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 572,
+        "max_residual": 9.274005456463947e-07,
+        "domain": [
+          42,
+          66,
+          184,
+          173
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          4,
+          3,
+          6
+        ],
+        [
+          28,
+          21,
+          22
+        ],
+        [
+          59,
+          44,
+          41
+        ],
+        [
+          96,
+          73,
+          67
+        ],
+        [
+          136,
+          110,
+          102
+        ],
+        [
+          178,
+          152,
+          142
+        ]
+      ],
+      "palette_iterations": 30,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 835,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 52,
+      "status": "filled",
+      "output": "hidden/front/chain.png",
+      "original_sha256": "5b246e90e82b8284d162a97b45f8ca09d9506411aaee7819a5b7ba6b975c996e",
+      "output_rgba_sha256": "26d25049242a696501c14ed914fac407d90b37711272d3e407865241d4b26413",
+      "alpha_sha256": "3c78486c0f5db571b268f711d1c41ce5d0efa7faba4159d252de7e90d5238a84",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_chain.png",
+      "output_sha256": "96c2c3f689277b876a4bbc69b0a03b1e18ceebfbbd1055088ebeb07fdbe8b895",
+      "preview_sha256": "d223793f3b4019ace9f2de0fdf579cf8759e63cae26228a4669fa25d13fd4627"
+    },
+    {
+      "view": "rear",
+      "part": "tabard",
+      "material": "red-brown tabard with its approved insignia",
+      "request": "hidden_requests/rear_tabard.png",
+      "request_sha256": "6ceaf8c7963a31df54b0114d3d56c404b00acb1c69968f151d83b53eb473ca84",
+      "visible_mask_sha256": "7efebb50ce2b579aae274b5be60ef5d34ffd9b2a527a3e736077b6680a3cc027",
+      "hidden_mask_sha256": "4e7c78e12a040bb735c461a8eaa0085aed7c0b7d503202ca40c77cf5c85e021b",
+      "donor_mask_sha256": "4f5cd9d1792ae8d23cae99696b862287462ccafade2d921471f777269d4acc3d",
+      "donor_parts": [],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "078bc572ca57757ceacfa9e99dab55c5abfe13e1cab5eff88af641dc244e46f4",
+      "donor_rgb_sha256": "f29ece5d138c7394bff9cab58f382e158608282379b582f47c3c605060cc2e96",
+      "own_visible_pixels": 10,
+      "donor_visible_pixels": 1394,
+      "hidden_pixels": 1206,
+      "seed": 0,
+      "cross_view_donor": {
+        "view": "front",
+        "part": "tabard",
+        "source": "source/front/processed.png",
+        "source_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+        "owners": "registered/front_owners.npy",
+        "owners_sha256": "ea0c51332d5b77a7128c0bae046703912b7c19d42ff4730721135172599ab160",
+        "visible_pixels": 1394,
+        "registration": "native_canvas_coordinates_untransformed",
+        "reason": "Own visible count <40 and no listed same-material neighbour in this view"
+      },
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 556,
+        "max_residual": 9.948376067011078e-07,
+        "domain": [
+          68,
+          56,
+          190,
+          213
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          2,
+          1,
+          2
+        ],
+        [
+          36,
+          17,
+          17
+        ],
+        [
+          80,
+          27,
+          23
+        ],
+        [
+          97,
+          69,
+          58
+        ],
+        [
+          108,
+          37,
+          28
+        ],
+        [
+          122,
+          85,
+          61
+        ]
+      ],
+      "palette_iterations": 10,
+      "palette_source": "same_part_other_view",
+      "palette_sample_pixels": 1394,
+      "conditioning_pixels_in_hidden_region": 455,
+      "outline_pixels": 140,
+      "status": "filled",
+      "output": "hidden/rear/tabard.png",
+      "original_sha256": "5b526d7447b36014ab67543ce684eaa84d7e023257eabf429b234afd8e299ef9",
+      "output_rgba_sha256": "96f5e29a3aefe013dbf69bf29a389c0d246ec3edd7755ba0a6eca3c68edb5806",
+      "alpha_sha256": "929869c90f5b96e2c41c6038ed0bb4b3790fde77aa805233e186219bd9710868",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_tabard.png",
+      "output_sha256": "54bf97c34d26883831dc4f3cbb402dd1e67ed4eb5232d2e2c529491ec58c1fa1",
+      "preview_sha256": "b07ed02176c7022ed0929662b7a256ca7cf9e56f66476cc53ed38bd3c57ee969"
+    },
+    {
+      "view": "rear",
+      "part": "chain",
+      "material": "chunky dark-iron chain",
+      "request": "hidden_requests/rear_chain.png",
+      "request_sha256": "292f66ae0f81d9631ec0bcb6402933fac63920ac8c43d1289f631590c236d51f",
+      "visible_mask_sha256": "7668eccd9555fccecd7a84d0e3df4411b2bb8ec7c333c94cb2741ceafd82c033",
+      "hidden_mask_sha256": "a04ad60e740533fceada6dc34b0f0af99837e66660f504d53030cd7454c1f77f",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "98e10c74f9bf8a9d19ed905fbd1672c66f76509aa176af34c40ea2ba6910784f",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 821,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 87,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 264,
+        "max_residual": 9.924946389270143e-07,
+        "domain": [
+          181,
+          102,
+          219,
+          214
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          3,
+          1,
+          2
+        ],
+        [
+          37,
+          23,
+          22
+        ],
+        [
+          69,
+          47,
+          42
+        ],
+        [
+          97,
+          69,
+          62
+        ],
+        [
+          137,
+          103,
+          93
+        ],
+        [
+          193,
+          169,
+          161
+        ]
+      ],
+      "palette_iterations": 10,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 821,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 48,
+      "status": "filled",
+      "output": "hidden/rear/chain.png",
+      "original_sha256": "0684b87d8ebd17422176065b0a671ee52245b5f3c4066809a229d49be9219cdd",
+      "output_rgba_sha256": "85a60512394b1fe7c90e2ea9966947e1cd2a9ac15c58644a67413084583b4c3e",
+      "alpha_sha256": "a84eb57e87943239eb8aec3426c54656deb2fa0350c2754086e0ad6b166444cc",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_chain.png",
+      "output_sha256": "8f5d2ea7024f9c9e5d73b0ae6f325efecdfa1de3ff372f019bd6ccc2740b4dec",
+      "preview_sha256": "bea5a2399c18556e9dfd76e7a3d9ad5d99db8ef0435a0943c6f915ad85bfa192"
+    },
+    {
+      "view": "front",
+      "part": "tabard",
+      "material": "red-brown tabard with its approved insignia",
+      "request": "hidden_requests/front_tabard.png",
+      "request_sha256": "c1197120863c708f1525b3c1057d5a92c9bd0247eddf5f71c3a3c553914c1c4b",
+      "visible_mask_sha256": "4f5cd9d1792ae8d23cae99696b862287462ccafade2d921471f777269d4acc3d",
+      "hidden_mask_sha256": "c50d2fe42bc977ce6af26e5587985ec0f46f357e55702533a7f9a86ab6fa157d",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "adf4a4066e51f6b463a2461845a393cd0d8be8705e38be50daa571a9aeff3fe7",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 1394,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 2,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 454,
+        "max_residual": 9.495149515184727e-07,
+        "domain": [
+          109,
+          56,
+          190,
+          213
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          2,
+          1,
+          2
+        ],
+        [
+          36,
+          17,
+          17
+        ],
+        [
+          80,
+          27,
+          23
+        ],
+        [
+          97,
+          69,
+          58
+        ],
+        [
+          108,
+          37,
+          28
+        ],
+        [
+          122,
+          85,
+          61
+        ]
+      ],
+      "palette_iterations": 10,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 1394,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 2,
+      "status": "filled",
+      "output": "hidden/front/tabard.png",
+      "original_sha256": "2f536147c738aa6cc37953e37640d34dd7aa2937979521486cfecaf078511468",
+      "output_rgba_sha256": "76b6b979959d25bc95e1020de74870234bdb3c1a9c90c79f7abeef2045d5d355",
+      "alpha_sha256": "b542703a7f4c46746f329754167094db57f6bcc565d090311eb428c21993a700",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/front_tabard.png",
+      "output_sha256": "e481493b64c8893d5407aeba8dd08b76402d721a4c11290659de56c54e8e4d91",
+      "preview_sha256": "ce2fa8872cecc67ad4e0f41b5873f793a1336bc09fca08f99251698b14c7990c"
+    },
+    {
+      "view": "rear",
+      "part": "hook",
+      "material": "barbed rusted-iron hook",
+      "request": "hidden_requests/rear_hook.png",
+      "request_sha256": "c68abb6b2a941d1f594628f61871c0bb69952b8cb8a81ce08d8f1083395c9acc",
+      "visible_mask_sha256": "10d44f1c5b759c72ee6cfb82679734791e0b4a6d834057b7410cba57077704f9",
+      "hidden_mask_sha256": "7ce75d35d3bfdeb2e4f0de2481ebfc48831d501dd821a69aee5135cace8039f3",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "cf21c9c000dab333d1e43ee36e4dde8897ab4f4e9960da8be1d6d79e5a60c462",
+      "visible_rgba_sha256": "ed4f0ff39864579ac1727b3ddaf638a501eb3b84eed66e96736d9e0b55c15e91",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 549,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 1,
+      "seed": 0,
+      "method": "diffusion",
+      "diffusion": {
+        "iterations": 118,
+        "max_residual": 9.228362987331452e-07,
+        "domain": [
+          186,
+          184,
+          219,
+          225
+        ],
+        "boundary": "reflecting",
+        "stencil": "four_neighbour",
+        "solver": "diagonal_preconditioned_CG"
+      },
+      "palette": [
+        [
+          5,
+          1,
+          1
+        ],
+        [
+          78,
+          22,
+          19
+        ],
+        [
+          124,
+          43,
+          31
+        ],
+        [
+          167,
+          76,
+          55
+        ],
+        [
+          209,
+          167,
+          154
+        ],
+        [
+          215,
+          108,
+          65
+        ]
+      ],
+      "palette_iterations": 9,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 549,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 1,
+      "status": "filled",
+      "output": "hidden/rear/hook.png",
+      "original_sha256": "3c5b6a0cc8a50ec551aa02af4546cd50a6db8a180ea3bf04fc0c628b2d4d2095",
+      "output_rgba_sha256": "fbab892a7517f7e9ad13caad9ea0c89995cd8e5be954c7c8446fc2c2311106ed",
+      "alpha_sha256": "a8100ae6aa1940d0b663bb31cd466142ebbdbd5187131b92d93818987832eb89",
+      "remaining_magenta_pixels": 0,
+      "preview": "hidden_fills/rear_hook.png",
+      "output_sha256": "8f5ba0d869aba03703098066a45c06ea3b5c86eb3dfccfcf60cac71154a401b6",
+      "preview_sha256": "7d61d14aecbfac5a1d3657ee0159ec4419b0fb0c3e129117731abcf99952c65e"
+    },
+    {
+      "view": "front",
+      "part": "hook",
+      "material": "barbed rusted-iron hook",
+      "request": "hidden_requests/front_hook.png",
+      "request_sha256": "990ebbf6881fcfcda16d702e8f418ea425ea3dd9fb0144f3529f0f46833d5757",
+      "visible_mask_sha256": "1aad144fa6f8bc8bb495501307f3c9bd1ab8e956c36ccc2169bd9f5f71f28897",
+      "hidden_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_mask_sha256": "3a98e25ef1a496dcb7c5c8c193cf3af445ce63163132adebe2fe408e67a54a5a",
+      "donor_parts": [],
+      "source_paint_sha256": "d8c18cbdd2dd564a8742a94dea2b1a82bfaef184c3a202a0a48db8a0064585a2",
+      "visible_rgba_sha256": "0d79c23ef1db7c9a86d161ba85c339faa9c289a210b58a58bf4ad1e6aca0fe56",
+      "donor_rgb_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "own_visible_pixels": 456,
+      "donor_visible_pixels": 0,
+      "hidden_pixels": 0,
+      "seed": 0,
+      "method": "no_hidden_pixels",
+      "diffusion": {},
+      "palette": [
+        [
+          8,
+          3,
+          3
+        ],
+        [
+          96,
+          36,
+          29
+        ],
+        [
+          144,
+          55,
+          34
+        ],
+        [
+          175,
+          111,
+          93
+        ],
+        [
+          191,
+          75,
+          36
+        ],
+        [
+          235,
+          181,
+          159
+        ]
+      ],
+      "palette_iterations": 6,
+      "palette_source": "own_visible",
+      "palette_sample_pixels": 456,
+      "conditioning_pixels_in_hidden_region": 0,
+      "outline_pixels": 0,
+      "status": "no_hidden_pixels",
+      "preview": "hidden_fills/front_hook.png",
+      "preview_sha256": "990ebbf6881fcfcda16d702e8f418ea425ea3dd9fb0144f3529f0f46833d5757"
+    }
+  ]
+}
