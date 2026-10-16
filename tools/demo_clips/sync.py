@@ -68,20 +68,21 @@ def rms_peak(samples, rules):
     return next((i for i in range(1, len(powers) - 1) if powers[i] >= floor and powers[i] > powers[i - 1] and powers[i] >= powers[i + 1]), peak)
 
 
-def correlation_peak_width(template):
-    """Sample width of the cue's autocorrelation main lobe at half height.
+def local_maxima(values):
+    """Yield one index per local maximum, using a flat plateau's first sample.
 
-    Autocorrelation is symmetric about lag zero. Count the contiguous samples
-    at >= 0.5, including zero, so adjacent samples of one broad peak do not
-    become separate occurrences. Periodic side lobes remain competing peaks.
+    Only contiguous exactly equal values are deduplicated. A plateau is a
+    maximum if its available outside neighbors are lower; a flat shoulder is
+    not one. Distinct maxima are never combined based on their distance.
     """
-    power = sum(sum(map(mul, track, track)) for track in template)
-    width = len(template[0])
-    for lag in range(1, width):
-        dot = sum(sum(map(mul, track[lag:], track[:-lag])) for track in template)
-        if dot < AMBIGUOUS_CORRELATION * power:
-            return 2 * lag - 1
-    return 2 * width - 1
+    first = 0
+    while first < len(values):
+        end = first + 1
+        while end < len(values) and values[end] == values[first]: end += 1
+        if ((first == 0 or values[first] > values[first - 1])
+                and (end == len(values) or values[first] > values[end])):
+            yield first
+        first = end
 
 
 def locate(mix, reference, expected_s):
@@ -119,12 +120,8 @@ def locate(mix, reference, expected_s):
     dense = [score(i) for i in range(first, expected + radius + 1)]
     best = max(range(len(dense)), key=dense.__getitem__)
     correlation, offset = dense[best], first + best
-    separation = correlation_peak_width(template)
-    competing = next((i for i, confidence in enumerate(dense)
-                      if confidence >= AMBIGUOUS_CORRELATION
-                      and abs(i - best) >= separation
-                      and (i == 0 or confidence > dense[i - 1])
-                      and (i == len(dense) - 1 or confidence >= dense[i + 1])), None)
+    competing = next((i for i in local_maxima(dense)
+                      if i != best and dense[i] >= AMBIGUOUS_CORRELATION), None)
     if competing is not None:
         raise ValueError(f"ambiguous PCM match: competing occurrences at {offset / RATE:.6f}s and {(first + competing) / RATE:.6f}s")
     if correlation < MIN_CORRELATION:

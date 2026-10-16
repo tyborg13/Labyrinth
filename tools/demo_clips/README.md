@@ -199,10 +199,12 @@ confidence and labels each row `measured` or `unmeasured`. It computes dense
 correlation at every sample offset across the entire search window, with no
 candidate shortlist. Any second local peak at correlation >= 0.5 makes the
 match ambiguous and unmeasured, regardless of how much stronger the best match
-is. Peaks are distinct when separated by at least the cue template's own
-autocorrelation main-lobe width at half height (the contiguous sample count at
->= 0.5, including lag zero). Another overlapping sound can weaken a real
-occurrence's correlation without changing its timing.
+is or how close the peaks are. Only contiguous exactly equal correlation
+samples are deduplicated into one flat plateau. A plateau is a local maximum
+only when its available outside neighbors are lower; a flat shoulder is not
+a peak. There is no minimum distance or cue-width exception. Another
+overlapping sound can weaken a real occurrence's correlation without changing
+its timing.
 Repeated identical cues cannot silently reuse the cleaner occurrence. Low correlation,
 overlap and ambiguous visual contacts carry reasons, with no invented offset
 or duration. Only measured offsets outside sfx-04 and measured status/trap
@@ -663,14 +665,15 @@ Observed focused proof:
 - `git diff --check` passes. No full suite, windowed run or commit was made.
   Existing owner media, receipts and deliveries were not modified.
 
-## Round-twelve dense ambiguity guard
+## Round-twelve verification (prior peak-width rule)
 
 Removed the sparse search and its candidate shortlist. Every offset in the
-full ±0.25-second search window now receives a correlation computed from every
-sample in the identification template. Before accepting any measurement, the
-analyzer rejects any second local peak at correlation >= 0.5 separated from
-the best peak by at least the template's autocorrelation half-height width.
-The sync table remains informational and does not block recording or encoding.
+full ±0.25-second search window received a correlation computed from every
+sample in the identification template. That round rejected a second local
+peak at correlation >= 0.5 only when separated from the best peak by at least
+the template's autocorrelation half-height width. Round thirteen removes this
+distance veto, which could hide a distinct qualifying peak. The sync table
+remains informational and does not block recording or encoding.
 
 The seed-7 regression preserves the first hit's individual-identifiability
 check, then requires both repeated-hit audit rows to be unmeasured with
@@ -691,5 +694,31 @@ Observed focused proof:
   ambiguity guard are all caught. These mutations ran in memory and were
   restored without modifying production files.
 - `round-12-focused-tests.log`: `Ran 60 tests in 79.733s` / `OK`, no skips.
+- `git diff --check` passes. No full suite, windowed run or commit was made.
+  Existing owner media, receipts and deliveries were not modified.
+
+## Round-thirteen local maxima
+
+Removed the distance veto and the unused autocorrelation-width helper. Any
+second distinct local maximum at correlation >= 0.5 is ambiguous, regardless
+of distance. Exactly equal contiguous samples form one plateau, represented
+by its first sample, and count as a maximum only if the available outside
+neighbors are lower. Maxima at search-window boundaries use the available neighbor.
+
+The reviewer's broad Gaussian cue is repeated 560 samples (11.67 ms) apart
+at gains 1.0 and 0.8. Its two qualifying correlation peaks are only 420 samples
+apart, which the prior 565-sample width veto hid. The new `locate()` regression
+requires ambiguity; the `audit()` regression requires both repeated-hit rows
+to be unmeasured with ambiguity reasons, no invented offsets and no flags.
+Plateau regressions cover one measurable flat maximum, two ambiguous flat
+maxima, flat shoulders, boundary plateaus and distinct nearby maxima.
+
+Observed focused proof:
+
+- `round-13-broad-before.log`: both broad-cue regressions fail against the
+  prior implementation: `locate()` accepts a measurement and `audit()` marks
+  the repeated-hit rows measured.
+- `round-13-focused-tests.log`: `Ran 64 tests in 101.136s` / `OK`, no skips.
+  Both broad-cue regressions, plateau cases and the seeds 1–20 sweep pass.
 - `git diff --check` passes. No full suite, windowed run or commit was made.
   Existing owner media, receipts and deliveries were not modified.

@@ -163,6 +163,38 @@ class DemoMediaWrapperTests(unittest.TestCase):
 
 
 class DemoSyncTests(unittest.TestCase):
+    @staticmethod
+    def broad_repeated_cue():
+        # Review reproduction: hits 560 samples (11.67 ms) apart yield two
+        # local maxima only 420 samples apart, within the former width veto.
+        reference = array("f", (math.exp(-((i - 2000) / 240) ** 2) for i in range(9600)))
+        mix = array("f", [0.0]) * sync.RATE
+        for offset, gain in ((24000, 1.0), (24560, 0.8)):
+            for i, value in enumerate(reference): mix[offset + i] += gain * value
+        return mix, reference
+
+    def test_broad_cue_distinct_local_maxima_are_ambiguous_in_locate(self):
+        mix, reference = self.broad_repeated_cue()
+        with self.assertRaisesRegex(ValueError, "ambiguous PCM match"):
+            sync.locate(mix, reference, 0.5)
+
+    def test_broad_cue_distinct_local_maxima_are_unmeasured_in_audit(self):
+        mix, reference = self.broad_repeated_cue()
+        rules = json.loads((pipeline.ROOT / "data/sfx_cues.json").read_text())["rules"]["sync"]
+        report = {"clip": "broad_repeated_hits", "fps": 60,
+                  "events": [{"cue": "hit.claw", "frame": frame, "result": "played", "pcm": "cue.wav", "pitch": 1} for frame in (30, 31)],
+                  "frames": [{"frame": frame, "actors": {"player": {"hp": hp}}, "traps": [], "surfaces": []}
+                             for frame, hp in ((0, 12), (30, 10), (31, 8))]}
+        with patch.object(sync, "pcm", side_effect=lambda path, pitch=1: mix if path.name == "movie.wav" else reference):
+            rows, flags = sync.audit(Path("/synthetic"), report, rules)
+        self.assertEqual(len(rows), 2)
+        for row in rows:
+            self.assertEqual(row["status"], "unmeasured")
+            self.assertEqual(row["offset_status"], "unmeasured")
+            self.assertIn("ambiguous PCM match", row["reason"])
+            self.assertNotIn("offset_ms", row)
+        self.assertEqual(flags, [])
+
     def test_mixed_repeated_hits_with_unequal_correlations_are_unmeasured(self):
         self.assert_mixed_repeated_hits_unmeasured(2)
 
@@ -232,12 +264,30 @@ class DemoSyncTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "ambiguous PCM match"):
             sync.locate(mix, reference, 3201 / sync.RATE)
 
-    def test_separation_uses_the_cues_autocorrelation_peak_width(self):
-        broad = array("f", [0, 1, 2, 3, 2, 1, 0])
-        impulse = array("f", [0, 0, 1, 0, 0, 0, 0])
-        self.assertEqual(sync.correlation_peak_width([broad]), 5)
-        self.assertEqual(sync.correlation_peak_width([impulse]), 1)
-        self.assertEqual(sync.correlation_peak_width([broad, broad]), 5)
+    def test_local_maxima_deduplicate_only_flat_plateaus(self):
+        self.assertEqual(list(sync.local_maxima([0, 0.5, 0.5, 0])), [1])
+        self.assertEqual(list(sync.local_maxima([0, 0.5, 0.5, 0.75, 0.75, 0])), [3])
+        self.assertEqual(list(sync.local_maxima([0.75, 0.75, 0.5, 0.5, 0])), [0])
+        self.assertEqual(list(sync.local_maxima([0.5, 0.5, 0, 0.5, 0.5])), [0, 3])
+        self.assertEqual(list(sync.local_maxima([0, 0.5, 0.499999, 0.5, 0])), [1, 3])
+        self.assertEqual(list(sync.local_maxima([0.5, 0.5])), [0])
+        self.assertEqual(list(sync.local_maxima([])), [])
+
+    def test_one_flat_correlation_plateau_is_measurable(self):
+        reference = array("f", [1.0]) * 96
+        mix = array("f", [0.0]) * 1000
+        mix[200:296] = reference
+        offset, confidence, gain = sync.locate(mix, reference, 200 / sync.RATE)
+        self.assertEqual(offset, 200)
+        self.assertEqual(confidence, 1.0)
+        self.assertEqual(gain, 1.0)
+
+    def test_two_flat_correlation_plateaus_are_ambiguous(self):
+        reference = array("f", [1.0]) * 96
+        mix = array("f", [0.0]) * 1000
+        for offset in (200, 400): mix[offset:offset + len(reference)] = reference
+        with self.assertRaisesRegex(ValueError, "ambiguous PCM match"):
+            sync.locate(mix, reference, 200 / sync.RATE)
 
     def test_periodic_side_peaks_are_ambiguous_even_with_one_cue(self):
         reference = array("f", [1, -1] * 48)
