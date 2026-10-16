@@ -1,19 +1,25 @@
-# int-01 — Integration fix: event view stays open after Continue on the merged branch
+# int-01 — Route every presentation surface to the maquette rigs (merge follow-up: pb-01 × rr-04)
 
 ## Header
-- Goal: on `codex/peer-benchmark` at e1032c6e9 (ev-01 + ev-02 + feel-01 + biome-01 + map-01 merged) the event view
-  suite fails 1 check: `tests/suites/event_view_suite.gd` `_integration` → "Event closes after Continue" (after
-  choosing Moth-Eaten Library "search" and pressing Continue, mode becomes `reward` with the event card choice, but
-  the EventView stays visible). It passed on codex/ev-02 before the map-01 merge (map-01 changed run_engine room entry
-  dispatch for mystery rooms, section_map_* presentation and combat_board_view door emblems).
-- Base: `codex/peer-benchmark` (current HEAD e1032c6e9).
-- Owned files: whatever the root cause requires, minimal; `tests/suites/event_view_suite.gd` only if the test itself is
-  wrong (explain why).
-- Rules: find and state the root cause first; add a regression check that fails before and passes after; no
-  behaviour changes beyond the fix; Windows typed-array rule.
-- Contract: risk tier standard. Acceptance: event_view suite 0 failures; event_rules, section_map v2, section_map,
-  full suite pass.
+- pb-01 (pre-battle live actors) and rr-04 (Shale Bloomer + Lightning Wisp maquette rigs) were developed in parallel.
+  Merge 58c58c9af kept pb-01's `LiveActor` in `scripts/pre_battle_view.gd` and dropped rr-04's
+  `maquette_cutout_runtime/portrait.gd` bind there. `LiveActor.renderer_script()` → `ActorPresentation.travel_renderer()`
+  still loads the OLD `scripts/bile_bloomer_cutout/renderer.gd` / `scripts/lightning_wisp_cutout/renderer.gd`, while the
+  board uses `maquette_cutout_runtime/shale_bloomer_renderer.gd` / `lightning_wisp_renderer.gd`. Result: old art in the
+  pre-battle, new rigs on the board.
+- Base `codex/peer-benchmark` (HEAD after 58c58c9af). Owned: `scripts/actor_presentation.gd`, `scripts/live_actor_presentation.gd`,
+  `scripts/maquette_cutout_runtime/**` (API adapters only), portraits/turn-order consumers of travel_renderer, tests.
+
+## Change
+1. One source of truth for "which renderer presents identity X" used by the board, pre-battle live actors, portraits,
+   turn-order/inspection and any other consumer of `travel_renderer`: maquette identities (bile_bloomer, lightning_wisp,
+   and future ones registered the same way) resolve to their maquette runtime renderer.
+2. The maquette renderers support the LiveActor contract (`present`, `texture`, `snapshot`, idle phase seed,
+   reduced-motion rest) exactly like the other renderers; deterministic phase per slot.
+3. Remove the now-unused old bloomer/wisp cutout renderers ONLY if nothing references them (list what you removed);
+   otherwise leave them and report the remaining references.
+4. Tests: every surface resolves bloomer/wisp to the maquette scripts (fails on current HEAD); pb-01's renderer-identity
+   and SceneTree motion tests include both; full suite PASS.
 
 ## Proof
-- Root cause written in the result.
-- Suites listed above green.
+- Headless tests + full suite. Windowed (director): the pb-01 living-foes probe with a pack containing both creatures.
