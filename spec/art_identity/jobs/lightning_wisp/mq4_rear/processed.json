@@ -1,0 +1,75 @@
+{
+  "K": 4,
+  "drawn_size": [
+    124,
+    164
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.0,
+  "metrics": {
+    "chroma": 0.15759686649779528,
+    "edge_light_share": 0.0,
+    "feature_px": 7.773913746611743,
+    "height": 164,
+    "height_drawn": 164.0,
+    "orphan_share": 0.03518740031897927,
+    "regions": 166,
+    "run_length": 3.508919202518363,
+    "symmetry": 0.7064527200961044,
+    "thin_abs": 0.010267145135566147,
+    "thin_rel": 0.01594896331738438,
+    "value": 0.2692798898426994,
+    "width": 124
+  },
+  "pixel_sha256": "c6f1ec05ecd16d8978df4d56979af801fc98762e1b7cd81f6211a4ec69cfb6cd",
+  "placement": [
+    66,
+    82
+  ],
+  "post_steps": [
+    {
+      "parameters": {
+        "accent_hue_bin_deg": 15,
+        "accent_hue_bin_min_share": 0.05,
+        "accent_hue_chroma_floor": 30,
+        "accent_hue_window_deg": 25,
+        "accent_lightness": 80,
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "allow_protected_share": false,
+        "exclude_green_from_protection": true,
+        "green_residue_margin": 20,
+        "max_protected_body_share": 0.25,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "193359ae43b476dce9825749bdf1bf26657c30cab919326539a7b282bc024d8d",
+      "protected_body_share": {
+        "front": 0.09679929954275708,
+        "rear": 0.06427261943276179
+      },
+      "reference": "spec/art_identity/jobs/lightning_wisp/mq4_rear/refs/match_front_mq4.png",
+      "reference_pixel_sha256": "0ce85fb5a6eb9e828b9a4734df2be96496c680efd1166ec379085ed2434f70ef",
+      "step": "palette_match"
+    },
+    {
+      "parameters": {
+        "max_luminance": 0.2,
+        "neighbours": 4,
+        "remove_isolated": true,
+        "tone": [
+          20,
+          16,
+          21
+        ]
+      },
+      "pre_step_pixel_sha256": "00afa548b63716e30d033f986479ca3ec25dff8b0dd99d2966043c7aa1f5fbea",
+      "step": "clean_outline"
+    }
+  ],
+  "raw_sha256": "e076fbef168ded319feb41b3dd9a375e59c114b66043d8be17213bd7e1834ab4",
+  "shift": [
+    0,
+    0
+  ]
+}
