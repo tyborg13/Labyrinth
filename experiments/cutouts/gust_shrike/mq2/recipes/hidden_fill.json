@@ -1,0 +1,22 @@
+{
+  "source": "Director rr-03 round 2",
+  "parts": "Each part uses its own visible source RGB, including midtones",
+  "sparse": "Below rr-02 40-pixel minimum, same view, same material, nearest part; source label order breaks equal distances",
+  "median_l_limit": 8,
+  "sparse_overrides": {},
+  "method": "diffusion",
+  "parameters": {
+    "radius": 3,
+    "palette_k": 6,
+    "palette_min_own_pixels": 40,
+    "outline_tone": [
+      20,
+      16,
+      21
+    ],
+    "seed": 0,
+    "kmeans_max_iterations": 256,
+    "diffusion_max_iterations": 4096,
+    "diffusion_residual_tolerance": 1e-06
+  }
+}

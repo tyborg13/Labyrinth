@@ -1,0 +1,10 @@
+Running task-local command:
+  task: rr-03
+  run: rr-03-1792109273731944000-87617
+  HOME: /private/tmp/labyrinth-godot-home/rr-03-1792109273731944000-87617
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-03-1792109273731944000-87617/godot.log --headless --path . --script tests/gust_shrike_cutout_probe.gd --check-only
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+

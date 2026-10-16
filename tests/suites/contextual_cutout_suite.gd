@@ -53,7 +53,7 @@ static func _check_routing(expect: Callable) -> void:
 		var roster_presentation: Dictionary = {"floating_texts":FloatingText.animate_entries([damage],.054,false)}
 		Context.apply_to_presentation(roster_state,roster_presentation)
 		var family: String = Context.family_key(actor_type)
-		if actor_type in Context.STATIC_ENEMY_TYPES:
+		if actor_type in Context.STATIC_ENEMY_TYPES and not (actor_type == "gust_shrike" and preload("res://scripts/gust_shrike_cutout/renderer.gd").available()):
 			var art_path: String = str(preload("res://scripts/game_data.gd").enemy_def(actor_type).get("art_path", ""))
 			expect.call(preload("res://scripts/asset_loader.gd").load_texture(art_path) != null, actor_type + " loads its approved static sprite")
 			var board: Control = preload("res://scripts/combat_board_view.gd").new()

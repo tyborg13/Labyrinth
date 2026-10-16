@@ -1,8 +1,9 @@
 # Blender headless maquette for the Gust Shrike: posed proxy, board camera (orthographic, azimuth 45, elevation 30),
 # front (facing screen lower-left) and rear renders; flat part colours + clay. Usage:
 #   Blender -b --factory-startup -P shrike.py -- OUT_DIR
-import bpy, math, sys, os
+import bpy, math, sys, os, json
 from mathutils import Vector, Euler
+from bpy_extras.object_utils import world_to_camera_view
 out = sys.argv[sys.argv.index('--') + 1]
 os.makedirs(out, exist_ok=True)
 bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -17,9 +18,21 @@ for name, c in PART_COLOURS.items():
     m = bpy.data.materials.new(name); m.diffuse_color = (*c, 1); mats[name] = m
 
 root = bpy.data.objects.new('bird', None); scene.collection.objects.link(root)
+objects_by_part = {name: [] for name in PART_COLOURS}
+
+# Attachments come from the existing proxy geometry, in its original coordinates.
+# The body breathes about the feet; legs have their own hip attachment for flight.
+JOINTS = {
+    'root': (0.12, 0, 0), 'body': (0.12, 0, 0),
+    'head': (0.58, 0, 1.12), 'wing_near': (0.32, 0.26, 0.92),
+    'wing_far': (0.32, -0.26, 0.92), 'tail': (-0.5, 0, 0.36),
+    'legs': (0.05, 0, 0.42),
+}
 
 def add(obj, part):
-    obj.data.materials.append(mats[part]); obj.parent = root; return obj
+    obj.data.materials.append(mats[part]); obj.parent = root
+    objects_by_part[part].append(obj)
+    return obj
 
 def ellipsoid(part, loc, scale, rot=(0, 0, 0)):
     bpy.ops.mesh.primitive_uv_sphere_add(segments=32, ring_count=16, location=loc, rotation=rot)
@@ -119,3 +132,45 @@ def render(name, yaw_deg, mode):
 FRONT_YAW = float(os.environ.get('FRONT_YAW', '135'))
 render('front_parts.png', FRONT_YAW, 'parts'); render('front_clay.png', FRONT_YAW, 'clay')
 render('rear_parts.png', FRONT_YAW + 180, 'parts'); render('rear_clay.png', FRONT_YAW + 180, 'clay')
+
+# Export the same camera/pose, never fit or crop an individual solo. Keep beak
+# and mask labels for ownership; the rig recipe binds both to the head bone.
+projected_joints, view_transforms = {}, {}
+for view, yaw in (('front', FRONT_YAW), ('rear', FRONT_YAW + 180)):
+    root.rotation_euler = (0, 0, math.radians(yaw))
+    bpy.context.view_layer.update()
+    projected_joints[view] = {}
+    for name, point in JOINTS.items():
+        co = world_to_camera_view(scene, cam, root.matrix_world @ Vector(point))
+        projected_joints[view][name] = [round(co.x * 1024, 2), round((1 - co.y) * 1024, 2)]
+    view_transforms[view] = {
+        'object_to_world': [list(row) for row in root.matrix_world],
+        'target': list(target), 'azimuth_deg': math.degrees(az),
+        'elevation_deg': math.degrees(el), 'ortho_scale': cam_data.ortho_scale,
+        'distance': dist,
+    }
+    for part in PART_COLOURS:
+        for other, objects in objects_by_part.items():
+            for obj in objects:
+                obj.hide_render = other != part
+        render(f'{view}_solo_{part}.png', yaw, 'parts')
+    for objects in objects_by_part.values():
+        for obj in objects:
+            obj.hide_render = False
+
+# maquette_cutout uses primitive centres only for depth tie breaking. Record
+# actual mesh centres instead of introducing a second approximate bird model.
+shapes = []
+for part, objects in objects_by_part.items():
+    for obj in objects:
+        centre = sum((v.co for v in obj.data.vertices), Vector()) / len(obj.data.vertices)
+        shapes.append({'type': 'exported_mesh_centroid', 'part': part,
+                       'c': list(obj.matrix_local @ centre)})
+for filename, value in (
+    ('joints_px.json', projected_joints),
+    ('view_transforms.json', view_transforms),
+    ('spec.json', {'joints': JOINTS, 'labels': PART_COLOURS, 'shapes': shapes,
+                   'solo': list(PART_COLOURS), 'view_transforms': view_transforms}),
+):
+    with open(os.path.join(out, filename), 'w') as handle:
+        json.dump(value, handle, indent=2)

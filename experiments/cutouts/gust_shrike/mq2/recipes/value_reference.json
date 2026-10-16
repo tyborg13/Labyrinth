@@ -1,0 +1,7 @@
+{
+  "source": "Director rr-03 round 2",
+  "parts": "Each part uses its own visible source RGB, including midtones",
+  "sparse": "Below rr-02 40-pixel minimum, same view, same material, nearest part; source label order breaks equal distances",
+  "median_l_limit": 8,
+  "sparse_overrides": {}
+}

@@ -1,0 +1,3387 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.142425881835084,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 32.07535649510723,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/death_death.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.486057038906573,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.632053812917686,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/dive_dive.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 25.406344835486163,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 35.29281681089958,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00000.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 25.426725877877708,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 35.23517896050839,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00001.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 25.332531418054124,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 35.15820871798002,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00002.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 25.330731552505252,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 35.161189087372755,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00003.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 25.329564449531517,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 35.169122897376006,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00004.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 25.341830777434076,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 35.17489683024773,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00005.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 25.323247710366733,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 35.15305853387249,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00006.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 25.330512049183536,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 35.16147518587349,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00007.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 25.334994890847575,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 35.160823355502686,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00008.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 25.326740865222764,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 35.16496120439039,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00009.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 25.340530571802955,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 35.179435718061505,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00010.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 25.330852337067114,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 35.15380857647575,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00011.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 25.32965138800037,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 35.16348717625759,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00012.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 25.332079682052875,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 35.15730191979752,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00013.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 25.33589510438758,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 35.169697613870326,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00014.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.876744732673327,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 30.260212047780527,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00015.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.877346286770134,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 30.225305961585384,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00016.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.888917415368688,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 30.26336650769325,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00017.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.887656694868856,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 30.247984508499982,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00018.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.882586875191528,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 30.260715030848143,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00019.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.871268981328882,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 30.234384764070057,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00020.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.87247063428679,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 30.232910290799108,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00021.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.851209894014755,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 30.19690153255207,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00022.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.869680955387725,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 30.23807165437522,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00023.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.486057038906573,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.632053812917686,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00024.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.476301965353944,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.62535065214311,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00025.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.49978023172529,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.63129321764473,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00026.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.503542193920804,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.63538530980138,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00027.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.48897486949815,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.591776422918006,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00028.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.545238571649243,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.78886614673252,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00029.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.541356283607477,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.782413827970085,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00030.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.544138852414818,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.790545085461968,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00031.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.540924351465733,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.79122266523734,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00032.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.540836934509073,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.78505489711693,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00033.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.523583585094396,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.743367359761695,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00034.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.11605502213887,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.951628886117415,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00035.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.11884673362258,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.951911677436463,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00036.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.118172896229336,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.961156171197707,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00037.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.195100518026,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 32.222359067482834,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00038.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.11688476351818,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.98269804789067,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00039.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.114980239633336,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.969372677916915,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00040.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.123881441784494,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.98286899937395,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00041.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.602554974686104,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.933741568213613,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00042.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.611011104075473,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.92797429837779,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00043.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.62385711404067,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.958906042145767,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00044.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.606823524986574,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.921634894109605,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00045.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.600226550136913,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.89520714036462,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00046.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.593246093003096,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.87992366113027,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00047.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.595204175888256,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.87419709484847,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00048.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.584566660070504,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.862701198815245,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00049.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.58468510360103,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.857741886348926,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00050.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.57414221369282,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.829337873804615,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00051.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.57515542944733,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.819674665073666,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00052.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.57110040334799,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.801954656148386,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00053.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.55877878835274,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.78636736313385,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00054.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.22155241615945,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 32.21112610362211,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00055.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.189565303695144,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 32.106399878962605,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00056.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.183511622107087,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 32.102630223797526,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00057.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.172253804169735,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 32.077217546736826,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00058.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.136435186643702,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 32.01054072634867,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00059.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.103212005688384,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.938169635679674,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00060.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.099738144568494,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.925405099049428,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00061.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.142425881835084,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 32.07535649510723,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00062.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.007617253236795,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.703614134010056,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00063.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.005609114989447,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.749894136035916,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00064.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.677247259564748,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.534955794758794,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00065.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.68071544210188,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.507536036743574,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00066.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.69341854238659,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.40334396336424,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00067.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.779907861430942,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.63244315314907,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00068.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.78227240983337,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.63435373705014,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00069.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.782126720178184,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.640829827084286,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00070.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.784316379305054,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.642449759464427,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00071.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.778395349567617,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.632214391308235,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00072.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.779117091105114,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.6183301000326,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00073.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.789208869814384,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.623918247495144,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00074.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.80078472792888,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.63737099043838,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00075.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.808028535268274,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.653978037582828,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00076.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.809298940203423,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.657883817657307,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00077.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.80917205393326,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.65104901986128,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00078.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.80948706896016,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.65165788043216,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00079.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.22155241615945,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 32.21112610362211,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/hit_hit.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.602554974686104,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 29.933741568213613,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/hover_hover.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 25.406344835486163,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 35.29281681089958,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/idle_idle.png",
+          "width": 1920
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 22.876744732673327,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 30.260212047780527,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/move_move.png",
+          "width": 1920
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.9360833698907105,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.882286409985525,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00000.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.9539956054855154,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.93500478395642,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00001.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.9595010700185043,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.950026430979873,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00002.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 146.5942,
+          "luma_mean": 3.9370868031051534,
+          "luma_min": 0.0,
+          "luma_range": 146.5942,
+          "luma_stdev": 15.915742112042254,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00003.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 146.5942,
+          "luma_mean": 3.963339491502799,
+          "luma_min": 0.0,
+          "luma_range": 146.5942,
+          "luma_stdev": 15.988722239462486,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00004.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 146.5942,
+          "luma_mean": 3.9642586812641922,
+          "luma_min": 0.0,
+          "luma_range": 146.5942,
+          "luma_stdev": 16.015391019257606,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00005.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 4.0326841786034455,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 16.14264111691829,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00006.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 146.8068,
+          "luma_mean": 4.055553666863761,
+          "luma_min": 0.0,
+          "luma_range": 146.8068,
+          "luma_stdev": 16.21898553694656,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00007.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 146.8068,
+          "luma_mean": 4.036228816113225,
+          "luma_min": 0.0,
+          "luma_range": 146.8068,
+          "luma_stdev": 16.175455767309458,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00008.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 146.8068,
+          "luma_mean": 4.043665879570469,
+          "luma_min": 0.0,
+          "luma_range": 146.8068,
+          "luma_stdev": 16.207416008220644,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00009.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.01940000000002,
+          "luma_mean": 3.9875625131129753,
+          "luma_min": 0.0,
+          "luma_range": 145.01940000000002,
+          "luma_stdev": 16.060621686423396,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00010.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.01940000000002,
+          "luma_mean": 3.9633001926414777,
+          "luma_min": 0.0,
+          "luma_range": 145.01940000000002,
+          "luma_stdev": 15.966008638464922,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00011.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.01940000000002,
+          "luma_mean": 3.939044376204013,
+          "luma_min": 0.0,
+          "luma_range": 145.01940000000002,
+          "luma_stdev": 15.934263213790022,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00012.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.9313660340651184,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.915197749238235,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00013.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.9568190772282543,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.975705215192873,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00014.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 146.30599999999998,
+          "luma_mean": 3.9331767723969526,
+          "luma_min": 0.0,
+          "luma_range": 146.30599999999998,
+          "luma_stdev": 15.825738992470642,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00015.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 146.3702,
+          "luma_mean": 3.9649392054015924,
+          "luma_min": 0.0,
+          "luma_range": 146.3702,
+          "luma_stdev": 15.912854799562227,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00016.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 151.8544,
+          "luma_mean": 3.7449551393312865,
+          "luma_min": 0.0,
+          "luma_range": 151.8544,
+          "luma_stdev": 15.765710303344123,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00017.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 149.1616,
+          "luma_mean": 3.7274671765625853,
+          "luma_min": 0.0,
+          "luma_range": 149.1616,
+          "luma_stdev": 15.677465358113325,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00018.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 148.73119999999997,
+          "luma_mean": 3.9809500696179567,
+          "luma_min": 0.0,
+          "luma_range": 148.73119999999997,
+          "luma_stdev": 15.976943568548574,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00019.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 151.8544,
+          "luma_mean": 4.013240424192726,
+          "luma_min": 0.0,
+          "luma_range": 151.8544,
+          "luma_stdev": 16.024934887115226,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00020.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 146.30599999999998,
+          "luma_mean": 4.100942424993798,
+          "luma_min": 0.0,
+          "luma_range": 146.30599999999998,
+          "luma_stdev": 16.244401401784486,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00021.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 149.1616,
+          "luma_mean": 3.967207427187247,
+          "luma_min": 0.0,
+          "luma_range": 149.1616,
+          "luma_stdev": 15.932580195421185,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00022.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.9700938297507107,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.986606909952833,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00023.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.9700938297507107,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.986606909952833,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00024.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 3.9755758110969097,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 15.968856965384212,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00025.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 3.7759649545099085,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 15.685344320825122,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00026.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 146.8068,
+          "luma_mean": 3.169426405233749,
+          "luma_min": 0.0,
+          "luma_range": 146.8068,
+          "luma_stdev": 14.509377626981097,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00027.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 3.1544825611779648,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 14.482192415036257,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00028.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 3.9858913158747833,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 15.966507378969558,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00029.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 3.996308466688274,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 16.02871887725631,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00030.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 144.52200000000002,
+          "luma_mean": 3.984265646874821,
+          "luma_min": 0.0,
+          "luma_range": 144.52200000000002,
+          "luma_stdev": 15.98850875291066,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00031.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.986800576017092,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 16.01513631525475,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00032.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.9648160941463755,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.955611342068865,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00033.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.9700938297507107,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.986606909952833,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00034.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.9700938297507107,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.986606909952833,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00035.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.7915907875412524,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.704290492336314,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00036.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 146.5942,
+          "luma_mean": 3.8712623090274527,
+          "luma_min": 0.0,
+          "luma_range": 146.5942,
+          "luma_stdev": 15.846073671281385,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00037.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 146.5942,
+          "luma_mean": 3.9763847298250985,
+          "luma_min": 0.0,
+          "luma_range": 146.5942,
+          "luma_stdev": 15.973975570161013,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00038.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.97071275439165,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.95208450659755,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00039.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.01940000000002,
+          "luma_mean": 3.974512437772986,
+          "luma_min": 0.0,
+          "luma_range": 145.01940000000002,
+          "luma_stdev": 16.006334610732658,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00040.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.9700938297507107,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.986606909952833,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00041.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.9700938297507107,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.986606909952833,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00042.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 4.0009282114860065,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 16.02050114611396,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00043.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 3.9752773503213725,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 15.962549539773656,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00044.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 3.970135348757364,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 15.991146941156273,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00045.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 3.727907085773158,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 15.675161292464912,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00046.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 3.970135348757364,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 15.991146941156273,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00047.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 3.9752773503213725,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 15.962549539773656,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00048.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 3.970135348757364,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 15.991146941156273,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00049.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 3.727907085773158,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 15.675161292464912,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00050.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 3.86846467031605,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 15.859780406550003,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00051.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 3.968669572183334,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 15.988533499880571,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00052.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 3.9700821301188234,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 15.990875034597865,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00053.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.9700938297507107,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.986606909952833,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00054.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.9700938297507107,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.986606909952833,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00055.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.01940000000002,
+          "luma_mean": 3.9832644605085,
+          "luma_min": 0.0,
+          "luma_range": 145.01940000000002,
+          "luma_stdev": 16.010190287395854,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00056.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.989329600030511,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.997094446297773,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00057.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.3816,
+          "luma_mean": 3.9766653569589296,
+          "luma_min": 0.0,
+          "luma_range": 145.3816,
+          "luma_stdev": 15.955606188481156,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00058.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.01940000000002,
+          "luma_mean": 3.9685908218733896,
+          "luma_min": 0.0,
+          "luma_range": 145.01940000000002,
+          "luma_stdev": 15.959313091419135,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00059.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.967214644566939,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.967946238930585,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00060.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.9700938297507107,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.986606909952833,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00061.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.9700938297507107,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.986606909952833,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00062.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.3816,
+          "luma_mean": 3.952746800434879,
+          "luma_min": 0.0,
+          "luma_range": 145.3816,
+          "luma_stdev": 15.912382849300416,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00063.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 146.5942,
+          "luma_mean": 3.978224307158242,
+          "luma_min": 0.0,
+          "luma_range": 146.5942,
+          "luma_stdev": 15.972746478899918,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00064.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 146.5942,
+          "luma_mean": 3.98451480669095,
+          "luma_min": 0.0,
+          "luma_range": 146.5942,
+          "luma_stdev": 15.986083975405979,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00065.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 144.52200000000002,
+          "luma_mean": 3.9820040473783544,
+          "luma_min": 0.0,
+          "luma_range": 144.52200000000002,
+          "luma_stdev": 16.018098186852978,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00066.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 146.5942,
+          "luma_mean": 3.9305284632550737,
+          "luma_min": 0.0,
+          "luma_range": 146.5942,
+          "luma_stdev": 15.915405121849858,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00067.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 146.8068,
+          "luma_mean": 3.7770779950027653,
+          "luma_min": 0.0,
+          "luma_range": 146.8068,
+          "luma_stdev": 15.748370309876941,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00068.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 3.5709926872532356,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 15.437766175954199,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00069.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 3.4037474908924517,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 15.168740125223998,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00070.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 146.8068,
+          "luma_mean": 3.325921299280939,
+          "luma_min": 0.0,
+          "luma_range": 146.8068,
+          "luma_stdev": 15.004488949205149,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00071.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.3816,
+          "luma_mean": 3.1190423467928103,
+          "luma_min": 0.0,
+          "luma_range": 145.3816,
+          "luma_stdev": 14.66403826134305,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00072.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 2.9010160598142276,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 14.231832308090647,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00073.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 2.8531079097446104,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 14.158258150080945,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00074.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 2.917369719048624,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 14.259019619664265,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00075.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 154.1496,
+          "luma_mean": 2.9150498502737014,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 14.25035681252422,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00076.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 146.5942,
+          "luma_mean": 2.8886154990558697,
+          "luma_min": 0.0,
+          "luma_range": 146.5942,
+          "luma_stdev": 14.20818506813429,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00077.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.01940000000002,
+          "luma_mean": 2.856445223063573,
+          "luma_min": 0.0,
+          "luma_range": 145.01940000000002,
+          "luma_stdev": 14.141848186118914,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00078.png",
+          "width": 512
+        },
+        {
+          "height": 512,
+          "luma_max": 145.522,
+          "luma_mean": 2.8399475214099135,
+          "luma_min": 0.0,
+          "luma_range": 145.522,
+          "luma_stdev": 14.090541310576999,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00079.png",
+          "width": 512
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 23.11605502213887,
+          "luma_min": 0.0,
+          "luma_range": 254.99999999999997,
+          "luma_stdev": 31.951628886117415,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/talon_rake_talon_rake.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--audio-driver",
+    "Dummy",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-03",
+    "--script",
+    "tests/gust_shrike_cutout_probe.gd"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ],
+    [
+      512,
+      512
+    ]
+  ],
+  "images": [
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.142425881835084,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 32.07535649510723,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/death_death.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.486057038906573,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.632053812917686,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/dive_dive.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 25.406344835486163,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 35.29281681089958,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00000.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 25.426725877877708,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 35.23517896050839,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00001.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 25.332531418054124,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 35.15820871798002,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00002.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 25.330731552505252,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 35.161189087372755,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00003.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 25.329564449531517,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 35.169122897376006,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00004.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 25.341830777434076,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 35.17489683024773,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00005.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 25.323247710366733,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 35.15305853387249,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00006.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 25.330512049183536,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 35.16147518587349,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00007.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 25.334994890847575,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 35.160823355502686,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00008.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 25.326740865222764,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 35.16496120439039,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00009.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 25.340530571802955,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 35.179435718061505,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00010.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 25.330852337067114,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 35.15380857647575,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00011.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 25.32965138800037,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 35.16348717625759,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00012.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 25.332079682052875,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 35.15730191979752,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00013.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 25.33589510438758,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 35.169697613870326,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00014.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.876744732673327,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 30.260212047780527,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00015.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.877346286770134,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 30.225305961585384,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00016.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.888917415368688,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 30.26336650769325,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00017.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.887656694868856,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 30.247984508499982,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00018.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.882586875191528,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 30.260715030848143,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00019.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.871268981328882,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 30.234384764070057,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00020.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.87247063428679,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 30.232910290799108,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00021.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.851209894014755,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 30.19690153255207,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00022.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.869680955387725,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 30.23807165437522,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00023.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.486057038906573,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.632053812917686,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00024.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.476301965353944,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.62535065214311,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00025.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.49978023172529,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.63129321764473,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00026.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.503542193920804,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.63538530980138,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00027.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.48897486949815,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.591776422918006,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00028.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.545238571649243,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.78886614673252,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00029.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.541356283607477,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.782413827970085,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00030.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.544138852414818,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.790545085461968,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00031.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.540924351465733,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.79122266523734,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00032.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.540836934509073,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.78505489711693,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00033.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.523583585094396,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.743367359761695,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00034.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.11605502213887,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.951628886117415,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00035.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.11884673362258,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.951911677436463,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00036.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.118172896229336,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.961156171197707,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00037.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.195100518026,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 32.222359067482834,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00038.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.11688476351818,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.98269804789067,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00039.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.114980239633336,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.969372677916915,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00040.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.123881441784494,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.98286899937395,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00041.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.602554974686104,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.933741568213613,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00042.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.611011104075473,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.92797429837779,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00043.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.62385711404067,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.958906042145767,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00044.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.606823524986574,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.921634894109605,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00045.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.600226550136913,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.89520714036462,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00046.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.593246093003096,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.87992366113027,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00047.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.595204175888256,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.87419709484847,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00048.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.584566660070504,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.862701198815245,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00049.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.58468510360103,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.857741886348926,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00050.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.57414221369282,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.829337873804615,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00051.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.57515542944733,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.819674665073666,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00052.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.57110040334799,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.801954656148386,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00053.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.55877878835274,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.78636736313385,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00054.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.22155241615945,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 32.21112610362211,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00055.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.189565303695144,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 32.106399878962605,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00056.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.183511622107087,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 32.102630223797526,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00057.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.172253804169735,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 32.077217546736826,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00058.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.136435186643702,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 32.01054072634867,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00059.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.103212005688384,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.938169635679674,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00060.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.099738144568494,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.925405099049428,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00061.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.142425881835084,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 32.07535649510723,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00062.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.007617253236795,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.703614134010056,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00063.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.005609114989447,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.749894136035916,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00064.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.677247259564748,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.534955794758794,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00065.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.68071544210188,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.507536036743574,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00066.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.69341854238659,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.40334396336424,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00067.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.779907861430942,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.63244315314907,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00068.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.78227240983337,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.63435373705014,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00069.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.782126720178184,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.640829827084286,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00070.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.784316379305054,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.642449759464427,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00071.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.778395349567617,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.632214391308235,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00072.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.779117091105114,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.6183301000326,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00073.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.789208869814384,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.623918247495144,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00074.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.80078472792888,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.63737099043838,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00075.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.808028535268274,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.653978037582828,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00076.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.809298940203423,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.657883817657307,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00077.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.80917205393326,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.65104901986128,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00078.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.80948706896016,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.65165788043216,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/frame_00079.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.22155241615945,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 32.21112610362211,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/hit_hit.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.602554974686104,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 29.933741568213613,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/hover_hover.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 25.406344835486163,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 35.29281681089958,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/idle_idle.png",
+      "width": 1920
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 22.876744732673327,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 30.260212047780527,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/move_move.png",
+      "width": 1920
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.9360833698907105,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.882286409985525,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00000.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.9539956054855154,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.93500478395642,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00001.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.9595010700185043,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.950026430979873,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00002.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 146.5942,
+      "luma_mean": 3.9370868031051534,
+      "luma_min": 0.0,
+      "luma_range": 146.5942,
+      "luma_stdev": 15.915742112042254,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00003.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 146.5942,
+      "luma_mean": 3.963339491502799,
+      "luma_min": 0.0,
+      "luma_range": 146.5942,
+      "luma_stdev": 15.988722239462486,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00004.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 146.5942,
+      "luma_mean": 3.9642586812641922,
+      "luma_min": 0.0,
+      "luma_range": 146.5942,
+      "luma_stdev": 16.015391019257606,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00005.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 4.0326841786034455,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 16.14264111691829,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00006.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 146.8068,
+      "luma_mean": 4.055553666863761,
+      "luma_min": 0.0,
+      "luma_range": 146.8068,
+      "luma_stdev": 16.21898553694656,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00007.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 146.8068,
+      "luma_mean": 4.036228816113225,
+      "luma_min": 0.0,
+      "luma_range": 146.8068,
+      "luma_stdev": 16.175455767309458,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00008.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 146.8068,
+      "luma_mean": 4.043665879570469,
+      "luma_min": 0.0,
+      "luma_range": 146.8068,
+      "luma_stdev": 16.207416008220644,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00009.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.01940000000002,
+      "luma_mean": 3.9875625131129753,
+      "luma_min": 0.0,
+      "luma_range": 145.01940000000002,
+      "luma_stdev": 16.060621686423396,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00010.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.01940000000002,
+      "luma_mean": 3.9633001926414777,
+      "luma_min": 0.0,
+      "luma_range": 145.01940000000002,
+      "luma_stdev": 15.966008638464922,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00011.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.01940000000002,
+      "luma_mean": 3.939044376204013,
+      "luma_min": 0.0,
+      "luma_range": 145.01940000000002,
+      "luma_stdev": 15.934263213790022,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00012.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.9313660340651184,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.915197749238235,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00013.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.9568190772282543,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.975705215192873,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00014.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 146.30599999999998,
+      "luma_mean": 3.9331767723969526,
+      "luma_min": 0.0,
+      "luma_range": 146.30599999999998,
+      "luma_stdev": 15.825738992470642,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00015.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 146.3702,
+      "luma_mean": 3.9649392054015924,
+      "luma_min": 0.0,
+      "luma_range": 146.3702,
+      "luma_stdev": 15.912854799562227,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00016.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 151.8544,
+      "luma_mean": 3.7449551393312865,
+      "luma_min": 0.0,
+      "luma_range": 151.8544,
+      "luma_stdev": 15.765710303344123,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00017.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 149.1616,
+      "luma_mean": 3.7274671765625853,
+      "luma_min": 0.0,
+      "luma_range": 149.1616,
+      "luma_stdev": 15.677465358113325,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00018.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 148.73119999999997,
+      "luma_mean": 3.9809500696179567,
+      "luma_min": 0.0,
+      "luma_range": 148.73119999999997,
+      "luma_stdev": 15.976943568548574,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00019.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 151.8544,
+      "luma_mean": 4.013240424192726,
+      "luma_min": 0.0,
+      "luma_range": 151.8544,
+      "luma_stdev": 16.024934887115226,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00020.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 146.30599999999998,
+      "luma_mean": 4.100942424993798,
+      "luma_min": 0.0,
+      "luma_range": 146.30599999999998,
+      "luma_stdev": 16.244401401784486,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00021.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 149.1616,
+      "luma_mean": 3.967207427187247,
+      "luma_min": 0.0,
+      "luma_range": 149.1616,
+      "luma_stdev": 15.932580195421185,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00022.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.9700938297507107,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.986606909952833,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00023.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.9700938297507107,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.986606909952833,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00024.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 3.9755758110969097,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 15.968856965384212,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00025.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 3.7759649545099085,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 15.685344320825122,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00026.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 146.8068,
+      "luma_mean": 3.169426405233749,
+      "luma_min": 0.0,
+      "luma_range": 146.8068,
+      "luma_stdev": 14.509377626981097,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00027.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 3.1544825611779648,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 14.482192415036257,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00028.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 3.9858913158747833,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 15.966507378969558,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00029.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 3.996308466688274,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 16.02871887725631,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00030.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 144.52200000000002,
+      "luma_mean": 3.984265646874821,
+      "luma_min": 0.0,
+      "luma_range": 144.52200000000002,
+      "luma_stdev": 15.98850875291066,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00031.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.986800576017092,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 16.01513631525475,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00032.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.9648160941463755,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.955611342068865,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00033.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.9700938297507107,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.986606909952833,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00034.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.9700938297507107,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.986606909952833,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00035.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.7915907875412524,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.704290492336314,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00036.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 146.5942,
+      "luma_mean": 3.8712623090274527,
+      "luma_min": 0.0,
+      "luma_range": 146.5942,
+      "luma_stdev": 15.846073671281385,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00037.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 146.5942,
+      "luma_mean": 3.9763847298250985,
+      "luma_min": 0.0,
+      "luma_range": 146.5942,
+      "luma_stdev": 15.973975570161013,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00038.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.97071275439165,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.95208450659755,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00039.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.01940000000002,
+      "luma_mean": 3.974512437772986,
+      "luma_min": 0.0,
+      "luma_range": 145.01940000000002,
+      "luma_stdev": 16.006334610732658,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00040.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.9700938297507107,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.986606909952833,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00041.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.9700938297507107,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.986606909952833,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00042.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 4.0009282114860065,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 16.02050114611396,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00043.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 3.9752773503213725,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 15.962549539773656,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00044.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 3.970135348757364,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 15.991146941156273,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00045.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 3.727907085773158,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 15.675161292464912,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00046.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 3.970135348757364,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 15.991146941156273,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00047.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 3.9752773503213725,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 15.962549539773656,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00048.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 3.970135348757364,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 15.991146941156273,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00049.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 3.727907085773158,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 15.675161292464912,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00050.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 3.86846467031605,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 15.859780406550003,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00051.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 3.968669572183334,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 15.988533499880571,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00052.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 3.9700821301188234,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 15.990875034597865,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00053.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.9700938297507107,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.986606909952833,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00054.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.9700938297507107,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.986606909952833,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00055.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.01940000000002,
+      "luma_mean": 3.9832644605085,
+      "luma_min": 0.0,
+      "luma_range": 145.01940000000002,
+      "luma_stdev": 16.010190287395854,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00056.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.989329600030511,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.997094446297773,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00057.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.3816,
+      "luma_mean": 3.9766653569589296,
+      "luma_min": 0.0,
+      "luma_range": 145.3816,
+      "luma_stdev": 15.955606188481156,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00058.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.01940000000002,
+      "luma_mean": 3.9685908218733896,
+      "luma_min": 0.0,
+      "luma_range": 145.01940000000002,
+      "luma_stdev": 15.959313091419135,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00059.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.967214644566939,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.967946238930585,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00060.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.9700938297507107,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.986606909952833,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00061.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.9700938297507107,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.986606909952833,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00062.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.3816,
+      "luma_mean": 3.952746800434879,
+      "luma_min": 0.0,
+      "luma_range": 145.3816,
+      "luma_stdev": 15.912382849300416,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00063.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 146.5942,
+      "luma_mean": 3.978224307158242,
+      "luma_min": 0.0,
+      "luma_range": 146.5942,
+      "luma_stdev": 15.972746478899918,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00064.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 146.5942,
+      "luma_mean": 3.98451480669095,
+      "luma_min": 0.0,
+      "luma_range": 146.5942,
+      "luma_stdev": 15.986083975405979,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00065.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 144.52200000000002,
+      "luma_mean": 3.9820040473783544,
+      "luma_min": 0.0,
+      "luma_range": 144.52200000000002,
+      "luma_stdev": 16.018098186852978,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00066.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 146.5942,
+      "luma_mean": 3.9305284632550737,
+      "luma_min": 0.0,
+      "luma_range": 146.5942,
+      "luma_stdev": 15.915405121849858,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00067.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 146.8068,
+      "luma_mean": 3.7770779950027653,
+      "luma_min": 0.0,
+      "luma_range": 146.8068,
+      "luma_stdev": 15.748370309876941,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00068.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 3.5709926872532356,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 15.437766175954199,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00069.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 3.4037474908924517,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 15.168740125223998,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00070.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 146.8068,
+      "luma_mean": 3.325921299280939,
+      "luma_min": 0.0,
+      "luma_range": 146.8068,
+      "luma_stdev": 15.004488949205149,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00071.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.3816,
+      "luma_mean": 3.1190423467928103,
+      "luma_min": 0.0,
+      "luma_range": 145.3816,
+      "luma_stdev": 14.66403826134305,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00072.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 2.9010160598142276,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 14.231832308090647,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00073.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 2.8531079097446104,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 14.158258150080945,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00074.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 2.917369719048624,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 14.259019619664265,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00075.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 154.1496,
+      "luma_mean": 2.9150498502737014,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 14.25035681252422,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00076.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 146.5942,
+      "luma_mean": 2.8886154990558697,
+      "luma_min": 0.0,
+      "luma_range": 146.5942,
+      "luma_stdev": 14.20818506813429,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00077.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.01940000000002,
+      "luma_mean": 2.856445223063573,
+      "luma_min": 0.0,
+      "luma_range": 145.01940000000002,
+      "luma_stdev": 14.141848186118914,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00078.png",
+      "width": 512
+    },
+    {
+      "height": 512,
+      "luma_max": 145.522,
+      "luma_mean": 2.8399475214099135,
+      "luma_min": 0.0,
+      "luma_range": 145.522,
+      "luma_stdev": 14.090541310576999,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/pose_00079.png",
+      "width": 512
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 23.11605502213887,
+      "luma_min": 0.0,
+      "luma_range": 254.99999999999997,
+      "luma_stdev": 31.951628886117415,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1/probes/gust_shrike_cutout/talon_rake_talon_rake.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "rr-03-1792117543719523000-97326-gust_shrike_cutout_probe-1",
+  "ok": true,
+  "proof_contract": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-03/experiments/cutouts/gust_shrike/mq2/probes/production_contract.json",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tests/gust_shrike_cutout_probe.gd"
+}

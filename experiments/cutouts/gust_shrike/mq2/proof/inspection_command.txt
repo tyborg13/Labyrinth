@@ -1,0 +1,14 @@
+Inspection fixture generator:
+  task: rr-03
+  run: rr-03-shrike
+  scenario: combat
+  command: cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-03 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --project /Users/borgerding/workspace/Labyrinth.worktrees/rr-03 --task-id rr-03 --run-id rr-03-shrike --godot-home-root /private/tmp/labyrinth-godot-home -- godot --headless --path . --script tools/inspection_fixture.gd -- --scenario combat --enemy-types gust_shrike --enemy-positions 2:4 --enemy-intents dive --player-position 6:4 --hand quick_stab,pale_spark --summary 'Gust Shrike cutout inspection'
+  verifier: cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-03 && /Library/Developer/CommandLineTools/usr/bin/python3 tools/godot_task_runner.py --project /Users/borgerding/workspace/Labyrinth.worktrees/rr-03 --task-id rr-03 --run-id rr-03-shrike --godot-home-root /private/tmp/labyrinth-godot-home -- godot --headless --path . --script tools/inspection_fixture_verify.gd
+  manifest: /private/tmp/labyrinth-inspection-manifests/rr-03-shrike.json
+
+Inspection launch command (regenerates and verifies the pre-action state first):
+  cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-03 && python3 tools/inspection_fixture.py --project /Users/borgerding/workspace/Labyrinth.worktrees/rr-03 --task-id rr-03 --run-id rr-03-shrike --godot godot --godot-home-root /private/tmp/labyrinth-godot-home --manifest /private/tmp/labyrinth-inspection-manifests/rr-03-shrike.json --launch --scenario combat --enemy-types gust_shrike --enemy-positions 2:4 --enemy-intents dive --player-position 6:4 --hand quick_stab,pale_spark --summary 'Gust Shrike cutout inspection'
+
+Verified handoff input:
+  --inspection-manifest /private/tmp/labyrinth-inspection-manifests/rr-03-shrike.json
+

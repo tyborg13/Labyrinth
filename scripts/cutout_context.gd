@@ -24,6 +24,8 @@ const FAMILY_KEYS: Dictionary = {
 }
 
 static func family_key(actor_type: String) -> String:
+	# Static fallback remains explicit until rr-03's complete case is promoted.
+	if actor_type == "gust_shrike" and preload("res://scripts/gust_shrike_cutout/renderer.gd").available(): return "gust_shrike_motion"
 	return str(FAMILY_KEYS.get(actor_type, "guardian_motion" if Guardian.handles(actor_type) else ""))
 
 static func apply_to_presentation(state: Dictionary, presentation: Dictionary) -> void:

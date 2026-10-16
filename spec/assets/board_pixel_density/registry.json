@@ -393,6 +393,14 @@
     "assets/units/zekarion_cutout/rear/rest.png": {
       "category": "other",
       "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/gust_shrike_cutout/front/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
+    },
+    "assets/units/gust_shrike_cutout/rear/rest.png": {
+      "category": "other",
+      "reason": "Derived native assembly; rebake after density processing."
     }
   },
   "entries": [
@@ -4248,6 +4256,92 @@
       "t": 1.0,
       "grid": 1.33,
       "mode": "regrid"
+    },
+    {
+      "id": "gust_shrike_cutout",
+      "unit_type": "gust_shrike",
+      "kind": "rig",
+      "dir": "assets/units/gust_shrike_cutout",
+      "paths": [
+        "assets/units/gust_shrike_cutout/hidden/front/body.png",
+        "assets/units/gust_shrike_cutout/hidden/front/head.png",
+        "assets/units/gust_shrike_cutout/hidden/front/legs.png",
+        "assets/units/gust_shrike_cutout/hidden/front/mask.png",
+        "assets/units/gust_shrike_cutout/hidden/front/tail.png",
+        "assets/units/gust_shrike_cutout/hidden/front/wing_far.png",
+        "assets/units/gust_shrike_cutout/hidden/front/wing_near.png",
+        "assets/units/gust_shrike_cutout/hidden/rear/body.png",
+        "assets/units/gust_shrike_cutout/hidden/rear/head.png",
+        "assets/units/gust_shrike_cutout/hidden/rear/legs.png",
+        "assets/units/gust_shrike_cutout/hidden/rear/tail.png",
+        "assets/units/gust_shrike_cutout/hidden/rear/wing_far.png",
+        "assets/units/gust_shrike_cutout/hidden/rear/wing_near.png",
+        "assets/units/gust_shrike_cutout/segmented/front/beak.png",
+        "assets/units/gust_shrike_cutout/segmented/front/body.png",
+        "assets/units/gust_shrike_cutout/segmented/front/body_from_tail.png",
+        "assets/units/gust_shrike_cutout/segmented/front/body_from_wing_near.png",
+        "assets/units/gust_shrike_cutout/segmented/front/head.png",
+        "assets/units/gust_shrike_cutout/segmented/front/head_from_body.png",
+        "assets/units/gust_shrike_cutout/segmented/front/head_from_legs.png",
+        "assets/units/gust_shrike_cutout/segmented/front/head_from_wing_near.png",
+        "assets/units/gust_shrike_cutout/segmented/front/legs.png",
+        "assets/units/gust_shrike_cutout/segmented/front/mask.png",
+        "assets/units/gust_shrike_cutout/segmented/front/tail.png",
+        "assets/units/gust_shrike_cutout/segmented/front/wing_far.png",
+        "assets/units/gust_shrike_cutout/segmented/front/wing_near.png",
+        "assets/units/gust_shrike_cutout/segmented/front/wing_near_from_head.png",
+        "assets/units/gust_shrike_cutout/segmented/front/wing_near_from_legs.png",
+        "assets/units/gust_shrike_cutout/segmented/front/wing_near_from_tail.png",
+        "assets/units/gust_shrike_cutout/segmented/rear/beak.png",
+        "assets/units/gust_shrike_cutout/segmented/rear/beak_from_tail.png",
+        "assets/units/gust_shrike_cutout/segmented/rear/body.png",
+        "assets/units/gust_shrike_cutout/segmented/rear/body_from_tail.png",
+        "assets/units/gust_shrike_cutout/segmented/rear/body_from_wing_near.png",
+        "assets/units/gust_shrike_cutout/segmented/rear/head.png",
+        "assets/units/gust_shrike_cutout/segmented/rear/head_from_legs.png",
+        "assets/units/gust_shrike_cutout/segmented/rear/head_from_wing_near.png",
+        "assets/units/gust_shrike_cutout/segmented/rear/legs.png",
+        "assets/units/gust_shrike_cutout/segmented/rear/mask.png",
+        "assets/units/gust_shrike_cutout/segmented/rear/mask_from_wing_near.png",
+        "assets/units/gust_shrike_cutout/segmented/rear/tail.png",
+        "assets/units/gust_shrike_cutout/segmented/rear/wing_far.png",
+        "assets/units/gust_shrike_cutout/segmented/rear/wing_far_from_tail.png",
+        "assets/units/gust_shrike_cutout/segmented/rear/wing_near.png",
+        "assets/units/gust_shrike_cutout/segmented/rear/wing_near_from_head.png",
+        "assets/units/gust_shrike_cutout/segmented/rear/wing_near_from_tail.png"
+      ],
+      "r": 0.75,
+      "r_derivation": {
+        "path": "data/enemies.json",
+        "key": "gust_shrike.art_scale",
+        "expression": "art_scale (default 1.0)"
+      },
+      "rig_script": "scripts/gust_shrike_cutout/rig.gd",
+      "rest_paths": {
+        "front": [
+          "assets/units/gust_shrike_cutout/front/rest.png"
+        ],
+        "rear": [
+          "assets/units/gust_shrike_cutout/rear/rest.png"
+        ]
+      },
+      "frames": null,
+      "facings": {
+        "front": {
+          "measurement_path": "assets/units/gust_shrike_cutout/front/rest.png",
+          "orphan_share": 0.012884244699198539,
+          "t": 1.0,
+          "grid": 1.33,
+          "mode": "regrid"
+        },
+        "rear": {
+          "measurement_path": "assets/units/gust_shrike_cutout/rear/rest.png",
+          "orphan_share": 0.012464241928892521,
+          "t": 1.0,
+          "grid": 1.33,
+          "mode": "regrid"
+        }
+      }
     }
   ]
 }

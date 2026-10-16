@@ -1,0 +1,12 @@
+test_approved_processed_paint_still_matches_protected_record (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_bird_recipe_keeps_six_groups_and_head_materials_together (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_missing_inputs_fail_before_creating_or_mutating_a_case (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_missing_or_changed_hashes_cannot_pass_proof (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_native_and_cpu_gates_reject_failed_or_incomplete_samples (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_non_1024_raw_registration_scales_all_render_coordinates_once (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_pixel_gates_reject_empty_magenta_specks_and_clipping (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.033s
+
+OK

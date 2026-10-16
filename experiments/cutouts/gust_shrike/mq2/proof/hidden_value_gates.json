@@ -1,0 +1,253 @@
+{
+  "ok": true,
+  "basis": "rr-02 L* median difference <=8 and reference-IQR midtones; each painted material uses its own same-view visible reference or the director sparse rule; all six semantic groups retained",
+  "values": [
+    {
+      "view": "front",
+      "class": "body",
+      "part": "body",
+      "hidden_pixels": 1473,
+      "reference": {
+        "rule": "same_part",
+        "part": "body"
+      },
+      "visible_median_l": 24.738242545173826,
+      "hidden_median_l": 25.180689429397944,
+      "median_l_difference": 0.44244688422411826,
+      "reference_iqr_l": [
+        15.012391988886915,
+        31.270224784787388
+      ],
+      "hidden_midtones_pixels": 843,
+      "ok": true
+    },
+    {
+      "view": "front",
+      "class": "head",
+      "part": "head",
+      "hidden_pixels": 107,
+      "reference": {
+        "rule": "same_part",
+        "part": "head"
+      },
+      "visible_median_l": 27.5441580150638,
+      "hidden_median_l": 23.963607425971162,
+      "median_l_difference": 3.5805505890926383,
+      "reference_iqr_l": [
+        10.673215557758574,
+        44.27762274642144
+      ],
+      "hidden_midtones_pixels": 36,
+      "ok": true
+    },
+    {
+      "view": "front",
+      "class": "head",
+      "part": "mask",
+      "hidden_pixels": 383,
+      "reference": {
+        "rule": "same_part",
+        "part": "mask"
+      },
+      "visible_median_l": 14.320379048385654,
+      "hidden_median_l": 13.57445257859057,
+      "median_l_difference": 0.7459264697950836,
+      "reference_iqr_l": [
+        11.757483539757681,
+        38.02789104097891
+      ],
+      "hidden_midtones_pixels": 214,
+      "ok": true
+    },
+    {
+      "view": "front",
+      "class": "wing_near",
+      "part": "wing_near",
+      "hidden_pixels": 16,
+      "reference": {
+        "rule": "same_part",
+        "part": "wing_near"
+      },
+      "visible_median_l": 19.25558921385847,
+      "hidden_median_l": 21.218469388193366,
+      "median_l_difference": 1.9628801743348951,
+      "reference_iqr_l": [
+        13.78585797735725,
+        29.00684924250359
+      ],
+      "hidden_midtones_pixels": 7,
+      "ok": true
+    },
+    {
+      "view": "front",
+      "class": "wing_far",
+      "part": "wing_far",
+      "hidden_pixels": 850,
+      "reference": {
+        "rule": "same_part",
+        "part": "wing_far"
+      },
+      "visible_median_l": 16.426173296781116,
+      "hidden_median_l": 16.426173296781116,
+      "median_l_difference": 0.0,
+      "reference_iqr_l": [
+        11.527878262780803,
+        21.159314196570215
+      ],
+      "hidden_midtones_pixels": 385,
+      "ok": true
+    },
+    {
+      "view": "front",
+      "class": "tail",
+      "part": "tail",
+      "hidden_pixels": 194,
+      "reference": {
+        "rule": "same_part",
+        "part": "tail"
+      },
+      "visible_median_l": 18.514552506225,
+      "hidden_median_l": 20.118744069729736,
+      "median_l_difference": 1.6041915635047346,
+      "reference_iqr_l": [
+        11.394863387575697,
+        23.08796073792795
+      ],
+      "hidden_midtones_pixels": 75,
+      "ok": true
+    },
+    {
+      "view": "front",
+      "class": "legs",
+      "part": "legs",
+      "hidden_pixels": 208,
+      "reference": {
+        "rule": "same_part",
+        "part": "legs"
+      },
+      "visible_median_l": 15.146190949247718,
+      "hidden_median_l": 15.217653412082054,
+      "median_l_difference": 0.07146246283433655,
+      "reference_iqr_l": [
+        6.341556378750983,
+        28.17503324800151
+      ],
+      "hidden_midtones_pixels": 105,
+      "ok": true
+    },
+    {
+      "view": "rear",
+      "class": "body",
+      "part": "body",
+      "hidden_pixels": 2435,
+      "reference": {
+        "rule": "same_part",
+        "part": "body"
+      },
+      "visible_median_l": 21.75236616036299,
+      "hidden_median_l": 21.37383141095019,
+      "median_l_difference": 0.3785347494128004,
+      "reference_iqr_l": [
+        12.73337048804537,
+        32.92422731124227
+      ],
+      "hidden_midtones_pixels": 1423,
+      "ok": true
+    },
+    {
+      "view": "rear",
+      "class": "head",
+      "part": "head",
+      "hidden_pixels": 460,
+      "reference": {
+        "rule": "same_part",
+        "part": "head"
+      },
+      "visible_median_l": 31.04059350128233,
+      "hidden_median_l": 30.38671659797965,
+      "median_l_difference": 0.653876903302681,
+      "reference_iqr_l": [
+        11.753983424370603,
+        44.667614190621414
+      ],
+      "hidden_midtones_pixels": 199,
+      "ok": true
+    },
+    {
+      "view": "rear",
+      "class": "wing_near",
+      "part": "wing_near",
+      "hidden_pixels": 1296,
+      "reference": {
+        "rule": "same_part",
+        "part": "wing_near"
+      },
+      "visible_median_l": 17.128213051613407,
+      "hidden_median_l": 15.390298294844552,
+      "median_l_difference": 1.7379147567688555,
+      "reference_iqr_l": [
+        12.010131879691269,
+        23.548110971219458
+      ],
+      "hidden_midtones_pixels": 670,
+      "ok": true
+    },
+    {
+      "view": "rear",
+      "class": "wing_far",
+      "part": "wing_far",
+      "hidden_pixels": 119,
+      "reference": {
+        "rule": "same_part",
+        "part": "wing_far"
+      },
+      "visible_median_l": 16.55961901040562,
+      "hidden_median_l": 15.390298294844552,
+      "median_l_difference": 1.1693207155610672,
+      "reference_iqr_l": [
+        12.39687235439392,
+        24.27710175993863
+      ],
+      "hidden_midtones_pixels": 59,
+      "ok": true
+    },
+    {
+      "view": "rear",
+      "class": "tail",
+      "part": "tail",
+      "hidden_pixels": 89,
+      "reference": {
+        "rule": "same_part",
+        "part": "tail"
+      },
+      "visible_median_l": 21.90474145642343,
+      "hidden_median_l": 21.472573247984485,
+      "median_l_difference": 0.4321682084389451,
+      "reference_iqr_l": [
+        14.466599221087037,
+        31.593248445964782
+      ],
+      "hidden_midtones_pixels": 36,
+      "ok": true
+    },
+    {
+      "view": "rear",
+      "class": "legs",
+      "part": "legs",
+      "hidden_pixels": 494,
+      "reference": {
+        "rule": "same_part",
+        "part": "legs"
+      },
+      "visible_median_l": 17.93722144730981,
+      "hidden_median_l": 17.9892974674453,
+      "median_l_difference": 0.05207602013549106,
+      "reference_iqr_l": [
+        7.022902093279463,
+        31.904224423440432
+      ],
+      "hidden_midtones_pixels": 248,
+      "ok": true
+    }
+  ]
+}

@@ -1,0 +1,92 @@
+{
+  "basis": "CPU diagnostic only, not native proof",
+  "sample_sha256": "b748bd281a621b44a56fdf76d7e3de7ec352a0f173f29a9bd5e7cf53a8d64041",
+  "canvas": 512,
+  "columns": 5,
+  "selection": [
+    {
+      "view": "front",
+      "clip": "idle",
+      "frame": 72,
+      "phase": 0.5
+    },
+    {
+      "view": "front",
+      "clip": "move",
+      "frame": 24,
+      "phase": 0.5
+    },
+    {
+      "view": "front",
+      "clip": "dive",
+      "frame": 30,
+      "phase": 0.5
+    },
+    {
+      "view": "front",
+      "clip": "talon_rake",
+      "frame": 24,
+      "phase": 0.5
+    },
+    {
+      "view": "front",
+      "clip": "hover",
+      "frame": 24,
+      "phase": 0.5
+    },
+    {
+      "view": "front",
+      "clip": "hit",
+      "frame": 18,
+      "phase": 0.5
+    },
+    {
+      "view": "front",
+      "clip": "death",
+      "frame": 62,
+      "phase": 1.0
+    },
+    {
+      "view": "rear",
+      "clip": "idle",
+      "frame": 72,
+      "phase": 0.5
+    },
+    {
+      "view": "rear",
+      "clip": "move",
+      "frame": 24,
+      "phase": 0.5
+    },
+    {
+      "view": "rear",
+      "clip": "dive",
+      "frame": 30,
+      "phase": 0.5
+    },
+    {
+      "view": "rear",
+      "clip": "talon_rake",
+      "frame": 24,
+      "phase": 0.5
+    },
+    {
+      "view": "rear",
+      "clip": "hover",
+      "frame": 24,
+      "phase": 0.5
+    },
+    {
+      "view": "rear",
+      "clip": "hit",
+      "frame": 18,
+      "phase": 0.5
+    },
+    {
+      "view": "rear",
+      "clip": "death",
+      "frame": 62,
+      "phase": 1.0
+    }
+  ]
+}

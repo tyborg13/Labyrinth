@@ -54,6 +54,9 @@ const BileBloomerFx = preload("res://scripts/bile_bloomer_cutout/bloom_fx.gd")
 var _bile_bloomer_renderers: Dictionary = {}
 const GaolerCutout = preload("res://scripts/chainbound_gaoler_cutout/renderer.gd")
 var _gaoler_renderers: Dictionary = {}
+const GustShrikeCutout = preload("res://scripts/gust_shrike_cutout/renderer.gd")
+const GustShrikePresentation = preload("res://scripts/gust_shrike_cutout/presentation.gd")
+var _gust_shrike_renderers: Dictionary = {}
 var _cinder_droplet_renderers: Dictionary = {}
 var _cinder_ooze_renderers: Dictionary = {}
 const FrostglassCutout = preload("res://scripts/frostglass_lancer_cutout/renderer.gd")
@@ -1081,6 +1084,7 @@ func _veilbound_acolyte_renderer_for_unit(unit: Dictionary) -> Node:
 	return _veilbound_acolyte_renderers.get(actor_key, null) as Node
 
 func _unit_uses_cutout(unit: Dictionary) -> bool:
+	if str(unit.get("type", "")) == "gust_shrike": return GustShrikeCutout.available()
 	return GuardianCutout.handles(str(unit.get("type", ""))) or (str(unit.get("type", "")) == "player" and _uses_protagonist_cutout()) or str(unit.get("type", "")) in ["warden", "crawler", "acolyte", "bile_bloomer", "chainbound_gaoler", "cinder_droplet", "cinder_ooze", "frostglass_lancer", "grave_surgeon", "harrier", "iskaldra", "lightning_wisp", "noctyrax", "tharokh", "vaeloryx", "veilbound_acolyte", "vyraketh", "zekarion"]
 
 func bile_bloomer_animation_snapshot(actor_key: String) -> Dictionary:
@@ -1093,6 +1097,7 @@ func bile_bloomer_source_pixel_scale() -> float:
 	return _unit_draw_rect_for_texture(unit, Vector2.ZERO, _unit_hud_anchor_texture(unit)).size.x / BileBloomerCutout.SOURCE_SIZE.x
 
 func _enemy_cutout_renderer_for_unit(unit: Dictionary) -> Node:
+	if str(unit.get("type", "")) == "gust_shrike": return GustShrikePresentation.renderer_for_unit(self, unit)
 	if GuardianCutout.handles(str(unit.get("type", ""))):
 		return _guardian_renderers.get("enemy_%d" % int(unit.get("id", -1)), null) as Node
 	match str(unit.get("type", "")):
@@ -2209,7 +2214,7 @@ func _sync_dynamic_render_assets() -> void:
 			"_ambient_air_wisp_soft_textures", "_ambient_air_wisp_glow_textures",
 			"_ambient_combined_atlas", "_ambient_combined_atlas_regions",
 			"_loot_textures", "_terrain_textures", "_terrain_destruction_frames_by_kind",
-			"_hero_strike_trail", "_enemy_strike_trail", "_unit_rear_textures", "_static_enemy_art", "_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_illusion_renderers", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_guardian_renderers", "_gaoler_renderers", "_cinder_droplet_renderers",
+			"_hero_strike_trail", "_enemy_strike_trail", "_unit_rear_textures", "_static_enemy_art", "_unit_textures", "_unit_assets_loaded", "_protagonist_renderer", "_illusion_renderers", "_warden_renderers", "_crawler_renderers", "_acolyte_renderers", "_bile_bloomer_renderers", "_guardian_renderers", "_gaoler_renderers", "_gust_shrike_renderers", "_cinder_droplet_renderers",
 			"_cinder_ooze_renderers", "_frostglass_renderers", "_grave_surgeon_renderers", "_harrier_renderers", "_iskaldra_renderers", "_lightning_wisp_renderers", "_noctyrax_renderers", "_tharokh_renderers", "_vaeloryx_renderers", "_veilbound_acolyte_renderers", "_vyraketh_renderers", "_zekarion_renderers",
 			"_element_textures", "_trap_textures", "_trap_idle_frames", "_trap_activation_frames",
 			"_door_icon_textures", "_keyword_icon_textures", "_health_bar_frame_textures", "_unit_shadow_polygon_cache",
@@ -2981,6 +2986,8 @@ func set_combat_state(next_state: Dictionary, next_move_tiles: Array = [], next_
 	roster_phase_started = _record_submission_performance_phase("roster_bile_bloomer", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("gaoler_motion"):
 		_sync_gaoler_renderers()
+	if refresh_cutout_roster or presentation_changes.has("gust_shrike_motion"):
+		GustShrikePresentation.sync(self)
 	roster_phase_started = _record_submission_performance_phase("roster_gaoler", roster_phase_started)
 	if refresh_cutout_roster or presentation_changes.has("cinder_droplet_motion"):
 		_sync_cinder_droplet_renderers()
@@ -14543,6 +14550,7 @@ func unit_rig_preparation_manifest(state: Dictionary) -> Dictionary:
 		"vyraketh": VyrakethCutout, "zekarion": ZekarionCutout,
 	}
 	var sources := PackedStringArray()
+	if GustShrikeCutout.available(): families["gust_shrike"] = GustShrikeCutout
 	var textures: Dictionary = {}
 	for enemy: Dictionary in state.get("enemies", []):
 		var type: String = str(enemy.get("type", ""))
@@ -14726,6 +14734,10 @@ func _ensure_unit_assets_for_type(unit_type: String) -> void:
 		return
 	if unit_type == "chainbound_gaoler":
 		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(GaolerCutout.REST_PATH)
+		_queue_unit_shadow_source_data(unit_type)
+		return
+	if unit_type == "gust_shrike" and GustShrikeCutout.available():
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(GustShrikeCutout.REST_PATH)
 		_queue_unit_shadow_source_data(unit_type)
 		return
 	if unit_type == "cinder_droplet":

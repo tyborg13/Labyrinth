@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "character_id": "gust_shrike",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 144,
+      "duration": 2.4,
+      "loop": true
+    },
+    "move": {
+      "frames": 49,
+      "duration": 0.36,
+      "loop": false
+    },
+    "dive": {
+      "frames": 61,
+      "duration": 0.55,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.636363636363636,
+          0.636363636363636
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "talon_rake": {
+      "frames": 49,
+      "duration": 0.24,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.5,
+          0.5
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    "hover": {
+      "frames": 49,
+      "duration": 0.48,
+      "loop": false
+    },
+    "hit": {
+      "frames": 37,
+      "duration": 0.36,
+      "loop": false
+    },
+    "death": {
+      "frames": 63,
+      "duration": 1.036,
+      "loop": false,
+      "phase_curve": [
+        [
+          0,
+          0
+        ],
+        [
+          0.62,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    }
+  },
+  "rigid_bones": [
+    "head",
+    "tail",
+    "legs"
+  ],
+  "contact_feet": [
+    "legs"
+  ],
+  "sources": [
+    "compile_motion.py",
+    "director_motion.json",
+    "hidden_fills/index.json",
+    "motion.gd",
+    "motion_data.gd",
+    "pipeline.py",
+    "probes/director_contract.py",
+    "probes/motion_gates.py",
+    "probes/motion_metadata.gd",
+    "probes/motion_samples.gd",
+    "probes/native_motion.gd",
+    "probes/native_rest.gd",
+    "probes/pack_production.py",
+    "probes/production_contract.json",
+    "probes/production_coverage.py",
+    "probes/proof.py",
+    "probes/rest_contract.json",
+    "proof/front_ownership_cleanup.json",
+    "proof/rear_ownership_cleanup.json",
+    "recipes/front_ownership.json",
+    "recipes/gates.json",
+    "recipes/hidden_fill.json",
+    "recipes/motion_interpretation.json",
+    "recipes/ownership_repair.json",
+    "recipes/rear_ownership.json",
+    "recipes/rig.json",
+    "recipes/value_reference.json",
+    "registered/front_clay.png",
+    "registered/front_hidden_beak.npy",
+    "registered/front_hidden_body.npy",
+    "registered/front_hidden_head.npy",
+    "registered/front_hidden_legs.npy",
+    "registered/front_hidden_mask.npy",
+    "registered/front_hidden_tail.npy",
+    "registered/front_hidden_wing_far.npy",
+    "registered/front_hidden_wing_near.npy",
+    "registered/front_joints_px.json",
+    "registered/front_owners.npy",
+    "registered/front_parts.png",
+    "registered/front_registration.json",
+    "registered/front_semantic_classes.png",
+    "registered/front_solo_beak.png",
+    "registered/front_solo_body.png",
+    "registered/front_solo_head.png",
+    "registered/front_solo_legs.png",
+    "registered/front_solo_mask.png",
+    "registered/front_solo_tail.png",
+    "registered/front_solo_wing_far.png",
+    "registered/front_solo_wing_near.png",
+    "registered/rear_clay.png",
+    "registered/rear_hidden_beak.npy",
+    "registered/rear_hidden_body.npy",
+    "registered/rear_hidden_head.npy",
+    "registered/rear_hidden_legs.npy",
+    "registered/rear_hidden_mask.npy",
+    "registered/rear_hidden_tail.npy",
+    "registered/rear_hidden_wing_far.npy",
+    "registered/rear_hidden_wing_near.npy",
+    "registered/rear_joints_px.json",
+    "registered/rear_owners.npy",
+    "registered/rear_parts.png",
+    "registered/rear_registration.json",
+    "registered/rear_semantic_classes.png",
+    "registered/rear_solo_beak.png",
+    "registered/rear_solo_body.png",
+    "registered/rear_solo_head.png",
+    "registered/rear_solo_legs.png",
+    "registered/rear_solo_mask.png",
+    "registered/rear_solo_tail.png",
+    "registered/rear_solo_wing_far.png",
+    "registered/rear_solo_wing_near.png",
+    "repair_fills.py",
+    "repair_ownership.py",
+    "source/front/kit.json",
+    "source/front/processed.json",
+    "source/front/processed.png",
+    "source/front/raw.png",
+    "source/label_palette.json",
+    "source/label_palette_provenance.json",
+    "source/maquette/front_clay.png",
+    "source/maquette/front_parts.png",
+    "source/maquette/front_solo_beak.png",
+    "source/maquette/front_solo_body.png",
+    "source/maquette/front_solo_head.png",
+    "source/maquette/front_solo_legs.png",
+    "source/maquette/front_solo_mask.png",
+    "source/maquette/front_solo_tail.png",
+    "source/maquette/front_solo_wing_far.png",
+    "source/maquette/front_solo_wing_near.png",
+    "source/maquette/joints_px.json",
+    "source/maquette/rear_clay.png",
+    "source/maquette/rear_parts.png",
+    "source/maquette/rear_solo_beak.png",
+    "source/maquette/rear_solo_body.png",
+    "source/maquette/rear_solo_head.png",
+    "source/maquette/rear_solo_legs.png",
+    "source/maquette/rear_solo_mask.png",
+    "source/maquette/rear_solo_tail.png",
+    "source/maquette/rear_solo_wing_far.png",
+    "source/maquette/rear_solo_wing_near.png",
+    "source/maquette_manifest.json",
+    "source/rear/kit.json",
+    "source/rear/processed.json",
+    "source/rear/processed.png",
+    "source/rear/raw.png",
+    "source/spec.json",
+    "source/view_transforms.json"
+  ],
+  "source_baseline": {
+    "kind": "maquette_registered_paint",
+    "spec_sha256": "dabdc0d19004bbaa3eb8fb9938a877c7f67413c36c581899f6fad9d2234cf1d9",
+    "art_status": "hidden_filled_pending_director_review",
+    "production_integration": false
+  },
+  "design_placeholders": {},
+  "hidden_fill": {
+    "recipe": "recipes/hidden_fill.json",
+    "manifest": "hidden_fills/index.json",
+    "pending_design": []
+  }
+}

@@ -5464,6 +5464,386 @@
     "pixel_sha256": "7f471a5f5e055503c109aa938480e902dcdc1d49b7d1e1a87afef6412e2f7175",
     "parts_pixel_sha256": "a4b773269711179fb649f19abf4296d4d6ee072dcf9964f4e2fc14e9d5a7f3d3"
   },
+  "assets/units/gust_shrike_cutout/front/rest.png": {
+    "kind": "rest",
+    "id": "gust_shrike_cutout",
+    "pixel_sha256": "3efebdf1c6217bb0136d9ff795eca9dad4b6e357f4f27a0c26f76583805114e6",
+    "parts_pixel_sha256": "a3d752a6ea4574ed8d53c1880a9b98583c91407ed0c3bef3def87b1072d91f2d"
+  },
+  "assets/units/gust_shrike_cutout/hidden/front/body.png": {
+    "pixel_sha256": "f1fdb57c21f3380885cc1580439d72405b0b74872423323cc775f8630f459142",
+    "source_pixel_sha256": "73f407be0c247d179277b290be869377dbebd44c512b9655eeba3891ec29baee",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/hidden/front/head.png": {
+    "pixel_sha256": "c2f937b8606b408fba9dd52e897aa29684beea23e232a58b8d16647b7caedbcf",
+    "source_pixel_sha256": "c080d760f2c5f1820245ae567dc8f3fe6f742b0b4a555066d96b24098835664e",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/hidden/front/legs.png": {
+    "pixel_sha256": "1c0855ca9953f232c3d6ce57778bc87c67c7f8151b9aa6caae92eaf98037918a",
+    "source_pixel_sha256": "c197644855aee8b60bacec0ad95257154230c47b7e869cd294fccdb51ec838d6",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/hidden/front/mask.png": {
+    "pixel_sha256": "86fda3aa74b33f2b5731969d93e4ee357a019a220f7ffa2f691880e80734be3b",
+    "source_pixel_sha256": "b6b16318ee9d7f6a3cfdcaf273f5bf3a1fd5b873a32d1af51d61c34495f0e42c",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/hidden/front/tail.png": {
+    "pixel_sha256": "b8c856ed37e18fd7132545dd593ae10b51a2134b4834b762dd8c15556cdb0419",
+    "source_pixel_sha256": "dadb0ffde5fbd8184fff350e3ff037e878eee447dc2ad28474424ebe2b4069d4",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/hidden/front/wing_far.png": {
+    "pixel_sha256": "657bb19ff71f689182b44abc4acbfc9ae14676aa6ec96344c779b0befedf9ee1",
+    "source_pixel_sha256": "4d60cf35f7d82d03d97643b8bad3b39fd0780313a296c2d77d7bd60c00fdbb68",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/hidden/front/wing_near.png": {
+    "pixel_sha256": "9deb19632fc5b06fdb7363c251af6dc6c0c2d5399b15dd8aaa850a723327f580",
+    "source_pixel_sha256": "9deb19632fc5b06fdb7363c251af6dc6c0c2d5399b15dd8aaa850a723327f580",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/hidden/rear/body.png": {
+    "pixel_sha256": "7cf12f4ed063673ec80a8c4c5682dd9b1dad455cb3799cf2112784e7b19e0090",
+    "source_pixel_sha256": "15f37f93755cefc88b079d3f7b81c382df3fefd9309b5ae1b9ec43a6ddb94762",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/hidden/rear/head.png": {
+    "pixel_sha256": "80d84cb309551beb64542d732966f51ab3f95cd693527c0f134bc642cec24a4d",
+    "source_pixel_sha256": "82d35f010335dd123e12ea50df8fc20d67a47f6b70a71cd82ad855c7ba6615dc",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/hidden/rear/legs.png": {
+    "pixel_sha256": "d760f2b66482e4006656cf3963823d8b9a79cb028c24fb2bfea777493ffc7f80",
+    "source_pixel_sha256": "c2bea1c56e0a0a50c99b64b9f576de47fd09894a09ddb2f254cdf08365517f0e",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/hidden/rear/tail.png": {
+    "pixel_sha256": "72e0b266a22efd0c66c01f1c68c05f6337c8e73aece69e524bfd7e52094df61e",
+    "source_pixel_sha256": "8ff1cd135f17c1ee9a14151f49e0d13548f19b48b17b6d88c3e351e1727eed06",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/hidden/rear/wing_far.png": {
+    "pixel_sha256": "7e18b4869efaa46c09d8d1546a82cc05b083cb06aa5333e67c21166ed09d6fcb",
+    "source_pixel_sha256": "83eb5a09616ec00269d80ea8aaa808ae9ee95b37a1aae5264c1cd22d9d7d3896",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/hidden/rear/wing_near.png": {
+    "pixel_sha256": "f7c64b8f46e7ebe7c11fefad0b4da827af987512013589a2c6049355b0806018",
+    "source_pixel_sha256": "5a9627e65f98af599ba9a0e2e7e6e59ee48595cbbcfb408777bb64568d41db6d",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/rear/rest.png": {
+    "kind": "rest",
+    "id": "gust_shrike_cutout",
+    "pixel_sha256": "9a4aec3973e56824e9dc99b2e5bb389fd9753272a0e583ce16fcc4c906f4ec69",
+    "parts_pixel_sha256": "a3d752a6ea4574ed8d53c1880a9b98583c91407ed0c3bef3def87b1072d91f2d"
+  },
+  "assets/units/gust_shrike_cutout/segmented/front/beak.png": {
+    "pixel_sha256": "de4864aa555673f1c865917ddd5aa02a3b4e276f652f2145f5611c6c216cc6c8",
+    "source_pixel_sha256": "3d71500ba55579dd695c2b81e155df42dc1d0dfe2f3f65473a6cd4aca1118a4d",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/segmented/front/body.png": {
+    "pixel_sha256": "db509addc94e79e9a0d18bb1e92b131d95868d22fa05133b6a133a02fd376335",
+    "source_pixel_sha256": "ee1b23a31dd0465c6d672deb8604c4d8d7cdcfd884465b30f1a83a540f273743",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/segmented/front/body_from_tail.png": {
+    "pixel_sha256": "9f58c1fd607e57f370bcab98aa8a245a687a420d0d97d83697ee8a5db94d270e",
+    "source_pixel_sha256": "9f58c1fd607e57f370bcab98aa8a245a687a420d0d97d83697ee8a5db94d270e",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/segmented/front/body_from_wing_near.png": {
+    "pixel_sha256": "63d8b258e3368404a4dd5ef5b776197d368e7c417d6ca72c65a77bb64bb8c6d5",
+    "source_pixel_sha256": "63d8b258e3368404a4dd5ef5b776197d368e7c417d6ca72c65a77bb64bb8c6d5",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/segmented/front/head.png": {
+    "pixel_sha256": "bbe3b987508fe285455929d32cfa198bef24675177ec314f0451677c91a796ca",
+    "source_pixel_sha256": "e90c263edfbf59a079ab386f7ffb90408b3d554763ee9214ae6f71a9b14ce0a0",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/segmented/front/head_from_body.png": {
+    "pixel_sha256": "0056c8dd368807382b98fdb343af97e60632845f9ca5dddd8674a1dd02370804",
+    "source_pixel_sha256": "0056c8dd368807382b98fdb343af97e60632845f9ca5dddd8674a1dd02370804",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/segmented/front/head_from_legs.png": {
+    "pixel_sha256": "79d3453d960a68dcc85bcbd66dca43951da9b24be0978819af42ee943ac1e065",
+    "source_pixel_sha256": "79d3453d960a68dcc85bcbd66dca43951da9b24be0978819af42ee943ac1e065",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/segmented/front/head_from_wing_near.png": {
+    "pixel_sha256": "28f432372fb0c42f6a10b93530b2b856958ca5c979bdc86a65dc5855fdcf6ff4",
+    "source_pixel_sha256": "28f432372fb0c42f6a10b93530b2b856958ca5c979bdc86a65dc5855fdcf6ff4",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/segmented/front/legs.png": {
+    "pixel_sha256": "3692d9fd1ec04c2cea443889063c9c018d01b3c87cfdfe895975546288574846",
+    "source_pixel_sha256": "a2389e5a8efb672e12a388403d7d0b51ce0e44990e7a0b23018a8549409e0cff",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/segmented/front/mask.png": {
+    "pixel_sha256": "5f0be20cc86ab740ac5bb712e167598e6a2f6a42811db037d80883875105e891",
+    "source_pixel_sha256": "92a837f33387b61e224957faead0a82921132dcdc9301fc3114f771f6e1bb312",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/segmented/front/tail.png": {
+    "pixel_sha256": "c5a9bab7462b6833ee33d4509bc15c4caaa48423ab348db0d3c623d0df1aec1d",
+    "source_pixel_sha256": "7a8da6b70e544a3d6f16a8dd761648c89172420d4b15c34c8fd2fd6eda50648f",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/segmented/front/wing_far.png": {
+    "pixel_sha256": "f8f4ef45c5bfbedc70f8cdc39a876a6ea9719f84bc835c7519f96ace2188ba34",
+    "source_pixel_sha256": "9dc57024af216dd0198f5545056a0deed04aacdb7e5b030554c3611580348517",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/segmented/front/wing_near.png": {
+    "pixel_sha256": "594ffddfbaee9f23f748eec5637155f9a11cb3cf21e3693c96a0316178d16021",
+    "source_pixel_sha256": "b55c48f1ec7d9ed40d0ed15b716acf2abf2c3abd1ed5d53ac751af16ae1016a4",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/segmented/front/wing_near_from_head.png": {
+    "pixel_sha256": "aaf2a8190e6ed92f808632b12a9f0ab41b3b310f79997fc4f70be7db980033e0",
+    "source_pixel_sha256": "aaf2a8190e6ed92f808632b12a9f0ab41b3b310f79997fc4f70be7db980033e0",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/segmented/front/wing_near_from_legs.png": {
+    "pixel_sha256": "03193cfdb861855b3caaaeba62ac783ffdf3eec4b40562533dbcf6025c16a7ca",
+    "source_pixel_sha256": "03193cfdb861855b3caaaeba62ac783ffdf3eec4b40562533dbcf6025c16a7ca",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/segmented/front/wing_near_from_tail.png": {
+    "pixel_sha256": "d016f9c3b5d7a4faf70bc532ce8244dff6a60eebe59fc89054c3980ca06a5ce8",
+    "source_pixel_sha256": "d016f9c3b5d7a4faf70bc532ce8244dff6a60eebe59fc89054c3980ca06a5ce8",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "front"
+  },
+  "assets/units/gust_shrike_cutout/segmented/rear/beak.png": {
+    "pixel_sha256": "38e7589374bc26b86eaa10e6b3dcbfa97e08324244fa1de3bf95234ae11ede90",
+    "source_pixel_sha256": "38e7589374bc26b86eaa10e6b3dcbfa97e08324244fa1de3bf95234ae11ede90",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/segmented/rear/beak_from_tail.png": {
+    "pixel_sha256": "0675b51c15a4cba1bcb07abe57b1ddbd48fdc82a05099b0f7421b832e9e7711a",
+    "source_pixel_sha256": "0675b51c15a4cba1bcb07abe57b1ddbd48fdc82a05099b0f7421b832e9e7711a",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/segmented/rear/body.png": {
+    "pixel_sha256": "13f1f5bfbf9e5894cd39d028f08ba54725f403f202a118c1387c8566019654b5",
+    "source_pixel_sha256": "5e3f89215c4b2a240152a93fdfe039135c32d88686862444ff298aed5aef3ce8",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/segmented/rear/body_from_tail.png": {
+    "pixel_sha256": "b01b748c312354bda9ebd1835cb5463e45e2844bbdd4e2be4a9c40988fe7229d",
+    "source_pixel_sha256": "b01b748c312354bda9ebd1835cb5463e45e2844bbdd4e2be4a9c40988fe7229d",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/segmented/rear/body_from_wing_near.png": {
+    "pixel_sha256": "7f28f5dc444effec3a4cf77473e177c49c9c07a3491e9cfb3ded2d8412d8eebf",
+    "source_pixel_sha256": "7f28f5dc444effec3a4cf77473e177c49c9c07a3491e9cfb3ded2d8412d8eebf",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/segmented/rear/head.png": {
+    "pixel_sha256": "c85a14879d8c8c1916ce0c6efd9c4407b7815b5accca8da52cb1b2e99f86891b",
+    "source_pixel_sha256": "014942ef58c3f76052395420aa46abe6db18dbea9679dd7b874f946c09dc583c",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/segmented/rear/head_from_legs.png": {
+    "pixel_sha256": "d8e23cc85230917fe2e18466e79a233fbd9d788f5dd6ec27ab3af736ebc2c9f0",
+    "source_pixel_sha256": "d8e23cc85230917fe2e18466e79a233fbd9d788f5dd6ec27ab3af736ebc2c9f0",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/segmented/rear/head_from_wing_near.png": {
+    "pixel_sha256": "f46132ced54eebf3196ee7e3dbcb9e829c97207f86bf836307135d8439a978d3",
+    "source_pixel_sha256": "f46132ced54eebf3196ee7e3dbcb9e829c97207f86bf836307135d8439a978d3",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/segmented/rear/legs.png": {
+    "pixel_sha256": "226011bf7d983ff02af4f2abd42056e49d4834f3d0a878dffc9ed46cbe521616",
+    "source_pixel_sha256": "a1e5f83affe978d6bd7cc2f6331876c3f817223938c18574592402172ede7144",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/segmented/rear/mask.png": {
+    "pixel_sha256": "e5b0eb780eb992b706172c6f0d134dd9804304a3abff6cd0dc6dd691dbe0e2f2",
+    "source_pixel_sha256": "d2d44776aba7a507d87d92e1ea7808e617030e5d3f17b87dff1bc405113d0e45",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/segmented/rear/mask_from_wing_near.png": {
+    "pixel_sha256": "902ecf16b453ac6b71fc320d9b8712a95ebbcc32661a332857c98a721ce27897",
+    "source_pixel_sha256": "902ecf16b453ac6b71fc320d9b8712a95ebbcc32661a332857c98a721ce27897",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/segmented/rear/tail.png": {
+    "pixel_sha256": "93c0a08ccc68c43d3aa23792cae5834bf412128e0016861159c3d33f5bd7e5ca",
+    "source_pixel_sha256": "8c039d1eb79314952352016b67f8c1cb1d4cde7c95067ac0119d09a57bc7ccc4",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/segmented/rear/wing_far.png": {
+    "pixel_sha256": "cb706c6442b2e1dedbd1b80dd511d599eda5b762b227064e77ca716794615fd0",
+    "source_pixel_sha256": "8e0a3cfc0802f27eba914a7f476224a1abfdcf481729ec06f72df80f573f97be",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/segmented/rear/wing_far_from_tail.png": {
+    "pixel_sha256": "71c42773f3991563c1d34516edf7debc40bd5eff5f103556b28b8520ed497545",
+    "source_pixel_sha256": "71c42773f3991563c1d34516edf7debc40bd5eff5f103556b28b8520ed497545",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/segmented/rear/wing_near.png": {
+    "pixel_sha256": "c99cb95550426f3d5c4128d290e4eb9270414af2bcca36dd6d1eee8c586023e1",
+    "source_pixel_sha256": "f409e976318bcbdc7bc1fd60fdcf58e311c1bab020e336c5033cdb279be65ef9",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/segmented/rear/wing_near_from_head.png": {
+    "pixel_sha256": "6016393f602e11b9af1f3d60fcf16cf56ca1d69fda750e60c44c487aab0f66ac",
+    "source_pixel_sha256": "6016393f602e11b9af1f3d60fcf16cf56ca1d69fda750e60c44c487aab0f66ac",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
+  "assets/units/gust_shrike_cutout/segmented/rear/wing_near_from_tail.png": {
+    "pixel_sha256": "9b2207c0c22c4801045f94c1fc96878ae6a314b548d39ea98ecd234d48dd805b",
+    "source_pixel_sha256": "9b2207c0c22c4801045f94c1fc96878ae6a314b548d39ea98ecd234d48dd805b",
+    "id": "gust_shrike_cutout",
+    "mode": "regrid",
+    "grid": 1.33,
+    "facing": "rear"
+  },
   "assets/units/harrier_cutout/front/arm_l.png": {
     "pixel_sha256": "7d532c278039f4205976f750e7c5d78a5e5e95f9e423cd9d9976be4f3ef7fd53",
     "source_pixel_sha256": "df0109bf7c22bfd6d7285508f6ee4ca101ac709328a84bb10bc347d66182461d",

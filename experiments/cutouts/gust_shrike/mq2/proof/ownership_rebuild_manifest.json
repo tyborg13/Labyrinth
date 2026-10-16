@@ -1,0 +1,30 @@
+{
+  "rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "e4f14ec866fd3709dfe1a5969b3a0a3ec03246e13980ec7026eb10188e9ae27c"
+    },
+    "rear": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "24aa41439fff265698c24b2dec14aed1e4093c7a2db803ddeeead1902c5d1eff"
+    },
+    "ok": true
+  },
+  "outputs": {
+    "hidden/rear/wing_near.png": "775b03c267dc9d5a8bca5f16d842585ec290d80e24dc854eca3e97810cb39137",
+    "hidden/rear/body.png": "80cc7ffce25afc6ff22aff0663d51045fe8503b08f21e46754de71876a6b4607",
+    "hidden/rear/wing_far.png": "28389fbcbe05a9ebbbcfd7685d410e1a684d3987abe05d3763f401f493b23b45",
+    "hidden/rear/legs.png": "faf8ac243bfa136528571c4c978bc3e744f6fab675068a78ac4515bdc4cb05af",
+    "hidden/rear/head.png": "63dfe5e2a317fc73c54b239cc7a49048409aab44630f650e623af4fd17324672",
+    "hidden/rear/tail.png": "d3ed97e54a0e0514a96b59e53607eccdb613e1d29da86a845ee5efccf0d22fa7",
+    "hidden/front/wing_near.png": "754fea3ed0acfc26c317675b16059cb70262d983c3f7b2740be378288dce50fe",
+    "hidden/front/body.png": "759eea28c8b387d7a8fe527084da73a46ce7cf4d2b406fa024a20c983aa09a8c",
+    "hidden/front/wing_far.png": "c50379b7e2b9a0056bf3b8023a87b5a5a98d54a53de59c162206c243a90e7f96",
+    "hidden/front/legs.png": "41b43d8d78bd721dd3cef0bc8c991ddb941fb3757876297223ba0ecc89314b74",
+    "hidden/front/head.png": "519a1ed62ccedaa4a11326fe7268ce4ed81173320f3193f139e7379c563126ef",
+    "hidden/front/tail.png": "f6f2a6389c206b8f2eabcc3c562b2a3512eae248191ee990f82384094cddc105",
+    "hidden/front/mask.png": "2acbb41dc4a3849ce638e3cdd26dea15619f42728e0681f08e624594fec3bff3"
+  }
+}

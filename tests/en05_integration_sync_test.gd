@@ -9,7 +9,7 @@ const CACHE_PATH: String = "res://assets/generated/unit_shadow_cache.res"
 const BASE_PATH: String = "user://en05_integration_shadow_base.res"
 const MERGED_ENEMIES: Array = ["briar_weaver", "slag_mortar", "glacial_mirror", "gust_shrike", "storm_capacitor", "hollow_mimic"]
 const EN05_SOURCES: Array = ["res://assets/art/enemies/glacial_mirror.png", "res://assets/art/enemies/gust_shrike.png"]
-const EN05_ADDITIONS: int = 2
+const SHRIKE_REST: String = "res://assets/units/gust_shrike_cutout/front/rest.png"
 var _failures: Array[String]
 
 func _initialize() -> void:
@@ -50,8 +50,16 @@ func _initialize() -> void:
 		for path: String in EN05_SOURCES:
 			if cache.entries.get(path, {}) != board._compute_unit_shadow_data_for_image(Image.load_from_file(path)):
 				_failures.append("En-05 shadow entry missing or stale: " + path)
+		if preload("res://scripts/gust_shrike_cutout/renderer.gd").available():
+			if cache.entries.get(SHRIKE_REST, {}) != board._compute_unit_shadow_data_for_image(Image.load_from_file(SHRIKE_REST)) or cache.source_sha256.get(SHRIKE_REST, "") != FileAccess.get_sha256(SHRIKE_REST):
+				_failures.append("Promoted shrike shadow missing or stale")
 		board.free()
-		if cache.entries.size() != base.entries.size() + EN05_ADDITIONS: _failures.append("Expected two en-05 shadow additions after regeneration")
+		# The static shrike remains as fallback evidence after promotion. It is
+		# absent from the current runtime roster, so count missing source keys.
+		var additions: int = 0
+		for path: String in EN05_SOURCES:
+			if not base.entries.has(path): additions += 1
+		if cache.entries.size() != base.entries.size() + additions: _failures.append("Unexpected shadow additions after regeneration")
 	for failure: String in _failures: push_error(failure)
 	print("EN05 INTEGRATION SYNC: %s (six protected enemy entries; integration shadows preserved; two en-05 additions)" % ("PASS" if _failures.is_empty() else "FAIL"))
 	quit(0 if _failures.is_empty() else 1)
@@ -68,6 +76,9 @@ func _regenerate_base() -> Resource:
 		if not unit_types.has(id): unit_types.append(id)
 	unit_types.sort()
 	var textures: Array[Texture2D]
+	# Promotion replaces both static runtime views, but their fallback cache
+	# evidence remains owned by this creature and must still be checked.
+	textures.append(Assets.load_texture_source_first(str(Data.enemy_def("gust_shrike").get("art_rear_path", ""))))
 	textures.append(Assets.load_texture_source_first(Hero.REST_PATH))
 	if FileAccess.file_exists(Hero.DEFAULT_GEAR_REST_PATH):
 		textures.append(Assets.load_texture_source_first(Hero.DEFAULT_GEAR_REST_PATH))

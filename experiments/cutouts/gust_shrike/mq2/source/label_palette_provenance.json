@@ -1,0 +1,5 @@
+{
+  "config": "/Applications/Blender.app/Contents/Resources/5.2/datafiles/colormanagement/config.ocio",
+  "sha256": "47a7d83e79c1d21f49ba6c505efe311da723471688c614b5c366e1da7eb8ea3a",
+  "transform": "Linear Rec.709 -> Linear FilmLight E-Gamut -> AgX Base Rec.1886 tetrahedral LUT -> sRGB"
+}

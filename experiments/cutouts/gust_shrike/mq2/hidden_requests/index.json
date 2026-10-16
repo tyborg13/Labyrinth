@@ -1,0 +1,2056 @@
+{
+  "requests": [
+    {
+      "part": "wing_near",
+      "view": "rear",
+      "image": "hidden_requests/rear_wing_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 1296,
+      "bounding_box": [
+        115,
+        44,
+        158,
+        143
+      ],
+      "solo_outside_paint_pixels": 124,
+      "motions": [
+        {
+          "clip": "death",
+          "max_exposed_pixels": 1048,
+          "frames_exposed": 62,
+          "peak_frame": 27,
+          "sampled_frames": 63
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 588,
+          "frames_exposed": 39,
+          "peak_frame": 7,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 555,
+          "frames_exposed": 54,
+          "peak_frame": 39,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 505,
+          "frames_exposed": 46,
+          "peak_frame": 37,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 442,
+          "frames_exposed": 44,
+          "peak_frame": 22,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 427,
+          "frames_exposed": 33,
+          "peak_frame": 7,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 184,
+          "frames_exposed": 144,
+          "peak_frame": 72,
+          "sampled_frames": 144
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "body",
+          "pixels": 134,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "wing_far",
+          "pixels": 1162,
+          "material": "dark brown plumage with pale storm grey-blue leading edge"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "body",
+          "pixels": 26,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "wing_far",
+          "pixels": 73,
+          "material": "dark brown plumage with pale storm grey-blue leading edge"
+        }
+      ],
+      "material": "dark brown plumage with pale storm grey-blue leading edge",
+      "paint_nodes": [
+        "hidden_wing_near"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 184,
+          "frames_exposed": 144,
+          "peak_frame": 72,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 505,
+          "frames_exposed": 46,
+          "peak_frame": 37,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 555,
+          "frames_exposed": 54,
+          "peak_frame": 39,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 442,
+          "frames_exposed": 44,
+          "peak_frame": 22,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 588,
+          "frames_exposed": 39,
+          "peak_frame": 7,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 427,
+          "frames_exposed": 33,
+          "peak_frame": 7,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 1048,
+          "frames_exposed": 62,
+          "peak_frame": 27,
+          "sampled_frames": 63
+        }
+      ],
+      "max_exposed_pixels": 1048
+    },
+    {
+      "part": "body",
+      "view": "rear",
+      "image": "hidden_requests/rear_body.png",
+      "status": "measured",
+      "hidden_pixel_count": 2435,
+      "bounding_box": [
+        110,
+        87,
+        196,
+        189
+      ],
+      "solo_outside_paint_pixels": 30,
+      "motions": [
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 863,
+          "frames_exposed": 40,
+          "peak_frame": 7,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 719,
+          "frames_exposed": 54,
+          "peak_frame": 39,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 595,
+          "frames_exposed": 46,
+          "peak_frame": 38,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 516,
+          "frames_exposed": 62,
+          "peak_frame": 25,
+          "sampled_frames": 63
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 435,
+          "frames_exposed": 44,
+          "peak_frame": 22,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 397,
+          "frames_exposed": 33,
+          "peak_frame": 6,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 82,
+          "frames_exposed": 144,
+          "peak_frame": 0,
+          "sampled_frames": 144
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 25,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "wing_far",
+          "pixels": 2358,
+          "material": "dark brown plumage with pale storm grey-blue leading edge"
+        },
+        {
+          "part": "tail",
+          "pixels": 52,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 9,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "wing_near",
+          "pixels": 2,
+          "material": "dark brown plumage with pale storm grey-blue leading edge"
+        },
+        {
+          "part": "wing_far",
+          "pixels": 53,
+          "material": "dark brown plumage with pale storm grey-blue leading edge"
+        },
+        {
+          "part": "tail",
+          "pixels": 16,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        }
+      ],
+      "material": "dusky storm-grey, grey-tan and dark brown plumage",
+      "paint_nodes": [
+        "hidden_body"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 82,
+          "frames_exposed": 144,
+          "peak_frame": 0,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 595,
+          "frames_exposed": 46,
+          "peak_frame": 38,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 719,
+          "frames_exposed": 54,
+          "peak_frame": 39,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 435,
+          "frames_exposed": 44,
+          "peak_frame": 22,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 863,
+          "frames_exposed": 40,
+          "peak_frame": 7,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 397,
+          "frames_exposed": 33,
+          "peak_frame": 6,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 516,
+          "frames_exposed": 62,
+          "peak_frame": 25,
+          "sampled_frames": 63
+        }
+      ],
+      "max_exposed_pixels": 863
+    },
+    {
+      "part": "body",
+      "view": "front",
+      "image": "hidden_requests/front_body.png",
+      "status": "measured",
+      "hidden_pixel_count": 1473,
+      "bounding_box": [
+        65,
+        153,
+        153,
+        214
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 474,
+          "frames_exposed": 25,
+          "peak_frame": 7,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 410,
+          "frames_exposed": 54,
+          "peak_frame": 39,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 351,
+          "frames_exposed": 36,
+          "peak_frame": 38,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 284,
+          "frames_exposed": 35,
+          "peak_frame": 21,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 253,
+          "frames_exposed": 32,
+          "peak_frame": 6,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 181,
+          "frames_exposed": 62,
+          "peak_frame": 8,
+          "sampled_frames": 63
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 94,
+          "frames_exposed": 132,
+          "peak_frame": 45,
+          "sampled_frames": 144
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "head",
+          "pixels": 470,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "mask",
+          "pixels": 53,
+          "material": "bold dark mask band"
+        },
+        {
+          "part": "wing_near",
+          "pixels": 944,
+          "material": "dark brown plumage with pale storm grey-blue leading edge"
+        },
+        {
+          "part": "legs",
+          "pixels": 6,
+          "material": "grey-brown scaled legs with big talons"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 40,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "wing_near",
+          "pixels": 47,
+          "material": "dark brown plumage with pale storm grey-blue leading edge"
+        },
+        {
+          "part": "tail",
+          "pixels": 1,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "legs",
+          "pixels": 7,
+          "material": "grey-brown scaled legs with big talons"
+        }
+      ],
+      "material": "dusky storm-grey, grey-tan and dark brown plumage",
+      "paint_nodes": [
+        "hidden_body"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 94,
+          "frames_exposed": 132,
+          "peak_frame": 45,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 351,
+          "frames_exposed": 36,
+          "peak_frame": 38,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 410,
+          "frames_exposed": 54,
+          "peak_frame": 39,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 284,
+          "frames_exposed": 35,
+          "peak_frame": 21,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 474,
+          "frames_exposed": 25,
+          "peak_frame": 7,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 253,
+          "frames_exposed": 32,
+          "peak_frame": 6,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 181,
+          "frames_exposed": 62,
+          "peak_frame": 8,
+          "sampled_frames": 63
+        }
+      ],
+      "max_exposed_pixels": 474
+    },
+    {
+      "part": "head",
+      "view": "rear",
+      "image": "hidden_requests/rear_head.png",
+      "status": "measured",
+      "hidden_pixel_count": 460,
+      "bounding_box": [
+        171,
+        62,
+        214,
+        98
+      ],
+      "solo_outside_paint_pixels": 42,
+      "motions": [
+        {
+          "clip": "death",
+          "max_exposed_pixels": 423,
+          "frames_exposed": 54,
+          "peak_frame": 28,
+          "sampled_frames": 63
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 327,
+          "frames_exposed": 36,
+          "peak_frame": 14,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 308,
+          "frames_exposed": 16,
+          "peak_frame": 17,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 307,
+          "frames_exposed": 19,
+          "peak_frame": 16,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 307,
+          "frames_exposed": 22,
+          "peak_frame": 11,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 145,
+          "frames_exposed": 89,
+          "peak_frame": 100,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 4,
+          "frames_exposed": 27,
+          "peak_frame": 4,
+          "sampled_frames": 37
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "body",
+          "pixels": 7,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "beak",
+          "pixels": 1,
+          "material": "heavy hooked iron-grey beak"
+        },
+        {
+          "part": "mask",
+          "pixels": 28,
+          "material": "bold dark mask band"
+        },
+        {
+          "part": "wing_far",
+          "pixels": 424,
+          "material": "dark brown plumage with pale storm grey-blue leading edge"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "body",
+          "pixels": 5,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "beak",
+          "pixels": 4,
+          "material": "heavy hooked iron-grey beak"
+        },
+        {
+          "part": "mask",
+          "pixels": 1,
+          "material": "bold dark mask band"
+        },
+        {
+          "part": "wing_far",
+          "pixels": 45,
+          "material": "dark brown plumage with pale storm grey-blue leading edge"
+        }
+      ],
+      "material": "dusky storm-grey, grey-tan and dark brown plumage",
+      "paint_nodes": [
+        "hidden_head"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 145,
+          "frames_exposed": 89,
+          "peak_frame": 100,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 308,
+          "frames_exposed": 16,
+          "peak_frame": 17,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 327,
+          "frames_exposed": 36,
+          "peak_frame": 14,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 307,
+          "frames_exposed": 22,
+          "peak_frame": 11,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 307,
+          "frames_exposed": 19,
+          "peak_frame": 16,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 4,
+          "frames_exposed": 27,
+          "peak_frame": 4,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 423,
+          "frames_exposed": 54,
+          "peak_frame": 28,
+          "sampled_frames": 63
+        }
+      ],
+      "max_exposed_pixels": 423
+    },
+    {
+      "part": "wing_far",
+      "view": "front",
+      "image": "hidden_requests/front_wing_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 850,
+      "bounding_box": [
+        71,
+        117,
+        126,
+        167
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 220,
+          "frames_exposed": 135,
+          "peak_frame": 91,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 159,
+          "frames_exposed": 54,
+          "peak_frame": 39,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 152,
+          "frames_exposed": 39,
+          "peak_frame": 9,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 152,
+          "frames_exposed": 45,
+          "peak_frame": 38,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 140,
+          "frames_exposed": 44,
+          "peak_frame": 21,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 128,
+          "frames_exposed": 32,
+          "peak_frame": 6,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 97,
+          "frames_exposed": 62,
+          "peak_frame": 7,
+          "sampled_frames": 63
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "body",
+          "pixels": 239,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "head",
+          "pixels": 353,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "wing_near",
+          "pixels": 258,
+          "material": "dark brown plumage with pale storm grey-blue leading edge"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "body",
+          "pixels": 17,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "head",
+          "pixels": 40,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "wing_near",
+          "pixels": 61,
+          "material": "dark brown plumage with pale storm grey-blue leading edge"
+        }
+      ],
+      "material": "dark brown plumage with pale storm grey-blue leading edge",
+      "paint_nodes": [
+        "hidden_wing_far"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 220,
+          "frames_exposed": 135,
+          "peak_frame": 91,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 152,
+          "frames_exposed": 45,
+          "peak_frame": 38,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 159,
+          "frames_exposed": 54,
+          "peak_frame": 39,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 140,
+          "frames_exposed": 44,
+          "peak_frame": 21,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 152,
+          "frames_exposed": 39,
+          "peak_frame": 9,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 128,
+          "frames_exposed": 32,
+          "peak_frame": 6,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 97,
+          "frames_exposed": 62,
+          "peak_frame": 7,
+          "sampled_frames": 63
+        }
+      ],
+      "max_exposed_pixels": 220
+    },
+    {
+      "part": "legs",
+      "view": "rear",
+      "image": "hidden_requests/rear_legs.png",
+      "status": "measured",
+      "hidden_pixel_count": 494,
+      "bounding_box": [
+        140,
+        146,
+        172,
+        185
+      ],
+      "solo_outside_paint_pixels": 27,
+      "motions": [
+        {
+          "clip": "death",
+          "max_exposed_pixels": 127,
+          "frames_exposed": 55,
+          "peak_frame": 26,
+          "sampled_frames": 63
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 115,
+          "frames_exposed": 31,
+          "peak_frame": 23,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 109,
+          "frames_exposed": 14,
+          "peak_frame": 38,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 40,
+          "frames_exposed": 31,
+          "peak_frame": 5,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 4,
+          "frames_exposed": 42,
+          "peak_frame": 32,
+          "sampled_frames": 144
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "body",
+          "pixels": 379,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "wing_far",
+          "pixels": 115,
+          "material": "dark brown plumage with pale storm grey-blue leading edge"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "body",
+          "pixels": 96,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "wing_far",
+          "pixels": 21,
+          "material": "dark brown plumage with pale storm grey-blue leading edge"
+        }
+      ],
+      "material": "grey-brown scaled legs with big talons",
+      "paint_nodes": [
+        "hidden_legs"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 4,
+          "frames_exposed": 42,
+          "peak_frame": 32,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 109,
+          "frames_exposed": 14,
+          "peak_frame": 38,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 115,
+          "frames_exposed": 31,
+          "peak_frame": 23,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 40,
+          "frames_exposed": 31,
+          "peak_frame": 5,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 127,
+          "frames_exposed": 55,
+          "peak_frame": 26,
+          "sampled_frames": 63
+        }
+      ],
+      "max_exposed_pixels": 127
+    },
+    {
+      "part": "wing_far",
+      "view": "rear",
+      "image": "hidden_requests/rear_wing_far.png",
+      "status": "measured",
+      "hidden_pixel_count": 119,
+      "bounding_box": [
+        151,
+        71,
+        190,
+        159
+      ],
+      "solo_outside_paint_pixels": 63,
+      "motions": [
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 119,
+          "frames_exposed": 31,
+          "peak_frame": 3,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 119,
+          "frames_exposed": 46,
+          "peak_frame": 30,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 118,
+          "frames_exposed": 53,
+          "peak_frame": 47,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 118,
+          "frames_exposed": 39,
+          "peak_frame": 23,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 117,
+          "frames_exposed": 62,
+          "peak_frame": 7,
+          "sampled_frames": 63
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 116,
+          "frames_exposed": 44,
+          "peak_frame": 22,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 102,
+          "frames_exposed": 144,
+          "peak_frame": 83,
+          "sampled_frames": 144
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "body",
+          "pixels": 115,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "head",
+          "pixels": 4,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "body",
+          "pixels": 45,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "head",
+          "pixels": 8,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        }
+      ],
+      "material": "dark brown plumage with pale storm grey-blue leading edge",
+      "paint_nodes": [
+        "hidden_wing_far"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 102,
+          "frames_exposed": 144,
+          "peak_frame": 83,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 119,
+          "frames_exposed": 46,
+          "peak_frame": 30,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 118,
+          "frames_exposed": 53,
+          "peak_frame": 47,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 116,
+          "frames_exposed": 44,
+          "peak_frame": 22,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 118,
+          "frames_exposed": 39,
+          "peak_frame": 23,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 119,
+          "frames_exposed": 31,
+          "peak_frame": 3,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 117,
+          "frames_exposed": 62,
+          "peak_frame": 7,
+          "sampled_frames": 63
+        }
+      ],
+      "max_exposed_pixels": 119
+    },
+    {
+      "part": "legs",
+      "view": "front",
+      "image": "hidden_requests/front_legs.png",
+      "status": "measured",
+      "hidden_pixel_count": 208,
+      "bounding_box": [
+        91,
+        194,
+        120,
+        213
+      ],
+      "solo_outside_paint_pixels": 366,
+      "motions": [
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 105,
+          "frames_exposed": 31,
+          "peak_frame": 5,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 26,
+          "frames_exposed": 19,
+          "peak_frame": 20,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 23,
+          "frames_exposed": 19,
+          "peak_frame": 22,
+          "sampled_frames": 63
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 23,
+          "frames_exposed": 31,
+          "peak_frame": 37,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 11,
+          "frames_exposed": 66,
+          "peak_frame": 23,
+          "sampled_frames": 144
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "body",
+          "pixels": 208,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "body",
+          "pixels": 60,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        }
+      ],
+      "material": "grey-brown scaled legs with big talons",
+      "paint_nodes": [
+        "hidden_legs"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 11,
+          "frames_exposed": 66,
+          "peak_frame": 23,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 23,
+          "frames_exposed": 31,
+          "peak_frame": 37,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 26,
+          "frames_exposed": 19,
+          "peak_frame": 20,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 105,
+          "frames_exposed": 31,
+          "peak_frame": 5,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 23,
+          "frames_exposed": 19,
+          "peak_frame": 22,
+          "sampled_frames": 63
+        }
+      ],
+      "max_exposed_pixels": 105
+    },
+    {
+      "part": "tail",
+      "view": "front",
+      "image": "hidden_requests/front_tail.png",
+      "status": "measured",
+      "hidden_pixel_count": 194,
+      "bounding_box": [
+        137,
+        176,
+        156,
+        194
+      ],
+      "solo_outside_paint_pixels": 12,
+      "motions": [
+        {
+          "clip": "move",
+          "max_exposed_pixels": 31,
+          "frames_exposed": 34,
+          "peak_frame": 36,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 29,
+          "frames_exposed": 22,
+          "peak_frame": 6,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 27,
+          "frames_exposed": 54,
+          "peak_frame": 39,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 26,
+          "frames_exposed": 31,
+          "peak_frame": 5,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 26,
+          "frames_exposed": 25,
+          "peak_frame": 21,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 17,
+          "frames_exposed": 9,
+          "peak_frame": 8,
+          "sampled_frames": 63
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 10,
+          "frames_exposed": 67,
+          "peak_frame": 29,
+          "sampled_frames": 144
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "body",
+          "pixels": 91,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "wing_near",
+          "pixels": 103,
+          "material": "dark brown plumage with pale storm grey-blue leading edge"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "body",
+          "pixels": 21,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "wing_near",
+          "pixels": 17,
+          "material": "dark brown plumage with pale storm grey-blue leading edge"
+        }
+      ],
+      "material": "dusky storm-grey, grey-tan and dark brown plumage",
+      "paint_nodes": [
+        "hidden_tail"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 10,
+          "frames_exposed": 67,
+          "peak_frame": 29,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 31,
+          "frames_exposed": 34,
+          "peak_frame": 36,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 27,
+          "frames_exposed": 54,
+          "peak_frame": 39,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 26,
+          "frames_exposed": 25,
+          "peak_frame": 21,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 29,
+          "frames_exposed": 22,
+          "peak_frame": 6,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 26,
+          "frames_exposed": 31,
+          "peak_frame": 5,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 17,
+          "frames_exposed": 9,
+          "peak_frame": 8,
+          "sampled_frames": 63
+        }
+      ],
+      "max_exposed_pixels": 31
+    },
+    {
+      "part": "wing_near",
+      "view": "front",
+      "image": "hidden_requests/front_wing_near.png",
+      "status": "measured",
+      "hidden_pixel_count": 16,
+      "bounding_box": [
+        125,
+        180,
+        156,
+        185
+      ],
+      "solo_outside_paint_pixels": 1,
+      "motions": [
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 19,
+          "frames_exposed": 21,
+          "peak_frame": 9,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 18,
+          "frames_exposed": 32,
+          "peak_frame": 10,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 17,
+          "frames_exposed": 25,
+          "peak_frame": 7,
+          "sampled_frames": 63
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 17,
+          "frames_exposed": 25,
+          "peak_frame": 40,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 17,
+          "frames_exposed": 32,
+          "peak_frame": 6,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 17,
+          "frames_exposed": 26,
+          "peak_frame": 20,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 16,
+          "frames_exposed": 58,
+          "peak_frame": 22,
+          "sampled_frames": 144
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "body",
+          "pixels": 15,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "tail",
+          "pixels": 1,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "body",
+          "pixels": 14,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "tail",
+          "pixels": 2,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        }
+      ],
+      "material": "dark brown plumage with pale storm grey-blue leading edge",
+      "paint_nodes": [
+        "hidden_wing_near"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 16,
+          "frames_exposed": 58,
+          "peak_frame": 22,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 17,
+          "frames_exposed": 32,
+          "peak_frame": 6,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 17,
+          "frames_exposed": 25,
+          "peak_frame": 40,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 17,
+          "frames_exposed": 26,
+          "peak_frame": 20,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 19,
+          "frames_exposed": 21,
+          "peak_frame": 9,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 18,
+          "frames_exposed": 32,
+          "peak_frame": 10,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 17,
+          "frames_exposed": 25,
+          "peak_frame": 7,
+          "sampled_frames": 63
+        }
+      ],
+      "max_exposed_pixels": 19
+    },
+    {
+      "part": "head",
+      "view": "front",
+      "image": "hidden_requests/front_head.png",
+      "status": "measured",
+      "hidden_pixel_count": 107,
+      "bounding_box": [
+        52,
+        155,
+        92,
+        182
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 14,
+          "frames_exposed": 133,
+          "peak_frame": 78,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 61,
+          "peak_frame": 23,
+          "sampled_frames": 63
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 25,
+          "peak_frame": 11,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 7,
+          "frames_exposed": 37,
+          "peak_frame": 39,
+          "sampled_frames": 61
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "body",
+          "pixels": 15,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "beak",
+          "pixels": 39,
+          "material": "heavy hooked iron-grey beak"
+        },
+        {
+          "part": "mask",
+          "pixels": 53,
+          "material": "bold dark mask band"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "body",
+          "pixels": 24,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "beak",
+          "pixels": 8,
+          "material": "heavy hooked iron-grey beak"
+        }
+      ],
+      "material": "dusky storm-grey, grey-tan and dark brown plumage",
+      "paint_nodes": [
+        "hidden_head"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 14,
+          "frames_exposed": 133,
+          "peak_frame": 78,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 7,
+          "frames_exposed": 37,
+          "peak_frame": 39,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 25,
+          "peak_frame": 11,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 12,
+          "frames_exposed": 61,
+          "peak_frame": 23,
+          "sampled_frames": 63
+        }
+      ],
+      "max_exposed_pixels": 14
+    },
+    {
+      "part": "tail",
+      "view": "rear",
+      "image": "hidden_requests/rear_tail.png",
+      "status": "measured",
+      "hidden_pixel_count": 89,
+      "bounding_box": [
+        110,
+        174,
+        125,
+        184
+      ],
+      "solo_outside_paint_pixels": 359,
+      "motions": [
+        {
+          "clip": "death",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 54,
+          "peak_frame": 38,
+          "sampled_frames": 63
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 18,
+          "peak_frame": 43,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 9,
+          "peak_frame": 63,
+          "sampled_frames": 144
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "body",
+          "pixels": 89,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "body",
+          "pixels": 21,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        }
+      ],
+      "material": "dusky storm-grey, grey-tan and dark brown plumage",
+      "paint_nodes": [
+        "hidden_tail"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 9,
+          "peak_frame": 63,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 18,
+          "peak_frame": 43,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 9,
+          "frames_exposed": 54,
+          "peak_frame": 38,
+          "sampled_frames": 63
+        }
+      ],
+      "max_exposed_pixels": 9
+    },
+    {
+      "part": "mask",
+      "view": "front",
+      "image": "hidden_requests/front_mask.png",
+      "status": "measured",
+      "hidden_pixel_count": 383,
+      "bounding_box": [
+        50,
+        151,
+        82,
+        170
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "death",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 56,
+          "peak_frame": 10,
+          "sampled_frames": 63
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 4,
+          "peak_frame": 10,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 22,
+          "peak_frame": 2,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 121,
+          "peak_frame": 12,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 2,
+          "peak_frame": 43,
+          "sampled_frames": 49
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "body",
+          "pixels": 1,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        },
+        {
+          "part": "head",
+          "pixels": 382,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "head",
+          "pixels": 58,
+          "material": "dusky storm-grey, grey-tan and dark brown plumage"
+        }
+      ],
+      "material": "bold dark mask band",
+      "paint_nodes": [
+        "hidden_mask"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 121,
+          "peak_frame": 12,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 2,
+          "peak_frame": 43,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 4,
+          "peak_frame": 10,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 1,
+          "frames_exposed": 22,
+          "peak_frame": 2,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 2,
+          "frames_exposed": 56,
+          "peak_frame": 10,
+          "sampled_frames": 63
+        }
+      ],
+      "max_exposed_pixels": 2
+    },
+    {
+      "part": "beak",
+      "view": "front",
+      "image": "hidden_requests/front_beak.png",
+      "status": "measured",
+      "hidden_pixel_count": 0,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [],
+      "bordering_parts": [],
+      "material": "heavy hooked iron-grey beak",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 63
+        }
+      ],
+      "max_exposed_pixels": 0
+    },
+    {
+      "part": "beak",
+      "view": "rear",
+      "image": "hidden_requests/rear_beak.png",
+      "status": "measured",
+      "hidden_pixel_count": 0,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [],
+      "bordering_parts": [],
+      "material": "heavy hooked iron-grey beak",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 63
+        }
+      ],
+      "max_exposed_pixels": 0
+    },
+    {
+      "part": "mask",
+      "view": "rear",
+      "image": "hidden_requests/rear_mask.png",
+      "status": "measured",
+      "hidden_pixel_count": 0,
+      "bounding_box": null,
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [],
+      "bordering_parts": [],
+      "material": "bold dark mask band",
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 144
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "dive",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 61
+        },
+        {
+          "clip": "talon_rake",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hover",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 49
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 37
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "frames_exposed": 0,
+          "peak_frame": null,
+          "sampled_frames": 63
+        }
+      ],
+      "max_exposed_pixels": 0
+    }
+  ],
+  "exposure_basis": "Maximum visible hidden pixels over the actual headless sampler frames; Pillow nearest mask rasterization, not renderer proof. Missing solos sort last, never as known zero exposure. All seven requested clips sampled.",
+  "samples_sha256": "e5410b6937debec67a8d0d6f6af428031af3d9e3eb054c9c7557d04c5d93d245"
+}
