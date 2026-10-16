@@ -59,7 +59,7 @@
 | demo-01 | Scripted demo clips with game audio (21 clips, 3 reels: pixel FX, hit-sound sync, lightning trap + Briar Weaver) | fixing r7 (real renderer + MJPEG writer) | codex/peer-benchmark | briefs/demo-01.md |
 | qa-06 | Gust Shrike proof hardening: bone-level signed motion check; production capture without pose seeking (split from rr-03) | merged f411c09a9 (Codex signoff 7d39578e6) | codex/rr-03 | briefs/qa-06.md |
 | mq-02 | Sculpted maquettes fitted to source art: NumPy geometry + rasteriser, limb/torso/shell/cloak/smooth primitives, fit tool + gate, lancer r2 | running | codex/peer-benchmark | briefs/mq-02.md |
-| ux-05 | Previews mark destruction (terrain, traps, illusions, lethal pull ghosts) instead of hiding it | running | codex/peer-benchmark | briefs/ux-05.md |
+| ux-05 | Previews mark destruction (terrain, traps, illusions, lethal pull ghosts) instead of hiding it | merged (Codex signoff 156ebec72) | codex/peer-benchmark | briefs/ux-05.md |
 | pb-01 | Pre-battle: concise objective heading + one line; foes play their board idles | running | codex/peer-benchmark | briefs/pb-01.md |
 | deck-01 | Drop the magic-slot limit; spells go to the deck; Purge at Scavenger and Campfire; save migration | running | codex/peer-benchmark | briefs/deck-01.md |
 | rr-04 | Shale Bloomer + Lightning Wisp cutout rigs from maquettes; generic semantic motion compiler; real-time review videos | queued | codex/peer-benchmark | briefs/rr-04.md |
