@@ -1,0 +1,924 @@
+{
+  "chainbound_gaoler": {
+    "front": {
+      "parts": {
+        "head": {
+          "visible_iou": 0.9759776994342871,
+          "baseline_pixels": 24049,
+          "raster_pixels": 24153,
+          "solo_iou": 0.9901130923471866
+        },
+        "torso": {
+          "visible_iou": 0.9929766618252721,
+          "baseline_pixels": 50077,
+          "raster_pixels": 50092,
+          "solo_iou": 0.9997786549599734
+        },
+        "pelvis": {
+          "visible_iou": 0.9616648411829135,
+          "baseline_pixels": 1760,
+          "raster_pixels": 1822,
+          "solo_iou": 0.9996417910447761
+        },
+        "belt": {
+          "visible_iou": 0.9881484359821255,
+          "baseline_pixels": 10228,
+          "raster_pixels": 10238,
+          "solo_iou": 0.9996785599485696
+        },
+        "tabard": {
+          "visible_iou": 0.991096008258775,
+          "baseline_pixels": 23203,
+          "raster_pixels": 23086,
+          "solo_iou": 1.0
+        },
+        "coat_near": {
+          "visible_iou": 0.9848553413581923,
+          "baseline_pixels": 32907,
+          "raster_pixels": 32885,
+          "solo_iou": 0.9991428120277007
+        },
+        "coat_far": {
+          "visible_iou": 0.9724217844727694,
+          "baseline_pixels": 4207,
+          "raster_pixels": 4304,
+          "solo_iou": 0.9996312788949712
+        },
+        "upper_near": {
+          "visible_iou": 0.9970987863256129,
+          "baseline_pixels": 20624,
+          "raster_pixels": 20678,
+          "solo_iou": 0.999746063991874
+        },
+        "fore_near": {
+          "visible_iou": 0.986319612590799,
+          "baseline_pixels": 8174,
+          "raster_pixels": 8233,
+          "solo_iou": 0.9997882141155292
+        },
+        "hand_near": {
+          "visible_iou": 0.9829693723389644,
+          "baseline_pixels": 7170,
+          "raster_pixels": 7268,
+          "solo_iou": 0.9990673575129534
+        },
+        "upper_far": {
+          "visible_iou": 0.9945646265898467,
+          "baseline_pixels": 9181,
+          "raster_pixels": 9167,
+          "solo_iou": 0.9999178374825405
+        },
+        "fore_far": {
+          "visible_iou": 0.9861111111111112,
+          "baseline_pixels": 8062,
+          "raster_pixels": 7954,
+          "solo_iou": 0.9997405427844949
+        },
+        "hand_far": {
+          "visible_iou": 0.9991534988713319,
+          "baseline_pixels": 7083,
+          "raster_pixels": 7087,
+          "solo_iou": 0.9995113011606598
+        },
+        "thigh_near": {
+          "visible_iou": 0.9836170896241567,
+          "baseline_pixels": 9188,
+          "raster_pixels": 9337,
+          "solo_iou": 0.9999718848403059
+        },
+        "shin_near": {
+          "visible_iou": 0.9900825249746634,
+          "baseline_pixels": 13727,
+          "raster_pixels": 13764,
+          "solo_iou": 0.9989472496898146
+        },
+        "foot_near": {
+          "visible_iou": 0.9906444906444907,
+          "baseline_pixels": 4810,
+          "raster_pixels": 4765,
+          "solo_iou": 0.9997322623828648
+        },
+        "thigh_far": {
+          "visible_iou": 0.936595744680851,
+          "baseline_pixels": 2202,
+          "raster_pixels": 2349,
+          "solo_iou": 0.9998879708724269
+        },
+        "shin_far": {
+          "visible_iou": 0.9706231454005935,
+          "baseline_pixels": 10007,
+          "raster_pixels": 9916,
+          "solo_iou": 0.9998838334946757
+        },
+        "foot_far": {
+          "visible_iou": 0.9224170796797561,
+          "baseline_pixels": 5245,
+          "raster_pixels": 4840,
+          "solo_iou": 0.9997322982197832
+        },
+        "chain": {
+          "visible_iou": 0.9924737133370227,
+          "baseline_pixels": 9031,
+          "raster_pixels": 8971,
+          "solo_iou": 0.9988690981057393
+        },
+        "hook": {
+          "visible_iou": 0.9939374601148692,
+          "baseline_pixels": 3115,
+          "raster_pixels": 3134,
+          "solo_iou": 1.0
+        }
+      },
+      "minimum_visible_iou": 0.9224170796797561,
+      "minimum_part_silhouette_iou": 0.9901130923471866,
+      "silhouette_iou": 0.9992541975051582,
+      "minimum_solo_iou": 0.9901130923471866,
+      "max_joint_error_px": 0.009999999999990905
+    },
+    "rear": {
+      "parts": {
+        "head": {
+          "visible_iou": 0.9839921134165805,
+          "baseline_pixels": 21090,
+          "raster_pixels": 21173,
+          "solo_iou": 0.990149833518313
+        },
+        "torso": {
+          "visible_iou": 0.9976565668704652,
+          "baseline_pixels": 66489,
+          "raster_pixels": 66493,
+          "solo_iou": 0.999843833660539
+        },
+        "pelvis": {
+          "visible_iou": 0.9836865119408006,
+          "baseline_pixels": 5850,
+          "raster_pixels": 5945,
+          "solo_iou": 0.9996417910447761
+        },
+        "belt": {
+          "visible_iou": 0.9928473690757557,
+          "baseline_pixels": 16015,
+          "raster_pixels": 16026,
+          "solo_iou": 0.9994312488151017
+        },
+        "tabard": {
+          "visible_iou": 0.9596273291925466,
+          "baseline_pixels": 322,
+          "raster_pixels": 309,
+          "solo_iou": 0.9999492153775836
+        },
+        "coat_near": {
+          "visible_iou": 0.9867585263363627,
+          "baseline_pixels": 20384,
+          "raster_pixels": 20277,
+          "solo_iou": 0.9993617021276596
+        },
+        "coat_far": {
+          "visible_iou": 0.9954821658496916,
+          "baseline_pixels": 44132,
+          "raster_pixels": 44206,
+          "solo_iou": 0.9991975504170626
+        },
+        "upper_near": {
+          "visible_iou": 0.9676165803108808,
+          "baseline_pixels": 3736,
+          "raster_pixels": 3859,
+          "solo_iou": 0.9999116061168567
+        },
+        "fore_near": {
+          "visible_iou": 0.8307692307692308,
+          "baseline_pixels": 116,
+          "raster_pixels": 122,
+          "solo_iou": 0.9990252777958282
+        },
+        "hand_near": {
+          "visible_iou": 0.0,
+          "baseline_pixels": 0,
+          "raster_pixels": 2,
+          "solo_iou": 1.0
+        },
+        "upper_far": {
+          "visible_iou": 0.9959839357429718,
+          "baseline_pixels": 20881,
+          "raster_pixels": 20867,
+          "solo_iou": 0.999635103083379
+        },
+        "fore_far": {
+          "visible_iou": 0.9813766064038336,
+          "baseline_pixels": 9167,
+          "raster_pixels": 9026,
+          "solo_iou": 0.9996424192889252
+        },
+        "hand_far": {
+          "visible_iou": 0.9973771397018222,
+          "baseline_pixels": 7239,
+          "raster_pixels": 7230,
+          "solo_iou": 0.9996335206450037
+        },
+        "thigh_near": {
+          "visible_iou": 0.9838356625694561,
+          "baseline_pixels": 11687,
+          "raster_pixels": 11877,
+          "solo_iou": 0.999783930610859
+        },
+        "shin_near": {
+          "visible_iou": 0.9952086627377701,
+          "baseline_pixels": 20772,
+          "raster_pixels": 20870,
+          "solo_iou": 0.9999303160168636
+        },
+        "foot_near": {
+          "visible_iou": 0.9827267119062307,
+          "baseline_pixels": 1618,
+          "raster_pixels": 1596,
+          "solo_iou": 0.9995982322217758
+        },
+        "thigh_far": {
+          "visible_iou": 0.9651162790697675,
+          "baseline_pixels": 85,
+          "raster_pixels": 84,
+          "solo_iou": 0.9991554054054054
+        },
+        "shin_far": {
+          "visible_iou": 0.9883870967741936,
+          "baseline_pixels": 12383,
+          "raster_pixels": 12273,
+          "solo_iou": 0.9998623016282833
+        },
+        "foot_far": {
+          "visible_iou": 0.8811126065500224,
+          "baseline_pixels": 2228,
+          "raster_pixels": 1965,
+          "solo_iou": 0.9998662028364999
+        },
+        "chain": {
+          "visible_iou": 0.9963839579224194,
+          "baseline_pixels": 9121,
+          "raster_pixels": 9098,
+          "solo_iou": 0.9990570485619991
+        },
+        "hook": {
+          "visible_iou": 0.9936265137029955,
+          "baseline_pixels": 3118,
+          "raster_pixels": 3138,
+          "solo_iou": 1.0
+        }
+      },
+      "minimum_visible_iou": 0.0,
+      "minimum_part_silhouette_iou": 0.990149833518313,
+      "silhouette_iou": 0.999200853387333,
+      "minimum_solo_iou": 0.990149833518313,
+      "max_joint_error_px": 0.009999999999990905
+    },
+    "baseline_files": {
+      "front": "chainbound_gaoler/mq3_maquette_renders/front_parts.png",
+      "rear": "chainbound_gaoler/mq3_maquette_renders/rear_parts.png",
+      "joints": "chainbound_gaoler/mq3_maquette_renders/joints_px.json",
+      "solos": true
+    }
+  },
+  "frostglass_lancer": {
+    "front": {
+      "parts": {
+        "head": {
+          "visible_iou": 0.9896312886234498,
+          "baseline_pixels": 23910,
+          "raster_pixels": 24062
+        },
+        "torso": {
+          "visible_iou": 0.9946959813503861,
+          "baseline_pixels": 46543,
+          "raster_pixels": 46723
+        },
+        "pelvis": {
+          "visible_iou": 0.96298010180472,
+          "baseline_pixels": 2083,
+          "raster_pixels": 2159
+        },
+        "belt": {
+          "visible_iou": 0.949642461476483,
+          "baseline_pixels": 9826,
+          "raster_pixels": 9532
+        },
+        "tabard": {
+          "visible_iou": 0.9905891980360065,
+          "baseline_pixels": 21899,
+          "raster_pixels": 21886
+        },
+        "cape_near": {
+          "visible_iou": 0.9860504882329119,
+          "baseline_pixels": 44115,
+          "raster_pixels": 44157
+        },
+        "cape_far": {
+          "visible_iou": 0.9158016147635525,
+          "baseline_pixels": 5940,
+          "raster_pixels": 5687
+        },
+        "pauldron_near": {
+          "visible_iou": 0.9904738185667143,
+          "baseline_pixels": 15908,
+          "raster_pixels": 16061
+        },
+        "upper_near": {
+          "visible_iou": 0.9876746096959738,
+          "baseline_pixels": 10876,
+          "raster_pixels": 10895
+        },
+        "fore_near": {
+          "visible_iou": 0.9831086316441965,
+          "baseline_pixels": 6380,
+          "raster_pixels": 6417
+        },
+        "hand_near": {
+          "visible_iou": 0.9786223277909739,
+          "baseline_pixels": 4536,
+          "raster_pixels": 4627
+        },
+        "pauldron_far": {
+          "visible_iou": 0.9891586141880745,
+          "baseline_pixels": 8394,
+          "raster_pixels": 8486
+        },
+        "upper_far": {
+          "visible_iou": 0.9746423006091515,
+          "baseline_pixels": 6985,
+          "raster_pixels": 6954
+        },
+        "fore_far": {
+          "visible_iou": 0.9775989903770311,
+          "baseline_pixels": 6247,
+          "raster_pixels": 6289
+        },
+        "hand_far": {
+          "visible_iou": 0.9695807070430255,
+          "baseline_pixels": 3565,
+          "raster_pixels": 3622
+        },
+        "thigh_near": {
+          "visible_iou": 0.9761504870675176,
+          "baseline_pixels": 14633,
+          "raster_pixels": 14782
+        },
+        "shin_near": {
+          "visible_iou": 0.9713887922032718,
+          "baseline_pixels": 14131,
+          "raster_pixels": 14188
+        },
+        "foot_near": {
+          "visible_iou": 0.9733988131778187,
+          "baseline_pixels": 4781,
+          "raster_pixels": 4863
+        },
+        "thigh_far": {
+          "visible_iou": 0.5202784503631961,
+          "baseline_pixels": 3190,
+          "raster_pixels": 1833
+        },
+        "shin_far": {
+          "visible_iou": 0.8924073847658638,
+          "baseline_pixels": 7965,
+          "raster_pixels": 7513
+        },
+        "foot_far": {
+          "visible_iou": 0.8362441639287567,
+          "baseline_pixels": 5681,
+          "raster_pixels": 4938
+        },
+        "spear_shaft": {
+          "visible_iou": 0.9568396531642294,
+          "baseline_pixels": 14852,
+          "raster_pixels": 15389
+        },
+        "spear_blade": {
+          "visible_iou": 0.9662453531598513,
+          "baseline_pixels": 6498,
+          "raster_pixels": 6725
+        }
+      },
+      "minimum_visible_iou": 0.5202784503631961,
+      "minimum_part_silhouette_iou": 0.5202784503631961,
+      "silhouette_iou": 0.9957712458560286,
+      "minimum_solo_iou": null,
+      "max_joint_error_px": null
+    },
+    "rear": {
+      "parts": {
+        "head": {
+          "visible_iou": 0.9921108653003298,
+          "baseline_pixels": 23779,
+          "raster_pixels": 23946
+        },
+        "torso": {
+          "visible_iou": 0.9946074989467771,
+          "baseline_pixels": 35493,
+          "raster_pixels": 35525
+        },
+        "pelvis": {
+          "visible_iou": 0.9823163622230859,
+          "baseline_pixels": 5059,
+          "raster_pixels": 5142
+        },
+        "belt": {
+          "visible_iou": 0.9430038056465174,
+          "baseline_pixels": 11255,
+          "raster_pixels": 10699
+        },
+        "tabard": {
+          "visible_iou": 0.3582887700534759,
+          "baseline_pixels": 164,
+          "raster_pixels": 90
+        },
+        "cape_near": {
+          "visible_iou": 0.9699290703632784,
+          "baseline_pixels": 36216,
+          "raster_pixels": 36827
+        },
+        "cape_far": {
+          "visible_iou": 0.9886752813192505,
+          "baseline_pixels": 69109,
+          "raster_pixels": 69092
+        },
+        "pauldron_near": {
+          "visible_iou": 0.9718667127868097,
+          "baseline_pixels": 8454,
+          "raster_pixels": 8648
+        },
+        "upper_near": {
+          "visible_iou": 0.6989090909090909,
+          "baseline_pixels": 1315,
+          "raster_pixels": 1021
+        },
+        "fore_near": {
+          "visible_iou": 0.891726251276813,
+          "baseline_pixels": 947,
+          "raster_pixels": 905
+        },
+        "hand_near": {
+          "visible_iou": 1.0,
+          "baseline_pixels": 0,
+          "raster_pixels": 0
+        },
+        "pauldron_far": {
+          "visible_iou": 0.993330816660375,
+          "baseline_pixels": 15788,
+          "raster_pixels": 15894
+        },
+        "upper_far": {
+          "visible_iou": 0.98252976771423,
+          "baseline_pixels": 10161,
+          "raster_pixels": 10152
+        },
+        "fore_far": {
+          "visible_iou": 0.9663186921410282,
+          "baseline_pixels": 5004,
+          "raster_pixels": 4979
+        },
+        "hand_far": {
+          "visible_iou": 0.9340788699234844,
+          "baseline_pixels": 1622,
+          "raster_pixels": 1664
+        },
+        "thigh_near": {
+          "visible_iou": 0.9711378534389982,
+          "baseline_pixels": 10026,
+          "raster_pixels": 10121
+        },
+        "shin_near": {
+          "visible_iou": 0.9785698172794947,
+          "baseline_pixels": 17446,
+          "raster_pixels": 17638
+        },
+        "foot_near": {
+          "visible_iou": 0.9473140495867769,
+          "baseline_pixels": 1861,
+          "raster_pixels": 1909
+        },
+        "thigh_far": {
+          "visible_iou": 0.015237020316027089,
+          "baseline_pixels": 1767,
+          "raster_pixels": 32
+        },
+        "shin_far": {
+          "visible_iou": 0.8540723981900452,
+          "baseline_pixels": 6113,
+          "raster_pixels": 5360
+        },
+        "foot_far": {
+          "visible_iou": 0.7919911012235817,
+          "baseline_pixels": 2617,
+          "raster_pixels": 2216
+        },
+        "spear_shaft": {
+          "visible_iou": 0.9559896833671734,
+          "baseline_pixels": 17437,
+          "raster_pixels": 18207
+        },
+        "spear_blade": {
+          "visible_iou": 0.964720974983964,
+          "baseline_pixels": 7520,
+          "raster_pixels": 7795
+        }
+      },
+      "minimum_visible_iou": 0.015237020316027089,
+      "minimum_part_silhouette_iou": 0.015237020316027089,
+      "silhouette_iou": 0.9954248207795442,
+      "minimum_solo_iou": null,
+      "max_joint_error_px": null
+    },
+    "baseline_files": {
+      "front": "frostglass_lancer/mq1_front_v3/refs/01_maquette_front_parts.png",
+      "rear": "frostglass_lancer/mq1_rear_v3/refs/01_maquette_rear_parts.png"
+    }
+  },
+  "lightning_wisp": {
+    "front": {
+      "parts": {
+        "core": {
+          "visible_iou": 0.9944944181870543,
+          "baseline_pixels": 117412,
+          "raster_pixels": 118062
+        },
+        "crown": {
+          "visible_iou": 0.9661646586345382,
+          "baseline_pixels": 9772,
+          "raster_pixels": 9811
+        },
+        "tail": {
+          "visible_iou": 0.9909670221211406,
+          "baseline_pixels": 46607,
+          "raster_pixels": 46186
+        },
+        "arc_left": {
+          "visible_iou": 0.9671672555948174,
+          "baseline_pixels": 6569,
+          "raster_pixels": 6792
+        },
+        "arc_right": {
+          "visible_iou": 0.8599357257632566,
+          "baseline_pixels": 7467,
+          "raster_pixels": 6423
+        }
+      },
+      "minimum_visible_iou": 0.8599357257632566,
+      "minimum_part_silhouette_iou": 0.8599357257632566,
+      "silhouette_iou": 0.99704516898439,
+      "minimum_solo_iou": null,
+      "max_joint_error_px": null
+    },
+    "rear": {
+      "parts": {
+        "core": {
+          "visible_iou": 0.9948655407972993,
+          "baseline_pixels": 112576,
+          "raster_pixels": 113157
+        },
+        "crown": {
+          "visible_iou": 0.9692675745307324,
+          "baseline_pixels": 10741,
+          "raster_pixels": 10661
+        },
+        "tail": {
+          "visible_iou": 0.983216224316494,
+          "baseline_pixels": 30029,
+          "raster_pixels": 29525
+        },
+        "arc_left": {
+          "visible_iou": 0.9690958164642375,
+          "baseline_pixels": 7193,
+          "raster_pixels": 7398
+        },
+        "arc_right": {
+          "visible_iou": 0.9020284399832706,
+          "baseline_pixels": 9564,
+          "raster_pixels": 8627
+        }
+      },
+      "minimum_visible_iou": 0.9020284399832706,
+      "minimum_part_silhouette_iou": 0.9020284399832706,
+      "silhouette_iou": 0.9956790885522301,
+      "minimum_solo_iou": null,
+      "max_joint_error_px": null
+    },
+    "baseline_files": {
+      "front": "lightning_wisp/mq1_front_v2/refs/02_maquette_front_parts_r3.png",
+      "rear": "lightning_wisp/mq1_rear/refs/01_maquette_rear_parts.png"
+    }
+  },
+  "shale_bloomer": {
+    "front": {
+      "parts": {
+        "trunk": {
+          "visible_iou": 0.9921939369832656,
+          "baseline_pixels": 139731,
+          "raster_pixels": 140746
+        },
+        "core": {
+          "visible_iou": 0.9896123938980234,
+          "baseline_pixels": 16786,
+          "raster_pixels": 16733
+        },
+        "petal_near_l": {
+          "visible_iou": 0.9501955671447196,
+          "baseline_pixels": 18834,
+          "raster_pixels": 18561
+        },
+        "petal_near_r": {
+          "visible_iou": 0.9455752929107499,
+          "baseline_pixels": 18371,
+          "raster_pixels": 17663
+        },
+        "petal_far_l": {
+          "visible_iou": 0.9632834653368534,
+          "baseline_pixels": 19843,
+          "raster_pixels": 20314
+        },
+        "petal_far_r": {
+          "visible_iou": 0.9551262393948686,
+          "baseline_pixels": 19109,
+          "raster_pixels": 19145
+        },
+        "tendril_high_l": {
+          "visible_iou": 0.9674683544303797,
+          "baseline_pixels": 15302,
+          "raster_pixels": 15784
+        },
+        "tendril_high_r": {
+          "visible_iou": 0.9842853110002823,
+          "baseline_pixels": 10460,
+          "raster_pixels": 10627
+        },
+        "tendril_mid_l": {
+          "visible_iou": 0.0,
+          "baseline_pixels": 1,
+          "raster_pixels": 0
+        },
+        "tendril_low_l": {
+          "visible_iou": 0.9618119568080064,
+          "baseline_pixels": 11189,
+          "raster_pixels": 11158
+        },
+        "tendril_low_r": {
+          "visible_iou": 0.9819993571198972,
+          "baseline_pixels": 15442,
+          "raster_pixels": 15388
+        },
+        "root_stem_l": {
+          "visible_iou": 0.0,
+          "baseline_pixels": 1024,
+          "raster_pixels": 0
+        },
+        "root_stem_r": {
+          "visible_iou": 0.9197070204532891,
+          "baseline_pixels": 7086,
+          "raster_pixels": 6805
+        },
+        "root_stem_c": {
+          "visible_iou": 0.5396561286744315,
+          "baseline_pixels": 1762,
+          "raster_pixels": 1014
+        },
+        "root_tip_l": {
+          "visible_iou": 0.0,
+          "baseline_pixels": 105,
+          "raster_pixels": 0
+        },
+        "root_tip_r": {
+          "visible_iou": 0.9804575786463299,
+          "baseline_pixels": 6171,
+          "raster_pixels": 6294
+        },
+        "root_tip_c": {
+          "visible_iou": 0.968401909524892,
+          "baseline_pixels": 4260,
+          "raster_pixels": 4399
+        }
+      },
+      "minimum_visible_iou": 0.0,
+      "minimum_part_silhouette_iou": 0.0,
+      "silhouette_iou": 0.9971226836621461,
+      "minimum_solo_iou": null,
+      "max_joint_error_px": null
+    },
+    "rear": {
+      "parts": {
+        "trunk": {
+          "visible_iou": 0.9940343191749309,
+          "baseline_pixels": 180647,
+          "raster_pixels": 181681
+        },
+        "core": {
+          "visible_iou": 0.978193448342702,
+          "baseline_pixels": 10207,
+          "raster_pixels": 10204
+        },
+        "petal_near_l": {
+          "visible_iou": 0.9500937207122774,
+          "baseline_pixels": 8409,
+          "raster_pixels": 8237
+        },
+        "petal_near_r": {
+          "visible_iou": 0.9539707625444488,
+          "baseline_pixels": 9975,
+          "raster_pixels": 9807
+        },
+        "petal_far_l": {
+          "visible_iou": 0.9379550490661602,
+          "baseline_pixels": 6033,
+          "raster_pixels": 6211
+        },
+        "petal_far_r": {
+          "visible_iou": 0.892944388561575,
+          "baseline_pixels": 6773,
+          "raster_pixels": 6400
+        },
+        "tendril_high_l": {
+          "visible_iou": 0.9841147627345301,
+          "baseline_pixels": 24289,
+          "raster_pixels": 24673
+        },
+        "tendril_high_r": {
+          "visible_iou": 0.9818501170960188,
+          "baseline_pixels": 15093,
+          "raster_pixels": 15372
+        },
+        "tendril_mid_l": {
+          "visible_iou": 0.9867219280067542,
+          "baseline_pixels": 12873,
+          "raster_pixels": 13012
+        },
+        "tendril_low_l": {
+          "visible_iou": 0.0,
+          "baseline_pixels": 229,
+          "raster_pixels": 0
+        },
+        "tendril_low_r": {
+          "visible_iou": 0.9243391066545124,
+          "baseline_pixels": 4182,
+          "raster_pixels": 4262
+        },
+        "root_stem_l": {
+          "visible_iou": 0.5730088495575221,
+          "baseline_pixels": 2236,
+          "raster_pixels": 1319
+        },
+        "root_stem_r": {
+          "visible_iou": 0.0,
+          "baseline_pixels": 322,
+          "raster_pixels": 0
+        },
+        "root_stem_c": {
+          "visible_iou": 0.0,
+          "baseline_pixels": 731,
+          "raster_pixels": 0
+        },
+        "root_tip_l": {
+          "visible_iou": 0.9059967585089141,
+          "baseline_pixels": 559,
+          "raster_pixels": 617
+        },
+        "root_tip_r": {
+          "visible_iou": 1.0,
+          "baseline_pixels": 0,
+          "raster_pixels": 0
+        },
+        "root_tip_c": {
+          "visible_iou": 0.8159509202453987,
+          "baseline_pixels": 133,
+          "raster_pixels": 163
+        }
+      },
+      "minimum_visible_iou": 0.0,
+      "minimum_part_silhouette_iou": 0.0,
+      "silhouette_iou": 0.9973646695932394,
+      "minimum_solo_iou": null,
+      "max_joint_error_px": null
+    },
+    "baseline_files": {
+      "front": "shale_bloomer/mq3_front_v2/refs/02_maquette_front_parts_r9.png",
+      "rear": "shale_bloomer/mq3_rear/refs/01_maquette_rear_parts.png"
+    }
+  },
+  "gust_shrike": {
+    "front": {
+      "parts": {
+        "body": {
+          "visible_iou": 0.9909917155955924,
+          "baseline_pixels": 24681,
+          "raster_pixels": 24827,
+          "solo_iou": 0.9997388897592564
+        },
+        "head": {
+          "visible_iou": 0.9424995772027736,
+          "baseline_pixels": 11693,
+          "raster_pixels": 11279,
+          "solo_iou": 0.9992594421130585
+        },
+        "beak": {
+          "visible_iou": 0.9475,
+          "baseline_pixels": 761,
+          "raster_pixels": 797,
+          "solo_iou": 0.9990783410138249
+        },
+        "mask": {
+          "visible_iou": 0.4104938271604938,
+          "baseline_pixels": 1245,
+          "raster_pixels": 583,
+          "solo_iou": 0.9997485541865728
+        },
+        "wing_near": {
+          "visible_iou": 0.9871808269759988,
+          "baseline_pixels": 56934,
+          "raster_pixels": 57158,
+          "solo_iou": 0.9982567767802667
+        },
+        "wing_far": {
+          "visible_iou": 0.9914918490615054,
+          "baseline_pixels": 45802,
+          "raster_pixels": 46187,
+          "solo_iou": 0.9988294749358998
+        },
+        "tail": {
+          "visible_iou": 0.9745424803189858,
+          "baseline_pixels": 9608,
+          "raster_pixels": 9705,
+          "solo_iou": 0.9978266539163696
+        },
+        "legs": {
+          "visible_iou": 0.9268998793727382,
+          "baseline_pixels": 8290,
+          "raster_pixels": 7684,
+          "solo_iou": 0.9993734335839599
+        }
+      },
+      "minimum_visible_iou": 0.4104938271604938,
+      "minimum_part_silhouette_iou": 0.9978266539163696,
+      "silhouette_iou": 0.9947056678278148,
+      "minimum_solo_iou": 0.9978266539163696,
+      "max_joint_error_px": 0.009999999999990905
+    },
+    "rear": {
+      "parts": {
+        "body": {
+          "visible_iou": 0.9886617694027467,
+          "baseline_pixels": 30969,
+          "raster_pixels": 31296,
+          "solo_iou": 0.9998498188439805
+        },
+        "head": {
+          "visible_iou": 0.9587915407854984,
+          "baseline_pixels": 8243,
+          "raster_pixels": 7966,
+          "solo_iou": 0.9993412384716732
+        },
+        "beak": {
+          "visible_iou": 0.8181818181818182,
+          "baseline_pixels": 63,
+          "raster_pixels": 77,
+          "solo_iou": 0.999061473486626
+        },
+        "mask": {
+          "visible_iou": 0.2746878547105562,
+          "baseline_pixels": 859,
+          "raster_pixels": 264,
+          "solo_iou": 0.9992450931051837
+        },
+        "wing_near": {
+          "visible_iou": 0.9909145736464271,
+          "baseline_pixels": 51094,
+          "raster_pixels": 51241,
+          "solo_iou": 0.9984282970042389
+        },
+        "wing_far": {
+          "visible_iou": 0.9949215664146259,
+          "baseline_pixels": 44107,
+          "raster_pixels": 44278,
+          "solo_iou": 0.9987845841067798
+        },
+        "tail": {
+          "visible_iou": 0.9825575633444551,
+          "baseline_pixels": 30033,
+          "raster_pixels": 29981,
+          "solo_iou": 0.9997727125137996
+        },
+        "legs": {
+          "visible_iou": 0.9138827023014106,
+          "baseline_pixels": 4041,
+          "raster_pixels": 3693,
+          "solo_iou": 0.9987837509121869
+        }
+      },
+      "minimum_visible_iou": 0.2746878547105562,
+      "minimum_part_silhouette_iou": 0.9984282970042389,
+      "silhouette_iou": 0.9963461856302978,
+      "minimum_solo_iou": 0.9984282970042389,
+      "max_joint_error_px": 0.009999999999990905
+    },
+    "baseline_files": {
+      "front": "gust_shrike/mq2_front/refs/01_maquette_front_parts.png",
+      "rear": "gust_shrike/mq2_rear/refs/01_maquette_rear_parts.png",
+      "joints_absolute": "experiments/cutouts/gust_shrike/mq2/source/maquette/joints_px.json",
+      "solos_absolute": "experiments/cutouts/gust_shrike/mq2/source/maquette"
+    }
+  }
+}
