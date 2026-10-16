@@ -18,7 +18,6 @@ MATCH_SECONDS = 0.12
 MIN_CORRELATION = 0.65
 CORRELATION_STRIDE = 48
 DISTINCT_MATCH_S = 0.005  # Separate occurrences, not adjacent samples of one peak.
-AMBIGUITY_CORRELATION_MARGIN = 0.03
 AUDIBLE_THRESHOLD = 10 ** (-40 / 20)
 MEASURE_PREFIXES = ("hit.", "spell.", "hurt.", "status.", "trap.", "block.", "surface.", "impact.", "stoneskin.")
 
@@ -115,7 +114,7 @@ def locate(mix, reference, expected_s):
         raise ValueError(f"low correlation: Cue cannot be separated from recorded mix (correlation {correlation:.3f})")
     competing = [other for confidence, other in dense
                  if abs(other - offset) >= separation
-                 and confidence >= max(MIN_CORRELATION, correlation - AMBIGUITY_CORRELATION_MARGIN)]
+                 and confidence >= MIN_CORRELATION]
     if competing:
         raise ValueError(f"ambiguous PCM match: competing occurrences at {offset / RATE:.6f}s and {competing[0] / RATE:.6f}s")
     dot = sum(sum(m[offset+i] * r[i] for i in range(start, start+width)) for m, r in pairs) / len(pairs)

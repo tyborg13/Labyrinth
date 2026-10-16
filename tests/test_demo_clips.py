@@ -142,24 +142,54 @@ class DemoDirectorTests(unittest.TestCase):
 
 class DemoMediaWrapperTests(unittest.TestCase):
     def test_ffmpeg_wrappers_keep_two_threads(self):
+        def assert_options(command, required):
+            # Presence/count assertions must run even if every option vanished.
+            for flag, count in required.items():
+                self.assertEqual(command.count(flag), count, flag)
+            for index, flag in enumerate(command):
+                if flag in required: self.assertEqual(command[index + 1], "2")
+
         with patch.object(media.subprocess, "run") as run:
             run.return_value.returncode = 0
             run.return_value.stdout = ""
             media.ffmpeg(["-i", "source.avi", "delivery.mp4"])
         command = run.call_args.args[0]
-        for flag in ("-threads", "-filter_threads", "-filter_complex_threads"):
-            self.assertIn(flag, command)
-            self.assertEqual(command[command.index(flag) + 1], "2")
+        assert_options(command, {"-threads": 1, "-filter_threads": 1, "-filter_complex_threads": 1})
         with patch.object(sync.subprocess, "run") as run:
             run.return_value.stdout = b""
             sync.pcm(Path("source.wav"))
         command = run.call_args.args[0]
-        for index, flag in enumerate(command):
-            if flag in ("-threads", "-filter_threads"):
-                self.assertEqual(command[index + 1], "2")
+        assert_options(command, {"-threads": 2, "-filter_threads": 1})
 
 
 class DemoSyncTests(unittest.TestCase):
+    def test_mixed_repeated_hits_with_unequal_correlations_are_unmeasured(self):
+        rules = json.loads((pipeline.ROOT / "data/sfx_cues.json").read_text())["rules"]["sync"]
+        reference, overlap = self.reference(), self.reference(2)
+        peak = sync.rms_peak(reference, rules)
+        mix = array("f", [0.0]) * sync.RATE
+        first = round(0.515 * sync.RATE) - peak
+        second = round(0.615 * sync.RATE) - peak
+        for i, value in enumerate(reference): mix[first + i] += value + 0.75 * overlap[i]
+        # The contaminated first occurrence remains identifiable on its own.
+        found, confidence, _ = sync.locate(mix, reference, 0.5)
+        self.assertEqual(found, first)
+        self.assertGreaterEqual(confidence, sync.MIN_CORRELATION)
+        self.assertLess(confidence, 0.9)
+        for i, value in enumerate(reference): mix[second + i] += value
+        report = {"clip": "mixed_repeated_hits", "fps": 60,
+                  "events": [{"cue": "hit.claw", "frame": frame, "result": "played", "pcm": "cue.wav", "pitch": 1} for frame in (30, 36)],
+                  "frames": [{"frame": frame, "actors": {"player": {"hp": hp}}, "traps": [], "surfaces": []}
+                             for frame, hp in ((0, 12), (30, 10), (36, 8))]}
+        with patch.object(sync, "pcm", side_effect=lambda path, pitch=1: mix if path.name == "movie.wav" else reference):
+            rows, flags = sync.audit(Path("/synthetic"), report, rules)
+        self.assertEqual(flags, [])
+        self.assertEqual(len(rows), 2)
+        for row in rows:
+            self.assertEqual(row["offset_status"], "unmeasured")
+            self.assertIn("ambiguous PCM match", row["reason"])
+            self.assertNotIn("offset_ms", row)
+
     def test_identical_repeated_hits_are_unmeasured_without_false_offset_flags(self):
         rules = json.loads((pipeline.ROOT / "data/sfx_cues.json").read_text())["rules"]["sync"]
         reference = self.reference()

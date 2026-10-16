@@ -197,9 +197,11 @@ can increase it.
 correlation and applies sfx-04's RMS-peak convention. It reports identification
 confidence and labels each row `measured` or `unmeasured`. Candidate selection
 checks distinct waveform peaks as well as the strongest sample-level matches.
-Two separated occurrences within 0.03 correlation of the best match are
-ambiguous and unmeasured; peaks at least 5 ms apart count as distinct. Repeated
-identical cues cannot silently reuse one occurrence. Low correlation,
+Any distinct competing candidate meeting the 0.65 identification threshold
+makes the match ambiguous and unmeasured, regardless of how much stronger the
+best match is; peaks at least 5 ms apart count as distinct. Another overlapping
+sound can weaken a real occurrence's correlation without changing its timing.
+Repeated identical cues cannot silently reuse the cleaner occurrence. Low correlation,
 overlap and ambiguous visual contacts carry reasons, with no invented offset
 or duration. Only measured offsets outside sfx-04 and measured status/trap
 durations above 1.2 seconds produce flags. Status/trap duration is measured from the
@@ -628,3 +630,33 @@ Only Weaver needs a new windowed probe, into a fresh proof directory:
 ```sh
 cd /Users/borgerding/workspace/Labyrinth.worktrees/demo-01 && python3 tools/demo_clips/pipeline.py probe --clip weaver_thornwall --output output/demo-clips-2026-10-15/round-10-probes
 ```
+
+
+## Round-eleven delta-review fixes
+
+Removed the near-best correlation margin from ambiguity rejection. Every
+distinct candidate meeting the existing identification threshold is now a
+competing match, even when another occurrence correlates more strongly.
+
+The new mixed-audio regression places identical correctly aligned hits at
+0.500/0.600 seconds (peaks at 0.515/0.615). An unrelated voice overlaps only
+the first hit at gain 0.75. The test first verifies that this weaker match is
+still individually identifiable, then adds the clean second hit and requires
+both audit rows to be unmeasured with ambiguity reasons and no offset flags.
+Before the fix, `round-11-mixed-before.log` reproduces the false +115.000 ms flag.
+
+The ffmpeg wrapper test now checks exact option counts before values: the
+media wrapper requires one each of `-threads`, `-filter_threads` and
+`-filter_complex_threads`; PCM decoding requires two `-threads` options and
+one `-filter_threads`. Removing any required option is a failure even when
+there are no remaining values to inspect.
+
+Observed focused proof:
+
+- `round-11-focused-tests.log`: `Ran 53 tests in 13.919s` / `OK`, no skips.
+- `round-11-mutation-checks.log`: removing all PCM thread flags, one PCM
+  `-threads`, or `-filter_threads` is caught. Restoring the near-best-only
+  ambiguity rule is also caught by the mixed-audio regression. Mutations were
+  in memory only and restored immediately; production files were not mutated.
+- `git diff --check` passes. No full suite, windowed run or commit was made.
+  Existing owner media, receipts and deliveries were not modified.
