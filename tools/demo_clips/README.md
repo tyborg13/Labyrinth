@@ -195,12 +195,14 @@ can increase it.
 
 `sync.py` locates emitted PCM in the actual recorded mix with waveform
 correlation and applies sfx-04's RMS-peak convention. It reports identification
-confidence and labels each row `measured` or `unmeasured`. Candidate selection
-checks distinct waveform peaks as well as the strongest sample-level matches.
-Any distinct competing candidate meeting the 0.65 identification threshold
-makes the match ambiguous and unmeasured, regardless of how much stronger the
-best match is; peaks at least 5 ms apart count as distinct. Another overlapping
-sound can weaken a real occurrence's correlation without changing its timing.
+confidence and labels each row `measured` or `unmeasured`. It computes dense
+correlation at every sample offset across the entire search window, with no
+candidate shortlist. Any second local peak at correlation >= 0.5 makes the
+match ambiguous and unmeasured, regardless of how much stronger the best match
+is. Peaks are distinct when separated by at least the cue template's own
+autocorrelation main-lobe width at half height (the contiguous sample count at
+>= 0.5, including lag zero). Another overlapping sound can weaken a real
+occurrence's correlation without changing its timing.
 Repeated identical cues cannot silently reuse the cleaner occurrence. Low correlation,
 overlap and ambiguous visual contacts carry reasons, with no invented offset
 or duration. Only measured offsets outside sfx-04 and measured status/trap
@@ -287,9 +289,9 @@ Only non-player-facing implementation/test values were chosen:
 - Clock epoch 10,000,000 microseconds, inherited from the existing sync harness;
   frame zero is still movie time zero in logs.
 - Analysis rate 48 kHz in stereo (0.021 ms resolution), ±0.25-second waveform search,
-  0.12-second identification window, minimum correlation 0.65. Deliverable audio
-  remains 48 kHz. The initial correlation search samples every 48th sample,
-  then verifies its candidates at full resolution. Ambiguous analysis is
+  0.12-second identification window, minimum correlation 0.65, competing-peak
+  ambiguity threshold 0.5. Deliverable audio remains 48 kHz. Correlation uses
+  every sample at every search offset before checking ambiguity. Ambiguous analysis is
   reported as unmeasured, without shifting audio. Stereo RMS and max-channel tail levels prevent
   cancellation from hiding an audible cue.
 - 1 MiB streaming hash chunks for bounded-memory media integrity checks.
@@ -658,5 +660,36 @@ Observed focused proof:
   `-threads`, or `-filter_threads` is caught. Restoring the near-best-only
   ambiguity rule is also caught by the mixed-audio regression. Mutations were
   in memory only and restored immediately; production files were not mutated.
+- `git diff --check` passes. No full suite, windowed run or commit was made.
+  Existing owner media, receipts and deliveries were not modified.
+
+## Round-twelve dense ambiguity guard
+
+Removed the sparse search and its candidate shortlist. Every offset in the
+full ±0.25-second search window now receives a correlation computed from every
+sample in the identification template. Before accepting any measurement, the
+analyzer rejects any second local peak at correlation >= 0.5 separated from
+the best peak by at least the template's autocorrelation half-height width.
+The sync table remains informational and does not block recording or encoding.
+
+The seed-7 regression preserves the first hit's individual-identifiability
+check, then requires both repeated-hit audit rows to be unmeasured with
+ambiguity reasons and no offset flags. The overlap-seed sweep applies those
+audit assertions to every seed from 1 through 20. Additional cases cover a
+competitor below 0.65, the exact 0.5 boundary, peaks less than 5 ms apart,
+cue-derived peak widths and periodic side peaks. The duration fixture now
+uses a distinct noise transient; its former tonal onset is ambiguous under
+the requested conservative rule. The duration and obscured-tail assertions
+are preserved.
+
+Observed focused proof:
+
+- `round-12-seed-7-before.log` reproduces the false +115.000 ms flag on the
+  prior implementation; `round-12-seed-7-after.log` passes.
+- `round-12-guard-checks.log`: raising the ambiguity threshold to 0.65,
+  excluding exactly 0.5, restoring fixed 5 ms separation and bypassing the
+  ambiguity guard are all caught. These mutations ran in memory and were
+  restored without modifying production files.
+- `round-12-focused-tests.log`: `Ran 60 tests in 79.733s` / `OK`, no skips.
 - `git diff --check` passes. No full suite, windowed run or commit was made.
   Existing owner media, receipts and deliveries were not modified.

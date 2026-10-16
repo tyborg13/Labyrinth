@@ -9,6 +9,7 @@ from __future__ import annotations
 from array import array
 import json
 import math
+from operator import mul
 from pathlib import Path
 import subprocess
 
@@ -16,8 +17,7 @@ RATE = 48000  # Preserve the recorded stereo RMS envelope (0.021 ms precision).
 SEARCH_SECONDS = 0.25
 MATCH_SECONDS = 0.12
 MIN_CORRELATION = 0.65
-CORRELATION_STRIDE = 48
-DISTINCT_MATCH_S = 0.005  # Separate occurrences, not adjacent samples of one peak.
+AMBIGUOUS_CORRELATION = 0.5
 AUDIBLE_THRESHOLD = 10 ** (-40 / 20)
 MEASURE_PREFIXES = ("hit.", "spell.", "hurt.", "status.", "trap.", "block.", "surface.", "impact.", "stoneskin.")
 
@@ -68,6 +68,22 @@ def rms_peak(samples, rules):
     return next((i for i in range(1, len(powers) - 1) if powers[i] >= floor and powers[i] > powers[i - 1] and powers[i] >= powers[i + 1]), peak)
 
 
+def correlation_peak_width(template):
+    """Sample width of the cue's autocorrelation main lobe at half height.
+
+    Autocorrelation is symmetric about lag zero. Count the contiguous samples
+    at >= 0.5, including zero, so adjacent samples of one broad peak do not
+    become separate occurrences. Periodic side lobes remain competing peaks.
+    """
+    power = sum(sum(map(mul, track, track)) for track in template)
+    width = len(template[0])
+    for lag in range(1, width):
+        dot = sum(sum(map(mul, track[lag:], track[:-lag])) for track in template)
+        if dot < AMBIGUOUS_CORRELATION * power:
+            return 2 * lag - 1
+    return 2 * width - 1
+
+
 def locate(mix, reference, expected_s):
     # Locate the most energetic 120 ms section; sparse impulses and a quiet
     # leading pad cannot make silent frames look like a successful match.
@@ -84,39 +100,35 @@ def locate(mix, reference, expected_s):
     radius = round(SEARCH_SECONDS * RATE)
     pairs = list(zip(channels(mix), channels(reference)))
     if len(channels(mix)) != len(channels(reference)): raise ValueError("Mix/reference channel mismatch")
+    template = [r[start:start + width] for _, r in pairs]
+    ref_power = sum(sum(map(mul, track, track)) for track in template)
 
-    def score(offset, stride):
+    def score(offset):
         if offset + start < 0 or offset + start + width > len(mix): return -1.0
-        dot = power = ref_power = 0.0
-        for mix_channel, ref_channel in pairs:
-            for i in range(start, start + width, stride):
-                value, target = mix_channel[offset + i], ref_channel[i]
-                dot += value * target
-                power += value * value
-                ref_power += target * target
+        dot = power = 0.0
+        for (mix_channel, _), target in zip(pairs, template):
+            segment = mix_channel[offset + start:offset + start + width]
+            dot += sum(map(mul, segment, target))
+            power += sum(map(mul, segment, segment))
         return dot / math.sqrt(max(1e-30, power * ref_power))
 
-    # Examine all sample offsets with a sparse waveform, then score the best
-    # candidates densely. A coarse offset grid misses high-frequency cues.
-    ranked = sorted(((score(i, CORRELATION_STRIDE), i) for i in range(expected - radius, expected + radius + 1)), reverse=True)
-    # Preserve the best sample-level matches and also examine distinct peaks.
-    # Otherwise all finalists can cluster around one of two identical hits.
-    distinct = []
-    separation = round(DISTINCT_MATCH_S * RATE)
-    for sparse_score, candidate in ranked:
-        if all(abs(candidate - other) >= separation for other in distinct):
-            distinct.append(candidate)
-            if len(distinct) == 12: break
-    offsets = {i for _, i in ranked[:12]} | set(distinct)
-    dense = sorted(((score(i, 1), i) for i in offsets), reverse=True)
-    correlation, offset = dense[0]
+    # Every offset in the search window is scored with every template sample.
+    # A sparse shortlist cannot establish the absence of another occurrence:
+    # overlapping audio can lower its sparse rank while it remains identifiable.
+    first = expected - radius
+    dense = [score(i) for i in range(first, expected + radius + 1)]
+    best = max(range(len(dense)), key=dense.__getitem__)
+    correlation, offset = dense[best], first + best
+    separation = correlation_peak_width(template)
+    competing = next((i for i, confidence in enumerate(dense)
+                      if confidence >= AMBIGUOUS_CORRELATION
+                      and abs(i - best) >= separation
+                      and (i == 0 or confidence > dense[i - 1])
+                      and (i == len(dense) - 1 or confidence >= dense[i + 1])), None)
+    if competing is not None:
+        raise ValueError(f"ambiguous PCM match: competing occurrences at {offset / RATE:.6f}s and {(first + competing) / RATE:.6f}s")
     if correlation < MIN_CORRELATION:
         raise ValueError(f"low correlation: Cue cannot be separated from recorded mix (correlation {correlation:.3f})")
-    competing = [other for confidence, other in dense
-                 if abs(other - offset) >= separation
-                 and confidence >= MIN_CORRELATION]
-    if competing:
-        raise ValueError(f"ambiguous PCM match: competing occurrences at {offset / RATE:.6f}s and {competing[0] / RATE:.6f}s")
     dot = sum(sum(m[offset+i] * r[i] for i in range(start, start+width)) for m, r in pairs) / len(pairs)
     gain = dot / best_energy
     return offset, correlation, gain

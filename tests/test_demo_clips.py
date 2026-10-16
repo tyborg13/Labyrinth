@@ -164,18 +164,52 @@ class DemoMediaWrapperTests(unittest.TestCase):
 
 class DemoSyncTests(unittest.TestCase):
     def test_mixed_repeated_hits_with_unequal_correlations_are_unmeasured(self):
+        self.assert_mixed_repeated_hits_unmeasured(2)
+
+    def test_seed_7_repeated_hits_cannot_drop_the_contaminated_occurrence(self):
+        self.assert_mixed_repeated_hits_unmeasured(7)
+
+    def test_overlap_seeds_1_through_20_never_produce_a_false_measured_offset(self):
+        for seed in range(1, 21):
+            with self.subTest(overlap_seed=seed):
+                self.assert_mixed_repeated_hits_unmeasured(seed, check_first=False)
+
+    def test_competing_peak_below_identification_threshold_is_still_ambiguous(self):
+        self.assert_mixed_repeated_hits_unmeasured(7, overlap_gain=1.25, check_first=False)
+
+    def test_competing_peak_at_exactly_half_correlation_is_ambiguous(self):
+        reference = array("f", [1.0] + [0.0] * 95)
+        mix = array("f", [0.0]) * 1000
+        # The first window's dot product is 1, with powers 1 and 4: r = 0.5.
+        # Negative samples add energy without introducing positive cue peaks.
+        mix[100:104] = array("f", [1, -1, -1, -1])
+        mix[200] = 1.0
+        with self.assertRaisesRegex(ValueError, "ambiguous PCM match"):
+            sync.locate(mix, reference, 200 / sync.RATE)
+
+    def assert_mixed_repeated_hits_unmeasured(self, seed, overlap_gain=0.75, check_first=True):
         rules = json.loads((pipeline.ROOT / "data/sfx_cues.json").read_text())["rules"]["sync"]
-        reference, overlap = self.reference(), self.reference(2)
+        reference, overlap = self.reference(), self.reference(seed)
         peak = sync.rms_peak(reference, rules)
         mix = array("f", [0.0]) * sync.RATE
         first = round(0.515 * sync.RATE) - peak
         second = round(0.615 * sync.RATE) - peak
-        for i, value in enumerate(reference): mix[first + i] += value + 0.75 * overlap[i]
+        for i, value in enumerate(reference): mix[first + i] += value + overlap_gain * overlap[i]
+        if overlap_gain > 1:
+            # This competitor is below the 0.65 measurement threshold, but
+            # above the conservative 0.5 ambiguity threshold.
+            dot = sum(value * mix[first + i] for i, value in enumerate(reference))
+            power = sum(value * value for value in reference)
+            mixed_power = sum(mix[first + i] ** 2 for i in range(len(reference)))
+            confidence = dot / math.sqrt(power * mixed_power)
+            self.assertGreaterEqual(confidence, 0.5)
+            self.assertLess(confidence, sync.MIN_CORRELATION)
         # The contaminated first occurrence remains identifiable on its own.
-        found, confidence, _ = sync.locate(mix, reference, 0.5)
-        self.assertEqual(found, first)
-        self.assertGreaterEqual(confidence, sync.MIN_CORRELATION)
-        self.assertLess(confidence, 0.9)
+        if check_first:
+            found, confidence, _ = sync.locate(mix, reference, 0.5)
+            self.assertEqual(found, first)
+            self.assertGreaterEqual(confidence, sync.MIN_CORRELATION)
+            self.assertLess(confidence, 0.9)
         for i, value in enumerate(reference): mix[second + i] += value
         report = {"clip": "mixed_repeated_hits", "fps": 60,
                   "events": [{"cue": "hit.claw", "frame": frame, "result": "played", "pcm": "cue.wav", "pitch": 1} for frame in (30, 36)],
@@ -189,6 +223,28 @@ class DemoSyncTests(unittest.TestCase):
             self.assertEqual(row["offset_status"], "unmeasured")
             self.assertIn("ambiguous PCM match", row["reason"])
             self.assertNotIn("offset_ms", row)
+
+    def test_distinct_peaks_closer_than_five_ms_are_ambiguous(self):
+        reference = self.reference()
+        mix = array("f", [0.0]) * 12000
+        for offset in (3201, 3345):
+            for i, value in enumerate(reference): mix[offset + i] += value
+        with self.assertRaisesRegex(ValueError, "ambiguous PCM match"):
+            sync.locate(mix, reference, 3201 / sync.RATE)
+
+    def test_separation_uses_the_cues_autocorrelation_peak_width(self):
+        broad = array("f", [0, 1, 2, 3, 2, 1, 0])
+        impulse = array("f", [0, 0, 1, 0, 0, 0, 0])
+        self.assertEqual(sync.correlation_peak_width([broad]), 5)
+        self.assertEqual(sync.correlation_peak_width([impulse]), 1)
+        self.assertEqual(sync.correlation_peak_width([broad, broad]), 5)
+
+    def test_periodic_side_peaks_are_ambiguous_even_with_one_cue(self):
+        reference = array("f", [1, -1] * 48)
+        mix = array("f", [0.0]) * 1000
+        mix[200:200 + len(reference)] = reference
+        with self.assertRaisesRegex(ValueError, "ambiguous PCM match"):
+            sync.locate(mix, reference, 200 / sync.RATE)
 
     def test_identical_repeated_hits_are_unmeasured_without_false_offset_flags(self):
         rules = json.loads((pipeline.ROOT / "data/sfx_cues.json").read_text())["rules"]["sync"]
@@ -284,7 +340,9 @@ class DemoSyncTests(unittest.TestCase):
         rules = json.loads((pipeline.ROOT/"data/sfx_cues.json").read_text())["rules"]["sync"]
         rng = random.Random(410)
         reference = array("f", (rng.uniform(-1, 1)*0.03 for _ in range(round(SYNTHETIC_LONG_STATUS_S*sync.RATE))))
-        for i in range(400): reference[i] += 0.3*math.sin(i*0.7)*math.exp(-((i-180)/60)**2)
+        # A distinct noise transient identifies this duration fixture. A tonal
+        # onset has periodic correlation side peaks and is now ambiguous.
+        for i in range(400): reference[i] += 0.3*rng.uniform(-1, 1)*math.exp(-((i-180)/60)**2)
         peak = sync.rms_peak(reference, rules)
         mix = array("f", [0.0])*round(3.0*sync.RATE)
         offset = round(0.515*sync.RATE)-peak
