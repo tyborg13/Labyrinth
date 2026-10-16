@@ -1,0 +1,7 @@
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-03/tools/art_identity_gate.py:244: RuntimeWarning: divide by zero encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-03/tools/art_identity_gate.py:244: RuntimeWarning: overflow encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+/Users/borgerding/workspace/Labyrinth.worktrees/rr-03/tools/art_identity_gate.py:244: RuntimeWarning: invalid value encountered in matmul
+  xyz = linear @ LAB_MATRIX.T / LAB_WHITE
+SHRIKE MOTION GATES: PASS

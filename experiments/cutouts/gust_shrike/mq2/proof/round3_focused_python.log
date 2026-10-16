@@ -1,0 +1,20 @@
+test_approved_processed_paint_still_matches_protected_record (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_bird_recipe_keeps_six_groups_and_head_materials_together (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_director_dive_recovery_keys_keep_the_six_frame_clock (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_director_round2_snap_starts_at_key_then_holds (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_island_rest_bridge_does_not_keep_wrong_moving_owner (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_missing_inputs_fail_before_creating_or_mutating_a_case (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_missing_or_changed_hashes_cannot_pass_proof (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_native_and_cpu_gates_reject_failed_or_incomplete_samples (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_non_1024_raw_registration_scales_all_render_coordinates_once (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_pixel_gates_reject_empty_magenta_specks_and_clipping (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_redundant_underlay_requires_identical_rigid_bone_and_complete_cover (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_semantic_directions_come_from_each_exported_view (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_sparse_reference_stays_in_view_and_material_and_uses_nearest (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_step2_interpolation_uses_two_frames_without_changing_director_data (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+test_thin_hidden_fill_keeps_midtones_without_changing_visible_pixels (test_gust_shrike_cutout.ShrikeCutoutTests) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 0.057s
+
+OK

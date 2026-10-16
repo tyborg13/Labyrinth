@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "capture": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-03/experiments/cutouts/gust_shrike/native_v04",
+  "render_verification": {
+    "ok": true,
+    "inputs": 3202,
+    "outputs": 2783,
+    "errors": []
+  },
+  "rest_identity": "both approved RGBA paintings equal native rest",
+  "proof_manifest_sha256": "6c6f51d5a628e34a5f60f39519971231ac0893f53ff4464ad59c8c242af862d0",
+  "native_motion_gates": "PASS"
+}

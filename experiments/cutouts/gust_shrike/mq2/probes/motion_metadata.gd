@@ -15,6 +15,7 @@ const ShrikeFixture = preload("res://tests/suites/en05_enemies_suite.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const RunEngine = preload("res://scripts/run_engine.gd")
+const CaptureViewport = preload("res://tests/gust_shrike_capture_viewport.gd")
 
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
@@ -52,8 +53,9 @@ func _run() -> void:
 	settings["ui_scale"] = 1.0
 	Settings.save_settings(settings)
 	Settings.apply_settings(settings, root, false)
+	var viewport: SubViewport = CaptureViewport.create(root)
 	var scene: Control = load("res://scenes/run_scene.tscn").instantiate()
-	root.add_child(scene)
+	viewport.add_child(scene)
 	for frame: int in range(Fixtures.LIVE_SETTLE_FRAMES): await process_frame
 	scene._load_run_state(RunEngine.new().create_new_run(Fixtures.TEST_SEED, Store.default_data()))
 	Fixtures.install(scene, ShrikeFixture.shrike())

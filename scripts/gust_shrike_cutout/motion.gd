@@ -86,14 +86,16 @@ static func sample_tracks(clip: String, phase: float, layout: Dictionary, facing
 		var bind: Vector2 = _point(joints[name]["position"])
 		# Sibling bones avoid transmitting breathing scale into rigid feathers,
 		# the beak or the feet. The idle head holds its world-space look pose.
-		var planted: bool = name == "legs" and (clip in ["idle", "hit", "death"] or (clip == "move" and float(values.get("body_y", 0.0)) >= 0.0))
+		# Death's authored lift, side roll and drop carry the whole bird. The
+		# director's planted-foot rule applies to idle/hit and grounded crouches.
+		var planted: bool = name == "legs" and (clip in ["idle", "hit"] or (clip == "move" and float(values.get("body_y", 0.0)) >= 0.0))
 		var held_head: bool = name == "head" and clip == "idle"
 		var origin: Vector2 = bind if planted or held_head else body * (bind - pivot)
 		var angle: float = 0.0 if planted or held_head else body_angle
 		angle += deg_to_rad(float(values.get(name + "_angle", 0.0)))
 		if planted:
 			# Grounded rotations pivot at the exported foot/root contact, so a
-			# crouch or the authored collapse cannot rotate the talons off it.
+			# crouch cannot rotate the talons off it.
 			origin = root_position + (bind - root_position).rotated(angle)
 		origin += (Vector2(float(values.get(name + "_x", 0.0)), float(values.get(name + "_y", 0.0))) + forward * float(values.get(name + "_forward", 0.0))) / pixels_per_source
 		result[name] = {"position": origin - root_position, "rotation": angle}

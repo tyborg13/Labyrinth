@@ -1,7 +1,7 @@
 # rr-03 implementation handoff — incomplete, uncommitted
 
-**This is the round-0 record. See [ROUND2.md](ROUND2.md) for current status,
-gate results and exact proof commands. [ROUND1.md](ROUND1.md)
+**This is the round-0 record. See [ROUND3.md](ROUND3.md) for current status,
+gate results and native_v02 commands. [ROUND2.md](ROUND2.md) and [ROUND1.md](ROUND1.md)
 records the original build.**
 
 No art was generated, painted, downloaded or changed. No Blender/windowed run,

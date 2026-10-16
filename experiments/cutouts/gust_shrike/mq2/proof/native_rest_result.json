@@ -1,0 +1,130 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 255,
+          "luma_max": 154.1496,
+          "luma_mean": 16.015291589388518,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 29.028753258334,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792108015649528000-85921-native_rest-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792108015649528000-85921-native_rest-1/probes/maquette_rest/front_rest.png",
+          "width": 255
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 79.24534440445721,
+          "luma_min": 5.944999999999999,
+          "luma_range": 249.05499999999998,
+          "luma_stdev": 22.817525527895,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792108015649528000-85921-native_rest-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792108015649528000-85921-native_rest-1/probes/maquette_rest/front_rest_ownership.png",
+          "width": 1920
+        },
+        {
+          "height": 255,
+          "luma_max": 155.5828,
+          "luma_mean": 15.915099349481086,
+          "luma_min": 0.0,
+          "luma_range": 155.5828,
+          "luma_stdev": 28.933425756261872,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792108015649528000-85921-native_rest-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792108015649528000-85921-native_rest-1/probes/maquette_rest/rear_rest.png",
+          "width": 255
+        },
+        {
+          "height": 1080,
+          "luma_max": 254.99999999999997,
+          "luma_mean": 78.27488741695564,
+          "luma_min": 5.3662,
+          "luma_range": 249.63379999999998,
+          "luma_stdev": 19.441110308748776,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792108015649528000-85921-native_rest-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792108015649528000-85921-native_rest-1/probes/maquette_rest/rear_rest_ownership.png",
+          "width": 1920
+        }
+      ],
+      "namespace": "rr-03-1792108015649528000-85921-native_rest-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--audio-driver",
+    "Dummy",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-03",
+    "--script",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-03/experiments/cutouts/gust_shrike/mq2/probes/native_rest.gd",
+    "--",
+    "--case",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-03/experiments/cutouts/gust_shrike/mq2/cutout.json"
+  ],
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ],
+    [
+      255,
+      255
+    ]
+  ],
+  "images": [
+    {
+      "height": 255,
+      "luma_max": 154.1496,
+      "luma_mean": 16.015291589388518,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 29.028753258334,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792108015649528000-85921-native_rest-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792108015649528000-85921-native_rest-1/probes/maquette_rest/front_rest.png",
+      "width": 255
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 79.24534440445721,
+      "luma_min": 5.944999999999999,
+      "luma_range": 249.05499999999998,
+      "luma_stdev": 22.817525527895,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792108015649528000-85921-native_rest-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792108015649528000-85921-native_rest-1/probes/maquette_rest/front_rest_ownership.png",
+      "width": 1920
+    },
+    {
+      "height": 255,
+      "luma_max": 155.5828,
+      "luma_mean": 15.915099349481086,
+      "luma_min": 0.0,
+      "luma_range": 155.5828,
+      "luma_stdev": 28.933425756261872,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792108015649528000-85921-native_rest-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792108015649528000-85921-native_rest-1/probes/maquette_rest/rear_rest.png",
+      "width": 255
+    },
+    {
+      "height": 1080,
+      "luma_max": 254.99999999999997,
+      "luma_mean": 78.27488741695564,
+      "luma_min": 5.3662,
+      "luma_range": 249.63379999999998,
+      "luma_stdev": 19.441110308748776,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792108015649528000-85921-native_rest-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792108015649528000-85921-native_rest-1/probes/maquette_rest/rear_rest_ownership.png",
+      "width": 1920
+    }
+  ],
+  "namespace": "rr-03-1792108015649528000-85921-native_rest-1",
+  "ok": true,
+  "proof_contract": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-03/experiments/cutouts/gust_shrike/mq2/probes/rest_contract.json",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-03/experiments/cutouts/gust_shrike/mq2/probes/native_rest.gd"
+}

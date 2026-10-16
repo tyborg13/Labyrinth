@@ -150,8 +150,8 @@ def sample_errors(config, samples):
     return errors
 
 
-def motion_contracts(samples, layouts):
-    """Reject a finite but motionless rig; check the brief's numeric excursions."""
+def motion_contracts(samples, layouts, director):
+    """Check sampled excursions against the current protected authored keys."""
     errors = []
     def require(condition, label):
         if not condition: errors.append(label)
@@ -170,14 +170,15 @@ def motion_contracts(samples, layouts):
                                for name in ["head", "wing_near", "wing_far", "tail", "legs"]}
             label = view + "/" + clip + ": "
             if clip == "idle":
+                keys = director["idle"]["keys"]
                 require(np.max(np.abs(dy)) < .02 and np.max(np.abs(body_angle)) < .02, label + "no body bob/tilt")
                 require(all(np.allclose(b["legs"], bones[0]["legs"], atol=.02) for b in bones), label + "planted feet")
                 scale = [math.hypot(b["body"][2], b["body"][3]) for b in bones]
-                require(abs(max(scale) - 1.02) <= SCALE_TOLERANCE and min(scale) >= 1 - SCALE_TOLERANCE, label + "2% breathing")
-                require(np.ptp(relative_angles["head"]) > ANGLE_TOLERANCE_DEG and np.max(np.abs(relative_angles["head"])) <= 6 + ANGLE_TOLERANCE_DEG, label + "independent head looks")
-                require(abs(np.max(np.abs(relative_angles["tail"])) - 4) <= ANGLE_TOLERANCE_DEG, label + "4deg tail flick")
+                require(abs(max(scale) - max(k["v"] for k in keys["body.squash"])) <= SCALE_TOLERANCE and min(scale) >= 1 - SCALE_TOLERANCE, label + "authored breathing")
+                require(abs(np.max(np.abs(relative_angles["head"])) - max(abs(k["tilt_deg"]) for k in keys["head"]["keys"])) <= ANGLE_TOLERANCE_DEG, label + "independent head looks")
+                require(abs(np.max(np.abs(relative_angles["tail"])) - max(abs(k["v"]) for k in keys["tail.lift_deg"])) <= ANGLE_TOLERANCE_DEG, label + "authored tail flick")
                 for wing in ["wing_near", "wing_far"]:
-                    require(1 <= np.max(np.abs(relative_angles[wing])) <= 2 + ANGLE_TOLERANCE_DEG, label + "2deg " + wing + " settle")
+                    require(abs(np.max(np.abs(relative_angles[wing])) - max(abs(k["v"]) for k in keys[wing + ".raise_deg"])) <= ANGLE_TOLERANCE_DEG, label + "authored " + wing + " settle")
                 require(not np.allclose(relative_angles["wing_near"], relative_angles["wing_far"]), label + "wings out of phase")
             elif clip == "move":
                 require(abs(min(dy) + 24) <= PIXEL_TOLERANCE, label + "24px apex")
@@ -202,13 +203,19 @@ def motion_contracts(samples, layouts):
                     values = relative_angles[wing]
                     require(abs(max(values) - 30) <= ANGLE_TOLERANCE_DEG and abs(min(values) + 30) <= ANGLE_TOLERANCE_DEG, label + "30deg " + wing + " beats")
             elif clip == "hit":
-                require(abs(np.max(np.abs(relative_angles["head"])) - 8) <= ANGLE_TOLERANCE_DEG, label + "8deg head jerk")
+                keys = director["hit"]["keys"]
+                travel = [np.linalg.norm(np.array(b["body"][4:6]) - layout["joints"]["body"]["position"]) * pixel_scale for b in bones]
+                require(abs(max(travel) - max(k["recoil_px"] for k in keys)) <= PIXEL_TOLERANCE, label + "authored recoil distance")
+                require(abs(np.max(np.abs(relative_angles["head"])) - max(abs(k["head_tilt"]) for k in keys)) <= ANGLE_TOLERANCE_DEG, label + "authored head jerk")
                 for wing in ["wing_near", "wing_far"]:
-                    require(abs(np.max(np.abs(relative_angles[wing])) - 10) <= ANGLE_TOLERANCE_DEG, label + "10deg wing jolt")
+                    require(abs(np.max(np.abs(relative_angles[wing])) - max(abs(k["wings_raise"]) for k in keys)) <= ANGLE_TOLERANCE_DEG, label + "authored wing jolt")
             elif clip == "death":
-                require(abs(abs(body_angle[-1]) - 25) <= ANGLE_TOLERANCE_DEG, label + "terminal 25deg tilt")
+                terminal = director["death"]["keys"][-1]
+                require(abs(abs(body_angle[-1]) - abs(terminal["roll"])) <= ANGLE_TOLERANCE_DEG, label + "authored terminal side roll")
+                require(abs(dy[-1] + terminal["lift"]) <= PIXEL_TOLERANCE, label + "authored terminal drop")
+                require(abs(abs(relative_angles["legs"][-1]) - abs(terminal["legs"])) <= ANGLE_TOLERANCE_DEG, label + "legs follow collapse")
                 for wing in ["wing_near", "wing_far"]:
-                    require(abs(abs(relative_angles[wing][-1]) - 30) <= ANGLE_TOLERANCE_DEG, label + "terminal 30deg wing droop")
+                    require(abs(abs(relative_angles[wing][-1]) - abs(terminal["wings_raise"])) <= ANGLE_TOLERANCE_DEG, label + "authored terminal wing droop")
     return errors
 
 
@@ -227,7 +234,7 @@ def cpu_gates(root, output):
     bound_inputs(root, samples["inputs"])
     errors = source_gates(root) + sample_errors(config, samples)
     layouts = {v: read_json(root / p) for v, p in config["layouts"].items()}
-    errors += motion_contracts(samples["samples"], layouts)
+    errors += motion_contracts(samples["samples"], layouts, read_json(root / "director_motion.json"))
     records = [{k: s[k] for k in ["view", "clip", "frame"]} | frame_counts(rasterize(root, layouts[s["view"]], s)[0])
                for s in samples["samples"]]
     return finish(root, records, errors, output, "CPU nearest-raster diagnostic; NOT native proof")
@@ -241,7 +248,7 @@ def native_gates(root, output):
     samples = read_json(root / "proof/motion_samples.json")
     bound_inputs(root, samples["inputs"])
     errors = source_gates(root) + sample_errors(config, samples)
-    errors += motion_contracts(samples["samples"], {v: read_json(root / p) for v, p in config["layouts"].items()})
+    errors += motion_contracts(samples["samples"], {v: read_json(root / p) for v, p in config["layouts"].items()}, read_json(root / "director_motion.json"))
     capture = output / "motion_gate_capture"
     bound_inputs(capture, read_json(capture / "sha256.json"))
     manifest = read_json(capture / "native_motion_manifest.json")

@@ -6,6 +6,7 @@ const Action = preload("res://scripts/gust_shrike_cutout/action.gd")
 const Renderer = preload("res://scripts/gust_shrike_cutout/renderer.gd")
 const Facing = preload("res://scripts/enemy_cutout_facing.gd")
 const Fx = preload("res://scripts/attack_fx_library.gd")
+const CaptureViewport = preload("res://tests/gust_shrike_capture_viewport.gd")
 const FIXTURE_CONTACT: float = 0.5
 const FIXTURE_LAYOUT: Dictionary = {"screen_pixel_scale": 1.0, "joints": {
 	"root": {"position": [100, 220], "parent": null},
@@ -26,7 +27,7 @@ func _run() -> void:
 		{"at": 1, "value": Data.BREATH_SCALE_Y, "interpolation": "linear"}]}]
 	var pose: Dictionary = Motion.sample_tracks("idle", 1, FIXTURE_LAYOUT, "front", tracks)
 	_expect(pose["body"]["position"] == Vector2.ZERO, "Idle body pivot never bobs")
-	_expect(pose["body"]["scale"] == Vector2(1, 1.02), "Breath is the brief's +2% Y scale")
+	_expect(pose["body"]["scale"] == Vector2(1, 1.03), "Breath is the director r2 +3% Y scale")
 	_expect(pose["legs"]["position"] == Vector2(0, -15), "Breath leaves feet planted")
 	_expect(pose["head"]["position"] == Vector2(-30, -70), "Idle look holds independently of breathing")
 	_expect(not pose["head"].has("scale") and pose["wing_near"]["scale"] == Vector2.ONE, "No breathing scale leaks into rigid head or wings")
@@ -86,12 +87,25 @@ func _run() -> void:
 		pose = Motion.sample_pose("hover", 0.15, FIXTURE_LAYOUT, view)
 		_expect(is_equal_approx(pose["body"]["position"].y, -4) and is_zero_approx(pose["body"]["rotation"]), "Hover is level at the director's 4px lift")
 		pose = Motion.sample_pose("death", 1, FIXTURE_LAYOUT, view)
-		_expect(is_equal_approx(rad_to_deg(pose["body"]["rotation"]), 25 * Data.PROJECTION[view]["roll_sign"]), "Collapse tilts toward the projected far side in " + view)
-		var leg: Transform2D = Transform2D(pose["legs"]["rotation"], pose["legs"]["position"])
-		_expect((leg * Vector2(0, 15)).is_zero_approx(), "Grounded collapse keeps the exported foot contact fixed in " + view)
+		_expect(is_equal_approx(rad_to_deg(pose["body"]["rotation"]), 70 * Data.PROJECTION[view]["roll_sign"]) and is_equal_approx(pose["body"]["position"].y, 10), "Director r2 collapse rolls 70 degrees and drops 10px in " + view)
+		_expect(is_equal_approx(rad_to_deg(pose["legs"]["rotation"] - pose["body"]["rotation"]), 20 * Data.PROJECTION[view]["legs_sign"]), "Death carries legs with the body and authored relative reach in " + view)
+		pose = Motion.sample_pose("death", 0.25, FIXTURE_LAYOUT, view)
+		_expect(is_equal_approx(pose["body"]["position"].y, -4) and not pose["legs"]["position"].is_equal_approx(Vector2(0, -15)), "Death's explicit 4px lift releases the planted feet in " + view)
 	scaled_layout["recoil_direction"] = Vector2.RIGHT
 	pose = Motion.sample_pose("hit", 0.15, scaled_layout, "front")
-	_expect(is_equal_approx(pose["body"]["position"].x * 0.5, 3), "Hit travels 3 screen pixels along the resolved recoil vector")
+	_expect(is_equal_approx(pose["body"]["position"].x * 0.5, 5), "Hit travels 5 screen pixels along the resolved recoil vector")
+	# A reduced root window reproduces the Retina clamp without a GUI renderer.
+	var original_size: Vector2i = root.size
+	root.size = Vector2i(800, 450)
+	var viewport: SubViewport = CaptureViewport.create(root)
+	var content := Control.new()
+	viewport.add_child(content)
+	content.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	await process_frame
+	_expect(viewport.size == Vector2i(1920, 1080) and content.size == Vector2(1920, 1080), "Clamped root leaves production capture and content at fixed 1920x1080")
+	_expect(viewport.world_2d != root.world_2d and viewport.render_target_update_mode == SubViewport.UPDATE_ALWAYS, "Capture owns an independent canvas and updates every frame")
+	viewport.free()
+	root.size = original_size
 	var scene: Script = load("res://scripts/run_scene.gd")
 	_expect(scene != null, "Production integration parses with the unmodified runtime")
 	for error: String in failures: push_error(error)

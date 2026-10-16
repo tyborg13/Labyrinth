@@ -9,10 +9,12 @@ const Data = preload("res://scripts/game_data.gd")
 const Run = preload("res://scripts/run_engine.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const Settings = preload("res://scripts/settings_store.gd")
+const CaptureViewport = preload("res://tests/gust_shrike_capture_viewport.gd")
 const SIZE := Vector2i(1920, 1080)
 const OUTPUT: String = "user://probes/gust_shrike_cutout"
 const SETTLE_FRAMES: int = 8
 const RECORD_FPS: float = 30.0
+const MIN_REAL_BOARD_FRAMES: int = 76
 const TEST_MOVE_TARGET := Vector2i(2, 3)
 const TEST_MELEE_ORIGIN := Vector2i(5, 4)
 const REQUIRED_CLIPS := ["idle", "move", "dive", "talon_rake", "hover", "hit", "death"]
@@ -23,6 +25,7 @@ var _seen: Dictionary = {}
 var _errors: Array[String]
 var _stage: String = ""
 var _scene: Control
+var _render_viewport: SubViewport
 
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
@@ -45,8 +48,9 @@ func _run() -> void:
 	settings["reduced_motion"] = false
 	Settings.save_settings(settings)
 	Settings.apply_settings(settings, root, false)
+	_render_viewport = CaptureViewport.create(root)
 	_scene = load("res://scenes/run_scene.tscn").instantiate()
-	root.add_child(_scene)
+	_render_viewport.add_child(_scene)
 	await _settle()
 	_scene._load_run_state(Run.new().create_new_run(BaseFixtures.TEST_SEED, Store.default_data()))
 	await _settle()
@@ -88,11 +92,15 @@ func _run() -> void:
 		var after: Dictionary = engine.apply_player_action(state, action, target)
 		await _scene._animate_player_action_step(state, after, "quick_stab", action, target)
 		_expect(int(after["enemies"][0]["hp"]) < int(state["enemies"][0]["hp"]), "Real player action produces " + _stage)
+	# Keep all action frames. Slow machines may record fewer during playback;
+	# continue real board rendering until the original 76-frame floor is met.
+	while _frames.size() < MIN_REAL_BOARD_FRAMES: await process_frame
 	_recording = false
 	await recording_finished
 	for clip: String in REQUIRED_CLIPS: _expect(_seen.has(clip), "Captured production clip " + clip)
 	var manifest := FileAccess.open(OUTPUT.path_join("frames.json"), FileAccess.WRITE)
 	manifest.store_string(JSON.stringify({"ok": _errors.is_empty(), "size": [1920, 1080], "ui_scale": 1.0,
+		"capture": "fixed SubViewport", "minimum_real_board_frames": MIN_REAL_BOARD_FRAMES,
 		"frames": _frames, "clips": _seen.keys(), "errors": _errors}, "\t"))
 	manifest.close()
 	for error: String in _errors: push_error(error)
@@ -111,7 +119,7 @@ func _record_frames() -> void:
 		var snapshot: Dictionary = renderer.snapshot() if renderer != null else {}
 		var clip: String = str(snapshot.get("clip", "missing"))
 		var filename: String = "frame_%05d.png" % _frames.size()
-		var pixels: Image = root.get_texture().get_image()
+		var pixels: Image = _render_viewport.get_texture().get_image()
 		_expect(pixels.get_size() == SIZE, "1920x1080 production viewport")
 		_expect(pixels.save_png(OUTPUT.path_join(filename)) == OK, "Save " + filename)
 		_frames.append({"file": filename, "seconds": float(Time.get_ticks_usec() - started) / 1000000.0,

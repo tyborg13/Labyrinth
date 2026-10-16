@@ -157,14 +157,17 @@ def compile_data(case: Path, output: Path, interpretation: dict, proof_scale: fl
     semantic, todos = semantic_tracks(data, interpretation)
     axes = {v: projection(spec, v) for v in ["front", "rear"]}
     tracks = {v: view_tracks(semantic, axes[v]) for v in axes}
-    # Keep the brief's numeric constants, without making this generated module
-    # depend on experiments or a JSON loader in an exported game.
-    prefix = output.read_text().split("const TODO_DESIGN_DIVE_RECOVERY_FRAME_SECONDS")[0].split("# Generated director mapping")[0]
-    prefix = prefix.replace("Pixels are native 255px source pixels; positive Y points down.",
-                            "Translations are board pixels, converted by the actual draw scale; positive Y points down.")
-    if "const IDLE_SECONDS" not in prefix: raise CutoutError("Missing numeric brief constants")
-    content = prefix + "# Generated director mapping; edit the protected input only through its owner.\n"
-    constants = {"HEAD_SNAP_FPS": interpretation.get("head_snap_fps", 0),
+    # Emit every runtime constant from the current source/explicit clock. Never
+    # carry an obsolete amplitude forward from an earlier generated module.
+    content = ('extends RefCounted\n\n'
+               '## Generated from protected director motion keys.\n'
+               '## Translations are board pixels, converted by actual draw scale; positive Y is down.\n'
+               '## Destination keys select hold, linear or smoothstep interpolation.\n')
+    constants = {"IDLE_SECONDS": data["idle"]["seconds"],
+                 "BREATH_SCALE_Y": max(k["v"] for k in data["idle"]["keys"]["body.squash"]),
+                 "MOVE_APEX_PX": max(k["lift_px"] for k in data["move"]["keys"]),
+                 "DIVE_RECOVERY_FRAMES": RECOVERY_FRAMES,
+                 "HEAD_SNAP_FPS": interpretation.get("head_snap_fps", 0),
                  "HEAD_SNAP_PLACEMENT": interpretation.get("head_snap_placement", ""),
                  "HEAD_SNAP_SECONDS": 2 / interpretation["head_snap_fps"] if interpretation.get("head_snap_fps", 0) > 0 else -1,
                  "DIVE_RECOVERY_FRAME_SECONDS": RECOVERY_FRAME_SECONDS,

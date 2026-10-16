@@ -1,0 +1,13 @@
+Running task-local command:
+  task: rr-03
+  run: rr-03-1792109273731918000-87615
+  HOME: /private/tmp/labyrinth-godot-home/rr-03-1792109273731918000-87615
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-03-1792109273731918000-87615/godot.log --headless --path . --script tests/gust_shrike_cutout_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+GUST SHRIKE CUTOUT: PASS (47 checks, 0 failures; headless logic only)

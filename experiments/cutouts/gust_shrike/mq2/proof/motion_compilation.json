@@ -1,6 +1,6 @@
 {
   "source": "experiments/cutouts/gust_shrike/motion_tracks_director.json",
-  "sha256": "c714f4c691abce13b5b1fbd6653af4cdfd4414a3d621f214faef936f2f31e6a0",
+  "sha256": "88ed872a94968da8dbe075a160d1cc87b668689880f29edb16932c276b32b5f4",
   "projection": {
     "front": {
       "forward": [
