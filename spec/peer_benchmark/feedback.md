@@ -113,3 +113,6 @@
   keep the maquette approach for ALL enemies and refine it — wisp, shrike, bloomer show the consistent look; avoid a
   "toy soldier" look. Asked for: armour shaped like real plate pieces (not ovals), the scarf/mantle wrapping around
   (not wings sticking out in front), a diamond chest gem, an icicle spearhead that follows the shaft. → mq-03.
+- 2026-10-16 pre-battle objective: owner questioned "Defeat the marked leader. The rest flee." under "Defeat the
+  Leader" — redundant. Decision: pre-battle shows only the heading `OBJECTIVE · <TITLE>` for every objective; the
+  one-line rule text moves to the heading's hover tooltip (pb-01 fix round).
