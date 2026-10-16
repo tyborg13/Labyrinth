@@ -1,0 +1,531 @@
+{
+  "cases": [
+    {
+      "id": "weaver-first-turn-clock-handoff",
+      "clip": "weaver_thornwall",
+      "cause": "After Thornwall growth, CombatPacing.finish_enemies() drains queued Turn Clock transition tweens before the first card draw. The real renderer completes this presentation handoff 47 frames later than the dummy-renderer reference. Later items retain 41 frames because six headless frames of Earth-cue settling overlap the native handoff.",
+      "code_paths": [
+        "scripts/combat_pacing.gd:finish_enemies",
+        "scripts/combat_pacing.gd:_drain_turn_orders",
+        "scripts/run_scene.gd:_animate_turn_order_transition",
+        "scripts/run_scene.gd:_resolve_enemy_round",
+        "tools/demo_clips/demo_clip.gd:_settle"
+      ],
+      "source_sha256": {
+        "scripts/combat_pacing.gd": "4571a6600a065a07e16f26c128eb7a7b844f796f432bd30a68501a225eeed059",
+        "scripts/run_scene.gd": "1188b31a8c7a8412b994a738933f6b1e928625857e4139d626e6be748aedf942",
+        "scripts/enemy_mechanics/bramble_view.gd": "c6d32530db2f59021ab9e86a8be89ea4812ad9455dc01e64197b5be4dec434c2"
+      },
+      "evidence": {
+        "native_log": "output/demo-clips-2026-10-15/raw/weaver_thornwall/events.json",
+        "headless_log": "output/demo-clips-2026-10-15/validation/1792157101205364000/a/weaver_thornwall/events.json",
+        "headless_wait_trace": "output/demo-clips-2026-10-15/round-8-diagnostic/run.log",
+        "native_turn_clock_frames": "output/demo-clips-2026-10-15/round-8-diagnostic/turn-order.jpg",
+        "last_matching_board": {
+          "item": "frames[41]",
+          "headless_frame": 139,
+          "native_frame": 139
+        },
+        "first_delayed_cue": {
+          "item": "events[6]",
+          "cue": "legacy:res://assets/audio/sfx/card_draw_deal.wav",
+          "headless_frame": 153,
+          "native_frame": 200
+        },
+        "first_delayed_board": {
+          "item": "frames[42]",
+          "headless_frame": 153,
+          "native_frame": 200
+        },
+        "first_action_complete": {
+          "item": "events[8]",
+          "headless_frame": 188,
+          "native_frame": 229
+        }
+      },
+      "points": [
+        {
+          "item": "end_frame",
+          "headless_frame": 644,
+          "native_frame": 685
+        },
+        {
+          "item": "events[6]",
+          "headless_frame": 153,
+          "native_frame": 200
+        },
+        {
+          "item": "events[7]",
+          "headless_frame": 162,
+          "native_frame": 209
+        },
+        {
+          "item": "events[8]",
+          "headless_frame": 188,
+          "native_frame": 229
+        },
+        {
+          "item": "events[9]",
+          "headless_frame": 188,
+          "native_frame": 229
+        },
+        {
+          "item": "events[10]",
+          "headless_frame": 189,
+          "native_frame": 230
+        },
+        {
+          "item": "events[11]",
+          "headless_frame": 296,
+          "native_frame": 337
+        },
+        {
+          "item": "events[12]",
+          "headless_frame": 296,
+          "native_frame": 337
+        },
+        {
+          "item": "events[13]",
+          "headless_frame": 328,
+          "native_frame": 369
+        },
+        {
+          "item": "events[14]",
+          "headless_frame": 339,
+          "native_frame": 380
+        },
+        {
+          "item": "events[15]",
+          "headless_frame": 358,
+          "native_frame": 399
+        },
+        {
+          "item": "events[16]",
+          "headless_frame": 390,
+          "native_frame": 431
+        },
+        {
+          "item": "events[17]",
+          "headless_frame": 423,
+          "native_frame": 464
+        },
+        {
+          "item": "events[18]",
+          "headless_frame": 432,
+          "native_frame": 473
+        },
+        {
+          "item": "events[19]",
+          "headless_frame": 452,
+          "native_frame": 493
+        },
+        {
+          "item": "events[20]",
+          "headless_frame": 452,
+          "native_frame": 493
+        },
+        {
+          "item": "events[21]",
+          "headless_frame": 453,
+          "native_frame": 494
+        },
+        {
+          "item": "events[22]",
+          "headless_frame": 560,
+          "native_frame": 601
+        },
+        {
+          "item": "frames[42]",
+          "headless_frame": 153,
+          "native_frame": 200
+        },
+        {
+          "item": "frames[43]",
+          "headless_frame": 317,
+          "native_frame": 358
+        },
+        {
+          "item": "frames[44]",
+          "headless_frame": 318,
+          "native_frame": 359
+        },
+        {
+          "item": "frames[45]",
+          "headless_frame": 319,
+          "native_frame": 360
+        },
+        {
+          "item": "frames[46]",
+          "headless_frame": 320,
+          "native_frame": 361
+        },
+        {
+          "item": "frames[47]",
+          "headless_frame": 321,
+          "native_frame": 362
+        },
+        {
+          "item": "frames[48]",
+          "headless_frame": 322,
+          "native_frame": 363
+        },
+        {
+          "item": "frames[49]",
+          "headless_frame": 323,
+          "native_frame": 364
+        },
+        {
+          "item": "frames[50]",
+          "headless_frame": 324,
+          "native_frame": 365
+        },
+        {
+          "item": "frames[51]",
+          "headless_frame": 325,
+          "native_frame": 366
+        },
+        {
+          "item": "frames[52]",
+          "headless_frame": 326,
+          "native_frame": 367
+        },
+        {
+          "item": "frames[53]",
+          "headless_frame": 327,
+          "native_frame": 368
+        },
+        {
+          "item": "frames[54]",
+          "headless_frame": 328,
+          "native_frame": 369
+        },
+        {
+          "item": "frames[55]",
+          "headless_frame": 329,
+          "native_frame": 370
+        },
+        {
+          "item": "frames[56]",
+          "headless_frame": 330,
+          "native_frame": 371
+        },
+        {
+          "item": "frames[57]",
+          "headless_frame": 331,
+          "native_frame": 372
+        },
+        {
+          "item": "frames[58]",
+          "headless_frame": 332,
+          "native_frame": 373
+        },
+        {
+          "item": "frames[59]",
+          "headless_frame": 333,
+          "native_frame": 374
+        },
+        {
+          "item": "frames[60]",
+          "headless_frame": 334,
+          "native_frame": 375
+        },
+        {
+          "item": "frames[61]",
+          "headless_frame": 335,
+          "native_frame": 376
+        },
+        {
+          "item": "frames[62]",
+          "headless_frame": 336,
+          "native_frame": 377
+        },
+        {
+          "item": "frames[63]",
+          "headless_frame": 337,
+          "native_frame": 378
+        },
+        {
+          "item": "frames[64]",
+          "headless_frame": 338,
+          "native_frame": 379
+        },
+        {
+          "item": "frames[65]",
+          "headless_frame": 339,
+          "native_frame": 380
+        },
+        {
+          "item": "frames[66]",
+          "headless_frame": 340,
+          "native_frame": 381
+        },
+        {
+          "item": "frames[67]",
+          "headless_frame": 343,
+          "native_frame": 384
+        },
+        {
+          "item": "frames[68]",
+          "headless_frame": 344,
+          "native_frame": 385
+        },
+        {
+          "item": "frames[69]",
+          "headless_frame": 345,
+          "native_frame": 386
+        },
+        {
+          "item": "frames[70]",
+          "headless_frame": 346,
+          "native_frame": 387
+        },
+        {
+          "item": "frames[71]",
+          "headless_frame": 347,
+          "native_frame": 388
+        },
+        {
+          "item": "frames[72]",
+          "headless_frame": 348,
+          "native_frame": 389
+        },
+        {
+          "item": "frames[73]",
+          "headless_frame": 349,
+          "native_frame": 390
+        },
+        {
+          "item": "frames[74]",
+          "headless_frame": 350,
+          "native_frame": 391
+        },
+        {
+          "item": "frames[75]",
+          "headless_frame": 351,
+          "native_frame": 392
+        },
+        {
+          "item": "frames[76]",
+          "headless_frame": 352,
+          "native_frame": 393
+        },
+        {
+          "item": "frames[77]",
+          "headless_frame": 353,
+          "native_frame": 394
+        },
+        {
+          "item": "frames[78]",
+          "headless_frame": 354,
+          "native_frame": 395
+        },
+        {
+          "item": "frames[79]",
+          "headless_frame": 355,
+          "native_frame": 396
+        },
+        {
+          "item": "frames[80]",
+          "headless_frame": 356,
+          "native_frame": 397
+        },
+        {
+          "item": "frames[81]",
+          "headless_frame": 357,
+          "native_frame": 398
+        },
+        {
+          "item": "frames[82]",
+          "headless_frame": 358,
+          "native_frame": 399
+        },
+        {
+          "item": "frames[83]",
+          "headless_frame": 362,
+          "native_frame": 403
+        },
+        {
+          "item": "frames[84]",
+          "headless_frame": 363,
+          "native_frame": 404
+        },
+        {
+          "item": "frames[85]",
+          "headless_frame": 364,
+          "native_frame": 405
+        },
+        {
+          "item": "frames[86]",
+          "headless_frame": 365,
+          "native_frame": 406
+        },
+        {
+          "item": "frames[87]",
+          "headless_frame": 366,
+          "native_frame": 407
+        },
+        {
+          "item": "frames[88]",
+          "headless_frame": 367,
+          "native_frame": 408
+        },
+        {
+          "item": "frames[89]",
+          "headless_frame": 368,
+          "native_frame": 409
+        },
+        {
+          "item": "frames[90]",
+          "headless_frame": 369,
+          "native_frame": 410
+        },
+        {
+          "item": "frames[91]",
+          "headless_frame": 370,
+          "native_frame": 411
+        },
+        {
+          "item": "frames[92]",
+          "headless_frame": 371,
+          "native_frame": 412
+        },
+        {
+          "item": "frames[93]",
+          "headless_frame": 372,
+          "native_frame": 413
+        },
+        {
+          "item": "frames[94]",
+          "headless_frame": 373,
+          "native_frame": 414
+        },
+        {
+          "item": "frames[95]",
+          "headless_frame": 374,
+          "native_frame": 415
+        },
+        {
+          "item": "frames[96]",
+          "headless_frame": 375,
+          "native_frame": 416
+        },
+        {
+          "item": "frames[97]",
+          "headless_frame": 376,
+          "native_frame": 417
+        },
+        {
+          "item": "frames[98]",
+          "headless_frame": 377,
+          "native_frame": 418
+        },
+        {
+          "item": "frames[99]",
+          "headless_frame": 378,
+          "native_frame": 419
+        },
+        {
+          "item": "frames[100]",
+          "headless_frame": 379,
+          "native_frame": 420
+        },
+        {
+          "item": "frames[101]",
+          "headless_frame": 380,
+          "native_frame": 421
+        },
+        {
+          "item": "frames[102]",
+          "headless_frame": 381,
+          "native_frame": 422
+        },
+        {
+          "item": "frames[103]",
+          "headless_frame": 382,
+          "native_frame": 423
+        },
+        {
+          "item": "frames[104]",
+          "headless_frame": 383,
+          "native_frame": 424
+        },
+        {
+          "item": "frames[105]",
+          "headless_frame": 384,
+          "native_frame": 425
+        },
+        {
+          "item": "frames[106]",
+          "headless_frame": 385,
+          "native_frame": 426
+        },
+        {
+          "item": "frames[107]",
+          "headless_frame": 386,
+          "native_frame": 427
+        },
+        {
+          "item": "frames[108]",
+          "headless_frame": 387,
+          "native_frame": 428
+        },
+        {
+          "item": "frames[109]",
+          "headless_frame": 388,
+          "native_frame": 429
+        },
+        {
+          "item": "frames[110]",
+          "headless_frame": 389,
+          "native_frame": 430
+        },
+        {
+          "item": "frames[111]",
+          "headless_frame": 390,
+          "native_frame": 431
+        },
+        {
+          "item": "frames[112]",
+          "headless_frame": 391,
+          "native_frame": 432
+        },
+        {
+          "item": "frames[113]",
+          "headless_frame": 393,
+          "native_frame": 434
+        },
+        {
+          "item": "frames[114]",
+          "headless_frame": 396,
+          "native_frame": 437
+        },
+        {
+          "item": "frames[115]",
+          "headless_frame": 398,
+          "native_frame": 439
+        },
+        {
+          "item": "frames[116]",
+          "headless_frame": 401,
+          "native_frame": 442
+        },
+        {
+          "item": "frames[117]",
+          "headless_frame": 403,
+          "native_frame": 444
+        },
+        {
+          "item": "frames[118]",
+          "headless_frame": 406,
+          "native_frame": 447
+        },
+        {
+          "item": "frames[119]",
+          "headless_frame": 423,
+          "native_frame": 464
+        }
+      ],
+      "reference_payload_sha256": "d6628a2f4afa88e3a1c3764f711509032c578e850a076cc7e801b3da271543ca"
+    }
+  ]
+}
