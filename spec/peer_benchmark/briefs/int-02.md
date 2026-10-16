@@ -1,4 +1,4 @@
-# int-01 — Route every presentation surface to the maquette rigs (merge follow-up: pb-01 × rr-04)
+# int-02 — Route every presentation surface to the maquette rigs (merge follow-up: pb-01 × rr-04)
 
 ## Header
 - pb-01 (pre-battle live actors) and rr-04 (Shale Bloomer + Lightning Wisp maquette rigs) were developed in parallel.
