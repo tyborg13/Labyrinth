@@ -415,7 +415,7 @@
   ]
  },
  "death": {
-  "note": "terminal pose held; a small lift as it's struck, then rolls ~70 deg onto its far-wing side and drops; a 2-frame settle bounce at 0.75-0.85",
+  "note": "terminal pose held; flinches up as it's struck, then collapses: wings splay down and back to the ground, head slumps beak-down, body drops 14 px with a modest 38 deg tip; a 1-frame settle at 0.7-0.8",
   "keys": [
    {
     "t": 0,
@@ -427,53 +427,54 @@
     "legs": 0
    },
    {
-    "t": 0.25,
-    "wings_raise": -20,
-    "head_tilt": 10,
-    "roll": 10,
+    "t": 0.2,
+    "wings_raise": 10,
+    "head_tilt": 8,
+    "roll": 8,
     "lift": 4,
     "tail": 0,
     "legs": 0
    },
    {
-    "t": 0.55,
-    "wings_raise": -40,
-    "head_tilt": 25,
-    "roll": 55,
-    "lift": -6,
-    "tail": -10,
-    "legs": 10
-   },
-   {
-    "t": 0.75,
-    "wings_raise": -45,
-    "head_tilt": 30,
-    "roll": 72,
-    "lift": -10,
-    "tail": -18,
+    "t": 0.5,
+    "wings_raise": -55,
+    "head_tilt": 35,
+    "roll": 30,
+    "lift": -8,
+    "tail": -8,
     "legs": 20
    },
    {
-    "t": 0.85,
-    "wings_raise": -42,
-    "head_tilt": 28,
-    "roll": 68,
-    "lift": -9,
-    "tail": -16,
-    "legs": 18
+    "t": 0.7,
+    "wings_raise": -85,
+    "head_tilt": 48,
+    "roll": 38,
+    "lift": -14,
+    "tail": -14,
+    "legs": 35
+   },
+   {
+    "t": 0.8,
+    "wings_raise": -80,
+    "head_tilt": 45,
+    "roll": 36,
+    "lift": -12,
+    "tail": -12,
+    "legs": 32
    },
    {
     "t": 1.0,
-    "wings_raise": -45,
-    "head_tilt": 30,
-    "roll": 70,
-    "lift": -10,
-    "tail": -18,
-    "legs": 20
+    "wings_raise": -85,
+    "head_tilt": 48,
+    "roll": 38,
+    "lift": -14,
+    "tail": -14,
+    "legs": 35
    }
   ]
  },
  "_revisions": [
-  "2026-10-15 r2 (director review of native_v01): idle amplitudes up (head \u00b110\u00b0, turn \u00b12 px, wings \u00b14\u00b0, breath 3%, tail flick 7\u00b0) because the idle barely read at board scale; death rolls ~70\u00b0 onto its side and drops 10 px (25\u00b0 read as alive); hit recoil 5 px, head 12\u00b0, wings 14\u00b0"
+  "2026-10-15 r2 (director review of native_v01): idle amplitudes up (head \u00b110\u00b0, turn \u00b12 px, wings \u00b14\u00b0, breath 3%, tail flick 7\u00b0) because the idle barely read at board scale; death rolls ~70\u00b0 onto its side and drops 10 px (25\u00b0 read as alive); hit recoil 5 px, head 12\u00b0, wings 14\u00b0",
+  "2026-10-15 r3 (director review of native_v02): death collapse instead of a 72 deg roll; roll and pitch both project to the same screen rotation, so the front view read as a frozen nose-dive with wings still raised"
  ]
 }
