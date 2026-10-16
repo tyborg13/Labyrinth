@@ -1,0 +1,19 @@
+[remap]
+
+importer="csv_translation"
+type="Translation"
+uid="uid://b2oiq2r6x1cgq"
+
+[deps]
+
+files=["res://spec/peer_benchmark/staged/text/inventory.surface.translation", "res://spec/peer_benchmark/staged/text/inventory.source.translation", "res://spec/peer_benchmark/staged/text/inventory.text.translation", "res://spec/peer_benchmark/staged/text/inventory.word.translation", "res://spec/peer_benchmark/staged/text/inventory.parameters.translation", "res://spec/peer_benchmark/staged/text/inventory.numbers.translation", "res://spec/peer_benchmark/staged/text/inventory.where.translation", "res://spec/peer_benchmark/staged/text/inventory.presentation.translation"]
+
+source_file="res://spec/peer_benchmark/staged/text/inventory.csv"
+dest_files=["res://spec/peer_benchmark/staged/text/inventory.surface.translation", "res://spec/peer_benchmark/staged/text/inventory.source.translation", "res://spec/peer_benchmark/staged/text/inventory.text.translation", "res://spec/peer_benchmark/staged/text/inventory.word.translation", "res://spec/peer_benchmark/staged/text/inventory.parameters.translation", "res://spec/peer_benchmark/staged/text/inventory.numbers.translation", "res://spec/peer_benchmark/staged/text/inventory.where.translation", "res://spec/peer_benchmark/staged/text/inventory.presentation.translation"]
+
+[params]
+
+compress=1
+delimiter=0
+unescape_keys=false
+unescape_translations=true

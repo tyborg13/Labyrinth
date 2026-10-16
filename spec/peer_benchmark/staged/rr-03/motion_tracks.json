@@ -26,7 +26,7 @@
     },
     {
      "t": 0.25,
-     "v": 1.02
+     "v": 1.03
     },
     {
      "t": 0.5,
@@ -34,7 +34,7 @@
     },
     {
      "t": 0.75,
-     "v": 1.02
+     "v": 1.03
     },
     {
      "t": 1,
@@ -52,18 +52,18 @@
      },
      {
       "t": 0.271,
-      "tilt_deg": -6,
-      "turn_px": -1
+      "tilt_deg": -10,
+      "turn_px": -2
      },
      {
       "t": 0.521,
-      "tilt_deg": 4,
-      "turn_px": 1,
+      "tilt_deg": 7,
+      "turn_px": 2,
       "lift_px": 1
      },
      {
       "t": 0.771,
-      "tilt_deg": -2,
+      "tilt_deg": -3,
       "turn_px": 0
      },
      {
@@ -84,7 +84,7 @@
     },
     {
      "t": 0.45,
-     "v": 4
+     "v": 7
     },
     {
      "t": 0.55,
@@ -102,7 +102,7 @@
     },
     {
      "t": 0.25,
-     "v": 2
+     "v": 4
     },
     {
      "t": 0.5,
@@ -110,7 +110,7 @@
     },
     {
      "t": 0.75,
-     "v": -2
+     "v": -4
     },
     {
      "t": 1,
@@ -120,7 +120,7 @@
    "wing_far.raise_deg": [
     {
      "t": 0,
-     "v": -2
+     "v": -4
     },
     {
      "t": 0.25,
@@ -128,7 +128,7 @@
     },
     {
      "t": 0.5,
-     "v": 2
+     "v": 4
     },
     {
      "t": 0.75,
@@ -136,7 +136,7 @@
     },
     {
      "t": 1,
-     "v": -2
+     "v": -4
     }
    ]
   }
@@ -396,15 +396,15 @@
    },
    {
     "t": 0.15,
-    "recoil_px": 3,
-    "head_tilt": -8,
-    "wings_raise": 10
+    "recoil_px": 5,
+    "head_tilt": -12,
+    "wings_raise": 14
    },
    {
     "t": 0.45,
-    "recoil_px": 1,
-    "head_tilt": -3,
-    "wings_raise": 4
+    "recoil_px": 2,
+    "head_tilt": -4,
+    "wings_raise": 5
    },
    {
     "t": 1.0,
@@ -415,7 +415,7 @@
   ]
  },
  "death": {
-  "note": "terminal pose held; roll toward the far-wing side in each view; lift = drop to the ground",
+  "note": "terminal pose held; a small lift as it's struck, then rolls ~70 deg onto its far-wing side and drops; a 2-frame settle bounce at 0.75-0.85",
   "keys": [
    {
     "t": 0,
@@ -427,41 +427,53 @@
     "legs": 0
    },
    {
-    "t": 0.3,
-    "wings_raise": -30,
+    "t": 0.25,
+    "wings_raise": -20,
     "head_tilt": 10,
-    "roll": 5,
-    "lift": 0,
+    "roll": 10,
+    "lift": 4,
     "tail": 0,
     "legs": 0
    },
    {
-    "t": 0.6,
-    "wings_raise": -30,
-    "head_tilt": 14,
-    "roll": 25,
+    "t": 0.55,
+    "wings_raise": -40,
+    "head_tilt": 25,
+    "roll": 55,
     "lift": -6,
-    "tail": -6,
-    "legs": 5
+    "tail": -10,
+    "legs": 10
+   },
+   {
+    "t": 0.75,
+    "wings_raise": -45,
+    "head_tilt": 30,
+    "roll": 72,
+    "lift": -10,
+    "tail": -18,
+    "legs": 20
    },
    {
     "t": 0.85,
-    "wings_raise": -30,
-    "head_tilt": 14,
-    "roll": 25,
-    "lift": -6,
-    "tail": -15,
-    "legs": 10
+    "wings_raise": -42,
+    "head_tilt": 28,
+    "roll": 68,
+    "lift": -9,
+    "tail": -16,
+    "legs": 18
    },
    {
     "t": 1.0,
-    "wings_raise": -30,
-    "head_tilt": 14,
-    "roll": 25,
-    "lift": -6,
-    "tail": -15,
-    "legs": 10
+    "wings_raise": -45,
+    "head_tilt": 30,
+    "roll": 70,
+    "lift": -10,
+    "tail": -18,
+    "legs": 20
    }
   ]
- }
+ },
+ "_revisions": [
+  "2026-10-15 r2 (director review of native_v01): idle amplitudes up (head \u00b110\u00b0, turn \u00b12 px, wings \u00b14\u00b0, breath 3%, tail flick 7\u00b0) because the idle barely read at board scale; death rolls ~70\u00b0 onto its side and drops 10 px (25\u00b0 read as alive); hit recoil 5 px, head 12\u00b0, wings 14\u00b0"
+ ]
 }
