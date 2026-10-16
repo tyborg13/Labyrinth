@@ -90,3 +90,13 @@
   8. Play enemy idle animations on the pre-battle screen (like the hero in the equipment menu).
   9. 6 magic-slot limit: maybe drop it entirely; strict limit trivializes deckbuilding and re-equipping spells after
      each fight is major friction (collaborate on design).
+## 2026-10-16 — maquette art verdicts (owner)
+- Frostglass Lancer: "too boxy, seems to be a recurring issue with these maquettes. We need to sculpt them a bit ... to
+  get more realistic and aesthetic proportions like the source art." Likes the consistent style: "if we can improve
+  the output a bit, we should redo all of the enemies in this style so that they can be consistent."
+  Director diagnosis (source vs maquette vs paint-over): barrel ellipsoid torso, oversized round pauldrons, legs ~30%
+  of height (source ~45%), cloak a flat rear plate (source: ragged cloak flaring wide at the hem), so the paint-over
+  inherited a squat golem silhouette. → mq-02 (proportion fit to source silhouette + sculpted primitives).
+- Shale Bloomer: approved — "quite good ... similar but in the more low res, painterly style".
+- Lightning Wisp: not loved — "the bolts just kinda sticking out in every direction ... might look better if the
+  lightning is interwoven throughout the cloud." → wisp maquette r4 + new paint-over.
