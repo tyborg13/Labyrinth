@@ -3457,7 +3457,7 @@ func _queue_presentation_change_redraws(
 					hud_changed = true
 			"floating_texts", "lethal_preview_time_seconds", "movement_risk_chips", "status_safe_global_rect", "collision_markers":
 				effects_changed = true
-			"trap_effects":
+			"trap_effects", "trap_trigger_previews":
 				effects_changed = true
 				action_floor_changed = true
 			"damage_preview":
@@ -8191,7 +8191,7 @@ func _draw_terrain_health_bar(terrain: Dictionary, terrain_rect: Rect2) -> void:
 	SegmentedHealthBar.draw_bar(
 		self,
 		bar_rect,
-		float(terrain.get("hp", 0)),
+		float(_health_bar_fill_hp(terrain, preview)),
 		float(maxi(1, int(terrain.get("max_hp", 1)))),
 		_health_bar_segment_count(int(terrain.get("max_hp", 1))),
 		Color("2d1f18"),
@@ -8202,7 +8202,7 @@ func _draw_terrain_health_bar(terrain: Dictionary, terrain_rect: Rect2) -> void:
 		1.0,
 		1.0
 	)
-	if not preview.is_empty():
+	if _damage_preview_shows_lost_hp(preview):
 		_draw_health_damage_preview(terrain, bar_rect, preview)
 
 func _should_show_terrain_health_bar(terrain: Dictionary) -> bool:
@@ -8217,6 +8217,9 @@ func _should_show_terrain_health_bar(terrain: Dictionary) -> bool:
 
 func _terrain_damage_preview(terrain: Dictionary) -> Dictionary:
 	if int(terrain.get("max_hp", 0)) <= 0 or str(terrain.get("kind", "")) == "ice_pillar": return {}
+	return _terrain_destruction_preview(terrain)
+
+func _terrain_destruction_preview(terrain: Dictionary) -> Dictionary:
 	if not _board_tile_is_visible_to_player(terrain.get("pos", Vector2i(-1, -1))):
 		return {}
 	var terrain_key: String = _terrain_key(terrain)
@@ -8310,6 +8313,7 @@ func _build_visible_units() -> Array[Dictionary]:
 		var preview_hp: int = maxi(1, int(preview_unit.get("hp", preview_unit.get("max_hp", 1))))
 		units_to_draw.append({
 			"key": str(preview_unit.get("key", "illusion_preview")),
+			"damage_preview_key": str(preview_unit.get("damage_preview_key", "")),
 			"role": preview_role,
 			"id": int(preview_unit.get("id", -1)),
 			"type": str(preview_unit.get("type", "player")),
@@ -9142,7 +9146,8 @@ func _draw_health_damage_preview(unit: Dictionary, rect: Rect2, preview: Diction
 		draw_rect(damage_rect, damage_color, true)
 		draw_rect(damage_rect, Color(1.0, 0.93, 0.62, 0.45), false, 1.0)
 func _unit_damage_preview(unit: Dictionary) -> Dictionary:
-	var actor_key: String = str(unit.get("key", ""))
+	var actor_key: String = str(unit.get("damage_preview_key", ""))
+	if actor_key.is_empty(): actor_key = str(unit.get("key", ""))
 	if actor_key.is_empty():
 		return {}
 	return _damage_preview_map().get(actor_key, {}) as Dictionary
@@ -9209,9 +9214,18 @@ func _draw_lethal_preview_icons(units_to_draw: Array[Dictionary]) -> void:
 	for unit: Dictionary in units_to_draw:
 		if bool(unit.get("death_animation", false)) or not _unit_is_preview_lethal(unit):
 			continue
+		if not _umbra_actor_clip_for_unit(unit).is_empty(): continue
 		_draw_lethal_preview_icon(_unit_draw_rect(unit))
+	for terrain: Dictionary in combat_state.get("terrain", []):
+		if not bool(_terrain_destruction_preview(terrain).get("lethal", false)): continue
+		var kind: String = _terrain_art_kind(str(terrain.get("kind", "")))
+		_draw_lethal_preview_icon(_terrain_rect_for_tile(terrain.get("pos", Vector2i(-1, -1)), _terrain_textures.get(kind, null), kind), true)
+	for trap: Dictionary in combat_state.get("traps", []):
+		if not _board_tile_is_visible_to_player(trap.get("pos", Vector2i(-1, -1))): continue
+		if bool((_damage_preview_map().get("trap_%s" % str(trap.get("id", "")), {}) as Dictionary).get("lethal", false)):
+			_draw_lethal_preview_icon(_trap_visual_draw_rect(trap), true)
 
-func _draw_lethal_preview_icon(unit_rect: Rect2) -> void:
+func _draw_lethal_preview_icon(unit_rect: Rect2, centered: bool = false) -> void:
 	var texture: Texture2D = _effect_textures.get("lethal_death_mark", null)
 	if texture == null or unit_rect.size.x <= 0.0 or unit_rect.size.y <= 0.0:
 		return
@@ -9228,7 +9242,7 @@ func _draw_lethal_preview_icon(unit_rect: Rect2) -> void:
 	) * draw_scale
 	var icon_center := Vector2(
 		unit_rect.get_center().x,
-		unit_rect.position.y + unit_rect.size.y * 0.43
+		unit_rect.get_center().y if centered else unit_rect.position.y + unit_rect.size.y * 0.43
 	)
 	var icon_rect := Rect2(icon_center - Vector2(icon_size, icon_size) * 0.5, Vector2(icon_size, icon_size))
 	var alpha: float = lerpf(
@@ -10812,6 +10826,11 @@ func _draw_elemental_spell_floor_overlay() -> void:
 	)
 
 func _draw_elemental_trap_floor_overlay() -> void:
+	# Reuse the existing trigger footprint at its authored stable frame. The
+	# trap body remains idle until the player actually confirms the card.
+	for trap: Dictionary in presentation.get("trap_trigger_previews", []):
+		if _board_tile_is_visible_to_player(trap.get("pos", Vector2i(-1, -1))):
+			_draw_trap_elemental_footprint(trap, str(trap.get("element", ElementData.NONE)), 0.0, true)
 	var trap_effects: Array = presentation.get("trap_effects", [])
 	if trap_effects.is_empty():
 		return
