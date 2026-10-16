@@ -17,6 +17,8 @@ SEARCH_SECONDS = 0.25
 MATCH_SECONDS = 0.12
 MIN_CORRELATION = 0.65
 CORRELATION_STRIDE = 48
+DISTINCT_MATCH_S = 0.005  # Separate occurrences, not adjacent samples of one peak.
+AMBIGUITY_CORRELATION_MARGIN = 0.03
 AUDIBLE_THRESHOLD = 10 ** (-40 / 20)
 MEASURE_PREFIXES = ("hit.", "spell.", "hurt.", "status.", "trap.", "block.", "surface.", "impact.", "stoneskin.")
 
@@ -97,10 +99,25 @@ def locate(mix, reference, expected_s):
 
     # Examine all sample offsets with a sparse waveform, then score the best
     # candidates densely. A coarse offset grid misses high-frequency cues.
-    candidates = sorted(((score(i, CORRELATION_STRIDE), i) for i in range(expected - radius, expected + radius + 1)), reverse=True)[:12]
-    correlation, offset = max((score(i, 1), i) for _, i in candidates)
+    ranked = sorted(((score(i, CORRELATION_STRIDE), i) for i in range(expected - radius, expected + radius + 1)), reverse=True)
+    # Preserve the best sample-level matches and also examine distinct peaks.
+    # Otherwise all finalists can cluster around one of two identical hits.
+    distinct = []
+    separation = round(DISTINCT_MATCH_S * RATE)
+    for sparse_score, candidate in ranked:
+        if all(abs(candidate - other) >= separation for other in distinct):
+            distinct.append(candidate)
+            if len(distinct) == 12: break
+    offsets = {i for _, i in ranked[:12]} | set(distinct)
+    dense = sorted(((score(i, 1), i) for i in offsets), reverse=True)
+    correlation, offset = dense[0]
     if correlation < MIN_CORRELATION:
         raise ValueError(f"low correlation: Cue cannot be separated from recorded mix (correlation {correlation:.3f})")
+    competing = [other for confidence, other in dense
+                 if abs(other - offset) >= separation
+                 and confidence >= max(MIN_CORRELATION, correlation - AMBIGUITY_CORRELATION_MARGIN)]
+    if competing:
+        raise ValueError(f"ambiguous PCM match: competing occurrences at {offset / RATE:.6f}s and {competing[0] / RATE:.6f}s")
     dot = sum(sum(m[offset+i] * r[i] for i in range(start, start+width)) for m, r in pairs) / len(pairs)
     gain = dot / best_energy
     return offset, correlation, gain

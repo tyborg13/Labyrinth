@@ -45,6 +45,16 @@ def write_synthetic_avi(path, frames, source_wav=None, size=SYNTHETIC_SIZE):
 
 
 class DemoDirectorTests(unittest.TestCase):
+    @unittest.skipUnless(shutil.which("godot"), "Godot needed for viewport GUI routing regression")
+    def test_probe_tile_centre_reaches_production_gui_input_under_retina_stretch(self):
+        import sys
+        result = subprocess.run([sys.executable, "tools/godot_task_runner.py", "--task-id", "demo-01", "--stream", "--",
+                                 "godot", "--headless", "--path", ".", "--script", "tests/demo_probe_viewport_test.gd"],
+                                cwd=pipeline.ROOT, text=True, capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn("DEMO PROBE VIEWPORT TEST: PASS", result.stdout)
+        self.assertIn("board tile (4, 4); GUI hover; Retina stretch", result.stdout)
+
     def test_caption_changes_preserve_take_hashes_but_recording_changes_do_not(self):
         director = json.loads(pipeline.DIRECTOR.read_text())
         with tempfile.TemporaryDirectory() as tmp:
@@ -130,7 +140,47 @@ class DemoDirectorTests(unittest.TestCase):
         self.assertEqual(args.expect_size, [(1920, 1080)])
 
 
+class DemoMediaWrapperTests(unittest.TestCase):
+    def test_ffmpeg_wrappers_keep_two_threads(self):
+        with patch.object(media.subprocess, "run") as run:
+            run.return_value.returncode = 0
+            run.return_value.stdout = ""
+            media.ffmpeg(["-i", "source.avi", "delivery.mp4"])
+        command = run.call_args.args[0]
+        for flag in ("-threads", "-filter_threads", "-filter_complex_threads"):
+            self.assertIn(flag, command)
+            self.assertEqual(command[command.index(flag) + 1], "2")
+        with patch.object(sync.subprocess, "run") as run:
+            run.return_value.stdout = b""
+            sync.pcm(Path("source.wav"))
+        command = run.call_args.args[0]
+        for index, flag in enumerate(command):
+            if flag in ("-threads", "-filter_threads"):
+                self.assertEqual(command[index + 1], "2")
+
+
 class DemoSyncTests(unittest.TestCase):
+    def test_identical_repeated_hits_are_unmeasured_without_false_offset_flags(self):
+        rules = json.loads((pipeline.ROOT / "data/sfx_cues.json").read_text())["rules"]["sync"]
+        reference = self.reference()
+        peak = sync.rms_peak(reference, rules)
+        mix = array("f", [0.0]) * sync.RATE
+        for contact in (0.5, 0.6):
+            offset = round((contact + 0.015) * sync.RATE) - peak
+            for i, value in enumerate(reference): mix[offset + i] += value
+        report = {"clip": "repeated_hits", "fps": 60,
+                  "events": [{"cue": "hit.claw", "frame": frame, "result": "played", "pcm": "cue.wav", "pitch": 1} for frame in (30, 36)],
+                  "frames": [{"frame": frame, "actors": {"player": {"hp": hp}}, "traps": [], "surfaces": []}
+                             for frame, hp in ((0, 12), (30, 10), (36, 8))]}
+        with patch.object(sync, "pcm", side_effect=lambda path, pitch=1: mix if path.name == "movie.wav" else reference):
+            rows, flags = sync.audit(Path("/synthetic"), report, rules)
+        self.assertEqual(flags, [])
+        self.assertEqual(len(rows), 2)
+        for row in rows:
+            self.assertEqual(row["offset_status"], "unmeasured")
+            self.assertIn("ambiguous PCM match", row["reason"])
+            self.assertNotIn("offset_ms", row)
+
     @staticmethod
     def reference(seed=1):
         rng = random.Random(seed)
@@ -282,6 +332,33 @@ class DemoSyncTests(unittest.TestCase):
 
 @unittest.skipUnless(shutil.which("ffmpeg") and shutil.which("ffprobe"), "brief requires ffmpeg and ffprobe")
 class DemoEncodingTests(unittest.TestCase):
+    def test_clip_and_reel_probe_failure_preserve_existing_deliveries_atomically(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            work = root / "work"
+            work.mkdir()
+            clip = json.loads(pipeline.DIRECTOR.read_text())["reels"][0]["clips"][0]
+            style = json.loads(pipeline.DIRECTOR.read_text())["caption_style"]
+            def partial_encode(args):
+                for index, flag in enumerate(args):
+                    if flag == "-threads": self.assertEqual(str(args[index + 1]), "2")
+                pending = next(Path(arg) for arg in args if str(arg).endswith(".mp4"))
+                self.assertIn(".pending.mp4", pending.name)
+                pending.write_bytes(b"partial replacement")
+            clip_out, reel_out = root / "clip.mp4", root / "reel.mp4"
+            for path in (clip_out, reel_out): path.write_bytes(b"existing verified delivery")
+            with patch.object(media, "duration_info", return_value={"raw_frame_count": 60}), \
+                 patch.object(encode, "caption_image", return_value=work / "caption.png"), \
+                 patch.object(encode, "ffmpeg", side_effect=partial_encode), \
+                 patch.object(encode, "probe", side_effect=ValueError("probe failed")):
+                with self.assertRaisesRegex(ValueError, "probe failed"):
+                    encode.encode_clip(root, {"start_frame": 0, "end_frame": 60}, clip, style, clip_out, work)
+                with patch.object(encode, "join_audio"), self.assertRaisesRegex(ValueError, "probe failed"):
+                    encode.encode_reel({"id": "test", "clips": [{"id": "a"}]},
+                                       {"a": {"lossless_audio": "a.wav", "path": "a.mp4", "duration": 1.0, "frame_count": 60}}, reel_out, work)
+            for path in (clip_out, reel_out): self.assertEqual(path.read_bytes(), b"existing verified delivery")
+            self.assertFalse(list(root.glob("*.pending.mp4")))
+
     def test_synthetic_avi_pcm_caption_trim_and_reel(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

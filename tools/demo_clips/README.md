@@ -1,6 +1,6 @@
 # demo-01 implementation and proof
 
-This unit only adds files in `tools/demo_clips/`, four tests, and ignored outputs.
+This unit changes only `tools/demo_clips/`, focused demo tests/fixtures, and ignored outputs.
 It does not edit game scripts, source assets, director values, saves, analytics,
 trailer tools, the task queue, Git history, or the design owner's task metadata.
 
@@ -166,9 +166,12 @@ Only one native take exists: `raw/<clip>/`, with no A/B native folders. Logs and
 WAVs remain available on failure, together with any generated intermediate.
 Encoding validates each take independently, so a failed or missing take does
 not prevent other valid clips from encoding. A reel still requires every clip
-in its authored list. Re-encoding replaces the named clip/reel deliverables;
-an old MP4 is removed before replacement so failure cannot leave it presented
-as current. Input/media integrity checks and the disk guard remain active.
+in its authored list. Re-encoding validates sources first, writes a temporary
+MP4 beside its destination, and probes it before an atomic replacement. Failure
+preserves the previous clip/reel and removes the temporary file. In particular,
+a rerun after successful AVI cleanup reports unavailable sources without
+deleting existing deliveries. Input/media integrity checks and the disk guard
+remain active.
 
 `caption_raster.gd` typesets the supplied strings using Godot's approved
 `UiTypography.ui_font()` glyph atlas, including the authored shadow. It needs
@@ -192,7 +195,11 @@ can increase it.
 
 `sync.py` locates emitted PCM in the actual recorded mix with waveform
 correlation and applies sfx-04's RMS-peak convention. It reports identification
-confidence and labels each row `measured` or `unmeasured`. Low correlation,
+confidence and labels each row `measured` or `unmeasured`. Candidate selection
+checks distinct waveform peaks as well as the strongest sample-level matches.
+Two separated occurrences within 0.03 correlation of the best match are
+ambiguous and unmeasured; peaks at least 5 ms apart count as distinct. Repeated
+identical cues cannot silently reuse one occurrence. Low correlation,
 overlap and ambiguous visual contacts carry reasons, with no invented offset
 or duration. Only measured offsets outside sfx-04 and measured status/trap
 durations above 1.2 seconds produce flags. Status/trap duration is measured from the
@@ -224,8 +231,9 @@ the normal presentation/audio settling and tail logic are unchanged.
 ## Proof for the design owner
 
 Run this exact sequence with matching director source/import files. Every
-recording is windowed and uses the real renderer. No windowed command was
-attempted here.
+recording is windowed and uses the real renderer. The round-nine probe smoke
+attempt could not initialize the macOS GUI process; its launch block is
+recorded below.
 
 ```sh
 cd /Users/borgerding/workspace/Labyrinth.worktrees/demo-01 && python3 tools/demo_clips/pipeline.py validate
@@ -522,3 +530,101 @@ Round-eight observed results:
 - `git diff --check` passes. No full suite, new windowed run, encode of owner
   media, or commit was performed. Existing native receipts/deliveries remain
   unchanged; the diagnostic comparison report is a separate artifact.
+
+
+## Round-nine peer-review fixes
+
+1. `probe.gd` stages each reconstructed game scene in a fixed 1920×1080
+   `SubViewport`. Its texture is captured directly, with an explicit image-size
+   check. Hover events use that viewport's local coordinates; probe input does
+   not warp the OS pointer. Recording scenes remain outside this probe wrapper.
+2. Clip/reel replacements use a sibling temporary MP4 and atomic rename after
+   successful encoding and media probing. Missing sources, ffmpeg errors or
+   failed probes preserve previous deliveries. The cleanup/rerun lifecycle
+   regression preserves both clips and the reel after source AVIs are removed.
+3. Repeated identical hit occurrences are reported as unmeasured with a named
+   ambiguity reason and no false offset flag. The regression uses contacts at
+   0.500/0.600 seconds with correctly aligned peaks at 0.515/0.615 seconds.
+4. `tests/fixtures/demo_clips/weaver_reference.json.gz` is a portable reference
+   payload. Tests generate native timing from the reviewed frame pairs and
+   reject changed reference payloads, each source fingerprint, and each native
+   or headless frame coordinate. None of these tests reads ignored owner logs.
+5. The clock test asserts raw and presentation clock values on every frame at
+   scales 0, 1 and 2, plus cue dispatch at frame 3 under scale 1 and frame 11
+   after pause/scale 2. Removing time scaling now fails both clock values and
+   the dispatch-frame check. The host-wall-delay repeat remains covered.
+
+The ffmpeg wrapper regression checks decoder/filter thread options at 2; the
+clip/reel encoding regression also checks its output thread arguments.
+
+Observed focused proof:
+
+- `round-9-focused-tests.log`: `Ran 51 tests in 10.367s` / `OK`, no skips.
+- `round-9-clock-test.log`: `DEMO MOVIE CLOCK TEST: PASS (3 cue events)`.
+- `round-9-viewport-test.log`: `DEMO PROBE VIEWPORT TEST: PASS (1920x1080; hover input)`;
+  the test uses a 3024×1701 root to reproduce the backing-size mismatch.
+- `round-9-parser.log`: `demo_clip.gd --check-only` exits 0.
+- `round-9-mutation-checks.log`: removing reference/source fingerprints, exact
+  frame matching or two-thread ffmpeg settings is caught. The isolated clock
+  mutation in `round-9-clock-mutation.log` fails as expected when time scaling
+  is removed. Production sources were never mutated for these checks.
+
+**Real-renderer verification remains blocked, 0/21 fresh captures produced.**
+The smoke attempt in `round-9-probe-smoke.log` failed before Godot created its
+log: macOS GUI service connections were invalid, with `_LSModifyNotification`
+and `com.apple.hiservices-xpcservice` errors. The computer-use tool also refused
+Terminal access for safety reasons. No startup-timeout override or alternate
+renderer was used to hide the launch failure. Existing takes, WAVs, receipts,
+owner screenshots and deliveries were not changed. No full suite or commit ran.
+
+Run all 21 fresh real-renderer probes with the same project-aware visual runner:
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/demo-01 && python3 tools/demo_clips/pipeline.py probe --output output/demo-clips-2026-10-15/round-9-probes
+```
+
+This stages its own scenes and does not re-record any takes. A native pass must
+produce 21 validated 1920×1080 images with Metal / Forward Mobile logs; the
+headless viewport/input check and mocked Python probe test are not that proof.
+
+
+## Round-ten probe hover fix
+
+The director's round-nine real-renderer run passed 20/21 probes at the correct
+image size. Weaver failed because its first scripted mouse motion reached the
+SubViewport's `_input` listeners but not the production board's `_gui_input`.
+A real pointer warp in the recording path established mouse entry; the probe
+intentionally did not warp the OS pointer and never established that state.
+
+`pointer.gd` now shares the hover route between recording and probing. It maps
+the board-local tile centre through `get_global_transform_with_canvas()` into
+that board's own viewport, calls `notify_mouse_entered()` for a SubViewport,
+and sends a real `InputEventMouseMotion` through `Viewport.push_input(...,
+true)`. No root-window backing/stretch factor belongs in those already-local
+viewport coordinates. Root-window recordings keep their existing pointer warp
+and normal GUI input path. No production board handler or hover state is
+replaced or set directly by the hover helper.
+
+The headless regression now uses the actual CombatBoardView and Weaver
+fixture, not only a generic `_input` listener. Under a 3024×1701 root with
+1920×1080 content, translated canvas/board coordinates, 0.9 board scale and
+container stretch 1× / 1.575× / 2×, it verifies the GUI event's board-local
+position, tile `(4, 4)`, and non-empty expanded intent rows. Each case starts
+with the SubViewport mouse outside. Removing mouse entry reproduced all three
+failures in `round-10-hover-before.log`; the fixed test passes and is also
+included in focused Python discovery.
+
+Observed proof:
+
+- `round-10-focused-tests.log`: `Ran 52 tests in 14.213s` / `OK`.
+- `round-10-viewport-test.log`: `DEMO PROBE VIEWPORT TEST: PASS (1920x1080; board tile (4, 4); GUI hover; Retina stretch)`.
+- `round-10-parser.log`: `demo_clip.gd --check-only` exits 0.
+- `git diff --check` passes. No full suite, commit, take recording or windowed
+  probe was run in this round. The Python mocked probe-command test does not
+  constitute real-renderer proof.
+
+Only Weaver needs a new windowed probe, into a fresh proof directory:
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/demo-01 && python3 tools/demo_clips/pipeline.py probe --clip weaver_thornwall --output output/demo-clips-2026-10-15/round-10-probes
+```

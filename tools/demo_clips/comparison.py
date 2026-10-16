@@ -8,6 +8,7 @@ from pathlib import Path
 
 MAX_NATIVE_FRAME_OFFSET = 2  # Director-approved per-item lead or lag.
 FLOAT_TOLERANCE = 1e-4  # Director: progress floats differ by ~2e-6 between native and headless clocks.
+POLICY_PATH = Path(__file__).with_name("comparison_exemptions.json")
 
 
 def _same(a, b):
@@ -38,7 +39,7 @@ def payload_hash(report):
 def presentation_exemptions(reference, points):
     """Exact reviewed frame pairs only; never grant a clip-wide timing range."""
     root = Path(__file__).resolve().parents[2]
-    cases = json.loads((Path(__file__).with_name("comparison_exemptions.json")).read_text())["cases"]
+    cases = json.loads(POLICY_PATH.read_text())["cases"]
     applied = {}
     for case in cases:
         if case["clip"] != reference["clip"]: continue

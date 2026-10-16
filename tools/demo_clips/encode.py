@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import argparse
 from array import array
+from contextlib import contextmanager
 import json
 from pathlib import Path
 import re
 import subprocess
 import sys
+import uuid
 import wave
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
@@ -16,6 +18,18 @@ from tools.demo_clips import media, pipeline, recording, storage, sync
 from tools.demo_clips.media import AUDIO_RATE, FFMPEG_THREADS, FPS, ffmpeg, probe, read_wave
 
 FADE_SECONDS = 0.006
+
+
+@contextmanager
+def atomic_delivery(output):
+    """Keep the previous delivery until the replacement passes media probing."""
+    output.parent.mkdir(parents=True, exist_ok=True)
+    pending = output.with_name(f".{output.stem}.{uuid.uuid4().hex}.pending{output.suffix}")
+    try:
+        yield pending
+        pending.replace(output)
+    finally:
+        pending.unlink(missing_ok=True)
 
 
 def caption_image(clip, style, work, size):
@@ -54,16 +68,17 @@ def encode_clip(directory, report, clip, style, output, work, expected_size=(192
              f"[0:a]atrim=start_sample={start*AUDIO_RATE//FPS}:end_sample={end*AUDIO_RATE//FPS},asetpts=PTS-STARTPTS,asplit=2[a][pcm]")
     output.parent.mkdir(parents=True, exist_ok=True)
     lossless_audio = work / f"{clip['id']}.wav"
-    ffmpeg(["-i", directory / "movie.avi", "-loop", "1", "-framerate", FPS, "-i", captions, "-filter_complex", graph,
-            "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-crf", "16", "-preset", "slow", "-pix_fmt", "yuv420p", "-r", FPS,
-            "-c:a", "aac", "-b:a", "192k", "-ar", AUDIO_RATE, "-threads", FFMPEG_THREADS, "-movflags", "+faststart", output,
-            "-map", "[pcm]", "-c:a", "pcm_s32le", "-ar", AUDIO_RATE, "-ac", "2", "-threads", FFMPEG_THREADS, lossless_audio])
-    info = probe(output)
-    video = next(s for s in info["streams"] if s["codec_type"] == "video")
-    audio = next(s for s in info["streams"] if s["codec_type"] == "audio")
-    if (int(video["width"]), int(video["height"])) != expected_size: raise ValueError("Unexpected encoded dimensions")
-    if int(video["nb_read_frames"]) != count or video["r_frame_rate"] != "60/1": raise ValueError("Encoded frame count / rate mismatch")
-    if audio["codec_name"] != "aac" or int(audio["sample_rate"]) != AUDIO_RATE: raise ValueError("Encoded audio mismatch")
+    with atomic_delivery(output) as pending:
+        ffmpeg(["-i", directory / "movie.avi", "-loop", "1", "-framerate", FPS, "-i", captions, "-filter_complex", graph,
+                "-map", "[v]", "-map", "[a]", "-c:v", "libx264", "-crf", "16", "-preset", "slow", "-pix_fmt", "yuv420p", "-r", FPS,
+                "-c:a", "aac", "-b:a", "192k", "-ar", AUDIO_RATE, "-threads", FFMPEG_THREADS, "-movflags", "+faststart", pending,
+                "-map", "[pcm]", "-c:a", "pcm_s32le", "-ar", AUDIO_RATE, "-ac", "2", "-threads", FFMPEG_THREADS, lossless_audio])
+        info = probe(pending)
+        video = next(s for s in info["streams"] if s["codec_type"] == "video")
+        audio = next(s for s in info["streams"] if s["codec_type"] == "audio")
+        if (int(video["width"]), int(video["height"])) != expected_size: raise ValueError("Unexpected encoded dimensions")
+        if int(video["nb_read_frames"]) != count or video["r_frame_rate"] != "60/1": raise ValueError("Encoded frame count / rate mismatch")
+        if audio["codec_name"] != "aac" or int(audio["sample_rate"]) != AUDIO_RATE: raise ValueError("Encoded audio mismatch")
     return {"clip": clip["id"], "duration": duration, "frame_count": count, "raw_frame_count": raw_count,
             "start_frame": start, "end_frame": end, "sync_time_origin": "raw Movie Maker WAV/frame zero",
             "path": str(output), "lossless_audio": str(lossless_audio)}
@@ -99,14 +114,15 @@ def encode_reel(reel, rows, output, work):
     output.parent.mkdir(parents=True, exist_ok=True)
     # Reuse already encoded H.264 packets: no second lossy video generation.
     # AAC is encoded once here from original trimmed PCM, not from clip AAC.
-    ffmpeg(["-f", "concat", "-safe", "0", "-i", concat, "-i", audio, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-ar", AUDIO_RATE, "-threads", FFMPEG_THREADS, "-movflags", "+faststart", output])
-    streams = probe(output)["streams"]
-    video = next(s for s in streams if s["codec_type"] == "video")
-    audio_stream = next(s for s in streams if s["codec_type"] == "audio")
-    if int(video["nb_read_frames"]) != sum(r["frame_count"] for r in ordered): raise ValueError("Reel frame count mismatch")
-    if video["codec_name"] != "h264" or video["r_frame_rate"] != "60/1": raise ValueError("Reel video codec/rate mismatch")
-    if audio_stream["codec_name"] != "aac" or int(audio_stream["sample_rate"]) != AUDIO_RATE:
-        raise ValueError("Reel audio codec/rate mismatch")
+    with atomic_delivery(output) as pending:
+        ffmpeg(["-f", "concat", "-safe", "0", "-i", concat, "-i", audio, "-map", "0:v", "-map", "1:a", "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", "-ar", AUDIO_RATE, "-threads", FFMPEG_THREADS, "-movflags", "+faststart", pending])
+        streams = probe(pending)["streams"]
+        video = next(s for s in streams if s["codec_type"] == "video")
+        audio_stream = next(s for s in streams if s["codec_type"] == "audio")
+        if int(video["nb_read_frames"]) != sum(r["frame_count"] for r in ordered): raise ValueError("Reel frame count mismatch")
+        if video["codec_name"] != "h264" or video["r_frame_rate"] != "60/1": raise ValueError("Reel video codec/rate mismatch")
+        if audio_stream["codec_name"] != "aac" or int(audio_stream["sample_rate"]) != AUDIO_RATE:
+            raise ValueError("Reel audio codec/rate mismatch")
     return {"reel": reel["id"], "clips": [c["id"] for c in reel["clips"]], "frame_count": int(video["nb_read_frames"]), "path": str(output), "probed": True}
 
 
@@ -151,8 +167,7 @@ def main():
         manifest["clips"].append(item)
         destination = output / "clips" / f"{clip['id']}.mp4"
         try:
-            # A failed replacement must not leave an older delivery looking current.
-            if destination.exists(): destination.unlink()
+            # Validate the take before attempting an atomic replacement.
             directory, report, audited = recording.checked_take(output, clip["id"], recorded)
             item.update(sync_table=audited["sync_table"], sync_flags=audited.get("sync_flags", []),
                         validation_log=audited["validation_log"], intermediate=audited["intermediate"],
@@ -170,7 +185,6 @@ def main():
     for reel in director["reels"]:
         destination = output / "reels" / f"{reel['id']}.mp4"
         try:
-            if destination.exists(): destination.unlink()
             if all(c["id"] in rows for c in reel["clips"]):
                 manifest["reels"].append(encode_reel(reel, rows, destination, work))
             else:

@@ -2,6 +2,7 @@
 import copy
 from contextlib import redirect_stdout
 import io
+import gzip
 import json
 from pathlib import Path
 import shutil
@@ -148,10 +149,21 @@ class DemoAVICleanupTests(unittest.TestCase):
 
 class DemoNativeComparisonTests(unittest.TestCase):
     def retained_weaver(self):
-        case = json.loads((pipeline.ROOT / "tools/demo_clips/comparison_exemptions.json").read_text())["cases"][0]
-        paths = [pipeline.ROOT / case["evidence"][key] for key in ("native_log", "headless_log")]
-        if not all(path.exists() for path in paths): self.skipTest("owner's retained native/headless logs unavailable")
-        return [json.loads(path.read_text()) for path in paths]
+        # Portable reference payload; native timing is generated from the
+        # reviewed policy, with no dependency on ignored owner artifacts.
+        case = json.loads(comparison.POLICY_PATH.read_text())["cases"][0]
+        fixture = Path(__file__).with_name("fixtures") / "demo_clips/weaver_reference.json.gz"
+        reference = json.loads(gzip.decompress(fixture.read_bytes()))
+        native = copy.deepcopy(reference)
+        native["headless"] = False
+        for point in case["points"]:
+            item = point["item"]
+            if "[" in item:
+                name, index = item.rstrip("]").split("[")
+                native[name][int(index)]["frame"] = point["native_frame"]
+            else:
+                native[item] = point["native_frame"]
+        return native, reference
 
     def test_reviewed_weaver_pairs_report_presentation_exemptions(self):
         native, reference = self.retained_weaver()
@@ -179,6 +191,22 @@ class DemoNativeComparisonTests(unittest.TestCase):
         native["frames"][42]["actors"]["player"]["hp"] -= 1
         reference["frames"][42]["actors"]["player"]["hp"] -= 1
         with self.assertRaises(comparison.ComparisonError): self.compare(native, reference)
+
+    def test_weaver_exemption_rejects_each_source_fingerprint_and_each_frame_coordinate(self):
+        native, reference = self.retained_weaver()
+        policy = json.loads(comparison.POLICY_PATH.read_text())
+        for source in policy["cases"][0]["source_sha256"]:
+            changed = copy.deepcopy(policy)
+            changed["cases"][0]["source_sha256"][source] = "0" * 64
+            with self.subTest(source=source), tempfile.TemporaryDirectory() as tmp:
+                path = Path(tmp) / "policy.json"
+                path.write_text(json.dumps(changed))
+                with patch.object(comparison, "POLICY_PATH", path), self.assertRaises(comparison.ComparisonError):
+                    self.compare(native, reference)
+        for coordinate in ("headless", "native"):
+            a, b = copy.deepcopy(native), copy.deepcopy(reference)
+            (a if coordinate == "native" else b)["events"][6]["frame"] += 1
+            with self.subTest(coordinate=coordinate), self.assertRaises(comparison.ComparisonError): self.compare(a, b)
 
     def test_weaver_exemptions_survive_record_compare_and_encode_reports(self):
         native, reference = self.retained_weaver()
@@ -579,7 +607,7 @@ class DemoStreamingTests(unittest.TestCase):
                 (output / folder).mkdir()
                 for name in names: (output / folder / f"{name}.mp4").write_bytes(b"old delivery")
             def encode_clip(directory, report, clip, style, destination, work):
-                self.assertFalse(destination.exists())
+                self.assertEqual(destination.read_bytes(), b"old delivery")
                 destination.write_bytes(b"replacement")
                 return {"clip": clip["id"], "path": str(destination)}
             with patch.object(pipeline, "hashes", return_value=TEST_PROVENANCE), \
@@ -601,6 +629,19 @@ class DemoStreamingTests(unittest.TestCase):
                 self.assertFalse((directory / "movie.avi").exists())
                 self.assertTrue((directory / "movie.wav").exists())
                 self.assertTrue((directory / "godot.log").exists())
+            # AVI cleanup must not make a later encode destroy its deliveries.
+            deliveries = {path: path.read_bytes() for path in (output / "clips").glob("*.mp4")}
+            reel_path = output / "reels/test.mp4"
+            reel_path.write_bytes(b"existing verified reel")
+            deliveries[reel_path] = reel_path.read_bytes()
+            with patch.object(pipeline, "hashes", return_value=TEST_PROVENANCE), \
+                 patch.object(pipeline, "DIRECTOR", director), patch.object(pipeline, "clips", return_value=clips), \
+                 patch.object(encode.sys, "argv", ["encode.py", "--output", str(output)]), \
+                 patch.object(encode, "encode_clip") as convert, patch.object(encode, "encode_reel") as reel, redirect_stdout(io.StringIO()):
+                self.assertTrue(encode.main())
+            convert.assert_not_called()
+            reel.assert_not_called()
+            for path, data in deliveries.items(): self.assertEqual(path.read_bytes(), data)
 
     def test_encode_keeps_good_clips_when_another_take_is_missing(self):
         with tempfile.TemporaryDirectory() as tmp:

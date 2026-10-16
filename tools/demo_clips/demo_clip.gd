@@ -8,6 +8,7 @@ const Settings = preload("res://scripts/settings_store.gd")
 const Progression = preload("res://scripts/progression_store.gd")
 const Parallel = preload("res://scripts/parallel_runtime.gd")
 const CaptureSettings = preload("res://tools/demo_clips/capture_settings.gd")
+const Pointer = preload("res://tools/demo_clips/pointer.gd")
 const DIRECTOR_PATH: String = "res://tools/demo_clips/clips.json"
 # Non-perceptible watchdogs and fixture preparation budget.
 const MAX_CLIP_FRAMES: int = 5400
@@ -121,7 +122,16 @@ func _run() -> void:
 	if probe and not headless:
 		await RenderingServer.frame_post_draw
 		var path: String = directory.path_join(str(clip["id"]) + ".png")
-		get_viewport().get_texture().get_image().save_png(path)
+		var viewport: SubViewport = get_viewport() as SubViewport
+		if viewport == null or viewport.size != Vector2i(1920, 1080):
+			errors.append("probe requires its fixed 1920x1080 SubViewport")
+			_finish()
+			return
+		var image: Image = viewport.get_texture().get_image()
+		if image.get_size() != Vector2i(1920, 1080) or image.save_png(path) != OK:
+			errors.append("probe texture capture failed or has the wrong dimensions")
+			_finish()
+			return
 		print(path)
 	_finish()
 
@@ -175,12 +185,7 @@ func _hover(action: Array) -> void:
 	for enemy: Dictionary in scene.get("_combat_state")["enemies"]:
 		if enemy["type"] != action[1]: continue
 		found = true
-		var position: Vector2 = board.get_global_transform_with_canvas() * board.call("world_position_for_tile", enemy["pos"])
-		var motion := InputEventMouseMotion.new()
-		motion.position = position
-		motion.global_position = position
-		if not headless: Input.warp_mouse(position)
-		get_viewport().push_input(motion, true)
+		Pointer.hover_tile(board, enemy["pos"], not headless and not probe)
 		await get_tree().process_frame
 		var rows: Array = board.call("_enemy_intent_rows_for_display", enemy, enemy.get("intent", {}))
 		if board.get("_hover_tile") != enemy["pos"]: errors.append("real mouse hover did not reach the actor tile")
