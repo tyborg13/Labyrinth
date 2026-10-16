@@ -15,8 +15,6 @@ const WALK_CYCLE_SECONDS: float = 0.47
 const WALK_FRAME_SECONDS: float = 1.0 / 60.0
 const BURST_FRAMES: int = 60
 const BURST_FRAME_SECONDS: float = 1.0 / 60.0
-const MARK_PREPARE_FRAMES: int = 14
-const MARK_PREPARE_FRAME_SECONDS: float = Motion.MARK_PREPARE_SECONDS / MARK_PREPARE_FRAMES
 
 var viewport: SubViewport
 var rigs: Dictionary = {}
@@ -72,10 +70,6 @@ static func motion_for_effect(effect: Dictionary, progress: float, player_tile: 
 	var target: Vector2i = effect.get("to", origin)
 	return {"clip": "attack", "action": action, "phase": phase_value,
 		"direction": (player_tile if target == origin else target) - origin}
-
-static func preparation_motion(effect: Dictionary, progress: float) -> Dictionary:
-	return {"clip": "attack", "action": "mark", "phase": progress * Motion.MARK_PREPARE_SECONDS / Motion.MARK_DURATION,
-		"direction": (effect.get("to", Vector2i.ZERO) as Vector2i) - (effect.get("from", Vector2i.ZERO) as Vector2i)}
 
 func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	active = enabled

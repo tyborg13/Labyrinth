@@ -1,0 +1,1431 @@
+{
+  "creature": "lightning_wisp",
+  "director_sha256": "9afd85fda216b122522a38825cd8c82d3c154fb48ebb432f1eee0a3c01f4f0de",
+  "joints_3d": {
+    "root": [
+      0,
+      0,
+      0
+    ],
+    "core": [
+      0,
+      0,
+      1.25
+    ],
+    "tail": [
+      0,
+      0,
+      0.85
+    ]
+  },
+  "parents": {
+    "root": null,
+    "core": "root",
+    "tail": "core"
+  },
+  "parts": {
+    "core": "core",
+    "crown": "core",
+    "tail": "tail",
+    "arc_left": "core",
+    "arc_right": "core"
+  },
+  "projection": {
+    "front": {
+      "forward": [
+        -0.8944271909999157,
+        0.44721359549995815
+      ],
+      "parts": {
+        "root": {
+          "lean_deg": -1.0,
+          "joint_3d": [
+            0,
+            0,
+            0
+          ]
+        },
+        "core": {
+          "lean_deg": -1.0,
+          "joint_3d": [
+            0,
+            0,
+            1.25
+          ],
+          "raise_deg": 1.0
+        },
+        "tail": {
+          "lean_deg": -1.0,
+          "joint_3d": [
+            0,
+            0,
+            0.85
+          ],
+          "raise_deg": -1.0
+        }
+      }
+    },
+    "rear": {
+      "forward": [
+        0.894427190999916,
+        -0.4472135954999577
+      ],
+      "parts": {
+        "root": {
+          "lean_deg": 1.0,
+          "joint_3d": [
+            0,
+            0,
+            0
+          ]
+        },
+        "core": {
+          "lean_deg": 1.0,
+          "joint_3d": [
+            0,
+            0,
+            1.25
+          ],
+          "raise_deg": -1.0
+        },
+        "tail": {
+          "lean_deg": 1.0,
+          "joint_3d": [
+            0,
+            0,
+            0.85
+          ],
+          "raise_deg": 1.0
+        }
+      }
+    }
+  },
+  "clips": {
+    "idle": {
+      "seconds": 2.2,
+      "loop": true,
+      "intents": []
+    },
+    "move": {
+      "seconds": 0.8,
+      "intents": [
+        "spark_dart:move_toward",
+        "static_lash:move_toward",
+        "blinding_arc:move_away"
+      ],
+      "note": "drift: leans into the travel, tail streams behind, small arc"
+    },
+    "strike": {
+      "seconds": 0.7,
+      "contact": 0.45,
+      "intents": [
+        "spark_dart:melee"
+      ],
+      "note": "gathers back, lunges and stretches toward the target at contact, snaps back"
+    },
+    "cast": {
+      "seconds": 0.8,
+      "contact": 0.5,
+      "intents": [
+        "static_lash:ranged",
+        "blinding_arc:ranged"
+      ],
+      "note": "rears back and puffs up, thrusts forward at release"
+    },
+    "hit": {
+      "seconds": 0.55,
+      "intents": []
+    },
+    "death": {
+      "seconds": 1.2,
+      "terminal": true,
+      "intents": [],
+      "note": "dissipates: puffs up while sinking, tail curls up and shrinks, fades out"
+    }
+  },
+  "view_tracks": {
+    "front": {
+      "idle": [
+        {
+          "source": "body.lift_px",
+          "bone": "root",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 4.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "core.squash",
+          "bone": "core",
+          "channel": "squash",
+          "keys": [
+            {
+              "at": 0,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 1.035,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.65,
+              "value": 0.985,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "tail.raise_deg",
+          "bone": "tail",
+          "channel": "raise_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 4.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.55,
+              "value": -6.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 4.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "core.lean_deg",
+          "bone": "core",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.4,
+              "value": -1.5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "move": [
+        {
+          "source": "body.forward_px",
+          "bone": "root",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.9,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "fraction_of_step"
+        },
+        {
+          "source": "core.lean_deg",
+          "bone": "core",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": -10.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": -8.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "tail.raise_deg",
+          "bone": "tail",
+          "channel": "raise_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 16.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8,
+              "value": 10.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "body.lift_px",
+          "bone": "root",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 6.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "fraction_of_step"
+        }
+      ],
+      "strike": [
+        {
+          "source": "body.forward_px",
+          "bone": "root",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": -5.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": 14.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "core.squash",
+          "bone": "core",
+          "channel": "squash",
+          "keys": [
+            {
+              "at": 0,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 1.06,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": 0.9,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 1.02,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "core.lean_deg",
+          "bone": "core",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 6.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": -12.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "tail.raise_deg",
+          "bone": "tail",
+          "channel": "raise_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": 18.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8,
+              "value": -4.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "cast": [
+        {
+          "source": "core.lean_deg",
+          "bone": "core",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.38,
+              "value": 8.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -10.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8,
+              "value": -2.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "core.scale",
+          "bone": "core",
+          "channel": "scale",
+          "keys": [
+            {
+              "at": 0,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.4,
+              "value": 1.06,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.52,
+              "value": 0.96,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "body.lift_px",
+          "bone": "root",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.38,
+              "value": 4.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "tail.raise_deg",
+          "bone": "tail",
+          "channel": "raise_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 14.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": -3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "hit": [
+        {
+          "source": "body.forward_px",
+          "bone": "root",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.15,
+              "value": -6.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "core.squash",
+          "bone": "core",
+          "channel": "squash",
+          "keys": [
+            {
+              "at": 0,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.15,
+              "value": 0.9,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.4,
+              "value": 1.04,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "tail.raise_deg",
+          "bone": "tail",
+          "channel": "raise_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.2,
+              "value": -14.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 5.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "death": [
+        {
+          "source": "core.scale",
+          "bone": "core",
+          "channel": "scale",
+          "keys": [
+            {
+              "at": 0,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 1.1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 1.18,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "body.lift_px",
+          "bone": "root",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -10.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "tail.raise_deg",
+          "bone": "tail",
+          "channel": "raise_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": -0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": -25.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -35.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "tail.scale",
+          "bone": "tail",
+          "channel": "scale",
+          "keys": [
+            {
+              "at": 0,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.6,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "body.alpha",
+          "bone": "root",
+          "channel": "alpha",
+          "keys": [
+            {
+              "at": 0,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.55,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ]
+    },
+    "rear": {
+      "idle": [
+        {
+          "source": "body.lift_px",
+          "bone": "root",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 4.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "core.squash",
+          "bone": "core",
+          "channel": "squash",
+          "keys": [
+            {
+              "at": 0,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 1.035,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.65,
+              "value": 0.985,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "tail.raise_deg",
+          "bone": "tail",
+          "channel": "raise_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": -4.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.55,
+              "value": 6.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -4.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "core.lean_deg",
+          "bone": "core",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.4,
+              "value": 1.5,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": -1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "move": [
+        {
+          "source": "body.forward_px",
+          "bone": "root",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.9,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "fraction_of_step"
+        },
+        {
+          "source": "core.lean_deg",
+          "bone": "core",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.25,
+              "value": 10.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.75,
+              "value": 8.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "tail.raise_deg",
+          "bone": "tail",
+          "channel": "raise_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": -16.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8,
+              "value": -10.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "body.lift_px",
+          "bone": "root",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 6.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "fraction_of_step"
+        }
+      ],
+      "strike": [
+        {
+          "source": "body.forward_px",
+          "bone": "root",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": -5.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": 14.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "core.squash",
+          "bone": "core",
+          "channel": "squash",
+          "keys": [
+            {
+              "at": 0,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": 1.06,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": 0.9,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.7,
+              "value": 1.02,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "core.lean_deg",
+          "bone": "core",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.3,
+              "value": -6.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": 12.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "tail.raise_deg",
+          "bone": "tail",
+          "channel": "raise_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.45,
+              "value": -18.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8,
+              "value": 4.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "cast": [
+        {
+          "source": "core.lean_deg",
+          "bone": "core",
+          "channel": "lean_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.38,
+              "value": -8.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 10.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.8,
+              "value": 2.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "core.scale",
+          "bone": "core",
+          "channel": "scale",
+          "keys": [
+            {
+              "at": 0,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.4,
+              "value": 1.06,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.52,
+              "value": 0.96,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "body.lift_px",
+          "bone": "root",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.38,
+              "value": 4.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "tail.raise_deg",
+          "bone": "tail",
+          "channel": "raise_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": -14.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.85,
+              "value": 3.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "hit": [
+        {
+          "source": "body.forward_px",
+          "bone": "root",
+          "channel": "forward_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.15,
+              "value": -6.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "core.squash",
+          "bone": "core",
+          "channel": "squash",
+          "keys": [
+            {
+              "at": 0,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.15,
+              "value": 0.9,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.4,
+              "value": 1.04,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "tail.raise_deg",
+          "bone": "tail",
+          "channel": "raise_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.2,
+              "value": 14.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": -5.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ],
+      "death": [
+        {
+          "source": "core.scale",
+          "bone": "core",
+          "channel": "scale",
+          "keys": [
+            {
+              "at": 0,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.5,
+              "value": 1.1,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 1.18,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "body.lift_px",
+          "bone": "root",
+          "channel": "lift_px",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": -10.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "tail.raise_deg",
+          "bone": "tail",
+          "channel": "raise_deg",
+          "keys": [
+            {
+              "at": 0,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.6,
+              "value": 25.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 35.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "tail.scale",
+          "bone": "tail",
+          "channel": "scale",
+          "keys": [
+            {
+              "at": 0,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.6,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        },
+        {
+          "source": "body.alpha",
+          "bone": "root",
+          "channel": "alpha",
+          "keys": [
+            {
+              "at": 0,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 0.55,
+              "value": 1.0,
+              "interpolation": "smoothstep"
+            },
+            {
+              "at": 1,
+              "value": 0.0,
+              "interpolation": "smoothstep"
+            }
+          ],
+          "forward_mode": "pixels"
+        }
+      ]
+    }
+  },
+  "TODO_DESIGN": {}
+}

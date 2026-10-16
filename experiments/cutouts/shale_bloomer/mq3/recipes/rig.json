@@ -1,0 +1,241 @@
+{
+  "character_id": "shale_bloomer",
+  "joints": {
+    "root": {
+      "position_3d": [
+        0,
+        0,
+        0
+      ],
+      "parent": null
+    },
+    "trunk": {
+      "position_3d": [
+        0,
+        0,
+        0.3
+      ],
+      "parent": "root"
+    },
+    "core": {
+      "position_3d": [
+        0,
+        0,
+        1.36
+      ],
+      "parent": "crown"
+    },
+    "petal_near_l": {
+      "position_3d": [
+        0.36516666666666664,
+        -0.11633333333333333,
+        1.2365000000000002
+      ],
+      "parent": "crown"
+    },
+    "petal_near_r": {
+      "position_3d": [
+        0.2841666666666667,
+        0.15133333333333335,
+        1.2924999999999998
+      ],
+      "parent": "crown"
+    },
+    "petal_far_l": {
+      "position_3d": [
+        0.11916666666666668,
+        -0.213,
+        1.3438333333333334
+      ],
+      "parent": "crown"
+    },
+    "petal_far_r": {
+      "position_3d": [
+        0.038,
+        0.05466666666666666,
+        1.3995
+      ],
+      "parent": "crown"
+    },
+    "tendril_high_l": {
+      "position_3d": [
+        0.352,
+        -0.229,
+        1.06
+      ],
+      "parent": "trunk"
+    },
+    "tendril_high_r": {
+      "position_3d": [
+        -0.133,
+        0.201,
+        1.0
+      ],
+      "parent": "trunk"
+    },
+    "tendril_mid_l": {
+      "position_3d": [
+        -0.199,
+        -0.215,
+        0.86
+      ],
+      "parent": "trunk"
+    },
+    "tendril_low_l": {
+      "position_3d": [
+        0.437,
+        0.09,
+        0.58
+      ],
+      "parent": "trunk"
+    },
+    "tendril_low_r": {
+      "position_3d": [
+        -0.14,
+        0.323,
+        0.66
+      ],
+      "parent": "trunk"
+    },
+    "root_stem_l": {
+      "position_3d": [
+        -0.047,
+        -0.316,
+        0.16
+      ],
+      "parent": "trunk"
+    },
+    "root_stem_r": {
+      "position_3d": [
+        0.047,
+        0.316,
+        0.16
+      ],
+      "parent": "trunk"
+    },
+    "root_stem_c": {
+      "position_3d": [
+        0.314,
+        -0.063,
+        0.16
+      ],
+      "parent": "trunk"
+    },
+    "root_tip_l": {
+      "position_3d": [
+        -0.065,
+        -0.436,
+        0.07
+      ],
+      "parent": "root_stem_l"
+    },
+    "root_tip_r": {
+      "position_3d": [
+        0.085,
+        0.567,
+        0.07
+      ],
+      "parent": "root_stem_r"
+    },
+    "root_tip_c": {
+      "position_3d": [
+        0.508,
+        -0.102,
+        0.07
+      ],
+      "parent": "root_stem_c"
+    },
+    "crown": {
+      "position_3d": [
+        0,
+        0,
+        1.2
+      ],
+      "parent": "trunk"
+    }
+  },
+  "parts": {
+    "trunk": "trunk",
+    "core": "core",
+    "petal_near_l": "petal_near_l",
+    "petal_near_r": "petal_near_r",
+    "petal_far_l": "petal_far_l",
+    "petal_far_r": "petal_far_r",
+    "tendril_high_l": "tendril_high_l",
+    "tendril_high_r": "tendril_high_r",
+    "tendril_mid_l": "tendril_mid_l",
+    "tendril_low_l": "tendril_low_l",
+    "tendril_low_r": "tendril_low_r",
+    "root_stem_l": "root_stem_l",
+    "root_stem_r": "root_stem_r",
+    "root_stem_c": "root_stem_c",
+    "root_tip_l": "root_tip_l",
+    "root_tip_r": "root_tip_r",
+    "root_tip_c": "root_tip_c"
+  },
+  "motion": "motion.gd",
+  "rigid_bones": [],
+  "contact_feet": [],
+  "clips": {
+    "idle": {
+      "frames": 168,
+      "duration": 2.8,
+      "loop": true
+    },
+    "move": {
+      "frames": 54,
+      "duration": 0.9,
+      "loop": false
+    },
+    "burst": {
+      "frames": 60,
+      "duration": 1.0,
+      "loop": false
+    },
+    "shot": {
+      "frames": 48,
+      "duration": 0.8,
+      "loop": false
+    },
+    "shell": {
+      "frames": 60,
+      "duration": 1.0,
+      "loop": false
+    },
+    "hit": {
+      "frames": 36,
+      "duration": 0.6,
+      "loop": false
+    },
+    "death": {
+      "frames": 78,
+      "duration": 1.3,
+      "loop": false
+    }
+  },
+  "design_placeholders": {},
+  "materials": {
+    "trunk": "dark brown braided roots",
+    "core": "amber crystal heart",
+    "petal_near_l": "shale daisy petals",
+    "petal_near_r": "shale daisy petals",
+    "petal_far_l": "shale daisy petals",
+    "petal_far_r": "shale daisy petals",
+    "tendril_high_l": "dark brown braided roots",
+    "tendril_high_r": "dark brown braided roots",
+    "tendril_mid_l": "dark brown braided roots",
+    "tendril_low_l": "dark brown braided roots",
+    "tendril_low_r": "dark brown braided roots",
+    "root_stem_l": "dark brown braided roots",
+    "root_stem_r": "dark brown braided roots",
+    "root_stem_c": "dark brown braided roots",
+    "root_tip_l": "dark brown braided roots",
+    "root_tip_r": "dark brown braided roots",
+    "root_tip_c": "dark brown braided roots"
+  },
+  "copy_files": [],
+  "proof_defaults": {
+    "native_fps": 60,
+    "render_size": 1024
+  }
+}

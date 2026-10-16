@@ -54,6 +54,9 @@ const BileBloomerFx = preload("res://scripts/bile_bloomer_cutout/bloom_fx.gd")
 var _bile_bloomer_renderers: Dictionary = {}
 const GaolerCutout = preload("res://scripts/chainbound_gaoler_cutout/renderer.gd")
 var _gaoler_renderers: Dictionary = {}
+const MaquettePresentation = preload("res://scripts/maquette_cutout_runtime/presentation.gd")
+const ShaleMaquette = preload("res://scripts/maquette_cutout_runtime/shale_bloomer_renderer.gd")
+const WispMaquette = preload("res://scripts/maquette_cutout_runtime/lightning_wisp_renderer.gd")
 const GustShrikeCutout = preload("res://scripts/gust_shrike_cutout/renderer.gd")
 const GustShrikePresentation = preload("res://scripts/gust_shrike_cutout/presentation.gd")
 var _gust_shrike_renderers: Dictionary = {}
@@ -1141,7 +1144,7 @@ func _sync_guardian_renderers() -> void:
 
 func _sync_bile_bloomer_renderers() -> void:
 	if not _is_dynamic_render_layer and not _is_static_render_cache_layer and is_inside_tree():
-		BileBloomerPool.sync(self, _bile_bloomer_renderers, combat_state, presentation)
+		MaquettePresentation.sync(self, "bile_bloomer", _bile_bloomer_renderers)
 
 func _sync_harrier_renderers() -> void:
 	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
@@ -1577,35 +1580,7 @@ func _sync_iskaldra_renderers() -> void:
 			renderer.queue_free()
 
 func _sync_lightning_wisp_renderers() -> void:
-	if _is_dynamic_render_layer or _is_static_render_cache_layer or not is_inside_tree():
-		return
-	var actors: Dictionary = {}
-	for enemy: Dictionary in combat_state.get("enemies", []):
-		if str(enemy.get("type", "")) == "lightning_wisp" and int(enemy.get("hp", 0)) > 0:
-			actors["enemy_%d" % int(enemy.get("id", -1))] = enemy
-	for unit: Dictionary in presentation.get("death_animation_units", []):
-		if str(unit.get("type", "")) == "lightning_wisp":
-			actors["enemy_%d" % int(unit.get("id", -1))] = unit
-	var motions: Dictionary = presentation.get("lightning_wisp_motion", {})
-	var player_pos: Vector2i = (combat_state.get("player", {}) as Dictionary).get("pos", Vector2i.ZERO)
-	for actor_key: String in actors:
-		var unit: Dictionary = actors[actor_key]
-		var renderer: Node = _lightning_wisp_renderers.get(actor_key, null) as Node
-		var motion: Dictionary = motions.get(actor_key, {})
-		if not is_instance_valid(renderer):
-			renderer = LightningWispCutout.new()
-			renderer.name = "LightningWispCutout_%d" % int(unit.get("id", -1))
-			add_child(renderer)
-			_lightning_wisp_renderers[actor_key] = renderer
-		if not bool(unit.get("death_animation", false)) and not (combat_state.get("player", {}) as Dictionary).is_empty():
-			motion = EnemyCutoutFacing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player_pos)
-		var visible_actor: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
-		renderer.call("present", motion, bool(presentation.get("reduced_motion", false)), visible_actor and not bool(unit.get("death_animation", false)))
-	for actor_key: String in _lightning_wisp_renderers.keys():
-		if not actors.has(actor_key):
-			var renderer: Node = _lightning_wisp_renderers[actor_key]
-			_lightning_wisp_renderers.erase(actor_key)
-			renderer.queue_free()
+	MaquettePresentation.sync(self, "lightning_wisp", _lightning_wisp_renderers)
 
 func noctyrax_animation_snapshot(actor_key: String) -> Dictionary:
 	var renderer: Node = _noctyrax_renderers.get(actor_key, null) as Node
@@ -3346,7 +3321,7 @@ func _coalescible_explicit_redraw_frame() -> int:
 
 func _changed_unit_presentation_actor_keys(previous: Dictionary, next: Dictionary) -> Dictionary:
 	var changed: Dictionary = {}
-	for field: String in ["unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "static_enemy_facings"]:
+	for field: String in ["unit_world_positions", "unit_footprint_world_positions", "unit_texture_origins", "unit_draw_tiles", "static_enemy_facings"]:
 		var previous_values: Dictionary = previous.get(field, {}) as Dictionary
 		var next_values: Dictionary = next.get(field, {}) as Dictionary
 		for key_var: Variant in previous_values:
@@ -3474,7 +3449,7 @@ func _queue_presentation_change_redraws(
 			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength", "combat_feel_flash", "combat_feel_flash_actor_keys":
 				impact_floor_changed = true
 				impact_changed = true
-			"static_enemy_facings", "death_animation_units", "preview_units", "unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "visible_enemy_ids", "umbra_action_actor_clips":
+			"static_enemy_facings", "death_animation_units", "preview_units", "unit_world_positions", "unit_footprint_world_positions", "unit_texture_origins", "unit_draw_tiles", "visible_enemy_ids", "umbra_action_actor_clips":
 				unit_movement_changed = true
 				foreground_changed = true
 				# Large-target footprint extensions share the ground overlay layer.
@@ -14563,7 +14538,7 @@ func unit_rig_preparation_manifest(state: Dictionary) -> Dictionary:
 		"chainbound_gaoler": GaolerCutout, "cinder_droplet": CinderDropletCutout,
 		"cinder_ooze": CinderOozeCutout, "frostglass_lancer": FrostglassCutout,
 		"grave_surgeon": GraveSurgeonCutout, "harrier": HarrierCutout,
-		"bile_bloomer": BileBloomerCutout, "lightning_wisp": LightningWispCutout,
+		"bile_bloomer": ShaleMaquette, "lightning_wisp": WispMaquette,
 		"iskaldra": IskaldraCutout, "noctyrax": NoctyraxCutout, "tharokh": TharokhCutout,
 		"vaeloryx": VaeloryxCutout, "veilbound_acolyte": VeilboundAcolyteCutout,
 		"vyraketh": VyrakethCutout, "zekarion": ZekarionCutout,
@@ -14742,6 +14717,12 @@ func _ensure_unit_assets_for_type(unit_type: String) -> void:
 	if unit_type.is_empty() or _unit_assets_loaded.has(unit_type):
 		return
 	_unit_assets_loaded[unit_type] = true
+	if MaquettePresentation.handles(unit_type):
+		var creature: String = str(MaquettePresentation.CREATURES[unit_type])
+		_unit_textures[unit_type] = AssetLoader.load_texture_source_first("res://assets/units/" + creature + "_cutout/front/rest.png")
+		_unit_rear_textures[unit_type] = AssetLoader.load_texture_source_first("res://assets/units/" + creature + "_cutout/rear/rest.png")
+		_queue_unit_shadow_source_data(unit_type)
+		return
 	var art_path: String = ""
 	if unit_type == "crawler":
 		_unit_textures[unit_type] = AssetLoader.load_texture_source_first(CrawlerCutout.REST_PATH)
@@ -15416,7 +15397,11 @@ func _unit_draw_rect_for_center(unit: Dictionary, center: Vector2) -> Rect2:
 	return rect
 
 func _unit_texture_draw_rect(unit: Dictionary, center: Vector2, body_scale: float = 1.0) -> Rect2:
-	var rect: Rect2 = _unit_draw_rect_for_center(unit, center)
+	# Root-travel rigs submit their texture at the segment origin while keeping
+	# the actor center on the visible body for shadows, HP and HUD geometry.
+	var origins: Dictionary = presentation.get("unit_texture_origins", {})
+	var texture_origin: Vector2 = origins.get(str(unit.get("key", "")), center)
+	var rect: Rect2 = _unit_draw_rect_for_center(unit, texture_origin)
 	# Collapse around the logical body floor before adding transparent rig padding.
 	# Squashing the padded viewport would pull the actor below its death tile.
 	if bool(unit.get("death_animation", false)):

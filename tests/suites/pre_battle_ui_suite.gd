@@ -1,5 +1,7 @@
 extends RefCounted
 
+const MaquettePortrait = preload("res://scripts/maquette_cutout_runtime/portrait.gd")
+const MaquettePresentation = preload("res://scripts/maquette_cutout_runtime/presentation.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const RunSceneScript = preload("res://scripts/run_scene.gd")
 const PreBattleView = preload("res://scripts/pre_battle_view.gd")
@@ -182,8 +184,8 @@ static func _test_staged_sprite_fitting_for_full_roster(host: Node, expect: Call
 			expect.call(stage != null, "%s should stand on an ink-pool stage" % enemy_type)
 			expect.call(art != null and art.texture != null, "%s should resolve its staged full-body sprite" % enemy_type)
 			if art != null and art.texture != null:
-				expect.call(_texture_path(art.texture) == str(definition.get("art_path", "")), "%s stage should use its registered full-body art" % enemy_type)
-				expect.call(not art.texture is AtlasTexture and art.texture.get_size() == Vector2(255.0, 255.0), "%s stage should draw the complete source canvas" % enemy_type)
+				expect.call(_texture_path(art.texture) == (MaquettePortrait.rest_path(enemy_type) if MaquettePresentation.handles(enemy_type) else str(definition.get("art_path", ""))), "%s stage should use its registered full-body art" % enemy_type)
+				expect.call(_full_source_canvas(art.texture, enemy_type), "%s stage should draw the complete source canvas" % enemy_type)
 				expect.call(art.stretch_mode == TextureRect.STRETCH_SCALE and art.texture_filter == CanvasItem.TEXTURE_FILTER_LINEAR, "%s staged sprite should use the combat board's uniform scale and linear filtering" % enemy_type)
 				var drawn_rect: Rect2 = sprite_visible_bounds(card)
 				expect.call(card.get_global_rect().grow(0.01).encloses(drawn_rect), "%s complete visible sprite should fit inside its column: %s in %s" % [enemy_type, drawn_rect, card.get_global_rect()])
@@ -261,7 +263,7 @@ static func assert_true_scale(flow: Control, expect: Callable, context: String) 
 		var enemy_type: String = str((card.get("enemy") as Dictionary).get("type", ""))
 		var definition: Dictionary = GameData.enemy_def(enemy_type)
 		var art := card.get_node("PreBattleEnemyArt") as TextureRect
-		expect.call(art.texture != null and not art.texture is AtlasTexture and art.texture.get_size() == Vector2(255.0, 255.0), "%s %s must draw its full source canvas" % [context, enemy_type])
+		expect.call(art.texture != null and _full_source_canvas(art.texture, enemy_type), "%s %s must draw its full source canvas" % [context, enemy_type])
 		if art.texture == null:
 			continue
 		var drawn_scale: float = art.size.x / art.texture.get_width()
@@ -386,6 +388,7 @@ static func _assert_lineup_cells(flow: Control, expect: Callable, context: Strin
 
 static func _texture_path(texture: Texture2D) -> String:
 	while texture is AtlasTexture:
+		if texture.has_meta("asset_source_path"): return str(texture.get_meta("asset_source_path"))
 		texture = (texture as AtlasTexture).atlas
 	return str(texture.get_meta("asset_source_path", texture.resource_path)) if texture != null else ""
 
@@ -449,3 +452,9 @@ static func _assert_tag_identity(row: Control, word: String, icon_key: String, e
 		if icons.size() == 1:
 			var texture: Texture2D = (icons[0] as TextureRect).texture
 			expect.call(texture != null and _texture_path(texture) == ActionIcons.icon_path(icon_key), "%s %s must show the registered %s icon path" % [context, word, icon_key])
+
+static func _full_source_canvas(texture: Texture2D, type: String) -> bool:
+	if texture == null or texture.get_size() != Vector2(255, 255): return false
+	if MaquettePresentation.handles(type):
+		return texture is AtlasTexture and (texture as AtlasTexture).region == Rect2(128, 128, 255, 255) and (texture as AtlasTexture).atlas is ViewportTexture
+	return not texture is AtlasTexture

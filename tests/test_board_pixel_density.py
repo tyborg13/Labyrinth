@@ -144,6 +144,9 @@ class BoardPixelDensityTest(unittest.TestCase):
         directories = {"assets/units/stone_warden_cutout" if kind == "warden"
                        else f"assets/units/{kind}_cutout" for kind in types}
         directories.update(str(p.relative_to(ROOT)) for p in (ROOT / "assets/units/guardians").iterdir() if p.is_dir())
+        # rr-04 retains the legacy Bloomer fixture assets and registers the new
+        # Shale maquette production family under its approved creature name.
+        directories.add("assets/units/shale_bloomer_cutout")
         registered_dirs = {e["dir"] for e in self.entries.values() if e["kind"] == "rig" and e["id"] != "hero_rear"}
         self.assertEqual(directories, registered_dirs, "New board rig: register by the rule, then --adopt <path>")
         directories.add("assets/units/protagonist_cutout/rear")
@@ -301,7 +304,7 @@ func unrelated():
         for name, grids in expected.items():
             self.assertEqual(tuple(self.entries[name]["facings"][f]["grid"] for f in ("front", "rear")), grids, name)
         for settings in self.entries["lightning_wisp"]["facings"].values():
-            self.assertEqual((settings["mode"], settings["grid"]), ("regrid", 1.5))
+            self.assertEqual((settings["mode"], settings["grid"]), ("regrid", 1.47))
         self.assertEqual(self.entries["hero_rear"]["facings"]["rear"]["mode"], "clean")
         self.assertEqual((self.entries["scavenger_npc"]["mode"], self.entries["scavenger_npc"]["grid"]), ("clean", 1.0))
 

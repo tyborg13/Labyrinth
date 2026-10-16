@@ -24,7 +24,7 @@ const PROFILES: Dictionary = {
 	"warden": {"front": Vector2(131.5, 222.0), "rear": Vector2(119.0, 224.5), "height": Vector2(211.0000, 212.5000)},
 	"cinder_ooze": {"front": Vector2(130.3333, 204.8333), "rear": Vector2(132.6667, 202.6667), "height": Vector2(192.8333, 183.6667)},
 	"cinder_droplet": {"front": Vector2(125.4, 203.2), "rear": Vector2(120.4, 201.8), "height": Vector2(123.2000, 121.8000)},
-	"bile_bloomer": {"front": Vector2(138.6667, 241.6667), "rear": Vector2(121.0, 241.6667), "height": Vector2(239.6667, 239.6667)},
+	"bile_bloomer": {"front": Vector2(128.00000000, 195.40221374), "rear": Vector2(114.53153153, 207.00554874), "height": Vector2(175.40221374, 163.00554874)},
 	"chainbound_gaoler": {"front": Vector2(142.0, 248.0), "rear": Vector2(140.0, 248.5), "height": Vector2(238.0000, 240.5000)},
 	"grave_surgeon": {"front": Vector2(163.5, 207.0), "rear": Vector2(166.5, 200.0), "height": Vector2(180.0000, 173.0000)},
 	"frostglass_lancer": {"front": Vector2(122.5, 242.0), "rear": Vector2(134.0, 244.5), "height": Vector2(224.0000, 218.5000)},
@@ -35,7 +35,7 @@ const PROFILES: Dictionary = {
 	"noctyrax": {"front": Vector2(111.25, 188.5), "rear": Vector2(160.0, 190.0), "height": Vector2(182.5000, 187.0000)},
 	"zekarion": {"front": Vector2(116.0, 185.5), "rear": Vector2(152.75, 178.0), "height": Vector2(176.5000, 170.0000)},
 	"veilbound_acolyte": {"front": Vector2(140.0, 229.0), "rear": Vector2(134.5, 230.0), "height": Vector2(210.0000, 211.0000)},
-	"lightning_wisp": {"front": Vector2(127.0, 227.0), "rear": Vector2(127.0, 227.0), "height": Vector2(210.0000, 210.0000)},
+	"lightning_wisp": {"front": Vector2(131.00000000, 270.71935182), "rear": Vector2(124.00000000, 279.71935182), "height": Vector2(192.71935182, 197.71935182)},
 }
 
 static func has_profile(unit_type: String) -> bool:

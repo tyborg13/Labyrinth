@@ -4,7 +4,6 @@ const UiComponentSurface = preload("res://scripts/ui_component_surface.gd")
 
 const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
 const LightningWispCutout = preload("res://scripts/lightning_wisp_cutout/renderer.gd")
-const LightningWispAction = preload("res://scripts/lightning_wisp_cutout/action.gd")
 const NoctyraxCutout = preload("res://scripts/noctyrax_cutout/renderer.gd")
 const VyrakethCutout = preload("res://scripts/vyraketh_cutout/renderer.gd")
 const ZekarionCutout = preload("res://scripts/zekarion_cutout/renderer.gd")
@@ -17,6 +16,7 @@ const GuardianCutout = preload("res://scripts/guardian_cutout/renderer.gd")
 const BileBloomerCutout = preload("res://scripts/bile_bloomer_cutout/renderer.gd")
 const ActorPresentation = preload("res://scripts/actor_presentation.gd")
 const GaolerCutout = preload("res://scripts/chainbound_gaoler_cutout/renderer.gd")
+const MaquetteAction = preload("res://scripts/maquette_cutout_runtime/action.gd")
 const GustShrikeAction = preload("res://scripts/gust_shrike_cutout/action.gd")
 const CinderDropletCutout = preload("res://scripts/cinder_droplet_cutout/renderer.gd")
 const CinderOozeCutout = preload("res://scripts/cinder_ooze_cutout/renderer.gd")
@@ -12774,6 +12774,8 @@ func _build_turn_order_slot(entry: Dictionary, index: int) -> Control:
 	portrait.modulate = _turn_order_portrait_modulate(entry, active)
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	portrait_crop.add_child(portrait)
+	if not bool(entry.get("hidden_by_umbra", false)):
+		preload("res://scripts/maquette_cutout_runtime/portrait.gd").bind(portrait, str(entry.get("type", "")), _reduced_motion_enabled(), true)
 	frame.set_meta("turn_order_portrait_texture", portrait.texture)
 	if not str(entry.get("late_relic_id", "")).is_empty():
 		# A miniature of the relic-bar badge, so the cue reads as "this relic applies here".
@@ -23439,6 +23441,7 @@ func _death_hold_presentation(
 	return presentation
 
 func _enemy_death_frame_count_for_unit(unit: Dictionary) -> int:
+	if MaquetteAction.handles(str(unit.get("type", ""))): return MaquetteAction.frames_for(str(unit["type"]), "death")
 	if board_view != null and board_view.has_method("_unit_death_frame_count"):
 		var board_count: int = int(board_view.call("_unit_death_frame_count", unit))
 		if board_count > 0:
@@ -23451,6 +23454,7 @@ func _enemy_death_frame_count_for_unit(unit: Dictionary) -> int:
 	return maxi(1, columns * rows)
 
 func _enemy_death_frame_seconds_for_unit(unit: Dictionary) -> float:
+	if MaquetteAction.handles(str(unit.get("type", ""))): return 1.0 / MaquetteAction.FPS
 	if board_view != null and board_view.has_method("_unit_death_frame_seconds"):
 		return maxf(0.01, float(board_view.call("_unit_death_frame_seconds", unit)))
 	var definition: Dictionary = GameData.enemy_def(str(unit.get("type", "")))
@@ -24518,6 +24522,7 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				_set_action_banner("%s: %s" % [str(step.get("actor_name", "Enemy")), str(step.get("label", "Ground"))])
 				await _animate_surface_change(before_ground, animated_state, {"surface_feedback_events": step.get("surface_events", []), "focus_actor_keys": [step_actor_key]})
 			"block", "heal", "stoneskin", "status", "status_damage":
+				await MaquetteAction.play_utility(self, animated_state, step)
 				if GuardianCutout.handles(str(_animation_actor_unit(animated_state,step_actor_key).get("type",""))) and str(step["kind"]) in ["block","stoneskin"]:
 					await _animate_guardian_utility(animated_state,step,step_actor_key)
 				if str(preload("res://scripts/dragon_presentation.gd").profile(step).get("geometry","")) == "utility":
@@ -24556,15 +24561,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				var from_point: Vector2 = board_view.world_position_for_tile(step.get("from", Vector2i.ZERO))
 				var to_point: Vector2 = board_view.world_position_for_tile(step.get("to", Vector2i.ZERO))
 				var wisp_attack: bool = LightningWispCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
-				if wisp_attack and str(step.get("kind", "")) == "ranged":
-					await LightningWispAction.prepare(self, animated_state, step)
 				var noctyrax_attack: bool = NoctyraxCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
 				var warden_attack: bool = WardenCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
 				var crawler_attack: bool = CrawlerCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
 				var acolyte_attack: bool = AcolyteCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
 				var bloomer_attack: bool = BileBloomerCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
-				if bloomer_attack and str(step.get("kind", "")) == "ranged" and not _reduced_motion_enabled():
-					await _animate_bile_bloomer_preparation(animated_state, step, step_actor_key)
 				var gaoler_attack: bool = GaolerCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
 				var gust_shrike_attack: bool = GustShrikeAction.Renderer.available() and not GustShrikeAction.action_for_effect(step, _animation_actor_unit(animated_state, step_actor_key)).is_empty()
 				var cinder_droplet_attack: bool = CinderDropletCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
@@ -24599,6 +24600,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				if guardian_attack:
 					attack_frame_count = 1 if _reduced_motion_enabled() else GuardianCutout.action_frames(step,_animation_actor_unit(animated_state,step_actor_key))
 					attack_frame_seconds = 0.0 if _reduced_motion_enabled() else GuardianCutout.ATTACK_FRAME_SECONDS
+				var maquette_type: String = str(_animation_actor_unit(animated_state, step_actor_key).get("type", ""))
+				var maquette_clip: String = MaquetteAction.clip_for(step, _animation_actor_unit(animated_state, step_actor_key))
+				if not maquette_clip.is_empty():
+					attack_frame_count = 1 if _reduced_motion_enabled() else MaquetteAction.frames_for(maquette_type, maquette_clip)
+					attack_frame_seconds = 0.0 if _reduced_motion_enabled() else 1.0 / MaquetteAction.FPS
 				var trap_detonation_follows: bool = _attack_feedback_waits_for_trap(step)
 				if preload("res://scripts/dragon_presentation.gd").area_fx(step):
 					attack_frame_count = 1 if _reduced_motion_enabled() else 66
@@ -25189,12 +25195,13 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 		# One registry supplies both cadence and distance for every cutout. A
 		# missing branch here previously left the Gaoler on legacy tile timing.
 		var frames: int = GuardianCutout.walk_segment_frames(length / source_scale, actor_type) if guardian_walk else int(travel_renderer.call("walk_segment_frames", length / source_scale)) if travel_renderer != null else MOVE_STEP_FRAMES
+		if MaquetteAction.handles(actor_type): frames = MaquetteAction.frames_for(actor_type, "move")
 		segment_frame_counts.append(frames)
 		segment_start_frames.append(total_frame_count)
 		distance_before.append(distance)
 		distance += length
 		total_frame_count += frames
-	frame_seconds = _combat_pacing.walk_frame_seconds(actor_key, segment_frame_counts, frame_seconds)
+	frame_seconds = 1.0 / MaquetteAction.FPS if MaquetteAction.handles(actor_type) else _combat_pacing.walk_frame_seconds(actor_key, segment_frame_counts, frame_seconds)
 	var sound_arrival: Dictionary = {"tile": -1, "segment": -1}
 	await _play_timed_animation_frames(total_frame_count, frame_seconds, func(frame_number: int) -> void:
 		var zero_based_frame: int = frame_number - 1
@@ -25245,7 +25252,9 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 			draw_tile,
 			segment_to
 		)
-		if actor_type == "gust_shrike" and GustShrikeAction.Renderer.available():
+		if MaquetteAction.handles(actor_type):
+			MaquetteAction.movement_frame(presentation, actor_type, actor_key, from_point, to_point, segment_to - segment_from, t, _reduced_motion_enabled())
+		elif actor_type == "gust_shrike" and GustShrikeAction.Renderer.available():
 			presentation["gust_shrike_motion"] = {actor_key: {"clip": "move", "direction": segment_to - segment_from, "phase": t}}
 		elif player_walk:
 			# The accepted gait travels along the 2:1 projected lane. Distance
@@ -25318,15 +25327,6 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 			presentation["zekarion_motion"] = {actor_key: {"clip":"walk", "direction":segment_to-segment_from,
 				"phase":(distance_before[path_index]+from_point.distance_to(to_point)*t)/source_scale/ZekarionCutout.walk_cycle_distance()}}
 		_render_board_state(display_state, presentation, true)
-	)
-
-func _animate_bile_bloomer_preparation(display_state: Dictionary, effect: Dictionary, actor_key: String) -> void:
-	# A short readable aim precedes the existing earth effect. This does not
-	# apply a step, emit an outcome, change FX phase boundaries or change targets.
-	await _play_timed_animation_frames(BileBloomerCutout.MARK_PREPARE_FRAMES, BileBloomerCutout.MARK_PREPARE_FRAME_SECONDS, func(frame: int) -> void:
-		var progress: float = float(frame) / float(BileBloomerCutout.MARK_PREPARE_FRAMES)
-		_render_board_state(display_state, {"focus_actor_keys": [actor_key],
-			"bile_bloomer_motion": {actor_key: BileBloomerCutout.preparation_motion(effect, progress)}}, true)
 	)
 
 func _umbra_movement_sample_visible(state: Dictionary, from_tile: Vector2i, to_tile: Vector2i, progress: float) -> bool:
@@ -25934,6 +25934,7 @@ func _render_board_state(display_state: Dictionary, presentation: Dictionary, st
 	_combat_pacing.decorate(display_state, rendered_presentation)
 	preload("res://scripts/cutout_context.gd").apply_to_presentation(display_state, rendered_presentation)
 	GustShrikeAction.decorate(display_state, rendered_presentation)
+	MaquetteAction.decorate(display_state, rendered_presentation)
 	rendered_presentation["equipped_equipment"] = _equipped_equipment_for_board()
 	call_deferred("_sync_board_view_rect")
 	board_view.set_combat_state(

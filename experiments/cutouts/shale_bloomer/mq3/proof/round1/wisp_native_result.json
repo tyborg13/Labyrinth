@@ -1,0 +1,23 @@
+{
+  "attempts": [
+    {
+      "accepted": false,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "Godot did not initialize within 8.0 seconds: /private/tmp/labyrinth-godot-home/rr-04-1792171328093699000-95463-production_capture-1/godot.log was never created. This usually means the GUI process could not start; fix the launch/permission issue or override --startup-timeout for a known slow host.",
+      "images": [],
+      "namespace": "rr-04-1792171328093699000-95463-production_capture-1"
+    }
+  ],
+  "error": "Godot did not initialize within 8.0 seconds: /private/tmp/labyrinth-godot-home/rr-04-1792171328093699000-95463-production_capture-1/godot.log was never created. This usually means the GUI process could not start; fix the launch/permission issue or override --startup-timeout for a known slow host.",
+  "expected_sizes": [
+    [
+      1920,
+      1080
+    ]
+  ],
+  "images": [],
+  "ok": false,
+  "proof_contract": "/Users/borgerding/workspace/Labyrinth.worktrees/rr-04/tests/maquette_cutout/lightning_wisp_production_contract.json",
+  "script": "tests/maquette_cutout/production_capture.gd"
+}

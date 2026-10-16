@@ -1,0 +1,1519 @@
+{
+ "_doc": "Director motion data (rr-04). Channels are semantic per maquette part label (see each spec.json). raise_deg = rotate about the part's joint toward 'up/outward' for that part; lean_deg = rotate about the joint toward the creature's forward; lift_px/forward_px = board pixels at board scale; squash = vertical scale (width compensates to keep area); scale = uniform; alpha = opacity. Keys are [t, value] with t normalised 0..1 over the clip's seconds; smoothstep between keys unless 'hold'. Untouched channels stay at rest. Phase offsets let parts move independently (owner: idle from independent parts, never a whole-body ripple or bounce).",
+ "shale_bloomer": {
+  "maquette": "spec/art_identity/maquettes/shale_bloomer/spec.json",
+  "art": {
+   "front": "spec/art_identity/jobs/shale_bloomer/mq3_front_v2",
+   "rear": "spec/art_identity/jobs/shale_bloomer/mq3_rear_v2"
+  },
+  "clips": {
+   "idle": {
+    "seconds": 2.8,
+    "loop": true,
+    "intents": [],
+    "keys": {
+     "crown.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       2.5
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "petal_near_l.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       4
+      ],
+      [
+       0.65,
+       -1
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "petal_near_r.raise_deg": [
+      [
+       0,
+       1
+      ],
+      [
+       0.45,
+       -2
+      ],
+      [
+       0.8,
+       4
+      ],
+      [
+       1,
+       1
+      ]
+     ],
+     "petal_far_l.raise_deg": [
+      [
+       0,
+       -1
+      ],
+      [
+       0.55,
+       3
+      ],
+      [
+       1,
+       -1
+      ]
+     ],
+     "petal_far_r.raise_deg": [
+      [
+       0,
+       2
+      ],
+      [
+       0.25,
+       -1
+      ],
+      [
+       0.7,
+       3
+      ],
+      [
+       1,
+       2
+      ]
+     ],
+     "core.scale": [
+      [
+       0,
+       1.0
+      ],
+      [
+       0.5,
+       1.03
+      ],
+      [
+       1,
+       1.0
+      ]
+     ],
+     "tendril_high_l.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.35,
+       6
+      ],
+      [
+       0.8,
+       -3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "tendril_high_r.raise_deg": [
+      [
+       0,
+       -3
+      ],
+      [
+       0.5,
+       5
+      ],
+      [
+       1,
+       -3
+      ]
+     ],
+     "tendril_mid_l.raise_deg": [
+      [
+       0,
+       4
+      ],
+      [
+       0.4,
+       -4
+      ],
+      [
+       0.9,
+       5
+      ],
+      [
+       1,
+       4
+      ]
+     ],
+     "tendril_low_l.raise_deg": [
+      [
+       0,
+       -2
+      ],
+      [
+       0.6,
+       4
+      ],
+      [
+       1,
+       -2
+      ]
+     ],
+     "tendril_low_r.raise_deg": [
+      [
+       0,
+       3
+      ],
+      [
+       0.3,
+       -3
+      ],
+      [
+       0.75,
+       4
+      ],
+      [
+       1,
+       3
+      ]
+     ],
+     "trunk.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       1.2
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "move": {
+    "seconds": 0.9,
+    "intents": [
+     "shale_advance",
+     "bile_burst:move_toward"
+    ],
+    "note": "uproot shuffle: roots lift in a wave front-to-back while the trunk leans in and slides; crown lags then settles",
+    "keys": {
+     "body.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.85,
+       1.0
+      ]
+     ],
+     "body.forward_mode": "fraction_of_step",
+     "trunk.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.2,
+       7
+      ],
+      [
+       0.75,
+       5
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "body.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       3
+      ],
+      [
+       0.5,
+       0
+      ],
+      [
+       0.7,
+       3
+      ],
+      [
+       0.9,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "root_tip_l.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       18
+      ],
+      [
+       0.35,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "root_tip_c.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       18
+      ],
+      [
+       0.55,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "root_tip_r.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.45,
+       18
+      ],
+      [
+       0.7,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "root_stem_l.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       6
+      ],
+      [
+       0.35,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "root_stem_c.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       6
+      ],
+      [
+       0.55,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "root_stem_r.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.45,
+       6
+      ],
+      [
+       0.7,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "crown.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       -5
+      ],
+      [
+       0.7,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "burst": {
+    "seconds": 1.0,
+    "contact": 0.5,
+    "intents": [
+     "bile_burst:aoe"
+    ],
+    "note": "petals clamp shut over the core, trunk compresses, then petals snap open as the burst fires at contact; crown kicks back",
+    "keys": {
+     "petal_near_l.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.4,
+       22
+      ],
+      [
+       0.5,
+       -14
+      ],
+      [
+       0.75,
+       -4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "petal_near_r.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.4,
+       22
+      ],
+      [
+       0.5,
+       -14
+      ],
+      [
+       0.75,
+       -4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "petal_far_l.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.42,
+       20
+      ],
+      [
+       0.52,
+       -12
+      ],
+      [
+       0.78,
+       -3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "petal_far_r.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.42,
+       20
+      ],
+      [
+       0.52,
+       -12
+      ],
+      [
+       0.78,
+       -3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "trunk.squash": [
+      [
+       0,
+       1.0
+      ],
+      [
+       0.4,
+       0.92
+      ],
+      [
+       0.52,
+       1.05
+      ],
+      [
+       0.75,
+       1.0
+      ],
+      [
+       1,
+       1.0
+      ]
+     ],
+     "core.scale": [
+      [
+       0,
+       1.0
+      ],
+      [
+       0.42,
+       0.9
+      ],
+      [
+       0.5,
+       1.18
+      ],
+      [
+       0.7,
+       1.0
+      ],
+      [
+       1,
+       1.0
+      ]
+     ],
+     "crown.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.4,
+       4
+      ],
+      [
+       0.52,
+       -8
+      ],
+      [
+       0.8,
+       -2
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "shot": {
+    "seconds": 0.8,
+    "contact": 0.5,
+    "intents": [
+     "spore_mark"
+    ],
+    "note": "crown rears back and flicks forward to fling a shard at contact",
+    "keys": {
+     "crown.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.38,
+       -10
+      ],
+      [
+       0.5,
+       12
+      ],
+      [
+       0.75,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "trunk.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.38,
+       -3
+      ],
+      [
+       0.5,
+       5
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "core.scale": [
+      [
+       0,
+       1.0
+      ],
+      [
+       0.45,
+       1.08
+      ],
+      [
+       0.55,
+       0.97
+      ],
+      [
+       1,
+       1.0
+      ]
+     ]
+    }
+   },
+   "shell": {
+    "seconds": 1.0,
+    "intents": [
+     "pustule_shell"
+    ],
+    "note": "petals fold down over the trunk and hold (hardening), then reopen",
+    "keys": {
+     "petal_near_l.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -32
+      ],
+      [
+       0.7,
+       -32
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "petal_near_r.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -32
+      ],
+      [
+       0.7,
+       -32
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "petal_far_l.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.32,
+       -28
+      ],
+      [
+       0.7,
+       -28
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "petal_far_r.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.32,
+       -28
+      ],
+      [
+       0.7,
+       -28
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "trunk.squash": [
+      [
+       0,
+       1.0
+      ],
+      [
+       0.3,
+       0.95
+      ],
+      [
+       0.7,
+       0.95
+      ],
+      [
+       1,
+       1.0
+      ]
+     ],
+     "tendril_high_l.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -12
+      ],
+      [
+       0.7,
+       -12
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "tendril_high_r.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -12
+      ],
+      [
+       0.7,
+       -12
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "hit": {
+    "seconds": 0.6,
+    "intents": [],
+    "keys": {
+     "trunk.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       -6
+      ],
+      [
+       0.45,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "crown.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.18,
+       -9
+      ],
+      [
+       0.4,
+       6
+      ],
+      [
+       0.65,
+       -3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "tendril_high_l.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       10
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "tendril_high_r.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       10
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "tendril_mid_l.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       8
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "death": {
+    "seconds": 1.3,
+    "terminal": true,
+    "intents": [],
+    "note": "petals droop, crown tips forward and falls, trunk slumps, tendrils go limp; terminal pose held",
+    "keys": {
+     "petal_near_l.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       -35
+      ],
+      [
+       1,
+       -40
+      ]
+     ],
+     "petal_near_r.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       -35
+      ],
+      [
+       1,
+       -40
+      ]
+     ],
+     "petal_far_l.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.55,
+       -30
+      ],
+      [
+       1,
+       -36
+      ]
+     ],
+     "petal_far_r.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.55,
+       -30
+      ],
+      [
+       1,
+       -36
+      ]
+     ],
+     "crown.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.2,
+       -6
+      ],
+      [
+       0.7,
+       28
+      ],
+      [
+       0.85,
+       24
+      ],
+      [
+       1,
+       28
+      ]
+     ],
+     "trunk.squash": [
+      [
+       0,
+       1.0
+      ],
+      [
+       0.7,
+       0.9
+      ],
+      [
+       1,
+       0.9
+      ]
+     ],
+     "body.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.7,
+       -8
+      ],
+      [
+       0.85,
+       -6
+      ],
+      [
+       1,
+       -8
+      ]
+     ],
+     "tendril_high_l.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       -25
+      ],
+      [
+       1,
+       -30
+      ]
+     ],
+     "tendril_high_r.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       -25
+      ],
+      [
+       1,
+       -30
+      ]
+     ],
+     "tendril_mid_l.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       -20
+      ],
+      [
+       1,
+       -24
+      ]
+     ],
+     "tendril_low_l.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       -15
+      ],
+      [
+       1,
+       -18
+      ]
+     ],
+     "tendril_low_r.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       -15
+      ],
+      [
+       1,
+       -18
+      ]
+     ],
+     "core.scale": [
+      [
+       0,
+       1.0
+      ],
+      [
+       0.6,
+       0.92
+      ],
+      [
+       1,
+       0.92
+      ]
+     ]
+    }
+   }
+  }
+ },
+ "lightning_wisp": {
+  "maquette": "spec/art_identity/maquettes/lightning_wisp/spec.json (r4)",
+  "art": {
+   "front": "spec/art_identity/jobs/lightning_wisp/mq4_front",
+   "rear": "spec/art_identity/jobs/lightning_wisp/mq4_rear"
+  },
+  "parts_note": "arc_left / arc_right / crown are lightning veins painted ON the cloud; rig them as part of core (no independent motion).",
+  "clips": {
+   "idle": {
+    "seconds": 2.2,
+    "loop": true,
+    "intents": [],
+    "keys": {
+     "body.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "core.squash": [
+      [
+       0,
+       1.0
+      ],
+      [
+       0.3,
+       1.035
+      ],
+      [
+       0.65,
+       0.985
+      ],
+      [
+       1,
+       1.0
+      ]
+     ],
+     "tail.raise_deg": [
+      [
+       0,
+       -4
+      ],
+      [
+       0.55,
+       6
+      ],
+      [
+       1,
+       -4
+      ]
+     ],
+     "core.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.4,
+       1.5
+      ],
+      [
+       0.85,
+       -1
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "move": {
+    "seconds": 0.8,
+    "intents": [
+     "spark_dart:move_toward",
+     "static_lash:move_toward",
+     "blinding_arc:move_away"
+    ],
+    "note": "drift: leans into the travel, tail streams behind, small arc",
+    "keys": {
+     "body.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.9,
+       1.0
+      ]
+     ],
+     "body.forward_mode": "fraction_of_step",
+     "core.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.25,
+       10
+      ],
+      [
+       0.75,
+       8
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "tail.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -16
+      ],
+      [
+       0.8,
+       -10
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "body.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       6
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "strike": {
+    "seconds": 0.7,
+    "contact": 0.45,
+    "intents": [
+     "spark_dart:melee"
+    ],
+    "note": "gathers back, lunges and stretches toward the target at contact, snaps back",
+    "keys": {
+     "body.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -5
+      ],
+      [
+       0.45,
+       14
+      ],
+      [
+       0.7,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "core.squash": [
+      [
+       0,
+       1.0
+      ],
+      [
+       0.3,
+       1.06
+      ],
+      [
+       0.45,
+       0.9
+      ],
+      [
+       0.7,
+       1.02
+      ],
+      [
+       1,
+       1.0
+      ]
+     ],
+     "core.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.3,
+       -6
+      ],
+      [
+       0.45,
+       12
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "tail.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.45,
+       -18
+      ],
+      [
+       0.8,
+       4
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "cast": {
+    "seconds": 0.8,
+    "contact": 0.5,
+    "intents": [
+     "static_lash:ranged",
+     "blinding_arc:ranged"
+    ],
+    "note": "rears back and puffs up, thrusts forward at release",
+    "keys": {
+     "core.lean_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.38,
+       -8
+      ],
+      [
+       0.5,
+       10
+      ],
+      [
+       0.8,
+       2
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "core.scale": [
+      [
+       0,
+       1.0
+      ],
+      [
+       0.4,
+       1.06
+      ],
+      [
+       0.52,
+       0.96
+      ],
+      [
+       1,
+       1.0
+      ]
+     ],
+     "body.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.38,
+       4
+      ],
+      [
+       0.6,
+       0
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "tail.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.5,
+       -14
+      ],
+      [
+       0.85,
+       3
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "hit": {
+    "seconds": 0.55,
+    "intents": [],
+    "keys": {
+     "body.forward_px": [
+      [
+       0,
+       0
+      ],
+      [
+       0.15,
+       -6
+      ],
+      [
+       0.5,
+       1
+      ],
+      [
+       1,
+       0
+      ]
+     ],
+     "core.squash": [
+      [
+       0,
+       1.0
+      ],
+      [
+       0.15,
+       0.9
+      ],
+      [
+       0.4,
+       1.04
+      ],
+      [
+       1,
+       1.0
+      ]
+     ],
+     "tail.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.2,
+       14
+      ],
+      [
+       0.6,
+       -5
+      ],
+      [
+       1,
+       0
+      ]
+     ]
+    }
+   },
+   "death": {
+    "seconds": 1.2,
+    "terminal": true,
+    "intents": [],
+    "note": "dissipates: puffs up while sinking, tail curls up and shrinks, fades out",
+    "keys": {
+     "core.scale": [
+      [
+       0,
+       1.0
+      ],
+      [
+       0.5,
+       1.1
+      ],
+      [
+       1,
+       1.18
+      ]
+     ],
+     "body.lift_px": [
+      [
+       0,
+       0
+      ],
+      [
+       1,
+       -10
+      ]
+     ],
+     "tail.raise_deg": [
+      [
+       0,
+       0
+      ],
+      [
+       0.6,
+       25
+      ],
+      [
+       1,
+       35
+      ]
+     ],
+     "tail.scale": [
+      [
+       0,
+       1.0
+      ],
+      [
+       1,
+       0.6
+      ]
+     ],
+     "body.alpha": [
+      [
+       0,
+       1.0
+      ],
+      [
+       0.55,
+       1.0
+      ],
+      [
+       1,
+       0.0
+      ]
+     ]
+    }
+   }
+  }
+ }
+}

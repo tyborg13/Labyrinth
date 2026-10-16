@@ -1,0 +1,66 @@
+{
+  "K": 4,
+  "drawn_size": [
+    182,
+    202
+  ],
+  "fit_scale": 1.0,
+  "k_eff": 4.265625,
+  "metrics": {
+    "chroma": 0.14862352667387643,
+    "edge_light_share": 0.0,
+    "feature_px": 5.532215930837579,
+    "height": 202,
+    "height_drawn": 202.0,
+    "orphan_share": 0.10663253432627415,
+    "regions": 702,
+    "run_length": 1.962458896602119,
+    "symmetry": 0.7224456958970233,
+    "thin_abs": 0.004700954154061021,
+    "thin_rel": 0.039329764952292345,
+    "value": 0.21229942312694217,
+    "width": 182
+  },
+  "pixel_sha256": "268796019d74c2550b114f899dd3db3708b9810216d0c40cf1fa289affa24c86",
+  "placement": [
+    37,
+    44
+  ],
+  "post_steps": [
+    {
+      "match_reference": {
+        "job_path": "spec/art_identity/jobs/shale_bloomer/mq3_front_v2/kit.json",
+        "pixel_sha256": "66d9548fb755091dd48926d5834fee1448338e25e836417971610abcea2c2d95"
+      },
+      "parameters": {
+        "accent_margin": 15,
+        "accent_percentile": 90,
+        "green_residue_margin": 20,
+        "space": "CIE Lab",
+        "std_floor": 1e-06
+      },
+      "pre_step_pixel_sha256": "714f9fc1afb554eed6ab04dc183df41cf520151b470038d84abcb39e3b3ae17a",
+      "reference_pixel_sha256": "66d9548fb755091dd48926d5834fee1448338e25e836417971610abcea2c2d95",
+      "step": "palette_match"
+    },
+    {
+      "parameters": {
+        "max_luminance": 0.2,
+        "neighbours": 4,
+        "remove_isolated": true,
+        "tone": [
+          20,
+          16,
+          21
+        ]
+      },
+      "pre_step_pixel_sha256": "a20497a05e896219f4053a4a8ead9a8700c8230374dc66108a458865ef315b75",
+      "step": "clean_outline"
+    }
+  ],
+  "raw_sha256": "ac1a55251df4caf9e6012bc191c1206ac5a4838b39f916b67a0c7a483f35ac38",
+  "shift": [
+    0,
+    0
+  ]
+}

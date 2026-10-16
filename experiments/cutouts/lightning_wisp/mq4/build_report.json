@@ -1,0 +1,153 @@
+{
+  "views": {
+    "front": {
+      "reassignment": {
+        "core": {
+          "painted_pixels": 6556,
+          "reassigned_pixels": 197,
+          "reassigned_share": 0.030048810250152533,
+          "above_15_percent": false
+        },
+        "crown": {
+          "painted_pixels": 325,
+          "reassigned_pixels": 19,
+          "reassigned_share": 0.05846153846153846,
+          "above_15_percent": false
+        },
+        "tail": {
+          "painted_pixels": 2987,
+          "reassigned_pixels": 279,
+          "reassigned_share": 0.09340475393371275,
+          "above_15_percent": false
+        },
+        "arc_left": {
+          "painted_pixels": 572,
+          "reassigned_pixels": 24,
+          "reassigned_share": 0.04195804195804196,
+          "above_15_percent": false
+        },
+        "arc_right": {
+          "painted_pixels": 629,
+          "reassigned_pixels": 17,
+          "reassigned_share": 0.02702702702702703,
+          "above_15_percent": false
+        }
+      },
+      "depth_order": [
+        "tail",
+        "core",
+        "arc_left",
+        "arc_right",
+        "crown"
+      ],
+      "bone_mapping": {
+        "core": "core",
+        "crown": "core",
+        "tail": "tail",
+        "arc_left": "core",
+        "arc_right": "core"
+      },
+      "rigid_cloth_mapping": {},
+      "ownership_cleanup": {},
+      "unmaterialized_parts": []
+    },
+    "rear": {
+      "reassignment": {
+        "core": {
+          "painted_pixels": 6723,
+          "reassigned_pixels": 236,
+          "reassigned_share": 0.035103376468838314,
+          "above_15_percent": false
+        },
+        "crown": {
+          "painted_pixels": 404,
+          "reassigned_pixels": 15,
+          "reassigned_share": 0.03712871287128713,
+          "above_15_percent": false
+        },
+        "tail": {
+          "painted_pixels": 2087,
+          "reassigned_pixels": 355,
+          "reassigned_share": 0.17010062290368952,
+          "above_15_percent": true
+        },
+        "arc_left": {
+          "painted_pixels": 642,
+          "reassigned_pixels": 15,
+          "reassigned_share": 0.02336448598130841,
+          "above_15_percent": false
+        },
+        "arc_right": {
+          "painted_pixels": 176,
+          "reassigned_pixels": 22,
+          "reassigned_share": 0.125,
+          "above_15_percent": false
+        }
+      },
+      "depth_order": [
+        "tail",
+        "arc_right",
+        "core",
+        "arc_left",
+        "crown"
+      ],
+      "bone_mapping": {
+        "core": "core",
+        "crown": "core",
+        "tail": "tail",
+        "arc_left": "core",
+        "arc_right": "core"
+      },
+      "rigid_cloth_mapping": {},
+      "ownership_cleanup": {},
+      "unmaterialized_parts": []
+    }
+  },
+  "missing_solos": [],
+  "hidden_layer_policy": "Camera-depth-ordered hidden underlays sit below the complete visible partition. This preserves 3D per-pixel occlusion at rest despite intersecting proxy parts; all underlays move with their own bones.",
+  "depth_basis": "Mean primitive centre distance along the explicit view camera (legacy humanoid camera when unspecified); smaller is nearer",
+  "chosen_defaults": {
+    "sheet_columns": 5,
+    "sheet_label_height": 28,
+    "keyframes_per_clip": 8,
+    "mask_alpha_threshold": 128,
+    "pose_canvas": 512,
+    "pose_offset": 128,
+    "joint_rounding_tolerance": 0.02,
+    "neighbour_connectivity": 4
+  },
+  "rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "0ce85fb5a6eb9e828b9a4734df2be96496c680efd1166ec379085ed2434f70ef"
+    },
+    "rear": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "c6f1ec05ecd16d8978df4d56979af801fc98762e1b7cd81f6211a4ec69cfb6cd"
+    },
+    "ok": true
+  },
+  "validation": {
+    "ok": true,
+    "character_id": "lightning_wisp",
+    "layouts": {
+      "front": {
+        "joints": 3,
+        "parts": 10,
+        "meshes": 0,
+        "vertices": 0
+      },
+      "rear": {
+        "joints": 3,
+        "parts": 10,
+        "meshes": 0,
+        "vertices": 0
+      }
+    },
+    "errors": []
+  },
+  "ok": true,
+  "complete": true
+}

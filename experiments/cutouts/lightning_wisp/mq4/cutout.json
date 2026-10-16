@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "character_id": "lightning_wisp",
+  "source_size": [
+    255,
+    255
+  ],
+  "canvas_size": [
+    512,
+    512
+  ],
+  "source_offset": [
+    128,
+    128
+  ],
+  "default_facing": "front",
+  "layouts": {
+    "front": "layouts/front.json",
+    "rear": "layouts/rear.json"
+  },
+  "motion": "motion.gd",
+  "clips": {
+    "idle": {
+      "frames": 132,
+      "duration": 2.2,
+      "loop": true
+    },
+    "move": {
+      "frames": 48,
+      "duration": 0.8,
+      "loop": false
+    },
+    "strike": {
+      "frames": 42,
+      "duration": 0.7,
+      "loop": false
+    },
+    "cast": {
+      "frames": 48,
+      "duration": 0.8,
+      "loop": false
+    },
+    "hit": {
+      "frames": 33,
+      "duration": 0.55,
+      "loop": false
+    },
+    "death": {
+      "frames": 72,
+      "duration": 1.2,
+      "loop": false
+    }
+  },
+  "rigid_bones": [],
+  "contact_feet": [],
+  "sources": [
+    "compiled_motion.json",
+    "director_motion.json",
+    "hidden_fills/index.json",
+    "motion.gd",
+    "recipes/front_ownership.json",
+    "recipes/hidden_fill.json",
+    "recipes/rear_ownership.json",
+    "recipes/rig.json",
+    "registered/front_clay.png",
+    "registered/front_hidden_arc_left.npy",
+    "registered/front_hidden_arc_right.npy",
+    "registered/front_hidden_core.npy",
+    "registered/front_hidden_crown.npy",
+    "registered/front_hidden_tail.npy",
+    "registered/front_joints_px.json",
+    "registered/front_owners.npy",
+    "registered/front_parts.png",
+    "registered/front_registration.json",
+    "registered/front_solo_arc_left.png",
+    "registered/front_solo_arc_right.png",
+    "registered/front_solo_core.png",
+    "registered/front_solo_crown.png",
+    "registered/front_solo_tail.png",
+    "registered/rear_clay.png",
+    "registered/rear_hidden_arc_left.npy",
+    "registered/rear_hidden_arc_right.npy",
+    "registered/rear_hidden_core.npy",
+    "registered/rear_hidden_crown.npy",
+    "registered/rear_hidden_tail.npy",
+    "registered/rear_joints_px.json",
+    "registered/rear_owners.npy",
+    "registered/rear_parts.png",
+    "registered/rear_registration.json",
+    "registered/rear_solo_arc_left.png",
+    "registered/rear_solo_arc_right.png",
+    "registered/rear_solo_core.png",
+    "registered/rear_solo_crown.png",
+    "registered/rear_solo_tail.png",
+    "source/front/kit.json",
+    "source/front/processed.json",
+    "source/front/processed.png",
+    "source/front/raw.png",
+    "source/label_palette.json",
+    "source/label_palette_provenance.json",
+    "source/maquette/front_clay.png",
+    "source/maquette/front_parts.png",
+    "source/maquette/front_solo_arc_left.png",
+    "source/maquette/front_solo_arc_right.png",
+    "source/maquette/front_solo_core.png",
+    "source/maquette/front_solo_crown.png",
+    "source/maquette/front_solo_tail.png",
+    "source/maquette/joints_px.json",
+    "source/maquette/rear_clay.png",
+    "source/maquette/rear_parts.png",
+    "source/maquette/rear_solo_arc_left.png",
+    "source/maquette/rear_solo_arc_right.png",
+    "source/maquette/rear_solo_core.png",
+    "source/maquette/rear_solo_crown.png",
+    "source/maquette/rear_solo_tail.png",
+    "source/maquette_manifest.json",
+    "source/rear/kit.json",
+    "source/rear/processed.json",
+    "source/rear/processed.png",
+    "source/rear/raw.png",
+    "source/spec.json"
+  ],
+  "source_baseline": {
+    "kind": "maquette_registered_paint",
+    "spec_sha256": "24bcd976e1a73005d25a758197faf7b38db6b3f381d94d30c9dbfb1f5f0e1cb6",
+    "art_status": "hidden_filled_pending_director_review",
+    "production_integration": false
+  },
+  "design_placeholders": {},
+  "hidden_fill": {
+    "recipe": "recipes/hidden_fill.json",
+    "manifest": "hidden_fills/index.json",
+    "pending_design": []
+  }
+}

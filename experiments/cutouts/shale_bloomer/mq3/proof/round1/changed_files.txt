@@ -1,0 +1,11 @@
+scripts/bile_bloomer_cutout/renderer.gd
+scripts/combat_board_view.gd
+scripts/lightning_wisp_cutout/action.gd
+scripts/maquette_cutout_runtime/action.gd
+scripts/maquette_cutout_runtime/motion.gd
+scripts/maquette_cutout_runtime/presentation.gd
+scripts/run_scene.gd
+tests/maquette_cutout/runtime_suite.gd
+tests/maquette_cutout/movement_scene.gd
+tests/maquette_cutout/movement_suite.gd
+experiments/cutouts/shale_bloomer/mq3/proof/round1/ (handoff and logs)

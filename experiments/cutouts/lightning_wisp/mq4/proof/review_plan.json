@@ -1,0 +1,33 @@
+{
+  "native_rendered": false,
+  "fps": 60,
+  "plan": [
+    [
+      "idle",
+      3
+    ],
+    [
+      "move",
+      3
+    ],
+    [
+      "strike",
+      2
+    ],
+    [
+      "cast",
+      2
+    ],
+    [
+      "hit",
+      2
+    ],
+    [
+      "death",
+      1
+    ]
+  ],
+  "expected_frames": 918,
+  "expected_seconds": 15.3,
+  "terminal_hold_seconds": 1
+}
