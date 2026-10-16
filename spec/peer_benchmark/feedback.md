@@ -103,3 +103,5 @@
 ## 2026-10-16 — demo clips (owner): "These look and sound GREAT."
 - Pixel FX reel (12 spells), hit-sound sync clips (normal + fastest), lightning trap (0.35 s) approved by eye/ear →
   vfx-01 and sfx-04 owner-verified.
+- 2026-10-16: Lightning Wisp r4 (lightning woven through the cloud, jobs mq4_front/mq4_rear): owner "New wisp looks
+  great." Approved → cutout rig queue with the Shale Bloomer.
