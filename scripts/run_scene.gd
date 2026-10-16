@@ -2122,6 +2122,9 @@ func _input(event: InputEvent) -> void:
 			var router: Node = get_node_or_null("/root/InputRouter")
 			if router != null: router.call("mark_controller_device", event.device)
 			call_deferred("_recover_controller_focus")
+		if _magic_purge_overlay.contain_input(event):
+			get_viewport().set_input_as_handled()
+			return
 		if event.is_action_pressed("ui_cancel") or event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
 			_magic_purge_overlay.cancel()
 			get_viewport().set_input_as_handled()
@@ -22033,6 +22036,7 @@ func _map_shortcut_can_open() -> bool:
 	return true
 
 func _open_large_map(from_toolbar: bool = false) -> void:
+	if is_instance_valid(_magic_purge_overlay): return
 	if str(_run_state.get("mode", "")) == "event": return
 	if _large_map_scrim == null or _treasure_presentation_busy():
 		return
@@ -28317,6 +28321,7 @@ func _maybe_auto_pass_exhausted_player_turn() -> bool:
 	return true
 
 func _open_menu_overlay() -> void:
+	if is_instance_valid(_magic_purge_overlay): return
 	if _menu_scrim == null:
 		return
 	if not _menu_scrim.visible:
@@ -28382,6 +28387,7 @@ func _reduced_motion_enabled() -> bool:
 	return SettingsStore.reduced_motion_enabled(_settings)
 
 func _open_grimoire_overlay() -> void:
+	if is_instance_valid(_magic_purge_overlay): return
 	if _grimoire_scrim == null:
 		return
 	_cancel_drag_play()
@@ -29005,6 +29011,7 @@ func _on_pooled_pile_selection_pressed(button: Button) -> void:
 		_on_combat_skill_discard_card_selected(source_card_index)
 
 func _open_pile_view(pile_kind: String) -> void:
+	if is_instance_valid(_magic_purge_overlay): return
 	if _pile_scrim == null:
 		return
 	if _guided_tutorial_hard_gate_active():
@@ -29144,6 +29151,7 @@ func _on_character_pressed() -> void:
 	_open_character_overlay("equipment")
 
 func _open_character_overlay(mode: String = "equipment") -> void:
+	if is_instance_valid(_magic_purge_overlay): return
 	_character_row_preparation_revision += 1
 	if _upgrade_scrim == null or _pending_umbra_commit_locked:
 		return
@@ -30979,11 +30987,6 @@ func _pulse_equipment_slot(slot: String) -> void:
 
 func _begin_magic_overlay_drag(_source_kind: String, _index: int, _card_id: String, _source_rect: Rect2, _source_control: Control = null, _mouse_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
 	return
-
-func _build_magic_card_proxy_panel(card_id: String, proxy_size: Vector2) -> PanelContainer:
-	var card: Dictionary = GameData.card_def(card_id)
-	var accent: Color = ElementData.accent(GameData.card_element(card_id))
-	return _build_loadout_card_proxy_panel(proxy_size, accent, _build_card_art_badge_content(card, accent, str(card.get("name", card_id))))
 
 # The item drag still shares this geometry-only proxy animation helper.
 func _animate_magic_proxy_to_rect(proxy: Control, global_target_rect: Rect2, duration: float) -> void:

@@ -1808,15 +1808,6 @@ func sell_merchant_item(run_state: Dictionary, merchant_kind: String, item_id: S
 			grafts.erase(item_id)
 			next_state["equipment_grafts"] = grafts
 			next_state["notice"] = "Sold %s." % str(GameData.equipment_def(item_id).get("name", item_id))
-		MERCHANT_ITEM_KIND_MAGIC:
-			var magic_inventory: Array = next_state.get("magic_inventory", []).duplicate()
-			magic_inventory.erase(item_id)
-			next_state["magic_inventory"] = magic_inventory
-			var reward_cards: Array = next_state.get("reward_cards", []).duplicate()
-			reward_cards.erase(item_id)
-			next_state["reward_cards"] = reward_cards
-			next_state = _rebuild_deck_cards(next_state)
-			next_state["notice"] = "Sold %s." % str(GameData.card_def(item_id).get("name", item_id))
 		MERCHANT_ITEM_KIND_ITEM:
 			var item_inventory: Array = next_state.get("item_inventory", []).duplicate()
 			item_inventory.erase(item_id)

@@ -57,6 +57,7 @@ func configure(host: Node, state: Dictionary, purge_source: String, dialog_size:
 	_list_cancel = _button("Cancel", "CancelMagicPurgeList")
 	_list_cancel.pressed.connect(cancel)
 	content.add_child(_list_cancel)
+	_contain_list_focus()
 	_confirmation = Confirmation.new()
 	add_child(_confirmation)
 	_confirmation.configure()
@@ -101,6 +102,34 @@ func cancel() -> void:
 
 func focus_scope() -> Control:
 	return _confirmation if _confirmation.visible else self
+
+func _contain_list_focus() -> void:
+	var controls: Array[Control]
+	for row: Control in _rows.values(): controls.append(row)
+	controls.append(_list_cancel)
+	for index: int in range(controls.size()):
+		var control: Control = controls[index]
+		var previous: Control = controls[posmod(index - 1, controls.size())]
+		var next: Control = controls[(index + 1) % controls.size()]
+		control.focus_previous = control.get_path_to(previous)
+		control.focus_next = control.get_path_to(next)
+		control.focus_neighbor_top = control.get_path_to(previous)
+		control.focus_neighbor_bottom = control.get_path_to(next)
+		control.focus_neighbor_left = control.get_path_to(control)
+		control.focus_neighbor_right = control.get_path_to(control)
+
+func contain_input(event: InputEvent) -> bool:
+	var focus: Control = get_viewport().gui_get_focus_owner()
+	var scope: Control = focus_scope()
+	if focus != null and scope.is_ancestor_of(focus) and focus.is_visible_in_tree(): return false
+	# Recover stale focus before GUI dispatch can deliver navigation/accept to
+	# a toolbar behind the modal. Consume this event, rather than activating the
+	# newly focused row or confirmation action as a side effect of recovery.
+	for action: StringName in [&"ui_focus_next", &"ui_focus_prev", &"ui_up", &"ui_down", &"ui_left", &"ui_right", &"ui_accept", preload("res://scripts/input_router.gd").ACTION_ACCEPT]:
+		if event.is_action_pressed(action):
+			focus_default()
+			return true
+	return false
 
 func _refresh_selection() -> void:
 	for row: Control in _rows.values():

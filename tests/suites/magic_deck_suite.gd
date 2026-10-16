@@ -17,6 +17,8 @@ static func shop_fixture(engine: RefCounted) -> Dictionary:
 
 static func run(expect: Callable) -> void:
 	var engine := Run.new()
+	unowned_purge_checks(engine, expect)
+	_retired_paths(expect)
 	var initial: Dictionary = engine.create_new_run(TEST_SEED, Profile.default_data())
 	expect.call(initial["deck_cards"].size() == 16 and initial["attuned_magic_cards"] == Data.starting_magic_cards(), "Starting deck is still 16 cards with the six authored starter spells")
 	var rewarded: Dictionary = engine.claim_card_reward(initial, "spark_dart")
@@ -107,3 +109,29 @@ static func _reference_copy(expect: Callable) -> void:
 	for path: String in ["res://data/glossary.json", "res://data/grimoire.json"]:
 		var text: String = FileAccess.get_file_as_string(path)
 		expect.call(obsolete.search(text) == null, "Reference copy contains no obsolete magic loadout instructions: " + path)
+	var grimoire = preload("res://scripts/grimoire_library.gd")
+	for entry: Dictionary in grimoire.entries():
+		for line: String in entry.get("body", []):
+			expect.call(obsolete.search(line) == null, "Generated Grimoire copy contains no obsolete magic loadout instructions: " + str(entry["id"]))
+	expect.call(" ".join(grimoire.entry_def(grimoire.character_entry_id("scavenger")).get("body", [])).contains("Purchased magic goes straight into your deck."), "Generated Scavenger entry uses the director's purchase copy")
+
+static func unowned_purge_checks(engine: RefCounted, expect: Callable) -> void:
+	var before: Dictionary = shop_fixture(engine)
+	var after: Dictionary = engine.purge_magic_card(before, "frostbolt", "scavenger")
+	expect.call(after["attuned_magic_cards"] == before["attuned_magic_cards"] and after["deck_cards"] == before["deck_cards"], "Unowned valid spell cannot change magic ownership or compiled deck")
+	expect.call(engine.held_embers(after) == engine.held_embers(before), "Unowned valid spell cannot charge Embers")
+	for field: String in ["magic_purges_this_run", "priced_magic_purges"]:
+		expect.call(int(after.get(field, 0)) == int(before.get(field, 0)), "Unowned valid spell cannot advance " + field)
+	expect.call(after == before, "Rejected unowned spell preserves the entire untouched shop fixture")
+
+static func _retired_paths(expect: Callable) -> void:
+	var engine_source: String = FileAccess.get_file_as_string("res://scripts/run_engine.gd")
+	var sale_start: int = engine_source.find("func sell_merchant_item(")
+	var sale_end: int = engine_source.find("\nfunc ", sale_start + 1)
+	var sale_body: String = engine_source.substr(sale_start, sale_end - sale_start)
+	expect.call(not sale_body.contains("MERCHANT_ITEM_KIND_MAGIC:"), "Retired reserve-magic sale branch is absent")
+	var scene: Script = load("res://scripts/run_scene.gd")
+	var names: Array[String]
+	for method: Dictionary in scene.get_script_method_list(): names.append(str(method["name"]))
+	expect.call(not names.has("_build_magic_card_proxy_panel"), "Retired magic proxy builder is absent")
+	expect.call(names.has("_animate_magic_proxy_to_rect") and names.has("_build_loadout_card_proxy_panel"), "Shared item proxy geometry and animation remain available")
