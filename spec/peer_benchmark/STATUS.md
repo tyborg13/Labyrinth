@@ -186,3 +186,18 @@ crawler, harrier. Not yet in: shrike cutout (rr-03 round 3), other static-enemy 
 - demo-01 (scripted demo clips with audio, 21 clips / 3 reels) round 2: streaming per-clip recording + 8 GB disk guard.
 - Next: record + review demo reels → send to owner; static-enemy cutout wave (after owner sees the shrike reel); owner
   verdicts pending on lancer/wisp/bloomer art and on self-hit amplification; owner has more follow-up notes coming.
+
+## Update 2026-10-16 afternoon
+- Merged: ux-05 (previews mark destruction), pb-01 (pre-battle heading + living foes), deck-01 (no magic limit, Purge),
+  demo-01 (demo clip recorder), rr-04 (Shale Bloomer + Lightning Wisp maquette rigs; conflict in pre_battle_view.gd →
+  int-02 routes all surfaces to the maquette renderers).
+- Merge hygiene addition: after merges run BOTH the Godot full suite and `python3 -m unittest discover -s tests -p
+  'test_*.py'` in integration (Python-only failures slipped past the Godot run: glossary copy budget, demo exemption
+  fixtures bound to live source fingerprints).
+- Blender bridge (owner-approved): `tools/blender_bridge/bridge.py <worktree...>` runs headless Blender jobs from
+  /private/tmp/labyrinth_codex/blender_bridge/queue for sandboxed Codex maquette units; start as a tracked director job,
+  stop with `touch /private/tmp/labyrinth_codex/blender_bridge/STOP`.
+- mq-03 (Blender-native maquettes: CC0 base mesh + armature, cloth sim, plates, crystals): lancer r3 maquette + front
+  paint-over shown to owner; awaiting verdict before rear + roster rollout.
+- Next: int-02 → integration suites (Godot + Python) → playtest 10. Owner pending: lancer r3 direction, bloomer/wisp
+  motion videos, boon list.
