@@ -9,6 +9,9 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	_check_routing(expect)
 	_check_feedback_tags(expect)
 	for family: String in FAMILIES:
+		if family in ["bile_bloomer", "lightning_wisp"]:
+			await preload("res://tests/maquette_cutout/runtime_suite.gd").run(tree, expect, family)
+			continue
 		var script: Script = load("res://scripts/%s_cutout/renderer.gd" % family)
 		await _check_renderer(tree, script.new(), family, expect)
 	for actor: String in Guardian.ACTOR_IDS:

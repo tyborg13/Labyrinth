@@ -41,6 +41,7 @@ static func build(host: Node, enemy: Dictionary, interactive: bool = false) -> C
 	portrait.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	portrait.offset_bottom = -12.0
 	stage.add_child(portrait)
+	preload("res://scripts/maquette_cutout_runtime/portrait.gd").bind(portrait, str(enemy.get("type", "")), bool(host.call("_reduced_motion_enabled")), true)
 	var identity := VBoxContainer.new()
 	identity.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	identity.alignment = BoxContainer.ALIGNMENT_CENTER

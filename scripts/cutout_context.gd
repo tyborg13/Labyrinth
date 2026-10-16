@@ -2,6 +2,7 @@ extends RefCounted
 
 ## Presentation-only reactions share the resolved popup clock. No combat timers,
 ## damage calls, or analytics events originate here.
+const MaquetteAction = preload("res://scripts/maquette_cutout_runtime/action.gd")
 const FloatingText = preload("res://scripts/floating_combat_text.gd")
 const Guardian = preload("res://scripts/guardian_cutout/renderer.gd")
 const HIT_SECONDS: float = 0.36
@@ -46,7 +47,7 @@ static func apply_to_presentation(state: Dictionary, presentation: Dictionary) -
 		# use their anatomy's impact recoil for an absorbed blow as well.
 		if reaction == "block" and str(actors[key]) not in ["player", "illusion"]:
 			reaction = "hit"
-		var seconds: float = BLOCK_SECONDS if reaction == "block" else HIT_SECONDS
+		var seconds: float = MaquetteAction.seconds_for(str(actors[key]), "hit") if MaquetteAction.handles(str(actors[key])) else BLOCK_SECONDS if reaction == "block" else HIT_SECONDS
 		var phase: float = clampf(float(entry["animation_progress"]) * FloatingText.ANIMATION_DURATION_SECONDS / seconds, 0.0, 1.0)
 		if phase >= 1.0:
 			continue
@@ -66,7 +67,7 @@ static func apply_to_presentation(state: Dictionary, presentation: Dictionary) -
 		var key: String = str(unit.get("key", "enemy_%d" % int(unit.get("id", -1))))
 		var progress: float = float(unit.get("death_progress", 0.0))
 		_install_motion(presentation, key, str(unit.get("type", "")), {
-			"clip": "death", "phase": clampf(progress / DEATH_SETTLE_PROGRESS, 0.0, 1.0)
+			"clip": "death", "phase": clampf(progress if MaquetteAction.handles(str(unit.get("type", ""))) else progress / DEATH_SETTLE_PROGRESS, 0.0, 1.0)
 		}, true)
 
 static func _install_motion(presentation: Dictionary, key: String, actor_type: String, motion: Dictionary, terminal: bool) -> void:

@@ -1,0 +1,21 @@
+{
+  "files": {
+    "joints_px.json": "d6de9eb4d2cbd3d425c4fbba9b95eaecf00afd3c313d9b281cbf3195f79989f7",
+    "front_parts.png": "935c98be469e5ee4bb3196d1edeb43d9eb3cddd0c4443e82d32df4badae010df",
+    "front_clay.png": "da0344b44c5fbb3b396d3396ef4287e7820999b17bae696be8631ba3c9e5105c",
+    "front_solo_core.png": "8e74932e960384828595599486cecf790f3c60407091cc08565cdd878291845d",
+    "front_solo_crown.png": "640ad7dd7218b7ca3d7bb3a120103e891f81fe6938ef986e8649891efaef18a6",
+    "front_solo_tail.png": "081b06964acfd7cafb46b4be0327eb161e91772175c62282191250aff11f7524",
+    "front_solo_arc_left.png": "0cb4b3d3b6e484010699b5009fc8f3b108dc665aca14e58f83528fb12f78e7fc",
+    "front_solo_arc_right.png": "019da8f35f608f0ae6ddd4f6a7d68a3ea8dd523e2e47b8bec3a12ae28a949c32",
+    "rear_parts.png": "f5e0b10e1ffd6666044192ad0785643a62440fb7df3243cb3e9e7a6874b26712",
+    "rear_clay.png": "4620122dfe023084c1f0b79b6fcdf09ca72e3ed26b838d598242dc631411a43a",
+    "rear_solo_core.png": "afa6f47e4f12bac79d01e7255e6e1f4524a239968dd33953d280da8ac1240b43",
+    "rear_solo_crown.png": "87d9d59f04eca6c8150d9a96c36a0a76cc43755b413a024f8e2c9acd8cb100df",
+    "rear_solo_tail.png": "8ee991998f6abaf4bc4a46b31b55ee3149962a8b91834531a42ddbba8b016562",
+    "rear_solo_arc_left.png": "39a283025d53301330a56a48b3a3ff3dfab7e9ae5d684225ce63bc7708d8ae78",
+    "rear_solo_arc_right.png": "0b18aa958f67614ddca576d30994b52201b621e50731a689bcd38ed3c162edd3"
+  },
+  "missing": [],
+  "complete": true
+}

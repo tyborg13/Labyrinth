@@ -6533,95 +6533,255 @@
     "facing": "rear"
   },
   "assets/units/lightning_wisp_cutout/front/arc_left.png": {
-    "pixel_sha256": "d0251a5c79e8b718f2c77babbcfc3ea30080c5b0b66860d072e8ffc125e7e2b0",
+    "pixel_sha256": "8bef00e48c3dffc22939efb157334c95c07186cfa816265f86e6bc2fe4bdc456",
     "source_pixel_sha256": "61521d5b874743bf994e70cd3984029403cef3189288630a10e55aa71efa631e",
     "id": "lightning_wisp",
     "mode": "regrid",
-    "grid": 1.5,
+    "grid": 1.47,
     "facing": "front"
   },
   "assets/units/lightning_wisp_cutout/front/arc_right.png": {
-    "pixel_sha256": "7442b0836e96faac28d4c037a8d86d340e0a7d888a54d44a52b95824d9d4effa",
+    "pixel_sha256": "3dd6ce1a44a3c962943bf4f925d60dd0b32579af01e3b9b10be03ecee5c83901",
     "source_pixel_sha256": "3ad394be5fad71bf9ecbd2bfd281ce7717bf49cd956d885d2e1c21b524f2c94e",
     "id": "lightning_wisp",
     "mode": "regrid",
-    "grid": 1.5,
+    "grid": 1.47,
     "facing": "front"
   },
   "assets/units/lightning_wisp_cutout/front/core.png": {
-    "pixel_sha256": "146a24a48a5badc5dff1f9bfe2c54f572e7bc635b231124d6f6d9a026d754fbf",
+    "pixel_sha256": "e57fa78fb90b2077afbc2fcbbb36ea45473a2b314db5faf721bc1092d5ed1382",
     "source_pixel_sha256": "81d4aeddfa84b378539c77c6a6195d9780d7447da685bcebf03d97ef2e04820d",
     "id": "lightning_wisp",
     "mode": "regrid",
-    "grid": 1.5,
+    "grid": 1.47,
     "facing": "front"
   },
   "assets/units/lightning_wisp_cutout/front/crown.png": {
-    "pixel_sha256": "4e5e00fd7048f700ac8d0033cf02fb2e312d6605bb6ca893df2d111c76db628b",
+    "pixel_sha256": "4510a68ae46ce9b9e764bc3ded4ce79f7f6e69c5876079071b67b7d93afdf8a9",
     "source_pixel_sha256": "44d27f3323a82035a75d66a1d4aed263d11c3677168f6ebd96e46f6ca310266f",
     "id": "lightning_wisp",
     "mode": "regrid",
-    "grid": 1.5,
+    "grid": 1.47,
     "facing": "front"
   },
   "assets/units/lightning_wisp_cutout/front/rest.png": {
     "kind": "rest",
     "id": "lightning_wisp",
-    "pixel_sha256": "ccd455808fa267766dea942047c6c192f661281f4906f9a9f7dbffd0c6b14c23",
-    "parts_pixel_sha256": "59e2ef7f6dee432e847c8b83d4e1655415a0b0a129f453c5da0d5410508f62cf"
+    "pixel_sha256": "711ba9eb8127ada661023b99dd6ab934ed295722cad20b01ed777c920f4d0c9d",
+    "parts_pixel_sha256": "6e304d8a819add1964951f15102b3588f202a8e4e60a3e5410e51776c1bcaaff"
   },
   "assets/units/lightning_wisp_cutout/front/tail.png": {
-    "pixel_sha256": "e4b6a325f97611f508a32cbaf55fd7783fa75c72ac5343b55146b1fc05d8b0bc",
+    "pixel_sha256": "960ad00e5032ec24f0ff6d59ae246b33f44e40475561c21fb8dd735a43bf0177",
     "source_pixel_sha256": "9eefc1ae55bb4b88beb1e66e6e502c606bc879458d913c9c8431886d3cc5071e",
     "id": "lightning_wisp",
     "mode": "regrid",
-    "grid": 1.5,
+    "grid": 1.47,
     "facing": "front"
   },
+  "assets/units/lightning_wisp_cutout/hidden/front/arc_left.png": {
+    "pixel_sha256": "dfc3954b03ce72cd0c2fad5664261d38d8c890a902ac2324302b79422bfdd642",
+    "source_pixel_sha256": "e68004eaa0bdd2f5c741bd865806f9b2645a009b4202fafd7e8626dd7d72c1ff",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "front"
+  },
+  "assets/units/lightning_wisp_cutout/hidden/front/arc_right.png": {
+    "pixel_sha256": "26679f945b0d1074393f78d1b8f2cf6c4a724d37348aa64718aed39d58be2071",
+    "source_pixel_sha256": "56e441f76b3f8ec088ea5b92bb150f1c9332fc99e5bc905b14262568a447ed2b",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "front"
+  },
+  "assets/units/lightning_wisp_cutout/hidden/front/core.png": {
+    "pixel_sha256": "baeefc894cdd1f548a46aaecb8e923eb5ed622ec5956e6e5601f3dfd4ff8d10d",
+    "source_pixel_sha256": "3e88850e22c5e5b83a547a40e872f652e3257526d700e62b47a618c374a6f657",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "front"
+  },
+  "assets/units/lightning_wisp_cutout/hidden/front/crown.png": {
+    "pixel_sha256": "d01e632610532fb666467649c665580d823e8a9c5dc586d7fb6aad0536d215a8",
+    "source_pixel_sha256": "d01e632610532fb666467649c665580d823e8a9c5dc586d7fb6aad0536d215a8",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "front"
+  },
+  "assets/units/lightning_wisp_cutout/hidden/front/tail.png": {
+    "pixel_sha256": "3ee0485f69e8cf3517011233646851ed3cfc1910e065a6b6c40483cf2e9cc6fb",
+    "source_pixel_sha256": "85d8c7ebf866d7223bc50567b6cd28503dc1b084557c8bb260beda4e5cc909e1",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "front"
+  },
+  "assets/units/lightning_wisp_cutout/hidden/rear/arc_left.png": {
+    "pixel_sha256": "40e36181195e472e2f1423bd5f02776c8900ec456c766328360b30aff6ad44bb",
+    "source_pixel_sha256": "b019f3bcb115eec69ca9b71ca1d5b1b80c5d7fb2a2d59dd53d56e91121eabefa",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "rear"
+  },
+  "assets/units/lightning_wisp_cutout/hidden/rear/arc_right.png": {
+    "pixel_sha256": "41a3bbf2dd06e68ba5f907c6c85d094a4fda43737a4d34bc3413a28a329eef63",
+    "source_pixel_sha256": "60408089f4777903e44c375caa2e201e050c893881418d63694bbd76db6b0507",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "rear"
+  },
+  "assets/units/lightning_wisp_cutout/hidden/rear/core.png": {
+    "pixel_sha256": "6c32e33603794418ff7e7cb7106dfec74115dc01d79da6e59067e9239d166371",
+    "source_pixel_sha256": "11a9910dbd2faebe25c7a780758b98ce7efd3ff9d4c91dc08e18b8a5536c5771",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "rear"
+  },
+  "assets/units/lightning_wisp_cutout/hidden/rear/crown.png": {
+    "pixel_sha256": "20b2d247f35393d4e37ff9d44a9d1f3c3114da9a26c0baf0cdaf22950fa68a53",
+    "source_pixel_sha256": "f81288df99766ed929253a1f23fe3fcb4758707d6ef695e06d70fbb8a31536d8",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "rear"
+  },
+  "assets/units/lightning_wisp_cutout/hidden/rear/tail.png": {
+    "pixel_sha256": "e51cd55c2cacbf7f8dd6949ebd91750b324b5a3c6e9d0e2bec756adf4b2451ad",
+    "source_pixel_sha256": "b20847c19551fd2fe4d360d6fba2dd61c9ba802c5e603946795327f85b325af7",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "rear"
+  },
   "assets/units/lightning_wisp_cutout/rear/arc_left.png": {
-    "pixel_sha256": "6b2b8e793fc16d2f573483b83087b65cca63f1ff9f67a7c988364e1613b43e37",
+    "pixel_sha256": "7ff20ce6b78670c189fe19d3fc092457fde5a3713005c4fd67ef1035d7009d18",
     "source_pixel_sha256": "3c5c2ed80fa08ff5daff9830a5f49ee0b1c4de3a2a49939dd6ca2f301f7c2561",
     "id": "lightning_wisp",
     "mode": "regrid",
-    "grid": 1.5,
+    "grid": 1.47,
     "facing": "rear"
   },
   "assets/units/lightning_wisp_cutout/rear/arc_right.png": {
-    "pixel_sha256": "e05d8d8a08c64d1f88c8c8ed229890d14e91626733f672778f222efacfacee68",
+    "pixel_sha256": "4d3e371b891feda8d771be532e97117f6d164cea2a0256f833c279be35729481",
     "source_pixel_sha256": "351862d7ae4af3e29c9aacd823a3d928da30b58836c6048b48f9f7f091c71621",
     "id": "lightning_wisp",
     "mode": "regrid",
-    "grid": 1.5,
+    "grid": 1.47,
     "facing": "rear"
   },
   "assets/units/lightning_wisp_cutout/rear/core.png": {
-    "pixel_sha256": "c467a031eb9c68bef1782819057bb104a8d516de5fb3c350d3c82948f89c9017",
+    "pixel_sha256": "0900619ca25e6447227c72cc9db447a9b6f8869e67bb3f5ff61feab31fcf8029",
     "source_pixel_sha256": "b781e394037adb9864698e284be0e49ea0c977e9168de24e81b0632051ceed9f",
     "id": "lightning_wisp",
     "mode": "regrid",
-    "grid": 1.5,
+    "grid": 1.47,
     "facing": "rear"
   },
   "assets/units/lightning_wisp_cutout/rear/crown.png": {
-    "pixel_sha256": "253a4f616f0a7a18aed5eb7e3220531b84393d267d8561f2742b8bc3d6e7eb94",
+    "pixel_sha256": "121b4ef4de4048ebea40918ff0afeb29dec446aee816b8aba8377deff66f8cdf",
     "source_pixel_sha256": "103075f075e10210f27cf5a39a3e6dd8ad3863b2bb4cd41ca8590877cfba360b",
     "id": "lightning_wisp",
     "mode": "regrid",
-    "grid": 1.5,
+    "grid": 1.47,
     "facing": "rear"
   },
   "assets/units/lightning_wisp_cutout/rear/rest.png": {
     "kind": "rest",
     "id": "lightning_wisp",
-    "pixel_sha256": "cd6b84a921393de0035a7e2c15bef3047bd72824b6db4f7b025990e9339cdd7e",
-    "parts_pixel_sha256": "59e2ef7f6dee432e847c8b83d4e1655415a0b0a129f453c5da0d5410508f62cf"
+    "pixel_sha256": "9d0fdc78f6e56f99fb90e6baa3666b8387569e7b25b6a584f179a209ae8a8222",
+    "parts_pixel_sha256": "6e304d8a819add1964951f15102b3588f202a8e4e60a3e5410e51776c1bcaaff"
   },
   "assets/units/lightning_wisp_cutout/rear/tail.png": {
-    "pixel_sha256": "509e4248ccaf9ab3f1916e6198872622f814c284fa6d4f235834a78726f5cc00",
+    "pixel_sha256": "c7b50155f3b700b1ed77f7f59201d083febdfa2c24a75c9499b2faade9f71541",
     "source_pixel_sha256": "5f623b9d6524e1c42a0fd270558c922f67d0fe4cf0033516caab2b712e9efe3c",
     "id": "lightning_wisp",
     "mode": "regrid",
-    "grid": 1.5,
+    "grid": 1.47,
+    "facing": "rear"
+  },
+  "assets/units/lightning_wisp_cutout/segmented/front/arc_left.png": {
+    "pixel_sha256": "d0a4a08d9830c0e34367646f5b01e3b959c23349d28fe60f335e0c855a456018",
+    "source_pixel_sha256": "3bb024c09df84d5ad2f0f60465d87c2124249d930c7142ad8db730aa036f6c75",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "front"
+  },
+  "assets/units/lightning_wisp_cutout/segmented/front/arc_right.png": {
+    "pixel_sha256": "4ef84237307778c0b3952f9307fc6236eb771aa225a3b41d2822eb05835385ba",
+    "source_pixel_sha256": "a80981131af462e698fb3d1f090e40be4cf40c73e55605bd5bbc04d31887b807",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "front"
+  },
+  "assets/units/lightning_wisp_cutout/segmented/front/core.png": {
+    "pixel_sha256": "7c9ff1aec3ebad6f2bcfd34bb4380b2d49d7fbfc08961b49cfd54e8549a77608",
+    "source_pixel_sha256": "f680bbbf1af47255121866e8f4a0f0706b6bfcbfb81d2df7ddd238f8e0603924",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "front"
+  },
+  "assets/units/lightning_wisp_cutout/segmented/front/crown.png": {
+    "pixel_sha256": "5d9ed081a4f4ef06694f986b6caea49a914b070440b818810a3a09306ca19555",
+    "source_pixel_sha256": "e2b2a2e172092bfef04b2ebb6d2caab5ea2899a0bcf84c0d4369d8e4c566467a",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "front"
+  },
+  "assets/units/lightning_wisp_cutout/segmented/front/tail.png": {
+    "pixel_sha256": "aa6fa53f087c72bf81d6b12a58dd79e98311e94ac086fe967433a202ddc6ac9a",
+    "source_pixel_sha256": "8739573cba7f4c502291ed1f6425ab97f53e734f2df95dd4d881d21995fcecee",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "front"
+  },
+  "assets/units/lightning_wisp_cutout/segmented/rear/arc_left.png": {
+    "pixel_sha256": "0e34c9a531aa38a58a798c07bac560b0cca0471b907f9a42adf2c64f265ebc4b",
+    "source_pixel_sha256": "8272e32e00b20ea9ab5e5869695128f6db50b1ad68f7a74b706ae881a24081d2",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "rear"
+  },
+  "assets/units/lightning_wisp_cutout/segmented/rear/arc_right.png": {
+    "pixel_sha256": "4d59f7c1841eeef6b1df1cb1d7a3d50b445ec9766cf75f2c5f28015c90e96468",
+    "source_pixel_sha256": "295305bea4c37f039e02ad4eeff864084acd70c3523c2f99bcbb2e0214e7e5f3",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "rear"
+  },
+  "assets/units/lightning_wisp_cutout/segmented/rear/core.png": {
+    "pixel_sha256": "4353171493041284e4d25ad0485450605a5f55db385ae758d687aa828b9a8793",
+    "source_pixel_sha256": "500f49e67651ca5c30f5c98afc3b209f3c6a7169f772029c7ff3cf517d3b40e4",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "rear"
+  },
+  "assets/units/lightning_wisp_cutout/segmented/rear/crown.png": {
+    "pixel_sha256": "8c2bece48f19220c6e52678000383266a446f6a32eb98194120a9477076a312f",
+    "source_pixel_sha256": "9efa811b2ec1784b20739aa16beb539151251004e1b428d1b74211d266578318",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
+    "facing": "rear"
+  },
+  "assets/units/lightning_wisp_cutout/segmented/rear/tail.png": {
+    "pixel_sha256": "f7dc481c4d7ad60ba86cc15269cb03a8f918eabb37213ea87ea75c5ef2fe53f3",
+    "source_pixel_sha256": "a551b4e745e63216b95d04da42c719adc071611a6e469a46e1714cf9d38cf78b",
+    "id": "lightning_wisp",
+    "mode": "regrid",
+    "grid": 1.47,
     "facing": "rear"
   },
   "assets/units/noctyrax_cutout/front/claw_fore_far.png": {
@@ -7062,6 +7222,530 @@
     "id": "hero_rear",
     "mode": "clean",
     "grid": 1.0,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/front/rest.png": {
+    "kind": "rest",
+    "id": "shale_bloomer_cutout",
+    "pixel_sha256": "331db8f913e0d0a67450e691ed694927983016845cabaf226088808667aa2aa4",
+    "parts_pixel_sha256": "6692917528cc156a9ca942ef5d56dc0ed19dfd55c558fa14b9e1d73203d141ae"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/front/core.png": {
+    "pixel_sha256": "a50165172b044864cd70d514b0c603048ee1a5eb02752ba8d58fae78d4a685dd",
+    "source_pixel_sha256": "a50165172b044864cd70d514b0c603048ee1a5eb02752ba8d58fae78d4a685dd",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/front/petal_far_l.png": {
+    "pixel_sha256": "f85b2c8798ea4b6f5858282129d974d4f1ec5e9bebfeabac91978c9697568cee",
+    "source_pixel_sha256": "f7b6531b4c3151379860e7fdfcf96ad731637c352d5df22621ee5379d4c6fee2",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/front/petal_far_r.png": {
+    "pixel_sha256": "0f7e775d4ddd28efe81e9d269f35692731e3af1c67a5801cefe1f28826ef54af",
+    "source_pixel_sha256": "504bb51d82062747ef7408c03cf07cef88312fc994437683e05708acefd6e02d",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/front/petal_near_l.png": {
+    "pixel_sha256": "db14d196e84d8c5d4f29699a496120fee9ea00270d95bee74056049cca0911b7",
+    "source_pixel_sha256": "a392595ac72749f43282dec501d5b529e63d8b9384ef0ea715f3c2d68655d1cc",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/front/petal_near_r.png": {
+    "pixel_sha256": "a8bb889a92fe3113c02540ac0e907b7a075095cdacc997e2f3591712c6b96034",
+    "source_pixel_sha256": "606125111f76a60270d0b4a5b13de66f858c25801c3c3febaeb0c34d2485b4fc",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/front/root_stem_c.png": {
+    "pixel_sha256": "57242a3e2430be8d47de394847a7333c7dca29e4bfbce3dda8a94a04b10ab14a",
+    "source_pixel_sha256": "13787dee99f5b19481c0a3fe0940dfa89d35d822da857ecafc49577a23f47101",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/front/root_stem_l.png": {
+    "pixel_sha256": "5b889d6ef9649b77de9653ea2bf03f3e165ff39af9e37fe28ee82db9fa93d0d3",
+    "source_pixel_sha256": "0e0f019b7471a778c0763afa806ee5f3d07f2b960ce1aa3167d5f253b93dc551",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/front/root_stem_r.png": {
+    "pixel_sha256": "5503646d151e0b96bc4f3039d88a4df4380172d4954f9783ff4bb113c5ae385a",
+    "source_pixel_sha256": "2e3cec068bccf60de530e3b9dbb92beed972c168a6b485277583ac3999194212",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/front/root_tip_c.png": {
+    "pixel_sha256": "8e435f7dbf035785e20e6d6472b0657c4df69f7135597ae540d0a13349cbbb01",
+    "source_pixel_sha256": "9cc1ea20a34bec1e030cc84d61595030d9ce9d4ba52b00252706e069c63e20ea",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/front/root_tip_l.png": {
+    "pixel_sha256": "fde02a78f09183a25c8ce89fab420dd1c4e98366a39e1f2810a184762c7158c8",
+    "source_pixel_sha256": "c773ffd20b950369a276bc58840b140cae0dc1632a1d297c32fd652d47abf111",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/front/root_tip_r.png": {
+    "pixel_sha256": "e087108817be2fe19e6792e88c4f1be10ac40d210f4d0f0a38541d9bb036cc7e",
+    "source_pixel_sha256": "6b2da563b234481e41ad828eb6d07c12e9d8b27ece2e8d82abba67c8d689fe0c",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/front/tendril_high_l.png": {
+    "pixel_sha256": "ca543add304b2626f5055e01dddec5ffee0f5ceb48471725c92328e6aea4b0b6",
+    "source_pixel_sha256": "f0264d9d4c6111f559cde4d00faa88f2e11d25458d2f3f3069d3c6b8832fef3b",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/front/tendril_high_r.png": {
+    "pixel_sha256": "dd44eca42698ac3662e859dce49988facf7f89a84078e62c54869b34f1fc0241",
+    "source_pixel_sha256": "6010626f07189788ed21a79fc8e07a70da450f6ee831244c9d1df3b2612aa936",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/front/tendril_low_l.png": {
+    "pixel_sha256": "578ee6b277e4b58e6a19754dc8227d8a16aac4b53f8c0a4ac24ae3e8f22a2d8d",
+    "source_pixel_sha256": "53f4f088c85ef1d10d4baf4ded0ef9073148bcc303d3e933f8fc98dac034da63",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/front/tendril_low_r.png": {
+    "pixel_sha256": "207593779965da8c9d78eb77efe328f304c5fdc9256a4668b1d8658366cbb9e4",
+    "source_pixel_sha256": "a014308c47882c76b39be0159594737c6715c20579a7cc429bd65f3f441e8890",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/front/tendril_mid_l.png": {
+    "pixel_sha256": "2c6f049b23189a40bb69a48a641cb56f6513305960efe8a99cce82e4fb70d465",
+    "source_pixel_sha256": "c0126aae46e717f1062d86ff631fd3f6b0331eefe891b98595e2c229c60d4b37",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/front/trunk.png": {
+    "pixel_sha256": "2c7e667184b4a5fcb7df2bcb2c0d82a26fb7a06c6f59be832edc64f1bb052d45",
+    "source_pixel_sha256": "d94384748d0c3f0b0da726a5065b9a3bca493b9a65bf9cee524cc5ff39f88a87",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/rear/core.png": {
+    "pixel_sha256": "bf9ec66accbdf6362432deed6200a97f1c49e57fbb84d85a52fb3882cfd72c9c",
+    "source_pixel_sha256": "0105cb2dbd575c7e3c0739e3322d018ba8dcf8bd7e8cf21902d79c2f90c2f9e8",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/rear/petal_far_l.png": {
+    "pixel_sha256": "c6490e691056b800f93dfd4e3290373aa5b3da84e0a10258b988c015f964df19",
+    "source_pixel_sha256": "c47fd09d8009838fd08b313b59c1bf1c2637ad90ffbf1b5d3ba93856dd2be91a",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/rear/petal_far_r.png": {
+    "pixel_sha256": "417cfba2ce6d94bb926723b94f4f458c792210d1551799de094ba2229a9234f6",
+    "source_pixel_sha256": "2eee3193a3628c8a5e722a8c4833d35eb8a571a14958acf929fb16f14ddadee9",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/rear/petal_near_l.png": {
+    "pixel_sha256": "e6d99c03a52a59a042d2b9a2bb36bb0d39ba21c5e54d9087c7daf497b94cc3a3",
+    "source_pixel_sha256": "89dc26690df35a1884aec66a13e9b03c6333ff5159e00a1acaccf7be4a7247b9",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/rear/petal_near_r.png": {
+    "pixel_sha256": "87aafcfcac606d16a7c679fcc1ccb5bae460faaa08511e9c14bddb6470f125be",
+    "source_pixel_sha256": "27de10d05cbe7ff0a7f3116a8eaa7945fb9fa3c1d2c9797a49510ef6b309b634",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/rear/root_stem_c.png": {
+    "pixel_sha256": "16e9d9e1add94b1fc0fd0845e57047ca084d6b58f1a1ad2b3905397c450f58ab",
+    "source_pixel_sha256": "945173ddb91f509c9ea89145a526ae72e3ec58ff1615e12204ff9b24acd30eb1",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/rear/root_stem_l.png": {
+    "pixel_sha256": "832d30f7d7f2f26402a6c2e51770be41315c2d946401a3e1240e41a7683eab45",
+    "source_pixel_sha256": "e4d2849b205991c085f020f7703f3656e3fdae3bfe2bbdb6ddf3e9cc35e37bbf",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/rear/root_stem_r.png": {
+    "pixel_sha256": "8119ea431949b165ae9c2d8eb9ee36b779113727cd53be86e9c983ca5fe185ac",
+    "source_pixel_sha256": "c187359db7d4ee5b511e24e776f7e170adb602a6d7ddbcbfbe3068e8108134de",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/rear/root_tip_c.png": {
+    "pixel_sha256": "1a8cab8c0962f68d4293d1f4ddd4f15d29df80b7244260935df95f3c33235cef",
+    "source_pixel_sha256": "26938bfde59aa6146c5bd43aebe8b4238125f8f7f428fc28d506217339ef853c",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/rear/root_tip_l.png": {
+    "pixel_sha256": "1325158fb817aeba1918a64c210b67e00ebbcf0b0964b7a4bb1f3ac6c5d7495e",
+    "source_pixel_sha256": "28e086fffa1071445237776090503ca33123c4ceb2b0627e301cf0ab7372728a",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/rear/root_tip_r.png": {
+    "pixel_sha256": "bc52c993ec9b702513c29890180ed833a78cd117448ddf4a016bc46ab4565434",
+    "source_pixel_sha256": "7127e238e384b3ca7b5d51ee5dcaa5e6fc51678bdbdaf7d50976a851f71a0fe4",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/rear/tendril_high_l.png": {
+    "pixel_sha256": "4a3a978c38c0a16e19a80c4692e83fe67d07f2dd93dc695226dffc9b74d5d93e",
+    "source_pixel_sha256": "cff3d3f5a201241cfd0bc6fb8276eba0a8092d664248f92458f20157dd2b7638",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/rear/tendril_high_r.png": {
+    "pixel_sha256": "30fb6bc77fa546b1459ebc6043ba9fb7d058b87a4e8cb2782b824e0083cf4cd5",
+    "source_pixel_sha256": "1088b7dff5c26a91b887bdc2c113ebd186b0d5b17bab213a86624f0aa332575e",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/rear/tendril_low_l.png": {
+    "pixel_sha256": "399839c88048960b4e61f2b07262a7638fc686c4aba5e2b0cb4bcc83635aa14a",
+    "source_pixel_sha256": "7400ee93c5b085e5b1f566f5fcf33f4208db32daebddb438646488caab152b96",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/rear/tendril_low_r.png": {
+    "pixel_sha256": "37b2c4bed2bb9860b941d5a1d73526976403f4fb30cf96892a65d0bbdfc34632",
+    "source_pixel_sha256": "c5a71fb65ed3520db745b5c70ffd2a21f76785c2f9a41a071cee5eaa2413341b",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/rear/tendril_mid_l.png": {
+    "pixel_sha256": "d8314fe1e5a98947fa1eeba5a8e39e8cb2fccb2ab576b4f1bf8a2e89d5f8597a",
+    "source_pixel_sha256": "4ee6fc549951667cae91efacb4ba94ce4c3824969eb23b1a540dbb8a49fb9d42",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/hidden/rear/trunk.png": {
+    "pixel_sha256": "e6016e2459130fda3da8fb39dfea12d2c354d8cccecf273943a69046dead8f1f",
+    "source_pixel_sha256": "58482aab32370a44eae9f3d411587bf1f6a2b855a20e526178533d6ac5f8f13d",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/rear/rest.png": {
+    "kind": "rest",
+    "id": "shale_bloomer_cutout",
+    "pixel_sha256": "3709dbce24d2b8bfd3529c2cbb48fa375422ea251e2398dd1d60ed3264759080",
+    "parts_pixel_sha256": "6692917528cc156a9ca942ef5d56dc0ed19dfd55c558fa14b9e1d73203d141ae"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/front/core.png": {
+    "pixel_sha256": "dce378d2a2cc21a590c31f30873151a49c97c920db6fed05959be17e707c0d3c",
+    "source_pixel_sha256": "103d67125aec2d0e5747be1d7493c44fa7c32e031a57ac3abcf0324528585883",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/front/petal_far_l.png": {
+    "pixel_sha256": "833a723b6c8b57b6c2e9b57dddb9d8086f1a724789508888e7edc993bf15eda9",
+    "source_pixel_sha256": "c994bffe2a65068fcc6debcd570eec623529bd4fd00825a2698285c00c658fbc",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/front/petal_far_r.png": {
+    "pixel_sha256": "10846e64e8d14407518e1fb15b4048ac21feb3903a3f8009e14b12ee06f4fac8",
+    "source_pixel_sha256": "65bc468a7c950dedf9fc9249be0ccaac57bcc96f0a9b4c893613e6cfef479527",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/front/petal_near_l.png": {
+    "pixel_sha256": "b2e67203dd91a5e8609d09bb97c513945a51f4e96f68192a8d3ab474e1a1431c",
+    "source_pixel_sha256": "d29a3f55968aacb86aa7ba3de1dcbeb1d9a678fc8229cbb7512a52275efdc742",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/front/petal_near_r.png": {
+    "pixel_sha256": "3026d55d2240e93f0e5696d37181282b1254bd506722eb52331958b34e77de0c",
+    "source_pixel_sha256": "f14e7fc1500fac95c4e78629ace1d3416fd37ccf324419791b31d37d561e3a4c",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/front/root_stem_c.png": {
+    "pixel_sha256": "c3cd5c80914ae845c1251baa7859d4f43e516d1d3d61564ddcdb3e5656de8cf5",
+    "source_pixel_sha256": "f3a29cff2f419b2e5491bff55894c57eea1d017f767c37450f1286f3557c37e8",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/front/root_stem_r.png": {
+    "pixel_sha256": "76b2be4ed8c4b689b8cd838f6abf5a6f6509bb7512a29062ceb8f3ef5e329809",
+    "source_pixel_sha256": "07a8ff346057414f47a54103014ed706ea4729f0e9700888d98b0d73192174ef",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/front/root_tip_c.png": {
+    "pixel_sha256": "b9179287c0bfa070ef23498ea7652945cee7a85bf984ca14536f1f640bf693ea",
+    "source_pixel_sha256": "e54ea38cd69e40875d9cf6b0fafc1e9834ec966cda8f34c44576dd27e1556be3",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/front/root_tip_l.png": {
+    "pixel_sha256": "d415bfc8c41e98c9c4e5d8ab637449899143c5ace94a2f0d25dfa494c5a4ba93",
+    "source_pixel_sha256": "d415bfc8c41e98c9c4e5d8ab637449899143c5ace94a2f0d25dfa494c5a4ba93",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/front/root_tip_r.png": {
+    "pixel_sha256": "a66af978c9ddb8efe5de73fb973fd08a09d30bd8735aadd1d66f041a32160cf4",
+    "source_pixel_sha256": "b45ed304f30738eacb9b444c216ebcf1dd154732fc5d42c0894d448efdd36ca4",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/front/tendril_high_l.png": {
+    "pixel_sha256": "80b6b3035be22ab9cab724e9c506df7c353f4477c44c3b67b5392eafad43f427",
+    "source_pixel_sha256": "8e00e7643ea6b462b4ad951540c75d80ee264096c71afb0ccce908bed3055944",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/front/tendril_high_r.png": {
+    "pixel_sha256": "3f3a923b49ec40c607b01ab64d3535e2373f2d5d3fb3803c59dbb1bb6e484fb0",
+    "source_pixel_sha256": "72f168b59e1a9544890195a036e489af2875c14b42a49c4340220ec4c60320f0",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/front/tendril_low_l.png": {
+    "pixel_sha256": "7d8342a3a95aad0f5ef0085ca5a8b17a2572c11d815ad12066c3e1c2752d1bad",
+    "source_pixel_sha256": "7847725d29cf22265ad30b99c04ea0601764acc277064009e48c6ad467df9603",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/front/tendril_low_r.png": {
+    "pixel_sha256": "7b236ce78d6108561bd25ea00c29db991973d75ddf16818694a69c76dad010a8",
+    "source_pixel_sha256": "04b47eb0b2287ac60938f5752cba429bb227797b25b9bde3cb7c5bb8db6f0c37",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/front/trunk.png": {
+    "pixel_sha256": "549d33b163ed4d262174ebde08eeabefb4f6d452dfc4b1297e54111a38182987",
+    "source_pixel_sha256": "99f25e540a4f14bd92c3f452a1eab7b07b1b53209d66aabb668f51fa5a645f5f",
+    "id": "shale_bloomer_cutout",
+    "mode": "clean",
+    "grid": 1.16,
+    "facing": "front"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/rear/core.png": {
+    "pixel_sha256": "7ca87050bd8e82db25ab08dce3d4890ef343183b4fa4b0d77e0e38cbc26330ef",
+    "source_pixel_sha256": "efe1f61a08025e527c74692d5c438b4cb356169a05ca5914a59c5a6a2c557e56",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/rear/petal_far_l.png": {
+    "pixel_sha256": "fa130d659b4697bcb90629bf517af5dd0d4d9c78d41737cfcad0ccee71dea24f",
+    "source_pixel_sha256": "5c6ce97a4bd40ee1ae2ffa247ca55adbfd6412eac83040faf1543176e07b5b22",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/rear/petal_far_r.png": {
+    "pixel_sha256": "87291eafa036cea3a923ccebd6de5ee92fe307365994bea6cb0ced3e743f473e",
+    "source_pixel_sha256": "98d0696fec24dbe4c875d827a3253e65a5b0c15a1481d6eb4db5c4678cc050b6",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/rear/petal_near_l.png": {
+    "pixel_sha256": "a292fa2971e74f0f9dce3cc140bbb1ba3020fab87ff0d43a7194fadf931e2713",
+    "source_pixel_sha256": "dc44f7efc7ad86a4c225b9b8611aa97855a891a95f86ddf85baa93744112b384",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/rear/petal_near_r.png": {
+    "pixel_sha256": "d83e6a924f4c573f50e519bbd41194747cdeeaff3ceae5748a52e0214a52c00b",
+    "source_pixel_sha256": "573b004b3010bef92949857281f8ebe3155ef5adaf9b2a4bb96c3706d718d20e",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/rear/root_stem_l.png": {
+    "pixel_sha256": "74a400019ecd1f418250196acbf99366dcec5b193f09ac4c55e793eb81f1db56",
+    "source_pixel_sha256": "734c0714b12cb50720f56fd06ed8e7d4b5a4b3bd5e7ece2f3cd8f1381b91e3ac",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/rear/root_stem_r.png": {
+    "pixel_sha256": "3d5990b26a59b0e0208c819904d40d5023841158d30c8de9735d1f2e10328b03",
+    "source_pixel_sha256": "3d5990b26a59b0e0208c819904d40d5023841158d30c8de9735d1f2e10328b03",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/rear/root_tip_c.png": {
+    "pixel_sha256": "10439090a3f8372184a486ef2596526be6090dbb8b16ea13f84de9f75e270051",
+    "source_pixel_sha256": "65ac2bfe9a2fe29684865eb5760dcb8cf63cf53535bb7fd6877d6175a8652896",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/rear/root_tip_l.png": {
+    "pixel_sha256": "c6fd9a5d409f0fccd0af59bae6ef5df259b17f010dd75f2c7091cde6b843ab3d",
+    "source_pixel_sha256": "f3fa27b8aea8fb813de4ef4534b8a8650bc083cc9db7217413ed3575bb64807b",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/rear/tendril_high_l.png": {
+    "pixel_sha256": "37b4b9112a717490dc69669badcbb9c941840de704933c27478ae3fdda7cf15e",
+    "source_pixel_sha256": "77122335ef81f621e2db456dcf359f71211868bede8f8fbeaf80b092726d1ca2",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/rear/tendril_high_r.png": {
+    "pixel_sha256": "f073eaa0bbce4f40d3d59053cc7b8f36ca935f502b751d5d85d9d87015ec9453",
+    "source_pixel_sha256": "c352a5ffb935c5e99fbf78f5d1a202dbd61e53fb8c4fc79bdc704edce3189f90",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/rear/tendril_low_l.png": {
+    "pixel_sha256": "bec8883b4601bc35bc686f49422d047a1374267a16c94306fcb200ed22e370a5",
+    "source_pixel_sha256": "bec8883b4601bc35bc686f49422d047a1374267a16c94306fcb200ed22e370a5",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/rear/tendril_low_r.png": {
+    "pixel_sha256": "29813b36d99c9a0fd0e96d8f4bfb3f0933e89e2c10f6347a540baf840e98557b",
+    "source_pixel_sha256": "211787cfb42385750180afe3661c6602bc19e9688db6ea7bb3d19f2d2577afae",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/rear/tendril_mid_l.png": {
+    "pixel_sha256": "4067007fb8dce5b6e12a954138ebe4692106d3fbc5c23794e603ab9eb880f02d",
+    "source_pixel_sha256": "b6cacf3473c0d391e079aedd2f1b52d319204816c3f0a5ee5e74635406a90a2b",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
+    "facing": "rear"
+  },
+  "assets/units/shale_bloomer_cutout/segmented/rear/trunk.png": {
+    "pixel_sha256": "227d02d49f67b7045978ece6afd1b1762f62d5550698de7a22e56316d3129dae",
+    "source_pixel_sha256": "0b721ad0dec3c2d3d75cde3bb41d4df2f0ab92b3f2dea340dcb2e23847cdea4f",
+    "id": "shale_bloomer_cutout",
+    "mode": "regrid",
+    "grid": 1.49,
     "facing": "rear"
   },
   "assets/units/stone_warden_cutout/front/arm_r.png": {

@@ -16,6 +16,7 @@ const SLOT_STEP := SLOT_SIZE.x + LEFT_BLEED
 const CHEVRON_GAP := 20.0
 const AGAIN_GLOW_SIZE := Vector2(150, 110)
 var _roles: Dictionary = {}
+var _maquette_reduced_motion: bool = false
 var _signature: String = ""
 var _target: Control
 var _tooltip_stack: Control
@@ -104,6 +105,7 @@ static func _intersects_blockers(rect: Rect2, blockers: Array[Rect2]) -> bool:
 	return false
 
 func present(entries: Array[Dictionary], focused_index: int, target: Control, tooltip_stack: Control, portrait_path: Callable, allowed: Callable, reduced_motion: bool, tutorial_callout: Control = null) -> void:
+	_maquette_reduced_motion = reduced_motion
 	var roles: Dictionary = roles_for(entries)
 	if roles.is_empty() or target == null:
 		hide_strip()
@@ -264,6 +266,8 @@ func _add_slot(entry: Dictionary, node_name: String, role: String, x: float, por
 	portrait.texture = AssetLoader.load_texture(path)
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	mask.add_child(portrait)
+	if not bool(entry.get("hidden_by_umbra", false)):
+		preload("res://scripts/maquette_cutout_runtime/portrait.gd").bind(portrait, str(entry.get("type", "")), _maquette_reduced_motion, true)
 	var eta: Label = _label("LandingStripTimeNumeral", str(entry.get("eta", 0)), 17, Color("f4c968") if role == "hero" else UiPalette.TEXT, Vector2(LEFT_BLEED, SLOT_SIZE.y), slot)
 	eta.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	eta.position = Vector2(-LEFT_BLEED + 2.0 * MINI_SCALE, SLOT_SIZE.y * (TurnOrderInk.BAND_CENTER_RATIO - 0.5))

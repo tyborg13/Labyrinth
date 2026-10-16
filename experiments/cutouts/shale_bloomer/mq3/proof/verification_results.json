@@ -1,0 +1,140 @@
+{
+  "task_id": "rr-04",
+  "creature": "shale_bloomer",
+  "status": "implemented; design-owner native proof pending",
+  "branch": "codex/rr-04",
+  "base_head": "cf49a1863f89b2092ffc8ee91b725f5d28b49ffd",
+  "worker_commits": false,
+  "worker_peer_review": false,
+  "worker_publication": false,
+  "worker_windowed_runs": false,
+  "protected_motion_sha256": "9afd85fda216b122522a38825cd8c82d3c154fb48ebb432f1eee0a3c01f4f0de",
+  "protected_motion_byte_identical": true,
+  "cpu_rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "66d9548fb755091dd48926d5834fee1448338e25e836417971610abcea2c2d95"
+    },
+    "rear": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "268796019d74c2550b114f899dd3db3708b9810216d0c40cf1fa289affa24c86"
+    },
+    "ok": true
+  },
+  "bone_gate": {
+    "ok": true,
+    "errors": []
+  },
+  "production_logic_gate": {
+    "ok": true,
+    "frames": 1171,
+    "native_pixels": false
+  },
+  "results": {
+    "focused_godot": [
+      "MAQUETTE CUTOUT: PASS (1624 checks, 0 failures; headless logic only)"
+    ],
+    "integration_godot": [
+      "MAQUETTE INTEGRATION: PASS (0 failures)"
+    ],
+    "full_godot": [
+      "TEST RESULT: PASS \u2014 main menu resume safety",
+      "FULL SUITE RUNTIME: 786.139 seconds (budget 900 seconds)",
+      "TEST RESULT: PASS"
+    ],
+    "full_python": [
+      "Ran 552 tests in 388.879s",
+      "FAILED (failures=1, skipped=61)",
+      "MAQUETTE MUTATION: shale_bloomer/broken_compiler rejected by independent director oracle",
+      "MAQUETTE MUTATION: lightning_wisp/broken_compiler rejected by independent director oracle",
+      "MAQUETTE MUTATION: shale_bloomer/flip_raise_sign rejected in both views",
+      "MAQUETTE MUTATION: shale_bloomer/drop_key rejected in both views",
+      "MAQUETTE MUTATION: lightning_wisp/flip_raise_sign rejected in both views",
+      "MAQUETTE MUTATION: lightning_wisp/drop_key rejected in both views",
+      "MAQUETTE MUTATION: frozen_idle rejected by tests/maquette_cutout_test.gd",
+      "MAQUETTE MUTATION: frozen_idle rejected by tests/maquette_cutout/production_capture.gd"
+    ],
+    "focused_python_mutations": [
+      "Ran 7 tests in 44.203s",
+      "OK",
+      "MAQUETTE MUTATION: shale_bloomer/broken_compiler rejected by independent director oracle",
+      "MAQUETTE MUTATION: lightning_wisp/broken_compiler rejected by independent director oracle",
+      "MAQUETTE MUTATION: shale_bloomer/flip_raise_sign rejected in both views",
+      "MAQUETTE MUTATION: shale_bloomer/drop_key rejected in both views",
+      "MAQUETTE MUTATION: lightning_wisp/flip_raise_sign rejected in both views",
+      "MAQUETTE MUTATION: lightning_wisp/drop_key rejected in both views",
+      "MAQUETTE MUTATION: frozen_idle rejected by tests/maquette_cutout_test.gd",
+      "MAQUETTE MUTATION: frozen_idle rejected by tests/maquette_cutout/production_capture.gd"
+    ],
+    "art_identity": [
+      "Ran 111 tests in 39.079s",
+      "OK"
+    ],
+    "ui_identity": [
+      "Ran 25 tests in 2.693s",
+      "OK"
+    ],
+    "icon_identity": [
+      "Ran 7 tests in 0.057s",
+      "OK"
+    ],
+    "shadow_cache": [
+      "UNIT SHADOW CACHE GENERATED: res://assets/generated/unit_shadow_cache.res entries=66 sources=60"
+    ],
+    "native_probe_parse": [
+      "MAQUETTE NATIVE CAPTURE PARSE: PASS"
+    ],
+    "bone_gate": {
+      "ok": true,
+      "errors": []
+    },
+    "production_gate": {
+      "ok": true
+    },
+    "review_plan": {
+      "fps": 60,
+      "expected_frames": 1212,
+      "expected_seconds": 20.2,
+      "rendered": false,
+      "order": [
+        "idle",
+        "move",
+        "burst",
+        "shot",
+        "shell",
+        "hit",
+        "death"
+      ]
+    }
+  },
+  "full_python_remaining_failure": {
+    "test": "test_shipped_derivations_and_manifest_are_current",
+    "reason": "Four native rest records require the design-owner windowed rebake; the two Wisp records changed and the two Shale records are new.",
+    "skipped": 61,
+    "tests_run": 552,
+    "failures": 1
+  },
+  "todo_design": [],
+  "native_outputs_expected": {
+    "case": "output/rr-04/shale-native",
+    "production": "output/rr-04/shale-production",
+    "review": "output/rr-04/shale_bloomer_review.mp4"
+  },
+  "proof_commands": "experiments/cutouts/shale_bloomer/mq3/README.md",
+  "open_issues": [
+    "Native rest equality/captures/visual inspection/MP4s are design-owner tasks; no windowed run was attempted.",
+    "Finish density native rest recording and seal-density, then rerun the density/full Python checks."
+  ],
+  "independent_oracle": {
+    "path": "tools/maquette_motion/contract.py",
+    "sha256": "fc2fd0790a3259965f278479d7151d555b74bd9c104e84f195811c81c4d61783",
+    "broken_compiler_rejected_in_both_views": true
+  },
+  "design_owner_proof_script": {
+    "path": "experiments/cutouts/shale_bloomer/mq3/proof/design_owner_proof.sh",
+    "syntax_check": "bash -n: PASS",
+    "executed": false
+  }
+}

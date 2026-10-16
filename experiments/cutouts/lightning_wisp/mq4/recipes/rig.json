@@ -1,0 +1,84 @@
+{
+  "character_id": "lightning_wisp",
+  "joints": {
+    "root": {
+      "position_3d": [
+        0,
+        0,
+        0
+      ],
+      "parent": null
+    },
+    "core": {
+      "position_3d": [
+        0,
+        0,
+        1.25
+      ],
+      "parent": "root"
+    },
+    "tail": {
+      "position_3d": [
+        0,
+        0,
+        0.85
+      ],
+      "parent": "core"
+    }
+  },
+  "parts": {
+    "core": "core",
+    "crown": "core",
+    "tail": "tail",
+    "arc_left": "core",
+    "arc_right": "core"
+  },
+  "motion": "motion.gd",
+  "rigid_bones": [],
+  "contact_feet": [],
+  "clips": {
+    "idle": {
+      "frames": 132,
+      "duration": 2.2,
+      "loop": true
+    },
+    "move": {
+      "frames": 48,
+      "duration": 0.8,
+      "loop": false
+    },
+    "strike": {
+      "frames": 42,
+      "duration": 0.7,
+      "loop": false
+    },
+    "cast": {
+      "frames": 48,
+      "duration": 0.8,
+      "loop": false
+    },
+    "hit": {
+      "frames": 33,
+      "duration": 0.55,
+      "loop": false
+    },
+    "death": {
+      "frames": 72,
+      "duration": 1.2,
+      "loop": false
+    }
+  },
+  "design_placeholders": {},
+  "materials": {
+    "core": "storm-cloud vapour with painted lightning veins",
+    "crown": "storm-cloud vapour with painted lightning veins",
+    "tail": "storm-cloud vapour tail",
+    "arc_left": "storm-cloud vapour with painted lightning veins",
+    "arc_right": "storm-cloud vapour with painted lightning veins"
+  },
+  "copy_files": [],
+  "proof_defaults": {
+    "native_fps": 60,
+    "render_size": 1024
+  }
+}

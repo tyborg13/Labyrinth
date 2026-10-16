@@ -1,0 +1,1026 @@
+{
+  "exposure_basis": "Actual authored keys and midpoints, both Skeleton2D views; CPU nearest masks, not native renderer proof.",
+  "requests": [
+    {
+      "part": "core",
+      "view": "front",
+      "image": "hidden_requests/front_core.png",
+      "status": "measured",
+      "hidden_pixel_count": 1344,
+      "bounding_box": [
+        69,
+        96,
+        172,
+        172
+      ],
+      "solo_outside_paint_pixels": 83,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.2
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 8,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 8,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "cast",
+          "max_exposed_pixels": 9,
+          "peak_phase": 0.46
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.4
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 12,
+          "peak_phase": 0.775
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "crown",
+          "pixels": 297,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "tail",
+          "pixels": 15,
+          "material": "storm-cloud vapour tail"
+        },
+        {
+          "part": "arc_left",
+          "pixels": 498,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_right",
+          "pixels": 534,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "crown",
+          "pixels": 8,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "tail",
+          "pixels": 29,
+          "material": "storm-cloud vapour tail"
+        },
+        {
+          "part": "arc_left",
+          "pixels": 9,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_right",
+          "pixels": 27,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "material": "storm-cloud vapour with painted lightning veins",
+      "paint_nodes": [
+        "hidden_core"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.2
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 8,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 8,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "cast",
+          "max_exposed_pixels": 9,
+          "peak_phase": 0.46
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.4
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 12,
+          "peak_phase": 0.775
+        }
+      ],
+      "max_exposed_pixels": 12
+    },
+    {
+      "part": "crown",
+      "view": "front",
+      "image": "hidden_requests/front_crown.png",
+      "status": "measured",
+      "hidden_pixel_count": 61,
+      "bounding_box": [
+        108,
+        99,
+        155,
+        115
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "core",
+          "pixels": 46,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_right",
+          "pixels": 15,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "core",
+          "pixels": 56,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "material": "storm-cloud vapour with painted lightning veins",
+      "paint_nodes": [
+        "hidden_crown"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "cast",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        }
+      ],
+      "max_exposed_pixels": 0
+    },
+    {
+      "part": "tail",
+      "view": "front",
+      "image": "hidden_requests/front_tail.png",
+      "status": "measured",
+      "hidden_pixel_count": 1811,
+      "bounding_box": [
+        105,
+        131,
+        161,
+        171
+      ],
+      "solo_outside_paint_pixels": 172,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 39,
+          "peak_phase": 0.5
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 103,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 122,
+          "peak_phase": 0.45
+        },
+        {
+          "clip": "cast",
+          "max_exposed_pixels": 84,
+          "peak_phase": 0.4
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 101,
+          "peak_phase": 0.2
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 209,
+          "peak_phase": 1.0
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "core",
+          "pixels": 1388,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "crown",
+          "pixels": 2,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_left",
+          "pixels": 213,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_right",
+          "pixels": 208,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "core",
+          "pixels": 90,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_left",
+          "pixels": 7,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_right",
+          "pixels": 3,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "material": "storm-cloud vapour tail",
+      "paint_nodes": [
+        "hidden_tail"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 39,
+          "peak_phase": 0.5
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 103,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 122,
+          "peak_phase": 0.45
+        },
+        {
+          "clip": "cast",
+          "max_exposed_pixels": 84,
+          "peak_phase": 0.4
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 101,
+          "peak_phase": 0.2
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 209,
+          "peak_phase": 1.0
+        }
+      ],
+      "max_exposed_pixels": 209
+    },
+    {
+      "part": "arc_left",
+      "view": "front",
+      "image": "hidden_requests/front_arc_left.png",
+      "status": "measured",
+      "hidden_pixel_count": 746,
+      "bounding_box": [
+        71,
+        106,
+        154,
+        150
+      ],
+      "solo_outside_paint_pixels": 3,
+      "motions": [],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "core",
+          "pixels": 692,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "crown",
+          "pixels": 21,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_right",
+          "pixels": 33,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "core",
+          "pixels": 182,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "crown",
+          "pixels": 16,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_right",
+          "pixels": 18,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "material": "storm-cloud vapour with painted lightning veins",
+      "paint_nodes": [
+        "hidden_arc_left"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "cast",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        }
+      ],
+      "max_exposed_pixels": 0
+    },
+    {
+      "part": "arc_right",
+      "view": "front",
+      "image": "hidden_requests/front_arc_right.png",
+      "status": "measured",
+      "hidden_pixel_count": 455,
+      "bounding_box": [
+        66,
+        100,
+        170,
+        153
+      ],
+      "solo_outside_paint_pixels": 34,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.125
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "cast",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.19
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 2,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.25
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "core",
+          "pixels": 272,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "crown",
+          "pixels": 4,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "tail",
+          "pixels": 1,
+          "material": "storm-cloud vapour tail"
+        },
+        {
+          "part": "arc_left",
+          "pixels": 178,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "core",
+          "pixels": 133,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_left",
+          "pixels": 48,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "material": "storm-cloud vapour with painted lightning veins",
+      "paint_nodes": [
+        "hidden_arc_right"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.125
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "cast",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.19
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 2,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.25
+        }
+      ],
+      "max_exposed_pixels": 2
+    },
+    {
+      "part": "core",
+      "view": "rear",
+      "image": "hidden_requests/rear_core.png",
+      "status": "measured",
+      "hidden_pixel_count": 1054,
+      "bounding_box": [
+        79,
+        84,
+        186,
+        181
+      ],
+      "solo_outside_paint_pixels": 104,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.475
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 3,
+          "peak_phase": 0.125
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 4,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "cast",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.46
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 6,
+          "peak_phase": 0.325
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 14,
+          "peak_phase": 0.775
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "crown",
+          "pixels": 376,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "tail",
+          "pixels": 10,
+          "material": "storm-cloud vapour tail"
+        },
+        {
+          "part": "arc_left",
+          "pixels": 555,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_right",
+          "pixels": 113,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "crown",
+          "pixels": 12,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "tail",
+          "pixels": 19,
+          "material": "storm-cloud vapour tail"
+        },
+        {
+          "part": "arc_left",
+          "pixels": 5,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_right",
+          "pixels": 16,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "material": "storm-cloud vapour with painted lightning veins",
+      "paint_nodes": [
+        "hidden_core"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.475
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 3,
+          "peak_phase": 0.125
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 4,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "cast",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.46
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 6,
+          "peak_phase": 0.325
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 14,
+          "peak_phase": 0.775
+        }
+      ],
+      "max_exposed_pixels": 14
+    },
+    {
+      "part": "crown",
+      "view": "rear",
+      "image": "hidden_requests/rear_crown.png",
+      "status": "measured",
+      "hidden_pixel_count": 98,
+      "bounding_box": [
+        99,
+        84,
+        152,
+        119
+      ],
+      "solo_outside_paint_pixels": 8,
+      "motions": [],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "core",
+          "pixels": 75,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_right",
+          "pixels": 23,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "core",
+          "pixels": 83,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_right",
+          "pixels": 2,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "material": "storm-cloud vapour with painted lightning veins",
+      "paint_nodes": [
+        "hidden_crown"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "cast",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        }
+      ],
+      "max_exposed_pixels": 0
+    },
+    {
+      "part": "tail",
+      "view": "rear",
+      "image": "hidden_requests/rear_tail.png",
+      "status": "measured",
+      "hidden_pixel_count": 1873,
+      "bounding_box": [
+        94,
+        138,
+        150,
+        180
+      ],
+      "solo_outside_paint_pixels": 120,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 40,
+          "peak_phase": 0.0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 186,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 213,
+          "peak_phase": 0.45
+        },
+        {
+          "clip": "cast",
+          "max_exposed_pixels": 163,
+          "peak_phase": 0.44
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 99,
+          "peak_phase": 0.2
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 212,
+          "peak_phase": 1.0
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "core",
+          "pixels": 1535,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_left",
+          "pixels": 335,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_right",
+          "pixels": 3,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "core",
+          "pixels": 85,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_left",
+          "pixels": 7,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "material": "storm-cloud vapour tail",
+      "paint_nodes": [
+        "hidden_tail"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 40,
+          "peak_phase": 0.0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 186,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 213,
+          "peak_phase": 0.45
+        },
+        {
+          "clip": "cast",
+          "max_exposed_pixels": 163,
+          "peak_phase": 0.44
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 99,
+          "peak_phase": 0.2
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 212,
+          "peak_phase": 1.0
+        }
+      ],
+      "max_exposed_pixels": 213
+    },
+    {
+      "part": "arc_left",
+      "view": "rear",
+      "image": "hidden_requests/rear_arc_left.png",
+      "status": "measured",
+      "hidden_pixel_count": 690,
+      "bounding_box": [
+        94,
+        87,
+        185,
+        167
+      ],
+      "solo_outside_paint_pixels": 46,
+      "motions": [],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "core",
+          "pixels": 568,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "crown",
+          "pixels": 112,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_right",
+          "pixels": 10,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "core",
+          "pixels": 170,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "crown",
+          "pixels": 38,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_right",
+          "pixels": 5,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "material": "storm-cloud vapour with painted lightning veins",
+      "paint_nodes": [
+        "hidden_arc_left"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "cast",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        }
+      ],
+      "max_exposed_pixels": 0
+    },
+    {
+      "part": "arc_right",
+      "view": "rear",
+      "image": "hidden_requests/rear_arc_right.png",
+      "status": "measured",
+      "hidden_pixel_count": 877,
+      "bounding_box": [
+        82,
+        98,
+        185,
+        149
+      ],
+      "solo_outside_paint_pixels": 28,
+      "motions": [],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "core",
+          "pixels": 778,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "crown",
+          "pixels": 57,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_left",
+          "pixels": 42,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "core",
+          "pixels": 230,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "crown",
+          "pixels": 24,
+          "material": "storm-cloud vapour with painted lightning veins"
+        },
+        {
+          "part": "arc_left",
+          "pixels": 22,
+          "material": "storm-cloud vapour with painted lightning veins"
+        }
+      ],
+      "material": "storm-cloud vapour with painted lightning veins",
+      "paint_nodes": [
+        "hidden_arc_right"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "strike",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "cast",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        }
+      ],
+      "max_exposed_pixels": 0
+    }
+  ],
+  "samples_sha256": "64c9382630dd12a239abbf5785f74a55697a15f723841bf5a8a6d570b0490175"
+}

@@ -12,6 +12,8 @@ static func metrics(enemy_type: String) -> Dictionary:
 		return _metrics[enemy_type]
 	var definition: Dictionary = GameData.enemy_def(enemy_type)
 	var texture: Texture2D = AssetLoader.load_texture(str(definition.get("art_path", "")))
+	if preload("res://scripts/maquette_cutout_runtime/presentation.gd").handles(enemy_type):
+		texture = AssetLoader.load_texture_source_first(preload("res://scripts/maquette_cutout_runtime/portrait.gd").rest_path(enemy_type))
 	var used := Rect2(AssetLoader.texture_used_rect(texture))
 	var anchor: Vector2 = ActorPresentation.floor_anchor(enemy_type)
 	var footprint: Array = definition.get("footprint", [1, 1])

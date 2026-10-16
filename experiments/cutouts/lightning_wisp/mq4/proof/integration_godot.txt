@@ -1,0 +1,25 @@
+Running task-local command:
+  task: rr-04
+  run: rr-04-1792164077560891000-62571
+  HOME: /private/tmp/labyrinth-godot-home/rr-04-1792164077560891000-62571
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-04-1792164077560891000-62571/godot.log --headless --path . --script tests/maquette_cutout/integration_test.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+CRAWLER CONTACT CORE ALPHA AREA: 258.083 source px squared (minimum 180)
+ENEMY SHORT-PATH FIXTURE chainbound_gaoler: 4.472 source px; authored strike 87.174 source px
+ENEMY SHORT-PATH FIXTURE ashen_reaver: 0.000 source px; authored strike 157.705 source px
+REDUCED DRAGON AREA: static fully revealed claw marks; PASS
+ENEMY/ECHO ARC CORE ALPHA AREA lightning_wisp: 0.810x (minimum .8x)
+ENEMY/ECHO ARC CORE ALPHA AREA warden: 1.392x (minimum .8x)
+ENEMY/ECHO ARC CORE ALPHA AREA ashen_reaver: 1.323x (minimum .8x)
+ASHEN DISPLAYED AREA BLADE SPAN (0, 1): 5.453 source px
+ASHEN DISPLAYED AREA BLADE SPAN (0, -1): 4.866 source px
+ENEMY SOURCE CACHE: palettes/seeds, facing, variants, target distance, resolved reuse, zero envelopes and empty retries; PASS
+SHARED ATTACK FEEDBACK: 438 kind/element/dragon fixtures; PASS
+ENEMY STRIKE TRAIL CONTRACTS: registry, live front/rear/mirrored contacts, cache, bespoke exclusions, reduced motion and per-tile area rakes checked
+MAQUETTE INTEGRATION: PASS (0 failures)

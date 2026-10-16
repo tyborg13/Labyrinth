@@ -1,0 +1,62 @@
+{
+  "K": 4,
+  "anatomy": "rooted",
+  "id": "bile_bloomer",
+  "job_id": "mq-bloomer-front-r3-edit",
+  "kind": "creature",
+  "kit_kind": "maquette",
+  "kit_version": "365ae7ed2be9b2c72c815b36a5fd4bf01c7573dfda57d1ad4cc76bb52975b3b4",
+  "method": "maquette paint-over (wave 1b): judge-prescribed edit of mq3_front (tilted corolla, honeycomb, lowest right root; maquette r9) + judge tone B",
+  "peers": [
+    "hero_front"
+  ],
+  "prompt_path": "prompt.md",
+  "prompt_sha256": "c72df8739cfbb1db1d971e788b7dc4115960bf46365dbe3d7370b7d0c1335c9d",
+  "prompt_source": "spec/art_identity/maquettes/shale_bloomer/edit_front_r1.md",
+  "raw_steps": [
+    {
+      "inputs": {
+        "config": {
+          "path": "refs/tone_front_r3b.json",
+          "sha256": "ac7d0a421979c5d398220fd8cf115bf8abb6d2bdb30258714909ef168900de45"
+        },
+        "raw": {
+          "path": "refs/raw_approved.png",
+          "sha256": "928709f4d8e98a888ae9f43fa2522cb1aad298d96cd32ad57a0b6d0bff471cfd"
+        }
+      },
+      "kind": "tone_region",
+      "output_raw_pixel_sha256": "79207d9a1418dbb3f532aafa614837002c4d10d34fc8ff585bd3db40568b6a37",
+      "parameters": {
+        "space": "CIE Lab"
+      }
+    }
+  ],
+  "raw_steps_provenance": "judge mq3 tone B retargeted to the 1024-px edit raw (judge r3 config R7, 13 passes): petals to dark slate, trunk less orange, deep crevices darker; amber restored by paired inverse passes. Judge PASS 2026-10-15",
+  "refs": [
+    {
+      "canon_id": "bloomer_mq3_front_raw",
+      "file": "refs/01_bloomer_mq3_front_raw.png",
+      "pixel_sha256": "3c886df369e2d268e6ae0db6feaca5a09d904e6900303a57f98eb6862b4525b5",
+      "role": "edit_source",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-bloomer-front-r3-edit/refs/01_edit_source.png"
+    },
+    {
+      "canon_id": "maquette_front_parts_r9",
+      "file": "refs/02_maquette_front_parts_r9.png",
+      "pixel_sha256": "c50f3c7263b02e8e7911237498c2fd80f28b7add8395757bd8fc3e78e44f65b1",
+      "role": "maquette_parts",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-bloomer-front-r3-edit/refs/02_front_parts_r9_green.png"
+    },
+    {
+      "canon_id": "hero_front",
+      "file": "refs/03_hero_front.png",
+      "pixel_sha256": "b267e751ef5c67f1fe2fcfacda5312dcbdaff928caceef8f682421b41e4dfd82",
+      "role": "canon",
+      "source_file": "/Users/borgerding/workspace/Labyrinth/.git/codex-orchestrate/imagegen/mq-bloomer-front-r3-edit/refs/03_hero_x4.png"
+    }
+  ],
+  "size_class": "large",
+  "target_h": 220,
+  "view": "creature_front"
+}

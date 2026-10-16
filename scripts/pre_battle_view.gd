@@ -312,6 +312,7 @@ static func build_foe(host: Node, enemy: Dictionary, card_size: Vector2, leader:
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	art.stretch_mode = TextureRect.STRETCH_SCALE
 	card.add_child(art)
+	preload("res://scripts/maquette_cutout_runtime/portrait.gd").bind(art, str(enemy.get("type", "")), bool(host.call("_reduced_motion_enabled")))
 	var health := Controls.Plate.new()
 	health.name = "PreBattleEnemyHealth"
 	health.radius = 12.0

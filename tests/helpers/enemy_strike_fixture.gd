@@ -20,6 +20,9 @@ static func effect(enemy_type: String, state_value: Dictionary, variant: String 
 	var to: Vector2i = state_value["player"]["pos"]
 	var result: Dictionary = {"kind":"push" if variant == "push" else "aoe" if variant in ["area","guardian_area","thrust"] else "melee",
 		"enemy_type":enemy_type, "actor_key":"enemy_1", "from":from, "to":to, "element":"none", "seed":11}
+	if enemy_type == "lightning_wisp":
+		result["intent_id"] = "spark_dart"
+		result["action_type"] = "melee"
 	if variant == "area":
 		result["intent_id"] = "worldspine_claw"
 		var ray: Vector2i = Dragon.direction(result, source, to)
@@ -62,6 +65,9 @@ static func presentation(enemy_type: String, state_value: Dictionary, effect_val
 	elif enemy_type == "lightning_wisp": motion["action"] = "dart"
 	if str(effect_value["kind"]) in ["push","pull"] and not Guardian.handles(enemy_type): motion = {}
 	result[field] = {"enemy_1":motion}
+	if enemy_type == "lightning_wisp":
+		result[field] = {}
+		preload("res://scripts/maquette_cutout_runtime/action.gd").decorate(state_value, result)
 	# Zekarion still routes its socket-based ranged effects through this flag.
 	if enemy_type == "zekarion":
 		var shown_effect: Dictionary = effect_value.duplicate(false)
@@ -72,6 +78,7 @@ static func presentation(enemy_type: String, state_value: Dictionary, effect_val
 static func check_pose(renderer: Node, enemy_type: String, effect_value: Dictionary, state_value: Dictionary, progress: float) -> bool:
 	var motion: Dictionary = presentation(enemy_type,state_value,effect_value,progress)[motion_field(enemy_type)]["enemy_1"]
 	if motion.is_empty(): return renderer.clip == "idle"
+	if enemy_type == "lightning_wisp": return renderer.clip == motion["clip"] and is_equal_approx(renderer.phase, float(motion["phase"]))
 	if str(Points.REGISTRY.get(enemy_type,{}).get("kind","arc")) == "arc":
 		return renderer.clip == "attack" and is_equal_approx(renderer.phase,progress)
 	var action: Dictionary = Points.action_pose(enemy_type,effect_value,state_value["enemies"][0],progress,Points.contact(effect_value))

@@ -1,0 +1,4103 @@
+{
+  "exposure_basis": "Actual authored keys and midpoints, both Skeleton2D views; CPU nearest masks, not native renderer proof.",
+  "requests": [
+    {
+      "part": "trunk",
+      "view": "front",
+      "image": "hidden_requests/front_trunk.png",
+      "status": "measured",
+      "hidden_pixel_count": 4078,
+      "bounding_box": [
+        62,
+        66,
+        197,
+        212
+      ],
+      "solo_outside_paint_pixels": 181,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 339,
+          "peak_phase": 0.4
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 167,
+          "peak_phase": 0.25
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 207,
+          "peak_phase": 0.5
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 267,
+          "peak_phase": 0.38
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 410,
+          "peak_phase": 0.32
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 561,
+          "peak_phase": 0.18
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 855,
+          "peak_phase": 1.0
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "core",
+          "pixels": 772,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_near_l",
+          "pixels": 547,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 715,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 20,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_high_l",
+          "pixels": 322,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_high_r",
+          "pixels": 63,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_low_l",
+          "pixels": 612,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_low_r",
+          "pixels": 812,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_r",
+          "pixels": 207,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_c",
+          "pixels": 8,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "core",
+          "pixels": 45,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_near_l",
+          "pixels": 33,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 22,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 2,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_high_l",
+          "pixels": 26,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_high_r",
+          "pixels": 17,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_low_l",
+          "pixels": 10,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_low_r",
+          "pixels": 28,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_r",
+          "pixels": 21,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_c",
+          "pixels": 6,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_trunk"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 339,
+          "peak_phase": 0.4
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 167,
+          "peak_phase": 0.25
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 207,
+          "peak_phase": 0.5
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 267,
+          "peak_phase": 0.38
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 410,
+          "peak_phase": 0.32
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 561,
+          "peak_phase": 0.18
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 855,
+          "peak_phase": 1.0
+        }
+      ],
+      "max_exposed_pixels": 855
+    },
+    {
+      "part": "core",
+      "view": "front",
+      "image": "hidden_requests/front_core.png",
+      "status": "measured",
+      "hidden_pixel_count": 232,
+      "bounding_box": [
+        90,
+        61,
+        132,
+        98
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 3,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 30,
+          "peak_phase": 0.4
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 3,
+          "peak_phase": 0.55
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 32,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 52,
+          "peak_phase": 0.85
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "petal_near_l",
+          "pixels": 69,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 160,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 3,
+          "material": "shale daisy petals"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "petal_near_l",
+          "pixels": 23,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 36,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_l",
+          "pixels": 6,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 4,
+          "material": "shale daisy petals"
+        }
+      ],
+      "material": "amber crystal heart",
+      "paint_nodes": [
+        "hidden_core"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 3,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 30,
+          "peak_phase": 0.4
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 3,
+          "peak_phase": 0.55
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 32,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 52,
+          "peak_phase": 0.85
+        }
+      ],
+      "max_exposed_pixels": 52
+    },
+    {
+      "part": "petal_near_l",
+      "view": "front",
+      "image": "hidden_requests/front_petal_near_l.png",
+      "status": "measured",
+      "hidden_pixel_count": 291,
+      "bounding_box": [
+        70,
+        81,
+        116,
+        115
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 27,
+          "peak_phase": 0.65
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 201,
+          "peak_phase": 0.4
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 23,
+          "peak_phase": 0.55
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.1
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "core",
+          "pixels": 156,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 71,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_l",
+          "pixels": 64,
+          "material": "shale daisy petals"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "core",
+          "pixels": 29,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 17,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_l",
+          "pixels": 20,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_high_l",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_r",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "shale daisy petals",
+      "paint_nodes": [
+        "hidden_petal_near_l"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 27,
+          "peak_phase": 0.65
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 201,
+          "peak_phase": 0.4
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 23,
+          "peak_phase": 0.55
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.1
+        }
+      ],
+      "max_exposed_pixels": 201
+    },
+    {
+      "part": "petal_near_r",
+      "view": "front",
+      "image": "hidden_requests/front_petal_near_r.png",
+      "status": "measured",
+      "hidden_pixel_count": 236,
+      "bounding_box": [
+        105,
+        63,
+        147,
+        107
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 27,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 85,
+          "peak_phase": 0.4
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 15,
+          "peak_phase": 0.55
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 137,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 148,
+          "peak_phase": 0.75
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "core",
+          "pixels": 138,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_near_l",
+          "pixels": 52,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 46,
+          "material": "shale daisy petals"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "core",
+          "pixels": 30,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_near_l",
+          "pixels": 15,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 17,
+          "material": "shale daisy petals"
+        }
+      ],
+      "material": "shale daisy petals",
+      "paint_nodes": [
+        "hidden_petal_near_r"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 27,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 85,
+          "peak_phase": 0.4
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 15,
+          "peak_phase": 0.55
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 137,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 148,
+          "peak_phase": 0.75
+        }
+      ],
+      "max_exposed_pixels": 148
+    },
+    {
+      "part": "petal_far_l",
+      "view": "front",
+      "image": "hidden_requests/front_petal_far_l.png",
+      "status": "measured",
+      "hidden_pixel_count": 597,
+      "bounding_box": [
+        66,
+        45,
+        115,
+        92
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 16,
+          "peak_phase": 0.525
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 192,
+          "peak_phase": 0.42
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 20,
+          "peak_phase": 0.55
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.2
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "core",
+          "pixels": 395,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_near_l",
+          "pixels": 132,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 69,
+          "material": "shale daisy petals"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "core",
+          "pixels": 38,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_near_l",
+          "pixels": 29,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 15,
+          "material": "shale daisy petals"
+        }
+      ],
+      "material": "shale daisy petals",
+      "paint_nodes": [
+        "hidden_petal_far_l"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 16,
+          "peak_phase": 0.525
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 192,
+          "peak_phase": 0.42
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 20,
+          "peak_phase": 0.55
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.2
+        }
+      ],
+      "max_exposed_pixels": 192
+    },
+    {
+      "part": "petal_far_r",
+      "view": "front",
+      "image": "hidden_requests/front_petal_far_r.png",
+      "status": "measured",
+      "hidden_pixel_count": 485,
+      "bounding_box": [
+        104,
+        45,
+        152,
+        80
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 25,
+          "peak_phase": 0.85
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.1
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 108,
+          "peak_phase": 0.52
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 7,
+          "peak_phase": 0.55
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 171,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 2,
+          "peak_phase": 0.65
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 184,
+          "peak_phase": 0.85
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "core",
+          "pixels": 280,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_near_l",
+          "pixels": 3,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 150,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_l",
+          "pixels": 51,
+          "material": "shale daisy petals"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "core",
+          "pixels": 31,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 29,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_l",
+          "pixels": 17,
+          "material": "shale daisy petals"
+        }
+      ],
+      "material": "shale daisy petals",
+      "paint_nodes": [
+        "hidden_petal_far_r"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 25,
+          "peak_phase": 0.85
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.1
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 108,
+          "peak_phase": 0.52
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 7,
+          "peak_phase": 0.55
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 171,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 2,
+          "peak_phase": 0.65
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 184,
+          "peak_phase": 0.85
+        }
+      ],
+      "max_exposed_pixels": 184
+    },
+    {
+      "part": "tendril_high_l",
+      "view": "front",
+      "image": "hidden_requests/front_tendril_high_l.png",
+      "status": "measured",
+      "hidden_pixel_count": 955,
+      "bounding_box": [
+        67,
+        89,
+        94,
+        183
+      ],
+      "solo_outside_paint_pixels": 390,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 126,
+          "peak_phase": 0.35
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 40,
+          "peak_phase": 0.225
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 27,
+          "peak_phase": 0.6
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 78,
+          "peak_phase": 0.38
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 347,
+          "peak_phase": 0.18
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 18,
+          "peak_phase": 0.2
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 474,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_near_l",
+          "pixels": 462,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 1,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 4,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_low_r",
+          "pixels": 13,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_r",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 84,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_near_l",
+          "pixels": 56,
+          "material": "shale daisy petals"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_tendril_high_l"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 126,
+          "peak_phase": 0.35
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 40,
+          "peak_phase": 0.225
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 27,
+          "peak_phase": 0.6
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 78,
+          "peak_phase": 0.38
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 347,
+          "peak_phase": 0.18
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 18,
+          "peak_phase": 0.2
+        }
+      ],
+      "max_exposed_pixels": 347
+    },
+    {
+      "part": "tendril_high_r",
+      "view": "front",
+      "image": "hidden_requests/front_tendril_high_r.png",
+      "status": "measured",
+      "hidden_pixel_count": 429,
+      "bounding_box": [
+        143,
+        96,
+        174,
+        140
+      ],
+      "solo_outside_paint_pixels": 184,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 69,
+          "peak_phase": 0.5
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 2,
+          "peak_phase": 0.2
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 140,
+          "peak_phase": 0.15
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 343,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 4,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_low_r",
+          "pixels": 82,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 45,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_low_r",
+          "pixels": 13,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_tendril_high_r"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 69,
+          "peak_phase": 0.5
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 2,
+          "peak_phase": 0.2
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 140,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        }
+      ],
+      "max_exposed_pixels": 140
+    },
+    {
+      "part": "tendril_mid_l",
+      "view": "front",
+      "image": "hidden_requests/front_tendril_mid_l.png",
+      "status": "measured",
+      "hidden_pixel_count": 631,
+      "bounding_box": [
+        116,
+        87,
+        137,
+        133
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 341,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 290,
+          "material": "shale daisy petals"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 63,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 40,
+          "material": "shale daisy petals"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "tendril_mid_l"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        }
+      ],
+      "max_exposed_pixels": 0
+    },
+    {
+      "part": "tendril_low_l",
+      "view": "front",
+      "image": "hidden_requests/front_tendril_low_l.png",
+      "status": "measured",
+      "hidden_pixel_count": 359,
+      "bounding_box": [
+        90,
+        150,
+        112,
+        204
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 31,
+          "peak_phase": 0.65
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 19,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 7,
+          "peak_phase": 0.2
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.19
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 6,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.075
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 21,
+          "peak_phase": 0.6
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 342,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 1,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 4,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "root_stem_r",
+          "pixels": 12,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 68,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 1,
+          "material": "shale daisy petals"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_tendril_low_l"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 31,
+          "peak_phase": 0.65
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 19,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 7,
+          "peak_phase": 0.2
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.19
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 6,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.075
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 21,
+          "peak_phase": 0.6
+        }
+      ],
+      "max_exposed_pixels": 31
+    },
+    {
+      "part": "tendril_low_r",
+      "view": "front",
+      "image": "hidden_requests/front_tendril_low_r.png",
+      "status": "measured",
+      "hidden_pixel_count": 148,
+      "bounding_box": [
+        153,
+        129,
+        175,
+        180
+      ],
+      "solo_outside_paint_pixels": 7,
+      "motions": [
+        {
+          "clip": "death",
+          "max_exposed_pixels": 11,
+          "peak_phase": 0.775
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 141,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 3,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 4,
+          "material": "shale daisy petals"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 46,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_tendril_low_r"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 11,
+          "peak_phase": 0.775
+        }
+      ],
+      "max_exposed_pixels": 11
+    },
+    {
+      "part": "root_stem_l",
+      "view": "front",
+      "image": "hidden_requests/front_root_stem_l.png",
+      "status": "measured",
+      "hidden_pixel_count": 866,
+      "bounding_box": [
+        89,
+        150,
+        123,
+        182
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 659,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 1,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 2,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_low_l",
+          "pixels": 201,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_r",
+          "pixels": 3,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 72,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_low_l",
+          "pixels": 25,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "root_stem_l"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        }
+      ],
+      "max_exposed_pixels": 0
+    },
+    {
+      "part": "root_stem_r",
+      "view": "front",
+      "image": "hidden_requests/front_root_stem_r.png",
+      "status": "measured",
+      "hidden_pixel_count": 874,
+      "bounding_box": [
+        132,
+        178,
+        176,
+        225
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "move",
+          "max_exposed_pixels": 11,
+          "peak_phase": 0.5
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 674,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 6,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "root_tip_l",
+          "pixels": 7,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_tip_r",
+          "pixels": 187,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 76,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_tip_l",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_tip_r",
+          "pixels": 24,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_root_stem_r"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 11,
+          "peak_phase": 0.5
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        }
+      ],
+      "max_exposed_pixels": 11
+    },
+    {
+      "part": "root_stem_c",
+      "view": "front",
+      "image": "hidden_requests/front_root_stem_c.png",
+      "status": "measured",
+      "hidden_pixel_count": 1162,
+      "bounding_box": [
+        70,
+        174,
+        115,
+        215
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.35
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 2,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 2,
+          "peak_phase": 0.45
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 543,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_near_l",
+          "pixels": 2,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 5,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 6,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_low_l",
+          "pixels": 480,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_r",
+          "pixels": 7,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_tip_c",
+          "pixels": 119,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 69,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 1,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_low_l",
+          "pixels": 18,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_r",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_tip_c",
+          "pixels": 18,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_root_stem_c"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.35
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 2,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 2,
+          "peak_phase": 0.45
+        }
+      ],
+      "max_exposed_pixels": 2
+    },
+    {
+      "part": "root_tip_l",
+      "view": "front",
+      "image": "hidden_requests/front_root_tip_l.png",
+      "status": "measured",
+      "hidden_pixel_count": 379,
+      "bounding_box": [
+        88,
+        159,
+        110,
+        180
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 205,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 2,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_low_l",
+          "pixels": 169,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_r",
+          "pixels": 3,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 47,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_low_l",
+          "pixels": 18,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_r",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_root_tip_l"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        }
+      ],
+      "max_exposed_pixels": 0
+    },
+    {
+      "part": "root_tip_r",
+      "view": "front",
+      "image": "hidden_requests/front_root_tip_r.png",
+      "status": "measured",
+      "hidden_pixel_count": 178,
+      "bounding_box": [
+        154,
+        203,
+        175,
+        224
+      ],
+      "solo_outside_paint_pixels": 77,
+      "motions": [
+        {
+          "clip": "move",
+          "max_exposed_pixels": 28,
+          "peak_phase": 0.425
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "root_stem_r",
+          "pixels": 171,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_tip_l",
+          "pixels": 7,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "root_stem_r",
+          "pixels": 39,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_tip_l",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_root_tip_r"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 28,
+          "peak_phase": 0.425
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        }
+      ],
+      "max_exposed_pixels": 28
+    },
+    {
+      "part": "root_tip_c",
+      "view": "front",
+      "image": "hidden_requests/front_root_tip_c.png",
+      "status": "measured",
+      "hidden_pixel_count": 246,
+      "bounding_box": [
+        72,
+        194,
+        92,
+        215
+      ],
+      "solo_outside_paint_pixels": 31,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.125
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 33,
+          "peak_phase": 0.25
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 7,
+          "peak_phase": 0.42
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 4,
+          "peak_phase": 0.19
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 7,
+          "peak_phase": 0.55
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 143,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_near_l",
+          "pixels": 2,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 3,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_low_l",
+          "pixels": 38,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_r",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_c",
+          "pixels": 59,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 15,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 2,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_low_l",
+          "pixels": 17,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_c",
+          "pixels": 7,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_root_tip_c"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.125
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 33,
+          "peak_phase": 0.25
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 7,
+          "peak_phase": 0.42
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 4,
+          "peak_phase": 0.19
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 7,
+          "peak_phase": 0.55
+        }
+      ],
+      "max_exposed_pixels": 33
+    },
+    {
+      "part": "trunk",
+      "view": "rear",
+      "image": "hidden_requests/rear_trunk.png",
+      "status": "measured",
+      "hidden_pixel_count": 2438,
+      "bounding_box": [
+        48,
+        69,
+        178,
+        227
+      ],
+      "solo_outside_paint_pixels": 100,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 288,
+          "peak_phase": 0.4
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 54,
+          "peak_phase": 0.25
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 44,
+          "peak_phase": 0.45
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 61,
+          "peak_phase": 0.38
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 125,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 518,
+          "peak_phase": 0.18
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 699,
+          "peak_phase": 0.925
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "core",
+          "pixels": 285,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_near_l",
+          "pixels": 8,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 18,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_l",
+          "pixels": 115,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 195,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_high_l",
+          "pixels": 464,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_high_r",
+          "pixels": 529,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_mid_l",
+          "pixels": 808,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_low_r",
+          "pixels": 12,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_l",
+          "pixels": 3,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_r",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "core",
+          "pixels": 39,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_far_l",
+          "pixels": 13,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 7,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_high_l",
+          "pixels": 88,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_high_r",
+          "pixels": 47,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_low_r",
+          "pixels": 9,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_l",
+          "pixels": 5,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_r",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_tip_l",
+          "pixels": 4,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_trunk"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 288,
+          "peak_phase": 0.4
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 54,
+          "peak_phase": 0.25
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 44,
+          "peak_phase": 0.45
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 61,
+          "peak_phase": 0.38
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 125,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 518,
+          "peak_phase": 0.18
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 699,
+          "peak_phase": 0.925
+        }
+      ],
+      "max_exposed_pixels": 699
+    },
+    {
+      "part": "core",
+      "view": "rear",
+      "image": "hidden_requests/rear_core.png",
+      "status": "measured",
+      "hidden_pixel_count": 484,
+      "bounding_box": [
+        111,
+        70,
+        152,
+        95
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 17,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 38,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 92,
+          "peak_phase": 0.42
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 86,
+          "peak_phase": 0.38
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 115,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 58,
+          "peak_phase": 0.18
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 82,
+          "peak_phase": 0.35
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 204,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_near_l",
+          "pixels": 9,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_l",
+          "pixels": 100,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 171,
+          "material": "shale daisy petals"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 42,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_far_l",
+          "pixels": 8,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 9,
+          "material": "shale daisy petals"
+        }
+      ],
+      "material": "amber crystal heart",
+      "paint_nodes": [
+        "hidden_core"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 17,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 38,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 92,
+          "peak_phase": 0.42
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 86,
+          "peak_phase": 0.38
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 115,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 58,
+          "peak_phase": 0.18
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 82,
+          "peak_phase": 0.35
+        }
+      ],
+      "max_exposed_pixels": 115
+    },
+    {
+      "part": "petal_near_l",
+      "view": "rear",
+      "image": "hidden_requests/rear_petal_near_l.png",
+      "status": "measured",
+      "hidden_pixel_count": 670,
+      "bounding_box": [
+        126,
+        61,
+        182,
+        91
+      ],
+      "solo_outside_paint_pixels": 32,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 25,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 63,
+          "peak_phase": 0.66
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 28,
+          "peak_phase": 0.55
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 267,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 313,
+          "peak_phase": 0.85
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "core",
+          "pixels": 442,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_far_l",
+          "pixels": 228,
+          "material": "shale daisy petals"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "core",
+          "pixels": 29,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 2,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_l",
+          "pixels": 44,
+          "material": "shale daisy petals"
+        }
+      ],
+      "material": "shale daisy petals",
+      "paint_nodes": [
+        "hidden_petal_near_l"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 25,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 63,
+          "peak_phase": 0.66
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 28,
+          "peak_phase": 0.55
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 267,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 313,
+          "peak_phase": 0.85
+        }
+      ],
+      "max_exposed_pixels": 313
+    },
+    {
+      "part": "petal_near_r",
+      "view": "rear",
+      "image": "hidden_requests/rear_petal_near_r.png",
+      "status": "measured",
+      "hidden_pixel_count": 545,
+      "bounding_box": [
+        86,
+        55,
+        137,
+        79
+      ],
+      "solo_outside_paint_pixels": 4,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 57,
+          "peak_phase": 0.775
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 236,
+          "peak_phase": 0.4
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 11,
+          "peak_phase": 0.625
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 149,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 168,
+          "peak_phase": 0.7
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "core",
+          "pixels": 316,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 229,
+          "material": "shale daisy petals"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "core",
+          "pixels": 21,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_near_l",
+          "pixels": 2,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 43,
+          "material": "shale daisy petals"
+        }
+      ],
+      "material": "shale daisy petals",
+      "paint_nodes": [
+        "hidden_petal_near_r"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 57,
+          "peak_phase": 0.775
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 236,
+          "peak_phase": 0.4
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 11,
+          "peak_phase": 0.625
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 149,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 168,
+          "peak_phase": 0.7
+        }
+      ],
+      "max_exposed_pixels": 236
+    },
+    {
+      "part": "petal_far_l",
+      "view": "rear",
+      "image": "hidden_requests/rear_petal_far_l.png",
+      "status": "measured",
+      "hidden_pixel_count": 77,
+      "bounding_box": [
+        128,
+        81,
+        165,
+        95
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 12,
+          "peak_phase": 0.125
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.075
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 49,
+          "peak_phase": 0.52
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 7,
+          "peak_phase": 0.55
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 57,
+          "peak_phase": 0.85
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.075
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 55,
+          "peak_phase": 0.3
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "core",
+          "pixels": 28,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_near_l",
+          "pixels": 12,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 35,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "root_stem_r",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 2,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "core",
+          "pixels": 22,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_near_l",
+          "pixels": 14,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 9,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_high_l",
+          "pixels": 2,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "shale daisy petals",
+      "paint_nodes": [
+        "hidden_petal_far_l"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 12,
+          "peak_phase": 0.125
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.075
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 49,
+          "peak_phase": 0.52
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 7,
+          "peak_phase": 0.55
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 57,
+          "peak_phase": 0.85
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.075
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 55,
+          "peak_phase": 0.3
+        }
+      ],
+      "max_exposed_pixels": 57
+    },
+    {
+      "part": "petal_far_r",
+      "view": "rear",
+      "image": "hidden_requests/rear_petal_far_r.png",
+      "status": "measured",
+      "hidden_pixel_count": 44,
+      "bounding_box": [
+        99,
+        60,
+        139,
+        89
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 15,
+          "peak_phase": 0.875
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.1
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 24,
+          "peak_phase": 0.6
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 8,
+          "peak_phase": 0.38
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 12,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.075
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 12,
+          "peak_phase": 0.2
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "core",
+          "pixels": 15,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 11,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_l",
+          "pixels": 17,
+          "material": "shale daisy petals"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 2,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "core",
+          "pixels": 12,
+          "material": "amber crystal heart"
+        },
+        {
+          "part": "petal_near_l",
+          "pixels": 3,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 14,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_l",
+          "pixels": 7,
+          "material": "shale daisy petals"
+        }
+      ],
+      "material": "shale daisy petals",
+      "paint_nodes": [
+        "hidden_petal_far_r"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 15,
+          "peak_phase": 0.875
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.1
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 24,
+          "peak_phase": 0.6
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 8,
+          "peak_phase": 0.38
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 12,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.075
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 12,
+          "peak_phase": 0.2
+        }
+      ],
+      "max_exposed_pixels": 24
+    },
+    {
+      "part": "tendril_high_l",
+      "view": "rear",
+      "image": "hidden_requests/rear_tendril_high_l.png",
+      "status": "measured",
+      "hidden_pixel_count": 479,
+      "bounding_box": [
+        149,
+        91,
+        180,
+        191
+      ],
+      "solo_outside_paint_pixels": 103,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 243,
+          "peak_phase": 0.35
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 11,
+          "peak_phase": 0.35
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 18,
+          "peak_phase": 0.5
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 10,
+          "peak_phase": 0.19
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 315,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 11,
+          "peak_phase": 0.1
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 454,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_far_l",
+          "pixels": 15,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 8,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_low_r",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_r",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 114,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_far_l",
+          "pixels": 13,
+          "material": "shale daisy petals"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_tendril_high_l"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 243,
+          "peak_phase": 0.35
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 11,
+          "peak_phase": 0.35
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 18,
+          "peak_phase": 0.5
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 10,
+          "peak_phase": 0.19
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 315,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 11,
+          "peak_phase": 0.1
+        }
+      ],
+      "max_exposed_pixels": 315
+    },
+    {
+      "part": "tendril_high_r",
+      "view": "rear",
+      "image": "hidden_requests/rear_tendril_high_r.png",
+      "status": "measured",
+      "hidden_pixel_count": 207,
+      "bounding_box": [
+        71,
+        102,
+        100,
+        151
+      ],
+      "solo_outside_paint_pixels": 116,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 60,
+          "peak_phase": 0.625
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 14,
+          "peak_phase": 0.1
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 15,
+          "peak_phase": 0.5
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 14,
+          "peak_phase": 0.19
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 13,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 84,
+          "peak_phase": 0.18
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 31,
+          "peak_phase": 0.925
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 193,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 14,
+          "material": "shale daisy petals"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 52,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 1,
+          "material": "shale daisy petals"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_tendril_high_r"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 60,
+          "peak_phase": 0.625
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 14,
+          "peak_phase": 0.1
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 15,
+          "peak_phase": 0.5
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 14,
+          "peak_phase": 0.19
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 13,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 84,
+          "peak_phase": 0.18
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 31,
+          "peak_phase": 0.925
+        }
+      ],
+      "max_exposed_pixels": 84
+    },
+    {
+      "part": "tendril_mid_l",
+      "view": "rear",
+      "image": "hidden_requests/rear_tendril_mid_l.png",
+      "status": "measured",
+      "hidden_pixel_count": 53,
+      "bounding_box": [
+        111,
+        131,
+        127,
+        194
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 21,
+          "peak_phase": 0.0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 6,
+          "peak_phase": 0.45
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 6,
+          "peak_phase": 0.6
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.19
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 24,
+          "peak_phase": 0.4
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 11,
+          "peak_phase": 0.35
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 40,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 4,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 1,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_low_r",
+          "pixels": 8,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 50,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_tendril_mid_l"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 21,
+          "peak_phase": 0.0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 6,
+          "peak_phase": 0.45
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 6,
+          "peak_phase": 0.6
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.19
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 5,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 24,
+          "peak_phase": 0.4
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 11,
+          "peak_phase": 0.35
+        }
+      ],
+      "max_exposed_pixels": 24
+    },
+    {
+      "part": "tendril_low_l",
+      "view": "rear",
+      "image": "hidden_requests/rear_tendril_low_l.png",
+      "status": "measured",
+      "hidden_pixel_count": 892,
+      "bounding_box": [
+        131,
+        121,
+        156,
+        175
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 892,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 135,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_tendril_low_l"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        }
+      ],
+      "max_exposed_pixels": 0
+    },
+    {
+      "part": "tendril_low_r",
+      "view": "rear",
+      "image": "hidden_requests/rear_tendril_low_r.png",
+      "status": "measured",
+      "hidden_pixel_count": 849,
+      "bounding_box": [
+        47,
+        127,
+        90,
+        191
+      ],
+      "solo_outside_paint_pixels": 98,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 81,
+          "peak_phase": 0.825
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.075
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 2,
+          "peak_phase": 0.6
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.19
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 71,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 14,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 56,
+          "peak_phase": 0.25
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 503,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 1,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 11,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_high_r",
+          "pixels": 334,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 67,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 1,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_high_r",
+          "pixels": 26,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_tendril_low_r"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 81,
+          "peak_phase": 0.825
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.075
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 2,
+          "peak_phase": 0.6
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.19
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 71,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 14,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 56,
+          "peak_phase": 0.25
+        }
+      ],
+      "max_exposed_pixels": 81
+    },
+    {
+      "part": "root_stem_l",
+      "view": "rear",
+      "image": "hidden_requests/rear_root_stem_l.png",
+      "status": "measured",
+      "hidden_pixel_count": 952,
+      "bounding_box": [
+        119,
+        190,
+        154,
+        229
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "move",
+          "max_exposed_pixels": 2,
+          "peak_phase": 0.125
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 924,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 3,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_low_l",
+          "pixels": 3,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_r",
+          "pixels": 3,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_tip_l",
+          "pixels": 19,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 86,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_tip_l",
+          "pixels": 5,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_root_stem_l"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 2,
+          "peak_phase": 0.125
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        }
+      ],
+      "max_exposed_pixels": 2
+    },
+    {
+      "part": "root_stem_r",
+      "view": "rear",
+      "image": "hidden_requests/rear_root_stem_r.png",
+      "status": "measured",
+      "hidden_pixel_count": 1058,
+      "bounding_box": [
+        67,
+        162,
+        110,
+        194
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 990,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 7,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_mid_l",
+          "pixels": 61,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 89,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_mid_l",
+          "pixels": 22,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_root_stem_r"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        }
+      ],
+      "max_exposed_pixels": 0
+    },
+    {
+      "part": "root_stem_c",
+      "view": "rear",
+      "image": "hidden_requests/rear_root_stem_c.png",
+      "status": "measured",
+      "hidden_pixel_count": 1088,
+      "bounding_box": [
+        128,
+        166,
+        172,
+        198
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.8
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 2,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 2,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 3,
+          "peak_phase": 0.55
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 1062,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 2,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_high_l",
+          "pixels": 23,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_low_r",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 100,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_high_l",
+          "pixels": 13,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "root_stem_c"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 1,
+          "peak_phase": 0.8
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 2,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 2,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 3,
+          "peak_phase": 0.55
+        }
+      ],
+      "max_exposed_pixels": 3
+    },
+    {
+      "part": "root_tip_l",
+      "view": "rear",
+      "image": "hidden_requests/rear_root_tip_l.png",
+      "status": "measured",
+      "hidden_pixel_count": 352,
+      "bounding_box": [
+        132,
+        209,
+        155,
+        231
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 6,
+          "peak_phase": 0.0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 16,
+          "peak_phase": 0.1
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 4,
+          "peak_phase": 0.2
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 3,
+          "peak_phase": 0.19
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 3,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 3,
+          "peak_phase": 0.075
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 7,
+          "peak_phase": 0.35
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 267,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_near_r",
+          "pixels": 3,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_low_l",
+          "pixels": 3,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_l",
+          "pixels": 75,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_r",
+          "pixels": 4,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 40,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "root_stem_l",
+          "pixels": 18,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_root_tip_l"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 6,
+          "peak_phase": 0.0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 16,
+          "peak_phase": 0.1
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 4,
+          "peak_phase": 0.2
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 3,
+          "peak_phase": 0.19
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 3,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 3,
+          "peak_phase": 0.075
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 7,
+          "peak_phase": 0.35
+        }
+      ],
+      "max_exposed_pixels": 16
+    },
+    {
+      "part": "root_tip_r",
+      "view": "rear",
+      "image": "hidden_requests/rear_root_tip_r.png",
+      "status": "measured",
+      "hidden_pixel_count": 452,
+      "bounding_box": [
+        59,
+        165,
+        88,
+        186
+      ],
+      "solo_outside_paint_pixels": 11,
+      "motions": [
+        {
+          "clip": "move",
+          "max_exposed_pixels": 7,
+          "peak_phase": 0.575
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 451,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 1,
+          "material": "shale daisy petals"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 65,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_low_r",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "root_tip_r"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 7,
+          "peak_phase": 0.575
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        }
+      ],
+      "max_exposed_pixels": 7
+    },
+    {
+      "part": "root_tip_c",
+      "view": "rear",
+      "image": "hidden_requests/rear_root_tip_c.png",
+      "status": "measured",
+      "hidden_pixel_count": 465,
+      "bounding_box": [
+        151,
+        174,
+        181,
+        196
+      ],
+      "solo_outside_paint_pixels": 0,
+      "motions": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 27,
+          "peak_phase": 0.825
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 37,
+          "peak_phase": 0.225
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 71,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 21,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 82,
+          "peak_phase": 0.3
+        }
+      ],
+      "exposure_status": "sampled_cpu_visibility",
+      "occluding_parts": [
+        {
+          "part": "trunk",
+          "pixels": 364,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "petal_far_r",
+          "pixels": 3,
+          "material": "shale daisy petals"
+        },
+        {
+          "part": "tendril_high_l",
+          "pixels": 96,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_mid_l",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_low_r",
+          "pixels": 1,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "bordering_parts": [
+        {
+          "part": "trunk",
+          "pixels": 50,
+          "material": "dark brown braided roots"
+        },
+        {
+          "part": "tendril_high_l",
+          "pixels": 21,
+          "material": "dark brown braided roots"
+        }
+      ],
+      "material": "dark brown braided roots",
+      "paint_nodes": [
+        "hidden_root_tip_c"
+      ],
+      "clip_exposure": [
+        {
+          "clip": "idle",
+          "max_exposed_pixels": 27,
+          "peak_phase": 0.825
+        },
+        {
+          "clip": "move",
+          "max_exposed_pixels": 37,
+          "peak_phase": 0.225
+        },
+        {
+          "clip": "burst",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shot",
+          "max_exposed_pixels": 0,
+          "peak_phase": 0
+        },
+        {
+          "clip": "shell",
+          "max_exposed_pixels": 71,
+          "peak_phase": 0.3
+        },
+        {
+          "clip": "hit",
+          "max_exposed_pixels": 21,
+          "peak_phase": 0.15
+        },
+        {
+          "clip": "death",
+          "max_exposed_pixels": 82,
+          "peak_phase": 0.3
+        }
+      ],
+      "max_exposed_pixels": 82
+    }
+  ],
+  "samples_sha256": "414920c04f3ada2a1346b1395d6895563c636f99af93e0294945c6eb37faa3e3"
+}

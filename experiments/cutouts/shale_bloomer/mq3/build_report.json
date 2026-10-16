@@ -1,0 +1,345 @@
+{
+  "views": {
+    "front": {
+      "reassignment": {
+        "trunk": {
+          "painted_pixels": 9931,
+          "reassigned_pixels": 1299,
+          "reassigned_share": 0.1308025375088108,
+          "above_15_percent": false
+        },
+        "core": {
+          "painted_pixels": 1048,
+          "reassigned_pixels": 0,
+          "reassigned_share": 0.0,
+          "above_15_percent": false
+        },
+        "petal_near_l": {
+          "painted_pixels": 1589,
+          "reassigned_pixels": 408,
+          "reassigned_share": 0.2567652611705475,
+          "above_15_percent": true
+        },
+        "petal_near_r": {
+          "painted_pixels": 1726,
+          "reassigned_pixels": 571,
+          "reassigned_share": 0.3308227114716107,
+          "above_15_percent": true
+        },
+        "petal_far_l": {
+          "painted_pixels": 1804,
+          "reassigned_pixels": 564,
+          "reassigned_share": 0.31263858093126384,
+          "above_15_percent": true
+        },
+        "petal_far_r": {
+          "painted_pixels": 2323,
+          "reassigned_pixels": 1121,
+          "reassigned_share": 0.48256564786913475,
+          "above_15_percent": true
+        },
+        "tendril_high_l": {
+          "painted_pixels": 998,
+          "reassigned_pixels": 423,
+          "reassigned_share": 0.42384769539078154,
+          "above_15_percent": true
+        },
+        "tendril_high_r": {
+          "painted_pixels": 851,
+          "reassigned_pixels": 372,
+          "reassigned_share": 0.4371327849588719,
+          "above_15_percent": true
+        },
+        "tendril_mid_l": {
+          "painted_pixels": 0,
+          "reassigned_pixels": 0,
+          "reassigned_share": 0,
+          "above_15_percent": false
+        },
+        "tendril_low_l": {
+          "painted_pixels": 1034,
+          "reassigned_pixels": 342,
+          "reassigned_share": 0.3307543520309478,
+          "above_15_percent": true
+        },
+        "tendril_low_r": {
+          "painted_pixels": 1464,
+          "reassigned_pixels": 497,
+          "reassigned_share": 0.3394808743169399,
+          "above_15_percent": true
+        },
+        "root_stem_l": {
+          "painted_pixels": 0,
+          "reassigned_pixels": 0,
+          "reassigned_share": 0,
+          "above_15_percent": false
+        },
+        "root_stem_r": {
+          "painted_pixels": 587,
+          "reassigned_pixels": 151,
+          "reassigned_share": 0.2572402044293015,
+          "above_15_percent": true
+        },
+        "root_stem_c": {
+          "painted_pixels": 78,
+          "reassigned_pixels": 18,
+          "reassigned_share": 0.23076923076923078,
+          "above_15_percent": true
+        },
+        "root_tip_l": {
+          "painted_pixels": 24,
+          "reassigned_pixels": 17,
+          "reassigned_share": 0.7083333333333334,
+          "above_15_percent": true
+        },
+        "root_tip_r": {
+          "painted_pixels": 1142,
+          "reassigned_pixels": 828,
+          "reassigned_share": 0.7250437828371279,
+          "above_15_percent": true
+        },
+        "root_tip_c": {
+          "painted_pixels": 739,
+          "reassigned_pixels": 497,
+          "reassigned_share": 0.6725304465493911,
+          "above_15_percent": true
+        }
+      },
+      "depth_order": [
+        "root_tip_l",
+        "root_stem_l",
+        "tendril_mid_l",
+        "tendril_high_l",
+        "root_stem_c",
+        "tendril_low_r",
+        "root_tip_c",
+        "root_stem_r",
+        "tendril_high_r",
+        "trunk",
+        "root_tip_r",
+        "tendril_low_l",
+        "petal_far_l",
+        "petal_far_r",
+        "core",
+        "petal_near_l",
+        "petal_near_r"
+      ],
+      "bone_mapping": {
+        "trunk": "trunk",
+        "core": "core",
+        "petal_near_l": "petal_near_l",
+        "petal_near_r": "petal_near_r",
+        "petal_far_l": "petal_far_l",
+        "petal_far_r": "petal_far_r",
+        "tendril_high_l": "tendril_high_l",
+        "tendril_high_r": "tendril_high_r",
+        "tendril_mid_l": "tendril_mid_l",
+        "tendril_low_l": "tendril_low_l",
+        "tendril_low_r": "tendril_low_r",
+        "root_stem_l": "root_stem_l",
+        "root_stem_r": "root_stem_r",
+        "root_stem_c": "root_stem_c",
+        "root_tip_l": "root_tip_l",
+        "root_tip_r": "root_tip_r",
+        "root_tip_c": "root_tip_c"
+      },
+      "rigid_cloth_mapping": {},
+      "ownership_cleanup": {},
+      "unmaterialized_parts": []
+    },
+    "rear": {
+      "reassignment": {
+        "trunk": {
+          "painted_pixels": 12981,
+          "reassigned_pixels": 1777,
+          "reassigned_share": 0.13689238117248287,
+          "above_15_percent": false
+        },
+        "core": {
+          "painted_pixels": 639,
+          "reassigned_pixels": 0,
+          "reassigned_share": 0.0,
+          "above_15_percent": false
+        },
+        "petal_near_l": {
+          "painted_pixels": 897,
+          "reassigned_pixels": 395,
+          "reassigned_share": 0.4403567447045708,
+          "above_15_percent": true
+        },
+        "petal_near_r": {
+          "painted_pixels": 779,
+          "reassigned_pixels": 141,
+          "reassigned_share": 0.1810012836970475,
+          "above_15_percent": true
+        },
+        "petal_far_l": {
+          "painted_pixels": 477,
+          "reassigned_pixels": 107,
+          "reassigned_share": 0.22431865828092243,
+          "above_15_percent": true
+        },
+        "petal_far_r": {
+          "painted_pixels": 517,
+          "reassigned_pixels": 93,
+          "reassigned_share": 0.17988394584139264,
+          "above_15_percent": true
+        },
+        "tendril_high_l": {
+          "painted_pixels": 2540,
+          "reassigned_pixels": 1108,
+          "reassigned_share": 0.43622047244094486,
+          "above_15_percent": true
+        },
+        "tendril_high_r": {
+          "painted_pixels": 940,
+          "reassigned_pixels": 102,
+          "reassigned_share": 0.10851063829787234,
+          "above_15_percent": false
+        },
+        "tendril_mid_l": {
+          "painted_pixels": 809,
+          "reassigned_pixels": 0,
+          "reassigned_share": 0.0,
+          "above_15_percent": false
+        },
+        "tendril_low_l": {
+          "painted_pixels": 3,
+          "reassigned_pixels": 0,
+          "reassigned_share": 0.0,
+          "above_15_percent": false
+        },
+        "tendril_low_r": {
+          "painted_pixels": 276,
+          "reassigned_pixels": 90,
+          "reassigned_share": 0.32608695652173914,
+          "above_15_percent": true
+        },
+        "root_stem_l": {
+          "painted_pixels": 287,
+          "reassigned_pixels": 208,
+          "reassigned_share": 0.7247386759581882,
+          "above_15_percent": true
+        },
+        "root_stem_r": {
+          "painted_pixels": 15,
+          "reassigned_pixels": 10,
+          "reassigned_share": 0.6666666666666666,
+          "above_15_percent": true
+        },
+        "root_stem_c": {
+          "painted_pixels": 0,
+          "reassigned_pixels": 0,
+          "reassigned_share": 0,
+          "above_15_percent": false
+        },
+        "root_tip_l": {
+          "painted_pixels": 275,
+          "reassigned_pixels": 242,
+          "reassigned_share": 0.88,
+          "above_15_percent": true
+        },
+        "root_tip_r": {
+          "painted_pixels": 0,
+          "reassigned_pixels": 0,
+          "reassigned_share": 0,
+          "above_15_percent": false
+        },
+        "root_tip_c": {
+          "painted_pixels": 50,
+          "reassigned_pixels": 40,
+          "reassigned_share": 0.8,
+          "above_15_percent": true
+        }
+      },
+      "depth_order": [
+        "root_tip_r",
+        "root_tip_c",
+        "tendril_low_l",
+        "root_stem_r",
+        "root_stem_c",
+        "tendril_low_r",
+        "tendril_high_l",
+        "trunk",
+        "root_stem_l",
+        "tendril_high_r",
+        "petal_near_l",
+        "root_tip_l",
+        "petal_near_r",
+        "core",
+        "tendril_mid_l",
+        "petal_far_l",
+        "petal_far_r"
+      ],
+      "bone_mapping": {
+        "trunk": "trunk",
+        "core": "core",
+        "petal_near_l": "petal_near_l",
+        "petal_near_r": "petal_near_r",
+        "petal_far_l": "petal_far_l",
+        "petal_far_r": "petal_far_r",
+        "tendril_high_l": "tendril_high_l",
+        "tendril_high_r": "tendril_high_r",
+        "tendril_mid_l": "tendril_mid_l",
+        "tendril_low_l": "tendril_low_l",
+        "tendril_low_r": "tendril_low_r",
+        "root_stem_l": "root_stem_l",
+        "root_stem_r": "root_stem_r",
+        "root_stem_c": "root_stem_c",
+        "root_tip_l": "root_tip_l",
+        "root_tip_r": "root_tip_r",
+        "root_tip_c": "root_tip_c"
+      },
+      "rigid_cloth_mapping": {},
+      "ownership_cleanup": {},
+      "unmaterialized_parts": []
+    }
+  },
+  "missing_solos": [],
+  "hidden_layer_policy": "Camera-depth-ordered hidden underlays sit below the complete visible partition. This preserves 3D per-pixel occlusion at rest despite intersecting proxy parts; all underlays move with their own bones.",
+  "depth_basis": "Mean primitive centre distance along the explicit view camera (legacy humanoid camera when unspecified); smaller is nearer",
+  "chosen_defaults": {
+    "sheet_columns": 5,
+    "sheet_label_height": 28,
+    "keyframes_per_clip": 8,
+    "mask_alpha_threshold": 128,
+    "pose_canvas": 512,
+    "pose_offset": 128,
+    "joint_rounding_tolerance": 0.02,
+    "neighbour_connectivity": 4
+  },
+  "rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "66d9548fb755091dd48926d5834fee1448338e25e836417971610abcea2c2d95"
+    },
+    "rear": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "268796019d74c2550b114f899dd3db3708b9810216d0c40cf1fa289affa24c86"
+    },
+    "ok": true
+  },
+  "validation": {
+    "ok": true,
+    "character_id": "shale_bloomer",
+    "layouts": {
+      "front": {
+        "joints": 19,
+        "parts": 32,
+        "meshes": 0,
+        "vertices": 0
+      },
+      "rear": {
+        "joints": 19,
+        "parts": 32,
+        "meshes": 0,
+        "vertices": 0
+      }
+    },
+    "errors": []
+  },
+  "ok": true,
+  "complete": true
+}
