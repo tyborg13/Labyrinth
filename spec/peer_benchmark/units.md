@@ -40,13 +40,13 @@
 | qa-03 | Python test hygiene (en05 asset pins, cutout seed, deepest route, optional modules) | merged (e66df1e67) | codex/peer-benchmark | briefs/qa-03.md |
 | rr-02 | Maquette → cutout pipeline phase 1 (gaoler mq3): registration, case, rest identity, hidden-material requests, first motion reel | merged 0d2975df1 (Codex signoff 89af23b6c) | codex/peer-benchmark | briefs/rr-02.md |
 | art-04 | Integrate the owner-approved perched gust shrike (art-03 pipeline) + canon flyer reference; gate support for maquette kits | merged 576717eae (signoff dc9de2dc3; follow-ups d9929d446) | codex/peer-benchmark | briefs/art-04.md |
-| sfx-04 | Audio/visual sync audit + fixes (owner playtest 7: blink sound late, cues delayed by sequencing) | running (gpt-6-astra) | codex/peer-benchmark | briefs/sfx-04.md |
+| sfx-04 | Audio/visual sync audit + fixes (owner playtest 7: blink sound late, cues delayed by sequencing) | merged 7eeb4a4d9 (Codex signoff 73301ac8b) | codex/peer-benchmark | briefs/sfx-04.md |
 | ux-02 | Player-facing text and tooltip audit | merged 50bfcf2b7 (+ captures 0e3273caf); drafts: glossary_rewrite / relic_rewrite (Claude drafting, director review) | codex/peer-benchmark | briefs/ux-02.md |
-| ux-03 | Glossary tooltips for icons and relics (data/glossary.json; card keyword stack reused for relics) | running (gpt-6-astra) | codex/peer-benchmark | briefs/ux-03.md |
-| anim-01 | Pixel-true idle life for static directional enemies (data/static_enemy_idle.json) | running (gpt-6-astra) | codex/peer-benchmark | briefs/anim-01.md |
+| ux-03 | Glossary tooltips for icons and relics (data/glossary.json; card keyword stack reused for relics) | merged a98d3683f | codex/peer-benchmark | briefs/ux-03.md |
+| anim-01 | Pixel-true idle life for static directional enemies (data/static_enemy_idle.json) | dropped (owner rejected mesh-warp ripple idle; replaced by cutout rigs) | codex/peer-benchmark | briefs/anim-01.md |
 | por-01 | Rebuild 17 stale turn-order portraits from post-density art | merged (builder verify test; clock probe PASS, director-reviewed) | codex/peer-benchmark | briefs/por-01.md |
 | vfx-01 | Pixel-art look for procedural elemental effects (low-res layer, element ramps, Bayer alpha) | merged 693209518 (Codex signoff 44eb4ce5f) | codex/peer-benchmark | briefs/vfx-01.md |
-| chr-02 | Chronicle spells as card tiles with counts; tooltips on every tile | running (gpt-6-astra) | codex/peer-benchmark | briefs/chr-02.md |
+| chr-02 | Chronicle spells as card tiles with counts; tooltips on every tile | merged 9d711ceb5 | codex/peer-benchmark | briefs/chr-02.md |
 | art-05 | Replayable director raw steps in the identity gate | merged 2eb5b4d17 (signoff 55bc9b8f3); follow-up: chain on decoded-pixel digests not PNG bytes, report SKIP as WARN, dedupe committed inputs, repo-relative doc commands | codex/peer-benchmark | briefs/art-05.md |
 | qa-04 | Godot .import noise under output/, Chopin sidecar tolerance, en-05 sync test | merged bf7eca61f (review fixes 7f7cc8d7e) | codex/peer-benchmark | briefs/qa-04.md |
 | fix-03 | Fatigue never amplified (owner); SPENT HUD flag; token icons; Lightning Strikes chip | merged (signoff 64d34965f); audit: Reflect, Ember Tick burst, Icefall/Lob/Tether, Meteorfall/Detonate self-hits still amplified — owner question pending on the self-hits | codex/peer-benchmark | briefs/fix-03.md |
@@ -54,9 +54,9 @@
 | ui-02 | UI ratchet cleanup (map, skill tree, section map) | merged (pixel-identical; baseline −4; 152 bespoke colours inventoried in staged/ui/near_palette_ui02.md — median ΔE76 8.5, needs a palette review, not a ratchet) | codex/peer-benchmark | briefs/ui-02.md |
 | art-06 | Identity gate robustness (pixel digests not PNG bytes, SKIP as WARN, dedupe inputs, rear→front job link, mutant tests) | merged bf3ed130a (signoff 16881db9a) | codex/peer-benchmark | briefs/art-06.md |
 | art-07 | Tone max_chroma filter + palette_match keeps bright/accent-hue pixels (lancer blade, wisp cores greyed) + art-06 leftovers | merged (Codex signoff 66018ccab) | codex/peer-benchmark | briefs/art-07.md |
-| anim-02 | Static idle review fixes (jitter-safe lanes, sticky lanes + in-place sync, glow redraw test, instrumentation out of runtime) — continues anim-01 (session stuck replaying) | running (gpt-6-astra) | codex/anim-01 | briefs/anim-02.md |
+| anim-02 | Static idle review fixes (jitter-safe lanes, sticky lanes + in-place sync, glow redraw test, instrumentation out of runtime) — continues anim-01 (session stuck replaying) | dropped (with anim-01) | codex/anim-01 | briefs/anim-02.md |
 | rr-03 | Gust Shrike cutout rig from its maquette (idle/move/dive/talon rake/hover/hit/death) | merged f411c09a9 with qa-06 (Codex signoff 7d39578e6) | codex/peer-benchmark | briefs/rr-03.md |
-| demo-01 | Scripted demo clips with game audio (21 clips, 3 reels: pixel FX, hit-sound sync, lightning trap + Briar Weaver) | recording (r1; validate 21/21 PASS) | codex/peer-benchmark | briefs/demo-01.md |
+| demo-01 | Scripted demo clips with game audio (21 clips, 3 reels: pixel FX, hit-sound sync, lightning trap + Briar Weaver) | fixing r7 (real renderer + MJPEG writer) | codex/peer-benchmark | briefs/demo-01.md |
 | qa-06 | Gust Shrike proof hardening: bone-level signed motion check; production capture without pose seeking (split from rr-03) | merged f411c09a9 (Codex signoff 7d39578e6) | codex/rr-03 | briefs/qa-06.md |
 | anim-01/anim-02 | Static enemy mesh-warp idle | shelved (owner: ripple + bird bounce rejected) | — | feedback.md 2026-10-15 |
 | fix-04 | Briar Weaver loses turn + intent after Thornwall (owner playtest 8) | merged 81e7f0dc9 (Codex signoff 6e3caa464) | codex/peer-benchmark | briefs/fix-04.md |
