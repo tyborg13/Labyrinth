@@ -33,7 +33,7 @@ Horizontal run length counts consecutive nonzero-alpha pixels differing by less 
 
 ## Scope and protected paint
 
-- All 18 enemy cutout rigs used by `_unit_uses_cutout`, all 13 guardian rigs, and the hero rear body.
+- All 19 enemy cutout rigs used by `_unit_uses_cutout`, including conditional registrations, all 13 guardian rigs, and the hero rear body. A distinct registry id may declare `unit_type` for its draw-scale source: `gust_shrike_cutout` uses `gust_shrike`, preserving the existing static fallback entries. Its 46 paint parts and two assembly rests are registered separately; both native views derive grid 1.33 from their untouched calibration rests.
 - Board floor variants, the runtime ember floor and stone fallback, all five families of floor overlays, the pillar and its moss overlay, all static/idle/activation traps, the door/opening sheet, and column torch static/idle art.
 - Wooden box, crate, powder keg and the box/crate destroy sheets (the keg uses box destruction); relic chest and its four opening parts, campfire static/idle, watch brazier dark art, scavenger stall/NPC, emaciated-man idle and dropped embers. The opening chest's authored 128×160 canvas maps to 96×96 logical units: source-pixel scale is `0.68/96` per tile width, r = 1.753641. Closed and opening paint now resample at that scale and grid 1.5. Normalized UVs preserve the authored hinge/canvas mapping.
 

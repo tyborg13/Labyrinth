@@ -107,7 +107,7 @@ def prepare_motion() -> dict:
         write_json(CASE / "recipes/rig.json", recipe)
     config["clips"] = recipe["clips"]
     config["design_placeholders"] = recipe["design_placeholders"]
-    config["sources"] = sorted(set(config["sources"]) | {"compile_motion.py", "pipeline.py", "director_motion.json", "recipes/motion_interpretation.json"})
+    config["sources"] = sorted(set(config["sources"]) | {"compile_motion.py", "pipeline.py", "director_motion.json", "recipes/motion_interpretation.json", "probes/director_contract.py", "probes/production_coverage.py"})
     write_json(CASE / "cutout.json", config)
     return {"ok": True, "design_complete": compiled["design_complete"], "screen_pixel_scale": metadata["screen_pixel_scale"]}
 
@@ -161,9 +161,33 @@ def promote(native_output: Path) -> dict:
     return {"ok": True, "production": str(destination), "files": len(files)}
 
 
+def seal_density() -> dict:
+    """Refresh promotion hashes only after prescribed native-rest recording."""
+    import process_board_density as density
+    entry = next(e for e in density.load_registry()["entries"] if e["id"] == "gust_shrike_cutout")
+    outputs = read_json(density.MANIFEST)
+    errors = density.paint_errors([entry], outputs) + density.rest_errors([entry], outputs)
+    if errors: raise CutoutError("Complete native density rebake and --record-rests first:\n" + "\n".join(errors))
+    destination = PROJECT / entry["dir"]
+    path = destination / "integration.json"
+    integration = read_json(path)
+    # The approved editable paint remains the immutable density source.
+    config = read_json(CASE / "cutout.json")
+    for view, layout_path in config["layouts"].items():
+        for part in read_json(CASE / layout_path)["parts"]:
+            source = density.SOURCES / entry["dir"] / part["file"]
+            if not np.array_equal(np.array(Image.open(source).convert("RGBA")), np.array(Image.open(CASE / part["file"]).convert("RGBA"))):
+                raise CutoutError("Density source differs from approved case: " + part["file"])
+    integration["files"] = {str(p.relative_to(destination)): digest(p) for p in destination.rglob("*") if p.is_file() and p != path}
+    integration["density"] = {"entry": entry["id"], "parts_pixel_sha256": density.parts_digest(entry),
+        "native_rests": {p: outputs[p] for p in density.rest_paths(entry)}}
+    write_json(path, integration)
+    return {"ok": True, "production": str(destination), "density_entry": entry["id"]}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("command", choices=["check-inputs", "build", "prepare-motion", "validate", "promote"])
+    parser.add_argument("command", choices=["check-inputs", "build", "prepare-motion", "validate", "promote", "seal-density"])
     parser.add_argument("--renders", type=Path, default=CASE.parent / "maquette")
     parser.add_argument("--front-raw", type=Path, default=CASE.parent / "inputs/front_raw.png")
     parser.add_argument("--rear-raw", type=Path, default=CASE.parent / "inputs/rear_raw.png")
@@ -174,6 +198,7 @@ def main() -> int:
         elif args.command == "build": result = build_case(args)
         elif args.command == "prepare-motion": result = prepare_motion()
         elif args.command == "validate": result = validate(CASE)
+        elif args.command == "seal-density": result = seal_density()
         else:
             if args.native_output is None: raise CutoutError("promote requires --native-output")
             result = promote(args.native_output)

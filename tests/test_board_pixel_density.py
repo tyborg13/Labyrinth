@@ -32,6 +32,13 @@ def function_text(code: str, name: str) -> str:
     return code.split(f"func {name}(", 1)[1].split("\nfunc ", 1)[0]
 
 
+def cutout_families(code: str) -> set[str]:
+    # Include conditional equality branches as well as the final `in` roster.
+    # Inspect the entire function, independent of whether a rig is available.
+    body = function_text(code, "_unit_uses_cutout")
+    return set(re.findall(r'"([a-z_]+)"', body)) - {"type", "player"}
+
+
 def mask_bounds(mask: np.ndarray) -> tuple[int, int, int, int] | None:
     y, x = np.nonzero(mask)
     return (int(x.min()), int(y.min()), int(x.max())+1, int(y.max())+1) if len(x) else None
@@ -133,8 +140,7 @@ class BoardPixelDensityTest(unittest.TestCase):
                             np.testing.assert_array_equal(aa[ring], bb[ring], err_msg=path)
 
     def test_rig_coverage_names_adoption_command_for_new_art(self) -> None:
-        body = function_text(self.board, "_unit_uses_cutout")
-        types = re.findall(r'"([a-z_]+)"', body.split(" in [", 1)[1])
+        types = cutout_families(self.board)
         directories = {"assets/units/stone_warden_cutout" if kind == "warden"
                        else f"assets/units/{kind}_cutout" for kind in types}
         directories.update(str(p.relative_to(ROOT)) for p in (ROOT / "assets/units/guardians").iterdir() if p.is_dir())
@@ -151,6 +157,20 @@ class BoardPixelDensityTest(unittest.TestCase):
                                 f"Uncovered PNG: {relative}; register then --adopt {relative}")
         for path in registered:
             self.assertTrue((ROOT / path).is_file(), path)
+
+    def test_conditional_cutout_cannot_evade_density_roster(self) -> None:
+        code = '''func _unit_uses_cutout(unit: Dictionary) -> bool:
+    if str(unit.get("type", "")) == "new_bird": return Bird.available()
+    return str(unit.get("type", "")) in ["crawler"]
+func unrelated():
+    pass
+'''
+        families = cutout_families(code)
+        self.assertEqual(families, {"new_bird", "crawler"})
+        # Exercise the actual roster gate with this conditional rig omitted.
+        missing = {key: entry for key, entry in self.entries.items() if key != 'gust_shrike_cutout'}
+        with mock.patch.object(self, 'entries', missing), self.assertRaisesRegex(AssertionError, "register.*--adopt"):
+            self.test_rig_coverage_names_adoption_command_for_new_art()
 
     def test_board_prop_and_room_png_coverage(self) -> None:
         registered = {p for e in self.entries.values() for p in e["paths"]}
@@ -232,6 +252,21 @@ class BoardPixelDensityTest(unittest.TestCase):
                                              f"Case paint differs from density source: {expected} → {relative}")
                         compared += 1
         self.assertGreater(compared, 100)
+
+    def test_shrike_case_pins_all_untreated_density_sources(self) -> None:
+        entry = self.entries['gust_shrike_cutout']
+        self.assertEqual(entry['unit_type'], 'gust_shrike')
+        self.assertEqual(len(entry['paths']), 46)
+        self.assertEqual(len(tool.rest_paths(entry)), 2)
+        case = ROOT / 'experiments/cutouts/gust_shrike/mq2'
+        config = json.loads((case / 'cutout.json').read_text())
+        for facing, layout_path in config['layouts'].items():
+            parts = live_paint(json.loads((case / layout_path).read_text()))
+            production = live_paint(json.loads((ROOT / entry['dir'] / (facing + '.json')).read_text()))
+            self.assertEqual(parts.keys(), production.keys())
+            for name, path in parts.items():
+                with Image.open(case / path) as source, Image.open(SOURCES / entry['dir'] / production[name]) as adopted:
+                    self.assertEqual(source.convert('RGBA').tobytes(), adopted.convert('RGBA').tobytes(), name)
 
     def test_grid_rule_and_measurement_use_untouched_native_sources(self) -> None:
         for entry in self.entries.values():
@@ -457,7 +492,8 @@ class BoardPixelDensityTest(unittest.TestCase):
             name = entry["id"]
             draw_y = None
             if entry["kind"] in ("rig", "static_enemy"):
-                expected = 1.0 if name == "hero_rear" else enemies[name.removesuffix("_rear")].get("art_scale", 1.0)
+                unit_type = entry.get("unit_type", name.removesuffix("_rear"))
+                expected = 1.0 if name == "hero_rear" else enemies[unit_type].get("art_scale", 1.0)
             else:
                 frame = tool.sample(SOURCES / entry["paths"][0], entry["frames"])
                 w, h = frame.size

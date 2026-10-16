@@ -1,0 +1,14 @@
+Running task-local command:
+  task: rr-03
+  run: rr-03-1792115007407208000-92962
+  HOME: /private/tmp/labyrinth-godot-home/rr-03-1792115007407208000-92962
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-03-1792115007407208000-92962/godot.log --headless --path . --script tests/gust_shrike_cutout_probe.gd -- --logic-only
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+SHRIKE PRODUCTION LOGIC ONLY: PASS (123 frames; six or more per action)
+SHRIKE PRODUCTION CAPTURES: /private/tmp/labyrinth-godot-home/rr-03-1792115007407208000-92962/Library/Application Support/Escape the Umbra Parallel rr-03-1792115007407208000-92962/probes/gust_shrike_cutout

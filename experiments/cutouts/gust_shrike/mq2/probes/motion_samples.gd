@@ -29,7 +29,10 @@ func _run() -> void:
 	paths.append_array(["cutout.json", "motion.gd", "motion_data.gd", "probes/motion_samples.gd"])
 	for path: String in paths: inputs[path] = FileAccess.get_sha256(rig.case_directory.path_join(path))
 	var records: Array[Dictionary]
+	var channel_records: Array[Dictionary]
+	var track_records: Dictionary = {}
 	for view: String in rig.config["layouts"]:
+		track_records[view] = {}
 		_check(rig.set_facing(view), "Load " + view)
 		var layout_path: String = rig.config["layouts"][view]
 		inputs[layout_path] = FileAccess.get_sha256(rig.case_directory.path_join(layout_path))
@@ -37,6 +40,21 @@ func _run() -> void:
 			var path: String = str(part["file"]).trim_prefix(rig.case_directory + "/")
 			inputs[path] = FileAccess.get_sha256(rig.case_directory.path_join(path))
 		for clip: String in rig.config["clips"]:
+			var tracks: Array = rig.sampler.call("tracks_for", clip, view)
+			track_records[view][clip] = tracks
+			var phases: Array[float]
+			for track: Dictionary in tracks:
+				var keys: Array = track["keys"]
+				for index: int in range(keys.size()):
+					var at: float = float(keys[index]["at"])
+					if not phases.has(at): phases.append(at)
+					if index > 0:
+						var middle: float = (at + float(keys[index - 1]["at"])) / 2.0
+						if not phases.has(middle): phases.append(middle)
+			phases.sort()
+			for at: float in phases:
+				channel_records.append({"view": view, "clip": clip, "phase": at,
+					"values": rig.sampler.call("channel_values", tracks, at)})
 			var definition: Dictionary = rig.config["clips"][clip]
 			var count: int = int(definition["frames"])
 			for frame: int in range(count):
@@ -62,6 +80,7 @@ func _run() -> void:
 					"screen_pixel_scale": rig.sampler.call("pixel_scale", rig.layout)})
 	var design_errors: Array = rig.sampler.call("design_errors")
 	var report: Dictionary = {"ok": failures.is_empty(), "design_complete": design_errors.is_empty(), "design_errors": design_errors,
+		"tracks": track_records, "channel_samples": channel_records,
 		"basis": "Headless Skeleton2D transforms, no native pixels; incomplete design never passes motion gates", "inputs": inputs, "samples": records, "errors": failures}
 	var file := FileAccess.open(args[oi + 1], FileAccess.WRITE)
 	if file == null:

@@ -57,13 +57,17 @@ static func track_errors(tracks: Array) -> Array[String]:
 			previous = at
 	return result
 
-static func sample_tracks(clip: String, phase: float, layout: Dictionary, facing: String, tracks: Array) -> Dictionary:
-	if clip == "rest" or tracks.is_empty() or not track_errors(tracks).is_empty(): return {}
+static func channel_values(tracks: Array, phase: float) -> Dictionary:
 	var values: Dictionary = {}
 	for track: Dictionary in tracks:
 		var channel: String = str(track.get("channel", ""))
 		if channel in CHANNELS:
 			values[channel] = track_value(track.get("keys", []), clampf(phase, 0.0, 1.0))
+	return values
+
+static func sample_tracks(clip: String, phase: float, layout: Dictionary, facing: String, tracks: Array) -> Dictionary:
+	if clip == "rest" or tracks.is_empty() or not track_errors(tracks).is_empty(): return {}
+	var values: Dictionary = channel_values(tracks, phase)
 	var joints: Dictionary = layout.get("joints", {})
 	if not joints.has("body") or not joints.has("root"): return {}
 	var root_position: Vector2 = _point(joints["root"]["position"])

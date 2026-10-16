@@ -1,0 +1,72 @@
+test_approved_per_facing_results_and_overrides (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_board_prop_and_room_png_coverage (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_calibration_fixtures_fail_closed_without_git_history (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_conditional_cutout_cannot_evade_density_roster (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_crawler_calibration_binds_pre_recolour_paint_and_preserves_grid (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_density_check_refuses_incorrect_calibration_evidence (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_door_regions_match_code (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_draw_scales_follow_live_code_including_trimmed_pillar (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_entries_without_calibration_notes_still_sample_current_sources (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_every_output_preserves_size_alpha_hidden_rgb_and_frame_edges (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_every_resampled_frame_preserves_mean_source_alpha (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_gear_outputs_remain_current (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_grid_rule_and_measurement_use_untouched_native_sources (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_new_board_png_names_registry_and_adopt (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_painted_derivations_and_manifest_are_current (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_resampled_outputs_size_alpha_silhouette_and_fringe (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_rig_coverage_names_adoption_command_for_new_art (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_rig_rest_rule_uses_declared_assemblies_only (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_shipped_derivations_and_manifest_are_current (test_board_pixel_density.BoardPixelDensityTest) ... FAIL
+test_shrike_case_pins_all_untreated_density_sources (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_silhouette_probe_cases_pin_density_sources (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_static_sheet_families_and_independent_elemental_overlays (test_board_pixel_density.BoardPixelDensityTest) ... ok
+test_adoption_refuses_existing_sources_before_any_copy (test_board_pixel_density.DensityOperationTest) ... ok
+test_alpha_classification_counts_only_nonzero_pixels_and_uses_strict_threshold (test_board_pixel_density.DensityOperationTest) ... ok
+test_alpha_family_links_reject_missing_sources_and_cycles (test_board_pixel_density.DensityOperationTest) ... ok
+test_alpha_hidden_colour_and_edge_restore_with_partial_alpha (test_board_pixel_density.DensityOperationTest) ... ok
+test_boundary_distance_uses_chebyshev_and_catches_interior_changes (test_board_pixel_density.DensityOperationTest) ... ok
+test_changed_parts_require_rebake_even_when_paint_is_current (test_board_pixel_density.DensityOperationTest) ... ok
+test_changed_rest_pixels_require_rebake (test_board_pixel_density.DensityOperationTest) ... ok
+test_check_ignores_png_compression_for_outputs_sources_and_rests (test_board_pixel_density.DensityOperationTest) ... ok
+test_check_requires_rest_record_after_processing (test_board_pixel_density.DensityOperationTest) ... ok
+test_cli_only_restore_and_stale_manifest (test_board_pixel_density.DensityOperationTest) ... ok
+test_continuous_strength_knots_and_clamps (test_board_pixel_density.DensityOperationTest) ... ok
+test_family_class_comes_from_static_measurement_even_with_only (test_board_pixel_density.DensityOperationTest) ... ok
+test_frames_are_independent_and_rect_gaps_are_untouched (test_board_pixel_density.DensityOperationTest) ... ok
+test_metrics_exclude_isolated_pixels_and_count_runs (test_board_pixel_density.DensityOperationTest) ... ok
+test_normalized_bilinear_preserves_uniform_paint_on_sparse_support (test_board_pixel_density.DensityOperationTest) ... ok
+test_per_axis_cli_records_scales_and_reports_both_pixel_ratios (test_board_pixel_density.DensityOperationTest) ... ok
+test_per_axis_sheet_resampling_keeps_frame_sizes_and_local_grid (test_board_pixel_density.DensityOperationTest) ... ok
+test_premultiplied_box_does_not_bleed_hidden_rgb (test_board_pixel_density.DensityOperationTest) ... ok
+test_reject_invalid_frames_grid_and_mode (test_board_pixel_density.DensityOperationTest) ... ok
+test_resample_cli_reruns_from_sources_are_idempotent (test_board_pixel_density.DensityOperationTest) ... ok
+test_resample_frames_are_independent_and_share_the_first_frame_class (test_board_pixel_density.DensityOperationTest) ... ok
+test_soft_resample_alpha_is_normalized_bilinear_support_limited_and_fringe_is_nearest (test_board_pixel_density.DensityOperationTest) ... ok
+test_solid_hybrid_keeps_faint_halo_and_restores_the_body_outline (test_board_pixel_density.DensityOperationTest) ... ok
+test_trap_preview_uses_current_canvas_and_fits_legacy_floors (test_board_pixel_density.DensityOperationTest) ... ok
+test_unpremultiplied_colour_rounds_to_nearest_integer (test_board_pixel_density.DensityOperationTest) ... ok
+
+======================================================================
+FAIL: test_shipped_derivations_and_manifest_are_current (test_board_pixel_density.BoardPixelDensityTest)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/borgerding/workspace/Labyrinth.worktrees/rr-03/tests/test_board_pixel_density.py", line 112, in test_shipped_derivations_and_manifest_are_current
+    self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+AssertionError: 1 != 0 : rest rebake needed: assets/units/gust_shrike_cutout/front/rest.png: no rebake record; run --record-rests after native rebake
+rest rebake needed: assets/units/gust_shrike_cutout/rear/rest.png: no rebake record; run --record-rests after native rebake
+
+
+----------------------------------------------------------------------
+Ran 47 tests in 100.266s
+
+FAILED (failures=1)
+ADOPTED 1 source file(s)
+ADOPTED 1 source file(s)
+ADOPTED 3 source file(s)
+PROCESSED 2 file(s)
+CHECK-OK
+WROTE-ORIGINALS 1 file(s)
+stale: paint/a.png
+PROCESSED 1 file(s)
+CHECK-OK
+stale: paint/b.png

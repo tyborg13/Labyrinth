@@ -228,11 +228,20 @@ def finish(root, records, errors, output, basis):
     return report
 
 
+def director_errors(root, samples):
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from director_contract import verify
+    return verify(root, samples, ANGLE_TOLERANCE_DEG, PIXEL_TOLERANCE, SCALE_TOLERANCE)
+
+
 def cpu_gates(root, output):
     config = read_json(root / "cutout.json")
     samples = read_json(root / "proof/motion_samples.json")
     bound_inputs(root, samples["inputs"])
     errors = source_gates(root) + sample_errors(config, samples)
+    errors += director_errors(root, samples)
+    if errors:
+        return finish(root, [], errors, output, "CPU contracts failed before rasterization")
     layouts = {v: read_json(root / p) for v, p in config["layouts"].items()}
     errors += motion_contracts(samples["samples"], layouts, read_json(root / "director_motion.json"))
     records = [{k: s[k] for k in ["view", "clip", "frame"]} | frame_counts(rasterize(root, layouts[s["view"]], s)[0])
@@ -248,6 +257,7 @@ def native_gates(root, output):
     samples = read_json(root / "proof/motion_samples.json")
     bound_inputs(root, samples["inputs"])
     errors = source_gates(root) + sample_errors(config, samples)
+    errors += director_errors(root, samples)
     errors += motion_contracts(samples["samples"], {v: read_json(root / p) for v, p in config["layouts"].items()}, read_json(root / "director_motion.json"))
     capture = output / "motion_gate_capture"
     bound_inputs(capture, read_json(capture / "sha256.json"))

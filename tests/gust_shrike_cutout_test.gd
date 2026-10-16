@@ -7,6 +7,7 @@ const Renderer = preload("res://scripts/gust_shrike_cutout/renderer.gd")
 const Facing = preload("res://scripts/enemy_cutout_facing.gd")
 const Fx = preload("res://scripts/attack_fx_library.gd")
 const CaptureViewport = preload("res://tests/gust_shrike_capture_viewport.gd")
+const CaptureContract = preload("res://tests/helpers/gust_shrike_capture_contract.gd")
 const FIXTURE_CONTACT: float = 0.5
 const FIXTURE_LAYOUT: Dictionary = {"screen_pixel_scale": 1.0, "joints": {
 	"root": {"position": [100, 220], "parent": null},
@@ -23,11 +24,14 @@ func _initialize() -> void:
 	_run.call_deferred()
 
 func _run() -> void:
+	var director_path: String = "res://experiments/cutouts/gust_shrike/mq2/director_motion.json"
+	var director: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(director_path))
+	_expect(FileAccess.get_sha256(director_path) == Data.DIRECTOR_SHA256, "Test expectations are bound to the compiled director source")
 	var tracks: Array = [{"channel": "body_scale_y", "keys": [{"at": 0, "value": 1.0},
 		{"at": 1, "value": Data.BREATH_SCALE_Y, "interpolation": "linear"}]}]
 	var pose: Dictionary = Motion.sample_tracks("idle", 1, FIXTURE_LAYOUT, "front", tracks)
 	_expect(pose["body"]["position"] == Vector2.ZERO, "Idle body pivot never bobs")
-	_expect(pose["body"]["scale"] == Vector2(1, 1.03), "Breath is the director r2 +3% Y scale")
+	_expect(pose["body"]["scale"] == Vector2(1, Data.BREATH_SCALE_Y), "Breath uses the current compiled director amplitude")
 	_expect(pose["legs"]["position"] == Vector2(0, -15), "Breath leaves feet planted")
 	_expect(pose["head"]["position"] == Vector2(-30, -70), "Idle look holds independently of breathing")
 	_expect(not pose["head"].has("scale") and pose["wing_near"]["scale"] == Vector2.ONE, "No breathing scale leaks into rigid head or wings")
@@ -86,14 +90,15 @@ func _run() -> void:
 		_expect(pose["wing_near"]["scale"] == Vector2(0.7, 1), "Dive folds the " + view + " rigid wing to 70%")
 		pose = Motion.sample_pose("hover", 0.15, FIXTURE_LAYOUT, view)
 		_expect(is_equal_approx(pose["body"]["position"].y, -4) and is_zero_approx(pose["body"]["rotation"]), "Hover is level at the director's 4px lift")
-		pose = Motion.sample_pose("death", 1, FIXTURE_LAYOUT, view)
-		_expect(is_equal_approx(rad_to_deg(pose["body"]["rotation"]), 70 * Data.PROJECTION[view]["roll_sign"]) and is_equal_approx(pose["body"]["position"].y, 10), "Director r2 collapse rolls 70 degrees and drops 10px in " + view)
-		_expect(is_equal_approx(rad_to_deg(pose["legs"]["rotation"] - pose["body"]["rotation"]), 20 * Data.PROJECTION[view]["legs_sign"]), "Death carries legs with the body and authored relative reach in " + view)
-		pose = Motion.sample_pose("death", 0.25, FIXTURE_LAYOUT, view)
-		_expect(is_equal_approx(pose["body"]["position"].y, -4) and not pose["legs"]["position"].is_equal_approx(Vector2(0, -15)), "Death's explicit 4px lift releases the planted feet in " + view)
+		for key: Dictionary in director["death"]["keys"]:
+			pose = Motion.sample_pose("death", float(key["t"]), FIXTURE_LAYOUT, view)
+			_expect(is_equal_approx(rad_to_deg(pose["body"]["rotation"]), float(key["roll"]) * Data.PROJECTION[view]["roll_sign"]) and is_equal_approx(pose["body"]["position"].y, -float(key["lift"])), "Authored death roll/lift at %s in %s" % [key["t"], view])
+			_expect(is_equal_approx(rad_to_deg(pose["legs"]["rotation"] - pose["body"]["rotation"]), float(key["legs"]) * Data.PROJECTION[view]["legs_sign"]), "Death carries authored relative leg reach at %s in %s" % [key["t"], view])
+			var body_transform := Transform2D(pose["body"]["rotation"], pose["body"]["position"])
+			_expect(pose["legs"]["position"].is_equal_approx(body_transform * Vector2(0, -15)), "Death's legs follow the body at every authored key in " + view)
 	scaled_layout["recoil_direction"] = Vector2.RIGHT
 	pose = Motion.sample_pose("hit", 0.15, scaled_layout, "front")
-	_expect(is_equal_approx(pose["body"]["position"].x * 0.5, 5), "Hit travels 5 screen pixels along the resolved recoil vector")
+	_expect(is_equal_approx(pose["body"]["position"].x * 0.5, float(director["hit"]["keys"][1]["recoil_px"])), "Hit follows the current authored recoil distance")
 	# A reduced root window reproduces the Retina clamp without a GUI renderer.
 	var original_size: Vector2i = root.size
 	root.size = Vector2i(800, 450)
@@ -106,6 +111,24 @@ func _run() -> void:
 	_expect(viewport.world_2d != root.world_2d and viewport.render_target_update_mode == SubViewport.UPDATE_ALWAYS, "Capture owns an independent canvas and updates every frame")
 	viewport.free()
 	root.size = original_size
+	var capture_frames: Array
+	for action: String in CaptureContract.ACTIONS:
+		var phases: Array = [0.0, 0.1, 0.25, 0.5, 0.75, 0.9, 1.0]
+		for required: float in CaptureContract.required_phases(action):
+			if not phases.has(required): phases.append(required)
+		phases.sort()
+		for at: float in phases:
+			capture_frames.append({"stage": action, "snapshot": {"clip": action, "phase": at}, "pose_sha256": action + str(at)})
+	_expect(CaptureContract.errors(capture_frames).is_empty(), "Per-action capture contract accepts distinct poses with required phases")
+	var short_capture: Array = capture_frames.filter(func(frame: Dictionary) -> bool: return frame["stage"] != "hover" or frame["snapshot"]["phase"] == 0.0)
+	for index: int in range(100): short_capture.append({"stage": "idle", "snapshot": {"clip": "idle", "phase": 0}, "pose_sha256": "idle"})
+	_expect(not CaptureContract.errors(short_capture).is_empty(), "A large idle/global frame count cannot substitute for hover coverage")
+	var frozen_capture: Array = capture_frames.duplicate(true)
+	for frame: Dictionary in frozen_capture:
+		if frame["stage"] == "move": frame["pose_sha256"] = "unchanged"
+	_expect(not CaptureContract.errors(frozen_capture).is_empty(), "Different phase labels without visible pose changes fail capture")
+	var no_contact: Array = capture_frames.filter(func(frame: Dictionary) -> bool: return frame["stage"] != "dive" or not is_equal_approx(frame["snapshot"]["phase"], Data.CONTACT_PHASES["dive"]))
+	_expect(not CaptureContract.errors(no_contact).is_empty(), "Missing exact Dive contact fails even with six other frames")
 	var scene: Script = load("res://scripts/run_scene.gd")
 	_expect(scene != null, "Production integration parses with the unmodified runtime")
 	for error: String in failures: push_error(error)

@@ -10,11 +10,12 @@ const Run = preload("res://scripts/run_engine.gd")
 const Store = preload("res://scripts/progression_store.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const CaptureViewport = preload("res://tests/gust_shrike_capture_viewport.gd")
+const CaptureScene = preload("res://tests/fixtures/gust_shrike_capture_scene.gd")
+const Coverage = preload("res://tests/helpers/gust_shrike_capture_contract.gd")
 const SIZE := Vector2i(1920, 1080)
 const OUTPUT: String = "user://probes/gust_shrike_cutout"
 const SETTLE_FRAMES: int = 8
 const RECORD_FPS: float = 30.0
-const MIN_REAL_BOARD_FRAMES: int = 76
 const TEST_MOVE_TARGET := Vector2i(2, 3)
 const TEST_MELEE_ORIGIN := Vector2i(5, 4)
 const REQUIRED_CLIPS := ["idle", "move", "dive", "talon_rake", "hover", "hit", "death"]
@@ -26,13 +27,16 @@ var _errors: Array[String]
 var _stage: String = ""
 var _scene: Control
 var _render_viewport: SubViewport
+var _logic_only: bool = false
+var _started_usec: int = 0
 
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
 	_run.call_deferred()
 
 func _run() -> void:
-	if DisplayServer.get_name() == "headless" or not Renderer.available():
+	_logic_only = OS.get_cmdline_user_args().has("--logic-only")
+	if (DisplayServer.get_name() == "headless" and not _logic_only) or not Renderer.available():
 		push_error("SHRIKE PRODUCTION PROBE needs the completed promoted rig and a windowed renderer")
 		quit(1)
 		return
@@ -50,6 +54,8 @@ func _run() -> void:
 	Settings.apply_settings(settings, root, false)
 	_render_viewport = CaptureViewport.create(root)
 	_scene = load("res://scenes/run_scene.tscn").instantiate()
+	_scene.set_script(CaptureScene)
+	_scene.proof_capture = Callable(self, "_capture_frame")
 	_render_viewport.add_child(_scene)
 	await _settle()
 	_scene._load_run_state(Run.new().create_new_run(BaseFixtures.TEST_SEED, Store.default_data()))
@@ -58,10 +64,14 @@ func _run() -> void:
 	var state: Dictionary = Fixtures.shrike()
 	await _install(state)
 	_stage = "idle"
+	_started_usec = Time.get_ticks_usec()
 	_recording = true
 	_record_frames()
 	await create_timer(Renderer.Data.IDLE_SECONDS).timeout
+	_recording = false
+	await recording_finished
 	_stage = "move"
+	_scene.begin_proof(_stage)
 	var path: Array[Vector2i]
 	path.assign([state["enemies"][0]["pos"], TEST_MOVE_TARGET])
 	await _scene._animate_actor_along_path(state, "enemy_1", path, {})
@@ -71,6 +81,7 @@ func _run() -> void:
 		state["enemies"][0]["intent"] = _intent(intent)
 		await _install(state)
 		_stage = intent
+		_scene.begin_proof(_stage)
 		var engine := Combat.new()
 		# Movement is proved separately; use the actual requested resolved verb.
 		var action: Dictionary = state["enemies"][0]["intent"]["actions"][-1]
@@ -86,50 +97,85 @@ func _run() -> void:
 		if lethal: state["enemies"][0]["hp"] = 1
 		await _install(state)
 		_stage = "death" if lethal else "hit"
+		_scene.begin_proof(_stage)
 		var action: Dictionary = Data.card_def("quick_stab")["actions"][0]
 		var engine := Combat.new()
 		var target: Vector2i = state["enemies"][0]["pos"]
 		var after: Dictionary = engine.apply_player_action(state, action, target)
 		await _scene._animate_player_action_step(state, after, "quick_stab", action, target)
 		_expect(int(after["enemies"][0]["hp"]) < int(state["enemies"][0]["hp"]), "Real player action produces " + _stage)
-	# Keep all action frames. Slow machines may record fewer during playback;
-	# continue real board rendering until the original 76-frame floor is met.
-	while _frames.size() < MIN_REAL_BOARD_FRAMES: await process_frame
-	_recording = false
-	await recording_finished
 	for clip: String in REQUIRED_CLIPS: _expect(_seen.has(clip), "Captured production clip " + clip)
-	var manifest := FileAccess.open(OUTPUT.path_join("frames.json"), FileAccess.WRITE)
+	_errors.append_array(Coverage.errors(_frames))
+	var manifest := FileAccess.open(OUTPUT.path_join("logic_frames.json" if _logic_only else "frames.json"), FileAccess.WRITE)
 	manifest.store_string(JSON.stringify({"ok": _errors.is_empty(), "size": [1920, 1080], "ui_scale": 1.0,
-		"capture": "fixed SubViewport", "minimum_real_board_frames": MIN_REAL_BOARD_FRAMES,
+		"capture": "headless transforms ONLY" if _logic_only else "fixed SubViewport; real action callbacks with a probe frame clock",
+		"native_pixels": not _logic_only, "minimum_frames_per_action": Coverage.MIN_FRAMES,
 		"frames": _frames, "clips": _seen.keys(), "errors": _errors}, "\t"))
 	manifest.close()
 	for error: String in _errors: push_error(error)
-	print("SHRIKE PRODUCTION PROBE: %s (%d real board frames)" % ["PASS" if _errors.is_empty() else "FAIL", _frames.size()])
+	print("SHRIKE PRODUCTION %s: %s (%d frames; six or more per action)" % ["LOGIC ONLY" if _logic_only else "PROBE", "PASS" if _errors.is_empty() else "FAIL", _frames.size()])
 	print("SHRIKE PRODUCTION CAPTURES: " + ProjectSettings.globalize_path(OUTPUT))
 	_scene.queue_free()
 	await process_frame
 	quit(0 if _errors.is_empty() else 1)
 
 func _record_frames() -> void:
-	var started: int = Time.get_ticks_usec()
 	while _recording:
-		await RenderingServer.frame_post_draw
 		if not _recording: break
-		var renderer: Node = _scene.board_view.unit_cutout_renderer({"type": "gust_shrike", "id": 1})
-		var snapshot: Dictionary = renderer.snapshot() if renderer != null else {}
-		var clip: String = str(snapshot.get("clip", "missing"))
-		var filename: String = "frame_%05d.png" % _frames.size()
+		await _capture_frame()
+		await create_timer(1.0 / RECORD_FPS).timeout
+	recording_finished.emit()
+
+func _capture_frame() -> void:
+	await process_frame
+	await process_frame
+	if not _logic_only: await RenderingServer.frame_post_draw
+	var renderer: Node = _scene.board_view.unit_cutout_renderer({"type": "gust_shrike", "id": 1})
+	if renderer == null: return
+	var snapshot: Dictionary = renderer.snapshot()
+	var clip: String = str(snapshot["clip"])
+	if clip != _stage: return
+	var pose_bytes: PackedByteArray
+	var pose_image: Image
+	if _logic_only:
+		var transforms: Array
+		var rig: Node = renderer.rigs[snapshot["facing"]]
+		for bone: String in rig.bones: transforms.append(str(rig.bones[bone].transform))
+		pose_bytes = JSON.stringify(transforms).to_utf8_buffer()
+	else:
+		pose_image = renderer.texture().get_image()
+		pose_image.convert(Image.FORMAT_RGBA8)
+		_expect(not pose_image.is_empty() and pose_image.get_used_rect().has_area(), "Visible shrike pixels in " + clip)
+		pose_bytes = pose_image.get_data()
+		# Invisible RGB must not masquerade as a visible pose change.
+		for alpha: int in range(3, pose_bytes.size(), 4):
+			if pose_bytes[alpha] == 0:
+				pose_bytes[alpha - 3] = 0
+				pose_bytes[alpha - 2] = 0
+				pose_bytes[alpha - 1] = 0
+		pose_image = Image.create_from_data(pose_image.get_width(), pose_image.get_height(), false, Image.FORMAT_RGBA8, pose_bytes)
+	var hasher := HashingContext.new()
+	hasher.start(HashingContext.HASH_SHA256)
+	hasher.update(pose_bytes)
+	var pose_hash: String = hasher.finish().hex_encode()
+	if clip != "idle" and not _frames.is_empty() and _frames[-1]["stage"] == clip:
+		var previous: Dictionary = _frames[-1]
+		if previous["pose_sha256"] == pose_hash:
+			# Keep the exact recovery endpoint instead of a preceding held pose.
+			if float(snapshot["phase"]) == 1.0 and float(previous["snapshot"]["phase"]) < 1.0: _frames.pop_back()
+			else: return
+	var filename: String = "frame_%05d.png" % _frames.size()
+	var pose_filename: String = "pose_%05d.png" % _frames.size()
+	if not _logic_only:
 		var pixels: Image = _render_viewport.get_texture().get_image()
 		_expect(pixels.get_size() == SIZE, "1920x1080 production viewport")
 		_expect(pixels.save_png(OUTPUT.path_join(filename)) == OK, "Save " + filename)
-		_frames.append({"file": filename, "seconds": float(Time.get_ticks_usec() - started) / 1000000.0,
-			"stage": _stage, "snapshot": snapshot})
-		if not snapshot.is_empty():
-			_seen[clip] = true
-			var keyframe: String = _stage + "_" + clip + ".png"
-			if not FileAccess.file_exists(OUTPUT.path_join(keyframe)): pixels.save_png(OUTPUT.path_join(keyframe))
-		await create_timer(1.0 / RECORD_FPS).timeout
-	recording_finished.emit()
+		_expect(pose_image.save_png(OUTPUT.path_join(pose_filename)) == OK, "Save " + pose_filename)
+		var keyframe: String = _stage + "_" + clip + ".png"
+		if not FileAccess.file_exists(OUTPUT.path_join(keyframe)): pixels.save_png(OUTPUT.path_join(keyframe))
+	_frames.append({"file": filename, "seconds": float(Time.get_ticks_usec() - _started_usec) / 1000000.0,
+		"stage": _stage, "snapshot": snapshot, "pose_sha256": pose_hash, "pose_file": pose_filename})
+	_seen[clip] = true
 
 func _install(state: Dictionary) -> void:
 	BaseFixtures.install(_scene, state)

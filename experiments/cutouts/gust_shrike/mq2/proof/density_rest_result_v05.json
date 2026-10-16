@@ -1,0 +1,86 @@
+{
+  "attempts": [
+    {
+      "accepted": true,
+      "attempt": 1,
+      "driver": "metal",
+      "error": "",
+      "images": [
+        {
+          "height": 255,
+          "luma_max": 154.1496,
+          "luma_mean": 15.989906509803683,
+          "luma_min": 0.0,
+          "luma_range": 154.1496,
+          "luma_stdev": 28.94579704387691,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792116704924056000-96389-rebake_cutout_rests-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792116704924056000-96389-rebake_cutout_rests-1/probes/board_density_rests/gust_shrike_cutout_front.png",
+          "width": 255
+        },
+        {
+          "height": 255,
+          "luma_max": 151.8544,
+          "luma_mean": 15.884183855440355,
+          "luma_min": 0.0,
+          "luma_range": 151.8544,
+          "luma_stdev": 28.679332502920804,
+          "path": "/private/tmp/labyrinth-godot-home/rr-03-1792116704924056000-96389-rebake_cutout_rests-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792116704924056000-96389-rebake_cutout_rests-1/probes/board_density_rests/gust_shrike_cutout_rear.png",
+          "width": 255
+        }
+      ],
+      "namespace": "rr-03-1792116704924056000-96389-rebake_cutout_rests-1",
+      "returncode": 0
+    }
+  ],
+  "command": [
+    "godot",
+    "--display-driver",
+    "macos",
+    "--audio-driver",
+    "Dummy",
+    "--rendering-method",
+    "mobile",
+    "--rendering-driver",
+    "metal",
+    "--path",
+    "/Users/borgerding/workspace/Labyrinth.worktrees/rr-03",
+    "--script",
+    "tools/rebake_cutout_rests.gd",
+    "--",
+    "--only",
+    "gust_shrike_cutout"
+  ],
+  "expected_sizes": [
+    [
+      255,
+      255
+    ]
+  ],
+  "images": [
+    {
+      "height": 255,
+      "luma_max": 154.1496,
+      "luma_mean": 15.989906509803683,
+      "luma_min": 0.0,
+      "luma_range": 154.1496,
+      "luma_stdev": 28.94579704387691,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792116704924056000-96389-rebake_cutout_rests-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792116704924056000-96389-rebake_cutout_rests-1/probes/board_density_rests/gust_shrike_cutout_front.png",
+      "width": 255
+    },
+    {
+      "height": 255,
+      "luma_max": 151.8544,
+      "luma_mean": 15.884183855440355,
+      "luma_min": 0.0,
+      "luma_range": 151.8544,
+      "luma_stdev": 28.679332502920804,
+      "path": "/private/tmp/labyrinth-godot-home/rr-03-1792116704924056000-96389-rebake_cutout_rests-1/Library/Application Support/Escape the Umbra Visual Probe rr-03-1792116704924056000-96389-rebake_cutout_rests-1/probes/board_density_rests/gust_shrike_cutout_rear.png",
+      "width": 255
+    }
+  ],
+  "namespace": "rr-03-1792116704924056000-96389-rebake_cutout_rests-1",
+  "ok": true,
+  "proof_contract": "",
+  "rendering_driver": "metal",
+  "rendering_method": "mobile",
+  "script": "tools/rebake_cutout_rests.gd"
+}

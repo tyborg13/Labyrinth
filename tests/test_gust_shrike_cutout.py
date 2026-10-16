@@ -4,6 +4,8 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+import shutil
+import subprocess
 from unittest.mock import patch
 
 import numpy as np
@@ -28,6 +30,41 @@ Compiler = module("rr03_compile_motion", CASE / "compile_motion.py")
 
 
 class ShrikeCutoutTests(unittest.TestCase):
+    def _director_mutation_fails_cpu_gate(self, mutation):
+        # Recompile a disposable case and run the actual Godot sampler, as the
+        # reviewer did. Protected inputs and production scripts stay untouched.
+        with tempfile.TemporaryDirectory(prefix='rr03_mutation_', dir=CASE.parent) as temporary:
+            root = Path(temporary)
+            shutil.copytree(CASE, root, dirs_exist_ok=True,
+                ignore=shutil.ignore_patterns('native_keyframes', 'round*.log', '*_result*.json'))
+            original_semantic, original_projection = Compiler.semantic_tracks, Compiler.projection
+            def semantic(*args):
+                tracks, todos = original_semantic(*args)
+                if mutation == 'missing_hold':
+                    tracks['idle']['tail.lift_deg'] = [k for k in tracks['idle']['tail.lift_deg'] if k['at'] != .4]
+                return tracks, todos
+            def projection(*args):
+                result = original_projection(*args)
+                if mutation == 'reversed_tail': result['tail_sign'] *= -1
+                return result
+            with patch.object(Compiler, 'semantic_tracks', semantic), patch.object(Compiler, 'projection', projection):
+                Compiler.compile_data(root, root / 'motion_data.gd', Pipeline.read_json(root / 'recipes/motion_interpretation.json'),
+                    Pipeline.read_json(CASE / 'proof/motion_compilation.json')['proof_pixel_scale'])
+            process = subprocess.run([sys.executable, 'tools/godot_task_runner.py', '--task-id', 'rr-03', '--stream', '--',
+                'godot', '--headless', '--path', '.', '--script', str(CASE / 'probes/motion_samples.gd'), '--',
+                '--case', str(root / 'cutout.json'), '--output', str(root / 'proof/motion_samples.json')],
+                cwd=PROJECT, capture_output=True, text=True, timeout=300)
+            self.assertEqual(process.returncode, 0, process.stdout + process.stderr)
+            report = Gates.cpu_gates(root, root / 'proof/mutation_gate.json')
+            self.assertFalse(report['ok'])
+            self.assertTrue(any('idle/tail_angle: authored keys/sign differ' in e for e in report['errors']), report['errors'])
+
+    def test_cpu_gate_rejects_missing_authored_tail_hold_after_resampling(self):
+        self._director_mutation_fails_cpu_gate('missing_hold')
+
+    def test_cpu_gate_rejects_reversed_projected_tail_after_resampling(self):
+        self._director_mutation_fails_cpu_gate('reversed_tail')
+
     def test_non_1024_raw_registration_scales_all_render_coordinates_once(self):
         original = Pipeline.maquette.Registration([0.25, 0.3], [-12, 9], {"raw_size": [1254, 1254]})
         with patch.object(Pipeline, "ORIGINAL_REGISTRATION", return_value=original):

@@ -1,0 +1,56 @@
+{
+  "ok": true,
+  "head": "0c5faf1625106b633c5a4fdb2fb1084da03a558c",
+  "director_sha256": "88ed872a94968da8dbe075a160d1cc87b668689880f29edb16932c276b32b5f4",
+  "protected_originals_unchanged": true,
+  "case_paint_and_layouts_unchanged": true,
+  "unrelated_density_registry_and_outputs_unchanged": true,
+  "processed_paint_count": 46,
+  "changed_production_pngs": [
+    "assets/units/gust_shrike_cutout/hidden/rear/wing_near.png",
+    "assets/units/gust_shrike_cutout/hidden/rear/body.png",
+    "assets/units/gust_shrike_cutout/hidden/rear/wing_far.png",
+    "assets/units/gust_shrike_cutout/hidden/rear/legs.png",
+    "assets/units/gust_shrike_cutout/hidden/rear/head.png",
+    "assets/units/gust_shrike_cutout/hidden/rear/tail.png",
+    "assets/units/gust_shrike_cutout/hidden/front/body.png",
+    "assets/units/gust_shrike_cutout/hidden/front/wing_far.png",
+    "assets/units/gust_shrike_cutout/hidden/front/legs.png",
+    "assets/units/gust_shrike_cutout/hidden/front/head.png",
+    "assets/units/gust_shrike_cutout/hidden/front/tail.png",
+    "assets/units/gust_shrike_cutout/hidden/front/mask.png",
+    "assets/units/gust_shrike_cutout/segmented/rear/wing_near.png",
+    "assets/units/gust_shrike_cutout/segmented/rear/body.png",
+    "assets/units/gust_shrike_cutout/segmented/rear/wing_far.png",
+    "assets/units/gust_shrike_cutout/segmented/rear/legs.png",
+    "assets/units/gust_shrike_cutout/segmented/rear/head.png",
+    "assets/units/gust_shrike_cutout/segmented/rear/tail.png",
+    "assets/units/gust_shrike_cutout/segmented/rear/mask.png",
+    "assets/units/gust_shrike_cutout/segmented/front/wing_near.png",
+    "assets/units/gust_shrike_cutout/segmented/front/beak.png",
+    "assets/units/gust_shrike_cutout/segmented/front/body.png",
+    "assets/units/gust_shrike_cutout/segmented/front/wing_far.png",
+    "assets/units/gust_shrike_cutout/segmented/front/legs.png",
+    "assets/units/gust_shrike_cutout/segmented/front/head.png",
+    "assets/units/gust_shrike_cutout/segmented/front/tail.png",
+    "assets/units/gust_shrike_cutout/segmented/front/mask.png"
+  ],
+  "production_alpha_and_transparent_rgb_unchanged": true,
+  "case_rest_identity": {
+    "front": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "e4f14ec866fd3709dfe1a5969b3a0a3ec03246e13980ec7026eb10188e9ae27c"
+    },
+    "rear": {
+      "pixel_identical": true,
+      "different_pixels": 0,
+      "rgba_sha256": "24aa41439fff265698c24b2dec14aed1e4093c7a2db803ddeeead1902c5d1eff"
+    },
+    "ok": true
+  },
+  "samples": 904,
+  "channel_time_records": 196,
+  "sample_input_hashes_current": true,
+  "native_density_rests": "PENDING; no records fabricated"
+}

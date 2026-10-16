@@ -1,8 +1,8 @@
 # rr-03 implementation handoff — incomplete, uncommitted
 
-**This is the round-0 record. See [ROUND3.md](ROUND3.md) for current status,
-gate results and native_v02 commands. [ROUND2.md](ROUND2.md) and [ROUND1.md](ROUND1.md)
-records the original build.**
+**This is the round-0 record. See [ROUND4.md](ROUND4.md) for current status,
+gate results, density completion and native_v05 commands. Earlier round files
+are historical records.**
 
 No art was generated, painted, downloaded or changed. No Blender/windowed run,
 commit, publication, peer review or sign-off was performed. The approved mq2

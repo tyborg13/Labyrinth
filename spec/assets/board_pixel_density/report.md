@@ -127,7 +127,7 @@ integer frame-size rounding can differ slightly from that ideal ratio.
 | slag_mortar | 1.040000 | 1.0577 | 1.02 | clean | 1.040 → 1.040 | 1.040 → 1.040 | 6.15% / 2.246 | 6.15% / 2.246 | 1.38% / 2.480 | 2.336 → 2.579 |
 | bramble_thicket | 1.001028 | 1.5000 | 1.50 | regrid | 1.001 → 1.001 | 1.001 → 1.001 | 27.69% / 1.360 | 27.69% / 1.360 | 1.93% / 2.341 | 1.361 → 2.343 |
 | glacial_mirror | 1.000000 | 1.0000 | 1.00 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 0.66% / 3.898 | 0.66% / 3.898 | 0.17% / 3.957 | 3.898 → 3.957 |
-| gust_shrike | 1.000000 | 1.5000 | 1.50 | regrid | 1.000 → 1.000 | 1.000 → 1.000 | 29.75% / 1.289 | 29.75% / 1.289 | 4.18% / 2.063 | 1.289 → 2.063 |
+| gust_shrike | 0.750000 | 1.0000 | 1.33 | regrid | 0.750 → 0.750 | 0.750 → 0.750 | 1.29% / 5.210 | 1.29% / 5.210 | 0.36% / 5.940 | 3.907 → 4.455 |
 | burrow_grub_rear | 0.850000 | 1.0000 | 1.18 | clean | 0.850 → 0.850 | 0.850 → 0.850 | 3.81% / 3.999 | 3.81% / 3.999 | 0.57% / 4.488 | 3.399 → 3.815 |
 | ember_tick_rear | 0.860000 | 1.0000 | 1.16 | clean | 0.860 → 0.860 | 0.860 → 0.860 | 2.03% / 4.328 | 2.03% / 4.328 | 0.41% / 4.612 | 3.722 → 3.967 |
 | briar_weaver_rear | 1.000000 | 1.1197 | 1.12 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 7.39% / 2.786 | 7.39% / 2.786 | 0.88% / 3.257 | 2.786 → 3.257 |
@@ -138,6 +138,9 @@ integer frame-size rounding can differ slightly from that ideal ratio.
 | arc_thrall_rear | 1.000000 | 1.0000 | 1.00 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 2.56% / 2.415 | 2.56% / 2.415 | 0.63% / 2.511 | 2.415 → 2.511 |
 | gloam_stalker_rear | 1.000000 | 1.0000 | 1.00 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 2.26% / 2.851 | 2.26% / 2.851 | 0.68% / 2.946 | 2.851 → 2.946 |
 | hollow_mimic_rear | 1.000000 | 1.0346 | 1.03 | clean | 1.000 → 1.000 | 1.000 → 1.000 | 5.69% / 1.969 | 5.69% / 1.969 | 1.76% / 2.087 | 1.969 → 2.087 |
+| gust_shrike_rear | 0.750000 | 1.0000 | 1.33 | regrid | 0.750 → 0.750 | 0.750 → 0.750 | 1.25% / 3.513 | 1.25% / 3.513 | 0.40% / 4.111 | 2.634 → 3.083 |
+| gust_shrike_cutout / front | 0.750000 | 1.0000 | 1.33 | regrid | 0.750 → 0.750 | 0.750 → 0.750 | 1.29% / 5.210 | 3.63% / 3.033 | 3.23% / 3.251 | 2.275 → 2.438 |
+| gust_shrike_cutout / rear | 0.750000 | 1.0000 | 1.33 | regrid | 0.750 → 0.750 | 0.750 → 0.750 | 1.25% / 3.513 | 8.22% / 2.138 | 7.94% / 2.314 | 1.603 → 1.735 |
 
 ## Fixed rig geometry
 
@@ -1463,4 +1466,57 @@ A † marks changed decoded pixels or dimensions relative to untouched source pa
 ### hollow_mimic_rear
 
 - `assets/art/enemies/hollow_mimic_rear.png` †
+
+### gust_shrike_rear
+
+- `assets/art/enemies/gust_shrike_rear.png` †
+
+### gust_shrike_cutout
+
+- `assets/units/gust_shrike_cutout/hidden/front/body.png` †
+- `assets/units/gust_shrike_cutout/hidden/front/head.png` †
+- `assets/units/gust_shrike_cutout/hidden/front/legs.png` †
+- `assets/units/gust_shrike_cutout/hidden/front/mask.png` †
+- `assets/units/gust_shrike_cutout/hidden/front/tail.png` †
+- `assets/units/gust_shrike_cutout/hidden/front/wing_far.png` †
+- `assets/units/gust_shrike_cutout/hidden/front/wing_near.png` (pixels unchanged)
+- `assets/units/gust_shrike_cutout/hidden/rear/body.png` †
+- `assets/units/gust_shrike_cutout/hidden/rear/head.png` †
+- `assets/units/gust_shrike_cutout/hidden/rear/legs.png` †
+- `assets/units/gust_shrike_cutout/hidden/rear/tail.png` †
+- `assets/units/gust_shrike_cutout/hidden/rear/wing_far.png` †
+- `assets/units/gust_shrike_cutout/hidden/rear/wing_near.png` †
+- `assets/units/gust_shrike_cutout/segmented/front/beak.png` †
+- `assets/units/gust_shrike_cutout/segmented/front/body.png` †
+- `assets/units/gust_shrike_cutout/segmented/front/body_from_tail.png` (pixels unchanged)
+- `assets/units/gust_shrike_cutout/segmented/front/body_from_wing_near.png` (pixels unchanged)
+- `assets/units/gust_shrike_cutout/segmented/front/head.png` †
+- `assets/units/gust_shrike_cutout/segmented/front/head_from_body.png` (pixels unchanged)
+- `assets/units/gust_shrike_cutout/segmented/front/head_from_legs.png` (pixels unchanged)
+- `assets/units/gust_shrike_cutout/segmented/front/head_from_wing_near.png` (pixels unchanged)
+- `assets/units/gust_shrike_cutout/segmented/front/legs.png` †
+- `assets/units/gust_shrike_cutout/segmented/front/mask.png` †
+- `assets/units/gust_shrike_cutout/segmented/front/tail.png` †
+- `assets/units/gust_shrike_cutout/segmented/front/wing_far.png` †
+- `assets/units/gust_shrike_cutout/segmented/front/wing_near.png` †
+- `assets/units/gust_shrike_cutout/segmented/front/wing_near_from_head.png` (pixels unchanged)
+- `assets/units/gust_shrike_cutout/segmented/front/wing_near_from_legs.png` (pixels unchanged)
+- `assets/units/gust_shrike_cutout/segmented/front/wing_near_from_tail.png` (pixels unchanged)
+- `assets/units/gust_shrike_cutout/segmented/rear/beak.png` (pixels unchanged)
+- `assets/units/gust_shrike_cutout/segmented/rear/beak_from_tail.png` (pixels unchanged)
+- `assets/units/gust_shrike_cutout/segmented/rear/body.png` †
+- `assets/units/gust_shrike_cutout/segmented/rear/body_from_tail.png` (pixels unchanged)
+- `assets/units/gust_shrike_cutout/segmented/rear/body_from_wing_near.png` (pixels unchanged)
+- `assets/units/gust_shrike_cutout/segmented/rear/head.png` †
+- `assets/units/gust_shrike_cutout/segmented/rear/head_from_legs.png` (pixels unchanged)
+- `assets/units/gust_shrike_cutout/segmented/rear/head_from_wing_near.png` (pixels unchanged)
+- `assets/units/gust_shrike_cutout/segmented/rear/legs.png` †
+- `assets/units/gust_shrike_cutout/segmented/rear/mask.png` †
+- `assets/units/gust_shrike_cutout/segmented/rear/mask_from_wing_near.png` (pixels unchanged)
+- `assets/units/gust_shrike_cutout/segmented/rear/tail.png` †
+- `assets/units/gust_shrike_cutout/segmented/rear/wing_far.png` †
+- `assets/units/gust_shrike_cutout/segmented/rear/wing_far_from_tail.png` (pixels unchanged)
+- `assets/units/gust_shrike_cutout/segmented/rear/wing_near.png` †
+- `assets/units/gust_shrike_cutout/segmented/rear/wing_near_from_head.png` (pixels unchanged)
+- `assets/units/gust_shrike_cutout/segmented/rear/wing_near_from_tail.png` (pixels unchanged)
 

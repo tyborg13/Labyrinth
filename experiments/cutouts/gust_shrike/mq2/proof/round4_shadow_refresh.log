@@ -1,0 +1,17 @@
+Running task-local command:
+  task: rr-03
+  run: rr-03-1792114046316985000-92276
+  HOME: /private/tmp/labyrinth-godot-home/rr-03-1792114046316985000-92276
+  Steam: disabled
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-03-1792114046316985000-92276/godot.log --headless --path . --script tools/en05_refresh_shadow_cache.gd
+  timeout: 300s
+  stream: enabled
+Godot Engine v4.6.1.stable.official.14d19694e - https://godotengine.org
+
+ERROR: Condition "ret != noErr" is true. Returning: ""
+   at: get_system_ca_certificates (platform/macos/os_macos.mm:1014)
+WARNING: Loaded resource as image file, this will not work on export: 'res://assets/units/gust_shrike_cutout/front/rest.png'. Instead, import the image file as an Image resource and load it normally as a resource.
+     at: load_from_file (core/io/image.cpp:2766)
+     GDScript backtrace (most recent call first):
+         [0] _initialize (res://tools/en05_refresh_shadow_cache.gd:20)
+EN05 SHADOW CACHE: PASS (3 current sources; unrelated entries unchanged)

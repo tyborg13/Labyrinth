@@ -5,6 +5,7 @@ import hashlib
 import json
 from pathlib import Path
 import subprocess
+from production_coverage import verify
 
 REQUIRED_CLIPS = {"idle", "move", "dive", "talon_rake", "hover", "hit", "death"}
 LAST_FRAME_SECONDS = 1 / 30  # Capture-only terminal-frame duration.
@@ -13,6 +14,7 @@ LAST_FRAME_SECONDS = 1 / 30  # Capture-only terminal-frame duration.
 def pack(capture):
     manifest_path = capture / "frames.json"
     manifest = json.loads(manifest_path.read_text())
+    verify(capture, manifest)
     if not manifest["ok"] or not REQUIRED_CLIPS.issubset(set(manifest["clips"])):
         raise ValueError("A successful seven-clip production capture is required")
     frames = manifest["frames"]
