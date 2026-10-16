@@ -63,7 +63,7 @@ static func _test_each_category_buys_and_refills_in_place(expect: Callable) -> v
 		expect.call(engine.held_embers(bought) == PURCHASE_BUDGET - cost, "Buying %s should spend its displayed ember price" % category)
 		match category:
 			RunEngine.MERCHANT_ITEM_KIND_MAGIC:
-				expect.call((bought.get("magic_inventory", []) as Array).has(item_id), "Bought Magic should enter reserve Magic")
+				expect.call((bought.get("deck_cards", []) as Array).has(item_id), "Bought Magic should enter the deck")
 			RunEngine.MERCHANT_ITEM_KIND_GEAR:
 				expect.call((bought.get("equipment_inventory", []) as Array).has(item_id), "Bought Gear should enter equipment inventory")
 			RunEngine.MERCHANT_ITEM_KIND_ITEM:
@@ -93,11 +93,13 @@ static func _test_coherent_cross_category_sales(expect: Callable) -> void:
 	state["reward_cards"] = ["spark_dart"]
 	state["item_inventory"] = ["crimson_draught"]
 	var expected_sale_total: int = 100
-	for item_id: String in ["ward_kite", "spark_dart", "crimson_draught"]:
+	state = engine._repair_equipment_state(state)
+	expect.call(not engine.merchant_sellable_ids(state, RunEngine.MERCHANT_SCAVENGER).has("spark_dart"), "Magic in deck is removed through Purge rather than pack sales")
+	for item_id: String in ["ward_kite", "crimson_draught"]:
 		expect.call(engine.merchant_sellable_ids(state, RunEngine.MERCHANT_SCAVENGER).has(item_id), "Sell From Pack should list owned %s" % engine.merchant_item_kind(item_id))
 		expected_sale_total += engine.merchant_sell_value(RunEngine.MERCHANT_SCAVENGER, item_id)
 		state = engine.sell_merchant_item(state, RunEngine.MERCHANT_SCAVENGER, item_id)
-	expect.call(engine.held_embers(state) == expected_sale_total, "Selling Magic, Gear, and Items should pay each explicit value")
+	expect.call(engine.held_embers(state) == expected_sale_total, "Selling Gear and Items should pay each explicit value")
 	expect.call(not (state.get("equipment_inventory", []) as Array).has("ward_kite"), "Sold Gear should leave equipment inventory")
 	expect.call(not (state.get("magic_inventory", []) as Array).has("spark_dart"), "Sold Magic should leave reserve Magic")
 	expect.call(not (state.get("item_inventory", []) as Array).has("crimson_draught"), "Sold Items should leave item inventory")

@@ -74,24 +74,17 @@ class OriginalRunEngine:
 
 	func _repair_magic_state(run_state: Dictionary) -> Dictionary:
 		var next_state: Dictionary = run_state.duplicate(true)
-		var reward_cards: Array = _string_array(next_state.get("reward_cards", []))
-		next_state["reward_cards"] = reward_cards
-		if not next_state.has("attuned_magic_cards") and not next_state.has("magic_inventory"):
-			var migrated_magic: Dictionary = _magic_loadout_from_collected_rewards(reward_cards)
-			next_state["attuned_magic_cards"] = migrated_magic.get("attuned_magic_cards", [])
-			next_state["magic_inventory"] = migrated_magic.get("magic_inventory", [])
-			return next_state
-		var attuned: Array = _string_array(next_state.get("attuned_magic_cards", []))
-		var inventory: Array = _string_array(next_state.get("magic_inventory", []))
-		var limit: int = GameData.magic_loadout_limit()
-		if attuned.size() > limit:
-			for index: int in range(limit, attuned.size()):
-				inventory.append(str(attuned[index]))
-			while attuned.size() > limit:
-				attuned.pop_back()
-		attuned = _filled_attuned_magic(attuned)
-		next_state["attuned_magic_cards"] = attuned
-		next_state["magic_inventory"] = inventory
+		var rewards: Array = _string_array(next_state.get("reward_cards", []))
+		next_state["reward_cards"] = rewards
+		var magic: Array = _string_array(next_state.get("attuned_magic_cards", []))
+		if not next_state.has("attuned_magic_cards") and not next_state.has("magic_inventory"): magic = rewards.duplicate()
+		var reserve: Array = _string_array(next_state.get("magic_inventory", []))
+		magic.append_array(reserve)
+		next_state["attuned_magic_cards"] = magic
+		next_state["magic_inventory"] = []
+		if int(next_state.get(MAGIC_DECK_SAVE_VERSION_KEY, 0)) < MAGIC_DECK_SAVE_VERSION:
+			next_state["magic_deck_migration"] = {"from_version": int(next_state.get(MAGIC_DECK_SAVE_VERSION_KEY, 0)), "to_version": MAGIC_DECK_SAVE_VERSION, "reserve_copies_moved": reserve.size()}
+		next_state[MAGIC_DECK_SAVE_VERSION_KEY] = MAGIC_DECK_SAVE_VERSION
 		return next_state
 
 	func _repair_item_state(run_state: Dictionary) -> Dictionary:

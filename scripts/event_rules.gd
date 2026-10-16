@@ -6,6 +6,8 @@ const GameData = preload("res://scripts/game_data.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
 const Omens = preload("res://scripts/omen_rules.gd")
+const MAGIC_REQUIREMENT_COPY: String = "Requires a spell in your deck."
+
 const EFFECT_TYPES: Array = ["hp", "heal", "heal_percent", "max_hp", "embers", "relic", "card", "card_choice", "equipment", "reforge", "item", "lose_item", "transform_magic", "omen", "defiance", "scout", "reveal", "random"]
 const REQUIREMENT_TYPES: Array = ["hp_above", "max_hp_above", "embers_at_least", "has_item", "has_equipment", "has_attuned_magic"]
 const POOLS: Array = ["any", "earth", "fire", "air", "ice", "lightning", "shadow"]
@@ -134,7 +136,7 @@ static func choice_block_reason(state: Dictionary, event_id: String, choice_id: 
 			"has_equipment":
 				if str((state.get("equipped_equipment", {}) as Dictionary).get(str(requirement["slot"]), "")).is_empty(): return "Requires an equipped %s." % slot_name(str(requirement["slot"]))
 			"has_attuned_magic":
-				if _attuned_slots(state).is_empty(): return "Requires an attuned spell."
+				if _attuned_slots(state).is_empty(): return MAGIC_REQUIREMENT_COPY
 	var effects: Array = choice.get("effects", [])
 	if effects.size() == 1 and str(effects[0].get("type", "")) == "reveal" and reveal_targets(state, int(effects[0]["hops"])).is_empty(): return "Nothing new to reveal."
 	return ""
@@ -238,8 +240,8 @@ static func apply_effects(state: Dictionary, effects: Array, rng: RandomNumberGe
 					outcomes.append({"type": "embers", "amount": EMPTY_POOL_EMBERS, "substitution_for": type})
 				elif type == "card_choice": outcomes.append({"type": type, "cards": cards})
 				else:
-					next = engine.grant_magic_to_reserve(next, cards[0])
-					outcomes.append({"type": type, "id": cards[0]})
+					next = engine.grant_magic_to_deck(next, cards[0])
+					outcomes.append({"type": type, "id": cards[0], "destination": "deck"})
 			"reforge":
 				var slot: String = str(effect["slot"])
 				var old: String = str(next.get("equipped_equipment", {}).get(slot, ""))

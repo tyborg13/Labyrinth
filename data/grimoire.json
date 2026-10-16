@@ -18,7 +18,7 @@
     {
       "id": "magicks",
       "title": "Magicks",
-      "summary": "Magic cards recorded when they are learned, offered, or seen in combat."
+      "summary": "Magic cards recorded when they are gained, offered, or seen in combat."
     },
     {
       "id": "equipment",
@@ -71,7 +71,7 @@
       "default": true,
       "icon": "loadout",
       "body": [
-        "Equipment, attuned magic, item slots, relics, and learned skills shape your deck and tactics.",
+        "Equipment, magic, item slots, relics, and learned skills shape your deck and tactics.",
         "Most loadout changes happen outside combat, including pre-battle and Ember Hearth moments."
       ]
     },
@@ -83,7 +83,7 @@
       "icon": "rewards",
       "body": [
         "After combat, choose a card, take healing, or claim other room rewards when offered.",
-        "New magic cards enter reserve first; attune them from the character sheet to add them to the active deck."
+        "Spells go straight into your deck when you gain them. Purge removes one."
       ]
     },
     {

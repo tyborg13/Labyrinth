@@ -31,6 +31,10 @@ const BASE_MAX_HP: int = 24
 const BASE_HAND_SIZE: int = 5
 const BASE_CARDS_PER_TURN: int = 2
 const BASE_DRAW_PER_TURN: int = 2
+const MAGIC_DECK_SAVE_VERSION: int = 1
+const MAGIC_DECK_SAVE_VERSION_KEY: String = "magic_deck_save_version"
+const SCAVENGER_PURGE_BASE_PRICE: int = 50
+const SCAVENGER_PURGE_PRICE_STEP: int = 25
 const REWARD_HEAL: int = 3
 const CAMPFIRE_LINGER_HEAL: int = 4
 const BOSS_VICTORY_HEAL_FRACTION: float = 0.25
@@ -154,6 +158,7 @@ func create_new_run(seed: int, progression: Dictionary, section_maps: bool = tru
 		"deck_cards": GameData.compile_deck_cards(equipped_equipment, attuned_magic_cards, equipped_items),
 		"reward_cards": reward_cards,
 		"attuned_magic_cards": attuned_magic_cards,
+		MAGIC_DECK_SAVE_VERSION_KEY: MAGIC_DECK_SAVE_VERSION,
 		"magic_inventory": magic_inventory,
 		"item_inventory": [],
 		"equipped_items": equipped_items,
@@ -276,6 +281,7 @@ func create_debug_boss_run(progression: Dictionary) -> Dictionary:
 		"deck_cards": deck_cards,
 		"reward_cards": debug_reward_cards,
 		"attuned_magic_cards": debug_attuned_magic,
+		MAGIC_DECK_SAVE_VERSION_KEY: MAGIC_DECK_SAVE_VERSION,
 		"magic_inventory": debug_magic_inventory,
 		"item_inventory": [],
 		"equipped_items": debug_equipped_items,
@@ -1459,21 +1465,55 @@ func claim_card_reward(run_state: Dictionary, card_id: String) -> Dictionary:
 	if str(next_state.get("pending_reward", {}).get("kind", "")) == "event" and not (next_state.get("pending_reward", {}).get("cards", []) as Array).has(card_id):
 		return run_state.duplicate(true)
 	if not card_id.is_empty():
-		next_state = grant_magic_to_reserve(next_state, card_id)
-		next_state["notice"] = "Added %s to reserve magic." % str(GameData.card_def(card_id).get("name", card_id))
+		next_state = grant_magic_to_deck(next_state, card_id)
+		next_state["notice"] = "Added %s to your deck." % str(GameData.card_def(card_id).get("name", card_id))
 	next_state["pending_reward"] = {}
 	next_state["mode"] = MODE_ESCAPE if not pending_escape(next_state).is_empty() else "room"
 	return next_state
 
-func grant_magic_to_reserve(run_state: Dictionary, card_id: String) -> Dictionary:
-	var next: Dictionary = run_state.duplicate(true)
+func grant_magic_to_deck(run_state: Dictionary, card_id: String) -> Dictionary:
+	var next: Dictionary = _repair_equipment_state(run_state)
+	if not GameData.magic_card_is_purgeable(card_id): return next
 	var rewards: Array = next.get("reward_cards", []).duplicate()
 	rewards.append(card_id)
 	next["reward_cards"] = rewards
-	var inventory: Array = next.get("magic_inventory", []).duplicate()
-	inventory.append(card_id)
-	next["magic_inventory"] = inventory
+	var magic: Array = next.get("attuned_magic_cards", []).duplicate()
+	magic.append(card_id)
+	next["attuned_magic_cards"] = magic
 	return _rebuild_deck_cards(_mark_loadout_unread(next, "magic", card_id))
+
+func grant_magic_to_reserve(run_state: Dictionary, card_id: String) -> Dictionary:
+	# Compatibility entry point for existing event scripts. No reserve remains.
+	return grant_magic_to_deck(run_state, card_id)
+
+func scavenger_purge_price(run_state: Dictionary) -> int:
+	return SCAVENGER_PURGE_BASE_PRICE + SCAVENGER_PURGE_PRICE_STEP * maxi(0, int(run_state.get("priced_magic_purges", 0)))
+
+func can_purge_magic(run_state: Dictionary, source: String) -> bool:
+	if source == "campfire": return str(run_state.get("mode", "")) == "campfire"
+	if source == "scavenger": return _can_trade_at_merchant(run_state, MERCHANT_SCAVENGER)
+	return false
+
+func purge_magic_card(run_state: Dictionary, card_id: String, source: String) -> Dictionary:
+	# Validate the original state first; rejected requests do not mutate a save.
+	if not can_purge_magic(run_state, source) or not GameData.magic_card_is_purgeable(card_id): return run_state.duplicate(true)
+	var next: Dictionary = _repair_equipment_state(run_state)
+	var magic: Array = next.get("attuned_magic_cards", []).duplicate()
+	if not magic.has(card_id): return run_state.duplicate(true)
+	var price: int = scavenger_purge_price(next) if source == "scavenger" else 0
+	if held_embers(next) < price: return run_state.duplicate(true)
+	magic.erase(card_id)
+	next["attuned_magic_cards"] = magic
+	next = spend_held_embers(next, price)
+	next["magic_purges_this_run"] = int(next.get("magic_purges_this_run", 0)) + 1
+	# Only paid Scavenger services advance the price; Campfire is a free choice.
+	if source == "scavenger":
+		next["priced_magic_purges"] = int(next.get("priced_magic_purges", 0)) + 1
+	# This receipt is persisted with the removal. The UI logs it only after save.
+	next["last_magic_purge"] = {"card_id": card_id, "source": source, "price": price, "purge_index": next["magic_purges_this_run"]}
+	if source == "campfire": next = leave_campfire(next)
+	next["notice"] = "Purged %s." % str(GameData.card_def(card_id).get("name", card_id))
+	return _rebuild_deck_cards(next)
 
 func pending_escape(run_state: Dictionary) -> Dictionary:
 	if typeof(run_state.get("pending_escape", null)) != TYPE_DICTIONARY:
@@ -1552,28 +1592,6 @@ func equip_equipment(run_state: Dictionary, equipment_id: String, target_slot: S
 			"Open Arsenal equips %s in the trinket slot." % str(GameData.equipment_def(equipment_id).get("name", equipment_id))
 		)
 	next_state["notice"] = "Equipped %s." % str(GameData.equipment_def(equipment_id).get("name", equipment_id))
-	return next_state
-
-func swap_magic_card(run_state: Dictionary, inventory_index: int, attuned_index: int) -> Dictionary:
-	var next_state: Dictionary = _repair_equipment_state(run_state.duplicate(true))
-	if not can_change_magic(next_state):
-		return next_state
-	var inventory: Array = next_state.get("magic_inventory", []).duplicate()
-	var attuned: Array = next_state.get("attuned_magic_cards", []).duplicate()
-	if inventory_index < 0 or inventory_index >= inventory.size():
-		return next_state
-	if attuned_index < 0 or attuned_index >= attuned.size():
-		return next_state
-	var incoming_card_id: String = str(inventory[inventory_index])
-	var outgoing_card_id: String = str(attuned[attuned_index])
-	if incoming_card_id.is_empty() or outgoing_card_id.is_empty():
-		return next_state
-	inventory[inventory_index] = outgoing_card_id
-	attuned[attuned_index] = incoming_card_id
-	next_state["magic_inventory"] = inventory
-	next_state["attuned_magic_cards"] = attuned
-	next_state = _rebuild_deck_cards(next_state)
-	next_state["notice"] = "Attuned %s." % str(GameData.card_def(incoming_card_id).get("name", incoming_card_id))
 	return next_state
 
 func equip_item_card(run_state: Dictionary, inventory_index: int, equipped_index: int = -1) -> Dictionary:
@@ -1755,15 +1773,8 @@ func buy_merchant_item(run_state: Dictionary, merchant_kind: String, item_id: St
 			next_state = _mark_loadout_unread(next_state, "equipment", item_id)
 			next_state["notice"] = "Bought %s." % str(GameData.equipment_def(item_id).get("name", item_id))
 		MERCHANT_ITEM_KIND_MAGIC:
-			var reward_cards: Array = next_state.get("reward_cards", []).duplicate()
-			reward_cards.append(item_id)
-			next_state["reward_cards"] = reward_cards
-			var magic_inventory: Array = next_state.get("magic_inventory", []).duplicate()
-			magic_inventory.append(item_id)
-			next_state["magic_inventory"] = magic_inventory
-			next_state = _mark_loadout_unread(next_state, "magic", item_id)
-			next_state = _rebuild_deck_cards(next_state)
-			next_state["notice"] = "Bought %s." % str(GameData.card_def(item_id).get("name", item_id))
+			next_state = grant_magic_to_deck(next_state, item_id)
+			next_state["notice"] = "Added %s to your deck." % str(GameData.card_def(item_id).get("name", item_id))
 		MERCHANT_ITEM_KIND_ITEM:
 			var item_inventory: Array = next_state.get("item_inventory", []).duplicate()
 			item_inventory.append(item_id)
@@ -1797,15 +1808,6 @@ func sell_merchant_item(run_state: Dictionary, merchant_kind: String, item_id: S
 			grafts.erase(item_id)
 			next_state["equipment_grafts"] = grafts
 			next_state["notice"] = "Sold %s." % str(GameData.equipment_def(item_id).get("name", item_id))
-		MERCHANT_ITEM_KIND_MAGIC:
-			var magic_inventory: Array = next_state.get("magic_inventory", []).duplicate()
-			magic_inventory.erase(item_id)
-			next_state["magic_inventory"] = magic_inventory
-			var reward_cards: Array = next_state.get("reward_cards", []).duplicate()
-			reward_cards.erase(item_id)
-			next_state["reward_cards"] = reward_cards
-			next_state = _rebuild_deck_cards(next_state)
-			next_state["notice"] = "Sold %s." % str(GameData.card_def(item_id).get("name", item_id))
 		MERCHANT_ITEM_KIND_ITEM:
 			var item_inventory: Array = next_state.get("item_inventory", []).duplicate()
 			item_inventory.erase(item_id)
@@ -2255,50 +2257,21 @@ func _repair_magic_state(run_state: Dictionary) -> Dictionary:
 func _repair_magic_state_in_place(next_state: Dictionary) -> void:
 	var reward_cards: Array = _string_array(next_state.get("reward_cards", []))
 	next_state["reward_cards"] = reward_cards
+	# Keep the serialized field name for events, old tooling, and analytics.
+	# Its contents now mean all owned magic, including zero after purging.
+	var magic: Array = _string_array(next_state.get("attuned_magic_cards", []))
 	if not next_state.has("attuned_magic_cards") and not next_state.has("magic_inventory"):
-		var migrated_magic: Dictionary = _magic_loadout_from_collected_rewards(reward_cards)
-		next_state["attuned_magic_cards"] = migrated_magic.get("attuned_magic_cards", [])
-		next_state["magic_inventory"] = migrated_magic.get("magic_inventory", [])
-		return
-	var attuned: Array = _string_array(next_state.get("attuned_magic_cards", []))
-	var inventory: Array = _string_array(next_state.get("magic_inventory", []))
-	var limit: int = GameData.magic_loadout_limit()
-	if attuned.size() > limit:
-		for index: int in range(limit, attuned.size()):
-			inventory.append(str(attuned[index]))
-		while attuned.size() > limit:
-			attuned.pop_back()
-	attuned = _filled_attuned_magic(attuned)
-	next_state["attuned_magic_cards"] = attuned
-	next_state["magic_inventory"] = inventory
-	return
+		magic = reward_cards.duplicate()
+	var reserve: Array = _string_array(next_state.get("magic_inventory", []))
+	magic.append_array(reserve)
+	next_state["attuned_magic_cards"] = magic
+	next_state["magic_inventory"] = []
+	if int(next_state.get(MAGIC_DECK_SAVE_VERSION_KEY, 0)) < MAGIC_DECK_SAVE_VERSION:
+		next_state["magic_deck_migration"] = {"from_version": int(next_state.get(MAGIC_DECK_SAVE_VERSION_KEY, 0)), "to_version": MAGIC_DECK_SAVE_VERSION, "reserve_copies_moved": reserve.size()}
+	next_state[MAGIC_DECK_SAVE_VERSION_KEY] = MAGIC_DECK_SAVE_VERSION
 
 func _magic_loadout_from_collected_rewards(reward_cards: Array) -> Dictionary:
-	var attuned: Array = []
-	var inventory: Array = []
-	var limit: int = GameData.magic_loadout_limit()
-	for card_id_var: Variant in reward_cards:
-		var card_id: String = str(card_id_var)
-		if card_id.is_empty():
-			continue
-		if attuned.size() < limit:
-			attuned.append(card_id)
-		else:
-			inventory.append(card_id)
-	attuned = _filled_attuned_magic(attuned)
-	return {
-		"attuned_magic_cards": attuned,
-		"magic_inventory": inventory
-	}
-
-func _filled_attuned_magic(attuned_cards: Array) -> Array:
-	var result: Array = _string_array(attuned_cards)
-	var defaults: Array = GameData.starting_magic_cards()
-	var default_index: int = 0
-	while result.size() < GameData.magic_loadout_limit() and not defaults.is_empty():
-		result.append(str(defaults[default_index % defaults.size()]))
-		default_index += 1
-	return result
+	return {"attuned_magic_cards": _string_array(reward_cards), "magic_inventory": []}
 
 func _repair_item_state(run_state: Dictionary) -> Dictionary:
 	var next_state: Dictionary = run_state.duplicate(true)

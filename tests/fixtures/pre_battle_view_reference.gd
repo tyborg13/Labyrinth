@@ -396,7 +396,7 @@ static func build_kit(host: Node) -> Control:
 		socket.interactive = not socket.equipment_id.is_empty()
 		sockets.add_child(socket)
 	var attuned: Array = state.get("attuned_magic_cards", []) as Array
-	kit.add_child(loadout_header("ATTUNED MAGIC", "%d / %d" % [attuned.size(), GameData.magic_loadout_limit()]))
+	kit.add_child(loadout_header("MAGIC IN DECK", "%d spells" % attuned.size()))
 	kit.add_child(card_grid(host, attuned, "attuned", "PreBattleAttunedRow"))
 	var deck: Array = state.get("deck_cards", []) as Array
 	kit.add_child(loadout_header("ACTIVE DECK", "%d cards" % deck.size()))

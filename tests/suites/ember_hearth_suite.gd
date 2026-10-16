@@ -87,7 +87,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 	var embrace: Control = panel(instance, 1)
 	var strength: Control = panel(instance, 2)
 	expect.call(str((instance.get("room_title") as Label).text) == "Ember Hearth", "Room uses the chosen Ember Hearth name")
-	expect.call(linger.get_node(linger.focus_neighbor_left) == embrace and linger.get_node(linger.focus_next) == embrace, "Focus order skips unaffordable Strength and wraps available choices")
+	expect.call(linger.get_node(linger.focus_neighbor_left) == panel(instance, 3) and linger.get_node(linger.focus_next) == embrace, "Focus order includes Purge, skips unaffordable Strength, and wraps available choices")
 	activate(instance, 2, true)
 	expect.call(not bool(instance.get("_campfire_choice_action_pending")), "Unavailable Strength does not spend or start feedback")
 	linger.grab_focus()

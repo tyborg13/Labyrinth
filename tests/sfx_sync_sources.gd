@@ -5,7 +5,7 @@ extends RefCounted
 static var _compiled: Dictionary = {}
 
 const SOURCE_PATHS: Array = ["scripts/sfx_sync_rules.gd", "scripts/sfx_peak_alignment.gd", "scripts/run_scene.gd", "scripts/sfx_bank.gd", "scripts/sfx_cue_router.gd", "data/sfx_cues.json",
-	"tests/sfx_sync_audio_lengths.gd", "tests/sfx_sync_harness.gd", "tests/sfx_sync_clock.gd", "tests/sfx_sync_pacing.gd", "tests/sfx_sync_sources.gd", "tests/sfx_sync_support.gd", "tests/sfx_sync_visuals.gd", "tests/sfx_sync_coverage.gd"]
+	"tests/sfx_sync_audio_lengths.gd", "tests/sfx_sync_harness.gd", "tests/sfx_sync_clock.gd", "tests/sfx_sync_pacing.gd", "tests/sfx_sync_sources.gd", "tests/sfx_sync_support.gd", "tests/sfx_sync_visuals.gd", "tests/sfx_sync_coverage.gd", "tests/suites/magic_deck_sfx_sync.gd"]
 
 static func read_source(path: String, supplied: Dictionary) -> String:
 	return str(supplied.get(path, FileAccess.get_file_as_string("res://" + path)))

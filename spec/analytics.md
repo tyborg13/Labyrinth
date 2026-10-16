@@ -82,7 +82,8 @@ available:
 - `skill_triggered`
 - `equipment_equipped`
 - `equipment_grafted`
-- `magic_attuned`
+- `magic_attuned` (historical)
+- `magic_purged`
 - `item_equipped`
 - `item_picked_up`
 - `merchant_trade`
@@ -165,8 +166,10 @@ to build it: `reward_cards`, `equipped_equipment`, `equipment_inventory`, and
 `collected_equipment`. It also includes recovery marker fields when a previous
 death dropped embers for the new run: `recovery_marker_active`,
 `recovery_marker_amount`, and `recovery_marker_coord`.
-It also includes the active magic loadout fields `attuned_magic_cards` and
-`magic_inventory`; `reward_cards` remains the collected reward-card history.
+It retains the serialized magic fields `attuned_magic_cards` and
+`magic_inventory`. From magic-deck save version 1, `attuned_magic_cards` means
+all owned magic in the deck and `magic_inventory` is empty. `reward_cards`
+remains acquisition history, including copies later purged.
 Consumable item loadout state is included as `equipped_items` and
 `item_inventory`.
 
@@ -386,10 +389,26 @@ outside combat. Its payload records `slot`, `previous_equipment_id`,
 `equipment_id`, the full `equipped_equipment` map, current
 `equipment_inventory`, and rebuilt `deck_cards`.
 
-`magic_attuned` fires when the character overlay swaps a reserve magic card into
-one of the six attuned slots outside combat. Its payload records the reserve and
-attuned indices, the attuned `card_id`, full `attuned_magic_cards`,
-`magic_inventory`, `reward_cards`, and rebuilt `deck_cards`.
+`magic_attuned` is a historical event; the Character panel no longer emits it.
+All owned magic enters the compiled deck, with no slot cap. New `reward_choice`
+records add `destination: "deck"` for card claims (empty for skips). Scavenger
+`merchant_trade` records add `destination: "deck"` on magic purchases. Event
+`map_event_resolved.outcomes` add `destination: "deck"` on direct card grants.
+Existing events and keys remain readable under schema 1.
+
+`magic_purged` fires after a confirmed removal has been saved. Its payload has
+`card_id`, `source` (`scavenger` or `campfire`), `price` (Embers; zero at a
+Campfire), `purge_index`, `held_embers_before`, `held_embers_after`, full
+`attuned_magic_cards`, and rebuilt `deck_cards`. Selection, hover, cancellation,
+invalid requests, and save failures emit no removal. A Scavenger purge costs
+50 Embers plus 25 per prior paid Scavenger purge in this run. Campfire consumes
+its single service choice and never advances the paid-price counter.
+
+The additive save marker `magic_deck_save_version: 1` and
+`magic_deck_migration` receipt record the old/new versions and number of reserve
+copies moved. Draining the old inventory makes repeated loads idempotent.
+Migrating a combat save changes the compiled deck for later encounters while
+preserving that encounter's serialized hand/draw/discard/action boundary.
 
 `item_picked_up` records a newly collected battlefield item, with `loot_id`,
 `card_id`, `destination` (`hand`, `draw`, or `inventory`), and the resulting

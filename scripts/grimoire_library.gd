@@ -35,7 +35,7 @@ const EQUIPMENT_SLOT_TITLES := {
 const CHARACTER_BODIES := {
 	"scavenger": [
 		"A wary merchant who gathers cards, gear, and single-use items from the labyrinth's forgotten corners.",
-		"Scavenger rooms offer Magic, Gear, and Items together. Purchased magic enters reserve, equipment enters inventory, and items enter the pack. The Scavenger also buys unequipped wares from your pack."
+		"Scavenger rooms offer Magic, Gear, and Items together. Purchased magic goes straight into your deck. Equipment enters inventory, and items enter the pack. The Scavenger also buys unequipped wares from your pack."
 	],
 	"emaciated_man": [
 		"NPC encountered in the starting chamber.",

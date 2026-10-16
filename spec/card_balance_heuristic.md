@@ -111,6 +111,19 @@ These assumptions are baked into the current coefficients:
   Radiance cards therefore gain encounter-dependent value by revealing tiles,
   extending vision, granting enemy-only truesight, or reducing Umbra stages.
 
+### Magic ownership (deck-01)
+
+The scorer has no six-magic-loadout assumption: it scores the intrinsic value
+of a card play against a blank draw, not draw frequency in a fixed deck. All
+owned magic now enters the deck. The starting deck remains 16 cards, including
+Pale Spark ×2, Dull Bolt ×2, and Waning Pulse ×2. Removing a magic copy changes
+draw frequency, not that card's printed value. Compare realized results by
+`deck_cards` composition/count and purge source/price in analytics. No card,
+Time, damage, draw, fatigue, or scoring coefficient changes in deck-01. The
+service prices are the director's 50 Embers, then +25 per later paid Scavenger
+purge; Campfire removal replaces its other choices, costs zero Embers, and never
+raises the Scavenger price.
+
 ### Qualitative Progression Policy
 
 The scorer uses a no-skill reference profile. Learned skills can change card

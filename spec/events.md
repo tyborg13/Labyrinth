@@ -49,7 +49,7 @@ Disabled choices remain visible, with the exact reason as their tooltip.
 | `embers_at_least {amount}` | Held Embers at least amount; `Requires N Embers.` |
 | `has_item` | Consumable in pack or equipped; `Requires an item.` |
 | `has_equipment {slot}` | Equipped piece in slot; `Requires an equipped <slot name>.` |
-| `has_attuned_magic` | At least one attuned spell; `Requires an attuned spell.` |
+| `has_attuned_magic` | At least one spell in the deck (id kept for save/data compatibility); `Requires a spell in your deck.` |
 
 The data slot `armor` is displayed as `armour`; other slot names are weapon,
 offhand, boots and trinket. A choice consisting only of `reveal` is unavailable
@@ -69,13 +69,13 @@ together. Repeated input on the result page cannot apply the choice again.
 | `max_hp {amount}` | Max HP never below 1; increases also increase current HP; decreases clamp current HP. |
 | `embers {amount}` | Existing held/unbanked add/spend helpers; never banks progression currency. |
 | `relic {rarity}` | Random unowned treasure-offerable relic of rarity; lower rarities then any offerable rarity; excludes retired, Guardian and dragon exclusives. Empty pool substitutes 40 Embers and records `substitution_for`. Uses the ordinary relic claim bonuses. |
-| `card {rarity, element}` | Random reward-pool magic card into reserve, marked NEW/unread; requested rarity, lower rarities, then any rarity; empty pool substitutes 40 Embers. |
+| `card {rarity, element}` | Random reward-pool magic card straight into the deck, marked NEW/unread; requested rarity, lower rarities, then any rarity; empty pool substitutes 40 Embers. |
 | `card_choice {count, element, min_rarity?}` | Distinct reward-pool magic offers using existing reward rarity/card weights, with a minimum rarity floor; deferred until Continue. |
 | `equipment {rarity, slot?}` | Random unowned gear into pack, marked NEW/unread; lower rarity then any; empty pool substitutes 40 Embers. |
 | `reforge {slot, rarity_step}` | Random different same-slot piece at stepped rarity, capped at Legendary; fall back to the old rarity, then any rarity. Success destroys old gear/grafts, equips replacement and rebuilds the deck. An empty pool preserves old gear/grafts and substitutes 40 Embers. |
 | `item {count}` | Random consumables into pack through the Scavenger acquisition semantics. |
 | `lose_item` | One random pack consumable, or equipped consumable when pack is empty. |
-| `transform_magic {count, rarity_step}` | Random distinct attuned slots, fewer if necessary; different reward spell at stepped rarity, then old rarity, then any rarity, any element. Preserves slot, records from/to and rebuilds deck. An empty pool leaves the slot unchanged and records `nothing_changed`. |
+| `transform_magic {count, rarity_step}` | Random distinct spells in the deck, fewer if necessary; different reward spell at stepped rarity, then old rarity, then any rarity, any element. Preserves its deck position, records from/to and rebuilds deck. An empty pool leaves the spell unchanged and records `nothing_changed`. |
 | `omen {id}` | Add or refresh the timed omen, without stacking. |
 | `defiance {amount}` | Increase this run's capacity and remaining charges; persist the run bonus, never progression. |
 | `scout {amount}` | Increase current-section uses. |
@@ -101,7 +101,7 @@ Continue marks the room cleared and removes `event_state`, returning to `room`.
 
 If the transaction generated card offers, Continue instead opens the existing
 reward chooser with `pending_reward.kind = event`, the saved cards,
-`heal_amount = 0` and `skip_label = Skip`. Claim uses the combat-reward reserve
+`heal_amount = 0` and `skip_label = Skip`. Claim uses the combat-reward deck
 acquisition path; Skip grants nothing. Deferred-choice healing and rerolls do
 not replace this authored event offer. Both return to the cleared room and the
 existing map flow.

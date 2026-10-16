@@ -259,40 +259,13 @@ class MagicCardTile:
 	var _left_pressed: bool = false
 
 	func _gui_input(event: InputEvent) -> void:
-		if host == null:
-			return
-		if event.is_action_pressed("ui_accept"):
-			host.call("_controller_activate_magic_tile", source_kind, magic_index, card_id)
-			accept_event()
-			return
-		if card_id.is_empty():
-			return
-		if event is InputEventMouseButton:
-			var mouse_event: InputEventMouseButton = event
-			var mouse_position: Vector2 = mouse_event.global_position
-			if mouse_position == Vector2.ZERO:
-				mouse_position = get_viewport().get_mouse_position()
-			if mouse_event.button_index != MOUSE_BUTTON_LEFT:
-				return
-			if mouse_event.pressed:
-				if bool(host.call("_magic_overlay_can_change")):
-					_left_pressed = true
-					host.call("_begin_magic_overlay_drag", source_kind, magic_index, card_id, get_global_rect(), self, mouse_position)
-					accept_event()
-					return
-			elif _left_pressed or bool(host.call("_magic_overlay_drag_active")):
-				_left_pressed = false
-				host.call("_release_magic_overlay_drag", mouse_position)
-				accept_event()
-				return
-		elif event is InputEventMouseMotion:
-			var motion_event: InputEventMouseMotion = event
-			var motion_position: Vector2 = motion_event.global_position
-			if motion_position == Vector2.ZERO:
-				motion_position = get_viewport().get_mouse_position()
-			if _left_pressed or bool(host.call("_magic_overlay_drag_active")):
-				host.call("_update_magic_overlay_drag", motion_position)
-				accept_event()
+		var activate: bool = event.is_action_pressed("ui_accept") and not event.is_echo()
+		activate = activate or (event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed)
+		if not activate or host == null or card_id.is_empty(): return
+		var request: Callable = get_meta("purge_requested", Callable())
+		if request.is_valid(): request.call(card_id)
+		else: preload("res://scripts/character_menu_view.gd").show_inspection(host, self)
+		accept_event()
 
 
 class ItemCardTile:
@@ -1821,6 +1794,7 @@ var _equipment_drag_source_rect: Rect2 = Rect2()
 var _equipment_drag_source_control: Control
 var _equipment_held_proxy: Control
 var _equipment_swap_animation_active: bool = false
+var _magic_purge_overlay: Control
 var _magic_attuned_tiles: Dictionary = {}
 var _magic_inventory_tiles: Dictionary = {}
 var _magic_drag_source_kind: String = ""
@@ -2143,6 +2117,21 @@ func _physics_process(delta: float) -> void:
 			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
+	if is_instance_valid(_magic_purge_overlay):
+		if InputRouterScript.is_controller_event(event):
+			var router: Node = get_node_or_null("/root/InputRouter")
+			if router != null: router.call("mark_controller_device", event.device)
+			call_deferred("_recover_controller_focus")
+		if _magic_purge_overlay.contain_input(event):
+			get_viewport().set_input_as_handled()
+			return
+		if event.is_action_pressed("ui_cancel") or event.is_action_pressed(InputRouterScript.ACTION_CANCEL):
+			_magic_purge_overlay.cancel()
+			get_viewport().set_input_as_handled()
+		elif event.is_action_pressed(InputRouterScript.ACTION_MENU):
+			_close_magic_purge()
+			get_viewport().set_input_as_handled()
+		return
 	if _event_view != null and _event_view.visible and not _visible_control(_menu_scrim):
 		if _event_view.handle_input(event):
 			get_viewport().set_input_as_handled()
@@ -2661,6 +2650,7 @@ func _controller_uses_gui_focus() -> bool:
 	)
 
 func _controller_modal_visible() -> bool:
+	if is_instance_valid(_magic_purge_overlay): return true
 	if _event_view != null and _event_view.visible: return true
 	if _graftwright_view != null and _graftwright_view.visible: return true
 	for control: Control in [
@@ -3414,6 +3404,7 @@ func _refresh_controller_modal_after_layout() -> void:
 	_sync_click_targeting_arrow()
 
 func _controller_focus_scope() -> Control:
+	if is_instance_valid(_magic_purge_overlay): return _magic_purge_overlay.focus_scope()
 	if _visible_control(_menu_scrim): return _menu_scrim
 	if _event_view != null and _event_view.visible: return _event_view
 	if _graftwright_view != null and _graftwright_view.visible: return _graftwright_view
@@ -3484,7 +3475,7 @@ func _focus_character_loadout_default() -> bool:
 					candidate = equipment_candidate
 					break
 	elif _progression_overlay_mode == "magic":
-		for index: int in range(GameData.magic_loadout_limit()):
+		for index: int in range((_run_state.get("attuned_magic_cards", []) as Array).size()):
 			var magic_candidate: Control = _magic_attuned_tiles.get(index, null) as Control
 			if magic_candidate != null and magic_candidate.is_visible_in_tree() and magic_candidate.focus_mode == Control.FOCUS_ALL:
 				candidate = magic_candidate
@@ -3565,7 +3556,11 @@ func _refresh_controller_prompts() -> void:
 	_controller_prompt_bar.anchor_right = _controller_prompt_bar.anchor_left
 	_controller_prompt_bar.visible = _controller_is_active() and not (graft_open and _graftwright_view.busy)
 	var prompts: Array = []
-	if _event_view != null and _event_view.visible and not _visible_control(_menu_scrim):
+	if is_instance_valid(_magic_purge_overlay):
+		prompts = [{"action": InputRouterScript.ACTION_ACCEPT, "label": "Select"}, {"action": InputRouterScript.ACTION_CANCEL, "label": "Back"}, {"action": &"controller_dpad", "label": "Navigate"}]
+		_controller_prompt_bar.set_prompts(prompts)
+		return
+	elif _event_view != null and _event_view.visible and not _visible_control(_menu_scrim):
 		_controller_prompt_bar.set_prompts([{ "action": InputRouterScript.ACTION_ACCEPT, "label": _event_view.controller_action_label() }])
 		return
 	if _guided_tutorial_hard_gate_active():
@@ -3637,16 +3632,6 @@ func _refresh_controller_prompts() -> void:
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": _scavenger_shop_view.controller_action_label()},
 			{"action": InputRouterScript.ACTION_CANCEL, "label": "Leave"},
 			{"action": &"controller_dpad", "label": "Navigate"},
-		]
-	elif (
-		_upgrade_scrim != null
-		and _upgrade_scrim.visible
-		and not _controller_magic_source_kind.is_empty()
-	):
-		prompts = [
-			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Swap"},
-			{"action": InputRouterScript.ACTION_CANCEL, "label": "Cancel Swap"},
-			{"action": &"controller_dpad", "label": "Choose Slot"},
 		]
 	elif _upgrade_scrim != null and _upgrade_scrim.visible:
 		prompts = [
@@ -5727,6 +5712,7 @@ func _build_scavenger_shop_overlay(stage: Control) -> void:
 	_scavenger_shop_view.sell_requested.connect(_on_scavenger_sell_requested)
 	_scavenger_shop_view.leave_requested.connect(_on_merchant_hide_pressed)
 	_scavenger_shop_view.controller_context_changed.connect(_refresh_controller_prompts)
+	_scavenger_shop_view.controller_context_changed.connect(func() -> void: preload("res://scripts/magic_purge_overlay.gd").install_scavenger(self, _scavenger_shop_view))
 	_scavenger_shop_view.item_hovered.connect(_on_merchant_row_mouse_entered)
 	_scavenger_shop_view.item_unhovered.connect(_on_merchant_row_mouse_exited)
 
@@ -10487,6 +10473,7 @@ func _boot_run() -> void:
 	_start_run()
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	if is_instance_valid(_magic_purge_overlay): _close_magic_purge(false)
 	_ensure_sfx_bank()
 	_sfx_router.baseline(next_run_state.get("combat_state", {}))
 	if board_view != null:
@@ -14660,6 +14647,7 @@ func _refresh_choice_bar(reward_jobs: Variant = null) -> void:
 				if _merchant_shop_open:
 					_scavenger_shop_view.configure(_run_state, _run_engine, _reduced_motion_enabled(), _record_runtime_performance_phase if _runtime_performance_instrumentation_enabled else Callable())
 					_scavenger_shop_view.present()
+					preload("res://scripts/magic_purge_overlay.gd").install_scavenger(self, _scavenger_shop_view)
 				else:
 					_add_merchant_return_to_shop_button()
 			elif _run_engine.can_speak_to_emaciated_man(_run_state):
@@ -14689,6 +14677,7 @@ func _refresh_choice_bar(reward_jobs: Variant = null) -> void:
 				Color("d79a4d"),
 				_can_level_at_campfire()
 			)
+			_add_campfire_choice("purge", "Purge", "Remove a spell from your deck.", "", UiPalette.DANGER, not preload("res://scripts/magic_deck_list.gd").entries(_run_state.get("attuned_magic_cards", [])).is_empty())
 		"reward":
 			if not _reward_intro_suppressed and _reward_choices_available():
 				if _run_engine.is_dragon_reward(_run_state):
@@ -16634,7 +16623,7 @@ func _add_campfire_choice_background(panel: PanelContainer, icon_path: String, e
 
 	var art := TextureRect.new()
 	art.name = "CampfireChoiceBackground"
-	art.texture = AssetLoader.load_texture(icon_path)
+	art.texture = AssetLoader.load_texture(icon_path) if not icon_path.is_empty() else null
 	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
@@ -16939,9 +16928,12 @@ func _on_campfire_choice_gui_input(event: InputEvent, choice_id: String, panel: 
 	if not pointer_activation and not focus_activation: return
 	if panel != null: panel.accept_event()
 	if _campfire_choice_action_pending or _animation_lock or str(_run_state.get("mode", "room")) != "campfire": return
-	if not choice_id in ["linger", "embrace", "strength"]: return
+	if not choice_id in ["linger", "embrace", "strength", "purge"]: return
 	if panel == null or not bool(panel.get_meta("choice_revealed", false)): return
 	if choice_id == "strength" and not _can_level_at_campfire(): return
+	if choice_id == "purge":
+		_open_magic_purge("campfire")
+		return
 	_set_campfire_choice_action_pending(true)
 	_animation_lock = true
 	var token: int = _campfire_presentation.generation
@@ -22042,6 +22034,7 @@ func _map_shortcut_can_open() -> bool:
 	return true
 
 func _open_large_map(from_toolbar: bool = false) -> void:
+	if is_instance_valid(_magic_purge_overlay): return
 	if str(_run_state.get("mode", "")) == "event": return
 	if _large_map_scrim == null or _treasure_presentation_busy():
 		return
@@ -27852,7 +27845,7 @@ func _animate_magic_reward_acquisition_flair(card_id: String, source_rect: Rect2
 		return
 	var center: Vector2 = source_rect.get_center()
 	var burst: LoadoutAcquisitionBurst = _spawn_loadout_acquisition_burst(center, accent, "magic")
-	var banner: Label = _spawn_loadout_acquisition_banner("SPELL LEARNED", center + Vector2(0.0, -source_rect.size.y * 0.58), accent)
+	var banner: Label = _spawn_loadout_acquisition_banner("MAGIC IN DECK", center + Vector2(0.0, -source_rect.size.y * 0.58), accent)
 	var proxy: Control = _spawn_card_proxy(card_id, source_rect)
 	proxy.z_index = 1602
 	proxy.pivot_offset = proxy.size * 0.5
@@ -28326,6 +28319,7 @@ func _maybe_auto_pass_exhausted_player_turn() -> bool:
 	return true
 
 func _open_menu_overlay() -> void:
+	if is_instance_valid(_magic_purge_overlay): return
 	if _menu_scrim == null:
 		return
 	if not _menu_scrim.visible:
@@ -28391,6 +28385,7 @@ func _reduced_motion_enabled() -> bool:
 	return SettingsStore.reduced_motion_enabled(_settings)
 
 func _open_grimoire_overlay() -> void:
+	if is_instance_valid(_magic_purge_overlay): return
 	if _grimoire_scrim == null:
 		return
 	_cancel_drag_play()
@@ -29014,6 +29009,7 @@ func _on_pooled_pile_selection_pressed(button: Button) -> void:
 		_on_combat_skill_discard_card_selected(source_card_index)
 
 func _open_pile_view(pile_kind: String) -> void:
+	if is_instance_valid(_magic_purge_overlay): return
 	if _pile_scrim == null:
 		return
 	if _guided_tutorial_hard_gate_active():
@@ -29153,6 +29149,7 @@ func _on_character_pressed() -> void:
 	_open_character_overlay("equipment")
 
 func _open_character_overlay(mode: String = "equipment") -> void:
+	if is_instance_valid(_magic_purge_overlay): return
 	_character_row_preparation_revision += 1
 	if _upgrade_scrim == null or _pending_umbra_commit_locked:
 		return
@@ -29533,8 +29530,8 @@ func _refresh_current_character_columns(previous: Dictionary, current: Dictionar
 	var frame: Control = _upgrade_dialog.find_child("CharacterBodyFrame", true, false) as Control
 	if frame == null or frame.get_child_count() != 1: return false
 	var body: HBoxContainer = frame.get_child(0) as HBoxContainer
-	if body == null or body.get_child_count() != 3: return false
-	var expected: Array = ["EquipmentLoadoutPanel", "EquipmentInventoryPanel", "CurrentDeckPanel"] if _progression_overlay_mode == "equipment" else ["MagicAttunedPanel", "MagicInventoryPanel", "CurrentDeckPanel"]
+	if body == null or body.get_child_count() != (3 if _progression_overlay_mode == "equipment" else 2): return false
+	var expected: Array = ["EquipmentLoadoutPanel", "EquipmentInventoryPanel", "CurrentDeckPanel"] if _progression_overlay_mode == "equipment" else ["MagicAttunedPanel", "CurrentDeckPanel"]
 	for index: int in range(expected.size()):
 		if body.get_child(index).name != expected[index]: return false
 	var started: int = Time.get_ticks_usec() if _runtime_performance_instrumentation_enabled else 0
@@ -29559,8 +29556,7 @@ func _refresh_current_character_columns(previous: Dictionary, current: Dictionar
 		_magic_attuned_tiles.clear()
 		_magic_inventory_tiles.clear()
 		_replace_character_column(body, 0, _build_magic_attuned_column(true))
-		_replace_character_column(body, 1, _build_magic_inventory_column(true))
-	if state_changed: _replace_character_column(body, 2, _build_current_deck_column(true))
+	if state_changed: _replace_character_column(body, 2 if _progression_overlay_mode == "equipment" else 1, _build_current_deck_column(true))
 	_record_runtime_performance_phase("character_deck_column", started)
 	return true
 
@@ -29798,7 +29794,6 @@ func _build_equipment_overlay_body() -> Control:
 func _build_magic_overlay_body() -> Control:
 	var body: HBoxContainer = _begin_character_loadout_body()
 	body.add_child(_build_magic_attuned_column())
-	body.add_child(_build_magic_inventory_column())
 	body.add_child(_build_current_deck_column())
 	return _fixed_character_body_frame(body)
 
@@ -30282,45 +30277,16 @@ func _build_equipment_inventory_column(keep_parent: bool = false) -> Control:
 
 func _build_magic_attuned_column(keep_parent: bool = false) -> Control:
 	const Menu = preload("res://scripts/character_menu_view.gd")
-	var attuned: Array = (_run_state.get("attuned_magic_cards", []) as Array).duplicate()
+	var magic: Array = _run_state.get("attuned_magic_cards", []) as Array
 	var panel: PanelContainer = _character_inventory_rows.take_panel("attuned", _character_row_common_input(), func() -> PanelContainer:
-		var created := preload("res://scripts/character_menu_view.gd").column("MagicAttunedPanel", 420.0, "ATTUNED MAGIC")
+		var created: PanelContainer = preload("res://scripts/character_menu_view.gd").column("MagicAttunedPanel", 420.0, "MAGIC IN DECK")
 		preload("res://scripts/character_menu_view.gd").scroll_list(created, "", "MagicAttunedRows")
 		return created
 	, keep_parent)
-	_refresh_character_column_header(panel, "ATTUNED MAGIC", "%d / %d" % [mini(attuned.size(), GameData.magic_loadout_limit()), GameData.magic_loadout_limit()])
-	_magic_attuned_drop_panel = panel
-	var slots: VBoxContainer = panel.find_child("MagicAttunedRows", true, false) as VBoxContainer
-	var rows: Array[Control]
-	for index: int in range(GameData.magic_loadout_limit()):
-		var card_id: String = str(attuned[index]) if index < attuned.size() else ""
-		rows.append(_build_magic_card_tile(card_id, "attuned", index, "magic/attuned/%d" % index))
-	if not _magic_overlay_can_change():
-		var lock_copy: Label = null
-		for child: Node in slots.get_children():
-			if child is Label and (child as Label).text == "Locked in combat": lock_copy = child as Label
-		rows.append(lock_copy if lock_copy != null else Menu.label("Locked in combat", 14, UiPalette.TEXT_2))
-	for index: int in range(rows.size()): _place_character_row(slots, rows[index], index)
-	_finish_character_rows(slots, rows)
-	return panel
-
-func _build_magic_inventory_column(keep_parent: bool = false) -> Control:
-	const Menu = preload("res://scripts/character_menu_view.gd")
-	var reserve: Array = (_run_state.get("magic_inventory", []) as Array).duplicate()
-	var panel: PanelContainer = _character_inventory_rows.take_panel("magic", _character_row_common_input(), func() -> PanelContainer:
-		var created := preload("res://scripts/character_menu_view.gd").column("MagicInventoryPanel", 400.0, "LEARNED MAGIC")
-		preload("res://scripts/character_menu_view.gd").scroll_list(created, "", "MagicInventoryRows")
-		return created
-	, keep_parent)
-	_refresh_character_column_header(panel, "LEARNED MAGIC", str(reserve.size()))
-	_magic_inventory_drop_panel = panel
-	var slots: VBoxContainer = panel.find_child("MagicInventoryRows", true, false) as VBoxContainer
-	var rows: Array[Control]
-	if reserve.is_empty(): rows.append(_character_empty_row(slots, "No learned magic"))
-	else:
-		for index: int in range(reserve.size()): rows.append(_build_magic_card_tile(str(reserve[index]), "inventory", index, "magic/inventory/%d" % index))
-	for index: int in range(rows.size()): _place_character_row(slots, rows[index], index)
-	_finish_character_rows(slots, rows)
+	_refresh_character_column_header(panel, "MAGIC IN DECK", "%d spells" % magic.size())
+	var list: VBoxContainer = panel.find_child("MagicAttunedRows", true, false)
+	_magic_attuned_tiles = preload("res://scripts/magic_deck_list.gd").populate(self, list, magic, Callable(), true)
+	_magic_inventory_tiles.clear()
 	return panel
 
 func _build_current_deck_column(keep_parent: bool = false) -> Control:
@@ -30347,7 +30313,7 @@ func _build_current_deck_column(keep_parent: bool = false) -> Control:
 	var scroll: ScrollContainer = panel.find_children("*", "ScrollContainer", true, false)[0] as ScrollContainer
 	var list: VBoxContainer = scroll.get_child(0) as VBoxContainer
 	var groups: Array[Control]
-	groups.append(_character_deck_group("magic", "Attuned Magic %d/%d" % [mini(attuned.size(), GameData.magic_loadout_limit()), GameData.magic_loadout_limit()], "", attuned, _build_attuned_magic_deck_group.bind(attuned)))
+	if _progression_overlay_mode != "magic": groups.append(_character_deck_group("magic", "MAGIC IN DECK", "", attuned, _build_attuned_magic_deck_group.bind(attuned)))
 	groups.append(_character_deck_group("items", "Items %d/%d" % [mini(items.size(), GameData.item_loadout_limit()), GameData.item_loadout_limit()], "", items, _build_equipped_items_deck_group.bind(items)))
 	for slot: String in GameData.equipment_slots():
 		var equipment_id: String = str(equipped.get(slot, ""))
@@ -30410,7 +30376,7 @@ func _begin_hidden_character_view(dialog: PanelContainer, mode: String, bindings
 	if mode == "equipment":
 		columns.assign([_build_equipment_character_column, _build_equipment_inventory_column, _build_current_deck_column])
 	else:
-		columns.assign([_build_magic_attuned_column, _build_magic_inventory_column, _build_current_deck_column])
+		columns.assign([_build_magic_attuned_column, _build_current_deck_column])
 	for column: Callable in columns:
 		jobs.append(_append_hidden_character_column.bind(dialog, mode, bindings, body, column))
 	jobs.append(_finish_hidden_character_view.bind(dialog))
@@ -30460,7 +30426,6 @@ func _character_row_preparation_jobs(mode: String = "") -> Array[Callable]:
 	var common: Array = _character_row_common_input()
 	var can_gear: bool = _run_engine.can_change_equipment(_run_state)
 	var can_items: bool = _run_engine.can_change_items(_run_state)
-	var can_magic: bool = _run_engine.can_change_magic(_run_state)
 	var copies: Dictionary = {}
 	if mode.is_empty() or mode == "equipment":
 		for id: String in _equipment_inventory_ids():
@@ -30475,14 +30440,6 @@ func _character_row_preparation_jobs(mode: String = "") -> Array[Callable]:
 				var id: String = str(items[index]) if index < items.size() else ""
 				var input: Array = [id, GameData.card_def(id), GameData.item_icon_path(id), source_kind, index, can_items, _run_engine.loadout_asset_is_new(_run_state, "equipment", id), common]
 				jobs.append(_character_inventory_rows.prepare.bind(_upgrade_dialog, "item/%s/%d" % [source_kind, index], input, _new_item_card_tile.bind(id, source_kind, index, can_items, false), _character_row_can_retain))
-	if mode.is_empty() or mode == "magic":
-		for source_kind: String in ["inventory", "attuned"]:
-			var cards: Array = _run_state.get("magic_inventory" if source_kind == "inventory" else "attuned_magic_cards", []) as Array
-			var count: int = cards.size() if source_kind == "inventory" else GameData.magic_loadout_limit()
-			for index: int in range(count):
-				var id: String = str(cards[index]) if index < cards.size() else ""
-				var input: Array = [id, GameData.card_def(id), source_kind, index, can_magic, _run_engine.loadout_asset_is_new(_run_state, "magic", id), common]
-				jobs.append(_character_inventory_rows.prepare.bind(_upgrade_dialog, "magic/%s/%d" % [source_kind, index], input, _new_magic_card_tile.bind(id, source_kind, index, can_magic, false), _character_row_can_retain))
 	return jobs
 
 func _current_character_row_keys() -> Array[String]:
@@ -30494,8 +30451,7 @@ func _current_character_row_keys() -> Array[String]:
 		copies[id] = occurrence + 1
 	for index: int in range(_item_inventory_ids().size()): keys.append("item/inventory/%d" % index)
 	for index: int in range(GameData.item_loadout_limit()): keys.append("item/equipped/%d" % index)
-	for index: int in range(GameData.magic_loadout_limit()): keys.append("magic/attuned/%d" % index)
-	for index: int in range((_run_state.get("magic_inventory", []) as Array).size()): keys.append("magic/inventory/%d" % index)
+	for entry: Dictionary in preload("res://scripts/magic_deck_list.gd").entries(_run_state.get("attuned_magic_cards", [])): keys.append("magic/deck/" + str(entry["card_id"]))
 	var equipped: Dictionary = _run_state.get("equipped_equipment", {}) as Dictionary
 	for mode: String in ["equipment", "magic"]:
 		keys.append("deck/" + mode + "/magic")
@@ -30514,10 +30470,10 @@ func _character_view_can_retain(dialog: Control, mode: String) -> bool:
 	var frame: Control = dialog.find_child("CharacterBodyFrame", true, false) as Control
 	if frame == null or frame.get_child_count() != 1: return false
 	var body: HBoxContainer = frame.get_child(0) as HBoxContainer
-	if body == null or body.get_child_count() != 3: return false
+	if body == null or body.get_child_count() != (3 if mode == "equipment" else 2): return false
 	var expected: Array[String]
 	if mode == "equipment": expected.assign(["EquipmentLoadoutPanel", "EquipmentInventoryPanel", "CurrentDeckPanel"])
-	else: expected.assign(["MagicAttunedPanel", "MagicInventoryPanel", "CurrentDeckPanel"])
+	else: expected.assign(["MagicAttunedPanel", "CurrentDeckPanel"])
 	for index: int in range(expected.size()):
 		if body.get_child(index).name != expected[index]: return false
 	return _character_dialog_can_retain(dialog)
@@ -30576,7 +30532,7 @@ func _build_equipment_deck_group(equipment_id: String, heading: String) -> Contr
 	return preload("res://scripts/character_menu_view.gd").deck_group(heading.to_upper(), str(GameData.equipment_def(equipment_id).get("name", equipment_id)), GameData.equipment_cards(equipment_id, _run_state), self)
 
 func _build_attuned_magic_deck_group(attuned_card_ids: Array) -> Control:
-	return preload("res://scripts/character_menu_view.gd").deck_group("Attuned Magic %d/%d" % [mini(attuned_card_ids.size(), GameData.magic_loadout_limit()), GameData.magic_loadout_limit()], "", attuned_card_ids, self)
+	return preload("res://scripts/character_menu_view.gd").deck_group("MAGIC IN DECK", "", attuned_card_ids, self)
 
 func _build_equipped_items_deck_group(item_card_ids: Array) -> Control:
 	return preload("res://scripts/character_menu_view.gd").deck_group("Items %d/%d" % [mini(item_card_ids.size(), GameData.item_loadout_limit()), GameData.item_loadout_limit()], "", item_card_ids, self)
@@ -30607,9 +30563,8 @@ func _new_magic_card_tile(card_id: String, source_kind: String, index: int, can_
 		return tile
 	tile.focus_mode = Control.FOCUS_ALL
 	tile.tooltip_text = "card:%s" % card_id
-	tile.mouse_default_cursor_shape = Control.CURSOR_DRAG if can_change else Control.CURSOR_ARROW
+	tile.mouse_default_cursor_shape = Control.CURSOR_ARROW
 	var strip := Menu.strip_content(card_id, 1, 34.0)
-	strip.locked = not can_change
 	tile.add_child(strip)
 	_configure_controller_loadout_focus(tile, UiPalette.GOLD)
 	if register_row:
@@ -31028,181 +30983,28 @@ func _pulse_equipment_slot(slot: String) -> void:
 	tween.tween_property(panel, "scale", Vector2(1.035, 1.035), 0.08).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	tween.tween_property(panel, "scale", Vector2.ONE, 0.14).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
-func _begin_magic_overlay_drag(source_kind: String, index: int, card_id: String, source_rect: Rect2, source_control: Control = null, mouse_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
-	if card_id.is_empty() or not _magic_overlay_can_change():
-		return
-	if not (source_kind in ["attuned", "inventory"]):
-		return
-	if not _magic_drag_card_id.is_empty():
-		_clear_magic_drag_state(true)
-	_magic_drag_source_kind = source_kind
-	_magic_drag_index = index
-	_magic_drag_card_id = card_id
-	_magic_drag_source_rect = source_rect
-	_magic_drag_source_control = source_control
-	_magic_drag_last_mouse_position = mouse_position
-	if _node_is_alive(_magic_drag_source_control):
-		_magic_drag_source_control.modulate = Color(1.0, 1.0, 1.0, 0.34)
-	_spawn_magic_held_proxy(card_id, mouse_position)
-	_apply_magic_drag_highlights()
+func _begin_magic_overlay_drag(_source_kind: String, _index: int, _card_id: String, _source_rect: Rect2, _source_control: Control = null, _mouse_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
+	return
 
-func _spawn_magic_held_proxy(card_id: String, mouse_position: Vector2) -> void:
-	if _equipment_fx_layer == null:
-		return
-	if _node_is_alive(_magic_held_proxy):
-		_queue_free_node_now(_magic_held_proxy)
-	var proxy_size: Vector2 = _magic_drag_source_rect.size if _magic_drag_source_rect.size.x > 0.0 and _magic_drag_source_rect.size.y > 0.0 else EQUIPMENT_DECK_BADGE_SIZE
-	_magic_held_proxy = _build_magic_card_proxy_panel(card_id, proxy_size)
-	_magic_held_proxy.name = "MagicHeldProxy"
-	_magic_held_proxy.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_magic_held_proxy.size = proxy_size
-	_magic_held_proxy.pivot_offset = proxy_size * 0.5
-	_magic_held_proxy.modulate = Color(1.0, 1.0, 1.0, 0.84)
-	_magic_held_proxy.z_index = 22
-	_equipment_fx_layer.add_child(_magic_held_proxy)
-	_update_magic_overlay_drag(mouse_position)
-
-func _build_magic_card_proxy_panel(card_id: String, proxy_size: Vector2) -> PanelContainer:
-	var card: Dictionary = GameData.card_def(card_id)
-	var accent: Color = ElementData.accent(GameData.card_element(card_id))
-	return _build_loadout_card_proxy_panel(proxy_size, accent, _build_card_art_badge_content(card, accent, str(card.get("name", card_id))))
-
-func _update_magic_overlay_drag(mouse_position: Vector2) -> void:
-	if _magic_drag_card_id.is_empty() or not _node_is_alive(_magic_held_proxy):
-		return
-	var local_mouse: Vector2 = mouse_position
-	if local_mouse.x < 0.0 or local_mouse.y < 0.0:
-		local_mouse = _current_mouse_position()
-	_magic_drag_last_mouse_position = local_mouse
-	_magic_held_proxy.position = local_mouse + MAGIC_DRAG_CURSOR_OFFSET - _magic_held_proxy.size * 0.5 - _equipment_fx_layer.global_position
-
-func _release_magic_overlay_drag(mouse_position: Vector2) -> void:
-	if _magic_drag_card_id.is_empty() or _magic_drag_release_in_progress:
-		return
-	_magic_drag_release_in_progress = true
-	_update_magic_overlay_drag(mouse_position)
-	var target: Dictionary = _magic_drop_target_for_release(mouse_position)
-	if not target.is_empty() and _magic_drag_can_swap_with(target):
-		var inventory_index: int = int(target.get("index", -1)) if str(target.get("source_kind", "")) == "inventory" else _magic_drag_index
-		var attuned_index: int = int(target.get("index", -1)) if str(target.get("source_kind", "")) == "attuned" else _magic_drag_index
-		var target_rect: Rect2 = _magic_tile_rect(str(target.get("source_kind", "")), int(target.get("index", -1)))
-		if _node_is_alive(_magic_held_proxy) and target_rect.size.x > 0.0 and target_rect.size.y > 0.0:
-			await _animate_magic_proxy_to_rect(_magic_held_proxy, target_rect, 0.10)
-		await _swap_magic_from_overlay(inventory_index, attuned_index)
-		return
-	await _cancel_magic_overlay_drag(true)
-
-func _cancel_magic_overlay_drag(animate: bool = true) -> void:
-	if _magic_drag_card_id.is_empty():
-		return
-	var proxy: Control = _magic_held_proxy
-	if animate and _node_is_alive(proxy) and _magic_drag_source_rect.size.x > 0.0 and _magic_drag_source_rect.size.y > 0.0:
-		await _animate_magic_proxy_to_rect(proxy, _magic_drag_source_rect, 0.12)
-	_clear_magic_drag_state(true)
-
-func _clear_magic_drag_state(restore_source: bool) -> void:
-	_magic_drag_release_in_progress = false
-	if restore_source and _node_is_alive(_magic_drag_source_control):
-		_magic_drag_source_control.modulate = Color.WHITE
-	if _node_is_alive(_magic_held_proxy):
-		_queue_free_node_now(_magic_held_proxy)
-	_magic_held_proxy = null
-	_magic_drag_source_kind = ""
-	_magic_drag_index = -1
-	_magic_drag_card_id = ""
-	_magic_drag_source_rect = Rect2()
-	_magic_drag_source_control = null
-	_magic_drag_last_mouse_position = Vector2(-1.0, -1.0)
-	_apply_magic_drag_highlights()
-
+# The item drag still shares this geometry-only proxy animation helper.
 func _animate_magic_proxy_to_rect(proxy: Control, global_target_rect: Rect2, duration: float) -> void:
-	if proxy == null or global_target_rect.size.x <= 0.0 or global_target_rect.size.y <= 0.0:
-		return
+	if proxy == null or global_target_rect.size.x <= 0.0 or global_target_rect.size.y <= 0.0: return
 	var tween: Tween = create_tween().set_parallel(true)
 	_animate_equipment_proxy_to_rect(tween, proxy, global_target_rect, duration)
 	await tween.finished
 
-func _magic_drag_can_swap_with(target: Dictionary) -> bool:
-	var target_kind: String = str(target.get("source_kind", ""))
-	var target_index: int = int(target.get("index", -1))
-	if _magic_drag_source_kind.is_empty() or target_kind.is_empty() or target_index < 0:
-		return false
-	if _magic_drag_source_kind == target_kind:
-		return false
-	return (_magic_drag_source_kind == "inventory" and target_kind == "attuned") or (_magic_drag_source_kind == "attuned" and target_kind == "inventory")
+func _update_magic_overlay_drag(_mouse_position: Vector2) -> void:
+	return
 
-func _magic_tile_at(mouse_position: Vector2) -> Dictionary:
-	for index_var: Variant in _magic_attuned_tiles.keys():
-		var index: int = int(index_var)
-		var tile: Control = _magic_tile_control("attuned", index)
-		if tile != null and tile.get_global_rect().has_point(mouse_position):
-			return {"source_kind": "attuned", "index": index}
-	for index_var: Variant in _magic_inventory_tiles.keys():
-		var index: int = int(index_var)
-		var tile: Control = _magic_tile_control("inventory", index)
-		if tile != null and tile.get_global_rect().has_point(mouse_position):
-			return {"source_kind": "inventory", "index": index}
-	return {}
+func _release_magic_overlay_drag(_mouse_position: Vector2) -> void:
+	return
 
-func _magic_drop_target_for_release(mouse_position: Vector2) -> Dictionary:
-	var target: Dictionary = _magic_tile_at(mouse_position)
-	if not target.is_empty():
-		return target
-	if _magic_drag_last_mouse_position.x >= 0.0 and _magic_drag_last_mouse_position.y >= 0.0:
-		target = _magic_tile_at(_magic_drag_last_mouse_position)
-		if not target.is_empty():
-			return target
-	if not _node_is_alive(_magic_held_proxy):
-		return {}
-	var proxy_rect: Rect2 = _magic_held_proxy.get_global_rect()
-	var best_target: Dictionary = {}
-	var best_overlap: float = 0.0
-	for source_kind: String in ["attuned", "inventory"]:
-		var tiles: Dictionary = _magic_attuned_tiles if source_kind == "attuned" else _magic_inventory_tiles
-		for index_var: Variant in tiles.keys():
-			var index: int = int(index_var)
-			var candidate: Dictionary = {"source_kind": source_kind, "index": index}
-			if not _magic_drag_can_swap_with(candidate):
-				continue
-			var tile: Control = _magic_tile_control(source_kind, index)
-			if tile == null:
-				continue
-			var overlap: float = _rect_overlap_area(proxy_rect, tile.get_global_rect())
-			if overlap > best_overlap:
-				best_overlap = overlap
-				best_target = candidate
-	if not best_target.is_empty():
-		return best_target
-	return _magic_panel_fallback_target(mouse_position, proxy_rect)
+func _cancel_magic_overlay_drag(_animate: bool = true) -> void:
+	_clear_magic_drag_state(true)
 
-func _magic_panel_fallback_target(mouse_position: Vector2, proxy_rect: Rect2) -> Dictionary:
-	var target_kind: String = "attuned" if _magic_drag_source_kind == "inventory" else "inventory"
-	var panel: Control = _magic_attuned_drop_panel if target_kind == "attuned" else _magic_inventory_drop_panel
-	if panel == null or not is_instance_valid(panel):
-		return {}
-	var panel_rect: Rect2 = panel.get_global_rect()
-	var overlaps_panel: bool = panel_rect.has_point(mouse_position) or _rect_overlap_area(proxy_rect, panel_rect) > 0.0
-	if not overlaps_panel:
-		return {}
-	return _nearest_magic_tile_target(target_kind, proxy_rect.get_center())
-
-func _nearest_magic_tile_target(source_kind: String, point: Vector2) -> Dictionary:
-	var tiles: Dictionary = _magic_attuned_tiles if source_kind == "attuned" else _magic_inventory_tiles
-	var best_target: Dictionary = {}
-	var best_distance: float = 1.0e20
-	for index_var: Variant in tiles.keys():
-		var index: int = int(index_var)
-		var candidate: Dictionary = {"source_kind": source_kind, "index": index}
-		if not _magic_drag_can_swap_with(candidate):
-			continue
-		var tile: Control = _magic_tile_control(source_kind, index)
-		if tile == null:
-			continue
-		var distance: float = point.distance_squared_to(tile.get_global_rect().get_center())
-		if distance < best_distance:
-			best_distance = distance
-			best_target = candidate
-	return best_target
+func _clear_magic_drag_state(_restore_source: bool) -> void:
+	_magic_drag_card_id = ""
+	_magic_drag_release_in_progress = false
 
 func _rect_overlap_area(a: Rect2, b: Rect2) -> float:
 	var left: float = maxf(a.position.x, b.position.x)
@@ -31226,22 +31028,6 @@ func _magic_tile_control(source_kind: String, index: int) -> Control:
 	if typeof(tile_var) != TYPE_OBJECT or not is_instance_valid(tile_var) or not (tile_var is Control):
 		return null
 	return tile_var as Control
-
-func _apply_magic_drag_highlights() -> void:
-	for source_kind: String in ["attuned", "inventory"]:
-		var tiles: Dictionary = _magic_attuned_tiles if source_kind == "attuned" else _magic_inventory_tiles
-		for index_var: Variant in tiles.keys():
-			var index: int = int(index_var)
-			var tile: Control = _magic_tile_control(source_kind, index)
-			if tile == null:
-				continue
-			var can_receive: bool = not _magic_drag_card_id.is_empty() and _magic_drag_source_kind != source_kind
-			tile.set_meta("character_swap_target", can_receive)
-			preload("res://scripts/character_menu_view.gd").sync_tile(tile, tile.has_focus(), _controller_magic_tile_is_selected(tile))
-			if _magic_drag_source_kind == source_kind and _magic_drag_index == index:
-				tile.modulate = Color(1.0, 1.0, 1.0, 0.34)
-			else:
-				tile.modulate = Color.WHITE if can_receive or _magic_drag_card_id.is_empty() else Color(0.72, 0.72, 0.72, 1.0)
 
 func _begin_item_overlay_drag(source_kind: String, index: int, card_id: String, source_rect: Rect2, source_control: Control = null, mouse_position: Vector2 = Vector2(-1.0, -1.0)) -> void:
 	if card_id.is_empty() or not _item_overlay_can_change():
@@ -31438,7 +31224,7 @@ func _on_controller_loadout_focus_changed(tile: PanelContainer, focused: bool) -
 	_refresh_controller_prompts()
 
 func _show_controller_loadout_tooltip(tile: Control) -> void:
-	if not _controller_is_active() or _upgrade_scrim == null or not _upgrade_scrim.visible:
+	if not _controller_is_active() or (_upgrade_scrim == null or not _upgrade_scrim.visible) and not is_instance_valid(_magic_purge_overlay):
 		return
 	var tooltip: Control
 	if tile is EquipmentTooltipPanelContainer:
@@ -31458,11 +31244,12 @@ func _show_controller_loadout_tooltip(tile: Control) -> void:
 	_controller_loadout_tooltip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_controller_loadout_tooltip.z_index = 80
 	_set_mouse_filter_recursive(_controller_loadout_tooltip, Control.MOUSE_FILTER_IGNORE)
-	_upgrade_scrim.add_child(_controller_loadout_tooltip)
+	var tooltip_host: Control = _magic_purge_overlay if is_instance_valid(_magic_purge_overlay) else _upgrade_scrim
+	tooltip_host.add_child(_controller_loadout_tooltip)
 	call_deferred("_position_controller_loadout_tooltip")
 
 func _restore_controller_loadout_tooltip_for_focus_owner() -> void:
-	if not _controller_is_active() or _upgrade_scrim == null or not _upgrade_scrim.visible:
+	if not _controller_is_active() or (_upgrade_scrim == null or not _upgrade_scrim.visible) and not is_instance_valid(_magic_purge_overlay):
 		return
 	var focus_owner: Control = get_viewport().gui_get_focus_owner()
 	if (
@@ -31491,7 +31278,7 @@ func _position_controller_loadout_tooltip() -> void:
 	var tooltip_size: Vector2 = _controller_loadout_tooltip.get_combined_minimum_size()
 	_controller_loadout_tooltip.size = tooltip_size
 	var anchor_rect: Rect2 = _controller_loadout_tooltip_anchor.get_global_rect()
-	var bounds: Rect2 = _upgrade_scrim.get_global_rect()
+	var bounds: Rect2 = (_magic_purge_overlay if is_instance_valid(_magic_purge_overlay) else _upgrade_scrim).get_global_rect()
 	var desired := Vector2(anchor_rect.end.x + 14.0, anchor_rect.get_center().y - tooltip_size.y * 0.5)
 	if desired.x + tooltip_size.x > bounds.end.x - 12.0:
 		desired.x = anchor_rect.position.x - tooltip_size.x - 14.0
@@ -31537,30 +31324,10 @@ func _refresh_controller_loadout_focus_styles() -> void:
 
 func _apply_controller_loadout_focus_style(tile: PanelContainer, focused: bool) -> void:
 	preload("res://scripts/character_menu_view.gd").sync_tile(tile, focused, _controller_magic_tile_is_selected(tile))
+	preload("res://scripts/magic_purge_overlay.gd").apply_selection(tile)
 
-func _controller_activate_magic_tile(source_kind: String, index: int, card_id: String) -> void:
-	if card_id.is_empty() or not _magic_overlay_can_change():
-		return
-	if _controller_magic_source_kind.is_empty():
-		_controller_magic_source_kind = source_kind
-		_controller_magic_source_index = index
-		_controller_magic_card_id = card_id
-		_refresh_controller_loadout_focus_styles()
-		_refresh_controller_prompts()
-		return
-	if _controller_magic_source_kind == source_kind:
-		if _controller_magic_source_index == index:
-			_clear_controller_magic_selection()
-			return
-		_controller_magic_source_index = index
-		_controller_magic_card_id = card_id
-		_refresh_controller_loadout_focus_styles()
-		return
-	var inventory_index: int = index if source_kind == "inventory" else _controller_magic_source_index
-	var attuned_index: int = index if source_kind == "attuned" else _controller_magic_source_index
-	_clear_controller_magic_selection(false)
-	await _swap_magic_from_overlay(inventory_index, attuned_index)
-	_schedule_controller_modal_refresh()
+func _controller_activate_magic_tile(_source_kind: String, _index: int, _card_id: String) -> void:
+	return
 
 func _clear_controller_magic_selection(refresh: bool = true) -> void:
 	_controller_magic_source_kind = ""
@@ -31579,30 +31346,8 @@ func _controller_activate_item_tile(source_kind: String, index: int) -> void:
 		await _unequip_item_from_overlay(index)
 	_schedule_controller_modal_refresh()
 
-func _swap_magic_from_overlay(inventory_index: int, attuned_index: int) -> void:
-	if not _magic_overlay_can_change():
-		_clear_magic_drag_state(true)
-		return
-	var reserve: Array = (_run_state.get("magic_inventory", []) as Array).duplicate()
-	if inventory_index < 0 or inventory_index >= reserve.size():
-		_clear_magic_drag_state(true)
-		return
-	var incoming_card_id: String = str(reserve[inventory_index])
-	_run_state = _run_engine.swap_magic_card(_run_state, inventory_index, attuned_index)
-	var attuned: Array = _run_state.get("attuned_magic_cards", []) as Array
-	if attuned_index < 0 or attuned_index >= attuned.size() or str(attuned[attuned_index]) != incoming_card_id:
-		_clear_magic_drag_state(true)
-		return
-	_play_item_equip_sfx()
-	_persist_committed_boundary("magic_attuned")
-	_analytics_log_magic_attuned(inventory_index, attuned_index, incoming_card_id)
-	_clear_magic_drag_state(false)
-	_refresh_ui()
-	_progression_overlay_mode = "magic"
-	_rebuild_progression_overlay()
-	await get_tree().process_frame
-	_pulse_magic_tile("attuned", attuned_index)
-	_schedule_controller_modal_refresh()
+func _swap_magic_from_overlay(_inventory_index: int, _attuned_index: int) -> void:
+	return
 
 func _equip_item_from_overlay(inventory_index: int, equipped_index: int = -1) -> void:
 	if _item_swap_animation_active or not _item_overlay_can_change():
@@ -31779,7 +31524,7 @@ func _item_overlay_can_change() -> bool:
 	return _progression_overlay_mode == "equipment" and _run_engine.can_change_items(_run_state)
 
 func _magic_overlay_can_change() -> bool:
-	return _progression_overlay_mode == "magic" and _run_engine.can_change_magic(_run_state)
+	return false
 
 func _magic_overlay_drag_active() -> bool:
 	return not _magic_drag_card_id.is_empty()
@@ -32938,6 +32683,7 @@ func _analytics_log_reward_choice(choice_kind: String, reward_state: Dictionary,
 		"event_id": str(reward_state.get("event_id", "")),
 		"choice_kind": choice_kind,
 		"selected_card_id": selected_card_id,
+		"destination": "deck" if choice_kind == "card" else "",
 		"offered_cards": (reward_state.get("cards", []) as Array).duplicate(true),
 		"heal_amount": int(reward_state.get("heal_amount", 0)),
 		"ember_amount": int(reward_state.get("ember_amount", 0)),
@@ -32953,17 +32699,6 @@ func _analytics_log_equipment_equipped(slot: String, previous_equipment_id: Stri
 		"equipped_equipment": (_run_state.get("equipped_equipment", {}) as Dictionary).duplicate(true),
 		"equipment_inventory": (_run_state.get("equipment_inventory", []) as Array).duplicate(true),
 		"equipment_grafts": (_run_state.get("equipment_grafts", {}) as Dictionary).duplicate(true),
-		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true)
-	})
-
-func _analytics_log_magic_attuned(inventory_index: int, attuned_index: int, card_id: String) -> void:
-	_analytics_store.write_event("magic_attuned", _analytics_context_from_states(_run_state, _combat_state, card_id), {
-		"inventory_index": inventory_index,
-		"attuned_index": attuned_index,
-		"card_id": card_id,
-		"attuned_magic_cards": (_run_state.get("attuned_magic_cards", []) as Array).duplicate(true),
-		"magic_inventory": (_run_state.get("magic_inventory", []) as Array).duplicate(true),
-		"reward_cards": (_run_state.get("reward_cards", []) as Array).duplicate(true),
 		"deck_cards": (_run_state.get("deck_cards", []) as Array).duplicate(true)
 	})
 
@@ -32984,6 +32719,7 @@ func _analytics_log_merchant_trade(action: String, merchant_kind: String, item_i
 		"merchant_kind": merchant_kind,
 		"item_id": item_id,
 		"item_kind": _analytics_merchant_item_kind(item_id),
+		"destination": "deck" if action == "buy" and _analytics_merchant_item_kind(item_id) == "magic" else "",
 		"amount": amount,
 		"held_embers_before": held_embers_before,
 		"held_embers_after": held_embers_after,
@@ -34788,3 +34524,46 @@ func _refresh_event_view() -> void:
 		_event_view.present(_run_state, _reduced_motion_enabled(), _play_sfx)
 	elif _event_view != null and _event_view.visible:
 		_event_view.dismiss()
+
+func _open_magic_purge(source: String) -> void:
+	if is_instance_valid(_magic_purge_overlay) or _animation_lock or _merchant_trade_animation_active or not _run_engine.can_purge_magic(_run_state, source): return
+	_layout_progression_dialog()
+	_magic_purge_overlay = preload("res://scripts/magic_purge_overlay.gd").new()
+	ui_root.add_child(_magic_purge_overlay)
+	_magic_purge_overlay.z_as_relative = false
+	_magic_purge_overlay.z_index = _scavenger_shop_view.z_index + 1
+	_magic_purge_overlay.configure(self, _run_state, source, _upgrade_dialog.size)
+	_magic_purge_overlay.confirmed.connect(_confirm_magic_purge)
+	_magic_purge_overlay.closed.connect(_close_magic_purge)
+	_schedule_controller_modal_refresh()
+
+func _close_magic_purge(refresh: bool = true) -> void:
+	_clear_controller_loadout_tooltip()
+	if is_instance_valid(_magic_purge_overlay):
+		_magic_purge_overlay.get_parent().remove_child(_magic_purge_overlay)
+		_magic_purge_overlay.queue_free()
+	_magic_purge_overlay = null
+	if refresh: _refresh_ui()
+	_schedule_controller_modal_refresh()
+
+func _confirm_magic_purge(card_id: String, source: String) -> void:
+	var before: Dictionary = _run_state
+	var next: Dictionary = _run_engine.purge_magic_card(before, card_id, source)
+	if int(next.get("magic_purges_this_run", 0)) == int(before.get("magic_purges_this_run", 0)):
+		_magic_purge_overlay.get("_confirm").disabled = false
+		return
+	var persisted: Dictionary = _persist_run_state_snapshot(next, false, "magic_purged")
+	if not bool(persisted.get("saved", false)):
+		_magic_purge_overlay.get("_confirm").disabled = false
+		push_error("Could not persist magic purge; ownership and Embers are unchanged.")
+		return
+	_run_state = next
+	_ensure_sfx_bank()
+	_sfx_router.card_exhaust()
+	_analytics_store.write_event("magic_purged", _analytics_context_from_states(next, _combat_state, card_id), {
+		"card_id": card_id, "source": source, "price": next["last_magic_purge"]["price"],
+		"purge_index": next["magic_purges_this_run"], "held_embers_before": _run_engine.held_embers(before),
+		"held_embers_after": _run_engine.held_embers(next), "deck_cards": next["deck_cards"].duplicate(),
+		"attuned_magic_cards": next["attuned_magic_cards"].duplicate(),
+	})
+	_close_magic_purge()

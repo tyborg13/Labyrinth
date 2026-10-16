@@ -66,7 +66,6 @@ const RELIC_RARITY_OFFER_WEIGHTS := {
 }
 const CARD_RARITY_TIERS: Array[String] = ["common", "rare", "epic", "legendary"]
 const EQUIPMENT_SLOTS: Array[String] = ["weapon", "offhand", "armor", "boots", "trinket"]
-const MAGIC_LOADOUT_LIMIT: int = 6
 const ITEM_LOADOUT_LIMIT: int = 2
 const STARTING_MAGIC_CARDS: Array[String] = [
 	"pale_spark",
@@ -224,11 +223,16 @@ static func _raw_card_def_for_progression(card_id: String, progression: Dictiona
 static func starting_deck() -> Array:
 	return compile_deck_cards(starting_equipped_equipment(), starting_magic_cards())
 
-static func magic_loadout_limit() -> int:
-	return MAGIC_LOADOUT_LIMIT
-
 static func item_loadout_limit() -> int:
 	return ITEM_LOADOUT_LIMIT
+
+static func magic_card_is_purgeable(card_id: String) -> bool:
+	# Ownership is checked by RunEngine; equipment-granted and item cards never
+	# become removal candidates even if a malformed save lists them as magic.
+	if card_def(card_id).is_empty() or card_is_item(card_id): return false
+	for equipment_id: String in equipment_ids():
+		if equipment_cards(equipment_id).has(card_id): return false
+	return true
 
 static func starting_magic_cards() -> Array:
 	return STARTING_MAGIC_CARDS.duplicate()

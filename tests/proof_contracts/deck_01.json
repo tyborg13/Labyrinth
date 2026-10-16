@@ -1,0 +1,38 @@
+{
+  "min_images": 6,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*/1920x1080_ui100/character_magic_14.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080_ui100/scavenger_purge_service.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080_ui100/scavenger_purge_list.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080_ui100/scavenger_purge_confirm.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080_ui100/campfire_choice.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080_ui100/campfire_purge_confirm.png",
+      "width": 1920,
+      "height": 1080
+    }
+  ]
+}
