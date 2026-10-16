@@ -56,7 +56,7 @@
 | art-07 | Tone max_chroma filter + palette_match keeps bright/accent-hue pixels (lancer blade, wisp cores greyed) + art-06 leftovers | merged (Codex signoff 66018ccab) | codex/peer-benchmark | briefs/art-07.md |
 | anim-02 | Static idle review fixes (jitter-safe lanes, sticky lanes + in-place sync, glow redraw test, instrumentation out of runtime) — continues anim-01 (session stuck replaying) | dropped (with anim-01) | codex/anim-01 | briefs/anim-02.md |
 | rr-03 | Gust Shrike cutout rig from its maquette (idle/move/dive/talon rake/hover/hit/death) | merged f411c09a9 with qa-06 (Codex signoff 7d39578e6) | codex/peer-benchmark | briefs/rr-03.md |
-| demo-01 | Scripted demo clips with game audio (21 clips, 3 reels: pixel FX, hit-sound sync, lightning trap + Briar Weaver) | fixing r7 (real renderer + MJPEG writer) | codex/peer-benchmark | briefs/demo-01.md |
+| demo-01 | Scripted demo clips with game audio (21 clips, 3 reels: pixel FX, hit-sound sync, lightning trap + Briar Weaver) | merged (Codex signoff 19d324d38) | codex/peer-benchmark | briefs/demo-01.md |
 | qa-06 | Gust Shrike proof hardening: bone-level signed motion check; production capture without pose seeking (split from rr-03) | merged f411c09a9 (Codex signoff 7d39578e6) | codex/rr-03 | briefs/qa-06.md |
 | mq-02 | Sculpted maquettes fitted to source art: NumPy geometry + rasteriser, limb/torso/shell/cloak/smooth primitives, fit tool + gate, lancer r2 | running | codex/peer-benchmark | briefs/mq-02.md |
 | ux-05 | Previews mark destruction (terrain, traps, illusions, lethal pull ghosts) instead of hiding it | merged (Codex signoff 156ebec72) | codex/peer-benchmark | briefs/ux-05.md |
