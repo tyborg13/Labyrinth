@@ -1,0 +1,7 @@
+{
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*_before_1920x1080_ui100.png", "min_count": 2, "width": 1920, "height": 1080, "regions": [{"rect": [390, 320, 650, 530], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "*_after_1920x1080_ui100.png", "min_count": 2, "width": 1920, "height": 1080, "regions": [{"rect": [390, 320, 650, 530], "min_luma_range": 8, "min_luma_stdev": 2}]}
+  ]
+}

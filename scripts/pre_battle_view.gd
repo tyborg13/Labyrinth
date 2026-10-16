@@ -20,6 +20,11 @@ const ThreatTags = preload("res://scripts/pre_battle_threat_tags.gd")
 const FoeCaption = preload("res://scripts/pre_battle_foe_caption.gd")
 const FoeLayout = preload("res://scripts/pre_battle_foe_layout.gd")
 const Lineup = preload("res://scripts/pre_battle_lineup.gd")
+const LiveActor = preload("res://scripts/live_actor_presentation.gd")
+const InlineText = preload("res://scripts/inline_icon_text.gd")
+# The brief specifies two lines but no gap. Keep the shared token provisional
+# until the design owner confirms spacing on the real-renderer capture.
+const OBJECTIVE_LINE_SPACING: int = Typography.SPACE_TIGHT  # Director 2026-10-16: 4 px confirmed at 1920x1080
 
 static func build(host: Node, panel: PanelContainer, room: Dictionary, combat: Dictionary, accent: Color, state: Dictionary = {}) -> void:
 	for job: Callable in build_jobs(host, panel, room, combat, accent, state): job.call()
@@ -193,20 +198,25 @@ static func build_objective(combat: Dictionary) -> Control:
 		contents.add_theme_constant_override("separation", 8)
 		plate.add_child(contents)
 		contents.add_child(icon(ObjectiveRules.icon_path(str(objective.get("type", ObjectiveRules.KILL_ALL))), 22.0, "PreBattleObjectiveIcon"))
-		var eyebrow := label("OBJECTIVE", 14, Palette.DANGER_BRIGHT.lerp(Palette.TEXT_2, 0.6), true)
-		eyebrow.name = "PreBattleObjectiveTitle"
-		eyebrow.tooltip_text = ObjectiveRules.title_for_objective(objective)
-		contents.add_child(eyebrow)
+		var copy := VBoxContainer.new()
+		copy.add_theme_constant_override("separation", OBJECTIVE_LINE_SPACING)
+		contents.add_child(copy)
+		var heading := label("OBJECTIVE · " + ObjectiveRules.title_for_objective(objective), 19)
+		heading.name = "PreBattleObjectiveTitle"
+		copy.add_child(heading)
 		var description: String = ObjectiveRules.description_for_objective(objective)
-		if description.is_empty():
-			description = ObjectiveRules.title_for_objective(objective)
-		var detail := label(description, 19)
-		detail.name = "PreBattleObjectiveDescription"
-		detail.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		# Long exit/survival rules wrap without widening the fixed outer frame.
-		detail.custom_minimum_size.x = minf(760.0, detail.get_theme_font("font").get_string_size(description, HORIZONTAL_ALIGNMENT_LEFT, -1.0, detail.get_theme_font_size("font_size")).x)
-		detail.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		contents.add_child(detail)
+		if not description.is_empty():
+			var detail := RichTextLabel.new()
+			detail.name = "PreBattleObjectiveDescription"
+			detail.fit_content = true
+			detail.scroll_active = false
+			detail.autowrap_mode = TextServer.AUTOWRAP_OFF
+			detail.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			Typography.apply_rich_text_role(detail, Typography.ROLE_CAPTION)
+			detail.add_theme_color_override("default_color", Palette.TEXT_2)
+			# Time is a glossary term; retain its word-only gold token.
+			InlineText.apply_to(detail, description.replace("time", "@kw(time|time)"))
+			copy.add_child(detail)
 	return row
 
 static func icon(path: String, diameter: float, node_name: String = "") -> TextureRect:
@@ -258,9 +268,10 @@ static func build_foes(host: Node, combat: Dictionary, state: Dictionary = {}) -
 	flow.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	flow.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.add_child(flow)
-	for enemy: Dictionary in enemies:
+	for slot: int in range(enemies.size()):
+		var enemy: Dictionary = enemies[slot]
 		var leader: bool = bool(enemy.get("is_leader", false)) or (objective.has("leader_id") and enemy.get("id", -1) == objective["leader_id"])
-		var card := build_foe(host, enemy, Vector2.ZERO, leader)
+		var card := build_foe(host, enemy, Vector2.ZERO, leader, slot, enemies.size())
 		flow.add_child(card)
 		var caption := card.get_node("PreBattleFoeCaption") as Control
 		caption.minimum_size_changed.connect(flow.queue_sort)
@@ -294,7 +305,7 @@ static func build_foes(host: Node, combat: Dictionary, state: Dictionary = {}) -
 	actions.item_rect_changed.connect(flow.queue_sort)
 	return foes
 
-static func build_foe(host: Node, enemy: Dictionary, card_size: Vector2, leader: bool = false) -> Control:
+static func build_foe(host: Node, enemy: Dictionary, card_size: Vector2, leader: bool = false, slot: int = 0, slot_count: int = 1) -> Control:
 	var card := Controls.Foe.new()
 	card.name = "PreBattleEnemyCard"
 	card.host = host
@@ -312,6 +323,10 @@ static func build_foe(host: Node, enemy: Dictionary, card_size: Vector2, leader:
 	art.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	art.stretch_mode = TextureRect.STRETCH_SCALE
 	card.add_child(art)
+	var live := LiveActor.new()
+	live.name = "PreBattleEnemyLiveActor"
+	live.configure(str(enemy.get("type", "")), art, slot, slot_count)
+	card.add_child(live)
 	var health := Controls.Plate.new()
 	health.name = "PreBattleEnemyHealth"
 	health.radius = 12.0

@@ -14,6 +14,7 @@ const HP_COLOR: Color = preload("res://scripts/ui_palette.gd").DANGER_BRIGHT
 const INITIATIVE_COLOR: Color = preload("res://scripts/ui_palette.gd").STEEL
 
 static func run(expect: Callable) -> void:
+	await preload("res://tests/suites/pre_battle_living_foes_suite.gd").run(expect)
 	var host: Node = RunSceneScript.new()
 	_test_room_umbra_summary(host, expect)
 	_test_enemy_detail_semantics(host, expect)
