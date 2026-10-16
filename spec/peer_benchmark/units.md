@@ -56,6 +56,7 @@
 | art-07 | Tone max_chroma filter + palette_match keeps bright/accent-hue pixels (lancer blade, wisp cores greyed) + art-06 leftovers | merged (Codex signoff 66018ccab) | codex/peer-benchmark | briefs/art-07.md |
 | anim-02 | Static idle review fixes (jitter-safe lanes, sticky lanes + in-place sync, glow redraw test, instrumentation out of runtime) — continues anim-01 (session stuck replaying) | running (gpt-6-astra) | codex/anim-01 | briefs/anim-02.md |
 | rr-03 | Gust Shrike cutout rig from its maquette (idle/move/dive/talon rake/hover/hit/death) | review (r3 committed 0c5faf162; native_v04 all PASS; director death r3 data; Codex review running) | codex/peer-benchmark | briefs/rr-03.md |
+| demo-01 | Scripted demo clips with game audio (21 clips, 3 reels: pixel FX, hit-sound sync, lightning trap + Briar Weaver) | running (gpt-6-astra) | codex/peer-benchmark | briefs/demo-01.md |
 | anim-01/anim-02 | Static enemy mesh-warp idle | shelved (owner: ripple + bird bounce rejected) | — | feedback.md 2026-10-15 |
 | fix-04 | Briar Weaver loses turn + intent after Thornwall (owner playtest 8) | merged 81e7f0dc9 (Codex signoff 6e3caa464) | codex/peer-benchmark | briefs/fix-04.md |
 | qa-05 | Integration: sfx sync suites fail after sfx-04 merge (interaction) | dropped: root cause = stale .godot audio imports in the integration worktree; fixed by re-import, runtime freshness workaround rejected | codex/peer-benchmark | briefs/qa-05.md |
