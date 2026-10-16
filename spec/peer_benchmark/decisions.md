@@ -52,3 +52,7 @@
 ## 2026-10-15 — ux-04 text decisions (director)
 - Keyword/term tokens render in `UiPalette.GOLD_BRIGHT`, same font/weight, no underline, everywhere (one named constant).
 - Graftwright donor result: "<Item> destroyed" ("consumed" stays reserved for the item Consume keyword).
+
+## 2026-10-16 — owner decisions
+- Self-hits from Meteorfall / Detonate stay amplified by the hero's Expose / Chilled / Frozen (owner: "Yes, I think so").
+  Only Fatigue is excluded (fix-03). No change needed.

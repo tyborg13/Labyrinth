@@ -75,3 +75,18 @@
 - Lightning trap: the electricity sound is "multiple seconds long ... outrageously long" (surface.electric_01 is 9.1 s,
   status.shock_01 3.6 s). → sfx-04 round 7: one-shot cue length caps.
 
+## 2026-10-16 — playtest 9 (owner): "this build feels really good ... we're really starting to get somewhere"
+- Asked for scripted demo clips instead of hunting cases in play (sounds, pixel FX) → demo-01.
+- Outstanding improvements list (verbatim intent):
+  1. Map: better, more interesting branching; take inspiration from Slay the Spire (partially fixed, needs more).
+  2. Some attack previews (AoE?) show enemies or destroyed terrain as already gone instead of marked to be
+     killed/destroyed — very confusing (probably not fixed).
+  3. More starting build diversity so the game is fun immediately (idea: carry one equipment piece to the next run;
+     brainstorm together).
+  4. Immolation needs innate value beyond detonation, e.g. small damage per tile hit (felt weak without setup).
+  5. Move-and-block cards need an intuitive way to not move (may be fixed).
+  6. Next-section button → automatic, with a cool transition animation from one map to the next.
+  7. Pre-battle objective text became wordy; make it concise and straightforward (it was better before).
+  8. Play enemy idle animations on the pre-battle screen (like the hero in the equipment menu).
+  9. 6 magic-slot limit: maybe drop it entirely; strict limit trivializes deckbuilding and re-equipping spells after
+     each fight is major friction (collaborate on design).
