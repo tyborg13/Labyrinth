@@ -44,8 +44,11 @@ func _ready() -> void:
 func motion_data() -> Dictionary:
 	return Motion.data_for({"motion_data": "res://assets/units/" + character_id + "_cutout/compiled_motion.json"})
 
-func walk_segment_frames(_source_distance: float) -> int:
-	return roundi(float(motion_data()["clips"]["move"]["seconds"]) * NATIVE_FPS)
+## LiveActor seeds before tree entry; use the protected compiled clock rather
+## than a second UI duration. _ready applies this phase to both loaded rigs.
+func seed_idle_phase(value: float) -> void:
+	_idle_seconds = fposmod(value, 1.0) * float(motion_data()["clips"]["idle"]["seconds"])
+	_apply_pose()
 
 func present(motion: Dictionary, reduce: bool, enabled: bool = true) -> void:
 	active = enabled
@@ -84,8 +87,8 @@ func _process(delta: float) -> void:
 
 func _apply_pose() -> void:
 	if rigs.is_empty(): return
-	var shown: String = "death" if clip == "death" else "rest" if reduced_motion else clip
-	var progress: float = 1.0 if reduced_motion and clip == "death" else 0.0 if reduced_motion else _idle_seconds / float(motion_data()["clips"]["idle"]["seconds"]) if clip == "idle" else phase
+	var shown: String = _shown_clip()
+	var progress: float = _shown_phase()
 	var signature: Array = [facing, mirrored, shown, progress, screen_pixel_scale, step_distance_px]
 	if signature == _pose_signature: return
 	_pose_signature = signature
@@ -109,8 +112,14 @@ func source_socket() -> Vector2:
 	return bone.global_position - SOURCE_OFFSET if bone != null else SOURCE_SIZE / 2.0
 
 func snapshot() -> Dictionary:
-	var progress: float = _idle_seconds / float(motion_data()["clips"]["idle"]["seconds"]) if clip == "idle" else phase
-	return {"art": character_id + "_maquette", "clip": clip, "phase": progress,
+	return {"art": character_id + "_maquette", "clip": clip, "shown_clip": _shown_clip(), "phase": _shown_phase(),
 		"facing": facing, "mirrored": mirrored, "active": active, "rig_count": rigs.size(),
+		"reduced_motion": reduced_motion,
 		"screen_pixel_scale": screen_pixel_scale, "step_distance_px": step_distance_px,
 		"texture_id": texture().get_instance_id() if texture() != null else 0}
+
+func _shown_clip() -> String:
+	return "death" if clip == "death" else "rest" if reduced_motion else clip
+
+func _shown_phase() -> float:
+	return 1.0 if reduced_motion and clip == "death" else 0.0 if reduced_motion else _idle_seconds / float(motion_data()["clips"]["idle"]["seconds"]) if clip == "idle" else phase

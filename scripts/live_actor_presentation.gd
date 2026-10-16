@@ -10,6 +10,8 @@ const Settings = preload("res://scripts/settings_store.gd")
 const Guardian = preload("res://scripts/guardian_cutout/renderer.gd")
 const Shrike = preload("res://scripts/gust_shrike_cutout/renderer.gd")
 const ShrikeMotion = preload("res://scripts/gust_shrike_cutout/motion_data.gd")
+const MaquettePresentation = preload("res://scripts/maquette_cutout_runtime/presentation.gd")
+const MaquettePortrait = preload("res://scripts/maquette_cutout_runtime/portrait.gd")
 
 static var _legacy_frames: Dictionary = {}
 var actor_type: String
@@ -49,9 +51,14 @@ func _ready() -> void:
 	if script != null:
 		renderer = script.new()
 		if Guardian.handles(actor_type): renderer.set("character_id", actor_type)
-		var cycle: float = ShrikeMotion.IDLE_SECONDS if actor_type == "gust_shrike" else float(script.get("IDLE_CYCLE_SECONDS"))
-		renderer.set("_idle_seconds", initial_phase * cycle)
+		if renderer.has_method("seed_idle_phase"):
+			renderer.call("seed_idle_phase", initial_phase)
+		else:
+			var cycle: float = ShrikeMotion.IDLE_SECONDS if actor_type == "gust_shrike" else float(script.get("IDLE_CYCLE_SECONDS"))
+			renderer.set("_idle_seconds", initial_phase * cycle)
 		add_child(renderer)
+		if MaquettePresentation.handles(actor_type):
+			still.texture = MaquettePortrait.source_texture(renderer, actor_type)
 	else:
 		_frames = legacy_frames(actor_type)
 		if not _frames.is_empty():

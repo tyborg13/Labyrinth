@@ -1,0 +1,11 @@
+{
+  "reviewed_sources": {
+    "scripts/combat_pacing.gd": "4571a6600a065a07e16f26c128eb7a7b844f796f432bd30a68501a225eeed059",
+    "scripts/run_scene.gd": "1188b31a8c7a8412b994a738933f6b1e928625857e4139d626e6be748aedf942",
+    "scripts/enemy_mechanics/bramble_view.gd": "c6d32530db2f59021ab9e86a8be89ea4812ad9455dc01e64197b5be4dec434c2"
+  },
+  "guard_fixture": {
+    "path": "weaver_reference.json.gz",
+    "sha256": "8b1bc958719aadde8732b026cc342cc5d3ebbd5b5dae14ac60d82091a94667b2"
+  }
+}

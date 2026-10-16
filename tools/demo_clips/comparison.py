@@ -36,15 +36,20 @@ def payload_hash(report):
     return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
+def _source_fingerprint(path):
+    """Hash the exact source path named by a reviewed policy."""
+    root = Path(__file__).resolve().parents[2]
+    return hashlib.sha256((root / path).read_bytes()).hexdigest()
+
+
 def presentation_exemptions(reference, points):
     """Exact reviewed frame pairs only; never grant a clip-wide timing range."""
-    root = Path(__file__).resolve().parents[2]
     cases = json.loads(POLICY_PATH.read_text())["cases"]
     applied = {}
     for case in cases:
         if case["clip"] != reference["clip"]: continue
         if case["reference_payload_sha256"] != payload_hash(reference): continue
-        if any(hashlib.sha256((root / name).read_bytes()).hexdigest() != digest
+        if any(_source_fingerprint(name) != digest
                for name, digest in case["source_sha256"].items()): continue
         reviewed = {point["item"]: point for point in case["points"]}
         for point in points:

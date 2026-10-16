@@ -1,0 +1,18 @@
+{
+  "task_id": "int-02",
+  "risk_tier": "standard",
+  "acceptance_criteria": [
+    "Board, travel, LiveActor, portraits, turn order, landing strip and inspection instantiate the maquette runtime Scripts for bile_bloomer and lightning_wisp",
+    "Both maquettes retain their approved compiled idle clocks, deterministic slot phases, registered source geometry and reduced-motion rest",
+    "The pb-01 living-foes probe contains both creatures at 1920x1080 / UI100, including idle, focus, inspection and reduced-motion captures"
+  ],
+  "inspection_expectation": "Design owner inspects the pb-01 living-foes probe run with --maquette-pack: Shale Bloomer and Lightning Wisp use the same approved rigs as the board; no layout, input, timing or art redesign",
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "mixed_idle_*.png", "min_count": 4, "width": 1920, "height": 1080, "regions": [{"rect": [390, 320, 650, 530], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "objective_*.png", "min_count": 5, "width": 1920, "height": 1080, "regions": [{"rect": [600, 245, 720, 100], "min_luma_range": 8, "min_luma_stdev": 2}]},
+    {"pattern": "controller_focus.png", "min_count": 1, "width": 1920, "height": 1080},
+    {"pattern": "inspection_still.png", "min_count": 1, "width": 1920, "height": 1080},
+    {"pattern": "reduced_motion_*.png", "min_count": 2, "width": 1920, "height": 1080}
+  ]
+}
