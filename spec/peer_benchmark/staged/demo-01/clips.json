@@ -2,7 +2,7 @@
  "_doc": "Director-authored demo clip list (demo-01). Offsets are tiles relative to the hero (+x = toward the enemies, screen-right on the default camera). 'actions' run in order; 'play' = play the card from hand with the given target tile; 'end_turn' = end the hero turn and let the enemy phase run; 'hover' = hover the named actor for the given seconds; 'tail' = seconds kept after the last visual/audio settles.",
  "defaults": {"resolution": [1920, 1080], "fps": 60, "combat_speed": "normal", "music_volume": 0.0, "other_volumes": "game defaults", "pre_roll_s": 0.6, "tail_s": 1.4, "seed": 410,
   "room": "open floor, no walls or props between actors, same depth-1 biome as the playtest-9 fixture, default combat camera, hero HP full, no surfaces or traps unless listed, hand contains only the cards the clip plays"},
- "caption_style": {"position_px": [48, 40], "title_px": 34, "subtitle_px": 24, "font": "game UI font", "color": "#EDE4D3", "shadow": "2 px #000000 at 70%", "visible_s": 2.2, "fade_out_s": 0.3},
+ "caption_style": {"position_px": [48, 930], "title_px": 34, "subtitle_px": 24, "subtitle_top_px": 974, "font": "game UI font", "color": "#EDE4D3", "shadow": "2 px #000000 at 70%", "visible_s": 2.2, "fade_out_s": 0.3},
  "reels": [
   {"id": "pixel_fx", "title": "Pixel magic effects", "clips": [
    {"id": "fire_volley", "title": "Fire — Firebrand Volley", "subtitle": "bolt, impact, Fire left behind", "enemies": [["crawler", [3, 0]]], "actions": [["play", "firebrand_volley", [3, 0]]]},
@@ -16,7 +16,7 @@
    {"id": "air_cross", "title": "Air — Squall", "subtitle": "cross burst with push", "enemies": [["crawler", [3, 0]], ["crawler", [3, 1]]], "actions": [["play", "squall_shot", [3, 0]]]},
    {"id": "earth_mortar", "title": "Earth — Grave Mortar", "subtitle": "slam around the hero, Rubble", "enemies": [["crawler", [1, 0]], ["crawler", [0, 1]]], "actions": [["play", "grave_mortar", [0, 0]]]},
    {"id": "earth_snare", "title": "Earth — Root Snare", "subtitle": "ranged snare, Rubble", "enemies": [["crawler", [3, 0]]], "actions": [["play", "root_snare", [3, 0]]]},
-   {"id": "dragon_breath", "title": "Dragon — Vyraketh's Cinder Breath", "subtitle": "fire fan on the hero", "enemies": [["vyraketh", [3, 0]]], "forced_intents": {"vyraketh": "cinderfall"}, "actions": [["end_turn"]], "note": "ends 1.4 s after the breath settles; cut before Vyraketh's next intent reveal"}
+   {"id": "dragon_breath", "title": "Dragon — Vyraketh's Cinder Breath", "subtitle": "fire fan on the hero", "enemies": [["vyraketh", [3, 0]]], "forced_intents": {"vyraketh": "cinderfall"}, "actions": [["end_turn"]], "note": "ends 1.4 s after the breath settles; Vyraketh's next intent reveal during the tail is fine and stays in"}
   ]},
   {"id": "sound_sync", "title": "Hit sounds on contact", "clips": [
    {"id": "stab_normal", "title": "Quick Stab — normal speed", "subtitle": "sound lands on contact", "enemies": [["crawler", [1, 0]]], "actions": [["play", "quick_stab", [1, 0]]]},

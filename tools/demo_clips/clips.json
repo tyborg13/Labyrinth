@@ -1,0 +1,35 @@
+{
+ "_doc": "Director-authored demo clip list (demo-01). Offsets are tiles relative to the hero (+x = toward the enemies, screen-right on the default camera). 'actions' run in order; 'play' = play the card from hand with the given target tile; 'end_turn' = end the hero turn and let the enemy phase run; 'hover' = hover the named actor for the given seconds; 'tail' = seconds kept after the last visual/audio settles.",
+ "defaults": {"resolution": [1920, 1080], "fps": 60, "combat_speed": "normal", "music_volume": 0.0, "other_volumes": "game defaults", "pre_roll_s": 0.6, "tail_s": 1.4, "seed": 410,
+  "room": "open floor, no walls or props between actors, same depth-1 biome as the playtest-9 fixture, default combat camera, hero HP full, no surfaces or traps unless listed, hand contains only the cards the clip plays"},
+ "caption_style": {"position_px": [48, 930], "title_px": 34, "subtitle_px": 24, "subtitle_top_px": 974, "font": "game UI font", "color": "#EDE4D3", "shadow": "2 px #000000 at 70%", "visible_s": 2.2, "fade_out_s": 0.3},
+ "reels": [
+  {"id": "pixel_fx", "title": "Pixel magic effects", "clips": [
+   {"id": "fire_volley", "title": "Fire — Firebrand Volley", "subtitle": "bolt, impact, Fire left behind", "enemies": [["crawler", [3, 0]]], "actions": [["play", "firebrand_volley", [3, 0]]]},
+   {"id": "fire_cross", "title": "Fire — Cinder Bloom", "subtitle": "cross burst on two enemies", "enemies": [["crawler", [2, 0]], ["crawler", [2, 1]]], "actions": [["play", "cinder_bloom", [2, 0]]]},
+   {"id": "fire_meteorfall", "title": "Fire — Meteorfall", "subtitle": "marks now, meteors land next turn", "enemies": [["crawler", [3, 0]], ["crawler", [4, 0]]], "actions": [["play", "meteorfall", [3, 0], "line toward +x"], ["end_turn"]], "note": "ends 1.4 s after the last meteor impact"},
+   {"id": "ice_bolt", "title": "Ice — Frostbolt", "subtitle": "bolt, impact, Ice left behind", "enemies": [["crawler", [3, 0]]], "actions": [["play", "frostbolt", [3, 0]]]},
+   {"id": "ice_line", "title": "Ice — Shatterline", "subtitle": "three-tile pierce", "enemies": [["crawler", [2, 0]], ["crawler", [3, 0]]], "actions": [["play", "shatterline", [2, 0], "line toward +x"]]},
+   {"id": "lightning_dart", "title": "Lightning — Spark Dart", "subtitle": "bolt, impact, Electrified", "enemies": [["crawler", [3, 0]]], "actions": [["play", "spark_dart", [3, 0]]]},
+   {"id": "lightning_chain", "title": "Lightning — Chain Bolt", "subtitle": "chains to two more enemies", "enemies": [["crawler", [3, 0]], ["crawler", [4, 1]], ["crawler", [5, 0]]], "actions": [["play", "chain_bolt", [3, 0]]]},
+   {"id": "air_pull", "title": "Air — Vacuum Line", "subtitle": "pull 3", "enemies": [["crawler", [3, 0]]], "actions": [["play", "vacuum_line", [3, 0]]]},
+   {"id": "air_cross", "title": "Air — Squall", "subtitle": "cross burst with push", "enemies": [["crawler", [3, 0]], ["crawler", [3, 1]]], "actions": [["play", "squall_shot", [3, 0]]]},
+   {"id": "earth_mortar", "title": "Earth — Grave Mortar", "subtitle": "slam around the hero, Rubble", "enemies": [["crawler", [1, 0]], ["crawler", [0, 1]]], "actions": [["play", "grave_mortar", [0, 0]]]},
+   {"id": "earth_snare", "title": "Earth — Root Snare", "subtitle": "ranged snare, Rubble", "enemies": [["crawler", [3, 0]]], "actions": [["play", "root_snare", [3, 0]]]},
+   {"id": "dragon_breath", "title": "Dragon — Vyraketh's Cinder Breath", "subtitle": "fire fan on the hero", "enemies": [["vyraketh", [3, 0]]], "forced_intents": {"vyraketh": "cinderfall"}, "actions": [["end_turn"]], "note": "ends 1.4 s after the breath settles; Vyraketh's next intent reveal during the tail is fine and stays in"}
+  ]},
+  {"id": "sound_sync", "title": "Hit sounds on contact", "clips": [
+   {"id": "stab_normal", "title": "Quick Stab — normal speed", "subtitle": "sound lands on contact", "enemies": [["crawler", [1, 0]]], "actions": [["play", "quick_stab", [1, 0]]]},
+   {"id": "stab_fastest", "title": "Quick Stab — fastest speed", "subtitle": "same hit at fastest combat speed", "combat_speed": "fastest", "enemies": [["crawler", [1, 0]]], "actions": [["play", "quick_stab", [1, 0]]]},
+   {"id": "lunge_normal", "title": "Bloody Lunge", "subtitle": "move 2, then strike", "enemies": [["crawler", [3, 0]]], "actions": [["play", "bloody_lunge", [3, 0]]]},
+   {"id": "enemy_bite", "title": "Enemy melee — Crawler", "subtitle": "enemy hit on the hero", "enemies": [["crawler", [1, 0]]], "actions": [["end_turn"]]},
+   {"id": "enemy_shot", "title": "Enemy ranged — Harrier", "subtitle": "projectile hit on the hero", "enemies": [["harrier", [3, 0]]], "actions": [["end_turn"]]},
+   {"id": "chain_fastest", "title": "Chain Bolt — fastest speed", "subtitle": "chain hits at fastest combat speed", "combat_speed": "fastest", "enemies": [["crawler", [3, 0]], ["crawler", [4, 1]], ["crawler", [5, 0]]], "actions": [["play", "chain_bolt", [3, 0]]]}
+  ]},
+  {"id": "traps_and_weaver", "title": "Lightning trap and Briar Weaver", "clips": [
+   {"id": "trap_enemy", "title": "Lightning trap — enemy steps on it", "subtitle": "buzz should stop within 1.2 s", "enemies": [["crawler", [4, 0]]], "traps": [["lightning", [2, 0]]], "actions": [["end_turn"]], "note": "the crawler's path to the hero must cross the trap tile"},
+   {"id": "trap_hero", "title": "Lightning trap — hero steps on it", "subtitle": "buzz should stop within 1.2 s", "enemies": [["crawler", [4, 2]]], "traps": [["lightning", [1, 0]]], "actions": [["play", "guarded_step", [2, 0], "path crosses the trap at [1,0]"]], "note": "if Guarded Step's 2-tile move cannot path through the trap, end the move on the trap tile instead"},
+   {"id": "weaver_thornwall", "title": "Briar Weaver — after Thornwall", "subtitle": "it keeps acting; cancelled moves show a badge", "enemies": [["briar_weaver", [3, 0]], ["crawler", [4, 2]]], "forced_intents": {"briar_weaver": "thornwall"}, "actions": [["end_turn"], ["hover", "briar_weaver", 1.8], ["end_turn"], ["hover", "briar_weaver", 1.8]], "note": "first end_turn: the Weaver casts Thornwall; afterwards its next intent (or cancelled-badge fallback) must be visible on hover and on the board"}
+  ]}
+ ]
+}
