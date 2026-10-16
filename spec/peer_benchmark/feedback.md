@@ -105,3 +105,5 @@
   vfx-01 and sfx-04 owner-verified.
 - 2026-10-16: Lightning Wisp r4 (lightning woven through the cloud, jobs mq4_front/mq4_rear): owner "New wisp looks
   great." Approved → cutout rig queue with the Shale Bloomer.
+- 2026-10-16: Gust Shrike real-time 60 fps video (idle, hop, dive, talon rake, hover, hit, death): owner "Looks very
+  good." Cutout motion approach approved → rig Shale Bloomer and Lightning Wisp the same way; then the roster.
