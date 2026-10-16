@@ -1839,7 +1839,7 @@
       "current_name": "Character and Loadout",
       "current_definition": "Equipment, attuned magic, items, relics, and skills.",
       "name": "Character",
-      "definition": "The menu for your gear, attuned magic, items and skills. Your gear, magic and items make up your deck.",
+      "definition": "The menu for your gear, magic, items and skills. Gear, magic and items form your deck.",
       "words": 19,
       "changed": true,
       "reason": "accuracy",

@@ -102,7 +102,7 @@ static func run(expect: Callable) -> void:
 
 static func _reference_copy(expect: Callable) -> void:
 	var glossary = preload("res://scripts/glossary.gd")
-	expect.call(glossary.definition("loadout") == "The menu for your gear, magic, items and skills. Your gear, magic and items make up your deck; spells go straight into it when you gain them.", "Closest glossary entry uses the director's exact deck and Purge explanation")
+	expect.call(glossary.definition("loadout") == "The menu for your gear, magic, items and skills. Gear, magic and items form your deck.", "Closest glossary entry uses the director's exact deck and Purge explanation")
 	expect.call(EventRules.MAGIC_REQUIREMENT_COPY == "Requires a spell in your deck.", "Empty spell requirement uses approved copy")
 	var obsolete := RegEx.new()
 	obsolete.compile("(?i)attun|(?:reserve|learned) magic|magic.*reserve|magic cards.*learned|(?:six|6) magic slots")
