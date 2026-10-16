@@ -3321,7 +3321,7 @@ func _coalescible_explicit_redraw_frame() -> int:
 
 func _changed_unit_presentation_actor_keys(previous: Dictionary, next: Dictionary) -> Dictionary:
 	var changed: Dictionary = {}
-	for field: String in ["unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "static_enemy_facings"]:
+	for field: String in ["unit_world_positions", "unit_footprint_world_positions", "unit_texture_origins", "unit_draw_tiles", "static_enemy_facings"]:
 		var previous_values: Dictionary = previous.get(field, {}) as Dictionary
 		var next_values: Dictionary = next.get(field, {}) as Dictionary
 		for key_var: Variant in previous_values:
@@ -3449,7 +3449,7 @@ func _queue_presentation_change_redraws(
 			"impact_actor_keys", "impact_decals", "impact_progress", "impact_strength", "combat_feel_flash", "combat_feel_flash_actor_keys":
 				impact_floor_changed = true
 				impact_changed = true
-			"static_enemy_facings", "death_animation_units", "preview_units", "unit_world_positions", "unit_footprint_world_positions", "unit_draw_tiles", "visible_enemy_ids", "umbra_action_actor_clips":
+			"static_enemy_facings", "death_animation_units", "preview_units", "unit_world_positions", "unit_footprint_world_positions", "unit_texture_origins", "unit_draw_tiles", "visible_enemy_ids", "umbra_action_actor_clips":
 				unit_movement_changed = true
 				foreground_changed = true
 				# Large-target footprint extensions share the ground overlay layer.
@@ -15378,7 +15378,11 @@ func _unit_draw_rect_for_center(unit: Dictionary, center: Vector2) -> Rect2:
 	return rect
 
 func _unit_texture_draw_rect(unit: Dictionary, center: Vector2, body_scale: float = 1.0) -> Rect2:
-	var rect: Rect2 = _unit_draw_rect_for_center(unit, center)
+	# Root-travel rigs submit their texture at the segment origin while keeping
+	# the actor center on the visible body for shadows, HP and HUD geometry.
+	var origins: Dictionary = presentation.get("unit_texture_origins", {})
+	var texture_origin: Vector2 = origins.get(str(unit.get("key", "")), center)
+	var rect: Rect2 = _unit_draw_rect_for_center(unit, texture_origin)
 	# Collapse around the logical body floor before adding transparent rig padding.
 	# Squashing the padded viewport would pull the actor below its death tile.
 	if bool(unit.get("death_animation", false)):

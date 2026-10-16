@@ -28,7 +28,9 @@ static func sync(board: Control, type: String, renderers: Dictionary) -> void:
 			board.add_child(renderer)
 			renderers[key] = renderer
 		var motion: Dictionary = (motions.get(key, {}) as Dictionary).duplicate(false)
-		if not bool(unit.get("death_animation", false)) and not player.is_empty(): motion = Facing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player.get("pos", Vector2i.ZERO))
+		# A move owns its travel direction through phase 1. Only a subsequent
+		# idle submission may turn back toward the player.
+		if str(motion.get("clip", "idle")) != "move" and not bool(unit.get("death_animation", false)) and not player.is_empty(): motion = Facing.with_idle_direction(motion, unit.get("pos", Vector2i.ZERO), player.get("pos", Vector2i.ZERO))
 		motion["screen_pixel_scale"] = board.source_pixel_scale_for_type(type)
 		var shown: bool = not presentation.has("visible_enemy_ids") or (presentation["visible_enemy_ids"] as Array).has(int(unit.get("id", -1)))
 		renderer.present(motion, bool(presentation.get("reduced_motion", false)), shown and not bool(unit.get("death_animation", false)))

@@ -1,0 +1,11 @@
+2026-10-16 13:22:08.170 godot[95483:22804602] Failure on line 688 in function id scheduleApplicationNotification(LSNotificationCode, NSWorkspaceNotificationCenter *): noErr == _LSModifyNotification(notificationID, 1, &code, 0, NULL, NULL, NULL)
+2026-10-16 13:22:08.215 godot[95483:22804603] Connection Invalid error for service com.apple.hiservices-xpcservice.
+2026-10-16 13:22:08.215 godot[95483:22804602] Error received in message reply handler: Connection invalid
+visual probe attempt failed: Godot did not initialize within 8.0 seconds: /private/tmp/labyrinth-godot-home/rr-04-1792171328093699000-95463-production_capture-1/godot.log was never created. This usually means the GUI process could not start; fix the launch/permission issue or override --startup-timeout for a known slow host.
+error: Godot did not initialize within 8.0 seconds: /private/tmp/labyrinth-godot-home/rr-04-1792171328093699000-95463-production_capture-1/godot.log was never created. This usually means the GUI process could not start; fix the launch/permission issue or override --startup-timeout for a known slow host.
+Acquired GUI render lease: /private/tmp/labyrinth-gui-render.lock
+Running visual probe:
+  namespace: rr-04-1792171328093699000-95463-production_capture-1
+  HOME: /private/tmp/labyrinth-godot-home/rr-04-1792171328093699000-95463-production_capture-1
+  command: godot --log-file /private/tmp/labyrinth-godot-home/rr-04-1792171328093699000-95463-production_capture-1/godot.log --display-driver macos --audio-driver Dummy --rendering-method mobile --rendering-driver metal --path /Users/borgerding/workspace/Labyrinth.worktrees/rr-04 --script tests/maquette_cutout/production_capture.gd -- --type lightning_wisp --output res://output/rr-04/round1/wisp-production
+Visual proof result manifest: /Users/borgerding/workspace/Labyrinth.worktrees/rr-04/output/rr-04/round1/wisp-production-result.json

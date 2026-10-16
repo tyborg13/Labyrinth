@@ -1,0 +1,155 @@
+{
+  "reviewed_head": "7aa3d17ab84f5421ed53570546b757e8f056724e",
+  "committed": false,
+  "risk_tier": "standard",
+  "findings_addressed": [
+    1,
+    2,
+    3
+  ],
+  "regressions": {
+    "baseline_failures": 58,
+    "fixed_failures": 0,
+    "checks": 1710,
+    "baseline": "final tests with reviewed production sources in a temporary symlink overlay; no checkout changes",
+    "endpoints": "both creatures, all four directions with opposing player-facing idle; Wisp real blinding_arc:move_away"
+  },
+  "verification": {
+    "baseline": {
+      "log": "baseline.txt",
+      "result_lines": [
+        "MAQUETTE CUTOUT: FAIL (1710 checks, 58 failures; headless logic only)"
+      ]
+    },
+    "focused": {
+      "log": "focused.txt",
+      "result_lines": [
+        "MAQUETTE CUTOUT: PASS (1710 checks, 0 failures; headless logic only)"
+      ]
+    },
+    "semantic_motion": {
+      "log": "semantic_motion.txt",
+      "result_lines": [
+        "Ran 7 tests in 56.774s",
+        "OK"
+      ]
+    },
+    "integration": {
+      "log": "integration.txt",
+      "result_lines": [
+        "MAQUETTE INTEGRATION: PASS (0 failures)"
+      ]
+    },
+    "ui": {
+      "log": "ui.txt",
+      "result_lines": [
+        "Ran 25 tests in 2.856s",
+        "OK"
+      ]
+    },
+    "density": {
+      "log": "density.txt",
+      "result_lines": [
+        "CHECK-OK"
+      ]
+    },
+    "art": {
+      "log": "art.txt",
+      "result_lines": [
+        "Ran 111 tests in 36.101s",
+        "OK"
+      ]
+    },
+    "shale_logic": {
+      "log": "shale_logic.txt",
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1171 frames)",
+        "MAQUETTE MOTION GATES: PASS (0 errors)"
+      ]
+    },
+    "wisp_logic": {
+      "log": "wisp_logic.txt",
+      "result_lines": [
+        "MAQUETTE PRODUCTION LOGIC: PASS (1149 frames)",
+        "MAQUETTE MOTION GATES: PASS (0 errors)"
+      ]
+    },
+    "python_full": {
+      "log": "python_full.txt",
+      "result_lines": [
+        "CHECK-OK",
+        "CHECK-OK",
+        "Ran 552 tests in 408.502s",
+        "OK (skipped=61)"
+      ]
+    },
+    "full_godot": {
+      "state": "passed",
+      "attempts": 1,
+      "exit_code": 0,
+      "log": "full_godot.txt",
+      "result_lines": [
+        "TEST RESULT: PASS \u2014 main menu resume safety",
+        "FULL SUITE RUNTIME: 789.105 seconds (budget 900 seconds)",
+        "TEST RESULT: PASS"
+      ]
+    }
+  },
+  "commands": {
+    "focused": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-04 && python3 tools/godot_task_runner.py --task-id rr-04 --timeout 180 --stream -- godot --headless --path . --script tests/maquette_cutout_test.gd",
+    "integration": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-04 && python3 tools/godot_task_runner.py --task-id rr-04 --timeout 180 --stream -- godot --headless --path . --script tests/maquette_cutout/integration_test.gd",
+    "semantic_motion": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-04 && python3 tests/test_semantic_maquette_motion.py -v",
+    "full_godot": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-04 && python3 tools/godot_task_runner.py --task-id rr-04 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd",
+    "python_full": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-04 && python3 -m unittest discover -s tests -p 'test_*.py' -v",
+    "ui": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-04 && python3 tests/test_ui_identity_lint.py",
+    "density": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-04 && python3 tools/process_board_density.py --check",
+    "art": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-04 && python3 tests/test_art_identity_gate.py",
+    "shale_logic": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-04 && python3 tools/godot_task_runner.py --task-id rr-04 --timeout 180 --stream -- godot --headless --path . --script tests/maquette_cutout/production_capture.gd -- --type bile_bloomer --output res://output/rr-04/round1/shale-logic --logic-only",
+    "shale_logic_gate": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-04 && python3 tools/maquette_cutout_gates.py --case experiments/cutouts/shale_bloomer/mq3 --production output/rr-04/round1/shale-logic/logic_frames.json --output output/rr-04/round1/shale-logic-gates.json",
+    "shale_native": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-04 && python3 tools/visual_probe_runner.py --task-id rr-04 --no-headless --display-driver macos --audio-driver Dummy --timeout 900 --expect-size 1920x1080 --proof-contract tests/maquette_cutout/shale_bloomer_production_contract.json --result-manifest output/rr-04/round1/shale-production-result.json tests/maquette_cutout/production_capture.gd -- --type bile_bloomer --output res://output/rr-04/round1/shale-production",
+    "wisp_logic": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-04 && python3 tools/godot_task_runner.py --task-id rr-04 --timeout 180 --stream -- godot --headless --path . --script tests/maquette_cutout/production_capture.gd -- --type lightning_wisp --output res://output/rr-04/round1/wisp-logic --logic-only",
+    "wisp_logic_gate": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-04 && python3 tools/maquette_cutout_gates.py --case experiments/cutouts/lightning_wisp/mq4 --production output/rr-04/round1/wisp-logic/logic_frames.json --output output/rr-04/round1/wisp-logic-gates.json",
+    "wisp_native": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-04 && python3 tools/visual_probe_runner.py --task-id rr-04 --no-headless --display-driver macos --audio-driver Dummy --timeout 900 --expect-size 1920x1080 --proof-contract tests/maquette_cutout/lightning_wisp_production_contract.json --result-manifest output/rr-04/round1/wisp-production-result.json tests/maquette_cutout/production_capture.gd -- --type lightning_wisp --output res://output/rr-04/round1/wisp-production"
+  },
+  "native_production": {
+    "attempts_per_creature": 1,
+    "native_frames_created": false,
+    "error": "Godot did not initialize within 8.0 seconds; no Godot log created; macOS window-server services unavailable",
+    "manifests": [
+      "shale_native_result.json",
+      "wisp_native_result.json"
+    ],
+    "gates": "not run: fresh native frames unavailable",
+    "owner_command": "cd /Users/borgerding/workspace/Labyrinth.worktrees/rr-04 && bash experiments/cutouts/shale_bloomer/mq3/proof/round1/production_proof.sh",
+    "owner_script_syntax_check": "bash -n: PASS",
+    "owner_script_executed": false,
+    "inspection_fixture_launch": false
+  },
+  "final_source_sha256": {
+    "scripts/bile_bloomer_cutout/renderer.gd": "4b03cef10cfb16d26bf276b667bbecd5b59f8b9de4c4b3a4d255b0fc23b84b3c",
+    "scripts/combat_board_view.gd": "13983541f6176e1a062765cf54575e8d52f5c141abe35437ef670d9cb74e9387",
+    "scripts/lightning_wisp_cutout/action.gd": null,
+    "scripts/maquette_cutout_runtime/action.gd": "1af746fc9bd5194340c9f65dbe0e576fee642c3116df4ad70ec23a1fbd3d0400",
+    "scripts/maquette_cutout_runtime/motion.gd": "53d60f8a9f5b1808273fce3ac991c5cf39fc3ec41ed9628b93a4565ce8ecd061",
+    "scripts/maquette_cutout_runtime/presentation.gd": "45c9b5223cee80b1ad79e79f4dd45ec898ec75550ac509c3e57f058f50bff62e",
+    "scripts/run_scene.gd": "7b27ac1a2faa12571ccfb13005283dee71f581dbd11730f6250d5c494ba4f962",
+    "tests/maquette_cutout/runtime_suite.gd": "8751b1da1d3a61aed8931cdfc83811da5889ff0ad383ba10788f922fa82a5d16",
+    "tests/maquette_cutout/movement_scene.gd": "587da61125102659c0ab12e9989f9bfee4d6ca82480f2868de7c38dfed512f91",
+    "tests/maquette_cutout/movement_suite.gd": "0f6d30e29c1263842a64e7fff26fe30c5af7e407869e06518870a70e853bfca2"
+  },
+  "production_code_frozen_before_full_suite": true,
+  "final_endpoint_fixture_verified_by_focused_run": true,
+  "todo_design": [],
+  "chosen_test_defaults": {
+    "settling_frames": 8,
+    "geometry_tolerance_px": 0.005,
+    "endpoint_continuity_limit_px": 1.0,
+    "enemy_origin": [
+      3,
+      3
+    ],
+    "idle_player_offset": "opposite travel direction * 2; fixture only",
+    "presentation_clock_usec": 6000
+  },
+  "preserved_untracked_output": "output/rr-04 existed before this turn; pre-existing files preserved"
+}

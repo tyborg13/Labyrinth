@@ -4,7 +4,6 @@ const UiComponentSurface = preload("res://scripts/ui_component_surface.gd")
 
 const ProtagonistCutout = preload("res://scripts/protagonist_cutout/renderer.gd")
 const LightningWispCutout = preload("res://scripts/lightning_wisp_cutout/renderer.gd")
-const LightningWispAction = preload("res://scripts/lightning_wisp_cutout/action.gd")
 const NoctyraxCutout = preload("res://scripts/noctyrax_cutout/renderer.gd")
 const VyrakethCutout = preload("res://scripts/vyraketh_cutout/renderer.gd")
 const ZekarionCutout = preload("res://scripts/zekarion_cutout/renderer.gd")
@@ -24571,15 +24570,11 @@ func _animate_enemy_phase_steps(animated_state: Dictionary, steps: Array) -> voi
 				var from_point: Vector2 = board_view.world_position_for_tile(step.get("from", Vector2i.ZERO))
 				var to_point: Vector2 = board_view.world_position_for_tile(step.get("to", Vector2i.ZERO))
 				var wisp_attack: bool = LightningWispCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
-				if wisp_attack and not MaquetteAction.handles(str(_animation_actor_unit(animated_state, step_actor_key).get("type", ""))) and str(step.get("kind", "")) == "ranged":
-					await LightningWispAction.prepare(self, animated_state, step)
 				var noctyrax_attack: bool = NoctyraxCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
 				var warden_attack: bool = WardenCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
 				var crawler_attack: bool = CrawlerCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
 				var acolyte_attack: bool = AcolyteCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
 				var bloomer_attack: bool = BileBloomerCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
-				if bloomer_attack and not MaquetteAction.handles(str(_animation_actor_unit(animated_state, step_actor_key).get("type", ""))) and str(step.get("kind", "")) == "ranged" and not _reduced_motion_enabled():
-					await _animate_bile_bloomer_preparation(animated_state, step, step_actor_key)
 				var gaoler_attack: bool = GaolerCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
 				var gust_shrike_attack: bool = GustShrikeAction.Renderer.available() and not GustShrikeAction.action_for_effect(step, _animation_actor_unit(animated_state, step_actor_key)).is_empty()
 				var cinder_droplet_attack: bool = CinderDropletCutout.uses_attack(step, _animation_actor_unit(animated_state, step_actor_key))
@@ -25267,11 +25262,7 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 			segment_to
 		)
 		if MaquetteAction.handles(actor_type):
-			presentation[actor_type + "_motion"] = {actor_key: {"clip": "move", "direction": segment_to - segment_from, "phase": t, "step_distance_px": from_point.distance_to(to_point)}}
-			# The authored root owns travel; avoid a second board interpolation.
-			var anchors: Dictionary = (presentation.get("unit_world_positions", {}) as Dictionary).duplicate(false)
-			anchors[actor_key] = from_point
-			presentation["unit_world_positions"] = anchors
+			MaquetteAction.movement_frame(presentation, actor_type, actor_key, from_point, to_point, segment_to - segment_from, t, _reduced_motion_enabled())
 		elif actor_type == "gust_shrike" and GustShrikeAction.Renderer.available():
 			presentation["gust_shrike_motion"] = {actor_key: {"clip": "move", "direction": segment_to - segment_from, "phase": t}}
 		elif player_walk:
@@ -25345,15 +25336,6 @@ func _animate_actor_along_path(display_state: Dictionary, actor_key: String, pat
 			presentation["zekarion_motion"] = {actor_key: {"clip":"walk", "direction":segment_to-segment_from,
 				"phase":(distance_before[path_index]+from_point.distance_to(to_point)*t)/source_scale/ZekarionCutout.walk_cycle_distance()}}
 		_render_board_state(display_state, presentation, true)
-	)
-
-func _animate_bile_bloomer_preparation(display_state: Dictionary, effect: Dictionary, actor_key: String) -> void:
-	# A short readable aim precedes the existing earth effect. This does not
-	# apply a step, emit an outcome, change FX phase boundaries or change targets.
-	await _play_timed_animation_frames(BileBloomerCutout.MARK_PREPARE_FRAMES, BileBloomerCutout.MARK_PREPARE_FRAME_SECONDS, func(frame: int) -> void:
-		var progress: float = float(frame) / float(BileBloomerCutout.MARK_PREPARE_FRAMES)
-		_render_board_state(display_state, {"focus_actor_keys": [actor_key],
-			"bile_bloomer_motion": {actor_key: BileBloomerCutout.preparation_motion(effect, progress)}}, true)
 	)
 
 func _umbra_movement_sample_visible(state: Dictionary, from_tile: Vector2i, to_tile: Vector2i, progress: float) -> bool:

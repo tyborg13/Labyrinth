@@ -98,6 +98,7 @@ static func run(tree: SceneTree, expect: Callable, type: String) -> void:
 	expect.call(renderer.snapshot()["clip"] == "death" and renderer.facing == facing, type + ": terminal pose/orientation held")
 	board.queue_free()
 	await tree.process_frame
+	await preload("movement_suite.gd").run(tree, expect, type)
 
 static func fixture(type: String) -> Dictionary:
 	var grid: Array = []

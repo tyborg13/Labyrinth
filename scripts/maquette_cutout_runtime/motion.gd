@@ -24,16 +24,31 @@ static func value_at(keys: Array, phase: float) -> float:
 			return lerpf(float(a["value"]), float(b["value"]), weight)
 	return float(keys[-1]["value"])
 
-static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
-	var data: Dictionary = data_for(layout)
-	if clip == "rest" or not data.get("clips", {}).has(clip): return {}
+static func channels_at(data: Dictionary, clip: String, phase: float, facing: String, step_distance_px: float) -> Dictionary:
 	var values: Dictionary = {}
 	for track: Dictionary in data["view_tracks"][facing][clip]:
 		var bone: String = str(track["bone"])
 		if not values.has(bone): values[bone] = {}
 		var value: float = value_at(track["keys"], clampf(phase, 0.0, 1.0))
-		if track["channel"] == "forward_px" and track["forward_mode"] == "fraction_of_step": value *= float(layout.get("step_distance_px", 0.0))
+		if track["channel"] == "forward_px" and track["forward_mode"] == "fraction_of_step": value *= step_distance_px
 		values[bone][track["channel"]] = value
+	return values
+
+static func translation(channels: Dictionary, forward: Vector2) -> Vector2:
+	return forward * float(channels.get("forward_px", 0.0)) + Vector2(0, -float(channels.get("lift_px", 0.0)))
+
+static func root_offset(data: Dictionary, clip: String, phase: float, direction: Vector2i, step_distance_px: float) -> Vector2:
+	var view: Dictionary = preload("res://scripts/enemy_cutout_facing.gd").direction_for_delta(direction)
+	var facing: String = view["facing"]
+	var values: Dictionary = channels_at(data, clip, phase, facing, step_distance_px)
+	var offset: Vector2 = translation(values.get("root", {}), point(data["projection"][facing]["forward"]))
+	if bool(view["mirrored"]): offset.x = -offset.x
+	return offset
+
+static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: String) -> Dictionary:
+	var data: Dictionary = data_for(layout)
+	if clip == "rest" or not data.get("clips", {}).has(clip): return {}
+	var values: Dictionary = channels_at(data, clip, phase, facing, float(layout.get("step_distance_px", 0.0)))
 	var result: Dictionary = {}
 	var joints: Dictionary = layout["joints"]
 	var forward := point(data["projection"][facing]["forward"])
@@ -45,7 +60,7 @@ static func sample_pose(clip: String, phase: float, layout: Dictionary, facing: 
 		var channels: Dictionary = values.get(bone, {})
 		var squash: float = float(channels.get("squash", 1.0))
 		var uniform: float = float(channels.get("scale", 1.0))
-		result[bone] = {"position": origin + (forward * float(channels.get("forward_px", 0.0)) + Vector2(0, -float(channels.get("lift_px", 0.0)))) / maxf(pixel_scale, 0.000001),
+		result[bone] = {"position": origin + translation(channels, forward) / maxf(pixel_scale, 0.000001),
 			"rotation": deg_to_rad(float(channels.get("raise_deg", 0.0)) + float(channels.get("lean_deg", 0.0))),
 			"scale": Vector2(uniform / squash, uniform * squash), "alpha": float(channels.get("alpha", 1.0))}
 	return result

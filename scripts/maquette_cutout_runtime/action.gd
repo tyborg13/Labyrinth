@@ -30,6 +30,15 @@ static func seconds_for(type: String, clip: String) -> float:
 static func frames_for(type: String, clip: String) -> int:
 	return maxi(1, roundi(seconds_for(type, clip) * FPS))
 
+static func movement_frame(presentation: Dictionary, type: String, key: String, origin: Vector2, target: Vector2, direction: Vector2i, phase: float, reduced: bool) -> void:
+	var step: float = origin.distance_to(target)
+	presentation[type + "_motion"] = {key: {"clip": "move", "direction": direction, "phase": phase, "step_distance_px": step}}
+	if reduced: return
+	# The live canvas contains authored root travel. Anchor only that texture at
+	# the segment origin; HUD/shadows follow the same eased/lifted body root.
+	presentation["unit_texture_origins"] = {key: origin}
+	presentation["unit_world_positions"] = {key: origin + Motion.root_offset(data_for(type), "move", phase, direction, step)}
+
 static func contact_phase(progress: float, boundary: float, contact: float) -> float:
 	if progress <= boundary: return contact * clampf(progress / maxf(boundary, 0.000001), 0.0, 1.0)
 	return lerpf(contact, 1.0, clampf((progress - boundary) / maxf(1.0 - boundary, 0.000001), 0.0, 1.0))
