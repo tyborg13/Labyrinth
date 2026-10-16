@@ -107,3 +107,5 @@
   great." Approved → cutout rig queue with the Shale Bloomer.
 - 2026-10-16: Gust Shrike real-time 60 fps video (idle, hop, dive, talon rake, hover, hit, death): owner "Looks very
   good." Cutout motion approach approved → rig Shale Bloomer and Lightning Wisp the same way; then the roster.
+- 2026-10-16: last two demo reels (full hit sounds incl. Crawler bite; lightning trap + Briar Weaver after Thornwall):
+  owner "look good" → fix-04 (Weaver) owner-verified on video.
