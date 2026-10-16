@@ -4,6 +4,8 @@ const Ground = preload("res://scripts/board_surface_rules.gd")
 
 # Display snapshots only. Never pass retained bodies/fuel back to a resolver:
 # earlier actions in a card must still consume their real simulated targets.
+# The caller supplies the information-safe forecast so hidden deaths cannot
+# change which committed bodies or positions are retained.
 static func display_state(projected: Dictionary, committed: Dictionary) -> Dictionary:
 	var shown: Dictionary = projected.duplicate(false)
 	for collection: String in ["enemies", "illusions", "terrain", "traps"]:

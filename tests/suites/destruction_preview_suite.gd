@@ -31,6 +31,7 @@ static func fixture() -> Dictionary:
 	return state
 
 static func run(expect: Callable) -> void:
+	preload("res://tests/suites/destruction_preview_privacy_suite.gd").run(expect)
 	var scene := Run.new()
 	var combat := Combat.new()
 	var before: Dictionary = fixture()

@@ -15442,20 +15442,24 @@ func _pending_card_forecast_state() -> Dictionary:
 	return _pending_card_forecast_cache
 
 func _pending_card_known_forecast_state() -> Dictionary:
-	if _animation_lock or not _pending_card_requires_confirmation() or not _unconfirmed_preview_must_preserve_umbra_information():
+	if _animation_lock or not _unconfirmed_preview_must_preserve_umbra_information():
 		return _pending_card_forecast_state()
 	if _pending_card_known_forecast_cache.is_empty():
-		# Filter hidden causes before replaying the targetless actions, not just
-		# after them: a concealed target may otherwise trigger healing or a trap.
+		# Hidden causes must not affect retained poses or cumulative feedback,
+		# including while a later action still awaits its target. Reuse the exact
+		# resolved prefix and its selected/skipped target slots, without payment.
 		var known: Dictionary = _surface_preview_information_state(_combat_state)
 		var prepared: Dictionary = _combat_engine.prepare_player_card(known, _selected_card_index, "empower" if _selected_card_empowered() else "play")
-		var preview: Dictionary = _card_preview_from_state(_card_id_for_hand_index(_selected_card_index), prepared, _pending_actions, 0)
-		_pending_card_known_forecast_cache = _combat_engine.finish_player_card(
-			preview.get("state", prepared) as Dictionary,
-			_selected_card_index,
-			_combat_engine.card_plays_spent_for_actions(_pending_actions),
-			{"play_mode": "play"}
+		_pending_card_known_forecast_cache = preload("res://scripts/combat_preview_known_forecast.gd").resolved_prefix(
+			_combat_engine, prepared, _pending_actions, _pending_action_index, _pending_selected_targets
 		)
+		if _pending_card_requires_confirmation():
+			_pending_card_known_forecast_cache = _combat_engine.finish_player_card(
+				_pending_card_known_forecast_cache,
+				_selected_card_index,
+				_combat_engine.card_plays_spent_for_actions(_pending_actions),
+				{"play_mode": "play"}
+			)
 	return _pending_card_known_forecast_cache
 
 func _pass_preview_summary() -> Dictionary:
@@ -18527,7 +18531,7 @@ func _board_display_state() -> Dictionary:
 			if cache_key != _board_preview_display_cache_key:
 				_board_preview_display_cache_key = cache_key
 				_board_preview_display_cache = _visibility_safe_preview_display_state(
-					_combat_preview_display_state(_pending_card_forecast_state()), true
+					_combat_preview_display_state(_pending_card_known_forecast_state()), true
 				)
 			return _board_preview_display_cache
 		if not _combat_state.is_empty():
@@ -34505,6 +34509,8 @@ func _append_forced_displacement_preview(result: Dictionary, before: Dictionary,
 		var path: Array[Vector2i] = _vector2i_array([from])
 		while path[-1] != to: path.append(path[-1] + step)
 		paths.append(path)
+		if int(moved.get("hp", 0)) <= 0 and _preview_umbra_is_limited(before) and not _combat_engine.is_tile_visible_to_player(_preview_information_state(before), to):
+			continue
 		illusion_ghosts.append({"key": "illusion_preview_%d" % int(illusion["id"]), "role": "illusion_preview", "type": "player", "pos": to, "hp": moved["hp"], "max_hp": moved.get("max_hp", moved["hp"]), "accent": ILLUSION_PREVIEW_FOCUS, "damage_preview_key": "illusion_%d" % int(illusion["id"]) if int(moved.get("hp", 0)) <= 0 else ""})
 	if not illusion_ghosts.is_empty():
 		var ghosts: Array = (result.get("preview_units", []) as Array).duplicate()

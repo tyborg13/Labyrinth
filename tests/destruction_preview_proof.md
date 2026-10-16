@@ -1,8 +1,61 @@
 # ux-05 implementation proof
 
-Implementation remains uncommitted on `codex/ux-05`. The design owner owns review,
+The round 1 changes remain uncommitted on `codex/ux-05`. The design owner owns review,
 inspection, commits and publication. No new art, icons, fonts, audio, card data,
 combat rules, analytics events or save fields were introduced.
+
+## Round 1 review fixes
+
+Base: `17630b1d80361882e6394c7dcc43cbfae5419d75`.
+
+1. Retention now receives the information-safe forecast. Limited-sight forecasts
+   replay the resolved action prefix from committed known information, consuming
+   the recorded selected/skipped target slots. Unresolved cards do not run future
+   actions or pay their costs. Paired concealed-trap cases cover confirmation,
+   automatic prefixes, selected prefixes, and skipped-target indexing. They compare
+   retained actor dictionaries and loss maps, plus snapshot isolation/cache reuse.
+2. Lethal illusion destination ghosts now use the same committed-sight guard as
+   enemy destination ghosts. Hollow Puppet + Skybreak Current verifies a lethal
+   wall collision at unseen `(8,3)` in heart Umbra; clear sight retains the ghost,
+   and both cases retain the original death mark.
+3. A visible/concealed illusion pair verifies that concealed illusion damage keys
+   are absent while visible losses remain. Removing the existing filter now fails
+   that assertion.
+
+Round 1 observed results:
+
+- Before fixes: `DESTRUCTION PREVIEW TEST RESULT: FAIL (15 failures)`, exit 1.
+  `/private/tmp/ux-05-r1-before.log`.
+- After fixes: `DESTRUCTION PREVIEW TEST RESULT: PASS (0 failures)`, exit 0.
+  `/private/tmp/ux-05-r1-focused.log`.
+- Removing the illusion-loss filter from the fixed code:
+  `DESTRUCTION PREVIEW TEST RESULT: FAIL (1 failures)`, exit 1.
+  `/private/tmp/ux-05-r1-illusion-filter-mutation-fixed.log`. Source restored
+  byte-for-byte after the check.
+- All 12 headless scene states: `DESTRUCTION PREVIEW PROBE: PASS (0 failures)`,
+  exit 0. `/private/tmp/ux-05-r1-probe-logic.log`.
+- UI identity tests: `Ran 25 tests in 3.067s`, `OK`; lint:
+  `PASS: UI identity lint (1602 sites within baseline + exceptions)`.
+  `/private/tmp/ux-05-r1-ui-identity.log`.
+- Full Godot suite, run once for this review round, exit 0:
+  `FULL SUITE RUNTIME: 800.260 seconds (budget 900 seconds)`,
+  `TEST RESULT: PASS`. `/private/tmp/ux-05-r1-full-suite.log`.
+
+Fresh round 1 renderer command (same 12 images listed below):
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/ux-05 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --task-id ux-05 --timeout 120 --expect-size 1920x1080 --proof-contract tests/proof_contracts/destruction_preview.json --result-manifest /private/tmp/ux-05-r1-destruction-renderer-proof.json tests/destruction_preview_probe.gd
+```
+
+The worker ran the headless `--logic-only` command again; the windowed command
+still requires the design owner's window-server session and was not attempted.
+
+New proof-only defaults are named in `destruction_preview_privacy_suite.gd`:
+100-HP enemy at `(3,3)`, concealed 1000-damage trap at `(5,3)`, expected Gale
+destination `(6,3)`, 2-HP illusion at `(4,3)` colliding at `(8,3)`, concealed
+illusion at `(8,6)`, a range-1 Move as the pending choice, and a skipped optional
+range-1, damage-1 ranged action for target-slot indexing. Production card/relic
+values are read from their existing definitions. No design placeholders were added.
 
 ## Acceptance coverage
 
