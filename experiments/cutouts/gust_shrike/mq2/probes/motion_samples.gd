@@ -30,6 +30,7 @@ func _run() -> void:
 	for path: String in paths: inputs[path] = FileAccess.get_sha256(rig.case_directory.path_join(path))
 	var records: Array[Dictionary]
 	var channel_records: Array[Dictionary]
+	var bone_records: Array[Dictionary]
 	var track_records: Dictionary = {}
 	for view: String in rig.config["layouts"]:
 		track_records[view] = {}
@@ -53,6 +54,11 @@ func _run() -> void:
 						if not phases.has(middle): phases.append(middle)
 			phases.sort()
 			for at: float in phases:
+				# Apply through the real rig before observing Bone2D transforms.
+				# Channel values alone cannot detect a downstream sign/offset bug.
+				rig.apply_pose(clip, at)
+				bone_records.append({"view": view, "clip": clip, "phase": at,
+					"bones": _bone_matrices(rig), "screen_pixel_scale": rig.sampler.call("pixel_scale", rig.layout)})
 				channel_records.append({"view": view, "clip": clip, "phase": at,
 					"values": rig.sampler.call("channel_values", tracks, at)})
 			var definition: Dictionary = rig.config["clips"][clip]
@@ -80,7 +86,7 @@ func _run() -> void:
 					"screen_pixel_scale": rig.sampler.call("pixel_scale", rig.layout)})
 	var design_errors: Array = rig.sampler.call("design_errors")
 	var report: Dictionary = {"ok": failures.is_empty(), "design_complete": design_errors.is_empty(), "design_errors": design_errors,
-		"tracks": track_records, "channel_samples": channel_records,
+		"tracks": track_records, "channel_samples": channel_records, "bone_samples": bone_records,
 		"basis": "Headless Skeleton2D transforms, no native pixels; incomplete design never passes motion gates", "inputs": inputs, "samples": records, "errors": failures}
 	var file := FileAccess.open(args[oi + 1], FileAccess.WRITE)
 	if file == null:
@@ -89,8 +95,17 @@ func _run() -> void:
 		return
 	file.store_string(JSON.stringify(report))
 	file.close()
-	print("SHRIKE MOTION SAMPLES: %s (%d poses; design complete=%s)" % ["PASS" if failures.is_empty() else "FAIL", records.size(), str(design_errors.is_empty())])
+	print("SHRIKE MOTION SAMPLES: %s (%d poses; %d authored bone poses; design complete=%s)" % ["PASS" if failures.is_empty() else "FAIL", records.size(), bone_records.size(), str(design_errors.is_empty())])
 	quit(0 if failures.is_empty() else 1)
+
+func _bone_matrices(rig: Node2D) -> Dictionary:
+	var matrices: Dictionary = {}
+	for name: String in rig.bones:
+		var bone: Bone2D = rig.bones[name]
+		var applied: Transform2D = rig.global_transform.affine_inverse() * bone.global_transform
+		_check(applied.is_finite(), "Finite authored sample/" + name)
+		matrices[name] = [applied.x.x, applied.x.y, applied.y.x, applied.y.y, applied.origin.x, applied.origin.y]
+	return matrices
 
 func _check(condition: bool, message: String) -> void:
 	if not condition and message not in failures:

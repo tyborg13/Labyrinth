@@ -8,6 +8,7 @@ const Facing = preload("res://scripts/enemy_cutout_facing.gd")
 const Fx = preload("res://scripts/attack_fx_library.gd")
 const CaptureViewport = preload("res://tests/gust_shrike_capture_viewport.gd")
 const CaptureContract = preload("res://tests/helpers/gust_shrike_capture_contract.gd")
+const CaptureScene = preload("res://tests/fixtures/gust_shrike_capture_scene.gd")
 const FIXTURE_CONTACT: float = 0.5
 const FIXTURE_LAYOUT: Dictionary = {"screen_pixel_scale": 1.0, "joints": {
 	"root": {"position": [100, 220], "parent": null},
@@ -24,6 +25,16 @@ func _initialize() -> void:
 	_run.call_deferred()
 
 func _run() -> void:
+	var proof_clock := CaptureScene.FixedClock.new()
+	proof_clock.controlled = true
+	var initial_usec: int = proof_clock.presentation_usec()
+	await process_frame
+	_expect(proof_clock.presentation_usec() == initial_usec, "Capture IO/process frames cannot advance the proof clock")
+	proof_clock.fixed_usec += CaptureScene.PROOF_STEP_USEC
+	_expect(proof_clock.presentation_usec() - initial_usec == CaptureScene.PROOF_STEP_USEC, "Capture advances elapsed time by one fixed step")
+	proof_clock.controlled = false
+	_expect(proof_clock.presentation_usec() > 0, "Uncontrolled proof clock delegates to production time")
+	proof_clock.free()
 	var director_path: String = "res://experiments/cutouts/gust_shrike/mq2/director_motion.json"
 	var director: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(director_path))
 	_expect(FileAccess.get_sha256(director_path) == Data.DIRECTOR_SHA256, "Test expectations are bound to the compiled director source")
@@ -60,6 +71,15 @@ func _run() -> void:
 		_expect(Action.action_for_effect(definition["effect"], actor) == definition["clip"], "Actual action descriptor routes " + definition["clip"])
 		_expect(Action.action_for_effect(definition["effect"], {"type": "crawler"}).is_empty(), "Other enemies retain their rendering path")
 	_expect(Action.action_for_effect({"action_type": "dive_line", "cancelled": true}, actor).is_empty(), "Cancelled Dive never triggers flight pose")
+	# Feed real effect progress through production routing before sampling the
+	# pose. Sampling Motion directly would miss a frozen production hover clock.
+	var previous_hover: Dictionary
+	for at: float in [0.0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.0]:
+		var hover: Dictionary = Action.motion_for_effect({"kind": "block"}, actor, at)
+		_expect(hover["clip"] == "hover" and is_equal_approx(hover["phase"], at), "Production hover advances with elapsed effect progress at " + str(at))
+		var applied_hover: Dictionary = Motion.sample_pose(hover["clip"], hover["phase"], FIXTURE_LAYOUT, "front")
+		if not previous_hover.is_empty(): _expect(applied_hover != previous_hover, "Consecutive production hover poses change at " + str(at))
+		previous_hover = applied_hover
 	var contact: float = Fx.feedback_start_progress({"kind": "melee", "element": "air"})
 	_expect(is_equal_approx(Action.contact_phase(contact, contact, FIXTURE_CONTACT), FIXTURE_CONTACT), "Talon contact maps to the existing effect impact")
 	var sampled_impact: float = Action.effect_contact_boundary({"kind": "melee", "element": "air"}, 6)
@@ -119,16 +139,18 @@ func _run() -> void:
 		phases.sort()
 		for at: float in phases:
 			capture_frames.append({"stage": action, "snapshot": {"clip": action, "phase": at}, "pose_sha256": action + str(at)})
-	_expect(CaptureContract.errors(capture_frames).is_empty(), "Per-action capture contract accepts distinct poses with required phases")
+	var completions: Dictionary = {"hit": {"clip": "idle"}}
+	_expect(not CaptureContract.errors(capture_frames).is_empty(), "Hit must retire through production idle")
+	_expect(CaptureContract.errors(capture_frames, completions).is_empty(), "Per-action capture contract accepts distinct poses with required phases")
 	var short_capture: Array = capture_frames.filter(func(frame: Dictionary) -> bool: return frame["stage"] != "hover" or frame["snapshot"]["phase"] == 0.0)
 	for index: int in range(100): short_capture.append({"stage": "idle", "snapshot": {"clip": "idle", "phase": 0}, "pose_sha256": "idle"})
-	_expect(not CaptureContract.errors(short_capture).is_empty(), "A large idle/global frame count cannot substitute for hover coverage")
+	_expect(not CaptureContract.errors(short_capture, completions).is_empty(), "A large idle/global frame count cannot substitute for hover coverage")
 	var frozen_capture: Array = capture_frames.duplicate(true)
 	for frame: Dictionary in frozen_capture:
 		if frame["stage"] == "move": frame["pose_sha256"] = "unchanged"
-	_expect(not CaptureContract.errors(frozen_capture).is_empty(), "Different phase labels without visible pose changes fail capture")
+	_expect(not CaptureContract.errors(frozen_capture, completions).is_empty(), "Different phase labels without visible pose changes fail capture")
 	var no_contact: Array = capture_frames.filter(func(frame: Dictionary) -> bool: return frame["stage"] != "dive" or not is_equal_approx(frame["snapshot"]["phase"], Data.CONTACT_PHASES["dive"]))
-	_expect(not CaptureContract.errors(no_contact).is_empty(), "Missing exact Dive contact fails even with six other frames")
+	_expect(not CaptureContract.errors(no_contact, completions).is_empty(), "Missing exact Dive contact fails even with six other frames")
 	var scene: Script = load("res://scripts/run_scene.gd")
 	_expect(scene != null, "Production integration parses with the unmodified runtime")
 	for error: String in failures: push_error(error)

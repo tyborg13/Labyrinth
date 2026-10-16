@@ -29,6 +29,7 @@ var _scene: Control
 var _render_viewport: SubViewport
 var _logic_only: bool = false
 var _started_usec: int = 0
+var _action_start_seconds: float = 0.0
 
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
@@ -70,25 +71,24 @@ func _run() -> void:
 	await create_timer(Renderer.Data.IDLE_SECONDS).timeout
 	_recording = false
 	await recording_finished
+	_action_start_seconds = maxf(Renderer.Data.IDLE_SECONDS, float(_frames[-1]["seconds"]) + 1.0 / RECORD_FPS)
 	_stage = "move"
-	_scene.begin_proof(_stage)
 	var path: Array[Vector2i]
 	path.assign([state["enemies"][0]["pos"], TEST_MOVE_TARGET])
-	await _scene._animate_actor_along_path(state, "enemy_1", path, {})
+	await _scene.record_action(_stage, func() -> void: await _scene._animate_actor_along_path(state, "enemy_1", path, {}))
 	for intent: String in ["dive", "talon_rake", "hover"]:
 		state = Fixtures.shrike()
 		if intent == "talon_rake": state["enemies"][0]["pos"] = TEST_MELEE_ORIGIN
 		state["enemies"][0]["intent"] = _intent(intent)
 		await _install(state)
 		_stage = intent
-		_scene.begin_proof(_stage)
 		var engine := Combat.new()
 		# Movement is proved separately; use the actual requested resolved verb.
 		var action: Dictionary = state["enemies"][0]["intent"]["actions"][-1]
 		var context: Dictionary = engine.enemy_intent_plan(state, 0)
 		var after: Dictionary = engine._resolve_enemy_action(state.duplicate(true), 0, action, null, {}, engine._dictionary_values([]), context)
 		var step: Dictionary = engine._enemy_action_step(state, after, 0, action, context)
-		await _scene._animate_enemy_phase_steps(state.duplicate(true), [step])
+		await _scene.record_action(_stage, func() -> void: await _scene._animate_enemy_phase_steps(state.duplicate(true), [step]))
 		if intent == "dive":
 			_expect(after["player"]["hp"] < state["player"]["hp"], "Dive applies its existing damage once")
 	for lethal: bool in [false, true]:
@@ -97,19 +97,19 @@ func _run() -> void:
 		if lethal: state["enemies"][0]["hp"] = 1
 		await _install(state)
 		_stage = "death" if lethal else "hit"
-		_scene.begin_proof(_stage)
 		var action: Dictionary = Data.card_def("quick_stab")["actions"][0]
 		var engine := Combat.new()
 		var target: Vector2i = state["enemies"][0]["pos"]
 		var after: Dictionary = engine.apply_player_action(state, action, target)
-		await _scene._animate_player_action_step(state, after, "quick_stab", action, target)
+		await _scene.record_action(_stage, func() -> void: await _scene._animate_player_action_step(state, after, "quick_stab", action, target))
 		_expect(int(after["enemies"][0]["hp"]) < int(state["enemies"][0]["hp"]), "Real player action produces " + _stage)
 	for clip: String in REQUIRED_CLIPS: _expect(_seen.has(clip), "Captured production clip " + clip)
-	_errors.append_array(Coverage.errors(_frames))
+	_errors.append_array(Coverage.errors(_frames, _scene.proof_completions))
 	var manifest := FileAccess.open(OUTPUT.path_join("logic_frames.json" if _logic_only else "frames.json"), FileAccess.WRITE)
 	manifest.store_string(JSON.stringify({"ok": _errors.is_empty(), "size": [1920, 1080], "ui_scale": 1.0,
 		"capture": "headless transforms ONLY" if _logic_only else "fixed SubViewport; real action callbacks with a probe frame clock",
 		"native_pixels": not _logic_only, "minimum_frames_per_action": Coverage.MIN_FRAMES,
+		"completions": _scene.proof_completions, "fixed_step_usec": CaptureScene.PROOF_STEP_USEC,
 		"frames": _frames, "clips": _seen.keys(), "errors": _errors}, "\t"))
 	manifest.close()
 	for error: String in _errors: push_error(error)
@@ -160,9 +160,13 @@ func _capture_frame() -> void:
 	var pose_hash: String = hasher.finish().hex_encode()
 	if clip != "idle" and not _frames.is_empty() and _frames[-1]["stage"] == clip:
 		var previous: Dictionary = _frames[-1]
+		# Multiple production submissions can occur at one clock tick (for
+		# example attack-to-popup handoff). Keep one sample of that phase.
+		if absf(float(snapshot["phase"]) - float(previous["snapshot"]["phase"])) <= Coverage.PHASE_EPSILON: return
 		if previous["pose_sha256"] == pose_hash:
-			# Keep the exact recovery endpoint instead of a preceding held pose.
-			if float(snapshot["phase"]) == 1.0 and float(previous["snapshot"]["phase"]) < 1.0: _frames.pop_back()
+			# Retain an actually observed authored checkpoint when nearest-pixel
+			# quantization makes its neighbour identical. Never seek a pose.
+			if _closer_checkpoint(clip, float(snapshot["phase"]), float(previous["snapshot"]["phase"])): _frames.pop_back()
 			else: return
 	var filename: String = "frame_%05d.png" % _frames.size()
 	var pose_filename: String = "pose_%05d.png" % _frames.size()
@@ -173,9 +177,15 @@ func _capture_frame() -> void:
 		_expect(pose_image.save_png(OUTPUT.path_join(pose_filename)) == OK, "Save " + pose_filename)
 		var keyframe: String = _stage + "_" + clip + ".png"
 		if not FileAccess.file_exists(OUTPUT.path_join(keyframe)): pixels.save_png(OUTPUT.path_join(keyframe))
-	_frames.append({"file": filename, "seconds": float(Time.get_ticks_usec() - _started_usec) / 1000000.0,
+	var seconds: float = float(Time.get_ticks_usec() - _started_usec) / 1000000.0 if _stage == "idle" else _action_start_seconds + _scene.proof_elapsed_seconds
+	_frames.append({"file": filename, "seconds": seconds,
 		"stage": _stage, "snapshot": snapshot, "pose_sha256": pose_hash, "pose_file": pose_filename})
 	_seen[clip] = true
+
+func _closer_checkpoint(clip: String, current: float, previous: float) -> bool:
+	for target: float in Coverage.required_phases(clip):
+		if absf(current - target) <= Coverage.phase_tolerance(clip) and absf(current - target) < absf(previous - target): return true
+	return false
 
 func _install(state: Dictionary) -> void:
 	BaseFixtures.install(_scene, state)

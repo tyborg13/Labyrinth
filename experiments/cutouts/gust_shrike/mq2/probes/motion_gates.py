@@ -234,9 +234,9 @@ def director_errors(root, samples):
     return verify(root, samples, ANGLE_TOLERANCE_DEG, PIXEL_TOLERANCE, SCALE_TOLERANCE)
 
 
-def cpu_gates(root, output):
+def cpu_gates(root, output, samples_path=None):
     config = read_json(root / "cutout.json")
-    samples = read_json(root / "proof/motion_samples.json")
+    samples = read_json(samples_path or root / "proof/motion_samples.json")
     bound_inputs(root, samples["inputs"])
     errors = source_gates(root) + sample_errors(config, samples)
     errors += director_errors(root, samples)
@@ -249,12 +249,12 @@ def cpu_gates(root, output):
     return finish(root, records, errors, output, "CPU nearest-raster diagnostic; NOT native proof")
 
 
-def native_gates(root, output):
+def native_gates(root, output, samples_path=None):
     from cutout_pipeline.proof import verify_render
     verified = verify_render(root, output)
     if not verified["ok"]: raise CutoutError(str(verified))
     config = read_json(root / "cutout.json")
-    samples = read_json(root / "proof/motion_samples.json")
+    samples = read_json(samples_path or root / "proof/motion_samples.json")
     bound_inputs(root, samples["inputs"])
     errors = source_gates(root) + sample_errors(config, samples)
     errors += director_errors(root, samples)
@@ -370,7 +370,7 @@ def native_screenshot_count(config):
         for c in config["clips"].values()))
 
 
-def capture_native(root, output, task_id, timeout=NATIVE_CAPTURE_TIMEOUT_SECONDS):
+def capture_native(root, output, task_id, timeout=NATIVE_CAPTURE_TIMEOUT_SECONDS, samples_path=None):
     """Explicit windowed director entry point; never invoked by headless gates."""
     import subprocess
     import tempfile
@@ -408,7 +408,7 @@ def capture_native(root, output, task_id, timeout=NATIVE_CAPTURE_TIMEOUT_SECONDS
         if not result["ok"] or len(candidates) != 1:
             raise CutoutError("No unique accepted native motion capture")
         collect_native_output(candidates.pop(), data_root, destination)
-    return native_gates(root, output)
+    return native_gates(root, output, samples_path)
 
 
 def collect_native_output(screenshots, data_root, destination):
@@ -441,15 +441,16 @@ def main():
     modes.add_argument('--native', type=Path)
     modes.add_argument('--capture-native', type=Path)
     parser.add_argument('--output', type=Path)
+    parser.add_argument('--samples', type=Path, help='Fresh applied-transform samples; defaults to case proof/motion_samples.json')
     parser.add_argument('--task-id', default='rr-03')
     args = parser.parse_args()
     try:
         if args.cpu:
-            result = cpu_gates(args.case, args.output or args.case / 'proof/cpu_motion_gates.json')
+            result = cpu_gates(args.case, args.output or args.case / 'proof/cpu_motion_gates.json', args.samples)
         elif args.native:
-            result = native_gates(args.case, args.native)
+            result = native_gates(args.case, args.native, args.samples)
         else:
-            result = capture_native(args.case, args.capture_native, args.task_id)
+            result = capture_native(args.case, args.capture_native, args.task_id, samples_path=args.samples)
         print('SHRIKE MOTION GATES: ' + ('PASS' if result['ok'] else 'FAIL'))
         return 0 if result['ok'] else 1
     except (CutoutError, OSError, ValueError, KeyError) as error:

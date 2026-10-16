@@ -6,6 +6,8 @@ from pathlib import Path
 from PIL import Image
 
 ACTIONS = ['move', 'dive', 'talon_rake', 'hover', 'hit', 'death']
+# Existing production clocks (FloatingCombatText / CutoutContext), not tuning.
+HIT_PHASE_SAMPLE_STEP = (1 / 60) / .36
 
 
 def errors(manifest, director):
@@ -21,8 +23,18 @@ def errors(manifest, director):
         phases = [f['snapshot']['phase'] for f in frames]
         if not all(math.isfinite(p) and 0 <= p <= 1 for p in phases): result.append(clip + ': invalid phase')
         if len(frames) < 6: result.append(clip + ': fewer than six action frames')
-        for target in [0, 1] + required[clip]:
-            if not any(abs(p - target) < 1e-6 for p in phases): result.append(clip + ': missing required phase ' + str(target))
+        targets = list(required[clip])
+        if clip in ['dive', 'hover', 'death']: targets.append(0)
+        if clip in ['move', 'talon_rake', 'hover', 'death']: targets.append(1)
+        if clip == 'dive': targets.append(contact + (1 - contact) * 5 / 6)
+        tolerance = HIT_PHASE_SAMPLE_STEP if clip == 'hit' else 1e-6
+        for target in targets:
+            if not any(abs(p - target) <= tolerance for p in phases): result.append(clip + ': missing required phase ' + str(target))
+        keys = director[clip]['flight' if clip == 'dive' else 'keys']
+        preparation_limit = min(k['t'] for k in keys if k['t'] > 0)
+        if not any(p < preparation_limit for p in phases): result.append(clip + ': missing preparation')
+        if clip == 'hit' and manifest.get('completions', {}).get(clip, {}).get('clip') != 'idle':
+            result.append(clip + ': missing production return to idle')
         boundary = contact if clip == 'dive' else director['talon_rake']['contact_phase'] if clip == 'talon_rake' else .5
         if not any(boundary < p < 1 for p in phases): result.append(clip + ': missing recovery')
         for before, after in zip(frames, frames[1:]):

@@ -1,5 +1,7 @@
 """rr-03 pipeline failures and exact-registration contracts (no renderer)."""
 import importlib.util
+import copy
+import json
 from pathlib import Path
 import sys
 import tempfile
@@ -27,16 +29,88 @@ Gates = module("rr03_motion_gates", CASE / "probes/motion_gates.py")
 Ownership = module("rr03_ownership", CASE / "repair_ownership.py")
 Fills = module("rr03_fills", CASE / "repair_fills.py")
 Compiler = module("rr03_compile_motion", CASE / "compile_motion.py")
+Coverage = module("qa06_production_coverage", CASE / "probes/production_coverage.py")
+sys.path.insert(0, str(CASE / 'probes'))
+Pack = module("qa06_pack_production", CASE / "probes/pack_production.py")
 
 
 class ShrikeCutoutTests(unittest.TestCase):
+    def test_reel_resolves_only_a_unique_successful_native_capture(self):
+        with tempfile.TemporaryDirectory(prefix='gust_shrike_reel_', dir=PROJECT / 'tests') as temporary:
+            root = Path(temporary)
+            capture = root / 'capture'
+            capture.mkdir()
+            (capture / 'frames.json').write_text('{}')
+            result = root / 'result.json'
+            result.write_text(json.dumps({'ok': True, 'images': [{'path': str(capture / 'frame_00000.png')}]}))
+            self.assertEqual(Pack.capture_from_result(result), capture)
+            result.write_text(json.dumps({'ok': False, 'images': [{'path': str(capture / 'frame_00000.png')}]}))
+            with self.assertRaises(ValueError): Pack.capture_from_result(result)
+            result.write_text(json.dumps({'ok': True, 'images': []}))
+            with self.assertRaises(ValueError): Pack.capture_from_result(result)
+
+    def test_native_capture_contract_keeps_action_coverage_regressions(self):
+        director = Pipeline.read_json(CASE / 'director_motion.json')
+        contact = Compiler.CONTACT
+        frames = []
+        for clip in Coverage.ACTIONS:
+            phases = sorted({0, .1, .15, .25, .5, .75, .9, 1, contact, contact + (1 - contact) * 5 / 6})
+            frames += [{'stage': clip, 'snapshot': {'clip': clip, 'phase': at}, 'pose_sha256': clip + str(at)} for at in phases]
+        manifest = {'native_pixels': True, 'frames': frames, 'completions': {'hit': {'clip': 'idle'}}}
+        self.assertEqual(Coverage.errors(manifest, director), [])
+        for mutation in ['hover_phase_zero', 'missing_dive_contact', 'frozen_move', 'missing_hit_retirement']:
+            with self.subTest(mutation=mutation):
+                changed = copy.deepcopy(manifest)
+                if mutation == 'hover_phase_zero':
+                    changed['frames'] = [f for f in changed['frames'] if f['stage'] != 'hover' or f['snapshot']['phase'] == 0]
+                elif mutation == 'missing_dive_contact':
+                    changed['frames'] = [f for f in changed['frames'] if f['stage'] != 'dive' or f['snapshot']['phase'] != contact]
+                elif mutation == 'frozen_move':
+                    for frame in changed['frames']:
+                        if frame['stage'] == 'move': frame['pose_sha256'] = 'unchanged'
+                else: changed['completions'] = {}
+                self.assertTrue(Coverage.errors(changed, director))
+
+    def test_frozen_production_hover_fails_focused_test_and_real_recorder(self):
+        # A disposable resource overlay changes exactly one production line.
+        # The shared worktree and all protected director/art inputs stay intact.
+        target = Path('scripts/gust_shrike_cutout/action.gd')
+        original = (PROJECT / target).read_bytes()
+        with tempfile.TemporaryDirectory(prefix='gust_shrike_frozen_hover_', dir=PROJECT / 'tests') as temporary:
+            root = Path(temporary)
+            def overlay(source, destination, remaining):
+                destination.mkdir(exist_ok=True)
+                for child in source.iterdir():
+                    if child.name in ['.git', '.codex', '.agents']: continue
+                    path = destination / child.name
+                    if child.name != remaining.parts[0]: path.symlink_to(child, target_is_directory=child.is_dir())
+                    elif len(remaining.parts) > 1: overlay(child, path, Path(*remaining.parts[1:]))
+                    else:
+                        text = original.decode()
+                        needle = 'var sampled: float = progress'
+                        self.assertEqual(text.count(needle), 1)
+                        path.write_text(text.replace(needle, 'var sampled: float = 0.0'))
+            overlay(PROJECT, root, target)
+            for script, arguments, failure in [
+                ('tests/gust_shrike_cutout_test.gd', [], 'Production hover advances with elapsed effect progress'),
+                ('tests/gust_shrike_cutout_probe.gd', ['--', '--logic-only'], 'hover: fewer than six action frames')]:
+                process = subprocess.run([sys.executable, 'tools/godot_task_runner.py', '--task-id', 'qa-06', '--stream', '--',
+                    'godot', '--headless', '--path', str(root), '--script', 'res://' + script, *arguments],
+                    cwd=PROJECT, capture_output=True, text=True, timeout=300)
+                output = process.stdout + process.stderr
+                self.assertNotEqual(process.returncode, 0, output)
+                self.assertNotIn('SCRIPT ERROR', output)
+                self.assertIn(failure, output)
+                print('SHRIKE FROZEN HOVER MUTATION: caught by ' + script)
+        self.assertEqual((PROJECT / target).read_bytes(), original)
+
     def _director_mutation_fails_cpu_gate(self, mutation):
         # Recompile a disposable case and run the actual Godot sampler, as the
         # reviewer did. Protected inputs and production scripts stay untouched.
         with tempfile.TemporaryDirectory(prefix='rr03_mutation_', dir=CASE.parent) as temporary:
             root = Path(temporary)
             shutil.copytree(CASE, root, dirs_exist_ok=True,
-                ignore=shutil.ignore_patterns('native_keyframes', 'round*.log', '*_result*.json'))
+                ignore=shutil.ignore_patterns('native_keyframes', 'qa06_results', 'round*.log', '*_result*.json'))
             original_semantic, original_projection = Compiler.semantic_tracks, Compiler.projection
             def semantic(*args):
                 tracks, todos = original_semantic(*args)
@@ -50,20 +124,35 @@ class ShrikeCutoutTests(unittest.TestCase):
             with patch.object(Compiler, 'semantic_tracks', semantic), patch.object(Compiler, 'projection', projection):
                 Compiler.compile_data(root, root / 'motion_data.gd', Pipeline.read_json(root / 'recipes/motion_interpretation.json'),
                     Pipeline.read_json(CASE / 'proof/motion_compilation.json')['proof_pixel_scale'])
-            process = subprocess.run([sys.executable, 'tools/godot_task_runner.py', '--task-id', 'rr-03', '--stream', '--',
+            if mutation == 'applied_tail':
+                sampler = root / 'motion.gd'
+                original = sampler.read_text()
+                target = '"rotation": angle}'
+                self.assertEqual(original.count(target), 1)
+                sampler.write_text(original.replace(target, '"rotation": -angle if name == "tail" else angle}'))
+            process = subprocess.run([sys.executable, 'tools/godot_task_runner.py', '--task-id', 'qa-06', '--stream', '--',
                 'godot', '--headless', '--path', '.', '--script', str(CASE / 'probes/motion_samples.gd'), '--',
                 '--case', str(root / 'cutout.json'), '--output', str(root / 'proof/motion_samples.json')],
                 cwd=PROJECT, capture_output=True, text=True, timeout=300)
             self.assertEqual(process.returncode, 0, process.stdout + process.stderr)
             report = Gates.cpu_gates(root, root / 'proof/mutation_gate.json')
             self.assertFalse(report['ok'])
-            self.assertTrue(any('idle/tail_angle: authored keys/sign differ' in e for e in report['errors']), report['errors'])
+            expected_error = 'idle/tail: applied bone' if mutation == 'applied_tail' else 'idle/tail_angle: authored keys/sign differ'
+            self.assertTrue(any(expected_error in e for e in report['errors']), report['errors'])
+            if mutation == 'applied_tail':
+                self.assertFalse(any('authored keys/sign differ' in e or 'signed sample at' in e for e in report['errors']), report['errors'])
+                for view in ['front', 'rear']:
+                    self.assertTrue(any(view + '/idle/tail: applied bone' in e for e in report['errors']), report['errors'])
+            print('SHRIKE CPU MUTATION: ' + mutation + ' rejected')
 
     def test_cpu_gate_rejects_missing_authored_tail_hold_after_resampling(self):
         self._director_mutation_fails_cpu_gate('missing_hold')
 
     def test_cpu_gate_rejects_reversed_projected_tail_after_resampling(self):
         self._director_mutation_fails_cpu_gate('reversed_tail')
+
+    def test_cpu_gate_rejects_negated_applied_tail_with_correct_channels(self):
+        self._director_mutation_fails_cpu_gate('applied_tail')
 
     def test_non_1024_raw_registration_scales_all_render_coordinates_once(self):
         original = Pipeline.maquette.Registration([0.25, 0.3], [-12, 9], {"raw_size": [1254, 1254]})

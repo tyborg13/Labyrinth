@@ -11,6 +11,19 @@ REQUIRED_CLIPS = {"idle", "move", "dive", "talon_rake", "hover", "hit", "death"}
 LAST_FRAME_SECONDS = 1 / 30  # Capture-only terminal-frame duration.
 
 
+def capture_from_result(result_path):
+    result = json.loads(result_path.read_text())
+    if not result.get('ok'): raise ValueError('A successful visual-runner result is required')
+    captures = set()
+    for entry in result.get('images', []):
+        for parent in Path(entry['path']).parents:
+            if (parent / 'frames.json').is_file():
+                captures.add(parent)
+                break
+    if len(captures) != 1: raise ValueError('No unique production capture in visual-runner result')
+    return captures.pop()
+
+
 def pack(capture):
     manifest_path = capture / "frames.json"
     manifest = json.loads(manifest_path.read_text())
@@ -46,6 +59,9 @@ def pack(capture):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("capture", type=Path)
+    parser.add_argument("capture", type=Path, nargs='?')
+    parser.add_argument("--result-manifest", type=Path)
     args = parser.parse_args()
-    pack(args.capture.resolve())
+    if bool(args.capture) == bool(args.result_manifest):
+        parser.error('Choose a capture directory or --result-manifest')
+    pack(args.capture.resolve() if args.capture else capture_from_result(args.result_manifest))

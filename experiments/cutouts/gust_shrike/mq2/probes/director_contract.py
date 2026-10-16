@@ -88,6 +88,86 @@ def value_at(keys, at):
     return keys[-1]['value']
 
 
+def bone_errors(root, expected, records, angle_tolerance, pixel_tolerance, scale_tolerance):
+    """Independent signed oracle for applied matrices, including carried pivots.
+
+    The sampler's channel output is deliberately not consulted. Sibling bones
+    inherit the body's rigid rotation/translation, except the authored planted
+    legs and idle head; breathing affects carried pivots, never rigid scales.
+    """
+    errors = []
+    config = read_json(root / 'cutout.json')
+    spec = read_json(root.parent / 'maquette/spec.json')
+    spec['view_transforms'] = read_json(root.parent / 'maquette/view_transforms.json')
+    proof_scale = read_json(root / 'proof/motion_compilation.json')['proof_pixel_scale']
+    def rotation(degrees):
+        radians = math.radians(degrees)
+        c, s = math.cos(radians), math.sin(radians)
+        return np.array([[c, -s], [s, c]])
+    def angle(matrix): return math.degrees(math.atan2(matrix[1], matrix[0]))
+    def angle_delta(a, b): return (a - b + 180) % 360 - 180
+    for view, clips in expected.items():
+        layout = read_json(root / config['layouts'][view])
+        joints = {name: np.array(joint['position']) for name, joint in layout['joints'].items()}
+        pixel_scale = layout.get('screen_pixel_scale', proof_scale)
+        forward = np.asarray(projected(spec, [1, 0, 0], view)) - projected(spec, [0, 0, 0], view)
+        forward /= np.linalg.norm(forward)
+        for clip, channels in clips.items():
+            times = sorted({k['at'] for keys in channels.values() for k in keys} |
+                           {(a['at'] + b['at']) / 2 for keys in channels.values() for a, b in zip(keys, keys[1:])})
+            selected = [r for r in records if r['view'] == view and r['clip'] == clip]
+            label = view + '/' + clip
+            if len(selected) != len(times): errors.append(label + ': applied bone sample coverage')
+            for at in times:
+                hits = [r for r in selected if abs(r['phase'] - at) <= TIME_EPSILON]
+                if len(hits) != 1:
+                    errors.append('%s: missing/duplicate applied bone sample at %.9f' % (label, at))
+                    continue
+                record = hits[0]
+                bones = record.get('bones', {})
+                if set(bones) != set(joints) or any(len(m) != 6 or not all(math.isfinite(v) for v in m) for m in bones.values()):
+                    errors.append(label + ': invalid applied bone matrices')
+                    continue
+                if abs(record.get('screen_pixel_scale', 0) - pixel_scale) > TIME_EPSILON:
+                    errors.append(label + ': applied sample pixel scale differs')
+                values = {channel: value_at(keys, at) for channel, keys in channels.items()}
+                body_angle = values.get('body_pitch', 0) + values.get('body_roll', 0)
+                body_rotation = rotation(body_angle)
+                body_scale = values.get('body_scale_y', 1)
+                shift = (np.array([0, values.get('body_y', 0)]) +
+                         forward * (values.get('body_forward', 0) - values.get('recoil', 0))) / pixel_scale
+                for name, matrix in bones.items():
+                    inherited_angle = 0
+                    expected_angle = 0
+                    scale = np.ones(2)
+                    origin = joints[name]
+                    if name == 'body':
+                        origin = joints[name] + shift
+                        expected_angle = body_angle
+                        scale[1] = body_scale
+                    elif name != 'root':
+                        planted = name == 'legs' and (clip in ['idle', 'hit'] or (clip == 'move' and values.get('body_y', 0) >= 0))
+                        held_head = name == 'head' and clip == 'idle'
+                        expected_angle = values.get(name + '_angle', 0)
+                        if planted:
+                            origin = joints['root'] + rotation(expected_angle) @ (joints[name] - joints['root'])
+                        elif not held_head:
+                            origin = joints['body'] + shift + body_rotation @ (np.array([1, body_scale]) * (joints[name] - joints['body']))
+                            inherited_angle = angle(bones['body'])
+                        origin = origin + (np.array([values.get(name + '_x', 0), values.get(name + '_y', 0)]) +
+                                           forward * values.get(name + '_forward', 0)) / pixel_scale
+                        if name.startswith('wing_'): scale[0] = values.get(name + '_span', 1)
+                    prefix = '%s/%s: applied bone at %.9f ' % (label, name, at)
+                    if abs(angle_delta(angle(matrix) - inherited_angle, expected_angle)) > angle_tolerance:
+                        errors.append(prefix + 'signed relative rotation')
+                    if np.max(np.abs(np.asarray(matrix[4:6]) - origin)) * pixel_scale > pixel_tolerance:
+                        errors.append(prefix + 'signed offset')
+                    actual_scale = [math.hypot(*matrix[:2]), math.hypot(*matrix[2:4])]
+                    if np.max(np.abs(actual_scale - scale)) > scale_tolerance:
+                        errors.append(prefix + 'scale')
+    return errors
+
+
 def verify(root, samples, angle_tolerance, pixel_tolerance, scale_tolerance):
     errors = []
     expected = expected_tracks(root)
@@ -110,4 +190,5 @@ def verify(root, samples, angle_tolerance, pixel_tolerance, scale_tolerance):
                     values = [r['values'].get(channel) for r in hits]
                     if not values or any(v is None or not math.isfinite(v) or abs(v - value_at(keys, at)) > tolerance for v in values):
                         errors.append('%s/%s: signed sample at %.9f' % (label, channel, at))
-    return errors
+    return errors + bone_errors(root, expected, samples.get('bone_samples', []),
+                                angle_tolerance, pixel_tolerance, scale_tolerance)
