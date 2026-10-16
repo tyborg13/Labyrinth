@@ -12,25 +12,25 @@ const DEFINITIONS := {
 	KILL_ALL: {
 		"name": "Defeat All Enemies",
 		"short_name": "Defeat All",
-		"description": "Defeat every enemy in the room.",
+		"description": "Defeat every enemy.",
 		"icon_path": ICON_ROOT + "kill_all_enemies.png"
 	},
 	KILL_LEADER: {
 		"name": "Defeat the Leader",
 		"short_name": "Defeat Leader",
-		"description": "Defeat the marked leader. Remaining enemies withdraw.",
+		"description": "Defeat the marked leader. The rest flee.",
 		"icon_path": ICON_ROOT + "kill_the_leader.png"
 	},
 	SURVIVE: {
 		"name": "Survive",
 		"short_name": "Survive",
-		"description": "Hold out until the marked time. Reinforcements emerge while the clock advances.",
+		"description": "Survive until the marked time.",
 		"icon_path": ICON_ROOT + "survive.png"
 	},
 	REACH_EXIT: {
 		"name": "Reach the Exit",
 		"short_name": "Reach Exit",
-		"description": "Reach a marked threshold to escape through that door. Enemies and terrain are positioned to bar your path.",
+		"description": "Reach a marked door to escape.",
 		"icon_path": ICON_ROOT + "reach_the_exit.png"
 	}
 }
@@ -78,7 +78,7 @@ static func short_name(objective_type: String) -> String:
 	return str(definition(objective_type).get("short_name", "Defeat All"))
 
 static func description(objective_type: String) -> String:
-	return str(definition(objective_type).get("description", "Defeat every enemy in the room."))
+	return str(definition(objective_type).get("description", "Defeat every enemy."))
 
 static func icon_path(objective_type: String) -> String:
 	return str(definition(objective_type).get("icon_path", ICON_ROOT + "kill_all_enemies.png"))

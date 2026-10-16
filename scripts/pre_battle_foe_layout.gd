@@ -47,6 +47,10 @@ static func apply(card: Control, lineup_scale: float, caption_reserve: float, ca
 	var art := card.get_node("PreBattleEnemyArt") as TextureRect
 	art.position = ground - anchor * drawn_scale
 	art.size = art.texture.get_size() * drawn_scale if art.texture != null else Vector2.ZERO
+	var live := card.get_node_or_null("PreBattleEnemyLiveActor") as Control
+	if live != null:
+		live.position = art.position
+		live.size = art.size
 	var visible_bounds := Rect2(art.position + (data["used"] as Rect2).position * drawn_scale, (data["used"] as Rect2).size * drawn_scale)
 	var stage := card.get_node("PreBattleEnemyBrush") as Control
 	stage.position = art.position
