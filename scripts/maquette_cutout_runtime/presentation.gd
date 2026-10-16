@@ -1,11 +1,16 @@
 extends RefCounted
 
-const Renderer = preload("renderer.gd")
 const Facing = preload("res://scripts/enemy_cutout_facing.gd")
 const CREATURES := {"bile_bloomer": "shale_bloomer", "lightning_wisp": "lightning_wisp"}
 
 static func handles(type: String) -> bool:
 	return CREATURES.has(type)
+
+## Register an identity once in CREATURES. Board, travel and UI consumers all
+## instantiate its concrete runtime adapter, including future maquette rigs.
+static func renderer_script(type: String) -> Script:
+	if not handles(type): return null
+	return load("res://scripts/maquette_cutout_runtime/%s_renderer.gd" % CREATURES[type]) as Script
 
 static func sync(board: Control, type: String, renderers: Dictionary) -> void:
 	if bool(board.get("_is_dynamic_render_layer")) or bool(board.get("_is_static_render_cache_layer")) or not board.is_inside_tree(): return
@@ -22,8 +27,7 @@ static func sync(board: Control, type: String, renderers: Dictionary) -> void:
 		var unit: Dictionary = actors[key]
 		var renderer: Node = renderers.get(key)
 		if not is_instance_valid(renderer):
-			renderer = Renderer.new()
-			renderer.character_id = CREATURES[type]
+			renderer = renderer_script(type).new()
 			renderer.name = "MaquetteCutout_%d" % int(unit.get("id", -1))
 			board.add_child(renderer)
 			renderers[key] = renderer

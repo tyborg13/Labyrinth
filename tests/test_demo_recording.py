@@ -148,11 +148,21 @@ class DemoAVICleanupTests(unittest.TestCase):
 
 
 class DemoNativeComparisonTests(unittest.TestCase):
+    def setUp(self):
+        self.fixture_root = Path(__file__).with_name("fixtures") / "demo_clips"
+        self.fingerprints = json.loads((self.fixture_root / "weaver_fingerprints.json").read_text())
+        # The portable reports describe one reviewed historical capture. Live
+        # merged scripts must not silently update its source-hash oracle.
+        self.live_source_fingerprint = comparison._source_fingerprint
+        fingerprints = patch.object(comparison, "_source_fingerprint", side_effect=self.fingerprints["reviewed_sources"].__getitem__)
+        fingerprints.start()
+        self.addCleanup(fingerprints.stop)
+
     def retained_weaver(self):
         # Portable reference payload; native timing is generated from the
         # reviewed policy, with no dependency on ignored owner artifacts.
         case = json.loads(comparison.POLICY_PATH.read_text())["cases"][0]
-        fixture = Path(__file__).with_name("fixtures") / "demo_clips/weaver_reference.json.gz"
+        fixture = self.fixture_root / "weaver_reference.json.gz"
         reference = json.loads(gzip.decompress(fixture.read_bytes()))
         native = copy.deepcopy(reference)
         native["headless"] = False
@@ -207,6 +217,27 @@ class DemoNativeComparisonTests(unittest.TestCase):
             a, b = copy.deepcopy(native), copy.deepcopy(reference)
             (a if coordinate == "native" else b)["events"][6]["frame"] += 1
             with self.subTest(coordinate=coordinate), self.assertRaises(comparison.ComparisonError): self.compare(a, b)
+
+    def test_real_source_bytes_must_match_reviewed_fingerprints(self):
+        native, reference = self.retained_weaver()
+        policy = json.loads(comparison.POLICY_PATH.read_text())
+        source = self.fingerprints["guard_fixture"]
+        policy["cases"][0]["source_sha256"] = {source["path"]: source["sha256"]}
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            reviewed_source = root / source["path"]
+            shutil.copyfile(self.fixture_root / source["path"], reviewed_source)
+            policy_path = root / "policy.json"
+            policy_path.write_text(json.dumps(policy))
+            # Exercise the actual source hashing and guard against real bytes,
+            # independently of the portable historical-fingerprint stand-in.
+            with patch.object(comparison, "_source_fingerprint", self.live_source_fingerprint), \
+                 patch.object(comparison, "__file__", str(root / "tools/demo_clips/comparison.py")), \
+                 patch.object(comparison, "POLICY_PATH", policy_path):
+                self.assertEqual(len(self.compare(native, reference)[2]), 96)
+                reviewed_source.write_bytes(reviewed_source.read_bytes() + b"unreviewed source change")
+                with self.assertRaisesRegex(comparison.ComparisonError, r"events\[6\].*offset \+47"):
+                    self.compare(native, reference)
 
     def test_weaver_exemptions_survive_record_compare_and_encode_reports(self):
         native, reference = self.retained_weaver()

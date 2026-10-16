@@ -5,13 +5,21 @@ const STRIP_FRAMES: int = 4
 const STRIP_STEP_SECONDS: float = 0.2
 const HOVER_DEADLINE_MSEC: int = 3000
 const HOVER_POLL_SECONDS: float = 0.05
+# Debug-only int-02 pack; authored creature data and presentation stay intact.
+const MAQUETTE_ROSTER: Array = ["crawler", "bile_bloomer", "lightning_wisp", "noctyrax", "gust_shrike", "hoarfrost_seer"]
+const MAQUETTE_SCRIPTS: Dictionary = {
+	"bile_bloomer": preload("res://scripts/maquette_cutout_runtime/shale_bloomer_renderer.gd"),
+	"lightning_wisp": preload("res://scripts/maquette_cutout_runtime/lightning_wisp_renderer.gd")
+}
 var _logic_only: bool = false
+var _maquette_pack: bool = false
 var _witnesses: Array[Dictionary]
 var _previous: Image
 var _reduced_before: Image
 
 func _initialize() -> void:
 	_logic_only = "--logic-only" in OS.get_cmdline_user_args()
+	_maquette_pack = "--maquette-pack" in OS.get_cmdline_user_args()
 	_setup()
 	_viewport.gui_embed_subwindows = true
 	_viewport.notify_mouse_entered()
@@ -21,12 +29,14 @@ func _run() -> void:
 	var instance: Node = await _living_fixture()
 	var router: Node = root.get_node("InputRouter")
 	router.call("set_forced_state_for_test", "pointer", "xbox")
-	var panel: Control = await _set_roster(instance, MIXED_ROSTER, {"type": "kill_all"})
+	var proof_roster: Array[String]
+	proof_roster.assign(MAQUETTE_ROSTER if _maquette_pack else MIXED_ROSTER)
+	var panel: Control = await _set_roster(instance, proof_roster, {"type": "kill_all"})
 	for index: int in range(STRIP_FRAMES):
 		await _snap("mixed_idle_%02d" % index, panel)
 		await create_timer(STRIP_STEP_SECONDS).timeout
 	for type: String in ["kill_leader", "survive", "reach_exit"]:
-		panel = await _set_roster(instance, MIXED_ROSTER, {"type": type, "leader_id": 1})
+		panel = await _set_roster(instance, proof_roster, {"type": type, "leader_id": 1})
 		var heading := panel.find_child("PreBattleObjectiveTitle", true, false) as Label
 		if type == "kill_leader":
 			await _hover_objective(heading)
@@ -47,7 +57,7 @@ func _run() -> void:
 	named_roster.append("last_lamplighter")
 	panel = await _set_roster(instance, named_roster, {"type": "kill_leader", "leader_type": "last_lamplighter", "leader_id": 1})
 	await _snap("objective_guardian", panel)
-	panel = await _set_roster(instance, MIXED_ROSTER, {"type": "kill_all"})
+	panel = await _set_roster(instance, proof_roster, {"type": "kill_all"})
 	router.call("set_forced_state_for_test", "controller", "xbox")
 	var foe := panel.find_child("PreBattleEnemyCard", true, false) as Control
 	foe.grab_focus()
@@ -83,6 +93,15 @@ func _run() -> void:
 	quit(1 if _failed else 0)
 
 func _snap(name: String, panel: Control) -> void:
+	if _maquette_pack and not name.begins_with("objective_"):
+		var found: Dictionary = {}
+		for live: Node in panel.find_children("PreBattleEnemyLiveActor", "Control", true, false):
+			var identity: String = str(live.get("actor_type"))
+			if not MAQUETTE_SCRIPTS.has(identity): continue
+			var renderer: Node = live.get("renderer")
+			_expect(renderer != null and renderer.get_script() == MAQUETTE_SCRIPTS[identity], "int-02 capture uses the approved maquette Script: " + identity)
+			found[identity] = true
+		_expect(found.size() == MAQUETTE_SCRIPTS.size(), "int-02 proof pack contains both maquette identities")
 	_witnesses.append({"capture": name + ".png", "actors": _living_snapshots(panel)})
 	if _logic_only: return
 	await _capture(OUTPUT + "/" + name + ".png")

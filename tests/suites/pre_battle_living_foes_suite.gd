@@ -21,19 +21,19 @@ const TEST_PHASE_SLOT: int = 2
 const TEST_SLOT_COUNT: int = 6
 const OBJECTIVE_TEST_SIZE := Vector2(1000, 100)
 
-# Independent oracle: use the board's actual script constants, never the UI
+# Independent oracle: board constants plus explicit maquette Scripts, never the
 # selector under test. Shared Guardian instances must also carry their identity.
 const EXPECTED_RENDERERS: Dictionary = {
 	"crawler": Board.CrawlerCutout, "acolyte": Board.AcolyteCutout,
 	"harrier": Board.HarrierCutout, "warden": Board.WardenCutout,
 	"cinder_ooze": Board.CinderOozeCutout, "cinder_droplet": Board.CinderDropletCutout,
-	"bile_bloomer": Board.BileBloomerCutout, "chainbound_gaoler": Board.GaolerCutout,
+	"bile_bloomer": preload("res://scripts/maquette_cutout_runtime/shale_bloomer_renderer.gd"), "chainbound_gaoler": Board.GaolerCutout,
 	"grave_surgeon": Board.GraveSurgeonCutout, "frostglass_lancer": Board.FrostglassCutout,
 	"tharokh": Board.TharokhCutout, "vyraketh": Board.VyrakethCutout,
 	"vaeloryx": Board.VaeloryxCutout, "iskaldra": Board.IskaldraCutout,
 	"noctyrax": Board.NoctyraxCutout, "zekarion": Board.ZekarionCutout,
 	"veilbound_acolyte": Board.VeilboundAcolyteCutout,
-	"lightning_wisp": Board.LightningWispCutout, "gust_shrike": Board.GustShrikeCutout
+	"lightning_wisp": preload("res://scripts/maquette_cutout_runtime/lightning_wisp_renderer.gd"), "gust_shrike": Board.GustShrikeCutout
 }
 
 static func run(expect: Callable) -> void:
@@ -41,6 +41,7 @@ static func run(expect: Callable) -> void:
 	await _test_heading_focus(expect)
 	await _test_roster(expect)
 	await _test_applied_slot_phases(expect)
+	await preload("res://tests/suites/maquette_presentation_surfaces_suite.gd").run(expect)
 	await preload("res://tests/suites/live_actor_submission_suite.gd").run(expect)
 
 static func _test_objectives(expect: Callable) -> void:
@@ -119,9 +120,14 @@ static func _test_roster(expect: Callable) -> void:
 			if expected == Board.GuardianCutout: expect.call(renderer.get("character_id") == identity, "Shared Guardian renderer carries character_id: " + identity)
 			var snapshot: Dictionary = renderer.call("snapshot")
 			expect.call(snapshot["facing"] == "front" and not bool(snapshot["mirrored"]) and snapshot.get("shown_clip", snapshot["clip"]) == "idle", "Board idle faces front: " + identity)
+			if identity in ["bile_bloomer", "lightning_wisp"]:
+				expect.call(still.texture is AtlasTexture and (still.texture as AtlasTexture).atlas == renderer.call("texture"), "Source canvas shares the single live maquette renderer: " + identity)
 		expect.call(still.visible == (expected == null), "Only unrigged identities show the source still: " + identity)
 		var inspection: Control = host.call("_build_pre_battle_enemy_inspection_panel", {"type": identity, "hp": 1})
 		expect.call(inspection.find_child("PreBattleEnemyLiveActor", true, false) == null, "Inspection remains a cropped still: " + identity)
+		if identity in ["bile_bloomer", "lightning_wisp"]:
+			var portrait_renderer: Node = inspection.find_child("MaquettePortraitRenderer", true, false)
+			expect.call(portrait_renderer != null and portrait_renderer.get_script() == expected, "Inspection resolves the maquette Script: " + identity)
 		inspection.free()
 	await _frames(tree)
 	for card: Control in stage.get_children():
@@ -170,6 +176,14 @@ static func _test_applied_slot_phases(expect: Callable) -> void:
 	settings["reduced_motion"] = false
 	Settings.apply_settings(settings, null, false)
 	var host := RunScene.new()
+	for identity: String in ["crawler", "bile_bloomer", "lightning_wisp"]:
+		_test_slot_phases_for(host, tree, identity, expect)
+	host.free()
+	settings["reduced_motion"] = restore_reduced
+	Settings.apply_settings(settings, null, false)
+	await _frames(tree)
+
+static func _test_slot_phases_for(host: Node, tree: SceneTree, identity: String, expect: Callable) -> void:
 	var first: Array[float]
 	for rebuild: int in range(2):
 		var stage := Control.new()
@@ -178,12 +192,12 @@ static func _test_applied_slot_phases(expect: Callable) -> void:
 		# Sample real ready-initialized renderers in the same SceneTree boundary,
 		# before automatic elapsed time, rather than disabling their processing.
 		for slot: int in range(TEST_SLOT_COUNT):
-			var card: Control = View.build_foe(host, {"type": "crawler", "hp": 1}, TEST_STAGE_SIZE, false, slot, TEST_SLOT_COUNT)
+			var card: Control = View.build_foe(host, {"type": identity, "hp": 1}, TEST_STAGE_SIZE, false, slot, TEST_SLOT_COUNT)
 			stage.add_child(card)
 			var renderer: Node = card.get_node("PreBattleEnemyLiveActor").get("renderer")
 			var phase: float = float((renderer.call("snapshot") as Dictionary)["phase"])
 			phases.append(phase)
-			expect.call(absf(phase - float(slot) / TEST_SLOT_COUNT) < PHASE_EPSILON, "Actual renderer is seeded at slot %d / rebuild %d" % [slot, rebuild])
+			expect.call(absf(phase - float(slot) / TEST_SLOT_COUNT) < PHASE_EPSILON, "Actual renderer is seeded at slot %d / rebuild %d: %s" % [slot, rebuild, identity])
 			expect.call(absf(float((renderer.get("_pose_signature") as Array)[3]) - phase) < PHASE_EPSILON, "Seed is applied to the rig pose at slot %d" % slot)
 		var unique: Dictionary = {}
 		for phase: float in phases: unique[phase] = true
@@ -191,7 +205,3 @@ static func _test_applied_slot_phases(expect: Callable) -> void:
 		if rebuild == 0: first.assign(phases)
 		else: expect.call(phases == first, "Actual renderer phases are deterministic across rebuilds")
 		stage.free()
-	host.free()
-	settings["reduced_motion"] = restore_reduced
-	Settings.apply_settings(settings, null, false)
-	await _frames(tree)

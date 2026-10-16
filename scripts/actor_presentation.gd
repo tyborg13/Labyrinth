@@ -1,5 +1,7 @@
 extends RefCounted
 
+const MaquettePresentation = preload("res://scripts/maquette_cutout_runtime/presentation.gd")
+
 ## Fixed source-space support registration. See spec/actor_presentation.md.
 ## These are ground contacts, not the center of a weapon-inclusive silhouette.
 ## HUD heights use each painted rest view; raised weapons never lift a nameplate.
@@ -91,6 +93,8 @@ static func body_envelope(unit_type: String) -> Rect2:
 	return Rect2(Vector2(left, top), Vector2(right - left, bottom - top)).grow(16.0)
 
 static func travel_renderer(unit_type: String) -> Script:
+	if MaquettePresentation.handles(unit_type):
+		return MaquettePresentation.renderer_script(unit_type)
 	if preload("res://scripts/guardian_cutout/renderer.gd").handles(unit_type):
 		return preload("res://scripts/guardian_cutout/renderer.gd")
 	if unit_type != "player" and not PROFILES.has(unit_type):
