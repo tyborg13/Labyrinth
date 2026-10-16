@@ -279,9 +279,9 @@ static func _test_objective_persistence_and_ui_surfaces(expect: Callable) -> voi
 	expect.call((restored_layout.get("objective", {}) as Dictionary) == objective, "Combat objective state should survive room-layout persistence")
 	var preview_chip: Control = PreBattleView.build_objective(state)
 	var objective_plate: Control = preview_chip.find_child("PreBattleObjectiveChip", true, false) as Control
-	var objective_copy := preview_chip.find_child("PreBattleObjectiveDescription", true, false) as RichTextLabel
-	# pb-01 restores the heading and puts the exact concise rules underneath it.
-	expect.call(objective_plate != null and str(objective_plate.get_meta("objective_title", "")).to_upper().contains("SURVIVE") and objective_copy != null and objective_copy.get_parsed_text() == "Survive until the marked time.", "The room preview should name and explain its combat objective")
+	var objective_heading := preview_chip.find_child("PreBattleObjectiveTitle", true, false) as Label
+	# Director round 1: only the heading is visible; exact rules live in its tooltip.
+	expect.call(objective_plate != null and str(objective_plate.get_meta("objective_title", "")).to_upper().contains("SURVIVE") and objective_heading != null and objective_heading.tooltip_text == "Survive\nSurvive until the marked time." and preview_chip.find_child("PreBattleObjectiveDescription", true, false) == null, "The room preview should name and explain its combat objective")
 	expect.call(preview_chip.find_child("PreBattleObjectiveIcon", true, false) != null, "The room preview should display the objective's purpose-built icon")
 	preview_chip.free()
 	var hud := CombatObjectiveHud.new()

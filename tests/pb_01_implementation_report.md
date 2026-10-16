@@ -1,85 +1,91 @@
-# pb-01 implementation handoff
+# pb-01 — round 1 implementation handoff
 
-Changes are uncommitted on `codex/pb-01`. No commit, branch operation, peer review, publication, queue edit, art generation, or windowed run was performed.
+Round 1 applies the owner's 2026-10-16 copy decision and the three coverage findings in `/private/tmp/labyrinth_codex/review/pb-01-2d8c89100.md`, against base HEAD `2d8c89100191eaa866db3fad852ed724b17ef9ec`. All round-1 changes are uncommitted. No peer review, commit, push, branch change or queue edit was performed.
 
-## Requirements
+## Owner decision A
 
-1. **Objective copy:** the prominent 19 px line is `OBJECTIVE · <TITLE>`. The four shared descriptions match the brief verbatim. The secondary line uses the existing 14 px caption role and cannot wrap. `time` uses its gold word-only glossary token. Dragon and Guardian objectives omit the secondary line. Current identity rules resolve old saved descriptions as before.
-2. **Living foes:** the new reusable wrapper selects the production board renderer for all 32 rigged identities, including promoted Gust Shrike and the shared Guardian renderer. Renderer selection precedes legacy sheet loading; the board's loader/order/timing supply that fallback. The 11 unrigged identities stay static. Existing source TextureRects and node names remain the layout/scale/floor/pool/badge authority; only the live padded canvas replaces their visible art. Slot index divided by displayed slot count seeds the authored idle cycle. Hidden actors pause; reduced motion selects the authored rest pose. Inspection stills and input paths remain intact.
-3. **Performance:** the six-rigged-foe before/after benchmark is implemented and passes headless workload validation. It removes the live nodes for the static baseline, uses the same production scene, kit, roster, layout and renderer configuration, then compares ABBA trials with 45 warmup and 180 measured frames per trial. It records frame intervals, process time and viewport CPU/GPU time. Median and p95 must both avoid regression. **Actual renderer timing remains unmeasured; the director must run the command below.**
+Every objective now shows only its 19 px `OBJECTIVE · <TITLE>` heading, with the existing objective icon and plate. There is no secondary line for any objective and the obsolete line-spacing field has been removed.
 
-## Files changed
+The four shared rule strings remain verbatim. The heading owns its hover tooltip; it uses the existing `UiTooltipPanel` style and preserves the gold word-only Time token. Keyboard and controller navigation focus show the same tooltip immediately, and leaving focus or hiding the heading removes it. The heading is passive and has no activation callback. Named dragon/Guardian titles remain unchanged.
 
-- `scripts/combat_objective_rules.gd`: exact shared descriptions only.
-- `scripts/pre_battle_view.gd`: objective hierarchy, glossary word token, per-slot live actors.
-- `scripts/pre_battle_foe_layout.gd`: apply existing source registration to the live wrapper.
-- `scripts/live_actor_presentation.gd` (new): reusable renderer/sheet/still presentation wrapper.
-- `tests/suites/pre_battle_ui_suite.gd`: include the new suite in existing semantic/full-suite coverage.
-- `tests/suites/combat_objective_suite.gd`: replace its old `Hold out` / `Label` expectation with the exact authored survival line in the new secondary `RichTextLabel`. This failure was introduced by the intentional pb-01 copy change; existing unrelated failure assertions remain intact.
-- `tests/suites/pre_battle_living_foes_suite.gd` and `tests/pre_battle_living_foes_test.gd` (new): exact copy, all 43 identities, scale/floor inheritance, front idle, advancing/hidden/rest clocks, deterministic phases and still inspection checks.
-- `tests/fixtures/pre_battle_view_reference.gd`: update only the two intentionally changed presentation surfaces in the frozen synchronous reference; preparation/retention comparison remains independent.
-- `tests/pre_battle_living_foes_fixture.gd`, `tests/pre_battle_living_foes_probe.gd`, `tests/pre_battle_living_foes_benchmark.gd` (new): shared scene fixture, 13-state visual proof and matched performance proof.
-- `tests/proof_contracts/pb_01_living_foes.json`, `tests/proof_contracts/pb_01_performance.json` (new): acceptance/inspection contract and exact-size semantic image requirements.
-- `tests/pb_01_implementation_report.md` (new): this handoff.
+The 13-state probe now covers native heading hover, keyboard Up and controller D-pad Up reaching the heading and showing its tooltip, all objective variants, the idle strip, cropped still inspection and reduced motion. Noctyrax is now in the mixed proof roster.
 
-## Tests and probes run
+The single full-suite run exposed a test startup error: its first heading was asked to grab focus during `SceneTree._initialize`, before entering the tree. The focus test now waits for attachment/layout before requesting focus. The focused runner deliberately starts during `_initialize` too; it reproduced the original failure and passes after this test-only correction. The production heading implementation did not change for this fix.
 
-Every Godot command used `python3 tools/godot_task_runner.py --task-id pb-01 --stream -- godot --headless --path . --script <script>`; the full suite used the documented `--timeout 900`. Probe/benchmark setup checks appended `-- --logic-only` and made no renderer captures or performance claims.
+## Review findings B
 
-Observed final result lines:
+1. The independent identity oracle uses the production board's explicit Script constants. Every instantiated renderer is compared by Script identity; shared Guardian instances must also have the exact `character_id`. All 43 identities are covered.
+2. The SceneTree drives all idle clocks. All 32 rigged identities must advance naturally, freeze while the stage is hidden, and enter a frozen rest pose after reduced motion changes. The tests never call `_process` directly.
+3. Six real, ready-initialized Crawler renderers are sampled at the same SceneTree boundary before elapsed time. Their actual snapshot phases and applied rig-pose phases must match the six authored slot fractions, be distinct, and repeat exactly across two rebuilds.
+4. A scripted `Texture2D` draw virtual records the texture submitted by the actual queued CanvasItem draw callback. This proves the renderer texture is submitted with board padding and the source still is not submitted, even under the headless dummy renderer. It catches the fifth surviving mutation without relying on presentation metadata or GPU pixels.
 
-- `PB-01 LIVING FOES TEST: PASS (43 identities; exact objective copy; reduced-motion rest)` / `TEST RESULT: PASS`
-- `PRE-BATTLE SEMANTICS TEST: PASS` / `TEST RESULT: PASS`
-- `PRE-BATTLE VIEW TEST: PASS` / `TEST RESULT: PASS`
-- `PRE-BATTLE TRUE SCALE TEST: PASS` / `TEST RESULT: PASS`
-- `PRE-BATTLE REVIEW FIXES TEST: PASS` / `TEST RESULT: PASS`
-- `PREPARED PRE-BATTLE VIEW EQUIVALENCE RESULT: {"cases":18,"errors":[],"presented":12}`
-- `PB-01 LIVING FOES PROBE LOGIC ONLY: PASS`
-- `PB-01 SIX-FOE BENCHMARK LOGIC ONLY (NO PERFORMANCE MEASUREMENT): PASS`
-- UI identity lint after the final spacing-constant edit: `Ran 25 tests in 2.879s` / `OK`.
-- Python full discovery: `Ran 545 tests in 377.736s` / `OK (skipped=61)`.
-- Output import hygiene: `OUTPUT GDIGNORE: PASS (12 folders; 2 referenced roots)`.
+A reusable mutation checker builds disposable resource overlays, runs the focused suite through the required Godot runner, and preserves logs. It does not modify production files.
 
-Full Godot suite after the copy-expectation fix: **PASS**, exit 0. Exact result lines: `FULL SUITE RUNTIME: 792.316 seconds (budget 900 seconds)` / `TEST RESULT: PASS`. All program sub-suites passed.
+## Files changed in round 1
 
-Verification iterations retained for transparency: the first attempt reached the 900-second limit (exit 124) after run-end recap passed, before the final main-menu check completed; it overlapped Python discovery and focused checks. The second attempt completed all program sub-suites and emitted `FULL SUITE RUNTIME: 860.000 seconds (budget 900 seconds)` / `TEST RESULT: FAIL (1 failure(s))`: the objective suite still expected the deliberately replaced words `Hold out` in a `Label`. That expectation now requires the exact new survival line in its secondary `RichTextLabel`. The focused runner executes the full combat-objective suite and passes, as does the final full run.
+- `scripts/pre_battle_view.gd`: heading-only objective; rule tooltip owned by the heading; obsolete secondary-line construction and spacing removed.
+- `scripts/pre_battle_objective_heading.gd` (new): shared-style native hover and focus tooltip behavior.
+- `tests/fixtures/pre_battle_view_reference.gd`: same intentional objective topology/copy change in the independent synchronous reference.
+- `tests/suites/combat_objective_suite.gd`: heading/tooltip persistence expectation instead of secondary copy.
+- `tests/suites/pre_battle_living_foes_suite.gd`: exact heading/tooltip expectations, focus lifecycle, Script and Guardian identity, natural clocks and actual applied phases.
+- `tests/pre_battle_living_foes_test.gd`: exercise the same immediate `_initialize` startup boundary as the full suite.
+- `tests/suites/live_actor_submission_suite.gd` (new): headless native draw-submission oracle.
+- `tests/pb_01_mutation_check.py` (new): the five review mutations and exact expected failure checks in isolated overlays.
+- `tests/pre_battle_living_foes_fixture.gd`: heading-only layout assertions and Noctyrax in the mixed debug roster.
+- `tests/pre_battle_living_foes_probe.gd`: native hover and keyboard/controller heading-tooltip proof within the existing 13 captures.
+- `tests/proof_contracts/pb_01_living_foes.json`: current copy/inspection criteria; preserves `expected_sizes: ["1920x1080"]`.
+- `tests/pb_01_implementation_report.md`: this current handoff.
 
-Logs: `/private/tmp/pb-01-full-godot-attempt-1.log` (timeout), `/private/tmp/pb-01-full-godot-attempt-2.log` (one stale-copy assertion), `/private/tmp/pb-01-full-godot.log` (final standalone run), `/private/tmp/pb-01-python-suite.log`, `/private/tmp/pb-01-living.log`, `/private/tmp/pb-01-semantics.log`, `/private/tmp/pb-01-view.log`, `/private/tmp/pb-01-true-scale.log`, `/private/tmp/pb-01-review-fixes.log`, `/private/tmp/pb-01-equivalence.log`, `/private/tmp/pb-01-probe-logic.log`, `/private/tmp/pb-01-benchmark-logic.log`, `/private/tmp/pb-01-ui-lint.log`.
+The live-actor production implementation, assets, tuning, shared descriptions, board renderers and existing performance benchmark are unchanged in this round. The owner/reviewer previously accepted the director's performance evidence; this round does not claim a new timing measurement.
 
-The first benchmark logic run exposed retained-section reuse in the proof fixture; explicit proof-only invalidation fixes it. The initial equivalence run reported the intended copy/hierarchy/live-node differences against its old reference; the narrowly updated reference now passes all 18 cases. The survival-copy expectation was updated only for the intentional pb-01 copy/type change; unrelated assertions remain intact. Godot macOS certificate diagnostics, ObjectDB cleanup warnings and scene-tree cleanup diagnostics from unchanged scripts appeared in logs.
+## Observed verification
 
-## Proof for the design owner
+- `PB-01 LIVING FOES TEST: PASS (43 identities; exact objective copy; reduced-motion rest)` / `TEST RESULT: PASS` — exit 0. This also executes the complete existing combat-objective suite.
+- `PB-01 MUTATION disable_renderer_processing: CAUGHT`
+- `PB-01 MUTATION noctyrax_processing_disabled: CAUGHT`
+- `PB-01 MUTATION wrong_noctyrax_renderer: CAUGHT`
+- `PB-01 MUTATION remove_phase_seed: CAUGHT`
+- `PB-01 MUTATION draw_still_for_every_cutout: CAUGHT`
+- `PB-01 MUTATION CHECK: PASS (5/5 caught)` — exit 0; result JSON confirms `production_unchanged: true`.
+- `PB-01 LIVING FOES PROBE LOGIC ONLY: PASS` — native hover and keyboard/controller navigation/focus checks passed headlessly; no screenshot claim.
+- `PRE-BATTLE VIEW TEST: PASS` / `TEST RESULT: PASS` — original layout and input paths; exit 0.
+- `PREPARED PRE-BATTLE VIEW EQUIVALENCE RESULT: {"cases":18,"errors":[],"presented":13}` — exit 0.
+- UI identity lint: `Ran 25 tests in 3.537s` / `OK` — exit 0.
+- `OUTPUT GDIGNORE: PASS (12 folders; 2 referenced roots)`.
+- Single full Godot suite: `FULL SUITE RUNTIME: 760.394 seconds (budget 900 seconds)` / `TEST RESULT: FAIL (1 failure(s))` — exit 1. The sole assertion was `Navigation focus displays the heading's existing-style tooltip: kill_all`, caused by the test's premature focus request. Reproduced in isolation, fixed as described above, then the focused suite passed from the same immediate startup boundary. No second full run was launched, per the requested once limit; a post-fix full-suite PASS has not been observed.
 
-No windowed command was attempted: this worker has no window-server access. Run these exact commands from this worktree. The runner prints the isolated absolute capture folder and records it in the result manifest. The 120-second benchmark budget covers four known 225-frame warmup/sample trials plus scene setup and captures; its startup watchdog stays at the normal default.
+Logs: `/private/tmp/pb-01-r1-focused.log`, `/private/tmp/pb-01-r1-mutation-check.log`, `/private/tmp/pb-01-r1-mutations.json` (links all five mutation logs), `/private/tmp/pb-01-r1-probe-logic.log`, `/private/tmp/pb-01-r1-view.log`, `/private/tmp/pb-01-r1-equivalence.log`, `/private/tmp/pb-01-r1-ui-lint.log`, `/private/tmp/pb-01-r1-full-godot.log`, `/private/tmp/pb-01-r1-startup-reproduction.log` (the intentionally reproduced failure before the test fix).
+
+## Requested 13-capture rerun
+
+Attempted once through `tools/visual_probe_runner.py`, with the 1920×1080 contract, 100% UI scale and normal startup watchdog. **The native renderer could not launch. No images were produced.** macOS returned `Connection Invalid error for service com.apple.hiservices-xpcservice`; the runner reported:
+
+> Godot did not initialize within 8.0 seconds: .../godot.log was never created.
+
+The failed attempt is recorded in `/private/tmp/pb-01-r1-renderer.log` and `/private/tmp/pb-01-r1-renderer.json` (`ok: false`, no images). No retry, alternate backend or watchdog extension was used.
+
+Run this exact command in the owner's window-server-capable session; the fresh manifest path preserves the failed worker attempt:
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/pb-01 && python3 tools/visual_probe_runner.py --task-id pb-01 --no-headless --display-driver macos --audio-driver Dummy --min-images 13 --expect-size 1920x1080 --proof-contract tests/proof_contracts/pb_01_living_foes.json --result-manifest /private/tmp/pb-01-living-foes-renderer.json tests/pre_battle_living_foes_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/pb-01 && python3 tools/visual_probe_runner.py --task-id pb-01 --no-headless --display-driver macos --audio-driver Dummy --min-images 13 --expect-size 1920x1080 --proof-contract tests/proof_contracts/pb_01_living_foes.json --result-manifest /private/tmp/pb-01-r1-owner-renderer.json tests/pre_battle_living_foes_probe.gd
 ```
 
-Captures: `user://probes/pb_01_living_foes/mixed_idle_00.png` through `mixed_idle_03.png`; `objective_kill_leader.png`, `objective_survive.png`, `objective_reach_exit.png`, `objective_dragon.png`, `objective_guardian.png`; `controller_focus.png`, `inspection_still.png`; `reduced_motion_00.png`, `reduced_motion_01.png`. `witnesses.json` records per-slot renderer snapshots. The probe checks actual pixel changes across the idle strip and unchanged pixels in the reduced-motion foe stage. Inspect the original 1920×1080 images at 100% UI scale.
+Expected captures, under the runner's printed isolated `user://probes/pb_01_living_foes/` folder:
 
-```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/pb-01 && python3 tools/visual_probe_runner.py --task-id pb-01 --no-headless --display-driver macos --audio-driver Dummy --timeout 120 --min-images 4 --expect-size 1920x1080 --proof-contract tests/proof_contracts/pb_01_performance.json --result-manifest /private/tmp/pb-01-performance-renderer.json tests/pre_battle_living_foes_benchmark.gd
-```
+- `mixed_idle_00.png` through `mixed_idle_03.png` (includes Noctyrax).
+- `objective_kill_leader.png` (native hover), `objective_survive.png` (keyboard focus), `objective_reach_exit.png` (controller focus), `objective_dragon.png`, `objective_guardian.png`.
+- `controller_focus.png`, `inspection_still.png`, `reduced_motion_00.png`, `reduced_motion_01.png`.
+- `witnesses.json` records per-slot production snapshots.
 
-Captures: `user://probes/pb_01_performance/00_before_1920x1080_ui100.png`, `01_after_1920x1080_ui100.png`, `02_after_1920x1080_ui100.png`, `03_before_1920x1080_ui100.png`; raw measurements and verdict: `measurement.json` in that folder. No inspection-fixture command was required by this unit brief; fixture preparation remains assigned to the design owner.
+## Chosen defaults / design placeholders
 
-## TODO_DESIGN placeholders
+No TODO_DESIGN placeholder remains: the owner removed the secondary line, so its spacing field is obsolete. The focus tooltip reuses the existing tooltip style, Omen focus-tooltip layer (2201), and Chronicle-style edge-aligned below/above placement; no new font, color, spacing or animation tuning was introduced.
 
-`OBJECTIVE_LINE_SPACING` in the production view and its reference fixture: the brief does not supply a vertical gap between the restored heading and secondary copy. The provisional field references the existing `Typography.SPACE_TIGHT` token (4 px). The design owner must confirm or replace it during inspection.
+Test-only defaults: three natural SceneTree process frames per observation and before focus requests, phase tolerance `0.000001`, a 1000×100 objective test container, six Crawler phase slots and two rebuilds. Existing 206×365 foe test geometry is retained. The mixed debug roster replaces Ash Hound with Noctyrax. Native hover uses the existing probe's 3000 ms deadline / 0.05-second polling pattern. Mutation subprocess timeout is 330 seconds around the mandatory runner's unchanged 300-second default. The existing four frames at 0.2-second intervals and proof image regions/luma thresholds remain unchanged.
 
-## Chosen defaults (test/debug only)
+## Open issues
 
-- Test fixture rosters: mixed `crawler, burrow_grub, crawler, ash_hound, gust_shrike, hoarfrost_seer`; performance `crawler, acolyte, harrier, warden, ash_hound, gust_shrike`; named objective proofs use Vyraketh and Last Lamplighter.
-- Unit stage size: 206×365; explicit clock step: 0.23 seconds; phase fixture: slot 2 of 6. These do not set production layout or timing.
-- Frame strip: four frames, 0.2 seconds apart. Benchmark: ABBA, 45 warmup / 180 measured frames per trial; VSync disabled and FPS uncapped only in the windowed benchmark; headless validation uses two process frames and emits no timing verdict.
-- Proof regions `[390, 320, 650, 530]` (foes) and `[600, 245, 720, 100]` (header), with luma thresholds of range 8 and standard deviation 2, are named debug-only image-validation fields; no production camera or layout changes.
-- Existing base-fixture seed selection, settling delays and 1920×1080/UI100 settings are reused. Production phase spacing is derived from actual slot count; production cycle durations come exclusively from existing board renderer/data.
-
-## Open issues / owner actions
-
-- Real-renderer captures, visual identity judging and the six-foe no-regression measurement are pending owner execution.
-- Confirm `OBJECTIVE_LINE_SPACING`.
-- Read-only `parallel_task.py status` reported an empty acceptance/proof contract (`contract_ready: false`) despite the launch brief stating it was recorded. Acceptance and proof expectations are also recorded in the owned proof JSON. The owner must reconcile helper metadata before their commit/review/inspection workflow.
-- The existing `tests/pre_battle_preview_probe.gd` still contains its explicitly retained `KILL THE LEADER` boss-title assertion, although current identity rules use named bosses. It was left unchanged; this worker only parsed that legacy probe. The new probe checks the current exact named title.
-- Peer review, inspection fixture, commit and publication remain with the owner, as requested.
+- Fresh round-1 renderer captures and visual inspection require the owner's window-server-capable session. Headless checks and command preparation do not substitute for these images.
+- The requested single full run failed on the new test's startup ordering. That ordering is corrected and the focused suite passes; the final tree has not had another full run.
+- The retained old `tests/pre_battle_preview_probe.gd` named-boss `KILL THE LEADER` assertion was already present on the reviewed base and remains unchanged; the new probe verifies current named objectives.
+- Commit/publication and further peer-review workflow remain with the owner, as instructed.

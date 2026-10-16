@@ -1,7 +1,7 @@
 extends "res://tests/pre_battle_fixture.gd"
 
 const Rules = preload("res://scripts/combat_objective_rules.gd")
-const MIXED_ROSTER: Array[String] = ["crawler", "burrow_grub", "crawler", "ash_hound", "gust_shrike", "hoarfrost_seer"]
+const MIXED_ROSTER: Array[String] = ["crawler", "burrow_grub", "crawler", "noctyrax", "gust_shrike", "hoarfrost_seer"]
 const PERFORMANCE_ROSTER: Array[String] = ["crawler", "acolyte", "harrier", "warden", "ash_hound", "gust_shrike"]
 
 func _living_fixture() -> Node:
@@ -35,11 +35,9 @@ func _set_roster(instance: Node, roster: Array[String], objective: Dictionary, u
 	_assert_foe_fit(panel, roster.size())
 	var title := panel.find_child("PreBattleObjectiveTitle", true, false) as Label
 	_expect(title != null and title.text == "OBJECTIVE · " + Rules.title_for_objective(objective), "Heading must be exact")
-	var detail := panel.find_child("PreBattleObjectiveDescription", true, false) as RichTextLabel
-	if Rules.description_for_objective(objective).is_empty():
-		_expect(detail == null, "Named boss has no secondary line")
-	else:
-		_expect(detail != null and detail.get_parsed_text() == Rules.description_for_objective(objective) and detail.get_line_count() == 1, "Secondary copy must remain a single exact line at 1920x1080 / UI100")
+	_expect(panel.find_child("PreBattleObjectiveDescription", true, false) == null, "Every objective is heading-only at 1920x1080 / UI100")
+	var tooltip_text: String = (Rules.title_for_objective(objective) + "\n" + Rules.description_for_objective(objective)).strip_edges()
+	_expect(title.tooltip_text == tooltip_text and title.get_line_count() == 1 and title.mouse_filter == Control.MOUSE_FILTER_STOP, "Heading exposes exact rule tooltip without wrapping or ignoring hover")
 	return panel
 
 func _living_snapshots(panel: Control) -> Array[Dictionary]:

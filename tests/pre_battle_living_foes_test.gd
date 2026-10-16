@@ -5,7 +5,7 @@ var failed: bool = false
 
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
-	_run.call_deferred()
+	await _run()
 
 func _run() -> void:
 	preload("res://tests/suites/combat_objective_suite.gd").run(_expect)

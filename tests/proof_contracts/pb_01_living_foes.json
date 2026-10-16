@@ -2,11 +2,11 @@
   "task_id": "pb-01",
   "risk_tier": "standard",
   "acceptance_criteria": [
-    "Exact OBJECTIVE title and four concise descriptions; no secondary dragon/Guardian line; no wrapping at 1920x1080 / UI100",
+    "Only the exact OBJECTIVE title is visible for every identity; four concise rules appear in heading hover and keyboard/controller focus tooltips; no wrapping at 1920x1080 / UI100",
     "All 43 identities choose their board renderer before legacy sheets, otherwise retain their still; front-facing registered scale, floor, pools and badges; deterministic slot phases; reduced-motion rest",
     "No median or p95 frame-time regression for six foes in the matched windowed benchmark"
   ],
-  "inspection_expectation": "Director inspects 1920x1080 / UI100 mixed-pack strip, objective states, input focus, still inspection and reduced motion; runs matched before/after benchmark",
+  "inspection_expectation": "Director inspects 1920x1080 / UI100 mixed-pack strip, heading-only objective states, native hover and keyboard/controller tooltip focus, still inspection and reduced motion; runs matched before/after benchmark",
   "expected_sizes": ["1920x1080"],
   "required_images": [
     {"pattern": "mixed_idle_*.png", "min_count": 4, "width": 1920, "height": 1080, "regions": [{"rect": [390, 320, 650, 530], "min_luma_range": 8, "min_luma_stdev": 2}]},

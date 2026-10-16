@@ -3,6 +3,8 @@ extends "res://tests/pre_battle_living_foes_fixture.gd"
 const OUTPUT: String = "user://probes/pb_01_living_foes"
 const STRIP_FRAMES: int = 4
 const STRIP_STEP_SECONDS: float = 0.2
+const HOVER_DEADLINE_MSEC: int = 3000
+const HOVER_POLL_SECONDS: float = 0.05
 var _logic_only: bool = false
 var _witnesses: Array[Dictionary]
 var _previous: Image
@@ -11,16 +13,31 @@ var _reduced_before: Image
 func _initialize() -> void:
 	_logic_only = "--logic-only" in OS.get_cmdline_user_args()
 	_setup()
+	_viewport.gui_embed_subwindows = true
+	_viewport.notify_mouse_entered()
 	_run.call_deferred()
 
 func _run() -> void:
 	var instance: Node = await _living_fixture()
+	var router: Node = root.get_node("InputRouter")
+	router.call("set_forced_state_for_test", "pointer", "xbox")
 	var panel: Control = await _set_roster(instance, MIXED_ROSTER, {"type": "kill_all"})
 	for index: int in range(STRIP_FRAMES):
 		await _snap("mixed_idle_%02d" % index, panel)
 		await create_timer(STRIP_STEP_SECONDS).timeout
 	for type: String in ["kill_leader", "survive", "reach_exit"]:
 		panel = await _set_roster(instance, MIXED_ROSTER, {"type": type, "leader_id": 1})
+		var heading := panel.find_child("PreBattleObjectiveTitle", true, false) as Label
+		if type == "kill_leader":
+			await _hover_objective(heading)
+		else:
+			router.call("set_forced_state_for_test", "controller" if type == "reach_exit" else "pointer", "xbox")
+			var first_foe := panel.find_child("PreBattleEnemyCard", true, false) as Control
+			first_foe.grab_focus()
+			if type == "reach_exit": await _joy(JOY_BUTTON_DPAD_UP)
+			else: await _key(KEY_UP)
+			await _settle()
+			_expect(heading.has_focus() and heading.get_node_or_null("PreBattleObjectiveFocusTooltip") != null, "Keyboard/controller Up reaches objective heading and shows rules")
 		await _snap("objective_" + type, panel)
 	var named_roster: Array[String]
 	named_roster.append("vyraketh")
@@ -31,7 +48,6 @@ func _run() -> void:
 	panel = await _set_roster(instance, named_roster, {"type": "kill_leader", "leader_type": "last_lamplighter", "leader_id": 1})
 	await _snap("objective_guardian", panel)
 	panel = await _set_roster(instance, MIXED_ROSTER, {"type": "kill_all"})
-	var router: Node = root.get_node("InputRouter")
 	router.call("set_forced_state_for_test", "controller", "xbox")
 	var foe := panel.find_child("PreBattleEnemyCard", true, false) as Control
 	foe.grab_focus()
@@ -81,3 +97,16 @@ func _snap(name: String, panel: Control) -> void:
 		_reduced_before = actors
 	elif name == "reduced_motion_01":
 		_expect(_reduced_before.get_data() == actors.get_data(), "Rendered reduced-motion foe stage must stay still")
+
+func _hover_objective(heading: Label) -> void:
+	await _pointer(heading.get_global_rect().get_center())
+	_expect(_viewport.gui_get_hovered_control() == heading, "Actual heading owns native pointer hover")
+	var deadline: int = Time.get_ticks_msec() + HOVER_DEADLINE_MSEC
+	while Time.get_ticks_msec() < deadline:
+		for node: Node in heading.find_children("*", "Window", true, false):
+			var popup := node as Window
+			if popup.visible and popup.theme_type_variation == &"TooltipPanel":
+				_expect(not popup.find_children("*", "PanelContainer", true, false).is_empty(), "Native hover contains the shared tooltip panel")
+				return
+		await create_timer(HOVER_POLL_SECONDS).timeout
+	_expect(false, "Heading hover must open its real native tooltip")

@@ -24,8 +24,7 @@ const FoeCaption = preload("res://scripts/pre_battle_foe_caption.gd")
 const FoeLayout = preload("res://scripts/pre_battle_foe_layout.gd")
 const Lineup = preload("res://scripts/pre_battle_lineup.gd")
 const LiveActor = preload("res://scripts/live_actor_presentation.gd")
-const InlineText = preload("res://scripts/inline_icon_text.gd")
-const OBJECTIVE_LINE_SPACING: int = Typography.SPACE_TIGHT
+const ObjectiveHeading = preload("res://scripts/pre_battle_objective_heading.gd")
 
 static func build(host: Node, panel: PanelContainer, room: Dictionary, combat: Dictionary, accent: Color) -> void:
 	var margin := MarginContainer.new()
@@ -133,31 +132,18 @@ static func build_objective(combat: Dictionary) -> Control:
 		plate.name = "PreBattleObjectiveChip"
 		plate.set_meta("objective_title", ObjectiveRules.title_for_objective(objective))
 		plate.set_meta("objective_description", ObjectiveRules.description_for_objective(objective))
-		plate.tooltip_text = "%s\n%s" % [ObjectiveRules.title_for_objective(objective), ObjectiveRules.description_for_objective(objective)]
 		row.add_child(plate)
 		var contents := HBoxContainer.new()
 		contents.add_theme_constant_override("separation", 8)
 		plate.add_child(contents)
 		contents.add_child(icon(ObjectiveRules.icon_path(str(objective.get("type", ObjectiveRules.KILL_ALL))), 22.0, "PreBattleObjectiveIcon"))
-		var copy := VBoxContainer.new()
-		copy.add_theme_constant_override("separation", OBJECTIVE_LINE_SPACING)
-		contents.add_child(copy)
-		var heading := label("OBJECTIVE · " + ObjectiveRules.title_for_objective(objective), 19)
+		var heading := ObjectiveHeading.new()
+		heading.text = "OBJECTIVE · " + ObjectiveRules.title_for_objective(objective)
 		heading.name = "PreBattleObjectiveTitle"
-		copy.add_child(heading)
-		var description: String = ObjectiveRules.description_for_objective(objective)
-		if not description.is_empty():
-			var detail := RichTextLabel.new()
-			detail.name = "PreBattleObjectiveDescription"
-			detail.fit_content = true
-			detail.scroll_active = false
-			detail.autowrap_mode = TextServer.AUTOWRAP_OFF
-			detail.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			Typography.apply_rich_text_role(detail, Typography.ROLE_CAPTION)
-			detail.add_theme_color_override("default_color", Palette.TEXT_2)
-			# Time is a glossary term; retain its word-only gold token.
-			InlineText.apply_to(detail, description.replace("time", "@kw(time|time)"))
-			copy.add_child(detail)
+		Surface.label_style(heading, 19, Palette.TEXT)
+		heading.mouse_filter = Control.MOUSE_FILTER_STOP
+		heading.tooltip_text = ("%s\n%s" % [ObjectiveRules.title_for_objective(objective), ObjectiveRules.description_for_objective(objective)]).strip_edges()
+		contents.add_child(heading)
 	return row
 
 static func icon(path: String, diameter: float, node_name: String = "") -> TextureRect:
