@@ -169,3 +169,10 @@ choices, owned relics and inline icons, data-driven glossary (ux-03); 17 rebuilt
 no longer amplified by Expose/Chilled/Frozen + SPENT HUD + token icons (fix-03); pixel-identical UI cleanup (ui-02);
 tooling (art-05/06, qa-04). Not yet in: sound sync, pixel FX, gaoler rig, new lancer/wisp/bloomer art (await owner).
 
+
+## Playtest 9 (frozen worktree ../peer-benchmark-playtest-9 at 44500665e; full suite PASS 807 s after re-import; fixture verified)
+Adds since playtest 8: Briar Weaver/any enemy never takes a silent empty turn — falls back to its fallback intent with a
+cancelled badge (fix-04); sound sync — hits land on the visual climax across speeds, cue length caps (electric trap buzz
+≤1.2 s) (sfx-04); pixel-art elemental FX (vfx-01); approved glossary/relic text rewrite with gold keywords (ux-04);
+art tooling (art-07, rr-02 maquette→cutout; gaoler rig not production-integrated). Fixture opens combat vs briar weaver,
+crawler, harrier. Not yet in: shrike cutout (rr-03 round 3), other static-enemy cutouts, new lancer/wisp/bloomer art.
