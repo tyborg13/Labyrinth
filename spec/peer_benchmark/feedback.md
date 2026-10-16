@@ -109,3 +109,7 @@
   good." Cutout motion approach approved → rig Shale Bloomer and Lightning Wisp the same way; then the roster.
 - 2026-10-16: last two demo reels (full hit sounds incl. Crawler bite; lightning trap + Briar Weaver after Thornwall):
   owner "look good" → fix-04 (Weaver) owner-verified on video.
+- 2026-10-16 Lancer: source repaint "looks really good" but owner rejects a mixed pipeline (style inconsistency):
+  keep the maquette approach for ALL enemies and refine it — wisp, shrike, bloomer show the consistent look; avoid a
+  "toy soldier" look. Asked for: armour shaped like real plate pieces (not ovals), the scarf/mantle wrapping around
+  (not wings sticking out in front), a diamond chest gem, an icicle spearhead that follows the shaft. → mq-03.
