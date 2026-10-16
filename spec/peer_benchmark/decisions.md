@@ -56,3 +56,7 @@
 ## 2026-10-16 — owner decisions
 - Self-hits from Meteorfall / Detonate stay amplified by the hero's Expose / Chilled / Frozen (owner: "Yes, I think so").
   Only Fatigue is excluded (fix-03). No change needed.
+- Starting diversity: a run-start boon choice (pick 1 of 3), offered by the emaciated man at the beginning of a run;
+  the heirloom (one equipment piece kept from the previous run) is one possible option, never automatic.
+- Spell/magic slot limit: dropped entirely. Spells go straight into the deck (no equipping after fights); deck
+  dilution is the cost, so card removal must be available.
