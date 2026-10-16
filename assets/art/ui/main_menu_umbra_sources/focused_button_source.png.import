@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bsu6vo5dc86r3"
-path="res://.godot/imported/focused_button_source.png-bdc01d2c8d7f4378d27bb1215965d525.ctex"
+path="res://.godot/imported/focused_button_source.png-4896d0a2340a162f862e43b56b357178.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://marketing/trailer/public/game-assets/art/ui/main_menu_umbra_sources/focused_button_source.png"
-dest_files=["res://.godot/imported/focused_button_source.png-bdc01d2c8d7f4378d27bb1215965d525.ctex"]
+source_file="res://assets/art/ui/main_menu_umbra_sources/focused_button_source.png"
+dest_files=["res://.godot/imported/focused_button_source.png-4896d0a2340a162f862e43b56b357178.ctex"]
 
 [params]
 
