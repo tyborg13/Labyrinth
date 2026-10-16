@@ -59,6 +59,9 @@
 | demo-01 | Scripted demo clips with game audio (21 clips, 3 reels: pixel FX, hit-sound sync, lightning trap + Briar Weaver) | fixing r7 (real renderer + MJPEG writer) | codex/peer-benchmark | briefs/demo-01.md |
 | qa-06 | Gust Shrike proof hardening: bone-level signed motion check; production capture without pose seeking (split from rr-03) | merged f411c09a9 (Codex signoff 7d39578e6) | codex/rr-03 | briefs/qa-06.md |
 | mq-02 | Sculpted maquettes fitted to source art: NumPy geometry + rasteriser, limb/torso/shell/cloak/smooth primitives, fit tool + gate, lancer r2 | running | codex/peer-benchmark | briefs/mq-02.md |
+| ux-05 | Previews mark destruction (terrain, traps, illusions, lethal pull ghosts) instead of hiding it | running | codex/peer-benchmark | briefs/ux-05.md |
+| pb-01 | Pre-battle: concise objective heading + one line; foes play their board idles | running | codex/peer-benchmark | briefs/pb-01.md |
+| deck-01 | Drop the magic-slot limit; spells go to the deck; Purge at Scavenger and Campfire; save migration | running | codex/peer-benchmark | briefs/deck-01.md |
 | anim-01/anim-02 | Static enemy mesh-warp idle | shelved (owner: ripple + bird bounce rejected) | — | feedback.md 2026-10-15 |
 | fix-04 | Briar Weaver loses turn + intent after Thornwall (owner playtest 8) | merged 81e7f0dc9 (Codex signoff 6e3caa464) | codex/peer-benchmark | briefs/fix-04.md |
 | qa-05 | Integration: sfx sync suites fail after sfx-04 merge (interaction) | dropped: root cause = stale .godot audio imports in the integration worktree; fixed by re-import, runtime freshness workaround rejected | codex/peer-benchmark | briefs/qa-05.md |
