@@ -120,28 +120,10 @@ func _build_equipment_inventory_column(_keep_parent: bool = false) -> Control:
 
 func _build_magic_attuned_column(_keep_parent: bool = false) -> Control:
 	const Menu = preload("res://scripts/character_menu_view.gd")
-	var attuned: Array = (_run_state.get("attuned_magic_cards", []) as Array).duplicate()
-	var panel := Menu.column("MagicAttunedPanel", 420.0, "ATTUNED MAGIC", "%d / %d" % [mini(attuned.size(), GameData.magic_loadout_limit()), GameData.magic_loadout_limit()])
-	_magic_attuned_drop_panel = panel
-	var slots := Menu.scroll_list(panel)
-	for index: int in range(GameData.magic_loadout_limit()):
-		var card_id: String = str(attuned[index]) if index < attuned.size() else ""
-		slots.add_child(_build_magic_card_tile(card_id, "attuned", index))
-	if not _magic_overlay_can_change():
-		slots.add_child(Menu.label("Locked in combat", 14, UiPalette.TEXT_2))
-	return panel
-
-func _build_magic_inventory_column(_keep_parent: bool = false) -> Control:
-	const Menu = preload("res://scripts/character_menu_view.gd")
-	var reserve: Array = (_run_state.get("magic_inventory", []) as Array).duplicate()
-	var panel := Menu.column("MagicInventoryPanel", 400.0, "LEARNED MAGIC", str(reserve.size()))
-	_magic_inventory_drop_panel = panel
-	var slots := Menu.scroll_list(panel)
-	if reserve.is_empty():
-		slots.add_child(Menu.empty_copy("No learned magic"))
-	else:
-		for index: int in range(reserve.size()):
-			slots.add_child(_build_magic_card_tile(str(reserve[index]), "inventory", index))
+	var magic: Array = _run_state.get("attuned_magic_cards", [])
+	var panel := Menu.column("MagicAttunedPanel", 420.0, "MAGIC IN DECK", "%d spells" % magic.size())
+	var list := Menu.scroll_list(panel, "", "MagicAttunedRows")
+	_magic_attuned_tiles = preload("res://scripts/magic_deck_list.gd").populate(self, list, magic)
 	return panel
 
 func _build_equipment_inventory_tile(equipment_id: String, _retention_key: String = "") -> Control:
@@ -236,7 +218,7 @@ func _build_current_deck_column(_keep_parent: bool = false) -> Control:
 	var panel := Menu.column("CurrentDeckPanel", 0.0, "DECK", "%d cards" % card_count)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var list := Menu.scroll_list(panel)
-	list.add_child(_build_attuned_magic_deck_group(attuned))
+	if _progression_overlay_mode != "magic": list.add_child(_build_attuned_magic_deck_group(attuned))
 	list.add_child(_build_equipped_items_deck_group(items))
 	for slot: String in GameData.equipment_slots():
 		var equipment_id: String = str(equipped.get(slot, ""))

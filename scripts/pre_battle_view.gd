@@ -432,7 +432,7 @@ static func build_kit(host: Node, future_state: Dictionary = {}) -> Control:
 	kit.add_child(_gear_row(host, future_state))
 	var state: Dictionary = host.get("_run_state") if future_state.is_empty() else future_state
 	var attuned: Array = state.get("attuned_magic_cards", []) as Array
-	kit.add_child(loadout_header("ATTUNED MAGIC", "%d / %d" % [attuned.size(), GameData.magic_loadout_limit()]))
+	kit.add_child(loadout_header("MAGIC IN DECK", "%d spells" % attuned.size()))
 	kit.add_child(card_grid(host, attuned, "attuned", "PreBattleAttunedRow"))
 	var deck: Array = state.get("deck_cards", []) as Array
 	kit.add_child(loadout_header("ACTIVE DECK", "%d cards" % deck.size()))
@@ -516,7 +516,7 @@ static func _refresh_kit(host: Node, kit: Control, state: Dictionary, previous: 
 	var attuned_ids: Array = state.get("attuned_magic_cards", []) as Array
 	var deck_ids: Array = state.get("deck_cards", []) as Array
 	if previous.get("attuned_magic_cards") != current.get("attuned_magic_cards"):
-		_replace_component(host, kit, 3, loadout_header("ATTUNED MAGIC", "%d / %d" % [attuned_ids.size(), GameData.magic_loadout_limit()]))
+		_replace_component(host, kit, 3, loadout_header("MAGIC IN DECK", "%d spells" % attuned_ids.size()))
 	if previous.get("deck_cards") != current.get("deck_cards"):
 		_replace_component(host, kit, 5, loadout_header("ACTIVE DECK", "%d cards" % deck_ids.size()))
 	_refresh_card_grid(host, attuned, attuned_ids, "attuned")

@@ -1931,6 +1931,7 @@ func _log_reward_choice(choice_kind: String, card_id: String, reward: Dictionary
 	_analytics_store.write_event("reward_choice", _analytics_context({}, card_id), {
 		"choice_kind": choice_kind,
 		"selected_card_id": card_id,
+		"destination": "deck" if choice_kind == "card" else "",
 		"offered_cards": (reward.get("cards", []) as Array).duplicate(true),
 		"heal_amount": int(reward.get("heal_amount", 0)),
 		"ember_amount": int(reward.get("ember_amount", 0)),

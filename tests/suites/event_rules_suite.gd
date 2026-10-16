@@ -143,7 +143,7 @@ static func _requirements(engine: RefCounted, expect: Callable) -> void:
 		[{"type": "max_hp_above", "amount": 8}, "player_max_hp", 8, 9, "Requires more than 8 max Health."],
 		[{"type": "embers_at_least", "amount": 50}, "held_embers", 49, 50, "Requires 50 Embers."],
 		[{"type": "has_item"}, "item_inventory", [], ["crimson_draught"], "Requires an item."],
-		[{"type": "has_attuned_magic"}, "attuned_magic_cards", [], ["pale_spark"], "Requires an attuned spell."]
+		[{"type": "has_attuned_magic"}, "attuned_magic_cards", [], ["pale_spark"], Events.MAGIC_REQUIREMENT_COPY]
 	]
 	Data.events()["test_requirements"] = {"choices": [{"id": "choice", "requires": [], "effects": []}]}
 	var choice: Dictionary = Data.event_def("test_requirements")["choices"][0]
@@ -214,7 +214,7 @@ static func _effects(engine: RefCounted, expect: Callable) -> void:
 	for element: String in ["any", "section", "fire", "ice", "earth", "air", "lightning"]:
 		result = _apply(engine, state, [{"type": "card", "rarity": "rare", "element": element}])
 		var id: String = result["outcomes"][0]["id"]
-		expect.call(result["state"]["magic_inventory"].has(id) and engine.loadout_asset_is_new(result["state"], "magic", id) and Data.card_rarity(id) == "rare", "Magic grants enter the reserve marked NEW")
+		expect.call(result["state"]["attuned_magic_cards"].has(id) and engine.loadout_asset_is_new(result["state"], "magic", id) and Data.card_rarity(id) == "rare", "Magic grants enter the deck marked NEW")
 		expect.call(element == "any" or Data.card_element(id) == (Events.section_element(state) if element == "section" else element), "Magic rewards resolve element filters")
 	result = _apply(engine, state, [{"type": "card_choice", "count": 3, "element": "fire", "min_rarity": "rare"}])
 	var cards: Array = result["outcomes"][0]["cards"]
@@ -443,7 +443,7 @@ static func _replacement_fallbacks(engine: RefCounted, expect: Callable) -> void
 		if str(fixture[2]).is_empty():
 			expect.call(result["outcomes"] == [{"type": "embers", "amount": 40, "substitution_for": "card"}] and result["state"]["held_embers"] == state["held_embers"] + 40, "An empty card pool grants the approved 40-Ember substitution")
 		else:
-			expect.call(result["outcomes"][0]["id"] == fixture[2] and result["state"]["magic_inventory"].has(fixture[2]), "Card grants fall back to lower rarity, then any available rarity")
+			expect.call(result["outcomes"][0]["id"] == fixture[2] and result["state"]["attuned_magic_cards"].has(fixture[2]), "Card grants fall back to lower rarity, then any available rarity")
 		Data.cards().clear()
 		Data.cards().merge(original_cards)
 	expect.call(Data.equipment() == original_gear and Data.cards() == original_cards, "Fallback tests restore all catalogs without editing protected data")
@@ -645,7 +645,7 @@ static func _persistence_and_rewards(engine: RefCounted, expect: Callable) -> vo
 		expect.call(Store.save_run_state(continued) and Store.load_saved_run()["pending_reward"] == continued["pending_reward"], "Event card chooser saves its exact cards")
 		if action == "claim":
 			var claimed: Dictionary = engine.claim_card_reward(continued, card)
-			expect.call(claimed["mode"] == "room" and claimed["magic_inventory"].has(card) and engine.loadout_asset_is_new(claimed, "magic", card), "Claim goes to reserve then room")
+			expect.call(claimed["mode"] == "room" and claimed["attuned_magic_cards"].has(card) and engine.loadout_asset_is_new(claimed, "magic", card), "Claim goes to deck then room")
 			expect.call(engine.claim_card_reward(continued, "unknown") == continued, "Event reward claims must belong to the offer")
 		else:
 			var skipped: Dictionary = engine.skip_reward_for_heal(continued, card)

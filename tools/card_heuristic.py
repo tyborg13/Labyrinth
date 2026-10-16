@@ -228,6 +228,7 @@ GUARDIAN_ASSUMPTIONS = {
 def encounter_assumptions() -> dict[str, Any]:
     """Return the run structure that contextualizes card-score coefficients."""
     return {
+        "magic_deck_context": {"ownership": "all owned magic enters deck; no slot cap", "starting_deck_cards": 16, "intrinsic_scores_depend_on_deck_size": False, "purge": "changes draw frequency only; analyze by deck composition and purge source/price"},
         "depths_per_sequence": DEPTHS_PER_SEQUENCE,
         "sequences_per_run": SEQUENCES_PER_RUN,
         "randomized_elemental_bosses": RANDOMIZED_ELEMENTAL_BOSSES,

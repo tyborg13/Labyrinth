@@ -283,7 +283,7 @@ func _large_inventory() -> void:
 	if magic.size() > 64:
 		magic.resize(64)
 	_check(gear.size() >= 12 and magic.size() >= 32, "Large inventory fixture must exceed both visible inventory areas")
-	_check(attuned.size() == Data.magic_loadout_limit(), "Large inventory fixture must preserve all six starter magic slots")
+	_check(attuned.size() == Data.starting_magic_cards().size(), "Large inventory fixture must preserve all six starter magic slots")
 	state["equipment_inventory"] = gear
 	state["magic_inventory"] = magic
 	state["reward_cards"] = magic.duplicate()
@@ -307,18 +307,12 @@ func _large_inventory() -> void:
 	_assert_persisted_state_fields(expected, phase, LOADOUT_FIELDS)
 	await _probe.call("_save_root_screenshot", "remaining_large_gear.png")
 	await _measure("remaining/inventory/magic_tab", func() -> void: _click(_instance.find_child("CharacterMagicTab", true, false)), 30)
-	await _scroll_inventory("MagicInventoryPanel", "remaining/inventory/magic")
-	var source: Control = (_instance.get("_magic_inventory_tiles") as Dictionary).get(0) as Control
-	var destination: Control = (_instance.get("_magic_attuned_tiles") as Dictionary).get(0) as Control
-	_check(is_instance_valid(source) and is_instance_valid(destination), "Attunement must expose both live drag endpoints")
-	if not is_instance_valid(source) or not is_instance_valid(destination):
-		return
+	await _scroll_inventory("MagicAttunedPanel", "remaining/inventory/magic")
+	var source: Control = (_instance.get("_magic_attuned_tiles") as Dictionary).get(0) as Control
+	_check(is_instance_valid(source), "Magic deck exposes its live first counted row")
 	before = (_instance.get("_run_state") as Dictionary).duplicate(true)
-	expected = _engine.swap_magic_card(before, 0, 0)
-	_check(expected.get("attuned_magic_cards") != before.get("attuned_magic_cards"), "Magic oracle must change the attuned card")
-	phase = await _measure("remaining/inventory/attune_drag", func() -> void: _routed_drag(source, destination), 45)
-	_assert_persisted_state_fields(expected, phase, LOADOUT_FIELDS)
-	_check(not bool(_instance.get("_magic_drag_release_in_progress")), "Attunement must finish releasing its drag")
+	phase = await _measure("remaining/inventory/magic_inspection", func() -> void: source.grab_focus(), 45)
+	_check((_instance.get("_run_state") as Dictionary) == before, "Magic inspection does not change ownership")
 	await _probe.call("_save_root_screenshot", "remaining_large_magic.png")
 	await _measure("remaining/inventory/close", func() -> void: _click(_instance.find_child("CloseCharacterOverlay", true, false)), 18)
 

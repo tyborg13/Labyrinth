@@ -123,15 +123,18 @@ func _run() -> void:
 	await _compare(state, "equipment", "equipment definition change on reopen", true)
 	gear_definition["name"] = gear_name
 	await _compare(state, "equipment", "equipment definition restored")
-	await _compare(state, "magic", "64 learned magic rows")
-	var magic_panel: Control = scenes[0]._upgrade_dialog.find_child("MagicInventoryPanel", true, false)
-	var unchanged_magic: Control = scenes[0]._magic_inventory_tiles[2]
-	state = engine.swap_magic_card(state, 0, 0)
-	await _compare(state, "magic", "actual magic swap")
-	_check(scenes[0]._upgrade_dialog.find_child("MagicInventoryPanel", true, false) == magic_panel and scenes[0]._magic_inventory_tiles[2] == unchanged_magic, "Magic swap must retain its panel and untouched rows")
-	state["magic_inventory"].reverse()
-	await _compare(state, "magic", "magic index reorder")
-	var card: Dictionary = Data.cards()[str(state["magic_inventory"][2])]
+	state = engine._repair_equipment_state(state)
+	await _compare(state, "magic", "all owned magic rows")
+	var magic_panel: Control = scenes[0]._upgrade_dialog.find_child("MagicAttunedPanel", true, false)
+	state = engine.grant_magic_to_deck(state, "spark_dart")
+	# This oracle checks presentation retention; notification behavior has its
+	# own full-suite coverage and is normalized before reopen comparisons.
+	state = engine.mark_loadout_asset_seen(engine.clear_loadout_unread(state, "magic"), "magic", "spark_dart")
+	await _compare(state, "magic", "actual magic acquisition")
+	_check(scenes[0]._upgrade_dialog.find_child("MagicAttunedPanel", true, false) == magic_panel, "Magic acquisition retains its list panel")
+	state["attuned_magic_cards"].reverse()
+	await _compare(state, "magic", "magic ownership reorder")
+	var card: Dictionary = Data.cards()[str(state["attuned_magic_cards"][2])]
 	var card_name: Variant = card["name"]
 	card["name"] = "Revised active magic name"
 	await _compare(state, "magic", "card definition change on reopen", true)
@@ -141,10 +144,10 @@ func _run() -> void:
 	await _compare(state, "magic", "combat locked magic")
 	state["mode"] = "room"
 	await _compare(state, "magic", "unlocked magic")
-	state["magic_inventory"] = [str(magic[0]), str(magic[0])]
-	state["attuned_magic_cards"] = []
+	state["magic_inventory"] = []
+	state["attuned_magic_cards"] = [str(magic[0]), str(magic[0])]
 	await _compare(state, "magic", "duplicate magic and empty attuned slots")
-	_check(scenes[0]._magic_inventory_tiles[0] != scenes[0]._magic_inventory_tiles[1], "Duplicate magic must keep distinct indexed callbacks")
+	_check(scenes[0]._magic_attuned_tiles.size() == 1 and scenes[0]._magic_attuned_tiles[0].get_meta("magic_copy_count") == 2, "Duplicate magic uses one counted row")
 	state["equipment_inventory"] = []
 	state["item_inventory"] = []
 	state["equipped_items"] = []

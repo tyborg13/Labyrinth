@@ -97,7 +97,7 @@ static func _test_live_run_hooks(tree: SceneTree, expect: Callable) -> void:
 	}
 	instance.set("_run_state", reward_state)
 	await instance.call("_on_reward_card_pressed", "frostbolt")
-	expect.call((instance.get("_run_state") as Dictionary).get("magic_inventory", []).has("frostbolt"), "Card reward fixture should claim the selected card")
+	expect.call((instance.get("_run_state") as Dictionary).get("attuned_magic_cards", []).has("frostbolt"), "Card reward fixture should claim the selected card")
 	expect.call(_has_played_sfx(instance, RunSfxLibrary.REWARD_ACCEPTED_ID), "Claiming a card reward should play the accepted-reward cue")
 
 	var relic_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)

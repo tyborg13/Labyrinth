@@ -60,6 +60,7 @@ const HealthBarThemeSuite = preload("res://tests/suites/health_bar_theme_suite.g
 const UmbraActionAnimationSuite = preload("res://tests/suites/umbra_action_animation_suite.gd")
 const ItemPickupSuite = preload("res://tests/suites/item_pickup_suite.gd")
 const GraftwrightSuite = preload("res://tests/suites/graftwright_suite.gd")
+const MagicDeckSuite = preload("res://tests/suites/magic_deck_suite.gd")
 const ScavengerShopSuite = preload("res://tests/suites/scavenger_shop_suite.gd")
 const ControllerInputSuite = preload("res://tests/suites/controller_input_suite.gd")
 const GuidedCombatTutorialSuite = preload("res://tests/suites/guided_combat_tutorial_suite.gd")
@@ -197,6 +198,7 @@ func _initialize() -> void:
 	ItemPickupSuite.run(Callable(self, "_assert"))
 	GraftwrightSuite.run(Callable(self, "_assert"))
 	ScavengerShopSuite.run(Callable(self, "_assert"))
+	MagicDeckSuite.run(Callable(self, "_assert"))
 	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
 	_test_grimoire_data_and_unlocks(default_progression)
 	_test_original_music_routes()
@@ -845,9 +847,9 @@ func _test_equipment_data_rarity_and_starter_deck() -> void:
 		"lantern_shot"
 	]:
 		_assert(starter_equipment_deck.has(card_id), "Starter equipment should preserve %s in the gear deck" % card_id)
-	_assert(GameData.magic_loadout_limit() == 6, "Magic loadout should currently cap at six attuned cards")
+	_assert(GameData.starting_magic_cards().size() == 6, "Starting deck retains six authored magic copies")
 	var starting_deck: Array = GameData.starting_deck()
-	_assert(starting_deck.size() == starter_equipment_deck.size() + GameData.magic_loadout_limit(), "Full starting deck should add six default magic cards to starter equipment")
+	_assert(starting_deck.size() == starter_equipment_deck.size() + GameData.starting_magic_cards().size(), "Full starting deck should add six default magic cards to starter equipment")
 	for card_id_var: Variant in GameData.starting_magic_cards():
 		_assert(starting_deck.has(str(card_id_var)), "Full starting deck should include default magic card %s" % str(card_id_var))
 
@@ -2057,7 +2059,7 @@ func _test_equipment_run_state_and_reward_cards(default_progression: Dictionary)
 
 	var reward_state: Dictionary = engine.claim_card_reward(run_state, "spark_dart")
 	_assert((reward_state.get("reward_cards", []) as Array) == ["spark_dart"], "Claimed card rewards should still append to reward_cards for collection history")
-	_assert((reward_state.get("magic_inventory", []) as Array) == ["spark_dart"], "Claimed card rewards should enter reserve magic")
+	_assert((reward_state.get("attuned_magic_cards", []) as Array).has("spark_dart"), "Claimed card rewards should enter the deck")
 	_assert(engine.loadout_unread_ids(reward_state, "magic") == ["spark_dart"], "Claimed card rewards should mark the Magic loadout tab unread")
 	_assert(engine.loadout_new_asset_ids(reward_state, "magic") == ["spark_dart"], "Claimed card rewards should tag the learned spell as new")
 	_assert(engine.loadout_unread_count(reward_state) == 1, "A claimed reward spell should add one loadout notification")
@@ -2066,32 +2068,8 @@ func _test_equipment_run_state_and_reward_cards(default_progression: Dictionary)
 	_assert(engine.loadout_asset_is_new(reward_seen_state, "magic", "spark_dart"), "Opening Magic should preserve the spell's NEW tag until that spell is hovered")
 	var reward_hovered_state: Dictionary = engine.mark_loadout_asset_seen(reward_seen_state, "magic", "spark_dart")
 	_assert(not engine.loadout_asset_is_new(reward_hovered_state, "magic", "spark_dart"), "Hovering a new spell should clear only its asset tag")
-	_assert(not (reward_state.get("deck_cards", []) as Array).has("spark_dart"), "Claimed rewards should stay inactive until attuned")
-	_assert((reward_state.get("deck_cards", []) as Array).size() == GameData.starting_deck().size(), "Claimed reserve magic should not grow the active deck")
-	var attuned_state: Dictionary = engine.swap_magic_card(reward_state, 0, 0)
-	_assert(str((attuned_state.get("attuned_magic_cards", []) as Array)[0]) == "spark_dart", "Swapping reserve magic should update the attuned slot")
-	_assert((attuned_state.get("magic_inventory", []) as Array).has("pale_spark"), "Swapping magic should move the replaced default card to reserve")
-	_assert((attuned_state.get("deck_cards", []) as Array).has("spark_dart"), "Attuned reward magic should enter the active deck")
-	_assert((attuned_state.get("deck_cards", []) as Array).size() == GameData.starting_deck().size(), "Attuning magic should keep the active deck capped")
-	var blocked_magic_state: Dictionary = reward_state.duplicate(true)
-	blocked_magic_state["mode"] = "combat"
-	var blocked_magic_swap: Dictionary = engine.swap_magic_card(blocked_magic_state, 0, 0)
-	_assert(not (blocked_magic_swap.get("deck_cards", []) as Array).has("spark_dart"), "Magic swaps should be locked during combat")
-
-	var migrated_claim_state: Dictionary = run_state.duplicate(true)
-	migrated_claim_state["reward_cards"] = ["spark_dart", "frostbolt", "firebrand_volley", "chain_bolt"]
-	migrated_claim_state.erase("attuned_magic_cards")
-	migrated_claim_state.erase("magic_inventory")
-	migrated_claim_state["pending_reward"] = {"cards": ["static_lash"]}
-	migrated_claim_state["mode"] = "reward"
-	var migrated_claimed_state: Dictionary = engine.claim_card_reward(migrated_claim_state, "static_lash")
-	var migrated_claimed_attuned: Array = migrated_claimed_state.get("attuned_magic_cards", []) as Array
-	_assert(str(migrated_claimed_attuned[4]) == "pale_spark", "Claiming magic in older in-progress runs should repair default attuned slots before adding the new reserve card")
-	_assert((migrated_claimed_state.get("magic_inventory", []) as Array) == ["static_lash"], "Claiming magic in older in-progress runs should leave the new card in reserve")
-	var late_default_swap_state: Dictionary = engine.swap_magic_card(migrated_claimed_state, 0, 4)
-	var late_default_attuned: Array = late_default_swap_state.get("attuned_magic_cards", []) as Array
-	_assert(str(late_default_attuned[4]) == "static_lash", "Reserve magic should be swappable into late default magic slots")
-	_assert((late_default_swap_state.get("magic_inventory", []) as Array).has("pale_spark"), "Swapping into a late default slot should return that default magic to reserve")
+	_assert((reward_state.get("deck_cards", []) as Array).has("spark_dart"), "Claimed rewards enter the deck immediately")
+	_assert((reward_state.get("deck_cards", []) as Array).size() == GameData.starting_deck().size() + 1, "Claiming magic grows the deck")
 
 	var item_state: Dictionary = run_state.duplicate(true)
 	item_state["item_inventory"] = ["crimson_draught", "nail_bomb", "smoke_bomb"]
@@ -2132,7 +2110,7 @@ func _test_equipment_run_state_and_reward_cards(default_progression: Dictionary)
 	_assert((repaired_state.get("reward_cards", []) as Array) == ["spark_dart", "frostbolt"], "Legacy decks should migrate non-equipment cards into reward_cards")
 	_assert(str((repaired_state.get("attuned_magic_cards", []) as Array)[0]) == "spark_dart", "Legacy reward migration should preserve the first collected cards as attuned magic")
 	_assert(str((repaired_state.get("attuned_magic_cards", []) as Array)[1]) == "frostbolt", "Legacy reward migration should preserve collected reward order")
-	_assert((repaired_state.get("attuned_magic_cards", []) as Array).size() == GameData.magic_loadout_limit(), "Legacy reward migration should fill remaining attuned slots with default magic")
+	_assert((repaired_state.get("attuned_magic_cards", []) as Array).size() == 2, "Legacy migration preserves owned copies without filling magic slots")
 	_assert((repaired_state.get("deck_cards", []) as Array).has("spark_dart"), "Legacy reward migration should preserve capped collected cards in the active deck")
 	_assert(int(repaired_state.get("equipment_drop_misses", -1)) == RunEngine.EQUIPMENT_DROP_PITY_MISSES, "Loaded runs without equipment pity state should guarantee the next eligible equipment drop")
 
@@ -8352,13 +8330,8 @@ func _test_run_scene_pre_battle_preview_intercepts_combat_entry() -> void:
 	_assert(str((equipment_swapped_state.get("equipped_equipment", {}) as Dictionary).get("weapon", "")) == "iron_cleaver", "Pre-battle equipment swaps should update the committed run loadout")
 	instance.call("_switch_character_overlay_mode", "magic")
 	await process_frame
-	var reserve_magic: Array = (instance.get("_run_state") as Dictionary).get("magic_inventory", []) as Array
-	var bone_dart_index: int = reserve_magic.find("bone_dart")
-	_assert(bone_dart_index >= 0, "Pre-battle magic swap coverage should retain the prepared reserve spell")
-	if bone_dart_index >= 0:
-		await instance.call("_swap_magic_from_overlay", bone_dart_index, 0)
-	var magic_swapped_state: Dictionary = instance.get("_run_state")
-	_assert(str((magic_swapped_state.get("attuned_magic_cards", []) as Array)[0]) == "bone_dart", "Pre-battle magic swaps should update the committed attunement")
+	var magic_deck_state: Dictionary = instance.get("_run_state")
+	_assert((magic_deck_state.get("deck_cards", []) as Array).has("bone_dart"), "Pre-battle deck includes migrated reserve magic immediately")
 	instance.call("_close_card_upgrade_overlay")
 	await process_frame
 	_assert(preview_scrim != null and preview_scrim.mouse_filter == Control.MOUSE_FILTER_STOP, "Pre-battle preview should resume intercepting mouse input after loadout closes")
@@ -8472,8 +8445,8 @@ func _test_run_scene_debug_boss_fixture_boots() -> void:
 	_assert(str(combat_state.get("room_type", "")) == "boss", "Debug boss fixture should load the boss room")
 	_assert(int(run_state.get("player_max_hp", 0)) >= RunEngine.BASE_MAX_HP, "Debug boss fixture should grant plausible late-run max health")
 	_assert(int(run_state.get("hand_size", 0)) == 5, "Debug boss fixture should keep the normal hand UI footprint")
-	_assert((run_state.get("attuned_magic_cards", []) as Array).size() == GameData.magic_loadout_limit(), "Debug boss fixture should obey the attuned magic cap")
-	_assert((run_state.get("magic_inventory", []) as Array).size() > 0, "Debug boss fixture should keep extra progressed cards in reserve magic")
+	_assert((run_state.get("attuned_magic_cards", []) as Array).size() > GameData.starting_magic_cards().size(), "Debug boss fixture includes every owned magic copy")
+	_assert((run_state.get("magic_inventory", []) as Array).is_empty(), "Debug boss fixture has no reserve magic")
 	_assert((run_state.get("deck_cards", []) as Array).has("molten_reach"), "Debug boss fixture should still grant progressed attuned magic")
 	var found_boss: Dictionary = {}
 	for enemy_var: Variant in combat_state.get("enemies", []):
@@ -9397,14 +9370,14 @@ func _test_run_scene_reward_acquisition_is_single_choice() -> void:
 	_assert(str(locked_state.get("mode", "")) == "reward", "The Recover button input path should also stay blocked during reward-card acquisition")
 	instance.call("_on_reward_card_pressed", "frostbolt")
 	locked_state = instance.get("_run_state")
-	_assert(not (locked_state.get("magic_inventory", []) as Array).has("frostbolt"), "A second reward card should not resolve while another acquisition owns the choice")
+	_assert(not (locked_state.get("attuned_magic_cards", []) as Array).has("frostbolt"), "A second reward card should not resolve while another acquisition owns the choice")
 	instance.set("_loadout_acquisition_in_progress", false)
 	instance.set("_animation_lock", false)
 	instance.call("_on_skip_reward_pressed")
 	var resolved_state: Dictionary = instance.get("_run_state")
 	_assert(str(resolved_state.get("mode", "")) == "room", "Recover should resolve normally after the acquisition lock releases")
 	_assert(int(resolved_state.get("player_hp", 0)) == 15, "Exactly one unlocked Recover choice should apply its offered healing")
-	_assert(not (resolved_state.get("magic_inventory", []) as Array).has("frostbolt"), "Resolving Recover should leave the mutually exclusive reward spell unclaimed")
+	_assert(not (resolved_state.get("attuned_magic_cards", []) as Array).has("frostbolt"), "Resolving Recover should leave the mutually exclusive reward spell unclaimed")
 	instance.queue_free()
 	await process_frame
 
@@ -9473,10 +9446,10 @@ func _test_run_scene_reward_decision_support_matches_claims() -> void:
 		_assert(first_card != null and first_card.focus_neighbor_bottom != NodePath(), "Reward card focus should navigate down to the secondary action")
 		_assert(recover_button != null and recover_button.focus_neighbor_top != NodePath(), "Recover focus should navigate back to the card row")
 	var open_claimed: Dictionary = engine.claim_card_reward(open_state, "frostbolt")
-	_assert((open_claimed.get("magic_inventory", []) as Array).count("frostbolt") == 1, "Actual open-capacity claim should add the displayed card to reserve")
-	_assert(not (open_claimed.get("attuned_magic_cards", []) as Array).has("frostbolt"), "Actual open-capacity claim should not imply the reward became active")
+	_assert((open_claimed.get("attuned_magic_cards", []) as Array).count("frostbolt") == 1, "Claim adds the displayed card directly to the deck")
+	_assert((open_claimed.get("deck_cards", []) as Array).has("frostbolt"), "Claimed reward is immediately active")
 	var duplicate_claimed: Dictionary = engine.claim_card_reward(open_state, "spark_dart")
-	_assert((duplicate_claimed.get("magic_inventory", []) as Array).count("spark_dart") == 2, "Actual duplicate claim should add another reserve copy")
+	_assert((duplicate_claimed.get("attuned_magic_cards", []) as Array).count("spark_dart") == 2, "Duplicate claim adds another deck copy")
 
 	var full_state: Dictionary = open_state.duplicate(true)
 	full_state["player_hp"] = 24
@@ -9503,8 +9476,8 @@ func _test_run_scene_reward_decision_support_matches_claims() -> void:
 	var displayed_full_result: int = int(recover_button.get_meta("reward_heal_result_hp", -2)) if recover_button != null else -2
 	_assert(int(healed_full.get("player_hp", -1)) == displayed_full_result, "Displayed full-health Recover result should match the actual claim result")
 	var full_claimed: Dictionary = engine.claim_card_reward(full_state, "white_silence")
-	_assert((full_claimed.get("magic_inventory", []) as Array).has("white_silence"), "Actual full-attunement claim should add the displayed card to reserve")
-	_assert((full_claimed.get("attuned_magic_cards", []) as Array) == (full_state.get("attuned_magic_cards", []) as Array), "Actual full-attunement claim should leave active magic unchanged")
+	_assert((full_claimed.get("deck_cards", []) as Array).has("white_silence"), "Claim beyond six magic cards still enters the deck")
+	_assert((full_claimed.get("attuned_magic_cards", []) as Array).size() == (full_state.get("attuned_magic_cards", []) as Array).size() + (full_state.get("magic_inventory", []) as Array).size() + 1, "Claim preserves migrated ownership and adds one spell without a cap")
 	var visible_reward_card_widgets: int = 0
 	reward_slots = card_row.get_children() if card_row != null else []
 	for slot_var: Node in reward_slots:
@@ -9562,7 +9535,7 @@ func _test_run_scene_reward_decision_support_matches_claims() -> void:
 	await process_frame
 	var selected_state: Dictionary = instance.get("_run_state") as Dictionary
 	_assert(str(selected_state.get("mode", "")) == "room" and (selected_state.get("pending_reward", {}) as Dictionary).is_empty(), "Selecting a card should still resolve the reward choice")
-	_assert((selected_state.get("magic_inventory", []) as Array).count("frostbolt") == 1, "Selecting a New card should still acquire exactly one copy")
+	_assert((selected_state.get("attuned_magic_cards", []) as Array).count("frostbolt") == 1, "Selecting a New card should still acquire exactly one copy")
 	instance.queue_free()
 	await process_frame
 
@@ -9721,7 +9694,7 @@ func _test_run_scene_campfire_choices_use_relic_overlay() -> void:
 	_assert(not choice_bar.visible, "Campfire choices should no longer sit in the bottom choice bar")
 	_assert(not context_overlay.visible and _buttons_under(context_overlay).is_empty(), "Campfire choices should no longer use button overlays")
 	_assert(relic_overlay != null and relic_overlay.visible, "Campfire choices should use the shared relic-style stage overlay")
-	_assert(relic_bar != null and relic_bar.get_child_count() == 3, "Campfire overlay should expose heal, carry, and level-up choice panels")
+	_assert(relic_bar != null and relic_bar.get_child_count() == 4, "Campfire overlay exposes heal, carry, level-up, and Purge choices")
 	_assert(_label_with_text(relic_overlay, "Linger") != null, "Campfire overlay should label the continue option")
 	_assert(_label_with_text(relic_overlay, "Embrace") != null, "Campfire overlay should label the abandon option")
 	_assert(_label_with_text(relic_overlay, "Draw Strength") != null, "Campfire overlay should label the level-up option")
@@ -11460,6 +11433,7 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	run_state[RunEngine.UNREAD_LOADOUT_MAGIC_KEY] = ["spark_dart"]
 	run_state[RunEngine.NEW_LOADOUT_EQUIPMENT_KEY] = ["ward_kite"]
 	run_state[RunEngine.NEW_LOADOUT_MAGIC_KEY] = ["spark_dart"]
+	run_state = RunEngine.new()._repair_equipment_state(run_state)
 	instance.set("_run_state", run_state)
 	instance.call("_refresh_loadout_badge")
 	_assert(loadout_badge != null and loadout_badge.visible, "New gear or magic should show a loadout notification badge")
@@ -11542,13 +11516,13 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 		_assert(pack_tile.find_child("EquipmentIconChip", true, false) is Button and _label_with_text(pack_tile, str(GameData.equipment_def(str(pack_tile.get("equipment_id"))).get("name", ""))) != null, "Pack gear should expose its socket and full equipment name")
 	var gear_deck: Control = character_body_frame.find_child("CurrentDeckPanel", true, false) as Control
 	var gear_magic_grid: GridContainer = gear_deck.find_child("CharacterDeckGrid", true, false) as GridContainer if gear_deck != null else null
-	_assert(gear_deck != null and _label_with_text(gear_deck, "DECK") != null and gear_magic_grid != null and gear_magic_grid.get_child_count() == 3, "The gear overlay should show deck cards as three grouped starter magic strips")
+	_assert(gear_deck != null and _label_with_text(gear_deck, "DECK") != null and gear_magic_grid != null and gear_magic_grid.get_child_count() == 4, "The gear overlay shows starter magic and the owned reward spell")
 	if gear_magic_grid != null:
 		for card_name: String in ["Pale Spark", "Dull Bolt", "Waning Pulse"]:
 			var strip_name: Label = _label_with_text(gear_magic_grid, card_name)
 			var count: Label = strip_name.get_parent().get_node_or_null("Count") as Label if strip_name != null else null
 			_assert(count != null and count.text == "×2" and count.visible, "The deck should preserve both copies of %s in one named strip with a visible ×2 count" % card_name)
-	_assert(_label_with_text(upgrade_scrim, "Attuned Magic 6/6") != null, "The gear overlay should include active attuned magic in the current deck")
+	_assert(_label_with_text(upgrade_scrim, "MAGIC IN DECK") != null, "The gear overlay includes owned magic in the current deck")
 	_assert(_label_with_text(upgrade_scrim, "Rewards") == null, "The gear overlay should not use the old Rewards deck heading")
 	_assert(_label_with_text(upgrade_scrim, "Pale Spark") != null, "The gear overlay should show default attuned magic cards")
 	var equipment_art: TextureRect = upgrade_scrim.find_child("EquipmentCharacterArt", true, false) as TextureRect
@@ -11566,13 +11540,14 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	gear_run_state["magic_inventory"] = ["static_lash"]
 	gear_run_state["item_inventory"] = ["crimson_draught", "nail_bomb"]
 	gear_run_state["equipped_items"] = []
+	gear_run_state = RunEngine.new()._repair_equipment_state(gear_run_state)
 	instance.set("_run_state", gear_run_state)
 	instance.call("_rebuild_progression_overlay")
 	_assert(_label_with_text(upgrade_scrim, "Iron Cleaver") != null, "The gear overlay should render carried equipment")
 	_assert(_label_with_text(upgrade_scrim, "Crimson Draught") != null, "The gear overlay should render carried consumable items")
 	_assert(_label_with_text(upgrade_scrim, "Items 0/2") != null, "The gear overlay deck should show item loadout capacity")
 	_assert(_label_with_text(upgrade_scrim, "Learned Magic") == null, "The gear overlay should not show the magic reserve panel")
-	_assert(_label_with_text(upgrade_scrim, "Static Lash") == null, "The gear overlay deck should not show inactive reserve magic")
+	_assert(_label_with_text(upgrade_scrim, "Static Lash") != null, "The gear overlay deck includes all owned magic")
 	_assert((instance.get("_magic_inventory_tiles") as Dictionary).is_empty(), "The gear overlay should not create reserve magic drag targets")
 	_assert((instance.get("_magic_attuned_tiles") as Dictionary).is_empty(), "The gear overlay should not create attuned magic drag targets")
 	_assert(upgrade_scrim.find_child("EquipmentLoadoutList", true, false) != null, "The gear overlay should keep the left loadout in its scrollable panel list")
@@ -11641,133 +11616,15 @@ func _test_run_scene_character_stats_overlay_opens() -> void:
 	_assert(character_dialog != null and character_dialog.custom_minimum_size == stats_dialog_size, "Switching from Gear to Magic should keep the character dialog size stable")
 	_assert(character_dialog != null and character_dialog.size == stats_dialog_actual_size, "Switching from Gear to Magic should keep the visible character dialog size stable")
 	character_body_frame = character_dialog.find_child("CharacterBodyFrame", true, false) as Control
-	var attuned_panel: Control = character_body_frame.find_child("MagicAttunedPanel", true, false) as Control
-	_assert(attuned_panel != null and _label_with_text(attuned_panel, "ATTUNED MAGIC") != null and (instance.get("_magic_attuned_tiles") as Dictionary).size() == GameData.magic_loadout_limit(), "The magic overlay should show all six native attuned spell slots under their section heading")
-	for attuned_slot: Control in (instance.get("_magic_attuned_tiles") as Dictionary).values():
-		var attuned_strip: Button = attuned_slot.get_node_or_null("CharacterCardStrip") as Button
-		_assert(attuned_strip != null and _label_with_text(attuned_strip, str(GameData.card_def(str(attuned_slot.get("card_id"))).get("name", ""))) != null and is_equal_approx(attuned_strip.size.y, UiTypography.scaled_value(attuned_strip, 34.0)), "Each attuned slot should retain its named 34px card strip")
-	var learned_panel: Control = character_body_frame.find_child("MagicInventoryPanel", true, false) as Control
-	_assert(learned_panel != null and _label_with_text(learned_panel, "LEARNED MAGIC") != null and _label_with_text(learned_panel, "Static Lash") != null and (instance.get("_magic_inventory_tiles") as Dictionary).size() == 1, "The magic overlay should show the learned reserve spell as a named strip in Learned Magic")
-	var magic_deck: Control = character_body_frame.find_child("CurrentDeckPanel", true, false) as Control
-	var pale_spark_name: Label = _label_with_text(magic_deck, "Pale Spark") if magic_deck != null else null
+	var magic_panel: Control = character_body_frame.find_child("MagicAttunedPanel", true, false) as Control
+	_assert(magic_panel != null and _label_with_text(magic_panel, "MAGIC IN DECK") != null, "Magic panel shows the owned-spell list")
+	_assert(character_body_frame.find_child("MagicInventoryPanel", true, false) == null and (instance.get("_magic_inventory_tiles") as Dictionary).is_empty(), "Magic panel has no reserve or swap controls")
+	_assert(_label_with_text(magic_panel, "Static Lash") != null, "Reward magic appears directly in the magic deck list")
+	var pale_spark_name: Label = _label_with_text(magic_panel, "Pale Spark")
 	var pale_spark_count: Label = pale_spark_name.get_parent().get_node_or_null("Count") as Label if pale_spark_name != null else null
-	_assert(magic_deck != null and _label_with_text(magic_deck, "DECK") != null and _label_with_text(magic_deck, "Attuned Magic 6/6") != null and pale_spark_count != null and pale_spark_count.text == "×2" and _label_with_text(magic_deck, "Static Lash") == null, "The magic overlay's current deck should retain grouped active spells and exclude the learned reserve")
-	_assert(_label_with_text(upgrade_scrim, "Static Lash") != null, "The magic overlay should render reserve magic cards")
-	var magic_inventory_tiles: Dictionary = instance.get("_magic_inventory_tiles")
-	var magic_attuned_tiles: Dictionary = instance.get("_magic_attuned_tiles")
-	var reserve_tile: Control = magic_inventory_tiles.get(0, null) as Control
-	var attuned_tile: Control = magic_attuned_tiles.get(4, null) as Control
-	_assert(reserve_tile != null and _control_descendants_ignore_mouse(reserve_tile), "Reserve magic card tile children should be passive for stable hover and drag")
-	_assert(attuned_tile != null and _control_descendants_ignore_mouse(attuned_tile), "Attuned magic card tile children should be passive for stable hover and drag")
-	_assert(reserve_tile != null and reserve_tile.find_child("CardBadgeArt", true, false) is TextureRect, "Reserve magic card tiles should use card art as their visual background")
-	_assert(attuned_tile != null and attuned_tile.find_child("CardBadgeArt", true, false) is TextureRect, "Attuned magic card tiles should use card art as their visual background")
-	var magic_press := InputEventMouseButton.new()
-	magic_press.button_index = MOUSE_BUTTON_LEFT
-	magic_press.pressed = true
-	magic_press.position = reserve_tile.get_global_rect().get_center() if reserve_tile != null else Vector2.ZERO
-	magic_press.global_position = magic_press.position
-	if reserve_tile != null:
-		reserve_tile.call("_gui_input", magic_press)
-	await process_frame
-	_assert(str(instance.get("_magic_drag_card_id")) == "static_lash", "Pressing a learned magic tile should start a visible magic drag")
-	var magic_release := InputEventMouseButton.new()
-	magic_release.button_index = MOUSE_BUTTON_LEFT
-	magic_release.pressed = false
-	magic_release.position = attuned_tile.get_global_rect().get_center() if attuned_tile != null else Vector2.ZERO
-	magic_release.global_position = magic_release.position
-	if attuned_tile != null:
-		attuned_tile.call("_gui_input", magic_release)
-	await process_frame
-	await process_frame
-	await create_timer(0.20).timeout
-	var magic_state: Dictionary = instance.get("_run_state")
-	_assert(str((magic_state.get("attuned_magic_cards", []) as Array)[4]) == "static_lash", "Swapping from the magic overlay should attune reserve magic into late default slots")
-	_assert((magic_state.get("magic_inventory", []) as Array).has("pale_spark"), "Swapping from the magic overlay should move replaced default magic to reserve")
-	_assert((magic_state.get("deck_cards", []) as Array).has("static_lash"), "Swapping from the magic overlay should rebuild the active deck with attuned magic")
-	magic_state["attuned_magic_cards"] = ["spark_dart", "frostbolt", "firebrand_volley", "chain_bolt", "pale_spark", "pale_spark"]
-	magic_state["magic_inventory"] = ["static_lash"]
-	instance.set("_run_state", magic_state)
-	instance.call("_rebuild_progression_overlay")
-	await process_frame
-	magic_inventory_tiles = instance.get("_magic_inventory_tiles")
-	magic_attuned_tiles = instance.get("_magic_attuned_tiles")
-	reserve_tile = magic_inventory_tiles.get(0, null) as Control
-	attuned_tile = magic_attuned_tiles.get(4, null) as Control
-	if reserve_tile != null:
-		magic_press.position = reserve_tile.get_global_rect().get_center()
-		magic_press.global_position = magic_press.position
-		reserve_tile.call("_gui_input", magic_press)
-	await process_frame
-	var double_release_position: Vector2 = attuned_tile.get_global_rect().get_center() if attuned_tile != null else Vector2.ZERO
-	instance.call("_update_magic_overlay_drag", double_release_position)
-	instance.call("_release_magic_overlay_drag", double_release_position)
-	instance.call("_release_magic_overlay_drag", double_release_position)
-	await process_frame
-	await create_timer(0.30).timeout
-	magic_state = instance.get("_run_state")
-	_assert(str((magic_state.get("attuned_magic_cards", []) as Array)[4]) == "static_lash", "Duplicate magic release events should not swap the same spells back")
-	_assert((magic_state.get("magic_inventory", []) as Array).has("pale_spark"), "Duplicate magic release events should leave the replaced default in learned magic")
-	magic_state["attuned_magic_cards"] = ["spark_dart", "frostbolt", "firebrand_volley", "chain_bolt", "pale_spark", "pale_spark"]
-	magic_state["magic_inventory"] = ["static_lash"]
-	instance.set("_run_state", magic_state)
-	instance.call("_rebuild_progression_overlay")
-	await process_frame
-	magic_inventory_tiles = instance.get("_magic_inventory_tiles")
-	magic_attuned_tiles = instance.get("_magic_attuned_tiles")
-	reserve_tile = magic_inventory_tiles.get(0, null) as Control
-	attuned_tile = magic_attuned_tiles.get(4, null) as Control
-	var overlap_press := InputEventMouseButton.new()
-	overlap_press.button_index = MOUSE_BUTTON_LEFT
-	overlap_press.pressed = true
-	overlap_press.position = reserve_tile.get_global_rect().get_center() if reserve_tile != null else Vector2.ZERO
-	overlap_press.global_position = overlap_press.position
-	if reserve_tile != null:
-		reserve_tile.call("_gui_input", overlap_press)
-	await process_frame
-	var off_target_release_position: Vector2 = Vector2.ZERO
-	if attuned_tile != null:
-		var attuned_rect: Rect2 = attuned_tile.get_global_rect()
-		off_target_release_position = attuned_rect.position + Vector2(-16.0, attuned_rect.size.y * 0.5)
-	instance.call("_update_magic_overlay_drag", off_target_release_position)
-	await process_frame
-	_assert(instance.call("_magic_tile_at", off_target_release_position).is_empty(), "The off-target magic release fixture should put the cursor outside the target tile")
-	instance.call("_release_magic_overlay_drag", off_target_release_position)
-	await process_frame
-	await process_frame
-	await create_timer(0.20).timeout
-	magic_state = instance.get("_run_state")
-	_assert(str((magic_state.get("attuned_magic_cards", []) as Array)[4]) == "static_lash", "Magic drop should resolve by held-card overlap when the cursor is just outside the target slot")
-	magic_state["attuned_magic_cards"] = ["spark_dart", "frostbolt", "firebrand_volley", "chain_bolt", "pale_spark", "pale_spark"]
-	magic_state["magic_inventory"] = ["static_lash"]
-	instance.set("_run_state", magic_state)
-	instance.call("_rebuild_progression_overlay")
-	await process_frame
-	magic_inventory_tiles = instance.get("_magic_inventory_tiles")
-	magic_attuned_tiles = instance.get("_magic_attuned_tiles")
-	reserve_tile = magic_inventory_tiles.get(0, null) as Control
-	attuned_tile = magic_attuned_tiles.get(4, null) as Control
-	var attuned_press := InputEventMouseButton.new()
-	attuned_press.button_index = MOUSE_BUTTON_LEFT
-	attuned_press.pressed = true
-	attuned_press.position = attuned_tile.get_global_rect().get_center() if attuned_tile != null else Vector2.ZERO
-	attuned_press.global_position = attuned_press.position
-	if attuned_tile != null:
-		attuned_tile.call("_gui_input", attuned_press)
-	await process_frame
-	var inventory_panel: Control = instance.get("_magic_inventory_drop_panel") as Control
-	var panel_release_position: Vector2 = Vector2.ZERO
-	if inventory_panel != null:
-		var inventory_panel_rect: Rect2 = inventory_panel.get_global_rect()
-		panel_release_position = inventory_panel_rect.position + Vector2(inventory_panel_rect.size.x * 0.52, inventory_panel_rect.size.y * 0.58)
-	instance.call("_update_magic_overlay_drag", panel_release_position)
-	await process_frame
-	_assert(instance.call("_magic_tile_at", panel_release_position).is_empty(), "The magic panel release fixture should put the cursor in learned-panel whitespace")
-	instance.call("_release_magic_overlay_drag", panel_release_position)
-	await process_frame
-	await process_frame
-	await create_timer(0.20).timeout
-	magic_state = instance.get("_run_state")
-	_assert(str((magic_state.get("attuned_magic_cards", []) as Array)[4]) == "static_lash", "Dragging an attuned spell into learned-panel whitespace should swap with the nearest learned magic")
+	_assert(pale_spark_count != null and pale_spark_count.text == "×2", "Owned magic groups duplicate copies")
+	for tile: Control in (instance.get("_magic_attuned_tiles") as Dictionary).values():
+		_assert(tile.find_child("CardBadgeArt", true, false) is TextureRect and _control_descendants_ignore_mouse(tile), "Magic list retains the existing art strip and hover target")
 	instance.call("_switch_character_overlay_mode", "equipment")
 	await process_frame
 	# Prepared tabs can adopt a different final-parent dialog. Inspect the live owner.

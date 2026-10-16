@@ -719,7 +719,7 @@
     "id": "loadout",
     "name": "Character",
     "icon": "loadout",
-    "definition": "The menu for your gear, attuned magic, items and skills. Your gear, magic and items make up your deck.",
+    "definition": "The menu for your gear, magic, items and skills. Your gear, magic and items make up your deck; spells go straight into it when you gain them.",
     "aliases": [
       "Character and Loadout",
       "Character Loadout"

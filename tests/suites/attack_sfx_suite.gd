@@ -215,9 +215,9 @@ static func _test_ui_feedback_actions(instance: Node, tree: SceneTree, expect: C
 	instance.set("_progression_overlay_mode", "magic")
 	var magic_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
 	await instance.call("_swap_magic_from_overlay", 0, 0)
-	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == magic_before + 1, "A successful magic attunement should play exactly one item-equip cue")
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == magic_before, "The removed magic swap route stays silent")
 	await instance.call("_swap_magic_from_overlay", -1, 0)
-	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == magic_before + 1, "An invalid magic swap should stay silent")
+	expect.call(_sfx_generation_total(instance.get("_sfx_players") as Array) == magic_before, "An invalid legacy magic swap stays silent")
 
 	instance.set("_progression_overlay_mode", "equipment")
 	var item_before: int = _sfx_generation_total(instance.get("_sfx_players") as Array)
