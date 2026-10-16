@@ -201,3 +201,11 @@ crawler, harrier. Not yet in: shrike cutout (rr-03 round 3), other static-enemy 
   paint-over shown to owner; awaiting verdict before rear + roster rollout.
 - Next: int-02 → integration suites (Godot + Python) → playtest 10. Owner pending: lancer r3 direction, bloomer/wisp
   motion videos, boon list.
+
+## Playtest 10 (frozen worktree ../peer-benchmark-playtest-10 at 718101953; Godot + Python suites PASS; fixture verified)
+Adds since playtest 9: previews mark destroyed terrain/traps/illusions/lethal pull ghosts instead of hiding them
+(ux-05); pre-battle shows only `OBJECTIVE · <TITLE>` with the rule in a tooltip, foes play their board idles (pb-01);
+magic-slot limit dropped — spells go straight into the deck, Purge at Scavenger (50, +25) and Campfire (deck-01);
+Shale Bloomer + Lightning Wisp maquette cutout rigs on every surface (rr-04, int-02); Gust Shrike rig (rr-03/qa-06).
+Not yet in: run-start boons, map branching, auto next-section transition, Immolation buff, move+block "Stay",
+Frostglass Lancer redo (mq-03 in progress), remaining static-enemy rigs.
