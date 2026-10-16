@@ -176,3 +176,13 @@ cancelled badge (fix-04); sound sync — hits land on the visual climax across s
 ≤1.2 s) (sfx-04); pixel-art elemental FX (vfx-01); approved glossary/relic text rewrite with gold keywords (ux-04);
 art tooling (art-07, rr-02 maquette→cutout; gaoler rig not production-integrated). Fixture opens combat vs briar weaver,
 crawler, harrier. Not yet in: shrike cutout (rr-03 round 3), other static-enemy cutouts, new lancer/wisp/bloomer art.
+
+## Update 2026-10-16 early
+- Merged rr-03 + qa-06 (Gust Shrike cutout rig; collapse death; proof hardening) at f411c09a9; integration full suite
+  PASS after re-import. Shrike board reel: output/peer-benchmark-2026-10-12/shrike/gust_shrike_production_reel_v05.mp4.
+- Disk filled to 0 bytes (Codex review checkouts 105 GB, merged-unit worktrees ~85 GB, old playtests, probe homes, then
+  23 GB of demo-01 raw frames). Owner approved cleanup (now 245 GB free) and asked to clean up as we go: review runner
+  deletes its checkout after each review; merged+clean unit worktrees are removed at merge; captures stream per clip.
+- demo-01 (scripted demo clips with audio, 21 clips / 3 reels) round 2: streaming per-clip recording + 8 GB disk guard.
+- Next: record + review demo reels → send to owner; static-enemy cutout wave (after owner sees the shrike reel); owner
+  verdicts pending on lancer/wisp/bloomer art and on self-hit amplification; owner has more follow-up notes coming.
