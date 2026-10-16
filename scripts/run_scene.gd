@@ -15442,20 +15442,24 @@ func _pending_card_forecast_state() -> Dictionary:
 	return _pending_card_forecast_cache
 
 func _pending_card_known_forecast_state() -> Dictionary:
-	if _animation_lock or not _pending_card_requires_confirmation() or not _unconfirmed_preview_must_preserve_umbra_information():
+	if _animation_lock or not _unconfirmed_preview_must_preserve_umbra_information():
 		return _pending_card_forecast_state()
 	if _pending_card_known_forecast_cache.is_empty():
-		# Filter hidden causes before replaying the targetless actions, not just
-		# after them: a concealed target may otherwise trigger healing or a trap.
+		# Hidden causes must not affect retained poses or cumulative feedback,
+		# including while a later action still awaits its target. Reuse the exact
+		# resolved prefix and its selected/skipped target slots, without payment.
 		var known: Dictionary = _surface_preview_information_state(_combat_state)
 		var prepared: Dictionary = _combat_engine.prepare_player_card(known, _selected_card_index, "empower" if _selected_card_empowered() else "play")
-		var preview: Dictionary = _card_preview_from_state(_card_id_for_hand_index(_selected_card_index), prepared, _pending_actions, 0)
-		_pending_card_known_forecast_cache = _combat_engine.finish_player_card(
-			preview.get("state", prepared) as Dictionary,
-			_selected_card_index,
-			_combat_engine.card_plays_spent_for_actions(_pending_actions),
-			{"play_mode": "play"}
+		_pending_card_known_forecast_cache = preload("res://scripts/combat_preview_known_forecast.gd").resolved_prefix(
+			_combat_engine, prepared, _pending_actions, _pending_action_index, _pending_selected_targets
 		)
+		if _pending_card_requires_confirmation():
+			_pending_card_known_forecast_cache = _combat_engine.finish_player_card(
+				_pending_card_known_forecast_cache,
+				_selected_card_index,
+				_combat_engine.card_plays_spent_for_actions(_pending_actions),
+				{"play_mode": "play"}
+			)
 	return _pending_card_known_forecast_cache
 
 func _pass_preview_summary() -> Dictionary:
@@ -18488,6 +18492,8 @@ func _enemy_destination_preview_units(
 		var destination: Vector2i = threat.get("projected_destination", INVALID_TARGET_TILE)
 		if destination.x < 0 or destination == enemy.get("pos", INVALID_TARGET_TILE):
 			continue
+		if bool(threat.get("lethal", false)) and _preview_umbra_is_limited(display_state) and not _combat_engine.is_tile_visible_to_player(_preview_information_state(display_state), destination):
+			continue
 		var hp: int = maxi(1, int(enemy.get("hp", 1)))
 		preview_units.append({
 			"key": "%s_destination_preview" % enemy_key,
@@ -18499,7 +18505,8 @@ func _enemy_destination_preview_units(
 			"footprint": enemy.get("footprint", Vector2i.ONE),
 			"hp": hp,
 			"max_hp": maxi(hp, int(enemy.get("max_hp", hp))),
-			"preview": true
+			"preview": true,
+			"damage_preview_key": enemy_key if bool(threat.get("lethal", false)) else ""
 		})
 	return preview_units
 
@@ -18524,7 +18531,7 @@ func _board_display_state() -> Dictionary:
 			if cache_key != _board_preview_display_cache_key:
 				_board_preview_display_cache_key = cache_key
 				_board_preview_display_cache = _visibility_safe_preview_display_state(
-					_combat_preview_display_state(_pending_card_forecast_state()), true
+					_combat_preview_display_state(_pending_card_known_forecast_state()), true
 				)
 			return _board_preview_display_cache
 		if not _combat_state.is_empty():
@@ -18581,7 +18588,7 @@ func _post_combat_board_state_is_visible() -> bool:
 func _combat_preview_display_state(preview_state: Dictionary) -> Dictionary:
 	if preview_state.is_empty() or _combat_state.is_empty():
 		return preview_state
-	return _state_with_enemy_durability_from(preview_state, _combat_state)
+	return preload("res://scripts/combat_preview_retention.gd").display_state(preview_state, _combat_state)
 
 func _state_with_enemy_durability_from(display_state: Dictionary, durability_state: Dictionary) -> Dictionary:
 	var held_state: Dictionary = display_state.duplicate(false)
@@ -19884,6 +19891,13 @@ func _preview_presentation(preview: Dictionary) -> Dictionary:
 	if not movement_risk_chips.is_empty():
 		result["movement_risk_chips"] = movement_risk_chips
 	_append_surface_action_preview(result, preview)
+	if not _preview_combat_state.is_empty():
+		# Earlier automatic actions still own their losses while the next action
+		# contributes its hovered forecast. Do not let that later map erase them.
+		var cumulative: Dictionary = _sanitize_damage_preview_for_umbra_information(_combat_state, _damage_preview_between_states(_combat_state, _pending_card_known_forecast_state()))
+		cumulative.merge(result.get("damage_preview", {}), true)
+		if not cumulative.is_empty(): result["damage_preview"] = cumulative
+		_append_confirmation_force_preview(result)
 	_record_runtime_performance_phase("preview_surface", performance_phase_started)
 	return result
 
@@ -20164,6 +20178,12 @@ func _sanitize_damage_preview_for_umbra_information(state: Dictionary, source_pr
 		var terrain_tile: Vector2i = terrain.get("pos", INVALID_TARGET_TILE)
 		if terrain_tile.x >= 0 and not _combat_engine.is_tile_visible_to_player(information_state, terrain_tile, visible_lookup):
 			preview.erase(_terrain_key(terrain))
+	for trap: Dictionary in state.get("traps", []):
+		if not _combat_engine.is_tile_visible_to_player(information_state, trap.get("pos", INVALID_TARGET_TILE), visible_lookup):
+			preview.erase("trap_%s" % str(trap.get("id", "")))
+	for illusion: Dictionary in state.get("illusions", []):
+		if not _combat_engine.is_tile_visible_to_player(information_state, illusion.get("pos", INVALID_TARGET_TILE), visible_lookup):
+			preview.erase("illusion_%d" % int(illusion.get("id", -1)))
 	return preview
 
 func _damage_preview_between_states(before_state: Dictionary, after_state: Dictionary) -> Dictionary:
@@ -20189,29 +20209,7 @@ func _damage_preview_between_states(before_state: Dictionary, after_state: Dicti
 			"stoneskin": after_stoneskin, "stoneskin_loss": stoneskin_loss,
 			"lethal": after_hp <= 0
 		}
-	var after_terrain_by_id: Dictionary = {}
-	for after_terrain_var: Variant in after_state.get("terrain", []):
-		if typeof(after_terrain_var) != TYPE_DICTIONARY:
-			continue
-		var after_terrain: Dictionary = after_terrain_var
-		after_terrain_by_id[str(after_terrain.get("id", ""))] = after_terrain
-	for before_terrain_var: Variant in before_state.get("terrain", []):
-		if typeof(before_terrain_var) != TYPE_DICTIONARY:
-			continue
-		var before_terrain: Dictionary = before_terrain_var
-		var terrain_id: String = str(before_terrain.get("id", ""))
-		if terrain_id.is_empty() or not after_terrain_by_id.has(terrain_id):
-			continue
-		var after_terrain: Dictionary = after_terrain_by_id[terrain_id]
-		var after_hp: int = int(after_terrain.get("hp", 0))
-		var hp_loss: int = maxi(0, int(before_terrain.get("hp", 0)) - after_hp)
-		if hp_loss <= 0:
-			continue
-		preview[_terrain_key(before_terrain)] = {
-			"hp": after_hp,
-			"hp_loss": hp_loss,
-			"lethal": after_hp <= 0
-		}
+	preview.merge(preload("res://scripts/combat_preview_retention.gd").object_losses(before_state, after_state))
 	return preview
 
 func _hovered_shortcut_plan_for_preview(preview: Dictionary) -> Dictionary:
@@ -34390,6 +34388,7 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 		var choice: Dictionary = echo["choice"]
 		echo_curves.append({"kind": "ranged", "preview": true, "from": choice["from"], "to": choice["target"], "element": choice["action"].get("element", choice["action"].get("_card_element", "none")), "range": choice["action"].get("range", 1)})
 	result["illusion_echo_previews"] = echo_curves
+	_append_preview_trap_triggers(result, state, after)
 	_append_guardian_displacement_preview(result, state, after)
 	_append_forced_displacement_preview(result, state, after)
 	var losses: Dictionary = _sanitize_damage_preview_for_umbra_information(state, _damage_preview_between_states(state, after))
@@ -34424,6 +34423,15 @@ func _append_surface_action_preview(result: Dictionary, preview: Dictionary) -> 
 			status_previews[key] = predicted
 	result["surface_status_preview"] = status_previews
 	preload("res://scripts/enemy_mechanics/reflect_view.gd").decorate_preview(self, result, state, after, action, tile)
+
+func _append_preview_trap_triggers(result: Dictionary, before: Dictionary, after: Dictionary) -> void:
+	var traps: Array = (result.get("trap_trigger_previews", []) as Array).duplicate()
+	var information: Dictionary = _preview_information_state(before)
+	var visible: Dictionary = _combat_engine.umbra_visible_tile_lookup(information)
+	for trap: Dictionary in preload("res://scripts/combat_preview_retention.gd").triggered_traps(before, after):
+		if _combat_engine.is_tile_visible_to_player(information, trap.get("pos", INVALID_TARGET_TILE), visible) and not traps.has(trap):
+			traps.append(trap)
+	if not traps.is_empty(): result["trap_trigger_previews"] = traps
 
 func _append_guardian_displacement_preview(result: Dictionary, before: Dictionary, after: Dictionary) -> void:
 	var paths: Dictionary = {}
@@ -34484,8 +34492,7 @@ func _append_forced_displacement_preview(result: Dictionary, before: Dictionary,
 		while path[path.size() - 1] != to:
 			path.append(path[path.size() - 1] + step)
 		paths.append(path)
-		if int(moved.get("hp", 0)) > 0:
-			hints.append({"enemy_key": key, "projected_path": path, "projected_destination": to})
+		hints.append({"enemy_key": key, "projected_path": path, "projected_destination": to, "lethal": int(moved.get("hp", 0)) <= 0})
 	var illusion_ghosts: Array = []
 	for illusion: Dictionary in before.get("illusions", []):
 		if int(illusion.get("hp", 0)) <= 0: continue
@@ -34502,8 +34509,9 @@ func _append_forced_displacement_preview(result: Dictionary, before: Dictionary,
 		var path: Array[Vector2i] = _vector2i_array([from])
 		while path[-1] != to: path.append(path[-1] + step)
 		paths.append(path)
-		if int(moved.get("hp", 0)) > 0:
-			illusion_ghosts.append({"key": "illusion_preview_%d" % int(illusion["id"]), "role": "illusion_preview", "type": "player", "pos": to, "hp": moved["hp"], "max_hp": moved.get("max_hp", moved["hp"]), "accent": ILLUSION_PREVIEW_FOCUS})
+		if int(moved.get("hp", 0)) <= 0 and _preview_umbra_is_limited(before) and not _combat_engine.is_tile_visible_to_player(_preview_information_state(before), to):
+			continue
+		illusion_ghosts.append({"key": "illusion_preview_%d" % int(illusion["id"]), "role": "illusion_preview", "type": "player", "pos": to, "hp": moved["hp"], "max_hp": moved.get("max_hp", moved["hp"]), "accent": ILLUSION_PREVIEW_FOCUS, "damage_preview_key": "illusion_%d" % int(illusion["id"]) if int(moved.get("hp", 0)) <= 0 else ""})
 	if not illusion_ghosts.is_empty():
 		var ghosts: Array = (result.get("preview_units", []) as Array).duplicate()
 		ghosts.append_array(illusion_ghosts)
@@ -34541,15 +34549,22 @@ func _append_enemy_force_intent_preview(presentation: Dictionary, threat: Dictio
 		presentation["collision_markers"] = markers
 
 func _append_confirmation_force_preview(presentation: Dictionary) -> void:
-	# A targetless card (Gale Ward, Unsealed Gale, Waning Pulse) is shown on its
-	# resolved board; add the same straight-line paths and collision markers the
-	# hover forecast draws. Ghosts are omitted because the board already shows
-	# each enemy at its landing tile.
+	# Cumulative consequences remain visible both at confirmation and while a
+	# later choice is pending. Lethal bodies retain their committed positions.
+	var known: Dictionary = _pending_card_known_forecast_state()
+	_append_preview_trap_triggers(presentation, _combat_state, known)
 	var forced: Dictionary = {}
-	_append_forced_displacement_preview(forced, _combat_state, _pending_card_known_forecast_state())
+	_append_forced_displacement_preview(forced, _combat_state, known)
 	for key: String in ["displacement_paths", "collision_markers"]:
 		if forced.has(key):
-			presentation[key] = forced[key]
+			var combined: Array = (presentation.get(key, []) as Array).duplicate()
+			for entry: Variant in forced[key]:
+				if not combined.has(entry): combined.append(entry)
+			presentation[key] = combined
+	var ghosts: Array = (presentation.get("preview_units", []) as Array).duplicate()
+	for ghost: Dictionary in forced.get("preview_units", []):
+		if not str(ghost.get("damage_preview_key", "")).is_empty() and not ghosts.has(ghost): ghosts.append(ghost)
+	if not ghosts.is_empty(): presentation["preview_units"] = ghosts
 
 func _friendly_damage_preview_chips(state: Dictionary, losses: Dictionary, movement: bool = false) -> Array:
 	var chips: Array = []

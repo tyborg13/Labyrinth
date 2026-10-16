@@ -1,0 +1,212 @@
+{
+  "min_images": 12,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*1920x1080_ui100/clear_crate_confirmation.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            420,
+            170,
+            1080,
+            610
+          ],
+          "min_luma_range": 75,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/clear_trap_trigger.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            420,
+            170,
+            1080,
+            610
+          ],
+          "min_luma_range": 75,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/clear_illusion_consumed.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            420,
+            170,
+            1080,
+            610
+          ],
+          "min_luma_range": 75,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/clear_lethal_pull.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            420,
+            170,
+            1080,
+            610
+          ],
+          "min_luma_range": 75,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/clear_two_actions.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            420,
+            170,
+            1080,
+            610
+          ],
+          "min_luma_range": 75,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/clear_consumed_fire.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            420,
+            170,
+            1080,
+            610
+          ],
+          "min_luma_range": 75,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/heart_crate_confirmation.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            420,
+            170,
+            1080,
+            610
+          ],
+          "min_luma_range": 75,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/heart_trap_trigger.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            420,
+            170,
+            1080,
+            610
+          ],
+          "min_luma_range": 75,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/heart_illusion_consumed.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            420,
+            170,
+            1080,
+            610
+          ],
+          "min_luma_range": 75,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/heart_lethal_pull.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            420,
+            170,
+            1080,
+            610
+          ],
+          "min_luma_range": 75,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/heart_two_actions.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            420,
+            170,
+            1080,
+            610
+          ],
+          "min_luma_range": 75,
+          "min_luma_stdev": 10
+        }
+      ]
+    },
+    {
+      "pattern": "*1920x1080_ui100/heart_consumed_fire.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [
+        {
+          "rect": [
+            420,
+            170,
+            1080,
+            610
+          ],
+          "min_luma_range": 75,
+          "min_luma_stdev": 10
+        }
+      ]
+    }
+  ]
+}

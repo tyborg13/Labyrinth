@@ -5,6 +5,7 @@ const RunScene = preload("res://scripts/run_scene.gd")
 
 
 static func run(expect: Callable) -> void:
+	preload("res://tests/suites/destruction_preview_suite.gd").run(expect)
 	_test_cumulative_lethal_preview_keeps_units_visible(expect)
 	_test_lethal_death_mark_motion(expect)
 
@@ -18,7 +19,7 @@ static func _test_cumulative_lethal_preview_keeps_units_visible(expect: Callable
 	])
 	var projected_state: Dictionary = _state([
 		_enemy(2, Vector2i(4, 3), 0, 2),
-		_enemy(3, Vector2i(5, 4), 6),
+		_enemy(3, Vector2i(5, 3), 6),
 	])
 	var damage_preview: Dictionary = instance.call("_damage_preview_between_states", committed_state, projected_state)
 	for enemy_id: int in [1, 2]:
@@ -48,9 +49,10 @@ static func _test_cumulative_lethal_preview_keeps_units_visible(expect: Callable
 		"Preview display state should keep committed HP as the damage-overlay baseline"
 	)
 	expect.call(
-		(display_by_id.get(2, {}) as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 3)
+		(display_by_id.get(2, {}) as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(4, 4)
+		and (display_by_id.get(3, {}) as Dictionary).get("pos", Vector2i.ZERO) == Vector2i(5, 3)
 		and int((display_by_id.get(2, {}) as Dictionary).get("burn", 0)) == 2,
-		"Preview display state should retain projected position and status changes"
+		"Preview display state should retain lethal origins, surviving projected positions, and projected statuses"
 	)
 
 	var board: CombatBoardView = CombatBoardView.new()
