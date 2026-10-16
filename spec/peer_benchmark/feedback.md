@@ -100,3 +100,6 @@
 - Shale Bloomer: approved — "quite good ... similar but in the more low res, painterly style".
 - Lightning Wisp: not loved — "the bolts just kinda sticking out in every direction ... might look better if the
   lightning is interwoven throughout the cloud." → wisp maquette r4 + new paint-over.
+## 2026-10-16 — demo clips (owner): "These look and sound GREAT."
+- Pixel FX reel (12 spells), hit-sound sync clips (normal + fastest), lightning trap (0.35 s) approved by eye/ear →
+  vfx-01 and sfx-04 owner-verified.
