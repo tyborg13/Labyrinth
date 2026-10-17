@@ -119,3 +119,14 @@
 - 2026-10-17 Shale Bloomer motion (inbox): "generally good ... right direction ... details not the design". Issues: idle
   still has the shimmer effect (owner keeps asking to avoid it); distracting wrong breakages from the cutout, esp. the top
   gem breaking in half in several animations. → rr-05.
+- 2026-10-17 Lancer r3 painting (inbox): "directionally correct" but the loin cloth needs another stab, and he is more
+  straight-on than before — all characters must be in the correct 45° isometric 3/4 view. → mq-03 round 3.
+- 2026-10-17 Lightning Wisp motion (inbox): approved. (rr-05 applies the stepped pixel-snapped idle to it too.)
+- 2026-10-17 Lancer r4 painting (3/4 view, split loin cloth) from the Blender-native maquette: owner "Middle looks great" → approved target look; next rear view, processing, rig, roster plan.
+- 2026-10-17 roster-plan APPROVED with a reorder: "order it by need. Start with the new enemies, then ... the ones least
+  matching our style and/or having an incorrect pose and then decide whether to redo even the enemies that look pretty
+  good already ... stone warden is already pretty good ... the cultist is solid too ... lowest priority."
+- 2026-10-17 section-transition NEEDS CHANGES (owner): "After introducing the next section, you're briefly switching
+  back to the board before going to the new map section. We should cut that. Otherwise, looks good." → flow-01
+  feedback 3: the title card cross-fades straight into the section map (same painting); the board stays hidden until
+  the map closes.

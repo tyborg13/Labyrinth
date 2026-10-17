@@ -18,6 +18,19 @@ not binding. Claude directs (all taste), Codex implements (orchestrate-codex ski
 ## Milestone
 M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below in dated updates.
 
+## In flight (2026-10-17, playtest 9 follow-ups + maquette roster)
+- Running: boon-01 r1 (TODO_DESIGN decisions + reward-idiom offer layout), rr-05 r1 (director feature masks),
+  mq-03 r4 (Codex review CHANGES: legacy compat via bridge, cape split, stale mattes, Bezier, facing probe, pyc),
+  map-02 (map variety). Queued: cbt-01 (Stay + Immolation). Ready: flow-01 (after boon-01 + map-02),
+  rr-06 Lancer rig (after mq-03 + rr-05).
+- Review inbox: https://claude.ai/artifact/SWBweH8njp6JEy9GBpguyE — open: playtest-10, roster-plan;
+  bloomer-motion answered (changes → rr-05; post the new clip when it lands).
+- Lancer mq4 identity pair committed (340026ecb). Next for the roster: owner verdict on roster-plan, then wave 1.
+- Follow-up (2026-10-17): `tests/skill_progression_analytics_test.gd` fails on the integration branch (2 failures: terminal outbox fixture / resumable-run clear) and is not in `tests/run_tests.gd`, so nothing caught it. Next QA unit: find the cause, and wire every supplemental test into the suite (or a supplemental runner) so they can't rot.
+- Test-debt follow-ups (from qa-08's audit; ids in tests/quarantine.json once it lands): qa-09 stale references, qa-10 legacy cutout tests, qa-11 long diagnostics, qa-12 export-workflow tests, bug-01 prepared_other_character_view ownership (possible real bug, do first), design-01 tests needing director UI/rules decisions.
+- Blender bridge runs for worktree mq-03 (idles out 3 h after the last job; restart for rr-06/roster units with
+  their worktree names).
+
 ## In flight (2026-10-15 late, playtest 7 follow-ups; Codex model gpt-6-astra + max_running 6 for today — revert the Labyrinth profile after)
 - Merged today: sfx-03, rr-01, art-04 (shrike), por-01, ux-02, art-05, ui-02, qa-04, fix-03. Playtest 7 = 7901c37f0.
 - Merged into integration: chr-02 (9d711ceb5), art-06 (bf3ed130a), ux-03 (a98d3683f), art-07 (af5163220), vfx-01 (693209518), rr-02 (0d2975df1),

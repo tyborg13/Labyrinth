@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "approved_sha256": {
+    "front": "f4344a71bde0d97c1939d0df321cdcd4fc04ccba3f8ad7814e0fe3f75636e37f",
+    "rear": "d1c368097ba9015dc9876c62047372427605b8a7205f37950d7f499af98309bf"
+  },
+  "features": [
+    {
+      "name": "eye",
+      "views": {
+        "front": {
+          "owner": "core",
+          "mask": "features/front_eye.png"
+        },
+        "rear": {
+          "owner": "core",
+          "mask": "features/empty.png",
+          "occluded_reason": "The single eye is on the front of the cloud; the rear view shows its back."
+        }
+      }
+    }
+  ]
+}

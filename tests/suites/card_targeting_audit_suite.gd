@@ -30,7 +30,7 @@ static func run(tree: SceneTree, expect: Callable) -> void:
 		await instance.call("_on_card_pressed", 0)
 		expect.call(int(instance.get("_selected_card_index")) == 0, "%s selects directly" % id)
 		expect.call(instance.get("_combat_state") == state, "%s selection does not commit automatic prefix effects" % id)
-		expect.call(not bool(instance.call("_current_action_can_skip")), "%s never offers Skip Step" % id)
+		expect.call(not instance.has_method("_on_skip_action_pressed"), "%s never offers Skip Step" % id)
 		var tracker: Control = instance.get("_action_step_tracker")
 		expect.call((instance.get("_action_step_tracker_steps") as Node).get_child_count() == 0, "%s never builds numbered steps" % id)
 		for child: Node in (instance.get("_action_context_command_bar") as Node).get_children():

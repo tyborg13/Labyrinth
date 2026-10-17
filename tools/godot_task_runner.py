@@ -15,6 +15,8 @@ import threading
 import time
 from typing import TextIO
 
+from windows_process_job import close_owned_job, spawn_owned_process
+
 
 FAILURE_MARKERS = (
     "SCRIPT ERROR:",
@@ -26,6 +28,7 @@ DEFAULT_TIMEOUT_SECONDS = 300.0
 TERMINATION_GRACE_SECONDS = 2.0
 WATCHDOG_JOIN_MARGIN_SECONDS = 1.0
 TIMEOUT_RETURN_CODE = 124
+WINDOWS_TREE_CLEANUP_SECONDS = 5.0
 
 
 @dataclass
@@ -94,11 +97,33 @@ class RunnerInterrupted(BaseException):
         self.signum = signum
 
 
-def terminate_process_tree(process: subprocess.Popen[str]) -> None:
+def terminate_windows_process_tree(process: subprocess.Popen[str]) -> None:
+    # Close even when the root already exited: the job still owns descendants.
+    # taskkill is the PID-specific fallback for legacy/unowned Popen instances
+    # or a job-close error, and must run before terminating a live root.
+    deadline = time.monotonic() + WINDOWS_TREE_CLEANUP_SECONDS
+    try:
+        if close_owned_job(process):
+            process.wait(timeout=WINDOWS_TREE_CLEANUP_SECONDS)
+            return
+    except OSError:
+        if process.poll() is not None:
+            raise
+    result = subprocess.run(
+        ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True,
+        timeout=WINDOWS_TREE_CLEANUP_SECONDS,
+    )
+    if result.returncode != 0 and process.poll() is None:
+        raise RuntimeError("Windows process-tree cleanup failed: " + result.stderr.strip())
+    process.wait(timeout=max(0.0, deadline - time.monotonic()))
+
+
+def terminate_process_tree(process: subprocess.Popen[str], *, platform: str | None = None) -> None:
     # The group may still contain descendants after its leader has exited.
-    if os.name == "nt":
-        if process.poll() is None:
-            process.terminate()
+    if (platform or os.name) == "nt":
+        terminate_windows_process_tree(process)
+        return
     else:
         try:
             os.killpg(process.pid, signal.SIGTERM)
@@ -109,14 +134,10 @@ def terminate_process_tree(process: subprocess.Popen[str]) -> None:
         process.wait(timeout=TERMINATION_GRACE_SECONDS)
     except subprocess.TimeoutExpired:
         pass
-    if os.name == "nt":
-        if process.poll() is None:
-            process.kill()
-    else:
-        try:
-            os.killpg(process.pid, signal.SIGKILL)
-        except ProcessLookupError:
-            pass
+    try:
+        os.killpg(process.pid, signal.SIGKILL)
+    except ProcessLookupError:
+        pass
     process.wait()
 
 
@@ -157,7 +178,7 @@ def run_task_command(command: list[str], project: Path, env: dict[str, str], tim
     threads: list[threading.Thread] = []
     timed_out = False
     try:
-        process = subprocess.Popen(
+        process = spawn_owned_process(
             command, cwd=str(project), env=env, text=True,
             stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1,
             start_new_session=(os.name != "nt"),
@@ -232,11 +253,25 @@ def command_run(args: argparse.Namespace) -> int:
             "error: refusing Godot --editor scan; it generates project-wide .import/.uid sidecars in clean worktrees. "
             "Use a runtime test for parser coverage, or pass --allow-editor-scan only when the metadata changes are intentional."
         )
-    if command and Path(command[0]).name == "godot" and "--log-file" not in command:
+    if command_is_godot(command) and "--log-file" not in command:
         command = [command[0], "--log-file", str(home_dir / "godot.log"), *command[1:]]
 
     env = os.environ.copy()
     env["HOME"] = str(home_dir)
+    if "--log-file" in command:
+        env["LABYRINTH_GODOT_LOG_PATH"] = command[command.index("--log-file") + 1]
+    else:
+        env.pop("LABYRINTH_GODOT_LOG_PATH", None)
+    # Godot and supporting libraries may prefer these over HOME. Never inherit
+    # a shared Windows roaming profile or a host's explicit Linux XDG root.
+    for variable, directory in (
+        ("APPDATA", "AppData/Roaming"), ("LOCALAPPDATA", "AppData/Local"),
+        ("XDG_DATA_HOME", "xdg/data"), ("XDG_CONFIG_HOME", "xdg/config"),
+        ("XDG_CACHE_HOME", "xdg/cache"), ("XDG_STATE_HOME", "xdg/state"),
+    ):
+        isolated_path = home_dir / directory
+        isolated_path.mkdir(parents=True, exist_ok=True)
+        env[variable] = str(isolated_path)
     env["LABYRINTH_TASK_ID"] = run_id
     env["LABYRINTH_USER_DIR_NAME"] = "Escape the Umbra Parallel %s" % run_id
     if args.allow_steam:
@@ -269,8 +304,12 @@ def godot_output_has_failure(output: str) -> bool:
     return any(marker in output for marker in FAILURE_MARKERS)
 
 
+def command_is_godot(command: list[str]) -> bool:
+    return bool(command) and command[0].replace("\\", "/").rsplit("/", 1)[-1].lower() in ("godot", "godot.exe")
+
+
 def command_requests_editor_scan(command: list[str]) -> bool:
-    return bool(command) and Path(command[0]).name == "godot" and "--editor" in command
+    return command_is_godot(command) and "--editor" in command
 
 
 def build_parser() -> argparse.ArgumentParser:

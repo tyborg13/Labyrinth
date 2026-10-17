@@ -61,3 +61,67 @@
 - Spell/magic slot limit: dropped entirely. Spells go straight into the deck (no equipping after fights); deck
   dilution is the cost, so card removal must be available.
 - 2026-10-17 Opening boons list approved by the owner (review inbox item boons-list) exactly as proposed → boon-01.
+- 2026-10-17 Roster plan posted to the review inbox (item roster-plan, awaiting the owner): waves 1–5 (static 11 →
+  frequent regulars → other regulars/helpers → guardians → dragons), per enemy: Codex maquette via the bridge,
+  director review, front/rear paint-over, rig, 60 fps clip to the inbox in batches of ~4.
+- 2026-10-17 Frostglass Lancer r4 front painting approved by the owner (3/4 board facing). The rear r4 is held for one
+  fix: it painted ~8% shorter than the front (hood tip 17 canvas px lower) with the cloak dragging on the ground. The
+  repaint matches the front height (hood tip y 84, soles y 980 in the 1024 frame) and has a mid-calf hem with the
+  boots visible. A front/rear height mismatch pops when a rig turns.
+- 2026-10-17 rr-05 feature masks (director data, staged/rr-05/features): Bloomer crown gem → core (both views);
+  amber nodules → trunk (front 3, rear 2, explicit occlusion otherwise); Wisp eye → core (rear occluded). Masks are the
+  gem/eye body + 1 px rim (eye 2 px), holes filled.
+- 2026-10-17 boon-01 decisions: Armory = random **rare** piece (no uncommon equipment tier exists; one step above the
+  starters, as intended); Vitality +6 max and +6 current HP; resume label `CHOOSING AN HEIRLOOM`; secondary back
+  label `Back`. Offer screen uses the post-combat reward idiom (three 300x400 cards with column tags, a `Take nothing`
+  pill styled like SKIP & RECOVER, NPC dialogue box at the bottom); spell picks reuse the reward banner and card row.
+- 2026-10-17 mq-03 cloak ownership: the cloth cloak splits per view by depth around the torso centre plane
+  (far → cape_far, near/tie → cape_near), so cutout rigs keep two cape parts.
+- 2026-10-17 OWNER approved the roster plan, ordered by need (inbox roster-plan): new enemies first, then the ones
+  least matching the style and/or with a wrong pose, then decide on the good ones (Stone Warden, the cultist =
+  Dust/Veilbound Acolyte: lowest). Director order (10-13 legacy audit severity + view failures):
+  1) 11 new static: Ember Tick, Hoarfrost Seer, Gale Herald, Arc Thrall, Gloam Stalker, Burrow Grub, Storm Capacitor,
+     Hollow Mimic, Briar Weaver, Slag Mortar, Glacial Mirror;
+  2) High + wrong pose first: Chainbound Gaoler (re-pose only), Ashen Reaver, Storm Cantor, Last Lamplighter,
+     Gallows Roc, Rimejaw;
+  3) dragons (all High; Noctyrax wrong view), started alongside 4 because wing maquettes take longest;
+  4) Medium + wrong pose: Wick Shade, Ash Hound, Roc Fledgling, Stoneback Mite, Cinder Ooze, Bell Tender;
+  5) Medium, style only: Bone Harrier, Rime Whelp, Craghide;
+  owner decides later (likely keep): Stone Warden, Dust + Veilbound Acolyte, Grave Surgeon, Cinder Droplet,
+  Tunnel Crawler, Rime Spitter.
+- 2026-10-17 CORRECTION (mq-03 cloak): the depth split put the whole cloak in one part per view (it hangs behind the
+  torso in front, in front of it in rear). The cloak now splits by body side in body space: faces on the
+  shoulder_near side of the sagittal plane are cape_near, the rest cape_far (ties near), the same in both views, like
+  the limb labels (hand_far = spear hand in both views). Feedback 5 also requires deterministic cloth-cache replay hashes.
+- 2026-10-17 Roster wave 1 (the 11 new enemies) keeps their owner-approved art-02 paintings: they are already in the
+  3/4 board facing and the house hand. Maquettes are fitted to that art to give the rigs parts and joints. They are
+  repainted only if a fit or pose fails. Batch A = the four humanoids (mq-04); director part lists are in the brief.
+- 2026-10-17 Gale Herald banners: both approved paintings trail the banners screen-right, which reads as one consistent
+  wind direction on screen. The maquette gets a per-view cloth pose for the banners only; the body, joints and other
+  parts stay one model turned 180°. The rule applies to any figure whose approved views share a wind direction.
+- 2026-10-17 Cutout seams: parts may bleed edge-texel support under their neighbours (margin = max sampled joint
+  separation + 1 px, inside the rest silhouette union, never visible at rest, never across features), so no pose shows
+  background between parts. The no-new-hole gate stays strict.
+- 2026-10-17 flow-01 section-entry save failure: the transition reverses to the cleared boss room with the dragon
+  reward screen and the existing notice "Could not save. Your rewards are still here; try Continue again."; CONTINUE
+  retries. The title card gets a 50% dark band, an accent-gold 24 px label and the reward-banner text shadow.
+- 2026-10-17 REVERSAL: roster wave 1 is NOT rigged from the approved art-02 paintings. Owner (on the Lancer): mixing
+  maquette-based and original-art enemies keeps the style inconsistent, so every enemy gets maquette → paint-over
+  (approved art as the identity reference) → rig. The fit gate relaxes to IoU ≥ 0.70 front / ≥ 0.65 rear (proportion
+  guidance). The maquette quality bar is the Lancer r3: cloth hood, robe and cloak, real anatomy and plates, no
+  primitive cones or cylinders for cloth. mq-04 r1 delivered primitive shapes (rejected); r2 does Seer + Thrall first,
+  then a director clay review.
+- 2026-10-17 Cutout rigs get a static silhouette backing: the rest silhouette in the painting's darkest interior tone,
+  drawn under every part and attached to the root body bone. Covered at rest; gaps opened by moving parts read as
+  shadowed depth instead of background tears. Visible backing ≤ 3% of the body in any pose. Generic for all maquette
+  rigs.
+- 2026-10-17 REVISED (rr-05): the full-silhouette backing is rejected (it showed as black blobs where petals swing).
+  Cutout seams use per-joint seam underlays instead: a thin band along each joint, painted from the parent, drawn
+  beneath all parts and attached to the parent. The gate is no background inside the rest silhouette (eroded 1 px).
+  Natural negative space outside the silhouette is allowed; underlay protrusion is limited to ≤ 2 px.
+- 2026-10-17 Typed-array rule as applied: typed declarations with literal initializers (`var x: Array[T] = []` or
+  `= [a, b]`) are established practice (~1,200 on master) and allowed. The Windows hazard forms that must be fixed
+  are conditional branches producing untyped literals, and bare-literal assignment to an already declared typed
+  variable.
+- 2026-10-17 Legacy saves without a recorded dragon reward summary: the re-shown reward screen omits the unknown
+  Ember/Moltshard lines. No placeholder text ever reaches players.

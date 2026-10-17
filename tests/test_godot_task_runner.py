@@ -12,10 +12,14 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+import json
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNNER = ROOT / "tools" / "godot_task_runner.py"
+sys.path.insert(0, str(ROOT / "tools"))
+import godot_task_runner as runner
 FIXTURE_SLEEP_SECONDS = 60
 STARTUP_TIMEOUT_SECONDS = 5
 WATCHDOG_STARTUP_WAIT_SECONDS = 0.1
@@ -67,6 +71,36 @@ class GodotTaskRunnerTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("stdout ok", result.stdout)
         self.assertIn("runner-success", result.stdout)
+
+    def test_appdata_and_xdg_roots_are_created_and_isolated(self) -> None:
+        variables = ("APPDATA", "LOCALAPPDATA", "XDG_DATA_HOME", "XDG_CONFIG_HOME",
+                     "XDG_CACHE_HOME", "XDG_STATE_HOME")
+        resolved = []
+        for name in ("env-one", "env-two"):
+            result = self.run_fake_command(name, "import os,json\nprint('ENV_PATHS='+json.dumps({key:os.environ[key] for key in %r}))" % (variables + ("HOME",),))
+            self.assertEqual(result.returncode, 0, result.stderr)
+            paths = json.loads(next(line.removeprefix("ENV_PATHS=") for line in result.stdout.splitlines() if line.startswith("ENV_PATHS=")))
+            for variable in variables:
+                self.assertTrue(Path(paths[variable]).is_dir(), variable)
+                self.assertIn(Path(paths["HOME"]), Path(paths[variable]).parents)
+            resolved.append(paths)
+        for variable in variables + ("HOME",):
+            self.assertNotEqual(resolved[0][variable], resolved[1][variable], variable)
+
+    def test_absolute_capitalized_and_windows_executables_get_explicit_logs(self) -> None:
+        for index, executable in enumerate(("/Applications/Godot.app/Contents/MacOS/Godot", r"C:\Tools\Godot.exe")):
+            with self.subTest(executable=executable), mock.patch.object(
+                runner, "run_task_command", return_value=runner.CommandResult(0, "", "")
+            ) as run:
+                code = runner.main(["--project", str(ROOT), "--run-id", "executable-%d" % index,
+                                    "--godot-home-root", self.home_root.name, "--", executable, "--headless"])
+                self.assertEqual(code, 0)
+                command = run.call_args.args[0]
+                self.assertEqual(command[command.index("--log-file") + 1],
+                                 str(Path(self.home_root.name).resolve() / ("executable-%d" % index) / "godot.log"))
+
+    def test_editor_scan_guard_also_covers_absolute_Godot_exe(self) -> None:
+        self.assertTrue(runner.command_requests_editor_scan([r"C:\Tools\Godot.exe", "--editor"]))
 
     def test_runner_disables_steam_initialization(self) -> None:
         result = self.run_fake_command(
