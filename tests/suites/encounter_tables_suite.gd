@@ -259,6 +259,12 @@ static func _test_legacy(expect: Callable) -> void:
 	print("Encounter legacy differential: 64 seeds; layouts, pools/RNG, non-section and revision-3 entry states checked")
 
 static func _test_placement(expect: Callable) -> void:
+	_finish_placement(expect, placement_seed_range(expect, 0, PLACEMENT_SEEDS))
+
+# Program children partition only the existing fixture seed range. Every layout
+# and predicate is unchanged; the original whole-sweep assertion runs once on
+# the aggregated statistics, also used by the unchanged standalone entry point.
+static func placement_seed_range(expect: Callable, seed_begin: int, seed_end: int) -> Dictionary:
 	var generator := EntryGenerator.new()
 	var table: Dictionary = Tables.load()
 	var generated: int = 0
@@ -272,9 +278,9 @@ static func _test_placement(expect: Callable) -> void:
 			for biome: String in Tables.BIOMES:
 				for element: String in ["none", "fire", "earth", "ice", "air", "lightning"]:
 					if not Tables.supports_element(entry, element):
-						skipped += PLACEMENT_SEEDS
+						skipped += seed_end - seed_begin
 						continue
-					for seed: int in range(PLACEMENT_SEEDS):
+					for seed: int in range(seed_begin, seed_end):
 						var room: Dictionary = {"coord": Vector2i(int(tier), 0), "depth": int(tier), "type": "combat", "element": element, "section_index": 0, "section_map_layout_revision": 4, "encounter_biome": biome, "connections": []}
 						for direction: Vector2i in directions:
 							if direction != Vector2i.ZERO: room["connections"].append({"door_dir": direction, "coord": Vector2i(int(tier) + 1, 0)})
@@ -300,6 +306,13 @@ static func _test_placement(expect: Callable) -> void:
 						expect.call(valid, "Spawn tiles are distinct, reachable, outside the player halo and off doors: " + label)
 						largest = maxi(largest, actual.size())
 						generated += 1
+	return {"generated": generated, "skipped": skipped, "largest": largest}
+
+static func _finish_placement(expect: Callable, statistics: Dictionary) -> void:
+	var table: Dictionary = Tables.load()
+	var generated: int = statistics["generated"]
+	var skipped: int = statistics["skipped"]
+	var largest: int = statistics["largest"]
 	expect.call(largest >= int(table["rules"]["max_units"]), "Placement sweep exercises the full seven-unit cap and objective extras")
 	print("Encounter placement sweep: %d layouts, %d ineligible neutral cases skipped, max %d units including objective extras" % [generated, skipped, largest])
 

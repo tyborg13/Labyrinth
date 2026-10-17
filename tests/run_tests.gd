@@ -1,5 +1,6 @@
 extends SceneTree
 
+const ProgramSuiteRunner = preload("res://tools/program_suite_runner.gd")
 const DepthRulesSuite = preload("res://tests/suites/depth_rules_suite.gd")
 const GameData = preload("res://scripts/game_data.gd")
 const AnalyticsStore = preload("res://scripts/analytics_store.gd")
@@ -94,18 +95,15 @@ const ACTION_STEP_TRACKER_PATH: String = "UiLayer/UiRoot/ActionStepTracker"
 const ACTION_STEP_CHOICE_PATH: String = "UiLayer/UiRoot/Backdrop/Margin/MainVBox/BottomStack/HandRow/LeftActionStack/ChoiceBar"
 const ACTION_STEP_PILES_PATH: String = "UiLayer/UiRoot/PilesBar"
 const MAP_RULE_SCAN_DEPTH: int = 8
+const LEGACY_LIVE_FIXTURE_EMBERS: int = 180
 
 var _failures: Array[String] = []
+var _assertion_count: int = 0
 
 func _initialize() -> void:
 	var full_suite_started_usec: int = Time.get_ticks_usec()
-	ParallelRuntime.apply_from_environment()
-	ProgressionStore.set_storage_path("user://labyrinth_progression_test.json")
-	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
-	SettingsStore.set_storage_path("user://labyrinth_settings_test.json")
-	SettingsStore.clear_storage()
-	AnalyticsStore.set_storage_dir("user://labyrinth_analytics_test")
-	AnalyticsStore.clear_storage()
+	_initialize_test_storage()
+	var program_suites: Dictionary = ProgramSuiteRunner.start()
 	var default_progression: Dictionary = ProgressionStore.default_data()
 	_assert(GameData.cards().size() >= 20, "Card data should load")
 	_assert(GameData.enemies().size() >= 5, "Enemy data should load")
@@ -144,6 +142,7 @@ func _initialize() -> void:
 	SkillTreeSuite.run(Callable(self, "_assert"))
 	SkillCombatSuite.run(Callable(self, "_assert"))
 	PlayerMovementSuite.run(Callable(self, "_assert"))
+	preload("res://tests/suites/cbt_01_suite.gd").run(Callable(self, "_assert"))
 	InitiativeOrderSuite.run(Callable(self, "_assert"))
 	preload("res://tests/suites/turn_clock_wait_suite.gd").run(Callable(self, "_assert"))
 	SkillRunSuite.run(Callable(self, "_assert"))
@@ -308,7 +307,7 @@ func _initialize() -> void:
 	_test_enemy_aoe_blocker_damages_incidental_terrain()
 	_test_frostglass_lancer_line_thrust_preview_and_resolution()
 	_test_enemy_threat_tiles_follow_intent()
-	_test_run_scene_frostglass_lancer_line_threat_overlay()
+	await _test_run_scene_frostglass_lancer_line_threat_overlay()
 	_test_enemy_threat_tiles_assume_player_can_vacate_current_tile()
 	_test_enemy_threat_tiles_exclude_nonexistent_radial_trap_damage()
 	_test_large_enemy_threat_tiles_use_footprint()
@@ -425,109 +424,28 @@ func _initialize() -> void:
 	_test_hand_fan_layout_lifts_center_cards()
 	_test_default_theme_uses_readable_text_font()
 	_test_ui_typography_system()
-	await _test_main_scenes_instantiate()
-	await preload("res://tests/suites/ui_components_suite.gd").run(self, Callable(self, "_assert"))
-	_suppress_guided_tutorial_for_legacy_live_scene_tests()
-	await EmberRewardFeedbackSuite.run(self, Callable(self, "_assert"))
-	await En06EnemiesSuite.run_live(self, Callable(self, "_assert"))
-	await En03EnemiesSuite.run_live(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/dragon_exchange_presentation_suite.gd").run_live(self, Callable(self, "_assert"))
-	await CombatMotionTimingSuite.run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/protagonist_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/strike_trail_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/enemy_strike_trail_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/protagonist_gear_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/contextual_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/stone_warden_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/crawler_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/acolyte_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/bile_bloomer_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/chainbound_gaoler_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/cinder_droplet_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/cinder_ooze_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/frostglass_lancer_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/grave_surgeon_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/harrier_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/iskaldra_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/lightning_wisp_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/noctyrax_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/tharokh_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/vaeloryx_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/veilbound_acolyte_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/vyraketh_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/zekarion_cutout_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/ui_button_feedback_suite.gd").run(self, Callable(self, "_assert"))
-	await RunSfxSuite.run(self, Callable(self, "_assert"))
-	await AttackSfxSuite.run_live(self, Callable(self, "_assert"))
-	await MoveAttackShortcutSuite.run_live(self, Callable(self, "_assert"))
-	await MapUiSuite.run_live(self, Callable(self, "_assert"))
-	await CardDragPlaySuite.run_live(self, Callable(self, "_assert"))
-	await ForcedMovementSuite.run_live(self, Callable(self, "_assert"))
-	await CardKeywordsSuite.run_live(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/turn_clock_copy_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/turn_clock_hud_suite.gd").run(self, Callable(self, "_assert"))
-	await preload("res://tests/suites/card_pool_overhaul_suite.gd").run_live(self, Callable(self, "_assert"))
-	await _test_run_scene_combat_log_prominence()
-	await _test_run_scene_minimap_click_opens_large_map()
-	await _test_run_scene_pre_battle_preview_intercepts_combat_entry()
-	await _test_run_scene_pre_battle_five_enemy_layout_compacts()
-	await _test_run_scene_debug_boss_fixture_boots()
-	await _test_run_scene_offers_pass_during_combat()
-	await _test_run_scene_offers_pass_when_hand_dead()
-	await _test_run_scene_pass_preview_chip_updates()
-	await _test_run_scene_action_selection_keeps_hand_layout_stable()
-	await _test_run_scene_direct_card_and_player_movement_selection()
-	await _test_run_scene_idle_hand_refresh_clears_card_fx_ghosts()
-	await _test_run_scene_ready_wave_marks_only_playable_hand_cards()
-	await _test_run_scene_reward_heal_choice_sits_below_cards()
-	await _test_run_scene_reward_acquisition_is_single_choice()
-	await _test_run_scene_reward_decision_support_matches_claims()
-	await _test_run_scene_selection_prompts_clear_after_pick()
-	await _test_run_scene_fatigue_damage_visual_event()
-	await _test_run_scene_campfire_choices_use_relic_overlay()
-	await _test_run_scene_campfire_choice_press_is_single_shot()
-	await preload("res://tests/suites/ember_hearth_suite.gd").run(self, _assert)
-	await _test_run_scene_campfire_bonfire_persists_after_leave()
-	await _test_run_scene_optional_followup_attack_stays_playable()
-	await _test_run_scene_flurry_utility_resolves_without_attack_target()
-	await _test_run_scene_action_step_tracker_states()
-	await _test_run_scene_move_attack_shortcut_clicks_enemy()
-	await _test_run_scene_aoe_aim_rotates_before_click()
-	await _test_run_scene_line_aoe_push_preserves_orientation()
-	await _test_run_scene_push_direction_tiles_filter_closer_tiles()
-	await _test_run_scene_block_card_skips_dead_move()
-	await _test_run_scene_targetless_card_click_requires_confirmation()
-	await _test_run_scene_card_play_meter_spends_before_resolution_rewards()
-	await _test_run_scene_damage_display_matches_bonus()
-	await _test_run_scene_surface_condition_rows_mark_activity()
-	await _test_card_widget_removes_meter_glow_and_preserves_clock()
-	await _test_card_widget_flurry_icon_uses_wide_slot()
-	await _test_card_widget_debossed_role_emblems()
-	await _test_run_scene_ranged_cards_show_range()
-	await _test_run_scene_preview_normalizes_untyped_target_tiles()
-	await _test_run_scene_illusion_hover_surfaces_preview_unit()
-	await _test_run_scene_move_previews_avoid_traps_when_possible()
-	await _test_run_scene_umbra_move_shortcuts_do_not_reveal_hidden_targets()
-	await _test_run_scene_umbra_preview_effects_do_not_reveal_hidden_state()
-	await _test_run_scene_umbra_aoe_centers_allow_hidden_pattern_occupants()
-	await _test_run_scene_hovered_enemy_shows_threat_overlay()
-	await _test_run_scene_show_all_enemy_intents_and_threats()
-	await _test_run_scene_animation_lock_preserves_board_animation_presentation()
-	await _test_run_scene_discard_pile_uses_distinct_icon_controls()
-	await _test_run_scene_displays_owned_relic_icons()
-	await _test_run_scene_relic_header_uses_freed_board_space()
-	await _test_run_scene_attack_impact_presentation_drops_projectile_effect()
-	await _test_run_scene_auto_triggers_starting_npc_dialogue()
-	await _test_run_scene_character_stats_overlay_opens()
-	await _test_run_scene_grimoire_entry_click_keeps_nav_scroll_stable()
-	await _test_run_scene_logs_local_analytics()
-	await _test_settings_persistence_audio_and_presentation_preferences()
-	await _test_main_menu_shows_continue_for_saved_run()
-	GuidedCombatTutorialSuite.run(Callable(self, "_assert"))
+	print("MAIN BODY RUNTIME: %.3f seconds" % [float(Time.get_ticks_usec() - full_suite_started_usec) / 1000000.0])
+	print("MAIN BODY ASSERTIONS: %d" % _assertion_count)
+	await ProgramSuiteRunner.finish(self, program_suites, Callable(self, "_assert"), full_suite_started_usec)
+	_finish_test_result()
 
-	preload("res://tests/static_facing_program_suites.gd").run(Callable(self, "_assert"), full_suite_started_usec)
-	preload("res://tests/helpers/program_sub_suites.gd").run(Callable(self, "_assert"), full_suite_started_usec)
+func _initialize_test_storage(legacy_live_fixture: bool = false) -> void:
+	ParallelRuntime.apply_from_environment()
+	ProgressionStore.set_storage_path("user://labyrinth_progression_test.json")
+	ProgressionStore.set_run_storage_path("user://labyrinth_run_test.save")
+	SettingsStore.set_storage_path("user://labyrinth_settings_test.json")
+	SettingsStore.clear_storage()
+	AnalyticsStore.set_storage_dir("user://labyrinth_analytics_test")
+	AnalyticsStore.clear_storage()
+	if legacy_live_fixture:
+		# Reconstruct the profile left by _test_progression_save_and_purchase
+		# before the former in-process live scene block. This is fixture state.
+		var progression: Dictionary = ProgressionStore.add_embers(ProgressionStore.default_data(), LEGACY_LIVE_FIXTURE_EMBERS)
+		progression = ContextualCombatTutorial.complete_tutorial(progression)
+		if not ProgressionStore.save_data(progression):
+			_failures.append("Legacy live scene fixture profile should persist")
 
+func _finish_test_result() -> void:
 	if _failures.is_empty():
 		print("TEST RESULT: PASS")
 		quit(0)
@@ -10194,10 +10112,10 @@ func _test_run_scene_push_direction_tiles_filter_closer_tiles() -> void:
 	instance.queue_free()
 	await process_frame
 
-func _test_run_scene_block_card_skips_dead_move() -> void:
+func _test_run_scene_block_card_offers_stay_when_enclosed() -> void:
 	var run_scene: PackedScene = load("res://scenes/run_scene.tscn")
 	if run_scene == null:
-		_failures.append("Run scene should load for dead-move skip coverage")
+		_failures.append("Run scene should load for enclosed Stay coverage")
 		return
 	var instance: Node = run_scene.instantiate()
 	root.add_child(instance)
@@ -10218,9 +10136,22 @@ func _test_run_scene_block_card_skips_dead_move() -> void:
 	deck["burned"] = []
 	combat_state["deck"] = deck
 	_set_run_scene_combat_state_for_test(instance, combat_state)
+	var run_state: Dictionary = (instance.get("_run_state") as Dictionary).duplicate(true)
+	run_state["mode"] = "combat"
+	run_state["current_room"] = Vector2i(2, 2)
+	run_state["current_room_layout"] = _dead_hand_room_layout()
+	run_state["combat_state"] = combat_state
+	instance.set("_run_state", run_state)
+	instance.call("_refresh_ui")
 	var preview: Dictionary = instance.call("_card_preview_for_index", 0)
-	_assert(bool(preview.get("playable", false)), "Cards with a self effect should remain playable when their move step has no target")
-	_assert(bool(preview.get("complete", false)), "Dead move steps should auto-skip into the card's self effect")
+	_assert(bool(preview.get("playable", false)), "Cards with a self effect remain playable when enclosed")
+	var origin: Vector2i = combat_state["player"]["pos"]
+	var stay_targets: Array = preview.get("target_tiles", [])
+	_assert(not bool(preview.get("complete", false)) and stay_targets.size() == 1 and stay_targets[0] == origin, "An enclosed Guarded Step offers the explicit Stay choice")
+	await instance.call("_on_card_pressed", 0)
+	await instance.call("_on_board_tile_clicked", origin)
+	var stayed: Dictionary = instance.get("_combat_state")
+	_assert(stayed["player"]["pos"] == origin and int(stayed["player"].get("block", 0)) == 3 and stayed["deck"]["discard"].has("guarded_step"), "Enclosed Stay commits Block and consumes the card only after confirmation")
 	instance.queue_free()
 	await process_frame
 
@@ -13698,5 +13629,6 @@ func _assert_board_kept_animating_enemy(board_view: Node, expected_tile: Vector2
 	_assert((presentation.get("unit_draw_tiles", {}) as Dictionary).has("enemy_1"), "%s should preserve moving unit draw tile" % context)
 
 func _assert(condition: bool, message: String) -> void:
+	_assertion_count += 1
 	if not condition:
 		_failures.append(message)

@@ -40,9 +40,7 @@ func _initialize() -> void:
 			if preview.is_empty(): break
 			var targets: Array[Vector2i] = _preview_interaction_tiles(instance, preview)
 			if targets.is_empty():
-				if bool(instance.call("_current_action_can_skip")):
-					await instance.call("_on_skip_action_pressed")
-				else: break
+				break
 			else:
 				await instance.call("_on_board_tile_clicked", _preferred_target(instance, targets))
 			await _settle_frames(2)

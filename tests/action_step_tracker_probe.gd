@@ -90,13 +90,15 @@ func _capture_action_step_tracker_frames() -> void:
 	_assert_tracker_statuses(instance, ["done", "current"], "move-attack after move target")
 	await _save_root_screenshot("%s/move_attack_after_move.png" % OUTPUT_DIR)
 
-	await _load_combat_fixture(instance, "sidestep_slash", Vector2i(2, 4), [Vector2i(3, 4)], 9712)
-	instance.call("_on_card_pressed", 0)
+	await _load_combat_fixture(instance, "guarded_step", Vector2i(2, 4), [Vector2i(3, 4)], 9712)
+	await instance.call("_on_card_pressed", 0)
 	await _settle_ui()
-	instance.call("_on_skip_action_pressed")
+	await instance.call("_on_board_tile_clicked", Vector2i(2, 4))
 	await _settle_ui()
-	_assert_tracker_statuses(instance, ["skipped", "current"], "manual skip")
-	await _save_root_screenshot("%s/manual_skip_current_attack.png" % OUTPUT_DIR)
+	var stayed: Dictionary = instance.get("_combat_state")
+	if stayed["player"]["pos"] != Vector2i(2, 4) or int(stayed["player"].get("block", 0)) < 3:
+		_fail("Stay should keep the hero in place and apply Guarded Step's Block")
+	await _save_root_screenshot("%s/stay_block_resolved.png" % OUTPUT_DIR)
 
 	await _load_combat_fixture(instance, "sidestep_slash", Vector2i(2, 4), [Vector2i(3, 4)], 9713, true)
 	instance.call("_on_card_pressed", 0)

@@ -454,31 +454,32 @@ func _exercise_controller_combat_events(instance: Node) -> void:
 		await _press_controller_button(JOY_BUTTON_RIGHT_SHOULDER)
 	_require(int(instance.get("_controller_hand_index")) == 3, "Routed shoulder events should reach Guarded Step for optional-step coverage")
 	await _press_controller_button(JOY_BUTTON_A)
-	_require(str(instance.get("_controller_region")) == "board" and bool(instance.call("_current_action_can_skip")), "Guarded Step should expose its optional movement step through controller targeting")
+	_require(str(instance.get("_controller_region")) == "board" and (instance.get("_pending_target_tiles") as Array).has((instance.get("_combat_state") as Dictionary)["player"]["pos"]), "Guarded Step should expose Stay through controller targeting")
 	var cards_played_before: int = int((instance.get("_combat_state") as Dictionary).get("cards_played_this_turn", 0))
-	var player_before_skip: Dictionary = ((instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).duplicate(true)
-	var preview_player_before_skip: Dictionary = ((instance.get("_preview_combat_state") as Dictionary).get("player", {}) as Dictionary).duplicate(true)
+	var player_before_stay: Dictionary = ((instance.get("_combat_state") as Dictionary).get("player", {}) as Dictionary).duplicate(true)
+	var preview_player_before_stay: Dictionary = ((instance.get("_preview_combat_state") as Dictionary).get("player", {}) as Dictionary).duplicate(true)
 	_require(
-		preview_player_before_skip.get("pos", Vector2i(-1, -1)) == player_before_skip.get("pos", Vector2i(-2, -2)) and (instance.get("_pending_selected_targets") as Array).is_empty(),
+		preview_player_before_stay.get("pos", Vector2i(-1, -1)) == player_before_stay.get("pos", Vector2i(-2, -2)) and (instance.get("_pending_selected_targets") as Array).is_empty(),
 		"Entering Guarded Step targeting should not preselect or apply a movement tile; combat=%s preview=%s selected=%s"
-		% [player_before_skip.get("pos", Vector2i(-2, -2)), preview_player_before_skip.get("pos", Vector2i(-1, -1)), instance.get("_pending_selected_targets")]
+		% [player_before_stay.get("pos", Vector2i(-2, -2)), preview_player_before_stay.get("pos", Vector2i(-1, -1)), instance.get("_pending_selected_targets")]
 	)
 	var animated_board: Control = instance.get("board_view") as Control
 	var animated_board_position: Vector2 = animated_board.position
 	var animated_board_size: Vector2 = animated_board.size
-	await _press_controller_button(JOY_BUTTON_Y)
+	instance.call("_controller_set_board_tile", player_before_stay["pos"])
+	await _press_controller_button(JOY_BUTTON_A)
 	await _wait_for_combat_animation(instance)
-	var combat_after_skip: Dictionary = instance.get("_combat_state") as Dictionary
-	_require(int(combat_after_skip.get("cards_played_this_turn", 0)) > cards_played_before, "Y should skip the optional action and finish the card instead of passing the turn")
-	var player_after_skip: Dictionary = combat_after_skip.get("player", {}) as Dictionary
+	var combat_after_stay: Dictionary = instance.get("_combat_state") as Dictionary
+	_require(int(combat_after_stay.get("cards_played_this_turn", 0)) > cards_played_before, "A on the hero should Stay and finish the card")
+	var player_after_stay: Dictionary = combat_after_stay.get("player", {}) as Dictionary
 	_require(
-		player_after_skip.get("pos", Vector2i(-1, -1)) == player_before_skip.get("pos", Vector2i(-2, -2)),
-		"Skipping Guarded Step's optional movement should leave the player on the original tile; before=%s after=%s selected_targets=%s"
-		% [player_before_skip.get("pos", Vector2i(-2, -2)), player_after_skip.get("pos", Vector2i(-1, -1)), instance.get("_pending_selected_targets")]
+		player_after_stay.get("pos", Vector2i(-1, -1)) == player_before_stay.get("pos", Vector2i(-2, -2)),
+		"Choosing Stay for Guarded Step should leave the player on the original tile; before=%s after=%s selected_targets=%s"
+		% [player_before_stay.get("pos", Vector2i(-2, -2)), player_after_stay.get("pos", Vector2i(-1, -1)), instance.get("_pending_selected_targets")]
 	)
-	_require(int(player_after_skip.get("block", 0)) > int(player_before_skip.get("block", 0)), "Skipping movement should still resolve Guarded Step's automatic block effect")
-	_require(str((combat_after_skip.get("current_actor", {}) as Dictionary).get("kind", "")) == "player", "Skipping a card step must not end the player's turn")
-	_require(str(instance.get("_controller_region")) == "hand", "Completing a card through Skip should return controller focus to the remaining hand")
+	_require(int(player_after_stay.get("block", 0)) > int(player_before_stay.get("block", 0)), "Stay should still resolve Guarded Step's automatic block effect")
+	_require(str((combat_after_stay.get("current_actor", {}) as Dictionary).get("kind", "")) == "player", "Choosing Stay must not end the player's turn")
+	_require(str(instance.get("_controller_region")) == "hand", "Completing a card through Stay should return controller focus to the remaining hand")
 	_require(
 		animated_board.position.is_equal_approx(animated_board_position) and animated_board.size.is_equal_approx(animated_board_size),
 		"Player action animation renders must preserve the fixed controller board framing (before pos=%s size=%s, after pos=%s size=%s, modality=%s, region=%s, hand_focused=%s)" % [

@@ -115,3 +115,7 @@
   drawn under every part and attached to the root body bone. Covered at rest; gaps opened by moving parts read as
   shadowed depth instead of background tears. Visible backing ≤ 3% of the body in any pose. Generic for all maquette
   rigs.
+- 2026-10-17 REVISED (rr-05): the full-silhouette backing is rejected (it showed as black blobs where petals swing).
+  Cutout seams use per-joint seam underlays instead: a thin band along each joint, painted from the parent, drawn
+  beneath all parts and attached to the parent. The gate is no background inside the rest silhouette (eroded 1 px).
+  Natural negative space outside the silhouette is allowed; underlay protrusion is limited to ≤ 2 px.
