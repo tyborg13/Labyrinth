@@ -23,12 +23,20 @@ RUNNER = ROOT / "tools/program_suite_runner.py"
 CASE_SLEEP_SECONDS = 0.25
 TEST_TIMEOUT_SECONDS = 15
 STARTUP_TIMEOUT_SECONDS = 5
+HUNG_CHILD_TIMEOUT_SECONDS = STARTUP_TIMEOUT_SECONDS + 0.2
 POLL_SECONDS = 0.02
 EXTRACTED_PROGRAMS = [
     "suites/full_scene_presentation_program", "suites/full_scene_controls_program",
     "suites/full_scene_clock_program",
     "suites/full_scene_interaction_program",
 ]
+SPLIT_PROGRAMS = {
+    "encounter_tables_test": [
+        "suites/encounter_rules_program", "suites/encounter_placement_0_program",
+        "suites/encounter_placement_1_program", "suites/encounter_placement_summary_program",
+    ],
+    "sfx_sync_harness": ["suites/sfx_sync_%d_program" % index for index in range(3)],
+}
 DEADLINE_BUDGET_SECONDS = 0.3
 DEADLINE_CLEANUP_SECONDS = 0.04
 
@@ -92,16 +100,18 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         for path in ("tests/static_facing_program_suites.gd", "tests/helpers/program_sub_suites.gd"):
             source = (ROOT / path).read_text().split("const SUITES:", 1)[1].split("=", 1)[1].split("]", 1)[0]
             expected.extend(re.findall(r'"([a-z0-9_]+)"', source))
+        expected = [part for name in expected for part in SPLIT_PROGRAMS.get(name, [name])]
         expected.extend(EXTRACTED_PROGRAMS)
         self.assertEqual(list(actual), expected)
-        for suite in EXTRACTED_PROGRAMS:
+        for suite in EXTRACTED_PROGRAMS + [part for parts in SPLIT_PROGRAMS.values() for part in parts]:
             self.assertTrue((ROOT / "tests" / (suite + ".gd")).is_file())
 
     def test_manifest_preserves_all_existing_children_and_order(self):
         self.assert_complete_manifest(runner.SUITES)
 
     def test_removing_any_extracted_program_fails_manifest_guard(self):
-        for removed in ([name] for name in EXTRACTED_PROGRAMS):
+        parts = EXTRACTED_PROGRAMS + [part for parts in SPLIT_PROGRAMS.values() for part in parts]
+        for removed in ([name] for name in parts):
             with self.subTest(removed=removed), self.assertRaises(AssertionError):
                 self.assert_complete_manifest([name for name in runner.SUITES if name not in removed])
 
@@ -148,15 +158,20 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         self.assertEqual(report["results"][0]["returncode"], 1)
 
     def test_hung_child_times_out_and_process_is_gone(self):
-        result, report = self.run_scheduler({"hung_child": {"sleep": 60}}, "--timeout", "0.2")
+        result, report = self.run_scheduler({"hung_child": {"sleep": 60}}, "--timeout", str(HUNG_CHILD_TIMEOUT_SECONDS))
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         child = report["results"][0]
         self.assertEqual(child["name"], "hung_child")
         self.assertEqual(child["returncode"], 124)
         self.assertTrue(child["timed_out"])
-        self.assertIn("timed out after 0.2 seconds", Path(child["log_path"]).read_text())
+        log = Path(child["log_path"]).read_text()
+        self.assertIn("timed out after %s seconds" % HUNG_CHILD_TIMEOUT_SECONDS, log)
+        # Unlike the controlled-clock deadline tests below, this fixture needs
+        # a real interpreter to start and record its owned PID before timeout.
+        starts = self.read_events() if self.events.exists() else []
+        self.assertEqual(len(starts), 1, "Stub did not start within its startup budget:\n" + log)
         with self.assertRaises(ProcessLookupError):
-            os.kill(self.read_events()[0]["pid"], 0)
+            os.kill(starts[0]["pid"], 0)
 
     def test_budget_names_active_and_unstarted_children(self):
         cases = {"active": {"sleep": 60}, "pending": {}}
@@ -246,9 +261,21 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
                 process.communicate(timeout=TEST_TIMEOUT_SECONDS)
 
     def test_onset_arguments_are_preserved(self):
-        result, _report = self.run_scheduler({"sfx_sync_harness": {}})
+        suites = ["sfx_sync_harness", *SPLIT_PROGRAMS["sfx_sync_harness"]]
+        result, _report = self.run_scheduler({name: {} for name in suites})
         self.assertEqual(result.returncode, 0)
-        self.assertEqual(self.read_events()[0]["args"][-2:], ["--", "--assert-onsets"])
+        for event in self.read_events():
+            self.assertEqual(event["args"][-2:], ["--", "--assert-onsets"])
+
+    def test_reused_report_path_gets_fresh_placement_transport(self):
+        for _iteration in range(2):
+            result, _report = self.run_scheduler({"suites/encounter_rules_program": {}})
+            self.assertEqual(result.returncode, 0)
+        starts = [event for event in self.read_events() if event["kind"] == "start"]
+        directories = [Path(next(arg.split("=", 1)[1] for arg in event["args"]
+                                 if arg.startswith("--placement-report-directory="))) for event in starts]
+        self.assertEqual(len(set(directories)), 2)
+        self.assertTrue(all(path.is_dir() and path.parent == self.report.with_suffix(".logs").resolve() for path in directories))
 
     def test_four_child_slots_are_rejected_because_main_owns_one(self):
         result = subprocess.run(self.command(["unused"], "--jobs", "4"),

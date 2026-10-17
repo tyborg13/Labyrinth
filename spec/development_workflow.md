@@ -76,8 +76,17 @@ See [Windows Job Object semantics](https://learn.microsoft.com/en-us/windows/win
 `tools/program_suite_runner.py:SUITES` contains the complete program manifest:
 en04/en05/en06 and static_facing first, then combat_feel (including
 combat_pacing_regression), event_view, event_rules, biome, health_ghost,
-movement_undo, threats_at_rest, encounter_tables, run_score, sfx_bank,
-sfx_sync_bank, sfx_sync_harness (with onset assertions), section_map_v2,
+movement_undo, threats_at_rest, run_score, sfx_bank, sfx_sync_bank and section_map_v2.
+The former encounter_tables slot now contains rules/renderers, two equal seed
+ranges of the original placement sweep, and its aggregate assertion. The latter
+runs once on the summed counts and maximum of the completed ranges, transported
+through atomic JSON files in a fresh scheduler-owned report directory. This
+prevents stale aggregates when reusing a focused result path. The original
+standalone encounter program still runs the complete sweep unchanged in meaning.
+The former sfx_sync_harness slot contains three frame-profile groups (2/2/1),
+each retaining onset assertions for its original speed/scenario runs. The final
+group verifies the unchanged full sample-duration set once. Together they run
+all 15 original profile/speed combinations. The manifest continues with
 en01/en02/en03, magic_deck_input, run_end_recap and main_menu_resume. The final
 four children under `tests/suites/` run scene presentation/cutouts, live
 audio/map/card controls, turn-clock/card-pool presentation, and scene
@@ -107,7 +116,7 @@ separate from content assertions.
 `tests/test_program_suite_runner.py` exercises concurrency, isolation, ordered
 output, named failures, timeouts, the overall deadline and parent cancellation,
 including a real headless Godot parent fixture. Its manifest guard requires the
-complete ordered list, including all four extracted programs. Its deadline guard
+complete ordered list, including all scene, encounter and SFX program children. Its deadline guard
 uses a controlled monotonic clock and bounded simulated cleanup; a doubled
 budget must fail the guard. The native early-storage fixture asserts the
 requested namespace before its first write; deleting bootstrap initialization
@@ -116,16 +125,25 @@ exercises the Windows ctypes job implementation through a simulated Win32 API
 on POSIX, checking suspended launch, assignment before resume, kill-on-close,
 and real child/grandchild liveness with both alive and already-exited roots.
 It also asserts the complete fallback command (owned PID, `/T`, `/F`) and that
-an unrelated process survives. On Windows those same tree fixtures use native
+an unrelated process survives. Fixture cleanup skips exited PIDs, rechecks
+liveness after exit races (including Windows ERROR_ACCESS_DENIED for retained
+handles), and reaps the unrelated sleeper in its own finally. Win32 flag values
+are asserted independently as 0x2000 and 0x4; the simulation obeys the recorded
+bits. The real-interpreter timeout fixture includes its five-second startup
+budget before its short hang interval; controlled-clock deadline tests retain
+their strict original budget checks. On Windows those same tree fixtures use native
 Job Objects and taskkill instead of the simulation.
 
 The qa-07 proof is native macOS headless Godot and POSIX cancellation. Windows
 Win32 calls and taskkill semantics were simulated on POSIX; native Windows Job
 Objects/taskkill and Windows/Linux Godot path resolution remain unverified.
 APPDATA/XDG root creation and isolation are checked in actual child environments.
-The load proof runs three consecutive complete suites with a separate Godot
-program continuously running alongside them; the full runner still owns at
-most four Godot processes, plus the independent load process. Keep the 180/900
+The load proof runs three consecutive complete suites, each paired with an
+independent full Python discovery as concurrent load; all three discoveries
+must pass too. A repeating independent Godot program is another supported load.
+Check every child's measured time; split any domain above 110 seconds under
+load without dropping cases or changing predicates. The full runner still owns
+at most four Godot processes; independent load is additional. Keep the 180/900
 second caps when repeating this proof.
 
 Run Python checks from the task worktree with `python3 -m unittest discover -s tests -p 'test_*.py' -v`; verbose output lists every skip and its reason. Optional audio tests use `unittest.skipUnless` when their Python modules are absent, while dependency import errors remain failures when those modules are installed. Run the sound-lab checks with `/Users/borgerding/.cache/umbra-sfx/venv/bin/python -m unittest discover -s tests -p 'test_sfx_lab.py' -v`; run the classical arrangement checks with `.venv-classical-soundtrack/bin/python -m unittest discover -s tests -p 'test_*arrangement.py' -v` after preparing that environment with `tools/classical_soundtrack_requirements.txt`. The Chopin approved-artifact checks (`-p 'test_chopin_death_music.py'`) need no optional music modules. Python discovery includes headless fixture checks through the task runners; it does not replace the full Godot suite required for runtime changes.

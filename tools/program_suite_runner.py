@@ -10,6 +10,7 @@ from pathlib import Path
 import signal
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 
@@ -22,8 +23,11 @@ SUITES = (
     "en04_enemies_test", "en05_enemies_test", "en06_enemies_test", "static_facing_test",
     "combat_feel_test", "event_view_test", "event_rules_test", "biome_test",
     "health_ghost_test", "movement_undo_test", "threats_at_rest_test",
-    "encounter_tables_test", "run_score_test", "sfx_bank_test", "sfx_sync_bank_test",
-    "sfx_sync_harness", "section_map_v2_test", "en01_enemies_test",
+    "suites/encounter_rules_program", "suites/encounter_placement_0_program",
+    "suites/encounter_placement_1_program", "suites/encounter_placement_summary_program",
+    "run_score_test", "sfx_bank_test", "sfx_sync_bank_test",
+    "suites/sfx_sync_0_program", "suites/sfx_sync_1_program", "suites/sfx_sync_2_program",
+    "section_map_v2_test", "en01_enemies_test",
     "en02_enemies_test", "en03_enemies_test", "magic_deck_input_test",
     "run_end_recap_tests", "main_menu_resume_test",
     "suites/full_scene_presentation_program", "suites/full_scene_controls_program",
@@ -59,8 +63,10 @@ def child_command(args: argparse.Namespace, suite: str, timeout: float, bootstra
         "--log-file", str(engine_log), "--headless", "--path", str(args.project),
         "--script", str(bootstrap),
     ]
-    if suite == "sfx_sync_harness":
+    if suite == "sfx_sync_harness" or suite.startswith("suites/sfx_sync_"):
         command.extend(["--", "--assert-onsets"])
+    if suite.startswith("suites/encounter_"):
+        command.extend(["--", "--placement-report-directory=" + str(args.placement_report_directory)])
     return command
 
 
@@ -94,6 +100,9 @@ def run_suites(args: argparse.Namespace, cancelled: threading.Event, *, clock=ti
     next_index = 0
     logs = args.result_file.with_suffix(".logs")
     logs.mkdir(parents=True, exist_ok=True)
+    # A fresh directory also prevents stale placement aggregates when a focused
+    # command reuses its result-file path. Children keep separate user:// roots.
+    args.placement_report_directory = Path(tempfile.mkdtemp(prefix="placement-", dir=logs))
     report = {"complete": False, "results": results, "seconds": 0.0, "failed": False}
     previous_state = None
 

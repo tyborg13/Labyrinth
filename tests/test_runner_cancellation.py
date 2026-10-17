@@ -57,10 +57,45 @@ def process_alive(pid):
 
 def kill_pids(pids):
     for pid in reversed(pids):
+        if not process_alive(pid):
+            continue
         try:
             os.kill(pid, signal.SIGTERM if os.name == "nt" else signal.SIGKILL)
-        except ProcessLookupError:
-            pass
+        except OSError:
+            # Windows TerminateProcess can report ERROR_ACCESS_DENIED for an
+            # exited process whose handle is still retained. Recheck liveness
+            # after any exit race; never suppress an error for a live process.
+            if process_alive(pid):
+                raise
+
+
+def stop_fixture_process(process):
+    if process is None:
+        return
+    try:
+        if process.poll() is None:
+            try:
+                process.kill()
+            except OSError:
+                if process.poll() is None:
+                    raise
+    finally:
+        process.wait(timeout=CLEANUP_TIMEOUT_SECONDS)
+
+
+def cleanup_fixture(process, pids, unrelated):
+    try:
+        try:
+            if process is not None:
+                jobs.close_owned_job(process)
+        finally:
+            try:
+                kill_pids(pids)
+            finally:
+                stop_fixture_process(process)
+    finally:
+        # An owned-tree cleanup error must not strand the independent sleeper.
+        stop_fixture_process(unrelated)
 
 
 class SimulatedKernel:
@@ -74,6 +109,8 @@ class SimulatedKernel:
         self.case, self.gate, self.pid_file = case, gate, pid_file
         self.events = []
         self.pid = None
+        self.limit_flags = 0
+        self.creation_flags = 0
 
     def CreateJobObjectW(self, security, name):
         self.case.assertIsNone(security)  # Non-inheritable owner handle.
@@ -85,9 +122,9 @@ class SimulatedKernel:
         self.case.assertEqual(handle, SIMULATED_JOB_HANDLE)
         self.case.assertEqual(kind, jobs.JOB_OBJECT_EXTENDED_LIMIT_INFORMATION)
         limits = ctypes.cast(pointer, ctypes.POINTER(jobs.ExtendedLimitInformation)).contents
-        self.case.assertEqual(limits.BasicLimitInformation.LimitFlags, jobs.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE)
+        self.limit_flags = limits.BasicLimitInformation.LimitFlags
         self.case.assertEqual(size, ctypes.sizeof(jobs.ExtendedLimitInformation))
-        self.events.append("kill-on-close")
+        self.events.append("set-limits")
         return True
 
     def AssignProcessToJobObject(self, handle, process_handle):
@@ -120,7 +157,7 @@ class SimulatedKernel:
 
     def ResumeThread(self, thread):
         self.case.assertEqual(thread, SIMULATED_THREAD_HANDLE)
-        self.case.assertEqual(self.events, ["create", "kill-on-close", "launch-suspended", "assign"])
+        self.case.assertEqual(self.events, ["create", "set-limits", "launch-suspended", "assign"])
         self.events.append("resume")
         self.gate.touch()
         return 1
@@ -128,14 +165,63 @@ class SimulatedKernel:
     def CloseHandle(self, handle):
         if handle == SIMULATED_JOB_HANDLE:
             self.events.append("close-job")
-            members = json.loads(self.pid_file.read_text()) if self.pid_file.exists() else [self.pid]
-            kill_pids([pid for pid in members if pid is not None])
+            if self.limit_flags & 0x2000:
+                members = json.loads(self.pid_file.read_text()) if self.pid_file.exists() else [self.pid]
+                kill_pids([pid for pid in members if pid is not None])
         else:
             self.case.assertIn(handle, (SIMULATED_THREAD_HANDLE, SIMULATED_SNAPSHOT_HANDLE))
         return True
 
 
 class WindowsTreeCancellationTests(unittest.TestCase):
+    def test_win32_flag_values_are_independent_of_implementation(self):
+        self.assertEqual(jobs.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE, 0x2000)
+        self.assertEqual(jobs.CREATE_SUSPENDED, 0x4)
+
+    def test_cleanup_skips_dead_pids_and_accepts_exit_races(self):
+        denied = PermissionError("terminated process retains its handle")
+        denied.winerror = 5  # ERROR_ACCESS_DENIED
+        for error in (ProcessLookupError(), denied):
+            with self.subTest(error=type(error).__name__), \
+                    mock.patch(__name__ + ".process_alive", side_effect=[False, True, False]), \
+                    mock.patch.object(os, "kill", side_effect=error) as kill:
+                kill_pids([123, 456])
+                kill.assert_called_once()
+        with mock.patch(__name__ + ".process_alive", return_value=True), \
+                mock.patch.object(os, "kill", side_effect=denied), self.assertRaises(PermissionError):
+            kill_pids([123])
+
+    def test_unrelated_sleeper_is_reaped_even_if_owned_cleanup_raises(self):
+        unrelated = subprocess.Popen([sys.executable, "-c", "import time;time.sleep(%d)" % FIXTURE_SLEEP_SECONDS])
+        try:
+            with mock.patch(__name__ + ".kill_pids", side_effect=OSError("fixture cleanup error")):
+                with self.assertRaisesRegex(OSError, "fixture cleanup error"):
+                    cleanup_fixture(None, [], unrelated)
+            self.assertIsNotNone(unrelated.poll())
+            self.assertFalse(process_alive(unrelated.pid))
+        finally:
+            stop_fixture_process(unrelated)
+
+    def test_retained_handle_exit_race_is_reaped(self):
+        denied = PermissionError("terminated process retains its handle")
+        denied.winerror = 5
+        process = mock.Mock()
+        process.poll.side_effect = [None, 0]
+        process.kill.side_effect = denied
+        stop_fixture_process(process)
+        process.wait.assert_called_once_with(timeout=CLEANUP_TIMEOUT_SECONDS)
+
+    def test_simulated_job_close_honours_recorded_limit_flags(self):
+        with tempfile.TemporaryDirectory() as directory:
+            kernel = SimulatedKernel(self, Path(directory) / "gate", Path(directory) / "pids")
+            kernel.pid = 123
+            with mock.patch(__name__ + ".kill_pids") as kill:
+                kernel.CloseHandle(SIMULATED_JOB_HANDLE)
+                kill.assert_not_called()
+                kernel.limit_flags = 0x2000
+                kernel.CloseHandle(SIMULATED_JOB_HANDLE)
+                kill.assert_called_once_with([123])
+
     def test_assignment_failure_never_resumes_an_unowned_child(self):
         process = mock.Mock(pid=123, _handle=456)
         job = mock.Mock()
@@ -143,7 +229,7 @@ class WindowsTreeCancellationTests(unittest.TestCase):
         with mock.patch.object(jobs.subprocess, "Popen", return_value=process) as launch:
             with self.assertRaisesRegex(OSError, "assignment denied"):
                 jobs.spawn_owned_process(["unused"], platform="nt", job_factory=lambda: job)
-        self.assertEqual(launch.call_args.kwargs["creationflags"], jobs.CREATE_SUSPENDED)
+        self.assertEqual(launch.call_args.kwargs["creationflags"], 0x4)
         job.resume.assert_not_called()
         process.kill.assert_called_once_with()
         process.wait.assert_called_once_with()
@@ -178,12 +264,16 @@ class WindowsTreeCancellationTests(unittest.TestCase):
             parent += "time.sleep(%d)\n" % FIXTURE_SLEEP_SECONDS
         command = [sys.executable, "-c", parent]
         real_popen = subprocess.Popen
-        unrelated = real_popen([sys.executable, "-c", leaf])
-        kernel = SimulatedKernel(self, gate, pid_file)
+        unrelated = None
+        kernel = None
 
         def simulated_popen(command, **kwargs):
-            self.assertEqual(kwargs.pop("creationflags"), jobs.CREATE_SUSPENDED)
-            kernel.events.append("launch-suspended")
+            kernel.creation_flags = kwargs.pop("creationflags")
+            suspended = bool(kernel.creation_flags & 0x4)
+            kernel.events.append("launch-suspended" if suspended else "launch-running")
+            if not suspended:
+                gate.touch()  # CREATE_SUSPENDED=0 really allows early execution.
+            self.assertEqual(kernel.creation_flags, 0x4)
             process = real_popen(command, **kwargs)
             process._handle = process.pid
             return process
@@ -191,6 +281,8 @@ class WindowsTreeCancellationTests(unittest.TestCase):
         pids = []
         process = None
         try:
+            unrelated = real_popen([sys.executable, "-c", leaf])
+            kernel = SimulatedKernel(self, gate, pid_file)
             kwargs = dict(stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             if not owned:
                 process = real_popen(command, **kwargs)
@@ -234,13 +326,7 @@ class WindowsTreeCancellationTests(unittest.TestCase):
                 entry(process, platform="nt")  # Idempotent after root/job exit.
                 self.assertEqual(kernel.events.count("close-job"), 1)
         finally:
-            kill_pids(pids)
-            if process is not None:
-                if process.poll() is None:
-                    process.kill()
-                process.wait(timeout=CLEANUP_TIMEOUT_SECONDS)
-            unrelated.kill()
-            unrelated.wait(timeout=CLEANUP_TIMEOUT_SECONDS)
+            cleanup_fixture(process, pids, unrelated)
 
 
 if __name__ == "__main__":
