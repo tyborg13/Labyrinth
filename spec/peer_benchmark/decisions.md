@@ -93,3 +93,6 @@
   torso in front, in front of it in rear). The cloak now splits by body side in body space: faces on the
   shoulder_near side of the sagittal plane are cape_near, the rest cape_far (ties near), the same in both views, like
   the limb labels (hand_far = spear hand in both views). Feedback 5 also requires deterministic cloth-cache replay hashes.
+- 2026-10-17 Roster wave 1 (the 11 new enemies) keeps their owner-approved art-02 paintings: they are already in the
+  3/4 board facing and the house hand. Maquettes are fitted to that art to give the rigs parts and joints. They are
+  repainted only if a fit or pose fails. Batch A = the four humanoids (mq-04); director part lists are in the brief.
