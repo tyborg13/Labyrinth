@@ -4,7 +4,9 @@ var failures: Array[String] = []
 func _initialize() -> void:
 	var expect: Callable = func(ok: bool, message: String) -> void:
 		if not ok and not failures.has(message): failures.append(message)
-	if OS.get_cmdline_user_args().has("--save-only"):
+	if OS.get_cmdline_user_args().has("--regressions-only"):
+		Suite.Regression.run(expect)
+	elif OS.get_cmdline_user_args().has("--save-only"):
 		Suite._test_saved_revision4(expect)
 	elif OS.get_cmdline_user_args().has("--knowledge-only"):
 		Suite.Legacy._test_knowledge(expect, 5)

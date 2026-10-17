@@ -1,6 +1,31 @@
 # map-02 implementation result
 
-Branch `codex/map-02`; base `340026ecbdf1f6e98992dc24fff1b492c611a9f1` (`codex/peer-benchmark`). All implementation changes remain uncommitted. No publication, task-queue edits, peer review or reviewer agents were run.
+Branch `codex/map-02`; feedback-2 base `95b6dad2f609e06bd52aafa99b35bb1eb7fb2055` (owner merge of `codex/peer-benchmark`, after owner commit `f6fcde30f`). Feedback-2 implementation changes remain uncommitted. The worker did not commit, publish, edit the task queue, run a peer review or spawn reviewer agents.
+
+## Feedback 2 — review changes
+
+Review source: `codex/peer-benchmark:spec/peer_benchmark/feedback/map-02_review_95b6dad2f.md` (the review is not present in this worktree's base checkout; it was read from that Git ref).
+
+1. **Bounded structural retries:** each structural batch now proposes at most `V5_STRUCTURAL_PROPOSALS=50` topologies. An exhausted batch returns an empty result, advancing the outer 50-attempt loop. Only the outer path logs and returns fallback. Normal room rules, weights and the solver are unchanged. The forced-rejection child test checks 2,500 proposals, 50 exhausted batches, no solver calls and exactly one fallback. Its parent checks the actual log count and enforces a 10s deadline so a broken bound cannot hang the full suite. Observed forced run: `Section map structural rejection: PASS (2500 proposals, 50 exhausted batches, 350ms)`.
+2. **Visual proof:** the director supplied and judged all nine windowed-run-2 captures at 1920×1080 / 100% UI scale: **“varied, readable branching, no crowding at the boss, approved.”** The worker opened every supplied image and recorded the director's verdict; no new capture or judge is required by feedback 2. The provided PNGs are preserved unchanged.
+3. **Public dispatch:** recorded revision-3 and revision-4 states are serialized, loaded and passed through public `initialize()`. Complete rooms, section metadata and the recorded revision must remain byte-identical. Existing analytics append behavior remains untouched. These assertions run in the focused and full suites.
+4. **Survivors:** focused button-gap checks reuse generated seeds 1, 2 and 5. Probe startup now checks root readiness before any frame waits, defers adding the panel, awaits its ready signal, and checks its built controls before layout frames. The nine-case headless probe setup runs in the committed focused contract. Isolated mutations confirm that missing jitter clamps, ignored revision dispatch, an unbounded structural loop, missing probe defer and missing probe ready wait all fail. Production source was never replaced by those temporary mutants.
+
+Director-approved capture paths:
+
+| Seed | Section I | Section III | Section V |
+| --- | --- | --- | --- |
+| 1 | [seed_001_section_1.png](../output/map-02/director_run2/seed_001_section_1.png) | [seed_001_section_3.png](../output/map-02/director_run2/seed_001_section_3.png) | [seed_001_section_5.png](../output/map-02/director_run2/seed_001_section_5.png) |
+| 83 | [seed_083_section_1.png](../output/map-02/director_run2/seed_083_section_1.png) | [seed_083_section_3.png](../output/map-02/director_run2/seed_083_section_3.png) | [seed_083_section_5.png](../output/map-02/director_run2/seed_083_section_5.png) |
+| 200 | [seed_200_section_1.png](../output/map-02/director_run2/seed_200_section_1.png) | [seed_200_section_3.png](../output/map-02/director_run2/seed_200_section_3.png) | [seed_200_section_5.png](../output/map-02/director_run2/seed_200_section_5.png) |
+
+Current verification: UI identity lint reports `Ran 25 tests in 2.630s` / `OK`; shell syntax, bootstrap checks and `git diff --check` pass. Targeted regressions report `Section map v5 suite: 0 failures`; nine-case headless setup passes. The 200-seed variety tool reports `Section map variety metrics: PASS (200 seeds x 6 sections)`, zero fallback uses, and unchanged metrics plus all pre-existing diagnostic counts. Map checks all pass: `Section map v5 suite: 0 failures` (66.979s wall); `Section map suite: 0 failures` (62.612s); `Section map v2 suite: 0 failures (64 seeds x 6 sections)` (43.753s). Layout reports `Map 02 ordinary button gaps: 0 violations (200 seeds x 6 sections)` and `Map 02 boss button gaps: 0 violations (200 seeds x 6 sections)` / `Section map v5 no-overlap suite: PASS` (54.263s). The 200-seed variety command took 42.897s; the new structural-exhaustion counter is 109, all recovered without fallback. Full Python passes: `Ran 670 tests in 515.508s` / `OK (skipped=63)`; wall time 515.979s, exit 0. The merged Lancer replay fix is verified. Full serial Godot timed out: `error: command timed out after 900 seconds.` / `MAP_02_FULL_GODOT_WALL_SECONDS: 900.126` / `MAP_02_FULL_GODOT_EXIT: 124`. The last printed sub-suite result was `THREATS AT REST TEST RESULT: PASS (612 assertions; includes compass suite)` / `PROGRAM SUITE threats_at_rest_test: PASS`. No final full-suite result was emitted; this is not a full-suite pass. The full Godot runner in this checkout remains serial; qa-07 is not integrated by this unit. Its observed timeout is recorded without changing the 900s budget. No timeout or runtime assertion was relaxed, and the full runner was left to qa-07.
+
+Mutation evidence: `/private/tmp/map-02-feedback2-mutations.json` and `/private/tmp/map-02-feedback2-mutation-*.log`. Normal regressions: `/private/tmp/map-02-feedback2-regressions.log`; probe setup: `/private/tmp/map-02-feedback2-probe-setup.log`. Map-check logs: `/private/tmp/map-02-feedback2-{variety,focused,core,legacy,layout}.log`. Full-suite logs: `/private/tmp/map-02-feedback2-python-full.log` and `/private/tmp/map-02-feedback2-godot-full.log`. Ancillary logs: `/private/tmp/map-02-feedback2-ui-lint.log`, `/private/tmp/map-02-feedback2-gdignore-check.log`.
+
+Chosen defaults for feedback 2: structural proposal cap 50 (`V5_STRUCTURAL_PROPOSALS`, reusing the existing topology limit); regression timeouts 10s (`STRUCTURAL_TIMEOUT_SECONDS`, `PROBE_SETUP_TIMEOUT_SECONDS`); dispatch fixture seed 83 (`PUBLIC_DISPATCH_SEED`); clamp fixture seeds 1/2/5 (`LAYOUT_SEEDS`); forced-rejection seed 1 / section I (`TEST_SEED`, `TEST_SECTION`). Isolated mutation verification used named 10s normal and 3s intentional-hang deadlines. These are implementation or test choices; no player-facing tuning was chosen.
+
+Feedback-2 files: `scripts/section_map_graph.gd`, `tests/suites/section_map_regression_suite.gd`, `tests/section_map_structural_rejection_test.gd`, `tests/suites/section_map_v5_suite.gd`, `tests/section_map_v5_test.gd`, `tests/section_map_variety_probe.gd`, and this result report. `output/map-02/.gdignore` is a local bootstrap artifact written by the required helper; do not commit it.
 
 ## Root cause measured before rule changes
 
@@ -25,7 +50,7 @@ Godot 4.6.1, seeds 1–200 × 6 sections, revision 4. The instrumented adapter w
 
 Counts are non-exclusive: one rejected assignment can violate multiple rules. Crossing counts are rejected delta choices. Door counts follow production short-circuit evaluation, after earlier structural checks pass.
 
-The topology stage sampled **81,192** candidates, exhausted its 50-sample limit **1,533** times, and delivered the canned topology in **1,082/1,200 accepted sections (90.17%)**. The type stage failed **519** searches, all on its **12,000-assignment budget**. The outer section fallback ran **0** times. The dominant structural rejection was a fork into a fixed-type row; revision 5 reuses its already-required onward edge while generating walks. It also enforces the outer entry thresholds during construction. Room assignment now uses exhaustive seeded backtracking with route bounds, section-cardinality witnesses and fight-membership partitions, with no arbitrary assignment cutoff. Only proved-unsatisfiable assignments consume the 50 topology rerolls.
+The topology stage sampled **81,192** candidates, exhausted its 50-sample limit **1,533** times, and delivered the canned topology in **1,082/1,200 accepted sections (90.17%)**. The type stage failed **519** searches, all on its **12,000-assignment budget**. The outer section fallback ran **0** times. The dominant structural rejection was a fork into a fixed-type row; revision 5 reuses its already-required onward edge while generating walks. It also enforces the outer entry thresholds during construction. Room assignment now uses exhaustive seeded backtracking with route bounds, section-cardinality witnesses and fight-membership partitions, with no arbitrary assignment cutoff. Initial revision 5 consumed an outer attempt only for a proved-unsatisfiable assignment. Feedback 2 also bounds structural proposal batches and advances the outer attempt on structural exhaustion, preventing an endless sampler.
 
 ## Before / after
 
@@ -54,12 +79,12 @@ Observed result: `Section map variety metrics: PASS (200 seeds x 6 sections)`. T
 
 1. **Revision preservation:** new runs use revision 5; explicit revisions 3 and 4 retain their generators. Pre-change graph hashes match for all 200 seeds for each revision. Production revision-4 save/load/repair retains every map value and the recorded revision. Legacy revision-3/4 tests remain explicit legacy tests.
 2. **Lanes / walks:** five lanes, six weighted walks, three distinct opening Combat nodes, first three walks cover those openings, additional walks choose an opening, clamped 30/40/30 adjacent movement, crossing-free edges.
-3. **Structure then types:** topology is validated before seeded CSP assignment. All existing room, route, physical-door, Mystery-roll and depth-weighting rules remain. Fallback occurs only after 50 proved-unsatisfiable topologies and prints seed/section on every use. No fallback occurred in the measured 1,200 sections.
+3. **Structure then types:** topology is validated before seeded CSP assignment. All existing room, route, physical-door, Mystery-roll and depth-weighting rules remain. Fallback occurs after 50 outer attempts, each ending in structural-batch exhaustion or a proved-unsatisfiable assignment, and prints seed/section on every use. No fallback occurred in the measured 1,200 sections.
 4. **Variety:** every measured section has a ≥4-node row and ≥4-row divergence; repeated identical lane sets are capped at three rows. Signatures are the ordered lane strings per generating walk, as in triage.
 5. **Layout:** revision 5 divides lane placement by 4. Per feedback 1, the boss stays at its original last-step centre; entry through the last interior column are evenly spaced from x=80 to boss x−175. Only revision-5 jitter is clamped; final-interior x jitter cannot move toward the boss. Earlier layouts and all node dimensions are unchanged. Actual 1920×1080 / 100% panel field is 1864×823; section VI interior spacing is exactly 135px in this field.
 6. **Fog / Scout:** knowledge, fog, Scout and analytics implementations are unchanged. The existing complete knowledge/Scout assertions now also run against revision 5; the direct headless check reports `Section map v5 suite: 0 failures`. Legacy revision-4 coverage remains.
 
-## Feedback 1 implementation and current verification
+## Feedback 1 implementation and verification (historical)
 
 1. **Spacing:** revision 5 reserves 175px before the fixed boss centre and evenly spaces every earlier column. Final-interior x jitter cannot move toward the boss. Revisions 3 and 4 retain their layouts. The generator is unchanged: SHA-256 `29f3022da47f9c661600bd13ec6a1e95eee34f8c293e3c0c2734ae5137ad7b74`. The rerun's metrics JSON exactly matches the previous fixture.
 2. **Probe readiness:** startup is deferred until the scene tree is active, then awaits panel ready and two layout frames before selecting sections. Pre-ready `select_section` retains reached history without accessing unbuilt tabs. Synchronous and actual-tree regressions pass. Explicit errors and nonzero exits replace assertions for setup, missing nodes, capture size and write failures. `--setup-only` checks all nine cases headlessly without capturing; a headless capture request fails immediately.
@@ -116,6 +141,9 @@ Reproduce headless checks from this worktree:
 ```sh
 python3 tools/godot_task_runner.py --task-id map-02 --timeout 900 --stream -- godot --headless --path . --script tools/section_map_variety.gd -- --seeds 200 --output /private/tmp/map-02-v5.json
 python3 tools/godot_task_runner.py --task-id map-02 --timeout 900 --stream -- godot --headless --path . --script tests/section_map_v5_test.gd
+python3 tools/godot_task_runner.py --task-id map-02 --timeout 900 --stream -- godot --headless --path . --script tests/section_map_v5_test.gd -- --regressions-only
+python3 tools/godot_task_runner.py --task-id map-02 --timeout 900 --stream -- godot --headless --path . --script tests/section_map_test.gd
+python3 tools/godot_task_runner.py --task-id map-02 --timeout 900 --stream -- godot --headless --path . --script tests/section_map_v2_test.gd
 python3 tools/godot_task_runner.py --task-id map-02 --timeout 900 --stream -- godot --headless --path . --script tests/section_map_v5_layout_test.gd
 python3 tools/godot_task_runner.py --task-id map-02 --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd
 python3 -m unittest discover -s tests -p 'test_*.py' -v
@@ -127,19 +155,19 @@ Revision-4 diagnostics can be reproduced with `tools/section_map_variety.gd -- -
 
 ## Proof for the design owner
 
-Windowed rendering is unavailable in the implementation sandbox. The director’s first run hit the pre-ready `select_section` error recorded in `tests/map_02_director_run1.log`; that log is preserved. The corrected probe passed its nine-case headless setup regression, but has not been rerun windowed by the worker and no new captures are claimed. Use a fresh manifest for the corrected probe:
+Visual proof is complete: the director approved all nine supplied images in `output/map-02/director_run2/`, with the verdict and exact paths recorded in the feedback-2 section above. No additional windowed run is required. The original failure log is preserved. Windowed rendering remains unavailable to the worker. For optional future reproduction only, use a fresh manifest:
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/map-02 && MAP_02_PROOF_MANIFEST=/private/tmp/labyrinth-inspection-manifests/map-02-variety-run2.json sh tests/map_02_proof.sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/map-02 && MAP_02_PROOF_MANIFEST=/private/tmp/labyrinth-inspection-manifests/map-02-variety-repro.json sh tests/map_02_proof.sh
 ```
 
 The exact expanded renderer command is:
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/map-02 && python3 tools/visual_probe_runner.py tests/section_map_variety_probe.gd --task-id map-02 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/section_map_variety_visual_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/map-02-variety-run2.json -- --debug-reveal-section
+cd /Users/borgerding/workspace/Labyrinth.worktrees/map-02 && python3 tools/visual_probe_runner.py tests/section_map_variety_probe.gd --task-id map-02 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/section_map_variety_visual_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/map-02-variety-repro.json -- --debug-reveal-section
 ```
 
-The runner will print the isolated absolute capture directory. Expected paths within its isolated user namespace are `map_02_variety/seed_001_section_{1,3,5}.png`, `seed_083_section_{1,3,5}.png`, and `seed_200_section_{1,3,5}.png`. All nine images are 1920×1080 at 100% UI scale. The debug reveal exists only in the proof script; it never changes production fog or persisted saves. Override `MAP_02_PROOF_MANIFEST` for a fresh manifest on repeated capture runs. No inspection-fixture command was requested in this unit brief; the owner retains fixture, review, commit and publication responsibilities.
+The runner will print the isolated absolute capture directory. Expected paths within its isolated user namespace are `map_02_variety/seed_001_section_{1,3,5}.png`, `seed_083_section_{1,3,5}.png`, and `seed_200_section_{1,3,5}.png`. All nine images are 1920×1080 at 100% UI scale. The debug reveal exists only in the proof script; it never changes production fog or persisted saves. Director-run-2 images are already present and approved; these commands are retained only for reproduction. Override `MAP_02_PROOF_MANIFEST` for a fresh manifest on repeated capture runs. No inspection-fixture command was requested in this unit brief; the owner retains fixture, review, commit and publication responsibilities.
 
 ## TODO_DESIGN placeholders
 
@@ -158,7 +186,6 @@ Only proof/test choices: integrated legacy compatibility samples use seeds 1–5
 
 ## Open issues
 
-- The base-branch standalone retained-panel test has stale `_event_panel` snapshot access; its fixture version is corrected, but the unrelated snapshot error remains reported.
-- Windowed captures and inspection remain with the owner, as requested.
-- `parallel_task.py status` reports an empty acceptance/proof contract despite the brief stating that it was recorded. Owner-managed metadata was not edited.
-- The requested peer-benchmark merge remains blocked: the sandbox cannot create `/Users/borgerding/workspace/Labyrinth/.git/worktrees/map-02/ORIG_HEAD.lock`. No Git state was changed by that attempt. The owner must run `git -C /Users/borgerding/workspace/Labyrinth.worktrees/map-02 merge --ff-only codex/peer-benchmark` outside this sandbox. Until then the merged maquette builder and art fix are absent; the full Python suite still has the one known Lancer replay failure. No assertion or protected art file was rewritten.
+- The pre-existing standalone retained-panel snapshot still refers to `_event_panel`; feedback explicitly leaves it unchanged.
+- Feedback-2 full serial Godot timed out at the unchanged 900s limit (900.126s wall, exit 124) after the threats-at-rest PASS. It has no final full-suite PASS; qa-07's parallel runner is not integrated in this checkout. All standalone map suites and full Python pass. The former merge/art blocker is resolved by the owner's `95b6dad2f` merge.
+- No active TODO_DESIGN placeholders. Director visual approval and all nine capture paths are recorded above.

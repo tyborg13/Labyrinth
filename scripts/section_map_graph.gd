@@ -153,17 +153,19 @@ static func _weighted_roll(rng: RandomNumberGenerator, weights: Dictionary) -> S
 	return str(weights.keys()[0])
 
 # Revision 5 generates structure independently of encounter assignment. Structural
-# samples are rejected before invoking the solver; only a proved-unsatisfiable
-# assignment consumes one of the 50 topology rerolls. No search-budget timeout
-# can silently substitute the canned topology.
+# samples are rejected before invoking the solver. Exhausted structural batches
+# and proved-unsatisfiable assignments both advance the outer 50-attempt limit.
+# Every use of the canned topology is logged.
 const V5_LANE_COUNT: int = 5
 const V5_WALK_COUNT: int = 6
 const V5_MOVE_WEIGHTS: Array[int] = [30, 40, 30]
+const V5_STRUCTURAL_PROPOSALS: int = TOPOLOGY_ATTEMPTS
 
-static func _section_layout_v5(rng: RandomNumberGenerator, seed_value: int, index: int, diagnostics: Dictionary = {}, depth_state: Dictionary = {}) -> Dictionary:
+static func _section_layout_v5(rng: RandomNumberGenerator, seed_value: int, index: int, diagnostics: Dictionary = {}, depth_state: Dictionary = {}, structure_check: Callable = Callable()) -> Dictionary:
 	var count: int = ROOM_COUNTS[index]
 	for attempt: int in range(SECTION_ATTEMPTS):
-		var layout: Dictionary = _walk_layout_v5(rng, count, diagnostics)
+		var layout: Dictionary = _walk_layout_v5(rng, count, diagnostics, structure_check)
+		if layout.is_empty(): continue
 		_prepare_types(layout, seed_value, index, count)
 		var domains: Array = []
 		layout["positions"] = {}
@@ -184,14 +186,16 @@ static func _section_layout_v5(rng: RandomNumberGenerator, seed_value: int, inde
 		if solved: return layout
 		_diagnostic_v5(diagnostics, "solver_unsatisfiable")
 	_diagnostic_v5(diagnostics, "fallback")
-	print("SECTION MAP V5 FALLBACK seed=%d section=%d after %d unsatisfiable topologies" % [seed_value, index + 1, SECTION_ATTEMPTS])
+	print("SECTION MAP V5 FALLBACK seed=%d section=%d after %d topology attempts" % [seed_value, index + 1, SECTION_ATTEMPTS])
 	return _fallback_layout(count, FIGHT_COUNTS[index] - 1)
 
 static func _diagnostic_v5(diagnostics: Dictionary, reason: String, amount: int = 1) -> void:
 	if diagnostics.get("enabled", false): diagnostics[reason] = int(diagnostics.get(reason, 0)) + amount
 
-static func _walk_layout_v5(rng: RandomNumberGenerator, count: int, diagnostics: Dictionary = {}) -> Dictionary:
-	while true:
+# The optional check lets the headless regression force rejection without
+# changing the production validator or any generated encounter data.
+static func _walk_layout_v5(rng: RandomNumberGenerator, count: int, diagnostics: Dictionary = {}, structure_check: Callable = Callable()) -> Dictionary:
+	for proposal: int in range(V5_STRUCTURAL_PROPOSALS):
 		_diagnostic_v5(diagnostics, "structural_samples")
 		var openings: Array[int] = []
 		var available: Array[int] = []
@@ -240,7 +244,9 @@ static func _walk_layout_v5(rng: RandomNumberGenerator, count: int, diagnostics:
 			if repeated > 3: rejected = true
 		if rejected or not wide: continue
 		var layout: Dictionary = _layout_from_walks(walks, count)
-		if _structure_legal_v5(layout, count): return layout
+		var legal: bool = bool(structure_check.call(layout, count)) if structure_check.is_valid() else _structure_legal_v5(layout, count)
+		if legal: return layout
+	_diagnostic_v5(diagnostics, "structural_exhausted")
 	return {}
 
 static func _structure_legal_v5(layout: Dictionary, count: int) -> bool:

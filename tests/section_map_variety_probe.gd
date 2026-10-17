@@ -34,6 +34,9 @@ func _initialize() -> void:
 	_run.call_deferred()
 
 func _run() -> void:
+	if not root.is_node_ready():
+		_fail("Probe startup must be deferred until the scene-tree root is ready")
+		return
 	if not setup_only:
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
 		DisplayServer.window_set_size(PROOF_SIZE)
@@ -47,13 +50,15 @@ func _run() -> void:
 	panel = MapPanel.new()
 	panel.position = PROOF_PANEL_POSITION
 	panel.size = PROOF_PANEL_SIZE
-	viewport.add_child(panel)
+	# Exercise the ready wait even when the viewport is already in the tree.
+	# Layout frame waits must never conceal missing lifecycle synchronization.
+	viewport.add_child.call_deferred(panel)
 	if not panel.is_node_ready(): await panel.ready
-	await process_frame
-	await process_frame
-	if not panel.get("_built") or not is_instance_valid(panel.get("_field")) or not is_instance_valid(panel.get("_tabs")):
+	if not panel.is_node_ready() or not panel.get("_built") or not is_instance_valid(panel.get("_field")) or not is_instance_valid(panel.get("_tabs")):
 		_fail("Panel ready completed without building the field and section tabs")
 		return
+	await process_frame
+	await process_frame
 	if (panel.get("_field") as Control).size != PROOF_FIELD_SIZE:
 		_fail("Panel layout did not settle to the expected 1864x823 field at 100% UI scale")
 		return

@@ -6,6 +6,7 @@ const Legacy = preload("res://tests/suites/section_map_v2_suite.gd")
 const MapPanel = preload("res://scripts/section_map_panel.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const Progression = preload("res://scripts/progression_store.gd")
+const Regression = preload("res://tests/suites/section_map_regression_suite.gd")
 const METRIC_SEED_COUNT: int = 50
 const LEGACY_SEED_COUNT: int = 200
 # The dedicated proof checks all 200 seeds. The full runner also executes the
@@ -24,6 +25,9 @@ static func run(expect: Callable, legacy_seed_count: int = LEGACY_SEED_COUNT) ->
 	expect.call(failures.is_empty(), "Revision 5 metric thresholds over seeds 1..50 x 6 sections")
 	print("Map 02 metrics: %s (50 seeds x 6 sections)" % ("PASS" if failures.is_empty() else "FAIL"))
 	_test_legacy_hashes(expect, legacy_seed_count)
+	Regression.test_public_dispatch(expect)
+	Regression.test_bounded_structures(expect)
+	Regression.test_probe_ready(expect)
 	for seed_value: int in range(1, DETERMINISM_SEED_COUNT + 1):
 		var state: Dictionary = _state(seed_value)
 		Graph.initialize(state)
@@ -31,6 +35,7 @@ static func run(expect: Callable, legacy_seed_count: int = LEGACY_SEED_COUNT) ->
 		Graph.initialize(again)
 		expect.call(state == again and state["section_map_layout_revision"] == 5, "Revision 5 is deterministic and new runs record revision 5")
 		if seed_value == 1: _test_panel_before_ready(state, expect)
+		if seed_value in Regression.LAYOUT_SEEDS: Regression.test_layout_gaps(state, expect)
 		for index: int in range(6): _test_section(state, index, expect)
 	_test_saved_revision4(expect)
 	_test_layout_contract(expect)
