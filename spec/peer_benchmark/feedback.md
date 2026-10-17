@@ -126,3 +126,7 @@
 - 2026-10-17 roster-plan APPROVED with a reorder: "order it by need. Start with the new enemies, then ... the ones least
   matching our style and/or having an incorrect pose and then decide whether to redo even the enemies that look pretty
   good already ... stone warden is already pretty good ... the cultist is solid too ... lowest priority."
+- 2026-10-17 section-transition NEEDS CHANGES (owner): "After introducing the next section, you're briefly switching
+  back to the board before going to the new map section. We should cut that. Otherwise, looks good." → flow-01
+  feedback 3: the title card cross-fades straight into the section map (same painting); the board stays hidden until
+  the map closes.
