@@ -5,6 +5,7 @@ const Router = preload("res://scripts/input_router.gd")
 const Glyph = preload("res://scripts/input_glyph.gd")
 const Typography = preload("res://scripts/ui_typography.gd")
 const Palette = preload("res://scripts/ui_palette.gd")
+const Transition = preload("res://scripts/section_transition.gd")
 
 # Later section thresholds currently have no NPC/narration. The owner supplies
 # any opening script here; an empty script preserves their existing map handoff.
@@ -55,6 +56,7 @@ func dialogue_closed(host: Node) -> void:
 	host.call("_queue_section_map_presentation")
 
 func allows_auto_open(host: Node) -> bool:
+	if next_section_destination(host.get("_run_state"), host.get("_run_engine")) != Graph.INVALID: return false
 	if not _first_visit(host): return true
 	# The generic post-encounter scheduler must not open behind narration or
 	# bypass the service overlay. Its existing modal gate handles level-up.
@@ -62,6 +64,29 @@ func allows_auto_open(host: Node) -> bool:
 		if str(npc.get("id", "")) == "emaciated_man":
 			return _pending_visit == _visit(host)
 	return true
+
+# A claimed dragon milestone is already durable in the cleared boss room.
+# Resume uses the same destination check without consuming/reissuing rewards.
+static func next_section_destination(state: Dictionary, engine: RefCounted) -> Vector2i:
+	var claimed: Dictionary = Transition.claimed_state(state) if state.has(Transition.CLAIMED_REWARD_KEY) else state
+	if not Graph.enabled(claimed) or str(claimed.get("mode", "")) != "room": return Graph.INVALID
+	var current: Dictionary = Graph.room(state, state.get("current_room", Graph.INVALID))
+	if str(current.get("type", "")) != "boss" or not bool(current.get("cleared", false)): return Graph.INVALID
+	var index: int = int(current.get("section_index", -1)) + 1
+	var info: Dictionary = Graph.section(state, index)
+	if info.is_empty() or bool(info.get("entered", false)): return Graph.INVALID
+	var destination: Vector2i = info.get("entry", Graph.INVALID)
+	return destination if engine.available_moves(claimed).has(destination) else Graph.INVALID
+
+static func transition_entry(state: Dictionary, engine: RefCounted, destination: Vector2i, entry: String) -> Dictionary:
+	if destination != next_section_destination(state, engine): return state.duplicate(true)
+	var next: Dictionary = engine.move_to_room(Transition.claimed_state(state), destination)
+	next.erase(Transition.CLAIMED_REWARD_KEY)
+	# Annotate the newly staged event before the normal save/JSONL boundary.
+	for event: Dictionary in next.get("map_events", []):
+		if int(event.get("revision", 0)) <= int(state.get("map_event_revision", 0)): continue
+		if str(event.get("type", "")) == "section_entered": event["payload"]["entry"] = entry
+	return next
 
 func map_presented(host: Node) -> void:
 	if not _first_visit(host): return

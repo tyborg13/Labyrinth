@@ -1,0 +1,20 @@
+{
+  "min_images": 14,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {"pattern": "*/normal_0300.png", "width": 1920, "height": 1080},
+    {"pattern": "*/normal_0900.png", "width": 1920, "height": 1080},
+    {"pattern": "*/normal_1500.png", "width": 1920, "height": 1080, "regions": [{"rect": [360, 440, 1200, 160], "min_luma_range": 20, "min_luma_stdev": 5}]},
+    {"pattern": "*/normal_2400.png", "width": 1920, "height": 1080},
+    {"pattern": "*/normal_3000.png", "width": 1920, "height": 1080},
+    {"pattern": "*/reduced_0150.png", "width": 1920, "height": 1080},
+    {"pattern": "*/reduced_0900.png", "width": 1920, "height": 1080},
+    {"pattern": "*/reduced_1500.png", "width": 1920, "height": 1080},
+    {"pattern": "*/reduced_2100.png", "width": 1920, "height": 1080},
+    {"pattern": "*/section_vi_1500.png", "width": 1920, "height": 1080, "regions": [{"rect": [360, 440, 1200, 160], "min_luma_range": 20, "min_luma_stdev": 5}]},
+    {"pattern": "*/failure_normal_reverse.png", "width": 1920, "height": 1080},
+    {"pattern": "*/failure_normal_reward.png", "width": 1920, "height": 1080},
+    {"pattern": "*/failure_reduced_reverse.png", "width": 1920, "height": 1080},
+    {"pattern": "*/failure_reduced_reward.png", "width": 1920, "height": 1080}
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "_doc": "flow-01 clip extension in staged/demo-01/clips.json format. The protected demo-01 manifest is unchanged. No captions or new presentation assets. Fixture-only setup delivers a real lethal Quick Stab through production card input.",
+  "defaults": {"resolution": [1920, 1080], "fps": 60, "combat_speed": "normal", "music_volume": "game default", "other_volumes": "game defaults", "pre_roll_s": 0.6, "reward_hold_s": 2.0, "tail_s": 2.0, "seed": 410},
+  "reels": [{"id": "section_transition", "clips": [{
+    "id": "section_transition",
+    "section_index": 0,
+    "fixture_boss_hp": 1,
+	"fixture_boss_block": 0,
+	"fixture_boss_stoneskin": 0,
+	"fixture_hero_offset": [-1, 0],
+	"fixture_umbra_radius": 99,
+    "fixture_card": "quick_stab",
+    "actions": [["kill_section_dragon"], ["continue_dragon_reward"], ["full_section_transition"]]
+  }]}]
+}

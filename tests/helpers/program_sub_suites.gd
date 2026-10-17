@@ -10,7 +10,7 @@ const SUITES: Array[String] = [
 	"run_score_test", "sfx_bank_test", "sfx_sync_bank_test", "sfx_sync_harness", "section_map_v2_test",
 	"en01_enemies_test", "en02_enemies_test", "en03_enemies_test",
 	"magic_deck_input_test",
-	"run_end_recap_tests", "main_menu_resume_test"
+	"run_end_recap_tests", "main_menu_resume_test", "section_transition_test"
 ]
 const SUITE_TIMEOUT_SECONDS: int = 180
 const PROGRAM_BUDGET_SECONDS: int = 900
