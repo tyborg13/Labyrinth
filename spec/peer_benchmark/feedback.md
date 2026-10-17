@@ -116,3 +116,6 @@
 - 2026-10-16 pre-battle objective: owner questioned "Defeat the marked leader. The rest flee." under "Defeat the
   Leader" — redundant. Decision: pre-battle shows only the heading `OBJECTIVE · <TITLE>` for every objective; the
   one-line rule text moves to the heading's hover tooltip (pb-01 fix round).
+- 2026-10-17 Shale Bloomer motion (inbox): "generally good ... right direction ... details not the design". Issues: idle
+  still has the shimmer effect (owner keeps asking to avoid it); distracting wrong breakages from the cutout, esp. the top
+  gem breaking in half in several animations. → rr-05.
