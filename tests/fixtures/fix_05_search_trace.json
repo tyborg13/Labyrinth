@@ -1,0 +1,32 @@
+{
+  "seed": 1792271957,
+  "revision": 5,
+  "section": 2,
+  "source": "pre-fix section_map_graph.gd at 245dc60b1",
+  "review_trace": "/private/tmp/flow-01-review-seed-trace.log",
+  "review_node_lower_bound": 671000,
+  "review_timeout_seconds": 300,
+  "diagnostic_node_cap": 4096,
+  "diagnostic_attempts": [
+    {"section": 1, "attempt": 0, "solved": true, "nodes": 29},
+    {"section": 2, "attempt": 0, "solved": false, "nodes": 4096},
+    {"section": 2, "attempt": 1, "solved": true, "nodes": 36}
+  ],
+  "first_section_2_attempt": {
+    "propagation_failures": 2037,
+    "empty_domain_at_row_2_lane_3": 2032,
+    "empty_domain_at_row_8_lane_3": 5,
+    "fork_candidate_rejections": 6118,
+    "per_route_minimum_fight_candidate_rejections": 292,
+    "duplicate_raw_domain_states_observed": 0,
+    "first_conflicting_fork": {
+      "parent": [1, 2],
+      "children": [[2, 1], [2, 2], [2, 3]],
+      "remaining_domains": [["mystery", "event"], ["mystery", "event"], ["mystery", "event"]],
+      "first_empty_state": [["mystery"], ["event"], []],
+      "failure": "Three non-Combat destinations require distinct types but only two remain."
+    }
+  },
+  "structural_precheck_gap": "Geometry, widths, fixed rows, physical doors and divergence pass. They do not inspect rolled encounter domains or require a matching of distinct fork types. Singleton-only checks discover the colouring contradiction late.",
+  "diagnostic_log": "/private/tmp/fix-05-before-trace-final.log"
+}
