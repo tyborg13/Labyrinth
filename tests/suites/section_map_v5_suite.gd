@@ -6,6 +6,7 @@ const Legacy = preload("res://tests/suites/section_map_v2_suite.gd")
 const MapPanel = preload("res://scripts/section_map_panel.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const Progression = preload("res://scripts/progression_store.gd")
+const PerformanceRegression = preload("res://tests/suites/section_map_performance_suite.gd")
 const Regression = preload("res://tests/suites/section_map_regression_suite.gd")
 const METRIC_SEED_COUNT: int = 50
 const LEGACY_SEED_COUNT: int = 200
@@ -25,6 +26,7 @@ static func run(expect: Callable, legacy_seed_count: int = LEGACY_SEED_COUNT) ->
 	expect.call(failures.is_empty(), "Revision 5 metric thresholds over seeds 1..50 x 6 sections")
 	print("Map 02 metrics: %s (50 seeds x 6 sections)" % ("PASS" if failures.is_empty() else "FAIL"))
 	_test_legacy_hashes(expect, legacy_seed_count)
+	PerformanceRegression.run(expect)
 	Regression.test_public_dispatch(expect)
 	Regression.test_bounded_structures(expect)
 	Regression.test_probe_ready(expect)
