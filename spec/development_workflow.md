@@ -47,7 +47,46 @@ The task runner disables Steam by default for deterministic tests and fixtures. 
 
 Do not use an editor launch as a parser check. On a clean isolated worktree, `godot --editor` performs a full filesystem scan and writes adjacent `.import` and `.uid` metadata throughout the project. Those files contain import settings and stable Godot resource identities, so globally ignoring them would hide legitimate source metadata. `godot_task_runner.py` blocks `--editor` by default; `--allow-editor-scan` is reserved for workflows that intentionally inspect and reconcile every metadata change.
 
-The full `tests/run_tests.gd` runner also executes isolated program sub-suites: combat_feel (including combat_pacing_regression), event_view, event_rules, biome, health_ghost, movement_undo, threats_at_rest, encounter_tables, run_score, sfx_bank, section_map_v2, en01/en02/en03 enemies, run_end_recap and main_menu_resume. Its total budget is 900 seconds; each child uses `godot_task_runner.py`.
+The full `tests/run_tests.gd` runner starts `tools/program_suite_runner.py` before
+executing its main body. The scheduler runs at most three isolated children
+alongside that main Godot process, for a maximum of four Godot processes total.
+Every child uses `godot_task_runner.py` with its own HOME, `user://` namespace and
+logs. Child output is buffered and printed whole in the historical manifest
+order, regardless of completion order. Any child failure, script failure marker,
+launch error or timeout fails the full run and names the child. Closing the
+parent pipe cancels the scheduler and terminates its children.
+
+`tools/program_suite_runner.py:SUITES` contains the complete program manifest:
+en04/en05/en06 and static_facing first, then combat_feel (including
+combat_pacing_regression), event_view, event_rules, biome, health_ghost,
+movement_undo, threats_at_rest, encounter_tables, run_score, sfx_bank,
+sfx_sync_bank, sfx_sync_harness (with onset assertions), section_map_v2,
+en01/en02/en03, magic_deck_input, run_end_recap and main_menu_resume. The final
+two children under `tests/suites/` run the former in-process live scene
+presentation and interaction blocks, inheriting their unchanged test bodies.
+Keep coherent domains in focused suites rather than adding to the main body.
+
+Use the unchanged 900-second hard cap for the complete command (each child also
+retains a 180-second cap):
+
+```bash
+cd <task-worktree> && python3 tools/godot_task_runner.py --task-id <task-id> --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd
+```
+
+The runner prints the main-body time and assertion count, each child's time,
+the total `FULL SUITE RUNTIME`, and the unchanged final `TEST RESULT` line.
+The wall-time target is at most 450 seconds on an otherwise idle development
+machine; 900 seconds remains the failure budget. Preserve assertion coverage
+when extracting domains: compare test bodies and invocation order, and count
+assertion call sites before and after the move. The main-body and extracted
+`MAIN DOMAIN ASSERTIONS` counters report executed callbacks; existing assertions
+inside animation-frame loops repeat a scheduling-dependent number of times.
+Use assertion-message traces to distinguish those repeated frame samples from
+lost coverage. Runner plumbing checks and deliberate failure fixtures are
+separate from content assertions.
+`tests/test_program_suite_runner.py` exercises concurrency, isolation, ordered
+output, named failures, timeouts, the overall deadline and parent cancellation,
+including a real headless Godot parent fixture.
 
 Run Python checks from the task worktree with `python3 -m unittest discover -s tests -p 'test_*.py' -v`; verbose output lists every skip and its reason. Optional audio tests use `unittest.skipUnless` when their Python modules are absent, while dependency import errors remain failures when those modules are installed. Run the sound-lab checks with `/Users/borgerding/.cache/umbra-sfx/venv/bin/python -m unittest discover -s tests -p 'test_sfx_lab.py' -v`; run the classical arrangement checks with `.venv-classical-soundtrack/bin/python -m unittest discover -s tests -p 'test_*arrangement.py' -v` after preparing that environment with `tools/classical_soundtrack_requirements.txt`. The Chopin approved-artifact checks (`-p 'test_chopin_death_music.py'`) need no optional music modules. Python discovery includes headless fixture checks through the task runners; it does not replace the full Godot suite required for runtime changes.
 
