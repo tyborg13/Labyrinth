@@ -131,3 +131,15 @@
 - 2026-10-17 AMENDED typed-array rule (reviewers read AGENTS.md strictly): new code declares empty typed arrays
   without a literal (`var x: Array[T]`) and builds non-empty ones with typed helpers or append/assign. Existing
   declarations with literal initializers on master stay untouched (no mass rewrite). Reviews flag new violations only.
+
+## 2026-10-17 rr-05 final-proof review
+- Native check: an exact texel tie (snapped `u` or `v` within 1e-6 of an integer) may resolve to either neighbour, because
+  the Metal sampler's tie direction isn't reproducible on the CPU. Every other pixel keeps the 1 px + 1% rule, and held
+  shimmer stays 0. Guard: ≤ 2% tied pixels per part per frame.
+- Hidden support must never read as dark slabs.
+  - New blocking gate: in every posed frame, exposed hidden or seam material may not contain an outline-class component
+    with a full 3×3 block.
+  - Support fills take interior (non-outline) donors.
+  - Hidden-only parts are limited to their painted fill plus the joint margin.
+  - The rear trunk socket may be recoloured where it's exposed.
+  - Cause: the 7 px dilation filled from the outline in `continuity.underlays()`.
