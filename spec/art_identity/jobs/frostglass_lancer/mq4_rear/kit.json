@@ -6,6 +6,10 @@
   "kind": "creature",
   "kit_kind": "maquette",
   "kit_version": "a6bf0fc5bddf312874efcc6e3fd8436d136d635b0df94c739c1cd010571ebcc2",
+  "match_reference": {
+    "job_path": "spec/art_identity/jobs/frostglass_lancer/mq4_front/kit.json",
+    "pixel_sha256": "71fab9192eec413f7c2b3bc6bdf4f27666a7992d333df0fef4da831dcc83d5f9"
+  },
   "method": "maquette paint-over r4 rear from the r3c maquette (matches mq4_front)",
   "peers": [
     "glacial_mirror_rear",

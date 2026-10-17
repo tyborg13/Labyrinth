@@ -28,6 +28,10 @@
   ],
   "post_steps": [
     {
+      "match_reference": {
+        "job_path": "spec/art_identity/jobs/frostglass_lancer/mq4_front/kit.json",
+        "pixel_sha256": "71fab9192eec413f7c2b3bc6bdf4f27666a7992d333df0fef4da831dcc83d5f9"
+      },
       "parameters": {
         "accent_hue_bin_deg": 15,
         "accent_hue_bin_min_share": 0.05,
@@ -48,7 +52,6 @@
         "front": 0.038569325036811854,
         "rear": 0.025356108517051834
       },
-      "reference": "spec/art_identity/jobs/frostglass_lancer/mq4_rear/front_processed.png",
       "reference_pixel_sha256": "71fab9192eec413f7c2b3bc6bdf4f27666a7992d333df0fef4da831dcc83d5f9",
       "step": "palette_match"
     },
