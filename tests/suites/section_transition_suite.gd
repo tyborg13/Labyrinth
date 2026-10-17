@@ -466,7 +466,7 @@ static func assert_reward_screen(host: Node, boss_id: String, relic_id: String, 
 
 static func placeholder_labels(root: Node, require_visible: bool = true) -> Array[String]:
 	# Rich labels built with add_text() keep .text empty, so read their parsed text.
-	var found: Array[String] = []
+	var found: Array[String]
 	var nodes: Array = [root]
 	nodes.append_array(root.find_children("*", "", true, false))
 	for node: Node in nodes:
