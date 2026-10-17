@@ -11,7 +11,7 @@ const SUITES: Array[String] = [
 	"en01_enemies_test", "en02_enemies_test", "en03_enemies_test",
 	"magic_deck_input_test",
 	"opening_boon_test",
-	"run_end_recap_tests", "main_menu_resume_test"
+	"run_end_recap_tests", "main_menu_resume_test", "section_transition_test"
 ]
 const SUITE_TIMEOUT_SECONDS: int = 180
 const PROGRAM_BUDGET_SECONDS: int = 900

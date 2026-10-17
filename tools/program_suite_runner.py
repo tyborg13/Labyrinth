@@ -30,6 +30,7 @@ SUITES = (
     "section_map_v2_test", "en01_enemies_test",
     "en02_enemies_test", "en03_enemies_test", "magic_deck_input_test",
     "opening_boon_test", "run_end_recap_tests", "main_menu_resume_test",
+    "section_transition_test",
     "suites/full_scene_presentation_program", "suites/full_scene_controls_program",
     "suites/full_scene_clock_program",
     "suites/full_scene_interaction_program",

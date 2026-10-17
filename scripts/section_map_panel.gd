@@ -24,6 +24,8 @@ signal event_requested(choice: String)
 signal interaction_changed
 signal close_requested
 
+const BACKGROUND_MODULATE := Color(0.56, 0.54, 0.59)
+
 var run_state: Dictionary = {}
 var viewed_section: int = 0
 var selected_coord: Vector2i = Graph.INVALID
@@ -40,7 +42,6 @@ var _title: Label
 var _progress: Label
 var _tabs: HBoxContainer
 var _scout: Button
-var _continue: Button
 var _close: Button
 var _legacy: Control
 var _layout: VBoxContainer
@@ -91,12 +92,6 @@ func _build() -> void:
 	_tabs.add_theme_constant_override("separation", 8)
 	_tabs.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	_header.add_child(_tabs)
-	_continue = _button("Next section", _request_onward, UiSkin.VARIANT_SELECTED)
-	_continue.name = "NextSectionButton"
-	_skin.apply_button_native_size(_continue, 56, 224, false, UiSkin.VARIANT_SELECTED)
-	_continue.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	_header.add_child(_continue)
-	_continue.hide()
 	_close = _button("X", _request_close, UiSkin.VARIANT_ICON)
 	_close.name = "CloseButton"
 	_close.custom_minimum_size = Vector2(48, 48)
@@ -114,7 +109,7 @@ func _build() -> void:
 	_background.name = "SectionBackground"
 	_background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	_background.modulate = Color(0.56, 0.54, 0.59)
+	_background.modulate = BACKGROUND_MODULATE
 	_full_field(_background)
 	_fog = ColorRect.new()
 	_fog.name = "DynamicFog"
@@ -161,6 +156,11 @@ func _build() -> void:
 	legacy_close.position = Vector2(-110, 12)
 	legacy_close.custom_minimum_size = Vector2(96, 48)
 	_legacy.add_child(legacy_close)
+
+# The section transition matches the live cover-fit rectangle, including the
+# current header/footer and outer-frame layout, rather than duplicating it.
+func transition_backdrop() -> TextureRect:
+	return _background
 
 func _build_legend() -> HBoxContainer:
 	var legend := HBoxContainer.new()
@@ -584,8 +584,6 @@ func _refresh_actions() -> void:
 	elif not has_targets: _scout.tooltip_text = "No unknown rooms in sight."
 	elif mode not in ["room", "combat", "pre_battle"]: _scout.tooltip_text = "Resolve the current room first."
 	_scout_hint.visible = scout_targeting
-	_continue.visible = _next_section_destination() != Graph.INVALID
-	_continue.disabled = not _continue.visible
 	for coord: Vector2i in node_buttons:
 		var button: Button = node_buttons[coord]
 		button.set("scout_target", scout_targeting and can_activate_room(coord))
@@ -643,7 +641,6 @@ func controller_action_label() -> String:
 		return {"room": "Entering", "door": "Showing exit", "scout": "Scouting"}.get(_activation_kind, "Confirm")
 	var focused: Control = get_viewport().gui_get_focus_owner()
 	if focused == _scout: return "Cancel Scout" if scout_targeting else "Scout"
-	if focused == _continue: return "Continue"
 	if focused == _close: return "Close"
 	if focused != null and focused.get_parent() == _tabs: return "View section"
 	for coord: Vector2i in node_buttons:
@@ -661,24 +658,8 @@ func _toggle_scout() -> void:
 	_refresh_actions()
 	focus_controller_on_current()
 
-func _request_onward() -> void:
-	if activation_coord != Graph.INVALID: return
-	var onward: Vector2i = _next_section_destination()
-	if onward != Graph.INVALID: room_selected.emit(onward)
-
 func _has_recovery(node: Dictionary) -> bool:
 	return bool(node.get("recovery_marker", false)) and int(node.get("recovery_amount", 0)) > 0
-
-func _next_section_destination() -> Vector2i:
-	if viewed_section != Graph.active_section(run_state) or str(run_state.get("mode", "")) != "room":
-		return Graph.INVALID
-	var current: Dictionary = Graph.room(run_state, run_state.get("current_room", Graph.INVALID))
-	if str(current.get("type", "")) != "boss" or not bool(current.get("cleared", false)):
-		return Graph.INVALID
-	for coord: Vector2i in available_destinations():
-		if int(Graph.room(run_state, coord).get("section_index", -1)) == viewed_section + 1:
-			return coord
-	return Graph.INVALID
 
 func event_has_discoveries() -> bool:
 	for coord: Vector2i in Graph.descendants(run_state, run_state.get("current_room", Vector2i.ZERO), 4):
@@ -714,8 +695,6 @@ func center_on_current(_reset_zoom: bool = true) -> void:
 func focus_controller_on_current() -> void:
 	if not Graph.enabled(run_state):
 		_legacy.call("focus_controller_on_current")
-	elif _next_section_destination() != Graph.INVALID:
-		_continue.grab_focus()
 	else:
 		var choices: Array[Vector2i] = _choice_destinations()
 		# At a section threshold the approved first focus is the lowest lane.
