@@ -128,3 +128,6 @@
 - 2026-10-17 rr-05 acceptance (final): blocking = no detached pieces, feature integrity, zero shimmer, rest identity,
   native agreement. Seam tear, protrusion and negative-space measures are report-only (some poses can't satisfy both
   constraints). The director judges the native clip by eye.
+- 2026-10-17 AMENDED typed-array rule (reviewers read AGENTS.md strictly): new code declares empty typed arrays
+  without a literal (`var x: Array[T]`) and builds non-empty ones with typed helpers or append/assign. Existing
+  declarations with literal initializers on master stay untouched (no mass rewrite). Reviews flag new violations only.
