@@ -102,3 +102,6 @@
 - 2026-10-17 Cutout seams: parts may bleed edge-texel support under their neighbours (margin = max sampled joint
   separation + 1 px, inside the rest silhouette union, never visible at rest, never across features), so no pose shows
   background between parts. The no-new-hole gate stays strict.
+- 2026-10-17 flow-01 section-entry save failure: the transition reverses to the cleared boss room with the dragon
+  reward screen and the existing notice "Could not save. Your rewards are still here; try Continue again."; CONTINUE
+  retries. The title card gets a 50% dark band, an accent-gold 24 px label and the reward-banner text shadow.
