@@ -99,3 +99,6 @@
 - 2026-10-17 Gale Herald banners: both approved paintings trail the banners screen-right, which reads as one consistent
   wind direction on screen. The maquette gets a per-view cloth pose for the banners only; the body, joints and other
   parts stay one model turned 180°. The rule applies to any figure whose approved views share a wind direction.
+- 2026-10-17 Cutout seams: parts may bleed edge-texel support under their neighbours (margin = max sampled joint
+  separation + 1 px, inside the rest silhouette union, never visible at rest, never across features), so no pose shows
+  background between parts. The no-new-hole gate stays strict.
