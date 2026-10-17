@@ -1,0 +1,182 @@
+<title>Umbra Review Inbox</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400&display=swap">
+<style id="page-style">
+/* Layout: one reading column of review cards, grouped by who the item is waiting on; media leads each card. */
+:root {
+  --ground: #f3f0ea; --panel: #fbfaf7; --ink: #1d1b19; --muted: #6b645c; --rule: #ddd6cc;
+  --ember: #a5591b; --ember-soft: #f2e2d2; --ok: #2f6b45; --ok-soft: #dcebe0; --warn: #9a3b2e; --warn-soft: #f4dcd7;
+  --display: "Fraunces", Georgia, "Times New Roman", serif;
+  --body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --ground: #15171b; --panel: #1d2026; --ink: #ebe6dc; --muted: #a39b8f; --rule: #2f333b;
+  --ember: #e39a55; --ember-soft: #3a2a1d; --ok: #7cc595; --ok-soft: #1f3327; --warn: #ec8f80; --warn-soft: #3b2220; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --ground: #15171b; --panel: #1d2026; --ink: #ebe6dc; --muted: #a39b8f; --rule: #2f333b;
+  --ember: #e39a55; --ember-soft: #3a2a1d; --ok: #7cc595; --ok-soft: #1f3327; --warn: #ec8f80; --warn-soft: #3b2220; color-scheme: dark }
+body { background: var(--ground); color: var(--ink); font: 16px/1.5 var(--body); }
+.wrap { max-width: 1000px; margin: 0 auto; padding-block: 28px 64px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 28px; }
+header { display: grid; gap: 6px; }
+h1 { font: 650 clamp(28px, 4vw, 40px)/1.1 var(--display); margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.sub { color: var(--muted); margin: 0; max-width: 62ch; }
+.tally { display: flex; flex-wrap: wrap; gap: 8px 18px; font: 13px/1.4 var(--mono); color: var(--muted); }
+.tally b { color: var(--ink); font-weight: 400; }
+.group { display: grid; gap: 14px; }
+.group > h2 { font: 600 12px/1 var(--body); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); margin: 0; }
+.card { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; display: grid; }
+.card.open { border-left: 4px solid var(--ember); }
+.card.answered { border-left: 4px solid var(--muted); }
+.card.done { border-left: 4px solid var(--ok); }
+.media { background: #0d0e10; display: grid; gap: 2px; }
+.media video, .media img { display: block; width: 100%; max-height: 72vh; object-fit: contain; background: #0d0e10; }
+.media figcaption { color: #b9b2a6; font: 13px/1.4 var(--mono); padding: 6px 14px 10px; }
+.content { padding: 16px 18px 18px; display: grid; gap: 12px; min-width: 0; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font: 12px/1 var(--mono); color: var(--muted); }
+.chip { border: 1px solid var(--rule); border-radius: 999px; padding: 4px 9px; }
+.chip.state-open { color: var(--ember); border-color: var(--ember); }
+.chip.state-ok { color: var(--ok); border-color: var(--ok); }
+.chip.state-warn { color: var(--warn); border-color: var(--warn); }
+h3 { font: 600 21px/1.25 var(--display); margin: 0; text-wrap: balance; }
+.look { margin: 0; max-width: 68ch; white-space: pre-line; }
+.qs { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; max-width: 68ch; }
+.code { font: 13px/1.5 var(--mono); background: var(--ground); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; overflow-x: auto; white-space: pre; }
+.reply, .answer { border-radius: 8px; padding: 10px 12px; max-width: 68ch; }
+.answer { background: var(--ember-soft); }
+.answer.ok { background: var(--ok-soft); } .answer.warn { background: var(--warn-soft); }
+.reply { border: 1px dashed var(--rule); color: var(--muted); }
+.label { font: 600 11px/1 var(--body); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
+form { display: grid; gap: 10px; }
+textarea { font: inherit; color: var(--ink); background: var(--ground); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; min-height: 84px; resize: vertical; width: 100%; box-sizing: border-box; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+button { font: 600 15px/1 var(--body); border-radius: 8px; padding: 11px 16px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink); cursor: pointer; }
+button.ok { background: var(--ok); border-color: var(--ok); color: var(--panel); }
+button.warn { background: var(--panel); border-color: var(--warn); color: var(--warn); }
+button.send { background: var(--ember); border-color: var(--ember); color: var(--panel); }
+button:disabled { opacity: 0.55; cursor: default; }
+button:focus-visible, textarea:focus-visible { outline: 2px solid var(--ember); outline-offset: 2px; }
+.note { color: var(--muted); font-size: 14px; margin: 0; }
+details > summary { cursor: pointer; color: var(--muted); font: 600 12px/1 var(--body); letter-spacing: 0.12em; text-transform: uppercase; }
+details[open] > summary { margin-bottom: 14px; }
+.empty { color: var(--muted); margin: 0; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+<main id="app" class="wrap"><p class="empty">Loading the inbox…</p></main>
+<script type="application/json" id="inbox-state">__STATE__</script>
+<script id="app-js">
+(function () {
+  "use strict";
+  const STATE = JSON.parse(document.getElementById("inbox-state").textContent);
+  const app = document.getElementById("app");
+  let artifact = null, comments = null, readOnly = false, busy = false;
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const DRAFT = "umbra-inbox-draft-";
+  const draft = (id, v) => { try { if (v === undefined) return sessionStorage.getItem(DRAFT + id) || ""; if (v) sessionStorage.setItem(DRAFT + id, v); else sessionStorage.removeItem(DRAFT + id); } catch (e) { return ""; } };
+
+  function media(m) {
+    const cap = m.caption ? `<figcaption>${esc(m.caption)}</figcaption>` : "";
+    if (m.type === "video") return `<figure style="margin:0"><video controls playsinline preload="metadata" src="${esc(m.url)}"></video>${cap}</figure>`;
+    if (m.type === "image") return `<figure style="margin:0"><img loading="lazy" alt="${esc(m.alt || m.caption || "")}" src="${esc(m.url)}">${cap}</figure>`;
+    return "";
+  }
+  function stateChip(it) {
+    if (it.status === "open") return `<span class="chip state-open">Waiting on you</span>`;
+    if (it.status === "answered") {
+      const v = it.response && it.response.verdict;
+      return v === "approved" ? `<span class="chip state-ok">Approved · waiting on Claude</span>` : v === "changes" ? `<span class="chip state-warn">Changes asked · waiting on Claude</span>` : `<span class="chip">Note sent · waiting on Claude</span>`;
+    }
+    return `<span class="chip state-ok">Closed</span>`;
+  }
+  function card(it) {
+    const med = (it.media || []).map(media).join("");
+    const qs = (it.questions || []).length ? `<ol class="qs">${it.questions.map((q) => `<li>${esc(q)}</li>`).join("")}</ol>` : "";
+    const code = it.command ? `<div class="code" tabindex="0">${esc(it.command)}</div>` : "";
+    const r = it.response;
+    const answer = r ? `<div class="answer ${r.verdict === "approved" ? "ok" : r.verdict === "changes" ? "warn" : ""}"><span class="label">${r.verdict === "approved" ? "You approved" : r.verdict === "changes" ? "You asked for changes" : "Your note"} · ${esc(r.at || "")}</span>${r.notes ? esc(r.notes) : ""}</div>` : "";
+    const reply = it.reply ? `<div class="reply"><span class="label">Claude</span>${esc(it.reply)}</div>` : "";
+    let form = "";
+    if (it.status === "open" && !readOnly) {
+      form = `<form data-id="${esc(it.id)}"><label class="label" for="notes-${esc(it.id)}">Notes (optional)</label>
+        <textarea id="notes-${esc(it.id)}" placeholder="What works, what doesn't, what to change">${esc(draft(it.id))}</textarea>
+        <div class="row"><button type="button" class="ok" data-verdict="approved"${busy ? " disabled" : ""}>Approve</button>
+        <button type="button" class="warn" data-verdict="changes"${busy ? " disabled" : ""}>Needs changes</button></div></form>`;
+    }
+    return `<article class="card ${esc(it.status)}" id="item-${esc(it.id)}">${med ? `<div class="media">${med}</div>` : ""}
+      <div class="content"><div class="meta">${stateChip(it)}<span>${esc(it.area || "")}</span><span>${esc(it.posted || "")}</span></div>
+      <h3>${esc(it.title)}</h3>${it.look ? `<p class="look">${esc(it.look)}</p>` : ""}${qs}${code}${answer}${reply}${form}</div></article>`;
+  }
+  function render() {
+    const items = STATE.items || [];
+    const open = items.filter((i) => i.status === "open"), answered = items.filter((i) => i.status === "answered"), done = items.filter((i) => i.status === "done");
+    const byNew = (a, b) => String(b.posted || "").localeCompare(String(a.posted || ""));
+    open.sort(byNew); answered.sort(byNew); done.sort(byNew);
+    const noteForm = readOnly ? "" : `<section class="group"><h2>Send Claude a note</h2><form data-id="__note__">
+      <label class="label" for="notes-__note__">Anything else: playtest notes, ideas, priorities</label>
+      <textarea id="notes-__note__" placeholder="Write a note">${esc(draft("__note__"))}</textarea>
+      <div class="row"><button type="button" class="send" data-verdict="note"${busy ? " disabled" : ""}>Send note</button></div></form></section>`;
+    app.innerHTML = `<header><h1>Umbra Review Inbox</h1>
+      <p class="sub">Quick looks and listens for Escape the Umbra. Each item asks one or two things; answer with a verdict and any notes. Claude is notified and picks it up.</p>
+      <div class="tally"><span>Waiting on you <b>${open.length}</b></span><span>Waiting on Claude <b>${answered.length}</b></span><span>Closed <b>${done.length}</b></span>${readOnly ? "<span>Read-only view</span>" : ""}</div></header>
+      <section class="group"><h2>Waiting on you</h2>${open.length ? open.map(card).join("") : `<p class="empty">Nothing to review right now.</p>`}</section>
+      ${noteForm}
+      ${answered.length ? `<section class="group"><h2>Waiting on Claude</h2>${answered.map(card).join("")}</section>` : ""}
+      ${done.length ? `<details class="group"><summary>Closed (${done.length})</summary><div class="group">${done.map(card).join("")}</div></details>` : ""}`;
+  }
+  function buildDocument(state) {
+    const reset = document.getElementById("app-js").dataset.reset || "";
+    const style = document.getElementById("page-style").textContent;
+    const code = document.getElementById("app-js").textContent;
+    const json = JSON.stringify(state).replace(/</g, "\\u003c");
+    return '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>' + reset + "</style></head><body>" +
+      '<title>Umbra Review Inbox</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n' +
+      '<link rel="preconnect" href="https://fonts.googleapis.com">\n<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,650&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400&display=swap">\n' +
+      '<style id="page-style">' + style + '</style>\n<main id="app" class="wrap"><p class="empty">Loading the inbox…</p></main>\n' +
+      '<script type="application/json" id="inbox-state">' + json + "<\/script>\n" +
+      '<script id="app-js" data-reset="' + reset.replace(/"/g, "&quot;") + '">' + code + "<\/script></body></html>";
+  }
+  async function submit(id, verdict) {
+    if (!artifact || busy) return;
+    const ta = document.getElementById("notes-" + id);
+    const notes = ta ? ta.value.trim() : "";
+    if (verdict === "note" && !notes) { ta && ta.focus(); return; }
+    const now = new Date(); const at = now.toISOString().slice(0, 16).replace("T", " ");
+    const next = JSON.parse(JSON.stringify(STATE));
+    let title = "Note";
+    if (id === "__note__") {
+      next.items.push({ id: "note-" + now.getTime(), kind: "note", status: "answered", area: "Note", posted: at, title: "Note from you", response: { verdict: "note", notes, at } });
+    } else {
+      const it = next.items.find((i) => i.id === id); if (!it) return;
+      it.status = "answered"; it.response = { verdict, notes, at }; title = it.title;
+    }
+    const anchorEl = id === "__note__" ? document.querySelector('form[data-id="__note__"]') : document.getElementById("item-" + id);
+    busy = true; draft(id, notes);
+    // 1) Tell Claude (a comment sent to Claude notifies the watching session); 2) save the verdict into the page.
+    if (comments && anchorEl) {
+      try {
+        const word = verdict === "approved" ? "APPROVED" : verdict === "changes" ? "NEEDS CHANGES" : "NOTE";
+        const anchor = await comments.anchorFor(anchorEl);
+        await comments.sendToClaude({ anchor, text: "[" + id + "] " + word + " — " + title + (notes ? "\n" + notes : "") });
+      } catch (e) { /* the saved verdict below still reaches Claude on its next check */ }
+    }
+    render();
+    try { await artifact.publish(buildDocument(next)); draft(id, ""); }
+    catch (e) {
+      busy = false;
+      if (e && (e.code === "not_writer" || e.code === "not_granted" || e.code === "consent_required" || e.code === "capability_disabled")) { readOnly = true; }
+      render();
+    }
+  }
+  app.addEventListener("input", (e) => { const f = e.target.closest("form"); if (f && e.target.tagName === "TEXTAREA") draft(f.dataset.id, e.target.value); });
+  app.addEventListener("click", (e) => { const b = e.target.closest("button[data-verdict]"); if (!b) return; const f = b.closest("form"); submit(f.dataset.id, b.dataset.verdict); });
+  render();
+  if (window.claude && window.claude.use) {
+    window.claude.use("artifact").then((a) => { artifact = a; if (!a) readOnly = true; render(); }).catch(() => { readOnly = true; render(); });
+    window.claude.use("comments").then((c) => { if (!c) return; c.canSendToClaude().then((v) => { if (v === "available") comments = c; }).catch(() => {}); }).catch(() => {});
+  }
+  else { readOnly = true; render(); }
+})();
+</script>
