@@ -47,7 +47,104 @@ The task runner disables Steam by default for deterministic tests and fixtures. 
 
 Do not use an editor launch as a parser check. On a clean isolated worktree, `godot --editor` performs a full filesystem scan and writes adjacent `.import` and `.uid` metadata throughout the project. Those files contain import settings and stable Godot resource identities, so globally ignoring them would hide legitimate source metadata. `godot_task_runner.py` blocks `--editor` by default; `--allow-editor-scan` is reserved for workflows that intentionally inspect and reconcile every metadata change.
 
-The full `tests/run_tests.gd` runner also executes isolated program sub-suites: combat_feel (including combat_pacing_regression), event_view, event_rules, biome, health_ghost, movement_undo, threats_at_rest, encounter_tables, run_score, sfx_bank, section_map_v2, en01/en02/en03 enemies, run_end_recap and main_menu_resume. Its total budget is 900 seconds; each child uses `godot_task_runner.py`.
+The full `tests/run_tests.gd` runner starts `tools/program_suite_runner.py` before
+executing its main body. The scheduler runs at most three isolated children
+alongside that main Godot process, for a maximum of four Godot processes total.
+Every child uses `godot_task_runner.py` with its own HOME, APPDATA, LOCALAPPDATA
+and XDG data/config/cache/state roots. A generated SceneTree bootstrap applies
+`ParallelRuntime` before calling the standalone suite's `_initialize`, including
+suites that do not initialize their own namespace. Each child gets an explicit
+absolute `--log-file` path, independent of executable spelling (`godot`, `Godot`
+or `Godot.exe`); the general task runner recognizes those spellings too. The
+bootstrap prints the resolved `user://` and engine log paths for inspection.
+Child output is buffered and printed whole in the historical manifest
+order, regardless of completion order. Any child failure, script failure marker,
+launch error or timeout fails the full run and names the child. Closing the
+parent pipe cancels the scheduler and terminates its children.
+
+On Windows, both runners create a non-inheritable, kill-on-close Job Object
+with `ctypes`, launch each child suspended, assign it to the job, then resume
+its initial thread. The owner retains the job handle until cleanup, including
+after the root exits; owner death closes the handle too. Descendants inherit
+membership and cannot break away. Nested jobs require Windows 8 or later.
+Assignment/resume failures kill the suspended child and fail the launch.
+[`taskkill /PID <owned-pid> /T /F`](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/taskkill)
+remains the fallback for unowned processes or a job-close error while the root
+is alive. POSIX retains process-group termination and its parent-death watchdog.
+See [Windows Job Object semantics](https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects).
+
+`tools/program_suite_runner.py:SUITES` contains the complete program manifest:
+en04/en05/en06 and static_facing first, then combat_feel (including
+combat_pacing_regression), event_view, event_rules, biome, health_ghost,
+movement_undo, threats_at_rest, run_score, sfx_bank, sfx_sync_bank and section_map_v2.
+The former encounter_tables slot now contains rules/renderers, two equal seed
+ranges of the original placement sweep, and its aggregate assertion. The latter
+runs once on the summed counts and maximum of the completed ranges, transported
+through atomic JSON files in a fresh scheduler-owned report directory. This
+prevents stale aggregates when reusing a focused result path. The original
+standalone encounter program still runs the complete sweep unchanged in meaning.
+The former sfx_sync_harness slot contains three frame-profile groups (2/2/1),
+each retaining onset assertions for its original speed/scenario runs. The final
+group verifies the unchanged full sample-duration set once. Together they run
+all 15 original profile/speed combinations. The manifest continues with
+en01/en02/en03, magic_deck_input, run_end_recap and main_menu_resume. The final
+four children under `tests/suites/` run scene presentation/cutouts, live
+audio/map/card controls, turn-clock/card-pool presentation, and scene
+interaction, inheriting their unchanged test bodies. Presentation was split
+into three coherent children to keep each well below the 180-second cap under
+concurrent suite load.
+Keep coherent domains in focused suites rather than adding to the main body.
+
+Use the unchanged 900-second hard cap for the complete command (each child also
+retains a 180-second cap):
+
+```bash
+cd <task-worktree> && python3 tools/godot_task_runner.py --task-id <task-id> --timeout 900 --stream -- godot --headless --path . --script tests/run_tests.gd
+```
+
+The runner prints the main-body time and assertion count, each child's time,
+the total `FULL SUITE RUNTIME`, and the unchanged final `TEST RESULT` line.
+The wall-time target is at most 450 seconds on an otherwise idle development
+machine; 900 seconds remains the failure budget. Preserve assertion coverage
+when extracting domains: compare test bodies and invocation order, and count
+assertion call sites before and after the move. The main-body and extracted
+`MAIN DOMAIN ASSERTIONS` counters report executed callbacks; existing assertions
+inside animation-frame loops repeat a scheduling-dependent number of times.
+Use assertion-message traces to distinguish those repeated frame samples from
+lost coverage. Runner plumbing checks and deliberate failure fixtures are
+separate from content assertions.
+`tests/test_program_suite_runner.py` exercises concurrency, isolation, ordered
+output, named failures, timeouts, the overall deadline and parent cancellation,
+including a real headless Godot parent fixture. Its manifest guard requires the
+complete ordered list, including all scene, encounter and SFX program children. Its deadline guard
+uses a controlled monotonic clock and bounded simulated cleanup; a doubled
+budget must fail the guard. The native early-storage fixture asserts the
+requested namespace before its first write; deleting bootstrap initialization
+must fail without creating that file. `tests/test_runner_cancellation.py`
+exercises the Windows ctypes job implementation through a simulated Win32 API
+on POSIX, checking suspended launch, assignment before resume, kill-on-close,
+and real child/grandchild liveness with both alive and already-exited roots.
+It also asserts the complete fallback command (owned PID, `/T`, `/F`) and that
+an unrelated process survives. Fixture cleanup skips exited PIDs, rechecks
+liveness after exit races (including Windows ERROR_ACCESS_DENIED for retained
+handles), and reaps the unrelated sleeper in its own finally. Win32 flag values
+are asserted independently as 0x2000 and 0x4; the simulation obeys the recorded
+bits. The real-interpreter timeout fixture includes its five-second startup
+budget before its short hang interval; controlled-clock deadline tests retain
+their strict original budget checks. On Windows those same tree fixtures use native
+Job Objects and taskkill instead of the simulation.
+
+The qa-07 proof is native macOS headless Godot and POSIX cancellation. Windows
+Win32 calls and taskkill semantics were simulated on POSIX; native Windows Job
+Objects/taskkill and Windows/Linux Godot path resolution remain unverified.
+APPDATA/XDG root creation and isolation are checked in actual child environments.
+The load proof runs three consecutive complete suites, each paired with an
+independent full Python discovery as concurrent load; all three discoveries
+must pass too. A repeating independent Godot program is another supported load.
+Check every child's measured time; split any domain above 110 seconds under
+load without dropping cases or changing predicates. The full runner still owns
+at most four Godot processes; independent load is additional. Keep the 180/900
+second caps when repeating this proof.
 
 `python3 tools/test_registration_audit.py` is the registration completeness guard,
 also run by both full suites. It follows executed calls, including exact shared

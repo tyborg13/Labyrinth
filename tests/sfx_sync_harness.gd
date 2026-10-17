@@ -47,8 +47,7 @@ func _initialize() -> void:
 func _run() -> void:
 	var scales: Array[float]
 	scales.assign([1.0, 1.5, 2.0])
-	var profiles: Array[String]
-	profiles.assign(["fixed_60", "spikes", "fixed_30", "fixed_144", "jitter"])
+	var profiles: Array[String] = _program_frame_profiles()
 	for argument: String in OS.get_cmdline_user_args():
 		if argument.begins_with("--speed="): scales.assign([float(argument.trim_prefix("--speed="))])
 		if argument.begins_with("--frames="): profiles.assign([argument.trim_prefix("--frames=")])
@@ -57,12 +56,22 @@ func _run() -> void:
 		for speed: float in scales:
 			combat_scale = speed
 			await _run_scale()
-	if not measured_samples.is_empty(): Lengths.verify(measured_samples, length_failures)
+	_verify_program_lengths()
 	failures.append_array(length_failures)
 	_write_report()
 	for failure: String in failures: push_error(failure)
 	print("SFX SYNC HARNESS RESULT: %s (%d observations, %d failures)" % ["PASS" if failures.is_empty() else "FAIL", rows.size(), failures.size()])
 	quit(0 if failures.is_empty() else 1)
+
+# Only orchestration varies between full-suite children; every scale/scenario
+# and coverage predicate remains in the original methods below.
+func _program_frame_profiles() -> Array[String]:
+	var profiles: Array[String]
+	profiles.assign(["fixed_60", "spikes", "fixed_30", "fixed_144", "jitter"])
+	return profiles
+
+func _verify_program_lengths() -> void:
+	if not measured_samples.is_empty(): Lengths.verify(measured_samples, length_failures)
 
 func _run_scale() -> void:
 	clock = Clock.new()

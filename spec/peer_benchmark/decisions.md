@@ -102,3 +102,20 @@
 - 2026-10-17 Cutout seams: parts may bleed edge-texel support under their neighbours (margin = max sampled joint
   separation + 1 px, inside the rest silhouette union, never visible at rest, never across features), so no pose shows
   background between parts. The no-new-hole gate stays strict.
+- 2026-10-17 flow-01 section-entry save failure: the transition reverses to the cleared boss room with the dragon
+  reward screen and the existing notice "Could not save. Your rewards are still here; try Continue again."; CONTINUE
+  retries. The title card gets a 50% dark band, an accent-gold 24 px label and the reward-banner text shadow.
+- 2026-10-17 REVERSAL: roster wave 1 is NOT rigged from the approved art-02 paintings. Owner (on the Lancer): mixing
+  maquette-based and original-art enemies keeps the style inconsistent, so every enemy gets maquette → paint-over
+  (approved art as the identity reference) → rig. The fit gate relaxes to IoU ≥ 0.70 front / ≥ 0.65 rear (proportion
+  guidance). The maquette quality bar is the Lancer r3: cloth hood, robe and cloak, real anatomy and plates, no
+  primitive cones or cylinders for cloth. mq-04 r1 delivered primitive shapes (rejected); r2 does Seer + Thrall first,
+  then a director clay review.
+- 2026-10-17 Cutout rigs get a static silhouette backing: the rest silhouette in the painting's darkest interior tone,
+  drawn under every part and attached to the root body bone. Covered at rest; gaps opened by moving parts read as
+  shadowed depth instead of background tears. Visible backing ≤ 3% of the body in any pose. Generic for all maquette
+  rigs.
+- 2026-10-17 REVISED (rr-05): the full-silhouette backing is rejected (it showed as black blobs where petals swing).
+  Cutout seams use per-joint seam underlays instead: a thin band along each joint, painted from the parent, drawn
+  beneath all parts and attached to the parent. The gate is no background inside the rest silhouette (eroded 1 px).
+  Natural negative space outside the silhouette is allowed; underlay protrusion is limited to ≤ 2 px.

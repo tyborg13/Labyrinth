@@ -122,6 +122,8 @@ const CARDINAL_DIRECTIONS: Array[Vector2i] = [
 	Vector2i(-1, 0)
 ]
 const SURFACE_BONUS_FIELDS := ["amount", "damage", "shock", "bleed", "expose", "sunder", "chain", "push", "pull"]
+const CardStayRules = preload("res://scripts/card_stay_rules.gd")
+
 const PLAYER_BLEED_TRIGGER_ACTION_TYPES := ["move", "melee", "ranged", "aoe", "push", "pull", "detonate"]
 const ENEMY_BLEED_TRIGGER_ACTION_TYPES := ["lob_land", "erupt", "move_toward", "move_away", "melee", "ranged", "aoe", "push", "pull", "lightning_strikes", "terrain_burst", "detonate_cinders", "gale_force", "umbra_eclipse"]
 const ZEKARION_TYPE: String = "zekarion"
@@ -992,6 +994,7 @@ func card_def(card_id: String, state: Dictionary = {}) -> Dictionary:
 func card_play_actions(card_id: String, state: Dictionary = {}) -> Array:
 	var card: Dictionary = card_def(card_id, state)
 	var printed_actions: Array = CardKeywordRules.actions_for_play(card, card_id, state)
+	var can_stay: bool = CardStayRules.card_offers_stay(printed_actions)
 	var plays_spent: int = card_plays_spent(card_id, state)
 	if RiteRules.is_rite_card(card):
 		# A Rite resolves as one targetless step; finish_player_card starts it.
@@ -1001,6 +1004,8 @@ func card_play_actions(card_id: String, state: Dictionary = {}) -> Array:
 	for action_var: Variant in printed_actions:
 		if typeof(action_var) == TYPE_DICTIONARY:
 			(action_var as Dictionary)["_card_id"] = card_id
+			if str((action_var as Dictionary).get("type", "")) in ["move", "blink"]:
+				(action_var as Dictionary)["_can_stay"] = can_stay
 			if bool((action_var as Dictionary).get("_empower_repeat_first", false)) and not player_action_needs_target(action_var as Dictionary):
 				(action_var as Dictionary).erase("reuse_previous_target")
 			(action_var as Dictionary)["_tempo_card_time"] = card_time_cost_from_def(card) + CardKeywordRules.empower_time_surcharge(state, card_id, card)
@@ -1340,6 +1345,9 @@ func valid_targets_for_player_action(state: Dictionary, action: Dictionary, acce
 							component_has_opponent[member] = useful
 				if bool(component_has_opponent[tile]) and not targets.has(tile):
 					targets.append(tile)
+	# Append Stay after ordinary destinations to preserve the cursor default.
+	if CardStayRules.action_offers_stay(action):
+		targets.append(player_pos)
 	if SurfaceCardRules.filters_targets(resolved_action):
 		targets = SurfaceCardRules.filter_targets(self, state, resolved_action, targets)
 	var legal: Array[Vector2i]
@@ -1391,6 +1399,8 @@ func player_action_has_valid_target(state: Dictionary, action: Dictionary) -> bo
 		return false
 	if str(action.get("type", "")) != "move":
 		return not valid_targets_for_player_action(state, action).is_empty()
+	if CardStayRules.action_offers_stay(action):
+		return not valid_targets_for_player_action(state, action, 1).is_empty()
 	var move_range: int = int((_resolved_surface_action(state, action)).get("range", 0)) + _move_bonus_for_current_turn(state)
 	if move_range <= 0:
 		return false
@@ -1446,6 +1456,8 @@ func movement_plan_for_player_action(state: Dictionary, action: Dictionary, _pre
 	for tile: Vector2i in (navigation.get("paths", {}) as Dictionary):
 		if tile != player.get("pos", INVALID_TILE):
 			targets.append(tile)
+	if player_action_can_resolve(state, action) and CardStayRules.action_offers_stay(action):
+		targets.append(player.get("pos", INVALID_TILE))
 	return {"start": player.get("pos", INVALID_TILE), "range": budget, "target_tiles": targets, "paths": navigation.get("paths", {}), "costs": navigation.get("costs", {}), "hidden_enemy_tiles": hidden, "_source_state": state, "_source_action": action}
 
 func _player_move_navigation(state: Dictionary, action: Dictionary, player: Dictionary, budget: int, occupied: Dictionary, minimum: bool, stop_after_reaching: Callable = Callable()) -> Dictionary:
@@ -1522,6 +1534,16 @@ func _apply_player_action(state: Dictionary, action: Dictionary, target_tile: Ve
 	)
 	if not VeilRules.target_reason(self, next_state, action, target_tile).is_empty(): return next_state
 	if not target_is_valid or not SurfaceRelicRules.can_prepare(next_state, action, target_tile) or (action.has("_origin_tile") and not is_tile_visible_to_player(next_state, action["_origin_tile"])):
+		return next_state
+	if CardStayRules.is_stay(next_state, action, target_tile):
+		# Stay resolves a card decision, never a movement or arrival. Only the
+		# turn-start conditional rider is independent of actually travelling.
+		next_state["last_action_target"] = target_tile
+		_record_last_action_target_actor(next_state, target_tile)
+		_snapshot_pending_card_payment(next_state)
+		next_state = CardStayRules.apply_starting_state_reward(self, next_state, action)
+		next_state["card_stay_sequence"] = int(next_state.get("card_stay_sequence", 0)) + 1
+		_record_runtime_performance_phase("player_action_total", performance_total_started)
 		return next_state
 	# A relay changes attack delivery, never the origin paid by Worldroot.
 	# Select its route before payment so both forecasts and commit see one board.
@@ -3182,7 +3204,11 @@ func _player_force_context(state: Dictionary, action: Dictionary, target_tile: V
 	}
 
 func card_keyword_play_summary(card_id: String, before_state: Dictionary, resolved_state: Dictionary, actions: Array) -> Dictionary:
-	return CardKeywordRules.play_summary(card_def(card_id, before_state), before_state, resolved_state, actions)
+	var summary: Dictionary = CardKeywordRules.play_summary(card_def(card_id, before_state), before_state, resolved_state, actions)
+	# RunScene and headless playtests merge this same additive play metadata.
+	if int(resolved_state.get("card_stay_sequence", 0)) > int(before_state.get("card_stay_sequence", 0)):
+		summary["stayed"] = true
+	return summary
 
 func card_empower_time_surcharge(card_id: String, state: Dictionary) -> int:
 	return CardKeywordRules.empower_time_surcharge(state, card_id, card_def(card_id, state))

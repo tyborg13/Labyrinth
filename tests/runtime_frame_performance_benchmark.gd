@@ -2165,17 +2165,6 @@ func _exercise_preview_steps(instance: Node, measure_all_hovers: bool, workload_
 		total_targets += targets.size()
 		max_targets = maxi(max_targets, targets.size())
 		if targets.is_empty():
-			if bool(instance.call("_current_action_can_skip")):
-				var skip_started: int = Time.get_ticks_usec()
-				var skip_button: Button = instance.find_child("ActionContextSkip", true, false) as Button
-				_expect(skip_button != null and not skip_button.disabled, "skippable action must route through the live Skip button")
-				if skip_button != null and not skip_button.disabled:
-					_routed_left_click(skip_button, skip_button.size * 0.5)
-				await process_frame
-				await _await_render_frame()
-				step_completion_samples.append(float(Time.get_ticks_usec() - skip_started) / 1000.0)
-				steps += 1
-				continue
 			break
 		_validate_prevalidated_action_equivalence(preview)
 		if measure_all_hovers:

@@ -30,6 +30,7 @@ const RUN_RESULT_LEDGER_LIMIT: int = 32
 const UMBRA_WARNING_AVAILABLE_RUN_KEY: String = "umbra_warning_available_run"
 const UMBRA_WARNING_SEEN_KEY: String = "umbra_warning_seen"
 const EMACIATED_AWAKENING_SEEN_KEY: String = "emaciated_awakening_seen"
+const HEIRLOOM_KEY: String = "heirloom_equipment"
 const MOLTSHARD_AWARD_IDS_KEY: String = "moltshard_award_ids"
 const MOLTSHARD_AWARD_LEDGER_LIMIT: int = 64
 const PROGRESSION_ANALYTICS_OUTBOX_KEY: String = "progression_analytics_outbox"
@@ -136,6 +137,9 @@ static func _normalized_data(data: Dictionary) -> Dictionary:
 	if source_schema < 6:
 		data = _migrated_legacy_combat_unit_history(data)
 	data["run_counter"] = maxi(0, int(data.get("run_counter", 0)))
+	if data.has(HEIRLOOM_KEY):
+		var item: String = str(data[HEIRLOOM_KEY])
+		if GameData.equipment_def(item).is_empty(): data.erase(HEIRLOOM_KEY)
 	data[ContextualCombatTutorial.PROGRESSION_KEY] = ContextualCombatTutorial.normalized_state(
 		data.get(ContextualCombatTutorial.PROGRESSION_KEY, null)
 	)
@@ -1220,6 +1224,25 @@ static func emaciated_awakening_is_due(data: Dictionary) -> bool:
 
 static func emaciated_services_unlocked(data: Dictionary) -> bool:
 	return bool(data.get(EMACIATED_AWAKENING_SEEN_KEY, false))
+
+static func heirloom(data: Dictionary) -> String:
+	var item: String = str(data.get(HEIRLOOM_KEY, ""))
+	return item if not GameData.equipment_def(item).is_empty() else ""
+
+static func leave_heirloom(data: Dictionary, item: String) -> Dictionary:
+	var next: Dictionary = normalized_data(data)
+	# An empty choice retains the previous piece, including its base identity.
+	if item.is_empty() or GameData.equipment_def(item).is_empty(): return next
+	next[HEIRLOOM_KEY] = item
+	next["progression_revision"] = int(next.get("progression_revision", 0)) + 1
+	return next
+
+static func take_heirloom(data: Dictionary, item: String) -> Dictionary:
+	var next: Dictionary = normalized_data(data)
+	if item.is_empty() or heirloom(next) != item: return next
+	next.erase(HEIRLOOM_KEY)
+	next["progression_revision"] = int(next.get("progression_revision", 0)) + 1
+	return next
 
 static func mark_emaciated_awakening_seen(data: Dictionary) -> Dictionary:
 	var next: Dictionary = _normalized_data(data.duplicate(true))

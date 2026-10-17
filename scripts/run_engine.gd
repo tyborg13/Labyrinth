@@ -22,6 +22,7 @@ const SkillTreeLibrary = preload("res://scripts/skill_tree_library.gd")
 const Chronicle = preload("res://scripts/chronicle_rules.gd")
 const SectionMapGraph = preload("res://scripts/section_map_graph.gd")
 const SurfaceSaveMigration = preload("res://scripts/surface_save_migration.gd")
+const OpeningBoons = preload("res://scripts/opening_boon_rules.gd")
 
 const PLANNED_DEPTH_SEQUENCES: int = 6
 const ACTIVE_DEPTH_SEQUENCES: int = 6
@@ -210,6 +211,7 @@ func create_new_run(seed: int, progression: Dictionary, section_maps: bool = tru
 	run_state = GrimoireLibrary.ensure_run_state(run_state)
 	_reveal_neighbors(run_state, Vector2i.ZERO)
 	_stage_recovery_marker(run_state)
+	OpeningBoons.initialize(run_state)
 	return run_state
 
 func create_debug_boss_run(progression: Dictionary) -> Dictionary:
@@ -936,6 +938,7 @@ func move_to_room(run_state: Dictionary, destination: Vector2i) -> Dictionary:
 	room = _merge_room_metadata(int(next_state.get("seed", 0)), destination, rooms.get(destination_key, {}) as Dictionary)
 	var merchant_kind: String = merchant_kind_for_room(room)
 	if not merchant_kind.is_empty():
+		if merchant_kind == MERCHANT_SCAVENGER: OpeningBoons.enter_scavenger(next_state)
 		room = _merchant_room_with_stock(next_state, room, merchant_kind)
 		rooms[destination_key] = room
 		next_state["rooms"] = rooms
@@ -1487,7 +1490,7 @@ func grant_magic_to_reserve(run_state: Dictionary, card_id: String) -> Dictionar
 	return grant_magic_to_deck(run_state, card_id)
 
 func scavenger_purge_price(run_state: Dictionary) -> int:
-	return SCAVENGER_PURGE_BASE_PRICE + SCAVENGER_PURGE_PRICE_STEP * maxi(0, int(run_state.get("priced_magic_purges", 0)))
+	return OpeningBoons.price(run_state, SCAVENGER_PURGE_BASE_PRICE + SCAVENGER_PURGE_PRICE_STEP * maxi(0, int(run_state.get("priced_magic_purges", 0))))
 
 func can_purge_magic(run_state: Dictionary, source: String) -> bool:
 	if source == "campfire": return str(run_state.get("mode", "")) == "campfire"
@@ -1718,7 +1721,8 @@ func merchant_item_kind(item_id: String) -> String:
 	return ""
 
 func merchant_buy_cost(merchant_kind: String, item_id: String, run_state: Dictionary = {}) -> int:
-	return DepthRules.shop_price(run_state, _merchant_base_buy_cost(merchant_kind, item_id))
+	var price: int = DepthRules.shop_price(run_state, _merchant_base_buy_cost(merchant_kind, item_id))
+	return OpeningBoons.price(run_state, price) if merchant_kind == MERCHANT_SCAVENGER else price
 
 func _merchant_base_buy_cost(_merchant_kind: String, item_id: String) -> int:
 	match merchant_item_kind(item_id):

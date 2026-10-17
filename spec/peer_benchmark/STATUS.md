@@ -27,6 +27,7 @@ M2 — identity-gated roster upgrade (wave 1a/1b) + polish units; history below 
   bloomer-motion answered (changes → rr-05; post the new clip when it lands).
 - Lancer mq4 identity pair committed (340026ecb). Next for the roster: owner verdict on roster-plan, then wave 1.
 - Follow-up (2026-10-17): `tests/skill_progression_analytics_test.gd` fails on the integration branch (2 failures: terminal outbox fixture / resumable-run clear) and is not in `tests/run_tests.gd`, so nothing caught it. Next QA unit: find the cause, and wire every supplemental test into the suite (or a supplemental runner) so they can't rot.
+- Test-debt follow-ups (from qa-08's audit; ids in tests/quarantine.json once it lands): qa-09 stale references, qa-10 legacy cutout tests, qa-11 long diagnostics, qa-12 export-workflow tests, bug-01 prepared_other_character_view ownership (possible real bug, do first), design-01 tests needing director UI/rules decisions.
 - Blender bridge runs for worktree mq-03 (idles out 3 h after the last job; restart for rr-06/roster units with
   their worktree names).
 

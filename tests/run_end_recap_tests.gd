@@ -577,7 +577,9 @@ func _terminal_state(engine: RunEngine, progression: Dictionary, coord: Vector2i
 		"damage_received": 120 if outcome == "victory" else 140
 	}
 	state["progression"] = progression.duplicate(true)
-	return state
+	# These fixtures exercise the summary after its preceding heirloom decision.
+	# opening_boon_test.gd covers the real prompt, selection and acknowledgment.
+	return preload("res://scripts/opening_boon_rules.gd").leave_heirloom(state, "")
 
 func _room_key(coord: Vector2i) -> String:
 	return "%d,%d" % [coord.x, coord.y]
