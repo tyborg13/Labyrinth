@@ -1074,5 +1074,13 @@ refreshes and crash recovery cannot append duplicates. Terminal saves retain
 unanswered heirloom choices and unflushed receipts. `heirloom_terminal_wallet`
 preserves the already processed victory carry or death loss while that prompt
 is resumable, avoiding a second wallet settlement or recovery-marker erasure.
+Before Save & Quit, abandonment or a replacement descent discards that save,
+failed boon appends transfer to the existing durable profile analytics outbox
+with the original run context and the same idempotency keys. If that transfer
+cannot be saved, the old run remains intact. Outbox delivery and acknowledgment
+use the normal batch replay path; retrying either copy cannot duplicate JSONL.
+Replacement also reconciles and durably acknowledges the saved run's newer
+progression before creating its successor, including consumed heirlooms and
+settled terminal wallets. Unsettled held Embers still follow abandonment rules.
 No historical JSONL is rewritten, and the existing run/combat event payloads,
 source attribution and progression wallet policy remain in use.

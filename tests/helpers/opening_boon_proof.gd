@@ -34,11 +34,10 @@ static func offer(scene: Node, modal: Control, expect: Callable) -> void:
 		expect.call(tag.get_child(0).get_theme_font_size("font_size") == 16, "Column tags use 16px small caps")
 		var rules: RichTextLabel = card.find_child("BoonRules", true, false)
 		expect.call(rules.position.x == 24.0 and rules.size.x == 252.0, "Rules have 24px side padding and 252px width")
-		# Feedback 2 requires the complete authored relic effect. That supersedes
-		# the former four-line name sentence; the approved rules box is unchanged.
-		var relic_effect: bool = card.name in ["Boon_trinket", "Boon_pawned_light"]
 		expect.call(rules.get_content_height() <= rules.size.y, "%s rules remain unclipped: %dpx in %dpx" % [card.name, rules.get_content_height(), rules.size.y])
-		if not relic_effect: expect.call(rules.get_line_count() <= 4, "Non-relic boon rules still fit in at most four lines")
+		var typography = preload("res://scripts/ui_typography.gd")
+		var font_size: int = rules.get_theme_font_size("normal_font_size")
+		expect.call((font_size == typography.SIZE_BODY and rules.get_line_count() <= 4) or (font_size == typography.SIZE_SMALL and rules.get_line_count() <= 5), "Rules use at most four body lines or five next-smaller body lines")
 		if card.name != "Boon_purge": rect_near(Rect2(rules.position, rules.size), geometry["BoonRules"], expect, "Local rules zone")
 		for socket: Control in zone.find_children("BoonContent_*", "Button", true, false):
 			rect_near(Rect2(Vector2.ZERO, socket.size), [0, 0, 96, 96], expect, "Object socket")

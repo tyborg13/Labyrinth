@@ -113,6 +113,15 @@
       82
     ]
   },
+  "rules_text": {
+    "horizontal_padding": 24,
+    "width": 252,
+    "body_font_token": "UiTypography.SIZE_BODY",
+    "body_max_lines": 4,
+    "smaller_body_font_token": "UiTypography.SIZE_SMALL",
+    "smaller_body_max_lines": 5,
+    "pool_coverage": "Every eligible common/rare relic as both Trinket and Pawned Light"
+  },
   "secondary": {
     "row_node": "BoonSpellChoices",
     "slot_name": "BoonSpellSlot_<copy_index>",

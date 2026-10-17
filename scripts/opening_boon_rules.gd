@@ -22,6 +22,12 @@ static func definitions() -> Dictionary:
 	if _definitions.is_empty(): _definitions = JSON.parse_string(FileAccess.get_file_as_string(DATA_PATH)) as Dictionary
 	return _definitions
 
+static func purge_count() -> int:
+	return int(definitions()["boons"]["purge"]["count"])
+
+static func event_key(context: Dictionary, index: int, event: Dictionary) -> String:
+	return "%s:opening_boon:%d:%s" % [str(context.get("run_id", "")), index, str(event["type"])]
+
 static func initialize(state: Dictionary) -> void:
 	state[HEIRLOOM_END_KEY] = {"done": false}
 	var profile: Dictionary = state.get("progression", {})
@@ -147,7 +153,7 @@ static func choose(engine: RefCounted, state: Dictionary, id: String, choices: A
 		if choices.size() != 1 or not (selected.get("spells", []) as Array).has(choices[0]): return state.duplicate(true)
 	elif id == "purge":
 		var remaining: Array[String] = starter_spells(state)
-		if choices.size() != int(spec["count"]): return state.duplicate(true)
+		if choices.size() != purge_count(): return state.duplicate(true)
 		for choice: String in choices:
 			if not remaining.has(choice): return state.duplicate(true)
 			remaining.erase(choice)
@@ -226,6 +232,7 @@ static func _event(state: Dictionary, type: String, payload: Dictionary) -> void
 
 static func text(row: Dictionary) -> String:
 	var value: String = str(definitions()["boons"][row["boon"]]["text"])
+	value = value.replace("<Count>", str(purge_count()))
 	value = value.replace("<Relic effect>", str(Data.relic_def(str(row.get("relic", ""))).get("description", "")))
 	value = value.replace("<Element>", str(ELEMENT_TERMS.get(str(row.get("element", "")), "")))
 	value = value.replace("<Item>", str(Data.equipment_def(str(row.get("item", ""))).get("name", "")))

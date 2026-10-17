@@ -39,7 +39,8 @@ def report() -> dict:
     rare = [scores[key] for key, card in spells.items() if card["rarity"] == "rare"]
     starter_ids = ["pale_spark", "dull_bolt", "waning_pulse"]
     starter = {key: scores[key] for key in starter_ids}
-    starters_total = 2 * sum(starter.values())
+    starter_copies = [value for value in starter.values() for _ in range(2)]
+    starters_total = sum(starter_copies)
     elements = {}
     for element in ELEMENTS:
         rare_element = [scores[key] for key, card in spells.items()
@@ -83,7 +84,7 @@ def report() -> dict:
             "stat_bonuses": "equipment stats are not scored by the per-card heuristic",
         },
         "heirloom": {"card_score_delta_by_item": gear_deltas},
-        "purge": {"two_lowest_starter_card_scores_removed": 2 * min(starter.values()), "deck_thinning_value": "not modelled by intrinsic card scores"},
+        "purge": {"count": boons["purge"]["count"], "lowest_starter_card_scores_removed": sum(sorted(starter_copies)[:boons["purge"]["count"]]), "deck_thinning_value": "not modelled by intrinsic card scores"},
         "focus": {"four_cards": mean(row["focus_four_cards"] for row in elements.values()), "deck_score_delta": mean(row["focus_deck_score_delta"] for row in elements.values())},
         "vitality": {"max_hp_capacity": boons["vitality"]["max_hp"], "immediate_heal": boons["vitality"]["current_hp"]},
         "trinket": {"rarity": "common", "power": "relic-specific; the per-card scorer does not value persistent relics"},

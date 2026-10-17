@@ -89,7 +89,8 @@ func configure(host: Node, offer: Dictionary) -> void:
 		rules.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	rules.mouse_entered.connect(_pointer_changed)
 	rules.mouse_exited.connect(_pointer_changed)
-	Inline.apply_to(rules, "[center]" + Rules.text(offer) + "[/center]", Inline.DEFAULT_ICON_SCALE, true)
+	_fit_rules(rules, Rules.text(offer))
+	_fit_rules.call_deferred(rules, Rules.text(offer))
 	gui_input.connect(func(event: InputEvent) -> void:
 		if (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT) or event.is_action_pressed("ui_accept") or event.is_action_pressed(Router.ACTION_ACCEPT):
 			accept_event()
@@ -99,6 +100,15 @@ func configure(host: Node, offer: Dictionary) -> void:
 	mouse_exited.connect(_pointer_changed)
 	focus_entered.connect(_pose)
 	focus_exited.connect(_pose)
+
+func _fit_rules(rules: RichTextLabel, text: String) -> void:
+	# Fit at the authored width, never by borrowing the card's side padding.
+	rules.size.x = RULES_RECT.size.x
+	Typography.apply_rich_text_role(rules, Typography.ROLE_BODY)
+	Inline.apply_to(rules, "[center]" + text + "[/center]", Inline.DEFAULT_ICON_SCALE, true)
+	if rules.get_line_count() > 4:
+		Typography.set_rich_text_size(rules, Typography.SIZE_SMALL)
+		Inline.apply_to(rules, "[center]" + text + "[/center]", Inline.DEFAULT_ICON_SCALE, true)
 
 func _tag(text: String) -> void:
 	var accent: Color = Palette.EMBER.lerp(Palette.GOLD_BRIGHT, 0.45)

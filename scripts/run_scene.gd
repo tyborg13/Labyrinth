@@ -105,6 +105,7 @@ const UiTypography = preload("res://scripts/ui_typography.gd")
 const RunEndRecapOverlay = preload("res://scripts/run_end_recap_overlay.gd")
 const OpeningBoonFlow = preload("res://scripts/opening_boon_flow.gd")
 const OpeningBoonRules = preload("res://scripts/opening_boon_rules.gd")
+const OpeningBoonRecovery = preload("res://scripts/opening_boon_recovery.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 const CardDragPlayRules = preload("res://scripts/card_drag_play_rules.gd")
@@ -10623,15 +10624,20 @@ func _start_run() -> void:
 	_opening_boon_flow.close(self)
 	_cancel_deferred_skill_analytics()
 	var previous: Dictionary = ProgressionStore.load_saved_run()
+	if not previous.is_empty() and not OpeningBoonRecovery.acknowledge_before_replacement(self, previous):
+		_load_run_state(previous)
+		_run_state["notice"] = "The new run could not be saved. Your previous run is available."
+		if not _defer_initial_run_presentation: _refresh_ui()
+		return
 	if not previous.is_empty() and not _acknowledge_saved_starting_relic_gift(previous):
 		_load_run_state(previous)
 		_run_state["notice"] = "Could not save the previous run's relic gift. Try again."
 		if not _defer_initial_run_presentation: _refresh_ui()
 		return
 	var starting_profile: Dictionary = ProgressionStore.load_data()
-	# A terminal heirloom save has already settled its wallet. Abandoning a live
-	# run still loses held Embers; replacing a settled victory must keep its bank.
-	if not previous.is_empty() and not previous.has("heirloom_terminal_wallet"): starting_profile = ProgressionStore.set_embers(starting_profile, 0)
+	# Recovery above durably settles terminal wallets, including old fallbacks
+	# without a marker. Only abandoning a live run loses its held Embers.
+	if not previous.is_empty() and str(previous.get("mode", "")) not in ["victory", "defeat"]: starting_profile = ProgressionStore.set_embers(starting_profile, 0)
 	_progression = ProgressionStore.prepare_for_new_run(starting_profile)
 	var new_run_state: Dictionary = _run_engine.create_new_run(_new_seed(), _progression)
 	new_run_state = GuidedCombatScenario.mark_run_eligible(new_run_state)
@@ -28749,16 +28755,27 @@ func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool
 	if mode != "combat" and not _skill_analytics_flushing:
 		_cancel_deferred_skill_analytics(true)
 	var saved: bool = false
+	var profile_saved: bool = true
+	var run_before_profile: bool = boundary in ["heirloom_left", "heirloom_confirmed"]
 	if mode in ["victory", "defeat"]:
 		var terminal_resume_state: Dictionary = state.duplicate(true)
 		state = _finalize_terminal_committed_state(state)
-		saved = ProgressionStore.save_data(_progression)
-		if saved and (OpeningBoonRules.heirloom_prompt_pending(state) or state.has(OpeningBoonRules.EVENTS_KEY)):
+		if run_before_profile:
+			if not terminal_resume_state.has("heirloom_terminal_wallet"):
+				_progression["progression_revision"] = int(_progression.get("progression_revision", 0)) + 1
+				state["progression"] = _progression.duplicate(true)
+			# Boon choices commit to the run first. A failed run write must not
+			# change the profile; a deferred profile write is recoverable from it.
 			saved = ProgressionStore.save_run_state(state)
-		elif saved:
-			ProgressionStore.clear_saved_run()
 		else:
-			ProgressionStore.save_run_state(terminal_resume_state)
+			saved = ProgressionStore.save_data(_progression)
+			if saved and (OpeningBoonRules.heirloom_prompt_pending(state) or state.has(OpeningBoonRules.EVENTS_KEY)):
+				saved = ProgressionStore.save_run_state(state)
+			elif saved:
+				ProgressionStore.clear_saved_run()
+			else:
+				ProgressionStore.save_run_state(terminal_resume_state)
+		if run_before_profile and saved: profile_saved = ProgressionStore.save_data(_progression)
 	else:
 		saved = ProgressionStore.save_run_state(state)
 	performance_phase_started = _record_runtime_performance_phase("combat_checkpoint_persist_storage", performance_phase_started)
@@ -28771,7 +28788,7 @@ func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool
 	_record_runtime_performance_phase("combat_checkpoint_persist_total", performance_total_started)
 	if saved:
 		var opening_events_saved: bool = _opening_boon_flow.flush_events(self, state)
-		if mode in ["victory", "defeat"] and not OpeningBoonRules.heirloom_prompt_pending(state) and opening_events_saved:
+		if mode in ["victory", "defeat"] and not OpeningBoonRules.heirloom_prompt_pending(state) and opening_events_saved and profile_saved:
 			ProgressionStore.clear_saved_run()
 		_analytics_flush_surface_events(state.get("combat_state", {}) as Dictionary, state)
 		_analytics_flush_map_events(state)
@@ -28827,7 +28844,9 @@ func _save_run_progress() -> void:
 		# A failed terminal save preserves the original, unprocessed fallback.
 		# Reconciliation must not replace it with the finalized held snapshot.
 		_cancel_deferred_skill_analytics()
-		if ProgressionStore.save_data(_progression):
+		var retained: Dictionary = OpeningBoonRecovery.retaining_events(self, committed_state, _progression)
+		if ProgressionStore.save_data(retained):
+			_progression = retained
 			ProgressionStore.clear_saved_run()
 		else:
 			push_error("Failed to persist terminal progression; the resumable fallback remains intact.")
@@ -28866,6 +28885,7 @@ func _on_abandon_run_pressed() -> void:
 			_run_state.get("current_room", Vector2i.ZERO),
 			int(_run_state.get("run_index", 0))
 		)
+		_progression = OpeningBoonRecovery.retaining_events(self, _run_state, _progression)
 		if not ProgressionStore.save_data(_progression):
 			_run_state["notice"] = "Could not save the completed run. Try again."
 			_refresh_ui()

@@ -202,7 +202,7 @@ func _spell_highlight(widget: Control, index: int) -> void:
 	widget.set_external_highlighted(_purge_indices.has(index) or widget.has_focus())
 
 func _choose_spell(card: String, index: int) -> void:
-	if (is_instance_valid(_confirmation) and _confirmation.visible) or _purges.size() >= 2: return
+	if (is_instance_valid(_confirmation) and _confirmation.visible) or _purges.size() >= Rules.purge_count(): return
 	var id: String = str(_selected.get("boon", ""))
 	if id != "purge":
 		chosen.emit(id, [card])
@@ -215,14 +215,14 @@ func _choose_spell(card: String, index: int) -> void:
 		_purge_indices.append(index)
 		_purges.append(card)
 	_update_purge_poses()
-	if _purges.size() == int(Rules.definitions()["boons"]["purge"]["count"]):
+	if _purges.size() == Rules.purge_count():
 		purge_selection_ready.emit()
 		# Submit both selected cards before the confirmation covers them. The
 		# signal lets the visual probe capture that actual presentation boundary.
 		var generation: int = _generation
 		if DisplayServer.get_name() == "headless": await get_tree().process_frame
 		else: await RenderingServer.frame_post_draw
-		if is_inside_tree() and generation == _generation and _purges.size() == 2: _present_purge_confirmation()
+		if is_inside_tree() and generation == _generation and _purges.size() == Rules.purge_count(): _present_purge_confirmation()
 
 func _update_purge_poses() -> void:
 	for index: int in range(_controls.size() - 1):

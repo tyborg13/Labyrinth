@@ -53,14 +53,13 @@
     },
     "purge": {
       "name": "Purge",
-      "text": "Remove 2 starter spells.",
+      "text": "Remove <Count> starter spells.",
       "count": 2
     },
     "focus": {
       "name": "Focus",
       "text": "Swap your 6 starter spells for 4 common <Element> spells.",
       "rarity": "common",
-      "remove_count": 6,
       "count": 4
     },
     "vitality": {

@@ -10,6 +10,7 @@ var _captures: Array[String]
 var _purge_pair_captured: bool = false
 var _secondary_geometry: Dictionary = {}
 var _maximum_relic_rule_height: int = 0
+var _relic_rules_proof: Dictionary = {}
 
 func _initialize() -> void:
 	_setup()
@@ -34,9 +35,10 @@ func _open(scene: Node, state: Dictionary) -> Control:
 	return modal
 
 func _run() -> void:
-	await _relic_rules_text()
 	ProgressionStore.save_data(Fixture.profile())
 	var scene: Node = await _instance(Fixture.state())
+	_relic_rules_proof = await preload("res://tests/helpers/opening_boon_relic_proof.gd").run(_viewport, scene, _expect)
+	_maximum_relic_rule_height = int(_relic_rules_proof["maximum_height"])
 	for with_heirloom: bool in [false, true]:
 		var modal: Control = await _open(scene, Fixture.state(with_heirloom))
 		if modal == null: continue
@@ -66,7 +68,7 @@ func _run() -> void:
 			await _settle()
 	await _additional_offers(scene)
 	await _heirloom(scene)
-	var report: Dictionary = {"resolution": "1920x1080", "ui_scale": 1.0, "geometry_tolerance_px": 1, "captures": _captures, "headless_semantics_only": _verify_only, "passed": not _failed, "secondary_geometry": _secondary_geometry, "maximum_relic_rule_height": _maximum_relic_rule_height}
+	var report: Dictionary = {"resolution": "1920x1080", "ui_scale": 1.0, "geometry_tolerance_px": 1, "captures": _captures, "headless_semantics_only": _verify_only, "passed": not _failed, "secondary_geometry": _secondary_geometry, "maximum_relic_rule_height": _maximum_relic_rule_height, "relic_rules": _relic_rules_proof}
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT_ROOT))
 	var file := FileAccess.open(OUTPUT_ROOT + "/semantics.json", FileAccess.WRITE)
 	file.store_string(JSON.stringify(report, "\t"))
@@ -164,30 +166,6 @@ func _save(name: String) -> void:
 	await _capture(path)
 	_captures.append(ProjectSettings.globalize_path(path))
 	print("BOON CAPTURE: " + ProjectSettings.globalize_path(path))
-
-func _relic_rules_text() -> void:
-	var rich := RichTextLabel.new()
-	rich.bbcode_enabled = true
-	rich.scroll_active = false
-	rich.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	rich.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	rich.visible_characters = 0
-	preload("res://scripts/ui_typography.gd").apply_rich_text_role(rich, preload("res://scripts/ui_typography.gd").ROLE_BODY)
-	_viewport.add_child(rich)
-	rich.size = preload("res://scripts/opening_boon_card.gd").RULES_RECT.size
-	for id: String in GameData.relic_ids():
-		var relic: Dictionary = GameData.relic_def(id)
-		if str(relic.get("rarity", "")) not in ["common", "rare"]: continue
-		var boon: String = "trinket" if str(relic["rarity"]) == "common" else "pawned_light"
-		var suffix: String = "" if boon == "trinket" else " Start at half @kw(health|HP)."
-		var text: String = Boons.text({"boon": boon, "relic": id})
-		_expect(text == str(relic["description"]) + suffix, "Relic boon rules preserve the authored effect markup: " + id)
-		preload("res://scripts/inline_icon_text.gd").apply_to(rich, "[center]" + text + "[/center]", preload("res://scripts/inline_icon_text.gd").DEFAULT_ICON_SCALE, true)
-		await process_frame
-		_maximum_relic_rule_height = maxi(_maximum_relic_rule_height, rich.get_content_height())
-		_expect(rich.get_content_height() <= rich.size.y, "Complete relic effect fits the unchanged rules zone: " + id)
-	rich.queue_free()
-
 
 func _secondary_inspection(modal: Control) -> void:
 	var cards: Array = modal.get("_controls")

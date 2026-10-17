@@ -145,12 +145,16 @@ func leave_heirloom(host: Node, item: String) -> void:
 func _commit(host: Node, candidate: Dictionary, boundary: String) -> bool:
 	var before: Dictionary = host.get("_run_state")
 	var profile: Dictionary = host.get("_progression")
+	var terminal_before: Dictionary = {}
+	for field: String in ["_victory_carry_processed", "_defeat_loss_processed", "_victory_carry_amount", "_defeat_lost_amount"]:
+		terminal_before[field] = host.get(field)
 	host.set("_run_state", candidate)
 	host.set("_progression", candidate.get("progression", profile))
 	var persisted: Dictionary = host.call("_persist_run_state_snapshot", candidate, false, boundary)
 	if not bool(persisted.get("saved", false)):
 		host.set("_run_state", before)
 		host.set("_progression", profile)
+		for field: String in terminal_before: host.set(field, terminal_before[field])
 		return false
 	host.set("_run_state", persisted.get("state", candidate))
 	host.call("_release_committed_run_state")
@@ -165,6 +169,6 @@ func flush_events(host: Node, state: Dictionary) -> bool:
 	var events: Array = state.get(Rules.EVENTS_KEY, [])
 	for index: int in range(events.size()):
 		var event: Dictionary = events[index]
-		var key: String = "%s:opening_boon:%d:%s" % [str(context.get("run_id", "")), index, str(event["type"])]
+		var key: String = Rules.event_key(context, index, event)
 		if not host.get("_analytics_store").write_event(str(event["type"]), context, event["payload"], key): return false
 	return true

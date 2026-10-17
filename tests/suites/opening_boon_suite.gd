@@ -105,6 +105,10 @@ static func _effects(expect: Callable) -> void:
 	var purge: Dictionary = Fixture.force_boon("purge")
 	expect.call(Rules.choose(engine, purge, "purge", ["pale_spark", "quick_stab"]) == purge, "Purge cannot remove an equipment card")
 	expect.call(Rules.choose(engine, purge, "purge", ["pale_spark"]) == purge, "Incomplete Purge is free and leaves the offer pending")
+	var one_copy: Dictionary = purge.duplicate(true)
+	one_copy["attuned_magic_cards"].erase("pale_spark")
+	expect.call(Rules.starter_spells(one_copy).count("pale_spark") == 1, "Multiplicity regression starts with exactly one remaining copy")
+	expect.call(Rules.choose(engine, one_copy, "purge", ["pale_spark", "pale_spark"]) == one_copy, "Purge refuses two copies when only one remains")
 	var blood: Dictionary = Fixture.force_boon("blood_price")
 	expect.call(Rules.choose(engine, blood, "blood_price", ["quick_stab"]) == blood, "An unoffered spell never charges Blood Price")
 	var declined: Dictionary = Rules.choose(engine, purge, "")
@@ -127,7 +131,9 @@ static func _heirlooms(expect: Callable) -> void:
 	var replaced: Dictionary = Rules.leave_heirloom(state, item)
 	expect.call(Store.heirloom(replaced["progression"]) == item, "Newly left equipment replaces the previous piece")
 	expect.call(typeof(replaced["progression"][Store.HEIRLOOM_KEY]) == TYPE_STRING, "Only the base item id persists, never upgrades or grafts")
-	expect.call(Rules.leave_heirloom(replaced, Fixture.PROOF_HEIRLOOM) == replaced, "Repeated run-end actions cannot replace the recorded choice")
+	var still_equipped: String = str(replaced["equipped_equipment"]["weapon"])
+	expect.call((replaced["equipped_equipment"] as Dictionary).values().has(still_equipped) and still_equipped != item, "Repeated-selection regression retries a different still-equipped piece")
+	expect.call(Rules.leave_heirloom(replaced, still_equipped) == replaced, "Repeated run-end actions cannot replace the recorded choice")
 	expect.call(Store.save_data(replaced["progression"]) and Store.heirloom(Store.load_data()) == item, "Heirloom survives profile save/reload")
 	for outcome: String in ["victory", "defeat"]:
 		state["mode"] = outcome

@@ -1,11 +1,12 @@
 # boon-01 implementation and proof
 
-**Current handoff: feedback 2.** The appended feedback-2 section supersedes
-round-1 secondary layout, tooltip behavior and relic rules presentation.
+**Current handoff: feedback 3.** The appended feedback-3 section supersedes
+earlier persistence recovery and relic rules fitting. Feedback 2 supersedes
+round-1 secondary layout and tooltip behavior.
 The director inspected and approved the round-1 offer composition.
 
 Design authority: `spec/peer_benchmark/briefs/boon-01.md` (2026-10-17), plus
-**boon-01 feedback 1 and 2** supplied in the implementation conversation. Feedback 1
+**boon-01 feedback 1, 2 and 3** supplied in the implementation conversation. Feedback 1
 resolves all five original design placeholders. No approved art, fonts, audio,
 card/equipment definitions, task queue or Git history was changed. All changes
 remain uncommitted on `codex/boon-01`. Risk: **high** (run state, progression,
@@ -337,3 +338,164 @@ The runner prints exact capture paths beneath its isolated
 `secondary_open_no_tooltip.png`. All ten prior names remain in the contract.
 No inspection-fixture change or command is required by this feedback. The
 owner retains renderer review, fixture preparation, commits and publication.
+
+## Feedback 3 — peer findings and director text fit
+
+Read the complete review from the integration branch using
+`git show codex/peer-benchmark:spec/peer_benchmark/feedback/boon-01_review_1382b6916.md`.
+Inspected the supplied `director_r2/offer_with_heirloom.png`, `zoom3.png` and
+`sheet3.png`. No director captures or approved card/equipment/relic assets or
+definitions changed.
+
+1. **Replacement recovery:** `opening_boon_recovery.gd` acknowledges a saved
+   run's strictly newer embedded progression before `_start_run` can replace
+   it. Failed acknowledgment retains the original save. Equal revisions keep
+   the profile's fields, including a committed recovery marker; embedded
+   outbox entries are merged additively. Run-first terminal boon transactions
+   stamp settlement once; ordinary profile-first checkpoints retain their
+   existing revision behavior. Terminal fallback replacement uses the normal
+   accounting/result receipts, recovering already-settled fallback wallets or
+   settling raw terminal wallets before deletion. It preserves acknowledged
+   profile wallets. Active abandonment still loses held Embers. The focused
+   regression takes Duelist Rapier with profile writes failing, verifies the
+   run-only consumption, blocks replacement while acknowledgment cannot save,
+   then restores writes and verifies no Rapier in the next offer. Settled
+   wallet recovery and equal-revision recovery-marker retention are covered,
+   plus profile-write failures before/after victory/death presentation.
+2. **Outstanding receipts:** Save & Quit, abandonment and replacement either
+   deliver boon receipts or transfer them durably to the existing profile
+   analytics outbox before clearing/overwriting the save. Keys and original
+   run context are retained. A failed transfer leaves the save intact. Tests
+   force appends to fail, choose Leave nothing, fail and restore the profile
+   transfer, quit, replace, restore appends and replay both copies. A separate
+   path replaces directly without quitting. Each of the three events is
+   observed exactly once after recovery. JSONL remains local and append-only.
+3. **Surviving mutations:** the repeat test now retries a different piece that
+   is still equipped; the Purge test requests two Pale Sparks with only one
+   remaining; injected authoritative run-write failures assert unchanged live
+   gameplay/progression, durable run/profile, terminal flags and analytics.
+   Boon terminal choices save the run before the profile so failed run writes
+   cannot commit an otherwise rolled-back heirloom. All three temporary guard
+   removals were rejected: **3 caught, 0 survived; source restored**. Summary:
+   `/private/tmp/boon-01-r3-mutations.json`.
+4. **Data authority:** `Rules.purge_count()` reads the one data count used by
+   validation, selection capacity, confirmation readiness and rules text.
+   The text template resolves to the unchanged approved sentence. Removed
+   unused `focus.remove_count`; Focus still swaps the actual starter spells.
+   The balance report also slices the actual starter-copy scores using this
+   data count, rather than assuming two removals. Its observed Purge score is
+   still **3.3234**, and rare Armory's expected delta is **−0.3236483333**.
+5. **Text layout:** every boon keeps a 252px rules zone with 24px side padding.
+   More than four lines at `SIZE_BODY` (16px) uses the existing `SIZE_SMALL`
+   (15px), retaining the body font. The probe instantiates production boon
+   cards for every eligible common/rare relic in **both** presentations:
+   **54 relics × 2 = 108 cards**. Observed maximum **5 lines / 85px**, with
+   **12** cards using the smaller size. Each card is checked after layout/draw
+   opportunities for both pads, width, role-specific line limits, complete
+   effect/keyword text and vertical fit. The 11 capture names and 1px tolerances
+   remain intact; the contract now records the typography limits too.
+
+Feedback-3 files: `data/opening_boons.json`; `scripts/opening_boon_card.gd`,
+`opening_boon_flow.gd`, `opening_boon_overlay.gd`, `opening_boon_rules.gd`, new
+`opening_boon_recovery.gd`, and the small integration hooks in `run_scene.gd`;
+`tests/suites/opening_boon_suite.gd`, new `tests/opening_boon_recovery_test.gd`,
+new `tests/helpers/opening_boon_relic_proof.gd`,
+`tests/helpers/opening_boon_proof.gd`, `tests/opening_boon_probe.gd`,
+`tests/opening_boon_probe_contract.json`, `spec/analytics.md`, and this report.
+`tools/opening_boon_balance.py` now derives its removal count from boon data.
+
+All expensive new fault-injection and complete-pool presentation checks stay
+in standalone focused runners/probes. Only the two cheap guard assertions
+changed in the existing full-suite model coverage. No full-suite scene startup,
+wait, dependency, art, icon, font asset, balance coefficient or timeout added.
+
+### Feedback-3 chosen defaults and open issues
+
+No TODO_DESIGN placeholders or new player-facing decisions. New test-only
+fields name the isolated profile/run/analytics paths and a file used as a
+write-blocking parent: `PROFILE_PATH=user://pre_battle_probe_progression.json`,
+`RUN_PATH=user://pre_battle_probe_run.save`,
+`ANALYTICS_PATH=user://opening_boon_recovery_analytics`,
+`WRITE_BLOCKER=user://opening_boon_write_blocker` and derived
+`FAILED_WRITE_PATH=WRITE_BLOCKER/unwritable`.
+`SETTLED_WALLET=120` reuses the existing wallet fixture;
+`RECOVERY_COORD=(2,0)` reuses the existing recovery/Scavenger coordinate. Existing seeds,
+viewport/scale and 120-second focused budgets are reused. Full Godot remains
+budgeted at 900 seconds. Revision/idempotency mechanics reuse existing named
+fields, not gameplay tuning. All changes remain uncommitted.
+
+The first recap check caught an equal-revision marker regression introduced by
+the initial recovery implementation. Its existing assertion was preserved,
+the tie behavior was fixed, and the focused recap rerun passed.
+
+### Feedback-3 verification
+
+- Focused boon tests: exit **0**, `/private/tmp/boon-01-r3-focused-final.log`:
+  `OPENING BOON TEST RESULT: PASS`, `TEST RESULT: PASS`.
+- Final headless probe: exit **0**, `/private/tmp/boon-01-r3-probe-final.log`:
+  `BOON RELIC RULES PROOF: {"cards":108,"maximum_height":85,"maximum_lines":5,"smaller_body_cards":12}`,
+  `OPENING BOON PROBE RESULT: PASS`. Its report is copied to
+  `/private/tmp/boon-01-r3-headless-semantics.json`; captures are explicitly
+  empty. This final run emitted an intermittent shutdown diagnostic retaining
+  one `run_scene.gd` function-state/resource (identified in the verbose focused
+  run), also observed intermittently in prior rounds. It is not a failed
+  semantic assertion or renderer proof and is not claimed fixed here.
+- Recovery/fault injection: exit **0**, `/private/tmp/boon-01-r3-recovery-final.log`:
+  `OPENING BOON RECOVERY TEST RESULT: PASS`, `TEST RESULT: PASS`.
+  The Rapier reproduction blocks profile writes while keeping its live file
+  readable. Forced failure cases intentionally print persistence errors; their
+  rollback/durability assertions all pass. This standalone runner is not added
+  to the full-suite program list.
+- Focused recap: exit **0**, `/private/tmp/boon-01-r3-recap-final.log`:
+  `RUN END RECAP TEST RESULT: PASS`.
+- Focused menu resume: exit **0**, `/private/tmp/boon-01-r3-menu-final.log`:
+  `TEST RESULT: PASS — main menu resume safety`.
+- Final UI identity lint: exit **0**, `/private/tmp/boon-01-r3-ui-lint-final.log`:
+  `Ran 25 tests in 3.272s`, `OK`.
+- Balance report: exit **0**, `python3 tools/opening_boon_balance.py`:
+  `/private/tmp/boon-01-r3-balance.json` (Purge count **2**, card score removed
+  **3.3234**; Armory expected card-sum delta **−0.32364833333333326**).
+- Both existing derived analytics hosts pass task-runner `--check-only`:
+  `/private/tmp/boon-01-r3-deferred-skill-parse.log` and
+  `/private/tmp/boon-01-r3-deferred-run-skill-parse.log`. The three-argument
+  persistence method signature remains compatible; no derived tests changed.
+- Targeted guard removals: `/private/tmp/boon-01-r3-mutations.json`:
+  `BOON MUTATIONS: 3 caught, 0 survived; source restored`. Each failed on its
+  intended regression assertion, with no parser error.
+
+- Python discovery: exit **0**, `/private/tmp/boon-01-r3-full-python.log`:
+  `Ran 617 tests in 481.224s`, `OK (skipped=61)`.
+
+- Final full Godot retry: exit **0**,
+  `/private/tmp/boon-01-r3-full-godot-retry.log`:
+  `PROGRAM SUITE opening_boon_test: PASS`,
+  `PROGRAM SUITE run_end_recap_tests: PASS`,
+  `PROGRAM SUITE main_menu_resume_test: PASS`,
+  `FULL SUITE RUNTIME: 835.208 seconds (budget 900 seconds)`,
+  `TEST RESULT: PASS`. No full-suite budget was raised. Runtime code was frozen
+  for this successful run. All expensive new tests remain focused-only.
+
+The first feedback-3 full Godot attempt (`/private/tmp/boon-01-r3-full-godot.log`)
+exited **124** with `error: command timed out after 900 seconds.` EN03 had just
+reported `PASS (210 checks, 0 failures)`; the boon/recap/menu tail did not finish.
+No assertion failure was reported. This attempt is **not a PASS**. The budget
+was not raised. Python discovery ran before the same-budget retry, so the
+two broad suites did not compete for CPU. No new heavy tests had run in this
+full attempt; those remain focused-only.
+
+Final `git diff --check`: exit **0**. No commits, branch changes, review agents,
+publication actions, task-queue edits or director capture edits were performed.
+
+### Feedback-3 proof for the design owner
+
+Windowed proof remains owner-run: this worker has no WindowServer access and
+has not retried a windowed launch. Run from this worktree:
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/boon-01 && python3 tools/visual_probe_runner.py --no-headless --display-driver macos --audio-driver Dummy --timeout 120 --expect-size 1920x1080 --proof-contract tests/opening_boon_probe_contract.json --result-manifest /private/tmp/labyrinth-inspection-manifests/boon-01-r3-visual.json tests/opening_boon_probe.gd --task-id boon-01
+```
+
+The runner prints exact PNG paths beneath isolated
+`user://opening_boon_probe/1920x1080/`. It retains all 11 captures, including
+`offer_with_heirloom.png` and `secondary_open_no_tooltip.png`. Headless metrics
+are not renderer proof. No inspection-fixture command is required by feedback 3.
