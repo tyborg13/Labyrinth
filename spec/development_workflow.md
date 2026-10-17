@@ -49,6 +49,34 @@ Do not use an editor launch as a parser check. On a clean isolated worktree, `go
 
 The full `tests/run_tests.gd` runner also executes isolated program sub-suites: combat_feel (including combat_pacing_regression), event_view, event_rules, biome, health_ghost, movement_undo, threats_at_rest, encounter_tables, run_score, sfx_bank, section_map_v2, en01/en02/en03 enemies, run_end_recap and main_menu_resume. Its total budget is 900 seconds; each child uses `godot_task_runner.py`.
 
+`python3 tools/test_registration_audit.py` is the registration completeness guard,
+also run by both full suites. It follows executed calls, including exact shared
+wrapper methods, for every `tests/**/*_test.gd`, `*_suite.gd` and `*_probe.gd`.
+Native-only checks require an exact path and reason in
+`tests/windowed_test_allowlist.json`. Every other script must execute in the full
+suite or have an entry in `tests/quarantine.json`. Quarantine entries require
+`path`, `category`, `reason`, `evidence_log` (a project-relative proof log path),
+and one `follow_up` owner. Accepted categories and owners are `stale-reference`
+→ `qa-09`, `legacy-cutout` → `qa-10`, `long-diagnostic` → `qa-11`,
+`export-workflow` → `qa-12`, `possible-bug` → `bug-01`, and `needs-design`
+→ `design-01`. Library suites additionally name an `entrypoint` that actually
+executes their assertions. Missing fields, unknown owners, duplicate paths,
+deleted tests, and overlaps with registered or windowed tests fail the guard.
+Evidence logs are local proof artifacts and need not be present on fresh clones.
+
+Run the separate slow guard before handing off registration or quarantine changes:
+`python3 tools/test_registration_audit.py --check-quarantine --output-dir output/qa-08/quarantine-check`.
+It reruns all quarantined programs through `godot_task_runner.py`, with four
+workers and the normal 180-second child cap (30 seconds per package stage).
+Explicit shared suite entrypoints run once. Nonzero exits and timeouts retain
+quarantine; any passing entry fails the slow guard and must be registered and
+removed from quarantine. Each invocation writes per-program logs and
+`results.json`; a timeout is evidence of an unresolved budget/fixture issue,
+never an assertion pass. Keep this slow check separate from the normal full
+suite so known failures do not consume its runtime budget. Until qa-07's shared
+program runner is integrated, the supplemental registrations (the original 115 plus newly passing quarantines) remain isolated
+in `tests/headless_test_programs.json` for a mechanical manifest transfer.
+
 Run Python checks from the task worktree with `python3 -m unittest discover -s tests -p 'test_*.py' -v`; verbose output lists every skip and its reason. Optional audio tests use `unittest.skipUnless` when their Python modules are absent, while dependency import errors remain failures when those modules are installed. Run the sound-lab checks with `/Users/borgerding/.cache/umbra-sfx/venv/bin/python -m unittest discover -s tests -p 'test_sfx_lab.py' -v`; run the classical arrangement checks with `.venv-classical-soundtrack/bin/python -m unittest discover -s tests -p 'test_*arrangement.py' -v` after preparing that environment with `tools/classical_soundtrack_requirements.txt`. The Chopin approved-artifact checks (`-p 'test_chopin_death_music.py'`) need no optional music modules. Python discovery includes headless fixture checks through the task runners; it does not replace the full Godot suite required for runtime changes.
 
 Before suites/probes, run `python3 tools/output_gdignore.py` from the task worktree.

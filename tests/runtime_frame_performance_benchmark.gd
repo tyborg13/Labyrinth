@@ -1,5 +1,6 @@
 extends SceneTree
 
+const GameData = preload("res://scripts/game_data.gd")
 const HandFanContainer = preload("res://scripts/hand_fan_container.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CombatEngine = preload("res://scripts/combat_engine.gd")

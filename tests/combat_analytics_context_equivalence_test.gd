@@ -28,6 +28,8 @@ class OriginalRunScene:
 		var context: Dictionary = {
 			"balance_transition": (combat_state.get("balance_transition", {}) as Dictionary).duplicate(true),
 			"run_id": str(run_analytics.get("run_id", "")),
+			# meta-03 added the immutable Umbra Depth to every event context.
+			"depth": int(run_state.get("umbra_depth", 0)),
 			"combat_id": str(combat_analytics.get("combat_id", "")),
 			"turn": int(combat_state.get("turn", 0)),
 			"initiative_clock": int(combat_state.get("initiative_clock", 0)),
