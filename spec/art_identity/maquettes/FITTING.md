@@ -1,4 +1,303 @@
-# Shared maquette geometry and source fitting (mq-02)
+# Maquette geometry and source fitting
+
+## Blender-native v2 — mq-03, round 3
+
+V2 is selected by `version: 2`. The owner approved the external Blender bridge
+and source-measured proposals on 2026-10-16; round 3 follows the 2026-10-17 facing/tabard review. Every r3 value is numeric and marked
+`proposed: true` at the spec/piece/registration level. The original r2 spec,
+identity image, fit annotations, gate, camera and existing label colours remain
+unchanged. No game code, saves, analytics, balance or icon registry changed.
+The branch remains uncommitted; review and publication belong to the owner.
+
+Local Blender still exits 139 during Metal initialization under the sandbox.
+All successful native tests, builds and captures use `blender/bridge_client.py`
+and the director-owned bridge. The worker never launches Blender directly or
+starts the external service. The client atomically queues unique JSON jobs,
+serializes native work, waits for the matching result, and retains the log path.
+The service enforces factory startup, disabled autoexec, script/argument roots
+and a maximum 1800-second timeout; the client default is 900 seconds.
+
+Risk/proof: standard authoring tooling; focused Python, full Python discovery,
+art identity checks, native geometry tests, source fit and rendered evidence.
+There is no playable scene or UI, so no inspection fixture/Godot visual probe
+applies. Maquette captures retain the existing 1024×1024 orthographic camera.
+
+The approved cache bundle is Blender Human Base Meshes v1.4.1 (CC0). ZIP SHA-256:
+`811f43accbb31a88266d932f8f5563b2d13586fca0ba2693aad1f5fe582b3515`.
+Extracted blend SHA-256, also checked against its verified ZIP member:
+`3c121505651140ceb4d69fd1d8923f7788ffadd81672f5be14845a5f2c75c137`.
+The public asset id `realistic_body_male` names a thumbnail camera in this bundle;
+the builder resolves its actual `GEO-body_male_realistic` mesh. R3 evaluates the
+original 10,582-vertex surface at subdivision level 0, preserving real anatomy
+and avoiding failed heat weighting on the dense multires evaluation. No body
+asset substitution or new asset download was needed.
+
+### V2 data contract
+
+Coordinates use the legacy world convention: +X forward, +Y near side, +Z up;
+Euler rotations are XYZ radians. Required numeric fields have no sculpting
+fallbacks. Any `TODO_DESIGN_*` key or string fails before Blender starts.
+
+- `base: {asset, matrix}` appends the named object or collection from the
+  approved bundle. `matrix` is the owner-supplied 4×4 asset registration. The
+  bundle's evaluated surface is frozen before binding, so weight ownership and
+  posed topology agree. The original bundled file is never saved over.
+- `joints` contains desired posed joint coordinates, retaining the existing
+  fitting/landmark interface. `armature.rest_joints` contains anatomically
+  registered joint coordinates in the transformed base's rest pose. They are
+  deliberately separate: binding in the desired pose cannot bend a neutral
+  base correctly. Terminal tips must also be explicit.
+- `armature.bones` is a list of `{name, head, tail, parent, region, roll,
+  scale: [transverse_x, transverse_z]}`. `head`/`tail` name joints in both maps.
+  Blender binds with `ARMATURE_AUTO` heat weights. Pose matrices put each bone
+  head/tail at the desired coordinates, derive length from those endpoints,
+  and scale transverse axes without propagating a parent's thickness into its
+  children. Body polygon ownership is the greatest sum of heat weights by
+  region; any unweighted polygon fails. `armature.collision_margin` configures
+  the frozen posed-body collision surface.
+- `simulation: {gravity, fps}` supplies scene physics. Cloth `stiffness` is an
+  explicit map of Blender `ClothSettings` property names/values, including the
+  desired quality, mass, tension/compression/shear/bending stiffness, damping,
+  pin stiffness and time scale as applicable. Unknown property names fail;
+  settings omitted from an approved map use that Blender version's native
+  settings. Blender's version is part of the cache key.
+- Every `piece` has unique `id`, `type`, `part` (a key in `labels`), `at` (joint),
+  `offset`, and `rot`. Optional `bone` orients it in that posed bone's frame.
+  Labels are linear RGB, as in v1. Existing label colours are not changed.
+- `plate`: `outline` is a local XZ polygon; native Solidify (`thick`), Bevel
+  (`bevel: {width, segments, angle_limit}`, sharp outer miter), then Shrinkwrap
+  onto the posed body (`offset_surface`). Optional `ridge: {line: [[x,z],
+  [x,z]], height}` inserts a constrained edge with Blender's 2D constrained
+  Delaunay triangulation, raised toward local -Y. Optional `conform_weights`
+  gives one shrinkwrap weight per outline/ridge input vertex, so a designed
+  ridge need not be flattened onto the body.
+- `lames`: the plate fields plus `count`, `lame_scale` (one XZ pair per lame),
+  `lame_drop` (one attachment-space XYZ offset per lame), `overlap` (one surface
+  lift per lame). All arrays must match the count. Each plate retains its part.
+- `cloth`: `kind` is `cloak`, `collar`, `tabard`, `skirt` or `hood`; `pattern`
+  contains `columns`, `closed`, `rows` and explicit `pins` vertex indices.
+  A row is either `{a: [x,y,z], b: [x,y,z]}` for an open panel or `{centre,
+  radii: [x_radius,y_radius], angles: [start,sweep]}` for an annular/open cowl
+  section. Consecutive sampled rows are sewn with quads. Closed rings require
+  a multiple of four columns and weld the final column to the first.
+  This representation supports flat panels, annular collars and open pointed
+  cowls; the owner supplies the pattern shape and its initial drape placement.
+  Optional `splits: {from_row, columns, gap_columns}` removes lower-row quads
+  before simulation, retaining one connected upper panel. Three cuts create
+  four strips. Loose cut-away points are pruned with pin indices remapped. `pin_group`, fixed `frames`,
+  `stiffness`, `collision_margin`, `self_collision`, `thick`, `solidify_offset`
+  and `rag: {count, depth, seed}` are required. Seeded hem notches raise sampled
+  hem vertices **before** cloth simulation. Optional `wind: {location, rot,
+  strength}` has zero procedural noise. Simulation steps/evaluates every frame,
+  freezes the result, then Solidifies. Cache keys include the complete spec,
+  approved bundle digest, Blender version and cache revision; cached geometry
+  has a verified mesh hash. Fresh builds use separate caches in the proof.
+- `curve`: `path`, `spline` (`POLY`/`BEZIER`), `radius`, `taper` (one radius
+  multiplier per control point), `closed`, `resolution`, `bevel_resolution`.
+- `crystal`: `path`, `sides`, `length`, increasing `width_profile` pairs
+  `[length_fraction, radius]`, ending at `[1,0]`, and `jag: {count, depth, seed}`.
+  Jags are seeded faceted outward teeth on non-tip vertices. `continues` names
+  an earlier curve; its transformed endpoint/tangent replace the crystal path,
+  so differing attachment frames cannot detach or redirect an icicle tip.
+  Alternatively `continues_bone` uses a posed bone's tail/tangent. Without a
+  continuation, rings follow the explicit polyline, normalised to `length`.
+- `gem`: `sides`, `length` (local Z), `width` (local X), `depth` (local Y).
+  A two-tip bipyramid with a four-vertex waist makes the requested front-view
+  diamond. Placement/inset is the piece's explicit `offset`.
+
+`build.py SPEC OUT` saves editable `maquette.blend` and `build_report.json` with
+per-object and combined evaluated mesh hashes. Frozen render objects preserve
+piece ids/types; the original weighted armature/base, native curves and plate
+modifier stacks remain hidden but editable in the blend. Cloth keeps its baked
+surface and editable thickness modifier.
+The report gates face label coverage, cloth/body triangle intersection and
+sampled signed clearance, front/back collar lateral extents, and corner erosion
+within the explicit bevel width. Clearance samples include vertices, edge
+midpoints and face centroids; BVH triangle overlaps additionally catch crossings
+between samples. The collider's mesh normals must face outward.
+
+`--engine cycles` is the default CPU path, with emission materials for exact
+labels and a neutral studio/AO clay material. `--engine workbench` is an explicit
+director choice; there is no automatic failed-render retry. Both output existing
+`front/rear_parts.png`, `front/rear_clay.png`, all `*_solo_<part>.png`,
+`front/rear_silhouette.png`, and `joints_px.json`, at the legacy camera/size.
+`--gallery` adds `piece_gallery/{front,rear}_{type}.png` for every accessory type.
+Solos include hidden body regions, split using the heat-weight ownership.
+
+V2 `measure` reads Blender-rendered alpha silhouettes and projected joints,
+either freshly captured or supplied with `--renders`. A spec digest rejects
+captures from a different spec. V2 `fit` iterates only joint Z values and bone
+transverse scales, clamping total scale changes to [0.6, 1.6] of their initial
+values. It never writes into `pieces`, the base recipe, rest joints, labels or
+the source image. Attachments follow the new pose. A fit history records the
+method and measured passes. The r2 proportion gate is unchanged; failed fits
+remain failed diagnostics. V1 fitting/rasterisation is unchanged.
+
+### Round-1 implementation additions
+
+`base.object` explicitly resolves an asset to its mesh; optional
+`base.subdivision_level` sets native subdivision evaluation before binding.
+If direct heat weighting fails, the builder can heat-bind a closed native voxel
+proxy and transfer its weights back using native Data Transfer, keeping the
+original visible anatomy. The binding proxy voxel size is a technical field in
+`BIND_DEFAULTS`.
+
+Cloth pattern rows may also be explicit `points`, with exactly `columns` XYZ
+coordinates. This records measured irregular hems and rear trails directly.
+`solver_margin` separates the native solver envelope from the required verified
+clearance. `collision_refine_levels` refines contact triangles with native Simple
+Subdivision, then iteratively corrects violated collision constraints; distant
+vertices retain the simulation result. Interior tests use majority ray parity,
+avoiding the false inside classification that nearest-face normals can produce
+at concave edges. BVH overlaps, vertices, edge midpoints and face centroids are
+still independently checked after Solidify.
+
+A collar can declare `symmetry_origin`, `symmetry_front`, and
+`symmetry_lateral`, so the gate follows the actual actor facing rather than a
+hard-coded world axis. Plate corner erosion is bounded by the designed bevel
+width divided by the corner half-angle sine. Per-piece errors and front/back
+collar extents are retained in `build_report.json`.
+
+The source-measured recipe is `blender/propose_lancer.py`; it transcribes plate
+corners, shoulder/limb landmarks, cloak boundaries and ragged hems from the
+untouched identity reference. It preserves all 27 brief pieces and their counts,
+including the five-sided, six-jag crystal continuing the shaft direction.
+The round-1 source fit passed at IoU 0.804414, median band error 0.083320,
+maximum band error 0.240221, with all landmark checks and geometry gates passing.
+Native fresh-build mesh hashes match. No `TODO_DESIGN_*` remains in r3.
+
+`--fit-only` captures actual Cycles front silhouette/body/head mattes plus
+projected joints; fitting does not need dozens of solo passes at every iteration.
+`--preview` captures parts/clay/silhouette for both views without solos, plus front body/head mattes when a fit contract exists. Full
+captures retain every legacy filename and all solos. `--gallery` adds each of
+the six accessory types in both views. Label/silhouette passes use one Cycles
+sample; clay uses 32 samples. `capture_saved.py` can recapture a hash-matched baked
+build without rebinding. All these entry points run through the bridge.
+
+### Round-2 conforming armour
+
+`blender/refine_lancer.py` applies the director's round-2 changes to the measured
+round-1 recipe. This is the historical round-2 recipe; use `round3_lancer` below to reproduce
+the current spec.
+The approved r2/reference data remains read-only. All 32 pieces are proposals;
+the three face pieces and two boot shells supplement the original 27 pieces.
+Collar and cloak patterns/physics, anatomy asset/registration/rest rig, standing
+joint locations, camera, gate and original labels are retained. The near wrist
+moves to the hip; terminal foot directions put both boots forward while the
+ankles remain planted. The cowl's clearance above the unchanged skull is reduced
+40%, and its lower rows widen into the collar.
+
+All r3 plates/lames declare `conforming: true`. A constrained, sampled outline
+is projected to the posed contact surface; a full-weight native Shrinkwrap then
+runs **before** ridge displacement, Solidify and sharp Bevel. There are no
+partial `conform_weights` in r3. The contract rejects a surface offset plus lame
+lift above the director's 0.015 limit (actual offsets 0.008–0.014). Legacy weighted
+plates remain supported for existing specs/fixtures. Corner erosion is checked
+against the actual post-Shrinkwrap/pre-Bevel corners, including the plate's half
+thickness; a separate contact gate rejects a deliberately floating plate.
+
+`body_regions` selects native heat-weighted anatomy. `contact_hull` uses Blender's
+convex hull of that anatomy (`contact_min_z`/`contact_max_z` optionally delimit a
+region), so rigid armour bridges skin recesses instead of copying facial or
+muscle creases. `contact_pieces` adds the underlying collar/tabard surfaces for
+shoulder/hip stacks. `surface_spacing` controls surface sampling. Native
+source objects retain the wrapping target name; reports bound distance by the explicit
+offset, thickness, ridge and bevel miter. `body_shell` makes a closed envelope
+for boots/gauntlets; `cuff_flare` and `cuff_height` drive its native Displace cuff.
+These envelopes and garment contacts are retained in the editable blend.
+
+The face plate has two real native Boolean `slots` with separate narrow cross
+inlays. `base.covered_regions` and `covered_above_z` remove covered skin only from
+render copies; the original weighted body and posed collision anatomy remain
+intact. This prevents a face/fingers/toes showing through fitted covers.
+`clay_colour` and `accent_colour` are explicit source-based material proposals;
+flat ownership passes retain their label colours. `seat_on` and `seat_contacts`
+project the gem's diamond onto the frozen breastplate/collar surfaces, with the
+explicit `seat_offset`. Crystal `jag.indices` can identify six irregular teeth
+while retaining the fixed seed and five sides. Its head is 22% of total length.
+
+Round-2 native measurement passes the unchanged gate at IoU 0.813414, median
+band error 0.042171 and maximum band error 0.194316. The full proof contract and
+observed suite results are in [blender/VALIDATION.md](blender/VALIDATION.md).
+
+### Round-3 board facing and single tabard
+
+`python3 -B -m spec.art_identity.maquettes.blender.round3_lancer` reproduces the
+current 31-piece proposal from the two earlier recipes. No pose joint, segment
+length, bone thickness, base registration input, camera or fit-gate value changes.
+
+The approved body is native -Y forward. `blender/facing.py` converts its append
+matrix and rest-joint registration to board +X for every v2 build; the spine's
+posed bone basis explicitly retains anatomical +X. This corrects the asset/rig,
+without changing the camera. Pose joints, limb-plate placements, spear and cloak paths remain world-space
+design data. Front chest planes are registered vertically to the anatomy so the
+breastplate spans collarbones to belt and the diamond clears the retained collar. Head/neck garments, visor, front breastplate and gem turn
+with the anatomical frame. `board_spec` works on a copy, retaining original spec
+provenance. Rendered joints, inspection and proof use the same conversion.
+
+The facing gate projects the actual posed torso heading: front must point
+screen down-left at the board's 2:1 slope; rear points up-right. Two native torso
+mattes compare left/right area and reflected silhouette, including an actual
+frontal object-rotation control that must fail the axis gate. These are proof
+views, not extra character views. Body lean is removed only when measuring its
+horizontal board heading; the anatomical 3D vector is also reported.
+
+One hip-wide front cloth replaces the two old panels. Its flat pattern flares
+from 0.30 to 0.40 world units, has three cuts beginning at mid-thigh, four ragged
+strips, above-knee hem and four seeded fold-ease waves. The native cloth solver
+runs 24 fixed frames; self-collision is disabled for this open panel, while body
+collision remains enabled. The two short, two-lame hip tassets remain. Explicit
+initial depth keeps the flat pattern outside the legs before simulation.
+
+`cloth_contacts.py` isolates contact correction and loose-point cleanup. Native
+convex shoulder/hip contacts prevent opposite-side snapping; the final clearance
+and triangle-overlap gates still test the complete original posed anatomy.
+Lame contact hulls bridge the underlying cloth. The gem now seats by one rigid
+translation above all sampled contacts, preserving its bipyramid rather than
+warping its vertices through the chest ridge. No other accessory dimensions change.
+
+Round-3 final measure and fit pass unchanged gates: IoU 0.812207, median band
+error 0.036732, maximum band error 0.124394. All production mesh hashes match
+an independent fresh-cache build. Native integration/facing pass; the full
+Python suite runs 585 tests with 62 skips. Exact observed lines and native
+receipts are recorded in `blender/VALIDATION.md` and the delivery manifest.
+
+### Proof and reproduction
+
+```bash
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-03 && python3 spec/art_identity/maquettes/blender/bridge_client.py spec/art_identity/maquettes/blender/integration.py -- /private/tmp/labyrinth_codex/mq-03/round3/delivery/integration_final
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-03 && python3 spec/art_identity/maquettes/blender/bridge_client.py spec/art_identity/maquettes/blender/build.py -- /Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/frostglass_lancer/spec_r3.json /private/tmp/labyrinth_codex/mq-03/round3/delivery/lancer_r3 --gallery
+cd /Users/borgerding/workspace/Labyrinth.worktrees/mq-03 && python3 tools/maquette_fit.py measure --spec spec/art_identity/maquettes/frostglass_lancer/spec_r3.json --source spec/art_identity/jobs/frostglass_lancer/mq1_front_v3/refs/03_identity_lancer_current.png --renders /private/tmp/labyrinth_codex/mq-03/round3/delivery/lancer_r3 --out /private/tmp/labyrinth_codex/mq-03/round3/delivery/measure --require-gate
+```
+
+The director helper also prints/runs its complete bridge-based build/fit/proof
+sequence: `python3 spec/art_identity/maquettes/blender/director.py --print-only`.
+Native integration defaults to eight diagnostic captures; pass a second argument
+`full` to also capture its complete synthetic solos/gallery. The final lancer
+provides the complete 72-image ownership/clay/solo/gallery/torso-proof contract.
+See `blender/VALIDATION.md` for observed results, receipts and actual paths.
+
+### Chosen technical defaults and proposed design data
+
+The original missing creature values have been replaced with reviewable
+proposals, rather than defaults: native asset registration, bone registration
+and thickness, attachment transforms, outlines, materials-as-labels, cloth
+physics/patterns and weapon profiles are explicit in `spec_r3.json`, with source
+measurements/recipe in `propose_lancer.py`. They remain subject to owner review.
+
+Technical settings are named in `BUILD_DEFAULTS`, `BIND_DEFAULTS`,
+`COLLISION_DEFAULTS`, `RENDER_DEFAULTS`, `BRIDGE_DEFAULTS`, `PROOF_DEFAULTS`, `INSPECTION_DEFAULTS`, `PROJECT_DEFAULTS`, `FACING_DEFAULTS`,
+and synthetic `TEST_DEFAULTS`/fixtures. Hash precision is 9 decimals; clearance
+and triangulation epsilon 1e-6; fit uses six passes and existing [0.6,1.6] scale
+clamps; bridge poll interval 1 second and default job budget 900 seconds.
+Contact correction uses 24 passes, ray epsilon 1e-5 and three fixed ray directions.
+Proof uses 1024², Cycles CPU, fixed seed 0, eight render threads, grey 0.6,
+roughness 0.8, AO distance 0.15, studio energy 600/size 5/location [4,-3,6].
+Facing proof uses axis cosine ≥0.995 and reflected torso difference ≥0.01;
+cache revision is 7. Synthetic fixture dimensions and eight-frame physics remain
+test data only. See `blender/VALIDATION.md` for final observed results.
+
+## Historical v1 / mq-02 contract (unchanged)
 
 This is authoring tooling, with no game runtime, save, balance, icon or analytics
 change. Approved jobs, original specs and `tools/maquette_cutout.py` are read-only.

@@ -82,8 +82,14 @@ def design_todos(value):
     return [value] if isinstance(value, str) and value.startswith('TODO_DESIGN_') else []
 
 
-def measure(spec, source, raster=None):
-    raster = rasterise(spec) if raster is None else raster
+def measure(spec, source, raster=None, renderer=None):
+    if raster is None:
+        if spec.get('version') == 2:
+            if renderer is None:
+                raise ValueError('Spec v2 measurement requires Blender-rendered silhouettes')
+            raster = renderer(spec)
+        else:
+            raster = rasterise(spec)
     settings = spec.get('fit', {})
     source_mask = keyed_mask(source)
     weapon = set(settings.get('weapon_parts', []))
@@ -215,12 +221,14 @@ def fit_heights(result, report):
             shape['length'] = warp(top)[2] - warp(top - [0, 0, shape['length']])[2]
 
 
-def fit_spec(spec, source):
+def fit_spec(spec, source, renderer=None):
     """Warp heights between annotated landmarks, then scale widths per band.
 
     Shape kinds and part labels survive. Only primitive parameters and joints
     are changed; approved source data and the input spec remain untouched.
     """
+    if spec.get('version') == 2:
+        return fit_blender_spec(spec, source, renderer)
     result = deepcopy(spec)
     before, _ = measure(result, source)
     if before['unresolved_design']:
@@ -239,5 +247,59 @@ def fit_spec(spec, source):
     # the primitive type. The same continuous map moves projected joints.
     result['fit_width_profile'] = {'ratios': ratios.tolist(), 'frame': after_height['maquette_frame'], 'size': 1024, 'parts': {part: ratios.tolist() for part in result['labels']}}
     result['fit_history'] = {'method': 'piecewise landmark heights then clamped band widths', 'ratios': ratios.tolist()}
+    return result
+
+
+def fit_blender_spec(spec, source, renderer):
+    """Only joints' Z and transverse bone scales are numerical fit variables.
+
+    Accessories follow the posed joints; their approved patterns, dimensions,
+    rotations and simulation settings remain byte-for-byte equivalent data.
+    """
+    from .blender.contract import BUILD_DEFAULTS, validate
+    validate(spec)
+    if renderer is None:
+        raise ValueError('Spec v2 fitting requires a Blender renderer')
+    if spec.get('fit_history'):
+        raise ValueError('Fit the original v2 spec, not a previously fitted spec')
+    result = deepcopy(spec)
+    matrix, _, basis, scale = camera(result)
+    if not np.allclose(matrix, np.eye(4)):
+        raise ValueError('V2 height fitting requires identity front object transform')
+    original = {b['name']: b['scale'][:] for b in result['armature']['bones']}
+    history = []
+    for _ in range(BUILD_DEFAULTS['fit_passes']):
+        raster = renderer(result)
+        report, _ = measure(result, source, raster=raster)
+        if report['unresolved_design']:
+            raise ValueError('Fit requires resolved design: ' + '; '.join(report['unresolved_design']))
+        history.append({k: report[k] for k in ('iou', 'median_band_error', 'max_band_error')})
+        if report['passed']:
+            break
+        definition = report['maquette_frame']
+        pairs = sorted([(0., 0.), (1., 1.)] + [(v['maquette_y'], v['source_y']) for v in report['landmarks'].values()])
+        old, new = np.array(pairs).T
+        if np.any(np.diff(old) <= 1e-8) or np.any(np.diff(new) <= 0):
+            raise ValueError('Landmark mapping must be strictly monotonic')
+        height = definition['sole_bottom'] - definition['head_top']
+        size = raster.silhouette.shape[0]
+        for name, p in result['joints'].items():
+            fraction = normalise_points(raster.joints[name], definition)[1]
+            target = np.interp(fraction, old, new)
+            p[2] -= (target - fraction) * height * scale / size / basis[1, 2]
+        for bone in result['armature']['bones']:
+            fractions = [normalise_points(raster.joints[bone[k]], definition)[1] for k in ('head', 'tail')]
+            lo, hi = sorted(fractions)
+            bands = [b for b in report['bands'] if not b['weapon_only'] and
+                     b['maquette_width'] > 0 and lo <= np.mean(b['y_fraction']) <= hi]
+            if not bands:
+                continue
+            ratio = float(np.median([b['source_width'] / b['maquette_width'] for b in bands]))
+            for axis in range(2):
+                initial = original[bone['name']][axis]
+                bone['scale'][axis] = float(np.clip(bone['scale'][axis] * ratio,
+                    initial * BUILD_DEFAULTS['fit_scale_min'], initial * BUILD_DEFAULTS['fit_scale_max']))
+    result['fit_history'] = {'method': 'Blender silhouettes; joint Z and bone transverse scales only',
+                             'passes': history}
     return result
 

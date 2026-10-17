@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Measure/fix maquette proportions with the same meshes Blender renders.
 
-See spec/art_identity/maquettes/FITTING.md. No Blender, Godot or new dependency
-is required for these headless numerical diagnostics.
+See spec/art_identity/maquettes/FITTING.md. V1 uses the numerical rasteriser;
+v2 uses Blender's CPU-rendered ownership silhouettes.
 """
 import argparse
 import json
@@ -44,6 +44,10 @@ def main(argv=None):
         p = sub.add_parser(name)
         p.add_argument('--spec', type=Path, required=True)
         p.add_argument('--out', type=Path, required=True)
+        p.add_argument('--blender', help='Compatibility option; the director bridge selects the v2 executable')
+        p.add_argument('--bundle', type=Path, help='Approved .blend under bridge-allowed roots; omit for the host cache')
+        if name == 'measure':
+            p.add_argument('--renders', type=Path, help='Existing v2 build/capture with matching spec hash')
         if name in ('measure', 'fit'):
             p.add_argument('--source', type=Path, required=True)
         if name == 'measure':
@@ -76,7 +80,13 @@ def main(argv=None):
                 print(f"{name} {view}: min visible IoU={entry['minimum_visible_iou']:.6f}; min solo IoU={solo}; joint error={error}; {'PASS' if good else 'FAIL'}")
         return 1 if args.require_gate and not passed else 0
     spec = read_spec(args.spec)
+    renderer = None
+    if spec.get('version') == 2:
+        from spec.art_identity.maquettes.blender.backend import BlenderRenderer, DEFAULT_BLENDER, load_render
+        renderer = BlenderRenderer(args.out / 'blender', args.blender or DEFAULT_BLENDER, args.bundle)
     if args.command == 'compare':
+        if renderer and not args.candidate:
+            raise ValueError('Spec v2 comparison requires --candidate Blender captures')
         joints = args.baseline / 'joints_px.json'
         report = compare_renders(spec, args.baseline, args.candidate) if args.candidate else compare(spec, {view: args.baseline / f'{view}_parts.png' for view in ('front', 'rear')}, read_spec(joints) if joints.exists() else None, args.baseline)
         write_json(args.out / 'comparison_report.json', report)
@@ -84,17 +94,26 @@ def main(argv=None):
         print('MAQUETTE_COMPARE: ' + ('PASS' if passed else 'FAIL'))
         return 1 if args.require_gate and not passed else 0
     if args.command == 'raster':
-        render_preview(spec, args.out)
+        if renderer:
+            from shutil import copy2
+            folder = renderer.capture(spec, silhouettes=False)
+            for path in folder.glob('*.png'):
+                copy2(path, args.out / path.name)
+            for name in ('joints_px.json', 'build_report.json'):
+                copy2(folder / name, args.out / name)
+        else:
+            render_preview(spec, args.out)
         print('MAQUETTE_RASTER: PASS')
         return 0
     source = Image.open(args.source)
     if args.command == 'fit':
-        spec = fit_spec(spec, source)
+        spec = fit_spec(spec, source, renderer=renderer)
         destination = args.out / 'spec_fit.json'
         if destination.resolve() == args.spec.resolve():
             raise ValueError('Refusing to overwrite the input specification')
         write_json(destination, spec)
-    report, overlay = measure(spec, source)
+    raster = load_render(spec, args.renders) if renderer and getattr(args, 'renders', None) else None
+    report, overlay = measure(spec, source, raster=raster, renderer=renderer)
     report['inputs'] = {'spec': str(args.spec), 'source': str(args.source)}
     report['algorithm_defaults'] = FIT_DEFAULTS
     write_json(args.out / 'fit_report.json', report)
