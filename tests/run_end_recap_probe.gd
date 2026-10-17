@@ -373,6 +373,9 @@ func _terminal_state(engine: RunEngine, progression: Dictionary, coord: Vector2i
 	state = engine.finish_combat(state, combat_state)
 	state["mode"] = outcome
 	state["victory"] = outcome == "victory"
+	# Keep this established recap proof after the new heirloom decision; the
+	# unanswered prompt has its own opening_boon_probe.gd proof contract.
+	state = preload("res://scripts/opening_boon_rules.gd").leave_heirloom(state, "")
 	state["game_over"] = outcome == "defeat"
 	state["held_embers"] = held_embers
 	state["unbanked_embers"] = held_embers

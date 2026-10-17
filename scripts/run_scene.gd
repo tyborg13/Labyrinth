@@ -103,6 +103,8 @@ const TurnClockForecastLine = preload("res://scripts/turn_clock_forecast_line.gd
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const RunEndRecapOverlay = preload("res://scripts/run_end_recap_overlay.gd")
+const OpeningBoonFlow = preload("res://scripts/opening_boon_flow.gd")
+const OpeningBoonRules = preload("res://scripts/opening_boon_rules.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 const CardDragPlayRules = preload("res://scripts/card_drag_play_rules.gd")
@@ -1306,6 +1308,7 @@ const PASS_PREVIEW_CACHE_LIMIT: int = 64
 
 var _ui_skin: UiSkin = UiSkin.new()
 var _dialogue_engine = DialogueEngineScript.new()
+var _opening_boon_flow = OpeningBoonFlow.new()
 var _start_room_map = preload("res://scripts/start_room_map_flow.gd").new()
 var _run_engine = RunEngineScript.new()
 var _combat_engine = CombatEngineScript.new()
@@ -2117,6 +2120,7 @@ func _physics_process(delta: float) -> void:
 			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
+	if _opening_boon_flow.handle_input(self, event): return
 	if is_instance_valid(_magic_purge_overlay):
 		if InputRouterScript.is_controller_event(event):
 			var router: Node = get_node_or_null("/root/InputRouter")
@@ -2650,6 +2654,7 @@ func _controller_uses_gui_focus() -> bool:
 	)
 
 func _controller_modal_visible() -> bool:
+	if _opening_boon_flow.active(): return true
 	if is_instance_valid(_magic_purge_overlay): return true
 	if _event_view != null and _event_view.visible: return true
 	if _graftwright_view != null and _graftwright_view.visible: return true
@@ -3390,6 +3395,7 @@ func _schedule_controller_modal_refresh() -> void:
 func _refresh_controller_modal_after_layout() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
+	if not is_inside_tree(): return
 	_refresh_controller_prompts()
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if router != null and router.has_method("using_controller") and bool(router.call("using_controller")):
@@ -3404,6 +3410,7 @@ func _refresh_controller_modal_after_layout() -> void:
 	_sync_click_targeting_arrow()
 
 func _controller_focus_scope() -> Control:
+	if _opening_boon_flow.active(): return _opening_boon_flow.overlay
 	if is_instance_valid(_magic_purge_overlay): return _magic_purge_overlay.focus_scope()
 	if _visible_control(_menu_scrim): return _menu_scrim
 	if _event_view != null and _event_view.visible: return _event_view
@@ -7639,6 +7646,9 @@ func _on_dialogue_option_pressed(option: Dictionary) -> void:
 		return
 	if bool(option.get("disabled", false)): return
 	var action: String = str(option.get("action", ""))
+	if action == "leave_heirloom":
+		_opening_boon_flow.leave_heirloom(self, str(option.get("item", "")))
+		return
 	if action == "exchange_moltshard":
 		_exchange_moltshard_at_entrance()
 		return
@@ -7661,6 +7671,8 @@ func _on_dialogue_option_pressed(option: Dictionary) -> void:
 	_close_dialogue()
 
 func _close_dialogue() -> void:
+	if not _opening_boon_flow.may_close_dialogue(_dialogue_script): return
+	var closed_script: Dictionary = _dialogue_script.duplicate(true)
 	_start_room_map.dialogue_closed(self)
 	_molt_exchange_feedback.reset()
 	_maybe_mark_emaciated_awakening_seen()
@@ -7679,6 +7691,7 @@ func _close_dialogue() -> void:
 		_dialogue_hint_label.text = ""
 	if _dialogue_overlay != null:
 		_dialogue_overlay.visible = false
+	_opening_boon_flow.dialogue_closed(self, closed_script)
 	if should_restore_choices and is_inside_tree() and not _run_state.is_empty():
 		_refresh_choice_bar()
 		_refresh_stage_view()
@@ -7734,6 +7747,9 @@ func _has_current_dialogue_options() -> bool:
 	return (_current_dialogue_line().get("options", []) as Array).size() > 0 and _dialogue_text_complete
 
 func _sync_dialogue_layout() -> void:
+	if _opening_boon_flow.seats_dialogue():
+		_opening_boon_flow.layout_dialogue(self)
+		return
 	if _dialogue_dialog == null or _dialogue_text_label == null or _dialogue_footer == null:
 		return
 	var options: Array = _current_dialogue_line().get("options", [])
@@ -7774,7 +7790,10 @@ func _update_dialogue_footer() -> void:
 		_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_STANDARD)
 		_ui_skin.apply_button_text_overrides(button)
 		UiTypography.set_button_size(button, UiTypography.SIZE_BODY_LARGE)
-		_ui_skin.apply_button_native_size(button, DIALOGUE_OPTION_BUTTON_HEIGHT, DIALOGUE_OPTION_BUTTON_MIN_WIDTH)
+		# Six heirloom choices use native text widths; the existing three-service
+		# minimum would force the prompt beyond the 1920px viewport.
+		var minimum_width: float = 0.0 if str(_dialogue_script.get("id", "")) == "opening_boon_heirloom_prompt" else DIALOGUE_OPTION_BUTTON_MIN_WIDTH
+		_ui_skin.apply_button_native_size(button, DIALOGUE_OPTION_BUTTON_HEIGHT, minimum_width)
 		button.pressed.connect(_on_dialogue_option_pressed.bind(option))
 		_dialogue_choice_bar.add_child(button)
 	for child: Node in _dialogue_choice_bar.get_children():
@@ -10473,6 +10492,7 @@ func _boot_run() -> void:
 	_start_run()
 
 func _load_run_state(next_run_state: Dictionary) -> void:
+	_opening_boon_flow.begin_load(self)
 	if is_instance_valid(_magic_purge_overlay): _close_magic_purge(false)
 	_ensure_sfx_bank()
 	_sfx_router.baseline(next_run_state.get("combat_state", {}))
@@ -10555,8 +10575,16 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_defeat_loss_processed = false
 	_victory_carry_amount = 0
 	_defeat_lost_amount = 0
+	var heirloom_wallet: Dictionary = _run_state.get("heirloom_terminal_wallet", {})
+	if not heirloom_wallet.is_empty():
+		_victory_carry_processed = true
+		_defeat_loss_processed = true
+		_victory_carry_amount = int(heirloom_wallet.get("victory_carry", 0))
+		_defeat_lost_amount = int(heirloom_wallet.get("defeat_lost", 0))
 	if _run_end_recap != null:
 		_run_end_recap.reset()
+	_opening_boon_flow.end_load()
+	_opening_boon_flow.flush_events(self, _run_state)
 	_board_presentation.clear()
 	action_banner.visible = false
 	_reward_intro_suppressed = _reward_intro_pending()
@@ -10592,6 +10620,7 @@ func _acknowledge_saved_starting_relic_gift(state: Dictionary) -> bool:
 	return ProgressionStore.save_data(acknowledged)
 
 func _start_run() -> void:
+	_opening_boon_flow.close(self)
 	_cancel_deferred_skill_analytics()
 	var previous: Dictionary = ProgressionStore.load_saved_run()
 	if not previous.is_empty() and not _acknowledge_saved_starting_relic_gift(previous):
@@ -10600,7 +10629,9 @@ func _start_run() -> void:
 		if not _defer_initial_run_presentation: _refresh_ui()
 		return
 	var starting_profile: Dictionary = ProgressionStore.load_data()
-	if not previous.is_empty(): starting_profile = ProgressionStore.set_embers(starting_profile, 0)
+	# A terminal heirloom save has already settled its wallet. Abandoning a live
+	# run still loses held Embers; replacing a settled victory must keep its bank.
+	if not previous.is_empty() and not previous.has("heirloom_terminal_wallet"): starting_profile = ProgressionStore.set_embers(starting_profile, 0)
 	_progression = ProgressionStore.prepare_for_new_run(starting_profile)
 	var new_run_state: Dictionary = _run_engine.create_new_run(_new_seed(), _progression)
 	new_run_state = GuidedCombatScenario.mark_run_eligible(new_run_state)
@@ -15730,6 +15761,7 @@ func _clear_relic_choice_overlay() -> void:
 		_relic_choice_overlay.visible = false
 
 func _show_run_end_recap(outcome: String) -> void:
+	if _opening_boon_flow.intercept_recap(self, outcome): return
 	if _run_end_recap == null:
 		return
 	var ember_amount: int = _victory_carry_amount if outcome == "victory" else _defeat_lost_amount
@@ -16297,23 +16329,24 @@ func _set_relic_choice_title(text: String) -> void:
 	if mode == "reward" and _reward_reveal_pending:
 		PostCombatRewardSequence.prepare_banner(_relic_choice_banner, _relic_choice_title)
 
-func _apply_relic_choice_title_depth(accent: Color, restrained: bool) -> void:
-	if _relic_choice_title == null:
+func _apply_relic_choice_title_depth(accent: Color, restrained: bool, target: Label = null) -> void:
+	var label: Label = _relic_choice_title if target == null else target
+	if label == null:
 		return
 	var face_color: Color = (
 		Color("f6e2b9").lerp(accent.lightened(0.14), 0.16)
 		if restrained
 		else Color("fff0bd").lerp(accent.lightened(0.18), 0.24)
 	)
-	_relic_choice_title.add_theme_color_override("font_color", face_color)
-	_relic_choice_title.add_theme_color_override("font_outline_color", Color("1a0d08"))
-	_relic_choice_title.add_theme_color_override(
+	label.add_theme_color_override("font_color", face_color)
+	label.add_theme_color_override("font_outline_color", Color("1a0d08"))
+	label.add_theme_color_override(
 		"font_shadow_color",
 		Color(0.0, 0.0, 0.0, 0.62 if restrained else 0.76)
 	)
-	_relic_choice_title.add_theme_constant_override("outline_size", 2 if restrained else 9)
-	_relic_choice_title.add_theme_constant_override("shadow_offset_x", 0)
-	_relic_choice_title.add_theme_constant_override("shadow_offset_y", 2 if restrained else 7)
+	label.add_theme_constant_override("outline_size", 2 if restrained else 9)
+	label.add_theme_constant_override("shadow_offset_x", 0)
+	label.add_theme_constant_override("shadow_offset_y", 2 if restrained else 7)
 
 func _relic_choice_title_accent(text: String) -> Color:
 	match text:
@@ -22019,6 +22052,7 @@ func _refresh_enemy_intent_toggle() -> void:
 	)
 
 func _map_shortcut_can_open() -> bool:
+	if _opening_boon_flow.active(): return false
 	if str(_run_state.get("mode", "")) == "event" or (_event_view != null and _event_view.visible): return false
 	if _large_map_scrim == null or _dialogue_active or _animation_lock or _treasure_presentation_busy() or _drag_card_index >= 0:
 		return false
@@ -22036,6 +22070,7 @@ func _map_shortcut_can_open() -> bool:
 	return true
 
 func _open_large_map(from_toolbar: bool = false) -> void:
+	if _opening_boon_flow.active(): return
 	if is_instance_valid(_magic_purge_overlay): return
 	if str(_run_state.get("mode", "")) == "event": return
 	if _large_map_scrim == null or _treasure_presentation_busy():
@@ -28718,7 +28753,9 @@ func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool
 		var terminal_resume_state: Dictionary = state.duplicate(true)
 		state = _finalize_terminal_committed_state(state)
 		saved = ProgressionStore.save_data(_progression)
-		if saved:
+		if saved and (OpeningBoonRules.heirloom_prompt_pending(state) or state.has(OpeningBoonRules.EVENTS_KEY)):
+			saved = ProgressionStore.save_run_state(state)
+		elif saved:
 			ProgressionStore.clear_saved_run()
 		else:
 			ProgressionStore.save_run_state(terminal_resume_state)
@@ -28733,6 +28770,9 @@ func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool
 		push_error("Failed to persist committed run boundary: %s" % (boundary if not boundary.is_empty() else "unspecified"))
 	_record_runtime_performance_phase("combat_checkpoint_persist_total", performance_total_started)
 	if saved:
+		var opening_events_saved: bool = _opening_boon_flow.flush_events(self, state)
+		if mode in ["victory", "defeat"] and not OpeningBoonRules.heirloom_prompt_pending(state) and opening_events_saved:
+			ProgressionStore.clear_saved_run()
 		_analytics_flush_surface_events(state.get("combat_state", {}) as Dictionary, state)
 		_analytics_flush_map_events(state)
 		# A reveal/action may save after its final HUD refresh. Keep that same-run
@@ -28767,6 +28807,8 @@ func _finalize_terminal_committed_state(run_state: Dictionary) -> Dictionary:
 			_defeat_loss_processed = true
 		state = _run_engine.clear_held_embers(state)
 		state["progression"] = _progression.duplicate(true)
+	if state.has(OpeningBoonRules.HEIRLOOM_END_KEY):
+		state["heirloom_terminal_wallet"] = {"victory_carry": _victory_carry_amount, "defeat_lost": _defeat_lost_amount}
 	return state
 
 func _is_debug_boss_run() -> bool:
@@ -28778,6 +28820,9 @@ func _save_run_progress() -> void:
 		return
 	var committed_state: Dictionary = _committed_run_state()
 	var mode: String = str(committed_state.get("mode", ""))
+	if OpeningBoonRules.heirloom_prompt_pending(committed_state):
+		_persist_committed_boundary("heirloom_prompt_resume")
+		return
 	if mode in ["victory", "defeat"] or committed_state.is_empty():
 		# A failed terminal save preserves the original, unprocessed fallback.
 		# Reconciliation must not replace it with the finalized held snapshot.
@@ -29231,6 +29276,7 @@ func _speak_to_emaciated_man() -> void:
 	if not _run_engine.can_speak_to_emaciated_man(_run_state): return
 	_sync_progression_from_run()
 	_close_large_map()
+	if _opening_boon_flow.speak(self): return
 	var room: Dictionary = _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO))
 	_start_dialogue(_dialogue_engine.build_room_dialogue(room, _run_state, _progression))
 
@@ -31881,6 +31927,8 @@ func _maybe_auto_trigger_room_dialogue() -> void:
 	if _dialogue_active or str(_run_state.get("mode", "room")) != "room":
 		return
 	var current_room: Dictionary = _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO))
+	# Boons begin on deliberate conversation, not the automatic room narration.
+	if OpeningBoonRules.pending(_run_state) or _opening_boon_flow.active(): return
 	var trigger_key: String = _dialogue_trigger_key(current_room)
 	if trigger_key == _last_auto_dialogue_key:
 		return
