@@ -67,7 +67,7 @@
 | int-02 | Route every presentation surface (pre-battle live actors, portraits, turn order) to the maquette rigs | merged (Codex signoff 3edfebe25) | codex/peer-benchmark | briefs/int-02.md |
 | boon-01 | Opening boons from the emaciated man (3 columns, rolled up front) + heirloom carry-over | fixing r2 (feedback_2: relic text, tooltip at open, rules-line clearance, Purge REMOVE tag) | codex/peer-benchmark | briefs/boon-01.md |
 | rr-05 | Maquette rig polish: features never split across parts (bloomer gem, wisp eye); stepped pixel-snapped idle (no shimmer) | fixing r2 queued (feedback_2: native verification 118 mismatches in director windowed run) | codex/peer-benchmark | briefs/rr-05.md |
-| map-02 | Section map revision 5: StS-like branching variety (5 lanes, 6 walks, structure-then-types solver, variety metrics) | running | codex/peer-benchmark | briefs/map-02.md |
+| map-02 | Section map revision 5: StS-like branching variety (5 lanes, 6 walks, structure-then-types solver, variety metrics) | fixing r1 (feedback_1: boss column spacing decision, probe crash) | codex/peer-benchmark | briefs/map-02.md |
 | cbt-01 | "Stay" on move-and-block cards (own tile as destination) + Immolation innate 3 to adjacent (score 2.24→3.00) | queued (--wait) | codex/peer-benchmark | briefs/cbt-01.md |
 | flow-01 | Automatic next section after the dragon reward + descent/title-card transition (no map step) | ready (launch after boon-01 + map-02 land) | codex/peer-benchmark | briefs/flow-01.md |
 | rr-06 | Frostglass Lancer cutout rig from the Blender-native maquette (director motion staged/rr-06) | ready (launch after mq-03 + rr-05 land) | codex/peer-benchmark | briefs/rr-06.md |
