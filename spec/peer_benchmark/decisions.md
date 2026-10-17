@@ -61,3 +61,41 @@
 - Spell/magic slot limit: dropped entirely. Spells go straight into the deck (no equipping after fights); deck
   dilution is the cost, so card removal must be available.
 - 2026-10-17 Opening boons list approved by the owner (review inbox item boons-list) exactly as proposed → boon-01.
+- 2026-10-17 Roster plan posted to the review inbox (item roster-plan, awaiting the owner): waves 1–5 (static 11 →
+  frequent regulars → other regulars/helpers → guardians → dragons), per enemy: Codex maquette via the bridge,
+  director review, front/rear paint-over, rig, 60 fps clip to the inbox in batches of ~4.
+- 2026-10-17 Frostglass Lancer r4 front painting approved by the owner (3/4 board facing). The rear r4 is held for one
+  fix: it painted ~8% shorter than the front (hood tip 17 canvas px lower) with the cloak dragging on the ground. The
+  repaint matches the front height (hood tip y 84, soles y 980 in the 1024 frame) and has a mid-calf hem with the
+  boots visible. A front/rear height mismatch pops when a rig turns.
+- 2026-10-17 rr-05 feature masks (director data, staged/rr-05/features): Bloomer crown gem → core (both views);
+  amber nodules → trunk (front 3, rear 2, explicit occlusion otherwise); Wisp eye → core (rear occluded). Masks are the
+  gem/eye body + 1 px rim (eye 2 px), holes filled.
+- 2026-10-17 boon-01 decisions: Armory = random **rare** piece (no uncommon equipment tier exists; one step above the
+  starters, as intended); Vitality +6 max and +6 current HP; resume label `CHOOSING AN HEIRLOOM`; secondary back
+  label `Back`. Offer screen uses the post-combat reward idiom (three 300x400 cards with column tags, a `Take nothing`
+  pill styled like SKIP & RECOVER, NPC dialogue box at the bottom); spell picks reuse the reward banner and card row.
+- 2026-10-17 mq-03 cloak ownership: the cloth cloak splits per view by depth around the torso centre plane
+  (far → cape_far, near/tie → cape_near), so cutout rigs keep two cape parts.
+- 2026-10-17 OWNER approved the roster plan, ordered by need (inbox roster-plan): new enemies first, then the ones
+  least matching the style and/or with a wrong pose, then decide on the good ones (Stone Warden, the cultist =
+  Dust/Veilbound Acolyte: lowest). Director order (10-13 legacy audit severity + view failures):
+  1) 11 new static: Ember Tick, Hoarfrost Seer, Gale Herald, Arc Thrall, Gloam Stalker, Burrow Grub, Storm Capacitor,
+     Hollow Mimic, Briar Weaver, Slag Mortar, Glacial Mirror;
+  2) High + wrong pose first: Chainbound Gaoler (re-pose only), Ashen Reaver, Storm Cantor, Last Lamplighter,
+     Gallows Roc, Rimejaw;
+  3) dragons (all High; Noctyrax wrong view), started alongside 4 because wing maquettes take longest;
+  4) Medium + wrong pose: Wick Shade, Ash Hound, Roc Fledgling, Stoneback Mite, Cinder Ooze, Bell Tender;
+  5) Medium, style only: Bone Harrier, Rime Whelp, Craghide;
+  owner decides later (likely keep): Stone Warden, Dust + Veilbound Acolyte, Grave Surgeon, Cinder Droplet,
+  Tunnel Crawler, Rime Spitter.
+- 2026-10-17 CORRECTION (mq-03 cloak): the depth split put the whole cloak in one part per view (it hangs behind the
+  torso in front, in front of it in rear). The cloak now splits by body side in body space: faces on the
+  shoulder_near side of the sagittal plane are cape_near, the rest cape_far (ties near), the same in both views, like
+  the limb labels (hand_far = spear hand in both views). Feedback 5 also requires deterministic cloth-cache replay hashes.
+- 2026-10-17 Roster wave 1 (the 11 new enemies) keeps their owner-approved art-02 paintings: they are already in the
+  3/4 board facing and the house hand. Maquettes are fitted to that art to give the rigs parts and joints. They are
+  repainted only if a fit or pose fails. Batch A = the four humanoids (mq-04); director part lists are in the brief.
+- 2026-10-17 Gale Herald banners: both approved paintings trail the banners screen-right, which reads as one consistent
+  wind direction on screen. The maquette gets a per-view cloth pose for the banners only; the body, joints and other
+  parts stay one model turned 180°. The rule applies to any figure whose approved views share a wind direction.
