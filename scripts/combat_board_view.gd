@@ -13,6 +13,7 @@ const DeathBurstView = preload("res://scripts/enemy_mechanics/death_burst_view.g
 const KindleView = preload("res://scripts/enemy_mechanics/kindle_view.gd")
 
 const PathUtils = preload("res://scripts/path_utils.gd")
+const ScenePropRedraws = preload("res://scripts/board_scene_prop_redraws.gd")
 const GildedFrame = preload("res://scripts/ui_gilded_frame.gd")
 const UiPaletteTokens = preload("res://scripts/ui_palette.gd")
 const HeroStrikeTrail = preload("res://scripts/hero_strike_trail.gd")
@@ -3462,6 +3463,7 @@ func _queue_presentation_change_redraws(
 				_queue_scene_tiles_for_presentation_entries(previous_terrain_destruction_units, next_terrain_destruction_units, "pos")
 			"scene_props":
 				_queue_scene_tiles_for_presentation_entries(previous_scene_props, next_scene_props, "tile")
+				ScenePropRedraws.queue_obstruction_changes(self, previous_scene_props, next_scene_props)
 				_queue_render_layer_redraw(_ambient_render_layer)
 				foreground_changed = true
 			"protagonist_motion":
