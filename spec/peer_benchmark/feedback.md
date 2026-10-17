@@ -123,3 +123,6 @@
   straight-on than before — all characters must be in the correct 45° isometric 3/4 view. → mq-03 round 3.
 - 2026-10-17 Lightning Wisp motion (inbox): approved. (rr-05 applies the stepped pixel-snapped idle to it too.)
 - 2026-10-17 Lancer r4 painting (3/4 view, split loin cloth) from the Blender-native maquette: owner "Middle looks great" → approved target look; next rear view, processing, rig, roster plan.
+- 2026-10-17 roster-plan APPROVED with a reorder: "order it by need. Start with the new enemies, then ... the ones least
+  matching our style and/or having an incorrect pose and then decide whether to redo even the enemies that look pretty
+  good already ... stone warden is already pretty good ... the cultist is solid too ... lowest priority."
