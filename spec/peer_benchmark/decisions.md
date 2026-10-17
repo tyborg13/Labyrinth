@@ -60,3 +60,4 @@
   the heirloom (one equipment piece kept from the previous run) is one possible option, never automatic.
 - Spell/magic slot limit: dropped entirely. Spells go straight into the deck (no equipping after fights); deck
   dilution is the cost, so card removal must be available.
+- 2026-10-17 Opening boons list approved by the owner (review inbox item boons-list) exactly as proposed → boon-01.

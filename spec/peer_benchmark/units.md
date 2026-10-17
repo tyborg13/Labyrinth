@@ -64,6 +64,7 @@
 | deck-01 | Drop the magic-slot limit; spells go to the deck; Purge at Scavenger and Campfire; save migration | merged (Codex signoff d926871aa) | codex/peer-benchmark | briefs/deck-01.md |
 | rr-04 | Shale Bloomer + Lightning Wisp cutout rigs from maquettes; generic semantic motion compiler; real-time review videos | merged 58c58c9af (Codex signoff b244014b8; pre-battle routing → int-02) | codex/peer-benchmark | briefs/rr-04.md |
 | int-02 | Route every presentation surface (pre-battle live actors, portraits, turn order) to the maquette rigs | merged (Codex signoff 3edfebe25) | codex/peer-benchmark | briefs/int-02.md |
+| boon-01 | Opening boons from the emaciated man (3 columns, rolled up front) + heirloom carry-over | running | codex/peer-benchmark | briefs/boon-01.md |
 | anim-01/anim-02 | Static enemy mesh-warp idle | shelved (owner: ripple + bird bounce rejected) | — | feedback.md 2026-10-15 |
 | fix-04 | Briar Weaver loses turn + intent after Thornwall (owner playtest 8) | merged 81e7f0dc9 (Codex signoff 6e3caa464) | codex/peer-benchmark | briefs/fix-04.md |
 | qa-05 | Integration: sfx sync suites fail after sfx-04 merge (interaction) | dropped: root cause = stale .godot audio imports in the integration worktree; fixed by re-import, runtime freshness workaround rejected | codex/peer-benchmark | briefs/qa-05.md |
