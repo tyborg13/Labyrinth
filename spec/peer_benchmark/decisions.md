@@ -111,3 +111,7 @@
   guidance). The maquette quality bar is the Lancer r3: cloth hood, robe and cloak, real anatomy and plates, no
   primitive cones or cylinders for cloth. mq-04 r1 delivered primitive shapes (rejected); r2 does Seer + Thrall first,
   then a director clay review.
+- 2026-10-17 Cutout rigs get a static silhouette backing: the rest silhouette in the painting's darkest interior tone,
+  drawn under every part and attached to the root body bone. Covered at rest; gaps opened by moving parts read as
+  shadowed depth instead of background tears. Visible backing ≤ 3% of the body in any pose. Generic for all maquette
+  rigs.
