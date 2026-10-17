@@ -41,3 +41,8 @@ largest component. The worst pose per clip:
    report the exact clip, channel, key and pose under TODO_DESIGN and I will decide.
 4. Run the gates on the Bloomer and the Wisp. Report the before/after table above for both creatures, CPU and native
    (native from the saved captures where they exist). I re-run the windowed proof afterwards.
+
+## Note added after round 3
+Round 3's Wisp fixes are accepted. The director is running the Wisp native capture now
+(`output/rr-05/wisp-native`, `output/rr-05/lightning_wisp_review.mp4`). Use those captures for the Wisp's native
+"before" numbers. If they are still being written when you start, use the CPU model first and pick them up later.
