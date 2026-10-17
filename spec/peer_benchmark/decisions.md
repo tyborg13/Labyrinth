@@ -125,3 +125,6 @@
   variable.
 - 2026-10-17 Legacy saves without a recorded dragon reward summary: the re-shown reward screen omits the unknown
   Ember/Moltshard lines. No placeholder text ever reaches players.
+- 2026-10-17 rr-05 acceptance (final): blocking = no detached pieces, feature integrity, zero shimmer, rest identity,
+  native agreement. Seam tear, protrusion and negative-space measures are report-only (some poses can't satisfy both
+  constraints). The director judges the native clip by eye.
