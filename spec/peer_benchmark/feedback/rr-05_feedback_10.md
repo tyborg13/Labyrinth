@@ -22,7 +22,7 @@ Three pixels on one scanline differ: (308,274), (311,274) and (312,274) on the 5
   source row-7 texels exactly (60,48,78), (59,49,75) and transparent.
 - So the "ties to even" rule (fitted to Wisp `arc_right` frames 18 and 90) isn't the GPU's rule. The tie goes to
   whichever side the GPU's interpolation rounding lands on, and the CPU can't reproduce that.
-- Diagnostics: `scratchpad/seam_diag.py` and `seam_diag2.py` (director's), as reproduced above.
+- Diagnostics: `experiments/cutouts/shale_bloomer/rr05/proof/seam_diag.py` and `seam_diag2.py` (director), as reproduced above.
 
 ## Decision: an exact tie may resolve either way; nothing else changes
 1. **Mark ties in `raster.nearest_quad`.**
