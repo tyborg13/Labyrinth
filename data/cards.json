@@ -7910,7 +7910,7 @@
     "burn": false,
     "health_cost": 0,
     "time": 4,
-    "description": "Detonate 8 on every Fire tile within 1 of you, including yours. You take no damage from it. Empower (2 HP): within 2 instead.",
+    "description": "Deal 3 to each adjacent enemy. Then Detonate 8 on every Fire tile within 1 of you, including yours. You take no damage from it. Empower (2 HP): detonate within 2.",
     "accent": "#d9623f",
     "art_path": "res://assets/art/cards/immolation.png",
     "empower": {
@@ -7919,7 +7919,7 @@
       },
       "mods": [
         {
-          "action": 0,
+          "action": 1,
           "set": {
             "pattern": [
               [
@@ -7980,6 +7980,31 @@
       ]
     },
     "actions": [
+      {
+        "type": "aoe",
+        "damage": 3,
+        "range": 0,
+        "pattern": [
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            -1,
+            0
+          ]
+        ],
+        "rotate": false,
+        "element": "fire"
+      },
       {
         "type": "detonate",
         "damage": 8,

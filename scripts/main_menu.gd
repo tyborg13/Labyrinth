@@ -53,7 +53,9 @@ const SAVED_RUN_MODE_LABELS := {
 	"reward": "CHOOSING A REWARD",
 	"campfire": "AT EMBER HEARTH",
 	"treasure": "AT TREASURE",
-	"graftwright": "AT GRAFTWRIGHT"
+	"graftwright": "AT GRAFTWRIGHT",
+	"victory": "CHOOSING AN HEIRLOOM",
+	"defeat": "CHOOSING AN HEIRLOOM"
 }
 const TITLE_FACE_TOP_COLOR := Color("fff7cf")
 const TITLE_FACE_HIGH_COLOR := Color("ffe08e")
@@ -658,6 +660,8 @@ func _has_resumable_saved_run_structure(run_state: Dictionary, mode: String, coo
 	if typeof(deck_value) != TYPE_ARRAY or (deck_value as Array).is_empty():
 		return false
 	match mode:
+		"victory", "defeat":
+			return preload("res://scripts/opening_boon_rules.gd").heirloom_prompt_pending(run_state)
 		"combat":
 			return _has_resumable_combat_structure(run_state, player_hp, player_max_hp)
 		"pre_battle":

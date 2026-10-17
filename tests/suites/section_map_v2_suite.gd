@@ -5,17 +5,22 @@ const Progression = preload("res://scripts/progression_store.gd")
 const Guardians = preload("res://scripts/guardian_library.gd")
 const FIXTURE_SEED: int = 83
 const PRESENTATION_FIXTURE_COORD_RADIUS: int = 24
+# Capture pristine production outputs for the revision-5 compatibility checks.
+# Reusing hashes avoids regenerating the same legacy seeds in the timed suite.
+static var revision4_graph_hashes: Dictionary = {}
 
 static func run(expect: Callable) -> void:
+	revision4_graph_hashes.clear()
 	expect.call(Graph._walk_moves(0, Graph._coords([])) == [0, 0, 1] and Graph._walk_moves(3, Graph._coords([])) == [2, 3, 3], "Uniform clamped deltas retain both outer-lane stay rolls")
 	expect.call(Graph._walk_moves(1, Graph._coords([Vector2i(2, 1)])) == [0, 1], "Walk choices exclude only crossing moves")
 	for seed: int in range(64):
 		var state: Dictionary = {"seed": seed, "current_room": Vector2i.ZERO, "mode": "room"}
-		Graph.initialize(state)
+		Graph._initialize_revision_4(state)
+		revision4_graph_hashes[str(seed)] = var_to_str(state).sha256_text()
 		var again: Dictionary = {"seed": seed, "current_room": Vector2i.ZERO, "mode": "room"}
-		Graph.initialize(again)
+		Graph._initialize_revision_4(again)
 		expect.call(state == again, "Revision 4 generation is deterministic: seed %d" % seed)
-		expect.call(int(state.get("section_map_layout_revision")) == 4, "New runs record layout revision 4")
+		expect.call(int(state.get("section_map_layout_revision")) == 4, "Legacy generator records layout revision 4")
 		var ids: Dictionary = {}
 		for node: Dictionary in state["rooms"].values():
 			expect.call(not ids.has(node["coord"]), "Every persistent coordinate is unique")
@@ -146,7 +151,7 @@ static func _walk_routes(state: Dictionary, coord: Vector2i, index: int, fights:
 
 static func _test_mysteries(expect: Callable) -> void:
 	var engine := RunEngineScript.new()
-	var initial: Dictionary = engine.create_new_run(FIXTURE_SEED, Progression.default_data())
+	var initial: Dictionary = _revision4_run(engine, FIXTURE_SEED, Progression.default_data())
 	for hidden: String in ["event", "combat", "treasure", "scavenger"]:
 		var state: Dictionary = initial.duplicate(true)
 		var entry: Vector2i = Graph.section(state, 0)["entry"]
@@ -197,9 +202,10 @@ static func _test_mysteries(expect: Callable) -> void:
 			if metadata["room"] == target: found = metadata["type"] == hidden
 		expect.call(found, "Route analytics record the scouted identity the player knows")
 
-static func _test_knowledge(expect: Callable) -> void:
+static func _test_knowledge(expect: Callable, revision: int = 4) -> void:
 	var state: Dictionary = {"seed": FIXTURE_SEED, "current_room": Vector2i.ZERO, "mode": "room"}
-	Graph.initialize(state)
+	if revision == 4: Graph._initialize_revision_4(state)
+	else: Graph.initialize(state)
 	for index: int in range(6):
 		state["current_room"] = Graph.section(state, index)["entry"]
 		Graph.refresh_knowledge(state)
@@ -239,7 +245,7 @@ static func _test_knowledge(expect: Callable) -> void:
 
 static func _test_older_layouts(expect: Callable) -> void:
 	var engine := RunEngineScript.new()
-	var state: Dictionary = engine.create_new_run(FIXTURE_SEED, Progression.default_data())
+	var state: Dictionary = _revision4_run(engine, FIXTURE_SEED, Progression.default_data())
 	var start_npcs: Array = Graph.room(state, Vector2i.ZERO).get("npcs", []).duplicate(true)
 	state.erase("map_events")
 	state.erase("map_event_revision")
@@ -274,7 +280,7 @@ static func _test_fallback(expect: Callable) -> void:
 static func _test_probe_fixture(expect: Callable) -> void:
 	# Match the existing windowed probe's fixture prerequisites headlessly.
 	var engine := RunEngineScript.new()
-	var state: Dictionary = engine.create_new_run(90429, Progression.default_data())
+	var state: Dictionary = _revision4_run(engine, 90429, Progression.default_data())
 	for step: int in range(3):
 		var current: Dictionary = Graph.room(state, state["current_room"])
 		current["cleared"] = true
@@ -334,3 +340,13 @@ static func _test_presentation_adapters(panel: Control, expect: Callable) -> voi
 		button.scout_target = false
 		button.actionable = false
 	button.free()
+
+static func _revision4_run(engine: RunEngineScript, seed_value: int, progression: Dictionary) -> Dictionary:
+	var state: Dictionary = engine.create_new_run(seed_value, progression)
+	var start_npcs: Array = Graph.room(state, Vector2i.ZERO).get("npcs", []).duplicate(true)
+	state.erase("map_events")
+	state.erase("map_event_revision")
+	Graph._initialize_revision_4(state)
+	Graph.room(state, Vector2i.ZERO)["npcs"] = start_npcs
+	state["current_room_layout"] = engine._display_layout_for_room(seed_value, Graph.room(state, Vector2i.ZERO), Vector2i.ZERO)
+	return state

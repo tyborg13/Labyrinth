@@ -1,0 +1,144 @@
+{
+  "min_images": 11,
+  "expected_sizes": [
+    "1920x1080"
+  ],
+  "required_images": [
+    {
+      "pattern": "*/1920x1080/offer_without_heirloom.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080/offer_with_heirloom.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080/offer_spell_preview.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080/elemental_gift_choice.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080/elemental_gift_taken.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080/heirloom_prompt.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080/heirloom_prompt_reduced_motion.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080/offer_all_previews.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080/purge_two_selected.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080/blood_price_five_cards.png",
+      "width": 1920,
+      "height": 1080
+    },
+    {
+      "pattern": "*/1920x1080/secondary_open_no_tooltip.png",
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "geometry_tolerance_px": 1,
+  "geometry": {
+    "OpeningBoonColumns": [
+      454,
+      210,
+      1012,
+      400
+    ],
+    "BoonSlots": [
+      [
+        454,
+        210,
+        300,
+        400
+      ],
+      [
+        810,
+        210,
+        300,
+        400
+      ],
+      [
+        1166,
+        210,
+        300,
+        400
+      ]
+    ],
+    "BoonPreviewZone": [
+      24,
+      96,
+      252,
+      140
+    ],
+    "BoonRules": [
+      24,
+      256,
+      252,
+      120
+    ],
+    "OfferDialogue": [
+      323,
+      842,
+      1236,
+      217
+    ],
+    "BoonSelectionBanner": [
+      440,
+      116,
+      1040,
+      82
+    ]
+  },
+  "rules_text": {
+    "horizontal_padding": 24,
+    "width": 252,
+    "body_font_token": "UiTypography.SIZE_BODY",
+    "body_max_lines": 4,
+    "smaller_body_font_token": "UiTypography.SIZE_SMALL",
+    "smaller_body_max_lines": 5,
+    "pool_coverage": "Every eligible common/rare relic as both Trinket and Pawned Light"
+  },
+  "secondary": {
+    "row_node": "BoonSpellChoices",
+    "slot_name": "BoonSpellSlot_<copy_index>",
+    "widget_name": "BoonSpellChoice_<copy_index>_<card_id>",
+    "three_card_gap": 58,
+    "four_to_six_card_gap": 24,
+    "rules_top": 205,
+    "purge_selection_lift": 20,
+    "action_top": 650,
+    "action_center_x": 960,
+    "minimum_medallion_top": 245,
+    "rules_to_medallion_clearance": 16,
+    "rules_to_tooltip_clearance": 8,
+    "card_bottom_max": 650,
+    "card_size": "Largest reward-size card that fits the fixed clearances; native aspect ratio preserved",
+    "tooltip_node": "BoonSecondaryTooltipStack",
+    "purge_selected_tag": "REMOVE",
+    "purge_selected_colour_token": "UiPalette.DANGER"
+  }
+}

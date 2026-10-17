@@ -103,6 +103,9 @@ const TurnClockForecastLine = preload("res://scripts/turn_clock_forecast_line.gd
 const UiSkin = preload("res://scripts/ui_skin.gd")
 const UiTypography = preload("res://scripts/ui_typography.gd")
 const RunEndRecapOverlay = preload("res://scripts/run_end_recap_overlay.gd")
+const OpeningBoonFlow = preload("res://scripts/opening_boon_flow.gd")
+const OpeningBoonRules = preload("res://scripts/opening_boon_rules.gd")
+const OpeningBoonRecovery = preload("res://scripts/opening_boon_recovery.gd")
 const CardWidget = preload("res://scripts/card_widget.gd")
 const CardWidgetScene = preload("res://scenes/card_widget.tscn")
 const CardDragPlayRules = preload("res://scripts/card_drag_play_rules.gd")
@@ -1306,6 +1309,7 @@ const PASS_PREVIEW_CACHE_LIMIT: int = 64
 
 var _ui_skin: UiSkin = UiSkin.new()
 var _dialogue_engine = DialogueEngineScript.new()
+var _opening_boon_flow = OpeningBoonFlow.new()
 var _start_room_map = preload("res://scripts/start_room_map_flow.gd").new()
 var _section_transition: CanvasLayer
 var _run_engine = RunEngineScript.new()
@@ -2088,7 +2092,8 @@ func _physics_process(delta: float) -> void:
 		_controller_stick = Vector2.ZERO
 		_controller_reset_stick_repeat()
 		_controller_hide_analog_cursor()
-		_controller_clear_board_focus()
+		if not preload("res://scripts/movement_target_keyboard.gd").preserve_focus(self):
+			_controller_clear_board_focus()
 		return
 	if not _controller_custom_navigation_available():
 		_controller_stick = Vector2.ZERO
@@ -2122,6 +2127,8 @@ func _input(event: InputEvent) -> void:
 		_section_transition.contain_input(event)
 		get_viewport().set_input_as_handled()
 		return
+	preload("res://scripts/movement_target_keyboard.gd").observe_input(self, event)
+	if _opening_boon_flow.handle_input(self, event): return
 	if is_instance_valid(_magic_purge_overlay):
 		if InputRouterScript.is_controller_event(event):
 			var router: Node = get_node_or_null("/root/InputRouter")
@@ -2329,6 +2336,9 @@ func _input(event: InputEvent) -> void:
 		return
 	if _selected_card_index >= 0 and (event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")) and (_current_action_is_aimed_aoe() or _force_aim_rotation_available()):
 		_rotate_aoe_aim(-1 if event.is_action_pressed("ui_left") else 1)
+		get_viewport().set_input_as_handled()
+		return
+	if await preload("res://scripts/movement_target_keyboard.gd").handle(self, event):
 		get_viewport().set_input_as_handled()
 		return
 	if _is_map_shortcut_event(event):
@@ -2566,16 +2576,9 @@ func _handle_controller_input(event: InputEvent) -> bool:
 			_controller_toggle_hand_focus()
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_PASS):
-		if _current_action_can_skip():
-			await _on_skip_action_pressed()
-			if _selected_card_index < 0:
-				_controller_region = "hand"
-				_controller_set_hand_focused(true)
-				_controller_set_hand_index(maxi(0, _controller_hand_index))
-		else:
-			_controller_region = "board"
-			_controller_set_hand_focused(false)
-			await _on_pass_turn_pressed()
+		_controller_region = "board"
+		_controller_set_hand_focused(false)
+		await _on_pass_turn_pressed()
 		_refresh_controller_interface()
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_HAND_PREVIOUS):
@@ -2655,6 +2658,7 @@ func _controller_uses_gui_focus() -> bool:
 	)
 
 func _controller_modal_visible() -> bool:
+	if _opening_boon_flow.active(): return true
 	if is_instance_valid(_magic_purge_overlay): return true
 	if _event_view != null and _event_view.visible: return true
 	if _graftwright_view != null and _graftwright_view.visible: return true
@@ -3395,6 +3399,7 @@ func _schedule_controller_modal_refresh() -> void:
 func _refresh_controller_modal_after_layout() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
+	if not is_inside_tree(): return
 	_refresh_controller_prompts()
 	var router: Node = get_node_or_null("/root/InputRouter")
 	if router != null and router.has_method("using_controller") and bool(router.call("using_controller")):
@@ -3409,6 +3414,7 @@ func _refresh_controller_modal_after_layout() -> void:
 	_sync_click_targeting_arrow()
 
 func _controller_focus_scope() -> Control:
+	if _opening_boon_flow.active(): return _opening_boon_flow.overlay
 	if is_instance_valid(_magic_purge_overlay): return _magic_purge_overlay.focus_scope()
 	if _visible_control(_menu_scrim): return _menu_scrim
 	if _event_view != null and _event_view.visible: return _event_view
@@ -3509,7 +3515,8 @@ func _refresh_controller_interface() -> void:
 	_refresh_controller_prompts()
 	if not _controller_is_active():
 		_controller_hide_analog_cursor()
-		_controller_clear_board_focus()
+		if not preload("res://scripts/movement_target_keyboard.gd").preserve_focus(self):
+			_controller_clear_board_focus()
 		return
 	if not _controller_custom_navigation_available():
 		_controller_suspend_custom_navigation()
@@ -3695,7 +3702,7 @@ func _refresh_controller_prompts() -> void:
 			prompts.append({"action": InputRouterScript.ACTION_EMPOWER, "label": "Unempower" if _selected_card_empowered() else "Empower"})
 		prompts.append({"action": &"controller_move", "label": "Move"})
 		prompts.append({"action": InputRouterScript.ACTION_HAND_TOGGLE, "label": "Focus Hand"})
-		prompts.append({"action": InputRouterScript.ACTION_PASS, "label": "Skip Step" if _current_action_can_skip() else "Pass"})
+		prompts.append({"action": InputRouterScript.ACTION_PASS, "label": "Pass"})
 	else:
 		prompts = [
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Play"},
@@ -7644,6 +7651,9 @@ func _on_dialogue_option_pressed(option: Dictionary) -> void:
 		return
 	if bool(option.get("disabled", false)): return
 	var action: String = str(option.get("action", ""))
+	if action == "leave_heirloom":
+		_opening_boon_flow.leave_heirloom(self, str(option.get("item", "")))
+		return
 	if action == "exchange_moltshard":
 		_exchange_moltshard_at_entrance()
 		return
@@ -7666,6 +7676,8 @@ func _on_dialogue_option_pressed(option: Dictionary) -> void:
 	_close_dialogue()
 
 func _close_dialogue() -> void:
+	if not _opening_boon_flow.may_close_dialogue(_dialogue_script): return
+	var closed_script: Dictionary = _dialogue_script.duplicate(true)
 	_start_room_map.dialogue_closed(self)
 	_molt_exchange_feedback.reset()
 	_maybe_mark_emaciated_awakening_seen()
@@ -7684,6 +7696,7 @@ func _close_dialogue() -> void:
 		_dialogue_hint_label.text = ""
 	if _dialogue_overlay != null:
 		_dialogue_overlay.visible = false
+	_opening_boon_flow.dialogue_closed(self, closed_script)
 	if should_restore_choices and is_inside_tree() and not _run_state.is_empty():
 		_refresh_choice_bar()
 		_refresh_stage_view()
@@ -7739,6 +7752,9 @@ func _has_current_dialogue_options() -> bool:
 	return (_current_dialogue_line().get("options", []) as Array).size() > 0 and _dialogue_text_complete
 
 func _sync_dialogue_layout() -> void:
+	if _opening_boon_flow.seats_dialogue():
+		_opening_boon_flow.layout_dialogue(self)
+		return
 	if _dialogue_dialog == null or _dialogue_text_label == null or _dialogue_footer == null:
 		return
 	var options: Array = _current_dialogue_line().get("options", [])
@@ -7779,7 +7795,10 @@ func _update_dialogue_footer() -> void:
 		_ui_skin.apply_button_stylebox_overrides(button, UiSkin.VARIANT_STANDARD)
 		_ui_skin.apply_button_text_overrides(button)
 		UiTypography.set_button_size(button, UiTypography.SIZE_BODY_LARGE)
-		_ui_skin.apply_button_native_size(button, DIALOGUE_OPTION_BUTTON_HEIGHT, DIALOGUE_OPTION_BUTTON_MIN_WIDTH)
+		# Six heirloom choices use native text widths; the existing three-service
+		# minimum would force the prompt beyond the 1920px viewport.
+		var minimum_width: float = 0.0 if str(_dialogue_script.get("id", "")) == "opening_boon_heirloom_prompt" else DIALOGUE_OPTION_BUTTON_MIN_WIDTH
+		_ui_skin.apply_button_native_size(button, DIALOGUE_OPTION_BUTTON_HEIGHT, minimum_width)
 		button.pressed.connect(_on_dialogue_option_pressed.bind(option))
 		_dialogue_choice_bar.add_child(button)
 	for child: Node in _dialogue_choice_bar.get_children():
@@ -8110,7 +8129,7 @@ func _click_card_targeting_active() -> bool:
 func _controller_card_targeting_active(candidate: Dictionary = {}) -> bool:
 	if (
 		not _targeted_card_aiming_active()
-		or not _controller_is_active()
+		or not (_controller_is_active() or preload("res://scripts/movement_target_keyboard.gd").active(self))
 		or _drag_card_index >= 0
 		or _controller_region != "board"
 		or _controller_modal_visible()
@@ -9094,10 +9113,6 @@ func _guided_tutorial_spotlight_rects(phase_id: String) -> Array:
 				_guided_tutorial_append_tile_rect(rects, confirmation_player)
 			else:
 				_guided_tutorial_append_tile_rect(rects, GuidedCombatScenario.target_tile(_combat_state))
-			if _current_action_can_skip():
-				var skip_button: Button = _guided_tutorial_find_button(_action_step_tracker, "Skip")
-				if skip_button != null:
-					rects.append(skip_button.get_global_rect())
 		ContextualCombatTutorial.PHASE_TURN_CLOCK:
 			_guided_tutorial_append_control_rect(rects, _turn_order_panel, 6.0)
 		ContextualCombatTutorial.PHASE_PASS_TURN:
@@ -10479,6 +10494,7 @@ func _boot_run() -> void:
 
 func _load_run_state(next_run_state: Dictionary) -> void:
 	if is_instance_valid(_section_transition): _section_transition.cancel()
+	_opening_boon_flow.begin_load(self)
 	if is_instance_valid(_magic_purge_overlay): _close_magic_purge(false)
 	_ensure_sfx_bank()
 	_sfx_router.baseline(next_run_state.get("combat_state", {}))
@@ -10561,8 +10577,16 @@ func _load_run_state(next_run_state: Dictionary) -> void:
 	_defeat_loss_processed = false
 	_victory_carry_amount = 0
 	_defeat_lost_amount = 0
+	var heirloom_wallet: Dictionary = _run_state.get("heirloom_terminal_wallet", {})
+	if not heirloom_wallet.is_empty():
+		_victory_carry_processed = true
+		_defeat_loss_processed = true
+		_victory_carry_amount = int(heirloom_wallet.get("victory_carry", 0))
+		_defeat_lost_amount = int(heirloom_wallet.get("defeat_lost", 0))
 	if _run_end_recap != null:
 		_run_end_recap.reset()
+	_opening_boon_flow.end_load()
+	_opening_boon_flow.flush_events(self, _run_state)
 	_board_presentation.clear()
 	action_banner.visible = false
 	_reward_intro_suppressed = _reward_intro_pending()
@@ -10600,15 +10624,23 @@ func _acknowledge_saved_starting_relic_gift(state: Dictionary) -> bool:
 	return ProgressionStore.save_data(acknowledged)
 
 func _start_run() -> void:
+	_opening_boon_flow.close(self)
 	_cancel_deferred_skill_analytics()
 	var previous: Dictionary = ProgressionStore.load_saved_run()
+	if not previous.is_empty() and not OpeningBoonRecovery.acknowledge_before_replacement(self, previous):
+		_load_run_state(previous)
+		_run_state["notice"] = "The new run could not be saved. Your previous run is available."
+		if not _defer_initial_run_presentation: _refresh_ui()
+		return
 	if not previous.is_empty() and not _acknowledge_saved_starting_relic_gift(previous):
 		_load_run_state(previous)
 		_run_state["notice"] = "Could not save the previous run's relic gift. Try again."
 		if not _defer_initial_run_presentation: _refresh_ui()
 		return
 	var starting_profile: Dictionary = ProgressionStore.load_data()
-	if not previous.is_empty(): starting_profile = ProgressionStore.set_embers(starting_profile, 0)
+	# Recovery above durably settles terminal wallets, including old fallbacks
+	# without a marker. Only abandoning a live run loses its held Embers.
+	if not previous.is_empty() and str(previous.get("mode", "")) not in ["victory", "defeat"]: starting_profile = ProgressionStore.set_embers(starting_profile, 0)
 	_progression = ProgressionStore.prepare_for_new_run(starting_profile)
 	var new_run_state: Dictionary = _run_engine.create_new_run(_new_seed(), _progression)
 	new_run_state = GuidedCombatScenario.mark_run_eligible(new_run_state)
@@ -15738,6 +15770,7 @@ func _clear_relic_choice_overlay() -> void:
 		_relic_choice_overlay.visible = false
 
 func _show_run_end_recap(outcome: String) -> void:
+	if _opening_boon_flow.intercept_recap(self, outcome): return
 	if _run_end_recap == null:
 		return
 	var ember_amount: int = _victory_carry_amount if outcome == "victory" else _defeat_lost_amount
@@ -16344,23 +16377,24 @@ func _set_relic_choice_title(text: String) -> void:
 	if mode == "reward" and _reward_reveal_pending:
 		PostCombatRewardSequence.prepare_banner(_relic_choice_banner, _relic_choice_title)
 
-func _apply_relic_choice_title_depth(accent: Color, restrained: bool) -> void:
-	if _relic_choice_title == null:
+func _apply_relic_choice_title_depth(accent: Color, restrained: bool, target: Label = null) -> void:
+	var label: Label = _relic_choice_title if target == null else target
+	if label == null:
 		return
 	var face_color: Color = (
 		Color("f6e2b9").lerp(accent.lightened(0.14), 0.16)
 		if restrained
 		else Color("fff0bd").lerp(accent.lightened(0.18), 0.24)
 	)
-	_relic_choice_title.add_theme_color_override("font_color", face_color)
-	_relic_choice_title.add_theme_color_override("font_outline_color", Color("1a0d08"))
-	_relic_choice_title.add_theme_color_override(
+	label.add_theme_color_override("font_color", face_color)
+	label.add_theme_color_override("font_outline_color", Color("1a0d08"))
+	label.add_theme_color_override(
 		"font_shadow_color",
 		Color(0.0, 0.0, 0.0, 0.62 if restrained else 0.76)
 	)
-	_relic_choice_title.add_theme_constant_override("outline_size", 2 if restrained else 9)
-	_relic_choice_title.add_theme_constant_override("shadow_offset_x", 0)
-	_relic_choice_title.add_theme_constant_override("shadow_offset_y", 2 if restrained else 7)
+	label.add_theme_constant_override("outline_size", 2 if restrained else 9)
+	label.add_theme_constant_override("shadow_offset_x", 0)
+	label.add_theme_constant_override("shadow_offset_y", 2 if restrained else 7)
 
 func _relic_choice_title_accent(text: String) -> Color:
 	match text:
@@ -18568,6 +18602,14 @@ func _board_display_state() -> Dictionary:
 			if not _combat_state.is_empty():
 				return _combat_state
 		elif not _preview_combat_state.is_empty():
+			var stay_forecast: Dictionary = _hovered_stay_forecast()
+			if not stay_forecast.is_empty():
+				var stay_display: Dictionary = _visibility_safe_preview_display_state(_combat_preview_display_state(stay_forecast))
+				# The forecast removed hidden causes before resolving; show its
+				# support while keeping committed sight and hidden board objects.
+				for field: String in ["hp", "block", "stoneskin"]:
+					stay_display["player"][field] = stay_forecast["player"].get(field, 0)
+				return stay_display
 			var cache_key: String = "%d|%d" % [_combat_preview_revision, _preview_selection_revision]
 			if cache_key != _board_preview_display_cache_key:
 				_board_preview_display_cache_key = cache_key
@@ -20102,6 +20144,8 @@ func _preview_effect_for_action(preview: Dictionary) -> Dictionary:
 	return _preview_effect_for_target(preview_state, player_tile, _hovered_board_tile, action)
 
 func _preview_effect_for_target(state: Dictionary, from_tile: Vector2i, target_tile: Vector2i, action: Dictionary) -> Dictionary:
+	if preload("res://scripts/card_stay_rules.gd").is_stay(state, action, target_tile):
+		return {}
 	var action_type: String = str(action.get("type", ""))
 	match action_type:
 		"move":
@@ -20924,7 +20968,18 @@ func _shortcut_movement_risk_chips(shortcut_plan: Dictionary) -> Array:
 			chips.append((chip_var as Dictionary).duplicate(true))
 	return chips
 
+func _hovered_stay_forecast() -> Dictionary:
+	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size() or not _pending_target_tiles.has(_hovered_board_tile):
+		return {}
+	if not preload("res://scripts/card_stay_rules.gd").is_stay(_preview_combat_state, _pending_actions[_pending_action_index], _hovered_board_tile):
+		return {}
+	var known_state: Dictionary = _surface_preview_information_state(_preview_combat_state)
+	var stayed: Dictionary = _combat_engine.apply_player_action(known_state, _pending_actions[_pending_action_index], _hovered_board_tile)
+	return _pass_preview_state_after_movement_only(stayed, _pending_actions, _pending_action_index + 1)
+
 func _movement_risk_chips_for_preview(preview: Dictionary, path_tiles: Array[Vector2i]) -> Array:
+	if preload("res://scripts/card_stay_rules.gd").is_stay(preview.get("state", {}), preview.get("action", {}), _hovered_board_tile) and (preview.get("target_tiles", []) as Array).has(_hovered_board_tile):
+		return [{"tile": _hovered_board_tile, "label": "Stay", "kind": "status"}]
 	var shortcut_plan: Dictionary = _hovered_shortcut_plan_for_preview(preview)
 	if not shortcut_plan.is_empty():
 		return _shortcut_movement_risk_chips(shortcut_plan)
@@ -22066,6 +22121,7 @@ func _refresh_enemy_intent_toggle() -> void:
 	)
 
 func _map_shortcut_can_open() -> bool:
+	if _opening_boon_flow.active(): return false
 	if str(_run_state.get("mode", "")) == "event" or (_event_view != null and _event_view.visible): return false
 	if _large_map_scrim == null or _dialogue_active or _animation_lock or _treasure_presentation_busy() or _drag_card_index >= 0:
 		return false
@@ -22083,6 +22139,7 @@ func _map_shortcut_can_open() -> bool:
 	return true
 
 func _open_large_map(from_toolbar: bool = false) -> void:
+	if _opening_boon_flow.active(): return
 	if is_instance_valid(_magic_purge_overlay): return
 	if str(_run_state.get("mode", "")) == "event": return
 	if _large_map_scrim == null or _treasure_presentation_busy():
@@ -22199,23 +22256,6 @@ func _cancel_player_movement_selection(refresh_ui: bool = true) -> void:
 	if refresh_ui:
 		_refresh_player_movement_meter()
 		_refresh_card_preview_ui()
-
-func _current_action_can_skip() -> bool:
-	# A target click commits the card; there is no intermediate step to skip.
-	return false
-
-func _on_skip_action_pressed() -> void:
-	if _animation_lock or not _current_action_can_skip():
-		return
-	if _guided_tutorial_hard_gate_active() and not _guided_tutorial_finish_phases().has(_guided_tutorial_phase_id):
-		_guided_tutorial_reject()
-		return
-	var previous_action_index: int = _pending_action_index
-	_pending_selected_targets.append(INVALID_TARGET_TILE)
-	var card_id: String = _card_id_for_hand_index(_selected_card_index)
-	var next_preview: Dictionary = _card_preview_from_state(card_id, _preview_combat_state, _pending_actions, _pending_action_index + 1)
-	_append_skipped_target_placeholders(previous_action_index + 1, int(next_preview.get("action_index", 0)))
-	await _apply_pending_preview_result(next_preview)
 
 func _on_pending_shortcut_clicked(target_tile: Vector2i, shortcut_plan: Dictionary) -> void:
 	var move_target: Vector2i = shortcut_plan.get("move_target", INVALID_TARGET_TILE)
@@ -23845,6 +23885,10 @@ func _has_electrical_trace(hits: Array) -> bool:
 
 func _animate_player_action_step(before_state: Dictionary, after_state: Dictionary, card_id: String, action: Dictionary, target_tile: Vector2i, chain_hits: Array = []) -> void:
 	action = SurfaceRelicRules.resolve_action(before_state, action)
+	if preload("res://scripts/card_stay_rules.gd").is_stay(before_state, action, target_tile) and int(after_state.get("card_stay_sequence", 0)) > int(before_state.get("card_stay_sequence", 0)):
+		# Presentation must not turn a resolved Stay into a walk or Blink.
+		action = action.duplicate(true)
+		action["type"] = "stay"
 	_ensure_sfx_bank()
 	_sfx_router.begin_player_action(before_state, action, _sfx_router.weapon_for_card(card_id, _run_state))
 	if await preload("res://scripts/enemy_mechanics/reflect_view.gd").animate_player(self, before_state, after_state, action, target_tile, card_id): return
@@ -23874,9 +23918,11 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 	)
 	var base_presentation: Dictionary = {
 		"focus_actor_keys": ["player"],
-		"focus_actor_color": PLAYER_PREVIEW_FOCUS if action_type in ["move", "blink"] else PLAYER_ATTACK_FOCUS
+		"focus_actor_color": PLAYER_PREVIEW_FOCUS if action_type in ["move", "blink", "stay"] else PLAYER_ATTACK_FOCUS
 	}
 	match action_type:
+		"stay":
+			_render_board_state(primary_display_state, base_presentation)
 		"move":
 			var move_path: Array[Vector2i] = _resolved_movement_animation_path(
 				player_before_tile,
@@ -28762,14 +28808,27 @@ func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool
 	if mode != "combat" and not _skill_analytics_flushing:
 		_cancel_deferred_skill_analytics(true)
 	var saved: bool = false
+	var profile_saved: bool = true
+	var run_before_profile: bool = boundary in ["heirloom_left", "heirloom_confirmed"]
 	if mode in ["victory", "defeat"]:
 		var terminal_resume_state: Dictionary = state.duplicate(true)
 		state = _finalize_terminal_committed_state(state)
-		saved = ProgressionStore.save_data(_progression)
-		if saved:
-			ProgressionStore.clear_saved_run()
+		if run_before_profile:
+			if not terminal_resume_state.has("heirloom_terminal_wallet"):
+				_progression["progression_revision"] = int(_progression.get("progression_revision", 0)) + 1
+				state["progression"] = _progression.duplicate(true)
+			# Boon choices commit to the run first. A failed run write must not
+			# change the profile; a deferred profile write is recoverable from it.
+			saved = ProgressionStore.save_run_state(state)
 		else:
-			ProgressionStore.save_run_state(terminal_resume_state)
+			saved = ProgressionStore.save_data(_progression)
+			if saved and (OpeningBoonRules.heirloom_prompt_pending(state) or state.has(OpeningBoonRules.EVENTS_KEY)):
+				saved = ProgressionStore.save_run_state(state)
+			elif saved:
+				ProgressionStore.clear_saved_run()
+			else:
+				ProgressionStore.save_run_state(terminal_resume_state)
+		if run_before_profile and saved: profile_saved = ProgressionStore.save_data(_progression)
 	else:
 		saved = ProgressionStore.save_run_state(state)
 	performance_phase_started = _record_runtime_performance_phase("combat_checkpoint_persist_storage", performance_phase_started)
@@ -28781,6 +28840,9 @@ func _persist_run_state_snapshot(run_state: Dictionary, hold_for_animation: bool
 		push_error("Failed to persist committed run boundary: %s" % (boundary if not boundary.is_empty() else "unspecified"))
 	_record_runtime_performance_phase("combat_checkpoint_persist_total", performance_total_started)
 	if saved:
+		var opening_events_saved: bool = _opening_boon_flow.flush_events(self, state)
+		if mode in ["victory", "defeat"] and not OpeningBoonRules.heirloom_prompt_pending(state) and opening_events_saved and profile_saved:
+			ProgressionStore.clear_saved_run()
 		_analytics_flush_surface_events(state.get("combat_state", {}) as Dictionary, state)
 		_analytics_flush_map_events(state)
 		# A reveal/action may save after its final HUD refresh. Keep that same-run
@@ -28815,6 +28877,8 @@ func _finalize_terminal_committed_state(run_state: Dictionary) -> Dictionary:
 			_defeat_loss_processed = true
 		state = _run_engine.clear_held_embers(state)
 		state["progression"] = _progression.duplicate(true)
+	if state.has(OpeningBoonRules.HEIRLOOM_END_KEY):
+		state["heirloom_terminal_wallet"] = {"victory_carry": _victory_carry_amount, "defeat_lost": _defeat_lost_amount}
 	return state
 
 func _is_debug_boss_run() -> bool:
@@ -28826,11 +28890,16 @@ func _save_run_progress() -> void:
 		return
 	var committed_state: Dictionary = _committed_run_state()
 	var mode: String = str(committed_state.get("mode", ""))
+	if OpeningBoonRules.heirloom_prompt_pending(committed_state):
+		_persist_committed_boundary("heirloom_prompt_resume")
+		return
 	if mode in ["victory", "defeat"] or committed_state.is_empty():
 		# A failed terminal save preserves the original, unprocessed fallback.
 		# Reconciliation must not replace it with the finalized held snapshot.
 		_cancel_deferred_skill_analytics()
-		if ProgressionStore.save_data(_progression):
+		var retained: Dictionary = OpeningBoonRecovery.retaining_events(self, committed_state, _progression)
+		if ProgressionStore.save_data(retained):
+			_progression = retained
 			ProgressionStore.clear_saved_run()
 		else:
 			push_error("Failed to persist terminal progression; the resumable fallback remains intact.")
@@ -28869,6 +28938,7 @@ func _on_abandon_run_pressed() -> void:
 			_run_state.get("current_room", Vector2i.ZERO),
 			int(_run_state.get("run_index", 0))
 		)
+		_progression = OpeningBoonRecovery.retaining_events(self, _run_state, _progression)
 		if not ProgressionStore.save_data(_progression):
 			_run_state["notice"] = "Could not save the completed run. Try again."
 			_refresh_ui()
@@ -29279,6 +29349,7 @@ func _speak_to_emaciated_man() -> void:
 	if not _run_engine.can_speak_to_emaciated_man(_run_state): return
 	_sync_progression_from_run()
 	_close_large_map()
+	if _opening_boon_flow.speak(self): return
 	var room: Dictionary = _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO))
 	_start_dialogue(_dialogue_engine.build_room_dialogue(room, _run_state, _progression))
 
@@ -30152,6 +30223,10 @@ func _authoritative_profile_progression() -> Dictionary:
 	var active_progression: Dictionary = ProgressionStore.normalized_data(_progression)
 	if int(active_progression.get("progression_revision", 0)) <= int(persisted_profile.get("progression_revision", 0)):
 		return persisted_profile
+	# A terminal receipt and its settled wallet must be repaired together.
+	# Otherwise replacement sees the result acknowledged with the old balance.
+	if str(_run_state.get("mode", "")) in ["victory", "defeat"] and _run_state.has("heirloom_terminal_wallet"):
+		return active_progression
 	# Embers belong to the active run until a normal banking/level boundary. A
 	# newer embedded revision may repair skills or Moltshards, but must never
 	# turn the run's held embers into banked profile currency.
@@ -31929,6 +32004,8 @@ func _maybe_auto_trigger_room_dialogue() -> void:
 	if _dialogue_active or str(_run_state.get("mode", "room")) != "room":
 		return
 	var current_room: Dictionary = _run_engine.room_metadata(_run_state, _run_state.get("current_room", Vector2i.ZERO))
+	# Boons begin on deliberate conversation, not the automatic room narration.
+	if OpeningBoonRules.pending(_run_state) or _opening_boon_flow.active(): return
 	var trigger_key: String = _dialogue_trigger_key(current_room)
 	if trigger_key == _last_auto_dialogue_key:
 		return
@@ -32034,6 +32111,7 @@ func _reset_card_resolution() -> void:
 	_clear_card_action_choice_state()
 
 func _clear_active_card_preview_state() -> void:
+	preload("res://scripts/movement_target_keyboard.gd").clear(self)
 	_surface_preview_cache_key = ""
 	_selected_card_index = -1
 	_card_targeting_pointer_position = Vector2(-1.0, -1.0)

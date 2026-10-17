@@ -1,0 +1,96 @@
+{
+  "columns": [
+    {
+      "label": "Build seed",
+      "boons": [
+        "elemental_gift",
+        "armory"
+      ]
+    },
+    {
+      "label": "Shaping",
+      "boons": [
+        "purge",
+        "focus",
+        "vitality",
+        "trinket"
+      ]
+    },
+    {
+      "label": "Bargain",
+      "boons": [
+        "blood_price",
+        "pawned_light",
+        "debt"
+      ]
+    }
+  ],
+  "dialogue": {
+    "offer": "You'll want something in your hands down there. Choose.",
+    "taken": "Good. Go on.",
+    "declined": "Then go with nothing.",
+    "decline": "Take nothing",
+    "heirloom_prompt": "What will you leave with me? I'll keep it until you come back down.",
+    "leave_nothing": "Leave nothing",
+    "heirloom_confirmation": "I'll keep it.",
+    "back": "Back"
+  },
+  "boons": {
+    "elemental_gift": {
+      "name": "Elemental Gift",
+      "text": "Choose 1 of 3 rare <Element> spells.",
+      "rarity": "rare",
+      "count": 3
+    },
+    "armory": {
+      "name": "Armory",
+      "text": "<Item> replaces your <starter piece>.",
+      "rarity": "rare"
+    },
+    "heirloom": {
+      "name": "Heirloom",
+      "text": "Start with your <Item>, left here last run."
+    },
+    "purge": {
+      "name": "Purge",
+      "text": "Remove <Count> starter spells.",
+      "count": 2
+    },
+    "focus": {
+      "name": "Focus",
+      "text": "Swap your 6 starter spells for 4 common <Element> spells.",
+      "rarity": "common",
+      "count": 4
+    },
+    "vitality": {
+      "name": "Vitality",
+      "text": "+6 max @kw(health|HP).",
+      "max_hp": 6,
+      "current_hp": 6
+    },
+    "trinket": {
+      "name": "Trinket",
+      "text": "<Relic effect>",
+      "rarity": "common"
+    },
+    "blood_price": {
+      "name": "Blood Price",
+      "text": "Lose 5 max @kw(health|HP). Choose 1 of 5 rare spells.",
+      "max_hp": -5,
+      "rarity": "rare",
+      "count": 5
+    },
+    "pawned_light": {
+      "name": "Pawned Light",
+      "text": "<Relic effect> Start at half @kw(health|HP).",
+      "rarity": "rare",
+      "hp_fraction": 0.5
+    },
+    "debt": {
+      "name": "Debt",
+      "text": "+120 @kw(ember|Embers). Your first Scavenger visit costs 50% more.",
+      "embers": 120,
+      "price_multiplier": 1.5
+    }
+  }
+}
