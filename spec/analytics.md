@@ -56,6 +56,9 @@ available:
 ## Current Event Types
 
 - `run_started`
+- `run_start_boon_offered`
+- `run_start_boon_chosen`
+- `heirloom_left`
 - `run_resumed`
 - `run_ended`
 - `run_scored`
@@ -1057,3 +1060,38 @@ monotonic `card_stay_sequence` distinguishes Stay from a move that returns to
 its origin or a zero-distance interruption. Preview copies never write events.
 Stay spends the ordinary card costs and grants its non-movement effects, but
 adds no movement distance and fires no movement or arrival triggers.
+
+## Opening boons and heirlooms (boon-01)
+
+These additive schema-1 events use the existing local, append-only JSONL writer.
+A run persists its opening offer before the first deliberate conversation:
+
+- `run_start_boon_offered`: `{columns, rolled_contents}`. `columns` contains the
+  three ordered labels; each rolled content record includes `boon`, `column`
+  and its actual `element`, `spells`, `item`, `starter`, `slot` or `relic` as
+  applicable. Emit on the first talk that presents the offer, not run creation.
+- `run_start_boon_chosen`: `{boon, content, choices, declined}`. `content` is the
+  selected rolled record; `choices` identifies accepted spell copies. Decline
+  has an empty boon/content/choices and `declined: true`. Back/cancel emits no
+  decision and never rerolls.
+- `heirloom_left`: `{item, none}`. Empty `item` and `none: true` mean Leave
+  nothing, which retains the existing progression heirloom. The selected base
+  equipment id replaces the old heirloom; no graft or upgrade data is stored.
+
+Receipts travel in `opening_boon_events` with the committed run. The scene emits
+only after saving the gameplay boundary, and replays receipts on resume using
+`<run_id>:opening_boon:<index>:<type>` idempotency keys. Repeated conversations,
+refreshes and crash recovery cannot append duplicates. Terminal saves retain
+unanswered heirloom choices and unflushed receipts. `heirloom_terminal_wallet`
+preserves the already processed victory carry or death loss while that prompt
+is resumable, avoiding a second wallet settlement or recovery-marker erasure.
+Before Save & Quit, abandonment or a replacement descent discards that save,
+failed boon appends transfer to the existing durable profile analytics outbox
+with the original run context and the same idempotency keys. If that transfer
+cannot be saved, the old run remains intact. Outbox delivery and acknowledgment
+use the normal batch replay path; retrying either copy cannot duplicate JSONL.
+Replacement also reconciles and durably acknowledges the saved run's newer
+progression before creating its successor, including consumed heirlooms and
+settled terminal wallets. Unsettled held Embers still follow abandonment rules.
+No historical JSONL is rewritten, and the existing run/combat event payloads,
+source attribution and progression wallet policy remain in use.

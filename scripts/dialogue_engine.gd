@@ -3,6 +3,7 @@ class_name DialogueEngine
 
 const GameData = preload("res://scripts/game_data.gd")
 const ProgressionStore = preload("res://scripts/progression_store.gd")
+const OpeningBoons = preload("res://scripts/opening_boon_rules.gd")
 
 func build_room_dialogue(room: Dictionary, run_state: Dictionary, progression: Dictionary) -> Dictionary:
 	var npcs: Array = room.get("npcs", [])
@@ -130,3 +131,21 @@ func emaciated_service_dialogue(progression: Dictionary, notice: String = "") ->
 			{"label":"Leave", "action":"close"}
 		]
 	}]}
+
+func boon_dialogue(kind: String) -> Dictionary:
+	var npc: Dictionary = GameData.npc_def("emaciated_man")
+	var speaker: String = str(npc.get("name", "Emaciated Man"))
+	return {"id": "opening_boon_" + kind, "npc_id": "emaciated_man", "speaker": speaker,
+		"accent": npc.get("accent", ""), "lines": [{"speaker": speaker, "text": OpeningBoons.definitions()["dialogue"][kind]}]}
+
+func heirloom_dialogue(state: Dictionary) -> Dictionary:
+	var ending: Dictionary = state.get(OpeningBoons.HEIRLOOM_END_KEY, {})
+	if ending.has("item"): return boon_dialogue("heirloom_confirmation")
+	var result: Dictionary = boon_dialogue("heirloom_prompt")
+	var options: Array[Dictionary]
+	for slot: String in GameData.equipment_slots():
+		var item: String = str(state.get("equipped_equipment", {}).get(slot, ""))
+		if not item.is_empty(): options.append({"label": GameData.equipment_def(item).get("name", item), "action": "leave_heirloom", "item": item})
+	options.append({"label": OpeningBoons.definitions()["dialogue"]["leave_nothing"], "action": "leave_heirloom", "item": ""})
+	result["lines"][0]["options"] = options
+	return result
