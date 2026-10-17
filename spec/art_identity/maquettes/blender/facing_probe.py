@@ -10,21 +10,7 @@ import numpy as np
 from .facing import FACING_DEFAULTS, axis_report
 
 
-def asymmetry(mask, centreline):
-    a, b = np.asarray(centreline)
-    yy, xx = np.indices(mask.shape)
-    if abs(b[1] - a[1]) < FACING_DEFAULTS['epsilon']:
-        raise ValueError('Cannot project a horizontal torso centreline')
-    centre_x = a[0] + (yy - a[1]) * (b[0] - a[0]) / (b[1] - a[1])
-    mirror_x = np.rint(2 * centre_x - xx).astype(int)
-    valid = (mirror_x >= 0) & (mirror_x < mask.shape[1])
-    reflected = mask[yy, np.clip(mirror_x, 0, mask.shape[1] - 1)] & valid
-    union = np.count_nonzero(mask | reflected)
-    left = int(np.count_nonzero(mask & (xx < centre_x)))
-    right = int(np.count_nonzero(mask & (xx >= centre_x)))
-    return {'left_area_px': left, 'right_area_px': right,
-            'area_imbalance': abs(left - right) / max(left + right, 1),
-            'mirror_difference': float(np.count_nonzero(mask ^ reflected) / max(union, 1))}
+from .torso_reflection import asymmetry, passes_asymmetry
 
 
 def probe(spec, objects, output, root, cam, capture):
@@ -60,7 +46,7 @@ def probe(spec, objects, output, root, cam, capture):
     report['torso_frontal_control'] = take('front_torso_frontal_control.png')
     root.matrix_world = original
     bpy.context.view_layer.update()
-    report['torso_asymmetry_passed'] = report['torso_three_quarter']['mirror_difference'] >= FACING_DEFAULTS['asymmetry_min']
+    report['torso_asymmetry_passed'] = passes_asymmetry(report['torso_three_quarter'])
     # The control's actual object rotation is also rejected by the axis gate.
     control_forward = turn.to_3x3() @ Vector(forward)
     report['frontal_axis_rejected'] = not axis_report(spec, list(control_forward))['passed']

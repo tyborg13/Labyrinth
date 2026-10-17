@@ -179,11 +179,13 @@ def conform_curve(obj, piece, body):
     inverse = obj.matrix_world.inverted()
     tree = body_tree(bpy.data.objects[piece['conform_target']] if piece.get('conform_target') else body)
     direction = Vector(piece['conform_direction']) if piece.get('conform_direction') else None
-    points = obj.data.splines[0].points
-    for p, radius in zip(points, piece['taper']):
-        world = obj.matrix_world @ Vector(p.co[:3])
+    from .curve_projection import project_spline
+    def project(co, radius):
+        world = obj.matrix_world @ Vector(co)
         hit, normal = surface_point(tree, world, direction)
-        p.co = (* (inverse @ (hit + normal * (piece['radius'] * radius + piece['offset_surface']))), 1)
+        return tuple(inverse @ (hit + normal * (piece['radius'] * radius + piece['offset_surface'])))
+    for spline in obj.data.splines:
+        project_spline(spline, piece['taper'], project)
     obj['conforming'] = True
     obj['surface_offset'] = piece['offset_surface']
     obj['surface_allowance'] = 2 * piece['radius'] + piece['offset_surface']

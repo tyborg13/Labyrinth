@@ -13,7 +13,7 @@ import numpy as np
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from spec.art_identity.maquettes.compatibility import baseline_report, compare, compare_renders, read_spec
+from spec.art_identity.maquettes.compatibility import baseline_report, compare, compare_renders, read_spec, native_report, NATIVE_PROOF_ROOT
 from spec.art_identity.maquettes.fitting import FIT_DEFAULTS, fit_spec, measure
 from spec.art_identity.maquettes.raster import rasterise
 from spec.art_identity.maquettes.shrike_spec import legacy_shrike
@@ -58,6 +58,7 @@ def main(argv=None):
             p.add_argument('--require-gate', action='store_true')
     p = sub.add_parser('compat')
     p.add_argument('--out', type=Path, required=True)
+    p.add_argument('--renders', type=Path, default=NATIVE_PROOF_ROOT, help='Native old/new bridge proof root')
     p.add_argument('--require-gate', action='store_true')
     p = sub.add_parser('shrike-spec')
     p.add_argument('--out', type=Path, required=True)
@@ -67,17 +68,19 @@ def main(argv=None):
         write_json(args.out / 'spec.json', legacy_shrike())
         return 0
     if args.command == 'compat':
-        report = baseline_report()
+        report = native_report(args.renders) if args.renders.is_dir() else baseline_report()
         write_json(args.out / 'compatibility_report.json', report)
         passed = True
         for name, views in report.items():
             for view in ('front', 'rear'):
                 entry = views[view]
-                solo = entry['minimum_solo_iou']
+                solo = entry.get('minimum_solo_iou', entry['minimum_part_silhouette_iou'])
                 error = entry['max_joint_error_px']
-                good = entry['minimum_part_silhouette_iou'] >= 0.98 and (error is None or error <= 1)
+                good = solo is not None and solo >= 0.98 and error is not None and error <= 1
                 passed &= good
-                print(f"{name} {view}: min visible IoU={entry['minimum_visible_iou']:.6f}; min solo IoU={solo}; joint error={error}; {'PASS' if good else 'FAIL'}")
+                solo_text = 'unavailable' if solo is None else f'{solo:.6f}'
+                print(f"{name} {view}: min solo IoU={solo_text}; joint error={error}; {'PASS' if good else 'FAIL'}")
+        print('MAQUETTE_COMPAT: ' + ('PASS' if passed else 'FAIL'))
         return 1 if args.require_gate and not passed else 0
     spec = read_spec(args.spec)
     renderer = None

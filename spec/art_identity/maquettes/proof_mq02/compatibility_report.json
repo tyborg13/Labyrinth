@@ -3,922 +3,1598 @@
     "front": {
       "parts": {
         "head": {
-          "visible_iou": 0.9759776994342871,
-          "baseline_pixels": 24049,
-          "raster_pixels": 24153,
-          "solo_iou": 0.9901130923471866
+          "solo_iou": 0.9900787456204253
         },
         "torso": {
-          "visible_iou": 0.9929766618252721,
-          "baseline_pixels": 50077,
-          "raster_pixels": 50092,
-          "solo_iou": 0.9997786549599734
+          "solo_iou": 1.0
         },
         "pelvis": {
-          "visible_iou": 0.9616648411829135,
-          "baseline_pixels": 1760,
-          "raster_pixels": 1822,
-          "solo_iou": 0.9996417910447761
+          "solo_iou": 1.0
         },
         "belt": {
-          "visible_iou": 0.9881484359821255,
-          "baseline_pixels": 10228,
-          "raster_pixels": 10238,
-          "solo_iou": 0.9996785599485696
+          "solo_iou": 0.9997244736298303
         },
         "tabard": {
-          "visible_iou": 0.991096008258775,
-          "baseline_pixels": 23203,
-          "raster_pixels": 23086,
           "solo_iou": 1.0
         },
         "coat_near": {
-          "visible_iou": 0.9848553413581923,
-          "baseline_pixels": 32907,
-          "raster_pixels": 32885,
-          "solo_iou": 0.9991428120277007
+          "solo_iou": 0.999548848435632
         },
         "coat_far": {
-          "visible_iou": 0.9724217844727694,
-          "baseline_pixels": 4207,
-          "raster_pixels": 4304,
           "solo_iou": 0.9996312788949712
         },
         "upper_near": {
-          "visible_iou": 0.9970987863256129,
-          "baseline_pixels": 20624,
-          "raster_pixels": 20678,
-          "solo_iou": 0.999746063991874
+          "solo_iou": 1.0
         },
         "fore_near": {
-          "visible_iou": 0.986319612590799,
-          "baseline_pixels": 8174,
-          "raster_pixels": 8233,
-          "solo_iou": 0.9997882141155292
+          "solo_iou": 1.0
         },
         "hand_near": {
-          "visible_iou": 0.9829693723389644,
-          "baseline_pixels": 7170,
-          "raster_pixels": 7268,
-          "solo_iou": 0.9990673575129534
+          "solo_iou": 1.0
         },
         "upper_far": {
-          "visible_iou": 0.9945646265898467,
-          "baseline_pixels": 9181,
-          "raster_pixels": 9167,
-          "solo_iou": 0.9999178374825405
+          "solo_iou": 1.0
         },
         "fore_far": {
-          "visible_iou": 0.9861111111111112,
-          "baseline_pixels": 8062,
-          "raster_pixels": 7954,
-          "solo_iou": 0.9997405427844949
+          "solo_iou": 1.0
         },
         "hand_far": {
-          "visible_iou": 0.9991534988713319,
-          "baseline_pixels": 7083,
-          "raster_pixels": 7087,
-          "solo_iou": 0.9995113011606598
+          "solo_iou": 1.0
         },
         "thigh_near": {
-          "visible_iou": 0.9836170896241567,
-          "baseline_pixels": 9188,
-          "raster_pixels": 9337,
-          "solo_iou": 0.9999718848403059
+          "solo_iou": 1.0
         },
         "shin_near": {
-          "visible_iou": 0.9900825249746634,
-          "baseline_pixels": 13727,
-          "raster_pixels": 13764,
-          "solo_iou": 0.9989472496898146
+          "solo_iou": 1.0
         },
         "foot_near": {
-          "visible_iou": 0.9906444906444907,
-          "baseline_pixels": 4810,
-          "raster_pixels": 4765,
-          "solo_iou": 0.9997322623828648
+          "solo_iou": 1.0
         },
         "thigh_far": {
-          "visible_iou": 0.936595744680851,
-          "baseline_pixels": 2202,
-          "raster_pixels": 2349,
-          "solo_iou": 0.9998879708724269
+          "solo_iou": 1.0
         },
         "shin_far": {
-          "visible_iou": 0.9706231454005935,
-          "baseline_pixels": 10007,
-          "raster_pixels": 9916,
-          "solo_iou": 0.9998838334946757
+          "solo_iou": 1.0
         },
         "foot_far": {
-          "visible_iou": 0.9224170796797561,
-          "baseline_pixels": 5245,
-          "raster_pixels": 4840,
-          "solo_iou": 0.9997322982197832
+          "solo_iou": 1.0
         },
         "chain": {
-          "visible_iou": 0.9924737133370227,
-          "baseline_pixels": 9031,
-          "raster_pixels": 8971,
-          "solo_iou": 0.9988690981057393
+          "solo_iou": 1.0
         },
         "hook": {
-          "visible_iou": 0.9939374601148692,
-          "baseline_pixels": 3115,
-          "raster_pixels": 3134,
           "solo_iou": 1.0
         }
       },
-      "minimum_visible_iou": 0.9224170796797561,
-      "minimum_part_silhouette_iou": 0.9901130923471866,
-      "silhouette_iou": 0.9992541975051582,
-      "minimum_solo_iou": 0.9901130923471866,
-      "max_joint_error_px": 0.009999999999990905
+      "minimum_part_silhouette_iou": 0.9900787456204253,
+      "max_joint_error_px": 0.0
     },
     "rear": {
       "parts": {
         "head": {
-          "visible_iou": 0.9839921134165805,
-          "baseline_pixels": 21090,
-          "raster_pixels": 21173,
-          "solo_iou": 0.990149833518313
+          "solo_iou": 0.9900808101827767
         },
         "torso": {
-          "visible_iou": 0.9976565668704652,
-          "baseline_pixels": 66489,
-          "raster_pixels": 66493,
-          "solo_iou": 0.999843833660539
+          "solo_iou": 1.0
         },
         "pelvis": {
-          "visible_iou": 0.9836865119408006,
-          "baseline_pixels": 5850,
-          "raster_pixels": 5945,
-          "solo_iou": 0.9996417910447761
+          "solo_iou": 1.0
         },
         "belt": {
-          "visible_iou": 0.9928473690757557,
-          "baseline_pixels": 16015,
-          "raster_pixels": 16026,
-          "solo_iou": 0.9994312488151017
+          "solo_iou": 0.99953958237413
         },
         "tabard": {
-          "visible_iou": 0.9596273291925466,
-          "baseline_pixels": 322,
-          "raster_pixels": 309,
-          "solo_iou": 0.9999492153775836
+          "solo_iou": 1.0
         },
         "coat_near": {
-          "visible_iou": 0.9867585263363627,
-          "baseline_pixels": 20384,
-          "raster_pixels": 20277,
-          "solo_iou": 0.9993617021276596
+          "solo_iou": 0.9993920972644377
         },
         "coat_far": {
-          "visible_iou": 0.9954821658496916,
-          "baseline_pixels": 44132,
-          "raster_pixels": 44206,
-          "solo_iou": 0.9991975504170626
+          "solo_iou": 0.9994509439540482
         },
         "upper_near": {
-          "visible_iou": 0.9676165803108808,
-          "baseline_pixels": 3736,
-          "raster_pixels": 3859,
-          "solo_iou": 0.9999116061168567
+          "solo_iou": 1.0
         },
         "fore_near": {
-          "visible_iou": 0.8307692307692308,
-          "baseline_pixels": 116,
-          "raster_pixels": 122,
-          "solo_iou": 0.9990252777958282
+          "solo_iou": 1.0
         },
         "hand_near": {
-          "visible_iou": 0.0,
-          "baseline_pixels": 0,
-          "raster_pixels": 2,
           "solo_iou": 1.0
         },
         "upper_far": {
-          "visible_iou": 0.9959839357429718,
-          "baseline_pixels": 20881,
-          "raster_pixels": 20867,
-          "solo_iou": 0.999635103083379
+          "solo_iou": 1.0
         },
         "fore_far": {
-          "visible_iou": 0.9813766064038336,
-          "baseline_pixels": 9167,
-          "raster_pixels": 9026,
-          "solo_iou": 0.9996424192889252
+          "solo_iou": 1.0
         },
         "hand_far": {
-          "visible_iou": 0.9973771397018222,
-          "baseline_pixels": 7239,
-          "raster_pixels": 7230,
-          "solo_iou": 0.9996335206450037
+          "solo_iou": 1.0
         },
         "thigh_near": {
-          "visible_iou": 0.9838356625694561,
-          "baseline_pixels": 11687,
-          "raster_pixels": 11877,
-          "solo_iou": 0.999783930610859
+          "solo_iou": 1.0
         },
         "shin_near": {
-          "visible_iou": 0.9952086627377701,
-          "baseline_pixels": 20772,
-          "raster_pixels": 20870,
-          "solo_iou": 0.9999303160168636
+          "solo_iou": 1.0
         },
         "foot_near": {
-          "visible_iou": 0.9827267119062307,
-          "baseline_pixels": 1618,
-          "raster_pixels": 1596,
-          "solo_iou": 0.9995982322217758
+          "solo_iou": 1.0
         },
         "thigh_far": {
-          "visible_iou": 0.9651162790697675,
-          "baseline_pixels": 85,
-          "raster_pixels": 84,
-          "solo_iou": 0.9991554054054054
+          "solo_iou": 1.0
         },
         "shin_far": {
-          "visible_iou": 0.9883870967741936,
-          "baseline_pixels": 12383,
-          "raster_pixels": 12273,
-          "solo_iou": 0.9998623016282833
+          "solo_iou": 0.9999655742219774
         },
         "foot_far": {
-          "visible_iou": 0.8811126065500224,
-          "baseline_pixels": 2228,
-          "raster_pixels": 1965,
-          "solo_iou": 0.9998662028364999
+          "solo_iou": 1.0
         },
         "chain": {
-          "visible_iou": 0.9963839579224194,
-          "baseline_pixels": 9121,
-          "raster_pixels": 9098,
-          "solo_iou": 0.9990570485619991
+          "solo_iou": 1.0
         },
         "hook": {
-          "visible_iou": 0.9936265137029955,
-          "baseline_pixels": 3118,
-          "raster_pixels": 3138,
           "solo_iou": 1.0
         }
       },
-      "minimum_visible_iou": 0.0,
-      "minimum_part_silhouette_iou": 0.990149833518313,
-      "silhouette_iou": 0.999200853387333,
-      "minimum_solo_iou": 0.990149833518313,
-      "max_joint_error_px": 0.009999999999990905
+      "minimum_part_silhouette_iou": 0.9900808101827767,
+      "max_joint_error_px": 0.0
     },
-    "baseline_files": {
-      "front": "chainbound_gaoler/mq3_maquette_renders/front_parts.png",
-      "rear": "chainbound_gaoler/mq3_maquette_renders/rear_parts.png",
-      "joints": "chainbound_gaoler/mq3_maquette_renders/joints_px.json",
-      "solos": true
+    "native_evidence": {
+      "legacy": {
+        "folder": "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/chainbound_gaoler/legacy",
+        "joints_sha256": "7a02e480578178251003e698084667361f9cce3772a7645446859f2da2c06be0",
+        "images": {
+          "front_solo_head.png": "3256dfd41d3a5de63994cd751fce9c08e2478f494cb79d75fa5f9f8e2bc057a0",
+          "front_solo_torso.png": "bf97f07eb38de062e4c29e28a162faaad3bb25bd3578c194f9699658d4b6d1de",
+          "front_solo_pelvis.png": "c36a23c644a08bb0c5e50c6059629b3c3f0d6aca562e69733229825284d1d770",
+          "front_solo_belt.png": "3391afb4599daf1612a0810c30e39c2715eabc8cb54145d9bde208910641f768",
+          "front_solo_tabard.png": "50b04d83e699abf356a586f9206c94735706c8678a3bb184183001ce3c9769a0",
+          "front_solo_coat_near.png": "cd342a0e89b7292d368dca393691d63eb661cbd9454568d5a5500949c260d7b1",
+          "front_solo_coat_far.png": "8245905922e3dc7e087460ab153432d6899ef44e0cf00d4165f090a376c86a71",
+          "front_solo_upper_near.png": "301cd8fb8a643f1f5343ba65d05bb7d0384a234c68d9d71e7fa721ebbc806e50",
+          "front_solo_fore_near.png": "f59cfa4b8164af2df4beec71dafec6d33b41e70973e29976ac4fdb272c5d40ef",
+          "front_solo_hand_near.png": "658546f14e699f0af077af5bba16694267a99fe9ec7516d9fcefc61a570dbf92",
+          "front_solo_upper_far.png": "51a5c9243408abec0f8379f9e4c80dd166f5ba48f673a21f10fed6e8aa183bee",
+          "front_solo_fore_far.png": "12384e17d8fedb2334834e4134139258401db78dd71abef12c915cfb03d5135e",
+          "front_solo_hand_far.png": "c2e84234dd1a7b67bdcae2127ef5464df95679e3a6693038344ece898814704a",
+          "front_solo_thigh_near.png": "880dc301a80edc50b8f36ffa574145b4e4c2c211122ded64f4a6b85ada9c7edf",
+          "front_solo_shin_near.png": "27ae68caadfa19957b018b324edecfa00615a6a42aed0e0d5bec1e5fc334baac",
+          "front_solo_foot_near.png": "902d7209a9e8a23cff16acb3a4ac923c170879261c646d52fc1e8e482921ee9c",
+          "front_solo_thigh_far.png": "b16fe33bb81ff4ba53709ab79eab6ed22b214909097580308eaf2b38ec7410ed",
+          "front_solo_shin_far.png": "0f5afea71d77dbcf47db8af2ba2801e056ede95a377a8fa1dcacfa26a75045ef",
+          "front_solo_foot_far.png": "c97bfd533c8f8c3f7dcf6f79637aa13ccb18dbbb733b06765945023ecfa1c0a1",
+          "front_solo_chain.png": "fdaf9af7122bc4e2a9744562ed439c34a7de08a35aa9d58b74c3d5bec1f48d89",
+          "front_solo_hook.png": "8255212048bcd8e7ff69fd0901af8543925f2bccffe4d42fe46bc36333b9f340",
+          "rear_solo_head.png": "6ba595ff4ffbf4c0e8345bb22b134ac1a41ec96ccdb71b061ae52381702a8ab8",
+          "rear_solo_torso.png": "213d502999a39f244370720cea42e5131056f1ae06f6f41521cf44c5ce7d097e",
+          "rear_solo_pelvis.png": "243174f836def3d3393b07318ff06b2906f3d6f2a0f4908b4e188b580d4a3810",
+          "rear_solo_belt.png": "19243a3cdc051425c6d6d501e97f14fdaaca066672c99512568d3a2be04d0340",
+          "rear_solo_tabard.png": "5f792593e7f39c3ed38202919c02be3786bac98f7b436890b02ae4356aced0a1",
+          "rear_solo_coat_near.png": "c58cb3817cb07cfc132a4379313f213336bea678f8a12020f652d0d0b9738944",
+          "rear_solo_coat_far.png": "b34c6673ec30611c1cd76dc60a9bf50ff94de45a6114b05ac6368ae91b796dc7",
+          "rear_solo_upper_near.png": "b23cf02d24edf1dbaaf2e6312bc2ebdb87c21dfd5e20b4b5b8f72716779e338f",
+          "rear_solo_fore_near.png": "8d9828e5120e6bcd28366e46d6c8e3d9636c36a8550538bc53b897d3ed95a146",
+          "rear_solo_hand_near.png": "6be9532eb730f6d89eb8cf376922aa5c4056b75f6e03b5d7b0f9b599183a845e",
+          "rear_solo_upper_far.png": "e90143c661c1da26c1ae47df730d4d143bdc27989fda89081f58cc4c155b1215",
+          "rear_solo_fore_far.png": "30d706b3335fd15feb87b3cdf92fb6e312fc329a1742999585f0df9b4b0612fb",
+          "rear_solo_hand_far.png": "a9542d3dc00e11cb44d5ef3f91b39fdf3eb78e6ed9341f8e57f7e8dc52ce7fe5",
+          "rear_solo_thigh_near.png": "c259f7dba86bf838562e3ee9b79d3993864895c4e4175e6b2113fa642a2da1b5",
+          "rear_solo_shin_near.png": "792fbeb680f385922f376dffb4f4e9ebd7f93d60f174572e22fdec730be18ef2",
+          "rear_solo_foot_near.png": "e3fc273ae1dd9efb64a4f0204d7d99af116681fe6a9782f87452a08f78de8153",
+          "rear_solo_thigh_far.png": "31b109280fbf44f75d5e3dfc5bc6e64a2a719235d30cc3f5bf7c8b3eaf5915a3",
+          "rear_solo_shin_far.png": "d63d4a96a8d0e995224484ea756ab70205e2600f40ed43c102d2631de1109be8",
+          "rear_solo_foot_far.png": "921657230040bf9d336529bac4ef98f787ff0fc60f713b2aca6431799560e374",
+          "rear_solo_chain.png": "e1a055c1f6e2f9765f80fc644db0f0b4552c0a5972d06f39fe8106ce9f75393b",
+          "rear_solo_hook.png": "4d27aefeeaf001647d3bd38503452c46610dde9f87375349f0c97189a556f8ff"
+        },
+        "bridge_receipts": {
+          "front": {
+            "exit": 0,
+            "seconds": 44.9,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-bd29614b35e34259a4ab03fe85d4bc5d.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "chainbound_gaoler",
+              "legacy",
+              "front",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/legacy_humanoid.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/chainbound_gaoler/legacy"
+            ],
+            "id": "mq03-bd29614b35e34259a4ab03fe85d4bc5d",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-bd29614b35e34259a4ab03fe85d4bc5d.log"
+          },
+          "rear": {
+            "exit": 0,
+            "seconds": 45.1,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-88e57c1b0d8749628e2b5efd00664c1f.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "chainbound_gaoler",
+              "legacy",
+              "rear",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/legacy_humanoid.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/chainbound_gaoler/legacy"
+            ],
+            "id": "mq03-88e57c1b0d8749628e2b5efd00664c1f",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-88e57c1b0d8749628e2b5efd00664c1f.log"
+          }
+        },
+        "capture_receipts": {
+          "front": {
+            "source_sha256": "f64b9a1a2072920e23bcb7ea215fdaed11d7b4e0a059a0dab058051a487c48d6",
+            "version": "legacy",
+            "view": "front",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          },
+          "rear": {
+            "source_sha256": "f64b9a1a2072920e23bcb7ea215fdaed11d7b4e0a059a0dab058051a487c48d6",
+            "version": "legacy",
+            "view": "rear",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          }
+        }
+      },
+      "shared": {
+        "folder": "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/chainbound_gaoler/shared",
+        "joints_sha256": "7a02e480578178251003e698084667361f9cce3772a7645446859f2da2c06be0",
+        "images": {
+          "front_solo_head.png": "fd4b97ec6b21a95944771f45338ad9da86fba51c23a8261ae8b22a391ad0c257",
+          "front_solo_torso.png": "babea7b3d2fb9033de7c1b0a24d892e6abbc09bc24063196b547fc02299ba612",
+          "front_solo_pelvis.png": "7984c3ef8a86e3dd8cdc611268c28f28a94161e2fbccb8f9f0e528f173ab4eaa",
+          "front_solo_belt.png": "ecebd0471367f6bc4665a152d950179b43b0808c4b1526c015054af626fe471b",
+          "front_solo_tabard.png": "7f1e165bf1a3bb9c82abdf658a40b91ca206995d83c3ce58828e493ccd4a70a0",
+          "front_solo_coat_near.png": "58d1299111507409be3a9ae2facf947f1fe1fc3be244b4190b1167b2c3045aab",
+          "front_solo_coat_far.png": "c85fc46f7a132d8b06d69936924cc398fdd8020ee94f1c9201be903bfb45c994",
+          "front_solo_upper_near.png": "3b4670126f7ba9106a103a43603bc89f6ee326a1cc58fd235ed24a10cfade338",
+          "front_solo_fore_near.png": "7807db61ba2d6f4e4f430b56c8451ab56f1ca2bee7991edf38206f767e4b942a",
+          "front_solo_hand_near.png": "b41261a205bb5c9b45d43ed772803ef0430730ced937740997ecc6ec21dc15e9",
+          "front_solo_upper_far.png": "8ae409c43b79c7d038e48cbd312a5cf6de7372f3f80b2505810af2f700c4c1f2",
+          "front_solo_fore_far.png": "902511d315afa9ec3788d637221af8f67aa11b3b0b44ce42dcef3dde92908374",
+          "front_solo_hand_far.png": "72fa16eb1f200572e6a21e9a777b7a9c17cc6225443fc27c8dd0323e34e010e9",
+          "front_solo_thigh_near.png": "8fc2c3fb8d7d646a5d43049f61eddc98a96adc4026a7218ae3fd4b6b28a5733a",
+          "front_solo_shin_near.png": "2314b107c6dc725f329465d747d85379329fbc1fefbc53030f7deb26a81c247a",
+          "front_solo_foot_near.png": "26411c94227706a1b90a83382d7e69fd8f807451b00a5f1e256113598ce6e33b",
+          "front_solo_thigh_far.png": "c51d5f47991c962d272d090bba56f29c54551eac1e38816a2392a26b7cf2b046",
+          "front_solo_shin_far.png": "e9aad45d1b47c7af19be2f375eb2e7230807b4ad6b37f1f5011e8f53e436659c",
+          "front_solo_foot_far.png": "5127b9fd49d05ac74091f31571edddc008698054aa51d3734b10c7f971aa2ca0",
+          "front_solo_chain.png": "db0eff0d18d6ac0f4f61f29b336dc04eff92c67ae3028173296340b0219c88c9",
+          "front_solo_hook.png": "47e7ff9344250673d9254082f786dcf143f9421cb6ef4c933be179a96b1c28f0",
+          "rear_solo_head.png": "fe94bd951a265f2898797459c3365b839b778cfb0c4a6a20c87db90404ae227a",
+          "rear_solo_torso.png": "fa905fd05f43e52f732aaec05fbe57589a5b2c5b4bbe5c5725d14cb991fc0c5f",
+          "rear_solo_pelvis.png": "2d1128cddfc264dc6baa87de331017b92100370e3763f1107b5506eedec2b005",
+          "rear_solo_belt.png": "989f28967f5aa6108d66121915ada349f0c87ee7b810341b8377bd50bae05a3e",
+          "rear_solo_tabard.png": "ec27975d246ea17ce1ad32b76344426438dcd3de96726c95e5552c0b6db5af72",
+          "rear_solo_coat_near.png": "6a6a94bcc60e7328ae18bd98ffb92e25d8b7a4e2ddee3f3c23626138dd708194",
+          "rear_solo_coat_far.png": "7f3961b47a7bbc858ec6d9d9a37f473b28fea7562f07507ca8fc0675558ab64d",
+          "rear_solo_upper_near.png": "3115c956f683467f66ca3b73cd03013a41f8b64cc3972b5ce74dce387aef0ee5",
+          "rear_solo_fore_near.png": "a25212338546c5587d9b3fb122bda60623d723d8d67e8948b3eca6ba84d5efba",
+          "rear_solo_hand_near.png": "8990d7f07794cbc0c573aff84d58060203e49cb63d7ed4895e22aa02cc15bc86",
+          "rear_solo_upper_far.png": "47e337bef66620b7a21aba504610c13a17c577317499cfd99949950b19b87595",
+          "rear_solo_fore_far.png": "027ec088b87c2feea7927151752b31b6456ff81bec88102f17db8485fc822840",
+          "rear_solo_hand_far.png": "89f2aecd1dadb4d2a6091d5b05f4078e71054bfd424d4eb7f42ae7e26b3fc59b",
+          "rear_solo_thigh_near.png": "682fbebe23f98ea442345e4e0f1ce7bdc9a81a2215055d852bd8e0fd3a9438ed",
+          "rear_solo_shin_near.png": "24ccf4f6f994e55249b974fe6f09d6e1a53f35a9d13437c3449521b3aa01ce2c",
+          "rear_solo_foot_near.png": "d0fce9c0b50e852df1a09109a7e9c3aeee28393ec1924a864f4fb69ce9be9b69",
+          "rear_solo_thigh_far.png": "c3afda99b5d625190974c24dfdd1c30f7ca947dcb431225a95247c486e30a568",
+          "rear_solo_shin_far.png": "c2ba8cae37f3f0d175c41f485ae13f0cbccf02a2c56555ba7b105382bb97c7cd",
+          "rear_solo_foot_far.png": "0d1698fb6162c5e87ec82cebf5bea17e1f351501029a725ff9d262e54b3246af",
+          "rear_solo_chain.png": "905670d9078661c1686d28a9ddce3c80da5686e11c2ec1aa45375cff3dc12150",
+          "rear_solo_hook.png": "86034f5ff3a9e7cc58e4f776f5038e2d807192a394611e914b1a5e2c445c0203"
+        },
+        "bridge_receipts": {
+          "front": {
+            "exit": 0,
+            "seconds": 48.1,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-91fb379447094fbeaab2908bb3639322.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "chainbound_gaoler",
+              "shared",
+              "front",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/humanoid.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/chainbound_gaoler/shared"
+            ],
+            "id": "mq03-91fb379447094fbeaab2908bb3639322",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-91fb379447094fbeaab2908bb3639322.log"
+          },
+          "rear": {
+            "exit": 0,
+            "seconds": 47.5,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-da6044c885b04049961c27c7e9e5b9ce.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "chainbound_gaoler",
+              "shared",
+              "rear",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/humanoid.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/chainbound_gaoler/shared"
+            ],
+            "id": "mq03-da6044c885b04049961c27c7e9e5b9ce",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-da6044c885b04049961c27c7e9e5b9ce.log"
+          }
+        },
+        "capture_receipts": {
+          "front": {
+            "source_sha256": "f7e91b56d0efef3fb6ff0302bacdf9e1e856ef9c8df5caef164bcf8aa92c66b1",
+            "version": "shared",
+            "view": "front",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          },
+          "rear": {
+            "source_sha256": "f7e91b56d0efef3fb6ff0302bacdf9e1e856ef9c8df5caef164bcf8aa92c66b1",
+            "version": "shared",
+            "view": "rear",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          }
+        }
+      }
     }
   },
   "frostglass_lancer": {
     "front": {
       "parts": {
         "head": {
-          "visible_iou": 0.9896312886234498,
-          "baseline_pixels": 23910,
-          "raster_pixels": 24062
+          "solo_iou": 1.0
         },
         "torso": {
-          "visible_iou": 0.9946959813503861,
-          "baseline_pixels": 46543,
-          "raster_pixels": 46723
+          "solo_iou": 0.999987180144608
         },
         "pelvis": {
-          "visible_iou": 0.96298010180472,
-          "baseline_pixels": 2083,
-          "raster_pixels": 2159
+          "solo_iou": 0.9999683233551903
         },
         "belt": {
-          "visible_iou": 0.949642461476483,
-          "baseline_pixels": 9826,
-          "raster_pixels": 9532
+          "solo_iou": 0.9998744570266402
         },
         "tabard": {
-          "visible_iou": 0.9905891980360065,
-          "baseline_pixels": 21899,
-          "raster_pixels": 21886
+          "solo_iou": 1.0
         },
         "cape_near": {
-          "visible_iou": 0.9860504882329119,
-          "baseline_pixels": 44115,
-          "raster_pixels": 44157
+          "solo_iou": 0.9978068545089585
         },
         "cape_far": {
-          "visible_iou": 0.9158016147635525,
-          "baseline_pixels": 5940,
-          "raster_pixels": 5687
+          "solo_iou": 0.9977009507346586
         },
         "pauldron_near": {
-          "visible_iou": 0.9904738185667143,
-          "baseline_pixels": 15908,
-          "raster_pixels": 16061
+          "solo_iou": 1.0
         },
         "upper_near": {
-          "visible_iou": 0.9876746096959738,
-          "baseline_pixels": 10876,
-          "raster_pixels": 10895
+          "solo_iou": 1.0
         },
         "fore_near": {
-          "visible_iou": 0.9831086316441965,
-          "baseline_pixels": 6380,
-          "raster_pixels": 6417
+          "solo_iou": 1.0
         },
         "hand_near": {
-          "visible_iou": 0.9786223277909739,
-          "baseline_pixels": 4536,
-          "raster_pixels": 4627
+          "solo_iou": 1.0
         },
         "pauldron_far": {
-          "visible_iou": 0.9891586141880745,
-          "baseline_pixels": 8394,
-          "raster_pixels": 8486
+          "solo_iou": 1.0
         },
         "upper_far": {
-          "visible_iou": 0.9746423006091515,
-          "baseline_pixels": 6985,
-          "raster_pixels": 6954
+          "solo_iou": 1.0
         },
         "fore_far": {
-          "visible_iou": 0.9775989903770311,
-          "baseline_pixels": 6247,
-          "raster_pixels": 6289
+          "solo_iou": 1.0
         },
         "hand_far": {
-          "visible_iou": 0.9695807070430255,
-          "baseline_pixels": 3565,
-          "raster_pixels": 3622
+          "solo_iou": 1.0
         },
         "thigh_near": {
-          "visible_iou": 0.9761504870675176,
-          "baseline_pixels": 14633,
-          "raster_pixels": 14782
+          "solo_iou": 0.9999670488994332
         },
         "shin_near": {
-          "visible_iou": 0.9713887922032718,
-          "baseline_pixels": 14131,
-          "raster_pixels": 14188
+          "solo_iou": 1.0
         },
         "foot_near": {
-          "visible_iou": 0.9733988131778187,
-          "baseline_pixels": 4781,
-          "raster_pixels": 4863
+          "solo_iou": 1.0
         },
         "thigh_far": {
-          "visible_iou": 0.5202784503631961,
-          "baseline_pixels": 3190,
-          "raster_pixels": 1833
+          "solo_iou": 1.0
         },
         "shin_far": {
-          "visible_iou": 0.8924073847658638,
-          "baseline_pixels": 7965,
-          "raster_pixels": 7513
+          "solo_iou": 1.0
         },
         "foot_far": {
-          "visible_iou": 0.8362441639287567,
-          "baseline_pixels": 5681,
-          "raster_pixels": 4938
+          "solo_iou": 1.0
         },
         "spear_shaft": {
-          "visible_iou": 0.9568396531642294,
-          "baseline_pixels": 14852,
-          "raster_pixels": 15389
+          "solo_iou": 1.0
         },
         "spear_blade": {
-          "visible_iou": 0.9662453531598513,
-          "baseline_pixels": 6498,
-          "raster_pixels": 6725
+          "solo_iou": 1.0
         }
       },
-      "minimum_visible_iou": 0.5202784503631961,
-      "minimum_part_silhouette_iou": 0.5202784503631961,
-      "silhouette_iou": 0.9957712458560286,
-      "minimum_solo_iou": null,
-      "max_joint_error_px": null
+      "minimum_part_silhouette_iou": 0.9977009507346586,
+      "max_joint_error_px": 0.0
     },
     "rear": {
       "parts": {
         "head": {
-          "visible_iou": 0.9921108653003298,
-          "baseline_pixels": 23779,
-          "raster_pixels": 23946
+          "solo_iou": 1.0
         },
         "torso": {
-          "visible_iou": 0.9946074989467771,
-          "baseline_pixels": 35493,
-          "raster_pixels": 35525
+          "solo_iou": 1.0
         },
         "pelvis": {
-          "visible_iou": 0.9823163622230859,
-          "baseline_pixels": 5059,
-          "raster_pixels": 5142
+          "solo_iou": 0.9999683233551903
         },
         "belt": {
-          "visible_iou": 0.9430038056465174,
-          "baseline_pixels": 11255,
-          "raster_pixels": 10699
+          "solo_iou": 0.9997236042012161
         },
         "tabard": {
-          "visible_iou": 0.3582887700534759,
-          "baseline_pixels": 164,
-          "raster_pixels": 90
+          "solo_iou": 1.0
         },
         "cape_near": {
-          "visible_iou": 0.9699290703632784,
-          "baseline_pixels": 36216,
-          "raster_pixels": 36827
+          "solo_iou": 0.9977254184488342
         },
         "cape_far": {
-          "visible_iou": 0.9886752813192505,
-          "baseline_pixels": 69109,
-          "raster_pixels": 69092
+          "solo_iou": 0.9976447634311197
         },
         "pauldron_near": {
-          "visible_iou": 0.9718667127868097,
-          "baseline_pixels": 8454,
-          "raster_pixels": 8648
+          "solo_iou": 1.0
         },
         "upper_near": {
-          "visible_iou": 0.6989090909090909,
-          "baseline_pixels": 1315,
-          "raster_pixels": 1021
+          "solo_iou": 1.0
         },
         "fore_near": {
-          "visible_iou": 0.891726251276813,
-          "baseline_pixels": 947,
-          "raster_pixels": 905
+          "solo_iou": 1.0
         },
         "hand_near": {
-          "visible_iou": 1.0,
-          "baseline_pixels": 0,
-          "raster_pixels": 0
+          "solo_iou": 1.0
         },
         "pauldron_far": {
-          "visible_iou": 0.993330816660375,
-          "baseline_pixels": 15788,
-          "raster_pixels": 15894
+          "solo_iou": 1.0
         },
         "upper_far": {
-          "visible_iou": 0.98252976771423,
-          "baseline_pixels": 10161,
-          "raster_pixels": 10152
+          "solo_iou": 1.0
         },
         "fore_far": {
-          "visible_iou": 0.9663186921410282,
-          "baseline_pixels": 5004,
-          "raster_pixels": 4979
+          "solo_iou": 1.0
         },
         "hand_far": {
-          "visible_iou": 0.9340788699234844,
-          "baseline_pixels": 1622,
-          "raster_pixels": 1664
+          "solo_iou": 1.0
         },
         "thigh_near": {
-          "visible_iou": 0.9711378534389982,
-          "baseline_pixels": 10026,
-          "raster_pixels": 10121
+          "solo_iou": 1.0
         },
         "shin_near": {
-          "visible_iou": 0.9785698172794947,
-          "baseline_pixels": 17446,
-          "raster_pixels": 17638
+          "solo_iou": 1.0
         },
         "foot_near": {
-          "visible_iou": 0.9473140495867769,
-          "baseline_pixels": 1861,
-          "raster_pixels": 1909
+          "solo_iou": 1.0
         },
         "thigh_far": {
-          "visible_iou": 0.015237020316027089,
-          "baseline_pixels": 1767,
-          "raster_pixels": 32
+          "solo_iou": 1.0
         },
         "shin_far": {
-          "visible_iou": 0.8540723981900452,
-          "baseline_pixels": 6113,
-          "raster_pixels": 5360
+          "solo_iou": 1.0
         },
         "foot_far": {
-          "visible_iou": 0.7919911012235817,
-          "baseline_pixels": 2617,
-          "raster_pixels": 2216
+          "solo_iou": 1.0
         },
         "spear_shaft": {
-          "visible_iou": 0.9559896833671734,
-          "baseline_pixels": 17437,
-          "raster_pixels": 18207
+          "solo_iou": 1.0
         },
         "spear_blade": {
-          "visible_iou": 0.964720974983964,
-          "baseline_pixels": 7520,
-          "raster_pixels": 7795
+          "solo_iou": 1.0
         }
       },
-      "minimum_visible_iou": 0.015237020316027089,
-      "minimum_part_silhouette_iou": 0.015237020316027089,
-      "silhouette_iou": 0.9954248207795442,
-      "minimum_solo_iou": null,
-      "max_joint_error_px": null
+      "minimum_part_silhouette_iou": 0.9976447634311197,
+      "max_joint_error_px": 0.0
     },
-    "baseline_files": {
-      "front": "frostglass_lancer/mq1_front_v3/refs/01_maquette_front_parts.png",
-      "rear": "frostglass_lancer/mq1_rear_v3/refs/01_maquette_rear_parts.png"
+    "native_evidence": {
+      "legacy": {
+        "folder": "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/frostglass_lancer/legacy",
+        "joints_sha256": "5b787951d1cdac280749cfe09e1d42db4be4d49088be9a57637a334d0787efd6",
+        "images": {
+          "front_solo_head.png": "02eaa0e0136261fa926ef98b074ab916d33cf8313b92c8ab1eb5f2f1f7c308bd",
+          "front_solo_torso.png": "cdac748181474a123d05f59d63ff8e8ba71e5a85d3bf78a3b0c5cf1cf7bc162e",
+          "front_solo_pelvis.png": "bc71b287aeaa71eae664d7458bc668f19b18db05fc48aa50c6d4d427d1ceaaa5",
+          "front_solo_belt.png": "66272d23533ba59cd6d323c5a1760f5d6e94795c1b7e4a41c48a059b64b81a12",
+          "front_solo_tabard.png": "dce7024c4379ed30f1fc7bb2ff96c1662c73c05502e437392ecf2da8222fba62",
+          "front_solo_cape_near.png": "ae1d1fb64d9689324d7abaaf346b892d16e98e883aee5522b0c5125c7a823456",
+          "front_solo_cape_far.png": "0fb081a00b1a3aec20e41f7d6b974030d41b40290b5a0f3cdaef7e42836bdb15",
+          "front_solo_pauldron_near.png": "ea9dcc562db13f096fde85464fa67a5c906591bf5c39bee55429613b3d68b344",
+          "front_solo_upper_near.png": "36ab00e27d41f7fe05cd143704c16cc73eb55735eb3dfb9558bbefc564259ff3",
+          "front_solo_fore_near.png": "5ad4e30792c89e48d9cfcfbf05fe3e8bc89f91a007dfd4a745137f4609bef068",
+          "front_solo_hand_near.png": "2a8b279af38d075c207b0374cfbba43799aabde4c3174243e39a6ed527b1d390",
+          "front_solo_pauldron_far.png": "459f96236dc438dd521cbbb4a2fad02ddb4d7775957669d3ca8ddf4fd66c45a9",
+          "front_solo_upper_far.png": "2a16a0462c5ba1145a0db3452ba814e4d70dfd85daab60f64f1815757ffec84e",
+          "front_solo_fore_far.png": "e51435e5ff74e0fd8e891c54f626db901776e7dacb305d0d293981411f754982",
+          "front_solo_hand_far.png": "e83cc95a28ec49dab350f2ebef7949bcf12c5a7b3f2f182478ebf012e10b8a61",
+          "front_solo_thigh_near.png": "990a6a23f22a3c3242da9ca689bfaa00b7641b5abcd6c017eb7796e660771c60",
+          "front_solo_shin_near.png": "d70b882b0eac260bc84ea11003ad56d51a83410c2547a01c2f440625897bc3da",
+          "front_solo_foot_near.png": "193a58dcfd4ae40771ad975068d038d682880e2c5db41327237ba98dc1e25391",
+          "front_solo_thigh_far.png": "0117d0e3892879aa84f163dfa603ea9f4ae6fad0d4b0bf627ac1e6639656385a",
+          "front_solo_shin_far.png": "c6765014495b8096e9695a24ae3040d77920c7bd464270114c813ba0fddce058",
+          "front_solo_foot_far.png": "4a168a6924e20b5078c1a6db0fb82ca7c5a74eb799a84671d3c5880a519cbd83",
+          "front_solo_spear_shaft.png": "8b42fd86fc08b6b8430d7b7ddef0b45bd9c3445e83ec8248a7aa654fefdb6cf3",
+          "front_solo_spear_blade.png": "aa899216afcee12722fd370c29685903b3f54ac67411fff4972f6bf2795ccdc7",
+          "rear_solo_head.png": "514baad9b64fd81ae8c54221b062bb8a19919ceec56f7c89fb6647358b1b3921",
+          "rear_solo_torso.png": "99d852ba1796a6ddd751b665a9d40e2c60ea04ba9a9cb274f0fdb74b4b9e0e5d",
+          "rear_solo_pelvis.png": "0e7b03dee8aa08588d8872e1c9a802c1ee8fb5fe0316bff2783e8049b05173f5",
+          "rear_solo_belt.png": "bb814f59392810659f50238141e4d795cc0138c41be9e2f9e3aa0ee7e0afb04f",
+          "rear_solo_tabard.png": "b0b47df1abf4fef70e94a3b2c2ba67aea86be9bbe51932a8d705b3b01f0b1c40",
+          "rear_solo_cape_near.png": "a5d854facd5cd4a4179a13311479cfd8e923302ea191775fdefceb7e59e1b301",
+          "rear_solo_cape_far.png": "cbd7bb863062dcf6429ced3d4a637c6cb2afe4adf01c46be3f661e95680f1fd4",
+          "rear_solo_pauldron_near.png": "d3fdf39fc17ad5d2755520bcfe1577931e9432da9b43db52bff2e5e900f5c852",
+          "rear_solo_upper_near.png": "bfa8b62512ae5cba0a67bc92a5b3a0341c3a20fbc796b9bcf3699a84342d5e3d",
+          "rear_solo_fore_near.png": "c6aa01a3d49bcee3e0cb74f8421e9b1bae9948172874c8c2660463f5bff19965",
+          "rear_solo_hand_near.png": "e45b55ed04d628703a0563d84a866e61fc675b15c71f634690ac760953dca5f2",
+          "rear_solo_pauldron_far.png": "61eb5c4b3fb5ffdbfc37e583129782b96d62bf0d844b5dfa4c5fcf0776b2c15f",
+          "rear_solo_upper_far.png": "51d803dbe0f9d008de611a63f6529f31410b66c5d80e80066978c32517829a15",
+          "rear_solo_fore_far.png": "98ccc6fd6672077dee68f7ba9593cb842421b5cffd0f9448da3541e4af5b050e",
+          "rear_solo_hand_far.png": "12e876f4caf47e7490ef24384124d04f5f878038b24dd36b9a503ee673013137",
+          "rear_solo_thigh_near.png": "af2a0acca7c55a3b828f70e6f9422080179eae81250a3f0e80945338a4f2472b",
+          "rear_solo_shin_near.png": "62202a994f08d3d316195bc94ae40976d5d4b7a91b53d05c9b49fab9c95784ca",
+          "rear_solo_foot_near.png": "e8c55cadd66b12b54f21ab599548be0e2ad608d406392b61bfbe0578111646a0",
+          "rear_solo_thigh_far.png": "5be468e79c746b810fd2b8f6fafd1dc4d7d4787d0f69ef2a6e24aad0775f93f4",
+          "rear_solo_shin_far.png": "5de7dd7eef0cc5d91878c3f50b54a40c64a2893ba8da05c9c068607909d6f7bf",
+          "rear_solo_foot_far.png": "0dd64101a940cad849140625eabcf18d89db6471c04bbc147d02f058853d5c9a",
+          "rear_solo_spear_shaft.png": "5ed4dd9a904f89c5df72dc12f4cf464d037e2be258de756803d8e2ad742cf09c",
+          "rear_solo_spear_blade.png": "05e7d8d7e302b41f35855122585913e310d6aaf842690c4e2bf36538b812536f"
+        },
+        "bridge_receipts": {
+          "front": {
+            "exit": 0,
+            "seconds": 46.0,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-ca90997088bf4b48adf9c8ccefde6a69.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "frostglass_lancer",
+              "legacy",
+              "front",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/legacy_humanoid.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/frostglass_lancer/legacy"
+            ]
+          },
+          "rear": {
+            "exit": 0,
+            "seconds": 53.2,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-7ae786744a0b4faa9b48928c14026375.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "frostglass_lancer",
+              "legacy",
+              "rear",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/legacy_humanoid.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/frostglass_lancer/legacy"
+            ],
+            "id": "mq03-7ae786744a0b4faa9b48928c14026375",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-7ae786744a0b4faa9b48928c14026375.log"
+          }
+        },
+        "capture_receipts": {
+          "front": {
+            "source_sha256": "f64b9a1a2072920e23bcb7ea215fdaed11d7b4e0a059a0dab058051a487c48d6",
+            "version": "legacy",
+            "view": "front",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          },
+          "rear": {
+            "source_sha256": "f64b9a1a2072920e23bcb7ea215fdaed11d7b4e0a059a0dab058051a487c48d6",
+            "version": "legacy",
+            "view": "rear",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          }
+        }
+      },
+      "shared": {
+        "folder": "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/frostglass_lancer/shared",
+        "joints_sha256": "5b787951d1cdac280749cfe09e1d42db4be4d49088be9a57637a334d0787efd6",
+        "images": {
+          "front_solo_head.png": "de7d5dba21c82c6a7cb0d6369bf867857eac492fdc25bf64705015bd6ad78c0f",
+          "front_solo_torso.png": "55c5d331a701c2d0618f42a6b5829e264ebfb83f51374fd7232bb1aa469872b7",
+          "front_solo_pelvis.png": "ec4462170d5054149b5c72922200f5026d5f290af1954e9d76272b64a1e774a8",
+          "front_solo_belt.png": "8fd7818bd2c177d6825b72e986c978cc23bc57b3d8818c40d14cdf5dbace5f6a",
+          "front_solo_tabard.png": "db916be63528133d1d7387d3d5aa326818c7365d6b6026ca3e868df5b3d1e26b",
+          "front_solo_cape_near.png": "884093aa869a33df3732689332abb665875f99978b1fdd36a6d979b77f82ce0f",
+          "front_solo_cape_far.png": "1359be9bcc75f188c6cc9e07f78e1f5124e2140319922db5b5fedefd9fd30ce1",
+          "front_solo_pauldron_near.png": "714a629d9917d1c2eb29b0c2f1ac1c7ad8247cb9901e3ea36a9f1ea1a137310b",
+          "front_solo_upper_near.png": "7c863cd835c1116c6e1ad884119da40616bdfeceb5d24a1c170297ff7f5e84e3",
+          "front_solo_fore_near.png": "7c6e9b5dc0a20ce78194e289080655e76479d9c7b5850f60ccfc9afdf5d3a0b8",
+          "front_solo_hand_near.png": "6967d4e1b045e72d0499450559b74ddf31429bd8eb7c0978074cff1003221d43",
+          "front_solo_pauldron_far.png": "5fe56507cd17e769acebd602ef5b0e0860905a840f884b49e31613403ee7d9b7",
+          "front_solo_upper_far.png": "213a7d3f996fee93fdf42c86c609aab02bf43724501a7c824ba7adf1dfb15835",
+          "front_solo_fore_far.png": "4edba7a2e572a62d03fcfaf136febb896da2ce5e2c820e29a199fa236121894d",
+          "front_solo_hand_far.png": "98fdf477d03d10bfda764b5e806d24e95611e178cc2bfc8cd58092d20dcb3756",
+          "front_solo_thigh_near.png": "825368772c234a14a6d635a43b8e03e48ad949f42da4bf84b33e532575932791",
+          "front_solo_shin_near.png": "65cb6b0a67ba9eedf7f74bb172cd2553c56e76d3945ab34ff0b719fd0af28476",
+          "front_solo_foot_near.png": "bffd804ef043968d2cbf7dbe57cc4c771770145451a6433a521859ffe75d6daa",
+          "front_solo_thigh_far.png": "ef08193ea296f81a54573f34a0dbf4854f92445c1e5c3cac165bb21865810ebc",
+          "front_solo_shin_far.png": "50a6bb08747c8460f9c7131b121c2e903b579d84dc8ab39bf4ce37d282c1dce8",
+          "front_solo_foot_far.png": "f6c14c6ad4d999e1f56ccec5a1e69ad7f022e2667407db57e2c82fa62d77f8f8",
+          "front_solo_spear_shaft.png": "d4016f27868d97a08777ec52f0a6b92f5d38f5589cbd868a959d3dc4ffbfe672",
+          "front_solo_spear_blade.png": "cc25376ca8078ca431b86ff330b31037ab90d023e70307d989dc70fe999f93e1",
+          "rear_solo_head.png": "366e76b49c0c6de915fe9dc87e073f367571b379a5525093d6260db9839cb220",
+          "rear_solo_torso.png": "a4da953c764a123fd4afc26b921b7ff9dd07388eb2bdf77aeae1e637f0ead982",
+          "rear_solo_pelvis.png": "dcf5f46c4a5c80c8b7cee4eb736cb57030172f7b52b6264b813857df16ca9afe",
+          "rear_solo_belt.png": "809551c66ca471caf02b83e75b3886678673880f138517397d6d1e2bf55c9893",
+          "rear_solo_tabard.png": "1ccec6d4a5e4c53c30e9c1afea2ef52d0458d6b476744efed9d6ff1f301d4bab",
+          "rear_solo_cape_near.png": "3fb495981c5d9776d106829453300d92e0152d3d0980cea738ef37830544d735",
+          "rear_solo_cape_far.png": "bfcbd1c5306fa34e73a18225a4977ee36b18b40e18b0680e99cfc1f387e265fe",
+          "rear_solo_pauldron_near.png": "44850fe4d80c8b1553c9e70234e5498cb1e4281d4aedc92535775233edc903e2",
+          "rear_solo_upper_near.png": "f97971bb4d01bd4cbd5cc130ba086efdba89e558301e94cc13d189176f71e971",
+          "rear_solo_fore_near.png": "63fde60269649493f9e7008e296de89dfe6ce9200f3b95c30da777cca036d259",
+          "rear_solo_hand_near.png": "1c0c3347d47318479f4aff2e32c3185a6e867759049ae265572ced87b19b09e2",
+          "rear_solo_pauldron_far.png": "df09731808fcdc9368ff6615f3a6b600b96e71b80583e41b66b218a2e44d65d8",
+          "rear_solo_upper_far.png": "5c5b5cec083b4747d4dfc094a48a29af5df960023d9bc8bfbaecc2421a13d37a",
+          "rear_solo_fore_far.png": "f96ecaa44861790000f865b1aa1c93fa9e6bded900f2e73a6349b2f23fa5c3a8",
+          "rear_solo_hand_far.png": "94365561cef646ea335ac395cb5792a8b27bccb0b1a800f4d51cb9e0bd659e45",
+          "rear_solo_thigh_near.png": "0892aa6f5df5bf840fce2ac5dc87cc71dc2047fe8e18807790c66f225cdaba41",
+          "rear_solo_shin_near.png": "f7a8899d0b3f9cbb7b3fc8c1e804e0cd8ab653bd515b7116e7825bbd05440344",
+          "rear_solo_foot_near.png": "43b5d20b1f26b4d330dbbd4481c69707875456dec2cc7ba509d9fd1ef2a07df1",
+          "rear_solo_thigh_far.png": "0b66911ab23459ffd82937652acaaa495a28f995090b90047496d10504f01ffd",
+          "rear_solo_shin_far.png": "11f96ed04e94d786b93b110a30f82ab7272f8248db21182bd51c4b2326a82863",
+          "rear_solo_foot_far.png": "8a51af50f095248d2201d1c173d002f7f29800a1c7e6ed30403d2b00a3101e9a",
+          "rear_solo_spear_shaft.png": "7555a52301660812b76911ba38894ee951580251da5aee444b186d1279fd0166",
+          "rear_solo_spear_blade.png": "6c71cecdaa65c0015ffac38009e5ac0630682c5b2f2fedb4ac03aac29116e18e"
+        },
+        "bridge_receipts": {
+          "front": {
+            "exit": 0,
+            "seconds": 63.1,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-f3971c9bc0ea460ba2298638dc1d52e2.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "frostglass_lancer",
+              "shared",
+              "front",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/humanoid.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/frostglass_lancer/shared"
+            ],
+            "id": "mq03-f3971c9bc0ea460ba2298638dc1d52e2",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-f3971c9bc0ea460ba2298638dc1d52e2.log"
+          },
+          "rear": {
+            "exit": 0,
+            "seconds": 49.8,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-c021c9248675414691eb6ab295017efc.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "frostglass_lancer",
+              "shared",
+              "rear",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/humanoid.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/frostglass_lancer/shared"
+            ],
+            "id": "mq03-c021c9248675414691eb6ab295017efc",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-c021c9248675414691eb6ab295017efc.log"
+          }
+        },
+        "capture_receipts": {
+          "front": {
+            "source_sha256": "f7e91b56d0efef3fb6ff0302bacdf9e1e856ef9c8df5caef164bcf8aa92c66b1",
+            "version": "shared",
+            "view": "front",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          },
+          "rear": {
+            "source_sha256": "f7e91b56d0efef3fb6ff0302bacdf9e1e856ef9c8df5caef164bcf8aa92c66b1",
+            "version": "shared",
+            "view": "rear",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          }
+        }
+      }
     }
   },
   "lightning_wisp": {
     "front": {
       "parts": {
         "core": {
-          "visible_iou": 0.9944944181870543,
-          "baseline_pixels": 117412,
-          "raster_pixels": 118062
+          "solo_iou": 1.0
         },
         "crown": {
-          "visible_iou": 0.9661646586345382,
-          "baseline_pixels": 9772,
-          "raster_pixels": 9811
+          "solo_iou": 1.0
         },
         "tail": {
-          "visible_iou": 0.9909670221211406,
-          "baseline_pixels": 46607,
-          "raster_pixels": 46186
+          "solo_iou": 1.0
         },
         "arc_left": {
-          "visible_iou": 0.9671672555948174,
-          "baseline_pixels": 6569,
-          "raster_pixels": 6792
+          "solo_iou": 1.0
         },
         "arc_right": {
-          "visible_iou": 0.8599357257632566,
-          "baseline_pixels": 7467,
-          "raster_pixels": 6423
+          "solo_iou": 1.0
         }
       },
-      "minimum_visible_iou": 0.8599357257632566,
-      "minimum_part_silhouette_iou": 0.8599357257632566,
-      "silhouette_iou": 0.99704516898439,
-      "minimum_solo_iou": null,
-      "max_joint_error_px": null
+      "minimum_part_silhouette_iou": 1.0,
+      "max_joint_error_px": 0.0
     },
     "rear": {
       "parts": {
         "core": {
-          "visible_iou": 0.9948655407972993,
-          "baseline_pixels": 112576,
-          "raster_pixels": 113157
+          "solo_iou": 1.0
         },
         "crown": {
-          "visible_iou": 0.9692675745307324,
-          "baseline_pixels": 10741,
-          "raster_pixels": 10661
+          "solo_iou": 1.0
         },
         "tail": {
-          "visible_iou": 0.983216224316494,
-          "baseline_pixels": 30029,
-          "raster_pixels": 29525
+          "solo_iou": 1.0
         },
         "arc_left": {
-          "visible_iou": 0.9690958164642375,
-          "baseline_pixels": 7193,
-          "raster_pixels": 7398
+          "solo_iou": 1.0
         },
         "arc_right": {
-          "visible_iou": 0.9020284399832706,
-          "baseline_pixels": 9564,
-          "raster_pixels": 8627
+          "solo_iou": 1.0
         }
       },
-      "minimum_visible_iou": 0.9020284399832706,
-      "minimum_part_silhouette_iou": 0.9020284399832706,
-      "silhouette_iou": 0.9956790885522301,
-      "minimum_solo_iou": null,
-      "max_joint_error_px": null
+      "minimum_part_silhouette_iou": 1.0,
+      "max_joint_error_px": 0.0
     },
-    "baseline_files": {
-      "front": "lightning_wisp/mq1_front_v2/refs/02_maquette_front_parts_r3.png",
-      "rear": "lightning_wisp/mq1_rear/refs/01_maquette_rear_parts.png"
+    "native_evidence": {
+      "legacy": {
+        "folder": "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/lightning_wisp/legacy",
+        "joints_sha256": "258942c1d42226369aa0d4e085f5461b229b5f7ae84f0cd566cd59110af55697",
+        "images": {
+          "front_solo_core.png": "49a5b78b5b2570cf25b6572a7b1e2d8d586c3674d31da5de87b8220b22dbc3b7",
+          "front_solo_crown.png": "a4a267aae87a173903c1038b3c573f67c9282a455d92f4e37a3c43a8d32b3e78",
+          "front_solo_tail.png": "17fa7ccf9d7ac583933682fdf5549d231bdf45e52adaf6dd302fcfca794b77be",
+          "front_solo_arc_left.png": "b6207f364c513890185392218caa77f0bd1662650524888b5b6f09f0ac45f5b4",
+          "front_solo_arc_right.png": "b37aeda5eaf345baf536b55624e8acc512c0abcf7ccdc33e018952bb5d9eec23",
+          "rear_solo_core.png": "106ae74715658eb13f030ecdd3e02117a2dc259effcdcff24b15e9018710a15a",
+          "rear_solo_crown.png": "44adaab5f53942e8d14b580725414dbdc28b3f363ac3d6a57b16d23a54d9a57d",
+          "rear_solo_tail.png": "9a1be0ff6be0858bb8f675fe8a9329246c424447b02081a2015a3522881d7858",
+          "rear_solo_arc_left.png": "105c71b8d39ade114f270e71949e97bda05499dd18c959150742255ef968dd17",
+          "rear_solo_arc_right.png": "4d095848cbfb5ba5581c188d2553e5978de749920b818f13d12229b619ed8cb1"
+        },
+        "bridge_receipts": {
+          "front": {
+            "exit": 0,
+            "seconds": 11.7,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-f5fed83ce9834eeba426d9a21ed028a3.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "lightning_wisp",
+              "legacy",
+              "front",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/legacy_humanoid.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/lightning_wisp/legacy"
+            ],
+            "id": "mq03-f5fed83ce9834eeba426d9a21ed028a3",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-f5fed83ce9834eeba426d9a21ed028a3.log"
+          },
+          "rear": {
+            "exit": 0,
+            "seconds": 12.2,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-7e48f0e12ebe4a32a64d4dc5d9b868c6.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "lightning_wisp",
+              "legacy",
+              "rear",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/legacy_humanoid.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/lightning_wisp/legacy"
+            ],
+            "id": "mq03-7e48f0e12ebe4a32a64d4dc5d9b868c6",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-7e48f0e12ebe4a32a64d4dc5d9b868c6.log"
+          }
+        },
+        "capture_receipts": {
+          "front": {
+            "source_sha256": "f64b9a1a2072920e23bcb7ea215fdaed11d7b4e0a059a0dab058051a487c48d6",
+            "version": "legacy",
+            "view": "front",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          },
+          "rear": {
+            "source_sha256": "f64b9a1a2072920e23bcb7ea215fdaed11d7b4e0a059a0dab058051a487c48d6",
+            "version": "legacy",
+            "view": "rear",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          }
+        }
+      },
+      "shared": {
+        "folder": "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/lightning_wisp/shared",
+        "joints_sha256": "258942c1d42226369aa0d4e085f5461b229b5f7ae84f0cd566cd59110af55697",
+        "images": {
+          "front_solo_core.png": "3fc2cabc7ea2d9b793b0fcb55d798c231ad215e901f93f09b6fd13d8cfae746e",
+          "front_solo_crown.png": "adb78fbfdc7b823da8be6acd1ab4510b819b604fc6fea8ee6975b76abdc704cf",
+          "front_solo_tail.png": "209b0839a874f63beabab15004164ea7a52a15510372088a00d55ca7062fbd75",
+          "front_solo_arc_left.png": "6c5b5067ef08085f3bd08ecc046f705b72ec3d7591594a1bd7921105e2bd7d85",
+          "front_solo_arc_right.png": "2f460102c7bce2935853a84fb5967e0ee3eaecc3077b81434c9bf3ea8411f06c",
+          "rear_solo_core.png": "bb86de560e14ed519e4522e6759a16dc13fc6047edec42690e4281c215dc8690",
+          "rear_solo_crown.png": "ed34110c159640c10a2716ae72e28e255927f6aa91e6349aaa794010f5112317",
+          "rear_solo_tail.png": "787a5d25a37e9ab0d492f1ed90085fee10625750b5089c43134622ea97fc7a05",
+          "rear_solo_arc_left.png": "e2a7b85ec95e7f5065dc0859b6a3c3a8d18b12631b06a539de9731e832e21f79",
+          "rear_solo_arc_right.png": "a793edde54d151c9857b8724e6b981da5e3656fd56065af3fa67930bd7e5c55f"
+        },
+        "bridge_receipts": {
+          "front": {
+            "exit": 0,
+            "seconds": 12.4,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-6938f896a58e43b5b2b79d693a1091dc.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "lightning_wisp",
+              "shared",
+              "front",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/humanoid.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/lightning_wisp/shared"
+            ],
+            "id": "mq03-6938f896a58e43b5b2b79d693a1091dc",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-6938f896a58e43b5b2b79d693a1091dc.log"
+          },
+          "rear": {
+            "exit": 0,
+            "seconds": 12.2,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-4b37d9707dc647a0873801953b2f6606.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "lightning_wisp",
+              "shared",
+              "rear",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/humanoid.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/lightning_wisp/shared"
+            ],
+            "id": "mq03-4b37d9707dc647a0873801953b2f6606",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-4b37d9707dc647a0873801953b2f6606.log"
+          }
+        },
+        "capture_receipts": {
+          "front": {
+            "source_sha256": "f7e91b56d0efef3fb6ff0302bacdf9e1e856ef9c8df5caef164bcf8aa92c66b1",
+            "version": "shared",
+            "view": "front",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          },
+          "rear": {
+            "source_sha256": "f7e91b56d0efef3fb6ff0302bacdf9e1e856ef9c8df5caef164bcf8aa92c66b1",
+            "version": "shared",
+            "view": "rear",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          }
+        }
+      }
     }
   },
   "shale_bloomer": {
     "front": {
       "parts": {
         "trunk": {
-          "visible_iou": 0.9921939369832656,
-          "baseline_pixels": 139731,
-          "raster_pixels": 140746
+          "solo_iou": 1.0
         },
         "core": {
-          "visible_iou": 0.9896123938980234,
-          "baseline_pixels": 16786,
-          "raster_pixels": 16733
+          "solo_iou": 1.0
         },
         "petal_near_l": {
-          "visible_iou": 0.9501955671447196,
-          "baseline_pixels": 18834,
-          "raster_pixels": 18561
+          "solo_iou": 0.9866046670363893
         },
         "petal_near_r": {
-          "visible_iou": 0.9455752929107499,
-          "baseline_pixels": 18371,
-          "raster_pixels": 17663
+          "solo_iou": 0.9934075926346897
         },
         "petal_far_l": {
-          "visible_iou": 0.9632834653368534,
-          "baseline_pixels": 19843,
-          "raster_pixels": 20314
+          "solo_iou": 0.9867950855937107
         },
         "petal_far_r": {
-          "visible_iou": 0.9551262393948686,
-          "baseline_pixels": 19109,
-          "raster_pixels": 19145
+          "solo_iou": 0.9960398998767138
         },
         "tendril_high_l": {
-          "visible_iou": 0.9674683544303797,
-          "baseline_pixels": 15302,
-          "raster_pixels": 15784
+          "solo_iou": 1.0
         },
         "tendril_high_r": {
-          "visible_iou": 0.9842853110002823,
-          "baseline_pixels": 10460,
-          "raster_pixels": 10627
+          "solo_iou": 1.0
         },
         "tendril_mid_l": {
-          "visible_iou": 0.0,
-          "baseline_pixels": 1,
-          "raster_pixels": 0
+          "solo_iou": 1.0
         },
         "tendril_low_l": {
-          "visible_iou": 0.9618119568080064,
-          "baseline_pixels": 11189,
-          "raster_pixels": 11158
+          "solo_iou": 1.0
         },
         "tendril_low_r": {
-          "visible_iou": 0.9819993571198972,
-          "baseline_pixels": 15442,
-          "raster_pixels": 15388
+          "solo_iou": 1.0
         },
         "root_stem_l": {
-          "visible_iou": 0.0,
-          "baseline_pixels": 1024,
-          "raster_pixels": 0
+          "solo_iou": 1.0
         },
         "root_stem_r": {
-          "visible_iou": 0.9197070204532891,
-          "baseline_pixels": 7086,
-          "raster_pixels": 6805
+          "solo_iou": 1.0
         },
         "root_stem_c": {
-          "visible_iou": 0.5396561286744315,
-          "baseline_pixels": 1762,
-          "raster_pixels": 1014
+          "solo_iou": 1.0
         },
         "root_tip_l": {
-          "visible_iou": 0.0,
-          "baseline_pixels": 105,
-          "raster_pixels": 0
+          "solo_iou": 1.0
         },
         "root_tip_r": {
-          "visible_iou": 0.9804575786463299,
-          "baseline_pixels": 6171,
-          "raster_pixels": 6294
+          "solo_iou": 1.0
         },
         "root_tip_c": {
-          "visible_iou": 0.968401909524892,
-          "baseline_pixels": 4260,
-          "raster_pixels": 4399
+          "solo_iou": 1.0
         }
       },
-      "minimum_visible_iou": 0.0,
-      "minimum_part_silhouette_iou": 0.0,
-      "silhouette_iou": 0.9971226836621461,
-      "minimum_solo_iou": null,
-      "max_joint_error_px": null
+      "minimum_part_silhouette_iou": 0.9866046670363893,
+      "max_joint_error_px": 0.0
     },
     "rear": {
       "parts": {
         "trunk": {
-          "visible_iou": 0.9940343191749309,
-          "baseline_pixels": 180647,
-          "raster_pixels": 181681
+          "solo_iou": 0.9999954619919132
         },
         "core": {
-          "visible_iou": 0.978193448342702,
-          "baseline_pixels": 10207,
-          "raster_pixels": 10204
+          "solo_iou": 1.0
         },
         "petal_near_l": {
-          "visible_iou": 0.9500937207122774,
-          "baseline_pixels": 8409,
-          "raster_pixels": 8237
+          "solo_iou": 0.990042229289401
         },
         "petal_near_r": {
-          "visible_iou": 0.9539707625444488,
-          "baseline_pixels": 9975,
-          "raster_pixels": 9807
+          "solo_iou": 0.9959351767663261
         },
         "petal_far_l": {
-          "visible_iou": 0.9379550490661602,
-          "baseline_pixels": 6033,
-          "raster_pixels": 6211
+          "solo_iou": 0.9952777777777778
         },
         "petal_far_r": {
-          "visible_iou": 0.892944388561575,
-          "baseline_pixels": 6773,
-          "raster_pixels": 6400
+          "solo_iou": 0.982630979498861
         },
         "tendril_high_l": {
-          "visible_iou": 0.9841147627345301,
-          "baseline_pixels": 24289,
-          "raster_pixels": 24673
+          "solo_iou": 1.0
         },
         "tendril_high_r": {
-          "visible_iou": 0.9818501170960188,
-          "baseline_pixels": 15093,
-          "raster_pixels": 15372
+          "solo_iou": 1.0
         },
         "tendril_mid_l": {
-          "visible_iou": 0.9867219280067542,
-          "baseline_pixels": 12873,
-          "raster_pixels": 13012
+          "solo_iou": 1.0
         },
         "tendril_low_l": {
-          "visible_iou": 0.0,
-          "baseline_pixels": 229,
-          "raster_pixels": 0
+          "solo_iou": 1.0
         },
         "tendril_low_r": {
-          "visible_iou": 0.9243391066545124,
-          "baseline_pixels": 4182,
-          "raster_pixels": 4262
+          "solo_iou": 1.0
         },
         "root_stem_l": {
-          "visible_iou": 0.5730088495575221,
-          "baseline_pixels": 2236,
-          "raster_pixels": 1319
+          "solo_iou": 1.0
         },
         "root_stem_r": {
-          "visible_iou": 0.0,
-          "baseline_pixels": 322,
-          "raster_pixels": 0
+          "solo_iou": 1.0
         },
         "root_stem_c": {
-          "visible_iou": 0.0,
-          "baseline_pixels": 731,
-          "raster_pixels": 0
+          "solo_iou": 1.0
         },
         "root_tip_l": {
-          "visible_iou": 0.9059967585089141,
-          "baseline_pixels": 559,
-          "raster_pixels": 617
+          "solo_iou": 1.0
         },
         "root_tip_r": {
-          "visible_iou": 1.0,
-          "baseline_pixels": 0,
-          "raster_pixels": 0
+          "solo_iou": 1.0
         },
         "root_tip_c": {
-          "visible_iou": 0.8159509202453987,
-          "baseline_pixels": 133,
-          "raster_pixels": 163
+          "solo_iou": 1.0
         }
       },
-      "minimum_visible_iou": 0.0,
-      "minimum_part_silhouette_iou": 0.0,
-      "silhouette_iou": 0.9973646695932394,
-      "minimum_solo_iou": null,
-      "max_joint_error_px": null
+      "minimum_part_silhouette_iou": 0.982630979498861,
+      "max_joint_error_px": 0.0
     },
-    "baseline_files": {
-      "front": "shale_bloomer/mq3_front_v2/refs/02_maquette_front_parts_r9.png",
-      "rear": "shale_bloomer/mq3_rear/refs/01_maquette_rear_parts.png"
+    "native_evidence": {
+      "legacy": {
+        "folder": "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/shale_bloomer/legacy",
+        "joints_sha256": "2e39a32182d552c9d8745837a0c228935dc4f9382866ff38bb4d6d7a50ee3c8c",
+        "images": {
+          "front_solo_trunk.png": "7fe8dd19223ace366ea326e498836dcf47630e756d759e6722346f632a1bc300",
+          "front_solo_core.png": "1329f01b4f821138107d081ada6ce890d16c3c07d2131c340a31c1ffdc73cf5a",
+          "front_solo_petal_near_l.png": "6afeea57bc769ea1c7ffb18805368383a5f3fbd5ad18855c3f68c243783c1627",
+          "front_solo_petal_near_r.png": "6199ff3db68bafb3ff365f113060935bdf4c0487336af7242b602708018fd9a6",
+          "front_solo_petal_far_l.png": "46f8d075e7115dc4fd9521b78088804e47728aa85f224a74ca4dad3dd7bca9f2",
+          "front_solo_petal_far_r.png": "84898fb24d89ed3f6ab888aae36e51a4e7743d4f67fba22c1f9d1f8d27699344",
+          "front_solo_tendril_high_l.png": "659aa519da10ba69f90d20e9ce4e81fed1d2c168ee132ef6c9dce7ac34f1330b",
+          "front_solo_tendril_high_r.png": "92fab27e7d1609f848a9995082ed22d03ee8e7bfe1ef4ad8973ee28cf9f8f706",
+          "front_solo_tendril_mid_l.png": "9e1ebe7f9513ae5ca687b948f60722759f64f6f3abbf6623c415fa78fb78a598",
+          "front_solo_tendril_low_l.png": "5cd31065f2216896724fdb79b30492da2b11c980409bb097becf1b58f420025d",
+          "front_solo_tendril_low_r.png": "6725398245627bcaeb8814ed6176dd68ae9c89221fc6b2170515bba7df384a1f",
+          "front_solo_root_stem_l.png": "c6d76a91884299cb00bbebe6d079e83dfceb1e9534a64a9eb7dc44b9ab0be2b0",
+          "front_solo_root_stem_r.png": "db66e04640f0d579990366a403c0f3ca04c087b90dccc6c621f2b46871df751d",
+          "front_solo_root_stem_c.png": "ee87c5dc60fd62c9bd0ef67622c36ef00e59e85da2431a7f5b6dcbaed683e373",
+          "front_solo_root_tip_l.png": "5a8b6d2fe52af7002a66056e090b8d2eadc5a2a0dd00b2f0a53ef2c51ca44fd9",
+          "front_solo_root_tip_r.png": "90cba6a0d58e8e4859d33f0925716a4667dce6406265124b8c291a7addd4fd2c",
+          "front_solo_root_tip_c.png": "f2cc7a5a0a0b3af1c52509ee5b57db4f9f678f78a90f519a6101c0b1747734b0",
+          "rear_solo_trunk.png": "1c0e6b18dc012b9400b1334cdfd3149d46edc95757ccd6f08b476abec5260788",
+          "rear_solo_core.png": "fbbff956b74ea6632de16b96f999a80f30bd1172b9f1e8e497ec09259c8483db",
+          "rear_solo_petal_near_l.png": "f169886222bea832fe0f650e99e39fa501cdadce81f755fa8c8eaf55c40815f4",
+          "rear_solo_petal_near_r.png": "f5f485209d0ce199747af8d38209ce8b41627cc3b8ad0f26aa73c13e60e21eff",
+          "rear_solo_petal_far_l.png": "f35f0f5bfa92d1c3bf086f87b64eef4f8c726acf273dab09fae0fc55f5a31f8e",
+          "rear_solo_petal_far_r.png": "f402a2dd947ffc5b2b0ea83b82a64b1d183cc16c045c502befcc1c6006f71a77",
+          "rear_solo_tendril_high_l.png": "f8326ca8f19479d8d26acd67675ab4d1b5a8e2ff4280fbf5b9768368633d83ae",
+          "rear_solo_tendril_high_r.png": "181bb6e5b6c8db083f3f6e61f8aeeed4c76b7baf074e6282aedaea4f7ed05f31",
+          "rear_solo_tendril_mid_l.png": "27c2ab1a464c25a9bd69790b48bf8b7b83bbf0c0975272506c4726053661c633",
+          "rear_solo_tendril_low_l.png": "50fe4c47cdb377fafcc79ebe3e4fc42f372efd56ea7700e1c0c11940570b97d6",
+          "rear_solo_tendril_low_r.png": "188905ea42eb7ab912f4fda84c461fdc83d9b44e3b4de57ed571612a7aab0130",
+          "rear_solo_root_stem_l.png": "2a0e779ef563290c0e22062d551ff3da1a49975f1de8d501f6e7cdcf542aa3da",
+          "rear_solo_root_stem_r.png": "678fda8fce38531b78f3bc5df453edc73dff0bdba061d6ed0be75740ca777c61",
+          "rear_solo_root_stem_c.png": "4e0f80c4ce0c70222c00fcc1f625c9081a00dd5c7683e82f825ecdd78f9e30df",
+          "rear_solo_root_tip_l.png": "103ef6764ea53952f90c416358e0e7fad89729467159aa39747cab3ed4d8c9af",
+          "rear_solo_root_tip_r.png": "88d8da8a75cc65fdd7c87b25993c9df75f6e8aa5fed1dac9324fa92e75daf54c",
+          "rear_solo_root_tip_c.png": "0779233b590e8554139bfbb6038a5117e03422df975649e9a4b71b5447a4fd9e"
+        },
+        "bridge_receipts": {
+          "front": {
+            "exit": 0,
+            "seconds": 45.1,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-97c035b8edd64f09b7ff3ba32f72e453.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "shale_bloomer",
+              "legacy",
+              "front",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/legacy_humanoid.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/shale_bloomer/legacy"
+            ],
+            "id": "mq03-97c035b8edd64f09b7ff3ba32f72e453",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-97c035b8edd64f09b7ff3ba32f72e453.log"
+          },
+          "rear": {
+            "exit": 0,
+            "seconds": 41.6,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-27911e90590b4be6bec330a6a07009f8.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "shale_bloomer",
+              "legacy",
+              "rear",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/legacy_humanoid.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/shale_bloomer/legacy"
+            ],
+            "id": "mq03-27911e90590b4be6bec330a6a07009f8",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-27911e90590b4be6bec330a6a07009f8.log"
+          }
+        },
+        "capture_receipts": {
+          "front": {
+            "source_sha256": "f64b9a1a2072920e23bcb7ea215fdaed11d7b4e0a059a0dab058051a487c48d6",
+            "version": "legacy",
+            "view": "front",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          },
+          "rear": {
+            "source_sha256": "f64b9a1a2072920e23bcb7ea215fdaed11d7b4e0a059a0dab058051a487c48d6",
+            "version": "legacy",
+            "view": "rear",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          }
+        }
+      },
+      "shared": {
+        "folder": "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/shale_bloomer/shared",
+        "joints_sha256": "2e39a32182d552c9d8745837a0c228935dc4f9382866ff38bb4d6d7a50ee3c8c",
+        "images": {
+          "front_solo_trunk.png": "f0d8fa7a9a7b9865b86fdfb3c80e4f52cf525265f7cbf63c6dbcff9c1ec55141",
+          "front_solo_core.png": "5b4a446d940082bdc30a014cab34f090bc1006fcd7e5595c03709d0529c9df15",
+          "front_solo_petal_near_l.png": "9775703c9d218f20bfdd54367139eccdddf7fbdd998c4eb94af3bf7a945262a8",
+          "front_solo_petal_near_r.png": "6caf8258e2315f9d76cbc64941181977c82fc7e66af001746ccb11ca9c269b54",
+          "front_solo_petal_far_l.png": "6d796a74872ddcd53b511e6c4b87e25505e6912e0a1a6c560b8c1b34d1b8d5a9",
+          "front_solo_petal_far_r.png": "20dc6b07e46b6a189598422d1585446dbf9a24d1168dd438f8fae82c2da0f742",
+          "front_solo_tendril_high_l.png": "081ed96b97b7942ebfca1109b9b2e6d3c1a1ffb32fe0aad984844ebff5c494dd",
+          "front_solo_tendril_high_r.png": "9915dab28fc7b68f0b58700f6073da6bd93c712871fe3d2d5b19160f43e55c00",
+          "front_solo_tendril_mid_l.png": "5c06c8dd6a8ddad39cbffdd02397e92a6605eb0c5720329e0d84f08b8cc7df77",
+          "front_solo_tendril_low_l.png": "6045ee01d8c1cf161178e9191eafd7288fd1ff63a459273e8bafe070bda04143",
+          "front_solo_tendril_low_r.png": "bf905bf3ae06672c0c5cd009b0e23e919f04799cac50ed5c5bd40253ba8218ba",
+          "front_solo_root_stem_l.png": "64ae795d489cd3c283cdb7a630d9c56fea1e972869836def99c748581a8d7183",
+          "front_solo_root_stem_r.png": "bb5de074753724a76d85e7f21ca618befae3a1977e31e5e00c85dfe26115de23",
+          "front_solo_root_stem_c.png": "8096efcbad066e5545748a6f70c6092dda2b52769e130dafdf661c5290f61e95",
+          "front_solo_root_tip_l.png": "9f1b2190064e964df1a71e62bf9d1429eee7a1dd8afe6b43351c8026a7613c06",
+          "front_solo_root_tip_r.png": "b1b8613136cae9eb430eb6b5cf1c4e2415be1cda756216c69c0bab86ab2bae17",
+          "front_solo_root_tip_c.png": "4d0db08946767526270102a4fbf641a433ca992847c1585b85c9959208cfe0e8",
+          "rear_solo_trunk.png": "96810d2723195ceb050b849a13c8ac10aef560991845b28fa0283895e46a4061",
+          "rear_solo_core.png": "436c87e1d9a363f0e978438f00f98e9d3b1e84b466f1e00846f6d7f986cabb6e",
+          "rear_solo_petal_near_l.png": "7b4f7bcec8c02e4bd7c0b7cacb3f9061d65a7adf9dbd19eb11fe9cc3b37e44df",
+          "rear_solo_petal_near_r.png": "5b3180757d7170e3bc7239032f94b089c420726dcd8ccd52b54180d5acadd55a",
+          "rear_solo_petal_far_l.png": "b4687cd0208dec0de3a4fa537fdc76997243bed21b71fb3e6062ff28a5620a2a",
+          "rear_solo_petal_far_r.png": "26e72f474944cbb9885a8d5ecf240dada06712bde147e3008599b60cf8c0a3ea",
+          "rear_solo_tendril_high_l.png": "323ce5458dc52b478b13e42ffc193e7c65c8a86347049c99354baef55036e2d6",
+          "rear_solo_tendril_high_r.png": "372347377649878771c4abcf7350cd39808ea6aa3b1bda1f9be96a364e4b4c1b",
+          "rear_solo_tendril_mid_l.png": "163e69c7a794a6085f1543af394cdb2a7e834b8df570ed8df525d12ec5d52861",
+          "rear_solo_tendril_low_l.png": "e29e33d4f51b3f22264f4c7a9d039b8aaa5a7dba8343961fc17f2a1ed9be49a4",
+          "rear_solo_tendril_low_r.png": "bdd0e5e07938ebddf6d4d2b966076aee022b165ac36ea1bda35e5e3d7c283141",
+          "rear_solo_root_stem_l.png": "1f6a9e7504cff3534328668af0890aee8434974da3e2d31f51cfd74c1b903a51",
+          "rear_solo_root_stem_r.png": "d862e350f9ed3ca20725218b763391d3ddfe865502407ce2e3d7b406a89a911d",
+          "rear_solo_root_stem_c.png": "f3089f7c6e80a63ef5f38cbd787701e4efbfd2f0dbdc3c601600e90707944eb2",
+          "rear_solo_root_tip_l.png": "d2182523be09b7e044e34de3428b43b98f654466a51219571a89078b8d3888fd",
+          "rear_solo_root_tip_r.png": "60fa76da9b3887ca5bc9a215a71af426ffad44c81d62fe6b97a52a4692c08f9c",
+          "rear_solo_root_tip_c.png": "47486426716db6cd373ab56ac8448d14bffa9f8c15ef174469ea9adb311a8b03"
+        },
+        "bridge_receipts": {
+          "front": {
+            "exit": 0,
+            "seconds": 41.9,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-e6000dc9d119445898c9dd6fbcc6c3e3.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "shale_bloomer",
+              "shared",
+              "front",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/humanoid.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/shale_bloomer/shared"
+            ],
+            "id": "mq03-e6000dc9d119445898c9dd6fbcc6c3e3",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-e6000dc9d119445898c9dd6fbcc6c3e3.log"
+          },
+          "rear": {
+            "exit": 0,
+            "seconds": 40.7,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-5088791ee343494a8b4bd8a28c03dad6.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "shale_bloomer",
+              "shared",
+              "rear",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/humanoid.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/shale_bloomer/shared"
+            ],
+            "id": "mq03-5088791ee343494a8b4bd8a28c03dad6",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-5088791ee343494a8b4bd8a28c03dad6.log"
+          }
+        },
+        "capture_receipts": {
+          "front": {
+            "source_sha256": "f7e91b56d0efef3fb6ff0302bacdf9e1e856ef9c8df5caef164bcf8aa92c66b1",
+            "version": "shared",
+            "view": "front",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          },
+          "rear": {
+            "source_sha256": "f7e91b56d0efef3fb6ff0302bacdf9e1e856ef9c8df5caef164bcf8aa92c66b1",
+            "version": "shared",
+            "view": "rear",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          }
+        }
+      }
     }
   },
   "gust_shrike": {
     "front": {
       "parts": {
         "body": {
-          "visible_iou": 0.9909917155955924,
-          "baseline_pixels": 24681,
-          "raster_pixels": 24827,
-          "solo_iou": 0.9997388897592564
+          "solo_iou": 1.0
         },
         "head": {
-          "visible_iou": 0.9424995772027736,
-          "baseline_pixels": 11693,
-          "raster_pixels": 11279,
-          "solo_iou": 0.9992594421130585
+          "solo_iou": 1.0
         },
         "beak": {
-          "visible_iou": 0.9475,
-          "baseline_pixels": 761,
-          "raster_pixels": 797,
-          "solo_iou": 0.9990783410138249
+          "solo_iou": 1.0
         },
         "mask": {
-          "visible_iou": 0.4104938271604938,
-          "baseline_pixels": 1245,
-          "raster_pixels": 583,
-          "solo_iou": 0.9997485541865728
+          "solo_iou": 1.0
         },
         "wing_near": {
-          "visible_iou": 0.9871808269759988,
-          "baseline_pixels": 56934,
-          "raster_pixels": 57158,
-          "solo_iou": 0.9982567767802667
+          "solo_iou": 0.998274209012464
         },
         "wing_far": {
-          "visible_iou": 0.9914918490615054,
-          "baseline_pixels": 45802,
-          "raster_pixels": 46187,
-          "solo_iou": 0.9988294749358998
+          "solo_iou": 0.9987367873530122
         },
         "tail": {
-          "visible_iou": 0.9745424803189858,
-          "baseline_pixels": 9608,
-          "raster_pixels": 9705,
-          "solo_iou": 0.9978266539163696
+          "solo_iou": 1.0
         },
         "legs": {
-          "visible_iou": 0.9268998793727382,
-          "baseline_pixels": 8290,
-          "raster_pixels": 7684,
-          "solo_iou": 0.9993734335839599
+          "solo_iou": 1.0
         }
       },
-      "minimum_visible_iou": 0.4104938271604938,
-      "minimum_part_silhouette_iou": 0.9978266539163696,
-      "silhouette_iou": 0.9947056678278148,
-      "minimum_solo_iou": 0.9978266539163696,
-      "max_joint_error_px": 0.009999999999990905
+      "minimum_part_silhouette_iou": 0.998274209012464,
+      "max_joint_error_px": 0.0
     },
     "rear": {
       "parts": {
         "body": {
-          "visible_iou": 0.9886617694027467,
-          "baseline_pixels": 30969,
-          "raster_pixels": 31296,
-          "solo_iou": 0.9998498188439805
+          "solo_iou": 1.0
         },
         "head": {
-          "visible_iou": 0.9587915407854984,
-          "baseline_pixels": 8243,
-          "raster_pixels": 7966,
-          "solo_iou": 0.9993412384716732
+          "solo_iou": 1.0
         },
         "beak": {
-          "visible_iou": 0.8181818181818182,
-          "baseline_pixels": 63,
-          "raster_pixels": 77,
-          "solo_iou": 0.999061473486626
+          "solo_iou": 1.0
         },
         "mask": {
-          "visible_iou": 0.2746878547105562,
-          "baseline_pixels": 859,
-          "raster_pixels": 264,
-          "solo_iou": 0.9992450931051837
+          "solo_iou": 1.0
         },
         "wing_near": {
-          "visible_iou": 0.9909145736464271,
-          "baseline_pixels": 51094,
-          "raster_pixels": 51241,
-          "solo_iou": 0.9984282970042389
+          "solo_iou": 0.9987457729372727
         },
         "wing_far": {
-          "visible_iou": 0.9949215664146259,
-          "baseline_pixels": 44107,
-          "raster_pixels": 44278,
-          "solo_iou": 0.9987845841067798
+          "solo_iou": 0.9990055907895609
         },
         "tail": {
-          "visible_iou": 0.9825575633444551,
-          "baseline_pixels": 30033,
-          "raster_pixels": 29981,
-          "solo_iou": 0.9997727125137996
+          "solo_iou": 1.0
         },
         "legs": {
-          "visible_iou": 0.9138827023014106,
-          "baseline_pixels": 4041,
-          "raster_pixels": 3693,
-          "solo_iou": 0.9987837509121869
+          "solo_iou": 1.0
         }
       },
-      "minimum_visible_iou": 0.2746878547105562,
-      "minimum_part_silhouette_iou": 0.9984282970042389,
-      "silhouette_iou": 0.9963461856302978,
-      "minimum_solo_iou": 0.9984282970042389,
-      "max_joint_error_px": 0.009999999999990905
+      "minimum_part_silhouette_iou": 0.9987457729372727,
+      "max_joint_error_px": 0.0
     },
-    "baseline_files": {
-      "front": "gust_shrike/mq2_front/refs/01_maquette_front_parts.png",
-      "rear": "gust_shrike/mq2_rear/refs/01_maquette_rear_parts.png",
-      "joints_absolute": "experiments/cutouts/gust_shrike/mq2/source/maquette/joints_px.json",
-      "solos_absolute": "experiments/cutouts/gust_shrike/mq2/source/maquette"
+    "native_evidence": {
+      "legacy": {
+        "folder": "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/gust_shrike/legacy",
+        "joints_sha256": "50bada2d25c0b997a668f9b6fba2091c10c73e525dda0ac580c655bfac66c939",
+        "images": {
+          "front_solo_body.png": "f6ab9c80d5f402577b4b74a6a5c630fcbcef9128010900453cc7231b0702880a",
+          "front_solo_head.png": "0d71aa18910e8903420320348d7c63cb5e9b00c0b41e610525810152142bbaa0",
+          "front_solo_beak.png": "4b9c30aaf1698e17a250e8ff30166408fe6bc840bd2abb2d643a77a0a374d23c",
+          "front_solo_mask.png": "61ed425659314daa5d91a9ebf82b70455956307682b7d5c6794997f9631379e8",
+          "front_solo_wing_near.png": "78e17e7e176b92cbaaa0a9a258469475362644f2799db44d22f02275c9442740",
+          "front_solo_wing_far.png": "0dbca246c80dd82000e0358cd958c5b01199c114528954c413db77a7ec9ec569",
+          "front_solo_tail.png": "d39115c747be3c69ba8f038195cd0cea6df47a70903cf12f74e539190c5047e9",
+          "front_solo_legs.png": "3254cfb9a17ccd2e6b479b06b707535261d47cd261784048f0280d7d24656c77",
+          "rear_solo_body.png": "10578ba2de5d4c58bf9ca2ed8942f4ec46839e511ed09587bb814067d23427b8",
+          "rear_solo_head.png": "64e52657d90e3694133c8e0122e36a8504675b59b6b9c5369f72e5961b139b30",
+          "rear_solo_beak.png": "38b9de28b105ec9dbf3095fca22b15fc714a5ccb1cf393fed3e267c68e43a1d6",
+          "rear_solo_mask.png": "3bf8c12c5116a2ee4c4486f4edb0e6f215eb22866fa53f4e2f95eab0c9a5e5ca",
+          "rear_solo_wing_near.png": "e8c6c6db923cef559b05d2a2d432ff8f6c28d74a0bfff4f8e21344c587f2baf6",
+          "rear_solo_wing_far.png": "61ce553cd6bc436f696f63d81e99079fe44f42910bd14e5c1f45817f082c748d",
+          "rear_solo_tail.png": "6c8c412bc58a41ea93f4bbdc854948ef5f3c1211c29d74b8395eea4a278aee17",
+          "rear_solo_legs.png": "1d78cc7f530e044337b60e0c0463b07118b6ff9ffee51e21923ccbf3993900ca"
+        },
+        "bridge_receipts": {
+          "front": {
+            "exit": 0,
+            "seconds": 19.4,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-1acc0bc018ee42b795fee04807e676b2.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "gust_shrike",
+              "legacy",
+              "front",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/legacy_gust_shrike.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/gust_shrike/legacy"
+            ],
+            "id": "mq03-1acc0bc018ee42b795fee04807e676b2",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-1acc0bc018ee42b795fee04807e676b2.log"
+          },
+          "rear": {
+            "exit": 0,
+            "seconds": 23.0,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-8bc01c1806f746dfaba461f46d433b09.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "gust_shrike",
+              "legacy",
+              "rear",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/legacy_gust_shrike.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/gust_shrike/legacy"
+            ],
+            "id": "mq03-8bc01c1806f746dfaba461f46d433b09",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-8bc01c1806f746dfaba461f46d433b09.log"
+          }
+        },
+        "capture_receipts": {
+          "front": {
+            "source_sha256": "09584b635c18d09ce099ca96b1a7126084cb53518695259631261b045455a4e4",
+            "version": "legacy",
+            "view": "front",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          },
+          "rear": {
+            "source_sha256": "09584b635c18d09ce099ca96b1a7126084cb53518695259631261b045455a4e4",
+            "version": "legacy",
+            "view": "rear",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          }
+        }
+      },
+      "shared": {
+        "folder": "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/gust_shrike/shared",
+        "joints_sha256": "50bada2d25c0b997a668f9b6fba2091c10c73e525dda0ac580c655bfac66c939",
+        "images": {
+          "front_solo_body.png": "a9ae42252946cd6a951d5fe2bc1b7fdd19d8e5984b00afbe800b6303e452053c",
+          "front_solo_head.png": "eb1320aa11512be588897fbc6fadcae172c2a2f1d5f0aaabbc9c1bab5c4c7b7a",
+          "front_solo_beak.png": "4833b1ae88c59aaf98e34dc55dc1f36a7dd5e2f81792832b143b8ae3a0f42cfe",
+          "front_solo_mask.png": "aae29eb79f0a963bc24511d16661b0000271a4d892315fb9840501302378d168",
+          "front_solo_wing_near.png": "7efdf495d383449cb595a8feb774339d7e697184ad5f6ca0125aacb27f116848",
+          "front_solo_wing_far.png": "5fc84d439042aeb27d8e1daf4f0f1ea33261a8689d86f1dbf077ea08fb4352b1",
+          "front_solo_tail.png": "4be955e05f64a363329e4d162ef262294b322c7f8249b4c20b7cbaf7eafe6139",
+          "front_solo_legs.png": "e9a7ddc82e2537e9dec2c25783a5641dc37f9a56c72d53dc964a99a054d5a0e9",
+          "rear_solo_body.png": "071fd64ca6975a11b6d5364defa5eb5747b340a499f7c5fa3c3baf3fc2cda177",
+          "rear_solo_head.png": "88fd70f4f5c11544992bf8257bb7ae60e45e31b36c17c9a4075157d36baf4343",
+          "rear_solo_beak.png": "324d1c023fbd8fc340e012131e1990ad806b5f745b717a2246f908ceeb3992f4",
+          "rear_solo_mask.png": "7e8e7efed45e41d1706ac660fc3953cb98e31f32c051ce1c0e1e111b17f6d625",
+          "rear_solo_wing_near.png": "15399efc84017fd04d26da95bf8a20ef0494bffd54d6556a10c7209958c1cb68",
+          "rear_solo_wing_far.png": "df8898ed199b2846731b409681142ec5acea0cf3dda10afe05e6dbeb6e703c99",
+          "rear_solo_tail.png": "8c11de0ac4c313f3a3bc59d8ed1798ae44dacd09f0fd02a49697ecc05c8a859e",
+          "rear_solo_legs.png": "3b7b20f47c0c153d20e047ad33e50b1bbf0b575b2d5bb1183ff787fa97788bcf"
+        },
+        "bridge_receipts": {
+          "front": {
+            "exit": 0,
+            "seconds": 21.9,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-5f0b8a171661473a9088982d4e41a0f9.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "gust_shrike",
+              "shared",
+              "front",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/gust_shrike.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/gust_shrike/shared"
+            ],
+            "id": "mq03-5f0b8a171661473a9088982d4e41a0f9",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-5f0b8a171661473a9088982d4e41a0f9.log"
+          },
+          "rear": {
+            "exit": 0,
+            "seconds": 23.9,
+            "log": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-58cdb2b458214ff69a22c394f1a05c27.log",
+            "command": [
+              "/Applications/Blender.app/Contents/MacOS/Blender",
+              "-b",
+              "--factory-startup",
+              "--disable-autoexec",
+              "--python-exit-code",
+              "2",
+              "-P",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/blender/legacy_capture.py",
+              "--",
+              "gust_shrike",
+              "shared",
+              "rear",
+              "/Users/borgerding/workspace/Labyrinth.worktrees/mq-03/spec/art_identity/maquettes/gust_shrike.py",
+              "/private/tmp/labyrinth_codex/mq-03/round4/compatibility/gust_shrike/shared"
+            ],
+            "id": "mq03-58cdb2b458214ff69a22c394f1a05c27",
+            "log_path": "/private/tmp/labyrinth_codex/blender_bridge/done/mq03-58cdb2b458214ff69a22c394f1a05c27.log"
+          }
+        },
+        "capture_receipts": {
+          "front": {
+            "source_sha256": "d9683af7c85a84729dd7785b2b2b142f0883e891f348e19f0b5646f51150ca7c",
+            "version": "shared",
+            "view": "front",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          },
+          "rear": {
+            "source_sha256": "d9683af7c85a84729dd7785b2b2b142f0883e891f348e19f0b5646f51150ca7c",
+            "version": "shared",
+            "view": "rear",
+            "defaults": {
+              "size": 1024,
+              "samples": 1,
+              "threads": 8,
+              "seed": 0
+            }
+          }
+        }
+      }
     }
   }
 }

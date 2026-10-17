@@ -179,7 +179,7 @@ class NativeContractTests(unittest.TestCase):
             identifier = submit(script, ['/private/tmp/labyrinth_codex/mq-03/test'], root=root)
             job = json.loads((root / 'queue' / (identifier + '.json')).read_text())
             self.assertEqual(job['script'], str(script))
-            self.assertEqual(job['timeout_s'], 900)
+            self.assertEqual(job['timeout_s'], 120)
             self.assertFalse(list((root / 'queue').glob('*.tmp')))
             (root / 'done' / (identifier + '.json')).write_text(json.dumps({'exit': 0, 'seconds': 2, 'log': ''}))
             (root / 'done' / (identifier + '.log')).write_text('BLENDER_NATIVE_INTEGRATION: PASS')
@@ -296,10 +296,24 @@ class NativeContractTests(unittest.TestCase):
             image.paste((255, 255, 255, 255), (4, 2, 12, 15))
             for name in ('front_silhouette.png', 'front_solo_torso.png'):
                 image.save(folder / name)
+            from spec.art_identity.maquettes.blender.capture_manifest import write_manifest
+            write_manifest(folder, digest(spec), 'full', ('front_silhouette.png', 'front_solo_torso.png'))
             raster = load_render(spec, folder)
             self.assertEqual(int(raster.silhouette.sum()), 8 * 13)
             np.testing.assert_array_equal(raster.silhouette, raster.masks['torso'])
             self.assertEqual(raster.joints, spec['joints'])
+
+    @unittest.skipUnless(os.environ.get('LABYRINTH_BLENDER_PROOF') == '1',
+                         'Set LABYRINTH_BLENDER_PROOF=1 to run native tests through the director bridge')
+    def test_real_lancer_cloth_cache_replay_has_identical_raw_hashes(self):
+        from spec.art_identity.maquettes.blender.bridge_client import run_job
+        root = Path('/private/tmp/labyrinth_codex/mq-03/native_tests')
+        root.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=root) as tmp:
+            result = run_job(PROJECT / 'spec/art_identity/maquettes/blender/cache_replay_probe.py', [str(R3), tmp])
+            self.assertEqual(result['exit'], 0, result['stdout'])
+            report = json.loads(Path(tmp, 'cache_replay_report.json').read_text())
+            self.assertTrue(report['raw_hashes_identical'])
 
     @unittest.skipUnless(os.environ.get('LABYRINTH_BLENDER_PROOF') == '1',
                          'Set LABYRINTH_BLENDER_PROOF=1 to run native tests through the director bridge')

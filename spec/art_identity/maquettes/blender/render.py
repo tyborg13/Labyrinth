@@ -38,10 +38,14 @@ def material(name, colour, mode):
     return mat
 
 
-def render(spec, objects, output, engine='cycles', silhouettes_only=False, gallery=False, fit_only=False, preview=False):
+def render(spec, objects, output, engine='cycles', silhouettes_only=False, gallery=False, fit_only=False, preview=False, views=('front', 'rear'), ownership_only=False):
     from bpy_extras.object_utils import world_to_camera_view
     output = Path(output)
     output.mkdir(parents=True, exist_ok=True)
+    from .capture_manifest import write_manifest, prepare_capture
+    from .ownership import assign_materials, materials_match, cloak_owners, require_solos, sagittal_normal, ARMATURE_UP_AXIS
+    generated = set()
+    prepare_capture(output, 'fit' if fit_only else 'preview' if preview else 'full')
     scene = bpy.context.scene
     scene.render.engine = 'CYCLES' if engine == 'cycles' else 'BLENDER_WORKBENCH'
     scene.cycles.device = 'CPU'
@@ -83,7 +87,38 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
     overrides.update({o.name: material(o.name + '_accent', o['accent_colour'], 'parts')
                       for o in objects if 'accent_colour' in o})
     white = material('silhouette', [1, 1, 1], 'parts')
+    invisible = bpy.data.materials.new('solo_excluded_faces')
+    invisible.diffuse_color = (0, 0, 0, 0)
+    invisible.use_nodes = True
+    nodes = invisible.node_tree.nodes
+    nodes.clear()
+    transparent = nodes.new('ShaderNodeBsdfTransparent')
+    surface = nodes.new('ShaderNodeOutputMaterial')
+    invisible.node_tree.links.new(transparent.outputs[0], surface.inputs['Surface'])
     owners = {o.name: [p.material_index for p in o.data.polygons] for o in objects}
+    # Classify once in armature body space, before either camera turn.
+    body_side_report = {}
+    if {'cape_near', 'cape_far'} <= set(spec['labels']):
+        from .contract import digest
+        rig = bpy.data.objects['maquette_armature']
+        spine = next(b for b in spec['armature']['bones'] if b['region'] == 'torso')
+        bone = rig.pose.bones[spine['name']]
+        midpoint = (bone.head + bone.tail) / 2
+        forward = list(rig['posed_forward'])
+        up = ARMATURE_UP_AXIS
+        near, far = (spec['joints']['shoulder_' + side] for side in ('near', 'far'))
+        normal = sagittal_normal(list(midpoint), forward, up, near, far)
+        inverse = rig.matrix_world.inverted()
+        for obj in objects:
+            if obj.get('cloth_kind') == 'cloak':
+                centroids = [list(inverse @ obj.matrix_world @ p.center) for p in obj.data.polygons]
+                labels = cloak_owners(centroids, list(midpoint), forward, up, near, far)
+                owners[obj.name] = [list(spec['labels']).index(label) for label in labels]
+                body_side_report[obj.name] = {
+                    'torso_midpoint_body': list(midpoint), 'normal_toward_shoulder_near': normal.tolist(),
+                    'forward_body': forward, 'up_body': up, 'shoulder_near_body': near, 'shoulder_far_body': far,
+                    'face_owner_hash': digest(owners[obj.name]),
+                    'faces': {label: labels.count(label) for label in ('cape_near', 'cape_far')}}
     joints = {}
 
     def capture(view, mode, part=None, piece_type=None, included_parts=None, object_names=None):
@@ -100,8 +135,13 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
             obj.data.materials.clear()
             for mat in (parts if mode == 'parts' else [overrides.get(obj.name, clay) if mode == 'clay' else white]):
                 obj.data.materials.append(mat)
-            for polygon, owner in zip(obj.data.polygons, owners[obj.name]):
-                polygon.material_index = owner if mode == 'parts' else 0
+            expected = owners[obj.name] if mode == 'parts' else [0] * len(obj.data.polygons)
+            if part is not None:
+                obj.data.materials.append(invisible)
+                expected = [0 if list(spec['labels'])[owner] == part else 1 for owner in owners[obj.name]]
+            assign_materials(obj, expected)
+            if not materials_match(obj, expected):
+                raise ValueError('Polygon material ownership differs from expected winner: ' + obj.name)
         scene.render.filepath = str(output / f'{view}_{mode}.png')
         shading = scene.display.shading
         shading.color_type = 'MATERIAL' if mode in ('parts', 'clay') else 'SINGLE'
@@ -109,45 +149,61 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
         shading.light = 'STUDIO' if mode == 'clay' else 'FLAT'
         shading.show_cavity = mode == 'clay'
         bpy.ops.render.render(write_still=True)
+        generated.add(f'{view}_{mode}.png')
 
-    for view in ('front', 'rear'):
+    def move_capture(source, destination):
+        (output / source).replace(output / destination)
+        generated.discard(source)
+        generated.add(destination)
+
+    facing = None
+    solo_counts = {}
+    view_owner_hashes = {}
+    for view in views:
         matrix, target, basis, scale = camera(spec, view)
         root.matrix_world = Matrix(matrix.tolist())
         cam.location = Vector(target) + Vector(basis[2]) * RENDER_DEFAULTS['distance']
         cam.rotation_euler = (Vector(target) - cam.location).to_track_quat('-Z', 'Y').to_euler()
         cam_data.ortho_scale = scale
         bpy.context.view_layer.update()
+        if body_side_report:
+            view_owner_hashes[view] = {name: digest(owners[name]) for name in body_side_report}
         if view == 'front':
             from .facing_probe import probe
             facing = probe(spec, objects, output, root, cam, capture)
         if fit_only and view == 'front':
             capture(view, 'silhouette')
             capture(view, 'silhouette', included_parts=set(spec['labels']) - set(spec['fit']['weapon_parts']))
-            (output / 'front_silhouette.png').replace(output / 'front_body.png')
+            move_capture('front_silhouette.png', 'front_body.png')
             capture(view, 'silhouette', part=spec['fit'].get('head_part', 'head'))
-            (output / 'front_silhouette.png').replace(output / 'front_head.png')
+            move_capture('front_silhouette.png', 'front_head.png')
             capture(view, 'silhouette')
         if not fit_only:
-            for mode in (('silhouette',) if silhouettes_only else ('parts', 'clay', 'silhouette')):
+            for mode in (('parts',) if ownership_only else (('silhouette',) if silhouettes_only else ('parts', 'clay', 'silhouette'))):
                 capture(view, mode)
             if preview and view == 'front' and 'fit' in spec:
                 capture(view, 'silhouette', included_parts=set(spec['labels']) - set(spec['fit']['weapon_parts']))
-                (output / 'front_silhouette.png').replace(output / 'front_body.png')
+                move_capture('front_silhouette.png', 'front_body.png')
                 capture(view, 'silhouette', part=spec['fit'].get('head_part', 'head'))
-                (output / 'front_silhouette.png').replace(output / 'front_head.png')
+                move_capture('front_silhouette.png', 'front_head.png')
                 capture(view, 'silhouette')
         # Body is split by weight region before rendering: solos retain hidden anatomy.
             if not preview:
                 for part in spec['labels']:
                     capture(view, 'silhouette', part)
-                    (output / f'{view}_silhouette.png').replace(output / f'{view}_solo_{part}.png')
+                    move_capture(f'{view}_silhouette.png', f'{view}_solo_{part}.png')
+                solo_counts[view] = {}
+                for part in spec['labels']:
+                    image = bpy.data.images.load(str(output / f'{view}_solo_{part}.png'), check_existing=False)
+                    solo_counts[view][part] = sum(a >= .5 for a in image.pixels[3::4])
+                    bpy.data.images.remove(image)
                 capture(view, 'silhouette')
         if gallery and not fit_only:
             gallery_dir = output / 'piece_gallery'
             gallery_dir.mkdir(exist_ok=True)
             for kind in sorted({o.get('piece_type') for o in objects} - {'body'}):
                 capture(view, 'clay', piece_type=kind)
-                (output / f'{view}_clay.png').replace(gallery_dir / f'{view}_{kind}.png')
+                move_capture(f'{view}_clay.png', f'piece_gallery/{view}_{kind}.png')
             if not silhouettes_only:
                 capture(view, 'clay')
         joints[view] = {}
@@ -156,5 +212,34 @@ def render(spec, objects, output, engine='cycles', silhouettes_only=False, galle
             joints[view][name] = [round(co.x * RENDER_DEFAULTS['size'], 2), round((1 - co.y) * RENDER_DEFAULTS['size'], 2)]
     for obj in objects:
         obj.hide_render = False
-    (output / 'joints_px.json').write_text(json.dumps(joints, indent=2) + '\n')
+    joint_path = output / 'joints_px.json'
+    if joint_path.exists() and len(views) == 1:
+        joints = {**json.loads(joint_path.read_text()), **joints}
+    joint_path.write_text(json.dumps(joints, indent=2) + '\n')
+    mode = 'ownership' if ownership_only else 'fit' if fit_only else 'preview' if preview else 'silhouettes' if silhouettes_only else 'full'
+    if facing is not None:
+        generated.update(('front_torso.png', 'front_torso_frontal_control.png'))
+    report = json.loads((output / 'build_report.json').read_text())
+    write_manifest(output, report['spec_hash'], mode, generated)
+    if solo_counts:
+        path = output / 'solo_coverage.json'
+        previous = json.loads(path.read_text()) if path.exists() else {}
+        path.write_text(json.dumps({**previous, **solo_counts}, indent=2) + '\n')
+    if body_side_report:
+        path = output / 'cloak_side.json'
+        previous = json.loads(path.read_text()) if path.exists() else {}
+        path.write_text(json.dumps({'rule': 'body_sagittal_plane', 'pieces': body_side_report,
+            'view_owner_hashes': {**previous.get('view_owner_hashes', {}), **view_owner_hashes}}, indent=2) + '\n')
+    if solo_counts:
+        missing = {view: [name for name in spec['labels'] if counts.get(name, 0) <= 0]
+                   for view, counts in solo_counts.items()}
+        report['checks']['required_solo_coverage'] = not any(missing.values())
+        report['passed'] = all(report['checks'].values())
+        (output / 'build_report.json').write_text(json.dumps(report, indent=2) + '\n')
+        (output / 'ownership_validation.json').write_text(json.dumps(
+            {'passed': not any(missing.values()), 'empty_required_solos': missing}, indent=2) + '\n')
+        # Retain diagnostic outputs, but never report a passing capture when a
+        # required rig label is empty. The strict gate runs for every view.
+        for counts in solo_counts.values():
+            require_solos(spec['labels'], counts)
     return facing

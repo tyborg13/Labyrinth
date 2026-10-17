@@ -92,8 +92,8 @@ def build(spec, output, bundle, cache):
     for obj in objects:
         for mat in materials:
             obj.data.materials.append(mat)
-        for polygon in obj.data.polygons:
-            polygon.material_index = obj['owner_index']
+        from spec.art_identity.maquettes.blender.ownership import assign_materials
+        assign_materials(obj, [obj['owner_index']] * len(obj.data.polygons))
     # Hash evaluated geometry before camera transforms; rendering never changes it.
     hashes = {o.name: mesh_hash([list(o.matrix_world @ v.co) for v in o.data.vertices],
                                [list(p.vertices) for p in o.data.polygons], o['part']) for o in objects}
@@ -142,6 +142,7 @@ def main(argv=None):
         from spec.art_identity.maquettes.blender.render import render
         from spec.art_identity.maquettes.blender.facing import board_spec
         facing = render(board_spec(spec), objects, args.out, args.engine, args.silhouettes_only, args.gallery, args.fit_only, args.preview)
+        report = json.loads((args.out / 'build_report.json').read_text())
         report['checks']['rendered_torso_asymmetry'] = facing['passed']
         report['passed'] = all(report['checks'].values())
         write(args.out / 'build_report.json', report)

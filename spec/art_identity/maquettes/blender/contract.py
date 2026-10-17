@@ -9,7 +9,7 @@ import random
 DEFAULT_BUNDLE = '~/.cache/labyrinth/blender_human_base_meshes_v1.4.1/extracted/human-base-meshes-bundle-v1.4.1/human_base_meshes_bundle.blend'
 
 
-BUILD_DEFAULTS = {'schema': 2, 'cache_revision': 7, 'hash_digits': 9,
+BUILD_DEFAULTS = {'schema': 2, 'cache_revision': 8, 'hash_digits': 9,
                   'collision_epsilon': 1e-6, 'triangulation_epsilon': 1e-6,
                   'zero_length_squared_epsilon': 1e-12, 'fit_passes': 6,
                   'fit_scale_min': 0.6,

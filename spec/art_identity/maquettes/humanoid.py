@@ -13,7 +13,7 @@ from spec.art_identity.maquettes.geometry import build_meshes, deform_width, par
 from spec.art_identity.maquettes.raster import camera
 
 
-def render(spec, out):
+def render(spec, out, capture=None):
     os.makedirs(out, exist_ok=True)
     bpy.ops.wm.read_factory_settings(use_empty=True)
     scene = bpy.context.scene
@@ -35,6 +35,8 @@ def render(spec, out):
             options = part_options(spec, part)
             polygon.use_smooth = options.get('smooth', False) or options.get('smooth_normals', False)
         objs[part] = [obj]
+    if capture is not None:
+        return capture(spec, out, root, objs, J)
     cam_data = bpy.data.cameras.new('cam'); cam_data.type = 'ORTHO'
     cam = bpy.data.objects.new('cam', cam_data); scene.collection.objects.link(cam); scene.camera = cam
     scene.render.engine = 'BLENDER_WORKBENCH'; scene.render.resolution_x = scene.render.resolution_y = 1024

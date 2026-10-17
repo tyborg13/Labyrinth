@@ -27,6 +27,7 @@ BASELINES = {
                     'joints_absolute': 'experiments/cutouts/gust_shrike/mq2/source/maquette/joints_px.json',
                     'solos_absolute': 'experiments/cutouts/gust_shrike/mq2/source/maquette'},
 }
+NATIVE_PROOF_ROOT = Path('/private/tmp/labyrinth_codex/mq-03/round4/compatibility')
 
 
 def read_spec(path):
@@ -102,6 +103,31 @@ def compare_renders(spec, baseline, candidate):
             parts[part] = {'solo_iou': iou(*masks)}
         error = max(float(np.linalg.norm(np.array(new_joints[view][joint]) - value)) for joint, value in old_joints[view].items())
         result[view] = {'parts': parts, 'minimum_part_silhouette_iou': min(v['solo_iou'] for v in parts.values()), 'max_joint_error_px': error}
+    return result
+
+
+def native_report(root=NATIVE_PROOF_ROOT):
+    """Require actual old/new solos and successful bridge receipts in both views."""
+    root = Path(root)
+    result = {}
+    for name in BASELINES:
+        from .blender.capture_manifest import sha256
+        spec = legacy_shrike(0) if name == 'gust_shrike' else read_spec(PROJECT / 'spec/art_identity/maquettes' / name / 'spec.json')
+        for version in ('legacy', 'shared'):
+            for view in ('front', 'rear'):
+                receipt = read_spec(root / name / version / (view + '_bridge.json'))
+                if receipt['exit'] != 0 or not all(flag in receipt['command'] for flag in ('--factory-startup', '--disable-autoexec')):
+                    raise ValueError('Invalid legacy bridge receipt')
+        result[name] = compare_renders(spec, root / name / 'legacy', root / name / 'shared')
+        result[name]['native_evidence'] = {}
+        for version in ('legacy', 'shared'):
+            folder = root / name / version
+            result[name]['native_evidence'][version] = {
+                'folder': str(folder), 'joints_sha256': sha256(folder / 'joints_px.json'),
+                'images': {f'{view}_solo_{part}.png': sha256(folder / f'{view}_solo_{part}.png')
+                           for view in ('front', 'rear') for part in spec['labels']},
+                'bridge_receipts': {view: read_spec(folder / (view + '_bridge.json')) for view in ('front', 'rear')},
+                'capture_receipts': {view: read_spec(folder / (view + '_receipt.json')) for view in ('front', 'rear')}}
     return result
 
 

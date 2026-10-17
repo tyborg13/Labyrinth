@@ -1,25 +1,33 @@
-# mq-02 committed-render comparisons
+# mq-02 native legacy compatibility — PASS
 
-All values are minimum per-part IoU in each view. Solo alpha is the
-silhouette proof wherever committed solos exist. Visible categorical label
-IoU is retained separately; it is sensitive to antialiasing/colour blending
-and occlusion. Missing solo baselines are not presented as passing.
+Original and shared geometry were built in Blender 5.2.1 LTS through the approved
+serial bridge. Every native invocation used `--factory-startup --disable-autoexec`.
+The original builders come from `61b0c2f0ba8793db3499038de3d959b1a6f220d4`.
+Only the rendering loop was replaced with matched Cycles CPU solo alpha proof.
+Each of the 20 view jobs answered within 120 seconds; no native retry was used.
 
-| Spec | Front solo min | Rear solo min | Front visible min | Rear visible min | Front whole silhouette | Rear whole silhouette | Joint error |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| chainbound_gaoler | 0.990113 | 0.990150 | 0.922417 | 0.000000 | 0.999254 | 0.999201 | 0.010000 |
-| frostglass_lancer | unavailable | unavailable | 0.520278 | 0.015237 | 0.995771 | 0.995425 | unavailable |
-| lightning_wisp | unavailable | unavailable | 0.859936 | 0.902028 | 0.997045 | 0.995679 | unavailable |
-| shale_bloomer | unavailable | unavailable | 0.000000 | 0.000000 | 0.997123 | 0.997365 | unavailable |
-| gust_shrike | 0.997827 | 0.998428 | 0.410494 | 0.274688 | 0.994706 | 0.996346 | 0.010000 |
+| Figure | Front minimum part IoU | Rear minimum part IoU | Maximum joint error (px) | Gate |
+|---|---:|---:|---:|---|
+| chainbound_gaoler | 0.990079 | 0.990081 | 0.00 | PASS |
+| frostglass_lancer | 0.997701 | 0.997645 | 0.00 | PASS |
+| lightning_wisp | 1.000000 | 1.000000 | 0.00 | PASS |
+| shale_bloomer | 0.986605 | 0.982631 | 0.00 | PASS |
+| gust_shrike | 0.998274 | 0.998746 | 0.00 | PASS |
 
-Gaoler and shrike solo silhouette checks pass the 0.98 threshold in both views.
-Lancer r1, wisp and bloomer visible-label checks fail; full per-part silhouette
-verification remains pending director legacy/shared Blender solo captures.
-The current evidence does not establish the whole-roster back-compat gate.
+Unchanged gates: **every part IoU >=0.98; every joint within 1 px**.
+All five figures pass in both views. No builder geometry correction or gate relaxation was needed.
 
-Joint projection is within 0.01 px of the available committed gaoler/shrike
-joints. The other three baselines have no committed joints_px.json here.
+Exact observed result: `MAQUETTE_COMPAT: PASS` (exit 0).
 
-Full per-part values and baseline paths: [compatibility_report.json](compatibility_report.json).
-Director commands: [FITTING.md](../FITTING.md#proof-for-the-design-owner).
+Full per-part IoUs, input image/joint SHA-256 hashes, source receipts and exact
+bridge command receipts are in [compatibility_report.json](compatibility_report.json).
+Native captures are archived at `/private/tmp/labyrinth_codex/mq-03/round4/compatibility`.
+The capture source uses the real shared adapter callback, not a numerical proxy.
+
+```sh
+python3 -B spec/art_identity/maquettes/blender/legacy_proof.py
+python3 -B tools/maquette_fit.py compat --out spec/art_identity/maquettes/proof_mq02 --require-gate
+```
+
+This supersedes the earlier committed-render report with three pending figures.
+The original visible-label comparisons are not used as substitutes for solo proof.

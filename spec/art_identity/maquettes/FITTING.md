@@ -133,6 +133,57 @@ the source image. Attachments follow the new pose. A fit history records the
 method and measured passes. The r2 proportion gate is unchanged; failed fits
 remain failed diagnostics. V1 fitting/rasterisation is unchanged.
 
+### Review corrections (rounds 4–5; approved r3 geometry frozen)
+
+Capture inputs require `capture_manifest.json`: original spec hash, capture mode,
+per-image SHA-256 and dimensions, and the joints file hash. The loader reads only
+images named by the current manifest. Full/silhouette/ownership captures delete
+old body/head fit mattes before rendering; numerical fitting cannot discover an
+old matte merely because a filename exists. Legacy pre-manifest v2 deliveries
+must be recaptured or explicitly migrated with their original capture inventory.
+
+Body ownership is independently checked against summed heat weights, including
+alphabetically stable region ties. Polygon material indices must match those
+owners. Every required label must have a non-empty native solo in each view.
+For cloaks with `cape_near`/`cape_far`, classify polygon centroids once in
+armature body space. The sagittal plane passes through the posed torso bone's
+midpoint and contains the armature anterior/forward and +Z up axes. Its normal
+is oriented toward `shoulder_near`; that side is `cape_near`, the opposite
+`shoulder_far` side is `cape_far`, and exact plane ties are near. Labels remain
+identical in front and rear, as limb ownership does. Camera depth is not used.
+Mixed-owner meshes use transparent excluded faces for solos; mesh coordinates,
+pose, camera and clay shading remain unchanged.
+
+Conforming POLY curves project every control point. Bezier curves project each
+coordinate and both handles from snapshots; projected handles become FREE so
+Blender does not overwrite them. Torso reflection samples pixel centres and the
+centreline at the same row-centre coordinates. The symmetric negative fixture
+must report zero difference and fail the silhouette-facing gate.
+
+Run `blender/legacy_proof.py` for serial old/new native mq-02 captures, then
+`tools/maquette_fit.py compat --require-gate --out spec/art_identity/maquettes/proof_mq02`.
+The native proof retains the 0.98 per-part IoU and 1 px joint gates.
+`blender/relabel_proof.py` recaptures r3 ownership from the approved saved blend
+in one bridge job per view, verifies frozen geometry/pose and clay bytes, and
+emits a current full capture manifest. All jobs use the approved bridge and a
+120-second response limit; do not retry an unanswered job.
+
+### Deterministic cloth cache replay (round 5)
+
+Cache revision 8 stores the baked mesh's exact edge, polygon and loop arrays,
+including each loop's vertex/edge indices and polygon smooth flags. Replaying
+those arrays through native RNA avoids `from_pydata` rebuilding edge order;
+Solidify emits its rim polygons in that original order. Vertices and authored
+polygon/loop order are preserved, not canonicalised or moved. A topology digest
+protects those arrays in addition to the existing geometry hash. Revision-7
+entries remain untouched and are invalidated by the cache revision in the key.
+
+`blender/cache_replay_probe.py SPEC OUT` builds the real Lancer r3 with an empty
+cache, then replays it and compares all 51 raw mesh hashes and the combined hash.
+The opt-in native unittest invokes this production-spec regression. Cold/replay
+hashes also match the approved original cold build. Delivery still renders from
+the approved saved blend, independent of the cache rebuild test.
+
 ### Round-1 implementation additions
 
 `base.object` explicitly resolves an asset to its mesh; optional
@@ -289,12 +340,12 @@ Technical settings are named in `BUILD_DEFAULTS`, `BIND_DEFAULTS`,
 `COLLISION_DEFAULTS`, `RENDER_DEFAULTS`, `BRIDGE_DEFAULTS`, `PROOF_DEFAULTS`, `INSPECTION_DEFAULTS`, `PROJECT_DEFAULTS`, `FACING_DEFAULTS`,
 and synthetic `TEST_DEFAULTS`/fixtures. Hash precision is 9 decimals; clearance
 and triangulation epsilon 1e-6; fit uses six passes and existing [0.6,1.6] scale
-clamps; bridge poll interval 1 second and default job budget 900 seconds.
+clamps; bridge poll interval 1 second and default job budget and response limit 120 seconds.
 Contact correction uses 24 passes, ray epsilon 1e-5 and three fixed ray directions.
 Proof uses 1024², Cycles CPU, fixed seed 0, eight render threads, grey 0.6,
 roughness 0.8, AO distance 0.15, studio energy 600/size 5/location [4,-3,6].
 Facing proof uses axis cosine ≥0.995 and reflected torso difference ≥0.01;
-cache revision is 7. Synthetic fixture dimensions and eight-frame physics remain
+cache revision is 8 (lossless native topology replay). Synthetic fixture dimensions and eight-frame physics remain
 test data only. See `blender/VALIDATION.md` for final observed results.
 
 ## Historical v1 / mq-02 contract (unchanged)

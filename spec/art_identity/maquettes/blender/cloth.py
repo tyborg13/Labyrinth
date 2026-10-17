@@ -10,17 +10,16 @@ from .pieces import mesh_object, place
 from .rig import active, evaluated_mesh
 
 from .cloth_contacts import collision_report, inside, mesh_payload, prune_pattern, stabilise_collision
+from .cloth_cache import cache_key, read_cache
+from .cloth_topology import snapshot, restore
 
 
 def cloth(piece, spec, body, cache, context_key):
-    key = digest({'context': context_key, 'piece': piece, 'blender': bpy.app.version_string,
-                  'cache_revision': BUILD_DEFAULTS['cache_revision']})
+    key = cache_key(context_key, piece, bpy.app.version_string)
     path = Path(cache) / (key + '.json')
     if path.exists():
-        payload = json.loads(path.read_text())
-        if payload['mesh_hash'] != mesh_hash(payload['vertices'], payload['faces']):
-            raise ValueError('Corrupt cloth cache: ' + str(path))
-        obj = mesh_object(piece['id'], payload['vertices'], payload['faces'])
+        payload = read_cache(path)
+        obj = restore(piece['id'], payload)
         obj['part'] = piece['part']
         obj['piece_type'] = 'cloth'
         obj['piece_id'] = piece['id']
@@ -74,9 +73,7 @@ def cloth(piece, spec, body, cache, context_key):
             bpy.data.objects.remove(wind, do_unlink=True)
         stabilise_collision(obj, body, piece)
         baked = obj.data
-        payload = {'vertices': [list(v.co) for v in baked.vertices],
-                   'faces': [list(p.vertices) for p in baked.polygons]}
-        payload['mesh_hash'] = mesh_hash(payload['vertices'], payload['faces'])
+        payload = snapshot(baked)
         path.parent.mkdir(parents=True, exist_ok=True)
         with tempfile.NamedTemporaryFile(mode='w', dir=path.parent, suffix='.tmp', delete=False) as handle:
             json.dump(payload, handle, allow_nan=False)

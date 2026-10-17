@@ -1,3 +1,9 @@
+# mq-03 — latest review fixes
+
+Round-5 acceptance, commands and observed results are in [ROUND5_VALIDATION.md](ROUND5_VALIDATION.md).
+Round-4 history is in [REVIEW_FIXES.md](REVIEW_FIXES.md).
+The round-3 handoff below records the approved geometry baseline and its original proof.
+
 # mq-03 — round 3 implementation handoff (2026-10-17)
 
 All changes remain uncommitted on `codex/mq-03`. No commit, branch change, peer

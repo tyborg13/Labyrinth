@@ -10,12 +10,12 @@ import time
 import uuid
 
 BRIDGE_DEFAULTS = {'root': '/private/tmp/labyrinth_codex/blender_bridge',
-                   'timeout_s': 900, 'poll_s': 1, 'delivery_grace_s': 60}
+                   'timeout_s': 120, 'response_timeout_s': 120, 'poll_s': 1}
 SCRIPT_ROOT = Path(__file__).resolve().parents[1]
 ARG_ROOTS = [SCRIPT_ROOT.parents[2], Path('/private/tmp/labyrinth_codex')]
 
 
-def submit(script, args, timeout_s=900, root=None):
+def submit(script, args, timeout_s=120, root=None):
     script = Path(script).resolve()
     if not script.is_relative_to(SCRIPT_ROOT) or script.suffix != '.py' or not script.is_file():
         raise ValueError('Bridge script must be a maquette Python file in this worktree')
@@ -36,10 +36,10 @@ def submit(script, args, timeout_s=900, root=None):
     return identifier
 
 
-def wait(identifier, timeout_s=900, root=None):
+def wait(identifier, timeout_s=120, root=None):
     root = Path(root or BRIDGE_DEFAULTS['root'])
     path = root / 'done' / (identifier + '.json')
-    deadline = time.monotonic() + timeout_s + BRIDGE_DEFAULTS['delivery_grace_s']
+    deadline = time.monotonic() + min(timeout_s, BRIDGE_DEFAULTS['response_timeout_s'])
     while not path.is_file():
         if time.monotonic() >= deadline:
             raise TimeoutError('Bridge result not received; job remains queued/running: ' + identifier)
@@ -53,7 +53,7 @@ def wait(identifier, timeout_s=900, root=None):
     return result
 
 
-def run_job(script, args, timeout_s=900, root=None):
+def run_job(script, args, timeout_s=120, root=None):
     if fcntl is None:
         raise ValueError('The director bridge requires its POSIX shared-filesystem lease')
     bridge_root = Path(root or BRIDGE_DEFAULTS['root'])

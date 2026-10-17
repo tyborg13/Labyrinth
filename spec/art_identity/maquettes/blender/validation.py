@@ -4,6 +4,7 @@ import json
 from mathutils import Vector
 
 from .contract import BUILD_DEFAULTS
+from .ownership import materials_match, weights_match
 
 
 def geometry_report(spec, objects, cloth_reports, details=None):
@@ -31,6 +32,17 @@ def geometry_report(spec, objects, cloth_reports, details=None):
     from .conformance import body_tree
     import bpy
     body = bpy.data.objects.get('posed_body')
+    material_ok = all(materials_match(o, [list(spec['labels']).index(o['part'])] * len(o.data.polygons)) for o in objects)
+    weighted_ok = True
+    if body and 'face_owners' in body:
+        source = bpy.data.objects['body']
+        weights = [{source.vertex_groups[g.group].name: g.weight for g in v.groups} for v in source.data.vertices]
+        regions = {b['name']: b['region'] for b in spec['armature']['bones']}
+        source_owners = json.loads(body['face_owners'])
+        weighted_ok = weights_match([p.vertices[:] for p in body.data.polygons], weights, regions, source_owners)
+        by_face = {tuple(p.vertices): owner for p, owner in zip(body.data.polygons, source_owners)}
+        weighted_ok &= all(by_face.get(tuple(p.vertices)) == o['part'] for o in objects
+                           if o.get('piece_type') == 'body' for p in o.data.polygons)
     tree = body_tree(body) if body else None
     for obj in objects:
         if obj.get('conforming'):
@@ -75,6 +87,8 @@ def geometry_report(spec, objects, cloth_reports, details=None):
             if error > erosion + epsilon:
                 details['corner_errors'].setdefault(obj['piece_id'], []).append({'error': error, 'allowed': erosion, 'corner': [x, z]})
     return {'labels_cover_every_face': bool(labelled and expected <= represented),
+            'polygon_material_ownership': bool(material_ok),
+            'body_weight_ownership': bool(weighted_ok),
             'cloth_collision_margin': all(r['passed'] for r in cloth_reports.values()),
             'collar_front_no_wider_than_back': bool(collar_ok),
             'plate_corners_preserved': bool(corners_ok),

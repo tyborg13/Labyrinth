@@ -10,6 +10,7 @@ from PIL import Image
 
 from ..raster import Raster
 from .contract import DEFAULT_BUNDLE, digest, validate
+from .capture_manifest import read_manifest, require_image
 
 
 DEFAULT_BLENDER = '/Applications/Blender.app/Contents/MacOS/Blender'
@@ -35,21 +36,25 @@ def load_render(spec, folder, view='front'):
         raise ValueError('Blender render belongs to a different spec')
     names = list(spec['labels'])
     masks = {}
-    fit_only = (folder / f'{view}_body.png').exists()
+    manifest = read_manifest(folder, digest(spec), ('full', 'fit', 'preview', 'silhouettes'))
+    fit_only = manifest['mode'] in ('fit', 'preview')
     for name in ([] if fit_only else names):
+        require_image(manifest, f'{view}_solo_{name}.png')
         with Image.open(folder / f'{view}_solo_{name}.png') as image:
             masks[name] = np.asarray(image.convert('RGBA'))[..., 3] >= 128
     if fit_only:
         for name, filename in [('__body__', f'{view}_body.png'), (spec['fit'].get('head_part', 'head'), f'{view}_head.png')]:
+            require_image(manifest, filename)
             with Image.open(folder / filename) as image:
                 masks[name] = np.asarray(image.convert('RGBA'))[..., 3] >= 128
+    require_image(manifest, f'{view}_silhouette.png')
     with Image.open(folder / f'{view}_silhouette.png') as image:
         foreground = np.asarray(image.convert('RGBA'))[..., 3] >= 128
     owners = np.where(foreground, 0, -1).astype(np.int16)
     # Numerical fitting uses silhouettes and solos. A parts capture, when present,
     # additionally provides depth-tested owners for comparison tooling.
     parts = folder / f'{view}_parts.png'
-    if parts.exists():
+    if parts.name in manifest['images']:
         with Image.open(parts) as image:
             pixels = np.asarray(image.convert('RGBA'))[..., :3].astype(float)
         distance = np.full(foreground.shape, np.inf)
@@ -87,7 +92,7 @@ class BlenderRenderer:
             cmd.append('--fit-only')
         if gallery:
             cmd.append('--gallery')
-        result = run_job(BUILDER, cmd, timeout_s=900)
+        result = run_job(BUILDER, cmd, timeout_s=120)
         (folder / 'blender.log').write_text(result['stdout'])
         (folder / 'bridge_result.json').write_text(json.dumps({k: v for k, v in result.items() if k != 'stdout'}, indent=2))
         if result['exit']:
