@@ -7,17 +7,22 @@ const Transition = preload("res://scripts/section_transition.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const OUTPUT: String = "user://probes/section_transition"
 const SIZE := Vector2i(1920, 1080)
+const LEGACY_PROOF_MILESTONE_SUFFIX: String = ":legacy_no_offer_probe:%s"
 var host: Node
 var canvas: SubViewport
 var failures: Array[String]
 var evidence: Array[Dictionary]
+var semantics_only: bool = false
 
 func _initialize() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
+	semantics_only = OS.get_cmdline_user_args().has("--semantics-only")
+	if DisplayServer.get_name() == "headless" and semantics_only:
+		process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
 	_run.call_deferred()
 
 func _run() -> void:
-	if DisplayServer.get_name() == "headless":
+	if DisplayServer.get_name() == "headless" and not semantics_only:
 		push_error("Section transition proof requires the real windowed renderer")
 		quit(1)
 		return
@@ -37,10 +42,12 @@ func _run() -> void:
 	await _failed_entry(true)
 	await _failed_entry(false, true)
 	await _failed_entry(true, true)
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
 	var file := FileAccess.open(OUTPUT.path_join("timeline.json"), FileAccess.WRITE)
 	if file != null: file.store_string(JSON.stringify(evidence, "\t"))
 	for failure: String in failures: push_error(failure)
-	print("SECTION TRANSITION PROBE: %d failures; captures %s" % [failures.size(), ProjectSettings.globalize_path(OUTPUT)])
+	if semantics_only: print("SECTION TRANSITION PROBE SEMANTICS: %d failures; no renderer captures" % failures.size())
+	else: print("SECTION TRANSITION PROBE: %d failures; captures %s" % [failures.size(), ProjectSettings.globalize_path(OUTPUT)])
 	print(ProjectSettings.globalize_path(OUTPUT))
 	host.queue_free()
 	await process_frame
@@ -84,15 +91,18 @@ func _strip(reduced: bool, index: int, prefix: String, times: Array) -> void:
 func _failed_entry(reduced: bool, legacy: bool = false) -> void:
 	host.get("_settings")["reduced_motion"] = reduced
 	Settings.apply_settings(host.get("_settings"), root, false)
-	await Suite.install(self, host, Suite.fixture())
+	var offered: Dictionary = Suite.fixture()
 	if legacy:
-		# The old save lacks the summary field. Its existing local offer event is
-		# the source of exact presentation totals; no combat or claim is replayed.
-		host.call("_analytics_log_reward_offered", {}, "section_transition_legacy_proof")
-		var claimed: Dictionary = Run.new().continue_dragon_reward(host.get("_run_state"))
+		# The old save has neither a reward summary nor its local offer event.
+		# Only the saved dragon/relic identities may appear after reversal.
+		offered["pending_reward"]["milestone_id"] += LEGACY_PROOF_MILESTONE_SUFFIX % str(reduced)
+		var claimed: Dictionary = Run.new().continue_dragon_reward(offered)
 		preload("res://scripts/progression_store.gd").save_run_state(claimed)
 		host.call("_load_run_state", claimed)
+		var summary: Dictionary = host.get("_run_state")[Transition.CLAIMED_REWARD_KEY]
+		if summary.has("ember_amount") or summary.has("moltshards"): failures.append("Legacy proof has no matching offer totals")
 	else:
+		await Suite.install(self, host, offered)
 		host.find_child("DragonRewardContinue", true, false).pressed.emit()
 	var transition: Node = host.get("_section_transition")
 	transition.set_process(false)
@@ -109,9 +119,12 @@ func _failed_entry(reduced: bool, legacy: bool = false) -> void:
 	var retry: Button = host.find_child("DragonRewardContinue", true, false)
 	if retry == null or not retry.is_visible_in_tree() or host.get("_run_state")["notice"] != "Could not save. Your rewards are still here; try Continue again.":
 		failures.append("Save failure returns to the post-claim reward and approved notice: " + prefix)
+	Suite.assert_reward_screen(host, str(offered["pending_reward"]["boss_id"]), str(offered["pending_reward"]["relic_id"]), not legacy, func(ok: bool, message: String) -> void:
+		if not ok: failures.append(prefix + ": " + message))
 
 func _capture(name: String) -> void:
 	await process_frame
+	if semantics_only: return
 	await RenderingServer.frame_post_draw
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(OUTPUT))
 	var path: String = OUTPUT.path_join(name)

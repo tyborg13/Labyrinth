@@ -5,9 +5,9 @@ inspection, peer review, task metadata, commit and publication. No windowed run
 was attempted because this worker has no window-server access.
 
 Risk: **high** (reward flow, save/resume, modal input and presentation).
-`parallel_task.py status` reports an empty owner-managed contract in this worktree
-despite the brief's bootstrap description. This file records the implementation's
-observable contract without modifying that metadata.
+The initial implementation observed an empty owner-managed contract via
+`parallel_task.py status`. This handoff records the observable acceptance and
+proof without modifying owner-managed task metadata.
 
 1. Non-final dragon CONTINUE starts the descent immediately, without the old
    relic delivery flourish or an intervening map. The Next section control,
@@ -106,13 +106,11 @@ publication was run by this worker.
    cover those lifecycles. The demo restores its own suppression on completion
    and exit as well.
 
-Historical-data design gap: when an old save has no summary **and** its local
-offer event is unavailable, the original Embers/healing/Moltshard deltas no
-longer exist. No replacement numbers are invented. The working reward screen
-currently uses `TODO_DESIGN_LEGACY_REWARD_PAYOUT` and
-`TODO_DESIGN_LEGACY_REWARD_SHARDS` in data fields `payout_text` and `shard_text`.
-A fallback presentation clarification was requested asynchronously; these
-placeholders remain until the design owner supplies that decision.
+Historical-data decision (resolved by feedback 4): reconstructed legacy screens
+omit both payout/Moltshard rows. They show the known dragon and recorded relic
+with its existing rules, plus CONTINUE. No replacement values or placeholder
+copy appear. Both legacy reward TODO constants have been removed. Existing
+complete reward summaries retain their authored totals rows.
 
 The main native contract now requires 18 named captures: the prior 14 plus
 normal/reduced legacy-save reversal and restored-reward samples. Its existing
@@ -151,6 +149,46 @@ real-pointer CONTINUE path.
 The numbered implementation notes above describe earlier rounds; this owner
 feedback supersedes their entry-room reveal and 3.20s map-path timing.
 
+## Feedback 4 — known-only legacy rewards and scoped array audit
+
+Review source: `54a704357:spec/peer_benchmark/feedback/flow-01_review_63c1f11ba.md`
+(the file is absent from this worktree). This round starts at `63c1f11ba`.
+
+1. The revision-5 generator freeze and `main_menu_resume_test` timeout belong to
+   fix-05. `section_map_graph.gd` is untouched. The director will rerun the full
+   Godot suite after that fix lands; this round runs the requested transition,
+   probe semantics and Python suites.
+2. Newly reconstructed summaries carry `legacy_summary: true`. Their screen
+   omits both totals rows entirely, even if an old local offer still retains
+   exact deltas. Relic presentation requires its identity in the save's owned
+   relics or matching local offer; absent identities produce no relic artwork,
+   name, destination or rules rows. Existing old placeholder-bearing summaries
+   also omit missing totals, since presentation no longer consumes the old
+   `payout_text`/`shard_text` overrides. Both TODO constants are removed.
+   Independent live assertions inspect visible labels for the literal
+   `TODO_DESIGN`, require omitted nodes to be absent, and verify the known
+   dragon/relic, rules and CONTINUE. The recovery matrix now includes 18 cases:
+   the former 14 plus missing-relic and previously persisted-placeholder saves,
+   each with retry and quit/resume. Rewards and claim counts remain unchanged.
+3. The 117 typed declaration literal initializers in 13 owned GDScript files
+   remain unchanged under the director's clarification. One conditional literal
+   feeding `Array[String].append_array` in `_add_surface_skill_choices` is now
+   explicit relocation/creation branches using `choices.assign([...])`; values
+   and order are identical. No bare literal assignment to an already declared
+   typed variable was found. Remaining bare reassignments in `run_scene.gd`
+   target untyped `Array` variables, and its remaining typed conditionals return
+   typed arrays on both branches. Audit log:
+   `/private/tmp/flow-01-feedback4-array-audit.log`.
+4. `section_transition_probe.gd --semantics-only` runs the same live state/label
+   assertions and timeline without reading a renderer texture or writing PNGs.
+   Native mode still requires the real windowed renderer. Its legacy captures
+   now stage an old cleared-boss save without a reward summary or local offer.
+   The existing 21-image native contract and capture names remain unchanged.
+
+New fixture-only data: recovery run offsets now span 2–19; the additional cases
+remove the recorded relic or carry obsolete placeholder fields. No new
+player-facing default or design placeholder was introduced.
+
 ## Proof for the design owner
 
 Run from the final merged implementation. Use fresh output/receipt paths if any
@@ -158,8 +196,8 @@ of these paths already exist. The native movie wrapper uses the existing demo
 capture settings, GUI lease, disk guard, renderer verification and ffmpeg tools.
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/visual_probe_runner.py --task-id flow-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/section_transition.json --result-manifest /private/tmp/flow-01-owner-feedback3-proof.json tests/section_transition_probe.gd
-cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/visual_probe_runner.py --task-id flow-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/section_map_review.json --result-manifest /private/tmp/flow-01-owner-feedback3-map-review-proof.json tests/section_map_review_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/visual_probe_runner.py --task-id flow-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/section_transition.json --result-manifest /private/tmp/flow-01-owner-feedback4-proof.json tests/section_transition_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/visual_probe_runner.py --task-id flow-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/section_map_review.json --result-manifest /private/tmp/flow-01-owner-feedback4-map-review-proof.json tests/section_map_review_probe.gd
 ```
 
 This emits the requested 0.3, 0.9, 1.5, 2.4 and 3.0s strip, the additional
@@ -171,11 +209,11 @@ does not substitute a mockup or generated art. Independently inspect the images
 at 1920×1080, 100% UI scale. Windowed capture/judging remains pending.
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/demo_clips/section_transition.py validate --output /private/tmp/flow-01-owner-feedback3-demo-validation
-cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/demo_clips/section_transition.py record --validation /private/tmp/flow-01-owner-feedback3-demo-validation --output /private/tmp/flow-01-owner-feedback3-demo
+cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/demo_clips/section_transition.py validate --output /private/tmp/flow-01-owner-feedback4-demo-validation
+cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/demo_clips/section_transition.py record --validation /private/tmp/flow-01-owner-feedback4-demo-validation --output /private/tmp/flow-01-owner-feedback4-demo
 ```
 
-Native outputs: `/private/tmp/flow-01-owner-feedback3-demo/section_transition.mp4`,
+Native outputs: `/private/tmp/flow-01-owner-feedback4-demo/section_transition.mp4`,
 `movie.avi`, untouched PCM `movie.wav`, `events.json`, `godot.log` and
 `recording.json`. Listen to the music handoff. No inspection-fixture command was
 requested by this unit brief; the design owner prepares the final fixture.
@@ -183,7 +221,7 @@ requested by this unit brief; the design owner prepares the final fixture.
 ## TODO_DESIGN placeholders
 
 `TODO_DESIGN_SECTION_ENTRY_SAVE_FAILURE` is resolved by feedback 1 and removed.
-The two legacy historical-total placeholders are described in feedback 2 above.
+Both legacy historical-total placeholders were resolved and removed in feedback 4.
 The pre-existing
 `StartRoomMapFlow.TODO_DESIGN_SECTION_START_NARRATION` remains unchanged.
 
@@ -199,7 +237,7 @@ Only invisible implementation/proof values were selected:
   Section VI at 1.5s. Title-region proof uses `[360, 440, 1200, 160]`, with
   minimum luma range 20 and standard deviation 5 (proof checks only).
 - Recovery proof samples at half of each existing reverse fade and 0.01s after
-  completion. Recovery fixtures use run-index offsets 2 through 15 to isolate
+  completion. Recovery fixtures use run-index offsets 2 through 19 to isolate
   analytics receipts.
 - Frame observations use `FRAME_SECONDS = 1.0 / 60.0`,
   `FRAMING_EPSILON_PX = 0.1`, `COLOR_EPSILON = 0.0001`, and
@@ -222,6 +260,40 @@ Only invisible implementation/proof values were selected:
   tuning. Production encounter art, camera, card rules and reward rules remain.
 
 ## Observed verification
+
+Feedback 4 current results (logs under `/private/tmp/flow-01-feedback4-*`):
+
+- `transition-delivery.log`: exit 0, `SECTION TRANSITION RESULT: 0 failures`
+  (18 recovery cases plus the existing transition/arrival/frame/input/analytics
+  checks, after the final array cleanup).
+- `probe-semantics-delivery.log`:
+  `SECTION TRANSITION PROBE SEMANTICS: 0 failures; no renderer captures`.
+- `map-review.log`: `SECTION MAP REVIEW PROBE: PASS` (headless semantics).
+- `start-room-map.log`: `START ROOM MAP RESULT: 0 failures`.
+- `ui-delivery.log`: `Ran 25 tests in 3.993s` / `OK`.
+- `demo-delivery.log`: two `DEMO CLIP section_transition: PASS (672 frames)` results;
+  `SECTION TRANSITION DEMO VALIDATION: PASS (two identical headless takes)`.
+  Receipt: `/private/tmp/flow-01-feedback4-demo-validation-delivery/validation.json`.
+- `array-audit.log`: `WINDOWS ARRAY AUDIT: 13 owned files; 117 permitted typed
+  declaration literal initializers unchanged from HEAD`.
+  One conditional literal input was changed to explicit `assign` branches;
+  no bare literal assignment to an already declared typed variable was found.
+  This is a source-form audit, not a substitute Windows execution or parser check.
+- `probe-parser.log`: parser-only check exits 0; the final live semantic run
+  also compiles and executes the final probe.
+- `python-suite.log`: exit 0, `Ran 702 tests in 660.137s` /
+  `OK (skipped=63)`.
+- `git diff --check`: clean. No windowed probe was attempted. The native
+  commands above will update the existing 21-image contract with the new legacy
+  known-only reward states. Full Godot is assigned to the director after fix-05,
+  as stated in feedback 4; the earlier full-suite results below are historical.
+
+Reproduce the headless probe semantics without producing renderer evidence:
+
+```sh
+cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/godot_task_runner.py --task-id flow-01 --stream -- godot --headless --path . --script tests/section_transition_probe.gd -- --semantics-only
+cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/godot_task_runner.py --task-id flow-01 --stream -- godot --headless --path . --script tests/section_map_review_probe.gd
+```
 
 Feedback 3 current results (logs under `/private/tmp/flow-01-feedback3-*`):
 
@@ -458,8 +530,17 @@ Feedback 3 changes (relative to `f1e041f29`, all uncommitted):
   `tools/demo_clips/section_transition.py`.
 - Owning specification: `spec/section_map.md`.
 
-The prior owner capture directories, approved assets, protected demo manifests,
-`run_scene.gd`, existing dragon-reward assertions, analytics schema and task queue
-are unchanged in this feedback round. New invisible defaults are the frame
+Feedback 3 left the prior owner capture directories, approved assets, protected
+demo manifests, `run_scene.gd`, existing dragon-reward assertions, analytics
+schema and task queue unchanged in that round. New invisible defaults are the frame
 sampling/tolerances listed above; the narrated non-map fixture reuses the
 existing Emaciated Man identity. No new design placeholder was introduced.
+
+
+Feedback 4 changes (relative to `63c1f11ba`, all uncommitted):
+`scripts/section_transition_reward.gd`, `scripts/run_scene.gd` (dragon-reward
+stack and one scoped conditional-array cleanup), `spec/analytics.md`, `tests/suites/section_transition_suite.gd`,
+`tests/section_transition_probe.gd`, and this handoff. No array declaration initializers,
+map-generation code, assets, protected data, task metadata or assertions of
+existing failures were changed. No new design TODO remains from this round;
+the pre-existing section-start narration TODO is unchanged.

@@ -12,7 +12,7 @@ const Bosses = preload("res://scripts/dragon_boss_library.gd")
 const Factory = preload("res://tools/dragon_boss_inspection.gd")
 const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
 const Observer = preload("res://tests/helpers/section_transition_observer.gd")
-const Reward = preload("res://scripts/section_transition_reward.gd")
+const Data = preload("res://scripts/game_data.gd")
 
 # Invisible fixture values and watchdogs; never applied to production runs.
 const FIXTURE_SEED: int = 410
@@ -351,8 +351,9 @@ static func _save_failure_cases(tree: SceneTree, host: Node, expect: Callable) -
 		for quit_after: bool in [false, true]:
 			for reduced: bool in [false, true]:
 				cases.append({"format": format, "quit": quit_after, "reduced": reduced, "run_offset": cases.size() + 2})
-	for quit_after: bool in [false, true]:
-		cases.append({"format": "old_broken", "quit": quit_after, "reduced": false, "run_offset": cases.size() + 2})
+	for format: String in ["old_broken", "old_no_relic", "old_placeholder"]:
+		for quit_after: bool in [false, true]:
+			cases.append({"format": format, "quit": quit_after, "reduced": false, "run_offset": cases.size() + 2})
 	for test_case: Dictionary in cases:
 		var quit_after_failure: bool = test_case["quit"]
 		var reduced: bool = test_case["reduced"]
@@ -369,7 +370,11 @@ static func _save_failure_cases(tree: SceneTree, host: Node, expect: Callable) -
 				host.call("_analytics_log_reward_offered", {}, "section_transition_legacy_fixture")
 			var legacy: Dictionary = Run.new().continue_dragon_reward(reward)
 			if test_case["format"] == "old_broken": legacy["mode"] = "reward"
-			expect.call(not legacy.has(Transition.CLAIMED_REWARD_KEY) and Store.save_run_state(legacy), "Old-format fixture is an actual persisted cleared-boss save without presentation metadata")
+			if test_case["format"] == "old_no_relic": (legacy["relics"] as Array).erase(reward["pending_reward"]["relic_id"])
+			expect.call(not legacy.has(Transition.CLAIMED_REWARD_KEY), "Old-format fixture has no presentation metadata")
+			if test_case["format"] == "old_placeholder":
+				legacy[Transition.CLAIMED_REWARD_KEY] = {"kind": "dragon", "boss_id": reward["pending_reward"]["boss_id"], "relic_id": reward["pending_reward"]["relic_id"], "intro_pending": false, "payout_text": "TODO_DESIGN_old_save_payout", "shard_text": "TODO_DESIGN_old_save_shards"}
+			expect.call(Store.save_run_state(legacy), "Legacy fixture is persisted before loading")
 			host.call("_load_run_state", Store.load_saved_run())
 		var transition: Node = host.get("_section_transition")
 		transition.set_process(false)
@@ -381,12 +386,13 @@ static func _save_failure_cases(tree: SceneTree, host: Node, expect: Callable) -
 		var entries_before: int = event_count("auto_transition") + event_count("resume_transition")
 		expect.call(saved_claim.has(Transition.CLAIMED_REWARD_KEY), "New claims save their summary atomically; old saves migrate it before descent")
 		var summary: Dictionary = saved_claim[Transition.CLAIMED_REWARD_KEY]
-		expect.call(summary["kind"] == "dragon" and summary["boss_id"] == reward["pending_reward"]["boss_id"] and summary["relic_id"] == reward["pending_reward"]["relic_id"], "Migration preserves the already-claimed reward identities")
+		var expected_relic: String = "" if test_case["format"] == "old_no_relic" else str(reward["pending_reward"]["relic_id"])
+		expect.call(summary["kind"] == "dragon" and summary["boss_id"] == reward["pending_reward"]["boss_id"] and summary["relic_id"] == expected_relic, "Migration preserves only recorded reward identities")
 		if test_case["format"] in ["new", "old"]:
 			for key: String in ["ember_amount", "healed_amount", "moltshards"]:
 				expect.call(summary[key] == reward["pending_reward"][key], "Exact historical reward delta is recovered: " + key)
-		else:
-			expect.call(summary.get("payout_text") == Reward.TODO_DESIGN_LEGACY_REWARD_PAYOUT, "Unavailable historical totals remain explicit design data rather than fabricated numbers")
+		if test_case["format"] != "old_placeholder":
+			expect.call(not summary.has("payout_text") and not summary.has("shard_text"), "Migration creates no placeholder copy for unavailable totals")
 		var claim_calls_before: int = int(host.get("_section_test_claim_calls"))
 		var blocked_path: String = ProjectSettings.globalize_path("user://section_transition_run.save.tmp")
 		DirAccess.make_dir_absolute(blocked_path)
@@ -401,7 +407,8 @@ static func _save_failure_cases(tree: SceneTree, host: Node, expect: Callable) -
 		await settle(tree)
 		var retry: Button = host.find_child("DragonRewardContinue", true, false)
 		expect.call(host.get("_section_transition") == null and not host.get("_animation_lock") and retry != null and retry.is_visible_in_tree() and retry.text == "CONTINUE", "Reverse finishes on the post-claim reward screen with a working CONTINUE")
-		expect.call(payout(host.get("_run_state")) == payout(reward) and claim_count() == claims_before, "Failure and reverse do not repeat payouts or the durable claim receipt")
+		assert_reward_screen(host, str(reward["pending_reward"]["boss_id"]), expected_relic, test_case["format"] == "new", expect)
+		expect.call(payout(host.get("_run_state")) == payout(saved_claim) and claim_count() == claims_before, "Failure and reverse do not repeat payouts or the durable claim receipt")
 		if quit_after_failure:
 			# Exercise the ordinary quit save, then discard/reload all scene state.
 			host.call("_persist_committed_boundary", "section_transition_test_quit")
@@ -429,9 +436,29 @@ static func _save_failure_cases(tree: SceneTree, host: Node, expect: Callable) -
 		expect.call(int(host.get("_section_test_claim_calls")) == claim_calls_before, "Claimed-reward retry and resume bypass the claim transaction entirely")
 		expect.call(handoffs[0] == 1 and int(host.get("_section_test_music_starts")) - starts_before == 1, "After completion and deferred callbacks, recovery has exactly one arrival and music playback start")
 		expect.call(host.get("_run_state")["current_room"] == Graph.section(reward, 1)["entry"] and not Store.load_saved_run().has(Transition.CLAIMED_REWARD_KEY), "Successful retry saves Section II and removes recovery metadata")
-		expect.call(payout(host.get("_run_state")) == payout(reward) and claim_count() == claims_before and event_count("auto_transition") + event_count("resume_transition") == entries_before + 1 and handoffs[0] == 1, "Recovery preserves rewards/claim once and emits only the successful entry/music handoff")
+		expect.call(payout(host.get("_run_state")) == payout(saved_claim) and claim_count() == claims_before and event_count("auto_transition") + event_count("resume_transition") == entries_before + 1 and handoffs[0] == 1, "Recovery preserves rewards/claim once and emits only the successful entry/music handoff")
 	host.get("_settings")["reduced_motion"] = false
 	return host
+
+# Compare the live visible result against the owner decision, not migration
+# flags/constants. Rows must not exist; merely hiding their text is insufficient.
+static func assert_reward_screen(host: Node, boss_id: String, relic_id: String, totals: bool, expect: Callable) -> void:
+	var defeated: Label = host.find_child("DragonRewardDefeated", true, false)
+	expect.call(defeated != null and defeated.is_visible_in_tree() and defeated.text == "%s defeated" % str(Data.enemy_def(boss_id)["name"]), "Restored reward shows the recorded dragon name")
+	var relic: Label = host.find_child("DragonRewardRelic", true, false)
+	var rules: RichTextLabel = host.find_child("DragonRewardRules", true, false)
+	if relic_id.is_empty():
+		expect.call(relic == null and rules == null and host.find_child("DragonRewardArtwork", true, false) == null and host.find_child("DragonRewardDestination", true, false) == null, "Unrecorded relic rows and artwork are absent")
+	else:
+		expect.call(relic != null and relic.is_visible_in_tree() and relic.text == str(Data.relic_def(relic_id)["name"]) and rules != null and rules.is_visible_in_tree() and not rules.get_parsed_text().is_empty(), "Recorded relic and its rules remain visible")
+	for row: String in ["DragonRewardPayout", "DragonRewardShard"]:
+		var label: Label = host.find_child(row, true, false)
+		expect.call(label != null and label.is_visible_in_tree() if totals else label == null, "Totals row visible only for a complete recorded summary: " + row)
+	for node: Node in host.find_children("*", "", true, false):
+		if (node is Label or node is RichTextLabel) and (node as Control).is_visible_in_tree():
+			expect.call(not str(node.get("text")).contains("TODO_DESIGN"), "No visible label contains internal design placeholders: " + str(node.name))
+	var button: Button = host.find_child("DragonRewardContinue", true, false)
+	expect.call(button != null and button.is_visible_in_tree() and button.text == "CONTINUE", "Known-only legacy reward retains CONTINUE")
 
 static func _skip_input(kind: String) -> InputEvent:
 	if kind == "click":

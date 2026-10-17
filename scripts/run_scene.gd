@@ -15996,34 +15996,39 @@ func _add_dragon_reward_stack() -> void:
 	margin.add_child(content)
 	var dragon_name: String = str(GameData.enemy_def(str(reward.get("boss_id", ""))).get("name", "Dragon"))
 	_dragon_reward_label(content, "DragonRewardDefeated", "%s defeated" % dragon_name, UiTypography.SIZE_BODY_LARGE, Color("f6e4bc"))
-	var icon := TextureRect.new()
-	icon.name = "DragonRewardArtwork"
-	icon.texture = AssetLoader.load_texture(str(relic.get("icon_path", "")))
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	icon.custom_minimum_size = Vector2(96, 96)
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	content.add_child(icon)
-	_dragon_reward_label(content, "DragonRewardRelic", str(relic.get("name", relic_id)), 30, Color("fff1d5"))
-	_dragon_reward_label(content, "DragonRewardDestination", "FOR YOUR NEXT RUN" if next_descent else "LEGENDARY RELIC ACQUIRED", UiTypography.SIZE_CAPTION, Color("efb35f"))
-	var rules := RichTextLabel.new()
-	rules.name = "DragonRewardRules"
-	rules.fit_content = true
-	rules.scroll_active = false
-	rules.custom_minimum_size.x = 542.0
-	rules.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	UiTypography.set_rich_text_size(rules, UiTypography.SIZE_BODY_LARGE)
-	rules.add_theme_color_override("default_color", Color("dec9a7"))
-	InlineIconText.apply_to(rules, str(relic.get("description", "")), InlineIconText.DEFAULT_ICON_SCALE, true)
-	content.add_child(rules)
-	if next_descent:
-		_dragon_reward_label(content, "DragonRewardGift", "Begin your next run with this relic. It lasts for that run.", UiTypography.SIZE_BODY, Color("cfc5dd"))
-	content.add_child(HSeparator.new())
-	var payout_text: String = str(reward.get("payout_text", "+%d Embers    ·    +%d HP recovered" % [int(reward.get("ember_amount", 0)), int(reward.get("healed_amount", 0))]))
-	var shard_text: String = str(reward.get("shard_text", "+1 Moltshard · First dragon defeated this run" if int(reward.get("moltshards", 0)) > 0 else "First-dragon Moltshard already earned this run"))
-	_dragon_reward_label(content, "DragonRewardPayout", payout_text, UiTypography.SIZE_BODY_LARGE, Color("f4d598"))
-	_dragon_reward_label(content, "DragonRewardShard", shard_text, UiTypography.SIZE_BODY, Color("cfc5dd"))
+	if not relic_id.is_empty() and not relic.is_empty():
+		var icon := TextureRect.new()
+		icon.name = "DragonRewardArtwork"
+		icon.texture = AssetLoader.load_texture(str(relic.get("icon_path", "")))
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.custom_minimum_size = Vector2(96, 96)
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		content.add_child(icon)
+		_dragon_reward_label(content, "DragonRewardRelic", str(relic.get("name", relic_id)), 30, Color("fff1d5"))
+		_dragon_reward_label(content, "DragonRewardDestination", "FOR YOUR NEXT RUN" if next_descent else "LEGENDARY RELIC ACQUIRED", UiTypography.SIZE_CAPTION, Color("efb35f"))
+		var rules := RichTextLabel.new()
+		rules.name = "DragonRewardRules"
+		rules.fit_content = true
+		rules.scroll_active = false
+		rules.custom_minimum_size.x = 542.0
+		rules.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		rules.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		UiTypography.set_rich_text_size(rules, UiTypography.SIZE_BODY_LARGE)
+		rules.add_theme_color_override("default_color", Color("dec9a7"))
+		InlineIconText.apply_to(rules, str(relic.get("description", "")), InlineIconText.DEFAULT_ICON_SCALE, true)
+		content.add_child(rules)
+		if next_descent:
+			_dragon_reward_label(content, "DragonRewardGift", "Begin your next run with this relic. It lasts for that run.", UiTypography.SIZE_BODY, Color("cfc5dd"))
+	# Missing historical totals are omitted, never replaced with guessed zeroes
+	# or persisted legacy placeholder text. New rewards keep their exact rows.
+	var show_payout: bool = not bool(reward.get("legacy_summary", false)) and reward.has("ember_amount") and reward.has("healed_amount")
+	var show_shards: bool = not bool(reward.get("legacy_summary", false)) and reward.has("moltshards")
+	if show_payout or show_shards: content.add_child(HSeparator.new())
+	if show_payout:
+		_dragon_reward_label(content, "DragonRewardPayout", "+%d Embers    ·    +%d HP recovered" % [int(reward["ember_amount"]), int(reward["healed_amount"])], UiTypography.SIZE_BODY_LARGE, Color("f4d598"))
+	if show_shards:
+		_dragon_reward_label(content, "DragonRewardShard", "+1 Moltshard · First dragon defeated this run" if int(reward["moltshards"]) > 0 else "First-dragon Moltshard already earned this run", UiTypography.SIZE_BODY, Color("cfc5dd"))
 	var button: UiTooltipButton = _reward_secondary_button("DragonRewardContinue", "COMPLETE ASCENT" if bool(reward.get("final_boss", false)) else "CONTINUE", _on_dragon_reward_continue, "Your rewards have been saved.")
 	stack.add_child(button)
 	if _controller_is_active(): button.call_deferred("grab_focus")
@@ -33927,7 +33932,10 @@ func _add_surface_skill_choices() -> void:
 	_clear_children_now(_surface_skill_choice_row)
 	_surface_skill_choice_row.visible = _surface_aim.active()
 	var choices: Array[String]
-	choices.append_array(["elemental", "rubble"] if _surface_aim.relocating else ["fire", "ice", "electrified", "rubble"])
+	if _surface_aim.relocating:
+		choices.assign(["elemental", "rubble"])
+	else:
+		choices.assign(["fire", "ice", "electrified", "rubble"])
 	for kind: String in choices:
 		var title: String = "Elemental layer" if kind == "elemental" else BoardSurfacePresentation.title_for(kind)
 		var button := UiTooltipButton.new()
