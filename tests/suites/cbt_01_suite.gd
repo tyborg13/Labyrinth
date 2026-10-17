@@ -4,6 +4,7 @@ const CombatEngine = preload("res://scripts/combat_engine.gd")
 const Stay = preload("res://scripts/card_stay_rules.gd")
 const Surface = preload("res://scripts/board_surface_rules.gd")
 const Maneuver = preload("res://scripts/maneuver_rules.gd")
+const Keyboard = preload("res://scripts/movement_target_keyboard.gd")
 
 # Test/proof-only defaults. No production presentation or tuning lives here.
 const FIXTURE_SEED: int = 90101
@@ -186,6 +187,7 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	await keyboard_focus_hero(scene)
 	await settle_keyboard(tree)
 	assert_keyboard_stay_focus(scene, expect)
+	await _test_keyboard_cancel_reselect(tree, scene, expect)
 	var confirm := InputEventKey.new()
 	confirm.keycode = KEY_ENTER
 	confirm.pressed = true
@@ -236,6 +238,28 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	assert_stay_preview(scene, expect)
 	scene.queue_free()
 	await tree.process_frame
+
+static func _test_keyboard_cancel_reselect(tree: SceneTree, scene: Node, expect: Callable) -> void:
+	var before: Dictionary = (scene.get("_combat_state") as Dictionary).duplicate(true)
+	var cancel := InputEventKey.new()
+	cancel.keycode = KEY_ESCAPE
+	cancel.pressed = true
+	await scene.call("_input", cancel)
+	await settle_keyboard(tree)
+	expect.call(int(scene.get("_selected_card_index")) == -1 and scene.get("_combat_state") == before, "Keyboard cancellation deselects Stay without committing the card")
+	expect.call(not scene.has_meta(Keyboard.FOCUS_META), "Cancellation removes keyboard ownership metadata")
+	# Reselect without a mouse event: pointer handoff would independently clear
+	# stale ownership and hide a missing selection-reset cleanup.
+	await scene.call("_on_card_pressed", 0)
+	await settle_keyboard(tree)
+	expect.call(int(scene.get("_selected_card_index")) == 0, "Cancelled Stay can be selected again")
+	expect.call(not Keyboard.active(scene), "Reselection without a keypress does not inherit keyboard ownership")
+	var board: Control = scene.get("board_view")
+	expect.call(board.get("_controller_focus_tile") == NO_TARGET and scene.get("_hovered_board_tile") == NO_TARGET, "Reselection without a keypress does not restore the rendered keyboard cursor or hover")
+	await keyboard_focus_hero(scene)
+	await settle_keyboard(tree)
+	assert_keyboard_stay_focus(scene, expect)
+	assert_stay_preview(scene, expect)
 
 static func keyboard_focus_hero(scene: Node) -> void:
 	scene.set("_controller_region", "board")

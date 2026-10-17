@@ -1,3 +1,48 @@
+# cbt-01 feedback 2 handoff
+
+Base: `ef8a46144`, branch `codex/cbt-01`. This revision changes only
+`tests/suites/cbt_01_suite.gd` and this handoff; changes remain uncommitted.
+No production code, data, assets, probe or proof contract changed.
+
+## Cancellation and reselection regression
+
+The live suite first keyboard-targets Stay and verifies settled focus on `(4,3)`.
+It sends Escape, checks the card is deselected without committing combat state,
+and requires the keyboard ownership metadata to be removed. It then reselects
+Guarded Step through the card handler, without a mouse event or new keypress.
+After ten physics frames and three process frames, keyboard ownership must stay
+inactive and both rendered controller focus and scene hover must stay invalid.
+A new keypress then restores the hero focus, arrow and Stay preview before the
+existing Enter-confirm test continues.
+
+Removing only the cleanup in `_clear_active_card_preview_state()` was tested:
+`CBT-01 TESTS: FAIL (3 failures)`, exit 1. All three failures match the reviewer's
+cancellation/reselection experiment. Production was restored byte for byte,
+then the focused suite was rerun successfully.
+
+## Focused verification
+
+| Check | Exact result | Log |
+| --- | --- | --- |
+| Focused suite after restoring production | `CBT-01 TESTS: PASS (0 failures)` | `/tmp/cbt-01-feedback2-focused.log` |
+| Cleanup-removal mutation | `CBT-01 TESTS: FAIL (3 failures)` (expected) | `/tmp/cbt-01-feedback2-mutation.log` |
+| Enclosed Stay integration | `CBT-01 ENCLOSED TEST: PASS (0 failures)` | `/tmp/cbt-01-feedback2-enclosed.log` |
+| Headless probe semantics | `CBT-01 PROBE: PASS (0 failures)` | `/tmp/cbt-01-feedback2-probe-logic.log` |
+| UI identity lint | `Ran 25 tests in 3.182s` / `OK` | `/tmp/cbt-01-feedback2-ui-lint.log` |
+| Copy budgets | `Ran 6 tests in 0.070s` / `OK` | `/tmp/cbt-01-feedback2-text-budget.log` |
+| Output import hygiene | `OUTPUT GDIGNORE: PASS (14 folders; 3 referenced roots)` | `/tmp/cbt-01-feedback2-output-ignore.log` |
+
+The full suites were not rerun, as requested for this test-only revision.
+The delta review accepted the director's fresh three-image renderer proof;
+no new windowed capture was requested or attempted. No new TODO_DESIGN
+placeholder, chosen default or open issue was introduced. The prior unrelated
+Python art replay failure remains documented in the historical record below.
+
+---
+
+The following is the feedback 1 record. Its pending-renderer note was resolved
+by the director's accepted capture run before feedback 2.
+
 # cbt-01 feedback 1 handoff
 
 Base: `5e20c1099`, branch `codex/cbt-01`. All feedback changes are uncommitted.
