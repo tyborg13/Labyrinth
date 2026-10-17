@@ -2087,7 +2087,8 @@ func _physics_process(delta: float) -> void:
 		_controller_stick = Vector2.ZERO
 		_controller_reset_stick_repeat()
 		_controller_hide_analog_cursor()
-		_controller_clear_board_focus()
+		if not preload("res://scripts/movement_target_keyboard.gd").preserve_focus(self):
+			_controller_clear_board_focus()
 		return
 	if not _controller_custom_navigation_available():
 		_controller_stick = Vector2.ZERO
@@ -2117,6 +2118,7 @@ func _physics_process(delta: float) -> void:
 			_controller_enter_board(true)
 
 func _input(event: InputEvent) -> void:
+	preload("res://scripts/movement_target_keyboard.gd").observe_input(self, event)
 	if is_instance_valid(_magic_purge_overlay):
 		if InputRouterScript.is_controller_event(event):
 			var router: Node = get_node_or_null("/root/InputRouter")
@@ -2324,6 +2326,9 @@ func _input(event: InputEvent) -> void:
 		return
 	if _selected_card_index >= 0 and (event.is_action_pressed("ui_left") or event.is_action_pressed("ui_right")) and (_current_action_is_aimed_aoe() or _force_aim_rotation_available()):
 		_rotate_aoe_aim(-1 if event.is_action_pressed("ui_left") else 1)
+		get_viewport().set_input_as_handled()
+		return
+	if await preload("res://scripts/movement_target_keyboard.gd").handle(self, event):
 		get_viewport().set_input_as_handled()
 		return
 	if _is_map_shortcut_event(event):
@@ -2561,16 +2566,9 @@ func _handle_controller_input(event: InputEvent) -> bool:
 			_controller_toggle_hand_focus()
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_PASS):
-		if _current_action_can_skip():
-			await _on_skip_action_pressed()
-			if _selected_card_index < 0:
-				_controller_region = "hand"
-				_controller_set_hand_focused(true)
-				_controller_set_hand_index(maxi(0, _controller_hand_index))
-		else:
-			_controller_region = "board"
-			_controller_set_hand_focused(false)
-			await _on_pass_turn_pressed()
+		_controller_region = "board"
+		_controller_set_hand_focused(false)
+		await _on_pass_turn_pressed()
 		_refresh_controller_interface()
 		return true
 	if event.is_action_pressed(InputRouterScript.ACTION_HAND_PREVIOUS):
@@ -3504,7 +3502,8 @@ func _refresh_controller_interface() -> void:
 	_refresh_controller_prompts()
 	if not _controller_is_active():
 		_controller_hide_analog_cursor()
-		_controller_clear_board_focus()
+		if not preload("res://scripts/movement_target_keyboard.gd").preserve_focus(self):
+			_controller_clear_board_focus()
 		return
 	if not _controller_custom_navigation_available():
 		_controller_suspend_custom_navigation()
@@ -3690,7 +3689,7 @@ func _refresh_controller_prompts() -> void:
 			prompts.append({"action": InputRouterScript.ACTION_EMPOWER, "label": "Unempower" if _selected_card_empowered() else "Empower"})
 		prompts.append({"action": &"controller_move", "label": "Move"})
 		prompts.append({"action": InputRouterScript.ACTION_HAND_TOGGLE, "label": "Focus Hand"})
-		prompts.append({"action": InputRouterScript.ACTION_PASS, "label": "Skip Step" if _current_action_can_skip() else "Pass"})
+		prompts.append({"action": InputRouterScript.ACTION_PASS, "label": "Pass"})
 	else:
 		prompts = [
 			{"action": InputRouterScript.ACTION_ACCEPT, "label": "Play"},
@@ -8105,7 +8104,7 @@ func _click_card_targeting_active() -> bool:
 func _controller_card_targeting_active(candidate: Dictionary = {}) -> bool:
 	if (
 		not _targeted_card_aiming_active()
-		or not _controller_is_active()
+		or not (_controller_is_active() or preload("res://scripts/movement_target_keyboard.gd").active(self))
 		or _drag_card_index >= 0
 		or _controller_region != "board"
 		or _controller_modal_visible()
@@ -9089,10 +9088,6 @@ func _guided_tutorial_spotlight_rects(phase_id: String) -> Array:
 				_guided_tutorial_append_tile_rect(rects, confirmation_player)
 			else:
 				_guided_tutorial_append_tile_rect(rects, GuidedCombatScenario.target_tile(_combat_state))
-			if _current_action_can_skip():
-				var skip_button: Button = _guided_tutorial_find_button(_action_step_tracker, "Skip")
-				if skip_button != null:
-					rects.append(skip_button.get_global_rect())
 		ContextualCombatTutorial.PHASE_TURN_CLOCK:
 			_guided_tutorial_append_control_rect(rects, _turn_order_panel, 6.0)
 		ContextualCombatTutorial.PHASE_PASS_TURN:
@@ -18521,6 +18516,14 @@ func _board_display_state() -> Dictionary:
 			if not _combat_state.is_empty():
 				return _combat_state
 		elif not _preview_combat_state.is_empty():
+			var stay_forecast: Dictionary = _hovered_stay_forecast()
+			if not stay_forecast.is_empty():
+				var stay_display: Dictionary = _visibility_safe_preview_display_state(_combat_preview_display_state(stay_forecast))
+				# The forecast removed hidden causes before resolving; show its
+				# support while keeping committed sight and hidden board objects.
+				for field: String in ["hp", "block", "stoneskin"]:
+					stay_display["player"][field] = stay_forecast["player"].get(field, 0)
+				return stay_display
 			var cache_key: String = "%d|%d" % [_combat_preview_revision, _preview_selection_revision]
 			if cache_key != _board_preview_display_cache_key:
 				_board_preview_display_cache_key = cache_key
@@ -20055,6 +20058,8 @@ func _preview_effect_for_action(preview: Dictionary) -> Dictionary:
 	return _preview_effect_for_target(preview_state, player_tile, _hovered_board_tile, action)
 
 func _preview_effect_for_target(state: Dictionary, from_tile: Vector2i, target_tile: Vector2i, action: Dictionary) -> Dictionary:
+	if preload("res://scripts/card_stay_rules.gd").is_stay(state, action, target_tile):
+		return {}
 	var action_type: String = str(action.get("type", ""))
 	match action_type:
 		"move":
@@ -20877,7 +20882,18 @@ func _shortcut_movement_risk_chips(shortcut_plan: Dictionary) -> Array:
 			chips.append((chip_var as Dictionary).duplicate(true))
 	return chips
 
+func _hovered_stay_forecast() -> Dictionary:
+	if _selected_card_index < 0 or _pending_action_index < 0 or _pending_action_index >= _pending_actions.size() or not _pending_target_tiles.has(_hovered_board_tile):
+		return {}
+	if not preload("res://scripts/card_stay_rules.gd").is_stay(_preview_combat_state, _pending_actions[_pending_action_index], _hovered_board_tile):
+		return {}
+	var known_state: Dictionary = _surface_preview_information_state(_preview_combat_state)
+	var stayed: Dictionary = _combat_engine.apply_player_action(known_state, _pending_actions[_pending_action_index], _hovered_board_tile)
+	return _pass_preview_state_after_movement_only(stayed, _pending_actions, _pending_action_index + 1)
+
 func _movement_risk_chips_for_preview(preview: Dictionary, path_tiles: Array[Vector2i]) -> Array:
+	if preload("res://scripts/card_stay_rules.gd").is_stay(preview.get("state", {}), preview.get("action", {}), _hovered_board_tile) and (preview.get("target_tiles", []) as Array).has(_hovered_board_tile):
+		return [{"tile": _hovered_board_tile, "label": "Stay", "kind": "status"}]
 	var shortcut_plan: Dictionary = _hovered_shortcut_plan_for_preview(preview)
 	if not shortcut_plan.is_empty():
 		return _shortcut_movement_risk_chips(shortcut_plan)
@@ -22152,23 +22168,6 @@ func _cancel_player_movement_selection(refresh_ui: bool = true) -> void:
 	if refresh_ui:
 		_refresh_player_movement_meter()
 		_refresh_card_preview_ui()
-
-func _current_action_can_skip() -> bool:
-	# A target click commits the card; there is no intermediate step to skip.
-	return false
-
-func _on_skip_action_pressed() -> void:
-	if _animation_lock or not _current_action_can_skip():
-		return
-	if _guided_tutorial_hard_gate_active() and not _guided_tutorial_finish_phases().has(_guided_tutorial_phase_id):
-		_guided_tutorial_reject()
-		return
-	var previous_action_index: int = _pending_action_index
-	_pending_selected_targets.append(INVALID_TARGET_TILE)
-	var card_id: String = _card_id_for_hand_index(_selected_card_index)
-	var next_preview: Dictionary = _card_preview_from_state(card_id, _preview_combat_state, _pending_actions, _pending_action_index + 1)
-	_append_skipped_target_placeholders(previous_action_index + 1, int(next_preview.get("action_index", 0)))
-	await _apply_pending_preview_result(next_preview)
 
 func _on_pending_shortcut_clicked(target_tile: Vector2i, shortcut_plan: Dictionary) -> void:
 	var move_target: Vector2i = shortcut_plan.get("move_target", INVALID_TARGET_TILE)
@@ -23798,6 +23797,10 @@ func _has_electrical_trace(hits: Array) -> bool:
 
 func _animate_player_action_step(before_state: Dictionary, after_state: Dictionary, card_id: String, action: Dictionary, target_tile: Vector2i, chain_hits: Array = []) -> void:
 	action = SurfaceRelicRules.resolve_action(before_state, action)
+	if preload("res://scripts/card_stay_rules.gd").is_stay(before_state, action, target_tile) and int(after_state.get("card_stay_sequence", 0)) > int(before_state.get("card_stay_sequence", 0)):
+		# Presentation must not turn a resolved Stay into a walk or Blink.
+		action = action.duplicate(true)
+		action["type"] = "stay"
 	_ensure_sfx_bank()
 	_sfx_router.begin_player_action(before_state, action, _sfx_router.weapon_for_card(card_id, _run_state))
 	if await preload("res://scripts/enemy_mechanics/reflect_view.gd").animate_player(self, before_state, after_state, action, target_tile, card_id): return
@@ -23827,9 +23830,11 @@ func _animate_player_action_step(before_state: Dictionary, after_state: Dictiona
 	)
 	var base_presentation: Dictionary = {
 		"focus_actor_keys": ["player"],
-		"focus_actor_color": PLAYER_PREVIEW_FOCUS if action_type in ["move", "blink"] else PLAYER_ATTACK_FOCUS
+		"focus_actor_color": PLAYER_PREVIEW_FOCUS if action_type in ["move", "blink", "stay"] else PLAYER_ATTACK_FOCUS
 	}
 	match action_type:
+		"stay":
+			_render_board_state(primary_display_state, base_presentation)
 		"move":
 			var move_path: Array[Vector2i] = _resolved_movement_animation_path(
 				player_before_tile,
@@ -31986,6 +31991,7 @@ func _reset_card_resolution() -> void:
 	_clear_card_action_choice_state()
 
 func _clear_active_card_preview_state() -> void:
+	preload("res://scripts/movement_target_keyboard.gd").clear(self)
 	_surface_preview_cache_key = ""
 	_selected_card_index = -1
 	_card_targeting_pointer_position = Vector2(-1.0, -1.0)

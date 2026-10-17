@@ -79,7 +79,7 @@ func _capture_move_melee_shortcut(card_id: String, umbra_stage: String, enemy_ti
 	var effect: Dictionary = presentation.get("effect", {}) as Dictionary
 	_expect((board.get("attack_tiles") as Array).has(enemy_tile), "%s should highlight the enemy as a one-click move-melee target" % card_id)
 	_expect(not (board.get("move_tiles") as Array).is_empty(), "%s should retain move-only destinations beside its enemy shortcut" % card_id)
-	_expect(not bool(instance.call("_current_action_can_skip")), "%s should not expose an extra movement-skip click" % card_id)
+	_expect(not instance.has_method("_on_skip_action_pressed"), "%s should not expose an extra movement-skip click" % card_id)
 	_expect(path_tiles.size() >= 2, "%s should display a multi-tile movement route arrow while the enemy is hovered" % card_id)
 	_expect(path_tiles[0] == PLAYER_TILE, "%s movement route arrow should begin at the player" % card_id)
 	_expect(path_tiles[path_tiles.size() - 1] != enemy_tile, "%s movement route arrow should end on its adjacent attack position" % card_id)

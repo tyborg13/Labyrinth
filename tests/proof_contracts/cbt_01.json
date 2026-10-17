@@ -1,0 +1,24 @@
+{
+  "min_images": 3,
+  "expected_sizes": ["1920x1080"],
+  "required_images": [
+    {
+      "pattern": "*1920x1080_ui100/guarded_step_stay_hover.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [420, 170, 1080, 610], "min_luma_range": 75, "min_luma_stdev": 10}]
+    },
+    {
+      "pattern": "*1920x1080_ui100/guarded_step_stay_keyboard.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [420, 170, 1080, 610], "min_luma_range": 75, "min_luma_stdev": 10}]
+    },
+    {
+      "pattern": "*1920x1080_ui100/immolation_no_fire_preview.png",
+      "width": 1920,
+      "height": 1080,
+      "regions": [{"rect": [420, 170, 1080, 610], "min_luma_range": 75, "min_luma_stdev": 10}]
+    }
+  ]
+}

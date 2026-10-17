@@ -219,7 +219,7 @@
     "id": "move",
     "name": "Move",
     "icon": "move",
-    "definition": "Walk up to that many tiles around obstacles. Ground and traps you enter take effect.",
+    "definition": "Walk up to that many tiles around obstacles, triggering ground and traps you enter. Pick your own tile to stay.",
     "aliases": [
       "move_toward"
     ]
@@ -237,7 +237,7 @@
     "id": "blink",
     "name": "Blink",
     "icon": "blink",
-    "definition": "Teleport to a visible open tile within that many tiles, ignoring anything between.",
+    "definition": "Teleport to a visible open tile within that many tiles, ignoring anything between. Pick your own tile to stay.",
     "aliases": []
   },
   {

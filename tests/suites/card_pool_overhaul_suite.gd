@@ -772,7 +772,7 @@ static func _test_wave4_tuned_numbers(expect: Callable) -> void:
 	var hearth: Dictionary = _queued_state(combat, ["immolation"], [{"id": 1, "type": "crawler", "pos": Vector2i(3, 4), "hp": 40, "max_hp": 40}])
 	Surface.place(hearth, Vector2i(3, 4), "fire")
 	var burned: Dictionary = _play_first(combat, hearth, [])
-	expect.call(_hp(burned, 1) == 32 and int((burned.get("player", {}) as Dictionary).get("hp", 0)) == 30, "Immolation detonates the adjacent Fire for 8 and spares the hero")
+	expect.call(_hp(burned, 1) == 29 and int((burned.get("player", {}) as Dictionary).get("hp", 0)) == 30, "Immolation hits adjacent enemies for 3 then detonates Fire for 8 and spares the hero")
 	# Skybolt's damage is still being tuned: read it from data, and require the
 	# chip and the printed rules text to agree with it.
 	var skybolt_damage: int = int(((GameData.card_def("skybolt").get("actions", []) as Array)[0] as Dictionary).get("damage", 0))

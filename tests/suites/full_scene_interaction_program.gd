@@ -33,7 +33,7 @@ func _initialize() -> void:
 	await _test_run_scene_aoe_aim_rotates_before_click()
 	await _test_run_scene_line_aoe_push_preserves_orientation()
 	await _test_run_scene_push_direction_tiles_filter_closer_tiles()
-	await _test_run_scene_block_card_skips_dead_move()
+	await _test_run_scene_block_card_offers_stay_when_enclosed()
 	await _test_run_scene_targetless_card_click_requires_confirmation()
 	await _test_run_scene_card_play_meter_spends_before_resolution_rewards()
 	await _test_run_scene_damage_display_matches_bonus()

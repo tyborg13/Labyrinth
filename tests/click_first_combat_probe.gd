@@ -99,7 +99,6 @@ func _capture_single_state(viewport_size: Vector2i, proof_state: String) -> void
 		"compound_target":
 			await _load_combat_fixture(instance, ["sidestep_slash", "quick_stab", "patch_up"], Vector2i(2, 4), [Vector2i(3, 4)], 17205, true)
 			await _choose_clicked_action(instance, 0, "play")
-			await instance.call("_on_skip_action_pressed")
 			await _settle_ui()
 			_assert_board_usable_and_visible(instance, "%s compound target" % viewport_size)
 			_assert_tutorial_clear_of_play(instance, "%s compound target" % viewport_size)
@@ -173,12 +172,11 @@ func _capture_resolution(viewport_size: Vector2i) -> void:
 	var compound_actions: Array = instance.get("_pending_actions")
 	_assert(compound_actions.size() == 2, "Clicked Full Card should preserve both printed compound steps")
 	_assert(str((compound_actions[0] as Dictionary).get("type", "")) == "move" and str((compound_actions[1] as Dictionary).get("type", "")) == "melee", "Clicked Full Card should preserve printed move-then-melee order")
-	_assert(bool(instance.call("_current_action_can_skip")), "Compound fixture should expose its optional first step")
-	await instance.call("_on_skip_action_pressed")
+	_assert(int(instance.get("_pending_action_index")) == 1, "Immobilized compound fixture should bypass its unavailable movement")
 	await _settle_ui()
-	_assert(int(instance.get("_pending_action_index")) == 1, "Skip should advance the clicked full card to its second step")
+	_assert(int(instance.get("_pending_action_index")) == 1, "Immobilized movement should advance the clicked full card to its second step")
 	var compound_targets: Array = instance.get("_pending_selected_targets") as Array
-	_assert(not compound_targets.is_empty() and compound_targets[0] == INVALID_TARGET_TILE, "Skip should preserve the optional-step placeholder")
+	_assert(not compound_targets.is_empty() and compound_targets[0] == INVALID_TARGET_TILE, "Immobilized movement should preserve the unavailable-step placeholder")
 	await _save_screenshot(instance, "%s/05_compound_target.png" % output_dir, viewport_size)
 	instance.call("_on_cancel_requested")
 	await _settle_ui()

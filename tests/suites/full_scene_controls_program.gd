@@ -13,6 +13,7 @@ func _initialize() -> void:
 	await MoveAttackShortcutSuite.run_live(self, Callable(self, "_assert"))
 	await MapUiSuite.run_live(self, Callable(self, "_assert"))
 	await CardDragPlaySuite.run_live(self, Callable(self, "_assert"))
+	await preload("res://tests/suites/cbt_01_suite.gd").run_live(self, Callable(self, "_assert"))
 	await ForcedMovementSuite.run_live(self, Callable(self, "_assert"))
 	await CardKeywordsSuite.run_live(self, Callable(self, "_assert"))
 	print("MAIN DOMAIN ASSERTIONS full_scene_controls_program: %d" % _assertion_count)
