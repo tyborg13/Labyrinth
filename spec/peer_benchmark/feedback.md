@@ -121,3 +121,4 @@
   gem breaking in half in several animations. → rr-05.
 - 2026-10-17 Lancer r3 painting (inbox): "directionally correct" but the loin cloth needs another stab, and he is more
   straight-on than before — all characters must be in the correct 45° isometric 3/4 view. → mq-03 round 3.
+- 2026-10-17 Lightning Wisp motion (inbox): approved. (rr-05 applies the stepped pixel-snapped idle to it too.)
