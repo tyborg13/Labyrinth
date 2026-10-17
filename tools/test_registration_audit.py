@@ -8,6 +8,7 @@ suite entry point. Renderer exclusions are exact paths with explicit reasons.
 from __future__ import annotations
 
 import argparse
+import ast
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 import json
@@ -15,14 +16,18 @@ import os
 from pathlib import Path
 import posixpath
 import re
-import shutil
 import subprocess
 import sys
 import tempfile
 import time
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from program_suite_fixture import CAPTURE_VIDEO_QUALITY, PACK_TIMEOUT_SECONDS, fixture_stages
+from test_execution_sources import python_program_coverage, PARTITIONED_PROGRAMS
+
 ROOT = Path(__file__).resolve().parents[1]
 PROGRAM_MANIFEST = "tests/headless_test_programs.json"
+PROGRAM_DISPATCHER = "tools/program_suite_runner.gd"
 WINDOWED_MANIFEST = "tests/windowed_test_allowlist.json"
 QUARANTINE_MANIFEST = "tests/quarantine.json"
 QUARANTINE_FIELDS = ("path", "category", "reason", "evidence_log", "follow_up")
@@ -37,13 +42,11 @@ QUARANTINE_OWNERS = {
 PROGRAM_HELPERS = ("tests/helpers/program_sub_suites.gd", "tests/static_facing_program_suites.gd")
 TEST_SUFFIXES = ("_test.gd", "_suite.gd", "_probe.gd")
 PROGRAM_TIMEOUT_SECONDS = 180
-PACK_TIMEOUT_SECONDS = 30
 SUPPLEMENTAL_WORKERS = 4
-CAPTURE_VIDEO_QUALITY = 1.0
 FUNCTION = re.compile(r"^(?:static )?func (\w+)\(", re.M)
 ALIAS = re.compile(r'const\s+(\w+)\s*(?::[^=\n]+)?=\s*(?:preload|load)\("([^"\n]+\.gd)"\)')
 INLINE_CALL = re.compile(r'(?:preload|load)\("([^"\n]+\.gd)"\)\.(\w+)\(')
-ALIAS_CALL = re.compile(r'\b(\w+)\.(\w+)\(')
+ALIAS_CALL = re.compile(r'\b(\w+(?:\.\w+)*)\.(\w+)\(')
 LOCAL_CALL = re.compile(r'(?<![\w.])([A-Za-z_]\w*)\(')
 DEFERRED_CALL = re.compile(r'(?:call_deferred\(|Callable\(self,\s*)"(\w+)"|\b(_\w+)\.call_deferred\(')
 
@@ -51,6 +54,18 @@ DEFERRED_CALL = re.compile(r'(?:call_deferred\(|Callable\(self,\s*)"(\w+)"|\b(_\
 def read_json(root: Path, relative: str, default):
     path = root / relative
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else default
+
+
+def program_manifest(root: Path) -> list[dict]:
+    """Read the scheduler's original tuple plus its guarded supplemental set."""
+    base = []
+    path = root / "tools/program_suite_runner.py"
+    if path.is_file():
+        for node in ast.parse(path.read_text(encoding="utf-8")).body:
+            if isinstance(node, ast.Assign) and any(isinstance(t, ast.Name) and t.id == "BASE_SUITES" for t in node.targets):
+                base = ast.literal_eval(node.value)
+                break
+    return [{"path": "tests/" + name + ".gd"} for name in base] + read_json(root, PROGRAM_MANIFEST, [])
 
 
 def source(root: Path, path: str) -> str:
@@ -74,6 +89,15 @@ def resource_path(owner: str, path: str) -> str:
     return posixpath.normpath(relative)
 
 
+def alias_path(root: Path, aliases: dict, chain: str) -> str:
+    first, *nested = chain.split(".")
+    path = aliases.get(first, "")
+    for name in nested:
+        constants = {a: resource_path(path, p) for a, p in ALIAS.findall(source(root, path))}
+        path = constants.get(name, "")
+    return path
+
+
 def execution_graph(root: Path, programs: list[dict], entrypoints=None) -> set[tuple[str, str]]:
     cache = {}
 
@@ -88,14 +112,15 @@ def execution_graph(root: Path, programs: list[dict], entrypoints=None) -> set[t
         path = receiver
         aliases = {}
         visited = set()
+        owner, body = "", ""
         while path and path not in visited:
             visited.add(path)
             methods, constants, parent = info(path)
             aliases.update({k: v for k, v in constants.items() if k not in aliases})
-            if method in methods:
-                return path, methods[method], aliases
+            if not owner and method in methods:
+                owner, body = path, methods[method]
             path = parent
-        return "", "", aliases
+        return owner, body, aliases
 
     entrypoints = ["tests/run_tests.gd"] if entrypoints is None else entrypoints
     reached = {(path, "__program__") for path in entrypoints}
@@ -112,7 +137,7 @@ def execution_graph(root: Path, programs: list[dict], entrypoints=None) -> set[t
         reached.add((owner, method))
         reached.add((receiver, method))
         # A manifest/list counts only while its dispatcher is itself executed.
-        if owner == "tests/helpers/supplemental_program_suites.gd" and method == "run":
+        if owner == PROGRAM_DISPATCHER and method == "start":
             pending += [(p["path"], "_initialize") for p in programs]
             reached.update((p["path"], "__program__") for p in programs)
         if owner in PROGRAM_HELPERS and method == "run":
@@ -123,10 +148,15 @@ def execution_graph(root: Path, programs: list[dict], entrypoints=None) -> set[t
                 reached.update(("tests/" + name + ".gd", "__program__")
                                for name in re.findall(r'"(\w+)"', match[1]))
         pending += [(resource_path(owner, p), m) for p, m in INLINE_CALL.findall(body)
-                    if resource_path(owner, p).startswith("tests/")]
+                    if resource_path(owner, p).startswith("tests/") or resource_path(owner, p) == PROGRAM_DISPATCHER]
         for alias, called_method in ALIAS_CALL.findall(body):
-            if aliases.get(alias, "").startswith("tests/"):
-                pending.append((aliases[alias], called_method))
+            path = alias_path(root, aliases, alias)
+            if path.startswith("tests/") or path == PROGRAM_DISPATCHER:
+                pending.append((path, called_method))
+        if owner == "tests/suites/section_map_regression_suite.gd":
+            children = re.findall(r'_run_child\("([^"\n]+\.gd)"', body)
+            pending += [("tests/" + child, "_initialize") for child in children]
+            reached.update(("tests/" + child, "__program__") for child in children)
         pending += [(receiver, name) for name in LOCAL_CALL.findall(body)]
         pending += [(receiver, a or b) for a, b in DEFERRED_CALL.findall(body)]
     return reached
@@ -136,7 +166,7 @@ def shared_wrapper(root: Path, path: str, reached: set[tuple[str, str]]) -> list
     """Recognize small dispatch-only wrappers; never discard local assertions."""
     text = source(root, path)
     methods = functions(text)
-    if len(text.splitlines()) > 70 or not methods or set(methods) - {
+    if len(text.splitlines()) > 70 or not methods or {name for name in methods if not name.startswith("_run_")} - {
         "_initialize", "_run", "_expect", "_assert", "_finish", "_check"
     }:
         return []
@@ -146,8 +176,8 @@ def shared_wrapper(root: Path, path: str, reached: set[tuple[str, str]]) -> list
     aliases = {a: resource_path(path, p) for a, p in ALIAS.findall(text)}
     calls = [(resource_path(path, p), m) for p, m in INLINE_CALL.findall(body)
              if resource_path(path, p).startswith("tests/")]
-    calls += [(aliases[a], m) for a, m in ALIAS_CALL.findall(body)
-              if aliases.get(a, "").startswith("tests/")]
+    calls += [(alias_path(root, aliases, a), m) for a, m in ALIAS_CALL.findall(body)
+              if alias_path(root, aliases, a).startswith("tests/")]
     # Inherited focused aliases of run_tests call its already-run assertions.
     parent = re.search(r'^extends "res://(tests/run_tests.gd)"', text, re.M)
     if parent:
@@ -158,9 +188,10 @@ def shared_wrapper(root: Path, path: str, reached: set[tuple[str, str]]) -> list
 
 
 def audit(root: Path = ROOT) -> tuple[list[dict], list[str]]:
-    programs = read_json(root, PROGRAM_MANIFEST, [])
+    programs = program_manifest(root)
     windowed = read_json(root, WINDOWED_MANIFEST, {})
     quarantine = read_json(root, QUARANTINE_MANIFEST, [])
+    python_coverage = python_program_coverage(root)
     reached = execution_graph(root, programs)
     direct = {p["path"] for p in programs}
     rows = []
@@ -169,7 +200,7 @@ def audit(root: Path = ROOT) -> tuple[list[dict], list[str]]:
                    if p.name.endswith(TEST_SUFFIXES))
     counts = Counter(p["path"] for p in programs)
     for path, count in counts.items():
-        if count != 1 or path not in paths:
+        if count != 1 or not path.startswith("tests/") or not (root / path).is_file():
             errors.append(f"Invalid or duplicate program registration: {path}")
     for path, reason in windowed.items():
         if path not in paths or not str(reason).strip() or path in direct:
@@ -185,6 +216,10 @@ def audit(root: Path = ROOT) -> tuple[list[dict], list[str]]:
             category, evidence = "full suite", "program" if path in direct else "called by full-suite execution graph"
         elif wrapper:
             category, evidence = "full suite", "shared wrapper: " + ", ".join(wrapper)
+        elif path in PARTITIONED_PROGRAMS and all((part, "__program__") in reached for part in PARTITIONED_PROGRAMS[path]):
+            category, evidence = "full suite", "partitioned headless entrypoint: " + ", ".join(PARTITIONED_PROGRAMS[path])
+        elif path in python_coverage:
+            category, evidence = "full suite", python_coverage[path]
         elif path in quarantined:
             entry = quarantined[path]
             category, evidence = "quarantined", f"{entry['category']}; {entry['follow_up']}; {entry['reason']} ({entry['evidence_log']})"
@@ -253,35 +288,8 @@ def run_program(program: dict, root: Path, output: Path) -> dict:
     commands = []
     with tempfile.TemporaryDirectory(prefix="test-program-", dir=output) as temp:
         temp = Path(temp)
-        empty = temp / "empty"
-        empty.mkdir()
-        (empty / "project.godot").write_text('config_version=5\n', encoding="utf-8")
-        pack = temp / "fixture.pck"
         mode = program.get("mode", "script")
-        if mode == "cutout_pack":
-            commands = [(root, path, ["build", str(pack)]),
-                        (empty, str(root / path), ["verify", str(pack)])]
-        elif mode == "roster_pack":
-            # This script is a package builder. Its separate export-smoke
-            # fixture requires a non-editor export template, outside this suite.
-            commands = [(root, path, [str(pack)])]
-        elif mode == "capture_settings":
-            # The test checks startup-only settings. Isolate its override from
-            # the shared project and every other suite process.
-            staged = temp / "capture"
-            staged.mkdir()
-            (staged / "project.godot").write_text("config_version=5\n", encoding="utf-8")
-            for relative in (path, "tools/demo_clips/capture_settings.gd",
-                             "tools/demo_clips/demo_clip.gd", "tests/sfx_sync_sources.gd"):
-                target = staged / relative
-                target.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(root / relative, target)
-            (staged / "override.cfg").write_text(
-                "[editor]\nmovie_writer/mjpeg_quality=%s\nmovie_writer/video_quality=%s\n" %
-                (CAPTURE_VIDEO_QUALITY, CAPTURE_VIDEO_QUALITY), encoding="utf-8")
-            commands = [(staged, path, ["--verify-movie-guard"])]
-        else:
-            commands = [(root, path, program.get("args", []))]
+        commands = fixture_stages(root, program, temp)
         logs = []
         exit_code = 0
         for project, script, args in commands:
@@ -329,7 +337,6 @@ def main(argv=None) -> int:
     parser.add_argument("--markdown", type=Path)
     runs = parser.add_mutually_exclusive_group()
     runs.add_argument("--run-orphans", action="store_true")
-    runs.add_argument("--run-registered", action="store_true")
     runs.add_argument("--check-quarantine", action="store_true",
                       help="slow guard: fail if any quarantined program now passes")
     parser.add_argument("--output-dir", type=Path)
@@ -341,7 +348,7 @@ def main(argv=None) -> int:
     if args.markdown:
         args.markdown.write_text("| Script | Classification | Evidence |\n|---|---|---|\n" + "".join(
             f"| `{r['path']}` | {r['classification']} | {r['evidence']} |\n" for r in rows), encoding="utf-8")
-    if args.run_orphans or args.run_registered or args.check_quarantine:
+    if args.run_orphans or args.check_quarantine:
         if args.output_dir is None:
             parser.error("--output-dir is required when running tests")
         output = args.output_dir.resolve()
@@ -364,9 +371,8 @@ def main(argv=None) -> int:
             print("QUARANTINE CHECK: %s (%d entries; %d programs; %d now passing)" % (
                 "FAIL" if errors else "PASS", len(results), programs_count, len(errors)))
             return int(bool(errors))
-        programs = (read_json(root, PROGRAM_MANIFEST, []) if args.run_registered else
-                    [program_for_path(root, r["path"]) for r in rows if r["classification"] == "orphaned"
-                     and not r["path"].endswith("_suite.gd")])
+        programs = [program_for_path(root, r["path"]) for r in rows if r["classification"] == "orphaned"
+                    and not r["path"].endswith("_suite.gd")]
         results = []
         started = time.monotonic()
         with ThreadPoolExecutor(max_workers=SUPPLEMENTAL_WORKERS) as pool:

@@ -63,7 +63,7 @@ func _card_structure() -> void:
 		if int(card.get("time", 0)) > 0: leading.append("time")
 		if ActionIcons.card_is_rite(card): leading.append("rite")
 		var entries: Array[Dictionary] = ActionIcons.tooltip_entries_for_rows(ActionIcons.rows_for_card(card), leading)
-		var expected: Array = before[id]
+		var expected: Array = preload("res://tests/fixtures/approved_glossary_structure.gd").entries(id, before)
 		_expect(entries.size() == expected.size(), "Keyword panel count unchanged: " + id)
 		for index: int in range(mini(entries.size(), expected.size())):
 			_expect(entries[index]["icon"] == expected[index]["icon"], "Keyword panel order unchanged: %s/%d" % [id, index])

@@ -1,6 +1,6 @@
 extends RefCounted
 
-## The main Godot owns one process slot; Python schedules the other three.
+## Python schedules isolated children; the main Godot runs alongside that pool.
 ## The pipe is held for the whole run so parent death cancels every child.
 const PROGRAM_BUDGET_SECONDS: int = 900
 const WAIT_POLL_SECONDS: float = 0.05
@@ -19,6 +19,7 @@ static func start(options: Dictionary = {}) -> Dictionary:
 		arguments.append_array(["--suite", suite])
 	DirAccess.remove_absolute(result_path)
 	var process: Dictionary = OS.execute_with_pipe("python3", arguments)
+	print("PROGRAM SUITE REPORT: " + result_path)
 	return {"process": process, "result_path": result_path}
 
 static func finish(tree: SceneTree, handle: Dictionary, expect: Callable, started_usec: int) -> void:

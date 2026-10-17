@@ -1,31 +1,10 @@
 extends "res://tests/run_tests.gd"
 
-## Invocation-only extraction from the full harness. All test bodies and
-## assertions remain inherited verbatim; this process owns fresh singleton state.
+## Invocation-only partition; inherited assertion bodies are unchanged.
 func _initialize() -> void:
 	var started: int = Time.get_ticks_usec()
 	_initialize_test_storage(true)
-	await _test_run_scene_combat_log_prominence()
-	await _test_run_scene_minimap_click_opens_large_map()
-	await _test_run_scene_pre_battle_preview_intercepts_combat_entry()
-	await _test_run_scene_pre_battle_five_enemy_layout_compacts()
-	await _test_run_scene_debug_boss_fixture_boots()
-	await _test_run_scene_offers_pass_during_combat()
-	await _test_run_scene_offers_pass_when_hand_dead()
-	await _test_run_scene_pass_preview_chip_updates()
-	await _test_run_scene_action_selection_keeps_hand_layout_stable()
-	await _test_run_scene_direct_card_and_player_movement_selection()
-	await _test_run_scene_idle_hand_refresh_clears_card_fx_ghosts()
-	await _test_run_scene_ready_wave_marks_only_playable_hand_cards()
-	await _test_run_scene_reward_heal_choice_sits_below_cards()
-	await _test_run_scene_reward_acquisition_is_single_choice()
-	await _test_run_scene_reward_decision_support_matches_claims()
-	await _test_run_scene_selection_prompts_clear_after_pick()
-	await _test_run_scene_fatigue_damage_visual_event()
-	await _test_run_scene_campfire_choices_use_relic_overlay()
-	await _test_run_scene_campfire_choice_press_is_single_shot()
-	await preload("res://tests/suites/ember_hearth_suite.gd").run(self, _assert)
-	await _test_run_scene_campfire_bonfire_persists_after_leave()
+	await process_frame
 	await _test_run_scene_optional_followup_attack_stays_playable()
 	await _test_run_scene_flurry_utility_resolves_without_attack_target()
 	await _test_run_scene_action_step_tracker_states()

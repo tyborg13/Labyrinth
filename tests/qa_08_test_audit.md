@@ -1,6 +1,8 @@
 # qa-08 implementation and proof
 
-Worktree: `codex/qa-08`, initial HEAD `723104fe4`. All implementation is uncommitted. No production gameplay code, approved assets, design data, queue state, or Git history was rewritten. No existing failure assertion was removed or relaxed. Test fixtures and registration changed; the design owner retains commit, review, inspection and publication.
+Current integration status and proof are in [qa_08_runner_integration.md](qa_08_runner_integration.md). The following records the earlier accepted audit phase and its historical timings.
+
+Worktree: `codex/qa-08`, initial HEAD `723104fe4`. That initial implementation was left uncommitted; the design owner subsequently committed the accepted work and merged qa-07 at `46a4f5209`. Current feedback-phase changes remain uncommitted. No production gameplay code, approved assets, design data, queue state, or Git history was rewritten. No existing failure assertion was removed or relaxed. Test fixtures and registration changed; the design owner retains commit, review, inspection and publication.
 
 ## 1. Skill analytics root cause
 
@@ -232,7 +234,7 @@ Four supplemental workers and the 180-second child cap now follow the explicit f
 
 ## Open issues
 
-qa-07 is not present in this checkout (HEAD remains `723104fe4`). The original 115 registrations plus the newly passing objective-glyph program stay isolated in `headless_test_programs.json` until the design owner merges qa-07, then they must join its four-worker manifest without a second nested scheduler. The post-integration full-suite wall time (target ≤600s; hard cap 900s) cannot be measured before that merge. Prior full-suite timeout evidence is retained above. No peer review or sign-off was requested or run.
+The design owner merged qa-07 at `46a4f5209`. The supplemental set now belongs to its shared scheduler; the obsolete dispatcher is removed. Current runtime, regression and proof results are in [qa_08_runner_integration.md](qa_08_runner_integration.md). No peer review or sign-off was requested or run.
 
 
 ## Files changed
@@ -271,7 +273,7 @@ qa-07 is not present in this checkout (HEAD remains `723104fe4`). The original 1
 
 - [tests/helpers/source_script_pack.gd](../tests/helpers/source_script_pack.gd)
 
-- [tests/helpers/supplemental_program_suites.gd](../tests/helpers/supplemental_program_suites.gd)
+- Deleted after integration: `tests/helpers/supplemental_program_suites.gd`
 
 - [tests/iskaldra_cutout_pack_test.gd](../tests/iskaldra_cutout_pack_test.gd)
 

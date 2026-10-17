@@ -424,6 +424,7 @@ func _initialize() -> void:
 	_test_hand_fan_layout_lifts_center_cards()
 	_test_default_theme_uses_readable_text_font()
 	_test_ui_typography_system()
+	preload("res://tests/helpers/test_registration_guard.gd").run(Callable(self, "_assert"))
 	print("MAIN BODY RUNTIME: %.3f seconds" % [float(Time.get_ticks_usec() - full_suite_started_usec) / 1000000.0])
 	print("MAIN BODY ASSERTIONS: %d" % _assertion_count)
 	await ProgramSuiteRunner.finish(self, program_suites, Callable(self, "_assert"), full_suite_started_usec)

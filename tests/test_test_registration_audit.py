@@ -67,12 +67,36 @@ func _initialize():
         self.write("tests/nested/inner_suite.gd", 'extends RefCounted\nstatic func run():\n\tassert(true)\n')
         self.assertEqual(self.rows()["tests/nested/inner_suite.gd"], "full suite")
 
+    def test_overridden_initializer_follows_inherited_and_nested_aliases(self):
+        self.write("tests/run_tests.gd", 'extends SceneTree\nfunc _initialize():\n\tpreload("res://tests/child_suite.gd").run()\n')
+        self.write("tests/parent.gd", 'extends RefCounted\nconst Nested = preload("res://tests/outer.gd")\n')
+        self.write("tests/child_suite.gd", 'extends "res://tests/parent.gd"\nstatic func run():\n\tNested.Inner.run()\n')
+        self.write("tests/outer.gd", 'extends RefCounted\nconst Inner = preload("res://tests/inner_suite.gd")\n')
+        self.write("tests/inner_suite.gd", 'extends RefCounted\nstatic func run():\n\tassert(true)\n')
+        self.assertEqual(self.rows()["tests/inner_suite.gd"], "full suite")
+
+    def test_python_driver_requires_a_reachable_executed_script_command(self):
+        self.write("tests/program_suite_runner_test.gd", 'extends SceneTree\n')
+        driver = '''import subprocess
+class DriverTests:
+    def test_parent(self):
+        self.fixture()
+    def fixture(self):
+        command = ["godot", "--script", "tests/program_suite_runner_test.gd"]
+        return subprocess.run(command)
+'''
+        self.write("tests/test_program_suite_runner.py", driver)
+        self.assertEqual(self.rows()["tests/program_suite_runner_test.gd"], "full suite")
+        for broken in (driver.replace("self.fixture()", "pass"), driver.replace("return subprocess.run(command)", "return 0")):
+            self.write("tests/test_program_suite_runner.py", broken)
+            self.assertEqual(self.rows()["tests/program_suite_runner_test.gd"], "orphaned")
+
     def test_program_registration_executes_whole_entrypoint(self):
         self.write("tests/run_tests.gd", '''extends SceneTree
 func _initialize():
-    preload("res://tests/helpers/supplemental_program_suites.gd").run()
+    preload("res://tools/program_suite_runner.gd").start()
 ''')
-        self.write("tests/helpers/supplemental_program_suites.gd", 'extends RefCounted\nstatic func run():\n\tpass\n')
+        self.write(audit.PROGRAM_DISPATCHER, 'extends RefCounted\nstatic func start():\n\tpass\n')
         self.write(audit.PROGRAM_MANIFEST, json.dumps([{"path": "tests/isolated_test.gd"}]))
         self.write("tests/isolated_test.gd", 'extends SceneTree\nfunc _initialize():\n\tassert(true)\n')
         self.assertEqual(self.rows()["tests/isolated_test.gd"], "full suite")
@@ -101,9 +125,9 @@ func _initialize():
     def test_subclass_entrypoint_does_not_register_overridden_base_test(self):
         self.write("tests/run_tests.gd", '''extends SceneTree
 func _initialize():
-    preload("res://tests/helpers/supplemental_program_suites.gd").run()
+    preload("res://tools/program_suite_runner.gd").start()
 ''')
-        self.write("tests/helpers/supplemental_program_suites.gd", 'extends RefCounted\nstatic func run():\n\tpass\n')
+        self.write(audit.PROGRAM_DISPATCHER, 'extends RefCounted\nstatic func start():\n\tpass\n')
         self.write(audit.PROGRAM_MANIFEST, json.dumps([{"path": "tests/child_test.gd"}]))
         self.write("tests/base_test.gd", '''extends SceneTree
 func _initialize():

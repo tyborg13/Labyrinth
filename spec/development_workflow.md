@@ -48,8 +48,9 @@ The task runner disables Steam by default for deterministic tests and fixtures. 
 Do not use an editor launch as a parser check. On a clean isolated worktree, `godot --editor` performs a full filesystem scan and writes adjacent `.import` and `.uid` metadata throughout the project. Those files contain import settings and stable Godot resource identities, so globally ignoring them would hide legitimate source metadata. `godot_task_runner.py` blocks `--editor` by default; `--allow-editor-scan` is reserved for workflows that intentionally inspect and reconcile every metadata change.
 
 The full `tests/run_tests.gd` runner starts `tools/program_suite_runner.py` before
-executing its main body. The scheduler runs at most three isolated children
-alongside that main Godot process, for a maximum of four Godot processes total.
+executing its main body. The scheduler uses `min(6, logical_cpus // 3)` child slots (at least one on
+small hosts), alongside the main Godot process: five slots on this 15-logical-CPU
+machine. The original three-slot pool exceeded the integrated 600-second target.
 Every child uses `godot_task_runner.py` with its own HOME, APPDATA, LOCALAPPDATA
 and XDG data/config/cache/state roots. A generated SceneTree bootstrap applies
 `ParallelRuntime` before calling the standalone suite's `_initialize`, including
@@ -87,13 +88,25 @@ The former sfx_sync_harness slot contains three frame-profile groups (2/2/1),
 each retaining onset assertions for its original speed/scenario runs. The final
 group verifies the unchanged full sample-duration set once. Together they run
 all 15 original profile/speed combinations. The manifest continues with
-en01/en02/en03, magic_deck_input, run_end_recap and main_menu_resume. The final
-four children under `tests/suites/` run scene presentation/cutouts, live
-audio/map/card controls, turn-clock/card-pool presentation, and scene
-interaction, inheriting their unchanged test bodies. Presentation was split
-into three coherent children to keep each well below the 180-second cap under
-concurrent suite load.
+en01/en02/en03, magic_deck_input, run_end_recap and main_menu_resume. The scene
+children under `tests/suites/` run presentation, shared cutouts, creature
+cutouts, audio, map/card controls, turn-clock/card-pool presentation, choices,
+and interaction. They inherit their unchanged test bodies. The 96 original
+invocations retain their order across the partitions; the split keeps each
+child below the 110-second load target without dropping cases.
 Keep coherent domains in focused suites rather than adding to the main body.
+
+The same manifest appends the 116 supplemental entries from
+`tests/headless_test_programs.json`, preserving their order and fixture modes.
+These use the shared scheduler, not a nested supplemental worker pool. The
+boon-recovery and revision-5 map programs are also registered. A serial package
+or capture-settings fixture occupies one child slot through
+`tools/program_suite_fixture.py`: package builds/verification use their original
+arguments and empty-project boundary, and capture settings use a private startup
+override. Every Godot stage gets the same namespace bootstrap and task-runner
+HOME/APPDATA/XDG isolation, plus an explicit stage log. The child retains one
+outer 180-second deadline across all its stages. The manifest guard includes
+every supplemental entry, its invocation mode, and the merged headless additions.
 
 Use the unchanged 900-second hard cap for the complete command (each child also
 retains a 180-second cap):
@@ -104,7 +117,7 @@ cd <task-worktree> && python3 tools/godot_task_runner.py --task-id <task-id> --t
 
 The runner prints the main-body time and assertion count, each child's time,
 the total `FULL SUITE RUNTIME`, and the unchanged final `TEST RESULT` line.
-The wall-time target is at most 450 seconds on an otherwise idle development
+The integrated wall-time target is at most 600 seconds on an otherwise idle development
 machine; 900 seconds remains the failure budget. Preserve assertion coverage
 when extracting domains: compare test bodies and invocation order, and count
 assertion call sites before and after the move. The main-body and extracted
@@ -142,16 +155,21 @@ The load proof runs three consecutive complete suites, each paired with an
 independent full Python discovery as concurrent load; all three discoveries
 must pass too. A repeating independent Godot program is another supported load.
 Check every child's measured time; split any domain above 110 seconds under
-load without dropping cases or changing predicates. The full runner still owns
-at most four Godot processes; independent load is additional. Keep the 180/900
+load without dropping cases or changing predicates. The scheduler owns at most its configured number of child slots; the main
+Godot process and independent load run alongside them. Existing domain-owned
+serial regression subprocesses run while their calling child waits. Keep the 180/900
 second caps when repeating this proof.
 
 `python3 tools/test_registration_audit.py` is the registration completeness guard,
-also run by both full suites. It follows executed calls, including exact shared
+also run by both full suites. It follows executed calls, including inherited
+constants, nested suite aliases, partitioned encounter programs, and exact shared
 wrapper methods, for every `tests/**/*_test.gd`, `*_suite.gd` and `*_probe.gd`.
 Native-only checks require an exact path and reason in
 `tests/windowed_test_allowlist.json`. Every other script must execute in the full
-suite or have an entry in `tests/quarantine.json`. Quarantine entries require
+suite or have an entry in `tests/quarantine.json`. The scheduler's injected-child
+Godot fixture is covered by actual reachable subprocess commands in Python's
+full suite; starting that driver with its default children inside the full Godot
+runner would recurse. Quarantine entries require
 `path`, `category`, `reason`, `evidence_log` (a project-relative proof log path),
 and one `follow_up` owner. Accepted categories and owners are `stale-reference`
 → `qa-09`, `legacy-cutout` → `qa-10`, `long-diagnostic` → `qa-11`,
@@ -170,9 +188,8 @@ quarantine; any passing entry fails the slow guard and must be registered and
 removed from quarantine. Each invocation writes per-program logs and
 `results.json`; a timeout is evidence of an unresolved budget/fixture issue,
 never an assertion pass. Keep this slow check separate from the normal full
-suite so known failures do not consume its runtime budget. Until qa-07's shared
-program runner is integrated, the supplemental registrations (the original 115 plus newly passing quarantines) remain isolated
-in `tests/headless_test_programs.json` for a mechanical manifest transfer.
+suite so known failures do not consume its runtime budget. The supplemental JSON
+is part of qa-07's guarded manifest; it no longer has a separate scheduler.
 
 Run Python checks from the task worktree with `python3 -m unittest discover -s tests -p 'test_*.py' -v`; verbose output lists every skip and its reason. Optional audio tests use `unittest.skipUnless` when their Python modules are absent, while dependency import errors remain failures when those modules are installed. Run the sound-lab checks with `/Users/borgerding/.cache/umbra-sfx/venv/bin/python -m unittest discover -s tests -p 'test_sfx_lab.py' -v`; run the classical arrangement checks with `.venv-classical-soundtrack/bin/python -m unittest discover -s tests -p 'test_*arrangement.py' -v` after preparing that environment with `tools/classical_soundtrack_requirements.txt`. The Chopin approved-artifact checks (`-p 'test_chopin_death_music.py'`) need no optional music modules. Python discovery includes headless fixture checks through the task runners; it does not replace the full Godot suite required for runtime changes.
 
