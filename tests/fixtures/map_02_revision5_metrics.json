@@ -1,30 +1,35 @@
 {
-  "distinct_signatures": [
-    200,
-    200,
-    200,
-    200,
-    200,
-    200
-  ],
-  "long_divergence_sections": 1200,
-  "median_routes": 17.0,
-  "seed_count": 200,
-  "stats": {
-    "enabled": true,
-    "solver_nodes": 87295,
-    "structural_samples": 22966
-  },
-  "types": {
-    "campfire": 3308,
-    "combat": 17398,
-    "event": 1943,
-    "graftwright": 951,
-    "guardian": 2666,
-    "mystery": 6667,
-    "scavenger": 2645,
-    "treasure": 3386
-  },
-  "valid_sections": 1200,
-  "wide_sections": 1200
+	"distinct_signatures": [
+		200,
+		200,
+		200,
+		200,
+		200,
+		200
+	],
+	"long_divergence_sections": 1200,
+	"median_routes": 17.0,
+	"seed_count": 200,
+	"stats": {
+		"enabled": true,
+		"max_attempt_nodes": 40,
+		"max_attempt_usec": 44618,
+		"solver_budget_exhausted": 75,
+		"solver_memo_hits": 0,
+		"solver_nodes": 31591,
+		"structural_exhausted": 112,
+		"structural_samples": 24217
+	},
+	"types": {
+		"campfire": 3321,
+		"combat": 17971,
+		"event": 1893,
+		"graftwright": 897,
+		"guardian": 2533,
+		"mystery": 6636,
+		"scavenger": 2470,
+		"treasure": 3413
+	},
+	"valid_sections": 1200,
+	"wide_sections": 1200
 }

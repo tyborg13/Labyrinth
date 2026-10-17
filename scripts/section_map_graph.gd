@@ -59,28 +59,30 @@ static func display_type(node: Dictionary) -> String:
 		return str(node.get("mystery_type", "mystery")) if bool(node.get("scouted", false)) else "mystery"
 	return str(node.get("type", ""))
 
-static func initialize(state: Dictionary) -> void:
+static func initialize(state: Dictionary, diagnostics: Dictionary = {}) -> void:
 	var revision: int = int(state.get("section_map_layout_revision", LAYOUT_REVISION))
 	if revision == 3:
 		_initialize_revision_3(state)
 	else:
-		_initialize_walk_revision(state, revision)
+		_initialize_walk_revision(state, revision, diagnostics)
 
 static func _initialize_revision_4(state: Dictionary) -> void:
 	_initialize_walk_revision(state, 4)
 
-static func _initialize_walk_revision(state: Dictionary, revision: int) -> void:
+static func _initialize_walk_revision(state: Dictionary, revision: int, diagnostics: Dictionary = {}) -> void:
 	var seed_value: int = int(state.get("seed", 0))
 	var rooms: Dictionary = {}
 	var sections: Array[Dictionary] = []
 	for index: int in range(6):
+		var section_started: int = Time.get_ticks_usec() if diagnostics.get("enabled", false) else 0
+		var section_diagnostics: Dictionary = {"enabled": true} if diagnostics.get("enabled", false) else {}
 		var rng := RandomNumberGenerator.new()
 		rng.seed = absi(seed_value * 7919 + index * 104729 + 3491)
 		var count: int = ROOM_COUNTS[index]
 		var boss_id: String = Bosses.boss_id_for_depth(seed_value, (index + 1) * 4)
 		var layout: Dictionary = {}
 		if revision >= 5:
-			layout = _section_layout_v5(rng, seed_value, index, {}, state)
+			layout = _section_layout_v5(rng, seed_value, index, section_diagnostics, state)
 		else:
 			for attempt: int in range(SECTION_ATTEMPTS):
 				layout = _walk_layout(rng, count)
@@ -136,6 +138,10 @@ static func _initialize_walk_revision(state: Dictionary, revision: int) -> void:
 		boss_room["boss_id"] = boss_id
 		rooms[key(boss)] = boss_room
 		if index > 0: _link(rooms, Vector2i(index * 4, 0), _coords([entry]))
+		if revision >= 5 and diagnostics.get("enabled", false):
+			section_diagnostics["generation_usec"] = Time.get_ticks_usec() - section_started
+			if not diagnostics.has("sections"): diagnostics["sections"] = []
+			diagnostics["sections"].append(section_diagnostics)
 	state["section_map_version"] = VERSION
 	state["section_map_layout_revision"] = revision
 	state["map_sections"] = sections
@@ -154,14 +160,18 @@ static func _weighted_roll(rng: RandomNumberGenerator, weights: Dictionary) -> S
 
 # Revision 5 generates structure independently of encounter assignment. Structural
 # samples are rejected before invoking the solver. Exhausted structural batches
-# and proved-unsatisfiable assignments both advance the outer 50-attempt limit.
+# and failed or budget-exhausted assignments advance the outer 50-attempt limit.
 # Every use of the canned topology is logged.
 const V5_LANE_COUNT: int = 5
 const V5_WALK_COUNT: int = 6
 const V5_MOVE_WEIGHTS: Array[int] = [30, 40, 30]
 const V5_STRUCTURAL_PROPOSALS: int = TOPOLOGY_ATTEMPTS
+# Count work, never elapsed time: retries and accepted graphs are seed-stable.
+# Calibrated by tools/section_map_performance.gd, including the New Game hang.
+const V5_TYPE_NODE_BUDGET: int = 40
+const V5_TYPE_BITS: Dictionary = {"combat": 1, "mystery": 2, "guardian": 4, "scavenger": 8, "graftwright": 16, "event": 32, "treasure": 64, "campfire": 128}
 
-static func _section_layout_v5(rng: RandomNumberGenerator, seed_value: int, index: int, diagnostics: Dictionary = {}, depth_state: Dictionary = {}, structure_check: Callable = Callable()) -> Dictionary:
+static func _section_layout_v5(rng: RandomNumberGenerator, seed_value: int, index: int, diagnostics: Dictionary = {}, depth_state: Dictionary = {}, structure_check: Callable = Callable(), type_node_budget: int = V5_TYPE_NODE_BUDGET) -> Dictionary:
 	var count: int = ROOM_COUNTS[index]
 	for attempt: int in range(SECTION_ATTEMPTS):
 		var layout: Dictionary = _walk_layout_v5(rng, count, diagnostics, structure_check)
@@ -181,10 +191,16 @@ static func _section_layout_v5(rng: RandomNumberGenerator, seed_value: int, inde
 					candidates.append(type)
 					weights.erase(type)
 			domains.append(candidates)
-		var solved: bool = _solve_types_v5(layout, domains, count, FIGHT_COUNTS[index] - 1)
+		var search: Dictionary = {"remaining": type_node_budget, "failed": {}}
+		var started: int = Time.get_ticks_usec()
+		var solved: bool = _solve_types_v5(layout, domains, count, FIGHT_COUNTS[index] - 1, search)
 		_diagnostic_v5(diagnostics, "solver_nodes", int(layout.get("solver_nodes", 0)))
+		_diagnostic_v5(diagnostics, "solver_memo_hits", int(search.get("memo_hits", 0)))
+		if diagnostics.get("enabled", false):
+			diagnostics["max_attempt_nodes"] = maxi(int(diagnostics.get("max_attempt_nodes", 0)), int(layout.get("solver_nodes", 0)))
+			diagnostics["max_attempt_usec"] = maxi(int(diagnostics.get("max_attempt_usec", 0)), Time.get_ticks_usec() - started)
 		if solved: return layout
-		_diagnostic_v5(diagnostics, "solver_unsatisfiable")
+		_diagnostic_v5(diagnostics, "solver_budget_exhausted" if search.get("exhausted", false) else "solver_unsatisfiable")
 	_diagnostic_v5(diagnostics, "fallback")
 	print("SECTION MAP V5 FALLBACK seed=%d section=%d after %d topology attempts" % [seed_value, index + 1, SECTION_ATTEMPTS])
 	return _fallback_layout(count, FIGHT_COUNTS[index] - 1)
@@ -284,59 +300,66 @@ static func _long_divergence_v5(layout: Dictionary) -> bool:
 		pairs = next
 	return false
 
-static func _solve_types_v5(layout: Dictionary, domains: Array, count: int, fights: int) -> bool:
-	layout["solver_nodes"] = int(layout.get("solver_nodes", 0)) + 1
-	if not _propagate_types_v5(layout, domains, count, fights): return false
-	# Branch on unmet section cardinalities before assigning unrelated rooms.
-	# This is exhaustive: every solution contains a witness for each required
-	# Guardian/Scavenger. Seeded candidate permutations order those witnesses.
-	for required: String in ["guardian", "scavenger"]:
-		var assigned: int = 0
-		var witnesses: Array[int] = []
-		for offset: int in range(domains.size()):
-			if domains[offset].size() == 1 and domains[offset][0] == required: assigned += 1
-			elif domains[offset].has(required): witnesses.append(offset)
-		if assigned >= (2 if required == "guardian" else 1): continue
-		witnesses.sort_custom(func(a: int, b: int) -> bool: return domains[a].find(required) < domains[b].find(required))
-		for witness: int in witnesses:
-			var branch: Array = domains.duplicate(true)
-			branch[witness] = [required]
-			if _solve_types_v5(layout, branch, count, fights): return true
+# Each branch narrows one most-constrained domain. The old cardinality-witness
+# search decided unrelated rooms first and could spend hundreds of thousands of
+# nodes discovering the same incompatible fork/route requirements. Section and
+# route forward checks now run before every decision; failed propagated states
+# are canonicalised independently of candidate preference order.
+static func _solve_types_v5(layout: Dictionary, domains: Array, count: int, fights: int, search: Dictionary) -> bool:
+	if int(search["remaining"]) <= 0:
+		search["exhausted"] = true
 		return false
-	# Decide fight membership before equivalent service colours. Otherwise an
-	# impossible route-count pattern is rediscovered for every Event/Scavenger/
-	# Graftwright permutation. Both partitions retain their seeded type order.
-	for offset: int in range(domains.size()):
-		var cell: Vector2i = layout["order"][offset]
-		var fight_types: Array[String] = []
-		var other_types: Array[String] = []
-		for type: String in domains[offset]:
-			if _type_is_fight_v5(type, layout["nodes"][cell]): fight_types.append(type)
-			else: other_types.append(type)
-		if fight_types.is_empty() or other_types.is_empty(): continue
-		var partitions: Array = [fight_types, other_types] if _type_is_fight_v5(domains[offset][0], layout["nodes"][cell]) else [other_types, fight_types]
-		for partition: Array in partitions:
-			var branch: Array = domains.duplicate(true)
-			branch[offset] = partition
-			if _solve_types_v5(layout, branch, count, fights): return true
+	search["remaining"] = int(search["remaining"]) - 1
+	layout["solver_nodes"] = int(layout.get("solver_nodes", 0)) + 1
+	var signature: String = _type_signature_v5(domains)
+	if search["failed"].has(signature):
+		search["memo_hits"] = int(search.get("memo_hits", 0)) + 1
+		return false
+	if not _propagate_types_v5(layout, domains, count, fights):
+		search["failed"][signature] = true
+		return false
+	var propagated_signature: String = _type_signature_v5(domains)
+	if search["failed"].has(propagated_signature):
+		search["memo_hits"] = int(search.get("memo_hits", 0)) + 1
 		return false
 	var choice: int = -1
+	var degree: int = -1
 	for offset: int in range(domains.size()):
-		if domains[offset].size() > 1 and (choice < 0 or domains[offset].size() < domains[choice].size()): choice = offset
+		if domains[offset].size() <= 1: continue
+		var cell: Vector2i = layout["order"][offset]
+		var constraints: int = layout["parents"].get(cell, []).size() + layout["children"].get(cell, []).size()
+		for parent: Vector2i in layout["parents"].get(cell, []): constraints += layout["children"][parent].size() - 1
+		if choice < 0 or domains[offset].size() < domains[choice].size() or (domains[offset].size() == domains[choice].size() and constraints > degree):
+			choice = offset
+			degree = constraints
 	if choice < 0:
 		for offset: int in range(domains.size()):
 			var cell: Vector2i = layout["order"][offset]
 			layout["nodes"][cell]["type"] = domains[offset][0]
 			_prefix_bounds(layout, cell)
-		return _complete_types_legal(layout, count, fights)
+		if _complete_types_legal(layout, count, fights): return true
+		search["failed"][signature] = true
+		search["failed"][propagated_signature] = true
+		return false
+	# Branch directly on the seeded type preference. With MRV and fork matching,
+	# a separate fight-membership decision adds work to every successful room.
 	for type: String in domains[choice]:
 		var branch: Array = domains.duplicate(true)
 		branch[choice] = [type]
-		if _solve_types_v5(layout, branch, count, fights): return true
+		if _solve_types_v5(layout, branch, count, fights, search): return true
+		# A cutoff is not a proof of failure and must never enter the memo table.
+		if search.get("exhausted", false): return false
+	search["failed"][signature] = true
+	search["failed"][propagated_signature] = true
 	return false
 
-static func _type_is_fight_v5(type: String, node: Dictionary) -> bool:
-	return type in ["combat", "guardian"] or (type == "mystery" and node["mystery_type"] == "combat")
+static func _type_signature_v5(domains: Array) -> String:
+	var masks: PackedByteArray = PackedByteArray()
+	for domain: Array in domains:
+		var mask: int = 0
+		for type: String in domain: mask |= int(V5_TYPE_BITS[type])
+		masks.append(mask)
+	return masks.hex_encode()
 
 static func _propagate_types_v5(layout: Dictionary, domains: Array, count: int, fights: int) -> bool:
 	var changed: bool = true
@@ -376,18 +399,69 @@ static func _propagate_types_v5(layout: Dictionary, domains: Array, count: int, 
 			domains[offset] = legal
 			if legal.is_empty(): return false
 			changed = changed or legal.size() < candidates.size()
-		for required: String in ["guardian", "scavenger"]:
-			var slots: Array[int] = []
-			for offset: int in range(domains.size()):
-				if domains[offset].has(required): slots.append(offset)
-			var minimum: int = 2 if required == "guardian" else 1
-			if slots.size() < minimum: return false
-			if slots.size() == minimum:
-				for offset: int in slots:
-					changed = changed or domains[offset].size() != 1
-					domains[offset] = [required]
-		if not _types_possible_v5(layout, domains, count, fights): return false
+		if not _fork_types_possible_v5(layout, domains): return false
+		var cardinalities: Dictionary = _section_counts_v5(domains)
+		if not cardinalities["possible"]: return false
+		for offset: int in cardinalities["forced"]:
+			changed = changed or domains[offset].size() != 1
+			domains[offset] = [cardinalities["forced"][offset]]
+	# The candidate checks above propagate to a fixed point. Check the global
+	# route/bypass bounds once there, rather than rebuilding a third DAG pass
+	# at each intermediate narrowing of exactly the same domains.
+	return _types_possible_v5(layout, domains, count, fights)
+
+static func _fork_types_possible_v5(layout: Dictionary, domains: Array) -> bool:
+	# Hall's condition detects a fork with too few distinct remaining colours,
+	# even before any child is assigned. At a three-way fork each Combat slot
+	# gets a separate bit, preserving the explicit repeat exception.
+	for children: Array in layout["children"].values():
+		if children.size() < 2: continue
+		if children.size() == 2:
+			var first: Array = domains[layout["positions"][children[0]]]
+			var second: Array = domains[layout["positions"][children[1]]]
+			if first.is_empty() or second.is_empty() or (first.size() == 1 and first == second): return false
+			continue
+		var masks: Array[int]
+		for offset: int in range(children.size()):
+			var mask: int = 0
+			for type: String in domains[layout["positions"][children[offset]]]:
+				var bit: int = int(V5_TYPE_BITS[type])
+				if type == "combat" and children.size() == 3: bit = 1 << (8 + offset)
+				mask |= bit
+			if mask == 0: return false
+			masks.append(mask)
+		for subset: int in range(1, 1 << children.size()):
+			if (subset & (subset - 1)) == 0: continue
+			var union: int = 0
+			var needed: int = 0
+			for offset: int in range(children.size()):
+				if subset & (1 << offset):
+					union |= masks[offset]
+					needed += 1
+			while union > 0:
+				union &= union - 1
+				needed -= 1
+			if needed > 0: return false
 	return true
+
+# Counts include both mandatory and still-possible witnesses. When all remaining
+# slots are needed, force them now, before branching on any unrelated room.
+static func _section_counts_v5(domains: Array) -> Dictionary:
+	var forced: Dictionary = {}
+	for required: String in ["guardian", "scavenger"]:
+		var assigned: int = 0
+		var slots: Array[int]
+		for offset: int in range(domains.size()):
+			if not domains[offset].has(required): continue
+			if domains[offset].size() == 1: assigned += 1
+			else: slots.append(offset)
+		var needed: int = (2 if required == "guardian" else 1) - assigned
+		if slots.size() < needed: return {"possible": false}
+		if needed > 0 and slots.size() == needed:
+			for offset: int in slots:
+				if forced.has(offset) and forced[offset] != required: return {"possible": false}
+				forced[offset] = required
+	return {"possible": true, "forced": forced}
 
 static func _local_type_possible_v5(layout: Dictionary, domains: Array, cell: Vector2i, type: String) -> bool:
 	if type in ["guardian", "scavenger", "graftwright", "campfire", "treasure"]:
