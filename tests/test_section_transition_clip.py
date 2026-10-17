@@ -29,8 +29,8 @@ class SectionTransitionClipTests(unittest.TestCase):
         self.assertEqual(native[native.index("--resolution") + 1], "1920x1080")
 
     def test_receipt_requires_full_transition_and_two_second_tail(self):
-        names = ["section_i_dragon_alive", "dragon_defeated_reward_granted", "continue", "arrival", "transition_finished", "tail_finished"]
-        frames = [0, 250, 370, 545, 564, 684]
+        names = ["section_i_dragon_alive", "dragon_defeated_reward_granted", "continue", "arrival", "map_fully_open", "tail_finished"]
+        frames = [0, 250, 370, 526, 551, 671]
         report = {"events": [dict(event=name, frame=frame) for name, frame in zip(names, frames)]}
         clip.validate_events(report)
         for index in (2, 4, 5):
@@ -56,6 +56,8 @@ class SectionTransitionClipTests(unittest.TestCase):
         for motion in ("normal", "reduced"):
             for phase in ("reverse", "reward"):
                 self.assertIn(f"*/failure_{motion}_{phase}.png", patterns)
+        for name in ("normal_2800", "normal_3000", "reduced_1850", "reduced_2000"):
+            self.assertIn(f"*/{name}.png", patterns)
         self.assertEqual(proof["min_images"], 14)
         self.assertEqual(proof["expected_sizes"], ["1920x1080"])
 

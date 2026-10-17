@@ -41,11 +41,11 @@ func _initialize() -> void:
 	_check(not scrim.visible and root.get_node("CursorFeedback").call("glyph_visibility_suppressed"), "Only the title card is visible; the map and cursor glyph are suppressed")
 	await _capture("03_transition_title.png")
 	var next_entry: Vector2i = Graph.section(state, 1).get("entry")
-	transition.advance(3.2 - float(transition.get("elapsed")))
+	transition.advance(3.0 - float(transition.get("elapsed")))
 	await process_frame
 	await process_frame
 	_check((instance.get("_run_state") as Dictionary).get("current_room") == next_entry, "Automatic arrival enters the exact next threshold")
-	_check(scrim.visible and int(panel.get("viewed_section")) == 1, "The new section map opens after automatic arrival")
+	_check(scrim.visible and int(panel.get("viewed_section")) == 1, "The title card cross-fades straight into the new section map")
 	await _capture("04_second_section.png")
 	var router: Node = root.get_node("InputRouter")
 	router.call("set_forced_state_for_test", "pointer", "xbox")

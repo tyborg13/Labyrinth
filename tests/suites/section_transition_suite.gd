@@ -20,6 +20,10 @@ const SETTLE_FRAMES: int = 8
 const WAIT_TIMEOUT_MSEC: int = 12000
 const BOUNDARY_EPSILON_SECONDS: float = 0.01
 const AUDIO_SETTLE_SECONDS: float = 1.0
+const FRAME_SECONDS: float = 1.0 / 60.0
+const FRAMING_EPSILON_PX: float = 0.1
+const COLOR_EPSILON: float = 0.0001
+const SCALE_EPSILON: float = 0.001
 
 class MoveObserver extends Run:
 	var move_calls: int = 0
@@ -90,8 +94,9 @@ static func run(expect: Callable) -> void:
 	expect.call(is_equal_approx(float(Transition.presentation_at(2.6, false)["painting_scale"]), 1.05), "Centred linear push reaches 1.05 at 2.60s")
 	pose = Transition.presentation_at(1.5, true)
 	expect.call(is_zero_approx(float(pose["camera_y"])) and is_equal_approx(float(pose["painting_scale"]), 1.0), "Reduced motion removes both camera motion and push-in")
-	expect.call(is_equal_approx(Transition.arrival_at(true), 1.7) and is_equal_approx(Transition.duration(true), 2.0), "Reduced motion crossfades 0.30s, holds 1.40s and fades 0.30s; its existing room reveal is immediate")
+	expect.call(is_equal_approx(Transition.arrival_at(true), 1.7) and is_equal_approx(Transition.duration(true), 2.0), "Non-map reduced arrival retains its existing 0.30-second black fade and immediate room reveal")
 	expect.call(is_zero_approx(float(Transition.presentation_at(0.12, true)["reward_alpha"])), "Reduced motion fades the reward panel and banner in 0.12 seconds")
+	expect.call(is_equal_approx(Transition.map_duration(false), 3.0) and is_equal_approx(Transition.map_duration(true), 2.0) and is_equal_approx(Transition.map_crossfade_seconds(false, true), 0.12) and is_equal_approx(Transition.map_crossfade_seconds(true, true), 0.12), "Map arrival ends at 3.00s normal / 2.00s reduced; skip cross-fades in 0.12s")
 	var engine := Run.new()
 	for index: int in range(5):
 		var reward: Dictionary = fixture(index)
@@ -163,20 +168,24 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 		expect.call(line.get_theme_color("font_shadow_color") == host.get("_relic_choice_title").get_theme_color("font_shadow_color") and line.get_theme_constant("shadow_offset_y") == host.get("_relic_choice_title").get_theme_constant("shadow_offset_y"), "Both title lines copy the existing reward banner shadow")
 	var band: ColorRect = transition.get("_text_band")
 	expect.call(band.size == Vector2(1920.0, 260.0) and is_equal_approx(band.get_global_rect().get_center().y, 505.0) and band.modulate.a == label.modulate.a, "Full-width band spans 130px above/below the text-block centre and fades with the text")
-	transition.advance(1.39)
-	expect.call(host.get("_run_state")["current_room"] == reward["current_room"] and handoffs[0] == 0, "No room or music handoff before arrival is black")
+	transition.advance(1.09)
+	expect.call(host.get("_run_state")["current_room"] == reward["current_room"] and handoffs[0] == 0, "No room or music handoff before the 2.60-second map arrival")
 	transition.advance(0.02)
 	var entered: Dictionary = host.get("_run_state")
 	expect.call(entered["current_room"] == Graph.section(entered, 1)["entry"] and entered["mode"] == "room", "Arrival enters the next section entry through the production move/save path")
-	expect.call(host.get("board_view").position.is_equal_approx(host.get("_board_centering_target")), "Entry uses its normal run-scene framing before the arrival fade reveals it")
+	expect.call(host.get("board_view").position.is_equal_approx(host.get("_board_centering_target")), "Entry framing settles under the title-to-map cover")
 	expect.call(payout(entered) == payout(reward) and handoffs[0] == 1, "Full transition grants rewards once and hands off audio once")
 	expect.call(event_count("auto_transition") == 1, "Saved JSONL section entry carries entry=auto_transition exactly once")
 	var arrival_track: String = str(host.get("_active_music_id"))
-	transition.advance(0.30)
+	transition.advance(0.09)
+	expect.call(is_equal_approx(host.get("_large_map_scrim").modulate.a, 0.0625) and is_equal_approx(transition.get("_title").modulate.a, 0.9375), "Normal handoff uses cubic in-out at the quarter point")
+	transition.advance(0.31)
+	var map_backdrop: TextureRect = host.get("_large_map_view").call("transition_backdrop")
+	expect.call(transition.get("_painting").get_global_rect().is_equal_approx(map_backdrop.get_global_rect()) and transition.get("_painting").scale == Vector2.ONE and transition.get("_painting").modulate == Color(0.56, 0.54, 0.59), "The completion frame exactly matches map cover-fit framing, scale and brightness")
 	await settle_audio(tree)
-	expect.call(handoffs[0] == 1 and int(host.get("_section_test_music_starts")) - starts_before == 1, "After reveal and deferred callbacks there is exactly one arrival and one music playback start")
+	expect.call(handoffs[0] == 1 and int(host.get("_section_test_music_starts")) - starts_before == 1, "After the map cross-fade and deferred callbacks there is exactly one arrival and one music playback start")
 	expect.call(not cursor.call("glyph_visibility_suppressed"), "Completion restores the cursor glyph")
-	expect.call(not tree.root.gui_disable_input and not host.get("_animation_lock"), "Arrival releases input after the existing room reveal")
+	expect.call(not tree.root.gui_disable_input and not host.get("_animation_lock"), "Map arrival releases input only after the cross-fade")
 	expect.call(str(host.get("_active_music_id")) == arrival_track, "Existing threshold map handoff does not restart or replace arrival music")
 
 	# Reconstruct the actual on-disk state between claim and entry, then load it.
@@ -223,12 +232,11 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 		tree.root.push_input(input, true)
 		await tree.process_frame
 		expect.call(is_equal_approx(float(transition.get("_arrival_start")), 0.4) and not host.get("_menu_scrim").visible, kind + " reaches only skip at 0.40s")
-		transition.advance(0.29)
-		expect.call(host.get("_run_state")["current_room"] == claimed["current_room"], "Skip retains the fade-to-black before entry")
-		transition.advance(0.24)
-		expect.call(host.get("_section_transition") != null and host.get("_run_state")["current_room"] == Graph.section(claimed, 1)["entry"], kind + " enters once and retains the full 0.60-second arrival step")
-		transition.advance(1.0 - float(transition.get("elapsed")) + BOUNDARY_EPSILON_SECONDS)
-		expect.call(host.get("_section_transition") == null, kind + " finishes the arrival step at 1.00s after the earliest skip")
+		transition.advance(0.06)
+		expect.call(host.get("_run_state")["current_room"] == Graph.section(claimed, 1)["entry"] and host.get("_large_map_scrim").visible and is_equal_approx(host.get("_large_map_scrim").modulate.a, 0.5), kind + " skips directly into the map cross-fade, halfway through its 0.12 seconds")
+		expect.call(transition.get("_painting").scale == Vector2.ONE * float(Transition.presentation_at(0.4, false)["painting_scale"]), "Skip has no push or reframing during its cross-fade")
+		transition.advance(0.06 + BOUNDARY_EPSILON_SECONDS)
+		expect.call(host.get("_section_transition") == null and host.get("_large_map_scrim").visible, kind + " finishes on the map at 0.52s after the earliest skip")
 		await settle(tree)
 
 	host.get("_settings")["reduced_motion"] = true
@@ -237,15 +245,17 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	transition.set_process(false)
 	transition.advance(1.69)
 	expect.call(not transition.get("_entered") and transition.get("_painting").scale == Vector2.ONE, "Reduced motion holds the still title until 1.70s")
-	transition.advance(0.30)
-	expect.call(not transition.get("_entered"), "Reduced-motion arrival keeps the room covered until 2.00s")
-	transition.advance(0.02)
-	expect.call(transition.get("_entered"), "Reduced-motion arrival enters at 2.00s")
+	transition.advance(0.16)
+	expect.call(transition.get("_entered") and host.get("_large_map_scrim").visible and is_equal_approx(host.get("_large_map_scrim").modulate.a, 0.5) and transition.get("_painting").scale == Vector2.ONE, "Reduced-motion arrival is a stationary map cross-fade, halfway at 1.85s")
+	transition.advance(0.16)
+	expect.call(transition.get("_entered"), "Reduced-motion map arrival is complete at 2.00s")
 	await settle(tree)
-	expect.call(host.get("_section_transition") == null, "Reduced-motion arrival completes at 2.00s with its immediate existing room reveal")
+	expect.call(host.get("_section_transition") == null, "Reduced-motion arrival completes on the map at 2.00s")
 
 	host.get("_settings")["reduced_motion"] = false
 	host = await _save_failure_cases(tree, host, expect)
+	await _frame_handoffs(tree, host, claimed, expect)
+	await _non_map_arrival(tree, host, claimed, expect)
 
 	await install(tree, host, fixture(5))
 	button = host.find_child("DragonRewardContinue", true, false)
@@ -256,6 +266,82 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	while bool(host.call("_treasure_presentation_busy")) and Time.get_ticks_msec() < deadline: await tree.process_frame
 	host.queue_free()
 	await settle(tree)
+
+# Advance the real scene one displayed frame at a time, including the exact
+# frame that persists/opens the destination and the frame that frees the overlay.
+static func _frame_handoffs(tree: SceneTree, host: Node, claimed: Dictionary, expect: Callable) -> void:
+	for reduced: bool in [false, true]:
+		tree.root.get_node("InputRouter").call("set_modality", "controller")
+		host.get("_settings")["reduced_motion"] = reduced
+		host.call("_load_run_state", claimed)
+		var overlay: Node = host.get("_section_transition")
+		overlay.set_process(false)
+		var handoffs: Array[int] = [0]
+		overlay.arrived.connect(func() -> void: handoffs[0] += 1)
+		var starts: int = int(host.get("_section_test_music_starts"))
+		var arrival: float = Transition.arrival_at(reduced)
+		overlay.advance(arrival - FRAME_SECONDS)
+		var frame: int = 0
+		while is_instance_valid(overlay) and overlay.get("active"):
+			overlay.advance(FRAME_SECONDS)
+			if overlay.get("active"):
+				expect.call(overlay.get("_black").visible and overlay.get("_black").modulate.a == 1.0 and overlay.get("_card").visible and overlay.get("_arrival_shade").modulate.a == 0.0, "Every title-to-map frame keeps opaque coverage over the board: %s / %d" % [str(reduced), frame])
+				expect.call(host.get("_large_map_scrim").is_visible_in_tree() and host.get("_large_map_scrim").get_parent() == overlay.get("_surface") and host.get("_large_map_scrim").mouse_behavior_recursive == Control.MOUSE_BEHAVIOR_DISABLED and host.get("_large_map_scrim").focus_behavior_recursive == Control.FOCUS_BEHAVIOR_DISABLED, "Every arrival frame draws the actual map above the title painting: %s / %d" % [str(reduced), frame])
+				var midpoint: float = arrival + Transition.map_crossfade_seconds(reduced) * 0.5
+				if absf(float(overlay.get("elapsed")) - midpoint) < BOUNDARY_EPSILON_SECONDS:
+					expect.call(is_equal_approx(host.get("_large_map_scrim").modulate.a, 0.5) and is_equal_approx(overlay.get("_title").modulate.a, 0.5) and is_equal_approx(overlay.get("_text_band").modulate.a, 0.5), "Cubic in-out midpoint fades map in and title/band out together")
+			await tree.process_frame
+			frame += 1
+		var scrim: ColorRect = host.get("_large_map_scrim")
+		var painting: TextureRect = host.get("_large_map_view").call("transition_backdrop")
+		expect.call(scrim.is_visible_in_tree() and scrim.modulate == Color.WHITE and painting.visible and scrim.get_parent() == host.get("ui_root") and scrim.mouse_behavior_recursive == Control.MOUSE_BEHAVIOR_INHERITED and scrim.focus_behavior_recursive == Control.FOCUS_BEHAVIOR_INHERITED, "Completion atomically returns the fully open map to its ordinary host")
+		await settle_audio(tree)
+		expect.call(handoffs[0] == 1 and int(host.get("_section_test_music_starts")) - starts == 1, "Frame-driven arrival starts planning music exactly once after all callbacks")
+		# Inspect the last cross-fade sample without freeing it yet, so exact
+		# image framing can be compared with the live map's cover-fit rectangle.
+		host.call("_load_run_state", claimed)
+		overlay = host.get("_section_transition")
+		overlay.set_process(false)
+		overlay.advance(Transition.map_duration(reduced) - BOUNDARY_EPSILON_SECONDS)
+		if not reduced:
+			var target: Rect2 = painting.get_global_rect()
+			expect.call(overlay.get("_painting").get_global_rect().position.distance_to(target.position) < FRAMING_EPSILON_PX and overlay.get("_painting").get_global_rect().size.distance_to(target.size) < FRAMING_EPSILON_PX and overlay.get("_painting").scale.distance_to(Vector2.ONE) < SCALE_EPSILON, "Final normal cross-fade frame matches the real map cover-fit geometry without a framing jump")
+			var tint: Color = overlay.get("_painting").modulate
+			expect.call(absf(tint.r - 0.56) < COLOR_EPSILON and absf(tint.g - 0.54) < COLOR_EPSILON and absf(tint.b - 0.59) < COLOR_EPSILON, "Final painting brightness lands on the map's own modulate")
+		overlay.cancel()
+		await settle(tree)
+		expect.call(scrim.get_parent() == host.get("ui_root") and painting.visible and scrim.mouse_behavior_recursive == Control.MOUSE_BEHAVIOR_INHERITED and scrim.focus_behavior_recursive == Control.FOCUS_BEHAVIOR_INHERITED, "Cancellation restores live map ownership, backdrop and input")
+		host.call("_load_run_state", claimed)
+		overlay = host.get("_section_transition")
+		overlay.set_process(false)
+		overlay.advance(arrival + BOUNDARY_EPSILON_SECONDS)
+		overlay.queue_free()
+		await settle(tree)
+		expect.call(is_instance_valid(scrim) and scrim.get_parent() == host.get("ui_root") and painting.visible and not tree.root.get_node("CursorFeedback").call("glyph_visibility_suppressed"), "Tree exit restores the actual map and cursor after a handoff has begun")
+		host.call("_close_large_map")
+		expect.call(not scrim.visible and host.get("_run_state")["current_room"] == Graph.section(claimed, 1)["entry"], "Closing the fully open map reveals the loaded entry room")
+	host.get("_settings")["reduced_motion"] = false
+
+static func _non_map_arrival(tree: SceneTree, host: Node, claimed: Dictionary, expect: Callable) -> void:
+	# A threshold with opening narration cannot auto-open its map. Its former
+	# black arrival and room reveal remain intact, including deferred narration.
+	var narrated: Dictionary = claimed.duplicate(true)
+	var target: Vector2i = Graph.section(narrated, 1)["entry"]
+	Graph.room(narrated, target)["npcs"] = [{"id": "emaciated_man"}]
+	for reduced: bool in [false, true]:
+		host.get("_settings")["reduced_motion"] = reduced
+		host.call("_load_run_state", narrated)
+		var overlay: Node = host.get("_section_transition")
+		overlay.set_process(false)
+		expect.call(not overlay.get("_map_arrival"), "Narrated destination retains the non-map arrival")
+		overlay.advance(Transition.arrival_at(reduced) + Transition.ARRIVAL_FADE_SECONDS - BOUNDARY_EPSILON_SECONDS)
+		expect.call(not overlay.get("_entered") and not host.get("_large_map_scrim").visible, "Non-map arrival keeps the original black fade before entry")
+		overlay.advance(BOUNDARY_EPSILON_SECONDS * 2.0)
+		expect.call(overlay.get("_entered") and not host.get("_large_map_scrim").visible, "Non-map arrival enters the board without opening a map")
+		if overlay.get("active"): overlay.advance(Transition.duration(reduced) - float(overlay.get("elapsed")) + BOUNDARY_EPSILON_SECONDS)
+		await settle(tree)
+		expect.call(host.get("_section_transition") == null, "Non-map arrival keeps its existing normal/reduced completion timing")
+	host.get("_settings")["reduced_motion"] = false
 
 static func _save_failure_cases(tree: SceneTree, host: Node, expect: Callable) -> Node:
 	# Inject one failing atomic write after the claim boundary. Removing the

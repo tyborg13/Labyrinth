@@ -30,8 +30,8 @@ func _run() -> void:
 	host = load("res://scenes/run_scene.tscn").instantiate()
 	canvas.add_child(host)
 	await Suite.settle(self)
-	await _strip(false, 0, "normal", [0.3, 0.9, 1.5, 2.4, 3.0])
-	await _strip(true, 0, "reduced", [0.15, 0.9, 1.5, 2.1])
+	await _strip(false, 0, "normal", [0.3, 0.9, 1.5, 2.4, 2.8, 3.0])
+	await _strip(true, 0, "reduced", [0.15, 0.9, 1.5, 1.85, 2.0, 2.1])
 	await _strip(false, 4, "section_vi", [1.5])
 	await _failed_entry(false)
 	await _failed_entry(true)
@@ -58,24 +58,26 @@ func _strip(reduced: bool, index: int, prefix: String, times: Array) -> void:
 		return
 	transition.set_process(false)
 	for seconds: float in times:
-		transition.advance(seconds - float(transition.get("elapsed")))
+		if is_instance_valid(transition): transition.advance(seconds - float(transition.get("elapsed")))
 		var name: String = "%s_%04d.png" % [prefix, roundi(seconds * 1000.0)]
-		var heading: Label = transition.get("_title")
-		var numeral: Label = transition.get("_eyebrow")
-		var active: bool = bool(transition.get("active"))
+		var active: bool = is_instance_valid(transition) and bool(transition.get("active"))
+		var heading: Label = transition.get("_title") if is_instance_valid(transition) else null
+		var numeral: Label = transition.get("_eyebrow") if is_instance_valid(transition) else null
 		if active and not root.get_node("CursorFeedback").call("glyph_visibility_suppressed"):
 			failures.append("Cursor glyph suppressed during transition: " + name)
-		# Reduced motion has completed by the final entry-room sample. Copy the
-		# evidence before that completed overlay leaves the tree on the next draw.
-		evidence.append({"image": name, "seconds_from_continue": seconds, "reduced_motion": reduced, "title": heading.text, "numeral": numeral.text, "heading_rect": str(heading.get_global_rect()), "numeral_rect": str(numeral.get_global_rect()), "painting_scale": str(transition.get("_painting").scale), "entered": transition.get("_entered")})
-		if seconds >= 1.4 and seconds < 2.0:
+		var row: Dictionary = {"image": name, "seconds_from_continue": seconds, "reduced_motion": reduced, "map_visible": host.get("_large_map_scrim").visible, "map_alpha": host.get("_large_map_scrim").modulate.a}
+		if is_instance_valid(transition):
+			row.merge({"title": heading.text, "numeral": numeral.text, "heading_rect": str(heading.get_global_rect()), "numeral_rect": str(numeral.get_global_rect()), "painting_scale": str(transition.get("_painting").scale), "painting_rect": str(transition.get("_painting").get_global_rect()), "entered": transition.get("_entered")})
+		evidence.append(row)
+		if heading != null and seconds >= 1.4 and seconds < Transition.arrival_at(reduced):
 			if not is_equal_approx(heading.get_global_rect().get_center().y, 540.0): failures.append("Heading centred at y540")
 			if not is_equal_approx(numeral.get_global_rect().get_center().y, 470.0): failures.append("Numeral centred at y470")
-		if seconds >= Transition.reward_fade_seconds(reduced) and not transition.get("_entered"):
+		if active and seconds >= Transition.reward_fade_seconds(reduced) and not transition.get("_entered"):
 			for field: String in ["_relic_choice_host", "_relic_choice_banner", "_relic_choice_title"]:
 				if not is_zero_approx(host.get(field).modulate.a): failures.append("Reward and banner fade together: " + name)
 		await _capture(name)
-		if active and host.get("_large_map_scrim").visible: failures.append("No intervening map: " + name)
+		if seconds < Transition.arrival_at(reduced) and host.get("_large_map_scrim").visible: failures.append("No map before the title-to-map handoff: " + name)
+		if seconds >= Transition.arrival_at(reduced) and not host.get("_large_map_scrim").visible: failures.append("Arrival cross-fades directly into the map: " + name)
 	if is_instance_valid(transition): transition.cancel()
 	await process_frame
 

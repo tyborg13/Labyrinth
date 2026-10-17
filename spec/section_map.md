@@ -166,7 +166,16 @@ card offers continue through the existing reward chooser. See [events.md](events
 Section tabs allow reviewing reached sections with discovered history intact.
 After a non-final dragon reward, CONTINUE automatically descends to the next
 section's entry room through the section title transition, without an
-intervening map action. Its normal entry-room map handoff follows arrival.
+intervening map action. For destinations that auto-open their map, the title
+cross-fades straight into the live section map at 2.60s over 0.40s, cubic in-out.
+The title and band fade away as the map frame, header, nodes, paths and legend
+fade in. The painting dims to the map's own background modulate and eases from
+the title's pushed-in fullscreen crop to the exact map-field cover-fit rectangle.
+The entry room loads underneath and remains covered until the map is closed;
+no board reveal intervenes. Planning music starts once at this handoff.
+Reduced motion uses a stationary 0.30s cross-fade after its existing hold;
+skipping uses 0.12s. Destinations that cannot auto-open the map retain the
+existing black arrival and room-entry reveal.
 Loading a cleared boss room whose next section has not been entered replays
 the transition. An entry-save failure reverses to the already-claimed reward
 screen, where CONTINUE retries without granting rewards again. The final

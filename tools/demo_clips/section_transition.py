@@ -64,15 +64,15 @@ def run(directory: Path, recording: bool) -> dict:
 def validate_events(report: dict) -> None:
     events = report["events"]
     required = ["section_i_dragon_alive", "dragon_defeated_reward_granted", "continue",
-                "arrival", "transition_finished", "tail_finished"]
+                "arrival", "map_fully_open", "tail_finished"]
     if [row["event"] for row in events] != required:
         raise ValueError("Missing/out-of-order production clip steps")
     if events[-1]["frame"] - events[-2]["frame"] != 120:
-        raise ValueError("Entry-room tail must last exactly two seconds at 60 fps")
+        raise ValueError("Fully open map tail must last exactly two seconds at 60 fps")
     if events[2]["frame"] - events[1]["frame"] != 120:
         raise ValueError("Reward screen must hold for exactly two seconds before the pointer clicks CONTINUE")
-    if not 192 <= events[4]["frame"] - events[2]["frame"] <= 194:
-        raise ValueError("CONTINUE must play the complete 3.20-second transition")
+    if not 180 <= events[4]["frame"] - events[2]["frame"] <= 182:
+        raise ValueError("CONTINUE must play the complete 3.00-second title-to-map transition")
 
 
 def encode_arguments(directory: Path, report: dict) -> list:

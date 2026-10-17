@@ -24,6 +24,8 @@ signal event_requested(choice: String)
 signal interaction_changed
 signal close_requested
 
+const BACKGROUND_MODULATE := Color(0.56, 0.54, 0.59)
+
 var run_state: Dictionary = {}
 var viewed_section: int = 0
 var selected_coord: Vector2i = Graph.INVALID
@@ -107,7 +109,7 @@ func _build() -> void:
 	_background.name = "SectionBackground"
 	_background.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_background.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-	_background.modulate = Color(0.56, 0.54, 0.59)
+	_background.modulate = BACKGROUND_MODULATE
 	_full_field(_background)
 	_fog = ColorRect.new()
 	_fog.name = "DynamicFog"
@@ -154,6 +156,11 @@ func _build() -> void:
 	legacy_close.position = Vector2(-110, 12)
 	legacy_close.custom_minimum_size = Vector2(96, 48)
 	_legacy.add_child(legacy_close)
+
+# The section transition matches the live cover-fit rectangle, including the
+# current header/footer and outer-frame layout, rather than duplicating it.
+func transition_backdrop() -> TextureRect:
+	return _background
 
 func _build_legend() -> HBoxContainer:
 	var legend := HBoxContainer.new()

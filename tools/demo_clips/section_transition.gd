@@ -110,12 +110,15 @@ func _run() -> void:
 	_mark("continue")
 	_set_cursor_suppressed(true)
 	transition.arrived.connect(func() -> void: _mark("arrival"))
-	while not done and is_instance_valid(scene.get("_section_transition")): await get_tree().process_frame
+	# Mark the exact completion frame, rather than the next polling frame.
+	await transition.finished
 	if done: return
 	_set_cursor_suppressed(false)
-	_mark("transition_finished")
+	if not scene.get("_large_map_scrim").visible or scene.get("_large_map_scrim").modulate.a != 1.0: failures.append("Transition must finish directly on the fully open section map")
+	_mark("map_fully_open")
 	await _frames(roundi(float(config["defaults"]["tail_s"]) * Clock.FPS))
-	if scene.get("_run_state")["current_room"] != Graph.section(scene.get("_run_state"), 1)["entry"]: failures.append("Clip must end two seconds into Section II's entry room")
+	if scene.get("_run_state")["current_room"] != Graph.section(scene.get("_run_state"), 1)["entry"]: failures.append("Clip must end two seconds after Section II's map fully opens")
+	if not scene.get("_large_map_scrim").visible: failures.append("Section II map must remain open throughout the tail")
 	_mark("tail_finished")
 	_finish()
 

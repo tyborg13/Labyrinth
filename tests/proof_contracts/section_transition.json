@@ -19,6 +19,9 @@
     {"pattern": "*/legacy_failure_normal_reverse.png", "width": 1920, "height": 1080},
     {"pattern": "*/legacy_failure_normal_reward.png", "width": 1920, "height": 1080},
     {"pattern": "*/legacy_failure_reduced_reverse.png", "width": 1920, "height": 1080},
-    {"pattern": "*/legacy_failure_reduced_reward.png", "width": 1920, "height": 1080}
+    {"pattern": "*/legacy_failure_reduced_reward.png", "width": 1920, "height": 1080},
+    {"pattern": "*/normal_2800.png", "width": 1920, "height": 1080},
+    {"pattern": "*/reduced_1850.png", "width": 1920, "height": 1080},
+    {"pattern": "*/reduced_2000.png", "width": 1920, "height": 1080}
   ]
 }

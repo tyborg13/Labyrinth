@@ -17,15 +17,14 @@ observable contract without modifying that metadata.
 2. Loading a claimed, cleared boss room starts the same overlay with a resume
    entry tag. The boss save remains the replay source until the destination
    entry saves successfully; loading an entered threshold does not replay it.
-3. The overlay implements the brief's descent, full-brightness cover-fit
-   painting, radial vignette, typography, text rise, title hold, arrival, input
-   containment, skip gate and reduced-motion timing. Camera descent moves the
-   board opposite the camera by 140px. Arrival reuses
-   `MenuRunTransition.REVEAL_SECONDS` (0.22s, sine in/out), within the normal
-   2.60–3.20s arrival interval. Reduced motion is exactly 0.30 + 1.40 + 0.30s;
-   the existing reduced-motion room reveal is immediate. Entry retains its existing automatic map
-   handoff after reveal; music anticipates that planning context so it starts
-   once. No transition or acquisition sound cue is played.
+3. The overlay implements the approved descent, full-brightness cover-fit
+   painting, radial vignette, typography, text rise, title hold and input gate.
+   Camera descent moves the board opposite the camera by 140px. As amended by
+   feedback 3, normal arrival cross-fades directly to the map at 2.60–3.00s;
+   reduced motion uses 1.70–2.00s without movement, and skipping uses 0.12s.
+   The destination entry room stays covered until the player closes the map.
+   Destinations without an automatic map keep the original room arrival.
+   Planning music starts once at handoff; no new sound cue is played.
 4. The existing newly staged `section_entered` event receives
    `entry: auto_transition` or `entry: resume_transition` before the ordinary
    save-before-JSONL boundary. Existing revision/idempotency keys are unchanged.
@@ -57,8 +56,8 @@ observable contract without modifying that metadata.
 4. The demo awaits the complete production lethal-card/death/reward-reveal
    coroutine, holds the finished reward screen for exactly 120 frames (2.0s),
    warps the real pointer to CONTINUE and sends native viewport press/release
-   input. It hides the OS cursor during transition, then restores it for the
-   existing 120-frame entry-room tail. The receipt validator rejects shorter
+   input. It suppresses the game cursor glyph during transition, then restores it for
+   the 120-frame tail (now on the fully open map, per feedback 3). The receipt validator rejects shorter
    reward holds and tails.
 5. The existing final-claim assertion is untouched:
    `tests/dragon_rewards_test.gd:159`,
@@ -75,7 +74,7 @@ capture is assigned to the director because this worker has no window server.
 
 The supplied review was read from local repository history at
 `a76c2bbdeb388e5f414a4af23e35e026adf678cc:spec/peer_benchmark/feedback/flow-01_review_cf9d7737a.md`;
-the current worktree's starting HEAD is `cf9d7737a`. No review, commit or
+that round's starting HEAD was `cf9d7737a`; feedback 3 starts from `f1e041f29`. No review, commit or
 publication was run by this worker.
 
 1. `section_transition_reward.gd` migrates old cleared-boss saves before descent,
@@ -121,6 +120,37 @@ minimum-image floor is unchanged; all 18 required patterns are enforced.
 The updated map review contract requires 14 captures. No fresh windowed run
 was attempted by this worker.
 
+## Feedback 3 — direct title-to-map handoff
+
+The title card now hands directly to the live map at 2.60s. Over 0.40s,
+cubic in-out, the text/band fade out, the painting dims to the existing
+`Color(0.56, 0.54, 0.59)`, and all live map chrome fades in. The normal painting
+lands on the map's actual content-field rectangle, cover-fit and scale 1.00;
+its vignette also resolves to the map's unmodified backdrop. The actual map
+controls temporarily draw in the transition layer, then return synchronously
+to their original parent and sibling position. An opaque backing covers the
+entry room throughout. Map hover, pointer picking and controller focus are suppressed until
+completion, alongside the existing transition-only input and cursor gate.
+
+Reduced motion cross-fades the stationary title into the map over 0.30s;
+skips use 0.12s. Destination persistence and the single planning-track start
+happen at the beginning of the cross-fade. A destination that cannot auto-open
+its map keeps the former black arrival and room reveal. The existing failed-save
+reversal, reward retry/resume matrix and final ascent remain covered.
+
+Frame-level tests advance the real scene at 60 Hz, including the entry/save
+frame and overlay teardown. They check opaque board coverage, live map drawing
+order, input suppression/restoration, cubic midpoint/quarter-point opacity,
+exact final framing and one music playback after deferred callbacks. Native
+captures now include midpoint/full-open pairs at 2.80/3.00s normal and
+1.85/2.00s reduced. The contract requires 21 named images; the existing minimum
+floor remains unchanged. The demo emits `map_fully_open` and keeps that map
+visible for exactly 120 more frames after its natural death, reward hold and
+real-pointer CONTINUE path.
+
+The numbered implementation notes above describe earlier rounds; this owner
+feedback supersedes their entry-room reveal and 3.20s map-path timing.
+
 ## Proof for the design owner
 
 Run from the final merged implementation. Use fresh output/receipt paths if any
@@ -128,23 +158,24 @@ of these paths already exist. The native movie wrapper uses the existing demo
 capture settings, GUI lease, disk guard, renderer verification and ffmpeg tools.
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/visual_probe_runner.py --task-id flow-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/section_transition.json --result-manifest /private/tmp/flow-01-owner-feedback2-proof.json tests/section_transition_probe.gd
-cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/visual_probe_runner.py --task-id flow-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/section_map_review.json --result-manifest /private/tmp/flow-01-owner-feedback2-map-review-proof.json tests/section_map_review_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/visual_probe_runner.py --task-id flow-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/section_transition.json --result-manifest /private/tmp/flow-01-owner-feedback3-proof.json tests/section_transition_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/visual_probe_runner.py --task-id flow-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/section_map_review.json --result-manifest /private/tmp/flow-01-owner-feedback3-map-review-proof.json tests/section_map_review_probe.gd
 ```
 
-This emits the requested 0.3, 0.9, 1.5, 2.4 and 3.0s strip, reduced-motion
-captures, Section VI and eight save-failure recovery images. Images and `timeline.json` are in the isolated
+This emits the requested 0.3, 0.9, 1.5, 2.4 and 3.0s strip, the additional
+normal 2.8s and reduced 1.85/2.0s handoff captures, the other reduced-motion
+samples, Section VI and eight save-failure recovery images. Images and `timeline.json` are in the isolated
 `user://probes/section_transition/`; the proof receipt lists absolute PNG paths.
 The probe draws the real scene and overlay at exact presentation times; it
 does not substitute a mockup or generated art. Independently inspect the images
 at 1920×1080, 100% UI scale. Windowed capture/judging remains pending.
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/demo_clips/section_transition.py validate --output /private/tmp/flow-01-owner-feedback2-demo-validation
-cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/demo_clips/section_transition.py record --validation /private/tmp/flow-01-owner-feedback2-demo-validation --output /private/tmp/flow-01-owner-feedback2-demo
+cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/demo_clips/section_transition.py validate --output /private/tmp/flow-01-owner-feedback3-demo-validation
+cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/demo_clips/section_transition.py record --validation /private/tmp/flow-01-owner-feedback3-demo-validation --output /private/tmp/flow-01-owner-feedback3-demo
 ```
 
-Native outputs: `/private/tmp/flow-01-owner-feedback2-demo/section_transition.mp4`,
+Native outputs: `/private/tmp/flow-01-owner-feedback3-demo/section_transition.mp4`,
 `movie.avi`, untouched PCM `movie.wav`, `events.json`, `godot.log` and
 `recording.json`. Listen to the music handoff. No inspection-fixture command was
 requested by this unit brief; the design owner prepares the final fixture.
@@ -163,12 +194,18 @@ Only invisible implementation/proof values were selected:
 - Overlay canvas ordering: layer 100, following the existing loading overlay.
 - Headless fixture seed 410; eight settling frames; 12s wait watchdog.
 - Boundary checks sample 0.01s to either side of authored phase boundaries.
-  Extra proof samples are reduced motion at 0.15, 0.9, 1.5 and 2.1s, and
+  Extra proof samples include normal 2.8s and reduced motion at 0.15, 0.9,
+  1.5, 1.85, 2.0 and 2.1s, and
   Section VI at 1.5s. Title-region proof uses `[360, 440, 1200, 160]`, with
   minimum luma range 20 and standard deviation 5 (proof checks only).
 - Recovery proof samples at half of each existing reverse fade and 0.01s after
   completion. Recovery fixtures use run-index offsets 2 through 15 to isolate
   analytics receipts.
+- Frame observations use `FRAME_SECONDS = 1.0 / 60.0`,
+  `FRAMING_EPSILON_PX = 0.1`, `COLOR_EPSILON = 0.0001`, and
+  `SCALE_EPSILON = 0.001`.
+  These are test-only sampling/tolerance fields. Text drawing order is derived
+  from the live map scrim z-index plus one, not a separate visual decision.
 - Audio-count observations wait 1.0s plus the existing eight settling frames;
   this is test-only, covering deferred context refresh and music fades.
 - Map review's fog fixture uses section index 5, with a real marked route
@@ -185,6 +222,54 @@ Only invisible implementation/proof values were selected:
   tuning. Production encounter art, camera, card rules and reward rules remain.
 
 ## Observed verification
+
+Feedback 3 current results (logs under `/private/tmp/flow-01-feedback3-*`):
+
+- `transition-delivery.log`: exit 0, `SECTION TRANSITION RESULT: 0 failures`.
+  Includes the frame-by-frame opaque coverage check, exact terminal crop/tint,
+  cubic quarter/midpoint samples, map input/focus restoration, teardown,
+  one playback/arrival after deferred work, fallback room arrival, all skip
+  inputs, save migration/recovery, final ascent and unchanged rewards.
+- `map-review-delivery.log`: `SECTION MAP REVIEW PROBE: PASS` (headless logic).
+- `start-room-map.log`: exit 0, `START ROOM MAP RESULT: 0 failures`.
+- `ui-final.log`: `Ran 25 tests in 3.717s` / `OK`.
+- `clip-tests-final.log`: `Ran 4 tests in 0.001s` / `OK`.
+- `demo-delivery.log`: both takes report
+  `DEMO CLIP section_transition: PASS (672 frames)`;
+  `SECTION TRANSITION DEMO VALIDATION: PASS (two identical headless takes)`.
+  Current-source receipt:
+  `/private/tmp/flow-01-feedback3-demo-validation-delivery/validation.json`.
+  `DEMO HANDOFF INPUT HASHES: MATCH`. Event frames: reward 281, pointer
+  CONTINUE 401, arrival 557, map fully open 581, tail finished 701.
+- `mutations.log`: all six mutants exit 1 with behavioral assertions and zero
+  script/parser errors: arrival guard 33 failures, already-entered guard 1,
+  destination validation 2, claimed retry bypass 12, notice punctuation 14,
+  opaque-board-coverage removal 44. Mutants are in-memory only.
+- `probe-parser-delivery.log`: final parser-only probe check exits 0. Contract negative
+  checks reject previous evidence missing `normal_2800`, `reduced_1850` and
+  `reduced_2000`. Fresh native rendering and the 21-image contract remain
+  assigned to the director. No windowed run or native movie was attempted.
+- `dragon-rewards.log`: exit 1, the unchanged pre-existing assertion
+  `Final Continue transfers the claim to the profile before clearing the run`
+  at `tests/dragon_rewards_test.gd:159`.
+- `python-suite.log`: exit 0, `Ran 674 tests in 616.717s` /
+  `OK (skipped=63)`.
+- `godot-suite.log`: exit **124**, `error: command timed out after 900 seconds.`
+  The monolithic checks and completed children passed through
+  `PROGRAM SUITE sfx_sync_bank_test: PASS`; no failed assertion or script/parser
+  error was reported before timeout. This is **not** a full Godot PASS. The
+  director explicitly accepts a budget timeout alone while qa-07 repairs the
+  serial runner. The final transition suite ran separately and passed.
+- `git diff --check`: clean.
+
+The headless transition suite retains the existing macOS certificate diagnostic,
+injected save-failure errors and detached reward-control focus errors. Deferred
+controller-focus attempts while the map is intentionally disabled also emit
+focus warnings; input/focus restoration assertions pass. Some runs emit existing
+ObjectDB cleanup warnings. No native-renderer or audible-music success is inferred
+from these headless results.
+
+Older results below are retained as history and are not a claim about fresh captures.
 
 Logs live under `/private/tmp/flow-01-*.log`.
 
@@ -346,7 +431,9 @@ Feedback 2 modifies `scripts/run_scene.gd`, `scripts/section_transition.gd`,
 `tests/helpers/section_transition_observer.gd`,
 `tests/helpers/section_transition_mutations.gd` and
 `tests/proof_contracts/section_map_review.json`.
-The original clip-tool assertions and dragon-reward assertions are unchanged.
+Feedback 2 left the clip-tool assertions unchanged; feedback 3 updates only
+the authored transition duration, completion event and required capture samples.
+The existing dragon-reward assertions remain unchanged.
 
 - Runtime: `scripts/run_scene.gd`, `scripts/section_map_panel.gd`,
   `scripts/start_room_map_flow.gd`, new `scripts/section_transition.gd`.
@@ -356,3 +443,23 @@ The original clip-tool assertions and dragon-reward assertions are unchanged.
   `tests/section_transition_probe.gd`, `tests/proof_contracts/section_transition.json`,
   `tests/test_section_transition_clip.py`, this `tests/section_transition_proof.md`.
 - Demo extension: `tools/demo_clips/section_transition.gd`, `.json`, `.py`, `.tscn`.
+
+
+Feedback 3 changes (relative to `f1e041f29`, all uncommitted):
+
+- Runtime: `scripts/section_transition.gd`, `scripts/start_room_map_flow.gd`,
+  `scripts/section_map_panel.gd` (shared existing tint and backdrop accessor only).
+- Behavior/proof: `tests/suites/section_transition_suite.gd`,
+  `tests/helpers/section_transition_mutations.gd`,
+  `tests/section_transition_probe.gd`, `tests/section_map_review_probe.gd`,
+  `tests/proof_contracts/section_transition.json`,
+  `tests/test_section_transition_clip.py`, and this handoff.
+- Demo: `tools/demo_clips/section_transition.gd`,
+  `tools/demo_clips/section_transition.py`.
+- Owning specification: `spec/section_map.md`.
+
+The prior owner capture directories, approved assets, protected demo manifests,
+`run_scene.gd`, existing dragon-reward assertions, analytics schema and task queue
+are unchanged in this feedback round. New invisible defaults are the frame
+sampling/tolerances listed above; the narrated non-map fixture reuses the
+existing Emaciated Man identity. No new design placeholder was introduced.

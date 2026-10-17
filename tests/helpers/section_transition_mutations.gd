@@ -12,6 +12,10 @@ static func apply(name: String) -> bool:
 			path = "scripts/section_transition.gd"
 			before = "and not _entered and elapsed"
 			after = "and elapsed"
+		"board_flash":
+			path = "scripts/section_transition.gd"
+			before = "_black.modulate.a = 1.0 # Opaque coverage remains behind both presentations."
+			after = "_black.modulate.a = 0.0 # Deliberately expose the board outside the painting."
 		"entered_guard":
 			path = "scripts/start_room_map_flow.gd"
 			before = 'if info.is_empty() or bool(info.get("entered", false)):'

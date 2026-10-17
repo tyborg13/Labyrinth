@@ -1,6 +1,6 @@
 extends CanvasLayer
 ## Owns the uninterrupted dragon-reward -> next threshold presentation.
-## The cleared-boss save remains the replay source until the black arrival.
+## The cleared-boss save remains the replay source until destination persistence succeeds.
 
 signal finished
 signal arrived
@@ -14,6 +14,10 @@ const RoomReveal = preload("res://scripts/menu_run_transition.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Reward = preload("res://scripts/section_transition_reward.gd")
 
+const MapPanel = preload("res://scripts/section_map_panel.gd")
+
+const MAP_CROSSFADE_SECONDS: float = 0.40
+const SKIP_CROSSFADE_SECONDS: float = 0.12
 const REWARD_FADE_SECONDS: float = 0.24
 const REDUCED_REWARD_FADE_SECONDS: float = 0.12
 const DESCENT_SECONDS: float = 0.70
@@ -49,9 +53,10 @@ void fragment() {
 """
 const VIGNETTE_SHADER: String = """
 shader_type canvas_item;
+uniform float strength = 1.0;
 void fragment() {
 	float radius = clamp(length((SCREEN_UV - vec2(0.5)) * 2.0), 0.0, 1.0);
-	COLOR.rgb *= 1.0 - radius * 0.60;
+	COLOR.rgb *= 1.0 - radius * 0.60 * strength;
 }
 """
 
@@ -76,6 +81,17 @@ var _title: Label
 var _text_band: ColorRect
 var _arrival_start: float = -1.0
 var _entered: bool = false
+var _map_arrival: bool = false
+var _skipped: bool = false
+var _map_scrim: ColorRect
+var _map_parent: Node
+var _map_index: int
+var _map_color: Color
+var _map_modulate: Color
+var _map_background: TextureRect
+var _map_background_visible: bool
+var _map_mouse_behavior: int
+var _map_focus_behavior: int
 var _return_start: float = -1.0
 var _music: AudioStreamPlayer
 var _music_volume: float = 0.0
@@ -88,6 +104,13 @@ static func arrival_at(reduced: bool) -> float:
 
 static func duration(reduced: bool) -> float:
 	return arrival_at(true) + ARRIVAL_FADE_SECONDS + entry_reveal_seconds(reduced) if reduced else FINISH_AT
+
+static func map_crossfade_seconds(reduced: bool, skipped: bool = false) -> float:
+	if skipped: return SKIP_CROSSFADE_SECONDS
+	return REDUCED_CROSSFADE_SECONDS if reduced else MAP_CROSSFADE_SECONDS
+
+static func map_duration(reduced: bool) -> float:
+	return arrival_at(reduced) + map_crossfade_seconds(reduced)
 
 static func entry_reveal_seconds(reduced: bool) -> float:
 	return Settings.motion_duration(RoomReveal.REVEAL_SECONDS, {"reduced_motion": reduced})
@@ -137,6 +160,7 @@ func begin(host: Control, target: Vector2i, entry_kind: String) -> void:
 	if is_instance_valid(_cursor_feedback): _cursor_feedback.call("set_glyph_visibility_suppressed", _cursor_owner, true)
 	destination = target
 	entry = entry_kind
+	_map_arrival = bool(host.get("_start_room_map").transition_opens_map(host, target))
 	reduced_motion = bool(host.call("_reduced_motion_enabled"))
 	_board = host.get("board_view")
 	_board_origin = _board.position
@@ -239,13 +263,14 @@ func advance(seconds: float) -> void:
 		return
 	if _arrival_start < 0.0 and elapsed >= arrival_at(reduced_motion):
 		_arrival_start = arrival_at(reduced_motion)
-	if _arrival_start >= 0.0 and not _entered and elapsed >= _arrival_start + ARRIVAL_FADE_SECONDS:
+	var entry_delay: float = 0.0 if _map_arrival else ARRIVAL_FADE_SECONDS
+	if _arrival_start >= 0.0 and not _entered and elapsed >= _arrival_start + entry_delay:
 		_enter()
 		if _return_start >= 0.0:
 			_apply_return()
 			return
 	_apply()
-	var end: float = _arrival_start + duration(reduced_motion) - arrival_at(reduced_motion)
+	var end: float = _arrival_start + (map_crossfade_seconds(reduced_motion, _skipped) if _map_arrival else duration(reduced_motion) - arrival_at(reduced_motion))
 	if _arrival_start >= 0.0 and elapsed >= end:
 		_finish()
 
@@ -266,6 +291,7 @@ func contain_input(event: InputEvent) -> void:
 	elif event is InputEventKey: skip = event.pressed and not event.echo and event.keycode in [KEY_ENTER, KEY_KP_ENTER, KEY_SPACE, KEY_ESCAPE]
 	if skip and elapsed >= SKIP_AT and _arrival_start < 0.0 and _return_start < 0.0:
 		_arrival_start = elapsed
+		_skipped = true
 
 func _input(event: InputEvent) -> void:
 	if not active: return
@@ -293,6 +319,9 @@ func _apply() -> void:
 		label.position = Vector2(0.0, (center_y + float(pose["text_y"])) * ratio.y - _surface.size.y * 0.5)
 		label.modulate.a = float(pose["text_alpha"])
 	if _arrival_start < 0.0: return
+	if _map_arrival and _entered:
+		_apply_map_arrival(pose)
+		return
 	if not _entered:
 		_arrival_shade.modulate.a = clampf((elapsed - _arrival_start) / ARRIVAL_FADE_SECONDS, 0.0, 1.0)
 	else:
@@ -316,12 +345,84 @@ func _enter() -> void:
 	# exactly here, and use the ordinary destination-room music selection/fade.
 	_host.set("_initial_music_deferred", false)
 	var room: Dictionary = _host.get("_run_engine").room_metadata(_host.get("_run_state"), _host.get("_run_state").get("current_room"))
-	# Thresholds retain the existing automatic map handoff after the room reveal.
-	# Select its normal planning track now, avoiding a second restart when that
-	# queued map becomes visible at unlock.
-	var planning: bool = bool(_host.get("_start_room_map").allows_auto_open(_host))
+	# Open the actual map under the still-opaque title card before any draw can
+	# reveal the board. Consuming the visit prevents a second deferred handoff.
+	if _map_arrival:
+		_host.get("_start_room_map").present_transition_map(_host)
+		_prepare_map_arrival()
+	var planning: bool = _map_arrival
 	_host.call("_play_music", Music.entry_for_context("room", room, {}, planning))
 	arrived.emit()
+
+func _prepare_map_arrival() -> void:
+	_map_scrim = _host.get("_large_map_scrim")
+	_map_parent = _map_scrim.get_parent()
+	_map_index = _map_scrim.get_index()
+	_map_color = _map_scrim.color
+	_map_modulate = _map_scrim.modulate
+	_map_focus_behavior = _map_scrim.focus_behavior_recursive
+	_map_scrim.focus_behavior_recursive = Control.FOCUS_BEHAVIOR_DISABLED
+	_map_mouse_behavior = _map_scrim.mouse_behavior_recursive
+	_map_scrim.mouse_behavior_recursive = Control.MOUSE_BEHAVIOR_DISABLED
+	_map_background = _host.get("_large_map_view").call("transition_backdrop")
+	_map_background_visible = _map_background.visible
+	# Reuse all live map controls and their ordinary layout. Only their drawing
+	# moves above the painting; no duplicate scene or surrogate map is involved.
+	_release_map_focus()
+	_map_scrim.reparent(_surface, false)
+	_map_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	if reduced_motion or _skipped:
+		# No framing motion: cross-fade the stationary title into the real map.
+		_map_scrim.color.a = 1.0
+	else:
+		_map_scrim.color = Color.TRANSPARENT
+		_map_background.hide()
+	_map_scrim.modulate.a = 0.0
+	# Keep the authored text fade independent of the map's background alpha.
+	for item: CanvasItem in [_text_band, _eyebrow, _title]:
+		item.z_index = _map_scrim.z_index + 1
+
+func _apply_map_arrival(pose: Dictionary) -> void:
+	var seconds: float = map_crossfade_seconds(reduced_motion, _skipped)
+	var progress: float = clampf((elapsed - _arrival_start) / seconds, 0.0, 1.0)
+	var blend: float = float(Tween.interpolate_value(0.0, 1.0, progress * seconds, seconds, Tween.TRANS_CUBIC, Tween.EASE_IN_OUT))
+	_black.modulate.a = 1.0 # Opaque coverage remains behind both presentations.
+	_map_scrim.modulate.a = blend
+	_text_band.modulate.a = float(pose["text_alpha"]) * (1.0 - blend)
+	_eyebrow.modulate.a = _text_band.modulate.a
+	_title.modulate.a = _text_band.modulate.a
+	if reduced_motion or _skipped: return
+	# The map painting occupies its content field rather than the full screen.
+	# Land on that exact cover-fit rectangle and scale, including settled native
+	# container geometry, so returning the real backdrop cannot produce a jump.
+	var target: Rect2 = _surface.get_global_transform().affine_inverse() * _map_background.get_global_rect()
+	var rect := Rect2(Vector2.ZERO.lerp(target.position, blend), _surface.size.lerp(target.size, blend))
+	_painting.set_anchors_preset(Control.PRESET_TOP_LEFT)
+	_painting.position = rect.position
+	_painting.size = rect.size
+	_painting.pivot_offset = rect.size * 0.5
+	_painting.scale = Vector2.ONE * lerpf(float(pose["painting_scale"]), 1.0, blend)
+	_painting.modulate = Color.WHITE.lerp(MapPanel.BACKGROUND_MODULATE, blend)
+	(_painting.material as ShaderMaterial).set_shader_parameter("strength", 1.0 - blend)
+
+func _restore_map() -> void:
+	if not is_instance_valid(_map_scrim): return
+	_map_scrim.color = _map_color
+	_map_scrim.modulate = _map_modulate
+	_map_scrim.mouse_behavior_recursive = _map_mouse_behavior
+	_map_scrim.focus_behavior_recursive = _map_focus_behavior
+	if is_instance_valid(_map_background): _map_background.visible = _map_background_visible
+	if is_instance_valid(_map_parent):
+		_release_map_focus()
+		_map_scrim.reparent(_map_parent, false)
+		_map_parent.move_child(_map_scrim, _map_index)
+		_map_scrim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_map_scrim = null
+
+func _release_map_focus() -> void:
+	if not _map_scrim.is_inside_tree(): return
+	var focus: Control = _map_scrim.get_viewport().gui_get_focus_owner()
+	if focus != null and _map_scrim.is_ancestor_of(focus): focus.release_focus()
 
 func _fade_reward(alpha: float) -> void:
 	for index: int in range(_reward_items.size()):
@@ -356,6 +457,7 @@ func _apply_return() -> void:
 func cancel() -> void:
 	if not active: return
 	active = false
+	_restore_map()
 	_restore_cursor()
 	if not _entered and is_instance_valid(_music): _music.volume_linear = _music_volume
 	if not _entered and is_instance_valid(_board): _board.position = _board_origin

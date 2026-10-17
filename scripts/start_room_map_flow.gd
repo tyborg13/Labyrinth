@@ -55,15 +55,28 @@ func dialogue_closed(host: Node) -> void:
 	host.set("_section_map_presented_key", "")
 	host.call("_queue_section_map_presentation")
 
-func allows_auto_open(host: Node) -> bool:
-	if next_section_destination(host.get("_run_state"), host.get("_run_engine")) != Graph.INVALID: return false
-	if not _first_visit(host): return true
+func allows_auto_open(host: Node, prospective: Dictionary = {}) -> bool:
+	var state: Dictionary = host.get("_run_state") if prospective.is_empty() else prospective
+	if next_section_destination(state, host.get("_run_engine")) != Graph.INVALID: return false
+	if not _first_visit_state(state): return true
 	# The generic post-encounter scheduler must not open behind narration or
 	# bypass the service overlay. Its existing modal gate handles level-up.
-	for npc: Dictionary in _room(host).get("npcs", []):
+	for npc: Dictionary in host.get("_run_engine").room_metadata(state, state.get("current_room")).get("npcs", []):
 		if str(npc.get("id", "")) == "emaciated_man":
-			return _pending_visit == _visit(host)
+			return _pending_visit == _visit_state(state)
 	return true
+
+# Predict only presentation eligibility; do not move, claim or save the run.
+func transition_opens_map(host: Node, destination: Vector2i) -> bool:
+	var prospective: Dictionary = Transition.claimed_state(host.get("_run_state"))
+	prospective["current_room"] = destination
+	return allows_auto_open(host, prospective)
+
+func present_transition_map(host: Node) -> void:
+	var state: Dictionary = host.get("_run_state")
+	host.set("_section_map_presented_key", "%s:%s" % [str(state.get("current_room")), str(state.get("mode"))])
+	map_presented(host)
+	host.call("_open_large_map")
 
 # A claimed dragon milestone is already durable in the cleared boss room.
 # Resume uses the same destination check without consuming/reissuing rewards.
@@ -170,12 +183,16 @@ func _room(host: Node) -> Dictionary:
 	return host.get("_run_engine").room_metadata(host.get("_run_state"), host.get("_run_state").get("current_room", Vector2i.ZERO))
 
 func _visit(host: Node) -> String:
-	var state: Dictionary = host.get("_run_state")
+	return _visit_state(host.get("_run_state"))
+
+func _visit_state(state: Dictionary) -> String:
 	return "%s:%s:%d" % [str(state.get("run_result_id", state.get("seed", ""))), str(state.get("current_room", Vector2i.ZERO)), int(state.get("turns_spent", 0))]
 
 func _first_visit(host: Node) -> bool:
-	var state: Dictionary = host.get("_run_state")
-	if not Graph.enabled(state) or str(state.get("mode", "")) != "room" or str(_room(host).get("type", "")) != "start": return false
+	return _first_visit_state(host.get("_run_state"))
+
+func _first_visit_state(state: Dictionary) -> bool:
+	if not Graph.enabled(state) or str(state.get("mode", "")) != "room" or str(Graph.room(state, state.get("current_room", Graph.INVALID)).get("type", "")) != "start": return false
 	var current: Vector2i = state.get("current_room", Vector2i.ZERO)
 	for event: Dictionary in state.get("map_events", []):
 		if str(event.get("type", "")) == "route_choice_committed" and event.get("payload", {}).get("origin") == current: return false
