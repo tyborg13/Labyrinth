@@ -50,11 +50,23 @@ Do not use an editor launch as a parser check. On a clean isolated worktree, `go
 The full `tests/run_tests.gd` runner starts `tools/program_suite_runner.py` before
 executing its main body. The scheduler runs at most three isolated children
 alongside that main Godot process, for a maximum of four Godot processes total.
-Every child uses `godot_task_runner.py` with its own HOME, `user://` namespace and
-logs. Child output is buffered and printed whole in the historical manifest
+Every child uses `godot_task_runner.py` with its own HOME, APPDATA, LOCALAPPDATA
+and XDG data/config/cache/state roots. A generated SceneTree bootstrap applies
+`ParallelRuntime` before calling the standalone suite's `_initialize`, including
+suites that do not initialize their own namespace. Each child gets an explicit
+absolute `--log-file` path, independent of executable spelling (`godot`, `Godot`
+or `Godot.exe`); the general task runner recognizes those spellings too. The
+bootstrap prints the resolved `user://` and engine log paths for inspection.
+Child output is buffered and printed whole in the historical manifest
 order, regardless of completion order. Any child failure, script failure marker,
 launch error or timeout fails the full run and names the child. Closing the
 parent pipe cancels the scheduler and terminates its children.
+
+On Windows, cancellation uses [`taskkill /PID <wrapper> /T /F`](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/taskkill) while the wrapper
+still exists, so the whole descendant tree is terminated before any separate
+wrapper termination can bypass its cleanup. The task runner uses the same tree
+operation for its own Windows cleanup, with a five-second cleanup limit.
+POSIX retains process-group termination and its parent-death watchdog.
 
 `tools/program_suite_runner.py:SUITES` contains the complete program manifest:
 en04/en05/en06 and static_facing first, then combat_feel (including
@@ -86,7 +98,16 @@ lost coverage. Runner plumbing checks and deliberate failure fixtures are
 separate from content assertions.
 `tests/test_program_suite_runner.py` exercises concurrency, isolation, ordered
 output, named failures, timeouts, the overall deadline and parent cancellation,
-including a real headless Godot parent fixture.
+including a real headless Godot parent fixture. Its manifest guard requires the
+complete ordered list, including both extracted programs. Its deadline guard
+uses a controlled monotonic clock and bounded simulated cleanup; a doubled
+budget must fail the guard. `tests/test_runner_cancellation.py` runs the Windows
+tree-cancellation branches natively on Windows, or simulates `taskkill` on POSIX
+while checking real child/grandchild liveness. The qa-07 verification was native
+macOS headless Godot and POSIX cancellation; Windows tree semantics and Windows
+executable spellings were simulated. APPDATA and XDG environment roots were
+checked in child processes; native Windows/Linux Godot path resolution remains
+unverified by that proof.
 
 Run Python checks from the task worktree with `python3 -m unittest discover -s tests -p 'test_*.py' -v`; verbose output lists every skip and its reason. Optional audio tests use `unittest.skipUnless` when their Python modules are absent, while dependency import errors remain failures when those modules are installed. Run the sound-lab checks with `/Users/borgerding/.cache/umbra-sfx/venv/bin/python -m unittest discover -s tests -p 'test_sfx_lab.py' -v`; run the classical arrangement checks with `.venv-classical-soundtrack/bin/python -m unittest discover -s tests -p 'test_*arrangement.py' -v` after preparing that environment with `tools/classical_soundtrack_requirements.txt`. The Chopin approved-artifact checks (`-p 'test_chopin_death_music.py'`) need no optional music modules. Python discovery includes headless fixture checks through the task runners; it does not replace the full Godot suite required for runtime changes.
 

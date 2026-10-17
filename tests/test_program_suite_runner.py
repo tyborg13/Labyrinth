@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import os
+import argparse
 from pathlib import Path
 import re
 import shutil
@@ -13,6 +14,8 @@ import sys
 import tempfile
 import time
 import unittest
+import threading
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -21,6 +24,12 @@ CASE_SLEEP_SECONDS = 0.25
 TEST_TIMEOUT_SECONDS = 15
 STARTUP_TIMEOUT_SECONDS = 5
 POLL_SECONDS = 0.02
+EXTRACTED_PROGRAMS = ["suites/full_scene_presentation_program", "suites/full_scene_interaction_program"]
+DEADLINE_BUDGET_SECONDS = 0.3
+DEADLINE_CLEANUP_SECONDS = 0.04
+
+sys.path.insert(0, str(ROOT / "tools"))
+import program_suite_runner as runner
 
 FAKE_GODOT = '''#!/usr/bin/env python3
 import json, os, sys, time
@@ -73,17 +82,24 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
     def read_events(self):
         return [json.loads(line) for line in self.events.read_text().splitlines()]
 
-    def test_manifest_preserves_all_existing_children_and_order(self):
+    def assert_complete_manifest(self, actual):
         # Read the former orchestration manifests, not a second hand-maintained list.
         expected = []
         for path in ("tests/static_facing_program_suites.gd", "tests/helpers/program_sub_suites.gd"):
             source = (ROOT / path).read_text().split("const SUITES:", 1)[1].split("=", 1)[1].split("]", 1)[0]
             expected.extend(re.findall(r'"([a-z0-9_]+)"', source))
-        source = RUNNER.read_text().split("SUITES = (", 1)[1].split(")", 1)[0]
-        actual = re.findall(r'"([a-z0-9_/]+)"', source)
-        self.assertEqual(actual[:len(expected)], expected)
-        for suite in actual[len(expected):]:
+        expected.extend(EXTRACTED_PROGRAMS)
+        self.assertEqual(list(actual), expected)
+        for suite in EXTRACTED_PROGRAMS:
             self.assertTrue((ROOT / "tests" / (suite + ".gd")).is_file())
+
+    def test_manifest_preserves_all_existing_children_and_order(self):
+        self.assert_complete_manifest(runner.SUITES)
+
+    def test_removing_either_or_both_extracted_programs_fails_manifest_guard(self):
+        for removed in ([EXTRACTED_PROGRAMS[0]], [EXTRACTED_PROGRAMS[1]], EXTRACTED_PROGRAMS):
+            with self.subTest(removed=removed), self.assertRaises(AssertionError):
+                self.assert_complete_manifest([name for name in runner.SUITES if name not in removed])
 
     def test_full_harness_waits_for_coroutine_tests_before_reporting(self):
         source = (ROOT / "tests/run_tests.gd").read_text()
@@ -152,6 +168,56 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
         if self.events.exists():
             self.assertEqual([event["name"] for event in self.read_events()], ["active"])
 
+    def assert_controlled_deadline(self, run_suites):
+        class Clock:
+            now = 1000.0
+
+            def monotonic(self):
+                return self.now
+
+            def advance(self, seconds):
+                self.now += seconds
+
+        class Process:
+            returncode = None
+
+            def poll(self):
+                return self.returncode
+
+        for budget in (DEADLINE_BUDGET_SECONDS, DEADLINE_BUDGET_SECONDS * 2):
+            clock = Clock()
+            cancelled_at = []
+            args = argparse.Namespace(project=self.directory, godot="fixture", task_id="deadline",
+                                      result_file=self.report, suite=["active", "pending"],
+                                      jobs=1, timeout=60, budget=budget)
+
+            def stop(process):
+                cancelled_at.append(clock.now - 1000.0)
+                clock.advance(DEADLINE_CLEANUP_SECONDS)
+                process.returncode = 124
+
+            with mock.patch.object(runner.subprocess, "Popen", side_effect=lambda *a, **kw: Process()), \
+                    mock.patch.dict(run_suites.__globals__, stop_wrapper=stop):
+                report = run_suites(args, threading.Event(), clock=clock.monotonic, wait=clock.advance)
+            self.assertEqual(len(cancelled_at), 1)
+            self.assertAlmostEqual(cancelled_at[0], budget, delta=runner.POLL_SECONDS)
+            self.assertLessEqual(report["seconds"], budget + DEADLINE_CLEANUP_SECONDS + runner.POLL_SECONDS)
+            self.assertTrue(report["complete"] and report["failed"])
+            self.assertTrue(all(row["timed_out"] for row in report["results"]))
+            self.assertEqual(report["results"][1]["seconds"], 0)
+
+    def test_cancels_at_requested_deadline_with_bounded_cleanup(self):
+        self.assert_controlled_deadline(runner.run_suites)
+
+    def test_doubling_budget_fails_controlled_deadline_guard(self):
+        source = RUNNER.read_text()
+        original = "deadline = started + args.budget"
+        self.assertIn(original, source)
+        mutated = {"__file__": str(RUNNER), "__name__": "deadline_mutation"}
+        exec(compile(source.replace(original, original + " * 2", 1), str(RUNNER), "exec"), mutated)
+        with self.assertRaises(AssertionError):
+            self.assert_controlled_deadline(mutated["run_suites"])
+
     def test_parent_pipe_eof_cancels_children(self):
         cases = {"orphan_candidate": {"sleep": 60}}
         process = subprocess.Popen(self.command(cases, "--watch-parent-stdin"),
@@ -185,6 +251,41 @@ class ProgramSuiteRunnerTests(unittest.TestCase):
                                 text=True, capture_output=True, timeout=TEST_TIMEOUT_SECONDS)
         self.assertEqual(result.returncode, 2)
         self.assertIn("jobs must be 1..3", result.stderr)
+
+    @unittest.skipUnless(shutil.which("godot"), "Needs native headless Godot to resolve storage paths")
+    def test_children_resolve_distinct_user_storage_and_explicit_engine_logs(self):
+        project = self.directory / "project"
+        (project / "scripts").mkdir(parents=True)
+        (project / "tests").mkdir()
+        (project / "project.godot").write_text('config_version=5\n[application]\nconfig/name="Runner Isolation Test"\n')
+        shutil.copyfile(ROOT / "scripts/parallel_runtime.gd", project / "scripts/parallel_runtime.gd")
+        # Intentionally omit namespace initialization, as en02/en04 used to do.
+        (project / "tests/early_storage.gd").write_text('''extends SceneTree
+func _initialize() -> void:
+\tvar path: String = ProjectSettings.globalize_path("user://early-storage.json")
+\tFileAccess.open(path, FileAccess.WRITE).store_string("isolated")
+\tprint("EARLY STORAGE: " + path)
+\tquit(0)
+''')
+        command = self.command(["early_storage", "early_storage"])
+        command[command.index("--project") + 1] = str(project)
+        command[command.index("--godot") + 1] = str(Path(shutil.which("godot")).resolve())
+        result = subprocess.run(command, text=True, capture_output=True, timeout=TEST_TIMEOUT_SECONDS)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        resolved = []
+        for row in json.loads(self.report.read_text())["results"]:
+            log = Path(row["log_path"]).read_text()
+            paths = json.loads(re.search(r"^PROGRAM SUITE PATHS: (.+)$", log, re.M)[1])
+            storage = Path(re.search(r"^EARLY STORAGE: (.+)$", log, re.M)[1])
+            self.assertEqual(storage.read_text(), "isolated")
+            self.assertEqual(storage.parent, Path(paths["user_data"]))
+            self.assertEqual(Path(paths["user_file"]).parent, storage.parent)
+            self.assertEqual(paths["log_file"], row["engine_log_path"])
+            # Check the real Godot log, not just the requested environment path.
+            self.assertIn(paths["user_data"], Path(paths["log_file"]).read_text())
+            resolved.append(paths)
+        for field in ("user_data", "user_file", "log_file"):
+            self.assertEqual(len({row[field] for row in resolved}), 2, field)
 
     def run_godot_fixture(self, cases, timeout=5):
         command = [sys.executable, str(ROOT / "tools/godot_task_runner.py"), "--task-id", "qa-07",

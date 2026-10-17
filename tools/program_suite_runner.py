@@ -13,7 +13,7 @@ import sys
 import threading
 import time
 
-from godot_task_runner import TIMEOUT_RETURN_CODE, slugify
+from godot_task_runner import TIMEOUT_RETURN_CODE, slugify, terminate_windows_process_tree
 
 
 # Keep the historical order, including the static-facing additions that ran first.
@@ -34,12 +34,27 @@ POLL_SECONDS = 0.02
 WRAPPER_CLEANUP_SECONDS = 5.0
 
 
-def child_command(args: argparse.Namespace, suite: str, timeout: float) -> list[str]:
+def write_child_bootstrap(path: Path, suite: str) -> None:
+    # Inherit the standalone SceneTree so its lifecycle and awaits are unchanged.
+    # Namespace initialization precedes even suites that omit it themselves.
+    target = "res://tests/" + suite + ".gd"
+    path.write_text('''extends %s
+
+func _initialize() -> void:
+\tpreload("res://scripts/parallel_runtime.gd").apply_from_environment()
+\tvar log_path: String = OS.get_environment("LABYRINTH_GODOT_LOG_PATH")
+\tprint("PROGRAM SUITE PATHS: " + JSON.stringify({"user_data": OS.get_user_data_dir(), "user_file": ProjectSettings.globalize_path("user://program-suite-isolation.json"), "log_file": log_path}))
+\tawait super._initialize()
+''' % json.dumps(target))
+
+
+def child_command(args: argparse.Namespace, suite: str, timeout: float, bootstrap: Path, engine_log: Path) -> list[str]:
     command = [
         sys.executable, str(Path(__file__).with_name("godot_task_runner.py")),
         "--project", str(args.project), "--task-id", slugify(args.task_id + "-" + suite),
         "--timeout", str(timeout), "--stream", "--", args.godot,
-        "--headless", "--path", str(args.project), "--script", "res://tests/" + suite + ".gd",
+        "--log-file", str(engine_log), "--headless", "--path", str(args.project),
+        "--script", str(bootstrap),
     ]
     if suite == "sfx_sync_harness":
         command.extend(["--", "--assert-onsets"])
@@ -52,9 +67,12 @@ def write_report(path: Path, report: dict) -> None:
     temporary.replace(path)
 
 
-def stop_wrapper(process: subprocess.Popen) -> None:
+def stop_wrapper(process: subprocess.Popen, *, platform: str | None = None) -> None:
     # The wrapper handles TERM and cleans its own Godot session and descendants.
     if process.poll() is None:
+        if (platform or os.name) == "nt":
+            terminate_windows_process_tree(process)
+            return
         process.terminate()
         try:
             process.wait(timeout=WRAPPER_CLEANUP_SECONDS)
@@ -63,8 +81,9 @@ def stop_wrapper(process: subprocess.Popen) -> None:
             process.wait()
 
 
-def run_suites(args: argparse.Namespace, cancelled: threading.Event) -> dict:
-    started = time.monotonic()
+def run_suites(args: argparse.Namespace, cancelled: threading.Event, *, clock=time.monotonic, wait=None) -> dict:
+    wait = cancelled.wait if wait is None else wait
+    started = clock()
     deadline = started + args.budget
     suites = list(args.suite or SUITES)
     results: list[dict | None] = [None] * len(suites)
@@ -79,18 +98,19 @@ def run_suites(args: argparse.Namespace, cancelled: threading.Event) -> dict:
         results[index] = {
             "name": suites[index], "returncode": code, "seconds": round(elapsed, 3),
             "log_path": str(log_path), "timed_out": code == TIMEOUT_RETURN_CODE,
+            "engine_log_path": str(logs / ("%02d" % index) / "godot.log"),
             "reason": reason,
         }
 
     try:
         while next_index < len(suites) or active:
-            remaining = deadline - time.monotonic()
+            remaining = deadline - clock()
             if cancelled.is_set() or remaining <= 0:
                 reason = "parent interrupted" if cancelled.is_set() else "full suite budget exhausted"
                 for index, (process, log, child_start, log_path, _timeout) in list(active.items()):
                     stop_wrapper(process)
                     log.close()
-                    finish(index, TIMEOUT_RETURN_CODE, time.monotonic() - child_start, log_path, reason)
+                    finish(index, TIMEOUT_RETURN_CODE, clock() - child_start, log_path, reason)
                     del active[index]
                 for index in range(next_index, len(suites)):
                     log_path = logs / ("%02d-%s.log" % (index, slugify(suites[index])))
@@ -101,23 +121,27 @@ def run_suites(args: argparse.Namespace, cancelled: threading.Event) -> dict:
                 index = next_index
                 next_index += 1
                 log_path = logs / ("%02d-%s.log" % (index, slugify(suites[index])))
+                child_directory = logs / ("%02d" % index)
+                child_directory.mkdir(parents=True, exist_ok=True)
+                bootstrap = child_directory / (Path(suites[index]).name + ".gd")
+                write_child_bootstrap(bootstrap, suites[index])
                 log = log_path.open("w")
-                child_start = time.monotonic()
+                child_start = clock()
                 timeout = min(args.timeout, deadline - child_start)
                 try:
                     process = subprocess.Popen(
-                        child_command(args, suites[index], timeout), cwd=args.project,
+                        child_command(args, suites[index], timeout, bootstrap, child_directory / "godot.log"), cwd=args.project,
                         stdout=log, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL,
                     )
                 except OSError as exc:
                     log.write(str(exc) + "\n")
                     log.close()
-                    finish(index, 1, time.monotonic() - child_start, log_path, "launch failed")
+                    finish(index, 1, clock() - child_start, log_path, "launch failed")
                     continue
                 active[index] = (process, log, child_start, log_path, timeout)
             for index, (process, log, child_start, log_path, timeout) in list(active.items()):
                 code = process.poll()
-                elapsed = time.monotonic() - child_start
+                elapsed = clock() - child_start
                 reason = ""
                 if code is None and elapsed >= timeout + WRAPPER_CLEANUP_SECONDS:
                     stop_wrapper(process)
@@ -125,19 +149,19 @@ def run_suites(args: argparse.Namespace, cancelled: threading.Event) -> dict:
                     reason = "task wrapper timed out"
                 if code is not None:
                     log.close()
-                    finish(index, code, time.monotonic() - child_start, log_path, reason)
+                    finish(index, code, clock() - child_start, log_path, reason)
                     del active[index]
             state = (next_index, tuple(row is not None for row in results))
             if state != previous_state:
-                report["seconds"] = round(time.monotonic() - started, 3)
+                report["seconds"] = round(clock() - started, 3)
                 write_report(args.result_file, report)
                 previous_state = state
-            cancelled.wait(POLL_SECONDS)
+            wait(max(0.0, min(POLL_SECONDS, deadline - clock())))
     finally:
         for process, log, _start, _path, _timeout in active.values():
             stop_wrapper(process)
             log.close()
-    report.update(complete=True, seconds=round(time.monotonic() - started, 3),
+    report.update(complete=True, seconds=round(clock() - started, 3),
                   failed=any(row is None or row["returncode"] != 0 for row in results))
     write_report(args.result_file, report)
     return report
