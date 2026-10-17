@@ -290,7 +290,13 @@ func available_destinations() -> Array[Vector2i]:
 	return result
 
 func select_section(index: int) -> void:
-	if index > Graph.active_section(run_state):
+	if index < 0 or index > Graph.active_section(run_state):
+		return
+	# Like set_run_state, history selection may arrive before _ready builds the
+	# controls. Retain it for _ready's refresh without touching unbuilt tabs.
+	if not _built:
+		viewed_section = index
+		reset_interaction()
 		return
 	var restore_tab_focus: bool = false
 	for tab: Control in _tabs.get_children():
@@ -395,7 +401,6 @@ func _layout_nodes() -> void:
 	var remaining: Dictionary = node_buttons.duplicate()
 	var retained: Dictionary = {}
 	var info: Dictionary = Graph.section(run_state, viewed_section)
-	var count: int = int(info.get("room_count", 11))
 	var available: Array[Vector2i] = available_destinations()
 	var future: Dictionary = Graph.descendants(run_state, run_state.get("current_room", Graph.INVALID))
 	var positions: Dictionary = {}
@@ -404,12 +409,7 @@ func _layout_nodes() -> void:
 		if int(node.get("section_index", -1)) != viewed_section or not (bool(node.get("revealed", false)) or bool(node.get("map_outline", false)) or _has_recovery(node)):
 			continue
 		var coord: Vector2i = node.get("coord", Graph.INVALID)
-		var x: float = 80 + (_field.size.x - 204) * float(node.get("map_step", 0)) / float(count)
-		var lane_divisor: float = 3.0 if int(info.get("lane_count", 3)) == 4 else 2.0
-		var y: float = 116 + (_field.size.y - 232) * float(node.get("map_lane", 1)) / lane_divisor
-		var point := Vector2(x, y)
-		if Graph.modern(run_state) and str(node.get("type", "")) not in ["start", "boss"]:
-			point += _node_jitter(coord)
+		var point: Vector2 = _node_position(node, info, _field.size, Graph.modern(run_state))
 		positions[coord] = point
 		var button: Button = remaining.get(coord) as Button
 		var created: bool = button == null
@@ -469,9 +469,38 @@ func _layout_nodes() -> void:
 	if selected_coord != Graph.INVALID and node_buttons.has(selected_coord) and is_instance_valid(_preview):
 		_position_preview.call_deferred(selected_coord)
 
-func _node_jitter(coord: Vector2i) -> Vector2:
+static func _node_jitter(coord: Vector2i) -> Vector2:
 	var coord_hash: int = hash(coord)
 	return Vector2(coord_hash % 33 - 16, (coord_hash >> 8) % 25 - 12)
+
+# Revision 5 reserves the approved final 175px for the boss, leaving its centre
+# fixed. Earlier revisions retain their original column spacing and jitter.
+const NODE_BUTTON_EXTENT: float = 61.0
+const NODE_BUTTON_GAP: float = 8.0
+const BOSS_COLUMN_SEPARATION: float = 175.0
+
+static func _node_position(node: Dictionary, info: Dictionary, field_size: Vector2, modern_layout: bool) -> Vector2:
+	var count: int = int(info.get("room_count", 11))
+	var lanes: int = int(info.get("lane_count", 3))
+	var lane_divisor: float = float(lanes - 1)
+	var x_step: float = (field_size.x - 204) / float(count)
+	var y_step: float = (field_size.y - 232) / lane_divisor
+	var point := Vector2(80 + (field_size.x - 204) * float(node.get("map_step", 0)) / float(count), 116 + (field_size.y - 232) * float(node.get("map_lane", 1)) / lane_divisor)
+	var step: int = int(node.get("map_step", 0))
+	if lanes == 5 and step < count:
+		var boss_x: float = 80 + (field_size.x - 204)
+		x_step = (boss_x - BOSS_COLUMN_SEPARATION - 80) / float(count - 1)
+		point.x = 80 + x_step * float(step)
+	if modern_layout and str(node.get("type", "")) not in ["start", "boss"]:
+		var jitter: Vector2 = _node_jitter(node.get("coord", Graph.INVALID))
+		if lanes == 5:
+			var x_limit: float = maxf(0.0, (x_step - NODE_BUTTON_EXTENT * 2.0 - NODE_BUTTON_GAP) * 0.5)
+			var y_limit: float = maxf(0.0, (y_step - NODE_BUTTON_EXTENT * 2.0 - NODE_BUTTON_GAP) * 0.5)
+			jitter.x = clampf(jitter.x, -x_limit, x_limit)
+			if step == count - 1: jitter.x = minf(jitter.x, 0.0)
+			jitter.y = clampf(jitter.y, -y_limit, y_limit)
+		point += jitter
+	return point
 
 func _node_route_state(node: Dictionary, available: Array[Vector2i], future: Dictionary) -> String:
 	var coord: Vector2i = node.get("coord", Graph.INVALID)

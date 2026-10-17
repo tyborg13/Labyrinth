@@ -7,7 +7,7 @@ const DepthRules = preload("res://scripts/depth_rules.gd")
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
 const Elements = preload("res://scripts/element_data.gd")
 const VERSION: int = 1
-const LAYOUT_REVISION: int = 4
+const LAYOUT_REVISION: int = 5
 const Guardians = preload("res://scripts/guardian_library.gd")
 const ROOM_COUNTS: Array[int] = [10, 11, 11, 11, 11, 12]
 const FIGHT_COUNTS: Array[int] = [6, 6, 7, 7, 7, 7]
@@ -60,6 +60,16 @@ static func display_type(node: Dictionary) -> String:
 	return str(node.get("type", ""))
 
 static func initialize(state: Dictionary) -> void:
+	var revision: int = int(state.get("section_map_layout_revision", LAYOUT_REVISION))
+	if revision == 3:
+		_initialize_revision_3(state)
+	else:
+		_initialize_walk_revision(state, revision)
+
+static func _initialize_revision_4(state: Dictionary) -> void:
+	_initialize_walk_revision(state, 4)
+
+static func _initialize_walk_revision(state: Dictionary, revision: int) -> void:
 	var seed_value: int = int(state.get("seed", 0))
 	var rooms: Dictionary = {}
 	var sections: Array[Dictionary] = []
@@ -69,20 +79,23 @@ static func initialize(state: Dictionary) -> void:
 		var count: int = ROOM_COUNTS[index]
 		var boss_id: String = Bosses.boss_id_for_depth(seed_value, (index + 1) * 4)
 		var layout: Dictionary = {}
-		for attempt: int in range(SECTION_ATTEMPTS):
-			layout = _walk_layout(rng, count)
-			_prepare_types(layout, seed_value, index, count)
-			var repair: Dictionary = {"remaining": TYPE_REPAIR_LIMIT}
-			if _repair_types(layout, rng, count, FIGHT_COUNTS[index] - 1, 0, repair, state): break
-			layout = {}
-		if layout.is_empty():
-			layout = _fallback_layout(count, FIGHT_COUNTS[index] - 1)
+		if revision >= 5:
+			layout = _section_layout_v5(rng, seed_value, index, {}, state)
+		else:
+			for attempt: int in range(SECTION_ATTEMPTS):
+				layout = _walk_layout(rng, count)
+				_prepare_types(layout, seed_value, index, count)
+				var repair: Dictionary = {"remaining": TYPE_REPAIR_LIMIT}
+				if _repair_types(layout, rng, count, FIGHT_COUNTS[index] - 1, 0, repair, state): break
+				layout = {}
+			if layout.is_empty():
+				layout = _fallback_layout(count, FIGHT_COUNTS[index] - 1)
 		var entry: Vector2i = Vector2i.ZERO if index == 0 else Vector2i(-index * 4, 0)
 		var boss := Vector2i((index + 1) * 4, 0)
-		var info: Dictionary = {"index": index, "boss_id": boss_id, "title": Bosses.room_name_for_boss(boss_id), "entry": entry, "boss": boss, "room_count": count, "fight_count": FIGHT_COUNTS[index], "scouts": 2, "entered": false, "lane_count": 4, "walks": layout["walks"]}
+		var info: Dictionary = {"index": index, "boss_id": boss_id, "title": Bosses.room_name_for_boss(boss_id), "entry": entry, "boss": boss, "room_count": count, "fight_count": FIGHT_COUNTS[index], "scouts": 2, "entered": false, "lane_count": 5 if revision >= 5 else 4, "walks": layout["walks"]}
 		sections.append(info)
 		rooms[key(entry)] = _node(entry, index, 0, 1, index * 4, "start", "none")
-		rooms[key(entry)]["map_lane"] = 1.5
+		rooms[key(entry)]["map_lane"] = 2.0 if revision >= 5 else 1.5
 		var bands: Dictionary = _depth_bands(layout["rows"], index, count)
 		info["depth_bands"] = bands
 		var slots: Dictionary = {}
@@ -119,12 +132,12 @@ static func initialize(state: Dictionary) -> void:
 			if cell.x == count - 1: destinations.append(boss)
 			_link(rooms, ids[cell], destinations)
 		var boss_room: Dictionary = _node(boss, index, count, 1, (index + 1) * 4, "boss", Bosses.element_for_boss(boss_id))
-		boss_room["map_lane"] = 1.5
+		boss_room["map_lane"] = 2.0 if revision >= 5 else 1.5
 		boss_room["boss_id"] = boss_id
 		rooms[key(boss)] = boss_room
 		if index > 0: _link(rooms, Vector2i(index * 4, 0), _coords([entry]))
 	state["section_map_version"] = VERSION
-	state["section_map_layout_revision"] = LAYOUT_REVISION
+	state["section_map_layout_revision"] = revision
 	state["map_sections"] = sections
 	state["rooms"] = rooms
 	rooms[key(Vector2i.ZERO)].merge({"visited": true, "revealed": true, "map_outline": true}, true)
@@ -138,6 +151,336 @@ static func _weighted_roll(rng: RandomNumberGenerator, weights: Dictionary) -> S
 		roll -= int(weights[type])
 		if roll <= 0: return type
 	return str(weights.keys()[0])
+
+# Revision 5 generates structure independently of encounter assignment. Structural
+# samples are rejected before invoking the solver; only a proved-unsatisfiable
+# assignment consumes one of the 50 topology rerolls. No search-budget timeout
+# can silently substitute the canned topology.
+const V5_LANE_COUNT: int = 5
+const V5_WALK_COUNT: int = 6
+const V5_MOVE_WEIGHTS: Array[int] = [30, 40, 30]
+
+static func _section_layout_v5(rng: RandomNumberGenerator, seed_value: int, index: int, diagnostics: Dictionary = {}, depth_state: Dictionary = {}) -> Dictionary:
+	var count: int = ROOM_COUNTS[index]
+	for attempt: int in range(SECTION_ATTEMPTS):
+		var layout: Dictionary = _walk_layout_v5(rng, count, diagnostics)
+		_prepare_types(layout, seed_value, index, count)
+		var domains: Array = []
+		layout["positions"] = {}
+		for cell: Vector2i in layout["order"]:
+			layout["positions"][cell] = domains.size()
+			var candidates: Array[String] = []
+			if bool(layout["nodes"][cell]["fixed"]): candidates.append(layout["nodes"][cell]["type"])
+			else:
+				var weights: Dictionary = TYPE_WEIGHTS.duplicate()
+				weights["guardian"] = DepthRules.guardian_weight(depth_state, int(weights["guardian"]))
+				while not weights.is_empty():
+					var type: String = _weighted_roll(rng, weights)
+					candidates.append(type)
+					weights.erase(type)
+			domains.append(candidates)
+		var solved: bool = _solve_types_v5(layout, domains, count, FIGHT_COUNTS[index] - 1)
+		_diagnostic_v5(diagnostics, "solver_nodes", int(layout.get("solver_nodes", 0)))
+		if solved: return layout
+		_diagnostic_v5(diagnostics, "solver_unsatisfiable")
+	_diagnostic_v5(diagnostics, "fallback")
+	print("SECTION MAP V5 FALLBACK seed=%d section=%d after %d unsatisfiable topologies" % [seed_value, index + 1, SECTION_ATTEMPTS])
+	return _fallback_layout(count, FIGHT_COUNTS[index] - 1)
+
+static func _diagnostic_v5(diagnostics: Dictionary, reason: String, amount: int = 1) -> void:
+	if diagnostics.get("enabled", false): diagnostics[reason] = int(diagnostics.get(reason, 0)) + amount
+
+static func _walk_layout_v5(rng: RandomNumberGenerator, count: int, diagnostics: Dictionary = {}) -> Dictionary:
+	while true:
+		_diagnostic_v5(diagnostics, "structural_samples")
+		var openings: Array[int] = []
+		var available: Array[int] = []
+		available.assign([0, 1, 2, 3, 4])
+		for offset: int in range(OPENING_CHILD_COUNT): openings.append(available.pop_at(rng.randi_range(0, available.size() - 1)))
+		var walks: Array = []
+		var edges: Dictionary = {}
+		var masks: Array[int] = []
+		masks.resize(count)
+		var rejected: bool = false
+		for walk_index: int in range(V5_WALK_COUNT):
+			var lane: int = openings[walk_index] if walk_index < OPENING_CHILD_COUNT else openings[rng.randi_range(0, OPENING_CHILD_COUNT - 1)]
+			var walk: Array[int] = []
+			walk.append(lane)
+			masks[1] |= 1 << lane
+			for step: int in range(1, count - 1):
+				var moves: Dictionary = {}
+				var fixed_destination: int = -1
+				if step + 1 in [ceili(count / 2.0), count - 1] or (step == 1 and lane in [openings.min(), openings.max()]):
+					for existing: Vector2i in edges.get(step, []):
+						if existing.x == lane: fixed_destination = existing.y
+				for delta: int in range(-1, 2):
+					var target: int = clampi(lane + delta, 0, V5_LANE_COUNT - 1)
+					if fixed_destination >= 0 and target != fixed_destination: continue
+					var crossing: bool = false
+					for edge: Vector2i in edges.get(step, []): crossing = crossing or (lane - edge.x) * (target - edge.y) < 0
+					if not crossing: moves[str(target)] = int(moves.get(str(target), 0)) + V5_MOVE_WEIGHTS[delta + 1]
+				var next_lane: int = lane if moves.is_empty() else int(_weighted_roll(rng, moves))
+				if not edges.has(step): edges[step] = []
+				# Fixed rows and the entry's outer physical thresholds each permit
+				# only one onward edge. Reuse it as a structural legal-move rule.
+				var edge := Vector2i(lane, next_lane)
+				if not edges[step].has(edge): edges[step].append(edge)
+				walk.append(next_lane)
+				masks[step + 1] |= 1 << next_lane
+				lane = next_lane
+			walks.append(walk)
+		var wide: bool = false
+		var repeated: int = 0
+		for step: int in range(1, count):
+			var width: int = 0
+			for lane: int in range(V5_LANE_COUNT): width += int((masks[step] & (1 << lane)) != 0)
+			if width < 2: rejected = true
+			wide = wide or width >= 4
+			repeated = repeated + 1 if step > 1 and masks[step] == masks[step - 1] else 1
+			if repeated > 3: rejected = true
+		if rejected or not wide: continue
+		var layout: Dictionary = _layout_from_walks(walks, count)
+		if _structure_legal_v5(layout, count): return layout
+	return {}
+
+static func _structure_legal_v5(layout: Dictionary, count: int) -> bool:
+	var wide: bool = false
+	var previous: Array = []
+	var repeated: int = 0
+	for step: int in range(1, count):
+		var row: Array = layout["rows"][step]
+		if row.size() < 2 or row.size() > V5_LANE_COUNT: return false
+		wide = wide or row.size() >= 4
+		repeated = repeated + 1 if row == previous else 1
+		if repeated > 3: return false
+		previous = row
+	if not wide: return false
+	for children: Array in layout["children"].values():
+		if children.size() >= 2 and int(children[0].x) in [ceili(count / 2.0), count - 1]: return false
+	if not _physical_doors_legal(layout): return false
+	return _long_divergence_v5(layout)
+
+static func _long_divergence_v5(layout: Dictionary) -> bool:
+	# A pair of generating walks witnesses divergence when possible. The walks
+	# cover every edge, so dynamic programming also includes their recombinations.
+	var pairs: Dictionary = {}
+	for a: int in layout["rows"][1]:
+		for b: int in layout["rows"][1]: pairs[Vector2i(a, b)] = int(a != b)
+	for step: int in range(1, layout["rows"].size()):
+		var next: Dictionary = {}
+		for pair: Vector2i in pairs:
+			for a: Vector2i in layout["children"].get(Vector2i(step, pair.x), []):
+				for b: Vector2i in layout["children"].get(Vector2i(step, pair.y), []):
+					var length: int = int(pairs[pair]) + 1 if a != b else 0
+					if length >= 4: return true
+					var lanes := Vector2i(a.y, b.y)
+					next[lanes] = maxi(int(next.get(lanes, 0)), length)
+		pairs = next
+	return false
+
+static func _solve_types_v5(layout: Dictionary, domains: Array, count: int, fights: int) -> bool:
+	layout["solver_nodes"] = int(layout.get("solver_nodes", 0)) + 1
+	if not _propagate_types_v5(layout, domains, count, fights): return false
+	# Branch on unmet section cardinalities before assigning unrelated rooms.
+	# This is exhaustive: every solution contains a witness for each required
+	# Guardian/Scavenger. Seeded candidate permutations order those witnesses.
+	for required: String in ["guardian", "scavenger"]:
+		var assigned: int = 0
+		var witnesses: Array[int] = []
+		for offset: int in range(domains.size()):
+			if domains[offset].size() == 1 and domains[offset][0] == required: assigned += 1
+			elif domains[offset].has(required): witnesses.append(offset)
+		if assigned >= (2 if required == "guardian" else 1): continue
+		witnesses.sort_custom(func(a: int, b: int) -> bool: return domains[a].find(required) < domains[b].find(required))
+		for witness: int in witnesses:
+			var branch: Array = domains.duplicate(true)
+			branch[witness] = [required]
+			if _solve_types_v5(layout, branch, count, fights): return true
+		return false
+	# Decide fight membership before equivalent service colours. Otherwise an
+	# impossible route-count pattern is rediscovered for every Event/Scavenger/
+	# Graftwright permutation. Both partitions retain their seeded type order.
+	for offset: int in range(domains.size()):
+		var cell: Vector2i = layout["order"][offset]
+		var fight_types: Array[String] = []
+		var other_types: Array[String] = []
+		for type: String in domains[offset]:
+			if _type_is_fight_v5(type, layout["nodes"][cell]): fight_types.append(type)
+			else: other_types.append(type)
+		if fight_types.is_empty() or other_types.is_empty(): continue
+		var partitions: Array = [fight_types, other_types] if _type_is_fight_v5(domains[offset][0], layout["nodes"][cell]) else [other_types, fight_types]
+		for partition: Array in partitions:
+			var branch: Array = domains.duplicate(true)
+			branch[offset] = partition
+			if _solve_types_v5(layout, branch, count, fights): return true
+		return false
+	var choice: int = -1
+	for offset: int in range(domains.size()):
+		if domains[offset].size() > 1 and (choice < 0 or domains[offset].size() < domains[choice].size()): choice = offset
+	if choice < 0:
+		for offset: int in range(domains.size()):
+			var cell: Vector2i = layout["order"][offset]
+			layout["nodes"][cell]["type"] = domains[offset][0]
+			_prefix_bounds(layout, cell)
+		return _complete_types_legal(layout, count, fights)
+	for type: String in domains[choice]:
+		var branch: Array = domains.duplicate(true)
+		branch[choice] = [type]
+		if _solve_types_v5(layout, branch, count, fights): return true
+	return false
+
+static func _type_is_fight_v5(type: String, node: Dictionary) -> bool:
+	return type in ["combat", "guardian"] or (type == "mystery" and node["mystery_type"] == "combat")
+
+static func _propagate_types_v5(layout: Dictionary, domains: Array, count: int, fights: int) -> bool:
+	var changed: bool = true
+	while changed:
+		changed = false
+		var contributions: Dictionary = {}
+		for offset: int in range(domains.size()):
+			var cell: Vector2i = layout["order"][offset]
+			var values: Array[int] = []
+			values.assign([1, 0, 1, 0])
+			for type: String in domains[offset]:
+				var fight: int = int(type in ["combat", "guardian"] or (type == "mystery" and layout["nodes"][cell]["mystery_type"] == "combat"))
+				var service: int = int(type in ["scavenger", "graftwright", "event"] or (type == "mystery" and layout["nodes"][cell]["mystery_type"] != "combat"))
+				values[0] = mini(values[0], fight)
+				values[1] = maxi(values[1], fight)
+				values[2] = mini(values[2], int(type == "guardian"))
+				values[3] = maxi(values[3], service)
+			contributions[cell] = values
+		var before: Dictionary = _route_bounds_v5(layout, contributions, false)
+		var after: Dictionary = _route_bounds_v5(layout, contributions, true)
+		for offset: int in range(domains.size()):
+			var cell: Vector2i = layout["order"][offset]
+			var candidates: Array = domains[offset]
+			var legal: Array[String] = []
+			for type: String in candidates:
+				if type == "guardian" and (cell.x < 3 or cell.x > count - 3): continue
+				if type == "scavenger" and cell.x < 3: continue
+				if type == "graftwright" and int(before[cell][0]) < 3: continue
+				var fight: int = int(type in ["combat", "guardian"] or (type == "mystery" and layout["nodes"][cell]["mystery_type"] == "combat"))
+				var service: int = int(type in ["scavenger", "graftwright", "event"] or (type == "mystery" and layout["nodes"][cell]["mystery_type"] != "combat"))
+				if int(before[cell][0]) + fight + int(after[cell][0]) < fights - 1: continue
+				if int(before[cell][1]) + fight + int(after[cell][1]) > fights + 1: continue
+				if int(before[cell][2]) + int(type == "guardian") + int(after[cell][2]) > 1: continue
+				if int(before[cell][3]) + service + int(after[cell][3]) < 1: continue
+				if not _local_type_possible_v5(layout, domains, cell, type): continue
+				legal.append(type)
+			domains[offset] = legal
+			if legal.is_empty(): return false
+			changed = changed or legal.size() < candidates.size()
+		for required: String in ["guardian", "scavenger"]:
+			var slots: Array[int] = []
+			for offset: int in range(domains.size()):
+				if domains[offset].has(required): slots.append(offset)
+			var minimum: int = 2 if required == "guardian" else 1
+			if slots.size() < minimum: return false
+			if slots.size() == minimum:
+				for offset: int in slots:
+					changed = changed or domains[offset].size() != 1
+					domains[offset] = [required]
+		if not _types_possible_v5(layout, domains, count, fights): return false
+	return true
+
+static func _local_type_possible_v5(layout: Dictionary, domains: Array, cell: Vector2i, type: String) -> bool:
+	if type in ["guardian", "scavenger", "graftwright", "campfire", "treasure"]:
+		for neighbor: Vector2i in layout["parents"].get(cell, []) + layout["children"].get(cell, []):
+			var domain: Array = domains[layout["positions"][neighbor]]
+			if domain.size() == 1 and domain[0] == type: return false
+	for parent: Vector2i in layout["parents"].get(cell, []):
+		var siblings: Array = layout["children"][parent]
+		if type == "combat" and siblings.size() == 3: continue
+		for sibling: Vector2i in siblings:
+			if sibling == cell: continue
+			var domain: Array = domains[layout["positions"][sibling]]
+			if domain.size() == 1 and domain[0] == type: return false
+	return true
+
+static func _route_bounds_v5(layout: Dictionary, contributions: Dictionary, reverse: bool) -> Dictionary:
+	var result: Dictionary = {}
+	var totals: Dictionary = {}
+	var order: Array = layout["order"].duplicate()
+	if reverse: order.reverse()
+	for cell: Vector2i in order:
+		var neighbors: Array = layout["children" if reverse else "parents"].get(cell, [])
+		var values: Array[int] = []
+		values.assign([999, 0, 0, 999])
+		for neighbor: Vector2i in neighbors:
+			values[0] = mini(values[0], totals[neighbor][0])
+			values[1] = maxi(values[1], totals[neighbor][1])
+			values[2] = maxi(values[2], totals[neighbor][2])
+			values[3] = mini(values[3], totals[neighbor][3])
+		if neighbors.is_empty(): values.assign([0, 0, 0, 0])
+		result[cell] = values
+		totals[cell] = [values[0] + contributions[cell][1], values[1] + contributions[cell][0], values[2] + contributions[cell][2], values[3] + contributions[cell][3]]
+	return result
+
+static func _types_possible_v5(layout: Dictionary, domains: Array, count: int, fights: int) -> bool:
+	# For partial assignments, propagate both extremal bounds over EVERY route.
+	# A minimum of possible maxima and maximum of mandatory minima prove a
+	# contradiction without enumerating routes or exhausting an arbitrary budget.
+	var bounds: Dictionary = {}
+	var guardian_slots: int = 0
+	var scavenger_slots: int = 0
+	var bypass: bool = false
+	for offset: int in range(domains.size()):
+		var cell: Vector2i = layout["order"][offset]
+		var domain: Array = domains[offset]
+		var node: Dictionary = layout["nodes"][cell]
+		var min_fight: int = 1
+		var max_fight: int = 0
+		var min_guardian: int = 1
+		var max_service: int = 0
+		for type: String in domain:
+			if type == "guardian" and (cell.x < 3 or cell.x > count - 3):
+				if domain.size() == 1: return false
+				continue
+			if type == "scavenger" and cell.x < 3:
+				if domain.size() == 1: return false
+				continue
+			var is_fight: bool = type in ["combat", "guardian"] or (type == "mystery" and node["mystery_type"] == "combat")
+			min_fight = mini(min_fight, int(is_fight))
+			max_fight = maxi(max_fight, int(is_fight))
+			min_guardian = mini(min_guardian, int(type == "guardian"))
+			max_service = maxi(max_service, int(type in ["scavenger", "graftwright", "event"] or (type == "mystery" and node["mystery_type"] != "combat")))
+		guardian_slots += int(domain.has("guardian") and cell.x >= 3 and cell.x <= count - 3)
+		scavenger_slots += int(domain.has("scavenger") and cell.x >= 3)
+		var upper_min: int = 999
+		var lower_max: int = 0
+		var guardian_max: int = 0
+		var guardian_min: int = 999
+		var service_min: int = 999
+		var parents: Array = layout["parents"].get(cell, [])
+		for parent: Vector2i in parents:
+			var prefix: Array = bounds[parent]
+			upper_min = mini(upper_min, prefix[0])
+			lower_max = maxi(lower_max, prefix[1])
+			guardian_max = maxi(guardian_max, prefix[2])
+			guardian_min = mini(guardian_min, prefix[3])
+			service_min = mini(service_min, prefix[4])
+			var parent_domain: Array = domains[layout["positions"][parent]]
+			if domain.size() == 1 and parent_domain.size() == 1 and domain[0] in ["guardian", "scavenger", "graftwright", "campfire", "treasure"] and domain[0] == parent_domain[0]: return false
+		if parents.is_empty():
+			upper_min = 0
+			guardian_min = 0
+			service_min = 0
+		if domain.size() == 1 and domain[0] == "graftwright" and upper_min < 3: return false
+		var current: Array = [upper_min + max_fight, lower_max + min_fight, guardian_max + min_guardian, guardian_min + min_guardian, service_min + max_service]
+		bounds[cell] = current
+		if int(current[2]) > 1 or int(current[1]) > fights + 1: return false
+		if cell.x == count - 1:
+			if int(current[0]) < fights - 1 or int(current[4]) < 1: return false
+			bypass = bypass or int(current[3]) == 0
+		var children: Array = layout["children"].get(cell, [])
+		var assigned: Dictionary = {}
+		for child: Vector2i in children:
+			var child_domain: Array = domains[layout["positions"][child]]
+			if child_domain.size() != 1: continue
+			var type: String = child_domain[0]
+			if assigned.has(type) and not (type == "combat" and children.size() == 3): return false
+			assigned[type] = true
+	return guardian_slots >= 2 and scavenger_slots >= 1 and bypass
 
 static func _walk_layout(rng: RandomNumberGenerator, count: int) -> Dictionary:
 	for attempt: int in range(TOPOLOGY_ATTEMPTS):

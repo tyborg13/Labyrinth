@@ -3,6 +3,7 @@ const MapPanel = preload("res://scripts/section_map_panel.gd")
 const Reference = preload("res://tests/fixtures/section_map_panel_reference.gd")
 const RunEngineScript = preload("res://scripts/run_engine.gd")
 const Graph = preload("res://scripts/section_map_graph.gd")
+const LegacyMapSuite = preload("res://tests/suites/section_map_v2_suite.gd")
 const Progression = preload("res://scripts/progression_store.gd")
 const Settings = preload("res://scripts/settings_store.gd")
 const Parallel = preload("res://scripts/parallel_runtime.gd")
@@ -29,7 +30,7 @@ func _run() -> void:
 	await _settle()
 	var engine := RunEngineScript.new()
 	for seed: int in [81, 90429, 84217]:
-		var state: Dictionary = engine.create_new_run(seed, Progression.default_data())
+		var state: Dictionary = LegacyMapSuite._revision4_run(engine, seed, Progression.default_data())
 		await _compare(state)
 		var first_ids: Dictionary = _identities()
 		for mode: String in ["pre_battle", "combat", "room"]:

@@ -13,12 +13,14 @@ static func run(expect: Callable) -> void:
 	var engine := RunEngineScript.new()
 	# Preserve the original revision-3 assertions against the retained generator.
 	# The dedicated suite below independently verifies the revision-4 contract.
+	# Build the engine fixture without a current map, then generate revision 3
+	# directly rather than constructing and immediately discarding revision 5.
 	var signatures: Dictionary = {}
 	for seed: int in range(1, 33):
-		var state: Dictionary = engine.create_new_run(seed, Progression.default_data())
+		var state: Dictionary = engine.create_new_run(seed, Progression.default_data(), false)
 		Graph._initialize_revision_3(state)
 		expect.call(Graph.enabled(state), "New runs use the saved section graph")
-		var again: Dictionary = engine.create_new_run(seed, Progression.default_data())
+		var again: Dictionary = engine.create_new_run(seed, Progression.default_data(), false)
 		Graph._initialize_revision_3(again)
 		expect.call(state == again, "Graph, discoveries and boss order are deterministic")
 		signatures[hash(state.get("rooms"))] = true
@@ -63,6 +65,8 @@ static func run(expect: Callable) -> void:
 	_test_recovery_keeps_landmark_encounters(engine, expect)
 	_test_recovery_pile_lands_on_empty_floor(engine, expect)
 	preload("res://tests/suites/section_map_v2_suite.gd").run(expect)
+	var revision5_suite = preload("res://tests/suites/section_map_v5_suite.gd")
+	revision5_suite.run(expect, revision5_suite.FULL_SUITE_LEGACY_SEED_COUNT)
 
 static func _test_local_routes(state: Dictionary, index: int, node_count: int, expect: Callable) -> void:
 	var entry: Vector2i = Graph.section(state, index).get("entry")
