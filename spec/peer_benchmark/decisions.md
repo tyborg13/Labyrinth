@@ -119,3 +119,15 @@
   Cutout seams use per-joint seam underlays instead: a thin band along each joint, painted from the parent, drawn
   beneath all parts and attached to the parent. The gate is no background inside the rest silhouette (eroded 1 px).
   Natural negative space outside the silhouette is allowed; underlay protrusion is limited to ≤ 2 px.
+- 2026-10-17 Typed-array rule as applied: typed declarations with literal initializers (`var x: Array[T] = []` or
+  `= [a, b]`) are established practice (~1,200 on master) and allowed. The Windows hazard forms that must be fixed
+  are conditional branches producing untyped literals, and bare-literal assignment to an already declared typed
+  variable.
+- 2026-10-17 Legacy saves without a recorded dragon reward summary: the re-shown reward screen omits the unknown
+  Ember/Moltshard lines. No placeholder text ever reaches players.
+- 2026-10-17 rr-05 acceptance (final): blocking = no detached pieces, feature integrity, zero shimmer, rest identity,
+  native agreement. Seam tear, protrusion and negative-space measures are report-only (some poses can't satisfy both
+  constraints). The director judges the native clip by eye.
+- 2026-10-17 AMENDED typed-array rule (reviewers read AGENTS.md strictly): new code declares empty typed arrays
+  without a literal (`var x: Array[T]`) and builds non-empty ones with typed helpers or append/assign. Existing
+  declarations with literal initializers on master stay untouched (no mass rewrite). Reviews flag new violations only.
