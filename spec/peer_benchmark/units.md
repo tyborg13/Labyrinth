@@ -71,7 +71,7 @@
 | cbt-01 | "Stay" on move-and-block cards (own tile as destination) + Immolation innate 3 to adjacent (score 2.24→3.00) | accepted (Codex signoff 163ccf890); merge after qa-07 lands (suite budget) | codex/peer-benchmark | briefs/cbt-01.md |
 | flow-01 | Automatic next section after the dragon reward + descent/title-card transition (no map step) | running (launched before boon-01/map-02 land; director merges them in) | codex/peer-benchmark | briefs/flow-01.md |
 | rr-06 | Frostglass Lancer cutout rig from the Blender-native maquette (director motion staged/rr-06) | ready (launch after mq-03 + rr-05 land) | codex/peer-benchmark | briefs/rr-06.md |
-| qa-07 | Full Godot suite under budget with headroom: profile + parallel program sub-suites (target ≤ 450 s) | review r2 (fixes committed; ~327 s x3; Codex delta review running) | codex/peer-benchmark | briefs/qa-07.md |
+| qa-07 | Full Godot suite under budget with headroom: profile + parallel program sub-suites (target ≤ 450 s) | fixing r2 queued (delta review: presentation program flake under load, Windows Job Object, 2 guards) | codex/peer-benchmark | briefs/qa-07.md |
 | mq-04 | Fitted Blender maquettes, roster wave 1 batch A (Hoarfrost Seer, Gale Herald, Arc Thrall, Gloam Stalker); approved art kept | fixing r1 (bridge timeout clarified; per-view banner cloth) | codex/peer-benchmark | briefs/mq-04.md |
 | qa-08 | Orphaned supplemental tests: skill_progression_analytics failing (root cause), audit + wire orphans into the suite, guard test | running | codex/peer-benchmark | briefs/qa-08.md |
 | anim-01/anim-02 | Static enemy mesh-warp idle | shelved (owner: ripple + bird bounce rejected) | — | feedback.md 2026-10-15 |
