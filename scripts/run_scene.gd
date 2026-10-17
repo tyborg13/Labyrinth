@@ -15987,8 +15987,10 @@ func _add_dragon_reward_stack() -> void:
 	if next_descent:
 		_dragon_reward_label(content, "DragonRewardGift", "Begin your next run with this relic. It lasts for that run.", UiTypography.SIZE_BODY, Color("cfc5dd"))
 	content.add_child(HSeparator.new())
-	_dragon_reward_label(content, "DragonRewardPayout", "+%d Embers    ·    +%d HP recovered" % [int(reward.get("ember_amount", 0)), int(reward.get("healed_amount", 0))], UiTypography.SIZE_BODY_LARGE, Color("f4d598"))
-	_dragon_reward_label(content, "DragonRewardShard", "+1 Moltshard · First dragon defeated this run" if int(reward.get("moltshards", 0)) > 0 else "First-dragon Moltshard already earned this run", UiTypography.SIZE_BODY, Color("cfc5dd"))
+	var payout_text: String = str(reward.get("payout_text", "+%d Embers    ·    +%d HP recovered" % [int(reward.get("ember_amount", 0)), int(reward.get("healed_amount", 0))]))
+	var shard_text: String = str(reward.get("shard_text", "+1 Moltshard · First dragon defeated this run" if int(reward.get("moltshards", 0)) > 0 else "First-dragon Moltshard already earned this run"))
+	_dragon_reward_label(content, "DragonRewardPayout", payout_text, UiTypography.SIZE_BODY_LARGE, Color("f4d598"))
+	_dragon_reward_label(content, "DragonRewardShard", shard_text, UiTypography.SIZE_BODY, Color("cfc5dd"))
 	var button: UiTooltipButton = _reward_secondary_button("DragonRewardContinue", "COMPLETE ASCENT" if bool(reward.get("final_boss", false)) else "CONTINUE", _on_dragon_reward_continue, "Your rewards have been saved.")
 	stack.add_child(button)
 	if _controller_is_active(): button.call_deferred("grab_focus")
@@ -16067,11 +16069,14 @@ func _begin_section_transition(entry: String) -> void:
 	if is_instance_valid(_section_transition): return
 	var destination: Vector2i = _start_room_map.next_section_destination(_run_state, _run_engine)
 	if destination == SectionMapGraph.INVALID: return
+	if preload("res://scripts/section_transition_reward.gd").migrate(_run_state):
+		_persist_committed_boundary("section_transition_reward_migrated")
 	_section_transition = preload("res://scripts/section_transition.gd").new()
 	add_child(_section_transition)
 	_section_transition.begin(self, destination, entry)
 
 func _enter_section_from_transition(destination: Vector2i, entry: String) -> bool:
+	if destination == SectionMapGraph.INVALID or destination != _start_room_map.next_section_destination(_run_state, _run_engine): return false
 	var next: Dictionary = _start_room_map.transition_entry(_run_state, _run_engine, destination, entry)
 	if next.get("current_room") != destination: return false
 	var result: Dictionary = _persist_run_state_snapshot(next, false, "section_transition")

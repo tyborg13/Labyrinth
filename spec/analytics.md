@@ -747,6 +747,11 @@ An entry-save failure returns to the post-claim dragon reward screen and emits
 no `section_entered` event. CONTINUE retries presentation without staging a
 second `reward_claimed` receipt. A quit/resume retry uses `resume_transition` on
 its eventual successful entry.
+Older cleared-boss saves migrate their already-claimed presentation summary
+before descent. Matching local `reward_offered` records supply historical reward
+totals when available. This migration neither replays a grant/claim nor rewrites
+the append-only event history; destination entry still uses the same saved
+`resume_transition` receipt.
 
 Authored event choices commit their result page and effects with the saved
 `map_event_resolved` receipt. Concrete outcomes include actual resource deltas,

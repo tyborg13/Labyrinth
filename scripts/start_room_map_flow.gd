@@ -68,7 +68,11 @@ func allows_auto_open(host: Node) -> bool:
 # A claimed dragon milestone is already durable in the cleared boss room.
 # Resume uses the same destination check without consuming/reissuing rewards.
 static func next_section_destination(state: Dictionary, engine: RefCounted) -> Vector2i:
-	var claimed: Dictionary = Transition.claimed_state(state) if state.has(Transition.CLAIMED_REWARD_KEY) else state
+	# Recover saves written after the older failure path had already restored an
+	# empty reward screen. The cleared-boss and unentered-section gates below
+	# still validate the actual continuation before any migration or movement.
+	var empty_reward: bool = str(state.get("mode", "")) == "reward" and (state.get("pending_reward", {}) as Dictionary).is_empty()
+	var claimed: Dictionary = Transition.claimed_state(state) if state.has(Transition.CLAIMED_REWARD_KEY) or empty_reward else state
 	if not Graph.enabled(claimed) or str(claimed.get("mode", "")) != "room": return Graph.INVALID
 	var current: Dictionary = Graph.room(state, state.get("current_room", Graph.INVALID))
 	if str(current.get("type", "")) != "boss" or not bool(current.get("cleared", false)): return Graph.INVALID
@@ -79,7 +83,7 @@ static func next_section_destination(state: Dictionary, engine: RefCounted) -> V
 	return destination if engine.available_moves(claimed).has(destination) else Graph.INVALID
 
 static func transition_entry(state: Dictionary, engine: RefCounted, destination: Vector2i, entry: String) -> Dictionary:
-	if destination != next_section_destination(state, engine): return state.duplicate(true)
+	if destination == Graph.INVALID or destination != next_section_destination(state, engine): return state.duplicate(true)
 	var next: Dictionary = engine.move_to_room(Transition.claimed_state(state), destination)
 	next.erase(Transition.CLAIMED_REWARD_KEY)
 	# Annotate the newly staged event before the normal save/JSONL boundary.

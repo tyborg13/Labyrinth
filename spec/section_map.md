@@ -164,8 +164,14 @@ available event choice and returns to route selection after completion. Event
 card offers continue through the existing reward chooser. See [events.md](events.md).
 
 Section tabs allow reviewing reached sections with discovered history intact.
-A cleared boss exposes Next section in the header, including after reopening;
-controller focus starts on that action. Future tabs are disabled and do not
+After a non-final dragon reward, CONTINUE automatically descends to the next
+section's entry room through the section title transition, without an
+intervening map action. Its normal entry-room map handoff follows arrival.
+Loading a cleared boss room whose next section has not been entered replays
+the transition. An entry-save failure reverses to the already-claimed reward
+screen, where CONTINUE retries without granting rewards again. The final
+dragon's COMPLETE ASCENT retains its existing completion path.
+Future tabs are disabled and do not
 disclose the future boss order. History cannot travel or spend the active
 section's Scout uses. Switching sections restores focus to the rebuilt tab.
 The user-approved round bronze section seals are preserved. Up/down navigation

@@ -18,7 +18,7 @@ var failures: Array[String]
 var events: Array[Dictionary]
 var done: bool = false
 var start_frame: int
-var pointer_mode: Input.MouseMode
+const CURSOR_SUPPRESSION_OWNER: String = "section_transition_demo"
 
 func _ready() -> void:
 	preload("res://scripts/parallel_runtime.gd").apply_from_environment()
@@ -108,12 +108,11 @@ func _run() -> void:
 		_finish()
 		return
 	_mark("continue")
-	pointer_mode = Input.mouse_mode
-	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+	_set_cursor_suppressed(true)
 	transition.arrived.connect(func() -> void: _mark("arrival"))
 	while not done and is_instance_valid(scene.get("_section_transition")): await get_tree().process_frame
 	if done: return
-	Input.mouse_mode = pointer_mode
+	_set_cursor_suppressed(false)
 	_mark("transition_finished")
 	await _frames(roundi(float(config["defaults"]["tail_s"]) * Clock.FPS))
 	if scene.get("_run_state")["current_room"] != Graph.section(scene.get("_run_state"), 1)["entry"]: failures.append("Clip must end two seconds into Section II's entry room")
@@ -139,4 +138,9 @@ func _finish() -> void:
 	get_tree().quit(0 if failures.is_empty() else 1)
 
 func _exit_tree() -> void:
+	_set_cursor_suppressed(false)
 	clock.bank = null
+
+func _set_cursor_suppressed(suppressed: bool) -> void:
+	var feedback: Node = get_node_or_null("/root/CursorFeedback")
+	if feedback != null: feedback.call("set_glyph_visibility_suppressed", CURSOR_SUPPRESSION_OWNER, suppressed)

@@ -71,6 +71,56 @@ these fixes. The updated probe has **14** captures: the original ten plus
 normal/reduced reverse-fade midpoint and restored-reward samples. Fresh native
 capture is assigned to the director because this worker has no window server.
 
+## Director feedback 2
+
+The supplied review was read from local repository history at
+`a76c2bbdeb388e5f414a4af23e35e026adf678cc:spec/peer_benchmark/feedback/flow-01_review_cf9d7737a.md`;
+the current worktree's starting HEAD is `cf9d7737a`. No review, commit or
+publication was run by this worker.
+
+1. `section_transition_reward.gd` migrates old cleared-boss saves before descent,
+   preserving known boss/relic identities and reading exact historical payout
+   totals from the matching local `reward_offered` milestone. It only writes
+   presentation metadata; it does not invoke combat resolution, grants or claim
+   transactions. Previously saved empty reward screens are also recognized.
+   Fourteen live recovery cases cover new saves, old saves with/without an
+   archived offer, and already-broken empty reward saves; they cover retry,
+   fresh-scene quit/resume and both motion settings.
+2. Test-only instrumentation counts real music `.play()` calls, destination-save
+   attempts and claim transactions. Arrival/playback assertions run after the
+   complete reveal, deferred callbacks and an audio settling interval. Exact
+   failure copy is compared to the independently specified literal. Tests
+   explicitly reject already-entered sections and invalid destinations without
+   forwarding movement or attempting persistence. Five in-memory mutation
+   flags exercise the four requested guards and notice punctuation; checkout
+   sources and assertions are never rewritten by mutation runs.
+3. `section_map_review_probe.gd` now reaches a real dragon reward, acknowledges
+   it with pointer input, checks automatic arrival and then exercises history
+   tab/node inspection, keyboard/controller focus and active Scout preservation.
+   It contains no references to the removed onward control. The two-choice
+   assertion is preserved by selecting an actual generated two-choice fork.
+   Existing recovery-fog assertions are preserved using Section VI, where
+   revision 5's fog applies. `spec/section_map.md` documents automatic advance.
+4. Both the game transition and demo use the existing cursor-glyph suppression
+   API. Independent ownership keys preserve other suppressors. Completion,
+   cancellation and tree exit restore this transition's suppression; tests
+   cover those lifecycles. The demo restores its own suppression on completion
+   and exit as well.
+
+Historical-data design gap: when an old save has no summary **and** its local
+offer event is unavailable, the original Embers/healing/Moltshard deltas no
+longer exist. No replacement numbers are invented. The working reward screen
+currently uses `TODO_DESIGN_LEGACY_REWARD_PAYOUT` and
+`TODO_DESIGN_LEGACY_REWARD_SHARDS` in data fields `payout_text` and `shard_text`.
+A fallback presentation clarification was requested asynchronously; these
+placeholders remain until the design owner supplies that decision.
+
+The main native contract now requires 18 named captures: the prior 14 plus
+normal/reduced legacy-save reversal and restored-reward samples. Its existing
+minimum-image floor is unchanged; all 18 required patterns are enforced.
+The updated map review contract requires 14 captures. No fresh windowed run
+was attempted by this worker.
+
 ## Proof for the design owner
 
 Run from the final merged implementation. Use fresh output/receipt paths if any
@@ -78,22 +128,23 @@ of these paths already exist. The native movie wrapper uses the existing demo
 capture settings, GUI lease, disk guard, renderer verification and ffmpeg tools.
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/visual_probe_runner.py --task-id flow-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/section_transition.json --result-manifest /private/tmp/flow-01-owner-feedback1-proof.json tests/section_transition_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/visual_probe_runner.py --task-id flow-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/section_transition.json --result-manifest /private/tmp/flow-01-owner-feedback2-proof.json tests/section_transition_probe.gd
+cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/visual_probe_runner.py --task-id flow-01 --no-headless --display-driver macos --audio-driver Dummy --expect-size 1920x1080 --proof-contract tests/proof_contracts/section_map_review.json --result-manifest /private/tmp/flow-01-owner-feedback2-map-review-proof.json tests/section_map_review_probe.gd
 ```
 
 This emits the requested 0.3, 0.9, 1.5, 2.4 and 3.0s strip, reduced-motion
-captures, Section VI and four save-failure recovery images. Images and `timeline.json` are in the isolated
+captures, Section VI and eight save-failure recovery images. Images and `timeline.json` are in the isolated
 `user://probes/section_transition/`; the proof receipt lists absolute PNG paths.
 The probe draws the real scene and overlay at exact presentation times; it
 does not substitute a mockup or generated art. Independently inspect the images
 at 1920×1080, 100% UI scale. Windowed capture/judging remains pending.
 
 ```sh
-cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/demo_clips/section_transition.py validate --output /private/tmp/flow-01-owner-feedback1-demo-validation
-cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/demo_clips/section_transition.py record --validation /private/tmp/flow-01-owner-feedback1-demo-validation --output /private/tmp/flow-01-owner-feedback1-demo
+cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/demo_clips/section_transition.py validate --output /private/tmp/flow-01-owner-feedback2-demo-validation
+cd /Users/borgerding/workspace/Labyrinth.worktrees/flow-01 && python3 tools/demo_clips/section_transition.py record --validation /private/tmp/flow-01-owner-feedback2-demo-validation --output /private/tmp/flow-01-owner-feedback2-demo
 ```
 
-Native outputs: `/private/tmp/flow-01-owner-feedback1-demo/section_transition.mp4`,
+Native outputs: `/private/tmp/flow-01-owner-feedback2-demo/section_transition.mp4`,
 `movie.avi`, untouched PCM `movie.wav`, `events.json`, `godot.log` and
 `recording.json`. Listen to the music handoff. No inspection-fixture command was
 requested by this unit brief; the design owner prepares the final fixture.
@@ -101,7 +152,8 @@ requested by this unit brief; the design owner prepares the final fixture.
 ## TODO_DESIGN placeholders
 
 `TODO_DESIGN_SECTION_ENTRY_SAVE_FAILURE` is resolved by feedback 1 and removed.
-No new design placeholders. The pre-existing
+The two legacy historical-total placeholders are described in feedback 2 above.
+The pre-existing
 `StartRoomMapFlow.TODO_DESIGN_SECTION_START_NARRATION` remains unchanged.
 
 ## Chosen defaults
@@ -115,8 +167,15 @@ Only invisible implementation/proof values were selected:
   Section VI at 1.5s. Title-region proof uses `[360, 440, 1200, 160]`, with
   minimum luma range 20 and standard deviation 5 (proof checks only).
 - Recovery proof samples at half of each existing reverse fade and 0.01s after
-  completion. Recovery fixtures use run-index offsets 2, 3 and 4 to isolate
+  completion. Recovery fixtures use run-index offsets 2 through 15 to isolate
   analytics receipts.
+- Audio-count observations wait 1.0s plus the existing eight settling frames;
+  this is test-only, covering deferred context refresh and music fades.
+- Map review's fog fixture uses section index 5, with a real marked route
+  through prior sections. Its isolated pickup uses the player's actor turn,
+  and sight/range 99; the ordinary resolver awards the actual 23
+  lost Embers. These are fixture fields only. Generated two-choice topology
+  supplies the navigation fixture without changing generator rules.
 - Demo staging: 30 frames; 1800-frame watchdog; 180s process watchdog; 30s GUI
   lease timeout. The 2.0s reward hold comes from director feedback, not a default. Existing demo Movie Maker
   quality/encoding settings are reused.
@@ -129,7 +188,52 @@ Only invisible implementation/proof values were selected:
 
 Logs live under `/private/tmp/flow-01-*.log`.
 
-Feedback 1 focused results (current source):
+Feedback 2 current results:
+
+- `flow-01-feedback2-transition-verified.log`: exit 0,
+  `SECTION TRANSITION RESULT: 0 failures`.
+- `flow-01-feedback2-map-final.log`: exit 0,
+  `SECTION MAP REVIEW PROBE: PASS` (headless logic, no new captures).
+- `flow-01-feedback2-start-verified.log`: exit 0,
+  `START ROOM MAP RESULT: 0 failures`.
+- `flow-01-feedback2-python-suite.log`: exit 0,
+  `Ran 674 tests in 589.488s` / `OK (skipped=63)`.
+- `flow-01-feedback2-ui-lint-final.log`: `Ran 25 tests in 2.869s` / `OK`.
+- `flow-01-feedback2-clip-tests-final.log`: `Ran 4 tests in 0.001s` / `OK`.
+- `flow-01-feedback2-demo-final.log`: two
+  `DEMO CLIP section_transition: PASS (685 frames)` results and
+  `SECTION TRANSITION DEMO VALIDATION: PASS (two identical headless takes)`.
+  Current-source receipt: `/private/tmp/flow-01-feedback2-demo-validation-final/validation.json`;
+  `DEMO HANDOFF INPUT HASHES: MATCH`.
+- `flow-01-feedback2-transition-probe-check.log`: parser-only check exits 0.
+  The contract was also checked against the director's previous 14 images:
+  `TRANSITION PROOF CONTRACT: previous 14 captures rejected; all 18 named captures required`.
+  Fresh renderer execution remains assigned to the director.
+- Each `flow-01-feedback2-mutant-<name>-verified.log` exits 1 with expected
+  behavioral assertion failures, not parser errors:
+
+  | Mutation | Observed result |
+  | --- | --- |
+  | `arrival_guard` | `SECTION TRANSITION RESULT: 7 failures` |
+  | `entered_guard` | `SECTION TRANSITION RESULT: 1 failures` |
+  | `destination_guard` | `SECTION TRANSITION RESULT: 2 failures` |
+  | `retry_bypass` | `SECTION TRANSITION RESULT: 12 failures` |
+  | `notice_literal` | `SECTION TRANSITION RESULT: 14 failures` |
+
+  Reproduce through the regular task runner, adding e.g.
+  `-- --mutant=arrival_guard` after `--script tests/section_transition_test.gd`.
+  Mutation resources are compiled in memory; the production checkout is untouched.
+- `flow-01-feedback2-godot-suite.log`: full Godot attempt exits 124,
+  `error: command timed out after 900 seconds.` It passed serial child suites
+  through `en03_enemies_test`; no failed assertion or script failure was
+  reported before timeout. This is **not a full-suite PASS**, and falls under
+  the director's explicit budget-timeout exception.
+- `flow-01-feedback2-dragon-rewards.log`: exit 1 at the unchanged baseline
+  `tests/dragon_rewards_test.gd:159` assertion,
+  `ERROR: Final Continue transfers the claim to the profile before clearing the run`.
+- `git diff --check`: clean. All feedback 2 changes remain uncommitted.
+
+Feedback 1 focused results (earlier implementation round):
 
 - `flow-01-feedback1-transition-handoff.log`: exit 0,
   `SECTION TRANSITION RESULT: 0 failures` (including normal/reduced save failure,
@@ -231,6 +335,18 @@ Some live scene runs print `ObjectDB instances leaked at exit`; no clean native
 render or audio result is claimed by these headless runs.
 
 ## Files changed
+
+Feedback 2 modifies `scripts/run_scene.gd`, `scripts/section_transition.gd`,
+`scripts/start_room_map_flow.gd`, `spec/analytics.md`, `spec/section_map.md`,
+`tests/section_map_review_probe.gd`, `tests/section_transition_probe.gd`,
+`tests/section_transition_test.gd`, `tests/suites/section_transition_suite.gd`,
+`tests/proof_contracts/section_transition.json`, this handoff and
+`tools/demo_clips/section_transition.gd` / `.py`. It adds
+`scripts/section_transition_reward.gd`,
+`tests/helpers/section_transition_observer.gd`,
+`tests/helpers/section_transition_mutations.gd` and
+`tests/proof_contracts/section_map_review.json`.
+The original clip-tool assertions and dragon-reward assertions are unchanged.
 
 - Runtime: `scripts/run_scene.gd`, `scripts/section_map_panel.gd`,
   `scripts/start_room_map_flow.gd`, new `scripts/section_transition.gd`.

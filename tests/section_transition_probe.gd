@@ -35,6 +35,8 @@ func _run() -> void:
 	await _strip(false, 4, "section_vi", [1.5])
 	await _failed_entry(false)
 	await _failed_entry(true)
+	await _failed_entry(false, true)
+	await _failed_entry(true, true)
 	var file := FileAccess.open(OUTPUT.path_join("timeline.json"), FileAccess.WRITE)
 	if file != null: file.store_string(JSON.stringify(evidence, "\t"))
 	for failure: String in failures: push_error(failure)
@@ -61,6 +63,8 @@ func _strip(reduced: bool, index: int, prefix: String, times: Array) -> void:
 		var heading: Label = transition.get("_title")
 		var numeral: Label = transition.get("_eyebrow")
 		var active: bool = bool(transition.get("active"))
+		if active and not root.get_node("CursorFeedback").call("glyph_visibility_suppressed"):
+			failures.append("Cursor glyph suppressed during transition: " + name)
 		# Reduced motion has completed by the final entry-room sample. Copy the
 		# evidence before that completed overlay leaves the tree on the next draw.
 		evidence.append({"image": name, "seconds_from_continue": seconds, "reduced_motion": reduced, "title": heading.text, "numeral": numeral.text, "heading_rect": str(heading.get_global_rect()), "numeral_rect": str(numeral.get_global_rect()), "painting_scale": str(transition.get("_painting").scale), "entered": transition.get("_entered")})
@@ -75,11 +79,19 @@ func _strip(reduced: bool, index: int, prefix: String, times: Array) -> void:
 	if is_instance_valid(transition): transition.cancel()
 	await process_frame
 
-func _failed_entry(reduced: bool) -> void:
+func _failed_entry(reduced: bool, legacy: bool = false) -> void:
 	host.get("_settings")["reduced_motion"] = reduced
 	Settings.apply_settings(host.get("_settings"), root, false)
 	await Suite.install(self, host, Suite.fixture())
-	host.find_child("DragonRewardContinue", true, false).pressed.emit()
+	if legacy:
+		# The old save lacks the summary field. Its existing local offer event is
+		# the source of exact presentation totals; no combat or claim is replayed.
+		host.call("_analytics_log_reward_offered", {}, "section_transition_legacy_proof")
+		var claimed: Dictionary = Run.new().continue_dragon_reward(host.get("_run_state"))
+		preload("res://scripts/progression_store.gd").save_run_state(claimed)
+		host.call("_load_run_state", claimed)
+	else:
+		host.find_child("DragonRewardContinue", true, false).pressed.emit()
 	var transition: Node = host.get("_section_transition")
 	transition.set_process(false)
 	var blocker: String = ProjectSettings.globalize_path("user://section_transition_run.save.tmp")
@@ -87,12 +99,13 @@ func _failed_entry(reduced: bool) -> void:
 	transition.advance(Transition.arrival_at(reduced) + Transition.ARRIVAL_FADE_SECONDS + Suite.BOUNDARY_EPSILON_SECONDS)
 	DirAccess.remove_absolute(blocker)
 	var prefix: String = "failure_reduced" if reduced else "failure_normal"
+	if legacy: prefix = "legacy_" + prefix
 	transition.advance(Transition.reward_fade_seconds(reduced) * 0.5)
 	await _capture(prefix + "_reverse.png")
 	transition.advance(Transition.reward_fade_seconds(reduced) * 0.5 + Suite.BOUNDARY_EPSILON_SECONDS)
 	await _capture(prefix + "_reward.png")
 	var retry: Button = host.find_child("DragonRewardContinue", true, false)
-	if retry == null or not retry.is_visible_in_tree() or host.get("_run_state")["notice"] != Transition.SAVE_FAILURE_NOTICE:
+	if retry == null or not retry.is_visible_in_tree() or host.get("_run_state")["notice"] != "Could not save. Your rewards are still here; try Continue again.":
 		failures.append("Save failure returns to the post-claim reward and approved notice: " + prefix)
 
 func _capture(name: String) -> void:

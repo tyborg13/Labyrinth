@@ -1,8 +1,12 @@
 extends "res://tests/section_map_flow_probe.gd"
 const CombatEngine = preload("res://scripts/combat_engine.gd")
+const RouteFixture = preload("res://tools/guardian_inspection.gd")
+const FOG_FIXTURE_SECTION: int = 5
+const PICKUP_FIXTURE_RANGE: int = 99
 
 func _initialize() -> void:
 	output_dir = "user://section_map_review_v4"
+	if DisplayServer.get_name() == "headless": process_frame.connect(func() -> void: RenderingServer.frame_post_draw.emit())
 	await _setup()
 	var engine := RunEngineScript.new()
 	var state: Dictionary = engine.create_new_run(90429, Progression.default_data())
@@ -14,42 +18,45 @@ func _initialize() -> void:
 		var moves: Array = engine.available_moves(state)
 		if moves.is_empty(): break
 		state = engine.move_to_room(state, moves[0])
-	_check(str(state.get("mode", "")) == "room" and str(Graph.room(state, state.get("current_room")).get("type", "")) == "boss", "Actual first boss route resolves all encounters and rewards")
+	_check(engine.is_dragon_reward(state), "Actual first-boss route reaches its dragon reward")
+	state["pending_reward"]["intro_pending"] = false
 	_load(state)
 	await process_frame
 	await process_frame
 	var panel: Control = instance.get("_large_map_view")
 	var scrim: Control = instance.get("_large_map_scrim")
-	var enter: Button = panel.get("_continue")
-	panel.call("select_room", state.get("current_room"))
-	_check(enter.text == "Next section" and not enter.disabled, "Inspecting the defeated boss preserves the onward action")
-	await _capture("01_boss_inspected.png")
-	await _key(KEY_ESCAPE)
-	await _key(KEY_M)
-	_check(enter.text == "Next section" and not enter.disabled, "Reopening the boss map preserves the onward action")
-	await _capture("02_boss_reopened.png")
-	var router: Node = root.get_node("InputRouter")
-	router.call("set_forced_state_for_test", "controller", "xbox")
-	panel.call("focus_controller_on_current")
-	_check(viewport.gui_get_focus_owner() == enter, "Controller focus starts on Next section")
-	await _capture("03_next_section_controller.png")
+	var reward_button: Button = instance.find_child("DragonRewardContinue", true, false)
+	_check(reward_button != null and not scrim.visible, "Dragon reward precedes automatic descent without a map step")
+	await _capture("01_dragon_reward.png")
+	await _pointer_click(reward_button.get_global_rect().get_center())
+	var transition: Node = instance.get("_section_transition")
+	_check(transition != null and not scrim.visible, "Reward acknowledgment starts the automatic transition")
+	if transition == null:
+		quit(1)
+		return
+	transition.set_process(false)
+	transition.advance(maxf(0.0, 0.3 - float(transition.get("elapsed"))))
+	await _capture("02_automatic_descent.png")
+	transition.advance(1.5 - float(transition.get("elapsed")))
+	_check(not scrim.visible and root.get_node("CursorFeedback").call("glyph_visibility_suppressed"), "Only the title card is visible; the map and cursor glyph are suppressed")
+	await _capture("03_transition_title.png")
 	var next_entry: Vector2i = Graph.section(state, 1).get("entry")
-	await _joy(JOY_BUTTON_A)
-	# Room travel owns a timed board transition; wait for the actual committed
-	# state rather than a renderer-dependent count of fast probe frames.
-	for tick: int in range(100):
-		if (instance.get("_run_state") as Dictionary).get("current_room") == next_entry and not bool(instance.get("_animation_lock")):
-			break
-		await create_timer(0.05).timeout
+	transition.advance(3.2 - float(transition.get("elapsed")))
 	await process_frame
 	await process_frame
-	_check((instance.get("_run_state") as Dictionary).get("current_room") == next_entry, "Controller activation enters the exact next threshold")
-	_check(scrim.visible and int(panel.get("viewed_section")) == 1, "The next section map opens after the transition")
+	_check((instance.get("_run_state") as Dictionary).get("current_room") == next_entry, "Automatic arrival enters the exact next threshold")
+	_check(scrim.visible and int(panel.get("viewed_section")) == 1, "The new section map opens after automatic arrival")
 	await _capture("04_second_section.png")
+	var router: Node = root.get_node("InputRouter")
 	router.call("set_forced_state_for_test", "pointer", "xbox")
 	var history_tab: Button = (panel.get("_tabs") as HBoxContainer).get_child(0)
 	await _pointer_click(history_tab.get_global_rect().get_center())
-	_check(int(panel.get("viewed_section")) == 0 and enter.disabled, "Clicking a bronze section tab opens completed history without travel")
+	_check(int(panel.get("viewed_section")) == 0 and instance.get("_run_state")["current_room"] == next_entry, "Clicking a bronze section tab opens completed history without travel")
+	var route_choices_before: int = _route_choices(instance.get("_run_state"))
+	var scouts_before: int = int(Graph.section(instance.get("_run_state"), 1).get("scouts", 0))
+	var historical_boss: Control = (panel.get("node_buttons") as Dictionary)[state["current_room"]]
+	await _pointer_click(historical_boss.get_global_rect().get_center())
+	_check(instance.get("_run_state")["current_room"] == next_entry and _route_choices(instance.get("_run_state")) == route_choices_before and int(Graph.section(instance.get("_run_state"), 1).get("scouts", 0)) == scouts_before, "History node activation only inspects; it cannot travel or spend active-section Scout uses")
 	await _capture("05_completed_history.png")
 	router.call("set_forced_state_for_test", "controller", "xbox")
 	var active_tab: Button = (panel.get("_tabs") as HBoxContainer).get_child(1)
@@ -64,12 +71,18 @@ func _initialize() -> void:
 	_check(int(panel.get("viewed_section")) == 0 and viewport.gui_get_focus_owner() == (panel.get("_tabs") as HBoxContainer).get_child(0), "Keyboard activation also preserves history-tab focus")
 	router.call("set_forced_state_for_test", "pointer", "xbox")
 
-	# Neighboring choice navigation follows the immediate options in screen order.
+	# Select a generated two-choice fork instead of assuming a fixed route step.
+	# Keep the original two-choice assertion and all navigation checks intact.
 	state = engine.create_new_run(90429, Progression.default_data())
-	for step: int in range(3):
-		state = _resolve_room(engine, state)
-		state = engine.move_to_room(state, engine.available_moves(state)[0])
-	state = _resolve_room(engine, state)
+	for room: Dictionary in (state.get("rooms", {}) as Dictionary).values():
+		if int(room.get("section_index", -1)) != 0 or str(room.get("type", "")) not in ["combat", "guardian"]: continue
+		if (room.get("connections", []) as Array).size() != 2: continue
+		var fork_coord: Vector2i = room["coord"]
+		if not RouteFixture._mark_route(state, Vector2i.ZERO, fork_coord): continue
+		state["current_room"] = fork_coord
+		state["current_room_layout"] = engine._display_layout_for_room(90429, room, Vector2i.RIGHT)
+		Graph.refresh_knowledge(state)
+		break
 	_load(state)
 	await process_frame
 	await process_frame
@@ -77,11 +90,15 @@ func _initialize() -> void:
 	choices.sort_custom(func(a: Vector2i, b: Vector2i) -> bool:
 		return ((panel.get("node_buttons") as Dictionary)[a] as Control).position.y < ((panel.get("node_buttons") as Dictionary)[b] as Control).position.y)
 	_check(choices.size() == 2, "Choice navigation fixture reaches a neighboring-lane fork")
+	if choices.size() != 2:
+		quit(1)
+		return
 	router.call("set_forced_state_for_test", "controller", "xbox")
 	var first: Control = (panel.get("node_buttons") as Dictionary)[choices[0]]
 	first.grab_focus()
-	await _joy(JOY_BUTTON_DPAD_DOWN)
-	_check(viewport.gui_get_focus_owner() == (panel.get("node_buttons") as Dictionary)[choices[1]], "Controller Down moves directly between immediate choices")
+	for choice_index: int in range(1, choices.size()):
+		await _joy(JOY_BUTTON_DPAD_DOWN)
+		_check(viewport.gui_get_focus_owner() == (panel.get("node_buttons") as Dictionary)[choices[choice_index]], "Controller Down moves directly between immediate choices")
 	await _capture("05c_available_navigation.png")
 
 	await _key(KEY_DOWN)
@@ -90,11 +107,12 @@ func _initialize() -> void:
 	_check(viewport.gui_get_focus_owner() == (panel.get("node_buttons") as Dictionary)[choices.back()], "Scout returns focus to the nearest available choice")
 	router.call("set_forced_state_for_test", "pointer", "xbox")
 
-	# A distant recoverable pile is visible without revealing its room identity.
+	# Revision 5 reveals Sections I-V completely. Exercise the original recovery
+	# fog assertions in Section VI, where the production fog rule still applies.
 	var baseline: Dictionary = engine.create_new_run(81, Progression.default_data())
 	var target: Vector2i = Graph.INVALID
 	for room: Dictionary in (baseline.get("rooms", {}) as Dictionary).values():
-		if int(room.get("section_index", -1)) == 0 and int(room.get("map_step", 0)) >= 8 and str(room.get("type", "")) == "combat":
+		if int(room.get("section_index", -1)) == FOG_FIXTURE_SECTION and int(room.get("map_step", 0)) >= 8 and str(room.get("type", "")) == "combat":
 			target = room.get("coord")
 			break
 	_check(target != Graph.INVALID, "Recovery fixture locates a distant generated encounter")
@@ -102,6 +120,15 @@ func _initialize() -> void:
 	progression = Progression.record_lost_embers(progression, 23, target, int(progression.get("run_counter", 0)))
 	progression = Progression.prepare_for_new_run(progression)
 	state = engine.create_new_run(81, progression)
+	var fog_entry: Vector2i = Graph.section(state, FOG_FIXTURE_SECTION)["entry"]
+	for index: int in range(FOG_FIXTURE_SECTION):
+		var prior: Dictionary = Graph.section(state, index)
+		_check(RouteFixture._mark_route(state, prior["entry"], prior["boss"]), "Recovery fixture preserves a real completed path in each prior section")
+		prior["entered"] = true
+	_check(RouteFixture._mark_route(state, fog_entry, fog_entry), "Recovery fixture reaches the section with production fog")
+	state["current_room"] = fog_entry
+	state["current_room_layout"] = engine._display_layout_for_room(81, Graph.room(state, fog_entry), Vector2i.RIGHT)
+	Graph.refresh_knowledge(state)
 	_load(state)
 	instance.call("_open_large_map")
 	_check(not bool(Graph.room(state, target).get("revealed", false)), "Recovery presence does not reveal the unknown encounter identity")
@@ -124,7 +151,7 @@ func _initialize() -> void:
 	await _capture("07_recovery_resumed.png")
 	var fork: Dictionary = {}
 	for room: Dictionary in (state.get("rooms", {}) as Dictionary).values():
-		if int(room.get("section_index", -1)) != 0: continue
+		if int(room.get("section_index", -1)) != FOG_FIXTURE_SECTION: continue
 		var keeps: bool = false
 		var leaves: bool = false
 		for link: Dictionary in room.get("connections", []):
@@ -156,9 +183,14 @@ func _initialize() -> void:
 	state["pre_battle_travel_dir"] = Vector2i.RIGHT
 	state = engine.begin_pre_battle_combat(state)
 	var combat: Dictionary = state.get("combat_state", {})
+	# Isolate pickup behavior from Section VI's initiative and sight rules.
+	combat["current_actor"] = {"kind": "player", "key": "player"}
+	combat["umbra"]["vision_bonus"] = PICKUP_FIXTURE_RANGE
 	for loot: Dictionary in combat.get("loot", []):
 		if str(loot.get("kind", "")) == "dropped_embers":
-			combat = CombatEngine.new().apply_player_action(combat, {"type": "blink", "range": 99}, loot.get("pos"))
+			var action: Dictionary = {"type": "blink", "range": PICKUP_FIXTURE_RANGE}
+			_check(CombatEngine.new().valid_targets_for_player_action(combat, action).has(loot.get("pos")), "Recovery fixture has a legal production pickup action")
+			combat = CombatEngine.new().apply_player_action(combat, action, loot.get("pos"))
 			break
 	state = engine.set_combat_state(state, combat)
 	_check(engine.held_embers(state) == 23, "Actual recovery pickup awards the exact lost amount")
@@ -192,6 +224,7 @@ func _initialize() -> void:
 	instance.queue_free()
 	await process_frame
 	print(ProjectSettings.globalize_path(output_dir))
+	print("SECTION MAP REVIEW PROBE: " + ("FAIL" if failed else "PASS"))
 	quit(1 if failed else 0)
 
 func _resolve_room(engine: RunEngineScript, source: Dictionary) -> Dictionary:
@@ -209,7 +242,9 @@ func _resolve_room(engine: RunEngineScript, source: Dictionary) -> Dictionary:
 					var tiles: Array[Vector2i] = Objectives.exit_target_tiles(objective)
 					if not tiles.is_empty(): (combat.get("player", {}) as Dictionary)["pos"] = tiles[0]
 				state = engine.finish_combat(state, combat)
-			"reward": state = engine.skip_reward_for_heal(state) if str(state.get("pending_reward", {}).get("kind", "")) == "event" else engine.claim_card_reward(state, "")
+			"reward":
+				if engine.is_dragon_reward(state): return state
+				state = engine.skip_reward_for_heal(state) if str(state.get("pending_reward", {}).get("kind", "")) == "event" else engine.claim_card_reward(state, "")
 			"escape": state = engine.continue_pending_escape(state)
 			"campfire": state = engine.leave_campfire(state)
 			"event": state = engine.resolve_map_event(state, "continue" if str(state.get("event_state", {}).get("page", "choices")) == "result" else EventRules.first_available_choice_id(state))

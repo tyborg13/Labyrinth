@@ -21,7 +21,7 @@ SCENE = "res://tools/demo_clips/section_transition.tscn"
 
 def input_hashes() -> dict:
     result = pipeline.hashes()
-    for name in ("tests/suites/section_transition_suite.gd", "tools/dragon_boss_inspection.gd", "tools/guardian_inspection.gd"):
+    for name in ("tests/suites/section_transition_suite.gd", "tests/helpers/section_transition_observer.gd", "tools/dragon_boss_inspection.gd", "tools/guardian_inspection.gd"):
         result[name] = storage.file_hash(ROOT / name)
     return result
 

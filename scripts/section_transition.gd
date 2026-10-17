@@ -12,6 +12,7 @@ const Palette = preload("res://scripts/ui_palette.gd")
 const Music = preload("res://scripts/music_library.gd")
 const RoomReveal = preload("res://scripts/menu_run_transition.gd")
 const Settings = preload("res://scripts/settings_store.gd")
+const Reward = preload("res://scripts/section_transition_reward.gd")
 
 const REWARD_FADE_SECONDS: float = 0.24
 const REDUCED_REWARD_FADE_SECONDS: float = 0.12
@@ -38,7 +39,7 @@ const TEXT_BAND_CENTRE_Y: float = (EYEBROW_Y + TITLE_Y) * 0.5
 const REFERENCE_SIZE := Vector2(1920.0, 1080.0)
 # Non-perceptible canvas ordering; above all run overlays.
 const OVERLAY_LAYER: int = 100
-const CLAIMED_REWARD_KEY: String = "section_transition_reward"
+const CLAIMED_REWARD_KEY: String = Reward.KEY
 const SAVE_FAILURE_NOTICE: String = "Could not save. Your rewards are still here; try Continue again."
 const TEXT_BAND_SHADER: String = """
 shader_type canvas_item;
@@ -79,6 +80,8 @@ var _return_start: float = -1.0
 var _music: AudioStreamPlayer
 var _music_volume: float = 0.0
 var _lock_was_set: bool = false
+var _cursor_feedback: Node
+var _cursor_owner: String
 
 static func arrival_at(reduced: bool) -> float:
 	return REDUCED_CROSSFADE_SECONDS + REDUCED_HOLD_SECONDS if reduced else ARRIVAL_AT
@@ -101,7 +104,10 @@ static func remember_claim(state: Dictionary, reward: Dictionary) -> void:
 
 static func claimed_state(state: Dictionary) -> Dictionary:
 	var next: Dictionary = state.duplicate(true)
-	if not (next.get(CLAIMED_REWARD_KEY, {}) as Dictionary).is_empty():
+	# An older failed arrival could itself be saved as an empty reward screen.
+	# Only Flow's cleared-boss/unentered-section gates authorize its movement.
+	var legacy_empty_reward: bool = str(next.get("mode", "")) == "reward" and (next.get("pending_reward", {}) as Dictionary).is_empty() and not str(next.get("last_dragon_milestone", "")).is_empty()
+	if not (next.get(CLAIMED_REWARD_KEY, {}) as Dictionary).is_empty() or legacy_empty_reward:
 		next["mode"] = "room"
 		next["pending_reward"] = {}
 	return next
@@ -126,6 +132,9 @@ func begin(host: Control, target: Vector2i, entry_kind: String) -> void:
 	name = "SectionTransition"
 	layer = OVERLAY_LAYER
 	_host = host
+	_cursor_feedback = host.get_node_or_null("/root/CursorFeedback")
+	_cursor_owner = "section_transition_%d" % get_instance_id()
+	if is_instance_valid(_cursor_feedback): _cursor_feedback.call("set_glyph_visibility_suppressed", _cursor_owner, true)
 	destination = target
 	entry = entry_kind
 	reduced_motion = bool(host.call("_reduced_motion_enabled"))
@@ -347,6 +356,7 @@ func _apply_return() -> void:
 func cancel() -> void:
 	if not active: return
 	active = false
+	_restore_cursor()
 	if not _entered and is_instance_valid(_music): _music.volume_linear = _music_volume
 	if not _entered and is_instance_valid(_board): _board.position = _board_origin
 	for index: int in range(_reward_items.size()):
@@ -359,3 +369,7 @@ func cancel() -> void:
 
 func _exit_tree() -> void:
 	if active: cancel()
+	_restore_cursor()
+
+func _restore_cursor() -> void:
+	if is_instance_valid(_cursor_feedback): _cursor_feedback.call("set_glyph_visibility_suppressed", _cursor_owner, false)

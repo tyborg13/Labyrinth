@@ -11,12 +11,21 @@ const Analytics = preload("res://scripts/analytics_store.gd")
 const Bosses = preload("res://scripts/dragon_boss_library.gd")
 const Factory = preload("res://tools/dragon_boss_inspection.gd")
 const Tutorial = preload("res://scripts/contextual_combat_tutorial.gd")
+const Observer = preload("res://tests/helpers/section_transition_observer.gd")
+const Reward = preload("res://scripts/section_transition_reward.gd")
 
 # Invisible fixture values and watchdogs; never applied to production runs.
 const FIXTURE_SEED: int = 410
 const SETTLE_FRAMES: int = 8
 const WAIT_TIMEOUT_MSEC: int = 12000
 const BOUNDARY_EPSILON_SECONDS: float = 0.01
+const AUDIO_SETTLE_SECONDS: float = 1.0
+
+class MoveObserver extends Run:
+	var move_calls: int = 0
+	func move_to_room(state: Dictionary, target: Vector2i) -> Dictionary:
+		move_calls += 1
+		return super.move_to_room(state, target)
 
 static func prepare_storage() -> void:
 	Store.set_storage_path("user://section_transition_profile.json")
@@ -44,6 +53,10 @@ static func fixture(section_index: int = 0, study: String = "reward") -> Diction
 
 static func settle(tree: SceneTree) -> void:
 	for frame: int in range(SETTLE_FRAMES): await tree.process_frame
+
+static func settle_audio(tree: SceneTree) -> void:
+	await tree.create_timer(AUDIO_SETTLE_SECONDS, true, false, true).timeout
+	await settle(tree)
 
 static func install(tree: SceneTree, host: Node, state: Dictionary) -> void:
 	host.call("_load_run_state", state)
@@ -90,6 +103,19 @@ static func run(expect: Callable) -> void:
 		expect.call(Flow.next_section_destination(entered, engine) == Graph.INVALID, "An entered threshold cannot replay the section transition")
 	var final: Dictionary = engine.continue_dragon_reward(fixture(5))
 	expect.call(final["mode"] == "victory" and Flow.next_section_destination(final, engine) == Graph.INVALID, "Final dragon acknowledgment still completes the ascent")
+	var offered: Dictionary = fixture()
+	var claimed: Dictionary = engine.continue_dragon_reward(offered)
+	Transition.remember_claim(claimed, offered["pending_reward"])
+	var previously_broken: Dictionary = engine.continue_dragon_reward(offered)
+	previously_broken["mode"] = "reward"
+	expect.call(Flow.next_section_destination(previously_broken, engine) == Graph.section(claimed, 1)["entry"], "A legacy empty reward screen from an earlier failed entry is recoverable on load")
+	var already_entered: Dictionary = claimed.duplicate(true)
+	Graph.section(already_entered, 1)["entered"] = true
+	expect.call(Flow.next_section_destination(already_entered, engine) == Graph.INVALID, "An already-entered next section cannot be entered again even from a stale cleared-boss save")
+	var move_observer := MoveObserver.new()
+	for invalid: Vector2i in [Graph.INVALID, claimed["current_room"]]:
+		var rejected: Dictionary = Flow.transition_entry(claimed, move_observer, invalid, "auto_transition")
+		expect.call(rejected == claimed and move_observer.move_calls == 0, "Invalid transition destinations leave all state unchanged and never reach movement")
 	var panel := preload("res://scripts/section_map_panel.gd").new()
 	panel.call("_build")
 	expect.call(panel.find_child("NextSectionButton", true, false) == null and not panel.has_method("_request_onward"), "No Next section control or onward action remains")
@@ -98,7 +124,7 @@ static func run(expect: Callable) -> void:
 static func run_live(tree: SceneTree, expect: Callable) -> void:
 	prepare_storage()
 	tree.root.size = Vector2i(1920, 1080)
-	var host: Node = load("res://scenes/run_scene.tscn").instantiate()
+	var host: Node = Observer.host()
 	tree.root.add_child(host)
 	await settle(tree)
 	var reward: Dictionary = fixture()
@@ -112,6 +138,15 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 		host.queue_free()
 		return
 	transition.set_process(false)
+	var starts_before: int = int(host.get("_section_test_music_starts"))
+	var entry_saves_before: int = int(host.get("_section_test_entry_saves"))
+	var before_invalid: Dictionary = host.get("_run_state").duplicate(true)
+	var disk_before_invalid: Dictionary = Store.load_saved_run()
+	for invalid: Vector2i in [Graph.INVALID, reward["current_room"]]:
+		expect.call(not host.call("_enter_section_from_transition", invalid, "auto_transition"), "Live transition rejects invalid and same-room destinations")
+	expect.call(host.get("_run_state") == before_invalid and Store.load_saved_run() == disk_before_invalid and int(host.get("_section_test_entry_saves")) == entry_saves_before, "Rejected live destinations never attempt a save or alter memory/disk state")
+	var cursor: Node = tree.root.get_node("CursorFeedback")
+	expect.call(cursor.call("glyph_visibility_suppressed"), "In-game transition suppresses the cursor glyph")
 	expect.call(Store.load_saved_run()["current_room"] == reward["current_room"] and Store.load_saved_run()["mode"] == "room", "Interrupted descent retains a durable claimed boss-room save")
 	transition.advance(0.24)
 	for field: String in ["_relic_choice_host", "_relic_choice_banner", "_relic_choice_title"]:
@@ -138,7 +173,9 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	expect.call(event_count("auto_transition") == 1, "Saved JSONL section entry carries entry=auto_transition exactly once")
 	var arrival_track: String = str(host.get("_active_music_id"))
 	transition.advance(0.30)
-	await settle(tree)
+	await settle_audio(tree)
+	expect.call(handoffs[0] == 1 and int(host.get("_section_test_music_starts")) - starts_before == 1, "After reveal and deferred callbacks there is exactly one arrival and one music playback start")
+	expect.call(not cursor.call("glyph_visibility_suppressed"), "Completion restores the cursor glyph")
 	expect.call(not tree.root.gui_disable_input and not host.get("_animation_lock"), "Arrival releases input after the existing room reveal")
 	expect.call(str(host.get("_active_music_id")) == arrival_track, "Existing threshold map handoff does not restart or replace arrival music")
 
@@ -157,6 +194,18 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 	var saved_entry: Dictionary = Store.load_saved_run()
 	host.call("_load_run_state", saved_entry)
 	expect.call(host.get("_section_transition") == null, "Loading the entered threshold does not repeat the transition")
+	for release: String in ["cancel", "exit"]:
+		cursor.call("set_glyph_visibility_suppressed", "section_transition_test_other", true)
+		host.call("_load_run_state", claimed)
+		transition = host.get("_section_transition")
+		transition.set_process(false)
+		if release == "cancel": transition.cancel()
+		else: transition.queue_free()
+		await settle(tree)
+		expect.call(cursor.call("glyph_visibility_suppressed"), "Transition cleanup preserves another cursor suppression owner")
+		cursor.call("set_glyph_visibility_suppressed", "section_transition_test_other", false)
+		expect.call(not cursor.call("glyph_visibility_suppressed"), "Transition " + release + " restores its cursor glyph suppression")
+	host.call("_load_run_state", saved_entry)
 
 	# Exercise real viewport input routing, including the pre-skip lock and menu.
 	for kind: String in ["click", "A", "Enter", "Space", "Esc"]:
@@ -211,14 +260,31 @@ static func run_live(tree: SceneTree, expect: Callable) -> void:
 static func _save_failure_cases(tree: SceneTree, host: Node, expect: Callable) -> Node:
 	# Inject one failing atomic write after the claim boundary. Removing the
 	# blocker before retry permits the real store to succeed on its next write.
-	for test_case: Dictionary in [{"quit": false, "reduced": false, "run_offset": 2}, {"quit": true, "reduced": false, "run_offset": 3}, {"quit": false, "reduced": true, "run_offset": 4}]:
+	var cases: Array[Dictionary]
+	for format: String in ["new", "old", "old_no_offer"]:
+		for quit_after: bool in [false, true]:
+			for reduced: bool in [false, true]:
+				cases.append({"format": format, "quit": quit_after, "reduced": reduced, "run_offset": cases.size() + 2})
+	for quit_after: bool in [false, true]:
+		cases.append({"format": "old_broken", "quit": quit_after, "reduced": false, "run_offset": cases.size() + 2})
+	for test_case: Dictionary in cases:
 		var quit_after_failure: bool = test_case["quit"]
 		var reduced: bool = test_case["reduced"]
 		host.get("_settings")["reduced_motion"] = reduced
 		var reward: Dictionary = fixture()
 		reward["run_index"] = int(reward.get("run_index", 0)) + int(test_case["run_offset"])
-		await install(tree, host, reward)
-		host.find_child("DragonRewardContinue", true, false).pressed.emit()
+		reward["pending_reward"]["milestone_id"] += ":recovery_%d" % int(test_case["run_offset"])
+		if test_case["format"] == "new":
+			await install(tree, host, reward)
+			host.find_child("DragonRewardContinue", true, false).pressed.emit()
+		else:
+			if test_case["format"] == "old":
+				await install(tree, host, reward)
+				host.call("_analytics_log_reward_offered", {}, "section_transition_legacy_fixture")
+			var legacy: Dictionary = Run.new().continue_dragon_reward(reward)
+			if test_case["format"] == "old_broken": legacy["mode"] = "reward"
+			expect.call(not legacy.has(Transition.CLAIMED_REWARD_KEY) and Store.save_run_state(legacy), "Old-format fixture is an actual persisted cleared-boss save without presentation metadata")
+			host.call("_load_run_state", Store.load_saved_run())
 		var transition: Node = host.get("_section_transition")
 		transition.set_process(false)
 		var handoffs: Array[int]
@@ -227,12 +293,20 @@ static func _save_failure_cases(tree: SceneTree, host: Node, expect: Callable) -
 		var saved_claim: Dictionary = Store.load_saved_run()
 		var claims_before: int = claim_count()
 		var entries_before: int = event_count("auto_transition") + event_count("resume_transition")
-		expect.call(saved_claim.has(Transition.CLAIMED_REWARD_KEY), "Original reward summary is saved atomically with the claim for recovery")
+		expect.call(saved_claim.has(Transition.CLAIMED_REWARD_KEY), "New claims save their summary atomically; old saves migrate it before descent")
+		var summary: Dictionary = saved_claim[Transition.CLAIMED_REWARD_KEY]
+		expect.call(summary["kind"] == "dragon" and summary["boss_id"] == reward["pending_reward"]["boss_id"] and summary["relic_id"] == reward["pending_reward"]["relic_id"], "Migration preserves the already-claimed reward identities")
+		if test_case["format"] in ["new", "old"]:
+			for key: String in ["ember_amount", "healed_amount", "moltshards"]:
+				expect.call(summary[key] == reward["pending_reward"][key], "Exact historical reward delta is recovered: " + key)
+		else:
+			expect.call(summary.get("payout_text") == Reward.TODO_DESIGN_LEGACY_REWARD_PAYOUT, "Unavailable historical totals remain explicit design data rather than fabricated numbers")
+		var claim_calls_before: int = int(host.get("_section_test_claim_calls"))
 		var blocked_path: String = ProjectSettings.globalize_path("user://section_transition_run.save.tmp")
 		DirAccess.make_dir_absolute(blocked_path)
 		transition.advance(Transition.arrival_at(reduced) + Transition.ARRIVAL_FADE_SECONDS + BOUNDARY_EPSILON_SECONDS)
 		expect.call(not transition.get("_entered") and host.get("_run_state")["current_room"] == reward["current_room"] and Store.load_saved_run()["current_room"] == reward["current_room"], "One-shot entry-save failure retains the cleared boss room in memory and on disk")
-		expect.call(host.get("_run_state")["notice"] == Transition.SAVE_FAILURE_NOTICE and transition.get("_arrival_shade").modulate.a == 1.0, "Failure uses the existing Continue notice and rebuilds its claimed screen under black")
+		expect.call(host.get("_run_state")["notice"] == "Could not save. Your rewards are still here; try Continue again." and transition.get("_arrival_shade").modulate.a == 1.0, "Failure uses the existing Continue notice and rebuilds its claimed screen under black")
 		expect.call(event_count("auto_transition") + event_count("resume_transition") == entries_before and handoffs[0] == 0, "Failed destination writes emit no section entry or destination music handoff")
 		DirAccess.remove_absolute(blocked_path)
 		transition.advance(Transition.reward_fade_seconds(reduced) * 0.5)
@@ -248,20 +322,26 @@ static func _save_failure_cases(tree: SceneTree, host: Node, expect: Callable) -
 			var quit_save: Dictionary = Store.load_saved_run()
 			host.queue_free()
 			await settle(tree)
-			host = load("res://scenes/run_scene.tscn").instantiate()
+			host = Observer.host()
 			tree.root.add_child(host)
 			await settle(tree)
+			host.get("_settings")["reduced_motion"] = reduced
 			host.call("_load_run_state", quit_save)
+			claim_calls_before = 0
 		else:
 			retry.pressed.emit()
 		transition = host.get("_section_transition")
 		expect.call(transition != null and transition.get("entry") == ("resume_transition" if quit_after_failure else "auto_transition"), "Fail -> quit -> resume and fail -> retry both replay the complete transition")
+		var starts_before: int = int(host.get("_section_test_music_starts"))
 		if transition != null:
 			transition.set_process(false)
 			transition.arrived.connect(func() -> void: handoffs[0] += 1)
 			expect.call(transition.get("elapsed") == 0.0, "Retry starts from descent at zero")
-			transition.advance(3.2)
-		await settle(tree)
+			transition.advance(Transition.arrival_at(reduced) + Transition.ARRIVAL_FADE_SECONDS + BOUNDARY_EPSILON_SECONDS)
+			if transition.get("active"): transition.advance(Transition.duration(reduced) - float(transition.get("elapsed")) + BOUNDARY_EPSILON_SECONDS)
+		await settle_audio(tree)
+		expect.call(int(host.get("_section_test_claim_calls")) == claim_calls_before, "Claimed-reward retry and resume bypass the claim transaction entirely")
+		expect.call(handoffs[0] == 1 and int(host.get("_section_test_music_starts")) - starts_before == 1, "After completion and deferred callbacks, recovery has exactly one arrival and music playback start")
 		expect.call(host.get("_run_state")["current_room"] == Graph.section(reward, 1)["entry"] and not Store.load_saved_run().has(Transition.CLAIMED_REWARD_KEY), "Successful retry saves Section II and removes recovery metadata")
 		expect.call(payout(host.get("_run_state")) == payout(reward) and claim_count() == claims_before and event_count("auto_transition") + event_count("resume_transition") == entries_before + 1 and handoffs[0] == 1, "Recovery preserves rewards/claim once and emits only the successful entry/music handoff")
 	host.get("_settings")["reduced_motion"] = false

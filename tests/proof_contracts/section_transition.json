@@ -15,6 +15,10 @@
     {"pattern": "*/failure_normal_reverse.png", "width": 1920, "height": 1080},
     {"pattern": "*/failure_normal_reward.png", "width": 1920, "height": 1080},
     {"pattern": "*/failure_reduced_reverse.png", "width": 1920, "height": 1080},
-    {"pattern": "*/failure_reduced_reward.png", "width": 1920, "height": 1080}
+    {"pattern": "*/failure_reduced_reward.png", "width": 1920, "height": 1080},
+    {"pattern": "*/legacy_failure_normal_reverse.png", "width": 1920, "height": 1080},
+    {"pattern": "*/legacy_failure_normal_reward.png", "width": 1920, "height": 1080},
+    {"pattern": "*/legacy_failure_reduced_reverse.png", "width": 1920, "height": 1080},
+    {"pattern": "*/legacy_failure_reduced_reward.png", "width": 1920, "height": 1080}
   ]
 }
